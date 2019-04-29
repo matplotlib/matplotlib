@@ -459,6 +459,7 @@ class _AxesBase(martist.Artist):
         self._originalPosition = self._position.frozen()
         self.axes = self
         self._aspect = 'auto'
+        self._box_aspect = None  # keep track of box aspect ratio...
         self._adjustable = 'box'
         self._anchor = 'C'
         self._stale_viewlim_x = False
@@ -1534,8 +1535,9 @@ class _AxesBase(martist.Artist):
             pb = position.frozen()
             pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
             self._set_position(pb1.anchored(self.get_anchor(), pb), 'active')
+            self._box_aspect = box_aspect
             return
-
+        self._box_aspect = None
         # reset active to original in case it had been changed
         # by prior use of 'box'
         self._set_position(position, which='active')

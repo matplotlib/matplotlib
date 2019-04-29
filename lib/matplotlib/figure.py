@@ -2194,7 +2194,8 @@ default: 'top'
                 ax.patch.set_edgecolor(cc[1])
 
     @docstring.dedent_interpd
-    def colorbar(self, mappable, cax=None, ax=None, use_gridspec=True, **kw):
+    def colorbar(self, mappable, cax=None, ax=None, use_gridspec=True,
+                 oldstyle=False, **kw):
         """
         Create a colorbar for a ScalarMappable instance, *mappable*.
 
@@ -2208,7 +2209,7 @@ default: 'top'
         current_ax = self.gca()
 
         if cax is None:
-            if use_gridspec and isinstance(ax, SubplotBase)  \
+            if oldstyle and use_gridspec and isinstance(ax, SubplotBase)  \
                      and (not self.get_constrained_layout()):
                 cax, kw = cbar.make_axes_gridspec(ax, **kw)
             else:

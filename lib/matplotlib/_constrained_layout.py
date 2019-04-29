@@ -170,6 +170,15 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
         for ax in fig.axes:
             _log.debug(ax._layoutbox)
             if ax._layoutbox is not None:
+                if hasattr(ax, '_box_aspect') and ax._box_aspect is not None:
+                    # we want to set the aspect ratio to get
+                    # real_height and real_width
+                    w, h = fig.get_size_inches()
+                    figas = h / w
+                    relaspect = ax._box_aspect / figas
+                    ax._poslayoutbox.edit_aspect(relaspect)
+
+                #  ax._poslayoutbox.
                 # make margins for each layout box based on the size of
                 # the decorators.
                 _make_layout_margins(ax, renderer, h_pad, w_pad)
@@ -508,7 +517,7 @@ def _arrange_subplotspecs(gs, hspace=0, wspace=0):
                                   padding=thepad)
 
 
-def layoutcolorbarsingle(ax, cax, shrink, aspect, location, pad=0.05):
+def _layoutcolorbarsingle(ax, cax, shrink, aspect, location, pad=0.05):
     """
     Do the layout for a colorbar, to not overly pollute colorbar.py
 
@@ -537,8 +546,11 @@ def layoutcolorbarsingle(ax, cax, shrink, aspect, location, pad=0.05):
                              strength='strong')
         else:
             layoutbox.hstack([lb, axlb], padding=pad * axlb.width)
-        # constrain the height and center...
-        layoutbox.match_heights([axpos, lbpos], [1, shrink])
+        # constrain the height taking into account the aspect ratio of
+        # the box.
+
+        figw, figh = ax.figure.get_size_inches()
+        lbpos.constrain_height(shrink * axpos.real_height, strength='strong')
         layoutbox.align([axpos, lbpos], 'v_center')
         # set the width of the pos box
         lbpos.constrain_width(shrink * axpos.height * (1/aspect),
@@ -597,7 +609,7 @@ def _getmaxminrowcolumn(axs):
     return (minrow, maxrow, minax, maxax, mincol, maxcol, minax_col, maxax_col)
 
 
-def layoutcolorbargridspec(parents, cax, shrink, aspect, location, pad=0.05):
+def _layoutcolorbargridspec(parents, cax, shrink, aspect, location, pad=0.05):
     """
     Do the layout for a colorbar, to not overly pollute colorbar.py
 

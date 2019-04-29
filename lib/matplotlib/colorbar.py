@@ -1445,14 +1445,14 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
         if not parents_iterable:
             # this is a single axis...
             ax = parents[0]
-            lb, lbpos = constrained_layout.layoutcolorbarsingle(
+            lb, lbpos = constrained_layout._layoutcolorbarsingle(
                     ax, cax, shrink, aspect, location, pad=pad)
         else:  # there is more than one parent, so lets use gridspec
             # the colorbar will be a sibling of this gridspec, so the
             # parent is the same parent as the gridspec.  Either the figure,
             # or a subplotspec.
 
-            lb, lbpos = constrained_layout.layoutcolorbargridspec(
+            lb, lbpos = constrained_layout._layoutcolorbargridspec(
                     parents, cax, shrink, aspect, location, pad)
 
     cax._layoutbox = lb

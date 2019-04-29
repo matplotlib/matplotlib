@@ -79,7 +79,11 @@ class LayoutBox(object):
         self.right = Variable(str(sn + 'right'))
 
         self.width = Variable(str(sn + 'width'))
+        self.pos_aspect = Variable(str(sn + 'aspect'))
         self.height = Variable(str(sn + 'height'))
+        # height of box if it has an aspect ratio set.
+        self.real_height = Variable(sn+'real_height')
+        self.real_width = Variable(sn+'real_width')
         self.h_center = Variable(str(sn + 'h_center'))
         self.v_center = Variable(str(sn + 'v_center'))
 
@@ -110,6 +114,9 @@ class LayoutBox(object):
             self.constrain_margins()
         self.h_pad = h_pad
         self.w_pad = w_pad
+
+        # save some constraints to add/remove:
+        self._aspect_constraint = None
 
     def constrain_margins(self):
         """
@@ -179,7 +186,6 @@ class LayoutBox(object):
         # self.soft_constraints()
         if self.parent:
             self.parent_constrain()
-        # sol.updateVariables()
 
     def parent_constrain(self):
         parent = self.parent
@@ -199,6 +205,8 @@ class LayoutBox(object):
               self.height >= self.min_height]
         for c in hc:
             self.solver.addConstraint(c | 'required')
+        self.constrain_real_height()
+        self.constrain_real_width()
 
     def soft_constraints(self):
         sol = self.solver
@@ -310,6 +318,30 @@ class LayoutBox(object):
 
     def constrain_height_min(self, height, strength='strong'):
         c = (self.height >= height)
+        self.solver.addConstraint(c | strength)
+
+    def constrain_height_max(self, height, strength='strong'):
+        c = (self.height <= height)
+        self.solver.addConstraint(c | strength)
+
+    def edit_aspect(self, aspect, strength='strong'):
+        sol = self.solver
+        if self._aspect_constraint is not None:
+            sol.removeConstraint(self._aspect_constraint )
+            self._aspect_constraint = None
+        if aspect < 1:
+            c = self.real_height == self.width * aspect
+        else:
+            c = self.real_width  == self.height / aspect
+        self._aspect_constraint = c | strength
+        sol.addConstraint(self._aspect_constraint)
+
+    def constrain_real_height(self, frac=1, strength='strong'):
+        c = (self.real_height <= self.height * frac)
+        self.solver.addConstraint(c | strength)
+
+    def constrain_real_width(self, frac=1, strength='strong'):
+        c = (self.real_width <= self.width * frac)
         self.solver.addConstraint(c | strength)
 
     def edit_width(self, width, strength='strong'):
