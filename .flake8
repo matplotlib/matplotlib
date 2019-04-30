@@ -10,6 +10,13 @@ ignore =
     F401, F403, F811, F841,
     # Some new flake8 ignores:
     N801, N802, N803, N806, N812,
+    # pydocstyle
+    D100, D101, D102, D103, D104, D105, D106, D107,
+    D200, D202, D203, D204, D205, D207, D208, D209,
+    D210, D211, D212, D213, D214, D215,
+    D300, D301, D302,
+    D400, D401, D402, D403, D404, D405, D406, D407, D408, D409,
+    D410, D411, D412, D413, D414,
 
 exclude =
     .git
@@ -137,6 +144,7 @@ per-file-ignores =
     examples/images_contours_and_fields/triplot_demo.py: E201, E402
     examples/images_contours_and_fields/watermark_image.py: E402
     examples/lines_bars_and_markers/errorbar_limits_simple.py: E402
+    examples/lines_bars_and_markers/fill.py: E402
     examples/lines_bars_and_markers/fill_between_demo.py: E402
     examples/lines_bars_and_markers/filled_step.py: E402
     examples/lines_bars_and_markers/joinstyle.py: E402

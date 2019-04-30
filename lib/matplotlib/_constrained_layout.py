@@ -81,7 +81,6 @@ def _axes_all_finite_sized(fig):
 ######################################################
 def do_constrained_layout(fig, renderer, h_pad, w_pad,
         hspace=None, wspace=None):
-
     """
     Do the constrained_layout.  Called at draw time in
      ``figure.constrained_layout()``

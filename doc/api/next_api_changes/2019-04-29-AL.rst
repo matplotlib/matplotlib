@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+``FigureCanvasBase.draw_cursor`` (which has never done anything and has never
+been overridden in any backend) is deprecated.

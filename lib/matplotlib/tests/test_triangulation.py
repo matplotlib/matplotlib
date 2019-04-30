@@ -134,11 +134,8 @@ def test_delaunay_robust():
     # triangulation contain the test point xy.  Avoid calling with a point that
     # lies on or very near to an edge of any triangle in the triangulation.
     def tris_contain_point(triang, xy):
-        count = 0
-        for tri in triang.triangles:
-            if tri_contains_point(triang.x[tri], triang.y[tri], xy):
-                count += 1
-        return count
+        return sum(tri_contains_point(triang.x[tri], triang.y[tri], xy)
+                   for tri in triang.triangles)
 
     # Using matplotlib.delaunay, an invalid triangulation is created with
     # overlapping triangles; qhull is OK.

@@ -1902,6 +1902,7 @@ class FigureCanvasBase(object):
             with self._idle_draw_cntx():
                 self.draw(*args, **kwargs)
 
+    @cbook.deprecated("3.2")
     def draw_cursor(self, event):
         """
         Draw a cursor in the event.axes if inaxes is not None.  Use

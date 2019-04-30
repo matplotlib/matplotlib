@@ -440,7 +440,6 @@ class XTick(Tick):
         return t
 
     def _get_text2(self):
-
         'Get the default Text 2 instance'
         # x in data coords, y in axes coords
         trans, vert, horiz = self._get_text2_transform()
@@ -1122,11 +1121,6 @@ class Axis(martist.Artist):
             tick.set_label1(label)
             tick.set_label2(label)
         ticks = [*major_ticks, *minor_ticks]
-
-        # mark the ticks that we will not be using as not visible
-        for t in (self.minorTicks[len(minor_locs):] +
-                  self.majorTicks[len(major_locs):]):
-            t.set_visible(False)
 
         view_low, view_high = self.get_view_interval()
         if view_low > view_high:

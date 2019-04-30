@@ -625,6 +625,13 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         if self._contains is not None:
             return self._contains(self, mouseevent)
+        # 1) This doesn't work for figimage; but figimage also needs a fix
+        #    below (as the check cannot use x/ydata and extents).
+        # 2) As long as the check below uses x/ydata, we need to test axes
+        #    identity instead of `self.axes.contains(event)` because even if
+        #    axes overlap, x/ydata is only valid for event.inaxes anyways.
+        if self.axes is not mouseevent.inaxes:
+            return False, {}
         # TODO: make sure this is consistent with patch and patch
         # collection on nonlinear transformed coordinates.
         # TODO: consider returning image coordinates (shouldn't
@@ -818,7 +825,6 @@ class AxesImage(_ImageBase):
                  resample=False,
                  **kwargs
                  ):
-
         """
         interpolation and cmap default to their rc settings
 
@@ -930,7 +936,7 @@ class AxesImage(_ImageBase):
             return arr[i, j]
 
     def format_cursor_data(self, data):
-        if self.colorbar:
+        if np.ndim(data) == 0 and self.colorbar:
             return (
                 "["
                 + cbook.strip_math(
