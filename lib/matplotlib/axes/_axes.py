@@ -5,7 +5,6 @@ import logging
 import math
 import operator
 from numbers import Number
-from decimal import Decimal
 
 import numpy as np
 from numpy import ma
@@ -7983,7 +7982,7 @@ optional.
             kde = mlab.GaussianKDE(X, bw_method)
             return kde.evaluate(coords)
 
-        vpstats = cbook.violin_stats(dataset, _kde_method, points=points,
+        vpstats = cbook.violin_stats(dataset, _kde_method,
                                      percentiles=percentiles, points=points)
         return self.violin(vpstats, positions=positions, vert=vert,
                            widths=widths, showmeans=showmeans,
