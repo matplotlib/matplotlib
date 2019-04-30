@@ -1431,7 +1431,7 @@ def _reshape_2D(X, name):
         raise ValueError("{} must have 2 or fewer dimensions".format(name))
 
 
-def violin_stats(X, method, points=100):
+def violin_stats(X, method, percentiles=None, points=100):
     """
     Returns a list of dictionaries of data which can be used to draw a series
     of violin plots. See the `Returns` section below to view the required keys
@@ -1451,6 +1451,11 @@ def violin_stats(X, method, points=100):
         return a vector of the values of the KDE evaluated at the values
         specified in coords.
 
+    percentiles : array-like, default = None
+        Defines (if not None) a list of float number in interval [0, 100] for
+        each column of data, which represents the percentiles that will be
+        rendered for that column of data.
+
     points : scalar, default = 100
         Defines the number of points to evaluate each of the gaussian kernel
         density estimates at.
@@ -1469,6 +1474,7 @@ def violin_stats(X, method, points=100):
         - median: The median value for this column of data.
         - min: The minimum value for this column of data.
         - max: The maximum value for this column of data.
+        - percentiles: The percentile values for this column of data.
     """
 
     # List of dictionaries describing each of the violins.
@@ -1477,13 +1483,29 @@ def violin_stats(X, method, points=100):
     # Want X to be a list of data sequences
     X = _reshape_2D(X, "X")
 
-    for x in X:
+    # Want percentiles to be as the same shape as data sequences
+    if percentiles is not None and len(percentiles) != 0:
+        percentiles = _reshape_2D(percentiles, "percentiles")
+    # Else, mock percentiles if is none or empty
+    else:
+        percentiles = [[]] * np.shape(X)[0]
+
+    # percentiles should has the same size as dataset
+    if np.shape(X)[:1] != np.shape(percentiles)[:1]:
+        raise ValueError("List of violinplot statistics and percentile values"
+                         " must have the same length")
+
+    # Zip x and percentiles
+    data = zip(X, percentiles)
+
+    for (x, p) in data:
         # Dictionary of results for this distribution
         stats = {}
 
         # Calculate basic stats for the distribution
         min_val = np.min(x)
         max_val = np.max(x)
+        p_val = np.percentile(x, p)
 
         # Evaluate the kernel density estimate
         coords = np.linspace(min_val, max_val, points)
@@ -1495,6 +1517,7 @@ def violin_stats(X, method, points=100):
         stats['median'] = np.median(x)
         stats['min'] = min_val
         stats['max'] = max_val
+        stats['percentiles'] = np.atleast_1d(p_val)
 
         # Append to output
         vpstats.append(stats)
