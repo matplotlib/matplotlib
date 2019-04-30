@@ -12,7 +12,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 
-def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
+def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
     """
     Bullseye representation for the left ventricle.
 
@@ -21,7 +21,7 @@ def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
     ax : axes
     data : list of int and float
         The intensity values for each of the 17 segments
-    segBold : list of int, optional
+    seg_bold : list of int, optional
         A list with the segments to highlight
     cmap : ColorMap or None, optional
         Optional argument to set the desired colormap
@@ -42,8 +42,8 @@ def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
         nomenclature for tomographic imaging of the heart",
         Circulation, vol. 105, no. 4, pp. 539-542, 2002.
     """
-    if segBold is None:
-        segBold = []
+    if seg_bold is None:
+        seg_bold = []
 
     linewidth = 2
     data = np.array(data).ravel()
@@ -80,7 +80,7 @@ def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
         theta0 = np.repeat(theta0[:, np.newaxis], 2, axis=1)
         z = np.ones((128, 2)) * data[i]
         ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm)
-        if i + 1 in segBold:
+        if i + 1 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
             ax.plot(theta0[0], [r[2], r[3]], '-k', lw=linewidth + 1)
             ax.plot(theta0[-1], [r[2], r[3]], '-k', lw=linewidth + 1)
@@ -94,7 +94,7 @@ def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
         theta0 = np.repeat(theta0[:, np.newaxis], 2, axis=1)
         z = np.ones((128, 2)) * data[i + 6]
         ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm)
-        if i + 7 in segBold:
+        if i + 7 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
             ax.plot(theta0[0], [r[1], r[2]], '-k', lw=linewidth + 1)
             ax.plot(theta0[-1], [r[1], r[2]], '-k', lw=linewidth + 1)
@@ -108,7 +108,7 @@ def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
         theta0 = np.repeat(theta0[:, np.newaxis], 2, axis=1)
         z = np.ones((192, 2)) * data[i + 12]
         ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm)
-        if i + 13 in segBold:
+        if i + 13 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
             ax.plot(theta0[0], [r[0], r[1]], '-k', lw=linewidth + 1)
             ax.plot(theta0[-1], [r[0], r[1]], '-k', lw=linewidth + 1)
@@ -120,7 +120,7 @@ def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
         theta0 = np.repeat(theta[:, np.newaxis], 2, axis=1)
         z = np.ones((theta.size, 2)) * data[16]
         ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm)
-        if 17 in segBold:
+        if 17 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
 
     ax.set_ylim([0, 1])
@@ -203,7 +203,7 @@ ax[0].set_title('Bulls Eye (AHA)')
 bullseye_plot(ax[1], data, cmap=cmap2, norm=norm2)
 ax[1].set_title('Bulls Eye (AHA)')
 
-bullseye_plot(ax[2], data, segBold=[3, 5, 6, 11, 12, 16],
+bullseye_plot(ax[2], data, seg_bold=[3, 5, 6, 11, 12, 16],
               cmap=cmap3, norm=norm3)
 ax[2].set_title('Segments [3,5,6,11,12,16] in bold')
 

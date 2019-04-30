@@ -261,15 +261,15 @@ def drop_shadow_line(ax):
 def drop_shadow_patches(ax):
     # Copied from barchart_demo.py
     N = 5
-    menMeans = (20, 35, 30, 35, 27)
+    men_means = [20, 35, 30, 35, 27]
 
     ind = np.arange(N)  # the x locations for the groups
     width = 0.35       # the width of the bars
 
-    rects1 = ax.bar(ind, menMeans, width, color='r', ec="w", lw=2)
+    rects1 = ax.bar(ind, men_means, width, color='r', ec="w", lw=2)
 
-    womenMeans = (25, 32, 34, 20, 25)
-    rects2 = ax.bar(ind + width + 0.1, womenMeans, width,
+    women_means = [25, 32, 34, 20, 25]
+    rects2 = ax.bar(ind + width + 0.1, women_means, width,
                     color='y', ec="w", lw=2)
 
     # gauss = GaussianFilter(1.5, offsets=(1,1), )
