@@ -3142,14 +3142,13 @@ class ToolContainerBase(object):
         if not image:
             return None
 
-        basedir = os.path.join(rcParams['datapath'], 'images')
-        possible_images = (
+        basedir = cbook._get_data_path("images")
+        for fname in [
             image,
             image + self._icon_extension,
-            os.path.join(basedir, image),
-            os.path.join(basedir, image) + self._icon_extension)
-
-        for fname in possible_images:
+            str(basedir / image),
+            str(basedir / (image + self._icon_extension)),
+        ]:
             if os.path.isfile(fname):
                 return fname
 

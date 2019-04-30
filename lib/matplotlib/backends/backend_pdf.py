@@ -440,8 +440,6 @@ class PdfFile(object):
                 fh = filename
                 self.passed_in_file_object = True
 
-        self._core14fontdir = os.path.join(
-            rcParams['datapath'], 'fonts', 'pdfcorefonts')
         self.fh = fh
         self.currentstream = None  # stream object to write to, if any
         fh.write(b"%PDF-1.4\n")    # 1.4 is the first version to have alpha
@@ -635,10 +633,11 @@ class PdfFile(object):
             filename = fontprop
         elif rcParams['pdf.use14corefonts']:
             filename = findfont(
-                fontprop, fontext='afm', directory=self._core14fontdir)
+                fontprop, fontext='afm', directory=RendererPdf._afm_font_dir)
             if filename is None:
                 filename = findfont(
-                    "Helvetica", fontext='afm', directory=self._core14fontdir)
+                    "Helvetica",
+                    fontext='afm', directory=RendererPdf._afm_font_dir)
         else:
             filename = findfont(fontprop)
 
@@ -1571,7 +1570,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
     def afm_font_cache(self, _cache=cbook.maxdict(50)):
         return _cache
 
-    _afm_font_dir = pathlib.Path(rcParams["datapath"], "fonts", "pdfcorefonts")
+    _afm_font_dir = cbook._get_data_path("fonts/pdfcorefonts")
     _use_afm_rc_name = "pdf.use14corefonts"
 
     def __init__(self, file, image_dpi, height, width):

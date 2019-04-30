@@ -494,16 +494,15 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
     def _init_toolbar(self):
         self.set_style(Gtk.ToolbarStyle.ICONS)
-        basedir = os.path.join(rcParams['datapath'], 'images')
 
         self._gtk_ids = {}
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
                 self.insert(Gtk.SeparatorToolItem(), -1)
                 continue
-            fname = os.path.join(basedir, image_file + '.png')
             image = Gtk.Image()
-            image.set_from_file(fname)
+            image.set_from_file(
+                str(cbook._get_data_path('images', image_file + '.png')))
             self._gtk_ids[text] = tbutton = Gtk.ToolButton()
             tbutton.set_label(text)
             tbutton.set_icon_widget(image)
@@ -952,8 +951,7 @@ if sys.platform == 'win32':
     icon_filename = 'matplotlib.png'
 else:
     icon_filename = 'matplotlib.svg'
-window_icon = os.path.join(
-    matplotlib.rcParams['datapath'], 'images', icon_filename)
+window_icon = str(cbook._get_data_path('images', icon_filename))
 
 
 def error_msg_gtk(msg, parent=None):

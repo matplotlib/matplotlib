@@ -11,7 +11,7 @@ import tkinter.messagebox
 import numpy as np
 
 import matplotlib
-from matplotlib import backend_tools, rcParams
+from matplotlib import backend_tools, cbook, rcParams
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
@@ -547,8 +547,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         window.update_idletasks()
 
     def _Button(self, text, file, command, extension='.gif'):
-        img_file = os.path.join(
-            rcParams['datapath'], 'images', file + extension)
+        img_file = str(cbook._get_data_path('images', file + extension))
         im = tk.PhotoImage(master=self, file=img_file)
         b = tk.Button(
             master=self, text=text, padx=2, pady=2, image=im, command=command)
@@ -884,8 +883,7 @@ class _BackendTk(_Backend):
             # Tkinter doesn't allow colour icons on linux systems, but tk>=8.5
             # has a iconphoto command which we call directly. Source:
             # http://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
-            icon_fname = os.path.join(
-                rcParams['datapath'], 'images', 'matplotlib.ppm')
+            icon_fname = str(cbook._get_data_path('images/matplotlib.ppm'))
             icon_img = tk.PhotoImage(file=icon_fname, master=window)
             try:
                 window.iconphoto(False, icon_img)

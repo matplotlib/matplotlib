@@ -192,7 +192,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
     def afmfontd(self, _cache=cbook.maxdict(50)):
         return _cache
 
-    _afm_font_dir = pathlib.Path(rcParams["datapath"], "fonts", "afm")
+    _afm_font_dir = cbook._get_data_path("fonts/afm")
     _use_afm_rc_name = "ps.useafm"
 
     def __init__(self, width, height, pswriter, imagedpi=72):

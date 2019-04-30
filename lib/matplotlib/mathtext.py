@@ -32,7 +32,7 @@ from pyparsing import (
 
 ParserElement.enablePackrat()
 
-from matplotlib import cbook, colors as mcolors, get_data_path, rcParams
+from matplotlib import cbook, colors as mcolors, rcParams
 from matplotlib.afm import AFM
 from matplotlib.cbook import get_realpath_and_stat
 from matplotlib.ft2font import FT2Image, KERNING_DEFAULT, LOAD_NO_HINTING
@@ -1078,7 +1078,7 @@ class StandardPsFonts(Fonts):
     Unlike the other font classes, BakomaFont and UnicodeFont, this
     one requires the Ps backend.
     """
-    basepath = os.path.join(get_data_path(), 'fonts', 'afm')
+    basepath = str(cbook._get_data_path('fonts/afm'))
 
     fontmap = { 'cal' : 'pzcmi8a',  # Zapf Chancery
                 'rm'  : 'pncr8a',   # New Century Schoolbook

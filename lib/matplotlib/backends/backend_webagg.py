@@ -32,7 +32,7 @@ import tornado.web
 import tornado.ioloop
 import tornado.websocket
 
-from matplotlib import rcParams
+from matplotlib import cbook, rcParams
 from matplotlib.backend_bases import _Backend
 from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
@@ -65,8 +65,8 @@ class WebAggApplication(tornado.web.Application):
     class FavIcon(tornado.web.RequestHandler):
         def get(self):
             self.set_header('Content-Type', 'image/png')
-            image_path = Path(rcParams["datapath"], "images", "matplotlib.png")
-            self.write(image_path.read_bytes())
+            self.write(
+                cbook._get_data_path('images/matplotlib.png').read_bytes())
 
     class SingleFigurePage(tornado.web.RequestHandler):
         def __init__(self, application, request, *, url_prefix='', **kwargs):
