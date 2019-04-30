@@ -4226,7 +4226,7 @@ class Axes(_AxesBase):
         # favor of mapping, not rgb or rgba.
         # Convenience vars to track shape mismatch *and* conversion failures.
         valid_shape = True  # will be put to the test!
-        n_elem = -1  # used only for (some) exceptions
+        csize = -1  # Number of colors; used for some exceptions.
 
         if (c_was_none or
                 kwcolor is not None or
@@ -4238,8 +4238,8 @@ class Axes(_AxesBase):
         else:
             try:  # First, does 'c' look suitable for value-mapping?
                 c_array = np.asanyarray(c, dtype=float)
-                n_elem = c_array.size
-                if n_elem == xsize:
+                csize = c_array.size
+                if csize == xsize:
                     c = c_array.ravel()
                 else:
                     if c_array.shape in ((3,), (4,)):
@@ -4259,8 +4259,8 @@ class Axes(_AxesBase):
         if c_array is None:
             try:  # Then is 'c' acceptable as PathCollection facecolors?
                 colors = mcolors.to_rgba_array(c)
-                n_elem = colors.shape[0]
-                if colors.shape[0] not in (0, 1, xsize):
+                csize = colors.shape[0]
+                if csize not in (0, 1, xsize):
                     # NB: remember that a single color is also acceptable.
                     # Besides *colors* will be an empty array if c == 'none'.
                     valid_shape = False
@@ -4270,7 +4270,7 @@ class Axes(_AxesBase):
                     raise ValueError(
                         "'c' argument has {nc} elements, which is not "
                         "acceptable for use with 'x' and 'y' with size {xs}."
-                            .format(nc=n_elem, xs=xsize)
+                            .format(nc=csize, xs=xsize)
                     )
                 else:
                     # Both the mapping *and* the RGBA conversion failed: pretty
