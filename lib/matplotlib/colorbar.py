@@ -1466,13 +1466,13 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
         if parent_anchor is not False:
             ax.set_anchor(parent_anchor)
 
-    cax = maxes.Axes(fig, pbcb, label="<colorbar>")
-    this_cbar_locator = _make_colorbar_locator(parents,fraction, pad, shrink)
-    cax.set_axes_locator(this_cbar_locator)
 
     # OK, now make a layoutbox for the cb axis.  Later, we will use this
     # to make the colorbar fit nicely.
     if not using_constrained_layout:
+        cax = maxes.Axes(fig, pbcb, label="<colorbar>")
+        this_cbar_locator = _make_colorbar_locator(parents,fraction, pad, shrink)
+        cax.set_axes_locator(this_cbar_locator)
         if len(parents) == 1:
             parents[0].add_child_axes(cax)
         else:
@@ -1483,6 +1483,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
         # and we need to set the aspect ratio by hand...
         cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     else:
+        cax = fig.add_axes(pbcb)
         if not parents_iterable:
             # this is a single axis...
             ax = parents[0]
