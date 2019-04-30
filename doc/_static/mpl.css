@@ -187,6 +187,11 @@ div.related ul {
     padding-left: 10px;
 }
 
+li p {
+  margin: unset;
+  display: inline;
+}
+
 div.related ul li {
     margin: 0;
     padding: 0;
