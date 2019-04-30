@@ -1472,30 +1472,6 @@ def test_bar_tick_label_multiple_old_alignment():
            align='center')
 
 
-@image_comparison(
-    baseline_images=['bar_decimal_center'],
-    extensions=['png'])
-def test_bar_decimal_center():
-    # Test vertical, align-center bar chart with Decimal() input
-    # No exception should be raised
-    ax = plt.gca()
-    x = [Decimal(x) for x in [1.5, 8.4, 5.3, 4.2]]
-    y = [Decimal(y) for y in [1.1, 2.2, 3.3, 4.4]]
-    ax.bar(x, y, align='center')
-
-
-@image_comparison(
-    baseline_images=['barh_decimal_center'],
-    extensions=['png'])
-def test_barh_decimal_center():
-    # Test horizontal, align-center bar chart with Decimal() input
-    # No exception should be raised
-    ax = plt.gca()
-    x = [Decimal(x) for x in [1.5, 8.4, 5.3, 4.2]]
-    y = [Decimal(y) for y in [1.1, 2.2, 3.3, 4.4]]
-    ax.barh(x, y, height=[0.5, 0.5, 1, 1], align='center')
-
-
 def test_bar_color_none_alpha():
     ax = plt.gca()
     rects = ax.bar([1, 2], [2, 4], alpha=0.3, color='none', edgecolor='r')

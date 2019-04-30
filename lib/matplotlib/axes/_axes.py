@@ -2376,14 +2376,6 @@ class Axes(_AxesBase):
                 # Fallback if edgecolor == "none".
                 itertools.repeat('none'))
 
-        # Resolve the float - Decimal TypeError
-        if (orientation == 'vertical' and x.size > 0
-            and isinstance(x[0], Decimal)):
-            width = np.array([Decimal(itm) for itm in width])
-        elif (orientation == 'horizontal' and y.size > 0
-              and isinstance(y[0], Decimal)):
-            height = np.array([Decimal(itm) for itm in height])
-
         # We will now resolve the alignment and really have
         # left, bottom, width, height vectors
         if align == 'center':
