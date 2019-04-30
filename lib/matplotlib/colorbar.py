@@ -24,6 +24,7 @@ import logging
 import numpy as np
 
 import matplotlib as mpl
+import matplotlib.axes as maxes
 import matplotlib.artist as martist
 import matplotlib.cbook as cbook
 import matplotlib.collections as collections
@@ -38,6 +39,7 @@ import matplotlib.transforms as mtransforms
 import matplotlib._layoutbox as layoutbox
 import matplotlib._constrained_layout as constrained_layout
 from matplotlib import docstring
+
 
 _log = logging.getLogger(__name__)
 
@@ -1303,6 +1305,39 @@ class Colorbar(ColorbarBase):
             ax.set_subplotspec(subplotspec)
 
 
+def _make_colorbar_locator(parents, fraction, pad, shrink):
+    """
+    Helper function to locate inset axes, used in
+    `.Axes.inset_axes`.
+
+    A locator gets used in `Axes.set_aspect` to override the default
+    locations...  It is a function that takes an axes object and
+    a renderer and tells `set_aspect` where it is to be placed.
+
+    Here *rect* is a rectangle [l, b, w, h] that specifies the
+    location for the axes in the transform given by *trans* on the
+    *parent*.
+    """
+    _fraction = fraction
+    _pad = pad
+    _shrink = shrink
+    _parents = parents
+
+    def inset_locator(ax, renderer):
+        # will need to fancy up.  Want the offset in physical units and the
+        # rest in axes relative...
+        # get the bounds from the parents...
+        bbox = mtransforms.Bbox.union(
+            [ax.get_position(original=False).frozen() for ax in _parents])
+        bb = mtransforms.Bbox([[bbox.x1+0.05, bbox.y0], [bbox.x1+0.15, bbox.y1]])
+        print(bb)
+        #tr = _parents[0].figure.transFigure.inverted()
+        #bb = mtransforms.TransformedBbox(bb, tr)
+        return bb
+
+    return inset_locator
+
+
 @docstring.Substitution(make_axes_kw_doc)
 def make_axes(parents, location=None, orientation=None, fraction=0.15,
               shrink=1.0, aspect=20, **kw):
@@ -1431,11 +1466,17 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
         if parent_anchor is not False:
             ax.set_anchor(parent_anchor)
 
-    cax = fig.add_axes(pbcb, label="<colorbar>")
+    cax = maxes.Axes(fig, pbcb, label="<colorbar>")
+    this_cbar_locator = _make_colorbar_locator(parents,fraction, pad, shrink)
+    cax.set_axes_locator(this_cbar_locator)
 
     # OK, now make a layoutbox for the cb axis.  Later, we will use this
     # to make the colorbar fit nicely.
     if not using_constrained_layout:
+        if len(parents) == 1:
+            parents[0].add_child_axes(cax)
+        else:
+            fig.add_axes(cax)
         # no layout boxes:
         lb = None
         lbpos = None
