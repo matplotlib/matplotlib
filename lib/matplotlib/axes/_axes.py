@@ -4268,18 +4268,14 @@ class Axes(_AxesBase):
             except ValueError:
                 if not valid_shape:  # but at least one conversion succeeded.
                     raise ValueError(
-                        "'c' argument has {nc} elements, which is not "
-                        "acceptable for use with 'x' and 'y' with size {xs}."
-                            .format(nc=csize, xs=xsize)
-                    )
+                        f"'c' argument has {csize} elements, which is "
+                        "inconsistent with 'x' and 'y' with size {xsize}.")
                 else:
                     # Both the mapping *and* the RGBA conversion failed: pretty
                     # severe failure => one may appreciate a verbose feedback.
                     raise ValueError(
-                        "'c' argument must be a mpl color, a sequence of mpl "
-                        "colors or a sequence of numbers, not {}."
-                            .format(c)  # note: could be long depending on c
-                    )
+                        f"'c' argument must be a mpl color, a sequence of mpl "
+                        "colors, or a sequence of numbers, not {c}.")
         else:
             colors = None  # use cmap, norm after collection is created
         return c, colors, edgecolors
