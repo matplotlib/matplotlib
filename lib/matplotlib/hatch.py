@@ -57,7 +57,7 @@ class NorthEastHatch(HatchPatternBase):
             self.num_vertices = 0
 
     def set_vertices_and_codes(self, vertices, codes):
-        steps = np.linspace(-0.5, 0.5, self.num_lines + 1, True)
+        steps = np.linspace(-0.5, 0.5, self.num_lines + 1)
         vertices[0::2, 0] = 0.0 + steps
         vertices[0::2, 1] = 0.0 - steps
         vertices[1::2, 0] = 1.0 + steps
@@ -77,7 +77,7 @@ class SouthEastHatch(HatchPatternBase):
             self.num_vertices = 0
 
     def set_vertices_and_codes(self, vertices, codes):
-        steps = np.linspace(-0.5, 0.5, self.num_lines + 1, True)
+        steps = np.linspace(-0.5, 0.5, self.num_lines + 1)
         vertices[0::2, 0] = 0.0 + steps
         vertices[0::2, 1] = 1.0 + steps
         vertices[1::2, 0] = 1.0 + steps
@@ -111,10 +111,9 @@ class Shapes(HatchPatternBase):
         cursor = 0
         for row in range(self.num_rows + 1):
             if row % 2 == 0:
-                cols = np.linspace(0.0, 1.0, self.num_rows + 1, True)
+                cols = np.linspace(0, 1, self.num_rows + 1)
             else:
-                cols = np.linspace(offset / 2.0, 1.0 - offset / 2.0,
-                                   self.num_rows, True)
+                cols = np.linspace(offset / 2, 1 - offset / 2, self.num_rows)
             row_pos = row * offset
             for col_pos in cols:
                 vertices[cursor:cursor + shape_size] = (shape_vertices +
