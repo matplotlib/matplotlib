@@ -602,26 +602,18 @@ def get_figlabels():
 
 
 def get_current_fig_manager():
-    """
-    Return the figure manager of the active figure.
-
-    If there is currently no active figure, a new one is created.
-    """
-    figManager = _pylab_helpers.Gcf.get_active()
-    if figManager is None:
-        gcf()  # creates an active figure as a side effect
-        figManager = _pylab_helpers.Gcf.get_active()
-    return figManager
+    """Return ``gcf().canvas.manager``, the current figure's manager."""
+    return gcf().canvas.manager
 
 
 @docstring.copy(FigureCanvasBase.mpl_connect)
 def connect(s, func):
-    return get_current_fig_manager().canvas.mpl_connect(s, func)
+    return gcf().canvas.mpl_connect(s, func)
 
 
 @docstring.copy(FigureCanvasBase.mpl_disconnect)
 def disconnect(cid):
-    return get_current_fig_manager().canvas.mpl_disconnect(cid)
+    return gcf().canvas.mpl_disconnect(cid)
 
 
 def close(fig=None):
@@ -683,7 +675,7 @@ def draw():
     This is equivalent to calling ``fig.canvas.draw_idle()``, where ``fig`` is
     the current figure.
     """
-    get_current_fig_manager().canvas.draw_idle()
+    gcf().canvas.draw_idle()
 
 
 @docstring.copy(Figure.savefig)
@@ -1262,25 +1254,19 @@ def subplot_tool(targetfig=None):
 
     A :class:`matplotlib.widgets.SubplotTool` instance is returned.
     """
-    tbar = rcParams['toolbar']  # turn off navigation toolbar for the toolfig
-    rcParams['toolbar'] = 'None'
     if targetfig is None:
-        manager = get_current_fig_manager()
-        targetfig = manager.canvas.figure
-    else:
-        # find the manager for this figure
-        for manager in _pylab_helpers.Gcf._activeQue:
-            if manager.canvas.figure == targetfig:
-                break
-        else:
-            raise RuntimeError('Could not find manager for targetfig')
+        targetfig = gcf()
 
+    tbar = rcParams['toolbar']  # Turn off navigation toolbar for the toolfig.
+    rcParams['toolbar'] = 'None'
     toolfig = figure(figsize=(6, 3))
     toolfig.subplots_adjust(top=0.9)
-    ret = SubplotTool(targetfig, toolfig)
     rcParams['toolbar'] = tbar
-    _pylab_helpers.Gcf.set_active(manager)  # restore the current figure
-    return ret
+
+    if hasattr(targetfig.canvas, "manager"):  # Restore the current figure.
+        _pylab_helpers.Gcf.set_active(targetfig.canvas.manager)
+
+    return SubplotTool(targetfig, toolfig)
 
 
 def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
