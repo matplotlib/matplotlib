@@ -354,7 +354,8 @@ class MovieWriter(AbstractMovieWriter):
         # movie file.  *args* returns the sequence of command line arguments
         # from a few configuration options.
         command = self._args()
-        _log.info('MovieWriter.run: running command: %s', command)
+        _log.info('MovieWriter._run: running command: %s',
+                  cbook._pformat_subprocess(command))
         PIPE = subprocess.PIPE
         self._proc = subprocess.Popen(
             command, stdin=PIPE, stdout=PIPE, stderr=PIPE,
@@ -1134,7 +1135,10 @@ class Animation(object):
                     # Clear the initial frame
                     anim._init_draw()
                 frame_number = 0
-                save_count_list = [a.save_count for a in all_anim]
+                # TODO: Currently only FuncAnimation has a save_count
+                #       attribute. Can we generalize this to all Animations?
+                save_count_list = [getattr(a, 'save_count', None)
+                                   for a in all_anim]
                 if None in save_count_list:
                     total_frames = None
                 else:

@@ -382,8 +382,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-
-        :class:`matplotlib.legend.Legend` instance
+        legend : `~matplotlib.legend.Legend`
 
         Notes
         -----
@@ -2292,6 +2291,14 @@ class Axes(_AxesBase):
         xerr = kwargs.pop('xerr', None)
         yerr = kwargs.pop('yerr', None)
         error_kw = kwargs.pop('error_kw', {})
+        ezorder = error_kw.pop('zorder', None)
+        if ezorder is None:
+            ezorder = kwargs.get('zorder', None)
+            if ezorder is not None:
+                # If using the bar zorder, increment slightly to make sure
+                # errorbars are drawn on top of bars
+                ezorder += 0.01
+        error_kw.setdefault('zorder', ezorder)
         ecolor = kwargs.pop('ecolor', 'k')
         capsize = kwargs.pop('capsize', rcParams["errorbar.capsize"])
         error_kw.setdefault('ecolor', ecolor)
@@ -2615,11 +2622,6 @@ class Axes(_AxesBase):
         Returns
         -------
         collection : A :class:`~.collections.BrokenBarHCollection`
-
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
-
         """
         # process the unit information
         if len(xranges):
@@ -2992,7 +2994,6 @@ class Axes(_AxesBase):
         slices = []
         autotexts = []
 
-        i = 0
         for frac, label, expl in zip(x, labels, explode):
             x, y = center
             theta2 = (theta1 + frac) if counterclock else (theta1 - frac)
@@ -3056,7 +3057,6 @@ class Axes(_AxesBase):
                 autotexts.append(t)
 
             theta1 = theta2
-            i += 1
 
         if not frame:
             self.set_frame_on(False)
@@ -3146,10 +3146,14 @@ class Axes(_AxesBase):
             and *yerr*.  To use limits with inverted axes, :meth:`set_xlim`
             or :meth:`set_ylim` must be called before :meth:`errorbar`.
 
-        errorevery : positive integer, optional, default: 1
-            Subsamples the errorbars. e.g., if errorevery=5, errorbars for
-            every 5-th datapoint will be plotted. The data plot itself still
-            shows all data points.
+        errorevery : int or (int, int), optional, default: 1
+            draws error bars on a subset of the data. *errorevery* =N draws
+            error bars on the points (x[::N], y[::N]).
+            *errorevery* =(start, N) draws error bars on the points
+            (x[start::N], y[start::N]). e.g. errorevery=(6, 3)
+            adds error bars to the data at (x[6], x[9], x[12], x[15], ...).
+            Used to avoid overlapping error bars when two series share x-axis
+            values.
 
         Returns
         -------
@@ -3183,10 +3187,6 @@ class Axes(_AxesBase):
 
         %(_Line2D_docstr)s
 
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
-
         """
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
         # anything that comes in as 'None', drop so the default thing
@@ -3194,9 +3194,17 @@ class Axes(_AxesBase):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
         kwargs.setdefault('zorder', 2)
 
-        if errorevery < 1:
+        try:
+            offset, errorevery = errorevery
+        except TypeError:
+            offset = 0
+
+        if errorevery < 1 or int(errorevery) != errorevery:
             raise ValueError(
-                'errorevery has to be a strictly positive integer')
+                'errorevery must be positive integer or tuple of integers')
+        if int(offset) != offset:
+            raise ValueError(
+                'errorevery\'s starting index must be an integer')
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
 
@@ -3305,7 +3313,8 @@ class Axes(_AxesBase):
         xlolims = np.broadcast_to(xlolims, len(x)).astype(bool)
         xuplims = np.broadcast_to(xuplims, len(x)).astype(bool)
 
-        everymask = np.arange(len(x)) % errorevery == 0
+        everymask = np.zeros(len(x), bool)
+        everymask[offset::errorevery] = True
 
         def xywhere(xs, ys, mask):
             """
@@ -3640,10 +3649,6 @@ class Axes(_AxesBase):
             the whiskers (fliers).
 
           - ``means``: points or lines representing the means.
-
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
 
         """
 
@@ -6587,10 +6592,6 @@ optional.
         --------
         hist2d : 2D histograms
 
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
-
         """
         # Avoid shadowing the builtin.
         bin_range = range
@@ -7307,10 +7308,6 @@ optional.
             :func:`specgram` can plot the magnitude spectrum of segments within
             the signal in a colormap.
 
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
-
         """
         if Fc is None:
             Fc = 0
@@ -7396,10 +7393,6 @@ optional.
             :func:`specgram` can plot the angle spectrum of segments within the
             signal in a colormap.
 
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
-
         """
         if Fc is None:
             Fc = 0
@@ -7471,10 +7464,6 @@ optional.
         :func:`specgram`
             :func:`specgram` can plot the phase spectrum of segments within the
             signal in a colormap.
-
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
 
         """
         if Fc is None:
@@ -7973,10 +7962,6 @@ optional.
 
           - ``cmedians``: A `~.collections.LineCollection` instance that
             marks the median values of each of the violin's distribution.
-
-        Notes
-        -----
-        .. [Notes section required for data comment. See #10189.]
 
         """
 

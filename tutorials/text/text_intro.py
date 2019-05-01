@@ -329,24 +329,23 @@ plt.show()
 # labels fit in the right-hand plot.
 
 fig, axs = plt.subplots(2, 2, figsize=(8, 5), tight_layout=True)
-axs = axs.flatten()
-for n, ax in enumerate(axs):
+for n, ax in enumerate(axs.flat):
     ax.plot(x1*10., y1)
 
 formatter = matplotlib.ticker.FormatStrFormatter('%1.1f')
 locator = matplotlib.ticker.MaxNLocator(nbins='auto', steps=[1, 4, 10])
-axs[1].xaxis.set_major_locator(locator)
-axs[1].xaxis.set_major_formatter(formatter)
+axs[0, 1].xaxis.set_major_locator(locator)
+axs[0, 1].xaxis.set_major_formatter(formatter)
 
 formatter = matplotlib.ticker.FormatStrFormatter('%1.5f')
 locator = matplotlib.ticker.AutoLocator()
-axs[2].xaxis.set_major_formatter(formatter)
-axs[2].xaxis.set_major_locator(locator)
+axs[1, 0].xaxis.set_major_formatter(formatter)
+axs[1, 0].xaxis.set_major_locator(locator)
 
 formatter = matplotlib.ticker.FormatStrFormatter('%1.5f')
 locator = matplotlib.ticker.MaxNLocator(nbins=4)
-axs[3].xaxis.set_major_formatter(formatter)
-axs[3].xaxis.set_major_locator(locator)
+axs[1, 1].xaxis.set_major_formatter(formatter)
+axs[1, 1].xaxis.set_major_locator(locator)
 
 plt.show()
 

@@ -276,11 +276,10 @@ def test_minorticks_on_rcParams_both(fig_test, fig_ref):
 @image_comparison(baseline_images=["autoscale_tiny_range"], remove_text=True)
 def test_autoscale_tiny_range():
     # github pull #904
-    fig, ax = plt.subplots(2, 2)
-    ax = ax.flatten()
-    for i in range(4):
+    fig, axs = plt.subplots(2, 2)
+    for i, ax in enumerate(axs.flat):
         y1 = 10**(-11 - i)
-        ax[i].plot([0, 1], [1, 1 + y1])
+        ax.plot([0, 1], [1, 1 + y1])
 
 
 @pytest.mark.style('default')
@@ -359,7 +358,7 @@ def test_arrow_simple():
     kwargs = product(length_includes_head, shape, head_starts_at_zero)
 
     fig, axs = plt.subplots(3, 4)
-    for i, (ax, kwarg) in enumerate(zip(axs.flatten(), kwargs)):
+    for i, (ax, kwarg) in enumerate(zip(axs.flat, kwargs)):
         ax.set_xlim(-2, 2)
         ax.set_ylim(-2, 2)
         # Unpack kwargs
@@ -2974,6 +2973,29 @@ def test_errorbar_with_prop_cycle():
     ax.errorbar(x=[2, 4, 10], y=[6, 4, 2], yerr=0.5)
 
 
+@check_figures_equal()
+def test_errorbar_offsets(fig_test, fig_ref):
+    x = np.linspace(0, 1, 15)
+    y = x * (1-x)
+    yerr = y/6
+
+    ax_ref = fig_ref.subplots()
+    ax_test = fig_test.subplots()
+
+    for color, shift in zip('rgbk', [0, 0, 2, 7]):
+        y += .02
+
+        # Using feature in question
+        ax_test.errorbar(x, y, yerr, errorevery=(shift, 4),
+                         capsize=4, c=color)
+
+        # Using manual errorbars
+        # n.b. errorbar draws the main plot at z=2.1 by default
+        ax_ref.plot(x, y, c=color, zorder=2.1)
+        ax_ref.errorbar(x[shift::4], y[shift::4], yerr[shift::4],
+                        capsize=4, c=color, fmt='none')
+
+
 @image_comparison(baseline_images=['hist_stacked_stepfilled',
                                    'hist_stacked_stepfilled'])
 def test_hist_stacked_stepfilled():
@@ -5094,11 +5116,9 @@ def test_rc_grid():
     }
     dict_list = [rc_dict0, rc_dict1, rc_dict2]
 
-    i = 1
-    for rc_dict in dict_list:
+    for i, rc_dict in enumerate(dict_list, 1):
         with matplotlib.rc_context(rc_dict):
             fig.add_subplot(3, 1, i)
-            i += 1
 
 
 def test_rc_tick():
@@ -6345,3 +6365,18 @@ def test_hist_range_and_density():
                           range=(0, 1), density=True)
     assert bins[0] == 0
     assert bins[-1] == 1
+
+
+def test_bar_errbar_zorder():
+    # Check that the zorder of errorbars is always greater than the bar they
+    # are plotted on
+    fig, ax = plt.subplots()
+    x = [1, 2, 3]
+    barcont = ax.bar(x=x, height=x, yerr=x, capsize=5, zorder=3)
+
+    data_line, caplines, barlinecols = barcont.errorbar.lines
+    for bar in barcont.patches:
+        for capline in caplines:
+            assert capline.zorder > bar.zorder
+        for barlinecol in barlinecols:
+            assert barlinecol.zorder > bar.zorder

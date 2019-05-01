@@ -154,8 +154,8 @@ class DecimalConverter(ConversionInterface):
         # If value is a Decimal
         if isinstance(value, Decimal):
             return np.float(value)
-        # else x is a list of Decimal
         else:
+            # assume x is a list of Decimal
             converter = np.asarray
             if isinstance(value, ma.MaskedArray):
                 converter = ma.asarray

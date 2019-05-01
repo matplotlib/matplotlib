@@ -180,7 +180,6 @@ class BezierSegment(object):
 @cbook._rename_parameter("3.1", "tolerence", "tolerance")
 def split_bezier_intersecting_with_closedpath(
         bezier, inside_closedpath, tolerance=0.01):
-
     """
     bezier : control points of the bezier segment
     inside_closedpath : a function which returns true if the point is inside

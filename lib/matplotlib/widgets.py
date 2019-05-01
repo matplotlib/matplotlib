@@ -806,7 +806,7 @@ class TextBox(AxesWidget):
         if self.capturekeystrokes:
             key = event.key
 
-            if(len(key) == 1):
+            if len(key) == 1:
                 self.text = (self.text[:self.cursor_index] + key +
                              self.text[self.cursor_index:])
                 self.cursor_index += 1
@@ -2014,7 +2014,6 @@ class RectangleSelector(_SelectorWidget):
                  lineprops=None, rectprops=None, spancoords='data',
                  button=None, maxdist=10, marker_props=None,
                  interactive=False, state_modifier_keys=None):
-
         """
         Create a selector in *ax*.  When a selection is made, clear
         the span and call onselect with::

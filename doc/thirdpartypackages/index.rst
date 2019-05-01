@@ -160,6 +160,13 @@ Windrose
 Numpy library to manage wind data, draw windroses (also known as polar rose
 plots), draw probability density functions and fit Weibull distributions.
 
+Yellowbrick
+===========
+`Yellowbrick <https://www.scikit-yb.org/>`_ is a suite of visual diagnostic tools for machine learning that enables human steering of the model selection process. Yellowbrick combines scikit-learn with matplotlib using an estimator-based API called the ``Visualizer``, which wraps both sklearn models and matplotlib Axes. ``Visualizer`` objects fit neatly into the machine learning workflow allowing data scientists to integrate visual diagnostic and model interpretation tools into experimentation without extra steps.
+
+.. image:: /_static/yellowbrick.png
+    :height: 400px
+
 
 Interactivity
 *************

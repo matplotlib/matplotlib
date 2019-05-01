@@ -168,7 +168,7 @@ if __name__ == '__main__':
 
     colors = ['b', 'r', 'g', 'm', 'y']
     # Plot the four cases from the example data on separate axes
-    for ax, (title, case_data) in zip(axes.flatten(), data):
+    for ax, (title, case_data) in zip(axes.flat, data):
         ax.set_rgrids([0.2, 0.4, 0.6, 0.8])
         ax.set_title(title, weight='bold', size='medium', position=(0.5, 1.1),
                      horizontalalignment='center', verticalalignment='center')

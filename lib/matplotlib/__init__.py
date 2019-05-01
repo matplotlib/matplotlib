@@ -891,12 +891,10 @@ def _rc_params_in_file(fname, fail_on_error=False):
     Unlike `rc_params_from_file`, the configuration class only contains the
     parameters specified in the file (i.e. default values are not filled in).
     """
-    cnt = 0
     rc_temp = {}
     with _open_file_or_url(fname) as fd:
         try:
-            for line in fd:
-                cnt += 1
+            for cnt, line in enumerate(fd, 1):
                 strippedline = line.split('#', 1)[0].strip()
                 if not strippedline:
                     continue
@@ -1450,6 +1448,12 @@ def _label_from_arg(y, default_name):
     return None
 
 
+_DATA_DOC_TITLE = """
+
+Notes
+-----
+"""
+
 _DATA_DOC_APPENDIX = """
 
 .. note::
@@ -1487,7 +1491,10 @@ def _add_data_doc(docstring, replace_names):
             if len(replace_names) == 0 else
             "* All arguments with the following names: {}.".format(
                 ", ".join(map(repr, sorted(replace_names)))))
-    return docstring + _DATA_DOC_APPENDIX.format(replaced=repl)
+    addendum = _DATA_DOC_APPENDIX.format(replaced=repl)
+    if _DATA_DOC_TITLE not in docstring:
+        addendum = _DATA_DOC_TITLE + addendum
+    return docstring + addendum
 
 
 def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
