@@ -168,7 +168,7 @@ class HandlerNpoints(HandlerBase):
                                 numpoints)
             xdata_marker = xdata
         else:
-            xdata = np.linspace(-xdescent, -xdescent + width, 2)
+            xdata = [-xdescent, -xdescent + width]
             xdata_marker = [-xdescent + 0.5 * width]
         return xdata, xdata_marker
 
@@ -326,7 +326,7 @@ class HandlerLineCollection(HandlerLine2D):
 
         xdata, xdata_marker = self.get_xdata(legend, xdescent, ydescent,
                                              width, height, fontsize)
-        ydata = ((height - ydescent) / 2.) * np.ones(xdata.shape, float)
+        ydata = np.full_like(xdata, (height - ydescent) / 2)
         legline = Line2D(xdata, ydata)
 
         self.update_prop(legline, orig_handle, legend)
@@ -468,7 +468,7 @@ class HandlerErrorbar(HandlerLine2D):
         xdata, xdata_marker = self.get_xdata(legend, xdescent, ydescent,
                                              width, height, fontsize)
 
-        ydata = ((height - ydescent) / 2.) * np.ones(xdata.shape, float)
+        ydata = np.full_like(xdata, (height - ydescent) / 2)
         legline = Line2D(xdata, ydata)
 
         xdata_marker = np.asarray(xdata_marker)

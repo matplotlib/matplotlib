@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 plt.plot([1, 2, 3])
 
-canvas = plt.get_current_fig_manager().canvas
+canvas = plt.gcf().canvas
 
 agg = canvas.switch_backends(FigureCanvasAgg)
 agg.draw()
