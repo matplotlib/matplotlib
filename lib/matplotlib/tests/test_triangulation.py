@@ -1124,18 +1124,17 @@ def test_tricontour_non_finite_z():
     triang = mtri.Triangulation(x, y)
     plt.figure()
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError, match='z array cannot contain non-finite ' +
+                                         'values'):
         plt.tricontourf(triang, [0, 1, 2, np.inf])
-    excinfo.match(r'z array cannot contain non-finite values')
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError, match='z array cannot contain non-finite ' +
+                                         'values'):
         plt.tricontourf(triang, [0, 1, 2, -np.inf])
-    excinfo.match(r'z array cannot contain non-finite values')
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError, match='z array cannot contain non-finite ' +
+                                         'values'):
         plt.tricontourf(triang, [0, 1, 2, np.nan])
-    excinfo.match(r'z array cannot contain non-finite values')
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError, match='z cannot be a masked array'):
         plt.tricontourf(triang, np.ma.array([0, 1, 2, 3], mask=[1, 0, 0, 0]))
-    excinfo.match(r'z cannot be a masked array')
