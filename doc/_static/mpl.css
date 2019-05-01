@@ -187,11 +187,6 @@ div.related ul {
     padding-left: 10px;
 }
 
-li p {
-  margin: unset;
-  display: inline;
-}
-
 div.related ul li {
     margin: 0;
     padding: 0;
@@ -510,10 +505,11 @@ p.topic-title {
     padding-right: .3em;
 }
 
-.contents > ul > li > a {
+.contents > ul > li  p {
     font-size: 1.0em;
+    margin: unset;
+    display: inline;
 }
-
 
 
 div.versioninfo {
