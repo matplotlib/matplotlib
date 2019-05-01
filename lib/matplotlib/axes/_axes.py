@@ -4265,7 +4265,7 @@ class Axes(_AxesBase):
                     # Besides *colors* will be an empty array if c == 'none'.
                     valid_shape = False
                     raise ValueError
-            except (ValueError, TypeError):
+            except ValueError:
                 if not valid_shape:  # but at least one conversion succeeded.
                     raise ValueError(
                         "'c' argument has {nc} elements, which is not "
