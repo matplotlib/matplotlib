@@ -1431,7 +1431,7 @@ def _reshape_2D(X, name):
         raise ValueError("{} must have 2 or fewer dimensions".format(name))
 
 
-def violin_stats(X, method, percentiles=None, points=100):
+def violin_stats(X, method, points=100, percentiles=None):
     """
     Returns a list of dictionaries of data which can be used to draw a series
     of violin plots. See the `Returns` section below to view the required keys
@@ -1451,14 +1451,15 @@ def violin_stats(X, method, percentiles=None, points=100):
         return a vector of the values of the KDE evaluated at the values
         specified in coords.
 
-    percentiles : array-like, default = None
-        Defines (if not None) a list of float number in interval [0, 100] for
-        each column of data, which represents the percentiles that will be
-        rendered for that column of data.
-
     points : scalar, default = 100
         Defines the number of points to evaluate each of the gaussian kernel
         density estimates at.
+
+    percentiles : array-like, default = None
+        Defines (if not None) a list of floats in interval [0, 100] for each
+        column of data, which represents the percentiles that will be rendered
+        for that column of data. Must have 2 or fewer dimensions. 1D array will
+        be returned in a singleton list containing them.
 
     Returns
     -------

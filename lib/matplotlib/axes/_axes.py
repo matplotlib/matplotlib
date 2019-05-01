@@ -7927,9 +7927,9 @@ optional.
           If `True`, will toggle rendering of the medians.
 
         percentiles : array-like, default=None
-          If not None, set a list of float number in interval [0, 100] for
-          each violin, which stands for the percentiles that will be rendered
-          for that violin.
+          If not None, set a list of floats in interval [0, 100] for each
+          violin, which stands for the percentiles that will be rendered for
+          that violin.
 
         points : scalar, default = 100
           Defines the number of points to evaluate each of the
@@ -7982,8 +7982,8 @@ optional.
             kde = mlab.GaussianKDE(X, bw_method)
             return kde.evaluate(coords)
 
-        vpstats = cbook.violin_stats(dataset, _kde_method,
-                                     percentiles=percentiles, points=points)
+        vpstats = cbook.violin_stats(dataset, _kde_method, points=points,
+                                     percentiles=percentiles)
         return self.violin(vpstats, positions=positions, vert=vert,
                            widths=widths, showmeans=showmeans,
                            showextrema=showextrema, showmedians=showmedians)
@@ -8162,8 +8162,10 @@ optional.
 
         # Render percentile values
         if percentiles.size > 0:
-            # Recalculate the pmins and pmaxes for percentiles
+            # Recalculate ranges for statistics lines for percentiles.
+            # ppmins are the left end of percentiles lines
             ppmins = np.asarray([])
+            # pmaxes are the right end of percentiles lines
             ppmaxs = np.asarray([])
             for stats, cmin, cmax in zip(vpstats, pmins, pmaxes):
                 ppmins = np.concatenate((ppmins, [cmin] *
