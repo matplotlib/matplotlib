@@ -200,17 +200,16 @@ def test_unicode_won():
 
 def test_svgnone_with_data_coordinates():
     plt.rcParams['svg.fonttype'] = 'none'
-    expected = 'TEXT'
+    expected = 'Unlikely to appear by chance'
 
     fig, ax = plt.subplots()
     ax.text(np.datetime64('2019-06-30'), 1, expected)
     ax.set_xlim(np.datetime64('2019-01-01'), np.datetime64('2019-12-31'))
     ax.set_ylim(0, 2)
 
-    fd = BytesIO()
-    fig.savefig(fd, format='svg')
-    fd.seek(0)
-    buf = fd.read().decode()
-    fd.close()
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        fd.seek(0)
+        buf = fd.read().decode()
 
     assert expected in buf
