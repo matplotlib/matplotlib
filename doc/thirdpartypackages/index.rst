@@ -38,7 +38,7 @@ data processing tools. An example plot from the `Cartopy gallery
 Ridge Map
 =========
 `ridge_map <https://github.com/ColCarroll/ridge_map>`_ uses Matplotlib,
-srtm.py, numpy, and scikit-image to make ridge plots of your favorite
+SRTM.py, NumPy, and scikit-image to make ridge plots of your favorite
 ridges.
 
 .. image:: /_static/ridge_map_white_mountains.png
