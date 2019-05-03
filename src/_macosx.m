@@ -384,7 +384,7 @@ FigureCanvas_draw(FigureCanvas* self)
 }
 
 static PyObject*
-FigureCanvas_invalidate(FigureCanvas* self)
+FigureCanvas_draw_idle(FigureCanvas* self)
 {
     View* view = self->view;
     if(!view)
@@ -596,12 +596,12 @@ static PyMethodDef FigureCanvas_methods[] = {
     {"draw",
      (PyCFunction)FigureCanvas_draw,
      METH_NOARGS,
-     "Draws the canvas."
+     NULL,  // docstring inherited.
     },
-    {"invalidate",
-     (PyCFunction)FigureCanvas_invalidate,
+    {"draw_idle",
+     (PyCFunction)FigureCanvas_draw_idle,
      METH_NOARGS,
-     "Invalidates the canvas."
+     NULL,  // docstring inherited.
     },
     {"flush_events",
      (PyCFunction)FigureCanvas_flush_events,
