@@ -42,7 +42,7 @@ srtm.py, numpy, and scikit-image to make ridge plots of your favorite
 ridges.
 
 .. image:: /_static/ridge_map_white_mountains.png
-    :height: 400px
+    :height: 364px
 
 Declarative libraries
 *********************
