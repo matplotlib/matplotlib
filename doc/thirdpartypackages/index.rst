@@ -35,6 +35,15 @@ data processing tools. An example plot from the `Cartopy gallery
 .. image:: /_static/cartopy_hurricane_katrina_01_00.png
     :height: 400px
 
+Ridge Map
+=========
+`ridge_map <https://github.com/ColCarroll/ridge_map>`_ uses Matplotlib,
+SRTM.py, NumPy, and scikit-image to make ridge plots of your favorite
+ridges.
+
+.. image:: /_static/ridge_map_white_mountains.png
+    :height: 364px
+
 Declarative libraries
 *********************
 
