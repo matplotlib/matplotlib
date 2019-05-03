@@ -632,7 +632,7 @@ table.docutils {
     border: 0px;
 }
 
-table.docutils th {
+dl.field-list dt.field-odd {
     border-width: 1px 0px;
     border-color: #888;
     background-color: #f0f0f0;
@@ -700,27 +700,27 @@ dl.class table.property-table {
 }
 
 /* tables inside parameter descriptions */
-td.field-body table.property-table {
+dd.field-odd table.property-table {
     width: 100%;
     border-spacing: 2px;
     border-collapse: collapse;
     border: 0px;
 }
 
-td.field-body table.property-table th {
+dd.field-odd table.property-table th {
     padding: 2px 10px;
     border-width: 1px 0px;
     border-color: #888;
     background-color: #f0f0f0;
 }
 
-td.field-body table.property-table td {
+dd.field-odd table.property-table td {
     padding: 2px 10px;
     border-width: 1px 0px;
     border-color: #ccc;
 }
 
-td.field-body table.property-table tr:last-of-type td {
+dd.field-odd table.property-table tr:last-of-type td {
     border-bottom-color: #888;
 }
 
@@ -811,16 +811,16 @@ table.docutils.field-list {
     vertical-align: top;
     width: 125px;
 }
-.docutils.field-list td.field-body {
+.docutils.field-list dd.field-odd {
     padding: 10px 10px 10px 20px;
     text-align: left;
     vertical-align: top;
 }
-.docutils.field-list td.field-body blockquote p {
+.docutils.field-list dd.field-odd blockquote p {
     font-size: 13px;
     line-height: 18px;
 }
-.docutils.field-list td.field-body blockquote p ul li{
+.docutils.field-list dd.field-odd blockquote p ul li{
     font-size: 13px;
 }
 
