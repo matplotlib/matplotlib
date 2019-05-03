@@ -632,6 +632,9 @@ table.docutils {
     border: 0px;
 }
 
+table.docutils p{
+    margin: inherit;
+}
 dl.field-list dt.field-odd {
     border-width: 1px 0px;
     border-color: #888;
