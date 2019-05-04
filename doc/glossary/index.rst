@@ -7,6 +7,18 @@ Glossary
 
 .. glossary::
 
+  AGG
+      The Anti-Grain Geometry (`Agg <http://antigrain.com/>`_) rendering
+      engine, capable of rendering high-quality images
+
+  Cairo
+      The `Cairo graphics <https://cairographics.org>`_ engine
+
+  FreeType
+      `FreeType <https://www.freetype.org/>`_ is a font rasterization
+      library used by matplotlib which supports TrueType, Type 1, and
+      OpenType fonts.
+
   GTK
       The GIMP Toolkit (`GTK <https://www.gtk.org/>`_) graphical user interface
       library
