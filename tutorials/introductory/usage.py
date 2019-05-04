@@ -395,22 +395,18 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # backend for each; these are *non-interactive backends*, capable of
 # writing to a file):
 #
-# =============   ============   ================================================
-# Renderer        Filetypes      Description
-# =============   ============   ================================================
-# :term:`AGG`     :term:`png`    :term:`raster graphics` -- high quality images
-#                                using the `Anti-Grain Geometry`_ engine
-# PS              :term:`ps`     :term:`vector graphics` -- Postscript_ output
-#                 :term:`eps`
-# PDF             :term:`pdf`    :term:`vector graphics` --
-#                                `Portable Document Format`_
-# SVG             :term:`svg`    :term:`vector graphics` --
-#                                `Scalable Vector Graphics`_
-# :term:`Cairo`   :term:`png`    :term:`raster graphics` and
-#                 :term:`ps`     :term:`vector graphics` -- using the
-#                 :term:`pdf`    `Cairo graphics`_ library
-#                 :term:`svg`
-# =============   ============   ================================================
+# ========  =========  =======================================================
+# Renderer  Filetypes  Description
+# ========  =========  =======================================================
+# AGG       png        raster_ graphics -- high quality images using the
+#                      `Anti-Grain Geometry`_ engine
+# PS        ps,        vector_ graphics -- Postscript_ output
+#           eps
+# PDF       pdf        vector_ graphics -- `Portable Document Format`_
+# SVG       svg        vector_ graphics -- `Scalable Vector Graphics`_
+# Cairo     png, ps,   raster_ or vector_ graphics -- using the Cairo_ library
+#           pdf, svg
+# ========  =========  =======================================================
 #
 # And here are the user interfaces and renderer combinations supported;
 # these are *interactive backends*, capable of displaying to the screen
@@ -450,12 +446,12 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _Postscript: https://en.wikipedia.org/wiki/PostScript
 # .. _`Portable Document Format`: https://en.wikipedia.org/wiki/Portable_Document_Format
 # .. _`Scalable Vector Graphics`: https://en.wikipedia.org/wiki/Scalable_Vector_Graphics
-# .. _`Cairo graphics`: https://wwW.cairographics.org
+# .. _Cairo: https://www.cairographics.org
 # .. _PyGObject: https://wiki.gnome.org/action/show/Projects/PyGObject
 # .. _pycairo: https://www.cairographics.org/pycairo/
 # .. _cairocffi: https://pythonhosted.org/cairocffi/
 # .. _wxPython: https://www.wxpython.org/
-# .. _TkInter: https://wiki.python.org/moin/TkInter
+# .. _TkInter: https://docs.python.org/3/library/tk.html
 # .. _PyQt4: https://riverbankcomputing.com/software/pyqt/intro
 # .. _PyQt5: https://riverbankcomputing.com/software/pyqt/intro
 #
