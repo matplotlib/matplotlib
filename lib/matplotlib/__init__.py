@@ -882,15 +882,14 @@ def _open_file_or_url(fname):
             yield f
 
 
-_error_details_fmt = 'line #%d\n\t"%s"\n\tin file "%s"'
-
-
 def _rc_params_in_file(fname, fail_on_error=False):
     """Return :class:`matplotlib.RcParams` from the contents of the given file.
 
     Unlike `rc_params_from_file`, the configuration class only contains the
     parameters specified in the file (i.e. default values are not filled in).
     """
+    _error_details_fmt = 'line #%d\n\t"%s"\n\tin file "%s"'
+
     rc_temp = {}
     with _open_file_or_url(fname) as fd:
         try:
