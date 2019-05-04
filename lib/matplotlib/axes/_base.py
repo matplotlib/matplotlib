@@ -2402,14 +2402,14 @@ class _AxesBase(martist.Artist):
                 (self._xmargin and scalex and self._autoscaleXon) or
                 (self._ymargin and scaley and self._autoscaleYon)):
             stickies = [artist.sticky_edges for artist in self.get_children()]
-            x_stickies = np.array([x for sticky in stickies for x in sticky.x])
-            y_stickies = np.array([y for sticky in stickies for y in sticky.y])
-            if self.get_xscale().lower() == 'log':
-                x_stickies = x_stickies[x_stickies > 0]
-            if self.get_yscale().lower() == 'log':
-                y_stickies = y_stickies[y_stickies > 0]
         else:  # Small optimization.
-            x_stickies, y_stickies = [], []
+            stickies = []
+        x_stickies = np.sort([x for sticky in stickies for x in sticky.x])
+        y_stickies = np.sort([y for sticky in stickies for y in sticky.y])
+        if self.get_xscale().lower() == 'log':
+            x_stickies = x_stickies[x_stickies > 0]
+        if self.get_yscale().lower() == 'log':
+            y_stickies = y_stickies[y_stickies > 0]
 
         def handle_single_axis(scale, autoscaleon, shared_axes, interval,
                                minpos, axis, margin, stickies, set_bound):
@@ -2450,29 +2450,34 @@ class _AxesBase(martist.Artist):
             locator = axis.get_major_locator()
             x0, x1 = locator.nonsingular(x0, x1)
 
+            # Prevent margin addition from crossing a sticky value.  Small
+            # tolerances (whose values come from isclose()) must be used due to
+            # floating point issues with streamplot.
+            def tol(x): return 1e-5 * abs(x) + 1e-8
+            # Index of largest element < x0 + tol, if any.
+            i0 = stickies.searchsorted(x0 + tol(x0)) - 1
+            x0bound = stickies[i0] if i0 != -1 else None
+            # Index of smallest element > x1 - tol, if any.
+            i1 = stickies.searchsorted(x1 - tol(x1))
+            x1bound = stickies[i1] if i1 != len(stickies) else None
+
             # Add the margin in figure space and then transform back, to handle
             # non-linear scales.
             minpos = getattr(bb, minpos)
             transform = axis.get_transform()
             inverse_trans = transform.inverted()
-            # We cannot use exact equality due to floating point issues e.g.
-            # with streamplot.
-            do_lower_margin = not np.any(np.isclose(x0, stickies))
-            do_upper_margin = not np.any(np.isclose(x1, stickies))
             x0, x1 = axis._scale.limit_range_for_scale(x0, x1, minpos)
             x0t, x1t = transform.transform([x0, x1])
+            delta = (x1t - x0t) * margin
+            if not np.isfinite(delta):
+                delta = 0  # If a bound isn't finite, set margin to zero.
+            x0, x1 = inverse_trans.transform([x0t - delta, x1t + delta])
 
-            if np.isfinite(x1t) and np.isfinite(x0t):
-                delta = (x1t - x0t) * margin
-            else:
-                # If at least one bound isn't finite, set margin to zero
-                delta = 0
-
-            if do_lower_margin:
-                x0t -= delta
-            if do_upper_margin:
-                x1t += delta
-            x0, x1 = inverse_trans.transform([x0t, x1t])
+            # Apply sticky bounds.
+            if x0bound is not None:
+                x0 = max(x0, x0bound)
+            if x1bound is not None:
+                x1 = min(x1, x1bound)
 
             if not self._tight:
                 x0, x1 = locator.view_limits(x0, x1)

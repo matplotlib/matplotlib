@@ -797,6 +797,12 @@ def test_polar_rlim_bottom(fig_test, fig_ref):
     ax.set_rmin(.5)
 
 
+def test_polar_rlim_zero():
+    ax = plt.figure().add_subplot(projection='polar')
+    ax.plot(np.arange(10), np.arange(10) + .01)
+    assert ax.get_ylim()[0] == 0
+
+
 @image_comparison(baseline_images=['axvspan_epoch'])
 def test_axvspan_epoch():
     from datetime import datetime
