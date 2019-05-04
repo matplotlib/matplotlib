@@ -35,7 +35,7 @@ import matplotlib
 from .deprecation import (
     deprecated, warn_deprecated,
     _rename_parameter, _delete_parameter, _make_keyword_only,
-    _suppress_matplotlib_deprecation_warning,
+    _inherit_make_keyword_only, _suppress_matplotlib_deprecation_warning,
     MatplotlibDeprecationWarning, mplDeprecation)
 
 

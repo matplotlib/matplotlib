@@ -562,6 +562,26 @@ def test_make_keyword_only(recwarn):
         func(1, 2, 3)
 
 
+def test_inherit_make_keyword_only(recwarn):
+    @cbook._make_keyword_only("3.0", "arg")
+    def func(pre, arg, post=None):
+        pass
+
+    @cbook._inherit_make_keyword_only(func)
+    def wrapper_func(pre, arg, post=None):
+        func(pre, arg, post=None)
+
+    wrapper_func(1, arg=2)
+    for w in recwarn:
+        print(w)
+    assert len(recwarn) == 0
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        wrapper_func(1, 2)
+    with pytest.warns(MatplotlibDeprecationWarning):
+        wrapper_func(1, 2, 3)
+
+
 def test_warn_external(recwarn):
     cbook._warn_external("oops")
     assert len(recwarn) == 1

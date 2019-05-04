@@ -1,3 +1,4 @@
+from collections import namedtuple
 import contextlib
 import functools
 import inspect
@@ -369,17 +370,15 @@ def _delete_parameter(since, name, func=None):
     return wrapper
 
 
+_MakeKeyWordOnlyParams = namedtuple('_MakeKeyWordOnlyParams',
+                                    'since, name, original_signature')
+
+
 def _make_keyword_only(since, name, func=None):
     """
     Decorator indicating that passing parameter *name* (or any of the following
     ones) positionally to *func* is being deprecated.
-
-    Note that this decorator **cannot** be applied to a function that has a
-    pyplot-level wrapper, as the wrapper always pass all arguments by keyword.
-    If it is used, users will see spurious DeprecationWarnings every time they
-    call the pyplot wrapper.
     """
-
     if func is None:
         return functools.partial(_make_keyword_only, since, name)
 
@@ -407,6 +406,46 @@ def _make_keyword_only(since, name, func=None):
                 "parameter will become keyword-only %(removal)s.",
                 name=name, obj_type=f"parameter of {func.__name__}()")
         return func(*args, **kwargs)
+
+    wrapper._make_keyword_only_params = \
+        _MakeKeyWordOnlyParams(since, name, signature)
+
+    return wrapper
+
+
+def _inherit_make_keyword_only(called_func, func=None):
+    """
+    Decorator for inheriting _make_keyword_only decorator from *called_func*.
+
+    This is used in pyplot to inherit the deprecation of positional parameter
+    use from the wrapped methods.
+
+    Notes
+    -----
+    The keyword_only warning of the *called_func* is suppressed. It's not
+    needed since the decorated function already checked the usage.
+    Additionally, this allows the pyplot wrapper to pass any currently
+    allowed positional keyword positionally to *called_func* (which is the
+    current implementation of the wrappers), without risking a warning from
+    the inner function.
+    """
+    if func is None:
+        return functools.partial(_inherit_make_keyword_only, called_func)
+
+    params = getattr(called_func, '_make_keyword_only_params', None)
+    if params is None:
+        return func
+    since, name, _ = params
+
+    @_make_keyword_only(since, name)
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                f"Passing the {name} parameter .* positionally is deprecated",
+                MatplotlibDeprecationWarning)
+            return func(*args, **kwargs)
 
     return wrapper
 
