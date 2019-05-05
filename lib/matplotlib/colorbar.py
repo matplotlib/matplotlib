@@ -1305,7 +1305,7 @@ class Colorbar(ColorbarBase):
             ax.set_subplotspec(subplotspec)
 
 
-def _make_colorbar_locator(parents, fraction, pad, shrink):
+def _make_colorbar_locator(parents, location, fraction, pad, shrink):
     """
     Helper function to locate inset axes, used in
     `.Axes.inset_axes`.
@@ -1322,6 +1322,7 @@ def _make_colorbar_locator(parents, fraction, pad, shrink):
     _pad = pad
     _shrink = shrink
     _parents = parents
+    _location = location
 
     def inset_locator(ax, renderer):
         # will need to fancy up.  Want the offset in physical units and the
@@ -1329,10 +1330,35 @@ def _make_colorbar_locator(parents, fraction, pad, shrink):
         # get the bounds from the parents...
         bbox = mtransforms.Bbox.union(
             [ax.get_position(original=False).frozen() for ax in _parents])
-        bb = mtransforms.Bbox([[bbox.x1+0.05, bbox.y0], [bbox.x1+0.15, bbox.y1]])
-        print(bb)
-        #tr = _parents[0].figure.transFigure.inverted()
-        #bb = mtransforms.TransformedBbox(bb, tr)
+        if location in ['left', 'right']:
+            width = bbox.width * _fraction
+            height = bbox.height * _shrink
+            yspace = (bbox.height - height) / 2
+            pad = _pad * bbox.width
+            y0 = bbox.y0 + yspace
+            y1 = y0 + height
+            if location == 'right':
+                x0 = bbox.x1 + pad
+                x1 = x0 + width
+            else:
+                x1 = bbox.x0 - pad
+                x0 = x1 - width
+        else:
+            height = bbox.height * _fraction
+            width = bbox.width * _shrink
+            xspace = (bbox.width - width) / 2
+            pad = _pad * bbox.height
+            x0 = bbox.x0 + xspace
+            x1 = x0 + width
+            if location == 'top':
+                y0 = bbox.y1 + pad
+                y1 = y0 + height
+            else:
+                y1 = bbox.y0 - pad
+                y0 = y1 - width
+
+        bb = mtransforms.Bbox([[x0, y0], [x1, y1]])
+
         return bb
 
     return inset_locator
@@ -1471,7 +1497,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     # to make the colorbar fit nicely.
     if not using_constrained_layout:
         cax = maxes.Axes(fig, pbcb, label="<colorbar>")
-        this_cbar_locator = _make_colorbar_locator(parents,fraction, pad, shrink)
+        this_cbar_locator = _make_colorbar_locator(parents, location,
+                                                   fraction, pad, shrink)
         cax.set_axes_locator(this_cbar_locator)
         if len(parents) == 1:
             parents[0].add_child_axes(cax)
