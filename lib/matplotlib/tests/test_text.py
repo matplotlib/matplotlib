@@ -6,6 +6,7 @@ from numpy.testing import assert_almost_equal
 import pytest
 
 import matplotlib
+from matplotlib.backend_bases import MouseEvent
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
@@ -204,13 +205,10 @@ def test_afm_kerning():
 
 @image_comparison(baseline_images=['text_contains'], extensions=['png'])
 def test_contains():
-    import matplotlib.backend_bases as mbackend
-
     fig = plt.figure()
     ax = plt.axes()
 
-    mevent = mbackend.MouseEvent(
-        'button_press_event', fig.canvas, 0.5, 0.5, 1, None)
+    mevent = MouseEvent('button_press_event', fig.canvas, 0.5, 0.5, 1, None)
 
     xs = np.linspace(0.25, 0.75, 30)
     ys = np.linspace(0.25, 0.75, 30)
@@ -234,6 +232,19 @@ def test_contains():
         vl = ax.viewLim.frozen()
         ax.plot(x, y, 'o', color=color)
         ax.viewLim.set(vl)
+
+
+def test_annotation_contains():
+    # Check that Annotation.contains looks at the bboxes of the text and the
+    # arrow separately, not at the joint bbox.
+    fig, ax = plt.subplots()
+    ann = ax.annotate(
+        "hello", xy=(.4, .4), xytext=(.6, .6), arrowprops={"arrowstyle": "->"})
+    fig.canvas.draw()   # Needed for the same reason as in test_contains.
+    event = MouseEvent(
+        "button_press_event", fig.canvas,
+        *ax.transData.transform_point((.5, .6)))
+    assert ann.contains(event) == (False, {})
 
 
 @image_comparison(baseline_images=['titles'])
