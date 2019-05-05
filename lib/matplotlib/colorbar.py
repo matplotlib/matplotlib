@@ -1324,9 +1324,7 @@ def _make_colorbar_locator(parents, location, fraction, pad, shrink):
     _parents = parents
     _location = location
 
-    def inset_locator(ax, renderer):
-        # will need to fancy up.  Want the offset in physical units and the
-        # rest in axes relative...
+    def _colorbar_locator(ax, renderer):
         # get the bounds from the parents...
         bbox = mtransforms.Bbox.union(
             [ax.get_position(original=False).frozen() for ax in _parents])
@@ -1361,7 +1359,7 @@ def _make_colorbar_locator(parents, location, fraction, pad, shrink):
 
         return bb
 
-    return inset_locator
+    return _colorbar_locator
 
 
 @docstring.Substitution(make_axes_kw_doc)
