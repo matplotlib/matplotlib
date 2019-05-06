@@ -1,0 +1,4 @@
+`~pyplot.imsave` gained support for the ``metadata`` and ``pil_kwargs`` parameters
+``````````````````````````````````````````````````````````````````````````````````
+
+These parameters behave similarly as for the `Figure.savefig()` method.
