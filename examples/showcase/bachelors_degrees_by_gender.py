@@ -105,8 +105,8 @@ for column in majors:
 
 # Note that if the title is descriptive enough, it is unnecessary to include
 # axis labels; they are self-evident, in this plot's case.
-fig.suptitle('Percentage of Bachelor\'s degrees conferred to women in '
-             'the U.S.A. by major (1970-2011)\n', fontsize=18, ha='center')
+fig.suptitle("Percentage of Bachelor's degrees conferred to women in "
+             "the U.S.A. by major (1970-2011)", fontsize=18, ha="center")
 
 # Finally, save the figure as a PNG.
 # You can also save it as a PDF, JPEG, etc.
