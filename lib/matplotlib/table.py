@@ -320,6 +320,7 @@ class Table(Artist):
         self._bbox = bbox
 
         # use axes coords
+        ax._unstale_viewLim()
         self.set_transform(ax.transAxes)
 
         self._cells = {}
