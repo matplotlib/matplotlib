@@ -353,10 +353,8 @@ def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
 def test_warn_external_frame_embedded_python():
     with patch.object(cbook, "sys") as mock_sys:
         mock_sys._getframe = Mock(return_value=None)
-        with warnings.catch_warnings(record=True) as w:
+        with pytest.warns(UserWarning, match=r"\Adummy\Z"):
             cbook._warn_external("dummy")
-    assert len(w) == 1
-    assert str(w[0].message) == "dummy"
 
 
 def test_to_prestep():

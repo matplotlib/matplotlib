@@ -121,12 +121,12 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
                   grid_finder.grid_locator2(lat_min, lat_max)
 
         if self.nth_coord == 0:
-            xx0 = np.full(self._line_num_points, self.value)
+            xx0 = np.full(self._line_num_points, self.value, type(self.value))
             yy0 = np.linspace(lat_min, lat_max, self._line_num_points)
             xx, yy = grid_finder.transform_xy(xx0, yy0)
         elif self.nth_coord == 1:
             xx0 = np.linspace(lon_min, lon_max, self._line_num_points)
-            yy0 = np.full(self._line_num_points, self.value)
+            yy0 = np.full(self._line_num_points, self.value, type(self.value))
             xx, yy = grid_finder.transform_xy(xx0, yy0)
 
         self.grid_info = {
