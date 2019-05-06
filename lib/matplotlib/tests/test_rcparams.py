@@ -1,6 +1,9 @@
 from collections import OrderedDict
 import copy
 import os
+from pathlib import Path
+import subprocess
+import sys
 from unittest import mock
 
 from cycler import cycler, Cycler
@@ -479,3 +482,28 @@ def test_if_rctemplate_would_be_valid(tmpdir):
                                 fail_on_error=True,
                                 use_default_template=False)
         assert len(record) == 0
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+def test_backend_fallback_headless(tmpdir):
+    env = {**os.environ,
+           "DISPLAY": "", "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
+    with pytest.raises(subprocess.CalledProcessError):
+        subprocess.run(
+            [sys.executable, "-c",
+             "import matplotlib; matplotlib.use('tkagg')"],
+            env=env, check=True)
+
+
+@pytest.mark.skipif(sys.platform == "linux" and not os.environ.get("DISPLAY"),
+                    reason="headless")
+def test_backend_fallback_headful(tmpdir):
+    pytest.importorskip("tkinter")
+    env = {**os.environ, "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
+    backend = subprocess.check_output(
+        [sys.executable, "-c",
+         "import matplotlib.pyplot; print(matplotlib.get_backend())"],
+        env=env, universal_newlines=True)
+    # The actual backend will depend on what's installed, but at least tkagg is
+    # present.
+    assert backend.strip().lower() != "agg"
