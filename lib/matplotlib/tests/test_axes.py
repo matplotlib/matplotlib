@@ -6079,8 +6079,7 @@ def test_secondary_xy():
 
         secax(0.2, functions=(invert, invert))
         secax(0.4, functions=(lambda x: 2 * x, lambda x: x / 2))
-        with pytest.warns(RuntimeWarning):  # Needs to be fixed.
-            secax(0.6, functions=(lambda x: x**2, lambda x: x**(1/2)))
+        secax(0.6, functions=(lambda x: x**2, lambda x: x**(1/2)))
         secax(0.8)
 
 
@@ -6102,8 +6101,7 @@ def test_secondary_resize():
         with np.errstate(divide='ignore'):
             return 1 / x
 
-    with pytest.warns(RuntimeWarning):  # May need to be fixed.
-        ax.secondary_xaxis('top', functions=(invert, invert))
+    ax.secondary_xaxis('top', functions=(invert, invert))
     fig.canvas.draw()
     fig.set_size_inches((7, 4))
     assert_allclose(ax.get_position().extents, [0.125, 0.1, 0.9, 0.9])
