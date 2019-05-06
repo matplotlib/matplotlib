@@ -1226,6 +1226,7 @@ class rc_context:
 
 
 @cbook._rename_parameter("3.1", "arg", "backend")
+@cbook._delete_parameter("3.1", "warn")
 def use(backend, warn=False, force=True):
     """
     Select the backend used for rendering and GUI integration.
@@ -1248,7 +1249,7 @@ def use(backend, warn=False, force=True):
 
     warn : bool, optional, default: False
         If True and not *force*, emit a warning if a failure-to-switch
-        `ImportError` has been suppressed.
+        `ImportError` has been suppressed.  This parameter is deprecated.
 
     force : bool, optional, default: True
         If True (the default), raise an `ImportError` if the backend cannot be

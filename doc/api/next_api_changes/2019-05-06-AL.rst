@@ -1,0 +1,6 @@
+Deprecations
+````````````
+
+The ``warn`` parameter to `matplotlib.use()` is deprecated (catch the
+`ImportError` emitted on backend switch failure and reemit a warning yourself
+if so desired).
