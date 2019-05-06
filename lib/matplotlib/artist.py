@@ -1270,7 +1270,7 @@ class ArtistInspector(object):
             func = getattr(self.o, name)
             if not callable(func):
                 continue
-            nargs = len(inspect.getfullargspec(func).args)
+            nargs = len(inspect.signature(func).parameters)
             if nargs < 2 or self.is_alias(func):
                 continue
             source_class = self.o.__module__ + "." + self.o.__name__

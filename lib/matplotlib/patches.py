@@ -1863,12 +1863,11 @@ def _pprint_styles(_styles):
     _table = [["Class", "Name", "Attrs"]]
 
     for name, cls in sorted(_styles.items()):
-        spec = inspect.getfullargspec(cls.__init__)
-        if spec.defaults:
-            argstr = ", ".join(map(
-                "{}={}".format, spec.args[-len(spec.defaults):], spec.defaults
-            ))
-        else:
+        sig = inspect.signature(cls.__init__)
+        argstr = ", ".join(
+            f"{p.name}={p.default}"
+            for p in sig.parameters.values() if p.default is not p.empty)
+        if not argstr:
             argstr = 'None'
         # adding ``quotes`` since - and | have special meaning in reST
         _table.append([cls.__name__, "``%s``" % name, argstr])
