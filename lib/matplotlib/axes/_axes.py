@@ -3203,8 +3203,7 @@ class Axes(_AxesBase):
             raise ValueError(
                 'errorevery must be positive integer or tuple of integers')
         if int(offset) != offset:
-            raise ValueError(
-                'errorevery\'s starting index must be an integer')
+            raise ValueError("errorevery's starting index must be an integer")
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
 

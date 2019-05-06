@@ -1520,13 +1520,11 @@ class AutoDateLocator(DateLocator):
             else:
                 # We went through the whole loop without breaking, default to
                 # the last interval in the list and raise a warning
-                cbook._warn_external('AutoDateLocator was unable to pick an '
-                                     'appropriate interval for this date '
-                                     'range. It may be necessary to add an '
-                                     'interval value to the '
-                                     'AutoDateLocator\'s intervald '
-                                     'dictionary. Defaulting to {0}.'
-                                     .format(interval))
+                cbook._warn_external(
+                    f"AutoDateLocator was unable to pick an appropriate "
+                    f"interval for this date range. It may be necessary to "
+                    f"add an interval value to the AutoDateLocator's "
+                    f"intervald dictionary. Defaulting to {interval}.")
 
             # Set some parameters as appropriate
             self._freq = freq
