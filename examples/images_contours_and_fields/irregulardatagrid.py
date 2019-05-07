@@ -62,7 +62,7 @@ cntr1 = ax1.contourf(xi, yi, zi, levels=14, cmap="RdBu_r")
 
 fig.colorbar(cntr1, ax=ax1)
 ax1.plot(x, y, 'ko', ms=3)
-ax1.axis((-2, 2, -2, 2))
+ax1.set(xlim=(-2, 2), ylim=(-2, 2))
 ax1.set_title('grid and contour (%d points, %d grid points)' %
               (npts, ngridx * ngridy))
 
@@ -78,7 +78,7 @@ cntr2 = ax2.tricontourf(x, y, z, levels=14, cmap="RdBu_r")
 
 fig.colorbar(cntr2, ax=ax2)
 ax2.plot(x, y, 'ko', ms=3)
-ax2.axis((-2, 2, -2, 2))
+ax2.set(xlim=(-2, 2), ylim=(-2, 2))
 ax2.set_title('tricontour (%d points)' % npts)
 
 plt.subplots_adjust(hspace=0.5)

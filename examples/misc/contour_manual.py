@@ -25,19 +25,19 @@ filled12 = [[[2, 0], [3, 0], [3, 2], [1, 3], [1, 2]],   # Note two polygons.
 
 ###############################################################################
 
-plt.figure()
+fig, ax = plt.subplots()
 
 # Filled contours using filled=True.
-cs = ContourSet(plt.gca(), [0, 1, 2], [filled01, filled12], filled=True, cmap=cm.bone)
-cbar = plt.colorbar(cs)
+cs = ContourSet(ax, [0, 1, 2], [filled01, filled12], filled=True, cmap=cm.bone)
+cbar = fig.colorbar(cs)
 
 # Contour lines (non-filled).
-lines = ContourSet(plt.gca(), [0, 1, 2], [lines0, lines1, lines2], cmap=cm.cool,
-                   linewidths=3)
+lines = ContourSet(
+    ax, [0, 1, 2], [lines0, lines1, lines2], cmap=cm.cool, linewidths=3)
 cbar.add_lines(lines)
 
-plt.axis([-0.5, 3.5, -0.5, 4.5])
-plt.title('User-specified contours')
+ax.set(xlim=(-0.5, 3.5), ylim=(-0.5, 4.5),
+       title='User-specified contours')
 
 ###############################################################################
 # Multiple filled contour lines can be specified in a single list of polygon
@@ -45,13 +45,13 @@ plt.title('User-specified contours')
 # Path class.  This is particularly useful for polygons with holes.
 # Here a code type of 1 is a MOVETO, and 2 is a LINETO.
 
-plt.figure()
+fig, ax = plt.subplots()
 filled01 = [[[0, 0], [3, 0], [3, 3], [0, 3], [1, 1], [1, 2], [2, 2], [2, 1]]]
 kinds01 = [[1, 2, 2, 2, 1, 2, 2, 2]]
-cs = ContourSet(plt.gca(), [0, 1], [filled01], [kinds01], filled=True)
-cbar = plt.colorbar(cs)
+cs = ContourSet(ax, [0, 1], [filled01], [kinds01], filled=True)
+cbar = fig.colorbar(cs)
 
-plt.axis([-0.5, 3.5, -0.5, 3.5])
-plt.title('User specified filled contours with holes')
+ax.set(xlim=(-0.5, 3.5), ylim=(-0.5, 3.5),
+       title='User specified filled contours with holes')
 
 plt.show()
