@@ -79,7 +79,6 @@ class LayoutBox(object):
         self.right = Variable(str(sn + 'right'))
 
         self.width = Variable(str(sn + 'width'))
-        self.pos_aspect = Variable(str(sn + 'aspect'))
         self.height = Variable(str(sn + 'height'))
         # height of box if it has an aspect ratio set.
         self.real_height = Variable(sn+'real_height')
