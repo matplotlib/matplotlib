@@ -22,8 +22,7 @@ def test_log_scales(fig_test, fig_ref):
     ax_ref.plot(xlim, [24.1, 24.1], 'b')
 
 
-@image_comparison(baseline_images=['logit_scales'], remove_text=True,
-                  extensions=['png'])
+@image_comparison(['logit_scales.png'], remove_text=True)
 def test_logit_scales():
     fig, ax = plt.subplots()
 
@@ -66,8 +65,7 @@ def test_logscale_subs():
     fig.canvas.draw()
 
 
-@image_comparison(baseline_images=['logscale_mask'], remove_text=True,
-                  extensions=['png'])
+@image_comparison(['logscale_mask.png'], remove_text=True)
 def test_logscale_mask():
     # Check that zero values are masked correctly on log scales.
     # See github issue 8045
@@ -106,8 +104,8 @@ def test_logscale_transform_repr():
         repr(Log10Transform(nonpos='clip'))
 
 
-@image_comparison(baseline_images=['logscale_nonpos_values'], remove_text=True,
-                  extensions=['png'], tol=0.02, style='mpl20')
+@image_comparison(['logscale_nonpos_values.png'],
+                  remove_text=True, tol=0.02, style='mpl20')
 def test_logscale_nonpos_values():
     np.random.seed(19680801)
     xs = np.random.normal(size=int(1e3))
@@ -157,8 +155,7 @@ def test_invalid_log_lims():
     assert ax.get_ylim() == original_ylim
 
 
-@image_comparison(baseline_images=['function_scales'], remove_text=True,
-                  extensions=['png'], style='mpl20')
+@image_comparison(['function_scales.png'], remove_text=True, style='mpl20')
 def test_function_scale():
     def inverse(x):
         return x**2

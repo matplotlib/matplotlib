@@ -9,8 +9,7 @@ from mpl_toolkits.axisartist import SubplotHost, ParasiteAxesAuxTrans
 from mpl_toolkits.axisartist import Axes
 
 
-@image_comparison(baseline_images=['SubplotZero'],
-                  extensions=['png'], style='default')
+@image_comparison(['SubplotZero.png'], style='default')
 def test_SubplotZero():
     fig = plt.figure()
 
@@ -28,8 +27,7 @@ def test_SubplotZero():
     ax.set_ylabel("Test")
 
 
-@image_comparison(baseline_images=['Subplot'],
-                  extensions=['png'], style='default')
+@image_comparison(['Subplot.png'], style='default')
 def test_Subplot():
     fig = plt.figure()
 
@@ -55,9 +53,8 @@ def test_Axes():
     fig.canvas.draw()
 
 
-@image_comparison(baseline_images=['ParasiteAxesAuxTrans_meshplot'],
-                  extensions=['png'], remove_text=True, style='default',
-                  tol=0.075)
+@image_comparison(['ParasiteAxesAuxTrans_meshplot.png'],
+                  remove_text=True, style='default', tol=0.075)
 def test_ParasiteAxesAuxTrans():
 
     data = np.ones((6, 6))

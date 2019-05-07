@@ -79,7 +79,7 @@ def test_date2num_NaT_scalar(units):
     assert np.isnan(tmpl)
 
 
-@image_comparison(baseline_images=['date_empty'], extensions=['png'])
+@image_comparison(['date_empty.png'])
 def test_date_empty():
     # make sure mpl does the right thing when told to plot dates even
     # if no date data has been presented, cf
@@ -89,7 +89,7 @@ def test_date_empty():
     ax.xaxis_date()
 
 
-@image_comparison(baseline_images=['date_axhspan'], extensions=['png'])
+@image_comparison(['date_axhspan.png'])
 def test_date_axhspan():
     # test ax hspan with date inputs
     t0 = datetime.datetime(2009, 1, 20)
@@ -102,7 +102,7 @@ def test_date_axhspan():
     fig.subplots_adjust(left=0.25)
 
 
-@image_comparison(baseline_images=['date_axvspan'], extensions=['png'])
+@image_comparison(['date_axvspan.png'])
 def test_date_axvspan():
     # test ax hspan with date inputs
     t0 = datetime.datetime(2000, 1, 20)
@@ -115,8 +115,7 @@ def test_date_axvspan():
     fig.autofmt_xdate()
 
 
-@image_comparison(baseline_images=['date_axhline'],
-                  extensions=['png'])
+@image_comparison(['date_axhline.png'])
 def test_date_axhline():
     # test ax hline with date inputs
     t0 = datetime.datetime(2009, 1, 20)
@@ -129,8 +128,7 @@ def test_date_axhline():
     fig.subplots_adjust(left=0.25)
 
 
-@image_comparison(baseline_images=['date_axvline'],
-                  extensions=['png'])
+@image_comparison(['date_axvline.png'])
 def test_date_axvline():
     # test ax hline with date inputs
     t0 = datetime.datetime(2000, 1, 20)
@@ -164,7 +162,7 @@ def test_too_many_date_ticks():
         fig.savefig('junk.png')
 
 
-@image_comparison(baseline_images=['RRuleLocator_bounds'], extensions=['png'])
+@image_comparison(['RRuleLocator_bounds.png'])
 def test_RRuleLocator():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -197,8 +195,7 @@ def test_RRuleLocator_dayrange():
     # On success, no overflow error shall be thrown
 
 
-@image_comparison(baseline_images=['DateFormatter_fractionalSeconds'],
-                  extensions=['png'])
+@image_comparison(['DateFormatter_fractionalSeconds.png'])
 def test_DateFormatter():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -630,8 +627,7 @@ def test_auto_date_locator_intmult_tz():
             assert st == expected
 
 
-@image_comparison(baseline_images=['date_inverted_limit'],
-                  extensions=['png'])
+@image_comparison(['date_inverted_limit.png'])
 def test_date_inverted_limit():
     # test ax hline with date inputs
     t0 = datetime.datetime(2009, 1, 20)

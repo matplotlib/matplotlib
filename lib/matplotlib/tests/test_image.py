@@ -25,7 +25,7 @@ from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
 import pytest
 
 
-@image_comparison(baseline_images=['image_interps'], style='mpl20')
+@image_comparison(['image_interps'], style='mpl20')
 def test_image_interps():
     'make the basic nearest, bilinear and bicubic interps'
     X = np.arange(100)
@@ -46,8 +46,7 @@ def test_image_interps():
     ax3.set_ylabel('bicubic')
 
 
-@image_comparison(baseline_images=['interp_alpha'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['interp_alpha.png'], remove_text=True)
 def test_alpha_interp():
     'Test the interpolation of the alpha channel on RGBA images'
     fig, (axl, axr) = plt.subplots(1, 2)
@@ -60,7 +59,7 @@ def test_alpha_interp():
     axr.imshow(img, interpolation="bilinear")
 
 
-@image_comparison(baseline_images=['interp_nearest_vs_none'],
+@image_comparison(['interp_nearest_vs_none'],
                   extensions=['pdf', 'svg'], remove_text=True)
 def test_interp_nearest_vs_none():
     'Test the effect of "nearest" and "none" interpolation'
@@ -95,13 +94,13 @@ def do_figimage(suppressComposite):
     fig.figimage(img[::-1, ::-1], xo=100, yo=100, origin='lower')
 
 
-@image_comparison(baseline_images=['figimage-0'], extensions=['png', 'pdf'])
+@image_comparison(['figimage-0'], extensions=['png', 'pdf'])
 def test_figimage0():
     suppressComposite = False
     do_figimage(suppressComposite)
 
 
-@image_comparison(baseline_images=['figimage-1'], extensions=['png', 'pdf'])
+@image_comparison(['figimage-1'], extensions=['png', 'pdf'])
 def test_figimage1():
     suppressComposite = True
     do_figimage(suppressComposite)
@@ -231,7 +230,7 @@ def test_imsave_pil_kwargs_tiff():
     assert tags["ImageDescription"] == "test image"
 
 
-@image_comparison(baseline_images=['image_alpha'], remove_text=True)
+@image_comparison(['image_alpha'], remove_text=True)
 def test_image_alpha():
     plt.figure()
 
@@ -335,7 +334,7 @@ def test_format_cursor_data(data, text_without_colorbar, text_with_colorbar):
         == text_with_colorbar
 
 
-@image_comparison(baseline_images=['image_clip'], style='mpl20')
+@image_comparison(['image_clip'], style='mpl20')
 def test_image_clip():
     d = [[1, 2], [3, 4]]
 
@@ -345,7 +344,7 @@ def test_image_clip():
     im.set_clip_path(patch)
 
 
-@image_comparison(baseline_images=['image_cliprect'], style='mpl20')
+@image_comparison(['image_cliprect'], style='mpl20')
 def test_image_cliprect():
     import matplotlib.patches as patches
 
@@ -359,7 +358,7 @@ def test_image_cliprect():
     im.set_clip_path(rect)
 
 
-@image_comparison(baseline_images=['imshow'], remove_text=True, style='mpl20')
+@image_comparison(['imshow'], remove_text=True, style='mpl20')
 def test_imshow():
     fig, ax = plt.subplots()
     arr = np.arange(100).reshape((10, 10))
@@ -368,8 +367,7 @@ def test_imshow():
     ax.set_ylim(0, 3)
 
 
-@image_comparison(baseline_images=['no_interpolation_origin'],
-                  remove_text=True)
+@image_comparison(['no_interpolation_origin'], remove_text=True)
 def test_no_interpolation_origin():
     fig, axs = plt.subplots(2)
     axs[0].imshow(np.arange(100).reshape((2, 50)), origin="lower",
@@ -377,8 +375,7 @@ def test_no_interpolation_origin():
     axs[1].imshow(np.arange(100).reshape((2, 50)), interpolation='none')
 
 
-@image_comparison(baseline_images=['image_shift'], remove_text=True,
-                  extensions=['pdf', 'svg'])
+@image_comparison(['image_shift'], remove_text=True, extensions=['pdf', 'svg'])
 def test_image_shift():
     from matplotlib.colors import LogNorm
 
@@ -420,9 +417,8 @@ def test_image_edges():
     assert g != 100, 'Expected a non-green edge - but sadly, it was.'
 
 
-@image_comparison(baseline_images=['image_composite_background'],
-                  remove_text=True,
-                  style='mpl20')
+@image_comparison(['image_composite_background'],
+                  remove_text=True, style='mpl20')
 def test_image_composite_background():
     fig, ax = plt.subplots()
     arr = np.arange(12).reshape(4, 3)
@@ -432,8 +428,7 @@ def test_image_composite_background():
     ax.set_xlim([0, 12])
 
 
-@image_comparison(baseline_images=['image_composite_alpha'],
-                  remove_text=True)
+@image_comparison(['image_composite_alpha'], remove_text=True)
 def test_image_composite_alpha():
     """
     Tests that the alpha value is recognized and correctly applied in the
@@ -460,9 +455,8 @@ def test_image_composite_alpha():
     ax.set_ylim([5, 0])
 
 
-@image_comparison(baseline_images=['rasterize_10dpi'],
-                  extensions=['pdf', 'svg'],
-                  remove_text=True, style='mpl20')
+@image_comparison(['rasterize_10dpi'],
+                  extensions=['pdf', 'svg'], remove_text=True, style='mpl20')
 def test_rasterize_dpi():
     # This test should check rasterized rendering with high output resolution.
     # It plots a rasterized line and a normal image with imshow.  So it will
@@ -493,8 +487,7 @@ def test_rasterize_dpi():
     rcParams['savefig.dpi'] = 10
 
 
-@image_comparison(baseline_images=['bbox_image_inverted'], remove_text=True,
-                  style='mpl20')
+@image_comparison(['bbox_image_inverted'], remove_text=True, style='mpl20')
 def test_bbox_image_inverted():
     # This is just used to produce an image to feed to BboxImage
     image = np.arange(100).reshape((10, 10))
@@ -538,10 +531,8 @@ def test_get_window_extent_for_AxisImage():
     assert_array_equal(im_bbox.get_points(), [[400, 200], [700, 900]])
 
 
-@image_comparison(baseline_images=['zoom_and_clip_upper_origin'],
-                  remove_text=True,
-                  extensions=['png'],
-                  style='mpl20')
+@image_comparison(['zoom_and_clip_upper_origin.png'],
+                  remove_text=True, style='mpl20')
 def test_zoom_and_clip_upper_origin():
     image = np.arange(100)
     image = image.reshape((10, 10))
@@ -685,8 +676,7 @@ def test_load_from_url():
     plt.imread(urllib.request.urlopen(url))
 
 
-@image_comparison(baseline_images=['log_scale_image'],
-                  remove_text=True)
+@image_comparison(['log_scale_image'], remove_text=True)
 # The recwarn fixture captures a warning in image_comparison.
 def test_log_scale_image(recwarn):
     Z = np.zeros((10, 10))
@@ -698,8 +688,7 @@ def test_log_scale_image(recwarn):
     ax.set_yscale('log')
 
 
-@image_comparison(baseline_images=['rotate_image'],
-                  remove_text=True)
+@image_comparison(['rotate_image'], remove_text=True)
 def test_rotate_image():
     delta = 0.25
     x = y = np.arange(-3.0, 3.0, delta)
@@ -761,8 +750,7 @@ def test_image_preserve_size2():
                        np.identity(n, bool)[::-1])
 
 
-@image_comparison(baseline_images=['mask_image_over_under'],
-                  remove_text=True, extensions=['png'])
+@image_comparison(['mask_image_over_under.png'], remove_text=True)
 def test_mask_image_over_under():
     delta = 0.025
     x = y = np.arange(-3.0, 3.0, delta)
@@ -796,8 +784,7 @@ def test_mask_image_over_under():
                  orientation='horizontal', ax=ax2, aspect=10)
 
 
-@image_comparison(baseline_images=['mask_image'],
-                  remove_text=True)
+@image_comparison(['mask_image'], remove_text=True)
 def test_mask_image():
     # Test mask image two ways: Using nans and using a masked array.
 
@@ -815,8 +802,7 @@ def test_mask_image():
     ax2.imshow(A, interpolation='nearest')
 
 
-@image_comparison(baseline_images=['imshow_endianess'],
-                  remove_text=True, extensions=['png'])
+@image_comparison(['imshow_endianess.png'], remove_text=True)
 def test_imshow_endianess():
     x = np.arange(10)
     X, Y = np.meshgrid(x, x)
@@ -830,7 +816,7 @@ def test_imshow_endianess():
     ax2.imshow(Z.astype('>f8'), **kwargs)
 
 
-@image_comparison(baseline_images=['imshow_masked_interpolation'],
+@image_comparison(['imshow_masked_interpolation'],
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   remove_text=True, style='mpl20')
 def test_imshow_masked_interpolation():
@@ -895,18 +881,14 @@ def test_imshow_clips_rgb_to_valid_range(dtype):
         assert out.dtype == np.uint8
 
 
-@image_comparison(baseline_images=['imshow_flatfield'],
-                  remove_text=True, style='mpl20',
-                  extensions=['png'])
+@image_comparison(['imshow_flatfield.png'], remove_text=True, style='mpl20')
 def test_imshow_flatfield():
     fig, ax = plt.subplots()
     im = ax.imshow(np.ones((5, 5)))
     im.set_clim(.5, 1.5)
 
 
-@image_comparison(baseline_images=['imshow_bignumbers'],
-                  remove_text=True, style='mpl20',
-                  extensions=['png'])
+@image_comparison(['imshow_bignumbers.png'], remove_text=True, style='mpl20')
 def test_imshow_bignumbers():
     # putting a big number in an array of integers shouldn't
     # ruin the dynamic range of the resolved bits.
@@ -916,9 +898,8 @@ def test_imshow_bignumbers():
     pc.set_clim(0, 5)
 
 
-@image_comparison(baseline_images=['imshow_bignumbers_real'],
-                  remove_text=True, style='mpl20',
-                  extensions=['png'])
+@image_comparison(['imshow_bignumbers_real.png'],
+                  remove_text=True, style='mpl20')
 def test_imshow_bignumbers_real():
     # putting a big number in an array of integers shouldn't
     # ruin the dynamic range of the resolved bits.

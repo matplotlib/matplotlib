@@ -13,7 +13,7 @@ import numpy as np
 import pytest
 
 
-@image_comparison(baseline_images=['figure_align_labels'],
+@image_comparison(['figure_align_labels'],
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_align_labels():
     # Check the figure.align_labels() command
@@ -111,7 +111,7 @@ def test_clf_keyword():
     assert [t.get_text() for t in fig2.texts] == []
 
 
-@image_comparison(baseline_images=['figure_today'])
+@image_comparison(['figure_today'])
 def test_figure():
     # named figure support
     fig = plt.figure('today')
@@ -126,7 +126,7 @@ def test_figure():
     plt.close('tomorrow')
 
 
-@image_comparison(baseline_images=['figure_legend'])
+@image_comparison(['figure_legend'])
 def test_figure_legend():
     fig, axs = plt.subplots(2)
     axs[0].plot([0, 1], [1, 0], label='x', color='g')
@@ -177,7 +177,7 @@ def test_add_subplot_invalid():
         fig.add_subplot(2, 2, 5)
 
 
-@image_comparison(baseline_images=['figure_suptitle'])
+@image_comparison(['figure_suptitle'])
 def test_suptitle():
     fig, _ = plt.subplots()
     fig.suptitle('hello', color='r')
@@ -193,7 +193,7 @@ def test_suptitle_fontproperties():
     assert txt.get_weight() == fps.get_weight()
 
 
-@image_comparison(baseline_images=['alpha_background'],
+@image_comparison(['alpha_background'],
                   # only test png and svg. The PDF output appears correct,
                   # but Ghostscript does not preserve the background color.
                   extensions=['png', 'svg'],

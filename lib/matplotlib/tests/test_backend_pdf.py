@@ -23,8 +23,7 @@ with warnings.catch_warnings():
         reason="This test needs a TeX installation")
 
 
-@image_comparison(baseline_images=['pdf_use14corefonts'],
-                  extensions=['pdf'])
+@image_comparison(['pdf_use14corefonts.pdf'])
 def test_use14corefonts():
     rcParams['pdf.use14corefonts'] = True
     rcParams['font.family'] = 'sans-serif'
@@ -168,8 +167,7 @@ def test_determinism_all():
     _determinism_check(format="pdf")
 
 
-@image_comparison(baseline_images=['hatching_legend'],
-                  extensions=['pdf'])
+@image_comparison(['hatching_legend.pdf'])
 def test_hatching_legend():
     """Test for correct hatching on patches in legend"""
     fig = plt.figure(figsize=(1, 2))
@@ -180,8 +178,7 @@ def test_hatching_legend():
     fig.legend([a, b, a, b], ["", "", "", ""])
 
 
-@image_comparison(baseline_images=['grayscale_alpha'],
-                  extensions=['pdf'])
+@image_comparison(['grayscale_alpha.pdf'])
 def test_grayscale_alpha():
     """Masking images with NaN did not work for grayscale images"""
     x, y = np.ogrid[-2:2:.1, -2:2:.1]

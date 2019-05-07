@@ -18,8 +18,7 @@ def test_subplot():
     fig.add_subplot(ax)
 
 
-@image_comparison(baseline_images=['curvelinear3'],
-                  extensions=['png'], style='default', tol=0.01)
+@image_comparison(['curvelinear3.png'], style='default', tol=0.01)
 def test_curvelinear3():
     fig = plt.figure(figsize=(5, 5))
 
@@ -73,8 +72,7 @@ def test_curvelinear3():
     l.set_clip_path(ax1.patch)
 
 
-@image_comparison(baseline_images=['curvelinear4'],
-                  extensions=['png'], style='default', tol=0.015)
+@image_comparison(['curvelinear4.png'], style='default', tol=0.015)
 def test_curvelinear4():
     fig = plt.figure(figsize=(5, 5))
 

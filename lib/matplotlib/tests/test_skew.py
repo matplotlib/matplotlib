@@ -133,7 +133,7 @@ class SkewXAxes(Axes):
 register_projection(SkewXAxes)
 
 
-@image_comparison(baseline_images=['skew_axes'], remove_text=True)
+@image_comparison(['skew_axes'], remove_text=True)
 def test_set_line_coll_dash_image():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection='skewx')
@@ -145,7 +145,7 @@ def test_set_line_coll_dash_image():
     ax.axvline(0, color='b')
 
 
-@image_comparison(baseline_images=['skew_rects'], remove_text=True)
+@image_comparison(['skew_rects'], remove_text=True)
 def test_skew_rectangle():
 
     fix, axes = plt.subplots(5, 5, sharex=True, sharey=True, figsize=(8, 8))

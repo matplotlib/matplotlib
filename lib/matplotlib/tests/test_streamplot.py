@@ -28,8 +28,7 @@ def swirl_velocity_field():
     return x, y, U, V
 
 
-@image_comparison(baseline_images=['streamplot_startpoints'],
-        remove_text=True, style='mpl20')
+@image_comparison(['streamplot_startpoints'], remove_text=True, style='mpl20')
 def test_startpoints():
     X, Y, U, V = velocity_field()
     start_x = np.linspace(X.min(), X.max(), 10)
@@ -39,7 +38,7 @@ def test_startpoints():
     plt.plot(start_x, start_y, 'ok')
 
 
-@image_comparison(baseline_images=['streamplot_colormap'],
+@image_comparison(['streamplot_colormap'],
                   tol=.04, remove_text=True, style='mpl20')
 def test_colormap():
     X, Y, U, V = velocity_field()
@@ -48,9 +47,8 @@ def test_colormap():
     plt.colorbar()
 
 
-@image_comparison(baseline_images=['streamplot_linewidth'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
-                  remove_text=True, style='mpl20')
+@image_comparison(['streamplot_linewidth'], remove_text=True, style='mpl20',
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_linewidth():
     X, Y, U, V = velocity_field()
     speed = np.hypot(U, V)
@@ -64,9 +62,8 @@ def test_linewidth():
                   linewidth=lw)
 
 
-@image_comparison(baseline_images=['streamplot_masks_and_nans'],
-                  tol=0.04 if on_win else 0,
-                  remove_text=True, style='mpl20')
+@image_comparison(['streamplot_masks_and_nans'],
+                  remove_text=True, style='mpl20', tol=0.04 if on_win else 0)
 def test_masks_and_nans():
     X, Y, U, V = velocity_field()
     mask = np.zeros(U.shape, dtype=bool)
@@ -81,8 +78,8 @@ def test_masks_and_nans():
         ax.streamplot(X, Y, U, V, color=U, cmap=plt.cm.Blues)
 
 
-@image_comparison(baseline_images=['streamplot_maxlength'],
-                  extensions=['png'], remove_text=True, style='mpl20')
+@image_comparison(['streamplot_maxlength.png'],
+                  remove_text=True, style='mpl20')
 def test_maxlength():
     x, y, U, V = swirl_velocity_field()
     ax = plt.figure().subplots()
@@ -93,8 +90,8 @@ def test_maxlength():
     ax.set(xlim=(None, 3.2555988021882305), ylim=(None, 3.078326760195413))
 
 
-@image_comparison(baseline_images=['streamplot_direction'],
-                  extensions=['png'], remove_text=True, style='mpl20')
+@image_comparison(['streamplot_direction.png'],
+                  remove_text=True, style='mpl20')
 def test_direction():
     x, y, U, V = swirl_velocity_field()
     plt.streamplot(x, y, U, V, integration_direction='backward',

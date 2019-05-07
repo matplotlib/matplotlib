@@ -84,8 +84,7 @@ def create_figure():
 # test compiling a figure to pdf with xelatex
 @needs_xelatex
 @pytest.mark.backend('pgf')
-@image_comparison(baseline_images=['pgf_xelatex'], extensions=['pdf'],
-                  style='default')
+@image_comparison(['pgf_xelatex.pdf'], style='default')
 def test_xelatex():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
@@ -96,8 +95,7 @@ def test_xelatex():
 # test compiling a figure to pdf with pdflatex
 @needs_pdflatex
 @pytest.mark.backend('pgf')
-@image_comparison(baseline_images=['pgf_pdflatex'], extensions=['pdf'],
-                  style='default')
+@image_comparison(['pgf_pdflatex.pdf'], style='default')
 def test_pdflatex():
     if os.environ.get('APPVEYOR', False):
         pytest.xfail("pdflatex test does not work on appveyor due to missing "
@@ -160,8 +158,7 @@ def test_pathclip():
 # test mixed mode rendering
 @needs_xelatex
 @pytest.mark.backend('pgf')
-@image_comparison(baseline_images=['pgf_mixedmode'], extensions=['pdf'],
-                  style='default')
+@image_comparison(['pgf_mixedmode.pdf'], style='default')
 def test_mixedmode():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}

@@ -72,9 +72,8 @@ def test_nonlinear_containment():
         ax.transData.transform_point((50, .5)), ax.transData)
 
 
-@image_comparison(
-        baseline_images=['arrow_contains_point'], extensions=['png'],
-        remove_text=True, style='mpl20')
+@image_comparison(['arrow_contains_point.png'],
+                  remove_text=True, style='mpl20')
 def test_arrow_contains_point():
     # fix bug (#8384)
     fig, ax = plt.subplots()
@@ -112,8 +111,7 @@ def test_arrow_contains_point():
                 ax.scatter(x, y, s=5, c="r")
 
 
-@image_comparison(baseline_images=['path_clipping'],
-                  extensions=['svg'], remove_text=True)
+@image_comparison(['path_clipping.svg'], remove_text=True)
 def test_path_clipping():
     fig = plt.figure(figsize=(6.0, 6.2))
 
@@ -133,8 +131,7 @@ def test_path_clipping():
             xy, facecolor='none', edgecolor='red', closed=True))
 
 
-@image_comparison(baseline_images=['semi_log_with_zero'], extensions=['png'],
-                  style='mpl20')
+@image_comparison(['semi_log_with_zero.png'], style='mpl20')
 def test_log_transform_with_zero():
     x = np.arange(-10, 10)
     y = (1.0 - 1.0/(x**2+1))**20
@@ -152,8 +149,7 @@ def test_make_compound_path_empty():
     assert r.vertices.shape == (0, 2)
 
 
-@image_comparison(baseline_images=['xkcd'], extensions=['png'],
-                  remove_text=True)
+@image_comparison(['xkcd.png'], remove_text=True)
 def test_xkcd():
     np.random.seed(0)
 
@@ -165,8 +161,7 @@ def test_xkcd():
         ax.plot(x, y)
 
 
-@image_comparison(baseline_images=['xkcd_marker'], extensions=['png'],
-                  remove_text=True)
+@image_comparison(['xkcd_marker.png'], remove_text=True)
 def test_xkcd_marker():
     np.random.seed(0)
 
@@ -182,8 +177,7 @@ def test_xkcd_marker():
         ax.plot(x, y3, '^', ms=10)
 
 
-@image_comparison(baseline_images=['marker_paths'], extensions=['pdf'],
-                  remove_text=True)
+@image_comparison(['marker_paths.pdf'], remove_text=True)
 def test_marker_paths_pdf():
     N = 7
 
@@ -194,8 +188,8 @@ def test_marker_paths_pdf():
     plt.ylim(-1, 7)
 
 
-@image_comparison(baseline_images=['nan_path'], style='default',
-                  remove_text=True, extensions=['pdf', 'svg', 'eps', 'png'])
+@image_comparison(['nan_path'], style='default', remove_text=True,
+                  extensions=['pdf', 'svg', 'eps', 'png'])
 def test_nan_isolated_points():
 
     y0 = [0, np.nan, 2, np.nan, 4, 5, 6]

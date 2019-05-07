@@ -5,10 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-@image_comparison(baseline_images=['imagegrid_cbar_mode'],
-                  extensions=['png'],
-                  remove_text=True,
-                  style='mpl20')
+@image_comparison(['imagegrid_cbar_mode.png'], remove_text=True, style='mpl20')
 def test_imagegrid_cbar_mode_edge():
     X, Y = np.meshgrid(np.linspace(0, 6, 30), np.linspace(0, 6, 30))
     arr = np.sin(X) * np.cos(Y) + 1j*(np.sin(3*Y) * np.cos(Y/2.))

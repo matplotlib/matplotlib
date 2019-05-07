@@ -19,7 +19,7 @@ with warnings.catch_warnings():
         reason="This test needs a TeX installation")
 
 
-@image_comparison(baseline_images=['font_styles'])
+@image_comparison(['font_styles'])
 def test_font_styles():
     from matplotlib import _get_data_path
     data_path = _get_data_path()
@@ -106,7 +106,7 @@ def test_font_styles():
     ax.set_yticks([])
 
 
-@image_comparison(baseline_images=['multiline'])
+@image_comparison(['multiline'])
 def test_multiline():
     plt.figure()
     ax = plt.subplot(1, 1, 1)
@@ -130,7 +130,7 @@ def test_multiline():
     ax.set_yticks([])
 
 
-@image_comparison(baseline_images=['multiline2'], style='mpl20')
+@image_comparison(['multiline2'], style='mpl20')
 def test_multiline2():
     fig, ax = plt.subplots()
 
@@ -178,7 +178,7 @@ def test_multiline2():
     ax.text(1.2, 0.1, 'Bot align, rot20', color='C2')
 
 
-@image_comparison(baseline_images=['antialiased'], extensions=['png'])
+@image_comparison(['antialiased.png'])
 def test_antialiasing():
     matplotlib.rcParams['text.antialiased'] = True
 
@@ -203,7 +203,7 @@ def test_afm_kerning():
     assert afm.string_width_height('VAVAVAVAVAVA') == (7174.0, 718)
 
 
-@image_comparison(baseline_images=['text_contains'], extensions=['png'])
+@image_comparison(['text_contains.png'])
 def test_contains():
     fig = plt.figure()
     ax = plt.axes()
@@ -247,7 +247,7 @@ def test_annotation_contains():
     assert ann.contains(event) == (False, {})
 
 
-@image_comparison(baseline_images=['titles'])
+@image_comparison(['titles'])
 def test_titles():
     # left and right side titles
     plt.figure()
@@ -258,7 +258,7 @@ def test_titles():
     ax.set_yticks([])
 
 
-@image_comparison(baseline_images=['text_alignment'], style='mpl20')
+@image_comparison(['text_alignment'], style='mpl20')
 def test_alignment():
     plt.figure()
     ax = plt.subplot(1, 1, 1)
@@ -282,7 +282,7 @@ def test_alignment():
     ax.set_yticks([])
 
 
-@image_comparison(baseline_images=['axes_titles'], extensions=['png'])
+@image_comparison(['axes_titles.png'])
 def test_axes_titles():
     # Related to issue #3327
     plt.figure()
@@ -373,15 +373,14 @@ def test_null_rotation_with_rotation_mode(ha, va):
                         t1.get_window_extent(fig.canvas.renderer).get_points())
 
 
-@image_comparison(baseline_images=['text_bboxclip'])
+@image_comparison(['text_bboxclip'])
 def test_bbox_clipping():
     plt.text(0.9, 0.2, 'Is bbox clipped?', backgroundcolor='r', clip_on=True)
     t = plt.text(0.9, 0.5, 'Is fancy bbox clipped?', clip_on=True)
     t.set_bbox({"boxstyle": "round, pad=0.1"})
 
 
-@image_comparison(baseline_images=['annotation_negative_ax_coords'],
-                  extensions=['png'])
+@image_comparison(['annotation_negative_ax_coords.png'])
 def test_annotation_negative_ax_coords():
     fig, ax = plt.subplots()
 
@@ -409,8 +408,7 @@ def test_annotation_negative_ax_coords():
                 va='top')
 
 
-@image_comparison(baseline_images=['annotation_negative_fig_coords'],
-                  extensions=['png'])
+@image_comparison(['annotation_negative_fig_coords.png'])
 def test_annotation_negative_fig_coords():
     fig, ax = plt.subplots()
 
@@ -461,8 +459,7 @@ def test_text_stale():
     assert not fig.stale
 
 
-@image_comparison(baseline_images=['agg_text_clip'],
-                  extensions=['png'])
+@image_comparison(['agg_text_clip.png'])
 def test_agg_text_clip():
     np.random.seed(1)
     fig, (ax1, ax2) = plt.subplots(2)
@@ -482,8 +479,7 @@ def test_text_size_binding():
     assert sz1 == fp.get_size_in_points()
 
 
-@image_comparison(baseline_images=['font_scaling'],
-                  extensions=['pdf'])
+@image_comparison(['font_scaling.pdf'])
 def test_font_scaling():
     matplotlib.rcParams['pdf.fonttype'] = 42
     fig, ax = plt.subplots(figsize=(6.4, 12.4))
@@ -547,8 +543,7 @@ def test_single_artist_usetex():
     fig.canvas.draw()
 
 
-@image_comparison(baseline_images=['text_as_path_opacity'],
-                  extensions=['svg'])
+@image_comparison(['text_as_path_opacity.svg'])
 def test_text_as_path_opacity():
     plt.figure()
     plt.gca().set_axis_off()
@@ -557,8 +552,7 @@ def test_text_as_path_opacity():
     plt.text(0.25, 0.75, 'x', alpha=0.5, color=(0, 0, 0, 1))
 
 
-@image_comparison(baseline_images=['text_as_text_opacity'],
-                  extensions=['svg'])
+@image_comparison(['text_as_text_opacity.svg'])
 def test_text_as_text_opacity():
     matplotlib.rcParams['svg.fonttype'] = 'none'
     plt.figure()
@@ -587,8 +581,7 @@ def test_annotation_update():
                            rtol=1e-6)
 
 
-@image_comparison(baseline_images=['large_subscript_title'],
-                  extensions=['png'], style='mpl20')
+@image_comparison(['large_subscript_title.png'], style='mpl20')
 def test_large_subscript_title():
     fig, axs = plt.subplots(1, 2, figsize=(9, 2.5), constrained_layout=True)
     ax = axs[0]
