@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (https://matplotlib.org/) -->
+<svg height="345.6pt" version="1.1" viewBox="0 0 460.8 345.6" width="460.8pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;white-space:pre;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 345.6 
+L 460.8 345.6 
+L 460.8 0 
+L 0 0 
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="text_1">
+   <!-- \textdegree -->
+   <defs>
+    <path d="M 13.90625 68 
+C 8.5 67.296875 5.09375 62.75 5.09375 58 
+C 5.09375 52.953125 9 48 15 48 
+L 15.90625 48 
+C 21.203125 48.703125 24.796875 53.25 24.796875 58 
+C 24.796875 63.15625 20.5 68 14.796875 68 
+z
+M 8.203125 57.390625 
+L 8.203125 58 
+C 8.203125 61.546875 11.296875 64.671875 14.796875 64.671875 
+C 18.40625 64.671875 20.90625 61.875 21.59375 58.609375 
+L 21.59375 57.984375 
+C 21.59375 54.40625 18.5 51.21875 15 51.21875 
+C 11.40625 51.21875 8.90625 54.0625 8.203125 57.390625 
+z
+" id="Computer_Modern_Sans_Serif-176"/>
+   </defs>
+   <g transform="translate(230.4 172.8)scale(0.1 -0.1)">
+    <use xlink:href="#Computer_Modern_Sans_Serif-176"/>
+   </g>
+  </g>
+ </g>
+</svg>

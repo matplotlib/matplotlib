@@ -182,20 +182,12 @@ def test_missing_psfont(monkeypatch):
         fig.savefig(tmpfile, format='svg')
 
 
-# Use Computer Modern Sans Serif, not Helvetica (which has no \textwon).
-@pytest.mark.style('default')
 @needs_usetex
-def test_unicode_won():
-    fig = Figure()
-    fig.text(.5, .5, r'\textwon', usetex=True)
-
-    with BytesIO() as fd:
-        fig.savefig(fd, format='svg')
-        buf = fd.getvalue().decode('ascii')
-
-    won_id = 'Computer_Modern_Sans_Serif-142'
-    assert re.search(r'<path d=(.|\s)*?id="{0}"/>'.format(won_id), buf)
-    assert re.search(r'<use[^/>]*? xlink:href="#{0}"/>'.format(won_id), buf)
+@image_comparison(baseline_images=['unicode_usetex'], extensions=['svg'])
+def test_unicode_usetex():
+    mpl.rcParams['svg.fonttype'] = 'none'
+    mpl.style.use('default')
+    plt.figtext(.5, .5, r'\textdegree', usetex=True)
 
 
 def test_svgnone_with_data_coordinates():
