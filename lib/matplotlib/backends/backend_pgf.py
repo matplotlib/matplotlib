@@ -775,6 +775,7 @@ class FigureCanvasPgf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
+    @cbook._delete_parameter("3.2", "dryrun")
     def _print_pgf_to_fh(self, fh, *args,
                          dryrun=False, bbox_inches_restore=None, **kwargs):
         if dryrun:
