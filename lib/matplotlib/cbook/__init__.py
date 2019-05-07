@@ -1506,7 +1506,7 @@ def violin_stats(X, method, points=100, percentiles=None):
         # Calculate basic stats for the distribution
         min_val = np.min(x)
         max_val = np.max(x)
-        p_val = np.quantile(x, p)
+        p_val = np.percentile(x, 100 * p)
 
         # Evaluate the kernel density estimate
         coords = np.linspace(min_val, max_val, points)
