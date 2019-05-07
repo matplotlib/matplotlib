@@ -1860,7 +1860,8 @@ default: 'top'
         """
         default = dict(transform=self.transFigure)
 
-        if withdash:
+        if (withdash
+                and withdash is not cbook.deprecation._deprecated_parameter):
             text = TextWithDash(x=x, y=y, text=s)
         else:
             text = Text(x=x, y=y, text=s)
