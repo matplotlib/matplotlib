@@ -1,0 +1,24 @@
+Change in the application of ``Artist.sticky_edges``
+````````````````````````````````````````````````````
+
+Previously, the ``sticky_edges`` attribute of artists was a list of values such
+that if an axis limit coincides with a sticky edge, it would not be expanded by
+the axes margins (this is the mechanism that e.g. prevents margins from being
+added around images).
+
+``sticky_edges`` now have an additional effect on margins application: even if
+an axis limit did not coincide with a sticky edge, it cannot *cross* a sticky
+edge through margin application -- instead, the margins will only expand the
+axis limit until it bumps against the sticky edge.
+
+This change improves the margins of axes displaying a `~Axes.streamplot`:
+
+- if the streamplot goes all the way to the edges of the vector field, then the
+  axis limits are set to match exactly the vector field limits (whereas they
+  would be sometimes be off by a small floating point error previously).
+- if the streamplot does not reach the edges of the vector field (e.g., due to
+  the use of ``start_points`` and ``maxlength``), then margins expansion will
+  not cross the the vector field limits anymore.
+
+This change is also used internally to ensure that polar plots don't display
+negative *r* values unless the user really passes in a negative value.

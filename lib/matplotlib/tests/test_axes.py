@@ -798,6 +798,12 @@ def test_polar_rlim_bottom(fig_test, fig_ref):
     ax.set_rmin(.5)
 
 
+def test_polar_rlim_zero():
+    ax = plt.figure().add_subplot(projection='polar')
+    ax.plot(np.arange(10), np.arange(10) + .01)
+    assert ax.get_ylim()[0] == 0
+
+
 @image_comparison(baseline_images=['axvspan_epoch'])
 def test_axvspan_epoch():
     from datetime import datetime
@@ -1821,6 +1827,13 @@ class TestScatter(object):
         with pytest.raises(ValueError):
             plt.scatter([1, 2, 3], [1, 2, 3], color=[1, 2, 3])
 
+    def test_scatter_size_arg_size(self):
+        x = np.arange(4)
+        with pytest.raises(ValueError):
+            plt.scatter(x, x, x[1:])
+        with pytest.raises(ValueError):
+            plt.scatter(x[1:], x[1:], x)
+
     @check_figures_equal(extensions=["png"])
     def test_scatter_invalid_color(self, fig_test, fig_ref):
         ax = fig_test.subplots()
@@ -1848,6 +1861,21 @@ class TestScatter(object):
                    cmap=cmap, plotnonfinite=False)
         ax = fig_ref.subplots()
         ax.scatter([0, 2], [0, 2], c=[1, 2], s=[1, 3], cmap=cmap)
+
+    @check_figures_equal(extensions=["png"])
+    def test_scatter_single_point(self, fig_test, fig_ref):
+        ax = fig_test.subplots()
+        ax.scatter(1, 1, c=1)
+        ax = fig_ref.subplots()
+        ax.scatter([1], [1], c=[1])
+
+    @check_figures_equal(extensions=["png"])
+    def test_scatter_different_shapes(self, fig_test, fig_ref):
+        x = np.arange(10)
+        ax = fig_test.subplots()
+        ax.scatter(x, x.reshape(2, 5), c=x.reshape(5, 2))
+        ax = fig_ref.subplots()
+        ax.scatter(x.reshape(5, 2), x, c=x.reshape(2, 5))
 
     # Parameters for *test_scatter_c*. NB: assuming that the
     # scatter plot will have 4 elements. The tuple scheme is:
@@ -1905,7 +1933,7 @@ class TestScatter(object):
 
         from matplotlib.axes import Axes
 
-        xshape = yshape = (4,)
+        xsize = 4
 
         # Additional checking of *c* (introduced in #11383).
         REGEXP = {
@@ -1915,21 +1943,18 @@ class TestScatter(object):
 
         if re_key is None:
             Axes._parse_scatter_color_args(
-                c=c_case, edgecolors="black", kwargs={},
-                xshape=xshape, yshape=yshape,
+                c=c_case, edgecolors="black", kwargs={}, xsize=xsize,
                 get_next_color_func=get_next_color)
         else:
             with pytest.raises(ValueError, match=REGEXP[re_key]):
                 Axes._parse_scatter_color_args(
-                    c=c_case, edgecolors="black", kwargs={},
-                    xshape=xshape, yshape=yshape,
+                    c=c_case, edgecolors="black", kwargs={}, xsize=xsize,
                     get_next_color_func=get_next_color)
 
 
-def _params(c=None, xshape=(2,), yshape=(2,), **kwargs):
+def _params(c=None, xsize=2, **kwargs):
     edgecolors = kwargs.pop('edgecolors', None)
-    return (c, edgecolors, kwargs if kwargs is not None else {},
-            xshape, yshape)
+    return (c, edgecolors, kwargs if kwargs is not None else {}, xsize)
 _result = namedtuple('_result', 'c, colors')
 
 
@@ -1981,8 +2006,7 @@ def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
     c = kwargs.pop('c', None)
     edgecolors = kwargs.pop('edgecolors', None)
     _, _, result_edgecolors = \
-        Axes._parse_scatter_color_args(c, edgecolors, kwargs,
-                                       xshape=(2,), yshape=(2,),
+        Axes._parse_scatter_color_args(c, edgecolors, kwargs, xsize=2,
                                        get_next_color_func=get_next_color)
     assert result_edgecolors == expected_edgecolors
 

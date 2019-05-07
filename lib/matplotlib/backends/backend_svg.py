@@ -82,7 +82,7 @@ def escape_comment(s):
 def escape_attrib(s):
     s = s.replace("&", "&amp;")
     s = s.replace("'", "&apos;")
-    s = s.replace("\"", "&quot;")
+    s = s.replace('"', "&quot;")
     s = s.replace("<", "&lt;")
     s = s.replace(">", "&gt;")
     return s
@@ -1040,7 +1040,8 @@ class RendererSVG(RendererBase):
 
                 # Get anchor coordinates.
                 transform = mtext.get_transform()
-                ax, ay = transform.transform_point(mtext.get_position())
+                ax, ay = transform.transform_point(
+                    mtext.get_unitless_position())
                 ay = self.height - ay
 
                 # Don't do vertical anchor alignment. Most applications do not

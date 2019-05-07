@@ -6,7 +6,7 @@ from matplotlib.backend_bases import (
     TimerBase)
 
 from matplotlib.figure import Figure
-from matplotlib import rcParams
+from matplotlib import cbook, rcParams
 
 from matplotlib.widgets import SubplotTool
 
@@ -83,15 +83,17 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
 
     def draw(self):
         # docstring inherited
-        self.invalidate()
+        self.draw_idle()
         self.flush_events()
 
-    def draw_idle(self, *args, **kwargs):
-        # docstring inherited
-        self.invalidate()
+    # draw_idle is provided by _macosx.FigureCanvas
+
+    @cbook.deprecated("3.2", alternative="draw_idle()")
+    def invalidate(self):
+        return self.draw_idle()
 
     def blit(self, bbox=None):
-        self.invalidate()
+        self.draw_idle()
 
     def resize(self, width, height):
         dpi = self.figure.dpi
@@ -182,12 +184,7 @@ class _BackendMac(_Backend):
 
     @staticmethod
     def trigger_manager_draw(manager):
-        # For performance reasons, we don't want to redraw the figure after
-        # each draw command. Instead, we mark the figure as invalid, so that it
-        # will be redrawn as soon as the event loop resumes via PyOS_InputHook.
-        # This function should be called after each draw event, even if
-        # matplotlib is not running interactively.
-        manager.canvas.invalidate()
+        manager.canvas.draw_idle()
 
     @staticmethod
     def mainloop():

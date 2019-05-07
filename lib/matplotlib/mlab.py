@@ -1067,11 +1067,6 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     return spec, freqs, t
 
 
-_coh_error = """Coherence is calculated by averaging over *NFFT*
-length segments.  Your signal is too short for your choice of *NFFT*.
-"""
-
-
 @docstring.dedent_interpd
 def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
            noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
@@ -1109,9 +1104,10 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
         For information about the methods used to compute :math:`P_{xy}`,
         :math:`P_{xx}` and :math:`P_{yy}`.
     """
-
     if len(x) < 2 * NFFT:
-        raise ValueError(_coh_error)
+        raise ValueError(
+            "Coherence is calculated by averaging over *NFFT* length "
+            "segments.  Your signal is too short for your choice of *NFFT*.")
     Pxx, f = psd(x, NFFT, Fs, detrend, window, noverlap, pad_to, sides,
                  scale_by_freq)
     Pyy, f = psd(y, NFFT, Fs, detrend, window, noverlap, pad_to, sides,

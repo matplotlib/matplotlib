@@ -365,6 +365,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
                self._picker is not True  # the bool, not just nonzero or 1
             else self._pickradius)
 
+        if self.axes and self.get_offset_position() == "data":
+            self.axes._unstale_viewLim()
+
         transform, transOffset, offsets, paths = self._prepare_points()
 
         ind = _path.point_in_path_collection(

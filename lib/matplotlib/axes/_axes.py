@@ -864,7 +864,7 @@ class Axes(_AxesBase):
         trans = self.get_yaxis_transform(which='grid')
         l = mlines.Line2D([xmin, xmax], [y, y], transform=trans, **kwargs)
         self.add_line(l)
-        self.autoscale_view(scalex=False, scaley=scaley)
+        self._request_autoscale_view(scalex=False, scaley=scaley)
         return l
 
     @docstring.dedent_interpd
@@ -933,7 +933,7 @@ class Axes(_AxesBase):
         trans = self.get_xaxis_transform(which='grid')
         l = mlines.Line2D([x, x], [ymin, ymax], transform=trans, **kwargs)
         self.add_line(l)
-        self.autoscale_view(scalex=scalex, scaley=False)
+        self._request_autoscale_view(scalex=scalex, scaley=False)
         return l
 
     @docstring.dedent_interpd
@@ -989,7 +989,7 @@ class Axes(_AxesBase):
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
         self.add_patch(p)
-        self.autoscale_view(scalex=False)
+        self._request_autoscale_view(scalex=False)
         return p
 
     def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
@@ -1054,7 +1054,7 @@ class Axes(_AxesBase):
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
         self.add_patch(p)
-        self.autoscale_view(scaley=False)
+        self._request_autoscale_view(scaley=False)
         return p
 
     @_preprocess_data(replace_names=["y", "xmin", "xmax", "colors"],
@@ -1129,7 +1129,7 @@ class Axes(_AxesBase):
             corners = (minx, miny), (maxx, maxy)
 
             self.update_datalim(corners)
-            self.autoscale_view()
+            self._request_autoscale_view()
 
         return lines
 
@@ -1206,7 +1206,7 @@ class Axes(_AxesBase):
 
             corners = (minx, miny), (maxx, maxy)
             self.update_datalim(corners)
-            self.autoscale_view()
+            self._request_autoscale_view()
 
         return lines
 
@@ -1422,7 +1422,7 @@ class Axes(_AxesBase):
                 else:  # "horizontal", None or "none" (see EventCollection)
                     corners = (minpos, minline), (maxpos, maxline)
                 self.update_datalim(corners)
-                self.autoscale_view()
+                self._request_autoscale_view()
 
         return colls
 
@@ -1666,7 +1666,7 @@ class Axes(_AxesBase):
         lines = [*self._get_lines(*args, data=data, **kwargs)]
         for line in lines:
             self.add_line(line)
-        self.autoscale_view(scalex=scalex, scaley=scaley)
+        self._request_autoscale_view(scalex=scalex, scaley=scaley)
         return lines
 
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
@@ -1742,7 +1742,7 @@ class Axes(_AxesBase):
 
         ret = self.plot(x, y, fmt, **kwargs)
 
-        self.autoscale_view()
+        self._request_autoscale_view()
 
         return ret
 
@@ -2454,7 +2454,7 @@ class Axes(_AxesBase):
                 ymin = ymin - np.max(yerr)
             ymin = max(ymin * 0.9, 1e-100)
             self.dataLim.intervaly = (ymin, ymax)
-        self.autoscale_view()
+        self._request_autoscale_view()
 
         bar_container = BarContainer(patches, errorbar, label=label)
         self.add_container(bar_container)
@@ -2650,7 +2650,7 @@ class Axes(_AxesBase):
 
         col = mcoll.BrokenBarHCollection(xranges_conv, yrange_conv, **kwargs)
         self.add_collection(col, autolim=True)
-        self.autoscale_view()
+        self._request_autoscale_view()
 
         return col
 
@@ -3204,8 +3204,7 @@ class Axes(_AxesBase):
             raise ValueError(
                 'errorevery must be positive integer or tuple of integers')
         if int(offset) != offset:
-            raise ValueError(
-                'errorevery\'s starting index must be an integer')
+            raise ValueError("errorevery's starting index must be an integer")
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
 
@@ -3464,7 +3463,7 @@ class Axes(_AxesBase):
         for l in caplines:
             self.add_line(l)
 
-        self.autoscale_view()
+        self._request_autoscale_view()
         errorbar_container = ErrorbarContainer((data_line, tuple(caplines),
                                                 tuple(barcols)),
                                                has_xerr=(xerr is not None),
@@ -4132,14 +4131,14 @@ class Axes(_AxesBase):
                 axis.set_major_formatter(formatter)
             formatter.seq = [*formatter.seq, *datalabels]
 
-            self.autoscale_view(
+            self._request_autoscale_view(
                 scalex=self._autoscaleXon, scaley=self._autoscaleYon)
 
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
                     medians=medians, fliers=fliers, means=means)
 
     @staticmethod
-    def _parse_scatter_color_args(c, edgecolors, kwargs, xshape, yshape,
+    def _parse_scatter_color_args(c, edgecolors, kwargs, xsize,
                                   get_next_color_func):
         """
         Helper function to process color related arguments of `.Axes.scatter`.
@@ -4169,8 +4168,8 @@ class Axes(_AxesBase):
             Additional kwargs. If these keys exist, we pop and process them:
             'facecolors', 'facecolor', 'edgecolor', 'color'
             Note: The dict is modified by this function.
-        xshape, yshape : tuple of int
-            The shape of the x and y arrays passed to `.Axes.scatter`.
+        xsize : int
+            The size of the x and y arrays passed to `.Axes.scatter`.
         get_next_color_func : callable
             A callable that returns a color. This color is used as facecolor
             if no other color is provided.
@@ -4193,9 +4192,6 @@ class Axes(_AxesBase):
             The edgecolor specification.
 
         """
-        xsize = functools.reduce(operator.mul, xshape, 1)
-        ysize = functools.reduce(operator.mul, yshape, 1)
-
         facecolors = kwargs.pop('facecolors', None)
         facecolors = kwargs.pop('facecolor', facecolors)
         edgecolors = kwargs.pop('edgecolor', edgecolors)
@@ -4235,7 +4231,7 @@ class Axes(_AxesBase):
         # favor of mapping, not rgb or rgba.
         # Convenience vars to track shape mismatch *and* conversion failures.
         valid_shape = True  # will be put to the test!
-        n_elem = -1  # used only for (some) exceptions
+        csize = -1  # Number of colors; used for some exceptions.
 
         if (c_was_none or
                 kwcolor is not None or
@@ -4247,9 +4243,9 @@ class Axes(_AxesBase):
         else:
             try:  # First, does 'c' look suitable for value-mapping?
                 c_array = np.asanyarray(c, dtype=float)
-                n_elem = c_array.shape[0]
-                if c_array.shape in [xshape, yshape]:
-                    c = np.ma.ravel(c_array)
+                csize = c_array.size
+                if csize == xsize:
+                    c = c_array.ravel()
                 else:
                     if c_array.shape in ((3,), (4,)):
                         _log.warning(
@@ -4268,8 +4264,8 @@ class Axes(_AxesBase):
         if c_array is None:
             try:  # Then is 'c' acceptable as PathCollection facecolors?
                 colors = mcolors.to_rgba_array(c)
-                n_elem = colors.shape[0]
-                if colors.shape[0] not in (0, 1, xsize, ysize):
+                csize = colors.shape[0]
+                if csize not in (0, 1, xsize):
                     # NB: remember that a single color is also acceptable.
                     # Besides *colors* will be an empty array if c == 'none'.
                     valid_shape = False
@@ -4277,19 +4273,14 @@ class Axes(_AxesBase):
             except ValueError:
                 if not valid_shape:  # but at least one conversion succeeded.
                     raise ValueError(
-                        "'c' argument has {nc} elements, which is not "
-                        "acceptable for use with 'x' with size {xs}, "
-                        "'y' with size {ys}."
-                            .format(nc=n_elem, xs=xsize, ys=ysize)
-                    )
+                        f"'c' argument has {csize} elements, which is "
+                        "inconsistent with 'x' and 'y' with size {xsize}.")
                 else:
                     # Both the mapping *and* the RGBA conversion failed: pretty
                     # severe failure => one may appreciate a verbose feedback.
                     raise ValueError(
-                        "'c' argument must be a mpl color, a sequence of mpl "
-                        "colors or a sequence of numbers, not {}."
-                            .format(c)  # note: could be long depending on c
-                    )
+                        f"'c' argument must be a mpl color, a sequence of mpl "
+                        "colors, or a sequence of numbers, not {c}.")
         else:
             colors = None  # use cmap, norm after collection is created
         return c, colors, edgecolors
@@ -4307,7 +4298,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x, y : array_like, shape (n, )
+        x, y : scalar or array_like, shape (n, )
             The data positions.
 
         s : scalar or array_like, shape (n, ), optional
@@ -4319,8 +4310,8 @@ class Axes(_AxesBase):
 
             - A single color format string.
             - A sequence of color specifications of length n.
-            - A sequence of n numbers to be mapped to colors using *cmap* and
-              *norm*.
+            - A scalar or sequence of n numbers to be mapped to colors using
+              *cmap* and *norm*.
             - A 2-D array in which the rows are RGB or RGBA.
 
             Note that *c* should not be a single numeric RGB or RGBA sequence
@@ -4409,7 +4400,7 @@ optional.
           plotted.
 
         * Fundamentally, scatter works with 1-D arrays; *x*, *y*, *s*, and *c*
-          may be input as 2-D arrays, but within scatter they will be
+          may be input as N-D arrays, but within scatter they will be
           flattened. The exception is *c*, which will be flattened only if its
           size matches the size of *x* and *y*.
 
@@ -4422,7 +4413,6 @@ optional.
 
         # np.ma.ravel yields an ndarray, not a masked array,
         # unless its argument is a masked array.
-        xshape, yshape = np.shape(x), np.shape(y)
         x = np.ma.ravel(x)
         y = np.ma.ravel(y)
         if x.size != y.size:
@@ -4431,11 +4421,13 @@ optional.
         if s is None:
             s = (20 if rcParams['_internal.classic_mode'] else
                  rcParams['lines.markersize'] ** 2.0)
-        s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
+        s = np.ma.ravel(s)
+        if len(s) not in (1, x.size):
+            raise ValueError("s must be a scalar, or the same size as x and y")
 
         c, colors, edgecolors = \
             self._parse_scatter_color_args(
-                c, edgecolors, kwargs, xshape, yshape,
+                c, edgecolors, kwargs, x.size,
                 get_next_color_func=self._get_patches_for_fill.get_next_color)
 
         if plotnonfinite and colors is None:
@@ -4510,7 +4502,7 @@ optional.
                 self.set_ymargin(0.05)
 
         self.add_collection(collection)
-        self.autoscale_view()
+        self._request_autoscale_view()
 
         return collection
 
@@ -4850,9 +4842,7 @@ optional.
 
         corners = ((xmin, ymin), (xmax, ymax))
         self.update_datalim(corners)
-        collection.sticky_edges.x[:] = [xmin, xmax]
-        collection.sticky_edges.y[:] = [ymin, ymax]
-        self.autoscale_view(tight=True)
+        self._request_autoscale_view(tight=True)
 
         # add the collection last
         self.add_collection(collection, autolim=False)
@@ -5022,7 +5012,7 @@ optional.
         q = mquiver.Quiver(self, *args, **kw)
 
         self.add_collection(q, autolim=True)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return q
     quiver.__doc__ = mquiver.Quiver.quiver_doc
 
@@ -5038,7 +5028,7 @@ optional.
 
         b = mquiver.Barbs(self, *args, **kw)
         self.add_collection(b, autolim=True)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return b
 
     # Uses a custom implementation of data-kwarg handling in
@@ -5093,7 +5083,7 @@ optional.
         for poly in self._get_patches_for_fill(*args, data=data, **kwargs):
             self.add_patch(poly)
             patches.append(poly)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return patches
 
     @_preprocess_data(replace_names=["x", "y1", "y2", "where"])
@@ -5274,7 +5264,7 @@ optional.
         self.dataLim.update_from_data_xy(XY2, self.ignore_existing_data_limits,
                                          updatex=False, updatey=True)
         self.add_collection(collection, autolim=False)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return collection
 
     @_preprocess_data(replace_names=["y", "x1", "x2", "where"])
@@ -5454,7 +5444,7 @@ optional.
         self.dataLim.update_from_data_xy(X2Y, self.ignore_existing_data_limits,
                                          updatex=True, updatey=False)
         self.add_collection(collection, autolim=False)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return collection
 
     #### plotting z(x,y): imshow, pcolor and relatives, contour
@@ -5953,7 +5943,7 @@ optional.
         collection.sticky_edges.y[:] = [miny, maxy]
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return collection
 
     @_preprocess_data()
@@ -6165,7 +6155,7 @@ optional.
         collection.sticky_edges.y[:] = [miny, maxy]
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return collection
 
     @_preprocess_data()
@@ -6351,14 +6341,14 @@ optional.
         ret.sticky_edges.x[:] = [xl, xr]
         ret.sticky_edges.y[:] = [yb, yt]
         self.update_datalim(np.array([[xl, yb], [xr, yt]]))
-        self.autoscale_view(tight=True)
+        self._request_autoscale_view(tight=True)
         return ret
 
     @_preprocess_data()
     def contour(self, *args, **kwargs):
         kwargs['filled'] = False
         contours = mcontour.QuadContourSet(self, *args, **kwargs)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return contours
     contour.__doc__ = mcontour.QuadContourSet._contour_doc
 
@@ -6366,7 +6356,7 @@ optional.
     def contourf(self, *args, **kwargs):
         kwargs['filled'] = True
         contours = mcontour.QuadContourSet(self, *args, **kwargs)
-        self.autoscale_view()
+        self._request_autoscale_view()
         return contours
     contourf.__doc__ = mcontour.QuadContourSet._contour_doc
 
@@ -6881,7 +6871,7 @@ optional.
 
         self.set_autoscalex_on(_saved_autoscalex)
         self.set_autoscaley_on(_saved_autoscaley)
-        self.autoscale_view()
+        self._request_autoscale_view()
 
         if label is None:
             labels = [None]

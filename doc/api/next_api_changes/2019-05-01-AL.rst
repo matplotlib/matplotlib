@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+``FigureCanvasMac.invalidate`` is deprecated in favor of its synonym,
+``FigureCanvasMac.draw_idle``.

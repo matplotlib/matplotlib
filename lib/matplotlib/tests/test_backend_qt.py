@@ -56,7 +56,7 @@ def qt_module(request):
             py_qt_ver = QtCore.__version_info__[0]
 
         if py_qt_ver != 4:
-            pytest.skip(reason='Qt4 is not available')
+            pytest.skip('Qt4 is not available')
 
         from matplotlib.backends.backend_qt4 import (
             MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)
