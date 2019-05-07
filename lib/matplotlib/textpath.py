@@ -312,18 +312,10 @@ class TextToPath(object):
                 font.set_size(self.FONT_SCALE, self.DPI)
                 # See comments in _get_ps_font_and_encoding.
                 if enc is not None:
-                    if glyph not in enc:
-                        _log.warning(
-                            "The glyph %d of font %s cannot be converted with "
-                            "the encoding; glyph may be wrong.",
-                            glyph, font.fname)
-                        font.load_char(glyph, flags=LOAD_TARGET_LIGHT)
-                    else:
-                        index = font.get_name_index(enc[glyph])
-                        font.load_glyph(index, flags=LOAD_TARGET_LIGHT)
+                    index = font.get_name_index(enc[glyph])
+                    font.load_glyph(index, flags=LOAD_TARGET_LIGHT)
                 else:
-                    index = glyph
-                    font.load_char(index, flags=LOAD_TARGET_LIGHT)
+                    font.load_char(glyph, flags=LOAD_TARGET_LIGHT)
                 glyph_map_new[char_id] = font.get_path()
 
             glyph_ids.append(char_id)
