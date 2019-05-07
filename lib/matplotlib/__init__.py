@@ -882,15 +882,14 @@ def _open_file_or_url(fname):
             yield f
 
 
-_error_details_fmt = 'line #%d\n\t"%s"\n\tin file "%s"'
-
-
 def _rc_params_in_file(fname, fail_on_error=False):
     """Return :class:`matplotlib.RcParams` from the contents of the given file.
 
     Unlike `rc_params_from_file`, the configuration class only contains the
     parameters specified in the file (i.e. default values are not filled in).
     """
+    _error_details_fmt = 'line #%d\n\t"%s"\n\tin file "%s"'
+
     rc_temp = {}
     with _open_file_or_url(fname) as fd:
         try:
@@ -1249,13 +1248,14 @@ def use(backend, warn=False, force=True):
         or a string of the form: ``module://my.module.name``.
 
     warn : bool, optional, default: False
-        If True and not *force*, warn that the call will have no effect if
-        this is called after pyplot has been imported and a backend is set up.
+        If True and not *force*, emit a warning if a failure-to-switch
+        `ImportError` has been suppressed.
 
     force : bool, optional, default: True
-        If True, attempt to switch the backend.   An ImportError is raised if
-        an interactive backend is selected, but another interactive
-        backend has already started.
+        If True (the default), raise an `ImportError` if the backend cannot be
+        set up (either because it fails to import, or because an incompatible
+        GUI interactive framework is already running); if False, ignore the
+        failure.
 
     See Also
     --------
@@ -1263,30 +1263,24 @@ def use(backend, warn=False, force=True):
     matplotlib.get_backend
     """
     name = validate_backend(backend)
-
     if dict.__getitem__(rcParams, 'backend') == name:
         # Nothing to do if the requested backend is already set
         pass
-    elif 'matplotlib.pyplot' in sys.modules:
-        # pyplot has already been imported (which triggered backend selection)
-        # and the requested backend is different from the current one.
-        if force:
-            # if we are going to force switching the backend, pull in
-            # `switch_backend` from pyplot (which is already imported).
-            from matplotlib.pyplot import switch_backend
-            switch_backend(name)
-        elif warn:
-            # Only if we are not going to force the switch *and* warn is True,
-            # then direct users to `plt.switch_backend`.
-            cbook._warn_external(
-                "matplotlib.pyplot has already been imported, "
-                "this call will have no effect.")
     else:
-        # Finally if pyplot is not imported update both rcParams and
-        # rcDefaults so restoring the defaults later with rcdefaults
-        # won't change the backend.  This is a bit of overkill as 'backend'
-        # is already in style.core.STYLE_BLACKLIST, but better to be safe.
+        # Update both rcParams and rcDefaults so restoring the defaults later
+        # with rcdefaults won't change the backend.  This is a bit of overkill
+        # as 'backend' is already in style.core.STYLE_BLACKLIST, but better to
+        # be safe.
         rcParams['backend'] = rcParamsDefault['backend'] = name
+        try:
+            from matplotlib import pyplot as plt
+            plt.switch_backend(name)
+        except ImportError as exc:
+            if force:
+                raise
+            if warn:
+                cbook._warn_external(
+                    f"Failed to switch backend to {backend}: {exc}")
 
 
 if os.environ.get('MPLBACKEND'):

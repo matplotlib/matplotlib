@@ -245,6 +245,7 @@ def switch_backend(newbackend):
 def show(*args, **kw):
     """
     Display a figure.
+
     When running in ipython with its pylab mode, display all
     figures and return to the ipython prompt.
 
@@ -335,6 +336,11 @@ def gci():
 
     The current image is an attribute of the current axes, or the nearest
     earlier axes in the current figure that contains an image.
+
+    Notes
+    -----
+    Historically, the only colorable artists were images; hence the name
+    ``gci`` (get current image).
     """
     return gcf()._gci()
 
@@ -423,7 +429,6 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
     Parameters
     ----------
-
     num : integer or string, optional, default: None
         If not provided, a new figure will be created, and the figure number
         will be incremented. The figure objects holds this number in a `number`
@@ -576,7 +581,12 @@ def _auto_draw_if_interactive(fig, val):
 
 
 def gcf():
-    """Get a reference to the current figure."""
+    """
+    Get the current figure.
+
+    If no current figure exists, a new one is created using
+    `~.pyplot.figure()`.
+    """
     figManager = _pylab_helpers.Gcf.get_active()
     if figManager is not None:
         return figManager.canvas.figure
@@ -602,7 +612,19 @@ def get_figlabels():
 
 
 def get_current_fig_manager():
-    """Return ``gcf().canvas.manager``, the current figure's manager."""
+    """
+    Return the figure manager of the current figure.
+
+    The figure manager is a container for the actual backend-depended window
+    that displays the figure on screen.
+
+    If if no current figure exists, a new one is created an its figure
+    manager is returned.
+
+    Returns
+    -------
+    manager : `.FigureManagerBase` or backend-dependent subclass thereof
+    """
     return gcf().canvas.manager
 
 
