@@ -7917,9 +7917,9 @@ optional.
           If `True`, will toggle rendering of the medians.
 
         percentiles : array-like, default=None
-          If not None, set a list of floats in interval [0, 100] for each
-          violin, which stands for the percentiles that will be rendered for
-          that violin.
+          If not None, set a list of floats in interval [0, 1] for each violin,
+          which stands for the percentiles that will be rendered for that
+          violin.
 
         points : scalar, default = 100
           Defines the number of points to evaluate each of the

@@ -2662,7 +2662,7 @@ def test_vert_violinplot_showall():
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=1, showextrema=1,
                   showmedians=1,
-                  percentiles=[[10, 90], [20, 80], [30, 70], [40, 60]])
+                  percentiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
 
 
 @image_comparison(baseline_images=['violinplot_vert_custompoints_10'],
@@ -2740,7 +2740,7 @@ def test_horiz_violinplot_showall():
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=1,
                   showextrema=1, showmedians=1,
-                  percentiles=[[10, 90], [20, 80], [30, 70], [40, 60]])
+                  percentiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
 
 
 @image_comparison(baseline_images=['violinplot_horiz_custompoints_10'],
@@ -2791,7 +2791,7 @@ def test_violinplot_bad_percentiles():
 
     # Different size percentile list and plots
     with pytest.raises(ValueError):
-        ax.violinplot(data, percentiles=[[10, 20], [50]])
+        ax.violinplot(data, percentiles=[[0.1, 0.2], [0.5]])
 
 
 def test_violinplot_outofrange_percentiles():
@@ -2802,11 +2802,11 @@ def test_violinplot_outofrange_percentiles():
 
     # Percentile value above 100
     with pytest.raises(ValueError):
-        ax.violinplot(data, percentiles=[[10, 20, 30, 105]])
+        ax.violinplot(data, percentiles=[[0.1, 0.2, 0.3, 1.05]])
 
     # Percentile value below 0
     with pytest.raises(ValueError):
-        ax.violinplot(data, percentiles=[[-5, 20, 30, 75]])
+        ax.violinplot(data, percentiles=[[-0.05, 0.2, 0.3, 0.75]])
 
 
 @check_figures_equal(extensions=["png"])
@@ -2818,11 +2818,11 @@ def test_violinplot_single_list_percentiles(fig_test, fig_ref):
 
     # Test image
     ax = fig_test.subplots()
-    ax.violinplot(data, percentiles=[10, 30, 90])
+    ax.violinplot(data, percentiles=[0.1, 0.3, 0.9])
 
     # Reference image
     ax = fig_ref.subplots()
-    ax.violinplot(data, percentiles=[[10, 30, 90]])
+    ax.violinplot(data, percentiles=[[0.1, 0.3, 0.9]])
 
 
 def test_manage_xticks():

@@ -1456,10 +1456,10 @@ def violin_stats(X, method, points=100, percentiles=None):
         density estimates at.
 
     percentiles : array-like, default = None
-        Defines (if not None) a list of floats in interval [0, 100] for each
+        Defines (if not None) a list of floats in interval [0, 1] for each
         column of data, which represents the percentiles that will be rendered
         for that column of data. Must have 2 or fewer dimensions. 1D array will
-        be returned in a singleton list containing them.
+        be treated as a singleton list containing them.
 
     Returns
     -------
@@ -1506,7 +1506,7 @@ def violin_stats(X, method, points=100, percentiles=None):
         # Calculate basic stats for the distribution
         min_val = np.min(x)
         max_val = np.max(x)
-        p_val = np.percentile(x, p)
+        p_val = np.quantile(x, p)
 
         # Evaluate the kernel density estimate
         coords = np.linspace(min_val, max_val, points)
