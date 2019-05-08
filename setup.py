@@ -23,7 +23,7 @@ Make sure you have pip >= 9.0.1.
 import os
 from zipfile import ZipFile
 
-from setuptools import setup, Extension
+from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext as BuildExtCommand
 from setuptools.command.develop import develop as DevelopCommand
 from setuptools.command.install_lib import install_lib as InstallLibCommand
@@ -169,12 +169,7 @@ cmdclass['develop'] = develop_with_jquery
 # however, this is needed on Windows to avoid creating infinite subprocesses
 # when using multiprocessing.
 if __name__ == '__main__':
-    # These are distutils.setup parameters that the various packages add
-    # things to.
-    packages = []
-    namespace_packages = []
-    py_modules = []
-    package_data = {}
+    package_data = {}  # Will be filled below by the various components.
 
     # If the user just queries for information, don't bother figuring out which
     # packages to build or install.
@@ -224,9 +219,6 @@ if __name__ == '__main__':
         # Now collect all of the information we need to build all of the
         # packages.
         for package in good_packages:
-            packages.extend(package.get_packages())
-            namespace_packages.extend(package.get_namespace_packages())
-            py_modules.extend(package.get_py_modules())
             # Extension modules only get added in build_ext, as numpy will have
             # been installed (as setup_requires) at that point.
             data = package.get_package_data()
@@ -267,14 +259,14 @@ if __name__ == '__main__':
         interfaces and hardcopy output formats.
         """,
         license="PSF",
-        packages=packages,
-        namespace_packages=namespace_packages,
-        platforms='any',
-        py_modules=py_modules,
+        platforms="any",
+        package_dir={"": "lib"},
+        packages=find_packages("lib"),
+        namespace_packages=["mpl_toolkits"],
+        py_modules=["pylab"],
         # Dummy extension to trigger build_ext, which will swap it out with
         # real extensions that can depend on numpy for the build.
         ext_modules=[Extension("", [])],
-        package_dir={"": "lib"},
         package_data=package_data,
         classifiers=classifiers,
 

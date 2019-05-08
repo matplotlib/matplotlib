@@ -8,7 +8,6 @@ import logging
 import os
 import pathlib
 import platform
-import setuptools
 import shlex
 import shutil
 import subprocess
@@ -310,30 +309,6 @@ class SetupPackage(object):
         """
         pass
 
-    def get_packages(self):
-        """
-        Get a list of package names to add to the configuration.
-        These are added to the `packages` list passed to
-        `distutils.setup`.
-        """
-        return []
-
-    def get_namespace_packages(self):
-        """
-        Get a list of namespace package names to add to the configuration.
-        These are added to the `namespace_packages` list passed to
-        `distutils.setup`.
-        """
-        return []
-
-    def get_py_modules(self):
-        """
-        Get a list of top-level modules to add to the configuration.
-        These are added to the `py_modules` list passed to
-        `distutils.setup`.
-        """
-        return []
-
     def get_package_data(self):
         """
         Get a package data dictionary to add to the configuration.
@@ -485,15 +460,6 @@ class Matplotlib(SetupPackage):
     def check(self):
         return versioneer.get_version()
 
-    def get_packages(self):
-        return setuptools.find_packages("lib", exclude=["*.tests"])
-
-    def get_namespace_packages(self):
-        return ['mpl_toolkits']
-
-    def get_py_modules(self):
-        return ['pylab']
-
     def get_package_data(self):
         return {
             'matplotlib': [
@@ -524,9 +490,6 @@ class SampleData(OptionalPackage):
 class Tests(OptionalPackage):
     name = "tests"
     default_config = False
-
-    def get_packages(self):
-        return setuptools.find_packages("lib", include=["*.tests"])
 
     def get_package_data(self):
         return {
