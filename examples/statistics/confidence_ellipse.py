@@ -142,14 +142,14 @@ scale = 3, 5
 fig, axs = plt.subplots(1, 3, figsize=(9, 3))
 for ax, (title, dependency) in zip(axs, PARAMETERS.items()):
     x, y = get_correlated_dataset(800, dependency, mu, scale)
-    ax.scatter(x, y, s=0.5)
+    ax.plot(x, y, ".", ms=1)
 
     ax.axvline(c='grey', lw=1)
     ax.axhline(c='grey', lw=1)
 
     confidence_ellipse(x, y, ax, edgecolor='red')
 
-    ax.scatter(mu[0], mu[1], c='red', s=3)
+    ax.plot(mu[0], mu[1], ".", ms=1, c="r")
     ax.set_title(title)
 
 plt.show()
@@ -175,7 +175,7 @@ ax_nstd.axvline(c='grey', lw=1)
 ax_nstd.axhline(c='grey', lw=1)
 
 x, y = get_correlated_dataset(500, dependency_nstd, mu, scale)
-ax_nstd.scatter(x, y, s=0.5)
+ax_nstd.plot(x, y, ".", ms=1)
 
 confidence_ellipse(x, y, ax_nstd, n_std=1,
     label=r'$1\sigma$', edgecolor='firebrick')
@@ -184,7 +184,7 @@ confidence_ellipse(x, y, ax_nstd, n_std=2,
 confidence_ellipse(x, y, ax_nstd, n_std=3,
     label=r'$3\sigma$', edgecolor='blue', linestyle=':')
 
-ax_nstd.scatter(mu[0], mu[1], c='red', s=3)
+ax_nstd.plot(mu[0], mu[1], ".", ms=1, c="r")
 ax_nstd.set_title('Different standard deviations')
 ax_nstd.legend()
 plt.show()
@@ -215,8 +215,8 @@ x, y = get_correlated_dataset(500, dependency_kwargs, mu, scale)
 confidence_ellipse(x, y, ax_kwargs,
     alpha=0.5, facecolor='pink', edgecolor='purple', zorder=0)
 
-ax_kwargs.scatter(x, y, s=0.5)
-ax_kwargs.scatter(mu[0], mu[1], c='red', s=3)
+ax_kwargs.plot(x, y, ".", ms=1)
+ax_kwargs.plot(mu[0], mu[1], ".", ms=1, c="r")
 ax_kwargs.set_title(f'Using kwargs')
 
 fig.subplots_adjust(hspace=0.25)

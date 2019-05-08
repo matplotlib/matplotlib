@@ -63,7 +63,7 @@ whiskers = np.array([
 whiskersMin, whiskersMax = whiskers[:, 0], whiskers[:, 1]
 
 inds = np.arange(1, len(medians) + 1)
-ax2.scatter(inds, medians, marker='o', color='white', s=30, zorder=3)
+ax2.plot(inds, medians, 'o', color='white', zorder=3)
 ax2.vlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=5)
 ax2.vlines(inds, whiskersMin, whiskersMax, color='k', linestyle='-', lw=1)
 

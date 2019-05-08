@@ -149,12 +149,12 @@ aux_ax1.bar([0, 1, 2, 3], [3, 2, 1, 3])
 ax2, aux_ax2 = setup_axes2(fig, 132)
 theta = np.random.rand(10)*.5*np.pi
 radius = np.random.rand(10) + 1.
-aux_ax2.scatter(theta, radius)
+aux_ax2.plot(theta, radius, ".")
 
 ax3, aux_ax3 = setup_axes3(fig, 133)
 
 theta = (8 + np.random.rand(10)*(14 - 8))*15.  # in degrees
 radius = np.random.rand(10)*14000.
-aux_ax3.scatter(theta, radius)
+aux_ax3.plot(theta, radius, ".")
 
 plt.show()

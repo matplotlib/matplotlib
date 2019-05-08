@@ -3,10 +3,9 @@
 Scatter Star Poly
 =================
 
-Create multiple scatter plots with different
-star symbols.
-
+Create multiple scatter plots with different star symbols.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
