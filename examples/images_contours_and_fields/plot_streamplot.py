@@ -6,11 +6,11 @@ Streamplot
 A stream plot, or streamline plot, is used to display 2D vector fields. This
 example shows a few features of the :meth:`~.axes.Axes.streamplot` function:
 
-    * Varying the color along a streamline.
-    * Varying the density of streamlines.
-    * Varying the line width along a streamline.
-    * Controlling the starting points of streamlines.
-    * Streamlines skipping masked regions and NaN values.
+* Varying the color along a streamline.
+* Varying the density of streamlines.
+* Varying the line width along a streamline.
+* Controlling the starting points of streamlines.
+* Streamlines skipping masked regions and NaN values.
 """
 import numpy as np
 import matplotlib.pyplot as plt

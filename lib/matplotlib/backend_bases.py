@@ -1528,6 +1528,27 @@ class KeyEvent(LocationEvent):
         self.key = key
 
 
+def _get_renderer(figure, print_method):
+    """
+    Get the renderer that would be used to save a `~.Figure`, and cache it on
+    the figure.
+    """
+    # This is implemented by triggering a draw, then immediately jumping out of
+    # Figure.draw() by raising an exception.
+
+    class Done(Exception):
+        pass
+
+    def _draw(renderer): raise Done(renderer)
+
+    with cbook._setattr_cm(figure, draw=_draw):
+        try:
+            print_method(io.BytesIO())
+        except Done as exc:
+            figure._cachedRenderer, = exc.args
+            return figure._cachedRenderer
+
+
 class FigureCanvasBase(object):
     """
     The canvas the figure renders into.
@@ -2038,20 +2059,11 @@ class FigureCanvasBase(object):
                 bbox_inches = rcParams['savefig.bbox']
 
             if bbox_inches:
-                # call adjust_bbox to save only the given area
                 if bbox_inches == "tight":
-                    # When bbox_inches == "tight", it saves the figure twice.
-                    # The first save command (to a BytesIO) is just to estimate
-                    # the bounding box of the figure.
-                    result = print_method(
-                        io.BytesIO(),
-                        dpi=dpi,
-                        facecolor=facecolor,
-                        edgecolor=edgecolor,
-                        orientation=orientation,
-                        dryrun=True,
-                        **kwargs)
-                    renderer = self.figure._cachedRenderer
+                    renderer = _get_renderer(
+                        self.figure,
+                        functools.partial(
+                            print_method, dpi=dpi, orientation=orientation))
                     bbox_artists = kwargs.pop("bbox_extra_artists", None)
                     bbox_inches = self.figure.get_tightbbox(renderer,
                             bbox_extra_artists=bbox_artists)
@@ -2061,6 +2073,7 @@ class FigureCanvasBase(object):
 
                     bbox_inches = bbox_inches.padded(pad)
 
+                # call adjust_bbox to save only the given area
                 restore_bbox = tight_bbox.adjust_bbox(self.figure, bbox_inches,
                                                       canvas.fixed_dpi)
 
