@@ -45,13 +45,13 @@ axes[0, 2].set_title('Custom violinplot 3', fontsize=fs)
 
 axes[0, 3].violinplot(data, pos, points=60, widths=0.7, showmeans=True,
                       showextrema=True, showmedians=True, bw_method=0.5,
-                      percentiles=[[0.1], [], [], [0.175, 0.954], [0.75],
-                                   [0.25]])
+                      quantiles=[[0.1], [], [], [0.175, 0.954], [0.75],
+                                 [0.25]])
 axes[0, 3].set_title('Custom violinplot 4', fontsize=fs)
 
 axes[0, 4].violinplot(data[-1:], pos[-1:], points=60, widths=0.7,
                       showmeans=True, showextrema=True, showmedians=True,
-                      percentiles=[0.05, 0.1, 0.8, 0.9], bw_method=0.5)
+                      quantiles=[0.05, 0.1, 0.8, 0.9], bw_method=0.5)
 axes[0, 4].set_title('Custom violinplot 5', fontsize=fs)
 
 axes[1, 0].violinplot(data, pos, points=80, vert=False, widths=0.7,
@@ -70,14 +70,14 @@ axes[1, 2].set_title('Custom violinplot 8', fontsize=fs)
 
 axes[1, 3].violinplot(data, pos, points=200, vert=False, widths=1.1,
                       showmeans=True, showextrema=True, showmedians=True,
-                      percentiles=[[0.1], [], [], [0.175, 0.954], [0.75],
-                                   [0.25]],
+                      quantiles=[[0.1], [], [], [0.175, 0.954], [0.75],
+                                 [0.25]],
                       bw_method=0.5)
 axes[1, 3].set_title('Custom violinplot 9', fontsize=fs)
 
 axes[1, 4].violinplot(data[-1:], pos[-1:], points=200, vert=False, widths=1.1,
                       showmeans=True, showextrema=True, showmedians=True,
-                      percentiles=[0.05, 0.1, 0.8, 0.9], bw_method=0.5)
+                      quantiles=[0.05, 0.1, 0.8, 0.9], bw_method=0.5)
 axes[1, 4].set_title('Custom violinplot 10', fontsize=fs)
 
 for ax in axes.flat:

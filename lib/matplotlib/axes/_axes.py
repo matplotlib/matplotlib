@@ -7880,14 +7880,14 @@ optional.
     @_preprocess_data(replace_names=["dataset"])
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
-                   percentiles=None, points=100, bw_method=None):
+                   quantiles=None, points=100, bw_method=None):
         """
         Make a violin plot.
 
         Make a violin plot for each column of *dataset* or each vector in
         sequence *dataset*.  Each filled area extends to represent the
         entire data range, with optional lines at the mean, the median,
-        the minimum, the maximum, and user-specified percentiles.
+        the minimum, the maximum, and user-specified quantiles.
 
         Parameters
         ----------
@@ -7916,9 +7916,9 @@ optional.
         showmedians : bool, default = False
           If `True`, will toggle rendering of the medians.
 
-        percentiles : array-like, default=None
+        quantiles : array-like, default=None
           If not None, set a list of floats in interval [0, 1] for each violin,
-          which stands for the percentiles that will be rendered for that
+          which stands for the quantiles that will be rendered for that
           violin.
 
         points : scalar, default = 100
@@ -7958,7 +7958,7 @@ optional.
           - ``cmedians``: A `~.collections.LineCollection` instance that
             marks the median values of each of the violin's distribution.
 
-          - ``cpercentiles``: A
+          - ``cquantiles``: A
             :class:`matplotlib.collections.LineCollection` instance created to
             identify the percentile values of each of the violin's
             distribution.
@@ -7973,7 +7973,7 @@ optional.
             return kde.evaluate(coords)
 
         vpstats = cbook.violin_stats(dataset, _kde_method, points=points,
-                                     percentiles=percentiles)
+                                     quantiles=quantiles)
         return self.violin(vpstats, positions=positions, vert=vert,
                            widths=widths, showmeans=showmeans,
                            showextrema=showextrema, showmedians=showmedians)
@@ -8008,7 +8008,7 @@ optional.
 
           - ``max``: The maximum value for this violin's dataset.
 
-          - ``percentiles``: The percentile values for this violin's dataset.
+          - ``quantiles``: The percentile values for this violin's dataset.
 
         positions : array-like, default = [1, 2, ..., n]
           Sets the positions of the violins. The ticks and limits are
@@ -8057,7 +8057,7 @@ optional.
           - ``cmedians``: A `~.collections.LineCollection` instance that
             marks the median values of each of the violin's distribution.
 
-          - ``cpercentiles``: A
+          - ``cquantiles``: A
             :class:`matplotlib.collections.LineCollection` instance created to
             identify the percentile values of each of the violin's
             distribution.
@@ -8069,7 +8069,7 @@ optional.
         mins = []
         maxes = []
         medians = []
-        percentiles = np.asarray([])
+        quantiles = np.asarray([])
 
         # Collections to be returned
         artists = {}
@@ -8126,7 +8126,7 @@ optional.
             mins.append(stats['min'])
             maxes.append(stats['max'])
             medians.append(stats['median'])
-            percentiles = np.concatenate((percentiles, stats['percentiles']))
+            quantiles = np.concatenate((quantiles, stats['quantiles']))
         artists['bodies'] = bodies
 
         # Render means
@@ -8151,19 +8151,19 @@ optional.
                                              colors=edgecolor)
 
         # Render percentile values
-        if percentiles.size > 0:
-            # Recalculate ranges for statistics lines for percentiles.
-            # ppmins are the left end of percentiles lines
+        if quantiles.size > 0:
+            # Recalculate ranges for statistics lines for quantiles.
+            # ppmins are the left end of quantiles lines
             ppmins = np.asarray([])
-            # pmaxes are the right end of percentiles lines
+            # pmaxes are the right end of quantiles lines
             ppmaxs = np.asarray([])
             for stats, cmin, cmax in zip(vpstats, pmins, pmaxes):
                 ppmins = np.concatenate((ppmins, [cmin] *
-                                         np.size(stats['percentiles'])))
+                                         np.size(stats['quantiles'])))
                 ppmaxs = np.concatenate((ppmaxs, [cmax] *
-                                         np.size(stats['percentiles'])))
+                                         np.size(stats['quantiles'])))
             # Start rendering
-            artists['cpercentiles'] = perp_lines(percentiles, ppmins, ppmaxs,
+            artists['cquantiles'] = perp_lines(quantiles, ppmins, ppmaxs,
                                                  colors=edgecolor)
 
         return artists

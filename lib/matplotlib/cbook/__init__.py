@@ -1431,7 +1431,7 @@ def _reshape_2D(X, name):
         raise ValueError("{} must have 2 or fewer dimensions".format(name))
 
 
-def violin_stats(X, method, points=100, percentiles=None):
+def violin_stats(X, method, points=100, quantiles=None):
     """
     Returns a list of dictionaries of data which can be used to draw a series
     of violin plots. See the `Returns` section below to view the required keys
@@ -1455,9 +1455,9 @@ def violin_stats(X, method, points=100, percentiles=None):
         Defines the number of points to evaluate each of the gaussian kernel
         density estimates at.
 
-    percentiles : array-like, default = None
+    quantiles : array-like, default = None
         Defines (if not None) a list of floats in interval [0, 1] for each
-        column of data, which represents the percentiles that will be rendered
+        column of data, which represents the quantiles that will be rendered
         for that column of data. Must have 2 or fewer dimensions. 1D array will
         be treated as a singleton list containing them.
 
@@ -1475,7 +1475,7 @@ def violin_stats(X, method, points=100, percentiles=None):
         - median: The median value for this column of data.
         - min: The minimum value for this column of data.
         - max: The maximum value for this column of data.
-        - percentiles: The percentile values for this column of data.
+        - quantiles: The percentile values for this column of data.
     """
 
     # List of dictionaries describing each of the violins.
@@ -1484,20 +1484,20 @@ def violin_stats(X, method, points=100, percentiles=None):
     # Want X to be a list of data sequences
     X = _reshape_2D(X, "X")
 
-    # Want percentiles to be as the same shape as data sequences
-    if percentiles is not None and len(percentiles) != 0:
-        percentiles = _reshape_2D(percentiles, "percentiles")
-    # Else, mock percentiles if is none or empty
+    # Want quantiles to be as the same shape as data sequences
+    if quantiles is not None and len(quantiles) != 0:
+        quantiles = _reshape_2D(quantiles, "quantiles")
+    # Else, mock quantiles if is none or empty
     else:
-        percentiles = [[]] * np.shape(X)[0]
+        quantiles = [[]] * np.shape(X)[0]
 
-    # percentiles should has the same size as dataset
-    if np.shape(X)[:1] != np.shape(percentiles)[:1]:
-        raise ValueError("List of violinplot statistics and percentile values"
+    # quantiles should has the same size as dataset
+    if np.shape(X)[:1] != np.shape(quantiles)[:1]:
+        raise ValueError("List of violinplot statistics and quantiles values"
                          " must have the same length")
 
-    # Zip x and percentiles
-    data = zip(X, percentiles)
+    # Zip x and quantiles
+    data = zip(X, quantiles)
 
     for (x, p) in data:
         # Dictionary of results for this distribution
@@ -1518,7 +1518,7 @@ def violin_stats(X, method, points=100, percentiles=None):
         stats['median'] = np.median(x)
         stats['min'] = min_val
         stats['max'] = max_val
-        stats['percentiles'] = np.atleast_1d(p_val)
+        stats['quantiles'] = np.atleast_1d(p_val)
 
         # Append to output
         vpstats.append(stats)
