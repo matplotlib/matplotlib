@@ -7960,7 +7960,7 @@ optional.
 
           - ``cquantiles``: A
             :class:`matplotlib.collections.LineCollection` instance created to
-            identify the percentile values of each of the violin's
+            identify the quantile values of each of the violin's
             distribution.
 
         """
@@ -7984,7 +7984,7 @@ optional.
 
         Draw a violin plot for each column of `vpstats`. Each filled area
         extends to represent the entire data range, with optional lines at the
-        mean, the median, the minimum, the maximum, and the percentile values.
+        mean, the median, the minimum, the maximum, and the quantiles values.
 
         Parameters
         ----------
@@ -8008,7 +8008,7 @@ optional.
 
           - ``max``: The maximum value for this violin's dataset.
 
-          - ``quantiles``: The percentile values for this violin's dataset.
+          - ``quantiles``: The quantile values for this violin's dataset.
 
         positions : array-like, default = [1, 2, ..., n]
           Sets the positions of the violins. The ticks and limits are
@@ -8059,7 +8059,7 @@ optional.
 
           - ``cquantiles``: A
             :class:`matplotlib.collections.LineCollection` instance created to
-            identify the percentile values of each of the violin's
+            identify the quantiles values of each of the violin's
             distribution.
 
         """
@@ -8150,7 +8150,7 @@ optional.
                                              pmaxes,
                                              colors=edgecolor)
 
-        # Render percentile values
+        # Render quantile values
         if quantiles.size > 0:
             # Recalculate ranges for statistics lines for quantiles.
             # ppmins are the left end of quantiles lines

@@ -2789,7 +2789,7 @@ def test_violinplot_bad_quantiles():
     np.random.seed(544003745)
     data = [np.random.normal(size=100)]
 
-    # Different size percentile list and plots
+    # Different size quantile list and plots
     with pytest.raises(ValueError):
         ax.violinplot(data, quantiles=[[0.1, 0.2], [0.5]])
 
@@ -2800,18 +2800,18 @@ def test_violinplot_outofrange_quantiles():
     np.random.seed(888194417)
     data = [np.random.normal(size=100)]
 
-    # Percentile value above 100
+    # Quantile value above 100
     with pytest.raises(ValueError):
         ax.violinplot(data, quantiles=[[0.1, 0.2, 0.3, 1.05]])
 
-    # Percentile value below 0
+    # Quantile value below 0
     with pytest.raises(ValueError):
         ax.violinplot(data, quantiles=[[-0.05, 0.2, 0.3, 0.75]])
 
 
 @check_figures_equal(extensions=["png"])
 def test_violinplot_single_list_quantiles(fig_test, fig_ref):
-    # Ensures percentile list for 1D can be passed in as single list
+    # Ensures quantile list for 1D can be passed in as single list
     # First 9 digits of frac(sqrt(83))
     np.random.seed(110433579)
     data = [np.random.normal(size=100)]

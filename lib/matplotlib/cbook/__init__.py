@@ -1475,7 +1475,7 @@ def violin_stats(X, method, points=100, quantiles=None):
         - median: The median value for this column of data.
         - min: The minimum value for this column of data.
         - max: The maximum value for this column of data.
-        - quantiles: The percentile values for this column of data.
+        - quantiles: The quantile values for this column of data.
     """
 
     # List of dictionaries describing each of the violins.
