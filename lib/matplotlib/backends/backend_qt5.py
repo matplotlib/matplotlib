@@ -121,7 +121,8 @@ def _create_qApp():
             qApp = QtWidgets.QApplication([b"matplotlib"])
             qApp.lastWindowClosed.connect(qApp.quit)
         else:
-            qApp = app
+            import weakref
+            qApp = weakref.proxy(app)
 
     if is_pyqt5():
         try:
