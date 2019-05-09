@@ -1,9 +1,6 @@
 API Overview
 ============
 
-Below we describe several common approaches to plotting with Matplotlib.  See
-also the :doc:`api_changes`.
-
 .. toctree::
    :hidden:
 
@@ -11,8 +8,15 @@ also the :doc:`api_changes`.
 
 .. contents:: :local:
 
-The pyplot API
+See also the :doc:`api_changes`.
+
+Usage patterns
 --------------
+
+Below we describe several common approaches to plotting with Matplotlib.
+
+The pyplot API
+^^^^^^^^^^^^^^
 
 `matplotlib.pyplot` is a collection of command style functions that make
 Matplotlib work like MATLAB. Each pyplot function makes some change to a
@@ -31,7 +35,7 @@ Further reading:
 .. _api-index:
 
 The object-oriented API
------------------------
+^^^^^^^^^^^^^^^^^^^^^^^
 
 At its core, Matplotlib is object-oriented. We recommend directly working
 with the objects, if you need more control and customization of your plots.
@@ -48,7 +52,23 @@ Further reading:
 - Most of the :ref:`examples <examples-index>` use the object-oriented approach
   (except for the pyplot section)
 
-All Matplotlib submodules are documented here:
+The pylab API (disapproved)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. warning::
+   Since heavily importing into the global namespace may result in unexpected
+   behavior, the use of pylab is strongly discouraged. Use `matplotlib.pyplot`
+   instead.
+
+`pylab` is a module that includes `matplotlib.pyplot`, `numpy`
+and some additional functions within a single namespace. Its original purpose
+was to mimic a MATLAB-like way of working by importing all functions into the
+global namespace. This is considered bad style nowadays.
+
+Modules
+-------
+
+Matplotlib consists of the following submodules:
 
 .. toctree::
    :maxdepth: 1
@@ -109,7 +129,11 @@ All Matplotlib submodules are documented here:
    units_api.rst
    widgets_api.rst
 
-... and the ``mpl_toolkits`` here:
+Toolkits
+--------
+
+:ref:`toolkits-index` are collections of application-specific functions that extend
+Matplotlib. The following toolkits are included:
 
 .. toctree::
    :maxdepth: 1
@@ -119,17 +143,3 @@ All Matplotlib submodules are documented here:
    toolkits/axes_grid1.rst
    toolkits/axisartist.rst
    toolkits/axes_grid.rst
-
-
-The pylab API (disapproved)
----------------------------
-
-.. warning::
-   Since heavily importing into the global namespace may result in unexpected
-   behavior, the use of pylab is strongly discouraged. Use `matplotlib.pyplot`
-   instead.
-
-`matplotlib.pylab` is a module that includes `matplotlib.pyplot`, `numpy`
-and some additional functions within a single namespace. Its original purpose
-was to mimic a MATLAB-like way of working by importing all functions into the
-global namespace. This is considered bad style nowadays.
