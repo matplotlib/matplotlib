@@ -2783,7 +2783,7 @@ def test_violinplot_bad_widths():
         ax.violinplot(data, positions=range(4), widths=[1, 2, 3])
 
 
-def test_violinplot_bad_percentiles():
+def test_violinplot_bad_quantiles():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(73))
     np.random.seed(544003745)
@@ -2791,10 +2791,10 @@ def test_violinplot_bad_percentiles():
 
     # Different size percentile list and plots
     with pytest.raises(ValueError):
-        ax.violinplot(data, percentiles=[[0.1, 0.2], [0.5]])
+        ax.violinplot(data, quantiles=[[0.1, 0.2], [0.5]])
 
 
-def test_violinplot_outofrange_percentiles():
+def test_violinplot_outofrange_quantiles():
     ax = plt.axes()
     # First 9 digits of frac(sqrt(79))
     np.random.seed(888194417)
@@ -2802,15 +2802,15 @@ def test_violinplot_outofrange_percentiles():
 
     # Percentile value above 100
     with pytest.raises(ValueError):
-        ax.violinplot(data, percentiles=[[0.1, 0.2, 0.3, 1.05]])
+        ax.violinplot(data, quantiles=[[0.1, 0.2, 0.3, 1.05]])
 
     # Percentile value below 0
     with pytest.raises(ValueError):
-        ax.violinplot(data, percentiles=[[-0.05, 0.2, 0.3, 0.75]])
+        ax.violinplot(data, quantiles=[[-0.05, 0.2, 0.3, 0.75]])
 
 
 @check_figures_equal(extensions=["png"])
-def test_violinplot_single_list_percentiles(fig_test, fig_ref):
+def test_violinplot_single_list_quantiles(fig_test, fig_ref):
     # Ensures percentile list for 1D can be passed in as single list
     # First 9 digits of frac(sqrt(83))
     np.random.seed(110433579)
@@ -2818,11 +2818,11 @@ def test_violinplot_single_list_percentiles(fig_test, fig_ref):
 
     # Test image
     ax = fig_test.subplots()
-    ax.violinplot(data, percentiles=[0.1, 0.3, 0.9])
+    ax.violinplot(data, quantiles=[0.1, 0.3, 0.9])
 
     # Reference image
     ax = fig_ref.subplots()
-    ax.violinplot(data, percentiles=[[0.1, 0.3, 0.9]])
+    ax.violinplot(data, quantiles=[[0.1, 0.3, 0.9]])
 
 
 def test_manage_xticks():
