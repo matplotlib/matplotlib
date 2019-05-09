@@ -25,11 +25,11 @@ import logging
 
 import numpy as np
 
-from matplotlib import cbook
 from matplotlib import rcParams
 from matplotlib import cbook, docstring
 from matplotlib.artist import Artist, allow_rasterization
-from matplotlib.cbook import silent_list, is_hashable, warn_deprecated
+from matplotlib.cbook import (silent_list, is_hashable, warn_deprecated,
+                              _COMPASS_LOCS, _map_loc_to_compass)
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
@@ -115,13 +115,14 @@ loc : str or pair of floats, default: :rc:`legend.loc` ('best' for axes, \
     The location of the legend.
 
     The strings
-    ``'upper left', 'upper right', 'lower left', 'lower right'``
-    place the legend at the corresponding corner of the axes/figure.
+    ``'upper left', 'upper right', 'lower left', 'lower right'`` and their
+    corresponding compass strings (see table below) place the legend at the
+    respective corner of the axes/figure.
 
     The strings
-    ``'upper center', 'lower center', 'center left', 'center right'``
-    place the legend at the center of the corresponding edge of the
-    axes/figure.
+    ``'upper center', 'lower center', 'center left', 'center right'`` and their
+    corresponding compass strings place the legend at the center of the
+    respective edge of the axes/figure.
 
     The string ``'center'`` places the legend at the center of the axes/figure.
 
@@ -130,29 +131,32 @@ loc : str or pair of floats, default: :rc:`legend.loc` ('best' for axes, \
     artists.  This option can be quite slow for plots with large amounts of
     data; your plotting speed may benefit from providing a specific location.
 
+    For backward-compatibility, ``'right'`` is equivalent to
+    ``'center right'``; and there are numeric codes for all locations as well.
+
+    Possible (case-sensitive) strings and codes are:
+
+        ============  ==============  ===============  =============
+        Compass Code  Compass String  Location String  Location Code
+        ============  ==============  ===============  =============
+        ..                            'best'           0
+        'NE'          'northeast'     'upper right'    1
+        'NW'          'northwest'     'upper left'     2
+        'SW'          'southwest'     'lower left'     3
+        'SE'          'southeast'     'lower right'    4
+        ..                            'right'          5
+        'W'           'west'          'center left'    6
+        'E'           'east'          'center right'   7
+        'S'           'south'         'lower center'   8
+        'N'           'north'         'upper center'   9
+        'C'           'center'        'center'         10
+        ============  ==============  ===============  =============
+
+
     The location can also be a 2-tuple giving the coordinates of the lower-left
     corner of the legend in axes coordinates (in which case *bbox_to_anchor*
     will be ignored).
 
-    For back-compatibility, ``'center right'`` (but no other location) can also
-    be spelled ``'right'``, and each "string" locations can also be given as a
-    numeric value:
-
-        ===============   =============
-        Location String   Location Code
-        ===============   =============
-        'best'            0
-        'upper right'     1
-        'upper left'      2
-        'lower left'      3
-        'lower right'     4
-        'right'           5
-        'center left'     6
-        'center right'    7
-        'lower center'    8
-        'upper center'    9
-        'center'          10
-        ===============   =============
 
 bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
     Box that is used to position the legend in conjunction with *loc*.
@@ -323,18 +327,6 @@ class Legend(Artist):
     Place a legend on the axes at location loc.
 
     """
-    codes = {'best':         0,  # only implemented for axes legends
-             'upper right':  1,
-             'upper left':   2,
-             'lower left':   3,
-             'lower right':  4,
-             'right':        5,
-             'center left':  6,
-             'center right': 7,
-             'lower center': 8,
-             'upper center': 9,
-             'center':       10,
-             }
 
     zorder = 5
 
@@ -499,36 +491,6 @@ class Legend(Artist):
             raise TypeError("Legend needs either Axes or Figure as parent")
         self.parent = parent
 
-        self._loc_used_default = loc is None
-        if loc is None:
-            loc = rcParams["legend.loc"]
-            if not self.isaxes and loc in [0, 'best']:
-                loc = 'upper right'
-        if isinstance(loc, str):
-            if loc not in self.codes:
-                if self.isaxes:
-                    cbook.warn_deprecated(
-                        "3.1", message="Unrecognized location {!r}. Falling "
-                        "back on 'best'; valid locations are\n\t{}\n"
-                        "This will raise an exception %(removal)s."
-                        .format(loc, '\n\t'.join(self.codes)))
-                    loc = 0
-                else:
-                    cbook.warn_deprecated(
-                        "3.1", message="Unrecognized location {!r}. Falling "
-                        "back on 'upper right'; valid locations are\n\t{}\n'"
-                        "This will raise an exception %(removal)s."
-                        .format(loc, '\n\t'.join(self.codes)))
-                    loc = 1
-            else:
-                loc = self.codes[loc]
-        if not self.isaxes and loc == 0:
-            cbook.warn_deprecated(
-                "3.1", message="Automatic legend placement (loc='best') not "
-                "implemented for figure legend. Falling back on 'upper "
-                "right'. This will raise an exception %(removal)s.")
-            loc = 1
-
         self._mode = mode
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
 
@@ -574,6 +536,10 @@ class Legend(Artist):
         # init with null renderer
         self._init_legend_box(handles, labels, markerfirst)
 
+        # location must be set after _legend_box is created.
+        self._loc_used_default = loc is None
+        self._loc = loc
+
         # If shadow is activated use framealpha if not
         # explicitly passed. See Issue 8943
         if framealpha is None:
@@ -583,10 +549,6 @@ class Legend(Artist):
                 self.get_frame().set_alpha(rcParams["legend.framealpha"])
         else:
             self.get_frame().set_alpha(framealpha)
-
-        tmp = self._loc_used_default
-        self._set_loc(loc)
-        self._loc_used_default = tmp  # ignore changes done by _set_loc
 
         # figure out title fontsize:
         if title_fontsize is None:
@@ -607,10 +569,19 @@ class Legend(Artist):
         a.set_transform(self.get_transform())
 
     def _set_loc(self, loc):
+        if loc is None:
+            loc = rcParams["legend.loc"]
+            if not self.isaxes and loc in [0, 'best']:
+                loc = 'NE'
+        if self.isaxes:
+            loc = _map_loc_to_compass(loc, allowtuple=True, allowbest=True,
+                                      fallback="best", warnonly=True)
+        else:
+            loc = _map_loc_to_compass(loc, allowtuple=True, allowbest=False,
+                                      fallback="NE", warnonly=True)
         # find_offset function will be provided to _legend_box and
         # _legend_box will draw itself at the location of the return
         # value of the find_offset.
-        self._loc_used_default = False
         self._loc_real = loc
         self.stale = True
         self._legend_box.set_offset(self._findoffset)
@@ -620,12 +591,29 @@ class Legend(Artist):
 
     _loc = property(_get_loc, _set_loc)
 
+    # public getters and setters should be introduced in the next release
+    # see https://github.com/matplotlib/matplotlib/pull/12679
+    #def set_loc(self, loc):
+    #    """
+    #    Set the legend location. For possible values see the `~.Axes.legend`
+    #    docstring.
+    #    """
+    #    self._loc_used_default = False
+    #    self._set_loc(loc)
+    #
+    #def get_loc(self):
+    #    """
+    #    Get the legend location. This will be one of 'best', 'NE', 'NW',
+    #     'SW', 'SE', 'E', 'W', 'E', 'S', 'N', 'C' or a tuple of floats.
+    #    """
+    #    return self._get_loc()
+
     def _findoffset(self, width, height, xdescent, ydescent, renderer):
         "Helper function to locate the legend."
 
-        if self._loc == 0:  # "best".
+        if self._loc == 'best':
             x, y = self._find_best_position(width, height, renderer)
-        elif self._loc in Legend.codes.values():  # Fixed location.
+        elif isinstance(self._loc, str):  # Fixed location.
             bbox = Bbox.from_bounds(0, 0, width, height)
             x, y = self._get_anchored_bbox(self._loc, bbox,
                                            self.get_bbox_to_anchor(),
@@ -1083,34 +1071,19 @@ class Legend(Artist):
         Place the *bbox* inside the *parentbbox* according to a given
         location code. Return the (x,y) coordinate of the bbox.
 
-        - loc: a location code in range(1, 11).
-          This corresponds to the possible values for self._loc, excluding
-          "best".
+        - loc: a location code, one of 'NE', 'NW', 'SW', 'SE', 'E',
+               'W', 'S', 'N', 'C'.
 
         - bbox: bbox to be placed, display coordinate units.
         - parentbbox: a parent box which will contain the bbox. In
             display coordinates.
         """
-        assert loc in range(1, 11)  # called only internally
 
-        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = range(11)
-
-        anchor_coefs = {UR: "NE",
-                        UL: "NW",
-                        LL: "SW",
-                        LR: "SE",
-                        R: "E",
-                        CL: "W",
-                        CR: "E",
-                        LC: "S",
-                        UC: "N",
-                        C: "C"}
-
-        c = anchor_coefs[loc]
+        assert loc in _COMPASS_LOCS  # as this is called only internally
 
         fontsize = renderer.points_to_pixels(self._fontsize)
         container = parentbbox.padded(-(self.borderaxespad) * fontsize)
-        anchored_box = bbox.anchored(c, container=container)
+        anchored_box = bbox.anchored(loc, container=container)
         return anchored_box.x0, anchored_box.y0
 
     def _find_best_position(self, width, height, renderer, consider=None):
@@ -1133,10 +1106,10 @@ class Legend(Artist):
 
         bbox = Bbox.from_bounds(0, 0, width, height)
         if consider is None:
-            consider = [self._get_anchored_bbox(x, bbox,
+            consider = [self._get_anchored_bbox(loc, bbox,
                                                 self.get_bbox_to_anchor(),
                                                 renderer)
-                        for x in range(1, len(self.codes))]
+                        for loc in _COMPASS_LOCS]
 
         candidates = []
         for idx, (l, b) in enumerate(consider):

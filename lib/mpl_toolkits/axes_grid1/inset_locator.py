@@ -387,7 +387,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
     Both sizes used can be specified either in inches or percentage.
     For example,::
 
-        inset_axes(parent_axes, width='40%%', height='30%%', loc=3)
+        inset_axes(parent_axes, width='40%%', height='30%%', loc='lower left')
 
     creates in inset axes in the lower left corner of *parent_axes* which spans
     over 30%% in height and 40%% in width of the *parent_axes*. Since the usage
@@ -427,19 +427,24 @@ def inset_axes(parent_axes, width, height, loc='upper right',
         are relative to the parent_axes. Otherwise they are to be understood
         relative to the bounding box provided via *bbox_to_anchor*.
 
-    loc : int or string, optional, default to 1
+    loc : int or string, optional, defaults to 'upper right'
         Location to place the inset axes. The valid locations are::
 
-            'upper right'  : 1,
-            'upper left'   : 2,
-            'lower left'   : 3,
-            'lower right'  : 4,
-            'right'        : 5,
-            'center left'  : 6,
-            'center right' : 7,
-            'lower center' : 8,
-            'upper center' : 9,
-            'center'       : 10
+            ============  ==============  ===============  =============
+            Compass Code  Compass String  Location String  Location Code
+            ============  ==============  ===============  =============
+            'NE'          'northeast'     'upper right'    1
+            'NW'          'northwest'     'upper left'     2
+            'SW'          'southwest'     'lower left'     3
+            'SE'          'southeast'     'lower right'    4
+                                          'right'          5
+            'W'           'west'          'center left'    6
+            'E'           'east'          'center right'   7
+            'S'           'south'         'lower center'   8
+            'N'           'north'         'upper center'   9
+            'C'           'center'        'center'         10
+            ============  ==============  ===============  =============
+
 
     bbox_to_anchor : tuple or `matplotlib.transforms.BboxBase`, optional
         Bbox that the inset axes will be anchored to. If None,
@@ -545,19 +550,24 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
         coordinates (i.e., "zoomed in"), while *zoom* < 1 will shrink the
         coordinates (i.e., "zoomed out").
 
-    loc : int or string, optional, default to 1
+    loc : int or string, optional, default to 'upper right'
         Location to place the inset axes. The valid locations are::
 
-            'upper right'  : 1,
-            'upper left'   : 2,
-            'lower left'   : 3,
-            'lower right'  : 4,
-            'right'        : 5,
-            'center left'  : 6,
-            'center right' : 7,
-            'lower center' : 8,
-            'upper center' : 9,
-            'center'       : 10
+            ============  ==============  ===============  =============
+            Compass Code  Compass String  Location String  Location Code
+            ============  ==============  ===============  =============
+            'NE'          'northeast'     'upper right'    1
+            'NW'          'northwest'     'upper left'     2
+            'SW'          'southwest'     'lower left'     3
+            'SE'          'southeast'     'lower right'    4
+                                          'right'          5
+            'W'           'west'          'center left'    6
+            'E'           'east'          'center right'   7
+            'S'           'south'         'lower center'   8
+            'N'           'north'         'upper center'   9
+            'C'           'center'        'center'         10
+            ============  ==============  ===============  =============
+
 
     bbox_to_anchor : tuple or `matplotlib.transforms.BboxBase`, optional
         Bbox that the inset axes will be anchored to. If None,

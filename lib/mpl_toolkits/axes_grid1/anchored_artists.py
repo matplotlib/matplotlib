@@ -28,19 +28,23 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
         xdescent, ydescent : int or float
             descent of the container in the x- and y- direction, in pixels.
 
-        loc : int
+        loc : str or int
             Location of this artist. Valid location codes are::
 
-                'upper right'  : 1,
-                'upper left'   : 2,
-                'lower left'   : 3,
-                'lower right'  : 4,
-                'right'        : 5,
-                'center left'  : 6,
-                'center right' : 7,
-                'lower center' : 8,
-                'upper center' : 9,
-                'center'       : 10
+                ============  ==============  ===============  =============
+                Compass Code  Compass String  Location String  Location Code
+                ============  ==============  ===============  =============
+                'NE'          'northeast'     'upper right'    1
+                'NW'          'northwest'     'upper left'     2
+                'SW'          'southwest'     'lower left'     3
+                'SE'          'southeast'     'lower right'    4
+                                              'right'          5
+                'W'           'west'          'center left'    6
+                'E'           'east'          'center right'   7
+                'S'           'south'         'lower center'   8
+                'N'           'north'         'upper center'   9
+                'C'           'center'        'center'         10
+                ============  ==============  ===============  =============
 
         pad : int or float, optional
             Padding around the child objects, in fraction of the font
@@ -101,19 +105,23 @@ class AnchoredAuxTransformBox(AnchoredOffsetbox):
             The transformation object for the coordinate system in use, i.e.,
             :attr:`matplotlib.axes.Axes.transData`.
 
-        loc : int
+        loc : str or int
             Location of this artist. Valid location codes are::
 
-                'upper right'  : 1,
-                'upper left'   : 2,
-                'lower left'   : 3,
-                'lower right'  : 4,
-                'right'        : 5,
-                'center left'  : 6,
-                'center right' : 7,
-                'lower center' : 8,
-                'upper center' : 9,
-                'center'       : 10
+                ============  ==============  ===============  =============
+                Compass Code  Compass String  Location String  Location Code
+                ============  ==============  ===============  =============
+                'NE'          'northeast'     'upper right'    1
+                'NW'          'northwest'     'upper left'     2
+                'SW'          'southwest'     'lower left'     3
+                'SE'          'southeast'     'lower right'    4
+                                              'right'          5
+                'W'           'west'          'center left'    6
+                'E'           'east'          'center right'   7
+                'S'           'south'         'lower center'   8
+                'N'           'north'         'upper center'   9
+                'C'           'center'        'center'         10
+                ============  ==============  ===============  =============
 
         pad : int or float, optional
             Padding around the child objects, in fraction of the font
@@ -176,19 +184,23 @@ class AnchoredEllipse(AnchoredOffsetbox):
         angle : int or float
             Rotation of the ellipse, in degrees, anti-clockwise.
 
-        loc : int
-            Location of this size bar. Valid location codes are::
+        loc : str or int
+            Location of this artist. Valid location codes are::
 
-                'upper right'  : 1,
-                'upper left'   : 2,
-                'lower left'   : 3,
-                'lower right'  : 4,
-                'right'        : 5,
-                'center left'  : 6,
-                'center right' : 7,
-                'lower center' : 8,
-                'upper center' : 9,
-                'center'       : 10
+                ============  ==============  ===============  =============
+                Compass Code  Compass String  Location String  Location Code
+                ============  ==============  ===============  =============
+                'NE'          'northeast'     'upper right'    1
+                'NW'          'northwest'     'upper left'     2
+                'SW'          'southwest'     'lower left'     3
+                'SE'          'southeast'     'lower right'    4
+                                              'right'          5
+                'W'           'west'          'center left'    6
+                'E'           'east'          'center right'   7
+                'S'           'south'         'lower center'   8
+                'N'           'north'         'upper center'   9
+                'C'           'center'        'center'         10
+                ============  ==============  ===============  =============
 
         pad : int or float, optional
             Padding around the ellipse, in fraction of the font size. Defaults
@@ -244,19 +256,23 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         label : str
             Label to display.
 
-        loc : int
-            Location of this size bar. Valid location codes are::
+        loc : str or int
+            Location of this artist. Valid location codes are::
 
-                'upper right'  : 1,
-                'upper left'   : 2,
-                'lower left'   : 3,
-                'lower right'  : 4,
-                'right'        : 5,
-                'center left'  : 6,
-                'center right' : 7,
-                'lower center' : 8,
-                'upper center' : 9,
-                'center'       : 10
+                ============  ==============  ===============  =============
+                Compass Code  Compass String  Location String  Location Code
+                ============  ==============  ===============  =============
+                'NE'          'northeast'     'upper right'    1
+                'NW'          'northwest'     'upper left'     2
+                'SW'          'southwest'     'lower left'     3
+                'SE'          'southeast'     'lower right'    4
+                                              'right'          5
+                'W'           'west'          'center left'    6
+                'E'           'east'          'center right'   7
+                'S'           'south'         'lower center'   8
+                'N'           'north'         'upper center'   9
+                'C'           'center'        'center'         10
+                ============  ==============  ===============  =============
 
         pad : int or float, optional
             Padding around the label and size bar, in fraction of the font
@@ -399,19 +415,23 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
             Size of label strings, given in coordinates of *transform*.
             Defaults to 0.08.
 
-        loc : int, optional
-            Location of the direction arrows. Valid location codes are::
+        loc : str or int
+            Location of this artist. Valid location codes are::
 
-                'upper right'  : 1,
-                'upper left'   : 2,
-                'lower left'   : 3,
-                'lower right'  : 4,
-                'right'        : 5,
-                'center left'  : 6,
-                'center right' : 7,
-                'lower center' : 8,
-                'upper center' : 9,
-                'center'       : 10
+                ============  ==============  ===============  =============
+                Compass Code  Compass String  Location String  Location Code
+                ============  ==============  ===============  =============
+                'NE'          'northeast'     'upper right'    1
+                'NW'          'northwest'     'upper left'     2
+                'SW'          'southwest'     'lower left'     3
+                'SE'          'southeast'     'lower right'    4
+                                              'right'          5
+                'W'           'west'          'center left'    6
+                'E'           'east'          'center right'   7
+                'S'           'south'         'lower center'   8
+                'N'           'north'         'upper center'   9
+                'C'           'center'        'center'         10
+                ============  ==============  ===============  =============
 
             Defaults to 2.
 

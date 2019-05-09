@@ -555,6 +555,43 @@ def test_alpha_handles():
     assert lh.get_edgecolor()[:-1] == hh[1].get_edgecolor()[:-1]
 
 
+_loc_values = [['NW', 'N', 'NE', 'W', 'C', 'E', 'SW', 'S', 'SE'],
+               ['northwest', 'north', 'northeast', 'west', 'center',
+                'east', 'southwest', 'south', 'southeast'],
+               ['upper left', 'upper center', 'upper right', 'center left',
+                'center', 'right', 'lower left', 'lower center',
+                'lower right']]
+
+
+@pytest.mark.parametrize('locs', _loc_values)
+def test_legend_loc_compass_codes(locs):
+    codes = [2, 9, 1, 6, 10, 7, 3, 8, 4]
+    valid = ['NW', 'N', 'NE', 'W', 'C', 'E', 'SW', 'S', 'SE']
+
+    for loc, val in zip(locs, valid):
+        plt.rcParams["legend.loc"] = loc
+        assert plt.rcParams["legend.loc"] == val
+
+    fig1, axes1 = plt.subplots(3, 3)
+    fig2, axes2 = plt.subplots(3, 3)
+
+    for ax, loc in zip(axes1.flat, locs):
+        ax.plot([1, 2], label=loc)
+        ax.legend(loc=loc)
+
+    for ax, loc in zip(axes2.flat, codes):
+        ax.plot([1, 2], label=loc)
+        leg = ax.legend(loc="NW")
+        leg._set_loc(loc)
+
+    for ax1, ax2 in zip(axes1.flat, axes2.flat):
+        leg1 = ax1.get_legend()
+        leg2 = ax2.get_legend()
+        assert leg1._get_loc() == leg2._get_loc()
+    fig1.canvas.draw()
+    fig2.canvas.draw()
+
+
 def test_warn_big_data_best_loc():
     fig, ax = plt.subplots()
     ax.plot(np.arange(200001), label='Is this big data?')

@@ -615,19 +615,10 @@ def validate_markevery(s):
 
 validate_markeverylist = _listify_validator(validate_markevery)
 
-validate_legend_loc = ValidateInStrings(
-    'legend_loc',
-    ['best',
-     'upper right',
-     'upper left',
-     'lower left',
-     'lower right',
-     'right',
-     'center left',
-     'center right',
-     'lower center',
-     'upper center',
-     'center'], ignorecase=True)
+
+def validate_legend_loc(loc):
+    return cbook._map_loc_to_compass(loc, allowbest=True, warnonly=True,
+                                     asrcparam='legend.loc')
 
 
 def validate_svg_fonttype(s):
