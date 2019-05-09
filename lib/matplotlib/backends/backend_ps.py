@@ -870,6 +870,7 @@ class FigureCanvasPS(FigureCanvasBase):
                                orientation, isLandscape, papertype,
                                **kwargs)
 
+    @cbook._delete_parameter("3.2", "dryrun")
     def _print_figure(
             self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
             orientation='portrait', isLandscape=False, papertype=None,

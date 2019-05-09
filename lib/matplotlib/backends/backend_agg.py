@@ -544,6 +544,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         # print_figure(), and the latter ensures that `self.figure.dpi` already
         # matches the dpi kwarg (if any).
 
+        @cbook._delete_parameter("3.2", "dryrun")
         def print_jpg(self, filename_or_obj, *args, dryrun=False,
                       pil_kwargs=None, **kwargs):
             """
@@ -598,6 +599,7 @@ class FigureCanvasAgg(FigureCanvasBase):
 
         print_jpeg = print_jpg
 
+        @cbook._delete_parameter("3.2", "dryrun")
         def print_tif(self, filename_or_obj, *args, dryrun=False,
                       pil_kwargs=None, **kwargs):
             buf, size = self.print_to_buffer()
