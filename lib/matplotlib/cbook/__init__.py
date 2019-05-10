@@ -1497,16 +1497,14 @@ def violin_stats(X, method, points=100, quantiles=None):
                          " must have the same length")
 
     # Zip x and quantiles
-    data = zip(X, quantiles)
-
-    for (x, p) in data:
+    for (x, q) in zip(X, quantiles):
         # Dictionary of results for this distribution
         stats = {}
 
         # Calculate basic stats for the distribution
         min_val = np.min(x)
         max_val = np.max(x)
-        p_val = np.percentile(x, 100 * p)
+        quantile_val = np.percentile(x, 100 * q)
 
         # Evaluate the kernel density estimate
         coords = np.linspace(min_val, max_val, points)
@@ -1518,7 +1516,7 @@ def violin_stats(X, method, points=100, quantiles=None):
         stats['median'] = np.median(x)
         stats['min'] = min_val
         stats['max'] = max_val
-        stats['quantiles'] = np.atleast_1d(p_val)
+        stats['quantiles'] = np.atleast_1d(quantile_val)
 
         # Append to output
         vpstats.append(stats)

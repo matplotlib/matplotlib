@@ -2791,7 +2791,7 @@ def test_violinplot_bad_quantiles():
 
     # Different size quantile list and plots
     with pytest.raises(ValueError):
-        ax.violinplot(data, quantiles=[[0.1, 0.2], [0.5]])
+        ax.violinplot(data, quantiles=[[0.1, 0.2], [0.5, 0.7]])
 
 
 def test_violinplot_outofrange_quantiles():

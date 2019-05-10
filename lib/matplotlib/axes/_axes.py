@@ -7916,7 +7916,7 @@ optional.
         showmedians : bool, default = False
           If `True`, will toggle rendering of the medians.
 
-        quantiles : array-like, default=None
+        quantiles : array-like, default = None
           If not None, set a list of floats in interval [0, 1] for each violin,
           which stands for the quantiles that will be rendered for that
           violin.
@@ -7958,9 +7958,8 @@ optional.
           - ``cmedians``: A `~.collections.LineCollection` instance that
             marks the median values of each of the violin's distribution.
 
-          - ``cquantiles``: A
-            :class:`matplotlib.collections.LineCollection` instance created to
-            identify the quantile values of each of the violin's
+          - ``cquantiles``: A `~.collections.LineCollection` instance created
+            to identify the quantile values of each of the violin's
             distribution.
 
         """
@@ -8008,7 +8007,10 @@ optional.
 
           - ``max``: The maximum value for this violin's dataset.
 
-          - ``quantiles``: The quantile values for this violin's dataset.
+          Optional keys are:
+
+          - ``quantiles``: A list of scalars containing the quantile values
+            for this violin's dataset.
 
         positions : array-like, default = [1, 2, ..., n]
           Sets the positions of the violins. The ticks and limits are
@@ -8057,9 +8059,8 @@ optional.
           - ``cmedians``: A `~.collections.LineCollection` instance that
             marks the median values of each of the violin's distribution.
 
-          - ``cquantiles``: A
-            :class:`matplotlib.collections.LineCollection` instance created to
-            identify the quantiles values of each of the violin's
+          - ``cquantiles``: A `~.collections.LineCollection` instance created
+            to identify the quantiles values of each of the violin's
             distribution.
 
         """
@@ -8126,7 +8127,10 @@ optional.
             mins.append(stats['min'])
             maxes.append(stats['max'])
             medians.append(stats['median'])
-            quantiles = np.concatenate((quantiles, stats['quantiles']))
+            q = stats.get('quantiles')
+            if q is not None:
+                # If exist key quantiles, assume it's a list of floats
+                quantiles = np.concatenate((quantiles, q))
         artists['bodies'] = bodies
 
         # Render means
@@ -8158,10 +8162,10 @@ optional.
             # pmaxes are the right end of quantiles lines
             ppmaxs = np.asarray([])
             for stats, cmin, cmax in zip(vpstats, pmins, pmaxes):
-                ppmins = np.concatenate((ppmins, [cmin] *
-                                         np.size(stats['quantiles'])))
-                ppmaxs = np.concatenate((ppmaxs, [cmax] *
-                                         np.size(stats['quantiles'])))
+                q = stats.get('quantiles')
+                if q is not None:
+                    ppmins = np.concatenate((ppmins, [cmin] * np.size(q)))
+                    ppmaxs = np.concatenate((ppmaxs, [cmax] * np.size(q)))
             # Start rendering
             artists['cquantiles'] = perp_lines(quantiles, ppmins, ppmaxs,
                                                  colors=edgecolor)
