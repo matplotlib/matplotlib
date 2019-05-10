@@ -549,7 +549,6 @@ def _layoutcolorbarsingle(ax, cax, shrink, aspect, location, pad=0.05):
         # constrain the height taking into account the aspect ratio of
         # the box.
 
-        figw, figh = ax.figure.get_size_inches()
         lbpos.constrain_height(shrink * axpos.real_height, strength='strong')
         layoutbox.align([axpos, lbpos], 'v_center')
         # set the width of the pos box
@@ -569,8 +568,7 @@ def _layoutcolorbarsingle(ax, cax, shrink, aspect, location, pad=0.05):
         else:
             layoutbox.vstack([lb, axlb], padding=pad * axlb.height)
         # constrain the height and center...
-        layoutbox.match_widths([axpos, lbpos],
-                               [1, shrink], strength='strong')
+        lbpos.constrain_width(shrink * axpos.real_width, strength='strong')
         layoutbox.align([axpos, lbpos], 'h_center')
         # set the height of the pos box
         lbpos.constrain_height(axpos.width * aspect * shrink,
