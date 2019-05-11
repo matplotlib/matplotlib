@@ -2662,7 +2662,8 @@ def test_vert_violinplot_showall():
     np.random.seed(316624790)
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=1, showextrema=1,
-                  showmedians=1)
+                  showmedians=1,
+                  quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
 
 
 @image_comparison(baseline_images=['violinplot_vert_custompoints_10'],
@@ -2739,7 +2740,8 @@ def test_horiz_violinplot_showall():
     np.random.seed(82762530)
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=1,
-                  showextrema=1, showmedians=1)
+                  showextrema=1, showmedians=1,
+                  quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
 
 
 @image_comparison(baseline_images=['violinplot_horiz_custompoints_10'],
@@ -2780,6 +2782,48 @@ def test_violinplot_bad_widths():
     data = [np.random.normal(size=100) for i in range(4)]
     with pytest.raises(ValueError):
         ax.violinplot(data, positions=range(4), widths=[1, 2, 3])
+
+
+def test_violinplot_bad_quantiles():
+    ax = plt.axes()
+    # First 9 digits of frac(sqrt(73))
+    np.random.seed(544003745)
+    data = [np.random.normal(size=100)]
+
+    # Different size quantile list and plots
+    with pytest.raises(ValueError):
+        ax.violinplot(data, quantiles=[[0.1, 0.2], [0.5, 0.7]])
+
+
+def test_violinplot_outofrange_quantiles():
+    ax = plt.axes()
+    # First 9 digits of frac(sqrt(79))
+    np.random.seed(888194417)
+    data = [np.random.normal(size=100)]
+
+    # Quantile value above 100
+    with pytest.raises(ValueError):
+        ax.violinplot(data, quantiles=[[0.1, 0.2, 0.3, 1.05]])
+
+    # Quantile value below 0
+    with pytest.raises(ValueError):
+        ax.violinplot(data, quantiles=[[-0.05, 0.2, 0.3, 0.75]])
+
+
+@check_figures_equal(extensions=["png"])
+def test_violinplot_single_list_quantiles(fig_test, fig_ref):
+    # Ensures quantile list for 1D can be passed in as single list
+    # First 9 digits of frac(sqrt(83))
+    np.random.seed(110433579)
+    data = [np.random.normal(size=100)]
+
+    # Test image
+    ax = fig_test.subplots()
+    ax.violinplot(data, quantiles=[0.1, 0.3, 0.9])
+
+    # Reference image
+    ax = fig_ref.subplots()
+    ax.violinplot(data, quantiles=[[0.1, 0.3, 0.9]])
 
 
 def test_manage_xticks():
