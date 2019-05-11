@@ -1409,9 +1409,12 @@ class MouseEvent(LocationEvent):
 
     step : scalar
         The number of scroll steps (positive for 'up', negative for 'down').
+        This applies only to 'scroll_event' and defaults to 0 otherwise.
 
     dblclick : bool
-        Whether the event is a double-click.
+        Whether the event is a double-click. This applies only to
+        'button_press_event' and is False otherwise. In particular, it's
+        not used in 'button_release_event'.
 
     Examples
     --------
