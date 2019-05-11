@@ -316,15 +316,22 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # "interactive backends") and hardcopy backends to make image files
 # (PNG, SVG, PDF, PS; also referred to as "non-interactive backends").
 #
-# There are four ways to configure your backend. If they conflict each other,
+# There are three ways to configure your backend. If they conflict each other,
 # the method mentioned last in the following list will be used, e.g. calling
 # :func:`~matplotlib.use()` will override the setting in your ``matplotlibrc``.
 #
-#
-# #. The ``backend`` parameter in your ``matplotlibrc`` file (see
+# #. The :rc:`backend` parameter in your ``matplotlibrc`` file (see
 #    :doc:`/tutorials/introductory/customizing`)::
 #
-#        backend : WXAgg   # use wxpython with antigrain (agg) rendering
+#        backend : qt5agg   # use pyqt5 with antigrain (agg) rendering
+#
+#    If no backend is explicitly set in the ``matplotlibrc`` file, Matplotlib
+#    automatically detects a usable backend based on what is available on your
+#    system and on whether a GUI event loop is already running.
+#
+#    On Linux, if the environment variable :envvar:`DISPLAY` is unset, the
+#    "event loop" is identified as "headless", which causes a fallback to a
+#    noninteractive backend (agg).
 #
 # #. Setting the :envvar:`MPLBACKEND` environment variable, either for your
 #    current shell or for a single script.  On Unix::
@@ -351,12 +358,13 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #       import matplotlib
 #       matplotlib.use('PS')   # generate postscript output by default
 #
-#    If you use the :func:`~matplotlib.use` function, this must be done before
-#    importing :mod:`matplotlib.pyplot`. Calling :func:`~matplotlib.use` after
-#    pyplot has been imported will have no effect.  Using
-#    :func:`~matplotlib.use` will require changes in your code if users want to
+#    If you use the `~matplotlib.use` function, this should be done before
+#    importing :mod:`matplotlib.pyplot`. Calling `~matplotlib.use` after pyplot
+#    has been imported may fail to switch the backend and raise an ImportError.
+#
+#    Using `~matplotlib.use` will require changes in your code if users want to
 #    use a different backend.  Therefore, you should avoid explicitly calling
-#    :func:`~matplotlib.use` unless absolutely necessary.
+#    `~matplotlib.use` unless absolutely necessary.
 #
 # .. note::
 #    Backend name specifications are not case-sensitive; e.g., 'GTK3Agg'
@@ -395,22 +403,18 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # backend for each; these are *non-interactive backends*, capable of
 # writing to a file):
 #
-# =============   ============   ================================================
-# Renderer        Filetypes      Description
-# =============   ============   ================================================
-# :term:`AGG`     :term:`png`    :term:`raster graphics` -- high quality images
-#                                using the `Anti-Grain Geometry`_ engine
-# PS              :term:`ps`     :term:`vector graphics` -- Postscript_ output
-#                 :term:`eps`
-# PDF             :term:`pdf`    :term:`vector graphics` --
-#                                `Portable Document Format`_
-# SVG             :term:`svg`    :term:`vector graphics` --
-#                                `Scalable Vector Graphics`_
-# :term:`Cairo`   :term:`png`    :term:`raster graphics` and
-#                 :term:`ps`     :term:`vector graphics` -- using the
-#                 :term:`pdf`    `Cairo graphics`_ library
-#                 :term:`svg`
-# =============   ============   ================================================
+# ========  =========  =======================================================
+# Renderer  Filetypes  Description
+# ========  =========  =======================================================
+# AGG       png        raster_ graphics -- high quality images using the
+#                      `Anti-Grain Geometry`_ engine
+# PS        ps,        vector_ graphics -- Postscript_ output
+#           eps
+# PDF       pdf        vector_ graphics -- `Portable Document Format`_
+# SVG       svg        vector_ graphics -- `Scalable Vector Graphics`_
+# Cairo     png, ps,   raster_ or vector_ graphics -- using the Cairo_ library
+#           pdf, svg
+# ========  =========  =======================================================
 #
 # And here are the user interfaces and renderer combinations supported;
 # these are *interactive backends*, capable of displaying to the screen
@@ -450,12 +454,12 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _Postscript: https://en.wikipedia.org/wiki/PostScript
 # .. _`Portable Document Format`: https://en.wikipedia.org/wiki/Portable_Document_Format
 # .. _`Scalable Vector Graphics`: https://en.wikipedia.org/wiki/Scalable_Vector_Graphics
-# .. _`Cairo graphics`: https://wwW.cairographics.org
+# .. _Cairo: https://www.cairographics.org
 # .. _PyGObject: https://wiki.gnome.org/action/show/Projects/PyGObject
 # .. _pycairo: https://www.cairographics.org/pycairo/
 # .. _cairocffi: https://pythonhosted.org/cairocffi/
 # .. _wxPython: https://www.wxpython.org/
-# .. _TkInter: https://wiki.python.org/moin/TkInter
+# .. _TkInter: https://docs.python.org/3/library/tk.html
 # .. _PyQt4: https://riverbankcomputing.com/software/pyqt/intro
 # .. _PyQt5: https://riverbankcomputing.com/software/pyqt/intro
 #

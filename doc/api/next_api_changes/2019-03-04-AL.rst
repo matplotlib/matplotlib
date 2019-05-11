@@ -1,0 +1,20 @@
+Autoscaling changes
+```````````````````
+
+Matplotlib used to recompute autoscaled limits after every plotting
+(``plot()``, ``bar()``, etc.) call.  It now only does so when actually
+rendering the canvas, or when the user queries the Axes limits.  This is a
+major performance improvement for plots with a large number of artists.
+
+In particular, this means that artists added manually with `Axes.add_line`,
+`Axes.add_patch`, etc. will be taken into account by the autoscale, even
+without an explicit call to `Axes.autoscale_view`.
+
+In some cases, this can result in different limits being reported.  If this is
+an issue, consider triggering a draw with `fig.canvas.draw`.
+
+LogLocator.nonsingular now maintains the orders of its arguments
+````````````````````````````````````````````````````````````````
+
+It no longer reorders them in increasing order.  The new behavior is consistent
+with MaxNLocator.

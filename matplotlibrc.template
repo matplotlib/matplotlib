@@ -41,11 +41,6 @@
 ## 'module://my_backend'.
 #backend      : Agg
 
-## Note that this can be overridden by the environment variable
-## QT_API used by Enthought Tool Suite (ETS); valid values are
-## "pyqt" and "pyside".  The "pyqt" setting has the side effect of
-## forcing the use of Version 2 API for QString and QVariant.
-
 ## The port to use for the web server in the WebAgg backend.
 #webagg.port : 8988
 

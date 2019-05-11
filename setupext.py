@@ -452,46 +452,26 @@ class OptionalPackage(SetupPackage):
 
     def check(self):
         """
-        Do not override this method!
+        Check whether ``setup.cfg`` requests this package to be installed.
 
-        For custom dependency checks override self.check_requirements().
-        Two things are checked: Configuration file and requirements.
+        May be overridden by subclasses for additional checks.
         """
         # Check configuration file
         conf = self.get_config()
         # Default "auto" state or install forced by user
         if conf in [True, 'auto']:
-            message = "installing"
             # Set non-optional if user sets `True` in config
             if conf is True:
                 self.optional = False
+            return "installing"
         # Configuration opt-out by user
         else:
             # Some backend extensions (e.g. Agg) need to be built for certain
             # other GUI backends (e.g. TkAgg) even when manually disabled
             if self.force is True:
-                message = "installing forced (config override)"
+                return "installing forced (config override)"
             else:
                 raise CheckFailed("skipping due to configuration")
-
-        # Check requirements and add extra information (if any) to message.
-        # If requirements are not met a CheckFailed should be raised in there.
-        additional_info = self.check_requirements()
-        if additional_info:
-            message += ", " + additional_info
-
-        # No CheckFailed raised until now, return install message.
-        return message
-
-    def check_requirements(self):
-        """
-        Override this method to do custom dependency checks.
-
-         - Raise CheckFailed() if requirements are not met.
-         - Return message with additional information, or an empty string
-           (or None) for no additional information.
-        """
-        return ""
 
 
 class OptionalBackendPackage(OptionalPackage):
@@ -979,11 +959,10 @@ class BackendTkAgg(OptionalBackendPackage):
 class BackendMacOSX(OptionalBackendPackage):
     name = 'macosx'
 
-    def check_requirements(self):
+    def check(self):
         if sys.platform != 'darwin':
             raise CheckFailed("Mac OS-X only")
-
-        return 'darwin'
+        return super().check()
 
     def get_extension(self):
         sources = [
@@ -1008,9 +987,10 @@ class Dlls(OptionalPackageData):
     """
     name = "dlls"
 
-    def check_requirements(self):
+    def check(self):
         if sys.platform != 'win32':
             raise CheckFailed("Microsoft Windows only")
+        return super().check()
 
     def get_package_data(self):
         return {'': ['*.dll']}

@@ -798,6 +798,12 @@ def test_polar_rlim_bottom(fig_test, fig_ref):
     ax.set_rmin(.5)
 
 
+def test_polar_rlim_zero():
+    ax = plt.figure().add_subplot(projection='polar')
+    ax.plot(np.arange(10), np.arange(10) + .01)
+    assert ax.get_ylim()[0] == 0
+
+
 @image_comparison(baseline_images=['axvspan_epoch'])
 def test_axvspan_epoch():
     from datetime import datetime
@@ -1849,6 +1855,13 @@ class TestScatter(object):
         with pytest.raises(ValueError):
             plt.scatter([1, 2, 3], [1, 2, 3], color=[1, 2, 3])
 
+    def test_scatter_size_arg_size(self):
+        x = np.arange(4)
+        with pytest.raises(ValueError):
+            plt.scatter(x, x, x[1:])
+        with pytest.raises(ValueError):
+            plt.scatter(x[1:], x[1:], x)
+
     @check_figures_equal(extensions=["png"])
     def test_scatter_invalid_color(self, fig_test, fig_ref):
         ax = fig_test.subplots()
@@ -1876,6 +1889,21 @@ class TestScatter(object):
                    cmap=cmap, plotnonfinite=False)
         ax = fig_ref.subplots()
         ax.scatter([0, 2], [0, 2], c=[1, 2], s=[1, 3], cmap=cmap)
+
+    @check_figures_equal(extensions=["png"])
+    def test_scatter_single_point(self, fig_test, fig_ref):
+        ax = fig_test.subplots()
+        ax.scatter(1, 1, c=1)
+        ax = fig_ref.subplots()
+        ax.scatter([1], [1], c=[1])
+
+    @check_figures_equal(extensions=["png"])
+    def test_scatter_different_shapes(self, fig_test, fig_ref):
+        x = np.arange(10)
+        ax = fig_test.subplots()
+        ax.scatter(x, x.reshape(2, 5), c=x.reshape(5, 2))
+        ax = fig_ref.subplots()
+        ax.scatter(x.reshape(5, 2), x, c=x.reshape(2, 5))
 
     # Parameters for *test_scatter_c*. NB: assuming that the
     # scatter plot will have 4 elements. The tuple scheme is:
@@ -1933,7 +1961,7 @@ class TestScatter(object):
 
         from matplotlib.axes import Axes
 
-        xshape = yshape = (4,)
+        xsize = 4
 
         # Additional checking of *c* (introduced in #11383).
         REGEXP = {
@@ -1943,21 +1971,18 @@ class TestScatter(object):
 
         if re_key is None:
             Axes._parse_scatter_color_args(
-                c=c_case, edgecolors="black", kwargs={},
-                xshape=xshape, yshape=yshape,
+                c=c_case, edgecolors="black", kwargs={}, xsize=xsize,
                 get_next_color_func=get_next_color)
         else:
             with pytest.raises(ValueError, match=REGEXP[re_key]):
                 Axes._parse_scatter_color_args(
-                    c=c_case, edgecolors="black", kwargs={},
-                    xshape=xshape, yshape=yshape,
+                    c=c_case, edgecolors="black", kwargs={}, xsize=xsize,
                     get_next_color_func=get_next_color)
 
 
-def _params(c=None, xshape=(2,), yshape=(2,), **kwargs):
+def _params(c=None, xsize=2, **kwargs):
     edgecolors = kwargs.pop('edgecolors', None)
-    return (c, edgecolors, kwargs if kwargs is not None else {},
-            xshape, yshape)
+    return (c, edgecolors, kwargs if kwargs is not None else {}, xsize)
 _result = namedtuple('_result', 'c, colors')
 
 
@@ -2009,8 +2034,7 @@ def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
     c = kwargs.pop('c', None)
     edgecolors = kwargs.pop('edgecolors', None)
     _, _, result_edgecolors = \
-        Axes._parse_scatter_color_args(c, edgecolors, kwargs,
-                                       xshape=(2,), yshape=(2,),
+        Axes._parse_scatter_color_args(c, edgecolors, kwargs, xsize=2,
                                        get_next_color_func=get_next_color)
     assert result_edgecolors == expected_edgecolors
 
@@ -2666,7 +2690,8 @@ def test_vert_violinplot_showall():
     np.random.seed(316624790)
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=1, showextrema=1,
-                  showmedians=1)
+                  showmedians=1,
+                  quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
 
 
 @image_comparison(baseline_images=['violinplot_vert_custompoints_10'],
@@ -2743,7 +2768,8 @@ def test_horiz_violinplot_showall():
     np.random.seed(82762530)
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=1,
-                  showextrema=1, showmedians=1)
+                  showextrema=1, showmedians=1,
+                  quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]])
 
 
 @image_comparison(baseline_images=['violinplot_horiz_custompoints_10'],
@@ -2784,6 +2810,48 @@ def test_violinplot_bad_widths():
     data = [np.random.normal(size=100) for i in range(4)]
     with pytest.raises(ValueError):
         ax.violinplot(data, positions=range(4), widths=[1, 2, 3])
+
+
+def test_violinplot_bad_quantiles():
+    ax = plt.axes()
+    # First 9 digits of frac(sqrt(73))
+    np.random.seed(544003745)
+    data = [np.random.normal(size=100)]
+
+    # Different size quantile list and plots
+    with pytest.raises(ValueError):
+        ax.violinplot(data, quantiles=[[0.1, 0.2], [0.5, 0.7]])
+
+
+def test_violinplot_outofrange_quantiles():
+    ax = plt.axes()
+    # First 9 digits of frac(sqrt(79))
+    np.random.seed(888194417)
+    data = [np.random.normal(size=100)]
+
+    # Quantile value above 100
+    with pytest.raises(ValueError):
+        ax.violinplot(data, quantiles=[[0.1, 0.2, 0.3, 1.05]])
+
+    # Quantile value below 0
+    with pytest.raises(ValueError):
+        ax.violinplot(data, quantiles=[[-0.05, 0.2, 0.3, 0.75]])
+
+
+@check_figures_equal(extensions=["png"])
+def test_violinplot_single_list_quantiles(fig_test, fig_ref):
+    # Ensures quantile list for 1D can be passed in as single list
+    # First 9 digits of frac(sqrt(83))
+    np.random.seed(110433579)
+    data = [np.random.normal(size=100)]
+
+    # Test image
+    ax = fig_test.subplots()
+    ax.violinplot(data, quantiles=[0.1, 0.3, 0.9])
+
+    # Reference image
+    ax = fig_ref.subplots()
+    ax.violinplot(data, quantiles=[[0.1, 0.3, 0.9]])
 
 
 def test_manage_xticks():

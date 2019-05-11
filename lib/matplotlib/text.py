@@ -200,7 +200,10 @@ class Text(Artist):
         if not self.get_visible() or self._renderer is None:
             return False, {}
 
-        l, b, w, h = self.get_window_extent().bounds
+        # Explicitly use Text.get_window_extent(self) and not
+        # self.get_window_extent() so that Annotation.contains does not
+        # accidentally cover the entire annotation bounding box.
+        l, b, w, h = Text.get_window_extent(self).bounds
         r, t = l + w, b + h
 
         x, y = mouseevent.x, mouseevent.y
@@ -2187,11 +2190,12 @@ class Annotation(Text, _AnnotationBase):
             self.arrow_patch = None
 
     def contains(self, event):
+        if self._contains is not None:
+            return self._contains(self, event)
         contains, tinfo = Text.contains(self, event)
         if self.arrow_patch is not None:
             in_patch, _ = self.arrow_patch.contains(event)
             contains = contains or in_patch
-
         return contains, tinfo
 
     @property

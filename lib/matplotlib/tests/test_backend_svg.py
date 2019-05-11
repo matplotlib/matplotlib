@@ -196,3 +196,20 @@ def test_unicode_won():
     won_id = 'Computer_Modern_Sans_Serif-142'
     assert re.search(r'<path d=(.|\s)*?id="{0}"/>'.format(won_id), buf)
     assert re.search(r'<use[^/>]*? xlink:href="#{0}"/>'.format(won_id), buf)
+
+
+def test_svgnone_with_data_coordinates():
+    plt.rcParams['svg.fonttype'] = 'none'
+    expected = 'Unlikely to appear by chance'
+
+    fig, ax = plt.subplots()
+    ax.text(np.datetime64('2019-06-30'), 1, expected)
+    ax.set_xlim(np.datetime64('2019-01-01'), np.datetime64('2019-12-31'))
+    ax.set_ylim(0, 2)
+
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        fd.seek(0)
+        buf = fd.read().decode()
+
+    assert expected in buf
