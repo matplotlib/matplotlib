@@ -26,6 +26,7 @@ apt-run:  &apt-install
       texlive-xetex \
       graphviz \
       libgeos-dev \
+      fonts-crosextra-carlito \
       otf-freefont
 
 fonts-run:  &fonts-install

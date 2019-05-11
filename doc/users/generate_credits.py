@@ -52,6 +52,8 @@ Paul Kienzle,
 John Porter,
 and Jonathon Taylor.
 
+Thanks to Tony Yu for the original logo design.
+
 We also thank all who have reported bugs, commented on
 proposed changes, or otherwise contributed to Matplotlib's
 development and usefulness.
