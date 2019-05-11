@@ -1,6 +1,0 @@
-API changes
-```````````
-
-The dictionaries returned by `matplotlib.cbook.violin_stats()` now contains an
-extra key `quantiles`, which maps to a list of floats representing the quantile
-values of a violin.
