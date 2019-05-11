@@ -2454,14 +2454,12 @@ docstring.interpd.update(
 
 class FancyBboxPatch(Patch):
     """
-    A fancy box around a rectangle with lower left at *xy*=(*x*,
-    *y*) with specified width and height.
+    A fancy box around a rectangle with lower left at *xy* = (*x*, *y*)
+    with specified width and height.
 
-    :class:`FancyBboxPatch` class is similar to :class:`Rectangle`
-    class, but it draws a fancy box around the rectangle. The
-    transformation of the rectangle box to the fancy box is delegated
-    to the :class:`BoxTransmuterBase` and its derived classes.
-
+    `.FancyBboxPatch` is similar to `.Rectangle`, but it draws a fancy box
+    around the rectangle. The transformation of the rectangle box to the
+    fancy box is delegated to the `.BoxTransmuterBase` and its derived classes.
     """
 
     _edge_default = True
@@ -2478,25 +2476,42 @@ class FancyBboxPatch(Patch):
                  mutation_aspect=None,
                  **kwargs):
         """
-        *xy* = lower left corner
+        Parameters
+        ----------
+        xy : float, float
+          The lower left corner of the box.
 
-        *width*, *height*
+        width : float
+            The width of the box.
 
-        *boxstyle* determines what kind of fancy box will be drawn. It
-        can be a string of the style name with a comma separated
-        attribute, or an instance of :class:`BoxStyle`. Following box
-        styles are available.
+        height : float
+            The height of the box.
 
-        %(AvailableBoxstyles)s
+        boxstyle : str or `matplotlib.patches.BoxStyle`
+            The style of the fancy box. This can either be a `.BoxStyle`
+            instance or a string of the style name and optionally comma
+            seprarated attributes (e.g. "Round, pad=0.2"). This string is
+            passed to `.BoxStyle` to construct a `.BoxStyle` object. See
+            there for a full documentation.
 
-        *mutation_scale* : a value with which attributes of boxstyle
-        (e.g., pad) will be scaled. default=1.
+            The following box styles are available:
 
-        *mutation_aspect* : The height of the rectangle will be
-        squeezed by this value before the mutation and the mutated
-        box will be stretched by the inverse of it. default=None.
+            %(AvailableBoxstyles)s
 
-        Valid kwargs are:
+        mutation_scale : float, optional, default: 1
+            Scaling factor applied to the attributes of the box style
+            (e.g. pad or rounding_size).
+
+        mutation_aspect : float, optional
+            The height of the rectangle will be squeezed by this value before
+            the mutation and the mutated box will be stretched by the inverse
+            of it. For example, this allows different horizontal and vertical
+            padding.
+
+        Other Parameters
+        ----------------
+        **kwargs : `.Patch` properties
+
         %(Patch)s
         """
 
@@ -2563,9 +2578,7 @@ class FancyBboxPatch(Patch):
         self.stale = True
 
     def get_mutation_scale(self):
-        """
-        Return the mutation scale.
-        """
+        """Return the mutation scale."""
         return self._mutation_scale
 
     def set_mutation_aspect(self, aspect):
@@ -2580,20 +2593,15 @@ class FancyBboxPatch(Patch):
         self.stale = True
 
     def get_mutation_aspect(self):
-        """
-        Return the aspect ratio of the bbox mutation.
-        """
+        """Return the aspect ratio of the bbox mutation."""
         return self._mutation_aspect
 
     def get_boxstyle(self):
-        "Return the boxstyle object"
+        """Return the boxstyle object."""
         return self._bbox_transmuter
 
     def get_path(self):
-        """
-        Return the mutated path of the rectangle
-        """
-
+        """Return the mutated path of the rectangle."""
         _path = self.get_boxstyle()(self._x, self._y,
                                     self._width, self._height,
                                     self.get_mutation_scale(),
@@ -2603,19 +2611,19 @@ class FancyBboxPatch(Patch):
     # Following methods are borrowed from the Rectangle class.
 
     def get_x(self):
-        "Return the left coord of the rectangle"
+        """Return the left coord of the rectangle."""
         return self._x
 
     def get_y(self):
-        "Return the bottom coord of the rectangle"
+        """Return the bottom coord of the rectangle."""
         return self._y
 
     def get_width(self):
-        "Return the width of the rectangle"
+        """Return the width of the rectangle."""
         return self._width
 
     def get_height(self):
-        "Return the height of the rectangle"
+        """Return the height of the rectangle."""
         return self._height
 
     def set_x(self, x):
@@ -2664,9 +2672,19 @@ class FancyBboxPatch(Patch):
 
     def set_bounds(self, *args):
         """
-        Set the bounds of the rectangle: l,b,w,h
+        Set the bounds of the rectangle.
 
-        ACCEPTS: (left, bottom, width, height)
+        Call signatures::
+
+            set_bounds(left, bottom, width, height)
+            set_bounds((left, bottom, width, height))
+
+        Parameters
+        ----------
+        left, bottom : float
+            The coordinates of the bottom left corner of the rectangle.
+        width, height : float
+            The width/height of the rectangle.
         """
         if len(args) == 1:
             l, b, w, h = args[0]
@@ -2679,6 +2697,7 @@ class FancyBboxPatch(Patch):
         self.stale = True
 
     def get_bbox(self):
+        """Return the `.Bbox` of the rectangle."""
         return transforms.Bbox.from_bounds(self._x, self._y,
                                            self._width, self._height)
 
