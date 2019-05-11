@@ -7880,14 +7880,14 @@ optional.
     @_preprocess_data(replace_names=["dataset"])
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
-                   points=100, bw_method=None):
+                   quantiles=None, points=100, bw_method=None):
         """
         Make a violin plot.
 
         Make a violin plot for each column of *dataset* or each vector in
         sequence *dataset*.  Each filled area extends to represent the
         entire data range, with optional lines at the mean, the median,
-        the minimum, and the maximum.
+        the minimum, the maximum, and user-specified quantiles.
 
         Parameters
         ----------
@@ -7915,6 +7915,11 @@ optional.
 
         showmedians : bool, default = False
           If `True`, will toggle rendering of the medians.
+
+        quantiles : array-like, default = None
+          If not None, set a list of floats in interval [0, 1] for each violin,
+          which stands for the quantiles that will be rendered for that
+          violin.
 
         points : scalar, default = 100
           Defines the number of points to evaluate each of the
@@ -7953,6 +7958,10 @@ optional.
           - ``cmedians``: A `~.collections.LineCollection` instance that
             marks the median values of each of the violin's distribution.
 
+          - ``cquantiles``: A `~.collections.LineCollection` instance created
+            to identify the quantile values of each of the violin's
+            distribution.
+
         """
 
         def _kde_method(X, coords):
@@ -7962,7 +7971,8 @@ optional.
             kde = mlab.GaussianKDE(X, bw_method)
             return kde.evaluate(coords)
 
-        vpstats = cbook.violin_stats(dataset, _kde_method, points=points)
+        vpstats = cbook.violin_stats(dataset, _kde_method, points=points,
+                                     quantiles=quantiles)
         return self.violin(vpstats, positions=positions, vert=vert,
                            widths=widths, showmeans=showmeans,
                            showextrema=showextrema, showmedians=showmedians)
@@ -7973,7 +7983,7 @@ optional.
 
         Draw a violin plot for each column of `vpstats`. Each filled area
         extends to represent the entire data range, with optional lines at the
-        mean, the median, the minimum, and the maximum.
+        mean, the median, the minimum, the maximum, and the quantiles values.
 
         Parameters
         ----------
@@ -7996,6 +8006,11 @@ optional.
           - ``min``: The minimum value for this violin's dataset.
 
           - ``max``: The maximum value for this violin's dataset.
+
+          Optional keys are:
+
+          - ``quantiles``: A list of scalars containing the quantile values
+            for this violin's dataset.
 
         positions : array-like, default = [1, 2, ..., n]
           Sets the positions of the violins. The ticks and limits are
@@ -8043,6 +8058,11 @@ optional.
 
           - ``cmedians``: A `~.collections.LineCollection` instance that
             marks the median values of each of the violin's distribution.
+
+          - ``cquantiles``: A `~.collections.LineCollection` instance created
+            to identify the quantiles values of each of the violin's
+            distribution.
+
         """
 
         # Statistical quantities to be plotted on the violins
@@ -8050,6 +8070,7 @@ optional.
         mins = []
         maxes = []
         medians = []
+        quantiles = np.asarray([])
 
         # Collections to be returned
         artists = {}
@@ -8106,6 +8127,10 @@ optional.
             mins.append(stats['min'])
             maxes.append(stats['max'])
             medians.append(stats['median'])
+            q = stats.get('quantiles')
+            if q is not None:
+                # If exist key quantiles, assume it's a list of floats
+                quantiles = np.concatenate((quantiles, q))
         artists['bodies'] = bodies
 
         # Render means
@@ -8128,6 +8153,22 @@ optional.
                                              pmins,
                                              pmaxes,
                                              colors=edgecolor)
+
+        # Render quantile values
+        if quantiles.size > 0:
+            # Recalculate ranges for statistics lines for quantiles.
+            # ppmins are the left end of quantiles lines
+            ppmins = np.asarray([])
+            # pmaxes are the right end of quantiles lines
+            ppmaxs = np.asarray([])
+            for stats, cmin, cmax in zip(vpstats, pmins, pmaxes):
+                q = stats.get('quantiles')
+                if q is not None:
+                    ppmins = np.concatenate((ppmins, [cmin] * np.size(q)))
+                    ppmaxs = np.concatenate((ppmaxs, [cmax] * np.size(q)))
+            # Start rendering
+            artists['cquantiles'] = perp_lines(quantiles, ppmins, ppmaxs,
+                                                 colors=edgecolor)
 
         return artists
 
