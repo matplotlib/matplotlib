@@ -1,7 +1,7 @@
 import functools
 import uuid
 
-from matplotlib import cbook, docstring
+from matplotlib import docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
 from matplotlib.gridspec import GridSpec, SubplotSpec

@@ -34,7 +34,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib._animation_data import (
     DISPLAY_TEMPLATE, INCLUDED_FRAMES, JS_INCLUDE, STYLE_INCLUDE)
-from matplotlib import cbook, rcParams, rcParamsDefault, rc_context
+from matplotlib import cbook, rcParams, rc_context
 
 
 _log = logging.getLogger(__name__)

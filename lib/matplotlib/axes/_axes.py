@@ -3,7 +3,6 @@ import functools
 import itertools
 import logging
 import math
-import operator
 from numbers import Number
 
 import numpy as np

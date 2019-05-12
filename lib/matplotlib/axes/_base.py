@@ -10,7 +10,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import cbook, rcParams
-from matplotlib.cbook import _OrderedSet, _check_1d, index_of, get_label
+from matplotlib.cbook import _OrderedSet, _check_1d, index_of
 from matplotlib import docstring
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
@@ -19,7 +19,6 @@ import matplotlib.artist as martist
 import matplotlib.transforms as mtransforms
 import matplotlib.ticker as mticker
 import matplotlib.axis as maxis
-import matplotlib.scale as mscale
 import matplotlib.spines as mspines
 import matplotlib.font_manager as font_manager
 import matplotlib.text as mtext

@@ -24,7 +24,6 @@ try:
 except ImportError:
     import dummy_threading as threading
 import numpy as np
-from collections import OrderedDict
 from math import radians, cos, sin
 from matplotlib import cbook, rcParams, __version__
 from matplotlib.backend_bases import (

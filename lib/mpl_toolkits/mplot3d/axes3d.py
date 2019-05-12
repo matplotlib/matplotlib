@@ -22,7 +22,6 @@ import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.docstring as docstring
 import matplotlib.scale as mscale
-import matplotlib.transforms as mtransforms
 from matplotlib.axes import Axes, rcParams
 from matplotlib.colors import Normalize, LightSource
 from matplotlib.transforms import Bbox
