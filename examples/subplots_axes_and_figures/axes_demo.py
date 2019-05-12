@@ -21,7 +21,8 @@ s = np.convolve(x, r)[:len(x)] * dt  # colored noise
 
 # the main axes is subplot(111) by default
 plt.plot(t, s)
-plt.axis([0, 1, 1.1 * np.min(s), 2 * np.max(s)])
+plt.xlim(0, 1)
+plt.ylim(1.1 * np.min(s), 2 * np.max(s))
 plt.xlabel('time (s)')
 plt.ylabel('current (nA)')
 plt.title('Gaussian colored noise')

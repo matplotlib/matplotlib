@@ -53,7 +53,7 @@ ax3.set_title('Controlling Starting Points')
 
 # Displaying the starting points with blue symbols.
 ax3.plot(seed_points[0], seed_points[1], 'bo')
-ax3.axis((-w, w, -w, w))
+ax3.set(xlim=(-w, w), ylim=(-w, w))
 
 # Create a mask
 mask = np.zeros(U.shape, dtype=bool)

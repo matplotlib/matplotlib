@@ -165,11 +165,11 @@ def pick_scatter_plot():
 def pick_image():
     # picking images (matplotlib.image.AxesImage)
     fig, ax = plt.subplots()
-    im1 = ax.imshow(rand(10, 5), extent=(1, 2, 1, 2), picker=True)
-    im2 = ax.imshow(rand(5, 10), extent=(3, 4, 1, 2), picker=True)
-    im3 = ax.imshow(rand(20, 25), extent=(1, 2, 3, 4), picker=True)
-    im4 = ax.imshow(rand(30, 12), extent=(3, 4, 3, 4), picker=True)
-    ax.axis([0, 5, 0, 5])
+    ax.imshow(rand(10, 5), extent=(1, 2, 1, 2), picker=True)
+    ax.imshow(rand(5, 10), extent=(3, 4, 1, 2), picker=True)
+    ax.imshow(rand(20, 25), extent=(1, 2, 3, 4), picker=True)
+    ax.imshow(rand(30, 12), extent=(3, 4, 3, 4), picker=True)
+    ax.set(xlim=(0, 5), ylim=(0, 5))
 
     def onpick4(event):
         artist = event.artist
