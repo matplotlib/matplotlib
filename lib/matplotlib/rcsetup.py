@@ -38,8 +38,7 @@ interactive_bk = ['GTK3Agg', 'GTK3Cairo',
                   'WebAgg',
                   'WX', 'WXAgg', 'WXCairo']
 non_interactive_bk = ['agg', 'cairo',
-                      'pdf', 'pgf', 'ps', 'svg', 'template',
-                      'module://ipykernel.pylab.backend_inline']
+                      'pdf', 'pgf', 'ps', 'svg', 'template']
 all_backends = interactive_bk + non_interactive_bk
 
 
