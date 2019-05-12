@@ -30,13 +30,13 @@ _ETS = {"pyqt5": QT_API_PYQT5, "pyside2": QT_API_PYSIDE2,
         "pyqt": QT_API_PYQTv2, "pyside": QT_API_PYSIDE,
         None: None}
 # First, check if anything is already imported.
-if "PyQt5" in sys.modules:
+if "PyQt5.QtCore" in sys.modules:
     QT_API = QT_API_PYQT5
-elif "PySide2" in sys.modules:
+elif "PySide2.QtCore" in sys.modules:
     QT_API = QT_API_PYSIDE2
-elif "PyQt4" in sys.modules:
+elif "PyQt4.QtCore" in sys.modules:
     QT_API = QT_API_PYQTv2
-elif "PySide" in sys.modules:
+elif "PySide.QtCore" in sys.modules:
     QT_API = QT_API_PYSIDE
 # Otherwise, check the QT_API environment variable (from Enthought).  This can
 # only override the binding, not the backend (in other words, we check that the
