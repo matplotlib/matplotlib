@@ -54,15 +54,11 @@ fig, axs = plt.subplots(2, 2)
 ax = axs[0, 0]
 c = ax.pcolor(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
 ax.set_title('pcolor')
-# set the limits of the plot to the limits of the data
-ax.axis([x.min(), x.max(), y.min(), y.max()])
 fig.colorbar(c, ax=ax)
 
 ax = axs[0, 1]
 c = ax.pcolormesh(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
 ax.set_title('pcolormesh')
-# set the limits of the plot to the limits of the data
-ax.axis([x.min(), x.max(), y.min(), y.max()])
 fig.colorbar(c, ax=ax)
 
 ax = axs[1, 0]

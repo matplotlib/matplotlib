@@ -168,7 +168,7 @@ def pick_image():
     ax.imshow(rand(5, 10), extent=(3, 4, 1, 2), picker=True)
     ax.imshow(rand(20, 25), extent=(1, 2, 3, 4), picker=True)
     ax.imshow(rand(30, 12), extent=(3, 4, 3, 4), picker=True)
-    ax.axis([0, 5, 0, 5])
+    ax.set(xlim=(0, 5), ylim=(0, 5))
 
     def onpick4(event):
         artist = event.artist
