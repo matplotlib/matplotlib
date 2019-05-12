@@ -120,14 +120,15 @@ def _create_qApp():
 
             qApp = QtWidgets.QApplication([b"matplotlib"])
             qApp.lastWindowClosed.connect(qApp.quit)
-        else:
-            import weakref
-            qApp = weakref.proxy(app)
+
+    app = QtWidgets.QApplication.instance()
+    if app is None:
+        raise RuntimeError("A QApplication should exist")
 
     if is_pyqt5():
         try:
-            qApp.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
-            qApp.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+            app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
+            app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
         except AttributeError:
             pass
 
@@ -454,7 +455,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
     def flush_events(self):
         # docstring inherited
-        qApp.processEvents()
+        QtWidgets.QApplication.instance().processEvents()
 
     def start_event_loop(self, timeout=0):
         # docstring inherited
@@ -1034,7 +1035,7 @@ class HelpQt(backend_tools.ToolHelpBase):
 class ToolCopyToClipboardQT(backend_tools.ToolCopyToClipboardBase):
     def trigger(self, *args, **kwargs):
         pixmap = self.canvas.grab()
-        qApp.clipboard().setPixmap(pixmap)
+        QtWidgets.QApplication.instance().clipboard().setPixmap(pixmap)
 
 
 backend_tools.ToolSaveFigure = SaveFigureQt
@@ -1088,7 +1089,7 @@ class _BackendQT5(_Backend):
         # allow SIGINT exceptions to close the plot window.
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         try:
-            qApp.exec_()
+            QtWidgets.QApplication.instance().exec_()
         finally:
             # reset the SIGINT exception handler
             signal.signal(signal.SIGINT, old_signal)
