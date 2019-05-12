@@ -1565,6 +1565,10 @@ class Axis(martist.Artist):
         return self.converter is not None or self.units is not None
 
     def convert_units(self, x):
+        # If x is natively supported by Matplotlib, doesn't need converting
+        if munits.ConversionInterface.is_natively_supported(x):
+            return x
+
         if self.converter is None:
             self.converter = munits.registry.get_converter(x)
 
@@ -1573,13 +1577,8 @@ class Axis(martist.Artist):
         try:
             ret = self.converter.convert(x, self.units, self)
         except Exception as e:
-            # If x is already number like, converters other than
-            # DecimalConverter may raise error, so check here to walk around.
-            if munits.ConversionInterface.is_numlike(x):
-                return x
-            # Otherwise, the conversion fails
-            raise munits.ConversionError('Failed to convert value(s) to '
-                                         f'axis units: {x!r}') from e
+            raise munits.ConversionError('Failed to convert value(s) to axis '
+                                         f'units: {x!r}') from e
         return ret
 
     def set_units(self, u):

@@ -134,6 +134,21 @@ class ConversionInterface(object):
         else:
             return isinstance(x, Number)
 
+    @staticmethod
+    def is_natively_supported(x):
+        """
+        Return whether *x* is of a type that Matplotlib natively supports or
+        *x* is array of objects of such types.
+        """
+        # Matplotlib natively supports all number types except Decimal
+        if np.iterable(x):
+            # Assume lists are homogeneous as other functions in unit system
+            for thisx in x:
+                return (isinstance(thisx, Number) and
+                        not isinstance(thisx, Decimal))
+        else:
+            return isinstance(x, Number) and not isinstance(x, Decimal)
+
 
 class DecimalConverter(ConversionInterface):
     """
