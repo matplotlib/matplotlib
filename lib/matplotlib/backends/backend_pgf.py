@@ -212,9 +212,10 @@ class LatexManager:
         # fonts later when we don't expect the additional output on stdout.
         # TODO: is this sufficient?
         latex_header = [
-            # Include TeX program name as a comment for cache invalidation.
-            r"% !TeX program = {}".format(rcParams["pgf.texsystem"]),
             r"\documentclass{minimal}",
+            # Include TeX program name as a comment for cache invalidation.
+            # TeX does not allow this to be the first line.
+            r"% !TeX program = {}".format(rcParams["pgf.texsystem"]),
             latex_preamble,
             latex_fontspec,
             r"\begin{document}",
