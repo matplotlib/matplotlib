@@ -331,7 +331,7 @@ def _get_executable_info(name):
                 f"{' '.join(args)}, which output {output}")
 
     if name == "dvipng":
-        return impl(["dvipng", "-version"], "(?m)^dvipng .* (.+)", "1.6")
+        return impl(["dvipng", "-version"], "(?m)^dvipng(?: .*)? (.+)", "1.6")
     elif name == "gs":
         execs = (["gswin32c", "gswin64c", "mgs", "gs"]  # "mgs" for miktex.
                  if sys.platform == "win32" else
