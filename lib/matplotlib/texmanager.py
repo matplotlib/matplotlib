@@ -86,10 +86,13 @@ class TexManager(object):
         'helvetica': ('phv', r'\usepackage{helvet}'),
         'avant garde': ('pag', r'\usepackage{avant}'),
         'courier': ('pcr', r'\usepackage{courier}'),
-        'monospace': ('cmtt', ''),
-        'computer modern roman': ('cmr', ''),
-        'computer modern sans serif': ('cmss', ''),
-        'computer modern typewriter': ('cmtt', '')}
+        # Loading the type1ec package ensures that cm-super is installed, which
+        # is necessary for unicode computer modern.  (It also allows the use of
+        # computer modern at arbitrary sizes, but that's just a side effect.)
+        'monospace': ('cmtt', r'\usepackage{type1ec}'),
+        'computer modern roman': ('cmr', r'\usepackage{type1ec}'),
+        'computer modern sans serif': ('cmss', r'\usepackage{type1ec}'),
+        'computer modern typewriter': ('cmtt', r'\usepackage{type1ec}')}
 
     _rc_cache = None
     _rc_cache_keys = (
