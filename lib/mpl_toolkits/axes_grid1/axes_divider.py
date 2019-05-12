@@ -530,12 +530,17 @@ class AxesDivider(Divider):
             If False, the new axes is appended at the end
             of the list, i.e., it became the right-most axes. If True, it is
             inserted at the start of the list, and becomes the left-most axes.
-        kwargs
+        **kwargs
             All extra keywords arguments are passed to the created axes.
             If *axes_class* is given, the new axes will be created as an
             instance of the given class. Otherwise, the same class of the
             main axes will be used.
         """
+        if pad is None:
+            cbook.warn_deprecated(
+                "3.2", message="In a future version, 'pad' will default to "
+                "rcParams['figure.subplot.wspace'].  Set pad=0 to keep the "
+                "old behavior.")
         if pad:
             if not isinstance(pad, Size._Base):
                 pad = Size.from_any(pad, fraction_ref=self._xref)
@@ -574,12 +579,17 @@ class AxesDivider(Divider):
             If False, the new axes is appended at the end
             of the list, i.e., it became the right-most axes. If True, it is
             inserted at the start of the list, and becomes the left-most axes.
-        kwargs
+        **kwargs
             All extra keywords arguments are passed to the created axes.
             If *axes_class* is given, the new axes will be created as an
             instance of the given class. Otherwise, the same class of the
             main axes will be used.
         """
+        if pad is None:
+            cbook.warn_deprecated(
+                "3.2", message="In a future version, 'pad' will default to "
+                "rcParams['figure.subplot.hspace'].  Set pad=0 to keep the "
+                "old behavior.")
         if pad:
             if not isinstance(pad, Size._Base):
                 pad = Size.from_any(pad, fraction_ref=self._yref)

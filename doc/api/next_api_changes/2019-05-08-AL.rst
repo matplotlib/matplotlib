@@ -1,0 +1,9 @@
+Deprecations
+````````````
+
+Passing a ``pad`` size of ``None`` (the default) as a synonym for zero to
+the ``append_axes``, ``new_horizontal`` and ``new_vertical`` methods of
+`.axes_grid1.axes_divider.AxesDivider` is deprecated.  In a future release, the
+default value of ``None`` will mean "use :rc:`figure.subplot.wspace` or
+:rc:`figure.subplot.hspace`" (depending on the orientation).  Explicitly pass
+``pad=0`` to keep the old behavior.
