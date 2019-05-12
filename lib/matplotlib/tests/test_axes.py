@@ -11,6 +11,7 @@ import dateutil.tz as dutz
 import numpy as np
 from numpy import ma
 from cycler import cycler
+from decimal import Decimal
 import pytest
 
 import warnings
@@ -1477,6 +1478,62 @@ def test_bar_tick_label_multiple_old_alignment():
            align='center')
 
 
+@check_figures_equal(extensions=["png"])
+def test_bar_decimal_center(fig_test, fig_ref):
+    ax = fig_test.subplots()
+    x0 = [1.5, 8.4, 5.3, 4.2]
+    y0 = [1.1, 2.2, 3.3, 4.4]
+    x = [Decimal(x) for x in x0]
+    y = [Decimal(y) for y in y0]
+    # Test image - vertical, align-center bar chart with Decimal() input
+    ax.bar(x, y, align='center')
+    # Reference image
+    ax = fig_ref.subplots()
+    ax.bar(x0, y0, align='center')
+
+
+@check_figures_equal(extensions=["png"])
+def test_barh_decimal_center(fig_test, fig_ref):
+    ax = fig_test.subplots()
+    x0 = [1.5, 8.4, 5.3, 4.2]
+    y0 = [1.1, 2.2, 3.3, 4.4]
+    x = [Decimal(x) for x in x0]
+    y = [Decimal(y) for y in y0]
+    # Test image - horizontal, align-center bar chart with Decimal() input
+    ax.barh(x, y, height=[0.5, 0.5, 1, 1], align='center')
+    # Reference image
+    ax = fig_ref.subplots()
+    ax.barh(x0, y0, height=[0.5, 0.5, 1, 1], align='center')
+
+
+@check_figures_equal(extensions=["png"])
+def test_bar_decimal_width(fig_test, fig_ref):
+    x = [1.5, 8.4, 5.3, 4.2]
+    y = [1.1, 2.2, 3.3, 4.4]
+    w0 = [0.7, 1.45, 1, 2]
+    w = [Decimal(i) for i in w0]
+    # Test image - vertical bar chart with Decimal() width
+    ax = fig_test.subplots()
+    ax.bar(x, y, width=w, align='center')
+    # Reference image
+    ax = fig_ref.subplots()
+    ax.bar(x, y, width=w0, align='center')
+
+
+@check_figures_equal(extensions=["png"])
+def test_barh_decimal_height(fig_test, fig_ref):
+    x = [1.5, 8.4, 5.3, 4.2]
+    y = [1.1, 2.2, 3.3, 4.4]
+    h0 = [0.7, 1.45, 1, 2]
+    h = [Decimal(i) for i in h0]
+    # Test image - horizontal bar chart with Decimal() height
+    ax = fig_test.subplots()
+    ax.barh(x, y, height=h, align='center')
+    # Reference image
+    ax = fig_ref.subplots()
+    ax.barh(x, y, height=h0, align='center')
+
+
 def test_bar_color_none_alpha():
     ax = plt.gca()
     rects = ax.bar([1, 2], [2, 4], alpha=0.3, color='none', edgecolor='r')
@@ -1818,6 +1875,21 @@ class TestScatter(object):
         z = x + y
         fig, ax = plt.subplots()
         ax.scatter(x, y, c=z, s=200, edgecolors='face')
+
+    @check_figures_equal(extensions=["png"])
+    def test_scatter_decimal(self, fig_test, fig_ref):
+        x0 = np.array([1.5, 8.4, 5.3, 4.2])
+        y0 = np.array([1.1, 2.2, 3.3, 4.4])
+        x = np.array([Decimal(i) for i in x0])
+        y = np.array([Decimal(i) for i in y0])
+        c = ['r', 'y', 'b', 'lime']
+        s = [24, 15, 19, 29]
+        # Test image - scatter plot with Decimal() input
+        ax = fig_test.subplots()
+        ax.scatter(x, y, c=c, s=s)
+        # Reference image
+        ax = fig_ref.subplots()
+        ax.scatter(x0, y0, c=c, s=s)
 
     def test_scatter_color(self):
         # Try to catch cases where 'c' kwarg should have been used.
@@ -5963,6 +6035,18 @@ def test_empty_errorbar_legend():
 def test_plot_columns_cycle_deprecation():
     with pytest.warns(MatplotlibDeprecationWarning):
         plt.plot(np.zeros((2, 2)), np.zeros((2, 3)))
+
+
+@check_figures_equal(extensions=["png"])
+def test_plot_decimal(fig_test, fig_ref):
+    x0 = np.arange(-10, 10, 0.3)
+    y0 = [5.2 * x ** 3 - 2.1 * x ** 2 + 7.34 * x + 4.5 for x in x0]
+    x = [Decimal(i) for i in x0]
+    y = [Decimal(i) for i in y0]
+    # Test image - line plot with Decimal input
+    fig_test.subplots().plot(x, y)
+    # Reference image
+    fig_ref.subplots().plot(x0, y0)
 
 
 # pdf and svg tests fail using travis' old versions of gs and inkscape.

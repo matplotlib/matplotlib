@@ -1565,8 +1565,8 @@ class Axis(martist.Artist):
         return self.converter is not None or self.units is not None
 
     def convert_units(self, x):
-        # If x is already a number, doesn't need converting
-        if munits.ConversionInterface.is_numlike(x):
+        # If x is natively supported by Matplotlib, doesn't need converting
+        if munits.ConversionInterface.is_natively_supported(x):
             return x
 
         if self.converter is None:
