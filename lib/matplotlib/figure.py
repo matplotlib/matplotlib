@@ -444,6 +444,7 @@ class Figure(Artist):
             except NonGuiException:
                 pass
         if (backends._get_running_interactive_framework() != "headless"
+                and get_backend() != "module://ipykernel.pylab.backend_inline"
                 and warn):
             cbook._warn_external('Matplotlib is currently using %s, which is '
                                  'a non-GUI backend, so cannot show the '
