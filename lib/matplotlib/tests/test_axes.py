@@ -1877,7 +1877,7 @@ class TestScatter(object):
         ax.scatter(x, y, c=z, s=200, edgecolors='face')
 
     @check_figures_equal(extensions=["png"])
-    def test_scatter_decimal(fig_test, fig_ref):
+    def test_scatter_decimal(self, fig_test, fig_ref):
         x0 = np.array([1.5, 8.4, 5.3, 4.2])
         y0 = np.array([1.1, 2.2, 3.3, 4.4])
         x = np.array([Decimal(i) for i in x0])
