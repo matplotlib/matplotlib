@@ -1906,19 +1906,25 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-
-        x : sequence of scalar
+        x : array-like
 
         detrend : callable, optional, default: `mlab.detrend_none`
-            *x* is detrended by the *detrend* callable. Default is no
-            normalization.
+            *x* is detrended by the *detrend* callable. This must be a
+            function ``x = detrend(x)`` accepting and returning an
+            `numpy.array`. Default is no normalization.
 
         normed : bool, optional, default: True
             If ``True``, input vectors are normalised to unit length.
 
         usevlines : bool, optional, default: True
-            If ``True``, `Axes.vlines` is used to plot the vertical lines from
-            the origin to the acorr. Otherwise, `Axes.plot` is used.
+            Determines the plot style.
+
+            If ``True``, vertical lines are plotted from 0 to the acorr value
+            using `Axes.vlines`. Additionally, a horizontal line is plotted
+            at y=0 using `Axes.axhline`.
+
+            If ``False``, markers are plotted at the acorr values using
+            `Axes.plot`.
 
         maxlags : int, optional, default: 10
             Number of lags to show. If ``None``, will return all
@@ -1927,24 +1933,27 @@ class Axes(_AxesBase):
         Returns
         -------
         lags : array (length ``2*maxlags+1``)
-            lag vector.
+            The lag vector.
         c : array  (length ``2*maxlags+1``)
-            auto correlation vector.
+            The auto correlation vector.
         line : `.LineCollection` or `.Line2D`
-            `.Artist` added to the axes of the correlation.
+            `.Artist` added to the axes of the correlation:
 
-             `.LineCollection` if *usevlines* is True
-             `.Line2D` if *usevlines* is False
+            - `.LineCollection` if *usevlines* is True.
+            - `.Line2D` if *usevlines* is False.
         b : `.Line2D` or None
             Horizontal line at 0 if *usevlines* is True
-            None *usevlines* is False
+            None *usevlines* is False.
 
         Other Parameters
         ----------------
-        linestyle : `.Line2D` property, optional, default: None
-            Only used if usevlines is ``False``.
+        linestyle : `.Line2D` property, optional
+            The linestyle for plotting the data points.
+            Only used if *usevlines* is ``False``.
 
         marker : str, optional, default: 'o'
+            The marker for plotting the data points.
+            Only used if *usevlines* is ``False``.
 
         Notes
         -----
@@ -1965,47 +1974,56 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x : sequence of scalars of length n
+        x : array-like of length n
 
-        y : sequence of scalars of length n
+        y : array-like of length n
 
         detrend : callable, optional, default: `mlab.detrend_none`
-            *x* is detrended by the *detrend* callable. Default is no
-            normalization.
+            *x* and *y* are detrended by the *detrend* callable. This must be a
+            function ``x = detrend(x)`` accepting and returning an
+            `numpy.array`. Default is no normalization.
 
         normed : bool, optional, default: True
             If ``True``, input vectors are normalised to unit length.
 
         usevlines : bool, optional, default: True
-            If ``True``, `Axes.vlines` is used to plot the vertical lines from
-            the origin to the acorr. Otherwise, `Axes.plot` is used.
+            Determines the plot style.
 
-        maxlags : int, optional
+            If ``True``, vertical lines are plotted from 0 to the xcorr value
+            using `Axes.vlines`. Additionally, a horizontal line is plotted
+            at y=0 using `Axes.axhline`.
+
+            If ``False``, markers are plotted at the xcorr values using
+            `Axes.plot`.
+
+        maxlags : int, optional, default: 10
             Number of lags to show. If None, will return all ``2 * len(x) - 1``
-            lags. Default is 10.
+            lags.
 
         Returns
         -------
         lags : array (length ``2*maxlags+1``)
-            lag vector.
+            The lag vector.
         c : array  (length ``2*maxlags+1``)
-            auto correlation vector.
+            The auto correlation vector.
         line : `.LineCollection` or `.Line2D`
-            `.Artist` added to the axes of the correlation
+            `.Artist` added to the axes of the correlation:
 
-             `.LineCollection` if *usevlines* is True
-             `.Line2D` if *usevlines* is False
+            - `.LineCollection` if *usevlines* is True.
+            - `.Line2D` if *usevlines* is False.
         b : `.Line2D` or None
             Horizontal line at 0 if *usevlines* is True
-            None *usevlines* is False
+            None *usevlines* is False.
 
         Other Parameters
         ----------------
         linestyle : `.Line2D` property, optional
-            Only used if usevlines is ``False``.
+            The linestyle for plotting the data points.
+            Only used if *usevlines* is ``False``.
 
-        marker : string, optional
-            Default is 'o'.
+        marker : str, optional, default: 'o'
+            The marker for plotting the data points.
+            Only used if *usevlines* is ``False``.
 
         Notes
         -----
