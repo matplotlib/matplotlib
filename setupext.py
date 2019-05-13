@@ -1,11 +1,9 @@
-import builtins
 import configparser
 from distutils import sysconfig
 from distutils.core import Extension
 from io import BytesIO
 import glob
 import hashlib
-import importlib
 import logging
 import os
 import pathlib
@@ -20,7 +18,6 @@ import textwrap
 import urllib.request
 from urllib.request import Request
 import versioneer
-import warnings
 
 _log = logging.getLogger(__name__)
 

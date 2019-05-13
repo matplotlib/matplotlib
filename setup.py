@@ -20,10 +20,7 @@ Make sure you have pip >= 9.0.1.
 """.format('.'.join(str(n) for n in min_version)),
     sys.exit(error)
 
-from io import BytesIO
 import os
-from string import Template
-import urllib.request
 from zipfile import ZipFile
 
 from setuptools import setup, Extension

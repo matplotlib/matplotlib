@@ -17,7 +17,6 @@ import logging
 
 import numpy as np
 
-import matplotlib.cbook as cbook
 import matplotlib.units as units
 import matplotlib.ticker as ticker
 

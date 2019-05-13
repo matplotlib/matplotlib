@@ -1,4 +1,4 @@
-from matplotlib import docstring, transforms
+from matplotlib import transforms
 from matplotlib.offsetbox import (AnchoredOffsetbox, AuxTransformBox,
                                   DrawingArea, TextArea, VPacker)
 from matplotlib.patches import (Rectangle, Ellipse, ArrowStyle,
