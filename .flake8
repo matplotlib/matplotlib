@@ -41,7 +41,6 @@ per-file-ignores =
     lib/matplotlib/backends/backend_agg.py: E302
     lib/matplotlib/backends/backend_cairo.py: E203, E221, E402
     lib/matplotlib/backends/backend_gtk3.py: E203, E221, E225, E251, E501
-    lib/matplotlib/backends/backend_pgf.py: E731
     lib/matplotlib/backends/qt_editor/_formlayout.py: E501
     lib/matplotlib/font_manager.py: E203, E221, E251, E501
     lib/matplotlib/fontconfig_pattern.py: E201, E203, E221, E222, E225
@@ -52,7 +51,6 @@ per-file-ignores =
     lib/matplotlib/tests/test_mathtext.py: E501
     lib/matplotlib/transforms.py: E201, E202, E203, E501
     lib/matplotlib/tri/triinterpolate.py: E201, E221
-    lib/matplotlib/type1font.py: E731
 
     lib/mpl_toolkits/axes_grid1/axes_divider.py: E402, E501
     lib/mpl_toolkits/axes_grid1/axes_size.py: E272
