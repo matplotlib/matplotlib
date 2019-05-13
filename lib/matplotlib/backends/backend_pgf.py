@@ -77,9 +77,15 @@ mpl_in_to_pt = 1. / mpl_pt_to_in
 NO_ESCAPE = r"(?<!\\)(?:\\\\)*"
 re_mathsep = re.compile(NO_ESCAPE + r"\$")
 re_escapetext = re.compile(NO_ESCAPE + "([_^$%])")
-repl_escapetext = lambda m: "\\" + m.group(1)
 re_mathdefault = re.compile(NO_ESCAPE + r"(\\mathdefault)")
-repl_mathdefault = lambda m: m.group(0)[:-len(m.group(1))]
+
+
+def repl_escapetext(m):
+    return "\\" + m.group(1)
+
+
+def repl_mathdefault(m):
+    return m.group(0)[:-len(m.group(1))]
 
 
 def common_texification(text):
@@ -398,10 +404,9 @@ class RendererPgf(RendererBase):
 
         if dummy:
             # dummy==True deactivate all methods
-            nop = lambda *args, **kwargs: None
             for m in RendererPgf.__dict__:
                 if m.startswith("draw_"):
-                    self.__dict__[m] = nop
+                    self.__dict__[m] = lambda *args, **kwargs: None
         else:
             # if fh does not belong to a filename, deactivate draw_image
             if not hasattr(fh, 'name') or not os.path.exists(fh.name):
