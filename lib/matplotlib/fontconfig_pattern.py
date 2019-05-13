@@ -74,38 +74,38 @@ class FontconfigPatternParser(object):
                             (value_punc, value_punc)) \
                       .setParseAction(self._value)
 
-        families    =(family
-                    + ZeroOrMore(
-                        Literal(',')
-                      + family)
-                    ).setParseAction(self._families)
+        families    = (family
+                       + ZeroOrMore(
+                           Literal(',')
+                           + family)
+                       ).setParseAction(self._families)
 
-        point_sizes =(size
-                    + ZeroOrMore(
-                        Literal(',')
-                      + size)
-                    ).setParseAction(self._point_sizes)
+        point_sizes = (size
+                       + ZeroOrMore(
+                           Literal(',')
+                           + size)
+                       ).setParseAction(self._point_sizes)
 
-        property    =( (name
-                      + Suppress(Literal('='))
-                      + value
-                      + ZeroOrMore(
-                          Suppress(Literal(','))
-                        + value)
-                      )
-                     |  name
-                    ).setParseAction(self._property)
+        property    = ((name
+                        + Suppress(Literal('='))
+                        + value
+                        + ZeroOrMore(
+                            Suppress(Literal(','))
+                            + value)
+                        )
+                       | name
+                       ).setParseAction(self._property)
 
-        pattern     =(Optional(
-                        families)
-                    + Optional(
-                        Literal('-')
-                      + point_sizes)
-                    + ZeroOrMore(
-                        Literal(':')
-                      + property)
-                    + StringEnd()
-                    )
+        pattern     = (Optional(
+                         families)
+                       + Optional(
+                           Literal('-')
+                           + point_sizes)
+                       + ZeroOrMore(
+                           Literal(':')
+                           + property)
+                       + StringEnd()
+                       )
 
         self._parser = pattern
         self.ParseException = ParseException

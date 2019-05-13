@@ -2956,11 +2956,8 @@ pivot='tail', normalize=False, **kwargs)
                         edgecolor, normals, lightsource
                     )
 
-            poly = art3d.Poly3DCollection(faces,
-                facecolors=facecolor,
-                edgecolors=edgecolor,
-                **kwargs
-            )
+            poly = art3d.Poly3DCollection(
+                faces, facecolors=facecolor, edgecolors=edgecolor, **kwargs)
             self.add_collection3d(poly)
             polygons[coord] = poly
 

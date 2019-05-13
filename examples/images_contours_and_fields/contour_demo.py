@@ -51,9 +51,7 @@ ax.set_title('labels at selected locations')
 # You can force all the contours to be the same color.
 
 fig, ax = plt.subplots()
-CS = ax.contour(X, Y, Z, 6,
-                 colors='k',  # negative contours will be dashed by default
-                 )
+CS = ax.contour(X, Y, Z, 6, colors='k')  # Negative contours default to dashed.
 ax.clabel(CS, fontsize=9, inline=1)
 ax.set_title('Single color - negative contours dashed')
 
@@ -62,9 +60,7 @@ ax.set_title('Single color - negative contours dashed')
 
 matplotlib.rcParams['contour.negative_linestyle'] = 'solid'
 fig, ax = plt.subplots()
-CS = ax.contour(X, Y, Z, 6,
-                 colors='k',  # negative contours will be dashed by default
-                 )
+CS = ax.contour(X, Y, Z, 6, colors='k')  # Negative contours default to dashed.
 ax.clabel(CS, fontsize=9, inline=1)
 ax.set_title('Single color - negative contours solid')
 
@@ -74,9 +70,9 @@ ax.set_title('Single color - negative contours solid')
 
 fig, ax = plt.subplots()
 CS = ax.contour(X, Y, Z, 6,
-                 linewidths=np.arange(.5, 4, .5),
-                 colors=('r', 'green', 'blue', (1, 1, 0), '#afeeee', '0.5')
-                 )
+                linewidths=np.arange(.5, 4, .5),
+                colors=('r', 'green', 'blue', (1, 1, 0), '#afeeee', '0.5'),
+                )
 ax.clabel(CS, fontsize=9, inline=1)
 ax.set_title('Crazy lines')
 

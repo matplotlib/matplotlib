@@ -3273,8 +3273,7 @@ class ArrowStyle(_Style):
             super().__init__()
 
         def _get_arrow_wedge(self, x0, y0, x1, y1,
-                             head_dist, cos_t, sin_t, linewidth
-                            ):
+                             head_dist, cos_t, sin_t, linewidth):
             """
             Return the paths for arrow heads. Since arrow lines are
             drawn with capstyle=projected, The arrow goes beyond the
