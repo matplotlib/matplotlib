@@ -278,8 +278,8 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         grid_info["lat_lines"] = lat_lines
 
         lon_lines, lat_lines = grid_finder._get_raw_grid_lines(
-            extremes[:2], extremes[2:], *extremes)
             # lon_min, lon_max, lat_min, lat_max)
+            extremes[:2], extremes[2:], *extremes)
 
         grid_info["lon_lines0"] = lon_lines
         grid_info["lat_lines0"] = lat_lines

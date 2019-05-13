@@ -804,8 +804,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.extend = extend
         self.antialiased = antialiased
         if self.antialiased is None and self.filled:
-            self.antialiased = False  # eliminate artifacts; we are not
-                                      # stroking the boundaries.
+            # Eliminate artifacts; we are not stroking the boundaries.
+            self.antialiased = False
             # The default for line contours will be taken from the
             # LineCollection default, which uses :rc:`lines.antialiased`.
 

@@ -505,8 +505,7 @@ class PdfFile(object):
 
         self.paths = []
 
-        self.pageAnnotations = []  # A list of annotations for the
-                                   # current page
+        self.pageAnnotations = []  # A list of annotations for the current page
 
         # The PDF spec recommends to include every procset
         procsets = [Name(x)
