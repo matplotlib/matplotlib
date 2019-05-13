@@ -1922,7 +1922,7 @@ class Axes(_AxesBase):
             using `Axes.vlines`. Additionally, a horizontal line is plotted
             at y=0 using `Axes.axhline`.
 
-            If ``False``, makers are plotted at the acorr values using
+            If ``False``, markers are plotted at the acorr values using
             `Axes.plot`.
 
         maxlags : int, optional, default: 10
@@ -1992,7 +1992,7 @@ class Axes(_AxesBase):
             using `Axes.vlines`. Additionally, a horizontal line is plotted
             at y=0 using `Axes.axhline`.
 
-            If ``False``, makers are plotted at the xcorr values using
+            If ``False``, markers are plotted at the xcorr values using
             `Axes.plot`.
 
         maxlags : int, optional, default: 10
