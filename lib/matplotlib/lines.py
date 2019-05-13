@@ -651,7 +651,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        *args : (N, 2) array or two 1D arrays
+        *args : (2, N) array or two 1D arrays
         """
         if len(args) == 1:
             (x, y), = args
