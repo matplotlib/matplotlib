@@ -149,14 +149,15 @@ fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
 # Matplotlib, pyplot and pylab: how are they related?
 # ====================================================
 #
-# Matplotlib is the whole package; :mod:`matplotlib.pyplot`
-# is a module in matplotlib; and :mod:`pylab` is a module
-# that gets installed alongside :mod:`matplotlib`.
+# Matplotlib is the whole package and :mod:`matplotlib.pyplot` is a module in
+# Matplotlib.
 #
-# Pyplot provides the state-machine interface to the underlying
-# object-oriented plotting library.  The state-machine implicitly and
-# automatically creates figures and axes to achieve the desired
-# plot. For example:
+# For functions in the pyplot module, there is always a "current" figure and
+# axes (which is created automatically on request).  For example, in the
+# following example, the first call to ``plt.plot`` creates the axes, then
+# subsequent calls to ``plt.plot`` add additional lines on the same axes, and
+# ``plt.xlabel``, ``plt.ylabel``, ``plt.title`` and ``plt.legend`` set the
+# axes labels and title and add a legend.
 
 x = np.linspace(0, 2, 100)
 
@@ -174,16 +175,9 @@ plt.legend()
 plt.show()
 
 ###############################################################################
-# The first call to ``plt.plot`` will automatically create the necessary
-# figure and axes to achieve the desired plot.  Subsequent calls to
-# ``plt.plot`` re-use the current axes and each add another line.
-# Setting the title, legend, and axis labels also automatically use the
-# current axes and set the title, create the legend, and label the axis
-# respectively.
-#
 # :mod:`pylab` is a convenience module that bulk imports
 # :mod:`matplotlib.pyplot` (for plotting) and :mod:`numpy`
-# (for mathematics and working with arrays) in a single name space.
+# (for mathematics and working with arrays) in a single namespace.
 # pylab is deprecated and its use is strongly discouraged because
 # of namespace pollution. Use pyplot instead.
 #
