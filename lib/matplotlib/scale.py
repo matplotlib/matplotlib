@@ -422,8 +422,7 @@ class LogScale(ScaleBase):
         Limit the domain to positive values.
         """
         if not np.isfinite(minpos):
-            minpos = 1e-300  # This value should rarely if ever
-                             # end up with a visible effect.
+            minpos = 1e-300  # Should rarely (if ever) have a visible effect.
 
         return (minpos if vmin <= 0 else vmin,
                 minpos if vmax <= 0 else vmax)
@@ -708,8 +707,7 @@ class LogitScale(ScaleBase):
         Limit the domain to values between 0 and 1 (excluded).
         """
         if not np.isfinite(minpos):
-            minpos = 1e-7    # This value should rarely if ever
-                             # end up with a visible effect.
+            minpos = 1e-7  # Should rarely (if ever) have a visible effect.
         return (minpos if vmin <= 0 else vmin,
                 1 - minpos if vmax >= 1 else vmax)
 

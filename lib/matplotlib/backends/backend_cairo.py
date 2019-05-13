@@ -73,7 +73,7 @@ def _append_path(ctx, path, transform, clip=None):
         if code == Path.MOVETO:
             ctx.move_to(*points)
         elif code == Path.CLOSEPOLY:
-           ctx.close_path()
+            ctx.close_path()
         elif code == Path.LINETO:
             ctx.line_to(*points)
         elif code == Path.CURVE3:

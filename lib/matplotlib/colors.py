@@ -781,8 +781,7 @@ class ListedColormap(Colormap):
         the list will be extended by repetition.
     """
     def __init__(self, colors, name='from_list', N=None):
-        self.monochrome = False  # True only if all colors in map are
-                                 # identical; needed for contouring.
+        self.monochrome = False  # Are all colors identical? (for contour.py)
         if N is None:
             self.colors = colors
             N = len(colors)

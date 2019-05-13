@@ -300,8 +300,9 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     ncols_list = []
     ax_bbox_list = []
 
-    subplot_dict = {}  # Multiple axes can share same subplot_interface (e.g.,
-                       # axes_grid1); thus we need to join them together.
+    # Multiple axes can share same subplot_interface (e.g., axes_grid1); thus
+    # we need to join them together.
+    subplot_dict = {}
 
     subplotspec_list2 = []
 
