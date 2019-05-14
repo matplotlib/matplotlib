@@ -3,16 +3,16 @@
 Embedding WebAgg
 ================
 
-This example demonstrates how to embed matplotlib WebAgg interactive
-plotting in your own web application and framework.  It is not
-necessary to do all this if you merely want to display a plot in a
-browser or use matplotlib's built-in Tornado-based server "on the
-side".
+This example demonstrates how to embed Matplotlib WebAgg interactive plotting
+in your own web application and framework.  It is not necessary to do all this
+if you merely want to display a plot in a browser or use Matplotlib's built-in
+Tornado-based server "on the side".
 
 The framework being used must support web sockets.
 """
 
 import io
+import mimetypes
 
 try:
     import tornado
@@ -138,20 +138,8 @@ class MyApplication(tornado.web.Application):
 
         def get(self, fmt):
             manager = self.application.manager
-
-            mimetypes = {
-                'ps': 'application/postscript',
-                'eps': 'application/postscript',
-                'pdf': 'application/pdf',
-                'svg': 'image/svg+xml',
-                'png': 'image/png',
-                'jpeg': 'image/jpeg',
-                'tif': 'image/tiff',
-                'emf': 'application/emf'
-            }
-
-            self.set_header('Content-Type', mimetypes.get(fmt, 'binary'))
-
+            self.set_header(
+                'Content-Type', mimetypes.types_map.get(fmt, 'binary'))
             buff = io.BytesIO()
             manager.canvas.figure.savefig(buff, format=fmt)
             self.write(buff.getvalue())
