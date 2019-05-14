@@ -46,7 +46,7 @@ def tick_update_position(tick, tickxs, tickys, labelpos):
 
 
 class Axis(maxis.XAxis):
-    """An Axis class for the 3D plots. """
+    """An Axis class for the 3D plots."""
     # These points from the unit cube make up the x, y and z-planes
     _PLANES = (
         (0, 3, 7, 4), (1, 2, 6, 5),     # yz planes

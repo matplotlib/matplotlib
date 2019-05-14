@@ -37,9 +37,9 @@ class ExtremeFinderSimple(object):
         return self._add_pad(lon_min, lon_max, lat_min, lat_max)
 
     def _add_pad(self, lon_min, lon_max, lat_min, lat_max):
-        """ a small amount of padding is added because the current
-        clipping algorithms seems to fail when the gridline ends at
-        the bbox boundary.
+        """
+        A small amount of padding is added because the current clipping
+        algorithms seems to fail when the gridline ends at the bbox boundary.
         """
         dlon = (lon_max - lon_min) / self.nx
         dlat = (lat_max - lat_min) / self.ny

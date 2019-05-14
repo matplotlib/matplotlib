@@ -705,12 +705,11 @@ _all_deprecated = {*_deprecated_map, *_deprecated_ignore_map}
 
 
 class RcParams(MutableMapping, dict):
-
     """
-    A dictionary object including validation
+    A dictionary object including validation.
 
-    validating functions are defined and associated with rc parameters in
-    :mod:`matplotlib.rcsetup`
+    Validating functions are defined and associated with rc parameters in
+    :mod:`matplotlib.rcsetup`.
     """
 
     validate = {key: converter

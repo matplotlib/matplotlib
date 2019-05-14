@@ -75,7 +75,7 @@ def test_function_call_without_data(func):
 
 @pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
 def test_function_call_with_dict_data(func):
-    """Test with dict data -> label comes from the value of 'x' parameter """
+    """Test with dict data -> label comes from the value of 'x' parameter."""
     data = {"a": [1, 2], "b": [8, 9], "w": "NOT"}
     assert (func(None, "a", "b", data=data) ==
             "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
@@ -111,7 +111,7 @@ def test_function_call_with_dict_data_not_in_data(func):
 
 @pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
 def test_function_call_with_pandas_data(func, pd):
-    """test with pandas dataframe -> label comes from data["col"].name """
+    """Test with pandas dataframe -> label comes from ``data["col"].name``."""
     data = pd.DataFrame({"a": np.array([1, 2], dtype=np.int32),
                          "b": np.array([8, 9], dtype=np.int32),
                          "w": ["NOT", "NOT"]})

@@ -836,7 +836,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             evt.Skip()
 
     def _set_capture(self, capture=True):
-        """control wx mouse capture """
+        """Control wx mouse capture."""
         if self.HasCapture():
             self.ReleaseMouse()
         if capture:

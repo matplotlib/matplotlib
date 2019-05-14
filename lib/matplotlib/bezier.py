@@ -98,7 +98,8 @@ def split_de_casteljau(beta, t):
 @cbook._rename_parameter("3.1", "tolerence", "tolerance")
 def find_bezier_t_intersecting_with_closedpath(
         bezier_point_at_t, inside_closedpath, t0=0., t1=1., tolerance=0.01):
-    """ Find a parameter t0 and t1 of the given bezier path which
+    """
+    Find a parameter t0 and t1 of the given bezier path which
     bounds the intersecting points with a provided closed
     path(*inside_closedpath*). Search starts from *t0* and *t1* and it
     uses a simple bisecting algorithm therefore one of the end point
@@ -223,8 +224,9 @@ def find_r_to_boundary_of_closedpath(
 
 @cbook._rename_parameter("3.1", "tolerence", "tolerance")
 def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
-    """ divide a path into two segment at the point where inside(x, y)
-    becomes False.
+    """
+    Divide a path into two segments at the point where ``inside(x, y)`` becomes
+    False.
     """
 
     path_iter = path.iter_segments()
@@ -306,10 +308,9 @@ def get_cos_sin(x0, y0, x1, y1):
 
 @cbook._rename_parameter("3.1", "tolerence", "tolerance")
 def check_if_parallel(dx1, dy1, dx2, dy2, tolerance=1.e-5):
-    """ returns
-       * 1 if two lines are parallel in same direction
-       * -1 if two lines are parallel in opposite direction
-       * 0 otherwise
+    """
+    Return 1 if two lines are parallel in same direction, -1 if two lines are
+    parallel in opposite direction, 0 otherwise.
     """
     theta1 = np.arctan2(dx1, dy1)
     theta2 = np.arctan2(dx2, dy2)

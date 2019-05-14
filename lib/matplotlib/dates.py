@@ -321,7 +321,7 @@ class strpdate2num(object):
     you know the date format string of the date you are parsing.
     """
     def __init__(self, fmt):
-        """ fmt: any valid strptime format is supported """
+        """fmt: any valid strptime format is supported"""
         self.fmt = fmt
 
     def __call__(self, s):

@@ -674,7 +674,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     message = QtCore.Signal(str)
 
     def __init__(self, canvas, parent, coordinates=True):
-        """ coordinates: should we show the coordinates on the right? """
+        """coordinates: should we show the coordinates on the right?"""
         self.canvas = canvas
         self.parent = parent
         self.coordinates = coordinates
