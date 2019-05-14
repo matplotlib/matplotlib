@@ -92,8 +92,8 @@ def test_diff_cell_table():
     cellText = [['1'] * len(cells)] * 2
     colWidths = [0.1] * len(cells)
 
-    _, axes = plt.subplots(nrows=len(cells), figsize=(4, len(cells)+1))
-    for ax, cell in zip(axes, cells):
+    _, axs = plt.subplots(nrows=len(cells), figsize=(4, len(cells)+1))
+    for ax, cell in zip(axs, cells):
         ax.table(
                 colWidths=colWidths,
                 cellText=cellText,

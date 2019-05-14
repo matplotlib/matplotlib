@@ -42,27 +42,27 @@ fs = 10  # fontsize
 ###############################################################################
 # Demonstrate how to toggle the display of different elements:
 
-fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6, 6), sharey=True)
-axes[0, 0].bxp(stats)
-axes[0, 0].set_title('Default', fontsize=fs)
+fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(6, 6), sharey=True)
+axs[0, 0].bxp(stats)
+axs[0, 0].set_title('Default', fontsize=fs)
 
-axes[0, 1].bxp(stats, showmeans=True)
-axes[0, 1].set_title('showmeans=True', fontsize=fs)
+axs[0, 1].bxp(stats, showmeans=True)
+axs[0, 1].set_title('showmeans=True', fontsize=fs)
 
-axes[0, 2].bxp(stats, showmeans=True, meanline=True)
-axes[0, 2].set_title('showmeans=True,\nmeanline=True', fontsize=fs)
+axs[0, 2].bxp(stats, showmeans=True, meanline=True)
+axs[0, 2].set_title('showmeans=True,\nmeanline=True', fontsize=fs)
 
-axes[1, 0].bxp(stats, showbox=False, showcaps=False)
+axs[1, 0].bxp(stats, showbox=False, showcaps=False)
 tufte_title = 'Tufte Style\n(showbox=False,\nshowcaps=False)'
-axes[1, 0].set_title(tufte_title, fontsize=fs)
+axs[1, 0].set_title(tufte_title, fontsize=fs)
 
-axes[1, 1].bxp(stats, shownotches=True)
-axes[1, 1].set_title('notch=True', fontsize=fs)
+axs[1, 1].bxp(stats, shownotches=True)
+axs[1, 1].set_title('notch=True', fontsize=fs)
 
-axes[1, 2].bxp(stats, showfliers=False)
-axes[1, 2].set_title('showfliers=False', fontsize=fs)
+axs[1, 2].bxp(stats, showfliers=False)
+axs[1, 2].set_title('showfliers=False', fontsize=fs)
 
-for ax in axes.flat:
+for ax in axs.flat:
     ax.set_yscale('log')
     ax.set_yticklabels([])
 
@@ -80,22 +80,22 @@ meanpointprops = dict(marker='D', markeredgecolor='black',
                       markerfacecolor='firebrick')
 meanlineprops = dict(linestyle='--', linewidth=2.5, color='purple')
 
-fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(6, 6), sharey=True)
-axes[0, 0].bxp(stats, boxprops=boxprops)
-axes[0, 0].set_title('Custom boxprops', fontsize=fs)
+fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(6, 6), sharey=True)
+axs[0, 0].bxp(stats, boxprops=boxprops)
+axs[0, 0].set_title('Custom boxprops', fontsize=fs)
 
-axes[0, 1].bxp(stats, flierprops=flierprops, medianprops=medianprops)
-axes[0, 1].set_title('Custom medianprops\nand flierprops', fontsize=fs)
+axs[0, 1].bxp(stats, flierprops=flierprops, medianprops=medianprops)
+axs[0, 1].set_title('Custom medianprops\nand flierprops', fontsize=fs)
 
-axes[1, 0].bxp(stats, meanprops=meanpointprops, meanline=False,
-               showmeans=True)
-axes[1, 0].set_title('Custom mean\nas point', fontsize=fs)
+axs[1, 0].bxp(stats, meanprops=meanpointprops, meanline=False,
+              showmeans=True)
+axs[1, 0].set_title('Custom mean\nas point', fontsize=fs)
 
-axes[1, 1].bxp(stats, meanprops=meanlineprops, meanline=True,
-               showmeans=True)
-axes[1, 1].set_title('Custom mean\nas line', fontsize=fs)
+axs[1, 1].bxp(stats, meanprops=meanlineprops, meanline=True,
+              showmeans=True)
+axs[1, 1].set_title('Custom mean\nas line', fontsize=fs)
 
-for ax in axes.flat:
+for ax in axs.flat:
     ax.set_yscale('log')
     ax.set_yticklabels([])
 

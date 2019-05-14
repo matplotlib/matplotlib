@@ -128,13 +128,13 @@ def test_figure():
 
 @image_comparison(baseline_images=['figure_legend'])
 def test_figure_legend():
-    fig, axes = plt.subplots(2)
-    axes[0].plot([0, 1], [1, 0], label='x', color='g')
-    axes[0].plot([0, 1], [0, 1], label='y', color='r')
-    axes[0].plot([0, 1], [0.5, 0.5], label='y', color='k')
+    fig, axs = plt.subplots(2)
+    axs[0].plot([0, 1], [1, 0], label='x', color='g')
+    axs[0].plot([0, 1], [0, 1], label='y', color='r')
+    axs[0].plot([0, 1], [0.5, 0.5], label='y', color='k')
 
-    axes[1].plot([0, 1], [1, 0], label='_y', color='r')
-    axes[1].plot([0, 1], [0, 1], label='z', color='b')
+    axs[1].plot([0, 1], [1, 0], label='_y', color='r')
+    axs[1].plot([0, 1], [0, 1], label='z', color='b')
     fig.legend()
 
 
@@ -271,11 +271,11 @@ def test_set_fig_size():
 
 
 def test_axes_remove():
-    fig, axes = plt.subplots(2, 2)
-    axes[-1, -1].remove()
-    for ax in axes.ravel()[:-1]:
+    fig, axs = plt.subplots(2, 2)
+    axs[-1, -1].remove()
+    for ax in axs.ravel()[:-1]:
         assert ax in fig.axes
-    assert axes[-1, -1] not in fig.axes
+    assert axs[-1, -1] not in fig.axes
     assert len(fig.axes) == 3
 
 

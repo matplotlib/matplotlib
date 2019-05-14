@@ -17,13 +17,13 @@ def test_fancyarrow():
     r = [0.4, 0.3, 0.2, 0.1, 0]
     t = ["fancy", "simple", mpatches.ArrowStyle.Fancy()]
 
-    fig, axes = plt.subplots(len(t), len(r), squeeze=False,
-                             subplot_kw=dict(aspect=True),
-                             figsize=(8, 4.5))
+    fig, axs = plt.subplots(len(t), len(r), squeeze=False,
+                            subplot_kw=dict(aspect=True),
+                            figsize=(8, 4.5))
 
     for i_r, r1 in enumerate(r):
         for i_t, t1 in enumerate(t):
-            ax = axes[i_t, i_r]
+            ax = axs[i_t, i_r]
             draw_arrow(ax, t1, r1)
             ax.tick_params(labelleft=False, labelbottom=False)
 

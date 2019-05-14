@@ -39,14 +39,14 @@ def split_list(a_list):
 #
 # Plot all un-filled markers
 
-fig, axes = plt.subplots(ncols=2)
+fig, axs = plt.subplots(ncols=2)
 fig.suptitle('un-filled markers', fontsize=14)
 
 # Filter out filled markers and marker settings that do nothing.
 unfilled_markers = [m for m, func in Line2D.markers.items()
                     if func != 'nothing' and m not in Line2D.filled_markers]
 
-for ax, markers in zip(axes, split_list(unfilled_markers)):
+for ax, markers in zip(axs, split_list(unfilled_markers)):
     for y, marker in enumerate(markers):
         ax.text(-0.5, y, repr(marker), **text_style)
         ax.plot(y * points, marker=marker, **marker_style)
@@ -58,8 +58,8 @@ plt.show()
 ###############################################################################
 # Plot all filled markers.
 
-fig, axes = plt.subplots(ncols=2)
-for ax, markers in zip(axes, split_list(Line2D.filled_markers)):
+fig, axs = plt.subplots(ncols=2)
+for ax, markers in zip(axs, split_list(Line2D.filled_markers)):
     for y, marker in enumerate(markers):
         ax.text(-0.5, y, repr(marker), **text_style)
         ax.plot(y * points, marker=marker, **marker_style)

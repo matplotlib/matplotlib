@@ -199,14 +199,14 @@ def test_contour_labels_size_color():
 @image_comparison(baseline_images=['contour_manual_colors_and_levels'],
                   extensions=['png'], remove_text=True)
 def test_given_colors_levels_and_extends():
-    _, axes = plt.subplots(2, 4)
+    _, axs = plt.subplots(2, 4)
 
     data = np.arange(12).reshape(3, 4)
 
     colors = ['red', 'yellow', 'pink', 'blue', 'black']
     levels = [2, 4, 8, 10]
 
-    for i, ax in enumerate(axes.flat):
+    for i, ax in enumerate(axs.flat):
         filled = i % 2 == 0.
         extend = ['neither', 'min', 'max', 'both'][i // 2]
 
