@@ -193,7 +193,8 @@ def generate_validator_testcases(valid):
                      *((_, False) for _ in
                        ('f', 'n', 'no', 'off', 'false', '0', 0, False))),
          'fail': ((_, ValueError)
-                  for _ in ('aardvark', 2, -1, [], ))},
+                  for _ in ('aardvark', 2, -1, [], ))
+         },
         {'validator': validate_stringlist,
          'success': (('', []),
                      ('a,b', ['a', 'b']),
@@ -206,11 +207,11 @@ def generate_validator_testcases(valid):
                      (np.array(['a', 'b']), ['a', 'b']),
                      ((1, 2), ['1', '2']),
                      (np.array([1, 2]), ['1', '2']),
-                    ),
+                     ),
          'fail': ((dict(), ValueError),
                   (1, ValueError),
-                 )
-        },
+                  )
+         },
         {'validator': validate_nseq_int(2),
          'success': ((_, [1, 2])
                      for _ in ('1, 2', [1.5, 2.5], [1, 2],
@@ -219,7 +220,7 @@ def generate_validator_testcases(valid):
                   for _ in ('aardvark', ('a', 1),
                             (1, 2, 3)
                             ))
-        },
+         },
         {'validator': validate_nseq_float(2),
          'success': ((_, [1.5, 2.5])
                      for _ in ('1.5, 2.5', [1.5, 2.5], [1.5, 2.5],
@@ -228,7 +229,7 @@ def generate_validator_testcases(valid):
                   for _ in ('aardvark', ('a', 1),
                             (1, 2, 3)
                             ))
-        },
+         },
         {'validator': validate_cycler,
          'success': (('cycler("color", "rgb")',
                       cycler("color", 'rgb')),
@@ -237,17 +238,17 @@ def generate_validator_testcases(valid):
                      ("""(cycler("color", ["r", "g", "b"]) +
                           cycler("mew", [2, 3, 5]))""",
                       (cycler("color", 'rgb') +
-                          cycler("markeredgewidth", [2, 3, 5]))),
+                       cycler("markeredgewidth", [2, 3, 5]))),
                      ("cycler(c='rgb', lw=[1, 2, 3])",
                       cycler('color', 'rgb') + cycler('linewidth', [1, 2, 3])),
                      ("cycler('c', 'rgb') * cycler('linestyle', ['-', '--'])",
                       (cycler('color', 'rgb') *
-                          cycler('linestyle', ['-', '--']))),
+                       cycler('linestyle', ['-', '--']))),
                      (cycler('ls', ['-', '--']),
                       cycler('linestyle', ['-', '--'])),
                      (cycler(mew=[2, 5]),
                       cycler('markeredgewidth', [2, 5])),
-                    ),
+                     ),
          # This is *so* incredibly important: validate_cycler() eval's
          # an arbitrary string! I think I have it locked down enough,
          # and that is what this is testing.
@@ -258,40 +259,40 @@ def generate_validator_testcases(valid):
          'fail': ((4, ValueError),  # Gotta be a string or Cycler object
                   ('cycler("bleh, [])', ValueError),  # syntax error
                   ('Cycler("linewidth", [1, 2, 3])',
-                      ValueError),  # only 'cycler()' function is allowed
+                   ValueError),  # only 'cycler()' function is allowed
                   ('1 + 2', ValueError),  # doesn't produce a Cycler object
                   ('os.system("echo Gotcha")', ValueError),  # os not available
                   ('import os', ValueError),  # should not be able to import
                   ('def badjuju(a): return a; badjuju(cycler("color", "rgb"))',
-                      ValueError),  # Should not be able to define anything
-                                    # even if it does return a cycler
+                   ValueError),  # Should not be able to define anything
+                  # even if it does return a cycler
                   ('cycler("waka", [1, 2, 3])', ValueError),  # not a property
                   ('cycler(c=[1, 2, 3])', ValueError),  # invalid values
                   ("cycler(lw=['a', 'b', 'c'])", ValueError),  # invalid values
                   (cycler('waka', [1, 3, 5]), ValueError),  # not a property
                   (cycler('color', ['C1', 'r', 'g']), ValueError)  # no CN
-                 )
-        },
+                  )
+         },
         {'validator': validate_hatch,
          'success': (('--|', '--|'), ('\\oO', '\\oO'),
                      ('/+*/.x', '/+*/.x'), ('', '')),
          'fail': (('--_', ValueError),
-                  (8, ValueError),
-                  ('X', ValueError)),
-        },
+                 (8, ValueError),
+                 ('X', ValueError)),
+         },
         {'validator': validate_colorlist,
          'success': (('r,g,b', ['r', 'g', 'b']),
                      (['r', 'g', 'b'], ['r', 'g', 'b']),
                      ('r, ,', ['r']),
                      (['', 'g', 'blue'], ['g', 'blue']),
                      ([np.array([1, 0, 0]), np.array([0, 1, 0])],
-                         np.array([[1, 0, 0], [0, 1, 0]])),
+                     np.array([[1, 0, 0], [0, 1, 0]])),
                      (np.array([[1, 0, 0], [0, 1, 0]]),
-                         np.array([[1, 0, 0], [0, 1, 0]])),
-                    ),
+                     np.array([[1, 0, 0], [0, 1, 0]])),
+                     ),
          'fail': (('fish', ValueError),
-                 ),
-        },
+                  ),
+         },
         {'validator': validate_color,
          'success': (('None', 'none'),
                      ('none', 'none'),
@@ -304,13 +305,13 @@ def generate_validator_testcases(valid):
                      ('(0, 1, 0, 1)', [0.0, 1.0, 0.0, 1.0]),  # RGBA tuple
                      ((0, 1, 0, 1), (0, 1, 0, 1)),  # non-string version
                      ('(0, 1, "0.5")', [0.0, 1.0, 0.5]),  # unusual but valid
-                    ),
+                     ),
          'fail': (('tab:veryblue', ValueError),  # invalid name
                   ('(0, 1)', ValueError),  # tuple with length < 3
                   ('(0, 1, 0, 1, 0)', ValueError),  # tuple with length > 4
                   ('(0, 1, none)', ValueError),  # cannot cast none to float
-                 ),
-        },
+                  ),
+         },
         {'validator': validate_hist_bins,
          'success': (('auto', 'auto'),
                      ('fd', 'fd'),
@@ -321,7 +322,7 @@ def generate_validator_testcases(valid):
                      ),
          'fail': (('aardvark', ValueError),
                   )
-        },
+         },
         {'validator': validate_markevery,
          'success': ((None, None),
                      (1, 1),
@@ -350,7 +351,7 @@ def generate_validator_testcases(valid):
                   ('a', TypeError),
                   (object(), TypeError)
                   )
-        },
+         },
         {'validator': _validate_linestyle,
          'success': (('-', '-'), ('solid', 'solid'),
                      ('--', '--'), ('dashed', 'dashed'),
@@ -372,7 +373,7 @@ def generate_validator_testcases(valid):
                   ([1, 2, 3], ValueError),  # sequence with odd length
                   (1.23, ValueError),  # not a sequence
                   )
-        },
+         },
     )
 
     for validator_dict in validation_tests:

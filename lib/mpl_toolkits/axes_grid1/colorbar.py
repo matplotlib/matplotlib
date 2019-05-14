@@ -315,19 +315,20 @@ class ColorbarBase(cm.ScalarMappable):
     Useful public methods are :meth:`set_label` and :meth:`add_lines`.
     '''
 
-    def __init__(self, ax, cmap=None,
-                           norm=None,
-                           alpha=1.0,
-                           values=None,
-                           boundaries=None,
-                           orientation='vertical',
-                           extend='neither',
-                           spacing='uniform',  # uniform or proportional
-                           ticks=None,
-                           format=None,
-                           drawedges=False,
-                           filled=True,
-                           ):
+    def __init__(self, ax,
+                 cmap=None,
+                 norm=None,
+                 alpha=1.0,
+                 values=None,
+                 boundaries=None,
+                 orientation='vertical',
+                 extend='neither',
+                 spacing='uniform',  # uniform or proportional
+                 ticks=None,
+                 format=None,
+                 drawedges=False,
+                 filled=True,
+                 ):
         self.ax = ax
 
         if cmap is None:

@@ -629,8 +629,8 @@ class FileChooserDialog(Gtk.FileChooserDialog):
                             Gtk.STOCK_SAVE,   Gtk.ResponseType.OK),
                  path    = None,
                  filetypes = [],
-                 default_filetype = None
-                ):
+                 default_filetype = None,
+                 ):
         super().__init__(title, parent, action, buttons)
         self.set_default_response(Gtk.ResponseType.OK)
         self.set_do_overwrite_confirmation(True)
