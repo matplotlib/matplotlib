@@ -5,50 +5,46 @@ Usage Guide
 
 This tutorial covers some basic usage patterns and best-practices to
 help you get started with Matplotlib.
-
-.. _general_concepts:
-
-General Concepts
-================
-
-:mod:`matplotlib` has an extensive codebase that can be daunting to many
-new users. However, most of matplotlib can be understood with a fairly
-simple conceptual framework and knowledge of a few important points.
-
-Plotting requires action on a range of levels, from the most general
-(e.g., 'contour this 2-D array') to the most specific (e.g., 'color
-this screen pixel red'). The purpose of a plotting package is to assist
-you in visualizing your data as easily as possible, with all the necessary
-control -- that is, by using relatively high-level commands most of
-the time, and still have the ability to use the low-level commands when
-needed.
-
-Therefore, everything in matplotlib is organized in a hierarchy. At the top
-of the hierarchy is the matplotlib "state-machine environment" which is
-provided by the :mod:`matplotlib.pyplot` module. At this level, simple
-functions are used to add plot elements (lines, images, text, etc.) to
-the current axes in the current figure.
-
-.. note::
-
-   Pyplot's state-machine environment behaves similarly to MATLAB and
-   should be most familiar to users with MATLAB experience.
-
-The next level down in the hierarchy is the first level of the object-oriented
-interface, in which pyplot is used only for a few functions such as figure
-creation, and the user explicitly creates and keeps track of the figure
-and axes objects. At this level, the user uses pyplot to create figures,
-and through those figures, one or more axes objects can be created. These
-axes objects are then used for most plotting actions.
-
-For even more control -- which is essential for things like embedding
-matplotlib plots in GUI applications -- the pyplot level may be dropped
-completely, leaving a purely object-oriented approach.
 """
 
-# sphinx_gallery_thumbnail_number = 3
+# sphinx_gallery_thumbnail_number = 4
 import matplotlib.pyplot as plt
 import numpy as np
+
+##############################################################################
+#
+# A simple example
+# ================
+#
+# Matplotlib graphs your data on `~.figure.Figure`\s (i.e., windows, Jupyter
+# widgets, etc.), each of which can contain one or more `~.axes.Axes` (i.e., an
+# area where points can be specified in terms of x-y coordinates (or theta-r
+# in a polar plot, or x-y-z in a 3D plot, etc.).  In the following example, we
+# create a figure using the `.pyplot.figure` function, an axes on that figure
+# using the `.Figure.add_subplot` method, and graph some data on that axes
+# using the `.Axes.plot` method:
+
+fig = plt.figure()  # Create a figure.
+ax = fig.add_subplot()  # Add an axes to the figure.
+ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
+
+###############################################################################
+# Many other plotting libraries or languages do not require you to explicitly
+# create an axes.  For example, in MATLAB, one can just do
+#
+# .. code-block:: matlab
+#
+#    plot([1, 2, 3, 4], [1, 4, 2, 3])  % MATLAB plot.
+#
+# and get the desired graph.
+#
+# In fact, you can do the same in Matplotlib: for each `~.axes.Axes` graphing
+# method, there is a corresponding function in the :mod:`matplotlib.pyplot`
+# module that performs that plot on the "current" axes, creating that axes (and
+# its parent figure) if they don't exist yet.  So the previous example can be
+# written more shortly as
+
+plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 
 ###############################################################################
 # .. _figure_parts:
@@ -56,8 +52,9 @@ import numpy as np
 # Parts of a Figure
 # =================
 #
-# .. image:: ../../_static/anatomy.png
+# Now, let's have a deeper look at the components of a Matplotlib figure.
 #
+# .. image:: ../../_static/anatomy.png
 #
 # :class:`~matplotlib.figure.Figure`
 # ----------------------------------
@@ -77,7 +74,6 @@ fig = plt.figure()  # an empty figure with no axes
 fig.suptitle('No axes on this figure')  # Add a title so we know which it is
 
 fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
-
 
 ###############################################################################
 # :class:`~matplotlib.axes.Axes`
@@ -141,94 +137,77 @@ fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
 #
 # and to convert a `np.matrix` ::
 #
-#   b = np.matrix([[1,2],[3,4]])
+#   b = np.matrix([[1, 2], [3, 4]])
 #   b_asarray = np.asarray(b)
-#
-# .. _pylab:
-#
-# Matplotlib, pyplot and pylab: how are they related?
-# ====================================================
-#
-# Matplotlib is the whole package and :mod:`matplotlib.pyplot` is a module in
-# Matplotlib.
-#
-# For functions in the pyplot module, there is always a "current" figure and
-# axes (which is created automatically on request).  For example, in the
-# following example, the first call to ``plt.plot`` creates the axes, then
-# subsequent calls to ``plt.plot`` add additional lines on the same axes, and
-# ``plt.xlabel``, ``plt.ylabel``, ``plt.title`` and ``plt.legend`` set the
-# axes labels and title and add a legend.
-
-x = np.linspace(0, 2, 100)
-
-plt.plot(x, x, label='linear')
-plt.plot(x, x**2, label='quadratic')
-plt.plot(x, x**3, label='cubic')
-
-plt.xlabel('x label')
-plt.ylabel('y label')
-
-plt.title("Simple Plot")
-
-plt.legend()
-
-plt.show()
-
-###############################################################################
-# :mod:`pylab` is a convenience module that bulk imports
-# :mod:`matplotlib.pyplot` (for plotting) and :mod:`numpy`
-# (for mathematics and working with arrays) in a single namespace.
-# pylab is deprecated and its use is strongly discouraged because
-# of namespace pollution. Use pyplot instead.
-#
-# For non-interactive plotting it is suggested
-# to use pyplot to create the figures and then the OO interface for
-# plotting.
 #
 # .. _coding_styles:
 #
-# Coding Styles
-# ==================
+# The object-oriented interface and the pyplot interface
+# ======================================================
 #
-# When viewing this documentation and examples, you will find different
-# coding styles and usage patterns. These styles are perfectly valid
-# and have their pros and cons. Just about all of the examples can be
-# converted into another style and achieve the same results.
-# The only caveat is to avoid mixing the coding styles for your own code.
+# As noted above, there are essentially two ways to use Matplotlib:
 #
-# .. note::
-#    Developers for matplotlib have to follow a specific style and guidelines.
-#    See :ref:`developers-guide-index`.
+# - Explicitly create figures and axes, and call methods on them (the
+#   "object-oriented (OO) style").
+# - Rely on pyplot to automatically create and manage the figures and axes, and
+#   use pyplot functions for plotting.
 #
-# Of the different styles, there are two that are officially supported.
-# Therefore, these are the preferred ways to use matplotlib.
-#
-# For the pyplot style, the imports at the top of your
-# scripts will typically be::
-#
-#     import matplotlib.pyplot as plt
-#     import numpy as np
-#
-# Then one calls, for example, np.arange, np.zeros, np.pi, plt.figure,
-# plt.plot, plt.show, etc.  Use the pyplot interface
-# for creating figures, and then use the object methods for the rest:
+# So one can do (OO-style)
 
-x = np.arange(0, 10, 0.2)
-y = np.sin(x)
-fig, ax = plt.subplots()
-ax.plot(x, y)
-plt.show()
+x = np.linspace(0, 2, 100)
+
+# Note that even in the OO-style, we use `.pyplot.figure` to create the figure.
+fig = plt.figure()  # Create a figure.
+ax = fig.add_subplot()  # Add an axes to the figure.
+ax.plot(x, x, label='linear')  # Plot some data on the axes.
+ax.plot(x, x**2, label='quadratic')  # Plot more data on the axes...
+ax.plot(x, x**3, label='cubic')  # ... and some more.
+ax.set_xlabel('x label')  # Add an x-label to the axes.
+ax.set_ylabel('y label')  # Add a y-label to the axes.
+ax.set_title("Simple Plot")  # Add a title to the axes.
+ax.legend()  # Add a legend.
 
 ###############################################################################
-# So, why all the extra typing instead of the MATLAB-style (which relies
-# on global state and a flat namespace)?  For very simple things like
-# this example, the only advantage is academic: the wordier styles are
-# more explicit, more clear as to where things come from and what is
-# going on.  For more complicated applications, this explicitness and
-# clarity becomes increasingly valuable, and the richer and more
-# complete object-oriented interface will likely make the program easier
-# to write and maintain.
+# or (pyplot-style)
+
+x = np.linspace(0, 2, 100)
+
+plt.plot(x, x, label='linear')  # Plot some data on the (implicit) axes.
+plt.plot(x, x**2, label='quadratic')  # etc.
+plt.plot(x, x**3, label='cubic')
+plt.xlabel('x label')
+plt.ylabel('y label')
+plt.title("Simple Plot")
+plt.legend()
+
+###############################################################################
+# Actually there is a third approach, for the case where you are embedding
+# Matplotlib in a GUI application, which completely drops pyplot, even for
+# figure creation.  We won't discuss it here; see the corresponding section in
+# the gallery for more info (:ref:`user_interfaces`).
 #
+# Matplotlib's documentation and examples use both the OO and the pyplot
+# approaches (which are equally powerful), and you should feel free to use
+# either (however, it is preferrable pick one of them and stick to it, instead
+# of mixing them).  In general, we suggest to restrict pyplot to interactive
+# plotting (e.g., in a Jupyter notebook), and to prefer the OO-style for
+# non-interactive plotting (in functions and scripts that are intended to be
+# reused as part of a larger project).
+#
+# .. note::
+#
+#    In older examples, you may find examples that instead used the so-called
+#    :mod:`pylab` interface, via ``from pylab import *``. This star-import
+#    imports everything both from pyplot and from :mod:`numpy`, so that one
+#    could do ::
+#
+#       x = linspace(0, 2, 100)
+#       plot(x, x, label='linear')
+#       ...
+#
+#    for an even more MATLAB-like style.  This approach is strongly discouraged
+#    nowadays and deprecated; it is only mentioned here because you may still
+#    encounter it in the wild.
 #
 # Typically one finds oneself making the same plots over and over
 # again, but with different data sets, which leads to needing to write
@@ -262,6 +241,7 @@ def my_plotter(ax, data1, data2, param_dict):
     out = ax.plot(data1, data2, **param_dict)
     return out
 
+###############################################################################
 # which you would then use as:
 
 data1, data2, data3, data4 = np.random.randn(4, 100)
@@ -270,12 +250,13 @@ my_plotter(ax, data1, data2, {'marker': 'x'})
 
 ###############################################################################
 # or if you wanted to have 2 sub-plots:
+
 fig, (ax1, ax2) = plt.subplots(1, 2)
 my_plotter(ax1, data1, data2, {'marker': 'x'})
 my_plotter(ax2, data3, data4, {'marker': 'o'})
 
 ###############################################################################
-# Again, for these simple examples this style seems like overkill, however
+# For these simple examples this style seems like overkill, however
 # once the graphs get slightly more complex it pays off.
 #
 #
