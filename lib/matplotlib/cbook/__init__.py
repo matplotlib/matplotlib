@@ -2170,16 +2170,6 @@ def _check_and_log_subprocess(command, logger, **kwargs):
     return report
 
 
-def _check_not_matrix(**kwargs):
-    """
-    If any value in *kwargs* is a `np.matrix`, raise a TypeError with the key
-    name in its message.
-    """
-    for k, v in kwargs.items():
-        if isinstance(v, np.matrix):
-            raise TypeError(f"Argument {k!r} cannot be a np.matrix")
-
-
 def _check_in_list(values, **kwargs):
     """
     For each *key, value* pair in *kwargs*, check that *value* is in *values*;

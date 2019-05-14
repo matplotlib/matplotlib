@@ -359,31 +359,53 @@ class QuiverKey(martist.Artist):
         return self.__init__.__doc__
 
 
-# This is a helper function that parses out the various combination of
-# arguments for doing colored vector plots.  Pulling it out here
-# allows both Quiver and Barbs to use it
-def _parse_args(*args):
-    X = Y = U = V = C = None
-    args = list(args)
+def _parse_args(*args, caller_name='function'):
+    """
+    Helper function to parse positional parameters for colored vector plots.
 
-    # The use of atleast_1d allows for handling scalar arguments while also
-    # keeping masked arrays
-    if len(args) == 3 or len(args) == 5:
-        C = np.atleast_1d(args.pop(-1))
-    V = np.atleast_1d(args.pop(-1))
-    U = np.atleast_1d(args.pop(-1))
-    cbook._check_not_matrix(U=U, V=V, C=C)
-    if U.ndim == 1:
-        nr, nc = 1, U.shape[0]
+    This is currently used for Quiver and Barbs.
+
+    Parameters
+    ----------
+    *args : list
+        list of 2-5 arguments. Depending on their number they are parsed to::
+
+            U, V
+            U, V, C
+            X, Y, U, V
+            X, Y, U, V, C
+
+    caller_name : str
+        Name of the calling method (used in error messages).
+    """
+    X = Y = C = None
+
+    len_args = len(args)
+    if len_args == 2:
+        # The use of atleast_1d allows for handling scalar arguments while also
+        # keeping masked arrays
+        U, V = np.atleast_1d(*args)
+    elif len_args == 3:
+        U, V, C = np.atleast_1d(*args)
+    elif len_args == 4:
+        X, Y, U, V = np.atleast_1d(*args)
+    elif len_args == 5:
+        X, Y, U, V, C = np.atleast_1d(*args)
     else:
-        nr, nc = U.shape
-    if len(args) == 2:  # remaining after removing U,V,C
-        X, Y = [np.array(a).ravel() for a in args]
+        raise TypeError(f'{caller_name} takes 2-5 positional arguments but '
+                        f'{len_args} were given')
+
+    nr, nc = (1, U.shape[0]) if U.ndim == 1 else U.shape
+
+    if X is not None:
+        X = X.ravel()
+        Y = Y.ravel()
         if len(X) == nc and len(Y) == nr:
             X, Y = [a.ravel() for a in np.meshgrid(X, Y)]
     else:
         indexgrid = np.meshgrid(np.arange(nc), np.arange(nr))
         X, Y = [np.ravel(a) for a in indexgrid]
+
     return X, Y, U, V, C
 
 
@@ -425,7 +447,7 @@ class Quiver(mcollections.PolyCollection):
         %s
         """
         self.ax = ax
-        X, Y, U, V, C = _parse_args(*args)
+        X, Y, U, V, C = _parse_args(*args, caller_name='quiver()')
         self.X = X
         self.Y = Y
         self.XY = np.column_stack((X, Y))
@@ -938,7 +960,7 @@ class Barbs(mcollections.PolyCollection):
             kw['linewidth'] = 1
 
         # Parse out the data arrays from the various configurations supported
-        x, y, u, v, c = _parse_args(*args)
+        x, y, u, v, c = _parse_args(*args, caller_name='barbs()')
         self.x = x
         self.y = y
         xy = np.column_stack((x, y))
