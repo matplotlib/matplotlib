@@ -223,8 +223,7 @@ class LayoutBox(object):
             sol.addConstraint(i | 150000)
 
     def set_parent(self, parent):
-        ''' replace the parent of this with the new parent
-        '''
+        """Replace the parent of this with the new parent."""
         self.parent = parent
         self.parent_constrain()
 
@@ -378,14 +377,15 @@ class LayoutBox(object):
 
     def layout_from_subplotspec(self, subspec,
                                 name='', artist=None, pos=False):
-        '''  Make a layout box from a subplotspec. The layout box is
+        """
+        Make a layout box from a subplotspec. The layout box is
         constrained to be a fraction of the width/height of the parent,
         and be a fraction of the parent width/height from the left/bottom
         of the parent.  Therefore the parent can move around and the
         layout for the subplot spec should move with it.
 
         The parent is *usually* the gridspec that made the subplotspec.??
-        '''
+        """
         lb = LayoutBox(parent=self, name=name, artist=artist, pos=pos)
         gs = subspec.get_gridspec()
         nrows, ncols = gs.get_geometry()

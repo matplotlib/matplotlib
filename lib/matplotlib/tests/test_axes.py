@@ -3572,7 +3572,7 @@ def test_empty_eventplot():
     ([[]], [[], [0, 1]], [[0, 1], []]),
     ('_empty', 'vertical', 'horizontal', None, 'none')))
 def test_eventplot_orientation(data, orientation):
-    """Introduced when fixing issue #6412. """
+    """Introduced when fixing issue #6412."""
     opts = {} if orientation == "_empty" else {'orientation': orientation}
     fig, ax = plt.subplots(1, 1)
     ax.eventplot(data, **opts)
@@ -5581,7 +5581,7 @@ def test_broken_barh_empty():
 
 
 def test_broken_barh_timedelta():
-    """Check that timedelta works as x, dx pair for this method """
+    """Check that timedelta works as x, dx pair for this method."""
     fig, ax = plt.subplots()
     pp = ax.broken_barh([(datetime.datetime(2018, 11, 9, 0, 0, 0),
                           datetime.timedelta(hours=1))], [1, 2])

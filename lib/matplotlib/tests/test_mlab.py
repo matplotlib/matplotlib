@@ -1383,7 +1383,7 @@ class TestSpectral(object):
         assert spec.shape == freqs.shape
 
     def test_csd_padding(self):
-        """Test zero padding of csd(). """
+        """Test zero padding of csd()."""
         if self.NFFT_density is None:  # for derived classes
             return
         sargs = dict(x=self.y, y=self.y+1, Fs=self.Fs, window=mlab.window_none,

@@ -184,7 +184,7 @@ def test_constrained_layout10():
 @image_comparison(baseline_images=['constrained_layout11'],
         extensions=['png'])
 def test_constrained_layout11():
-    'Test for multiple nested gridspecs '
+    'Test for multiple nested gridspecs'
     fig = plt.figure(constrained_layout=True, figsize=(10, 3))
     gs0 = gridspec.GridSpec(1, 2, figure=fig)
     gsl = gridspec.GridSpecFromSubplotSpec(1, 2, gs0[0])
