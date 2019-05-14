@@ -29,26 +29,21 @@ import matplotlib.transforms as transforms
 
 
 _quiver_doc = """
-Plot a 2-D field of arrows.
+Plot a 2D field of arrows.
 
-Call signatures::
+Call signature::
 
-  quiver(U, V, **kw)
-  quiver(U, V, C, **kw)
-  quiver(X, Y, U, V, **kw)
-  quiver(X, Y, U, V, C, **kw)
+  quiver([X, Y], U, V, [C], **kw)
 
-*U* and *V* are the arrow data, *X* and *Y* set the location of the
-arrows, and *C* sets the color of the arrows. These arguments may be 1-D or
-2-D arrays or sequences.
+Where *X*, *Y* define the arrow locations, *U*, *V* define the arrow
+directions, and *C* optionally sets the color.
 
-If *X* and *Y* are absent, they will be generated as a uniform grid.
-If *U* and *V* are 2-D arrays and *X* and *Y* are 1-D, and if ``len(X)`` and
-``len(Y)`` match the column and row dimensions of *U*, then *X* and *Y* will be
-expanded with :func:`numpy.meshgrid`.
+**Arrow size**
 
 The default settings auto-scales the length of the arrows to a reasonable size.
-To change this behavior see the *scale* and *scale_units* kwargs.
+To change this behavior see the *scale* and *scale_units* parameters.
+
+**Arrow shape**
 
 The defaults give a slightly swept-back arrow; to make the head a
 triangle, make *headaxislength* the same as *headlength*. To make the
@@ -57,31 +52,42 @@ arrow more pointed, reduce *headwidth* or increase *headlength* and
 scale down all the head parameters. You will probably do best to leave
 minshaft alone.
 
+**Arrow outline**
+
 *linewidths* and *edgecolors* can be used to customize the arrow
 outlines.
 
 Parameters
 ----------
-X : 1D or 2D array, sequence, optional
-    The x coordinates of the arrow locations
-Y : 1D or 2D array, sequence, optional
-    The y coordinates of the arrow locations
-U : 1D or 2D array or masked array, sequence
-    The x components of the arrow vectors
-V : 1D or 2D array or masked array, sequence
-    The y components of the arrow vectors
-C : 1D or 2D array, sequence, optional
-    The arrow colors
-units : [ 'width' | 'height' | 'dots' | 'inches' | 'x' | 'y' | 'xy' ]
+X, Y : 1D or 2D array-like, optional
+    The x and y coordinates of the arrow locations.
+
+    If not given, they will be generated as a uniform integer meshgrid based
+    on the dimensions of *U* and *V*.
+
+    If *X* and *Y* are 1D but *U*, *V* are 2D, *X*, *Y* are expanded to 2D
+    using ``X, Y = np.meshgrid(X, Y)``. In this case ``len(X)`` and ``len(Y)``
+    must match the column and row dimensions of *U* and *V*.
+
+U, V : 1D or 2D array-like
+    The x and y direction components of the arrow vectors.
+
+C : 1D or 2D array-like, optional
+    Numeric data that defines the arrow colors by colormapping via *norm* and
+    *cmap*.
+
+    This does not support explicit colors. If you want to set colors directly,
+    use *color* instead.
+
+units : {'width', 'height', 'dots', 'inches', 'x', 'y' 'xy'}, default: 'width'
     The arrow dimensions (except for *length*) are measured in multiples of
     this unit.
 
-    'width' or 'height': the width or height of the axis
+    The following values are supported:
 
-    'dots' or 'inches': pixels or inches, based on the figure dpi
-
-    'x', 'y', or 'xy': respectively *X*, *Y*, or :math:`\\sqrt{X^2 + Y^2}`
-    in data units
+    - 'width', 'height': The width or height of the axis.
+    - 'dots', 'inches': Pixels or inches based on the figure dpi.
+    - 'x', 'y', 'xy': *X*, *Y* or :math:`\\sqrt{X^2 + Y^2}` in data units.
 
     The arrows scale differently depending on the units.  For
     'x' or 'y', the arrows get larger as one zooms in; for other
@@ -89,78 +95,95 @@ units : [ 'width' | 'height' | 'dots' | 'inches' | 'x' | 'y' | 'xy' ]
     'width or 'height', the arrow size increases with the width and
     height of the axes, respectively, when the window is resized;
     for 'dots' or 'inches', resizing does not change the arrows.
-angles : [ 'uv' | 'xy' ], array, optional
-    Method for determining the angle of the arrows. Default is 'uv'.
 
-    'uv': the arrow axis aspect ratio is 1 so that
-    if *U*==*V* the orientation of the arrow on the plot is 45 degrees
-    counter-clockwise from the horizontal axis (positive to the right).
+angles : {'uv', 'xy'} or array-like, optional, default: 'uv'
+    Method for determining the angle of the arrows.
 
-    'xy': arrows point from (x,y) to (x+u, y+v).
-    Use this for plotting a gradient field, for example.
+    - 'uv': The arrow axis aspect ratio is 1 so that
+      if *U* == *V* the orientation of the arrow on the plot is 45 degrees
+      counter-clockwise from the horizontal axis (positive to the right).
 
-    Alternatively, arbitrary angles may be specified as an array
-    of values in degrees, counter-clockwise from the horizontal axis.
+      Use this if the arrows symbolize a quantity that is not based on
+      *X*, *Y* data coordinates.
+
+    - 'xy': Arrows point from (x,y) to (x+u, y+v).
+      Use this for plotting a gradient field, for example.
+
+    - Alternatively, arbitrary angles may be specified explicitly as an array
+      of values in degrees, counter-clockwise from the horizontal axis.
+
+      In this case *U*, *V* is only used to determine the length of the
+      arrows.
 
     Note: inverting a data axis will correspondingly invert the
     arrows only with ``angles='xy'``.
-scale : None, float, optional
+
+scale : float, optional
     Number of data units per arrow length unit, e.g., m/s per plot width; a
     smaller scale parameter makes the arrow longer. Default is *None*.
 
     If *None*, a simple autoscaling algorithm is used, based on the average
     vector length and the number of vectors. The arrow length unit is given by
-    the *scale_units* parameter
-scale_units : [ 'width' | 'height' | 'dots' | 'inches' | 'x' | 'y' | 'xy' ], \
-None, optional
+    the *scale_units* parameter.
+
+scale_units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, optional
     If the *scale* kwarg is *None*, the arrow length unit. Default is *None*.
 
     e.g. *scale_units* is 'inches', *scale* is 2.0, and
     ``(u,v) = (1,0)``, then the vector will be 0.5 inches long.
 
-    If *scale_units* is 'width'/'height', then the vector will be half the
+    If *scale_units* is 'width' or 'height', then the vector will be half the
     width/height of the axes.
 
     If *scale_units* is 'x' then the vector will be 0.5 x-axis
     units. To plot vectors in the x-y plane, with u and v having
     the same units as x and y, use
     ``angles='xy', scale_units='xy', scale=1``.
-width : scalar, optional
+
+width : float, optional
     Shaft width in arrow units; default depends on choice of units,
     above, and number of vectors; a typical starting value is about
     0.005 times the width of the plot.
-headwidth : scalar, optional
-    Head width as multiple of shaft width, default is 3
-headlength : scalar, optional
-    Head length as multiple of shaft width, default is 5
-headaxislength : scalar, optional
-    Head length at shaft intersection, default is 4.5
-minshaft : scalar, optional
+
+headwidth : float, optional, default: 3
+    Head width as multiple of shaft width.
+
+headlength : float, optional, default: 5
+    Head length as multiple of shaft width.
+
+headaxislength : float, optional, default: 4.5
+    Head length at shaft intersection.
+
+minshaft : float, optional, default: 1
     Length below which arrow scales, in units of head length. Do not
     set this to less than 1, or small arrows will look terrible!
-    Default is 1
-minlength : scalar, optional
+
+minlength : float, optional, default: 1
     Minimum length as a multiple of shaft width; if an arrow length
     is less than this, plot a dot (hexagon) of this diameter instead.
-    Default is 1.
-pivot : [ 'tail' | 'mid' | 'middle' | 'tip' ], optional
-    The part of the arrow that is at the grid point; the arrow rotates
-    about this point, hence the name *pivot*.
-color : [ color | color sequence ], optional
-    This is a synonym for the
-    :class:`~matplotlib.collections.PolyCollection` facecolor kwarg.
-    If *C* has been set, *color* has no effect.
 
-Notes
------
-Additional :class:`~matplotlib.collections.PolyCollection`
-keyword arguments:
+pivot : {'tail', 'mid', 'middle', 'tip'}, optional, default: 'tail'
+    The part of the arrow that is anchored to the *X*, *Y* grid. The arrow
+    rotates about this point.
 
-%(PolyCollection)s
+    'mid' is a synonym for 'middle'.
+
+color : color or color sequence, optional
+    Explicit color(s) for the arrows. If *C* has been set, *color* has no
+    effect.
+
+    This is a synonym for the `~.PolyCollection` *facecolor* parameter.
+
+Other Parameters
+----------------
+**kwargs : `~matplotlib.collections.PolyCollection` properties, optional
+    All other keyword arguments are passed on to `.PolyCollection`:
+
+    %(PolyCollection)s
 
 See Also
 --------
-quiverkey : Add a key to a quiver plot
+quiverkey : Add a key to a quiver plot.
 """ % docstring.interpd.params
 
 _quiverkey_doc = """
