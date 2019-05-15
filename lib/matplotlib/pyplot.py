@@ -244,7 +244,7 @@ def switch_backend(newbackend):
 
 def show(*args, **kw):
     """
-    Display a figure.
+    Display all figures.
 
     When running in ipython with its pylab mode, display all
     figures and return to the ipython prompt.
@@ -255,9 +255,11 @@ def show(*args, **kw):
     non-interactive to interactive mode (not recommended).  In
     that case it displays the figures but does not block.
 
-    A single experimental keyword argument, *block*, may be
-    set to True or False to override the blocking behavior
-    described above.
+    Parameters
+    ----------
+    block : bool, optional
+        This is experimental, and may be set to ``True`` or ``False`` to
+        override the blocking behavior described above.
     """
     global _show
     return _show(*args, **kw)
