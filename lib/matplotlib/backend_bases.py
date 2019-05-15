@@ -2342,11 +2342,11 @@ def key_press_handler(event, canvas, toolbar=None):
         # pan mnemonic (default key 'p')
         elif event.key in pan_keys:
             toolbar.pan()
-            toolbar._set_cursor(event)
+            toolbar._update_cursor(event)
         # zoom mnemonic (default key 'o')
         elif event.key in zoom_keys:
             toolbar.zoom()
-            toolbar._set_cursor(event)
+            toolbar._update_cursor(event)
         # saving current figure (default key 's')
         elif event.key in save_keys:
             toolbar.save_figure()
@@ -2700,7 +2700,10 @@ class NavigationToolbar2(object):
         """
         raise NotImplementedError
 
-    def _set_cursor(self, event):
+    def _update_cursor(self, event):
+        """
+        Update the cursor after a mouse move event or a tool (de)activation.
+        """
         if not event.inaxes or not self._active:
             if self._lastCursor != cursors.POINTER:
                 self.set_cursor(cursors.POINTER)
@@ -2715,8 +2718,30 @@ class NavigationToolbar2(object):
                 self.set_cursor(cursors.MOVE)
                 self._lastCursor = cursors.MOVE
 
+    @contextmanager
+    def _wait_cursor_for_draw_cm(self):
+        """
+        Set the cursor to a wait cursor when drawing the canvas.
+
+        In order to avoid constantly changing the cursor when the canvas
+        changes frequently, do nothing if this context was triggered during the
+        last second.  (Optimally we'd prefer only setting the wait cursor if
+        the *current* draw takes too long, but the current draw blocks the GUI
+        thread).
+        """
+        self._draw_time, last_draw_time = (
+            time.time(), getattr(self, "_draw_time", -np.inf))
+        if self._draw_time - last_draw_time > 1:
+            try:
+                self.set_cursor(cursors.WAIT)
+                yield
+            finally:
+                self.set_cursor(self._lastCursor)
+        else:
+            yield
+
     def mouse_move(self, event):
-        self._set_cursor(event)
+        self._update_cursor(event)
 
         if event.inaxes and event.inaxes.get_navigate():
 
