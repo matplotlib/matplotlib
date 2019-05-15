@@ -244,7 +244,7 @@ def switch_backend(newbackend):
 
 def show(*args, **kw):
     """
-    Display figures.
+    Display all figures.
 
     When running in ipython with its pylab mode, display all
     figures and return to the ipython prompt.
