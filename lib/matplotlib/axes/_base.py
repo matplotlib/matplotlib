@@ -1628,7 +1628,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        xmin, ymin, xmax, ymax : float, optional
+        xmin, xmax, ymin, ymax : float, optional
             The axis limits to be set. Either none or all of the limits must
             be given. This can also be achieved using ::
 

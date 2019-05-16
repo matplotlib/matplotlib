@@ -6449,6 +6449,22 @@ def test_axis_bool_arguments(fig_test, fig_ref):
     fig_ref.add_subplot(212).axis("on")
 
 
+def test_axis_extent_arg():
+    fig, ax = plt.subplots()
+    xmin = 5
+    xmax = 10
+    ymin = 15
+    ymax = 20
+    extent = ax.axis([xmin, xmax, ymin, ymax])
+
+    # test that the docstring is correct
+    assert tuple(extent) == (xmin, xmax, ymin, ymax)
+
+    # test that limits were set per the docstring
+    assert (xmin, xmax) == ax.get_xlim()
+    assert (ymin, ymax) == ax.get_ylim()
+
+
 def test_datetime_masked():
     # make sure that all-masked data falls back to the viewlim
     # set in convert.axisinfo....
