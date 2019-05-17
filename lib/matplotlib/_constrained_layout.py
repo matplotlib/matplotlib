@@ -176,12 +176,17 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                 _make_layout_margins(ax, renderer, h_pad, w_pad)
 
         # do layout for suptitle.
-        if fig._suptitle is not None and fig._suptitle._layoutbox is not None:
-            sup = fig._suptitle
-            bbox = invTransFig(sup.get_window_extent(renderer=renderer))
+        suptitle = fig._suptitle
+        do_suptitle = (suptitle is not None and
+                       suptitle._layoutbox is not None and
+                       suptitle.get_in_layout())
+        if do_suptitle:
+            bbox = invTransFig(
+                suptitle.get_window_extent(renderer=renderer))
             height = bbox.y1 - bbox.y0
             if np.isfinite(height):
-                sup._layoutbox.edit_height(height+h_pad)
+                # reserve at top of figure include an h_pad above and below
+                suptitle._layoutbox.edit_height(height + h_pad * 2)
 
         # OK, the above lines up ax._poslayoutbox with ax._layoutbox
         # now we need to
@@ -222,6 +227,12 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                     # this axis, allowing users to hard-code the position,
                     # so this does the same w/o zeroing layout.
                     ax._set_position(newpos, which='original')
+            if do_suptitle:
+                newpos = suptitle._layoutbox.get_rect()
+                suptitle.set_y(1.0 - h_pad)
+            else:
+                if suptitle is not None and suptitle._layoutbox is not None:
+                    suptitle._layoutbox.edit_height(0)
         else:
             cbook._warn_external('constrained_layout not applied.  At least '
                                  'one axes collapsed to zero width or height.')
