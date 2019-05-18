@@ -3937,12 +3937,13 @@ class Axes(_AxesBase):
 
         zdelta = 0.1
 
-        def with_rcdefaults(subkey, explicit, zdelta=0):
+        def line_props_with_rcdefaults(subkey, explicit, zdelta=0):
             d = {k.split('.')[-1]: v for k, v in rcParams.items()
                  if k.startswith(f'boxplot.{subkey}')}
             d['zorder'] = zorder + zdelta
             if explicit is not None:
-                d.update(explicit)
+                d.update(
+                    cbook.normalize_kwargs(explicit, mlines.Line2D._alias_map))
             return d
 
         # box properties
@@ -3956,14 +3957,21 @@ class Axes(_AxesBase):
                 zorder=zorder,
             )
             if boxprops is not None:
-                final_boxprops.update(boxprops)
+                final_boxprops.update(
+                    cbook.normalize_kwargs(
+                        boxprops, mpatches.PathPatch._alias_map))
         else:
-            final_boxprops = with_rcdefaults('boxprops', boxprops)
-        final_whiskerprops = with_rcdefaults('whiskerprops', whiskerprops)
-        final_capprops = with_rcdefaults('capprops', capprops)
-        final_flierprops = with_rcdefaults('flierprops', flierprops)
-        final_medianprops = with_rcdefaults('medianprops', medianprops, zdelta)
-        final_meanprops = with_rcdefaults('meanprops', meanprops, zdelta)
+            final_boxprops = line_props_with_rcdefaults('boxprops', boxprops)
+        final_whiskerprops = line_props_with_rcdefaults(
+            'whiskerprops', whiskerprops)
+        final_capprops = line_props_with_rcdefaults(
+            'capprops', capprops)
+        final_flierprops = line_props_with_rcdefaults(
+            'flierprops', flierprops)
+        final_medianprops = line_props_with_rcdefaults(
+            'medianprops', medianprops, zdelta)
+        final_meanprops = line_props_with_rcdefaults(
+            'meanprops', meanprops, zdelta)
         removed_prop = 'marker' if meanline else 'linestyle'
         # Only remove the property if it's not set explicitly as a parameter.
         if meanprops is None or removed_prop not in meanprops:
