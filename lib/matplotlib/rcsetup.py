@@ -355,6 +355,12 @@ def validate_color_or_auto(s):
     return validate_color(s)
 
 
+def validate_color_or_None(s):
+    if s is None:
+        return s
+    return validate_color(s)
+
+
 def validate_color_for_prop_cycle(s):
     # Special-case the N-th color cycle syntax, this obviously can not
     # go in the color cycle.
@@ -1064,6 +1070,8 @@ defaultParams = {
 
     ## Histogram properties
     'hist.bins': [10, validate_hist_bins],
+    'hist.edgecolor': [None, validate_color_or_None],
+    'hist.linewidth': [None, validate_float_or_None],
 
     ## Boxplot properties
     'boxplot.notch': [False, validate_bool],

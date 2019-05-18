@@ -6385,10 +6385,10 @@ optional.
     @_preprocess_data(replace_names=["x", 'weights'], label_namer="x")
     def hist(self, x, bins=None, range=None, density=None, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
-             orientation='vertical', rwidth=None, log=False,
-             color=None, label=None, stacked=False, normed=None,
+             orientation='vertical', rwidth=None, log=False, color=None,
+             label=None, stacked=False, normed=None,
              **kwargs):
-        """
+        r"""
         Plot a histogram.
 
         Compute and draw the histogram of *x*.  The return value is a tuple
@@ -6500,7 +6500,7 @@ optional.
 
             Default is ``None``
 
-        histtype : {'bar', 'barstacked', 'step',  'stepfilled'}, optional
+        histtype : {'bar', 'barstacked', 'step', 'stepfilled'}, optional
             The type of histogram to draw.
 
             - 'bar' is a traditional bar-type histogram.  If multiple data
@@ -6548,12 +6548,6 @@ optional.
 
             Default is ``False``
 
-        color : color or array_like of colors or None, optional
-            Color spec or sequence of color specs, one per dataset.  Default
-            (``None``) uses the standard line color sequence.
-
-            Default is ``None``
-
         label : str or None, optional
             String, or sequence of strings to match multiple datasets.  Bar
             charts yield multiple patches per dataset, but only the first gets
@@ -6593,6 +6587,39 @@ optional.
 
         Other Parameters
         ----------------
+        color : color or array_like of colors or None, optional
+            The meaning of the parameter depends on *histtype*:
+
+            - For filled *histtype*\s ('bar', 'barstacked' and 'stepfilled'):
+
+              The facecolor of the bars. If providing multiple datasets to
+              *x*, there must be one color per dataset. If *None* the
+              standard line color sequence is used.
+
+              The *color* parameter is overridden if *facecolor* is given.
+
+            - For *histtype* 'step':
+
+              The linecolor of the step line. If None the standard line color
+              sequence is used.
+
+            Default: *None*
+
+        edgecolor : color or array_like of colors, optional
+            The edgecolor of the bars. If providing multiple datasets to
+            *x*, you can either pass a single edgecolor for all datasets or
+            one edgecolor per dataset. If not given, use :rc:`hist.edgecolor`.
+            If that is *None*, the default patch settings are used
+            (:rc:`patch.edgecolor` and :rc:`patch.force_edgecolor`).
+
+            Note: *edgecolor* is ignored for *histtype* 'step'. Use *color*
+            in this case.
+
+        linewidth : float, optional
+            The linewidth of the bar edges. If not given, use
+            :rc:`hist.linewidth`. If that is *None*, the default
+            :rc:`patch.linewidth` is used.
+
         **kwargs : `~matplotlib.patches.Patch` properties
 
         See also
@@ -6600,6 +6627,8 @@ optional.
         hist2d : 2D histograms
 
         """
+        kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch._alias_map)
+
         # Avoid shadowing the builtin.
         bin_range = range
         from builtins import range
@@ -6662,10 +6691,25 @@ optional.
         else:
             color = mcolors.to_rgba_array(color)
             if len(color) != nx:
-                error_message = (
+                raise ValueError(
                     "color kwarg must have one color per data set. %d data "
                     "sets and %d colors were provided" % (nx, len(color)))
-                raise ValueError(error_message)
+
+        edgecolor = kwargs.pop('edgecolor', rcParams['hist.edgecolor'])
+        if edgecolor is None:
+            edgecolor = [None] * nx
+        else:
+            edgecolor = mcolors.to_rgba_array(edgecolor)
+            if len(edgecolor) == 1:
+                edgecolor = np.repeat(edgecolor, nx, axis=0)
+            elif len(edgecolor) != nx:
+                raise ValueError(
+                    "edgecolor kwarg must have one color per data set. "
+                    "%d data sets and %d colors were provided" % (
+                        nx, len(edgecolor)))
+
+        if rcParams['hist.linewidth'] is not None:
+            kwargs.setdefault('linewidth', rcParams['hist.linewidth'])
 
         hist_kwargs = dict()
 
@@ -6778,7 +6822,7 @@ optional.
                 _barfunc = self.bar
                 bottom_kwarg = 'bottom'
 
-            for m, c in zip(tops, color):
+            for m, c, ec in zip(tops, color, edgecolor):
                 if bottom is None:
                     bottom = np.zeros(len(m))
                 if stacked:
@@ -6787,7 +6831,8 @@ optional.
                     height = m
                 patch = _barfunc(bins[:-1]+boffset, height, width,
                                  align='center', log=log,
-                                 color=c, **{bottom_kwarg: bottom})
+                                 color=c, edgecolor=ec,
+                                 **{bottom_kwarg: bottom})
                 patches.append(patch)
                 if stacked:
                     bottom[:] = m
@@ -6868,12 +6913,13 @@ optional.
             # add patches in reverse order so that when stacking,
             # items lower in the stack are plotted on top of
             # items higher in the stack
-            for x, y, c in reversed(list(zip(xvals, yvals, color))):
+            for x, y, c, ec in reversed(list(zip(xvals, yvals, color,
+                                                 edgecolor))):
                 patches.append(self.fill(
                     x[:split], y[:split],
                     closed=True if fill else None,
                     facecolor=c,
-                    edgecolor=None if fill else c,
+                    edgecolor=ec if fill else c,
                     fill=fill if fill else None))
             for patch_list in patches:
                 for patch in patch_list:

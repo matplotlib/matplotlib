@@ -484,6 +484,8 @@
 #hist.bins : 10                   ## The default number of histogram bins.
                                   ## If Numpy 1.11 or later is
                                   ## installed, may also be `auto`
+#hist.edgecolor : None            ## The edge color of the histogram bars.
+#hist.linewidth : None            ## The line width of the histogram bars.
 
 #### SCATTER PLOTS
 #scatter.marker : o               ## The default marker type for scatter plots.
