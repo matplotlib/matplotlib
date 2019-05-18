@@ -5055,11 +5055,9 @@ optional.
         """
         # For compatibility(!), get aliases from Line2D rather than Patch.
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
-
-        patches = []
-        for poly in self._get_patches_for_fill(*args, data=data, **kwargs):
+        patches = [*self._get_patches_for_fill(*args, data=data, **kwargs)]
+        for poly in patches:
             self.add_patch(poly)
-            patches.append(poly)
         self._request_autoscale_view()
         return patches
 

@@ -169,9 +169,8 @@ class Game:
         self.on = False
         self.inst = True    # show instructions from the beginning
         self.background = None
-        self.pads = []
-        self.pads.append(Pad(pA, padAx, padAy))
-        self.pads.append(Pad(pB, padBx, padBy, 'r'))
+        self.pads = [Pad(pA, padAx, padAy),
+                     Pad(pB, padBx, padBy, 'r')]
         self.pucks = []
         self.i = self.ax.annotate(instructions, (.5, 0.5),
                                   name='monospace',

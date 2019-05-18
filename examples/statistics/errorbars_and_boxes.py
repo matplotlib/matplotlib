@@ -42,13 +42,9 @@ yerr = np.random.rand(2, n) + 0.2
 def make_error_boxes(ax, xdata, ydata, xerror, yerror, facecolor='r',
                      edgecolor='None', alpha=0.5):
 
-    # Create list for all the error patches
-    errorboxes = []
-
     # Loop over data points; create box from errors at each point
-    for x, y, xe, ye in zip(xdata, ydata, xerror.T, yerror.T):
-        rect = Rectangle((x - xe[0], y - ye[0]), xe.sum(), ye.sum())
-        errorboxes.append(rect)
+    errorboxes = [Rectangle((x - xe[0], y - ye[0]), xe.sum(), ye.sum())
+                  for x, y, xe, ye in zip(xdata, ydata, xerror.T, yerror.T)]
 
     # Create patch collection with specified colour/alpha
     pc = PatchCollection(errorboxes, facecolor=facecolor, alpha=alpha,

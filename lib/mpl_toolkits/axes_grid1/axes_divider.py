@@ -91,14 +91,9 @@ class Divider:
 
     @staticmethod
     def _calc_offsets(l, k):
-
         offsets = [0.]
-
-        #for s in l:
         for _rs, _as in l:
-            #_rs, _as = s.get_size(renderer)
             offsets.append(offsets[-1] + _rs*k + _as)
-
         return offsets
 
     def set_position(self, pos):
@@ -703,11 +698,8 @@ class HBoxDivider(SubplotDivider):
     @staticmethod
     def _calc_offsets(appended_sizes, karray):
         offsets = [0.]
-
-        #for s in l:
         for (r, a), k in zip(appended_sizes, karray):
             offsets.append(offsets[-1] + r*k + a)
-
         return offsets
 
     def new_locator(self, nx, nx1=None):

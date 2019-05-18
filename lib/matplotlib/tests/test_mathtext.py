@@ -145,15 +145,14 @@ font_test_specs = [
 
 font_tests = []
 for fonts, chars in font_test_specs:
-    wrapper = [' '.join(fonts), ' $']
-    for font in fonts:
-        wrapper.append(r'\%s{' % font)
-    wrapper.append('%s')
-    for font in fonts:
-        wrapper.append('}')
-    wrapper.append('$')
-    wrapper = ''.join(wrapper)
-
+    wrapper = ''.join([
+        ' '.join(fonts),
+        ' $',
+        *(r'\%s{' % font for font in fonts),
+        '%s',
+        *('}' for font in fonts),
+        '$',
+    ])
     for set in chars:
         font_tests.append(wrapper % set)
 

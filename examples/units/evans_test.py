@@ -69,13 +69,9 @@ class FooConverter(units.ConversionInterface):
 units.registry[Foo] = FooConverter()
 
 # create some Foos
-x = []
-for val in range(0, 50, 2):
-    x.append(Foo(val, 1.0))
-
+x = [Foo(val, 1.0) for val in range(0, 50, 2)]
 # and some arbitrary y data
 y = [i for i in range(len(x))]
-
 
 fig, (ax1, ax2) = plt.subplots(1, 2)
 fig.suptitle("Custom units")
