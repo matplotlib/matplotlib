@@ -25,42 +25,47 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     Parameters
     ----------
-    x, y : 1d arrays
+    x, y : 1D arrays
         An evenly spaced grid.
-    u, v : 2d arrays
-        *x* and *y*-velocities. Number of rows should match length of *y*, and
-        the number of columns should match *x*.
-    density : float or 2-tuple
+    u, v : 2D arrays
+        *x* and *y*-velocities. The number of rows and columns must match
+        the length of *y* and *x*, respectively.
+    density : float or (float, float)
         Controls the closeness of streamlines. When ``density = 1``, the domain
-        is divided into a 30x30 grid---*density* linearly scales this grid.
+        is divided into a 30x30 grid. *density* linearly scales this grid.
         Each cell in the grid can have, at most, one traversing streamline.
-        For different densities in each direction, use [density_x, density_y].
-    linewidth : numeric or 2d array
-        Vary linewidth when given a 2d array with the same shape as velocities.
-    color : matplotlib color code, or 2d array
-        Streamline color. When given an array with the same shape as
-        velocities, *color* values are converted to colors using *cmap*.
+        For different densities in each direction, use a tuple
+        (density_x, density_y).
+    linewidth : float or 2D array
+        The width of the stream lines. With a 2D array the line width can be
+        varied across the grid. The array must have the same shape as *u*
+        and *v*.
+    color : matplotlib color code, or 2D array
+        The streamline color. If given an array, its values are converted to
+        colors using *cmap* and *norm*.  The array must have the same shape
+        as *u* and *v*.
     cmap : `~matplotlib.colors.Colormap`
-        Colormap used to plot streamlines and arrows. Only necessary when using
-        an array input for *color*.
+        Colormap used to plot streamlines and arrows. This is only used if
+        *color* is an array.
     norm : `~matplotlib.colors.Normalize`
         Normalize object used to scale luminance data to 0, 1. If ``None``,
-        stretch (min, max) to (0, 1). Only necessary when *color* is an array.
+        stretch (min, max) to (0, 1). This is only used if *color* is an array.
     arrowsize : float
-        Factor scale arrow size.
+        Scaling factor for the arrow size.
     arrowstyle : str
         Arrow style specification.
         See `~matplotlib.patches.FancyArrowPatch`.
     minlength : float
         Minimum length of streamline in axes coordinates.
     start_points : Nx2 array
-        Coordinates of starting points for the streamlines.
-        In data coordinates, the same as the *x* and *y* arrays.
+        Coordinates of starting points for the streamlines in data coordinates
+        (the same coordinates as the *x* and *y* arrays).
     zorder : int
-        Any number.
+        The zorder of the stream lines and arrows.
+        Artists with lower zorder values are drawn first.
     maxlength : float
         Maximum length of streamline in axes coordinates.
-    integration_direction : ['forward' | 'backward' | 'both']
+    integration_direction : {'forward', 'backward', 'both'}
         Integrate the streamline in forward, backward or both directions.
         default is ``'both'``.
 
@@ -69,11 +74,10 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     stream_container : StreamplotSet
         Container object with attributes
 
-        - lines: `matplotlib.collections.LineCollection` of streamlines
+        - ``lines``: `.LineCollection` of streamlines
 
-        - arrows: collection of `matplotlib.patches.FancyArrowPatch`
-          objects representing arrows half-way along stream
-          lines.
+        - ``arrows``: `.PatchCollection` containing `.FancyArrowPatch`
+          objects representing the arrows half-way along stream lines.
 
         This container will probably change in the future to allow changes
         to the colormap, alpha, etc. for both lines and arrows, but these
