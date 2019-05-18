@@ -10,14 +10,6 @@ import matplotlib.mlab as mlab
 from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
 
 
-'''
-A lot of mlab.py has been deprecated in Matplotlib 2.2 and is scheduled for
-removal in the future. The tests that use deprecated methods have a block
-to catch the deprecation warning, and can be removed with the mlab code is
-removed.
-'''
-
-
 def _stride_repeat(*args, **kwargs):
     with pytest.warns(MatplotlibDeprecationWarning):
         return mlab.stride_repeat(*args, **kwargs)

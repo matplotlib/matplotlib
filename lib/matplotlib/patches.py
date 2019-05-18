@@ -583,9 +583,9 @@ class Patch(artist.Artist):
 
 
 patchdoc = artist.kwdoc(Patch)
-for k in ('Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
-          'FancyArrow', 'YAArrow', 'CirclePolygon', 'Ellipse', 'Arc',
-          'FancyBboxPatch', 'Patch'):
+for k in ['Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
+          'FancyArrow', 'CirclePolygon', 'Ellipse', 'Arc', 'FancyBboxPatch',
+          'Patch']:
     docstring.interpd.update({k: patchdoc})
 
 # define Patch.__init__ docstring after the class has been added to interpd
@@ -1292,108 +1292,6 @@ class FancyArrow(Polygon):
 
 
 docstring.interpd.update({"FancyArrow": FancyArrow.__init__.__doc__})
-
-
-@cbook.deprecated("3.0", alternative="FancyArrowPatch")
-class YAArrow(Patch):
-    """
-    Yet another arrow class.
-
-    This is an arrow that is defined in display space and has a tip at
-    *x1*, *y1* and a base at *x2*, *y2*.
-    """
-    def __str__(self):
-        return "YAArrow()"
-
-    @docstring.dedent_interpd
-    def __init__(self, figure, xytip, xybase,
-                 width=4, frac=0.1, headwidth=12, **kwargs):
-        """
-        Constructor arguments:
-
-        *xytip*
-          (*x*, *y*) location of arrow tip
-
-        *xybase*
-          (*x*, *y*) location the arrow base mid point
-
-        *figure*
-          The `Figure` instance (used to get the dpi setting).
-
-        *width*
-          The width of the arrow in points
-
-        *frac*
-          The fraction of the arrow length occupied by the head
-
-        *headwidth*
-          The width of the base of the arrow head in points
-
-        Valid kwargs are:
-        %(Patch)s
-
-        """
-        self.xytip = xytip
-        self.xybase = xybase
-        self.width = width
-        self.frac = frac
-        self.headwidth = headwidth
-        Patch.__init__(self, **kwargs)
-        # Set self.figure after Patch.__init__, since it sets self.figure to
-        # None
-        self.figure = figure
-
-    def get_path(self):
-        # Since this is dpi dependent, we need to recompute the path
-        # every time.
-
-        # the base vertices
-        x1, y1 = self.xytip
-        x2, y2 = self.xybase
-        k1 = self.width * self.figure.dpi / 72. / 2.
-        k2 = self.headwidth * self.figure.dpi / 72. / 2.
-        xb1, yb1, xb2, yb2 = self.getpoints(x1, y1, x2, y2, k1)
-
-        # a point on the segment 20% of the distance from the tip to the base
-        xm = x1 + self.frac * (x2 - x1)
-        ym = y1 + self.frac * (y2 - y1)
-        xc1, yc1, xc2, yc2 = self.getpoints(x1, y1, xm, ym, k1)
-        xd1, yd1, xd2, yd2 = self.getpoints(x1, y1, xm, ym, k2)
-
-        xs = self.convert_xunits([xb1, xb2, xc2, xd2, x1, xd1, xc1, xb1])
-        ys = self.convert_yunits([yb1, yb2, yc2, yd2, y1, yd1, yc1, yb1])
-
-        return Path(np.column_stack([xs, ys]), closed=True)
-
-    def get_patch_transform(self):
-        return transforms.IdentityTransform()
-
-    def getpoints(self, x1, y1, x2, y2, k):
-        """
-        For line segment defined by (*x1*, *y1*) and (*x2*, *y2*)
-        return the points on the line that is perpendicular to the
-        line and intersects (*x2*, *y2*) and the distance from (*x2*,
-        *y2*) of the returned points is *k*.
-        """
-        x1, y1, x2, y2, k = map(float, (x1, y1, x2, y2, k))
-
-        if y2 - y1 == 0:
-            return x2, y2 + k, x2, y2 - k
-        elif x2 - x1 == 0:
-            return x2 + k, y2, x2 - k, y2
-
-        m = (y2 - y1) / (x2 - x1)
-        pm = -1. / m
-        a = 1
-        b = -2 * y2
-        c = y2 ** 2. - k ** 2. * pm ** 2. / (1. + pm ** 2.)
-
-        y3a = (-b + math.sqrt(b ** 2 - 4 * a * c)) / (2 * a)
-        x3a = (y3a - y2) / pm + x2
-
-        y3b = (-b - math.sqrt(b ** 2 - 4 * a * c)) / (2 * a)
-        x3b = (y3b - y2) / pm + x2
-        return x3a, y3a, x3b, y3b
 
 
 class CirclePolygon(RegularPolygon):

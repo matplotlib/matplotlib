@@ -39,32 +39,6 @@ from .deprecation import (
     MatplotlibDeprecationWarning, mplDeprecation)
 
 
-@deprecated("3.0")
-def unicode_safe(s):
-
-    if isinstance(s, bytes):
-        try:
-            # On some systems, locale.getpreferredencoding returns None,
-            # which can break unicode; and the sage project reports that
-            # some systems have incorrect locale specifications, e.g.,
-            # an encoding instead of a valid locale name.  Another
-            # pathological case that has been reported is an empty string.
-            # On some systems, getpreferredencoding sets the locale, which has
-            # side effects.  Passing False eliminates those side effects.
-            preferredencoding = locale.getpreferredencoding(
-                matplotlib.rcParams['axes.formatter.use_locale']).strip()
-            if not preferredencoding:
-                preferredencoding = None
-        except (ValueError, ImportError, AttributeError):
-            preferredencoding = None
-
-        if preferredencoding is None:
-            return str(s)
-        else:
-            return str(s, preferredencoding)
-    return s
-
-
 def _exception_printer(exc):
     traceback.print_exc()
 
@@ -328,20 +302,6 @@ def strip_math(s):
     return s
 
 
-@deprecated('3.0', alternative='types.SimpleNamespace')
-class Bunch(types.SimpleNamespace):
-    """
-    Often we want to just collect a bunch of stuff together, naming each
-    item of the bunch; a dictionary's OK for that, but a small do- nothing
-    class is even handier, and prettier to use.  Whenever you want to
-    group a few variables::
-
-      >>> point = Bunch(datum=2, squared=4, coord=12)
-      >>> point.datum
-    """
-    pass
-
-
 @deprecated('3.1', alternative='np.iterable')
 def iterable(obj):
     """return true if *obj* is iterable"""
@@ -378,12 +338,6 @@ def file_requires_unicode(x):
         return True
     else:
         return False
-
-
-@deprecated('3.0', alternative='isinstance(..., numbers.Number)')
-def is_numlike(obj):
-    """return true if *obj* looks like a number"""
-    return isinstance(obj, (numbers.Number, np.number))
 
 
 def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
@@ -464,33 +418,22 @@ def get_sample_data(fname, asfileobj=True):
     `mpl-data/sample_data` directory.  If *asfileobj* is `True`
     return a file object, otherwise just a file path.
 
-    Set the rc parameter examples.directory to the directory where we should
-    look, if sample_data files are stored in a location different than
-    default (which is 'mpl-data/sample_data` at the same level of 'matplotlib`
-    Python module files).
+    Sample data files are stored in the 'mpl-data/sample_data' directory within
+    the Matplotlib package.
 
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
-    # Don't trigger deprecation warning when just fetching.
-    if dict.__getitem__(matplotlib.rcParams, 'examples.directory'):
-        root = matplotlib.rcParams['examples.directory']
-    else:
-        root = os.path.join(matplotlib._get_data_path(), 'sample_data')
-    path = os.path.join(root, fname)
-
+    path = Path(matplotlib._get_data_path(), 'sample_data', fname)
     if asfileobj:
-        if os.path.splitext(fname)[-1].lower() in ['.csv', '.xrc', '.txt']:
-            mode = 'r'
+        suffix = path.suffix.lower()
+        if suffix == '.gz':
+            return gzip.open(path)
+        elif suffix in ['.csv', '.xrc', '.txt']:
+            return path.open('r')
         else:
-            mode = 'rb'
-
-        base, ext = os.path.splitext(fname)
-        if ext == '.gz':
-            return gzip.open(path, mode)
-        else:
-            return open(path, mode)
+            return path.open('rb')
     else:
-        return path
+        return str(path)
 
 
 def flatten(seq, scalarp=is_scalar_or_string):
@@ -513,38 +456,6 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield item
         else:
             yield from flatten(item, scalarp)
-
-
-@deprecated("3.0")
-def mkdirs(newdir, mode=0o777):
-    """
-    make directory *newdir* recursively, and set *mode*.  Equivalent to ::
-
-        > mkdir -p NEWDIR
-        > chmod MODE NEWDIR
-    """
-    # this functionality is now in core python as of 3.2
-    # LPY DROP
-    os.makedirs(newdir, mode=mode, exist_ok=True)
-
-
-@deprecated('3.0')
-class GetRealpathAndStat(object):
-    def __init__(self):
-        self._cache = {}
-
-    def __call__(self, path):
-        result = self._cache.get(path)
-        if result is None:
-            realpath = os.path.realpath(path)
-            if sys.platform == 'win32':
-                stat_key = realpath
-            else:
-                stat = os.stat(realpath)
-                stat_key = (stat.st_ino, stat.st_dev)
-            result = realpath, stat_key
-            self._cache[path] = result
-        return result
 
 
 @functools.lru_cache()
@@ -602,35 +513,6 @@ def dedent(s):
 
     result = unindent.sub("\n", s).strip()
     return result
-
-
-@deprecated("3.0")
-def listFiles(root, patterns='*', recurse=1, return_folders=0):
-    """
-    Recursively list files
-
-    from Parmar and Martelli in the Python Cookbook
-    """
-    import os.path
-    import fnmatch
-    # Expand patterns from semicolon-separated string to list
-    pattern_list = patterns.split(';')
-    results = []
-
-    for dirname, dirs, files in os.walk(root):
-        # Append to results all relevant files (and perhaps folders)
-        for name in files:
-            fullname = os.path.normpath(os.path.join(dirname, name))
-            if return_folders or os.path.isfile(fullname):
-                for pattern in pattern_list:
-                    if fnmatch.fnmatch(name, pattern):
-                        results.append(fullname)
-                        break
-        # Block recursion if recursion was disallowed
-        if not recurse:
-            break
-
-    return results
 
 
 class maxdict(dict):
@@ -1824,62 +1706,6 @@ and has failed.  This maybe due to any other process holding this
 lock.  If you are sure no other matplotlib process is running try
 removing these folders and trying again.
 """
-
-
-@deprecated("3.0")
-class Locked(object):
-    """
-    Context manager to handle locks.
-
-    Based on code from conda.
-
-    (c) 2012-2013 Continuum Analytics, Inc. / https://www.continuum.io/
-    All Rights Reserved
-
-    conda is distributed under the terms of the BSD 3-clause license.
-    Consult LICENSE_CONDA or https://opensource.org/licenses/BSD-3-Clause.
-    """
-    LOCKFN = '.matplotlib_lock'
-
-    class TimeoutError(RuntimeError):
-        pass
-
-    def __init__(self, path):
-        self.path = path
-        self.end = "-" + str(os.getpid())
-        self.lock_path = os.path.join(self.path, self.LOCKFN + self.end)
-        self.pattern = os.path.join(self.path, self.LOCKFN + '-*')
-        self.remove = True
-
-    def __enter__(self):
-        retries = 50
-        sleeptime = 0.1
-        while retries:
-            files = glob.glob(self.pattern)
-            if files and not files[0].endswith(self.end):
-                time.sleep(sleeptime)
-                retries -= 1
-            else:
-                break
-        else:
-            err_str = _lockstr.format(self.pattern)
-            raise self.TimeoutError(err_str)
-
-        if not files:
-            try:
-                os.makedirs(self.lock_path)
-            except OSError:
-                pass
-        else:  # PID lock already here --- someone else will remove it.
-            self.remove = False
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        if self.remove:
-            for path in self.lock_path, self.path:
-                try:
-                    os.rmdir(path)
-                except OSError:
-                    pass
 
 
 @contextlib.contextmanager

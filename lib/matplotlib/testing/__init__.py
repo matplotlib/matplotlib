@@ -18,14 +18,6 @@ def is_called_from_pytest():
     return getattr(mpl, '_called_from_pytest', False)
 
 
-def _wants_nose():
-    wants_nose = (not getattr(mpl, '_called_from_pytest', False)
-                  and 'nose' in sys.modules)
-    if wants_nose:
-        cbook.warn_deprecated("3.2", name="support for nose-based tests")
-    return wants_nose
-
-
 def set_font_settings_for_testing():
     mpl.rcParams['font.family'] = 'DejaVu Sans'
     mpl.rcParams['text.hinting'] = False

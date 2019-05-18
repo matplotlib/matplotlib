@@ -252,55 +252,6 @@ def test_locator_set_formatter():
     assert ticklabels == expected
 
 
-def test_date_formatter_strftime():
-    """
-    Tests that DateFormatter matches datetime.strftime,
-    check microseconds for years before 1900 for bug #3179
-    as well as a few related issues for years before 1900.
-    """
-    def test_strftime_fields(dt):
-        """For datetime object dt, check DateFormatter fields"""
-        # Note: the last couple of %%s are to check multiple %s are handled
-        # properly; %% should get replaced by %.
-        formatter = mdates.DateFormatter("%w %d %m %y %Y %H %I %M %S %%%f %%x")
-        # Compute date fields without using datetime.strftime,
-        # since datetime.strftime does not work before year 1900
-        formatted_date_str = (
-            "{weekday} {day:02d} {month:02d} {year:02d} {full_year:04d} "
-            "{hour24:02d} {hour12:02d} {minute:02d} {second:02d} "
-            "%{microsecond:06d} %x"
-            .format(
-                weekday=str((dt.weekday() + 1) % 7),
-                day=dt.day,
-                month=dt.month,
-                year=dt.year % 100,
-                full_year=dt.year,
-                hour24=dt.hour,
-                hour12=((dt.hour-1) % 12) + 1,
-                minute=dt.minute,
-                second=dt.second,
-                microsecond=dt.microsecond))
-        with pytest.warns(MatplotlibDeprecationWarning):
-            assert formatter.strftime(dt) == formatted_date_str
-
-        try:
-            # Test strftime("%x") with the current locale.
-            import locale  # Might not exist on some platforms, such as Windows
-            locale_formatter = mdates.DateFormatter("%x")
-            locale_d_fmt = locale.nl_langinfo(locale.D_FMT)
-            expanded_formatter = mdates.DateFormatter(locale_d_fmt)
-            with pytest.warns(MatplotlibDeprecationWarning):
-                assert locale_formatter.strftime(dt) == \
-                    expanded_formatter.strftime(dt)
-        except (ImportError, AttributeError):
-            pass
-
-    for year in range(1, 3000, 71):
-        # Iterate through random set of years
-        test_strftime_fields(datetime.datetime(year, 1, 1))
-        test_strftime_fields(datetime.datetime(year, 2, 3, 4, 5, 6, 12345))
-
-
 def test_date_formatter_callable():
     scale = -11
     locator = Mock(_get_unit=Mock(return_value=scale))

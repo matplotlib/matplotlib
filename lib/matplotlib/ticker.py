@@ -1736,53 +1736,6 @@ class LinearLocator(Locator):
         return mtransforms.nonsingular(vmin, vmax)
 
 
-@cbook.deprecated("3.0")
-def closeto(x, y):
-    return abs(x - y) < 1e-10
-
-
-@cbook.deprecated("3.0")
-class Base(object):
-    'this solution has some hacks to deal with floating point inaccuracies'
-    def __init__(self, base):
-        if base <= 0:
-            raise ValueError("'base' must be positive")
-        self._base = base
-
-    def lt(self, x):
-        'return the largest multiple of base < x'
-        d, m = divmod(x, self._base)
-        if closeto(m, 0) and not closeto(m / self._base, 1):
-            return (d - 1) * self._base
-        return d * self._base
-
-    def le(self, x):
-        'return the largest multiple of base <= x'
-        d, m = divmod(x, self._base)
-        if closeto(m / self._base, 1):  # was closeto(m, self._base)
-            #looks like floating point error
-            return (d + 1) * self._base
-        return d * self._base
-
-    def gt(self, x):
-        'return the smallest multiple of base > x'
-        d, m = divmod(x, self._base)
-        if closeto(m / self._base, 1):
-            #looks like floating point error
-            return (d + 2) * self._base
-        return (d + 1) * self._base
-
-    def ge(self, x):
-        'return the smallest multiple of base >= x'
-        d, m = divmod(x, self._base)
-        if closeto(m, 0) and not closeto(m / self._base, 1):
-            return d * self._base
-        return (d + 1) * self._base
-
-    def get_base(self):
-        return self._base
-
-
 class MultipleLocator(Locator):
     """
     Set a tick on each integer multiple of a base within the view interval.
@@ -2127,14 +2080,6 @@ def decade_up(x, base=10):
         return base
     lx = np.ceil(np.log(x) / np.log(base))
     return base ** lx
-
-
-def nearest_long(x):
-    cbook.warn_deprecated('3.0', removal='3.1', name='`nearest_long`',
-                          obj_type='function', alternative='`round`')
-    if x >= 0:
-        return int(x + 0.5)
-    return int(x - 0.5)
 
 
 def is_decade(x, base=10):

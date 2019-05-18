@@ -651,13 +651,6 @@ class PdfFile(object):
 
         return Fx
 
-    @cbook.deprecated("3.0")
-    @property
-    def texFontMap(self):
-        # lazy-load texFontMap, it takes a while to parse
-        # and usetex is a relatively rare use case
-        return dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
-
     def dviFontName(self, dvifont):
         """
         Given a dvi font object, return a name suitable for Op.selectfont.

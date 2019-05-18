@@ -28,14 +28,6 @@ _log = logging.getLogger(__name__)
 ###############################################################################
 
 
-@cbook.deprecated("3.0")
-def get_texcommand():
-    """Get chosen TeX system from rc."""
-    texsystem_options = ["xelatex", "lualatex", "pdflatex"]
-    texsystem = rcParams["pgf.texsystem"]
-    return texsystem if texsystem in texsystem_options else "xelatex"
-
-
 def get_fontspec():
     """Build fontspec preamble from rc."""
     latex_fontspec = []

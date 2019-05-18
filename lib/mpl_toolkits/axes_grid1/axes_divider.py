@@ -854,22 +854,6 @@ class VBoxDivider(HBoxDivider):
         return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
 
 
-@cbook.deprecated('3.0',
-                  addendum=' There is no alternative. Deriving from '
-                           'matplotlib.axes.Axes provides this functionality '
-                           'already.')
-class LocatableAxesBase(object):
-    pass
-
-
-@cbook.deprecated('3.0',
-                  addendum=' There is no alternative. Classes derived from '
-                           'matplotlib.axes.Axes provide this functionality '
-                           'already.')
-def locatable_axes_factory(axes_class):
-    return axes_class
-
-
 def make_axes_locatable(axes):
     divider = AxesDivider(axes)
     locator = divider.new_locator(nx=0, ny=0)
@@ -890,18 +874,3 @@ def make_axes_area_auto_adjustable(ax,
 
     divider.add_auto_adjustable_area(use_axes=use_axes, pad=pad,
                                      adjust_dirs=adjust_dirs)
-
-
-from .mpl_axes import Axes as _Axes
-
-
-@cbook.deprecated('3.0',
-                  alternative='mpl_toolkits.axes_grid1.mpl_axes.Axes')
-class Axes(_Axes):
-    pass
-
-
-@cbook.deprecated('3.0',
-                  alternative='mpl_toolkits.axes_grid1.mpl_axes.Axes')
-class LocatableAxes(_Axes):
-    pass

@@ -81,9 +81,6 @@ def get_unicode_index(symbol, math=True):
             .format(symbol))
 
 
-unichr_safe = cbook.deprecated("3.0")(chr)
-
-
 class MathtextBackend(object):
     """
     The base class for the mathtext backend-specific code.  The

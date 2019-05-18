@@ -455,7 +455,6 @@ class Table(Artist):
     def get_children(self):
         """Return the Artists contained by the table."""
         return list(self._cells.values())
-    get_child_artists = cbook.deprecated("3.0")(get_children)
 
     def get_window_extent(self, renderer):
         """Return the bounding box of the table in window coords."""

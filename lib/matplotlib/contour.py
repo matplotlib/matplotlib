@@ -199,13 +199,6 @@ class ContourLabeler(object):
         self.labelTextsList = cbook.silent_list('text.Text', self.labelTexts)
         return self.labelTextsList
 
-    cl = cbook.deprecated("3.0", alternative="labelTexts")(property(
-        lambda self: self.labelTexts))
-    cl_xy = cbook.deprecated("3.0", alternative="labelXYs")(property(
-        lambda self: self.labelXYs))
-    cl_cvalues = cbook.deprecated("3.0", alternative="labelCValues")(property(
-        lambda self: self.labelCValues))
-
     def print_label(self, linecontour, labelwidth):
         "Return *False* if contours are too short for a label."
         return (len(linecontour) > 10 * labelwidth

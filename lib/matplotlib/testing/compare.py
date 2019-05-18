@@ -19,7 +19,7 @@ import matplotlib as mpl
 from matplotlib.testing.exceptions import ImageComparisonFailure
 from matplotlib import cbook
 
-__all__ = ['compare_float', 'compare_images', 'comparable_formats']
+__all__ = ['compare_images', 'comparable_formats']
 
 
 def make_test_filename(fname, purpose):
@@ -29,50 +29,6 @@ def make_test_filename(fname, purpose):
     """
     base, ext = os.path.splitext(fname)
     return '%s-%s%s' % (base, purpose, ext)
-
-
-@cbook.deprecated("3.0")
-def compare_float(expected, actual, relTol=None, absTol=None):
-    """
-    Fail if the floating point values are not close enough, with
-    the given message.
-
-    You can specify a relative tolerance, absolute tolerance, or both.
-
-    """
-    if relTol is None and absTol is None:
-        raise ValueError("You haven't specified a 'relTol' relative "
-                         "tolerance or a 'absTol' absolute tolerance "
-                         "function argument. You must specify one.")
-    msg = ""
-
-    if absTol is not None:
-        absDiff = abs(expected - actual)
-        if absTol < absDiff:
-            template = ['',
-                        'Expected: {expected}',
-                        'Actual:   {actual}',
-                        'Abs diff: {absDiff}',
-                        'Abs tol:  {absTol}']
-            msg += '\n  '.join([line.format(**locals()) for line in template])
-
-    if relTol is not None:
-        # The relative difference of the two values.  If the expected value is
-        # zero, then return the absolute value of the difference.
-        relDiff = abs(expected - actual)
-        if expected:
-            relDiff = relDiff / abs(expected)
-
-        if relTol < relDiff:
-            # The relative difference is a ratio, so it's always unit-less.
-            template = ['',
-                        'Expected: {expected}',
-                        'Actual:   {actual}',
-                        'Rel diff: {relDiff}',
-                        'Rel tol:  {relTol}']
-            msg += '\n  '.join([line.format(**locals()) for line in template])
-
-    return msg or None
 
 
 def get_cache_dir():
@@ -310,13 +266,8 @@ def convert(filename, cache):
     """
     base, extension = filename.rsplit('.', 1)
     if extension not in converter:
-        reason = "Don't know how to convert %s files to png" % extension
-        if mpl.testing._wants_nose():
-            from nose import SkipTest
-            raise SkipTest(reason)
-        else:
-            import pytest
-            pytest.skip(reason)
+        import pytest
+        pytest.skip(f"Don't know how to convert {extension} files to png")
     newname = base + '_' + extension + '.png'
     if not os.path.exists(filename):
         raise IOError("'%s' does not exist" % filename)

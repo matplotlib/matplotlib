@@ -1458,9 +1458,6 @@ defaultParams = {
     'keymap.help':         [['f1'], validate_stringlist],
     'keymap.copy':         [['ctrl+c', 'cmd+c'], validate_stringlist],
 
-    # sample data
-    'examples.directory': ['', validate_string],
-
     # Animation settings
     'animation.html':         ['none', validate_movie_html_fmt],
     # Limit, in MB, of size of base64 encoded animation in HTML
