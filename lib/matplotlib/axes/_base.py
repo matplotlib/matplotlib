@@ -458,6 +458,7 @@ class _AxesBase(martist.Artist):
         self._originalPosition = self._position.frozen()
         self.axes = self
         self._aspect = 'auto'
+        self._box_aspect = None  # set in apply_aspect
         self._adjustable = 'box'
         self._anchor = 'C'
         self._stale_viewlim_x = False
@@ -540,12 +541,13 @@ class _AxesBase(martist.Artist):
 
         self._layoutbox = None
         self._poslayoutbox = None
+        self._reallayoutbox = None
 
     def __getstate__(self):
         # The renderer should be re-created by the figure, and then cached at
         # that point.
         state = super().__getstate__()
-        for key in ['_layoutbox', '_poslayoutbox']:
+        for key in ['_layoutbox', '_poslayoutbox', '_reallayoutbox']:
             state[key] = None
         # Prune the sharing & twinning info to only contain the current group.
         for grouper_name in [
@@ -888,6 +890,7 @@ class _AxesBase(martist.Artist):
         # zero the constrained layout parts.
         self._layoutbox = None
         self._poslayoutbox = None
+        self._reallayoutbox = None
 
     def _set_position(self, pos, which='both'):
         """
@@ -1491,6 +1494,8 @@ class _AxesBase(martist.Artist):
         if position is None:
             position = self.get_position(original=True)
 
+        self._box_aspect = None   # only let be set if set box aspect ratio.
+
         aspect = self.get_aspect()
 
         if self.name != 'polar':
@@ -1530,6 +1535,8 @@ class _AxesBase(martist.Artist):
                 box_aspect = A * self.get_data_ratio_log()
             else:
                 box_aspect = A * self.get_data_ratio()
+            # we will need this elsewhere; lets not calculate again.
+            self._box_aspect = box_aspect
             pb = position.frozen()
             pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
             self._set_position(pb1.anchored(self.get_anchor(), pb), 'active')

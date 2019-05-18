@@ -111,6 +111,11 @@ class LayoutBox(object):
         self.h_pad = h_pad
         self.w_pad = w_pad
 
+        # constraints that we need to keep track of:
+        self.aspect_constraint = None
+        self.aspect_bottom_constraint = None
+        self.aspect_left_constraint = None
+
     def constrain_margins(self):
         """
         Only do this for pos.  This sets a variable distance
@@ -246,6 +251,49 @@ class LayoutBox(object):
               self.top == other.top]
         for c in hc:
             self.solver.addConstraint(c | strength)
+
+    def constrain_aspect(self, aspect, anchor='C', strength='strong'):
+        """
+        Constrain the aspect ratio of a layout box, subject to an anchor
+        location relative to its parent.
+        """
+        sol = self.solver
+        if self.aspect_constraint is not None:
+            sol.removeConstraint(self.aspect_constraint)
+            self.aspect_constraint = None
+        if aspect < 1:
+            c = self.height == self.width * aspect
+        else:
+            c = self.width == self.height / aspect
+        self.aspect_constraint = c | strength
+        sol.addConstraint(self.aspect_constraint)
+
+        if self.aspect_bottom_constraint is not None:
+            sol.removeConstraint(self.aspect_bottom_constraint)
+            self.aspect_bottom_constraint = None
+        if self.aspect_left_constraint is not None:
+            sol.removeConstraint(self.aspect_left_constraint)
+            self.aspect_left_constraint = None
+        coefs = {'C':  (0.5, 0.5),
+                 'SW': (0, 0),
+                 'S':  (0.5, 0),
+                 'SE': (1.0, 0),
+                 'E':  (1.0, 0.5),
+                 'NE': (1.0, 1.0),
+                 'N':  (0.5, 1.0),
+                 'NW': (0, 1.0),
+                 'W':  (0, 0.5)}
+        if isinstance(anchor, str):
+            cx, cy = self.coefs[anchor]
+        else:
+            cx, cy = anchor
+        self.aspect_bottom_constraint = (self.bottom ==
+            self.parent.bottom + cy *
+            (self.parent.height - self.height)) | strength
+        self.aspect_left_constraint = (self.left == self.parent.left +
+            cx * (self.parent.width - self.width)) | strength
+        self.solver.addConstraint(self.aspect_bottom_constraint)
+        self.solver.addConstraint(self.aspect_left_constraint)
 
     def constrain_left_margin(self, margin, strength='strong'):
         c = (self.left == self.parent.left + margin)

@@ -85,6 +85,7 @@ class SecondaryAxis(_AxesBase):
         # this gets positioned w/o constrained_layout so exclude:
         self._layoutbox = None
         self._poslayoutbox = None
+        self._reallayoutbox = None
 
         self.set_location(location)
         self.set_functions(functions)

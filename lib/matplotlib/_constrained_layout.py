@@ -78,6 +78,18 @@ def _axes_all_finite_sized(fig):
     return True
 
 
+def _make_aspects(ax):
+    """
+    Helper function to make sure all the _reallayoutboxes have the
+    correct size.
+    """
+    figW, figH = ax.get_figure().get_size_inches()
+    fig_aspect = figH / figW
+    if ax._box_aspect is not None:
+        asp = ax._box_aspect / fig_aspect
+        ax._reallayoutbox.constrain_aspect(asp, ax.get_anchor())
+
+
 ######################################################
 def do_constrained_layout(fig, renderer, h_pad, w_pad,
         hspace=None, wspace=None):
@@ -143,6 +155,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
 
     '''
 
+    print('Doin')
     invTransFig = fig.transFigure.inverted().transform_bbox
 
     # list of unique gridspecs that contain child axes:
@@ -173,6 +186,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                 # make margins for each layout box based on the size of
                 # the decorators.
                 _make_layout_margins(ax, renderer, h_pad, w_pad)
+                _make_aspects(ax)
 
         # do layout for suptitle.
         suptitle = fig._suptitle

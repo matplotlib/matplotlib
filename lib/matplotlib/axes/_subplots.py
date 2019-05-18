@@ -77,6 +77,7 @@ class SubplotBase(object):
         if self._subplotspec._layoutbox is None:
             self._layoutbox = None
             self._poslayoutbox = None
+            self._reallayoutbox = None
         else:
             name = self._subplotspec._layoutbox.name + '.ax'
             name = name + layoutbox.seq_id()
@@ -87,6 +88,10 @@ class SubplotBase(object):
             self._poslayoutbox = layoutbox.LayoutBox(
                     parent=self._layoutbox,
                     name=self._layoutbox.name+'.pos',
+                    pos=True, subplot=True, artist=self)
+            self._reallayoutbox = layoutbox.LayoutBox(
+                    parent=self._poslayoutbox,
+                    name=self._poslayoutbox.name+'.real',
                     pos=True, subplot=True, artist=self)
 
     def __reduce__(self):
@@ -187,6 +192,7 @@ class SubplotBase(object):
             # make the layout boxes be explicitly the same
             twin._layoutbox.constrain_same(self._layoutbox)
             twin._poslayoutbox.constrain_same(self._poslayoutbox)
+            twin._reallayoutbox.constrain_same(self._reallayoutbox)
         self._twinned_axes.join(self, twin)
         return twin
 
