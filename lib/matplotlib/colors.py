@@ -383,16 +383,20 @@ def makeMappingArray(N, data, gamma=1.0):
     if (np.diff(x) < 0).any():
         raise ValueError("data mapping points must have x in increasing order")
     # begin generation of lookup table
-    x = x * (N - 1)
-    xind = (N - 1) * np.linspace(0, 1, N) ** gamma
-    ind = np.searchsorted(x, xind)[1:-1]
+    if N == 1:
+        # convention: use the y = f(x=1) value for a 1-element lookup table
+        lut = np.array(y0[-1])
+    else:
+        x = x * (N - 1)
+        xind = (N - 1) * np.linspace(0, 1, N) ** gamma
+        ind = np.searchsorted(x, xind)[1:-1]
 
-    distance = (xind[1:-1] - x[ind - 1]) / (x[ind] - x[ind - 1])
-    lut = np.concatenate([
-        [y1[0]],
-        distance * (y0[ind] - y1[ind - 1]) + y1[ind - 1],
-        [y0[-1]],
-    ])
+        distance = (xind[1:-1] - x[ind - 1]) / (x[ind] - x[ind - 1])
+        lut = np.concatenate([
+            [y1[0]],
+            distance * (y0[ind] - y1[ind - 1]) + y1[ind - 1],
+            [y0[-1]],
+        ])
     # ensure that the lut is confined to values between 0 and 1 by clipping it
     return np.clip(lut, 0.0, 1.0)
 

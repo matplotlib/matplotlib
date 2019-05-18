@@ -16,6 +16,16 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
 
+@pytest.mark.parametrize('N, result', [
+    (5, [1, .6, .2, .1, 0]),
+    (2, [1, 0]),
+    (1, [0]),
+])
+def test_makeMappingArray(N, result):
+    data = [(0.0, 1.0, 1.0), (0.5, 0.2, 0.2), (1.0, 0.0, 0.0)]
+    assert_array_almost_equal(mcolors.makeMappingArray(N, data), result)
+
+
 def test_resample():
     """
     Github issue #6025 pointed to incorrect ListedColormap._resample;
