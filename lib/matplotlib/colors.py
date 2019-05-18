@@ -340,24 +340,60 @@ colorConverter = ColorConverter()
 
 
 def makeMappingArray(N, data, gamma=1.0):
-    """Create an *N* -element 1-d lookup table
+    r"""Create an *N* -element 1-d lookup table.
 
-    *data* represented by a list of x,y0,y1 mapping correspondences.
-    Each element in this list represents how a value between 0 and 1
-    (inclusive) represented by x is mapped to a corresponding value
-    between 0 and 1 (inclusive). The two values of y are to allow
-    for discontinuous mapping functions (say as might be found in a
-    sawtooth) where y0 represents the value of y for values of x
-    <= to that given, and y1 is the value to be used for x > than
-    that given). The list must start with x=0, end with x=1, and
-    all values of x must be in increasing order. Values between
-    the given mapping points are determined by simple linear interpolation.
+    This assumes a mapping :math:`f : [0, 1] \rightarrow [0, 1]`. The returned
+    data is an array of N values :math:`y = f(x)` where x is sampled from
+    [0, 1].
 
-    Alternatively, data can be a function mapping values between 0 - 1
-    to 0 - 1.
+    By default (*gamma* = 1) x is equidistantly sampled from [0, 1]. The
+    *gamma* correction factor :math:`\gamma` distorts this equidistant
+    sampling by :math:`x \rightarrow x^\gamma`.
 
-    The function returns an array "result" where ``result[x*(N-1)]``
-    gives the closest value for values of x between 0 and 1.
+    Parameters
+    ----------
+    N : int
+        The number of elements of the created lookup table.
+        This must be N >= 1.
+    data : Mx3 array-like or callable
+        Defines the mapping :math:`f`.
+
+        If a Mx3 array-like, the rows define values (x, y0, y1). The x values
+        must start with x=0, end with x=1, and all x values be in increasing
+        order.
+
+        A value between :math:`x_i` and :math:`x_{i+1}` is mapped to the range
+        :math:`y^1_{i-1} \ldots y^0_i` by linear interpolation.
+
+        For the simple case of a y-continuous mapping, y0 and y1 are identical.
+
+        The two values of y are to allow for discontinuous mapping functions.
+        E.g. a sawtooth with a period of 0.2 and an amplitude of 1 would be::
+
+            [(0, 1, 0), (0.2, 1, 0), (0.4, 1, 0), ..., [(1, 1, 0)]
+
+        In the special case of ``N == 1``, by convention the returned value
+        is y0 for x == 1.
+
+        If *data* is a callable, it must accept and return numpy arrays::
+
+           data(x : ndarray) -> ndarray
+
+        and map values between 0 - 1 to 0 - 1.
+    gamma : float
+        Gamma correction factor for input distribution x of the mapping.
+
+        See also https://en.wikipedia.org/wiki/Gamma_correction.
+
+    Returns
+    -------
+    lut : array
+        The lookup table where ``lut[x * (N-1)]`` gives the closest value
+        for values of x between 0 and 1.
+
+    Notes
+    -----
+    This function is internally used for `.LinearSegmentedColormaps`.
     """
 
     if callable(data):
