@@ -790,8 +790,9 @@ class TextBox(AxesWidget):
         self.ax.figure.canvas.draw()
 
     def _notify_submit_observers(self):
-        for cid, func in self.submit_observers.items():
-            func(self.text)
+        if self.eventson:
+            for cid, func in self.submit_observers.items():
+                func(self.text)
 
     def _release(self, event):
         if self.ignore(event):
@@ -849,8 +850,9 @@ class TextBox(AxesWidget):
         self._notify_submit_observers()
 
     def _notify_change_observers(self):
-        for cid, func in self.change_observers.items():
-            func(self.text)
+        if self.eventson:
+            for cid, func in self.change_observers.items():
+                func(self.text)
 
     def begin_typing(self, x):
         self.capturekeystrokes = True
