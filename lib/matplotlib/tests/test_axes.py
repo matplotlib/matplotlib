@@ -2295,7 +2295,7 @@ def test_bxp_patchartist():
 def test_bxp_custompatchartist():
     _bxp_test_helper(bxp_kwargs=dict(
         patch_artist=True,
-        boxprops=dict(facecolor='yellow', edgecolor='green', linestyle=':')))
+        boxprops=dict(facecolor='yellow', edgecolor='green', ls=':')))
 
 
 @image_comparison(baseline_images=['bxp_customoutlier'],
@@ -2304,7 +2304,7 @@ def test_bxp_custompatchartist():
                   style='default')
 def test_bxp_customoutlier():
     _bxp_test_helper(bxp_kwargs=dict(
-        flierprops=dict(linestyle='none', marker='d', markerfacecolor='g')))
+        flierprops=dict(linestyle='none', marker='d', mfc='g')))
 
 
 @image_comparison(baseline_images=['bxp_withmean_custompoint'],
@@ -2314,7 +2314,7 @@ def test_bxp_customoutlier():
 def test_bxp_showcustommean():
     _bxp_test_helper(bxp_kwargs=dict(
         showmeans=True,
-        meanprops=dict(linestyle='none', marker='d', markerfacecolor='green'),
+        meanprops=dict(linestyle='none', marker='d', mfc='green'),
     ))
 
 
@@ -2324,7 +2324,7 @@ def test_bxp_showcustommean():
                   style='default')
 def test_bxp_custombox():
     _bxp_test_helper(bxp_kwargs=dict(
-        boxprops=dict(linestyle='--', color='b', linewidth=3)))
+        boxprops=dict(linestyle='--', color='b', lw=3)))
 
 
 @image_comparison(baseline_images=['bxp_custommedian'],
@@ -2333,7 +2333,7 @@ def test_bxp_custombox():
                   style='default')
 def test_bxp_custommedian():
     _bxp_test_helper(bxp_kwargs=dict(
-        medianprops=dict(linestyle='--', color='b', linewidth=3)))
+        medianprops=dict(linestyle='--', color='b', lw=3)))
 
 
 @image_comparison(baseline_images=['bxp_customcap'],
@@ -2342,7 +2342,7 @@ def test_bxp_custommedian():
                   style='default')
 def test_bxp_customcap():
     _bxp_test_helper(bxp_kwargs=dict(
-        capprops=dict(linestyle='--', color='g', linewidth=3)))
+        capprops=dict(linestyle='--', color='g', lw=3)))
 
 
 @image_comparison(baseline_images=['bxp_customwhisker'],
@@ -2351,7 +2351,7 @@ def test_bxp_customcap():
                   style='default')
 def test_bxp_customwhisker():
     _bxp_test_helper(bxp_kwargs=dict(
-        whiskerprops=dict(linestyle='-', color='m', linewidth=3)))
+        whiskerprops=dict(linestyle='-', color='m', lw=3)))
 
 
 @image_comparison(baseline_images=['bxp_withnotch'],
