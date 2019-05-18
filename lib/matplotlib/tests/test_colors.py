@@ -21,9 +21,9 @@ from matplotlib.testing.decorators import image_comparison
     (2, [1, 0]),
     (1, [0]),
 ])
-def test_makeMappingArray(N, result):
+def test_create_lookup_table(N, result):
     data = [(0.0, 1.0, 1.0), (0.5, 0.2, 0.2), (1.0, 0.0, 0.0)]
-    assert_array_almost_equal(mcolors.makeMappingArray(N, data), result)
+    assert_array_almost_equal(mcolors._create_lookup_table(N, data), result)
 
 
 def test_resample():

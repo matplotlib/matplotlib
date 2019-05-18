@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+The function `matplotlib.colors.makeMappingArray` is not considered part of
+the public API any longer. Thus, it's deprecated.
