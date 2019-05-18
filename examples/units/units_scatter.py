@@ -20,15 +20,11 @@ mask = (1, 0, 1, 0, 0, 0, 1, 0)
 xsecs = secs * np.ma.MaskedArray(data, mask, float)
 
 fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, sharex=True)
+
 ax1.scatter(xsecs, xsecs)
 ax1.yaxis.set_units(secs)
-ax1.axis([0, 10, 0, 10])
-
 ax2.scatter(xsecs, xsecs, yunits=hertz)
-ax2.axis([0, 10, 0, 1])
-
 ax3.scatter(xsecs, xsecs, yunits=minutes)
-ax3.axis([0, 10, 0, 0.2])
 
 fig.tight_layout()
 plt.show()

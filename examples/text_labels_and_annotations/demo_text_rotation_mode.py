@@ -49,7 +49,6 @@ def test_rotation_mode(fig, mode, subplot_location):
         # prepare axes layout
         for axis in ax.axis.values():
             axis.toggle(ticks=False, ticklabels=False)
-        ax.axis([0, 1, 0, 1])
         ax.axvline(0.5, color="skyblue", zorder=0)
         ax.axhline(0.5, color="skyblue", zorder=0)
         ax.plot(0.5, 0.5, color="C0", marker="o", zorder=1)

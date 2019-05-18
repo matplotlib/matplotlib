@@ -74,7 +74,7 @@ ax.add_patch(plt.Rectangle((.2, .4), .6, .5, ls="--", ec="c", fc="None",
 
 # We set the axis limits to something other than the default, in order to not
 # distract from the fact that axes coordinates are used here.
-ax.axis([0, 10, 0, 10])
+ax.set(xlim=(0, 10), ylim=(0, 10))
 
 
 # Note how the two following insets are created at the same positions, one by
@@ -126,7 +126,7 @@ axins2 = inset_axes(ax, width=0.5, height=0.4,
 
 ax2 = fig.add_subplot(133)
 ax2.set_xscale("log")
-ax2.axis([1e-6, 1e6, -2, 6])
+ax2.set(xlim=(1e-6, 1e6), ylim=(-2, 6))
 
 # Create inset in data coordinates using ax.transData as transform
 axins3 = inset_axes(ax2, width="100%", height="100%",

@@ -1609,7 +1609,9 @@ class _AxesBase(martist.Artist):
         ----------
         xmin, xmax, ymin, ymax : float, optional
             The axis limits to be set. Either none or all of the limits must
-            be given.
+            be given. This can also be achieved using ::
+
+                ax.set(xlim=(xmin, xmax), ylim=(ymin, ymax))
 
         option : bool or str
             If a bool, turns axis lines and labels on or off. If a string,
