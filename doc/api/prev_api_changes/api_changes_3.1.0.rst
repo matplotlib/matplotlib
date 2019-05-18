@@ -411,6 +411,26 @@ non-callable), the exception would be silently ignored and the default
 formatter be used instead.  This is no longer the case; the exception
 is now propagated out.
 
+Deprecation of redundant `Tick` attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``gridOn``, ``tick1On``, ``tick2On``, ``label1On``, and ``label2On``
+`~.Tick` attributes have been deprecated.  Directly get and set the visibility
+on the underlying artists, available as the ``gridline``, ``tick1line``,
+``tick2line``, ``label1``, and ``label2`` attributes.
+
+The ``label`` attribute, which was an alias for ``label1``, has been
+deprecated.
+
+Subclasses that relied on setting the above visibility attributes needs to be
+updated; see e.g. :file:`examples/api/skewt.py`.
+
+Passing a Line2D's drawstyle together with the linestyle is deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead of ``plt.plot(..., linestyle="steps--")``, use ``plt.plot(...,
+linestyle="--", drawstyle="steps")``. ``ds`` is now an alias for ``drawstyle``.
+
 
 ``pgi`` support dropped
 -----------------------
@@ -461,6 +481,12 @@ Exception changes
   a `RuntimeError` if they were called with a ``data`` kwarg and
   otherwise mismatched arguments.  They now raise a `TypeError`
   instead.
+- `.Axes.streamplot` does not support irregularly gridded ``x`` and ``y`` values.
+  So far, it used to silently plot an incorrect result.  This has been changed to
+  raise a `ValueError` instead.
+- The `.streamplot.Grid` class, which is internally used by streamplot
+  code, also throws a `ValueError` when irregularly gridded values are
+  passed in.
 
 Removals
 --------
@@ -849,6 +875,37 @@ future version.
 - `.cbook.is_hashable`
   Use ``isinstance(..., collections.abc.Hashable)`` instead.
 
+- The `.backend_bases.RendererBase.strip_math`.  Use
+  `.cbook.strip_math` instead.
+
+Multiple internal functions that were exposed as part of the public API
+of `.mpl_toolkits.mplot3d` are deprecated,
+
+**mpl_toolkits.mplot3d.art3d**
+
+- :func:`mpl_toolkits.mplot3d.art3d.norm_angle`
+- :func:`mpl_toolkits.mplot3d.art3d.norm_text_angle`
+- :func:`mpl_toolkits.mplot3d.art3d.path_to_3d_segment`
+- :func:`mpl_toolkits.mplot3d.art3d.paths_to_3d_segments`
+- :func:`mpl_toolkits.mplot3d.art3d.path_to_3d_segment_with_codes`
+- :func:`mpl_toolkits.mplot3d.art3d.paths_to_3d_segments_with_codes`
+- :func:`mpl_toolkits.mplot3d.art3d.get_patch_verts`
+- :func:`mpl_toolkits.mplot3d.art3d.get_colors`
+- :func:`mpl_toolkits.mplot3d.art3d.zalpha`
+
+**mpl_toolkits.mplot3d.proj3d**
+
+- :func:`mpl_toolkits.mplot3d.proj3d.line2d`
+- :func:`mpl_toolkits.mplot3d.proj3d.line2d_dist`
+- :func:`mpl_toolkits.mplot3d.proj3d.line2d_seg_dist`
+- :func:`mpl_toolkits.mplot3d.proj3d.mod`
+- :func:`mpl_toolkits.mplot3d.proj3d.proj_transform_vec`
+- :func:`mpl_toolkits.mplot3d.proj3d.proj_transform_vec_clip`
+- :func:`mpl_toolkits.mplot3d.proj3d.vec_pad_ones`
+- :func:`mpl_toolkits.mplot3d.proj3d.proj_trans_clip_points`
+
+If your project relies on these functions, consider vendoring them.
+
 
 Font Handling
 ~~~~~~~~~~~~~
@@ -914,8 +971,10 @@ GUI / backend details
   as it is a module-level global, no deprecation warning is emitted when
   accessing it).
 - `.mlab.demean`
-
-
+- ``backend_gtk3cairo.FigureCanvasGTK3Cairo``,
+- ``backend_wx.debug_on_error``, ``backend_wx.fake_stderr``,
+  ``backend_wx.raise_msg_to_str``, ``backend_wx.MenuButtonWx``,
+  ``backend_wx.PrintoutWx``,
 - ``matplotlib.backends.qt_editor.formlayout`` module
 
 This module is a vendored, modified version of the official formlayout_ module
@@ -1073,6 +1132,14 @@ updated to use `~.Formatter.format_ticks`.
 `~.Formatter.format_ticks` is intended to be overridden by `.Formatter`
 subclasses for which the formatting of a tick value depends on other tick
 values, such as `.ConciseDateFormatter`.
+
+Added support for RGB(A) images in pcolorfast
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+pcolorfast now accepts 3D images (RGB or RGBA) arrays if the X and Y
+specifications allow image or pcolorimage rendering; they remain unsupported by
+the more general quadmesh rendering
+
 
 Invalid inputs
 --------------
