@@ -41,6 +41,13 @@ with nonfinite values are plotted using the bad color of the
 `.collections.PathCollection`\ 's colormap (as set by
 :meth:`.colors.Colormap.set_bad`).
 
+Alpha blending in imshow of RBGA input
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The alpha-channel of RBGA images is now re-sampled independently of
+RGB channels.  While this is a bug fix, it does change the output and
+may result in some down-stream image comparison tests to fail.
+
 Autoscaling
 ~~~~~~~~~~~
 On log-axes where a single value is plotted at a "full" decade (1, 10, 100,
