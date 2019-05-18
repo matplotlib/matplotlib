@@ -563,12 +563,10 @@ class PillowWriter(MovieWriter):
         buf = BytesIO()
         self._fig.savefig(buf, **dict(savefig_kwargs, format="rgba"))
         renderer = self._fig.canvas.get_renderer()
-        # Using frombuffer / getbuffer may be slightly more efficient, but
-        # Py3-only.
-        self._frames.append(Image.frombytes(
+        self._frames.append(Image.frombuffer(
             "RGBA",
-            (int(renderer.width), int(renderer.height)),
-            buf.getvalue()))
+            (int(renderer.width), int(renderer.height)), buf.getbuffer(),
+            "raw", "RGBA", 0, 1))
 
     def finish(self):
         self._frames[0].save(
