@@ -18,8 +18,7 @@ from matplotlib import cbook
 from matplotlib import ft2font
 from matplotlib import pyplot as plt
 from matplotlib import ticker
-
-from .compare import comparable_formats, compare_images, make_test_filename
+from .compare import compare_images, make_test_filename, _skip_if_uncomparable
 from .exceptions import ImageComparisonFailure
 
 
@@ -137,54 +136,33 @@ def _raise_on_image_difference(expected, actual, tol):
              % err)
 
 
-def _skip_if_format_is_uncomparable(extension):
-    import pytest
-    return pytest.mark.skipif(
-        extension not in comparable_formats(),
-        reason='Cannot compare {} files on this system'.format(extension))
-
-
-def _mark_skip_if_format_is_uncomparable(extension):
-    import pytest
-    if isinstance(extension, str):
-        name = extension
-        marks = []
-    elif isinstance(extension, tuple):
-        # Extension might be a pytest ParameterSet instead of a plain string.
-        # Unfortunately, this type is not exposed, so since it's a namedtuple,
-        # check for a tuple instead.
-        name, = extension.values
-        marks = [*extension.marks]
-    else:
-        # Extension might be a pytest marker instead of a plain string.
-        name, = extension.args
-        marks = [extension.mark]
-    return pytest.param(name,
-                        marks=[*marks, _skip_if_format_is_uncomparable(name)])
-
-
-class _ImageComparisonBase:
+def _make_image_comparator(func=None,
+                           baseline_images=None, *, extension=None, tol=0,
+                           remove_text=False, savefig_kwargs=None):
     """
-    Image comparison base class
+    Image comparison base helper.
 
-    This class provides *just* the comparison-related functionality and avoids
+    This helper provides *just* the comparison-related functionality and avoids
     any code that would be specific to any testing framework.
     """
+    if func is None:
+        return functools.partial(
+            _make_image_comparator,
+            baseline_images=baseline_images, extension=extension, tol=tol,
+            remove_text=remove_text, savefig_kwargs=savefig_kwargs)
 
-    def __init__(self, func, tol, remove_text, savefig_kwargs):
-        self.func = func
-        self.baseline_dir, self.result_dir = _image_directories(func)
-        self.tol = tol
-        self.remove_text = remove_text
-        self.savefig_kwargs = savefig_kwargs
+    if savefig_kwargs is None:
+        savefig_kwargs = {}
 
-    def copy_baseline(self, baseline, extension):
-        baseline_path = self.baseline_dir / baseline
+    baseline_dir, result_dir = _image_directories(func)
+
+    def _copy_baseline(baseline):
+        baseline_path = baseline_dir / baseline
         orig_expected_path = baseline_path.with_suffix(f'.{extension}')
         if extension == 'eps' and not orig_expected_path.exists():
             orig_expected_path = orig_expected_path.with_suffix('.pdf')
         expected_fname = make_test_filename(
-            self.result_dir / orig_expected_path.name, 'expected')
+            result_dir / orig_expected_path.name, 'expected')
         try:
             # os.symlink errors if the target already exists.
             with contextlib.suppress(OSError):
@@ -200,24 +178,33 @@ class _ImageComparisonBase:
                 f"{orig_expected_path}") from err
         return expected_fname
 
-    def compare(self, idx, baseline, extension):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
         __tracebackhide__ = True
-        fignum = plt.get_fignums()[idx]
-        fig = plt.figure(fignum)
+        _skip_if_uncomparable(extension)
 
-        if self.remove_text:
-            remove_ticks_and_titles(fig)
+        func(*args, **kwargs)
 
-        actual_path = (self.result_dir / baseline).with_suffix(f'.{extension}')
-        kwargs = self.savefig_kwargs.copy()
-        if extension == 'pdf':
-            kwargs.setdefault('metadata',
-                              {'Creator': None, 'Producer': None,
-                               'CreationDate': None})
-        fig.savefig(actual_path, **kwargs)
+        fignums = plt.get_fignums()
+        assert len(fignums) == len(baseline_images), (
+            "Test generated {} images but there are {} baseline images"
+            .format(len(fignums), len(baseline_images)))
+        for baseline_image, fignum in zip(baseline_images, fignums):
+            fig = plt.figure(fignum)
+            if remove_text:
+                remove_ticks_and_titles(fig)
+            actual_path = ((result_dir / baseline_image)
+                           .with_suffix(f'.{extension}'))
+            kwargs = savefig_kwargs.copy()
+            if extension == 'pdf':
+                kwargs.setdefault('metadata',
+                                  {'Creator': None, 'Producer': None,
+                                   'CreationDate': None})
+            fig.savefig(actual_path, **kwargs)
+            expected_path = _copy_baseline(baseline_image)
+            _raise_on_image_difference(expected_path, actual_path, tol)
 
-        expected_path = self.copy_baseline(baseline, extension)
-        _raise_on_image_difference(expected_path, actual_path, self.tol)
+    return wrapper
 
 
 def _pytest_image_comparison(baseline_images, extensions, tol,
@@ -233,8 +220,6 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
     """
     import pytest
 
-    extensions = map(_mark_skip_if_format_is_uncomparable, extensions)
-
     def decorator(func):
         @functools.wraps(func)
         # Parameter indirection; see docstring above and comment below.
@@ -247,11 +232,6 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             __tracebackhide__ = True
-            img = _ImageComparisonBase(func, tol=tol, remove_text=remove_text,
-                                       savefig_kwargs=savefig_kwargs)
-            matplotlib.testing.set_font_settings_for_testing()
-            func(*args, **kwargs)
-
             # Parameter indirection:
             # This is hacked on via the mpl_image_comparison_parameters fixture
             # so that we don't need to modify the function's real signature for
@@ -259,11 +239,12 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
             # and likely to confuse pytest.
             baseline_images, extension = func.parameters
 
-            assert len(plt.get_fignums()) == len(baseline_images), (
-                "Test generated {} images but there are {} baseline images"
-                .format(len(plt.get_fignums()), len(baseline_images)))
-            for idx, baseline in enumerate(baseline_images):
-                img.compare(idx, baseline, extension)
+            matplotlib.testing.set_font_settings_for_testing()
+            comparator = _make_image_comparator(
+                func,
+                baseline_images=baseline_images, extension=extension, tol=tol,
+                remove_text=remove_text, savefig_kwargs=savefig_kwargs)
+            comparator(*args, **kwargs)
 
         return wrapper
 
@@ -347,8 +328,6 @@ def image_comparison(baseline_images, extensions=None, tol=0,
     if extensions is None:
         # Default extensions to test, if not set via baseline_images.
         extensions = ['png', 'pdf', 'svg']
-    if savefig_kwarg is None:
-        savefig_kwarg = dict()  # default no kwargs to savefig
     return _pytest_image_comparison(
         baseline_images=baseline_images, extensions=extensions, tol=tol,
         freetype_version=freetype_version, remove_text=remove_text,
@@ -400,6 +379,7 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
         @pytest.mark.parametrize("ext", extensions)
         def wrapper(*args, **kwargs):
             ext = kwargs['ext']
+            _skip_if_uncomparable(ext)
             if 'ext' not in old_sig.parameters:
                 kwargs.pop('ext')
             request = kwargs['request']

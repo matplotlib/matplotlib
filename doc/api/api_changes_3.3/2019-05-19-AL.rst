@@ -1,0 +1,6 @@
+API changes
+```````````
+
+``testing.compare.convert`` now raises ``unittest.SkipTest`` instead of a
+pytest skip for uncomparable formats.  Note that pytest will correctly handle
+such tests as being skipped.

@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import sys
 from tempfile import TemporaryFile
+import unittest
 
 import numpy as np
 import PIL
@@ -252,6 +253,12 @@ def comparable_formats():
     return ['png', *converter]
 
 
+def _skip_if_uncomparable(ext):
+    """Raise `unittest.SkipTest` if an *ext* files cannot be compared."""
+    if ext not in comparable_formats():
+        raise unittest.SkipTest(f"Lacking dependency to compare {ext} files")
+
+
 def convert(filename, cache):
     """
     Convert the named file to png; return the name of the created file.
@@ -264,6 +271,7 @@ def convert(filename, cache):
     path = Path(filename)
     if not path.exists():
         raise IOError(f"{path} does not exist")
+    _skip_if_uncomparable(path.suffix[1:])
     if path.suffix[1:] not in converter:
         import pytest
         pytest.skip(f"Don't know how to convert {path.suffix} files to png")
