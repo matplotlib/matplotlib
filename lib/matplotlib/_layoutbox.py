@@ -284,7 +284,7 @@ class LayoutBox(object):
                  'NW': (0, 1.0),
                  'W':  (0, 0.5)}
         if isinstance(anchor, str):
-            cx, cy = self.coefs[anchor]
+            cx, cy = coefs[anchor]
         else:
             cx, cy = anchor
         self.aspect_bottom_constraint = (self.bottom ==

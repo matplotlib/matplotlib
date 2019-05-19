@@ -155,7 +155,6 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
 
     '''
 
-    print('Doin')
     invTransFig = fig.transFigure.inverted().transform_bbox
 
     # list of unique gridspecs that contain child axes:

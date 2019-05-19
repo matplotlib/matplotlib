@@ -403,3 +403,43 @@ def test_colorbar_location():
     fig.colorbar(pcm, ax=axs[-2, 3:], shrink=0.5, location='top')
     fig.colorbar(pcm, ax=axs[0, 0], shrink=0.5, location='left')
     fig.colorbar(pcm, ax=axs[1:3, 2], shrink=0.5, location='right')
+
+
+def test_reallayoutbox_aspect():
+    """
+    Tests that the layout boxes that give the "real" or "active" axes
+    position are correct.
+    """
+    fig, ax = plt.subplots(figsize=(6, 2), constrained_layout=True)
+    pc = ax.imshow(np.random.randn(60, 30))
+    ax.set_anchor('C')
+    fig.draw(fig.canvas.get_renderer())
+    np.testing.assert_allclose(
+        ax._reallayoutbox.left.value(), 0.431273, atol=1e-4)
+    np.testing.assert_allclose(
+        ax._reallayoutbox.bottom.value(), 0.129963, atol=1e-4)
+    ax.set_anchor('E')
+    fig.draw(fig.canvas.get_renderer())
+    np.testing.assert_allclose(
+        ax._reallayoutbox.left.value(), 0.855501, atol=1e-4)
+    ax.set_anchor('W')
+    fig.draw(fig.canvas.get_renderer())
+    np.testing.assert_allclose(
+        ax._reallayoutbox.left.value(), 0.051981, atol=1e-4)
+
+    # now make so it can move around vertically:
+    ax.set_aspect(0.1)
+    ax.set_anchor('C')
+    fig.draw(fig.canvas.get_renderer())
+    np.testing.assert_allclose(
+        ax._reallayoutbox.left.value(), 0.051981, atol=1e-4)
+    np.testing.assert_allclose(
+        ax._reallayoutbox.bottom.value(), 0.217708, atol=1e-4)
+    ax.set_anchor('N')
+    fig.draw(fig.canvas.get_renderer())
+    np.testing.assert_allclose(
+        ax._reallayoutbox.bottom.value(), 0.387937, atol=1e-4)
+    ax.set_anchor('S')
+    fig.draw(fig.canvas.get_renderer())
+    np.testing.assert_allclose(
+        ax._reallayoutbox.bottom.value(), 0.129963, atol=1e-4)
