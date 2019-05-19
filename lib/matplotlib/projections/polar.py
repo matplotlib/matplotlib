@@ -1027,9 +1027,9 @@ class PolarAxes(Axes):
 
         Parameters
         ----------
-        thetamin : scalar
+        thetamin : float
             Minimum value in degrees.
-        thetamax : scalar
+        thetamax : float
             Maximum value in degrees.
         """
         if 'thetamin' in kwargs:
