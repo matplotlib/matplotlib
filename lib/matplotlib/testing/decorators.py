@@ -127,10 +127,6 @@ def _raise_on_image_difference(expected, actual, tol):
     __tracebackhide__ = True
 
     err = compare_images(expected, actual, tol, in_decorator=True)
-
-    if not os.path.exists(expected):
-        raise ImageComparisonFailure('image does not exist: %s' % expected)
-
     if err:
         for key in ["actual", "expected"]:
             err[key] = os.path.relpath(err[key])
@@ -172,38 +168,33 @@ class _ImageComparisonBase:
     This class provides *just* the comparison-related functionality and avoids
     any code that would be specific to any testing framework.
     """
-    def __init__(self, tol, remove_text, savefig_kwargs):
-        self.func = self.baseline_dir = self.result_dir = None
+
+    def __init__(self, func, tol, remove_text, savefig_kwargs):
+        self.func = func
+        self.baseline_dir, self.result_dir = _image_directories(func)
         self.tol = tol
         self.remove_text = remove_text
         self.savefig_kwargs = savefig_kwargs
 
-    def delayed_init(self, func):
-        assert self.func is None, "it looks like same decorator used twice"
-        self.func = func
-        self.baseline_dir, self.result_dir = _image_directories(func)
-
     def copy_baseline(self, baseline, extension):
-        baseline_path = os.path.join(self.baseline_dir, baseline)
-        orig_expected_fname = baseline_path + '.' + extension
-        if extension == 'eps' and not os.path.exists(orig_expected_fname):
-            orig_expected_fname = baseline_path + '.pdf'
+        baseline_path = self.baseline_dir / baseline
+        orig_expected_path = baseline_path.with_suffix(f'.{extension}')
+        if extension == 'eps' and not orig_expected_path.exists():
+            orig_expected_path = orig_expected_path.with_suffix('.pdf')
         expected_fname = make_test_filename(
-            os.path.join(self.result_dir,
-                         os.path.basename(orig_expected_fname)),
-            'expected')
+            self.result_dir / orig_expected_path.name, 'expected')
         try:
             # os.symlink errors if the target already exists.
             with contextlib.suppress(OSError):
                 os.remove(expected_fname)
             try:
-                os.symlink(orig_expected_fname, expected_fname)
+                os.symlink(orig_expected_path, expected_fname)
             except OSError:  # On Windows, symlink *may* be unavailable.
-                shutil.copyfile(orig_expected_fname, expected_fname)
+                shutil.copyfile(orig_expected_path, expected_fname)
         except OSError:
             raise ImageComparisonFailure(
                 f"Missing baseline image {expected_fname} because the "
-                f"following file cannot be accessed: {orig_expected_fname}")
+                f"following file cannot be accessed: {orig_expected_path}")
         return expected_fname
 
     def compare(self, idx, baseline, extension):
@@ -214,17 +205,16 @@ class _ImageComparisonBase:
         if self.remove_text:
             remove_ticks_and_titles(fig)
 
-        actual_fname = (
-            os.path.join(self.result_dir, baseline) + '.' + extension)
+        actual_path = (self.result_dir / baseline).with_suffix(f'.{extension}')
         kwargs = self.savefig_kwargs.copy()
         if extension == 'pdf':
             kwargs.setdefault('metadata',
                               {'Creator': None, 'Producer': None,
                                'CreationDate': None})
-        fig.savefig(actual_fname, **kwargs)
+        fig.savefig(actual_path, **kwargs)
 
-        expected_fname = self.copy_baseline(baseline, extension)
-        _raise_on_image_difference(expected_fname, actual_fname, self.tol)
+        expected_path = self.copy_baseline(baseline, extension)
+        _raise_on_image_difference(expected_path, actual_path, self.tol)
 
 
 def _pytest_image_comparison(baseline_images, extensions, tol,
@@ -254,9 +244,8 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             __tracebackhide__ = True
-            img = _ImageComparisonBase(tol=tol, remove_text=remove_text,
+            img = _ImageComparisonBase(func, tol=tol, remove_text=remove_text,
                                        savefig_kwargs=savefig_kwargs)
-            img.delayed_init(func)
             matplotlib.testing.set_font_settings_for_testing()
             func(*args, **kwargs)
 
@@ -395,7 +384,7 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
     def decorator(func):
         import pytest
 
-        _, result_dir = map(Path, _image_directories(func))
+        _, result_dir = _image_directories(func)
 
         if len(inspect.signature(func).parameters) == 2:
             # Free-standing function.
@@ -404,9 +393,8 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
                 fig_test = plt.figure("test")
                 fig_ref = plt.figure("reference")
                 func(fig_test, fig_ref)
-                test_image_path = str(
-                    result_dir / (func.__name__ + "." + ext))
-                ref_image_path = str(
+                test_image_path = result_dir / (func.__name__ + "." + ext)
+                ref_image_path = (
                     result_dir / (func.__name__ + "-expected." + ext))
                 fig_test.savefig(test_image_path)
                 fig_ref.savefig(ref_image_path)
@@ -420,9 +408,8 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
                 fig_test = plt.figure("test")
                 fig_ref = plt.figure("reference")
                 func(self, fig_test, fig_ref)
-                test_image_path = str(
-                    result_dir / (func.__name__ + "." + ext))
-                ref_image_path = str(
+                test_image_path = result_dir / (func.__name__ + "." + ext)
+                ref_image_path = (
                     result_dir / (func.__name__ + "-expected." + ext))
                 fig_test.savefig(test_image_path)
                 fig_ref.savefig(ref_image_path)
@@ -447,7 +434,7 @@ def _image_directories(func):
     baseline_dir = module_path.parent / "baseline_images" / module_path.stem
     result_dir = Path().resolve() / "result_images" / module_path.stem
     result_dir.mkdir(parents=True, exist_ok=True)
-    return str(baseline_dir), str(result_dir)
+    return baseline_dir, result_dir
 
 
 @cbook.deprecated("3.1", alternative="pytest.mark.backend")

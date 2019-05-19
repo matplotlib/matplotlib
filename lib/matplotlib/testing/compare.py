@@ -264,7 +264,7 @@ def convert(filename, cache):
     hash of the exact contents of the input file.  There is no limit on the
     size of the cache, so it may need to be manually cleared periodically.
     """
-    base, extension = filename.rsplit('.', 1)
+    base, extension = os.fspath(filename).rsplit('.', 1)
     if extension not in converter:
         import pytest
         pytest.skip(f"Don't know how to convert {extension} files to png")
@@ -369,18 +369,17 @@ def compare_images(expected, actual, tol, in_decorator=False):
     """
     from matplotlib import _png
 
+    actual = os.fspath(actual)
     if not os.path.exists(actual):
         raise Exception("Output image %s does not exist." % actual)
-
     if os.stat(actual).st_size == 0:
         raise Exception("Output image file %s is empty." % actual)
 
     # Convert the image to png
-    extension = expected.split('.')[-1]
-
+    expected = os.fspath(expected)
     if not os.path.exists(expected):
         raise IOError('Baseline image %r does not exist.' % expected)
-
+    extension = expected.split('.')[-1]
     if extension != 'png':
         actual = convert(actual, False)
         expected = convert(expected, True)
