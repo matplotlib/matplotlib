@@ -30,12 +30,6 @@ Although not required, we suggest also installing ``IPython`` for
 interactive use.  To easily install a complete Scientific Python
 stack, see :ref:`install_scipy_dists` below.
 
-macOS
------
-
-To use the native OSX backend you will need :ref:`a framework build
-<osxframework-faq>` build of Python.
-
 Test data
 ---------
 
