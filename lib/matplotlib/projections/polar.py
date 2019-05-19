@@ -1022,12 +1022,13 @@ class PolarAxes(Axes):
         return np.rad2deg(self.viewLim.xmin)
 
     def set_thetalim(self, *args, **kwargs):
-        """Set the minimum and maxium radius
+        """
+        Set the minimum and maxium theta values.
         ----------
-        thetamin
-            Updates the thetamin value.
-        thetamax
-            Updates the thetamax value.
+        thetamin : scalar
+            Minimum value in degrees.
+        thetamax : scalar
+            Maximum value in degrees.
         """
         if 'thetamin' in kwargs:
             kwargs['xmin'] = np.deg2rad(kwargs.pop('thetamin'))
@@ -1107,12 +1108,12 @@ class PolarAxes(Axes):
         return self._direction.get_matrix()[0, 0]
 
     def set_rmax(self, rmax):
-        """Update the maximum radius
+        """
+        Set the outer radial limit.
 
         Parameters
         ----------
-        rmax : number
-            Set maximum radius to value rmax.
+        rmax : scalar
         """
         self.viewLim.y1 = rmax
 
@@ -1121,16 +1122,17 @@ class PolarAxes(Axes):
         Returns
         -------
         float
-            The maximum radius of chart.
+            Outer radial limit.
         """
         return self.viewLim.ymax
 
     def set_rmin(self, rmin):
-        """Updates the minimum radius
+        """
+        Set the inner radial limit.
+
         Parameters
         ----------
-        rmin : number
-            Set minimumradius to value rmin.
+        rmin : scalar
         """
         self.viewLim.y0 = rmin
 
@@ -1139,17 +1141,17 @@ class PolarAxes(Axes):
         Returns
         -------
         float
-            The minimum radius of chart.
+            The inner radial limit.
         """
         return self.viewLim.ymin
 
     def set_rorigin(self, rorigin):
-        """Updates the chart origin
+        """
+        Update the radial origin.
 
         Parameters
         ----------
-        rorigin : number
-            Set the chart origin value.
+        rorigin : scalar
         """
         self._originViewLim.locked_y0 = rorigin
 
@@ -1158,7 +1160,6 @@ class PolarAxes(Axes):
         Returns
         -------
         float
-            The origin of chart.
         """
         return self._originViewLim.y0
 
@@ -1394,6 +1395,7 @@ class PolarAxes(Axes):
     def can_zoom(self):
         """
         Return *True* if this axes supports the zoom box button functionality.
+
         Polar axes do not support zoom boxes.
         """
         return False
@@ -1401,6 +1403,7 @@ class PolarAxes(Axes):
     def can_pan(self):
         """
         Return *True* if this axes supports the pan/zoom button functionality.
+
         For polar axes, this is slightly misleading. Both panning and
         zooming are performed by the same button. Panning is performed
         in azimuth while zooming is done along the radial.
