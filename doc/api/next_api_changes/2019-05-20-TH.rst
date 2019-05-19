@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+``matplotlib.figure.AxesStack`` is considered private API and will be removed
+from the public API in future versions.

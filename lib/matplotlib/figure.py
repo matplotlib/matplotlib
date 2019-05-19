@@ -51,16 +51,16 @@ def _stale_figure_callback(self, val):
         self.figure.stale = val
 
 
-class AxesStack(cbook.Stack):
+class _AxesStack(cbook.Stack):
     """
     Specialization of the `.Stack` to handle all tracking of
     `~matplotlib.axes.Axes` in a `.Figure`.
     This stack stores ``key, (ind, axes)`` pairs, where:
 
-        * **key** should be a hash of the args and kwargs
-          used in generating the Axes.
-        * **ind** is a serial number for tracking the order
-          in which axes were added.
+    * **key** should be a hash of the args and kwargs
+      used in generating the Axes.
+    * **ind** is a serial number for tracking the order
+      in which axes were added.
 
     The AxesStack is a callable, where ``ax_stack()`` returns
     the current axes. Alternatively the :meth:`current_key_axes` will
@@ -159,6 +159,11 @@ class AxesStack(cbook.Stack):
 
     def __contains__(self, a):
         return a in self.as_list()
+
+
+@cbook.deprecated("3.2")
+class AxesStack(_AxesStack):
+    pass
 
 
 class SubplotParams(object):
@@ -378,7 +383,7 @@ class Figure(Artist):
 
         self.set_tight_layout(tight_layout)
 
-        self._axstack = AxesStack()  # track all figure axes and current axes
+        self._axstack = _AxesStack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
 
