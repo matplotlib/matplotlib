@@ -29,7 +29,7 @@ import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 
-@image_comparison(baseline_images=['divider_append_axes'])
+@image_comparison(['divider_append_axes'])
 def test_divider_append_axes():
 
     # the random data
@@ -71,8 +71,7 @@ def test_divider_append_axes():
     axHistright.yaxis.set_ticklabels(())
 
 
-@image_comparison(baseline_images=['twin_axes_empty_and_removed'],
-                  extensions=["png"], tol=1)
+@image_comparison(['twin_axes_empty_and_removed'], extensions=["png"], tol=1)
 def test_twin_axes_empty_and_removed():
     # Purely cosmetic font changes (avoid overlap)
     matplotlib.rcParams.update({"font.size": 8})
@@ -116,9 +115,7 @@ def test_axesgrid_colorbar_log_smoketest():
     grid.cbar_axes[0].colorbar(im)
 
 
-@image_comparison(
-    baseline_images=['inset_locator'], style='default', extensions=['png'],
-    remove_text=True)
+@image_comparison(['inset_locator.png'], style='default', remove_text=True)
 def test_inset_locator():
     def get_demo_image():
         from matplotlib.cbook import get_sample_data
@@ -166,9 +163,7 @@ def test_inset_locator():
     ax.add_artist(asb)
 
 
-@image_comparison(
-    baseline_images=['inset_axes'], style='default', extensions=['png'],
-    remove_text=True)
+@image_comparison(['inset_axes.png'], style='default', remove_text=True)
 def test_inset_axes():
     def get_demo_image():
         from matplotlib.cbook import get_sample_data
@@ -263,9 +258,7 @@ def test_inset_axes_complete():
                          bbox_transform=ax.transAxes)
 
 
-@image_comparison(
-    baseline_images=['fill_facecolor'], extensions=['png'],
-    remove_text=True, style='mpl20')
+@image_comparison(['fill_facecolor.png'], remove_text=True, style='mpl20')
 def test_fill_facecolor():
     fig, ax = plt.subplots(1, 5)
     fig.set_size_inches(5, 5)
@@ -343,9 +336,7 @@ def test_fill_facecolor():
     mark_inset(ax[3], axins, loc1=2, loc2=4, fc="g", ec="0.5", fill=False)
 
 
-@image_comparison(baseline_images=['zoomed_axes',
-                                   'inverted_zoomed_axes'],
-                  extensions=['png'])
+@image_comparison(['zoomed_axes.png', 'inverted_zoomed_axes.png'])
 def test_zooming_with_inverted_axes():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], [1, 2, 3])
@@ -360,9 +351,8 @@ def test_zooming_with_inverted_axes():
     inset_ax.axis([1.4, 1.1, 1.4, 1.1])
 
 
-@image_comparison(baseline_images=['anchored_direction_arrows'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
-                  extensions=['png'])
+@image_comparison(['anchored_direction_arrows.png'],
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_anchored_direction_arrows():
     fig, ax = plt.subplots()
     ax.imshow(np.zeros((10, 10)))
@@ -371,8 +361,7 @@ def test_anchored_direction_arrows():
     ax.add_artist(simple_arrow)
 
 
-@image_comparison(baseline_images=['anchored_direction_arrows_many_args'],
-                  extensions=['png'])
+@image_comparison(['anchored_direction_arrows_many_args.png'])
 def test_anchored_direction_arrows_many_args():
     fig, ax = plt.subplots()
     ax.imshow(np.ones((10, 10)))
@@ -394,7 +383,7 @@ def test_axes_locatable_position():
                       0.03621495327102808)
 
 
-@image_comparison(baseline_images=['image_grid'], extensions=['png'],
+@image_comparison(['image_grid.png'],
                   remove_text=True, style='mpl20',
                   savefig_kwarg={'bbox_inches': 'tight'})
 def test_image_grid():

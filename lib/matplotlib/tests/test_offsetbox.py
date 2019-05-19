@@ -7,7 +7,7 @@ from matplotlib.offsetbox import (
         AnchoredOffsetbox, DrawingArea, _get_packed_offsets)
 
 
-@image_comparison(baseline_images=['offsetbox_clipping'], remove_text=True)
+@image_comparison(['offsetbox_clipping'], remove_text=True)
 def test_offsetbox_clipping():
     # - create a plot
     # - put an AnchoredOffsetbox with a child DrawingArea

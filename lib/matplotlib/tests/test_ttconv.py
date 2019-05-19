@@ -6,8 +6,7 @@ from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 
 
-@image_comparison(baseline_images=["truetype-conversion"],
-                  extensions=["pdf"])
+@image_comparison(["truetype-conversion.pdf"])
 # mpltest.ttf does not have "l"/"p" glyphs so we get a warning when trying to
 # get the font extents.
 def test_truetype_conversion(recwarn):

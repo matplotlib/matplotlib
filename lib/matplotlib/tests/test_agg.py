@@ -78,8 +78,7 @@ def test_long_path():
     fig.savefig(buff, format='png')
 
 
-@image_comparison(baseline_images=['agg_filter'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['agg_filter.png'], remove_text=True)
 def test_agg_filter():
     def smooth1d(x, window_len):
         s = np.r_[2*x[0] - x[window_len:1:-1],

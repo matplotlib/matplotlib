@@ -70,7 +70,7 @@ def test_set_line_coll_dash():
     ax.contour(np.random.randn(20, 30), linestyles=[(0, (3, 3))])
 
 
-@image_comparison(baseline_images=['line_dashes'], remove_text=True)
+@image_comparison(['line_dashes'], remove_text=True)
 def test_line_dashes():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -104,8 +104,7 @@ def test_valid_linestyles():
         line.set_linestyle('aardvark')
 
 
-@image_comparison(baseline_images=['drawstyle_variants'], remove_text=True,
-                  extensions=["png"])
+@image_comparison(['drawstyle_variants.png'], remove_text=True)
 def test_drawstyle_variants():
     fig, axs = plt.subplots(6)
     dss = ["default", "steps-mid", "steps-pre", "steps-post", "steps", None]
@@ -137,8 +136,7 @@ def test_set_drawstyle():
     assert len(line.get_path().vertices) == len(x)
 
 
-@image_comparison(baseline_images=['line_collection_dashes'],
-                  remove_text=True, style='mpl20')
+@image_comparison(['line_collection_dashes'], remove_text=True, style='mpl20')
 def test_set_line_coll_dash_image():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -146,8 +144,7 @@ def test_set_line_coll_dash_image():
     ax.contour(np.random.randn(20, 30), linestyles=[(0, (3, 3))])
 
 
-@image_comparison(baseline_images=['marker_fill_styles'], remove_text=True,
-                  extensions=['png'])
+@image_comparison(['marker_fill_styles.png'], remove_text=True)
 def test_marker_fill_styles():
     colors = itertools.cycle([[0, 0, 1], 'g', '#ff0000', 'c', 'm', 'y',
                               np.array([0, 0, 0])])
@@ -175,7 +172,7 @@ def test_marker_fill_styles():
     ax.set_xlim([-5, 155])
 
 
-@image_comparison(baseline_images=['scaled_lines'], style='default')
+@image_comparison(['scaled_lines'], style='default')
 def test_lw_scaling():
     th = np.linspace(0, 32)
     fig, ax = plt.subplots()

@@ -6,8 +6,7 @@ from mpl_toolkits.axisartist.axis_artist import (AxisArtist, AxisLabel,
                                                  LabelBase, Ticks, TickLabels)
 
 
-@image_comparison(baseline_images=['axis_artist_ticks'],
-                  extensions=['png'], style='default')
+@image_comparison(['axis_artist_ticks.png'], style='default')
 def test_ticks():
     fig, ax = plt.subplots()
 
@@ -25,8 +24,7 @@ def test_ticks():
     ax.add_artist(ticks_out)
 
 
-@image_comparison(baseline_images=['axis_artist_labelbase'],
-                  extensions=['png'], style='default')
+@image_comparison(['axis_artist_labelbase.png'], style='default')
 def test_labelbase():
     fig, ax = plt.subplots()
 
@@ -40,8 +38,7 @@ def test_labelbase():
     ax.add_artist(label)
 
 
-@image_comparison(baseline_images=['axis_artist_ticklabels'],
-                  extensions=['png'], style='default')
+@image_comparison(['axis_artist_ticklabels.png'], style='default')
 def test_ticklabels():
     fig, ax = plt.subplots()
 
@@ -73,8 +70,7 @@ def test_ticklabels():
     ax.set_ylim(0, 1)
 
 
-@image_comparison(baseline_images=['axis_artist'],
-                  extensions=['png'], style='default')
+@image_comparison(['axis_artist.png'], style='default')
 def test_axis_artist():
     fig, ax = plt.subplots()
 

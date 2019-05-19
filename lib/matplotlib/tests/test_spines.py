@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
 
-@image_comparison(baseline_images=['spines_axes_positions'])
+@image_comparison(['spines_axes_positions'])
 def test_spines_axes_positions():
     # SF bug 2852168
     fig = plt.figure()
@@ -21,7 +21,7 @@ def test_spines_axes_positions():
     ax.spines['bottom'].set_color('none')
 
 
-@image_comparison(baseline_images=['spines_data_positions'])
+@image_comparison(['spines_data_positions'])
 def test_spines_data_positions():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -33,7 +33,7 @@ def test_spines_data_positions():
     ax.set_ylim([-2, 2])
 
 
-@image_comparison(baseline_images=['spines_capstyle'])
+@image_comparison(['spines_capstyle'])
 def test_spines_capstyle():
     # issue 2542
     plt.rc('axes', linewidth=20)

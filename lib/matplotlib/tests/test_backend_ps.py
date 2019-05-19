@@ -120,7 +120,7 @@ def test_determinism_all_tex():
     _determinism_check(format="ps", usetex=True)
 
 
-@image_comparison(baseline_images=["empty"], extensions=["eps"])
+@image_comparison(["empty.eps"])
 def test_transparency():
     fig, ax = plt.subplots()
     ax.set_axis_off()

@@ -9,8 +9,7 @@ from matplotlib import pyplot as plt
 import matplotlib.cm as cm
 
 
-@image_comparison(baseline_images=['pngsuite'], extensions=['png'],
-                  tol=0.03)
+@image_comparison(['pngsuite.png'], tol=0.03)
 def test_pngsuite():
     dirname = os.path.join(
         os.path.dirname(__file__),

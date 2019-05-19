@@ -366,6 +366,10 @@ def image_comparison(baseline_images, extensions=None, tol=0,
 
         If *None*, defaults to all supported extensions: png, pdf, and svg.
 
+        When testing a single extension, it can be directly included in the
+        names passed to *baseline_images*.  In that case, *extensions* must not
+        be set.
+
         In order to keep the size of the test suite from ballooning, we only
         include the ``svg`` or ``pdf`` outputs if the test is explicitly
         exercising a feature dependent on that backend (see also the
@@ -393,10 +397,26 @@ def image_comparison(baseline_images, extensions=None, tol=0,
         Optional name for the base style to apply to the image test. The test
         itself can also apply additional styles if desired. Defaults to the
         '_classic_test' style.
-
     """
+
+    if baseline_images is not None:
+        # List of non-empty filename extensions.
+        baseline_exts = [*filter(None, {Path(baseline).suffix[1:]
+                                        for baseline in baseline_images})]
+        if baseline_exts:
+            if extensions is not None:
+                raise ValueError(
+                    "When including extensions directly in 'baseline_images', "
+                    "'extensions' cannot be set as well")
+            if len(baseline_exts) > 1:
+                raise ValueError(
+                    "When including extensions directly in 'baseline_images', "
+                    "all baselines must share the same suffix")
+            extensions = baseline_exts
+            baseline_images = [  # Chop suffix out from baseline_images.
+                Path(baseline).stem for baseline in baseline_images]
     if extensions is None:
-        # default extensions to test
+        # Default extensions to test, if not set via baseline_images.
         extensions = ['png', 'pdf', 'svg']
 
     if savefig_kwarg is None:

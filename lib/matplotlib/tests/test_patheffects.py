@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
 
 
-@image_comparison(baseline_images=['patheffect1'], remove_text=True)
+@image_comparison(['patheffect1'], remove_text=True)
 def test_patheffect1():
     ax1 = plt.subplot(111)
     ax1.imshow([[1, 2], [2, 3]])
@@ -24,8 +24,7 @@ def test_patheffect1():
     ax1.grid(True, linestyle="-", path_effects=pe)
 
 
-@image_comparison(baseline_images=['patheffect2'], remove_text=True,
-                  style='mpl20')
+@image_comparison(['patheffect2'], remove_text=True, style='mpl20')
 def test_patheffect2():
 
     ax2 = plt.subplot(111)
@@ -43,7 +42,7 @@ def test_patheffect2():
                                                    foreground="w")])
 
 
-@image_comparison(baseline_images=['patheffect3'])
+@image_comparison(['patheffect3'])
 def test_patheffect3():
     p1, = plt.plot([1, 3, 5, 4, 3], 'o-b', lw=4)
     p1.set_path_effects([path_effects.SimpleLineShadow(),
@@ -70,7 +69,7 @@ def test_patheffect3():
     t.set_path_effects(pe)
 
 
-@image_comparison(baseline_images=['stroked_text'], extensions=['png'])
+@image_comparison(['stroked_text.png'])
 def test_patheffects_stroked_text():
     text_chunks = [
         'A B C D E F G H I J K L',
@@ -119,7 +118,7 @@ def test_SimplePatchShadow_offset():
     assert pe._offset == (4, 5)
 
 
-@image_comparison(baseline_images=['collection'], tol=0.02, style='mpl20')
+@image_comparison(['collection'], tol=0.02, style='mpl20')
 def test_collection():
     x, y = np.meshgrid(np.linspace(0, 10, 150), np.linspace(-5, 5, 100))
     data = np.sin(x) + np.cos(y)

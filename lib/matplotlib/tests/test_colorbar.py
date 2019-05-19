@@ -94,10 +94,8 @@ def _colorbar_extension_length(spacing):
     return fig
 
 
-@image_comparison(
-        baseline_images=['colorbar_extensions_shape_uniform',
-                         'colorbar_extensions_shape_proportional'],
-        extensions=['png'])
+@image_comparison(['colorbar_extensions_shape_uniform.png',
+                   'colorbar_extensions_shape_proportional.png'])
 def test_colorbar_extension_shape():
     '''Test rectangular colorbar extensions.'''
     # Create figures for uniform and proportionally spaced colorbars.
@@ -105,9 +103,8 @@ def test_colorbar_extension_shape():
     _colorbar_extension_shape('proportional')
 
 
-@image_comparison(baseline_images=['colorbar_extensions_uniform',
-                                   'colorbar_extensions_proportional'],
-                  extensions=['png'])
+@image_comparison(['colorbar_extensions_uniform.png',
+                   'colorbar_extensions_proportional.png'])
 def test_colorbar_extension_length():
     '''Test variable length colorbar extensions.'''
     # Create figures for uniform and proportionally spaced colorbars.
@@ -115,11 +112,11 @@ def test_colorbar_extension_length():
     _colorbar_extension_length('proportional')
 
 
-@image_comparison(baseline_images=['cbar_with_orientation',
-                                   'cbar_locationing',
-                                   'double_cbar',
-                                   'cbar_sharing',
-                                   ],
+@image_comparison(['cbar_with_orientation',
+                   'cbar_locationing',
+                   'double_cbar',
+                   'cbar_sharing',
+                   ],
                   extensions=['png'], remove_text=True,
                   savefig_kwarg={'dpi': 40})
 def test_colorbar_positioning():
@@ -173,8 +170,7 @@ def test_colorbar_positioning():
                  anchor=(0.8, 0.5), shrink=0.6, use_gridspec=False)
 
 
-@image_comparison(baseline_images=['cbar_with_subplots_adjust'],
-                  extensions=['png'], remove_text=True,
+@image_comparison(['cbar_with_subplots_adjust.png'], remove_text=True,
                   savefig_kwarg={'dpi': 40})
 def test_gridspec_make_colorbar():
     plt.figure()
@@ -192,8 +188,7 @@ def test_gridspec_make_colorbar():
     plt.subplots_adjust(top=0.95, right=0.95, bottom=0.2, hspace=0.25)
 
 
-@image_comparison(baseline_images=['colorbar_single_scatter'],
-                  extensions=['png'], remove_text=True,
+@image_comparison(['colorbar_single_scatter.png'], remove_text=True,
                   savefig_kwarg={'dpi': 40})
 def test_colorbar_single_scatter():
     # Issue #2642: if a path collection has only one entry,
@@ -231,9 +226,7 @@ def test_colorbarbase():
     ColorbarBase(ax, plt.cm.bone)
 
 
-@image_comparison(
-    baseline_images=['colorbar_closed_patch'],
-    remove_text=True)
+@image_comparison(['colorbar_closed_patch'], remove_text=True)
 def test_colorbar_closed_patch():
     fig = plt.figure(figsize=(8, 6))
     ax1 = fig.add_axes([0.05, 0.85, 0.9, 0.1])

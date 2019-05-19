@@ -44,15 +44,14 @@ def test_visibility():
     parser.Parse(buf)  # this will raise ExpatError if the svg is invalid
 
 
-@image_comparison(baseline_images=['fill_black_with_alpha'], remove_text=True,
-                  extensions=['svg'])
+@image_comparison(['fill_black_with_alpha.svg'], remove_text=True)
 def test_fill_black_with_alpha():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.scatter(x=[0, 0.1, 1], y=[0, 0, 0], c='k', alpha=0.1, s=10000)
 
 
-@image_comparison(baseline_images=['noscale'], remove_text=True)
+@image_comparison(['noscale'], remove_text=True)
 def test_noscale():
     X, Y = np.meshgrid(np.arange(-5, 5, 1), np.arange(-5, 5, 1))
     Z = np.sin(Y ** 2)
@@ -78,14 +77,14 @@ def test_text_urls():
     assert expected in buf
 
 
-@image_comparison(baseline_images=['white_space_pre'], extensions=['svg'])
+@image_comparison(['white_space_pre.svg'])
 def test_white_space_pre():
     plt.rcParams["svg.fonttype"] = "none"
     fig = plt.figure()
     fig.text(.5, .5, "a b   c")
 
 
-@image_comparison(baseline_images=['bold_font_output'], extensions=['svg'])
+@image_comparison(['bold_font_output.svg'])
 def test_bold_font_output():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -95,8 +94,7 @@ def test_bold_font_output():
     ax.set_title('bold-title', fontweight='bold')
 
 
-@image_comparison(baseline_images=['bold_font_output_with_none_fonttype'],
-                  extensions=['svg'])
+@image_comparison(['bold_font_output_with_none_fonttype.svg'])
 def test_bold_font_output_with_none_fonttype():
     plt.rcParams['svg.fonttype'] = 'none'
     fig = plt.figure()

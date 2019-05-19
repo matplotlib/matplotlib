@@ -58,7 +58,7 @@ def generate_EventCollection_plot():
     return splt, coll, props
 
 
-@image_comparison(baseline_images=['EventCollection_plot__default'])
+@image_comparison(['EventCollection_plot__default'])
 def test__EventCollection__get_segments():
     '''
     check to make sure the default segments have the correct coordinates
@@ -130,7 +130,7 @@ def test__EventCollection__get_color():
     check_allprop_array(coll.get_colors(), props['color'])
 
 
-@image_comparison(baseline_images=['EventCollection_plot__set_positions'])
+@image_comparison(['EventCollection_plot__set_positions'])
 def test__EventCollection__set_positions():
     '''
     check to make sure set_positions works properly
@@ -147,7 +147,7 @@ def test__EventCollection__set_positions():
     splt.set_xlim(-1, 90)
 
 
-@image_comparison(baseline_images=['EventCollection_plot__add_positions'])
+@image_comparison(['EventCollection_plot__add_positions'])
 def test__EventCollection__add_positions():
     '''
     check to make sure add_positions works properly
@@ -166,7 +166,7 @@ def test__EventCollection__add_positions():
     splt.set_xlim(-1, 35)
 
 
-@image_comparison(baseline_images=['EventCollection_plot__append_positions'])
+@image_comparison(['EventCollection_plot__append_positions'])
 def test__EventCollection__append_positions():
     '''
     check to make sure append_positions works properly
@@ -185,7 +185,7 @@ def test__EventCollection__append_positions():
     splt.set_xlim(-1, 90)
 
 
-@image_comparison(baseline_images=['EventCollection_plot__extend_positions'])
+@image_comparison(['EventCollection_plot__extend_positions'])
 def test__EventCollection__extend_positions():
     '''
     check to make sure extend_positions works properly
@@ -204,7 +204,7 @@ def test__EventCollection__extend_positions():
     splt.set_xlim(-1, 90)
 
 
-@image_comparison(baseline_images=['EventCollection_plot__switch_orientation'])
+@image_comparison(['EventCollection_plot__switch_orientation'])
 def test__EventCollection__switch_orientation():
     '''
     check to make sure switch_orientation works properly
@@ -224,8 +224,7 @@ def test__EventCollection__switch_orientation():
     splt.set_xlim(0, 2)
 
 
-@image_comparison(
-    baseline_images=['EventCollection_plot__switch_orientation__2x'])
+@image_comparison(['EventCollection_plot__switch_orientation__2x'])
 def test__EventCollection__switch_orientation_2x():
     '''
     check to make sure calling switch_orientation twice sets the
@@ -246,7 +245,7 @@ def test__EventCollection__switch_orientation_2x():
     splt.set_title('EventCollection: switch_orientation 2x')
 
 
-@image_comparison(baseline_images=['EventCollection_plot__set_orientation'])
+@image_comparison(['EventCollection_plot__set_orientation'])
 def test__EventCollection__set_orientation():
     '''
     check to make sure set_orientation works properly
@@ -266,7 +265,7 @@ def test__EventCollection__set_orientation():
     splt.set_xlim(0, 2)
 
 
-@image_comparison(baseline_images=['EventCollection_plot__set_linelength'])
+@image_comparison(['EventCollection_plot__set_linelength'])
 def test__EventCollection__set_linelength():
     '''
     check to make sure set_linelength works properly
@@ -284,7 +283,7 @@ def test__EventCollection__set_linelength():
     splt.set_ylim(-20, 20)
 
 
-@image_comparison(baseline_images=['EventCollection_plot__set_lineoffset'])
+@image_comparison(['EventCollection_plot__set_lineoffset'])
 def test__EventCollection__set_lineoffset():
     '''
     check to make sure set_lineoffset works properly
@@ -302,7 +301,7 @@ def test__EventCollection__set_lineoffset():
     splt.set_ylim(-6, -4)
 
 
-@image_comparison(baseline_images=['EventCollection_plot__set_linestyle'])
+@image_comparison(['EventCollection_plot__set_linestyle'])
 def test__EventCollection__set_linestyle():
     '''
     check to make sure set_linestyle works properly
@@ -314,8 +313,7 @@ def test__EventCollection__set_linestyle():
     splt.set_title('EventCollection: set_linestyle')
 
 
-@image_comparison(baseline_images=['EventCollection_plot__set_ls_dash'],
-                  remove_text=True)
+@image_comparison(['EventCollection_plot__set_ls_dash'], remove_text=True)
 def test__EventCollection__set_linestyle_single_dash():
     '''
     check to make sure set_linestyle accepts a single dash pattern
@@ -327,7 +325,7 @@ def test__EventCollection__set_linestyle_single_dash():
     splt.set_title('EventCollection: set_linestyle')
 
 
-@image_comparison(baseline_images=['EventCollection_plot__set_linewidth'])
+@image_comparison(['EventCollection_plot__set_linewidth'])
 def test__EventCollection__set_linewidth():
     '''
     check to make sure set_linestyle works properly
@@ -339,7 +337,7 @@ def test__EventCollection__set_linewidth():
     splt.set_title('EventCollection: set_linewidth')
 
 
-@image_comparison(baseline_images=['EventCollection_plot__set_color'])
+@image_comparison(['EventCollection_plot__set_color'])
 def test__EventCollection__set_color():
     '''
     check to make sure set_color works properly
@@ -440,10 +438,8 @@ def test_barb_limits():
                               decimal=1)
 
 
-@image_comparison(baseline_images=['EllipseCollection_test_image'],
-                  extensions=['png'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
-                  remove_text=True)
+@image_comparison(['EllipseCollection_test_image.png'], remove_text=True,
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_EllipseCollection():
     # Test basic functionality
     fig, ax = plt.subplots()
@@ -465,8 +461,7 @@ def test_EllipseCollection():
     ax.autoscale_view()
 
 
-@image_comparison(baseline_images=['polycollection_close'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['polycollection_close.png'], remove_text=True)
 def test_polycollection_close():
     from mpl_toolkits.mplot3d import Axes3D
 
@@ -503,8 +498,7 @@ def test_polycollection_close():
     ax.set_ylim3d(0, 4)
 
 
-@image_comparison(baseline_images=['regularpolycollection_rotate'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['regularpolycollection_rotate.png'], remove_text=True)
 def test_regularpolycollection_rotate():
     xx, yy = np.mgrid[:10, :10]
     xy_points = np.transpose([xx.flatten(), yy.flatten()])
@@ -519,8 +513,7 @@ def test_regularpolycollection_rotate():
     ax.autoscale_view()
 
 
-@image_comparison(baseline_images=['regularpolycollection_scale'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['regularpolycollection_scale.png'], remove_text=True)
 def test_regularpolycollection_scale():
     # See issue #3860
 
@@ -571,8 +564,7 @@ def test_linestyle_single_dashes():
     plt.draw()
 
 
-@image_comparison(baseline_images=['size_in_xy'], remove_text=True,
-                  extensions=['png'])
+@image_comparison(['size_in_xy.png'], remove_text=True)
 def test_size_in_xy():
     fig, ax = plt.subplots()
 
@@ -638,8 +630,7 @@ def test_joinstyle():
     assert col.get_joinstyle() == 'miter'
 
 
-@image_comparison(baseline_images=['cap_and_joinstyle'],
-                  extensions=['png'])
+@image_comparison(['cap_and_joinstyle.png'])
 def test_cap_and_joinstyle_image():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -660,9 +651,8 @@ def test_cap_and_joinstyle_image():
     ax.set_title('Line collection with customized caps and joinstyle')
 
 
-@image_comparison(baseline_images=['scatter_post_alpha'],
-                  extensions=['png'], remove_text=True,
-                  style='default')
+@image_comparison(['scatter_post_alpha.png'],
+                  remove_text=True, style='default')
 def test_scatter_post_alpha():
     fig, ax = plt.subplots()
     sc = ax.scatter(range(5), range(5), c=range(5))

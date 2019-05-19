@@ -170,8 +170,8 @@ def test_contour_uniform_z():
     assert len(record) == 1
 
 
-@image_comparison(baseline_images=['contour_manual_labels'],
-    savefig_kwarg={'dpi': 200}, remove_text=True, style='mpl20')
+@image_comparison(['contour_manual_labels'],
+                  savefig_kwarg={'dpi': 200}, remove_text=True, style='mpl20')
 def test_contour_manual_labels():
 
     x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
@@ -183,8 +183,8 @@ def test_contour_manual_labels():
     plt.clabel(cs, manual=pts)
 
 
-@image_comparison(baseline_images=['contour_labels_size_color'],
-                  extensions=['png'], remove_text=True, style='mpl20')
+@image_comparison(['contour_labels_size_color.png'],
+                  remove_text=True, style='mpl20')
 def test_contour_labels_size_color():
 
     x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
@@ -196,8 +196,7 @@ def test_contour_labels_size_color():
     plt.clabel(cs, manual=pts, fontsize='small', colors=('r', 'g'))
 
 
-@image_comparison(baseline_images=['contour_manual_colors_and_levels'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['contour_manual_colors_and_levels.png'], remove_text=True)
 def test_given_colors_levels_and_extends():
     _, axs = plt.subplots(2, 4)
 
@@ -225,8 +224,8 @@ def test_given_colors_levels_and_extends():
         plt.colorbar(c, ax=ax)
 
 
-@image_comparison(baseline_images=['contour_datetime_axis'],
-                  extensions=['png'], remove_text=False, style='mpl20')
+@image_comparison(['contour_datetime_axis.png'],
+                  remove_text=False, style='mpl20')
 def test_contour_datetime_axis():
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)
@@ -251,8 +250,8 @@ def test_contour_datetime_axis():
             label.set_rotation(30)
 
 
-@image_comparison(baseline_images=['contour_test_label_transforms'],
-                  extensions=['png'], remove_text=True, style='mpl20')
+@image_comparison(['contour_test_label_transforms.png'],
+                  remove_text=True, style='mpl20')
 def test_labels():
     # Adapted from pylab_examples example code: contour_demo.py
     # see issues #2475, #2843, and #2818 for explanation
@@ -281,9 +280,9 @@ def test_labels():
         CS.add_label_near(x, y, inline=True, transform=False)
 
 
-@image_comparison(baseline_images=['contour_corner_mask_False',
-                                   'contour_corner_mask_True'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['contour_corner_mask_False.png',
+                   'contour_corner_mask_True.png'],
+                  remove_text=True)
 def test_corner_mask():
     n = 60
     mask_level = 0.95
@@ -370,8 +369,8 @@ def test_circular_contour_warning():
     assert len(record) == 0
 
 
-@image_comparison(baseline_images=['contour_log_extension'],
-                  extensions=['png'], remove_text=True, style='mpl20')
+@image_comparison(['contour_log_extension.png'],
+                  remove_text=True, style='mpl20')
 def test_contourf_log_extension():
     # Test that contourf with lognorm is extended correctly
     fig = plt.figure(figsize=(10, 5))
@@ -403,9 +402,8 @@ def test_contourf_log_extension():
     plt.colorbar(c3, ax=ax3)
 
 
-@image_comparison(baseline_images=['contour_addlines'],
-                  extensions=['png'], remove_text=True, style='mpl20',
-                  tol=0.03)
+@image_comparison(['contour_addlines.png'],
+                  remove_text=True, style='mpl20', tol=0.03)
 # tolerance is because image changed minutely when tick finding on
 # colorbars was cleaned up...
 def test_contour_addlines():

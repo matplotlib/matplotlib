@@ -94,7 +94,7 @@ def test_collection_transform_of_none():
     assert isinstance(c._transOffset, mtransforms.IdentityTransform)
 
 
-@image_comparison(baseline_images=["clip_path_clipping"], remove_text=True)
+@image_comparison(["clip_path_clipping"], remove_text=True)
 def test_clipping():
     exterior = mpath.Path.unit_rectangle().deepcopy()
     exterior.vertices *= 4
@@ -142,8 +142,7 @@ def test_cull_markers():
     assert len(svg.getvalue()) < 20000
 
 
-@image_comparison(baseline_images=['hatching'], remove_text=True,
-                  style='default')
+@image_comparison(['hatching'], remove_text=True, style='default')
 def test_hatching():
     fig, ax = plt.subplots(1, 1)
 
@@ -200,8 +199,7 @@ def test_remove():
     assert ax.stale
 
 
-@image_comparison(baseline_images=["default_edges"], remove_text=True,
-                  extensions=['png'], style='default')
+@image_comparison(["default_edges.png"], remove_text=True, style='default')
 def test_default_edges():
     fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2)
 

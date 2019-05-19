@@ -132,7 +132,7 @@ def test_exceptions():
         plt.subplots(2, 2, 5)
 
 
-@image_comparison(baseline_images=['subplots_offset_text'], remove_text=False)
+@image_comparison(['subplots_offset_text'], remove_text=False)
 def test_subplots_offsettext():
     x = numpy.arange(0, 1e10, 1e9)
     y = numpy.arange(0, 100, 10)+1e4

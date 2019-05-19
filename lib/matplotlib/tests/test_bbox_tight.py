@@ -8,7 +8,7 @@ import matplotlib.patches as mpatches
 from matplotlib.ticker import FuncFormatter
 
 
-@image_comparison(baseline_images=['bbox_inches_tight'], remove_text=True,
+@image_comparison(['bbox_inches_tight'], remove_text=True,
                   savefig_kwarg=dict(bbox_inches='tight'))
 def test_bbox_inches_tight():
     #: Test that a figure saved using bbox_inches='tight' is clipped correctly
@@ -40,7 +40,7 @@ def test_bbox_inches_tight():
               loc='bottom')
 
 
-@image_comparison(baseline_images=['bbox_inches_tight_suptile_legend'],
+@image_comparison(['bbox_inches_tight_suptile_legend'],
                   remove_text=False, savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight_suptile_legend():
     plt.plot(np.arange(10), label='a straight line')
@@ -59,7 +59,7 @@ def test_bbox_inches_tight_suptile_legend():
     plt.xlabel('X axis')
 
 
-@image_comparison(baseline_images=['bbox_inches_tight_clipping'],
+@image_comparison(['bbox_inches_tight_clipping'],
                   remove_text=True, savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight_clipping():
     # tests bbox clipping on scatter points, and path clipping on a patch
@@ -80,7 +80,7 @@ def test_bbox_inches_tight_clipping():
     plt.gcf().artists.append(patch)
 
 
-@image_comparison(baseline_images=['bbox_inches_tight_raster'],
+@image_comparison(['bbox_inches_tight_raster'],
                   remove_text=True, savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight_raster():
     """Test rasterization with tight_layout"""
