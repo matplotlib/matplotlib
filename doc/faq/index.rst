@@ -19,4 +19,3 @@ The Matplotlib FAQ
    troubleshooting_faq.rst
    environment_variables_faq.rst
    virtualenv_faq.rst
-   osx_framework.rst
