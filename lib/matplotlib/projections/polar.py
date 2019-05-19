@@ -1113,7 +1113,7 @@ class PolarAxes(Axes):
 
         Parameters
         ----------
-        rmax : scalar
+        rmax : float
         """
         self.viewLim.y1 = rmax
 
@@ -1132,7 +1132,7 @@ class PolarAxes(Axes):
 
         Parameters
         ----------
-        rmin : scalar
+        rmin : float
         """
         self.viewLim.y0 = rmin
 
@@ -1151,7 +1151,7 @@ class PolarAxes(Axes):
 
         Parameters
         ----------
-        rorigin : scalar
+        rorigin : float
         """
         self._originViewLim.locked_y0 = rorigin
 
