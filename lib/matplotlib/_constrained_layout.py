@@ -329,6 +329,10 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
                 strength='weak')
         ax._poslayoutbox.constrain_right_margin(0, strength='weak')
         ax._poslayoutbox.constrain_left_margin(0, strength='weak')
+        if ax._reallayoutbox is not None:
+            ax._reallayoutbox.constrain_height_min(20, strength='weak')
+            ax._reallayoutbox.constrain_width_min(20, strength='weak')
+            ax._reallayoutbox.constrain_same(ax._poslayoutbox, strength='weak')
 
 
 def _align_spines(fig, gs):

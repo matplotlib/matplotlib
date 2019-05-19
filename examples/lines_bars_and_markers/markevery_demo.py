@@ -92,10 +92,10 @@ theta = 2 * np.pi * r
 # Plot each markevery case for polar plots
 
 fig4, axs = plt.subplots(rows, cols, figsize=figsize,
-        subplot_kw={'projection': 'polar'}, constrained_layout=True)
+        subplot_kw={'projection': 'polar'}, constrained_layout=False)
 axs = trim_axs(axs, len(cases))
 for ax, case in zip(axs, cases):
     ax.set_title('markevery=%s' % str(case))
     ax.plot(theta, r, 'o', ls='-', ms=4, markevery=case)
-
+fig4.tight_layout()
 plt.show()

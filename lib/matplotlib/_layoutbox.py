@@ -289,10 +289,10 @@ class LayoutBox(object):
             cx, cy = anchor
         self.aspect_bottom_constraint = (self.bottom ==
             self.parent.bottom + cy *
-            (self.parent.height - self.height)) | strength
-        self.aspect_left_constraint = (self.left == self.parent.left +
-            cx * (self.parent.width - self.width)) | strength
+            (self.parent.height - self.height)) | "medium"
         self.solver.addConstraint(self.aspect_bottom_constraint)
+        self.aspect_left_constraint = (self.left == self.parent.left +
+            cx * (self.parent.width - self.width)) | "medium"
         self.solver.addConstraint(self.aspect_left_constraint)
 
     def constrain_left_margin(self, margin, strength='strong'):
