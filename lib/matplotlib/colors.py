@@ -1373,7 +1373,7 @@ class BoundaryNorm(Normalize):
             BoundaryNorm is not invertible, so calling this method will always
             raise an error
         """
-        return ValueError("BoundaryNorm is not invertible")
+        raise ValueError("BoundaryNorm is not invertible")
 
 
 class NoNorm(Normalize):
