@@ -59,6 +59,3 @@ version):
   <https://virtualenv.pypa.io/>` (rather than the stdlib's ``venv``) together
   with `virtualenvwrapper <https://virtualenvwrapper.readthedocs.io/>`_, this
   can be toggled with the ``toggleglobalsitepackages`` command.
-
-If you are using Matplotlib on OSX, you may also want to consider the
-:ref:`OSX framework FAQ <osxframework-faq>`.
