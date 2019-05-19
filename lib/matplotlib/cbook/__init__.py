@@ -200,9 +200,20 @@ class CallbackRegistry:
 
 class silent_list(list):
     """
-    override repr when returning a list of matplotlib artists to
-    prevent long, meaningless output.  This is meant to be used for a
-    homogeneous list of a given type
+    A list with a short ``repr()``.
+
+    This is meant to be used for a homogeneous list of artists, so that they
+    don't cause long, meaningless output.
+
+    Instead of ::
+
+        [<matplotlib.lines.Line2D object at 0x7f5749fed3c8>,
+         <matplotlib.lines.Line2D object at 0x7f5749fed4e0>,
+         <matplotlib.lines.Line2D object at 0x7f5758016550>]
+
+    one will get ::
+
+        <a list of 3 Line2D objects>
     """
     def __init__(self, type, seq=None):
         self.type = type
@@ -226,7 +237,7 @@ class silent_list(list):
 class IgnoredKeywordWarning(UserWarning):
     """
     A class for issuing warnings about keyword arguments that will be ignored
-    by matplotlib
+    by Matplotlib.
     """
     pass
 
@@ -235,7 +246,7 @@ def local_over_kwdict(local_var, kwargs, *keys):
     """
     Enforces the priority of a local variable over potentially conflicting
     argument(s) from a kwargs dict. The following possible output values are
-    considered in order of priority:
+    considered in order of priority::
 
         local_var > kwargs[keys[0]] > ... > kwargs[keys[-1]]
 
@@ -245,26 +256,26 @@ def local_over_kwdict(local_var, kwargs, *keys):
 
     Parameters
     ----------
-        local_var : any object
-            The local variable (highest priority)
+    local_var : any object
+        The local variable (highest priority).
 
-        kwargs : dict
-            Dictionary of keyword arguments; modified in place
+    kwargs : dict
+        Dictionary of keyword arguments; modified in place.
 
-        keys : str(s)
-            Name(s) of keyword arguments to process, in descending order of
-            priority
+    keys : str(s)
+        Name(s) of keyword arguments to process, in descending order of
+        priority.
 
     Returns
     -------
-        out : any object
-            Either local_var or one of kwargs[key] for key in keys
+    out : any object
+        Either local_var or one of kwargs[key] for key in keys.
 
     Raises
     ------
-        IgnoredKeywordWarning
-            For each key in keys that is removed from kwargs but not used as
-            the output value
+    IgnoredKeywordWarning
+        For each key in keys that is removed from kwargs but not used as
+        the output value.
 
     """
     out = local_var
@@ -447,7 +458,7 @@ def _get_data_path(*args):
 
 def flatten(seq, scalarp=is_scalar_or_string):
     """
-    Return a generator of flattened nested containers
+    Return a generator of flattened nested containers.
 
     For example:
 
@@ -526,9 +537,12 @@ def dedent(s):
 
 class maxdict(dict):
     """
-    A dictionary with a maximum size; this doesn't override all the
-    relevant methods to constrain the size, just setitem, so use with
-    caution
+    A dictionary with a maximum size.
+
+    Notes
+    -----
+    This doesn't override all the relevant methods to constrain the size,
+    just ``__setitem__``, so use with caution.
     """
     def __init__(self, maxsize):
         dict.__init__(self)
@@ -702,15 +716,18 @@ def safe_masked_invalid(x, copy=False):
 
 def print_cycles(objects, outstream=sys.stdout, show_progress=False):
     """
-    *objects*
-        A list of objects to find cycles in.  It is often useful to
-        pass in gc.garbage to find the cycles that are preventing some
-        objects from being garbage collected.
+    Print loops of cyclic references in the given *objects*.
 
-    *outstream*
+    It is often useful to pass in ``gc.garbage`` to find the cycles that are
+    preventing some objects from being garbage collected.
+
+    Parameters
+    ----------
+    objects
+        A list of objects to find cycles in.
+    outstream
         The stream for output.
-
-    *show_progress*
+    show_progress : bool
         If True, print the number of objects reached as they are found.
     """
     import gc
@@ -868,6 +885,9 @@ def simple_linear_interpolation(a, steps):
     """
     Resample an array with ``steps - 1`` points between original point pairs.
 
+    Along each column of *a*, ``(steps - 1)`` points are introduced between
+    each original values; the values are linearly interpolated.
+
     Parameters
     ----------
     a : array, shape (n, ...)
@@ -875,10 +895,8 @@ def simple_linear_interpolation(a, steps):
 
     Returns
     -------
-    array, shape ``((n - 1) * steps + 1, ...)``
-
-    Along each column of *a*, ``(steps - 1)`` points are introduced between
-    each original values; the values are linearly interpolated.
+    array
+        shape ``((n - 1) * steps + 1, ...)``
     """
     fps = a.reshape((len(a), -1))
     xp = np.arange(len(a)) * steps
@@ -1246,8 +1264,8 @@ ls_mapper_r = {v: k for k, v in ls_mapper.items()}
 
 def contiguous_regions(mask):
     """
-    Return a list of (ind0, ind1) such that mask[ind0:ind1].all() is
-    True and we cover all such regions
+    Return a list of (ind0, ind1) such that ``mask[ind0:ind1].all()`` is
+    True and we cover all such regions.
     """
     mask = np.asarray(mask, dtype=bool)
 
@@ -1271,8 +1289,12 @@ def contiguous_regions(mask):
 
 
 def is_math_text(s):
-    # Did we find an even number of non-escaped dollar signs?
-    # If so, treat is as math text.
+    """
+    Returns whether the string *s* contains math expressions.
+
+    This is done by checking whether *s* contains an even number of
+    non-escaped dollar signs.
+    """
     s = str(s)
     dollar_count = s.count(r'$') - s.count(r'\$')
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
@@ -1333,10 +1355,14 @@ def _reshape_2D(X, name):
 def violin_stats(X, method, points=100, quantiles=None):
     """
     Returns a list of dictionaries of data which can be used to draw a series
-    of violin plots. See the `Returns` section below to view the required keys
-    of the dictionary. Users can skip this function and pass a user-defined set
-    of dictionaries to the `axes.vplot` method instead of using Matplotlib to
-    do the calculations.
+    of violin plots.
+
+    See the Returns section below to view the required keys of the dictionary.
+
+    Users can skip this function and pass a user-defined set of dictionaries
+    with the same keys to `~.axes.Axes.violinplot` instead of using Matplotlib
+    to do the calculations. See the *Returns* section below for the keys
+    that must be present in the dictionaries.
 
     Parameters
     ----------
@@ -1350,7 +1376,7 @@ def violin_stats(X, method, points=100, quantiles=None):
         return a vector of the values of the KDE evaluated at the values
         specified in coords.
 
-    points : scalar, default = 100
+    points : int, default = 100
         Defines the number of points to evaluate each of the gaussian kernel
         density estimates at.
 
@@ -1362,8 +1388,9 @@ def violin_stats(X, method, points=100, quantiles=None):
 
     Returns
     -------
-    A list of dictionaries containing the results for each column of data.
-    The dictionaries contain at least the following:
+    vpstats : list of dict
+        A list of dictionaries containing the results for each column of data.
+        The dictionaries contain at least the following:
 
         - coords: A list of scalars containing the coordinates this particular
           kernel density estimate was evaluated at.
@@ -1448,7 +1475,7 @@ def pts_to_prestep(x, *args):
 
     Examples
     --------
-    >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
+    >>> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
     """
     steps = np.zeros((1 + len(args), max(2 * len(x) - 1, 0)))
     # In all `pts_to_*step` functions, only assign *once* using `x` and `args`,
@@ -1486,7 +1513,7 @@ def pts_to_poststep(x, *args):
 
     Examples
     --------
-    >> x_s, y1_s, y2_s = pts_to_poststep(x, y1, y2)
+    >>> x_s, y1_s, y2_s = pts_to_poststep(x, y1, y2)
     """
     steps = np.zeros((1 + len(args), max(2 * len(x) - 1, 0)))
     steps[0, 0::2] = x
@@ -1522,7 +1549,7 @@ def pts_to_midstep(x, *args):
 
     Examples
     --------
-    >> x_s, y1_s, y2_s = pts_to_midstep(x, y1, y2)
+    >>> x_s, y1_s, y2_s = pts_to_midstep(x, y1, y2)
     """
     steps = np.zeros((1 + len(args), 2 * len(x)))
     x = np.asanyarray(x)
@@ -1543,11 +1570,12 @@ STEP_LOOKUP_MAP = {'default': lambda x, y: (x, y),
 
 def index_of(y):
     """
-    A helper function to get the index of an input to plot
-    against if x values are not explicitly given.
+    A helper function to create reasonable x values for the given *y*.
 
-    Tries to get `y.index` (works if this is a pd.Series), if that
-    fails, return np.arange(y.shape[0]).
+    This is used for plotting (x, y) if x values are not explicitly given.
+
+    First try ``y.index`` (assuming *y* is a `pandas.Series`), if that
+    fails, use ``range(len(y))``.
 
     This will be extended in the future to deal with more types of
     labeled data.
@@ -1555,7 +1583,6 @@ def index_of(y):
     Parameters
     ----------
     y : scalar or array-like
-        The proposed y-value
 
     Returns
     -------
@@ -1570,6 +1597,12 @@ def index_of(y):
 
 
 def safe_first_element(obj):
+    """
+    Return the first element in *obj*.
+
+    This is an type-independent way of obtaining the first element, supporting
+    both index access and the iterator protocol.
+    """
     if isinstance(obj, collections.abc.Iterator):
         # needed to accept `array.flat` as input.
         # np.flatiter reports as an instance of collections.Iterator
@@ -1586,27 +1619,33 @@ def safe_first_element(obj):
 
 
 def sanitize_sequence(data):
-    """Converts dictview object to list"""
+    """
+    Convert dictview objects to list. Other inputs are returned unchanged.
+    """
     return (list(data) if isinstance(data, collections.abc.MappingView)
             else data)
 
 
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
                      allowed=None):
-    """Helper function to normalize kwarg inputs
+    """
+    Helper function to normalize kwarg inputs.
 
     The order they are resolved are:
 
-     1. aliasing
-     2. required
-     3. forbidden
-     4. allowed
+    1. aliasing
+    2. required
+    3. forbidden
+    4. allowed
 
     This order means that only the canonical names need appear in
-    `allowed`, `forbidden`, `required`
+    *allowed*, *forbidden*, *required*.
 
     Parameters
     ----------
+    kw : dict
+        A dict of keyword arguments.
+
     alias_mapping : dict or Artist subclass or Artist instance, optional
         A mapping between a canonical name to a list of
         aliases, in order of precedence from lowest to highest.
@@ -1617,17 +1656,17 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         If an Artist subclass or instance is passed, use its properties alias
         mapping.
 
-    required : iterable, optional
-        A tuple of fields that must be in kwargs.
+    required : list of str, optional
+        A list of keys that must be in *kws*.
 
-    forbidden : iterable, optional
-        A list of keys which may not be in kwargs
+    forbidden : list of str, optional
+        A list of keys which may not be in *kw*.
 
-    allowed : tuple, optional
-        A tuple of allowed fields.  If this not None, then raise if
-        `kw` contains any keys not in the union of `required`
-        and `allowed`.  To allow only the required fields pass in
-        ``()`` for `allowed`
+    allowed : list of str, optional
+        A list of allowed fields.  If this not None, then raise if
+        *kw* contains any keys not in the union of *required*
+        and *allowed*.  To allow only the required fields pass in
+        an empty tuple ``allowed=()``.
 
     Raises
     ------
