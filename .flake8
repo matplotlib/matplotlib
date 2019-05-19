@@ -142,6 +142,7 @@ per-file-ignores =
     examples/lines_bars_and_markers/fill.py: E402
     examples/lines_bars_and_markers/fill_between_demo.py: E402
     examples/lines_bars_and_markers/filled_step.py: E402
+    examples/lines_bars_and_markers/horizontal_barchart_distribution.py: E402
     examples/lines_bars_and_markers/joinstyle.py: E402
     examples/lines_bars_and_markers/scatter_piecharts.py: E402
     examples/lines_bars_and_markers/scatter_with_legend.py: E402
