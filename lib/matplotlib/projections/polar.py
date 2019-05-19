@@ -1023,7 +1023,9 @@ class PolarAxes(Axes):
 
     def set_thetalim(self, *args, **kwargs):
         """
-        Set the minimum and maxium theta values.
+        Set the minimum and maximum theta values.
+
+        Parameters
         ----------
         thetamin : scalar
             Minimum value in degrees.
