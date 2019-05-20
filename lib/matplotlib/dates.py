@@ -440,9 +440,7 @@ def julian2num(j):
     float or sequence of floats
         Matplotlib date(s)
     """
-    if np.iterable(j):
-        j = np.asarray(j)
-    return j - JULIAN_OFFSET
+    return np.subtract(j, JULIAN_OFFSET)  # Handles both scalar & nonscalar j.
 
 
 def num2julian(n):
@@ -459,9 +457,7 @@ def num2julian(n):
     float or sequence of floats
         Julian date(s)
     """
-    if np.iterable(n):
-        n = np.asarray(n)
-    return n + JULIAN_OFFSET
+    return np.add(n, JULIAN_OFFSET)  # Handles both scalar & nonscalar j.
 
 
 def num2date(x, tz=None):

@@ -2,6 +2,7 @@
 
 import numpy as np
 
+from matplotlib import cbook
 import matplotlib.units as units
 import matplotlib.dates as date_ticker
 
@@ -95,28 +96,14 @@ class EpochConverter(units.ConversionInterface):
         # Delay-load due to circular dependencies.
         import matplotlib.testing.jpl_units as U
 
-        isNotEpoch = True
-        isDuration = False
-
-        if np.iterable(value) and not isinstance(value, str):
-            if len(value) == 0:
-                return []
-            else:
-                return [EpochConverter.convert(x, unit, axis) for x in value]
-
-        if isinstance(value, U.Epoch):
-            isNotEpoch = False
-        elif isinstance(value, U.Duration):
-            isDuration = True
-
-        if (isNotEpoch and not isDuration and
-           units.ConversionInterface.is_numlike(value)):
+        if not cbook.is_scalar_or_string(value):
+            return [EpochConverter.convert(x, unit, axis) for x in value]
+        if (units.ConversionInterface.is_numlike(value)
+                and not isinstance(value, (U.Epoch, U.Duration))):
             return value
-
         if unit is None:
             unit = EpochConverter.default_units(value, axis)
-
-        if isDuration:
+        if isinstance(value, U.Duration):
             return EpochConverter.duration2float(value)
         else:
             return EpochConverter.epoch2float(value, unit)
@@ -131,10 +118,7 @@ class EpochConverter(units.ConversionInterface):
         = RETURN VALUE
         - Returns the default units to use for value.
         """
-        frame = None
-        if np.iterable(value) and not isinstance(value, str):
-            return EpochConverter.default_units(value[0], axis)
+        if cbook.is_scalar_or_string(value):
+            return value.frame()
         else:
-            frame = value.frame()
-
-        return frame
+            return EpochConverter.default_units(value[0], axis)
