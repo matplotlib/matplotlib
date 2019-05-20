@@ -198,8 +198,8 @@ def switch_backend(newbackend):
         # Don't try to fallback on the cairo-based backends as they each have
         # an additional dependency (pycairo) over the agg-based backend, and
         # are of worse quality.
-        for candidate in ["macosx", "qt5agg", "qt4agg", "gtk3agg", "tkagg",
-                          "wxagg", "agg"]:
+        for candidate in [
+                "macosx", "qt5agg", "qt4agg", "gtk3agg", "tkagg", "wxagg"]:
             try:
                 switch_backend(candidate)
             except ImportError:
@@ -207,6 +207,12 @@ def switch_backend(newbackend):
             else:
                 rcParamsOrig['backend'] = candidate
                 return
+        else:
+            # Switching to Agg should always succeed; if it doesn't, let the
+            # exception propagate out.
+            switch_backend("agg")
+            rcParamsOrig["backend"] = "agg"
+            return
 
     backend_name = (
         newbackend[9:] if newbackend.startswith("module://")
