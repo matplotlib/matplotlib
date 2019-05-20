@@ -1022,6 +1022,16 @@ class PolarAxes(Axes):
         return np.rad2deg(self.viewLim.xmin)
 
     def set_thetalim(self, *args, **kwargs):
+        """
+        Set the minimum and maximum theta values.
+
+        Parameters
+        ----------
+        thetamin : float
+            Minimum value in degrees.
+        thetamax : float
+            Maximum value in degrees.
+        """
         if 'thetamin' in kwargs:
             kwargs['xmin'] = np.deg2rad(kwargs.pop('thetamin'))
         if 'thetamax' in kwargs:
@@ -1100,21 +1110,59 @@ class PolarAxes(Axes):
         return self._direction.get_matrix()[0, 0]
 
     def set_rmax(self, rmax):
+        """
+        Set the outer radial limit.
+
+        Parameters
+        ----------
+        rmax : float
+        """
         self.viewLim.y1 = rmax
 
     def get_rmax(self):
+        """
+        Returns
+        -------
+        float
+            Outer radial limit.
+        """
         return self.viewLim.ymax
 
     def set_rmin(self, rmin):
+        """
+        Set the inner radial limit.
+
+        Parameters
+        ----------
+        rmin : float
+        """
         self.viewLim.y0 = rmin
 
     def get_rmin(self):
+        """
+        Returns
+        -------
+        float
+            The inner radial limit.
+        """
         return self.viewLim.ymin
 
     def set_rorigin(self, rorigin):
+        """
+        Update the radial origin.
+
+        Parameters
+        ----------
+        rorigin : float
+        """
         self._originViewLim.locked_y0 = rorigin
 
     def get_rorigin(self):
+        """
+        Returns
+        -------
+        float
+        """
         return self._originViewLim.y0
 
     def get_rsign(self):
