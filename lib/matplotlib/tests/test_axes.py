@@ -1910,9 +1910,6 @@ class TestScatter(object):
         # single string:
         ('0.5', None),
         # Single letter-sequences
-        ("rgby", None),
-        ("rgb", "shape"),
-        ("rgbrgb", "shape"),
         (["rgby"], "conversion"),
         # Special cases
         ("red", None),
@@ -3424,7 +3421,6 @@ def test_eventplot_defaults():
     ('0.5',),  # string color with multiple characters: not OK before #8193 fix
     ('tab:orange', 'tab:pink', 'tab:cyan', 'bLacK'),  # case-insensitive
     ('red', (0, 1, 0), None, (1, 0, 1, 0.5)),  # a tricky case mixing types
-    ('rgbk',)  # len('rgbk') == len(data) and each character is a valid color
 ])
 def test_eventplot_colors(colors):
     '''Test the *colors* parameter of eventplot. Inspired by the issue #8193.

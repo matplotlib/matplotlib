@@ -767,6 +767,23 @@ def test_conversions():
         hex_color
 
 
+def test_to_rgba_array_single_str():
+    # single color name is valid
+    assert_array_equal(mcolors.to_rgba_array("red"), [(1, 0, 0, 1)])
+
+    # single char color sequence is deprecated
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match="Using a string of single character colors as a "
+                            "color sequence is deprecated"):
+        array = mcolors.to_rgba_array("rgb")
+    assert_array_equal(array, [(1, 0, 0, 1), (0, 0.5, 0, 1), (0, 0, 1, 1)])
+
+    with pytest.raises(ValueError,
+                       match="neither a valid single color nor a color "
+                             "sequence"):
+        mcolors.to_rgba_array("rgbx")
+
+
 def test_failed_conversions():
     with pytest.raises(ValueError):
         mcolors.to_rgba('5')
@@ -774,6 +791,8 @@ def test_failed_conversions():
         mcolors.to_rgba('-1')
     with pytest.raises(ValueError):
         mcolors.to_rgba('nan')
+    with pytest.raises(ValueError):
+        mcolors.to_rgba('unknown_color')
     with pytest.raises(ValueError):
         # Gray must be a string to distinguish 3-4 grays from RGB or RGBA.
         mcolors.to_rgba(0.4)

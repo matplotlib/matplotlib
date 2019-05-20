@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+Using a string of single-character colors as a color sequence (e.g. "rgb") is
+deprecated. Use an explicit list instead.
