@@ -530,9 +530,11 @@ class Axes(_AxesBase):
         rectangle_patch : `.Patches.Rectangle`
              Rectangle artist.
 
-        connector_lines : 4-tuple of `.Patches.ConnectionPatch`
-            One for each of four connector lines.  Two are set with visibility
-            to *False*,  but the user can set the visibility to True if the
+        connector_lines : list of `.Patches.ConnectionPatch`
+            One for each of four connector lines
+            (or empty if no *inset_ax* was given).
+            Two are set with visibility to *False*,
+            but the user can set the visibility to *True* if the
             automatic choice is not deemed correct.
 
         """
@@ -551,9 +553,10 @@ class Axes(_AxesBase):
                 zorder=zorder,  label=label, transform=transform, **kwargs)
         self.add_patch(rectpatch)
 
+        connects = []
+
         if inset_ax is not None:
             # want to connect the indicator to the rect....
-            connects = []
             xr = [bounds[0], bounds[0]+bounds[2]]
             yr = [bounds[1], bounds[1]+bounds[3]]
             for xc in range(2):
@@ -601,7 +604,7 @@ class Axes(_AxesBase):
             chosen so as to not overlap with the indicator box.
 
         **kwargs
-            Other *kwargs* are passed on to `.Axes.inset_rectangle`
+            Other *kwargs* are passed on to `.Axes.indicate_inset`
 
         Returns
         -------
@@ -609,9 +612,9 @@ class Axes(_AxesBase):
         rectangle_patch : `.Patches.Rectangle`
              Rectangle artist.
 
-        connector_lines : 4-tuple of `.Patches.ConnectionPatch`
+        connector_lines : list of `.Patches.ConnectionPatch`
             One for each of four connector lines.  Two are set with visibility
-            to *False*,  but the user can set the visibility to True if the
+            to *False*,  but the user can set the visibility to *True* if the
             automatic choice is not deemed correct.
 
         """
