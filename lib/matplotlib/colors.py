@@ -502,15 +502,17 @@ class Colormap(object):
         if not self._isinit:
             self._init()
         mask_bad = None
-        if not np.iterable(X):
-            vtype = 'scalar'
-            xa = np.array([X])
-        else:
-            vtype = 'array'
-            xma = np.ma.array(X, copy=True)  # Copy here to avoid side effects.
-            mask_bad = xma.mask              # Mask will be used below.
-            xa = xma.filled()                # Fill to avoid infs, etc.
-            del xma
+        if np.ma.is_masked(X):
+            mask_bad = X.mask
+        elif np.any(np.isnan(X)):
+            # mask nan's
+            mask_bad = np.isnan(X)
+
+        xa = np.array(X, copy=True)
+        # Fill bad values to avoid warnings
+        # in the boolean comparisons below.
+        if mask_bad is not None:
+            xa[mask_bad] = 0.
 
         # Calculations with native byteorder are faster, and avoid a
         # bug that otherwise can occur with putmask when the last
@@ -533,10 +535,8 @@ class Colormap(object):
         xa[xa > self.N - 1] = self._i_over
         xa[xa < 0] = self._i_under
         if mask_bad is not None:
-            if mask_bad.shape == xa.shape:
-                np.copyto(xa, self._i_bad, where=mask_bad)
-            elif mask_bad:
-                xa.fill(self._i_bad)
+            xa[mask_bad] = self._i_bad
+
         if bytes:
             lut = (self._lut * 255).astype(np.uint8)
         else:
@@ -557,8 +557,9 @@ class Colormap(object):
                 # override its alpha just as for any other value.
 
         rgba = lut.take(xa, axis=0, mode='clip')
-        if vtype == 'scalar':
-            rgba = tuple(rgba[0, :])
+        if not np.iterable(X):
+            # Return a tuple if the input was a scalar
+            rgba = tuple(rgba)
         return rgba
 
     def __copy__(self):
