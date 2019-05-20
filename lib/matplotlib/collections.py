@@ -149,6 +149,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._uniform_offsets = None
         if offsets is not None:
             offsets = np.asanyarray(offsets, float)
+            offsets = np.ma.filled(offsets, 0)
             # Broadcast (2,) -> (1, 2) but nothing else.
             if offsets.shape == (2,):
                 offsets = offsets[None, :]
