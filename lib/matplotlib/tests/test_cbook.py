@@ -515,6 +515,17 @@ def test_reshape2d():
     xnew = cbook._reshape_2D(x, 'x')
     assert np.shape(xnew) == (5, 3)
 
+    mask = [False, False, False, True, True, False]
+    arr1 = [1, 2, 3, np.nan, np.nan, 6]
+    arr2 = np.ma.array(arr1, mask=mask)
+    xnew = cbook._reshape_2D(arr2, 'x')
+    assert np.shape(xnew) == (1, 4)
+
+    arr1 = [1, 2, 3, 6]
+    arr2 = np.ma.array(arr1)
+    xnew = cbook._reshape_2D(arr2, 'x')
+    assert np.shape(xnew) == (1, 4)
+
 
 def test_contiguous_regions():
     a, b, c = 3, 4, 5
