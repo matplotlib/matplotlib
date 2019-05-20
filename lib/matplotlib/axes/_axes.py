@@ -8,12 +8,11 @@ from numbers import Number
 import numpy as np
 from numpy import ma
 
-from matplotlib import _preprocess_data, rcParams
+import matplotlib.category as _  # <-registers a category unit converter
 import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
-import matplotlib.category as _  # <-registers a category unit converter
 import matplotlib.dates as _  # <-registers a date unit converter
 import matplotlib.docstring as docstring
 import matplotlib.image as mimage
@@ -21,8 +20,8 @@ import matplotlib.legend as mlegend
 import matplotlib.lines as mlines
 import matplotlib.markers as mmarkers
 import matplotlib.mlab as mlab
-import matplotlib.path as mpath
 import matplotlib.patches as mpatches
+import matplotlib.path as mpath
 import matplotlib.quiver as mquiver
 import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
@@ -31,9 +30,10 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
-from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
+from matplotlib import _preprocess_data, rcParams
 from matplotlib.axes._base import _AxesBase, _process_plot_format
 from matplotlib.axes._secondary_axes import SecondaryAxis
+from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 
 try:
     from numpy.lib.histograms import histogram_bin_edges
@@ -514,9 +514,12 @@ class Axes(_AxesBase):
         rectangle_patch : `.Patches.Rectangle`
              Rectangle artist.
 
-        connector_lines : 4-tuple of `.Patches.ConnectionPatch`
-            One for each of four connector lines.  Two are set with visibility
-            to *False*,  but the user can set the visibility to True if the
+        connector_lines : optional 4-tuple of `.Patches.ConnectionPatch`
+            Each of four connector lines coming from the given rectangle
+            on this axes in the order lower left, upper left, lower right,
+            upper right: *None* if *inset_ax* is *None*.
+            Two are set with visibility to *False*,
+            but the user can set the visibility to *True* if the
             automatic choice is not deemed correct.
 
         """
@@ -535,25 +538,31 @@ class Axes(_AxesBase):
                 zorder=zorder,  label=label, transform=transform, **kwargs)
         self.add_patch(rectpatch)
 
+        connects = []
+
         if inset_ax is not None:
             # want to connect the indicator to the rect....
-            connects = []
             xr = [bounds[0], bounds[0]+bounds[2]]
             yr = [bounds[1], bounds[1]+bounds[3]]
             for xc in range(2):
                 for yc in range(2):
                     xyA = (xc, yc)
                     xyB = (xr[xc], yr[yc])
-                    connects += [mpatches.ConnectionPatch(xyA, xyB,
+                    connects.append(
+                        mpatches.ConnectionPatch(
+                            xyA, xyB,
                             'axes fraction', 'data',
                             axesA=inset_ax, axesB=self, arrowstyle="-",
-                            zorder=zorder, edgecolor=edgecolor, alpha=alpha)]
+                            zorder=zorder, edgecolor=edgecolor, alpha=alpha
+                        )
+                    )
                     self.add_patch(connects[-1])
             # decide which two of the lines to keep visible....
             pos = inset_ax.get_position()
             bboxins = pos.transformed(self.figure.transFigure)
             rectbbox = mtransforms.Bbox.from_bounds(
-                        *bounds).transformed(transform)
+                *bounds
+            ).transformed(transform)
             x0 = rectbbox.x0 < bboxins.x0
             x1 = rectbbox.x1 < bboxins.x1
             y0 = rectbbox.y0 < bboxins.y0
@@ -563,7 +572,7 @@ class Axes(_AxesBase):
             connects[2].set_visible(x1 == y0)
             connects[3].set_visible(x1 ^ y1)
 
-        return rectpatch, connects
+        return rectpatch, tuple(connects) if connects else None
 
     def indicate_inset_zoom(self, inset_ax, **kwargs):
         """
@@ -583,7 +592,7 @@ class Axes(_AxesBase):
             chosen so as to not overlap with the indicator box.
 
         **kwargs
-            Other *kwargs* are passed on to `.Axes.inset_rectangle`
+            Other *kwargs* are passed on to `.Axes.indicate_inset`
 
         Returns
         -------
@@ -591,17 +600,21 @@ class Axes(_AxesBase):
              Rectangle artist.
 
         connector_lines : 4-tuple of `.Patches.ConnectionPatch`
-            One for each of four connector lines.  Two are set with visibility
-            to *False*,  but the user can set the visibility to True if the
-            automatic choice is not deemed correct.
+            Each of four connector lines coming from the rectangle drawn on
+            this axis, in the order lower left, upper left, lower right,
+            upper right.
+            Two are set with visibility to *False*,  but the user can
+            set the visibility to *True* if the automatic choice is not deemed
+            correct.
 
         """
 
         xlim = inset_ax.get_xlim()
         ylim = inset_ax.get_ylim()
-        rect = [xlim[0], ylim[0], xlim[1] - xlim[0], ylim[1] - ylim[0]]
+        rect = (xlim[0], ylim[0], xlim[1] - xlim[0], ylim[1] - ylim[0])
         rectpatch, connects = self.indicate_inset(
-                rect, inset_ax, **kwargs)
+            rect, inset_ax, **kwargs
+        )
 
         return rectpatch, connects
 
