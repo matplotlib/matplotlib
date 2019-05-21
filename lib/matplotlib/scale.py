@@ -489,7 +489,7 @@ class SymmetricalLogTransform(Transform):
         masked = ma.masked_inside(a,
                                   -self.linthresh,
                                   self.linthresh,
-                                  copy=False)
+                                  copy=True)
         log = sign * self.linthresh * (
             self._linscale_adj +
             ma.log(np.abs(masked) / self.linthresh) / self._log_base)
@@ -521,7 +521,7 @@ class InvertedSymmetricalLogTransform(Transform):
     def transform_non_affine(self, a):
         sign = np.sign(a)
         masked = ma.masked_inside(a, -self.invlinthresh,
-                                  self.invlinthresh, copy=False)
+                                  self.invlinthresh, copy=True)
         exp = sign * self.linthresh * (
             ma.power(self.base, (sign * (masked / self.linthresh))
             - self._linscale_adj))
