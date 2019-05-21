@@ -538,6 +538,28 @@ class SymmetricalLogScale(ScaleBase):
     need to have a range around zero that is linear.  The parameter
     *linthresh* allows the user to specify the size of this range
     (-*linthresh*, *linthresh*).
+
+    Parameters
+    ----------
+    basex, basey : float
+        The base of the logarithm. Defualts to 10.
+
+    linthreshx, linthreshy : float
+        Defines the range ``(-x, x)``, within which the plot is linear.
+        This avoids having the plot go to infinity around zero. Defaults to 2.
+
+    subsx, subsy : sequence of int
+        Where to place the subticks between each major tick.
+        For example, in a log10 scale: ``[2, 3, 4, 5, 6, 7, 8, 9]`` will place
+        8 logarithmically spaced minor ticks between each major tick.
+
+    linscalex, linscaley : float, optional
+        This allows the linear range ``(-linthresh, linthresh)`` to be
+        stretched relative to the logarithmic range. Its value is the number of
+        decades to use for each half of the linear range. For example, when
+        *linscale* == 1.0 (the default), the space used for the positive and
+        negative halves of the linear range will be equal to one decade in
+        the logarithmic range.
     """
     name = 'symlog'
     # compatibility shim
@@ -545,32 +567,6 @@ class SymmetricalLogScale(ScaleBase):
     InvertedSymmetricalLogTransform = InvertedSymmetricalLogTransform
 
     def __init__(self, axis, **kwargs):
-        """
-        *basex*/*basey*:
-           The base of the logarithm
-
-        *linthreshx*/*linthreshy*:
-          A single float which defines the range (-*x*, *x*), within
-          which the plot is linear. This avoids having the plot go to
-          infinity around zero.
-
-        *subsx*/*subsy*:
-           Where to place the subticks between each major tick.
-           Should be a sequence of integers.  For example, in a log10
-           scale: ``[2, 3, 4, 5, 6, 7, 8, 9]``
-
-           will place 8 logarithmically spaced minor ticks between
-           each major tick.
-
-        *linscalex*/*linscaley*:
-           This allows the linear range (-*linthresh* to *linthresh*)
-           to be stretched relative to the logarithmic range.  Its
-           value is the number of decades to use for each half of the
-           linear range.  For example, when *linscale* == 1.0 (the
-           default), the space used for the positive and negative
-           halves of the linear range will be equal to one decade in
-           the logarithmic range.
-        """
         if axis.axis_name == 'x':
             base = kwargs.pop('basex', 10.0)
             linthresh = kwargs.pop('linthreshx', 2.0)
