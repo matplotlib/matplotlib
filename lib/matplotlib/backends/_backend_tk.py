@@ -912,8 +912,9 @@ class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
         self.window.protocol("WM_DELETE_WINDOW", self.destroy)
 
     def destroy(self, *args, **kwargs):
-        self.window.destroy()
-        self.window = None
+        if self.window is not None:
+            self.window.destroy()
+            self.window = None
 
 
 class HelpTk(backend_tools.ToolHelpBase):
