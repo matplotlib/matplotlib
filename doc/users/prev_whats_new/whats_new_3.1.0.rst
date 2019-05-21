@@ -107,7 +107,7 @@ An example can be found in :ref:`automatedlegendcreation`.
 Matplotlib no longer requires framework app build on MacOSX backend
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Previous versions of matplotlin required a Framework build of python to
+Previous versions of matplotlib required a Framework build of python to
 work. The app type was updated to no longer require this, so the MacOSX
 backend should work with non-framework python.
 
