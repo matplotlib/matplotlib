@@ -2442,8 +2442,8 @@ class SymmetricalLogLocator(Locator):
         return self.tick_values(vmin, vmax)
 
     def tick_values(self, vmin, vmax):
-        b = self._base
-        t = self._linthresh
+        base = self._base
+        linthresh = self._linthresh
 
         if vmax < vmin:
             vmin, vmax = vmax, vmin
@@ -2469,21 +2469,21 @@ class SymmetricalLogLocator(Locator):
         # t) -- it should just display (vmin, 0, vmax)
 
         has_a = has_b = has_c = False
-        if vmin < -t:
+        if vmin < -linthresh:
             has_a = True
-            if vmax > -t:
+            if vmax > -linthresh:
                 has_b = True
-                if vmax > t:
+                if vmax > linthresh:
                     has_c = True
         elif vmin < 0:
             if vmax > 0:
                 has_b = True
-                if vmax > t:
+                if vmax > linthresh:
                     has_c = True
             else:
                 return [vmin, vmax]
-        elif vmin < t:
-            if vmax > t:
+        elif vmin < linthresh:
+            if vmax > linthresh:
                 has_b = True
                 has_c = True
             else:
@@ -2492,22 +2492,22 @@ class SymmetricalLogLocator(Locator):
             has_c = True
 
         def get_log_range(lo, hi):
-            lo = np.floor(np.log(lo) / np.log(b))
-            hi = np.ceil(np.log(hi) / np.log(b))
+            lo = np.floor(np.log(lo) / np.log(base))
+            hi = np.ceil(np.log(hi) / np.log(base))
             return lo, hi
 
         # First, calculate all the ranges, so we can determine striding
         if has_a:
             if has_b:
-                a_range = get_log_range(t, -vmin + 1)
+                a_range = get_log_range(linthresh, -vmin)
             else:
-                a_range = get_log_range(-vmax, -vmin + 1)
+                a_range = get_log_range(-vmax, -vmin)
         else:
             a_range = (0, 0)
 
         if has_c:
             if has_b:
-                c_range = get_log_range(t, vmax + 1)
+                c_range = get_log_range(linthresh, vmax + 1)
             else:
                 c_range = get_log_range(vmin, vmax + 1)
         else:
@@ -2520,18 +2520,18 @@ class SymmetricalLogLocator(Locator):
 
         decades = []
         if has_a:
-            decades.extend(-1 * (b ** (np.arange(a_range[0], a_range[1],
-                                                 stride)[::-1])))
+            decades.extend(-1 * (base ** (np.arange(a_range[0], a_range[1],
+                                                    stride)[::-1])))
 
         if has_b:
             decades.append(0.0)
 
         if has_c:
-            decades.extend(b ** (np.arange(c_range[0], c_range[1], stride)))
+            decades.extend(base ** (np.arange(c_range[0], c_range[1], stride)))
 
         # Add the subticks if requested
         if self._subs is None:
-            subs = np.arange(2.0, b)
+            subs = np.arange(2.0, base)
         else:
             subs = np.asarray(self._subs)
 
