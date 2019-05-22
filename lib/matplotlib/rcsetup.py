@@ -580,37 +580,26 @@ def validate_markevery(s):
         length-2 tuple of floats, list of ints
 
     """
-    # Validate s against type slice
-    if isinstance(s, slice):
+    # Validate s against type slice float int and None
+    if isinstance(s, (slice, float, int, type(None))):
         return s
     # Validate s against type tuple
     if isinstance(s, tuple):
-        tupMaxLength = 2
-        tupType = type(s[0])
-        if len(s) != tupMaxLength:
-            raise TypeError("'markevery' tuple must have a length of "
-                            "%d" % (tupMaxLength))
-        if tupType is int and not all(isinstance(e, int) for e in s):
-            raise TypeError("'markevery' tuple with first element of "
-                            "type int must have all elements of type "
-                            "int")
-        if tupType is float and not all(isinstance(e, float) for e in s):
-            raise TypeError("'markevery' tuple with first element of "
-                            "type float must have all elements of type "
-                            "float")
-        if tupType is not float and tupType is not int:
-            raise TypeError("'markevery' tuple contains an invalid type")
+        if (len(s) == 2
+                and (all(isinstance(e, int) for e in s)
+                     or all(isinstance(e, float) for e in s))):
+            return s
+        else:
+            raise TypeError(
+                "'markevery' tuple must be pair of ints or of floats")
     # Validate s against type list
-    elif isinstance(s, list):
-        if not all(isinstance(e, int) for e in s):
-            raise TypeError("'markevery' list must have all elements of "
-                            "type int")
-    # Validate s against type float int and None
-    elif not isinstance(s, (float, int)):
-        if s is not None:
-            raise TypeError("'markevery' is of an invalid type")
-
-    return s
+    if isinstance(s, list):
+        if all(isinstance(e, int) for e in s):
+            return s
+        else:
+            raise TypeError(
+                "'markevery' list must have all elements of type int")
+    raise TypeError("'markevery' is of an invalid type")
 
 
 validate_markeverylist = _listify_validator(validate_markevery)
