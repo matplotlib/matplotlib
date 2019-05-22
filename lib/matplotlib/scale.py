@@ -542,7 +542,7 @@ class SymmetricalLogScale(ScaleBase):
     Parameters
     ----------
     basex, basey : float
-        The base of the logarithm. Defualts to 10.
+        The base of the logarithm. Defaults to 10.
 
     linthreshx, linthreshy : float
         Defines the range ``(-x, x)``, within which the plot is linear.
