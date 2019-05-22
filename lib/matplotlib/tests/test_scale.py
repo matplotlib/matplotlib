@@ -1,8 +1,10 @@
-from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
-from matplotlib.scale import Log10Transform, InvertedLog10Transform
+from matplotlib.scale import (Log10Transform, InvertedLog10Transform,
+                              SymmetricalLogTransform)
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 import numpy as np
+from numpy.testing import assert_allclose
 import io
 import platform
 import pytest
@@ -19,6 +21,33 @@ def test_log_scales(fig_test, fig_ref):
     ax_ref.set(xlim=xlim, ylim=ylim)
     ax_ref.plot([24.1, 24.1], ylim, 'b')
     ax_ref.plot(xlim, [24.1, 24.1], 'b')
+
+
+def test_symlog_mask_nan():
+    # Use a transform round-trip to verify that the forward and inverse
+    # transforms work, and that they respect nans and/or masking.
+    slt = SymmetricalLogTransform(10, 2, 1)
+    slti = slt.inverted()
+
+    x = np.arange(-1.5, 5, 0.5)
+    out = slti.transform_non_affine(slt.transform_non_affine(x))
+    assert_allclose(out, x)
+    assert type(out) == type(x)
+
+    x[4] = np.nan
+    out = slti.transform_non_affine(slt.transform_non_affine(x))
+    assert_allclose(out, x)
+    assert type(out) == type(x)
+
+    x = np.ma.array(x)
+    out = slti.transform_non_affine(slt.transform_non_affine(x))
+    assert_allclose(out, x)
+    assert type(out) == type(x)
+
+    x[3] = np.ma.masked
+    out = slti.transform_non_affine(slt.transform_non_affine(x))
+    assert_allclose(out, x)
+    assert type(out) == type(x)
 
 
 @image_comparison(baseline_images=['logit_scales'], remove_text=True,
