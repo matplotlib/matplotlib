@@ -11,7 +11,7 @@ import tkinter.messagebox
 import numpy as np
 
 import matplotlib
-from matplotlib import backend_tools, rcParams
+from matplotlib import backend_tools, rcParams, cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
