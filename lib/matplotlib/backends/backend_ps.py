@@ -857,23 +857,23 @@ class FigureCanvasPS(FigureCanvasBase):
         orientation = orientation.lower()
         cbook._check_in_list(['landscape', 'portrait'],
                              orientation=orientation)
-        isLandscape = (orientation == 'landscape')
+        is_landscape = (orientation == 'landscape')
 
         self.figure.set_dpi(72)  # Override the dpi kwarg
 
         if rcParams['text.usetex']:
             self._print_figure_tex(outfile, format, dpi, facecolor, edgecolor,
-                                   orientation, isLandscape, papertype,
+                                   orientation, is_landscape, papertype,
                                    **kwargs)
         else:
             self._print_figure(outfile, format, dpi, facecolor, edgecolor,
-                               orientation, isLandscape, papertype,
+                               orientation, is_landscape, papertype,
                                **kwargs)
 
     @cbook._delete_parameter("3.2", "dryrun")
     def _print_figure(
             self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
-            orientation='portrait', isLandscape=False, papertype=None,
+            orientation='portrait', is_landscape=False, papertype=None,
             metadata=None, *,
             dryrun=False, bbox_inches_restore=None, **kwargs):
         """
@@ -892,7 +892,7 @@ class FigureCanvasPS(FigureCanvasBase):
         metadata must be a dictionary. Currently, only the value for
         the key 'Creator' is used.
         """
-        isEPSF = format == 'eps'
+        is_eps = format == 'eps'
         if isinstance(outfile, (str, os.PathLike)):
             outfile = title = os.fspath(outfile)
             title = title.encode("ascii", "replace").decode("ascii")
@@ -906,30 +906,30 @@ class FigureCanvasPS(FigureCanvasBase):
         # find the appropriate papertype
         width, height = self.figure.get_size_inches()
         if papertype == 'auto':
-            if isLandscape:
+            if is_landscape:
                 papertype = _get_papertype(height, width)
             else:
                 papertype = _get_papertype(width, height)
 
-        if isLandscape:
-            paperHeight, paperWidth = papersize[papertype]
+        if is_landscape:
+            paper_height, paper_width = papersize[papertype]
         else:
-            paperWidth, paperHeight = papersize[papertype]
+            paper_width, paper_height = papersize[papertype]
 
         if rcParams['ps.usedistiller'] and not papertype == 'auto':
             # distillers will improperly clip eps files if the pagesize is
             # too small
-            if width > paperWidth or height > paperHeight:
-                if isLandscape:
+            if width > paper_width or height > paper_height:
+                if is_landscape:
                     papertype = _get_papertype(height, width)
-                    paperHeight, paperWidth = papersize[papertype]
+                    paper_height, paper_width = papersize[papertype]
                 else:
                     papertype = _get_papertype(width, height)
-                    paperWidth, paperHeight = papersize[papertype]
+                    paper_width, paper_height = papersize[papertype]
 
         # center the figure on the paper
-        xo = 72 * 0.5 * (paperWidth - width)
-        yo = 72 * 0.5 * (paperHeight - height)
+        xo = 72 * 0.5 * (paper_width - width)
+        yo = 72 * 0.5 * (paper_height - height)
 
         l, b, w, h = self.figure.bbox.bounds
         llx = xo
@@ -937,9 +937,9 @@ class FigureCanvasPS(FigureCanvasBase):
         urx = llx + w
         ury = lly + h
         rotation = 0
-        if isLandscape:
+        if is_landscape:
             llx, lly, urx, ury = lly, llx, ury, urx
-            xo, yo = 72 * paperHeight - yo, xo
+            xo, yo = 72 * paper_height - yo, xo
             rotation = 90
         bbox = (llx, lly, urx, ury)
 
@@ -981,7 +981,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         def print_figure_impl(fh):
             # write the PostScript headers
-            if isEPSF:
+            if is_eps:
                 print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             else:
                 print("%!PS-Adobe-3.0\n"
@@ -1053,7 +1053,7 @@ class FigureCanvasPS(FigureCanvasBase):
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
-            if not isEPSF:
+            if not is_eps:
                 print("%%Page: 1 1", file=fh)
             print("mpldict begin", file=fh)
 
@@ -1072,7 +1072,7 @@ class FigureCanvasPS(FigureCanvasBase):
             # write the trailer
             print("end", file=fh)
             print("showpage", file=fh)
-            if not isEPSF:
+            if not is_eps:
                 print("%%EOF", file=fh)
             fh.flush()
 
@@ -1084,9 +1084,9 @@ class FigureCanvasPS(FigureCanvasBase):
                 with open(tmpfile, 'w', encoding='latin-1') as fh:
                     print_figure_impl(fh)
                 if rcParams['ps.usedistiller'] == 'ghostscript':
-                    gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+                    gs_distill(tmpfile, is_eps, ptype=papertype, bbox=bbox)
                 elif rcParams['ps.usedistiller'] == 'xpdf':
-                    xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+                    xpdf_distill(tmpfile, is_eps, ptype=papertype, bbox=bbox)
                 _move_path_to_path_or_stream(tmpfile, outfile)
 
         else:
@@ -1109,7 +1109,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
     def _print_figure_tex(
             self, outfile, format, dpi, facecolor, edgecolor,
-            orientation, isLandscape, papertype, metadata=None, *,
+            orientation, is_landscape, papertype, metadata=None, *,
             dryrun=False, bbox_inches_restore=None, **kwargs):
         """
         If text.usetex is True in rc, a temporary pair of tex/eps files
@@ -1119,7 +1119,7 @@ class FigureCanvasPS(FigureCanvasBase):
         metadata must be a dictionary. Currently, only the value for
         the key 'Creator' is used.
         """
-        isEPSF = format == 'eps'
+        is_eps = format == 'eps'
         if is_writable_file_like(outfile):
             title = None
         else:
@@ -1227,30 +1227,25 @@ class FigureCanvasPS(FigureCanvasBase):
                 print("showpage", file=fh)
                 fh.flush()
 
-            if isLandscape:  # now we are ready to rotate
-                isLandscape = True
+            if is_landscape:  # now we are ready to rotate
+                is_landscape = True
                 width, height = height, width
                 bbox = (lly, llx, ury, urx)
 
-            # set the paper size to the figure size if isEPSF. The
+            # set the paper size to the figure size if is_eps. The
             # resulting ps file has the given size with correct bounding
             # box so that there is no need to call 'pstoeps'
-            if isEPSF:
-                paperWidth, paperHeight = self.figure.get_size_inches()
-                if isLandscape:
-                    paperWidth, paperHeight = paperHeight, paperWidth
+            if is_eps:
+                paper_width, paper_height = self.figure.get_size_inches()
+                if is_landscape:
+                    paper_width, paper_height = paper_height, paper_width
             else:
                 temp_papertype = _get_papertype(width, height)
                 if papertype == 'auto':
                     papertype = temp_papertype
-                    paperWidth, paperHeight = papersize[temp_papertype]
+                    paper_width, paper_height = papersize[temp_papertype]
                 else:
-                    paperWidth, paperHeight = papersize[papertype]
-                    if (width > paperWidth or height > paperHeight) and isEPSF:
-                        paperWidth, paperHeight = papersize[temp_papertype]
-                        _log.info('Your figure is too big to fit on %s paper. '
-                                  '%s paper will be used to prevent clipping.',
-                                  papertype, temp_papertype)
+                    paper_width, paper_height = papersize[papertype]
 
             texmanager = ps_renderer.get_texmanager()
             font_preamble = texmanager.get_font_preamble()
@@ -1258,23 +1253,23 @@ class FigureCanvasPS(FigureCanvasBase):
 
             psfrag_rotated = convert_psfrags(tmpfile, ps_renderer.psfrag,
                                              font_preamble,
-                                             custom_preamble, paperWidth,
-                                             paperHeight,
+                                             custom_preamble, paper_width,
+                                             paper_height,
                                              orientation)
 
             if (rcParams['ps.usedistiller'] == 'ghostscript'
                     or rcParams['text.usetex']):
-                gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
+                gs_distill(tmpfile, is_eps, ptype=papertype, bbox=bbox,
                            rotated=psfrag_rotated)
             elif rcParams['ps.usedistiller'] == 'xpdf':
-                xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
+                xpdf_distill(tmpfile, is_eps, ptype=papertype, bbox=bbox,
                              rotated=psfrag_rotated)
 
             _move_path_to_path_or_stream(tmpfile, outfile)
 
 
 def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
-                    paperWidth, paperHeight, orientation):
+                    paper_width, paper_height, orientation):
     """
     When we want to use the LaTeX backend with postscript, we write PSFrag tags
     to a temporary postscript file, each one marking a position for LaTeX to
@@ -1319,7 +1314,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
 \end{figure}
 \end{document}
 """ % (font_preamble, unicode_preamble, custom_preamble,
-       paperWidth, paperHeight, paperWidth, paperHeight,
+       paper_width, paper_height, paper_width, paper_height,
        '\n'.join(psfrags), angle, os.path.split(epsfile)[-1])
 
     try:

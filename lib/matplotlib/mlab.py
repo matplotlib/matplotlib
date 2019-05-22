@@ -55,6 +55,7 @@ Spectral functions
 
 import csv
 import inspect
+from numbers import Number
 
 import numpy as np
 
@@ -1456,15 +1457,14 @@ class GaussianKDE(object):
             raise ValueError("`dataset` input should have multiple elements.")
 
         self.dim, self.num_dp = np.array(self.dataset).shape
-        isString = isinstance(bw_method, str)
 
         if bw_method is None:
             pass
-        elif (isString and bw_method == 'scott'):
+        elif cbook._str_equal(bw_method, 'scott'):
             self.covariance_factor = self.scotts_factor
-        elif (isString and bw_method == 'silverman'):
+        elif cbook._str_equal(bw_method, 'silverman'):
             self.covariance_factor = self.silverman_factor
-        elif (np.isscalar(bw_method) and not isString):
+        elif isinstance(bw_method, Number):
             self._bw_method = 'use constant'
             self.covariance_factor = lambda: bw_method
         elif callable(bw_method):
