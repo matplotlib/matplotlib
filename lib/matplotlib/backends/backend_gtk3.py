@@ -682,10 +682,6 @@ class FileChooserDialog(Gtk.FileChooserDialog):
         hbox.show_all()
         self.set_extra_widget(hbox)
 
-    @cbook.deprecated("3.0", alternative="sorted(self.filetypes.items())")
-    def sorted_filetypes(self):
-        return sorted(self.filetypes.items())
-
     def get_filename_from_user(self):
         if self.run() == int(Gtk.ResponseType.OK):
             return self.get_filename(), self.ext

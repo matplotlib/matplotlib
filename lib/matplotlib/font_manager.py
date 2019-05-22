@@ -926,44 +926,6 @@ def _normalize_font_family(family):
     return family
 
 
-@cbook.deprecated("3.0")
-class TempCache(object):
-    """
-    A class to store temporary caches that are (a) not saved to disk
-    and (b) invalidated whenever certain font-related
-    rcParams---namely the family lookup lists---are changed or the
-    font cache is reloaded.  This avoids the expensive linear search
-    through all fonts every time a font is looked up.
-    """
-    # A list of rcparam names that, when changed, invalidated this
-    # cache.
-    invalidating_rcparams = (
-        'font.serif', 'font.sans-serif', 'font.cursive', 'font.fantasy',
-        'font.monospace')
-
-    def __init__(self):
-        self._lookup_cache = {}
-        self._last_rcParams = self.make_rcparams_key()
-
-    def make_rcparams_key(self):
-        return [id(fontManager)] + [
-            rcParams[param] for param in self.invalidating_rcparams]
-
-    def get(self, prop):
-        key = self.make_rcparams_key()
-        if key != self._last_rcParams:
-            self._lookup_cache = {}
-            self._last_rcParams = key
-        return self._lookup_cache.get(prop)
-
-    def set(self, prop, value):
-        key = self.make_rcparams_key()
-        if key != self._last_rcParams:
-            self._lookup_cache = {}
-            self._last_rcParams = key
-        self._lookup_cache[prop] = value
-
-
 class FontManager(object):
     """
     On import, the :class:`FontManager` singleton instance creates a
@@ -1011,16 +973,6 @@ class FontManager(object):
         afmfiles = (findSystemFonts(paths, fontext='afm')
                     + findSystemFonts(fontext='afm'))
         self.afmlist = createFontList(afmfiles, fontext='afm')
-
-    @cbook.deprecated("3.0")
-    @property
-    def ttffiles(self):
-        return [font.fname for font in self.ttflist]
-
-    @cbook.deprecated("3.0")
-    @property
-    def afmfiles(self):
-        return [font.fname for font in self.afmlist]
 
     @property
     def defaultFont(self):

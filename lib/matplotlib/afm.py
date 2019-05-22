@@ -368,11 +368,6 @@ def _parse_optional(fh):
     return d[b'StartKernData'], d[b'StartComposites']
 
 
-@deprecated("3.0", alternative="the AFM class")
-def parse_afm(fh):
-    return _parse_afm(fh)
-
-
 def _parse_afm(fh):
     """
     Parse the Adobe Font Metrics file in file handle *fh*.

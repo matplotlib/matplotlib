@@ -26,11 +26,6 @@ class TextToPath(object):
         self.mathtext_parser = MathTextParser('path')
         self._texmanager = None
 
-    @property
-    @cbook.deprecated("3.0")
-    def tex_font_map(self):
-        return dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
-
     def _get_font(self, prop):
         """
         Find the `FT2Font` matching font properties *prop*, with its size set.

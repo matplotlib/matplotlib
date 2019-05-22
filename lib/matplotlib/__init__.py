@@ -716,35 +716,6 @@ class RcParams(MutableMapping, dict):
                 for key, (default, converter) in defaultParams.items()
                 if key not in _all_deprecated}
 
-    @cbook.deprecated("3.0")
-    @property
-    def msg_depr(self):
-        return "%s is deprecated and replaced with %s; please use the latter."
-
-    @cbook.deprecated("3.0")
-    @property
-    def msg_depr_ignore(self):
-        return "%s is deprecated and ignored. Use %s instead."
-
-    @cbook.deprecated("3.0")
-    @property
-    def msg_depr_set(self):
-        return ("%s is deprecated. Please remove it from your matplotlibrc "
-                "and/or style files.")
-
-    @cbook.deprecated("3.0")
-    @property
-    def msg_obsolete(self):
-        return ("%s is obsolete. Please remove it from your matplotlibrc "
-                "and/or style files.")
-
-    @cbook.deprecated("3.0")
-    @property
-    def msg_backend_obsolete(self):
-        return ("The {} rcParam was deprecated in version 2.2.  In order to "
-                "force the use of a specific Qt binding, either import that "
-                "binding first, or set the QT_API environment variable.")
-
     # validate values on the way in
     def __init__(self, *args, **kwargs):
         self.update(*args, **kwargs)
@@ -766,11 +737,6 @@ class RcParams(MutableMapping, dict):
                 cbook.warn_deprecated(
                     version, name=key, obj_type="rcparam", alternative=alt_key)
                 return
-            elif key == 'examples.directory':
-                cbook.warn_deprecated(
-                    "3.0", name=key, obj_type="rcparam", addendum="In the "
-                    "future, examples will be found relative to the "
-                    "'datapath' directory.")
             elif key == 'backend':
                 if val is rcsetup._auto_backend_sentinel:
                     if 'backend' in self:
@@ -797,11 +763,6 @@ class RcParams(MutableMapping, dict):
             cbook.warn_deprecated(
                 version, name=key, obj_type="rcparam", alternative=alt_key)
             return dict.__getitem__(self, alt_key) if alt_key else None
-
-        elif key == 'examples.directory':
-            cbook.warn_deprecated(
-                "3.0", name=key, obj_type="rcparam", addendum="In the future, "
-                "examples will be found relative to the 'datapath' directory.")
 
         elif key == "backend":
             val = dict.__getitem__(self, key)
@@ -989,21 +950,6 @@ Please do not ask for support with these customizations active.
 
 # this is the instance used by the matplotlib classes
 rcParams = rc_params()
-
-# Don't trigger deprecation warning when just fetching.
-if dict.__getitem__(rcParams, 'examples.directory'):
-    # paths that are intended to be relative to matplotlib_fname()
-    # are allowed for the examples.directory parameter.
-    # However, we will need to fully qualify the path because
-    # Sphinx requires absolute paths.
-    if not os.path.isabs(rcParams['examples.directory']):
-        _basedir, _fname = os.path.split(matplotlib_fname())
-        # Sometimes matplotlib_fname() can return relative paths,
-        # Also, using realpath() guarantees that Sphinx will use
-        # the same path that matplotlib sees (in case of weird symlinks).
-        _basedir = os.path.realpath(_basedir)
-        _fullpath = os.path.join(_basedir, rcParams['examples.directory'])
-        rcParams['examples.directory'] = _fullpath
 
 
 with cbook._suppress_matplotlib_deprecation_warning():

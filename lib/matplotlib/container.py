@@ -27,10 +27,6 @@ class Container(tuple):
 
         self.set_label(label)
 
-    @cbook.deprecated("3.0")
-    def set_remove_method(self, f):
-        self._remove_method = f
-
     def remove(self):
         for c in cbook.flatten(
                 self, scalarp=lambda x: isinstance(x, martist.Artist)):

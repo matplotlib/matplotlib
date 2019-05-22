@@ -352,13 +352,6 @@ def split_code_at_show(text):
     return parts
 
 
-def remove_coding(text):
-    r"""Remove the coding comment, which six.exec\_ doesn't like."""
-    cbook.warn_deprecated('3.0', name='remove_coding', removal='3.1')
-    sub_re = re.compile(r"^#\s*-\*-\s*coding:\s*.*-\*-$", flags=re.MULTILINE)
-    return sub_re.sub("", text)
-
-
 # -----------------------------------------------------------------------------
 # Template
 # -----------------------------------------------------------------------------

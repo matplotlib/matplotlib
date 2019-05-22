@@ -1445,55 +1445,6 @@ def get_bbox_header(lbrt, rotated=False):
     return '\n'.join([bbox_info, hires_bbox_info]), rotate
 
 
-# get_bbox is deprecated. I don't see any reason to use ghostscript to
-# find the bounding box, as the required bounding box is alread known.
-@cbook.deprecated("3.0")
-def get_bbox(tmpfile, bbox):
-    """
-    Use ghostscript's bbox device to find the center of the bounding box.
-    Return an appropriately sized bbox centered around that point. A bit of a
-    hack.
-    """
-
-    gs_exe = ps_backend_helper.gs_exe
-    command = [gs_exe, "-dBATCH", "-dNOPAUSE", "-sDEVICE=bbox", "%s" % tmpfile]
-    _log.debug(command)
-    p = subprocess.Popen(command, stdin=subprocess.PIPE,
-                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                         close_fds=True)
-    (stdout, stderr) = (p.stdout, p.stderr)
-    _log.debug(stdout.read())
-    bbox_info = stderr.read()
-    _log.info(bbox_info)
-    bbox_found = re.search('%%HiResBoundingBox: .*', bbox_info)
-    if bbox_found:
-        bbox_info = bbox_found.group()
-    else:
-        raise RuntimeError(
-            'Ghostscript was not able to extract a bounding box.'
-            'Here is the Ghostscript output:\n\n%s' % bbox_info)
-    l, b, r, t = [float(i) for i in bbox_info.split()[-4:]]
-
-    # this is a hack to deal with the fact that ghostscript does not return the
-    # intended bbox, but a tight bbox. For now, we just center the ink in the
-    # intended bbox. This is not ideal, users may intend the ink to not be
-    # centered.
-    if bbox is None:
-        l, b, r, t = (l-1, b-1, r+1, t+1)
-    else:
-        x = (l+r)/2
-        y = (b+t)/2
-        dx = (bbox[2]-bbox[0])/2
-        dy = (bbox[3]-bbox[1])/2
-        l, b, r, t = (x-dx, y-dy, x+dx, y+dy)
-
-    bbox_info = '%%%%BoundingBox: %d %d %d %d' % (l, b, np.ceil(r), np.ceil(t))
-    hires_bbox_info = '%%%%HiResBoundingBox: %.6f %.6f %.6f %.6f' % (
-        l, b, r, t)
-
-    return '\n'.join([bbox_info, hires_bbox_info])
-
-
 def pstoeps(tmpfile, bbox=None, rotated=False):
     """
     Convert the postscript to encapsulated postscript.  The bbox of

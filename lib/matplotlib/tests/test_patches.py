@@ -341,10 +341,6 @@ def test_patch_str():
     s = mpatches.Shadow(p, 1, 1)
     assert str(s) == "Shadow(ConnectionPatch((1, 2), (3, 4)))"
 
-    with pytest.warns(MatplotlibDeprecationWarning):
-        p = mpatches.YAArrow(plt.gcf(), (1, 0), (2, 1), width=0.1)
-        assert str(p) == "YAArrow()"
-
     # Not testing Arrow, FancyArrow here
     # because they seem to exist only for historical reasons.
 

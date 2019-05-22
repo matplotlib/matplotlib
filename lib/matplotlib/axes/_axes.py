@@ -4305,6 +4305,7 @@ class Axes(_AxesBase):
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"],
                       label_namer="y")
+    @cbook._delete_parameter("3.2", "verts")
     def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
                 verts=None, edgecolors=None, *, plotnonfinite=False,
@@ -4456,13 +4457,6 @@ optional.
                     x, y, s, c, colors, edgecolors, linewidths)
 
         scales = s   # Renamed for readability below.
-
-        # to be API compatible
-        if verts is not None:
-            cbook.warn_deprecated("3.0", name="'verts'", obj_type="kwarg",
-                                  alternative="'marker'")
-            if marker is None:
-                marker = verts
 
         # load default marker from rcParams
         if marker is None:
@@ -6386,8 +6380,7 @@ optional.
     def hist(self, x, bins=None, range=None, density=None, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
-             color=None, label=None, stacked=False, normed=None,
-             **kwargs):
+             color=None, label=None, stacked=False, **kwargs):
         """
         Plot a histogram.
 
@@ -6568,9 +6561,6 @@ optional.
 
             Default is ``False``
 
-        normed : bool, optional
-            Deprecated; use the density keyword argument instead.
-
         Returns
         -------
         n : array or list of arrays
@@ -6619,15 +6609,6 @@ optional.
 
         if histtype == 'barstacked' and not stacked:
             stacked = True
-
-        if density is not None and normed is not None:
-            raise ValueError("kwargs 'density' and 'normed' cannot be used "
-                             "simultaneously. "
-                             "Please only use 'density', since 'normed'"
-                             "is deprecated.")
-        if normed is not None:
-            cbook.warn_deprecated("2.1", name="'normed'", obj_type="kwarg",
-                                  alternative="'density'", removal="3.1")
 
         # basic input validation
         input_empty = np.size(x) == 0
@@ -6700,7 +6681,7 @@ optional.
         else:
             hist_kwargs['range'] = bin_range
 
-        density = bool(density) or bool(normed)
+        density = bool(density)
         if density and not stacked:
             hist_kwargs['density'] = density
 

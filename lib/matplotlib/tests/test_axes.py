@@ -3167,31 +3167,13 @@ def test_hist_stacked_step():
     ax.hist((d1, d2), histtype="step", stacked=True)
 
 
-@image_comparison(['hist_stacked_normed', 'hist_stacked_normed'])
+@image_comparison(['hist_stacked_normed'])
 def test_hist_stacked_density():
     # make some data
     d1 = np.linspace(1, 3, 20)
     d2 = np.linspace(0, 10, 50)
-
     fig, ax = plt.subplots()
     ax.hist((d1, d2), stacked=True, density=True)
-
-    # Also check that the old keyword works.
-    fig, ax = plt.subplots()
-    with pytest.warns(UserWarning):
-        ax.hist((d1, d2), stacked=True, normed=True)
-
-
-@pytest.mark.parametrize('normed', [False, True])
-@pytest.mark.parametrize('density', [False, True])
-def test_hist_normed_density(normed, density):
-    # Normed and density should not be used simultaneously
-    d1 = np.linspace(1, 3, 20)
-    d2 = np.linspace(0, 10, 50)
-    fig, ax = plt.subplots()
-    # test that kwargs normed and density cannot be set both.
-    with pytest.raises(Exception):
-        ax.hist((d1, d2), stacked=True, normed=normed, density=density)
 
 
 @image_comparison(['hist_step_bottom.png'], remove_text=True)

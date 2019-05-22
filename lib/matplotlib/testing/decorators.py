@@ -45,15 +45,6 @@ class CleanupTestCase(unittest.TestCase):
         cls._cm.__exit__(None, None, None)
 
 
-@cbook.deprecated("3.0")
-class CleanupTest(object):
-    setup_class = classmethod(CleanupTestCase.setUpClass.__func__)
-    teardown_class = classmethod(CleanupTestCase.tearDownClass.__func__)
-
-    def test(self):
-        self._func()
-
-
 def cleanup(style=None):
     """
     A decorator to ensure that any global state is reset before
@@ -231,65 +222,6 @@ class _ImageComparisonBase(object):
         _raise_on_image_difference(expected_fname, actual_fname, self.tol)
 
 
-@cbook.deprecated("3.0")
-class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
-    """
-    Nose-based image comparison class
-
-    This class generates tests for a nose-based testing framework. Ideally,
-    this class would not be public, and the only publicly visible API would
-    be the :func:`image_comparison` decorator. Unfortunately, there are
-    existing downstream users of this class (e.g., pytest-mpl) so it cannot yet
-    be removed.
-    """
-    def __init__(self, baseline_images, extensions, tol,
-                 freetype_version, remove_text, savefig_kwargs, style):
-        _ImageComparisonBase.__init__(self, tol, remove_text, savefig_kwargs)
-        self.baseline_images = baseline_images
-        self.extensions = extensions
-        self.freetype_version = freetype_version
-        self.style = style
-
-    def setup(self):
-        func = self.func
-        plt.close('all')
-        self.setup_class()
-        try:
-            matplotlib.style.use(self.style)
-            matplotlib.testing.set_font_settings_for_testing()
-            func()
-            assert len(plt.get_fignums()) == len(self.baseline_images), (
-                "Test generated {} images but there are {} baseline images"
-                .format(len(plt.get_fignums()), len(self.baseline_images)))
-        except:
-            # Restore original settings before raising errors.
-            self.teardown_class()
-            raise
-
-    def teardown(self):
-        self.teardown_class()
-
-    def nose_runner(self):
-        func = self.compare
-        func = _checked_on_freetype_version(self.freetype_version)(func)
-        funcs = {extension: _skip_if_format_is_uncomparable(extension)(func)
-                 for extension in self.extensions}
-        for idx, baseline in enumerate(self.baseline_images):
-            for extension in self.extensions:
-                yield funcs[extension], idx, baseline, extension
-
-    def __call__(self, func):
-        self.delayed_init(func)
-        import nose.tools
-
-        @functools.wraps(func)
-        @nose.tools.with_setup(self.setup, self.teardown)
-        def runner_wrapper():
-            yield from self.nose_runner()
-
-        return runner_wrapper
-
-
 def _pytest_image_comparison(baseline_images, extensions, tol,
                              freetype_version, remove_text, savefig_kwargs,
                              style):
@@ -418,24 +350,12 @@ def image_comparison(baseline_images, extensions=None, tol=0,
     if extensions is None:
         # Default extensions to test, if not set via baseline_images.
         extensions = ['png', 'pdf', 'svg']
-
     if savefig_kwarg is None:
-        #default no kwargs to savefig
-        savefig_kwarg = dict()
-
-    if mpl.testing._wants_nose():
-        if baseline_images is None:
-            raise ValueError('baseline_images must be specified')
-
-        return ImageComparisonTest(
-            baseline_images=baseline_images, extensions=extensions, tol=tol,
-            freetype_version=freetype_version, remove_text=remove_text,
-            savefig_kwargs=savefig_kwarg, style=style)
-    else:
-        return _pytest_image_comparison(
-            baseline_images=baseline_images, extensions=extensions, tol=tol,
-            freetype_version=freetype_version, remove_text=remove_text,
-            savefig_kwargs=savefig_kwarg, style=style)
+        savefig_kwarg = dict()  # default no kwargs to savefig
+    return _pytest_image_comparison(
+        baseline_images=baseline_images, extensions=extensions, tol=tol,
+        freetype_version=freetype_version, remove_text=remove_text,
+        savefig_kwargs=savefig_kwarg, style=style)
 
 
 def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
@@ -543,25 +463,3 @@ def switch_backend(backend):
         return backend_switcher
 
     return switch_backend_decorator
-
-
-@cbook.deprecated("3.0")
-def skip_if_command_unavailable(cmd):
-    """
-    skips a test if a command is unavailable.
-
-    Parameters
-    ----------
-    cmd : list of str
-        must be a complete command which should not
-        return a non zero exit code, something like
-        ["latex", "-version"]
-    """
-    from subprocess import check_output
-    try:
-        check_output(cmd)
-    except Exception:
-        import pytest
-        return pytest.mark.skip(reason='missing command: %s' % cmd[0])
-
-    return lambda f: f

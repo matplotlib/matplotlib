@@ -51,22 +51,6 @@ else:
         return ctx
 
 
-@cbook.deprecated("3.0")
-class ArrayWrapper:
-    """Thin wrapper around numpy ndarray to expose the interface
-       expected by cairocffi. Basically replicates the
-       array.array interface.
-    """
-    def __init__(self, myarray):
-        self.__array = myarray
-        self.__data = myarray.ctypes.data
-        self.__size = len(myarray.flatten())
-        self.itemsize = myarray.itemsize
-
-    def buffer_info(self):
-        return (self.__data, self.__size)
-
-
 def _append_path(ctx, path, transform, clip=None):
     for points, code in path.iter_segments(
             transform, remove_nans=True, clip=clip):
@@ -142,11 +126,6 @@ class RendererCairo(RendererBase):
             ctx.fill_preserve()
             ctx.restore()
         ctx.stroke()
-
-    @staticmethod
-    @cbook.deprecated("3.0")
-    def convert_path(ctx, path, transform, clip=None):
-        _append_path(ctx, path, transform, clip)
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited

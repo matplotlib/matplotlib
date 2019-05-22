@@ -2406,11 +2406,5 @@ class Annotation(Text, _AnnotationBase):
 
         return Bbox.union(bboxes)
 
-    arrow = property(
-        fget=cbook.deprecated("3.0", message="arrow was deprecated in "
-            "Matplotlib 3.0 and will be removed in 3.2. Use arrow_patch "
-            "instead.")(lambda self: None),
-        fset=cbook.deprecated("3.0")(lambda self, value: None))
-
 
 docstring.interpd.update(Annotation=Annotation.__init__.__doc__)

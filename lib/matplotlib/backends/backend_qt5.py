@@ -246,8 +246,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
         self.setMouseTracking(True)
         self.resize(*self.get_width_height())
-        # Key auto-repeat enabled by default
-        self._keyautorepeat = True
 
         palette = QtGui.QPalette(QtCore.Qt.white)
         self.setPalette(palette)
@@ -375,18 +373,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         if key is not None:
             FigureCanvasBase.key_release_event(self, key, guiEvent=event)
 
-    @cbook.deprecated("3.0", alternative="event.guiEvent.isAutoRepeat")
-    @property
-    def keyAutoRepeat(self):
-        """
-        If True, enable auto-repeat for key events.
-        """
-        return self._keyautorepeat
-
-    @keyAutoRepeat.setter
-    def keyAutoRepeat(self, val):
-        self._keyautorepeat = bool(val)
-
     def resizeEvent(self, event):
         # _dpi_ratio_prev will be set the first time the canvas is painted, and
         # the rendered buffer is useless before anyways.
@@ -411,9 +397,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         return QtCore.QSize(10, 10)
 
     def _get_key(self, event):
-        if not self._keyautorepeat and event.isAutoRepeat():
-            return None
-
         event_key = event.key()
         event_mods = int(event.modifiers())  # actually a bitmask
 
@@ -1042,33 +1025,6 @@ backend_tools.ToolSetCursor = SetCursorQt
 backend_tools.ToolRubberband = RubberbandQt
 backend_tools.ToolHelp = HelpQt
 backend_tools.ToolCopyToClipboard = ToolCopyToClipboardQT
-
-
-@cbook.deprecated("3.0")
-def error_msg_qt(msg, parent=None):
-    if not isinstance(msg, str):
-        msg = ','.join(map(str, msg))
-
-    QtWidgets.QMessageBox.warning(None, "Matplotlib",
-                                  msg, QtGui.QMessageBox.Ok)
-
-
-@cbook.deprecated("3.0")
-def exception_handler(type, value, tb):
-    """Handle uncaught exceptions
-    It does not catch SystemExit
-    """
-    msg = ''
-    # get the filename attribute if available (for IOError)
-    if hasattr(value, 'filename') and value.filename is not None:
-        msg = value.filename + ': '
-    if hasattr(value, 'strerror') and value.strerror is not None:
-        msg += value.strerror
-    else:
-        msg += str(value)
-
-    if len(msg):
-        error_msg_qt(msg)
 
 
 @_Backend.export
