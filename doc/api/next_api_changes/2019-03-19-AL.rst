@@ -1,0 +1,4 @@
+Deprecations
+````````````
+``NavigationToolbar2Tk.set_active`` is deprecated, as it has no (observable)
+effect.
