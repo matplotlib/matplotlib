@@ -11,7 +11,7 @@ import tkinter.messagebox
 import numpy as np
 
 import matplotlib
-from matplotlib import backend_tools, rcParams, cbook
+from matplotlib import backend_tools, cbook, rcParams
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
@@ -41,10 +41,6 @@ else:
 _log = logging.getLogger(__name__)
 
 backend_version = tk.TkVersion
-
-# the true dots per inch on the screen; should be display dependent
-# see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
-PIXELS_PER_INCH = 75
 
 cursord = {
     cursors.MOVE: "fleur",
@@ -208,11 +204,13 @@ class FigureCanvasTk(FigureCanvasBase):
         self._tkcanvas.bind("<Enter>", self.enter_notify_event)
         self._tkcanvas.bind("<Leave>", self.leave_notify_event)
         self._tkcanvas.bind("<KeyRelease>", self.key_release)
-        for name in "<Button-1>", "<Button-2>", "<Button-3>":
+        for name in ["<Button-1>", "<Button-2>", "<Button-3>"]:
             self._tkcanvas.bind(name, self.button_press_event)
-        for name in "<Double-Button-1>", "<Double-Button-2>", "<Double-Button-3>":
+        for name in [
+                "<Double-Button-1>", "<Double-Button-2>", "<Double-Button-3>"]:
             self._tkcanvas.bind(name, self.button_dblclick_event)
-        for name in "<ButtonRelease-1>", "<ButtonRelease-2>", "<ButtonRelease-3>":
+        for name in [
+                "<ButtonRelease-1>", "<ButtonRelease-2>", "<ButtonRelease-3>"]:
             self._tkcanvas.bind(name, self.button_release_event)
 
         # Mouse wheel on Linux generates button 4/5 events

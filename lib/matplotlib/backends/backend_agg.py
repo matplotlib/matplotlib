@@ -51,6 +51,7 @@ if _has_pil:
 
 backend_version = 'v2.2'
 
+
 def get_hinting_flag():
     mapping = {
         True: LOAD_FORCE_AUTOHINT,

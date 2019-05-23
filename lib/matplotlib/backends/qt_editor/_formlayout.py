@@ -33,7 +33,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 
 # History:
-# 1.0.10: added float validator (disable "Ok" and "Apply" button when not valid)
+# 1.0.10: added float validator
+#         (disable "Ok" and "Apply" button when not valid)
 # 1.0.7: added support for "Apply" button
 # 1.0.6: code cleaning
 
@@ -116,8 +117,8 @@ class ColorLayout(QtWidgets.QHBoxLayout):
 
     def update_color(self):
         color = self.text()
-        qcolor = to_qcolor(color)
-        self.colorbtn.color = qcolor  # defaults to black if not qcolor.isValid()
+        qcolor = to_qcolor(color)  # defaults to black if not qcolor.isValid()
+        self.colorbtn.color = qcolor
 
     def update_text(self, color):
         self.lineedit.setText(mcolors.to_hex(color.getRgbF(), keep_alpha=True))
@@ -506,8 +507,8 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
 
     Supported types for field_value:
       - int, float, str, unicode, bool
-      - colors: in Qt-compatible text form, i.e. in hex format or name (red,...)
-                (automatically detected from a string)
+      - colors: in Qt-compatible text form, i.e. in hex format or name
+                (red, ...) (automatically detected from a string)
       - list/tuple:
           * the first element will be the selected index (or value)
           * the other elements can be couples (key, value) or only values
