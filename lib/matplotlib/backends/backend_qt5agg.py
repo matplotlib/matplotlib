@@ -45,9 +45,11 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         height = rect.height()
         # See documentation of QRect: bottom() and right() are off by 1, so use
         # left() + width() and top() + height().
-        bbox = Bbox(
-            [[left, self.renderer.height - (top + height * self._dpi_ratio)],
-             [left + width * self._dpi_ratio, self.renderer.height - top]])
+
+        bbox = Bbox([[0,0], [self.renderer.width, self.renderer.height]])
+        l, b, r, t = map(int, bbox.extents)
+        w = r - l
+        h = t - b
         reg = self.copy_from_bbox(bbox)
         buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
             memoryview(reg))
@@ -60,7 +62,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         if hasattr(qimage, 'setDevicePixelRatio'):
             # Not available on Qt4 or some older Qt5.
             qimage.setDevicePixelRatio(self._dpi_ratio)
-        origin = QtCore.QPoint(left, top)
+        origin = QtCore.QPoint(l, self.renderer.height - t)
         painter.drawImage(origin / self._dpi_ratio, qimage)
         # Adjust the buf reference count to work around a memory
         # leak bug in QImage under PySide on Python 3.
