@@ -1,19 +1,13 @@
-import os
-
+import matplotlib
+from matplotlib import cbook, rcParams
 from matplotlib._pylab_helpers import Gcf
+from matplotlib.backends import _macosx
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     TimerBase)
-
 from matplotlib.figure import Figure
-from matplotlib import cbook, rcParams
-
 from matplotlib.widgets import SubplotTool
-
-import matplotlib
-from matplotlib.backends import _macosx
-
-from .backend_agg import FigureCanvasAgg
 
 
 ########################################################################
@@ -139,8 +133,8 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
         NavigationToolbar2.__init__(self, canvas)
 
     def _init_toolbar(self):
-        basedir = os.path.join(rcParams['datapath'], "images")
-        _macosx.NavigationToolbar2.__init__(self, basedir)
+        _macosx.NavigationToolbar2.__init__(
+            self, str(cbook._get_data_path('images')))
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         self.canvas.set_rubberband(int(x0), int(y0), int(x1), int(y1))

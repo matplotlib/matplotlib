@@ -21,12 +21,10 @@ with warnings.catch_warnings():
 
 @image_comparison(['font_styles'])
 def test_font_styles():
-    from matplotlib import _get_data_path
-    data_path = _get_data_path()
 
     def find_matplotlib_font(**kw):
         prop = FontProperties(**kw)
-        path = findfont(prop, directory=data_path)
+        path = findfont(prop, directory=matplotlib.get_data_path())
         return FontProperties(fname=path)
 
     from matplotlib.font_manager import FontProperties, findfont

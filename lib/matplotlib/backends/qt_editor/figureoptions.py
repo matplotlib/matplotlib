@@ -5,18 +5,12 @@
 
 """Module that provides a GUI-based editor for matplotlib's figure options."""
 
-import os.path
 import re
 
 import matplotlib
-from matplotlib import cm, colors as mcolors, markers, image as mimage
+from matplotlib import cbook, cm, colors as mcolors, markers, image as mimage
 from matplotlib.backends.qt_compat import QtGui
 from matplotlib.backends.qt_editor import _formlayout
-
-
-def get_icon(name):
-    basedir = os.path.join(matplotlib.rcParams['datapath'], 'images')
-    return QtGui.QIcon(os.path.join(basedir, name))
 
 
 LINESTYLES = {'-': 'Solid',
@@ -257,8 +251,10 @@ def figure_edit(axes, parent=None):
         if not (axes.get_xlim() == orig_xlim and axes.get_ylim() == orig_ylim):
             figure.canvas.toolbar.push_current()
 
-    data = _formlayout.fedit(datalist, title="Figure options", parent=parent,
-                             icon=get_icon('qt4_editor_options.svg'),
-                             apply=apply_callback)
+    data = _formlayout.fedit(
+        datalist, title="Figure options", parent=parent,
+        icon=QtGui.QIcon(
+            str(cbook._get_data_path('images', 'qt4_editor_options.svg'))),
+        apply=apply_callback)
     if data is not None:
         apply_callback(data)

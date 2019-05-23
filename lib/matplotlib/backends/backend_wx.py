@@ -1226,27 +1226,21 @@ def _load_bitmap(filename):
     matplotlib library is installed. The filename parameter should not
     contain any path information as this is determined automatically.
 
-    Returns a wx.Bitmap object
+    Returns a wx.Bitmap object.
     """
-
-    basedir = os.path.join(rcParams['datapath'], 'images')
-
-    bmpFilename = os.path.normpath(os.path.join(basedir, filename))
-    if not os.path.exists(bmpFilename):
-        raise IOError('Could not find bitmap file "%s"; dying' % bmpFilename)
-
-    bmp = wx.Bitmap(bmpFilename)
-    return bmp
+    path = cbook._get_data_path('images', filename)
+    if not path.exists():
+        raise IOError(f"Could not find bitmap file '{path}'; dying")
+    return wx.Bitmap(str(path))
 
 
 def _set_frame_icon(frame):
-    # set frame icon
     bundle = wx.IconBundle()
     for image in ('matplotlib.png', 'matplotlib_large.png'):
-        image = os.path.join(matplotlib.rcParams['datapath'], 'images', image)
-        if not os.path.exists(image):
+        try:
+            icon = wx.Icon(_load_bitmap(image))
+        except IOError:
             continue
-        icon = wx.Icon(_load_bitmap(image))
         if not icon.IsOk():
             return
         bundle.AddIcon(icon)

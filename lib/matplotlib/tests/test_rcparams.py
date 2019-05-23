@@ -433,9 +433,8 @@ def test_rcparams_reset_after_fail():
 def test_if_rctemplate_is_up_to_date():
     # This tests if the matplotlibrc.template file contains all valid rcParams.
     deprecated = {*mpl._all_deprecated, *mpl._deprecated_remain_as_none}
-    path_to_rc = os.path.join(mpl.get_data_path(), 'matplotlibrc')
-    with open(path_to_rc, "r") as f:
-        rclines = f.readlines()
+    with cbook._get_data_path('matplotlibrc').open() as file:
+        rclines = file.readlines()
     missing = {}
     for k, v in mpl.defaultParams.items():
         if k[0] == "_":
@@ -457,9 +456,8 @@ def test_if_rctemplate_is_up_to_date():
 def test_if_rctemplate_would_be_valid(tmpdir):
     # This tests if the matplotlibrc.template file would result in a valid
     # rc file if all lines are uncommented.
-    path_to_rc = os.path.join(mpl.get_data_path(), 'matplotlibrc')
-    with open(path_to_rc, "r") as f:
-        rclines = f.readlines()
+    with cbook._get_data_path('matplotlibrc').open() as file:
+        rclines = file.readlines()
     newlines = []
     for line in rclines:
         if line[0] == "#":

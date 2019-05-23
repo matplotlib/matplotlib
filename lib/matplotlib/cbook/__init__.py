@@ -436,6 +436,15 @@ def get_sample_data(fname, asfileobj=True):
         return str(path)
 
 
+def _get_data_path(*args):
+    """
+    Return the `Path` to a resource file provided by Matplotlib.
+
+    ``*args`` specify a path relative to the base data path.
+    """
+    return Path(matplotlib.get_data_path(), *args)
+
+
 def flatten(seq, scalarp=is_scalar_or_string):
     """
     Return a generator of flattened nested containers

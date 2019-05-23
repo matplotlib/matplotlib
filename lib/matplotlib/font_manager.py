@@ -946,10 +946,8 @@ class FontManager(object):
         self.__default_weight = weight
         self.default_size = size
 
-        paths = [os.path.join(rcParams['datapath'], 'fonts', 'ttf'),
-                 os.path.join(rcParams['datapath'], 'fonts', 'afm'),
-                 os.path.join(rcParams['datapath'], 'fonts', 'pdfcorefonts')]
-
+        paths = [cbook._get_data_path('fonts', subdir)
+                 for subdir in ['ttf', 'afm', 'pdfcorefonts']]
         #  Create list of font paths
         for pathname in ['TTFPATH', 'AFMPATH']:
             if pathname in os.environ:

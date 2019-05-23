@@ -535,8 +535,7 @@ class FigureManagerQT(FigureManagerBase):
         self.window.closing.connect(self._widgetclosed)
 
         self.window.setWindowTitle("Figure %d" % num)
-        image = os.path.join(matplotlib.rcParams['datapath'],
-                             'images', 'matplotlib.svg')
+        image = str(cbook._get_data_path('images/matplotlib.svg'))
         self.window.setWindowIcon(QtGui.QIcon(image))
 
         # Give the keyboard focus to the figure instead of the
@@ -676,7 +675,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         return QtGui.QIcon(pm)
 
     def _init_toolbar(self):
-        self.basedir = os.path.join(matplotlib.rcParams['datapath'], 'images')
+        self.basedir = str(cbook._get_data_path('images'))
 
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
@@ -792,8 +791,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self.canvas.drawRectangle(None)
 
     def configure_subplots(self):
-        image = os.path.join(matplotlib.rcParams['datapath'],
-                             'images', 'matplotlib.png')
+        image = str(cbook._get_data_path('images/matplotlib.png'))
         dia = SubplotToolQt(self.canvas.figure, self.canvas.parent())
         dia.setWindowIcon(QtGui.QIcon(image))
         dia.exec_()
