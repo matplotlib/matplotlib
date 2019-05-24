@@ -2434,7 +2434,12 @@ class SymmetricalLogLocator(Locator):
             has_c = True
 
         def get_log_range(lo, hi):
-            lo = np.floor(np.log(lo) / np.log(base))
+            """
+            Get the first integer exponents above *lo* and *hi*. These are
+            chosen to be above in both cases to avoid encroaching range b for
+            lo, and to extend out of ranges a or c for hi.
+            """
+            lo = np.ceil(np.log(lo) / np.log(base))
             hi = np.ceil(np.log(hi) / np.log(base))
             return lo, hi
 
