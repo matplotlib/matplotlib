@@ -32,6 +32,7 @@ addons:
       - gir1.2-gtk-3.0
       - graphviz
       - inkscape
+      - lcov
       - libcairo2
       - libcairo2-dev
       - libffi-dev
@@ -86,11 +87,14 @@ matrix:
         - EXTRAREQS='-r requirements/testing/travis_flake8.txt'
     - python: 3.6
       env:
+        - CPPFLAGS=--coverage
         - PINNEDVERS='-c requirements/testing/travis36minver.txt'
         - DELETE_FONT_CACHE=1
         - EXTRAREQS='-r requirements/testing/travis36.txt'
     - python: 3.7
       sudo: true
+      env:
+        - CPPFLAGS=--coverage
     - python: "nightly"
       env:
         - PRE=--pre
@@ -194,4 +198,8 @@ after_failure: |
   fi
 
 after_success: |
-  codecov -e TRAVIS_PYTHON_VERSION
+  - lcov --capture --directory . --output-file coverage.info
+  - lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter system-files
+  - lcov --list coverage.info
+  # Uploading to CodeCov but excluding gcov reports
+  - bash <(curl -s https://codecov.io/bash) -f "!*.gcov" -X gcov || echo "Codecov did not collect coverage reports"
