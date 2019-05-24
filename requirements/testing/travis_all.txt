@@ -1,6 +1,5 @@
 # pip requirements for all the travis builds
 
-codecov
 coverage
 cycler
 numpy

@@ -199,7 +199,7 @@ after_failure: |
 
 after_success:
   - lcov --capture --directory . --output-file coverage.info
-  - lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter system-files
+  - lcov --remove coverage.info --output-file coverage.info '/usr/*' '/home/travis/build/matplotlib/matplotlib/build/*' '/home/travis/build/matplotlib/matplotlib/extern/*' # filter system-files
   - lcov --list coverage.info
   # Uploading to CodeCov but excluding gcov reports
-  - bash <(curl -s https://codecov.io/bash) -f "!*.gcov" -X gcov || echo "Codecov did not collect coverage reports"
+  - bash <(curl -s https://codecov.io/bash) -f "!*.gcov" -X gcov -e TRAVIS_PYTHON_VERSION|| echo "Codecov did not collect coverage reports"
