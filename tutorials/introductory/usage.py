@@ -90,7 +90,7 @@ fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
 # Axes contains two (or three in the case of 3D)
 # :class:`~matplotlib.axis.Axis` objects (be aware of the difference
 # between **Axes** and **Axis**) which take care of the data limits (the
-# data limits can also be controlled via set via the
+# data limits can also be controlled via the
 # :meth:`~matplotlib.axes.Axes.set_xlim` and
 # :meth:`~matplotlib.axes.Axes.set_ylim` :class:`Axes` methods).  Each
 # :class:`Axes` has a title (set via
