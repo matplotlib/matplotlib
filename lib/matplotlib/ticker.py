@@ -2468,6 +2468,7 @@ class SymmetricalLogLocator(Locator):
         # "simple" mode is when the range falls entirely within (-t,
         # t) -- it should just display (vmin, 0, vmax)
 
+        # Determine which of the three ranges we have
         has_a = has_b = has_c = False
         if vmin < -linthresh:
             has_a = True
@@ -2496,12 +2497,12 @@ class SymmetricalLogLocator(Locator):
             hi = np.ceil(np.log(hi) / np.log(base))
             return lo, hi
 
-        # First, calculate all the ranges, so we can determine striding
+        # Calculate all the ranges, so we can determine striding
         if has_a:
             if has_b:
-                a_range = get_log_range(linthresh, -vmin)
+                a_range = get_log_range(linthresh, np.abs(vmin))
             else:
-                a_range = get_log_range(-vmax, -vmin)
+                a_range = get_log_range(np.abs(vmax), np.abs(vmin))
         else:
             a_range = (0, 0)
 
@@ -2513,6 +2514,7 @@ class SymmetricalLogLocator(Locator):
         else:
             c_range = (0, 0)
 
+        # Caclulate the total number of integer exponents in a and c ranges
         total_ticks = (a_range[1] - a_range[0]) + (c_range[1] - c_range[0])
         if has_b:
             total_ticks += 1
