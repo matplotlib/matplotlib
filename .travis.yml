@@ -197,7 +197,7 @@ after_failure: |
     echo "The result images will only be uploaded if they are on the matplotlib/matplotlib repo - this is for security reasons to prevent arbitrary PRs echoing security details."
   fi
 
-after_success: |
+after_success:
   - lcov --capture --directory . --output-file coverage.info
   - lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter system-files
   - lcov --list coverage.info
