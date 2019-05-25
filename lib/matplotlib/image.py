@@ -4,7 +4,7 @@ operations.
 """
 
 from io import BytesIO
-from math import ceil
+import math
 import os
 import logging
 from pathlib import Path
@@ -158,6 +158,26 @@ def _draw_list_compositing_images(
                 flush_images()
                 a.draw(renderer)
         flush_images()
+
+
+def _resample(
+        image_obj, data, out_shape, transform, *, resample=None, alpha=1):
+    """
+    Convenience wrapper around `._image.resample` to resample *data* to
+    *out_shape* (with a third dimension if *data* is RGBA) that takes care of
+    allocating the output array and fetching the relevant properties from the
+    Image object *image_obj*.
+    """
+    out = np.zeros(out_shape + data.shape[2:], data.dtype)  # 2D->2D, 3D->3D.
+    if resample is None:
+        resample = image_obj.get_resample()
+    _image.resample(data, out, transform,
+                    _interpd_[image_obj.get_interpolation()],
+                    resample,
+                    alpha,
+                    image_obj.get_filternorm(),
+                    image_obj.get_filterrad())
+    return out
 
 
 def _rgb_to_rgba(A):
@@ -320,32 +340,30 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                  -clipped_bbox.y0)
              .scale(magnification, magnification))
 
-        # So that the image is aligned with the edge of the axes, we want
-        # to round up the output width to the next integer.  This also
-        # means scaling the transform just slightly to account for the
-        # extra subpixel.
+        # So that the image is aligned with the edge of the axes, we want to
+        # round up the output width to the next integer.  This also means
+        # scaling the transform slightly to account for the extra subpixel.
         if (t.is_affine and round_to_pixel_border and
                 (out_width_base % 1.0 != 0.0 or out_height_base % 1.0 != 0.0)):
-            out_width = int(ceil(out_width_base))
-            out_height = int(ceil(out_height_base))
+            out_width = math.ceil(out_width_base)
+            out_height = math.ceil(out_height_base)
             extra_width = (out_width - out_width_base) / out_width_base
             extra_height = (out_height - out_height_base) / out_height_base
             t += Affine2D().scale(1.0 + extra_width, 1.0 + extra_height)
         else:
             out_width = int(out_width_base)
             out_height = int(out_height_base)
+        out_shape = (out_height, out_width)
 
         if not unsampled:
-            if A.ndim not in (2, 3):
-                raise ValueError("Invalid shape {} for image data"
-                                 .format(A.shape))
+            if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in (3, 4)):
+                raise ValueError(f"Invalid shape {A.shape} for image data")
 
             if A.ndim == 2:
                 # if we are a 2D array, then we are running through the
                 # norm + colormap transformation.  However, in general the
                 # input data is not going to match the size on the screen so we
                 # have to resample to the correct number of pixels
-                # need to
 
                 # TODO slice input array first
                 inp_dtype = A.dtype
@@ -363,18 +381,15 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     # Cast to float64
                     if A.dtype not in (np.float32, np.float16):
                         if A.dtype != np.float64:
-                            cbook._warn_external("Casting input data from "
-                                                 "'{0}' to 'float64' for "
-                                                 "imshow".format(A.dtype))
+                            cbook._warn_external(
+                                f"Casting input data from '{A.dtype}' to "
+                                f"'float64' for imshow")
                         scaled_dtype = np.float64
                 else:
                     # probably an integer of some type.
                     da = a_max.astype(np.float64) - a_min.astype(np.float64)
-                    if da > 1e8:
-                        # give more breathing room if a big dynamic range
-                        scaled_dtype = np.float64
-                    else:
-                        scaled_dtype = np.float32
+                    # give more breathing room if a big dynamic range
+                    scaled_dtype = np.float64 if da > 1e8 else np.float32
 
                 # scale the input data to [.1, .9].  The Agg
                 # interpolators clip to [0, 1] internally, use a
@@ -383,16 +398,15 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # over / under.
                 # This may introduce numeric instabilities in very broadly
                 # scaled data
-                A_scaled = np.empty(A.shape, dtype=scaled_dtype)
-                A_scaled[:] = A
+                # Always copy, and don't allow array subtypes.
+                A_scaled = np.array(A, dtype=scaled_dtype)
                 # clip scaled data around norm if necessary.
                 # This is necessary for big numbers at the edge of
                 # float64's ability to represent changes.  Applying
                 # a norm first would be good, but ruins the interpolation
                 # of over numbers.
                 self.norm.autoscale_None(A)
-                dv = (np.float64(self.norm.vmax) -
-                      np.float64(self.norm.vmin))
+                dv = np.float64(self.norm.vmax) - np.float64(self.norm.vmin)
                 vmid = self.norm.vmin + dv / 2
                 fact = 1e7 if scaled_dtype == np.float64 else 1e4
                 newmin = vmid - dv * fact
@@ -406,7 +420,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 else:
                     a_max = np.float64(newmax)
                 if newmax is not None or newmin is not None:
-                    A_scaled = np.clip(A_scaled, newmin, newmax)
+                    np.clip(A_scaled, newmin, newmax, out=A_scaled)
 
                 A_scaled -= a_min
                 # a_min and a_max might be ndarray subclasses so use
@@ -417,18 +431,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if a_min != a_max:
                     A_scaled /= ((a_max - a_min) / 0.8)
                 A_scaled += 0.1
-                A_resampled = np.zeros((out_height, out_width),
-                                       dtype=A_scaled.dtype)
                 # resample the input data to the correct resolution and shape
-                _image.resample(A_scaled, A_resampled,
-                                t,
-                                _interpd_[self.get_interpolation()],
-                                self.get_resample(), 1.0,
-                                self.get_filternorm(),
-                                self.get_filterrad())
+                A_resampled = _resample(self, A_scaled, out_shape, t)
 
-                # we are done with A_scaled now, remove from namespace
-                # to be sure!
+                # done with A_scaled now, remove from namespace to be sure!
                 del A_scaled
                 # un-scale the resampled data to approximately the
                 # original range things that interpolated to above /
@@ -443,73 +449,35 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if isinstance(self.norm, mcolors.NoNorm):
                     A_resampled = A_resampled.astype(A.dtype)
 
-                mask = np.empty(A.shape, dtype=np.float32)
-                if A.mask.shape == A.shape:
-                    # this is the case of a nontrivial mask
-                    mask[:] = np.where(A.mask, np.float32(np.nan),
-                                       np.float32(1))
-                else:
-                    mask[:] = 1
-
+                mask = (np.where(A.mask, np.float32(np.nan), np.float32(1))
+                        if A.mask.shape == A.shape  # nontrivial mask
+                        else np.ones_like(A, np.float32))
                 # we always have to interpolate the mask to account for
                 # non-affine transformations
-                out_mask = np.zeros((out_height, out_width),
-                                    dtype=mask.dtype)
-                _image.resample(mask, out_mask,
-                                t,
-                                _interpd_[self.get_interpolation()],
-                                True, 1,
-                                self.get_filternorm(),
-                                self.get_filterrad())
-                # we are done with the mask, delete from namespace to be sure!
+                out_alpha = _resample(self, mask, out_shape, t, resample=True)
+                # done with the mask now, delete from namespace to be sure!
                 del mask
-                # Agg updates the out_mask in place.  If the pixel has
-                # no image data it will not be updated (and still be 0
-                # as we initialized it), if input data that would go
-                # into that output pixel than it will be `nan`, if all
-                # the input data for a pixel is good it will be 1, and
-                # if there is _some_ good data in that output pixel it
-                # will be between [0, 1] (such as a rotated image).
-
-                out_alpha = np.array(out_mask)
-                out_mask = np.isnan(out_mask)
+                # Agg updates out_alpha in place.  If the pixel has no image
+                # data it will not be updated (and still be 0 as we initialized
+                # it), if input data that would go into that output pixel than
+                # it will be `nan`, if all the input data for a pixel is good
+                # it will be 1, and if there is _some_ good data in that output
+                # pixel it will be between [0, 1] (such as a rotated image).
+                out_mask = np.isnan(out_alpha)
                 out_alpha[out_mask] = 1
-
                 # mask and run through the norm
                 output = self.norm(np.ma.masked_array(A_resampled, out_mask))
             else:
-                # Always convert to RGBA, even if only RGB input
                 if A.shape[2] == 3:
                     A = _rgb_to_rgba(A)
-                elif A.shape[2] != 4:
-                    raise ValueError("Invalid shape {} for image data"
-                                     .format(A.shape))
-
-                output = np.zeros((out_height, out_width, 4), dtype=A.dtype)
-                output_a = np.zeros((out_height, out_width), dtype=A.dtype)
-
                 alpha = self.get_alpha()
                 if alpha is None:
                     alpha = 1
-
-                #resample alpha channel
-                alpha_channel = A[..., 3]
-                _image.resample(
-                    alpha_channel, output_a, t,
-                    _interpd_[self.get_interpolation()],
-                    self.get_resample(), alpha,
-                    self.get_filternorm(), self.get_filterrad())
-
-                #resample rgb channels
-                A = _rgb_to_rgba(A[..., :3])
-                _image.resample(
-                    A, output, t,
-                    _interpd_[self.get_interpolation()],
-                    self.get_resample(), alpha,
-                    self.get_filternorm(), self.get_filterrad())
-
-                #recombine rgb and alpha channels
-                output[..., 3] = output_a
+                output_alpha = _resample(  # resample alpha channel
+                    self, A[..., 3], out_shape, t, alpha=alpha)
+                output = _resample(  # resample rgb channels
+                    self, _rgb_to_rgba(A[..., :3]), out_shape, t, alpha=alpha)
+                output[..., 3] = output_alpha  # recombine rgb and alpha
 
             # at this point output is either a 2D array of normed data
             # (of int or float)
