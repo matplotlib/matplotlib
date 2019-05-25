@@ -65,6 +65,7 @@ import re
 
 import numpy as np
 import matplotlib.cbook as cbook
+from matplotlib import docstring
 from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
@@ -362,7 +363,7 @@ colorConverter = ColorConverter()
 ### End of backwards-compatible color-conversion API
 
 
-def makeMappingArray(N, data, gamma=1.0):
+def _create_lookup_table(N, data, gamma=1.0):
     r"""Create an *N* -element 1-d lookup table.
 
     This assumes a mapping :math:`f : [0, 1] \rightarrow [0, 1]`. The returned
@@ -458,6 +459,13 @@ def makeMappingArray(N, data, gamma=1.0):
         ])
     # ensure that the lut is confined to values between 0 and 1 by clipping it
     return np.clip(lut, 0.0, 1.0)
+
+
+@cbook.deprecated("3.2",
+                  addendum='This is not considered public API any longer.')
+@docstring.copy(_create_lookup_table)
+def makeMappingArray(N, data, gamma=1.0):
+    return _create_lookup_table(N, data, gamma)
 
 
 class Colormap(object):
@@ -729,14 +737,14 @@ class LinearSegmentedColormap(Colormap):
 
     def _init(self):
         self._lut = np.ones((self.N + 3, 4), float)
-        self._lut[:-3, 0] = makeMappingArray(
+        self._lut[:-3, 0] = _create_lookup_table(
             self.N, self._segmentdata['red'], self._gamma)
-        self._lut[:-3, 1] = makeMappingArray(
+        self._lut[:-3, 1] = _create_lookup_table(
             self.N, self._segmentdata['green'], self._gamma)
-        self._lut[:-3, 2] = makeMappingArray(
+        self._lut[:-3, 2] = _create_lookup_table(
             self.N, self._segmentdata['blue'], self._gamma)
         if 'alpha' in self._segmentdata:
-            self._lut[:-3, 3] = makeMappingArray(
+            self._lut[:-3, 3] = _create_lookup_table(
                 self.N, self._segmentdata['alpha'], 1)
         self._isinit = True
         self._set_extremes()
