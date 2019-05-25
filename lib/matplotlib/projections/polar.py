@@ -183,7 +183,7 @@ class ThetaFormatter(mticker.Formatter):
             return format_str.format(value=np.rad2deg(x), digits=digits)
 
 
-class _AxisWrapper(object):
+class _AxisWrapper:
     def __init__(self, axis):
         self._axis = axis
 

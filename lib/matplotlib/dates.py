@@ -315,7 +315,7 @@ _from_ordinalf_np_vectorized = np.vectorize(_from_ordinalf)
 
 @cbook.deprecated(
     "3.1", alternative="time.strptime or dateutil.parser.parse or datestr2num")
-class strpdate2num(object):
+class strpdate2num:
     """
     Use this class to parse date strings to matplotlib datenums when
     you know the date format string of the date you are parsing.
@@ -936,7 +936,7 @@ class AutoDateFormatter(ticker.Formatter):
         return result
 
 
-class rrulewrapper(object):
+class rrulewrapper:
     def __init__(self, freq, tzinfo=None, **kwargs):
         kwargs['freq'] = freq
         self._base_tzinfo = tzinfo

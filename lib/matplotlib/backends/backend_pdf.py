@@ -223,7 +223,7 @@ def pdfRepr(obj):
                         .format(type(obj)))
 
 
-class Reference(object):
+class Reference:
     """PDF reference object.
     Use PdfFile.reserveObject() to create References.
     """
@@ -245,7 +245,7 @@ class Reference(object):
 
 
 @total_ordering
-class Name(object):
+class Name:
     """PDF name object."""
     __slots__ = ('name',)
     _regex = re.compile(r'[^!-~]')
@@ -281,7 +281,7 @@ class Name(object):
         return b'/' + self.name
 
 
-class Operator(object):
+class Operator:
     """PDF operator object."""
     __slots__ = ('op',)
 
@@ -295,7 +295,7 @@ class Operator(object):
         return self.op
 
 
-class Verbatim(object):
+class Verbatim:
     """Store verbatim PDF command content for later inclusion in the
     stream."""
     def __init__(self, x):
@@ -339,7 +339,7 @@ def _paint_path(fill, stroke):
 Op.paint_path = _paint_path
 
 
-class Stream(object):
+class Stream:
     """PDF stream object.
 
     This has no pdfRepr method. Instead, call begin(), then output the
@@ -420,7 +420,7 @@ class Stream(object):
             self.compressobj = None
 
 
-class PdfFile(object):
+class PdfFile:
     """PDF file object."""
 
     def __init__(self, filename, metadata=None):
@@ -2324,7 +2324,7 @@ class GraphicsContextPdf(GraphicsContextBase):
 ########################################################################
 
 
-class PdfPages(object):
+class PdfPages:
     """
     A multi-page PDF file.
 

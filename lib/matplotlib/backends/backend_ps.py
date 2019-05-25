@@ -42,7 +42,7 @@ backend_version = 'Level II'
 debugPS = 0
 
 
-class PsBackendHelper(object):
+class PsBackendHelper:
 
     def __init__(self):
         self._cached = {}
@@ -950,7 +950,7 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_edgecolor(edgecolor)
 
         if dryrun:
-            class NullWriter(object):
+            class NullWriter:
                 def write(self, *args, **kwargs):
                     pass
 
@@ -1148,7 +1148,7 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_edgecolor(edgecolor)
 
         if dryrun:
-            class NullWriter(object):
+            class NullWriter:
                 def write(self, *args, **kwargs):
                     pass
 

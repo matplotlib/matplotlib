@@ -3,7 +3,7 @@
 import operator
 
 
-class UnitDbl(object):
+class UnitDbl:
     """Class UnitDbl in development.
     """
     # Unit conversion table.  Small subset of the full one but enough

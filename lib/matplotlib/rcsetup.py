@@ -45,7 +45,7 @@ non_interactive_bk = ['agg', 'cairo',
 all_backends = interactive_bk + non_interactive_bk
 
 
-class ValidateInStrings(object):
+class ValidateInStrings:
     def __init__(self, key, valid, ignorecase=False):
         'valid is a list of legal strings'
         self.key = key
@@ -299,7 +299,7 @@ _str_err_msg = ('You must supply exactly {n} comma-separated values, you '
                 'provided {num} comma-separated values: {s}')
 
 
-class validate_nseq_float(object):
+class validate_nseq_float:
     def __init__(self, n=None, allow_none=False):
         self.n = n
         self.allow_none = allow_none
@@ -324,7 +324,7 @@ class validate_nseq_float(object):
             raise ValueError('Could not convert all entries to floats')
 
 
-class validate_nseq_int(object):
+class validate_nseq_int:
     def __init__(self, n=None):
         self.n = n
 
@@ -694,7 +694,7 @@ def validate_sketch(s):
     return result
 
 
-class ValidateInterval(object):
+class ValidateInterval:
     """
     Value must be in interval
     """

@@ -57,7 +57,7 @@ def debug_on_error(type, value, tb):
 
 
 @cbook.deprecated("3.1")
-class fake_stderr(object):
+class fake_stderr:
     """
     Wx does strange things with stderr, as it makes the assumption that
     there is probably no console. This redirects stderr to the console, since

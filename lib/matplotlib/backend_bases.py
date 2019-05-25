@@ -127,7 +127,7 @@ def get_registered_canvas_class(format):
     return backend_class
 
 
-class RendererBase(object):
+class RendererBase:
     """An abstract base class to handle drawing/rendering operations.
 
     The following methods must be implemented in the backend for full
@@ -712,7 +712,7 @@ class RendererBase(object):
         """
 
 
-class GraphicsContextBase(object):
+class GraphicsContextBase:
     """An abstract base class that provides color, line styles, etc."""
 
     def __init__(self):
@@ -1032,7 +1032,7 @@ class GraphicsContextBase(object):
             else (scale, length or 128., randomness or 16.))
 
 
-class TimerBase(object):
+class TimerBase:
     """
     A base class for providing timer events, useful for things animations.
     Backends need to implement a few specific methods in order to use their
@@ -1203,7 +1203,7 @@ class TimerBase(object):
             self.stop()
 
 
-class Event(object):
+class Event:
     """
     A matplotlib event.  Attach additional attributes as defined in
     :meth:`FigureCanvasBase.mpl_connect`.  The following attributes
@@ -1552,7 +1552,7 @@ def _get_renderer(figure, print_method):
             return figure._cachedRenderer
 
 
-class FigureCanvasBase(object):
+class FigureCanvasBase:
     """
     The canvas the figure renders into.
 
@@ -2466,7 +2466,7 @@ class NonGuiException(Exception):
     pass
 
 
-class FigureManagerBase(object):
+class FigureManagerBase:
     """
     Helper class for pyplot mode, wraps everything up into a neat bundle
 
@@ -2567,7 +2567,7 @@ class FigureManagerBase(object):
 cursors = tools.cursors
 
 
-class NavigationToolbar2(object):
+class NavigationToolbar2:
     """
     Base class for the navigation cursor, version 2
 
@@ -3079,7 +3079,7 @@ class NavigationToolbar2(object):
         """Enable or disable the back/forward button."""
 
 
-class ToolContainerBase(object):
+class ToolContainerBase:
     """
     Base class for all tool containers, e.g. toolbars.
 
@@ -3223,7 +3223,7 @@ class ToolContainerBase(object):
         raise NotImplementedError
 
 
-class StatusbarBase(object):
+class StatusbarBase:
     """Base class for the statusbar"""
     def __init__(self, toolmanager):
         self.toolmanager = toolmanager
@@ -3246,7 +3246,7 @@ class StatusbarBase(object):
         pass
 
 
-class _Backend(object):
+class _Backend:
     # A backend can be defined by using the following pattern:
     #
     # @_Backend.export

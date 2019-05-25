@@ -548,7 +548,7 @@ def test_picking():
     col = ax.scatter([0], [0], [1000], picker=True)
     fig.savefig(io.BytesIO(), dpi=fig.dpi)
 
-    class MouseEvent(object):
+    class MouseEvent:
         pass
     event = MouseEvent()
     event.x = 325

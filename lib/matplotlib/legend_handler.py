@@ -40,7 +40,7 @@ def update_from_first_child(tgt, src):
         tgt.update_from(first_child)
 
 
-class HandlerBase(object):
+class HandlerBase:
     """
     A Base class for default legend handlers.
 

@@ -9,7 +9,7 @@ import pytest
 
 
 # Basic class that wraps numpy array and has units
-class Quantity(object):
+class Quantity:
     def __init__(self, data, units):
         self.magnitude = data
         self.units = units

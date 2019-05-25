@@ -7,7 +7,7 @@ import numpy as np
 from matplotlib.tri import Triangulation
 
 
-class TriAnalyzer(object):
+class TriAnalyzer:
     """
     Define basic tools for triangular mesh analysis and improvement.
 

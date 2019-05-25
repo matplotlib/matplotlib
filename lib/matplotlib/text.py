@@ -1657,7 +1657,7 @@ class TextWithDash(Text):
 docstring.interpd.update(TextWithDash=artist.kwdoc(TextWithDash))
 
 
-class OffsetFrom(object):
+class OffsetFrom:
     'Callable helper class for working with `Annotation`'
     def __init__(self, artist, ref_coord, unit="points"):
         '''
@@ -1740,7 +1740,7 @@ class OffsetFrom(object):
         return tr
 
 
-class _AnnotationBase(object):
+class _AnnotationBase:
     def __init__(self,
                  xy,
                  xycoords='data',

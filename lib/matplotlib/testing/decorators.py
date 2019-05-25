@@ -165,7 +165,7 @@ def _mark_skip_if_format_is_uncomparable(extension):
                         marks=[*marks, _skip_if_format_is_uncomparable(name)])
 
 
-class _ImageComparisonBase(object):
+class _ImageComparisonBase:
     """
     Image comparison base class
 

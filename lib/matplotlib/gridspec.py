@@ -26,7 +26,7 @@ import matplotlib._layoutbox as layoutbox
 _log = logging.getLogger(__name__)
 
 
-class GridSpecBase(object):
+class GridSpecBase:
     """
     A base class of GridSpec that specifies the geometry of the grid
     that a subplot will be placed.
@@ -408,7 +408,7 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         return self._subplot_spec.get_topmost_subplotspec()
 
 
-class SubplotSpec(object):
+class SubplotSpec:
     """Specifies the location of the subplot in the given `GridSpec`.
     """
 

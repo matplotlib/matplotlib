@@ -3,7 +3,7 @@ import inspect
 from matplotlib import cbook
 
 
-class Substitution(object):
+class Substitution:
     """
     A decorator that performs %-substitution on an object's docstring.
 
@@ -60,7 +60,7 @@ class Substitution(object):
 
 
 @cbook.deprecated("3.1")
-class Appender(object):
+class Appender:
     """
     A function decorator that will append an addendum to the docstring
     of the target function.

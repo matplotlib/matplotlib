@@ -6,7 +6,7 @@ import datetime as DT
 from matplotlib.dates import date2num
 
 
-class Epoch(object):
+class Epoch:
     # Frame conversion offsets in seconds
     # t(TO) = t(FROM) + allowed[ FROM ][ TO ]
     allowed = {

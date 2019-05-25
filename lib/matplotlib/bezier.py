@@ -145,7 +145,7 @@ def find_bezier_t_intersecting_with_closedpath(
             start_inside = middle_inside
 
 
-class BezierSegment(object):
+class BezierSegment:
     """
     A simple class of a 2-dimensional bezier segment
     """

@@ -27,7 +27,7 @@ import matplotlib.lines as mlines
 _log = logging.getLogger(__name__)
 
 
-class BlockingInput(object):
+class BlockingInput:
     """Callable for retrieving events in a blocking way."""
 
     def __init__(self, fig, eventslist=()):

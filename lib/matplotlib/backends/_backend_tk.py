@@ -645,7 +645,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             NavigationToolbar2.update(self)
 
 
-class ToolTip(object):
+class ToolTip:
     """
     Tooltip recipe from
     http://www.voidspace.org.uk/python/weblog/arch_d7_2006_07_01.shtml#e387

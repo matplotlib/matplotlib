@@ -393,7 +393,7 @@ def _parse_afm(fh):
     return header, cmetrics_by_ascii, cmetrics_by_name, kernpairs, composites
 
 
-class AFM(object):
+class AFM:
 
     def __init__(self, fh):
         """Parse the AFM file in file object *fh*."""

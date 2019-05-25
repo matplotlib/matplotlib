@@ -51,7 +51,7 @@ def _indent_str(obj):  # textwrap.indent(str(obj), 4) on Py3.
     return re.sub("(^|\n)", r"\1    ", str(obj))
 
 
-class TransformNode(object):
+class TransformNode:
     """
     :class:`TransformNode` is the base class for anything that
     participates in the transform tree and needs to invalidate its

@@ -95,7 +95,7 @@ class _ConverterError(Exception):
     pass
 
 
-class _Converter(object):
+class _Converter:
     def __init__(self):
         self._proc = None
         # Explicitly register deletion from an atexit handler because if we

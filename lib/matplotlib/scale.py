@@ -12,7 +12,7 @@ from matplotlib.ticker import (
 from matplotlib.transforms import Transform, IdentityTransform
 
 
-class ScaleBase(object):
+class ScaleBase:
     """
     The base class for all scales.
 

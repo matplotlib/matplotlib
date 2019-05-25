@@ -1594,7 +1594,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         self.stale = False
 
 
-class DraggableBase(object):
+class DraggableBase:
     """
     helper code for a draggable artist (legend, offsetbox)
     The derived class must override following two method.

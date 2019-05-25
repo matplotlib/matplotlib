@@ -316,7 +316,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     return [fname for fname in fontfiles if os.path.exists(fname)]
 
 
-class FontEntry(object):
+class FontEntry:
     """
     A class for storing Font properties.  It is used when populating
     the font lookup dictionary.
@@ -554,7 +554,7 @@ def createFontList(fontfiles, fontext='ttf'):
     return fontlist
 
 
-class FontProperties(object):
+class FontProperties:
     """
     A class for storing and manipulating font properties.
 
@@ -926,7 +926,7 @@ def _normalize_font_family(family):
     return family
 
 
-class FontManager(object):
+class FontManager:
     """
     On import, the :class:`FontManager` singleton instance creates a
     list of TrueType fonts based on the font properties: name, style,

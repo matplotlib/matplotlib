@@ -3,7 +3,7 @@
 import operator
 
 
-class Duration(object):
+class Duration:
     """Class Duration in development.
     """
     allowed = ["ET", "UTC"]

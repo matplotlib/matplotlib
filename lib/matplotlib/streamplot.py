@@ -233,7 +233,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     return stream_container
 
 
-class StreamplotSet(object):
+class StreamplotSet:
 
     def __init__(self, lines, arrows, **kwargs):
         self.lines = lines
@@ -243,7 +243,7 @@ class StreamplotSet(object):
 # Coordinate definitions
 # ========================
 
-class DomainMap(object):
+class DomainMap:
     """Map representing different coordinate systems.
 
     Coordinate definitions:
@@ -306,7 +306,7 @@ class DomainMap(object):
         self.mask._undo_trajectory()
 
 
-class Grid(object):
+class Grid:
     """Grid of data."""
     def __init__(self, x, y):
 
@@ -358,7 +358,7 @@ class Grid(object):
         return xi >= 0 and xi <= self.nx - 1 and yi >= 0 and yi <= self.ny - 1
 
 
-class StreamMask(object):
+class StreamMask:
     """Mask to keep track of discrete regions crossed by streamlines.
 
     The resolution of this grid determines the approximate spacing between

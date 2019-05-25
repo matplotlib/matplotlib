@@ -166,7 +166,7 @@ class AxesStack(_AxesStack):
     pass
 
 
-class SubplotParams(object):
+class SubplotParams:
     """
     A class to hold the parameters for a subplot.
     """

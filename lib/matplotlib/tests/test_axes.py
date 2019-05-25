@@ -1785,7 +1785,7 @@ def test_hist2d_density_normed():
             obj.hist2d(x, y, density=True, normed=True)
 
 
-class TestScatter(object):
+class TestScatter:
     @image_comparison(['scatter'], style='mpl20', remove_text=True)
     def test_scatter_plot(self):
         data = {"x": np.array([3, 4, 2, 6]), "y": np.array([2, 5, 2, 3]),
@@ -2039,7 +2039,7 @@ def test_as_mpl_axes_api():
     from matplotlib.projections.polar import PolarAxes
     import matplotlib.axes as maxes
 
-    class Polar(object):
+    class Polar:
         def __init__(self):
             self.theta_offset = 0
 

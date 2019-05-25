@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib.tri import Triangulation
 
 
-class TriFinder(object):
+class TriFinder:
     """
     Abstract base class for classes used to find the triangles of a
     Triangulation in which (x,y) points lie.

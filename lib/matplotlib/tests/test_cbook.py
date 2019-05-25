@@ -25,7 +25,7 @@ def test_is_hashable():
         assert not cbook.is_hashable(lst)
 
 
-class Test_delete_masked_points(object):
+class Test_delete_masked_points:
     def setup_method(self):
         self.mask1 = [False, False, True, True, False, False]
         self.arr0 = np.arange(1.0, 7.0)
@@ -67,7 +67,7 @@ class Test_delete_masked_points(object):
         assert_array_equal(actual[1], expected[1])
 
 
-class Test_boxplot_stats(object):
+class Test_boxplot_stats:
     def setup(self):
         np.random.seed(937)
         self.nrows = 37
@@ -194,7 +194,7 @@ class Test_boxplot_stats(object):
         assert_array_almost_equal(bstats_true[0]['fliers'], [])
 
 
-class Test_callback_registry(object):
+class Test_callback_registry:
     def setup(self):
         self.signal = 'test'
         self.callbacks = cbook.CallbackRegistry()

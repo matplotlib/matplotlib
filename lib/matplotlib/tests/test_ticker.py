@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 
 
-class TestMaxNLocator(object):
+class TestMaxNLocator:
     basic_data = [
         (20, 100, np.array([20., 40., 60., 80., 100.])),
         (0.001, 0.0001, np.array([0., 0.0002, 0.0004, 0.0006, 0.0008, 0.001])),
@@ -35,7 +35,7 @@ class TestMaxNLocator(object):
         assert_almost_equal(loc.tick_values(vmin, vmax), expected)
 
 
-class TestLinearLocator(object):
+class TestLinearLocator:
     def test_basic(self):
         loc = mticker.LinearLocator(numticks=3)
         test_value = np.array([-0.8, -0.3, 0.2])
@@ -52,7 +52,7 @@ class TestLinearLocator(object):
         assert loc.presets == {(0, 1): []}
 
 
-class TestMultipleLocator(object):
+class TestMultipleLocator:
     def test_basic(self):
         loc = mticker.MultipleLocator(base=3.147)
         test_value = np.array([-9.441, -6.294, -3.147, 0., 3.147, 6.294,
@@ -86,7 +86,7 @@ class TestMultipleLocator(object):
         assert mult._edge.step == 1.7
 
 
-class TestAutoMinorLocator(object):
+class TestAutoMinorLocator:
     def test_basic(self):
         fig, ax = plt.subplots()
         ax.set_xlim(0, 1.39)
@@ -188,7 +188,7 @@ class TestAutoMinorLocator(object):
         assert_almost_equal(ax.yaxis.get_ticklocs(minor=True), ref)
 
 
-class TestLogLocator(object):
+class TestLogLocator:
     def test_basic(self):
         loc = mticker.LogLocator(numticks=5)
         with pytest.raises(ValueError):
@@ -226,7 +226,7 @@ class TestLogLocator(object):
         assert list(loc._subs) == [2.0]
 
 
-class TestNullLocator(object):
+class TestNullLocator:
     def test_set_params(self):
         """
         Create null locator, and attempt to call set_params() on it.
@@ -237,7 +237,7 @@ class TestNullLocator(object):
             loc.set_params()
 
 
-class TestLogitLocator(object):
+class TestLogitLocator:
     def test_set_params(self):
         """
         Create logit locator with default minor=False, and change it to
@@ -248,7 +248,7 @@ class TestLogitLocator(object):
         assert loc.minor
 
 
-class TestFixedLocator(object):
+class TestFixedLocator:
     def test_set_params(self):
         """
         Create fixed locator with 5 nbins, and change it to something else.
@@ -260,7 +260,7 @@ class TestFixedLocator(object):
         assert fixed.nbins == 7
 
 
-class TestIndexLocator(object):
+class TestIndexLocator:
     def test_set_params(self):
         """
         Create index locator with 3 base, 4 offset. and change it to something
@@ -273,7 +273,7 @@ class TestIndexLocator(object):
         assert index.offset == 7
 
 
-class TestSymmetricalLogLocator(object):
+class TestSymmetricalLogLocator:
     def test_set_params(self):
         """
         Create symmetrical log locator with default subs =[1.0] numticks = 15,
@@ -287,7 +287,7 @@ class TestSymmetricalLogLocator(object):
         assert sym.numticks == 8
 
 
-class TestScalarFormatter(object):
+class TestScalarFormatter:
     offset_data = [
         (123, 189, 0),
         (-189, -123, 0),
@@ -380,7 +380,7 @@ class TestScalarFormatter(object):
         assert orderOfMag == tmp_form.orderOfMagnitude
 
 
-class FakeAxis(object):
+class FakeAxis:
     """Allow Formatter to be called without having a "full" plot set up."""
     def __init__(self, vmin=1, vmax=10):
         self.vmin = vmin
@@ -390,7 +390,7 @@ class FakeAxis(object):
         return self.vmin, self.vmax
 
 
-class TestLogFormatterExponent(object):
+class TestLogFormatterExponent:
     param_data = [
         (True, 4, np.arange(-3, 4.0), np.arange(-3, 4.0),
          ['-3', '-2', '-1', '0', '1', '2', '3']),
@@ -443,7 +443,7 @@ class TestLogFormatterMathtext():
             assert self.fmt(value) == expected
 
 
-class TestLogFormatterSciNotation(object):
+class TestLogFormatterSciNotation:
     test_data = [
         (2, 0.03125, '$\\mathdefault{2^{-5}}$'),
         (2, 1, '$\\mathdefault{2^{0}}$'),
@@ -472,7 +472,7 @@ class TestLogFormatterSciNotation(object):
             assert formatter(value) == expected
 
 
-class TestLogFormatter(object):
+class TestLogFormatter:
     pprint_data = [
         (3.141592654e-05, 0.001, '3.142e-5'),
         (0.0003141592654, 0.001, '3.142e-4'),
@@ -670,14 +670,14 @@ class TestLogFormatter(object):
         assert temp_lf(val) == str(val)
 
 
-class TestFormatStrFormatter(object):
+class TestFormatStrFormatter:
     def test_basic(self):
         # test % style formatter
         tmp_form = mticker.FormatStrFormatter('%05d')
         assert '00002' == tmp_form(2)
 
 
-class TestStrMethodFormatter(object):
+class TestStrMethodFormatter:
     test_data = [
         ('{x:05d}', (2,), '00002'),
         ('{x:03d}-{pos:02d}', (2, 1), '002-01'),
@@ -689,7 +689,7 @@ class TestStrMethodFormatter(object):
         assert fmt(*input) == expected
 
 
-class TestEngFormatter(object):
+class TestEngFormatter:
     # (unicode_minus, input, expected) where ''expected'' corresponds to the
     # outputs respectively returned when (places=None, places=0, places=2)
     # unicode_minus is a boolean value for the rcParam['axes.unicode_minus']
@@ -814,7 +814,7 @@ def test_engformatter_usetex_useMathText():
         assert x_tick_label_text == ['$0$', '$500$', '$1$ k']
 
 
-class TestPercentFormatter(object):
+class TestPercentFormatter:
     percent_data = [
         # Check explicitly set decimals over different intervals and values
         (100, 0, '%', 120, 100, '120%'),

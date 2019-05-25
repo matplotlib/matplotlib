@@ -16,7 +16,7 @@ from matplotlib.transforms import Affine2D
 _log = logging.getLogger(__name__)
 
 
-class TextToPath(object):
+class TextToPath:
     """A class that converts strings to paths."""
 
     FONT_SCALE = 100.

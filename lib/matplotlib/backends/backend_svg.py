@@ -96,7 +96,7 @@ def short_float_fmt(x):
     return '{0:f}'.format(x).rstrip('0').rstrip('.')
 
 
-class XMLWriter(object):
+class XMLWriter:
     """
     Parameters
     ----------

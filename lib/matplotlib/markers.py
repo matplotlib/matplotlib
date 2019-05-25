@@ -162,7 +162,7 @@ from .transforms import IdentityTransform, Affine2D
 _empty_path = Path(np.empty((0, 2)))
 
 
-class MarkerStyle(object):
+class MarkerStyle:
 
     markers = {
         '.': 'point',

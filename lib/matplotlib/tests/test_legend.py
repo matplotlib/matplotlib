@@ -228,7 +228,7 @@ def test_legend_remove():
     assert ax.get_legend() is None
 
 
-class TestLegendFunction(object):
+class TestLegendFunction:
     # Tests the legend function on the Axes and pyplot.
     def test_legend_handle_label(self):
         lines = plt.plot(range(10))
@@ -297,7 +297,7 @@ class TestLegendFunction(object):
         Legend.assert_called_with(host, [p1, p2], ['Density', 'Temperature'])
 
 
-class TestLegendFigureFunction(object):
+class TestLegendFigureFunction:
     # Tests the legend function for figure
     def test_legend_handle_label(self):
         fig, ax = plt.subplots()

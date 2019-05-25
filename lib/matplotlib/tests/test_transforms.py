@@ -52,7 +52,7 @@ def test_non_affine_caching():
 
 
 def test_external_transform_api():
-    class ScaledBy(object):
+    class ScaledBy:
         def __init__(self, scale_factor):
             self._scale_factor = scale_factor
 

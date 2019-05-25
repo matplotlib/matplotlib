@@ -93,7 +93,7 @@ def adjusted_figsize(w, h, dpi, n):
 
 
 # A registry for available MovieWriter classes
-class MovieWriterRegistry(object):
+class MovieWriterRegistry:
     '''Registry of available writer classes by human readable name.'''
     def __init__(self):
         self.avail = dict()
@@ -576,7 +576,7 @@ class PillowWriter(MovieWriter):
 
 # Base class of ffmpeg information. Has the config keys and the common set
 # of arguments that controls the *output* side of things.
-class FFMpegBase(object):
+class FFMpegBase:
     '''Mixin class for FFMpeg output.
 
     To be useful this must be multiply-inherited from with a
@@ -696,7 +696,7 @@ class AVConvFileWriter(AVConvBase, FFMpegFileWriter):
 
 
 # Base class for animated GIFs with ImageMagick
-class ImageMagickBase(object):
+class ImageMagickBase:
     '''Mixin class for ImageMagick output.
 
     To be useful this must be multiply-inherited from with a
@@ -880,7 +880,7 @@ class HTMLWriter(FileMovieWriter):
                                              **mode_dict))
 
 
-class Animation(object):
+class Animation:
     '''This class wraps the creation of an animation using matplotlib.
 
     It is only a base class which should be subclassed to provide

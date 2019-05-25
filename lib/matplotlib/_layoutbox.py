@@ -43,7 +43,7 @@ def get_renderer(fig):
     return renderer
 
 
-class LayoutBox(object):
+class LayoutBox:
     """
     Basic rectangle representation using kiwi solver variables
     """
