@@ -152,7 +152,7 @@ def to_rgba(c, alpha=None):
 
     Parameters
     ----------
-    c : Matplotlib color
+    c : Matplotlib color or ``np.ma.masked``
 
     alpha : scalar, optional
         If *alpha* is not ``None``, it forces the alpha value, except if *c* is
@@ -189,6 +189,8 @@ def _to_rgba_no_colorcycle(c, alpha=None):
     ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
     """
     orig_c = c
+    if c is np.ma.masked:
+        return (0., 0., 0., 0.)
     if isinstance(c, str):
         if c.lower() == "none":
             return (0., 0., 0., 0.)
@@ -260,12 +262,16 @@ def to_rgba_array(c, alpha=None):
 
     If *alpha* is not ``None``, it forces the alpha value.  If *c* is
     ``"none"`` (case-insensitive) or an empty list, an empty array is returned.
+    If *c* is a masked array, an ndarray is returned with a (0, 0, 0, 0)
+    row for each masked value or row in *c*.
     """
     # Special-case inputs that are already arrays, for performance.  (If the
     # array has the wrong kind or shape, raise the error during one-at-a-time
     # conversion.)
     if (isinstance(c, np.ndarray) and c.dtype.kind in "if"
             and c.ndim == 2 and c.shape[1] in [3, 4]):
+        mask = c.mask.any(axis=1) if np.ma.is_masked(c) else None
+        c = np.ma.getdata(c)
         if c.shape[1] == 3:
             result = np.column_stack([c, np.zeros(len(c))])
             result[:, -1] = alpha if alpha is not None else 1.
@@ -273,6 +279,8 @@ def to_rgba_array(c, alpha=None):
             result = c.copy()
             if alpha is not None:
                 result[:, -1] = alpha
+        if mask is not None:
+            result[mask] = 0
         if np.any((result < 0) | (result > 1)):
             raise ValueError("RGBA values should be within 0-1 range")
         return result
