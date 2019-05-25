@@ -851,8 +851,10 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
         can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
-        self._actions['back'].setEnabled(can_backward)
-        self._actions['forward'].setEnabled(can_forward)
+        if 'back' in self._actions:
+            self._actions['back'].setEnabled(can_backward)
+        if 'forward' in self._actions:
+            self._actions['forward'].setEnabled(can_forward)
 
 
 class SubplotToolQt(UiSubplotTool):
