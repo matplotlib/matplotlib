@@ -1,5 +1,3 @@
-import unittest
-
 import numpy as np
 from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal, assert_array_almost_equal)
@@ -219,8 +217,8 @@ class NonAffineForTest(mtransforms.Transform):
         return self.real_trans.transform_path(path)
 
 
-class BasicTransformTests(unittest.TestCase):
-    def setUp(self):
+class TestBasicTransform():
+    def setup_method(self):
 
         self.ta1 = mtransforms.Affine2D(shorthand_name='ta1').rotate(np.pi / 2)
         self.ta2 = mtransforms.Affine2D(shorthand_name='ta2').translate(10, 0)
@@ -352,10 +350,7 @@ class BasicTransformTests(unittest.TestCase):
         assert_array_equal(expected_result, result)
 
 
-class TestTransformPlotInterface(unittest.TestCase):
-    def tearDown(self):
-        plt.close()
-
+class TestTransformPlotInterface:
     def test_line_extent_axes_coords(self):
         # a simple line in axes coordinates
         ax = plt.axes()
@@ -381,7 +376,6 @@ class TestTransformPlotInterface(unittest.TestCase):
         assert_array_equal(ax.dataLim.get_points(),
                            np.array([[np.inf, -5.],
                                      [-np.inf, 35.]]))
-        plt.close()
 
     def test_line_extent_predata_transform_coords(self):
         # a simple line in (offset + data) coordinates
@@ -390,7 +384,6 @@ class TestTransformPlotInterface(unittest.TestCase):
         ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
         assert_array_equal(ax.dataLim.get_points(),
                            np.array([[1., -50.], [12., 350.]]))
-        plt.close()
 
     def test_line_extent_compound_coords2(self):
         # a simple line in (offset + data) coordinates in the y component, and
@@ -401,7 +394,6 @@ class TestTransformPlotInterface(unittest.TestCase):
         ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
         assert_array_equal(ax.dataLim.get_points(),
                            np.array([[np.inf, -50.], [-np.inf, 350.]]))
-        plt.close()
 
     def test_line_extents_affine(self):
         ax = plt.axes()
