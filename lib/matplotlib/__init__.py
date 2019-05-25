@@ -460,6 +460,7 @@ def checkdep_inkscape():
 checkdep_inkscape.version = None
 
 
+@cbook.deprecated("3.2")
 def checkdep_ps_distiller(s):
     if not s:
         return False
@@ -957,9 +958,6 @@ with cbook._suppress_matplotlib_deprecation_warning():
     rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
                                 defaultParams.items()
                                 if key not in _all_deprecated])
-
-rcParams['ps.usedistiller'] = checkdep_ps_distiller(
-                      rcParams['ps.usedistiller'])
 
 if rcParams['axes.formatter.use_locale']:
     locale.setlocale(locale.LC_ALL, '')

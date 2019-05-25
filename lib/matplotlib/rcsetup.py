@@ -15,10 +15,12 @@ parameter set listed here should also be visited to the
 """
 from collections.abc import Iterable, Mapping
 from functools import reduce
+import logging
 import operator
 import os
 import re
 
+import matplotlib as mpl
 from matplotlib import cbook
 from matplotlib.cbook import ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
@@ -28,6 +30,7 @@ from matplotlib.colors import is_color_like
 from cycler import Cycler, cycler as ccycler
 
 
+_log = logging.getLogger(__name__)
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
 interactive_bk = ['GTK3Agg', 'GTK3Cairo',
@@ -534,11 +537,22 @@ validate_ps_papersize = ValidateInStrings(
 def validate_ps_distiller(s):
     if isinstance(s, str):
         s = s.lower()
-    if s in ('none', None):
+    if s in ('none', None, 'false', False):
         return None
-    elif s in ('false', False):
-        return False
     elif s in ('ghostscript', 'xpdf'):
+        try:
+            mpl._get_executable_info("gs")
+        except FileNotFoundError:
+            _log.warning("Setting rcParams['ps.usedistiller'] requires "
+                         "ghostscript.")
+            return None
+        if s == "xpdf":
+            try:
+                mpl._get_executable_info("pdftops")
+            except FileNotFoundError:
+                _log.warning("Setting rcParams['ps.usedistiller'] to 'xpdf' "
+                             "requires xpdf.")
+                return None
         return s
     else:
         raise ValueError('matplotlibrc ps.usedistiller must either be none, '
