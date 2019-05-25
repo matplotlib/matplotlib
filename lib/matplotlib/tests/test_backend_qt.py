@@ -1,4 +1,5 @@
 import copy
+import sys
 from unittest import mock
 
 import matplotlib
@@ -26,6 +27,8 @@ def mpl_test_settings(qt_module, mpl_test_settings):
 def qt_module(request):
     backend, = request.node.get_closest_marker('backend').args
     if backend == 'Qt4Agg':
+        if any(k in sys.modules for k in ('PyQt5', 'PySide2')):
+            pytest.skip('Qt5 binding already imported')
         try:
             import PyQt4
         # RuntimeError if PyQt5 already imported.
@@ -35,6 +38,8 @@ def qt_module(request):
             except ImportError:
                 pytest.skip("Failed to import a Qt4 binding.")
     elif backend == 'Qt5Agg':
+        if any(k in sys.modules for k in ('PyQt4', 'PySide')):
+            pytest.skip('Qt4 binding already imported')
         try:
             import PyQt5
         # RuntimeError if PyQt4 already imported.
