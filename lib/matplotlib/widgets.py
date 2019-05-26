@@ -1724,10 +1724,11 @@ class SpanSelector(_SelectorWidget):
       If True, the span stays visible after the mouse is released
 
     button : int or list of ints
-      Determines which mouse buttons activate the span selector
-        1 = left mouse button\n
-        2 = center mouse button (scroll wheel)\n
-        3 = right mouse button\n
+      Determines which mouse buttons activate the span selector:
+
+      - 1: left mouse button
+      - 2: center mouse button (scroll wheel)
+      - 3: right mouse button
 
     Examples
     --------

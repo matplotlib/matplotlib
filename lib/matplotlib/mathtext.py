@@ -412,7 +412,7 @@ class Fonts:
 
     def get_kern(self, font1, fontclass1, sym1, fontsize1,
                  font2, fontclass2, sym2, fontsize2, dpi):
-        """
+        r"""
         Get the kerning distance for font between *sym1* and *sym2*.
 
         *fontX*: one of the TeX font names::
@@ -421,7 +421,7 @@ class Fonts:
 
         *fontclassX*: TODO
 
-        *symX*: a symbol in raw TeX form. e.g., '1', 'x' or '\\sigma'
+        *symX*: a symbol in raw TeX form. e.g., '1', 'x' or '\sigma'
 
         *fontsizeX*: the fontsize in points
 
@@ -430,14 +430,14 @@ class Fonts:
         return 0.
 
     def get_metrics(self, font, font_class, sym, fontsize, dpi, math=True):
-        """
+        r"""
         *font*: one of the TeX font names::
 
           tt, it, rm, cal, sf, bf or default/regular (non-math)
 
         *font_class*: TODO
 
-        *sym*:  a symbol in raw TeX form. e.g., '1', 'x' or '\\sigma'
+        *sym*:  a symbol in raw TeX form. e.g., '1', 'x' or '\sigma'
 
         *fontsize*: font size in points
 
@@ -1647,13 +1647,13 @@ class Hlist(List):
 #         return 0.0
 
     def hpack(self, w=0., m='additional'):
-        """
+        r"""
         The main duty of :meth:`hpack` is to compute the dimensions of
         the resulting boxes, and to adjust the glue if one of those
         dimensions is pre-specified.  The computed sizes normally
         enclose all of the material inside the new box; but some items
         may stick out if negative glue is used, if the box is
-        overfull, or if a ``\\vbox`` includes other boxes that have
+        overfull, or if a ``\vbox`` includes other boxes that have
         been shifted left.
 
           - *w*: specifies a width

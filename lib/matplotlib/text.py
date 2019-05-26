@@ -1137,10 +1137,10 @@ class Text(Artist):
         self.stale = True
 
     def set_text(self, s):
-        """
+        r"""
         Set the text string *s*.
 
-        It may contain newlines (``\\n``) or math in LaTeX syntax.
+        It may contain newlines (``\n``) or math in LaTeX syntax.
 
         Parameters
         ----------

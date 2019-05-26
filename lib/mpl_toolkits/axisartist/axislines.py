@@ -76,7 +76,7 @@ class AxisArtistHelper(object):
             return (x, y), trans
 
 
-        def get_label_offset_transform(self, \
+        def get_label_offset_transform(self,
                 axes,
                 pad_points, fontprops, renderer,
                 bboxes,

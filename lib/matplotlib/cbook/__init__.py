@@ -1026,7 +1026,7 @@ def _combine_masks(*args):
 
 def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
                   autorange=False):
-    """
+    r"""
     Returns list of dictionaries of statistics used to draw a series
     of box and whisker plots. The `Returns` section enumerates the
     required keys of the dictionary. Users can skip this function and
@@ -1095,7 +1095,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     .. math::
 
-        \\mathrm{med} \\pm 1.57 \\times \\frac{\\mathrm{iqr}}{\\sqrt{N}}
+        \mathrm{med} \pm 1.57 \times \frac{\mathrm{iqr}}{\sqrt{N}}
 
     General approach from:
     McGill, R., Tukey, J.W., and Larsen, W.A. (1978) "Variations of
