@@ -1172,6 +1172,7 @@ default: 'top'
             the following table but there might also be other keyword
             arguments if another projection is used, see the actual axes
             class.
+
             %(Axes)s
 
         Returns
@@ -1315,6 +1316,7 @@ default: 'top'
             rectilinear base class `~.axes.Axes` can be found in
             the following table but there might also be other keyword
             arguments if another projection is used.
+
             %(Axes)s
 
         Returns
@@ -1859,6 +1861,7 @@ default: 'top'
         ----------------
         **kwargs : `~matplotlib.text.Text` properties
             Other miscellaneous text parameters.
+
             %(Text)s
 
         Returns

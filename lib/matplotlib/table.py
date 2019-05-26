@@ -172,6 +172,7 @@ class Cell(Rectangle):
         Update the text properties.
 
         Valid kwargs are
+
         %(Text)s
         """
         self._text.update(kwargs)

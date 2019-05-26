@@ -39,6 +39,7 @@ class Spine(mpatches.Patch):
         - *path* : the path instance used to draw the spine
 
         Valid kwargs are:
+
         %(Patch)s
         """
         super().__init__(**kwargs)

@@ -605,6 +605,7 @@ class Shadow(Patch):
         but darkened.
 
         kwargs are
+
         %(Patch)s
         """
         Patch.__init__(self)
@@ -686,6 +687,7 @@ class Rectangle(Patch):
         Notes
         -----
         Valid kwargs are:
+
         %(Patch)s
         """
 
@@ -853,6 +855,7 @@ class RegularPolygon(Patch):
           rotates the polygon (in radians).
 
         Valid kwargs are:
+
         %(Patch)s
         """
         self._xy = xy
@@ -930,6 +933,7 @@ class PathPatch(Patch):
         *path* is a :class:`matplotlib.path.Path` object.
 
         Valid kwargs are:
+
         %(Patch)s
         """
         Patch.__init__(self, **kwargs)
@@ -956,6 +960,7 @@ class Polygon(Patch):
         starting and ending points are the same.
 
         Valid kwargs are:
+
         %(Patch)s
         """
         Patch.__init__(self, **kwargs)
@@ -1232,8 +1237,8 @@ class FancyArrow(Polygon):
             instead of ending at coordinate 0.
 
         Other valid kwargs (inherited from :class:`Patch`) are:
-        %(Patch)s
 
+        %(Patch)s
         """
         if head_width is None:
             head_width = 3 * width
@@ -1313,8 +1318,8 @@ class CirclePolygon(RegularPolygon):
         see :class:`~matplotlib.patches.Circle`.
 
         Valid kwargs are:
-        %(Patch)s
 
+        %(Patch)s
         """
         RegularPolygon.__init__(self, xy,
                                 resolution,
@@ -1350,6 +1355,7 @@ class Ellipse(Patch):
         Notes
         -----
         Valid keyword arguments are
+
         %(Patch)s
         """
         Patch.__init__(self, **kwargs)
@@ -1424,8 +1430,8 @@ class Circle(Ellipse):
         and is much closer to a scale-free circle.
 
         Valid kwargs are:
-        %(Patch)s
 
+        %(Patch)s
         """
         Ellipse.__init__(self, xy, radius * 2, radius * 2, **kwargs)
         self.radius = radius
@@ -1505,7 +1511,6 @@ class Arc(Ellipse):
             not supported.
 
         %(Patch)s
-
         """
         fill = kwargs.setdefault('fill', False)
         if fill:
@@ -2606,7 +2611,6 @@ class ConnectionStyle(_Style):
 
     %(AvailableConnectorstyles)s
 
-
     An instance of any connection style class is an callable object,
     whose call signature is::
 
@@ -3050,7 +3054,6 @@ class ArrowStyle(_Style):
     The following classes are defined
 
     %(AvailableArrowstyles)s
-
 
     An instance of any arrow style class is a callable object,
     whose call signature is::

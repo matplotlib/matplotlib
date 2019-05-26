@@ -136,9 +136,9 @@ class Text(Artist):
         Create a `.Text` instance at *x*, *y* with string *text*.
 
         Valid kwargs are
+
         %(Text)s
         """
-
         Artist.__init__(self)
         self._x, self._y = x, y
 

@@ -1575,12 +1575,10 @@ def kwdoc(artist):
         :rc:`docstring.hardcopy` is False and as a rst table (intended for
         use in Sphinx) if it is True.
     """
-    hardcopy = matplotlib.rcParams['docstring.hardcopy']
-    if hardcopy:
-        return '\n'.join(ArtistInspector(artist).pprint_setters_rest(
-                         leadingspace=4))
-    else:
-        return '\n'.join(ArtistInspector(artist).pprint_setters(
-                         leadingspace=2))
+    ai = ArtistInspector(artist)
+    return ('\n'.join(ai.pprint_setters_rest(leadingspace=4))
+            if matplotlib.rcParams['docstring.hardcopy'] else
+            'Properties:\n' + '\n'.join(ai.pprint_setters(leadingspace=4)))
+
 
 docstring.interpd.update(Artist=kwdoc(Artist))
