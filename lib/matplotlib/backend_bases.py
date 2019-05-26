@@ -2235,7 +2235,6 @@ class FigureCanvasBase:
 
         Examples
         --------
-
         >>> timer = fig.canvas.new_timer(callbacks=[(f1, (1, ), {'a': 3}),])
 
         """

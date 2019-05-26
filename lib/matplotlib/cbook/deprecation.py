@@ -98,12 +98,11 @@ def warn_deprecated(
 
     Examples
     --------
+    Basic example::
 
-        Basic example::
-
-            # To warn of the deprecation of "matplotlib.name_of_module"
-            warn_deprecated('1.4.0', name='matplotlib.name_of_module',
-                            obj_type='module')
+        # To warn of the deprecation of "matplotlib.name_of_module"
+        warn_deprecated('1.4.0', name='matplotlib.name_of_module',
+                        obj_type='module')
     """
     warning = _generate_deprecation_warning(
         since, message, name, alternative, pending, obj_type, addendum,
@@ -170,12 +169,11 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
 
     Examples
     --------
+    Basic example::
 
-        Basic example::
-
-            @deprecated('1.4.0')
-            def the_function_to_deprecate():
-                pass
+        @deprecated('1.4.0')
+        def the_function_to_deprecate():
+            pass
     """
 
     def deprecate(obj, message=message, name=name, alternative=alternative,
@@ -277,7 +275,6 @@ def _rename_parameter(since, old, new, func=None):
 
     Examples
     --------
-
     ::
         @_rename_parameter("3.1", "bad_name", "good_name")
         def func(good_name): ...
@@ -335,7 +332,6 @@ def _delete_parameter(since, name, func=None):
 
     Examples
     --------
-
     ::
         @_delete_parameter("3.1", "unused")
         def func(used_arg, other_arg, unused, more_args): ...

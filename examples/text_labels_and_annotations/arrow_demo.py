@@ -31,18 +31,25 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
                     **kwargs):
     """Makes an arrow plot.
 
-    Parameters:
-
-    data: dict with probabilities for the bases and pair transitions.
-    size: size of the graph in inches.
-    display: 'length', 'width', or 'alpha' for arrow property to change.
-    shape: 'full', 'left', or 'right' for full or half arrows.
-    max_arrow_width: maximum width of an arrow, data coordinates.
-    arrow_sep: separation between arrows in a pair, data coordinates.
-    alpha: maximum opacity of arrows, default 0.8.
-
-    **kwargs can be anything allowed by a Arrow object, e.g.
-    linewidth and edgecolor.
+    Parameters
+    ----------
+    data
+        Dict with probabilities for the bases and pair transitions.
+    size
+        Size of the graph in inches.
+    display : {'length', 'width', 'alpha'}
+        The arrow property to change.
+    shape : {'full', 'left', 'right'}
+        For full or half arrows.
+    max_arrow_width : float
+        Maximum width of an arrow, data coordinates.
+    arrow_sep : float
+        Separation between arrows in a pair, data coordinates.
+    alpha : float
+        Maximum opacity of arrows.
+    **kwargs
+        Can be anything allowed by a Arrow object, e.g. *linewidth* or
+        *edgecolor*.
     """
 
     plt.xlim(-0.5, 1.5)

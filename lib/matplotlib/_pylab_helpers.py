@@ -15,12 +15,11 @@ class Gcf:
     methods that operate on those attributes, accessing them
     directly as class attributes.
 
-    Attributes:
-
-        *figs*:
+    Attributes
+    ----------
+    figs
           dictionary of the form {*num*: *manager*, ...}
-
-        *_activeQue*:
+    _activeQue
           list of *managers*, with active one at the end
 
     """

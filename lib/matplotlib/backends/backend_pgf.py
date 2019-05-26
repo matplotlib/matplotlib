@@ -964,7 +964,6 @@ class PdfPages:
 
     Examples
     --------
-
     >>> import matplotlib.pyplot as plt
     >>> # Initialize:
     >>> with PdfPages('foo.pdf') as pdf:
@@ -992,7 +991,6 @@ class PdfPages:
 
         Parameters
         ----------
-
         filename : str
             Plots using :meth:`PdfPages.savefig` will be written to a file at
             this location. Any older file with the same name is overwritten.
@@ -1111,7 +1109,6 @@ class PdfPages:
 
         Parameters
         ----------
-
         figure : :class:`~matplotlib.figure.Figure` or int, optional
             Specifies what figure is saved to file. If not specified, the
             active figure is saved. If a :class:`~matplotlib.figure.Figure`

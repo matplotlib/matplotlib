@@ -2932,7 +2932,6 @@ class _AxesBase(martist.Artist):
 
         Other Parameters
         ----------------
-
         axis : {'x', 'y', 'both'}
             Axis on which to operate; default is 'both'.
 
@@ -2995,7 +2994,6 @@ class _AxesBase(martist.Artist):
 
         Examples
         --------
-
         Usage ::
 
             ax.tick_params(direction='out', length=6, width=2, colors='r',
@@ -3990,7 +3988,6 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-
         bbox : 4-tuple or 3 tuple
             * If bbox is a 4 tuple, it is the selected bounding box limits,
                 in *display* coordinates.

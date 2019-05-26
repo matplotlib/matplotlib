@@ -121,7 +121,6 @@ class FuncTransform(Transform):
         """
         Parameters
         ----------
-
         forward : callable
             The forward function for the transform.  This function must have
             an inverse and, for best behavior, be monotonic.
@@ -158,7 +157,6 @@ class FuncScale(ScaleBase):
         """
         Parameters
         ----------
-
         axis: the axis for the scale
 
         functions : (callable, callable)
@@ -440,7 +438,6 @@ class FuncScaleLog(LogScale):
         """
         Parameters
         ----------
-
         axis: the axis for the scale
 
         functions : (callable, callable)

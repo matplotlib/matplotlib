@@ -102,13 +102,13 @@ class AxesWidget(Widget):
     object it may be garbage collected which will disconnect the
     callbacks.
 
-    Attributes:
-
-    *ax* : :class:`~matplotlib.axes.Axes`
-        The parent axes for the widget
-    *canvas* : :class:`~matplotlib.backend_bases.FigureCanvasBase` subclass
+    Attributes
+    ----------
+    ax : `~matplotlib.axes.Axes`
+        The parent axes for the widget.
+    canvas : `~matplotlib.backend_bases.FigureCanvasBase` subclass
         The parent figure canvas for the widget.
-    *active* : bool
+    active : bool
         If False, the widget does not respond to events.
     """
     def __init__(self, ax):

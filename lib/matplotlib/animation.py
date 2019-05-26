@@ -968,7 +968,6 @@ class Animation:
 
         Parameters
         ----------
-
         filename : str
             The output filename, e.g., :file:`mymovie.mp4`.
 
