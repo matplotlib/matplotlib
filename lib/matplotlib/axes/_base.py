@@ -1610,7 +1610,7 @@ class _AxesBase(martist.Artist):
             else:
                 self.set_xbound((x0, x1))
 
-    def axis(self, *args, **kwargs):
+    def axis(self, *args, emit=True, **kwargs):
         """
         Convenience method to get or set some axis properties.
 
@@ -1624,8 +1624,7 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         xmin, xmax, ymin, ymax : float, optional
-            The axis limits to be set. Either none or all of the limits must
-            be given. This can also be achieved using ::
+            The axis limits to be set.  This can also be achieved using ::
 
                 ax.set(xlim=(xmin, xmax), ylim=(ymin, ymax))
 
@@ -1665,16 +1664,13 @@ class _AxesBase(martist.Artist):
         matplotlib.axes.Axes.set_xlim
         matplotlib.axes.Axes.set_ylim
         """
-
-        if len(args) == len(kwargs) == 0:
-            xmin, xmax = self.get_xlim()
-            ymin, ymax = self.get_ylim()
-            return xmin, xmax, ymin, ymax
-
-        emit = kwargs.get('emit', True)
-
-        if len(args) == 1 and isinstance(args[0], str):
-            s = args[0].lower()
+        if len(args) == 1 and isinstance(args[0], (str, bool)):
+            s = args[0]
+            if s is True:
+                s = 'on'
+            if s is False:
+                s = 'off'
+            s = s.lower()
             if s == 'on':
                 self.set_axis_on()
             elif s == 'off':
@@ -1714,45 +1710,36 @@ class _AxesBase(martist.Artist):
             else:
                 raise ValueError('Unrecognized string %s to axis; '
                                  'try on or off' % s)
-            xmin, xmax = self.get_xlim()
-            ymin, ymax = self.get_ylim()
-            return xmin, xmax, ymin, ymax
-
-        try:
-            args[0]
-        except IndexError:
-            xmin = kwargs.get('xmin', None)
-            xmax = kwargs.get('xmax', None)
-            auto = False  # turn off autoscaling, unless...
-            if xmin is None and xmax is None:
-                auto = None  # leave autoscaling state alone
-            xmin, xmax = self.set_xlim(xmin, xmax, emit=emit, auto=auto)
-
-            ymin = kwargs.get('ymin', None)
-            ymax = kwargs.get('ymax', None)
-            auto = False  # turn off autoscaling, unless...
-            if ymin is None and ymax is None:
-                auto = None  # leave autoscaling state alone
-            ymin, ymax = self.set_ylim(ymin, ymax, emit=emit, auto=auto)
-            return xmin, xmax, ymin, ymax
-
-        v = args[0]
-        if isinstance(v, bool):
-            if v:
-                self.set_axis_on()
+        else:
+            if len(args) >= 1:
+                if len(args) != 1:
+                    cbook.warn_deprecated(
+                        "3.2", message="Passing more than one positional "
+                        "argument to axis() is deprecated and will raise a "
+                        "TypeError %(removal)s.")
+                v = args[0]
+                try:
+                    xmin, xmax, ymin, ymax = v
+                except ValueError:
+                    raise ValueError('args must contain [xmin xmax ymin ymax]')
             else:
-                self.set_axis_off()
-            xmin, xmax = self.get_xlim()
-            ymin, ymax = self.get_ylim()
-            return xmin, xmax, ymin, ymax
-
-        if len(v) != 4:
-            raise ValueError('args must contain [xmin xmax ymin ymax]')
-
-        self.set_xlim([v[0], v[1]], emit=emit, auto=False)
-        self.set_ylim([v[2], v[3]], emit=emit, auto=False)
-
-        return v
+                xmin = kwargs.pop('xmin', None)
+                xmax = kwargs.pop('xmax', None)
+                ymin = kwargs.pop('ymin', None)
+                ymax = kwargs.pop('ymax', None)
+            xauto = (None  # Keep autoscale state as is.
+                     if xmin is None and xmax is None
+                     else False)  # Turn off autoscale.
+            yauto = (None
+                     if ymin is None and ymax is None
+                     else False)
+            self.set_xlim(xmin, xmax, emit=emit, auto=xauto)
+            self.set_ylim(ymin, ymax, emit=emit, auto=yauto)
+        if kwargs:
+            cbook.warn_deprecated(
+                "3.1", message="Passing unsupported keyword arguments to "
+                "axis() will raise a TypeError %(removal)s.")
+        return (*self.get_xlim(), *self.get_ylim())
 
     def get_legend(self):
         """Return the `Legend` instance, or None if no legend is defined."""
