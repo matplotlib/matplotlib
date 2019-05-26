@@ -80,7 +80,7 @@ class Spine(mpatches.Patch):
         self._patch_transform = mtransforms.IdentityTransform()
 
     def set_smart_bounds(self, value):
-        """set the spine and associated axis to have smart bounds"""
+        """Set the spine and associated axis to have smart bounds."""
         self._smart_bounds = value
 
         # also set the axis if possible
@@ -91,11 +91,11 @@ class Spine(mpatches.Patch):
         self.stale = True
 
     def get_smart_bounds(self):
-        """get whether the spine has smart bounds"""
+        """Return whether the spine has smart bounds."""
         return self._smart_bounds
 
     def set_patch_arc(self, center, radius, theta1, theta2):
-        """set the spine to be arc-like"""
+        """Set the spine to be arc-like."""
         self._patch_type = 'arc'
         self._center = center
         self._width = radius * 2
@@ -108,7 +108,7 @@ class Spine(mpatches.Patch):
         self.stale = True
 
     def set_patch_circle(self, center, radius):
-        """set the spine to be circular"""
+        """Set the spine to be circular."""
         self._patch_type = 'circle'
         self._center = center
         self._width = radius * 2
@@ -118,7 +118,7 @@ class Spine(mpatches.Patch):
         self.stale = True
 
     def set_patch_line(self):
-        """set the spine to be linear"""
+        """Set the spine to be linear."""
         self._patch_type = 'line'
         self.stale = True
 
@@ -213,7 +213,7 @@ class Spine(mpatches.Patch):
             self.set_position(self._position)
 
     def register_axis(self, axis):
-        """register an axis
+        """Register an axis.
 
         An axis should be registered with its corresponding spine from
         the Axes instance. This allows the spine to clear any axis
@@ -225,14 +225,14 @@ class Spine(mpatches.Patch):
         self.stale = True
 
     def cla(self):
-        """Clear the current spine"""
+        """Clear the current spine."""
         self._position = None  # clear position
         if self.axis is not None:
             self.axis.cla()
 
     @cbook.deprecated("3.1")
     def is_frame_like(self):
-        """return True if directly on axes frame
+        """Return True if directly on axes frame.
 
         This is useful for determining if a spine is the edge of an
         old style MPL plot. If so, this function will return True.
@@ -253,7 +253,7 @@ class Spine(mpatches.Patch):
             return False
 
     def _adjust_location(self):
-        """automatically set spine bounds to the view interval"""
+        """Automatically set spine bounds to the view interval."""
 
         if self.spine_type == 'circle':
             return
@@ -368,7 +368,7 @@ class Spine(mpatches.Patch):
         return ret
 
     def _calc_offset_transform(self):
-        """calculate the offset transform performed by the spine"""
+        """Calculate the offset transform performed by the spine."""
         self._ensure_position_is_set()
         position = self._position
         if isinstance(position, str):
@@ -442,7 +442,7 @@ class Spine(mpatches.Patch):
                                          mtransforms.IdentityTransform())
 
     def set_position(self, position):
-        """set the position of the spine
+        """Set the position of the spine.
 
         Spine position is specified by a 2 tuple of (position type,
         amount). The position types are:
@@ -481,12 +481,12 @@ class Spine(mpatches.Patch):
         self.stale = True
 
     def get_position(self):
-        """get the spine position"""
+        """Return the spine position."""
         self._ensure_position_is_set()
         return self._position
 
     def get_spine_transform(self):
-        """get the spine transform"""
+        """Return the spine transform."""
         self._ensure_position_is_set()
         what, how = self._spine_transform
 

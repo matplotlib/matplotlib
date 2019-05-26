@@ -131,7 +131,7 @@ def validate_bool(b):
 
 
 def validate_bool_maybe_none(b):
-    'Convert b to a boolean or raise'
+    """Convert b to a boolean or raise."""
     if isinstance(b, str):
         b = b.lower()
     if b is None or b == 'none':
@@ -145,7 +145,7 @@ def validate_bool_maybe_none(b):
 
 
 def validate_float(s):
-    """convert s to float or raise"""
+    """Convert s to float or raise."""
     try:
         return float(s)
     except ValueError:
@@ -154,7 +154,7 @@ validate_floatlist = _listify_validator(validate_float)
 
 
 def validate_float_or_None(s):
-    """convert s to float, None or raise"""
+    """Convert s to float, None or raise."""
     # values directly from the rc file can only be strings,
     # so we need to recognize the string "None" and convert
     # it into the object. We will be case-sensitive here to
@@ -169,7 +169,7 @@ def validate_float_or_None(s):
 
 
 def validate_string_or_None(s):
-    """convert s to string or raise"""
+    """Convert s to string or raise."""
     if s is None:
         return None
     try:
@@ -205,7 +205,7 @@ def validate_axisbelow(s):
 
 
 def validate_dpi(s):
-    """confirm s is string 'figure' or convert s to float or raise"""
+    """Confirm s is string 'figure' or convert s to float or raise."""
     if s == 'figure':
         return s
     try:
@@ -216,7 +216,7 @@ def validate_dpi(s):
 
 
 def validate_int(s):
-    """convert s to int or raise"""
+    """Convert s to int or raise."""
     try:
         return int(s)
     except ValueError:
@@ -224,7 +224,7 @@ def validate_int(s):
 
 
 def validate_int_or_None(s):
-    """if not None, tries to validate as an int"""
+    """Return None if s is None or return ``int(s)``, otherwise raise."""
     if s == 'None':
         s = None
     if s is None:
@@ -237,8 +237,8 @@ def validate_int_or_None(s):
 
 def validate_fonttype(s):
     """
-    confirm that this is a Postscript of PDF font type that we know how to
-    convert to
+    Confirm that this is a Postscript or PDF font type that we know how to
+    convert to.
     """
     fonttypes = {'type3':    3,
                  'truetype': 42}
@@ -305,7 +305,7 @@ class validate_nseq_float:
         self.allow_none = allow_none
 
     def __call__(self, s):
-        """return a seq of n floats or raise"""
+        """Return a list of *n* floats or raise."""
         if isinstance(s, str):
             s = [x.strip() for x in s.split(',')]
             err_msg = _str_err_msg
@@ -329,7 +329,7 @@ class validate_nseq_int:
         self.n = n
 
     def __call__(self, s):
-        """return a seq of n ints or raise"""
+        """Return a list of *n* ints or raise."""
         if isinstance(s, str):
             s = [x.strip() for x in s.split(',')]
             err_msg = _str_err_msg
@@ -346,7 +346,7 @@ class validate_nseq_int:
 
 
 def validate_color_or_inherit(s):
-    'return a valid color arg'
+    """Return a valid color arg."""
     if s == 'inherit':
         return s
     return validate_color(s)
@@ -375,7 +375,7 @@ def validate_color_for_prop_cycle(s):
 
 
 def validate_color(s):
-    'return a valid color arg'
+    """Return a valid color arg."""
     try:
         if s.lower() == 'none':
             return 'none'
@@ -867,7 +867,7 @@ def cycler(*args, **kwargs):
 
 
 def validate_cycler(s):
-    'return a Cycler object from a string repr or the object itself'
+    """Return a Cycler object from a string repr or the object itself."""
     if isinstance(s, str):
         try:
             # TODO: We might want to rethink this...

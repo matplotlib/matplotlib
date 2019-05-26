@@ -1091,12 +1091,12 @@ class Axis(martist.Artist):
         return bbox, bbox2
 
     def set_smart_bounds(self, value):
-        """set the axis to have smart bounds"""
+        """Set the axis to have smart bounds."""
         self._smart_bounds = value
         self.stale = True
 
     def get_smart_bounds(self):
-        """get whether the axis has smart bounds"""
+        """Return whether the axis has smart bounds."""
         return self._smart_bounds
 
     def _update_ticks(self):

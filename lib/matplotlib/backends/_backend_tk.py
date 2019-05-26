@@ -269,7 +269,7 @@ class FigureCanvasTk(FigureCanvasBase):
         self._idle_callback = self._tkcanvas.after_idle(idle_draw)
 
     def get_tk_widget(self):
-        """returns the Tk widget used to implement FigureCanvasTkAgg.
+        """Return the Tk widget used to implement FigureCanvasTkAgg.
         Although the initial implementation uses a Tk canvas,  this routine
         is intended to hide that fact.
         """
