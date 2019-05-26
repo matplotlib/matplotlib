@@ -614,7 +614,6 @@ class Artist:
 
         Parameters
         ----------
-
         scale : float, optional
             The amplitude of the wiggle perpendicular to the source
             line, in pixels.  If scale is `None`, or not provided, no
@@ -1018,7 +1017,6 @@ class Artist:
 
         Examples
         --------
-
         >>> artist.sticky_edges.x[:] = (xmin, xmax)
         >>> artist.sticky_edges.y[:] = (ymin, ymax)
 

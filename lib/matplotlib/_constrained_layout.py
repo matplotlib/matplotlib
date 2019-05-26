@@ -87,8 +87,6 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
 
     Parameters
     ----------
-
-
     fig : Figure
       is the ``figure`` instance to do the layout in.
 

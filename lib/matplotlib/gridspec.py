@@ -323,7 +323,6 @@ class GridSpec(GridSpecBase):
 
         Parameters
         ----------
-
         pad : float
             Padding between the figure edge and the edges of subplots, as a
             fraction of the font-size.

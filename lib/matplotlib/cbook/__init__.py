@@ -1354,7 +1354,6 @@ def violin_stats(X, method, points=100, quantiles=None):
 
     Returns
     -------
-
     A list of dictionaries containing the results for each column of data.
     The dictionaries contain at least the following:
 
@@ -1600,7 +1599,6 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
 
     Parameters
     ----------
-
     alias_mapping : dict or Artist subclass or Artist instance, optional
         A mapping between a canonical name to a list of
         aliases, in order of precedence from lowest to highest.

@@ -643,7 +643,6 @@ class ConciseDateFormatter(ticker.Formatter):
 
     Parameters
     ----------
-
     locator : `.ticker.Locator`
         Locator that this axis is using.
 
@@ -675,7 +674,6 @@ class ConciseDateFormatter(ticker.Formatter):
 
     Examples
     --------
-
     See :doc:`/gallery/ticks_and_spines/date_concise_formatter`
 
     .. plot::

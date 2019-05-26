@@ -98,7 +98,6 @@ class TextToPath:
 
         Parameters
         ----------
-
         prop : `matplotlib.font_manager.FontProperties` instance
             The font properties for the text.
 
@@ -113,14 +112,12 @@ class TextToPath:
 
         Returns
         -------
-
         verts, codes : tuple of lists
             *verts*  is a list of numpy arrays containing the x and y
             coordinates of the vertices. *codes* is a list of path codes.
 
         Examples
         --------
-
         Create a list of vertices and codes from a text, and create a `Path`
         from those::
 
@@ -394,7 +391,6 @@ class TextPath(Path):
 
         Parameters
         ----------
-
         xy : tuple or array of two float values
             Position of the text. For no offset, use ``xy=(0, 0)``.
 
@@ -418,7 +414,6 @@ class TextPath(Path):
 
         Examples
         --------
-
         The following creates a path from the string "ABC" with Helvetica
         font face; and another path from the latex fraction 1/2::
 

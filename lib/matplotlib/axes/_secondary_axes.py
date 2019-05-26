@@ -424,7 +424,6 @@ class SecondaryAxis(_AxesBase):
 _secax_docstring = '''
 Warnings
 --------
-
 This method is experimental as of 3.1, and the API may change.
 
 Parameters

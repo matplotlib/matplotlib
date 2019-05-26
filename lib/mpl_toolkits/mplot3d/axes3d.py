@@ -1967,7 +1967,6 @@ class Axes3D(Axes):
 
         Examples
         --------
-
         .. plot:: gallery/mplot3d/trisurf3d.py
         .. plot:: gallery/mplot3d/trisurf3d_2.py
 

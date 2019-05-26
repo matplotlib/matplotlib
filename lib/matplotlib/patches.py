@@ -3865,7 +3865,6 @@ class FancyArrowPatch(Patch):
 
         Parameters
         ----------
-
         posA, posB : (float, float), optional (default: None)
             (x,y) coordinates of arrow tail and arrow head respectively.
 

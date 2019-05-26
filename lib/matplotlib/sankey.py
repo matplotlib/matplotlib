@@ -116,7 +116,6 @@ class Sankey:
 
         Examples
         --------
-
         .. plot:: gallery/specialty_plots/sankey_basics.py
         """
         # Check the arguments.

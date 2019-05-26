@@ -358,7 +358,6 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-
         handles : sequence of `.Artist`, optional
             A list of Artists (lines, patches) to be added to the legend.
             Use this together with *labels*, if you need full control on what
@@ -376,7 +375,6 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-
         %(_legend_kw_doc)s
 
         Returns
@@ -385,13 +383,11 @@ class Axes(_AxesBase):
 
         Notes
         -----
-
         Not all kinds of artist are supported by the legend command. See
         :doc:`/tutorials/intermediate/legend_guide` for details.
 
         Examples
         --------
-
         .. plot:: gallery/text_labels_and_annotations/legend.py
         """
         handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
@@ -414,12 +410,10 @@ class Axes(_AxesBase):
 
         Warnings
         --------
-
         This method is experimental as of 3.0, and the API may change.
 
         Parameters
         ----------
-
         bounds : [x0, y0, width, height]
             Lower-left corner of inset axes, and its width and height.
 
@@ -438,13 +432,11 @@ class Axes(_AxesBase):
 
         Returns
         -------
-
         Axes
             The created `.axes.Axes` instance.
 
         Examples
         --------
-
         This example makes two inset axes, the first is in axes-relative
         coordinates, and the second in data-coordinates::
 
@@ -485,13 +477,11 @@ class Axes(_AxesBase):
 
         Warnings
         --------
-
         This method is experimental as of 3.0, and the API may change.
 
 
         Parameters
         ----------
-
         bounds : [x0, y0, width, height]
             Lower-left corner of rectangle to be marked, and its width
             and height.
@@ -525,7 +515,6 @@ class Axes(_AxesBase):
 
         Returns
         -------
-
         rectangle_patch : `.Patches.Rectangle`
              Rectangle artist.
 
@@ -588,12 +577,10 @@ class Axes(_AxesBase):
 
         Warnings
         --------
-
         This method is experimental as of 3.0, and the API may change.
 
         Parameters
         ----------
-
         inset_ax : `.Axes`
             Inset axes to draw connecting lines to.  Two lines are
             drawn connecting the indicator box to the inset axes on corners
@@ -604,7 +591,6 @@ class Axes(_AxesBase):
 
         Returns
         -------
-
         rectangle_patch : `.Patches.Rectangle`
              Rectangle artist.
 
@@ -635,7 +621,6 @@ class Axes(_AxesBase):
 
         Examples
         --------
-
         The main axis shows frequency, and the secondary axis shows period.
 
         .. plot::
@@ -671,7 +656,6 @@ class Axes(_AxesBase):
 
         Examples
         --------
-
         Add a secondary axes that converts from radians to degrees
 
         .. plot::
@@ -827,7 +811,6 @@ class Axes(_AxesBase):
 
         Examples
         --------
-
         * draw a thick red hline at 'y' = 0 that spans the xrange::
 
             >>> axhline(linewidth=4, color='r')
@@ -1272,14 +1255,12 @@ class Axes(_AxesBase):
 
         Returns
         -------
-
         list : A list of :class:`~.collections.EventCollection` objects.
             Contains the :class:`~.collections.EventCollection` that
             were added.
 
         Notes
         -----
-
         For *linelengths*, *linewidths*, *colors*, and *linestyles*, if only
         a single value is given, that value is applied to all lines.  If an
         array-like is given, it must have the same length as *positions*, and
@@ -1287,7 +1268,6 @@ class Axes(_AxesBase):
 
         Examples
         --------
-
         .. plot:: gallery/lines_bars_and_markers/eventplot_demo.py
         """
         self._process_unit_info(xdata=positions,
@@ -2738,7 +2718,6 @@ class Axes(_AxesBase):
 
         Notes
         -----
-
         .. seealso::
             The MATLAB function
             `stem <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
@@ -3787,7 +3766,6 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-
         bxpstats : list of dicts
           A list of dictionaries containing stats for each boxplot.
           Required keys are:
@@ -3913,7 +3891,6 @@ class Axes(_AxesBase):
 
         Examples
         --------
-
         .. plot:: gallery/statistics/bxp.py
 
         """
@@ -4397,7 +4374,6 @@ optional.
 
         Notes
         -----
-
         * The `.plot` function will be faster for scatterplots where markers
           don't vary in size or color.
 
@@ -5821,7 +5797,6 @@ optional.
 
         Notes
         -----
-
         **Masked arrays**
 
         *X*, *Y* and *C* may be masked arrays. If either ``C[i, j]``, or one
@@ -6058,7 +6033,6 @@ optional.
 
         Notes
         -----
-
         **Masked arrays**
 
         *C* may be a masked array. If ``C[i, j]`` is masked, the corresponding
@@ -7919,7 +7893,6 @@ optional.
 
         Returns
         -------
-
         result : dict
           A dictionary mapping each component of the violinplot to a
           list of the corresponding collection instances created. The
@@ -7972,7 +7945,6 @@ optional.
 
         Parameters
         ----------
-
         vpstats : list of dicts
           A list of dictionaries containing stats for each violin plot.
           Required keys are:

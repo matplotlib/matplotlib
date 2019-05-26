@@ -499,7 +499,6 @@ class DviFont:
 
     Parameters
     ----------
-
     scale : float
         Factor by which the font is scaled from its natural size.
     tfm : Tfm
@@ -514,7 +513,6 @@ class DviFont:
 
     Attributes
     ----------
-
     texname : bytes
     size : float
        Size of the font in Adobe points, converted from the slightly
@@ -775,12 +773,10 @@ class PsfontsMap:
 
     Parameters
     ----------
-
     filename : string or bytestring
 
     Notes
     -----
-
     For historical reasons, TeX knows many Type-1 fonts by different
     names than the outside world. (For one thing, the names have to
     fit in eight characters.) Also, TeX's native fonts are not Type-1
@@ -1024,7 +1020,6 @@ def find_tex_file(filename, format=None):
 
     References
     ----------
-
     .. [1] `Kpathsea documentation <http://www.tug.org/kpathsea/>`_
         The library that :program:`kpsewhich` is part of.
     """

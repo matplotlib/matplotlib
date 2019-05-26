@@ -554,7 +554,6 @@ class Figure(Artist):
 
         Parameters
         ----------
-
         w_pad : scalar
             Width padding in inches.  This is the pad around axes
             and is meant to make sure there is enough room for fonts to
@@ -592,7 +591,6 @@ class Figure(Artist):
 
         Parameters
         ----------
-
         relative : boolean
             If `True`, then convert from inches to figure relative.
         """
@@ -735,7 +733,6 @@ default: 'top'
 
         Examples
         --------
-
         >>> fig.suptitle('This is the figure title', fontsize=12)
         """
         manual_position = ('x' in kwargs or 'y' in kwargs)
@@ -1141,7 +1138,6 @@ default: 'top'
 
         Parameters
         ----------
-
         rect : sequence of float
             The dimensions [left, bottom, width, height] of the new axes. All
             quantities are in fractions of figure width and height.
@@ -1780,7 +1776,6 @@ default: 'top'
 
         Parameters
         ----------
-
         handles : sequence of `.Artist`, optional
             A list of Artists (lines, patches) to be added to the legend.
             Use this together with *labels*, if you need full control on what
@@ -1798,7 +1793,6 @@ default: 'top'
 
         Other Parameters
         ----------------
-
         %(_legend_kw_doc)s
 
         Returns
@@ -2065,7 +2059,6 @@ default: 'top'
 
         Parameters
         ----------
-
         fname : str or PathLike or file-like object
             A path, or a Python file-like object, or
             possibly some backend-dependent object such as
@@ -2080,7 +2073,6 @@ default: 'top'
 
         Other Parameters
         ----------------
-
         dpi : [ *None* | scalar > 0 | 'figure' ]
             The resolution in dots per inch.  If *None*, defaults to
             :rc:`savefig.dpi`.  If 'figure', uses the figure's dpi value.

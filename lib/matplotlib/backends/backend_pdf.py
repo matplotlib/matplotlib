@@ -2330,7 +2330,6 @@ class PdfPages:
 
     Examples
     --------
-
     >>> import matplotlib.pyplot as plt
     >>> # Initialize:
     >>> with PdfPages('foo.pdf') as pdf:
@@ -2342,7 +2341,6 @@ class PdfPages:
 
     Notes
     -----
-
     In reality :class:`PdfPages` is a thin wrapper around :class:`PdfFile`, in
     order to avoid confusion when using :func:`~matplotlib.pyplot.savefig` and
     forgetting the format argument.
@@ -2355,7 +2353,6 @@ class PdfPages:
 
         Parameters
         ----------
-
         filename : str
             Plots using :meth:`PdfPages.savefig` will be written to a file at
             this location. The file is opened at once and any older file with
@@ -2414,7 +2411,6 @@ class PdfPages:
 
         Parameters
         ----------
-
         figure : :class:`~matplotlib.figure.Figure` or int, optional
             Specifies what figure is saved to file. If not specified, the
             active figure is saved. If a :class:`~matplotlib.figure.Figure`
