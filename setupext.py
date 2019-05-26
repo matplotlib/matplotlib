@@ -350,22 +350,6 @@ class SetupPackage(object):
         """
         return None
 
-    def get_install_requires(self):
-        """
-        Get a list of Python packages that we require.
-        pip/easy_install will attempt to download and install this
-        package if it is not installed.
-        """
-        return []
-
-    def get_setup_requires(self):
-        """
-        Get a list of Python packages that we require at build time.
-        pip/easy_install will attempt to download and install this
-        package if it is not installed.
-        """
-        return []
-
     def do_custom_build(self):
         """
         If a package needs to do extra custom things, such as building a
@@ -521,14 +505,6 @@ class Matplotlib(SetupPackage):
             ],
         }
 
-    def get_install_requires(self):
-        return [
-            "cycler>=0.10",
-            "kiwisolver>=1.0.1",
-            "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
-            "python-dateutil>=2.1",
-        ]
-
 
 class SampleData(OptionalPackage):
     """
@@ -568,27 +544,18 @@ class Tests(OptionalPackage):
         }
 
 
-class Numpy(SetupPackage):
-    name = "numpy"
-
-    def add_flags(self, ext):
-        import numpy as np
-        ext.include_dirs.append(np.get_include())
-        ext.define_macros.extend([
-            # Ensure that PY_ARRAY_UNIQUE_SYMBOL is uniquely defined for each
-            # extension.
-            ('PY_ARRAY_UNIQUE_SYMBOL',
-             'MPL_' + ext.name.replace('.', '_') + '_ARRAY_API'),
-            ('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION'),
-            # Allow NumPy's printf format specifiers in C++.
-            ('__STDC_FORMAT_MACROS', 1),
-        ])
-
-    def get_setup_requires(self):
-        return ['numpy>=1.11']
-
-    def get_install_requires(self):
-        return ['numpy>=1.11']
+def add_numpy_flags(ext):
+    import numpy as np
+    ext.include_dirs.append(np.get_include())
+    ext.define_macros.extend([
+        # Ensure that PY_ARRAY_UNIQUE_SYMBOL is uniquely defined for each
+        # extension.
+        ('PY_ARRAY_UNIQUE_SYMBOL',
+         'MPL_' + ext.name.replace('.', '_') + '_ARRAY_API'),
+        ('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION'),
+        # Allow NumPy's printf format specifiers in C++.
+        ('__STDC_FORMAT_MACROS', 1),
+    ])
 
 
 class LibAgg(SetupPackage):
@@ -771,7 +738,7 @@ class FT2Font(SetupPackage):
             ]
         ext = Extension('matplotlib.ft2font', sources)
         FreeType().add_flags(ext)
-        Numpy().add_flags(ext)
+        add_numpy_flags(ext)
         LibAgg().add_flags(ext, add_sources=False)
         return ext
 
@@ -799,7 +766,7 @@ class Png(SetupPackage):
             atleast_version='1.2',
             alt_exec=['libpng-config', '--ldflags'],
             default_libraries=['png', 'z'])
-        Numpy().add_flags(ext)
+        add_numpy_flags(ext)
         return ext
 
 
@@ -827,7 +794,7 @@ class TTConv(SetupPackage):
             'extern/ttconv/ttutil.cpp'
             ]
         ext = Extension('matplotlib.ttconv', sources)
-        Numpy().add_flags(ext)
+        add_numpy_flags(ext)
         ext.include_dirs.insert(0, 'extern')
         return ext
 
@@ -840,9 +807,8 @@ class Path(SetupPackage):
             'src/py_converters.cpp',
             'src/_path_wrapper.cpp'
             ]
-
         ext = Extension('matplotlib._path', sources)
-        Numpy().add_flags(ext)
+        add_numpy_flags(ext)
         LibAgg().add_flags(ext)
         return ext
 
@@ -858,7 +824,7 @@ class Image(SetupPackage):
             'src/py_converters.cpp'
             ]
         ext = Extension('matplotlib._image', sources)
-        Numpy().add_flags(ext)
+        add_numpy_flags(ext)
         LibAgg().add_flags(ext)
 
         return ext
@@ -874,7 +840,7 @@ class Contour(SetupPackage):
             'src/py_converters.cpp',
             ]
         ext = Extension('matplotlib._contour', sources)
-        Numpy().add_flags(ext)
+        add_numpy_flags(ext)
         LibAgg().add_flags(ext, add_sources=False)
         return ext
 
@@ -886,7 +852,7 @@ class QhullWrap(SetupPackage):
         sources = ['src/qhull_wrap.c']
         ext = Extension('matplotlib._qhull', sources,
                         define_macros=[('MPL_DEVNULL', os.devnull)])
-        Numpy().add_flags(ext)
+        add_numpy_flags(ext)
         Qhull().add_flags(ext)
         return ext
 
@@ -901,7 +867,7 @@ class Tri(SetupPackage):
             "src/mplutils.cpp"
             ]
         ext = Extension('matplotlib._tri', sources)
-        Numpy().add_flags(ext)
+        add_numpy_flags(ext)
         return ext
 
 
@@ -917,7 +883,7 @@ class BackendAgg(OptionalBackendPackage):
             "src/_backend_agg_wrapper.cpp"
             ]
         ext = Extension('matplotlib.backends._backend_agg', sources)
-        Numpy().add_flags(ext)
+        add_numpy_flags(ext)
         LibAgg().add_flags(ext)
         FreeType().add_flags(ext)
         return ext
@@ -938,7 +904,7 @@ class BackendTkAgg(OptionalBackendPackage):
 
         ext = Extension('matplotlib.backends._tkagg', sources)
         self.add_flags(ext)
-        Numpy().add_flags(ext)
+        add_numpy_flags(ext)
         LibAgg().add_flags(ext, add_sources=False)
         return ext
 
@@ -965,7 +931,6 @@ class BackendMacOSX(OptionalBackendPackage):
         sources = [
             'src/_macosx.m'
             ]
-
         ext = Extension('matplotlib.backends._macosx', sources)
         ext.extra_link_args.extend(['-framework', 'Cocoa'])
         if platform.python_implementation().lower() == 'pypy':
