@@ -2055,7 +2055,31 @@ class IdentityTransform(Affine2DBase):
         return self
 
 
-class BlendedGenericTransform(Transform):
+class _BlendedMixin:
+    """Common methods for `BlendedGenericTransform` and `BlendedAffine2D`."""
+
+    def __eq__(self, other):
+        if isinstance(other, (BlendedAffine2D, BlendedGenericTransform)):
+            return (self._x == other._x) and (self._y == other._y)
+        elif self._x == self._y:
+            return self._x == other
+        else:
+            return NotImplemented
+
+    def contains_branch_seperately(self, transform):
+        return (self._x.contains_branch(transform),
+                self._y.contains_branch(transform))
+
+    def __str__(self):
+        return ("{}(\n"
+                    "{},\n"
+                    "{})"
+                .format(type(self).__name__,
+                        _indent_str(self._x),
+                        _indent_str(self._y)))
+
+
+class BlendedGenericTransform(_BlendedMixin, Transform):
     """
     A "blended" transform uses one transform for the *x*-direction, and
     another transform for the *y*-direction.
@@ -2086,25 +2110,13 @@ class BlendedGenericTransform(Transform):
         self.set_children(x_transform, y_transform)
         self._affine = None
 
-    def __eq__(self, other):
-        # Note, this is an exact copy of BlendedAffine2D.__eq__
-        if isinstance(other, (BlendedAffine2D, BlendedGenericTransform)):
-            return (self._x == other._x) and (self._y == other._y)
-        elif self._x == self._y:
-            return self._x == other
-        else:
-            return NotImplemented
-
-    def contains_branch_seperately(self, transform):
-        # Note, this is an exact copy of BlendedAffine2D.contains_branch_seperately
-        return self._x.contains_branch(transform), self._y.contains_branch(transform)
-
     @property
     def depth(self):
         return max(self._x.depth, self._y.depth)
 
     def contains_branch(self, other):
-        # a blended transform cannot possibly contain a branch from two different transforms.
+        # A blended transform cannot possibly contain a branch from two
+        # different transforms.
         return False
 
     is_affine = property(lambda self: self._x.is_affine and self._y.is_affine)
@@ -2114,14 +2126,6 @@ class BlendedGenericTransform(Transform):
     def frozen(self):
         # docstring inherited
         return blended_transform_factory(self._x.frozen(), self._y.frozen())
-
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._x),
-                        _indent_str(self._y)))
 
     def transform_non_affine(self, points):
         # docstring inherited
@@ -2172,7 +2176,7 @@ class BlendedGenericTransform(Transform):
         return self._affine
 
 
-class BlendedAffine2D(Affine2DBase):
+class BlendedAffine2D(_BlendedMixin, Affine2DBase):
     """
     A "blended" transform uses one transform for the *x*-direction, and
     another transform for the *y*-direction.
@@ -2209,27 +2213,6 @@ class BlendedAffine2D(Affine2DBase):
 
         Affine2DBase.__init__(self)
         self._mtx = None
-
-    def __eq__(self, other):
-        # Note, this is an exact copy of BlendedGenericTransform.__eq__
-        if isinstance(other, (BlendedAffine2D, BlendedGenericTransform)):
-            return (self._x == other._x) and (self._y == other._y)
-        elif self._x == self._y:
-            return self._x == other
-        else:
-            return NotImplemented
-
-    def contains_branch_seperately(self, transform):
-        # Note, this is an exact copy of BlendedTransform.contains_branch_seperately
-        return self._x.contains_branch(transform), self._y.contains_branch(transform)
-
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._x),
-                        _indent_str(self._y)))
 
     def get_matrix(self):
         # docstring inherited
@@ -2295,15 +2278,17 @@ class CompositeGenericTransform(Transform):
     def frozen(self):
         # docstring inherited
         self._invalid = 0
-        frozen = composite_transform_factory(self._a.frozen(), self._b.frozen())
+        frozen = composite_transform_factory(
+            self._a.frozen(), self._b.frozen())
         if not isinstance(frozen, CompositeGenericTransform):
             return frozen.frozen()
         return frozen
 
     def _invalidate_internal(self, value, invalidating_node):
-        # In some cases for a composite transform, an invalidating call to AFFINE_ONLY needs
-        # to be extended to invalidate the NON_AFFINE part too. These cases are when the right
-        # hand transform is non-affine and either:
+        # In some cases for a composite transform, an invalidating call to
+        # AFFINE_ONLY needs to be extended to invalidate the NON_AFFINE part
+        # too. These cases are when the right hand transform is non-affine and
+        # either:
         # (a) the left hand transform is non affine
         # (b) it is the left hand node which has triggered the invalidation
         if value == Transform.INVALID_AFFINE \
@@ -2377,7 +2362,8 @@ class CompositeGenericTransform(Transform):
 
     def inverted(self):
         # docstring inherited
-        return CompositeGenericTransform(self._b.inverted(), self._a.inverted())
+        return CompositeGenericTransform(
+            self._b.inverted(), self._a.inverted())
 
 
 class CompositeAffine2D(Affine2DBase):
@@ -2505,7 +2491,8 @@ class BboxTransform(Affine2DBase):
             x_scale = outw / inw
             y_scale = outh / inh
             if DEBUG and (x_scale == 0 or y_scale == 0):
-                raise ValueError("Transforming from or to a singular bounding box.")
+                raise ValueError(
+                    "Transforming from or to a singular bounding box")
             self._mtx = np.array([[x_scale, 0.0    , (-inl*x_scale+outl)],
                                   [0.0    , y_scale, (-inb*y_scale+outb)],
                                   [0.0    , 0.0    , 1.0        ]],
@@ -2680,8 +2667,9 @@ class TransformedPath(TransformNode):
         self._transformed_points = None
 
     def _revalidate(self):
-        # only recompute if the invalidation includes the non_affine part of the transform
-        if ((self._invalid & self.INVALID_NON_AFFINE == self.INVALID_NON_AFFINE)
+        # only recompute if the invalidation includes the non_affine part of
+        # the transform
+        if (self._invalid & self.INVALID_NON_AFFINE == self.INVALID_NON_AFFINE
             or self._transformed_path is None):
             self._transformed_path = \
                 self._transform.transform_path_non_affine(self._path)

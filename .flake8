@@ -36,13 +36,11 @@ per-file-ignores =
     lib/matplotlib/_cm.py: E202, E203, E302
     lib/matplotlib/_mathtext_data.py: E203, E261
     lib/matplotlib/font_manager.py: E203, E221, E251, E501
-    lib/matplotlib/fontconfig_pattern.py: E201, E203, E221, E222, E225
     lib/matplotlib/mathtext.py: E201, E202, E203, E211, E221, E222, E225, E251, E301, E402
-    lib/matplotlib/projections/geo.py: E203, E221, E502
     lib/matplotlib/pylab.py: E501
     lib/matplotlib/rcsetup.py: E501
     lib/matplotlib/tests/test_mathtext.py: E501
-    lib/matplotlib/transforms.py: E201, E202, E203, E501
+    lib/matplotlib/transforms.py: E201, E202, E203
     lib/matplotlib/tri/triinterpolate.py: E201, E221
 
     lib/mpl_toolkits/axes_grid1/axes_divider.py: E402, E501

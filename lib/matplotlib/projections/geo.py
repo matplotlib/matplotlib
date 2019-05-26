@@ -99,8 +99,8 @@ class GeoAxes(Axes):
         yaxis_text_base = \
             yaxis_stretch + \
             self.transProjection + \
-            (yaxis_space + \
-             self.transAffine + \
+            (yaxis_space +
+             self.transAffine +
              self.transAxes)
         self._yaxis_text1_transform = \
             yaxis_text_base + \
@@ -214,7 +214,7 @@ class GeoAxes(Axes):
         """
         return False
 
-    def can_pan(self) :
+    def can_pan(self):
         """
         Return *True* if this axes supports the pan/zoom button functionality.
 
@@ -316,18 +316,14 @@ class HammerAxes(GeoAxes):
 
         def transform_non_affine(self, ll):
             # docstring inherited
-            longitude = ll[:, 0:1]
-            latitude  = ll[:, 1:2]
-
-            # Pre-compute some values
+            longitude, latitude = ll.T
             half_long = longitude / 2.0
             cos_latitude = np.cos(latitude)
             sqrt2 = np.sqrt(2.0)
-
             alpha = np.sqrt(1.0 + cos_latitude * np.cos(half_long))
             x = (2.0 * sqrt2) * (cos_latitude * np.sin(half_long)) / alpha
             y = (sqrt2 * np.sin(latitude)) / alpha
-            return np.concatenate((x, y), 1)
+            return np.column_stack([x, y])
 
         def inverted(self):
             # docstring inherited
@@ -370,8 +366,7 @@ class MollweideAxes(GeoAxes):
                          / (1 + np.cos(theta)))
                 return delta, np.abs(delta) > 0.001
 
-            longitude = ll[:, 0]
-            latitude  = ll[:, 1]
+            longitude, latitude = ll.T
 
             clat = np.pi/2 - np.abs(latitude)
             ihigh = clat < 0.087  # within 5 degrees of the poles
@@ -406,16 +401,13 @@ class MollweideAxes(GeoAxes):
 
         def transform_non_affine(self, xy):
             # docstring inherited
-            x = xy[:, 0:1]
-            y = xy[:, 1:2]
-
+            x, y = xy.T
             # from Equations (7, 8) of
             # http://mathworld.wolfram.com/MollweideProjection.html
             theta = np.arcsin(y / np.sqrt(2))
             lon = (np.pi / (2 * np.sqrt(2))) * x / np.cos(theta)
             lat = np.arcsin((2 * theta + np.sin(2 * theta)) / np.pi)
-
-            return np.concatenate((lon, lat), 1)
+            return np.column_stack([lon, lat])
 
         def inverted(self):
             # docstring inherited
@@ -449,8 +441,7 @@ class LambertAxes(GeoAxes):
 
         def transform_non_affine(self, ll):
             # docstring inherited
-            longitude = ll[:, 0:1]
-            latitude  = ll[:, 1:2]
+            longitude, latitude = ll.T
             clong = self._center_longitude
             clat = self._center_latitude
             cos_lat = np.cos(latitude)
@@ -465,7 +456,7 @@ class LambertAxes(GeoAxes):
             x = k * cos_lat*np.sin(diff_long)
             y = k * (np.cos(clat)*sin_lat - np.sin(clat)*cos_lat*cos_diff_long)
 
-            return np.concatenate((x, y), 1)
+            return np.column_stack([x, y])
 
         def inverted(self):
             # docstring inherited
