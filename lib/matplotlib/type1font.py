@@ -36,7 +36,7 @@ _TokenType = enum.Enum('_TokenType',
                        'whitespace name string delimiter number')
 
 
-class Type1Font(object):
+class Type1Font:
     """
     A class representing a Type-1 font, for use by backends.
 

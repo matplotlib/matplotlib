@@ -309,7 +309,7 @@ class _ColorbarLogLocator(ticker.LogLocator):
         return ticks
 
 
-class _ColorbarMappableDummy(object):
+class _ColorbarMappableDummy:
     """
     Private class to hold deprecated ColorbarBase methods that used to be
     inhereted from ScalarMappable.

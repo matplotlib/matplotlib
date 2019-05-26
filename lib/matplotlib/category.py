@@ -155,7 +155,7 @@ class StrCategoryFormatter(ticker.Formatter):
         return value
 
 
-class UnitData(object):
+class UnitData:
     def __init__(self, data=None):
         """
         Create mapping between unique categorical values and integer ids.

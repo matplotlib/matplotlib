@@ -54,7 +54,7 @@ def _stale_axes_callback(self, val):
 _XYPair = namedtuple("_XYPair", "x y")
 
 
-class Artist(object):
+class Artist:
     """
     Abstract base class for objects that render into a FigureCanvas.
 
@@ -1168,7 +1168,7 @@ class Artist(object):
                 ax._mouseover_set.discard(self)
 
 
-class ArtistInspector(object):
+class ArtistInspector:
     """
     A helper class to inspect an `~matplotlib.artist.Artist` and return
     information about its settable properties and their current values.

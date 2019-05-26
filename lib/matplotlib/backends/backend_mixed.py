@@ -4,7 +4,7 @@ from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.tight_bbox import process_figure_for_rasterizing
 
 
-class MixedModeRenderer(object):
+class MixedModeRenderer:
     """
     A helper class to implement a renderer that switches between
     vector and raster drawing.  An example may be a PDF writer, where

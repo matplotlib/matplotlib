@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class Triangulation(object):
+class Triangulation:
     """
     An unstructured triangular grid consisting of npoints points and
     ntri triangles.  The triangles can either be specified by the user

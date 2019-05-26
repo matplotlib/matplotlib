@@ -12,7 +12,7 @@ from matplotlib.tri.tritools import TriAnalyzer
 __all__ = ('TriInterpolator', 'LinearTriInterpolator', 'CubicTriInterpolator')
 
 
-class TriInterpolator(object):
+class TriInterpolator:
     """
     Abstract base class for classes used to perform interpolation on
     triangular grids.
@@ -1230,7 +1230,7 @@ class _DOF_estimator_min_E(_DOF_estimator_geom):
 
 # The following private :class:_Sparse_Matrix_coo and :func:_cg provide
 # a PCG sparse solver for (symmetric) elliptic problems.
-class _Sparse_Matrix_coo(object):
+class _Sparse_Matrix_coo:
     def __init__(self, vals, rows, cols, shape):
         """
         Creates a sparse matrix in coo format

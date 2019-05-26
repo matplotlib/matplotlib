@@ -6,7 +6,7 @@ import atexit
 import gc
 
 
-class Gcf(object):
+class Gcf:
     """
     Singleton to manage a set of integer-numbered figures.
 

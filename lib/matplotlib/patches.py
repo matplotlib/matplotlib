@@ -1788,7 +1788,7 @@ def _simpleprint_styles(_styles):
     return "[{}]".format("|".join(map(" '{}' ".format, sorted(_styles))))
 
 
-class _Style(object):
+class _Style:
     """
     A base class for the Styles. It is meant to be a container class,
     where actual styles are declared as subclass of it, and it
@@ -1888,7 +1888,7 @@ class BoxStyle(_Style):
 
     _style_list = {}
 
-    class _Base(object):
+    class _Base:
         """
         :class:`BBoxTransmuterBase` and its derivatives are used to make a
         fancy box around a given rectangle. The :meth:`__call__` method
@@ -2629,7 +2629,7 @@ class ConnectionStyle(_Style):
 
     _style_list = {}
 
-    class _Base(object):
+    class _Base:
         """
         A base class for connectionstyle classes. The subclass needs
         to implement a *connect* method whose call signature is::
@@ -3071,7 +3071,7 @@ class ArrowStyle(_Style):
 
     _style_list = {}
 
-    class _Base(object):
+    class _Base:
         """
         Arrow Transmuter Base class
 

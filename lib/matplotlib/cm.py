@@ -177,7 +177,7 @@ def get_cmap(name=None, lut=None):
         return cmap_d[name]._resample(lut)
 
 
-class ScalarMappable(object):
+class ScalarMappable:
     """
     This is a mixin class to support scalar data to RGBA mapping.
     The ScalarMappable makes use of data normalization before returning

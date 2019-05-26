@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib.path import Path
 
 
-class HatchPatternBase(object):
+class HatchPatternBase:
     """
     The base class for a hatch pattern.
     """

@@ -114,7 +114,7 @@ def _process_plot_format(fmt):
     return linestyle, marker, color
 
 
-class _process_plot_var_args(object):
+class _process_plot_var_args:
     """
     Process variable length arguments to the plot command, so that
     plot commands like the following are supported::

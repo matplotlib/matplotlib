@@ -628,7 +628,7 @@ class YTick(Tick):
         return self.axes.viewLim.intervaly
 
 
-class Ticker(object):
+class Ticker:
     """
     A container for the objects defining tick position and format.
 
@@ -671,7 +671,7 @@ class Ticker(object):
         self._formatter = formatter
 
 
-class _LazyTickList(object):
+class _LazyTickList:
     """
     A descriptor for lazy instantiation of tick lists.
 

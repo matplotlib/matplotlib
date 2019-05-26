@@ -55,7 +55,7 @@ class ConversionError(TypeError):
     pass
 
 
-class AxisInfo(object):
+class AxisInfo:
     """
     Information to support default axis labeling, tick labeling, and limits.
 
@@ -91,7 +91,7 @@ class AxisInfo(object):
         self.default_limits = default_limits
 
 
-class ConversionInterface(object):
+class ConversionInterface:
     """
     The minimal interface for a converter to take custom data types (or
     sequences) and convert them to values Matplotlib can use.

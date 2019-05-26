@@ -10,7 +10,7 @@ from matplotlib import patches as mpatches
 from matplotlib import transforms as mtransforms
 
 
-class AbstractPathEffect(object):
+class AbstractPathEffect:
     """
     A base class for path effects.
 

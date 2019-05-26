@@ -169,7 +169,7 @@ def _dispatch(table, min, max=None, state=None, args=('raw',)):
     return decorate
 
 
-class Dvi(object):
+class Dvi:
     """
     A reader for a dvi ("device-independent") file, as produced by TeX.
     The current implementation can only iterate through pages in order,
@@ -486,7 +486,7 @@ class Dvi(object):
         raise ValueError("unknown command: byte %d", 250 + offset)
 
 
-class DviFont(object):
+class DviFont:
     """
     Encapsulation of a font that a DVI file can refer to.
 
@@ -700,7 +700,7 @@ def _mul2012(num1, num2):
     return (num1*num2) >> 20
 
 
-class Tfm(object):
+class Tfm:
     """
     A TeX Font Metric file.
 
@@ -755,7 +755,7 @@ class Tfm(object):
 PsFont = namedtuple('Font', 'texname psname effects encoding filename')
 
 
-class PsfontsMap(object):
+class PsfontsMap:
     """
     A psfonts.map formatted file, mapping TeX fonts to PS fonts.
 
@@ -923,7 +923,7 @@ class PsfontsMap(object):
                 encoding=encoding, filename=filename)
 
 
-class Encoding(object):
+class Encoding:
     r"""
     Parses a \*.enc file referenced from a psfonts.map style file.
     The format this class understands is a very limited subset of

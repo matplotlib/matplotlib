@@ -15,7 +15,7 @@ def _stride_repeat(*args, **kwargs):
         return mlab.stride_repeat(*args, **kwargs)
 
 
-class TestStride(object):
+class TestStride:
     def get_base(self, x):
         y = x
         while y.base is not None:
@@ -189,7 +189,7 @@ def _apply_window(*args, **kwargs):
         return mlab.apply_window(*args, **kwargs)
 
 
-class TestWindow(object):
+class TestWindow:
     def setup(self):
         np.random.seed(0)
         n = 1000
@@ -439,7 +439,7 @@ class TestWindow(object):
         assert_allclose(ycontrol.T, result, atol=1e-08)
 
 
-class TestDetrend(object):
+class TestDetrend:
     def setup(self):
         np.random.seed(0)
         n = 1000
@@ -1076,7 +1076,7 @@ class TestDetrend(object):
         'nosig_overlap',
     ],
     scope='class')
-class TestSpectral(object):
+class TestSpectral:
     @pytest.fixture(scope='class', autouse=True)
     def stim(self, request, fstims, iscomplex, sides, len_x, NFFT_density,
              nover_density, pad_to_density, pad_to_spectrum):
@@ -2032,7 +2032,7 @@ def test_cohere():
 # https://github.com/scipy/scipy/blob/master/scipy/stats/tests/test_kdeoth.py
 #*****************************************************************
 
-class TestGaussianKDE(object):
+class TestGaussianKDE:
 
     def test_kde_integer_input(self):
         """Regression test for #1181."""
@@ -2077,7 +2077,7 @@ class TestGaussianKDE(object):
         assert kdepdf.all() == kdepdf3.all()
 
 
-class TestGaussianKDECustom(object):
+class TestGaussianKDECustom:
     def test_no_data(self):
         """Pass no data into the GaussianKDE class."""
         with pytest.raises(ValueError):
@@ -2166,7 +2166,7 @@ class TestGaussianKDECustom(object):
             mlab.GaussianKDE(data, bw_method="invalid")
 
 
-class TestGaussianKDEEvaluate(object):
+class TestGaussianKDEEvaluate:
 
     def test_evaluate_diff_dim(self):
         """

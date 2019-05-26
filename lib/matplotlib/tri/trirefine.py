@@ -7,7 +7,7 @@ from matplotlib.tri.triangulation import Triangulation
 import matplotlib.tri.triinterpolate
 
 
-class TriRefiner(object):
+class TriRefiner:
     """
     Abstract base class for classes implementing mesh refinement.
 

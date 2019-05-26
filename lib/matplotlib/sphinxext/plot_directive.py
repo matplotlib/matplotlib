@@ -437,7 +437,7 @@ Exception occurred rendering plot.
 plot_context = dict()
 
 
-class ImageFile(object):
+class ImageFile:
     def __init__(self, basename, dirname):
         self.basename = basename
         self.dirname = dirname

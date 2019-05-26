@@ -148,7 +148,7 @@ class FigureCanvasNbAgg(FigureCanvasWebAggCore):
         return TimerTornado(*args, **kwargs)
 
 
-class CommSocket(object):
+class CommSocket:
     """
     Manages the Comm connection between IPython and the browser (client).
 

@@ -61,7 +61,7 @@ class _StrongRef:
         return hash(self._obj)
 
 
-class CallbackRegistry(object):
+class CallbackRegistry:
     """Handle registering and disconnecting for a set of signals and callbacks:
 
         >>> def oneat(x):
@@ -544,7 +544,7 @@ class maxdict(dict):
         dict.__setitem__(self, k, v)
 
 
-class Stack(object):
+class Stack:
     """
     Stack of elements with a movable cursor.
 
@@ -766,7 +766,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
         recurse(obj, obj, {}, [])
 
 
-class Grouper(object):
+class Grouper:
     """
     This class provides a lightweight way to group arbitrary objects
     together into disjoint sets when a full-blown graph data structure
@@ -781,7 +781,7 @@ class Grouper(object):
     For example:
 
         >>> from matplotlib.cbook import Grouper
-        >>> class Foo(object):
+        >>> class Foo:
         ...     def __init__(self, s):
         ...         self.s = s
         ...     def __repr__(self):

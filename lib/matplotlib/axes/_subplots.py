@@ -8,7 +8,7 @@ from matplotlib.gridspec import GridSpec, SubplotSpec
 import matplotlib._layoutbox as layoutbox
 
 
-class SubplotBase(object):
+class SubplotBase:
     """
     Base class for subplots, which are :class:`Axes` instances with
     additional methods to facilitate generating and manipulating a set

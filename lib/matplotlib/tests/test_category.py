@@ -10,7 +10,7 @@ import matplotlib.category as cat
 _to_str = cat.StrCategoryFormatter._text
 
 
-class TestUnitData(object):
+class TestUnitData:
     test_cases = [('single', (["hello world"], [0])),
                   ('unicode', (["Здравствуйте мир"], [0])),
                   ('mixed', (['A', "np.nan", 'B', "3.14", "мир"],
@@ -56,12 +56,12 @@ class TestUnitData(object):
             unitdata.update(fdata)
 
 
-class FakeAxis(object):
+class FakeAxis:
     def __init__(self, units):
         self.units = units
 
 
-class TestStrCategoryConverter(object):
+class TestStrCategoryConverter:
     """Based on the pandas conversion and factorization tests:
 
     ref: /pandas/tseries/tests/test_converter.py
@@ -132,7 +132,7 @@ PLOT_LIST = [Axes.scatter, Axes.plot, Axes.bar]
 PLOT_IDS = ["scatter", "plot", "bar"]
 
 
-class TestStrCategoryLocator(object):
+class TestStrCategoryLocator:
     def test_StrCategoryLocator(self):
         locs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         unit = cat.UnitData([str(j) for j in locs])
@@ -145,7 +145,7 @@ class TestStrCategoryLocator(object):
         np.testing.assert_array_equal(ax.yaxis.major.locator(), range(3))
 
 
-class TestStrCategoryFormatter(object):
+class TestStrCategoryFormatter:
     test_cases = [("ascii", ["hello", "world", "hi"]),
                   ("unicode", ["Здравствуйте", "привет"])]
 
@@ -177,7 +177,7 @@ def axis_test(axis, labels):
     assert list(axis.units._mapping.values()) == ticks
 
 
-class TestPlotBytes(object):
+class TestPlotBytes:
     bytes_cases = [('string list', ['a', 'b', 'c']),
                    ('bytes list', [b'a', b'b', b'c']),
                    ('bytes ndarray', np.array([b'a', b'b', b'c']))]
@@ -192,7 +192,7 @@ class TestPlotBytes(object):
         axis_test(ax.xaxis, bdata)
 
 
-class TestPlotNumlike(object):
+class TestPlotNumlike:
     numlike_cases = [('string list', ['1', '11', '3']),
                      ('string ndarray', np.array(['1', '11', '3'])),
                      ('bytes list', [b'1', b'11', b'3']),
@@ -207,7 +207,7 @@ class TestPlotNumlike(object):
         axis_test(ax.xaxis, ndata)
 
 
-class TestPlotTypes(object):
+class TestPlotTypes:
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
     def test_plot_unicode(self, ax, plotter):
         words = ['Здравствуйте', 'привет']

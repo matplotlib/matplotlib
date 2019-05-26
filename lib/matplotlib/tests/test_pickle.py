@@ -144,7 +144,7 @@ def test_polar():
     plt.draw()
 
 
-class TransformBlob(object):
+class TransformBlob:
     def __init__(self):
         self.identity = mtransforms.IdentityTransform()
         self.identity2 = mtransforms.IdentityTransform()

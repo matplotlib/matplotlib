@@ -234,7 +234,7 @@ def test_iterability_axes_argument():
         def __init__(self, *args, myclass=None, **kwargs):
             return Axes.__init__(self, *args, **kwargs)
 
-    class MyClass(object):
+    class MyClass:
 
         def __getitem__(self, item):
             if item != 'a':

@@ -36,7 +36,7 @@ cursors = Cursors  # Backcompat.
 _views_positions = 'viewpos'
 
 
-class ToolBase(object):
+class ToolBase:
     """
     Base tool class
 

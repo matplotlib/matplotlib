@@ -46,7 +46,7 @@ from matplotlib import cbook, dviread, rcParams
 _log = logging.getLogger(__name__)
 
 
-class TexManager(object):
+class TexManager:
     """
     Convert strings to dvi files using TeX, caching the results to a directory.
 

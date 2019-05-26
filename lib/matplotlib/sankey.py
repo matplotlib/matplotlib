@@ -27,7 +27,7 @@ UP = 1
 DOWN = 3
 
 
-class Sankey(object):
+class Sankey:
     """
     Sankey diagram.
 

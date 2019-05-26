@@ -27,7 +27,7 @@ value_unescape = re.compile(r'\\([%s])' % value_punc).sub
 value_escape = re.compile(r'([%s])' % value_punc).sub
 
 
-class FontconfigPatternParser(object):
+class FontconfigPatternParser:
     """
     A simple pyparsing-based parser for `fontconfig patterns`_.
 

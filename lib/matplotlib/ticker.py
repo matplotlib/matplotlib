@@ -191,7 +191,7 @@ def _mathdefault(s):
     return '\\mathdefault{%s}' % s
 
 
-class _DummyAxis(object):
+class _DummyAxis:
     def __init__(self, minpos=0):
         self.dataLim = mtransforms.Bbox.unit()
         self.viewLim = mtransforms.Bbox.unit()
@@ -217,7 +217,7 @@ class _DummyAxis(object):
         return 9
 
 
-class TickHelper(object):
+class TickHelper:
     axis = None
 
     def set_axis(self, axis):

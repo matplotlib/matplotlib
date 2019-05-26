@@ -20,7 +20,7 @@ from .patches import Circle, Rectangle, Ellipse
 from .transforms import blended_transform_factory
 
 
-class LockDraw(object):
+class LockDraw:
     """
     Some widgets, like the cursor, draw onto the canvas, and this is not
     desirable under all circumstances, like when the toolbar is in zoom-to-rect
@@ -58,7 +58,7 @@ class LockDraw(object):
         return self._owner is not None
 
 
-class Widget(object):
+class Widget:
     """
     Abstract base class for GUI neutral widgets
     """
@@ -1912,7 +1912,7 @@ class SpanSelector(_SelectorWidget):
             self.rect.set_height(maxv - minv)
 
 
-class ToolHandles(object):
+class ToolHandles:
     """Control handles for canvas tools.
 
     Parameters
