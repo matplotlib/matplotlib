@@ -87,14 +87,11 @@ matrix:
         - EXTRAREQS='-r requirements/testing/travis_flake8.txt'
     - python: 3.6
       env:
-        - CPPFLAGS=--coverage
         - PINNEDVERS='-c requirements/testing/travis36minver.txt'
         - DELETE_FONT_CACHE=1
         - EXTRAREQS='-r requirements/testing/travis36.txt'
     - python: 3.7
       sudo: true
-      env:
-        - CPPFLAGS=--coverage
     - python: "nightly"
       env:
         - PRE=--pre
@@ -162,6 +159,11 @@ install:
       echo 'wxPython is available' ||
       echo 'wxPython is not available'
 
+  # Set flag in a delayed manner to avoid issues with installing other packages
+  - |
+    if [[ $RUN_PYTEST == 1 ]]; then
+      export CPPFLAGS=--coverage
+    fi
   - |
     # Install matplotlib
     python -mpip install -ve .
