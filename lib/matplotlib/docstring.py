@@ -61,7 +61,7 @@ class Substitution:
 
 @cbook.deprecated("3.1")
 class Appender:
-    """
+    r"""
     A function decorator that will append an addendum to the docstring
     of the target function.
 

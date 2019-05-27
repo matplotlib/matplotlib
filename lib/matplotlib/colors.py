@@ -2002,8 +2002,8 @@ def from_levels_and_colors(levels, colors, extend='neither'):
 
     Returns
     -------
-    (cmap, norm) : tuple containing a :class:`Colormap` and a \
-                   :class:`Normalize` instance
+    cmap : `~matplotlib.colors.Normalize`
+    norm : `~matplotlib.colors.Colormap`
     """
     colors_i0 = 0
     colors_i1 = None

@@ -730,10 +730,10 @@ validate_grid_axis = ValidateInStrings('axes.grid.axis', ['x', 'y', 'both'])
 
 
 def validate_hatch(s):
-    """
+    r"""
     Validate a hatch pattern.
     A hatch pattern string can have any sequence of the following
-    characters: ``\\ / | - + * . x o O``.
+    characters: ``\ / | - + * . x o O``.
 
     """
     if not isinstance(s, str):

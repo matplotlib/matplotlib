@@ -7088,7 +7088,7 @@ optional.
     def csd(self, x, y, NFFT=None, Fs=None, Fc=None, detrend=None,
             window=None, noverlap=None, pad_to=None,
             sides=None, scale_by_freq=None, return_line=None, **kwargs):
-        """
+        r"""
         Plot the cross-spectral density.
 
         The cross spectral density :math:`P_{xy}` by Welch's average
@@ -7155,7 +7155,7 @@ optional.
         Notes
         -----
         For plotting, the power is plotted as
-        :math:`10\\log_{10}(P_{xy})` for decibels, though `P_{xy}` itself
+        :math:`10 \log_{10}(P_{xy})` for decibels, though `P_{xy}` itself
         is returned.
 
         References
@@ -7433,7 +7433,7 @@ optional.
     def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                window=mlab.window_hanning, noverlap=0, pad_to=None,
                sides='default', scale_by_freq=None, **kwargs):
-        """
+        r"""
         Plot the coherence between *x* and *y*.
 
         Plot the coherence between *x* and *y*.  Coherence is the
@@ -7441,7 +7441,7 @@ optional.
 
         .. math::
 
-          C_{xy} = \\frac{|P_{xy}|^2}{P_{xx}P_{yy}}
+          C_{xy} = \frac{|P_{xy}|^2}{P_{xx}P_{yy}}
 
         Parameters
         ----------

@@ -1220,7 +1220,7 @@ class EngFormatter(Formatter):
 
     def __init__(self, unit="", places=None, sep=" ", *, usetex=None,
                  useMathText=None):
-        """
+        r"""
         Parameters
         ----------
         unit : str (default: "")
@@ -1242,9 +1242,9 @@ class EngFormatter(Formatter):
             other useful options may be:
 
             * ``sep=""`` to append directly the prefix/unit to the value;
-            * ``sep="\\N{THIN SPACE}"`` (``U+2009``);
-            * ``sep="\\N{NARROW NO-BREAK SPACE}"`` (``U+202F``);
-            * ``sep="\\N{NO-BREAK SPACE}"`` (``U+00A0``).
+            * ``sep="\N{THIN SPACE}"`` (``U+2009``);
+            * ``sep="\N{NARROW NO-BREAK SPACE}"`` (``U+202F``);
+            * ``sep="\N{NO-BREAK SPACE}"`` (``U+00A0``).
 
         usetex : bool (default: None)
             To enable/disable the use of TeX's math mode for rendering the
@@ -1441,11 +1441,11 @@ class PercentFormatter(Formatter):
 
     @property
     def symbol(self):
-        """
+        r"""
         The configured percent symbol as a string.
 
         If LaTeX is enabled via :rc:`text.usetex`, the special characters
-        ``{'#', '$', '%', '&', '~', '_', '^', '\\', '{', '}'}`` are
+        ``{'#', '$', '%', '&', '~', '_', '^', '\', '{', '}'}`` are
         automatically escaped in the string.
         """
         symbol = self._symbol
