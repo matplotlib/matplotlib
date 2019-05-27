@@ -668,8 +668,15 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        A : array-like
+        A : array-like or `PIL.Image.Image`
         """
+        try:
+            from PIL import Image
+        except ImportError:
+            pass
+        else:
+            if isinstance(A, Image.Image):
+                A = pil_to_array(A)  # Needed e.g. to apply png palette.
         self._A = cbook.safe_masked_invalid(A, copy=True)
 
         if (self._A.dtype != np.uint8 and

@@ -13,7 +13,7 @@ from numpy import ma
 from numpy.testing import assert_array_equal
 
 from matplotlib import (
-    colors, image as mimage, patches, pyplot as plt,
+    colors, image as mimage, patches, pyplot as plt, style,
     rc_context, rcParams)
 from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
@@ -117,11 +117,16 @@ def test_image_python_io():
 
 @check_figures_equal()
 def test_imshow_pil(fig_test, fig_ref):
-    pytest.importorskip("PIL")
-    img = plt.imread(os.path.join(os.path.dirname(__file__),
-                     'baseline_images', 'test_image', 'uint16.tif'))
-    fig_test.subplots().imshow(img)
-    fig_ref.subplots().imshow(np.asarray(img))
+    style.use("default")
+    PIL = pytest.importorskip("PIL")
+    png_path = Path(__file__).parent / "baseline_images/pngsuite/basn3p04.png"
+    tiff_path = Path(__file__).parent / "baseline_images/test_image/uint16.tif"
+    axs = fig_test.subplots(2)
+    axs[0].imshow(PIL.Image.open(png_path))
+    axs[1].imshow(PIL.Image.open(tiff_path))
+    axs = fig_ref.subplots(2)
+    axs[0].imshow(plt.imread(str(png_path)))
+    axs[1].imshow(plt.imread(tiff_path))
 
 
 def test_imread_pil_uint16():
