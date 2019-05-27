@@ -6,7 +6,10 @@ from .mpl_axes import Axes
 
 def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
     """
-    pad : fraction of the axes height.
+    Parameters
+    ----------
+    pad : float
+        Fraction of the axes height.
     """
 
     divider = make_axes_locatable(ax)
