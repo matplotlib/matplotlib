@@ -878,7 +878,8 @@ class TextBox(AxesWidget):
                 for key in self.params_to_disable:
                     rcParams[key] = self.reset_params[key]
             else:
-                self.ax.figure.canvas.manager.toolmanager.keypresslock.release(self)
+                toolmanager = self.ax.figure.canvas.manager.toolmanager
+                toolmanager.keypresslock.release(self)
             notifysubmit = True
         self.capturekeystrokes = False
         self.cursor.set_visible(False)
