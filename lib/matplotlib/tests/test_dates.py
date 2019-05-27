@@ -15,14 +15,6 @@ import matplotlib.ticker as mticker
 from matplotlib import rc_context
 
 
-def __has_pytz():
-    try:
-        import pytz
-        return True
-    except ImportError:
-        return False
-
-
 def test_date_numpyx():
     # test that numpy dates work properly...
     base = datetime.datetime(2017, 1, 1)
@@ -710,10 +702,9 @@ def test_rrulewrapper():
 
 
 @pytest.mark.pytz
-@pytest.mark.skipif(not __has_pytz(), reason="Requires pytz")
 def test_rrulewrapper_pytz():
     # Test to make sure pytz zones are supported in rrules
-    import pytz
+    pytz = pytest.importorskip("pytz")
 
     def attach_tz(dt, zi):
         return zi.localize(dt)
@@ -722,9 +713,8 @@ def test_rrulewrapper_pytz():
 
 
 @pytest.mark.pytz
-@pytest.mark.skipif(not __has_pytz(), reason="Requires pytz")
 def test_yearlocator_pytz():
-    import pytz
+    pytz = pytest.importorskip("pytz")
 
     tz = pytz.timezone('America/New_York')
     x = [tz.localize(datetime.datetime(2010, 1, 1))
