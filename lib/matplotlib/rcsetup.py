@@ -694,6 +694,7 @@ def validate_sketch(s):
     return result
 
 
+@cbook.deprecated("3.1")
 class ValidateInterval:
     """
     Value must be in interval
@@ -724,6 +725,28 @@ class ValidateInterval:
             raise RuntimeError('Value must be < %f; found "%f"' %
                                (self.vmax, s))
         return s
+
+
+def _validate_greaterequal0_lessthan1(s):
+    s = validate_float(s)
+    if 0 <= s < 1:
+        return s
+    else:
+        raise RuntimeError(f'Value must be >=0 and <1; got {s}')
+
+
+def _validate_greaterequal0_lessequal1(s):
+    s = validate_float(s)
+    if 0 <= s <= 1:
+        return s
+    else:
+        raise RuntimeError(f'Value must be >=0 and <=1; got {s}')
+
+
+_range_validators = {  # Slightly nicer (internal) API.
+    "0 <= x < 1": _validate_greaterequal0_lessthan1,
+    "0 <= x <= 1": _validate_greaterequal0_lessequal1,
+}
 
 
 validate_grid_axis = ValidateInStrings('axes.grid.axis', ['x', 'y', 'both'])
@@ -1235,15 +1258,10 @@ defaultParams = {
     'axes.autolimit_mode': [
         'data',
         ValidateInStrings('autolimit_mode', ['data', 'round_numbers'])],
-    'axes.xmargin': [0.05, ValidateInterval(0, 1,
-                                            closedmin=True,
-                                            closedmax=True)],  # margin added to xaxis
-    'axes.ymargin': [0.05, ValidateInterval(0, 1,
-                                            closedmin=True,
-                                            closedmax=True)],  # margin added to yaxis
+    'axes.xmargin': [0.05, _range_validators["0 <= x <= 1"]],
+    'axes.ymargin': [0.05, _range_validators["0 <= x <= 1"]],
 
-    'polaraxes.grid': [True, validate_bool],  # display polar grid or
-                                                     # not
+    'polaraxes.grid': [True, validate_bool],  # display polar grid or not
     'axes3d.grid': [True, validate_bool],  # display 3d grid
 
     # scatter props
@@ -1357,28 +1375,22 @@ defaultParams = {
     'figure.autolayout': [False, validate_bool],
     'figure.max_open_warning': [20, validate_int],
 
-    'figure.subplot.left': [0.125, ValidateInterval(0, 1, closedmin=True,
-                                                       closedmax=True)],
-    'figure.subplot.right': [0.9, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=True)],
-    'figure.subplot.bottom': [0.11, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=True)],
-    'figure.subplot.top': [0.88, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=True)],
-    'figure.subplot.wspace': [0.2, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=False)],
-    'figure.subplot.hspace': [0.2, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=False)],
+    'figure.subplot.left': [0.125, _range_validators["0 <= x <= 1"]],
+    'figure.subplot.right': [0.9, _range_validators["0 <= x <= 1"]],
+    'figure.subplot.bottom': [0.11, _range_validators["0 <= x <= 1"]],
+    'figure.subplot.top': [0.88, _range_validators["0 <= x <= 1"]],
+    'figure.subplot.wspace': [0.2, _range_validators["0 <= x < 1"]],
+    'figure.subplot.hspace': [0.2, _range_validators["0 <= x < 1"]],
 
     # do constrained_layout.
     'figure.constrained_layout.use': [False, validate_bool],
     # wspace and hspace are fraction of adjacent subplots to use
     # for space.  Much smaller than above because we don't need
     # room for the text.
-    'figure.constrained_layout.hspace': [0.02, ValidateInterval(
-            0, 1, closedmin=True, closedmax=False)],
-    'figure.constrained_layout.wspace': [0.02, ValidateInterval(
-            0, 1, closedmin=True, closedmax=False)],
+    'figure.constrained_layout.hspace':
+        [0.02, _range_validators["0 <= x < 1"]],
+    'figure.constrained_layout.wspace':
+        [0.02, _range_validators["0 <= x < 1"]],
     # This is a buffer around the axes in inches.  This is 3pts.
     'figure.constrained_layout.h_pad': [0.04167, validate_float],
     'figure.constrained_layout.w_pad': [0.04167, validate_float],
@@ -1435,7 +1447,7 @@ defaultParams = {
     'docstring.hardcopy': [False, validate_bool],
 
     'path.simplify': [True, validate_bool],
-    'path.simplify_threshold': [1.0 / 9.0, ValidateInterval(0.0, 1.0)],
+    'path.simplify_threshold': [1 / 9, _range_validators["0 <= x <= 1"]],
     'path.snap': [True, validate_bool],
     'path.sketch': [None, validate_sketch],
     'path.effects': [[], validate_any],
