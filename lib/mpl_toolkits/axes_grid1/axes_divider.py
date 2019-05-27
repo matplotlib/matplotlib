@@ -604,7 +604,7 @@ class AxesDivider(Divider):
     def append_axes(self, position, size, pad=None, add_to_figure=True,
                     **kwargs):
         """
-        create an axes at the given *position* with the same height
+        Create an axes at the given *position* with the same height
         (or width) of the main axes.
 
          *position*
@@ -703,9 +703,8 @@ class HBoxDivider(SubplotDivider):
 
     def new_locator(self, nx, nx1=None):
         """
-        returns a new locator
-        (:class:`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
-        specified cell.
+        Create a new `~mpl_toolkits.axes_grid.axes_divider.AxesLocator` for
+        the specified cell.
 
         Parameters
         ----------
@@ -796,9 +795,8 @@ class VBoxDivider(HBoxDivider):
 
     def new_locator(self, ny, ny1=None):
         """
-        returns a new locator
-        (:class:`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
-        specified cell.
+        Create a new `~mpl_toolkits.axes_grid.axes_divider.AxesLocator` for
+        the specified cell.
 
         Parameters
         ----------

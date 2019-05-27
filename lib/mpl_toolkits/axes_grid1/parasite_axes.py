@@ -251,12 +251,11 @@ class HostAxesBase:
 
     def twinx(self, axes_class=None):
         """
-        create a twin of Axes for generating a plot with a sharex
-        x-axis but independent y axis.  The y-axis of self will have
-        ticks on left and the returned axes will have ticks on the
-        right
-        """
+        Create a twin of Axes with a shared x-axis but independent y-axis.
 
+        The y-axis of self will have ticks on the left and the returned axes
+        will have ticks on the right.
+        """
         if axes_class is None:
             axes_class = self._get_base_axes()
 
@@ -280,12 +279,11 @@ class HostAxesBase:
 
     def twiny(self, axes_class=None):
         """
-        create a twin of Axes for generating a plot with a shared
-        y-axis but independent x axis.  The x-axis of self will have
-        ticks on bottom and the returned axes will have ticks on the
-        top
-        """
+        Create a twin of Axes with a shared y-axis but independent x-axis.
 
+        The x-axis of self will have ticks on the bottom and the returned axes
+        will have ticks on the top.
+        """
         if axes_class is None:
             axes_class = self._get_base_axes()
 
@@ -309,12 +307,11 @@ class HostAxesBase:
 
     def twin(self, aux_trans=None, axes_class=None):
         """
-        create a twin of Axes for generating a plot with a sharex
-        x-axis but independent y axis.  The y-axis of self will have
-        ticks on left and the returned axes will have ticks on the
-        right
-        """
+        Create a twin of Axes with no shared axis.
 
+        While self will have ticks on the left and bottom axis, the returned
+        axes will have ticks on the top and right axis.
+        """
         if axes_class is None:
             axes_class = self._get_base_axes()
 
