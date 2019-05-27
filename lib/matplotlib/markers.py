@@ -274,9 +274,7 @@ class MarkerStyle:
         """
         if fillstyle is None:
             fillstyle = rcParams['markers.fillstyle']
-        if fillstyle not in self.fillstyles:
-            raise ValueError("Unrecognized fillstyle %s"
-                             % ' '.join(self.fillstyles))
+        cbook._check_in_list(self.fillstyles, fillstyle=fillstyle)
         self._fillstyle = fillstyle
         self._recache()
 
@@ -396,9 +394,7 @@ class MarkerStyle:
         self._snap = False
 
     def _half_fill(self):
-        fs = self.get_fillstyle()
-        result = fs in self._half_fillstyles
-        return result
+        return self.get_fillstyle() in self._half_fillstyles
 
     def _set_circle(self, reduction=1.0):
         self._transform = Affine2D().scale(0.5 * reduction)
