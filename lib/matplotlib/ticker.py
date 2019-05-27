@@ -2500,9 +2500,9 @@ class SymmetricalLogLocator(Locator):
         # Calculate all the ranges, so we can determine striding
         if has_a:
             if has_b:
-                a_range = get_log_range(linthresh, np.abs(vmin))
+                a_range = get_log_range(linthresh, np.abs(vmin) + 1)
             else:
-                a_range = get_log_range(np.abs(vmax), np.abs(vmin))
+                a_range = get_log_range(np.abs(vmax), np.abs(vmin) + 1)
         else:
             a_range = (0, 0)
 
