@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+``rcsetup.validate_path_exists`` is deprecated (use ``os.path.exists`` to check
+whether a path exists).

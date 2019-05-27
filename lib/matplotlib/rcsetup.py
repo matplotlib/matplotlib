@@ -108,6 +108,7 @@ def validate_any(s):
 validate_anylist = _listify_validator(validate_any)
 
 
+@cbook.deprecated("3.1", alternative="os.path.exists")
 def validate_path_exists(s):
     """If s is a path, return s, else False"""
     if s is None:
@@ -1022,8 +1023,7 @@ defaultParams = {
     'webagg.open_in_browser': [True, validate_bool],
     'webagg.port_retries': [50, validate_int],
     'toolbar':           ['toolbar2', validate_toolbar],
-    'datapath':          [None, validate_path_exists],  # handled by
-                                                        # _get_data_path_cached
+    'datapath':          [None, validate_any],  # see _get_data_path_cached
     'interactive':       [False, validate_bool],
     'timezone':          ['UTC', validate_string],
 
