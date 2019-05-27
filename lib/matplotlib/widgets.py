@@ -856,7 +856,8 @@ class TextBox(AxesWidget):
 
     def begin_typing(self, x):
         self.capturekeystrokes = True
-        if rcParams['toolbar'] != 'toolmanager':
+        # Check for toolmanager handling the keypress
+        if self.ax.figure.canvas.manager.key_press_handler_id is not None:
             # disable command keys so that the user can type without
             # command keys causing figure to be saved, etc
             self.reset_params = {}
@@ -872,7 +873,8 @@ class TextBox(AxesWidget):
         # user's code, we only want to call it once we've already done
         # our cleanup.
         if self.capturekeystrokes:
-            if rcParams['toolbar'] != 'toolmanager':
+            # Check for toolmanager handling the keypress
+            if self.ax.figure.canvas.manager.key_press_handler_id is not None:
                 # since the user is no longer typing,
                 # reactivate the standard command keys
                 for key in self.params_to_disable:
