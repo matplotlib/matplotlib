@@ -2514,7 +2514,7 @@ class SymmetricalLogLocator(Locator):
         else:
             c_range = (0, 0)
 
-        # Caclulate the total number of integer exponents in a and c ranges
+        # Calculate the total number of integer exponents in a and c ranges
         total_ticks = (a_range[1] - a_range[0]) + (c_range[1] - c_range[0])
         if has_b:
             total_ticks += 1
