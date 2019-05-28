@@ -192,17 +192,7 @@ def _check_versions():
             ("numpy", "1.11"),
             ("pyparsing", "2.0.1"),
     ]:
-        try:
-            module = importlib.import_module(modname)
-        except ImportError as error:
-            if sys.platform == 'win32' and 'DLL' in error.msg:
-                msg = ('You may be missing MIcrosoft Visual C++ '
-                       'redistributable matching your Python version. '
-                       'Consult Kiwisolver documentation for more details')
-                raise ImportError(msg) from error
-            else:
-                raise
-
+        module = importlib.import_module(modname)
         if LooseVersion(module.__version__) < minver:
             raise ImportError("Matplotlib requires {}>={}; you have {}"
                               .format(modname, minver, module.__version__))
