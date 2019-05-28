@@ -466,10 +466,9 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
 
     if mode is None or mode == 'default':
         mode = 'psd'
-    elif mode not in ['psd', 'complex', 'magnitude', 'angle', 'phase']:
-        raise ValueError("Unknown value for mode %s, must be one of: "
-                         "'default', 'psd', 'complex', "
-                         "'magnitude', 'angle', 'phase'" % mode)
+    cbook._check_in_list(
+        ['default', 'psd', 'complex', 'magnitude', 'angle', 'phase'],
+        mode=mode)
 
     if not same_data and mode != 'psd':
         raise ValueError("x and y must be equal if mode is not 'psd'")
@@ -485,9 +484,7 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
             sides = 'twosided'
         else:
             sides = 'onesided'
-    elif sides not in ['onesided', 'twosided']:
-        raise ValueError("Unknown value for sides %s, must be one of: "
-                         "'default', 'onesided', or 'twosided'" % sides)
+    cbook._check_in_list(['default', 'onesided', 'twosided'], sides=sides)
 
     # zero pad x and y up to NFFT if they are shorter than NFFT
     if len(x) < NFFT:
@@ -604,9 +601,7 @@ def _single_spectrum_helper(x, mode, Fs=None, window=None, pad_to=None,
     complex, magnitude, angle, and phase spectrums.
     It is *NOT* meant to be used outside of mlab and may change at any time.
     '''
-    if mode is None or mode == 'psd' or mode == 'default':
-        raise ValueError('_single_spectrum_helper does not work with %s mode'
-                         % mode)
+    cbook._check_in_list(['complex', 'magnitude', 'angle', 'phase'], mode=mode)
 
     if pad_to is None:
         pad_to = len(x)

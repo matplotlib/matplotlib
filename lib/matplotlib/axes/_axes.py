@@ -138,12 +138,11 @@ class Axes(_AxesBase):
             The title text string.
 
         """
-        try:
-            title = {'left': self._left_title,
-                     'center': self.title,
-                     'right': self._right_title}[loc.lower()]
-        except KeyError:
-            raise ValueError("'%s' is not a valid location" % loc)
+        titles = {'left': self._left_title,
+                  'center': self.title,
+                  'right': self._right_title}
+        cbook._check_in_list(titles, loc=loc.lower())
+        title = titles[loc.lower()]
         return title.get_text()
 
     def set_title(self, label, fontdict=None, loc=None, pad=None,
@@ -188,15 +187,14 @@ class Axes(_AxesBase):
             :class:`~matplotlib.text.Text` for a list of valid text
             properties.
         """
-        try:
-            if loc is None:
-                loc = rcParams['axes.titlelocation']
+        if loc is None:
+            loc = rcParams['axes.titlelocation']
 
-            title = {'left': self._left_title,
-                     'center': self.title,
-                     'right': self._right_title}[loc.lower()]
-        except KeyError:
-            raise ValueError("'%s' is not a valid location" % loc)
+        titles = {'left': self._left_title,
+                  'center': self.title,
+                  'right': self._right_title}
+        cbook._check_in_list(titles, loc=loc.lower())
+        title = titles[loc.lower()]
         default = {
             'fontsize': rcParams['axes.titlesize'],
             'fontweight': rcParams['axes.titleweight'],
@@ -2098,9 +2096,7 @@ class Axes(_AxesBase):
         -----
         .. [notes section required to get data note injection right]
         """
-        if where not in ('pre', 'post', 'mid'):
-            raise ValueError("'where' argument to step must be "
-                             "'pre', 'post' or 'mid'")
+        cbook._check_in_list(('pre', 'post', 'mid'), where=where)
         kwargs['drawstyle'] = 'steps-' + where
         return self.plot(x, y, *args, data=data, **kwargs)
 
@@ -2293,6 +2289,8 @@ class Axes(_AxesBase):
         error_kw.setdefault('capsize', capsize)
 
         orientation = kwargs.pop('orientation', 'vertical')
+        cbook._check_in_list(['vertical', 'horizontal'],
+                             orientation=orientation)
         log = kwargs.pop('log', False)
         label = kwargs.pop('label', '')
         tick_labels = kwargs.pop('tick_label', None)
@@ -2321,8 +2319,6 @@ class Axes(_AxesBase):
             self._process_unit_info(xdata=width, ydata=y, kwargs=kwargs)
             if log:
                 self.set_xscale('log', nonposx='clip')
-        else:
-            raise ValueError('invalid orientation: %s' % orientation)
 
         # lets do some conversions now since some types cannot be
         # subtracted uniformly
@@ -2365,6 +2361,7 @@ class Axes(_AxesBase):
 
         # We will now resolve the alignment and really have
         # left, bottom, width, height vectors
+        cbook._check_in_list(['center', 'edge'], align=align)
         if align == 'center':
             if orientation == 'vertical':
                 try:
@@ -2385,8 +2382,6 @@ class Axes(_AxesBase):
         elif align == 'edge':
             left = x
             bottom = y
-        else:
-            raise ValueError('invalid alignment: %s' % align)
 
         patches = []
         args = zip(left, bottom, width, height, color, edgecolor, linewidth)

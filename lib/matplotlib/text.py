@@ -247,10 +247,8 @@ class Text(Artist):
             aligned according to their horizontal and vertical alignments.  If
             ``"anchor"``, then alignment occurs before rotation.
         """
-        if m is None or m in ["anchor", "default"]:
-            self._rotation_mode = m
-        else:
-            raise ValueError("Unknown rotation_mode : %s" % repr(m))
+        cbook._check_in_list(["anchor", "default", None], rotation_mode=m)
+        self._rotation_mode = m
         self.stale = True
 
     def get_rotation_mode(self):

@@ -121,10 +121,8 @@ class AxisArtistHelper(object):
             nth_coord = along which coordinate value varies
             in 2d, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
             """
+            cbook._check_in_list(["left", "right", "bottom", "top"], loc=loc)
             self._loc = loc
-
-            if loc not in ["left", "right", "bottom", "top"]:
-                raise ValueError("%s" % loc)
 
             if nth_coord is None:
                 if loc in ["left", "right"]:

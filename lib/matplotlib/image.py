@@ -717,8 +717,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if s is None:
             s = rcParams['image.interpolation']
         s = s.lower()
-        if s not in _interpd_:
-            raise ValueError('Illegal interpolation string')
+        cbook._check_in_list(_interpd_, interpolation=s)
         self._interpolation = s
         self.stale = True
 

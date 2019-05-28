@@ -8,6 +8,8 @@ http://stackoverflow.com/questions/2225995/how-can-i-create-stacked-line-graph-w
 """
 import numpy as np
 
+import matplotlib.cbook as cbook
+
 __all__ = ['stackplot']
 
 
@@ -68,6 +70,8 @@ def stackplot(axes, x, *args,
     # We'll need a float buffer for the upcoming calculations.
     stack = np.cumsum(y, axis=0, dtype=np.promote_types(y.dtype, np.float32))
 
+    cbook._check_in_list(['zero', 'sym', 'wiggle', 'weighted_wiggle'],
+                         baseline=baseline)
     if baseline == 'zero':
         first_line = 0.
 
@@ -96,11 +100,6 @@ def stackplot(axes, x, *args,
         center = np.cumsum(center.sum(0))
         first_line = center - 0.5 * total
         stack += first_line
-
-    else:
-        errstr = "Baseline method %s not recognised. " % baseline
-        errstr += "Expected 'zero', 'sym', 'wiggle' or 'weighted_wiggle'"
-        raise ValueError(errstr)
 
     # Color between x = 0 and the first array.
     color = axes._get_lines.get_next_color()

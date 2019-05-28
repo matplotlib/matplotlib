@@ -154,9 +154,7 @@ class MaxExtent(_Base):
     def __init__(self, artist_list, w_or_h):
         self._artist_list = artist_list
 
-        if w_or_h not in ["width", "height"]:
-            raise ValueError()
-
+        cbook._check_in_list(["width", "height"], w_or_h=w_or_h)
         self._w_or_h = w_or_h
 
     def add_artist(self, a):

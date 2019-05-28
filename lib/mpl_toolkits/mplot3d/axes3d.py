@@ -996,12 +996,11 @@ class Axes3D(Axes):
             Type of projection, accepts 'persp' and 'ortho'.
 
         """
+        cbook._check_in_list(['persp', 'ortho'], proj_type=proj_type)
         if proj_type == 'persp':
             self._projection = proj3d.persp_transformation
         elif proj_type == 'ortho':
             self._projection = proj3d.ortho_transformation
-        else:
-            raise ValueError("unrecognized projection: %s" % proj_type)
 
     def get_proj(self):
         """
@@ -2694,12 +2693,11 @@ pivot='tail', normalize=False, **kwargs)
         shaft_dt = np.array([0, length])
         arrow_dt = shaft_dt * arrow_length_ratio
 
+        cbook._check_in_list(['tail', 'middle', 'tip'], pivot=pivot)
         if pivot == 'tail':
             shaft_dt -= length
         elif pivot == 'middle':
             shaft_dt -= length/2.
-        elif pivot != 'tip':
-            raise ValueError('Invalid pivot argument: ' + str(pivot))
 
         XYZ = np.column_stack(input_args[:3])
         UVW = np.column_stack(input_args[3:argi]).astype(float)
