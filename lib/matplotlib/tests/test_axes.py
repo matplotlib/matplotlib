@@ -2182,7 +2182,7 @@ def test_bxp_baseline():
                   savefig_kwarg={'dpi': 40},
                   style='default')
 def test_bxp_rangewhis():
-    _bxp_test_helper(stats_kwargs=dict(whis='range'))
+    _bxp_test_helper(stats_kwargs=dict(whis=[0, 100]))
 
 
 @image_comparison(['bxp_precentilewhis.png'],
@@ -2500,7 +2500,7 @@ def test_boxplot_rc_parameters():
 
     rc_axis1 = {
         'boxplot.vertical': False,
-        'boxplot.whiskers': 'range',
+        'boxplot.whiskers': [0, 100],
         'boxplot.patchartist': True,
     }
 

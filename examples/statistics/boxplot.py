@@ -74,8 +74,8 @@ axs[0, 0].set_title('Custom boxprops', fontsize=fs)
 axs[0, 1].boxplot(data, flierprops=flierprops, medianprops=medianprops)
 axs[0, 1].set_title('Custom medianprops\nand flierprops', fontsize=fs)
 
-axs[0, 2].boxplot(data, whis='range')
-axs[0, 2].set_title('whis="range"', fontsize=fs)
+axs[0, 2].boxplot(data, whis=(0, 100))
+axs[0, 2].set_title('whis=(0, 100)', fontsize=fs)
 
 axs[1, 0].boxplot(data, meanprops=meanpointprops, meanline=False,
                   showmeans=True)
