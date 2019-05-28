@@ -88,9 +88,11 @@ class TriContourSet(ContourSet):
         # in the triangulation.
         z_check = z[np.unique(tri.get_masked_triangles())]
         if np.ma.is_masked(z_check):
-            raise ValueError('z cannot be a masked array')
+            raise ValueError('z must not contain masked points within the '
+                             'triangulation')
         if not np.isfinite(z_check).all():
-            raise ValueError('z array cannot contain non-finite values')
+            raise ValueError('z array must not contain non-finite values within'
+                             ' the triangulation')
 
         z = np.ma.masked_invalid(z, copy=False)
         self.zmax = float(z_check.max())
