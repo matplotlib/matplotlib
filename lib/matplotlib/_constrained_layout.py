@@ -164,6 +164,8 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
             gs = ax.get_subplotspec().get_gridspec()
             if gs._layoutbox is not None:
                 gss.add(gs)
+        _make_aspects(ax)
+        
     if len(gss) == 0:
         cbook._warn_external('There are no gridspecs with layoutboxes. '
                              'Possibly did not call parent GridSpec with the'
@@ -173,6 +175,7 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
         for gs in gss:
             # fill in any empty gridspec slots w/ ghost axes...
             _make_ghost_gridspec_slots(fig, gs)
+
 
     for nnn in range(2):
         # do the algorithm twice.  This has to be done because decorators
@@ -185,7 +188,6 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
                 # make margins for each layout box based on the size of
                 # the decorators.
                 _make_layout_margins(ax, renderer, h_pad, w_pad)
-                _make_aspects(ax)
 
         # do layout for suptitle.
         suptitle = fig._suptitle

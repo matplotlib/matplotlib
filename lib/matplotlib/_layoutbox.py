@@ -83,10 +83,6 @@ class LayoutBox(object):
         self.h_center = Variable(str(sn + 'h_center'))
         self.v_center = Variable(str(sn + 'v_center'))
 
-        self.min_width = Variable(str(sn + 'min_width'))
-        self.min_height = Variable(str(sn + 'min_height'))
-        self.pref_width = Variable(str(sn + 'pref_width'))
-        self.pref_height = Variable(str(sn + 'pref_height'))
         # margins are only used for axes-position layout boxes.  maybe should
         # be a separate subclass:
         self.left_margin = Variable(str(sn + 'left_margin'))
@@ -176,12 +172,9 @@ class LayoutBox(object):
     def add_constraints(self):
         sol = self.solver
         # never let width and height go negative.
-        for i in [self.min_width, self.min_height]:
-            sol.addEditVariable(i, 1e9)
-            sol.suggestValue(i, 0.0)
         # define relation ships between things thing width and right and left
         self.hard_constraints()
-        # self.soft_constraints()
+        self.soft_constraints()
         if self.parent:
             self.parent_constrain()
         # sol.updateVariables()
@@ -200,10 +193,12 @@ class LayoutBox(object):
               self.height == self.top - self.bottom,
               self.h_center == (self.left + self.right) * 0.5,
               self.v_center == (self.top + self.bottom) * 0.5,
-              self.width >= self.min_width,
-              self.height >= self.min_height]
+             ]
         for c in hc:
             self.solver.addConstraint(c | 'required')
+        hc = [self.width >= 0, self.height >= 0]
+        for c in hc:
+            self.solver.addConstraint(c | 'strong')
 
     def soft_constraints(self):
         sol = self.solver
@@ -211,21 +206,14 @@ class LayoutBox(object):
             suggest = 0.
         else:
             suggest = 20.
-        c = (self.pref_width == suggest)
-        for i in c:
-            sol.addConstraint(i | 'required')
         if self.tightheight:
             suggest = 0.
         else:
             suggest = 20.
-        c = (self.pref_height == suggest)
-        for i in c:
-            sol.addConstraint(i | 'required')
-
         c = [(self.width >= suggest),
              (self.height >= suggest)]
         for i in c:
-            sol.addConstraint(i | 150000)
+            sol.addConstraint(i | "weak")
 
     def set_parent(self, parent):
         """Replace the parent of this with the new parent."""
@@ -257,43 +245,45 @@ class LayoutBox(object):
         Constrain the aspect ratio of a layout box, subject to an anchor
         location relative to its parent.
         """
-        sol = self.solver
-        if self.aspect_constraint is not None:
-            sol.removeConstraint(self.aspect_constraint)
-            self.aspect_constraint = None
-        if aspect < 1:
-            c = self.height == self.width * aspect
-        else:
-            c = self.width == self.height / aspect
-        self.aspect_constraint = c | strength
-        sol.addConstraint(self.aspect_constraint)
+        if 1:
+            sol = self.solver
+            if self.aspect_constraint is not None:
+                print('Removing')
+                sol.removeConstraint(self.aspect_constraint)
+                self.aspect_constraint = None
+            cs = [self.height == self.width * aspect]
+            for c in cs:
+                self.aspect_constraint = c | 50
+                sol.addConstraint(self.aspect_constraint)
+            print("Adding!", self.aspect_constraint)
 
-        if self.aspect_bottom_constraint is not None:
-            sol.removeConstraint(self.aspect_bottom_constraint)
-            self.aspect_bottom_constraint = None
-        if self.aspect_left_constraint is not None:
-            sol.removeConstraint(self.aspect_left_constraint)
-            self.aspect_left_constraint = None
-        coefs = {'C':  (0.5, 0.5),
-                 'SW': (0, 0),
-                 'S':  (0.5, 0),
-                 'SE': (1.0, 0),
-                 'E':  (1.0, 0.5),
-                 'NE': (1.0, 1.0),
-                 'N':  (0.5, 1.0),
-                 'NW': (0, 1.0),
-                 'W':  (0, 0.5)}
-        if isinstance(anchor, str):
-            cx, cy = coefs[anchor]
-        else:
-            cx, cy = anchor
-        self.aspect_bottom_constraint = (self.bottom ==
-            self.parent.bottom + cy *
-            (self.parent.height - self.height)) | "medium"
-        self.solver.addConstraint(self.aspect_bottom_constraint)
-        self.aspect_left_constraint = (self.left == self.parent.left +
-            cx * (self.parent.width - self.width)) | "medium"
-        self.solver.addConstraint(self.aspect_left_constraint)
+        if 1:
+            if self.aspect_bottom_constraint is not None:
+                sol.removeConstraint(self.aspect_bottom_constraint)
+                self.aspect_bottom_constraint = None
+            if self.aspect_left_constraint is not None:
+                sol.removeConstraint(self.aspect_left_constraint)
+                self.aspect_left_constraint = None
+            coefs = {'C':  (0.5, 0.5),
+                     'SW': (0, 0),
+                     'S':  (0.5, 0),
+                     'SE': (1.0, 0),
+                     'E':  (1.0, 0.5),
+                     'NE': (1.0, 1.0),
+                     'N':  (0.5, 1.0),
+                     'NW': (0, 1.0),
+                     'W':  (0, 0.5)}
+            if isinstance(anchor, str):
+                cx, cy = coefs[anchor]
+            else:
+                cx, cy = anchor
+            self.aspect_bottom_constraint = (self.bottom ==
+                self.parent.bottom + cy *
+                (self.parent.height - self.height)) | 50
+            self.solver.addConstraint(self.aspect_bottom_constraint)
+            self.aspect_left_constraint = (self.left == self.parent.left +
+                cx * (self.parent.width - self.width)) | 50
+            self.solver.addConstraint(self.aspect_left_constraint)
 
     def constrain_left_margin(self, margin, strength='strong'):
         c = (self.left == self.parent.left + margin)

@@ -92,7 +92,7 @@ class SubplotBase(object):
             self._reallayoutbox = layoutbox.LayoutBox(
                     parent=self._poslayoutbox,
                     name=self._poslayoutbox.name+'.real',
-                    pos=True, subplot=True, artist=self)
+                    pos=False, subplot=True, artist=self)
 
     def __reduce__(self):
         # get the first axes class which does not inherit from a subplotbase
