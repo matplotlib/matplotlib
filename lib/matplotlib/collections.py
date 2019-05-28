@@ -559,10 +559,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         cs : {'butt', 'round', 'projecting'}
             The capstyle
         """
-        if cs in ('butt', 'round', 'projecting'):
-            self._capstyle = cs
-        else:
-            raise ValueError('Unrecognized cap style.  Found %s' % cs)
+        cbook._check_in_list(('butt', 'round', 'projecting'), capstyle=cs)
+        self._capstyle = cs
 
     def get_capstyle(self):
         return self._capstyle
@@ -576,10 +574,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         js : {'miter', 'round', 'bevel'}
             The joinstyle
         """
-        if js in ('miter', 'round', 'bevel'):
-            self._joinstyle = js
-        else:
-            raise ValueError('Unrecognized join style.  Found %s' % js)
+        cbook._check_in_list(('miter', 'round', 'bevel'), joinstyle=js)
+        self._joinstyle = js
 
     def get_joinstyle(self):
         return self._joinstyle

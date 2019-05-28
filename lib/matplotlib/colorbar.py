@@ -977,12 +977,9 @@ class ColorbarBase(_ColorbarMappableDummy):
         # Set the default value.
         extendlength = np.array([default, default])
         if isinstance(frac, str):
-            if frac.lower() == 'auto':
-                # Use the provided values when 'auto' is required.
-                extendlength[:] = [automin, automax]
-            else:
-                # Any other string is invalid.
-                raise ValueError('invalid value for extendfrac')
+            cbook._check_in_list(['auto'], extendfrac=frac.lower())
+            # Use the provided values when 'auto' is required.
+            extendlength[:] = [automin, automax]
         elif frac is not None:
             try:
                 # Try to set min and max extension fractions directly.
@@ -1351,9 +1348,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     if location is None:
         location = 'right' if orientation == 'vertical' else 'bottom'
 
-    if location not in locations:
-        raise ValueError('Invalid colorbar location. Must be one '
-                         'of %s' % ', '.join(locations))
+    cbook._check_in_list(locations, location=location)
 
     default_location_settings = {'left':   {'anchor': (1.0, 0.5),
                                             'panchor': (0.0, 0.5),

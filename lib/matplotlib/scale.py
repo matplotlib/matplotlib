@@ -723,8 +723,7 @@ def scale_factory(scale, axis, **kwargs):
     axis : Axis
     """
     scale = scale.lower()
-    if scale not in _scale_mapping:
-        raise ValueError("Unknown scale type '%s'" % scale)
+    cbook._check_in_list(_scale_mapping, scale=scale)
     return _scale_mapping[scale](axis, **kwargs)
 
 if scale_factory.__doc__:

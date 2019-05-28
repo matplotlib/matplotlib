@@ -138,11 +138,9 @@ class Divider(object):
           =====  ============
 
         """
-        if anchor in mtransforms.Bbox.coefs or len(anchor) == 2:
-            self._anchor = anchor
-        else:
-            raise ValueError('argument must be among %s' %
-                             ', '.join(mtransforms.BBox.coefs))
+        if len(anchor) != 2:
+            cbook._check_in_list(mtransforms.Bbox.coefs, anchor=anchor)
+        self._anchor = anchor
 
     def get_anchor(self):
         "return the anchor"

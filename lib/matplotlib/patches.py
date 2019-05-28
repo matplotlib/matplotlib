@@ -422,9 +422,7 @@ class Patch(artist.Artist):
         s : {'butt', 'round', 'projecting'}
         """
         s = s.lower()
-        if s not in self.validCap:
-            raise ValueError('set_capstyle passed "%s";\n' % (s,) +
-                             'valid capstyles are %s' % (self.validCap,))
+        cbook._check_in_list(self.validCap, capstyle=s)
         self._capstyle = s
         self.stale = True
 
@@ -441,9 +439,7 @@ class Patch(artist.Artist):
         s : {'miter', 'round', 'bevel'}
         """
         s = s.lower()
-        if s not in self.validJoin:
-            raise ValueError('set_joinstyle passed "%s";\n' % (s,) +
-                             'valid joinstyles are %s' % (self.validJoin,))
+        cbook._check_in_list(self.validJoin, joinstyle=s)
         self._joinstyle = s
         self.stale = True
 

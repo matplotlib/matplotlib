@@ -63,11 +63,8 @@ class DraggableLegend(DraggableOffsetBox):
         """
         self.legend = legend
 
-        if update in ["loc", "bbox"]:
-            self._update = update
-        else:
-            raise ValueError("update parameter '%s' is not supported." %
-                             update)
+        cbook._check_in_list(["loc", "bbox"], update=update)
+        self._update = update
 
         DraggableOffsetBox.__init__(self, legend, legend._legend_box,
                                     use_blit=use_blit)

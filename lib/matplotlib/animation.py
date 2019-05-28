@@ -806,16 +806,15 @@ class HTMLWriter(FileMovieWriter):
         # Convert from MB to bytes
         self._bytes_limit *= 1024 * 1024
 
-        if self.default_mode not in ['loop', 'once', 'reflect']:
-            raise ValueError(
-                "unrecognized default_mode {!r}".format(self.default_mode))
+        cbook._check_in_list(['loop', 'once', 'reflect'],
+                             default_mode=self.default_mode)
 
         super().__init__(fps, codec, bitrate, extra_args, metadata)
 
     def setup(self, fig, outfile, dpi, frame_dir=None):
         outfile = Path(outfile)
-        if outfile.suffix not in ['.html', '.htm']:
-            raise ValueError("outfile must be *.htm or *.html")
+        cbook._check_in_list(['.html', '.htm'],
+                             outfile_extension=outfile.suffix)
 
         self._saved_frames = []
         self._total_bytes = 0

@@ -1019,12 +1019,8 @@ class AnchoredOffsetbox(OffsetBox):
         self.set_child(child)
 
         if isinstance(loc, str):
-            try:
-                loc = self.codes[loc]
-            except KeyError:
-                raise ValueError('Unrecognized location "%s". Valid '
-                                 'locations are\n\t%s\n'
-                                 % (loc, '\n\t'.join(self.codes)))
+            cbook._check_in_list(self.codes, loc=loc)
+            loc = self.codes[loc]
 
         self.loc = loc
         self.borderpad = borderpad
