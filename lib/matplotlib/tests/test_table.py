@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.testing.decorators import image_comparison
+from matplotlib.colors import Normalize
 
 from matplotlib.table import CustomCell, Table
 from matplotlib.path import Path
@@ -172,6 +173,70 @@ def test_auto_column():
     tb4.auto_set_font_size(False)
     tb4.set_fontsize(12)
     tb4.auto_set_column_width("-101")
+
+
+@image_comparison(['table_bbox.png'])
+def test_bbox_table():
+
+    fig = plt.figure()
+
+    data = [
+        [1, 10, 100],
+        [2, 40,  50],
+        [1, 10,  80],
+        [4, 20,  60]]
+
+    norm = Normalize()
+    colours = plt.cm.RdYlGn(norm(data))
+
+    alpha = 0.2
+    colours[:, :, 3] = alpha
+    ax = fig.add_subplot(1, 1, 1)
+    ax.axis('off')
+
+    ax.table(
+        cellText=data,
+        cellColours=colours,
+        bbox = (.0, .0, 1, 1))
+
+    plt.draw()
+
+
+@image_comparison(['table_bad_pad.png'])
+def test_bad_pad_table():
+
+    size_x, size_y = 12, 4
+    fig = plt.figure (figsize=(size_x, size_y))
+    ax  = fig.add_subplot(111)
+
+    cellText = list(zip(*[
+        [ "R001", "R002", "R003", "R005", "R006", "R007" ],
+        [ 50*"*", 10*"-", 70*"x", "R005", "R006", "R007" ],
+        [  3,      1,      3,      4,      2,      3 ],
+        [  4,      2,      3,      2,      4,      3 ],
+        [ 12,      2,      9,      8,      8,      9 ]
+        ]))
+
+
+
+    colLabels= ["ID", "Title", "X-Pos", "Y-Pos", "Value"]
+
+    rowLabels = list(range(len(cellText)))
+
+    # Left aligned cell text uses weird spacing
+    # (if txt is long)
+    the_table = plt.table(
+        cellText=cellText, rowLabels=rowLabels, colLabels=colLabels,
+        loc='upper center', cellLoc="left",
+        colWidths=[0.05, 0.52, 0.05, 0.05, 0.05, 0.05])
+
+    the_table.auto_set_font_size(False)
+    the_table.set_fontsize (8)
+
+    ax.xaxis.set_visible (False)
+    ax.yaxis.set_visible (False)
+
+    plt.draw()
 
 
 def test_table_cells():
