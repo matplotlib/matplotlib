@@ -1310,6 +1310,7 @@ defaultParams = {
     'xtick.minor.bottom':    [True, validate_bool],    # draw x axis bottom minor ticks
     'xtick.major.top':   [True, validate_bool],  # draw x axis top major ticks
     'xtick.major.bottom':    [True, validate_bool],    # draw x axis bottom major ticks
+    'xtick.minor.default':  [4,validate_int],   #set default value for x axis minor ticks
 
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
@@ -1332,6 +1333,7 @@ defaultParams = {
     'ytick.minor.right':    [True, validate_bool],    # draw y axis right minor ticks
     'ytick.major.left':   [True, validate_bool],  # draw y axis left major ticks
     'ytick.major.right':    [True, validate_bool],    # draw y axis right major ticks
+    'ytick.minor.default':  [4,validate_int],   #set default value for y axis minor ticks
 
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],

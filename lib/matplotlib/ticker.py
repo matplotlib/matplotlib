@@ -2658,9 +2658,9 @@ class AutoMinorLocator(Locator):
             majorstep_no_exponent = 10 ** (np.log10(majorstep) % 1)
 
             if np.isclose(majorstep_no_exponent, [1.0, 2.5, 5.0, 10.0]).any():
-                ndivs = 5
+                ndivs = rcParams['xtick.minor.default'] + 1
             else:
-                ndivs = 4
+                ndivs = rcParams['xtick.minor.default']
         else:
             ndivs = self.ndivs
 
