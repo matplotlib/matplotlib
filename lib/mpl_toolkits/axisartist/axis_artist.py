@@ -482,7 +482,6 @@ class AxisLabel(LabelBase, AttributeCopier):
         Adjust the text angle and text alignment of axis label
         according to the matplotlib convention.
 
-
         =====================    ========== ========= ========== ==========
         property                 left       bottom    right      top
         =====================    ========== ========= ========== ==========
@@ -494,9 +493,7 @@ class AxisLabel(LabelBase, AttributeCopier):
         Note that the text angles are actually relative to (90 + angle
         of the direction to the ticklabel), which gives 0 for bottom
         axis.
-
         """
-        cbook._check_in_list(["left", "right", "top", "bottom"], d=d)
         self.set_default_alignment(d)
         self.set_default_angle(d)
 
@@ -566,11 +563,9 @@ class TickLabels(AxisLabel, AttributeCopier):  # mtext.Text
         of the direction to the ticklabel), which gives 0 for bottom
         axis.
         """
-        cbook._check_in_list(["left", "right", "top", "bottom"],
-                             label_direction=label_direction)
-        self._axis_direction = label_direction
         self.set_default_alignment(label_direction)
         self.set_default_angle(label_direction)
+        self._axis_direction = label_direction
 
     def invert_axis_direction(self):
         label_direction = self._get_opposite_direction(self._axis_direction)
@@ -841,8 +836,8 @@ class AxisArtist(martist.Artist):
         relative to (90 + angle of the direction to the ticklabel),
         which gives 0 for bottom axis.
         """
-        cbook._check_in_list(["left", "right", "top", "bottom"],
-                             axis_direction=axis_direction)
+        self.major_ticklabels.set_axis_direction(axis_direction)
+        self.label.set_axis_direction(axis_direction)
         self._axis_direction = axis_direction
         if axis_direction in ["left", "top"]:
             self.set_ticklabel_direction("-")
@@ -850,8 +845,6 @@ class AxisArtist(martist.Artist):
         else:
             self.set_ticklabel_direction("+")
             self.set_axislabel_direction("+")
-        self.major_ticklabels.set_axis_direction(axis_direction)
-        self.label.set_axis_direction(axis_direction)
 
     def set_ticklabel_direction(self, tick_direction):
         r"""
