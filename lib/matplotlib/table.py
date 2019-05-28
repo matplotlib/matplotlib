@@ -106,7 +106,7 @@ class Cell(Rectangle):
         return self._text.get_fontsize()
 
     def auto_set_font_size(self, renderer, grow=False):
-        """Adjust font size until the text fits. """
+        """Adjust font size until the text fits."""
 
         fontsize = self.get_fontsize()
         width, height = self.get_required_dimensions(renderer)
@@ -183,7 +183,7 @@ class Cell(Rectangle):
         return w * (1.0 + (2.0 * self.PAD))
 
     def get_required_dimensions(self, renderer):
-        """ Return the minimal width and height required for this cell. """
+        """Return the minimal width and height required for this cell."""
         l, b, w, h = self.get_text_bounds(renderer)
         width = w * (1.0 + (2.0 * self.PAD))
         height = h * (1.0 + (2.0 * self.PAD))
