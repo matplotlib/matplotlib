@@ -431,8 +431,6 @@ class Tests(OptionalPackage):
                 *_pkg_data_helper('matplotlib', 'tests/tinypages'),
                 'tests/cmr10.pfb',
                 'tests/mpltest.ttf',
-                'tests/test_rcparams.rc',
-                'tests/test_utf32_be_rcparams.rc',
             ],
             'mpl_toolkits': [
                 *_pkg_data_helper('mpl_toolkits', 'tests/baseline_images'),

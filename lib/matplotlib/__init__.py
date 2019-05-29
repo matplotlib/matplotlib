@@ -830,7 +830,7 @@ def is_url(filename):
 
 @contextlib.contextmanager
 def _open_file_or_url(fname):
-    if is_url(fname):
+    if not isinstance(fname, Path) and is_url(fname):
         import urllib.request
         with urllib.request.urlopen(fname) as f:
             yield (line.decode('utf-8') for line in f)
