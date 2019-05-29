@@ -83,8 +83,7 @@ fig, ax = plt.subplots()
 fig.subplots_adjust(left=0.4)
 
 marker_style.update(mec="None", markersize=15)
-markers = ["$1$", r"$\frac{1}{2}$", "$f$", "$\u266B$",
-           r"$\mathcircled{m}$"]
+markers = ["$1$", r"$\frac{1}{2}$", "$f$", "$\u266B$", r"$\mathcal{A}$"]
 
 
 for y, marker in enumerate(markers):
