@@ -1566,7 +1566,7 @@ class Axis(martist.Artist):
 
     def convert_units(self, x):
         # If x is natively supported by Matplotlib, doesn't need converting
-        if munits.ConversionInterface.is_natively_supported(x):
+        if munits._is_natively_supported(x):
             return x
 
         if self.converter is None:
