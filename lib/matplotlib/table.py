@@ -626,7 +626,7 @@ class Table(Artist):
         # widths and heights with get_window_extent
 
         if self._autoFontsize:
-            fontsize = self._auto_set_font_size(renderer)
+            self._auto_set_font_size(renderer)
 
         # Do any auto width setting
         for col in self._autoColumns:
