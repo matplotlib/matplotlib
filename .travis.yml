@@ -161,12 +161,16 @@ install:
 
   # Set flag in a delayed manner to avoid issues with installing other packages
   - |
-    if [[ $RUN_PYTEST == 1 ]]; then
+    if [[ $TRAVIS_OS_NAME != 'osx' ]] && [[ $RUN_PYTEST == 1 ]]; then
       export CPPFLAGS=--coverage
     fi
   - |
     # Install matplotlib
     python -mpip install -ve .
+  - |
+    if [[ $TRAVIS_OS_NAME != 'osx' ]] && [[ $RUN_PYTEST == 1 ]]; then
+      unset CPPFLAGS
+    fi
 
 before_script: |
   if [[ $DELETE_FONT_CACHE == 1 ]]; then
