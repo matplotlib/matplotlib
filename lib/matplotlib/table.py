@@ -170,10 +170,10 @@ class Cell(Rectangle):
             x = l + (w / 2.0)
         elif self._loc == 'left':
             self._text.set_horizontalalignment('left')
-            x = l + (w * self.PAD)
+            x = l + self._get_pad(w)
         else:
             self._text.set_horizontalalignment('right')
-            x = l + (w * (1.0 - self.PAD))
+            x = l + w - self._get_pad(w)
 
         self._text.set_position((x, y))
 
@@ -187,15 +187,24 @@ class Cell(Rectangle):
 
     def get_required_width(self, renderer):
         """Return the minimal required width for the cell."""
-        l, b, w, h = self.get_text_bounds(renderer)
-        return w * (1.0 + (2.0 * self.PAD))
+        width, height = self.get_required_dimensions(renderer)
+        return width
+
+    def get_required_height(self, renderer):
+        """Return the minimal required width for the cell."""
+        width, height = self.get_required_dimensions(renderer)
+        return height
 
     def get_required_dimensions(self, renderer):
         """Return the minimal width and height required for this cell."""
         l, b, w, h = self.get_text_bounds(renderer)
-        width = w * (1.0 + (2.0 * self.PAD))
+        width = w + (2.0 * self._get_pad(w))
         height = h * (1.0 + (2.0 * self.PAD))
         return width, height
+
+    def _get_pad(self, width):
+
+        return min(width * self.PAD, self.get_fontsize())
 
     @docstring.dedent_interpd
     def set_text_props(self, **kwargs):
@@ -211,9 +220,7 @@ class Cell(Rectangle):
 
 
 class CustomCell(Cell):
-    """
-    A `.Cell` subclass with configurable edge visibility.
-    """
+    """A `.Cell` subclass with configurable edge visibility."""
 
     _edges = 'BRTL'
     _edge_aliases = {'open':         '',
