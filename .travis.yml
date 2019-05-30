@@ -58,22 +58,13 @@ env:
     - secure: RgJI7BBL8aX5FTOQe7xiXqWHMxWokd6GNUWp1NUV2mRLXPb9dI0RXqZt3UJwKTAzf1z/OtlHDmEkBoTVK81E9iUxK5npwyyjhJ8yTJmwfQtQF2n51Q1Ww9p+XSLORrOzZc7kAo6Kw6FIXN1pfctgYq2bQkrwJPRx/oPR8f6hcbY=
     - secure: E7OCdqhZ+PlwJcn+Hd6ns9TDJgEUXiUNEI0wu7xjxB2vBRRIKtZMbuaZjd+iKDqCKuVOJKu0ClBUYxmgmpLicTwi34CfTUYt6D4uhrU+8hBBOn1iiK51cl/aBvlUUrqaRLVhukNEBGZcyqAjXSA/Qsnp2iELEmAfOUa92ZYo1sk=
     - secure: dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU=
-    # Variables controlling the build.
-    - MPLLOCALFREETYPE=1
-    # Variable for the location of an extra pip requirement file
-    - EXTRAREQS=
-    # Variable for the location of a pip version file
-    - PINNEDVERS=
+    - EXTRAREQS=  # Location of an extra pip requirements file.
+    - PINNEDVERS=  # Location of a pip constraints file.
     # Variables controlling the test run.
     - DELETE_FONT_CACHE=
     - NO_AT_BRIDGE=1  # Necessary for GTK3 interactive test.
-    # The number of processes is hardcoded, because using too many causes the
-    # Travis VM to run out of memory (since so many copies of inkscape and
-    # ghostscript are running at the same time).
-    - NPROC=2
     - OPENBLAS_NUM_THREADS=1
     - PYTHONFAULTHANDLER=1
-    - PYTEST_ADDOPTS="-raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC --log-level=DEBUG"
     - RUN_PYTEST=1
     - RUN_FLAKE8=
 
@@ -111,10 +102,11 @@ matrix:
     - python: "nightly"
 
 before_install: |
-  # test with non-ascii in path
-  if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
+  case "$TRAVIS_OS_NAME" in
+  linux)
     export PATH=/usr/lib/ccache:$PATH
-  else
+    ;;
+  osx)
     ci/silence brew update
     brew uninstall numpy gdal postgis
     brew upgrade python
@@ -126,7 +118,8 @@ before_install: |
     # but this makes the test time really long.
     # brew install ghostscript inkscape
     export PATH=/usr/local/opt/python/libexec/bin:/usr/local/opt/ccache/libexec:$PATH
-  fi
+    ;;
+  esac
 
 install:
   - |
@@ -165,8 +158,7 @@ install:
       export CPPFLAGS=--coverage
     fi
   - |
-    # Install matplotlib
-    python -mpip install -ve .
+    MPLLOCALFREETYPE=1 python -mpip install -ve .  # Install Matplotlib.
   - |
     if [[ $TRAVIS_OS_NAME != 'osx' ]] && [[ $RUN_PYTEST == 1 ]]; then
       unset CPPFLAGS
@@ -178,18 +170,19 @@ before_script: |
   fi
 
 script:
-  # each script we want to run need to go in it's own section and the program you want
-  # to fail travis need to be the last thing called
+  # Each script we want to run need to go in its own section and the program
+  # you want to fail travis needs to be the last thing called.
   - |
     if [[ $RUN_PYTEST == 1 ]]; then
-      echo "Calling pytest with the following arguments: $PYTEST_ADDOPTS"
-      python -mpytest
+      # The number of processes is hardcoded (-n2), because using too many
+      # causes the Travis VM to run out of memory (since so many copies of
+      # inkscape and ghostscript are running at the same time).
+      python -mpytest -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n2 --log-level=DEBUG
     fi
   - |
     if [[ $RUN_FLAKE8 == 1 ]]; then
       flake8 --statistics && echo "Flake8 passed without any issues!"
     fi
-
 
 before_cache: |
   rm -rf $HOME/.cache/matplotlib/tex.cache
