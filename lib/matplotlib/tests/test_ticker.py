@@ -125,7 +125,8 @@ class TestAutoMinorLocator(object):
     def test_using_all_default_major_steps(self):
         with matplotlib.rc_context({'_internal.classic_mode': False}):
             majorsteps = [x[0] for x in self.majorstep_minordivisions]
-            assert np.allclose(majorsteps, mticker.AutoLocator()._steps)
+            np.testing.assert_allclose(majorsteps,
+                                       mticker.AutoLocator()._steps)
 
     @pytest.mark.parametrize('major_step, expected_nb_minordivisions',
                              majorstep_minordivisions)

@@ -6320,8 +6320,8 @@ def test_hist_nan_data():
     with np.errstate(invalid='ignore'):
         nanbins, nanedges, _ = ax2.hist(nan_data)
 
-    assert np.allclose(bins, nanbins)
-    assert np.allclose(edges, nanedges)
+    np.testing.assert_allclose(bins, nanbins)
+    np.testing.assert_allclose(edges, nanedges)
 
 
 def test_hist_range_and_density():

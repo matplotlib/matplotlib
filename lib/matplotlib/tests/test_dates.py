@@ -33,12 +33,12 @@ def test_date_numpyx():
     ax = fig.add_subplot(1, 1, 1)
     h, = ax.plot(time, data)
     hnp, = ax.plot(timenp, data)
-    assert np.array_equal(h.get_xdata(orig=False), hnp.get_xdata(orig=False))
+    np.testing.assert_equal(h.get_xdata(orig=False), hnp.get_xdata(orig=False))
     fig = plt.figure(figsize=(10, 2))
     ax = fig.add_subplot(1, 1, 1)
     h, = ax.plot(data, time)
     hnp, = ax.plot(data, timenp)
-    assert np.array_equal(h.get_ydata(orig=False), hnp.get_ydata(orig=False))
+    np.testing.assert_equal(h.get_ydata(orig=False), hnp.get_ydata(orig=False))
 
 
 @pytest.mark.parametrize('t0', [datetime.datetime(2017, 1, 1, 0, 1, 1),
@@ -58,7 +58,7 @@ def test_date_date2num_numpy(t0, dtype):
     time = mdates.date2num(t0)
     tnp = np.array(t0, dtype=dtype)
     nptime = mdates.date2num(tnp)
-    assert np.array_equal(time, nptime)
+    np.testing.assert_equal(time, nptime)
 
 
 @pytest.mark.parametrize('dtype', ['datetime64[s]',
@@ -827,4 +827,4 @@ def test_num2timedelta(x, tdelta):
 def test_datetime64_in_list():
     dt = [np.datetime64('2000-01-01'), np.datetime64('2001-01-01')]
     dn = mdates.date2num(dt)
-    assert np.array_equal(dn, [730120.,  730486.])
+    np.testing.assert_equal(dn, [730120.,  730486.])

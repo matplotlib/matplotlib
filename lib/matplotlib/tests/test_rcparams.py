@@ -387,7 +387,7 @@ def generate_validator_testcases(valid):
 def test_validator_valid(validator, arg, target):
     res = validator(arg)
     if isinstance(target, np.ndarray):
-        assert np.all(res == target)
+        np.testing.assert_equal(res, target)
     elif not isinstance(target, Cycler):
         assert res == target
     else:
