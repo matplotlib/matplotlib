@@ -66,9 +66,3 @@
 # modules.  The default is determined by fallback.
 #
 #backend = Agg
-
-[package_data]
-# Package additional files found in the lib/matplotlib directories.
-#
-# On Windows, package DLL files.
-#dlls = True

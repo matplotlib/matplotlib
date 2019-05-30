@@ -284,6 +284,9 @@ There are a few possibilities to build Matplotlib on Windows:
 * Wheels by using conda packages (see below)
 * Conda packages (see below)
 
+If you are building your own Matplotlib wheels (or sdists), note that any DLLs
+that you copy into the source tree will be packaged too.
+
 Wheel builds using conda packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -303,7 +306,6 @@ For building, call the script ``build_alllocal.cmd`` in the root folder of the
 repository::
 
   build_alllocal.cmd
-
 
 Conda packages
 ^^^^^^^^^^^^^^
