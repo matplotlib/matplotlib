@@ -503,6 +503,10 @@ def validate_verbose(s):
 
 def validate_whiskers(s):
     if s == 'range':
+        cbook.warn_deprecated(
+            "3.2", message="Support for setting the boxplot.whiskers rcParam "
+            "to 'range' is deprecated since %(since)s and will be removed "
+            "%(removal)s; set it to 0, 100 instead.")
         return 'range'
     else:
         try:

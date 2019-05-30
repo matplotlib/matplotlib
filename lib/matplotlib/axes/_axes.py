@@ -3502,19 +3502,26 @@ class Axes(_AxesBase):
             If `True` (default), makes the boxes vertical. If `False`,
             everything is drawn horizontally.
 
-        whis : float, sequence, or string (default = 1.5)
-            As a float, determines the reach of the whiskers beyond the
-            first and third quartiles. In other words, where IQR is the
-            interquartile range (`Q3-Q1`), the upper whisker will extend to
-            last datum less than `Q3 + whis*IQR`). Similarly, the lower whisker
-            will extend to the first datum greater than `Q1 - whis*IQR`.
-            Beyond the whiskers, data
-            are considered outliers and are plotted as individual
-            points. Alternatively, set
-            this to an ascending sequence of percentile (e.g., [5, 95])
-            to set the whiskers at specific percentiles of the data.
-            Finally, ``whis`` can be the string ``'range'`` to force the
-            whiskers to the min and max of the data.
+        whis : float or (float, float) (default = 1.5)
+            The position of the whiskers.
+
+            If a float, the lower whisker is at the lowest datum above
+            ``Q1 - whis*(Q3-Q1)``, and the upper whisker at the highest datum
+            below ``Q3 + whis*(Q3-Q1)``, where Q1 and Q3 are the first and
+            third quartiles.  The default value of ``whis = 1.5`` corresponds
+            to Tukey's original definition of boxplots.
+
+            If a pair of floats, they indicate the percentiles at which to
+            draw the whiskers (e.g., (5, 95)).  In particular, setting this to
+            (0, 100) results in whiskers covering the whole range of the data.
+            "range" is a deprecated synonym for (0, 100).
+
+            In the edge case where ``Q1 == Q3``, *whis* is automatically set
+            to (0, 100) (cover the whole range of the data) if *autorange* is
+            True.
+
+            Beyond the whiskers, data are considered outliers and are plotted
+            as individual points.
 
         bootstrap : int, optional
             Specifies whether to bootstrap the confidence intervals
@@ -3567,7 +3574,7 @@ class Axes(_AxesBase):
 
         autorange : bool, optional (False)
             When `True` and the data are distributed such that the 25th and
-            75th percentiles are equal, ``whis`` is set to ``'range'`` such
+            75th percentiles are equal, ``whis`` is set to (0, 100) such
             that the whisker ends are at the minimum and maximum of the data.
 
         meanline : bool, optional (False)

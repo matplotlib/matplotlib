@@ -1039,20 +1039,25 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         Data that will be represented in the boxplots. Should have 2 or
         fewer dimensions.
 
-    whis : float, string, or sequence (default = 1.5)
-        As a float, determines the reach of the whiskers beyond the
-        first and third quartiles. In other words, where IQR is the
-        interquartile range (`Q3-Q1`), the upper whisker will extend to last
-        datum less than `Q3 + whis*IQR`. Similarly, the lower whisker will
-        extend to the first datum greater than `Q1 - whis*IQR`.
-        Beyond the whiskers, data are considered outliers
-        and are plotted as individual points. This can be set to an
-        ascending sequence of percentiles (e.g., [5, 95]) to set the
-        whiskers at specific percentiles of the data. Finally, `whis`
-        can be the string ``'range'`` to force the whiskers to the
-        minimum and maximum of the data. In the edge case that the 25th
-        and 75th percentiles are equivalent, `whis` can be automatically
-        set to ``'range'`` via the `autorange` option.
+    whis : float or (float, float) (default = 1.5)
+        The position of the whiskers.
+
+        If a float, the lower whisker is at the lowest datum above
+        ``Q1 - whis*(Q3-Q1)``, and the upper whisker at the highest datum below
+        ``Q3 + whis*(Q3-Q1)``, where Q1 and Q3 are the first and third
+        quartiles.  The default value of ``whis = 1.5`` corresponds to Tukey's
+        original definition of boxplots.
+
+        If a pair of floats, they indicate the percentiles at which to draw the
+        whiskers (e.g., (5, 95)).  In particular, setting this to (0, 100)
+        results in whiskers covering the whole range of the data.  "range" is
+        a deprecated synonym for (0, 100).
+
+        In the edge case where ``Q1 == Q3``, *whis* is automatically set to
+        (0, 100) (cover the whole range of the data) if *autorange* is True.
+
+        Beyond the whiskers, data are considered outliers and are plotted as
+        individual points.
 
     bootstrap : int, optional
         Number of times the confidence intervals around the median
@@ -1064,7 +1069,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     autorange : bool, optional (False)
         When `True` and the data are distributed such that the 25th and 75th
-        percentiles are equal, ``whis`` is set to ``'range'`` such that the
+        percentiles are equal, ``whis`` is set to (0, 100) such that the
         whisker ends are at the minimum and maximum of the data.
 
     Returns
@@ -1182,7 +1187,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         # interquartile range
         stats['iqr'] = q3 - q1
         if stats['iqr'] == 0 and autorange:
-            whis = 'range'
+            whis = (0, 100)
 
         # conf. interval around median
         stats['cilo'], stats['cihi'] = _compute_conf_interval(
@@ -1195,14 +1200,17 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
                 loval = q1 - whis * stats['iqr']
                 hival = q3 + whis * stats['iqr']
             elif whis in ['range', 'limit', 'limits', 'min/max']:
+                warn_deprecated(
+                    "3.2", message=f"Setting whis to {whis!r} is deprecated "
+                    "since %(since)s and support for it will be removed "
+                    "%(removal)s; set it to [0, 100] to achieve the same "
+                    "effect.")
                 loval = np.min(x)
                 hival = np.max(x)
             else:
-                raise ValueError('whis must be a float, valid string, or list '
-                                 'of percentiles')
+                raise ValueError('whis must be a float or list of percentiles')
         else:
-            loval = np.percentile(x, whis[0])
-            hival = np.percentile(x, whis[1])
+            loval, hival = np.percentile(x, whis)
 
         # get high extreme
         wiskhi = x[x <= hival]

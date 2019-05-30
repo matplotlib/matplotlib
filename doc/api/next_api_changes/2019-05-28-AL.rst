@@ -1,0 +1,6 @@
+Deprecations
+````````````
+
+Setting the ``whis`` parameter of `.Axes.boxplot` and `.cbook.boxplot_stats` to
+"range" to mean "the whole data range" is deprecated; set it to (0, 100) (which
+gets interpreted as percentiles) to achieve the same effect.
