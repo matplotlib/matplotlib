@@ -2340,7 +2340,8 @@ default: 'top'
             if ax.get_visible():
                 bbox_artists.extend(ax.get_default_bbox_extra_artists())
         # we don't want the figure's patch to influence the bbox calculation
-        bbox_artists.remove(self.patch)
+        if self.patch in bbox_artists:
+            bbox_artists.remove(self.patch)
         return bbox_artists
 
     def get_tightbbox(self, renderer, bbox_extra_artists=None):
