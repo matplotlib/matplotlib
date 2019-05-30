@@ -13,8 +13,7 @@ import pytest
 
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
-from matplotlib.cbook import (
-    MatplotlibDeprecationWarning, delete_masked_points as dmp)
+from matplotlib.cbook import MatplotlibDeprecationWarning, delete_masked_points
 
 
 def test_is_hashable():
@@ -26,45 +25,37 @@ def test_is_hashable():
 
 
 class Test_delete_masked_points:
-    def setup_method(self):
-        self.mask1 = [False, False, True, True, False, False]
-        self.arr0 = np.arange(1.0, 7.0)
-        self.arr1 = [1, 2, 3, np.nan, np.nan, 6]
-        self.arr2 = np.array(self.arr1)
-        self.arr3 = np.ma.array(self.arr2, mask=self.mask1)
-        self.arr_s = ['a', 'b', 'c', 'd', 'e', 'f']
-        self.arr_s2 = np.array(self.arr_s)
-        self.arr_dt = [datetime(2008, 1, 1), datetime(2008, 1, 2),
-                       datetime(2008, 1, 3), datetime(2008, 1, 4),
-                       datetime(2008, 1, 5), datetime(2008, 1, 6)]
-        self.arr_dt2 = np.array(self.arr_dt)
-        self.arr_colors = ['r', 'g', 'b', 'c', 'm', 'y']
-        self.arr_rgba = mcolors.to_rgba_array(self.arr_colors)
-
     def test_bad_first_arg(self):
         with pytest.raises(ValueError):
-            dmp('a string', self.arr0)
+            delete_masked_points('a string', np.arange(1.0, 7.0))
 
     def test_string_seq(self):
-        actual = dmp(self.arr_s, self.arr1)
+        a1 = ['a', 'b', 'c', 'd', 'e', 'f']
+        a2 = [1, 2, 3, np.nan, np.nan, 6]
+        result1, result2 = delete_masked_points(a1, a2)
         ind = [0, 1, 2, 5]
-        expected = (self.arr_s2[ind], self.arr2[ind])
-        assert_array_equal(actual[0], expected[0])
-        assert_array_equal(actual[1], expected[1])
+        assert_array_equal(result1, np.array(a1)[ind])
+        assert_array_equal(result2, np.array(a2)[ind])
 
     def test_datetime(self):
-        actual = dmp(self.arr_dt, self.arr3)
+        dates = [datetime(2008, 1, 1), datetime(2008, 1, 2),
+                 datetime(2008, 1, 3), datetime(2008, 1, 4),
+                 datetime(2008, 1, 5), datetime(2008, 1, 6)]
+        a_masked = np.ma.array([1, 2, 3, np.nan, np.nan, 6],
+                               mask=[False, False, True, True, False, False])
+        actual = delete_masked_points(dates, a_masked)
         ind = [0, 1, 5]
-        expected = (self.arr_dt2[ind], self.arr3[ind].compressed())
-        assert_array_equal(actual[0], expected[0])
-        assert_array_equal(actual[1], expected[1])
+        assert_array_equal(actual[0], np.array(dates)[ind])
+        assert_array_equal(actual[1], a_masked[ind].compressed())
 
     def test_rgba(self):
-        actual = dmp(self.arr3, self.arr_rgba)
+        a_masked = np.ma.array([1, 2, 3, np.nan, np.nan, 6],
+                               mask=[False, False, True, True, False, False])
+        a_rgba = mcolors.to_rgba_array(['r', 'g', 'b', 'c', 'm', 'y'])
+        actual = delete_masked_points(a_masked, a_rgba)
         ind = [0, 1, 5]
-        expected = (self.arr3[ind].compressed(), self.arr_rgba[ind])
-        assert_array_equal(actual[0], expected[0])
-        assert_array_equal(actual[1], expected[1])
+        assert_array_equal(actual[0], a_masked[ind].compressed())
+        assert_array_equal(actual[1], a_rgba[ind])
 
 
 class Test_boxplot_stats:
