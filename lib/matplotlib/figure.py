@@ -363,9 +363,10 @@ class Figure(Artist):
         self.transFigure = BboxTransformTo(self.bbox)
 
         self.patch = Rectangle(
-            xy=(0, 0), width=1, height=1,
+            xy=(0, 0), width=1, height=1, visible=frameon,
             facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth,
-            visible=frameon)
+            # Don't let the figure patch influence bbox calculation.
+            in_layout=False)
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
 
@@ -2339,9 +2340,6 @@ default: 'top'
         for ax in self.axes:
             if ax.get_visible():
                 bbox_artists.extend(ax.get_default_bbox_extra_artists())
-        # we don't want the figure's patch to influence the bbox calculation
-        if self.patch in bbox_artists:
-            bbox_artists.remove(self.patch)
         return bbox_artists
 
     def get_tightbbox(self, renderer, bbox_extra_artists=None):
