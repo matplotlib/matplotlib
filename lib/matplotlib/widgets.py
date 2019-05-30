@@ -856,12 +856,16 @@ class TextBox(AxesWidget):
 
     def begin_typing(self, x):
         self.capturekeystrokes = True
-        # disable command keys so that the user can type without
-        # command keys causing figure to be saved, etc
-        self.reset_params = {}
-        for key in self.params_to_disable:
-            self.reset_params[key] = rcParams[key]
-            rcParams[key] = []
+        # Check for toolmanager handling the keypress
+        if self.ax.figure.canvas.manager.key_press_handler_id is not None:
+            # disable command keys so that the user can type without
+            # command keys causing figure to be saved, etc
+            self.reset_params = {}
+            for key in self.params_to_disable:
+                self.reset_params[key] = rcParams[key]
+                rcParams[key] = []
+        else:
+            self.ax.figure.canvas.manager.toolmanager.keypresslock(self)
 
     def stop_typing(self):
         notifysubmit = False
@@ -869,10 +873,15 @@ class TextBox(AxesWidget):
         # user's code, we only want to call it once we've already done
         # our cleanup.
         if self.capturekeystrokes:
-            # since the user is no longer typing,
-            # reactivate the standard command keys
-            for key in self.params_to_disable:
-                rcParams[key] = self.reset_params[key]
+            # Check for toolmanager handling the keypress
+            if self.ax.figure.canvas.manager.key_press_handler_id is not None:
+                # since the user is no longer typing,
+                # reactivate the standard command keys
+                for key in self.params_to_disable:
+                    rcParams[key] = self.reset_params[key]
+            else:
+                toolmanager = self.ax.figure.canvas.manager.toolmanager
+                toolmanager.keypresslock.release(self)
             notifysubmit = True
         self.capturekeystrokes = False
         self.cursor.set_visible(False)
