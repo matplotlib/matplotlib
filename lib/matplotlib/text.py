@@ -946,7 +946,7 @@ class Text(Artist):
     def set_multialignment(self, align):
         """
         Set the alignment for multiple lines layout.  The layout of the
-        bounding box of all the lines is determined bu the horizontalalignment
+        bounding box of all the lines is determined by the horizontalalignment
         and verticalalignment properties, but the multiline text within that
         box can be
 
