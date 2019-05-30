@@ -185,6 +185,11 @@ def compare_versions(a, b):
 
 
 def _check_versions():
+
+    # Quickfix to ensure Microsoft Visual C++ redistributable
+    # DLLs are loaded before importing kiwisolver
+    from . import ft2font
+
     for modname, minver in [
             ("cycler", "0.10"),
             ("dateutil", "2.1"),
