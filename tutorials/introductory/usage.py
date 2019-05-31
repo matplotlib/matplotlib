@@ -19,13 +19,11 @@ import numpy as np
 # Matplotlib graphs your data on `~.figure.Figure`\s (i.e., windows, Jupyter
 # widgets, etc.), each of which can contain one or more `~.axes.Axes` (i.e., an
 # area where points can be specified in terms of x-y coordinates (or theta-r
-# in a polar plot, or x-y-z in a 3D plot, etc.).  In the following example, we
-# create a figure using the `.pyplot.figure` function, an axes on that figure
-# using the `.Figure.add_subplot` method, and graph some data on that axes
-# using the `.Axes.plot` method:
+# in a polar plot, or x-y-z in a 3D plot, etc.).  The most simple way of
+# creating a figure with an axes is using `.pyplot.subplots`. We can then use
+# `.Axes.plot` to draw some data on the axes:
 
-fig = plt.figure()  # Create a figure.
-ax = fig.add_subplot()  # Add an axes to the figure.
+fig, ax = plt.subplots()  # Create a figure containing a single axes.
 ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 
 ###############################################################################
@@ -64,16 +62,18 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 # 'special' artists (titles, figure legends, etc), and the **canvas**.
 # (Don't worry too much about the canvas, it is crucial as it is the
 # object that actually does the drawing to get you your plot, but as the
-# user it is more-or-less invisible to you).  A figure can have any
-# number of :class:`~matplotlib.axes.Axes`, but to be useful should have
+# user it is more-or-less invisible to you).  A figure can contain any
+# number of :class:`~matplotlib.axes.Axes`, but will typically have
 # at least one.
 #
 # The easiest way to create a new figure is with pyplot:
 
-fig = plt.figure()  # an empty figure with no axes
-fig.suptitle('No axes on this figure')  # Add a title so we know which it is
+fig = plt.figure()  # an empty figure with no Axes
+fig, ax = plt.subplots()  # a figure with a single Axes
+fig, axs = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
 
-fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
+# It's convenient to create the axes together with the figure, but you can
+# also add axes later on, allowing for more complex axes layouts.
 
 ###############################################################################
 # :class:`~matplotlib.axes.Axes`
@@ -157,8 +157,7 @@ fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
 x = np.linspace(0, 2, 100)
 
 # Note that even in the OO-style, we use `.pyplot.figure` to create the figure.
-fig = plt.figure()  # Create a figure.
-ax = fig.add_subplot()  # Add an axes to the figure.
+fig, ax = plt.subplots()  # Create a figure and an axes.
 ax.plot(x, x, label='linear')  # Plot some data on the axes.
 ax.plot(x, x**2, label='quadratic')  # Plot more data on the axes...
 ax.plot(x, x**3, label='cubic')  # ... and some more.
