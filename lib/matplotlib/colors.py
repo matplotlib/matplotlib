@@ -311,10 +311,12 @@ def to_rgba_array(c, alpha=None):
             cbook.warn_deprecated("3.2", message="Using a string of single "
                                   "character colors as a color sequence is "
                                   "deprecated. Use an explicit list instead.")
-    else:
-        result = np.array([to_rgba(cc, alpha) for cc in c])
+            return result
 
-    return result
+    if len(c) == 0:
+        return np.zeros((0, 4), float)
+    else:
+        return np.array([to_rgba(cc, alpha) for cc in c])
 
 
 def to_rgb(c):
