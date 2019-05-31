@@ -2634,7 +2634,15 @@ class AutoMinorLocator(Locator):
 
         If *n* is omitted or None, it will be set to 5 or 4.
         """
-        self.ndivs = n
+        if n == None:
+            if self.axis.__name__ == 'x':
+                self.ndivs = rcParams['xtick.minor.ndivs']
+            elif self.axis.__name__ == 'y':
+                self.ndivs = rcParams['ytick.minor.ndivs']
+        elif n == 'auto':
+            self.ndivs = None
+        else:
+            self.ndivs = n
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -2658,9 +2666,9 @@ class AutoMinorLocator(Locator):
             majorstep_no_exponent = 10 ** (np.log10(majorstep) % 1)
 
             if np.isclose(majorstep_no_exponent, [1.0, 2.5, 5.0, 10.0]).any():
-                ndivs = rcParams['xtick.minor.default'] + 1
+                ndivs = 5
             else:
-                ndivs = rcParams['xtick.minor.default']
+                ndivs = 4
         else:
             ndivs = self.ndivs
 

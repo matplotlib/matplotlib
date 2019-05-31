@@ -377,7 +377,7 @@
 #xtick.minor.top      : True   ## draw x axis top minor ticks
 #xtick.minor.bottom   : True   ## draw x axis bottom minor ticks
 #xtick.alignment      : center ## alignment of xticks
-#xtick.minor.default  : 4	   ## set default value for x axis minor ticks
+#xtick.minor.ndivs    : auto   ## set ndivs value for x axis minor ticks
 
 #ytick.left           : True   ## draw ticks on the left side
 #ytick.right          : False  ## draw ticks on the right side
@@ -398,7 +398,7 @@
 #ytick.minor.left     : True   ## draw y axis left minor ticks
 #ytick.minor.right    : True   ## draw y axis right minor ticks
 #ytick.alignment      : center_baseline ## alignment of yticks
-#ytick.minor.default  : 4	   ## set default value for y axis minor ticks
+#ytick.minor.ndivs    : auto   ## set ndivs value for y axis minor ticks
 
 #### GRIDS
 #grid.color       :   b0b0b0    ## grid color
