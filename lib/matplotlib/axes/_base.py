@@ -194,10 +194,13 @@ class _process_plot_var_args:
                 else:
                     if replaced[1] is not args[1]:  # case 2a)
                         cbook._warn_external(
-                            "Second argument {!r} is ambiguous: could be a "
-                            "color spec but is in data; using as data.  "
-                            "Either rename the entry in data or use three "
-                            "arguments to plot.".format(args[1]),
+                            f"Second argument {args[1]!r} is ambiguous: could "
+                            f"be a format string but is in 'data'; using as "
+                            f"data.  If it was intended as data, set the "
+                            f"format string to an empty string to suppress "
+                            f"this warning.  If it was intended as a format "
+                            f"string, explicitly pass the x-values as well.  "
+                            f"Alternatively, rename the entry in 'data'.",
                             RuntimeWarning)
                         label_namer_idx = 1
                     else:  # case 2b)
