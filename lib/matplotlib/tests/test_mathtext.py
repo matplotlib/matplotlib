@@ -75,7 +75,7 @@ math_tests = [
     # mathtex doesn't support array
     # 'mmltt18'    : r'$f\left(x\right)=\left\{\begin{array}{cc}\hfill 1/3\hfill & \text{if_}0\le x\le 1;\hfill \\ \hfill 2/3\hfill & \hfill \text{if_}3\le x\le 4;\hfill \\ \hfill 0\hfill & \text{elsewhere.}\hfill \end{array}$',
     # mathtex doesn't support stackrel
-    # 'mmltt19'    : ur'$\stackrel{\stackrel{k\text{times}}{\ufe37}}{x+...+x}$',
+    # 'mmltt19'    : r'$\stackrel{\stackrel{k\text{times}}{\ufe37}}{x+...+x}$',
     r'${y}_{{x}^{2}}$',
     # mathtex doesn't support the "\text" command
     # 'mmltt21'    : r'$\sum _{p\text{\prime}}f\left(p\right)={\int }_{t>1}f\left(t\right) d\pi \left(t\right)$',

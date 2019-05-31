@@ -323,7 +323,7 @@ You can also use a large number of the TeX symbols, as in ``\infty``,
 If a particular symbol does not have a name (as is true of many of the more
 obscure symbols in the STIX fonts), Unicode characters can also be used::
 
-   ur'$\u23ce$'
+   r'$\u23ce$'
 
 Example
 -------
