@@ -171,7 +171,7 @@ unconventional value is to prevent underflow when log scale is used.
 #docstring.interpd.update(colorbar_doc=colorbar_doc)
 
 
-class CbarAxesLocator(object):
+class CbarAxesLocator:
     """
     CbarAxesLocator is a axes_locator for colorbar axes. It adjust the
     position of the axes to make a room for extended ends, i.e., the

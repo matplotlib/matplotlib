@@ -71,7 +71,7 @@ def imshow_rgb(ax, r, g, b, **kwargs):
     return im_rgb
 
 
-class RGBAxesBase(object):
+class RGBAxesBase:
     """base class for a 4-panel imshow (RGB, R, G, B)
 
     Layout:

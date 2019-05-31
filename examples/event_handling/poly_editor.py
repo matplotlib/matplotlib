@@ -39,7 +39,7 @@ def dist_point_to_segment(p, s0, s1):
     return dist(p, pb)
 
 
-class PolygonInteractor(object):
+class PolygonInteractor:
     """
     A polygon editor.
 

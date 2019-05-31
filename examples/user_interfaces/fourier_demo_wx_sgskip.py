@@ -12,7 +12,7 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 
-class Knob(object):
+class Knob:
     """
     Knob - simple class with a "setKnob" method.
     A Knob instance is attached to a Param instance, e.g., param.attach(knob)
@@ -23,7 +23,7 @@ class Knob(object):
         pass
 
 
-class Param(object):
+class Param:
     """
     The idea of the "Param" class is that some parameter in the GUI may have
     several knobs that both control it and reflect the parameter's state, e.g.

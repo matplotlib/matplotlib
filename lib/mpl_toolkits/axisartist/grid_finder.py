@@ -16,7 +16,7 @@ def _deprecate_factor_none(factor):
 
 
 # extremes finder
-class ExtremeFinderSimple(object):
+class ExtremeFinderSimple:
     def __init__(self, nx, ny):
         self.nx, self.ny = nx, ny
 
@@ -241,7 +241,7 @@ class MaxNLocator(mticker.MaxNLocator):
         self._factor = _deprecate_factor_none(f)
 
 
-class FixedLocator(object):
+class FixedLocator:
     def __init__(self, locs):
         self._locs = locs
         self._factor = 1
@@ -257,7 +257,7 @@ class FixedLocator(object):
 
 # Tick Formatter
 
-class FormatterPrettyPrint(object):
+class FormatterPrettyPrint:
     def __init__(self, useMathText=True):
         self._fmt = mticker.ScalarFormatter(
             useMathText=useMathText, useOffset=False)
@@ -270,7 +270,7 @@ class FormatterPrettyPrint(object):
         return self._fmt.format_ticks(values)
 
 
-class DictFormatter(object):
+class DictFormatter:
     def __init__(self, format_dict, formatter=None):
         """
         format_dict : dictionary for format strings to be used.

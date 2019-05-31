@@ -28,7 +28,7 @@ def _tick_only(ax, bottom_on, left_on):
     ax.axis["left"].toggle(ticklabels=left_off, label=left_off)
 
 
-class CbarAxesBase(object):
+class CbarAxesBase:
 
     def colorbar(self, mappable, *, locator=None, **kwargs):
 
@@ -111,7 +111,7 @@ class CbarAxes(CbarAxesBase, Axes):
         self._config_axes()
 
 
-class Grid(object):
+class Grid:
     """
     A class that creates a grid of Axes. In matplotlib, the axes
     location (and size) is specified in the normalized figure

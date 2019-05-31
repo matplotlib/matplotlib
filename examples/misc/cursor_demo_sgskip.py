@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-class Cursor(object):
+class Cursor:
     def __init__(self, ax):
         self.ax = ax
         self.lx = ax.axhline(color='k')  # the horiz line
@@ -43,7 +43,7 @@ class Cursor(object):
         self.ax.figure.canvas.draw()
 
 
-class SnaptoCursor(object):
+class SnaptoCursor:
     """
     Like Cursor but the crosshair snaps to the nearest x, y point.
     For simplicity, this assumes that *x* is sorted.

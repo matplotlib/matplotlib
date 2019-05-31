@@ -4,7 +4,7 @@ from matplotlib.path import Path
 import numpy as np
 
 
-class _FancyAxislineStyle(object):
+class _FancyAxislineStyle:
     class SimpleArrow(FancyArrowPatch):
         """
         The artist class that will be returned for SimpleArrow style.
@@ -107,7 +107,7 @@ class AxislineStyle(_Style):
 
     _style_list = {}
 
-    class _Base(object):
+    class _Base:
         # The derived classes are required to be able to be initialized
         # w/o arguments, i.e., all its argument (except self) must have
         # the default values.

@@ -24,7 +24,7 @@ line, = ax.plot(x, y, alpha=1.0, clip_path=circ)
 ax.set_title("Left click and drag to move looking glass")
 
 
-class EventHandler(object):
+class EventHandler:
     def __init__(self):
         fig.canvas.mpl_connect('button_press_event', self.onpress)
         fig.canvas.mpl_connect('button_release_event', self.onrelease)

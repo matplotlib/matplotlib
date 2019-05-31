@@ -12,7 +12,7 @@ data of that point on the other axis.
 import numpy as np
 
 
-class PointBrowser(object):
+class PointBrowser:
     """
     Click on a point to select and highlight it -- the data that
     generated the point will be shown in the lower axes.  Use the 'n'
