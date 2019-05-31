@@ -106,7 +106,16 @@ class Cell(Rectangle):
         return self._text.get_fontsize()
 
     def auto_set_font_size(self, renderer, grow=False):
-        """Adjust font size until the text fits."""
+        """Adjust font size until the text fits.
+
+        Parameters
+        ----------
+
+        renderer:  renderer object
+        grow:      flag indicating whether code should try
+                   increasing the font size or just shrink 
+                   until it fits.
+        """
 
         fontsize = self.get_fontsize()
         width, height = self.get_required_dimensions(renderer)
