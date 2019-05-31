@@ -6309,6 +6309,9 @@ optional.
             ret.set_clim(vmin, vmax)
         elif np.ndim(C) == 2:  # C.ndim == 3 is RGB(A) so doesn't need scaling.
             ret.autoscale_None()
+        if ret.get_clip_path() is None:
+            # image does not already have clipping set, clip to axes patch
+            ret.set_clip_path(self.patch)
 
         ret.sticky_edges.x[:] = [xl, xr]
         ret.sticky_edges.y[:] = [yb, yt]
