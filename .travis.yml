@@ -32,6 +32,7 @@ addons:
       - gir1.2-gtk-3.0
       - graphviz
       - inkscape
+      - lcov
       - libcairo2
       - libcairo2-dev
       - libffi-dev
@@ -158,9 +159,18 @@ install:
       echo 'wxPython is available' ||
       echo 'wxPython is not available'
 
+  # Set flag in a delayed manner to avoid issues with installing other packages
+  - |
+    if [[ $TRAVIS_OS_NAME != 'osx' ]] && [[ $RUN_PYTEST == 1 ]]; then
+      export CPPFLAGS=--coverage
+    fi
   - |
     # Install matplotlib
     python -mpip install -ve .
+  - |
+    if [[ $TRAVIS_OS_NAME != 'osx' ]] && [[ $RUN_PYTEST == 1 ]]; then
+      unset CPPFLAGS
+    fi
 
 before_script: |
   if [[ $DELETE_FONT_CACHE == 1 ]]; then
@@ -193,5 +203,9 @@ after_failure: |
     echo "The result images will only be uploaded if they are on the matplotlib/matplotlib repo - this is for security reasons to prevent arbitrary PRs echoing security details."
   fi
 
-after_success: |
-  codecov -e TRAVIS_PYTHON_VERSION
+after_success:
+  - lcov --capture --directory . --output-file coverage.info
+  - lcov --remove coverage.info --output-file coverage.info '/usr/*' '/home/travis/build/matplotlib/matplotlib/build/*' '/home/travis/build/matplotlib/matplotlib/extern/*' # filter system-files
+  - lcov --list coverage.info
+  # Uploading to CodeCov but excluding gcov reports
+  - bash <(curl -s https://codecov.io/bash) -f "!*.gcov" -X gcov -e TRAVIS_PYTHON_VERSION|| echo "Codecov did not collect coverage reports"
