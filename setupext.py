@@ -280,7 +280,7 @@ class CheckFailed(Exception):
     pass
 
 
-class SetupPackage(object):
+class SetupPackage:
     optional = False
 
     def check(self):

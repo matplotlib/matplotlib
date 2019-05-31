@@ -51,7 +51,7 @@ from .axisline_style import AxislineStyle
 from .axis_artist import AxisArtist, GridlinesCollection
 
 
-class AxisArtistHelper(object):
+class AxisArtistHelper:
     """
     AxisArtistHelper should define
     following method with given APIs. Note that the first axes argument
@@ -100,7 +100,7 @@ class AxisArtistHelper(object):
 
     """
 
-    class _Base(object):
+    class _Base:
         """Base class for axis helper."""
         def __init__(self):
             self.delta1, self.delta2 = 0.00001, 0.00001
@@ -197,7 +197,7 @@ class AxisArtistHelper(object):
                 "get_line method should be defined by the derived class")
 
 
-class AxisArtistHelperRectlinear(object):
+class AxisArtistHelperRectlinear:
 
     class Fixed(AxisArtistHelper.Fixed):
 
@@ -339,7 +339,7 @@ class AxisArtistHelperRectlinear(object):
             return _f(majorLocs, majorLabels), _f(minorLocs, minorLabels)
 
 
-class GridHelperBase(object):
+class GridHelperBase:
 
     def __init__(self):
         self._force_update = True
@@ -478,7 +478,7 @@ class GridHelperRectlinear(GridHelperBase):
 
 
 @cbook.deprecated("3.1")
-class SimpleChainedObjects(object):
+class SimpleChainedObjects:
     def __init__(self, objects):
         self._objects = objects
 

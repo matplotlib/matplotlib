@@ -3,7 +3,7 @@ from matplotlib.artist import Artist
 from matplotlib.axis import XAxis, YAxis
 
 
-class SimpleChainedObjects(object):
+class SimpleChainedObjects:
     def __init__(self, objects):
         self._objects = objects
 

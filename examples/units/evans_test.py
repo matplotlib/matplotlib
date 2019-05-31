@@ -16,7 +16,7 @@ import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 
 
-class Foo(object):
+class Foo:
     def __init__(self, val, unit=1.0):
         self.unit = unit
         self._val = val * unit

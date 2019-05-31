@@ -77,7 +77,7 @@ def run_memleak_test(bench, iterations, report):
     fig.savefig(report, format='pdf')
 
 
-class MemleakTest(object):
+class MemleakTest:
     def __init__(self, empty):
         self.empty = empty
 

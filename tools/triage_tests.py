@@ -230,7 +230,7 @@ class Dialog(QtWidgets.QDialog):
             super().keyPressEvent(e)
 
 
-class Entry(object):
+class Entry:
     """
     A model for a single image comparison test.
     """

@@ -12,7 +12,7 @@ from matplotlib.widgets import PolygonSelector
 from matplotlib.path import Path
 
 
-class SelectFromCollection(object):
+class SelectFromCollection:
     """Select indices from a matplotlib collection using `PolygonSelector`.
 
     Selected indices are saved in the `ind` attribute. This tool fades out the

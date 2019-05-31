@@ -13,7 +13,7 @@ from . import axes_size as Size
 from .parasite_axes import HostAxes
 
 
-class InsetPosition(object):
+class InsetPosition:
     @docstring.dedent_interpd
     def __init__(self, parent, lbwh):
         """

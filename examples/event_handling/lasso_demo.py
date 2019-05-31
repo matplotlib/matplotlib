@@ -18,7 +18,7 @@ from matplotlib.widgets import Lasso
 import numpy as np
 
 
-class Datum(object):
+class Datum:
     colorin = mcolors.to_rgba("red")
     colorout = mcolors.to_rgba("blue")
 
@@ -31,7 +31,7 @@ class Datum(object):
             self.color = self.colorout
 
 
-class LassoManager(object):
+class LassoManager:
     def __init__(self, ax, data):
         self.axes = ax
         self.canvas = ax.figure.canvas

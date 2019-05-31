@@ -33,7 +33,7 @@ def smooth2d(A, sigma=3):
     return A4
 
 
-class BaseFilter(object):
+class BaseFilter:
     def prepare_image(self, src_image, dpi, pad):
         ny, nx, depth = src_image.shape
         # tgt_image = np.zeros([pad*2+ny, pad*2+nx, depth], dtype="d")

@@ -158,7 +158,7 @@ class UnimplementedException(Exception):
     pass
 
 
-class AttributeCopier(object):
+class AttributeCopier:
     def __init__(self, ref_artist, klass=Artist):
         self._klass = klass
         self._ref_artist = ref_artist

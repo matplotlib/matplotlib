@@ -13,7 +13,7 @@ import matplotlib.units as units
 import matplotlib.ticker as ticker
 
 
-class ProxyDelegate(object):
+class ProxyDelegate:
     def __init__(self, fn_name, proxy_type):
         self.proxy_type = proxy_type
         self.fn_name = fn_name
@@ -30,7 +30,7 @@ class TaggedValueMeta(type):
                         ProxyDelegate(fn_name, self._proxies[fn_name]))
 
 
-class PassThroughProxy(object):
+class PassThroughProxy:
     def __init__(self, fn_name, obj):
         self.fn_name = fn_name
         self.target = obj.proxy_target
@@ -184,7 +184,7 @@ class TaggedValue(metaclass=TaggedValueMeta):
         return self.unit
 
 
-class BasicUnit(object):
+class BasicUnit:
     def __init__(self, name, fullname=None):
         self.name = name
         if fullname is None:
@@ -245,7 +245,7 @@ class BasicUnit(object):
         return self
 
 
-class UnitResolver(object):
+class UnitResolver:
     def addition_rule(self, units):
         for unit_1, unit_2 in zip(units[:-1], units[1:]):
             if unit_1 != unit_2:

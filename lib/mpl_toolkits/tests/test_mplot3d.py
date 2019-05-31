@@ -668,7 +668,7 @@ def test_invalid_axes_limits(setter, side, value):
         getattr(obj, setter)(**limit)
 
 
-class TestVoxels(object):
+class TestVoxels:
     @image_comparison(['voxels-simple.png'], remove_text=True)
     def test_simple(self):
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})

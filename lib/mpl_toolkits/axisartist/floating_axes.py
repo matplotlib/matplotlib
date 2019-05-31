@@ -315,7 +315,7 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         return t
 
 
-class FloatingAxesBase(object):
+class FloatingAxesBase:
 
     def __init__(self, *args, **kwargs):
         grid_helper = kwargs.get("grid_helper", None)

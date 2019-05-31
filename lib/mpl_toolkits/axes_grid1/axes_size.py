@@ -15,7 +15,7 @@ from matplotlib import cbook
 from matplotlib.axes import Axes
 
 
-class _Base(object):
+class _Base:
     "Base class"
 
     def __rmul__(self, other):
@@ -293,7 +293,7 @@ class SizeFromFunc(_Base):
         return rel_size, abs_size
 
 
-class GetExtentHelper(object):
+class GetExtentHelper:
     _get_func_map = {
         "left":   lambda self, axes_bbox: axes_bbox.xmin - self.xmin,
         "right":  lambda self, axes_bbox: self.xmax - axes_bbox.xmax,
