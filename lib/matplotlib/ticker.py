@@ -2635,9 +2635,9 @@ class AutoMinorLocator(Locator):
         If *n* is omitted or None, it will be set to 5 or 4.
         """
         if n == None:
-            if self.axis.__name__ == 'x':
+            if Locator.axis.__name__ == 'xaxis':
                 self.ndivs = rcParams['xtick.minor.ndivs']
-            elif self.axis.__name__ == 'y':
+            elif Locator.axis.__name__ == 'yaxis':
                 self.ndivs = rcParams['ytick.minor.ndivs']
         elif n == 'auto':
             self.ndivs = None
