@@ -314,14 +314,20 @@ def _get_executable_info(name):
         If the executable is not one that we know how to query.
     """
 
-    def impl(args, regex, min_ver=None):
+    def impl(args, regex, min_ver=None, ignore_error=False):
         # Execute the subprocess specified by args; capture stdout and stderr.
         # Search for a regex match in the output; if the match succeeds, the
         # first group of the match is the version.
         # Return an _ExecInfo if the executable exists, and has a version of
         # at least min_ver (if set); else, raise FileNotFoundError.
-        output = subprocess.check_output(
-            args, stderr=subprocess.STDOUT, universal_newlines=True)
+        try:
+            output = subprocess.check_output(
+                args, stderr=subprocess.STDOUT, universal_newlines=True)
+        except subprocess.CalledProcessError as _cpe:
+            if ignore_error:
+                output = _cpe.output
+            else:
+                raise _cpe
         match = re.search(regex, output)
         if match:
             version = LooseVersion(match.group(1))
@@ -378,7 +384,8 @@ def _get_executable_info(name):
                 "Failed to find an ImageMagick installation")
         return impl([path, "--version"], r"^Version: ImageMagick (\S*)")
     elif name == "pdftops":
-        info = impl(["pdftops", "-v"], "^pdftops version (.*)")
+        info = impl(["pdftops", "-v"], "^pdftops version (.*)",
+                    ignore_error=True)
         if info and not ("3.0" <= info.version
                          # poppler version numbers.
                          or "0.9" <= info.version <= "1.0"):
