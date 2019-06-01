@@ -884,7 +884,7 @@ class PathCollection(_CollectionWithSizes):
         Creates legend handles and labels for a PathCollection. This is useful
         for obtaining a legend for a :meth:`~.Axes.scatter` plot. E.g.::
 
-            scatter = plt.scatter([1,2,3], [4,5,6], c=[7,2,3])
+            scatter = plt.scatter([1, 2, 3],  [4, 5, 6],  c=[7, 2, 3])
             plt.legend(*scatter.legend_elements())
 
         Also see the :ref:`automatedlegendcreation` example.
@@ -1148,15 +1148,14 @@ class RegularPolyCollection(_CollectionWithSizes):
         Example: see :doc:`/gallery/event_handling/lasso_demo` for a
         complete example::
 
-            offsets = np.random.rand(20,2)
+            offsets = np.random.rand(20, 2)
             facecolors = [cm.jet(x) for x in np.random.rand(20)]
-            black = (0,0,0,1)
 
             collection = RegularPolyCollection(
                 numsides=5, # a pentagon
                 rotation=0, sizes=(50,),
                 facecolors=facecolors,
-                edgecolors=(black,),
+                edgecolors=("black",),
                 linewidths=(1,),
                 offsets=offsets,
                 transOffset=ax.transData,
@@ -1281,7 +1280,7 @@ class LineCollection(Collection):
         *offsets* are added to the segments before any transformation.
         In this case, a single offset can be specified as::
 
-            offsets=(xo,yo)
+            offsets=(xo, yo)
 
         and this value will be added cumulatively to each successive
         segment, so as to produce a set of successively offset curves.

@@ -194,19 +194,19 @@ def tricontour(ax, *args, **kwargs):
 
         *origin*: [ *None* | 'upper' | 'lower' | 'image' ]
         If *None*, the first value of *Z* will correspond to the
-        lower left corner, location (0,0). If 'image', the rc
+        lower left corner, location (0, 0). If 'image', the rc
         value for ``image.origin`` will be used.
 
         This keyword is not active if *X* and *Y* are specified in
         the call to contour.
 
-        *extent*: [ *None* | (x0,x1,y0,y1) ]
+        *extent*: [ *None* | (x0, x1, y0, y1) ]
 
         If *origin* is not *None*, then *extent* is interpreted as
         in :func:`matplotlib.pyplot.imshow`: it gives the outer
-        pixel boundaries. In this case, the position of Z[0,0]
+        pixel boundaries. In this case, the position of Z[0, 0]
         is the center of the pixel, not a corner. If *origin* is
-        *None*, then (*x0*, *y0*) is the position of Z[0,0], and
+        *None*, then (*x0*, *y0*) is the position of Z[0, 0], and
         (*x1*, *y1*) is the position of Z[-1,-1].
 
         This keyword is not active if *X* and *Y* are specified in

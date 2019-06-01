@@ -2381,11 +2381,11 @@ class RectangleSelector(_SelectorWidget):
     @property
     def geometry(self):
         """
-        Returns numpy.ndarray of shape (2,5) containing
-        x (``RectangleSelector.geometry[1,:]``) and
-        y (``RectangleSelector.geometry[0,:]``)
-        coordinates of the four corners of the rectangle starting
-        and ending in the top left corner.
+        Return an array of shape (2, 5) containing the
+        x (``RectangleSelector.geometry[1, :]``) and
+        y (``RectangleSelector.geometry[0, :]``) coordinates
+        of the four corners of the rectangle starting and ending
+        in the top left corner.
         """
         if hasattr(self.to_draw, 'get_verts'):
             xfm = self.ax.transData.inverted()
@@ -2482,7 +2482,7 @@ class LassoSelector(_SelectorWidget):
     Example usage::
 
         ax = subplot(111)
-        ax.plot(x,y)
+        ax.plot(x, y)
 
         def onselect(verts):
             print(verts)

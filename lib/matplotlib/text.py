@@ -418,7 +418,7 @@ class Text(Artist):
 
         bbox = Bbox.from_bounds(xmin, ymin, width, height)
 
-        # now rotate the positions around the first x,y position
+        # now rotate the positions around the first (x, y) position
         xys = M.transform(offset_layout) - (offsetx, offsety)
 
         ret = bbox, list(zip(lines, zip(ws, hs), *xys.T)), descent
@@ -1336,7 +1336,7 @@ class TextWithDash(Text):
                       linespacing=linespacing,
                       )
 
-        # The position (x,y) values for text and dashline
+        # The position (x, y) values for text and dashline
         # are bogus as given in the instantiation; they will
         # be set correctly by update_coords() in draw()
 
@@ -1986,10 +1986,10 @@ class Annotation(Text, _AnnotationBase):
             parameter.
 
         xy : (float, float)
-            The point *(x,y)* to annotate.
+            The point *(x, y)* to annotate.
 
         xytext : (float, float), optional
-            The position *(x,y)* to place the text at.
+            The position *(x, y)* to place the text at.
             If *None*, defaults to *xy*.
 
         xycoords : str, `.Artist`, `.Transform`, callable or tuple, optional
@@ -2010,7 +2010,7 @@ class Annotation(Text, _AnnotationBase):
               'axes fraction'     Fraction of axes from lower left
               'data'              Use the coordinate system of the object being
                                   annotated (default)
-              'polar'             *(theta,r)* if not native 'data' coordinates
+              'polar'             *(theta, r)* if not native 'data' coordinates
               =================   =============================================
 
             - An `.Artist`: *xy* is interpreted as a fraction of the artists
@@ -2278,7 +2278,7 @@ class Annotation(Text, _AnnotationBase):
                 self.arrow_patch.set_arrowstyle('simple', **stylekw)
 
                 # using YAArrow style:
-                # pick the x,y corner of the text bbox closest to point
+                # pick the (x, y) corner of the text bbox closest to point
                 # annotated
                 xpos = ((l, 0), (xc, 0.5), (r, 1))
                 ypos = ((b, 0), (yc, 0.5), (t, 1))

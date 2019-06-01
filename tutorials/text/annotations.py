@@ -19,7 +19,7 @@ annotate some feature of the plot, and the
 to make annotations easy.  In an annotation, there are two points to
 consider: the location being annotated represented by the argument
 ``xy`` and the location of the text ``xytext``.  Both of these
-arguments are ``(x,y)`` tuples.
+arguments are ``(x, y)`` tuples.
 
 .. figure:: ../../gallery/pyplots/images/sphx_glr_annotation_basic_001.png
    :target: ../../gallery/pyplots/annotation_basic.html
@@ -34,17 +34,17 @@ coordinate systems one can choose -- you can specify the coordinate
 system of ``xy`` and ``xytext`` with one of the following strings for
 ``xycoords`` and ``textcoords`` (default is 'data')
 
-====================  ====================================================
-argument              coordinate system
-====================  ====================================================
-  'figure points'     points from the lower left corner of the figure
-  'figure pixels'     pixels from the lower left corner of the figure
-  'figure fraction'   0,0 is lower left of figure and 1,1 is upper right
-  'axes points'       points from lower left corner of axes
-  'axes pixels'       pixels from lower left corner of axes
-  'axes fraction'     0,0 is lower left of axes and 1,1 is upper right
-  'data'              use the axes data coordinate system
-====================  ====================================================
+==================  ========================================================
+argument            coordinate system
+==================  ========================================================
+'figure points'     points from the lower left corner of the figure
+'figure pixels'     pixels from the lower left corner of the figure
+'figure fraction'   (0, 0) is lower left of figure and (1, 1) is upper right
+'axes points'       points from lower left corner of axes
+'axes pixels'       pixels from lower left corner of axes
+'axes fraction'     (0, 0) is lower left of axes and (1, 1) is upper right
+'data'              use the axes data coordinate system
+==================  ========================================================
 
 For example to place the text coordinates in fractional axes
 coordinates, one could do::
@@ -315,8 +315,8 @@ the ``bbox`` argument.
 
 By default, the starting point is set to the center of the text
 extent.  This can be adjusted with ``relpos`` key value. The values
-are normalized to the extent of the text. For example, (0,0) means
-lower-left corner and (1,1) means top-right.
+are normalized to the extent of the text. For example, (0, 0) means
+lower-left corner and (1, 1) means top-right.
 
 .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple04_001.png
    :target: ../../gallery/userdemo/annotate_simple04.html
@@ -394,7 +394,7 @@ determined during the drawing time respecting the specified transform. ::
   from mpl_toolkits.axes_grid1.anchored_artists import AnchoredAuxTransformBox
 
   box = AnchoredAuxTransformBox(ax.transData, loc='upper left')
-  el = Ellipse((0,0), width=0.1, height=0.4, angle=30)  # in data coordinates!
+  el = Ellipse((0, 0), width=0.1, height=0.4, angle=30)  # in data coordinates!
   box.drawing_area.add_artist(el)
 
 The ellipse in the above example will have width and height
@@ -451,8 +451,8 @@ more control, it supports a few other options.
       an1 = ax.annotate("Test 1", xy=(0.5, 0.5), xycoords="data",
                         va="center", ha="center",
                         bbox=dict(boxstyle="round", fc="w"))
-      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1, # (1,0.5) of the an1's bbox
-                        xytext=(30,0), textcoords="offset points",
+      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,  # (1, 0.5) of the an1's bbox
+                        xytext=(30, 0), textcoords="offset points",
                         va="center", ha="left",
                         bbox=dict(boxstyle="round", fc="w"),
                         arrowprops=dict(arrowstyle="->"))
@@ -479,9 +479,9 @@ more control, it supports a few other options.
     identical results ::
 
       an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,
-                        xytext=(30,0), textcoords="offset points")
+                        xytext=(30, 0), textcoords="offset points")
       an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1.get_window_extent,
-                        xytext=(30,0), textcoords="offset points")
+                        xytext=(30, 0), textcoords="offset points")
 
 
  4. A tuple of two coordinate specifications. The first item is for the

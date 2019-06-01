@@ -47,7 +47,7 @@ plt.show()
 # sequence of y values, and automatically generates the x values for
 # you.  Since python ranges start with 0, the default x vector has the
 # same length as y but starts with 0.  Hence the x data are
-# ``[0,1,2,3]``.
+# ``[0, 1, 2, 3]``.
 #
 # :func:`~matplotlib.pyplot.plot` is a versatile command, and will take
 # an arbitrary number of arguments.  For example, to plot x versus y,
@@ -384,7 +384,7 @@ plt.show()
 # functionality to make annotations easy.  In an annotation, there are
 # two points to consider: the location being annotated represented by
 # the argument ``xy`` and the location of the text ``xytext``.  Both of
-# these arguments are ``(x,y)`` tuples.
+# these arguments are ``(x, y)`` tuples.
 
 ax = plt.subplot(111)
 

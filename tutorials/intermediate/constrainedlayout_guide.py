@@ -636,7 +636,7 @@ example_plot(ax4)
 #
 # Each `~matplotlib.axes.Axes` has *two* layoutboxes.  The first one,
 # ``ax._layoutbox`` represents the outside of the Axes and all its
-# decorations (i.e. ticklabels,axis labels, etc.).
+# decorations (i.e. ticklabels, axis labels, etc.).
 # The second layoutbox corresponds to the Axes' ``ax.position``, which sets
 # where in the figure the spines are placed.
 #

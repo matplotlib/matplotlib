@@ -98,12 +98,12 @@ def view_transformation(E, R, V):
     n = (E - R)
     ## new
 #    n /= np.linalg.norm(n)
-#    u = np.cross(V,n)
+#    u = np.cross(V, n)
 #    u /= np.linalg.norm(u)
-#    v = np.cross(n,u)
-#    Mr = np.diag([1.]*4)
-#    Mt = np.diag([1.]*4)
-#    Mr[:3,:3] = u,v,n
+#    v = np.cross(n, u)
+#    Mr = np.diag([1.] * 4)
+#    Mt = np.diag([1.] * 4)
+#    Mr[:3,:3] = u, v, n
 #    Mt[:3,-1] = -E
     ## end new
 
@@ -209,7 +209,7 @@ def proj_transform_clip(xs, ys, zs, M):
     """
     Transform the points by the projection matrix
     and return the clipping result
-    returns txs,tys,tzs,tis
+    returns txs, tys, tzs, tis
     """
     vec = _vec_pad_ones(xs, ys, zs)
     return _proj_transform_vec_clip(vec, M)

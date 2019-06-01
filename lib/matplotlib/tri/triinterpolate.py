@@ -62,7 +62,7 @@ class TriInterpolator:
     # confusion in the documentation.
     _docstring__call__ = """
         Returns a masked array containing interpolated values at the specified
-        x,y points.
+        (x, y) points.
 
         Parameters
         ----------
@@ -80,7 +80,7 @@ class TriInterpolator:
 
     _docstringgradient = r"""
         Returns a list of 2 masked arrays containing interpolated derivatives
-        at the specified x,y points.
+        at the specified (x, y) points.
 
         Parameters
         ----------
@@ -92,7 +92,7 @@ class TriInterpolator:
         -------
         dzdx, dzdy : np.ma.array
             2 masked arrays of the same shape as *x* and *y*; values
-            corresponding to (x,y) points outside of the triangulation
+            corresponding to (x, y) points outside of the triangulation
             are masked out.
             The first returned array contains the values of
             :math:`\frac{\partial z}{\partial x}` and the second those of
@@ -236,7 +236,7 @@ class LinearTriInterpolator(TriInterpolator):
     A LinearTriInterpolator performs linear interpolation on a triangular grid.
 
     Each triangle is represented by a plane so that an interpolated value at
-    point (x,y) lies on the plane of the triangle containing (x,y).
+    point (x, y) lies on the plane of the triangle containing (x, y).
     Interpolated values are therefore continuous across the triangulation, but
     their first derivatives are discontinuous at edges between triangles.
 
@@ -253,8 +253,8 @@ class LinearTriInterpolator(TriInterpolator):
 
     Methods
     -------
-    `__call__` (x, y) :  Returns interpolated values at x,y points
-    `gradient` (x, y) : Returns interpolated derivatives at x,y points
+    `__call__` (x, y) : Returns interpolated values at (x, y) points.
+    `gradient` (x, y) : Returns interpolated derivatives at (x, y) points.
 
     """
     def __init__(self, triangulation, z, trifinder=None):
@@ -333,8 +333,8 @@ class CubicTriInterpolator(TriInterpolator):
 
     Methods
     -------
-    `__call__` (x, y) :  Returns interpolated values at x,y points
-    `gradient` (x, y) : Returns interpolated derivatives at x,y points
+    `__call__` (x, y) : Returns interpolated values at (x, y) points.
+    `gradient` (x, y) : Returns interpolated derivatives at (x, y) points.
 
     Notes
     -----
@@ -467,7 +467,7 @@ class CubicTriInterpolator(TriInterpolator):
 
         Returns
         -------
-        dof : array_like, shape (npts,2)
+        dof : array_like, shape (npts, 2)
               Estimation of the gradient at triangulation nodes (stored as
               degree of freedoms of reduced-HCT triangle elements).
         """
@@ -497,12 +497,12 @@ class CubicTriInterpolator(TriInterpolator):
         x, y : array-like of dim 1 (shape (nx,))
                   Coordinates of the points whose points barycentric
                   coordinates are requested
-        tris_pts : array like of dim 3 (shape: (nx,3,2))
+        tris_pts : array like of dim 3 (shape: (nx, 3, 2))
                     Coordinates of the containing triangles apexes.
 
         Returns
         -------
-        alpha : array of dim 2 (shape (nx,3))
+        alpha : array of dim 2 (shape (nx, 3))
                  Barycentric coordinates of the points inside the containing
                  triangles.
         """
@@ -534,12 +534,12 @@ class CubicTriInterpolator(TriInterpolator):
 
         Parameters
         ----------
-        tris_pts : array like of dim 3 (shape: (nx,3,2))
+        tris_pts : array like of dim 3 (shape: (nx, 3, 2))
                     Coordinates of the containing triangles apexes.
 
         Returns
         -------
-        J : array of dim 3 (shape (nx,2,2))
+        J : array of dim 3 (shape (nx, 2, 2))
                  Barycentric coordinates of the points inside the containing
                  triangles.
                  J[itri,:,:] is the jacobian matrix at apex 0 of the triangle
@@ -562,12 +562,12 @@ class CubicTriInterpolator(TriInterpolator):
 
         Parameters
         ----------
-        tris_pts : array like of dim 3 (shape: (nx,3,2))
+        tris_pts : array like of dim 3 (shape: (nx, 3, 2))
                    Coordinates of the triangles apexes.
 
         Returns
         -------
-        ecc : array like of dim 2 (shape: (nx,3))
+        ecc : array like of dim 2 (shape: (nx, 3))
               The so-called eccentricity parameters [1] needed for
               HCT triangular element.
         """
@@ -1048,7 +1048,7 @@ class _DOF_estimator():
         of the local Jacobian at each node.
 
         *tri_z*: array of shape (3,) of f nodal values
-        *tri_dz*: array of shape (3,2) of df/dx, df/dy nodal values
+        *tri_dz*: array of shape (3, 2) of df/dx, df/dy nodal values
         *J*: Jacobian matrix in local basis of apex 0
 
         Returns dof array of shape (9,) so that for each apex iapex:
@@ -1145,7 +1145,7 @@ class _DOF_estimator_geom(_DOF_estimator):
     def compute_geom_grads(self):
         """
         Compute the (global) gradient component of f assumed linear (~f).
-        returns array df of shape (nelems,2)
+        returns array df of shape (nelems, 2)
         df[ielem].dM[ielem] = dz[ielem] i.e. df = dz x dM = dM.T^-1 x dz
         """
         tris_pts = self._tris_pts
@@ -1235,7 +1235,7 @@ class _Sparse_Matrix_coo:
         *vals*: arrays of values of non-null entries of the matrix
         *rows*: int arrays of rows of non-null entries of the matrix
         *cols*: int arrays of cols of non-null entries of the matrix
-        *shape*: 2-tuple (n,m) of matrix shape
+        *shape*: 2-tuple (n, m) of matrix shape
 
         """
         self.n, self.m = shape
@@ -1387,7 +1387,7 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
 # matrices - stored as (:, n_rows, n_cols)-shaped np.arrays.
 
 # Development note: Dealing with pathologic 'flat' triangles in the
-# CubicTriInterpolator code and impact on (2,2)-matrix inversion functions
+# CubicTriInterpolator code and impact on (2, 2)-matrix inversion functions
 # :func:`_safe_inv22_vectorized` and :func:`_pseudo_inv22sym_vectorized`.
 #
 # Goals:
@@ -1423,10 +1423,10 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
 # to compute a pseudo-inverse in :func:`_pseudo_inv22sym_vectorized`
 def _safe_inv22_vectorized(M):
     """
-    Inversion of arrays of (2,2) matrices, returns 0 for rank-deficient
+    Inversion of arrays of (2, 2) matrices, returns 0 for rank-deficient
     matrices.
 
-    *M* : array of (2,2) matrices to inverse, shape (n,2,2)
+    *M* : array of (2, 2) matrices to inverse, shape (n, 2, 2)
     """
     assert M.ndim == 3
     assert M.shape[-2:] == (2, 2)
@@ -1454,14 +1454,14 @@ def _safe_inv22_vectorized(M):
 
 def _pseudo_inv22sym_vectorized(M):
     """
-    Inversion of arrays of (2,2) SYMMETRIC matrices; returns the
+    Inversion of arrays of (2, 2) SYMMETRIC matrices; returns the
     (Moore-Penrose) pseudo-inverse for rank-deficient matrices.
 
     In case M is of rank 1, we have M = trace(M) x P where P is the orthogonal
     projection on Im(M), and we return trace(M)^-1 x P == M / trace(M)**2
     In case M is of rank 0, we return the null matrix.
 
-    *M* : array of (2,2) matrices to inverse, shape (n,2,2)
+    *M* : array of (2, 2) matrices to inverse, shape (n, 2, 2)
     """
     assert M.ndim == 3
     assert M.shape[-2:] == (2, 2)
@@ -1566,7 +1566,7 @@ def _to_matrix_vectorized(M):
     *M*: ncols-list of nrows-lists of shape sh.
 
     Returns M_res np.array of shape (sh, nrow, ncols) so that:
-        M_res[...,i,j] = M[i][j]
+        M_res[..., i, j] = M[i][j]
     """
     assert isinstance(M, (tuple, list))
     assert all(isinstance(item, (tuple, list)) for item in M)

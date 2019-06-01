@@ -1537,7 +1537,7 @@ class Transform(TransformNode):
             raise ValueError("'angles' must be a column vector and have same "
                              "number of rows as 'pts'")
         if pts.shape[1] != 2:
-            raise ValueError("'pts' must be array with 2 columns for x,y")
+            raise ValueError("'pts' must be array with 2 columns for x, y")
         # Convert to radians if desired
         if not radians:
             angles = np.deg2rad(angles)

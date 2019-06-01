@@ -51,7 +51,7 @@ marker                         symbol description
                                       letter ``f``.
 ``verts``                             A list of (x, y) pairs used for Path
                                       vertices. The center of the marker is
-                                      located at (0,0) and the size is
+                                      located at (0, 0) and the size is
                                       normalized, such that the created path
                                       is encapsulated inside the unit cell.
 path                                  A `~matplotlib.path.Path` instance.
@@ -94,9 +94,8 @@ Integer numbers from ``0`` to ``11`` create lines and triangles. Those are
 equally accessible via capitalized variables, like ``CARETDOWNBASE``.
 Hence the following are equivalent::
 
-    plt.plot([1,2,3], marker=11)
-    plt.plot([1,2,3], marker=matplotlib.markers.CARETDOWNBASE)
-
+    plt.plot([1, 2, 3], marker=11)
+    plt.plot([1, 2, 3], marker=matplotlib.markers.CARETDOWNBASE)
 
 Examples showing the use of markers:
 

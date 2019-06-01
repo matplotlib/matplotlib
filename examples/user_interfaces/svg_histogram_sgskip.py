@@ -141,7 +141,7 @@ function toggle_hist(obj) {
     var names = container['hist_'+num]
 
     for (var i=0; i < names.length; i++) {
-        toggle(names[i], 'opacity', [1,0])
+        toggle(names[i], 'opacity', [1, 0])
     };
     }
 ]]>

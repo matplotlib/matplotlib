@@ -426,7 +426,7 @@ class XTick(Tick):
     def _get_text1(self):
         'Get the default Text instance'
         # the y loc is 3 points below the min of y axis
-        # get the affine as an a,b,c,d,tx,ty list
+        # get the affine as an a, b, c, d, tx, ty list
         # x in data coords, y in axes coords
         trans, vert, horiz = self._get_text1_transform()
         t = mtext.Text(
@@ -799,15 +799,13 @@ class Axis(martist.Artist):
         """
         Set the coordinates of the label.
 
-        By default, the x coordinate of the y label is determined by the tick
-        label bounding boxes, but this can lead to poor alignment of multiple
-        ylabels if there are multiple axes.  Ditto for the y coordinate of
-        the x label.
+        By default, the x coordinate of the y label and the y coordinate of the
+        x label are determined by the tick label bounding boxes, but this can
+        lead to poor alignment of multiple labels if there are multiple axes.
 
-        You can also specify the coordinate system of the label with
-        the transform.  If None, the default coordinate system will be
-        the axes coordinate system (0,0) is (left,bottom), (0.5, 0.5)
-        is middle, etc
+        You can also specify the coordinate system of the label with the
+        transform.  If None, the default coordinate system will be the axes
+        coordinate system: (0, 0) is bottom left, (0.5, 0.5) is center, etc.
         """
         self._autolabelpos = False
         if transform is None:

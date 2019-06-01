@@ -7,6 +7,7 @@ Controlling the layout of plots with the axes_grid toolkit.
 
 .. _axes_grid1_users-guide-index:
 
+
 What is axes_grid1 toolkit?
 ===========================
 
@@ -37,7 +38,6 @@ axes_grid1
 
 ImageGrid
 ---------
-
 
 A class that creates a grid of Axes. In matplotlib, the axes location
 (and size) is specified in the normalized figure coordinates. This may
@@ -77,25 +77,20 @@ used in such case.
   your mouse in interactive backends) of one axes will affect all
   other shared axes.
 
-
-
 When initialized, ImageGrid creates given number (*ngrids* or *ncols* *
 *nrows* if *ngrids* is None) of Axes instances. A sequence-like
 interface is provided to access the individual Axes instances (e.g.,
 grid[0] is the first Axes in the grid. See below for the order of
 axes).
 
-
-
 ImageGrid takes following arguments,
-
 
  ============= ========   ================================================
  Name          Default    Description
  ============= ========   ================================================
  fig
  rect
- nrows_ncols              number of rows and cols. e.g., (2,2)
+ nrows_ncols              number of rows and cols. e.g., (2, 2)
  ngrids        None       number of grids. nrows x ncols if None
  direction     "row"      increasing direction of axes number. [row|column]
  axes_pad      0.02       pad between axes in inches
@@ -152,8 +147,6 @@ for the grid (cbar_mode="single"). The colorbar can be placed on your
 right, or top. The axes for each colorbar is stored as a *cbar_axes*
 attribute.
 
-
-
 The examples below show what you can do with ImageGrid.
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_demo_axes_grid_001.png
@@ -176,17 +169,13 @@ axes_divider module provides a helper function make_axes_locatable,
 which can be useful. It takes a existing axes instance and create a
 divider for it. ::
 
-  ax = subplot(1,1,1)
+  ax = subplot(1, 1, 1)
   divider = make_axes_locatable(ax)
-
-
-
 
 *make_axes_locatable* returns an instance of the AxesLocator class,
 derived from the Locator. It provides *append_axes* method that
 creates a new axes on the given side of ("top", "right", "bottom" and
 "left") of the original axes.
-
 
 
 colorbar whose height (or width) in sync with the master axes
@@ -198,8 +187,6 @@ colorbar whose height (or width) in sync with the master axes
    :scale: 50
 
    Simple Colorbar
-
-
 
 
 scatter_hist.py with AxesDivider
@@ -223,7 +210,6 @@ rewritten using *make_axes_locatable*::
     axHistx.hist(x, bins=bins)
     axHisty.hist(y, bins=bins, orientation='horizontal')
 
-
 See the full source code below.
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_scatter_hist_locatable_axes_001.png
@@ -232,7 +218,6 @@ See the full source code below.
    :scale: 50
 
    Scatter Hist
-
 
 The scatter_hist using the AxesDivider has some advantage over the
 original scatter_hist.py in mpl. For example, you can set the aspect
@@ -273,6 +258,7 @@ Example 1. twinx
 
    Parasite Simple
 
+
 Example 2. twin
 ~~~~~~~~~~~~~~~
 
@@ -293,8 +279,6 @@ tick-formatter for bottom(or left)-axis. ::
    :scale: 50
 
    Simple Axisline4
-
-
 
 A more sophisticated example using twin. Note that if you change the
 x-limit in the host axes, the x-limit of the parasite axes will change
@@ -391,7 +375,7 @@ yaxis of each axes are shared. ::
     fig = plt.figure()
     ax = RGBAxes(fig, [0.1, 0.1, 0.8, 0.8])
 
-    r, g, b = get_rgb() # r,g,b are 2-d images
+    r, g, b = get_rgb() # r, g, b are 2-d images
     ax.imshow_rgb(r, g, b,
                   origin="lower", interpolation="nearest")
 
@@ -430,24 +414,24 @@ horizontal and vertical.
 for example,::
 
     rect = [0.2, 0.2, 0.6, 0.6]
-    horiz=[h0, h1, h2, h3]
-    vert=[v0, v1, v2]
+    horiz = [h0, h1, h2, h3]
+    vert = [v0, v1, v2]
     divider = Divider(fig, rect, horiz, vert)
 
-where, rect is a bounds of the box that will be divided and h0,..h3,
-v0,..v2 need to be an instance of classes in the
+where rect is a bounds of the box that will be divided and h0, ..., h3,
+v0, ..., v2 need to be instance of classes in the
 :mod:`~mpl_toolkits.axes_grid1.axes_size`.  They have *get_size* method
 that returns a tuple of two floats. The first float is the relative
 size, and the second float is the absolute size. Consider a following
 grid.
 
-+-----+-----+-----+-----+
-| v0  |     |     |     |
-+-----+-----+-----+-----+
-| v1  |     |     |     |
-+-----+-----+-----+-----+
-|h0,v2| h1  | h2  | h3  |
-+-----+-----+-----+-----+
++------+-----+-----+-----+
+| v0   |     |     |     |
++------+-----+-----+-----+
+| v1   |     |     |     |
++------+-----+-----+-----+
+|h0, v2| h1  | h2  | h3  |
++------+-----+-----+-----+
 
 
 * v0 => 0, 2
@@ -461,7 +445,6 @@ then the first and second row will each occupy 2/(2+3) and 3/(2+3) of
 (6-1) inches. The widths of the horizontal columns will be similarly
 determined. When the aspect ratio is set, the total height (or width) will
 be adjusted accordingly.
-
 
 The :mod:`mpl_toolkits.axes_grid1.axes_size` contains several classes
 that can be used to set the horizontal and vertical configurations. For

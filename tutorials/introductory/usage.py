@@ -732,7 +732,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #   # Setup, and create the data to plot
 #   y = np.random.rand(100000)
 #   y[50000:] *= 2
-#   y[np.logspace(1,np.log10(50000), 400).astype(int)] = -1
+#   y[np.logspace(1, np.log10(50000), 400).astype(int)] = -1
 #   mpl.rcParams['path.simplify'] = True
 #
 #   mpl.rcParams['agg.path.chunksize'] = 0

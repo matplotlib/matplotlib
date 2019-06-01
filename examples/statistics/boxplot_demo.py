@@ -82,8 +82,8 @@ plt.show()
 # properties of the original sample, and a boxplot is one visual tool
 # to make this assessment
 
-random_dists = ['Normal(1,1)', ' Lognormal(1,1)', 'Exp(1)', 'Gumbel(6,4)',
-                'Triangular(2,9,11)']
+random_dists = ['Normal(1, 1)', 'Lognormal(1, 1)', 'Exp(1)', 'Gumbel(6, 4)',
+                'Triangular(2, 9, 11)']
 N = 500
 
 norm = np.random.normal(1, 1, N)

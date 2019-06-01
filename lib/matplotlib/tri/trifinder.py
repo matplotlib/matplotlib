@@ -7,13 +7,13 @@ from matplotlib.tri import Triangulation
 class TriFinder:
     """
     Abstract base class for classes used to find the triangles of a
-    Triangulation in which (x,y) points lie.
+    Triangulation in which (x, y) points lie.
 
     Rather than instantiate an object of a class derived from TriFinder, it is
     usually better to use the function
     :func:`matplotlib.tri.Triangulation.get_trifinder`.
 
-    Derived classes implement __call__(x,y) where x,y are array_like point
+    Derived classes implement __call__(x, y) where x and y are array_like point
     coordinates of the same shape.
     """
     def __init__(self, triangulation):
@@ -43,8 +43,8 @@ class TrapezoidMapTriFinder(TriFinder):
     def __call__(self, x, y):
         """
         Return an array containing the indices of the triangles in which the
-        specified x,y points lie, or -1 for points that do not lie within a
-        triangle.
+        specified *x*, *y* points lie, or -1 for points that do not lie within
+        a triangle.
 
         *x*, *y* are array_like x and y coordinates of the same shape and any
         number of dimensions.

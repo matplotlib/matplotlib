@@ -189,7 +189,7 @@ class Sankey:
                      Path.CURVE4,
                      Path.CURVE4]
         # Vertices of a cubic Bezier curve approximating a 90 deg arc
-        # These can be determined by Path.arc(0,90).
+        # These can be determined by Path.arc(0, 90).
         ARC_VERTICES = np.array([[1.00000000e+00, 0.00000000e+00],
                                  [1.00000000e+00, 2.65114773e-01],
                                  [8.94571235e-01, 5.19642327e-01],

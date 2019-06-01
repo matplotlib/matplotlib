@@ -505,12 +505,12 @@ class ScalarFormatter(Formatter):
     average, then an offset will be determined such that the tick labels
     are meaningful. Scientific notation is used for ``data < 10^-n`` or
     ``data >= 10^m``, where ``n`` and ``m`` are the power limits set
-    using ``set_powerlimits((n,m))``. The defaults for these are
+    using ``set_powerlimits((n, m))``. The defaults for these are
     controlled by the ``axes.formatter.limits`` rc parameter.
     """
     def __init__(self, useOffset=None, useMathText=None, useLocale=None):
         # useOffset allows plotting small data ranges with large offsets: for
-        # example: [1+1e-9,1+2e-9,1+3e-9] useMathText will render the offset
+        # example: [1+1e-9, 1+2e-9, 1+3e-9] useMathText will render the offset
         # and scientific notation in mathtext
 
         if useOffset is None:

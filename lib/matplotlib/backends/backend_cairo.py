@@ -206,7 +206,7 @@ class RendererCairo(RendererBase):
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
 
-        # Note: x,y are device/display coords, not user-coords, unlike other
+        # Note: (x, y) are device/display coords, not user-coords, unlike other
         # draw_* methods
         if ismath:
             self._draw_mathtext(gc, x, y, s, prop, angle)

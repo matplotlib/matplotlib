@@ -2785,8 +2785,8 @@ class _AxesBase(martist.Artist):
                            is 'sci', scientific notation will
                            be used for numbers outside the range
                            10\ :sup:`m` to 10\ :sup:`n`.
-                           Use (0,0) to include all numbers.
-                           Use (m,m) where m <> 0 to fix the order
+                           Use (0, 0) to include all numbers.
+                           Use (m, m) where m != 0 to fix the order
                            of magnitude to 10\ :sup:`m`.
           *useOffset*      [ bool | offset ]; if True,
                            the offset will be calculated as needed;
@@ -3942,10 +3942,10 @@ class _AxesBase(martist.Artist):
         ----------
         bbox : 4-tuple or 3 tuple
             * If bbox is a 4 tuple, it is the selected bounding box limits,
-                in *display* coordinates.
+              in *display* coordinates.
             * If bbox is a 3 tuple, it is an (xp, yp, scl) triple, where
-                (xp,yp) is the center of zooming and scl the scale factor to
-                zoom by.
+              (xp, yp) is the center of zooming and scl the scale factor to
+              zoom by.
 
         direction : str
             The direction to apply the bounding box.

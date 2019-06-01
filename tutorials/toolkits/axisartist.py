@@ -290,7 +290,7 @@ HowTo
 
   Same as the original mpl's axes.::
 
-   ax.set_xticks([1,2,3])
+   ax.set_xticks([1, 2, 3])
 
 2. Changing axis properties like color, etc.
 
@@ -519,7 +519,7 @@ transform of the axes itself (ax.transData) is still rectilinear
         return x, y-x
 
     # from rectlinear coordinate to curved coordinate.
-    def inv_tr(x,y):
+    def inv_tr(x, y):
         x, y = np.asarray(x), np.asarray(y)
         return x, y+x
 
@@ -557,8 +557,8 @@ required. ::
     # minute, second). The argument is a approximate number of grids.
     grid_locator1 = angle_helper.LocatorDMS(12)
 
-    # And also uses an appropriate formatter.  Note that,the
-    # acceptable Locator and Formatter class is a bit different than
+    # And also uses an appropriate formatter.  Note that the
+    # acceptable Locator and Formatter classes are different than
     # that of mpl's, and you cannot directly use mpl's Locator and
     # Formatter here (but may be possible in the future).
     tick_formatter1 = angle_helper.FormatterDMS()

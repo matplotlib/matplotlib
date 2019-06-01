@@ -390,7 +390,7 @@ class SubplotDivider(Divider):
 
         # total = rows*cols
         # num -= 1    # convert from matlab to python indexing
-        #             # i.e., num in range(0,total)
+        #             # i.e., num in range(0, total)
         # if num >= total:
         #     raise ValueError( 'Subplot number exceeds total subplots')
         # self._rows = rows
@@ -445,28 +445,27 @@ class SubplotDivider(Divider):
     #                                                figW, figH)
 
     def update_params(self):
-        'update the subplot position from fig.subplotpars'
-
+        """Update the subplot position from fig.subplotpars."""
         self.figbox = self.get_subplotspec().get_position(self.figure)
 
     def get_geometry(self):
-        'get the subplot geometry, e.g., 2,2,3'
+        """Get the subplot geometry, e.g., (2, 2, 3)."""
         rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
         return rows, cols, num1+1  # for compatibility
 
     # COVERAGE NOTE: Never used internally or from examples
     def change_geometry(self, numrows, numcols, num):
-        'change subplot geometry, e.g., from 1,1,1 to 2,2,3'
+        """Change subplot geometry, e.g., from (1, 1, 1) to (2, 2, 3)."""
         self._subplotspec = GridSpec(numrows, numcols)[num-1]
         self.update_params()
         self.set_position(self.figbox)
 
     def get_subplotspec(self):
-        'get the SubplotSpec instance'
+        """Get the SubplotSpec instance."""
         return self._subplotspec
 
     def set_subplotspec(self, subplotspec):
-        'set the SubplotSpec instance'
+        """Set the SubplotSpec instance."""
         self._subplotspec = subplotspec
 
 

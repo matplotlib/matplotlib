@@ -28,7 +28,7 @@ as well as with :meth:`annotations <matplotlib.axes.Axes.annotate>`.
 # the pie. Here we use the axes coordinates ``(1, 0, 0.5, 1)`` together
 # with the location ``"center left"``; i.e.
 # the left central point of the legend will be at the left central point of the
-# bounding box, spanning from ``(1,0)`` to ``(1.5,1)`` in axes coordinates.
+# bounding box, spanning from ``(1, 0)`` to ``(1.5, 1)`` in axes coordinates.
 
 import numpy as np
 import matplotlib.pyplot as plt

@@ -20,21 +20,21 @@ from matplotlib.text import OffsetFrom
 # Specifying text points and annotation points
 # --------------------------------------------
 #
-# You must specify an annotation point `xy=(x,y)` to annotate this point.
-# additionally, you may specify a text point `xytext=(x,y)` for the
+# You must specify an annotation point `xy=(x, y)` to annotate this point.
+# additionally, you may specify a text point `xytext=(x, y)` for the
 # location of the text for this annotation.  Optionally, you can
 # specify the coordinate system of `xy` and `xytext` with one of the
 # following strings for `xycoords` and `textcoords` (default is 'data')::
 #
-#   'figure points'   : points from the lower left corner of the figure
-#   'figure pixels'   : pixels from the lower left corner of the figure
-#   'figure fraction' : 0,0 is lower left of figure and 1,1 is upper, right
-#   'axes points'     : points from lower left corner of axes
-#   'axes pixels'     : pixels from lower left corner of axes
-#   'axes fraction'   : 0,0 is lower left of axes and 1,1 is upper right
-#   'offset points'   : Specify an offset (in points) from the xy value
-#   'offset pixels'   : Specify an offset (in pixels) from the xy value
-#   'data'            : use the axes data coordinate system
+#  'figure points'   : points from the lower left corner of the figure
+#  'figure pixels'   : pixels from the lower left corner of the figure
+#  'figure fraction' : (0, 0) is lower left of figure and (1, 1) is upper right
+#  'axes points'     : points from lower left corner of axes
+#  'axes pixels'     : pixels from lower left corner of axes
+#  'axes fraction'   : (0, 0) is lower left of axes and (1, 1) is upper right
+#  'offset points'   : Specify an offset (in points) from the xy value
+#  'offset pixels'   : Specify an offset (in pixels) from the xy value
+#  'data'            : use the axes data coordinate system
 #
 # Note: for physical coordinate systems (points or pixels) the origin is the
 # (bottom, left) of the figure or axes.

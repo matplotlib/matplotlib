@@ -955,7 +955,7 @@ def subplot(*args, **kwargs):
 
         import matplotlib.pyplot as plt
         # plot a line, implicitly creating a subplot(111)
-        plt.plot([1,2,3])
+        plt.plot([1, 2, 3])
         # now create a subplot which represents the top plot of a grid
         # with 2 rows and 1 column. Since this subplot will overlap the
         # first, the plot (and its axes) previously created, will be removed
@@ -1009,7 +1009,7 @@ def subplot(*args, **kwargs):
         plt.subplot(ax2)
     """
 
-    # if subplot called without arguments, create subplot(1,1,1)
+    # if subplot called without arguments, create subplot(1, 1, 1)
     if len(args) == 0:
         args = (1, 1, 1)
 
@@ -1690,10 +1690,10 @@ def thetagrids(*args, **kwargs):
     ::
 
       # set the locations of the angular gridlines
-      lines, labels = thetagrids( range(45,360,90) )
+      lines, labels = thetagrids(range(45, 360, 90))
 
       # set the locations and labels of the angular gridlines
-      lines, labels = thetagrids( range(45,360,90), ('NE', 'NW', 'SW','SE') )
+      lines, labels = thetagrids(range(45, 360, 90), ('NE', 'NW', 'SW', 'SE'))
 
     See Also
     --------
@@ -1933,9 +1933,9 @@ def colormaps():
                     of perceived brightness. Also, when printed on a black
                     and white postscript printer, the scheme results in a
                     greyscale with monotonically increasing brightness.
-                    This color scheme is named cubehelix because the r,g,b
+                    This color scheme is named cubehelix because the (r, g, b)
                     values produced can be visualised as a squashed helix
-                    around the diagonal in the r,g,b color cube.
+                    around the diagonal in the (r, g, b) color cube.
       gnuplot       gnuplot's traditional pm3d scheme
                     (black-blue-red-yellow)
       gnuplot2      sequential color printable as gray
@@ -2227,11 +2227,11 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     Example usage::
 
       # plot the 2nd and 4th column against the 1st in two subplots
-      plotfile(fname, (0,1,3))
+      plotfile(fname, (0, 1, 3))
 
       # plot using column names; specify an alternate plot type for volume
       plotfile(fname, ('date', 'volume', 'adj_close'),
-                                    plotfuncs={'volume': 'semilogy'})
+               plotfuncs={'volume': 'semilogy'})
 
     Note: plotfile is intended as a convenience for quickly plotting
     data from flat files; it is not intended as an alternative

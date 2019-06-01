@@ -112,9 +112,9 @@ class ContourLabeler:
             placement, delete or backspace act like the third mouse button,
             and any other key will select a label location).
 
-            *manual* can also be an iterable object of x,y tuples.
+            *manual* can also be an iterable object of (x, y) tuples.
             Contour labels will be created as if mouse is clicked at each
-            x,y positions.
+            (x, y) position.
 
         rightside_up : bool, optional
             If ``True``, label rotations will always be plus
@@ -486,7 +486,7 @@ class ContourLabeler:
         conmin, segmin, imin, xmin, ymin = self.find_nearest_contour(
             x, y, self.labelIndiceList)[:5]
 
-        # The calc_label_rot_and_inline routine requires that (xmin,ymin)
+        # The calc_label_rot_and_inline routine requires that (xmin, ymin)
         # be a vertex in the path. So, if it isn't, add a vertex here
 
         # grab the paths from the collections
@@ -698,7 +698,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         should look like::
 
             level0segs = [polygon0, polygon1, ...]
-            polygon0 = array_like [[x0,y0], [x1,y1], ...]
+            polygon0 = [[x0, y0], [x1, y1], ...]
 
     allkinds : ``None`` or [level0kinds, level1kinds, ...]
         Optional list of all the polygon vertex kinds (code types), as
@@ -764,7 +764,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             should look like::
 
                 level0segs = [polygon0, polygon1, ...]
-                polygon0 = array_like [[x0,y0], [x1,y1], ...]
+                polygon0 = [[x0, y0], [x1, y1], ...]
 
         allkinds : [level0kinds, level1kinds, ...], optional
             Optional list of all the polygon vertex kinds (code types), as
@@ -814,8 +814,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         cbook._check_in_list([None, 'lower', 'upper', 'image'], origin=origin)
         if self.extent is not None and len(self.extent) != 4:
-            raise ValueError("If given, *extent* must be '[ *None* |"
-                             " (x0,x1,y0,y1) ]'")
+            raise ValueError(
+                "If given, 'extent' must be None or (x0, x1, y0, y1)")
         if self.colors is not None and cmap is not None:
             raise ValueError('Either colors or cmap must be None')
         if self.origin == 'image':
@@ -1048,7 +1048,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 len(self.allkinds) != len(self.allsegs)):
             raise ValueError('allkinds has different length to allsegs')
 
-        # Determine x,y bounds and update axes data limits.
+        # Determine x, y bounds and update axes data limits.
         flatseglist = [s for seg in self.allsegs for s in seg]
         points = np.concatenate(flatseglist, axis=0)
         self._mins = points.min(axis=0)
@@ -1065,7 +1065,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     def _get_lowers_and_uppers(self):
         """
-        Return (lowers,uppers) for filled contours.
+        Return ``(lowers, uppers)`` for filled contours.
         """
         lowers = self._levels[:-1]
         if self.zmin == lowers[0]:
@@ -1553,7 +1553,7 @@ class QuadContourSet(ContourSet):
         """
         Return X, Y arrays such that contour(Z) will match imshow(Z)
         if origin is not None.
-        The center of pixel Z[i,j] depends on origin:
+        The center of pixel Z[i, j] depends on origin:
         if origin is None, x = j, y = i;
         if origin is 'lower', x = j + 0.5, y = i + 0.5;
         if origin is 'upper', x = j + 0.5, y = Nrows - i - 0.5
@@ -1689,8 +1689,8 @@ class QuadContourSet(ContourSet):
         extent : (x0, x1, y0, y1), optional
             If *origin* is not *None*, then *extent* is interpreted as in
             `.imshow`: it gives the outer pixel boundaries. In this case, the
-            position of Z[0,0] is the center of the pixel, not a corner. If
-            *origin* is *None*, then (*x0*, *y0*) is the position of Z[0,0],
+            position of Z[0, 0] is the center of the pixel, not a corner. If
+            *origin* is *None*, then (*x0*, *y0*) is the position of Z[0, 0],
             and (*x1*, *y1*) is the position of Z[-1,-1].
 
             This argument is ignored if *X* and *Y* are specified in the call

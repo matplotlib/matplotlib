@@ -19,7 +19,7 @@ r2 = r1 + 0.4  # 40%
 sizes = np.array([60, 80, 120])
 
 # calculate the points of the first pie marker
-# these are just the origin (0,0) + some points on a circle cos,sin
+# these are just the origin (0, 0) + some (cos, sin) points on a circle
 x1 = np.cos(2 * np.pi * np.linspace(0, r1))
 y1 = np.sin(2 * np.pi * np.linspace(0, r1))
 xy1 = np.row_stack([[0, 0], np.column_stack([x1, y1])])

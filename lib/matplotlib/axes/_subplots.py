@@ -99,13 +99,13 @@ class SubplotBase:
                 self.__getstate__())
 
     def get_geometry(self):
-        """get the subplot geometry, e.g., 2,2,3"""
+        """Get the subplot geometry, e.g., (2, 2, 3)."""
         rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
         return rows, cols, num1 + 1  # for compatibility
 
     # COVERAGE NOTE: Never used internally or from examples
     def change_geometry(self, numrows, numcols, num):
-        """change subplot geometry, e.g., from 1,1,1 to 2,2,3"""
+        """Change subplot geometry, e.g., from (1, 1, 1) to (2, 2, 3)."""
         self._subplotspec = GridSpec(numrows, numcols,
                                      figure=self.figure)[num - 1]
         self.update_params()

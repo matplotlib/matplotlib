@@ -803,7 +803,7 @@ class Rectangle(Patch):
 
     def set_bounds(self, *args):
         """
-        Set the bounds of the rectangle: l,b,w,h
+        Set the bounds of the rectangle.
 
         ACCEPTS: (left, bottom, width, height)
         """
@@ -1256,7 +1256,7 @@ class FancyArrow(Polygon):
         if not length:
             verts = np.empty([0, 2])  # display nothing if empty
         else:
-            # start by drawing horizontal arrow, point at (0,0)
+            # start by drawing horizontal arrow, point at (0, 0)
             hw, hl, hs, lw = head_width, head_length, overhang, width
             left_half_arrow = np.array([
                 [0.0, 0.0],                 # tip
@@ -2622,12 +2622,11 @@ class ConnectionStyle(_Style):
                  shrinkA=2., shrinkB=2.)
 
     and it returns a :class:`Path` instance. *posA* and *posB* are
-    tuples of x,y coordinates of the two points to be
+    tuples of (x, y) coordinates of the two points to be
     connected. *patchA* (or *patchB*) is given, the returned path is
     clipped so that it start (or end) from the boundary of the
     patch. The path is further shrunk by *shrinkA* (or *shrinkB*)
     which is given in points.
-
     """
 
     _style_list = {}
@@ -3869,7 +3868,7 @@ class FancyArrowPatch(Patch):
         Parameters
         ----------
         posA, posB : (float, float), optional (default: None)
-            (x,y) coordinates of arrow tail and arrow head respectively.
+            (x, y) coordinates of arrow tail and arrow head respectively.
 
         path : `~matplotlib.path.Path`, optional (default: None)
             If provided, an arrow is drawn along this path and *patchA*,
@@ -4006,7 +4005,7 @@ class FancyArrowPatch(Patch):
         Parameters
         ----------
         posA, posB : None, tuple
-            (x,y) coordinates of arrow tail and arrow head respectively. If
+            (x, y) coordinates of arrow tail and arrow head respectively. If
             `None` use current value.
         """
         if posA is not None:
@@ -4243,9 +4242,7 @@ class ConnectionPatch(FancyArrowPatch):
         """
         Connect point *xyA* in *coordsA* with point *xyB* in *coordsB*
 
-
         Valid keys are
-
 
         ===============  ======================================================
         Key              Description
@@ -4262,30 +4259,27 @@ class ConnectionPatch(FancyArrowPatch):
         ?                any key for :class:`matplotlib.patches.PathPatch`
         ===============  ======================================================
 
-
         *coordsA* and *coordsB* are strings that indicate the
         coordinates of *xyA* and *xyB*.
 
-        =================   ===================================================
-        Property            Description
-        =================   ===================================================
-        'figure points'     points from the lower left corner of the figure
-        'figure pixels'     pixels from the lower left corner of the figure
-        'figure fraction'   0,0 is lower left of figure and 1,1 is upper, right
-        'axes points'       points from lower left corner of axes
-        'axes pixels'       pixels from lower left corner of axes
-        'axes fraction'     0,1 is lower left of axes and 1,1 is upper right
-        'data'              use the coordinate system of the object being
-                            annotated (default)
-        'offset points'     Specify an offset (in points) from the *xy* value
-
-        'polar'             you can specify *theta*, *r* for the annotation,
-                            even in cartesian plots.  Note that if you
-                            are using a polar axes, you do not need
-                            to specify polar for the coordinate
-                            system since that is the native "data" coordinate
-                            system.
-        =================   ===================================================
+        =================  ===================================================
+        Property           Description
+        =================  ===================================================
+        'figure points'    points from the lower left corner of the figure
+        'figure pixels'    pixels from the lower left corner of the figure
+        'figure fraction'  0, 0 is lower left of figure and 1, 1 is upper right
+        'axes points'      points from lower left corner of axes
+        'axes pixels'      pixels from lower left corner of axes
+        'axes fraction'    0, 1 is lower left of axes and 1, 1 is upper right
+        'data'             use the coordinate system of the object being
+                           annotated (default)
+        'offset points'    offset (in points) from the *xy* value
+        'polar'            you can specify *theta*, *r* for the annotation,
+                           even in cartesian plots.  Note that if you are using
+                           a polar axes, you do not need to specify polar for
+                           the coordinate system since that is the native
+                           "data" coordinate system.
+        =================  ===================================================
 
         Alternatively they can be set to any valid
         `~matplotlib.transforms.Transform`.
@@ -4381,7 +4375,7 @@ class ConnectionPatch(FancyArrowPatch):
                 y = t + y
             return x, y
         elif s == 'figure fraction':
-            # (0,0) is lower left, (1,1) is upper right of figure
+            # (0, 0) is lower left, (1, 1) is upper right of figure
             trans = self.figure.transFigure
             return trans.transform((x, y))
         elif s == 'axes points':
@@ -4400,8 +4394,7 @@ class ConnectionPatch(FancyArrowPatch):
                 y = b + y * dpi / 72.
             return x, y
         elif s == 'axes pixels':
-            #pixels from the lower left corner of the axes
-
+            # pixels from the lower left corner of the axes
             l, b, w, h = axes.bbox.bounds
             r = l + w
             t = b + h
@@ -4415,7 +4408,7 @@ class ConnectionPatch(FancyArrowPatch):
                 y = b + y
             return x, y
         elif s == 'axes fraction':
-            # (0,0) is lower left, (1,1) is upper right of axes
+            # (0, 0) is lower left, (1, 1) is upper right of axes
             trans = axes.transAxes
             return trans.transform((x, y))
         elif isinstance(s, transforms.Transform):

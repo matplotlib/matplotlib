@@ -71,7 +71,7 @@ ax.set_ylim(np.min(ys), np.max(ys))
 #          If linestyle is omitted, 'solid' is used
 # See :class:`matplotlib.collections.LineCollection` for more information
 
-# Make a sequence of x,y pairs
+# Make a sequence of (x, y) pairs.
 line_segments = LineCollection([np.column_stack([x, y]) for y in ys],
                                linewidths=(0.5, 1, 1.5, 2),
                                linestyles='solid')

@@ -22,7 +22,7 @@ as follows::
   texmanager = TexManager()
   s = ('\TeX\ is Number '
        '$\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!')
-  Z = texmanager.get_rgba(s, fontsize=12, dpi=80, rgb=(1,0,0))
+  Z = texmanager.get_rgba(s, fontsize=12, dpi=80, rgb=(1, 0, 0))
 
 To enable tex rendering of all text in your matplotlib figure, set
 :rc:`text.usetex` to True.

@@ -200,9 +200,9 @@ class UniformTriRefiner(TriRefiner):
         y = triangulation.y
 
         #    According to tri.triangulation doc:
-        #         neighbors[i,j] is the triangle that is the neighbor
-        #         to the edge from point index masked_triangles[i,j] to point
-        #         index masked_triangles[i,(j+1)%3].
+        #         neighbors[i, j] is the triangle that is the neighbor
+        #         to the edge from point index masked_triangles[i, j] to point
+        #         index masked_triangles[i, (j+1)%3].
         neighbors = triangulation.neighbors
         triangles = triangulation.triangles
         npts = np.shape(x)[0]

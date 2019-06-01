@@ -49,15 +49,15 @@ to be created (see :ref:`proxy_legend_handles` for further details).
 For full control of what is being added to the legend, it is common to pass
 the appropriate handles directly to :func:`legend`::
 
-    line_up, = plt.plot([1,2,3], label='Line 2')
-    line_down, = plt.plot([3,2,1], label='Line 1')
+    line_up, = plt.plot([1, 2, 3], label='Line 2')
+    line_down, = plt.plot([3, 2, 1], label='Line 1')
     plt.legend(handles=[line_up, line_down])
 
 In some cases, it is not possible to set the label of the handle, so it is
 possible to pass through the list of labels to :func:`legend`::
 
-    line_up, = plt.plot([1,2,3], label='Line 2')
-    line_down, = plt.plot([3,2,1], label='Line 1')
+    line_up, = plt.plot([1, 2, 3], label='Line 2')
+    line_down, = plt.plot([3, 2, 1], label='Line 1')
     plt.legend([line_up, line_down], ['Line Up', 'Line Down'])
 
 

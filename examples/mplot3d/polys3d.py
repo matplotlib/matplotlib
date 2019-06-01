@@ -28,7 +28,8 @@ def polygon_under_graph(xlist, ylist):
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
-# Make verts a list, verts[i] will be a list of (x,y) pairs defining polygon i
+# Make verts a list such that verts[i] is a list of (x, y) pairs defining
+# polygon i.
 verts = []
 
 # Set up the x sequence

@@ -729,8 +729,8 @@ class Axes(_AxesBase):
             >>> text(x, y, s, fontsize=12)
 
         The default transform specifies that text is in data coords,
-        alternatively, you can specify text in axis coords (0,0 is
-        lower-left and 1,1 is upper-right).  The example below places
+        alternatively, you can specify text in axis coords ((0, 0) is
+        lower-left and (1, 1) is upper-right).  The example below places
         text in the center of the axes::
 
             >>> text(0.5, 0.5, 'matplotlib', horizontalalignment='center',
@@ -1537,8 +1537,8 @@ class Axes(_AxesBase):
             auto legends), linewidth, antialiasing, marker face color.
             Example::
 
-            >>> plot([1,2,3], [1,2,3], 'go-', label='line 1', linewidth=2)
-            >>> plot([1,2,3], [1,4,9], 'rs',  label='line 2')
+            >>> plot([1, 2, 3], [1, 2, 3], 'go-', label='line 1', linewidth=2)
+            >>> plot([1, 2, 3], [1, 4, 9], 'rs', label='line 2')
 
             If you make multiple lines with one plot command, the kwargs
             apply to all those lines.
@@ -2222,15 +2222,15 @@ class Axes(_AxesBase):
             The tick labels of the bars.
             Default: None (Use default numeric labels.)
 
-        xerr, yerr : scalar or array-like of shape(N,) or shape(2,N), optional
+        xerr, yerr : scalar or array-like of shape(N,) or shape(2, N), optional
             If not *None*, add horizontal / vertical errorbars to the bar tips.
             The values are +/- sizes relative to the data:
 
             - scalar: symmetric +/- values for all bars
             - shape(N,): symmetric +/- values for each bar
-            - shape(2,N): Separate - and + values for each bar. First row
-                contains the lower errors, the second row contains the
-                upper errors.
+            - shape(2, N): Separate - and + values for each bar. First row
+              contains the lower errors, the second row contains the upper
+              errors.
             - *None*: No errorbar. (Default)
 
             See :doc:`/gallery/statistics/errorbar_features`
@@ -2518,15 +2518,15 @@ class Axes(_AxesBase):
             The tick labels of the bars.
             Default: None (Use default numeric labels.)
 
-        xerr, yerr : scalar or array-like of shape(N,) or shape(2,N), optional
+        xerr, yerr : scalar or array-like of shape(N,) or shape(2, N), optional
             If not ``None``, add horizontal / vertical errorbars to the
             bar tips. The values are +/- sizes relative to the data:
 
             - scalar: symmetric +/- values for all bars
             - shape(N,): symmetric +/- values for each bar
-            - shape(2,N): Separate - and + values for each bar. First row
-                contains the lower errors, the second row contains the
-                upper errors.
+            - shape(2, N): Separate - and + values for each bar. First row
+              contains the lower errors, the second row contains the upper
+              errors.
             - *None*: No errorbar. (default)
 
             See :doc:`/gallery/statistics/errorbar_features`
@@ -3085,14 +3085,14 @@ class Axes(_AxesBase):
         x, y : scalar or array-like
             The data positions.
 
-        xerr, yerr : scalar or array-like, shape(N,) or shape(2,N), optional
+        xerr, yerr : scalar or array-like, shape(N,) or shape(2, N), optional
             The errorbar sizes:
 
             - scalar: Symmetric +/- values for all data points.
             - shape(N,): Symmetric +/-values for each data point.
-            - shape(2,N): Separate - and + values for each bar. First row
-                contains the lower errors, the second row contains the
-                upper errors.
+            - shape(2, N): Separate - and + values for each bar. First row
+              contains the lower errors, the second row contains the upper
+              errors.
             - *None*: No errorbar.
 
             Note that all error arrays should have *positive* values.
@@ -3167,7 +3167,7 @@ class Axes(_AxesBase):
             command for the markers. For example, this code makes big red
             squares with thick green edges::
 
-                x,y,yerr = rand(3,10)
+                x, y, yerr = rand(3, 10)
                 errorbar(x, y, yerr, marker='s', mfc='red',
                          mec='green', ms=20, mew=4)
 
@@ -4574,7 +4574,7 @@ optional.
 
         norm : object, optional, default is *None*
             :class:`matplotlib.colors.Normalize` instance is used to
-            scale luminance data to 0,1.
+            scale luminance data to (0, 1).
 
         vmin, vmax : scalar, optional, default is *None*
             *vmin* and *vmax* are used in conjunction with *norm* to
@@ -5423,7 +5423,7 @@ optional.
         self._request_autoscale_view()
         return collection
 
-    #### plotting z(x,y): imshow, pcolor and relatives, contour
+    #### plotting z(x, y): imshow, pcolor and relatives, contour
     @_preprocess_data()
     @cbook._delete_parameter("3.1", "shape")
     @cbook._delete_parameter("3.1", "imlim")
@@ -5512,7 +5512,7 @@ optional.
             data. *vmin*, *vmax* are ignored if the *norm* parameter is used.
 
         origin : {'upper', 'lower'}, optional
-            Place the [0,0] index of the array in the upper left or lower left
+            Place the [0, 0] index of the array in the upper left or lower left
             corner of the axes. The convention 'upper' is typically used for
             matrices and images.
             If not given, :rc:`image.origin` is used, defaulting to 'upper'.
@@ -5714,13 +5714,13 @@ optional.
 
         X, Y : array_like, optional
             The coordinates of the quadrilateral corners. The quadrilateral
-            for ``C[i,j]`` has corners at::
+            for ``C[i, j]`` has corners at::
 
-                (X[i+1, j], Y[i+1, j])          (X[i+1, j+1], Y[i+1, j+1])
-                                      +--------+
-                                      | C[i,j] |
-                                      +--------+
-                    (X[i, j], Y[i, j])          (X[i, j+1], Y[i, j+1]),
+                (X[i+1, j], Y[i+1, j])           (X[i+1, j+1], Y[i+1, j+1])
+                                      +---------+
+                                      | C[i, j] |
+                                      +---------+
+                    (X[i, j], Y[i, j])           (X[i, j+1], Y[i, j+1])
 
             Note that the column index corresponds to the
             x-coordinate, and the row index corresponds to y. For
@@ -5802,7 +5802,7 @@ optional.
         **Masked arrays**
 
         *X*, *Y* and *C* may be masked arrays. If either ``C[i, j]``, or one
-        of the vertices surrounding ``C[i,j]`` (*X* or *Y* at
+        of the vertices surrounding ``C[i, j]`` (*X* or *Y* at
         ``[i, j], [i+1, j], [i, j+1], [i+1, j+1]``) is masked, nothing is
         plotted.
 
@@ -5945,13 +5945,13 @@ optional.
 
         X, Y : array_like, optional
             The coordinates of the quadrilateral corners. The quadrilateral
-            for ``C[i,j]`` has corners at::
+            for ``C[i, j]`` has corners at::
 
-                (X[i+1, j], Y[i+1, j])          (X[i+1, j+1], Y[i+1, j+1])
-                                      +--------+
-                                      | C[i,j] |
-                                      +--------+
-                    (X[i, j], Y[i, j])          (X[i, j+1], Y[i, j+1]),
+                (X[i+1, j], Y[i+1, j])           (X[i+1, j+1], Y[i+1, j+1])
+                                      +---------+
+                                      | C[i, j] |
+                                      +---------+
+                    (X[i, j], Y[i, j])           (X[i, j+1], Y[i, j+1])
 
             Note that the column index corresponds to the
             x-coordinate, and the row index corresponds to y. For
@@ -6000,7 +6000,7 @@ optional.
 
             - 'flat': A solid color is used for each quad. The color of the
               quad (i, j), (i+1, j), (i, j+1), (i+1, j+1) is given by
-              ``C[i,j]``.
+              ``C[i, j]``.
             - 'gouraud': Each quad will be Gouraud shaded: The color of the
               corners (i', j') are given by ``C[i',j']``. The color values of
               the area in between is interpolated from the corner values.
@@ -6515,7 +6515,7 @@ optional.
             The values of the histogram bins. See *density* and *weights* for a
             description of the possible semantics.  If input *x* is an array,
             then this is an array of length *nbins*. If input is a sequence of
-            arrays ``[data1, data2,..]``, then this is a list of arrays with
+            arrays ``[data1, data2, ...]``, then this is a list of arrays with
             the values of the histograms for each of the arrays in the same
             order.  The dtype of the array *n* (or of its element arrays) will
             always be float even if no weighting or normalization is used.
@@ -7668,7 +7668,7 @@ optional.
             will be plotted, even if it is identically zero.
 
         origin : {'upper', 'lower'}, optional
-            Place the [0,0] index of the array in the upper left or lower left
+            Place the [0, 0] index of the array in the upper left or lower left
             corner of the axes. The convention 'upper' is typically used for
             matrices and images.
             If not given, :rc:`image.origin` is used, defaulting to 'upper'.
@@ -8117,7 +8117,7 @@ optional.
 
     table = mtable.table
 
-    # args can by either Y or y1,y2,... and all should be replaced
+    # args can by either Y or y1, y2, ... and all should be replaced
     stackplot = _preprocess_data()(mstack.stackplot)
 
     streamplot = _preprocess_data(

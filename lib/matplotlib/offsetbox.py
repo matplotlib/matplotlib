@@ -713,7 +713,7 @@ class DrawingArea(OffsetBox):
         Parameters
         ----------
         xy : (float, float)
-            The (x,y) coordinates of the offset in display units.
+            The (x, y) coordinates of the offset in display units.
         """
         self._offset = xy
 
@@ -785,7 +785,7 @@ class DrawingArea(OffsetBox):
 class TextArea(OffsetBox):
     """
     The TextArea is contains a single Text instance. The text is
-    placed at (0,0) with baseline+left alignment. The width and height
+    placed at (0, 0) with baseline+left alignment. The width and height
     of the TextArea instance is the width and height of the its child
     text.
     """
@@ -887,7 +887,7 @@ class TextArea(OffsetBox):
         Parameters
         ----------
         xy : (float, float)
-            The (x,y) coordinates of the offset in display units.
+            The (x, y) coordinates of the offset in display units.
         """
         self._offset = xy
 
@@ -955,7 +955,7 @@ class AuxTransformBox(OffsetBox):
     transformed with the aux_transform first then will be
     offseted. The absolute coordinate of the aux_transform is meaning
     as it will be automatically adjust so that the left-lower corner
-    of the bounding box of children will be set to (0,0) before the
+    of the bounding box of children will be set to (0, 0) before the
     offset transform.
 
     It is similar to drawing area, except that the extent of the box
@@ -1005,7 +1005,7 @@ class AuxTransformBox(OffsetBox):
         Parameters
         ----------
         xy : (float, float)
-            The (x,y) coordinates of the offset in display units.
+            The (x, y) coordinates of the offset in display units.
         """
         self._offset = xy
 
@@ -1410,7 +1410,7 @@ class OffsetImage(OffsetBox):
 #         Parameters
 #         ----------
 #         xy : (float, float)
-#             The (x,y) coordinates of the offset in display units.
+#             The (x, y) coordinates of the offset in display units.
 #         """
 #         self._offset = xy
 
@@ -1559,7 +1559,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
     def contains(self, event):
         t, tinfo = self.offsetbox.contains(event)
         #if self.arrow_patch is not None:
-        #    a,ainfo=self.arrow_patch.contains(event)
+        #    a, ainfo=self.arrow_patch.contains(event)
         #    t = t or a
 
         # self.arrow_patch is currently not checked as this can be a line - JJ
