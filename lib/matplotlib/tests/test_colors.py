@@ -806,6 +806,7 @@ def test_cn():
 def test_conversions():
     # to_rgba_array("none") returns a (0, 4) array.
     assert_array_equal(mcolors.to_rgba_array("none"), np.zeros((0, 4)))
+    assert_array_equal(mcolors.to_rgba_array([]), np.zeros((0, 4)))
     # a list of grayscale levels, not a single color.
     assert_array_equal(
         mcolors.to_rgba_array([".2", ".5", ".8"]),
