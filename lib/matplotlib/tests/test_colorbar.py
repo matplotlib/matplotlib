@@ -313,19 +313,17 @@ def test_colorbar_minorticks_on_off():
 
     # test that minorticks turn off for LogNorm
     cbar.minorticks_off()
-    assert np.array_equal(cbar.ax.yaxis.get_minorticklocs(),
-                          np.array([]))
+    np.testing.assert_equal(cbar.ax.yaxis.get_minorticklocs(), [])
 
     # test that minorticks turn back on for LogNorm
     cbar.minorticks_on()
-    assert np.array_equal(cbar.ax.yaxis.get_minorticklocs(),
-                          default_minorticklocks)
+    np.testing.assert_equal(cbar.ax.yaxis.get_minorticklocs(),
+                            default_minorticklocks)
 
     # test issue #13339: minorticks for LogNorm should stay off
     cbar.minorticks_off()
     cbar.set_ticks([3, 5, 7, 9])
-    assert np.array_equal(cbar.ax.yaxis.get_minorticklocs(),
-                          np.array([]))
+    np.testing.assert_equal(cbar.ax.yaxis.get_minorticklocs(), [])
 
 
 def test_colorbar_autoticks():
@@ -444,8 +442,8 @@ def test_colorbar_renorm():
     fig, ax = plt.subplots()
     im = ax.imshow(z)
     cbar = fig.colorbar(im)
-    assert np.allclose(cbar.ax.yaxis.get_majorticklocs(),
-                       np.arange(0, 120000.1, 15000))
+    np.testing.assert_allclose(cbar.ax.yaxis.get_majorticklocs(),
+                               np.arange(0, 120000.1, 15000))
 
     cbar.set_ticks([1, 2, 3])
     assert isinstance(cbar.locator, FixedLocator)
@@ -453,14 +451,14 @@ def test_colorbar_renorm():
     norm = LogNorm(z.min(), z.max())
     im.set_norm(norm)
     assert isinstance(cbar.locator, _ColorbarLogLocator)
-    assert np.allclose(cbar.ax.yaxis.get_majorticklocs(),
-                       np.logspace(-8, 5, 14))
+    np.testing.assert_allclose(cbar.ax.yaxis.get_majorticklocs(),
+                               np.logspace(-8, 5, 14))
     # note that set_norm removes the FixedLocator...
     assert np.isclose(cbar.vmin, z.min())
     cbar.set_ticks([1, 2, 3])
     assert isinstance(cbar.locator, FixedLocator)
-    assert np.allclose(cbar.ax.yaxis.get_majorticklocs(),
-                       [1.0, 2.0, 3.0])
+    np.testing.assert_allclose(cbar.ax.yaxis.get_majorticklocs(),
+                               [1.0, 2.0, 3.0])
 
     norm = LogNorm(z.min() * 1000, z.max() * 1000)
     im.set_norm(norm)

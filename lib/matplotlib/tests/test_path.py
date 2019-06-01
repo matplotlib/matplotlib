@@ -38,17 +38,15 @@ def test_point_in_path():
     points = [(0.5, 0.5), (1.5, 0.5)]
     ret = path.contains_points(points)
     assert ret.dtype == 'bool'
-    assert np.all(ret == [True, False])
+    np.testing.assert_equal(ret, [True, False])
 
 
 def test_contains_points_negative_radius():
     path = Path.unit_circle()
 
     points = [(0.0, 0.0), (1.25, 0.0), (0.9, 0.9)]
-    expected = [True, False, False]
     result = path.contains_points(points, radius=-0.5)
-
-    assert np.all(result == expected)
+    np.testing.assert_equal(result, [True, False, False])
 
 
 def test_point_in_path_nan():
@@ -353,4 +351,4 @@ def test_full_arc(offset):
     mins = np.min(path.vertices, axis=0)
     maxs = np.max(path.vertices, axis=0)
     np.testing.assert_allclose(mins, -1)
-    assert np.allclose(maxs, 1)
+    np.testing.assert_allclose(maxs, 1)
