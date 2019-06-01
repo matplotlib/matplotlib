@@ -77,13 +77,6 @@ def test_text_urls():
     assert expected in buf
 
 
-@image_comparison(['white_space_pre.svg'])
-def test_white_space_pre():
-    plt.rcParams["svg.fonttype"] = "none"
-    fig = plt.figure()
-    fig.text(.5, .5, "a b   c")
-
-
 @image_comparison(['bold_font_output.svg'])
 def test_bold_font_output():
     fig = plt.figure()
