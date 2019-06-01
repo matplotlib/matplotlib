@@ -618,4 +618,5 @@
                                    ## On Windows use the full path since convert
                                    ## is also the name of a system tool.
 #animation.convert_args:           ## Additional arguments to pass to convert
-#animation.embed_limit : 20.0
+#animation.embed_limit : 20.0      ## Limit, in MB, of size of base64 encoded
+                                   ## animation in HTML (i.e. IPython notebook)
