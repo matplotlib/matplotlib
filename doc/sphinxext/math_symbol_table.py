@@ -93,7 +93,7 @@ symbols = [
      \hslash \vdots \blacksquare \ldots \blacktriangle \ddots \sharp
      \prime \blacktriangledown \Im \flat \backprime \Re \natural
      \circledS \P \copyright \ss \circledR \S \yen \AA \checkmark \$
-     \iiint \iint \iint \oiiint"""]
+     \iiint \iint \oiiint"""]
 ]
 
 def run(state_machine):
