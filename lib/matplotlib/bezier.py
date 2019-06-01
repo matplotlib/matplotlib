@@ -1,5 +1,5 @@
 """
-A module providing some utility functions regarding bezier path manipulation.
+A module providing some utility functions regarding Bezier path manipulation.
 """
 
 import numpy as np
@@ -18,7 +18,7 @@ def get_intersection(cx1, cy1, cos_t1, sin_t1,
                      cx2, cy2, cos_t2, sin_t2):
     """
     Return the intersection between the line through (*cx1*, *cy1*) at angle
-    *t1* and the line through (*cx2, cy2) at angle *t2*.
+    *t1* and the line through (*cx2*, *cy2*) at angle *t2*.
     """
 
     # line1 => sin_t1 * (x - cx1) - cos_t1 * (y - cy1) = 0.
@@ -49,7 +49,7 @@ def get_intersection(cx1, cy1, cos_t1, sin_t1,
 
 def get_normal_points(cx, cy, cos_t, sin_t, length):
     """
-    For a line passing through (*cx*, *cy*) and having a angle *t*, return
+    For a line passing through (*cx*, *cy*) and having an angle *t*, return
     locations of the two points located along its perpendicular line at the
     distance of *length*.
     """
@@ -79,7 +79,7 @@ def _de_casteljau1(beta, t):
 
 def split_de_casteljau(beta, t):
     """
-    Split a bezier segment defined by its control points *beta* into two
+    Split a Bezier segment defined by its control points *beta* into two
     separate segments divided at *t* and return their control points.
     """
     beta = np.asarray(beta)
@@ -99,21 +99,41 @@ def split_de_casteljau(beta, t):
 def find_bezier_t_intersecting_with_closedpath(
         bezier_point_at_t, inside_closedpath, t0=0., t1=1., tolerance=0.01):
     """
-    Find a parameter t0 and t1 of the given bezier path which
-    bounds the intersecting points with a provided closed
-    path(*inside_closedpath*). Search starts from *t0* and *t1* and it
-    uses a simple bisecting algorithm therefore one of the end point
-    must be inside the path while the other doesn't. The search stop
-    when |t0-t1| gets smaller than the given tolerance.
-    value for
+    Find the intersection of the Bezier curve with a closed path.
 
-    - bezier_point_at_t : a function which returns x, y coordinates at *t*
+    The intersection point *t* is approximated by two parameters *t0*, *t1*
+    such that *t0* <= *t* <= *t1*.
 
-    - inside_closedpath : return True if the point is inside the path
+    Search starts from *t0* and *t1* and uses a simple bisecting algorithm
+    therefore one of the end points must be inside the path while the other
+    doesn't. The search stops when the distance of the points parametrized by
+    *t0* and *t1* gets smaller than the given *tolerance*.
 
+    Parameters
+    ----------
+    bezier_point_at_t : callable
+        A function returning x, y coordinates of the Bezier at parameter *t*.
+        It must have the signature::
+
+            bezier_point_at_t(t: float) -> Tuple[float, float]
+
+    inside_closedpath : callable
+        A function returning True if a given point (x, y) is inside the
+        closed path. It must have the signature::
+
+            inside_closedpath(point: Tuple[float, float]) -> bool
+
+    t0, t1 : float
+        Start parameters for the search.
+
+    tolerance : float
+        Maximal allowed distance between the final points.
+
+    Returns
+    -------
+    t0, t1 : float
+        The Bezier path parameters.
     """
-    # inside_closedpath : function
-
     start = bezier_point_at_t(t0)
     end = bezier_point_at_t(t1)
 
@@ -147,21 +167,22 @@ def find_bezier_t_intersecting_with_closedpath(
 
 class BezierSegment:
     """
-    A simple class of a 2-dimensional bezier segment
-    """
+    A 2-dimensional Bezier segment.
 
-    # Higher order bezier lines can be supported by simplying adding
+    Parameters
+    ----------
+    control_points : array-like (N, 2)
+        A list of the (x, y) positions of control points of the Bezier line.
+        This must contain N points, where N is the order of the Bezier line.
+        1 <= N <= 3 is supported.
+    """
+    # Higher order Bezier lines can be supported by simplying adding
     # corresponding values.
     _binom_coeff = {1: np.array([1., 1.]),
                     2: np.array([1., 2., 1.]),
                     3: np.array([1., 3., 3., 1.])}
 
     def __init__(self, control_points):
-        """
-        *control_points* : location of contol points. It needs have a
-         shape of n * 2, where n is the order of the bezier line. 1<=
-         n <= 3 is supported.
-        """
         _o = len(control_points)
         self._orders = np.arange(_o)
 
@@ -171,7 +192,7 @@ class BezierSegment:
         self._py = yy * _coeff
 
     def point_at_t(self, t):
-        "evaluate a point at t"
+        """Return the point (x, y) at parameter *t*."""
         tt = ((1 - t) ** self._orders)[::-1] * t ** self._orders
         _x = np.dot(tt, self._px)
         _y = np.dot(tt, self._py)
@@ -182,9 +203,23 @@ class BezierSegment:
 def split_bezier_intersecting_with_closedpath(
         bezier, inside_closedpath, tolerance=0.01):
     """
-    bezier : control points of the bezier segment
-    inside_closedpath : a function which returns true if the point is inside
-                        the path
+    Split a Bezier curve into two at the intersection with a closed path.
+
+    Parameters
+    ----------
+    bezier : array-like(N, 2)
+        Control points of the Bezier segment. See `.BezierSegment`.
+    inside_closedpath : callable
+        A function returning True if a given point (x, y) is inside the
+        closed path. See also `.find_bezier_t_intersecting_with_closedpath`.
+    tolerance : float
+        The tolerance for the intersection. See also
+        `.find_bezier_t_intersecting_with_closedpath`.
+
+    Returns
+    -------
+    left, right
+        Lists of control points for the two Bezier segments.
     """
 
     bz = BezierSegment(bezier)
@@ -205,12 +240,18 @@ def find_r_to_boundary_of_closedpath(
     Find a radius r (centered at *xy*) between *rmin* and *rmax* at
     which it intersect with the path.
 
-    inside_closedpath : function
-    cx, cy : center
-    cos_t, sin_t : cosine and sine for the angle
-    rmin, rmax :
+    Parameters
+    ----------
+    inside_closedpath : callable
+        A function returning True if a given point (x, y) is inside the
+        closed path.
+    xy : float, float
+        The center of the radius.
+    cos_t, sin_t : float
+        Cosine and sine for the angle.
+    rmin, rmax : float
+        Starting parameters for the radius search.
     """
-
     cx, cy = xy
 
     def _f(r):
@@ -228,7 +269,6 @@ def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
     Divide a path into two segments at the point where ``inside(x, y)`` becomes
     False.
     """
-
     path_iter = path.iter_segments()
 
     ctl_points, command = next(path_iter)
@@ -287,6 +327,14 @@ def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
 
 
 def inside_circle(cx, cy, r):
+    """
+    Return a function that checks whether a point is in a circle with center
+    (*cx*, *cy*) and radius *r*.
+
+    The returned function has the signature::
+
+        f(xy: Tuple[float, float]) -> bool
+    """
     r2 = r ** 2
 
     def _f(xy):
@@ -295,7 +343,7 @@ def inside_circle(cx, cy, r):
     return _f
 
 
-# quadratic bezier lines
+# quadratic Bezier lines
 
 def get_cos_sin(x0, y0, x1, y1):
     dx, dy = x1 - x0, y1 - y0
@@ -309,8 +357,22 @@ def get_cos_sin(x0, y0, x1, y1):
 @cbook._rename_parameter("3.1", "tolerence", "tolerance")
 def check_if_parallel(dx1, dy1, dx2, dy2, tolerance=1.e-5):
     """
-    Return 1 if two lines are parallel in same direction, -1 if two lines are
-    parallel in opposite direction, 0 otherwise.
+    Check if two lines are parallel.
+
+    Parameters
+    ----------
+    dx1, dy1, dx2, dy2 : float
+        The gradients *dy*/*dx* of the two lines.
+    tolerance : float
+        The angular tolerance in radians up to which the lines are considered
+        parallel.
+
+    Returns
+    -------
+    is_parallel
+        - 1 if two lines are parallel in same direction.
+        - -1 if two lines are parallel in opposite direction.
+        - False otherwise.
     """
     theta1 = np.arctan2(dx1, dy1)
     theta2 = np.arctan2(dx2, dy2)
@@ -325,14 +387,14 @@ def check_if_parallel(dx1, dy1, dx2, dy2, tolerance=1.e-5):
 
 def get_parallels(bezier2, width):
     """
-    Given the quadratic bezier control points *bezier2*, returns
-    control points of quadratic bezier lines roughly parallel to given
+    Given the quadratic Bezier control points *bezier2*, returns
+    control points of quadratic Bezier lines roughly parallel to given
     one separated by *width*.
     """
 
-    # The parallel bezier lines are constructed by following ways.
+    # The parallel Bezier lines are constructed by following ways.
     #  c1 and c2 are control points representing the begin and end of the
-    #  bezier line.
+    #  Bezier line.
     #  cm is the middle point
 
     c1x, c1y = bezier2[0]
@@ -355,7 +417,7 @@ def get_parallels(bezier2, width):
 
     # find c1_left, c1_right which are located along the lines
     # through c1 and perpendicular to the tangential lines of the
-    # bezier path at a distance of width. Same thing for c2_left and
+    # Bezier path at a distance of width. Same thing for c2_left and
     # c2_right with respect to c2.
     c1x_left, c1y_left, c1x_right, c1y_right = (
         get_normal_points(c1x, c1y, cos_t1, sin_t1, width)
@@ -385,7 +447,7 @@ def get_parallels(bezier2, width):
                                                 sin_t1, c2x_right, c2y_right,
                                                 cos_t2, sin_t2)
 
-    # the parallel bezier lines are created with control points of
+    # the parallel Bezier lines are created with control points of
     # [c1_left, cm_left, c2_left] and [c1_right, cm_right, c2_right]
     path_left = [(c1x_left, c1y_left),
                  (cmx_left, cmy_left),
@@ -410,7 +472,7 @@ def find_control_points(c1x, c1y, mmx, mmy, c2x, c2y):
 def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     """
     Being similar to get_parallels, returns control points of two quadratic
-    bezier lines having a width roughly parallel to given one separated by
+    Bezier lines having a width roughly parallel to given one separated by
     *width*.
     """
 
@@ -426,7 +488,7 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
 
     # find c1_left, c1_right which are located along the lines
     # through c1 and perpendicular to the tangential lines of the
-    # bezier path at a distance of width. Same thing for c3_left and
+    # Bezier path at a distance of width. Same thing for c3_left and
     # c3_right with respect to c3.
     c1x_left, c1y_left, c1x_right, c1y_right = (
         get_normal_points(c1x, c1y, cos_t1, sin_t1, width * w1)
