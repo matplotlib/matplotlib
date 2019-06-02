@@ -12,7 +12,6 @@ import itertools
 import logging
 import math
 import os
-import pathlib
 import re
 import struct
 import time
