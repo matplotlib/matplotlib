@@ -51,6 +51,27 @@ def test_quiver_number_of_args():
         plt.quiver(X, X, X, X, X, X)
 
 
+def test_quiver_arg_sizes():
+    X2 = [1, 2]
+    X3 = [1, 2, 3]
+    with pytest.raises(ValueError,
+            match=('X and Y must be the same size, but '
+                   'X.size is 2 and Y.size is 3.')):
+        plt.quiver(X2, X3, X2, X2)
+    with pytest.raises(ValueError,
+            match=('Argument U has a size 3 which does not match 2,'
+                   ' the number of arrow positions')):
+        plt.quiver(X2, X2, X3, X2)
+    with pytest.raises(ValueError,
+            match=('Argument V has a size 3 which does not match 2,'
+                   ' the number of arrow positions')):
+        plt.quiver(X2, X2, X2, X3)
+    with pytest.raises(ValueError,
+            match=('Argument C has a size 3 which does not match 2,'
+                   ' the number of arrow positions')):
+        plt.quiver(X2, X2, X2, X2, X3)
+
+
 def test_no_warnings():
     fig, ax = plt.subplots()
 
