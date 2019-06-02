@@ -8,6 +8,7 @@ import collections
 from datetime import datetime
 from functools import total_ordering
 from io import BytesIO
+import itertools
 import logging
 import math
 import os
@@ -424,7 +425,7 @@ class PdfFile:
     """PDF file object."""
 
     def __init__(self, filename, metadata=None):
-        self.nextObject = 1     # next free object id
+        self.objectId = itertools.count(1)  # consumed by reserveObject
         self.xrefTable = [[0, 65535, 'the zero object']]
         self.passed_in_file_object = False
         self.original_file_like = None
@@ -482,21 +483,21 @@ class PdfFile:
                          if v is not None}
 
         self.fontNames = {}     # maps filenames to internal font names
-        self.nextFont = 1       # next free internal font name
+        self.internalFontName = (Name(f'F{i}') for i in itertools.count(1))
         self.dviFontInfo = {}   # maps dvi font names to embedding information
         # differently encoded Type-1 fonts may share the same descriptor
         self.type1Descriptors = {}
         self.used_characters = {}
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
-        self.nextAlphaState = 1
+        self.alphaStateName = (Name(f'A{i}') for i in itertools.count(1))
         # reproducible writeHatches needs an ordered dict:
         self.hatchPatterns = collections.OrderedDict()
-        self.nextHatch = 1
+        self.hatchPatternName = (Name(f'H{i}') for i in itertools.count(1))
         self.gouraudTriangles = []
 
         self._images = collections.OrderedDict()   # reproducible writeImages
-        self.nextImage = 1
+        self.imageName = (Name(f'I{i}') for i in itertools.count(1))
 
         self.markers = collections.OrderedDict()   # reproducible writeMarkers
         self.multi_byte_charprocs = {}
@@ -643,9 +644,8 @@ class PdfFile:
 
         Fx = self.fontNames.get(filename)
         if Fx is None:
-            Fx = Name('F%d' % self.nextFont)
+            Fx = next(self.internalFontName)
             self.fontNames[filename] = Fx
-            self.nextFont += 1
             _log.debug('Assigning font %s = %r', Fx, filename)
 
         return Fx
@@ -669,8 +669,7 @@ class PdfFile:
                 "the font may lack a Type-1 version"
                 .format(psfont.psname, dvifont.texname))
 
-        pdfname = Name('F%d' % self.nextFont)
-        self.nextFont += 1
+        pdfname = next(self.internalFontName)
         _log.debug('Assigning font %s = %s (dvi)', pdfname, dvifont.texname)
         self.dviFontInfo[dvifont.texname] = types.SimpleNamespace(
             dvifont=dvifont,
@@ -1186,8 +1185,7 @@ end"""
         if state is not None:
             return state[0]
 
-        name = Name('A%d' % self.nextAlphaState)
-        self.nextAlphaState += 1
+        name = next(self.alphaStateName)
         self.alphaStates[alpha] = \
             (name, {'Type': Name('ExtGState'),
                     'CA': alpha[0], 'ca': alpha[1]})
@@ -1207,8 +1205,7 @@ end"""
         if pattern is not None:
             return pattern
 
-        name = Name('H%d' % self.nextHatch)
-        self.nextHatch += 1
+        name = next(self.hatchPatternName)
         self.hatchPatterns[hatch_style] = name
         return name
 
@@ -1300,9 +1297,8 @@ end"""
         if entry is not None:
             return entry[1]
 
-        name = Name('I%d' % self.nextImage)
-        ob = self.reserveObject('image %d' % self.nextImage)
-        self.nextImage += 1
+        name = next(self.imageName)
+        ob = self.reserveObject(f'image {name}')
         self._images[id(image)] = (image, name, ob)
         return name
 
@@ -1495,8 +1491,7 @@ end"""
         the object with writeObject.
         """
 
-        id = self.nextObject
-        self.nextObject += 1
+        id = next(self.objectId)
         self.xrefTable.append([None, 0, name])
         return Reference(id)
 
@@ -1510,7 +1505,7 @@ end"""
     def writeXref(self):
         """Write out the xref table."""
         self.startxref = self.fh.tell() - self.tell_base
-        self.write(b"xref\n0 %d\n" % self.nextObject)
+        self.write(b"xref\n0 %d\n" % len(self.xrefTable))
         for i, (offset, generation, name) in enumerate(self.xrefTable):
             if offset is None:
                 raise AssertionError(
@@ -1557,7 +1552,7 @@ end"""
 
         self.write(b"trailer\n")
         self.write(pdfRepr(
-            {'Size': self.nextObject,
+            {'Size': len(self.xrefTable),
              'Root': self.rootObject,
              'Info': self.infoObject}))
         # Could add 'ID'
