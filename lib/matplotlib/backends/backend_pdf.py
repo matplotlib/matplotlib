@@ -348,11 +348,22 @@ class Stream:
     __slots__ = ('id', 'len', 'pdfFile', 'file', 'compressobj', 'extra', 'pos')
 
     def __init__(self, id, len, file, extra=None, png=None):
-        """id: object id of stream; len: an unused Reference object for the
-        length of the stream, or None (to use a memory buffer); file:
-        a PdfFile; extra: a dictionary of extra key-value pairs to
-        include in the stream header; png: if the data is already
-        png compressed, the decode parameters"""
+        """
+        Parameters
+        ----------
+
+        id : int
+            object id of the stream
+        len : Reference or None
+            an unused Reference object for the length of the stream;
+            None means to use a memory buffer so the length can be inlined
+        file : PdfFile
+            the underlying object to write the stream to
+        extra : dict from Name to anything, or None
+            extra key-value pairs to include in the stream header
+        png : dict or None
+            if the data is already png encoded, the decode parameters
+        """
         self.id = id            # object id
         self.len = len          # id of length object
         self.pdfFile = file
@@ -424,6 +435,24 @@ class PdfFile:
     """PDF file object."""
 
     def __init__(self, filename, metadata=None):
+        """
+        Parameters
+        ----------
+
+        filename : file-like object or string
+            output target; if a string, a file will be opened for writing
+        metadata : dict from strings to strings and dates
+            Information dictionary object (see PDF reference section 10.2.1
+            'Document Information Dictionary'), e.g.:
+            `{'Creator': 'My software', 'Author': 'Me',
+            'Title': 'Awesome fig'}`
+
+            The standard keys are `'Title'`, `'Author'`, `'Subject'`,
+            `'Keywords'`, `'Creator'`, `'Producer'`, `'CreationDate'`,
+            `'ModDate'`, and `'Trapped'`. Values have been predefined
+            for `'Creator'`, `'Producer'` and `'CreationDate'`. They
+            can be removed by setting them to `None`.
+        """
         self.objectId = itertools.count(1)  # consumed by reserveObject
         self.xrefTable = [[0, 65535, 'the zero object']]
         self.passed_in_file_object = False
@@ -2309,13 +2338,6 @@ class GraphicsContextPdf(GraphicsContextBase):
         while self.parent is not None:
             cmds.extend(self.pop())
         return cmds
-
-########################################################################
-#
-# The following functions and classes are for pylab and implement
-# window/figure managers, etc...
-#
-########################################################################
 
 
 class PdfPages:
