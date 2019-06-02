@@ -1,9 +1,5 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-// this code is heavily adapted from the paint license, which is in
-// the file LICENSE_PAINT (BSD compatible) included in this
-// distribution.
-
 /* For linux, png.h must be imported before Python.h because
    png.h needs to be the one to define setjmp.
    Undefining _POSIX_C_SOURCE and _XOPEN_SOURCE stops a couple
@@ -139,6 +135,9 @@ const char *Py_write_png__doc__ =
     "    Byte string containing the PNG content if None was passed in for\n"
     "    file, otherwise None is returned.\n";
 
+// this code is heavily adapted from the paint license, which is in
+// the file LICENSE_PAINT (BSD compatible) included in this
+// distribution.
 static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 {
     numpy::array_view<unsigned char, 3> buffer;
