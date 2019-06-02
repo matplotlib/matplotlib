@@ -90,7 +90,7 @@ _log = logging.getLogger(__name__)
 # * encoding of fonts, including mathtext fonts and unicode support
 # * TTF support has lots of small TODOs, e.g., how do you know if a font
 #   is serif/sans-serif, or symbolic/non-symbolic?
-# * draw_markers, draw_line_collection, etc.
+# * draw_quad_mesh
 
 
 def fill(strings, linelen=75):
