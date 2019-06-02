@@ -314,7 +314,7 @@ def _get_executable_info(name):
         If the executable is not one that we know how to query.
     """
 
-    def impl(args, regex, min_ver=None, ignore_error=False):
+    def impl(args, regex, min_ver=None, ignore_exit_code=False):
         # Execute the subprocess specified by args; capture stdout and stderr.
         # Search for a regex match in the output; if the match succeeds, the
         # first group of the match is the version.
@@ -324,7 +324,7 @@ def _get_executable_info(name):
             output = subprocess.check_output(
                 args, stderr=subprocess.STDOUT, universal_newlines=True)
         except subprocess.CalledProcessError as _cpe:
-            if ignore_error:
+            if ignore_exit_code:
                 output = _cpe.output
             else:
                 raise _cpe
@@ -385,7 +385,7 @@ def _get_executable_info(name):
         return impl([path, "--version"], r"^Version: ImageMagick (\S*)")
     elif name == "pdftops":
         info = impl(["pdftops", "-v"], "^pdftops version (.*)",
-                    ignore_error=True)
+                    ignore_exit_code=True)
         if info and not ("3.0" <= info.version
                          # poppler version numbers.
                          or "0.9" <= info.version <= "1.0"):
