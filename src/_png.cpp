@@ -1,8 +1,8 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
 // this code is heavily adapted from the paint license, which is in
-// the file paint.license (BSD compatible) included in this
-// distribution.  TODO, add license file to MANIFEST.in and CVS
+// the file LICENSE_PAINT (BSD compatible) included in this
+// distribution.
 
 /* For linux, png.h must be imported before Python.h because
    png.h needs to be the one to define setjmp.
