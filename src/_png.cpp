@@ -135,9 +135,9 @@ const char *Py_write_png__doc__ =
     "    Byte string containing the PNG content if None was passed in for\n"
     "    file, otherwise None is returned.\n";
 
-// this code is heavily adapted from the paint license, which is in
-// the file LICENSE_PAINT (BSD compatible) included in this
-// distribution.
+// this code is heavily adapted from
+// https://www.object-craft.com.au/projects/paint/ which licensed under the
+// (BSD compatible) LICENSE_PAINT which is included in this distribution.
 static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 {
     numpy::array_view<unsigned char, 3> buffer;
