@@ -110,10 +110,10 @@ class Cell(Rectangle):
 
         Parameters
         ----------
-        renderer:  renderer object
-        grow:      flag indicating whether code should try
-                   increasing the font size or just shrink
-                   until it fits.
+        renderer : Renderer
+        grow : bool
+            Whether the font size should also be increased if there is space
+            available.
         """
 
         fontsize = self.get_fontsize()
