@@ -39,7 +39,7 @@ def onselect(xmin, xmax):
     fig.canvas.draw()
 
 #############################################################################
-# .. note
+# .. note::
 #
 #    If the SpanSelector object is garbage collected you will lose the
 #    interactivity.  You must keep a hard reference to it to prevent this.
