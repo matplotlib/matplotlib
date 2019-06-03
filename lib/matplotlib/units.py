@@ -64,6 +64,8 @@ def _is_natively_supported(x):
     if np.iterable(x):
         # Assume lists are homogeneous as other functions in unit system.
         for thisx in x:
+            if thisx is ma.masked:
+                continue
             return isinstance(thisx, Number) and not isinstance(thisx, Decimal)
     else:
         return isinstance(x, Number) and not isinstance(x, Decimal)
@@ -144,6 +146,8 @@ class ConversionInterface:
         """
         if np.iterable(x):
             for thisx in x:
+                if thisx is ma.masked:
+                    continue
                 return isinstance(thisx, Number)
         else:
             return isinstance(x, Number)
