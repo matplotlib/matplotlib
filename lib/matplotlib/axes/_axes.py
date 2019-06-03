@@ -6395,6 +6395,9 @@ optional.
             ret.set_clim(vmin, vmax)
         else:
             ret.autoscale_None()
+        if ret.get_clip_path() is None:
+            # image does not already have clipping set, clip to axes patch
+            ret.set_clip_path(self.patch)
 
         ret.sticky_edges.x[:] = [xl, xr]
         ret.sticky_edges.y[:] = [yb, yt]
