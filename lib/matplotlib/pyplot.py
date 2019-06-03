@@ -1056,12 +1056,10 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         Controls sharing of properties among x (`sharex`) or y (`sharey`)
         axes:
 
-            - True or 'all': x- or y-axis will be shared among all
-              subplots.
-            - False or 'none': each subplot x- or y-axis will be
-              independent.
-            - 'row': each subplot row will share an x- or y-axis.
-            - 'col': each subplot column will share an x- or y-axis.
+        - True or 'all': x- or y-axis will be shared among all subplots.
+        - False or 'none': each subplot x- or y-axis will be independent.
+        - 'row': each subplot row will share an x- or y-axis.
+        - 'col': each subplot column will share an x- or y-axis.
 
         When subplots have a shared x-axis along a column, only the x tick
         labels of the bottom subplot are created. Similarly, when subplots
@@ -1073,11 +1071,11 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         - If True, extra dimensions are squeezed out from the returned
           array of `~matplotlib.axes.Axes`:
 
-            - if only one subplot is constructed (nrows=ncols=1), the
-              resulting single Axes object is returned as a scalar.
-            - for Nx1 or 1xM subplots, the returned object is a 1D numpy
-              object array of Axes objects.
-            - for NxM, subplots with N>1 and M>1 are returned as a 2D array.
+          - if only one subplot is constructed (nrows=ncols=1), the
+            resulting single Axes object is returned as a scalar.
+          - for Nx1 or 1xM subplots, the returned object is a 1D numpy
+            object array of Axes objects.
+          - for NxM, subplots with N>1 and M>1 are returned as a 2D array.
 
         - If False, no squeezing at all is done: the returned Axes object is
           always a 2D array containing Axes instances, even if it ends up
@@ -1133,18 +1131,18 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         x = np.linspace(0, 2*np.pi, 400)
         y = np.sin(x**2)
 
-        # Creates just a figure and only one subplot
+        # Create just a figure and only one subplot
         fig, ax = plt.subplots()
         ax.plot(x, y)
         ax.set_title('Simple plot')
 
-        # Creates two subplots and unpacks the output array immediately
+        # Create two subplots and unpack the output array immediately
         f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
         ax1.plot(x, y)
         ax1.set_title('Sharing Y axis')
         ax2.scatter(x, y)
 
-        # Creates four polar axes, and accesses them through the returned array
+        # Create four polar axes and access them through the returned array
         fig, axs = plt.subplots(2, 2, subplot_kw=dict(polar=True))
         axs[0, 0].plot(x, y)
         axs[1, 1].scatter(x, y)
@@ -1161,7 +1159,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         # Note that this is the same as
         plt.subplots(2, 2, sharex=True, sharey=True)
 
-        # Creates figure number 10 with a single subplot
+        # Create figure number 10 with a single subplot
         # and clears it if it already exists.
         fig, ax = plt.subplots(num=10, clear=True)
 
