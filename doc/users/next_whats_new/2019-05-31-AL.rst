@@ -1,0 +1,4 @@
+The *fname* argument to `FontProperties` can now be an `os.PathLike`\s
+``````````````````````````````````````````````````````````````````````
+
+e.g. ``FontProperties(fname=pathlib.Path("/path/to/font.ttf"))``.
