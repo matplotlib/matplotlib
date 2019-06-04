@@ -281,7 +281,7 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
         fraction of the font size.
     h_pad, w_pad : float
         Padding (height/width) between edges of adjacent subplots.  Defaults to
-        *pad_inches*.
+        *pad*.
     rect : Tuple[float, float, float, float], optional
         (left, bottom, right, top) rectangle in normalized figure coordinates
         that the whole subplots area (including labels) will fit into.
