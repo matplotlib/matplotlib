@@ -1,15 +1,15 @@
 """
-=================================
-Interpolations for imshow/matshow
-=================================
+=========================
+Interpolations for imshow
+=========================
 
 This example displays the difference between interpolation methods for
-:meth:`~.axes.Axes.imshow` and :meth:`~.axes.Axes.matshow`.
+:meth:`~.axes.Axes.imshow`.
 
-If `interpolation` is None, it defaults to the ``image.interpolation``
-:doc:`rc parameter </tutorials/introductory/customizing>`.
-If the interpolation is ``'none'``, then no interpolation is performed
-for the Agg, ps and pdf backends. Other backends will default to ``'nearest'``.
+If `interpolation` is None, it defaults to the :rc:`image.interpolation`
+(default: ``'nearest'``). If the interpolation is ``'none'``, then no
+interpolation is performed for the Agg, ps and pdf backends. Other backends
+will default to ``'nearest'``.
 
 For the Agg, ps and pdf backends, ``interpolation = 'none'`` works well when a
 big image is scaled down, while ``interpolation = 'nearest'`` works well when
