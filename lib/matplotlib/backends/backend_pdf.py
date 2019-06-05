@@ -481,7 +481,7 @@ class PdfFile:
         self.pagesObject = self.reserveObject('pages')
         self.pageList = []
         self.fontObject = self.reserveObject('fonts')
-        self.extGStateObject = self.reserveObject('extended graphics states')
+        self._extGStateObject = self.reserveObject('extended graphics states')
         self.hatchObject = self.reserveObject('tiling patterns')
         self.gouraudObject = self.reserveObject('Gouraud triangles')
         self.XObjectObject = self.reserveObject('external objects')
@@ -546,7 +546,7 @@ class PdfFile:
         #                ColorSpace Pattern Shading Properties
         resources = {'Font': self.fontObject,
                      'XObject': self.XObjectObject,
-                     'ExtGState': self.extGStateObject,
+                     'ExtGState': self._extGStateObject,
                      'Pattern': self.hatchObject,
                      'Shading': self.gouraudObject,
                      'ProcSet': procsets}
@@ -1274,7 +1274,7 @@ end"""
 
     def writeExtGSTates(self):
         self.writeObject(
-            self.extGStateObject,
+            self._extGStateObject,
             dict(itertools.chain(
                 self.alphaStates.values(),
                 self._soft_mask_states.values()
