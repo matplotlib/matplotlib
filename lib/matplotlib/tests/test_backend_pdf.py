@@ -10,12 +10,7 @@ import pytest
 from matplotlib import dviread, pyplot as plt, checkdep_usetex, rcParams
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.testing.compare import compare_images
-from matplotlib.testing.decorators import image_comparison
-
-
-needs_usetex = pytest.mark.skipif(
-    not checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+from matplotlib.testing.decorators import image_comparison, needs_usetex
 
 
 @image_comparison(['pdf_use14corefonts.pdf'])

@@ -41,3 +41,11 @@ Flags containing "U" passed to `.cbook.to_filehandle` and `.cbook.open_file_cm`
 Please remove "U" from flags passed to `.cbook.to_filehandle` and
 `.cbook.open_file_cm`.  This is consistent with their removal from `open` in
 Python 3.9.
+
+``matplotlib.checkdep_usetex``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``matplotlib.checkdep_usetex`` is deprecated (it checks for the presence of
+tex, dvipng, and ghostscript, even though ghostscript is not needed for raster
+output and dvipng is not needed for vector output).  The
+``matplotlib.testing.decorators.needs_usetex`` is a partial replacement to
+decorate tests that depend on usetex mode.

@@ -459,3 +459,28 @@ def switch_backend(backend):
         return backend_switcher
 
     return switch_backend_decorator
+
+
+def needs_usetex(func):
+    """
+    Decorate *func* with `unittest.skipIf` to skip the test if usetex
+    dependencies are missing.
+    """
+    has_tex = shutil.which("tex")
+    try:
+        mpl._get_executable_info("dvipng")
+    except FileNotFoundError:
+        has_dvipng = False
+    else:
+        has_dvipng = True
+    try:
+        mpl._get_executable_info("gs")
+    except FileNotFoundError:
+        has_gs = False
+    else:
+        has_gs = True
+    return (
+        unittest.skipIf(not has_tex, "usetex requires TeX.")(
+            unittest.skipIf(not has_dvipng, "usetex requires dvipng.")(
+                unittest.skipIf(not has_gs, "usetex requires ghostscript.")(
+                    func))))

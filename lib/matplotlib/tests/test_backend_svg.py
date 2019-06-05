@@ -10,12 +10,7 @@ import matplotlib as mpl
 from matplotlib import dviread
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
-
-
-needs_usetex = pytest.mark.skipif(
-    not mpl.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+from matplotlib.testing.decorators import image_comparison, needs_usetex
 
 
 def test_visibility():

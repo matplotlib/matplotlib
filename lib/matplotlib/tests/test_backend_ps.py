@@ -7,15 +7,12 @@ import pytest
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import cbook, patheffects
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, needs_usetex
 
 
 needs_ghostscript = pytest.mark.skipif(
     "eps" not in mpl.testing.compare.converter,
     reason="This test needs a ghostscript installation")
-needs_usetex = pytest.mark.skipif(
-    not mpl.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
 
 
 # This tests tends to hit a TeX cache lock on AppVeyor.
@@ -26,11 +23,11 @@ needs_usetex = pytest.mark.skipif(
     pytest.param('ps', False, {'ps.usedistiller': 'ghostscript'},
                  marks=needs_ghostscript),
     pytest.param('ps', False, {'text.usetex': True},
-                 marks=[needs_ghostscript, needs_usetex]),
+                 marks=needs_usetex),
     ('eps', False, {}),
     ('eps', True, {'ps.useafm': True}),
     pytest.param('eps', False, {'text.usetex': True},
-                 marks=[needs_ghostscript, needs_usetex]),
+                 marks=needs_usetex),
 ], ids=[
     'ps',
     'ps with distiller',
@@ -75,7 +72,6 @@ def test_patheffects():
 
 
 @needs_usetex
-@needs_ghostscript
 def test_tilde_in_tempfilename(tmpdir):
     # Tilde ~ in the tempdir path (e.g. TMPDIR, TMP or TEMP on windows
     # when the username is very long and windows uses a short name) breaks

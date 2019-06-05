@@ -2,17 +2,12 @@ import pytest
 import platform
 
 import matplotlib as mpl
-from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.testing.decorators import (
+    check_figures_equal, image_comparison, needs_usetex)
 import matplotlib.pyplot as plt
 
 
-@pytest.fixture(autouse=True)  # All tests in this module use usetex.
-def usetex():
-    if not mpl.checkdep_usetex(True):
-        pytest.skip('Missing TeX of Ghostscript or dvipng')
-    mpl.rcParams['text.usetex'] = True
-
-
+@needs_usetex
 @image_comparison(baseline_images=['test_usetex'],
                   extensions=['pdf', 'png'],
                   tol={'aarch64': 2.868}.get(platform.machine(), 0.3))
@@ -25,12 +20,13 @@ def test_usetex():
             # \sqrt and \frac draw horizontal rules, \mathrm changes the font
             r'\LaTeX\ $\left[\int\limits_e^{2e}'
             r'\sqrt\frac{\log^3 x}{x}\,\mathrm{d}x \right\}$',
-            fontsize=24)
+            usetex=True, fontsize=24)
     ax.set_xticks([])
     ax.set_yticks([])
 
 
+@needs_usetex
 @check_figures_equal()
 def test_unicode_minus(fig_test, fig_ref):
-    fig_test.text(.5, .5, "$-$")
-    fig_ref.text(.5, .5, "\N{MINUS SIGN}")
+    fig_test.text(.5, .5, "$-$", usetex=True)
+    fig_ref.text(.5, .5, "\N{MINUS SIGN}", usetex=True)

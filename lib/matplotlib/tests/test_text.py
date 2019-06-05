@@ -9,12 +9,7 @@ import matplotlib
 from matplotlib.backend_bases import MouseEvent
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import check_figures_equal, image_comparison
-
-
-needs_usetex = pytest.mark.skipif(
-    not matplotlib.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+from matplotlib.testing.decorators import image_comparison, needs_usetex
 
 
 @image_comparison(['font_styles'])

@@ -504,6 +504,8 @@ def checkdep_ps_distiller(s):
     return s
 
 
+@cbook.deprecated(
+    "3.3", alternative="matplotlib.testing.decorators.needs_usetex")
 def checkdep_usetex(s):
     if not s:
         return False
