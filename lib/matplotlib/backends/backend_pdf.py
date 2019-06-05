@@ -1275,10 +1275,10 @@ end"""
     def writeExtGSTates(self):
         self.writeObject(
             self._extGStateObject,
-            dict(itertools.chain(
-                self.alphaStates.values(),
-                self._soft_mask_states.values()
-            ))
+            dict([
+                *self.alphaStates.values(),
+                *self._soft_mask_states.values()
+            ])
         )
 
     def _write_soft_mask_groups(self):
