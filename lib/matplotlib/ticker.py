@@ -2634,8 +2634,7 @@ class AutoMinorLocator(Locator):
 
         If *n* is omitted or None, it will be set to 5 or 4.
         """
-        #print(self.ndivs)
-        if n == None:
+        if n is None:
             self.ndivs = None
         elif n == 'auto':
             self.ndivs = 'auto'
@@ -2649,7 +2648,7 @@ class AutoMinorLocator(Locator):
                 self.ndivs = rcParams['xtick.minor.ndivs']
             elif self.axis.__name__ == 'yaxis':
                 self.ndivs = rcParams['ytick.minor.ndivs']
-        
+
         if self.axis.get_scale() == 'log':
             cbook._warn_external('AutoMinorLocator does not work with '
                                  'logarithmic scale')
