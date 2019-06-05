@@ -453,7 +453,7 @@ class PdfFile:
             for `'Creator'`, `'Producer'` and `'CreationDate'`. They
             can be removed by setting them to `None`.
         """
-        self.objectId = itertools.count(1)  # consumed by reserveObject
+        self._object_seq = itertools.count(1)  # consumed by reserveObject
         self.xrefTable = [[0, 65535, 'the zero object']]
         self.passed_in_file_object = False
         self.original_file_like = None
@@ -511,21 +511,21 @@ class PdfFile:
                          if v is not None}
 
         self.fontNames = {}     # maps filenames to internal font names
-        self.internalFontName = (Name(f'F{i}') for i in itertools.count(1))
+        self._internal_font_seq = (Name(f'F{i}') for i in itertools.count(1))
         self.dviFontInfo = {}   # maps dvi font names to embedding information
         # differently encoded Type-1 fonts may share the same descriptor
         self.type1Descriptors = {}
         self.used_characters = {}
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
-        self.alphaStateName = (Name(f'A{i}') for i in itertools.count(1))
+        self._alpha_state_seq = (Name(f'A{i}') for i in itertools.count(1))
         # reproducible writeHatches needs an ordered dict:
         self.hatchPatterns = collections.OrderedDict()
-        self.hatchPatternName = (Name(f'H{i}') for i in itertools.count(1))
+        self._hatch_pattern_seq = (Name(f'H{i}') for i in itertools.count(1))
         self.gouraudTriangles = []
 
         self._images = collections.OrderedDict()   # reproducible writeImages
-        self.imageName = (Name(f'I{i}') for i in itertools.count(1))
+        self._image_seq = (Name(f'I{i}') for i in itertools.count(1))
 
         self.markers = collections.OrderedDict()   # reproducible writeMarkers
         self.multi_byte_charprocs = {}
@@ -672,7 +672,7 @@ class PdfFile:
 
         Fx = self.fontNames.get(filename)
         if Fx is None:
-            Fx = next(self.internalFontName)
+            Fx = next(self._internal_font_seq)
             self.fontNames[filename] = Fx
             _log.debug('Assigning font %s = %r', Fx, filename)
 
@@ -697,7 +697,7 @@ class PdfFile:
                 "the font may lack a Type-1 version"
                 .format(psfont.psname, dvifont.texname))
 
-        pdfname = next(self.internalFontName)
+        pdfname = next(self._internal_font_seq)
         _log.debug('Assigning font %s = %s (dvi)', pdfname, dvifont.texname)
         self.dviFontInfo[dvifont.texname] = types.SimpleNamespace(
             dvifont=dvifont,
@@ -1213,7 +1213,7 @@ end"""
         if state is not None:
             return state[0]
 
-        name = next(self.alphaStateName)
+        name = next(self._alpha_state_seq)
         self.alphaStates[alpha] = \
             (name, {'Type': Name('ExtGState'),
                     'CA': alpha[0], 'ca': alpha[1]})
@@ -1233,7 +1233,7 @@ end"""
         if pattern is not None:
             return pattern
 
-        name = next(self.hatchPatternName)
+        name = next(self._hatch_pattern_seq)
         self.hatchPatterns[hatch_style] = name
         return name
 
@@ -1325,7 +1325,7 @@ end"""
         if entry is not None:
             return entry[1]
 
-        name = next(self.imageName)
+        name = next(self._image_seq)
         ob = self.reserveObject(f'image {name}')
         self._images[id(image)] = (image, name, ob)
         return name
@@ -1519,7 +1519,7 @@ end"""
         the object with writeObject.
         """
 
-        id = next(self.objectId)
+        id = next(self._object_seq)
         self.xrefTable.append([None, 0, name])
         return Reference(id)
 
