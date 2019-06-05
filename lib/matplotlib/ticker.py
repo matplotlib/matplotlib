@@ -2634,18 +2634,22 @@ class AutoMinorLocator(Locator):
 
         If *n* is omitted or None, it will be set to 5 or 4.
         """
+        #print(self.ndivs)
         if n == None:
-            if Locator.axis.__name__ == 'xaxis':
-                self.ndivs = rcParams['xtick.minor.ndivs']
-            elif Locator.axis.__name__ == 'yaxis':
-                self.ndivs = rcParams['ytick.minor.ndivs']
-        elif n == 'auto':
             self.ndivs = None
+        elif n == 'auto':
+            self.ndivs = 'auto'
         else:
             self.ndivs = n
 
     def __call__(self):
         'Return the locations of the ticks'
+        if self.ndivs is None:
+            if self.axis.__name__ == 'xaxis':
+                self.ndivs = rcParams['xtick.minor.ndivs']
+            elif self.axis.__name__ == 'yaxis':
+                self.ndivs = rcParams['ytick.minor.ndivs']
+        
         if self.axis.get_scale() == 'log':
             cbook._warn_external('AutoMinorLocator does not work with '
                                  'logarithmic scale')
@@ -2661,7 +2665,7 @@ class AutoMinorLocator(Locator):
             # no ticks at all.
             return []
 
-        if self.ndivs is None:
+        if self.ndivs == 'auto':
 
             majorstep_no_exponent = 10 ** (np.log10(majorstep) % 1)
 
