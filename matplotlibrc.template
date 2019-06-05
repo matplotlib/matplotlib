@@ -333,7 +333,7 @@
                       ## as opposed to the rest of this file.
 #axes.autolimit_mode : data ## How to scale axes limits to the data.
                             ## Use "data" to use data limits, plus some margin
-                            ## Use "round_number" move to the nearest "round" number
+                            ## Use "round_numbers" move to the nearest "round" number
 #axes.xmargin        : .05  ## x margin.  See `axes.Axes.margins`
 #axes.ymargin        : .05  ## y margin See `axes.Axes.margins`
 #polaraxes.grid      : True    ## display grid on polar axes
