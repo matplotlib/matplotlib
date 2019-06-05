@@ -38,16 +38,15 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
 
         painter = QtGui.QPainter(self)
 
+        # get bounding box scaled to the figure
         rect = event.rect()
-        left = rect.left()
-        top = rect.top()
-        width = rect.width()
-        height = rect.height()
+        left, top = self.mouseEventCoords(rect.bottomLeft())
+        width = rect.width() * self._dpi_ratio
+        height = rect.height() * self._dpi_ratio
         # See documentation of QRect: bottom() and right() are off by 1, so use
         # left() + width() and top() + height().
-        bbox = Bbox(
-            [[left, self.renderer.height - (top + height * self._dpi_ratio)],
-             [left + width * self._dpi_ratio, self.renderer.height - top]])
+        bbox = Bbox([[left, top], [left + width, top + height]])
+        # create a buffer using this bounding box
         reg = self.copy_from_bbox(bbox)
         buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
             memoryview(reg))
@@ -60,8 +59,8 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         if hasattr(qimage, 'setDevicePixelRatio'):
             # Not available on Qt4 or some older Qt5.
             qimage.setDevicePixelRatio(self._dpi_ratio)
-        origin = QtCore.QPoint(left, top)
-        painter.drawImage(origin / self._dpi_ratio, qimage)
+        origin = QtCore.QPoint(rect.left(), rect.top())
+        painter.drawImage(origin, qimage)
         # Adjust the buf reference count to work around a memory
         # leak bug in QImage under PySide on Python 3.
         if QT_API in ('PySide', 'PySide2'):
