@@ -2408,30 +2408,16 @@ class SymmetricalLogLocator(Locator):
         #
         # "simple" mode is when the range falls entirely within (-t,
         # t) -- it should just display (vmin, 0, vmax)
+        if -linthresh < vmin < vmax < linthresh:
+            return [vmin, vmax]
 
-        # Determine which of the three ranges we have
-        has_a = has_b = has_c = False
-        if vmin < -linthresh:
-            has_a = True
-            if vmax > -linthresh:
-                has_b = True
-                if vmax > linthresh:
-                    has_c = True
-        elif vmin < 0:
-            if vmax > 0:
-                has_b = True
-                if vmax > linthresh:
-                    has_c = True
-            else:
-                return [vmin, vmax]
-        elif vmin < linthresh:
-            if vmax > linthresh:
-                has_b = True
-                has_c = True
-            else:
-                return [vmin, vmax]
+        has_a = (vmin < -linthresh)
+        has_c = (vmax > linthresh)
+
+        if (has_a and vmax > -linthresh) or (has_c and vmin < linthresh):
+            has_b = True
         else:
-            has_c = True
+            has_b = False
 
         def get_log_range(lo, hi):
             """
