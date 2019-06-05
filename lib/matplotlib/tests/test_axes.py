@@ -1112,7 +1112,8 @@ def test_pcolormesh():
     ax3.pcolormesh(Qx, Qz, Z, shading="gouraud")
 
 
-@image_comparison(['pcolormesh_alpha'], extensions=["png", "pdf"], remove_text=True)
+@image_comparison(['pcolormesh_alpha'], extensions=["png", "pdf"],
+                  remove_text=True)
 def test_pcolormesh_alpha():
     n = 12
     X, Y = np.meshgrid(
@@ -1132,7 +1133,7 @@ def test_pcolormesh_alpha():
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
     for ax in ax1, ax2, ax3, ax4:
         ax.add_patch(mpatches.Rectangle(
-            (0,-1.5), 1.5, 3, facecolor=[.7, .1, .1, .5], zorder=0
+            (0, -1.5), 1.5, 3, facecolor=[.7, .1, .1, .5], zorder=0
         ))
     # ax1, ax2: constant alpha
     ax1.pcolormesh(Qx, Qy, Z, cmap=vir, alpha=0.4, shading='flat', zorder=1)

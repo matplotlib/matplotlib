@@ -1222,13 +1222,13 @@ end"""
         return name
 
     def _soft_mask_state(self, smask):
-        """Return the name of an ExtGState that sets the soft mask to the given shading.
+        """Return an ExtGState that sets the soft mask to the given shading.
 
         Parameters
         ----------
         smask : Reference
-            reference to a shading in DeviceGray color space, whose luminosity is
-            to be used as the alpha channel
+            Reference to a shading in DeviceGray color space, whose luminosity
+            is to be used as the alpha channel.
 
         Returns
         -------
@@ -1286,7 +1286,7 @@ end"""
             self.beginStream(ob.id, None, attributes)
             self.output(*content)
             self.endStream()
-        
+
     def hatchPattern(self, hatch_style):
         # The colors may come in as numpy arrays, which aren't hashable
         if hatch_style is not None:
@@ -1348,13 +1348,13 @@ end"""
 
         Parameters
         ----------
-
         points : np.ndarray
-            triangle vertices, shape (n, 3, 2)
-            where n = number of triangles, 3 = vertices, 2 = x, y
+            Triangle vertices, shape (n, 3, 2)
+            where n = number of triangles, 3 = vertices, 2 = x, y.
         colors : np.ndarray
-            vertex colors, shape (n, 3, 1) or (n, 3, 4)
-            as with points, but last dimension is either (gray,) or (r, g, b, alpha)
+            Vertex colors, shape (n, 3, 1) or (n, 3, 4)
+            as with points, but last dimension is either (gray,)
+            or (r, g, b, alpha).
 
         Returns
         -------
@@ -1387,9 +1387,12 @@ end"""
                  'BitsPerCoordinate': 32,
                  'BitsPerComponent': 8,
                  'BitsPerFlag': 8,
-                 'ColorSpace': Name('DeviceRGB' if colordim == 3 else 'DeviceGray'),
+                 'ColorSpace': Name(
+                     'DeviceRGB' if colordim == 3 else 'DeviceGray'
+                 ),
                  'AntiAlias': False,
-                 'Decode': ([points_min[0], points_max[0], points_min[1], points_max[1]]
+                 'Decode': ([points_min[0], points_max[0],
+                             points_min[1], points_max[1]]
                             + [0, 1] * colordim),
                  })
 
@@ -1904,21 +1907,21 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         assert colors.ndim == 3
         assert colors.shape[1] == 3
         assert colors.shape[2] in (1, 4)
-        
+
         shape = points.shape
         points = points.reshape((shape[0] * shape[1], 2))
         tpoints = trans.transform(points)
         tpoints = tpoints.reshape(shape)
         name, _ = self.file.addGouraudTriangles(tpoints, colors)
         output = self.file.output
-        
+
         if colors.shape[2] == 1:
             # grayscale
             gc.set_alpha(1.0)
             self.check_gc(gc)
             output(name, Op.shading)
             return
-        
+
         alpha = colors[0, 0, 3]
         if np.allclose(alpha, colors[:, :, 3]):
             # single alpha value
