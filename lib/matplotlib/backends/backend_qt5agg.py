@@ -41,6 +41,8 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         # See documentation of QRect: bottom() and right() are off by 1, so use
         # left() + width() and top() + height().
         rect = event.rect()
+        # scale rect dimensions using the screen dpi ratio to get
+        # correct values for the Figure coordinates (rather than QT5's coords)
         width = rect.width() * self._dpi_ratio
         height = rect.height() * self._dpi_ratio
         left, top = self.mouseEventCoords(rect.topLeft())
