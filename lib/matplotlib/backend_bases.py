@@ -160,25 +160,23 @@ class RendererBase:
 
     def close_group(self, s):
         """
-        Close a grouping element with label *s*
+        Close a grouping element with label *s*.
 
         Only used by the SVG renderer.
         """
 
     def draw_path(self, gc, path, transform, rgbFace=None):
-        """
-        Draws a :class:`~matplotlib.path.Path` instance using the
-        given affine transform.
-        """
+        """Draw a `~.path.Path` instance using the given affine transform."""
         raise NotImplementedError
 
     def draw_markers(self, gc, marker_path, marker_trans, path,
                      trans, rgbFace=None):
         """
-        Draws a marker at each of the vertices in path.  This includes
-        all vertices, including control points on curves.  To avoid
-        that behavior, those vertices should be removed before calling
-        this function.
+        Draw a marker at each of the vertices in path.
+
+        This includes all vertices, including control points on curves.
+        To avoid that behavior, those vertices should be removed before
+        calling this function.
 
         This provides a fallback implementation of draw_markers that
         makes multiple calls to :meth:`draw_path`.  Some backends may
@@ -188,7 +186,7 @@ class RendererBase:
         Parameters
         ----------
         gc : `GraphicsContextBase`
-            The graphics context
+            The graphics context.
 
         marker_trans : `matplotlib.transforms.Transform`
             An affine transform applied to the marker.
@@ -210,7 +208,7 @@ class RendererBase:
                              linewidths, linestyles, antialiaseds, urls,
                              offset_position):
         """
-        Draws a collection of paths selecting drawing properties from
+        Draw a collection of paths selecting drawing properties from
         the lists *facecolors*, *edgecolors*, *linewidths*,
         *linestyles* and *antialiaseds*. *offsets* is a list of
         offsets to apply to each of the paths.  The offsets in
@@ -286,7 +284,7 @@ class RendererBase:
     def draw_gouraud_triangles(self, gc, triangles_array, colors_array,
                                transform):
         """
-        Draws a series of Gouraud triangles.
+        Draw a series of Gouraud triangles.
 
         Parameters
         ----------
@@ -1680,7 +1678,8 @@ class FigureCanvasBase:
         self.callbacks.process(s, event)
 
     def resize_event(self):
-        """Pass a `ResizeEvent` to all functions connected to ``resize_event``.
+        """
+        Pass a `ResizeEvent` to all functions connected to ``resize_event``.
         """
         s = 'resize_event'
         event = ResizeEvent(s, self)
@@ -1688,7 +1687,8 @@ class FigureCanvasBase:
         self.draw_idle()
 
     def close_event(self, guiEvent=None):
-        """Pass a `CloseEvent` to all functions connected to ``close_event``.
+        """
+        Pass a `CloseEvent` to all functions connected to ``close_event``.
         """
         s = 'close_event'
         try:
@@ -1703,7 +1703,8 @@ class FigureCanvasBase:
             # with an open window; 'callbacks' attribute no longer exists.
 
     def key_press_event(self, key, guiEvent=None):
-        """Pass a `KeyEvent` to all functions connected to ``key_press_event``.
+        """
+        Pass a `KeyEvent` to all functions connected to ``key_press_event``.
         """
         self._key = key
         s = 'key_press_event'
@@ -1942,15 +1943,17 @@ class FigureCanvasBase:
 
     @classmethod
     def get_supported_filetypes(cls):
-        """Return dict of savefig file formats supported by this backend"""
+        """Return dict of savefig file formats supported by this backend."""
         return cls.filetypes
 
     @classmethod
     def get_supported_filetypes_grouped(cls):
-        """Return a dict of savefig file formats supported by this backend,
+        """
+        Return a dict of savefig file formats supported by this backend,
         where the keys are a file type name, such as 'Joint Photographic
         Experts Group', and the values are a list of filename extensions used
-        for that filetype, such as ['jpg', 'jpeg']."""
+        for that filetype, such as ['jpg', 'jpeg'].
+        """
         groupings = {}
         for ext, name in cls.filetypes.items():
             groupings.setdefault(name, []).append(ext)
@@ -2248,7 +2251,8 @@ class FigureCanvasBase:
         """
 
     def start_event_loop(self, timeout=0):
-        """Start a blocking event loop.
+        """
+        Start a blocking event loop.
 
         Such an event loop is used by interactive functions, such as `ginput`
         and `waitforbuttonpress`, to wait for events.
@@ -2274,7 +2278,8 @@ class FigureCanvasBase:
             counter += 1
 
     def stop_event_loop(self):
-        """Stop the current blocking event loop.
+        """
+        Stop the current blocking event loop.
 
         Interactive backends need to reimplement this to match
         `start_event_loop`
@@ -2550,14 +2555,16 @@ class FigureManagerBase:
             button_press_handler(event, self.canvas, self.canvas.toolbar)
 
     def get_window_title(self):
-        """Get the title text of the window containing the figure.
+        """
+        Get the title text of the window containing the figure.
 
         Return None for non-GUI (e.g., PS) backends.
         """
         return 'image'
 
     def set_window_title(self, title):
-        """Set the title text of the window containing the figure.
+        """
+        Set the title text of the window containing the figure.
 
         This has no effect for non-GUI (e.g., PS) backends.
         """
@@ -2652,13 +2659,14 @@ class NavigationToolbar2:
         """Display a message on toolbar or in status bar."""
 
     def back(self, *args):
-        """move back up the view lim stack"""
+        """Move back up the view lim stack."""
         self._nav_stack.back()
         self.set_history_buttons()
         self._update_view()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        """Draw a rectangle rubberband to indicate zoom limits.
+        """
+        Draw a rectangle rubberband to indicate zoom limits.
 
         Note that it is not guaranteed that ``x0 <= x1`` and ``y0 <= y1``.
         """
@@ -2770,7 +2778,11 @@ class NavigationToolbar2:
             self.set_message(self.mode)
 
     def pan(self, *args):
-        """Activate the pan/zoom tool. pan with left button, zoom with right"""
+        """
+        Activate the pan/zoom tool.
+
+        Pan with left button, zoom with right.
+        """
         # set the pointer icon and button press funcs to the
         # appropriate callbacks
 
@@ -3010,8 +3022,9 @@ class NavigationToolbar2:
         self.canvas.draw_idle()
 
     def _update_view(self):
-        """Update the viewlim and position from the view and
-        position stack for each axes.
+        """
+        Update the viewlim and position from the view and position stack for
+        each axes.
         """
         nav_info = self._nav_stack()
         if nav_info is None:
@@ -3031,7 +3044,8 @@ class NavigationToolbar2:
         raise NotImplementedError
 
     def set_cursor(self, cursor):
-        """Set the current cursor to one of the :class:`Cursors` enums values.
+        """
+        Set the current cursor to one of the :class:`Cursors` enums values.
 
         If required by the backend, this method should trigger an update in
         the backend event loop after the cursor is set, as this method may be
@@ -3208,39 +3222,39 @@ class ToolContainerBase:
 
     def remove_toolitem(self, name):
         """
-        Remove a toolitem from the `ToolContainer`
+        Remove a toolitem from the `ToolContainer`.
 
-        This method must get implemented per backend
+        This method must get implemented per backend.
 
-        Called when `ToolManager` emits a `tool_removed_event`
+        Called when `ToolManager` emits a `tool_removed_event`.
 
         Parameters
         ----------
         name : string
-            Name of the tool to remove
+            Name of the tool to remove.
         """
         raise NotImplementedError
 
 
 class StatusbarBase:
-    """Base class for the statusbar"""
+    """Base class for the statusbar."""
     def __init__(self, toolmanager):
         self.toolmanager = toolmanager
         self.toolmanager.toolmanager_connect('tool_message_event',
                                              self._message_cbk)
 
     def _message_cbk(self, event):
-        """Captures the 'tool_message_event' and set the message"""
+        """Capture the 'tool_message_event' and set the message."""
         self.set_message(event.message)
 
     def set_message(self, s):
         """
-        Display a message on toolbar or in status bar
+        Display a message on toolbar or in status bar.
 
         Parameters
         ----------
         s : str
-            Message text
+            Message text.
         """
         pass
 
@@ -3278,8 +3292,7 @@ class _Backend:
 
     @classmethod
     def new_figure_manager(cls, num, *args, **kwargs):
-        """Create a new figure manager instance.
-        """
+        """Create a new figure manager instance."""
         # This import needs to happen here due to circular imports.
         from matplotlib.figure import Figure
         fig_cls = kwargs.pop('FigureClass', Figure)
@@ -3288,8 +3301,7 @@ class _Backend:
 
     @classmethod
     def new_figure_manager_given_figure(cls, num, figure):
-        """Create a new figure manager instance for the given figure.
-        """
+        """Create a new figure manager instance for the given figure."""
         canvas = cls.FigureCanvas(figure)
         manager = cls.FigureManager(canvas, num)
         return manager
