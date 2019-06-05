@@ -265,8 +265,7 @@ class AitoffAxes(GeoAxes):
 
         def transform_non_affine(self, ll):
             # docstring inherited
-            longitude = ll[:, 0]
-            latitude = ll[:, 1]
+            longitude, latitude = ll.T
 
             # Pre-compute some values
             half_long = longitude / 2.0
@@ -278,10 +277,9 @@ class AitoffAxes(GeoAxes):
             # We want unnormalized sinc.  numpy.sinc gives us normalized
             sinc_alpha = np.sin(alpha) / alpha
 
-            xy = np.empty_like(ll, float)
-            xy[:, 0] = (cos_latitude * np.sin(half_long)) / sinc_alpha
-            xy[:, 1] = np.sin(latitude) / sinc_alpha
-            return xy
+            x = (cos_latitude * np.sin(half_long)) / sinc_alpha
+            y = np.sin(latitude) / sinc_alpha
+            return np.column_stack([x, y])
 
         def inverted(self):
             # docstring inherited
@@ -405,9 +403,9 @@ class MollweideAxes(GeoAxes):
             # from Equations (7, 8) of
             # http://mathworld.wolfram.com/MollweideProjection.html
             theta = np.arcsin(y / np.sqrt(2))
-            lon = (np.pi / (2 * np.sqrt(2))) * x / np.cos(theta)
-            lat = np.arcsin((2 * theta + np.sin(2 * theta)) / np.pi)
-            return np.column_stack([lon, lat])
+            longitude = (np.pi / (2 * np.sqrt(2))) * x / np.cos(theta)
+            latitude = np.arcsin((2 * theta + np.sin(2 * theta)) / np.pi)
+            return np.column_stack([longitude, latitude])
 
         def inverted(self):
             # docstring inherited
@@ -474,8 +472,7 @@ class LambertAxes(GeoAxes):
 
         def transform_non_affine(self, xy):
             # docstring inherited
-            x = xy[:, 0:1]
-            y = xy[:, 1:2]
+            x, y = xy.T
             clong = self._center_longitude
             clat = self._center_latitude
             p = np.maximum(np.hypot(x, y), 1e-9)
@@ -483,12 +480,12 @@ class LambertAxes(GeoAxes):
             sin_c = np.sin(c)
             cos_c = np.cos(c)
 
-            lat = np.arcsin(cos_c*np.sin(clat) +
-                             ((y*sin_c*np.cos(clat)) / p))
-            lon = clong + np.arctan(
+            latitude = np.arcsin(cos_c*np.sin(clat) +
+                                 ((y*sin_c*np.cos(clat)) / p))
+            longitude = clong + np.arctan(
                 (x*sin_c) / (p*np.cos(clat)*cos_c - y*np.sin(clat)*sin_c))
 
-            return np.concatenate((lon, lat), 1)
+            return np.column_stack([longitude, latitude])
 
         def inverted(self):
             # docstring inherited
