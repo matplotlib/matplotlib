@@ -602,8 +602,8 @@ class ContourLabeler:
                 else:  # If not adding label, keep old path
                     additions.append(linepath)
 
-            # After looping over all segments on a contour, remove old
-            # paths and add new ones if inlining
+            # After looping over all segments on a contour, replace old paths
+            # by new ones if inlining.
             if inline:
                 paths[:] = additions
 

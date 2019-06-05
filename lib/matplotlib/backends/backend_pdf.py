@@ -178,18 +178,16 @@ def pdfRepr(obj):
     # anything, so the caller must ensure that PDF names are
     # represented as Name objects.
     elif isinstance(obj, dict):
-        r = [b"<<"]
-        r.extend([Name(key).pdfRepr() + b" " + pdfRepr(obj[key])
-                  for key in sorted(obj)])
-        r.append(b">>")
-        return fill(r)
+        return fill([
+            b"<<",
+            *[Name(key).pdfRepr() + b" " + pdfRepr(obj[key])
+              for key in sorted(obj)],
+            b">>",
+        ])
 
     # Lists.
     elif isinstance(obj, (list, tuple)):
-        r = [b"["]
-        r.extend([pdfRepr(val) for val in obj])
-        r.append(b"]")
-        return fill(r)
+        return fill([b"[", *[pdfRepr(val) for val in obj], b"]"])
 
     # The null keyword.
     elif obj is None:

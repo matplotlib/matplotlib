@@ -1377,11 +1377,9 @@ class TextWithDash(Text):
         want to cache derived information about text (e.g., layouts) and
         need to know if the text has changed.
         """
-        props = [p for p in Text.get_prop_tup(self, renderer=renderer)]
-        props.extend([self._x, self._y, self._dashlength,
-                      self._dashdirection, self._dashrotation, self._dashpad,
-                      self._dashpush])
-        return tuple(props)
+        return (*Text.get_prop_tup(self, renderer=renderer),
+                self._x, self._y, self._dashlength, self._dashdirection,
+                self._dashrotation, self._dashpad, self._dashpush)
 
     def draw(self, renderer):
         """
