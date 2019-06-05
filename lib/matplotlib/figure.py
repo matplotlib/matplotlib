@@ -1444,12 +1444,10 @@ default: 'top'
             Controls sharing of properties among x (`sharex`) or y (`sharey`)
             axes:
 
-                - True or 'all': x- or y-axis will be shared among all
-                  subplots.
-                - False or 'none': each subplot x- or y-axis will be
-                  independent.
-                - 'row': each subplot row will share an x- or y-axis.
-                - 'col': each subplot column will share an x- or y-axis.
+            - True or 'all': x- or y-axis will be shared among all subplots.
+            - False or 'none': each subplot x- or y-axis will be independent.
+            - 'row': each subplot row will share an x- or y-axis.
+            - 'col': each subplot column will share an x- or y-axis.
 
             When subplots have a shared x-axis along a column, only the x tick
             labels of the bottom subplot are created. Similarly, when subplots
@@ -1461,12 +1459,11 @@ default: 'top'
             - If True, extra dimensions are squeezed out from the returned
               array of Axes:
 
-                - if only one subplot is constructed (nrows=ncols=1), the
-                  resulting single Axes object is returned as a scalar.
-                - for Nx1 or 1xM subplots, the returned object is a 1D numpy
-                  object array of Axes objects.
-                - for NxM, subplots with N>1 and M>1 are returned
-                  as a 2D array.
+              - if only one subplot is constructed (nrows=ncols=1), the
+                resulting single Axes object is returned as a scalar.
+              - for Nx1 or 1xM subplots, the returned object is a 1D numpy
+                object array of Axes objects.
+              - for NxM, subplots with N>1 and M>1 are returned as a 2D array.
 
             - If False, no squeezing at all is done: the returned Axes object
               is always a 2D array containing Axes instances, even if it ends
@@ -1501,19 +1498,18 @@ default: 'top'
             # Create a figure
             plt.figure()
 
-            # Creates a subplot
+            # Create a subplot
             ax = fig.subplots()
             ax.plot(x, y)
             ax.set_title('Simple plot')
 
-            # Creates two subplots and unpacks the output array immediately
+            # Create two subplots and unpack the output array immediately
             ax1, ax2 = fig.subplots(1, 2, sharey=True)
             ax1.plot(x, y)
             ax1.set_title('Sharing Y axis')
             ax2.scatter(x, y)
 
-            # Creates four polar axes, and accesses them through the
-            # returned array
+            # Create four polar axes and access them through the returned array
             axes = fig.subplots(2, 2, subplot_kw=dict(polar=True))
             axes[0, 0].plot(x, y)
             axes[1, 1].scatter(x, y)
@@ -1530,12 +1526,12 @@ default: 'top'
             # Note that this is the same as
             fig.subplots(2, 2, sharex=True, sharey=True)
 
-            See Also
-            --------
-            .pyplot.subplots
-            .Figure.add_subplot
-            .pyplot.subplot
-            """
+        See Also
+        --------
+        .pyplot.subplots
+        .Figure.add_subplot
+        .pyplot.subplot
+        """
 
         if isinstance(sharex, bool):
             sharex = "all" if sharex else "none"

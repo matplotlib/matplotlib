@@ -13,9 +13,9 @@ either:
 
 It is pretty easy to use, and requires only built-in python libs:
 
-    >>> from matplotlib import rcParams
+    >>> import matplotlib as mpl
     >>> import os.path
-    >>> afm_fname = os.path.join(rcParams['datapath'],
+    >>> afm_fname = os.path.join(mpl.get_data_path(),
     ...                         'fonts', 'afm', 'ptmr8a.afm')
     >>>
     >>> from matplotlib.afm import AFM

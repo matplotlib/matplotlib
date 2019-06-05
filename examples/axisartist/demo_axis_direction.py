@@ -19,9 +19,7 @@ from mpl_toolkits.axisartist.grid_helper_curvelinear import \
 
 
 def setup_axes(fig, rect):
-    """
-    polar projection, but in a rectangular box.
-    """
+    """Polar projection, but in a rectangular box."""
 
     # see demo_curvelinear_grid.py for details
     tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()

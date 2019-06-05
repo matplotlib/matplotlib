@@ -952,7 +952,7 @@ class Barbs(mcollections.PolyCollection):
         self.fill_empty = fill_empty
         self.barb_increments = barb_increments or dict()
         self.rounding = rounding
-        self.flip = flip_barb
+        self.flip = np.atleast_1d(flip_barb)
         transform = kw.pop('transform', ax.transData)
         self._pivot = pivot
         self._length = length
@@ -1086,10 +1086,6 @@ class Barbs(mcollections.PolyCollection):
         # Controls y point where to pivot the barb.
         pivot_points = dict(tip=0.0, middle=-length / 2.)
 
-        # Check for flip
-        if flip:
-            full_height = -full_height
-
         endx = 0.0
         try:
             endy = float(pivot)
@@ -1127,6 +1123,9 @@ class Barbs(mcollections.PolyCollection):
             poly_verts = [(endx, endy)]
             offset = length
 
+            # Handle if this barb should be flipped
+            barb_height = -full_height if flip[index] else full_height
+
             # Add vertices for each flag
             for i in range(nflags[index]):
                 # The spacing that works for the barbs is a little to much for
@@ -1136,7 +1135,7 @@ class Barbs(mcollections.PolyCollection):
                     offset += spacing / 2.
                 poly_verts.extend(
                     [[endx, endy + offset],
-                     [endx + full_height, endy - full_width / 2 + offset],
+                     [endx + barb_height, endy - full_width / 2 + offset],
                      [endx, endy - full_width + offset]])
 
                 offset -= full_width + spacing
@@ -1147,7 +1146,7 @@ class Barbs(mcollections.PolyCollection):
             for i in range(nbarbs[index]):
                 poly_verts.extend(
                     [(endx, endy + offset),
-                     (endx + full_height, endy + offset + full_width / 2),
+                     (endx + barb_height, endy + offset + full_width / 2),
                      (endx, endy + offset)])
 
                 offset -= spacing
@@ -1162,7 +1161,7 @@ class Barbs(mcollections.PolyCollection):
                     offset -= 1.5 * spacing
                 poly_verts.extend(
                     [(endx, endy + offset),
-                     (endx + full_height / 2, endy + offset + full_width / 4),
+                     (endx + barb_height / 2, endy + offset + full_width / 4),
                      (endx, endy + offset)])
 
             # Rotate the barb according the angle. Making the barb first and
@@ -1177,15 +1176,25 @@ class Barbs(mcollections.PolyCollection):
     def set_UVC(self, U, V, C=None):
         self.u = ma.masked_invalid(U, copy=False).ravel()
         self.v = ma.masked_invalid(V, copy=False).ravel()
+
+        # Flip needs to have the same number of entries as everything else.
+        # Use broadcast_to to avoid a bloated array of identical values.
+        # (can't rely on actual broadcasting)
+        if len(self.flip) == 1:
+            flip = np.broadcast_to(self.flip, self.u.shape)
+        else:
+            flip = self.flip
+
         if C is not None:
             c = ma.masked_invalid(C, copy=False).ravel()
-            x, y, u, v, c = cbook.delete_masked_points(
-                self.x.ravel(), self.y.ravel(), self.u, self.v, c)
-            _check_consistent_shapes(x, y, u, v, c)
+            x, y, u, v, c, flip = cbook.delete_masked_points(
+                self.x.ravel(), self.y.ravel(), self.u, self.v, c,
+                flip.ravel())
+            _check_consistent_shapes(x, y, u, v, c, flip)
         else:
-            x, y, u, v = cbook.delete_masked_points(
-                self.x.ravel(), self.y.ravel(), self.u, self.v)
-            _check_consistent_shapes(x, y, u, v)
+            x, y, u, v, flip = cbook.delete_masked_points(
+                self.x.ravel(), self.y.ravel(), self.u, self.v, flip.ravel())
+            _check_consistent_shapes(x, y, u, v, flip)
 
         magnitude = np.hypot(u, v)
         flags, barbs, halves, empty = self._find_tails(magnitude,
@@ -1196,7 +1205,7 @@ class Barbs(mcollections.PolyCollection):
 
         plot_barbs = self._make_barbs(u, v, flags, barbs, halves, empty,
                                       self._length, self._pivot, self.sizes,
-                                      self.fill_empty, self.flip)
+                                      self.fill_empty, flip)
         self.set_verts(plot_barbs)
 
         # Set the color array
