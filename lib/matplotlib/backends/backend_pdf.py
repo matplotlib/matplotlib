@@ -353,16 +353,16 @@ class Stream:
         ----------
 
         id : int
-            object id of the stream
+            Object id of the stream.
         len : Reference or None
-            an unused Reference object for the length of the stream;
-            None means to use a memory buffer so the length can be inlined
+            An unused Reference object for the length of the stream;
+            None means to use a memory buffer so the length can be inlined.
         file : PdfFile
-            the underlying object to write the stream to
+            The underlying object to write the stream to.
         extra : dict from Name to anything, or None
-            extra key-value pairs to include in the stream header
+            Extra key-value pairs to include in the stream header.
         png : dict or None
-            if the data is already png encoded, the decode parameters
+            If the data is already png encoded, the decode parameters.
         """
         self.id = id            # object id
         self.len = len          # id of length object
@@ -440,12 +440,12 @@ class PdfFile:
         ----------
 
         filename : file-like object or string
-            output target; if a string, a file will be opened for writing
+            Output target; if a string, a file will be opened for writing.
         metadata : dict from strings to strings and dates
             Information dictionary object (see PDF reference section 10.2.1
             'Document Information Dictionary'), e.g.:
             `{'Creator': 'My software', 'Author': 'Me',
-            'Title': 'Awesome fig'}`
+            'Title': 'Awesome fig'}`.
 
             The standard keys are `'Title'`, `'Author'`, `'Subject'`,
             `'Keywords'`, `'Creator'`, `'Producer'`, `'CreationDate'`,
@@ -453,7 +453,7 @@ class PdfFile:
             for `'Creator'`, `'Producer'` and `'CreationDate'`. They
             can be removed by setting them to `None`.
         """
-        self.objectId = itertools.count(1)  # consumed by reserveObject
+        self._object_seq = itertools.count(1)  # consumed by reserveObject
         self.xrefTable = [[0, 65535, 'the zero object']]
         self.passed_in_file_object = False
         self.original_file_like = None
@@ -511,24 +511,24 @@ class PdfFile:
                          if v is not None}
 
         self.fontNames = {}     # maps filenames to internal font names
-        self.internalFontName = (Name(f'F{i}') for i in itertools.count(1))
+        self._internal_font_seq = (Name(f'F{i}') for i in itertools.count(1))
         self.dviFontInfo = {}   # maps dvi font names to embedding information
         # differently encoded Type-1 fonts may share the same descriptor
         self.type1Descriptors = {}
         self.used_characters = {}
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
-        self.alphaStateName = (Name(f'A{i}') for i in itertools.count(1))
-        self.softmaskStates = {}
-        self.softmaskStateName = (Name(f'SM{i}') for i in itertools.count(1))
-        self.softmaskGroups = []
+        self._alpha_state_seq = (Name(f'A{i}') for i in itertools.count(1))
+        self._soft_mask_states = {}
+        self._soft_mask_seq = (Name(f'SM{i}') for i in itertools.count(1))
+        self._soft_mask_groups = []
         # reproducible writeHatches needs an ordered dict:
         self.hatchPatterns = collections.OrderedDict()
-        self.hatchPatternName = (Name(f'H{i}') for i in itertools.count(1))
+        self._hatch_pattern_seq = (Name(f'H{i}') for i in itertools.count(1))
         self.gouraudTriangles = []
 
         self._images = collections.OrderedDict()   # reproducible writeImages
-        self.imageName = (Name(f'I{i}') for i in itertools.count(1))
+        self._image_seq = (Name(f'I{i}') for i in itertools.count(1))
 
         self.markers = collections.OrderedDict()   # reproducible writeMarkers
         self.multi_byte_charprocs = {}
@@ -597,7 +597,7 @@ class PdfFile:
         self.endStream()
         self.writeFonts()
         self.writeExtGSTates()
-        self.writeSoftmaskGroups()
+        self._write_soft_mask_groups()
         self.writeHatches()
         self.writeGouraudTriangles()
         xobjects = {
@@ -674,7 +674,7 @@ class PdfFile:
 
         Fx = self.fontNames.get(filename)
         if Fx is None:
-            Fx = next(self.internalFontName)
+            Fx = next(self._internal_font_seq)
             self.fontNames[filename] = Fx
             _log.debug('Assigning font %s = %r', Fx, filename)
 
@@ -699,7 +699,7 @@ class PdfFile:
                 "the font may lack a Type-1 version"
                 .format(psfont.psname, dvifont.texname))
 
-        pdfname = next(self.internalFontName)
+        pdfname = next(self._internal_font_seq)
         _log.debug('Assigning font %s = %s (dvi)', pdfname, dvifont.texname)
         self.dviFontInfo[dvifont.texname] = types.SimpleNamespace(
             dvifont=dvifont,
@@ -1215,13 +1215,13 @@ end"""
         if state is not None:
             return state[0]
 
-        name = next(self.alphaStateName)
+        name = next(self._alpha_state_seq)
         self.alphaStates[alpha] = \
             (name, {'Type': Name('ExtGState'),
                     'CA': alpha[0], 'ca': alpha[1]})
         return name
 
-    def softmaskState(self, smask):
+    def _soft_mask_state(self, smask):
         """Return the name of an ExtGState that sets the soft mask to the given shading.
 
         Parameters
@@ -1235,13 +1235,13 @@ end"""
         Name
         """
 
-        state = self.softmaskStates.get(smask, None)
+        state = self._soft_mask_states.get(smask, None)
         if state is not None:
             return state[0]
 
-        name = next(self.softmaskStateName)
+        name = next(self._soft_mask_seq)
         groupOb = self.reserveObject('transparency group for soft mask')
-        self.softmaskStates[smask] = (
+        self._soft_mask_states[smask] = (
             name,
             {
                 'Type': Name('ExtGState'),
@@ -1254,7 +1254,7 @@ end"""
                 }
             }
         )
-        self.softmaskGroups.append((
+        self._soft_mask_groups.append((
             groupOb,
             {
                 'Type': Name('XObject'),
@@ -1277,12 +1277,12 @@ end"""
             self.extGStateObject,
             dict(itertools.chain(
                 self.alphaStates.values(),
-                self.softmaskStates.values()
+                self._soft_mask_states.values()
             ))
         )
 
-    def writeSoftmaskGroups(self):
-        for ob, attributes, content in self.softmaskGroups:
+    def _write_soft_mask_groups(self):
+        for ob, attributes, content in self._soft_mask_groups:
             self.beginStream(ob.id, None, attributes)
             self.output(*content)
             self.endStream()
@@ -1301,7 +1301,7 @@ end"""
         if pattern is not None:
             return pattern
 
-        name = next(self.hatchPatternName)
+        name = next(self._hatch_pattern_seq)
         self.hatchPatterns[hatch_style] = name
         return name
 
@@ -1413,7 +1413,7 @@ end"""
         if entry is not None:
             return entry[1]
 
-        name = next(self.imageName)
+        name = next(self._image_seq)
         ob = self.reserveObject(f'image {name}')
         self._images[id(image)] = (image, name, ob)
         return name
@@ -1607,7 +1607,7 @@ end"""
         the object with writeObject.
         """
 
-        id = next(self.objectId)
+        id = next(self._object_seq)
         self.xrefTable.append([None, 0, name])
         return Reference(id)
 
@@ -1928,8 +1928,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         else:
             # varying alpha: use a soft mask
             alpha = colors[:, :, 3][:, :, None]
-            _, smaskOb = self.file.addGouraudTriangles(tpoints, alpha)
-            gstate = self.file.softmaskState(smaskOb)
+            _, smask_ob = self.file.addGouraudTriangles(tpoints, alpha)
+            gstate = self.file._soft_mask_state(smask_ob)
             output(Op.gsave, gstate, Op.setgstate,
                    name, Op.shading,
                    Op.grestore)

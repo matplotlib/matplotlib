@@ -1,0 +1,10 @@
+Removals
+````````
+
+The following members of ``matplotlib.backends.backend_pdf.PdfFile`` were removed:
+
+- ``nextObject``
+- ``nextFont``
+- ``nextAlphaState``
+- ``nextHatch``
+- ``nextImage``

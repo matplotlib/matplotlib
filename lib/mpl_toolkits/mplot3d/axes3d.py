@@ -963,12 +963,12 @@ class Axes3D(Axes):
 
     def view_init(self, elev=None, azim=None):
         """
-        Set the elevation and azimuth of the axes.
+        Set the elevation and azimuth of the axes in degrees (not radians).
 
         This can be used to rotate the axes programmatically.
 
-        'elev' stores the elevation angle in the z plane.
-        'azim' stores the azimuth angle in the x,y plane.
+        'elev' stores the elevation angle in the z plane (in degrees).
+        'azim' stores the azimuth angle in the x,y plane (in degrees).
 
         if elev or azim are None (default), then the initial value
         is used which was specified in the :class:`Axes3D` constructor.

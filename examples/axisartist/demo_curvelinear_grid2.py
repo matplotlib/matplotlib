@@ -22,9 +22,7 @@ import mpl_toolkits.axisartist.angle_helper as angle_helper
 
 
 def curvelinear_test1(fig):
-    """
-    grid for custom transform.
-    """
+    """Grid for custom transform."""
 
     def tr(x, y):
         sgn = np.sign(x)

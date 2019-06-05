@@ -15,10 +15,14 @@ np.random.seed(19680801)
 
 def gen_rand_line(length, dims=2):
     """
-    Create a line using a random walk algorithm
+    Create a line using a random walk algorithm.
 
-    length is the number of points for the line.
-    dims is the number of dimensions the line has.
+    Parameters
+    ----------
+    length : int
+        The number of points of the line.
+    dims : int
+        The number of dimensions of the line.
     """
     line_data = np.empty((dims, length))
     line_data[:, 0] = np.random.rand(dims)
