@@ -353,16 +353,16 @@ class Stream:
         ----------
 
         id : int
-            object id of the stream
+            Object id of the stream.
         len : Reference or None
-            an unused Reference object for the length of the stream;
-            None means to use a memory buffer so the length can be inlined
+            An unused Reference object for the length of the stream;
+            None means to use a memory buffer so the length can be inlined.
         file : PdfFile
-            the underlying object to write the stream to
+            The underlying object to write the stream to.
         extra : dict from Name to anything, or None
-            extra key-value pairs to include in the stream header
+            Extra key-value pairs to include in the stream header.
         png : dict or None
-            if the data is already png encoded, the decode parameters
+            If the data is already png encoded, the decode parameters.
         """
         self.id = id            # object id
         self.len = len          # id of length object
@@ -440,12 +440,12 @@ class PdfFile:
         ----------
 
         filename : file-like object or string
-            output target; if a string, a file will be opened for writing
+            Output target; if a string, a file will be opened for writing.
         metadata : dict from strings to strings and dates
             Information dictionary object (see PDF reference section 10.2.1
             'Document Information Dictionary'), e.g.:
             `{'Creator': 'My software', 'Author': 'Me',
-            'Title': 'Awesome fig'}`
+            'Title': 'Awesome fig'}`.
 
             The standard keys are `'Title'`, `'Author'`, `'Subject'`,
             `'Keywords'`, `'Creator'`, `'Producer'`, `'CreationDate'`,
