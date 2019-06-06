@@ -1,9 +1,12 @@
 """
-==================
-Simple Axisartist1
-==================
+========================================
+Using axisartist to place an axis at y=0
+========================================
 
+Note that the following example can also be implemented without mpl_toolkits;
+see :doc:`/gallery/ticks_and_spines/spine_placement_demo`.
 """
+
 import matplotlib.pyplot as plt
 from mpl_toolkits import axisartist
 

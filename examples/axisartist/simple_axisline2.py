@@ -1,14 +1,17 @@
 """
-================
-Simple Axisline2
-================
+===================
+SubplotZero example
+===================
 
+Note that the following example can also be implemented without mpl_toolkits;
+see :doc:`/gallery/ticks_and_spines/spine_placement_demo`.
 """
+
 import matplotlib.pyplot as plt
 from mpl_toolkits.axisartist.axislines import SubplotZero
 import numpy as np
 
-fig = plt.figure(figsize=(4, 3))
+fig = plt.figure()
 
 # a subplot with two additional axis, "xzero" and "yzero". "xzero" is
 # y=0 line, and "yzero" is x=0 line.
