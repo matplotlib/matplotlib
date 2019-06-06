@@ -324,8 +324,8 @@ class Axes(_AxesBase):
 
         or::
 
-            line.set_label('Label via method')
             line, = ax.plot([1, 2, 3])
+            line.set_label('Label via method')
             ax.legend()
 
         Specific lines can be excluded from the automatic legend element
