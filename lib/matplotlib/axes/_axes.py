@@ -5519,6 +5519,9 @@ optional.
             Note that the vertical axes points upward for 'lower'
             but downward for 'upper'.
 
+            See the :doc:`/tutorials/intermediate/imshow_extent` tutorial for
+            examples and a more detailed description.
+
         extent : scalars (left, right, bottom, top), optional
             The bounding box in data coordinates that the image will fill.
             The image is stretched individually along x and y to fill the box.
@@ -5536,8 +5539,8 @@ optional.
             - For ``origin == 'lower'`` the default is
               ``(-0.5, numcols-0.5, -0.5, numrows-0.5)``.
 
-            See the example :doc:`/tutorials/intermediate/imshow_extent` for a
-            more detailed description.
+            See the :doc:`/tutorials/intermediate/imshow_extent` tutorial for
+            examples and a more detailed description.
 
         filternorm : bool, optional, default: True
             A parameter for the antigrain image resize filter (see the
