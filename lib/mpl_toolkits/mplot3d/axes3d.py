@@ -2325,11 +2325,11 @@ class Axes3D(Axes):
             The marker size in points**2. Either an array of the same length
             as *xs* and *ys* or a single value to make all markers the same
             size.
-        c : color, sequence, or sequence of color, optional
+        c : color, sequence, or sequence of colors, optional
             The marker color. Possible values:
 
             - A single color format string.
-            - A sequence of color specifications of length n.
+            - A sequence of colors of length n.
             - A sequence of n numbers to be mapped to colors using *cmap* and
               *norm*.
             - A 2-D array in which the rows are RGB or RGBA.
@@ -2434,17 +2434,17 @@ class Axes3D(Axes):
         dx, dy, dz : scalar or array-like
             The width, depth, and height of the bars, respectively.
 
-        color : sequence of valid color specifications, optional
+        color : sequence of colors, optional
             The color of the bars can be specified globally or
             individually. This parameter can be:
 
-              - A single color value, to color all bars the same color.
-              - An array of colors of length N bars, to color each bar
-                independently.
-              - An array of colors of length 6, to color the faces of the
-                bars similarly.
-              - An array of colors of length 6 * N bars, to color each face
-                independently.
+            - A single color, to color all bars the same color.
+            - An array of colors of length N bars, to color each bar
+              independently.
+            - An array of colors of length 6, to color the faces of the
+              bars similarly.
+            - An array of colors of length 6 * N bars, to color each face
+              independently.
 
             When coloring the faces of the boxes specifically, this is
             the order of the coloring:

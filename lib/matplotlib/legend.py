@@ -241,13 +241,13 @@ framealpha : None or float
     :rc:`legend.framealpha`.  If shadow is activated and
     *framealpha* is ``None``, the default value is ignored.
 
-facecolor : None or "inherit" or a color spec
+facecolor : None or "inherit" or color
     Control the legend's background color.
     Default is ``None``, which will take the value from
     :rc:`legend.facecolor`.  If ``"inherit"``, it will take
     :rc:`axes.facecolor`.
 
-edgecolor : None or "inherit" or a color spec
+edgecolor : None or "inherit" or color
     Control the legend's background patch edge color.
     Default is ``None``, which will take the value from
     :rc:`legend.edgecolor` If ``"inherit"``, it will take

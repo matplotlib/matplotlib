@@ -141,13 +141,10 @@ def test_contour_Nlevels():
 
 
 def test_contour_badlevel_fmt():
-    # test funny edge case from
-    # https://github.com/matplotlib/matplotlib/issues/9742
-    # User supplied fmt for each level as a dictionary, but
-    # MPL changed the level to the minimum data value because
-    # no contours possible.
-    # This would error out pre
-    # https://github.com/matplotlib/matplotlib/pull/9743
+    # Test edge case from https://github.com/matplotlib/matplotlib/issues/9742
+    # User supplied fmt for each level as a dictionary, but Matplotlib changed
+    # the level to the minimum data value because no contours possible.
+    # This was fixed in https://github.com/matplotlib/matplotlib/pull/9743
     x = np.arange(9)
     z = np.zeros((9, 9))
 

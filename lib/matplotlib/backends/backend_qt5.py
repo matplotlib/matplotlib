@@ -59,7 +59,7 @@ SPECIAL_KEYS = {QtCore.Qt.Key_Control: 'control',
                 QtCore.Qt.Key_Clear: 'clear', }
 
 # define which modifier keys are collected on keyboard events.
-# elements are (mpl names, Modifier Flag, Qt Key) tuples
+# elements are (Matplotlib modifier names, Modifier Flag, Qt Key) tuples
 SUPER = 0
 ALT = 1
 CTRL = 2

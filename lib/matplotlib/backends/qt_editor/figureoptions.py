@@ -1,6 +1,6 @@
 # Copyright © 2009 Pierre Raybaut
 # Licensed under the terms of the MIT License
-# see the mpl licenses directory for a copy of the license
+# see the Matplotlib licenses directory for a copy of the license
 
 
 """Module that provides a GUI-based editor for matplotlib's figure options."""

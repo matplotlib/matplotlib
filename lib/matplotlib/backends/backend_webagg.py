@@ -171,7 +171,7 @@ class WebAggApplication(tornado.web.Application):
                  tornado.web.StaticFileHandler,
                  {'path': core.FigureManagerWebAgg.get_static_file_path()}),
 
-                # An MPL favicon
+                # A Matplotlib favicon
                 (url_prefix + r'/favicon.ico', self.FavIcon),
 
                 # The page that contains all of the pieces

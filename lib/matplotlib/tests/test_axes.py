@@ -1992,7 +1992,7 @@ class TestScatter:
         # Additional checking of *c* (introduced in #11383).
         REGEXP = {
             "shape": "^'c' argument has [0-9]+ elements",  # shape mismatch
-            "conversion": "^'c' argument must be a mpl color",  # bad vals
+            "conversion": "^'c' argument must be a color",  # bad vals
             }
 
         if re_key is None:
@@ -2571,7 +2571,8 @@ def test_boxplot_with_CIarray():
     ax = fig.add_subplot(111)
     CIs = np.array([[-1.5, 3.], [-1., 3.5]])
 
-    # show 1 boxplot with mpl medians/conf. intervals, 1 with manual values
+    # show a boxplot with Matplotlib medians and confidence intervals, and
+    # another with manual values
     ax.boxplot([x, x], bootstrap=10000, usermedians=[None, 1.0],
                conf_intervals=CIs, notch=1)
     ax.set_ylim((-30, 30))

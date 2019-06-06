@@ -864,8 +864,8 @@ class JSONEncoder(json.JSONEncoder):
         elif isinstance(o, FontEntry):
             d = dict(o.__dict__, __class__='FontEntry')
             try:
-                # Cache paths of fonts shipped with mpl relative to the mpl
-                # data path, which helps in the presence of venvs.
+                # Cache paths of fonts shipped with Matplotlib relative to the
+                # Matplotlib data path, which helps in the presence of venvs.
                 d["fname"] = str(
                     Path(d["fname"]).relative_to(mpl.get_data_path()))
             except ValueError:

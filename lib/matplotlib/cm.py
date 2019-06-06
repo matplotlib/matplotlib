@@ -159,12 +159,15 @@ def get_cmap(name=None, lut=None):
     Colormaps added with :func:`register_cmap` take precedence over
     built-in colormaps.
 
-    If *name* is a :class:`matplotlib.colors.Colormap` instance, it will be
-    returned.
-
-    If *lut* is not None it must be an integer giving the number of
-    entries desired in the lookup table, and *name* must be a standard
-    mpl colormap name.
+    Parameters
+    ----------
+    name : `matplotlib.colors.Colormap` or str or None, default: None
+        If a `Colormap` instance, it will be returned.  Otherwise, the name of
+        a colormap known to Matplotlib, which will be resampled by *lut*.  The
+        default, None, means :rc:`image.cmap`.
+    lut : int or None, default: None
+        If *name* is not already a Colormap instance and *lut* is not None, the
+        colormap will be resampled to have *lut* entries in the lookup table.
     """
     if name is None:
         name = mpl.rcParams['image.cmap']

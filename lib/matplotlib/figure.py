@@ -2098,11 +2098,11 @@ default: 'top'
             progressive JPEG file. Applicable only if *format* is jpg or
             jpeg, ignored otherwise. Is *False* by default.
 
-        facecolor : color spec or None, optional
+        facecolor : color or None, optional
             The facecolor of the figure; if *None*, defaults to
             :rc:`savefig.facecolor`.
 
-        edgecolor : color spec or None, optional
+        edgecolor : color or None, optional
             The edgecolor of the figure; if *None*, defaults to
             :rc:`savefig.edgecolor`
 

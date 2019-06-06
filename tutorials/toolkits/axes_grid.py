@@ -205,8 +205,8 @@ colorbar whose height (or width) in sync with the master axes
 scatter_hist.py with AxesDivider
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The "scatter_hist.py" example in mpl can be rewritten using
-*make_axes_locatable*. ::
+The :doc:`/gallery/lines_bars_and_markers/scatter_hist` example can be
+rewritten using *make_axes_locatable*::
 
     axScatter = subplot(111)
     axScatter.scatter(x, y)

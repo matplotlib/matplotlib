@@ -1031,7 +1031,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     of box and whisker plots. The `Returns` section enumerates the
     required keys of the dictionary. Users can skip this function and
     pass a user-defined set of dictionaries to the new `axes.bxp` method
-    instead of relying on MPL to do the calculations.
+    instead of relying on Matplotlib to do the calculations.
 
     Parameters
     ----------
@@ -1335,8 +1335,8 @@ def violin_stats(X, method, points=100, quantiles=None):
     Returns a list of dictionaries of data which can be used to draw a series
     of violin plots. See the `Returns` section below to view the required keys
     of the dictionary. Users can skip this function and pass a user-defined set
-    of dictionaries to the `axes.vplot` method instead of using MPL to do the
-    calculations.
+    of dictionaries to the `axes.vplot` method instead of using Matplotlib to
+    do the calculations.
 
     Parameters
     ----------

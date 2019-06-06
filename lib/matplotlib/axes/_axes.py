@@ -3096,9 +3096,9 @@ class Axes(_AxesBase):
             Use 'none' (case insensitive) to plot errorbars without any data
             markers.
 
-        ecolor : mpl color, optional, default: None
-            A matplotlib color arg which gives the color the errorbar lines.
-            If None, use the color of the line connecting the markers.
+        ecolor : color, optional, default: None
+            The color of the errorbar lines.  If None, use the color of the
+            line connecting the markers.
 
         elinewidth : scalar, optional, default: None
             The linewidth of the errorbar lines. If None, the linewidth of
@@ -4175,12 +4175,12 @@ class Axes(_AxesBase):
         Returns
         -------
         c
-            The input *c* if it was not *None*, else some color specification
-            derived from the other inputs or defaults.
+            The input *c* if it was not *None*, else a color derived from the
+            other inputs or defaults.
         colors : array(N, 4) or None
-            The facecolors as RGBA values or *None* if a colormap is used.
+            The facecolors as RGBA values, or *None* if a colormap is used.
         edgecolors
-            The edgecolor specification.
+            The edgecolor.
 
         """
         facecolors = kwargs.pop('facecolors', None)
@@ -4198,10 +4198,10 @@ class Axes(_AxesBase):
             try:
                 mcolors.to_rgba_array(kwcolor)
             except ValueError:
-                raise ValueError("'color' kwarg must be an mpl color"
-                                 " spec or sequence of color specs.\n"
-                                 "For a sequence of values to be color-mapped,"
-                                 " use the 'c' argument instead.")
+                raise ValueError(
+                    "'color' kwarg must be an color or sequence of color "
+                    "specs.  For a sequence of values to be color-mapped, use "
+                    "the 'c' argument instead.")
             if edgecolors is None:
                 edgecolors = kwcolor
             if facecolors is None:
@@ -4257,8 +4257,8 @@ class Axes(_AxesBase):
                 # Both the mapping *and* the RGBA conversion failed: pretty
                 # severe failure => one may appreciate a verbose feedback.
                 raise ValueError(
-                    f"'c' argument must be a mpl color, a sequence of mpl "
-                    f"colors, or a sequence of numbers, not {c}.")
+                    f"'c' argument must be a color, a sequence of colors, or "
+                    f"a sequence of numbers, not {c}")
             else:
                 if len(colors) not in (0, 1, xsize):
                     # NB: remember that a single color is also acceptable.
@@ -4289,11 +4289,11 @@ class Axes(_AxesBase):
             The marker size in points**2.
             Default is ``rcParams['lines.markersize'] ** 2``.
 
-        c : color, sequence, or sequence of color, optional
+        c : color, sequence, or sequence of colors, optional
             The marker color. Possible values:
 
             - A single color format string.
-            - A sequence of color specifications of length n.
+            - A sequence of colors of length n.
             - A scalar or sequence of n numbers to be mapped to colors using
               *cmap* and *norm*.
             - A 2-D array in which the rows are RGB or RGBA.
@@ -5756,7 +5756,7 @@ optional.
             - *None*: :rc:`patch.edgecolor` will be used. Note that currently
               :rc:`patch.force_edgecolor` has to be True for this to work.
             - 'face': Use the adjacent face color.
-            - An mpl color or sequence of colors will set the edge color.
+            - A color or sequence of colors will set the edge color.
 
             The singular form *edgecolor* works as an alias.
 
@@ -5990,7 +5990,7 @@ optional.
             - *None*: :rc:`patch.edgecolor` will be used. Note that currently
               :rc:`patch.force_edgecolor` has to be True for this to work.
             - 'face': Use the adjacent face color.
-            - An mpl color or sequence of colors will set the edge color.
+            - A color or sequence of colors will set the edge color.
 
             The singular form *edgecolor* works as an alias.
 
@@ -6507,8 +6507,8 @@ optional.
             Default is ``False``
 
         color : color or array_like of colors or None, optional
-            Color spec or sequence of color specs, one per dataset.  Default
-            (``None``) uses the standard line color sequence.
+            Color or sequence of colors, one per dataset.  Default (``None``)
+            uses the standard line color sequence.
 
             Default is ``None``
 

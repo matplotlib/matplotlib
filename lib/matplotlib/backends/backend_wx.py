@@ -944,12 +944,10 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             else:
                 self._skipwheelevent = True
 
-        # Convert to mpl event
         FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=evt)
 
     def _onMotion(self, evt):
         """Start measuring on an axis."""
-
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
@@ -957,7 +955,6 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
     def _onLeave(self, evt):
         """Mouse has left the window."""
-
         evt.Skip()
         FigureCanvasBase.leave_notify_event(self, guiEvent=evt)
 

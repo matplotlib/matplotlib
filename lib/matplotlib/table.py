@@ -44,9 +44,9 @@ class Cell(Rectangle):
         The cell width.
     height : float
         The cell height.
-    edgecolor : color spec
+    edgecolor : color
         The color of the cell border.
-    facecolor : color spec
+    facecolor : color
         The cell facecolor.
     fill : bool
         Whether the cell background is filled.
@@ -689,7 +689,7 @@ def table(ax,
         *Note*: Line breaks in the strings are currently not accounted for and
         will result in the text exceeding the cell boundaries.
 
-    cellColours : 2D list of matplotlib color specs, optional
+    cellColours : 2D list of colors, optional
         The background colors of the cells.
 
     cellLoc : {'left', 'center', 'right'}, default: 'right'
@@ -702,7 +702,7 @@ def table(ax,
     rowLabels : list of str, optional
         The text of the row header cells.
 
-    rowColours : list of matplotlib color specs, optional
+    rowColours : list of colors, optional
         The colors of the row header cells.
 
     rowLoc : {'left', 'center', 'right'}, optional, default: 'left'
@@ -711,7 +711,7 @@ def table(ax,
     colLabels : list of str, optional
         The text of the column header cells.
 
-    colColours : list of matplotlib color specs, optional
+    colColours : list of colors, optional
         The colors of the column header cells.
 
     rowLoc : {'left', 'center', 'right'}, optional, default: 'left'

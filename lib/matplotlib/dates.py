@@ -30,10 +30,10 @@ objects and Matplotlib dates:
 
 .. note::
 
-   Like Python's datetime, mpl uses the Gregorian calendar for all
+   Like Python's datetime, Matplotlib uses the Gregorian calendar for all
    conversions between dates and floating point numbers. This practice
    is not universal, and calendar differences can cause confusing
-   differences between what Python and mpl give as the number of days
+   differences between what Python and Matplotlib give as the number of days
    since 0001-01-01 and what other software and databases yield.  For
    example, the US Naval Observatory uses a calendar that switches
    from Julian to Gregorian in October, 1582.  Hence, using their

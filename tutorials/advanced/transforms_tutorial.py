@@ -302,7 +302,7 @@ plt.show()
 #
 #   The blended transformations where x is in data coords and y in axes
 #   coordinates is so useful that we have helper methods to return the
-#   versions mpl uses internally for drawing ticks, ticklabels, etc.
+#   versions Matplotlib uses internally for drawing ticks, ticklabels, etc.
 #   The methods are :meth:`matplotlib.axes.Axes.get_xaxis_transform` and
 #   :meth:`matplotlib.axes.Axes.get_yaxis_transform`.  So in the example
 #   above, the call to
