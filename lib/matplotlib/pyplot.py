@@ -223,7 +223,6 @@ def switch_backend(newbackend):
     global _backend_mod
     # make sure the init is pulled up so we can assign to it later
     import matplotlib.backends
-    close("all")
 
     if newbackend is rcsetup._auto_backend_sentinel:
         current_framework = cbook._get_running_interactive_framework()
@@ -260,6 +259,8 @@ def switch_backend(newbackend):
             switch_backend("agg")
             rcParamsOrig["backend"] = "agg"
             return
+    # have to escape the switch on access logic
+    old_backend = dict.__getitem__(rcParams, 'backend')
 
     backend_mod = importlib.import_module(
         cbook._backend_module_name(newbackend))
@@ -323,6 +324,9 @@ def switch_backend(newbackend):
     # Need to keep a global reference to the backend for compatibility reasons.
     # See https://github.com/matplotlib/matplotlib/issues/6092
     matplotlib.backends.backend = newbackend
+    if not (isinstance(old_backend, str) and
+            old_backend.lower() == newbackend.lower()):
+        close("all")
 
     # make sure the repl display hook is installed in case we become
     # interactive
