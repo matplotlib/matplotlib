@@ -479,7 +479,7 @@ class PdfFile:
         self.pagesObject = self.reserveObject('pages')
         self.pageList = []
         self.fontObject = self.reserveObject('fonts')
-        self.alphaStateObject = self.reserveObject('extended graphics states')
+        self._extGStateObject = self.reserveObject('extended graphics states')
         self.hatchObject = self.reserveObject('tiling patterns')
         self.gouraudObject = self.reserveObject('Gouraud triangles')
         self.XObjectObject = self.reserveObject('external objects')
@@ -517,6 +517,9 @@ class PdfFile:
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
         self._alpha_state_seq = (Name(f'A{i}') for i in itertools.count(1))
+        self._soft_mask_states = {}
+        self._soft_mask_seq = (Name(f'SM{i}') for i in itertools.count(1))
+        self._soft_mask_groups = []
         # reproducible writeHatches needs an ordered dict:
         self.hatchPatterns = collections.OrderedDict()
         self._hatch_pattern_seq = (Name(f'H{i}') for i in itertools.count(1))
@@ -541,7 +544,7 @@ class PdfFile:
         #                ColorSpace Pattern Shading Properties
         resources = {'Font': self.fontObject,
                      'XObject': self.XObjectObject,
-                     'ExtGState': self.alphaStateObject,
+                     'ExtGState': self._extGStateObject,
                      'Pattern': self.hatchObject,
                      'Shading': self.gouraudObject,
                      'ProcSet': procsets}
@@ -591,9 +594,8 @@ class PdfFile:
 
         self.endStream()
         self.writeFonts()
-        self.writeObject(
-            self.alphaStateObject,
-            {val[0]: val[1] for val in self.alphaStates.values()})
+        self.writeExtGSTates()
+        self._write_soft_mask_groups()
         self.writeHatches()
         self.writeGouraudTriangles()
         xobjects = {
@@ -1217,6 +1219,72 @@ end"""
                     'CA': alpha[0], 'ca': alpha[1]})
         return name
 
+    def _soft_mask_state(self, smask):
+        """Return an ExtGState that sets the soft mask to the given shading.
+
+        Parameters
+        ----------
+        smask : Reference
+            Reference to a shading in DeviceGray color space, whose luminosity
+            is to be used as the alpha channel.
+
+        Returns
+        -------
+        Name
+        """
+
+        state = self._soft_mask_states.get(smask, None)
+        if state is not None:
+            return state[0]
+
+        name = next(self._soft_mask_seq)
+        groupOb = self.reserveObject('transparency group for soft mask')
+        self._soft_mask_states[smask] = (
+            name,
+            {
+                'Type': Name('ExtGState'),
+                'AIS': False,
+                'SMask': {
+                    'Type': Name('Mask'),
+                    'S': Name('Luminosity'),
+                    'BC': [1],
+                    'G': groupOb
+                }
+            }
+        )
+        self._soft_mask_groups.append((
+            groupOb,
+            {
+                'Type': Name('XObject'),
+                'Subtype': Name('Form'),
+                'FormType': 1,
+                'Group': {
+                    'S': Name('Transparency'),
+                    'CS': Name('DeviceGray')
+                },
+                'Matrix': [1, 0, 0, 1, 0, 0],
+                'Resources': {'Shading': {'S': smask}},
+                'BBox': [0, 0, 1, 1]
+            },
+            [Name('S'), Op.shading]
+        ))
+        return name
+
+    def writeExtGSTates(self):
+        self.writeObject(
+            self._extGStateObject,
+            dict([
+                *self.alphaStates.values(),
+                *self._soft_mask_states.values()
+            ])
+        )
+
+    def _write_soft_mask_groups(self):
+        for ob, attributes, content in self._soft_mask_groups:
+            self.beginStream(ob.id, None, attributes)
+            self.output(*content)
+            self.endStream()
+
     def hatchPattern(self, hatch_style):
         # The colors may come in as numpy arrays, which aren't hashable
         if hatch_style is not None:
@@ -1274,18 +1342,39 @@ end"""
         self.writeObject(self.hatchObject, hatchDict)
 
     def addGouraudTriangles(self, points, colors):
+        """Add a Gouraud triangle shading
+
+        Parameters
+        ----------
+        points : np.ndarray
+            Triangle vertices, shape (n, 3, 2)
+            where n = number of triangles, 3 = vertices, 2 = x, y.
+        colors : np.ndarray
+            Vertex colors, shape (n, 3, 1) or (n, 3, 4)
+            as with points, but last dimension is either (gray,)
+            or (r, g, b, alpha).
+
+        Returns
+        -------
+        Name, Reference
+        """
         name = Name('GT%d' % len(self.gouraudTriangles))
-        self.gouraudTriangles.append((name, points, colors))
-        return name
+        ob = self.reserveObject(f'Gouraud triangle {name}')
+        self.gouraudTriangles.append((name, ob, points, colors))
+        return name, ob
 
     def writeGouraudTriangles(self):
         gouraudDict = dict()
-        for name, points, colors in self.gouraudTriangles:
-            ob = self.reserveObject('Gouraud triangle')
+        for name, ob, points, colors in self.gouraudTriangles:
             gouraudDict[name] = ob
             shape = points.shape
             flat_points = points.reshape((shape[0] * shape[1], 2))
-            flat_colors = colors.reshape((shape[0] * shape[1], 4))
+            colordim = colors.shape[2]
+            assert colordim in (1, 4)
+            flat_colors = colors.reshape((shape[0] * shape[1], colordim))
+            if colordim == 4:
+                # strip the alpha channel
+                colordim = 3
             points_min = np.min(flat_points, axis=0) - (1 << 8)
             points_max = np.max(flat_points, axis=0) + (1 << 8)
             factor = 0xffffffff / (points_max - points_min)
@@ -1296,21 +1385,23 @@ end"""
                  'BitsPerCoordinate': 32,
                  'BitsPerComponent': 8,
                  'BitsPerFlag': 8,
-                 'ColorSpace': Name('DeviceRGB'),
-                 'AntiAlias': True,
-                 'Decode': [points_min[0], points_max[0],
-                            points_min[1], points_max[1],
-                            0, 1, 0, 1, 0, 1]
+                 'ColorSpace': Name(
+                     'DeviceRGB' if colordim == 3 else 'DeviceGray'
+                 ),
+                 'AntiAlias': False,
+                 'Decode': ([points_min[0], points_max[0],
+                             points_min[1], points_max[1]]
+                            + [0, 1] * colordim),
                  })
 
             streamarr = np.empty(
                 (shape[0] * shape[1],),
                 dtype=[('flags', 'u1'),
                        ('points', '>u4', (2,)),
-                       ('colors', 'u1', (3,))])
+                       ('colors', 'u1', (colordim,))])
             streamarr['flags'] = 0
             streamarr['points'] = (flat_points - points_min) * factor
-            streamarr['colors'] = flat_colors[:, :3] * 255.0
+            streamarr['colors'] = flat_colors[:, :colordim] * 255.0
 
             self.write(streamarr.tostring())
             self.endStream()
@@ -1806,20 +1897,43 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
     def draw_gouraud_triangles(self, gc, points, colors, trans):
         assert len(points) == len(colors)
+        if len(points) == 0:
+            return
         assert points.ndim == 3
         assert points.shape[1] == 3
         assert points.shape[2] == 2
         assert colors.ndim == 3
         assert colors.shape[1] == 3
-        assert colors.shape[2] == 4
+        assert colors.shape[2] in (1, 4)
 
         shape = points.shape
         points = points.reshape((shape[0] * shape[1], 2))
         tpoints = trans.transform(points)
         tpoints = tpoints.reshape(shape)
-        name = self.file.addGouraudTriangles(tpoints, colors)
-        self.check_gc(gc)
-        self.file.output(name, Op.shading)
+        name, _ = self.file.addGouraudTriangles(tpoints, colors)
+        output = self.file.output
+
+        if colors.shape[2] == 1:
+            # grayscale
+            gc.set_alpha(1.0)
+            self.check_gc(gc)
+            output(name, Op.shading)
+            return
+
+        alpha = colors[0, 0, 3]
+        if np.allclose(alpha, colors[:, :, 3]):
+            # single alpha value
+            gc.set_alpha(alpha)
+            self.check_gc(gc)
+            output(name, Op.shading)
+        else:
+            # varying alpha: use a soft mask
+            alpha = colors[:, :, 3][:, :, None]
+            _, smask_ob = self.file.addGouraudTriangles(tpoints, alpha)
+            gstate = self.file._soft_mask_state(smask_ob)
+            output(Op.gsave, gstate, Op.setgstate,
+                   name, Op.shading,
+                   Op.grestore)
 
     def _setup_textpos(self, x, y, angle, oldx=0, oldy=0, oldangle=0):
         if angle == oldangle == 0:

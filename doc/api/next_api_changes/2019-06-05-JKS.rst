@@ -8,3 +8,4 @@ The following members of ``matplotlib.backends.backend_pdf.PdfFile`` were remove
 - ``nextAlphaState``
 - ``nextHatch``
 - ``nextImage``
+- ``alphaStateObject``
