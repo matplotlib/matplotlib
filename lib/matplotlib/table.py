@@ -360,8 +360,7 @@ class Table(Artist):
         """
         Set a custom cell in a given position.
         """
-        if not isinstance(cell, CustomCell):
-            raise TypeError('Table only accepts CustomCell')
+        cbook._check_isinstance(CustomCell, cell=cell)
         try:
             row, col = position[0], position[1]
         except Exception:

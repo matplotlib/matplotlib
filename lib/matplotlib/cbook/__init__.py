@@ -2011,6 +2011,40 @@ def _check_and_log_subprocess(command, logger, **kwargs):
     return report
 
 
+def _check_isinstance(types, **kwargs):
+    """
+    For each *key, value* pair in *kwargs*, check that *value* is an instance
+    of one of *types*; if not, raise an appropriate TypeError.
+
+    As a special case, a ``None`` entry in *types* is treated as NoneType.
+
+    Examples
+    --------
+    >>> cbook._check_isinstance((SomeClass, None), arg=arg)
+    """
+    if isinstance(types, type) or types is None:
+        types = (types,)
+    none_allowed = None in types
+    types = tuple(tp for tp in types if tp is not None)
+
+    def type_name(tp):
+        return (tp.__qualname__ if tp.__module__ == "builtins"
+                else f"{tp.__module__}.{tp.__qualname__}")
+
+    names = [*map(type_name, types)]
+    if none_allowed:
+        types = (*types, type(None))
+        names.append("None")
+    for k, v in kwargs.items():
+        if not isinstance(v, types):
+            raise TypeError(
+                "{!r} must be an instance of {}, not a {}".format(
+                    k,
+                    ", ".join(names[:-1]) + " or " + names[-1]
+                    if len(names) > 1 else names[0],
+                    type_name(type(v))))
+
+
 def _check_in_list(values, **kwargs):
     """
     For each *key, value* pair in *kwargs*, check that *value* is in *values*;

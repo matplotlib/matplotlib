@@ -1631,9 +1631,7 @@ class Axis(martist.Artist):
         ----------
         formatter : ~matplotlib.ticker.Formatter
         """
-        if not isinstance(formatter, mticker.Formatter):
-            raise TypeError("formatter argument should be instance of "
-                            "matplotlib.ticker.Formatter")
+        cbook._check_isinstance(mticker.Formatter, formatter=formatter)
         self.isDefault_majfmt = False
         self.major.formatter = formatter
         formatter.set_axis(self)
@@ -1647,9 +1645,7 @@ class Axis(martist.Artist):
         ----------
         formatter : ~matplotlib.ticker.Formatter
         """
-        if not isinstance(formatter, mticker.Formatter):
-            raise TypeError("formatter argument should be instance of "
-                            "matplotlib.ticker.Formatter")
+        cbook._check_isinstance(mticker.Formatter, formatter=formatter)
         self.isDefault_minfmt = False
         self.minor.formatter = formatter
         formatter.set_axis(self)
@@ -1663,9 +1659,7 @@ class Axis(martist.Artist):
         ----------
         locator : ~matplotlib.ticker.Locator
         """
-        if not isinstance(locator, mticker.Locator):
-            raise TypeError("locator argument should be instance of "
-                            "matplotlib.ticker.Locator")
+        cbook._check_isinstance(mticker.Locator, locator=locator)
         self.isDefault_majloc = False
         self.major.locator = locator
         if self.major.formatter:
@@ -1681,9 +1675,7 @@ class Axis(martist.Artist):
         ----------
         locator : ~matplotlib.ticker.Locator
         """
-        if not isinstance(locator, mticker.Locator):
-            raise TypeError("locator argument should be instance of "
-                            "matplotlib.ticker.Locator")
+        cbook._check_isinstance(mticker.Locator, locator=locator)
         self.isDefault_minloc = False
         self.minor.locator = locator
         if self.minor.formatter:

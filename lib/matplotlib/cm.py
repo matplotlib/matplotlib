@@ -130,21 +130,16 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     In the second case, the three arguments are passed to
     the :class:`~matplotlib.colors.LinearSegmentedColormap` initializer,
     and the resulting colormap is registered.
-
     """
+    cbook._check_isinstance((str, None), name=name)
     if name is None:
         try:
             name = cmap.name
         except AttributeError:
             raise ValueError("Arguments must include a name or a Colormap")
-
-    if not isinstance(name, str):
-        raise ValueError("Colormap name must be a string")
-
     if isinstance(cmap, colors.Colormap):
         cmap_d[name] = cmap
         return
-
     # For the remainder, let exceptions propagate.
     if lut is None:
         lut = mpl.rcParams['image.lut']
@@ -362,6 +357,7 @@ class ScalarMappable:
         on the colorbar to default.
 
         """
+        cbook._check_isinstance((colors.Normalize, None), norm=norm)
         if norm is None:
             norm = colors.Normalize()
         self.norm = norm

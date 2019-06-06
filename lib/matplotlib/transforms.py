@@ -989,9 +989,7 @@ class TransformedBbox(BboxBase):
         """
         if not bbox.is_bbox:
             raise ValueError("'bbox' is not a bbox")
-        if not isinstance(transform, Transform):
-            raise ValueError("'transform' must be an instance of "
-                             "'matplotlib.transform.Transform'")
+        cbook._check_isinstance(Transform, transform=transform)
         if transform.input_dims != 2 or transform.output_dims != 2:
             raise ValueError(
                 "The input and output dimensions of 'transform' must be 2")
@@ -1586,9 +1584,7 @@ class TransformWrapper(Transform):
         *child*: A class:`Transform` instance.  This child may later
         be replaced with :meth:`set`.
         """
-        if not isinstance(child, Transform):
-            raise ValueError("'child' must be an instance of "
-                             "'matplotlib.transform.Transform'")
+        cbook._check_isinstance(Transform, child=child)
         self._init(child)
         self.set_children(child)
 
@@ -1864,9 +1860,7 @@ class Affine2D(Affine2DBase):
         Set this transformation from the frozen copy of another
         :class:`Affine2DBase` object.
         """
-        if not isinstance(other, Affine2DBase):
-            raise ValueError("'other' must be an instance of "
-                             "'matplotlib.transform.Affine2DBase'")
+        cbook._check_isinstance(Affine2DBase, other=other)
         self._mtx = other.get_matrix()
         self.invalidate()
 
@@ -2655,11 +2649,8 @@ class TransformedPath(TransformNode):
         path : `~.path.Path`
         transform : `Transform`
         """
-        if not isinstance(transform, Transform):
-            raise ValueError("'transform' must be an instance of "
-                             "'matplotlib.transform.Transform'")
+        cbook._check_isinstance(Transform, transform=transform)
         TransformNode.__init__(self)
-
         self._path = path
         self._transform = transform
         self.set_children(transform)

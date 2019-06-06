@@ -879,13 +879,13 @@ class GraphicsContextBase:
 
     def set_clip_path(self, path):
         """
-        Set the clip path and transformation.  Path should be a
-        :class:`~matplotlib.transforms.TransformedPath` instance.
+        Set the clip path and transformation.
+
+        Parameters
+        ----------
+        path : `~matplotlib.transforms.TransformedPath` or None
         """
-        if (path is not None
-                and not isinstance(path, transforms.TransformedPath)):
-            raise ValueError("Path should be a "
-                             "matplotlib.transforms.TransformedPath instance")
+        cbook._check_isinstance((transforms.TransformedPath, None), path=path)
         self._clippath = path
 
     def set_dashes(self, dash_offset, dash_list):

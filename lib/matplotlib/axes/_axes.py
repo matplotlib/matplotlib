@@ -4454,9 +4454,6 @@ optional.
         collection.update(kwargs)
 
         if colors is None:
-            if norm is not None and not isinstance(norm, mcolors.Normalize):
-                raise ValueError(
-                    "'norm' must be an instance of 'mcolors.Normalize'")
             collection.set_array(c)
             collection.set_cmap(cmap)
             collection.set_norm(norm)
@@ -4769,11 +4766,6 @@ optional.
                 transOffset=mtransforms.IdentityTransform(),
                 offset_position="data"
                 )
-
-        # Check for valid norm
-        if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
 
         # Set normalizer if bins is 'log'
         if bins == 'log':
@@ -5590,9 +5582,6 @@ optional.
         `~matplotlib.pyplot.imshow` expects RGB images adopting the straight
         (unassociated) alpha representation.
         """
-        if norm is not None and not isinstance(norm, mcolors.Normalize):
-            raise ValueError(
-                "'norm' must be an instance of 'mcolors.Normalize'")
         if aspect is None:
             aspect = rcParams['image.aspect']
         self.set_aspect(aspect)
@@ -5882,9 +5871,6 @@ optional.
 
         collection.set_alpha(alpha)
         collection.set_array(C)
-        if norm is not None and not isinstance(norm, mcolors.Normalize):
-            raise ValueError(
-                "'norm' must be an instance of 'mcolors.Normalize'")
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection.set_clim(vmin, vmax)
@@ -6099,9 +6085,6 @@ optional.
                                     **kwargs)
         collection.set_alpha(alpha)
         collection.set_array(C)
-        if norm is not None and not isinstance(norm, mcolors.Normalize):
-            raise ValueError(
-                "'norm' must be an instance of 'mcolors.Normalize'")
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection.set_clim(vmin, vmax)
@@ -6238,11 +6221,7 @@ optional.
         Notes
         -----
         .. [notes section required to get data note injection right]
-
         """
-        if norm is not None and not isinstance(norm, mcolors.Normalize):
-            raise ValueError(
-                "'norm' must be an instance of 'mcolors.Normalize'")
 
         C = args[-1]
         nr, nc = np.shape(C)[:2]
