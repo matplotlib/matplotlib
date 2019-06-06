@@ -2634,12 +2634,7 @@ class AutoMinorLocator(Locator):
 
         If *n* is omitted or None, it will be set to 5 or 4.
         """
-        if n is None:
-            self.ndivs = None
-        elif n == 'auto':
-            self.ndivs = 'auto'
-        else:
-            self.ndivs = n
+        self.ndivs = n
 
     def __call__(self):
         'Return the locations of the ticks'
