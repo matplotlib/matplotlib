@@ -128,6 +128,8 @@ class ConversionInterface(object):
         """
         if np.iterable(x):
             for thisx in x:
+                if thisx is ma.masked:
+                    continue
                 return isinstance(thisx, Number)
         else:
             return isinstance(x, Number)

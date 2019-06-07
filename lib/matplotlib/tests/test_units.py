@@ -155,3 +155,14 @@ def test_jpl_barh_units():
 def test_empty_arrays():
     # Check that plotting an empty array with a dtype works
     plt.scatter(np.array([], dtype='datetime64[ns]'), np.array([]))
+
+
+def test_scatter_element0_masked():
+
+    times = np.arange('2005-02', '2005-03', dtype='datetime64[D]')
+
+    y = np.arange(len(times), dtype='float')
+    y[0] = np.nan
+    fig, ax = plt.subplots()
+    ax.scatter(times, y)
+    fig.canvas.draw()
