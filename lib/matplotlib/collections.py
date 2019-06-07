@@ -1462,7 +1462,7 @@ class EventCollection(LineCollection):
 
         .. plot:: gallery/lines_bars_and_markers/eventcollection_demo.py
         """
-
+        positions = np.array(positions, copy=True)
         segment = (lineoffset + linelength / 2.,
                    lineoffset - linelength / 2.)
         if positions is None or len(positions) == 0:
