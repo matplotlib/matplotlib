@@ -1650,7 +1650,7 @@ class DraggableBase:
             self.update_offset(dx, dy)
             self.canvas.restore_region(self.background)
             self.ref_artist.draw(self.ref_artist.figure._cachedRenderer)
-            self.canvas.blit(self.ref_artist.figure.bbox)
+            self.canvas.blit()
 
     def on_pick(self, evt):
         if self._check_still_parented() and evt.artist == self.ref_artist:
@@ -1665,7 +1665,7 @@ class DraggableBase:
                 self.background = self.canvas.copy_from_bbox(
                                     self.ref_artist.figure.bbox)
                 self.ref_artist.draw(self.ref_artist.figure._cachedRenderer)
-                self.canvas.blit(self.ref_artist.figure.bbox)
+                self.canvas.blit()
                 self._c1 = self.canvas.mpl_connect('motion_notify_event',
                                                    self.on_motion_blit)
             else:

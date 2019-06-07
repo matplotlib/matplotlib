@@ -1464,7 +1464,7 @@ class MultiCursor(Widget):
             if self.horizOn:
                 for ax, line in zip(self.axes, self.hlines):
                     ax.draw_artist(line)
-            self.canvas.blit(self.canvas.figure.bbox)
+            self.canvas.blit()
         else:
             self.canvas.draw_idle()
 
