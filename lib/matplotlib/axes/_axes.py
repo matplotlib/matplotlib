@@ -3120,7 +3120,7 @@ class Axes(_AxesBase):
             If True, will plot the errorbars above the plot
             symbols. Default is below.
 
-        lolims, uplims, xlolims, xuplims : bool, optional, default: None
+        lolims, uplims, xlolims, xuplims : bool, optional, default: False
             These arguments can be used to indicate that a value gives only
             upper/lower limits. In that case a caret symbol is used to
             indicate this. *lims*-arguments may be of the same type as *xerr*
