@@ -2288,7 +2288,7 @@ default: 'top'
         timeout : scalar, optional, default: 30
             Number of seconds to wait before timing out. If zero or negative
             will never timeout.
-        show_clicks : bool, optional, default: False
+        show_clicks : bool, optional, default: True
             If True, show a red cross at the location of each click.
         mouse_add : {1, 2, 3, None}, optional, default: 1 (left click)
             Mouse button used to add points.
