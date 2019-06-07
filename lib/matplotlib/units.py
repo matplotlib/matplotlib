@@ -45,6 +45,7 @@ datetime objects::
 from numbers import Number
 
 import numpy as np
+from numpy import ma
 
 from matplotlib import cbook
 
@@ -128,6 +129,8 @@ class ConversionInterface(object):
         """
         if np.iterable(x):
             for thisx in x:
+                if thisx is ma.masked:
+                    continue
                 return isinstance(thisx, Number)
         else:
             return isinstance(x, Number)
