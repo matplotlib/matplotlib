@@ -45,6 +45,7 @@ datetime objects::
 from numbers import Number
 
 import numpy as np
+from numpy import ma
 
 from matplotlib import cbook
 
