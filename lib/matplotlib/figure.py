@@ -2257,7 +2257,7 @@ default: 'top'
                 ax.set_position(ax.figbox)
         self.stale = True
 
-    def ginput(self, n=1, timeout=30, show_clicks=True, mouse_add=1,
+    def ginput(self, n=1, timeout=30, show_clicks=False, mouse_add=1,
                mouse_pop=3, mouse_stop=2):
         """
         Blocking call to interact with a figure.
