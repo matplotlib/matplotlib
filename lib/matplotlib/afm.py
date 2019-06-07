@@ -244,6 +244,8 @@ def _parse_char_metrics(fh):
         # Reference).
         if name == 'Euro':
             num = 128
+        elif name == 'minus':
+            num = ord("\N{MINUS SIGN}")  # 0x2212
         if num != -1:
             ascii_d[num] = metrics
         name_d[name] = metrics

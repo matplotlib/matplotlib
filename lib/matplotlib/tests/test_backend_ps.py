@@ -45,8 +45,9 @@ with warnings.catch_warnings():
     'eps afm',
     'eps with usetex'
 ])
-def test_savefig_to_stringio(format, use_log, rcParams):
+def test_savefig_to_stringio(format, use_log, rcParams, monkeypatch):
     mpl.rcParams.update(rcParams)
+    monkeypatch.setenv("SOURCE_DATE_EPOCH", "0")  # For reproducibility.
 
     fig, ax = plt.subplots()
 
@@ -56,16 +57,15 @@ def test_savefig_to_stringio(format, use_log, rcParams):
             ax.set_yscale('log')
 
         ax.plot([1, 2], [1, 2])
-        ax.set_title("Déjà vu")
+        title = "Déjà vu"
+        if not mpl.rcParams["text.usetex"]:
+            title += " \N{MINUS SIGN}\N{EURO SIGN}"
+        ax.set_title(title)
         fig.savefig(s_buf, format=format)
         fig.savefig(b_buf, format=format)
 
         s_val = s_buf.getvalue().encode('ascii')
         b_val = b_buf.getvalue()
-
-        # Remove comments from the output.  This includes things that could
-        # change from run to run, such as the time.
-        s_val, b_val = [re.sub(b'%%.*?\n', b'', x) for x in [s_val, b_val]]
 
         assert s_val == b_val.replace(b'\r\n', b'\n')
 
