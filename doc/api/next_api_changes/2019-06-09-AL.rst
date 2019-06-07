@@ -1,0 +1,6 @@
+Changes in font weight guessing
+```````````````````````````````
+
+Font weight guessing now first checks for the presence of the FT_STYLE_BOLD_FLAG
+before trying to match substrings in the font name.  In particular, this means
+that Times New Roman Bold is now correctly detected as bold, not normal weight.

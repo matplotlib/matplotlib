@@ -395,12 +395,10 @@ def ttfFontProperty(font):
     else:
         variant = 'normal'
 
-    weight = next((w for w in weight_dict if sfnt4.find(w) >= 0), None)
-    if not weight:
-        if font.style_flags & ft2font.BOLD:
-            weight = 700
-        else:
-            weight = 400
+    if font.style_flags & ft2font.BOLD:
+        weight = 700
+    else:
+        weight = next((w for w in weight_dict if w in sfnt4), 400)
 
     #  Stretch can be absolute and relative
     #  Absolute stretches are: ultra-condensed, extra-condensed, condensed,
