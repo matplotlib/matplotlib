@@ -71,8 +71,11 @@ def blit(photoimage, aggimage, offsets, bbox=None):
     dataptr = (height, width, data.ctypes.data)
     if bbox is not None:
         (x1, y1), (x2, y2) = bbox.__array__()
-        bboxptr = (math.floor(x1), math.ceil(x2),
-                   math.floor(y1), math.ceil(y2))
+        x1 = max(math.floor(x1), 0)
+        x2 = min(math.ceil(x2), width)
+        y1 = max(math.floor(y1), 0)
+        y2 = min(math.ceil(y2), height)
+        bboxptr = (x1, x2, y1, y2)
     else:
         photoimage.blank()
         bboxptr = (0, width, 0, height)
