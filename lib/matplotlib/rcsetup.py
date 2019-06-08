@@ -108,7 +108,7 @@ def validate_any(s):
 validate_anylist = _listify_validator(validate_any)
 
 
-@cbook.deprecated("3.1", alternative="os.path.exists")
+@cbook.deprecated("3.2", alternative="os.path.exists")
 def validate_path_exists(s):
     """If s is a path, return s, else False"""
     if s is None:
