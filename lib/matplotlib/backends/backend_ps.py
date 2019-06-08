@@ -299,31 +299,28 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         name = 'H%d' % len(self._hatches)
         linewidth = rcParams['hatch.linewidth']
         pageheight = self.height * 72
-        self._pswriter.write("""\
+        self._pswriter.write(f"""\
   << /PatternType 1
      /PaintType 2
      /TilingType 2
-     /BBox[0 0 %(sidelen)d %(sidelen)d]
-     /XStep %(sidelen)d
-     /YStep %(sidelen)d
+     /BBox[0 0 {sidelen:d} {sidelen:d}]
+     /XStep {sidelen:d}
+     /YStep {sidelen:d}
 
-     /PaintProc {
+     /PaintProc {{
         pop
-        %(linewidth)f setlinewidth
-""" % locals())
-        self._pswriter.write(
-            self._convert_path(Path.hatch(hatch), Affine2D().scale(sidelen),
-                               simplify=False))
-        self._pswriter.write("""\
+        {linewidth:f} setlinewidth
+{self._convert_path(
+    Path.hatch(hatch), Affine2D().scale(sidelen), simplify=False)}
         fill
         stroke
-     } bind
+     }} bind
    >>
    matrix
-   0.0 %(pageheight)f translate
+   0.0 {pageheight:f} translate
    makepattern
-   /%(name)s exch def
-""" % locals())
+   /{name} exch def
+""")
         self._hatches[hatch] = name
         return name
 
@@ -369,20 +366,20 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             clip.append('%s' % id)
         clip = '\n'.join(clip)
 
-        ps = """gsave
-%(clip)s
-%(x)s %(y)s translate
-[%(matrix)s] concat
-%(xscale)s %(yscale)s scale
-/DataString %(w)s string def
-%(w)s %(h)s 8 [ %(w)s 0 0 -%(h)s 0 %(h)s ]
-{
+        self._pswriter.write(f"""\
+gsave
+{clip}
+{x:f} {y:f} translate
+[{matrix}] concat
+{xscale:f} {yscale:f} scale
+/DataString {w:d} string def
+{w:d} {h:d} 8 [ {w:d} 0 0 -{h:d} 0 {h:d} ]
+{{
 currentfile DataString readhexstring pop
-} bind %(imagecmd)s
-%(hexlines)s
+}} bind {imagecmd}
+{hexlines}
 grestore
-""" % locals()
-        self._pswriter.write(ps)
+""")
 
     def _convert_path(self, path, transform, clip=False, simplify=None):
         if clip:
@@ -548,15 +545,13 @@ translate
                 r'\psfrag{%s}[bl][bl][1][%f]{\fontsize{%f}{%f}%s}' % (
                     thetext, angle, fontsize, fontsize*1.25, tex))
 
-        ps = """\
+        self._pswriter.write(f"""\
 gsave
-%(pos)s moveto
-(%(thetext)s)
+{pos} moveto
+({thetext})
 show
 grestore
-    """ % locals()
-
-        self._pswriter.write(ps)
+""")
         self.textcnt += 1
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
@@ -607,17 +602,16 @@ grestore
                 thisx += width * scale
 
             thetext = "\n".join(lines)
-            ps = """\
+            self._pswriter.write(f"""\
 gsave
-/%(fontname)s findfont
-%(fontsize)s scalefont
+/{fontname} findfont
+{fontsize} scalefont
 setfont
-%(x)f %(y)f translate
-%(angle)f rotate
-%(thetext)s
+{x:f} {y:f} translate
+{angle:f} rotate
+{thetext}
 grestore
-    """ % locals()
-            self._pswriter.write(ps)
+""")
 
         else:
             font = self._get_font_ttf(prop)
@@ -655,13 +649,13 @@ grestore
                 thisx += glyph.linearHoriAdvance / 65536
 
             thetext = '\n'.join(lines)
-            ps = """gsave
-%(x)f %(y)f translate
-%(angle)f rotate
-%(thetext)s
+            self._pswriter.write(f"""\
+gsave
+{x:f} {y:f} translate
+{angle:f} rotate
+{thetext}
 grestore
-""" % locals()
-            self._pswriter.write(ps)
+""")
 
     def new_gc(self):
         # docstring inherited
@@ -677,13 +671,13 @@ grestore
         self.merge_used_characters(used_characters)
         self.set_color(*gc.get_rgb())
         thetext = pswriter.getvalue()
-        ps = """gsave
-%(x)f %(y)f translate
-%(angle)f rotate
-%(thetext)s
+        self._pswriter.write(f"""\
+gsave
+{x:f} {y:f} translate
+{angle:f} rotate
+{thetext}
 grestore
-""" % locals()
-        self._pswriter.write(ps)
+""")
 
     def draw_gouraud_triangle(self, gc, points, colors, trans):
         self.draw_gouraud_triangles(gc, points.reshape((1, 3, 2)),
@@ -720,7 +714,7 @@ grestore
 
         stream = quote_ps_string(streamarr.tostring())
 
-        self._pswriter.write("""
+        self._pswriter.write(f"""\
 gsave
 << /ShadingType 4
    /ColorSpace [/DeviceRGB]
@@ -728,12 +722,12 @@ gsave
    /BitsPerComponent 8
    /BitsPerFlag 8
    /AntiAlias true
-   /Decode [ %(xmin)f %(xmax)f %(ymin)f %(ymax)f 0 1 0 1 0 1 ]
-   /DataSource (%(stream)s)
+   /Decode [ {xmin:f} {xmax:f} {ymin:f} {ymax:f} 0 1 0 1 0 1 ]
+   /DataSource ({stream})
 >>
 shfill
 grestore
-""" % locals())
+""")
 
     def _draw_ps(self, ps, gc, rgbFace, fill=True, stroke=True, command=None):
         """

@@ -237,17 +237,15 @@ class MathtextBackendPs(MathtextBackend):
         symbol_name     = info.symbol_name
 
         if (postscript_name, fontsize) != self.lastfont:
-            ps = """/%(postscript_name)s findfont
-%(fontsize)s scalefont
-setfont
-""" % locals()
             self.lastfont = postscript_name, fontsize
-            self.pswriter.write(ps)
+            self.pswriter.write(
+                f"/{postscript_name} findfont\n"
+                f"{fontsize} scalefont\n"
+                f"setfont\n")
 
-        ps = """%(ox)f %(oy)f moveto
-/%(symbol_name)s glyphshow\n
-""" % locals()
-        self.pswriter.write(ps)
+        self.pswriter.write(
+            f"{ox:f} {oy:f} moveto\n"
+            f"/{symbol_name} glyphshow\n")
 
     def render_rect_filled(self, x1, y1, x2, y2):
         ps = "%f %f %f %f rectfill\n" % (
