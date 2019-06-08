@@ -1,4 +1,4 @@
-from unittest.mock import Mock
+from types import SimpleNamespace
 
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
@@ -54,7 +54,7 @@ def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
     *step*
         number of scroll steps (positive for 'up', negative for 'down')
     """
-    event = Mock()
+    event = SimpleNamespace()
     event.button = button
     ax = tool.ax
     event.x, event.y = ax.transData.transform([(xdata, ydata),

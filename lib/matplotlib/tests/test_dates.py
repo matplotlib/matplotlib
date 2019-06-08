@@ -1,6 +1,5 @@
 import datetime
 import tempfile
-from unittest.mock import Mock
 
 import dateutil.tz
 import dateutil.rrule
@@ -245,12 +244,14 @@ def test_locator_set_formatter():
 
 
 def test_date_formatter_callable():
-    scale = -11
-    locator = Mock(_get_unit=Mock(return_value=scale))
-    callable_formatting_function = (lambda dates, _:
-                                    [dt.strftime('%d-%m//%Y') for dt in dates])
 
-    formatter = mdates.AutoDateFormatter(locator)
+    class _Locator:
+        def _get_unit(self): return -11
+
+    def callable_formatting_function(dates, _):
+        return [dt.strftime('%d-%m//%Y') for dt in dates]
+
+    formatter = mdates.AutoDateFormatter(_Locator())
     formatter.scaled[-10] = callable_formatting_function
     assert formatter([datetime.datetime(2014, 12, 25)]) == ['25-12//2014']
 

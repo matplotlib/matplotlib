@@ -206,23 +206,23 @@ def test_fig_signals(qt_module):
 ])
 def test_correct_key(backend, qt_key, qt_mods, answer):
     """
-    Make a figure
-    Send a key_press_event event (using non-public, qtX backend specific api)
-    Catch the event
-    Assert sent and caught keys are the same
+    Make a figure.
+    Send a key_press_event event (using non-public, qtX backend specific api).
+    Catch the event.
+    Assert sent and caught keys are the same.
     """
     qt_canvas = plt.figure().canvas
 
-    event = mock.Mock()
-    event.isAutoRepeat.return_value = False
-    event.key.return_value = qt_key
-    event.modifiers.return_value = qt_mods
+    class _Event:
+        def isAutoRepeat(self): return False
+        def key(self): return qt_key
+        def modifiers(self): return qt_mods
 
     def receive(event):
         assert event.key == answer
 
     qt_canvas.mpl_connect('key_press_event', receive)
-    qt_canvas.keyPressEvent(event)
+    qt_canvas.keyPressEvent(_Event())
 
 
 @pytest.mark.backend('Qt5Agg')
