@@ -455,11 +455,11 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         resolution of the figure. If not provided, defaults to
         :rc:`figure.dpi` = ``100``.
 
-    facecolor : color spec
+    facecolor : color
         the background color. If not provided, defaults to
         :rc:`figure.facecolor` = ``'w'``.
 
-    edgecolor : color spec
+    edgecolor : color
         the border color. If not provided, defaults to
         :rc:`figure.edgecolor` = ``'w'``.
 

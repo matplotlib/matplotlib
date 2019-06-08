@@ -179,7 +179,7 @@ bottom and top axis.
 
 xaxis and yaxis attributes are still available, however they are set
 to not visible. As separate artists are used for rendering axis, some
-axis-related method in mpl may have no effect.
+axis-related method in Matplotlib may have no effect.
 In addition to AxisArtist instances, the mpl_toolkits.axisartist.Axes will
 have *gridlines* attribute (Gridlines), which obviously draws grid
 lines.
@@ -321,7 +321,7 @@ HowTo
 Rotation and Alignment of TickLabels
 ====================================
 
-This is also quite different from the original mpl and can be
+This is also quite different from standard Matplotlib and can be
 confusing. When you want to rotate the ticklabels, first consider
 using "set_axis_direction" method. ::
 

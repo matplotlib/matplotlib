@@ -2949,61 +2949,41 @@ class _AxesBase(martist.Artist):
         ----------------
         axis : {'x', 'y', 'both'}
             Axis on which to operate; default is 'both'.
-
-        reset : bool
-            If *True*, set all parameters to defaults
-            before processing other keyword arguments.  Default is
-            *False*.
-
+        reset : bool, default: False
+            If *True*, set all parameters to defaults before processing other
+            keyword arguments.
         which : {'major', 'minor', 'both'}
             Default is 'major'; apply arguments to *which* ticks.
-
         direction : {'in', 'out', 'inout'}
             Puts ticks inside the axes, outside the axes, or both.
-
         length : float
             Tick length in points.
-
         width : float
             Tick width in points.
-
         color : color
-            Tick color; accepts any mpl color spec.
-
+            Tick color.
         pad : float
             Distance in points between tick and label.
-
         labelsize : float or str
             Tick label font size in points or as a string (e.g., 'large').
-
         labelcolor : color
-            Tick label color; mpl color spec.
-
+            Tick label color.
         colors : color
-            Changes the tick color and the label color to the same value:
-            mpl color spec.
-
+            Tick color and label color.
         zorder : float
             Tick and label zorder.
-
         bottom, top, left, right : bool
             Whether to draw the respective ticks.
-
         labelbottom, labeltop, labelleft, labelright : bool
             Whether to draw the respective tick labels.
-
         labelrotation : float
             Tick label rotation
-
         grid_color : color
-            Changes the gridline color to the given mpl color spec.
-
+            Gridline color.
         grid_alpha : float
             Transparency of gridlines: 0 (transparent) to 1 (opaque).
-
         grid_linewidth : float
             Width of gridlines in points.
-
         grid_linestyle : string
             Any valid `~matplotlib.lines.Line2D` line style spec.
 

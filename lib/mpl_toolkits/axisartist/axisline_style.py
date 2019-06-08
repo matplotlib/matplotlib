@@ -82,16 +82,14 @@ class _FancyAxislineStyle:
 
 class AxislineStyle(_Style):
     """
-    :class:`AxislineStyle` is a container class which defines style classes
-    for AxisArtists.
+    A container class which defines style classes for AxisArtists.
 
     An instance of any axisline style class is an callable object,
     whose call signature is ::
 
        __call__(self, axis_artist, path, transform)
 
-    When called, this should return a mpl artist with following
-    methods implemented. ::
+    When called, this should return an `Artist` with the following methods::
 
       def set_path(self, path):
           # set the path for axisline.
@@ -101,8 +99,6 @@ class AxislineStyle(_Style):
 
       def draw(self, renderer):
           # draw
-
-
     """
 
     _style_list = {}
@@ -120,10 +116,9 @@ class AxislineStyle(_Style):
 
         def __call__(self, axis_artist, transform):
             """
-            Given the AxisArtist instance, and transform for the path
-            (set_path method), return the mpl artist for drawing the axis line.
+            Given the AxisArtist instance, and transform for the path (set_path
+            method), return the Matplotlib artist for drawing the axis line.
             """
-
             return self.new_line(axis_artist, transform)
 
     class SimpleArrow(_Base):

@@ -200,11 +200,9 @@ plt.show()
 # Text with non-latin glyphs
 # ==========================
 #
-# As of v2.0 the :ref:`default font <default_changes_font>` contains
-# glyphs for many western alphabets, but still does not cover all of the
-# glyphs that may be required by mpl users.  For example, DejaVu has no
-# coverage of Chinese, Korean, or Japanese.
-#
+# As of v2.0 the :ref:`default font <default_changes_font>`, DejaVu, contains
+# glyphs for many western alphabets, but not other scripts, such as Chinese,
+# Korean, or Japanese.
 #
 # To set the default font to be one that supports the code points you
 # need, prepend the font name to ``'font.family'`` or the desired alias

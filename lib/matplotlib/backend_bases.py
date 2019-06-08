@@ -1776,15 +1776,12 @@ class FigureCanvasBase:
 
         Parameters
         ----------
-        x : scalar
-            the canvas coordinates where 0=left
-
-        y : scalar
-            the canvas coordinates where 0=bottom
-
+        x : float
+            The canvas coordinates where 0=left.
+        y : float
+            The canvas coordinates where 0=bottom.
         guiEvent
-            the native UI event that generated the mpl event
-
+            The native UI event that generated the Matplotlib event.
         """
         s = 'button_release_event'
         event = MouseEvent(s, self, x, y, button, self._key, guiEvent=guiEvent)
@@ -1801,15 +1798,12 @@ class FigureCanvasBase:
 
         Parameters
         ----------
-        x : scalar
-            the canvas coordinates where 0=left
-
-        y : scalar
-            the canvas coordinates where 0=bottom
-
+        x : float
+            The canvas coordinates where 0=left.
+        y : float
+            The canvas coordinates where 0=bottom.
         guiEvent
-            the native UI event that generated the mpl event
-
+            The native UI event that generated the Matplotlib event.
         """
         self._lastx, self._lasty = x, y
         s = 'motion_notify_event'
@@ -1825,10 +1819,8 @@ class FigureCanvasBase:
         Parameters
         ----------
         guiEvent
-            the native UI event that generated the mpl event
-
+            The native UI event that generated the Matplotlib event.
         """
-
         self.callbacks.process('figure_leave_event', LocationEvent.lastevent)
         LocationEvent.lastevent = None
         self._lastx, self._lasty = None, None
@@ -1841,11 +1833,9 @@ class FigureCanvasBase:
         Parameters
         ----------
         guiEvent
-            the native UI event that generated the mpl event
+            The native UI event that generated the Matplotlib event.
         xy : (float, float)
-            the coordinate location of the pointer when the canvas is
-            entered
-
+            The coordinate location of the pointer when the canvas is entered.
         """
         if xy is not None:
             x, y = xy
@@ -2289,8 +2279,8 @@ class FigureCanvasBase:
 
 def key_press_handler(event, canvas, toolbar=None):
     """
-    Implement the default mpl key bindings for the canvas and toolbar
-    described at :ref:`key-event-handling`
+    Implement the default Matplotlib key bindings for the canvas and toolbar
+    described at :ref:`key-event-handling`.
 
     Parameters
     ----------
@@ -2300,7 +2290,6 @@ def key_press_handler(event, canvas, toolbar=None):
         the backend-specific canvas instance
     toolbar : :class:`NavigationToolbar2`
         the navigation cursor toolbar
-
     """
     # these bindings happen whether you are over an axes or not
 
@@ -2541,8 +2530,8 @@ class FigureManagerBase:
 
     def key_press(self, event):
         """
-        Implement the default mpl key bindings defined at
-        :ref:`key-event-handling`
+        Implement the default Matplotlib key bindings defined at
+        :ref:`key-event-handling`.
         """
         if rcParams['toolbar'] != 'toolmanager':
             key_press_handler(event, self.canvas, self.canvas.toolbar)
