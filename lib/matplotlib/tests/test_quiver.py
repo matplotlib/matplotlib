@@ -178,7 +178,7 @@ def test_barbs_pivot():
     ax.scatter(X, Y, s=49, c='black')
 
 
-@image_comparison(['barbs_test_flip.png'], remove_text=True)
+@image_comparison(['barbs_test_flip'], remove_text=True, extensions=['png'])
 def test_barbs_flip():
     """Test barbs with an array for flip_barb."""
     x = np.linspace(-5, 5, 5)
