@@ -607,8 +607,16 @@ def _get_data_path():
             "3.1", name="MATPLOTLIBDATA", obj_type="environment variable")
         return path
 
+    path = Path(__file__).with_name("mpl-data")
+    if path.is_dir():
+        return str(path)
+
+    cbook.warn_deprecated(
+        "3.2", message="Matplotlib installs where the data is not in the "
+        "mpl-data subdirectory of the package are deprecated since %(since)s "
+        "and support for them will be removed %(removal)s.")
+
     def get_candidate_paths():
-        yield Path(__file__).with_name('mpl-data')
         # setuptools' namespace_packages may hijack this init file
         # so need to try something known to be in Matplotlib, not basemap.
         import matplotlib.afm
