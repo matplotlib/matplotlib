@@ -135,8 +135,10 @@ class AxislineStyle(_Style):
 
         def __init__(self, size=1):
             """
-             *size*
-                size of the arrow as a fraction of the ticklabel size.
+            Parameters
+            ----------
+            size : float
+                Size of the arrow as a fraction of the ticklabel size.
             """
 
             self.size = size

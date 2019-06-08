@@ -1512,8 +1512,7 @@ class Locator(TickHelper):
         raise NotImplementedError('Derived must override')
 
     def raise_if_exceeds(self, locs):
-        """raise a RuntimeError if Locator attempts to create more than
-           MAXTICKS locs"""
+        """Raise a RuntimeError if ``len(locs) > self.MAXTICKS``."""
         if len(locs) >= self.MAXTICKS:
             raise RuntimeError("Locator attempting to generate {} ticks from "
                                "{} to {}: exceeds Locator.MAXTICKS".format(

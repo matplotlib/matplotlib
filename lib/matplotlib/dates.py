@@ -321,12 +321,22 @@ class strpdate2num:
     you know the date format string of the date you are parsing.
     """
     def __init__(self, fmt):
-        """fmt: any valid strptime format is supported"""
+        """
+        Parameters
+        ----------
+        fmt : any valid strptime format
+        """
         self.fmt = fmt
 
     def __call__(self, s):
-        """s : string to be converted
-           return value: a date2num float
+        """
+        Parameters
+        ----------
+        s : str
+
+        Returns
+        -------
+        date2num float
         """
         return date2num(datetime.datetime(*time.strptime(s, self.fmt)[:6]))
 
@@ -341,19 +351,24 @@ class bytespdate2num(strpdate2num):
     """
     def __init__(self, fmt, encoding='utf-8'):
         """
-        Args:
-            fmt: any valid strptime format is supported
-            encoding: encoding to use on byte input (default: 'utf-8')
+        Parameters
+        ----------
+        fmt : any valid strptime format
+        encoding : str
+            Encoding to use on byte input.
         """
         super().__init__(fmt)
         self.encoding = encoding
 
     def __call__(self, b):
         """
-        Args:
-            b: byte input to be converted
-        Returns:
-            A date2num float
+        Parameters
+        ----------
+        b : bytes
+
+        Returns
+        -------
+        date2num float
         """
         s = b.decode(self.encoding)
         return super().__call__(s)

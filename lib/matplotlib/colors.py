@@ -613,16 +613,16 @@ class Colormap:
             self._set_extremes()
 
     def set_under(self, color='k', alpha=None):
-        """Set color to be used for low out-of-range values.
-           Requires norm.clip = False
+        """
+        Set the color for low out-of-range values when ``norm.clip = False``.
         """
         self._rgba_under = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
     def set_over(self, color='k', alpha=None):
-        """Set color to be used for high out-of-range values.
-           Requires norm.clip = False
+        """
+        Set the color for high out-of-range values when ``norm.clip = False``.
         """
         self._rgba_over = to_rgba(color, alpha)
         if self._isinit:

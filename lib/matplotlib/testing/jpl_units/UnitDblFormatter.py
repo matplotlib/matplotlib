@@ -6,24 +6,23 @@ __all__ = ['UnitDblFormatter']
 
 
 class UnitDblFormatter(ticker.ScalarFormatter):
-    """The formatter for UnitDbl data types.  This allows for formatting
-        with the unit string.
     """
-    def __init__(self, *args, **kwargs):
-        'The arguments are identical to matplotlib.ticker.ScalarFormatter.'
-        ticker.ScalarFormatter.__init__(self, *args, **kwargs)
+    The formatter for UnitDbl data types.
+
+    This allows for formatting with the unit string.
+    """
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val x at position pos'
+        # docstring inherited
         if len(self.locs) == 0:
             return ''
         else:
             return '{:.12}'.format(x)
 
     def format_data_short(self, value):
-        "Return the value formatted in 'short' format."
+        # docstring inherited
         return '{:.12}'.format(value)
 
     def format_data(self, value):
-        "Return the value formatted into a string."
+        # docstring inherited
         return '{:.12}'.format(value)

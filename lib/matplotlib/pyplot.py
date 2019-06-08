@@ -272,7 +272,7 @@ def show(*args, **kw):
 
 
 def isinteractive():
-    """Return the status of interactive mode."""
+    """Return whether to redraw after every plotting command."""
     return matplotlib.is_interactive()
 
 
@@ -1007,7 +1007,7 @@ def subplot(*args, **kwargs):
 
         # add ax2 to the figure again
         plt.subplot(ax2)
-        """
+    """
 
     # if subplot called without arguments, create subplot(1,1,1)
     if len(args) == 0:

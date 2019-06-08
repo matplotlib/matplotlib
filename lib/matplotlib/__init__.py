@@ -1249,23 +1249,24 @@ def get_backend():
 
 def interactive(b):
     """
-    Set interactive mode to boolean b.
-
-    If b is True, then draw after every plotting command, e.g., after xlabel
+    Set whether to redraw after every plotting command (e.g. `.pyplot.xlabel`).
     """
     rcParams['interactive'] = b
 
 
 def is_interactive():
-    'Return true if plot mode is interactive'
+    """Return whether to redraw after every plotting command."""
     return rcParams['interactive']
 
 
 @cbook.deprecated("3.1", alternative="rcParams['tk.window_focus']")
 def tk_window_focus():
-    """Return true if focus maintenance under TkAgg on win32 is on.
-     This currently works only for python.exe and IPython.exe.
-     Both IDLE and Pythonwin.exe fail badly when tk_window_focus is on."""
+    """
+    Return true if focus maintenance under TkAgg on win32 is on.
+
+    This currently works only for python.exe and IPython.exe.
+    Both IDLE and Pythonwin.exe fail badly when tk_window_focus is on.
+    """
     if rcParams['backend'] != 'TkAgg':
         return False
     return rcParams['tk.window_focus']
