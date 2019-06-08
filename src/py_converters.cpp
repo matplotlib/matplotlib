@@ -116,14 +116,11 @@ int convert_double(PyObject *obj, void *p)
 int convert_bool(PyObject *obj, void *p)
 {
     bool *val = (bool *)p;
-    int ret;
-
-    ret = PyObject_IsTrue(obj);
-    if (ret == -1) {
-        return 0;
+    switch (PyObject_IsTrue(obj)) {
+        case 0: *val = false; break;
+        case 1: *val = true; break;
+        default: return 0;  // errored.
     }
-    *val = ret != 0;
-
     return 1;
 }
 
@@ -389,7 +386,11 @@ int convert_path(PyObject *obj, void *pathp)
     if (should_simplify_obj == NULL) {
         goto exit;
     }
-    should_simplify = PyObject_IsTrue(should_simplify_obj) != 0;
+    switch (PyObject_IsTrue(should_simplify_obj)) {
+        case 0: should_simplify = 0; break;
+        case 1: should_simplify = 1; break;
+        default: goto exit;  // errored.
+    }
 
     simplify_threshold_obj = PyObject_GetAttrString(obj, "simplify_threshold");
     if (simplify_threshold_obj == NULL) {
@@ -438,15 +439,15 @@ int convert_clippath(PyObject *clippath_tuple, void *clippathp)
 int convert_snap(PyObject *obj, void *snapp)
 {
     e_snap_mode *snap = (e_snap_mode *)snapp;
-
     if (obj == NULL || obj == Py_None) {
         *snap = SNAP_AUTO;
-    } else if (PyObject_IsTrue(obj)) {
-        *snap = SNAP_TRUE;
     } else {
-        *snap = SNAP_FALSE;
+        switch (PyObject_IsTrue(obj)) {
+            case 0: *snap = SNAP_FALSE; break;
+            case 1: *snap = SNAP_TRUE; break;
+            default: return 0;  // errored.
+        }
     }
-
     return 1;
 }
 
