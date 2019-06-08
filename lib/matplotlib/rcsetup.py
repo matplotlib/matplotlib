@@ -13,8 +13,9 @@ that actually reflects the values given here. Any additions or deletions to the
 parameter set listed here should also be visited to the
 :file:`matplotlibrc.template` in matplotlib's root source directory.
 """
+
 from collections.abc import Iterable, Mapping
-from functools import reduce
+from functools import partial, reduce
 import logging
 import operator
 import os
@@ -67,7 +68,7 @@ class ValidateInStrings:
                          % (self.key, s, list(self.valid.values())))
 
 
-def _listify_validator(scalar_validator, allow_stringlist=False):
+def _listify_validator(scalar_validator, allow_stringlist=False, *, doc=None):
     def f(s):
         if isinstance(s, str):
             try:
@@ -99,7 +100,7 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
         f.__name__ = "{}list".format(scalar_validator.__name__)
     except AttributeError:  # class instance.
         f.__name__ = "{}List".format(type(scalar_validator).__name__)
-    f.__doc__ = scalar_validator.__doc__
+    f.__doc__ = doc if doc is not None else scalar_validator.__doc__
     return f
 
 
@@ -144,40 +145,6 @@ def validate_bool_maybe_none(b):
         raise ValueError('Could not convert "%s" to boolean' % b)
 
 
-def validate_float(s):
-    """Convert s to float or raise."""
-    try:
-        return float(s)
-    except ValueError:
-        raise ValueError('Could not convert "%s" to float' % s)
-validate_floatlist = _listify_validator(validate_float)
-
-
-def validate_float_or_None(s):
-    """Convert s to float, None or raise."""
-    # values directly from the rc file can only be strings,
-    # so we need to recognize the string "None" and convert
-    # it into the object. We will be case-sensitive here to
-    # avoid confusion between string values of 'none', which
-    # can be a valid string value for some other parameters.
-    if s is None or s == 'None':
-        return None
-    try:
-        return float(s)
-    except ValueError:
-        raise ValueError('Could not convert "%s" to float or None' % s)
-
-
-def validate_string_or_None(s):
-    """Convert s to string or raise."""
-    if s is None:
-        return None
-    try:
-        return validate_string(s)
-    except ValueError:
-        raise ValueError('Could not convert "%s" to string' % s)
-
-
 def _validate_tex_preamble(s):
     if s is None or s == 'None':
         return ""
@@ -215,24 +182,34 @@ def validate_dpi(s):
             ' could not convert "%s" to float' % (s, s))
 
 
-def validate_int(s):
-    """Convert s to int or raise."""
-    try:
-        return int(s)
-    except ValueError:
-        raise ValueError('Could not convert "%s" to int' % s)
+def _make_type_validator(cls, *, allow_none=False):
+    """
+    Return a validator that converts inputs to *cls* or raises (and possibly
+    allows ``None`` as well).
+    """
+
+    def validator(s):
+        if (allow_none and
+                (s is None or isinstance(s, str) and s.lower() == "none")):
+            return None
+        try:
+            return cls(s)
+        except ValueError:
+            raise ValueError(f'Could not convert {s!r} to {cls.__name__}')
+
+    return validator
 
 
-def validate_int_or_None(s):
-    """Return None if s is None or return ``int(s)``, otherwise raise."""
-    if s == 'None':
-        s = None
-    if s is None:
-        return None
-    try:
-        return int(s)
-    except ValueError:
-        raise ValueError('Could not convert "%s" to int' % s)
+validate_string = _make_type_validator(str)
+validate_string_or_None = _make_type_validator(str, allow_none=True)
+validate_stringlist = _listify_validator(
+    validate_string, doc='return a list or strings')
+validate_int = _make_type_validator(int)
+validate_int_or_None = _make_type_validator(int, allow_none=True)
+validate_float = _make_type_validator(float)
+validate_float_or_None = _make_type_validator(float, allow_none=True)
+validate_floatlist = _listify_validator(
+    validate_float, doc='return a list of floats')
 
 
 def validate_fonttype(s):
@@ -284,65 +261,37 @@ def validate_qt5(s):
     return ValidateInStrings("backend.qt5", ['PyQt5', 'PySide2'])(s)
 
 
-def validate_toolbar(s):
-    validator = ValidateInStrings(
-                'toolbar',
-                ['None', 'toolbar2', 'toolmanager'],
-                ignorecase=True)
-    return validator(s)
+validate_toolbar = ValidateInStrings(
+    'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True)
 
 
-_seq_err_msg = ('You must supply exactly {n} values, you provided {num} '
-                'values: {s}')
+def _make_nseq_validator(cls, n=None, allow_none=False):
 
-_str_err_msg = ('You must supply exactly {n} comma-separated values, you '
-                'provided {num} comma-separated values: {s}')
-
-
-class validate_nseq_float:
-    def __init__(self, n=None, allow_none=False):
-        self.n = n
-        self.allow_none = allow_none
-
-    def __call__(self, s):
-        """Return a list of *n* floats or raise."""
+    def validator(s):
+        """Convert *n* objects using ``cls``, or raise."""
         if isinstance(s, str):
             s = [x.strip() for x in s.split(',')]
-            err_msg = _str_err_msg
+            if n is not None and len(s) != n:
+                raise ValueError(
+                    f'Expected exactly {n} comma-separated values, '
+                    f'but got {len(s)} comma-separated values: {s}')
         else:
-            err_msg = _seq_err_msg
-
-        if self.n is not None and len(s) != self.n:
-            raise ValueError(err_msg.format(n=self.n, num=len(s), s=s))
-
+            if n is not None and len(s) != n:
+                raise ValueError(
+                    f'Expected exactly {n} values, '
+                    f'but got {len(s)} values: {s}')
         try:
-            return [float(val)
-                    if not self.allow_none or val is not None
-                    else val
+            return [cls(val) if not allow_none or val is not None else val
                     for val in s]
         except ValueError:
-            raise ValueError('Could not convert all entries to floats')
+            raise ValueError(
+                f'Could not convert all entries to {cls.__name__}s')
+
+    return validator
 
 
-class validate_nseq_int:
-    def __init__(self, n=None):
-        self.n = n
-
-    def __call__(self, s):
-        """Return a list of *n* ints or raise."""
-        if isinstance(s, str):
-            s = [x.strip() for x in s.split(',')]
-            err_msg = _str_err_msg
-        else:
-            err_msg = _seq_err_msg
-
-        if self.n is not None and len(s) != self.n:
-            raise ValueError(err_msg.format(n=self.n, num=len(s), s=s))
-
-        try:
-            return [int(val) for val in s]
-        except ValueError:
-            raise ValueError('Could not convert all entries to ints')
+validate_nseq_float = partial(_make_nseq_validator, float)
+validate_nseq_int = partial(_make_nseq_validator, int)
 
 
 def validate_color_or_inherit(s):
@@ -412,21 +361,8 @@ def validate_color(s):
     raise ValueError('%s does not look like a color arg%s' % (s, msg))
 
 
-validate_colorlist = _listify_validator(validate_color, allow_stringlist=True)
-validate_colorlist.__doc__ = 'return a list of colorspecs'
-
-
-def validate_string(s):
-    if isinstance(s, str):
-        # Always leave str as str and unicode as unicode
-        return s
-    else:
-        return str(s)
-
-
-validate_stringlist = _listify_validator(str)
-validate_stringlist.__doc__ = 'return a list'
-
+validate_colorlist = _listify_validator(
+    validate_color, allow_stringlist=True, doc='return a list of colorspecs')
 validate_orientation = ValidateInStrings(
     'orientation', ['landscape', 'portrait'])
 
@@ -577,10 +513,6 @@ validate_fillstyle = ValidateInStrings('markers.fillstyle',
                                        ['full', 'left', 'right', 'bottom',
                                         'top', 'none'])
 validate_fillstylelist = _listify_validator(validate_fillstyle)
-
-_validate_negative_linestyle = ValidateInStrings('negative_linestyle',
-                                                 ['solid', 'dashed'],
-                                                 ignorecase=True)
 
 
 def validate_markevery(s):
