@@ -77,15 +77,17 @@ class PathInteractor:
         self.canvas.blit(self.ax.bbox)
 
     def pathpatch_changed(self, pathpatch):
-        'this method is called whenever the pathpatchgon object is called'
+        """This method is called whenever the pathpatch object is called."""
         # only copy the artist props to the line (except visibility)
         vis = self.line.get_visible()
         plt.Artist.update_from(self.line, pathpatch)
         self.line.set_visible(vis)  # don't use the pathpatch visibility state
 
     def get_ind_under_point(self, event):
-        'get the index of the vertex under point if within epsilon tolerance'
-
+        """
+        Return the index of the point closest to the event position or *None*
+        if no point is within ``self.epsilon`` to the event position.
+        """
         # display coords
         xy = np.asarray(self.pathpatch.get_path().vertices)
         xyt = self.pathpatch.get_transform().transform(xy)
@@ -99,7 +101,7 @@ class PathInteractor:
         return ind
 
     def button_press_callback(self, event):
-        'whenever a mouse button is pressed'
+        """Callback for mouse button presses."""
         if not self.showverts:
             return
         if event.inaxes is None:
@@ -109,7 +111,7 @@ class PathInteractor:
         self._ind = self.get_ind_under_point(event)
 
     def button_release_callback(self, event):
-        'whenever a mouse button is released'
+        """Callback for mouse button releases."""
         if not self.showverts:
             return
         if event.button != 1:
@@ -117,7 +119,7 @@ class PathInteractor:
         self._ind = None
 
     def key_press_callback(self, event):
-        'whenever a key is pressed'
+        """Callback for key presses."""
         if not event.inaxes:
             return
         if event.key == 't':
@@ -129,7 +131,7 @@ class PathInteractor:
         self.canvas.draw()
 
     def motion_notify_callback(self, event):
-        'on mouse movement'
+        """Callback for mouse movements."""
         if not self.showverts:
             return
         if self._ind is None:
