@@ -57,31 +57,21 @@ SPECIAL_KEYS = {QtCore.Qt.Key_Control: 'control',
                 QtCore.Qt.Key_Pause: 'pause',
                 QtCore.Qt.Key_SysReq: 'sysreq',
                 QtCore.Qt.Key_Clear: 'clear', }
-
-# define which modifier keys are collected on keyboard events.
-# elements are (Matplotlib modifier names, Modifier Flag, Qt Key) tuples
-SUPER = 0
-ALT = 1
-CTRL = 2
-SHIFT = 3
-MODIFIER_KEYS = [('super', QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta),
-                 ('alt', QtCore.Qt.AltModifier, QtCore.Qt.Key_Alt),
-                 ('ctrl', QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control),
-                 ('shift', QtCore.Qt.ShiftModifier, QtCore.Qt.Key_Shift),
-                 ]
-
 if sys.platform == 'darwin':
     # in OSX, the control and super (aka cmd/apple) keys are switched, so
     # switch them back.
     SPECIAL_KEYS.update({QtCore.Qt.Key_Control: 'cmd',  # cmd/apple key
                          QtCore.Qt.Key_Meta: 'control',
                          })
-    MODIFIER_KEYS[0] = ('cmd', QtCore.Qt.ControlModifier,
-                        QtCore.Qt.Key_Control)
-    MODIFIER_KEYS[2] = ('ctrl', QtCore.Qt.MetaModifier,
-                        QtCore.Qt.Key_Meta)
-
-
+# Define which modifier keys are collected on keyboard events.
+# Elements are (Modifier Flag, Qt Key) tuples.
+# Order determines the modifier order (ctrl+alt+...) reported by Matplotlib.
+_MODIFIER_KEYS = [
+    (QtCore.Qt.ShiftModifier, QtCore.Qt.Key_Shift),
+    (QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control),
+    (QtCore.Qt.AltModifier, QtCore.Qt.Key_Alt),
+    (QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta),
+]
 cursord = {
     cursors.MOVE: QtCore.Qt.SizeAllCursor,
     cursors.HAND: QtCore.Qt.PointingHandCursor,
@@ -89,6 +79,12 @@ cursord = {
     cursors.SELECT_REGION: QtCore.Qt.CrossCursor,
     cursors.WAIT: QtCore.Qt.WaitCursor,
     }
+SUPER = 0  # Deprecated.
+ALT = 1  # Deprecated.
+CTRL = 2  # Deprecated.
+SHIFT = 3  # Deprecated.
+MODIFIER_KEYS = [  # Deprecated.
+    (SPECIAL_KEYS[key], mod, key) for mod, key in _MODIFIER_KEYS]
 
 
 # make place holder
@@ -393,20 +389,19 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # get names of the pressed modifier keys
         # bit twiddling to pick out modifier keys from event_mods bitmask,
         # if event_key is a MODIFIER, it should not be duplicated in mods
-        mods = [name for name, mod_key, qt_key in MODIFIER_KEYS
-                if event_key != qt_key and (event_mods & mod_key) == mod_key]
+        mods = [SPECIAL_KEYS[key] for mod, key in _MODIFIER_KEYS
+                if event_key != key and event_mods & mod]
         try:
             # for certain keys (enter, left, backspace, etc) use a word for the
             # key, rather than unicode
             key = SPECIAL_KEYS[event_key]
         except KeyError:
-            # unicode defines code points up to 0x0010ffff
+            # unicode defines code points up to 0x10ffff (sys.maxunicode)
             # QT will use Key_Codes larger than that for keyboard keys that are
             # are not unicode characters (like multimedia keys)
             # skip these
             # if you really want them, you should add them to SPECIAL_KEYS
-            MAX_UNICODE = 0x10ffff
-            if event_key > MAX_UNICODE:
+            if event_key > sys.maxunicode:
                 return None
 
             key = chr(event_key)
@@ -417,7 +412,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             else:
                 key = key.lower()
 
-        mods.reverse()
         return '+'.join(mods + [key])
 
     def flush_events(self):
