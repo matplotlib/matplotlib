@@ -1629,7 +1629,7 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        formatter : ~matplotlib.ticker.Formatter
+        formatter : `~matplotlib.ticker.Formatter`
         """
         if not isinstance(formatter, mticker.Formatter):
             raise TypeError("formatter argument should be instance of "
@@ -1645,7 +1645,7 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        formatter : ~matplotlib.ticker.Formatter
+        formatter : `~matplotlib.ticker.Formatter`
         """
         if not isinstance(formatter, mticker.Formatter):
             raise TypeError("formatter argument should be instance of "
@@ -1661,7 +1661,7 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        locator : ~matplotlib.ticker.Locator
+        locator : `~matplotlib.ticker.Locator`
         """
         if not isinstance(locator, mticker.Locator):
             raise TypeError("locator argument should be instance of "
@@ -1679,7 +1679,7 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        locator : ~matplotlib.ticker.Locator
+        locator : `~matplotlib.ticker.Locator`
         """
         if not isinstance(locator, mticker.Locator):
             raise TypeError("locator argument should be instance of "
