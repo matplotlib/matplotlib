@@ -2231,7 +2231,7 @@ class RectangleSelector(_SelectorWidget):
     def _onmove(self, event):
         """on motion notify event if box/line is wanted"""
         # resize an existing shape
-        if self.active_handle and not self.active_handle == 'C':
+        if self.active_handle and self.active_handle != 'C':
             x1, x2, y1, y2 = self._extents_on_press
             if self.active_handle in ['E', 'W'] + self._corner_order:
                 x2 = event.xdata

@@ -468,7 +468,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         for filetype, ext in sorted(FigureCanvasWebAggCore.
                                     get_supported_filetypes_grouped().
                                     items()):
-            if not ext[0] == 'pgf':  # pgf does not support BytesIO
+            if ext[0] != 'pgf':  # pgf does not support BytesIO
                 extensions.append(ext[0])
         output.write("mpl.extensions = {0};\n\n".format(
             json.dumps(extensions)))

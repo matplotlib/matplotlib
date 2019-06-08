@@ -917,7 +917,7 @@ class FigureCanvasPS(FigureCanvasBase):
         else:
             paper_width, paper_height = papersize[papertype]
 
-        if rcParams['ps.usedistiller'] and not papertype == 'auto':
+        if rcParams['ps.usedistiller'] and papertype != 'auto':
             # distillers will improperly clip eps files if the pagesize is
             # too small
             if width > paper_width or height > paper_height:

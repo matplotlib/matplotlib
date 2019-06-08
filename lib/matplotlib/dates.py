@@ -1601,12 +1601,11 @@ class DayLocator(RRuleLocator):
     """
     def __init__(self, bymonthday=None, interval=1, tz=None):
         """
-        Mark every day in *bymonthday*; *bymonthday* can be an int or
-        sequence.
+        Mark every day in *bymonthday*; *bymonthday* can be an int or sequence.
 
-        Default is to tick every day of the month: ``bymonthday=range(1,32)``
+        Default is to tick every day of the month: ``bymonthday=range(1, 32)``.
         """
-        if not interval == int(interval) or interval < 1:
+        if interval != int(interval) or interval < 1:
             raise ValueError("interval must be an integer greater than 0")
         if bymonthday is None:
             bymonthday = range(1, 32)

@@ -2899,6 +2899,8 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     if units == 'points':
         x /= 72.0
         y /= 72.0
-    elif not units == 'inches':
-        raise ValueError('units must be dots, points, or inches')
+    elif units == 'inches':
+        pass
+    else:
+        cbook._check_in_list(['dots', 'points', 'inches'], units=units)
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)
