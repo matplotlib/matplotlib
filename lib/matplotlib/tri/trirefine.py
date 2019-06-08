@@ -3,6 +3,8 @@ Mesh refinement for triangular grids.
 """
 
 import numpy as np
+
+from matplotlib import cbook
 from matplotlib.tri.triangulation import Triangulation
 import matplotlib.tri.triinterpolate
 
@@ -39,8 +41,7 @@ class TriRefiner:
 
     """
     def __init__(self, triangulation):
-        if not isinstance(triangulation, Triangulation):
-            raise ValueError("Expected a Triangulation object")
+        cbook._check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
 
@@ -165,9 +166,8 @@ class UniformTriRefiner(TriRefiner):
             interp = matplotlib.tri.CubicTriInterpolator(
                 self._triangulation, z)
         else:
-            if not isinstance(triinterpolator,
-                              matplotlib.tri.TriInterpolator):
-                raise ValueError("Expected a TriInterpolator object")
+            cbook._check_isinstance(matplotlib.tri.TriInterpolator,
+                                    triinterpolator=triinterpolator)
             interp = triinterpolator
 
         refi_tri, found_index = self.refine_triangulation(

@@ -32,8 +32,7 @@ class TriInterpolator:
 
     """
     def __init__(self, triangulation, z, trifinder=None):
-        if not isinstance(triangulation, Triangulation):
-            raise ValueError("Expected a Triangulation object")
+        cbook._check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
         self._z = np.asarray(z)
@@ -41,8 +40,7 @@ class TriInterpolator:
             raise ValueError("z array must have same length as triangulation x"
                              " and y arrays")
 
-        if trifinder is not None and not isinstance(trifinder, TriFinder):
-            raise ValueError("Expected a TriFinder object")
+        cbook._check_isinstance((TriFinder, None), trifinder=trifinder)
         self._trifinder = trifinder or self._triangulation.get_trifinder()
 
         # Default scaling factors : 1.0 (= no scaling)
@@ -1018,8 +1016,8 @@ class _DOF_estimator():
     gradient coordinates.
     """
     def __init__(self, interpolator, **kwargs):
-        if not isinstance(interpolator, CubicTriInterpolator):
-            raise ValueError("Expected a CubicTriInterpolator object")
+        cbook._check_isinstance(
+            CubicTriInterpolator, interpolator=interpolator)
         self._pts = interpolator._pts
         self._tris_pts = interpolator._tris_pts
         self.z = interpolator._z

@@ -123,8 +123,7 @@ class _AxesStack(cbook.Stack):
         """
         # All the error checking may be unnecessary; but this method
         # is called so seldom that the overhead is negligible.
-        if not isinstance(a, Axes):
-            raise ValueError("second argument, {!r}, is not an Axes".format(a))
+        cbook._check_isinstance(Axes, a=a)
         try:
             hash(key)
         except TypeError:

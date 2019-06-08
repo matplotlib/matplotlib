@@ -738,10 +738,10 @@ def validate_hatch(s):
     Validate a hatch pattern.
     A hatch pattern string can have any sequence of the following
     characters: ``\ / | - + * . x o O``.
-
     """
     if not isinstance(s, str):
         raise ValueError("Hatch pattern must be a string")
+    cbook._check_isinstance(str, hatch_pattern=s)
     unknown = set(s) - {'\\', '/', '|', '-', '+', '*', '.', 'x', 'o', 'O'}
     if unknown:
         raise ValueError("Unknown hatch symbol(s): %s" % list(unknown))
@@ -955,8 +955,7 @@ def validate_animation_writer_path(p):
     # Make sure it's a string and then figure out if the animations
     # are already loaded and reset the writers (which will validate
     # the path on next call)
-    if not isinstance(p, str):
-        raise ValueError("path must be a (unicode) string")
+    cbook._check_isinstance(str, path=p)
     from sys import modules
     # set dirty, so that the next call to the registry will re-evaluate
     # the state.

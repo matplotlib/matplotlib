@@ -4,6 +4,7 @@ Tools for triangular grids.
 
 import numpy as np
 
+from matplotlib import cbook
 from matplotlib.tri import Triangulation
 
 
@@ -25,8 +26,7 @@ class TriAnalyzer:
 
     """
     def __init__(self, triangulation):
-        if not isinstance(triangulation, Triangulation):
-            raise ValueError("Expected a Triangulation object")
+        cbook._check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
     @property

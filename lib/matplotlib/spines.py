@@ -62,9 +62,7 @@ class Spine(mpatches.Patch):
         # non-rectangular axes is currently implemented, and this lets
         # them pass through the spines machinery without errors.)
         self._position = None
-        if not isinstance(path, matplotlib.path.Path):
-            raise ValueError(
-                "'path' must be an instance of 'matplotlib.path.Path'")
+        cbook._check_isinstance(matplotlib.path.Path, path=path)
         self._path = path
 
         # To support drawing both linear and circular spines, this
