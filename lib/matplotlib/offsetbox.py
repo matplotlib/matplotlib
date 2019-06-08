@@ -1596,35 +1596,35 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
 
 class DraggableBase(object):
     """
-    helper code for a draggable artist (legend, offsetbox)
-    The derived class must override following two method.
+    Helper base class for a draggable artist (legend, offsetbox).
 
-      def save_offset(self):
-          pass
+    Derived classes must override the following methods::
 
-      def update_offset(self, dx, dy):
-          pass
+        def save_offset(self):
+            '''
+            Called when the object is picked for dragging; should save the
+            reference position of the artist.
+            '''
 
-    *save_offset* is called when the object is picked for dragging and it
-    is meant to save reference position of the artist.
+        def update_offset(self, dx, dy):
+            '''
+            Called during the dragging; (*dx*, *dy*) is the pixel offset from
+            the point where the mouse drag started.
+            '''
 
-    *update_offset* is called during the dragging. dx and dy is the pixel
-     offset from the point where the mouse drag started.
+    Optionally, you may override the following methods::
 
-    Optionally you may override following two methods.
+        def artist_picker(self, artist, evt):
+            '''The picker method that will be used.'''
+            return self.ref_artist.contains(evt)
 
-      def artist_picker(self, artist, evt):
-          return self.ref_artist.contains(evt)
+        def finalize_offset(self):
+            '''Called when the mouse is released.'''
 
-      def finalize_offset(self):
-          pass
-
-    *artist_picker* is a picker method that will be
-     used. *finalize_offset* is called when the mouse is released. In
-     current implementation of DraggableLegend and DraggableAnnotation,
-     *update_offset* places the artists simply in display
-     coordinates. And *finalize_offset* recalculate their position in
-     the normalized axes coordinate and set a relevant attribute.
+    In the current implementation of `DraggableLegend` and
+    `DraggableAnnotation`, `update_offset` places the artists in display
+    coordinates, and `finalize_offset` recalculates their position in axes
+    coordinate and set a relevant attribute.
     """
 
     def __init__(self, ref_artist, use_blit=False):
@@ -1694,7 +1694,7 @@ class DraggableBase(object):
             return True
 
     def disconnect(self):
-        """disconnect the callbacks"""
+        """Disconnect the callbacks."""
         for cid in self.cids:
             self.canvas.mpl_disconnect(cid)
         try:
@@ -1735,13 +1735,11 @@ class DraggableOffsetBox(DraggableBase):
         self.offsetbox.set_offset(loc_in_canvas)
 
     def get_loc_in_canvas(self):
-
         offsetbox = self.offsetbox
         renderer = offsetbox.figure._cachedRenderer
         w, h, xd, yd = offsetbox.get_extent(renderer)
         ox, oy = offsetbox._offset
         loc_in_canvas = (ox - xd, oy - yd)
-
         return loc_in_canvas
 
 
