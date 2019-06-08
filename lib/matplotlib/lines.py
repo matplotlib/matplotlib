@@ -811,10 +811,10 @@ class Line2D(Artist):
                     self.recache()
                     self._transform_path(subslice)
                     tpath, affine = (self._get_transformed_path()
-                                    .get_transformed_path_and_affine())
+                                    .get_transformed_points_and_affine())
             else:
                 tpath, affine = (self._get_transformed_path()
-                                 .get_transformed_path_and_affine())
+                                 .get_transformed_points_and_affine())
 
             if len(tpath.vertices):
                 # subsample the markers if markevery is not None
