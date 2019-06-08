@@ -820,7 +820,7 @@ class UnicodeFonts(TruetypeFonts):
         if found_symbol:
             if fontname == 'it' and uniindex < 0x10000:
                 char = chr(uniindex)
-                if (not unicodedata.category(char)[0] == "L"
+                if (unicodedata.category(char)[0] != "L"
                         or unicodedata.name(char).startswith("GREEK CAPITAL")):
                     new_fontname = 'rm'
 

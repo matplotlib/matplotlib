@@ -139,7 +139,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
     def remove_comm(self, comm_id):
         self.web_sockets = {socket for socket in self.web_sockets
-                            if not socket.comm.comm_id == comm_id}
+                            if socket.comm.comm_id != comm_id}
 
 
 class FigureCanvasNbAgg(FigureCanvasWebAggCore):

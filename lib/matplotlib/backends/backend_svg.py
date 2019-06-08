@@ -151,12 +151,12 @@ class XMLWriter:
         self.__write(self.__indentation[:len(self.__tags) - 1])
         self.__write("<%s" % tag)
         for k, v in sorted({**attrib, **extra}.items()):
-            if not v == '':
+            if v:
                 k = escape_cdata(k)
                 v = escape_attrib(v)
                 self.__write(' %s="%s"' % (k, v))
         self.__open = 1
-        return len(self.__tags)-1
+        return len(self.__tags) - 1
 
     def comment(self, comment):
         """
@@ -229,7 +229,7 @@ class XMLWriter:
         :meth:`data`, and :meth:`end` in sequence. The *text* argument can be
         omitted.
         """
-        self.start(*(tag, attrib), **extra)
+        self.start(tag, attrib, **extra)
         if text:
             self.data(text)
         self.end(indent=False)
