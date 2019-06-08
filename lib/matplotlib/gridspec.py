@@ -56,7 +56,7 @@ class GridSpecBase:
         """
         return self._nrows, self._ncols
 
-    def get_subplot_params(self, figure=None, fig=None):
+    def get_subplot_params(self, figure=None):
         pass
 
     def new_subplotspec(self, loc, rowspan=1, colspan=1):
