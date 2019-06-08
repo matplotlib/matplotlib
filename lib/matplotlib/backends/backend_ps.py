@@ -985,9 +985,9 @@ class FigureCanvasPS(FigureCanvasBase):
             if is_eps:
                 print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             else:
-                print("%!PS-Adobe-3.0\n"
-                      "%%DocumentPaperSizes: {papertype}\n"
-                      "%%Pages: 1\n".format(papertype=papertype),
+                print(f"%!PS-Adobe-3.0\n"
+                      f"%%DocumentPaperSizes: {papertype}\n"
+                      f"%%Pages: 1\n",
                       end="", file=fh)
             if title:
                 print("%%Title: " + title, file=fh)
@@ -999,13 +999,11 @@ class FigureCanvasPS(FigureCanvasBase):
                     int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
             else:
                 source_date = time.ctime()
-            print("%%Creator: {creator_str}\n"
-                  "%%CreationDate: {source_date}\n"
-                  "%%Orientation: {orientation}\n"
-                  "%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}\n"
-                  "%%EndComments\n"
-                  .format(creator_str=creator_str, source_date=source_date,
-                          orientation=orientation, bbox=bbox),
+            print(f"%%Creator: {creator_str}\n"
+                  f"%%CreationDate: {source_date}\n"
+                  f"%%Orientation: {orientation}\n"
+                  f"%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}\n"
+                  f"%%EndComments\n",
                   end="", file=fh)
 
             Ndict = len(psDefs)
@@ -1182,51 +1180,37 @@ class FigureCanvasPS(FigureCanvasBase):
 
         with TemporaryDirectory() as tmpdir:
             tmpfile = os.path.join(tmpdir, "tmp.ps")
-            with open(tmpfile, 'w', encoding='latin-1') as fh:
-                # write the Encapsulated PostScript headers
-                print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
-                if title:
-                    print("%%Title: "+title, file=fh)
-                # get source date from SOURCE_DATE_EPOCH, if set
-                # See https://reproducible-builds.org/specs/source-date-epoch/
-                source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
-                if source_date_epoch:
-                    source_date = datetime.datetime.utcfromtimestamp(
-                        int(source_date_epoch)).strftime(
-                            "%a %b %d %H:%M:%S %Y")
-                else:
-                    source_date = time.ctime()
-                print(
-                    "%%Creator: {creator_str}\n"
-                    "%%CreationDate: {source_date}\n"
-                    "%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}\n"
-                    "%%EndComments\n"
-                    .format(creator_str=creator_str, source_date=source_date,
-                            bbox=bbox),
-                    end="", file=fh)
-
-                print("%%BeginProlog\n"
-                      "/mpldict {len_psDefs} dict def\n"
-                      "mpldict begin\n"
-                      "{psDefs}\n"
-                      "end\n"
-                      "%%EndProlog\n"
-                      .format(len_psDefs=len(psDefs),
-                              psDefs="\n".join(psDefs)),
-                      end="", file=fh)
-
-                print("mpldict begin", file=fh)
-                print("%s translate" % _nums_to_str(xo, yo), file=fh)
-                print("%s clipbox" % _nums_to_str(width*72, height*72, 0, 0),
-                      file=fh)
-
-                # write the figure
-                print(self._pswriter.getvalue(), file=fh)
-
-                # write the trailer
-                print("end", file=fh)
-                print("showpage", file=fh)
-                fh.flush()
+            # get source date from SOURCE_DATE_EPOCH, if set
+            # See https://reproducible-builds.org/specs/source-date-epoch/
+            source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
+            if source_date_epoch:
+                source_date = datetime.datetime.utcfromtimestamp(
+                    int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
+            else:
+                source_date = time.ctime()
+            pathlib.Path(tmpfile).write_text(
+                f"""\
+%!PS-Adobe-3.0 EPSF-3.0
+{f'''%%Title: {title}
+''' if title else ""}\
+%%Creator: {creator_str}
+%%CreationDate: {source_date}
+%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}
+%%EndComments
+%%BeginProlog
+/mpldict {len(psDefs)} dict def
+mpldict begin
+{"".join(psDefs)}
+end
+%%EndProlog
+mpldict begin
+{_nums_to_str(xo, yo)} translate
+{_nums_to_str(width*72, height*72)} 0 0 clipbox
+{self._pswriter.getvalue()}
+end
+showpage
+""",
+                encoding="latin-1")
 
             if is_landscape:  # now we are ready to rotate
                 is_landscape = True
