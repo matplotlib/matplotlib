@@ -3,6 +3,7 @@ import base64
 import gzip
 import hashlib
 import io
+import itertools
 import logging
 import re
 import uuid
@@ -278,14 +279,11 @@ class RendererSVG(RendererBase):
         self.image_dpi = image_dpi  # actual dpi at which we rasterize stuff
 
         self._groupd = {}
-        if not rcParams['svg.image_inline']:
-            assert basename is not None
-            self.basename = basename
-            self._imaged = {}
+        self.basename = basename
+        self._image_counter = itertools.count()
         self._clipd = OrderedDict()
         self._markers = {}
         self._path_collection_id = 0
-        self._imaged = {}
         self._hatchd = OrderedDict()
         self._has_gouraud = False
         self._n_gradients = 0
@@ -830,10 +828,11 @@ class RendererSVG(RendererBase):
                 "data:image/png;base64,\n" +
                 base64.b64encode(bytesio.getvalue()).decode('ascii'))
         else:
-            self._imaged[self.basename] = (
-                self._imaged.get(self.basename, 0) + 1)
-            filename = '%s.image%d.png' % (
-                self.basename, self._imaged[self.basename])
+            if self.basename is None:
+                raise ValueError("Cannot save image data to filesystem when "
+                                 "writing SVG to an in-memory buffer")
+            filename = '{}.image{}.png'.format(
+                self.basename, next(self._image_counter))
             _log.info('Writing image file for inclusion: %s', filename)
             _png.write_png(im, filename)
             oid = oid or 'Im_' + self._make_id('image', filename)

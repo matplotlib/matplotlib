@@ -1,0 +1,10 @@
+RendererSVG now uses a single counter for externally written images
+```````````````````````````````````````````````````````````````````
+
+When using `RendererSVG` with ``rcParams["svg.image_inline"] ==
+True``, externally written images now use a single counter even if the
+``renderer.basename`` attribute is overwritten, rather than a counter per
+basename.
+
+This change will only affect you if you used ``rcParams["svg.image_inline"] = True``
+(the default is False) *and* manually modified ``renderer.basename``.
