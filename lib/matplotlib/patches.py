@@ -405,7 +405,7 @@ class Patch(artist.Artist):
         self.stale = True
 
     def get_fill(self):
-        'return whether fill is set'
+        """Return whether the patch is filled."""
         return self._fill
 
     # Make fill a property so as to preserve the long-standing
@@ -1797,9 +1797,7 @@ class _Style:
     provides some helper functions.
     """
     def __new__(cls, stylename, **kw):
-        """
-        return the instance of the subclass with the given style name.
-        """
+        """Return the instance of the subclass with the given style name."""
 
         # The "class" should have the _style_list attribute, which is a mapping
         # of style names to style classes.
@@ -3025,8 +3023,8 @@ class ConnectionStyle(_Style):
 
 def _point_along_a_line(x0, y0, x1, y1, d):
     """
-    find a point along a line connecting (x0, y0) -- (x1, y1) whose
-    distance from (x0, y0) is d.
+    Return the point on the line connecting (*x0*, *y0*) -- (*x1*, *y1*) whose
+    distance from (*x0*, *y0*) is *d*.
     """
     dx, dy = x0 - x1, y0 - y1
     ff = d / (dx * dx + dy * dy) ** .5
@@ -4321,10 +4319,7 @@ class ConnectionPatch(FancyArrowPatch):
         self._annotation_clip = None
 
     def _get_xy(self, x, y, s, axes=None):
-        """
-        calculate the pixel position of given point
-        """
-
+        """Calculate the pixel position of given point."""
         if axes is None:
             axes = self.axes
 
@@ -4418,7 +4413,7 @@ class ConnectionPatch(FancyArrowPatch):
                 y = b + y
             return x, y
         elif s == 'axes fraction':
-            #(0,0) is lower left, (1,1) is upper right of axes
+            # (0,0) is lower left, (1,1) is upper right of axes
             trans = axes.transAxes
             return trans.transform_point((x, y))
         elif isinstance(s, transforms.Transform):
@@ -4429,28 +4424,32 @@ class ConnectionPatch(FancyArrowPatch):
 
     def set_annotation_clip(self, b):
         """
-        set *annotation_clip* attribute.
+        Set the clipping behavior.
 
-          * True: the annotation will only be drawn when self.xy is inside the
-                   axes.
-          * False: the annotation will always be drawn regardless of its
-                    position.
-          * None: the self.xy will be checked only if *xycoords* is "data"
+        Parameters
+        ----------
+        b : bool or None
+
+            - *False*: The annotation will always be drawn regardless of its
+              position.
+            - *True*: The annotation will only be drawn if ``self.xy`` is
+              inside the axes.
+            - *None*: The annotation will only be drawn if ``self.xy`` is
+              inside the axes and  ``self.xycoords == "data"``.
         """
         self._annotation_clip = b
         self.stale = True
 
     def get_annotation_clip(self):
         """
-        Return *annotation_clip* attribute.
-        See :meth:`set_annotation_clip` for the meaning of return values.
+        Return the clipping behavior.
+
+        See `.set_annotation_clip` for the meaning of the return value.
         """
         return self._annotation_clip
 
     def get_path_in_displaycoord(self):
-        """
-        Return the mutated path of the arrow in the display coord
-        """
+        """Return the mutated path of the arrow in display coordinates."""
 
         dpi_cor = self.get_dpi_cor()
 

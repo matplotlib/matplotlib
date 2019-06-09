@@ -326,7 +326,9 @@ class Tick(martist.Artist):
         a.set_figure(self.figure)
 
     def get_view_interval(self):
-        'return the view Interval instance for the axis this tick is ticking'
+        """
+        Return the view limits ``(min, max)`` of the axis the tick belongs to.
+        """
         raise NotImplementedError('Derived must override')
 
     def _apply_params(self, **kw):
@@ -624,7 +626,7 @@ class YTick(Tick):
         self.stale = True
 
     def get_view_interval(self):
-        """Return the Interval instance for this axis view limits."""
+        # docstring inherited
         return self.axes.viewLim.intervaly
 
 
@@ -839,7 +841,7 @@ class Axis(martist.Artist):
                 *self.get_major_ticks(), *self.get_minor_ticks()]
 
     def cla(self):
-        'clear the current axis'
+        """Clear this axis."""
 
         self.label.set_text('')  # self.set_label_text would change isDefault_
 
@@ -971,7 +973,7 @@ class Axis(martist.Artist):
         self.stale = True
 
     def get_view_interval(self):
-        """Return the Interval instance for this axis view limits."""
+        """Return the view limits ``(min, max)`` of this axis."""
         raise NotImplementedError('Derived must override')
 
     def set_view_interval(self, vmin, vmax, ignore=False):
@@ -1391,11 +1393,11 @@ class Axis(martist.Artist):
                 [tick._tickdir for tick in self.get_major_ticks()])
 
     def _get_tick(self, major):
-        'return the default tick instance'
+        """Return the default tick instance."""
         raise NotImplementedError('derived must override')
 
     def _copy_tick_props(self, src, dest):
-        'Copy the props from src tick to dest tick'
+        """Copy the properties from *src* tick to *dest* tick."""
         if src is None or dest is None:
             return
         dest.label1.update_from(src.label1)
@@ -1502,11 +1504,10 @@ class Axis(martist.Artist):
 
     def update_units(self, data):
         """
-        introspect *data* for units converter and update the
+        Introspect *data* for units converter and update the
         axis.converter instance if necessary. Return *True*
         if *data* is registered for unit conversion.
         """
-
         converter = munits.registry.get_converter(data)
         if converter is None:
             return False
@@ -1524,8 +1525,8 @@ class Axis(martist.Artist):
 
     def _update_axisinfo(self):
         """
-        check the axis converter for the stored units to see if the
-        axis info needs to be updated
+        Check the axis converter for the stored units to see if the
+        axis info needs to be updated.
         """
         if self.converter is None:
             return

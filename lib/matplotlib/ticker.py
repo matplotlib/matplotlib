@@ -1187,7 +1187,7 @@ class LogitFormatter(Formatter):
         return s
 
     def format_data_short(self, value):
-        'return a short formatted string representation of a number'
+        """Return a short formatted string representation of a number."""
         return '%-12g' % value
 
 
@@ -1506,7 +1506,7 @@ class Locator(TickHelper):
             str(type(self)))
 
     def __call__(self):
-        """Return the locations of the ticks"""
+        """Return the locations of the ticks."""
         # note: some locators return data limits, other return view limits,
         # hence there is no *one* interface to call self.tick_values.
         raise NotImplementedError('Derived must override')
@@ -1532,7 +1532,7 @@ class Locator(TickHelper):
         return mtransforms.nonsingular(vmin, vmax)
 
     def autoscale(self):
-        """autoscale the view limits"""
+        """Autoscale the view limits."""
         return self.view_limits(*self.axis.get_view_interval())
 
     def pan(self, numsteps):
@@ -1562,7 +1562,7 @@ class Locator(TickHelper):
         self.axis.set_view_interval(vmin + step, vmax - step, ignore=True)
 
     def refresh(self):
-        """refresh internal information based on current lim"""
+        """Refresh internal information based on current limits."""
         pass
 
 
@@ -1574,7 +1574,7 @@ class IndexLocator(Locator):
     useful for x ticks.
     """
     def __init__(self, base, offset):
-        'place ticks on the i-th data points where (i-offset)%base==0'
+        """Place ticks every *base* data point, starting at *offset*."""
         self._base = base
         self.offset = offset
 
@@ -2063,7 +2063,7 @@ class MaxNLocator(Locator):
 
 @cbook.deprecated("3.1")
 def decade_down(x, base=10):
-    'floor x to the nearest lower decade'
+    """Floor x to the nearest lower decade."""
     if x == 0.0:
         return -base
     lx = np.floor(np.log(x) / np.log(base))
@@ -2072,7 +2072,7 @@ def decade_down(x, base=10):
 
 @cbook.deprecated("3.1")
 def decade_up(x, base=10):
-    'ceil x to the nearest higher decade'
+    """Ceil x to the nearest higher decade."""
     if x == 0.0:
         return base
     lx = np.ceil(np.log(x) / np.log(base))
@@ -2191,14 +2191,12 @@ class LogLocator(Locator):
     # usual and desired API.
 
     def base(self, base):
-        """
-        set the base of the log scaling (major tick every base**i, i integer)
-        """
+        """Set the log base (major tick every ``base**i``, i integer)."""
         self._base = float(base)
 
     def subs(self, subs):
         """
-        set the minor ticks for the log scaling every base**i*subs[j]
+        Set the minor ticks for the log scaling every ``base**i*subs[j]``.
         """
         if subs is None:  # consistency with previous bad API
             self._subs = 'auto'
@@ -2350,9 +2348,7 @@ class SymmetricalLogLocator(Locator):
     """
 
     def __init__(self, transform=None, subs=None, linthresh=None, base=None):
-        """
-        place ticks on the location= base**i*subs[j]
-        """
+        """Place ticks on the locations ``base**i*subs[j]``."""
         if transform is not None:
             self._base = transform.base
             self._linthresh = transform.linthresh
@@ -2376,7 +2372,7 @@ class SymmetricalLogLocator(Locator):
             self._subs = subs
 
     def __call__(self):
-        'Return the locations of the ticks'
+        """Return the locations of the ticks."""
         # Note, these are untransformed coordinates
         vmin, vmax = self.axis.get_view_interval()
         return self.tick_values(vmin, vmax)
@@ -2512,9 +2508,7 @@ class LogitLocator(Locator):
     """
 
     def __init__(self, minor=False):
-        """
-        place ticks on the logit locations
-        """
+        """Place ticks on the logit locations."""
         self.minor = minor
 
     def set_params(self, minor=None):
@@ -2523,7 +2517,7 @@ class LogitLocator(Locator):
             self.minor = minor
 
     def __call__(self):
-        'Return the locations of the ticks'
+        """Return the locations of the ticks."""
         vmin, vmax = self.axis.get_view_interval()
         return self.tick_values(vmin, vmax)
 
@@ -2698,7 +2692,7 @@ class OldAutoLocator(Locator):
                                   '%s type.' % type(self))
 
     def refresh(self):
-        'refresh internal information based on current lim'
+        # docstring inherited
         vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
         d = abs(vmax - vmin)
@@ -2712,7 +2706,7 @@ class OldAutoLocator(Locator):
         return self._locator.view_limits(vmin, vmax)
 
     def get_locator(self, d):
-        'pick the best locator based on a distance'
+        """Pick the best locator based on a distance *d*."""
         d = abs(d)
         if d <= 0:
             locator = MultipleLocator(0.2)

@@ -185,7 +185,7 @@ class Stroke(AbstractPathEffect):
 
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):
         """
-        draw the path with updated gc.
+        Draw the path with updated gc.
         """
         # Do not modify the input! Use copy instead.
 

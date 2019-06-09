@@ -537,10 +537,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def _draw_unsampled_image(self, renderer, gc):
         """
-        draw unsampled image. The renderer should support a draw_image method
+        Draw unsampled image. The renderer should support a draw_image method
         with scale parameter.
         """
-
         im, l, b, trans = self.make_image(renderer, unsampled=True)
 
         if im is None:
@@ -552,7 +551,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def _check_unsampled_image(self, renderer):
         """
-        return True if the image is better to be drawn unsampled.
+        Return whether the image is better to be drawn unsampled.
+
         The derived class needs to override it.
         """
         return False
@@ -852,12 +852,20 @@ class AxesImage(_ImageBase):
 
     def set_extent(self, extent):
         """
-        extent is data axes (left, right, bottom, top) for making image plots
+        Set the image extent.
 
-        This updates ax.dataLim, and, if autoscaling, sets viewLim
-        to tightly fit the image, regardless of dataLim.  Autoscaling
+        Parameters
+        ----------
+        extent : 4-tuple of float
+            The position and size of the image as tuple
+            ``(left, right, bottom, top)`` in data coordinates.
+
+        Notes
+        -----
+        This updates ``ax.dataLim`, and, if autoscaling, sets ``ax.viewLim``
+        to tightly fit the image, regardless of ``dataLim``.  Autoscaling
         state is not changed, so following this with ax.autoscale_view
-        will redo the autoscaling in accord with dataLim.
+        will redo the autoscaling in accord with ``dataLim``.
         """
         self._extent = xmin, xmax, ymin, ymax = extent
         corners = (xmin, ymin), (xmax, ymax)
@@ -871,7 +879,7 @@ class AxesImage(_ImageBase):
         self.stale = True
 
     def get_extent(self):
-        """Get the image extent: left, right, bottom, top"""
+        """Return the image extent as tuple (left, right, bottom, top)."""
         if self._extent is not None:
             return self._extent
         else:
@@ -923,17 +931,18 @@ class AxesImage(_ImageBase):
 class NonUniformImage(AxesImage):
     def __init__(self, ax, *, interpolation='nearest', **kwargs):
         """
-        kwargs are identical to those for AxesImage, except
-        that 'nearest' and 'bilinear' are the only supported 'interpolation'
-        options.
+        Parameters
+        ----------
+        interpolation : {'nearest', 'bilinear'}
+
+        **kwargs
+            All other keyword arguments are identical to those of `.AxesImage`.
         """
         super().__init__(ax, **kwargs)
         self.set_interpolation(interpolation)
 
     def _check_unsampled_image(self, renderer):
-        """
-        return False. Do not use unsampled image.
-        """
+        """Return False. Do not use unsampled image."""
         return False
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
@@ -1204,7 +1213,7 @@ class FigureImage(_ImageBase):
         self.magnification = 1.0
 
     def get_extent(self):
-        """Get the image extent: left, right, bottom, top"""
+        """Return the image extent as tuple (left, right, bottom, top)."""
         numrows, numcols = self.get_size()
         return (-0.5 + self.ox, numcols-0.5 + self.ox,
                 -0.5 + self.oy, numrows-0.5 + self.oy)
