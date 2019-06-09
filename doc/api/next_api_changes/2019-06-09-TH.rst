@@ -1,0 +1,8 @@
+Passing scalars to parameter where in ``fill_between()`` and ``fill_betweenx()``
+````````````````````````````````````````````````````````````````````````````````
+
+Passing scalars to parameter *where* in ``fill_between()`` and
+``fill_betweenx()`` is deprecated. While the documentation already states that
+*where* must be of the same size as *x* (or *y*), scalars were accepted and
+broadcasted to the size of *x*. Non-matching sizes will raise a ``ValueError``
+in the future.
