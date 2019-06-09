@@ -401,6 +401,7 @@ class Matplotlib(SetupPackage):
                 *_pkg_data_helper('matplotlib', 'mpl-data/images'),
                 *_pkg_data_helper('matplotlib', 'mpl-data/stylelib'),
                 *_pkg_data_helper('matplotlib', 'backends/web_backend'),
+                '*.dll',  # Only actually matters on Windows.
             ],
         }
 
@@ -814,35 +815,3 @@ class BackendMacOSX(OptionalBackendPackage):
         if platform.python_implementation().lower() == 'pypy':
             ext.extra_compile_args.append('-DPYPY=1')
         return ext
-
-
-class OptionalPackageData(OptionalPackage):
-    config_category = "package_data"
-
-
-class Dlls(OptionalPackageData):
-    """
-    On Windows, this packages any DLL files that can be found in the
-    lib/matplotlib/* directories.
-    """
-    name = "dlls"
-
-    def check(self):
-        if sys.platform != 'win32':
-            raise CheckFailed("Microsoft Windows only")
-        return super().check()
-
-    def get_package_data(self):
-        return {'': ['*.dll']}
-
-    @classmethod
-    def get_config(cls):
-        """
-        Look at `setup.cfg` and return one of ["auto", True, False] indicating
-        if the package is at default state ("auto"), forced by the user (True)
-        or opted-out (False).
-        """
-        try:
-            return config.getboolean(cls.config_category, cls.name)
-        except Exception:
-            return False  # <-- default
