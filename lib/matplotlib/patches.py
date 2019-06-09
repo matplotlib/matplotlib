@@ -709,10 +709,13 @@ class Rectangle(Patch):
         return Path.unit_rectangle()
 
     def _update_patch_transform(self):
-        """NOTE: This cannot be called until after this has been added
-                 to an Axes, otherwise unit conversion will fail. This
-                 makes it very important to call the accessor method and
-                 not directly access the transformation member variable.
+        """
+        Notes
+        -----
+        This cannot be called until after this has been added to an Axes,
+        otherwise unit conversion will fail. This makes it very important to
+        call the accessor method and not directly access the transformation
+        member variable.
         """
         x0, y0, x1, y1 = self._convert_units()
         bbox = transforms.Bbox.from_extents(x0, y0, x1, y1)
@@ -1364,10 +1367,13 @@ class Ellipse(Patch):
         self._patch_transform = transforms.IdentityTransform()
 
     def _recompute_transform(self):
-        """NOTE: This cannot be called until after this has been added
-                 to an Axes, otherwise unit conversion will fail. This
-                 makes it very important to call the accessor method and
-                 not directly access the transformation member variable.
+        """
+        Notes
+        -----
+        This cannot be called until after this has been added to an Axes,
+        otherwise unit conversion will fail. This makes it very important to
+        call the accessor method and not directly access the transformation
+        member variable.
         """
         center = (self.convert_xunits(self._center[0]),
                   self.convert_yunits(self._center[1]))
@@ -1941,10 +1947,10 @@ class BoxStyle(_Style):
 
         def __init__(self, pad=0.3):
             """
-             *pad*
-                amount of padding
+            Parameters
+            ----------
+            pad : float
             """
-
             self.pad = pad
             super().__init__()
 

@@ -28,8 +28,8 @@ def rad_fn(x, pos=None):
 
 
 class UnitDblConverter(units.ConversionInterface):
-    """: A matplotlib converter class.  Provides matplotlib conversion
-          functionality for the Monte UnitDbl class.
+    """
+    Provides Matplotlib conversion functionality for the Monte UnitDbl class.
     """
     # default for plotting
     defaults = {
