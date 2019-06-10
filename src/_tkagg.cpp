@@ -67,8 +67,7 @@ static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_ValueError, "Failed to extract Tk_PhotoHandle");
         goto exit;
     }
-    if (0 > y1 || y1 > y2 || y2 > height ||
-        0 > x1 || x1 > x2 || x2 > width ) {
+    if (0 > y1 || y1 > y2 || y2 > height || 0 > x1 || x1 > x2 || x2 > width) {
         PyErr_SetString(PyExc_ValueError, "Attempting to draw out of bounds");
         goto exit;
     }
