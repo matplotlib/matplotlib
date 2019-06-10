@@ -1,11 +1,11 @@
 import pytest
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib.backends import _tkagg
 
 
 @pytest.mark.backend('TkAgg', skip_on_importerror=True)
 def test_blit():
+    from matplotlib.backends import _tkagg
     def evil_blit(photoimage, aggimage, offsets, bboxptr):
         data = np.asarray(aggimage)
         height, width = data.shape[:2]
