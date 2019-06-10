@@ -1,6 +1,6 @@
 """
-The OffsetBox is a simple container artist. The child artist are meant
-to be drawn at a relative position to its parent.  The [VH]Packer,
+The `.OffsetBox` is a simple container artist. Its child artists are
+meant to be drawn at a relative position to OffsetBox.  The [VH]Packer,
 DrawingArea and TextArea are derived from the OffsetBox.
 
 The [VH]Packer automatically adjust the relative positions of their
@@ -49,12 +49,48 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     *mode*. xdescent is analogous to the usual descent, but along the
     x-direction. xdescent values are currently ignored.
 
-    *wd_list* : list of (width, xdescent) of boxes to be packed.
-    *sep* : spacing between boxes
-    *total* : Intended total length. None if not used.
-    *mode* : packing mode. 'fixed', 'expand', or 'equal'.
-    """
+    For simplicity of the description, the terminology used here assumes a
+    horizontal layout, but the function works equally for a vertical layout.
 
+    There are three packing modes:
+
+    - 'fixed': The elements are packed tight to the left with a spacing of
+      *sep* in between. If *total* is *None* the returned total will be the
+      right edge of the last box. A non-None total will be passed unchecked
+      to the output. In particular this means that right edge of the last
+      box will may be further to the right than the returned total.
+
+    - 'expand': Distribute the boxes with equal spacing so that the left edge
+      of the first box is at 0, and the right edge of the last box is at
+      *total*. The parameter *sep* is ignored in this mode. A total of *None*
+      is accepted and considered equal to 1. The total is returned unchanged
+      (except for the conversion *None* to 1). If the total is smaller than
+      the sum of the widths, the laid out boxed will overlap.
+
+    - 'equal': If *total* is given, the total space is divided in N equal
+      ranges and each box is left-aligned within its subspace.
+      Otherwise (*total* is *None*), *sep* must be provided and each box is
+      left-aligned in its subspace of width ``(max(widths) + sep)``. The
+      total width is then calculated to be ``N * (max(widths) + sep)``.
+
+    Parameters
+    ----------
+    wd_list : list of (float, float)
+        (width, xdescent) of boxes to be packed.
+    total : float or None
+        Intended total length. None if not used.
+    sep : float
+        Spacing between boxes.
+    mode : {'fixed', 'expand', 'equal'}
+        The packing mode.
+
+    Returns
+    -------
+    total : float
+        The total width needed to accommodate the laid out boxes.
+    offsets : array of float
+        The left offsets of the boxes.
+    """
     w_list, d_list = zip(*wd_list)
     # d_list is currently not used.
 
@@ -81,6 +117,9 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     elif mode == "equal":
         maxh = max(w_list)
         if total is None:
+            if sep is None:
+                raise ValueError("total and sep cannot both be None when "
+                                 "using layout mode 'equal'.")
             total = (maxh + sep) * len(w_list)
         else:
             sep = total / len(w_list) - maxh
