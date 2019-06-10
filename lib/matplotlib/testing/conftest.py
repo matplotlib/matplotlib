@@ -26,6 +26,8 @@ def mpl_test_settings(request):
             assert len(backend_marker.args) == 1, \
                 "Marker 'backend' must specify 1 backend."
             backend, = backend_marker.args
+            skip_on_importerror = backend_marker.kwargs.get(
+                'skip_on_importerror', False)
             prev_backend = matplotlib.get_backend()
 
         style = '_classic_test'  # Default of cleanup and image_comparison too.
@@ -45,7 +47,7 @@ def mpl_test_settings(request):
             except ImportError as exc:
                 # Should only occur for the cairo backend tests, if neither
                 # pycairo nor cairocffi are installed.
-                if 'cairo' in backend.lower():
+                if 'cairo' in backend.lower() or skip_on_importerror:
                     pytest.skip("Failed to switch to backend {} ({})."
                                 .format(backend, exc))
                 else:

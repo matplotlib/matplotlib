@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from matplotlib.backends import _tkagg
 
 
-@pytest.mark.backend('TkAgg')
+@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 def test_blit():
     def evil_blit(photoimage, aggimage, offsets, bboxptr):
         data = np.asarray(aggimage)
