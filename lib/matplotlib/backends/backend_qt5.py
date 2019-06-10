@@ -727,7 +727,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         # Esthetic adjustments - we need to set these explicitly in PyQt5
         # otherwise the layout looks different - but we don't want to set it if
         # not using HiDPI icons otherwise they look worse than before.
-        if is_pyqt5():
+        if is_pyqt5() and self.canvas._dpi_ratio > 1:
             self.setIconSize(QtCore.QSize(24, 24))
             self.layout().setSpacing(12)
 
