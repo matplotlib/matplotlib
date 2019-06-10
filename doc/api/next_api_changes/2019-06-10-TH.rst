@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+The class `matplotlib.offsetbox.PackerBase` is deprecated. It is considered
+an implementation detail and will become private in future versions.

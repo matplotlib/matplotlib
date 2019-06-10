@@ -263,7 +263,7 @@ class OffsetBox(martist.Artist):
         self.stale = False
 
 
-class PackerBase(OffsetBox):
+class _PackerBase(OffsetBox):
     def __init__(self, pad=None, sep=None, width=None, height=None,
                  align=None, mode=None,
                  children=None):
@@ -307,7 +307,13 @@ class PackerBase(OffsetBox):
         self._children = children
 
 
-class VPacker(PackerBase):
+class PackerBase(_PackerBase):
+    def __init__(self, *args, **kwargs):
+        cbook.warn_deprecated("3.2", name='PackerBase', obj_type='class')
+        self.super(*args, *kwargs)
+
+
+class VPacker(_PackerBase):
     """
     The VPacker has its children packed vertically. It automatically
     adjust the relative positions of children in the drawing time.
@@ -356,7 +362,7 @@ class VPacker(PackerBase):
 
         if self.width is not None:
             for c in self.get_visible_children():
-                if isinstance(c, PackerBase) and c.mode == "expand":
+                if isinstance(c, _PackerBase) and c.mode == "expand":
                     c.set_width(self.width)
 
         whd_list = [c.get_extent(renderer)
@@ -383,7 +389,7 @@ class VPacker(PackerBase):
                 list(zip(xoffsets, yoffsets)))
 
 
-class HPacker(PackerBase):
+class HPacker(_PackerBase):
     """
     The HPacker has its children packed horizontally. It automatically
     adjusts the relative positions of children at draw time.
