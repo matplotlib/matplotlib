@@ -236,6 +236,7 @@ class ThetaLocator(mticker.Locator):
         return self.base.pan(numsteps)
 
     def refresh(self):
+        # docstring inherited
         return self.base.refresh()
 
     def view_limits(self, vmin, vmax):
@@ -427,6 +428,7 @@ class RadialLocator(mticker.Locator):
         return self.base.zoom(direction)
 
     def refresh(self):
+        # docstring inherited
         return self.base.refresh()
 
     def view_limits(self, vmin, vmax):

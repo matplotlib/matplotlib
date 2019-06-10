@@ -1352,7 +1352,7 @@ class AutoDateLocator(DateLocator):
         self._locator.set_axis(axis)
 
     def refresh(self):
-        'Refresh internal information based on current limits.'
+        # docstring inherited
         dmin, dmax = self.viewlim_to_dt()
         self._locator = self.get_locator(dmin, dmax)
 

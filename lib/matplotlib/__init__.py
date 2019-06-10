@@ -603,7 +603,7 @@ def get_cachedir():
 
 
 def _get_data_path():
-    'get the path to matplotlib data'
+    """Return the path to matplotlib data."""
 
     if 'MATPLOTLIBDATA' in os.environ:
         path = os.environ['MATPLOTLIBDATA']

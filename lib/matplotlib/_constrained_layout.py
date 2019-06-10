@@ -66,10 +66,7 @@ def _in_same_row(rownum0min, rownum0max, rownumCmin, rownumCmax):
 
 
 def _axes_all_finite_sized(fig):
-    """
-    helper function to make sure all axes in the
-    figure have a finite width and height.  If not, return False
-    """
+    """Return whether all axes in the figure have a finite width and height."""
     for ax in fig.axes:
         if ax._layoutbox is not None:
             newpos = ax._poslayoutbox.get_rect()
@@ -471,10 +468,7 @@ def _align_spines(fig, gs):
 
 
 def _arrange_subplotspecs(gs, hspace=0, wspace=0):
-    """
-    arrange the subplotspec children of this gridspec, and then recursively
-    do the same of any gridspec children of those gridspecs...
-    """
+    """Recursively arrange the subplotspec children of the given gridspec."""
     sschildren = []
     for child in gs.children:
         if child._is_subplotspec_layoutbox():
