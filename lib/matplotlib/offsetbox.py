@@ -147,9 +147,11 @@ class OffsetBox(martist.Artist):
 
     def set_figure(self, fig):
         """
-        Set the figure
+        Set the `.Figure` for the `.OffsetBox` and all its children.
 
-        accepts a class:`~matplotlib.figure.Figure` instance
+        Parameters
+        ----------
+        fig : `~matplotlib.figure.Figure`
         """
         martist.Artist.set_figure(self, fig)
         for c in self.get_children():
@@ -164,6 +166,29 @@ class OffsetBox(martist.Artist):
                 c.axes = ax
 
     def contains(self, mouseevent):
+        """
+        Delegate the mouse event contains-check to the children.
+
+        As a container, the `.OffsetBox` does not respond itself to
+        mouseevents.
+
+        Parameters
+        ----------
+        mouseevent : `matplotlib.backend_bases.MouseEvent`
+
+        Returns
+        -------
+        contains : bool
+            Whether any values are within the radius.
+        details : dict
+            An artist-specific dictionary of details of the event context,
+            such as which points are contained in the pick radius. See the
+            individual Artist subclasses for details.
+
+        See Also
+        --------
+        .Artist.contains
+        """
         for c in self.get_children():
             a, b = c.contains(mouseevent)
             if a:
@@ -177,8 +202,10 @@ class OffsetBox(martist.Artist):
         Parameters
         ----------
         xy : (float, float) or callable
-            The (x,y) coordinates of the offset in display units.
-            A callable must have the signature::
+            The (x, y) coordinates of the offset in display units. These can
+            either be given explicitly as a tuple (x, y), or by providing a
+            function that converts the extent into the offset. This function
+            must have the signature::
 
                 def offset(width, height, xdescent, ydescent, renderer) \
 -> (float, float)
@@ -188,9 +215,18 @@ class OffsetBox(martist.Artist):
 
     def get_offset(self, width, height, xdescent, ydescent, renderer):
         """
-        Get the offset
+        Return the offset as a tuple (x, y).
 
-        accepts extent of the box
+        The extent parameters have to be provided to handle the case where the
+        offset is dynamically determined by a callable (see
+        `~.OffsetBox.set_offset`).
+
+        Parameters
+        ----------
+        width, height, xdescent, ydescent
+            Extent parameters.
+        renderer : `.RendererBase` subclass
+
         """
         return (self._offset(width, height, xdescent, ydescent, renderer)
                 if callable(self._offset)
@@ -198,48 +234,60 @@ class OffsetBox(martist.Artist):
 
     def set_width(self, width):
         """
-        Set the width
+        Set the width of the box.
 
-        accepts float
+        Parameters
+        ----------
+        width : float
         """
         self.width = width
         self.stale = True
 
     def set_height(self, height):
         """
-        Set the height
+        Set the height of the box.
 
-        accepts float
+        Parameters
+        ----------
+        height : float
         """
         self.height = height
         self.stale = True
 
     def get_visible_children(self):
-        """
-        Return a list of visible artists it contains.
-        """
+        r"""Return a list of the visible child `.Artist`\s."""
         return [c for c in self._children if c.get_visible()]
 
     def get_children(self):
-        """
-        Return a list of artists it contains.
-        """
+        r"""Return a list of the child `.Artist`\s."""
         return self._children
 
     def get_extent_offsets(self, renderer):
-        raise Exception("")
+        """
+        Update offset of the children and return the extent of the box.
+
+        Parameters
+        ----------
+        renderer : `.RendererBase` subclass
+
+        Returns
+        -------
+        width
+        height
+        xdescent
+        ydescent
+        list of (xoffset, yoffset) pairs
+        """
+        raise NotImplementedError(
+            "get_extent_offsets must be overridden in derived classes.")
 
     def get_extent(self, renderer):
-        """
-        Return with, height, xdescent, ydescent of box
-        """
+        """Return a tuple ``width, height, xdescent, ydescent`` of the box."""
         w, h, xd, yd, offsets = self.get_extent_offsets(renderer)
         return w, h, xd, yd
 
     def get_window_extent(self, renderer):
-        '''
-        get the bounding box in display space.
-        '''
+        """Return the bounding box (`.Bbox`) in display space."""
         w, h, xd, yd, offsets = self.get_extent_offsets(renderer)
         px, py = self.get_offset(w, h, xd, yd, renderer)
         return mtransforms.Bbox.from_bounds(px - xd, py - yd, w, h)
@@ -249,7 +297,6 @@ class OffsetBox(martist.Artist):
         Update the location of children if necessary and draw them
         to the given *renderer*.
         """
-
         width, height, xdescent, ydescent, offsets = self.get_extent_offsets(
                                                         renderer)
 
@@ -271,23 +318,29 @@ class PackerBase(OffsetBox):
         Parameters
         ----------
         pad : float, optional
-            Boundary pad.
+            The boundary padding in points.
 
         sep : float, optional
-            Spacing between items.
+            The spacing between items in points.
 
-        width : float, optional
+        width, height : float, optional
+            Width and height of the container box in pixels, calculated if
+            *None*.
 
-        height : float, optional
-           Width and height of the container box, calculated if
-           `None`.
+        align : {'top', 'bottom', 'left', 'right', 'center', 'baseline'}
+            Alignment of boxes.
 
-        align : str, optional
-            Alignment of boxes. Can be one of ``top``, ``bottom``,
-            ``left``, ``right``, ``center`` and ``baseline``
+        mode : {'fixed', 'expand', 'equal'}
+            The packing mode.
 
-        mode : str, optional
-            Packing mode.
+            - 'fixed' packs the given `.Artists` tight with *sep* spacing.
+            - 'expand' uses the maximal available space to distribute the
+              artists with equal spacing in between.
+            - 'equal': Each artist an equal fraction of the available space
+              and is left-aligned (or top-aligned) therein.
+
+        children : list of `.Artist`
+            The artists to pack.
 
         Notes
         -----
@@ -319,23 +372,29 @@ class VPacker(PackerBase):
         Parameters
         ----------
         pad : float, optional
-            Boundary pad.
+            The boundary padding in points.
 
         sep : float, optional
-            Spacing between items.
+            The spacing between items in points.
 
-        width : float, optional
+        width, height : float, optional
+            Width and height of the container box in pixels, calculated if
+            *None*.
 
-        height : float, optional
-
-            width and height of the container box, calculated if
-            `None`.
-
-        align : str, optional
+        align : {'top', 'bottom', 'left', 'right', 'center', 'baseline'}
             Alignment of boxes.
 
-        mode : str, optional
-            Packing mode.
+        mode : {'fixed', 'expand', 'equal'}
+            The packing mode.
+
+            - 'fixed' packs the given `.Artists` tight with *sep* spacing.
+            - 'expand' uses the maximal available space to distribute the
+              artists with equal spacing in between.
+            - 'equal': Each artist an equal fraction of the available space
+              and is left-aligned (or top-aligned) therein.
+
+        children : list of `.Artist`
+            The artists to pack.
 
         Notes
         -----
@@ -346,10 +405,7 @@ class VPacker(PackerBase):
         super().__init__(pad, sep, width, height, align, mode, children)
 
     def get_extent_offsets(self, renderer):
-        """
-        update offset of childrens and return the extents of the box
-        """
-
+        # docstring inherited
         dpicor = renderer.points_to_pixels(1.)
         pad = self.pad * dpicor
         sep = self.sep * dpicor
@@ -395,22 +451,29 @@ class HPacker(PackerBase):
         Parameters
         ----------
         pad : float, optional
-            Boundary pad.
+            The boundary padding in points.
 
         sep : float, optional
-            Spacing between items.
+            The spacing between items in points.
 
-        width : float, optional
+        width, height : float, optional
+            Width and height of the container box in pixels, calculated if
+            *None*.
 
-        height : float, optional
-           Width and height of the container box, calculated if
-           `None`.
+        align : {'top', 'bottom', 'left', 'right', 'center', 'baseline'}
+            Alignment of boxes.
 
-        align : str
-           Alignment of boxes.
+        mode : {'fixed', 'expand', 'equal'}
+            The packing mode.
 
-        mode : str
-           Packing mode.
+            - 'fixed' packs the given `.Artists` tight with *sep* spacing.
+            - 'expand' uses the maximal available space to distribute the
+              artists with equal spacing in between.
+            - 'equal': Each artist an equal fraction of the available space
+              and is left-aligned (or top-aligned) therein.
+
+        children : list of `.Artist`
+            The artists to pack.
 
         Notes
         -----
@@ -421,9 +484,7 @@ class HPacker(PackerBase):
         super().__init__(pad, sep, width, height, align, mode, children)
 
     def get_extent_offsets(self, renderer):
-        """
-        update offset of children and return the extents of the box
-        """
+        # docstring inherited
         dpicor = renderer.points_to_pixels(1.)
         pad = self.pad * dpicor
         sep = self.sep * dpicor
@@ -458,20 +519,30 @@ class HPacker(PackerBase):
 
         return (width + 2 * pad, height + 2 * pad,
                 xdescent + pad, ydescent + pad,
-               list(zip(xoffsets, yoffsets)))
+                list(zip(xoffsets, yoffsets)))
 
 
 class PaddedBox(OffsetBox):
+    """
+    A container to add a padding around an `.Artist`.
+
+    The `.PaddedBox` contains a `.FancyBboxPatch` that is used to visualize
+    it when rendering.
+    """
     def __init__(self, child, pad=None, draw_frame=False, patch_attrs=None):
         """
-        *pad* : boundary pad
-
-        .. note::
-          *pad* need to given in points and will be
-          scale with the renderer dpi, while *width* and *height*
-          need to be in pixels.
+        Parameters
+        ----------
+        child : `~matplotlib.artist.Artist`
+            The contained `.Artist`.
+        pad : float
+            The padding in points. This will be scaled with the renderer dpi.
+            In contrast *width* and *hight* are in *pixel* and thus not scaled.
+        draw_frame : bool
+            Whether to draw the contained `.FancyBboxPatch`.
+        patch_attrs : dict or None
+            Additional parameters passed to the contained `.FancyBboxPatch`.
         """
-
         super().__init__()
 
         self.pad = pad
@@ -492,10 +563,7 @@ class PaddedBox(OffsetBox):
         self._drawFrame = draw_frame
 
     def get_extent_offsets(self, renderer):
-        """
-        update offset of childrens and return the extents of the box
-        """
-
+        # docstring inherited.
         dpicor = renderer.points_to_pixels(1.)
         pad = self.pad * dpicor
 
@@ -510,7 +578,6 @@ class PaddedBox(OffsetBox):
         Update the location of children if necessary and draw them
         to the given *renderer*.
         """
-
         width, height, xdescent, ydescent, offsets = self.get_extent_offsets(
                                                         renderer)
 
