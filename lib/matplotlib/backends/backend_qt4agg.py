@@ -8,4 +8,5 @@ from .backend_qt5agg import (
 
 @_BackendQT5Agg.export
 class _BackendQT4Agg(_BackendQT5Agg):
-    required_interactive_framework = "qt4"
+    class FigureCanvas(FigureCanvasQTAgg):
+        required_interactive_framework = "qt4"

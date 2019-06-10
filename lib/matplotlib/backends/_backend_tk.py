@@ -124,6 +124,8 @@ class TimerTk(TimerBase):
 
 
 class FigureCanvasTk(FigureCanvasBase):
+    required_interactive_framework = "tk"
+
     keyvald = {65507: 'control',
                65505: 'shift',
                65513: 'alt',
@@ -868,7 +870,6 @@ Toolbar = ToolbarTk
 
 @_Backend.export
 class _BackendTk(_Backend):
-    required_interactive_framework = "tk"
     FigureManager = FigureManagerTk
 
     @classmethod

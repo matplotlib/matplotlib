@@ -97,6 +97,8 @@ class TimerGTK3(TimerBase):
 
 
 class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
+    required_interactive_framework = "gtk3"
+
     keyvald = {65507: 'control',
                65505: 'shift',
                65513: 'alt',
@@ -978,7 +980,6 @@ Toolbar = ToolbarGTK3
 
 @_Backend.export
 class _BackendGTK3(_Backend):
-    required_interactive_framework = "gtk3"
     FigureCanvas = FigureCanvasGTK3
     FigureManager = FigureManagerGTK3
 

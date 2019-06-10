@@ -1560,8 +1560,12 @@ class FigureCanvasBase:
     ----------
     figure : `matplotlib.figure.Figure`
         A high-level figure instance
-
     """
+
+    # Set to one of {"qt5", "qt4", "gtk3", "wx", "tk", "macosx"} if an
+    # interactive framework is required, or None otherwise.
+    required_interactive_framework = None
+
     events = [
         'resize_event',
         'draw_event',
@@ -1633,8 +1637,7 @@ class FigureCanvasBase:
             # In case we ever move the patch to IPython and remove these APIs,
             # don't break on our side.
             return
-        backend_mod = sys.modules[cls.__module__]
-        rif = getattr(backend_mod, "required_interactive_framework", None)
+        rif = getattr(cls, "required_interactive_framework", None)
         backend2gui_rif = {"qt5": "qt", "qt4": "qt", "gtk3": "gtk3",
                            "wx": "wx", "macosx": "osx"}.get(rif)
         if backend2gui_rif:
@@ -3255,10 +3258,6 @@ class _Backend:
     # class FooBackend(_Backend):
     #     # override the attributes and methods documented below.
 
-    # Set to one of {"qt5", "qt4", "gtk3", "wx", "tk", "macosx"} if an
-    # interactive framework is required, or None otherwise.
-    required_interactive_framework = None
-
     # `backend_version` may be overridden by the subclass.
     backend_version = "unknown"
 
@@ -3341,14 +3340,15 @@ class _Backend:
 
     @staticmethod
     def export(cls):
-        for name in ["required_interactive_framework",
-                     "backend_version",
-                     "FigureCanvas",
-                     "FigureManager",
-                     "new_figure_manager",
-                     "new_figure_manager_given_figure",
-                     "draw_if_interactive",
-                     "show"]:
+        for name in [
+                "backend_version",
+                "FigureCanvas",
+                "FigureManager",
+                "new_figure_manager",
+                "new_figure_manager_given_figure",
+                "draw_if_interactive",
+                "show",
+        ]:
             setattr(sys.modules[cls.__module__], name, getattr(cls, name))
 
         # For back-compatibility, generate a shim `Show` class.
