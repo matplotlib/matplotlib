@@ -6,3 +6,4 @@ decrease in order to get a better fit.
 
 Text is now placed vertically with ``center_baseline`` instead of
 ``center`` in order to improve the vertical alignment.
+
