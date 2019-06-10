@@ -10,21 +10,20 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
-def mpl_test_settings(qt_module, mpl_test_settings):
+def mpl_test_settings(qt_core, mpl_test_settings):
     """
-    Ensure qt_module fixture is *first* fixture.
+    Ensure qt_core fixture is *first* fixture.
 
-    We override the `mpl_test_settings` fixture and depend on the `qt_module`
+    We override the `mpl_test_settings` fixture and depend on the `qt_core`
     fixture first. It is very important that it is first, because it skips
     tests when Qt is not available, and if not, then the main
     `mpl_test_settings` fixture will try to switch backends before the skip can
     be triggered.
     """
-    pass
 
 
 @pytest.fixture
-def qt_module(request):
+def qt_core(request):
     backend, = request.node.get_closest_marker('backend').args
     if backend == 'Qt4Agg':
         if any(k in sys.modules for k in ('PyQt5', 'PySide2')):
@@ -59,43 +58,10 @@ def qt_module(request):
             py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])
         except AttributeError:
             py_qt_ver = QtCore.__version_info__[0]
-
         if py_qt_ver != 4:
             pytest.skip('Qt4 is not available')
 
-        from matplotlib.backends.backend_qt4 import (
-            MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)
-    elif backend == 'Qt5Agg':
-        from matplotlib.backends.backend_qt5 import (
-            MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT)
-
-    mods = {}
-    keys = {}
-    for name, index in zip(['Alt', 'Control', 'Shift', 'Super'],
-                           [ALT, CTRL, SHIFT, SUPER]):
-        _, mod, key = MODIFIER_KEYS[index]
-        mods[name + 'Modifier'] = mod
-        keys[name + 'Key'] = key
-
-    return QtCore, mods, keys
-
-
-@pytest.fixture
-def qt_key(request):
-    QtCore, _, keys = request.getfixturevalue('qt_module')
-    if request.param.startswith('Key'):
-        return getattr(QtCore.Qt, request.param)
-    else:
-        return keys[request.param]
-
-
-@pytest.fixture
-def qt_mods(request):
-    QtCore, mods, _ = request.getfixturevalue('qt_module')
-    result = QtCore.Qt.NoModifier
-    for mod in request.param:
-        result |= mods[mod]
-    return result
+    return QtCore
 
 
 @pytest.mark.parametrize('backend', [
@@ -120,12 +86,9 @@ def test_fig_close(backend):
 
 
 @pytest.mark.backend('Qt5Agg')
-def test_fig_signals(qt_module):
+def test_fig_signals(qt_core):
     # Create a figure
     plt.figure()
-
-    # Access QtCore
-    QtCore = qt_module[0]
 
     # Access signals
     import signal
@@ -138,10 +101,10 @@ def test_fig_signals(qt_module):
         event_loop_signal = signal.getsignal(signal.SIGINT)
 
         # Request event loop exit
-        QtCore.QCoreApplication.exit()
+        qt_core.QCoreApplication.exit()
 
     # Timer to exit event loop
-    QtCore.QTimer.singleShot(0, fire_signal_and_quit)
+    qt_core.QTimer.singleShot(0, fire_signal_and_quit)
 
     # Save original SIGINT handler
     original_signal = signal.getsignal(signal.SIGINT)
@@ -176,15 +139,14 @@ def test_fig_signals(qt_module):
          '\N{LATIN CAPITAL LETTER A WITH ACUTE}'),
         ('Key_Aacute', [],
          '\N{LATIN SMALL LETTER A WITH ACUTE}'),
-        ('ControlKey', ['AltModifier'], 'alt+control'),
-        ('AltKey', ['ControlModifier'], 'ctrl+alt'),
-        ('Key_Aacute', ['ControlModifier', 'AltModifier', 'SuperModifier'],
+        ('Key_Control', ['AltModifier'], 'alt+control'),
+        ('Key_Alt', ['ControlModifier'], 'ctrl+alt'),
+        ('Key_Aacute', ['ControlModifier', 'AltModifier', 'MetaModifier'],
          'ctrl+alt+super+\N{LATIN SMALL LETTER A WITH ACUTE}'),
         ('Key_Backspace', [], 'backspace'),
         ('Key_Backspace', ['ControlModifier'], 'ctrl+backspace'),
         ('Key_Play', [], None),
     ],
-    indirect=['qt_key', 'qt_mods'],
     ids=[
         'shift',
         'lower',
@@ -204,23 +166,26 @@ def test_fig_signals(qt_module):
     pytest.param('Qt4Agg', marks=pytest.mark.backend('Qt4Agg')),
     pytest.param('Qt5Agg', marks=pytest.mark.backend('Qt5Agg')),
 ])
-def test_correct_key(backend, qt_key, qt_mods, answer):
+def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
     """
     Make a figure.
     Send a key_press_event event (using non-public, qtX backend specific api).
     Catch the event.
     Assert sent and caught keys are the same.
     """
-    qt_canvas = plt.figure().canvas
+    qt_mod = qt_core.Qt.NoModifier
+    for mod in qt_mods:
+        qt_mod |= getattr(qt_core.Qt, mod)
 
     class _Event:
         def isAutoRepeat(self): return False
-        def key(self): return qt_key
-        def modifiers(self): return qt_mods
+        def key(self): return getattr(qt_core.Qt, qt_key)
+        def modifiers(self): return qt_mod
 
     def receive(event):
         assert event.key == answer
 
+    qt_canvas = plt.figure().canvas
     qt_canvas.mpl_connect('key_press_event', receive)
     qt_canvas.keyPressEvent(_Event())
 
