@@ -17,6 +17,7 @@ The table consists of a grid of cells, which are indexed by (row, column).
 The cell (0, 0) is positioned at the top left.
 
 Thanks to John Gill for providing the class and table.
+
 """
 
 from . import artist, cbook, docstring
@@ -59,8 +60,8 @@ class Cell(Rectangle):
         values are the keyword arguments accepted by `.FontProperties`.
     """
 
-    PAD = 0.1
-    """Padding between text and rectangle."""
+    VPAD = 0.1
+    """Vertical padding between text and rectangle."""
 
     def __init__(self, xy, width, height,
                  edgecolor='k', facecolor='w',
@@ -170,20 +171,19 @@ class Cell(Rectangle):
             x = l + (w / 2.0)
         elif self._loc == 'left':
             self._text.set_horizontalalignment('left')
-            x = l + self._get_pad(w)
+            x = l + self._get_horizontal_pad()
         else:
             self._text.set_horizontalalignment('right')
-            x = l + w - self._get_pad(w)
+            x = l + w - self._get_horizontal_pad()
 
         self._text.set_position((x, y))
 
     def get_text_bounds(self, renderer):
         """
-        Return the text bounds as *(x, y, width, height)* in table coordinates.
+        Return the text bounds as *(x, y, width, height)*.
         """
         bbox = self._text.get_window_extent(renderer)
-        bboxa = bbox.inverse_transformed(self.get_data_transform())
-        return bboxa.bounds
+        return bbox
 
     def get_required_width(self, renderer):
         """Return the minimal required width for the cell."""
@@ -197,14 +197,26 @@ class Cell(Rectangle):
 
     def get_required_dimensions(self, renderer):
         """Return the minimal width and height required for this cell."""
-        l, b, w, h = self.get_text_bounds(renderer)
-        width = w + (2.0 * self._get_pad(w))
-        height = h * (1.0 + (2.0 * self.PAD))
-        return width, height
+        bbox = self.get_text_bounds(renderer)
+        l, b, w, h = bbox.bounds
 
-    def _get_pad(self, width):
+        # Calculate text padding
+        width = w + (2.0 * self._get_horizontal_pad())
+        height = h * (1.0 + (2.0 * self.VPAD))
 
-        return min(width * self.PAD, self.get_fontsize())
+        # Adjust bbox to include padding
+        bbox.x1 = bbox.x0 + width
+        bbox.y1 = bbox.y0 + height
+
+        # apply transform to get width and height in table coordinates.
+        l, b, w, h = bbox.inverse_transformed(self.get_data_transform()).bounds
+        return w, h
+
+    def _get_horizontal_pad(self):
+        """Amount of horizontal padding"""
+
+        # Simply use font size as padding, looks reasonable in most cases.
+        return self.get_fontsize()
 
     @docstring.dedent_interpd
     def set_text_props(self, **kwargs):
@@ -796,7 +808,6 @@ def table(ax,
     table : `~matplotlib.table.Table`
         The created table.
     """
-
     if cellColours is None and cellText is None:
         raise ValueError('At least one argument from "cellColours" or '
                          '"cellText" must be provided to create a table.')
