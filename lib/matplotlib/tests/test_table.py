@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.testing.decorators import image_comparison
+from matplotlib.colors import Normalize
 
 from matplotlib.table import CustomCell, Table
 from matplotlib.path import Path
@@ -126,11 +127,12 @@ def test_auto_column():
     # iterable list input
     ax1 = fig.add_subplot(4, 1, 1)
     ax1.axis('off')
-    tb1 = ax1.table(cellText=[['Fit Text', 2],
-          ['very long long text, Longer text than default', 1]],
-          rowLabels=["A", "B"],
-          colLabels=["Col1", "Col2"],
-          loc="center")
+    tb1 = ax1.table(
+        cellText=[['Fit Text', 2],
+                  ['very long long text, Longer text than default', 1]],
+        rowLabels=["A", "B"],
+        colLabels=["Col1", "Col2"],
+        loc="center")
     tb1.auto_set_font_size(False)
     tb1.set_fontsize(12)
     tb1.auto_set_column_width([-1, 0, 1])
@@ -138,40 +140,104 @@ def test_auto_column():
     # iterable tuple input
     ax2 = fig.add_subplot(4, 1, 2)
     ax2.axis('off')
-    tb2 = ax2.table(cellText=[['Fit Text', 2],
-          ['very long long text, Longer text than default', 1]],
-          rowLabels=["A", "B"],
-          colLabels=["Col1", "Col2"],
-          loc="center")
+    tb2 = ax2.table(
+        cellText=[['Fit Text', 2],
+                  ['very long long text, Longer text than default', 1]],
+        rowLabels=["A", "B"],
+        colLabels=["Col1", "Col2"],
+        loc="center")
     tb2.auto_set_font_size(False)
     tb2.set_fontsize(12)
     tb2.auto_set_column_width((-1, 0, 1))
 
-    #3 single inputs
+    # 3 single inputs
     ax3 = fig.add_subplot(4, 1, 3)
     ax3.axis('off')
-    tb3 = ax3.table(cellText=[['Fit Text', 2],
-          ['very long long text, Longer text than default', 1]],
-          rowLabels=["A", "B"],
-          colLabels=["Col1", "Col2"],
-          loc="center")
+    tb3 = ax3.table(
+        cellText=[['Fit Text', 2],
+                  ['very long long text, Longer text than default', 1]],
+        rowLabels=["A", "B"],
+        colLabels=["Col1", "Col2"],
+        loc="center")
     tb3.auto_set_font_size(False)
     tb3.set_fontsize(12)
     tb3.auto_set_column_width(-1)
     tb3.auto_set_column_width(0)
     tb3.auto_set_column_width(1)
 
-    #4 non integer iterable input
+    # 4 non integer iterable input
     ax4 = fig.add_subplot(4, 1, 4)
     ax4.axis('off')
-    tb4 = ax4.table(cellText=[['Fit Text', 2],
-          ['very long long text, Longer text than default', 1]],
-          rowLabels=["A", "B"],
-          colLabels=["Col1", "Col2"],
-          loc="center")
+    tb4 = ax4.table(
+        cellText=[['Fit Text', 2],
+                  ['very long long text, Longer text than default', 1]],
+        rowLabels=["A", "B"],
+        colLabels=["Col1", "Col2"],
+        loc="center")
     tb4.auto_set_font_size(False)
     tb4.set_fontsize(12)
     tb4.auto_set_column_width("-101")
+
+
+@image_comparison(['table_bbox.png'])
+def test_bbox_table():
+
+    fig = plt.figure()
+
+    data = [
+        [1, 10, 100],
+        [2, 40,  50],
+        [1, 10,  80],
+        [4, 20,  60]]
+
+    norm = Normalize()
+    colours = plt.cm.RdYlGn(norm(data))
+
+    alpha = 0.2
+    colours[:, :, 3] = alpha
+    ax = fig.add_subplot(1, 1, 1)
+    ax.axis('off')
+
+    ax.table(
+        cellText=data,
+        cellColours=colours,
+        bbox=(.0, .0, 1, 1))
+
+    plt.draw()
+
+
+@image_comparison(['table_bad_pad.png'])
+def test_bad_pad_table():
+
+    size_x, size_y = 12, 4
+    fig = plt.figure(figsize=(size_x, size_y))
+    ax = fig.add_subplot(111)
+
+    cellText = list(zip(*[
+        ["R001", "R002", "R003", "R005", "R006", "R007"],
+        [50*"*", 10*"-", 70*"x", "R005", "R006", "R007"],
+        [3,       1,      3,      4,      2,      3],
+        [4,       2,      3,      2,      4,      3],
+        [12,      2,      9,      8,      8,      9]]))
+
+    colLabels = ["ID", "Title", "X-Pos", "Y-Pos", "Value"]
+
+    rowLabels = list(range(len(cellText)))
+
+    # Left aligned cell text uses weird spacing
+    # (if txt is long)
+    the_table = plt.table(
+        cellText=cellText, rowLabels=rowLabels, colLabels=colLabels,
+        loc='upper center', cellLoc="left",
+        colWidths=[0.05, 0.52, 0.05, 0.05, 0.05, 0.05])
+
+    the_table.auto_set_font_size(False)
+    the_table.set_fontsize(8)
+
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(False)
+
+    plt.draw()
 
 
 def test_table_cells():

@@ -1,5 +1,5 @@
 # Original code by:
-#    John Gill <jng@europe.renre.com>
+#    John Gill <swfiua@gmail.com>
 #    Copyright 2004 John Gill and John Hunter
 #
 # Subsequent changes:
@@ -17,6 +17,7 @@ The table consists of a grid of cells, which are indexed by (row, column).
 The cell (0, 0) is positioned at the top left.
 
 Thanks to John Gill for providing the class and table.
+
 """
 
 from . import artist, cbook, docstring
@@ -59,8 +60,11 @@ class Cell(Rectangle):
         values are the keyword arguments accepted by `.FontProperties`.
     """
 
-    PAD = 0.1
-    """Padding between text and rectangle."""
+    VPAD = 0.1
+    """Vertical padding between text and rectangle."""
+
+    HPAD = 0.6
+    """Multiple of fontsize to use as Horizontal between text and rectangle."""
 
     def __init__(self, xy, width, height,
                  edgecolor='k', facecolor='w',
@@ -105,14 +109,38 @@ class Cell(Rectangle):
         """Return the cell fontsize."""
         return self._text.get_fontsize()
 
-    def auto_set_font_size(self, renderer):
-        """Shrink font size until the text fits into the cell width."""
+    def auto_set_font_size(self, renderer, grow=False):
+        """Adjust font size until the text fits.
+
+        Parameters
+        ----------
+        renderer : Renderer
+        grow : bool
+            Whether the font size should also be increased if there is space
+            available.
+        """
+
         fontsize = self.get_fontsize()
-        required = self.get_required_width(renderer)
-        while fontsize > 1 and required > self.get_width():
+        width, height = self.get_required_dimensions(renderer)
+
+        if width == 0:
+            return fontsize
+
+        # make sure font is large enough
+        if grow:
+            while width < self.get_width() and height < self.get_height():
+                fontsize += 1
+
+                self.set_fontsize(fontsize)
+                width, height = self.get_required_dimensions(renderer)
+
+        # now shrink until it fits
+        while (fontsize > 1 and
+               (width > self.get_width() or height > self.get_height())):
             fontsize -= 1
+
             self.set_fontsize(fontsize)
-            required = self.get_required_width(renderer)
+            width, height = self.get_required_dimensions(renderer)
 
         return fontsize
 
@@ -137,7 +165,7 @@ class Cell(Rectangle):
         l, b, w, h = bbox.bounds
 
         # draw in center vertically
-        self._text.set_verticalalignment('center')
+        self._text.set_verticalalignment('center_baseline')
         y = b + (h / 2.0)
 
         # now position horizontally
@@ -146,25 +174,56 @@ class Cell(Rectangle):
             x = l + (w / 2.0)
         elif self._loc == 'left':
             self._text.set_horizontalalignment('left')
-            x = l + (w * self.PAD)
+            x = l + self._get_horizontal_pad()
         else:
             self._text.set_horizontalalignment('right')
-            x = l + (w * (1.0 - self.PAD))
+            x = l + w - self._get_horizontal_pad()
 
         self._text.set_position((x, y))
 
     def get_text_bounds(self, renderer):
         """
-        Return the text bounds as *(x, y, width, height)* in table coordinates.
+        Return the text bounds as *(x, y, width, height)*.
         """
         bbox = self._text.get_window_extent(renderer)
-        bboxa = bbox.inverse_transformed(self.get_data_transform())
-        return bboxa.bounds
+        return bbox
 
     def get_required_width(self, renderer):
         """Return the minimal required width for the cell."""
-        l, b, w, h = self.get_text_bounds(renderer)
-        return w * (1.0 + (2.0 * self.PAD))
+        width, height = self.get_required_dimensions(renderer)
+        return width
+
+    def get_required_height(self, renderer):
+        """Return the minimal required width for the cell."""
+        width, height = self.get_required_dimensions(renderer)
+        return height
+
+    def get_required_dimensions(self, renderer):
+        """Return the minimal width and height required for this cell."""
+        bbox = self.get_text_bounds(renderer)
+        l, b, w, h = bbox.bounds
+
+        # Calculate text padding
+        width = w + (2.0 * self._get_horizontal_pad())
+        height = h * (1.0 + (2.0 * self.VPAD))
+
+        # Adjust bbox to include padding
+        bbox.x1 = bbox.x0 + width
+        bbox.y1 = bbox.y0 + height
+
+        # apply transform to get width and height in table coordinates.
+        l, b, w, h = bbox.inverse_transformed(self.get_data_transform()).bounds
+        return w, h
+
+    def _get_horizontal_pad(self):
+        """Amount of horizontal padding"""
+
+        # if there is no text, then we don't need padding
+        if len(self._text._text) == 0:
+            return 0.0
+
+        # Simply use font size as padding, looks reasonable in most cases.
+        return self.get_fontsize() * self.HPAD
 
     @docstring.dedent_interpd
     def set_text_props(self, **kwargs):
@@ -180,9 +239,7 @@ class Cell(Rectangle):
 
 
 class CustomCell(Cell):
-    """
-    A `.Cell` subclass with configurable edge visibility.
-    """
+    """A `.Cell` subclass with configurable edge visibility."""
 
     _edges = 'BRTL'
     _edge_aliases = {'open':         '',
@@ -433,6 +490,7 @@ class Table(Artist):
                  for (row, col), cell in self._cells.items()
                  if row >= 0 and col >= 0]
         bbox = Bbox.union(boxes)
+
         return bbox.inverse_transformed(self.get_transform())
 
     def contains(self, mouseevent):
@@ -523,7 +581,10 @@ class Table(Artist):
             cell.set_width(max_width)
 
     def auto_set_font_size(self, value=True):
-        """Automatically set font size."""
+        """Automatically set font size.
+
+        Set flag which triggers automatic font size selection.
+        """
         self._autoFontsize = value
         self.stale = True
 
@@ -532,18 +593,30 @@ class Table(Artist):
         if len(self._cells) == 0:
             return
         fontsize = next(iter(self._cells.values())).get_fontsize()
-        cells = []
+
+        grow = self._bbox is not None
+
         for key, cell in self._cells.items():
             # ignore auto-sized columns
             if key[1] in self._autoColumns:
                 continue
-            size = cell.auto_set_font_size(renderer)
-            fontsize = min(fontsize, size)
-            cells.append(cell)
+
+            # set initial guess at cell font size
+            cell.set_fontsize(fontsize)
+
+            size = cell.auto_set_font_size(renderer, grow=grow)
+
+            # no point in trying bigger font after first
+            if grow:
+                grow = False
+                fontsize = size
+            else:
+                fontsize = min(fontsize, size)
 
         # now set all fontsizes equal
-        for cell in self._cells.values():
-            cell.set_fontsize(fontsize)
+        self.set_fontsize(fontsize)
+
+        return fontsize
 
     def scale(self, xscale, yscale):
         """Scale column widths by *xscale* and row heights by *yscale*."""
@@ -569,8 +642,6 @@ class Table(Artist):
         >>> the_table.auto_set_font_size(False)
         >>> the_table.set_fontsize(20)
 
-        However, there is no automatic scaling of the row height so that the
-        text may exceed the cell boundary.
         """
         for cell in self._cells.values():
             cell.set_fontsize(size)
@@ -587,12 +658,12 @@ class Table(Artist):
         # called from renderer to allow more precise estimates of
         # widths and heights with get_window_extent
 
+        if self._autoFontsize:
+            self._auto_set_font_size(renderer)
+
         # Do any auto width setting
         for col in self._autoColumns:
             self._auto_set_column_width(col, renderer)
-
-        if self._autoFontsize:
-            self._auto_set_font_size(renderer)
 
         # Align all the cells
         self._do_cell_alignment()
@@ -603,10 +674,14 @@ class Table(Artist):
         if self._bbox is not None:
             # Position according to bbox
             rl, rb, rw, rh = self._bbox
+
             self.scale(rw / w, rh / h)
+
+            # Re-align all the cells
+            self._do_cell_alignment()
+
             ox = rl - l
             oy = rb - b
-            self._do_cell_alignment()
         else:
             # Position using loc
             (BEST, UR, UL, LL, LR, CL, CR, LC, UC, C,
@@ -740,7 +815,6 @@ def table(ax,
     table : `~matplotlib.table.Table`
         The created table.
     """
-
     if cellColours is None and cellText is None:
         raise ValueError('At least one argument from "cellColours" or '
                          '"cellText" must be provided to create a table.')
@@ -805,7 +879,11 @@ def table(ax,
     # Now create the table
     table = Table(ax, loc, bbox, **kwargs)
     table.edges = edges
-    height = table._approx_text_height()
+
+    if table._bbox:
+        height = 1.0 / rows
+    else:
+        height = table._approx_text_height()
 
     # Add the cells
     for row in range(rows):
