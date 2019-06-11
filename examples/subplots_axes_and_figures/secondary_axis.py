@@ -119,17 +119,13 @@ plt.xticks(rotation=70)
 
 
 def date2yday(x):
-    """
-    x is in matplotlib datenums, so they are floats.
-    """
+    """Convert matplotlib datenum to days since 2018-01-01."""
     y = x - mdates.date2num(datetime.datetime(2018, 1, 1))
     return y
 
 
 def yday2date(x):
-    """
-    return a matplotlib datenum (x is days since start of year)
-    """
+    """Return a matplotlib datenum for *x* days after 2018-01-01."""
     y = x + mdates.date2num(datetime.datetime(2018, 1, 1))
     return y
 

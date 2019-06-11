@@ -33,11 +33,7 @@ testMeta = dict(zip(testNames, ['laps', 'sec', 'min:sec', 'sec', '']))
 
 
 def attach_ordinal(num):
-    """helper function to add ordinal string to integers
-
-    1 -> 1st
-    56 -> 56th
-    """
+    """Convert an integer to an ordinal string, e.g. 2 -> '2nd'."""
     suffixes = {str(i): v
                 for i, v in enumerate(['th', 'st', 'nd', 'rd', 'th',
                                        'th', 'th', 'th', 'th', 'th'])}

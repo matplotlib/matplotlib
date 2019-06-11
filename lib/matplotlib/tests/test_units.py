@@ -1,10 +1,11 @@
+from datetime import datetime
+import platform
 from unittest.mock import MagicMock
 
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.units as munits
 import numpy as np
-import platform
 import pytest
 
 
@@ -119,7 +120,6 @@ def test_empty_set_limits_with_units(quantity_converter):
 @image_comparison(['jpl_bar_units.png'],
                   savefig_kwarg={'dpi': 120}, style='mpl20')
 def test_jpl_bar_units():
-    from datetime import datetime
     import matplotlib.testing.jpl_units as units
     units.register()
 
@@ -136,7 +136,6 @@ def test_jpl_bar_units():
 @image_comparison(['jpl_barh_units.png'],
                   savefig_kwarg={'dpi': 120}, style='mpl20')
 def test_jpl_barh_units():
-    from datetime import datetime
     import matplotlib.testing.jpl_units as units
     units.register()
 
@@ -164,3 +163,12 @@ def test_scatter_element0_masked():
     fig, ax = plt.subplots()
     ax.scatter(times, y)
     fig.canvas.draw()
+
+
+@check_figures_equal(extensions=["png"])
+def test_subclass(fig_test, fig_ref):
+    class subdate(datetime):
+        pass
+
+    fig_test.subplots().plot(subdate(2000, 1, 1), 0, "o")
+    fig_ref.subplots().plot(datetime(2000, 1, 1), 0, "o")
