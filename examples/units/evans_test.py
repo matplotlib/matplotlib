@@ -30,7 +30,7 @@ class Foo:
 class FooConverter(units.ConversionInterface):
     @staticmethod
     def axisinfo(unit, axis):
-        'return the Foo AxisInfo'
+        """Return the Foo AxisInfo."""
         if unit == 1.0 or unit == 2.0:
             return units.AxisInfo(
                 majloc=ticker.IndexLocator(8, 0),
@@ -44,8 +44,9 @@ class FooConverter(units.ConversionInterface):
     @staticmethod
     def convert(obj, unit, axis):
         """
-        convert obj using unit.  If obj is a sequence, return the
-        converted sequence
+        Convert *obj* using *unit*.
+
+        If *obj* is a sequence, return the converted sequence.
         """
         if units.ConversionInterface.is_numlike(obj):
             return obj
@@ -57,7 +58,7 @@ class FooConverter(units.ConversionInterface):
 
     @staticmethod
     def default_units(x, axis):
-        'return the default unit for x or None'
+        """Return the default unit for *x* or None."""
         if np.iterable(x):
             for thisx in x:
                 return thisx.unit

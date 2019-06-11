@@ -1,0 +1,5 @@
+Unit converters now handle instances of subclasses
+``````````````````````````````````````````````````
+
+Unit converters now also handle instances of subclasses of the class they have
+been registered for.

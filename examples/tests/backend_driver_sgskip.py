@@ -310,7 +310,7 @@ excluded = {
 
 
 def report_missing(dir, flist):
-    'report the py files in dir that are not in flist'
+    """Report the .py files in *dir* that are not in *flist*."""
     globstr = os.path.join(dir, '*.py')
     fnames = glob.glob(globstr)
 

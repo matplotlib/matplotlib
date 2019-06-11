@@ -319,7 +319,7 @@ def rad_fn(x, pos=None):
 class BasicUnitConverter(units.ConversionInterface):
     @staticmethod
     def axisinfo(unit, axis):
-        'return AxisInfo instance for x and unit'
+        """Return AxisInfo instance for x and unit."""
 
         if unit == radians:
             return units.AxisInfo(
@@ -364,7 +364,7 @@ class BasicUnitConverter(units.ConversionInterface):
 
     @staticmethod
     def default_units(x, axis):
-        'return the default unit for x or None'
+        """Return the default unit for x or None."""
         if np.iterable(x):
             for thisx in x:
                 return thisx.unit
