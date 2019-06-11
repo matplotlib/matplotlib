@@ -743,10 +743,10 @@ def table(ax,
  
     colEdgeColours : list of colors, optional
         The colors of the edges of the column header cells.
- 
+
     cellEdgeColours : 2D list of colors, optional
         The colors of the edges of the cells.
- 
+
     Other Parameters
     ----------------
     **kwargs
@@ -803,7 +803,7 @@ def table(ax,
     else:
         # default is all black cell edge colours
         cellEdgeColours = [[edgeColour] * cols] * rows
-    
+
     # Set colwidths if not given
     if colWidths is None:
         colWidths = [1.0 / cols] * cols
