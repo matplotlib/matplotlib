@@ -30,14 +30,12 @@ per-file-ignores =
     setup.py: E402
     setupext.py: E501
 
-    tools/compare_backend_driver_results.py: E501
     tools/subset.py: E221, E251, E261, E302, E501
 
     lib/matplotlib/_cm.py: E202, E203, E302
     lib/matplotlib/_mathtext_data.py: E203, E261
     lib/matplotlib/font_manager.py: E203, E221, E251, E501
     lib/matplotlib/mathtext.py: E221, E251
-    lib/matplotlib/pylab.py: E501
     lib/matplotlib/rcsetup.py: E501
     lib/matplotlib/tests/test_mathtext.py: E501
     lib/matplotlib/transforms.py: E201, E202, E203
@@ -51,10 +49,6 @@ per-file-ignores =
     lib/mpl_toolkits/axisartist/grid_helper_curvelinear.py: E225, E501
 
     doc/conf.py: E402, E501
-    doc/sphinxext/github.py: E302, E501
-    doc/sphinxext/math_symbol_table.py: E302, E501
-    doc/sphinxext/skip_deprecated.py: E302
-    doc/users/generate_credits.py: E302, E501
     tutorials/advanced/path_tutorial.py: E402, E501
     tutorials/advanced/patheffects_guide.py: E402, E501
     tutorials/advanced/transforms_tutorial.py: E402, E501

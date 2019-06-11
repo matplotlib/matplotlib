@@ -59,6 +59,7 @@ proposed changes, or otherwise contributed to Matplotlib's
 development and usefulness.
 """
 
+
 def check_duplicates():
     text = subprocess.check_output(['git', 'shortlog', '--summary', '--email'])
     lines = text.decode('utf8').split('\n')
@@ -71,7 +72,8 @@ def check_duplicates():
               'more than one name.\nConsider adding them to .mailmap.\n')
         for email, count in email_counter.items():
             if count > 1:
-                print('%s\n%s' % (email, '\n'.join(l for l in lines if email in l)))
+                print('{}\n{}'.format(
+                    email, '\n'.join(l for l in lines if email in l)))
 
 
 def generate_credits():

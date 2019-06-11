@@ -96,6 +96,7 @@ symbols = [
      \iiint \iint \oiiint"""]
 ]
 
+
 def run(state_machine):
     def get_n(n, l):
         part = []
@@ -135,9 +136,12 @@ def run(state_machine):
     state_machine.insert_input(lines, "Symbol table")
     return []
 
-def math_symbol_table_directive(name, arguments, options, content, lineno,
-                                content_offset, block_text, state, state_machine):
+
+def math_symbol_table_directive(
+        name, arguments, options, content, lineno,
+        content_offset, block_text, state, state_machine):
     return run(state_machine)
+
 
 def setup(app):
     app.add_directive(
@@ -146,6 +150,7 @@ def setup(app):
 
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
     return metadata
+
 
 if __name__ == "__main__":
     # Do some verification of the tables
