@@ -62,7 +62,7 @@ class Cell(Rectangle):
         values are the keyword arguments accepted by `.FontProperties`.
     visible_edges : str
         A substring of 'BRTL' (bottom, right, top, left) or one
-        of {'left', 'center', 'right'}
+        of {'open', 'closed', 'horizontal', 'vertical'}.
     """
 
     PAD = 0.1
@@ -91,7 +91,6 @@ class Cell(Rectangle):
                            edgecolor=edgecolor, facecolor=facecolor)
         self.set_clip_on(False)
 
-        # set visible_edges
         self.visible_edges = visible_edges
 
         # Create text object
@@ -245,7 +244,7 @@ class Cell(Rectangle):
             readonly=True
             )
 
-@cbook.deprecated('3.1', 'CustomCell functionality merged into Cell')
+@cbook.deprecated('3.2', message='CustomCell functionality merged into Cell')
 class CustomCell(Cell):
     pass
 
@@ -669,6 +668,10 @@ def table(ax,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
           loc='bottom', bbox=None, edges='closed',
+          edgeColour=None,
+          cellEdgeColours=None,
+          rowEdgeColours=None,
+          colEdgeColours=None,
           **kwargs):
     """
     Add a table to an `~.axes.Axes`.
@@ -733,6 +736,17 @@ def table(ax,
         The cell edges to be drawn with a line. See also
         `~.Cell.visible_edges`.
 
+    edgeColour : default color for cell edges.
+
+    rowEdgeColours : list of colors, optional
+        The colors of the edges of the row header cells.
+ 
+    colEdgeColours : list of colors, optional
+        The colors of the edges of the column header cells.
+ 
+    cellEdgeColours : 2D list of colors, optional
+        The colors of the edges of the cells.
+ 
     Other Parameters
     ----------------
     **kwargs
@@ -774,6 +788,22 @@ def table(ax,
     else:
         cellColours = ['w' * cols] * rows
 
+    if edgeColour is None:
+        # default edge color is black
+        edgeColour = 'k'
+
+    if cellEdgeColours is not None:
+        if len(cellEdgeColours) != rows:
+            raise ValueError(
+                "'cellEdgeColours' must have {0} rows".format(rows))
+        for row in cellEdgeColours:
+            if len(row) != cols:
+                msg = "Each row in 'cellColours' must have {0} columns"
+                raise ValueError(msg.format(cols))
+    else:
+        # default is all black cell edge colours
+        cellEdgeColours = [[edgeColour] * cols] * rows
+    
     # Set colwidths if not given
     if colWidths is None:
         colWidths = [1.0 / cols] * cols
@@ -792,6 +822,9 @@ def table(ax,
         if len(rowLabels) != rows:
             raise ValueError("'rowLabels' must be of length {0}".format(rows))
 
+    if rowEdgeColours is None:
+        rowEdgeColours = [edgeColour] * rows
+
     # If we have column labels, need to shift
     # the text and colour arrays down 1 row
     offset = 1
@@ -807,6 +840,9 @@ def table(ax,
     if cellColours is None:
         cellColours = ['w' * cols] * rows
 
+    if colEdgeColours is None:
+        colEdgeColours = [edgeColour] * cols
+
     # Now create the table
     table = Table(ax, loc, bbox, **kwargs)
     table.edges = edges
@@ -819,6 +855,7 @@ def table(ax,
                            width=colWidths[col], height=height,
                            text=cellText[row][col],
                            facecolor=cellColours[row][col],
+                           edgecolor=cellEdgeColours[row][col],
                            loc=cellLoc)
     # Do column labels
     if colLabels is not None:
@@ -826,6 +863,7 @@ def table(ax,
             table.add_cell(0, col,
                            width=colWidths[col], height=height,
                            text=colLabels[col], facecolor=colColours[col],
+                           edgecolor=colEdgeColours[col],
                            loc=colLoc)
 
     # Do row labels
@@ -834,6 +872,7 @@ def table(ax,
             table.add_cell(row + offset, -1,
                            width=rowLabelWidth or 1e-15, height=height,
                            text=rowLabels[row], facecolor=rowColours[row],
+                           edgecolor=rowEdgeColours[row],
                            loc=rowLoc)
         if rowLabelWidth == 0:
             table.auto_set_column_width(-1)
