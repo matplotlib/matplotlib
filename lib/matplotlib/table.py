@@ -72,9 +72,15 @@ class Cell(Rectangle):
     """default value for visible edges."""
 
     _edge_aliases = {'open':         '',
+                     'none':         '',
                      'closed':       'BRTL',
+                     'all':          'BRTL',
                      'horizontal':   'BT',
-                     'vertical':     'RL'
+                     'vertical':     'RL',
+                     'bottom':       'B',
+                     'right':        'R',
+                     'top':          'T',
+                     'left':         'L'
                      }
 
     def __init__(self, xy, width, height,
@@ -202,10 +208,11 @@ class Cell(Rectangle):
         The cell edges to be drawn with a line.
 
         Reading this property returns a substring of 'BRTL' (bottom, right,
-        top, left').
+        top, left).
 
         When setting this property, you can use a substring of 'BRTL' or one
-        of {'open', 'closed', 'horizontal', 'vertical'}.
+        of {'open', 'closed', 'horizontal', 'vertical', 'all', 'none',
+            'bottom', 'right', 'top', 'left'}
         """
         return self._visible_edges
 
