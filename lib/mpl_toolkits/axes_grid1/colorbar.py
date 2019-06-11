@@ -151,9 +151,9 @@ segments::
     cbar.solids.set_edgecolor("face")
     draw()
 
-However this has negative consequences in other circumstances. Particularly with
-semi transparent images (alpha < 1) and colorbar extensions and is not enabled
-by default see (issue #1188).
+However this has negative consequences in other circumstances. Particularly
+with semi transparent images (alpha < 1) and colorbar extensions and is not
+enabled by default see (issue #1188).
 
 returns:
     :class:`~matplotlib.colorbar.Colorbar` instance; see also its base class,
@@ -468,9 +468,9 @@ class ColorbarBase(cm.ScalarMappable):
         del self.extension_patch2
 
         path1, path2 = self.ax.get_axes_locator().get_path_ends()
-        fc=mpl.rcParams['axes.facecolor']
-        ec=mpl.rcParams['axes.edgecolor']
-        linewidths=0.5*mpl.rcParams['axes.linewidth']
+        fc = mpl.rcParams['axes.facecolor']
+        ec = mpl.rcParams['axes.edgecolor']
+        linewidths = 0.5 * mpl.rcParams['axes.linewidth']
         self.extension_patch1 = PathPatch(path1,
                                           fc=fc, ec=ec, lw=linewidths,
                                           zorder=2.,

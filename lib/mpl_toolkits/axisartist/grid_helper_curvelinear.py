@@ -221,7 +221,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             xx1, yy1 = transform_xy(xx0, yy0)
 
             xx00 = xx0.copy()
-            xx00[xx0+dx>e1] -= dx
+            xx00[xx0 + dx > e1] -= dx
             xx1a, yy1a = transform_xy(xx00, yy0)
             xx1b, yy1b = transform_xy(xx00+dx, yy0)
 
@@ -240,7 +240,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             xx1b, yy1b = transform_xy(xx0, yy0+dy)
 
             xx00 = xx0.copy()
-            xx00[xx0+dx>e1] -= dx
+            xx00[xx0 + dx > e1] -= dx
             xx2a, yy2a = transform_xy(xx00, yy0)
             xx2b, yy2b = transform_xy(xx00+dx, yy0)
 
@@ -250,7 +250,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         def f1():
             dd = np.arctan2(yy1b-yy1a, xx1b-xx1a)  # angle normal
             dd2 = np.arctan2(yy2b-yy2a, xx2b-xx2a)  # angle tangent
-            mm = (yy1b-yy1a == 0) & (xx1b-xx1a == 0)  # mask where dd1 is not defined
+            mm = (yy1b == yy1a) & (xx1b == xx1a)  # mask where dd not defined
             dd[mm] = dd2[mm] + np.pi / 2
 
             trans_tick = self.get_tick_transform(axes)
@@ -387,13 +387,15 @@ class GridHelperCurveLinear(GridHelperBase):
         # angle = [0, 90, 180, 270][axisnr]
         lon_or_lat = ["lon", "lat"][nth_coord]
         if not minor:  # major ticks
-            for (xy, a), l in zip(self.grid_info[lon_or_lat]["tick_locs"][axis_side],
-                                  self.grid_info[lon_or_lat]["tick_labels"][axis_side]):
+            for (xy, a), l in zip(
+                    self.grid_info[lon_or_lat]["tick_locs"][axis_side],
+                    self.grid_info[lon_or_lat]["tick_labels"][axis_side]):
                 angle_normal = a
                 yield xy, angle_normal, angle_tangent, l
         else:
-            for (xy, a), l in zip(self.grid_info[lon_or_lat]["tick_locs"][axis_side],
-                                  self.grid_info[lon_or_lat]["tick_labels"][axis_side]):
+            for (xy, a), l in zip(
+                    self.grid_info[lon_or_lat]["tick_locs"][axis_side],
+                    self.grid_info[lon_or_lat]["tick_labels"][axis_side]):
                 angle_normal = a
                 yield xy, angle_normal, angle_tangent, ""
             # for xy, a, l in self.grid_info[lon_or_lat]["ticks"][axis_side]:

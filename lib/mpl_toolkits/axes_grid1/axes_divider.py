@@ -604,7 +604,8 @@ class AxesDivider(Divider):
             locator = self.new_locator(nx=self._xrefindex, ny=0)
         else:
             self._vertical.append(size)
-            locator = self.new_locator(nx=self._xrefindex, ny=len(self._vertical)-1)
+            locator = self.new_locator(
+                nx=self._xrefindex, ny=len(self._vertical)-1)
         ax = self._get_new_axes(**kwargs)
         ax.set_axes_locator(locator)
         return ax
