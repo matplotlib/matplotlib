@@ -25,6 +25,7 @@ from .patches import Rectangle
 from .text import Text
 from .transforms import Bbox
 from .path import Path
+from .cbook import deprecated
 
 
 class Cell(Rectangle):
@@ -244,6 +245,9 @@ class Cell(Rectangle):
             readonly=True
             )
 
+@cbook.deprecated('3.1', 'CustomCell functionality merged into Cell')
+class CustomCell(Cell):
+    pass
 
 class Table(Artist):
     """
