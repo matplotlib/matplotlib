@@ -36,7 +36,7 @@ per-file-ignores =
     lib/matplotlib/_cm.py: E202, E203, E302
     lib/matplotlib/_mathtext_data.py: E203, E261
     lib/matplotlib/font_manager.py: E203, E221, E251, E501
-    lib/matplotlib/mathtext.py: E201, E202, E203, E211, E221, E222, E225, E251, E301, E402
+    lib/matplotlib/mathtext.py: E221, E251
     lib/matplotlib/pylab.py: E501
     lib/matplotlib/rcsetup.py: E501
     lib/matplotlib/tests/test_mathtext.py: E501
