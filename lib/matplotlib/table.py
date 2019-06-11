@@ -215,6 +215,10 @@ class Cell(Rectangle):
     def _get_horizontal_pad(self):
         """Amount of horizontal padding"""
 
+        # if there is no text, then we don't need padding
+        if len(self._text._text) == 0:
+            return 0.0
+        
         # Simply use font size as padding, looks reasonable in most cases.
         return self.get_fontsize()
 
