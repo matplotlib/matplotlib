@@ -1,0 +1,8 @@
+`matplotlib.table.CustomCell is deprecated
+------------------------------------------
+
+`matplotlib.table.CustomCell` was a `matplotlib.table.Cell` with
+configurable edge visibity.
+
+That functionality has now been moved into `matplotlib.table.Cell` and
+so CustomCell is no longer required.
