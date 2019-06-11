@@ -44,7 +44,9 @@ y = np.sin(x) + 1.0 + delta
 
 
 def trim_axs(axs, N):
-    """little helper to massage the axs list to have correct length..."""
+    """
+    Reduce *axs* to *N* Axes. All further Axes are removed from the figure.
+    """
     axs = axs.flat
     for ax in axs[N:]:
         ax.remove()

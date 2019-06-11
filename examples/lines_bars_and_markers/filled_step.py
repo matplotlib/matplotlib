@@ -80,6 +80,8 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
                hist_func=None, labels=None,
                plot_func=None, plot_kwargs=None):
     """
+    Parameters
+    ----------
     ax : axes.Axes
         The axes to add artists too
 

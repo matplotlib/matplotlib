@@ -79,9 +79,7 @@ newcmp = ListedColormap(newcolors)
 
 
 def plot_examples(cms):
-    """
-    helper function to plot two colormaps
-    """
+    """Helper function to plot two colormaps."""
     np.random.seed(19680801)
     data = np.random.randn(30, 30)
 
