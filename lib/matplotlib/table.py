@@ -69,7 +69,7 @@ class Cell(Rectangle):
 
     _edges = 'BRTL'
     """default value for visible edges."""
-    
+
     _edge_aliases = {'open':         '',
                      'closed':       'BRTL',
                      'horizontal':   'BT',
@@ -195,7 +195,6 @@ class Cell(Rectangle):
         """
         self._text.update(kwargs)
         self.stale = True
-
 
     @property
     def visible_edges(self):
