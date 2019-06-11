@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.testing.decorators import image_comparison
 
-from matplotlib.table import CustomCell, Table
+from matplotlib.table import Cell, Table
 from matplotlib.path import Path
 
 
@@ -100,7 +100,7 @@ def test_diff_cell_table():
     plt.tight_layout()
 
 
-def test_customcell():
+def test_cell_visible_edges():
     types = ('horizontal', 'vertical', 'open', 'closed', 'T', 'R', 'B', 'L')
     codes = (
         (Path.MOVETO, Path.LINETO, Path.MOVETO, Path.LINETO, Path.MOVETO),
@@ -114,7 +114,7 @@ def test_customcell():
         )
 
     for t, c in zip(types, codes):
-        cell = CustomCell((0, 0), visible_edges=t, width=1, height=1)
+        cell = Cell((0, 0), visible_edges=t, width=1, height=1)
         code = tuple(s for _, s in cell.get_path().iter_segments())
         assert c == code
 
@@ -179,10 +179,10 @@ def test_table_cells():
     table = Table(ax)
 
     cell = table.add_cell(1, 2, 1, 1)
-    assert isinstance(cell, CustomCell)
+    assert isinstance(cell, Cell)
     assert cell is table[1, 2]
 
-    cell2 = CustomCell((0, 0), 1, 2, visible_edges=None)
+    cell2 = Cell((0, 0), 1, 2, visible_edges=None)
     table[2, 1] = cell2
     assert table[2, 1] is cell2
 
