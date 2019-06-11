@@ -65,7 +65,7 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
       *total*. The parameter *sep* is ignored in this mode. A total of *None*
       is accepted and considered equal to 1. The total is returned unchanged
       (except for the conversion *None* to 1). If the total is smaller than
-      the sum of the widths, the laid out boxed will overlap.
+      the sum of the widths, the laid out boxes will overlap.
 
     - 'equal': If *total* is given, the total space is divided in N equal
       ranges and each box is left-aligned within its subspace.
