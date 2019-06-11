@@ -205,18 +205,20 @@ class Registry(dict):
             # If there are no elements in x, infer the units from its dtype
             if not x.size:
                 return self.get_converter(np.array([0], dtype=x.dtype))
-        try:  # Look up in the cache.
-            return self[type(x)]
-        except KeyError:
-            try:  # If cache lookup fails, look up based on first element...
-                first = cbook.safe_first_element(x)
-            except (TypeError, StopIteration):
+        for cls in type(x).__mro__:  # Look up in the cache.
+            try:
+                return self[cls]
+            except KeyError:
                 pass
-            else:
-                # ... and avoid infinite recursion for pathological iterables
-                # where indexing returns instances of the same iterable class.
-                if type(first) is not type(x):
-                    return self.get_converter(first)
+        try:  # If cache lookup fails, look up based on first element...
+            first = cbook.safe_first_element(x)
+        except (TypeError, StopIteration):
+            pass
+        else:
+            # ... and avoid infinite recursion for pathological iterables for
+            # which indexing returns instances of the same iterable class.
+            if type(first) is not type(x):
+                return self.get_converter(first)
         return None
 
 
