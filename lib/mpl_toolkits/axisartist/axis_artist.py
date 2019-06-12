@@ -230,27 +230,19 @@ class Ticks(Line2D, AttributeCopier):
         return self.get_attribute_from_ref_artist("markeredgewidth", .5)
 
     def set_tick_out(self, b):
-        """
-        set True if tick need to be rotated by 180 degree.
-        """
+        """Set whether ticks are drawn inside or outside the axes."""
         self._tick_out = b
 
     def get_tick_out(self):
-        """
-        Return True if the tick will be rotated by 180 degree.
-        """
+        """Return whether ticks are drawn inside or outside the axes."""
         return self._tick_out
 
     def set_ticksize(self, ticksize):
-        """
-        set length of the ticks in points.
-        """
+        """Set length of the ticks in points."""
         self._ticksize = ticksize
 
     def get_ticksize(self):
-        """
-        Return length of the ticks in points.
-        """
+        """Return length of the ticks in points."""
         return self._ticksize
 
     def set_locs_angles(self, locs_angles):
@@ -422,30 +414,27 @@ class AxisLabel(LabelBase, AttributeCopier):
 
     def set_pad(self, pad):
         """
-        Set the pad in points. Note that the actual pad will be the
-        sum of the internal pad and the external pad (that are set
-        automatically by the AxisArtist), and it only set the internal
-        pad
+        Set the internal pad in points.
+
+        The actual pad will be the sum of the internal pad and the
+        external pad (the latter is set automatically by the AxisArtist).
         """
         self._pad = pad
 
     def get_pad(self):
         """
-        return pad in points. See set_pad for more details.
+        Return the internal pad in points.
+
+        See `.set_pad` for more details.
         """
         return self._pad
 
     def _set_external_pad(self, p):
-        """
-        Set external pad IN PIXELS. This is intended to be set by the
-        AxisArtist, bot by user..
-        """
+        """Set external pad in pixels."""
         self._extra_pad = p
 
     def _get_external_pad(self):
-        """
-        Get external pad.
-        """
+        """Return external pad in pixels."""
         return self._extra_pad
 
     def get_ref_artist(self):
@@ -578,7 +567,7 @@ class TickLabels(AxisLabel, AttributeCopier):  # mtext.Text
 
     def _get_ticklabels_offsets(self, renderer, label_direction):
         """
-        Calculates the ticklabel offsets from the tick and their total heights.
+        Calculate the ticklabel offsets from the tick and their total heights.
 
         The offset only takes account the offset due to the vertical alignment
         of the ticklabels: if axis direction is bottom and va is 'top', it will
@@ -699,13 +688,15 @@ class TickLabels(AxisLabel, AttributeCopier):  # mtext.Text
 
     def get_texts_widths_heights_descents(self, renderer):
         """
-        return a list of width, height, descent for ticklabels.
+        Return a list of ``(width, height, descent)`` tuples for ticklabels.
+
+        Empty labels are left out.
         """
         whd_list = []
-        for (x, y), a, l in self._locs_angles_labels:
-            if not l.strip():
+        for _loc, _angle, label in self._locs_angles_labels:
+            if not label.strip():
                 continue
-            clean_line, ismath = self._preprocess_math(l)
+            clean_line, ismath = self._preprocess_math(label)
             whd = renderer.get_text_width_height_descent(
                 clean_line, self._fontproperties, ismath=ismath)
             whd_list.append(whd)
@@ -715,8 +706,10 @@ class TickLabels(AxisLabel, AttributeCopier):  # mtext.Text
 class GridlinesCollection(LineCollection):
     def __init__(self, *args, which="major", axis="both", **kwargs):
         """
-        *which* : "major" or "minor"
-        *axis* : "both", "x" or "y"
+        Parameters
+        ----------
+        which : {"major", "minor"}
+        axis : {"both", "x", "y"}
         """
         self._which = which
         self._axis = axis
@@ -765,8 +758,10 @@ class AxisArtist(martist.Artist):
                  axis_direction="bottom",
                  **kwargs):
         """
-        *axes* : axes
-        *helper* : an AxisArtistHelper instance.
+        Parameters
+        ----------
+        axes : `mpl_toolkits.axisartist.axislines.Axes`
+        helper : `~mpl_toolkits.axisartist.axislines.AxisArtistHelper`
         """
         #axes is also used to follow the axis attribute (tick color, etc).
 
@@ -899,19 +894,24 @@ class AxisArtist(martist.Artist):
         """
         Set the axisline style.
 
-        *axisline_style* can be a string with axisline style name with optional
-         comma-separated attributes. Alternatively, the attrs can
-         be provided as keywords.
+        The new style is completely defined by the passed attributes. Existing
+        style attributes are forgotten.
 
-         set_axisline_style("->,size=1.5")
-         set_axisline_style("->", size=1.5)
+        Parameters
+        ----------
+        axisline_style : str or None
+            The line style, e.g. '->', optionally followed by a comma-separated
+            list of attributes. Alternatively, the attributes can be provided
+            as keywords.
 
-        Old attrs simply are forgotten.
+            If *None* this returns a string containing the available styles.
 
-        Without argument (or with arrowstyle=None), return
-        available styles as a list of strings.
+        Examples
+        --------
+        The following two commands are equal:
+        >>> set_axisline_style("->,size=1.5")
+        >>> set_axisline_style("->", size=1.5)
         """
-
         if axisline_style is None:
             return AxislineStyle.pprint_styles()
 
@@ -923,9 +923,7 @@ class AxisArtist(martist.Artist):
         self._init_line()
 
     def get_axisline_style(self):
-        """
-        return the current axisline style.
-        """
+        """Return the current axisline style."""
         return self._axisline_style
 
     def _init_line(self):
@@ -1249,7 +1247,7 @@ class AxisArtist(martist.Artist):
 
     @martist.allow_rasterization
     def draw(self, renderer):
-        'Draw the axis lines, tick lines and labels'
+        """Draw the axis lines, tick lines and labels."""
 
         if not self.get_visible():
             return
