@@ -25,7 +25,6 @@ from .patches import Rectangle
 from .text import Text
 from .transforms import Bbox
 from .path import Path
-from .cbook import deprecated
 
 
 class Cell(Rectangle):
@@ -228,11 +227,13 @@ class Cell(Rectangle):
                 self._visible_edges = self._edge_aliases[value]
             else:
                 if any(edge not in self._edges for edge in value):
-                    raise ValueError('Invalid edge param {}, must only be one of '
-                                    '{} or string of {}'.format(
-                                        value,
-                                        ", ".join(self._edge_aliases),
-                                        ", ".join(self._edges)))
+                    raise ValueError(
+                        'Invalid edge param {}, must only be one of '
+                        '{} or string of {}'.format(
+                            value,
+                            ", ".join(self._edge_aliases),
+                            ", ".join(self._edges)))
+
                 self._visible_edges = value
 
         self.stale = True
@@ -256,9 +257,11 @@ class Cell(Rectangle):
             readonly=True
             )
 
+
 @cbook.deprecated('3.2', message='CustomCell functionality merged into Cell')
 class CustomCell(Cell):
     pass
+
 
 class Table(Artist):
     """
@@ -752,7 +755,7 @@ def table(ax,
 
     rowEdgeColours : list of colors, optional
         The colors of the edges of the row header cells.
- 
+
     colEdgeColours : list of colors, optional
         The colors of the edges of the column header cells.
 
