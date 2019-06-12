@@ -1,5 +1,5 @@
-`matplotlib.table.CustomCell is deprecated
-------------------------------------------
+`matplotlib.table.CustomCell` is deprecated
+-------------------------------------------
 
 `matplotlib.table.CustomCell` was a `matplotlib.table.Cell` with
 configurable edge visibity.
