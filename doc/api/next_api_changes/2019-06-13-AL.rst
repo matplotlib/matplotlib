@@ -1,0 +1,6 @@
+Deprecations
+````````````
+
+``BboxBase.is_unit`` is deprecated (check the Bbox extents if needed).
+
+``axes3d.unit_bbox`` is deprecated (use ``Bbox.unit`` instead).
