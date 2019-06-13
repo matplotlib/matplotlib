@@ -32,6 +32,7 @@ from . import proj3d
 from . import axis3d
 
 
+@cbook.deprecated("3.2", alternative="Bbox.unit()")
 def unit_bbox():
     box = Bbox(np.array([[0, 0], [1, 1]]))
     return box
@@ -82,10 +83,10 @@ class Axes3D(Axes):
         self.initial_elev = elev
         self.set_proj_type(proj_type)
 
-        self.xy_viewLim = unit_bbox()
-        self.zz_viewLim = unit_bbox()
-        self.xy_dataLim = unit_bbox()
-        self.zz_dataLim = unit_bbox()
+        self.xy_viewLim = Bbox.unit()
+        self.zz_viewLim = Bbox.unit()
+        self.xy_dataLim = Bbox.unit()
+        self.zz_dataLim = Bbox.unit()
         # inhibit autoscale_view until the axes are defined
         # they can't be defined until Axes.__init__ has been called
         self.view_init(self.initial_elev, self.initial_azim)
