@@ -216,7 +216,6 @@ class Cell(Rectangle):
 
     @visible_edges.setter
     def visible_edges(self, value):
-
         if value is None:
             self._visible_edges = self._edges
         else:
@@ -790,16 +789,16 @@ def table(ax,
     cols = len(cellText[0])
     for row in cellText:
         if len(row) != cols:
-            raise ValueError("Each row in 'cellText' must have {} columns"
-                             .format(cols))
+            raise ValueError(
+                f"Each row in 'cellText' must have {cols} columns")
 
     if cellColours is not None:
         if len(cellColours) != rows:
-            raise ValueError("'cellColours' must have {} rows".format(rows))
+            raise ValueError(f"'cellColours' must have {rows} rows")
         for row in cellColours:
             if len(row) != cols:
-                raise ValueError("Each row in 'cellColours' must have {} "
-                                 "columns".format(cols))
+                raise ValueError(
+                    "Each row in 'cellColours' must have {cols} columns")
     else:
         cellColours = ['w' * cols] * rows
 
@@ -810,11 +809,11 @@ def table(ax,
     if cellEdgeColours is not None:
         if len(cellEdgeColours) != rows:
             raise ValueError(
-                "'cellEdgeColours' must have {0} rows".format(rows))
+                f"'cellEdgeColours' must have {rows} rows")
         for row in cellEdgeColours:
             if len(row) != cols:
-                msg = "Each row in 'cellColours' must have {0} columns"
-                raise ValueError(msg.format(cols))
+                raise ValueError(
+                    f"Each row in 'cellColours' must have {cols} columns")
     else:
         # default is all black cell edge colours
         cellEdgeColours = [[edgeColour] * cols] * rows
@@ -835,10 +834,12 @@ def table(ax,
 
     if rowLabels is not None:
         if len(rowLabels) != rows:
-            raise ValueError("'rowLabels' must be of length {0}".format(rows))
+            raise ValueError(f"'rowLabels' must be of length {rows}")
 
     if rowEdgeColours is None:
         rowEdgeColours = [edgeColour] * rows
+    elif len(rowEdgeColours) != rows:
+        raise ValueError(f"'rowEdgeColours' must be of length {rows}")
 
     # If we have column labels, need to shift
     # the text and colour arrays down 1 row
@@ -851,12 +852,10 @@ def table(ax,
     elif colColours is None:
         colColours = 'w' * cols
 
-    # Set up cell colours if not given
-    if cellColours is None:
-        cellColours = ['w' * cols] * rows
-
     if colEdgeColours is None:
         colEdgeColours = [edgeColour] * cols
+    elif len(colEdgeColours) != cols:
+        raise ValueError(f"'colEdgeColours' must be of length {cols}")
 
     # Now create the table
     table = Table(ax, loc, bbox, **kwargs)
