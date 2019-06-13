@@ -429,9 +429,12 @@ class Table(Artist):
         """Get a bbox, in axes co-ordinates for the cells.
 
         Only include those in the range (0,0) to (maxRow, maxCol)"""
+        start_row = 0
+        if self.has_column_labels:
+            start_row = -1
         boxes = [cell.get_window_extent(renderer)
                  for (row, col), cell in self._cells.items()
-                 if row >= 0 and col >= 0]
+                 if row >= start_row and col >= 0]
         bbox = Bbox.union(boxes)
         return bbox.inverse_transformed(self.get_transform())
 
@@ -787,14 +790,9 @@ def table(ax,
         if len(rowLabels) != rows:
             raise ValueError("'rowLabels' must be of length {0}".format(rows))
 
-    # If we have column labels, need to shift
-    # the text and colour arrays down 1 row
-    offset = 1
     if colLabels is None:
         if colColours is not None:
             colLabels = [''] * cols
-        else:
-            offset = 0
     elif colColours is None:
         colColours = 'w' * cols
 
@@ -810,15 +808,17 @@ def table(ax,
     # Add the cells
     for row in range(rows):
         for col in range(cols):
-            table.add_cell(row + offset, col,
+            table.add_cell(row, col,
                            width=colWidths[col], height=height,
                            text=cellText[row][col],
                            facecolor=cellColours[row][col],
                            loc=cellLoc)
     # Do column labels
+    table.has_column_labels = False
     if colLabels is not None:
+        table.has_column_labels = True
         for col in range(cols):
-            table.add_cell(0, col,
+            table.add_cell(-1, col,
                            width=colWidths[col], height=height,
                            text=colLabels[col], facecolor=colColours[col],
                            loc=colLoc)
@@ -826,7 +826,7 @@ def table(ax,
     # Do row labels
     if rowLabels is not None:
         for row in range(rows):
-            table.add_cell(row + offset, -1,
+            table.add_cell(row, -1,
                            width=rowLabelWidth or 1e-15, height=height,
                            text=rowLabels[row], facecolor=rowColours[row],
                            loc=rowLoc)
