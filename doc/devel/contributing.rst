@@ -523,31 +523,6 @@ and running the same script will display::
 
 .. _logging tutorial: https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
 
-.. _custom_backend:
-
-Developing a new backend
-------------------------
-
-If you are working on a custom backend, the *backend* setting in
-:file:`matplotlibrc` (:doc:`/tutorials/introductory/customizing`) supports an
-external backend via the ``module`` directive.  If
-:file:`my_backend.py` is a Matplotlib backend in your
-:envvar:`PYTHONPATH`, you can set it on one of several ways
-
-* in :file:`matplotlibrc`::
-
-    backend : module://my_backend
-
-* with the :envvar:`MPLBACKEND` environment variable::
-
-    > export MPLBACKEND="module://my_backend"
-    > python simple_plot.py
-
-* with the use directive in your script::
-
-    import matplotlib
-    matplotlib.use('module://my_backend')
-
 .. _sample-data:
 
 Writing examples
