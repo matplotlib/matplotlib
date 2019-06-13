@@ -141,7 +141,6 @@ import shutil
 import sys
 import textwrap
 import traceback
-import warnings
 
 from docutils.parsers.rst import directives, Directive
 from docutils.parsers.rst.directives.images import Image
@@ -149,16 +148,10 @@ import jinja2  # Sphinx dependency.
 
 import matplotlib
 from matplotlib.backend_bases import FigureManagerBase
-try:
-    with warnings.catch_warnings(record=True):
-        warnings.simplefilter("error", UserWarning)
-        matplotlib.use('Agg')
-except UserWarning:
-    import matplotlib.pyplot as plt
-    plt.switch_backend("Agg")
-else:
-    import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from matplotlib import _pylab_helpers, cbook
+
+matplotlib.use("agg")
 align = Image.align
 
 __version__ = 2
