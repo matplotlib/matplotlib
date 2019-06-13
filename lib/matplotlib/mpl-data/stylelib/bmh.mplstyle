@@ -8,8 +8,6 @@ patch.facecolor: blue
 patch.edgecolor: eeeeee
 patch.antialiased: True
 
-text.hinting_factor : 8
-
 mathtext.fontset : cm
 
 axes.facecolor: eeeeee

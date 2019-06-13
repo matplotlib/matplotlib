@@ -518,7 +518,6 @@ def test_nonfinite_pos():
 
 
 def test_hinting_factor_backends():
-    plt.rcParams['text.hinting_factor'] = 1
     fig = plt.figure()
     t = fig.text(0.5, 0.5, 'some text')
 

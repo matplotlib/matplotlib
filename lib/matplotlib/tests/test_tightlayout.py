@@ -149,7 +149,7 @@ def test_tight_layout9():
 
 
 def test_outward_ticks():
-    'Test automatic use of tight_layout'
+    """Test automatic use of tight_layout."""
     fig = plt.figure()
     ax = fig.add_subplot(221)
     ax.xaxis.set_tick_params(tickdir='out', length=16, width=3)
@@ -172,10 +172,10 @@ def test_outward_ticks():
     plt.tight_layout()
     # These values were obtained after visual checking that they correspond
     # to a tight layouting that did take the ticks into account.
-    ans = [[[0.091, 0.607], [0.433, 0.933]],
-           [[0.579, 0.607], [0.922, 0.933]],
-           [[0.091, 0.140], [0.433, 0.466]],
-           [[0.579, 0.140], [0.922, 0.466]]]
+    ans = [[[0.088, 0.607], [0.433, 0.933]],
+           [[0.577, 0.607], [0.922, 0.933]],
+           [[0.088, 0.140], [0.433, 0.466]],
+           [[0.577, 0.140], [0.922, 0.466]]]
     for nn, ax in enumerate(fig.axes):
         assert_array_equal(np.round(ax.get_position().get_points(), 3),
                            ans[nn])

@@ -1270,9 +1270,11 @@ _fmcache = os.path.join(
 fontManager = None
 
 
+@cbook._delete_parameter("3.2", "hinting_factor")
 def get_font(filename, hinting_factor=None):
     if hinting_factor is None:
-        hinting_factor = rcParams['text.hinting_factor']
+        with cbook._suppress_matplotlib_deprecation_warning():
+            hinting_factor = rcParams['text.hinting_factor']
     return _get_font(os.fspath(filename), hinting_factor)
 
 

@@ -132,9 +132,6 @@ text.hinting : auto   # May be one of the following:
                       #             or the autohinter if none is available.
                       # For backward compatibility, this value may also be
                       # True === 'auto' or False === 'none'.
-text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
-                        # horizontal direction.  A value of 1 will hint to full
-                        # pixels.  A value of 2 will hint to half pixels etc.
 
 text.antialiased : True # If True (default), the text will be antialiased.
                         # This only affects the Agg backend.

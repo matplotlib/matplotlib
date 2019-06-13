@@ -6163,8 +6163,8 @@ def test_normal_axes():
 
     # test the axis bboxes
     target = [
-        [123.375, 75.88888888888886, 983.25, 33.0],
-        [85.51388888888889, 99.99999999999997, 53.375, 993.0]
+        [123.5, 75.88888888888886, 983.0, 33.0],
+        [85.89, 100.0, 53.0, 993.0]
     ]
     for nn, b in enumerate(bbaxis):
         targetbb = mtransforms.Bbox.from_bounds(*target[nn])
@@ -6184,7 +6184,7 @@ def test_normal_axes():
     targetbb = mtransforms.Bbox.from_bounds(*target)
     assert_array_almost_equal(bbax.bounds, targetbb.bounds, decimal=2)
 
-    target = [85.5138, 75.88888, 1021.11, 1017.11]
+    target = [85.89, 75.88888, 1020.61, 1017.11]
     targetbb = mtransforms.Bbox.from_bounds(*target)
     assert_array_almost_equal(bbtb.bounds, targetbb.bounds, decimal=2)
 
@@ -6311,7 +6311,7 @@ def test_get_tightbbox_polar():
     fig.canvas.draw()
     bb = ax.get_tightbbox(fig.canvas.get_renderer())
     assert_allclose(bb.extents,
-        [107.7778,  29.2778, 539.7847, 450.7222], rtol=1e-03)
+        [108.7778,  29.2778, 539.2222, 450.7222], rtol=1e-03)
 
 
 @check_figures_equal(extensions=["png"])

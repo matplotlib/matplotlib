@@ -515,12 +515,18 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     PyObject *fname;
     FT_Open_Args open_args;
-    long hinting_factor = 8;
+    long hinting_factor = -0xdeadbeef;
     const char *names[] = { "filename", "hinting_factor", NULL };
 
     if (!PyArg_ParseTupleAndKeywords(
              args, kwds, "O|l:FT2Font", (char **)names, &fname, &hinting_factor)) {
         return -1;
+    }
+
+    if (hinting_factor == -0xdeadbeef) {
+        hinting_factor = 1;
+    } else {
+        PyErr_WarnEx(PyExc_DeprecationWarning, "The 'hinting_factor' parameter is deprecated.", 1);
     }
 
     if (!convert_open_args(self, fname, &open_args)) {

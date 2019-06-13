@@ -1,0 +1,7 @@
+Deprecation of hinting_factor
+`````````````````````````````
+
+The ``hinting_factor`` parameter of `.ft2font.FT2Font` and `.font_manager.get_font`,
+and :rc:`test.hinting_factor`, are deprecated.  Their default value have been
+changed to 1, which will be the only value supported in after the deprecation
+period ends.
