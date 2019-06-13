@@ -349,6 +349,23 @@ C/C++ extensions
   docstrings, and the Numpydoc format is well understood in the
   scientific Python community.
 
+New public APIs
+---------------
+
+Public APIs added to Matplotlib are bound by backwards compatibility, and
+therefore cumbersome to change.  Therefore, when adding new functionality, try
+to add as little public API as possible.  In particular, make sure that helper
+methods and internal attributes are private (i.e., start with an underscore).
+Remember that any non-private method can be directly called by the end user,
+and any non-private attribute can be directly set!
+
+In order to make it easier to evolve APIs, consider making as many arguments
+keyword-only as possible.
+
+.. seealso:: `API Evolution the Right Way -- Add Parameters Compatibly`__
+
+__ https://emptysqua.re/blog/api-evolution-the-right-way/#adding-parameters
+
 .. _keyword-argument-processing:
 
 Keyword argument processing
