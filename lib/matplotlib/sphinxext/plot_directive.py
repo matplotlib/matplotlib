@@ -1,5 +1,6 @@
 """
-A directive for including a matplotlib plot in a Sphinx document.
+A directive for including a Matplotlib plot in a Sphinx document
+================================================================
 
 By default, in HTML output, `plot` will include a .png file with a link to a
 high-res .png and .pdf.  In LaTeX output, it will include a .pdf.

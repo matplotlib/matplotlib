@@ -15,7 +15,6 @@ The Matplotlib Developers' Guide
    contributing.rst
    testing.rst
    documenting_mpl.rst
-   plot_directive.rst
    add_new_projection.rst
    gitwash/index.rst
    coding_guide.rst

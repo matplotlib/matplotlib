@@ -678,7 +678,7 @@ Note that ``examples/text_labels_and_annotations/legend.py`` has been mapped to
 fixed in future re-organization of the docs.
 
 Plots can also be directly placed inside docstrings.  Details are in
-:doc:`/devel/plot_directive`.  A short example is:
+:doc:`/api/sphinxext_plot_directive_api`.  A short example is:
 
 .. code-block:: python
 
