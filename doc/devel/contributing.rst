@@ -325,6 +325,50 @@ and articles or link to it from your website!
 Coding guidelines
 =================
 
+API changes
+-----------
+
+Changes to the public API must follow a standard deprecation procedure to
+prevent unexpected breaking of code that uses Matplotlib.
+
+- Deprecations must be announced via an entry in `doc/api/next_api_changes`.
+- Deprecations are targeted at the next point-release (i.e. 3.x.0).
+- The deprecated API should, to the maximum extent possible, remain fully
+  functional during the deprecation period. In cases where this is not
+  possible, the deprecation must never make a given piece of code do something
+  different than it was before; at least an exception should be raised.
+- If possible, usage of an deprecated API should emit a
+  `MatplotlibDeprecationWarning`. There are a number of helper tools for this:
+
+  - Use `.cbook.warn_deprecated()` for general deprecation warnings.
+  - Use the decorator ``@cbook.deprecated`` to deprecate classes, functions,
+    methods, or properties.
+  - To warn on changes of the function signature, use the decorators
+    ``@cbook._delete_parameter``, ``@cbook._rename_parameter``, and
+    ``@cbook._make_keyword_only``.
+
+- Deprecated API may be removed two point-releases after they were deprecated.
+
+
+Adding new API
+--------------
+
+Every new function, parameter and attribute that is not explicitly marked as
+private (i.e., starts with an underscore) becomes part of Matplotlib's public
+API. As discussed above, changing the existing API is cumbersome. Therefore,
+take particular care when adding new API:
+
+- Mark helper functions and internal attributes as private by prefixing them
+  with an underscore.
+- Carefully think about good names for your functions and variables.
+- Try to adopt patterns and naming conventions from existing parts of the
+  Matplotlib API.
+- Consider making as many arguments keyword-only as possible. See also
+  `API Evolution the Right Way -- Add Parameters Compatibly`__.
+
+  __ https://emptysqua.re/blog/api-evolution-the-right-way/#adding-parameters
+
+
 New modules and files: installation
 -----------------------------------
 
