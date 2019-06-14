@@ -23,7 +23,7 @@ submitted patches
 .. _legend-refactor:
 
 Legend enhancements
---------------------
+-------------------
 
 Jae-Joon has rewritten the legend class, and added support for
 multiple columns and rows, as well as fancy box drawing.  See
@@ -40,7 +40,7 @@ multiple columns and rows, as well as fancy box drawing.  See
 .. _fancy-annotations:
 
 Fancy annotations and arrows
------------------------------
+----------------------------
 
 Jae-Joon has added lots of support to annotations for drawing fancy
 boxes and connectors in annotations.  See
@@ -49,25 +49,66 @@ boxes and connectors in annotations.  See
 :class:`~matplotlib.patches.ArrowStyle`, and
 :class:`~matplotlib.patches.ConnectionStyle`.
 
-.. figure:: ../../gallery/shapes_and_collections/images/sphx_glr_fancybox_demo_001.png
-   :target: ../../gallery/shapes_and_collections/fancybox_demo.html
-   :align: center
-   :scale: 50
+.. plot::
 
-   Fancybox Demo
+    import matplotlib.patches as mpatch
+    import matplotlib.pyplot as plt
 
-.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_fancyarrow_demo_001.png
-   :target: ../../gallery/text_labels_and_annotations/fancyarrow_demo.html
-   :align: center
-   :scale: 50
+    figheight = 8
+    fig = plt.figure(figsize=(9, figheight), dpi=80)
+    fontsize = 0.4 * fig.dpi
 
-   Fancyarrow Demo
+    def make_boxstyles(ax):
+        styles = mpatch.BoxStyle.get_styles()
 
-.. _psd-amplitude:
+        for i, (stylename, styleclass) in enumerate(sorted(styles.items())):
+            ax.text(0.5, (float(len(styles)) - 0.5 - i)/len(styles), stylename,
+                      ha="center",
+                      size=fontsize,
+                      transform=ax.transAxes,
+                      bbox=dict(boxstyle=stylename, fc="w", ec="k"))
+
+    def make_arrowstyles(ax):
+        styles = mpatch.ArrowStyle.get_styles()
+
+        ax.set_xlim(0, 4)
+        ax.set_ylim(0, figheight)
+
+        for i, (stylename, styleclass) in enumerate(sorted(styles.items())):
+            y = (float(len(styles)) - 0.25 - i)  # /figheight
+            p = mpatch.Circle((3.2, y), 0.2, fc="w")
+            ax.add_patch(p)
+
+            ax.annotate(stylename, (3.2, y),
+                        (2., y),
+                        # xycoords="figure fraction", textcoords="figure fraction",
+                        ha="right", va="center",
+                        size=fontsize,
+                        arrowprops=dict(arrowstyle=stylename,
+                                        patchB=p,
+                                        shrinkA=5,
+                                        shrinkB=5,
+                                        fc="w", ec="k",
+                                        connectionstyle="arc3,rad=-0.05",
+                                        ),
+                        bbox=dict(boxstyle="square", fc="w"))
+
+        ax.xaxis.set_visible(False)
+        ax.yaxis.set_visible(False)
+
+
+    ax1 = fig.add_subplot(121, frameon=False, xticks=[], yticks=[])
+    make_boxstyles(ax1)
+
+    ax2 = fig.add_subplot(122, frameon=False, xticks=[], yticks=[])
+    make_arrowstyles(ax2)
+
+
+    plt.show()
 
 
 Native OS X backend
---------------------
+-------------------
 
 Michiel de Hoon has provided a native Mac OSX backend that is almost
 completely implemented in C. The backend can therefore use Quartz
@@ -81,8 +122,11 @@ matplotlibrc file, or run your script with::
 
     > python myfile.py -dmacosx
 
+
+.. _psd-amplitude:
+
 psd amplitude scaling
--------------------------
+---------------------
 
 Ryan May did a lot of work to rationalize the amplitude scaling of
 :func:`~matplotlib.pyplot.psd` and friends.  See
@@ -93,7 +137,7 @@ compatibility and increase scaling options.
 .. _fill-between:
 
 Fill between
-------------------
+------------
 
 Added a :func:`~matplotlib.pyplot.fill_between` function to make it
 easier to do shaded region plots in the presence of masked data.  You
@@ -109,7 +153,7 @@ where you want to do the filling.
    Whats New 98 4 Fill Between
 
 Lots more
------------
+---------
 
 Here are the 0.98.4 notes from the CHANGELOG::
 
