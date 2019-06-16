@@ -90,7 +90,7 @@ class that can have a visual break to indicate a discontinuous range.
 DeCiDa
 ======
 
-`DeCiDa <https://pypi.python.org/pypi/DeCiDa>`_ is a library of functions
+`DeCiDa <https://pypi.org/project/DeCiDa/>`_ is a library of functions
 and classes for electron device characterization, electronic circuit design and
 general data visualization and analysis.
 
