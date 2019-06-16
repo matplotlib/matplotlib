@@ -459,10 +459,14 @@ class XTick(Tick):
     def _get_tick1line(self):
         'Get the default line2D instance'
         # x in data coords, y in axes coords
-        l = mlines.Line2D(xdata=(0,), ydata=(0,), color=self._color,
-                          linestyle='None', marker=self._tickmarkers[0],
+        l = mlines.Line2D(xdata=(0,), ydata=(0,),
+                          color=self._color,
+                          linestyle='None',
+                          marker=self._tickmarkers[0],
                           markersize=self._size,
-                          markeredgewidth=self._width, zorder=self._zorder)
+                          markeredgecolor=self._color,
+                          markeredgewidth=self._width,
+                          zorder=self._zorder)
         l.set_transform(self.axes.get_xaxis_transform(which='tick1'))
         self._set_artist_props(l)
         return l
@@ -475,6 +479,7 @@ class XTick(Tick):
                           linestyle='None',
                           marker=self._tickmarkers[1],
                           markersize=self._size,
+                          markeredgecolor=self._color,
                           markeredgewidth=self._width,
                           zorder=self._zorder)
 
@@ -580,6 +585,7 @@ class YTick(Tick):
                           marker=self._tickmarkers[0],
                           linestyle='None',
                           markersize=self._size,
+                          markeredgecolor=self._color,
                           markeredgewidth=self._width,
                           zorder=self._zorder)
         l.set_transform(self.axes.get_yaxis_transform(which='tick1'))
@@ -594,6 +600,7 @@ class YTick(Tick):
                           marker=self._tickmarkers[1],
                           linestyle='None',
                           markersize=self._size,
+                          markeredgecolor=self._color,
                           markeredgewidth=self._width,
                           zorder=self._zorder)
         l.set_transform(self.axes.get_yaxis_transform(which='tick2'))

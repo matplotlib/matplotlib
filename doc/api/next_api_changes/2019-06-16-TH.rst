@@ -1,0 +1,7 @@
+Tick line colors are no longer influenced by rcParams["lines.markeredgecolor"]
+``````````````````````````````````````````````````````````````````````````````
+
+Tick line colors are no longer influenced by :rc:`lines.markeredgecolor`.
+You may use :rc:`xtick.color` / :rc:`ytick.color` to color tick lines and
+labels simultaneously. If you just want to only the tick lines, do so
+programmatically.
