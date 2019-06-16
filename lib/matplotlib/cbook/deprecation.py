@@ -135,15 +135,8 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
         object.
 
     name : str, optional
-        The name of the deprecated object; if not provided the name
-        is automatically determined from the passed in object,
-        though this is useful in the case of renamed functions, where
-        the new function is just assigned to the name of the
-        deprecated function.  For example::
-
-            def new_function():
-                ...
-            old_function = new_function
+        The name used in the deprecation message; if not provided, the name
+        is automatically determined from the deprecated object.
 
     alternative : str, optional
         An alternative API that the user may use in place of the deprecated
@@ -155,8 +148,8 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
         DeprecationWarning.  Cannot be used together with *removal*.
 
     obj_type : str, optional
-        The object type being deprecated; by default, 'function' if decorating
-        a function and 'class' if decorating a class.
+        The object type being deprecated; by default, 'class' if decorating
+        a class, 'attribute' if decorating a property, 'function' otherwise.
 
     addendum : str, optional
         Additional text appended directly to the final message.
