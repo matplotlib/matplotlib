@@ -12,9 +12,10 @@ infrastructure are in :mod:`matplotlib.testing`.
 .. _Ghostscript: https://www.ghostscript.com/
 .. _Inkscape: https://inkscape.org
 .. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
-.. _pytest-pep8: https://pypi.python.org/pypi/pytest-pep8
-.. _pytest-xdist: https://pypi.python.org/pypi/pytest-xdist
-.. _pytest-timeout: https://pypi.python.org/pypi/pytest-timeout
+.. _pytest-flake8: https://pypi.org/project/pytest-flake8/
+.. _pytest-xdist: https://pypi.org/project/pytest-xdist/
+.. _pytest-timeout: https://pypi.org/project/pytest-timeout/
+.. _flake8: https://pypi.org/project/flake8/
 
 Requirements
 ------------
@@ -32,7 +33,7 @@ The following software is required to run the tests:
 Optionally you can install:
 
 - pytest-cov_ (>=2.3.1) to collect coverage information
-- pytest-pep8_ to test coding standards
+- pytest-flake8_ to test coding standards using flake8_
 - pytest-timeout_ to limit runtime in case of stuck tests
 - pytest-xdist_ to run tests in parallel
 
@@ -44,29 +45,20 @@ Running the tests is simple. Make sure you have pytest installed and run::
 
    pytest
 
-or::
+in the root directory of the repository.
 
-   pytest .
-
-
-in the root directory of the distribution. The script takes a set of
-commands, such as:
-
-========================  ===========
-``--pep8``                Perform pep8 checks (requires pytest-pep8_)
-``-m "not network"``      Disable tests that require network access
-========================  ===========
-
-Additional arguments are passed on to pytest. See the pytest documentation for
-`supported arguments`_. Some of the more important ones are given here:
+`pytest` can be configured via a lot of `commandline parameters`_. Some
+particularly useful ones are:
 
 =============================  ===========
-``--verbose``                  Be more verbose
-``--n NUM``                    Run tests in parallel over NUM
+``-v`` or ``--verbose``        Be more verbose
+``-n NUM``                     Run tests in parallel over NUM
                                processes (requires pytest-xdist_)
 ``--timeout=SECONDS``          Set timeout for results from each test
                                process (requires pytest-timeout_)
 ``--capture=no`` or ``-s``     Do not capture stdout
+``--flake8``                   Check coding standards using flake8_
+                               (requires pytest-flake8_)
 =============================  ===========
 
 To run a single test from the command line, you can provide a file path,
@@ -98,7 +90,7 @@ function :func:`matplotlib.test`::
   matplotlib.test()
 
 
-.. _supported arguments: http://doc.pytest.org/en/latest/usage.html
+.. _commandline parameters: http://doc.pytest.org/en/latest/usage.html
 
 
 Writing a simple test
