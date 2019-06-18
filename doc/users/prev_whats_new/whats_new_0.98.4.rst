@@ -54,9 +54,9 @@ boxes and connectors in annotations.  See
     import matplotlib.patches as mpatch
     import matplotlib.pyplot as plt
 
-    figheight = 8
-    fig = plt.figure(figsize=(9, figheight), dpi=80)
-    fontsize = 0.4 * fig.dpi
+    figheight = 4
+    fig = plt.figure(figsize=(4.5, figheight), dpi=80)
+    fontsize = 0.2 * fig.dpi
 
     def make_boxstyles(ax):
         styles = mpatch.BoxStyle.get_styles()
@@ -72,7 +72,7 @@ boxes and connectors in annotations.  See
         styles = mpatch.ArrowStyle.get_styles()
 
         ax.set_xlim(0, 4)
-        ax.set_ylim(0, figheight)
+        ax.set_ylim(0, figheight*2)
 
         for i, (stylename, styleclass) in enumerate(sorted(styles.items())):
             y = (float(len(styles)) - 0.25 - i)  # /figheight
