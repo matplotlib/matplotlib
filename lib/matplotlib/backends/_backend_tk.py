@@ -517,8 +517,8 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
     """
     def __init__(self, canvas, window):
         self.canvas = canvas
-        # Avoid using self.window (prefer self.canvas.manager.window), so that
-        # Tool implementations can reuse the methods.
+        # Avoid using self.window (prefer self.canvas.get_tk_widget().master),
+        # so that Tool implementations can reuse the methods.
         self.window = window
         NavigationToolbar2.__init__(self, canvas)
 
@@ -543,7 +543,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             del self.lastrect
 
     def set_cursor(self, cursor):
-        window = self.canvas.manager.window
+        window = self.canvas.get_tk_widget().master
         window.configure(cursor=cursord[cursor])
         window.update_idletasks()
 
@@ -617,7 +617,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         initialdir = os.path.expanduser(rcParams['savefig.directory'])
         initialfile = self.canvas.get_default_filename()
         fname = tkinter.filedialog.asksaveasfilename(
-            master=self.canvas.manager.window,
+            master=self.canvas.get_tk_widget().master,
             title='Save the figure',
             filetypes=tk_filetypes,
             defaultextension=defaultextension,
