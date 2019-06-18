@@ -192,13 +192,18 @@ class _ImageComparisonBase:
             os.path.join(self.result_dir,
                          os.path.basename(orig_expected_fname)),
             'expected')
-        if os.path.exists(orig_expected_fname):
-            shutil.copyfile(orig_expected_fname, expected_fname)
-        else:
-            reason = ("Do not have baseline image {} because this "
-                      "file does not exist: {}".format(expected_fname,
-                                                       orig_expected_fname))
-            raise ImageComparisonFailure(reason)
+        try:
+            # os.symlink errors if the target already exists.
+            with contextlib.suppress(OSError):
+                os.remove(expected_fname)
+            try:
+                os.symlink(orig_expected_fname, expected_fname)
+            except OSError:  # On Windows, symlink *may* be unavailable.
+                shutil.copyfile(orig_expected_fname, expected_fname)
+        except OSError:
+            raise ImageComparisonFailure(
+                f"Missing baseline image {expected_fname} because the "
+                f"following file cannot be accessed: {orig_expected_fname}")
         return expected_fname
 
     def compare(self, idx, baseline, extension):
