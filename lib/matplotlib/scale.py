@@ -617,6 +617,7 @@ class LogitTransform(Transform):
 
     def __init__(self, nonpos='mask'):
         Transform.__init__(self)
+        cbook._check_in_list(['mask', 'clip'], nonpos=nonpos)
         self._nonpos = nonpos
         self._clip = {"clip": True, "mask": False}[nonpos]
 
@@ -633,8 +634,7 @@ class LogitTransform(Transform):
         return LogisticTransform(self._nonpos)
 
     def __str__(self):
-        return "{}({!r})".format(type(self).__name__,
-            "clip" if self._clip else "mask")
+        return "{}({!r})".format(type(self).__name__, self._nonpos)
 
 
 class LogisticTransform(Transform):
@@ -673,7 +673,6 @@ class LogitScale(ScaleBase):
           values beyond ]0, 1[ can be masked as invalid, or clipped to a number
           very close to 0 or 1
         """
-        cbook._check_in_list(['mask', 'clip'], nonpos=nonpos)
         self._transform = LogitTransform(nonpos)
 
     def get_transform(self):
