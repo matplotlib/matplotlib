@@ -99,8 +99,7 @@ class EpochConverter(units.ConversionInterface):
 
         if not cbook.is_scalar_or_string(value):
             return [EpochConverter.convert(x, unit, axis) for x in value]
-        if (units.ConversionInterface.is_numlike(value)
-                and not isinstance(value, (U.Epoch, U.Duration))):
+        if units.ConversionInterface.is_numlike(value):
             return value
         if unit is None:
             unit = EpochConverter.default_units(value, axis)

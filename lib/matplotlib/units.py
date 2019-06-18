@@ -112,6 +112,7 @@ class ConversionInterface:
     The minimal interface for a converter to take custom data types (or
     sequences) and convert them to values Matplotlib can use.
     """
+
     @staticmethod
     def axisinfo(unit, axis):
         """

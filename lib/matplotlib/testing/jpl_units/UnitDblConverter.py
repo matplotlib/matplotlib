@@ -86,11 +86,10 @@ class UnitDblConverter(units.ConversionInterface):
 
         if not cbook.is_scalar_or_string(value):
             return [UnitDblConverter.convert(x, unit, axis) for x in value]
-        # If the incoming value behaves like a number, but is not a UnitDbl,
+        # If the incoming value behaves like a number,
         # then just return it because we don't know how to convert it
         # (or it is already converted)
-        if (units.ConversionInterface.is_numlike(value)
-                and not isinstance(value, U.UnitDbl)):
+        if units.ConversionInterface.is_numlike(value):
             return value
         # If no units were specified, then get the default units to use.
         if unit is None:

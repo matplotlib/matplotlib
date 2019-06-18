@@ -2,6 +2,8 @@
 
 import operator
 
+from matplotlib import cbook
+
 
 class UnitDbl:
     """Class UnitDbl in development.
@@ -45,8 +47,7 @@ class UnitDbl:
         - value     The numeric value of the UnitDbl.
         - units     The string name of the units the value is in.
         """
-        self.checkUnits(units)
-
+        cbook._check_in_list(self.allowed, units=units)
         data = self.allowed[units]
         self._value = float(value * data[0])
         self._units = data[1]
@@ -66,17 +67,13 @@ class UnitDbl:
         """
         if self._units == units:
             return self._value
-
-        self.checkUnits(units)
-
+        cbook._check_in_list(self.allowed, units=units)
         data = self.allowed[units]
         if self._units != data[1]:
-            msg = "Error trying to convert to different units.\n" \
-                    "    Invalid conversion requested.\n" \
-                    "    UnitDbl: %s\n" \
-                    "    Units:    %s\n" % (str(self), units)
-            raise ValueError(msg)
-
+            raise ValueError(f"Error trying to convert to different units.\n"
+                             f"    Invalid conversion requested.\n"
+                             f"    UnitDbl: {self}\n"
+                             f"    Units:   {units}\n")
         return self._value / data[0]
 
     def __abs__(self):
@@ -236,6 +233,7 @@ class UnitDbl:
 
         return elems
 
+    @cbook.deprecated("3.2")
     def checkUnits(self, units):
         """Check to see if some units are valid.
 
@@ -262,7 +260,6 @@ class UnitDbl:
         - func    The name of the function doing the check.
         """
         if self._units != rhs._units:
-            msg = "Cannot %s units of different types.\n" \
-                    "LHS: %s\n" \
-                    "RHS: %s" % (func, self._units, rhs._units)
-            raise ValueError(msg)
+            raise ValueError(f"Cannot {func} units of different types.\n"
+                             f"LHS: {self._units}\n"
+                             f"RHS: {rhs._units}")
