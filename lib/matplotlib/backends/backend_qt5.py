@@ -118,6 +118,11 @@ def _create_qApp():
                 if display is None or not re.search(r':\d', display):
                     raise RuntimeError('Invalid DISPLAY variable')
 
+            try:
+                QtWidgets.QApplication.setAttribute(
+                    QtCore.Qt.AA_EnableHighDpiScaling)
+            except AttributeError:  # Attribute only exists for Qt>=5.6.
+                pass
             qApp = QtWidgets.QApplication([b"matplotlib"])
             qApp.lastWindowClosed.connect(qApp.quit)
         else:
@@ -126,7 +131,6 @@ def _create_qApp():
     if is_pyqt5():
         try:
             qApp.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
-            qApp.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
         except AttributeError:
             pass
 
