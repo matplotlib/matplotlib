@@ -2811,21 +2811,15 @@ class _AxesBase(martist.Artist):
                 m + n + 1  # check that both are numbers
             except (ValueError, TypeError):
                 raise ValueError("scilimits must be a sequence of 2 integers")
-        if style[:3] == 'sci':
-            sb = True
-        elif style == 'plain':
-            sb = False
-        elif style == '':
-            sb = None
-        else:
-            raise ValueError("%s is not a valid style value")
+        STYLES = {'sci': True, 'scientific': True, 'plain': False, '': None}
+        is_sci_style = cbook._check_getitem(STYLES, style=style)
         axis_map = {**{k: [v] for k, v in self._get_axis_map().items()},
                     'both': self._get_axis_list()}
         axises = cbook._check_getitem(axis_map, axis=axis)
         try:
             for axis in axises:
-                if sb is not None:
-                    axis.major.formatter.set_scientific(sb)
+                if is_sci_style is not None:
+                    axis.major.formatter.set_scientific(is_sci_style)
                 if scilimits is not None:
                     axis.major.formatter.set_powerlimits(scilimits)
                 if useOffset is not None:
