@@ -2428,7 +2428,6 @@ class _AxesBase(martist.Artist):
         case, use :meth:`matplotlib.axes.Axes.relim` prior to calling
         autoscale_view.
         """
-        print('asv', scalex, scaley)
         if tight is not None:
             self._tight = bool(tight)
 
@@ -2448,9 +2447,7 @@ class _AxesBase(martist.Artist):
         def handle_single_axis(scale, autoscaleon, shared_axes, interval,
                                minpos, axis, margin, stickies, set_bound):
 
-            print('handle', axis, scale)
             if not (scale and autoscaleon):
-                print('nothing to do')
                 return  # nothing to do...
 
             shared = shared_axes.get_siblings(self)
