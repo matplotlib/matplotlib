@@ -1464,6 +1464,7 @@ class EventCollection(LineCollection):
         """
         if positions is None:
             raise ValueError('positions must be an array-like object')
+        # Force a copy of positions
         positions = np.array(positions, copy=True)
         segment = (lineoffset + linelength / 2.,
                    lineoffset - linelength / 2.)
