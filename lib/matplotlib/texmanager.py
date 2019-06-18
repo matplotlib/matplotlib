@@ -206,11 +206,10 @@ class TexManager:
                                                        r'{\rmfamily %s}')
         tex = fontcmd % tex
 
-        if rcParams['text.latex.unicode']:
-            unicode_preamble = r"""
-\usepackage[utf8]{inputenc}"""
-        else:
-            unicode_preamble = ''
+        unicode_preamble = "\n".join([
+            r"\usepackage[utf8]{inputenc}",
+            r"\DeclareUnicodeCharacter{2212}{\ensuremath{-}}",
+        ]) if rcParams["text.latex.unicode"] else ""
 
         s = r"""
 \documentclass{article}
@@ -257,11 +256,10 @@ class TexManager:
                                                        r'{\rmfamily %s}')
         tex = fontcmd % tex
 
-        if rcParams['text.latex.unicode']:
-            unicode_preamble = r"""
-\usepackage[utf8]{inputenc}"""
-        else:
-            unicode_preamble = ''
+        unicode_preamble = "\n".join([
+            r"\usepackage[utf8]{inputenc}",
+            r"\DeclareUnicodeCharacter{2212}{\ensuremath{-}}",
+        ]) if rcParams["text.latex.unicode"] else ""
 
         # newbox, setbox, immediate, etc. are used to find the box
         # extent of the rendered text.
