@@ -7,7 +7,7 @@ This tutorial covers some basic usage patterns and best-practices to
 help you get started with Matplotlib.
 """
 
-# sphinx_gallery_thumbnail_number = 4
+# sphinx_gallery_thumbnail_number = 3
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -66,16 +66,15 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 # number of :class:`~matplotlib.axes.Axes`, but will typically have
 # at least one.
 #
-# The easiest way to create a new figure is with pyplot:
-
-fig = plt.figure()  # an empty figure with no Axes
-fig, ax = plt.subplots()  # a figure with a single Axes
-fig, axs = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
-
+# The easiest way to create a new figure is with pyplot::
+#
+#    fig = plt.figure()  # an empty figure with no Axes
+#    fig, ax = plt.subplots()  # a figure with a single Axes
+#    fig, axs = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
+#
 # It's convenient to create the axes together with the figure, but you can
 # also add axes later on, allowing for more complex axes layouts.
-
-###############################################################################
+#
 # :class:`~matplotlib.axes.Axes`
 # ------------------------------
 #
