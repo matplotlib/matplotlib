@@ -161,11 +161,9 @@ class Artist:
         # TODO: add legend support
 
     def have_units(self):
-        """Return *True* if units are set on the *x* or *y* axes."""
+        """Return *True* if units are set on any axis."""
         ax = self.axes
-        if ax is None or ax.xaxis is None:
-            return False
-        return ax.xaxis.have_units() or ax.yaxis.have_units()
+        return ax and any(axis.have_units() for axis in ax._get_axis_list())
 
     def convert_xunits(self, x):
         """

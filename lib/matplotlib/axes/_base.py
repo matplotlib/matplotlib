@@ -1995,7 +1995,7 @@ class _AxesBase(martist.Artist):
         """
         Callback for processing changes to axis units.
 
-        Currently forces updates of data limits and view limits.
+        Currently requests updates of data limits and view limits.
         """
         self.relim()
         self._request_autoscale_view(scalex=scalex, scaley=scaley)
