@@ -1295,63 +1295,6 @@ class Axes3D(Axes):
         self._draw_grid = b
         self.stale = True
 
-    def ticklabel_format(
-            self, *, style='', scilimits=None, useOffset=None, axis='both'):
-        """
-        Convenience method for manipulating the ScalarFormatter
-        used by default for linear axes in Axed3D objects.
-
-        See :meth:`matplotlib.axes.Axes.ticklabel_format` for full
-        documentation.  Note that this version applies to all three
-        axes of the Axes3D object.  Therefore, the *axis* argument
-        will also accept a value of 'z' and the value of 'both' will
-        apply to all three axes.
-
-        .. versionadded :: 1.1.0
-            This function was added, but not tested. Please report any bugs.
-        """
-        style = style.lower()
-        axis = axis.lower()
-        if scilimits is not None:
-            try:
-                m, n = scilimits
-                m+n+1  # check that both are numbers
-            except (ValueError, TypeError):
-                raise ValueError("scilimits must be a sequence of 2 integers")
-        if style[:3] == 'sci':
-            sb = True
-        elif style == 'plain':
-            sb = False
-        elif style == '':
-            sb = None
-        else:
-            raise ValueError("%s is not a valid style value")
-        try:
-            if sb is not None:
-                if axis in ['both', 'z']:
-                    self.xaxis.major.formatter.set_scientific(sb)
-                if axis in ['both', 'y']:
-                    self.yaxis.major.formatter.set_scientific(sb)
-                if axis in ['both', 'z']:
-                    self.zaxis.major.formatter.set_scientific(sb)
-            if scilimits is not None:
-                if axis in ['both', 'x']:
-                    self.xaxis.major.formatter.set_powerlimits(scilimits)
-                if axis in ['both', 'y']:
-                    self.yaxis.major.formatter.set_powerlimits(scilimits)
-                if axis in ['both', 'z']:
-                    self.zaxis.major.formatter.set_powerlimits(scilimits)
-            if useOffset is not None:
-                if axis in ['both', 'x']:
-                    self.xaxis.major.formatter.set_useOffset(useOffset)
-                if axis in ['both', 'y']:
-                    self.yaxis.major.formatter.set_useOffset(useOffset)
-                if axis in ['both', 'z']:
-                    self.zaxis.major.formatter.set_useOffset(useOffset)
-        except AttributeError:
-            raise AttributeError(
-                "This method only works with the ScalarFormatter.")
-
     def locator_params(self, axis='both', tight=None, **kwargs):
         """
         Convenience method for controlling tick locators.
