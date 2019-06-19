@@ -989,7 +989,7 @@ def _parse_enc(path):
     with open(path, encoding="ascii") as file:
         no_comments = "\n".join(line.split("%")[0].rstrip() for line in file)
     array = re.search(r"(?s)\[(.*)\]", no_comments).group(1)
-    lines = [line for line in array.split("\n") if line]
+    lines = [line for line in array.split() if line]
     if all(line.startswith("/") for line in lines):
         return [line[1:] for line in lines]
     else:
