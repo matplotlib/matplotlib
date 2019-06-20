@@ -1,0 +1,21 @@
+
+[tool.towncrier]
+    package = "matplotlib"
+    filename = "doc/CHANGELOG.rst"
+    directory = "doc/changelog/"
+    issue_format = "`#{issue} <https://github.com/matplotlib/matplotlib/pull/{issue}>`__"
+
+    [[tool.towncrier.type]]
+        directory = "api_change"
+        name = "API changes"
+        showcontent = true
+
+    [[tool.towncrier.type]]
+      directory = "removal"
+      name = "Removals"
+      showcontent = true
+
+    [[tool.towncrier.type]]
+      directory = "feature"
+      name = "New features"
+      showcontent = true
