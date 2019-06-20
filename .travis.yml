@@ -5,7 +5,7 @@ sudo: false
 
 services:
   - xvfb
-  
+
 branches:
   except:
   - /^auto-backport-of-pr-\d*/
@@ -184,7 +184,7 @@ install:
         $PYTEST_PEP8 \
         $PYTEST_RERUNFAILURES \
         $PYTEST_TIMEOUT \
-        pytest-xdist
+        'pytest-xdist<1.28'
 
     # Use the special local version of freetype for testing
     cp ci/travis/setup.cfg .
