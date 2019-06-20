@@ -180,7 +180,7 @@ install:
     pip install $PRE \
         $PYTEST \
         $PYTEST_COV \
-        pytest-faulthandler \
+        'pytest-faulthandler<1.6' \
         $PYTEST_PEP8 \
         $PYTEST_RERUNFAILURES \
         $PYTEST_TIMEOUT \
