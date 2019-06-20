@@ -1072,6 +1072,11 @@ default: 'top'
             # to tuples for the key
             ret = []
             for k, v in items:
+                # some objects are not hashable: skip them
+                try:
+                    hash(v)
+                except Exception:
+                    continue
                 # some objects can define __getitem__ without being
                 # iterable and in those cases the conversion to tuples
                 # will fail. So instead of using the np.iterable(v) function
