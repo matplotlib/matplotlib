@@ -1628,6 +1628,22 @@ def test_hist_log():
     ax.hist(data, fill=False, log=True)
 
 
+@check_figures_equal(extensions=["png"])
+def test_hist_log_2(fig_test, fig_ref):
+    axs_test = fig_test.subplots(2, 3)
+    axs_ref = fig_ref.subplots(2, 3)
+    for i, histtype in enumerate(["bar", "step", "stepfilled"]):
+        # Set log scale, then call hist().
+        axs_test[0, i].set_yscale("log")
+        axs_test[0, i].hist(1, 1, histtype=histtype)
+        # Call hist(), then set log scale.
+        axs_test[1, i].hist(1, 1, histtype=histtype)
+        axs_test[1, i].set_yscale("log")
+        # Use hist(..., log=True).
+        for ax in axs_ref[:, i]:
+            ax.hist(1, 1, log=True, histtype=histtype)
+
+
 @image_comparison(['hist_bar_empty.png'], remove_text=True)
 def test_hist_bar_empty():
     # From #3886: creating hist from empty dataset raises ValueError
@@ -1640,23 +1656,6 @@ def test_hist_step_empty():
     # From #3886: creating hist from empty dataset raises ValueError
     ax = plt.gca()
     ax.hist([], histtype='step')
-
-
-@image_comparison(['hist_steplog'], remove_text=True, tol=0.1)
-def test_hist_steplog():
-    np.random.seed(0)
-    data = np.random.standard_normal(2000)
-    data += -2.0 - np.min(data)
-    data_pos = data + 2.1
-    data_big = data_pos + 30
-    weights = np.ones_like(data) * 1.e-5
-
-    axs = plt.figure().subplots(4)
-    axs[0].hist(data, 100, histtype='stepfilled', log=True)
-    axs[1].hist(data_pos, 100, histtype='stepfilled', log=True)
-    axs[2].hist(data, 100, weights=weights, histtype='stepfilled', log=True)
-    axs[3].hist(data_big, 100, histtype='stepfilled', log=True,
-                orientation='horizontal')
 
 
 @image_comparison(['hist_step_filled.png'], remove_text=True)
@@ -1684,29 +1683,6 @@ def test_hist_density():
     data = np.random.standard_normal(2000)
     fig, ax = plt.subplots()
     ax.hist(data, density=True)
-
-
-@image_comparison(['hist_step_log_bottom.png'], remove_text=True)
-def test_hist_step_log_bottom():
-    # check that bottom doesn't get overwritten by the 'minimum' on a
-    # log scale histogram (https://github.com/matplotlib/matplotlib/pull/4608)
-    np.random.seed(0)
-    data = np.random.standard_normal(2000)
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    # normal hist (should clip minimum to 1/base)
-    ax.hist(data, bins=10, log=True, histtype='stepfilled',
-            alpha=0.5, color='b')
-    # manual bottom < 1/base (previously buggy, see #4608)
-    ax.hist(data, bins=10, log=True, histtype='stepfilled',
-            alpha=0.5, color='g', bottom=1e-2)
-    # manual bottom > 1/base
-    ax.hist(data, bins=10, log=True, histtype='stepfilled',
-            alpha=0.5, color='r', bottom=0.5)
-    # array bottom with some less than 1/base (should clip to 1/base)
-    ax.hist(data, bins=10, log=True, histtype='stepfilled',
-            alpha=0.5, color='y', bottom=np.arange(10))
-    ax.set_ylim(9e-3, 1e3)
 
 
 def test_hist_unequal_bins_density():
