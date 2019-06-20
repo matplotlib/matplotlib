@@ -1,30 +1,10 @@
-import collections
 import numpy as np
-import numbers
 
-import warnings
-
+import matplotlib.cbook as cbook
 import matplotlib.docstring as docstring
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
-import matplotlib.scale as mscale
-import matplotlib.cbook as cbook
-
 from matplotlib.axes._base import _AxesBase
-
-from matplotlib.ticker import (
-    AutoLocator,
-    AutoMinorLocator,
-    FixedLocator,
-    FuncFormatter,
-    LogFormatterSciNotation,
-    LogLocator,
-    NullLocator,
-    NullFormatter,
-    ScalarFormatter
-)
-
-from matplotlib.scale import Log10Transform
 
 
 def _make_secondary_locator(rect, parent):
@@ -116,10 +96,9 @@ class SecondaryAxis(_AxesBase):
 
         Parameters
         ----------
-        align :: string
+        align : str
             either 'top' or 'bottom' for orientation='x' or
-            'left' or 'right' for orientation='y' axis
-
+            'left' or 'right' for orientation='y' axis.
         """
         if align in self._locstrings:
             if align == self._locstrings[1]:
@@ -178,6 +157,7 @@ class SecondaryAxis(_AxesBase):
         self.set_axes_locator(secondary_locator)
 
     def apply_aspect(self, position=None):
+        # docstring inherited.
         self._set_lims()
         super().apply_aspect(position)
 
@@ -189,7 +169,6 @@ class SecondaryAxis(_AxesBase):
         ----------
         ticks : list
             List of x-axis tick locations.
-
         minor : bool, optional
             If ``False`` sets major ticks, if ``True`` sets minor ticks.
             Default is ``False``.
@@ -215,7 +194,6 @@ class SecondaryAxis(_AxesBase):
 
             If a transform is supplied, then the transform must have an
             inverse.
-
         """
 
         if self._orientation == 'x':
@@ -254,9 +232,7 @@ class SecondaryAxis(_AxesBase):
         using the converter specified by
         `~.axes._secondary_axes.set_functions` (or *functions*
         parameter when axes initialized.)
-
         """
-
         self._set_lims()
         # this sets the scale in case the parent has set its scale.
         self._set_scale()
@@ -291,12 +267,12 @@ class SecondaryAxis(_AxesBase):
         # OK, set_scale sets the locators, but if we've called
         # axsecond.set_ticks, we want to keep those.
         if self._ticks_set:
-            self._axis.set_major_locator(FixedLocator(ticks))
+            self._axis.set_major_locator(mticker.FixedLocator(ticks))
 
     def _set_lims(self):
         """
         Set the limits based on parent limits and the convert method
-        between the parent and this secondary axes
+        between the parent and this secondary axes.
         """
         if self._orientation == 'x':
             lims = self._parent.get_xlim()
@@ -371,12 +347,12 @@ class SecondaryAxis(_AxesBase):
 
     def set_color(self, color):
         """
-        Change the color of the secondary axes and all decorators
+        Change the color of the secondary axes and all decorators.
+
         Parameters
         ----------
         color : Matplotlib color
         """
-
         if self._orientation == 'x':
             self.tick_params(axis='x', colors=color)
             self.spines['bottom'].set_color(color)
