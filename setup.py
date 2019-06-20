@@ -177,7 +177,8 @@ if __name__ == '__main__':
         # Go through all of the packages and figure out which ones we are
         # going to build/install.
         print_line()
-        print_raw("Edit setup.cfg to change the build options")
+        print_raw("Edit setup.cfg to change the build options; "
+                  "suppress output with --quiet.")
 
         required_failed = []
         good_packages = []

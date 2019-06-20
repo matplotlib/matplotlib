@@ -143,7 +143,6 @@ LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
 # matplotlib build options, which can be altered using setup.cfg
 options = {
-    'display_status': True,
     'backend': None,
     }
 
@@ -152,9 +151,6 @@ setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
 if os.path.exists(setup_cfg):
     config = configparser.ConfigParser()
     config.read(setup_cfg)
-
-    if config.has_option('status', 'suppress'):
-        options['display_status'] = not config.getboolean("status", "suppress")
 
     if config.has_option('rc_options', 'backend'):
         options['backend'] = config.get("rc_options", "backend")
@@ -168,30 +164,29 @@ lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
 options['local_freetype'] = lft or options.get('local_freetype', False)
 
 
-# Define the display functions only if display_status is True.
-if options['display_status']:
-    def print_line(char='='):
-        print(char * 80)
+if '-q' in sys.argv or '--quiet' in sys.argv:
+    def print_raw(*args, **kwargs): pass  # Suppress our own output.
+else:
+    print_raw = print
 
-    def print_status(package, status):
-        initial_indent = "%12s: " % package
-        indent = ' ' * 18
-        print(textwrap.fill(str(status), width=80,
+
+def print_line(char='='):
+    print_raw(char * 80)
+
+
+def print_status(package, status):
+    initial_indent = "%12s: " % package
+    indent = ' ' * 18
+    print_raw(textwrap.fill(str(status), width=80,
                             initial_indent=initial_indent,
                             subsequent_indent=indent))
 
-    def print_message(message):
-        indent = ' ' * 18 + "* "
-        print(textwrap.fill(str(message), width=80,
+
+def print_message(message):
+    indent = ' ' * 18 + "* "
+    print_raw(textwrap.fill(str(message), width=80,
                             initial_indent=indent,
                             subsequent_indent=indent))
-
-    def print_raw(section):
-        print(section)
-else:
-    def print_line(*args, **kwargs):
-        pass
-    print_status = print_message = print_raw = print_line
 
 
 def get_buffer_hash(fd):
