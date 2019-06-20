@@ -28,7 +28,6 @@ exclude =
 
 per-file-ignores =
     setup.py: E402
-    setupext.py: E501
 
     tools/subset.py: E221, E251, E261, E302, E501
 
