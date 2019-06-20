@@ -82,6 +82,7 @@ class SecondaryAxis(_AxesBase):
             self._axis = self.yaxis
             self._locstrings = ['right', 'left']
             self._otherstrings = ['top', 'bottom']
+        self._parentscale = self._axis.get_scale()
         # this gets positioned w/o constrained_layout so exclude:
         self._layoutbox = None
         self._poslayoutbox = None
@@ -272,6 +273,11 @@ class SecondaryAxis(_AxesBase):
         if self._orientation == 'y':
             pscale = self._parent.yaxis.get_scale()
             set_scale = self.set_yscale
+        if pscale == self._parentscale:
+            return
+        else:
+            self._parentscale = pscale
+
         if pscale == 'log':
             defscale = 'functionlog'
         else:

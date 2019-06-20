@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.colors as mcolors
+import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 from numpy.testing import (
     assert_allclose, assert_array_equal, assert_array_almost_equal)
@@ -6109,6 +6110,29 @@ def test_secondary_resize():
     fig.canvas.draw()
     fig.set_size_inches((7, 4))
     assert_allclose(ax.get_position().extents, [0.125, 0.1, 0.9, 0.9])
+
+
+def test_secondary_minorloc():
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.plot(np.arange(2, 11), np.arange(2, 11))
+    def invert(x):
+        with np.errstate(divide='ignore'):
+            return 1 / x
+
+    secax = ax.secondary_xaxis('top', functions=(invert, invert))
+    assert isinstance(secax._axis.get_minor_locator(),
+                      mticker.NullLocator)
+    secax.minorticks_on()
+    assert isinstance(secax._axis.get_minor_locator(),
+                      mticker.AutoMinorLocator)
+    ax.set_xscale('log')
+    plt.draw()
+    assert isinstance(secax._axis.get_minor_locator(),
+                      mticker.LogLocator)
+    ax.set_xscale('linear')
+    plt.draw()
+    assert isinstance(secax._axis.get_minor_locator(),
+                      mticker.NullLocator)
 
 
 def color_boxes(fig, axs):
