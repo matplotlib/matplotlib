@@ -240,17 +240,19 @@ def test_inverted_cla():
     ax.cla()
     ax.imshow(img)
     plt.autoscale()
-    assert not(ax.xaxis_inverted())
+    assert not ax.xaxis_inverted()
     assert ax.yaxis_inverted()
 
-    # 5. two shared axes. Clearing the master axis should bring axes in shared
-    # axes back to normal
+    # 5. two shared axes. Inverting the master axis should invert the shared
+    # axes; clearing the master axis should bring axes in shared
+    # axes back to normal.
     ax0 = plt.subplot(211)
     ax1 = plt.subplot(212, sharey=ax0)
-    ax0.imshow(img)
+    ax0.yaxis.set_inverted(True)
+    assert ax1.yaxis_inverted()
     ax1.plot(x, np.cos(x))
     ax0.cla()
-    assert not(ax1.yaxis_inverted())
+    assert not ax1.yaxis_inverted()
     ax1.cla()
     # 6. clearing the nonmaster should not touch limits
     ax0.imshow(img)
