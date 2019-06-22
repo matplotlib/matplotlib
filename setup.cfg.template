@@ -10,11 +10,6 @@
 # ensures that test images are exactly reproducible.
 #local_freetype = False
 
-[status]
-# To suppress display of the dependencies and their versions
-# at the top of the build log, uncomment the following line:
-#suppress = True
-
 [packages]
 # There are a number of subpackages of Matplotlib that are considered
 # optional. All except tests are installed by default, but that can
