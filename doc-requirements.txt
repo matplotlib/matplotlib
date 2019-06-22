@@ -11,6 +11,6 @@ colorspacious
 ipython
 ipywidgets
 mock
-numpydoc>=0.4
+numpydoc>=0.4,<0.9
 pillow
 sphinx-gallery>=0.1.12

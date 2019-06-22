@@ -5,7 +5,7 @@ sudo: false
 
 services:
   - xvfb
-  
+
 branches:
   except:
   - /^auto-backport-of-pr-\d*/
@@ -89,7 +89,9 @@ matrix:
         - PYTEST_TIMEOUT=pytest-timeout==1.2.1  # Newer pytest-timeouts don't support pytest <3.4.
         - SPHINX=sphinx==1.3
     - python: 3.4
-      env: PYTHON_ARGS=-OO
+      env:
+        - PYTHON_ARGS=-OO
+        - PYTEST_RERUNFAILURES='pytest-rerunfailures<7'
     - python: 3.6
       env: DELETE_FONT_CACHE=1 PANDAS='pandas<0.21.0' PYTEST_PEP8=pytest-pep8 RUN_PEP8=--pep8
     - python: 3.7
@@ -180,11 +182,11 @@ install:
     pip install $PRE \
         $PYTEST \
         $PYTEST_COV \
-        pytest-faulthandler \
+        'pytest-faulthandler<1.6' \
         $PYTEST_PEP8 \
         $PYTEST_RERUNFAILURES \
         $PYTEST_TIMEOUT \
-        pytest-xdist
+        'pytest-xdist<1.28'
 
     # Use the special local version of freetype for testing
     cp ci/travis/setup.cfg .
