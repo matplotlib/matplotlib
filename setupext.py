@@ -123,15 +123,24 @@ def download_or_cache(url, sha):
 
 # SHA256 hashes of the FreeType tarballs
 _freetype_hashes = {
-    '2.6.1': '0a3c7dfbda6da1e8fce29232e8e96d987ababbbf71ebc8c75659e4132c367014',
-    '2.6.2': '8da42fc4904e600be4b692555ae1dcbf532897da9c5b9fb5ebd3758c77e5c2d4',
-    '2.6.3': '7942096c40ee6fea882bd4207667ad3f24bff568b96b10fd3885e11a7baad9a3',
-    '2.6.4': '27f0e38347a1850ad57f84fc4dfed68ba0bc30c96a6fa6138ef84d485dd9a8d7',
-    '2.6.5': '3bb24add9b9ec53636a63ea8e867ed978c4f8fdd8f1fa5ccfd41171163d4249a',
-    '2.7': '7b657d5f872b0ab56461f3bd310bd1c5ec64619bd15f0d8e08282d494d9cfea4',
-    '2.7.1': '162ef25aa64480b1189cdb261228e6c5c44f212aac4b4621e28cf2157efb59f5',
-    '2.8': '33a28fabac471891d0523033e99c0005b95e5618dc8ffa7fa47f9dadcacb1c9b',
-    '2.8.1': '876711d064a6a1bd74beb18dd37f219af26100f72daaebd2d86cb493d7cd7ec6',
+    '2.6.1':
+        '0a3c7dfbda6da1e8fce29232e8e96d987ababbbf71ebc8c75659e4132c367014',
+    '2.6.2':
+        '8da42fc4904e600be4b692555ae1dcbf532897da9c5b9fb5ebd3758c77e5c2d4',
+    '2.6.3':
+        '7942096c40ee6fea882bd4207667ad3f24bff568b96b10fd3885e11a7baad9a3',
+    '2.6.4':
+        '27f0e38347a1850ad57f84fc4dfed68ba0bc30c96a6fa6138ef84d485dd9a8d7',
+    '2.6.5':
+        '3bb24add9b9ec53636a63ea8e867ed978c4f8fdd8f1fa5ccfd41171163d4249a',
+    '2.7':
+        '7b657d5f872b0ab56461f3bd310bd1c5ec64619bd15f0d8e08282d494d9cfea4',
+    '2.7.1':
+        '162ef25aa64480b1189cdb261228e6c5c44f212aac4b4621e28cf2157efb59f5',
+    '2.8':
+        '33a28fabac471891d0523033e99c0005b95e5618dc8ffa7fa47f9dadcacb1c9b',
+    '2.8.1':
+        '876711d064a6a1bd74beb18dd37f219af26100f72daaebd2d86cb493d7cd7ec6',
 }
 # This is the version of FreeType to use when building a local
 # version.  It must match the value in
@@ -208,9 +217,10 @@ def get_pkg_config():
         return None
     pkg_config = os.environ.get('PKG_CONFIG', 'pkg-config')
     if shutil.which(pkg_config) is None:
-        print("IMPORTANT WARNING:\n"
-              "    pkg-config is not installed.\n"
-              "    matplotlib may not be able to find some of its dependencies.")
+        print(
+            "IMPORTANT WARNING:\n"
+            "    pkg-config is not installed.\n"
+            "    Matplotlib may not be able to find some of its dependencies.")
         return None
     pkg_config_path = sysconfig.get_config_var('LIBDIR')
     if pkg_config_path is not None:
@@ -327,7 +337,8 @@ class OptionalPackage(SetupPackage):
         insensitively defined as 0, false, no, off for False).
         """
         conf = cls.default_config
-        if config is not None and config.has_option(cls.config_category, cls.name):
+        if (config is not None
+                and config.has_option(cls.config_category, cls.name)):
             try:
                 conf = config.getboolean(cls.config_category, cls.name)
             except ValueError:
@@ -586,7 +597,7 @@ set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
     /t:Clean;Build /p:Configuration="Release";Platform={WinXX}
 """
             import distutils.msvc9compiler as msvc
-            # Note: freetype has no build profile for 2014, so we don't bother...
+            # FreeType has no build profile for 2014, so we don't bother.
             vc = 'vc2010'
             WinXX = 'x64' if platform.architecture()[0] == '64bit' else 'Win32'
             xXX = 'x64' if platform.architecture()[0] == '64bit' else 'x86'
