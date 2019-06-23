@@ -1,0 +1,4 @@
+Deprecations
+````````````
+
+``testing.jpl_units.UnitDbl.UnitDbl.checkUnits`` is deprecated.

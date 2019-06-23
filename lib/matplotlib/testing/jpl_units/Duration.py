@@ -2,6 +2,8 @@
 
 import operator
 
+from matplotlib import cbook
+
 
 class Duration:
     """Class Duration in development.
@@ -18,11 +20,7 @@ class Duration:
         - frame     The frame of the duration.  Must be 'ET' or 'UTC'
         - seconds  The number of seconds in the Duration.
         """
-        if frame not in self.allowed:
-            msg = "Input frame '%s' is not one of the supported frames of %s" \
-                    % (frame, str(self.allowed))
-            raise ValueError(msg)
-
+        cbook._check_in_list(self.allowed, frame=frame)
         self._frame = frame
         self._seconds = seconds
 
@@ -176,7 +174,7 @@ class Duration:
         - func    The name of the function doing the check.
         """
         if self._frame != rhs._frame:
-            msg = "Cannot %s Duration's with different frames.\n" \
-                    "LHS: %s\n" \
-                    "RHS: %s" % (func, self._frame, rhs._frame)
-            raise ValueError(msg)
+            raise ValueError(
+                f"Cannot {func} Durations with different frames.\n"
+                f"LHS: {self._frame}\n"
+                f"RHS: {rhs._frame}")
