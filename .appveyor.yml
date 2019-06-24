@@ -77,8 +77,8 @@ install:
   # Let the install prefer the static builds of the libs
   - set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
   - mkdir lib || cmd /c "exit /b 0"
-  - copy /y %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
-  - copy /y %LIBRARY_LIB%\libpng_static.lib lib\png.lib
+  - copy /y %LIBRARY_LIB%\zlibstatic.lib lib\zlib.lib
+  - copy /y %LIBRARY_LIB%\libpng16_static.lib lib\libpng16.lib
   # These z.lib / png.lib are not static versions but files which end up as
   # dependencies to the dll file. This is fine for the conda build, but not here
   # and for the wheels
