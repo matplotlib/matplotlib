@@ -1,4 +1,4 @@
-.. _github-stats:
+.. _github-stats-3-1-0:
 
 GitHub Stats for Matplotlib 3.1.0
 =================================
@@ -10,9 +10,8 @@ These lists are automatically generated, and may be incomplete or contain duplic
 We closed 161 issues and merged 918 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/v3.1.0>`__
 
-The following 151 authors contributed 3426 commits.
+The following 150 authors contributed 3426 commits.
 
-* <qi.cui@mail.utoronto.ca>
 * Abhinuv Nitin Pitale
 * Adam J. Stewart
 * Alistair Muldal
@@ -49,7 +48,7 @@ The following 151 authors contributed 3426 commits.
 * David Stansby
 * Dietmar Schwertberger
 * Dmitry Mottl
-* E. G. Patrick Bos
+* E\. G\. Patrick Bos
 * Elan Ernest
 * Elliott Sales de Andrade
 * Eric Firing
@@ -153,7 +152,7 @@ The following 151 authors contributed 3426 commits.
 * Tobia De Koninck
 * Tobias Megies
 * Tyler Makaro
-* V. Armando Solé
+* V\. Armando Solé
 * Viraj Mohile
 * Will Handley
 * woclass
@@ -1260,5 +1259,6 @@ Previous Github Stats
 .. toctree::
     :maxdepth: 1
     :glob:
+    :reversed:
 
-    prev_whats_new/github_stats_*
+    github_stats_*
