@@ -56,7 +56,7 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
 
     - 'fixed': The elements are packed tight to the left with a spacing of
       *sep* in between. If *total* is *None* the returned total will be the
-      right edge of the last box. A non-None total will be passed unchecked
+      right edge of the last box. A non-*None* total will be passed unchecked
       to the output. In particular this means that right edge of the last
       box will may be further to the right than the returned total.
 
