@@ -238,6 +238,24 @@ class TestNullLocator:
             loc.set_params()
 
 
+class _LogitHelper:
+    @staticmethod
+    def isclose(x, y):
+        if x >= 1 or x <= 0 or y >= 1 or y <= 0:
+            return False
+        return np.isclose(-np.log(1/x-1), -np.log(1/y-1))
+
+    @staticmethod
+    def assert_almost_equal(x, y):
+        ax = np.array(x)
+        ay = np.array(y)
+        assert np.all(ax > 0) and np.all(ax < 1)
+        assert np.all(ay > 0) and np.all(ay < 1)
+        lx = -np.log(1/ax-1)
+        ly = -np.log(1/ay-1)
+        assert_almost_equal(lx, ly)
+
+
 class TestLogitLocator:
     def test_set_params(self):
         """
