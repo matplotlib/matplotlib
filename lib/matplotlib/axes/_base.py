@@ -3082,7 +3082,7 @@ class _AxesBase(martist.Artist):
         Set the lower and upper numerical bounds of the x-axis.
 
         This method will honor axes inversion regardless of parameter order.
-        It will not change the autoscaling setting (``Axes._autoscaleXon``).
+        It will not change the autoscaling setting (`.get_autoscalex_on()`).
 
         Parameters
         ----------
@@ -3100,22 +3100,13 @@ class _AxesBase(martist.Artist):
             lower, upper = lower
 
         old_lower, old_upper = self.get_xbound()
-
         if lower is None:
             lower = old_lower
         if upper is None:
             upper = old_upper
 
-        if self.xaxis_inverted():
-            if lower < upper:
-                self.set_xlim(upper, lower, auto=None)
-            else:
-                self.set_xlim(lower, upper, auto=None)
-        else:
-            if lower < upper:
-                self.set_xlim(lower, upper, auto=None)
-            else:
-                self.set_xlim(upper, lower, auto=None)
+        self.set_xlim(sorted((lower, upper), reverse=self.xaxis_inverted()),
+                      auto=None)
 
     def get_xlim(self):
         """
@@ -3480,7 +3471,7 @@ class _AxesBase(martist.Artist):
         Set the lower and upper numerical bounds of the y-axis.
 
         This method will honor axes inversion regardless of parameter order.
-        It will not change the autoscaling setting (``Axes._autoscaleYon``).
+        It will not change the autoscaling setting (`.get_autoscaley_on()`).
 
         Parameters
         ----------
@@ -3498,22 +3489,13 @@ class _AxesBase(martist.Artist):
             lower, upper = lower
 
         old_lower, old_upper = self.get_ybound()
-
         if lower is None:
             lower = old_lower
         if upper is None:
             upper = old_upper
 
-        if self.yaxis_inverted():
-            if lower < upper:
-                self.set_ylim(upper, lower, auto=None)
-            else:
-                self.set_ylim(lower, upper, auto=None)
-        else:
-            if lower < upper:
-                self.set_ylim(lower, upper, auto=None)
-            else:
-                self.set_ylim(upper, lower, auto=None)
+        self.set_ylim(sorted((lower, upper), reverse=self.yaxis_inverted()),
+                      auto=None)
 
     def get_ylim(self):
         """
