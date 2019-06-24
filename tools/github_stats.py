@@ -236,7 +236,8 @@ if __name__ == "__main__":
 .. toctree::
     :maxdepth: 1
     :glob:
+    :reversed:
 
-    github_stats_*
+    prev_whats_new/github_stats_*
 
 """)
