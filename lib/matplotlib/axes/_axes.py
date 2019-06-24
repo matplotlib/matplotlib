@@ -6858,42 +6858,39 @@ optional.
 
             The bin specification:
 
-                - If int, the number of bins for the two dimensions
-                  (nx=ny=bins).
-
-                - If ``[int, int]``, the number of bins in each dimension
-                  (nx, ny = bins).
-
-                - If array_like, the bin edges for the two dimensions
-                  (x_edges=y_edges=bins).
-
-                - If ``[array, array]``, the bin edges in each dimension
-                  (x_edges, y_edges = bins).
+            - If int, the number of bins for the two dimensions
+              (nx=ny=bins).
+            - If ``[int, int]``, the number of bins in each dimension
+              (nx, ny = bins).
+            - If array_like, the bin edges for the two dimensions
+              (x_edges=y_edges=bins).
+            - If ``[array, array]``, the bin edges in each dimension
+              (x_edges, y_edges = bins).
 
             The default value is 10.
 
         range : array_like shape(2, 2), optional, default: None
-             The leftmost and rightmost edges of the bins along each dimension
-             (if not specified explicitly in the bins parameters): ``[[xmin,
-             xmax], [ymin, ymax]]``. All values outside of this range will be
-             considered outliers and not tallied in the histogram.
+            The leftmost and rightmost edges of the bins along each dimension
+            (if not specified explicitly in the bins parameters): ``[[xmin,
+            xmax], [ymin, ymax]]``. All values outside of this range will be
+            considered outliers and not tallied in the histogram.
 
         density : bool, optional, default: False
-             Normalize histogram.  *normed* is a deprecated synonym for this
-             parameter.
+            Normalize histogram.  *normed* is a deprecated synonym for this
+            parameter.
 
         weights : array_like, shape (n, ), optional, default: None
             An array of values w_i weighing each sample (x_i, y_i).
 
         cmin : scalar, optional, default: None
-             All bins that has count less than cmin will not be displayed and
-             these count values in the return value count histogram will also
-             be set to nan upon return
+            All bins that has count less than cmin will not be displayed (set
+            to NaN before passing to imshow) and these count values in the
+            return value count histogram will also be set to nan upon return.
 
         cmax : scalar, optional, default: None
-             All bins that has count more than cmax will not be displayed (set
-             to none before passing to imshow) and these count values in the
-             return value count histogram will also be set to nan upon return
+            All bins that has count more than cmax will not be displayed (set
+            to NaN before passing to imshow) and these count values in the
+            return value count histogram will also be set to nan upon return.
 
         Returns
         -------
@@ -6929,7 +6926,7 @@ optional.
 
         Notes
         -----
-        - Currently ``hist2d`` calculates it's own axis limits, and any limits
+        - Currently ``hist2d`` calculates its own axis limits, and any limits
           previously set are ignored.
         - Rendering the histogram with a logarithmic color scale is
           accomplished by passing a `.colors.LogNorm` instance to the *norm*
