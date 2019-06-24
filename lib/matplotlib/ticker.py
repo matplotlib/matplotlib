@@ -2079,13 +2079,13 @@ def decade_up(x, base=10):
     return base ** lx
 
 
-def is_decade(x, base=10):
+def is_decade(x, base=10, *, rtol=1e-10):
     if not np.isfinite(x):
         return False
     if x == 0.0:
         return True
     lx = np.log(np.abs(x)) / np.log(base)
-    return is_close_to_int(lx)
+    return is_close_to_int(lx, atol=rtol)
 
 
 def _decade_less_equal(x, base):
@@ -2138,8 +2138,8 @@ def _decade_greater(x, base):
     return greater
 
 
-def is_close_to_int(x):
-    return abs(x - np.round(x)) < 1e-10
+def is_close_to_int(x, *, atol=1e-10):
+    return abs(x - np.round(x)) < atol
 
 
 class LogLocator(Locator):
