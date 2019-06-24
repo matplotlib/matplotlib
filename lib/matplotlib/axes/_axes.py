@@ -6324,7 +6324,7 @@ optional.
     #### Data analysis
 
     @_preprocess_data(replace_names=["x", 'weights'], label_namer="x")
-    def hist(self, x, bins=None, range=None, density=None, weights=None,
+    def hist(self, x, bins=None, range=None, density=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
              color=None, label=None, stacked=False, **kwargs):
@@ -6396,11 +6396,7 @@ optional.
             number of observations. If *stacked* is also ``True``, the sum of
             the histograms is normalized to 1.
 
-            Default is ``None`` for both *normed* and *density*. If either is
-            set, then that value will be used. If neither are set, then the
-            args will be treated as ``False``.
-
-            If both *density* and *normed* are set an error is raised.
+            Default is ``False``.
 
         weights : (n, ) array_like or None, optional
             An array of weights, of the same shape as *x*.  Each value in *x*
@@ -6420,15 +6416,18 @@ optional.
 
             (or you may alternatively use `~.bar()`).
 
-        cumulative : bool, optional
+        cumulative : bool or -1, optional
             If ``True``, then a histogram is computed where each bin gives the
             counts in that bin plus all bins for smaller values. The last bin
-            gives the total number of datapoints. If *normed* or *density*
-            is also ``True`` then the histogram is normalized such that the
-            last bin equals 1. If *cumulative* evaluates to less than 0
-            (e.g., -1), the direction of accumulation is reversed.
-            In this case, if *normed* and/or *density* is also ``True``, then
-            the histogram is normalized such that the first bin equals 1.
+            gives the total number of datapoints.
+
+            If *density* is also ``True`` then the histogram is normalized such
+            that the last bin equals 1.
+
+            If *cumulative* is a number less than 0 (e.g., -1), the direction
+            of accumulation is reversed.  In this case, if *density* is also
+            ``True``, then the histogram is normalized such that the first bin
+            equals 1.
 
             Default is ``False``
 
@@ -6445,26 +6444,19 @@ optional.
 
             - 'bar' is a traditional bar-type histogram.  If multiple data
               are given the bars are arranged side by side.
-
             - 'barstacked' is a bar-type histogram where multiple
               data are stacked on top of each other.
-
-            - 'step' generates a lineplot that is by default
-              unfilled.
-
-            - 'stepfilled' generates a lineplot that is by default
-              filled.
+            - 'step' generates a lineplot that is by default unfilled.
+            - 'stepfilled' generates a lineplot that is by default filled.
 
             Default is 'bar'
 
         align : {'left', 'mid', 'right'}, optional
             Controls how the histogram is plotted.
 
-                - 'left': bars are centered on the left bin edges.
-
-                - 'mid': bars are centered between the bin edges.
-
-                - 'right': bars are centered on the right bin edges.
+            - 'left': bars are centered on the left bin edges.
+            - 'mid': bars are centered between the bin edges.
+            - 'right': bars are centered on the right bin edges.
 
             Default is 'mid'
 
