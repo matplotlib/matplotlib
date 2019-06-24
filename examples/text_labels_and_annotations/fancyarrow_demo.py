@@ -52,3 +52,19 @@ ax.xaxis.set_visible(False)
 ax.yaxis.set_visible(False)
 
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.patches
+matplotlib.patches.ArrowStyle
+matplotlib.patches.ArrowStyle.get_styles
+matplotlib.axes.Axes.annotate

@@ -210,3 +210,5 @@ matplotlib.patches.FancyBboxPatch
 matplotlib.patches.BoxStyle
 matplotlib.patches.BoxStyle.get_styles
 matplotlib.transforms.Bbox
+matplotlib.figure.Figure.text
+matplotlib.axes.Axes.text
