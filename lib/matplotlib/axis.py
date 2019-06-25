@@ -1004,11 +1004,10 @@ class Axis(martist.Artist):
         the top for the y-axis; the "inverse" direction is increasing to the
         left for the x-axis and to the bottom for the y-axis.
         """
-        a, b = self.get_view_interval()
-        if inverted:
-            self.set_view_interval(max(a, b), min(a, b), ignore=True)
-        else:
-            self.set_view_interval(min(a, b), max(a, b), ignore=True)
+        # Currently, must be implemented in subclasses using set_xlim/set_ylim
+        # rather than generically using set_view_interval, so that shared
+        # axes get updated as well.
+        raise NotImplementedError('Derived must override')
 
     def set_default_intervals(self):
         """
@@ -2156,6 +2155,11 @@ class XAxis(Axis):
     def get_minpos(self):
         return self.axes.dataLim.minposx
 
+    def set_inverted(self, inverted):
+        # docstring inherited
+        a, b = self.get_view_interval()
+        self.axes.set_xlim(sorted((a, b), reverse=inverted), auto=None)
+
     def set_default_intervals(self):
         # docstring inherited
         xmin, xmax = 0., 1.
@@ -2457,6 +2461,11 @@ class YAxis(Axis):
 
     def get_minpos(self):
         return self.axes.dataLim.minposy
+
+    def set_inverted(self, inverted):
+        # docstring inherited
+        a, b = self.get_view_interval()
+        self.axes.set_ylim(sorted((a, b), reverse=inverted), auto=None)
 
     def set_default_intervals(self):
         # docstring inherited
