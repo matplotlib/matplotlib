@@ -71,29 +71,20 @@ Review and commit changes.  Some issue/PR titles may not be valid rst (the most 
 
 .. _release_chkdocs:
 
-Update and Validate the Docs
+Update and validate the docs
 ----------------------------
 
-Merge the most recent 'doc' branch (``v3.0.2-doc``) into the branch you
+Merge the most recent 'doc' branch into the branch you
 are going to tag on and delete the doc branch on GitHub.
 
-Before tagging, update the "what's new" and "API changes" listings.
+Before tagging, update the changelog:
 
-for the "what's new"
-
- 1. copy the current content to a file in :file:`doc/users/prev_whats_new`
- 2. merge all of the files in :file:`doc/users/next_whats_new/` into
-    :file:`doc/users/whats_new.rst` and delete the individual files
- 3. comment out the next whats new glob at the top
-
-Similarly for the "API changes"
-
- 1. copy the current api changes to a file is :file:`doc/api/prev_api_changes`
- 2. merge all of the files in :file:`doc/api/next_api_changes/` into
-    :file:`doc//whats_new.rst`
- 3. comment out the next API changes at the top.
-
-In both cases step 3 will have to be un-done right after the release.
+1. Make sure you have `towncrier` installed
+2. Run `towncrier --draft`, and make sure the output is sensible
+3. Run `towncrier
+4. Move the generated :file:`CHANGELOG.rst` file to
+   :file:`doc/users/prev_whats_new/whats_new_VERSION.rst`,
+   replacing `VERSION` with the current version number
 
 Finally, make sure that the docs build cleanly ::
 

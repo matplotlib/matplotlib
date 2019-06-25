@@ -2,7 +2,7 @@
 [tool.towncrier]
     package = "matplotlib"
     filename = "doc/CHANGELOG.rst"
-    directory = "doc/changelog/"
+    directory = "changelog/"
     issue_format = "`#{issue} <https://github.com/matplotlib/matplotlib/pull/{issue}>`__"
 
     [[tool.towncrier.type]]

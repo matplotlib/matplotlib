@@ -6,12 +6,8 @@ Changelog
 This directory contains "news fragments" which are short files that contain a
 small **ReST**-formatted text that will be added to the next what's new page.
 
-Make sure to use full sentences with correct case and punctuation,
-for example::
-
-    Add support for Helioprojective coordinates in `sunpy.coordinates.frames`.
-
-Please try to use Sphinx intersphinx using backticks.
+Make sure to use full sentences with correct case and punctuation, and please
+try to use Sphinx intersphinx using backticks.
 
 Each file should be named like ``<PULL REQUEST>.<TYPE>.rst``, where
 ``<PULL REQUEST>`` is a pull request number, and ``<TYPE>`` is one of:

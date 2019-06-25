@@ -20,8 +20,8 @@ a case-by-case basis.
 Documentation
 -------------
 
-* Every new feature should be documented.  If it's a new module, don't
-  forget to add a new rst file to the API docs.
+* Every new feature should be documented. If it's a new module, don't
+  forget to add a new .rst file to the API docs.
 
 * Each high-level plotting function should have a small example in
   the `Example` section of the docstring.  This should be as simple as
@@ -32,11 +32,11 @@ Documentation
 
 * See :ref:`documenting-matplotlib` for our documentation style guide.
 
-* If your change is a major new feature, add an entry to
-  :file:`doc/users/whats_new.rst`.
+* If your change is a major new feature, add a changelog entry file to
+  :folder:`changelog/`.
 
-* If you change the API in a backward-incompatible way, please
-  document it in :file:`doc/api/api_changes.rst`.
+* If you change the API in a backward-incompatible way,  add a changelog
+  entry file to :folder:`changelog/`.
 
 PR Review guidelines
 ====================
