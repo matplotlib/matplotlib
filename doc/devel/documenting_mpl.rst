@@ -807,7 +807,7 @@ which was used to setup the github account but can be used for other
 purposes, like hosting Google docs or Youtube videos.  You can embed a
 Matplotlib animation in the docs by first saving the animation as a
 movie using :meth:`matplotlib.animation.Animation.save`, and then
-uploading to `matplotlib's Youtube
+uploading to `Matplotlib's Youtube
 channel <https://www.youtube.com/user/matplotlib>`_ and inserting the
 embedding string youtube provides like:
 

@@ -209,7 +209,7 @@ sees these new commits. It looks for a YAML file called
 ``.travis.yml`` in the root of the repository to see how to test the
 project.
 
-Travis CI is already enabled for the `main matplotlib GitHub
+Travis CI is already enabled for the `main Matplotlib GitHub
 repository <https://github.com/matplotlib/matplotlib/>`_ -- for
 example, see `its Travis page
 <https://travis-ci.org/matplotlib/matplotlib>`_.
