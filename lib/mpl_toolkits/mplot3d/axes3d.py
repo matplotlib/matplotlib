@@ -1295,8 +1295,7 @@ class Axes3D(Axes):
             :meth:`matplotlib.axes.Axes.grid`, but it is intended to
             eventually support that behavior.
 
-        .. versionchanged :: 1.1.0
-            This function was changed, but not tested. Please report any bugs.
+        .. versionadded :: 1.1.0
         '''
         # TODO: Operate on each axes separately
         if len(kwargs):
@@ -1411,7 +1410,6 @@ class Axes3D(Axes):
             those who file bugs.
 
         .. versionadded :: 1.1.0
-            This function was added, but not tested. Please report any bugs.
         """
         cbook._check_in_list(['x', 'y', 'z', 'both'], axis=axis)
         if axis in ['x', 'y', 'both']:
@@ -1441,19 +1439,15 @@ class Axes3D(Axes):
         Returns True if the z-axis is inverted.
 
         .. versionadded :: 1.1.0
-            This function was added, but not tested. Please report any bugs.
         '''
         bottom, top = self.get_zlim()
         return top < bottom
 
     def get_zbound(self):
         """
-        Returns the z-axis numerical bounds where::
-
-          lowerBound < upperBound
+        Return the lower and upper z-axis bounds, in increasing order.
 
         .. versionadded :: 1.1.0
-            This function was added, but not tested. Please report any bugs.
         """
         bottom, top = self.get_zlim()
         if bottom < top:
@@ -1468,7 +1462,6 @@ class Axes3D(Axes):
         It will not change the :attr:`_autoscaleZon` attribute.
 
         .. versionadded :: 1.1.0
-            This function was added, but not tested. Please report any bugs.
         """
         if upper is None and np.iterable(lower):
             lower, upper = lower
