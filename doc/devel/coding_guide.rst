@@ -33,10 +33,10 @@ Documentation
 * See :ref:`documenting-matplotlib` for our documentation style guide.
 
 * If your change is a major new feature, add a changelog entry file to
-  :folder:`changelog/`.
+  :file:`changelog/`.
 
-* If you change the API in a backward-incompatible way,  add a changelog
-  entry file to :folder:`changelog/`.
+* If you change the API in a backward-incompatible way, add a changelog
+  entry file to :file:`changelog/`.
 
 PR Review guidelines
 ====================

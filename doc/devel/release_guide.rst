@@ -80,8 +80,8 @@ are going to tag on and delete the doc branch on GitHub.
 Before tagging, update the changelog:
 
 1. Make sure you have `towncrier` installed
-2. Run `towncrier --draft`, and make sure the output is sensible
-3. Run `towncrier
+2. Run ``towncrier --draft``, and make sure the output is sensible
+3. Run ``towncrier``
 4. Move the generated :file:`CHANGELOG.rst` file to
    :file:`doc/users/prev_whats_new/whats_new_VERSION.rst`,
    replacing `VERSION` with the current version number
