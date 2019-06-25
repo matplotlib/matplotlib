@@ -938,19 +938,11 @@ end"""
                 'Widths': widthsObject
                 }
 
-            # Make the "Widths" array
             from encodings import cp1252
-            # The "decoding_map" was changed
-            # to a "decoding_table" as of Python 2.5.
-            if hasattr(cp1252, 'decoding_map'):
-                def decode_char(charcode):
-                    return cp1252.decoding_map[charcode] or 0
-            else:
-                def decode_char(charcode):
-                    return ord(cp1252.decoding_table[charcode])
 
+            # Make the "Widths" array
             def get_char_width(charcode):
-                s = decode_char(charcode)
+                s = ord(cp1252.decoding_table[charcode])
                 width = font.load_char(
                     s, flags=LOAD_NO_SCALE | LOAD_NO_HINTING).horiAdvance
                 return cvt(width)
