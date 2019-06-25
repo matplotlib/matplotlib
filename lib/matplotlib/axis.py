@@ -1890,6 +1890,36 @@ class Axis(martist.Artist):
         raise NotImplementedError()
 
 
+def _make_getset_interval(method_name, lim_name, attr_name):
+    """
+    Helper to generate ``get_{data,view}_interval`` and
+    ``set_{data,view}_interval`` implementations.
+    """
+
+    def getter(self):
+        # docstring inherited.
+        return getattr(getattr(self.axes, lim_name), attr_name)
+
+    def setter(self, vmin, vmax, ignore=False):
+        # docstring inherited.
+        if ignore:
+            setattr(getattr(self.axes, lim_name), attr_name, (vmin, vmax))
+        else:
+            oldmin, oldmax = getter(self)
+            if oldmin < oldmax:
+                setter(self, min(vmin, vmax, oldmin), max(vmin, vmax, oldmax),
+                       ignore=True)
+            else:
+                setter(self, max(vmin, vmax, oldmax), min(vmin, vmax, oldmin),
+                       ignore=True)
+        self.stale = True
+
+    getter.__name__ = f"get_{method_name}_interval"
+    setter.__name__ = f"set_{method_name}_interval"
+
+    return getter, setter
+
+
 class XAxis(Axis):
     __name__ = 'xaxis'
     axis_name = 'x'
@@ -2133,38 +2163,13 @@ class XAxis(Axis):
                 "default": "default", "unknown": "unknown"}[
                     self._get_ticks_position()]
 
-    def get_view_interval(self):
-        # docstring inherited
-        return self.axes.viewLim.intervalx
-
-    def set_view_interval(self, vmin, vmax, ignore=False):
-        # docstring inherited
-        if ignore:
-            self.axes.viewLim.intervalx = vmin, vmax
-        else:
-            Vmin, Vmax = self.get_view_interval()
-            if Vmin < Vmax:
-                self.axes.viewLim.intervalx = (min(vmin, vmax, Vmin),
-                                               max(vmin, vmax, Vmax))
-            else:
-                self.axes.viewLim.intervalx = (max(vmin, vmax, Vmin),
-                                               min(vmin, vmax, Vmax))
+    get_view_interval, set_view_interval = _make_getset_interval(
+        "view", "viewLim", "intervalx")
+    get_data_interval, set_data_interval = _make_getset_interval(
+        "data", "dataLim", "intervalx")
 
     def get_minpos(self):
         return self.axes.dataLim.minposx
-
-    def get_data_interval(self):
-        # docstring inherited
-        return self.axes.dataLim.intervalx
-
-    def set_data_interval(self, vmin, vmax, ignore=False):
-        # docstring inherited
-        if ignore:
-            self.axes.dataLim.intervalx = vmin, vmax
-        else:
-            Vmin, Vmax = self.get_data_interval()
-            self.axes.dataLim.intervalx = min(vmin, Vmin), max(vmax, Vmax)
-        self.stale = True
 
     def set_default_intervals(self):
         # docstring inherited
@@ -2460,39 +2465,13 @@ class YAxis(Axis):
                 "default": "default", "unknown": "unknown"}[
                     self._get_ticks_position()]
 
-    def get_view_interval(self):
-        # docstring inherited
-        return self.axes.viewLim.intervaly
-
-    def set_view_interval(self, vmin, vmax, ignore=False):
-        # docstring inherited
-        if ignore:
-            self.axes.viewLim.intervaly = vmin, vmax
-        else:
-            Vmin, Vmax = self.get_view_interval()
-            if Vmin < Vmax:
-                self.axes.viewLim.intervaly = (min(vmin, vmax, Vmin),
-                                               max(vmin, vmax, Vmax))
-            else:
-                self.axes.viewLim.intervaly = (max(vmin, vmax, Vmin),
-                                               min(vmin, vmax, Vmax))
-        self.stale = True
+    get_view_interval, set_view_interval = _make_getset_interval(
+        "view", "viewLim", "intervaly")
+    get_data_interval, set_data_interval = _make_getset_interval(
+        "data", "dataLim", "intervaly")
 
     def get_minpos(self):
         return self.axes.dataLim.minposy
-
-    def get_data_interval(self):
-        # docstring inherited
-        return self.axes.dataLim.intervaly
-
-    def set_data_interval(self, vmin, vmax, ignore=False):
-        # docstring inherited
-        if ignore:
-            self.axes.dataLim.intervaly = vmin, vmax
-        else:
-            Vmin, Vmax = self.get_data_interval()
-            self.axes.dataLim.intervaly = min(vmin, Vmin), max(vmax, Vmax)
-        self.stale = True
 
     def set_default_intervals(self):
         # docstring inherited
