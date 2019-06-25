@@ -1012,8 +1012,8 @@ class LogFormatter(Formatter):
         # only label the decades
         fx = math.log(x) / math.log(b)
         is_x_decade = is_close_to_int(fx)
-        exponent = np.round(fx) if is_x_decade else np.floor(fx)
-        coeff = np.round(x / b ** exponent)
+        exponent = round(fx) if is_x_decade else np.floor(fx)
+        coeff = round(x / b ** exponent)
 
         if self.labelOnlyBase and not is_x_decade:
             return ''
@@ -1116,8 +1116,8 @@ class LogFormatterMathtext(LogFormatter):
         # only label the decades
         fx = math.log(x) / math.log(b)
         is_x_decade = is_close_to_int(fx)
-        exponent = np.round(fx) if is_x_decade else np.floor(fx)
-        coeff = np.round(x / b ** exponent)
+        exponent = round(fx) if is_x_decade else np.floor(fx)
+        coeff = round(x / b ** exponent)
         if is_x_decade:
             fx = round(fx)
 

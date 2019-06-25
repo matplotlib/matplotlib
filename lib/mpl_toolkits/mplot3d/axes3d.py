@@ -2042,7 +2042,7 @@ class Axes3D(Axes):
 
             polyverts = []
             normals = []
-            nsteps = np.round(len(topverts[0]) / stride)
+            nsteps = round(len(topverts[0]) / stride)
             if nsteps <= 1:
                 if len(topverts[0]) > 1:
                     nsteps = 2
@@ -2050,13 +2050,13 @@ class Axes3D(Axes):
                     continue
 
             stepsize = (len(topverts[0]) - 1) / (nsteps - 1)
-            for i in range(int(np.round(nsteps)) - 1):
-                i1 = int(np.round(i * stepsize))
-                i2 = int(np.round((i + 1) * stepsize))
+            for i in range(int(round(nsteps)) - 1):
+                i1 = int(round(i * stepsize))
+                i2 = int(round((i + 1) * stepsize))
                 polyverts.append([topverts[0][i1],
-                    topverts[0][i2],
-                    botverts[0][i2],
-                    botverts[0][i1]])
+                                  topverts[0][i2],
+                                  botverts[0][i2],
+                                  botverts[0][i1]])
 
             # all polygons have 4 vertices, so vectorize
             polyverts = np.array(polyverts)

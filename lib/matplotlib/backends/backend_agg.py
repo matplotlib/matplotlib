@@ -163,8 +163,8 @@ class RendererAgg(RendererBase):
 
         xd = descent * sin(radians(angle))
         yd = descent * cos(radians(angle))
-        x = np.round(x + ox + xd)
-        y = np.round(y - oy + yd)
+        x = round(x + ox + xd)
+        y = round(y - oy + yd)
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
@@ -190,11 +190,11 @@ class RendererAgg(RendererBase):
         xo, yo = font.get_bitmap_offset()
         xo /= 64.0
         yo /= 64.0
-        xd = -d * sin(radians(angle))
+        xd = d * sin(radians(angle))
         yd = d * cos(radians(angle))
-
-        self._renderer.draw_text_image(
-            font, np.round(x - xd + xo), np.round(y + yd + yo) + 1, angle, gc)
+        x = round(x + xo + xd)
+        y = round(y + yo + yd)
+        self._renderer.draw_text_image(font, x, y + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
@@ -235,9 +235,8 @@ class RendererAgg(RendererBase):
         w, h, d = self.get_text_width_height_descent(s, prop, ismath)
         xd = d * sin(radians(angle))
         yd = d * cos(radians(angle))
-        x = np.round(x + xd)
-        y = np.round(y + yd)
-
+        x = round(x + xd)
+        y = round(y + yd)
         self._renderer.draw_text_image(Z, x, y, angle, gc)
 
     def get_canvas_width_height(self):

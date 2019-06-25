@@ -27,9 +27,9 @@ Student = namedtuple('Student', ['name', 'grade', 'gender'])
 Score = namedtuple('Score', ['score', 'percentile'])
 
 # GLOBAL CONSTANTS
-testNames = ['Pacer Test', 'Flexed Arm\n Hang', 'Mile Run', 'Agility',
-             'Push Ups']
-testMeta = dict(zip(testNames, ['laps', 'sec', 'min:sec', 'sec', '']))
+test_names = ['Pacer Test', 'Flexed Arm\n Hang', 'Mile Run', 'Agility',
+              'Push Ups']
+test_meta = dict(zip(test_names, ['laps', 'sec', 'min:sec', 'sec', '']))
 
 
 def attach_ordinal(num):
@@ -54,7 +54,7 @@ def format_score(scr, test):
     info (like for pushups) then don't add the carriage return to
     the string
     """
-    md = testMeta[test]
+    md = test_meta[test]
     if md:
         return '{0}\n{1}'.format(scr, md)
     else:
@@ -63,10 +63,10 @@ def format_score(scr, test):
 
 def format_ycursor(y):
     y = int(y)
-    if y < 0 or y >= len(testNames):
+    if y < 0 or y >= len(test_names):
         return ''
     else:
-        return testNames[y]
+        return test_names[y]
 
 
 def plot_student_results(student, scores, cohort_size):
@@ -75,12 +75,12 @@ def plot_student_results(student, scores, cohort_size):
     fig.subplots_adjust(left=0.115, right=0.88)
     fig.canvas.set_window_title('Eldorado K-8 Fitness Chart')
 
-    pos = np.arange(len(testNames))
+    pos = np.arange(len(test_names))
 
-    rects = ax1.barh(pos, [scores[k].percentile for k in testNames],
+    rects = ax1.barh(pos, [scores[k].percentile for k in test_names],
                      align='center',
                      height=0.5,
-                     tick_label=testNames)
+                     tick_label=test_names)
 
     ax1.set_title(student.name)
 
@@ -95,7 +95,7 @@ def plot_student_results(student, scores, cohort_size):
     # Set the right-hand Y-axis ticks and labels
     ax2 = ax1.twinx()
 
-    scoreLabels = [format_score(scores[k].score, k) for k in testNames]
+    scoreLabels = [format_score(scores[k].score, k) for k in test_names]
 
     # set the tick locations
     ax2.set_yticks(pos)
@@ -156,11 +156,11 @@ def plot_student_results(student, scores, cohort_size):
 
 
 student = Student('Johnny Doe', 2, 'boy')
-scores = dict(zip(testNames,
-                  (Score(v, p) for v, p in
-                   zip(['7', '48', '12:52', '17', '14'],
-                       np.round(np.random.uniform(0, 1,
-                                                  len(testNames)) * 100, 0)))))
+scores = dict(zip(
+    test_names,
+    (Score(v, p) for v, p in
+     zip(['7', '48', '12:52', '17', '14'],
+         np.round(np.random.uniform(0, 100, len(test_names)), 0)))))
 cohort_size = 62  # The number of other 2nd grade boys
 
 arts = plot_student_results(student, scores, cohort_size)

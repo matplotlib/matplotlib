@@ -393,8 +393,8 @@ class Slider(AxesWidget):
     def _value_in_bounds(self, val):
         """Makes sure *val* is with given bounds."""
         if self.valstep:
-            val = np.round((val - self.valmin)/self.valstep)*self.valstep
-            val += self.valmin
+            val = (self.valmin
+                   + round((val - self.valmin) / self.valstep) * self.valstep)
 
         if val <= self.valmin:
             if not self.closedmin:

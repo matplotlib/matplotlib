@@ -147,7 +147,7 @@ def _draw_list_compositing_images(
                     gc = renderer.new_gc()
                     gc.set_clip_rectangle(parent.bbox)
                     gc.set_clip_path(parent.get_clip_path())
-                    renderer.draw_image(gc, np.round(l), np.round(b), data)
+                    renderer.draw_image(gc, round(l), round(b), data)
                     gc.restore()
             del image_group[:]
 
@@ -971,8 +971,8 @@ class NonUniformImage(AxesImage):
             self.is_grayscale = False
         x0, y0, v_width, v_height = self.axes.viewLim.bounds
         l, b, r, t = self.axes.bbox.extents
-        width = (np.round(r) + 0.5) - (np.round(l) - 0.5)
-        height = (np.round(t) + 0.5) - (np.round(b) - 0.5)
+        width = (round(r) + 0.5) - (round(l) - 0.5)
+        height = (round(t) + 0.5) - (round(b) - 0.5)
         width *= magnification
         height *= magnification
         im = _image.pcolor(self._Ax, self._Ay, A,
@@ -1086,11 +1086,11 @@ class PcolorImage(AxesImage):
         bg = mcolors.to_rgba(fc, 0)
         bg = (np.array(bg)*255).astype(np.uint8)
         l, b, r, t = self.axes.bbox.extents
-        width = (np.round(r) + 0.5) - (np.round(l) - 0.5)
-        height = (np.round(t) + 0.5) - (np.round(b) - 0.5)
+        width = (round(r) + 0.5) - (round(l) - 0.5)
+        height = (round(t) + 0.5) - (round(b) - 0.5)
         # The extra cast-to-int is only needed for python2
-        width = int(np.round(width * magnification))
-        height = int(np.round(height * magnification))
+        width = int(round(width * magnification))
+        height = int(round(height * magnification))
         if self._rgbacache is None:
             A = self.to_rgba(self._A, bytes=True)
             self._rgbacache = A
