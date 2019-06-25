@@ -17,7 +17,7 @@ Each file should be named like ``<PULL REQUEST>.<TYPE>.rst``, where
 * ``feature``: New user facing features and any new behavior.
 * ``removal``: Removal of a deprecated part of the API.
 
-So for example: ``123.feature.rst``, ``456.bugfix.rst``.
+So for example: ``123.feature.rst``, ``456.api_change.rst``.
 
 If you are unsure what pull request type to use, don't hesitate to ask in your
 PR.
