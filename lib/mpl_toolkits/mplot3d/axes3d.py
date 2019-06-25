@@ -822,9 +822,6 @@ class Axes3D(Axes):
         Set z-axis tick locations.
         See :meth:`matplotlib.axes.Axes.set_yticks` for more details.
 
-        .. note::
-            Minor ticks are not supported.
-
         .. versionadded:: 1.1.0
         """
         return self.zaxis.set_ticks(*args, **kwargs)
@@ -834,9 +831,6 @@ class Axes3D(Axes):
         """
         Return the z ticks as a list of locations
         See :meth:`matplotlib.axes.Axes.get_yticks` for more details.
-
-        .. note::
-            Minor ticks are not supported.
 
         .. versionadded:: 1.1.0
         """
@@ -854,10 +848,6 @@ class Axes3D(Axes):
         """
         Get the ztick labels as a list of Text instances
 
-        .. note::
-            Minor ticks are not supported. This function was added
-            only for completeness.
-
         .. versionadded:: 1.1.0
         """
         return self.zaxis.get_minorticklabels()
@@ -867,9 +857,6 @@ class Axes3D(Axes):
         Set z-axis tick labels.
         See :meth:`matplotlib.axes.Axes.set_yticklabels` for more details.
 
-        .. note::
-            Minor ticks are not supported by Axes3D objects.
-
         .. versionadded:: 1.1.0
         """
         return self.zaxis.set_ticklabels(*args, **kwargs)
@@ -878,9 +865,6 @@ class Axes3D(Axes):
         """
         Get ztick labels as a list of Text instances.
         See :meth:`matplotlib.axes.Axes.get_yticklabels` for more details.
-
-        .. note::
-            Minor ticks are not supported.
 
         .. versionadded:: 1.1.0
         """
