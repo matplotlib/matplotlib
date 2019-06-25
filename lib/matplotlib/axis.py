@@ -96,7 +96,6 @@ class Tick(martist.Artist):
         self.axes = axes
 
         name = self.__name__.lower()
-        self._name = name
 
         self._loc = loc
 
@@ -412,7 +411,7 @@ class XTick(Tick):
 
     def apply_tickdir(self, tickdir):
         if tickdir is None:
-            tickdir = rcParams['%s.direction' % self._name]
+            tickdir = rcParams['%s.direction' % self.__name__.lower()]
         self._tickdir = tickdir
 
         if self._tickdir == 'in':
@@ -528,7 +527,7 @@ class YTick(Tick):
 
     def apply_tickdir(self, tickdir):
         if tickdir is None:
-            tickdir = rcParams['%s.direction' % self._name]
+            tickdir = rcParams['%s.direction' % self.__name__.lower()]
         self._tickdir = tickdir
 
         if self._tickdir == 'in':
