@@ -78,7 +78,7 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     wd_list : list of (float, float)
         (width, xdescent) of boxes to be packed.
     total : float or None
-        Intended total length. None if not used.
+        Intended total length. *None* if not used.
     sep : float
         Spacing between boxes.
     mode : {'fixed', 'expand', 'equal'}
