@@ -85,6 +85,7 @@ Before tagging, update the changelog:
 4. Move the generated :file:`CHANGELOG.rst` file to
    :file:`doc/users/prev_whats_new/whats_new_VERSION.rst`,
    replacing `VERSION` with the current version number
+5. Update the file name in :file:`doc/users/whats_new.rst`
 
 Finally, make sure that the docs build cleanly ::
 
