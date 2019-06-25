@@ -3262,8 +3262,11 @@ class _AxesBase(martist.Artist):
             cbook._warn_external(
                 f"Attempting to set identical left == right == {left} results "
                 f"in singular transformations; automatically expanding.")
+        swapped = left > right
         left, right = self.xaxis.get_major_locator().nonsingular(left, right)
         left, right = self.xaxis.limit_range_for_scale(left, right)
+        if swapped:
+            left, right = right, left
 
         self.viewLim.intervalx = (left, right)
         if auto is not None:
@@ -3642,8 +3645,11 @@ class _AxesBase(martist.Artist):
                 f"Attempting to set identical bottom == top == {bottom} "
                 f"results in singular transformations; automatically "
                 f"expanding.")
+        swapped = bottom > top
         bottom, top = self.yaxis.get_major_locator().nonsingular(bottom, top)
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
+        if swapped:
+            bottom, top = top, bottom
 
         self.viewLim.intervaly = (bottom, top)
         if auto is not None:
