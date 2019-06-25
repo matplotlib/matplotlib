@@ -68,9 +68,6 @@ class Axis(maxis.XAxis):
                  rotate_label=None, **kwargs):
         # adir identifies which axes this is
         self.adir = adir
-        # data and viewing intervals for this direction
-        self.d_interval = d_intervalx
-        self.v_interval = v_intervalx
 
         # This is a temporary member variable.
         # Do not depend on this existing in future releases!
@@ -109,6 +106,10 @@ class Axis(maxis.XAxis):
                  })
 
         maxis.XAxis.__init__(self, axes, *args, **kwargs)
+
+        # data and viewing intervals for this direction
+        self.d_interval = d_intervalx
+        self.v_interval = v_intervalx
         self.set_rotate_label(rotate_label)
 
     def init3d(self):
@@ -426,18 +427,6 @@ class Axis(maxis.XAxis):
         renderer.close_group('axis3d')
         self.stale = False
 
-    def get_view_interval(self):
-        # docstring inherited
-        return self.v_interval
-
-    def set_view_interval(self, vmin, vmax, ignore=False):
-        # docstring inherited
-        if ignore:
-            self.v_interval = vmin, vmax
-        else:
-            Vmin, Vmax = self.get_view_interval()
-            self.v_interval = min(vmin, Vmin), max(vmax, Vmax)
-
     # TODO: Get this to work properly when mplot3d supports
     #       the transforms framework.
     def get_tightbbox(self, renderer):
@@ -445,23 +434,42 @@ class Axis(maxis.XAxis):
         # doesn't return junk info.
         return None
 
+    @property
+    def d_interval(self):
+        return self.get_data_interval()
+
+    @d_interval.setter
+    def d_interval(self, minmax):
+        return self.set_data_interval(*minmax)
+
+    @property
+    def v_interval(self):
+        return self.get_view_interval()
+
+    @d_interval.setter
+    def v_interval(self, minmax):
+        return self.set_view_interval(*minmax)
+
 
 # Use classes to look at different data limits
 
 
 class XAxis(Axis):
-    def get_data_interval(self):
-        # docstring inherited
-        return self.axes.xy_dataLim.intervalx
+    get_view_interval, set_view_interval = maxis._make_getset_interval(
+        "view", "xy_viewLim", "intervalx")
+    get_data_interval, set_data_interval = maxis._make_getset_interval(
+        "data", "xy_dataLim", "intervalx")
 
 
 class YAxis(Axis):
-    def get_data_interval(self):
-        # docstring inherited
-        return self.axes.xy_dataLim.intervaly
+    get_view_interval, set_view_interval = maxis._make_getset_interval(
+        "view", "xy_viewLim", "intervaly")
+    get_data_interval, set_data_interval = maxis._make_getset_interval(
+        "data", "xy_dataLim", "intervaly")
 
 
 class ZAxis(Axis):
-    def get_data_interval(self):
-        # docstring inherited
-        return self.axes.zz_dataLim.intervalx
+    get_view_interval, set_view_interval = maxis._make_getset_interval(
+        "view", "zz_viewLim", "intervalx")
+    get_data_interval, set_data_interval = maxis._make_getset_interval(
+        "data", "zz_dataLim", "intervalx")
