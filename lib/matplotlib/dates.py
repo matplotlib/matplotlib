@@ -578,21 +578,18 @@ def drange(dstart, dend, delta):
 
 class DateFormatter(ticker.Formatter):
     """
-    Tick location is seconds since the epoch.  Use a :func:`strftime`
-    format string.
-
-    Python only supports :mod:`datetime` :func:`strftime` formatting
-    for years greater than 1900.  Thanks to Andrew Dalke, Dalke
-    Scientific Software who contributed the :func:`strftime` code
-    below to include dates earlier than this year.
+    Format a tick (in seconds since the epoch) with a `strftime` format string.
     """
 
     illegal_s = re.compile(r"((^|[^%])(%%)*%s)")
 
     def __init__(self, fmt, tz=None):
         """
-        *fmt* is a :func:`strftime` format string; *tz* is the
-         :class:`tzinfo` instance.
+        Parameters
+        ----------
+        fmt : str
+            `strftime` format string
+        tz : `tzinfo`
         """
         if tz is None:
             tz = _get_rc_timezone()
