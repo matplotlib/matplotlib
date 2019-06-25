@@ -1765,13 +1765,11 @@ class _AxesBase(martist.Artist):
 
     def get_xgridlines(self):
         """Get the x grid lines as a list of `Line2D` instances."""
-        return cbook.silent_list('Line2D xgridline',
-                                 self.xaxis.get_gridlines())
+        return self.xaxis.get_gridlines()
 
     def get_xticklines(self):
         """Get the x tick lines as a list of `Line2D` instances."""
-        return cbook.silent_list('Line2D xtickline',
-                                 self.xaxis.get_ticklines())
+        return self.xaxis.get_ticklines()
 
     def get_yaxis(self):
         """Return the YAxis instance."""
@@ -1779,13 +1777,11 @@ class _AxesBase(martist.Artist):
 
     def get_ygridlines(self):
         """Get the y grid lines as a list of `Line2D` instances."""
-        return cbook.silent_list('Line2D ygridline',
-                                 self.yaxis.get_gridlines())
+        return self.yaxis.get_gridlines()
 
     def get_yticklines(self):
         """Get the y tick lines as a list of `Line2D` instances."""
-        return cbook.silent_list('Line2D ytickline',
-                                 self.yaxis.get_ticklines())
+        return self.yaxis.get_ticklines()
 
     # Adding and tracking artists
 
@@ -3361,8 +3357,7 @@ class _AxesBase(martist.Artist):
         labels : list
             List of `~matplotlib.text.Text` instances
         """
-        return cbook.silent_list('Text xticklabel',
-                                 self.xaxis.get_majorticklabels())
+        return self.xaxis.get_majorticklabels()
 
     def get_xminorticklabels(self):
         """
@@ -3373,8 +3368,7 @@ class _AxesBase(martist.Artist):
         labels : list
             List of `~matplotlib.text.Text` instances
         """
-        return cbook.silent_list('Text xticklabel',
-                                 self.xaxis.get_minorticklabels())
+        return self.xaxis.get_minorticklabels()
 
     def get_xticklabels(self, minor=False, which=None):
         """
@@ -3396,9 +3390,7 @@ class _AxesBase(martist.Artist):
         ret : list
            List of `~matplotlib.text.Text` instances.
         """
-        return cbook.silent_list('Text xticklabel',
-                                 self.xaxis.get_ticklabels(minor=minor,
-                                                           which=which))
+        return self.xaxis.get_ticklabels(minor=minor, which=which)
 
     def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
@@ -3744,8 +3736,7 @@ class _AxesBase(martist.Artist):
         labels : list
             List of `~matplotlib.text.Text` instances
         """
-        return cbook.silent_list('Text yticklabel',
-                                 self.yaxis.get_majorticklabels())
+        return self.yaxis.get_majorticklabels()
 
     def get_yminorticklabels(self):
         """
@@ -3756,8 +3747,7 @@ class _AxesBase(martist.Artist):
         labels : list
             List of `~matplotlib.text.Text` instances
         """
-        return cbook.silent_list('Text yticklabel',
-                                 self.yaxis.get_minorticklabels())
+        return self.yaxis.get_minorticklabels()
 
     def get_yticklabels(self, minor=False, which=None):
         """
@@ -3779,9 +3769,7 @@ class _AxesBase(martist.Artist):
         ret : list
            List of `~matplotlib.text.Text` instances.
         """
-        return cbook.silent_list('Text yticklabel',
-                                 self.yaxis.get_ticklabels(minor=minor,
-                                                           which=which))
+        return self.yaxis.get_ticklabels(minor=minor, which=which)
 
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """

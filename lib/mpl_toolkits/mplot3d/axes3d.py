@@ -887,8 +887,7 @@ class Axes3D(Axes):
 
         .. versionadded :: 1.1.0
         """
-        return cbook.silent_list('Text zticklabel',
-                                 self.zaxis.get_majorticklabels())
+        return self.zaxis.get_majorticklabels()
 
     def get_zminorticklabels(self):
         """
@@ -900,8 +899,7 @@ class Axes3D(Axes):
 
         .. versionadded :: 1.1.0
         """
-        return cbook.silent_list('Text zticklabel',
-                                 self.zaxis.get_minorticklabels())
+        return self.zaxis.get_minorticklabels()
 
     def set_zticklabels(self, *args, **kwargs):
         """
@@ -925,8 +923,7 @@ class Axes3D(Axes):
 
         .. versionadded:: 1.1.0
         """
-        return cbook.silent_list('Text zticklabel',
-                                 self.zaxis.get_ticklabels(minor=minor))
+        return self.zaxis.get_ticklabels(minor=minor)
 
     def zaxis_date(self, tz=None):
         """
