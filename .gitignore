@@ -37,6 +37,8 @@ dist
 # Egg metadata
 *.egg-info
 .eggs
+# wheel metadata
+pip-wheel-metadata/*
 # tox testing tool
 .tox
 setup.cfg
