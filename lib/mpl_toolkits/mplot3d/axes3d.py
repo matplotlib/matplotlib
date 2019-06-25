@@ -928,6 +928,7 @@ class Axes3D(Axes):
         return cbook.silent_list('Text zticklabel',
                                  self.zaxis.get_ticklabels(minor=minor))
 
+    @cbook.deprecated("3.2", alternative="ax.zaxis.axis_date()")
     def zaxis_date(self, tz=None):
         """
         Sets up z-axis ticks and labels that treat the z data as dates.

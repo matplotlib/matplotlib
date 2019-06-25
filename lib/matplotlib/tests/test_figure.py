@@ -309,8 +309,8 @@ def test_autofmt_xdate(which):
     fig, ax = plt.subplots()
 
     ax.plot(x, y)
-    ax.yaxis_date()
-    ax.xaxis_date()
+    ax.xaxis.axis_date()
+    ax.yaxis.axis_date()
 
     ax.xaxis.set_minor_locator(AutoMinorLocator(2))
     ax.xaxis.set_minor_formatter(FixedFormatter(minors))

@@ -3811,6 +3811,7 @@ class _AxesBase(martist.Artist):
         return self.yaxis.set_ticklabels(labels,
                                          minor=minor, **kwargs)
 
+    @cbook.deprecated("3.2", alternative="ax.xaxis.axis_date()")
     def xaxis_date(self, tz=None):
         """
         Sets up x-axis ticks and labels that treat the x data as dates.
@@ -3824,6 +3825,7 @@ class _AxesBase(martist.Artist):
         # dates are coming in
         self.xaxis.axis_date(tz)
 
+    @cbook.deprecated("3.2", alternative="ax.yaxis.axis_date()")
     def yaxis_date(self, tz=None):
         """
         Sets up y-axis ticks and labels that treat the y data as dates.

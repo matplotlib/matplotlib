@@ -77,7 +77,7 @@ def test_date_empty():
     # http://sourceforge.net/tracker/?func=detail&aid=2850075&group_id=80706&atid=560720
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    ax.xaxis_date()
+    ax.xaxis.axis_date()
 
 
 @image_comparison(['date_axhspan.png'])

@@ -391,8 +391,6 @@ Ticks and tick labels
    Axes.get_xgridlines
    Axes.get_xticklines
 
-   Axes.xaxis_date
-
    Axes.set_yticks
    Axes.get_yticks
 
@@ -403,8 +401,6 @@ Ticks and tick labels
 
    Axes.get_ygridlines
    Axes.get_yticklines
-
-   Axes.yaxis_date
 
    Axes.minorticks_off
    Axes.minorticks_on

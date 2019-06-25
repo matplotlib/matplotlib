@@ -615,7 +615,7 @@ class DateFormatter(ticker.Formatter):
             raise ValueError('DateFormatter found a value of x=0, which is '
                              'an illegal date; this usually occurs because '
                              'you have not informed the axis that it is '
-                             'plotting dates, e.g., with ax.xaxis_date()')
+                             'plotting dates, e.g., with ax.xaxis.axis_date()')
         return num2date(x, self.tz).strftime(self.fmt)
 
     def set_tzinfo(self, tz):

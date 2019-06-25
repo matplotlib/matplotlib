@@ -1,0 +1,8 @@
+Deprecations
+````````````
+
+``Axes.xaxis_date``, ``Axes.yaxis_date``, and ``Axes3D.zaxis_date`` are
+deprecated.  Matplotlib normally autodetects when dates are being plotted, or
+one can use `~.axes.Axes.plot_date` to explicitly plot data as dates.  If one
+needs to force a specific axis to use datetime formatters and locators without
+actually plotting data, one can use e.g. ``ax.xaxis.axis_date()``.
