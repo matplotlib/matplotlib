@@ -1775,28 +1775,28 @@ class Axis(martist.Artist):
     def _update_label_position(self, renderer):
         """
         Update the label position based on the bounding box enclosing
-        all the ticklabels and axis spine
+        all the ticklabels and axis spine.
         """
         raise NotImplementedError('Derived must override')
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """
-        Update the label position based on the sequence of bounding
-        boxes of all the ticklabels
+        Update the offset text position based on the sequence of bounding
+        boxes of all the ticklabels.
         """
         raise NotImplementedError('Derived must override')
 
     def pan(self, numsteps):
-        'Pan *numsteps* (can be positive or negative)'
+        """Pan by *numsteps* (can be positive or negative)."""
         self.major.locator.pan(numsteps)
 
     def zoom(self, direction):
-        "Zoom in/out on axis; if *direction* is >0 zoom in, else zoom out"
+        """Zoom in/out on axis; if *direction* is >0 zoom in, else zoom out."""
         self.major.locator.zoom(direction)
 
     def axis_date(self, tz=None):
         """
-        Sets up x-axis ticks and labels that treat the x data as dates.
+        Sets up axis ticks and labels treating data along this axis as dates.
 
         Parameters
         ----------
@@ -1812,9 +1812,7 @@ class Axis(martist.Artist):
         self.update_units(datetime.datetime(2009, 1, 1, 0, 0, 0, 0, tz))
 
     def get_tick_space(self):
-        """
-        Return the estimated number of ticks that can fit on the axis.
-        """
+        """Return the estimated number of ticks that can fit on the axis."""
         # Must be overridden in the subclass
         raise NotImplementedError()
 
