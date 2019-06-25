@@ -25,9 +25,9 @@ functions, e.g.::
     plot(x, y, projection="custom")
 
 This document is intended for developers and advanced users who need
-to create new scales and projections for matplotlib.  The necessary
+to create new scales and projections for Matplotlib.  The necessary
 code for scales and projections can be included anywhere: directly
-within a plot script, in third-party code, or in the matplotlib source
+within a plot script, in third-party code, or in the Matplotlib source
 tree itself.
 
 .. _creating-new-scale:
@@ -57,7 +57,7 @@ elements:
 - Formatters (major and minor) that specify how the tick labels
   should be drawn.
 
-Once the class is defined, it must be registered with matplotlib so
+Once the class is defined, it must be registered with Matplotlib so
 that the user can select it.
 
 A full-fledged and heavily annotated example is in
@@ -81,7 +81,7 @@ elements:
 
 - Transformations for the gridlines, ticks and ticklabels.  Custom
   projections will often need to place these elements in special
-  locations, and matplotlib has a facility to help with doing so.
+  locations, and Matplotlib has a facility to help with doing so.
 
 - Setting up default values (overriding :meth:`~matplotlib.axes.Axes.cla`),
   since the defaults for a rectilinear axes may not be appropriate.
