@@ -39,17 +39,7 @@ def on_key_press(event):
 
 canvas.mpl_connect("key_press_event", on_key_press)
 
-
-def _quit():
-    root.quit()  # Stops mainloop.
-    # The following is necessary on Windows to prevent
-    # Fatal Python Error: PyEval_RestoreThread: NULL tstate
-    root.destroy()
-
-
-button = tkinter.Button(master=root, text="Quit", command=_quit)
+button = tkinter.Button(master=root, text="Quit", command=root.quit)
 button.pack(side=tkinter.BOTTOM)
 
 tkinter.mainloop()
-# If you put root.destroy() here, it will cause an error if the window is
-# closed with the window manager.
