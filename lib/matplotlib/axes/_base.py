@@ -3249,7 +3249,10 @@ class _AxesBase(martist.Artist):
             if right is None:
                 right = old_right
 
-        if self.get_xscale() == 'log':
+        if self.get_xscale() == 'log' and (left <= 0 or right <= 0):
+            # Axes init calls set_xlim(0, 1) before get_xlim() can be called,
+            # so only grab the limits if we really need them.
+            old_left, old_right = self.get_xlim()
             if left <= 0:
                 cbook._warn_external(
                     'Attempted to set non-positive left xlim on a '

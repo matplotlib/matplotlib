@@ -2141,6 +2141,14 @@ def test_log_scales():
     ax.set_xscale('log', basex=9.0)
 
 
+def test_log_scales_invalid():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_xscale('log')
+    with pytest.warns(UserWarning, match='Attempted to set non-positive'):
+        ax.set_xlim(-1, 10)
+
+
 @image_comparison(['stackplot_test_image', 'stackplot_test_image'])
 def test_stackplot():
     fig = plt.figure()
