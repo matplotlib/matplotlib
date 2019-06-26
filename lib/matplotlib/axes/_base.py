@@ -3632,7 +3632,10 @@ class _AxesBase(martist.Artist):
             if top is None:
                 top = old_top
 
-        if self.get_yscale() == 'log':
+        if self.get_yscale() == 'log' and (bottom <= 0 or top <= 0):
+            # Axes init calls set_xlim(0, 1) before get_xlim() can be called,
+            # so only grab the limits if we really need them.
+            old_bottom, old_top = self.get_ylim()
             if bottom <= 0:
                 cbook._warn_external(
                     'Attempted to set non-positive bottom ylim on a '

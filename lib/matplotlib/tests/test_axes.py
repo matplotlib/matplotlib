@@ -2147,6 +2147,9 @@ def test_log_scales_invalid():
     ax.set_xscale('log')
     with pytest.warns(UserWarning, match='Attempted to set non-positive'):
         ax.set_xlim(-1, 10)
+    ax.set_yscale('log')
+    with pytest.warns(UserWarning, match='Attempted to set non-positive'):
+        ax.set_ylim(-1, 10)
 
 
 @image_comparison(['stackplot_test_image', 'stackplot_test_image'])
