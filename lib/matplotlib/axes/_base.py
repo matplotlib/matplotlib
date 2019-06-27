@@ -151,18 +151,7 @@ class _process_plot_var_args:
         self._prop_keys = prop_cycler.keys
 
     def __call__(self, *args, **kwargs):
-        # Process units.
-        if self.axes.xaxis is not None and self.axes.yaxis is not None:
-            xunits = kwargs.pop('xunits', self.axes.xaxis.units)
-            if self.axes.name == 'polar':
-                xunits = kwargs.pop('thetaunits', xunits)
-            if xunits != self.axes.xaxis.units:
-                self.axes.xaxis.set_units(xunits)
-            yunits = kwargs.pop('yunits', self.axes.yaxis.units)
-            if self.axes.name == 'polar':
-                yunits = kwargs.pop('runits', yunits)
-            if yunits != self.axes.yaxis.units:
-                self.axes.yaxis.set_units(yunits)
+        self.axes._process_unit_info(kwargs=kwargs)
 
         for pos_only in "xy":
             if pos_only in kwargs:
@@ -232,46 +221,6 @@ class _process_plot_var_args:
             return 'k'
         return next(self.prop_cycler)['color']
 
-    def _xy_from_xy(self, x, y):
-        if self.axes.xaxis is not None and self.axes.yaxis is not None:
-            bx = self.axes.xaxis.update_units(x)
-            by = self.axes.yaxis.update_units(y)
-
-            if self.command != 'plot':
-                # the Line2D class can handle unitized data, with
-                # support for post hoc unit changes etc.  Other mpl
-                # artists, e.g., Polygon which _process_plot_var_args
-                # also serves on calls to fill, cannot.  So this is a
-                # hack to say: if you are not "plot", which is
-                # creating Line2D, then convert the data now to
-                # floats.  If you are plot, pass the raw data through
-                # to Line2D which will handle the conversion.  So
-                # polygons will not support post hoc conversions of
-                # the unit type since they are not storing the orig
-                # data.  Hopefully we can rationalize this at a later
-                # date - JDH
-                if bx:
-                    x = self.axes.convert_xunits(x)
-                if by:
-                    y = self.axes.convert_yunits(y)
-
-        # like asanyarray, but converts scalar to array, and doesn't change
-        # existing compatible sequences
-        x = _check_1d(x)
-        y = _check_1d(y)
-        if x.shape[0] != y.shape[0]:
-            raise ValueError("x and y must have same first dimension, but "
-                             "have shapes {} and {}".format(x.shape, y.shape))
-        if x.ndim > 2 or y.ndim > 2:
-            raise ValueError("x and y can be no greater than 2-D, but have "
-                             "shapes {} and {}".format(x.shape, y.shape))
-
-        if x.ndim == 1:
-            x = x[:, np.newaxis]
-        if y.ndim == 1:
-            y = y[:, np.newaxis]
-        return x, y
-
     def _getdefaults(self, ignore, kw):
         """
         If some keys in the property cycle (excluding those in the set
@@ -307,6 +256,10 @@ class _process_plot_var_args:
         return seg
 
     def _makefill(self, x, y, kw, kwargs):
+        # Polygon doesn't directly support unitized inputs.
+        x = self.axes.convert_xunits(x)
+        y = self.axes.convert_yunits(y)
+
         kw = kw.copy()  # Don't modify the original kw.
         kwargs = kwargs.copy()
 
@@ -364,9 +317,8 @@ class _process_plot_var_args:
         else:
             linestyle, marker, color = None, None, None
 
-        # Don't allow any None value; These will be up-converted
-        # to one element array of None which causes problems
-        # downstream.
+        # Don't allow any None value; these would be up-converted to one
+        # element array of None which causes problems downstream.
         if any(v is None for v in tup):
             raise ValueError("x, y, and format string must not be None")
 
@@ -382,7 +334,21 @@ class _process_plot_var_args:
         else:
             x, y = index_of(tup[-1])
 
-        x, y = self._xy_from_xy(x, y)
+        if self.axes.xaxis is not None:
+            self.axes.xaxis.update_units(x)
+        if self.axes.yaxis is not None:
+            self.axes.yaxis.update_units(y)
+
+        if x.shape[0] != y.shape[0]:
+            raise ValueError(f"x and y must have same first dimension, but "
+                             f"have shapes {x.shape} and {y.shape}")
+        if x.ndim > 2 or y.ndim > 2:
+            raise ValueError(f"x and y can be no greater than 2-D, but have "
+                             f"shapes {x.shape} and {y.shape}")
+        if x.ndim == 1:
+            x = x[:, np.newaxis]
+        if y.ndim == 1:
+            y = y[:, np.newaxis]
 
         if self.command == 'plot':
             func = self._makeline
