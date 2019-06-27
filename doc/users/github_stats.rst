@@ -8,7 +8,7 @@ GitHub stats for 2019/05/18 - 2019/06/24 (tag: v3.1.0)
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
 We closed 27 issues and merged 105 pull requests.
-The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/v3.1.1>`__
+The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestones/v3.1.1>`__
 
 The following 30 authors contributed 303 commits.
 
