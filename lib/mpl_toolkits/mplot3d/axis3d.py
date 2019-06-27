@@ -176,15 +176,11 @@ class Axis(maxis.XAxis):
             return len(text) > 4
 
     def _get_coord_info(self, renderer):
-        minx, maxx, miny, maxy, minz, maxz = self.axes.get_w_lims()
-        if minx > maxx:
-            minx, maxx = maxx, minx
-        if miny > maxy:
-            miny, maxy = maxy, miny
-        if minz > maxz:
-            minz, maxz = maxz, minz
-        mins = np.array((minx, miny, minz))
-        maxs = np.array((maxx, maxy, maxz))
+        mins, maxs = np.array([
+            self.axes.get_xbound(),
+            self.axes.get_ybound(),
+            self.axes.get_zbound(),
+        ]).T
         centers = (maxs + mins) / 2.
         deltas = (maxs - mins) / 12.
         mins = mins - deltas / 4.
