@@ -67,6 +67,7 @@ Matplotlib recognizes the following formats to specify a color:
 
 import base64
 from collections.abc import Sized
+import copy
 import functools
 import inspect
 import io
@@ -686,6 +687,28 @@ class Colormap:
         self._rgba_over = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
+
+    def set_extremes(self, *, bad=None, under=None, over=None):
+        """
+        Set the colors for masked (*bad*) values and, when ``norm.clip =
+        False``, low (*under*) and high (*over*) out-of-range values.
+        """
+        if bad is not None:
+            self.set_bad(bad)
+        if under is not None:
+            self.set_under(under)
+        if over is not None:
+            self.set_over(over)
+
+    def with_extremes(self, *, bad=None, under=None, over=None):
+        """
+        Return a copy of the colormap, for which the colors for masked (*bad*)
+        values and, when ``norm.clip = False``, low (*under*) and high (*over*)
+        out-of-range values, have been set accordingly.
+        """
+        new_cm = copy.copy(self)
+        new_cm.set_extremes(bad=bad, under=under, over=over)
+        return new_cm
 
     def _set_extremes(self):
         if self._rgba_under:
