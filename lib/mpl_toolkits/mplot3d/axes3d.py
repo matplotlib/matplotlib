@@ -623,11 +623,10 @@ class Axes3D(Axes):
             cbook._warn_external(
                 f"Attempting to set identical left == right == {left} results "
                 f"in singular transformations; automatically expanding.")
-        swapped = left > right
+        reverse = left > right
         left, right = self.xaxis.get_major_locator().nonsingular(left, right)
         left, right = self.xaxis.limit_range_for_scale(left, right)
-        if swapped:
-            left, right = right, left
+        left, right = sorted([left, right], reverse=reverse)
         self.xy_viewLim.intervalx = (left, right)
 
         if auto is not None:
