@@ -243,7 +243,8 @@ class SecondaryAxis(_AxesBase):
                              'must be a two-tuple of callable functions '
                              'with the first function being the transform '
                              'and the second being the inverse')
-        set_scale(defscale, functions=self._functions)
+        # need to invert the roles here for the ticks to line up.
+        set_scale(defscale, functions=self._functions[::-1])
 
     def draw(self, renderer=None, inframe=False):
         """
@@ -280,7 +281,8 @@ class SecondaryAxis(_AxesBase):
         if self._ticks_set:
             ticks = self._axis.get_ticklocs()
 
-        set_scale(defscale, functions=self._functions)
+        # need to invert the roles here for the ticks to line up.
+        set_scale(defscale, functions=self._functions[::-1])
 
         # OK, set_scale sets the locators, but if we've called
         # axsecond.set_ticks, we want to keep those.
