@@ -6,8 +6,13 @@
     issue_format = "`#{issue} <https://github.com/matplotlib/matplotlib/pull/{issue}>`__"
 
     [[tool.towncrier.type]]
-        directory = "api_change"
-        name = "API changes"
+        directory = "breaking"
+        name = "Breaking API changes"
+        showcontent = true
+
+    [[tool.towncrier.type]]
+        directory = "bugfix"
+        name = "Bug fixes"
         showcontent = true
 
     [[tool.towncrier.type]]

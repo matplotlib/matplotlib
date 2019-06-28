@@ -12,10 +12,11 @@ try to use Sphinx intersphinx using backticks.
 Each file should be named like ``<PULL REQUEST>.<TYPE>.rst``, where
 ``<PULL REQUEST>`` is a pull request number, and ``<TYPE>`` is one of:
 
-* ``api_change``: A change which requires users to change code and is not
+* ``breaking``: A change which requires users to change code and is not
   backwards compatible. (Not to be used for removal of deprecated features.)
 * ``feature``: New user facing features and any new behavior.
 * ``removal``: Removal of a deprecated part of the API.
+* ``bugfix``: Any bug fixes that do not require users to change code.
 
 So for example: ``123.feature.rst``, ``456.api_change.rst``.
 
