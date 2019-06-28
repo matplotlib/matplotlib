@@ -415,8 +415,8 @@ class RendererBase:
                             master_transform)
                     else:
                         transform = master_transform
-                    xo, yo = transform.transform_point((xo, yo))
-                    xp, yp = transform.transform_point((0, 0))
+                    (xo, yo), (xp, yp) = transform.transform(
+                        [(xo, yo), (0, 0)])
                     xo = -(xp - xo)
                     yo = -(yp - yo)
             if not (np.isfinite(xo) and np.isfinite(yo)):
@@ -1335,7 +1335,7 @@ class LocationEvent(Event):
         if self.inaxes is not None:
             try:
                 trans = self.inaxes.transData.inverted()
-                xdata, ydata = trans.transform_point((x, y))
+                xdata, ydata = trans.transform((x, y))
             except ValueError:
                 pass
             else:

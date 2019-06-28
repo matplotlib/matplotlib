@@ -1592,7 +1592,7 @@ class Arc(Ellipse):
         theta2 = theta_stretch(self.theta2, width / height)
 
         # Get width and height in pixels
-        width, height = self.get_transform().transform_point((width, height))
+        width, height = self.get_transform().transform((width, height))
         inv_error = (1.0 / 1.89818e-6) * 0.5
         if width < inv_error and height < inv_error:
             self._path = Path.arc(theta1, theta2)
@@ -4168,8 +4168,7 @@ class FancyArrowPatch(Patch):
         if self._posA_posB is not None:
             posA = self._convert_xy_units(self._posA_posB[0])
             posB = self._convert_xy_units(self._posA_posB[1])
-            posA = self.get_transform().transform_point(posA)
-            posB = self.get_transform().transform_point(posB)
+            (posA, posB) = self.get_transform().transform((posA, posB))
             _path = self.get_connectionstyle()(posA, posB,
                                                patchA=self.patchA,
                                                patchB=self.patchB,
@@ -4327,7 +4326,7 @@ class ConnectionPatch(FancyArrowPatch):
             trans = axes.transData
             x = float(self.convert_xunits(x))
             y = float(self.convert_yunits(y))
-            return trans.transform_point((x, y))
+            return trans.transform((x, y))
         elif s == 'offset points':
             # convert the data point
             dx, dy = self.xy
@@ -4353,7 +4352,7 @@ class ConnectionPatch(FancyArrowPatch):
             x = r * np.cos(theta)
             y = r * np.sin(theta)
             trans = axes.transData
-            return trans.transform_point((x, y))
+            return trans.transform((x, y))
         elif s == 'figure points':
             # points from the lower left corner of the figure
             dpi = self.figure.dpi
@@ -4381,7 +4380,7 @@ class ConnectionPatch(FancyArrowPatch):
         elif s == 'figure fraction':
             # (0,0) is lower left, (1,1) is upper right of figure
             trans = self.figure.transFigure
-            return trans.transform_point((x, y))
+            return trans.transform((x, y))
         elif s == 'axes points':
             # points from the lower left corner of the axes
             dpi = self.figure.dpi
@@ -4415,9 +4414,9 @@ class ConnectionPatch(FancyArrowPatch):
         elif s == 'axes fraction':
             # (0,0) is lower left, (1,1) is upper right of axes
             trans = axes.transAxes
-            return trans.transform_point((x, y))
+            return trans.transform((x, y))
         elif isinstance(s, transforms.Transform):
-            return s.transform_point((x, y))
+            return s.transform((x, y))
         else:
             raise ValueError("{} is not a valid coordinate "
                              "transformation.".format(s))

@@ -906,8 +906,7 @@ class AxesImage(_ImageBase):
         data_extent = Bbox([[ymin, xmin], [ymax, xmax]])
         array_extent = Bbox([[0, 0], arr.shape[:2]])
         trans = BboxTransform(boxin=data_extent, boxout=array_extent)
-        y, x = event.ydata, event.xdata
-        point = trans.transform_point([y, x])
+        point = trans.transform([event.ydata, event.xdata])
         if any(np.isnan(point)):
             return None
         i, j = point.astype(int)

@@ -1037,8 +1037,7 @@ class RendererSVG(RendererBase):
 
                 # Get anchor coordinates.
                 transform = mtext.get_transform()
-                ax, ay = transform.transform_point(
-                    mtext.get_unitless_position())
+                ax, ay = transform.transform(mtext.get_unitless_position())
                 ay = self.height - ay
 
                 # Don't do vertical anchor alignment. Most applications do not

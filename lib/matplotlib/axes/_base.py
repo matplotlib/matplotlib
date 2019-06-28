@@ -4058,8 +4058,7 @@ class _AxesBase(martist.Artist):
 
         # zoom to rect
         inverse = self.transData.inverted()
-        lastx, lasty = inverse.transform_point((lastx, lasty))
-        x, y = inverse.transform_point((x, y))
+        (lastx, lasty), (x, y) = inverse.transform([(lastx, lasty), (x, y)])
 
         if twinx:
             x0, x1 = Xmin, Xmax

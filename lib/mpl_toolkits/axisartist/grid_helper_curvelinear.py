@@ -162,12 +162,12 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         (xx1,), (yy1,) = grid_finder.transform_xy([xx0], [yy0])
 
         trans_passingthrough_point = axes.transData + axes.transAxes.inverted()
-        p = trans_passingthrough_point.transform_point([xx1, yy1])
+        p = trans_passingthrough_point.transform([xx1, yy1])
 
         if 0 <= p[0] <= 1 and 0 <= p[1] <= 1:
-            xx1c, yy1c = axes.transData.transform_point([xx1, yy1])
+            xx1c, yy1c = axes.transData.transform([xx1, yy1])
             (xx2,), (yy2,) = grid_finder.transform_xy([xx0 + dxx], [yy0 + dyy])
-            xx2c, yy2c = axes.transData.transform_point([xx2, yy2])
+            xx2c, yy2c = axes.transData.transform([xx2, yy2])
             return (xx1c, yy1c), np.rad2deg(np.arctan2(yy2c-yy1c, xx2c-xx1c))
         else:
             return None, None
@@ -256,7 +256,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             trans_tick = self.get_tick_transform(axes)
             tr2ax = trans_tick + axes.transAxes.inverted()
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
-                c2 = tr2ax.transform_point((x, y))
+                c2 = tr2ax.transform((x, y))
                 delta = 0.00001
                 if 0-delta <= c2[0] <= 1+delta and 0-delta <= c2[1] <= 1+delta:
                     d1, d2 = np.rad2deg([d, d2])

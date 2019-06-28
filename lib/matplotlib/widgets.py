@@ -1064,8 +1064,7 @@ class RadioButtons(AxesWidget):
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
             return
-        xy = self.ax.transAxes.inverted().transform_point((event.x, event.y))
-        pclicked = np.array([xy[0], xy[1]])
+        pclicked = self.ax.transAxes.inverted().transform((event.x, event.y))
         distances = {}
         for i, (p, t) in enumerate(zip(self.circles, self.labels)):
             if (t.get_window_extent().contains(event.x, event.y)
@@ -2185,12 +2184,12 @@ class RectangleSelector(_SelectorWidget):
         x1, x2, y1, y2 = self.extents
         self.eventpress.xdata = x1
         self.eventpress.ydata = y1
-        xy1 = self.ax.transData.transform_point([x1, y1])
+        xy1 = self.ax.transData.transform([x1, y1])
         self.eventpress.x, self.eventpress.y = xy1
 
         self.eventrelease.xdata = x2
         self.eventrelease.ydata = y2
-        xy2 = self.ax.transData.transform_point([x2, y2])
+        xy2 = self.ax.transData.transform([x2, y2])
         self.eventrelease.x, self.eventrelease.y = xy2
 
         if self.spancoords == 'data':

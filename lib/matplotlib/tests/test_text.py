@@ -222,7 +222,7 @@ def test_contains():
     fig.canvas.draw()
 
     for x, y in zip(xs.flat, ys.flat):
-        mevent.x, mevent.y = plt.gca().transAxes.transform_point([x, y])
+        mevent.x, mevent.y = plt.gca().transAxes.transform([x, y])
         contains, _ = txt.contains(mevent)
         color = 'yellow' if contains else 'red'
 
@@ -240,8 +240,7 @@ def test_annotation_contains():
         "hello", xy=(.4, .4), xytext=(.6, .6), arrowprops={"arrowstyle": "->"})
     fig.canvas.draw()   # Needed for the same reason as in test_contains.
     event = MouseEvent(
-        "button_press_event", fig.canvas,
-        *ax.transData.transform_point((.5, .6)))
+        "button_press_event", fig.canvas, *ax.transData.transform((.5, .6)))
     assert ann.contains(event) == (False, {})
 
 

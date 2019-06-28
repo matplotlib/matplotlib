@@ -93,15 +93,10 @@ class DraggableLegend(DraggableOffsetBox):
             bbox = self.legend.get_bbox_to_anchor()
 
         _bbox_transform = BboxTransformFrom(bbox)
-        self.legend._loc = tuple(
-            _bbox_transform.transform_point(loc_in_canvas)
-        )
+        self.legend._loc = tuple(_bbox_transform.transform(loc_in_canvas))
 
     def _update_bbox_to_anchor(self, loc_in_canvas):
-
-        tr = self.legend.axes.transAxes
-        loc_in_bbox = tr.transform_point(loc_in_canvas)
-
+        loc_in_bbox = self.legend.axes.transAxes.transform(loc_in_canvas)
         self.legend.set_bbox_to_anchor(loc_in_bbox)
 
 

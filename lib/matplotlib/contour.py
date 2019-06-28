@@ -402,7 +402,7 @@ class ContourLabeler:
         return rotation, nlc
 
     def _get_label_text(self, x, y, rotation):
-        dx, dy = self.ax.transData.inverted().transform_point((x, y))
+        dx, dy = self.ax.transData.inverted().transform((x, y))
         t = text.Text(dx, dy, rotation=rotation,
                       horizontalalignment='center',
                       verticalalignment='center')
@@ -414,7 +414,7 @@ class ContourLabeler:
         # class. This way, the rotation of the clabel is along the
         # contour line always.
         transDataInv = self.ax.transData.inverted()
-        dx, dy = transDataInv.transform_point((x, y))
+        dx, dy = transDataInv.transform((x, y))
         drotation = transDataInv.transform_angles(np.array([rotation]),
                                                   np.array([[x, y]]))
         t = ClabelText(dx, dy, rotation=drotation[0],
@@ -480,7 +480,7 @@ class ContourLabeler:
             transform = self.ax.transData
 
         if transform:
-            x, y = transform.transform_point((x, y))
+            x, y = transform.transform((x, y))
 
         # find the nearest contour _in screen units_
         conmin, segmin, imin, xmin, ymin = self.find_nearest_contour(
@@ -496,7 +496,7 @@ class ContourLabeler:
         # grab its vertices
         lc = active_path.vertices
         # sort out where the new vertex should be added data-units
-        xcmin = self.ax.transData.inverted().transform_point([xmin, ymin])
+        xcmin = self.ax.transData.inverted().transform([xmin, ymin])
         # if there isn't a vertex close enough
         if not np.allclose(xcmin, lc[imin]):
             # insert new data into the vertex list
