@@ -6415,7 +6415,7 @@ optional.
 
             (or you may alternatively use `~.bar()`).
 
-        cumulative : bool or -1, optional
+        cumulative : bool or 'reversed', optional
             If ``True``, then a histogram is computed where each bin gives the
             counts in that bin plus all bins for smaller values. The last bin
             gives the total number of datapoints.
@@ -6423,10 +6423,9 @@ optional.
             If *density* is also ``True`` then the histogram is normalized such
             that the last bin equals 1.
 
-            If *cumulative* is a number less than 0 (e.g., -1), the direction
-            of accumulation is reversed.  In this case, if *density* is also
-            ``True``, then the histogram is normalized such that the first bin
-            equals 1.
+            If *cumulative* is 'reversed', the direction of accumulation is
+            reversed.  In this case, if *density* is also ``True``, then the
+            histogram is normalized such that the first bin equals 1.
 
             Default is ``False``
 
@@ -6647,7 +6646,14 @@ optional.
                 m[:] = (m / db) / tops[-1].sum()
         if cumulative:
             slc = slice(None)
+            if cumulative == 'reversed':
+                slc = slice(None, None, -1)
             if isinstance(cumulative, Number) and cumulative < 0:
+                cbook.warn_deprecated("3.2",
+                                      message="Passing negative numbers to "
+                                              "hist(cumulative=...) is "
+                                              "deprecated. Pass 'reversed' "
+                                              "instead.")
                 slc = slice(None, None, -1)
 
             if density:

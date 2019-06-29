@@ -59,7 +59,7 @@ y /= y[-1]
 ax.plot(bins, y, 'k--', linewidth=1.5, label='Theoretical')
 
 # Overlay a reversed cumulative histogram.
-ax.hist(x, bins=bins, density=True, histtype='step', cumulative=-1,
+ax.hist(x, bins=bins, density=True, histtype='step', cumulative='reversed',
         label='Reversed emp.')
 
 # tidy up the figure

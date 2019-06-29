@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+Passing negative numbers to ``hist(cumulative=...)`` is deprecated. Pass the
+string 'reversed' instead.
