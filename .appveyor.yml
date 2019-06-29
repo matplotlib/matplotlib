@@ -53,6 +53,7 @@ install:
   - conda config --set show_channel_urls yes
   - conda config --prepend channels conda-forge
   # this is now the downloaded conda...
+  - activate
   - conda info -a
 
   # For building, use a new environment which only includes the requirements for mpl
