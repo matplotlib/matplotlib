@@ -179,22 +179,11 @@ else:
     print_raw = print
 
 
-def print_line(char='='):
-    print_raw(char * 80)
-
-
 def print_status(package, status):
     initial_indent = "%12s: " % package
     indent = ' ' * 18
     print_raw(textwrap.fill(str(status), width=80,
                             initial_indent=initial_indent,
-                            subsequent_indent=indent))
-
-
-def print_message(message):
-    indent = ' ' * 18 + "* "
-    print_raw(textwrap.fill(str(message), width=80,
-                            initial_indent=indent,
                             subsequent_indent=indent))
 
 

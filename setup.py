@@ -42,8 +42,7 @@ else:
 from distutils.dist import Distribution
 
 import setupext
-from setupext import (print_line, print_raw, print_message, print_status,
-                      download_or_cache)
+from setupext import print_raw, print_status, download_or_cache
 
 # Get the version from versioneer
 import versioneer
@@ -176,11 +175,10 @@ if __name__ == '__main__':
             or 'clean' in sys.argv):
         # Go through all of the packages and figure out which ones we are
         # going to build/install.
-        print_line()
+        print_raw()
         print_raw("Edit setup.cfg to change the build options; "
                   "suppress output with --quiet.")
 
-        required_failed = []
         good_packages = []
         for package in mpl_packages:
             if isinstance(package, str):
@@ -199,17 +197,10 @@ if __name__ == '__main__':
                     else:
                         print_status(package.name, 'no')
                     if not package.optional:
-                        required_failed.append(package)
+                        sys.exit("Failed to build %s" % package.name)
                 else:
                     good_packages.append(package)
         print_raw('')
-
-        # Abort if any of the required packages can not be built.
-        if required_failed:
-            print_line()
-            print_message("The following required packages can not be built: "
-                          "%s" % ", ".join(x.name for x in required_failed))
-            sys.exit(1)
 
         # Now collect all of the information we need to build all of the
         # packages.
