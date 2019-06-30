@@ -22,8 +22,7 @@ class GeoAxes(Axes):
             self._round_to = round_to
 
         def __call__(self, x, pos=None):
-            degrees = (x / np.pi) * 180.0
-            degrees = np.round(degrees / self._round_to) * self._round_to
+            degrees = round(np.rad2deg(x) / self._round_to) * self._round_to
             if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
                 return r"$%0.0f^\circ$" % degrees
             else:

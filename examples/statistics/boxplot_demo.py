@@ -164,7 +164,7 @@ ax1.set_xticklabels(np.repeat(random_dists, 2),
 # X-axis tick labels with the sample medians to aid in comparison
 # (just use two decimal places of precision)
 pos = np.arange(num_boxes) + 1
-upper_labels = [str(np.round(s, 2)) for s in medians]
+upper_labels = [str(round(s, 2)) for s in medians]
 weights = ['bold', 'semibold']
 for tick, label in zip(range(num_boxes), ax1.get_xticklabels()):
     k = tick % 2
