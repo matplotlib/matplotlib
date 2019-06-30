@@ -1987,12 +1987,9 @@ class XAxis(Axis):
         ----------
         position : {'top', 'bottom'}
         """
-        if position == 'top':
-            self.label.set_verticalalignment('baseline')
-        elif position == 'bottom':
-            self.label.set_verticalalignment('top')
-        else:
-            raise ValueError("Position accepts only 'top' or 'bottom'")
+        self.label.set_verticalalignment(cbook._check_getitem({
+            'top': 'baseline', 'bottom': 'top',
+        }, position=position))
         self.label_position = position
         self.stale = True
 
@@ -2281,12 +2278,9 @@ class YAxis(Axis):
         """
         self.label.set_rotation_mode('anchor')
         self.label.set_horizontalalignment('center')
-        if position == 'left':
-            self.label.set_verticalalignment('bottom')
-        elif position == 'right':
-            self.label.set_verticalalignment('top')
-        else:
-            raise ValueError("Position accepts only 'left' or 'right'")
+        self.label.set_verticalalignment(cbook._check_getitem({
+            'left': 'bottom', 'right': 'top',
+        }, position=position))
         self.label_position = position
         self.stale = True
 

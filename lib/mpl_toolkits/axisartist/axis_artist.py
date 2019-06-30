@@ -452,8 +452,7 @@ class AxisLabel(LabelBase, AttributeCopier):
                                top=("bottom", "center"))
 
     def set_default_alignment(self, d):
-        cbook._check_in_list(["left", "right", "top", "bottom"], d=d)
-        va, ha = self._default_alignments[d]
+        va, ha = cbook._check_getitem(self._default_alignments, d=d)
         self.set_va(va)
         self.set_ha(ha)
 
@@ -463,8 +462,7 @@ class AxisLabel(LabelBase, AttributeCopier):
                            top=180)
 
     def set_default_angle(self, d):
-        cbook._check_in_list(["left", "right", "top", "bottom"], d=d)
-        self.set_rotation(self._default_angles[d])
+        self.set_rotation(cbook._check_getitem(self._default_angles, d=d))
 
     def set_axis_direction(self, d):
         """
@@ -852,8 +850,8 @@ class AxisArtist(martist.Artist):
         ----------
         tick_direction : {"+", "-"}
         """
-        cbook._check_in_list(["+", "-"], tick_direction=tick_direction)
-        self._ticklabel_add_angle = {"+": 0, "-": 180}[tick_direction]
+        self._ticklabel_add_angle = cbook._check_getitem(
+            {"+": 0, "-": 180}, tick_direction=tick_direction)
 
     def invert_ticklabel_direction(self):
         self._ticklabel_add_angle = (self._ticklabel_add_angle + 180) % 360
@@ -871,8 +869,8 @@ class AxisArtist(martist.Artist):
         ----------
         tick_direction : {"+", "-"}
         """
-        cbook._check_in_list(["+", "-"], label_direction=label_direction)
-        self._axislabel_add_angle = {"+": 0, "-": 180}[label_direction]
+        self._axislabel_add_angle = cbook._check_getitem(
+            {"+": 0, "-": 180}, label_direction=label_direction)
 
     def get_transform(self):
         return self.axes.transAxes + self.offset_transform

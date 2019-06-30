@@ -141,8 +141,7 @@ class Axes(_AxesBase):
         titles = {'left': self._left_title,
                   'center': self.title,
                   'right': self._right_title}
-        cbook._check_in_list(titles, loc=loc.lower())
-        title = titles[loc.lower()]
+        title = cbook._check_getitem(titles, loc=loc.lower())
         return title.get_text()
 
     def set_title(self, label, fontdict=None, loc=None, pad=None,
@@ -193,8 +192,7 @@ class Axes(_AxesBase):
         titles = {'left': self._left_title,
                   'center': self.title,
                   'right': self._right_title}
-        cbook._check_in_list(titles, loc=loc.lower())
-        title = titles[loc.lower()]
+        title = cbook._check_getitem(titles, loc=loc.lower())
         default = {
             'fontsize': rcParams['axes.titlesize'],
             'fontweight': rcParams['axes.titleweight'],

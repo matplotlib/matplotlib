@@ -1125,8 +1125,7 @@ class AnchoredOffsetbox(OffsetBox):
         self.set_child(child)
 
         if isinstance(loc, str):
-            cbook._check_in_list(self.codes, loc=loc)
-            loc = self.codes[loc]
+            loc = cbook._check_getitem(self.codes, loc=loc)
 
         self.loc = loc
         self.borderpad = borderpad

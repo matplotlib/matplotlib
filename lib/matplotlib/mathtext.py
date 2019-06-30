@@ -3340,8 +3340,8 @@ class MathTextParser:
         else:
             backend = self._backend_mapping[self._output]()
             fontset = rcParams['mathtext.fontset'].lower()
-            cbook._check_in_list(self._font_type_mapping, fontset=fontset)
-            fontset_class = self._font_type_mapping[fontset]
+            fontset_class = cbook._check_getitem(
+                self._font_type_mapping, fontset=fontset)
             font_output = fontset_class(prop, backend)
 
         fontsize = prop.get_size_in_points()

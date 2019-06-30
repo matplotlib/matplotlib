@@ -2050,17 +2050,23 @@ def _check_and_log_subprocess(command, logger, **kwargs):
     return report
 
 
-def _check_isinstance(types, **kwargs):
+# In the following _check_foo functions, the first parameter starts with an
+# underscore because it is intended to be positional-only (e.g., so that
+# `_check_isinstance([...], types=foo)` doesn't fail.
+
+
+def _check_isinstance(_types, **kwargs):
     """
     For each *key, value* pair in *kwargs*, check that *value* is an instance
-    of one of *types*; if not, raise an appropriate TypeError.
+    of one of *_types*; if not, raise an appropriate TypeError.
 
-    As a special case, a ``None`` entry in *types* is treated as NoneType.
+    As a special case, a ``None`` entry in *_types* is treated as NoneType.
 
     Examples
     --------
     >>> cbook._check_isinstance((SomeClass, None), arg=arg)
     """
+    types = _types
     if isinstance(types, type) or types is None:
         types = (types,)
     none_allowed = None in types
@@ -2084,17 +2090,40 @@ def _check_isinstance(types, **kwargs):
                     type_name(type(v))))
 
 
-def _check_in_list(values, **kwargs):
+def _check_in_list(_values, **kwargs):
     """
-    For each *key, value* pair in *kwargs*, check that *value* is in *values*;
+    For each *key, value* pair in *kwargs*, check that *value* is in *_values*;
     if not, raise an appropriate ValueError.
 
     Examples
     --------
     >>> cbook._check_in_list(["foo", "bar"], arg=arg, other_arg=other_arg)
     """
+    values = _values
     for k, v in kwargs.items():
         if v not in values:
             raise ValueError(
                 "{!r} is not a valid value for {}; supported values are {}"
                 .format(v, k, ', '.join(map(repr, values))))
+
+
+def _check_getitem(_mapping, **kwargs):
+    """
+    *kwargs* must consist of a single *key, value* pair.  If *key* is in
+    *_mapping*, return ``_mapping[value]``; else, raise an appropriate
+    ValueError.
+
+    Examples
+    --------
+    >>> cbook._check_getitem({"foo": "bar"}, arg=arg)
+    """
+    mapping = _mapping
+    if len(kwargs) != 1:
+        raise ValueError("_check_getitem takes a single keyword argument")
+    (k, v), = kwargs.items()
+    try:
+        return mapping[v]
+    except KeyError:
+        raise ValueError(
+            "{!r} is not a valid value for {}; supported values are {}"
+            .format(v, k, ', '.join(map(repr, mapping)))) from None
