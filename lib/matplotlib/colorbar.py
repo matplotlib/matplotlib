@@ -724,7 +724,7 @@ class ColorbarBase(_ColorbarMappableDummy):
 
     def set_label(self, label, **kw):
         """Label the long axis of the colorbar."""
-        self._label = str(label)
+        self._label = label
         self._labelkw = kw
         self._set_label()
 
