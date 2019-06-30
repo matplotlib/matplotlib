@@ -1,65 +1,32 @@
 """
-This is a fully functional do nothing backend to provide a template to
-backend writers.  It is fully functional in that you can select it as
-a backend with
+This is a fully functional do nothing backend to provide a template to backend
+writers.  It is fully functional in that you can select it as a backend e.g.
+with ::
 
-  import matplotlib
-  matplotlib.use('Template')
+    import matplotlib
+    matplotlib.use("template")
 
-and your matplotlib scripts will (should!) run without error, though
-no output is produced.  This provides a nice starting point for
-backend writers because you can selectively implement methods
-(draw_rectangle, draw_lines, etc...) and slowly see your figure come
-to life w/o having to have a full blown implementation before getting
-any results.
+and your program will (should!) run without error, though no output is
+produced.  This provides a starting point for backend writers; you can
+selectively implement drawing methods (`draw_path`, `draw_image`, etc.) and
+slowly see your figure come to life instead having to have a full blown
+implementation before getting any results.
 
-Copy this to backend_xxx.py and replace all instances of 'template'
-with 'xxx'.  Then implement the class methods and functions below, and
-add 'xxx' to the switchyard in matplotlib/backends/__init__.py and
-'xxx' to the backends list in the validate_backend method in
-matplotlib/__init__.py and you're off.  You can use your backend with::
+Copy this file to a directory outside of the Matplotlib source tree, somewhere
+where Python can import it (by adding the directory to your ``sys.path`` or by
+packaging it as a normal Python package); if the backend is importable as
+``import my.backend`` you can then select it using ::
 
-  import matplotlib
-  matplotlib.use('xxx')
-  import matplotlib.pyplot as plt
-  plt.plot([1,2,3])
-  plt.show()
+    import matplotlib
+    matplotlib.use("module://my.backend")
 
-matplotlib also supports external backends, so you can place you can
-use any module in your PYTHONPATH with the syntax::
+If your backend implements support for saving figures (i.e. has a `print_xyz`
+method), you can register it as the default handler for a given file type::
 
-  import matplotlib
-  matplotlib.use('module://my_backend')
-
-where my_backend.py is your module name.  This syntax is also
-recognized in the rc file and in the -d argument in pylab, e.g.,::
-
-  python simple_plot.py -dmodule://my_backend
-
-If your backend implements support for saving figures (i.e. has a print_xyz()
-method) you can register it as the default handler for a given file type
-
-  from matplotlib.backend_bases import register_backend
-  register_backend('xyz', 'my_backend', 'XYZ File Format')
-  ...
-  plt.savefig("figure.xyz")
-
-The files that are most relevant to backend_writers are
-
-  matplotlib/backends/backend_your_backend.py
-  matplotlib/backend_bases.py
-  matplotlib/backends/__init__.py
-  matplotlib/__init__.py
-  matplotlib/_pylab_helpers.py
-
-Naming Conventions
-
-  * classes Upper or MixedUpperCase
-
-  * variables lower or lowerUpper
-
-  * functions lower or underscore_separated
-
+    from matplotlib.backend_bases import register_backend
+    register_backend('xyz', 'my_backend', 'XYZ File Format')
+    ...
+    plt.savefig("figure.xyz")
 """
 
 from matplotlib._pylab_helpers import Gcf
@@ -73,10 +40,12 @@ class RendererTemplate(RendererBase):
     The renderer handles drawing/rendering operations.
 
     This is a minimal do-nothing class that can be used to get started when
-    writing a new backend. Refer to backend_bases.RendererBase for
-    documentation of the classes methods.
+    writing a new backend.  Refer to `backend_bases.RendererBase` for
+    documentation of the methods.
     """
+
     def __init__(self, dpi):
+        super().__init__()
         self.dpi = dpi
 
     def draw_path(self, gc, path, transform, rgbFace=None):
@@ -160,10 +129,11 @@ class GraphicsContextTemplate(GraphicsContextBase):
 
 ########################################################################
 #
-# The following functions and classes are for pylab and implement
+# The following functions and classes are for pyplot and implement
 # window/figure managers, etc...
 #
 ########################################################################
+
 
 def draw_if_interactive():
     """
@@ -186,9 +156,7 @@ def show(*, block=None):
 
 
 def new_figure_manager(num, *args, FigureClass=Figure, **kwargs):
-    """
-    Create a new figure manager instance
-    """
+    """Create a new figure manager instance."""
     # If a main-level app must be created, this (and
     # new_figure_manager_given_figure) is the usual place to do it -- see
     # backend_wx, backend_wxagg and backend_tkagg for examples.  Not all GUIs
@@ -199,9 +167,7 @@ def new_figure_manager(num, *args, FigureClass=Figure, **kwargs):
 
 
 def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
+    """Create a new figure manager instance for the given figure."""
     canvas = FigureCanvasTemplate(figure)
     manager = FigureManagerTemplate(canvas, num)
     return manager
@@ -225,9 +191,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
     """
 
     def draw(self):
-        """
-        Draw the figure using the renderer
-        """
+        """Draw the figure using the renderer."""
         renderer = RendererTemplate(self.figure.dpi)
         self.figure.draw(renderer)
 
@@ -245,7 +209,6 @@ class FigureCanvasTemplate(FigureCanvasBase):
         to their original values after this call, so you don't need to
         save and restore them.
         """
-        pass
 
     def get_default_filetype(self):
         return 'foo'
@@ -253,11 +216,11 @@ class FigureCanvasTemplate(FigureCanvasBase):
 
 class FigureManagerTemplate(FigureManagerBase):
     """
-    Wrap everything up into a window for the pylab interface
+    Helper class for pyplot mode, wraps everything up into a neat bundle.
 
-    For non interactive backends, the base class does all the work
+    For non-interactive backends, the base class is sufficient.
     """
-    pass
+
 
 ########################################################################
 #

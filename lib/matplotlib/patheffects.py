@@ -93,10 +93,6 @@ class PathEffectRenderer(RendererBase):
         self._path_effects = path_effects
         self._renderer = renderer
 
-    def new_gc(self):
-        # docstring inherited
-        return self._renderer.new_gc()
-
     def copy_with_path_effect(self, path_effects):
         return self.__class__(path_effects, self._renderer)
 
@@ -143,10 +139,6 @@ class PathEffectRenderer(RendererBase):
             renderer.draw_path_collection(gc, master_transform, paths,
                                           *args, **kwargs)
 
-    def points_to_pixels(self, points):
-        # docstring inherited
-        return self._renderer.points_to_pixels(points)
-
     def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
         # Implements the naive text drawing as is found in RendererBase.
         path, transform = self._get_text_path_transform(x, y, s, prop,
@@ -156,7 +148,8 @@ class PathEffectRenderer(RendererBase):
         self.draw_path(gc, path, transform, rgbFace=color)
 
     def __getattribute__(self, name):
-        if name in ['_text2path', 'flipy', 'height', 'width']:
+        if name in ['flipy', 'get_canvas_width_height', 'new_gc',
+                    'points_to_pixels', '_text2path', 'height', 'width']:
             return getattr(self._renderer, name)
         else:
             return object.__getattribute__(self, name)

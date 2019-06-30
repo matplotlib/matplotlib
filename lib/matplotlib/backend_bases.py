@@ -567,9 +567,10 @@ class RendererBase:
         path = Path(verts, codes)
         angle = np.deg2rad(angle)
         if self.flipy():
+            width, height = self.get_canvas_width_height()
             transform = Affine2D().scale(fontsize / text2path.FONT_SCALE,
                                          fontsize / text2path.FONT_SCALE)
-            transform = transform.rotate(angle).translate(x, self.height - y)
+            transform = transform.rotate(angle).translate(x, height - y)
         else:
             transform = Affine2D().scale(fontsize / text2path.FONT_SCALE,
                                          fontsize / text2path.FONT_SCALE)
@@ -2461,7 +2462,7 @@ class NonGuiException(Exception):
 
 class FigureManagerBase:
     """
-    Helper class for pyplot mode, wraps everything up into a neat bundle
+    Helper class for pyplot mode, wraps everything up into a neat bundle.
 
     Attributes
     ----------
