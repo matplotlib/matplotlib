@@ -155,9 +155,8 @@ class Button(AxesWidget):
         """
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
-            The :class:`matplotlib.axes.Axes` instance the button
-            will be placed into.
+        ax : `~matplotlib.axes.Axes`
+            The `~.axes.Axes` instance the button will be placed into.
 
         label : str
             The button text. Accepts string.
@@ -168,10 +167,10 @@ class Button(AxesWidget):
             matplotlib Image instance, or Pillow Image).
 
         color : color
-            The color of the button when not activated
+            The color of the button when not activated.
 
         hovercolor : color
-            The color of the button when the mouse is over it
+            The color of the button when the mouse is over it.
         """
         AxesWidget.__init__(self, ax)
 
@@ -692,24 +691,23 @@ class TextBox(AxesWidget):
         """
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
-            The :class:`matplotlib.axes.Axes` instance the button
-            will be placed into.
+        ax : `~matplotlib.axes.Axes`
+            The `~.axes.Axes` instance the button will be placed into.
 
         label : str
             Label for this text box. Accepts string.
 
         initial : str
-            Initial value in the text box
+            Initial value in the text box.
 
         color : color
-            The color of the box
+            The color of the box.
 
         hovercolor : color
-            The color of the box when the mouse is over it
+            The color of the box when the mouse is over it.
 
         label_pad : float
-            the distance between the label and the right side of the textbox
+            The distance between the label and the right side of the textbox.
         """
         AxesWidget.__init__(self, ax)
 
