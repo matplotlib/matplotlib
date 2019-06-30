@@ -195,7 +195,7 @@ class AbstractMovieWriter(abc.ABC):
 
         Parameters
         ----------
-        fig : `matplotlib.figure.Figure` instance
+        fig : `~matplotlib.figure.Figure`
             The figure object that contains the information for frames
         outfile : string
             The filename of the resulting movie file
@@ -332,9 +332,9 @@ class MovieWriter(AbstractMovieWriter):
 
         Parameters
         ----------
-        fig : matplotlib.figure.Figure
+        fig : `~matplotlib.figure.Figure`
             The figure object that contains the information for frames
-        outfile : string
+        outfile : str
             The filename of the resulting movie file
         dpi : int, optional
             The DPI (or resolution) for the file.  This controls the size
@@ -442,7 +442,7 @@ class FileMovieWriter(MovieWriter):
 
         Parameters
         ----------
-        fig : matplotlib.figure.Figure
+        fig : `~matplotlib.figure.Figure`
             The figure to grab the rendered frames from.
         outfile : str
             The filename of the resulting movie file.
@@ -895,7 +895,7 @@ class Animation(object):
 
     Parameters
     ----------
-    fig : matplotlib.figure.Figure
+    fig : `~matplotlib.figure.Figure`
        The figure object that is used to get draw, resize, and any
        other needed events.
 
@@ -1398,7 +1398,7 @@ class TimedAnimation(Animation):
 
     Parameters
     ----------
-    fig : matplotlib.figure.Figure
+    fig : `~matplotlib.figure.Figure`
        The figure object that is used to get draw, resize, and any
        other needed events.
 
@@ -1481,7 +1481,7 @@ class ArtistAnimation(TimedAnimation):
 
     Parameters
     ----------
-    fig : matplotlib.figure.Figure
+    fig : `~matplotlib.figure.Figure`
        The figure object that is used to get draw, resize, and any
        other needed events.
 
@@ -1558,7 +1558,7 @@ class FuncAnimation(TimedAnimation):
 
     Parameters
     ----------
-    fig : matplotlib.figure.Figure
+    fig : `~matplotlib.figure.Figure`
        The figure object that is used to get draw, resize, and any
        other needed events.
 
