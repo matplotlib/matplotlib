@@ -993,14 +993,13 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        rectangle : matplotlib.patches.Polygon
+        rectangle : `~matplotlib.patches.Polygon`
             Vertical span (rectangle) from (xmin, ymin) to (xmax, ymax).
 
         Other Parameters
         ----------------
         **kwargs
-            Optional parameters are properties of the class
-            matplotlib.patches.Polygon.
+            Optional parameters are properties of the class `.Polygon`.
 
         See Also
         --------
