@@ -2114,24 +2114,28 @@ def _unmultiplied_rgba8888_to_premultiplied_argb32(rgba8888):
 
 def _check_and_log_subprocess(command, logger, **kwargs):
     """
-    Run *command* using `subprocess.check_output`.  If it succeeds, return the
-    output (stdout and stderr); if not, raise an exception whose text includes
-    the failed command and captured output.  Both the command and the output
-    are logged at DEBUG level on *logger*.
+    Run *command*, returning its stdout output if it succeeds.
+
+    If it fails (exits with nonzero return code), raise an exception whose text
+    includes the failed command and captured stdout and stderr output.
+
+    Regardless of the return code, the command is logged at DEBUG level on
+    *logger*.  In case of success, the output is likewise logged.
     """
-    logger.debug(command)
-    try:
-        report = subprocess.check_output(
-            command, stderr=subprocess.STDOUT, **kwargs)
-    except subprocess.CalledProcessError as exc:
+    logger.debug('%s', _pformat_subprocess(command))
+    proc = subprocess.run(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
+    if proc.returncode:
         raise RuntimeError(
-            'The command\n'
-            '    {}\n'
-            'failed and generated the following output:\n'
-            '{}'
-            .format(command, exc.output.decode('utf-8')))
-    logger.debug(report)
-    return report
+            f"The command\n"
+            f"    {_pformat_subprocess(command)}\n"
+            f"failed and generated the following output:\n"
+            f"{proc.stdout.decode('utf-8')}\n"
+            f"and the following error:\n"
+            f"{proc.stderr.decode('utf-8')}")
+    logger.debug("stdout:\n%s", proc.stdout)
+    logger.debug("stderr:\n%s", proc.stderr)
+    return proc.stdout
 
 
 def _check_not_matrix(**kwargs):
