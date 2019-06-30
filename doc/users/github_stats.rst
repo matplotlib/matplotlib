@@ -3,14 +3,14 @@
 GitHub Stats
 ============
 
-GitHub stats for 2019/05/18 - 2019/06/24 (tag: v3.1.0)
+GitHub stats for 2019/05/18 - 2019/06/29 (tag: v3.1.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 27 issues and merged 105 pull requests.
-The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestones/v3.1.1>`__
+We closed 30 issues and merged 119 pull requests.
+The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/46>`__
 
-The following 30 authors contributed 303 commits.
+The following 30 authors contributed 322 commits.
 
 * Adam Gomaa
 * Antony Lee
@@ -45,8 +45,22 @@ The following 30 authors contributed 303 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (105):
+Pull Requests (119):
 
+* :ghpull:`14655`: Backport PR #14649 on branch v3.1.x (Fix appveyor conda py37)
+* :ghpull:`14649`: Fix appveyor conda py37
+* :ghpull:`14646`: Backport PR #14640 on branch v3.1.x (FIX: allow secondary axes to be non-linear)
+* :ghpull:`14640`: FIX: allow secondary axes to be non-linear
+* :ghpull:`14643`: Second attempt at fixing axis inversion (for mpl3.1).
+* :ghpull:`14623`: Fix axis inversion with loglocator and logitlocator.
+* :ghpull:`14619`: Backport PR #14598 on branch v3.1.x (Fix inversion of shared axes.)
+* :ghpull:`14621`: Backport PR #14613 on branch v3.1.x (Cleanup DateFormatter docstring.)
+* :ghpull:`14622`: Backport PR #14611 on branch v3.1.x (Update some axis docstrings.)
+* :ghpull:`14611`: Update some axis docstrings.
+* :ghpull:`14613`: Cleanup DateFormatter docstring.
+* :ghpull:`14598`: Fix inversion of shared axes.
+* :ghpull:`14610`: Backport PR #14579 on branch v3.1.x (Fix inversion of 3d axis.)
+* :ghpull:`14579`: Fix inversion of 3d axis.
 * :ghpull:`14600`: Backport PR #14599 on branch v3.1.x (DOC: Add numpngw to third party packages.)
 * :ghpull:`14574`: Backport PR #14568 on branch v3.1.x (Don't assume tk canvas have a manager attached.)
 * :ghpull:`14568`: Don't assume tk canvas have a manager attached.
@@ -153,8 +167,11 @@ Pull Requests (105):
 * :ghpull:`14164`: Fix regexp for dvipng version detection
 * :ghpull:`13739`: Fix pressing tab breaks keymap in CanvasTk
 
-Issues (27):
+Issues (30):
 
+* :ghissue:`14620`: Plotting on a log/logit scale overwrites axis inverting
+* :ghissue:`14615`: Inverting an axis using its limits does not work for log scale
+* :ghissue:`14577`: Calling invert_yaxis() on a 3D plot has either no effect or removes ticks
 * :ghissue:`14602`: NavigationToolbar2Tk save_figure function bug
 * :ghissue:`1219`: Show fails on figures created with the object-oriented system
 * :ghissue:`10167`: Segmentation fault with tricontour
@@ -191,7 +208,7 @@ Previous GitHub Stats
 .. toctree::
     :maxdepth: 1
     :glob:
-    :reversed:
+    :reveresed:
 
     prev_whats_new/github_stats_*
 
