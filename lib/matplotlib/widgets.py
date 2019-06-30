@@ -91,7 +91,7 @@ class Widget:
 
 class AxesWidget(Widget):
     """
-    Widget that is connected to a single `~matplotlib.axes.Axes`.
+    Widget connected to a single `~matplotlib.axes.Axes`.
 
     To guarantee that the widget remains responsive and not garbage-collected,
     a reference to the object should be maintained by the user.
@@ -105,7 +105,7 @@ class AxesWidget(Widget):
     ----------
     ax : `~matplotlib.axes.Axes`
         The parent axes for the widget.
-    canvas : `~matplotlib.backend_bases.FigureCanvasBase` subclass
+    canvas : `~matplotlib.backend_bases.FigureCanvasBase`
         The parent figure canvas for the widget.
     active : bool
         If False, the widget does not respond to events.
@@ -158,10 +158,10 @@ class Button(AxesWidget):
         ax : `~matplotlib.axes.Axes`
             The `~.axes.Axes` instance the button will be placed into.
         label : str
-            The button text. Accepts string.
-        image : array-like or PIL image
-            The image to place in the button, if not *None*.
-            Supported inputs are the same as for `.Axes.imshow`.
+            The button text.
+        image : array-like or PIL Image
+            The image to place in the button, if not *None*.  The parameter is
+            directly forwarded to `~matplotlib.axes.Axes.imshow`.
         color : color
             The color of the button when not activated.
         hovercolor : color
@@ -507,20 +507,19 @@ class CheckButtons(AxesWidget):
     For the check buttons to remain responsive you must keep a
     reference to this object.
 
-    Connect to the CheckButtons with the :meth:`on_clicked` method
+    Connect to the CheckButtons with the `.on_clicked` method.
 
     Attributes
     ----------
-    ax
-        The `matplotlib.axes.Axes` the button are located in.
-    labels
-        A list of `matplotlib.text.Text`\ s.
-    lines
-        List of (line1, line2) tuples for the x's in the check boxes.
-        These lines exist for each box, but have ``set_visible(False)``
-        when its box is not checked.
-    rectangles
-        A list of `matplotlib.patches.Rectangle`\ s.
+    ax : `~matplotlib.axes.Axes`
+        The parent axes for the widget.
+    labels : list of `.Text`
+
+    rectangles : list of `.Rectangle`
+
+    lines : list of (`.Line2D`, `.Line2D`) pairs
+        List of lines for the x's in the check boxes.  These lines exist for
+        each box, but have ``set_visible(False)`` when its box is not checked.
     """
 
     def __init__(self, ax, labels, actives=None):
@@ -602,13 +601,19 @@ class CheckButtons(AxesWidget):
 
     def set_active(self, index):
         """
-        Directly (de)activate a check button by index.
-
-        *index* is an index into the original label list
-            that this object was constructed with.
-            Raises ValueError if *index* is invalid.
+        Toggle (activate or deactivate) a check button by index.
 
         Callbacks will be triggered if :attr:`eventson` is True.
+
+        Parameters
+        ----------
+        index : int
+            Index of the check button to toggle.
+
+        Raises
+        ------
+        ValueError
+            If *index* is invalid.
         """
         if not 0 <= index < len(self.labels):
             raise ValueError("Invalid CheckButton index: %d" % index)
@@ -656,21 +661,21 @@ class TextBox(AxesWidget):
 
     For the text box to remain responsive you must keep a reference to it.
 
-    Call :meth:`on_text_change` to be updated whenever the text changes.
+    Call `.on_text_change` to be updated whenever the text changes.
 
-    Call :meth:`on_submit` to be updated whenever the user hits enter or
+    Call `.on_submit` to be updated whenever the user hits enter or
     leaves the text entry field.
 
     Attributes
     ----------
-    ax
-        The `matplotlib.axes.Axes` the button renders into.
-    label
-        A `matplotlib.text.Text` instance.
-    color
-        The color of the button when not hovering.
-    hovercolor
-        The color of the button when hovering.
+    ax : `~matplotlib.axes.Axes`
+        The parent axes for the widget.
+    label : `.Text`
+
+    color : color
+        The color of the text box when not hovering.
+    hovercolor : color
+        The color of the text box when hovering.
     """
 
     def __init__(self, ax, label, initial='',
@@ -963,18 +968,18 @@ class RadioButtons(AxesWidget):
     For the buttons to remain responsive you must keep a reference to this
     object.
 
-    Connect to the RadioButtons with the :meth:`on_clicked` method.
+    Connect to the RadioButtons with the `.on_clicked` method.
 
     Attributes
     ----------
-    ax
-        The containing `~.axes.Axes` instance.
-    activecolor
+    ax : `~matplotlib.axes.Axes`
+        The parent axes for the widget.
+    activecolor : color
         The color of the selected button.
-    labels
-        A list of `~.text.Text` instances containing the button labels.
-    circles
-        A list of `~.patches.Circle` instances defining the buttons.
+    labels : list of `.Text`
+        The button labels.
+    circles : list of `~.patches.Circle`
+        The buttons.
     value_selected : str
         The label text of the currently selected button.
     """
@@ -2501,8 +2506,7 @@ class PolygonSelector(_SelectorWidget):
     drag anywhere in the axes to move all vertices. Press the *esc* key to
     start a new polygon.
 
-    For the selector to remain responsive you must keep a reference to
-    it.
+    For the selector to remain responsive you must keep a reference to it.
 
     Parameters
     ----------
