@@ -44,6 +44,12 @@ needs_lualatex = pytest.mark.skipif(not check_for('lualatex'),
                                     reason='lualatex + pgf is required')
 
 
+def _has_sfmath():
+    return (shutil.which("kpsewhich")
+            and subprocess.run(["kpsewhich", "sfmath.sty"],
+                               stdout=subprocess.PIPE).returncode == 0)
+
+
 def compare_figure(fname, savefig_kwargs={}, tol=0):
     actual = os.path.join(result_dir, fname)
     plt.savefig(actual, **savefig_kwargs)
@@ -113,6 +119,7 @@ def test_pdflatex():
 # test updating the rc parameters for each figure
 @needs_xelatex
 @needs_pdflatex
+@pytest.mark.skipif(not _has_sfmath(), reason='needs sfmath.sty')
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
 def test_rcupdate():
