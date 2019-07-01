@@ -3,14 +3,14 @@
 GitHub Stats
 ============
 
-GitHub stats for 2019/05/18 - 2019/06/29 (tag: v3.1.0)
+GitHub stats for 2019/05/18 - 2019/06/30 (tag: v3.1.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 30 issues and merged 119 pull requests.
-The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/46>`__
+We closed 30 issues and merged 120 pull requests.
+The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/46?closed=1>`__
 
-The following 30 authors contributed 322 commits.
+The following 30 authors contributed 323 commits.
 
 * Adam Gomaa
 * Antony Lee
@@ -45,8 +45,9 @@ The following 30 authors contributed 322 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (119):
+Pull Requests (120):
 
+* :ghpull:`14636`: Don't capture stderr in _check_and_log_subprocess.
 * :ghpull:`14655`: Backport PR #14649 on branch v3.1.x (Fix appveyor conda py37)
 * :ghpull:`14649`: Fix appveyor conda py37
 * :ghpull:`14646`: Backport PR #14640 on branch v3.1.x (FIX: allow secondary axes to be non-linear)
@@ -208,7 +209,7 @@ Previous GitHub Stats
 .. toctree::
     :maxdepth: 1
     :glob:
-    :reveresed:
+    :reversed:
 
     prev_whats_new/github_stats_*
 
