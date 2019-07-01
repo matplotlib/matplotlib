@@ -1981,6 +1981,8 @@ class TestScatter:
         ([[1, 0, 0, 0.5], "red", "jaune"], "conversion"),
         ([[1, 0, 0, 0.5], "red", "0.0", "jaune"], "conversion"),
         ([[1, 0, 0, 0.5], "red", "0.0", "C5", "jaune"], "conversion"),
+        # Invalid RGBA
+        ([[2, 2, 2, 2]]*4, "conversion")
     ]
 
     @pytest.mark.parametrize('c_case, re_key', params_test_scatter_c)
