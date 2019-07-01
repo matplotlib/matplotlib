@@ -2122,13 +2122,13 @@ def _check_and_log_subprocess(command, logger, **kwargs):
     Regardless of the return code, the command is logged at DEBUG level on
     *logger*.  In case of success, the output is likewise logged.
     """
-    logger.debug('%s', _pformat_subprocess(command))
+    logger.debug('%s', str(command))
     proc = subprocess.run(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
     if proc.returncode:
         raise RuntimeError(
             f"The command\n"
-            f"    {_pformat_subprocess(command)}\n"
+            f"    {str(command)}\n"
             f"failed and generated the following output:\n"
             f"{proc.stdout.decode('utf-8')}\n"
             f"and the following error:\n"
