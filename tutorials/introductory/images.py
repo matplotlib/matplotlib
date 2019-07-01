@@ -19,7 +19,7 @@ tells IPython where (and how) to display plots.  To connect to a GUI
 loop, execute the **%matplotlib** magic at your IPython prompt.  There's more
 detail on exactly what this does at `IPython's documentation on GUI
 event loops
-<http://ipython.org/ipython-doc/2/interactive/reference.html#gui-event-loop-support>`_.
+<https://ipython.readthedocs.io/en/stable/interactive/reference.html#gui-event-loop-support>`_.
 
 If you're using IPython Notebook, the same commands are available, but
 people commonly use a specific argument to the %matplotlib magic:
