@@ -27,7 +27,9 @@ pp. 90-95, 2007 <https://doi.org/10.1109/MCSE.2007.55>`_.
 
 DOIs
 ----
-
+v3.1.0
+   .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2893252.svg
+      :target: https://doi.org/10.5281/zenodo.2893252
 v3.0.3
    .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2577644.svg
       :target: https://doi.org/10.5281/zenodo.2577644
@@ -40,6 +42,12 @@ v3.0.1
 v3.0.0
    .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1420605.svg
       :target: https://doi.org/10.5281/zenodo.1420605
+v2.2.4
+   .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2669103.svg
+      :target: https://doi.org/10.5281/zenodo.2669103
+v2.2.3
+   .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1343133.svg
+      :target: https://doi.org/10.5281/zenodo.1343133
 v2.2.2
    .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1202077.svg
       :target: https://doi.org/10.5281/zenodo.1202077

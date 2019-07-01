@@ -186,7 +186,7 @@ Please consider `donating to the Matplotlib project <donating_>`_ through
 the Numfocus organization or to the `John Hunter Technology Fellowship
 <jdh-fellowship_>`_.
 
-.. _donating: https://www.flipcause.com/secure/cause_pdetails/MjI1OA==
+.. _donating: https://numfocus.salsalabs.org/donate-to-matplotlib/index.html
 .. _jdh-fellowship: https://www.numfocus.org/programs/john-hunter-technology-fellowship/
 
 The :doc:`Matplotlib license <users/license>` is based on the `Python Software
