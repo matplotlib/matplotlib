@@ -338,9 +338,8 @@ class GraphicsContextCairo(GraphicsContextBase):
         # one for False.
 
     def set_capstyle(self, cs):
-        cbook._check_in_list(('butt', 'round', 'projecting'), capstyle=cs)
+        self.ctx.set_line_cap(cbook._check_getitem(self._capd, capstyle=cs))
         self._capstyle = cs
-        self.ctx.set_line_cap(self._capd[cs])
 
     def set_clip_rectangle(self, rectangle):
         if not rectangle:
@@ -382,9 +381,8 @@ class GraphicsContextCairo(GraphicsContextBase):
         return self.ctx.get_source().get_rgba()[:3]
 
     def set_joinstyle(self, js):
-        cbook._check_in_list(('miter', 'round', 'bevel'), joinstyle=js)
+        self.ctx.set_line_join(cbook._check_getitem(self._joind, joinstyle=js))
         self._joinstyle = js
-        self.ctx.set_line_join(self._joind[js])
 
     def set_linewidth(self, w):
         self._linewidth = float(w)

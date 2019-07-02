@@ -993,15 +993,12 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        proj_type : str
-            Type of projection, accepts 'persp' and 'ortho'.
-
+        proj_type : {'persp', 'ortho'}
         """
-        cbook._check_in_list(['persp', 'ortho'], proj_type=proj_type)
-        if proj_type == 'persp':
-            self._projection = proj3d.persp_transformation
-        elif proj_type == 'ortho':
-            self._projection = proj3d.ortho_transformation
+        self._projection = cbook._check_getitem({
+            'persp': proj3d.persp_transformation,
+            'ortho': proj3d.ortho_transformation,
+        }, proj_type=proj_type)
 
     def get_proj(self):
         """

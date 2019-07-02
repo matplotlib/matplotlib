@@ -47,8 +47,7 @@ class UnitDbl:
         - value     The numeric value of the UnitDbl.
         - units     The string name of the units the value is in.
         """
-        cbook._check_in_list(self.allowed, units=units)
-        data = self.allowed[units]
+        data = cbook._check_getitem(self.allowed, units=units)
         self._value = float(value * data[0])
         self._units = data[1]
 
@@ -67,8 +66,7 @@ class UnitDbl:
         """
         if self._units == units:
             return self._value
-        cbook._check_in_list(self.allowed, units=units)
-        data = self.allowed[units]
+        data = cbook._check_getitem(self.allowed, units=units)
         if self._units != data[1]:
             raise ValueError(f"Error trying to convert to different units.\n"
                              f"    Invalid conversion requested.\n"
