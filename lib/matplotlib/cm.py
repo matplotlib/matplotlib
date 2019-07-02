@@ -13,8 +13,6 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 
   :doc:`/tutorials/colors/colormapnorms` for more details about data
   normalization.
-
-
 """
 
 import functools
@@ -29,17 +27,11 @@ from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
 
 
-cmap_d = {}
+def _reverser(f, x):  # Deprecated, remove this at the same time as revcmap.
+    return f(1 - x)  # Toplevel helper for revcmap ensuring cmap picklability.
 
 
-# reverse all the colormaps.
-# reversed colormaps have '_r' appended to the name.
-
-
-def _reverser(f, x):  # Toplevel helper for revcmap ensuring cmap picklability.
-    return f(1 - x)
-
-
+@cbook.deprecated("3.2", alternative="Colormap.reversed()")
 def revcmap(data):
     """Can only handle specification *data* in dictionary format."""
     data_r = {}
@@ -54,51 +46,30 @@ def revcmap(data):
     return data_r
 
 
-def _reverse_cmap_spec(spec):
-    """Reverses cmap specification *spec*, can handle both dict and tuple
-    type specs."""
-
-    if 'listed' in spec:
-        return {'listed': spec['listed'][::-1]}
-
-    if 'red' in spec:
-        return revcmap(spec)
-    else:
-        revspec = list(reversed(spec))
-        if len(revspec[0]) == 2:    # e.g., (1, (1.0, 0.0, 1.0))
-            revspec = [(1.0 - a, b) for a, b in revspec]
-        return revspec
-
-
-def _generate_cmap(name, lutsize):
-    """Generates the requested cmap from its *name*.  The lut size is
-    *lutsize*."""
-
-    spec = datad[name]
-
-    # Generate the colormap object.
-    if 'red' in spec:
-        return colors.LinearSegmentedColormap(name, spec, lutsize)
-    elif 'listed' in spec:
-        return colors.ListedColormap(spec['listed'], name)
-    else:
-        return colors.LinearSegmentedColormap.from_list(name, spec, lutsize)
-
-
 LUTSIZE = mpl.rcParams['image.lut']
 
-# Generate the reversed specifications (all at once, to avoid
-# modify-when-iterating).
-datad.update({cmapname + '_r': _reverse_cmap_spec(spec)
-              for cmapname, spec in datad.items()})
 
-# Precache the cmaps with ``lutsize = LUTSIZE``.
-# Also add the reversed ones added in the section above:
-for cmapname in datad:
-    cmap_d[cmapname] = _generate_cmap(cmapname, LUTSIZE)
+def _gen_cmap_d():
+    """
+    Generate a dict mapping standard colormap names to standard colormaps, as
+    well as the reversed colormaps.
+    """
+    cmap_d = {**cmaps_listed}
+    for name, spec in datad.items():
+        cmap_d[name] = (  # Precache the cmaps at a fixed lutsize..
+            colors.LinearSegmentedColormap(name, spec, LUTSIZE)
+            if 'red' in spec else
+            colors.ListedColormap(spec['listed'], name)
+            if 'listed' in spec else
+            colors.LinearSegmentedColormap.from_list(name, spec, LUTSIZE))
+    # Generate reversed cmaps.
+    for cmap in list(cmap_d.values()):
+        rmap = cmap.reversed()
+        cmap_d[rmap.name] = rmap
+    return cmap_d
 
-cmap_d.update(cmaps_listed)
 
+cmap_d = _gen_cmap_d()
 locals().update(cmap_d)
 
 

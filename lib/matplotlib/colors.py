@@ -60,6 +60,7 @@ Matplotlib recognizes the following formats to specify a color:
 """
 
 from collections.abc import Sized
+import functools
 import itertools
 import re
 
@@ -795,6 +796,11 @@ class LinearSegmentedColormap(Colormap):
         """
         return LinearSegmentedColormap(self.name, self._segmentdata, lutsize)
 
+    # Helper ensuring picklability of the reversed cmap.
+    @staticmethod
+    def _reverser(func, x):
+        return func(1 - x)
+
     def reversed(self, name=None):
         """
         Make a reversed instance of the Colormap.
@@ -813,13 +819,9 @@ class LinearSegmentedColormap(Colormap):
         if name is None:
             name = self.name + "_r"
 
-        # Function factory needed to deal with 'late binding' issue.
-        def factory(dat):
-            def func_r(x):
-                return dat(1.0 - x)
-            return func_r
-
-        data_r = {key: (factory(data) if callable(data) else
+        # Using a partial object keeps the cmap picklable.
+        data_r = {key: (functools.partial(self._reverser, data)
+                        if callable(data) else
                         [(1.0 - x, y1, y0) for x, y0, y1 in reversed(data)])
                   for key, data in self._segmentdata.items()}
 
