@@ -3,17 +3,16 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 
 .. seealso::
 
-  :doc:`/gallery/color/colormap_reference` for a list of builtin
-  colormaps.
+  :doc:`/gallery/color/colormap_reference` for a list of builtin colormaps.
 
   :doc:`/tutorials/colors/colormap-manipulation` for examples of how to
-  make colormaps and
+  make colormaps.
 
   :doc:`/tutorials/colors/colormaps` an in-depth discussion of
   choosing colormaps.
 
   :doc:`/tutorials/colors/colormapnorms` for more details about data
-  normalization
+  normalization.
 
 
 """
@@ -37,11 +36,7 @@ cmap_d = {}
 # reversed colormaps have '_r' appended to the name.
 
 
-def _reverser(f, x=None):
-    """Helper such that ``_reverser(f)(x) == f(1 - x)``."""
-    if x is None:
-        # Returning a partial object keeps it picklable.
-        return functools.partial(_reverser, f)
+def _reverser(f, x):  # Toplevel helper for revcmap ensuring cmap picklability.
     return f(1 - x)
 
 
@@ -50,11 +45,8 @@ def revcmap(data):
     data_r = {}
     for key, val in data.items():
         if callable(val):
-            valnew = _reverser(val)
-            # This doesn't work: lambda x: val(1-x)
-            # The same "val" (the first one) is used
-            # each time, so the colors are identical
-            # and the result is shades of gray.
+            # Return a partial object so that the result is picklable.
+            valnew = functools.partial(_reverser, val)
         else:
             # Flip x and exchange the y values facing x = 0 and x = 1.
             valnew = [(1.0 - x, y1, y0) for x, y0, y1 in reversed(val)]
