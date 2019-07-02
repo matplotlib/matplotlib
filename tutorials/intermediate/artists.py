@@ -423,7 +423,7 @@ plt.show()
 #     In [263]: rect = matplotlib.patches.Rectangle( (1,1), width=5, height=12)
 #
 #     # by default the axes instance is None
-#     In [264]: print(rect.get_axes())
+#     In [264]: print(rect.axes)
 #     None
 #
 #     # and the transformation instance is set to the "identity transform"
@@ -435,7 +435,7 @@ plt.show()
 #
 #     # and notice that the ax.add_patch method has set the axes
 #     # instance
-#     In [267]: print(rect.get_axes())
+#     In [267]: print(rect.axes)
 #     Axes(0.125,0.1;0.775x0.8)
 #
 #     # and the transformation has been set too
