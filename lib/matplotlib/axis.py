@@ -1906,7 +1906,7 @@ def _make_getset_interval(method_name, lim_name, attr_name):
                 setter(self, min(vmin, vmax, oldmin), max(vmin, vmax, oldmax),
                        ignore=True)
             else:
-                setter(self, max(vmin, vmax, oldmax), min(vmin, vmax, oldmin),
+                setter(self, max(vmin, vmax, oldmin), min(vmin, vmax, oldmax),
                        ignore=True)
         self.stale = True
 
