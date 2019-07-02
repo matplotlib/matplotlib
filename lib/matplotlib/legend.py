@@ -185,7 +185,7 @@ fontsize : int or float or {'xx-small', 'x-small', 'small', 'medium', \
     Controls the font size of the legend. If the value is numeric the
     size will be the absolute font size in points. String values are
     relative to the current default font size. This argument is only
-    used if `prop` is not specified.
+    used if *prop* is not specified.
 
 numpoints : None or int
     The number of marker points in the legend when creating a legend
@@ -254,7 +254,7 @@ edgecolor : None or "inherit" or color
     :rc:`axes.edgecolor`.
 
 mode : {"expand", None}
-    If `mode` is set to ``"expand"`` the legend will be horizontally
+    If *mode* is set to ``"expand"`` the legend will be horizontally
     expanded to fill the axes area (or `bbox_to_anchor` if defines
     the legend's size).
 

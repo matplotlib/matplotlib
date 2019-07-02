@@ -1663,11 +1663,11 @@ class OffsetFrom:
             The object to compute the offset from.
 
         ref_coord : length 2 sequence
-            If `artist` is an `Artist` or `BboxBase`, this values is
+            If *artist* is an `Artist` or `BboxBase`, this values is
             the location to of the offset origin in fractions of the
-            `artist` bounding box.
+            *artist* bounding box.
 
-            If `artist` is a transform, the offset origin is the
+            If *artist* is a transform, the offset origin is the
             transform applied to this value.
 
         unit : {'points, 'pixels'}

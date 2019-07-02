@@ -75,7 +75,7 @@ class ToolBase:
     Filename of the image
 
     **String**: Filename of the image to use in the toolbar. If None, the
-    `name` is used as a label in the toolbar button
+    *name* is used as a label in the toolbar button
     """
 
     def __init__(self, toolmanager, name):

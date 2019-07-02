@@ -28,7 +28,7 @@ class Triangulation:
         Masked out triangles.
     is_delaunay : bool
         Whether the Triangulation is a calculated Delaunay
-        triangulation (where `triangles` was not specified) or not.
+        triangulation (where *triangles* was not specified) or not.
 
     Notes
     -----

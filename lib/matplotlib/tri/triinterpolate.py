@@ -132,7 +132,7 @@ class TriInterpolator:
         :meth:`_interpolate_single_key`.)
 
         It is guaranteed that the calls to :meth:`_interpolate_single_key`
-        will be done with flattened (1-d) array_like input parameters `x`, `y`
+        will be done with flattened (1-d) array_like input parameters *x*, *y*
         and with flattened, valid `tri_index` arrays (no -1 index allowed).
 
         Parameters
@@ -319,7 +319,7 @@ class CubicTriInterpolator(TriInterpolator):
             - if 'geom': The derivatives at each node is computed as a
               weighted average of relevant triangle normals. To be used for
               speed optimization (large grids).
-            - if 'user': The user provides the argument `dz`, no computation
+            - if 'user': The user provides the argument *dz*, no computation
               is hence needed.
 
     trifinder : :class:`~matplotlib.tri.TriFinder` object, optional
@@ -1137,7 +1137,7 @@ class _DOF_estimator_geom(_DOF_estimator):
             # modulo 1. is safer regarding round-off errors (flat triangles).
             angle = np.abs(((alpha2-alpha1) / np.pi) % 1)
             # Weight proportional to angle up np.pi/2; null weight for
-            # degenerated cases 0 and np.pi (note that `angle` is normalized
+            # degenerated cases 0 and np.pi (note that *angle* is normalized
             # by np.pi).
             weights[:, ipt] = 0.5 - np.abs(angle-0.5)
         return weights

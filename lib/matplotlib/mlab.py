@@ -1427,11 +1427,11 @@ class GaussianKDE:
         the covariance matrix is multiplied.
 
     covariance : ndarray
-        The covariance matrix of `dataset`, scaled by the calculated bandwidth
+        The covariance matrix of *dataset*, scaled by the calculated bandwidth
         (`kde.factor`).
 
     inv_cov : ndarray
-        The inverse of `covariance`.
+        The inverse of *covariance*.
 
     Methods
     -------

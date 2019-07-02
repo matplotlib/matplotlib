@@ -238,7 +238,7 @@ def test_setp():
     martist.setp(chain(lines1, lines2), 'lw', 5)
     plt.setp(ax.spines.values(), color='green')
 
-    # Check `file` argument
+    # Check *file* argument
     sio = io.StringIO()
     plt.setp(lines1, 'zorder', file=sio)
     assert sio.getvalue() == '  zorder: float\n'
