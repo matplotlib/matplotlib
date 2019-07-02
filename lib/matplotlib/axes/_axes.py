@@ -7782,7 +7782,7 @@ optional.
         Notes
         -----
         This is just a convenience function wrapping `.imshow` to set useful
-        defaults for a displaying a matrix. In particular:
+        defaults for displaying a matrix. In particular:
 
         - Set ``origin='upper'``.
         - Set ``interpolation='nearest'``.
