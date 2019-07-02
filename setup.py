@@ -49,10 +49,8 @@ import versioneer
 __version__ = versioneer.get_version()
 
 
-# These are the packages in the order we want to display them.  This
-# list may contain strings to create section headers for the display.
+# These are the packages in the order we want to display them.
 mpl_packages = [
-    'Building Matplotlib',
     setupext.Matplotlib(),
     setupext.Python(),
     setupext.Platform(),
@@ -67,10 +65,8 @@ mpl_packages = [
     setupext.Contour(),
     setupext.QhullWrap(),
     setupext.Tri(),
-    'Optional subpackages',
     setupext.SampleData(),
     setupext.Tests(),
-    'Optional backend extensions',
     setupext.BackendAgg(),
     setupext.BackendTkAgg(),
     setupext.BackendMacOSX(),
@@ -178,29 +174,23 @@ if __name__ == '__main__':
         print_raw()
         print_raw("Edit setup.cfg to change the build options; "
                   "suppress output with --quiet.")
+        print_raw()
+        print_raw("BUILDING MATPLOTLIB")
 
         good_packages = []
         for package in mpl_packages:
-            if isinstance(package, str):
-                print_raw('')
-                print_raw(package.upper())
+            try:
+                result = package.check()
+                if result is not None:
+                    print_status(package.name, 'yes [%s]' % result)
+            except setupext.CheckFailed as e:
+                print_status(package.name, 'no  [%s]' % str(e))
+                if not package.optional:
+                    sys.exit("Failed to build %s" % package.name)
             else:
-                try:
-                    result = package.check()
-                    if result is not None:
-                        message = 'yes [%s]' % result
-                        print_status(package.name, message)
-                except setupext.CheckFailed as e:
-                    msg = str(e).strip()
-                    if len(msg):
-                        print_status(package.name, 'no  [%s]' % msg)
-                    else:
-                        print_status(package.name, 'no')
-                    if not package.optional:
-                        sys.exit("Failed to build %s" % package.name)
-                else:
-                    good_packages.append(package)
-        print_raw('')
+                good_packages.append(package)
+
+        print_raw()
 
         # Now collect all of the information we need to build all of the
         # packages.
