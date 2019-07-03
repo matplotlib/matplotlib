@@ -160,7 +160,7 @@ class Axes(_AxesBase):
 
         fontdict : dict
             A dictionary controlling the appearance of the title text,
-            the default `fontdict` is::
+            the default *fontdict* is::
 
                {'fontsize': rcParams['axes.titlesize'],
                 'fontweight' : rcParams['axes.titleweight'],
@@ -723,7 +723,7 @@ class Axes(_AxesBase):
             ...      verticalalignment='center', transform=ax.transAxes)
 
         You can put a rectangular box around the text instance (e.g., to
-        set a background color) by using the keyword `bbox`.  `bbox` is
+        set a background color) by using the keyword *bbox*.  *bbox* is
         a dictionary of `~matplotlib.patches.Rectangle`
         properties.  For example::
 
@@ -967,8 +967,8 @@ class Axes(_AxesBase):
         """
         Add a vertical span (rectangle) across the axes.
 
-        Draw a vertical span (rectangle) from `xmin` to `xmax`.  With
-        the default values of `ymin` = 0 and `ymax` = 1. This always
+        Draw a vertical span (rectangle) from *xmin* to *xmax*.  With
+        the default values of *ymin* = 0 and *ymax* = 1. This always
         spans the yrange, regardless of the ylim settings, even if you
         change them, e.g., with the :meth:`set_ylim` command.  That is,
         the vertical extent is in axes coords: 0=bottom, 0.5=middle,
@@ -3680,7 +3680,7 @@ class Axes(_AxesBase):
         # if non-default sym value, put it into the flier dictionary
         # the logic for providing the default symbol ('b+') now lives
         # in bxp in the initial value of final_flierprops
-        # handle all of the `sym` related logic here so we only have to pass
+        # handle all of the *sym* related logic here so we only have to pass
         # on the flierprops dict.
         if sym is not None:
             # no-flier case, which should really be done with
@@ -6351,12 +6351,12 @@ optional.
             If an integer is given, ``bins + 1`` bin edges are calculated and
             returned, consistent with `numpy.histogram`.
 
-            If `bins` is a sequence, gives bin edges, including left edge of
-            first bin and right edge of last bin.  In this case, `bins` is
+            If *bins* is a sequence, gives bin edges, including left edge of
+            first bin and right edge of last bin.  In this case, *bins* is
             returned unmodified.
 
             All but the last (righthand-most) bin is half-open.  In other
-            words, if `bins` is::
+            words, if *bins* is::
 
                 [1, 2, 3, 4]
 
@@ -7911,7 +7911,7 @@ optional.
                showmeans=False, showextrema=True, showmedians=False):
         """Drawing function for violin plots.
 
-        Draw a violin plot for each column of `vpstats`. Each filled area
+        Draw a violin plot for each column of *vpstats*. Each filled area
         extends to represent the entire data range, with optional lines at the
         mean, the median, the minimum, the maximum, and the quantiles values.
 

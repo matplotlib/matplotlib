@@ -1083,7 +1083,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     labels : array-like, optional
         Labels for each dataset. Length must be compatible with
-        dimensions of `X`.
+        dimensions of *X*.
 
     autorange : bool, optional (False)
         When `True` and the data are distributed such that the 25th and 75th
@@ -1478,7 +1478,7 @@ def pts_to_prestep(x, *args):
     >>> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
     """
     steps = np.zeros((1 + len(args), max(2 * len(x) - 1, 0)))
-    # In all `pts_to_*step` functions, only assign *once* using `x` and `args`,
+    # In all `pts_to_*step` functions, only assign once using *x* and *args*,
     # as converting to an array may be expensive.
     steps[0, 0::2] = x
     steps[0, 1::2] = steps[0, 0:-2:2]

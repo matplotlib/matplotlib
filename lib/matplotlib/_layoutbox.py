@@ -319,10 +319,10 @@ class LayoutBox:
         sol.suggestValue(self.width, width)
 
     def constrain_width(self, width, strength='strong'):
-        '''
-        Constrain the width of the layout box.  `width` is
+        """
+        Constrain the width of the layout box.  *width* is
         either a float or a layoutbox.width.
-        '''
+        """
         c = (self.width == width)
         self.solver.addConstraint(c | strength)
 
@@ -471,7 +471,7 @@ class LayoutBox:
 def hstack(boxes, padding=0, strength='strong'):
     '''
     Stack LayoutBox instances from left to right.
-    `padding` is in figure-relative units.
+    *padding* is in figure-relative units.
     '''
 
     for i in range(1, len(boxes)):

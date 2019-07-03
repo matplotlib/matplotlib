@@ -291,7 +291,7 @@ def _from_ordinalf(x, tz=None):
                          'expects datetime objects.'.format(ix))
     dt = datetime.datetime.fromordinal(ix).replace(tzinfo=UTC)
 
-    # Since the input date `x` float is unable to preserve microsecond
+    # Since the input date *x* float is unable to preserve microsecond
     # precision of time representation in non-antique years, the
     # resulting datetime is rounded to the nearest multiple of
     # `musec_prec`. A value of 20 is appropriate for current dates.

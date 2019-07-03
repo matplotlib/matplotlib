@@ -78,9 +78,9 @@ def figure_edit(axes, parent=None):
     def prepare_data(d, init):
         """Prepare entry for FormLayout.
 
-        `d` is a mapping of shorthands to style names (a single style may
+        *d* is a mapping of shorthands to style names (a single style may
         have multiple shorthands, in particular the shorthands `None`,
-        `"None"`, `"none"` and `""` are synonyms); `init` is one shorthand
+        `"None"`, `"none"` and `""` are synonyms); *init* is one shorthand
         of the initial style.
 
         This function returns an list suitable for initializing a

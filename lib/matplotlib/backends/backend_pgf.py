@@ -1075,7 +1075,7 @@ class PdfPages:
     def close(self):
         """
         Finalize this object, running LaTeX in a temporary directory
-        and moving the final pdf file to `filename`.
+        and moving the final pdf file to *filename*.
         """
         self._file.write(rb'\end{document}\n')
         self._file.close()

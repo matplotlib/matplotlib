@@ -3387,7 +3387,7 @@ class _AxesBase(martist.Artist):
            else return the major ticklabels.
 
         which : None, ('minor', 'major', 'both')
-           Overrides `minor`.
+           Overrides *minor*.
 
            Selects which ticklabels to return
 
@@ -3411,7 +3411,7 @@ class _AxesBase(martist.Artist):
 
         fontdict : dict, optional
             A dictionary controlling the appearance of the ticklabels.
-            The default `fontdict` is::
+            The default *fontdict* is::
 
                {'fontsize': rcParams['axes.titlesize'],
                 'fontweight': rcParams['axes.titleweight'],
@@ -3770,7 +3770,7 @@ class _AxesBase(martist.Artist):
            else return the major ticklabels
 
         which : None, ('minor', 'major', 'both')
-           Overrides `minor`.
+           Overrides *minor*.
 
            Selects which ticklabels to return
 
@@ -3794,7 +3794,7 @@ class _AxesBase(martist.Artist):
 
         fontdict : dict, optional
             A dictionary controlling the appearance of the ticklabels.
-            The default `fontdict` is::
+            The default *fontdict* is::
 
                {'fontsize': rcParams['axes.titlesize'],
                 'fontweight': rcParams['axes.titleweight'],

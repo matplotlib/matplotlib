@@ -11,7 +11,7 @@ Inset Locator Demo
 # height and optionally a location (loc) that accepts locations as codes,
 # similar to `~matplotlib.axes.Axes.legend`.
 # By default, the inset is offset by some points from the axes,
-# controlled via the `borderpad` parameter.
+# controlled via the *borderpad* parameter.
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
@@ -44,11 +44,11 @@ plt.show()
 
 
 ###############################################################################
-# The arguments `bbox_to_anchor` and `bbox_transfrom` can be used for a more
+# The arguments *bbox_to_anchor* and *bbox_transfrom* can be used for a more
 # fine grained control over the inset position and size or even to position
 # the inset at completely arbitrary positions.
-# The `bbox_to_anchor` sets the bounding box in coordinates according to the
-# `bbox_transform`.
+# The *bbox_to_anchor* sets the bounding box in coordinates according to the
+# *bbox_transform*.
 #
 
 fig = plt.figure(figsize=[5.5, 2.8])

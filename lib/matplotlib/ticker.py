@@ -316,7 +316,7 @@ class IndexFormatter(Formatter):
 
     def __call__(self, x, pos=None):
         """
-        Return the format for tick value `x` at position pos.
+        Return the format for tick value *x* at position pos.
 
         The position is ignored and the value is rounded to the nearest
         integer, which is used to look up the label.
@@ -355,8 +355,8 @@ class FixedFormatter(Formatter):
         Returns the label that matches the position regardless of the
         value.
 
-        For positions ``pos < len(seq)``, return `seq[i]` regardless of
-        `x`. Otherwise return empty string. `seq` is the sequence of
+        For positions ``pos < len(seq)``, return ``seq[i]`` regardless of
+        *x*. Otherwise return empty string. ``seq`` is the sequence of
         strings that this object was initialized with.
         """
         if pos is None or pos >= len(self.seq):
@@ -386,7 +386,7 @@ class FuncFormatter(Formatter):
         """
         Return the value of the user defined function.
 
-        `x` and `pos` are passed through as-is.
+        *x* and *pos* are passed through as-is.
         """
         return self.func(x, pos)
 
@@ -405,7 +405,7 @@ class FormatStrFormatter(Formatter):
         """
         Return the formatted label string.
 
-        Only the value `x` is formatted. The position is ignored.
+        Only the value *x* is formatted. The position is ignored.
         """
         return self.fmt % x
 
@@ -415,8 +415,8 @@ class StrMethodFormatter(Formatter):
     Use a new-style format string (as used by `str.format()`)
     to format the tick.
 
-    The field used for the value must be labeled `x` and the field used
-    for the position must be labeled `pos`.
+    The field used for the value must be labeled *x* and the field used
+    for the position must be labeled *pos*.
     """
     def __init__(self, fmt):
         self.fmt = fmt
@@ -425,7 +425,7 @@ class StrMethodFormatter(Formatter):
         """
         Return the formatted label string.
 
-        `x` and `pos` are passed to `str.format` as keyword arguments
+        *x* and *pos* are passed to `str.format` as keyword arguments
         with those exact names.
         """
         return self.fmt.format(x=x, pos=pos)
@@ -438,9 +438,9 @@ class OldScalarFormatter(Formatter):
 
     def __call__(self, x, pos=None):
         """
-        Return the format for tick val `x` based on the width of the axis.
+        Return the format for tick val *x* based on the width of the axis.
 
-        The position `pos` is ignored.
+        The position *pos* is ignored.
         """
         xmin, xmax = self.axis.get_view_interval()
         # If the number is not too big and it's an int, format it as an int.
@@ -466,7 +466,7 @@ class OldScalarFormatter(Formatter):
     @cbook.deprecated("3.1")
     def pprint_val(self, x, d):
         """
-        Formats the value `x` based on the size of the axis range `d`.
+        Formats the value *x* based on the size of the axis range *d*.
         """
         # If the number is not too big and it's an int, format it as an int.
         if abs(x) < 1e4 and x == int(x):
@@ -575,7 +575,7 @@ class ScalarFormatter(Formatter):
 
     def __call__(self, x, pos=None):
         """
-        Return the format for tick value `x` at position `pos`.
+        Return the format for tick value *x* at position *pos*.
         """
         if len(self.locs) == 0:
             return ''
@@ -1359,7 +1359,7 @@ class PercentFormatter(Formatter):
         *xmax* is the data value that corresponds to 100%.
         Percentages are computed as ``x / xmax * 100``. So if the data is
         already scaled to be percentages, *xmax* will be 100. Another common
-        situation is where `xmax` is 1.0.
+        situation is where *xmax* is 1.0.
 
     decimals : None or int
         The number of decimal places to place after the point.

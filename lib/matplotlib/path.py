@@ -460,7 +460,7 @@ class Path:
         if transform is not None:
             transform = transform.frozen()
         # `point_in_path` does not handle nonlinear transforms, so we
-        # transform the path ourselves.  If `transform` is affine, letting
+        # transform the path ourselves.  If *transform* is affine, letting
         # `point_in_path` handle the transform avoids allocating an extra
         # buffer.
         if transform and not transform.is_affine:

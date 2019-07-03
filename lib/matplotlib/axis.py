@@ -1295,7 +1295,7 @@ class Axis(martist.Artist):
            else return the major ticklabels
 
         which : None, ('minor', 'major', 'both')
-           Overrides `minor`.
+           Overrides *minor*.
 
            Selects which ticklabels to return
 

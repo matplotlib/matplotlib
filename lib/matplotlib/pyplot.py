@@ -445,7 +445,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         it active, and returns a reference to it. If this figure does not
         exists, create it and returns it.
         If num is a string, the window title will be set to this figure's
-        `num`.
+        *num*.
 
     figsize : (float, float), optional, default: None
         width, height in inches. If not provided, defaults to

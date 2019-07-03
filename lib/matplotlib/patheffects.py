@@ -292,7 +292,7 @@ class SimpleLineShadow(AbstractPathEffect):
         shadow_color : color
             The shadow color. Default is black.
             A value of ``None`` takes the original artist's color
-            with a scale factor of `rho`.
+            with a scale factor of *rho*.
         alpha : float
             The alpha transparency of the created shadow patch.
             Default is 0.3.

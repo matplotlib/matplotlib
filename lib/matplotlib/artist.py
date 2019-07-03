@@ -681,7 +681,7 @@ class Artist:
         if self.figure is fig:
             return
         # if we currently have a figure (the case of both `self.figure`
-        # and `fig` being none is taken care of above) we then user is
+        # and *fig* being none is taken care of above) we then user is
         # trying to change the figure an artist is associated with which
         # is not allowed for the same reason as adding the same instance
         # to more than one Axes
@@ -1518,7 +1518,7 @@ def setp(obj, *args, **kwargs):
           ... long output listing omitted
 
     You may specify another output file to `setp` if `sys.stdout` is not
-    acceptable for some reason using the `file` keyword-only argument::
+    acceptable for some reason using the *file* keyword-only argument::
 
       >>> with fopen('output.log') as f:
       >>>     setp(line, file=f)

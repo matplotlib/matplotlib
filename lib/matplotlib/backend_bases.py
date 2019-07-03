@@ -481,9 +481,9 @@ class RendererBase:
             form of a :class:`~matplotlib.transforms.Affine2DBase` instance.
             The translation vector of the transformation is given in physical
             units (i.e., dots or pixels). Note that the transformation does not
-            override `x` and `y`, and has to be applied *before* translating
-            the result by `x` and `y` (this can be accomplished by adding `x`
-            and `y` to the translation vector defined by `transform`).
+            override *x* and *y*, and has to be applied *before* translating
+            the result by *x* and *y* (this can be accomplished by adding *x*
+            and *y* to the translation vector defined by *transform*).
         """
         raise NotImplementedError
 
@@ -1000,10 +1000,10 @@ class GraphicsContextBase:
 
             A 3-tuple with the following elements:
 
-            * `scale`: The amplitude of the wiggle perpendicular to the
+            * ``scale``: The amplitude of the wiggle perpendicular to the
               source line.
-            * `length`: The length of the wiggle along the line.
-            * `randomness`: The scale factor by which the length is
+            * ``length``: The length of the wiggle along the line.
+            * ``randomness``: The scale factor by which the length is
               shrunken or expanded.
 
             May return `None` if no sketch parameters were set.

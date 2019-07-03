@@ -515,7 +515,7 @@ def layoutcolorbarsingle(ax, cax, shrink, aspect, location, pad=0.05):
     """
     Do the layout for a colorbar, to not overly pollute colorbar.py
 
-    `pad` is in fraction of the original axis size.
+    *pad* is in fraction of the original axis size.
     """
     axlb = ax._layoutbox
     axpos = ax._poslayoutbox
@@ -604,7 +604,7 @@ def layoutcolorbargridspec(parents, cax, shrink, aspect, location, pad=0.05):
     """
     Do the layout for a colorbar, to not overly pollute colorbar.py
 
-    `pad` is in fraction of the original axis size.
+    *pad* is in fraction of the original axis size.
     """
 
     gs = parents[0].get_subplotspec().get_gridspec()

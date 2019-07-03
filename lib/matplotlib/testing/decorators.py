@@ -56,7 +56,7 @@ def cleanup(style=None):
         The name of the style to apply.
     """
 
-    # If cleanup is used without arguments, `style` will be a callable, and we
+    # If cleanup is used without arguments, *style* will be a callable, and we
     # pass it directly to the wrapper generator.  If cleanup if called with an
     # argument, it is a string naming a style, and the function will be passed
     # as an argument to what we return.  This is a confusing, but somewhat
