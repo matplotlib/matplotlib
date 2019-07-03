@@ -409,6 +409,16 @@ TEMPLATE = """
    {% endif -%}
    {% endfor %}
 
+{{ only_confluence }}
+
+   {% for img in images %}
+   .. image:: {{ build_dir }}/{{ img.basename }}.png
+      {% for option in options -%}
+      {{ option }}
+      {% endfor %}
+
+   {% endfor %}
+
 """
 
 exception_template = """
@@ -780,6 +790,8 @@ def run(arguments, content, options, state_machine, state, lineno):
         only_html = ".. only:: html"
         only_latex = ".. only:: latex"
         only_texinfo = ".. only:: texinfo"
+        only_confluence = ".. only:: confluence"
+
 
         # Not-None src_link signals the need for a source link in the generated
         # html
@@ -797,6 +809,7 @@ def run(arguments, content, options, state_machine, state, lineno):
             only_html=only_html,
             only_latex=only_latex,
             only_texinfo=only_texinfo,
+            only_confluence=only_confluence,
             options=opts,
             images=images,
             source_code=source_code,
