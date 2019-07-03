@@ -792,7 +792,6 @@ def run(arguments, content, options, state_machine, state, lineno):
         only_texinfo = ".. only:: texinfo"
         only_confluence = ".. only:: confluence"
 
-
         # Not-None src_link signals the need for a source link in the generated
         # html
         if j == 0 and config.plot_html_show_source_link:
