@@ -465,10 +465,6 @@ class FigureManagerTk(FigureManagerBase):
             self.toolbar.configure(width=width)
 
     def show(self):
-        """
-        this function doesn't segfault but causes the
-        PyEval_RestoreThread: NULL state bug on win32
-        """
         with _restore_foreground_window_at_end():
             if not self._shown:
                 def destroy(*args):
