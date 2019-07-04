@@ -1504,7 +1504,7 @@ def xticks(ticks=None, labels=None, **kwargs):
     for l in labels:
         l.update(kwargs)
 
-    return locs, silent_list('Text xticklabel', labels)
+    return locs, labels
 
 
 def yticks(ticks=None, labels=None, **kwargs):
@@ -1579,7 +1579,7 @@ def yticks(ticks=None, labels=None, **kwargs):
     for l in labels:
         l.update(kwargs)
 
-    return locs, silent_list('Text yticklabel', labels)
+    return locs, labels
 
 
 def rgrids(*args, **kwargs):
@@ -1646,8 +1646,7 @@ def rgrids(*args, **kwargs):
         labels = ax.yaxis.get_ticklabels()
     else:
         lines, labels = ax.set_rgrids(*args, **kwargs)
-    return (silent_list('Line2D rgridline', lines),
-            silent_list('Text rgridlabel', labels))
+    return lines, labels
 
 
 def thetagrids(*args, **kwargs):
@@ -1711,8 +1710,7 @@ def thetagrids(*args, **kwargs):
         labels = ax.xaxis.get_ticklabels()
     else:
         lines, labels = ax.set_thetagrids(*args, **kwargs)
-    return (silent_list('Line2D thetagridline', lines),
-            silent_list('Text thetagridlabel', labels))
+    return lines, labels
 
 
 ## Plotting Info ##
