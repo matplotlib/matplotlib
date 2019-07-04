@@ -3,12 +3,13 @@
 Embedding in wx #4
 ==================
 
-An example of how to use wx or wxagg in an application with a custom toolbar.
+An example of how to use wxagg in a wx application with a custom toolbar.
 """
 
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as NavigationToolbar
-from matplotlib.backends.backend_wx import _load_bitmap
+from matplotlib.backends.backend_wxagg import (
+    FigureCanvasWxAgg as FigureCanvas,
+    NavigationToolbar2WxAgg as NavigationToolbar,
+)
 from matplotlib.figure import Figure
 
 import numpy as np
@@ -19,12 +20,11 @@ import wx
 class MyNavigationToolbar(NavigationToolbar):
     """Extend the default wx toolbar with your own event handlers."""
 
-    def __init__(self, canvas, cankill):
+    def __init__(self, canvas):
         NavigationToolbar.__init__(self, canvas)
-
-        # for simplicity I'm going to reuse a bitmap from wx, you'll
-        # probably want to add your own.
-        tool = self.AddTool(wx.ID_ANY, 'Click me', _load_bitmap('back.png'),
+        # We use a stock wx bitmap, but you could also use your own image file.
+        bmp = wx.ArtProvider.GetBitmap(wx.ART_CROSS_MARK, wx.ART_TOOLBAR)
+        tool = self.AddTool(wx.ID_ANY, 'Click me', bmp,
                             'Activate custom contol')
         self.Bind(wx.EVT_TOOL, self._on_custom, id=tool.GetId())
 
@@ -64,7 +64,7 @@ class CanvasFrame(wx.Frame):
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.canvas, 1, wx.TOP | wx.LEFT | wx.EXPAND)
 
-        self.toolbar = MyNavigationToolbar(self.canvas, True)
+        self.toolbar = MyNavigationToolbar(self.canvas)
         self.toolbar.Realize()
         # By adding toolbar in sizer, we are able to put it at the bottom
         # of the frame - so appearance is closer to GTK version.
