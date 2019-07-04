@@ -163,15 +163,11 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
             delta = np.empty((len(disp_coords), 2))
             delta[0, :] = 0
             delta[1:, :] = disp_coords[1:, :] - disp_coords[:-1, :]
-            delta = np.sum(delta**2, axis=1)
-            delta = np.sqrt(delta)
-            delta = np.cumsum(delta)
+            delta = np.hypot(*delta.T).cumsum()
             # calc distance between markers along path based on the axes
             # bounding box diagonal being a distance of unity:
-            scale = ax_transform.transform(np.array([[0, 0], [1, 1]]))
-            scale = np.diff(scale, axis=0)
-            scale = np.sum(scale**2)
-            scale = np.sqrt(scale)
+            (x0, y0), (x1, y1) = ax_transform.transform([[0, 0], [1, 1]])
+            scale = np.hypot(x1 - x0, y1 - y0)
             marker_delta = np.arange(start * scale, delta[-1], step * scale)
             # find closest actual data point that is closest to
             # the theoretical distance along the path:

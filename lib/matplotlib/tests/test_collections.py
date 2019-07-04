@@ -691,7 +691,7 @@ def test_pathcollection_legend_elements():
     l3 = ax.legend(h, l, loc=4)
 
     h, l = sc.legend_elements(prop="sizes", num=4, fmt="{x:.2f}",
-                           func=lambda x: 2*x)
+                              func=lambda x: 2*x)
     actsizes = [line.get_markersize() for line in h]
     labeledsizes = np.sqrt(np.array(l).astype(float)/2)
     assert_array_almost_equal(actsizes, labeledsizes)
