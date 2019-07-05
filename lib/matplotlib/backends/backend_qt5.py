@@ -571,16 +571,6 @@ class FigureManagerQT(FigureManagerBase):
                 statusbar_label = QtWidgets.QLabel()
                 self.window.statusBar().addWidget(statusbar_label)
                 self.toolbar.message.connect(statusbar_label.setText)
-            tbs_height = self.toolbar.sizeHint().height()
-        else:
-            tbs_height = 0
-
-        # resize the main window so it will display the canvas with the
-        # requested size:
-        cs = canvas.sizeHint()
-        sbs = self.window.statusBar().sizeHint()
-        height = cs.height() + tbs_height + sbs.height()
-        self.window.resize(cs.width(), height)
 
         self.window.setCentralWidget(self.canvas)
 
