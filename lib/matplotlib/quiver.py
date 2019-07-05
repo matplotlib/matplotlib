@@ -346,7 +346,7 @@ class QuiverKey(martist.Artist):
     def draw(self, renderer):
         self._init()
         self.vector.draw(renderer)
-        x, y = self.get_transform().transform_point((self.X, self.Y))
+        x, y = self.get_transform().transform((self.X, self.Y))
         self.text.set_x(self._text_x(x))
         self.text.set_y(self._text_y(y))
         self.text.draw(renderer)
@@ -552,9 +552,7 @@ class Quiver(mcollections.PolyCollection):
         if True:  # not self._initialized:
             trans = self._set_transform()
             ax = self.ax
-            sx, sy = trans.inverted().transform_point(
-                                            (ax.bbox.width, ax.bbox.height))
-            self.span = sx
+            self.span = trans.inverted().transform_bbox(ax.bbox).width
             if self.width is None:
                 sn = np.clip(math.sqrt(self.N), 8, 25)
                 self.width = 0.06 * self.span / sn

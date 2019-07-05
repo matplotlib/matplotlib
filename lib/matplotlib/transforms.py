@@ -1455,8 +1455,11 @@ class Transform(TransformNode):
 
     def transform_point(self, point):
         """
-        A convenience function that returns the transformed copy of a
-        single point.
+        Return a transformed point.
+
+        This function is only kept for backcompatibility; the more general
+        `.transform` method is capable of transforming both a list of points
+        and a single point.
 
         The point is given as a sequence of length :attr:`input_dims`.
         The transformed point is returned as a sequence of length
@@ -1464,7 +1467,7 @@ class Transform(TransformNode):
         """
         if len(point) != self.input_dims:
             raise ValueError("The length of 'point' must be 'self.input_dims'")
-        return self.transform(np.asarray([point]))[0]
+        return self.transform(point)
 
     def transform_path(self, path):
         """
@@ -1756,11 +1759,6 @@ class Affine2DBase(AffineBase):
             tpoints = affine_transform(points.data, mtx)
             return np.ma.MaskedArray(tpoints, mask=np.ma.getmask(points))
         return affine_transform(points, mtx)
-
-    def transform_point(self, point):
-        # docstring inherited
-        mtx = self.get_matrix()
-        return affine_transform([point], mtx)[0]
 
     if DEBUG:
         _transform_affine = transform_affine
@@ -2621,11 +2619,9 @@ class ScaledTranslation(Affine2DBase):
     def get_matrix(self):
         # docstring inherited
         if self._invalid:
-            xt, yt = self._scale_trans.transform_point(self._t)
-            self._mtx = np.array([[1.0, 0.0, xt],
-                                  [0.0, 1.0, yt],
-                                  [0.0, 0.0, 1.0]],
-                                 float)
+            # A bit faster than np.identity(3).
+            self._mtx = IdentityTransform._mtx.copy()
+            self._mtx[:2, 2] = self._scale_trans.transform(self._t)
             self._invalid = 0
             self._inverted = None
         return self._mtx

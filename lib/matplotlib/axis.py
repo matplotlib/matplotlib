@@ -737,8 +737,8 @@ class Axis(martist.Artist):
     OFFSETTEXTPAD = 3
 
     def __str__(self):
-        return self.__class__.__name__ \
-            + "(%f,%f)" % tuple(self.axes.transAxes.transform_point((0, 0)))
+        return "{}({},{})".format(
+            type(self).__name__, *self.axes.transAxes.transform((0, 0)))
 
     def __init__(self, axes, pickradius=15):
         """
@@ -1929,11 +1929,10 @@ class XAxis(Axis):
         x, y = mouseevent.x, mouseevent.y
         try:
             trans = self.axes.transAxes.inverted()
-            xaxes, yaxes = trans.transform_point((x, y))
+            xaxes, yaxes = trans.transform((x, y))
         except ValueError:
             return False, {}
-        l, b = self.axes.transAxes.transform_point((0, 0))
-        r, t = self.axes.transAxes.transform_point((1, 1))
+        (l, b), (r, t) = self.axes.transAxes.transform([(0, 0), (1, 1)])
         inaxis = 0 <= xaxes <= 1 and (
             b - self.pickradius < y < b or
             t < y < t + self.pickradius)
@@ -2215,11 +2214,10 @@ class YAxis(Axis):
         x, y = mouseevent.x, mouseevent.y
         try:
             trans = self.axes.transAxes.inverted()
-            xaxes, yaxes = trans.transform_point((x, y))
+            xaxes, yaxes = trans.transform((x, y))
         except ValueError:
             return False, {}
-        l, b = self.axes.transAxes.transform_point((0, 0))
-        r, t = self.axes.transAxes.transform_point((1, 1))
+        (l, b), (r, t) = self.axes.transAxes.transform([(0, 0), (1, 1)])
         inaxis = 0 <= yaxes <= 1 and (
             l - self.pickradius < x < l or
             r < x < r + self.pickradius)

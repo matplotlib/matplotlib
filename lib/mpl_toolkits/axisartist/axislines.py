@@ -240,7 +240,7 @@ class AxisArtistHelperRectlinear:
                     c[self.nth_coord] = x
 
                     # check if the tick point is inside axes
-                    c2 = tr2ax.transform_point(c)
+                    c2 = tr2ax.transform(c)
                     if (0 - self.delta1
                             <= c2[self.nth_coord]
                             <= 1 + self.delta2):
@@ -260,7 +260,7 @@ class AxisArtistHelperRectlinear:
                                [1., 1.]])
 
             fixed_coord = 1 - self.nth_coord
-            p = (axes.transData + axes.transAxes.inverted()).transform_point(
+            p = (axes.transData + axes.transAxes.inverted()).transform(
                 [self._value, self._value])
             _verts[:, fixed_coord] = p[fixed_coord]
 
@@ -286,7 +286,7 @@ class AxisArtistHelperRectlinear:
             _verts = [0.5, 0.5]
 
             fixed_coord = 1-self.nth_coord
-            p = (axes.transData + axes.transAxes.inverted()).transform_point(
+            p = (axes.transData + axes.transAxes.inverted()).transform(
                 [self._value, self._value])
             _verts[fixed_coord] = p[fixed_coord]
             if not (0. <= _verts[fixed_coord] <= 1.):
@@ -329,7 +329,7 @@ class AxisArtistHelperRectlinear:
 
                     c = [self._value, self._value]
                     c[self.nth_coord] = x
-                    c1, c2 = tr2ax.transform_point(c)
+                    c1, c2 = tr2ax.transform(c)
                     if (0 <= c1 <= 1 and 0 <= c2 <= 1
                             and 0 - self.delta1
                                 <= [c1, c2][self.nth_coord]

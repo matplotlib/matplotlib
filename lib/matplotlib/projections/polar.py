@@ -957,12 +957,12 @@ class PolarAxes(Axes):
         if isinstance(self.patch, mpatches.Wedge):
             # Backwards-compatibility: Any subclassed Axes might override the
             # patch to not be the Wedge that PolarAxes uses.
-            center = self.transWedge.transform_point((0.5, 0.5))
+            center = self.transWedge.transform((0.5, 0.5))
             self.patch.set_center(center)
             self.patch.set_theta1(thetamin)
             self.patch.set_theta2(thetamax)
 
-            edge, _ = self.transWedge.transform_point((1, 0))
+            edge, _ = self.transWedge.transform((1, 0))
             radius = edge - center[0]
             width = min(radius * (rmax - rmin) / rmax, radius)
             self.patch.set_radius(radius)
@@ -1419,7 +1419,7 @@ class PolarAxes(Axes):
         mode = ''
         if button == 1:
             epsilon = np.pi / 45.0
-            t, r = self.transData.inverted().transform_point((x, y))
+            t, r = self.transData.inverted().transform((x, y))
             if angle - epsilon <= t <= angle + epsilon:
                 mode = 'drag_r_labels'
         elif button == 3:
@@ -1441,8 +1441,8 @@ class PolarAxes(Axes):
         p = self._pan_start
 
         if p.mode == 'drag_r_labels':
-            startt, startr = p.trans_inverse.transform_point((p.x, p.y))
-            t, r = p.trans_inverse.transform_point((x, y))
+            (startt, startr), (t, r) = p.trans_inverse.transform(
+                [(p.x, p.y), (x, y)])
 
             # Deal with theta
             dt0 = t - startt
@@ -1463,8 +1463,8 @@ class PolarAxes(Axes):
                 t.label2.set_ha(horiz2)
 
         elif p.mode == 'zoom':
-            startt, startr = p.trans_inverse.transform_point((p.x, p.y))
-            t, r = p.trans_inverse.transform_point((x, y))
+            (startt, startr), (t, r) = p.trans_inverse.transform(
+                [(p.x, p.y), (x, y)])
 
             # Deal with r
             scale = r / startr

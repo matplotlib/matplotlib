@@ -80,7 +80,7 @@ def _get_textbox(text, renderer):
     for t, wh, x, y in parts:
         w, h = wh
 
-        xt1, yt1 = tr.transform_point((x, y))
+        xt1, yt1 = tr.transform((x, y))
         yt1 -= d
         xt2, yt2 = xt1 + w, yt1 + h
 
@@ -90,7 +90,7 @@ def _get_textbox(text, renderer):
     xt_box, yt_box = min(projected_xs), min(projected_ys)
     w_box, h_box = max(projected_xs) - xt_box, max(projected_ys) - yt_box
 
-    x_box, y_box = Affine2D().rotate(theta).transform_point((xt_box, yt_box))
+    x_box, y_box = Affine2D().rotate(theta).transform((xt_box, yt_box))
 
     return x_box, y_box, w_box, h_box
 
@@ -224,7 +224,7 @@ class Text(Artist):
         Get the (possibly unit converted) transformed x, y in display coords.
         """
         x, y = self.get_unitless_position()
-        return self.get_transform().transform_point((x, y))
+        return self.get_transform().transform((x, y))
 
     def _get_multialignment(self):
         if self._multialignment is not None:
@@ -411,7 +411,7 @@ class Text(Artist):
             else:
                 offsety = ymin1
 
-            offsetx, offsety = M.transform_point((offsetx, offsety))
+            offsetx, offsety = M.transform((offsetx, offsety))
 
         xmin -= offsetx
         ymin -= offsety
@@ -497,7 +497,7 @@ class Text(Artist):
             posx = float(self.convert_xunits(self._x))
             posy = float(self.convert_yunits(self._y))
 
-            posx, posy = trans.transform_point((posx, posy))
+            posx, posy = trans.transform((posx, posy))
 
             x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
             self._bbox_patch.set_bounds(0., 0., w_box, h_box)
@@ -675,7 +675,7 @@ class Text(Artist):
             # position in Text, and dash position in TextWithDash:
             posx = float(textobj.convert_xunits(textobj._x))
             posy = float(textobj.convert_yunits(textobj._y))
-            posx, posy = trans.transform_point((posx, posy))
+            posx, posy = trans.transform((posx, posy))
             if not np.isfinite(posx) or not np.isfinite(posy):
                 _log.warning("posx and posy should be finite values")
                 return
@@ -890,7 +890,7 @@ class Text(Artist):
 
         bbox, info, descent = self._get_layout(self._renderer)
         x, y = self.get_unitless_position()
-        x, y = self.get_transform().transform_point((x, y))
+        x, y = self.get_transform().transform((x, y))
         bbox = bbox.translated(x, y)
         if dpi is not None:
             self.figure.dpi = dpi_orig
@@ -1418,14 +1418,13 @@ class TextWithDash(Text):
 
         # Compute the dash end points
         # The 'c' prefix is for canvas coordinates
-        cxy = transform.transform_point((dashx, dashy))
+        cxy = transform.transform((dashx, dashy))
         cd = np.array([cos_theta, sin_theta])
         c1 = cxy + dashpush * cd
         c2 = cxy + (dashpush + dashlength) * cd
 
         inverse = transform.inverted()
-        (x1, y1) = inverse.transform_point(tuple(c1))
-        (x2, y2) = inverse.transform_point(tuple(c2))
+        (x1, y1), (x2, y2) = inverse.transform([c1, c2])
         self.dashline.set_data((x1, x2), (y1, y2))
 
         # We now need to extend this vector out to
@@ -1462,8 +1461,7 @@ class TextWithDash(Text):
         cwd *= 1 + dashpad / np.sqrt(np.dot(cwd, cwd))
         cw = c2 + (dashdirection * 2 - 1) * cwd
 
-        newx, newy = inverse.transform_point(tuple(cw))
-        self._x, self._y = newx, newy
+        self._x, self._y = inverse.transform(cw)
 
         # Now set the window extent
         # I'm not at all sure this is the right way to do this.
@@ -1726,7 +1724,7 @@ class OffsetFrom:
             xf, yf = self._ref_coord
             x, y = l + w * xf, b + h * yf
         elif isinstance(self._artist, Transform):
-            x, y = self._artist.transform_point(self._ref_coord)
+            x, y = self._artist.transform(self._ref_coord)
         else:
             raise RuntimeError("unknown type")
 
@@ -1753,15 +1751,11 @@ class _AnnotationBase:
             s1, s2 = s
         else:
             s1, s2 = s, s
-
         if s1 == 'data':
             x = float(self.convert_xunits(x))
         if s2 == 'data':
             y = float(self.convert_yunits(y))
-
-        tr = self._get_xy_transform(renderer, s)
-        x1, y1 = tr.transform_point((x, y))
-        return x1, y1
+        return self._get_xy_transform(renderer, s).transform((x, y))
 
     def _get_xy_transform(self, renderer, s):
 

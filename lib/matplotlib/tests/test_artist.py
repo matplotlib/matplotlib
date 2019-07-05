@@ -26,7 +26,7 @@ def test_patch_transform_of_none():
 
     # Draw an ellipse over data coord (2,2) by specifying device coords.
     xy_data = (2, 2)
-    xy_pix = ax.transData.transform_point(xy_data)
+    xy_pix = ax.transData.transform(xy_data)
 
     # Not providing a transform of None puts the ellipse in data coordinates .
     e = mpatches.Ellipse(xy_data, width=1, height=1, fc='yellow', alpha=0.5)
@@ -68,7 +68,7 @@ def test_collection_transform_of_none():
 
     # draw an ellipse over data coord (2,2) by specifying device coords
     xy_data = (2, 2)
-    xy_pix = ax.transData.transform_point(xy_data)
+    xy_pix = ax.transData.transform(xy_data)
 
     # not providing a transform of None puts the ellipse in data coordinates
     e = mpatches.Ellipse(xy_data, width=1, height=1)
