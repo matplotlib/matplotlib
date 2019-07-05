@@ -745,14 +745,14 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     def adj_window(self):
         return None
 
-    if is_pyqt5():
-        # For some reason, self.setMinimumHeight doesn't seem to carry over to
-        # the actual sizeHint, so override it instead in order to make the
-        # aesthetic adjustments noted above.
-        def sizeHint(self):
-            size = super().sizeHint()
+    def sizeHint(self):
+        size = super().sizeHint()
+        if is_pyqt5() and self.canvas._dpi_ratio > 1:
+            # For some reason, self.setMinimumHeight doesn't seem to carry over
+            # to the actual sizeHint, so override it instead in order to make
+            # the aesthetic adjustments noted above.
             size.setHeight(max(48, size.height()))
-            return size
+        return size
 
     def edit_parameters(self):
         axes = self.canvas.figure.get_axes()
