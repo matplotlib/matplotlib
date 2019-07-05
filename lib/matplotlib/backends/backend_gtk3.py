@@ -575,7 +575,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
     def configure_subplots(self, button):
         toolfig = Figure(figsize=(6, 3))
-        canvas = self._get_canvas(toolfig)
+        canvas = type(self.canvas)(toolfig)
         toolfig.subplots_adjust(top=0.9)
         # Need to keep a reference to the tool.
         _tool = SubplotTool(self.canvas.figure, toolfig)
@@ -600,9 +600,6 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         canvas.show()
         vbox.pack_start(canvas, True, True, 0)
         window.show()
-
-    def _get_canvas(self, fig):
-        return self.canvas.__class__(fig)
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
@@ -809,10 +806,19 @@ class SetCursorGTK3(backend_tools.SetCursorBase):
 
 
 class ConfigureSubplotsGTK3(backend_tools.ConfigureSubplotsBase, Gtk.Window):
-    def __init__(self, *args, **kwargs):
-        backend_tools.ConfigureSubplotsBase.__init__(self, *args, **kwargs)
-        self.window = None
+    @cbook.deprecated("3.2")
+    @property
+    def window(self):
+        if not hasattr(self, "_window"):
+            self._window = None
+        return self._window
 
+    @window.setter
+    @cbook.deprecated("3.2")
+    def window(self, window):
+        self._window = window
+
+    @cbook.deprecated("3.2")
     def init_window(self):
         if self.window:
             return
@@ -846,6 +852,7 @@ class ConfigureSubplotsGTK3(backend_tools.ConfigureSubplotsBase, Gtk.Window):
         self.vbox.pack_start(canvas, True, True, 0)
         self.window.show()
 
+    @cbook.deprecated("3.2")
     def destroy(self, *args):
         self.window.destroy()
         self.window = None
@@ -853,9 +860,9 @@ class ConfigureSubplotsGTK3(backend_tools.ConfigureSubplotsBase, Gtk.Window):
     def _get_canvas(self, fig):
         return self.canvas.__class__(fig)
 
-    def trigger(self, sender, event, data=None):
-        self.init_window()
-        self.window.present()
+    def trigger(self, *args):
+        NavigationToolbar2GTK3.configure_subplots(
+            self._make_classic_style_pseudo_toolbar(), None)
 
 
 class HelpGTK3(backend_tools.ToolHelpBase):
