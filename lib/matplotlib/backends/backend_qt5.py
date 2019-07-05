@@ -710,13 +710,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             labelAction = self.addWidget(self.locLabel)
             labelAction.setVisible(True)
 
-        # Esthetic adjustments - we need to set these explicitly in PyQt5
-        # otherwise the layout looks different - but we don't want to set it if
-        # not using HiDPI icons otherwise they look worse than before.
-        if is_pyqt5() and self.canvas._dpi_ratio > 1:
-            self.setIconSize(QtCore.QSize(24, 24))
-            self.layout().setSpacing(12)
-
     @cbook.deprecated("3.1")
     @property
     def buttons(self):
@@ -726,15 +719,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     @property
     def adj_window(self):
         return None
-
-    def sizeHint(self):
-        size = super().sizeHint()
-        if is_pyqt5() and self.canvas._dpi_ratio > 1:
-            # For some reason, self.setMinimumHeight doesn't seem to carry over
-            # to the actual sizeHint, so override it instead in order to make
-            # the aesthetic adjustments noted above.
-            size.setHeight(max(48, size.height()))
-        return size
 
     def edit_parameters(self):
         axes = self.canvas.figure.get_axes()
