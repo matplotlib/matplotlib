@@ -1,0 +1,13 @@
+``matplotlib.axes.Axes.indicate_inset`` returns a 4-tuple as documented
+-----------------------------------------------------------------------
+
+In <= 3.1.0, ``matplotlib.axes.Axes.indicate_inset`` and
+``matplotlib.axes.Axes.indicate_inset_zoom`` were documented as returning
+a 4-tuple of ``matplotlib.patches.ConnectionPatch`` es, where in fact they
+returned a 4-length list.
+
+They now correctly return a 4-tuple.
+``matplotlib.axes.Axes.indicate_inset`` would previously raise an error if
+the optional *inset_ax* was not supplied; it now completes successfully,
+and returns *None* instead of the tuple of ``ConnectionPatch`` es.
+
