@@ -175,12 +175,9 @@ class RendererAgg(RendererBase):
 
         if font is None:
             return None
-        if len(s) == 1 and ord(s) > 127:
-            font.load_char(ord(s), flags=flags)
-        else:
-            # We pass '0' for angle here, since it will be rotated (in raster
-            # space) in the following call to draw_text_image).
-            font.set_text(s, 0, flags=flags)
+        # We pass '0' for angle here, since it will be rotated (in raster
+        # space) in the following call to draw_text_image).
+        font.set_text(s, 0, flags=flags)
         font.draw_glyphs_to_bitmap(antialiased=rcParams['text.antialiased'])
         d = font.get_descent() / 64.0
         # The descent needs to be adjusted for the angle.
