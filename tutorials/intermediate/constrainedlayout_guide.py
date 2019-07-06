@@ -284,7 +284,7 @@ fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
 # Spacing between subplots is set by ``wspace`` and ``hspace``. There are
 # specified as a fraction of the size of the subplot group as a whole.
 # If the size of the figure is changed, then these spaces change in
-# proportion.  Note in the blow how the space at the edges doesn't change from
+# proportion.  Note in the below how the space at the edges doesn't change from
 # the above, but the space between subplots does.
 
 fig, axs = plt.subplots(2, 2, constrained_layout=True)
