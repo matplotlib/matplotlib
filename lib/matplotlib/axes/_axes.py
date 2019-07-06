@@ -197,6 +197,7 @@ class Axes(_AxesBase):
         default = {
             'fontsize': rcParams['axes.titlesize'],
             'fontweight': rcParams['axes.titleweight'],
+            'color': rcParams['axes.labelcolor'],
             'verticalalignment': 'baseline',
             'horizontalalignment': loc.lower()}
         if pad is None:
