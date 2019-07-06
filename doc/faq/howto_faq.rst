@@ -1,4 +1,3 @@
-
 .. _howto-faq:
 
 ******
@@ -190,7 +189,8 @@ specify the location explicitly::
     ax = fig.add_axes([left, bottom, width, height])
 
 where all values are in fractional (0 to 1) coordinates.  See
-:doc:`/gallery/subplots_axes_and_figures/axes_demo` for an example of placing axes manually.
+:doc:`/gallery/subplots_axes_and_figures/axes_demo` for an example of
+placing axes manually.
 
 .. _howto-auto-adjust:
 
@@ -199,8 +199,11 @@ Automatically make room for tick labels
 
 .. note::
    This is now easier to handle than ever before.
-   Calling :func:`~matplotlib.pyplot.tight_layout` can fix many common
-   layout issues. See the :doc:`/tutorials/intermediate/tight_layout_guide`.
+   Calling :func:`~matplotlib.pyplot.tight_layout` or alternatively using
+   ``constrained_layout=True`` argument in :func:`~matplotlib.pyplot.subplots`
+   can fix many common layout issues.  See the
+   :doc:`/tutorials/intermediate/tight_layout_guide` and
+   :doc:`/tutorials/intermediate/constrainedlayout_guide` for more details.
 
    The information below is kept here in case it is useful for other
    purposes.
