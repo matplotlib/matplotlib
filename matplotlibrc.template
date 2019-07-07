@@ -12,7 +12,7 @@
 ## other platforms:
 ##      $HOME/.matplotlib/matplotlibrc
 ##
-## See http://matplotlib.org/users/customizing.html#the-matplotlibrc-file for
+## See https://matplotlib.org/users/customizing.html#the-matplotlibrc-file for
 ## more details on the paths which are checked for the configuration file.
 ##
 ## This file is best viewed in a editor which supports python mode
@@ -70,8 +70,8 @@
 
 
 #### LINES
-## See http://matplotlib.org/api/artist_api.html#module-matplotlib.lines for more
-## information on line properties.
+## See https://matplotlib.org/api/artist_api.html#module-matplotlib.lines
+## for more information on line properties.
 #lines.linewidth   : 1.5     ## line width in points
 #lines.linestyle   : -       ## solid line
 #lines.color       : C0      ## has no affect on plot(); see axes.prop_cycle
@@ -95,10 +95,9 @@
 #markers.fillstyle: full ## full|left|right|bottom|top|none
 
 #### PATCHES
-## Patches are graphical objects that fill 2D space, like polygons or
-## circles.  See
-## http://matplotlib.org/api/artist_api.html#module-matplotlib.patches
-## information on patch properties
+## Patches are graphical objects that fill 2D space, like polygons or circles.
+## See https://matplotlib.org/api/artist_api.html#module-matplotlib.patches
+## for more information on patch properties.
 #patch.linewidth        : 1        ## edge width in points.
 #patch.facecolor        : C0
 #patch.edgecolor        : black   ## if forced, or patch is not filled
@@ -156,11 +155,10 @@
 
 
 #### FONT
-
-## font properties used by text.Text.  See
-## http://matplotlib.org/api/font_manager_api.html for more
-## information on font properties.  The 6 font properties used for font
-## matching are given below with their default values.
+## The font properties used by `text.Text`.
+## See https://matplotlib.org/api/font_manager_api.html for more information
+## on font properties.  The 6 font properties used for font matching are
+## given below with their default values.
 ##
 ## The font.family property has five values: 'serif' (e.g., Times),
 ## 'sans-serif' (e.g., Helvetica), 'cursive' (e.g., Zapf-Chancery),
@@ -209,12 +207,15 @@
 #font.monospace      : DejaVu Sans Mono, Bitstream Vera Sans Mono, Computer Modern Typewriter, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
 
 #### TEXT
-## text properties used by text.Text.  See
-## http://matplotlib.org/api/artist_api.html#module-matplotlib.text for more
-## information on text properties
+## The text properties used by `text.Text`.
+## See https://matplotlib.org/api/artist_api.html#module-matplotlib.text
+## for more information on text properties
 #text.color          : black
 
-#### LaTeX customizations. See http://wiki.scipy.org/Cookbook/Matplotlib/UsingTex
+#### LaTeX
+## See following links for more information on LaTex properties:
+## https://matplotlib.org/tutorials/text/usetex.html
+## https://scipy-cookbook.readthedocs.io/items/idx_matplotlib_typesetting.html
 #text.usetex         : False  ## use latex for all text handling. The following fonts
                               ## are supported through the usual rc parameter settings:
                               ## new century schoolbook, bookman, times, palatino,
@@ -280,9 +281,9 @@
                        ## used in regular text.
 
 #### AXES
-## default face and edge color, default tick sizes,
+## Following are default face and edge colors, default tick sizes,
 ## default fontsizes for ticklabels, and so on.  See
-## http://matplotlib.org/api/axes_api.html#module-matplotlib.axes
+## https://matplotlib.org/api/axes_api.html#module-matplotlib.axes
 #axes.facecolor      : white   ## axes background color
 #axes.edgecolor      : black   ## axes edge color
 #axes.linewidth      : 0.8     ## edge linewidth
@@ -326,12 +327,13 @@
 #axes.spines.right  : True
 #axes.unicode_minus  : True    ## use unicode for the minus symbol
                                ## rather than hyphen.  See
-                               ## http://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
+                               ## https://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
 #axes.prop_cycle    : cycler('color', ['1f77b4', 'ff7f0e', '2ca02c', 'd62728', '9467bd', '8c564b', 'e377c2', '7f7f7f', 'bcbd22', '17becf'])
                       ## color cycle for plot lines  as list of string
                       ## colorspecs: single letter, long name, or web-style hex
 					  ## Note the use of string escapes here ('1f77b4', instead of 1f77b4)
                       ## as opposed to the rest of this file.
+                      ## See also https://matplotlib.org/tutorials/intermediate/color_cycle.html
 #axes.autolimit_mode : data ## How to scale axes limits to the data.
                             ## Use "data" to use data limits, plus some margin
                             ## Use "round_numbers" move to the nearest "round" number
@@ -358,7 +360,7 @@
 #date.autoformatter.microsecond   : %M:%S.%f
 
 #### TICKS
-## see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
+## See https://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
 #xtick.top            : False  ## draw ticks on the top side
 #xtick.bottom         : True   ## draw ticks on the bottom side
 #xtick.labeltop       : False  ## draw label on the top
@@ -429,7 +431,7 @@
 #legend.columnspacing : 2.0      ## column separation
 
 #### FIGURE
-## See http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
+## See https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
 #figure.titlesize : large      ## size of the figure title (Figure.suptitle())
 #figure.titleweight : normal   ## weight of the figure title
 #figure.figsize   : 6.4, 4.8   ## figure size in inches
@@ -568,6 +570,7 @@
 #svg.hashsalt : None           ## if not None, use this string as hash salt
                                ## instead of uuid4
 ### pgf parameter
+## See https://matplotlib.org/tutorials/text/pgf.html for more information.
 #pgf.rcfonts : True
 #pgf.preamble :            ## see text.latex.preamble for documentation
 #pgf.texsystem : xelatex
@@ -576,7 +579,8 @@
 ##docstring.hardcopy = False  ## set this when you want to generate hardcopy docstring
 
 ## Event keys to interact with figures/plots via keyboard.
-## Customize these settings according to your needs.
+## See https://matplotlib.org/users/navigation_toolbar.html for more details on
+## interactive navigation.  Customize these settings according to your needs.
 ## Leave the field(s) empty if you don't need a key-map. (i.e., fullscreen : '')
 #keymap.fullscreen : f, ctrl+f       ## toggling
 #keymap.home : h, r, home            ## home or reset mnemonic
