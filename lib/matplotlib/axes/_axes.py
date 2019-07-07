@@ -1053,11 +1053,11 @@ class Axes(_AxesBase):
         y : scalar or sequence of scalar
             y-indexes where to plot the lines.
 
-        xmin, xmax : scalar or 1D array_like
+        xmin, xmax : scalar or 1D array-like
             Respective beginning and end of each line. If scalars are
             provided, all lines will have same length.
 
-        colors : array_like of colors, optional, default: 'k'
+        colors : array-like of colors, optional, default: 'k'
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
@@ -1128,14 +1128,14 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x : scalar or 1D array_like
+        x : scalar or 1D array-like
             x-indexes where to plot the lines.
 
-        ymin, ymax : scalar or 1D array_like
+        ymin, ymax : scalar or 1D array-like
             Respective beginning and end of each line. If scalars are
             provided, all lines will have same length.
 
-        colors : array_like of colors, optional, default: 'k'
+        colors : array-like of colors, optional, default: 'k'
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
@@ -1803,7 +1803,7 @@ class Axes(_AxesBase):
         basex : scalar, optional, default 10
             Base of the x logarithm.
 
-        subsx : array_like, optional
+        subsx : array-like, optional
             The location of the minor xticks. If *None*, reasonable locations
             are automatically chosen depending on the number of decades in the
             plot. See `.Axes.set_xscale` for details.
@@ -1852,7 +1852,7 @@ class Axes(_AxesBase):
         basey : scalar, optional, default 10
             Base of the y logarithm.
 
-        subsy : array_like, optional
+        subsy : array-like, optional
             The location of the minor yticks. If *None*, reasonable locations
             are automatically chosen depending on the number of decades in the
             plot. See `.Axes.set_yscale` for details.
@@ -2061,11 +2061,11 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x : array_like
+        x : array-like
             1-D sequence of x positions. It is assumed, but not checked, that
             it is uniformly increasing.
 
-        y : array_like
+        y : array-like
             1-D sequence of y levels.
 
         fmt : str, optional
@@ -4290,10 +4290,10 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x, y : scalar or array_like, shape (n, )
+        x, y : scalar or array-like, shape (n, )
             The data positions.
 
-        s : scalar or array_like, shape (n, ), optional
+        s : scalar or array-like, shape (n, ), optional
             The marker size in points**2.
             Default is ``rcParams['lines.markersize'] ** 2``.
 
@@ -4345,7 +4345,7 @@ class Axes(_AxesBase):
         alpha : scalar, optional, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-        linewidths : scalar or array_like, optional, default: None
+        linewidths : scalar or array-like, optional, default: None
             The linewidth of the marker edges. Note: The default *edgecolors*
             is 'face'. You may want to change this as well.
             If *None*, defaults to :rc:`lines.linewidth`.
@@ -5707,10 +5707,10 @@ optional.
 
         Parameters
         ----------
-        C : array_like
+        C : array-like
             A scalar 2-D array. The values will be color-mapped.
 
-        X, Y : array_like, optional
+        X, Y : array-like, optional
             The coordinates of the quadrilateral corners. The quadrilateral
             for ``C[i, j]`` has corners at::
 
@@ -5938,10 +5938,10 @@ optional.
 
         Parameters
         ----------
-        C : array_like
+        C : array-like
             A scalar 2-D array. The values will be color-mapped.
 
-        X, Y : array_like, optional
+        X, Y : array-like, optional
             The coordinates of the quadrilateral corners. The quadrilateral
             for ``C[i, j]`` has corners at::
 
@@ -6405,7 +6405,7 @@ optional.
 
             Default is ``False``.
 
-        weights : (n, ) array_like or None, optional
+        weights : (n, ) array-like or None, optional
             An array of weights, of the same shape as *x*.  Each value in *x*
             only contributes its associated weight towards the bin count
             (instead of 1).  If *normed* or *density* is ``True``,
@@ -6438,7 +6438,7 @@ optional.
 
             Default is ``False``
 
-        bottom : array_like, scalar, or None
+        bottom : array-like, scalar, or None
             Location of the bottom baseline of each bin.  If a scalar,
             the base line for each bin is shifted by the same amount.
             If an array, each bin is shifted independently and the length
@@ -6487,7 +6487,7 @@ optional.
 
             Default is ``False``
 
-        color : color or array_like of colors or None, optional
+        color : color or array-like of colors or None, optional
             Color or sequence of colors, one per dataset.  Default (``None``)
             uses the standard line color sequence.
 
@@ -6850,10 +6850,10 @@ optional.
 
         Parameters
         ----------
-        x, y : array_like, shape (n, )
+        x, y : array-like, shape (n, )
             Input values
 
-        bins : None or int or [int, int] or array_like or [array, array]
+        bins : None or int or [int, int] or array-like or [array, array]
 
             The bin specification:
 
@@ -6861,14 +6861,14 @@ optional.
               (nx=ny=bins).
             - If ``[int, int]``, the number of bins in each dimension
               (nx, ny = bins).
-            - If array_like, the bin edges for the two dimensions
+            - If array-like, the bin edges for the two dimensions
               (x_edges=y_edges=bins).
             - If ``[array, array]``, the bin edges in each dimension
               (x_edges, y_edges = bins).
 
             The default value is 10.
 
-        range : array_like shape(2, 2), optional, default: None
+        range : array-like shape(2, 2), optional, default: None
             The leftmost and rightmost edges of the bins along each dimension
             (if not specified explicitly in the bins parameters): ``[[xmin,
             xmax], [ymin, ymax]]``. All values outside of this range will be
@@ -6878,7 +6878,7 @@ optional.
             Normalize histogram.  *normed* is a deprecated synonym for this
             parameter.
 
-        weights : array_like, shape (n, ), optional, default: None
+        weights : array-like, shape (n, ), optional, default: None
             An array of values w_i weighing each sample (x_i, y_i).
 
         cmin : scalar, optional, default: None

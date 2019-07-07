@@ -1101,7 +1101,7 @@ def test_internal_cpp_api():
 
     with pytest.raises(ValueError) as excinfo:
         trifinder.find_many([0], [0, 1])
-    excinfo.match(r'x and y must be array_like with same shape')
+    excinfo.match(r'x and y must be array-like with same shape')
 
 
 def test_qhull_large_offset():

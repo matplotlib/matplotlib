@@ -11,7 +11,7 @@ class Triangulation:
     ----------
     x, y : array-like of shape (npoints)
         Coordinates of grid points.
-    triangles : integer array_like of shape (ntri, 3), optional
+    triangles : integer array-like of shape (ntri, 3), optional
         For each triangle, the indices of the three points that make
         up the triangle, ordered in an anticlockwise manner.  If not
         specified, the Delaunay triangulation is calculated.

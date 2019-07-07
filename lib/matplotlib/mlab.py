@@ -981,7 +981,7 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
 
     Parameters
     ----------
-    x : array_like
+    x : array-like
         1-D array or sequence.
 
     %(Spectral)s
@@ -1010,13 +1010,13 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
 
     Returns
     -------
-    spectrum : array_like
+    spectrum : array-like
         2-D array, columns are the periodograms of successive segments.
 
-    freqs : array_like
+    freqs : array-like
         1-D array, frequencies corresponding to the rows in *spectrum*.
 
-    t : array_like
+    t : array-like
         1-D array, the times corresponding to midpoints of segments
         (i.e the columns in *spectrum*).
 
@@ -1392,7 +1392,7 @@ class GaussianKDE:
 
     Parameters
     ----------
-    dataset : array_like
+    dataset : array-like
         Datapoints to estimate from. In case of univariate data this is a 1-D
         array, otherwise a 2-D array with shape (# of dims, # of data).
 

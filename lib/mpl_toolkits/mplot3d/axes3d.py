@@ -1714,7 +1714,7 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        polygons: list of (M_i, 3) array_like, or (..., M, 3) array_like
+        polygons: list of (M_i, 3) array-like, or (..., M, 3) array-like
             A sequence of polygons to compute normals for, which can have
             varying numbers of vertices. If the polygons all have the same
             number of vertices and array is passed, then the operation will
@@ -1722,7 +1722,7 @@ class Axes3D(Axes):
 
         Returns
         -------
-        normals: (..., 3) array_like
+        normals: (..., 3) array-like
             A normal vector estimated for the polygon.
 
         """
@@ -2751,7 +2751,7 @@ pivot='tail', normalize=False, **kwargs)
             As indicated by the ``/`` in the function signature, these
             arguments can only be passed positionally.
 
-        facecolors, edgecolors : array_like, optional
+        facecolors, edgecolors : array-like, optional
             The color to draw the faces and edges of the voxels. Can only be
             passed as keyword arguments.
             This parameter can be:

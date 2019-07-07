@@ -269,10 +269,10 @@ class RendererBase:
 
         Parameters
         ----------
-        points : array_like, shape=(3, 2)
+        points : array-like, shape=(3, 2)
             Array of (x, y) points for the triangle.
 
-        colors : array_like, shape=(3, 4)
+        colors : array-like, shape=(3, 4)
             RGBA colors for each point of the triangle.
 
         transform : `matplotlib.transforms.Transform`
@@ -288,10 +288,10 @@ class RendererBase:
 
         Parameters
         ----------
-        points : array_like, shape=(N, 3, 2)
+        points : array-like, shape=(N, 3, 2)
             Array of *N* (x, y) points for the triangles.
 
-        colors : array_like, shape=(N, 3, 4)
+        colors : array-like, shape=(N, 3, 4)
             Array of *N* RGBA colors for each point of the triangles.
 
         transform : `matplotlib.transforms.Transform`
@@ -471,7 +471,7 @@ class RendererBase:
             the distance in physical units (i.e., dots or pixels) from the
             bottom side of the canvas.
 
-        im : array_like, shape=(N, M, 4), dtype=np.uint8
+        im : array-like, shape=(N, M, 4), dtype=np.uint8
             An array of RGBA pixels.
 
         transform : `matplotlib.transforms.Affine2DBase`
@@ -668,7 +668,7 @@ class RendererBase:
 
         Parameters
         ----------
-        points : scalar or array_like
+        points : scalar or array-like
             a float or a numpy array of float
 
         Returns
@@ -899,7 +899,7 @@ class GraphicsContextBase:
         ----------
         dash_offset : float or None
             The offset (usually 0).
-        dash_list : array_like or None
+        dash_list : array-like or None
             The on-off sequence as points.
 
         Notes

@@ -1443,11 +1443,11 @@ def xticks(ticks=None, labels=None, **kwargs):
 
     Parameters
     ----------
-    ticks : array_like
+    ticks : array-like
         A list of positions at which ticks should be placed. You can pass an
         empty list to disable xticks.
 
-    labels : array_like, optional
+    labels : array-like, optional
         A list of explicit labels to place at the given *locs*.
 
     **kwargs
@@ -1518,11 +1518,11 @@ def yticks(ticks=None, labels=None, **kwargs):
 
     Parameters
     ----------
-    ticks : array_like
+    ticks : array-like
         A list of positions at which ticks should be placed. You can pass an
         empty list to disable yticks.
 
-    labels : array_like, optional
+    labels : array-like, optional
         A list of explicit labels to place at the given *locs*.
 
     **kwargs

@@ -415,7 +415,7 @@ static PyObject* PyTrapezoidMapTriFinder_find_many(PyTrapezoidMapTriFinder* self
 
     if (x.empty() || y.empty() || x.dim(0) != y.dim(0)) {
         PyErr_SetString(PyExc_ValueError,
-            "x and y must be array_like with same shape");
+            "x and y must be array-like with same shape");
         return NULL;
     }
 

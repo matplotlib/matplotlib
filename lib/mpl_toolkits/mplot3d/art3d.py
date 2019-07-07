@@ -168,16 +168,16 @@ class Line3D(lines.Line2D):
 
         Parameters
         ----------
-        x : array_like
-            The x-data to be plotted
-        y : array_like
-            The y-data to be plotted
-        z : array_like
-            The z-data to be plotted
+        x : array-like
+            The x-data to be plotted.
+        y : array-like
+            The y-data to be plotted.
+        z : array-like
+            The z-data to be plotted.
 
         Notes
         -----
-        Accepts x, y, z arguments or a single array_like (x, y, z)
+        Accepts x, y, z arguments or a single array-like (x, y, z)
         """
         if len(args) == 1:
             self._verts3d = args[0]
@@ -191,8 +191,8 @@ class Line3D(lines.Line2D):
 
         Returns
         -------
-        verts3d : length-3 tuple or array_likes
-            The current data as a tuple or array_likes
+        verts3d : length-3 tuple or array-likes
+            The current data as a tuple or array-likes.
         """
         return self._verts3d
 
