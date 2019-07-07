@@ -27,9 +27,37 @@
 ##     - a hex string, such as ff00ff
 ##     - a scalar grayscale intensity such as 0.75
 ##     - a legal html color name, e.g., red, blue, darkslategray
+##
+## Configurations are currently divided into following parts:
+##     - BACKENDS
+##     - LINES
+##     - PATCHES
+##     - HATCHES
+##     - BOXPLOT
+##     - FONT
+##     - TEXT
+##     - LaTeX
+##     - AXES
+##     - DATES
+##     - TICKS
+##     - GRIDS
+##     - LEGEND
+##     - FIGURE
+##     - IMAGES
+##     - CONTOUR PLOTS
+##     - ERRORBAR PLOTS
+##     - HISTOGRAM PLOTS
+##     - SCATTER PLOTS
+##     - AGG RENDERING
+##     - PATHS
+##     - SAVING FIGURES
+##     - INTERACTIVE KEYMAPS
+##     - ANIMATION
 
 ##### CONFIGURATION BEGINS HERE
 
+
+#### BACKENDS
 ## The default backend. If you omit this parameter, the first
 ## working backend from the following list is used:
 ## MacOSX Qt5Agg Qt4Agg Gtk3Agg TkAgg WxAgg Agg
@@ -55,7 +83,7 @@
 ## When True, open the webbrowser to the plot that is shown
 #webagg.open_in_browser : True
 
-## if you are running pyplot inside a GUI and your backend choice
+## If you are running pyplot inside a GUI and your backend choice
 ## conflicts, we will automatically try to find a compatible one for
 ## you if backend_fallback is True
 #backend_fallback: True
@@ -94,6 +122,7 @@
 
 #markers.fillstyle: full ## full|left|right|bottom|top|none
 
+
 #### PATCHES
 ## Patches are graphical objects that fill 2D space, like polygons or circles.
 ## See https://matplotlib.org/api/artist_api.html#module-matplotlib.patches
@@ -104,11 +133,13 @@
 #patch.force_edgecolor  : False   ## True to always use edgecolor
 #patch.antialiased      : True    ## render patches in antialiased (no jaggies)
 
+
 #### HATCHES
 #hatch.color     : black
 #hatch.linewidth : 1.0
 
-#### Boxplot
+
+#### BOXPLOT
 #boxplot.notch       : False
 #boxplot.vertical    : True
 #boxplot.whiskers    : 1.5
@@ -206,11 +237,13 @@
 #font.fantasy        : Comic Sans MS, Chicago, Charcoal, ImpactWestern, Humor Sans, xkcd, fantasy
 #font.monospace      : DejaVu Sans Mono, Bitstream Vera Sans Mono, Computer Modern Typewriter, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
 
+
 #### TEXT
 ## The text properties used by `text.Text`.
 ## See https://matplotlib.org/api/artist_api.html#module-matplotlib.text
 ## for more information on text properties
 #text.color          : black
+
 
 #### LaTeX
 ## See following links for more information on LaTex properties:
@@ -280,6 +313,7 @@
                        ## the special name "regular" for the same font
                        ## used in regular text.
 
+
 #### AXES
 ## Following are default face and edge colors, default tick sizes,
 ## default fontsizes for ticklabels, and so on.  See
@@ -342,6 +376,7 @@
 #polaraxes.grid      : True    ## display grid on polar axes
 #axes3d.grid         : True    ## display grid on 3d axes
 
+
 #### DATES
 ## These control the default format strings used in AutoDateFormatter.
 ## Any valid format datetime format string can be used (see the python
@@ -358,6 +393,7 @@
 #date.autoformatter.minute   : %d %H:%M
 #date.autoformatter.second   : %H:%M:%S
 #date.autoformatter.microsecond   : %M:%S.%f
+
 
 #### TICKS
 ## See https://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
@@ -401,13 +437,15 @@
 #ytick.minor.right    : True   ## draw y axis right minor ticks
 #ytick.alignment      : center_baseline ## alignment of yticks
 
+
 #### GRIDS
 #grid.color       :   b0b0b0    ## grid color
 #grid.linestyle   :   -         ## solid
 #grid.linewidth   :   0.8       ## in points
 #grid.alpha       :   1.0       ## transparency, between 0.0 and 1.0
 
-#### Legend
+
+#### LEGEND
 #legend.loc           : best
 #legend.frameon       : True     ## if True, draw the legend on a background patch
 #legend.framealpha    : 0.8      ## legend patch transparency
@@ -429,6 +467,7 @@
 #legend.handletextpad : 0.8      ## the space between the legend line and legend text
 #legend.borderaxespad : 0.5      ## the border between the axes and legend edge
 #legend.columnspacing : 2.0      ## column separation
+
 
 #### FIGURE
 ## See https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
@@ -464,6 +503,7 @@
 #figure.constrained_layout.hspace : 0.02   ## Space between subplot groups. Float representing
 #figure.constrained_layout.wspace : 0.02   ##  a fraction of the subplot widths being separated.
 
+
 #### IMAGES
 #image.aspect : equal             ## equal | auto | a number
 #image.interpolation  : nearest   ## see help(imshow) for options
@@ -476,12 +516,15 @@
                                   ## saving a figure as a vector graphics file,
                                   ## such as a PDF.
 
+
 #### CONTOUR PLOTS
 #contour.negative_linestyle : dashed ## string or on-off ink sequence
 #contour.corner_mask        : True   ## True | False | legacy
 
+
 #### ERRORBAR PLOTS
 #errorbar.capsize : 0             ## length of end cap on error bars in pixels
+
 
 #### HISTOGRAM PLOTS
 #hist.bins : 10                   ## The default number of histogram bins.
@@ -492,8 +535,9 @@
 #scatter.marker : o               ## The default marker type for scatter plots.
 #scatter.edgecolors : face        ## The default edgecolors for scatter plots.
 
-#### Agg rendering
-#### Warning: experimental, 2008/10/10
+
+#### AGG RENDERING
+## Warning: experimental, 2008/10/10
 #agg.path.chunksize : 0           ## 0 to disable; values in the range
                                   ## 10000 to 100000 can improve speed slightly
                                   ## and prevent an Agg rendering failure
@@ -502,6 +546,8 @@
                                   ## It may cause minor artifacts, though.
                                   ## A value of 20000 is probably a good
                                   ## starting point.
+
+
 #### PATHS
 #path.simplify : True   ## When True, simplify paths by removing "invisible"
                         ## points to reduce file size and increase rendering
@@ -521,8 +567,9 @@
                     ## the length is randomly scaled.
 #path.effects : []  ##
 
+
 #### SAVING FIGURES
-## the default savefig params can be different from the display params
+## The default savefig params can be different from the display params
 ## e.g., you may want a higher resolution, or to make the figure
 ## background white
 #savefig.dpi         : figure   ## figure dots per inch or 'figure'
@@ -555,14 +602,14 @@
 #ps.distiller.res  : 6000      ## dpi
 #ps.fonttype       : 3         ## Output Type 3 (Type3) or Type 42 (TrueType)
 
-### pdf backend params
+### PDF backend params
 #pdf.compression   : 6   ## integer from 0 to 9
                          ## 0 disables compression (good for debugging)
 #pdf.fonttype       : 3         ## Output Type 3 (Type3) or Type 42 (TrueType)
 #pdf.use14corefonts : False
 #pdf.inheritcolor : False
 
-### svg backend params
+### SVG backend params
 #svg.image_inline : True       ## write raster image data directly into the svg file
 #svg.fonttype :   path         ## How to handle SVG fonts:
    ##     none: Assume fonts are installed on the machine where the SVG will be viewed.
@@ -578,6 +625,8 @@
 ### docstring params
 ##docstring.hardcopy = False  ## set this when you want to generate hardcopy docstring
 
+
+#### INTERACTIVE KEYMAPS
 ## Event keys to interact with figures/plots via keyboard.
 ## See https://matplotlib.org/users/navigation_toolbar.html for more details on
 ## interactive navigation.  Customize these settings according to your needs.
@@ -599,7 +648,8 @@
 #keymap.all_axes : a                 ## enable all axes
 #keymap.copy : ctrl+c, cmd+c         ## Copy figure to clipboard
 
-###ANIMATION settings
+
+#### ANIMATION
 #animation.html :  none            ## How to display the animation as HTML in
                                    ## the IPython notebook. 'html5' uses
                                    ## HTML5 video tag; 'jshtml' creates a
