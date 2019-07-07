@@ -202,6 +202,21 @@ animated plots almost as easy as static ones.
 For an animated version of the above picture and more examples, see the
 `animatplot gallery. <https://animatplot.readthedocs.io/en/stable/gallery.html>`_
 
+Rendering backends
+******************
+
+mplcairo
+========
+`mplcairo <https://github.com/anntzer/mplcairo>`_ is a cairo backend for
+Matplotlib, with faster and more accurate marker drawing, support for a wider
+selection of font formats and complex text layout, and various other features.
+
+gr
+==
+`gr <http://gr-framework.org/>`_ is a framework for cross-platform
+visualisation applications, which can be used as a high-performance Matplotlib
+backend.
+
 Miscellaneous
 *************
 
@@ -220,12 +235,6 @@ external Matplotlib backend using the iTerm2 nightly build inline image display
 feature.
 
 .. image:: /_static/matplotlib_iterm2_demo.png
-
-mplcairo
-========
-`mplcairo <https://github.com/anntzer/mplcairo>`_ is a cairo backend for
-Matplotlib, with faster and more accurate marker drawing, support for a wider
-selection of font formats and complex text layout, and various other features.
 
 mpl-template
 ============
