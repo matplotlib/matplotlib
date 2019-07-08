@@ -164,6 +164,7 @@ class Axes(_AxesBase):
 
                {'fontsize': rcParams['axes.titlesize'],
                 'fontweight' : rcParams['axes.titleweight'],
+                'color' : rcParams['axes.titlecolor'],
                 'verticalalignment': 'baseline',
                 'horizontalalignment': loc}
 
