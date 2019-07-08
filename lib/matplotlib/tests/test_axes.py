@@ -6495,3 +6495,29 @@ def test_set_ticks_inverted():
     ax.invert_xaxis()
     ax.set_xticks([.3, .7])
     assert ax.get_xlim() == (1, 0)
+
+
+def test_aspect_nonlinear_adjustable_box():
+    fig = plt.figure(figsize=(10, 10))  # Square.
+
+    ax = fig.add_subplot()
+    ax.plot([.4, .6], [.4, .6])  # Set minpos to keep logit happy.
+    ax.set(xscale="log", xlim=(1, 10),
+           yscale="logit", ylim=(1/11, 1/1001),
+           aspect=1, adjustable="box")
+    ax.margins(0)
+    pos = fig.transFigure.transform_bbox(ax.get_position())
+    assert pos.height / pos.width == pytest.approx(2)
+
+
+def test_aspect_nonlinear_adjustable_datalim():
+    fig = plt.figure(figsize=(10, 10))  # Square.
+
+    ax = fig.add_axes([.1, .1, .8, .8])  # Square.
+    ax.plot([.4, .6], [.4, .6])  # Set minpos to keep logit happy.
+    ax.set(xscale="log", xlim=(1, 10),
+           yscale="logit", ylim=(1/11, 1/1001),
+           aspect=1, adjustable="datalim")
+    ax.margins(0)
+    ax.apply_aspect()
+    assert ax.get_xlim() == pytest.approx(np.array([1/10, 10]) * np.sqrt(10))

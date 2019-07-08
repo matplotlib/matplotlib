@@ -1396,20 +1396,21 @@ class _AxesBase(martist.Artist):
 
     def get_data_ratio(self):
         """
-        Return the aspect ratio of the raw data.
+        Return the aspect ratio of the scaled data.
 
         Notes
         -----
         This method is intended to be overridden by new projection types.
         """
-        xmin, xmax = self.get_xbound()
-        ymin, ymax = self.get_ybound()
-
-        xsize = max(abs(xmax - xmin), 1e-30)
-        ysize = max(abs(ymax - ymin), 1e-30)
-
+        trf_xmin, trf_xmax = map(
+            self.xaxis.get_transform().transform, self.get_xbound())
+        trf_ymin, trf_ymax = map(
+            self.yaxis.get_transform().transform, self.get_ybound())
+        xsize = max(abs(trf_xmax - trf_xmin), 1e-30)
+        ysize = max(abs(trf_ymax - trf_ymin), 1e-30)
         return ysize / xsize
 
+    @cbook.deprecated("3.2")
     def get_data_ratio_log(self):
         """
         Return the aspect ratio of the raw data in log scale.
@@ -1455,81 +1456,53 @@ class _AxesBase(martist.Artist):
 
         aspect = self.get_aspect()
 
-        if self.name != 'polar':
-            xscale, yscale = self.get_xscale(), self.get_yscale()
-            if xscale == "linear" and yscale == "linear":
-                aspect_scale_mode = "linear"
-            elif xscale == "log" and yscale == "log":
-                aspect_scale_mode = "log"
-            elif ((xscale == "linear" and yscale == "log") or
-                  (xscale == "log" and yscale == "linear")):
-                if aspect != "auto":
-                    cbook._warn_external(
-                        'aspect is not supported for Axes with xscale=%s, '
-                        'yscale=%s' % (xscale, yscale))
-                    aspect = "auto"
-            else:  # some custom projections have their own scales.
-                pass
-        else:
-            aspect_scale_mode = "linear"
-
         if aspect == 'auto':
             self._set_position(position, which='active')
             return
 
         if aspect == 'equal':
-            A = 1
-        else:
-            A = aspect
+            aspect = 1
 
-        figW, figH = self.get_figure().get_size_inches()
-        fig_aspect = figH / figW
+        fig_width, fig_height = self.get_figure().get_size_inches()
+        fig_aspect = fig_height / fig_width
+
         if self._adjustable == 'box':
             if self in self._twinned_axes:
-                raise RuntimeError("Adjustable 'box' is not allowed in a"
-                                   " twinned Axes.  Use 'datalim' instead.")
-            if aspect_scale_mode == "log":
-                box_aspect = A * self.get_data_ratio_log()
-            else:
-                box_aspect = A * self.get_data_ratio()
+                raise RuntimeError("Adjustable 'box' is not allowed in a "
+                                   "twinned Axes; use 'datalim' instead")
+            box_aspect = aspect * self.get_data_ratio()
             pb = position.frozen()
             pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
             self._set_position(pb1.anchored(self.get_anchor(), pb), 'active')
             return
 
-        # reset active to original in case it had been changed
-        # by prior use of 'box'
+        # self._adjustable == 'datalim'
+
+        # reset active to original in case it had been changed by prior use
+        # of 'box'
         self._set_position(position, which='active')
 
-        xmin, xmax = self.get_xbound()
-        ymin, ymax = self.get_ybound()
-
-        if aspect_scale_mode == "log":
-            xmin, xmax = math.log10(xmin), math.log10(xmax)
-            ymin, ymax = math.log10(ymin), math.log10(ymax)
-
+        x_trf = self.xaxis.get_transform()
+        y_trf = self.yaxis.get_transform()
+        xmin, xmax = map(x_trf.transform, self.get_xbound())
+        ymin, ymax = map(y_trf.transform, self.get_ybound())
         xsize = max(abs(xmax - xmin), 1e-30)
         ysize = max(abs(ymax - ymin), 1e-30)
 
         l, b, w, h = position.bounds
         box_aspect = fig_aspect * (h / w)
-        data_ratio = box_aspect / A
+        data_ratio = box_aspect / aspect
 
-        y_expander = (data_ratio * xsize / ysize - 1.0)
+        y_expander = data_ratio * xsize / ysize - 1
         # If y_expander > 0, the dy/dx viewLim ratio needs to increase
         if abs(y_expander) < 0.005:
             return
 
-        if aspect_scale_mode == "log":
-            dL = self.dataLim
-            dL_width = math.log10(dL.x1) - math.log10(dL.x0)
-            dL_height = math.log10(dL.y1) - math.log10(dL.y0)
-            xr = 1.05 * dL_width
-            yr = 1.05 * dL_height
-        else:
-            dL = self.dataLim
-            xr = 1.05 * dL.width
-            yr = 1.05 * dL.height
+        dL = self.dataLim
+        x0, x1 = map(x_trf.inverted().transform, dL.intervalx)
+        y0, y1 = map(y_trf.inverted().transform, dL.intervaly)
+        xr = 1.05 * (x1 - x0)
+        yr = 1.05 * (y1 - y0)
 
         xmarg = xsize - xr
         ymarg = ysize - yr
@@ -1537,8 +1510,7 @@ class _AxesBase(martist.Artist):
         Xsize = ysize / data_ratio
         Xmarg = Xsize - xr
         Ymarg = Ysize - yr
-        # Setting these targets to, e.g., 0.05*xr does not seem to
-        # help.
+        # Setting these targets to, e.g., 0.05*xr does not seem to help.
         xm = 0
         ym = 0
 
@@ -1546,8 +1518,8 @@ class _AxesBase(martist.Artist):
         shared_y = self in self._shared_y_axes
         # Not sure whether we need this check:
         if shared_x and shared_y:
-            raise RuntimeError("adjustable='datalim' is not allowed when both"
-                               " axes are shared.")
+            raise RuntimeError("adjustable='datalim' is not allowed when both "
+                               "axes are shared")
 
         # If y is shared, then we are only allowed to change x, etc.
         if shared_y:
@@ -1564,18 +1536,12 @@ class _AxesBase(martist.Artist):
             yc = 0.5 * (ymin + ymax)
             y0 = yc - Ysize / 2.0
             y1 = yc + Ysize / 2.0
-            if aspect_scale_mode == "log":
-                self.set_ybound((10. ** y0, 10. ** y1))
-            else:
-                self.set_ybound((y0, y1))
+            self.set_ybound(*map(y_trf.inverted().transform, (y0, y1)))
         else:
             xc = 0.5 * (xmin + xmax)
             x0 = xc - Xsize / 2.0
             x1 = xc + Xsize / 2.0
-            if aspect_scale_mode == "log":
-                self.set_xbound((10. ** x0, 10. ** x1))
-            else:
-                self.set_xbound((x0, x1))
+            self.set_xbound(*map(x_trf.inverted().transform, (x0, x1)))
 
     def axis(self, *args, emit=True, **kwargs):
         """

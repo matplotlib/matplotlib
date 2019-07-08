@@ -1,0 +1,8 @@
+API changes
+```````````
+
+``Axes.get_data_ratio`` now takes the axes scale into account (linear, log,
+logit, etc.) before computing the y-to-x ratio.  This change allows fixed
+aspects to be applied to any combination of x and y scales.
+
+``Axes.get_data_ratio_log`` is deprecated.
