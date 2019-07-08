@@ -437,7 +437,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
     Parameters
     ----------
-    num : integer or string, optional, default: None
+    num : int or str, optional, default: None
         If not provided, a new figure will be created, and the figure number
         will be incremented. The figure objects holds this number in a `number`
         attribute.
@@ -1081,7 +1081,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
           always a 2D array containing Axes instances, even if it ends up
           being 1x1.
 
-    num : integer or string, optional, default: None
+    num : int or str, optional, default: None
         A `.pyplot.figure` keyword that sets the figure number or label.
 
     subplot_kw : dict, optional

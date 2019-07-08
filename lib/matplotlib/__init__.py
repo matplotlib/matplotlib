@@ -1479,7 +1479,7 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     replace_names : list of str or None, optional, default: None
         The list of parameter names for which lookup into *data* should be
         attempted. If None, replacement is attempted for all arguments.
-    label_namer : string, optional, default: None
+    label_namer : str, optional, default: None
         If set e.g. to "namer" (which must be a kwarg in the function's
         signature -- not as ``**kwargs``), if the *namer* argument passed in is
         a (string) key of *data* and no *label* kwarg is passed, then use the

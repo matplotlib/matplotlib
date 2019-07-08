@@ -49,7 +49,7 @@ class ToolBase:
         ToolManager that controls this Tool
     figure : `FigureCanvas`
         Figure instance that is affected by this Tool
-    name : string
+    name : str
         Used as **Id** of the tool, has to be unique among tools of the same
         ToolManager
     """

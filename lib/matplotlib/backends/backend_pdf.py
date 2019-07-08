@@ -437,7 +437,7 @@ class PdfFile:
         Parameters
         ----------
 
-        filename : file-like object or string
+        filename : str or path-like or file-like
             Output target; if a string, a file will be opened for writing.
         metadata : dict from strings to strings and dates
             Information dictionary object (see PDF reference section 10.2.1
@@ -2472,7 +2472,7 @@ class PdfPages:
 
         Parameters
         ----------
-        filename : str
+        filename : str or path-like or file-like
             Plots using :meth:`PdfPages.savefig` will be written to a file at
             this location. The file is opened at once and any older file with
             the same name is overwritten.

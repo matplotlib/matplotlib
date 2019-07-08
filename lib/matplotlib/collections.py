@@ -906,7 +906,7 @@ class PathCollection(_CollectionWithSizes):
             to a `~.ticker.Locator` being used to find useful locations.
             If a list or array, use exactly those elements for the legend.
             Finally, a `~.ticker.Locator` can be provided.
-        fmt : string, `~matplotlib.ticker.Formatter`, or None (default)
+        fmt : str, `~matplotlib.ticker.Formatter`, or None (default)
             The format or formatter to use for the labels. If a string must be
             a valid input for a `~.StrMethodFormatter`. If None (the default),
             use a `~.ScalarFormatter`.
@@ -1240,8 +1240,8 @@ class LineCollection(Collection):
         antialiaseds : sequence, optional
             A sequence of ones or zeros.
 
-        linestyles : string, tuple, optional
-            Either one of [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ], or
+        linestyles : str or tuple, optional
+            Either one of {'solid', 'dashed', 'dashdot', 'dotted'}, or
             a dash tuple. The dash tuple is::
 
                 (offset, onoffseq)
@@ -1252,7 +1252,7 @@ class LineCollection(Collection):
         norm : Normalize, optional
             `~.colors.Normalize` instance.
 
-        cmap : string or Colormap, optional
+        cmap : str or Colormap, optional
             Colormap name or `~.colors.Colormap` instance.
 
         pickradius : float, optional

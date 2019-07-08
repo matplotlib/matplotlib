@@ -989,7 +989,7 @@ class PdfPages:
 
         Parameters
         ----------
-        filename : str
+        filename : str or path-like
             Plots using :meth:`PdfPages.savefig` will be written to a file at
             this location. Any older file with the same name is overwritten.
         keep_empty : bool, optional

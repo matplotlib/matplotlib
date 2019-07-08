@@ -512,11 +512,11 @@ class AxesDivider(Divider):
 
         Parameters
         ----------
-        size : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or string
+        size : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or str
             A width of the axes. If float or string is given, *from_any*
             function is used to create the size, with *ref_size* set to AxesX
             instance of the current axes.
-        pad : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or string
+        pad : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or str
             Pad between the axes. It takes same argument as *size*.
         pack_start : bool
             If False, the new axes is appended at the end
@@ -561,11 +561,11 @@ class AxesDivider(Divider):
 
         Parameters
         ----------
-        size : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or string
+        size : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or str
             A height of the axes. If float or string is given, *from_any*
             function is used to create the size, with *ref_size* set to AxesX
             instance of the current axes.
-        pad : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or string
+        pad : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or str
             Pad between the axes. It takes same argument as *size*.
         pack_start : bool
             If False, the new axes is appended at the end

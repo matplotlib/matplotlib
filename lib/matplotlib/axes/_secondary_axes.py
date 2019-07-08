@@ -121,12 +121,12 @@ class SecondaryAxis(_AxesBase):
 
         Parameters
         ----------
-        location : string or scalar
+        location : {'top', 'bottom', 'left', 'right'} or float
             The position to put the secondary axis.  Strings can be 'top' or
             'bottom' for orientation='x' and 'right' or 'left' for
-            orientation='y', scalar can be a float indicating the relative
-            position on the parent axes to put the new axes, 0.0 being the
-            bottom (or left) and 1.0 being the top (or right).
+            orientation='y'. A float indicates the relative position on the
+            parent axes to put the new axes, 0.0 being the bottom (or left)
+            and 1.0 being the top (or right).
         """
 
         # This puts the rectangle into figure-relative coordinates.
@@ -374,12 +374,12 @@ This method is experimental as of 3.1, and the API may change.
 
 Parameters
 ----------
-location : string or scalar
+location : {'top', 'bottom', 'left', 'right'} or float
     The position to put the secondary axis.  Strings can be 'top' or
-    'bottom', for x-oriented axises or 'left' or 'right' for y-oriented axises
-    or a scalar can be a float indicating the relative position
-    on the axes to put the new axes (0 being the bottom (left), and 1.0 being
-    the top (right).)
+    'bottom' for orientation='x' and 'right' or 'left' for
+    orientation='y'. A float indicates the relative position on the
+    parent axes to put the new axes, 0.0 being the bottom (or left)
+    and 1.0 being the top (or right).
 
 functions : 2-tuple of func, or Transform with an inverse
 

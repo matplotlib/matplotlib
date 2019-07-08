@@ -624,7 +624,7 @@ class Figure(Artist):
         rotation : angle in degrees
             The rotation of the xtick labels.
 
-        ha : string
+        ha : str
             The horizontal alignment of the xticklabels.
 
         which : {None, 'major', 'minor', 'both'}
@@ -1778,7 +1778,7 @@ default: 'top'
 
         Parameters
         ----------
-        handles : sequence of `.Artist`, optional
+        handles : list of `.Artist`, optional
             A list of Artists (lines, patches) to be added to the legend.
             Use this together with *labels*, if you need full control on what
             is shown in the legend and the automatic mechanism described above
@@ -1787,7 +1787,7 @@ default: 'top'
             The length of handles and labels should be the same in this
             case. If they are not, they are truncated to the smaller length.
 
-        labels : sequence of strings, optional
+        labels : list of str, optional
             A list of labels to show next to the artists.
             Use this together with *handles*, if you need full control on what
             is shown in the legend and the automatic mechanism described above

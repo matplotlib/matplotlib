@@ -231,10 +231,10 @@ class MarkerStyle:
 
         Parameters
         ----------
-        marker : string or array-like, optional, default: None
+        marker : str or array-like, optional, default: None
             See the descriptions of possible markers in the module docstring.
 
-        fillstyle : string, optional, default: 'full'
+        fillstyle : str, optional, default: 'full'
             'full', 'left", 'right', 'bottom', 'top', 'none'
         """
         self._marker_function = None

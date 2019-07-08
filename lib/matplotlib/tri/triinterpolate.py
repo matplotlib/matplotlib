@@ -215,7 +215,7 @@ class TriInterpolator:
 
         Parameters
         ----------
-        return_index : string key from {'z', 'dzdx', 'dzdy'}
+        return_index : {'z', 'dzdx', 'dzdy'}
             Identifies the requested values (z or its derivatives)
         tri_index : 1d integer array
             Valid triangle index (-1 prohibited)

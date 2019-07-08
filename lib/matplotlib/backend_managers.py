@@ -163,8 +163,8 @@ class ToolManager:
 
         Parameters
         ----------
-        name : string
-            Name of the Tool
+        name : str
+            Name of the Tool.
 
         Returns
         -------
@@ -184,8 +184,8 @@ class ToolManager:
 
         Parameters
         ----------
-        name : string
-            Name of the Tool
+        name : str
+            Name of the Tool.
         keys : keys to associate with the Tool
         """
 
@@ -207,8 +207,8 @@ class ToolManager:
 
         Parameters
         ----------
-        name : string
-            Name of the Tool
+        name : str
+            Name of the Tool.
         """
 
         tool = self.get_tool(name)
@@ -355,8 +355,8 @@ class ToolManager:
 
         Parameters
         ----------
-        name : string
-            Name of the tool
+        name : str
+            Name of the tool.
         sender : object
             Object that wishes to trigger the tool
         canvasevent : Event

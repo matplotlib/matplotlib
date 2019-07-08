@@ -364,7 +364,7 @@ class Axes(_AxesBase):
             The length of handles and labels should be the same in this
             case. If they are not, they are truncated to the smaller length.
 
-        labels : sequence of strings, optional
+        labels : list of str, optional
             A list of labels to show next to the artists.
             Use this together with *handles*, if you need full control on what
             is shown in the legend and the automatic mechanism described above
@@ -1061,7 +1061,7 @@ class Axes(_AxesBase):
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
-        label : string, optional, default: ''
+        label : str, optional, default: ''
 
         Returns
         -------
@@ -1139,7 +1139,7 @@ class Axes(_AxesBase):
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
-        label : string, optional, default: ''
+        label : str, optional, default: ''
 
         Returns
         -------
@@ -2218,7 +2218,7 @@ class Axes(_AxesBase):
         linewidth : scalar or array-like, optional
             Width of the bar edge(s). If 0, don't draw edges.
 
-        tick_label : string or array-like, optional
+        tick_label : str or array-like, optional
             The tick labels of the bars.
             Default: None (Use default numeric labels.)
 
@@ -2514,7 +2514,7 @@ class Axes(_AxesBase):
         linewidth : scalar or array-like, optional
             Width of the bar edge(s). If 0, don't draw edges.
 
-        tick_label : string or array-like, optional
+        tick_label : str or array-like, optional
             The tick labels of the bars.
             Default: None (Use default numeric labels.)
 
@@ -2862,7 +2862,7 @@ class Axes(_AxesBase):
             will cycle.  If *None*, will use the colors in the currently
             active cycle.
 
-        autopct : None (default), string, or function, optional
+        autopct : None (default), str, or function, optional
             If not *None*, is a string or function used to label the wedges
             with their numeric value.  The label will be placed inside the
             wedge.  If it is a format string, the label will be ``fmt%pct``.
@@ -3097,7 +3097,7 @@ class Axes(_AxesBase):
             See :doc:`/gallery/statistics/errorbar_features`
             for an example on the usage of ``xerr`` and ``yerr``.
 
-        fmt : plot format string, optional, default: ''
+        fmt : str, optional, default: ''
             The format for the data points / data lines. See `.plot` for
             details.
 

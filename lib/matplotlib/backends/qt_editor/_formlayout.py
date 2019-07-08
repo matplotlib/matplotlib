@@ -491,8 +491,8 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
     (if Cancel button is pressed, return None)
 
     data: datalist, datagroup
-    title: string
-    comment: string
+    title: str
+    comment: str
     icon: QIcon instance
     parent: parent QWidget
     apply: apply callback (function)
