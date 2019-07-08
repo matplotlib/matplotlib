@@ -23,6 +23,7 @@ def plot_scatter(ax, prng, nb_samples=100):
         x, y = prng.normal(loc=mu, scale=sigma, size=(2, nb_samples))
         ax.plot(x, y, ls='none', marker=marker)
     ax.set_xlabel('X-label')
+    ax.set_title('Axes title')
     return ax
 
 
