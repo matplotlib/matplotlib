@@ -100,7 +100,7 @@
 #backend_fallback : True
 
 #interactive : False
-#toolbar     : toolbar2  ## None | toolbar2  ("classic" is deprecated)
+#toolbar     : toolbar2  ## {None, toolbar2}
 #timezone    : UTC       ## a pytz timezone string, e.g., US/Central or Europe/Paris
 
 ## Where your matplotlib data lives if you installed to a non-default
@@ -121,10 +121,10 @@
 #lines.markeredgecolor : auto  ## the default marker edge color
 #lines.markeredgewidth : 1.0   ## the line width around the marker symbol
 #lines.markersize      : 6     ## marker size, in points
-#lines.dash_joinstyle  : round       ## miter | round | bevel
-#lines.dash_capstyle   : butt        ## butt  | round | projecting
-#lines.solid_joinstyle : round       ## miter | round | bevel
-#lines.solid_capstyle  : projecting  ## butt  | round | projecting
+#lines.dash_joinstyle  : round       ## {miter, round, bevel}
+#lines.dash_capstyle   : butt        ## {butt, round, projecting}
+#lines.solid_joinstyle : round       ## {miter, round, bevel}
+#lines.solid_capstyle  : projecting  ## {butt, round, projecting}
 #lines.antialiased : True  ## render lines in antialiased (no jaggies)
 
 ## The three standard dash patterns.  These are scaled by the linewidth.
@@ -133,7 +133,7 @@
 #lines.dotted_pattern : 1, 1.65
 #lines.scale_dashes : True
 
-#markers.fillstyle : full  ## full|left|right|bottom|top|none
+#markers.fillstyle : full  ## {full, left, right, bottom, top, none}
 
 
 ## ***************************************************************************
@@ -354,9 +354,8 @@
 #axes.linewidth     : 0.8     ## edge linewidth
 #axes.grid          : False   ## display grid or not
 #axes.grid.axis     : both    ## which axis the grid should apply to
-#axes.grid.which    : major   ## gridlines at major, minor or both ticks
-#axes.titlelocation : center  ## alignment of the title, possible values are:
-                              ##     left, right and center
+#axes.grid.which    : major   ## gridlines at {major, minor, both} ticks
+#axes.titlelocation : center  ## alignment of the title: {left, right, center}
 #axes.titlesize     : large   ## fontsize of the axes title
 #axes.titleweight   : normal  ## font weight of title
 #axes.titlepad      : 6.0     ## pad between axes and title in points
@@ -400,8 +399,9 @@
 #axes.prop_cycle : cycler('color', ['1f77b4', 'ff7f0e', '2ca02c', 'd62728', '9467bd', '8c564b', 'e377c2', '7f7f7f', 'bcbd22', '17becf'])
                    ## color cycle for plot lines as list of string colorspecs:
                    ##     single letter, long name, or web-style hex
-				   ## Note the use of string escapes here ('1f77b4', instead of 1f77b4)
-                   ## as opposed to the rest of this file.
+				   ## As opposed to all other paramters in this file, the color
+				   ## values must be enclosed in quotes for this parameter,
+				   #  e.g. '1f77b4', instead of 1f77b4.
                    ## See also https://matplotlib.org/tutorials/intermediate/color_cycle.html
                    ## for more details on prop_cycle usage.
 #axes.autolimit_mode : data  ## How to scale axes limits to the data.  By using:
@@ -450,7 +450,7 @@
 #xtick.minor.pad     : 3.4     ## distance to the minor tick label in points
 #xtick.color         : black   ## color of the tick labels
 #xtick.labelsize     : medium  ## fontsize of the tick labels
-#xtick.direction     : out     ## direction: in, out, or inout
+#xtick.direction     : out     ## direction: {in, out, inout}
 #xtick.minor.visible : False   ## visibility of minor ticks on x-axis
 #xtick.major.top     : True    ## draw x axis top major ticks
 #xtick.major.bottom  : True    ## draw x axis bottom major ticks
@@ -470,7 +470,7 @@
 #ytick.minor.pad     : 3.4     ## distance to the minor tick label in points
 #ytick.color         : black   ## color of the tick labels
 #ytick.labelsize     : medium  ## fontsize of the tick labels
-#ytick.direction     : out     ## direction: in, out, or inout
+#ytick.direction     : out     ## direction: {in, out, inout}
 #ytick.minor.visible : False   ## visibility of minor ticks on y-axis
 #ytick.major.left    : True    ## draw y axis left major ticks
 #ytick.major.right   : True    ## draw y axis right major ticks
@@ -556,11 +556,11 @@
 ## ***************************************************************************
 ## * IMAGES                                                                  *
 ## ***************************************************************************
-#image.aspect : equal            ## equal | auto | a number
+#image.aspect : equal            ## {equal, auto} or a number
 #image.interpolation  : nearest  ## see help(imshow) for options
 #image.cmap   : viridis          ## A colormap name, gray etc...
 #image.lut    : 256              ## the size of the colormap lookup table
-#image.origin : upper            ## lower | upper
+#image.origin : upper            ## {lower, upper}
 #image.resample  : True
 #image.composite_image : True  ## When True, all the images on a set of axes are
                                ## combined into a single composite image before
@@ -572,7 +572,7 @@
 ## * CONTOUR PLOTS                                                           *
 ## ***************************************************************************
 #contour.negative_linestyle : dashed  ## string or on-off ink sequence
-#contour.corner_mask        : True    ## True | False | legacy
+#contour.corner_mask        : True    ## {True, False, legacy}
 
 
 ## ***************************************************************************
@@ -584,8 +584,7 @@
 ## ***************************************************************************
 ## * HISTOGRAM PLOTS                                                         *
 ## ***************************************************************************
-#hist.bins : 10  ## The default number of histogram bins.
-                 ## If Numpy 1.11 or later is installed, may also be `auto`
+#hist.bins : 10  ## The default number of histogram bins or 'auto'.
 
 
 ## ***************************************************************************
@@ -641,8 +640,8 @@
 #savefig.dpi       : figure      ## figure dots per inch or 'figure'
 #savefig.facecolor : white       ## figure facecolor when saving
 #savefig.edgecolor : white       ## figure edgecolor when saving
-#savefig.format    : png         ## png, ps, pdf, svg
-#savefig.bbox      : standard    ## 'tight' or 'standard'.
+#savefig.format    : png         ## {png, ps, pdf, svg}
+#savefig.bbox      : standard    ## {tight, standard}
                                  ## 'tight' is incompatible with pipe-based animation
                                  ## backends but will workd with temporary file based ones:
                                  ## e.g. setting animation.writer to ffmpeg will not work,
@@ -659,9 +658,9 @@
 #tk.window_focus   : False  ## Maintain shell focus for TkAgg
 
 ### ps backend params
-#ps.papersize      : letter  ## auto, letter, legal, ledger, A0-A10, B0-B10
+#ps.papersize      : letter  ## {auto, letter, legal, ledger, A0-A10, B0-B10}
 #ps.useafm         : False   ## use of afm fonts, results in small files
-#ps.usedistiller   : False   ## can be: None, ghostscript or xpdf
+#ps.usedistiller   : False   ## {ghostscript, xpdf, None}
                              ## Experimental: may produce smaller files.
                              ## xpdf intended for production of publication quality files,
                              ## but requires ghostscript, xpdf and ps2eps
