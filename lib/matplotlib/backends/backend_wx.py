@@ -16,9 +16,8 @@ import weakref
 import matplotlib
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    NavigationToolbar2, RendererBase, TimerBase, cursors, ToolContainerBase,
-    StatusbarBase)
-from matplotlib.backend_bases import _has_pil
+    MouseButton, NavigationToolbar2, RendererBase, StatusbarBase, TimerBase,
+    ToolContainerBase, _has_pil, cursors)
 
 from matplotlib import cbook, rcParams, backend_tools
 from matplotlib._pylab_helpers import Gcf
@@ -607,20 +606,19 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         self.Bind(wx.EVT_PAINT, self._onPaint)
         self.Bind(wx.EVT_KEY_DOWN, self._onKeyDown)
         self.Bind(wx.EVT_KEY_UP, self._onKeyUp)
-        self.Bind(wx.EVT_RIGHT_DOWN, self._onRightButtonDown)
-        self.Bind(wx.EVT_RIGHT_DCLICK, self._onRightButtonDClick)
-        self.Bind(wx.EVT_RIGHT_UP, self._onRightButtonUp)
+        self.Bind(wx.EVT_LEFT_DOWN, self._onMouseButton)
+        self.Bind(wx.EVT_LEFT_DCLICK, self._onMouseButton)
+        self.Bind(wx.EVT_LEFT_UP, self._onMouseButton)
+        self.Bind(wx.EVT_MIDDLE_DOWN, self._onMouseButton)
+        self.Bind(wx.EVT_MIDDLE_DCLICK, self._onMouseButton)
+        self.Bind(wx.EVT_MIDDLE_UP, self._onMouseButton)
+        self.Bind(wx.EVT_RIGHT_DOWN, self._onMouseButton)
+        self.Bind(wx.EVT_RIGHT_DCLICK, self._onMouseButton)
+        self.Bind(wx.EVT_RIGHT_UP, self._onMouseButton)
         self.Bind(wx.EVT_MOUSEWHEEL, self._onMouseWheel)
-        self.Bind(wx.EVT_LEFT_DOWN, self._onLeftButtonDown)
-        self.Bind(wx.EVT_LEFT_DCLICK, self._onLeftButtonDClick)
-        self.Bind(wx.EVT_LEFT_UP, self._onLeftButtonUp)
         self.Bind(wx.EVT_MOTION, self._onMotion)
         self.Bind(wx.EVT_LEAVE_WINDOW, self._onLeave)
         self.Bind(wx.EVT_ENTER_WINDOW, self._onEnter)
-        # Add middle button events
-        self.Bind(wx.EVT_MIDDLE_DOWN, self._onMiddleButtonDown)
-        self.Bind(wx.EVT_MIDDLE_DCLICK, self._onMiddleButtonDClick)
-        self.Bind(wx.EVT_MIDDLE_UP, self._onMiddleButtonUp)
 
         self.Bind(wx.EVT_MOUSE_CAPTURE_CHANGED, self._onCaptureLost)
         self.Bind(wx.EVT_MOUSE_CAPTURE_LOST, self._onCaptureLost)
@@ -841,81 +839,25 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         """Capture changed or lost"""
         self._set_capture(False)
 
-    def _onRightButtonDown(self, evt):
+    def _onMouseButton(self, evt):
         """Start measuring on an axis."""
-        x = evt.GetX()
-        y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
-        self._set_capture(True)
-        FigureCanvasBase.button_press_event(self, x, y, 3, guiEvent=evt)
-
-    def _onRightButtonDClick(self, evt):
-        """Start measuring on an axis."""
-        x = evt.GetX()
-        y = self.figure.bbox.height - evt.GetY()
-        evt.Skip()
-        self._set_capture(True)
-        FigureCanvasBase.button_press_event(self, x, y, 3,
-                                            dblclick=True, guiEvent=evt)
-
-    def _onRightButtonUp(self, evt):
-        """End measuring on an axis."""
-        x = evt.GetX()
-        y = self.figure.bbox.height - evt.GetY()
-        evt.Skip()
-        self._set_capture(False)
-        FigureCanvasBase.button_release_event(self, x, y, 3, guiEvent=evt)
-
-    def _onLeftButtonDown(self, evt):
-        """Start measuring on an axis."""
-        x = evt.GetX()
-        y = self.figure.bbox.height - evt.GetY()
-        evt.Skip()
-        self._set_capture(True)
-        FigureCanvasBase.button_press_event(self, x, y, 1, guiEvent=evt)
-
-    def _onLeftButtonDClick(self, evt):
-        """Start measuring on an axis."""
-        x = evt.GetX()
-        y = self.figure.bbox.height - evt.GetY()
-        evt.Skip()
-        self._set_capture(True)
-        FigureCanvasBase.button_press_event(self, x, y, 1,
-                                            dblclick=True, guiEvent=evt)
-
-    def _onLeftButtonUp(self, evt):
-        """End measuring on an axis."""
-        x = evt.GetX()
-        y = self.figure.bbox.height - evt.GetY()
-        evt.Skip()
-        self._set_capture(False)
-        FigureCanvasBase.button_release_event(self, x, y, 1, guiEvent=evt)
-
-    # Add middle button events
-    def _onMiddleButtonDown(self, evt):
-        """Start measuring on an axis."""
-        x = evt.GetX()
-        y = self.figure.bbox.height - evt.GetY()
-        evt.Skip()
-        self._set_capture(True)
-        FigureCanvasBase.button_press_event(self, x, y, 2, guiEvent=evt)
-
-    def _onMiddleButtonDClick(self, evt):
-        """Start measuring on an axis."""
-        x = evt.GetX()
-        y = self.figure.bbox.height - evt.GetY()
-        evt.Skip()
-        self._set_capture(True)
-        FigureCanvasBase.button_press_event(self, x, y, 2,
-                                            dblclick=True, guiEvent=evt)
-
-    def _onMiddleButtonUp(self, evt):
-        """End measuring on an axis."""
-        x = evt.GetX()
-        y = self.figure.bbox.height - evt.GetY()
-        evt.Skip()
-        self._set_capture(False)
-        FigureCanvasBase.button_release_event(self, x, y, 2, guiEvent=evt)
+        self._set_capture(evt.ButtonDown() or evt.ButtonDClick())
+        x = evt.X
+        y = self.figure.bbox.height - evt.Y
+        button_map = {
+            wx.MOUSE_BTN_LEFT: MouseButton.LEFT,
+            wx.MOUSE_BTN_MIDDLE: MouseButton.MIDDLE,
+            wx.MOUSE_BTN_RIGHT: MouseButton.RIGHT,
+        }
+        button = evt.GetButton()
+        button = button_map.get(button, button)
+        if evt.ButtonDown():
+            self.button_press_event(x, y, button, guiEvent=evt)
+        elif evt.ButtonDClick():
+            self.button_press_event(x, y, button, dblclick=True, guiEvent=evt)
+        elif evt.ButtonUp():
+            self.button_release_event(x, y, button, guiEvent=evt)
 
     def _onMouseWheel(self, evt):
         """Translate mouse wheel events into matplotlib events"""
