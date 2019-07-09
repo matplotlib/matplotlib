@@ -1484,9 +1484,8 @@ class GaussianKDE:
 
         self.covariance = self.data_covariance * self.factor ** 2
         self.inv_cov = self.data_inv_cov / self.factor ** 2
-        self.norm_factor = np.sqrt(
-            np.linalg.det(
-                2 * np.pi * self.covariance)) * self.num_dp
+        self.norm_factor = (np.sqrt(np.linalg.det(2 * np.pi * self.covariance))
+                            * self.num_dp)
 
     def scotts_factor(self):
         return np.power(self.num_dp, -1. / (self.dim + 4))

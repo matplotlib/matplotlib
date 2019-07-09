@@ -1967,15 +1967,13 @@ class ToolHandles:
 
     def closest(self, x, y):
         """Return index and pixel distance to closest index."""
-        pts = np.transpose((self.x, self.y))
+        pts = np.column_stack([self.x, self.y])
         # Transform data coordinates to pixel coordinates.
         pts = self.ax.transData.transform(pts)
-        diff = pts - ((x, y))
-        if diff.ndim == 2:
-            dist = np.sqrt(np.sum(diff ** 2, axis=1))
-            return np.argmin(dist), np.min(dist)
-        else:
-            return 0, np.sqrt(np.sum(diff ** 2))
+        diff = pts - [x, y]
+        dist = np.hypot(*diff.T)
+        min_index = np.argmin(dist)
+        return min_index, dist[min_index]
 
 
 class RectangleSelector(_SelectorWidget):
