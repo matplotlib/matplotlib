@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+``backend_wx.ConfigureSubplotsWx.configure_subplots`` and
+``backend_wx.ConfigureSubplotsWx.get_canvas`` are deprecated.

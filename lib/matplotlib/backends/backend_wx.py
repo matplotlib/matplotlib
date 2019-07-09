@@ -1406,13 +1406,13 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.ToggleTool(self.wx_ids['Zoom'], False)
         NavigationToolbar2.pan(self, *args)
 
-    def configure_subplots(self, evt):
+    def configure_subplots(self, *args):
         global FigureManager  # placates pyflakes: created by @_Backend.export
         frame = wx.Frame(None, -1, "Configure subplots")
         _set_frame_icon(frame)
 
         toolfig = Figure((6, 3))
-        canvas = self.get_canvas(frame, toolfig)
+        canvas = type(self.canvas)(frame, -1, toolfig)
 
         # Create a figure manager to manage things
         FigureManager(canvas, 1, frame)
@@ -1653,8 +1653,10 @@ class StatusbarWx(StatusbarBase, wx.StatusBar):
 
 class ConfigureSubplotsWx(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
-        self.configure_subplots()
+        NavigationToolbar2Wx.configure_subplots(
+            self._make_classic_style_pseudo_toolbar())
 
+    @cbook.deprecated("3.2")
     def configure_subplots(self):
         frame = wx.Frame(None, -1, "Configure subplots")
         _set_frame_icon(frame)
@@ -1671,6 +1673,7 @@ class ConfigureSubplotsWx(backend_tools.ConfigureSubplotsBase):
         SubplotTool(self.canvas.figure, toolfig)
         frame.Show()
 
+    @cbook.deprecated("3.2")
     def get_canvas(self, frame, fig):
         return type(self.canvas)(frame, -1, fig)
 
