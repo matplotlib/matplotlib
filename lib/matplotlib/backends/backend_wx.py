@@ -1029,12 +1029,10 @@ class FigureFrameWx(wx.Frame):
         # of the frame - so appearance is closer to GTK version
 
         self.toolmanager = self._get_toolmanager()
-        if self.toolmanager:
-            self.statusbar = StatusbarWx(self, self.toolmanager)
-        else:
-            self.statusbar = StatusBarWx(self)
-        self.SetStatusBar(self.statusbar)
-        self.toolbar = self._get_toolbar(self.statusbar)
+        statusbar = (StatusbarWx(self, self.toolmanager)
+                     if self.toolmanager else StatusBarWx(self))
+        self.SetStatusBar(statusbar)
+        self.toolbar = self._get_toolbar()
 
         if self.toolmanager:
             backend_tools.add_tools_to_manager(self.toolmanager)
@@ -1060,10 +1058,14 @@ class FigureFrameWx(wx.Frame):
 
         self.Bind(wx.EVT_CLOSE, self._onClose)
 
-    def _get_toolbar(self, statbar):
+    @cbook.deprecated("3.2", alternative="self.GetStatusBar()")
+    @property
+    def statusbar(self):
+        return self.GetStatusBar()
+
+    def _get_toolbar(self):
         if rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2Wx(self.canvas)
-            toolbar.set_status_bar(statbar)
         elif matplotlib.rcParams['toolbar'] == 'toolmanager':
             toolbar = ToolbarWx(self.toolmanager, self)
         else:
@@ -1305,7 +1307,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         NavigationToolbar2.__init__(self, canvas)
         self.canvas = canvas
         self._idle = True
-        self.statbar = None
         self.prevZoomRect = None
         # for now, use alternate zoom-rectangle drawing on all
         # Macs. N.B. In future versions of wx it may be possible to
@@ -1485,12 +1486,20 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         dc.SetBrush(wx.Brush(color))
         dc.DrawRectangle(rect)
 
+    @cbook.deprecated("3.2")
     def set_status_bar(self, statbar):
-        self.statbar = statbar
+        self.GetTopLevelParent().SetStatusBar(statbar)
+
+    @cbook.deprecated("3.2",
+                      alternative="self.GetTopLevelParent().GetStatusBar()")
+    @property
+    def statbar(self):
+        return self.GetTopLevelParent().GetStatusBar()
 
     def set_message(self, s):
-        if self.statbar is not None:
-            self.statbar.set_function(s)
+        status_bar = self.GetTopLevelParent().GetStatusBar()
+        if status_bar is not None:
+            status_bar.set_function(s)
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
