@@ -428,7 +428,7 @@ class Axes(_AxesBase):
             parent axes.
 
         **kwargs
-            Other *kwargs* are passed on to the `~.axes.Axes` child axes.
+            Other keyword arguments are passed on to the `.Axes` child axes.
 
         Returns
         -------
@@ -510,7 +510,7 @@ class Axes(_AxesBase):
             (just below the default level of inset axes).
 
         **kwargs
-            Other *kwargs* are passed on to the rectangle patch.
+            Other keyword arguments are passed on to the rectangle patch.
 
         Returns
         -------
@@ -596,7 +596,7 @@ class Axes(_AxesBase):
             chosen so as to not overlap with the indicator box.
 
         **kwargs
-            Other *kwargs* are passed on to `.Axes.indicate_inset`
+            Other keyword arguments are passed on to `.Axes.indicate_inset`
 
         Returns
         -------
@@ -802,15 +802,15 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        line : :class:`~matplotlib.lines.Line2D`
+        line : `~matplotlib.lines.Line2D`
 
         Other Parameters
         ----------------
         **kwargs
-            Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
-            with the exception of 'transform':
+            Valid keyword arguments are `.Line2D` properties, with the
+            exception of 'transform':
 
-        %(_Line2D_docstr)s
+            %(_Line2D_docstr)s
 
         See also
         --------
@@ -870,15 +870,15 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        line : :class:`~matplotlib.lines.Line2D`
+        line : `~matplotlib.lines.Line2D`
 
         Other Parameters
         ----------------
         **kwargs
-            Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
-            with the exception of 'transform':
+            Valid keyword arguments are `.Line2D` properties, with the
+            exception of 'transform':
 
-        %(_Line2D_docstr)s
+            %(_Line2D_docstr)s
 
         Examples
         --------
@@ -1543,7 +1543,7 @@ class Axes(_AxesBase):
 
             Here is a list of available `.Line2D` properties:
 
-        %(_Line2D_docstr)s
+            %(_Line2D_docstr)s
 
         Returns
         -------
@@ -1684,16 +1684,15 @@ class Axes(_AxesBase):
         Returns
         -------
         lines
-            A list of `~.Line2D` objects representing the plotted data.
+            A list of `.Line2D` objects representing the plotted data.
 
 
         Other Parameters
         ----------------
         **kwargs
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
+            Keyword arguments control the `.Line2D` properties:
 
-        %(_Line2D_docstr)s
+            %(_Line2D_docstr)s
 
         See Also
         --------
@@ -1760,7 +1759,7 @@ class Axes(_AxesBase):
         Returns
         -------
         lines
-            A list of `~.Line2D` objects representing the plotted data.
+            A list of `.Line2D` objects representing the plotted data.
 
         Other Parameters
         ----------------
@@ -1813,7 +1812,7 @@ class Axes(_AxesBase):
         Returns
         -------
         lines
-            A list of `~.Line2D` objects representing the plotted data.
+            A list of `.Line2D` objects representing the plotted data.
 
         Other Parameters
         ----------------
@@ -1862,7 +1861,7 @@ class Axes(_AxesBase):
         Returns
         -------
         lines
-            A list of `~.Line2D` objects representing the plotted data.
+            A list of `.Line2D` objects representing the plotted data.
 
         Other Parameters
         ----------------
@@ -3147,10 +3146,8 @@ class Axes(_AxesBase):
         container : :class:`~.container.ErrorbarContainer`
             The container contains:
 
-            - plotline: :class:`~matplotlib.lines.Line2D` instance of
-              x, y plot markers and/or line.
-            - caplines: A tuple of :class:`~matplotlib.lines.Line2D` instances
-              of the error bar caps.
+            - plotline: `.Line2D` instance of x, y plot markers and/or line.
+            - caplines: A tuple of `.Line2D` instances of the error bar caps.
             - barlinecols: A tuple of
               :class:`~matplotlib.collections.LineCollection` with the
               horizontal and vertical error ranges.
@@ -3172,7 +3169,7 @@ class Axes(_AxesBase):
 
             Valid kwargs for the marker properties are `.Lines2D` properties:
 
-        %(_Line2D_docstr)s
+            %(_Line2D_docstr)s
         """
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
         # anything that comes in as 'None', drop so the default thing
@@ -3620,9 +3617,8 @@ class Axes(_AxesBase):
         -------
         result : dict
           A dictionary mapping each component of the boxplot to a list
-          of the :class:`matplotlib.lines.Line2D` instances
-          created. That dictionary has the following keys (assuming
-          vertical boxplots):
+          of the `.Line2D` instances created. That dictionary has the
+          following keys (assuming vertical boxplots):
 
           - ``boxes``: the main body of the boxplot showing the
             quartiles and the median's confidence intervals if
@@ -3820,9 +3816,8 @@ class Axes(_AxesBase):
           makes horizontal boxes.
 
         patch_artist : bool, default = False
-          If `False` produces boxes with the
-          `~matplotlib.lines.Line2D` artist.  If `True` produces boxes
-          with the `~matplotlib.patches.Patch` artist.
+          If `False` produces boxes with the `.Line2D` artist.
+          If `True` produces boxes with the `~matplotlib.patches.Patch` artist.
 
         shownotches : bool, default = False
           If `False` (default), produces a rectangular box plot.
@@ -3875,9 +3870,8 @@ class Axes(_AxesBase):
         -------
         result : dict
           A dictionary mapping each component of the boxplot to a list
-          of the :class:`matplotlib.lines.Line2D` instances
-          created. That dictionary has the following keys (assuming
-          vertical boxplots):
+          of the `.Line2D` instances created. That dictionary has the
+          following keys (assuming vertical boxplots):
 
           - ``boxes``: the main body of the boxplot showing the
             quartiles and the median's confidence intervals if
@@ -7008,17 +7002,16 @@ optional.
         freqs : 1-D array
             The frequencies corresponding to the elements in *Pxx*.
 
-        line : a :class:`~matplotlib.lines.Line2D` instance
+        line : `~matplotlib.lines.Line2D`
             The line created by this function.
             Only returned if *return_line* is True.
 
         Other Parameters
         ----------------
         **kwargs
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
+            Keyword arguments control the `.Line2D` properties:
 
-        %(_Line2D_docstr)s
+            %(_Line2D_docstr)s
 
         See Also
         --------
@@ -7127,17 +7120,16 @@ optional.
         freqs : 1-D array
             The frequencies corresponding to the elements in *Pxy*.
 
-        line : a :class:`~matplotlib.lines.Line2D` instance
+        line : `~matplotlib.lines.Line2D`
             The line created by this function.
             Only returned if *return_line* is True.
 
         Other Parameters
         ----------------
         **kwargs
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
+            Keyword arguments control the `.Line2D` properties:
 
-        %(_Line2D_docstr)s
+            %(_Line2D_docstr)s
 
         See Also
         --------
@@ -7221,16 +7213,15 @@ optional.
         freqs : 1-D array
             The frequencies corresponding to the elements in *spectrum*.
 
-        line : a :class:`~matplotlib.lines.Line2D` instance
+        line : `~matplotlib.lines.Line2D`
             The line created by this function.
 
         Other Parameters
         ----------------
         **kwargs
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
+            Keyword arguments control the `.Line2D` properties:
 
-        %(_Line2D_docstr)s
+            %(_Line2D_docstr)s
 
         See Also
         --------
@@ -7309,16 +7300,15 @@ optional.
         freqs : 1-D array
             The frequencies corresponding to the elements in *spectrum*.
 
-        line : a :class:`~matplotlib.lines.Line2D` instance
+        line : `~matplotlib.lines.Line2D`
             The line created by this function.
 
         Other Parameters
         ----------------
         **kwargs
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
+            Keyword arguments control the `.Line2D` properties:
 
-        %(_Line2D_docstr)s
+            %(_Line2D_docstr)s
 
         See Also
         --------
@@ -7382,16 +7372,15 @@ optional.
         freqs : 1-D array
             The frequencies corresponding to the elements in *spectrum*.
 
-        line : a :class:`~matplotlib.lines.Line2D` instance
+        line : `~matplotlib.lines.Line2D`
             The line created by this function.
 
         Other Parameters
         ----------------
         **kwargs
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
+            Keyword arguments control the `.Line2D` properties:
 
-        %(_Line2D_docstr)s
+            %(_Line2D_docstr)s
 
         See Also
         --------
@@ -7463,10 +7452,9 @@ optional.
         Other Parameters
         ----------------
         **kwargs
-            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
-            properties:
+            Keyword arguments control the `.Line2D` properties:
 
-        %(_Line2D_docstr)s
+            %(_Line2D_docstr)s
 
         References
         ----------
@@ -7546,8 +7534,8 @@ optional.
             of the bins is smaller than those of the segments.
 
         **kwargs
-            Additional kwargs are passed on to imshow which makes the
-            specgram image.
+            Additional keyword arguments are passed on to imshow which makes
+            the specgram image.
 
         Returns
         -------
@@ -7653,14 +7641,14 @@ optional.
         **Image style**
 
         If *marker* and *markersize* are *None*, `~.Axes.imshow` is used. Any
-        extra remaining kwargs are passed to this method.
+        extra remaining keyword arguments are passed to this method.
 
         **Marker style**
 
         If *Z* is a `scipy.sparse.spmatrix` or *marker* or *markersize* are
-        *None*, a `~matplotlib.lines.Line2D` object will be returned with
-        the value of marker determining the marker type, and any
-        remaining kwargs passed to `~.Axes.plot`.
+        *None*, a `.Line2D` object will be returned with the value of marker
+        determining the marker type, and any remaining keyword arguments
+        passed to `~.Axes.plot`.
 
         Parameters
         ----------
@@ -7719,7 +7707,7 @@ optional.
             For the marker style, you can pass any `.Line2D` property except
             for *linestyle*:
 
-        %(_Line2D_docstr)s
+            %(_Line2D_docstr)s
         """
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'

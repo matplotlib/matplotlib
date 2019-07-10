@@ -135,7 +135,7 @@ class Text(Artist):
         """
         Create a `.Text` instance at *x*, *y* with string *text*.
 
-        Valid kwargs are
+        Valid keyword arguments are:
 
         %(Text)s
         """

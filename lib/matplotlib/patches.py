@@ -601,7 +601,7 @@ class Shadow(Patch):
         If *None*, the shadow will have have the same color as the face,
         but darkened.
 
-        kwargs are
+        Valid keyword arguments are:
 
         %(Patch)s
         """
@@ -683,7 +683,7 @@ class Rectangle(Patch):
 
         Notes
         -----
-        Valid kwargs are:
+        Valid keyword arguments are:
 
         %(Patch)s
         """
@@ -854,7 +854,7 @@ class RegularPolygon(Patch):
         *orientation*
           rotates the polygon (in radians).
 
-        Valid kwargs are:
+        Valid keyword arguments are:
 
         %(Patch)s
         """
@@ -932,7 +932,7 @@ class PathPatch(Patch):
         """
         *path* is a :class:`matplotlib.path.Path` object.
 
-        Valid kwargs are:
+        Valid keyword arguments are:
 
         %(Patch)s
         """
@@ -962,7 +962,7 @@ class Polygon(Patch):
         If *closed* is *True*, the polygon will be closed so the
         starting and ending points are the same.
 
-        Valid kwargs are:
+        Valid keyword arguments are:
 
         %(Patch)s
         """
@@ -1061,7 +1061,7 @@ class Wedge(Patch):
         then a partial wedge is drawn from inner radius *r* - *width*
         to outer radius *r*.
 
-        Valid kwargs are:
+        Valid keyword arguments are:
 
         %(Patch)s
         """
@@ -1312,7 +1312,7 @@ class CirclePolygon(RegularPolygon):
         *resolution* sides.  For a smoother circle drawn with splines,
         see :class:`~matplotlib.patches.Circle`.
 
-        Valid kwargs are:
+        Valid keyword arguments are:
 
         %(Patch)s
         """
@@ -1349,7 +1349,7 @@ class Ellipse(Patch):
 
         Notes
         -----
-        Valid keyword arguments are
+        Valid keyword arguments are:
 
         %(Patch)s
         """
@@ -1427,7 +1427,7 @@ class Circle(Ellipse):
         which is a polygonal approximation, this uses Bezier splines
         and is much closer to a scale-free circle.
 
-        Valid kwargs are:
+        Valid keyword arguments are:
 
         %(Patch)s
         """
