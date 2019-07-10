@@ -35,6 +35,16 @@ data processing tools. An example plot from the `Cartopy gallery
 .. image:: /_static/cartopy_hurricane_katrina_01_00.png
     :height: 400px
 
+Geoplot
+=======
+`Geoplot <https://residentmario.github.io/geoplot/index.html>`_ builds on top
+of Matplotlib and Cartopy to provide a "standard library" of simple, powerful,
+and customizable plot types. An example plot from the `Geoplot gallery
+<https://residentmario.github.io/geoplot/index.html>`_:
+
+.. image:: /_static/geoplot_nyc_traffic_tickets.png
+    :height: 400px
+
 Ridge Map
 =========
 `ridge_map <https://github.com/ColCarroll/ridge_map>`_ uses Matplotlib,
