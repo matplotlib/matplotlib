@@ -163,9 +163,7 @@ class SubplotBase:
             self.set_ylabel("")
 
     def _make_twin_axes(self, *args, **kwargs):
-        """
-        Make a twinx axes of self. This is used for twinx and twiny.
-        """
+        """Make a twinx axes of self. This is used for twinx and twiny."""
         if 'sharex' in kwargs and 'sharey' in kwargs:
             # The following line is added in v2.2 to avoid breaking Seaborn,
             # which currently uses this internal API.
