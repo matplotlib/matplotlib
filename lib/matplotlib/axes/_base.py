@@ -4391,15 +4391,12 @@ class _AxesBase(martist.Artist):
 
         return _bbox
 
-    def _make_twin_axes(self, *kl, **kwargs):
-        """
-        Make a twinx axes of self. This is used for twinx and twiny.
-        """
+    def _make_twin_axes(self, *args, **kwargs):
+        """Make a twinx axes of self. This is used for twinx and twiny."""
         # Typically, SubplotBase._make_twin_axes is called instead of this.
-        # There is also an override in axes_grid1/axes_divider.py.
         if 'sharex' in kwargs and 'sharey' in kwargs:
-            raise ValueError("Twinned Axes may share only one axis.")
-        ax2 = self.figure.add_axes(self.get_position(True), *kl, **kwargs)
+            raise ValueError("Twinned Axes may share only one axis")
+        ax2 = self.figure.add_axes(self.get_position(True), *args, **kwargs)
         self.set_adjustable('datalim')
         ax2.set_adjustable('datalim')
         self._twinned_axes.join(self, ax2)
@@ -4407,13 +4404,13 @@ class _AxesBase(martist.Artist):
 
     def twinx(self):
         """
-        Create a twin Axes sharing the xaxis
+        Create a twin Axes sharing the xaxis.
 
-        Create a new Axes instance with an invisible x-axis and an independent
+        Create a new Axes with an invisible x-axis and an independent
         y-axis positioned opposite to the original one (i.e. at right). The
-        x-axis autoscale setting will be inherited from the original Axes.
-        To ensure that the tick marks of both y-axes align, see
-        `~matplotlib.ticker.LinearLocator`
+        x-axis autoscale setting will be inherited from the original
+        Axes.  To ensure that the tick marks of both y-axes align, see
+        `~matplotlib.ticker.LinearLocator`.
 
         Returns
         -------
@@ -4437,13 +4434,13 @@ class _AxesBase(martist.Artist):
 
     def twiny(self):
         """
-        Create a twin Axes sharing the yaxis
+        Create a twin Axes sharing the yaxis.
 
-        Create a new Axes instance with an invisible y-axis and an independent
+        Create a new Axes with an invisible y-axis and an independent
         x-axis positioned opposite to the original one (i.e. at top). The
         y-axis autoscale setting will be inherited from the original Axes.
         To ensure that the tick marks of both x-axes align, see
-        `~matplotlib.ticker.LinearLocator`
+        `~matplotlib.ticker.LinearLocator`.
 
         Returns
         -------
@@ -4455,7 +4452,6 @@ class _AxesBase(martist.Artist):
         For those who are 'picking' artists while using twiny, pick
         events are only called for the artists in the top-most axes.
         """
-
         ax2 = self._make_twin_axes(sharey=self)
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
