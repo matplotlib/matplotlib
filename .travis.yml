@@ -1,7 +1,6 @@
 language: python
 
 dist: xenial
-sudo: false
 
 services:
   - xvfb
