@@ -1095,6 +1095,7 @@ class Line2D(Artist):
         Parameters
         ----------
         w : float
+	     Line width, in points.
         """
         w = float(w)
 
@@ -1227,6 +1228,7 @@ class Line2D(Artist):
         Parameters
         ----------
         ew : float
+	      Marker edge width, in points.
         """
         if ew is None:
             ew = rcParams['lines.markeredgewidth']
@@ -1269,6 +1271,7 @@ class Line2D(Artist):
         Parameters
         ----------
         sz : float
+	      Marker size, in points.
         """
         sz = float(sz)
         if self._markersize != sz:
