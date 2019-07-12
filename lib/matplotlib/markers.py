@@ -453,7 +453,7 @@ class MarkerStyle:
         [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
 
     def _set_triangle(self, rot, skip):
-        self._transform = Affine2D().scale(0.5, 0.5).rotate_deg(rot)
+        self._transform = Affine2D().scale(0.5).rotate_deg(rot)
         self._snap_threshold = 5.0
         fs = self.get_fillstyle()
 

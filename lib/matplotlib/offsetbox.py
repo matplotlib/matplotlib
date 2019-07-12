@@ -763,7 +763,7 @@ class DrawingArea(OffsetBox):
 
         dpi_cor = renderer.points_to_pixels(1.)
         self.dpi_transform.clear()
-        self.dpi_transform.scale(dpi_cor, dpi_cor)
+        self.dpi_transform.scale(dpi_cor)
 
         # At this point the DrawingArea has a transform
         # to the display space so the path created is

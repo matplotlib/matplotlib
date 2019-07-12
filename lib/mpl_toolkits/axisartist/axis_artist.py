@@ -268,7 +268,7 @@ class Ticks(Line2D, AttributeCopier):
         gc.set_alpha(self._alpha)
 
         offset = renderer.points_to_pixels(size)
-        marker_scale = Affine2D().scale(offset, offset)
+        marker_scale = Affine2D().scale(offset)
 
         if self.get_tick_out():
             add_angle = 180
@@ -279,7 +279,7 @@ class Ticks(Line2D, AttributeCopier):
         marker_transform = marker_scale + marker_rotation
 
         for loc, angle in self.locs_angles:
-            marker_rotation.clear().rotate_deg(angle+add_angle)
+            marker_rotation.clear().rotate_deg(angle + add_angle)
             locs = path_trans.transform_non_affine(np.array([loc]))
             if self.axes and not self.axes.viewLim.contains(*locs[0]):
                 continue
@@ -1219,7 +1219,7 @@ class AxisArtist(martist.Artist):
         self._axis_artist_helper.update_lim(self.axes)
 
         dpi_cor = renderer.points_to_pixels(1.)
-        self.dpi_transform.clear().scale(dpi_cor, dpi_cor)
+        self.dpi_transform.clear().scale(dpi_cor)
 
         self._update_ticks(renderer)
         self._update_label(renderer)
@@ -1248,7 +1248,7 @@ class AxisArtist(martist.Artist):
         self._axis_artist_helper.update_lim(self.axes)
 
         dpi_cor = renderer.points_to_pixels(1.)
-        self.dpi_transform.clear().scale(dpi_cor, dpi_cor)
+        self.dpi_transform.clear().scale(dpi_cor)
 
         self._draw_ticks(renderer)
         self._draw_line(renderer)

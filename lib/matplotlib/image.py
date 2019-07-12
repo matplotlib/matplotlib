@@ -335,10 +335,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             + self.get_transform())
 
         t = (t0
-             + Affine2D().translate(
-                 -clipped_bbox.x0,
-                 -clipped_bbox.y0)
-             .scale(magnification, magnification))
+             + (Affine2D()
+                .translate(-clipped_bbox.x0, -clipped_bbox.y0)
+                .scale(magnification)))
 
         # So that the image is aligned with the edge of the axes, we want to
         # round up the output width to the next integer.  This also means

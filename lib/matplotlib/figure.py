@@ -354,7 +354,7 @@ class Figure(Artist):
                              f'{figsize}')
         self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
 
-        self.dpi_scale_trans = Affine2D().scale(dpi, dpi)
+        self.dpi_scale_trans = Affine2D().scale(dpi)
         # do not use property as it will trigger
         self._dpi = dpi
         self.bbox = TransformedBbox(self.bbox_inches, self.dpi_scale_trans)
@@ -477,7 +477,7 @@ class Figure(Artist):
             Passed on to `~.Figure.set_size_inches`
         """
         self._dpi = dpi
-        self.dpi_scale_trans.clear().scale(dpi, dpi)
+        self.dpi_scale_trans.clear().scale(dpi)
         w, h = self.get_size_inches()
         self.set_size_inches(w, h, forward=forward)
         self.callbacks.process('dpi_changed', self)
@@ -2391,8 +2391,7 @@ default: 'top'
 
         _bbox = Bbox.union(bb)
 
-        bbox_inches = TransformedBbox(_bbox,
-                                      Affine2D().scale(1. / self.dpi))
+        bbox_inches = TransformedBbox(_bbox, Affine2D().scale(1 / self.dpi))
 
         return bbox_inches
 

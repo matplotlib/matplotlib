@@ -1729,7 +1729,7 @@ class OffsetFrom:
             raise RuntimeError("unknown type")
 
         sc = self._get_scale(renderer)
-        tr = Affine2D().scale(sc, sc).translate(x, y)
+        tr = Affine2D().scale(sc).translate(x, y)
 
         return tr
 
@@ -1822,13 +1822,13 @@ class _AnnotationBase:
             if unit == "points":
                 # dots per points
                 dpp = self.figure.get_dpi() / 72.
-                tr = Affine2D().scale(dpp, dpp)
+                tr = Affine2D().scale(dpp)
             elif unit == "pixels":
                 tr = Affine2D()
             elif unit == "fontsize":
                 fontsize = self.get_size()
                 dpp = fontsize * self.figure.get_dpi() / 72.
-                tr = Affine2D().scale(dpp, dpp)
+                tr = Affine2D().scale(dpp)
             elif unit == "fraction":
                 w, h = bbox0.bounds[2:]
                 tr = Affine2D().scale(w, h)
