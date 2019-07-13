@@ -2,7 +2,7 @@
 {% set title = _('Search') %}
 {% block scripts %}
 {{ super() }}
-<script type="text/javascript" src="_static/searchtools.js"></script>
+<script type="text/javascript" src="{{ pathto('_static/searchtools.js') }}"></script>
 {% endblock %}
 {% block body %}
   <h1 id="search-documentation">{{ _('Search') }}</h1>
