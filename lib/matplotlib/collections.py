@@ -295,13 +295,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
             len(self._antialiaseds) == 1 and len(self._urls) == 1 and
             self.get_hatch() is None):
             if len(trans):
-                combined_transform = (transforms.Affine2D(trans[0]) +
-                                      transform)
+                combined_transform = transforms.Affine2D(trans[0]) + transform
             else:
                 combined_transform = transform
             extents = paths[0].get_extents(combined_transform)
-            width, height = renderer.get_canvas_width_height()
-            if extents.width < width and extents.height < height:
+            if (extents.width < self.figure.bbox.width
+                    and extents.height < self.figure.bbox.height):
                 do_single_path_optimization = True
 
         if self._joinstyle:
