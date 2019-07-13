@@ -100,6 +100,8 @@ if sphinx.version_info < (1, 8):
 else:
     autodoc_default_options = {'members': None, 'undoc-members': None}
 
+nitpicky = True
+
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
