@@ -96,7 +96,8 @@ formed characters, causing these image comparisons to fail.  To make
 them reproducible, Matplotlib can be built with a special local copy
 of FreeType.  This is recommended for all Matplotlib developers.
 
-Copy :file:`setup.cfg.template` to :file:`setup.cfg` and edit it to contain::
+Prior to compiling the C-extensions, copy :file:`setup.cfg.template` to
+:file:`setup.cfg` and edit it to contain::
 
   [test]
   local_freetype = True
