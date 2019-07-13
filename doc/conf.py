@@ -45,6 +45,7 @@ extensions = [
     'sphinxext.custom_roles',
     'sphinxext.github',
     'sphinxext.math_symbol_table',
+    'sphinxext.missing_references',
     'sphinxext.mock_gui_toolkits',
     'sphinxext.skip_deprecated',
     'sphinx_copybutton',
