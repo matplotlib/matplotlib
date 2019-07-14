@@ -282,9 +282,12 @@ def _logged_cached(fmt, func=None):
 
 _ExecInfo = namedtuple("_ExecInfo", "executable version")
 
+
 class ExecutableUnavailableError(FileNotFoundError):
-    """Error raised when an executable that Matplotlib optionally depends on can't be found."""
+    """Error raised when an executable that Matplotlib optionally
+    depends on can't be found."""
     pass
+
 
 @functools.lru_cache()
 def _get_executable_info(name):
@@ -357,7 +360,8 @@ def _get_executable_info(name):
                 return impl([e, "--version"], "(.*)", "9")
             except ExecutableUnavailableError:
                 pass
-        raise ExecutableUnavailableError("Failed to find a Ghostscript installation")
+        message = "Failed to find a Ghostscript installation"
+        raise ExecutableUnavailableError(message)
     elif name == "inkscape":
         return impl(["inkscape", "-V"], "^Inkscape ([^ ]*)")
     elif name == "magick":
