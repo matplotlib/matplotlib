@@ -283,7 +283,7 @@ def _logged_cached(fmt, func=None):
 _ExecInfo = namedtuple("_ExecInfo", "executable version")
 
 
-class ExecutableUnavailableError(FileNotFoundError):
+class ExecutableNotFoundError(FileNotFoundError):
     """Error raised when an executable that Matplotlib optionally
     depends on can't be found."""
     pass
@@ -313,7 +313,7 @@ def _get_executable_info(name):
 
     Raises
     ------
-    ExecutableUnavailableError
+    ExecutableNotFoundError
         If the executable is not found or older than the oldest version
         supported by Matplotlib.
     ValueError
@@ -325,7 +325,7 @@ def _get_executable_info(name):
         # Search for a regex match in the output; if the match succeeds, the
         # first group of the match is the version.
         # Return an _ExecInfo if the executable exists, and has a version of
-        # at least min_ver (if set); else, raise ExecutableUnavailableError.
+        # at least min_ver (if set); else, raise ExecutableNotFoundError.
         try:
             output = subprocess.check_output(
                 args, stderr=subprocess.STDOUT, universal_newlines=True)
@@ -333,19 +333,19 @@ def _get_executable_info(name):
             if ignore_exit_code:
                 output = _cpe.output
             else:
-                raise ExecutableUnavailableError(str(_cpe)) from _cpe
+                raise ExecutableNotFoundError(str(_cpe)) from _cpe
         except FileNotFoundError as _fnf:
-            raise ExecutableUnavailableError(str(_fnf)) from _fnf
+            raise ExecutableNotFoundError(str(_fnf)) from _fnf
         match = re.search(regex, output)
         if match:
             version = LooseVersion(match.group(1))
             if min_ver is not None and version < min_ver:
-                raise ExecutableUnavailableError(
+                raise ExecutableNotFoundError(
                     f"You have {args[0]} version {version} but the minimum "
                     f"version supported by Matplotlib is {min_ver}.")
             return _ExecInfo(args[0], version)
         else:
-            raise ExecutableUnavailableError(
+            raise ExecutableNotFoundError(
                 f"Failed to determine the version of {args[0]} from "
                 f"{' '.join(args)}, which output {output}")
 
@@ -358,10 +358,10 @@ def _get_executable_info(name):
         for e in execs:
             try:
                 return impl([e, "--version"], "(.*)", "9")
-            except ExecutableUnavailableError:
+            except ExecutableNotFoundError:
                 pass
         message = "Failed to find a Ghostscript installation"
-        raise ExecutableUnavailableError(message)
+        raise ExecutableNotFoundError(message)
     elif name == "inkscape":
         return impl(["inkscape", "-V"], "^Inkscape ([^ ]*)")
     elif name == "magick":
@@ -389,7 +389,7 @@ def _get_executable_info(name):
         else:
             path = "convert"
         if path is None:
-            raise ExecutableUnavailableError(
+            raise ExecutableNotFoundError(
                 "Failed to find an ImageMagick installation")
         return impl([path, "--version"], r"^Version: ImageMagick (\S*)")
     elif name == "pdftops":
@@ -398,7 +398,7 @@ def _get_executable_info(name):
         if info and not ("3.0" <= info.version
                          # poppler version numbers.
                          or "0.9" <= info.version <= "1.0"):
-            raise ExecutableUnavailableError(
+            raise ExecutableNotFoundError(
                 f"You have pdftops version {info.version} but the minimum "
                 f"version supported by Matplotlib is 3.0.")
         return info
@@ -487,14 +487,14 @@ def checkdep_ps_distiller(s):
         return False
     try:
         _get_executable_info("gs")
-    except ExecutableUnavailableError:
+    except ExecutableNotFoundError:
         _log.warning(
             "Setting rcParams['ps.usedistiller'] requires ghostscript.")
         return False
     if s == "xpdf":
         try:
             _get_executable_info("pdftops")
-        except ExecutableUnavailableError:
+        except ExecutableNotFoundError:
             _log.warning(
                 "Setting rcParams['ps.usedistiller'] to 'xpdf' requires xpdf.")
             return False
@@ -509,12 +509,12 @@ def checkdep_usetex(s):
         return False
     try:
         _get_executable_info("dvipng")
-    except ExecutableUnavailableError:
+    except ExecutableNotFoundError:
         _log.warning("usetex mode requires dvipng.")
         return False
     try:
         _get_executable_info("gs")
-    except ExecutableUnavailableError:
+    except ExecutableNotFoundError:
         _log.warning("usetex mode requires ghostscript.")
         return False
     return True

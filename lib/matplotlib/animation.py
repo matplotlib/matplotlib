@@ -725,7 +725,7 @@ class ImageMagickBase:
     def isAvailable(cls):
         try:
             return super().isAvailable()
-        except mpl.ExecutableUnavailableError:
+        except mpl.ExecutableNotFoundError:
             # May be raised by get_executable_info.
             return False
 
