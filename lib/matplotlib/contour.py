@@ -1696,7 +1696,7 @@ class QuadContourSet(ContourSet):
             maps the level values to colors.
             Defaults to :rc:`image.cmap`.
 
-            If given, *colors* take precedence over *cmap*.
+            If both *colors* and *cmap* are given, an error is raised.
 
         norm : `~matplotlib.colors.Normalize`, optional
             If a colormap is used, the `.Normalize` instance scales the level
