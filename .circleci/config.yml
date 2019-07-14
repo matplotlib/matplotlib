@@ -16,18 +16,18 @@ apt-run:  &apt-install
       inkscape \
       ffmpeg \
       dvipng \
-      pgf \
       lmodern \
       cm-super \
       texlive-latex-base \
       texlive-latex-extra \
       texlive-fonts-recommended \
       texlive-latex-recommended \
+      texlive-pictures \
       texlive-xetex \
       graphviz \
       libgeos-dev \
       fonts-crosextra-carlito \
-      otf-freefont
+      fonts-freefont-otf
 
 fonts-run:  &fonts-install
   name: Install custom fonts
