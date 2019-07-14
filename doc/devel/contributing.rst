@@ -5,9 +5,12 @@ Contributing
 ============
 
 This project is a community effort, and everyone is welcome to
-contribute.
+contribute.  We follow the `Python Software Foundation Code of Conduct
+<coc_>`_ in everything we do.
 
 The project is hosted on https://github.com/matplotlib/matplotlib
+
+.. _coc: http://www.python.org/psf/codeofconduct/
 
 Submitting a bug report
 =======================
