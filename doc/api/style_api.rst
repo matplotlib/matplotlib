@@ -18,4 +18,4 @@
 
 .. seealso::
 
-   :ref:`style_sheets_reference.py`
+   :ref:`style_sheets_reference`
