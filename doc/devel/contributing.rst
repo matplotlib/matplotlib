@@ -106,7 +106,15 @@ Copy :file:`setup.cfg.template` to :file:`setup.cfg` and edit it to contain::
   tests = True
 
 or set the ``MPLLOCALFREETYPE`` environmental variable to any true
-value.
+value.  If you have previously built Matplotlib with a different
+version of Freetype, you will also need to remove the c/c++ build
+products.  Do this is to delete the ``build`` folder or ``git clean
+-xfd``.  If you are going to be regularly working on Matplotlib,
+consider putting ::
+
+   export MPLLOCALFREETYPE=1
+
+in your shell start up files.
 
 
 Installing Matplotlib in developer mode
