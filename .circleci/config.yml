@@ -14,7 +14,7 @@ apt-run:  &apt-install
     sudo apt-get -qq update
     sudo apt-get install -y \
       inkscape \
-      libav-tools \
+      ffmpeg \
       dvipng \
       pgf \
       lmodern \
