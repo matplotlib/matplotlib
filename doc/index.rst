@@ -112,7 +112,7 @@ including printed material, videos and tutorials.
 Need help?
 ~~~~~~~~~~
 
-Matplotlib is a welcoming, inclusive project, and we try to follow the `Python
+Matplotlib is a welcoming, inclusive project, and we follow the `Python
 Software Foundation Code of Conduct <coc_>`_ in everything we do.
 
 .. _coc: http://www.python.org/psf/codeofconduct/
