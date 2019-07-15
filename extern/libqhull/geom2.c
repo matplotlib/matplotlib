@@ -389,7 +389,7 @@ realT qh_distround(int dimension, realT maxabs, realT maxsumabs) {
   >-------------------------------</a><a name="divzero">-</a>
 
   qh_divzero( numer, denom, mindenom1, zerodiv )
-    divide by a numer that's nearly zero
+    divide by a number that's nearly zero
     mindenom1= minimum denominator for dividing into 1.0
 
   returns:
@@ -398,8 +398,8 @@ realT qh_distround(int dimension, realT maxabs, realT maxsumabs) {
 
   design:
     if numer is nearly zero and abs(numer) < abs(denom)
-      return nuber/denom
-    else if nuber is nearly zero
+      return numer/denom
+    else if numer is nearly zero
       return 0 and zerodiv
     else if denom/numer non-zero
       return numer/denom
