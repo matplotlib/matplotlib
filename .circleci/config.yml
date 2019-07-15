@@ -14,19 +14,20 @@ apt-run:  &apt-install
     sudo apt-get -qq update
     sudo apt-get install -y \
       inkscape \
-      libav-tools \
+      ffmpeg \
       dvipng \
-      pgf \
       lmodern \
       cm-super \
       texlive-latex-base \
       texlive-latex-extra \
       texlive-fonts-recommended \
       texlive-latex-recommended \
+      texlive-pictures \
       texlive-xetex \
       graphviz \
       libgeos-dev \
-      otf-freefont
+      fonts-crosextra-carlito \
+      fonts-freefont-otf
 
 fonts-run:  &fonts-install
   name: Install custom fonts
@@ -97,8 +98,10 @@ jobs:
       - run: *apt-install
       - run: *fonts-install
       - run: *pip-install
-
-      - run: *deps-install
+      - run:
+           <<: *deps-install
+           environment:
+             NUMPY_VERSION: "==1.13.0"
       - run: *mpl-install
 
       - run: *doc-build
