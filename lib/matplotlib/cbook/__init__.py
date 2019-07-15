@@ -2131,3 +2131,26 @@ def _check_getitem(_mapping, **kwargs):
         raise ValueError(
             "{!r} is not a valid value for {}; supported values are {}"
             .format(v, k, ', '.join(map(repr, mapping)))) from None
+
+
+class _classproperty:
+    """
+    Like `property`, but also triggers on access via the class, and it is the
+    *class* that's passed as argument.
+
+    Examples
+    --------
+    ::
+        class C:
+            @classproperty
+            def foo(cls):
+                return cls.__name__
+
+        assert C.foo == "C"
+    """
+
+    def __init__(self, fget):
+        self._fget = fget
+
+    def __get__(self, instance, owner):
+        return self._fget(owner)

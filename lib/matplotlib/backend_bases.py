@@ -1581,7 +1581,6 @@ class FigureCanvasBase:
         'close_event'
     ]
 
-    supports_blit = True
     fixed_dpi = None
 
     filetypes = _default_filetypes
@@ -1596,6 +1595,11 @@ class FigureCanvasBase:
                          'Tagged Image File Format')
         register_backend('tiff', 'matplotlib.backends.backend_agg',
                          'Tagged Image File Format')
+
+    @cbook._classproperty
+    def supports_blit(cls):
+        return (hasattr(cls, "copy_from_bbox")
+                and hasattr(cls, "restore_region"))
 
     def __init__(self, figure):
         self._fix_ipython_backend2gui()
