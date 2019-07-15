@@ -43,9 +43,8 @@ import json
 
 plt.rcParams['svg.fonttype'] = 'none'
 
-# Apparently, this `register_namespace` method works only with
-# python 2.7 and up and is necessary to avoid garbling the XML name
-# space with ns0.
+# Apparently, this `register_namespace` method is necessary to avoid garbling
+# the XML namespace with ns0.
 ET.register_namespace("", "http://www.w3.org/2000/svg")
 
 # Fixing random state for reproducibility
