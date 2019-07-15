@@ -770,12 +770,6 @@ class AxisArtist(martist.Artist):
         self.offset_transform = ScaledTranslation(offset[0], offset[1],
                                                   self.dpi_transform)
 
-        self._label_visible = True
-        self._majortick_visible = True
-        self._majorticklabel_visible = True
-        self._minortick_visible = True
-        self._minorticklabel_visible = True
-
         if axis_direction in ["left", "right"]:
             axis_name = "ytick"
             self.axis = axes.yaxis
