@@ -62,9 +62,13 @@ stretch_dict = {
     'semi-condensed'  : 400,
     'normal'          : 500,
     'semi-expanded'   : 600,
+    'semi-extended'   : 600,
     'expanded'        : 700,
+    'extended'        : 700,
     'extra-expanded'  : 800,
-    'ultra-expanded'  : 900}
+    'extra-extended'  : 800,
+    'ultra-expanded'  : 900,
+    'ultra-extended'  : 900}
 
 weight_dict = {
     'ultralight' : 100,
@@ -412,7 +416,7 @@ def ttfFontProperty(font):
         stretch = 'condensed'
     elif sfnt4.find('demi cond') >= 0:
         stretch = 'semi-condensed'
-    elif sfnt4.find('wide') >= 0 or sfnt4.find('expanded') >= 0:
+    elif sfnt4.find('wide') >= 0 or sfnt4.find('expanded') >= 0 or sfnt4.find('extended') >= 0:
         stretch = 'expanded'
     else:
         stretch = 'normal'
@@ -480,7 +484,7 @@ def afmFontProperty(fontpath, font):
         stretch = 'semi-condensed'
     elif 'narrow' in fontname or 'cond' in fontname:
         stretch = 'condensed'
-    elif 'wide' in fontname or 'expanded' in fontname:
+    elif 'wide' in fontname or 'expanded' in fontname or 'extended' in fontname:
         stretch = 'expanded'
     else:
         stretch = 'normal'
