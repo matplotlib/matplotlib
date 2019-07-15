@@ -1,0 +1,1 @@
+The towncrier package is now used to generate changelogs
