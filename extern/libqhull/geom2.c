@@ -388,8 +388,8 @@ realT qh_distround(int dimension, realT maxabs, realT maxsumabs) {
 /*-<a                             href="qh-geom.htm#TOC"
   >-------------------------------</a><a name="divzero">-</a>
 
-  qh_divzero( number, denom, mindenom1, zerodiv )
-    divide by a number that's nearly zero
+  qh_divzero( numer, denom, mindenom1, zerodiv )
+    divide by a numer that's nearly zero
     mindenom1= minimum denominator for dividing into 1.0
 
   returns:
@@ -397,34 +397,34 @@ realT qh_distround(int dimension, realT maxabs, realT maxsumabs) {
     sets zerodiv and returns 0.0 if it would overflow
 
   design:
-    if number is nearly zero and abs(number) < abs(denom)
-      return number/denom
-    else if number is nearly zero
+    if numer is nearly zero and abs(numer) < abs(denom)
+      return nuber/denom
+    else if nuber is nearly zero
       return 0 and zerodiv
-    else if denom/number non-zero
-      return number/denom
+    else if denom/numer non-zero
+      return numer/denom
     else
       return 0 and zerodiv
 */
-realT qh_divzero(realT number, realT denom, realT mindenom1, boolT *zerodiv) {
+realT qh_divzero(realT numer, realT denom, realT mindenom1, boolT *zerodiv) {
   realT temp, numerx, denomx;
 
 
-  if (number < mindenom1 && number > -mindenom1) {
-    numerx= fabs_(number);
+  if (numer < mindenom1 && numer > -mindenom1) {
+    numerx= fabs_(numer);
     denomx= fabs_(denom);
     if (numerx < denomx) {
       *zerodiv= False;
-      return number/denom;
+      return numer/denom;
     }else {
       *zerodiv= True;
       return 0.0;
     }
   }
-  temp= denom/number;
+  temp= denom/numer;
   if (temp > mindenom1 || temp < -mindenom1) {
     *zerodiv= False;
-    return number/denom;
+    return numer/denom;
   }else {
     *zerodiv= True;
     return 0.0;
