@@ -357,7 +357,7 @@ def remove_coding(text):
 TEMPLATE = """
 {{ source_code }}
 
-{{ only_html }}
+.. only:: html
 
    {% if source_link or (html_show_formats and not multi_image) %}
    (
@@ -393,27 +393,15 @@ TEMPLATE = """
       {{ caption }}
    {% endfor %}
 
-{{ only_latex }}
+.. only:: not html
 
    {% for img in images %}
-   {% if 'pdf' in img.formats -%}
-   .. figure:: {{ build_dir }}/{{ img.basename }}.pdf
+   .. figure:: {{ build_dir }}/{{ img.basename }}.*
       {% for option in options -%}
       {{ option }}
       {% endfor %}
 
       {{ caption }}
-   {% endif -%}
-   {% endfor %}
-
-{{ only_texinfo }}
-
-   {% for img in images %}
-   .. image:: {{ build_dir }}/{{ img.basename }}.png
-      {% for option in options -%}
-      {{ option }}
-      {% endfor %}
-
    {% endfor %}
 
 """
@@ -813,10 +801,6 @@ def run(arguments, content, options, state_machine, state, lineno):
             ':%s: %s' % (key, val) for key, val in six.iteritems(options)
             if key in ('alt', 'height', 'width', 'scale', 'align', 'class')]
 
-        only_html = ".. only:: html"
-        only_latex = ".. only:: latex"
-        only_texinfo = ".. only:: texinfo"
-
         # Not-None src_link signals the need for a source link in the generated
         # html
         if j == 0 and config.plot_html_show_source_link:
@@ -830,9 +814,6 @@ def run(arguments, content, options, state_machine, state, lineno):
             build_dir=build_dir_link,
             source_link=src_link,
             multi_image=len(images) > 1,
-            only_html=only_html,
-            only_latex=only_latex,
-            only_texinfo=only_texinfo,
             options=opts,
             images=images,
             source_code=source_code,
