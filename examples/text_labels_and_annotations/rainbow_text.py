@@ -20,11 +20,11 @@ following question:
 
     Thanks.
 
-Paul Ivanov responded with this answer:
-
+The solution below is modified from Paul Ivanov's original answer.
 """
+
 import matplotlib.pyplot as plt
-from matplotlib import transforms
+from matplotlib.transforms import Affine2D
 
 
 def rainbow_text(x, y, strings, colors, orientation='horizontal',
@@ -64,11 +64,9 @@ def rainbow_text(x, y, strings, colors, orientation='horizontal',
         text.draw(canvas.get_renderer())
         ex = text.get_window_extent()
         if orientation == 'horizontal':
-            t = transforms.offset_copy(
-                text.get_transform(), x=ex.width, units='dots')
+            t = text.get_transform() + Affine2D().translate(ex.width, 0)
         else:
-            t = transforms.offset_copy(
-                text.get_transform(), y=ex.height, units='dots')
+            t = text.get_transform() + Affine2D().translate(0, ex.height)
 
 
 words = "all unicorns poop rainbows ! ! !".split()
