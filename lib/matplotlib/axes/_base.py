@@ -4324,9 +4324,9 @@ class _AxesBase(martist.Artist):
 
         See Also
         --------
-        matplotlib.axis.Axes.get_window_extent
+        matplotlib.axes.Axes.get_window_extent
         matplotlib.axis.Axis.get_tightbbox
-        matplotlib.spines.get_window_extent
+        matplotlib.spines.Spine.get_window_extent
 
         """
 
