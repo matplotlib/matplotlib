@@ -203,3 +203,8 @@ and `Pull requests`_ are tracked at Github too.
 .. _source code: https://github.com/matplotlib/matplotlib
 .. _issue tracker: https://github.com/matplotlib/matplotlib/issues
 .. _pull requests: https://github.com/matplotlib/matplotlib/pulls
+
+For contributers
+================
+
+Visit :doc:`/devel/index`.
