@@ -15,3 +15,7 @@
 .. data:: matplotlib.style.available
 
    List of available styles
+
+.. seealso::
+
+   :doc:`/gallery/style_sheets/style_sheets_reference`
