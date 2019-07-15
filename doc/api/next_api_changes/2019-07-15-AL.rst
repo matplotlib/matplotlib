@@ -1,0 +1,8 @@
+API changes and deprecations
+````````````````````````````
+
+``axisartist.axis_artist.BezierPath`` is deprecated (use `.patches.PathPatch`
+to draw arbitrary Paths).
+
+``AxisArtist.line`` is now a `.patches.PathPatch` instance instead of a
+``BezierPath`` instance.
