@@ -388,7 +388,7 @@ realT qh_distround(int dimension, realT maxabs, realT maxsumabs) {
 /*-<a                             href="qh-geom.htm#TOC"
   >-------------------------------</a><a name="divzero">-</a>
 
-  qh_divzero( numer, denom, mindenom1, zerodiv )
+  qh_divzero( number, denom, mindenom1, zerodiv )
     divide by a number that's nearly zero
     mindenom1= minimum denominator for dividing into 1.0
 
@@ -397,34 +397,34 @@ realT qh_distround(int dimension, realT maxabs, realT maxsumabs) {
     sets zerodiv and returns 0.0 if it would overflow
 
   design:
-    if numer is nearly zero and abs(numer) < abs(denom)
-      return numer/denom
-    else if numer is nearly zero
+    if number is nearly zero and abs(number) < abs(denom)
+      return number/denom
+    else if number is nearly zero
       return 0 and zerodiv
-    else if denom/numer non-zero
-      return numer/denom
+    else if denom/number non-zero
+      return number/denom
     else
       return 0 and zerodiv
 */
-realT qh_divzero(realT numer, realT denom, realT mindenom1, boolT *zerodiv) {
+realT qh_divzero(realT number, realT denom, realT mindenom1, boolT *zerodiv) {
   realT temp, numerx, denomx;
 
 
-  if (numer < mindenom1 && numer > -mindenom1) {
-    numerx= fabs_(numer);
+  if (number < mindenom1 && number > -mindenom1) {
+    numerx= fabs_(number);
     denomx= fabs_(denom);
     if (numerx < denomx) {
       *zerodiv= False;
-      return numer/denom;
+      return number/denom;
     }else {
       *zerodiv= True;
       return 0.0;
     }
   }
-  temp= denom/numer;
+  temp= denom/number;
   if (temp > mindenom1 || temp < -mindenom1) {
     *zerodiv= False;
-    return numer/denom;
+    return number/denom;
   }else {
     *zerodiv= True;
     return 0.0;
@@ -1989,7 +1989,7 @@ boolT qh_sharpnewfacets(void) {
 
   qh_voronoi_center( dim, points )
     return Voronoi center for a set of points
-    dim is the orginal dimension of the points
+    dim is the original dimension of the points
     gh.gm_matrix/qh.gm_row are scratch buffers
 
   returns:
