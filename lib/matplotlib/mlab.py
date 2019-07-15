@@ -174,30 +174,22 @@ def detrend(x, key=None, axis=None):
         return detrend(x, key=detrend_linear, axis=axis)
     elif key == 'none':
         return detrend(x, key=detrend_none, axis=axis)
-    elif isinstance(key, str):
-        raise ValueError("Unknown value for key %s, must be one of: "
-                         "'default', 'constant', 'mean', "
-                         "'linear', or a function" % key)
-
-    if not callable(key):
-        raise ValueError("Unknown value for key %s, must be one of: "
-                         "'default', 'constant', 'mean', "
-                         "'linear', or a function" % key)
-
-    x = np.asarray(x)
-
-    if axis is not None and axis+1 > x.ndim:
-        raise ValueError('axis(=%s) out of bounds' % axis)
-
-    if (axis is None and x.ndim == 0) or (not axis and x.ndim == 1):
-        return key(x)
-
-    # try to use the 'axis' argument if the function supports it,
-    # otherwise use apply_along_axis to do it
-    try:
-        return key(x, axis=axis)
-    except TypeError:
-        return np.apply_along_axis(key, axis=axis, arr=x)
+    elif callable(key):
+        x = np.asarray(x)
+        if axis is not None and axis + 1 > x.ndim:
+            raise ValueError(f'axis(={axis}) out of bounds')
+        if (axis is None and x.ndim == 0) or (not axis and x.ndim == 1):
+            return key(x)
+        # try to use the 'axis' argument if the function supports it,
+        # otherwise use apply_along_axis to do it
+        try:
+            return key(x, axis=axis)
+        except TypeError:
+            return np.apply_along_axis(key, axis=axis, arr=x)
+    else:
+        raise ValueError(
+            f"Unknown value for key: {key!r}, must be one of: 'default', "
+            f"'constant', 'mean', 'linear', or a function")
 
 
 @cbook.deprecated("3.1", alternative="detrend_mean")
