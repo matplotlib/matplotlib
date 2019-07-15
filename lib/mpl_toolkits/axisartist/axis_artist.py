@@ -248,16 +248,11 @@ class Ticks(Line2D, AttributeCopier):
     def set_locs_angles(self, locs_angles):
         self.locs_angles = locs_angles
 
-    def _update(self, renderer):
-        pass
-
     _tickvert_path = Path([[0., 0.], [1., 0.]])
 
     def draw(self, renderer):
         if not self.get_visible():
             return
-
-        self._update(renderer)  # update the tick
 
         size = self._ticksize
         path_trans = self.get_transform()
@@ -332,14 +327,9 @@ class LabelBase(mtext.Text):
                                "top": "bottom",
                                "bottom": "top"}.__getitem__
 
-    def _update(self, renderer):
-        pass
-
     def draw(self, renderer):
         if not self.get_visible():
             return
-
-        self._update(renderer)
 
         # save original and adjust some properties
         tr = self.get_transform()
@@ -364,8 +354,6 @@ class LabelBase(mtext.Text):
         self.set_rotation(angle_orig)
 
     def get_window_extent(self, renderer):
-        self._update(renderer)
-
         # save original and adjust some properties
         tr = self.get_transform()
         angle_orig = self.get_rotation()
