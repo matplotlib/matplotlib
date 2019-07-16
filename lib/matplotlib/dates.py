@@ -9,7 +9,7 @@ Matplotlib date format
 ----------------------
 Matplotlib represents dates using floating point numbers specifying the number
 of days since 0001-01-01 UTC, plus 1.  For example, 0001-01-01, 06:00 is 1.25,
-not 0.25. Values < 1, i.e. dates before 0001-01-01 UTC are not supported.
+not 0.25. Values < 1, i.e. dates before 0001-01-01 UTC, are not supported.
 
 There are a number of helper functions to convert between :mod:`datetime`
 objects and Matplotlib dates:
@@ -45,10 +45,10 @@ objects and Matplotlib dates:
      Out[1]: 732401
 
 All the Matplotlib date converters, tickers and formatters are timezone aware.
-If no explicit timezone is provided, the rcParam ``timezone`` is assumed.  If
-you want to use a custom time zone, pass a :class:`datetime.tzinfo` instance
-with the tz keyword argument to :func:`num2date`, :func:`.plot_date`, and any
-custom date tickers or locators you create.
+If no explicit timezone is provided, :rc:`timezone` is assumed.  If you want to
+use a custom time zone, pass a `datetime.tzinfo` instance with the tz keyword
+argument to `num2date`, `~.Axes.plot_date`, and any custom date tickers or
+locators you create.
 
 A wide range of specific and general purpose date tick locators and
 formatters are provided in this module.  See
@@ -86,54 +86,51 @@ The rrule locator allows completely general date ticking::
     rule = rrulewrapper(YEARLY, byeaster=1, interval=5)
     loc = RRuleLocator(rule)
 
-Here are all the date tickers:
+The available date tickers are:
 
-    * :class:`MicrosecondLocator`: locate microseconds
+* `MicrosecondLocator`: locate microseconds
 
-    * :class:`SecondLocator`: locate seconds
+* `SecondLocator`: locate seconds
 
-    * :class:`MinuteLocator`: locate minutes
+* `MinuteLocator`: locate minutes
 
-    * :class:`HourLocator`: locate hours
+* `HourLocator`: locate hours
 
-    * :class:`DayLocator`: locate specified days of the month
+* `DayLocator`: locate specified days of the month
 
-    * :class:`WeekdayLocator`: Locate days of the week, e.g., MO, TU
+* `WeekdayLocator`: Locate days of the week, e.g., MO, TU
 
-    * :class:`MonthLocator`: locate months, e.g., 7 for july
+* `MonthLocator`: locate months, e.g., 7 for july
 
-    * :class:`YearLocator`: locate years that are multiples of base
+* `YearLocator`: locate years that are multiples of base
 
-    * :class:`RRuleLocator`: locate using a `matplotlib.dates.rrulewrapper`.
-      `.rrulewrapper` is a simple wrapper around dateutil_'s `dateutil.rrule`
-      which allow almost arbitrary date tick specifications.  See :doc:`rrule
-      example </gallery/ticks_and_spines/date_demo_rrule>`.
+* `RRuleLocator`: locate using a `matplotlib.dates.rrulewrapper`.
+  `.rrulewrapper` is a simple wrapper around dateutil_'s `dateutil.rrule` which
+  allow almost arbitrary date tick specifications.  See :doc:`rrule example
+  </gallery/ticks_and_spines/date_demo_rrule>`.
 
-    * :class:`AutoDateLocator`: On autoscale, this class picks the best
-      :class:`DateLocator` (e.g., :class:`RRuleLocator`)
-      to set the view limits and the tick
-      locations.  If called with ``interval_multiples=True`` it will
-      make ticks line up with sensible multiples of the tick intervals.  E.g.
-      if the interval is 4 hours, it will pick hours 0, 4, 8, etc as ticks.
-      This behaviour is not guaranteed by default.
+* `AutoDateLocator`: On autoscale, this class picks the best `DateLocator`
+  (e.g., `RRuleLocator`) to set the view limits and the tick locations.  If
+  called with ``interval_multiples=True`` it will make ticks line up with
+  sensible multiples of the tick intervals.  E.g. if the interval is 4 hours,
+  it will pick hours 0, 4, 8, etc as ticks.  This behaviour is not guaranteed
+  by default.
 
 Date formatters
 ---------------
 
-Here all all the date formatters:
+The available date formatters are:
 
-    * :class:`AutoDateFormatter`: attempts to figure out the best format
-      to use.  This is most useful when used with the :class:`AutoDateLocator`.
+* `AutoDateFormatter`: attempts to figure out the best format to use.  This is
+  most useful when used with the `AutoDateLocator`.
 
-    * :class:`ConciseDateFormatter`: also attempts to figure out the best
-      format to use, and to make the format as compact as possible while
-      still having complete date information.  This is most useful when used
-      with the :class:`AutoDateLocator`.
+* `ConciseDateFormatter`: also attempts to figure out the best format to use,
+  and to make the format as compact as possible while still having complete
+  date information.  This is most useful when used with the `AutoDateLocator`.
 
-    * :class:`DateFormatter`: use :func:`strftime` format strings
+* `DateFormatter`: use `strftime` format strings.
 
-    * :class:`IndexDateFormatter`: date plots with implicit *x*
-      indexing.
+* `IndexDateFormatter`: date plots with implicit *x* indexing.
 """
 
 import datetime
