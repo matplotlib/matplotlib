@@ -2011,33 +2011,23 @@ def from_levels_and_colors(levels, colors, extend='neither'):
     cmap : `~matplotlib.colors.Normalize`
     norm : `~matplotlib.colors.Colormap`
     """
-    colors_i0 = 0
-    colors_i1 = None
-
-    if extend == 'both':
-        colors_i0 = 1
-        colors_i1 = -1
-        extra_colors = 2
-    elif extend == 'min':
-        colors_i0 = 1
-        extra_colors = 1
-    elif extend == 'max':
-        colors_i1 = -1
-        extra_colors = 1
-    elif extend == 'neither':
-        extra_colors = 0
-    else:
-        raise ValueError('Unexpected value for extend: {0!r}'.format(extend))
+    slice_map = {
+        'both': slice(1, -1),
+        'min': slice(1, None),
+        'max': slice(0, -1),
+        'neither': slice(0, None),
+    }
+    cbook._check_in_list(slice_map, extend=extend)
+    color_slice = slice_map[extend]
 
     n_data_colors = len(levels) - 1
-    n_expected_colors = n_data_colors + extra_colors
-    if len(colors) != n_expected_colors:
-        raise ValueError('With extend == {0!r} and n_levels == {1!r} expected'
-                         ' n_colors == {2!r}. Got {3!r}.'
-                         ''.format(extend, len(levels), n_expected_colors,
-                                   len(colors)))
+    n_expected = n_data_colors + color_slice.start - (color_slice.stop or 0)
+    if len(colors) != n_expected:
+        raise ValueError(
+            f'With extend == {extend!r} and {len(levels)} levels, '
+            f'expected {n_expected} colors, but got {len(colors)}')
 
-    cmap = ListedColormap(colors[colors_i0:colors_i1], N=n_data_colors)
+    cmap = ListedColormap(colors[color_slice], N=n_data_colors)
 
     if extend in ['min', 'both']:
         cmap.set_under(colors[0])
