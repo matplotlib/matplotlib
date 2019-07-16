@@ -734,9 +734,9 @@ IPython's ``HTML`` display class::
 Prefixed pkg-config for building
 --------------------------------
 
-Handling of `pkg-config` has been fixed in so far as it is now
-possible to set it using the environment variable `PKG_CONFIG`. This
-is important if your toolchain is prefixed. This is done in a simpilar
-way as setting `CC` or `CXX` before building. An example follows.
+Handling of pkg-config has been fixed in so far as it is now possible to set it
+using the environment variable :envvar:`PKG_CONFIG`. This is important if your
+toolchain is prefixed. This is done in a simpilar way as setting :envvar:`CC`
+or :envvar:`CXX` before building. An example follows.
 
     export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config

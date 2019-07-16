@@ -90,10 +90,9 @@ the latest *tar.gz* release file from `the PyPI files page
 develop Matplotlib or just need the latest bugfixed version, grab the
 latest git version, and see :ref:`install-from-git`.
 
-The standard environment variables `CC`, `CXX`, `PKG_CONFIG` are respected.
-This means you can set them if your toolchain is prefixed. This may be used for
-cross compiling.
-::
+The standard environment variables :envvar:`CC`, :envvar:`CXX`,
+:envvar:`PKG_CONFIG` are respected.  This means you can set them if your
+toolchain is prefixed. This may be used for cross compiling. ::
 
   export CC=x86_64-pc-linux-gnu-gcc
   export CXX=x86_64-pc-linux-gnu-g++
@@ -203,9 +202,9 @@ etc., you can install the following:
 
   The following libraries are shipped with Matplotlib:
 
-  - `Agg`: the Anti-Grain Geometry C++ rendering engine;
-  - `qhull`: to compute Delaunay triangulation;
-  - `ttconv`: a TrueType font utility.
+  - ``Agg``: the Anti-Grain Geometry C++ rendering engine;
+  - ``qhull``: to compute Delaunay triangulation;
+  - ``ttconv``: a TrueType font utility.
 
 .. _build_linux:
 
