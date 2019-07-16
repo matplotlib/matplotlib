@@ -4240,9 +4240,7 @@ class ConnectionPatch(FancyArrowPatch):
         """
         Connect point *xyA* in *coordsA* with point *xyB* in *coordsB*
 
-
         Valid keys are
-
 
         ===============  ======================================================
         Key              Description
@@ -4258,7 +4256,6 @@ class ConnectionPatch(FancyArrowPatch):
         mutation_aspect  default is 1.
         ?                any key for :class:`matplotlib.patches.PathPatch`
         ===============  ======================================================
-
 
         *coordsA* and *coordsB* are strings that indicate the
         coordinates of *xyA* and *xyB*.
