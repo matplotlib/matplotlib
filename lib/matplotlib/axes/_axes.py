@@ -423,13 +423,12 @@ class Axes(_AxesBase):
             parent axes.
 
         **kwargs
-
-            Other *kwargs* are passed on to the `axes.Axes` child axes.
+            Other *kwargs* are passed on to the `~.axes.Axes` child axes.
 
         Returns
         -------
-        Axes
-            The created `.axes.Axes` instance.
+        ax
+            The created `~.axes.Axes` instance.
 
         Examples
         --------
@@ -468,8 +467,7 @@ class Axes(_AxesBase):
         """
         Add an inset indicator to the axes.  This is a rectangle on the plot
         at the position indicated by *bounds* that optionally has lines that
-        connect the rectangle to an inset axes
-        (`.Axes.inset_axes`).
+        connect the rectangle to an inset axes (`.Axes.inset_axes`).
 
         Warnings
         --------
@@ -499,10 +497,10 @@ class Axes(_AxesBase):
             Color of the rectangle and color of the connecting lines.  Default
             is '0.5'.
 
-        alpha : number
+        alpha : float
             Transparency of the rectangle and connector lines.  Default is 0.5.
 
-        zorder : number
+        zorder : float
             Drawing order of the rectangle and connector lines. Default is 4.99
             (just below the default level of inset axes).
 
@@ -511,19 +509,16 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        rectangle_patch : `.Patches.Rectangle`
-             Rectangle artist.
+        rectangle_patch : `.patches.Rectangle`
+             The indicator frame.
 
-        connector_lines : optional 4-tuple of `.Patches.ConnectionPatch`
-            Each of four connector lines coming from the given rectangle
-            on this axes in the order lower left, upper left, lower right,
-            upper right: *None* if *inset_ax* is *None*.
-            Two are set with visibility to *False*,
-            but the user can set the visibility to *True* if the
-            automatic choice is not deemed correct.
+        connector_lines : 4-tuple of `.patches.ConnectionPatch`
+            The four connector lines connecting to (lower_left, upper_left,
+            lower_right upper_right) corners of *inset_ax*. Two lines are
+            set with visibility to *False*,  but the user can set the
+            visibility to True if the automatic choice is not deemed correct.
 
         """
-
         # to make the axes connectors work, we need to apply the aspect to
         # the parent axes.
         self.apply_aspect()
@@ -532,31 +527,36 @@ class Axes(_AxesBase):
             transform = self.transData
         label = kwargs.pop('label', 'indicate_inset')
 
-        xy = (bounds[0], bounds[1])
-        rectpatch = mpatches.Rectangle(xy, bounds[2], bounds[3],
-                facecolor=facecolor, edgecolor=edgecolor, alpha=alpha,
-                zorder=zorder,  label=label, transform=transform, **kwargs)
-        self.add_patch(rectpatch)
+        x, y, width, height = bounds
+        rectangle_patch = mpatches.Rectangle(
+            (x, y), width, height,
+            facecolor=facecolor, edgecolor=edgecolor, alpha=alpha,
+            zorder=zorder,  label=label, transform=transform, **kwargs)
+        self.add_patch(rectangle_patch)
 
         connects = []
 
         if inset_ax is not None:
-            # want to connect the indicator to the rect....
-            xr = [bounds[0], bounds[0]+bounds[2]]
-            yr = [bounds[1], bounds[1]+bounds[3]]
-            for xc in range(2):
-                for yc in range(2):
-                    xyA = (xc, yc)
-                    xyB = (xr[xc], yr[yc])
-                    connects.append(
-                        mpatches.ConnectionPatch(
-                            xyA, xyB,
-                            'axes fraction', 'data',
-                            axesA=inset_ax, axesB=self, arrowstyle="-",
-                            zorder=zorder, edgecolor=edgecolor, alpha=alpha
-                        )
-                    )
-                    self.add_patch(connects[-1])
+            # connect the inset_axes to the rectangle
+            for xy_inset_ax in [(0, 0), (0, 1), (1, 0), (1, 1)]:
+                # inset_ax positions are in axes coordinates
+                # The 0, 1 values define the four edges if the inset_ax
+                # lower_left, upper_left, lower_right upper_right.
+                ex, ey = xy_inset_ax
+                if self.xaxis.get_inverted():
+                    ex = 1 - ex
+                if self.yaxis.get_inverted():
+                    ey = 1 - ey
+                xy_data = x + ex * width, y + ey * height
+                p = mpatches.ConnectionPatch(xy_inset_ax, xy_data,
+                                             coordsA='axes fraction',
+                                             coordsB='data',
+                                             axesA=inset_ax, axesB=self,
+                                             arrowstyle="-", zorder=zorder,
+                                             edgecolor=edgecolor, alpha=alpha)
+                connects.append(p)
+                self.add_patch(p)
+
             # decide which two of the lines to keep visible....
             pos = inset_ax.get_position()
             bboxins = pos.transformed(self.figure.transFigure)
@@ -572,7 +572,7 @@ class Axes(_AxesBase):
             connects[2].set_visible(x1 == y0)
             connects[3].set_visible(x1 ^ y1)
 
-        return rectpatch, tuple(connects) if connects else None
+        return rectangle_patch, tuple(connects) if connects else None
 
     def indicate_inset_zoom(self, inset_ax, **kwargs):
         """
