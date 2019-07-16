@@ -168,11 +168,12 @@ class Axes(_AxesBase):
                 'horizontalalignment': loc}
 
         loc : {'center', 'left', 'right'}, str, optional
-            Which title to set, defaults to rcParams['axes.titlelocation']
+            Which title to set.
+            If *None*, defaults to :rc:`axes.titlelocation`.
 
         pad : float
             The offset of the title from the top of the axes, in points.
-            Default is ``None`` to use rcParams['axes.titlepad'].
+            If *None*, defaults to :rc:`axes.titlepad`.
 
         Returns
         -------
@@ -1486,8 +1487,8 @@ class Axes(_AxesBase):
         By default, each line is assigned a different style specified by a
         'style cycle'. The *fmt* and line property parameters are only
         necessary if you want explicit deviations from these defaults.
-        Alternatively, you can also change the style cycle using the
-        'axes.prop_cycle' rcParam.
+        Alternatively, you can also change the style cycle using
+        :rc:`axes.prop_cycle`.
 
 
         Parameters
@@ -1671,9 +1672,9 @@ class Axes(_AxesBase):
             The plot format string. For details, see the corresponding
             parameter in `.plot`.
 
-        tz : [ *None* | timezone string | :class:`tzinfo` instance]
+        tz : timezone string or `tzinfo` or None
             The time zone to use in labeling dates. If *None*, defaults to
-            rcParam ``timezone``.
+            :rc:`timezone`.
 
         xdate : bool, optional, default: True
             If *True*, the *x*-axis will be interpreted as Matplotlib dates.
@@ -4350,7 +4351,7 @@ class Axes(_AxesBase):
         linewidths : scalar or array_like, optional, default: None
             The linewidth of the marker edges. Note: The default *edgecolors*
             is 'face'. You may want to change this as well.
-            If *None*, defaults to rcParams ``lines.linewidth``.
+            If *None*, defaults to :rc:`lines.linewidth`.
 
         edgecolors : {'face', 'none', *None*} or color or sequence of color, \
 optional.
