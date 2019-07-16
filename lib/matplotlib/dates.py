@@ -25,7 +25,6 @@ objects and Matplotlib dates:
    num2timedelta
    epoch2num
    num2epoch
-   mx2num
    drange
 
 .. note::
@@ -1779,6 +1778,7 @@ def num2epoch(d):
     return (np.asarray(d) - EPOCH_OFFSET) * SEC_PER_DAY
 
 
+@cbook.deprecated("3.2")
 def mx2num(mxdates):
     """
     Convert mx :class:`datetime` instance (or sequence of mx
