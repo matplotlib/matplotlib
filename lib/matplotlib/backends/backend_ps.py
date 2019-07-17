@@ -849,11 +849,7 @@ class FigureCanvasPS(FigureCanvasBase):
         if papertype is None:
             papertype = rcParams['ps.papersize']
         papertype = papertype.lower()
-        if papertype == 'auto':
-            pass
-        elif papertype not in papersize:
-            raise RuntimeError('%s is not a valid papertype. Use one of %s' %
-                               (papertype, ', '.join(papersize)))
+        cbook._check_in_list(['auto', *papersize], papertype=papertype)
 
         orientation = orientation.lower()
         cbook._check_in_list(['landscape', 'portrait'],

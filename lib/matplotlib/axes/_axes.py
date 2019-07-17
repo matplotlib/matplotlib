@@ -2734,16 +2734,13 @@ class Axes(_AxesBase):
             raise TypeError('stem expected between 1 and 5 positional '
                             'arguments, got {}'.format(args))
 
-        y = np.asarray(args[0])
-        args = args[1:]
-
-        # Try a second one
-        if not args:
+        if len(args) == 1:
+            y, = args
             x = np.arange(len(y))
+            args = ()
         else:
-            x = y
-            y = np.asarray(args[0], dtype=float)
-            args = args[1:]
+            x, y, *args = args
+
         self._process_unit_info(xdata=x, ydata=y)
         x = self.convert_xunits(x)
         y = self.convert_yunits(y)
@@ -5056,6 +5053,7 @@ optional.
         """
         # For compatibility(!), get aliases from Line2D rather than Patch.
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
+        # _get_patches_for_fill returns a generator, convert it to a list.
         patches = [*self._get_patches_for_fill(*args, data=data, **kwargs)]
         for poly in patches:
             self.add_patch(poly)

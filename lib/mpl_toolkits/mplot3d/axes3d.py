@@ -1512,8 +1512,7 @@ class Axes3D(Axes):
         # args[0] is a string matches the behavior of 2D `plot` (via
         # `_process_plot_var_args`).
         if args and not isinstance(args[0], str):
-            zs = args[0]
-            args = args[1:]
+            zs, *args = args
             if 'zs' in kwargs:
                 raise TypeError("plot() for multiple values for argument 'z'")
         else:
@@ -1971,12 +1970,12 @@ class Axes3D(Axes):
 
         tri, args, kwargs = \
             Triangulation.get_from_args_and_kwargs(*args, **kwargs)
-        if 'Z' in kwargs:
-            z = np.asarray(kwargs.pop('Z'))
-        else:
-            z = np.asarray(args[0])
+        try:
+            z = kwargs.pop('Z')
+        except KeyError:
             # We do this so Z doesn't get passed as an arg to PolyCollection
-            args = args[1:]
+            z, *args = args
+        z = np.asarray(z)
 
         triangles = tri.get_masked_triangles()
         xt = tri.x[triangles]
@@ -2154,9 +2153,8 @@ class Axes3D(Axes):
         if 'Z' in kwargs:
             Z = kwargs.pop('Z')
         else:
-            Z = args[0]
             # We do this so Z doesn't get passed as an arg to Axes.tricontour
-            args = args[1:]
+            Z, *args = args
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
         tri = Triangulation(jX, jY, tri.triangles, tri.mask)
@@ -2244,9 +2242,8 @@ class Axes3D(Axes):
         if 'Z' in kwargs:
             Z = kwargs.pop('Z')
         else:
-            Z = args[0]
             # We do this so Z doesn't get passed as an arg to Axes.tricontourf
-            args = args[1:]
+            Z, *args = args
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
         tri = Triangulation(jX, jY, tri.triangles, tri.mask)
