@@ -763,7 +763,7 @@ class Axis(martist.Artist):
         self.callbacks = cbook.CallbackRegistry()
 
         self._autolabelpos = True
-        self._smart_bounds = False
+        self._smart_bounds = False  # Deprecated in 3.2
 
         self.label = self._get_label()
         self.labelpad = rcParams['axes.labelpad']
@@ -1085,11 +1085,13 @@ class Axis(martist.Artist):
             bbox2 = mtransforms.Bbox.from_extents(0, 0, 0, 0)
         return bbox, bbox2
 
+    @cbook.deprecated("3.2")
     def set_smart_bounds(self, value):
         """Set the axis to have smart bounds."""
         self._smart_bounds = value
         self.stale = True
 
+    @cbook.deprecated("3.2")
     def get_smart_bounds(self):
         """Return whether the axis has smart bounds."""
         return self._smart_bounds
@@ -1121,7 +1123,7 @@ class Axis(martist.Artist):
         if view_low > view_high:
             view_low, view_high = view_high, view_low
 
-        if self._smart_bounds and ticks:
+        if self._smart_bounds and ticks:  # _smart_bounds is deprecated in 3.2
             # handle inverted limits
             data_low, data_high = sorted(self.get_data_interval())
             locs = np.sort([tick.get_loc() for tick in ticks])
