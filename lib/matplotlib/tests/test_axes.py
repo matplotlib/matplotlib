@@ -6411,3 +6411,10 @@ def test_bar_errbar_zorder():
             assert capline.zorder > bar.zorder
         for barlinecol in barlinecols:
             assert barlinecol.zorder > bar.zorder
+
+
+def test_set_ticks_inverted():
+    fig, ax = plt.subplots()
+    ax.invert_xaxis()
+    ax.set_xticks([.3, .7])
+    assert ax.get_xlim() == (1, 0)
