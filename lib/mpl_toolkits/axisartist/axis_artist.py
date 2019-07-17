@@ -1006,7 +1006,7 @@ class AxisArtist(martist.Artist):
             self.major_ticklabels._set_external_pad(0)
             self.minor_ticklabels._set_external_pad(0)
 
-        majortick_iter,  minortick_iter = \
+        majortick_iter, minortick_iter = \
             self._axis_artist_helper.get_tick_iterators(self.axes)
 
         tick_loc_angle, ticklabel_loc_angle_label = \
@@ -1054,7 +1054,7 @@ class AxisArtist(martist.Artist):
             self.major_ticklabels._set_external_pad(0)
             self.minor_ticklabels._set_external_pad(0)
 
-        majortick_iter,  minortick_iter = \
+        majortick_iter, minortick_iter = \
             self._axis_artist_helper.get_tick_iterators(self.axes)
 
         tick_loc_angle, ticklabel_loc_angle_label = \
