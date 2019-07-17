@@ -1470,12 +1470,15 @@ class EventCollection(LineCollection):
 
         .. plot:: gallery/lines_bars_and_markers/eventcollection_demo.py
         """
-
+        if positions is None:
+            raise ValueError('positions must be an array-like object')
+        # Force a copy of positions
+        positions = np.array(positions, copy=True)
         segment = (lineoffset + linelength / 2.,
                    lineoffset - linelength / 2.)
-        if positions is None or len(positions) == 0:
+        if positions.size == 0:
             segments = []
-        elif hasattr(positions, 'ndim') and positions.ndim > 1:
+        elif positions.ndim > 1:
             raise ValueError('positions cannot be an array with more than '
                              'one dimension.')
         elif (orientation is None or orientation.lower() == 'none' or
