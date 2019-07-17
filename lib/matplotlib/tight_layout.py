@@ -96,11 +96,9 @@ def auto_adjust_subplotpars(
     union = Bbox.union
 
     if ax_bbox_list is None:
-        ax_bbox_list = []
-        for subplots in subplot_list:
-            ax_bbox = union([ax.get_position(original=True)
-                             for ax in subplots])
-            ax_bbox_list.append(ax_bbox)
+        ax_bbox_list = [
+            union([ax.get_position(original=True) for ax in subplots])
+            for subplots in subplot_list]
 
     for subplots, ax_bbox, (num1, num2) in zip(subplot_list,
                                                ax_bbox_list,

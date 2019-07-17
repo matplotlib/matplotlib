@@ -308,7 +308,6 @@ class _process_plot_var_args:
         return seg
 
     def _plot_args(self, tup, kwargs):
-        ret = []
         if len(tup) > 1 and isinstance(tup[-1], str):
             linestyle, marker, color = _process_plot_format(tup[-1])
             tup = tup[:-1]
@@ -361,10 +360,8 @@ class _process_plot_var_args:
             cbook.warn_deprecated(
                 "2.2", message="cycling among columns of inputs with "
                 "non-matching shapes is deprecated.")
-        for j in range(max(ncx, ncy)):
-            seg = func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
-            ret.append(seg)
-        return ret
+        return [func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
+                for j in range(max(ncx, ncy))]
 
 
 class _AxesBase(martist.Artist):

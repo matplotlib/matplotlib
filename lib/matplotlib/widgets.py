@@ -9,6 +9,7 @@ be too smart with respect to layout -- you will have to figure out how
 wide and tall you want your Axes to be to accommodate your widget.
 """
 
+from contextlib import ExitStack
 import copy
 from numbers import Integral
 
@@ -1194,26 +1195,16 @@ class SubplotTool(Widget):
                    self.slidertop, self.sliderwspace, self.sliderhspace,)
 
         def func(event):
-            thisdrawon = self.drawon
-
-            self.drawon = False
-
-            # store the drawon state of each slider
-            bs = []
-            for slider in sliders:
-                bs.append(slider.drawon)
-                slider.drawon = False
-
-            # reset the slider to the initial position
-            for slider in sliders:
-                slider.reset()
-
-            # reset drawon
-            for slider, b in zip(sliders, bs):
-                slider.drawon = b
-
-            # draw the canvas
-            self.drawon = thisdrawon
+            with ExitStack() as stack:
+                # Temporarily disable drawing on self and self's sliders.
+                stack.enter_context(cbook._setattr_cm(self, drawon=False))
+                for slider in sliders:
+                    stack.enter_context(
+                        cbook._setattr_cm(slider, drawon=False))
+                # Reset the slider to the initial position.
+                for slider in sliders:
+                    slider.reset()
+            # Draw the canvas.
             if self.drawon:
                 toolfig.canvas.draw()
                 self.targetfig.canvas.draw()

@@ -687,7 +687,7 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
         s = r"\color{textcolor}" + s
 
-        f = 1.0 / self.figure.dpi
+        dpi = self.figure.dpi
         text_args = []
         if mtext and (
                 (angle == 0 or
@@ -697,20 +697,18 @@ class RendererPgf(RendererBase):
             # and add alignment information
             pos = mtext.get_unitless_position()
             x, y = mtext.get_transform().transform(pos)
-            text_args.append("x=%fin" % (x * f))
-            text_args.append("y=%fin" % (y * f))
-
             halign = {"left": "left", "right": "right", "center": ""}
             valign = {"top": "top", "bottom": "bottom",
                       "baseline": "base", "center": ""}
-            text_args.append(halign[mtext.get_horizontalalignment()])
-            text_args.append(valign[mtext.get_verticalalignment()])
+            text_args.extend([
+                f"x={x/dpi}in",
+                f"y={y/dpi}in",
+                halign[mtext.get_horizontalalignment()],
+                valign[mtext.get_verticalalignment()],
+            ])
         else:
-            # if not, use the text layout provided by matplotlib
-            text_args.append("x=%fin" % (x * f))
-            text_args.append("y=%fin" % (y * f))
-            text_args.append("left")
-            text_args.append("base")
+            # if not, use the text layout provided by Matplotlib.
+            text_args.append(f"x={x/dpi}in, y={y/dpi}in, left, base")
 
         if angle != 0:
             text_args.append("rotate=%f" % angle)

@@ -1051,13 +1051,9 @@ class ToolHelpBase(ToolBase):
         return ", ".join(self.format_shortcut(keymap) for keymap in keymaps)
 
     def _get_help_entries(self):
-        entries = []
-        for name, tool in sorted(self.toolmanager.tools.items()):
-            if not tool.description:
-                continue
-            entries.append((name, self._format_tool_keymap(name),
-                            tool.description))
-        return entries
+        return [(name, self._format_tool_keymap(name), tool.description)
+                for name, tool in sorted(self.toolmanager.tools.items())
+                if tool.description]
 
     def _get_help_text(self):
         entries = self._get_help_entries()
