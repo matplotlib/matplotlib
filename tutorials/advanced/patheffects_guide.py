@@ -5,7 +5,7 @@ Path effects guide
 
 Defining paths that objects follow on a canvas.
 
-.. py:module:: matplotlib.patheffects
+.. py:currentmodule:: matplotlib.patheffects
 
 
 Matplotlib's :mod:`~matplotlib.patheffects` module provides functionality to
