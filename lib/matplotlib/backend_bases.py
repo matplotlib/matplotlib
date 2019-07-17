@@ -568,13 +568,15 @@ class RendererBase:
         angle = np.deg2rad(angle)
         if self.flipy():
             width, height = self.get_canvas_width_height()
-            transform = Affine2D().scale(fontsize / text2path.FONT_SCALE,
-                                         fontsize / text2path.FONT_SCALE)
-            transform = transform.rotate(angle).translate(x, height - y)
+            transform = (Affine2D()
+                         .scale(fontsize / text2path.FONT_SCALE)
+                         .rotate(angle)
+                         .translate(x, height - y))
         else:
-            transform = Affine2D().scale(fontsize / text2path.FONT_SCALE,
-                                         fontsize / text2path.FONT_SCALE)
-            transform = transform.rotate(angle).translate(x, y)
+            transform = (Affine2D()
+                         .scale(fontsize / text2path.FONT_SCALE)
+                         .rotate(angle)
+                         .translate(x, y))
 
         return path, transform
 
