@@ -1,6 +1,6 @@
 """
 =====================================================================
-Zooming in and out using Axes.margins and the subject of "stickiness"
+Axes.margins and "stickiness"
 =====================================================================
 
 The first figure in this example shows how to zoom in and out of a
