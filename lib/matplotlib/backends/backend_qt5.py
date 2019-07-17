@@ -685,6 +685,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
     def _init_toolbar(self):
         self.basedir = str(cbook._get_data_path('images'))
+        # Ensure that zoom and pan are mutually exclusive.
+        self._button_group = QtWidgets.QButtonGroup()
 
         background_color = self.palette().color(self.backgroundRole())
         foreground_color = self.palette().color(self.foregroundRole())
@@ -700,6 +702,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 self._actions[callback] = a
                 if callback in ['zoom', 'pan']:
                     a.setCheckable(True)
+                    self._button_group.addButton(self.widgetForAction(a))
                 if tooltip_text is not None:
                     a.setToolTip(tooltip_text)
                 if text == 'Subplots':
@@ -774,18 +777,13 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             ax = axes[titles.index(item)]
         figureoptions.figure_edit(ax, self)
 
-    def _update_buttons_checked(self):
-        # sync button checkstates to match active mode
-        self._actions['pan'].setChecked(self._active == 'PAN')
-        self._actions['zoom'].setChecked(self._active == 'ZOOM')
-
     def pan(self, *args):
         super().pan(*args)
-        self._update_buttons_checked()
+        self._actions['pan'].setChecked(self._active == 'PAN')
 
     def zoom(self, *args):
         super().zoom(*args)
-        self._update_buttons_checked()
+        self._actions['zoom'].setChecked(self._active == 'ZOOM')
 
     def set_message(self, s):
         self.message.emit(s)
