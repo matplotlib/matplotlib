@@ -717,7 +717,7 @@ class GraphicsContextBase:
     def __init__(self):
         self._alpha = 1.0
         self._forced_alpha = False  # if True, _alpha overrides A from RGBA
-        self._antialiased = 1  # use 0,1 not True, False for extension code
+        self._antialiased = 1  # use 0, 1 not True, False for extension code
         self._capstyle = 'butt'
         self._cliprect = None
         self._clippath = None
@@ -1311,7 +1311,7 @@ class LocationEvent(Event):
 
     def __init__(self, name, canvas, x, y, guiEvent=None):
         """
-        *x*, *y* in figure coords, 0,0 = bottom, left
+        (*x*, *y*) in figure coords ((0, 0) = bottom left).
         """
         Event.__init__(self, name, canvas, guiEvent=guiEvent)
         # x position - pixels from left of canvas
@@ -1323,7 +1323,7 @@ class LocationEvent(Event):
         self.ydata = None   # y coord of mouse in data coords
 
         if x is None or y is None:
-            # cannot check if event was in axes if no x,y info
+            # cannot check if event was in axes if no (x, y) info
             self._update_enter_leave()
             return
 
@@ -1428,7 +1428,7 @@ class MouseEvent(LocationEvent):
     def __init__(self, name, canvas, x, y, button=None, key=None,
                  step=0, dblclick=False, guiEvent=None):
         """
-        x, y in figure coords, 0,0 = bottom, left
+        (*x*, *y*) in figure coords ((0, 0) = bottom left)
         button pressed None, 1, 2, 3, 'up', 'down'
         """
         LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
@@ -1741,8 +1741,8 @@ class FigureCanvasBase:
     def scroll_event(self, x, y, step, guiEvent=None):
         """
         Backend derived classes should call this function on any
-        scroll wheel event.  x,y are the canvas coords: 0,0 is lower,
-        left.  button and key are as defined in MouseEvent.
+        scroll wheel event.  (*x*, *y*) are the canvas coords ((0, 0) is lower
+        left).  button and key are as defined in MouseEvent.
 
         This method will be call all functions connected to the
         'scroll_event' with a :class:`MouseEvent` instance.
@@ -1759,7 +1759,7 @@ class FigureCanvasBase:
     def button_press_event(self, x, y, button, dblclick=False, guiEvent=None):
         """
         Backend derived classes should call this function on any mouse
-        button press.  x,y are the canvas coords: 0,0 is lower, left.
+        button press.  (*x*, *y*) are the canvas coords ((0, 0) is lower left).
         button and key are as defined in :class:`MouseEvent`.
 
         This method will be call all functions connected to the
@@ -1862,7 +1862,7 @@ class FigureCanvasBase:
         Parameters
         ----------
         xy : tuple or list
-            (x,y) coordinates.
+            (x, y) coordinates.
             x position - pixels from left of canvas.
             y position - pixels from bottom of canvas.
 
@@ -2969,7 +2969,7 @@ class NavigationToolbar2:
                 self.draw()
                 return
 
-            # detect twinx,y axes and avoid double zooming
+            # detect twinx, twiny axes and avoid double zooming
             twinx, twiny = False, False
             if last_a:
                 for la in last_a:

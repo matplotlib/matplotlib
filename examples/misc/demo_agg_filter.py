@@ -264,7 +264,7 @@ def drop_shadow_patches(ax):
     men_means = [20, 35, 30, 35, 27]
 
     ind = np.arange(N)  # the x locations for the groups
-    width = 0.35       # the width of the bars
+    width = 0.35  # the width of the bars
 
     rects1 = ax.bar(ind, men_means, width, color='r', ec="w", lw=2)
 
@@ -272,8 +272,8 @@ def drop_shadow_patches(ax):
     rects2 = ax.bar(ind + width + 0.1, women_means, width,
                     color='y', ec="w", lw=2)
 
-    # gauss = GaussianFilter(1.5, offsets=(1,1), )
-    gauss = DropShadowFilter(5, offsets=(1, 1), )
+    # gauss = GaussianFilter(1.5, offsets=(1, 1))
+    gauss = DropShadowFilter(5, offsets=(1, 1))
     shadow = FilteredArtistList(rects1 + rects2, gauss)
     ax.add_artist(shadow)
     shadow.set_zorder(rects1[0].get_zorder() - 0.1)

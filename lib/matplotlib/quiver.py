@@ -106,7 +106,7 @@ angles : {'uv', 'xy'} or array-like, optional, default: 'uv'
       Use this if the arrows symbolize a quantity that is not based on
       *X*, *Y* data coordinates.
 
-    - 'xy': Arrows point from (x,y) to (x+u, y+v).
+    - 'xy': Arrows point from (x, y) to (x+u, y+v).
       Use this for plotting a gradient field, for example.
 
     - Alternatively, arbitrary angles may be specified explicitly as an array
@@ -129,8 +129,8 @@ scale : float, optional
 scale_units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, optional
     If the *scale* kwarg is *None*, the arrow length unit. Default is *None*.
 
-    e.g. *scale_units* is 'inches', *scale* is 2.0, and
-    ``(u,v) = (1,0)``, then the vector will be 0.5 inches long.
+    e.g. *scale_units* is 'inches', *scale* is 2.0, and ``(u, v) = (1, 0)``,
+    then the vector will be 0.5 inches long.
 
     If *scale_units* is 'width' or 'height', then the vector will be half the
     width/height of the axes.
@@ -222,11 +222,11 @@ class QuiverKey(martist.Artist):
             x-axis.
         coordinates : {'axes', 'figure', 'data', 'inches'}, default: 'axes'
             Coordinate system and units for *X*, *Y*: 'axes' and 'figure' are
-            normalized coordinate systems with 0,0 in the lower left and 1,1
-            in the upper right; 'data' are the axes data coordinates (used for
-            the locations of the vectors in the quiver plot itself); 'inches'
-            is position in the figure in inches, with 0,0 at the lower left
-            corner.
+            normalized coordinate systems with (0, 0) in the lower left and
+            (1, 1) in the upper right; 'data' are the axes data coordinates
+            (used for the locations of the vectors in the quiver plot itself);
+            'inches' is position in the figure in inches, with (0, 0) at the
+            lower left corner.
         color : color
             Overrides face and edge colors from *Q*.
         labelpos : {'N', 'S', 'E', 'W'}
@@ -716,7 +716,7 @@ class Quiver(mcollections.PolyCollection):
     def _h_arrows(self, length):
         """Length is in arrow width units."""
         # It might be possible to streamline the code
-        # and speed it up a bit by using complex (x,y)
+        # and speed it up a bit by using complex (x, y)
         # instead of separate arrays; but any gain would be slight.
         minsh = self.minshaft * self.headlength
         N = len(length)

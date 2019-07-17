@@ -113,8 +113,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     use_multicolor_lines = isinstance(color, np.ndarray)
     if use_multicolor_lines:
         if color.shape != grid.shape:
-            raise ValueError(
-                "If 'color' is given, must have the shape of 'Grid(x,y)'")
+            raise ValueError("If 'color' is given, it must match the shape of "
+                             "'Grid(x, y)'")
         line_colors = []
         color = np.ma.masked_invalid(color)
     else:
@@ -123,8 +123,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     if isinstance(linewidth, np.ndarray):
         if linewidth.shape != grid.shape:
-            raise ValueError(
-                "If 'linewidth' is given, must have the shape of 'Grid(x,y)'")
+            raise ValueError("If 'linewidth' is given, it must match the "
+                             "shape of 'Grid(x, y)'")
         line_kw['linewidth'] = []
     else:
         line_kw['linewidth'] = linewidth
@@ -135,7 +135,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     ## Sanity checks.
     if u.shape != grid.shape or v.shape != grid.shape:
-        raise ValueError("'u' and 'v' must be of shape 'Grid(x,y)'")
+        raise ValueError("'u' and 'v' must match the shape of 'Grid(x, y)'")
 
     u = np.ma.masked_invalid(u)
     v = np.ma.masked_invalid(v)

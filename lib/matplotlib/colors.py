@@ -1884,9 +1884,9 @@ class LightSource:
         relief map with a specified light source.  RGBA values are returned,
         which can then be used to plot the shaded image with imshow.
 
-        The color of the resulting image will be darkened by moving the (s,v)
+        The color of the resulting image will be darkened by moving the (s, v)
         values (in hsv colorspace) toward (hsv_min_sat, hsv_min_val) in the
-        shaded regions, or lightened by sliding (s,v) toward (hsv_max_sat
+        shaded regions, or lightened by sliding (s, v) toward (hsv_max_sat,
         hsv_max_val) in regions that are illuminated.  The default extremes are
         chose so that completely shaded points are nearly black (s = 1, v = 0)
         and completely illuminated points are nearly white (s = 0, v = 1).

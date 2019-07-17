@@ -645,7 +645,7 @@ class TestLogFormatter:
         self._sub_labels(ax.xaxis, subs=[])
 
         # For the next two, if the numdec threshold in LogFormatter.set_locs
-        # were 3, then the label sub would be 3 for 2-3 decades and (2,5)
+        # were 3, then the label sub would be 3 for 2-3 decades and (2, 5)
         # for 1-2 decades.  With a threshold of 1, subs are not labeled.
         # axis range at 2 to 3 decades
         ax.set_xlim(1, 800)

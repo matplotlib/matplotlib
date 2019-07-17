@@ -205,6 +205,6 @@ ax[1].set_title('Bulls Eye (AHA)')
 
 bullseye_plot(ax[2], data, seg_bold=[3, 5, 6, 11, 12, 16],
               cmap=cmap3, norm=norm3)
-ax[2].set_title('Segments [3,5,6,11,12,16] in bold')
+ax[2].set_title('Segments [3, 5, 6, 11, 12, 16] in bold')
 
 plt.show()

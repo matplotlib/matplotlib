@@ -29,20 +29,12 @@ class MyNavigationToolbar(NavigationToolbar):
         self.Bind(wx.EVT_TOOL, self._on_custom, id=tool.GetId())
 
     def _on_custom(self, evt):
-        # add some text to the axes in a random location in axes (0,1)
-        # coords) with a random color
-
-        # get the axes
+        # add some text to the axes in a random location in axes coords with a
+        # random color
         ax = self.canvas.figure.axes[0]
-
-        # generate a random location can color
-        x, y = np.random.rand(2)
-        rgb = np.random.rand(3)
-
-        # add the text and draw
-        ax.text(x, y, 'You clicked me',
-                transform=ax.transAxes,
-                color=rgb)
+        x, y = np.random.rand(2)  # generate a random location
+        rgb = np.random.rand(3)  # generate a random color
+        ax.text(x, y, 'You clicked me', transform=ax.transAxes, color=rgb)
         self.canvas.draw()
         evt.Skip()
 

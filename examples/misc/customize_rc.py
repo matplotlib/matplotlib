@@ -22,7 +22,7 @@ Then as you are working interactively, you just need to do::
 
     >>> set_pub()
     >>> subplot(111)
-    >>> plot([1,2,3])
+    >>> plot([1, 2, 3])
     >>> savefig('myfig')
     >>> rcdefaults()  # restore the defaults
 

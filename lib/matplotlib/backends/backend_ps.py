@@ -1326,7 +1326,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
 
     # check if the dvips created a ps in landscape paper.  Somehow,
     # above latex+dvips results in a ps file in a landscape mode for a
-    # certain figure sizes (e.g., 8.3in,5.8in which is a5). And the
+    # certain figure sizes (e.g., 8.3in, 5.8in which is a5). And the
     # bounding box of the final output got messed up. We check see if
     # the generated ps file is in landscape and return this
     # information. The return value is used in pstoeps step to recover

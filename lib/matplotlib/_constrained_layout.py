@@ -409,7 +409,7 @@ def _align_spines(fig, gs):
             # This allows vertically stacked subplots to have
             # different sizes if they occupy different amounts
             # of the gridspec:  i.e.
-            # gs = gridspec.GridSpec(3,1)
+            # gs = gridspec.GridSpec(3, 1)
             # ax1 = gs[0,:]
             # ax2 = gs[1:,:]
             # then drows0 = 1, and drowsC = 2, and ax2

@@ -2184,8 +2184,8 @@ class TestGaussianKDEEvaluate:
 
     def test_evaluate_inv_dim(self):
         """
-        Invert the dimensions; i.e., for a dataset of dimension 1 [3,2,4], the
-        points should have a dimension of 3 [[3],[2],[4]].
+        Invert the dimensions; i.e., for a dataset of dimension 1 [3, 2, 4],
+        the points should have a dimension of 3 [[3], [2], [4]].
         """
         np.random.seed(8765678)
         n_basesample = 50

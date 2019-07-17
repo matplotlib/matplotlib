@@ -24,7 +24,7 @@ def test_patch_transform_of_none():
     ax.set_xlim([1, 3])
     ax.set_ylim([1, 3])
 
-    # Draw an ellipse over data coord (2,2) by specifying device coords.
+    # Draw an ellipse over data coord (2, 2) by specifying device coords.
     xy_data = (2, 2)
     xy_pix = ax.transData.transform(xy_data)
 
@@ -66,7 +66,7 @@ def test_collection_transform_of_none():
     ax.set_xlim([1, 3])
     ax.set_ylim([1, 3])
 
-    # draw an ellipse over data coord (2,2) by specifying device coords
+    # draw an ellipse over data coord (2, 2) by specifying device coords
     xy_data = (2, 2)
     xy_pix = ax.transData.transform(xy_data)
 

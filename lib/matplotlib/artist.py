@@ -1502,7 +1502,7 @@ def setp(obj, *args, **kwargs):
     introspection on the object.  For example, to set the linestyle of a
     line to be dashed, you can do::
 
-      >>> line, = plot([1,2,3])
+      >>> line, = plot([1, 2, 3])
       >>> setp(line, linestyle='--')
 
     If you want to know the valid types of arguments, you can provide
@@ -1530,7 +1530,7 @@ def setp(obj, *args, **kwargs):
     suppose you have a list of two lines, the following will make both
     lines thicker and red::
 
-      >>> x = arange(0,1.0,0.01)
+      >>> x = arange(0, 1, 0.01)
       >>> y1 = sin(2*pi*x)
       >>> y2 = sin(4*pi*x)
       >>> lines = plot(x, y1, x, y2)

@@ -941,7 +941,7 @@ class ToolZoom(ZoomPanBase):
                 self._cancel_action()
                 return
 
-            # detect twinx,y axes and avoid double zooming
+            # detect twinx, twiny axes and avoid double zooming
             twinx, twiny = False, False
             if last_a:
                 for la in last_a:

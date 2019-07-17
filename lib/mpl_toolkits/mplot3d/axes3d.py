@@ -966,7 +966,7 @@ class Axes3D(Axes):
         This can be used to rotate the axes programmatically.
 
         'elev' stores the elevation angle in the z plane (in degrees).
-        'azim' stores the azimuth angle in the x,y plane (in degrees).
+        'azim' stores the azimuth angle in the (x, y) plane (in degrees).
 
         if elev or azim are None (default), then the initial value
         is used which was specified in the :class:`Axes3D` constructor.
@@ -1002,11 +1002,9 @@ class Axes3D(Axes):
         Create the projection matrix from the current viewing position.
 
         elev stores the elevation angle in the z plane
-        azim stores the azimuth angle in the x,y plane
+        azim stores the azimuth angle in the (x, y) plane
 
-        dist is the distance of the eye viewing point from the object
-        point.
-
+        dist is the distance of the eye viewing point from the object point.
         """
         relev, razim = np.pi * self.elev/180, np.pi * self.azim/180
 
@@ -1014,7 +1012,7 @@ class Axes3D(Axes):
         ymin, ymax = self.get_ylim3d()
         zmin, zmax = self.get_zlim3d()
 
-        # transform to uniform world coordinates 0-1.0,0-1.0,0-1.0
+        # transform to uniform world coordinates 0-1, 0-1, 0-1
         worldM = proj3d.world_transformation(xmin, xmax,
                                              ymin, ymax,
                                              zmin, zmax)
@@ -1219,7 +1217,7 @@ class Axes3D(Axes):
 
 #        elif self.button_pressed == 2:
             # pan view
-            # project xv,yv,zv -> xw,yw,zw
+            # project xv, yv, zv -> xw, yw, zw
             # pan
 #            pass
 
@@ -2609,7 +2607,7 @@ pivot='tail', normalize=False, **kwargs)
         normalize : bool
             When True, all of the arrows will be the same length. This
             defaults to False, where the arrows will be different lengths
-            depending on the values of u,v,w.
+            depending on the values of u, v, w.
 
         **kwargs
             Any additional keyword arguments are delegated to
@@ -2620,7 +2618,7 @@ pivot='tail', normalize=False, **kwargs)
             To calculate the arrow head. uvw should be a unit vector.
             We normalize it here:
             """
-            # get unit direction vector perpendicular to (u,v,w)
+            # get unit direction vector perpendicular to (u, v, w)
             norm = np.linalg.norm(uvw[:2])
             if norm > 0:
                 x = uvw[1] / norm
@@ -2734,9 +2732,9 @@ pivot='tail', normalize=False, **kwargs)
 
         Plot a set of filled voxels
 
-        All voxels are plotted as 1x1x1 cubes on the axis, with filled[0,0,0]
-        placed with its lower corner at the origin. Occluded faces are not
-        plotted.
+        All voxels are plotted as 1x1x1 cubes on the axis, with
+        ``filled[0, 0, 0]`` placed with its lower corner at the origin.
+        Occluded faces are not plotted.
 
         .. versionadded:: 2.1
 
@@ -2788,11 +2786,11 @@ pivot='tail', normalize=False, **kwargs)
         Returns
         -------
         faces : dict
-            A dictionary indexed by coordinate, where ``faces[i,j,k]`` is a
+            A dictionary indexed by coordinate, where ``faces[i, j, k]`` is a
             `Poly3DCollection` of the faces drawn for the voxel
-            ``filled[i,j,k]``. If no faces were drawn for a given voxel, either
-            because it was not asked to be drawn, or it is fully occluded, then
-            ``(i,j,k) not in faces``.
+            ``filled[i, j, k]``. If no faces were drawn for a given voxel,
+            either because it was not asked to be drawn, or it is fully
+            occluded, then ``(i, j, k) not in faces``.
 
         Examples
         --------

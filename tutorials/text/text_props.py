@@ -56,7 +56,7 @@ center or right justified.  Here is an example which uses the
 :func:`~matplotlib.pyplot.text` command to show the various alignment
 possibilities.  The use of ``transform=ax.transAxes`` throughout the
 code indicates that the coordinates are given relative to the axes
-bounding box, with 0,0 being the lower left of the axes and 1,1 the
+bounding box, with (0, 0) being the lower left of the axes and (1, 1) the
 upper right.
 """
 
@@ -72,7 +72,7 @@ top = bottom + height
 fig = plt.figure()
 ax = fig.add_axes([0, 0, 1, 1])
 
-# axes coordinates are 0,0 is bottom left and 1,1 is upper right
+# axes coordinates: (0, 0) is bottom left and (1, 1) is upper right
 p = patches.Rectangle(
     (left, bottom), width, height,
     fill=False, transform=ax.transAxes, clip_on=False

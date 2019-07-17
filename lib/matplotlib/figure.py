@@ -844,7 +844,7 @@ default: 'top'
         (:meth:`~matplotlib.axes.Axes.imshow`) which will be resampled
         to fit the current axes.  If you want a resampled image to
         fill the entire figure, you can define an
-        :class:`~matplotlib.axes.Axes` with extent [0,0,1,1].
+        :class:`~matplotlib.axes.Axes` with extent [0, 0, 1, 1].
 
 
         Examples::
@@ -1208,11 +1208,11 @@ default: 'top'
 
             rect = l, b, w, h
             fig = plt.figure()
-            fig.add_axes(rect,label=label1)
-            fig.add_axes(rect,label=label2)
+            fig.add_axes(rect, label=label1)
+            fig.add_axes(rect, label=label2)
             fig.add_axes(rect, frameon=False, facecolor='g')
             fig.add_axes(rect, polar=True)
-            ax=fig.add_axes(rect, projection='polar')
+            ax = fig.add_axes(rect, projection='polar')
             fig.delaxes(ax)
             fig.add_axes(ax)
         """
@@ -2728,7 +2728,7 @@ def figaspect(arg):
 
     Make a figure with the proper aspect for an array::
 
-        A = rand(5,3)
+        A = rand(5, 3)
         w, h = figaspect(A)
         fig = Figure(figsize=(w, h))
         ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])

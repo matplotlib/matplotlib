@@ -1258,7 +1258,7 @@ class AutoDateLocator(DateLocator):
         *interval_multiples* is a boolean that indicates whether ticks
         should be chosen to be multiple of the interval. This will lock
         ticks to 'nicer' locations. For example, this will force the
-        ticks to be at hours 0,6,12,18 when hourly ticking is done at
+        ticks to be at hours 0, 6, 12, 18 when hourly ticking is done at
         6 hour intervals.
 
         The AutoDateLocator has an interval dictionary that maps the
@@ -1317,7 +1317,7 @@ class AutoDateLocator(DateLocator):
                             1000000]}
         if interval_multiples:
             # Swap "3" for "4" in the DAILY list; If we use 3 we get bad
-            # tick loc for months w/ 31 days: 1, 4,..., 28, 31, 1
+            # tick loc for months w/ 31 days: 1, 4, ..., 28, 31, 1
             # If we use 4 then we get: 1, 5, ... 25, 29, 1
             self.intervald[DAILY] = [1, 2, 4, 7, 14, 21]
 
@@ -1556,7 +1556,7 @@ class MonthLocator(RRuleLocator):
     def __init__(self, bymonth=None, bymonthday=1, interval=1, tz=None):
         """
         Mark every month in *bymonth*; *bymonth* can be an int or
-        sequence.  Default is ``range(1,13)``, i.e. every month.
+        sequence.  Default is ``range(1, 13)``, i.e. every month.
 
         *interval* is the interval between each iteration.  For
         example, if ``interval=2``, mark every second occurrence.

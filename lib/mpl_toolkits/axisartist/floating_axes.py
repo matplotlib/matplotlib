@@ -294,7 +294,7 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
 
     def get_boundary(self):
         """
-        return Nx2 array of x,y coordinate of the boundary
+        Return (N, 2) array of (x, y) coordinate of the boundary.
         """
         x0, x1, y0, y1 = self._extremes
         tr = self._aux_trans

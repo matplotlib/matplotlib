@@ -1070,7 +1070,7 @@ class Legend(Artist):
     def _get_anchored_bbox(self, loc, bbox, parentbbox, renderer):
         """
         Place the *bbox* inside the *parentbbox* according to a given
-        location code. Return the (x,y) coordinate of the bbox.
+        location code. Return the (x, y) coordinate of the bbox.
 
         - loc: a location code in range(1, 11).
           This corresponds to the possible values for self._loc, excluding

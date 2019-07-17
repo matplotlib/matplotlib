@@ -420,7 +420,7 @@ plt.show()
 #     In [262]: fig, ax = plt.subplots()
 #
 #     # create a rectangle instance
-#     In [263]: rect = matplotlib.patches.Rectangle( (1,1), width=5, height=12)
+#     In [263]: rect = matplotlib.patches.Rectangle((1, 1), width=5, height=12)
 #
 #     # by default the axes instance is None
 #     In [264]: print(rect.axes)

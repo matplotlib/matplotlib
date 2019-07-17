@@ -984,12 +984,14 @@ class NonUniformImage(AxesImage):
         """
         Set the grid for the pixel centers, and the pixel values.
 
-          *x* and *y* are monotonic 1-D ndarrays of lengths N and M,
-             respectively, specifying pixel centers
-
-          *A* is an (M,N) ndarray or masked array of values to be
-            colormapped, or a (M,N,3) RGB array, or a (M,N,4) RGBA
-            array.
+        Parameters
+        ----------
+        x, y : 1D array-likes
+            Monotonic arrays of shapes (N,) and (M,), respectively, specifying
+            pixel centers.
+        A : array-like
+            (M, N) ndarray or masked array of values to be colormapped, or
+            (M, N, 3) RGB array, or (M, N, 4) RGBA array.
         """
         x = np.array(x, np.float32)
         y = np.array(y, np.float32)
@@ -1112,15 +1114,15 @@ class PcolorImage(AxesImage):
         """
         Set the grid for the rectangle boundaries, and the data values.
 
-          *x* and *y* are monotonic 1-D ndarrays of lengths N+1 and M+1,
-             respectively, specifying rectangle boundaries.  If None,
-             they will be created as uniform arrays from 0 through N
-             and 0 through M, respectively.
-
-          *A* is an (M,N) ndarray or masked array of values to be
-            colormapped, or a (M,N,3) RGB array, or a (M,N,4) RGBA
-            array.
-
+        Parameters
+        ----------
+        x, y : 1D array-likes or None
+            Monotonic arrays of shapes (N + 1,) and (M + 1,), respectively,
+            specifying rectangle boundaries.  If None, will default to
+            ``range(N + 1)`` and ``range(M + 1)``, respectively.
+        A : array-like
+            (M, N) ndarray or masked array of values to be colormapped, or
+            (M, N, 3) RGB array, or (M, N, 4) RGBA array.
         """
         A = cbook.safe_masked_invalid(A, copy=True)
         if x is None:

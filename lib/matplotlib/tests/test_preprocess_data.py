@@ -227,7 +227,7 @@ def test_docstring_addition():
         """Funcy does nothing"""
         pass
 
-    # lists can print in any order, so test for both x,bar and bar,x
+    # lists can print in any order, so test for both x, bar and bar, x.
     assert re.search(r".*All arguments with the following names: '.*', '.*'\.",
                      funcy.__doc__)
     assert re.search(r".*'x'.*", funcy.__doc__)

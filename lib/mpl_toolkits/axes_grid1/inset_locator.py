@@ -503,7 +503,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
             cbook._warn_external("Using the axes or figure transform "
                                  "requires a bounding box in the respective "
                                  "coordinates. "
-                                 "Using bbox_to_anchor=(0,0,1,1) now.")
+                                 "Using bbox_to_anchor=(0, 0, 1, 1) now.")
             bbox_to_anchor = (0, 0, 1, 1)
 
     if bbox_to_anchor is None:

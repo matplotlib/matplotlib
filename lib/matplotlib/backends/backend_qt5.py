@@ -708,7 +708,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                                        'Customize', self.edit_parameters)
                     a.setToolTip('Edit axis, curve and image parameters')
 
-        # Add the x,y location widget at the right side of the toolbar
+        # Add the (x, y) location widget at the right side of the toolbar
         # The stretch factor is 1 which means any resizing of the toolbar
         # will resize this label instead of the buttons.
         if self.coordinates:

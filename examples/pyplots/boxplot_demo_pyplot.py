@@ -74,7 +74,7 @@ d2.shape = (-1, 1)
 # This is actually more efficient because boxplot converts
 # a 2-D array into a list of vectors internally anyway.
 
-data = [data, d2, d2[::2,0]]
+data = [data, d2, d2[::2, 0]]
 fig7, ax7 = plt.subplots()
 ax7.set_title('Multiple Samples with Different sizes')
 ax7.boxplot(data)

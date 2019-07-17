@@ -1055,12 +1055,11 @@ class ColorbarBase(_ColorbarMappableDummy):
 
     def _mesh(self):
         '''
-        Return X,Y, the coordinate arrays for the colorbar pcolormesh.
-        These are suitable for a vertical colorbar; swapping and
-        transposition for a horizontal colorbar are done outside
-        this function.
+        Return ``(X, Y)``, the coordinate arrays for the colorbar pcolormesh.
+        These are suitable for a vertical colorbar; swapping and transposition
+        for a horizontal colorbar are done outside this function.
 
-        These are scaled between vmin and vmax
+        These are scaled between vmin and vmax.
         '''
         # copy the norm and change the vmin and vmax to the vmin and
         # vmax of the colorbar, not the norm.  This allows the situation

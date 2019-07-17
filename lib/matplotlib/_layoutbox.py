@@ -445,7 +445,7 @@ class LayoutBox:
         figLeft = min(figLefts[colNum1], figLefts[colNum2])
         figRight = max(figRights[colNum1], figRights[colNum2])
 
-        # These are numbers relative to 0,0,1,1.  Need to constrain
+        # These are numbers relative to (0, 0, 1, 1).  Need to constrain
         # relative to parent.
 
         width = figRight - figLeft
@@ -700,9 +700,9 @@ def plot_children(fig, box, level=0, printit=True):
             print(child)
         ax.add_patch(
             patches.Rectangle(
-                (child.left.value(), child.bottom.value()),   # (x,y)
-                child.width.value(),          # width
-                child.height.value(),          # height
+                (child.left.value(), child.bottom.value()),  # (x, y)
+                child.width.value(),  # width
+                child.height.value(),  # height
                 fc='none',
                 alpha=0.8,
                 ec=colors[level]

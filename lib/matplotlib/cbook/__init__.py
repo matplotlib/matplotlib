@@ -1894,7 +1894,7 @@ def _array_perimeter(arr):
     perimeter : ndarray, shape (2*(M - 1) + 2*(N - 1),)
         The elements on the perimeter of the array::
 
-            [arr[0,0] ... arr[0,-1] ... arr[-1, -1] ... arr[-1,0] ...]
+           [arr[0, 0], ..., arr[0, -1], ..., arr[-1, -1], ..., arr[-1, 0], ...]
 
     Examples
     --------

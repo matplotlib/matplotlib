@@ -709,7 +709,7 @@ def _is_full_circle_rad(thetamin, thetamax):
 
 class _WedgeBbox(mtransforms.Bbox):
     """
-    Transform (theta,r) wedge Bbox into axes bounding box.
+    Transform (theta, r) wedge Bbox into axes bounding box.
 
     Parameters
     ----------
