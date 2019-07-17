@@ -96,6 +96,7 @@ import matplotlib.font_manager as font_manager
 from matplotlib.artist import Artist
 from matplotlib.collections import LineCollection
 from matplotlib.lines import Line2D
+from matplotlib.patches import PathPatch
 from matplotlib.path import Path
 from matplotlib.transforms import (
     Affine2D, Bbox, IdentityTransform, ScaledTranslation, TransformedPath)
@@ -103,6 +104,7 @@ from matplotlib.transforms import (
 from .axisline_style import AxislineStyle
 
 
+@cbook.deprecated("3.2", alternative="matplotlib.patches.PathPatch")
 class BezierPath(Line2D):
 
     def __init__(self, path, *args, **kwargs):
@@ -908,10 +910,13 @@ class AxisArtist(martist.Artist):
 
         axisline_style = self.get_axisline_style()
         if axisline_style is None:
-            self.line = BezierPath(
+            self.line = PathPatch(
                 self._axis_artist_helper.get_line(self.axes),
                 color=rcParams['axes.edgecolor'],
+                fill=False,
                 linewidth=rcParams['axes.linewidth'],
+                capstyle=rcParams['lines.solid_capstyle'],
+                joinstyle=rcParams['lines.solid_joinstyle'],
                 transform=tran)
         else:
             self.line = axisline_style(self, transform=tran)

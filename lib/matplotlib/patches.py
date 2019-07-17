@@ -941,6 +941,9 @@ class PathPatch(Patch):
     def get_path(self):
         return self._path
 
+    def set_path(self, path):
+        self._path = path
+
 
 class Polygon(Patch):
     """
