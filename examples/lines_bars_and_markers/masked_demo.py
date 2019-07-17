@@ -9,10 +9,10 @@ One possibility is to simply remove undesired data points. The line plotted
 through the remaining data will be continuous, and not indicate where the
 missing data is located.
 
-f it is useful to have gaps in the line where the data is missing, then the
+If it is useful to have gaps in the line where the data is missing, then the
 undesired points can be indicated using a `masked array`_ or by setting their
-values to NaN. No maker will be drawn where either x or y are masked, and if
-plotting with a line it will be broken there.
+values to NaN. No maker will be drawn where either x or y are masked and, if
+plotting with a line, it will be broken there.
 
 .. _masked array:
    https://docs.scipy.org/doc/numpy/reference/maskedarray.generic.html
