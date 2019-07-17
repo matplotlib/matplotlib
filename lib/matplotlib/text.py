@@ -1630,14 +1630,14 @@ class TextWithDash(Text):
 
         Parameters
         ----------
-        t : matplotlib.transforms.Transform
+        t : `~matplotlib.transforms.Transform`
         """
         Text.set_transform(self, t)
         self.dashline.set_transform(t)
         self.stale = True
 
     def get_figure(self):
-        'return the figure instance the artist belongs to'
+        """Return the figure instance the artist belongs to."""
         return self.figure
 
     def set_figure(self, fig):
@@ -1646,7 +1646,7 @@ class TextWithDash(Text):
 
         Parameters
         ----------
-        fig : matplotlib.figure.Figure
+        fig : `~matplotlib.figure.Figure`
         """
         Text.set_figure(self, fig)
         self.dashline.set_figure(fig)

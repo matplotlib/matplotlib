@@ -445,11 +445,11 @@ class _ThetaShift(mtransforms.ScaledTranslation):
 
     Parameters
     ----------
-    axes : matplotlib.axes.Axes
+    axes : `~matplotlib.axes.Axes`
         The owning axes; used to determine limits.
     pad : float
         The padding to apply, in points.
-    start : str, {'min', 'max', 'rlabel'}
+    mode : {'min', 'max', 'rlabel'}
         Whether to shift away from the start (``'min'``) or the end (``'max'``)
         of the axes, or using the rlabel position (``'rlabel'``).
     """
