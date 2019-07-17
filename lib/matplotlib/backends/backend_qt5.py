@@ -670,22 +670,32 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         QtWidgets.QToolBar.__init__(self, parent)
         NavigationToolbar2.__init__(self, canvas)
 
-    def _icon(self, name):
+    def _icon(self, name, color=None):
         if is_pyqt5():
             name = name.replace('.png', '_large.png')
         pm = QtGui.QPixmap(os.path.join(self.basedir, name))
         if hasattr(pm, 'setDevicePixelRatio'):
             pm.setDevicePixelRatio(self.canvas._dpi_ratio)
+        if color is not None:
+            mask = pm.createMaskFromColor(QtGui.QColor('black'),
+                                          QtCore.Qt.MaskOutColor)
+            pm.fill(color)
+            pm.setMask(mask)
         return QtGui.QIcon(pm)
 
     def _init_toolbar(self):
         self.basedir = str(cbook._get_data_path('images'))
 
+        background_color = self.palette().color(self.backgroundRole())
+        foreground_color = self.palette().color(self.foregroundRole())
+        icon_color = (foreground_color
+                      if background_color.value() < 128 else None)
+
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
                 self.addSeparator()
             else:
-                a = self.addAction(self._icon(image_file + '.png'),
+                a = self.addAction(self._icon(image_file + '.png', icon_color),
                                    text, getattr(self, callback))
                 self._actions[callback] = a
                 if callback in ['zoom', 'pan']:
@@ -693,7 +703,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 if tooltip_text is not None:
                     a.setToolTip(tooltip_text)
                 if text == 'Subplots':
-                    a = self.addAction(self._icon("qt4_editor_options.png"),
+                    a = self.addAction(self._icon("qt4_editor_options.png",
+                                                  icon_color),
                                        'Customize', self.edit_parameters)
                     a.setToolTip('Edit axis, curve and image parameters')
 
