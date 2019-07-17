@@ -231,7 +231,7 @@ class MarkerStyle:
 
         Parameters
         ----------
-        marker : string or array_like, optional, default: None
+        marker : string or array-like, optional, default: None
             See the descriptions of possible markers in the module docstring.
 
         fillstyle : string, optional, default: 'full'

@@ -20,12 +20,12 @@ class TriInterpolator:
     Derived classes implement the following methods:
 
         - ``__call__(x, y)`` ,
-          where x, y are array_like point coordinates of the same shape, and
+          where x, y are array-like point coordinates of the same shape, and
           that returns a masked array of the same shape containing the
           interpolated z-values.
 
         - ``gradient(x, y)`` ,
-          where x, y are array_like point coordinates of the same
+          where x, y are array-like point coordinates of the same
           shape, and that returns a list of 2 masked arrays of the same shape
           containing the 2 derivatives of the interpolator (derivatives of
           interpolated z values with respect to x and y).
@@ -132,15 +132,15 @@ class TriInterpolator:
         :meth:`_interpolate_single_key`.)
 
         It is guaranteed that the calls to :meth:`_interpolate_single_key`
-        will be done with flattened (1-d) array_like input parameters *x*, *y*
+        will be done with flattened (1-d) array-like input parameters *x*, *y*
         and with flattened, valid `tri_index` arrays (no -1 index allowed).
 
         Parameters
         ----------
-        x, y : array_like
+        x, y : array-like
             x and y coordinates indicating where interpolated values are
             requested.
-        tri_index : integer array_like, optional
+        tri_index : array-like of int, optional
             Array of the containing triangle indices, same shape as
             *x* and *y*. Defaults to None. If None, these indices
             will be computed by a TriFinder instance.
@@ -244,7 +244,7 @@ class LinearTriInterpolator(TriInterpolator):
     ----------
     triangulation : :class:`~matplotlib.tri.Triangulation` object
         The triangulation to interpolate over.
-    z : array_like of shape (npoints,)
+    z : array-like of shape (npoints,)
         Array of values, defined at grid points, to interpolate between.
     trifinder : :class:`~matplotlib.tri.TriFinder` object, optional
           If this is not specified, the Triangulation's default TriFinder will
@@ -308,7 +308,7 @@ class CubicTriInterpolator(TriInterpolator):
     ----------
     triangulation : :class:`~matplotlib.tri.Triangulation` object
         The triangulation to interpolate over.
-    z : array_like of shape (npoints,)
+    z : array-like of shape (npoints,)
         Array of values, defined at grid points, to interpolate between.
     kind : {'min_E', 'geom', 'user'}, optional
         Choice of the smoothing algorithm, in order to compute
@@ -326,7 +326,7 @@ class CubicTriInterpolator(TriInterpolator):
         If not specified, the Triangulation's default TriFinder will
         be used by calling
         :func:`matplotlib.tri.Triangulation.get_trifinder`.
-    dz : tuple of array_likes (dzdx, dzdy), optional
+    dz : tuple of array-likes (dzdx, dzdy), optional
         Used only if  *kind* ='user'. In this case *dz* must be provided as
         (dzdx, dzdy) where dzdx, dzdy are arrays of the same shape as *z* and
         are the interpolant first derivatives at the *triangulation* points.
@@ -461,13 +461,13 @@ class CubicTriInterpolator(TriInterpolator):
         kind : {'min_E', 'geom', 'user'}
             Choice of the _DOF_estimator subclass to perform the gradient
             estimation.
-        dz : tuple of array_likes (dzdx, dzdy), optional
+        dz : tuple of array-likes (dzdx, dzdy), optional
             Used only if *kind*=user; in this case passed to the
             :class:`_DOF_estimator_user`.
 
         Returns
         -------
-        dof : array_like, shape (npts, 2)
+        dof : array-like, shape (npts, 2)
               Estimation of the gradient at triangulation nodes (stored as
               degree of freedoms of reduced-HCT triangle elements).
         """

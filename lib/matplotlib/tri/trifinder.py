@@ -13,7 +13,7 @@ class TriFinder:
     usually better to use the function
     :func:`matplotlib.tri.Triangulation.get_trifinder`.
 
-    Derived classes implement __call__(x, y) where x and y are array_like point
+    Derived classes implement __call__(x, y) where x and y are array-like point
     coordinates of the same shape.
     """
     def __init__(self, triangulation):
@@ -46,7 +46,7 @@ class TrapezoidMapTriFinder(TriFinder):
         specified *x*, *y* points lie, or -1 for points that do not lie within
         a triangle.
 
-        *x*, *y* are array_like x and y coordinates of the same shape and any
+        *x*, *y* are array-like x and y coordinates of the same shape and any
         number of dimensions.
 
         Returns integer array with the same shape and *x* and *y*.
