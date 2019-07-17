@@ -1359,8 +1359,8 @@ def imread(fname, format=None):
     Parameters
     ----------
     fname : str or file-like
-        The image file to read. This can be a filename, a URL or a Python
-        file-like object opened in read-binary mode.
+        The image file to read: a filename, a URL or a file-like object opened
+        in read-binary mode.
     format : str, optional
         The image file format assumed for reading the data. If not
         given, the format is deduced from the filename.  If nothing can
@@ -1443,8 +1443,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
 
     Parameters
     ----------
-    fname : str or PathLike file-like
-        A path or a Python file-like object to store the image in.
+    fname : str or PathLike or file-like
+        A path or a file-like object to store the image in.
         If *format* is not set, then the output format is inferred from the
         extension of *fname*, if any, and from :rc:`savefig.format` otherwise.
         If *format* is set, it determines the output format.
