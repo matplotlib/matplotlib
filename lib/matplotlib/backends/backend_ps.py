@@ -31,6 +31,7 @@ from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
+from matplotlib.texmanager import TexManager
 from matplotlib.transforms import Affine2D
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from . import _backend_pdf_ps
@@ -1262,67 +1263,32 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     commands to convert those tags to text. LaTeX/dvips produces the postscript
     file that includes the actual text.
     """
-    tmpdir = os.path.split(tmpfile)[0]
-    epsfile = tmpfile+'.eps'
-    shutil.move(tmpfile, epsfile)
-    latexfile = tmpfile+'.tex'
-    dvifile = tmpfile+'.dvi'
-    psfile = tmpfile+'.ps'
+    with mpl.rc_context({
+            "text.latex.preamble":
+            rcParams["text.latex.preamble"] +
+            r"\usepackage{psfrag,color}"
+            r"\usepackage[dvips]{graphicx}"
+            r"\PassOptionsToPackage{dvips}{geometry}"}):
+        dvifile = TexManager().make_dvi(
+            r"\newgeometry{papersize={%(width)sin,%(height)sin},"
+            r"body={%(width)sin,%(height)sin}, margin={0in,0in}}""\n"
+            r"\begin{figure}"
+            r"\centering\leavevmode%(psfrags)s"
+            r"\includegraphics*[angle=%(angle)s]{%(epsfile)s}"
+            r"\end{figure}"
+            % {
+                "width": paper_width, "height": paper_height,
+                "psfrags": "\n".join(psfrags),
+                "angle": 90 if orientation == 'landscape' else 0,
+                "epsfile": pathlib.Path(tmpfile).resolve().as_posix(),
+            },
+            fontsize=10)  # tex's default fontsize.
 
-    if orientation == 'landscape':
-        angle = 90
-    else:
-        angle = 0
-
-    if rcParams['text.latex.unicode']:
-        unicode_preamble = """\\usepackage{ucs}
-\\usepackage[utf8x]{inputenc}"""
-    else:
-        unicode_preamble = ''
-
-    s = r"""\documentclass{article}
-%s
-%s
-%s
-\usepackage[
-    dvips, papersize={%sin,%sin}, body={%sin,%sin}, margin={0in,0in}]{geometry}
-\usepackage{psfrag}
-\usepackage[dvips]{graphicx}
-\usepackage{color}
-\pagestyle{empty}
-\begin{document}
-\begin{figure}
-\centering
-\leavevmode
-%s
-\includegraphics*[angle=%s]{%s}
-\end{figure}
-\end{document}
-""" % (font_preamble, unicode_preamble, custom_preamble,
-       paper_width, paper_height, paper_width, paper_height,
-       '\n'.join(psfrags), angle, os.path.split(epsfile)[-1])
-
-    try:
-        pathlib.Path(latexfile).write_text(
-            s, encoding='utf-8' if rcParams['text.latex.unicode'] else 'ascii')
-    except UnicodeEncodeError:
-        _log.info("You are using unicode and latex, but have not enabled the "
-                  "Matplotlib 'text.latex.unicode' rcParam.")
-        raise
-
-    # Replace \\ for / so latex does not think there is a function call
-    latexfile = latexfile.replace("\\", "/")
-    # Replace ~ so Latex does not think it is line break
-    latexfile = latexfile.replace("~", "\\string~")
-
-    cbook._check_and_log_subprocess(
-        ["latex", "-interaction=nonstopmode", '"%s"' % latexfile],
-        _log, cwd=tmpdir)
-    cbook._check_and_log_subprocess(
-        ['dvips', '-q', '-R0', '-o', os.path.basename(psfile),
-         os.path.basename(dvifile)], _log, cwd=tmpdir)
-    os.remove(epsfile)
-    shutil.move(psfile, tmpfile)
+    with TemporaryDirectory() as tmpdir:
+        psfile = os.path.join(tmpdir, "tmp.ps")
+        cbook._check_and_log_subprocess(
+            ['dvips', '-q', '-R0', '-o', psfile, dvifile], _log)
+        shutil.move(psfile, tmpfile)
 
     # check if the dvips created a ps in landscape paper.  Somehow,
     # above latex+dvips results in a ps file in a landscape mode for a
@@ -1332,15 +1298,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     # information. The return value is used in pstoeps step to recover
     # the correct bounding box. 2010-06-05 JJL
     with open(tmpfile) as fh:
-        if "Landscape" in fh.read(1000):
-            psfrag_rotated = True
-        else:
-            psfrag_rotated = False
-
-    if not debugPS:
-        for fname in glob.glob(tmpfile+'.*'):
-            os.remove(fname)
-
+        psfrag_rotated = "Landscape" in fh.read(1000)
     return psfrag_rotated
 
 
