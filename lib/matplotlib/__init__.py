@@ -911,18 +911,16 @@ def _rc_params_in_file(fname, fail_on_error=False):
     Unlike `rc_params_from_file`, the configuration class only contains the
     parameters specified in the file (i.e. default values are not filled in).
     """
-    cnt = 0
     rc_temp = {}
     with _open_file_or_url(fname) as fd:
         try:
-            for line in fd:
-                cnt += 1
+            for line_no, line in enumerate(fd, 1):
                 strippedline = line.split('#', 1)[0].strip()
                 if not strippedline:
                     continue
                 tup = strippedline.split(':', 1)
                 if len(tup) != 2:
-                    error_details = _error_details_fmt % (cnt, line, fname)
+                    error_details = _error_details_fmt % (line_no, line, fname)
                     _log.warning('Illegal %s', error_details)
                     continue
                 key, val = tup
@@ -930,8 +928,8 @@ def _rc_params_in_file(fname, fail_on_error=False):
                 val = val.strip()
                 if key in rc_temp:
                     _log.warning('Duplicate key in file %r line #%d.',
-                                 fname, cnt)
-                rc_temp[key] = (val, line, cnt)
+                                 fname, line_no)
+                rc_temp[key] = (val, line, line_no)
         except UnicodeDecodeError:
             _log.warning('Cannot decode configuration file %s with encoding '
                          '%s, check LANG and LC_* variables.',
@@ -942,7 +940,7 @@ def _rc_params_in_file(fname, fail_on_error=False):
 
     config = RcParams()
 
-    for key, (val, line, cnt) in rc_temp.items():
+    for key, (val, line, line_no) in rc_temp.items():
         if key in defaultParams:
             if fail_on_error:
                 config[key] = val  # try to convert to proper type or raise
@@ -950,7 +948,7 @@ def _rc_params_in_file(fname, fail_on_error=False):
                 try:
                     config[key] = val  # try to convert to proper type or skip
                 except Exception as msg:
-                    error_details = _error_details_fmt % (cnt, line, fname)
+                    error_details = _error_details_fmt % (line_no, line, fname)
                     _log.warning('Bad val %r on %s\n\t%s',
                                  val, error_details, msg)
         elif key in _deprecated_ignore_map:
@@ -959,14 +957,13 @@ def _rc_params_in_file(fname, fail_on_error=False):
                 version, name=key, alternative=alt_key,
                 addendum="Please update your matplotlibrc.")
         else:
-            print("""
-Bad key "%s" on line %d in
-%s.
+            version = 'master' if '.post' in __version__ else f'v{__version__}'
+            print(f"""
+Bad key "{key}" on line {line_no} in
+{fname}.
 You probably need to get an updated matplotlibrc file from
-http://github.com/matplotlib/matplotlib/blob/master/matplotlibrc.template
-or from the matplotlib source distribution""" % (key, cnt, fname),
-                  file=sys.stderr)
-
+https://github.com/matplotlib/matplotlib/blob/{version}/matplotlibrc.template
+or from the matplotlib source distribution""", file=sys.stderr)
     return config
 
 
