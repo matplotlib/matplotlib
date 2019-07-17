@@ -1,0 +1,6 @@
+Deprecations
+````````````
+
+The "smart_bounds" functionality is deprecated.  This includes
+``Axis.set_smart_bounds()``, ``Axis.get_smart_bounds()``,
+``Spine.set_smart_bounds()``, and ``Spine.get_smart_bounds()``.
