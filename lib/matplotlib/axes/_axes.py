@@ -5053,6 +5053,7 @@ optional.
         """
         # For compatibility(!), get aliases from Line2D rather than Patch.
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
+        # _get_patches_for_fill returns a generator, convert it to a list.
         patches = [*self._get_patches_for_fill(*args, data=data, **kwargs)]
         for poly in patches:
             self.add_patch(poly)
