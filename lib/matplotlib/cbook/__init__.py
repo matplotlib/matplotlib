@@ -152,7 +152,12 @@ class CallbackRegistry:
         self.callbacks[s][cid] = proxy
         return cid
 
-    def _remove_proxy(self, proxy):
+    # Keep a reference to sys.is_finalizing, as sys may have been cleared out
+    # at that point.
+    def _remove_proxy(self, proxy, *, _is_finalizing=sys.is_finalizing):
+        if _is_finalizing():
+            # Weakrefs can't be properly torn down at that point anymore.
+            return
         for signal, proxies in list(self._func_cid_map.items()):
             try:
                 del self.callbacks[signal][proxies[proxy]]
