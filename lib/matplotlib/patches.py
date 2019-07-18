@@ -1176,21 +1176,13 @@ class Arrow(Patch):
             Patch that allows independent control of the head and tail
             properties
         """
-        Patch.__init__(self, **kwargs)
-        L = np.hypot(dx, dy)
-
-        if L != 0:
-            cx = dx / L
-            sx = dy / L
-        else:
-            # Account for division by zero
-            cx, sx = 0, 1
-
-        trans1 = transforms.Affine2D().scale(L, width)
-        trans2 = transforms.Affine2D.from_values(cx, sx, -sx, cx, 0.0, 0.0)
-        trans3 = transforms.Affine2D().translate(x, y)
-        trans = trans1 + trans2 + trans3
-        self._patch_transform = trans.frozen()
+        super().__init__(**kwargs)
+        self._patch_transform = (
+            transforms.Affine2D()
+            .scale(np.hypot(dx, dy), width)
+            .rotate(np.arctan2(dy, dx))
+            .translate(x, y)
+            .frozen())
 
     def get_path(self):
         return self._path
