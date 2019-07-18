@@ -1660,11 +1660,15 @@ class _AxesBase(martist.Artist):
                         "3.2", message="Passing more than one positional "
                         "argument to axis() is deprecated and will raise a "
                         "TypeError %(removal)s.")
-                v = args[0]
+                limits = args[0]
                 try:
-                    xmin, xmax, ymin, ymax = v
+                    xmin, xmax, ymin, ymax = limits
                 except ValueError:
                     raise ValueError('args must contain [xmin xmax ymin ymax]')
+                except TypeError:
+                    raise TypeError('the first argument to axis() must be an '
+                                    'interable of the form '
+                                    '[xmin, xmax, ymin, ymax]')
             else:
                 xmin = kwargs.pop('xmin', None)
                 xmax = kwargs.pop('xmax', None)
