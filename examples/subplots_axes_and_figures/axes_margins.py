@@ -1,7 +1,7 @@
 """
-=====================================================================
-Zooming in and out using Axes.margins and the subject of "stickiness"
-=====================================================================
+======================================================
+Controlling view limits using margins and sticky_edges
+======================================================
 
 The first figure in this example shows how to zoom in and out of a
 plot using `~.Axes.margins` instead of `~.Axes.set_xlim` and
