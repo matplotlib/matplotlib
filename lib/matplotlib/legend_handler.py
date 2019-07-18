@@ -782,6 +782,4 @@ class HandlerAnnotation(HandlerBase):
 	
 	        return handler.create_artists(legend, handle, xdescent,
 	                                      ydescent, width, height,
-	                                      fontsize,
-	                                      trans,
-                                         )
+	                                      fontsize, trans)
