@@ -1850,7 +1850,6 @@ class Affine2D(Affine2DBase):
 
         .
         """
-        self._invalid = 0
         return self._mtx
 
     def set_matrix(self, mtx):
