@@ -682,7 +682,7 @@ class Legend(Artist):
         PathCollection: legend_handler.HandlerPathCollection(),
         PolyCollection: legend_handler.HandlerPolyCollection(),
         FancyArrowPatch: legend_handler.HandlerFancyArrowPatch(),
-	      Annotation: legend_handler.HandlerAnnotation()
+	Annotation: legend_handler.HandlerAnnotation()
 
 
     # (get|set|update)_default_handler_maps are public interfaces to
