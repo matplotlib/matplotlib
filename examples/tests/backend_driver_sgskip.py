@@ -116,8 +116,7 @@ def drive(backend, directories, python=[sys.executable], switches=[]):
             'numpy.seterr(invalid="ignore")\n',
         ))
         for line in open(fullpath):
-            strip_lines = ['from __future__ import',
-                           'matplotlib.use',
+            strip_lines = ['matplotlib.use',
                            'plt.savefig',
                            'plt.show']
             line_lstrip = line.lstrip()
