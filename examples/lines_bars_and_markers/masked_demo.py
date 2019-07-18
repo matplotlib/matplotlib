@@ -11,7 +11,7 @@ missing data is located.
 
 If it is useful to have gaps in the line where the data is missing, then the
 undesired points can be indicated using a `masked array`_ or by setting their
-values to NaN. No maker will be drawn where either x or y are masked and, if
+values to NaN. No marker will be drawn where either x or y are masked and, if
 plotting with a line, it will be broken there.
 
 .. _masked array:
