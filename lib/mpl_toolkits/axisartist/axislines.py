@@ -96,8 +96,6 @@ class AxisArtistHelper:
             # c, angle, l is position, tick angle, and label
 
             return iter_major, iter_minor
-
-
     """
 
     class _Base:
@@ -138,7 +136,7 @@ class AxisArtistHelper:
 
             _verts = np.array([[0., 0.],
                                [1., 1.]])
-            fixed_coord = 1-nth_coord
+            fixed_coord = 1 - nth_coord
             _verts[:, fixed_coord] = self.passthru_pt[fixed_coord]
 
             # axis line in transAxes
@@ -166,21 +164,16 @@ class AxisArtistHelper:
 
             get_label_transform() returns a transform of (transAxes+offset)
             """
-            loc = self._loc
-            pos, angle_tangent = dict(left=((0., 0.5), 90),
-                                      right=((1., 0.5), 90),
-                                      bottom=((0.5, 0.), 0),
-                                      top=((0.5, 1.), 0))[loc]
-
-            return pos, angle_tangent
+            return dict(left=((0., 0.5), 90),  # (position, angle_tangent)
+                        right=((1., 0.5), 90),
+                        bottom=((0.5, 0.), 0),
+                        top=((0.5, 1.), 0))[self._loc]
 
         # TICK
 
         def get_tick_transform(self, axes):
-            trans_tick = [axes.get_xaxis_transform(),
-                          axes.get_yaxis_transform()][self.nth_coord]
-
-            return trans_tick
+            return [axes.get_xaxis_transform(),
+                    axes.get_yaxis_transform()][self.nth_coord]
 
     class Floating(_Base):
 
@@ -229,9 +222,7 @@ class AxisArtistHelperRectlinear:
             minorLocs = minor.locator()
             minorLabels = minor.formatter.format_ticks(minorLocs)
 
-            trans_tick = self.get_tick_transform(axes)
-
-            tr2ax = trans_tick + axes.transAxes.inverted()
+            tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
 
             def _f(locs, labels):
                 for x, l in zip(locs, labels):
@@ -240,7 +231,7 @@ class AxisArtistHelperRectlinear:
                     c[self.nth_coord] = x
 
                     # check if the tick point is inside axes
-                    c2 = tr2ax.transform(c)
+                    c2 = tick_to_axes.transform(c)
                     if (0 - self.delta1
                             <= c2[self.nth_coord]
                             <= 1 + self.delta2):
@@ -260,8 +251,8 @@ class AxisArtistHelperRectlinear:
                                [1., 1.]])
 
             fixed_coord = 1 - self.nth_coord
-            p = (axes.transData + axes.transAxes.inverted()).transform(
-                [self._value, self._value])
+            data_to_axes = axes.transData - axes.transAxes
+            p = data_to_axes.transform([self._value, self._value])
             _verts[:, fixed_coord] = p[fixed_coord]
 
             return Path(_verts)
@@ -278,41 +269,26 @@ class AxisArtistHelperRectlinear:
 
             get_label_transform() returns a transform of (transAxes+offset)
             """
-            if self.nth_coord == 0:
-                angle = 0
-            else:
-                angle = 90
-
+            angle = [0, 90][self.nth_coord]
             _verts = [0.5, 0.5]
-
-            fixed_coord = 1-self.nth_coord
-            p = (axes.transData + axes.transAxes.inverted()).transform(
-                [self._value, self._value])
+            fixed_coord = 1 - self.nth_coord
+            data_to_axes = axes.transData - axes.transAxes
+            p = data_to_axes.transform([self._value, self._value])
             _verts[fixed_coord] = p[fixed_coord]
-            if not (0. <= _verts[fixed_coord] <= 1.):
-                return None, None
-            else:
+            if 0 <= _verts[fixed_coord] <= 1:
                 return _verts, angle
+            else:
+                return None, None
 
         def get_tick_transform(self, axes):
             return axes.transData
 
         def get_tick_iterators(self, axes):
             """tick_loc, tick_angle, tick_label"""
-
-            loc = self._axis_direction
-
-            if loc in ["bottom", "top"]:
-                angle_normal, angle_tangent = 90, 0
-            else:
-                angle_normal, angle_tangent = 0, 90
-
             if self.nth_coord == 0:
                 angle_normal, angle_tangent = 90, 0
             else:
                 angle_normal, angle_tangent = 0, 90
-
-            # angle = 90 - 90 * self.nth_coord
 
             major = self.axis.major
             majorLocs = major.locator()
@@ -322,14 +298,13 @@ class AxisArtistHelperRectlinear:
             minorLocs = minor.locator()
             minorLabels = minor.formatter.format_ticks(minorLocs)
 
-            tr2ax = axes.transData + axes.transAxes.inverted()
+            data_to_axes = axes.transData - axes.transAxes
 
             def _f(locs, labels):
                 for x, l in zip(locs, labels):
-
                     c = [self._value, self._value]
                     c[self.nth_coord] = x
-                    c1, c2 = tr2ax.transform(c)
+                    c1, c2 = data_to_axes.transform(c)
                     if (0 <= c1 <= 1 and 0 <= c2 <= 1
                             and 0 - self.delta1
                                 <= [c1, c2][self.nth_coord]

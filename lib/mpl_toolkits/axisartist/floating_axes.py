@@ -123,10 +123,9 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             mm = (yy1b - yy1a == 0) & (xx1b - xx1a == 0)  # mask not defined dd
             dd[mm] = dd2[mm] + np.pi / 2
 
-            trans_tick = self.get_tick_transform(axes)
-            tr2ax = trans_tick + axes.transAxes.inverted()
+            tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
-                c2 = tr2ax.transform((x, y))
+                c2 = tick_to_axes.transform((x, y))
                 delta = 0.00001
                 if 0-delta <= c2[0] <= 1+delta and 0-delta <= c2[1] <= 1+delta:
                     d1, d2 = np.rad2deg([d, d2])
