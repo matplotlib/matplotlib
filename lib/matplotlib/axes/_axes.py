@@ -549,12 +549,11 @@ class Axes(_AxesBase):
                 if self.yaxis.get_inverted():
                     ey = 1 - ey
                 xy_data = x + ex * width, y + ey * height
-                p = mpatches.ConnectionPatch(xy_inset_ax, xy_data,
-                                             coordsA='axes fraction',
-                                             coordsB='data',
-                                             axesA=inset_ax, axesB=self,
-                                             arrowstyle="-", zorder=zorder,
-                                             edgecolor=edgecolor, alpha=alpha)
+                p = mpatches.ConnectionPatch(
+                    xyA=xy_inset_ax, coordsA=inset_ax.transAxes,
+                    xyB=xy_data, coordsB=self.transData,
+                    arrowstyle="-", zorder=zorder,
+                    edgecolor=edgecolor, alpha=alpha)
                 connects.append(p)
                 self.add_patch(p)
 
@@ -607,17 +606,12 @@ class Axes(_AxesBase):
             Two are set with visibility to *False*,  but the user can
             set the visibility to *True* if the automatic choice is not deemed
             correct.
-
         """
 
         xlim = inset_ax.get_xlim()
         ylim = inset_ax.get_ylim()
         rect = (xlim[0], ylim[0], xlim[1] - xlim[0], ylim[1] - ylim[0])
-        rectpatch, connects = self.indicate_inset(
-            rect, inset_ax, **kwargs
-        )
-
-        return rectpatch, connects
+        return self.indicate_inset(rect, inset_ax, **kwargs)
 
     @docstring.dedent_interpd
     def secondary_xaxis(self, location, *, functions=None, **kwargs):
