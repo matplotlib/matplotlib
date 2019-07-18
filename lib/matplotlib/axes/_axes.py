@@ -4496,63 +4496,60 @@ optional.
                reduce_C_function=np.mean, mincnt=None, marginals=False,
                **kwargs):
         """
-        Make a hexagonal binning plot.
+        Make a 2D hexagonal binning plot of points *x*, *y*.
 
-        Make a hexagonal binning plot of *x* versus *y*, where *x*,
-        *y* are 1-D sequences of the same length, *N*. If *C* is *None*
-        (the default), this is a histogram of the number of occurrences
-        of the observations at (x[i],y[i]).
-
-        If *C* is specified, it specifies values at the coordinate
-        (x[i], y[i]). These values are accumulated for each hexagonal
-        bin and then reduced according to *reduce_C_function*, which
-        defaults to `numpy.mean`. (If *C* is specified, it must also
-        be a 1-D sequence of the same length as *x* and *y*.)
+        If *C* is *None*, the value of the hexagon is determined by the number
+        of points in the hexagon. Otherwise, *C* specifies values at the
+        coordinate (x[i], y[i]). For each hexagon, these values are reduced
+        using *reduce_C_function*.
 
         Parameters
         ----------
-        x, y : array or masked array
+        x, y : array-like
+            The data positions. *x* and *y* must be of the same length.
 
-        C : array or masked array, optional, default is *None*
+        C : array-like, optional
+            If given, these values are accumulated in the bins. Otherwise,
+            every point has a value of 1. Must be of the same length as *x*
+            and *y*.
 
-        gridsize : int or (int, int), optional, default is 100
-            The number of hexagons in the *x*-direction, default is
-            100. The corresponding number of hexagons in the
-            *y*-direction is chosen such that the hexagons are
-            approximately regular. Alternatively, gridsize can be a
-            tuple with two elements specifying the number of hexagons
+        gridsize : int or (int, int), default: 100
+            If a single int, the number of hexagons in the *x*-direction.
+            The number of hexagons in the *y*-direction is chosen such that
+            the hexagons are approximately regular.
+
+            Alternatively, if a tuple (*nx*, *ny*), the number of hexagons
             in the *x*-direction and the *y*-direction.
 
-        bins : 'log' or int or sequence, optional, default is *None*
-            If *None*, no binning is applied; the color of each hexagon
-            directly corresponds to its count value.
+        bins : 'log' or int or sequence, default: *None*
+            Discretization of the hexagon values.
 
-            If 'log', use a logarithmic scale for the color
-            map. Internally, :math:`log_{10}(i+1)` is used to
-            determine the hexagon color.
+            - If *None*, no binning is applied; the color of each hexagon
+              directly corresponds to its count value.
+            - If 'log', use a logarithmic scale for the color map.
+              Internally, :math:`log_{10}(i+1)` is used to determine the
+              hexagon color. This is equivalent to ``norm=LogNorm()``.
+            - If an integer, divide the counts in the specified number
+              of bins, and color the hexagons accordingly.
+            - If a sequence of values, the values of the lower bound of
+              the bins to be used.
 
-            If an integer, divide the counts in the specified number
-            of bins, and color the hexagons accordingly.
-
-            If a sequence of values, the values of the lower bound of
-            the bins to be used.
-
-        xscale : {'linear', 'log'}, optional, default is 'linear'
+        xscale : {'linear', 'log'}, default: 'linear'
             Use a linear or log10 scale on the horizontal axis.
 
-        yscale : {'linear', 'log'}, optional, default is 'linear'
+        yscale : {'linear', 'log'}, default: 'linear'
             Use a linear or log10 scale on the vertical axis.
 
-        mincnt : int > 0, optional, default is *None*
+        mincnt : int > 0, default: *None*
             If not *None*, only display cells with more than *mincnt*
-            number of points in the cell
+            number of points in the cell.
 
-        marginals : bool, optional, default is *False*
-            if marginals is *True*, plot the marginal density as
+        marginals : bool, default: *False*
+            If marginals is *True*, plot the marginal density as
             colormapped rectangles along the bottom of the x-axis and
-            left of the y-axis
+            left of the y-axis.
 
-        extent : scalar, optional, default is *None*
+        extent : float, default: *None*
             The limits of the bins. The default assigns the limits
             based on *gridsize*, *x*, *y*, *xscale* and *yscale*.
 
@@ -4565,54 +4562,67 @@ optional.
 
         Other Parameters
         ----------------
-        cmap : object, optional, default is *None*
-            a :class:`matplotlib.colors.Colormap` instance. If *None*,
-            defaults to rc ``image.cmap``.
+        cmap : str or `~matplotlib.colors.Colormap`, optional
+            The Colormap instance or registered colormap name used to map
+            the bin values to colors. Defaults to :rc:`image.cmap`.
 
-        norm : object, optional, default is *None*
-            :class:`matplotlib.colors.Normalize` instance is used to
-            scale luminance data to (0, 1).
+        norm : `~matplotlib.colors.Normalize`, optional
+            The Normalize instance scales the bin values to the canonical
+            colormap range [0, 1] for mapping to colors. By default, the data
+            range is mapped to the colorbar range using linear scaling.
 
-        vmin, vmax : scalar, optional, default is *None*
-            *vmin* and *vmax* are used in conjunction with *norm* to
-            normalize luminance data. If *None*, the min and max of the
-            color array *C* are used.  Note if you pass a norm instance
-            your settings for *vmin* and *vmax* will be ignored.
+        vmin, vmax : float, optional, default: None
+            The colorbar range. If *None*, suitable min/max values are
+            automatically chosen by the `~.Normalize` instance (defaults to
+            the respective min/max values of the bins in case of the default
+            linear scaling). This is ignored if *norm* is given.
 
-        alpha : scalar between 0 and 1, optional, default is *None*
-            the alpha value for the patches
+        alpha : float between 0 and 1, optional
+            The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-        linewidths : scalar, optional, default is *None*
+        linewidths : float, default: *None*
             If *None*, defaults to 1.0.
 
-        edgecolors : {'face', 'none', *None*} or color, optional
+        edgecolors : {'face', 'none', *None*} or color, default: 'face'
+            The color of the hexagon edges. Possible values are:
 
-            If 'face' (the default), draws the edges in the same color as the
-            fill color.
+            - 'face': Draw the edges in the same color as the fill color.
+            - 'none': No edges are drawn. This can sometimes lead to unsightly
+              unpainted pixels between the hexagons.
+            - *None*: Draw outlines in the default color.
+            - An explicit matplotlib color.
 
-            If 'none', no edge is drawn; this can sometimes lead to unsightly
-            unpainted pixels between the hexagons.
+        reduce_C_function : callable, default is `numpy.mean`
+            The function to aggregate *C* within the bins. It is ignored if
+            *C* is not given. This must have the signature::
 
-            If *None*, draws outlines in the default color.
+                def reduce_C_function(C: array) -> float
 
-            If a matplotlib color arg, draws outlines in the specified color.
+            Commonly used functions are:
+
+            - `numpy.mean`: average of the points
+            - `numpy.sum`: integral of the point values
+            - `numpy.max`: value taken from the largest point
+
+        **kwargs : `~matplotlib.collections.PolyCollection` properties
+            All other keyword arguments are passed on to `.PolyCollection`:
+
+            %(PolyCollection)s
 
         Returns
         -------
-        polycollection
-            A `.PolyCollection` instance; use `.PolyCollection.get_array` on
-            this to get the counts in each hexagon.
+        polycollection : `~matplotlib.collections.PolyCollection`
+            A `.PolyCollection` defining the hexagonal bins.
+
+            - `.PolyCollection.get_offset` contains a Mx2 array containing
+              the x, y positions of the M hexagon centers.
+            - `.PolyCollection.get_array` contains the values of the M
+              hexagons.
 
             If *marginals* is *True*, horizontal
             bar and vertical bar (both PolyCollections) will be attached
             to the return collection as attributes *hbar* and *vbar*.
 
-        Notes
-        -----
-        The standard descriptions of all the
-        :class:`~matplotlib.collections.Collection` parameters:
-
-            %(Collection)s
         """
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
 
