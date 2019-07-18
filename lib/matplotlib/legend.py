@@ -1230,7 +1230,7 @@ def _get_legend_handles(axs, legend_handler_map=None):
         if hasattr(ax, 'parasites'):
             for axx in ax.parasites:
                 handles_original += (axx.lines + axx.patches +
-                                     axx.collections + axx.containers + ax.texts)
+                                     axx.collections + axx.containers + axx.texts)
 
 
     handler_map = Legend.get_default_handler_map()
