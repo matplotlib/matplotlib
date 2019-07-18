@@ -682,8 +682,8 @@ class Legend(Artist):
         PathCollection: legend_handler.HandlerPathCollection(),
         PolyCollection: legend_handler.HandlerPolyCollection(),
         FancyArrowPatch: legend_handler.HandlerFancyArrowPatch(),
-	    Annotation: legend_handler.HandlerAnnotation()
-        }
+	      Annotation: legend_handler.HandlerAnnotation()
+
 
     # (get|set|update)_default_handler_maps are public interfaces to
     # modify the default handler map.
@@ -1225,11 +1225,13 @@ def _get_legend_handles(axs, legend_handler_map=None):
     for ax in axs:
         handles_original += (ax.lines + ax.patches +
                              ax.collections + ax.containers + ax.texts)
+
         # support parasite axes:
         if hasattr(ax, 'parasites'):
             for axx in ax.parasites:
                 handles_original += (axx.lines + axx.patches +
                                      axx.collections + axx.containers + axx.texts)
+
 
     handler_map = Legend.get_default_handler_map()
 
