@@ -4724,6 +4724,12 @@ def test_shared_with_aspect_3():
             assert round(expected, 4) == round(ax.get_aspect(), 4)
 
 
+def test_polar_not_datalim_adjustable():
+    ax = plt.figure().add_subplot(projection="polar")
+    with pytest.raises(ValueError):
+        ax.set_adjustable("datalim")
+
+
 @pytest.mark.parametrize('twin', ('x', 'y'))
 def test_twin_with_aspect(twin):
     fig, ax = plt.subplots()

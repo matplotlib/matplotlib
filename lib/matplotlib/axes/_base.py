@@ -1317,11 +1317,19 @@ class _AxesBase(martist.Artist):
         """
         cbook._check_in_list(["box", "datalim"], adjustable=adjustable)
         if share:
-            axes = {*self._shared_x_axes.get_siblings(self),
-                    *self._shared_y_axes.get_siblings(self)}
+            axs = {*self._shared_x_axes.get_siblings(self),
+                   *self._shared_y_axes.get_siblings(self)}
         else:
-            axes = [self]
-        for ax in axes:
+            axs = [self]
+        if (adjustable == "datalim"
+                and any(getattr(ax.get_data_ratio, "__func__")
+                        != _AxesBase.get_data_ratio
+                        for ax in axs)):
+            # Limits adjustment by apply_aspect assumes that the axes' aspect
+            # ratio can be computed from the data limits and scales.
+            raise ValueError("Cannot set axes adjustable to 'datalim' for "
+                             "Axes which override 'get_data_ratio'")
+        for ax in axs:
             ax._adjustable = adjustable
         self.stale = True
 
