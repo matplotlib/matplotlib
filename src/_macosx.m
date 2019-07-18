@@ -281,6 +281,9 @@ static void lazy_init(void) {
     NSApp = [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
+    NSImage* icon = [[NSImage alloc]initWithContentsOfFile:@"/Users/dstansby/github/matplotlib/lib/matplotlib/mpl-data/images/matplotlib_large.png"];
+    [NSApp setApplicationIconImage:icon];
+
 #ifndef PYPY
     /* TODO: remove ifndef after the new PyPy with the PyOS_InputHook implementation
     get released: https://bitbucket.org/pypy/pypy/commits/caaf91a */
