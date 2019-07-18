@@ -9,6 +9,7 @@ Significant updates and revisions by Ben Root <ben.v.root@gmail.com>
 Module containing Axes3D, an object which can plot 3D objects on a
 2D matplotlib figure.
 """
+
 from collections import defaultdict
 from functools import reduce
 import math
@@ -140,14 +141,6 @@ class Axes3D(Axes):
         self._axis3don = True
         self.stale = True
 
-    def have_units(self):
-        """
-        Return *True* if units are set on the *x*, *y*, or *z* axes
-
-        """
-        return (self.xaxis.have_units() or self.yaxis.have_units() or
-                self.zaxis.have_units())
-
     def convert_zunits(self, z):
         """
         For artists in an axes, if the zaxis has units support,
@@ -187,11 +180,10 @@ class Axes3D(Axes):
     def set_top_view(self):
         # this happens to be the right view for the viewing coordinates
         # moved up and to the left slightly to fit labels and axes
-        xdwl = (0.95/self.dist)
-        xdw = (0.9/self.dist)
-        ydwl = (0.95/self.dist)
-        ydw = (0.9/self.dist)
-
+        xdwl = 0.95 / self.dist
+        xdw = 0.9 / self.dist
+        ydwl = 0.95 / self.dist
+        ydw = 0.9 / self.dist
         # This is purposely using the 2D Axes's set_xlim and set_ylim,
         # because we are trying to place our viewing pane.
         super().set_xlim(-xdwl, xdw, auto=None)
@@ -1088,12 +1080,8 @@ class Axes3D(Axes):
         return False
 
     def cla(self):
-        """
-        Clear axes
-        """
-        # Disabling mouse interaction might have been needed a long
-        # time ago, but I can't find a reason for it now - BVR (2012-03)
-        #self.disable_mouse_rotation()
+        # docstring inherited.
+
         super().cla()
         self.zaxis.cla()
 
@@ -1116,12 +1104,10 @@ class Axes3D(Axes):
         self.grid(rcParams['axes3d.grid'])
 
     def disable_mouse_rotation(self):
-        """Disable mouse button callbacks.
-        """
+        """Disable mouse button callbacks."""
         # Disconnect the various events we set.
         for cid in self._cids:
             self.figure.canvas.mpl_disconnect(cid)
-
         self._cids = []
 
     def _button_press(self, event):
