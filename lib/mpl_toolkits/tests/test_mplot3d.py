@@ -1,6 +1,7 @@
 import pytest
 
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
+import matplotlib as mpl
 from matplotlib import cm
 from matplotlib import path as mpath
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
@@ -449,12 +450,10 @@ def test_poly3dcollection_alpha():
 
 @image_comparison(['axes3d_labelpad.png'])
 def test_axes3d_labelpad():
-    from matplotlib import rcParams
-
     fig = plt.figure()
     ax = Axes3D(fig)
     # labelpad respects rcParams
-    assert ax.xaxis.labelpad == rcParams['axes.labelpad']
+    assert ax.xaxis.labelpad == mpl.rcParams['axes.labelpad']
     # labelpad can be set in set_label
     ax.set_xlabel('X LABEL', labelpad=10)
     assert ax.xaxis.labelpad == 10
@@ -903,3 +902,43 @@ def test_ax3d_tickcolour():
         assert tick.tick1line._color == 'red'
     for tick in ax.zaxis.get_major_ticks():
         assert tick.tick1line._color == 'red'
+
+
+@check_figures_equal(extensions=["png"])
+def test_ticklabel_format(fig_test, fig_ref):
+    axs = fig_test.subplots(4, 5, subplot_kw={"projection": "3d"})
+    for ax in axs.flat:
+        ax.set_xlim(1e7, 1e7 + 10)
+    for row, name in zip(axs, ["x", "y", "z", "both"]):
+        row[0].ticklabel_format(
+            axis=name, style="plain")
+        row[1].ticklabel_format(
+            axis=name, scilimits=(-2, 2))
+        row[2].ticklabel_format(
+            axis=name, useOffset=not mpl.rcParams["axes.formatter.useoffset"])
+        row[3].ticklabel_format(
+            axis=name, useLocale=not mpl.rcParams["axes.formatter.use_locale"])
+        row[4].ticklabel_format(
+            axis=name,
+            useMathText=not mpl.rcParams["axes.formatter.use_mathtext"])
+
+    def get_formatters(ax, names):
+        return [getattr(ax, name).get_major_formatter() for name in names]
+
+    axs = fig_ref.subplots(4, 5, subplot_kw={"projection": "3d"})
+    for ax in axs.flat:
+        ax.set_xlim(1e7, 1e7 + 10)
+    for row, names in zip(
+            axs, [["xaxis"], ["yaxis"], ["zaxis"], ["xaxis", "yaxis", "zaxis"]]
+    ):
+        for fmt in get_formatters(row[0], names):
+            fmt.set_scientific(False)
+        for fmt in get_formatters(row[1], names):
+            fmt.set_powerlimits((-2, 2))
+        for fmt in get_formatters(row[2], names):
+            fmt.set_useOffset(not mpl.rcParams["axes.formatter.useoffset"])
+        for fmt in get_formatters(row[3], names):
+            fmt.set_useLocale(not mpl.rcParams["axes.formatter.use_locale"])
+        for fmt in get_formatters(row[4], names):
+            fmt.set_useMathText(
+                not mpl.rcParams["axes.formatter.use_mathtext"])
