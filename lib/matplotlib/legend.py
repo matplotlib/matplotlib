@@ -33,7 +33,7 @@ from matplotlib.cbook import silent_list, is_hashable, warn_deprecated
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import (Patch, Rectangle, Shadow, FancyBboxPatch,
-                                                        FancyArrowPatch)
+                                FancyArrowPatch)
 from matplotlib.collections import (LineCollection, RegularPolyCollection,
                                     CircleCollection, PathCollection,
                                     PolyCollection)
@@ -682,8 +682,8 @@ class Legend(Artist):
         PathCollection: legend_handler.HandlerPathCollection(),
         PolyCollection: legend_handler.HandlerPolyCollection(),
         FancyArrowPatch: legend_handler.HandlerFancyArrowPatch(),
-        Annotation: legend_handler.HandlerAnnotation()
-        }
+	      Annotation: legend_handler.HandlerAnnotation()
+
 
     # (get|set|update)_default_handler_maps are public interfaces to
     # modify the default handler map.
@@ -1224,12 +1224,14 @@ def _get_legend_handles(axs, legend_handler_map=None):
     handles_original = []
     for ax in axs:
         handles_original += (ax.lines + ax.patches +
-                             ax.collections + ax.containers+ax.texts)
+                             ax.collections + ax.containers + ax.texts)
+
         # support parasite axes:
         if hasattr(ax, 'parasites'):
             for axx in ax.parasites:
                 handles_original += (axx.lines + axx.patches +
-                                     axx.collections + axx.containers+ax.texts)
+                                     axx.collections + axx.containers + axx.texts)
+
 
     handler_map = Legend.get_default_handler_map()
 
