@@ -381,10 +381,10 @@ class Legend(Artist):
         parent : `~matplotlib.axes.Axes` or `.Figure`
             The artist that contains the legend.
 
-        handles : sequence of `.Artist`
+        handles : list of `.Artist`
             A list of Artists (lines, patches) to be added to the legend.
 
-        labels : sequence of strings
+        labels : list of str
             A list of labels to show next to the artists. The length of handles
             and labels should be the same. If they are not, they are truncated
             to the smaller of both lengths.

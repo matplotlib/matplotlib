@@ -583,7 +583,7 @@ class Vf(Dvi):
 
     Parameters
     ----------
-    filename : string or bytestring
+    filename : str or path-like
 
     Notes
     -----
@@ -704,7 +704,7 @@ class Tfm:
 
     Parameters
     ----------
-    filename : string or bytestring
+    filename : str or path-like
 
     Attributes
     ----------
@@ -771,7 +771,7 @@ class PsfontsMap:
 
     Parameters
     ----------
-    filename : string or bytestring
+    filename : str or path-like
 
     Notes
     -----
@@ -930,7 +930,7 @@ class Encoding:
 
     Parameters
     ----------
-    filename : string or bytestring
+    filename : str or path-like
 
     Attributes
     ----------
@@ -1011,8 +1011,8 @@ def find_tex_file(filename, format=None):
 
     Parameters
     ----------
-    filename : string or bytestring
-    format : string or bytestring
+    filename : str or path-like
+    format : str or bytes
         Used as the value of the `--format` option to :program:`kpsewhich`.
         Could be e.g. 'tfm' or 'vf' to limit the search to that type of files.
 

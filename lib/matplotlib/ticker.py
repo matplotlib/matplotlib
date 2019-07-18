@@ -1365,7 +1365,7 @@ class PercentFormatter(Formatter):
         The number of decimal places to place after the point.
         If *None* (the default), the number will be computed automatically.
 
-    symbol : string or None
+    symbol : str or None
         A string that will be appended to the label. It may be
         *None* or empty to indicate that no symbol should be used. LaTeX
         special characters are escaped in *symbol* whenever latex mode is
@@ -2153,7 +2153,7 @@ class LogLocator(Locator):
 
         Parameters
         ----------
-        subs : None, string, or sequence of float, optional, default (1.0,)
+        subs : None, str, or sequence of float, optional, default (1.0,)
             Gives the multiples of integer powers of the base at which
             to place ticks.  The default places ticks only at
             integer powers of the base.

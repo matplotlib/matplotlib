@@ -3168,8 +3168,8 @@ class ToolContainerBase:
 
         Parameters
         ----------
-        name : string
-            Name (id) of the tool triggered from within the container
+        name : str
+            Name (id) of the tool triggered from within the container.
         """
         self.toolmanager.trigger_tool(name, sender=self)
 
@@ -3184,7 +3184,7 @@ class ToolContainerBase:
 
         Parameters
         ----------
-        name : string
+        name : str
             Name of the tool to add, this gets used as the tool's ID and as the
             default label of the buttons
         group : String
@@ -3226,7 +3226,7 @@ class ToolContainerBase:
 
         Parameters
         ----------
-        name : string
+        name : str
             Name of the tool to remove.
         """
         raise NotImplementedError

@@ -360,7 +360,7 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
 
     Parameters
     ----------
-    fname : str or PathLike or file-like object
+    fname : str or path-like or file-like object
         If `str` or `os.PathLike`, the file is opened using the flags specified
         by *flag* and *encoding*.  If a file-like object, it is passed through.
     flag : str, default 'r'

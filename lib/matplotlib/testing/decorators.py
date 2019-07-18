@@ -319,7 +319,7 @@ def image_comparison(baseline_images, extensions=None, tol=0,
     savefig_kwarg : dict
         Optional arguments that are passed to the savefig method.
 
-    style : string
+    style : str
         Optional name for the base style to apply to the image test. The test
         itself can also apply additional styles if desired. Defaults to the
         '_classic_test' style.

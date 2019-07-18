@@ -4036,7 +4036,7 @@ class FancyArrowPatch(Patch):
 
         Parameters
         ----------
-        connectionstyle : None, ConnectionStyle instance, or string
+        connectionstyle : str or `.ConnectionStyle` or None, optional
             Can be a string with connectionstyle name with
             optional comma-separated attributes, e.g.::
 

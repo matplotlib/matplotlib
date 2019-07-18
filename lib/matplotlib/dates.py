@@ -380,7 +380,7 @@ def datestr2num(d, default=None):
 
     Parameters
     ----------
-    d : string or sequence of strings
+    d : str or sequence of str
         The dates to convert.
 
     default : datetime instance, optional
@@ -480,7 +480,7 @@ def num2date(x, tz=None):
     x : float or sequence of floats
         Number of days (fraction part represents hours, minutes, seconds)
         since 0001-01-01 00:00:00 UTC, plus one.
-    tz : string, optional
+    tz : str, optional
         Timezone of *x* (defaults to rcparams ``timezone``).
 
     Returns
@@ -654,7 +654,7 @@ class ConciseDateFormatter(ticker.Formatter):
     locator : `.ticker.Locator`
         Locator that this axis is using.
 
-    tz : string, optional
+    tz : str, optional
         Passed to `.dates.date2num`.
 
     formats : list of 6 strings, optional

@@ -1311,7 +1311,7 @@ class AnchoredText(AnchoredOffsetbox):
         """
         Parameters
         ----------
-        s : string
+        s : str
             Text.
 
         loc : str

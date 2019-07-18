@@ -2924,7 +2924,7 @@ class _AxesBase(martist.Artist):
             Transparency of gridlines: 0 (transparent) to 1 (opaque).
         grid_linewidth : float
             Width of gridlines in points.
-        grid_linestyle : string
+        grid_linestyle : str
             Any valid `~matplotlib.lines.Line2D` line style spec.
 
         Examples
@@ -3755,7 +3755,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        tz : string or `tzinfo` instance, optional
+        tz : str or `tzinfo` instance, optional
             Timezone.  Defaults to :rc:`timezone`.
         """
         # should be enough to inform the unit conversion interface
@@ -3768,7 +3768,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        tz : string or `tzinfo` instance, optional
+        tz : str or `tzinfo` instance, optional
             Timezone.  Defaults to :rc:`timezone`.
         """
         self.yaxis.axis_date(tz)

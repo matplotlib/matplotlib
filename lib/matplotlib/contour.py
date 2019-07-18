@@ -64,7 +64,7 @@ class ContourLabeler:
             A list of level values, that should be labeled. The list must be
             a subset of ``cs.levels``. If not given, all levels are labeled.
 
-        fontsize : string or float, optional
+        fontsize : str or float, optional
             Size in points or relative size e.g., 'smaller', 'x-large'.
             See `.Text.set_size` for accepted string values.
 
@@ -92,7 +92,7 @@ class ContourLabeler:
             This spacing will be exact for labels at locations where the
             contour is straight, less so for labels on curved contours.
 
-        fmt : string or dict, optional
+        fmt : str or dict, optional
             A format string for the label. Default is '%1.3f'
 
             Alternatively, this can be a dictionary matching contour levels

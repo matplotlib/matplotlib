@@ -35,13 +35,21 @@ class Spine(mpatches.Patch):
     @docstring.dedent_interpd
     def __init__(self, axes, spine_type, path, **kwargs):
         """
-        - *axes* : the Axes instance containing the spine
-        - *spine_type* : a string specifying the spine type
-        - *path* : the path instance used to draw the spine
+        Parameters
+        ----------
+        axes : `~matplotlib.axes.Axes`
+            The `~.axes.Axes` instance containing the spine.
+        spine_type : str
+            The spine type.
+        path : `~matplotlib.path.Path`
+            The `.Path` instance used to draw the spine.
 
-        Valid kwargs are:
+        Other Parameters
+        ----------------
+        **kwargs
+            Valid keyword arguments are:
 
-        %(Patch)s
+            %(Patch)s
         """
         super().__init__(**kwargs)
         self.axes = axes

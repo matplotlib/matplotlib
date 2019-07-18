@@ -32,7 +32,7 @@ class StrCategoryConverter(units.ConversionInterface):
 
         Parameters
         ----------
-        value : string or iterable
+        value : str or iterable
             Value or list of values to be converted.
         unit : `.UnitData`
             An object mapping strings to integers.
@@ -93,7 +93,7 @@ class StrCategoryConverter(units.ConversionInterface):
 
         Parameters
         ----------
-        data : string or iterable of strings
+        data : str or iterable of str
         axis : `~matplotlib.axis.Axis`
             axis on which the data is plotted
 

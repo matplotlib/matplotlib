@@ -195,7 +195,7 @@ class AbstractMovieWriter(abc.ABC):
         ----------
         fig : `~matplotlib.figure.Figure`
             The figure object that contains the information for frames
-        outfile : string
+        outfile : str
             The filename of the resulting movie file
         dpi : int, optional
             The DPI (or resolution) for the file.  This controls the size
@@ -231,7 +231,8 @@ class AbstractMovieWriter(abc.ABC):
 
 
 class MovieWriter(AbstractMovieWriter):
-    '''Base class for writing movies.
+    """
+    Base class for writing movies.
 
     This is a base class for MovieWriter subclasses that write a movie frame
     data to a pipe. You cannot instantiate this class directly.
@@ -240,39 +241,38 @@ class MovieWriter(AbstractMovieWriter):
     Attributes
     ----------
     frame_format : str
-        The format used in writing frame data, defaults to 'rgba'
+        The format used in writing frame data, defaults to 'rgba'.
     fig : `~matplotlib.figure.Figure`
         The figure to capture data from.
         This must be provided by the sub-classes.
 
-    '''
+    """
 
     def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None,
                  metadata=None):
-        '''MovieWriter
-
+        """
         Parameters
         ----------
         fps : int
             Framerate for movie.
-        codec : string or None, optional
-            The codec to use. If ``None`` (the default) the ``animation.codec``
-            rcParam is used.
+        codec : str or None, optional
+            The codec to use. If ``None`` (the default) :rc:`animation.codec`
+            is used.
         bitrate : int or None, optional
             The bitrate for the saved movie file, which is one way to control
             the output file size and quality. The default value is ``None``,
-            which uses the ``animation.bitrate`` rcParam.  A value of -1
-            implies that the bitrate should be determined automatically by the
-            underlying utility.
-        extra_args : list of strings or None, optional
+            which uses :rc:`animation.bitrate`.  A value of -1 implies that
+            the bitrate should be determined automatically by the underlying
+            utility.
+        extra_args : list of str or None, optional
             A list of extra string arguments to be passed to the underlying
             movie utility. The default is ``None``, which passes the additional
-            arguments in the ``animation.extra_args`` rcParam.
+            arguments in :rc:`animation.extra_args`.
         metadata : Dict[str, str] or None
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
-        '''
+        """
         if self.__class__ is MovieWriter:
             # TODO MovieWriter is still an abstract class and needs to be
             #      extended with a mixin. This should be clearer in naming

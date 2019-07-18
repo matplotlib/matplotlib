@@ -94,7 +94,7 @@ def _listify_validator(scalar_validator, allow_stringlist=False, *, doc=None):
             return [scalar_validator(v) for v in s
                     if not isinstance(v, str) or v]
         else:
-            raise ValueError("{!r} must be of type: string or non-dictionary "
+            raise ValueError("{!r} must be of type: str or non-dictionary "
                              "iterable".format(s))
     try:
         f.__name__ = "{}list".format(scalar_validator.__name__)
