@@ -1157,8 +1157,3 @@ result in undefined behavior.  It now throws a `ValueError`.
 
 The signature of the (private) ``Axis._update_ticks`` has been changed to not
 take the renderer as argument anymore (that argument is unused).
-
-Reduced default value of `axes.formatter.limits`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Changed the default value of `axes.formatter.limits` from -7, 7 to -5, 5
