@@ -1598,9 +1598,6 @@ def test_boxplot_dates_pandas(pd):
 
 def test_bar_pandas(pd):
     # Smoke test for pandas
-
-    fig, ax = plt.subplots()
-
     df = pd.DataFrame(
         {'year': [2018, 2018, 2018],
          'month': [1, 1, 1],
@@ -1612,8 +1609,12 @@ def test_bar_pandas(pd):
     dates = monthly.index
     forecast = monthly['value']
     baseline = monthly['value']
+
+    pd.plotting.register_matplotlib_converters()
+    fig, ax = plt.subplots()
     ax.bar(dates, forecast, width=10, align='center')
     ax.plot(dates, baseline, color='orange', lw=4)
+    pd.plotting.deregister_matplotlib_converters()
 
 
 @image_comparison(['hist_log'], remove_text=True)
