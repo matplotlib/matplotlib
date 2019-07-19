@@ -57,7 +57,7 @@ requirements that are needed to build the documentation. They are listed in
   * You'll need a minimal working LaTeX distribution for many examples to run.
   * `Graphviz <http://www.graphviz.org/Download.php>`_ is not a Python package,
     and needs to be installed separately.
-  * You'll need to uninstall the conda/pip version of Matplotlib first, before
+  * You will need to uninstall the conda/pip version of Matplotlib first, before
     installing the dev version.  
 
 Building the docs
