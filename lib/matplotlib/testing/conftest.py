@@ -103,9 +103,8 @@ def pd():
     """Fixture to import and configure pandas."""
     pd = pytest.importorskip('pandas')
     try:
-        from pandas.plotting import (
-            deregister_matplotlib_converters as deregister)
-        deregister()
+        from pandas.plotting import register_matplotlib_converters
+        register_matplotlib_converters()
     except ImportError:
         pass
     return pd
