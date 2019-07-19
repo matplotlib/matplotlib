@@ -1038,7 +1038,25 @@ def subplot(*args, **kwargs):
 
     return a
 
+def inherit(target):
 
+    def decorate(function):
+        sig =  inspect.signature(target)
+        parameters = sig.parameters
+        
+        current_sig = inspect.signature(function)
+        current_params = [(k,v) for k,v in current_sig.parameters.items()]
+        if current_params[-1][1].kind == inspect.Parameter.VAR_KEYWORD:
+            del current_params[-1]
+            current_params.extend([(k,v) for k,v in parameters.items()])
+        new_sig = inspect.Signature([v for k,v in current_params])
+        function.__signature__ = new_sig
+        return function
+
+    return decorate
+
+
+@inherit(figure)
 def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
              subplot_kw=None, gridspec_kw=None, **fig_kw):
     """
