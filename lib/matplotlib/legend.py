@@ -694,7 +694,7 @@ class Legend(Artist):
         """
         A class method that returns the default handler map.
         """
-        return cls._default_handler_map
+	return cls._default_handler_map
 
     @classmethod
     def set_default_handler_map(cls, handler_map):
@@ -1212,7 +1212,6 @@ class Legend(Artist):
         self.set_draggable(state, use_blit, update)
 
         return self._draggable
-
 
 # Helper functions to parse legend arguments for both `figure.legend` and
 # `axes.legend`:
