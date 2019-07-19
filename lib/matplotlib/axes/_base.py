@@ -1322,7 +1322,7 @@ class _AxesBase(martist.Artist):
         else:
             axs = [self]
         if (adjustable == "datalim"
-                and any(getattr(ax.get_data_ratio, "__func__")
+                and any(getattr(ax.get_data_ratio, "__func__", None)
                         != _AxesBase.get_data_ratio
                         for ax in axs)):
             # Limits adjustment by apply_aspect assumes that the axes' aspect
