@@ -1663,9 +1663,7 @@ class _AxesBase(martist.Artist):
                 limits = args[0]
                 try:
                     xmin, xmax, ymin, ymax = limits
-                except ValueError:
-                    raise ValueError('args must contain [xmin xmax ymin ymax]')
-                except TypeError:
+                except (TypeError, ValueError):
                     raise TypeError('the first argument to axis() must be an '
                                     'interable of the form '
                                     '[xmin, xmax, ymin, ymax]')
