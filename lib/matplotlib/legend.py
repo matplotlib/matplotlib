@@ -1148,6 +1148,9 @@ class Legend(Artist):
         return l, b
 
     def contains(self, event):
+        inside, info = self._default_contains(event)
+        if inside is not None:
+            return inside, info
         return self.legendPatch.contains(event)
 
     def set_draggable(self, state, use_blit=False, update='loc'):

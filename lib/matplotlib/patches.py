@@ -130,8 +130,9 @@ class Patch(artist.Artist):
         -------
         (bool, empty dict)
         """
-        if self._contains is not None:
-            return self._contains(self, mouseevent)
+        inside, info = self._default_contains(mouseevent)
+        if inside is not None:
+            return inside, info
         radius = self._process_radius(radius)
         codes = self.get_path().codes
         if codes is not None:

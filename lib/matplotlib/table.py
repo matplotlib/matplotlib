@@ -434,9 +434,9 @@ class Table(Artist):
 
     def contains(self, mouseevent):
         # docstring inherited
-        if self._contains is not None:
-            return self._contains(self, mouseevent)
-
+        inside, info = self._default_contains(mouseevent)
+        if inside is not None:
+            return inside, info
         # TODO: Return index of the cell containing the cursor so that the user
         # doesn't have to bind to each one individually.
         renderer = self.figure._cachedRenderer

@@ -671,8 +671,9 @@ class Figure(Artist):
         -------
             bool, {}
         """
-        if self._contains is not None:
-            return self._contains(self, mouseevent)
+        inside, info = self._default_contains(mouseevent, figure=self)
+        if inside is not None:
+            return inside, info
         inside = self.bbox.contains(mouseevent.x, mouseevent.y)
         return inside, {}
 
