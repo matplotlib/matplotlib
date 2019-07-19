@@ -741,34 +741,29 @@ class HandlerFancyArrowPatch(HandlerPatch):
 	
 	
 class HandlerAnnotation(HandlerBase):
-	    """
-	    Handler for Annotation instances.
-	    Defers to HandlerFancyArrowPatch to draw the annotation arrow (if any).
-	    Parameters
-	    ----------
-	    pad : float, optional
-	    If None, fall back to `legend.borderpad` asstr the default.
-	    In units of fraction of font size.
-	    Default is None.
-	    width_ratios : tuple, optional
-	    The relative width of the respective text/arrow legend annotation pair.
-	    Must be of length 2.
-	    Default is [1,4].
-	    """
+    """
+    Handler for Annotation instances.
+    Defers to HandlerFancyArrowPatch to draw the annotation arrow (if any).
+    Parameters
+    ----------
+    pad : float, optional
+    If None, fall back to `legend.borderpad` asstr the default.
+    In units of fraction of font size.
+    Default is None.
+    width_ratios : tuple, optional
+    The relative width of the respective text/arrow legend annotation pair.
+    Must be of length 2.
+    Default is [1,4].
+    """
 	
-	    def __init__(
-	        self,
-	        pad=None,
-	        width_ratios=[1, 4],
-	        **kwargs
-	    ):
+    def __init__(self, pad=None, width_ratios=[1, 4], **kwargs):
 	
-	        self._pad = pad
-	        self._width_ratios = width_ratios
+	self._pad = pad
+        self._width_ratios = width_ratios
 	
-	        HandlerBase.__init__(self, **kwargs)
+	HandlerBase.__init__(self, **kwargs)
 	
-	    def create_artists(self, legend, orig_handle, xdescent,
+	def create_artists(self, legend, orig_handle, xdescent,
 	                       ydescent, width, height, fontsize,
 	                       trans,
                           ):
