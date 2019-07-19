@@ -179,6 +179,13 @@ def test_mec_rcparams():
     assert ln.get_markeredgecolor() == 'r'
 
 
+def test_axes_titlecolor_rcparams():
+    mpl.rcParams['axes.titlecolor'] = 'r'
+    _, ax = plt.subplots()
+    title = ax.set_title("Title")
+    assert title.get_color() == 'r'
+
+
 def test_Issue_1713(tmpdir):
     rcpath = Path(tmpdir) / 'test_rcparams.rc'
     rcpath.write_text('timezone: UTC', encoding='UTF-32-BE')

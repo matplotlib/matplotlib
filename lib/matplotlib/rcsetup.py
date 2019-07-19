@@ -1132,6 +1132,7 @@ defaultParams = {
                                                             # axes title
     'axes.titlelocation':    ['center', validate_axes_titlelocation],  # alignment of axes title
     'axes.titleweight':      ['normal', validate_string],  # font weight of axes title
+    'axes.titlecolor':       ['auto', validate_color_or_auto],  # font color of axes title
     'axes.titlepad':         [6.0, validate_float],  # pad from axes top to title in points
     'axes.grid':             [False, validate_bool],   # display grid or not
     'axes.grid.which':       ['major', validate_axis_locator],  # set whether the gid are by

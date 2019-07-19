@@ -164,6 +164,7 @@ class Axes(_AxesBase):
 
                {'fontsize': rcParams['axes.titlesize'],
                 'fontweight' : rcParams['axes.titleweight'],
+                'color' : rcParams['axes.titlecolor'],
                 'verticalalignment': 'baseline',
                 'horizontalalignment': loc}
 
@@ -199,6 +200,9 @@ class Axes(_AxesBase):
             'fontweight': rcParams['axes.titleweight'],
             'verticalalignment': 'baseline',
             'horizontalalignment': loc.lower()}
+        titlecolor = rcParams['axes.titlecolor']
+        if not cbook._str_lower_equal(titlecolor, 'auto'):
+            default["color"] = titlecolor
         if pad is None:
             pad = rcParams['axes.titlepad']
         self._set_title_offset_trans(float(pad))
