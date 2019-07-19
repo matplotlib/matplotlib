@@ -161,8 +161,8 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         grid_finder = self.grid_helper.grid_finder
         (xx1,), (yy1,) = grid_finder.transform_xy([xx0], [yy0])
 
-        trans_passingthrough_point = axes.transData + axes.transAxes.inverted()
-        p = trans_passingthrough_point.transform([xx1, yy1])
+        data_to_axes = axes.transData - axes.transAxes
+        p = data_to_axes.transform([xx1, yy1])
 
         if 0 <= p[0] <= 1 and 0 <= p[1] <= 1:
             xx1c, yy1c = axes.transData.transform([xx1, yy1])
@@ -253,10 +253,9 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             mm = (yy1b == yy1a) & (xx1b == xx1a)  # mask where dd not defined
             dd[mm] = dd2[mm] + np.pi / 2
 
-            trans_tick = self.get_tick_transform(axes)
-            tr2ax = trans_tick + axes.transAxes.inverted()
+            tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
-                c2 = tr2ax.transform((x, y))
+                c2 = tick_to_axes.transform((x, y))
                 delta = 0.00001
                 if 0-delta <= c2[0] <= 1+delta and 0-delta <= c2[1] <= 1+delta:
                     d1, d2 = np.rad2deg([d, d2])

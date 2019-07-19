@@ -501,8 +501,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
             # Subset the input image to only the part that will be
             # displayed
-            subset = TransformedBbox(
-                clip_bbox, t0.frozen().inverted()).frozen()
+            subset = TransformedBbox(clip_bbox, t0.inverted()).frozen()
             output = output[
                 int(max(subset.ymin, 0)):
                 int(min(subset.ymax + 1, output.shape[0])),

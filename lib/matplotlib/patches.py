@@ -1638,11 +1638,10 @@ class Arc(Ellipse):
                     yield x, y
 
         # Transforms the axes box_path so that it is relative to the unit
-        # circle in the same way that it is relative to the desired
-        # ellipse.
+        # circle in the same way that it is relative to the desired ellipse.
         box_path = Path.unit_rectangle()
-        box_path_transform = transforms.BboxTransformTo(self.axes.bbox) + \
-            self.get_transform().inverted()
+        box_path_transform = (transforms.BboxTransformTo(self.axes.bbox)
+                              - self.get_transform())
         box_path = box_path.transformed(box_path_transform)
 
         thetas = set()
@@ -4146,10 +4145,8 @@ class FancyArrowPatch(Patch):
         in display coordinates.
         """
         _path, fillable = self.get_path_in_displaycoord()
-
         if np.iterable(fillable):
             _path = concatenate_paths(_path)
-
         return self.get_transform().inverted().transform_path(_path)
 
     def get_path_in_displaycoord(self):
