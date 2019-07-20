@@ -350,11 +350,11 @@ An example docstring looks like:
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : array-like of colors, optional, default: 'k'
+        colors : array-like of colors, default: 'k'
 
-        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
+        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, default: 'solid'
 
-        label : string, optional, default: ''
+        label : str, default: ''
 
         Returns
         -------
@@ -362,7 +362,7 @@ An example docstring looks like:
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.collections.LineCollection` properties.
+        **kwargs : `~matplotlib.collections.LineCollection` properties
 
         See also
         --------
@@ -420,9 +420,19 @@ precisely in the text.
 Generally, the `numpydoc docstring guide`_ conventions apply. The following
 rules expand on them where the numpydoc conventions are not specific.
 
+As opposed to the numpydoc guide, parameters need not be marked as
+*optional* if they have a simple default. This removes unnecessary clutter.
+The optional aspect is already clear from the presence of a default value.
+More specifically
+
+- use `{name} : {type}, default: {val}` when possible.
+- use `{name} : {type}, optional` and describe the default in the text if
+  in cannot be explained sufficiently in the above way.
+
 Use ``float`` for a type that can be any number.
 
-Use ``(float, float)`` to describe a 2D position.
+Use ``(float, float)`` to describe a 2D position. The parentheses should be
+included to make the tuple-ness more obvious.
 
 Use ``array-like`` for homogeneous numeric sequences, which could
 typically be a numpy.array. Dimensionality may be specified using ``2D``,
