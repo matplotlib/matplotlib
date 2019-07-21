@@ -1610,11 +1610,9 @@ def test_bar_pandas(pd):
     forecast = monthly['value']
     baseline = monthly['value']
 
-    pd.plotting.register_matplotlib_converters()
     fig, ax = plt.subplots()
     ax.bar(dates, forecast, width=10, align='center')
     ax.plot(dates, baseline, color='orange', lw=4)
-    pd.plotting.deregister_matplotlib_converters()
 
 
 @image_comparison(['hist_log'], remove_text=True)
