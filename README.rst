@@ -44,7 +44,7 @@ being dropped.
 `Home page <http://matplotlib.org/>`_
 
 Install
-============
+=======
 
 For installation instructions and requirements, see the INSTALL.rst file or the
 `install <http://matplotlib.org/users/installing.html>`_ documentation. If you
@@ -53,7 +53,7 @@ working with the source code
 <http://matplotlib.org/devel/gitwash/index.html>`_.
 
 Test
-=======
+====
 
 After installation, you can launch the test suite::
 
