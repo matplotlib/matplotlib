@@ -43,7 +43,7 @@ being dropped.
 
 `Home page <http://matplotlib.org/>`_
 
-Installation
+Install
 ============
 
 For installation instructions and requirements, see the INSTALL.rst file or the
@@ -52,7 +52,7 @@ think you may want to contribute to matplotlib, check out the `guide to
 working with the source code
 <http://matplotlib.org/devel/gitwash/index.html>`_.
 
-Testing
+Test
 =======
 
 After installation, you can launch the test suite::
