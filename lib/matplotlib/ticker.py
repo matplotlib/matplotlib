@@ -1193,8 +1193,8 @@ class LogitFormatter(Formatter):
         minor : bool, default: False
             Indicate if the formatter is formatting minor ticks or not.
             Basically minor ticks are not labelled, except when only few ticks
-            are provided, the most espaced ticks are labelled. See others
-            parameters to change the default behavior.
+            are provided, ticks with most space with neighbor ticks are
+            labelled. See other parameters to change the default behavior.
 
         minor_threshold : int, default: 25
             Maximum number of locs for labelling some minor ticks. This
