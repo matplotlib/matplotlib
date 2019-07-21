@@ -1183,25 +1183,25 @@ class LogitFormatter(Formatter):
         r"""
         Parameters
         ----------
-        use_overline : bool (default: False)
-            if x > 1/2, with x = 1-v, indicate if x should be displayed as
+        use_overline : bool, default: False
+            If x > 1/2, with x = 1-v, indicate if x should be displayed as
             $\overline{v}$. The default is to display $1-v$.
 
-        one_half : str (default: r"\frac{1}{2}")
-            the string used to represent 1/2.
+        one_half : str, default: r"\frac{1}{2}"
+            The string used to represent 1/2.
 
-        minor : bool (default: False)
-            indicate if the formatter is formatting minor ticks or not.
+        minor : bool, default: False
+            Indicate if the formatter is formatting minor ticks or not.
             Basically minor ticks are not labelled, except when only few ticks
             are provided, the most espaced ticks are labelled. See others
             parameters to change the default behavior.
 
-        minor_threshold : int (default: 25)
-            maximum number of locs for labelling some minor ticks. This
+        minor_threshold : int, default: 25
+            Maximum number of locs for labelling some minor ticks. This
             parameter have no effect if minor is False.
 
-        minor_number : int (default: 6)
-            number of ticks which are labelled when the number of ticks is
+        minor_number : int, default: 6
+            Number of ticks which are labelled when the number of ticks is
             below the threshold.
         """
         self._use_overline = use_overline
@@ -1217,8 +1217,8 @@ class LogitFormatter(Formatter):
 
         Parameters
         ----------
-        use_overline : bool (default: False)
-            if x > 1/2, with x = 1-v, indicate if x should be displayed as
+        use_overline : bool, default: False
+            If x > 1/2, with x = 1-v, indicate if x should be displayed as
             $\overline{v}$. The default is to display $1-v$.
         """
         self._use_overline = use_overline
@@ -1227,19 +1227,19 @@ class LogitFormatter(Formatter):
         r"""
         Set the way one half is displayed.
 
-        one_half : str (default: r"\frac{1}{2}")
-            the string used to represent 1/2.
+        one_half : str, default: r"\frac{1}{2}"
+            The string used to represent 1/2.
         """
         self._one_half = one_half
 
     def set_minor_threshold(self, minor_threshold):
         """
-        Set the threshold for labelling minors ticks
+        Set the threshold for labelling minors ticks.
 
         Parameters
         ----------
         minor_threshold : int
-            maximum number of locs for labelling some minor ticks. This
+            Maximum number of locations for labelling some minor ticks. This
             parameter have no effect if minor is False.
         """
         self._minor_threshold = minor_threshold
@@ -1252,7 +1252,7 @@ class LogitFormatter(Formatter):
         Parameters
         ----------
         minor_number : int
-            number of ticks which are labelled when the number of ticks is
+            Number of ticks which are labelled when the number of ticks is
             below the threshold.
         """
         self._minor_number = minor_number
