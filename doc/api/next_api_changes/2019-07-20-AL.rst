@@ -1,0 +1,4 @@
+The pgf backend's get_canvas_width_height now returns the canvas size in display units
+``````````````````````````````````````````````````````````````````````````````````````
+
+... rather than in inches, which it previously did.  The new behavior is the correct one given the uses of ``get_canvas_width_height`` in the rest of the codebase.
