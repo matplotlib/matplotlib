@@ -1188,18 +1188,18 @@ class Transform(TransformNode):
     Subclasses of this class should override the following members (at
     minimum):
 
-      - :attr:`input_dims`
-      - :attr:`output_dims`
-      - :meth:`transform`
-      - :attr:`is_separable`
-      - :attr:`has_inverse`
-      - :meth:`inverted` (if :attr:`has_inverse` is True)
+    - :attr:`input_dims`
+    - :attr:`output_dims`
+    - :meth:`transform`
+    - :attr:`is_separable`
+    - :attr:`has_inverse`
+    - :meth:`inverted` (if :attr:`has_inverse` is True)
 
     If the transform needs to do something non-standard with
     :class:`matplotlib.path.Path` objects, such as adding curves
     where there were once line segments, it should override:
 
-      - :meth:`transform_path`
+    - :meth:`transform_path`
     """
     input_dims = None
     """
@@ -1403,11 +1403,17 @@ class Transform(TransformNode):
         affine transformations, this is equivalent to
         ``transform(values)``.
 
-        Accepts a numpy array of shape (N x :attr:`input_dims`) and
-        returns a numpy array of shape (N x :attr:`output_dims`).
+        Parameters
+        ----------
+        values : array
+            The input values as NumPy array of length :attr:`input_dims` or
+            shape (N x :attr:`input_dims`).
 
-        Alternatively, accepts a numpy array of length :attr:`input_dims`
-        and returns a numpy array of length :attr:`output_dims`.
+        Returns
+        -------
+        values : array
+            The output values as NumPy array of length :attr:`input_dims` or
+            shape (N x :attr:`output_dims`), depending on the input.
         """
         return self.get_affine().transform(values)
 
@@ -1422,11 +1428,17 @@ class Transform(TransformNode):
         ``transform(values)``.  In affine transformations, this is
         always a no-op.
 
-        Accepts a numpy array of shape (N x :attr:`input_dims`) and
-        returns a numpy array of shape (N x :attr:`output_dims`).
+        Parameters
+        ----------
+        values : array
+            The input values as NumPy array of length :attr:`input_dims` or
+            shape (N x :attr:`input_dims`).
 
-        Alternatively, accepts a numpy array of length :attr:`input_dims`
-        and returns a numpy array of length :attr:`output_dims`.
+        Returns
+        -------
+        values : array
+            The output values as NumPy array of length :attr:`input_dims` or
+            shape (N x :attr:`output_dims`), depending on the input.
         """
         return values
 
@@ -1558,11 +1570,11 @@ class Transform(TransformNode):
         """
         Return the corresponding inverse transformation.
 
+        It holds ``x == self.inverted().transform(self.transform(x))``.
+
         The return value of this method should be treated as
         temporary.  An update to *self* does not cause a corresponding
         update to its inverted copy.
-
-        ``x === self.inverted().transform(self.transform(x))``
         """
         raise NotImplementedError()
 
