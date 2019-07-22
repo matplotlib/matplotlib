@@ -25,7 +25,7 @@ fig, ax = plt.subplots()
 
 ax.bar(ind, men_means, width, yerr=men_std, label='Men')
 ax.bar(ind, women_means, width, yerr=women_std, bottom=men_means,
-        label='Women')
+       label='Women')
 
 ax.set_ylabel('Scores')
 ax.set_title('Scores by group and gender')
