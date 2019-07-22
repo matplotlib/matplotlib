@@ -21,14 +21,16 @@ women_std = [3, 5, 2, 3, 3]
 ind = np.arange(N)    # the x locations for the groups
 width = 0.35       # the width of the bars: can also be len(x) sequence
 
-plt.bar(ind, men_means, width, yerr=men_std, label='Men')
-plt.bar(ind, women_means, width, yerr=women_std, bottom=men_means,
-        label='Women')
+fig, ax = plt.subplots()
 
-plt.ylabel('Scores')
-plt.title('Scores by group and gender')
-plt.xticks(ind, ('G1', 'G2', 'G3', 'G4', 'G5'))
-plt.yticks(np.arange(0, 81, 10))
-plt.legend()
+ax.bar(ind, men_means, width, yerr=men_std, label='Men')
+ax.bar(ind, women_means, width, yerr=women_std, bottom=men_means,
+       label='Women')
+
+ax.set_ylabel('Scores')
+ax.set_title('Scores by group and gender')
+ax.set_xticks(ind, ('G1', 'G2', 'G3', 'G4', 'G5'))
+ax.set_yticks(np.arange(0, 81, 10))
+ax.legend()
 
 plt.show()
