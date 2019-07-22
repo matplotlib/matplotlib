@@ -157,7 +157,7 @@ def make_pdf_to_png_converter():
         return cairo_convert
     try:
         gs_info = mpl._get_executable_info("gs")
-    except FileNotFoundError:
+    except mpl.ExecutableNotFoundError:
         pass
     else:
         def gs_convert(pdffile, pngfile, dpi):

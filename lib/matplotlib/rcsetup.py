@@ -483,14 +483,14 @@ def validate_ps_distiller(s):
     elif s in ('ghostscript', 'xpdf'):
         try:
             mpl._get_executable_info("gs")
-        except FileNotFoundError:
+        except mpl.ExecutableNotFoundError:
             _log.warning("Setting rcParams['ps.usedistiller'] requires "
                          "ghostscript.")
             return None
         if s == "xpdf":
             try:
                 mpl._get_executable_info("pdftops")
-            except FileNotFoundError:
+            except mpl.ExecutableNotFoundError:
                 _log.warning("Setting rcParams['ps.usedistiller'] to 'xpdf' "
                              "requires xpdf.")
                 return None

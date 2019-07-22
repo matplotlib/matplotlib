@@ -220,13 +220,13 @@ class _SVGConverter(_Converter):
 def _update_converter():
     try:
         mpl._get_executable_info("gs")
-    except FileNotFoundError:
+    except mpl.ExecutableNotFoundError:
         pass
     else:
         converter['pdf'] = converter['eps'] = _GSConverter()
     try:
         mpl._get_executable_info("inkscape")
-    except FileNotFoundError:
+    except mpl.ExecutableNotFoundError:
         pass
     else:
         converter['svg'] = _SVGConverter()
