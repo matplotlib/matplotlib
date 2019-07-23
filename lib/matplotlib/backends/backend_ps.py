@@ -20,13 +20,14 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import (
     cbook, _path, __version__, rcParams, checkdep_ghostscript)
+from matplotlib import _text_layout
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.cbook import (get_realpath_and_stat, is_writable_file_like,
                               file_requires_unicode)
 from matplotlib.font_manager import is_opentype_cff_font, get_font
-from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
+from matplotlib.ft2font import LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
@@ -623,27 +624,9 @@ grestore
                        .encode('ascii', 'replace').decode('ascii'))
             self.set_font(ps_name, prop.get_size_in_points())
 
-            lastgind = None
-            lines = []
-            thisx = 0
-            thisy = 0
-            for c in s:
-                ccode = ord(c)
-                gind = font.get_char_index(ccode)
-                name = font.get_glyph_name(gind)
-                glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
-
-                if lastgind is not None:
-                    kern = font.get_kerning(lastgind, gind, KERNING_DEFAULT)
-                else:
-                    kern = 0
-                lastgind = gind
-                thisx += kern / 64
-
-                lines.append('%f %f m /%s glyphshow' % (thisx, thisy, name))
-                thisx += glyph.linearHoriAdvance / 65536
-
-            thetext = '\n'.join(lines)
+            thetext = '\n'.join(
+                '%f 0 m /%s glyphshow' % (x, font.get_glyph_name(char_idx))
+                for char_idx, x in _text_layout.layout(s, font))
             self._pswriter.write(f"""\
 gsave
 {x:f} {y:f} translate

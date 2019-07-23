@@ -21,7 +21,7 @@ import zlib
 
 import numpy as np
 
-from matplotlib import cbook, __version__, rcParams
+from matplotlib import _text_layout, cbook, __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -2194,12 +2194,11 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                                          Op.show)
                         oldx = newx
 
-                    lastgind = None
-                    for c in chunk:
-                        ccode = ord(c)
-                        gind = font.get_char_index(ccode)
+                    for char_idx, newx in _text_layout.layout(
+                            chunk, font, x0=newx, kern_mode=KERNING_UNFITTED):
+
                         if mode == 2 and chunk_type == 2:
-                            glyph_name = font.get_glyph_name(gind)
+                            glyph_name = font.get_glyph_name(char_idx)
                             self.file.output(Op.gsave)
                             self.file.output(0.001 * fontsize, 0,
                                              0, 0.001 * fontsize,
@@ -2208,17 +2207,9 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                                 font.fname, glyph_name)
                             self.file.output(Name(name), Op.use_xobject)
                             self.file.output(Op.grestore)
-
-                        # Move the pointer based on the character width
-                        # and kerning
-                        glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
-                        if lastgind is not None:
-                            kern = font.get_kerning(
-                                lastgind, gind, KERNING_UNFITTED)
-                        else:
-                            kern = 0
-                        lastgind = gind
-                        newx += kern / 64 + glyph.linearHoriAdvance / 65536
+                        newx += (
+                            font.load_glyph(char_idx, flags=LOAD_NO_HINTING)
+                            .linearHoriAdvance / 65536)
 
                 if mode == 1:
                     self.file.output(Op.end_text)
