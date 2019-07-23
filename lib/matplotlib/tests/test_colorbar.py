@@ -559,3 +559,24 @@ def test_mappable_no_alpha():
     fig.colorbar(sm)
     sm.set_cmap('plasma')
     plt.draw()
+
+
+def test_colorbar_label():
+    """
+    Test the label parameter. It should just be mapped to the xlabel/ylabel of
+    the axes, depending on the orientation.
+    """
+    fig, ax = plt.subplots()
+    im = ax.imshow([[1, 2], [3, 4]])
+    cbar = fig.colorbar(im, label='cbar')
+    assert cbar.ax.get_ylabel() == 'cbar'
+    cbar.set_label(None)
+    assert cbar.ax.get_ylabel() == ''
+    cbar.set_label('cbar 2')
+    assert cbar.ax.get_ylabel() == 'cbar 2'
+
+    cbar2 = fig.colorbar(im, label=None)
+    assert cbar2.ax.get_ylabel() == ''
+
+    cbar3 = fig.colorbar(im, orientation='horizontal', label='horizontal cbar')
+    assert cbar3.ax.get_xlabel() == 'horizontal cbar'
