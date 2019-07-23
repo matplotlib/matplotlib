@@ -9,18 +9,29 @@ SemVer (major, minor, patch) and includes both major and minor
 releases. For projects that use date-based versioning, every release
 is a 'minor version'.
 
+Matplotlib follows `NEP 29
+<https://numpy.org/neps/nep-0029-deprecation_policy.html>`__.
+
 
 Python and NumPy
 ================
 
-- support minor versions of ``Python`` initially released
-  36 months prior to our planned release date.
-- support minor versions of ``numpy`` initially released in the 36
-  months prior to our planned release date or oldest that supports the
-  minimum python version (which ever is higher)
+Matplotlib supports:
 
-We will bump the minimum python and numpy versions as we can every
-minor and major release, but never on a patch release.
+
+- All minor versions of Python released 42 months prior to the
+  project, and at minimum the two latest minor versions.
+- All minor versions of ``numpy`` released in the 24 months prior
+  to the project, and at minimum the last three minor versions.
+
+In ``setup.py``, the ``python_requires`` variable should be set to
+the minimum supported version of Python.  All supported minor
+versions of Python should be in the test matrix and have binary
+artifacts built for the release.
+
+Minimum Python and NumPy version support should be adjusted upward
+on every major and minor release, but never on a patch release.
+
 
 See also the :ref:`list-of-dependency-min-versions`.
 
@@ -30,12 +41,12 @@ Python Dependencies
 For python dependencies we should support at least:
 
 with compiled extensions
-  minor versions initially released in the 36 months prior to our
+  minor versions initially released in the 24 months prior to our
   planned release date or the oldest that support our minimum python +
   numpy
 
 without complied extensions
-  minor versions initially released in the 24 months prior to our
+  minor versions initially released in the 12 months prior to our
   planed release date or the oldest that supports our minimum python.
 
 We will only bump these dependencies as we need new features or the
