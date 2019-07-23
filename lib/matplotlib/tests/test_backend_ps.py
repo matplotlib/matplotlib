@@ -11,8 +11,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import cbook, patheffects
 from matplotlib.testing.decorators import image_comparison
-from matplotlib.testing.determinism import (_determinism_source_date_epoch,
-                                            _determinism_check)
 
 
 with warnings.catch_warnings():
@@ -96,28 +94,6 @@ def test_tilde_in_tempfilename(tmpdir):
         plt.xlabel(r'\textbf{time} (s)')
         # use the PS backend to write the file...
         plt.savefig(base_tempdir / 'tex_demo.eps', format="ps")
-
-
-def test_source_date_epoch():
-    """Test SOURCE_DATE_EPOCH support for PS output"""
-    # SOURCE_DATE_EPOCH support is not tested with text.usetex,
-    # because the produced timestamp comes from ghostscript:
-    # %%CreationDate: D:20000101000000Z00\'00\', and this could change
-    # with another ghostscript version.
-    _determinism_source_date_epoch(
-        "ps", b"%%CreationDate: Sat Jan 01 00:00:00 2000")
-
-
-def test_determinism_all():
-    """Test for reproducible PS output"""
-    _determinism_check(format="ps")
-
-
-@needs_usetex
-@needs_ghostscript
-def test_determinism_all_tex():
-    """Test for reproducible PS/tex output"""
-    _determinism_check(format="ps", usetex=True)
 
 
 @image_comparison(["empty.eps"])
