@@ -59,10 +59,28 @@ requirements that are needed to build the documentation. They are listed in
   * `Graphviz <http://www.graphviz.org/Download.php>`_ is not a Python package,
     and needs to be installed separately.
   * Create a seprate environment using conda/venv.
-  * You will need to install the addtional requirements using pip install -r.
+  
+  .. code-block:: sh
+
+   virtualenv venv
+  
+  * You will need to install the addtional requirements.
+  
+  .. code-block:: sh
+
+   pip install -r requirements/doc/doc-requirements.txt
+   
   * You will need to uninstall the conda/pip version of Matplotlib first, before
-    installing the dev version.  
-  * You will need to install the working copy of matplotlib in editable mode using
+    installing the dev version.
+    
+    .. code-block:: sh
+    
+    pip uninstall matplotlib
+    
+  * You will need to install the working copy of matplotlib in editable mode.
+  
+  .. code-block:: sh
+  
     pip install -ve.  
     
 
