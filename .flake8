@@ -94,6 +94,7 @@ per-file-ignores =
     examples/images_contours_and_fields/contourf_hatching.py: E402
     examples/images_contours_and_fields/contourf_log.py: E402
     examples/images_contours_and_fields/demo_bboximage.py: E402
+    examples/images_contours_and_fields/image_antialiasing.py: E402
     examples/images_contours_and_fields/image_clip_path.py: E402
     examples/images_contours_and_fields/image_demo.py: E402
     examples/images_contours_and_fields/image_masked.py: E402

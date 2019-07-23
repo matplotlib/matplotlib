@@ -5488,10 +5488,10 @@ optional.
             The interpolation method used. If *None*
             :rc:`image.interpolation` is used, which defaults to 'nearest'.
 
-            Supported values are 'none', 'nearest', 'bilinear', 'bicubic',
-            'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser',
-            'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc',
-            'lanczos'.
+            Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
+            'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
+            'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
+            'sinc', 'lanczos'.
 
             If *interpolation* is 'none', then no interpolation is performed
             on the Agg, ps, pdf and svg backends. Other backends will fall back
@@ -5499,9 +5499,19 @@ optional.
             rendering and that the default interpolation method they implement
             may differ.
 
+            If *interpolation* is the default 'antialiased', then 'nearest'
+            interpolation is used if the image is upsampled by more than a
+            factor of three (i.e. the number of display pixels is at least
+            three times the size of the data array).  If the upsampling rate is
+            smaller than 3, or the image is downsampled, then 'hanning'
+            interpolation is used to act as an anti-aliasing filter, unless the
+            image happens to be upsampled by exactly a factor of two or one.
+
             See
             :doc:`/gallery/images_contours_and_fields/interpolation_methods`
-            for an overview of the supported interpolation methods.
+            for an overview of the supported interpolation methods, and
+            :doc:`/gallery/images_contours_and_fields/image_antialiasing` for
+            a discussion of image antialiasing.
 
             Some interpolation methods require an additional radius parameter,
             which can be set by *filterrad*. Additionally, the antigrain image

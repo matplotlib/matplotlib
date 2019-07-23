@@ -33,6 +33,7 @@ _log = logging.getLogger(__name__)
 
 # map interpolation strings to module constants
 _interpd_ = {
+    'antialiased': _image.NEAREST,  # this will use nearest or Hanning...
     'none': _image.NEAREST,  # fall back to nearest when not supported
     'nearest': _image.NEAREST,
     'bilinear': _image.BILINEAR,
@@ -168,11 +169,34 @@ def _resample(
     allocating the output array and fetching the relevant properties from the
     Image object *image_obj*.
     """
+
+    # decide if we need to apply anti-aliasing if the data is upsampled:
+    # compare the number of displayed pixels to the number of
+    # the data pixels.
+    interpolation = image_obj.get_interpolation()
+    if interpolation == 'antialiased':
+        # don't antialias if upsampling by an integer number or
+        # if zooming in more than a factor of 3
+        shape = list(data.shape)
+        if image_obj.origin == 'upper':
+            shape[0] = 0
+        dispx, dispy = transform.transform([shape[1], shape[0]])
+
+        if ((dispx > 3 * data.shape[1] or
+                dispx == data.shape[1] or
+                dispx == 2 * data.shape[1]) and
+            (dispy > 3 * data.shape[0] or
+                dispy == data.shape[0] or
+                dispy == 2 * data.shape[0])):
+            interpolation = 'nearest'
+        else:
+            interpolation = 'hanning'
+
     out = np.zeros(out_shape + data.shape[2:], data.dtype)  # 2D->2D, 3D->3D.
     if resample is None:
         resample = image_obj.get_resample()
     _image.resample(data, out, transform,
-                    _interpd_[image_obj.get_interpolation()],
+                    _interpd_[interpolation],
                     resample,
                     alpha,
                     image_obj.get_filternorm(),
@@ -432,7 +456,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 A_scaled += 0.1
                 # resample the input data to the correct resolution and shape
                 A_resampled = _resample(self, A_scaled, out_shape, t)
-
                 # done with A_scaled now, remove from namespace to be sure!
                 del A_scaled
                 # un-scale the resampled data to approximately the
@@ -690,9 +713,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Return the interpolation method the image uses when resizing.
 
-        One of 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36',
-        'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom',
-        'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', or 'none'.
+        One of 'antialiased', 'nearest', 'bilinear', 'bicubic', 'spline16',
+        'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',
+        'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos',
+        or 'none'.
 
         """
         return self._interpolation
@@ -708,9 +732,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        s : {'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', \
-'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', \
-'bessel', 'mitchell', 'sinc', 'lanczos', 'none'}
+        s : {'antialiased', 'nearest', 'bilinear', 'bicubic', 'spline16',
+'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', \
+'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', 'none'}
 
         """
         if s is None:

@@ -1,0 +1,22 @@
+Default interpolation for `image` is new "antialiased" option
+-------------------------------------------------------------
+
+Images displayed in Matplotlib previously used nearest-neighbor
+interpolation, leading to aliasing effects for downscaling and non-integer
+upscaling.  
+
+New default for :rc:`image.interpolation` is the new option "antialiased".
+`imshow(A, interpolation='antialiased')` will apply a Hanning filter when
+resampling the data in A for display (or saving to file) *if* the upsample
+rate is less than a factor of three, and not an integer; downsampled data is
+always smoothed at resampling.
+
+To get the old behavior, set :rc:`interpolation` to the old default "nearest"
+(or specify the ``interpolation`` kwarg of `.Axes.imshow`)
+
+To always get the anti-aliasing behavior, no matter what the up/down sample
+rate, set :rc:`interpolation` to "hanning" (or one of the other filters
+available.
+
+Note that the "hanning" filter was chosen because it has only a modest
+performance penalty.  Anti-aliasing can be improved with other filters.

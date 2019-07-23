@@ -29,7 +29,7 @@ def test_patheffect2():
 
     ax2 = plt.subplot(111)
     arr = np.arange(25).reshape((5, 5))
-    ax2.imshow(arr)
+    ax2.imshow(arr, interpolation='nearest')
     cntr = ax2.contour(arr, colors="k")
 
     plt.setp(cntr.collections,

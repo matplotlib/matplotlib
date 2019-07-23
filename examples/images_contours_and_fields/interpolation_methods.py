@@ -9,11 +9,14 @@ This example displays the difference between interpolation methods for
 If `interpolation` is None, it defaults to the :rc:`image.interpolation`
 (default: ``'nearest'``). If the interpolation is ``'none'``, then no
 interpolation is performed for the Agg, ps and pdf backends. Other backends
-will default to ``'nearest'``.
+will default to ``'antialiased'``.
 
 For the Agg, ps and pdf backends, ``interpolation = 'none'`` works well when a
 big image is scaled down, while ``interpolation = 'nearest'`` works well when
 a small image is scaled up.
+
+See :doc:`/gallery/images_contours_and_fields/image_antialiasing` for a
+discussion on the default `interpolation="antialiased"` option.
 """
 
 import matplotlib.pyplot as plt

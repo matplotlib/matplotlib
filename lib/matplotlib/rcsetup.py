@@ -1100,7 +1100,7 @@ defaultParams = {
     'mathtext.fallback_to_cm': [True, validate_bool],
 
     'image.aspect':        ['equal', validate_aspect],  # equal, auto, a number
-    'image.interpolation': ['nearest', validate_string],
+    'image.interpolation': ['antialiased', validate_string],
     'image.cmap':          ['viridis', validate_string],  # gray, jet, etc.
     'image.lut':           [256, validate_int],  # lookup table
     'image.origin':        ['upper',

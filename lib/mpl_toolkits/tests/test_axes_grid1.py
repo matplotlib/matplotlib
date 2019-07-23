@@ -355,7 +355,7 @@ def test_zooming_with_inverted_axes():
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_anchored_direction_arrows():
     fig, ax = plt.subplots()
-    ax.imshow(np.zeros((10, 10)))
+    ax.imshow(np.zeros((10, 10)), interpolation='nearest')
 
     simple_arrow = AnchoredDirectionArrows(ax.transAxes, 'X', 'Y')
     ax.add_artist(simple_arrow)
@@ -394,7 +394,7 @@ def test_image_grid():
     grid = ImageGrid(fig, 111, nrows_ncols=(2, 2), axes_pad=0.1)
 
     for i in range(4):
-        grid[i].imshow(im)
+        grid[i].imshow(im, interpolation='nearest')
         grid[i].set_title('test {0}{0}'.format(i))
 
 
