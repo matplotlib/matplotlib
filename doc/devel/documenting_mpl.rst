@@ -73,7 +73,7 @@ requirements that are needed to build the documentation. They are listed in
   * You will need to uninstall the conda/pip version of Matplotlib first, before
     installing the dev version.
     
-    .. code-block:: sh
+  .. code-block:: sh
     
     pip uninstall matplotlib
     
@@ -81,7 +81,7 @@ requirements that are needed to build the documentation. They are listed in
   
   .. code-block:: sh
   
-    pip install -ve.  
+    pip install -ve
     
 
 Building the docs
