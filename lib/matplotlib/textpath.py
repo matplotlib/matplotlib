@@ -183,9 +183,6 @@ class TextToPath:
         for c in s:
             ccode = ord(c)
             gind = font.get_char_index(ccode)
-            if gind is None:
-                ccode = ord('?')
-                gind = 0
 
             if lastgind is not None:
                 kern = font.get_kerning(lastgind, gind, KERNING_DEFAULT)

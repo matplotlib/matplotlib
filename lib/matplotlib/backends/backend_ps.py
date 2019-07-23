@@ -630,12 +630,7 @@ grestore
             for c in s:
                 ccode = ord(c)
                 gind = font.get_char_index(ccode)
-                if gind is None:
-                    ccode = ord('?')
-                    name = '.notdef'
-                    gind = 0
-                else:
-                    name = font.get_glyph_name(gind)
+                name = font.get_glyph_name(gind)
                 glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
 
                 if lastgind is not None:

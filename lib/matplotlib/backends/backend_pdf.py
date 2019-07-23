@@ -2198,29 +2198,27 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                     for c in chunk:
                         ccode = ord(c)
                         gind = font.get_char_index(ccode)
-                        if gind is not None:
-                            if mode == 2 and chunk_type == 2:
-                                glyph_name = font.get_glyph_name(gind)
-                                self.file.output(Op.gsave)
-                                self.file.output(0.001 * fontsize, 0,
-                                                 0, 0.001 * fontsize,
-                                                 newx, 0, Op.concat_matrix)
-                                name = self.file._get_xobject_symbol_name(
-                                    font.fname, glyph_name)
-                                self.file.output(Name(name), Op.use_xobject)
-                                self.file.output(Op.grestore)
+                        if mode == 2 and chunk_type == 2:
+                            glyph_name = font.get_glyph_name(gind)
+                            self.file.output(Op.gsave)
+                            self.file.output(0.001 * fontsize, 0,
+                                             0, 0.001 * fontsize,
+                                             newx, 0, Op.concat_matrix)
+                            name = self.file._get_xobject_symbol_name(
+                                font.fname, glyph_name)
+                            self.file.output(Name(name), Op.use_xobject)
+                            self.file.output(Op.grestore)
 
-                            # Move the pointer based on the character width
-                            # and kerning
-                            glyph = font.load_char(ccode,
-                                                   flags=LOAD_NO_HINTING)
-                            if lastgind is not None:
-                                kern = font.get_kerning(
-                                    lastgind, gind, KERNING_UNFITTED)
-                            else:
-                                kern = 0
-                            lastgind = gind
-                            newx += kern/64.0 + glyph.linearHoriAdvance/65536.0
+                        # Move the pointer based on the character width
+                        # and kerning
+                        glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
+                        if lastgind is not None:
+                            kern = font.get_kerning(
+                                lastgind, gind, KERNING_UNFITTED)
+                        else:
+                            kern = 0
+                        lastgind = gind
+                        newx += kern / 64 + glyph.linearHoriAdvance / 65536
 
                 if mode == 1:
                     self.file.output(Op.end_text)
