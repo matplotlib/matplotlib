@@ -1,36 +1,32 @@
 """
 This is a python interface to Adobe Font Metrics Files.  Although a
 number of other python implementations exist, and may be more complete
-than this, it was decided not to go with them because they were
-either:
+than this, it was decided not to go with them because they were either:
 
-  1) copyrighted or used a non-BSD compatible license
-
-  2) had too many dependencies and a free standing lib was needed
-
-  3) Did more than needed and it was easier to write afresh rather than
-     figure out how to get just what was needed.
+1) copyrighted or used a non-BSD compatible license
+2) had too many dependencies and a free standing lib was needed
+3) did more than needed and it was easier to write afresh rather than
+   figure out how to get just what was needed.
 
 It is pretty easy to use, and requires only built-in python libs:
 
-    >>> import matplotlib as mpl
-    >>> import os.path
-    >>> afm_fname = os.path.join(mpl.get_data_path(),
-    ...                         'fonts', 'afm', 'ptmr8a.afm')
-    >>>
-    >>> from matplotlib.afm import AFM
-    >>> with open(afm_fname, 'rb') as fh:
-    ...     afm = AFM(fh)
-    >>> afm.string_width_height('What the heck?')
-    (6220.0, 694)
-    >>> afm.get_fontname()
-    'Times-Roman'
-    >>> afm.get_kern_dist('A', 'f')
-    0
-    >>> afm.get_kern_dist('A', 'y')
-    -92.0
-    >>> afm.get_bbox_char('!')
-    [130, -9, 238, 676]
+>>> import matplotlib as mpl
+>>> from pathlib import Path
+>>> afm_path = Path(mpl.get_data_path(), 'fonts', 'afm', 'ptmr8a.afm')
+>>>
+>>> from matplotlib.afm import AFM
+>>> with afm_path.open('rb') as fh:
+...     afm = AFM(fh)
+>>> afm.string_width_height('What the heck?')
+(6220.0, 694)
+>>> afm.get_fontname()
+'Times-Roman'
+>>> afm.get_kern_dist('A', 'f')
+0
+>>> afm.get_kern_dist('A', 'y')
+-92.0
+>>> afm.get_bbox_char('!')
+[130, -9, 238, 676]
 
 As in the Adobe Font Metrics File Format Specification, all dimensions
 are given in units of 1/1000 of the scale factor (point size) of the font
