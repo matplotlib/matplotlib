@@ -108,8 +108,12 @@ def test_logscale_mask():
 
 def test_extra_kwargs_raise():
     fig, ax = plt.subplots()
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
+        ax.set_yscale('linear', nonpos='mask')
+    with pytest.raises(TypeError):
         ax.set_yscale('log', nonpos='mask')
+    with pytest.raises(TypeError):
+        ax.set_yscale('symlog', nonpos='mask')
 
 
 def test_logscale_invert_transform():

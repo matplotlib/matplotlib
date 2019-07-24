@@ -39,7 +39,7 @@ class ScaleBase:
 
     """
 
-    def __init__(self, axis, **kwargs):
+    def __init__(self, axis):
         r"""
         Construct a new scale.
 
@@ -143,8 +143,7 @@ class FuncTransform(Transform):
             self._forward = forward
             self._inverse = inverse
         else:
-            raise ValueError('arguments to FuncTransform must '
-                             'be functions')
+            raise ValueError('arguments to FuncTransform must be functions')
 
     def transform_non_affine(self, values):
         return self._forward(values)
@@ -382,16 +381,14 @@ class LogScale(ScaleBase):
             nonpos = kwargs.pop('nonposy', 'clip')
             cbook._check_in_list(['mask', 'clip'], nonposy=nonpos)
 
-        if len(kwargs):
-            raise ValueError(("provided too many kwargs, can only pass "
-                              "{'basex', 'subsx', nonposx'} or "
-                              "{'basey', 'subsy', nonposy'}.  You passed ") +
-                             "{!r}".format(kwargs))
+        if kwargs:
+            raise TypeError(f"LogScale got an unexpected keyword "
+                            f"argument {next(iter(kwargs))!r}")
 
         if base <= 0 or base == 1:
             raise ValueError('The log base cannot be <= 0 or == 1')
 
-        self._transform = self.LogTransform(base, nonpos)
+        self._transform = LogTransform(base, nonpos)
         self.subs = subs
 
     @property
@@ -566,7 +563,9 @@ class SymmetricalLogScale(ScaleBase):
             linthresh = kwargs.pop('linthreshy', 2.0)
             subs = kwargs.pop('subsy', None)
             linscale = kwargs.pop('linscaley', 1.0)
-
+        if kwargs:
+            raise TypeError(f"SymmetricalLogScale got an unexpected keyword "
+                            f"argument {next(iter(kwargs))!r}")
         if base <= 1.0:
             raise ValueError("'basex/basey' must be larger than 1")
         if linthresh <= 0.0:
@@ -574,10 +573,7 @@ class SymmetricalLogScale(ScaleBase):
         if linscale <= 0.0:
             raise ValueError("'linscalex/linthreshy' must be positive")
 
-        self._transform = self.SymmetricalLogTransform(base,
-                                                       linthresh,
-                                                       linscale)
-
+        self._transform = SymmetricalLogTransform(base, linthresh, linscale)
         self.base = base
         self.linthresh = linthresh
         self.linscale = linscale

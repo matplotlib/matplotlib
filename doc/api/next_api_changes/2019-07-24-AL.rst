@@ -1,0 +1,5 @@
+API changes
+```````````
+
+Passing unsupported keyword arguments to `.ScaleBase` and its subclasses
+`.LinearScale`, `.LogScale`, and `.SymLogScale` now raises a TypeError.
