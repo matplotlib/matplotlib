@@ -1,5 +1,5 @@
 import configparser
-from distutils import sysconfig
+from distutils import ccompiler, sysconfig
 from distutils.core import Extension
 import functools
 import glob
@@ -33,7 +33,7 @@ def _get_xdg_cache_dir():
         cache_dir = os.path.expanduser('~/.cache')
         if cache_dir.startswith('~/'):  # Expansion failed.
             return None
-    return os.path.join(cache_dir, 'matplotlib')
+    return pathlib.Path(cache_dir, 'matplotlib')
 
 
 def get_fd_hash(fd):
@@ -489,11 +489,11 @@ class FreeType(SetupPackage):
             # This is certainly broken on Windows.
             ext.include_dirs.insert(0, os.path.join(src_path, 'include'))
             if sys.platform == 'win32':
-                libfreetype = 'libfreetype.lib'
+                ft_static = 'libfreetype.lib'
             else:
-                libfreetype = 'libfreetype.a'
+                ft_static = 'libfreetype.a'
             ext.extra_objects.insert(
-                0, os.path.join(src_path, 'objs', '.libs', libfreetype))
+                0, os.path.join(src_path, 'objs', '.libs', ft_static))
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'local'))
         else:
             pkg_config_setup_extension(
@@ -511,18 +511,23 @@ class FreeType(SetupPackage):
         if not options.get('local_freetype'):
             return
 
-        src_path = os.path.join(
-            'build', 'freetype-{0}'.format(LOCAL_FREETYPE_VERSION))
+        src_path = pathlib.Path(f'build/freetype-{LOCAL_FREETYPE_VERSION}')
 
-        # We've already built freetype
-        if sys.platform == 'win32':
-            libfreetype = 'libfreetype.lib'
+        cc = ccompiler.new_compiler()
+        static_lib_ext = cc.static_lib_extension
+        shared_lib_ext = cc.shared_lib_extension
+        if sys.platform == 'darwin':
+            shared_lib_ext = '.dylib'
+        ft_static = src_path / f'objs/.libs/libfreetype{static_lib_ext}'
+        ft_shared = src_path / f'objs/.libs/libfreetype{shared_lib_ext}'
+        if sys.platform != 'win32' and _get_xdg_cache_dir() is not None:
+            ft_shared_cached = _get_xdg_cache_dir() / ft_shared.name
         else:
-            libfreetype = 'libfreetype.a'
+            ft_shared_cached = None
 
-        # bailing because it is already built
-        if os.path.isfile(os.path.join(
-                src_path, 'objs', '.libs', libfreetype)):
+        # bailing because freetype is already built
+        if (ft_static.is_file()
+                and (ft_shared_cached is None or ft_shared_cached.is_file())):
             return
 
         # do we need to download / load the source from cache?
@@ -573,6 +578,8 @@ class FreeType(SetupPackage):
                  "--with-png=no", "--with-harfbuzz=no"],
                 env=env, cwd=src_path)
             subprocess.check_call(["make"], env=env, cwd=src_path)
+            _get_xdg_cache_dir().mkdir(parents=True, exist_ok=True)
+            shutil.copy2(ft_shared, ft_shared_cached)
         else:
             # compilation on windows
             shutil.rmtree(str(pathlib.Path(src_path, "objs")),
@@ -603,9 +610,7 @@ set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
             # Be robust against change of FreeType version.
             lib_path, = (pathlib.Path(src_path, "objs", vc, xXX)
                          .glob("freetype*.lib"))
-            shutil.copy2(
-                str(lib_path),
-                str(pathlib.Path(src_path, "objs/.libs/libfreetype.lib")))
+            shutil.copy2(lib_path, ft_static)
 
 
 class FT2Font(SetupPackage):

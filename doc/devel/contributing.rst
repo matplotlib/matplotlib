@@ -117,6 +117,10 @@ consider putting ::
 
 in your shell start up files.
 
+On Linux and macOS, as long as you have built Matplotlib locally at least once
+with the local_freetype option, the correct version of FreeType will be loaded
+into any process as long as the MPLLOCALFREETYPE environment variable is set.
+
 
 Installing Matplotlib in developer mode
 ---------------------------------------

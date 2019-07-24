@@ -167,6 +167,35 @@ __bibtex__ = r"""@Article{Hunter:2007,
 }"""
 
 
+def _get_xdg_config_dir():
+    """
+    Return the XDG configuration directory, according to the `XDG
+    base directory spec
+    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
+    """
+    return os.environ.get('XDG_CONFIG_HOME') or str(Path.home() / ".config")
+
+
+def _get_xdg_cache_dir():
+    """
+    Return the XDG cache directory, according to the `XDG
+    base directory spec
+    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
+    """
+    return os.environ.get('XDG_CACHE_HOME') or str(Path.home() / ".cache")
+
+
+if sys.platform != "win32" and os.environ.get("MPLLOCALFREETYPE"):
+    from ctypes import CDLL, RTLD_GLOBAL
+    try:
+        CDLL(os.path.join(_get_xdg_cache_dir(), "matplotlib/libfreetype.so"),
+             RTLD_GLOBAL)
+    except OSError:
+        raise ImportError(
+            "Please build Matplotlib with MPLLOCALFREETYPE=1 to cache the "
+            "FreeType shared library, or unset MPLLOCALFREETYPE.")
+
+
 @cbook.deprecated("3.2")
 def compare_versions(a, b):
     "Return whether version *a* is greater than or equal to version *b*."
@@ -544,24 +573,6 @@ def _create_tmp_config_or_cache_dir():
         tempfile.mkdtemp(prefix='matplotlib-'))
     atexit.register(shutil.rmtree, configdir)
     return configdir
-
-
-def _get_xdg_config_dir():
-    """
-    Return the XDG configuration directory, according to the `XDG
-    base directory spec
-    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
-    """
-    return os.environ.get('XDG_CONFIG_HOME') or str(Path.home() / ".config")
-
-
-def _get_xdg_cache_dir():
-    """
-    Return the XDG cache directory, according to the `XDG
-    base directory spec
-    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
-    """
-    return os.environ.get('XDG_CACHE_HOME') or str(Path.home() / ".cache")
 
 
 def _get_config_or_cache_dir(xdg_base):
