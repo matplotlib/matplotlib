@@ -3,7 +3,6 @@ Test output reproducibility.
 """
 
 import os
-import re
 import subprocess
 import sys
 
@@ -122,7 +121,7 @@ def test_determinism_check(objects, fmt, usetex):
         ("ps", b"%%CreationDate: Sat Jan 01 00:00:00 2000"),
     ]
 )
-def test_determinism_source_date_epoch(fmt, string, keyword=b"CreationDate"):
+def test_determinism_source_date_epoch(fmt, string):
     """
     Test SOURCE_DATE_EPOCH support. Output a document with the environment
     variable SOURCE_DATE_EPOCH set to 2000-01-01 00:00 UTC and check that the
@@ -133,21 +132,12 @@ def test_determinism_source_date_epoch(fmt, string, keyword=b"CreationDate"):
     ----------
     fmt : {"pdf", "ps", "svg"}
         Output format.
-    string : str
+    string : bytes
         Timestamp string for 2000-01-01 00:00 UTC.
-    keyword : bytes
-        A string to look at when searching for the timestamp in the document
-        (used in case the test fails).
     """
-    buff = subprocess.check_output(
+    buf = subprocess.check_output(
         [sys.executable, "-R", "-c",
          f"from matplotlib.tests.test_determinism import _save_figure; "
          f"_save_figure('', {fmt!r})"],
         env={**os.environ, "SOURCE_DATE_EPOCH": "946684800"})
-    find_keyword = re.compile(b".*" + keyword + b".*")
-    key = find_keyword.search(buff)
-    if key:
-        print(key.group())
-    else:
-        print("Timestamp keyword (%s) not found!" % keyword)
-    assert string in buff
+    assert string in buf
