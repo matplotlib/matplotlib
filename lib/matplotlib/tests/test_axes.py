@@ -1150,9 +1150,9 @@ def test_symlog2():
     x = np.arange(-50, 50, 0.001)
 
     fig, axs = plt.subplots(5, 1)
-    for ax, linthreshx in zip(axs, [20., 2., 1., 0.1, 0.01]):
+    for ax, linthresh in zip(axs, [20., 2., 1., 0.1, 0.01]):
         ax.plot(x, x)
-        ax.set_xscale('symlog', linthreshx=linthreshx)
+        ax.set_xscale('symlog', linthresh=linthresh)
         ax.grid(True)
     axs[-1].set_ylim(-0.1, 0.1)
 
@@ -2241,9 +2241,9 @@ def test_log_scales():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.plot(np.log(np.linspace(0.1, 100)))
-    ax.set_yscale('log', basey=5.5)
+    ax.set_yscale('log', base=5.5)
     ax.invert_yaxis()
-    ax.set_xscale('log', basex=9.0)
+    ax.set_xscale('log', base=9.0)
 
 
 def test_log_scales_no_data():

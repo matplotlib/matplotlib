@@ -45,7 +45,7 @@ ax.grid(True)
 # symmetric log
 ax = axs[1, 1]
 ax.plot(x, y - y.mean())
-ax.set_yscale('symlog', linthreshy=0.02)
+ax.set_yscale('symlog', linthresh=0.02)
 ax.set_title('symlog')
 ax.grid(True)
 

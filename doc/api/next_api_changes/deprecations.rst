@@ -184,3 +184,13 @@ Debian 8 (2015, EOL 06/2020) and Ubuntu 14.04 (EOL 04/2019) were the
 last versions of Debian and Ubuntu to ship avconv.  It remains possible
 to force the use of avconv by using the ffmpeg-based writers with
 :rc:`animation.ffmpeg_path` set to "avconv".
+
+Signature of `.LogScale` and `.SymmetricalLogScale`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These classes used to take keyword arguments that depends on the axis
+orientation ("basex" vs "basey", "nonposx" vs "nonposy"); these parameter
+names are now deprecated in favor of "base", "nonpos", etc.  This deprecation
+also affects e.g. ``ax.set_yscale("log", basey=...)`` which must now be
+spelled ``ax.set_yscale("log", base=...)``.  The only place where "basex", etc.
+remain in use is in the helper functions `~.Axes.loglog`, `~.Axes.semilogx`,
+and `~.Axes.semilogy` (because `~.Axes.loglog` takes both "basex" and "basey").
