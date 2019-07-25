@@ -623,29 +623,21 @@ _layoutboxobjnum = itertools.count()
 
 
 def seq_id():
-    '''
-    Generate a short sequential id for layoutbox objects...
-    '''
-
-    global _layoutboxobjnum
-
-    return ('%06d' % (next(_layoutboxobjnum)))
+    """Generate a short sequential id for layoutbox objects."""
+    return '%06d' % next(_layoutboxobjnum)
 
 
 def print_children(lb):
-    '''
-    Print the children of the layoutbox
-    '''
+    """Print the children of the layoutbox."""
     print(lb)
     for child in lb.children:
         print_children(child)
 
 
 def nonetree(lb):
-    '''
-    Make all elements in this tree none...  This signals not to do any more
-    layout.
-    '''
+    """
+    Make all elements in this tree None, signalling not to do any more layout.
+    """
     if lb is not None:
         if lb.parent is None:
             # Clear the solver.  Hopefully this garbage collects.

@@ -74,25 +74,18 @@ class DraggableLegend(DraggableOffsetBox):
         return self.legend.contains(evt)
 
     def finalize_offset(self):
-        loc_in_canvas = self.get_loc_in_canvas()
-
-        if self._update == "loc":
-            self._update_loc(loc_in_canvas)
-        elif self._update == "bbox":
-            self._update_bbox_to_anchor(loc_in_canvas)
-        else:
-            raise RuntimeError("update parameter '%s' is not supported." %
-                               self.update)
+        update_method = cbook._check_getitem(
+            {"loc": self._update_loc, "bbox": self._bbox_to_anchor},
+            update=self._update)
+        update_method(self.get_loc_in_canvas())
 
     def _update_loc(self, loc_in_canvas):
         bbox = self.legend.get_bbox_to_anchor()
-
         # if bbox has zero width or height, the transformation is
-        # ill-defined. Fall back to the defaul bbox_to_anchor.
+        # ill-defined. Fall back to the default bbox_to_anchor.
         if bbox.width == 0 or bbox.height == 0:
             self.legend.set_bbox_to_anchor(None)
             bbox = self.legend.get_bbox_to_anchor()
-
         _bbox_transform = BboxTransformFrom(bbox)
         self.legend._loc = tuple(_bbox_transform.transform(loc_in_canvas))
 
