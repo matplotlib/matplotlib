@@ -5,10 +5,9 @@ import urllib.parse
 
 import numpy as np
 
-from matplotlib import cbook, dviread, font_manager, rcParams
+from matplotlib import _text_layout, cbook, dviread, font_manager, rcParams
 from matplotlib.font_manager import FontProperties, get_font
-from matplotlib.ft2font import (
-    KERNING_DEFAULT, LOAD_NO_HINTING, LOAD_TARGET_LIGHT)
+from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_TARGET_LIGHT
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
@@ -162,14 +161,6 @@ class TextToPath:
         Convert string *s* to vertices and codes using the provided ttf font.
         """
 
-        # Mostly copied from backend_svg.py.
-
-        lastgind = None
-
-        currx = 0
-        xpositions = []
-        glyph_ids = []
-
         if glyph_map is None:
             glyph_map = OrderedDict()
 
@@ -178,32 +169,14 @@ class TextToPath:
         else:
             glyph_map_new = glyph_map
 
-        # I'm not sure if I get kernings right. Needs to be verified. -JJL
-
-        for c in s:
-            ccode = ord(c)
-            gind = font.get_char_index(ccode)
-
-            if lastgind is not None:
-                kern = font.get_kerning(lastgind, gind, KERNING_DEFAULT)
-            else:
-                kern = 0
-
-            glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
-            horiz_advance = glyph.linearHoriAdvance / 65536
-
-            char_id = self._get_char_id(font, ccode)
+        xpositions = []
+        glyph_ids = []
+        for char, (_, x) in zip(s, _text_layout.layout(s, font)):
+            char_id = self._get_char_id(font, ord(char))
+            glyph_ids.append(char_id)
+            xpositions.append(x)
             if char_id not in glyph_map:
                 glyph_map_new[char_id] = font.get_path()
-
-            currx += kern / 64
-
-            xpositions.append(currx)
-            glyph_ids.append(char_id)
-
-            currx += horiz_advance
-
-            lastgind = gind
 
         ypositions = [0] * len(xpositions)
         sizes = [1.] * len(xpositions)
