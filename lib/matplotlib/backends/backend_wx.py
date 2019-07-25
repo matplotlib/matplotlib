@@ -768,6 +768,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         else:
             # variable size
             size = self.GetClientSize()
+            # Do not allow size to become smaller than MinSize
+            size.IncTo(self.GetMinSize())
         if getattr(self, "_width", None):
             if size == (self._width, self._height):
                 # no change in size
