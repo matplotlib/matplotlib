@@ -634,43 +634,57 @@ def test_const_xy():
     plt.plot(np.ones(10), np.ones(10), 'o')
 
 
-@image_comparison(['polar_wrap_180', 'polar_wrap_360'], style='default')
-def test_polar_wrap():
+def test_polar_twice():
     fig = plt.figure()
-    plt.subplot(111, polar=True)
-    plt.polar(np.deg2rad([179, -179]), [0.2, 0.1], "b.-")
-    plt.polar(np.deg2rad([179,  181]), [0.2, 0.1], "g.-")
-    plt.rgrids([0.05, 0.1, 0.15, 0.2, 0.25, 0.3])
+    plt.polar([1, 2], [.1, .2])
+    plt.polar([3, 4], [.3, .4])
     assert len(fig.axes) == 1, 'More than one polar axes created.'
 
-    fig = plt.figure()
-    plt.subplot(111, polar=True)
-    plt.polar(np.deg2rad([2, -2]), [0.2, 0.1], "b.-")
-    plt.polar(np.deg2rad([2, 358]), [0.2, 0.1], "g.-")
-    plt.polar(np.deg2rad([358, 2]), [0.2, 0.1], "r.-")
-    plt.rgrids([0.05, 0.1, 0.15, 0.2, 0.25, 0.3])
+
+@check_figures_equal()
+def test_polar_wrap(fig_test, fig_ref):
+    ax = fig_test.add_subplot(projection="polar")
+    ax.plot(np.deg2rad([179, -179]), [0.2, 0.1])
+    ax.plot(np.deg2rad([2, -2]), [0.2, 0.1])
+    ax = fig_ref.add_subplot(projection="polar")
+    ax.plot(np.deg2rad([179, 181]), [0.2, 0.1])
+    ax.plot(np.deg2rad([2, 358]), [0.2, 0.1])
 
 
-@image_comparison(['polar_units', 'polar_units_2'], style='default')
-def test_polar_units():
+@check_figures_equal()
+def test_polar_units_1(fig_test, fig_ref):
     import matplotlib.testing.jpl_units as units
     units.register()
-
-    deg = units.deg
-    km = units.km
-
-    xs = [30.0*deg, 45.0*deg, 60.0*deg, 90.0*deg]
+    xs = [30.0, 45.0, 60.0, 90.0]
     ys = [1.0, 2.0, 3.0, 4.0]
 
-    plt.figure()
-    plt.polar(xs, ys, color="blue")
+    plt.figure(fig_test.number)
+    plt.polar([x * units.deg for x in xs], ys)
 
-    plt.figure()
-    # make sure runits and theta units work
-    ykm = [y*km for y in ys]
-    plt.polar(xs, ykm, color="blue", thetaunits="rad", runits="km")
+    ax = fig_ref.add_subplot(projection="polar")
+    ax.plot(np.deg2rad(xs), ys)
+    ax.set(xlabel="deg")
+
+
+@check_figures_equal()
+def test_polar_units_2(fig_test, fig_ref):
+    import matplotlib.testing.jpl_units as units
+    units.register()
+    xs = [30.0, 45.0, 60.0, 90.0]
+    xs_deg = [x * units.deg for x in xs]
+    ys = [1.0, 2.0, 3.0, 4.0]
+    ys_km = [y * units.km for y in ys]
+
+    plt.figure(fig_test.number)
+    # test {theta,r}units.
+    plt.polar(xs_deg, ys_km, thetaunits="rad", runits="km")
     assert isinstance(plt.gca().get_xaxis().get_major_formatter(),
                       units.UnitDblFormatter)
+
+    ax = fig_ref.add_subplot(projection="polar")
+    ax.plot(np.deg2rad(xs), ys)
+    ax.xaxis.set_major_formatter(mticker.FuncFormatter("{:.12}".format))
+    ax.set(xlabel="rad", ylabel="km")
 
 
 @image_comparison(['polar_rmin'], style='default')
