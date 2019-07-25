@@ -5,7 +5,7 @@ Text layouting utilities.
 from .ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 
 
-def layout(string, font, *, x0=0, kern_mode=KERNING_DEFAULT):
+def layout(string, font, *, kern_mode=KERNING_DEFAULT):
     """
     Render *string* with *font*.  For each character in *string*, yield a
     (character-index, x-position) pair.  When such a pair is yielded, the
@@ -17,8 +17,6 @@ def layout(string, font, *, x0=0, kern_mode=KERNING_DEFAULT):
         The string to be rendered.
     font : FT2Font
         The font.
-    x0 : float
-        The initial x-value
     kern_mode : int
         A FreeType kerning mode.
 
@@ -27,7 +25,7 @@ def layout(string, font, *, x0=0, kern_mode=KERNING_DEFAULT):
     character_index : int
     x_position : float
     """
-    x = x0
+    x = 0
     last_char_idx = None
     for char in string:
         char_idx = font.get_char_index(ord(char))
