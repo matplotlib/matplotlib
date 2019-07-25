@@ -1443,13 +1443,7 @@ class PolarAxes(Axes):
                 [(p.x, p.y), (x, y)])
 
             # Deal with theta
-            dt0 = t - startt
-            dt1 = startt - t
-            if abs(dt1) < abs(dt0):
-                dt = abs(dt1) * np.sign(dt0) * -1.0
-            else:
-                dt = dt0 * -1.0
-            dt = (dt / np.pi) * 180.0
+            dt = np.rad2deg(startt - t)
             self.set_rlabel_position(p.r_label_angle - dt)
 
             trans, vert1, horiz1 = self.get_yaxis_text1_transform(0.0)
