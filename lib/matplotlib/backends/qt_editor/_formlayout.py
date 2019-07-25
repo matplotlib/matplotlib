@@ -298,7 +298,7 @@ class FormWidget(QtWidgets.QWidget):
                     field.setCheckState(QtCore.Qt.Unchecked)
             elif isinstance(value, Integral):
                 field = QtWidgets.QSpinBox(self)
-                field.setRange(-1e9, 1e9)
+                field.setRange(-10**9, 10**9)
                 field.setValue(value)
             elif isinstance(value, Real):
                 field = QtWidgets.QLineEdit(repr(value), self)
