@@ -257,6 +257,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self.axes = ax
 
         self._imcache = None
+        self._array_alpha = None
 
         self.update(kwargs)
 
@@ -281,7 +282,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         ----------
         alpha : float
         """
-        martist.Artist.set_alpha(self, alpha)
+        if np.isscalar(alpha):
+            martist.Artist.set_alpha(self, alpha)
+        else:
+            self._array_alpha = alpha
+            martist.Artist.set_alpha(self, 1.0)
         self._imcache = None
 
     def changed(self):
@@ -487,6 +492,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # pixel it will be between [0, 1] (such as a rotated image).
                 out_mask = np.isnan(out_alpha)
                 out_alpha[out_mask] = 1
+                # Apply the pixel-by-pixel alpha values if present
+                if self._array_alpha is not None:
+                    out_alpha *= _resample(self, self._array_alpha, out_shape,
+                                           t, resample=True)
                 # mask and run through the norm
                 output = self.norm(np.ma.masked_array(A_resampled, out_mask))
             else:
