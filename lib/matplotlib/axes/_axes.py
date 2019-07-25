@@ -5506,8 +5506,8 @@ optional.
 
         alpha : [scalar | array_like], optional, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
-            If `alpha` is an array, the alpha blending values are applied pixel
-            by pixel, and `alpha` must have the same shape as `X`. This
+            If *alpha* is an array, the alpha blending values are applied pixel
+            by pixel, and *alpha* must have the same shape as *X*. This
             parameter is ignored for RGBA input data.
 
         vmin, vmax : scalar, optional
