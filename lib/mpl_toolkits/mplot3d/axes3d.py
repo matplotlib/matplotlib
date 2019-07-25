@@ -579,14 +579,6 @@ class Axes3D(Axes):
         minz, maxz = self.get_zlim3d()
         return minx, maxx, miny, maxy, minz, maxz
 
-    def _determine_lims(self, xmin=None, xmax=None, *args, **kwargs):
-        if xmax is None and np.iterable(xmin):
-            xmin, xmax = xmin
-        if xmin == xmax:
-            xmin -= 0.05
-            xmax += 0.05
-        return (xmin, xmax)
-
     def set_xlim3d(self, left=None, right=None, emit=True, auto=False,
                    *, xmin=None, xmax=None):
         """
