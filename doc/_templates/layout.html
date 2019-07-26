@@ -52,7 +52,23 @@
 
 {%- block footer %}
 <footer>
-{{super()}}
+{%- if show_copyright %}
+{%- if hasdoc('copyright') %}
+    {% trans path=pathto('copyright'), copyright=copyright|e %}&copy; <a
+href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
+{%- else %}
+    {% trans copyright=copyright|e %}&copy; Copyright {{ copyright }}.{%
+endtrans %}
+{%- endif %}
+{%- endif %}
+<br />
+{%- if last_updated %}
+    {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}
+{%- endif %}
+{%- if show_sphinx %}
+{% trans sphinx_version=sphinx_version|e %}Created using
+<a href="http://sphinx-doc.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
+{%- endif %}
 </footer>
 <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
