@@ -22,6 +22,7 @@ information.
 """
 
 import logging
+import time
 
 import numpy as np
 
@@ -1112,13 +1113,9 @@ class Legend(Artist):
         # should always hold because function is only called internally
         assert self.isaxes
 
+        start_time = time.perf_counter()
+
         verts, bboxes, lines, offsets = self._auto_legend_data()
-        if self._loc_used_default and verts.shape[0] > 200000:
-            # this size results in a 3+ second render time on a good machine
-            cbook._warn_external(
-                'Creating legend with loc="best" can be slow with large '
-                'amounts of data.'
-            )
 
         bbox = Bbox.from_bounds(0, 0, width, height)
         if consider is None:
@@ -1145,6 +1142,12 @@ class Legend(Artist):
             candidates.append((badness, idx, (l, b)))
 
         _, _, (l, b) = min(candidates)
+
+        if self._loc_used_default and time.perf_counter() - start_time > 1:
+            cbook._warn_external(
+                'Creating legend with loc="best" can be slow with large '
+                'amounts of data.')
+
         return l, b
 
     def contains(self, event):
