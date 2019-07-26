@@ -19,7 +19,7 @@ from matplotlib.ticker import (
     NullLocator, LogLocator, AutoLocator, AutoMinorLocator,
     SymmetricalLogLocator, LogitLocator)
 from matplotlib.transforms import Transform, IdentityTransform
-
+from matplotlib.cbook import warn_deprecated
 
 class ScaleBase:
     """
@@ -39,7 +39,7 @@ class ScaleBase:
 
     """
 
-    def __init__(self, axis):
+    def __init__(self, axis, **kwargs):
         r"""
         Construct a new scale.
 
@@ -52,6 +52,14 @@ class ScaleBase:
         be used: a single scale object should be usable by multiple
         `~matplotlib.axis.Axis`\es at the same time.
         """
+        if kwargs:
+            warn_deprecated(
+                '3.2.0',
+                message=(
+                    f"ScaleBase got an unexpected keyword "
+                    f"argument {next(iter(kwargs))!r}. "
+                    'In the future this will raise TypeError')
+            )
 
     def get_transform(self):
         """
@@ -564,8 +572,16 @@ class SymmetricalLogScale(ScaleBase):
             subs = kwargs.pop('subsy', None)
             linscale = kwargs.pop('linscaley', 1.0)
         if kwargs:
-            raise TypeError(f"SymmetricalLogScale got an unexpected keyword "
-                            f"argument {next(iter(kwargs))!r}")
+            warn_deprecated(
+                '3.2.0',
+                message=(
+                    f"SymmetricalLogScale got an unexpected keyword "
+                    f"argument {next(iter(kwargs))!r}. "
+                    'In the future this will raise TypeError')
+            )
+            # raise TypeError(f"SymmetricalLogScale got an unexpected keyword "
+            #                 f"argument {next(iter(kwargs))!r}")
+
         if base <= 1.0:
             raise ValueError("'basex/basey' must be larger than 1")
         if linthresh <= 0.0:
