@@ -428,7 +428,7 @@ Use ``array-like`` for homogeneous numeric sequences, which could
 typically be a numpy.array. Dimensionality may be specified using ``2D``,
 ``3D``, ``n-dimensional``. If you need to have variables denoting the
 sizes of the dimensions, use capital letters in brackets
-(``array-like (M, N)``). When refering to them in the text they are easier
+(``array-like (M, N)``). When referring to them in the text they are easier
 read and no special formatting is needed.
 
 ``float`` is the implicit default dtype for array-likes. For other dtypes
@@ -638,7 +638,7 @@ reuse the parent docstring for the method of the child class. Python does this
 automatically, if the subclass method does not have a docstring.
 
 Use a plain comment `# docstring inherited` to denote the intention to reuse
-the parent docstring. That way we do not accidentially create a docstring in
+the parent docstring. That way we do not accidentally create a docstring in
 the future::
 
     class A:
@@ -785,7 +785,7 @@ two step process from within the :file:`/doc/sphinxext/gallery_order.py`:
   and a list of examples for the subsection order. The order of the items
   shown in the doc pages is the order those items appear in those lists.
 * *Implicit order*: If a folder or example is not in those lists, it will be
-  appended after the explicitely ordered items and all of those additional
+  appended after the explicitly ordered items and all of those additional
   items will be ordered by pathname (for the sections) or by filename
   (for the subsections).
 
