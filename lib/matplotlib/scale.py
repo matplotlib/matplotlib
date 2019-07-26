@@ -21,6 +21,7 @@ from matplotlib.ticker import (
 from matplotlib.transforms import Transform, IdentityTransform
 from matplotlib.cbook import warn_deprecated
 
+
 class ScaleBase:
     """
     The base class for all scales.
