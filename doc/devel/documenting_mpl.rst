@@ -63,6 +63,7 @@ requirements that are needed to build the documentation. They are listed in
   .. code-block:: sh
 
    virtualenv venv
+   venv activate
   
   * You will need to install the addtional requirements.
   
@@ -75,13 +76,13 @@ requirements that are needed to build the documentation. They are listed in
     
   .. code-block:: sh
     
-    pip uninstall matplotlib
+    conda uninstall matplotlib
     
   * You will need to install the working copy of matplotlib in editable mode.
   
   .. code-block:: sh
   
-    pip install -ve
+    pip install -e .
     
 
 Building the docs
