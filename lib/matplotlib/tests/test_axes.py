@@ -5039,6 +5039,13 @@ def test_pie_frame_grid():
             frame=True, center=(3, 5))
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
+    plt.gcf().canvas.draw()
+    xmin, xmax = plt.xlim()
+    ymin, ymax = plt.ylim()
+    assert xmin < 0 and xmax > 7 and ymin == 0 and ymax == 7
+    # These limits reproduce an old, buggy implementation of axis("equal").
+    plt.xlim(0, 7)
+    plt.ylim(0.7903225806451615, 6.209677419354838)
 
 
 @image_comparison(['pie_rotatelabels_true.png'])
