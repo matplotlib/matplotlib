@@ -1645,7 +1645,7 @@ class _AxesBase(martist.Artist):
                     self.set_autoscale_on(False)
                     xlim = self.get_xlim()
                     ylim = self.get_ylim()
-                    edge_size = max(np.diff(xlim), np.diff(ylim))
+                    edge_size = max(np.diff(xlim), np.diff(ylim))[0]
                     self.set_xlim([xlim[0], xlim[0] + edge_size],
                                   emit=emit, auto=False)
                     self.set_ylim([ylim[0], ylim[0] + edge_size],
