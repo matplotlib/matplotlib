@@ -1724,7 +1724,7 @@ class LightSource:
             # visually appears better than a "hard" clip.
             intensity -= imin
             intensity /= (imax - imin)
-        intensity = np.clip(intensity, 0, 1, intensity)
+        intensity = np.clip(intensity, 0, 1)
 
         return intensity
 
