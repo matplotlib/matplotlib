@@ -249,7 +249,7 @@ class ContourLabeler:
                 self._mathtext_parser = mathtext.MathTextParser('bitmap')
             img, _ = self._mathtext_parser.parse(lev, dpi=72,
                                                  prop=self.labelFontProps)
-            lw = img.get_width()  # at dpi=72, the units are PostScript points
+            _, lw = np.shape(img)  # at dpi=72, the units are PostScript points
         else:
             # width is much less than "font size"
             lw = len(lev) * fsize * 0.6
