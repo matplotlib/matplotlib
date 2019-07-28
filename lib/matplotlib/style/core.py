@@ -83,8 +83,6 @@ def use(style):
         | list | A list of style specifiers (str or dict) applied from first |
         |      | to last in the list.                                        |
         +------+-------------------------------------------------------------+
-
-
     """
     style_alias = {'mpl20': 'default',
                    'mpl15': 'classic'}
@@ -218,5 +216,8 @@ available = []
 def reload_library():
     """Reload style library."""
     global library
-    available[:] = library = update_user_library(_base_library)
+    library = update_user_library(_base_library)
+    available[:] = sorted(library.keys())
+
+
 reload_library()
