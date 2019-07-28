@@ -3,7 +3,7 @@
 Secondary Axis
 ==============
 
-Sometimes we want as secondary axis on a plot, for instance to convert
+Sometimes we want a secondary axis on a plot, for instance to convert
 radians to degrees on the same plot.  We can do this by making a child
 axes with only one axis visible via `.Axes.axes.secondary_xaxis` and
 `.Axes.axes.secondary_yaxis`.  This secondary axis can have a different scale
@@ -35,6 +35,7 @@ def deg2rad(x):
 def rad2deg(x):
     return x * 180 / np.pi
 
+
 secax = ax.secondary_xaxis('top', functions=(deg2rad, rad2deg))
 secax.set_xlabel('angle [rad]')
 plt.show()
@@ -64,6 +65,7 @@ def forward(x):
 
 def inverse(x):
     return 1 / x
+
 
 secax = ax.secondary_xaxis('top', functions=(forward, inverse))
 secax.set_xlabel('period [s]')
@@ -97,6 +99,7 @@ def forward(x):
 def inverse(x):
     return np.interp(x, xnew, xold)
 
+
 secax = ax.secondary_xaxis('top', functions=(forward, inverse))
 secax.xaxis.set_minor_locator(AutoMinorLocator())
 secax.set_xlabel('$X_{other}$')
@@ -109,7 +112,7 @@ plt.show()
 
 
 dates = [datetime.datetime(2018, 1, 1) + datetime.timedelta(hours=k * 6)
-            for k in range(240)]
+         for k in range(240)]
 temperature = np.random.randn(len(dates))
 fig, ax = plt.subplots(constrained_layout=True)
 
@@ -129,6 +132,7 @@ def yday2date(x):
     y = x + mdates.date2num(datetime.datetime(2018, 1, 1))
     return y
 
+
 secaxx = ax.secondary_xaxis('top', functions=(date2yday, yday2date))
 secaxx.set_xlabel('yday [2018]')
 
@@ -139,6 +143,7 @@ def CtoF(x):
 
 def FtoC(x):
     return (x - 32) / 1.8
+
 
 secaxy = ax.secondary_yaxis('right', functions=(CtoF, FtoC))
 secaxy.set_ylabel(r'$T\ [^oF]$')
