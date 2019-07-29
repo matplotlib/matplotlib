@@ -117,17 +117,11 @@ class FT2Font
   private:
     FT2Image image;
     FT_Face face;
-    FT_Matrix matrix; /* transformation matrix */
     FT_Vector pen;    /* untransformed origin  */
     std::vector<FT_Glyph> glyphs;
-    std::vector<FT_Vector> pos;
     FT_BBox bbox;
     FT_Pos advance;
-    double ptsize;
-    double dpi;
     long hinting_factor;
-
-    void set_scalable_attributes();
 
     // prevent copying
     FT2Font(const FT2Font &);

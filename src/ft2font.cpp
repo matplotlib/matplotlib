@@ -611,6 +611,8 @@ int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode)
 void FT2Font::set_text(
     size_t N, uint32_t *codepoints, double angle, FT_Int32 flags, std::vector<double> &xys)
 {
+    FT_Matrix matrix; /* transformation matrix */
+
     angle = angle / 360.0 * 2 * M_PI;
 
     // this computes width and height in subpixels so we have to divide by 64
