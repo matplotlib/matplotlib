@@ -654,8 +654,15 @@ class LogitScale(ScaleBase):
     """
     name = 'logit'
 
-    def __init__(self, axis, nonpos='mask'):
-        """
+    def __init__(
+        self,
+        axis,
+        nonpos='mask',
+        *,
+        one_half=r"\frac{1}{2}",
+        use_overline=False,
+    ):
+        r"""
         Parameters
         ----------
         axis : `matplotlib.axis.Axis`
@@ -664,8 +671,15 @@ class LogitScale(ScaleBase):
             Determines the behavior for values beyond the open interval ]0, 1[.
             They can either be masked as invalid, or clipped to a number very
             close to 0 or 1.
+        use_overline : bool, default: False
+            Indicate the usage of survival notation (\overline{x}) in place of
+            standard notation (1-x) for probability close to one.
+        one_half : str, default: r"\frac{1}{2}"
+            The string used for ticks formatter to represent 1/2.
         """
         self._transform = LogitTransform(nonpos)
+        self._use_overline = use_overline
+        self._one_half = one_half
 
     def get_transform(self):
         """Return the `.LogitTransform` associated with this scale."""
@@ -675,9 +689,20 @@ class LogitScale(ScaleBase):
         # docstring inherited
         # ..., 0.01, 0.1, 0.5, 0.9, 0.99, ...
         axis.set_major_locator(LogitLocator())
-        axis.set_major_formatter(LogitFormatter())
+        axis.set_major_formatter(
+            LogitFormatter(
+                one_half=self._one_half,
+                use_overline=self._use_overline
+            )
+        )
         axis.set_minor_locator(LogitLocator(minor=True))
-        axis.set_minor_formatter(LogitFormatter())
+        axis.set_minor_formatter(
+            LogitFormatter(
+                minor=True,
+                one_half=self._one_half,
+                use_overline=self._use_overline
+            )
+        )
 
     def limit_range_for_scale(self, vmin, vmax, minpos):
         """
