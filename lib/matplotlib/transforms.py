@@ -1191,9 +1191,14 @@ class Transform(TransformNode):
     - :attr:`input_dims`
     - :attr:`output_dims`
     - :meth:`transform`
-    - :attr:`is_separable`
-    - :attr:`has_inverse`
-    - :meth:`inverted` (if :attr:`has_inverse` is True)
+    - :meth:`inverted` (if an inverse exists)
+
+    The following attributes may be overridden if the default is unsuitable:
+
+    - :attr:`is_separable` (defaults to True for 1d -> 1d transforms, False
+      otherwise)
+    - :attr:`has_inverse` (defaults to True if :meth:`inverted` is overridden,
+      False otherwise)
 
     If the transform needs to do something non-standard with
     :class:`matplotlib.path.Path` objects, such as adding curves
@@ -1201,6 +1206,7 @@ class Transform(TransformNode):
 
     - :meth:`transform_path`
     """
+
     input_dims = None
     """
     The number of input dimensions of this transform.
@@ -1213,11 +1219,25 @@ class Transform(TransformNode):
     Must be overridden (with integers) in the subclass.
     """
 
+    is_separable = False
+    """True if this transform is separable in the x- and y- dimensions."""
+
     has_inverse = False
     """True if this transform has a corresponding inverse transform."""
 
-    is_separable = False
-    """True if this transform is separable in the x- and y- dimensions."""
+    def __init_subclass__(cls):
+        # 1d transforms are always separable; we assume higher-dimensional ones
+        # are not but subclasses can also directly set is_separable.
+        if ("is_separable" not in vars(cls)  # Was it overridden explicitly?
+                and cls.input_dims == cls.output_dims == 1):
+            cls.is_separable = True
+        # Transform.inverted raises NotImplementedError; we assume that if this
+        # is overridden then the transform is invertible but subclass can also
+        # directly set has_inverse.
+        if ("has_inverse" not in vars(cls)  # Was it overridden explicitly?
+                and hasattr(cls, "inverted")
+                and cls.inverted is not Transform.inverted):
+            cls.has_inverse = True
 
     def __add__(self, other):
         """
@@ -1733,8 +1753,6 @@ class Affine2DBase(AffineBase):
     Subclasses of this class will generally only need to override a
     constructor and :meth:`get_matrix` that generates a custom 3x3 matrix.
     """
-    has_inverse = True
-
     input_dims = 2
     output_dims = 2
 

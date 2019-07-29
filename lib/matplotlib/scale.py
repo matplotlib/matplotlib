@@ -128,10 +128,7 @@ class FuncTransform(Transform):
     forward and inverse transform.
     """
 
-    input_dims = 1
-    output_dims = 1
-    is_separable = True
-    has_inverse = True
+    input_dims = output_dims = 1
 
     def __init__(self, forward, inverse):
         """
@@ -205,10 +202,7 @@ class FuncScale(ScaleBase):
 
 @cbook.deprecated("3.1", alternative="LogTransform")
 class LogTransformBase(Transform):
-    input_dims = 1
-    output_dims = 1
-    is_separable = True
-    has_inverse = True
+    input_dims = output_dims = 1
 
     def __init__(self, nonpos='clip'):
         Transform.__init__(self)
@@ -224,10 +218,7 @@ class LogTransformBase(Transform):
 
 @cbook.deprecated("3.1", alternative="InvertedLogTransform")
 class InvertedLogTransformBase(Transform):
-    input_dims = 1
-    output_dims = 1
-    is_separable = True
-    has_inverse = True
+    input_dims = output_dims = 1
 
     def transform_non_affine(self, a):
         return ma.power(self.base, a)
@@ -285,10 +276,7 @@ class InvertedNaturalLogTransform(InvertedLogTransformBase):
 
 
 class LogTransform(Transform):
-    input_dims = 1
-    output_dims = 1
-    is_separable = True
-    has_inverse = True
+    input_dims = output_dims = 1
 
     def __init__(self, base, nonpos='clip'):
         Transform.__init__(self)
@@ -326,10 +314,7 @@ class LogTransform(Transform):
 
 
 class InvertedLogTransform(InvertedLogTransformBase):
-    input_dims = 1
-    output_dims = 1
-    is_separable = True
-    has_inverse = True
+    input_dims = output_dims = 1
 
     def __init__(self, base):
         Transform.__init__(self)
@@ -466,10 +451,7 @@ class FuncScaleLog(LogScale):
 
 
 class SymmetricalLogTransform(Transform):
-    input_dims = 1
-    output_dims = 1
-    is_separable = True
-    has_inverse = True
+    input_dims = output_dims = 1
 
     def __init__(self, base, linthresh, linscale):
         Transform.__init__(self)
@@ -495,10 +477,7 @@ class SymmetricalLogTransform(Transform):
 
 
 class InvertedSymmetricalLogTransform(Transform):
-    input_dims = 1
-    output_dims = 1
-    is_separable = True
-    has_inverse = True
+    input_dims = output_dims = 1
 
     def __init__(self, base, linthresh, linscale):
         Transform.__init__(self)
@@ -610,10 +589,7 @@ class SymmetricalLogScale(ScaleBase):
 
 
 class LogitTransform(Transform):
-    input_dims = 1
-    output_dims = 1
-    is_separable = True
-    has_inverse = True
+    input_dims = output_dims = 1
 
     def __init__(self, nonpos='mask'):
         Transform.__init__(self)
@@ -638,10 +614,7 @@ class LogitTransform(Transform):
 
 
 class LogisticTransform(Transform):
-    input_dims = 1
-    output_dims = 1
-    is_separable = True
-    has_inverse = True
+    input_dims = output_dims = 1
 
     def __init__(self, nonpos='mask'):
         Transform.__init__(self)
