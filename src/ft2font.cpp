@@ -602,7 +602,7 @@ int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode)
     FT_Vector delta;
 
     if (!FT_Get_Kerning(face, left, right, mode, &delta)) {
-        return (int)(delta.x) / (hinting_factor << 6);
+        return (int)(delta.x) / hinting_factor;
     } else {
         return 0;
     }
@@ -640,7 +640,7 @@ void FT2Font::set_text(
         if (use_kerning && previous && glyph_index) {
             FT_Vector delta;
             FT_Get_Kerning(face, previous, glyph_index, FT_KERNING_DEFAULT, &delta);
-            pen.x += (delta.x << 10) / (hinting_factor << 16);
+            pen.x += delta.x / hinting_factor;
         }
         if (FT_Error error = FT_Load_Glyph(face, glyph_index, flags)) {
             throw_ft_error("Could not load glyph", error);
