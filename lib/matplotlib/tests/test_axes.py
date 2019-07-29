@@ -6546,5 +6546,70 @@ def test_aspect_nonlinear_adjustable_datalim():
            aspect=1, adjustable="datalim")
     ax.margins(0)
     ax.apply_aspect()
+
     assert ax.get_xlim() == pytest.approx([1*10**(1/2), 100/10**(1/2)])
     assert ax.get_ylim() == (1 / 101, 1 / 11)
+
+
+def test_box_aspect():
+    # Test if axes with box_aspect=1 has same dimensions
+    # as axes with aspect equal and adjustable="box"
+
+    fig1, ax1 = plt.subplots()
+    axtwin = ax1.twinx()
+    axtwin.plot([12, 344])
+
+    ax1.set_box_aspect(1)
+
+    fig2, ax2 = plt.subplots()
+    ax2.margins(0)
+    ax2.plot([0, 2], [6, 8])
+    ax2.set_aspect("equal", adjustable="box")
+
+    fig1.canvas.draw()
+    fig2.canvas.draw()
+
+    bb1 = ax1.get_position()
+    bbt = axtwin.get_position()
+    bb2 = ax2.get_position()
+
+    assert_array_equal(bb1.extents, bb2.extents)
+    assert_array_equal(bbt.extents, bb2.extents)
+
+
+def test_box_aspect_custom_position():
+    # Test if axes with custom position and box_aspect
+    # behaves the same independent of the order of setting those.
+
+    fig1, ax1 = plt.subplots()
+    ax1.set_position([0.1, 0.1, 0.9, 0.2])
+    fig1.canvas.draw()
+    ax1.set_box_aspect(1.)
+
+    fig2, ax2 = plt.subplots()
+    ax2.set_box_aspect(1.)
+    fig2.canvas.draw()
+    ax2.set_position([0.1, 0.1, 0.9, 0.2])
+
+    fig1.canvas.draw()
+    fig2.canvas.draw()
+
+    bb1 = ax1.get_position()
+    bb2 = ax2.get_position()
+
+    assert_array_equal(bb1.extents, bb2.extents)
+
+
+def test_bbox_aspect_axes_init():
+    # Test that box_aspect can be given to axes init and produces
+    # all equal square axes.
+    fig, axs = plt.subplots(2, 3, subplot_kw=dict(box_aspect=1),
+                        constrained_layout=True)
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    sizes = []
+    for ax in axs.flat:
+        bb = ax.get_window_extent(renderer)
+        sizes.extend([bb.width, bb.height])
+
+    assert_allclose(sizes, sizes[0])

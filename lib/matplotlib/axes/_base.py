@@ -383,6 +383,7 @@ class _AxesBase(martist.Artist):
                  label='',
                  xscale=None,
                  yscale=None,
+                 box_aspect=None,
                  **kwargs
                  ):
         """
@@ -403,6 +404,10 @@ class _AxesBase(martist.Artist):
 
         frameon : bool, optional
             True means that the axes frame is visible.
+
+        box_aspect : None, or a number, optional
+            Sets the aspect of the axes box. See `~.axes.Axes.set_box_aspect`
+            for details.
 
         **kwargs
             Other optional keyword arguments:
@@ -437,7 +442,7 @@ class _AxesBase(martist.Artist):
             self._shared_y_axes.join(self, sharey)
         self.set_label(label)
         self.set_figure(fig)
-
+        self.set_box_aspect(box_aspect)
         self.set_axes_locator(kwargs.get("axes_locator", None))
 
         self.spines = self._gen_axes_spines()
@@ -1282,6 +1287,18 @@ class _AxesBase(martist.Artist):
         self.stale = True
 
     def get_adjustable(self):
+        """
+        Returns the adjustable parameter, *{'box', 'datalim'}* that defines
+        which parameter the Axes will change to achieve a given aspect.
+
+        See Also
+        --------
+        matplotlib.axes.Axes.set_adjustable
+            defining the parameter to adjust in order to meet the required
+            aspect.
+        matplotlib.axes.Axes.set_aspect
+            for a description of aspect handling.
+        """
         return self._adjustable
 
     def set_adjustable(self, adjustable, share=False):
@@ -1332,6 +1349,55 @@ class _AxesBase(martist.Artist):
         for ax in axs:
             ax._adjustable = adjustable
         self.stale = True
+
+    def get_box_aspect(self):
+        """
+        Get the axes box aspect.
+        Will be ``None`` if not explicitely specified.
+
+        See Also
+        --------
+        matplotlib.axes.Axes.set_box_aspect
+            for a description of box aspect.
+        matplotlib.axes.Axes.set_aspect
+            for a description of aspect handling.
+        """
+        return self._box_aspect
+
+    def set_box_aspect(self, aspect=None):
+        """
+        Set the axes box aspect. The box aspect is the ratio of the
+        axes height to the axes width in physical units. This is not to be
+        confused with the data aspect, set via `~Axes.set_aspect`.
+
+        Parameters
+        ----------
+        aspect : None, or a number
+            Changes the physical dimensions of the Axes, such that the ratio
+            of the axes height to the axes width in physical units is equal to
+            *aspect*. If *None*, the axes geometry will not be adjusted.
+
+        Note that calling this function with a number changes the *adjustable*
+        to *datalim*.
+
+        See Also
+        --------
+        matplotlib.axes.Axes.set_aspect
+            for a description of aspect handling.
+        """
+        axs = {*self._twinned_axes.get_siblings(self),
+               *self._twinned_axes.get_siblings(self)}
+
+        if aspect is not None:
+            aspect = float(aspect)
+            # when box_aspect is set to other than ´None`,
+            # adjustable must be "datalim"
+            for ax in axs:
+                ax.set_adjustable("datalim")
+
+        for ax in axs:
+            ax._box_aspect = aspect
+            ax.stale = True
 
     def get_anchor(self):
         """
@@ -1462,7 +1528,7 @@ class _AxesBase(martist.Artist):
 
         aspect = self.get_aspect()
 
-        if aspect == 'auto':
+        if aspect == 'auto' and self._box_aspect is None:
             self._set_position(position, which='active')
             return
 
@@ -1482,11 +1548,20 @@ class _AxesBase(martist.Artist):
             self._set_position(pb1.anchored(self.get_anchor(), pb), 'active')
             return
 
-        # self._adjustable == 'datalim'
+        # The following is only seen if self._adjustable == 'datalim'
+        if self._box_aspect is not None:
+            pb = position.frozen()
+            pb1 = pb.shrunk_to_aspect(self._box_aspect, pb, fig_aspect)
+            self._set_position(pb1.anchored(self.get_anchor(), pb), 'active')
+            if aspect == "auto":
+                return
 
         # reset active to original in case it had been changed by prior use
         # of 'box'
-        self._set_position(position, which='active')
+        if self._box_aspect is None:
+            self._set_position(position, which='active')
+        else:
+            position = pb1.anchored(self.get_anchor(), pb)
 
         x_trf = self.xaxis.get_transform()
         y_trf = self.yaxis.get_transform()
