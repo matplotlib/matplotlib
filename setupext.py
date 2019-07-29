@@ -620,6 +620,7 @@ class FT2Font(SetupPackage):
             ]
         ext = Extension('matplotlib.ft2font', sources)
         FreeType().add_flags(ext)
+        pkg_config_setup_extension(ext, 'harfbuzz')
         add_numpy_flags(ext)
         LibAgg().add_flags(ext, add_sources=False)
         return ext

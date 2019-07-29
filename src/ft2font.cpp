@@ -7,6 +7,9 @@
 #include <stdexcept>
 #include <string>
 
+#include <hb.h>
+#include <hb-ft.h>
+
 #include "ft2font.h"
 #include "mplutils.h"
 #include "py_exceptions.h"
@@ -627,50 +630,53 @@ void FT2Font::set_text(
     bbox.xMin = bbox.yMin = 32000;
     bbox.xMax = bbox.yMax = -32000;
 
-    for (unsigned int n = 0; n < N; n++) {
-        FT_UInt glyph_index;
-        FT_BBox glyph_bbox;
-        FT_Pos last_advance;
+    hb_buffer_t* buf = hb_buffer_create();
+    hb_buffer_add_codepoints(buf, codepoints, N, 0, N);
+    hb_buffer_guess_segment_properties(buf);
+    hb_font_t* font = hb_ft_font_create(face, NULL);
+    hb_shape(font, buf, NULL, 0);
+    unsigned glyph_count = 0;
+    hb_glyph_info_t* glyph_info = hb_buffer_get_glyph_infos(buf, &glyph_count);
+    hb_glyph_position_t* glyph_pos = hb_buffer_get_glyph_positions(buf, &glyph_count);
 
-        glyph_index = ft_get_char_index_or_warn(face, codepoints[n]);
+    for (unsigned i = 0; i < glyph_count; ++i) {
+        FT_UInt glyph_index = glyph_info[i].codepoint;
+        FT_Pos x_offset = glyph_pos[i].x_offset / hinting_factor;
+        FT_Pos y_offset = glyph_pos[i].y_offset / hinting_factor;
+        FT_Pos x_advance = glyph_pos[i].x_advance / hinting_factor;
+        FT_Pos y_advance = glyph_pos[i].y_advance / hinting_factor;
 
-        // retrieve kerning distance and move pen position
-        if (use_kerning && previous && glyph_index) {
-            FT_Vector delta;
-            FT_Get_Kerning(face, previous, glyph_index, FT_KERNING_DEFAULT, &delta);
-            pen.x += (delta.x << 10) / (hinting_factor << 16);
-        }
+        pen.x += x_offset;
+        pen.y += y_offset;
+
+        FT_Glyph glyph;
         if (FT_Error error = FT_Load_Glyph(face, glyph_index, flags)) {
             throw_ft_error("Could not load glyph", error);
         }
-        // ignore errors, jump to next glyph
-
-        // extract glyph image and store it in our table
-
-        FT_Glyph thisGlyph;
-        if (FT_Error error = FT_Get_Glyph(face->glyph, &thisGlyph)) {
+        if (FT_Error error = FT_Get_Glyph(face->glyph, &glyph)) {
             throw_ft_error("Could not get glyph", error);
         }
-        // ignore errors, jump to next glyph
-
-        last_advance = face->glyph->advance.x;
-        FT_Glyph_Transform(thisGlyph, 0, &pen);
-        FT_Glyph_Transform(thisGlyph, &matrix, 0);
+        FT_Glyph_Transform(glyph, 0, &pen);
+        FT_Glyph_Transform(glyph, &matrix, 0);
+        glyphs.push_back(glyph);
         xys.push_back(pen.x);
         xys.push_back(pen.y);
 
-        FT_Glyph_Get_CBox(thisGlyph, ft_glyph_bbox_subpixels, &glyph_bbox);
-
+        FT_BBox glyph_bbox;
+        FT_Glyph_Get_CBox(glyph, ft_glyph_bbox_subpixels, &glyph_bbox);
         bbox.xMin = std::min(bbox.xMin, glyph_bbox.xMin);
         bbox.xMax = std::max(bbox.xMax, glyph_bbox.xMax);
         bbox.yMin = std::min(bbox.yMin, glyph_bbox.yMin);
         bbox.yMax = std::max(bbox.yMax, glyph_bbox.yMax);
 
-        pen.x += last_advance;
-
-        previous = glyph_index;
-        glyphs.push_back(thisGlyph);
+        pen.x -= x_offset;
+        pen.y -= y_offset;
+        pen.x += x_advance;
+        pen.y += y_advance;
     }
+
+    hb_buffer_destroy(buf);
+    hb_font_destroy(font);
 
     FT_Vector_Transform(&pen, &matrix);
     advance = pen.x;
