@@ -413,7 +413,6 @@ class Matplotlib(SetupPackage):
         # image
         ext = Extension(
             "matplotlib._image", [
-                "src/_image.cpp",
                 "src/mplutils.cpp",
                 "src/_image_wrapper.cpp",
                 "src/py_converters.cpp",

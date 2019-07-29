@@ -1,0 +1,9 @@
+The output of ``NonUniformImage`` and ``PcolorImage`` has changed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pixel-level differences may be observed in images generated using
+`.NonUniformImage` or `.PcolorImage`, typically for pixels exactly at the
+boundary between two data cells (no user-facing axes method currently generates
+`.NonUniformImage`\s, and only `.pcolorfast` can generate `.PcolorImage`\s).
+These artists are also now slower, normally by ~1.5x but sometimes more (in
+particular for ``NonUniformImage(interpolation="bilinear")``.  This slowdown
+arises from fixing occasional floating point inaccuracies.

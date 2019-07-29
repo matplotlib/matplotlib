@@ -1055,14 +1055,51 @@ class NonUniformImage(AxesImage):
             self._is_grayscale = False
         vl = self.axes.viewLim
         l, b, r, t = self.axes.bbox.extents
-        width = (round(r) + 0.5) - (round(l) - 0.5)
-        height = (round(t) + 0.5) - (round(b) - 0.5)
-        width *= magnification
-        height *= magnification
-        im = _image.pcolor(self._Ax, self._Ay, A,
-                           int(height), int(width),
-                           (vl.x0, vl.x1, vl.y0, vl.y1),
-                           _interpd_[self._interpolation])
+        width = int(((round(r) + 0.5) - (round(l) - 0.5)) * magnification)
+        height = int(((round(t) + 0.5) - (round(b) - 0.5)) * magnification)
+        x_pix = np.linspace(vl.x0, vl.x1, width)
+        y_pix = np.linspace(vl.y0, vl.y1, height)
+        if self._interpolation == "nearest":
+            x_mid = (self._Ax[:-1] + self._Ax[1:]) / 2
+            y_mid = (self._Ay[:-1] + self._Ay[1:]) / 2
+            x_int = x_mid.searchsorted(x_pix)
+            y_int = y_mid.searchsorted(y_pix)
+            # The following is equal to `A[y_int[:, None], x_int[None, :]]`,
+            # but many times faster.  Both casting to uint32 (to have an
+            # effectively 1D array) and manual index flattening matter.
+            im = (
+                np.ascontiguousarray(A).view(np.uint32).ravel()[
+                    np.add.outer(y_int * A.shape[1], x_int)]
+                .view(np.uint8).reshape((height, width, 4)))
+        else:  # self._interpolation == "bilinear"
+            # Use np.interp to compute x_int/x_float has similar speed.
+            x_int = np.clip(
+                self._Ax.searchsorted(x_pix) - 1, 0, len(self._Ax) - 2)
+            y_int = np.clip(
+                self._Ay.searchsorted(y_pix) - 1, 0, len(self._Ay) - 2)
+            idx_int = np.add.outer(y_int * A.shape[1], x_int)
+            x_frac = np.clip(
+                np.divide(x_pix - self._Ax[x_int], np.diff(self._Ax)[x_int],
+                          dtype=np.float32),  # Downcasting helps with speed.
+                0, 1)
+            y_frac = np.clip(
+                np.divide(y_pix - self._Ay[y_int], np.diff(self._Ay)[y_int],
+                          dtype=np.float32),
+                0, 1)
+            f00 = np.outer(1 - y_frac, 1 - x_frac)
+            f10 = np.outer(y_frac, 1 - x_frac)
+            f01 = np.outer(1 - y_frac, x_frac)
+            f11 = np.outer(y_frac, x_frac)
+            im = np.empty((height, width, 4), np.uint8)
+            for chan in range(4):
+                ac = A[:, :, chan].reshape(-1)  # reshape(-1) avoids a copy.
+                # Shifting the buffer start (`ac[offset:]`) avoids an array
+                # addition (`ac[idx_int + offset]`).
+                buf = f00 * ac[idx_int]
+                buf += f10 * ac[A.shape[1]:][idx_int]
+                buf += f01 * ac[1:][idx_int]
+                buf += f11 * ac[A.shape[1] + 1:][idx_int]
+                im[:, :, chan] = buf  # Implicitly casts to uint8.
         return im, l, b, IdentityTransform()
 
     def set_data(self, x, y, A):
@@ -1186,27 +1223,33 @@ class PcolorImage(AxesImage):
             raise RuntimeError('You must first set the image array')
         if unsampled:
             raise ValueError('unsampled not supported on PColorImage')
-        fc = self.axes.patch.get_facecolor()
-        bg = mcolors.to_rgba(fc, 0)
-        bg = (np.array(bg)*255).astype(np.uint8)
+
+        if self._rgbacache is None:
+            A = self.to_rgba(self._A, bytes=True)
+            self._rgbacache = np.pad(A, [(1, 1), (1, 1), (0, 0)], "constant")
+            if self._A.ndim == 2:
+                self._is_grayscale = self.cmap.is_gray()
+        padded_A = self._rgbacache
+        bg = mcolors.to_rgba(self.axes.patch.get_facecolor(), 0)
+        bg = (np.array(bg) * 255).astype(np.uint8)
+        if (padded_A[0, 0] != bg).all():
+            padded_A[[0, -1], :] = padded_A[:, [0, -1]] = bg
+
         l, b, r, t = self.axes.bbox.extents
         width = (round(r) + 0.5) - (round(l) - 0.5)
         height = (round(t) + 0.5) - (round(b) - 0.5)
         width = int(round(width * magnification))
         height = int(round(height * magnification))
-        if self._rgbacache is None:
-            A = self.to_rgba(self._A, bytes=True)
-            self._rgbacache = A
-            if self._A.ndim == 2:
-                self._is_grayscale = self.cmap.is_gray()
-        else:
-            A = self._rgbacache
         vl = self.axes.viewLim
-        im = _image.pcolor2(self._Ax, self._Ay, A,
-                            height,
-                            width,
-                            (vl.x0, vl.x1, vl.y0, vl.y1),
-                            bg)
+
+        x_pix = np.linspace(vl.x0, vl.x1, width)
+        y_pix = np.linspace(vl.y0, vl.y1, height)
+        x_int = self._Ax.searchsorted(x_pix)
+        y_int = self._Ay.searchsorted(y_pix)
+        im = (  # See comment in NonUniformImage.make_image re: performance.
+            padded_A.view(np.uint32).ravel()[
+                np.add.outer(y_int * padded_A.shape[1], x_int)]
+            .view(np.uint8).reshape((height, width, 4)))
         return im, l, b, IdentityTransform()
 
     def _check_unsampled_image(self):
