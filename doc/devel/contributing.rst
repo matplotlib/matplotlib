@@ -207,7 +207,7 @@ A brief overview is:
    When you're done editing e.g., ``lib/matplotlib/collections.py``, do::
 
       $ git add lib/matplotlib/collections.py
-      $ git commit
+      $ git commit -m "Your commit message"
 
    to record your changes in Git, then push them to GitHub with::
 
