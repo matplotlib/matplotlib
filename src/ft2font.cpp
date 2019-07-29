@@ -568,7 +568,7 @@ void FT2Font::clear()
 void FT2Font::set_size(double ptsize, double dpi)
 {
     FT_Error error = FT_Set_Char_Size(
-        face, (long)(ptsize * 64), 0, (unsigned int)(dpi * hinting_factor), (unsigned int)dpi);
+        face, (FT_F26Dot6)(ptsize * 64), 0, (FT_UInt)(dpi * hinting_factor), (FT_UInt)dpi);
     if (error) {
         throw_ft_error("Could not set the fontsize", error);
     }
@@ -661,7 +661,7 @@ void FT2Font::set_text(
         xys.push_back(pen.x);
         xys.push_back(pen.y);
 
-        FT_Glyph_Get_CBox(thisGlyph, ft_glyph_bbox_subpixels, &glyph_bbox);
+        FT_Glyph_Get_CBox(thisGlyph, FT_GLYPH_BBOX_SUBPIXELS, &glyph_bbox);
 
         bbox.xMin = std::min(bbox.xMin, glyph_bbox.xMin);
         bbox.xMax = std::max(bbox.xMax, glyph_bbox.xMax);
