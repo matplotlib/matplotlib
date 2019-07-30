@@ -1,11 +1,13 @@
 """
+=====================================================
 Customizing Matplotlib with style sheets and rcParams
 =====================================================
 
 Tips for customizing the properties and default styles of Matplotlib.
 
+
 Using style sheets
-------------------
+==================
 
 The ``style`` package adds support for easy-to-switch plotting "styles" with
 the same parameters as a
@@ -93,8 +95,8 @@ plt.show()
 ###############################################################################
 # .. _matplotlib-rcparams:
 #
-# matplotlib rcParams
-# ===================
+# Using Matplotlib rcParams
+# =========================
 #
 # .. _customizing-with-dynamic-rc-settings:
 #
@@ -103,8 +105,8 @@ plt.show()
 #
 # You can also dynamically change the default rc settings in a python script or
 # interactively from the python shell. All of the rc settings are stored in a
-# dictionary-like variable called :data:`matplotlib.rcParams`, which is global to
-# the matplotlib package. rcParams can be modified directly, for example:
+# dictionary-like variable called :data:`matplotlib.rcParams`, which is global
+# to the matplotlib package. rcParams can be modified directly, for example:
 
 mpl.rcParams['lines.linewidth'] = 2
 mpl.rcParams['lines.color'] = 'r'
@@ -119,8 +121,8 @@ mpl.rc('lines', linewidth=4, color='g')
 plt.plot(data)
 
 ###############################################################################
-# The :func:`matplotlib.rcdefaults` command will restore the standard matplotlib
-# default settings.
+# The :func:`matplotlib.rcdefaults` command will restore the standard default
+# settings of matplotlib.
 #
 # There is some degree of validation when setting the values of rcParams, see
 # :mod:`matplotlib.rcsetup` for details.
@@ -130,52 +132,88 @@ plt.plot(data)
 # The :file:`matplotlibrc` file
 # -----------------------------
 #
-# matplotlib uses :file:`matplotlibrc` configuration files to customize all kinds
-# of properties, which we call `rc settings` or `rc parameters`. You can control
-# the defaults of almost every property in matplotlib: figure size and dpi, line
-# width, color and style, axes, axis and grid properties, text and font
-# properties and so on. matplotlib looks for :file:`matplotlibrc` in four
-# locations, in the following order:
+# matplotlib uses :file:`matplotlibrc` configuration file to customize all
+# kinds of properties, which we call `rc settings` or `rc parameters`. By
+# modifying this file, we can control the defaults of almost every property in
+# matplotlib: figure size and dpi, line width, color and style, axes, axis and
+# grid properties, text and font properties and so on.
+#
+# Every matplotlib installation comes with a default copy of this file on our
+# system in :file:`{PYINSTALL}/site-packages/matplotlib/mpl-data/matplotlibrc`,
+# where :file:`{PYINSTALL}` is related to the specific Python installation
+# location (i.e. considering there might be multiple versions of Python
+# installations, or multiple Python virtual environments, or on different OS).
+# For example, it could be :file:`C:\\Python37\\Lib` on Windows, or something
+# like :file:`/usr/lib/python3.7` on Linux, or some Python virtual environments
+# containing path :file:`$HOME/venvs/py37/lib/python3.7`.
+#
+# Every time when we *import* matplotlib, it will look for :file:`matplotlibrc`
+# in four locations, in the following order:
 #
 # 1. :file:`matplotlibrc` in the current working directory, usually used for
 #    specific customizations that you do not want to apply elsewhere.
 #
-# 2. :file:`$MATPLOTLIBRC` if it is a file, else :file:`$MATPLOTLIBRC/matplotlibrc`.
+# 2. When environment variable ``$MATPLOTLIBRC`` exists, matplotlib then looks
+#    for :file:`$MATPLOTLIBRC` if it is a file, else :file:`$MATPLOTLIBRC/matplotlibrc`.
 #
 # 3. It next looks in a user-specific place, depending on your platform:
 #
-#    - On Linux and FreeBSD, it looks in :file:`.config/matplotlib/matplotlibrc`
-#      (or `$XDG_CONFIG_HOME/matplotlib/matplotlibrc`) if you've customized
-#      your environment.
+#    - On Linux and FreeBSD, it looks in :file:`$HOME/.config/matplotlib/matplotlibrc`
+#      or :file:`$XDG_CONFIG_HOME/matplotlib/matplotlibrc` if the environment
+#      variable ``$XDG_CONFIG_HOME`` is set.
 #
-#    - On other platforms, it looks in :file:`.matplotlib/matplotlibrc`.
+#    - On other platforms, it looks in :file:`$HOME/.matplotlib/matplotlibrc`.
 #
-#    See :ref:`locating-matplotlib-config-dir`.
+#    See :ref:`locating-matplotlib-config-dir` for more details on how to find
+#    out these locations.
 #
-# 4. :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, where
-#    :file:`{INSTALL}` is something like
-#    :file:`/usr/lib/python3.7/site-packages` on Linux, and maybe
-#    :file:`C:\\Python37\\Lib\\site-packages` on Windows. Every time you
-#    install matplotlib, this file will be overwritten, so if you want
-#    your customizations to be saved, please move this file to your
+# 4. :file:`{PYINSTALL}/site-packages/matplotlib/mpl-data/matplotlibrc`. Every
+#    time you install/update matplotlib, this file will be overwritten, so if
+#    you want your customizations to be saved, please move this file to your
 #    user-specific matplotlib directory.
 #
 # Once a :file:`matplotlibrc` file has been found, it will *not* search any of
-# the other paths.
+# the other locations.
 #
 # To display where the currently active :file:`matplotlibrc` file was
 # loaded from, one can do the following::
 #
-#   >>> import matplotlib
-#   >>> matplotlib.matplotlib_fname()
+#   >>> import matplotlib as mpl
+#   >>> mpl.matplotlib_fname()
 #   '/home/foo/.config/matplotlib/matplotlibrc'
 #
-# See below for a sample :ref:`matplotlibrc file<matplotlibrc-sample>`.
+#
+# Formats of :file:`matplotlibrc` file
+# ------------------------------------
+#
+# The :file:`matplotlibrc` file is best viewed in a editor which supports Python
+# mode syntax highlighting. Blank lines, lines starting with a comment symbol
+# are ignored, as are trailing comments.  Other lines must have the format::
+#
+#     key : val  ## optional comment
+#
+#
+# Colors, to specify color values in :file:`matplotlibrc` file, we can either use:
+#
+# - an RGB or RGBA tuple, e.g. ``(1.0, 0.5, 0.0)`` or ``(0.1, 0.2, 0.5, 0.3)``
+# - a hex RGB or RGBA string, e.g. ``0f0f0f`` or ``0f0f0f80``
+# - a scalar grayscale intensity, e.g. ``0.75``
+# - a matplotlib color string, e.g. ``r``, ``k``, or ``b``
+# - a X11/CSS4 color name, e.g. ``red``, ``blue``, ``darkslategray``
+# - a name from the xkcd color survey, e.g. ``xkcd:sky blue``
+# - one of the Tableau Colors from the 'T10' categorical palette, e.g. ``tab:blue``
+# - a "CN" color spec, i.e. `'C'` followed by a number, e.g. ``C3``
+#
+# See the :doc:`Specifying Colors guide</tutorials/colors/colors>` for more
+# details on valid color names.
+#
+#
+# Following is a default sample of :ref:`matplotlibrc file<matplotlibrc-sample>`.
 #
 # .. _matplotlibrc-sample:
 #
-# A sample matplotlibrc file
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# A sample :file:`matplotlibrc` file
+# ----------------------------------
 #
 # .. literalinclude:: ../../../matplotlibrc.template
 #

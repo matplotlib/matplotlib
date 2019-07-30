@@ -1,7 +1,15 @@
 """
-*****************
+=================
 Specifying Colors
-*****************
+=================
+
+Tips on how to specify colors in Matplotlib.
+
+
+.. valid-color-values:
+
+Valid color values
+==================
 
 Matplotlib recognizes the following formats to specify a color:
 
@@ -47,8 +55,9 @@ For more information on colors in matplotlib see
 * the `matplotlib.colors` API;
 * the :doc:`/gallery/color/named_colors` example.
 
+
 "CN" color selection
---------------------
+====================
 
 "CN" colors are converted to RGBA as soon as the artist is created.  For
 example,
@@ -82,8 +91,8 @@ demo('seaborn')
 #
 # .. _xkcd-colors:
 #
-# xkcd v X11/CSS4
-# ---------------
+# xkcd vs. X11/CSS4
+# =================
 #
 # The xkcd colors are derived from a user survey conducted by the
 # webcomic xkcd.  `Details of the survey are available on the xkcd blog

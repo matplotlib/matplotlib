@@ -1,45 +1,24 @@
-#### MATPLOTLIBRC FORMAT
-
-## This is a sample matplotlib configuration file - you can find a copy
-## of it on your system in site-packages/matplotlib/mpl-data/matplotlibrc
-## (which related to your Python installation location).
-##
-## If you edit it there, please note that it will be overwritten in your
-## next install.  If you want to keep a permanent local copy that will not
-## be overwritten, place it in one of the following locations:
-## unix/linux:
-##     $HOME/.config/matplotlib/matplotlibrc OR
-##     $XDG_CONFIG_HOME/matplotlib/matplotlibrc (if $XDG_CONFIG_HOME is set)
-## other platforms:
-##     $HOME/.matplotlib/matplotlibrc
+## ############################################################################
+## # MATPLOTLIBRC CONFIGURATION FILE                                          #
+## ############################################################################
 ##
 ## See https://matplotlib.org/users/customizing.html#the-matplotlibrc-file
-## for more details on the paths which are checked for the configuration file.
+## for more details on path resolution and formats of this file.
 ##
-## This file is best viewed in a editor which supports python mode syntax
-## highlighting.  Blank lines, or lines starting with a comment symbol, are
-## ignored, as are trailing comments.  Other lines must have the format:
-##     key : val  ## optional comment
-##
-## Formatting and style conventions for this file:
-##     - at least one whitesapce AROUND `:` to seperate key and val
-##         * prefer one whitesapce except for block colon alignment
-##     - at least two whitesapces BEFORE `##` to seperate the key-val pair and
-##       the trailing comments
-##         * prefer two whitesapces except for block `##` alignment
-##     - at least one whitesapce AFTER `##` to seperate the `##` marker and
-##       the comment text
-##         * prefer one whitesapce except for indentation (listing, etc.), in
+## Style conventions:
+##     - to seperate key and val
+##         + at least one whitespace AROUND ``:``
+##         + prefer one whitespace except for block colon alignment
+##     - to seperate the trailing comments and the key-val pair
+##         + at least two whitespaces BEFORE ``##``
+##         + prefer two whitespaces except for block trailing comments alignment
+##     - to seperate the comment symbol and the comment text
+##         + at least one whitespace AFTER ``##``
+##         + prefer one whitespace except for indentation (listing, etc.), in
 ##           which case, four more whitespaces are preferred
+##     - to seperate different sections: use two blank lines
 ##
-## Colors: for the color values below, you can either use
-##     - a matplotlib color string, such as r, k, or b
-##     - an rgb tuple, such as (1.0, 0.5, 0.0)
-##     - a hex string, such as ff00ff
-##     - a scalar grayscale intensity such as 0.75
-##     - a legal html color name, e.g., red, blue, darkslategray
-##
-## Matplotlib configuration are currently divided into following parts:
+## Matplotlib configuration are currently divided into following sections:
 ##     - BACKENDS
 ##     - LINES
 ##     - PATCHES
@@ -64,8 +43,6 @@
 ##     - SAVING FIGURES
 ##     - INTERACTIVE KEYMAPS
 ##     - ANIMATION
-
-##### CONFIGURATION BEGINS HERE
 
 
 ## ***************************************************************************

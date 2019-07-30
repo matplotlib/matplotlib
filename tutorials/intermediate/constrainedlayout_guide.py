@@ -1,7 +1,7 @@
 """
-================================
+========================
 Constrained Layout Guide
-================================
+========================
 
 How to use constrained-layout to fit plots within your figure cleanly.
 
@@ -37,6 +37,7 @@ Those are described in detail throughout the following sections.
     running Constrained Layout and use ``ax.set_position()`` in your code
     with ``constrained_layout=False``.
 
+
 Simple Example
 ==============
 
@@ -44,7 +45,6 @@ In Matplotlib, the location of axes (including subplots) are specified in
 normalized figure coordinates. It can happen that your axis labels or
 titles (or sometimes even ticklabels) go outside the figure area, and are thus
 clipped.
-
 """
 
 # sphinx_gallery_thumbnail_number = 18
