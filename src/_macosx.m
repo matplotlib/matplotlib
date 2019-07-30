@@ -178,6 +178,78 @@ static int wait_for_stdin(void)
     return 1;
 }
 
+static int set_icon(void)
+{
+    PyObject* mpl = PyImport_ImportModule("matplotlib");
+    if (!mpl)
+    {
+      return -1;
+    }
+
+    PyObject* get_data_path = PyObject_GetAttrString(mpl, "get_data_path");
+    if (!get_data_path)
+    {
+      Py_DECREF(mpl);
+      return -1;
+    }
+
+    PyObject* arg = PyTuple_New(0);
+    if (!arg)
+    {
+      Py_DECREF(mpl);
+      Py_DECREF(get_data_path);
+      return -1;
+    }
+
+    PyObject* path = PyObject_Call(get_data_path, arg, NULL);
+    if (!path)
+    {
+      Py_DECREF(mpl);
+      Py_DECREF(get_data_path);
+      Py_DECREF(arg);
+      return -1;
+    }
+
+    PyObject* pdf_rel = PyUnicode_FromString("/images/matplotlib.pdf");
+    PyObject* pdf_absolute = PyUnicode_Concat(path, pdf_rel);
+    if (!pdf_absolute) {
+      Py_DECREF(mpl);
+      Py_DECREF(get_data_path);
+      Py_DECREF(arg);
+      Py_DECREF(path);
+      Py_DECREF(pdf_rel);
+    }
+
+    Py_ssize_t size;
+    const char* path_string = PyUnicode_AsUTF8AndSize(pdf_absolute, &size);
+    if (!path_string)
+    {
+      Py_DECREF(mpl);
+      Py_DECREF(get_data_path);
+      Py_DECREF(arg);
+      Py_DECREF(path);
+      Py_DECREF(pdf_rel);
+      Py_DECREF(pdf_absolute);
+      return -1;
+    }
+
+    NSString* path_nsstring =
+      [[NSString alloc] initWithUTF8String: path_string];
+
+    NSImage* image = [[NSImage alloc] initByReferencingFile: path_nsstring];
+
+    NSApplication* app = [NSApplication sharedApplication];
+    app.applicationIconImage = image;
+
+    Py_DECREF(mpl);
+    Py_DECREF(get_data_path);
+    Py_DECREF(arg);
+    Py_DECREF(path);
+    Py_DECREF(pdf_rel);
+    Py_DECREF(pdf_absolute);
+    return 0;
+}
+
 /* ---------------------------- Cocoa classes ---------------------------- */
 
 @interface WindowServerConnectionManager : NSObject
@@ -705,7 +777,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     View* view;
     const char* title;
     PyObject* size;
-    int width, height;
+    int width, height, result;
     PyObject* obj;
     FigureCanvas* canvas;
 
@@ -739,6 +811,9 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     rect.size.width = width;
 
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+
+    set_icon();
+
     self->window = [self->window initWithContentRect: rect
                                          styleMask: NSTitledWindowMask
                                                   | NSClosableWindowMask
@@ -755,6 +830,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     [window setDelegate: view];
     [window makeFirstResponder: view];
     [[window contentView] addSubview: view];
+
 
     [pool release];
     return 0;
