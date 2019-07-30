@@ -35,7 +35,6 @@ per-file-ignores =
     lib/matplotlib/_mathtext_data.py: E203, E261
     lib/matplotlib/font_manager.py: E203, E221, E251, E501
     lib/matplotlib/mathtext.py: E221, E251
-    lib/matplotlib/rcsetup.py: E501
     lib/matplotlib/tests/test_mathtext.py: E501
     lib/matplotlib/transforms.py: E201, E202, E203
     lib/matplotlib/tri/triinterpolate.py: E201, E221
