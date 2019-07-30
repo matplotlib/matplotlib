@@ -463,6 +463,10 @@ def update_savefig_format(value):
     # the new savefig.format does not.  We need to fix this here.
     value = validate_string(value)
     if value == 'auto':
+        cbook.warn_deprecated(
+            "3.2", message="Support for setting the 'savefig.format' rcParam "
+            "to 'auto' is deprecated since %(since)s and will be removed "
+            "%(removal)s; set it to 'png' instead.")
         value = 'png'
     return value
 
@@ -569,16 +573,15 @@ validate_legend_loc = ValidateInStrings(
      'upper center',
      'center'], ignorecase=True)
 
-
-def validate_svg_fonttype(s):
-    if s in ["none", "path"]:
-        return s
-    raise ValueError("Unrecognized svg.fonttype string '{}'; "
-                     "valid strings are 'none', 'path'")
+validate_svg_fonttype = ValidateInStrings('svg.fonttype', ['none', 'path'])
 
 
 def validate_hinting(s):
     if s in (True, False):
+        cbook.warn_deprecated(
+            "3.2", message="Support for setting the text.hinting rcParam to "
+            "True or False is deprecated since %(since)s and will be removed "
+            "%(removal)s; set it to its synonyms 'auto' or 'none' instead.")
         return s
     if s.lower() in ('auto', 'native', 'either', 'none'):
         return s.lower()

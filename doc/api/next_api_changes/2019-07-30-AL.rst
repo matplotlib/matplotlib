@@ -1,0 +1,7 @@
+API deprecations
+````````````````
+
+Setting :rc:`savefig.format` to "auto" is deprecated; use its synonym "png" instead.
+
+Setting :rc:`text.hinting` to True or False is deprecated; use their synonyms
+"auto" or "none" instead.
