@@ -444,7 +444,7 @@ def get_sample_data(fname, asfileobj=True):
 
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
-    path = Path(matplotlib.get_data_path(), 'sample_data', fname)
+    path = _get_data_path('sample_data', fname)
     if asfileobj:
         suffix = path.suffix.lower()
         if suffix == '.gz':
