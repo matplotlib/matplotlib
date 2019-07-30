@@ -960,12 +960,12 @@ class PathCollection(_CollectionWithSizes):
             the legend labels have the correct values;
             e.g. *func = np.exp(x, 10)*.
         kwargs : further parameters
-            Allowed kwargs are *color* and *size*. E.g. it may be useful to
-            set the color of the markers if *prop="sizes"* is used; similarly
-            to set the size of the markers if *prop="colors"* is used.
-            Any further parameters are passed onto the `.Line2D` instance.
-            This may be useful to e.g. specify a different *markeredgecolor* or
-            *alpha* for the legend handles.
+            Allowed keyword arguments are *color* and *size*. E.g. it may be
+            useful to set the color of the markers if *prop="sizes"* is used;
+            similarly to set the size of the markers if *prop="colors"* is
+            used. Any further parameters are passed onto the `.Line2D`
+            instance. This may be useful to e.g. specify a different
+            *markeredgecolor* or *alpha* for the legend handles.
 
         Returns
         -------

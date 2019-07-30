@@ -288,10 +288,10 @@ class Line2D(Artist):
                  **kwargs
                  ):
         """
-        Create a :class:`~matplotlib.lines.Line2D` instance with *x*
-        and *y* data in sequences *xdata*, *ydata*.
+        Create a `.Line2D` instance with *x* and *y* data in sequences of
+        *xdata*, *ydata*.
 
-        The kwargs are :class:`~matplotlib.lines.Line2D` properties:
+        Additional keyword arguments are `.Line2D` properties:
 
         %(_Line2D_docstr)s
 
@@ -1451,7 +1451,7 @@ class Line2D(Artist):
 class VertexSelector:
     """
     Manage the callbacks to maintain a list of selected vertices for
-    :class:`matplotlib.lines.Line2D`. Derived classes should override
+    `.Line2D`. Derived classes should override
     :meth:`~matplotlib.lines.VertexSelector.process_selected` to do
     something with the picks.
 
@@ -1481,10 +1481,9 @@ class VertexSelector:
     """
     def __init__(self, line):
         """
-        Initialize the class with a :class:`matplotlib.lines.Line2D`
-        instance.  The line should already be added to some
-        :class:`matplotlib.axes.Axes` instance and should have the
-        picker property set.
+        Initialize the class with a `.Line2D` instance.  The line should
+        already be added to some :class:`matplotlib.axes.Axes` instance and
+        should have the picker property set.
         """
         if line.axes is None:
             raise RuntimeError('You must first add the line to the Axes')

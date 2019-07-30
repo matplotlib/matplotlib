@@ -171,7 +171,7 @@ class Cell(Rectangle):
         """
         Update the text properties.
 
-        Valid kwargs are
+        Valid keyword arguments are:
 
         %(Text)s
         """

@@ -1840,7 +1840,7 @@ class _AxesBase(martist.Artist):
 
     def add_line(self, line):
         """
-        Add a `~.Line2D` to the axes' lines; return the line.
+        Add a `.Line2D` to the axes' lines; return the line.
         """
         self._set_artist_props(line)
         if line.get_clip_path() is None:
@@ -2741,9 +2741,9 @@ class _AxesBase(martist.Artist):
 
                 grid(color='r', linestyle='-', linewidth=2)
 
-            Valid *kwargs* are
+            Valid keyword arguments are:
 
-        %(_Line2D_docstr)s
+            %(_Line2D_docstr)s
 
         Notes
         -----
@@ -2921,7 +2921,7 @@ class _AxesBase(martist.Artist):
         grid_linewidth : float
             Width of gridlines in points.
         grid_linestyle : str
-            Any valid `~matplotlib.lines.Line2D` line style spec.
+            Any valid `.Line2D` line style spec.
 
         Examples
         --------
