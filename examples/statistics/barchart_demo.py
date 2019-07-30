@@ -49,7 +49,7 @@ def format_score(scr, test):
     """
     Build up the score labels for the right Y-axis by first
     appending a carriage return to each string and then tacking on
-    the appropriate meta information (i.e., 'laps' vs 'seconds'). We
+    the appropriate meta information (i.e., 'laps' vs. 'seconds'). We
     want the labels centered on the ticks, so if there is no meta
     info (like for pushups) then don't add the carriage return to
     the string

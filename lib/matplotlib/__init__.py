@@ -1145,8 +1145,8 @@ class rc_context:
                 plt.plot(x, b)
             plt.plot(x, c)
 
-    The 'a' vs 'x' and 'c' vs 'x' plots would have settings from
-    'screen.rc', while the 'b' vs 'x' plot would have settings from
+    The 'a' vs. 'x' and 'c' vs. 'x' plots would have settings from
+    'screen.rc', while the 'b' vs. 'x' plot would have settings from
     'print.rc'.
 
     A dictionary can also be passed to the context manager::

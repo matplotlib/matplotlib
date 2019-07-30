@@ -1646,8 +1646,8 @@ class LightSource:
             The amount to exaggerate the elevation values by when calculating
             illumination. This can be used either to correct for differences in
             units between the x-y coordinate system and the elevation
-            coordinate system (e.g. decimal degrees vs meters) or to exaggerate
-            or de-emphasize topographic effects.
+            coordinate system (e.g. decimal degrees vs. meters) or to
+            exaggerate or de-emphasize topographic effects.
         dx : number, optional
             The x-spacing (columns) of the input *elevation* grid.
         dy : number, optional
@@ -1770,8 +1770,8 @@ class LightSource:
             The amount to exaggerate the elevation values by when calculating
             illumination. This can be used either to correct for differences in
             units between the x-y coordinate system and the elevation
-            coordinate system (e.g. decimal degrees vs meters) or to exaggerate
-            or de-emphasize topography.
+            coordinate system (e.g. decimal degrees vs. meters) or to
+            exaggerate or de-emphasize topography.
         dx : number, optional
             The x-spacing (columns) of the input *elevation* grid.
         dy : number, optional
@@ -1836,8 +1836,8 @@ class LightSource:
             The amount to exaggerate the elevation values by when calculating
             illumination. This can be used either to correct for differences in
             units between the x-y coordinate system and the elevation
-            coordinate system (e.g. decimal degrees vs meters) or to exaggerate
-            or de-emphasize topography.
+            coordinate system (e.g. decimal degrees vs. meters) or to
+            exaggerate or de-emphasize topography.
         dx : number, optional
             The x-spacing (columns) of the input *elevation* grid.
         dy : number, optional

@@ -4278,7 +4278,7 @@ class Axes(_AxesBase):
                 verts=None, edgecolors=None, *, plotnonfinite=False,
                 **kwargs):
         """
-        A scatter plot of *y* vs *x* with varying marker size and/or color.
+        A scatter plot of *y* vs. *x* with varying marker size and/or color.
 
         Parameters
         ----------
