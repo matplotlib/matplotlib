@@ -504,7 +504,7 @@ Artist-level {get,set}_usetex for text
 ``````````````````````````````````````
 
 Add ``{get,set}_usetex`` methods to :class:`~matplotlib.text.Text` objects
-which allow artist-level control of LaTeX rendering vs the internal mathtex
+which allow artist-level control of LaTeX rendering vs. the internal mathtex
 rendering.
 
 

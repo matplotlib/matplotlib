@@ -16,8 +16,8 @@ to highlight some neat features and best-practices using Matplotlib.
     `this excellent blog post <http://pbpython.com/effective-matplotlib.html>`_
     by Chris Moffitt. It was transformed into this tutorial by Chris Holdgraf.
 
-A note on the Object-Oriented API vs Pyplot
-===========================================
+A note on the Object-Oriented API vs. Pyplot
+============================================
 
 Matplotlib has two interfaces. The first is an object-oriented (OO)
 interface. In this case, we utilize an instance of :class:`axes.Axes`
