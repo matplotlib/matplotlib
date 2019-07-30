@@ -37,16 +37,14 @@ ax.plot([1, 2, 3])
 # etc.).
 fig.savefig("test.png")
 
-# Option 2: Save the figure to a string.
+# Option 2: Retrieve a view on the renderer buffer...
 canvas.draw()
-s, (width, height) = canvas.print_to_buffer()
-
-# Option 2a: Convert to a NumPy array.
-X = np.frombuffer(s, np.uint8).reshape((height, width, 4))
-
-# Option 2b: Pass off to PIL.
+buf = canvas.buffer_rgba()
+# ... convert to a NumPy array ...
+X = np.asarray(buf)
+# ... and pass it to PIL.
 from PIL import Image
-im = Image.frombytes("RGBA", (width, height), s)
+im = Image.fromarray(X)
 
 # Uncomment this line to display the image using ImageMagick's `display` tool.
 # im.show()
