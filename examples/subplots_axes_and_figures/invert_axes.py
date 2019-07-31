@@ -12,13 +12,14 @@ import numpy as np
 
 t = np.arange(0.01, 5.0, 0.01)
 s = np.exp(-t)
-plt.plot(t, s)
 
-plt.xlim(5, 0)  # decreasing time
+fig, ax = plt.subplots()
 
-plt.xlabel('decreasing time (s)')
-plt.ylabel('voltage (mV)')
-plt.title('Should be growing...')
-plt.grid(True)
+ax.plot(t, s)
+ax.set_xlim(5, 0)  # decreasing time
+ax.set_xlabel('decreasing time (s)')
+ax.set_ylabel('voltage (mV)')
+ax.set_title('Should be growing...')
+ax.grid(True)
 
 plt.show()
