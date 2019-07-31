@@ -62,7 +62,7 @@ requirements that are needed to build the documentation. They are listed in
   
   .. code-block:: sh
 
-   virtualenv venv
+   python -m venv 
    source /path/to/venv/bin/activate
   
   * You will need to install the addtional requirements.
