@@ -2800,16 +2800,12 @@ class LogitLocator(MaxNLocator):
             vmin, vmax = vmax, vmin
         if not np.isfinite(vmin) or not np.isfinite(vmax):
             vmin, vmax = initial_range  # Initial range, no data plotted yet.
-        elif vmax <= 0:
+        elif vmax <= 0 or vmin >= 1:
+            # vmax <= 0 occurs when all values are negative
+            # vmin >= 1 occurs when all values are greater than one
             cbook._warn_external(
-                "Data has no positive values, and therefore cannot be "
+                "Data has no values between 0 and 1, and therefore cannot be "
                 "logit-scaled."
-            )
-            vmin, vmax = initial_range
-        elif vmin >= 1:
-            cbook._warn_external(
-                "Data has no values smaller than one, and therefore cannot "
-                "be logit-scaled."
             )
             vmin, vmax = initial_range
         else:
