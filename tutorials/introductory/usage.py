@@ -357,12 +357,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # the concept of the renderer (the thing that actually does the drawing)
 # from the canvas (the place where the drawing goes).  The canonical
 # renderer for user interfaces is ``Agg`` which uses the `Anti-Grain
-# Geometry`_ C++ library to make a raster (pixel) image of the figure.
-# All of the user interfaces except ``macosx`` can be used with
-# agg rendering, e.g., ``WXAgg``, ``GTK3Agg``, ``QT4Agg``, ``QT5Agg``,
-# ``TkAgg``.  In addition, some of the user interfaces support other rendering
-# engines.  For example, with GTK+ 3, you can also select Cairo rendering
-# (backend ``GTK3Cairo``).
+# Geometry`_ C++ library to make a raster (pixel) image of the figure; it
+# is used by the ``Qt5Agg``, ``Qt4Agg``, ``GTK3Agg``, ``wxAgg``, ``TkAgg``, and
+# ``macosx`` backends.  An alternative renderer is based on the Cairo library,
+# used by ``Qt5Cairo``, ``Qt4Cairo``, etc.
 #
 # For the rendering engines, one can also distinguish between `vector
 # <https://en.wikipedia.org/wiki/Vector_graphics>`_ or `raster
@@ -422,7 +420,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Qt4Agg    Agg rendering to a :term:`Qt4` canvas (requires PyQt4_ or
 #           ``pyside``).  This backend can be activated in IPython with
 #           ``%matplotlib qt4``.
-# WXAgg     Agg rendering to a :term:`wxWidgets` canvas (requires wxPython_ 4).
+# wxAgg     Agg rendering to a :term:`wxWidgets` canvas (requires wxPython_ 4).
 #           This backend can be activated in IPython with ``%matplotlib wx``.
 # ========= ================================================================
 #
