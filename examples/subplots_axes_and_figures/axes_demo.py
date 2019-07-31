@@ -4,6 +4,13 @@ Axes Demo
 =========
 
 Example use of ``fig.add_axes`` to create inset axes within the main plot axes.
+
+Please see also the :ref:`axes_grid_examples` section, and the following three
+examples:
+
+   - :doc:`/gallery/subplots_axes_and_figures/zoom_inset_axes`
+   - :doc:`/gallery/axes_grid1/inset_locator_demo`
+   - :doc:`/gallery/axes_grid1/inset_locator_demo2`
 """
 import matplotlib.pyplot as plt
 import numpy as np
