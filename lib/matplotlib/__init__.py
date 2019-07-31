@@ -330,7 +330,8 @@ def _get_executable_info(name):
         # at least min_ver (if set); else, raise ExecutableNotFoundError.
         try:
             output = subprocess.check_output(
-                args, stderr=subprocess.STDOUT, universal_newlines=True)
+                args, stderr=subprocess.STDOUT,
+                universal_newlines=True, errors="replace")
         except subprocess.CalledProcessError as _cpe:
             if ignore_exit_code:
                 output = _cpe.output
