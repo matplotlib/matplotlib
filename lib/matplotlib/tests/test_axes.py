@@ -5656,9 +5656,9 @@ def test_axis_set_tick_params_labelsize_labelcolor():
 
     # Expected values after setting the ticks
     assert axis_1.yaxis.majorTicks[0]._size == 4.0
-    assert axis_1.yaxis.majorTicks[0]._color == 'k'
-    assert axis_1.yaxis.majorTicks[0]._labelsize == 30.0
-    assert axis_1.yaxis.majorTicks[0]._labelcolor == 'red'
+    assert axis_1.yaxis.majorTicks[0].tick1line.get_color() == 'k'
+    assert axis_1.yaxis.majorTicks[0].label1.get_size() == 30.0
+    assert axis_1.yaxis.majorTicks[0].label1.get_color() == 'red'
 
 
 def test_axes_tick_params_gridlines():
@@ -5667,10 +5667,10 @@ def test_axes_tick_params_gridlines():
     ax.tick_params(grid_color='b', grid_linewidth=5, grid_alpha=0.5,
                    grid_linestyle='dashdot')
     for axis in ax.xaxis, ax.yaxis:
-        assert axis.majorTicks[0]._grid_color == 'b'
-        assert axis.majorTicks[0]._grid_linewidth == 5
-        assert axis.majorTicks[0]._grid_alpha == 0.5
-        assert axis.majorTicks[0]._grid_linestyle == 'dashdot'
+        assert axis.majorTicks[0].gridline.get_color() == 'b'
+        assert axis.majorTicks[0].gridline.get_linewidth() == 5
+        assert axis.majorTicks[0].gridline.get_alpha() == 0.5
+        assert axis.majorTicks[0].gridline.get_linestyle() == '-.'
 
 
 def test_axes_tick_params_ylabelside():
