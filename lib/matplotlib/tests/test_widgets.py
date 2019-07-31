@@ -264,6 +264,9 @@ def test_CheckButtons():
 
 @image_comparison(['check_radio_buttons.png'], style='mpl20', remove_text=True)
 def test_check_radio_buttons_image():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     get_ax()
     plt.subplots_adjust(left=0.3)
     rax1 = plt.axes([0.05, 0.7, 0.15, 0.15])

@@ -525,6 +525,9 @@ FT2Font::FT2Font(FT_Open_Args &open_args, long hinting_factor_) : image(), face(
         throw_ft_error("Can not load face", error);
     }
 
+    // set default kerning factor to 0, i.e., no kerning manipulation
+    kerning_factor = 0;
+
     // set a default fontsize 12 pt at 72dpi
     hinting_factor = hinting_factor_;
 
@@ -602,10 +605,15 @@ int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode)
     FT_Vector delta;
 
     if (!FT_Get_Kerning(face, left, right, mode, &delta)) {
-        return (int)(delta.x) / hinting_factor;
+        return (int)(delta.x) / (hinting_factor << kerning_factor);
     } else {
         return 0;
     }
+}
+
+void FT2Font::set_kerning_factor(int factor)
+{
+    kerning_factor = factor;
 }
 
 void FT2Font::set_text(
@@ -640,7 +648,7 @@ void FT2Font::set_text(
         if (use_kerning && previous && glyph_index) {
             FT_Vector delta;
             FT_Get_Kerning(face, previous, glyph_index, FT_KERNING_DEFAULT, &delta);
-            pen.x += delta.x / hinting_factor;
+            pen.x += delta.x / (hinting_factor << kerning_factor);
         }
         if (FT_Error error = FT_Load_Glyph(face, glyph_index, flags)) {
             throw_ft_error("Could not load glyph", error);

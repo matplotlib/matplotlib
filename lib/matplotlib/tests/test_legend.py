@@ -188,6 +188,9 @@ def test_legend_expand():
 
 @image_comparison(['hatching'], remove_text=True, style='default')
 def test_hatching():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig, ax = plt.subplots()
 
     # Patches

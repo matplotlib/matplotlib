@@ -27,6 +27,9 @@ import pytest
 @image_comparison(['image_interps'], style='mpl20')
 def test_image_interps():
     'make the basic nearest, bilinear and bicubic interps'
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     X = np.arange(100)
     X = X.reshape(5, 20)
 
