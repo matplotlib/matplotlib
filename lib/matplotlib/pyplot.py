@@ -809,7 +809,7 @@ def axes(arg=None, **kwargs):
     projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
 'polar', 'rectilinear', str}, optional
         The projection type of the `~.axes.Axes`. *str* is the name of
-        a costum projection, see `~matplotlib.projections`. The default
+        a custom projection, see `~matplotlib.projections`. The default
         None results in a 'rectilinear' projection.
 
     polar : boolean, optional
@@ -961,7 +961,7 @@ def subplot(*args, **kwargs):
     projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
 'polar', 'rectilinear', str}, optional
         The projection type of the subplot (`~.axes.Axes`). *str* is the name
-        of a costum projection, see `~matplotlib.projections`. The default
+        of a custom projection, see `~matplotlib.projections`. The default
         None results in a 'rectilinear' projection.
 
     polar : boolean, optional
