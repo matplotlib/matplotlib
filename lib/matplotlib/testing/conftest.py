@@ -45,7 +45,8 @@ def mpl_test_settings(request):
                 'skip_on_importerror', False)
             prev_backend = matplotlib.get_backend()
 
-        style = '_classic_test'  # Default of cleanup and image_comparison too.
+        # Default of cleanup and image_comparison too.
+        style = ["classic", "_classic_test_patch"]
         style_marker = request.node.get_closest_marker('style')
         if style_marker is not None:
             assert len(style_marker.args) == 1, \
