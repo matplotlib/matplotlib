@@ -3106,7 +3106,7 @@ class _AxesBase(martist.Artist):
             The left xlim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
-            The left and right xlims may be passed as the tuple
+            The left and right xlims may also be passed as the tuple
             (*left*, *right*) as the first positional argument (or as
             the *left* keyword argument).
 
@@ -3486,7 +3486,7 @@ class _AxesBase(martist.Artist):
             The bottom ylim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
-            The bottom and top ylims may be passed as the tuple
+            The bottom and top ylims may also be passed as the tuple
             (*bottom*, *top*) as the first positional argument (or as
             the *bottom* keyword argument).
 
