@@ -1,0 +1,5 @@
+xkcd style
+``````````
+
+The xkcd style previously available as `.pyplot.xkcd` is now also available as
+a regular style file, which can be used as ``matplotlib.style.use("xkcd")``.
