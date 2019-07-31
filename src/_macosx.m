@@ -212,7 +212,8 @@ static int set_icon(void)
 
     PyObject* pdf_rel = PyUnicode_FromString("/images/matplotlib.pdf");
     PyObject* pdf_absolute = PyUnicode_Concat(path, pdf_rel);
-    if (!pdf_absolute) {
+    if (!pdf_absolute)
+    {
       Py_DECREF(mpl);
       Py_DECREF(get_data_path);
       Py_DECREF(arg);
