@@ -223,12 +223,14 @@ def _read_pystyle_base_directory():
     used internally to load files provided by Matplotlib itself, not
     user-provided style files.
 
-    A Python style is a Python module that exports a dict named
+    A Python style is a non-private Python module that exports a dict named
     ``__mpl_style__``, from which a `RcParams` is constructed.  This convention
     may be revisited if this feature ever becomes public.
     """
     styles = {}
     for path in Path(BASE_LIBRARY_PATH).glob("*.py"):
+        if path.name.startswith("_"):
+            continue
         spec = importlib.util.spec_from_file_location(path.stem, path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
