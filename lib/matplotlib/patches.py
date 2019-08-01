@@ -1733,47 +1733,33 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
     r.draw(renderer)
 
 
-def _pprint_table(table, leadingspace=2):
-    """
-    Given the list of list of strings, return a string of REST table format.
-    """
-    col_len = [max(len(cell) for cell in column) for column in zip(*table)]
-    table_formatstr = '   '.join('=' * cl for cl in col_len)
-    lines = [
-        '',
-        table_formatstr,
-        '   '.join(cell.ljust(cl) for cell, cl in zip(table[0], col_len)),
-        table_formatstr,
-        *['   '.join(cell.ljust(cl) for cell, cl in zip(row, col_len))
-          for row in table[1:]],
-        table_formatstr,
-        '',
-    ]
-    return textwrap.indent('\n'.join(lines), ' ' * leadingspace)
-
-
 def _pprint_styles(_styles):
     """
     A helper function for the _Style class.  Given the dictionary of
     {stylename: styleclass}, return a formatted string listing all the
     styles. Used to update the documentation.
     """
-    import inspect
-
-    _table = [["Class", "Name", "Attrs"]]
-
-    for name, cls in sorted(_styles.items()):
-        spec = inspect.getfullargspec(cls.__init__)
-        if spec.defaults:
-            argstr = ", ".join(map(
-                "{}={}".format, spec.args[-len(spec.defaults):], spec.defaults
-            ))
-        else:
-            argstr = 'None'
-        # adding ``quotes`` since - and | have special meaning in reST
-        _table.append([cls.__name__, "``%s``" % name, argstr])
-
-    return _pprint_table(_table)
+    table = [('Class', 'Name', 'Attrs'),
+             *[(cls.__name__,
+                # adding backquotes since - and | have special meaning in reST
+                f'``{name}``',
+                # [1:-1] drops the surrounding parentheses.
+                str(inspect.signature(cls))[1:-1] or 'None')
+               for name, cls in sorted(_styles.items())]]
+    # Convert to rst table.
+    col_len = [max(len(cell) for cell in column) for column in zip(*table)]
+    table_formatstr = '  '.join('=' * cl for cl in col_len)
+    rst_table = '\n'.join([
+        '',
+        table_formatstr,
+        '  '.join(cell.ljust(cl) for cell, cl in zip(table[0], col_len)),
+        table_formatstr,
+        *['  '.join(cell.ljust(cl) for cell, cl in zip(row, col_len))
+          for row in table[1:]],
+        table_formatstr,
+        '',
+    ])
+    return textwrap.indent(rst_table, prefix=' ' * 2)
 
 
 def _simpleprint_styles(_styles):
