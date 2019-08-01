@@ -540,6 +540,12 @@ class FigureManagerQT(FigureManagerBase):
 
         self.window.setWindowTitle("Figure %d" % num)
         image = str(cbook._get_data_path('images/matplotlib.svg'))
+
+        if sys.platform == "darwin":
+            from . import backend_macos_common
+            image = str(cbook._get_data_path('images/matplotlib.pdf'))
+            backend_macos_common.set_mac_icon(image)
+
         self.window.setWindowIcon(QtGui.QIcon(image))
 
         # Give the keyboard focus to the figure instead of the

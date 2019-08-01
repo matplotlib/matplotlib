@@ -178,76 +178,129 @@ static int wait_for_stdin(void)
     return 1;
 }
 
-static int set_icon(void)
+PyObject* _get_pdf_icon_path(void)
 {
     PyObject* mpl = PyImport_ImportModule("matplotlib");
     if (!mpl)
     {
-      return -1;
+        return NULL;
     }
 
     PyObject* get_data_path = PyObject_GetAttrString(mpl, "get_data_path");
     if (!get_data_path)
     {
-      Py_DECREF(mpl);
-      return -1;
+        Py_DECREF(mpl);
+        return NULL;
     }
 
     PyObject* arg = PyTuple_New(0);
     if (!arg)
     {
-      Py_DECREF(mpl);
-      Py_DECREF(get_data_path);
-      return -1;
+        Py_DECREF(mpl);
+        Py_DECREF(get_data_path);
+        return NULL;
     }
 
     PyObject* path = PyObject_Call(get_data_path, arg, NULL);
     if (!path)
     {
-      Py_DECREF(mpl);
-      Py_DECREF(get_data_path);
-      Py_DECREF(arg);
-      return -1;
+        Py_DECREF(mpl);
+        Py_DECREF(get_data_path);
+        Py_DECREF(arg);
+        return NULL;
     }
 
     PyObject* pdf_rel = PyUnicode_FromString("/images/matplotlib.pdf");
+    if (!pdf_rel)
+    {
+        Py_DECREF(mpl);
+        Py_DECREF(get_data_path);
+        Py_DECREF(arg);
+        Py_DECREF(path);
+        return NULL;
+    }
+
     PyObject* pdf_absolute = PyUnicode_Concat(path, pdf_rel);
-    if (!pdf_absolute)
-    {
-      Py_DECREF(mpl);
-      Py_DECREF(get_data_path);
-      Py_DECREF(arg);
-      Py_DECREF(path);
-      Py_DECREF(pdf_rel);
-    }
-
-    Py_ssize_t size;
-    const char* path_string = PyUnicode_AsUTF8AndSize(pdf_absolute, &size);
-    if (!path_string)
-    {
-      Py_DECREF(mpl);
-      Py_DECREF(get_data_path);
-      Py_DECREF(arg);
-      Py_DECREF(path);
-      Py_DECREF(pdf_rel);
-      Py_DECREF(pdf_absolute);
-      return -1;
-    }
-
-    NSString* path_nsstring =
-      [[NSString alloc] initWithUTF8String: path_string];
-
-    NSImage* image = [[NSImage alloc] initByReferencingFile: path_nsstring];
-
-    NSApplication* app = [NSApplication sharedApplication];
-    app.applicationIconImage = image;
 
     Py_DECREF(mpl);
     Py_DECREF(get_data_path);
     Py_DECREF(arg);
     Py_DECREF(path);
     Py_DECREF(pdf_rel);
-    Py_DECREF(pdf_absolute);
+
+    return pdf_absolute;
+}
+
+static PyObject* set_icon(PyObject* ignored, PyObject* path)
+{
+    if (!path)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "No path passed");
+        return NULL;
+    }
+
+    Py_ssize_t size;
+    // API indicates Python owns path_string; we don't need to free it
+    const char* path_string = PyUnicode_AsUTF8AndSize(path, &size);
+    if (!path_string)
+    {
+        PyErr_SetString(PyExc_TypeError, "bad argument type, must be UTF-8 "
+                "path to icon");
+        return NULL;
+    }
+
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+
+    NSImage* image;
+    @try
+    {
+        NSString* path_nsstring =
+            [[NSString alloc] initWithUTF8String: path_string];
+
+        image =
+            [[NSImage alloc] initByReferencingFile: path_nsstring];
+    }
+    @catch (NSException *e)
+    {
+
+        PyErr_SetString(PyExc_RuntimeError, "could not load icon");
+        [pool drain];
+        return NULL;
+    }
+
+    @try
+    {
+        NSApplication* app = [NSApplication sharedApplication];
+        app.applicationIconImage = image;
+    }
+    @catch (NSException *e)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "could not set icon");
+        [pool drain];
+        return NULL;
+    }
+
+    [pool drain];
+    Py_RETURN_NONE;
+}
+
+static int _set_icon(void)
+{
+    PyObject* pdf_path = _get_pdf_icon_path();
+    if (!pdf_path)
+    {
+        return -1;
+    }
+
+    PyObject* result = set_icon(NULL, pdf_path);
+    if (!result)
+    {
+        Py_DECREF(pdf_path);
+        return -1;
+    }
+
+    Py_DECREF(pdf_path);
+    Py_DECREF(result);
     return 0;
 }
 
@@ -813,7 +866,10 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
 
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
-    set_icon();
+    if (_set_icon() != 0)
+    {
+        return -1;
+    }
 
     self->window = [self->window initWithContentRect: rect
                                          styleMask: NSTitledWindowMask
@@ -2701,6 +2757,11 @@ static struct PyMethodDef methods[] = {
     (PyCFunction)set_cursor,
     METH_VARARGS,
     "Sets the active cursor."
+   },
+   {"set_icon",
+    set_icon,
+    METH_O,
+    "Sets the Dock icon in macOS"
    },
    {NULL, NULL, 0, NULL} /* sentinel */
 };
