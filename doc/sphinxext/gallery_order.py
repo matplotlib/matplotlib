@@ -3,7 +3,7 @@ Configuration for the order of gallery sections and examples.
 Paths are relative to the conf.py file.
 """
 
-from sphinx_gallery.sorting import ExplicitOrder
+from sphinx_gallery.sorting import ExplicitOrder, ExampleTitleSortKey
 
 # Gallery sections shall be displayed in the following order.
 # Non-matching sections are appended.
@@ -64,19 +64,12 @@ list_all = [
 explicit_subsection_order = [item + ".py" for item in list_all]
 
 
-class MplExplicitSubOrder:
-    """For use within the 'within_subsection_order' key."""
-    def __init__(self, src_dir):
-        self.src_dir = src_dir  # src_dir is unused here
-        self.ordered_list = explicit_subsection_order
-
-    def __call__(self, item):
-        """Return a string determining the sort order."""
-        if item in self.ordered_list:
-            return "{:04d}".format(self.ordered_list.index(item))
+class MplExplicitSubOrder(ExampleTitleSortKey):
+    def __call__(self, filename):
+        if filename in explicit_subsection_order:
+            return "{:04d}".format(explicit_subsection_order.index(filename))
         else:
-            # ensure not explicitly listed items come last.
-            return "zzz" + item
+            return "zzz" + super().__call__(filename)
 
 
 # Provide the above classes for use in conf.py
