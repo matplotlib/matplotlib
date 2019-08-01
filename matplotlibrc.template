@@ -313,8 +313,6 @@
                       ##               FreeType library supports it
                       ##     - either: Use the native hinting information,
                       ##               or the autohinter if none is available.
-                      ## For backward compatibility, this value may also be
-                      ##     True === 'auto' or False === 'none'.
 #text.hinting_factor : 8  ## Specifies the amount of softness for hinting in the
                           ## horizontal direction.  A value of 1 will hint to full
                           ## pixels.  A value of 2 will hint to half pixels etc.
