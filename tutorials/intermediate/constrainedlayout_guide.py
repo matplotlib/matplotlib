@@ -581,6 +581,12 @@ example_plot(ax4)
 #
 # * There are small differences in how the backends handle rendering fonts,
 #   so the results will not be pixel-identical.
+#
+# * A :class:`~matplotlib.patches.ConnectionPatch` across two
+#   :class:`~matplotlib.axes.Axes` must be removed from the layout
+#   using :meth:`~matplotlib.artist.Artist.set_in_layout` before
+#   calling :meth:`~matplotlib.axes.Axes.add_artist`. See
+#   :class:`~matplotlib.patches.ConnectionPatch` for more information.
 
 ###########################################################
 # Debugging

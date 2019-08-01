@@ -4273,6 +4273,22 @@ class ConnectionPatch(FancyArrowPatch):
 
         Alternatively they can be set to any valid
         `~matplotlib.transforms.Transform`.
+
+        .. note::
+           Using :class:`~matplotlib.patches.ConnectionPatch` across
+           two :class:`~matplotlib.axes.Axes` is not directly
+           compatible with :doc:`constrained layout
+           </tutorials/intermediate/constrainedlayout_guide>`. Remove
+           the patch from layout consideration using
+           :meth:`~matplotlib.artist.Artist.set_in_layout` before
+           adding it to the :class:`~matplotlib.axes.Axes`:
+
+           .. code-block:: default
+
+              con = ConnectionPatch(...)
+              con.set_in_layout(False)
+              ax.add_artist(con)
+
         """
         if coordsB is None:
             coordsB = coordsA
