@@ -373,15 +373,15 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.contourf:133"
     ],
     "P_{xy}": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.csd:168",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.csd:167",
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.csd:89",
       "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.csd:79",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.csd:168",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.csd:167",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.csd:89"
     ],
     "Lines2D": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.errorbar:105",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.errorbar:105"
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.errorbar:103",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.errorbar:103"
     ],
     "fmt_xdata": [
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.format_xdata:4"
@@ -1473,6 +1473,11 @@
     "Locator.view_limits()": [
       "doc/api/next_api_changes/2019-02-19-AL.rst:4"
     ],
+    "MovieWriterRegistry": [
+      "doc/api/next_api_changes/2019-03-03-AL.rst:10",
+      "doc/api/next_api_changes/2019-03-03-AL.rst:4",
+      "doc/api/prev_api_changes/api_changes_2.2.0.rst:158"
+    ],
     "Axes.add_line": [
       "doc/api/next_api_changes/2019-03-04-AL.rst:9"
     ],
@@ -1550,6 +1555,9 @@
     ],
     "imshow(A, interpolation='antialiased')": [
       "doc/api/next_api_changes/2019-07-17-JMK.rst:8"
+    ],
+    "SymLogScale": [
+      "doc/api/next_api_changes/2019-07-24-AL.rst:4"
     ],
     "api_changes.rst": [
       "doc/api/next_api_changes/README.rst:6"
@@ -2470,9 +2478,6 @@
     ],
     "fontd": [
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:110"
-    ],
-    "MovieWriterRegistry": [
-      "doc/api/prev_api_changes/api_changes_2.2.0.rst:158"
     ],
     "MovieWriter": [
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:158"

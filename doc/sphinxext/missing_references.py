@@ -129,6 +129,18 @@ def get_location(node, app):
     return f"{path}:{line}"
 
 
+def _truncate_location(location):
+    """
+    Cuts off anything after the first colon in location strings.
+
+    This allows for easy comparison even when line numbers chagne
+    (as they do regularily).
+    """
+    if ":" in location:
+        return location.split(":", 1)[0]
+    return location
+
+
 def _warn_unused_missing_references(app):
     if not app.config.missing_references_warn_unused_ignores:
         return
@@ -148,13 +160,14 @@ def _warn_unused_missing_references(app):
 
     # Warn about any reference which is no longer missing.
     for (domain_type, target), locations in references_ignored.items():
-        missing_reference_locations = references_events.get(
-                (domain_type, target), [])
+        missing_reference_locations = [_truncate_location(location)
+            for location in references_events.get((domain_type, target), [])]
 
         # For each ignored reference location, ensure a missing reference
         # was observed. If it wasn't observed, issue a warning.
         for ignored_reference_location in locations:
-            if ignored_reference_location not in missing_reference_locations:
+            short_location = _truncate_location(ignored_reference_location)
+            if short_location not in missing_reference_locations:
                 msg = (f"Reference {domain_type} {target} for "
                        f"{ignored_reference_location} can be removed"
                        f" from {app.config.missing_references_filename}."
