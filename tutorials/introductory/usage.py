@@ -93,7 +93,7 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 # :meth:`~matplotlib.axes.Axes.set_xlabel`), and a y-label set via
 # :meth:`~matplotlib.axes.Axes.set_ylabel`).
 #
-# The :class:`Axes` class and it's member functions are the primary entry
+# The :class:`Axes` class and its member functions are the primary entry
 # point to working with the OO interface.
 #
 # :class:`~matplotlib.axis.Axis`
@@ -116,7 +116,7 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 # includes :class:`Text` objects, :class:`Line2D` objects,
 # :class:`collection` objects, :class:`Patch` objects ... (you get the
 # idea).  When the figure is rendered, all of the artists are drawn to
-# the **canvas**.  Most Artists are tied to an Axes; such an Artist
+# the **canvas**.  Most Artists are tied to an Axis; such an Artist
 # cannot be shared by multiple Axes, or moved from one to another.
 #
 # .. _input_types:
