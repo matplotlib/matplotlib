@@ -14,6 +14,7 @@ Core functions and attributes for the matplotlib style library:
 import contextlib
 import logging
 import os
+from pathlib import Path
 import re
 import warnings
 
@@ -53,6 +54,7 @@ def _remove_blacklisted_style_params(d, warn=True):
     return o
 
 
+@cbook.deprecated("3.2")
 def is_style_file(filename):
     """Return True if the filename looks like a style file."""
     return STYLE_FILE_PATTERN.match(filename) is not None
@@ -167,6 +169,7 @@ def update_user_library(library):
     return library
 
 
+@cbook.deprecated("3.2")
 def iter_style_files(style_dir):
     """Yield file path and name of styles in the given directory."""
     for path in os.listdir(style_dir):
@@ -178,17 +181,14 @@ def iter_style_files(style_dir):
 
 
 def read_style_directory(style_dir):
-    """Return dictionary of styles defined in `style_dir`."""
+    """Return dictionary of styles defined in *style_dir*."""
     styles = dict()
-    for path, name in iter_style_files(style_dir):
+    for path in Path(style_dir).glob(f"*.{STYLE_EXTENSION}"):
         with warnings.catch_warnings(record=True) as warns:
-            styles[name] = rc_params_from_file(path,
-                                               use_default_template=False)
-
+            styles[path.stem] = rc_params_from_file(
+                path, use_default_template=False)
         for w in warns:
-            message = 'In %s: %s' % (path, w.message)
-            _log.warning(message)
-
+            _log.warning('In %s: %s', path, w.message)
     return styles
 
 
