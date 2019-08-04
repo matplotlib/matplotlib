@@ -98,7 +98,7 @@ fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
 # :meth:`~matplotlib.axes.Axes.set_xlabel`), and a y-label set via
 # :meth:`~matplotlib.axes.Axes.set_ylabel`).
 #
-# The :class:`Axes` class and it's member functions are the primary entry
+# The :class:`Axes` class and its member functions are the primary entry
 # point to working with the OO interface.
 #
 # :class:`~matplotlib.axis.Axis`
