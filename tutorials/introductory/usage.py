@@ -706,7 +706,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # line segments. Marker simplification is only available
 # to :class:`~matplotlib.lines.Line2D` objects (through the
 # ``markevery`` property). Wherever
-# :class:`~matplotlib.lines.Line2D` construction parameter
+# :class:`~matplotlib.lines.Line2D` construction parameters
 # are passed through, such as
 # :func:`matplotlib.pyplot.plot` and
 # :meth:`matplotlib.axes.Axes.plot`, the ``markevery``
@@ -726,7 +726,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # then you can make use of the ``agg.path.chunksize`` rc parameter.
 # This allows you to specify a chunk size, and any lines with
 # greater than that many vertices will be split into multiple
-# lines, each of which have no more than ``agg.path.chunksize``
+# lines, each of which has no more than ``agg.path.chunksize``
 # many vertices. (Unless ``agg.path.chunksize`` is zero, in
 # which case there is no chunking.) For some kind of data,
 # chunking the line up into reasonable sizes can greatly
