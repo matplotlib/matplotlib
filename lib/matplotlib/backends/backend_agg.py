@@ -449,9 +449,8 @@ class FigureCanvasAgg(FigureCanvasBase):
     def print_raw(self, filename_or_obj, *args, **kwargs):
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
-        with cbook._setattr_cm(renderer, dpi=self.figure.dpi), \
-                cbook.open_file_cm(filename_or_obj, "wb") as fh:
-            fh.write(renderer._renderer.buffer_rgba())
+        with cbook.open_file_cm(filename_or_obj, "wb") as fh:
+            fh.write(renderer.buffer_rgba())
 
     print_rgba = print_raw
 
@@ -516,10 +515,10 @@ class FigureCanvasAgg(FigureCanvasBase):
             **metadata,
         }
 
+        FigureCanvasAgg.draw(self)
         if pil_kwargs is not None:
             from PIL import Image
             from PIL.PngImagePlugin import PngInfo
-            buf, size = self.print_to_buffer()
             # Only use the metadata kwarg if pnginfo is not set, because the
             # semantics of duplicate keys in pnginfo is unclear.
             if "pnginfo" not in pil_kwargs:
@@ -528,23 +527,20 @@ class FigureCanvasAgg(FigureCanvasBase):
                     pnginfo.add_text(k, v)
                 pil_kwargs["pnginfo"] = pnginfo
             pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
-            (Image.frombuffer("RGBA", size, buf, "raw", "RGBA", 0, 1)
+            (Image.fromarray(np.asarray(self.buffer_rgba()))
              .save(filename_or_obj, format="png", **pil_kwargs))
 
         else:
-            FigureCanvasAgg.draw(self)
             renderer = self.get_renderer()
-            with cbook._setattr_cm(renderer, dpi=self.figure.dpi), \
-                    cbook.open_file_cm(filename_or_obj, "wb") as fh:
+            with cbook.open_file_cm(filename_or_obj, "wb") as fh:
                 _png.write_png(renderer._renderer, fh,
                                self.figure.dpi, metadata=metadata)
 
     def print_to_buffer(self):
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
-        with cbook._setattr_cm(renderer, dpi=self.figure.dpi):
-            return (renderer._renderer.buffer_rgba(),
-                    (int(renderer.width), int(renderer.height)))
+        return (bytes(renderer.buffer_rgba()),
+                (int(renderer.width), int(renderer.height)))
 
     if _has_pil:
 
@@ -585,15 +581,15 @@ class FigureCanvasAgg(FigureCanvasBase):
                 `PIL.Image.save` when saving the figure.  These take precedence
                 over *quality*, *optimize* and *progressive*.
             """
-            buf, size = self.print_to_buffer()
+            FigureCanvasAgg.draw(self)
             if dryrun:
                 return
             # The image is "pasted" onto a white background image to safely
             # handle any transparency
-            image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
+            image = Image.fromarray(np.asarray(self.buffer_rgba()))
             rgba = mcolors.to_rgba(rcParams['savefig.facecolor'])
             color = tuple([int(x * 255) for x in rgba[:3]])
-            background = Image.new('RGB', size, color)
+            background = Image.new('RGB', image.size, color)
             background.paste(image, image)
             if pil_kwargs is None:
                 pil_kwargs = {}
@@ -610,14 +606,14 @@ class FigureCanvasAgg(FigureCanvasBase):
         @cbook._delete_parameter("3.2", "dryrun")
         def print_tif(self, filename_or_obj, *args, dryrun=False,
                       pil_kwargs=None, **kwargs):
-            buf, size = self.print_to_buffer()
+            FigureCanvasAgg.draw(self)
             if dryrun:
                 return
-            image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             if pil_kwargs is None:
                 pil_kwargs = {}
             pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
-            return image.save(filename_or_obj, format='tiff', **pil_kwargs)
+            return (Image.fromarray(np.asarray(self.buffer_rgba()))
+                    .save(filename_or_obj, format='tiff', **pil_kwargs))
 
         print_tiff = print_tif
 
