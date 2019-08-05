@@ -1669,7 +1669,12 @@ class FigureCanvasBase:
                 if _is_non_interactive_terminal_ipython(ip):
                     pass
                 else:
-                    ip.enable_matplotlib()
+                    was_interacive = mpl.is_interactive()
+                    try:
+                        ip.enable_matplotlib()
+                    finally:
+                        mpl.interactive(was_interacive)
+
             finally:
                 mpl.rcParamsOrig["backend"] = orig_origbackend
 
