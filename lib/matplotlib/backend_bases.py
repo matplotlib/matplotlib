@@ -1553,7 +1553,7 @@ def _get_renderer(figure, print_method):
             return figure._cachedRenderer
 
 
-def is_non_interactive_terminal_ipython(ip):
+def _is_non_interactive_terminal_ipython(ip):
     """
     Return whether we are in a a terminal IPython, but non interactive.
 
@@ -1666,7 +1666,7 @@ class FigureCanvasBase:
 
             try:
                 mpl.rcParamsOrig["backend"] = mpl.rcParams["backend"]
-                if is_non_interactive_terminal_ipython(ip):
+                if _is_non_interactive_terminal_ipython(ip):
                     pass
                 else:
                     ip.enable_matplotlib()
