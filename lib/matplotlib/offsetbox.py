@@ -1031,22 +1031,17 @@ class AuxTransformBox(OffsetBox):
         return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
 
     def get_extent(self, renderer):
-
         # clear the offset transforms
-        _off = self.offset_transform.to_values()  # to be restored later
+        _off = self.offset_transform.get_matrix()  # to be restored later
         self.ref_offset_transform.clear()
         self.offset_transform.clear()
-
         # calculate the extent
         bboxes = [c.get_window_extent(renderer) for c in self._children]
         ub = mtransforms.Bbox.union(bboxes)
-
         # adjust ref_offset_transform
         self.ref_offset_transform.translate(-ub.x0, -ub.y0)
-
         # restor offset transform
-        mtx = self.offset_transform.matrix_from_values(*_off)
-        self.offset_transform.set_matrix(mtx)
+        self.offset_transform.set_matrix(_off)
 
         return ub.width, ub.height, 0., 0.
 

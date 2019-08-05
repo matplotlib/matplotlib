@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+``Affine2DBase.matrix_from_values(...)`` is deprecated.  Use (for example)
+``Affine2D.from_values(...).get_matrix()`` instead.
