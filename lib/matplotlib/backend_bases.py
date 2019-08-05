@@ -1659,20 +1659,8 @@ class FigureCanvasBase:
         backend2gui_rif = {"qt5": "qt", "qt4": "qt", "gtk3": "gtk3",
                            "wx": "wx", "macosx": "osx"}.get(rif)
         if backend2gui_rif:
-            pt.backend2gui[get_backend()] = backend2gui_rif
-            # Work around pylabtools.find_gui_and_backend always reading from
-            # rcParamsOrig.
-            orig_origbackend = mpl.rcParamsOrig["backend"]
-
-            try:
-                mpl.rcParamsOrig["backend"] = mpl.rcParams["backend"]
-                if _is_non_interactive_terminal_ipython(ip):
-                    pass
-                else:
-                    ip.enable_gui()
-
-            finally:
-                mpl.rcParamsOrig["backend"] = orig_origbackend
+            if _is_non_interactive_terminal_ipython(ip):
+                ip.enable_gui(backend2gui_rif)
 
     @contextmanager
     def _idle_draw_cntx(self):
