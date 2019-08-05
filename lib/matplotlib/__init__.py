@@ -688,7 +688,7 @@ def matplotlib_fname():
         - or ``$HOME/.config/matplotlib/matplotlibrc`` (if ``$XDG_CONFIG_HOME``
           is not defined)
     - On other platforms,
-        - ``$HOME/.matplotlib/matplotlibrc`` if ``$HOME`` is defined
+      - ``$HOME/.matplotlib/matplotlibrc`` if ``$HOME`` is defined
     - Lastly, it looks in ``$MATPLOTLIBDATA/matplotlibrc``, which should always
       exist.
     """
@@ -743,6 +743,10 @@ class RcParams(MutableMapping, dict):
 
     Validating functions are defined and associated with rc parameters in
     :mod:`matplotlib.rcsetup`.
+
+    See Also
+    --------
+    :ref:`customizing-with-matplotlibrc-files`
     """
 
     validate = {key: converter
@@ -846,9 +850,7 @@ class RcParams(MutableMapping, dict):
 
 
 def rc_params(fail_on_error=False):
-    """Return a :class:`matplotlib.RcParams` instance from the
-    default matplotlib rc file.
-    """
+    """Construct a `RcParams` instance from the default Matplotlib rc file."""
     return rc_params_from_file(matplotlib_fname(), fail_on_error)
 
 
@@ -876,7 +878,8 @@ def _open_file_or_url(fname):
 
 
 def _rc_params_in_file(fname, fail_on_error=False):
-    """Return :class:`matplotlib.RcParams` from the contents of the given file.
+    """
+    Construct a `RcParams` instance from file *fname*.
 
     Unlike `rc_params_from_file`, the configuration class only contains the
     parameters specified in the file (i.e. default values are not filled in).
@@ -940,12 +943,13 @@ or from the matplotlib source distribution""", file=sys.stderr)
 
 
 def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
-    """Return :class:`matplotlib.RcParams` from the contents of the given file.
+    """
+    Construct a `RcParams` from file *fname*.
 
     Parameters
     ----------
     fname : str
-        Name of file parsed for matplotlib settings.
+        Name of file parsed for Matplotlib settings.
     fail_on_error : bool
         If True, raise an error when the parser fails to convert a parameter.
     use_default_template : bool
@@ -1009,8 +1013,7 @@ def rc(group, **kwargs):
       rcParams['lines.linewidth'] = 2
       rcParams['lines.color'] = 'r'
 
-    The following aliases are available to save typing for interactive
-    users:
+    The following aliases are available to save typing for interactive users:
 
     =====   =================
     Alias   Property
@@ -1028,7 +1031,6 @@ def rc(group, **kwargs):
 
           rc('lines', lw=2, c='r')
 
-
     Note you can use python's kwargs dictionary facility to store
     dictionaries of default parameters.  e.g., you can customize the
     font rc as follows::
@@ -1036,12 +1038,17 @@ def rc(group, **kwargs):
       font = {'family' : 'monospace',
               'weight' : 'bold',
               'size'   : 'larger'}
-
       rc('font', **font)  # pass in the font dict as kwargs
 
     This enables you to easily switch between several configurations.  Use
     ``matplotlib.style.use('default')`` or :func:`~matplotlib.rcdefaults` to
     restore the default rc params after changes.
+
+    Notes
+    -----
+    Similar functionality is available by using the normal dict interface, i.e.
+    ``rcParams.update({"lines.linewidth": 2, ...})`` (but ``rcParams.update``
+    does not support abbreviations or grouping).
     """
 
     aliases = {
@@ -1122,7 +1129,6 @@ def rc_file(fname, *, use_default_template=True):
         If True, initialize with default parameters before updating with those
         in the given file. If False, the current configuration persists
         and only the parameters specified in the file are updated.
-
     """
     # Deprecation warnings were already handled in rc_params_from_file, no need
     # to reemit them here.
@@ -1141,14 +1147,10 @@ class rc_context:
     This allows one to do::
 
         with mpl.rc_context(fname='screen.rc'):
-            plt.plot(x, a)
+            plt.plot(x, a)  # uses 'screen.rc'
             with mpl.rc_context(fname='print.rc'):
-                plt.plot(x, b)
-            plt.plot(x, c)
-
-    The 'a' vs. 'x' and 'c' vs. 'x' plots would have settings from
-    'screen.rc', while the 'b' vs. 'x' plot would have settings from
-    'print.rc'.
+                plt.plot(x, b)  # uses 'print.rc'
+            plt.plot(x, c)  # uses 'screen.rc'
 
     A dictionary can also be passed to the context manager::
 
