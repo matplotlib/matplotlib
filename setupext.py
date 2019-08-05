@@ -33,7 +33,7 @@ def _get_xdg_cache_dir():
         cache_dir = os.path.expanduser('~/.cache')
         if cache_dir.startswith('~/'):  # Expansion failed.
             return None
-    return os.path.join(cache_dir, 'matplotlib')
+    return pathlib.Path(cache_dir, 'matplotlib')
 
 
 def get_fd_hash(fd):
@@ -74,7 +74,7 @@ def download_or_cache(url, sha):
     def get_from_cache(local_fn):
         if cache_dir is None:
             raise Exception("no cache dir")
-        buf = BytesIO(pathlib.Path(cache_dir, local_fn).read_bytes())
+        buf = BytesIO((cache_dir / local_fn).read_bytes())
         if get_fd_hash(buf) != sha:
             return None
         buf.seek(0)
@@ -83,11 +83,10 @@ def download_or_cache(url, sha):
     def write_cache(local_fn, data):
         if cache_dir is None:
             raise Exception("no cache dir")
-        cache_filename = os.path.join(cache_dir, local_fn)
-        os.makedirs(cache_dir, exist_ok=True)
+        cache_dir.mkdir(parents=True, exist_ok=True)
         old_pos = data.tell()
         data.seek(0)
-        with open(cache_filename, "xb") as fout:
+        with open(cache_dir / local_fn, "xb") as fout:
             fout.write(data.read())
         data.seek(old_pos)
 
@@ -107,10 +106,9 @@ def download_or_cache(url, sha):
     file_sha = get_fd_hash(file_contents)
 
     if file_sha != sha:
-        raise Exception(("The download file does not match the "
-                         "expected sha.  {url} was expected to have "
-                         "{sha} but it had {file_sha}").format(
-                             sha=sha, file_sha=file_sha, url=url))
+        raise Exception(
+            f"The download file does not match the expected sha.  {url} was "
+            f"expected to have {sha} but it had {file_sha}")
 
     try:
         write_cache(sha, file_contents)
@@ -483,17 +481,17 @@ class FreeType(SetupPackage):
     def add_flags(self, ext):
         ext.sources.insert(0, 'src/checkdep_freetype2.c')
         if options.get('local_freetype'):
-            src_path = os.path.join(
-                'build', 'freetype-{0}'.format(LOCAL_FREETYPE_VERSION))
+            src_path = pathlib.Path(
+                'build', f'freetype-{LOCAL_FREETYPE_VERSION}')
             # Statically link to the locally-built freetype.
             # This is certainly broken on Windows.
-            ext.include_dirs.insert(0, os.path.join(src_path, 'include'))
+            ext.include_dirs.insert(0, str(src_path / 'include'))
             if sys.platform == 'win32':
                 libfreetype = 'libfreetype.lib'
             else:
                 libfreetype = 'libfreetype.a'
             ext.extra_objects.insert(
-                0, os.path.join(src_path, 'objs', '.libs', libfreetype))
+                0, str(src_path / 'objs' / '.libs' / libfreetype))
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'local'))
         else:
             pkg_config_setup_extension(
@@ -511,8 +509,7 @@ class FreeType(SetupPackage):
         if not options.get('local_freetype'):
             return
 
-        src_path = os.path.join(
-            'build', 'freetype-{0}'.format(LOCAL_FREETYPE_VERSION))
+        src_path = pathlib.Path('build', f'freetype-{LOCAL_FREETYPE_VERSION}')
 
         # We've already built freetype
         if sys.platform == 'win32':
@@ -521,12 +518,11 @@ class FreeType(SetupPackage):
             libfreetype = 'libfreetype.a'
 
         # bailing because it is already built
-        if os.path.isfile(os.path.join(
-                src_path, 'objs', '.libs', libfreetype)):
+        if (src_path / 'objs' / '.libs' / libfreetype).is_file():
             return
 
         # do we need to download / load the source from cache?
-        if not os.path.exists(src_path):
+        if not src_path.exists():
             os.makedirs('build', exist_ok=True)
 
             url_fmts = [
@@ -535,7 +531,7 @@ class FreeType(SetupPackage):
                 ('https://download.savannah.gnu.org/releases/freetype'
                  '/{tarball}')
             ]
-            tarball = 'freetype-{0}.tar.gz'.format(LOCAL_FREETYPE_VERSION)
+            tarball = f'freetype-{LOCAL_FREETYPE_VERSION}.tar.gz'
 
             target_urls = [
                 url_fmt.format(version=LOCAL_FREETYPE_VERSION,
@@ -550,22 +546,20 @@ class FreeType(SetupPackage):
                 except Exception:
                     pass
             else:
-                raise IOError("Failed to download FreeType.  Please download "
-                              "one of {target_urls} and extract it into "
-                              "{src_path} at the top-level of the source "
-                              "repository".format(
-                                  target_urls=target_urls, src_path=src_path))
+                raise IOError(
+                    f"Failed to download FreeType. Please download one of "
+                    f"{target_urls} and extract it into {src_path} at the "
+                    f"top-level of the source repository.")
 
-            print("Extracting {}".format(tarball))
+            print(f"Extracting {tarball}")
             # just to be sure
             tar_contents.seek(0)
             with tarfile.open(tarball, mode="r:gz",
                               fileobj=tar_contents) as tgz:
                 tgz.extractall("build")
 
-        print("Building freetype in {}".format(src_path))
-        if sys.platform != 'win32':
-            # compilation on all other platforms than windows
+        print(f"Building freetype in {src_path}")
+        if sys.platform != 'win32':  # compilation on non-windows
             env = {**os.environ,
                    "CFLAGS": "{} -fPIC".format(os.environ.get("CFLAGS", ""))}
             subprocess.check_call(
@@ -575,16 +569,7 @@ class FreeType(SetupPackage):
             subprocess.check_call(["make"], env=env, cwd=src_path)
         else:
             # compilation on windows
-            shutil.rmtree(str(pathlib.Path(src_path, "objs")),
-                          ignore_errors=True)
-            FREETYPE_BUILD_CMD = r"""
-call "%ProgramFiles%\Microsoft SDKs\Windows\v7.0\Bin\SetEnv.Cmd" ^
-    /Release /{xXX} /xp
-call "{vcvarsall}" {xXX}
-set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
-%MSBUILD% "builds\windows\{vc20xx}\freetype.sln" ^
-    /t:Clean;Build /p:Configuration="Release";Platform={WinXX}
-"""
+            shutil.rmtree(pathlib.Path(src_path, "objs"), ignore_errors=True)
             import distutils.msvc9compiler as msvc
             # FreeType has no build profile for 2014, so we don't bother.
             vc = 'vc2010'
@@ -594,18 +579,21 @@ set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
             if vcvarsall is None:
                 raise RuntimeError('Microsoft VS 2010 required')
             cmdfile = pathlib.Path("build/build_freetype.cmd")
-            cmdfile.write_text(FREETYPE_BUILD_CMD.format(
-                vc20xx=vc, WinXX=WinXX, xXX=xXX, vcvarsall=vcvarsall))
+            cmdfile.write_text(fr"""
+call "%ProgramFiles%\Microsoft SDKs\Windows\v7.0\Bin\SetEnv.Cmd" ^
+    /Release /{xXX} /xp
+call "{vcvarsall}" {xXX}
+set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
+%MSBUILD% "builds\windows\{vc}\freetype.sln" ^
+    /t:Clean;Build /p:Configuration="Release";Platform={WinXX}
+""")
             subprocess.check_call([str(cmdfile.resolve())],
                                   shell=True, cwd=src_path)
             # Move to the corresponding Unix build path.
-            pathlib.Path(src_path, "objs/.libs").mkdir()
+            (src_path / "objs" / ".libs").mkdir()
             # Be robust against change of FreeType version.
-            lib_path, = (pathlib.Path(src_path, "objs", vc, xXX)
-                         .glob("freetype*.lib"))
-            shutil.copy2(
-                str(lib_path),
-                str(pathlib.Path(src_path, "objs/.libs/libfreetype.lib")))
+            lib_path, = (src_path / "objs" / vc / xXX).glob("freetype*.lib")
+            shutil.copy2(lib_path, src_path / "objs/.libs/libfreetype.lib")
 
 
 class FT2Font(SetupPackage):
