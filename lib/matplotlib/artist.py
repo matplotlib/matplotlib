@@ -1308,18 +1308,12 @@ class ArtistInspector:
             if not name.startswith('set_'):
                 continue
             func = getattr(self.o, name)
-            if not callable(func):
+            if (not callable(func)
+                    or len(inspect.signature(func).parameters) < 2
+                    or self.is_alias(func)):
                 continue
-            nargs = len(inspect.getfullargspec(func).args)
-            if nargs < 2 or self.is_alias(func):
-                continue
-            source_class = self.o.__module__ + "." + self.o.__name__
-            for cls in self.o.mro():
-                if name in cls.__dict__:
-                    source_class = cls.__module__ + "." + cls.__name__
-                    break
-            source_class = self._replace_path(source_class)
-            setters.append((name[4:], source_class + "." + name))
+            setters.append(
+                (name[4:], f"{func.__module__}.{func.__qualname__}"))
         return setters
 
     def _replace_path(self, source_class):
