@@ -712,7 +712,7 @@ def table(ax,
     colColours : list of matplotlib color specs, optional
         The colors of the column header cells.
 
-    rowLoc : {'left', 'center', 'right'}, optional, default: 'left'
+    colLoc : {'left', 'center', 'right'}, optional, default: 'left'
         The text alignment of the column header cells.
 
     loc : str, optional
