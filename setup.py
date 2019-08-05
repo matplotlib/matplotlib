@@ -31,6 +31,7 @@ if __name__ == '__main__':
 from io import BytesIO
 import os
 from string import Template
+import shutil
 from zipfile import ZipFile
 
 from setuptools import setup
@@ -147,6 +148,16 @@ cmdclass['build_ext'] = BuildExtraLibraries
 
 
 def _download_jquery_to(dest):
+    if os.path.exists(os.path.join(dest, "jquery-ui-1.12.1")):
+        return
+
+    # If we are installing from an sdist, use the already downloaded jquery-ui
+    sdist_src = os.path.join(
+        "lib/matplotlib/backends/web_backend", "jquery-ui-1.12.1")
+    if os.path.exists(sdist_src):
+        shutil.copytree(sdist_src, os.path.join(dest, "jquery-ui-1.12.1"))
+        return
+
     # Note: When bumping the jquery-ui version, also update the versions in
     # single_figure.html and all_figures.html.
     url = "https://jqueryui.com/resources/download/jquery-ui-1.12.1.zip"
