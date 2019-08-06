@@ -1507,8 +1507,8 @@ class _AxesBase(martist.Artist):
             return
 
         dL = self.dataLim
-        x0, x1 = map(x_trf.inverted().transform, dL.intervalx)
-        y0, y1 = map(y_trf.inverted().transform, dL.intervaly)
+        x0, x1 = map(x_trf.transform, dL.intervalx)
+        y0, y1 = map(y_trf.transform, dL.intervaly)
         xr = 1.05 * (x1 - x0)
         yr = 1.05 * (y1 - y0)
 
