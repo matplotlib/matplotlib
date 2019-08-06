@@ -1410,12 +1410,10 @@ class _AxesBase(martist.Artist):
         -----
         This method is intended to be overridden by new projection types.
         """
-        trf_xmin, trf_xmax = map(
-            self.xaxis.get_transform().transform, self.get_xbound())
-        trf_ymin, trf_ymax = map(
-            self.yaxis.get_transform().transform, self.get_ybound())
-        xsize = max(abs(trf_xmax - trf_xmin), 1e-30)
-        ysize = max(abs(trf_ymax - trf_ymin), 1e-30)
+        txmin, txmax = self.xaxis.get_transform().transform(self.get_xbound())
+        tymin, tymax = self.yaxis.get_transform().transform(self.get_ybound())
+        xsize = max(abs(txmax - txmin), 1e-30)
+        ysize = max(abs(tymax - tymin), 1e-30)
         return ysize / xsize
 
     @cbook.deprecated("3.2")
@@ -1492,8 +1490,8 @@ class _AxesBase(martist.Artist):
 
         x_trf = self.xaxis.get_transform()
         y_trf = self.yaxis.get_transform()
-        xmin, xmax = map(x_trf.transform, self.get_xbound())
-        ymin, ymax = map(y_trf.transform, self.get_ybound())
+        xmin, xmax = x_trf.transform(self.get_xbound())
+        ymin, ymax = y_trf.transform(self.get_ybound())
         xsize = max(abs(xmax - xmin), 1e-30)
         ysize = max(abs(ymax - ymin), 1e-30)
 
@@ -1507,8 +1505,8 @@ class _AxesBase(martist.Artist):
             return
 
         dL = self.dataLim
-        x0, x1 = map(x_trf.transform, dL.intervalx)
-        y0, y1 = map(y_trf.transform, dL.intervaly)
+        x0, x1 = x_trf.transform(dL.intervalx)
+        y0, y1 = y_trf.transform(dL.intervaly)
         xr = 1.05 * (x1 - x0)
         yr = 1.05 * (y1 - y0)
 
@@ -1544,12 +1542,12 @@ class _AxesBase(martist.Artist):
             yc = 0.5 * (ymin + ymax)
             y0 = yc - Ysize / 2.0
             y1 = yc + Ysize / 2.0
-            self.set_ybound(*map(y_trf.inverted().transform, (y0, y1)))
+            self.set_ybound(y_trf.inverted().transform([y0, y1]))
         else:
             xc = 0.5 * (xmin + xmax)
             x0 = xc - Xsize / 2.0
             x1 = xc + Xsize / 2.0
-            self.set_xbound(*map(x_trf.inverted().transform, (x0, x1)))
+            self.set_xbound(x_trf.inverted().transform([x0, x1]))
 
     def axis(self, *args, emit=True, **kwargs):
         """

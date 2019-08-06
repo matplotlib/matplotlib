@@ -6559,7 +6559,5 @@ def test_aspect_nonlinear_adjustable_datalim():
            aspect=1, adjustable="datalim")
     ax.margins(0)
     ax.apply_aspect()
-    # Currently the autoscaler chooses to reduce the x-limits by half a decade
-    # on each end, but this may change later.
     assert ax.get_xlim() == pytest.approx([1*10**(1/2), 100/10**(1/2)])
     assert ax.get_ylim() == (1 / 101, 1 / 11)
