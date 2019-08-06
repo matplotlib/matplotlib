@@ -863,8 +863,9 @@ class AxesImage(_ImageBase):
         bbox = Bbox(np.array([[x1, y1], [x2, y2]]))
         transformed_bbox = TransformedBbox(bbox, trans)
         return self._make_image(
-            self._A, bbox, transformed_bbox, self.axes.bbox, magnification,
-            unsampled=unsampled)
+            self._A, bbox, transformed_bbox,
+            self.get_clip_box() or self.axes.bbox,
+            magnification, unsampled=unsampled)
 
     def _check_unsampled_image(self, renderer):
         """
