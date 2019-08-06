@@ -54,31 +54,34 @@ requirements that are needed to build the documentation. They are listed in
 
 .. note::
 
-  * You will need a minimal working LaTeX and Graphviz distribution for many
+  * A minimal working LaTeX and Graphviz distribution is required for many
     examples to run.
   * `Graphviz <http://www.graphviz.org/Download.php>`_ is not a Python package,
     and needs to be installed separately.
-  * Create a seprate environment using conda/venv.
+ 
+.. note::
+
+  * Create a seprate environment using ``conda/venv``.
   
   .. code-block:: sh
 
    python -m venv 
    source /path/to/venv/bin/activate
   
-  * You will need to install the addtional requirements.
+  * Install the addtional requirements.
   
   .. code-block:: sh
 
    pip install -r requirements/doc/doc-requirements.txt
    
-  * You will need to uninstall the conda/pip version of Matplotlib first, before
+  * Uninstall the ``conda/pip`` version of Matplotlib first, before
     installing the dev version.
     
   .. code-block:: sh
     
     conda uninstall matplotlib
     
-  * You will need to install the working copy of matplotlib in editable mode.
+  * Install the working copy of matplotlib in editable mode.
   
   .. code-block:: sh
   
