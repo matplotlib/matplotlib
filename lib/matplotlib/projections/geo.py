@@ -59,12 +59,16 @@ class GeoAxes(Axes):
 
     def _set_lim_and_transforms(self):
         # A (possibly non-linear) projection on the (already scaled) data
+
+        # The core transform from data space into rectilinear space, defined by
+        # the custom Transform subclass.
         self.transProjection = self._get_core_transform(self.RESOLUTION)
-
+        # transProjection has an output range that is not in the unit
+        # rectangle, so scale and translate it so it fits correctly
+        # within the axes.  This is specific to geographic transforms.
         self.transAffine = self._get_affine_transform()
-
+        # The usual transform from axes spaces to display space.
         self.transAxes = BboxTransformTo(self.bbox)
-
         # The complete data transformation stack -- from data all the
         # way to display coordinates
         self.transData = \
@@ -72,7 +76,10 @@ class GeoAxes(Axes):
             self.transAffine + \
             self.transAxes
 
-        # This is the transform for longitude ticks.
+        # The transforms for longitude ticks.  The input to these transforms is
+        # in display space for x (from xmin to xmax) and axes space for y (from
+        # 0 to 1); the output in display space.  The tick labels are offset by
+        # 4 pixels from the equator.
         self._xaxis_pretransform = \
             Affine2D() \
             .scale(1, self._longitude_cap * 2) \
@@ -89,9 +96,12 @@ class GeoAxes(Axes):
             self.transData + \
             Affine2D().translate(0, -4)
 
-        # This is the transform for latitude ticks.
-        yaxis_stretch = Affine2D().scale(np.pi * 2, 1).translate(-np.pi, 0)
-        yaxis_space = Affine2D().scale(1, 1.1)
+        # The transform for latitude ticks.  The input to these transforms is
+        # in axes spaced for x (from 0 to 1) and in display space for y (from
+        # ymin to ymax); the output in display space.  The tick labels are
+        # offset by 4 pixels from the edge of the axes ellipse.
+        yaxis_stretch = Affine2D().scale(2 * np.pi, 1).translate(-np.pi, 0)
+        yaxis_space = Affine2D().scale(1.0, 1.1)
         self._yaxis_transform = \
             yaxis_stretch + \
             self.transData
@@ -142,12 +152,18 @@ class GeoAxes(Axes):
     def _gen_axes_spines(self):
         return {'geo': mspines.Spine.circular_spine(self, (0.5, 0.5), 0.5)}
 
-    def set_yscale(self, *args, **kwargs):
+    # Prevent the user from applying scales to one or both of the axes, as that
+    # does't make sense.
+    def set_xscale(self, *args, **kwargs):
         if args[0] != 'linear':
             raise NotImplementedError
 
-    set_xscale = set_yscale
+    set_yscale = set_xscale
 
+    # Prevent the user from changing the axes limits.  In our case, we
+    # want to display the whole sphere all the time, so we override
+    # set_xlim and set_ylim to ignore any input.  This also applies to
+    # interactive panning and zooming in the GUI interfaces.
     def set_xlim(self, *args, **kwargs):
         raise TypeError("It is not possible to change axes limits "
                         "for geographic projections. Please consider "
@@ -156,7 +172,7 @@ class GeoAxes(Axes):
     set_ylim = set_xlim
 
     def format_coord(self, lon, lat):
-        'return a format string formatting the coordinate'
+        """Display coordinates in degrees N/S/E/W."""
         lon, lat = np.rad2deg([lon, lat])
         if lat >= 0.0:
             ns = 'N'
@@ -171,7 +187,10 @@ class GeoAxes(Axes):
 
     def set_longitude_grid(self, degrees):
         """
-        Set the number of degrees between each longitude grid.
+        Set the number of *degrees* between each longitude grid.
+
+        This is a convenience method specific to geographic projections,
+        simpler to use than `set_xticks`.
         """
         # Skip -180 and 180, which are the fixed limits.
         grid = np.arange(-180 + degrees, 180, degrees)
@@ -180,7 +199,10 @@ class GeoAxes(Axes):
 
     def set_latitude_grid(self, degrees):
         """
-        Set the number of degrees between each latitude grid.
+        Set the number of *degrees* between each latitude grid.
+
+        This is a convenience method specific to geographic projections,
+        simpler to use than `set_yticks`.
         """
         # Skip -90 and 90, which are the fixed limits.
         grid = np.arange(-90 + degrees, 90, degrees)
@@ -190,6 +212,10 @@ class GeoAxes(Axes):
     def set_longitude_grid_ends(self, degrees):
         """
         Set the latitude(s) at which to stop drawing the longitude grids.
+
+        This method, specific to geographic projections, allows the user to
+        specify the degree at which to stop drawing longitude gridlines near
+        the poles.
         """
         self._longitude_cap = np.deg2rad(degrees)
         self._xaxis_pretransform \
@@ -198,27 +224,17 @@ class GeoAxes(Axes):
             .translate(0.0, -self._longitude_cap)
 
     def get_data_ratio(self):
-        '''
-        Return the aspect ratio of the data itself.
-        '''
+        # docstring inherited
         return 1.0
 
-    ### Interactive panning
+    # Mark interactive panning and zooming as disabled.
 
     def can_zoom(self):
-        """
-        Return *True* if this axes supports the zoom box button functionality.
-
-        This axes object does not support interactive zoom box.
-        """
+        # docstring inherited
         return False
 
     def can_pan(self):
-        """
-        Return *True* if this axes supports the pan/zoom button functionality.
-
-        This axes object does not support interactive pan/zoom.
-        """
+        # docstring inherited
         return False
 
     def start_pan(self, x, y, button):
@@ -309,16 +325,20 @@ class HammerAxes(GeoAxes):
     name = 'hammer'
 
     class HammerTransform(_GeoTransform):
-        """The base Hammer transform."""
+        """
+        The base Hammer__ transform.
+
+        __ https://en.wikipedia.org/wiki/Hammer_projection
+        """
 
         def transform_non_affine(self, ll):
             # docstring inherited
             longitude, latitude = ll.T
-            half_long = longitude / 2.0
+            half_long = longitude / 2
             cos_latitude = np.cos(latitude)
-            sqrt2 = np.sqrt(2.0)
-            alpha = np.sqrt(1.0 + cos_latitude * np.cos(half_long))
-            x = (2.0 * sqrt2) * (cos_latitude * np.sin(half_long)) / alpha
+            sqrt2 = np.sqrt(2)
+            alpha = np.sqrt(1 + cos_latitude * np.cos(half_long))
+            x = (2 * sqrt2) * (cos_latitude * np.sin(half_long)) / alpha
             y = (sqrt2 * np.sin(latitude)) / alpha
             return np.column_stack([x, y])
 

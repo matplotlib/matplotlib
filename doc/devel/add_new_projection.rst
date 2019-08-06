@@ -117,11 +117,8 @@ Once the projection axes is defined, it can be used in one of two ways:
 
   where MyProjection is an object which implements a ``_as_mpl_axes`` method.
 
-
-A full-fledged and heavily annotated example is in
-:doc:`/gallery/misc/custom_projection`.  The polar plot
-functionality in :mod:`matplotlib.projections.polar` may also be of
-interest.
+The implementations of :mod:`matplotlib.projection.polar` and
+:mod:`matplotlib.projections.geo` may be of interest.
 
 API documentation
 =================

@@ -250,7 +250,6 @@ files['api'] = [
     'bbox_intersect.py',
     'collections_demo.py',
     'colorbar_only.py',
-    'custom_projection_example.py',
     'custom_scale_example.py',
     'date_demo.py',
     'date_index_formatter.py',

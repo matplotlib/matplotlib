@@ -548,9 +548,7 @@ plt.show()
 # ``transProjection`` handles the projection from the space,
 # e.g., latitude and longitude for map data, or radius and theta for polar
 # data, to a separable Cartesian coordinate system.  There are several
-# projection examples in the ``matplotlib.projections`` package, and the
+# projection examples in the :mod:`matplotlib.projections` package, and the
 # best way to learn more is to open the source for those packages and
 # see how to make your own, since Matplotlib supports extensible axes
-# and projections.  Michael Droettboom has provided a nice tutorial
-# example of creating a Hammer projection axes; see
-# :doc:`/gallery/misc/custom_projection`.
+# and projections.
