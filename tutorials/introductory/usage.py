@@ -186,7 +186,7 @@ plt.legend()
 #
 # Matplotlib's documentation and examples use both the OO and the pyplot
 # approaches (which are equally powerful), and you should feel free to use
-# either (however, it is preferrable pick one of them and stick to it, instead
+# either (however, it is preferable pick one of them and stick to it, instead
 # of mixing them).  In general, we suggest to restrict pyplot to interactive
 # plotting (e.g., in a Jupyter notebook), and to prefer the OO-style for
 # non-interactive plotting (in functions and scripts that are intended to be
@@ -289,44 +289,60 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # "interactive backends") and hardcopy backends to make image files
 # (PNG, SVG, PDF, PS; also referred to as "non-interactive backends").
 #
-# There are three ways to configure your backend. If they conflict each other,
-# the method mentioned last in the following list will be used, e.g. calling
-# :func:`~matplotlib.use()` will override the setting in your ``matplotlibrc``.
+# Selecting a backend
+# -------------------
 #
-# #. The :rc:`backend` parameter in your ``matplotlibrc`` file (see
-#    :doc:`/tutorials/introductory/customizing`)::
+# There are three ways to configure your backend:
+#
+# 1. The :rc:`backend` parameter in your ``matplotlibrc`` file
+# 2. The :envvar:`MPLBACKEND` environment variable
+# 3. The function :func:`matplotlib.use`
+#
+# A more detailed description is given below.
+#
+# If multiple of these are configurations are present, the last one from the
+# list takes precedence; e.g. calling :func:`matplotlib.use()` will override
+# the setting in your ``matplotlibrc``.
+#
+# If no backend is explicitly set, Matplotlib automatically detects a usable
+# backend based on what is available on your system and on whether a GUI event
+# loop is already running. On Linux, if the environment variable
+# :envvar:`DISPLAY` is unset, the "event loop" is identified as "headless",
+# which causes a fallback to a noninteractive backend (agg).
+#
+# Here is a detailed description of the configuration methods:
+#
+# #. Setting :rc:`backend` in your ``matplotlibrc`` file::
 #
 #        backend : qt5agg   # use pyqt5 with antigrain (agg) rendering
 #
-#    If no backend is explicitly set in the ``matplotlibrc`` file, Matplotlib
-#    automatically detects a usable backend based on what is available on your
-#    system and on whether a GUI event loop is already running.
+#    See also :doc:`/tutorials/introductory/customizing`.
 #
-#    On Linux, if the environment variable :envvar:`DISPLAY` is unset, the
-#    "event loop" is identified as "headless", which causes a fallback to a
-#    noninteractive backend (agg).
+# #. Setting the :envvar:`MPLBACKEND` environment variable:
 #
-# #. Setting the :envvar:`MPLBACKEND` environment variable, either for your
-#    current shell or for a single script.  On Unix::
+#    You can set the environment variable either for your current shell or for
+#    a single script.
 #
-#         > export MPLBACKEND=module://my_backend
+#    On Unix::
+#
+#         > export MPLBACKEND=qt5agg
 #         > python simple_plot.py
 #
-#         > MPLBACKEND="module://my_backend" python simple_plot.py
+#         > MPLBACKEND=qt5agg python simple_plot.py
 #
 #    On Windows, only the former is possible::
 #
-#         > set MPLBACKEND=module://my_backend
+#         > set MPLBACKEND=qt5agg
 #         > python simple_plot.py
 #
 #    Setting this environment variable will override the ``backend`` parameter
 #    in *any* ``matplotlibrc``, even if there is a ``matplotlibrc`` in your
-#    current working directory. Therefore setting :envvar:`MPLBACKEND`
+#    current working directory. Therefore, setting :envvar:`MPLBACKEND`
 #    globally, e.g. in your ``.bashrc`` or ``.profile``, is discouraged as it
 #    might lead to counter-intuitive behavior.
 #
-# #. If your script depends on a specific backend you can use the
-#    :func:`~matplotlib.use` function::
+# #. If your script depends on a specific backend you can use the function
+#    :func:`matplotlib.use`::
 #
 #       import matplotlib
 #       matplotlib.use('PS')   # generate postscript output by default
@@ -339,9 +355,9 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #    use a different backend.  Therefore, you should avoid explicitly calling
 #    `~matplotlib.use` unless absolutely necessary.
 #
-# .. note::
-#    Backend name specifications are not case-sensitive; e.g., 'GTK3Agg'
-#    and 'gtk3agg' are equivalent.
+#
+# The builtin backends
+# --------------------
 #
 # With a typical installation of matplotlib, such as from a
 # binary installer or a linux distribution package, a good default
@@ -424,6 +440,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #           This backend can be activated in IPython with ``%matplotlib wx``.
 # ========= ================================================================
 #
+# .. note::
+#    The names of builtin backends case-insensitive; e.g., 'Qt5Agg' and
+#    'qt5agg' are equivalent.
+#
 # .. _`Anti-Grain Geometry`: http://antigrain.com/
 # .. _Postscript: https://en.wikipedia.org/wiki/PostScript
 # .. _`Portable Document Format`: https://en.wikipedia.org/wiki/Portable_Document_Format
@@ -438,7 +458,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _PyQt5: https://riverbankcomputing.com/software/pyqt/intro
 #
 # ipympl
-# ------
+# ^^^^^^
 #
 # The Jupyter widget ecosystem is moving too fast to support directly in
 # Matplotlib.  To install ipympl
@@ -458,13 +478,13 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # for more details.
 #
 # GTK and Cairo
-# -------------
+# ^^^^^^^^^^^^^
 #
 # `GTK3` backends (*both* `GTK3Agg` and `GTK3Cairo`) depend on Cairo
 # (pycairo>=1.11.0 or cairocffi).
 #
 # How do I select PyQt4 or PySide?
-# --------------------------------
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # The `QT_API` environment variable can be set to either `pyqt` or `pyside`
 # to use `PyQt4` or `PySide`, respectively.
@@ -473,10 +493,18 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # :mod:`matplotlib` first tries to import it, if the import fails, it tries to
 # import `PySide`.
 #
+# Using non-builtin backends
+# --------------------------
+# More generally, any importable backend can be selected by using any of the
+# methods above. If `name.of.the.backend` is the module containing the backend,
+# use `module://name.of.the.backend` as the backend name, e.g.
+# `matplotlib.use('module://name.of.the.backend')`.
+#
+#
 # .. _interactive-mode:
 #
 # What is interactive mode?
-# ===================================
+# =========================
 #
 # Use of an interactive backend (see :ref:`what-is-a-backend`)
 # permits--but does not by itself require or ensure--plotting
@@ -509,7 +537,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #    Interactive mode works with suitable backends in ipython and in
 #    the ordinary python shell, but it does *not* work in the IDLE IDE.
 #    If the default backend does not support interactivity, an interactive
-#    backend can be explicitly activated using any of the methods discussed in `What is a backend?`_.
+#    backend can be explicitly activated using any of the methods discussed
+#    in `What is a backend?`_.
 #
 #
 # Interactive example
@@ -522,18 +551,15 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #     plt.ion()
 #     plt.plot([1.6, 2.7])
 #
-# Assuming you are running version 1.0.1 or higher, and you have
-# an interactive backend installed and selected by default, you should
-# see a plot, and your terminal prompt should also be active; you
-# can type additional commands such as::
+# This will pop up a plot window. Your terminal prompt will remain active, so
+# that you can type additional commands such as::
 #
 #     plt.title("interactive test")
 #     plt.xlabel("index")
 #
-# and you will see the plot being updated after each line.  Since version 1.5,
-# modifying the plot by other means *should* also automatically
-# update the display on most backends. Get a reference to the :class:`~matplotlib.axes.Axes` instance,
-# and call a method of that instance::
+# On most interactive backends, the figure window will also be updated if you
+# change it via the object-oriented interface. E.g. get a reference to the
+# `~matplotlib.axes.Axes` instance, and call a method of that instance::
 #
 #     ax = plt.gca()
 #     ax.plot([3.1, 2.2])
