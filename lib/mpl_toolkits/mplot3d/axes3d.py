@@ -841,17 +841,56 @@ class Axes3D(Axes):
         self._update_transScale()
         self.stale = True
 
-    def set_zticks(self, *args, **kwargs):
+    def set_xticks(self, ticks, minor=False):
         """
-        Set z-axis tick locations.
-        See :meth:`matplotlib.axes.Axes.set_yticks` for more details.
+        Set the x-axis tick locations.
 
         .. note::
-            Minor ticks are not supported.
+            Minor ticks are not supported by Axes3D objects.
+        """
+        # overridden to remove the non-working 'minor' parameter from the API
+        if minor is not False:
+            cbook.warn_deprecated(
+                "3.2", message="Minor ticks are not supported by Axes3D "
+                               "objects. Passing minor=True will become an "
+                               "error in future versions of matplotlib."
+            )
+        return super().set_xticks(ticks)
+
+    def set_yticks(self, ticks, minor=False):
+        """
+        Set the y-axis tick locations.
+
+        .. note::
+            Minor ticks are not supported by Axes3D objects.
+        """
+        # overridden to remove the non-working 'minor' parameter from the API
+        if minor is not False:
+            cbook.warn_deprecated(
+                "3.2", message="Minor ticks are not supported by Axes3D "
+                               "objects. Passing minor=True will become an "
+                               "error in future versions of matplotlib."
+            )
+        return super().set_yticks(ticks)
+
+    def set_zticks(self, ticks, minor=False):
+        """
+        Set the z-axis tick locations.
+
+        .. note::
+            Minor ticks are not supported by Axes3D objects.
 
         .. versionadded:: 1.1.0
         """
-        return self.zaxis.set_ticks(*args, **kwargs)
+        if minor is not False:
+            cbook.warn_deprecated(
+                "3.2", message="Minor ticks are not supported by Axes3D "
+                               "objects. Passing minor=True will become an "
+                               "error in future versions of matplotlib."
+            )
+        ret = self.zaxis.set_ticks(ticks)
+        self.stale = True
+        return ret
 
     def get_zticks(self, minor=False):
         """
@@ -859,7 +898,7 @@ class Axes3D(Axes):
         See :meth:`matplotlib.axes.Axes.get_yticks` for more details.
 
         .. note::
-            Minor ticks are not supported.
+            Minor ticks are not supported by Axes3D objects.
 
         .. versionadded:: 1.1.0
         """

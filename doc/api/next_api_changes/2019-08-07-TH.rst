@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+`Axes3D` does not support minor ticks. Passing a ``minor`` parameter to
+``set_x/y/zticks`` did not have an effect and is now deprecated.
