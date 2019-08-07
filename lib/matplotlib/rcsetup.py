@@ -369,12 +369,15 @@ validate_orientation = ValidateInStrings(
 
 
 def validate_aspect(s):
-    if s in ('auto', 'equal'):
+    aspect_specifications = ['auto', 'equal']
+    if s in aspect_specifications:
         return s
     try:
         return float(s)
     except ValueError:
-        raise ValueError('not a valid aspect specification')
+        raise ValueError(
+            "%s is not a valid aspect specification. Valid aspect "
+            "specifications are %s." % (s, ", ".join(aspect_specifications)))
 
 
 def validate_fontsize_None(s):
@@ -1175,6 +1178,7 @@ defaultParams = {
     'axes.autolimit_mode': [
         'data',
         ValidateInStrings('autolimit_mode', ['data', 'round_numbers'])],
+    'axes.aspect': ['auto', validate_aspect],
     'axes.xmargin': [0.05, ValidateInterval(0, 1,
                                             closedmin=True,
                                             closedmax=True)],  # margin added to xaxis
