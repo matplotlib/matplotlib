@@ -1,17 +1,16 @@
 import datetime
-import tempfile
 
 import dateutil.tz
 import dateutil.rrule
 import numpy as np
 import pytest
 
-from matplotlib.testing.decorators import image_comparison
-import matplotlib.pyplot as plt
+from matplotlib import rc_context
 from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.ticker as mticker
-from matplotlib import rc_context
 
 
 def test_date_numpyx():
@@ -299,9 +298,8 @@ def test_empty_date_with_year_formatter():
     yearFmt = dates.DateFormatter('%Y')
     ax.xaxis.set_major_formatter(yearFmt)
 
-    with tempfile.TemporaryFile() as fh:
-        with pytest.raises(ValueError):
-            fig.savefig(fh)
+    with pytest.raises(ValueError):
+        fig.canvas.draw()
 
 
 def test_auto_date_locator():
