@@ -1,4 +1,8 @@
 import datetime
+try:
+    from contextlib import nullcontext
+except ImportError:
+    from contextlib import ExitStack as nullcontext  # Py 3.6.
 
 import dateutil.tz
 import dateutil.rrule
@@ -369,7 +373,9 @@ def test_auto_date_locator():
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
-        assert list(map(str, mdates.num2date(locator()))) == expected
+        with (pytest.warns(UserWarning) if t_delta.microseconds
+              else nullcontext()):
+            assert list(map(str, mdates.num2date(locator()))) == expected
 
 
 def test_auto_date_locator_intmult():
@@ -444,7 +450,9 @@ def test_auto_date_locator_intmult():
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
-        assert list(map(str, mdates.num2date(locator()))) == expected
+        with (pytest.warns(UserWarning) if t_delta.microseconds
+              else nullcontext()):
+            assert list(map(str, mdates.num2date(locator()))) == expected
 
 
 def test_concise_formatter():
