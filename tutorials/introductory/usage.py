@@ -345,11 +345,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #    :func:`matplotlib.use`::
 #
 #       import matplotlib
-#       matplotlib.use('PS')   # generate postscript output by default
+#       matplotlib.use('qt5agg')
 #
-#    If you use the `~matplotlib.use` function, this should be done before
-#    importing :mod:`matplotlib.pyplot`. Calling `~matplotlib.use` after pyplot
-#    has been imported may fail to switch the backend and raise an ImportError.
+#    This should be done before any figure is created; otherwise Matplotlib may
+#    fail to switch the backend and raise an ImportError.
 #
 #    Using `~matplotlib.use` will require changes in your code if users want to
 #    use a different backend.  Therefore, you should avoid explicitly calling
@@ -359,12 +358,13 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # The builtin backends
 # --------------------
 #
-# With a typical installation of matplotlib, such as from a
-# binary installer or a linux distribution package, a good default
-# backend will already be set, allowing both interactive work and
-# plotting from scripts, with output to the screen and/or to
-# a file, so at least initially you will not need to use any of the
-# methods given above.
+# By default, Matplotlib should automatically select a default backend which
+# allows both interactive work and plotting from scripts, with output to the
+# screen and/or to a file, so at least initially you will not need to worry
+# about the backend.  The most common exception is if your Python distribution
+# comes without :mod:`tkinter` and you have no other GUI toolkit installed;
+# this happens on certain Linux distributions, where you need to install a
+# Linux package named ``python-tk`` (or similar).
 #
 # If, however, you want to write graphical user interfaces, or a web
 # application server (:ref:`howto-webapp`), or need a better
