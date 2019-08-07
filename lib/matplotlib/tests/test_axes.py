@@ -6554,9 +6554,10 @@ def test_aspect_nonlinear_adjustable_datalim():
 
     ax = fig.add_axes([.1, .1, .8, .8])  # Square.
     ax.plot([.4, .6], [.4, .6])  # Set minpos to keep logit happy.
-    ax.set(xscale="log", xlim=(1, 10),
-           yscale="logit", ylim=(1/11, 1/1001),
+    ax.set(xscale="log", xlim=(1, 100),
+           yscale="logit", ylim=(1 / 101, 1 / 11),
            aspect=1, adjustable="datalim")
     ax.margins(0)
     ax.apply_aspect()
-    assert ax.get_xlim() == pytest.approx(np.array([1/10, 10]) * np.sqrt(10))
+    assert ax.get_xlim() == pytest.approx([1*10**(1/2), 100/10**(1/2)])
+    assert ax.get_ylim() == (1 / 101, 1 / 11)
