@@ -407,7 +407,7 @@
 #axes.autolimit_mode : data  ## How to scale axes limits to the data.  By using:
                              ##     - "data" to use data limits, plus some margin
                              ##     - "round_numbers" move to the nearest "round" number
-#axes.aspect    : 'auto'
+#axes.aspect    : 'auto' ## axes aspect, options: 'auto', 'equal' or float
 #axes.xmargin   : .05   ## x margin.  See `axes.Axes.margins`
 #axes.ymargin   : .05   ## y margin.  See `axes.Axes.margins`
 #polaraxes.grid : True  ## display grid on polar axes
