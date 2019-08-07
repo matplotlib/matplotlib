@@ -1457,9 +1457,10 @@ class AutoDateLocator(DateLocator):
         else:
             locator = MicrosecondLocator(interval, tz=self.tz)
             if dmin.year > 20 and interval < 1000:
-                _log.warning('Plotting microsecond time intervals is not well '
-                             'supported. Please see the MicrosecondLocator '
-                             'documentation for details.')
+                cbook._warn_external(
+                    'Plotting microsecond time intervals is not well '
+                    'supported; please see the MicrosecondLocator '
+                    'documentation for details.')
 
         locator.set_axis(self.axis)
 
