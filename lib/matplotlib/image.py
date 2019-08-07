@@ -7,6 +7,7 @@ from io import BytesIO
 import math
 import os
 import logging
+from numbers import Number
 from pathlib import Path
 import urllib.parse
 
@@ -95,7 +96,7 @@ def composite_images(images, renderer, magnification=1.0):
         if data is not None:
             x *= magnification
             y *= magnification
-            parts.append((data, x, y, image.get_alpha() or 1.0))
+            parts.append((data, x, y, image._get_scalar_alpha()))
             bboxes.append(
                 Bbox([[x, y], [x + data.shape[1], y + data.shape[0]]]))
 
@@ -257,7 +258,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self.axes = ax
 
         self._imcache = None
-        self._array_alpha = None
 
         self.update(kwargs)
 
@@ -282,12 +282,18 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         ----------
         alpha : float
         """
-        if np.isscalar(alpha):
-            martist.Artist.set_alpha(self, alpha)
-        else:
-            self._array_alpha = alpha
-            martist.Artist.set_alpha(self, 1.0)
+        if alpha is not None and not isinstance(alpha, Number):
+            alpha = np.asarray(alpha)
+            if alpha.ndim != 2:
+                raise TypeError('alpha must be a float, two-dimensional '
+                                'array, or None')
+        self._alpha = alpha
+        self.pchanged()
+        self.stale = True
         self._imcache = None
+
+    def _get_scalar_alpha(self):
+        return self._alpha if np.isscalar(self._alpha) else 1.0
 
     def changed(self):
         """
@@ -493,17 +499,16 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 out_mask = np.isnan(out_alpha)
                 out_alpha[out_mask] = 1
                 # Apply the pixel-by-pixel alpha values if present
-                if self._array_alpha is not None:
-                    out_alpha *= _resample(self, self._array_alpha, out_shape,
+                alpha = self.get_alpha()
+                if alpha is not None and not np.isscalar(alpha):
+                    out_alpha *= _resample(self, alpha, out_shape,
                                            t, resample=True)
                 # mask and run through the norm
                 output = self.norm(np.ma.masked_array(A_resampled, out_mask))
             else:
                 if A.shape[2] == 3:
                     A = _rgb_to_rgba(A)
-                alpha = self.get_alpha()
-                if alpha is None:
-                    alpha = 1
+                alpha = self._get_scalar_alpha()
                 output_alpha = _resample(  # resample alpha channel
                     self, A[..., 3], out_shape, t, alpha=alpha)
                 output = _resample(  # resample rgb channels
@@ -518,9 +523,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
             # Apply alpha *after* if the input was greyscale without a mask
             if A.ndim == 2:
-                alpha = self.get_alpha()
-                if alpha is None:
-                    alpha = 1
+                alpha = self._get_scalar_alpha()
                 alpha_channel = output[:, :, 3]
                 alpha_channel[:] = np.asarray(
                     np.asarray(alpha_channel, np.float32) * out_alpha * alpha,
@@ -602,7 +605,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         # actually render the image.
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
-        gc.set_alpha(self.get_alpha())
+        gc.set_alpha(self._get_scalar_alpha())
         gc.set_url(self.get_url())
         gc.set_gid(self.get_gid())
 
