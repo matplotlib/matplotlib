@@ -122,6 +122,15 @@ def validate_any(s):
 validate_anylist = _listify_validator(validate_any)
 
 
+def validate_date(s):
+    try:
+        np.datetime64(s)
+        return s
+    except ValueError:
+        raise RuntimeError('"%s" should be a string that can be parsed by ',
+                           'numpy.datetime64.' % s)
+
+
 @cbook.deprecated("3.2", alternative="os.path.exists")
 def validate_path_exists(s):
     """If s is a path, return s, else False"""
@@ -1264,6 +1273,7 @@ defaultParams = {
     'scatter.marker': ['o', validate_string],
     'scatter.edgecolors': ['face', validate_string],
 
+    'date.epoch': ['1970-01-01T00:00', validate_date],
     # TODO validate that these are valid datetime format strings
     'date.autoformatter.year': ['%Y', validate_string],
     'date.autoformatter.month': ['%Y-%m', validate_string],

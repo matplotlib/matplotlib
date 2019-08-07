@@ -39,7 +39,7 @@ STYLE_BLACKLIST = {
     'webagg.port_retries', 'webagg.open_in_browser', 'backend_fallback',
     'toolbar', 'timezone', 'datapath', 'figure.max_open_warning',
     'figure.raise_window', 'savefig.directory', 'tk.window_focus',
-    'docstring.hardcopy'}
+    'docstring.hardcopy', 'date.epoch'}
 
 
 def _remove_blacklisted_style_params(d, warn=True):

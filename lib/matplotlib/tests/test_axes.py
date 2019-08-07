@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.colors as mcolors
+import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 from numpy.testing import (
@@ -501,35 +502,33 @@ def test_fill_units():
     t = units.Epoch("ET", dt=datetime.datetime(2009, 4, 27))
     value = 10.0 * units.deg
     day = units.Duration("ET", 24.0 * 60.0 * 60.0)
+    dt = np.arange('2009-04-27', '2009-04-29', dtype='datetime64[D]')
+    dtn = mdates.date2num(dt)
 
     fig = plt.figure()
 
     # Top-Left
     ax1 = fig.add_subplot(221)
     ax1.plot([t], [value], yunits='deg', color='red')
-    ax1.fill([733525.0, 733525.0, 733526.0, 733526.0],
-             [0.0, 0.0, 90.0, 0.0], 'b')
-
+    ind = [0, 0, 1, 1]
+    ax1.fill(dtn[ind], [0.0, 0.0, 90.0, 0.0], 'b')
     # Top-Right
     ax2 = fig.add_subplot(222)
     ax2.plot([t], [value], yunits='deg', color='red')
     ax2.fill([t, t, t + day, t + day],
              [0.0, 0.0, 90.0, 0.0], 'b')
-
     # Bottom-Left
     ax3 = fig.add_subplot(223)
     ax3.plot([t], [value], yunits='deg', color='red')
-    ax3.fill([733525.0, 733525.0, 733526.0, 733526.0],
+    ax3.fill(dtn[ind],
              [0 * units.deg, 0 * units.deg, 90 * units.deg, 0 * units.deg],
              'b')
-
     # Bottom-Right
     ax4 = fig.add_subplot(224)
     ax4.plot([t], [value], yunits='deg', color='red')
     ax4.fill([t, t, t + day, t + day],
              [0 * units.deg, 0 * units.deg, 90 * units.deg, 0 * units.deg],
              facecolor="blue")
-
     fig.autofmt_xdate()
 
 
@@ -559,17 +558,17 @@ def test_single_point():
 
 @image_comparison(['single_date.png'], style='mpl20')
 def test_single_date():
+
     # use former defaults to match existing baseline image
     plt.rcParams['axes.formatter.limits'] = -7, 7
+    dt = mdates.date2num(np.datetime64('0000-12-31'))
 
     time1 = [721964.0]
     data1 = [-65.54]
 
-    plt.subplot(211)
-    plt.plot_date(time1, data1, 'o', color='r')
-
-    plt.subplot(212)
-    plt.plot(time1, data1, 'o', color='r')
+    fig, ax = plt.subplots(2, 1)
+    ax[0].plot_date(time1 + dt, data1, 'o', color='r')
+    ax[1].plot(time1, data1, 'o', color='r')
 
 
 @check_figures_equal(extensions=["png"])
@@ -629,7 +628,7 @@ def test_axvspan_epoch():
     ax.set_xlim(t0 - 5.0*dt, tf + 5.0*dt)
 
 
-@image_comparison(['axhspan_epoch'])
+@image_comparison(['axhspan_epoch'], tol=0.02)
 def test_axhspan_epoch():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -4997,10 +4996,10 @@ def test_broken_barh_empty():
 def test_broken_barh_timedelta():
     """Check that timedelta works as x, dx pair for this method."""
     fig, ax = plt.subplots()
-    pp = ax.broken_barh([(datetime.datetime(2018, 11, 9, 0, 0, 0),
-                          datetime.timedelta(hours=1))], [1, 2])
-    assert pp.get_paths()[0].vertices[0, 0] == 737007.0
-    assert pp.get_paths()[0].vertices[2, 0] == 737007.0 + 1 / 24
+    d0 = datetime.datetime(2018, 11, 9, 0, 0, 0)
+    pp = ax.broken_barh([(d0, datetime.timedelta(hours=1))], [1, 2])
+    assert pp.get_paths()[0].vertices[0, 0] == mdates.date2num(d0)
+    assert pp.get_paths()[0].vertices[2, 0] == mdates.date2num(d0) + 1 / 24
 
 
 def test_pandas_pcolormesh(pd):
@@ -5134,7 +5133,7 @@ def test_bar_uint8():
         assert patch.xy[0] == x
 
 
-@image_comparison(['date_timezone_x.png'])
+@image_comparison(['date_timezone_x.png'], tol=1.0)
 def test_date_timezone_x():
     # Tests issue 5575
     time_index = [datetime.datetime(2016, 2, 22, hour=x,
@@ -5169,7 +5168,7 @@ def test_date_timezone_y():
     plt.plot_date([3] * 3, time_index, tz='UTC', xdate=False, ydate=True)
 
 
-@image_comparison(['date_timezone_x_and_y.png'])
+@image_comparison(['date_timezone_x_and_y.png'], tol=1.0)
 def test_date_timezone_x_and_y():
     # Tests issue 5575
     UTC = datetime.timezone.utc
@@ -5957,8 +5956,8 @@ def test_datetime_masked():
 
     fig, ax = plt.subplots()
     ax.plot(x, m)
-    # these are the default viewlim
-    assert ax.get_xlim() == (730120.0, 733773.0)
+    dt = mdates.date2num(np.datetime64('0000-12-31'))
+    assert ax.get_xlim() == (730120.0 + dt, 733773.0 + dt)
 
 
 def test_hist_auto_bins():
