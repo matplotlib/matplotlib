@@ -1145,7 +1145,7 @@ defaultParams = {
     'axes.labelpad':         [4.0, validate_float],  # space between label and axis
     'axes.labelweight':      ['normal', validate_string],  # fontsize of the x any y labels
     'axes.labelcolor':       ['black', validate_color],    # color of axis label
-    'axes.formatter.limits': [[-5, 5], validate_nseq_int(2)],
+    'axes.formatter.limits': [[-5, 6], validate_nseq_int(2)],
                                # use scientific notation if log10
                                # of the axis range is smaller than the
                                # first or larger than the second
