@@ -366,7 +366,10 @@ def test_subplots_shareax_loglabels():
 
 def test_savefig():
     fig = plt.figure()
-    msg = r"savefig\(\) takes 2 positional arguments but 3 were given"
+    if sys.version_info[0] == 3:
+        msg = r"savefig\(\) takes 2 positional arguments but 3 were given"
+    else:
+        msg = r"savefig\(\) takes exactly 2 arguments \(3 given\)"
     with pytest.raises(TypeError, match=msg):
         fig.savefig("fname1.png", "fname2.png")
 
