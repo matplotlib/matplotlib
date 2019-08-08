@@ -8,9 +8,9 @@ Several external packages that extend or build on Matplotlib functionality are
 listed below.  They are maintained and distributed separately from Matplotlib
 and thus need to be installed individually.
 
-Please submit an issue or pull request on Github if you have created
+Please submit an issue or pull request on GitHub if you have created
 a package that you would like to have included.  We are also happy to
-host third party packages within the `Matplotlib Github Organization
+host third party packages within the `Matplotlib GitHub Organization
 <https://github.com/matplotlib>`_.
 
 Mapping toolkits

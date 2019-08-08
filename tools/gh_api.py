@@ -1,4 +1,4 @@
-"""Functions for Github API requests."""
+"""Functions for GitHub API requests."""
 
 import getpass
 import json
@@ -51,7 +51,7 @@ def get_auth_token():
 
     print("Please enter your github username and password. These are not "
            "stored, only used to get an oAuth token. You can revoke this at "
-           "any time on Github.")
+           "any time on GitHub.")
     user = input("Username: ")
     pw = getpass.getpass("Password: ")
 

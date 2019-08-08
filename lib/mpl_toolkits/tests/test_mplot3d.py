@@ -813,7 +813,7 @@ def test_inverted(fig_test, fig_ref):
 
 
 def test_inverted_cla():
-    # Github PR #5450. Setting autoscale should reset
+    # GitHub PR #5450. Setting autoscale should reset
     # axes to be non-inverted.
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     # 1. test that a new axis is not inverted per default
