@@ -1326,7 +1326,11 @@ def _check_1d(x):
         return np.atleast_1d(x)
     else:
         try:
-            x[:, None]
+            shape = x[:, None].shape
+            # work around https://github.com/pandas-dev/pandas/issues/27775
+            # which mean the shape is not as expected
+            if len(shape) != 2:
+                return np.atleast_1d(x)
             return x
         except (IndexError, TypeError):
             return np.atleast_1d(x)
