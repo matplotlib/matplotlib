@@ -853,6 +853,7 @@ class Axes3D(Axes):
         """
         return self.zaxis.set_ticks(*args, **kwargs)
 
+    @cbook._make_keyword_only("3.2", "minor")
     def get_zticks(self, minor=False):
         """
         Return the z ticks as a list of locations

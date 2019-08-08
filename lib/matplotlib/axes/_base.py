@@ -3265,10 +3265,12 @@ class _AxesBase(martist.Artist):
             ax.stale = True
         self._request_autoscale_view(scaley=False)
 
+    @cbook._make_keyword_only("3.2", "minor")
     def get_xticks(self, minor=False):
         """Return the x ticks as a list of locations"""
         return self.xaxis.get_ticklocs(minor=minor)
 
+    @cbook._make_keyword_only("3.2", "minor")
     def set_xticks(self, ticks, minor=False):
         """
         Set the x ticks with list of *ticks*
@@ -3645,10 +3647,12 @@ class _AxesBase(martist.Artist):
             ax.stale = True
         self._request_autoscale_view(scalex=False)
 
+    @cbook._make_keyword_only("3.2", "minor")
     def get_yticks(self, minor=False):
         """Return the y ticks as a list of locations"""
         return self.yaxis.get_ticklocs(minor=minor)
 
+    @cbook._make_keyword_only("3.2", "minor")
     def set_yticks(self, ticks, minor=False):
         """
         Set the y ticks with list of *ticks*

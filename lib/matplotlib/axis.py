@@ -1753,6 +1753,7 @@ class Axis(martist.Artist):
         self.stale = True
         return ret
 
+    @cbook._make_keyword_only("3.2", "minor")
     def set_ticks(self, ticks, minor=False):
         """
         Set the locations of the tick marks from sequence ticks
