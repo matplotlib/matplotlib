@@ -5169,6 +5169,14 @@ optional.
 
         if where is None:
             where = True
+        else:
+            where = np.asarray(where, dtype=bool)
+            if where.size != x.size:
+                cbook.warn_deprecated(
+                    "3.2",
+                    message="The parameter where must have the same size as x "
+                            "in fill_between(). This will become an error in "
+                            "future versions of Matplotlib.")
         where = where & ~functools.reduce(np.logical_or,
                                           map(np.ma.getmask, [x, y1, y2]))
 
@@ -5350,6 +5358,14 @@ optional.
 
         if where is None:
             where = True
+        else:
+            where = np.asarray(where, dtype=bool)
+            if where.size != y.size:
+                cbook.warn_deprecated(
+                    "3.2",
+                    message="The parameter where must have the same size as y "
+                            "in fill_between(). This will become an error in "
+                            "future versions of Matplotlib.")
         where = where & ~functools.reduce(np.logical_or,
                                           map(np.ma.getmask, [y, x1, x2]))
 
