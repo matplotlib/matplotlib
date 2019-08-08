@@ -45,6 +45,7 @@ extensions = [
     'sphinxext.custom_roles',
     'sphinxext.github',
     'sphinxext.math_symbol_table',
+    'sphinxext.missing_references',
     'sphinxext.mock_gui_toolkits',
     'sphinxext.skip_deprecated',
     'sphinx_copybutton',
@@ -98,6 +99,8 @@ if sphinx.version_info < (1, 8):
     autodoc_default_flags = ['members', 'undoc-members']
 else:
     autodoc_default_options = {'members': None, 'undoc-members': None}
+
+nitpicky = True
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
