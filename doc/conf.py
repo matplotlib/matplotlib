@@ -207,7 +207,7 @@ default_role = 'obj'
 
 plot_formats = [('png', 100), ('pdf', 100)]
 
-# Github extension
+# GitHub extension
 
 github_project_url = "https://github.com/matplotlib/matplotlib/"
 

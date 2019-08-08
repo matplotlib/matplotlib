@@ -197,8 +197,8 @@ Foundation (PSF) license <psf-license_>`_.
 There is an active developer community and a long list of people who have made
 significant :doc:`contributions <users/credits>`.
 
-Matplotlib is hosted on `Github <source code_>`_.  `Issues <issue tracker_>`_
-and `Pull requests`_ are tracked at Github too.
+Matplotlib is hosted on `GitHub <source code_>`_.  `Issues <issue tracker_>`_
+and `Pull requests`_ are tracked at GitHub too.
 
 .. _source code: https://github.com/matplotlib/matplotlib
 .. _issue tracker: https://github.com/matplotlib/matplotlib/issues

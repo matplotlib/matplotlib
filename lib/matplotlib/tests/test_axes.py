@@ -215,7 +215,7 @@ def test_twin_inherit_autoscale_setting():
 
 
 def test_inverted_cla():
-    # Github PR #5450. Setting autoscale should reset
+    # GitHub PR #5450. Setting autoscale should reset
     # axes to be non-inverted.
     # plotting an image, then 1d graph, axis is now down
     fig = plt.figure(0)

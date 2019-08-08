@@ -34,7 +34,7 @@ def round_hour(dt):
     return dt.replace(minute=0,second=0,microsecond=0)
 
 def _parse_datetime(s):
-    """Parse dates in the format returned by the Github API."""
+    """Parse dates in the format returned by the GitHub API."""
     if s:
         return datetime.strptime(s, ISO8601)
     else:

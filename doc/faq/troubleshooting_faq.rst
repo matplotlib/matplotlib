@@ -84,7 +84,7 @@ There is a good chance your question has already been asked:
 
 - The `mailing list archive <http://matplotlib.1069221.n5.nabble.com/>`_.
 
-- `Github issues <https://github.com/matplotlib/matplotlib/issues>`_.
+- `GitHub issues <https://github.com/matplotlib/matplotlib/issues>`_.
 
 - Stackoverflow questions tagged `matplotlib
   <http://stackoverflow.com/questions/tagged/matplotlib>`_.
@@ -100,7 +100,7 @@ provide the following information in your e-mail to the `mailing list
      python -c "import matplotlib; print matplotlib.__version__"
 
 * Where you obtained Matplotlib (e.g., your Linux distribution's packages,
-  Github, PyPi, or `Anaconda <https://www.anaconda.com/>`_ or
+  GitHub, PyPi, or `Anaconda <https://www.anaconda.com/>`_ or
   `Enthought Canopy <https://www.enthought.com/products/canopy/>`_).
 
 * Any customizations to your ``matplotlibrc`` file (see

@@ -20,7 +20,7 @@ from matplotlib.testing.decorators import image_comparison, check_figures_equal
 @pytest.mark.flaky(reruns=3)
 def test_invisible_Line_rendering():
     """
-    Github issue #1256 identified a bug in Line.draw method
+    GitHub issue #1256 identified a bug in Line.draw method
 
     Despite visibility attribute set to False, the draw method was not
     returning early enough and some pre-rendering code was executed
