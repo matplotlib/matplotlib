@@ -23,7 +23,7 @@ static PyObject* PyQuadContourGenerator_new(PyTypeObject* type, PyObject* args, 
 
 const char* PyQuadContourGenerator_init__doc__ =
     "QuadContourGenerator(x, y, z, mask, corner_mask, chunk_size)\n"
-    "\n"
+    "--\n\n"
     "Create a new C++ QuadContourGenerator object\n";
 
 static int PyQuadContourGenerator_init(PyQuadContourGenerator* self, PyObject* args, PyObject* kwds)
@@ -78,7 +78,7 @@ static void PyQuadContourGenerator_dealloc(PyQuadContourGenerator* self)
 
 const char* PyQuadContourGenerator_create_contour__doc__ =
     "create_contour(level)\n"
-    "\n"
+    "--\n\n"
     "Create and return a non-filled contour.";
 
 static PyObject* PyQuadContourGenerator_create_contour(PyQuadContourGenerator* self, PyObject* args, PyObject* kwds)
@@ -95,7 +95,7 @@ static PyObject* PyQuadContourGenerator_create_contour(PyQuadContourGenerator* s
 
 const char* PyQuadContourGenerator_create_filled_contour__doc__ =
     "create_filled_contour(lower_level, upper_level)\n"
-    "\n"
+    "--\n\n"
     "Create and return a filled contour";
 
 static PyObject* PyQuadContourGenerator_create_filled_contour(PyQuadContourGenerator* self, PyObject* args, PyObject* kwds)
