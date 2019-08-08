@@ -98,65 +98,6 @@ def test_bold_font_output_with_none_fonttype():
     ax.set_title('bold-title', fontweight='bold')
 
 
-def _test_determinism_save(filename, usetex):
-    # This function is mostly copy&paste from "def test_visibility"
-    mpl.rc('svg', hashsalt='asdf')
-    mpl.rc('text', usetex=usetex)
-
-    fig = Figure()  # Require no GUI.
-    ax = fig.add_subplot(111)
-
-    x = np.linspace(0, 4 * np.pi, 50)
-    y = np.sin(x)
-    yerr = np.ones_like(y)
-
-    a, b, c = ax.errorbar(x, y, yerr=yerr, fmt='ko')
-    for artist in b:
-        artist.set_visible(False)
-    ax.set_title('A string $1+2+\\sigma$')
-    ax.set_xlabel('A string $1+2+\\sigma$')
-    ax.set_ylabel('A string $1+2+\\sigma$')
-
-    fig.savefig(filename, format="svg")
-
-
-@pytest.mark.parametrize(
-    "filename, usetex",
-    # unique filenames to allow for parallel testing
-    [("determinism_notex.svg", False),
-     pytest.param("determinism_tex.svg", True, marks=needs_usetex)])
-def test_determinism(filename, usetex):
-    import sys
-    from subprocess import check_output, STDOUT, CalledProcessError
-    plots = []
-    for i in range(3):
-        # Using check_output and setting stderr to STDOUT will capture the real
-        # problem in the output property of the exception
-        try:
-            check_output(
-                [sys.executable, '-R', '-c',
-                 'import matplotlib; '
-                 'matplotlib._called_from_pytest = True; '
-                 'matplotlib.use("svg", force=True); '
-                 'from matplotlib.tests.test_backend_svg '
-                 'import _test_determinism_save;'
-                 '_test_determinism_save(%r, %r)' % (filename, usetex)],
-                stderr=STDOUT)
-        except CalledProcessError as e:
-            # it's easier to use utf8 and ask for forgiveness than try
-            # to figure out what the current console has as an
-            # encoding :-/
-            print(e.output.decode(encoding="utf-8", errors="ignore"))
-            raise e
-        else:
-            with open(filename, 'rb') as fd:
-                plots.append(fd.read())
-        finally:
-            os.unlink(filename)
-    for p in plots[1:]:
-        assert p == plots[0]
-
-
 @needs_usetex
 def test_missing_psfont(monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""
