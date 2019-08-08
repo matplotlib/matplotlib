@@ -669,7 +669,6 @@
       "doc/gallery/animation/animated_histogram.rst:112",
       "doc/gallery/statistics/errorbars_and_boxes.rst:21",
       "doc/users/prev_whats_new/whats_new_1.5.rst:514",
-      "lib/matplotlib/colorbar.py:docstring of matplotlib.colorbar.ColorbarBase:38",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.delaxes:2",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.plotting:33"
     ],
@@ -1372,7 +1371,6 @@
       "lib/matplotlib/collections.py:docstring of matplotlib.collections.QuadMesh.convert_xunits:4"
     ],
     "LineCollection": [
-      "lib/matplotlib/colorbar.py:docstring of matplotlib.colorbar.ColorbarBase:41",
       "lib/matplotlib/container.py:docstring of matplotlib.container.StemContainer:40"
     ],
     "#rrggbb": [
@@ -3227,9 +3225,6 @@
     ],
     "set_color": [
       "doc/faq/howto_faq.rst:45"
-    ],
-    "https://virtualenv.pypa.io/": [
-      "doc/faq/virtualenv_faq.rst:54"
     ],
     "Patch": [
       "doc/gallery/animation/animated_histogram.rst:112",
