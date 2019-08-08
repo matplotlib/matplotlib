@@ -20,7 +20,7 @@ Make sure you have pip >= 9.0.1.
 """.format('.'.join(str(n) for n in min_version)),
     sys.exit(error)
 
-import os
+from pathlib import Path
 import shutil
 from zipfile import ZipFile
 
@@ -116,28 +116,25 @@ cmdclass['build_ext'] = BuildExtraLibraries
 
 
 def _download_jquery_to(dest):
-    if os.path.exists(os.path.join(dest, "jquery-ui-1.12.1")):
-        return
-
-    # If we are installing from an sdist, use the already downloaded jquery-ui
-    sdist_src = os.path.join(
-        "lib/matplotlib/backends/web_backend", "jquery-ui-1.12.1")
-    if os.path.exists(sdist_src):
-        shutil.copytree(sdist_src, os.path.join(dest, "jquery-ui-1.12.1"))
-        return
-
     # Note: When bumping the jquery-ui version, also update the versions in
     # single_figure.html and all_figures.html.
     url = "https://jqueryui.com/resources/download/jquery-ui-1.12.1.zip"
-    sha = 'f8233674366ab36b2c34c577ec77a3d70cac75d2e387d8587f3836345c0f624d'
-    if not os.path.exists(os.path.join(dest, "jquery-ui-1.12.1")):
-        os.makedirs(dest, exist_ok=True)
+    sha = "f8233674366ab36b2c34c577ec77a3d70cac75d2e387d8587f3836345c0f624d"
+    name = Path(url).stem
+    if (dest / name).exists():
+        return
+    # If we are installing from an sdist, use the already downloaded jquery-ui.
+    sdist_src = Path("lib/matplotlib/backends/web_backend", name)
+    if sdist_src.exists():
+        shutil.copytree(sdist_src, dest / name)
+        return
+    if not (dest / name).exists():
+        dest.mkdir(parents=True, exist_ok=True)
         try:
             buff = download_or_cache(url, sha)
         except Exception:
-            raise IOError("Failed to download jquery-ui.  Please download " +
-                          "{url} and extract it to {dest}.".format(
-                              url=url, dest=dest))
+            raise IOError(f"Failed to download jquery-ui.  Please download "
+                          f"{url} and extract it to {dest}.")
         with ZipFile(buff) as zf:
             zf.extractall(dest)
 
@@ -145,23 +142,23 @@ def _download_jquery_to(dest):
 # Relying on versioneer's implementation detail.
 class sdist_with_jquery(cmdclass['sdist']):
     def make_release_tree(self, base_dir, files):
-        super(sdist_with_jquery, self).make_release_tree(base_dir, files)
+        super().make_release_tree(base_dir, files)
         _download_jquery_to(
-            os.path.join(base_dir, "lib/matplotlib/backends/web_backend/"))
+            Path(base_dir, "lib/matplotlib/backends/web_backend/"))
 
 
 # Affects install and bdist_wheel.
 class install_lib_with_jquery(InstallLibCommand):
     def run(self):
-        super(install_lib_with_jquery, self).run()
+        super().run()
         _download_jquery_to(
-            os.path.join(self.install_dir, "matplotlib/backends/web_backend/"))
+            Path(self.install_dir, "matplotlib/backends/web_backend/"))
 
 
 class develop_with_jquery(DevelopCommand):
     def run(self):
-        super(develop_with_jquery, self).run()
-        _download_jquery_to("lib/matplotlib/backends/web_backend/")
+        super().run()
+        _download_jquery_to(Path("lib/matplotlib/backends/web_backend/"))
 
 
 cmdclass['sdist'] = sdist_with_jquery
