@@ -2360,6 +2360,10 @@ class _AxesBase(martist.Artist):
         changed after the artist has been added to an Axes instance.  In that
         case, use :meth:`matplotlib.axes.Axes.relim` prior to calling
         autoscale_view.
+
+        If the views of the axes are fixed, e.g. via `set_xlim`, they will
+        not be changed by autoscale_view().
+        See :meth:`matplotlib.axes.Axes.autoscale` for an alternative.
         """
         if tight is not None:
             self._tight = bool(tight)
