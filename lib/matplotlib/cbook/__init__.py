@@ -1399,7 +1399,13 @@ def _check_1d(x):
         return np.atleast_1d(x)
     else:
         try:
-            x[:, None]
+            ndim = x[:, None].ndim
+            # work around https://github.com/pandas-dev/pandas/issues/27775
+            # which mean the shape is not as expected. That this ever worked
+            # was an unintentional quirk of pandas the above line will raise
+            # an exception in the future.
+            if ndim < 2:
+                return np.atleast_1d(x)
             return x
         except (IndexError, TypeError):
             return np.atleast_1d(x)
