@@ -1553,6 +1553,20 @@ def _get_renderer(figure, print_method):
             return figure._cachedRenderer
 
 
+def _is_non_interactive_terminal_ipython(ip):
+    """
+    Return whether we are in a a terminal IPython, but non interactive.
+
+    When in _terminal_ IPython, ip.parent will have and `interact` attribute,
+    if this attribute is False we do not setup eventloop integration as the
+    user will _not_ interact with IPython. In all other case (ZMQKernel, or is
+    interactive), we do.
+    """
+    return (hasattr(ip, 'parent')
+        and (ip.parent is not None)
+        and getattr(ip.parent, 'interact', None) is False)
+
+
 class FigureCanvasBase:
     """
     The canvas the figure renders into.
@@ -1645,15 +1659,8 @@ class FigureCanvasBase:
         backend2gui_rif = {"qt5": "qt", "qt4": "qt", "gtk3": "gtk3",
                            "wx": "wx", "macosx": "osx"}.get(rif)
         if backend2gui_rif:
-            pt.backend2gui[get_backend()] = backend2gui_rif
-            # Work around pylabtools.find_gui_and_backend always reading from
-            # rcParamsOrig.
-            orig_origbackend = mpl.rcParamsOrig["backend"]
-            try:
-                mpl.rcParamsOrig["backend"] = mpl.rcParams["backend"]
-                ip.enable_matplotlib()
-            finally:
-                mpl.rcParamsOrig["backend"] = orig_origbackend
+            if _is_non_interactive_terminal_ipython(ip):
+                ip.enable_gui(backend2gui_rif)
 
     @contextmanager
     def _idle_draw_cntx(self):
