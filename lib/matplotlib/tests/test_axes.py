@@ -5522,6 +5522,12 @@ def test_pandas_errorbar_indexing(pd):
     ax.errorbar('x', 'y', xerr='xe', yerr='ye', data=df)
 
 
+def test_pandas_index_shape(pd):
+    df = pd.DataFrame({"XX": [4, 5, 6], "YY": [7, 1, 2]})
+    fig, ax = plt.subplots()
+    ax.plot(df.index, df['YY'])
+
+
 def test_pandas_indexing_hist(pd):
     ser_1 = pd.Series(data=[1, 2, 2, 3, 3, 4, 4, 4, 4, 5])
     ser_2 = ser_1.iloc[1:]
