@@ -5,8 +5,8 @@ Drawstyle Parameter
 
 This example demonstrates the drawstyle parameter that can be used to 
 modify how the points are connected. 
-
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
