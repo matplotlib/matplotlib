@@ -293,7 +293,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self._imcache = None
 
     def _get_scalar_alpha(self):
-        return self._alpha if np.isscalar(self._alpha) else 1.0
+        return self._alpha if np.ndim(self._alpha) == 0 else 1.0
 
     def changed(self):
         """
@@ -500,7 +500,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 out_alpha[out_mask] = 1
                 # Apply the pixel-by-pixel alpha values if present
                 alpha = self.get_alpha()
-                if alpha is not None and not np.isscalar(alpha):
+                if alpha is not None and np.ndim(alpha) > 0:
                     out_alpha *= _resample(self, alpha, out_shape,
                                            t, resample=True)
                 # mask and run through the norm
