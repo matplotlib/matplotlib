@@ -480,3 +480,10 @@ def test_axes_removal():
     axs[0].plot([datetime(2000, 1, 1), datetime(2000, 2, 1)], [0, 1])
     assert isinstance(axs[0].xaxis.get_major_formatter(),
                       ScalarFormatter)
+
+
+def test_removed_axis():
+    # Simple smoke test to make sure removing a shared axis works
+    fig, axs = plt.subplots(2, sharex=True)
+    axs[0].remove()
+    fig.canvas.draw()
