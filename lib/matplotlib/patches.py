@@ -4454,7 +4454,11 @@ class ConnectionPatch(FancyArrowPatch):
         if b or (b is None and self.coords1 == "data"):
             x, y = self.xy1
             xy_pixel = self._get_xy(x, y, self.coords1, self.axesA)
-            if not self.axes.contains_point(xy_pixel):
+            if self.axesA is None:
+                axes = self.axes
+            else:
+                axes = self.axesA
+            if not axes.contains_point(xy_pixel):
                 return False
 
         if b or (b is None and self.coords2 == "data"):
