@@ -402,6 +402,18 @@ def test_connection_patch():
     ax2.add_artist(con)
 
 
+def test_connection_patch_fig():
+    # Test that connection patch can be added as figure artist
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    xy = (0.3, 0.2)
+    con = mpatches.ConnectionPatch(xyA=xy, xyB=xy,
+                                   coordsA="data", coordsB="data",
+                                   axesA=ax1, axesB=ax2,
+                                   arrowstyle="->", shrinkB=5)
+    fig.add_artist(con)
+    fig.canvas.draw()
+
+
 def test_datetime_rectangle():
     # Check that creating a rectangle with timedeltas doesn't fail
     from datetime import datetime, timedelta
