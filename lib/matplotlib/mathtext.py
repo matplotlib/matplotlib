@@ -3376,9 +3376,7 @@ class MathTextParser:
         assert self._output == "bitmap"
         prop = FontProperties(size=fontsize)
         ftimage, depth = self.parse(texstr, dpi=dpi, prop=prop)
-
-        x = ftimage.as_array()
-        return x, depth
+        return np.asarray(ftimage), depth
 
     def to_rgba(self, texstr, color='black', dpi=120, fontsize=14):
         r"""
