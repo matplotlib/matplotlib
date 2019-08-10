@@ -632,27 +632,37 @@ class Text(Artist):
         # Build the line incrementally, for a more accurate measure of length
         line_width = self._get_wrap_line_width()
         wrapped_str = ""
-        line = ""
 
-        for word in self.get_text().split(' '):
-            # New lines in the user's test need to force a split, so that it's
-            # not using the longest current line width in the line being built
-            sub_words = word.split('\n')
-            for i in range(len(sub_words)):
-                current_width = self._get_rendered_text_width(
-                    line + ' ' + sub_words[i])
+        # New lines in the user's text force a split
+        unwrapped_lines = self.get_text().split('\n')
 
-                # Split long lines, and each newline found in the current word
-                if current_width > line_width or i > 0:
-                    wrapped_str += line + '\n'
-                    line = ""
+        # Now wrap each individual unwrapped line
+        for unwrapped_line in unwrapped_lines:
 
-                if line == "":
-                    line = sub_words[i]
-                else:
-                    line += ' ' + sub_words[i]
+            sub_words = unwrapped_line.split(' ')
+            # Remove items from sub_words as we go, so stop when empty
+            while len(sub_words) > 0:
+                if len(sub_words) == 1:
+                    # Only one word, so just add it to the end
+                    wrapped_str += sub_words.pop(0)
+                    continue
 
-        return wrapped_str + line
+                for i in range(2, len(sub_words) + 1):
+                    # Get width of all words up to and including here
+                    line = ' '.join(sub_words[:i])
+                    current_width = self._get_rendered_text_width(line)
+
+                    # If all these words are too wide, append all not including
+                    # last word
+                    if current_width > line_width:
+                        wrapped_str += ' '.join(sub_words[:i - 1]) + '\n'
+                        sub_words = sub_words[i - 1:]
+                    # Otherwise if all words fit in the width, append them all
+                    elif i == len(sub_words):
+                        wrapped_str += ' '.join(sub_words[:i])
+                        sub_words = []
+
+        return wrapped_str
 
     @artist.allow_rasterization
     def draw(self, renderer):
