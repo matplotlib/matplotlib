@@ -937,6 +937,8 @@ class Animation:
         if self._blit:
             self._setup_blit()
 
+        fig.animations.append(self)
+
     def _start(self, *args):
         '''
         Starts interactive animation. Adds the draw frame command to the GUI

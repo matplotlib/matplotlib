@@ -396,6 +396,9 @@ class Figure(Artist):
         # list of child gridspecs for this figure
         self._gridspecs = []
 
+        # list of animations for this figure
+        self.animations = []
+
     # TODO: I'd like to dynamically add the _repr_html_ method
     # to the figure in the right context, but then IPython doesn't
     # use it, for some reason.
