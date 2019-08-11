@@ -599,9 +599,10 @@ def test_wrap():
     s = 'This is a very long text that should be wrapped multiple times.'
     text = fig.text(0.7, 0.5, s, wrap=True)
     fig.canvas.draw()
-    assert text._get_wrapped_text() == ('This is a very long text\n'
-                                        'that should be wrapped\n'
-                                        'multiple times.')
+    assert text._get_wrapped_text() == ('This is a very long\n'
+                                        'text that should be\n'
+                                        'wrapped multiple\n'
+                                        'times.')
 
 
 def test_long_word_wrap():
