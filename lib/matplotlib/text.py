@@ -657,10 +657,13 @@ class Text(Artist):
                     if current_width > line_width:
                         wrapped_str += ' '.join(sub_words[:i - 1]) + '\n'
                         sub_words = sub_words[i - 1:]
+                        break
+
                     # Otherwise if all words fit in the width, append them all
                     elif i == len(sub_words):
                         wrapped_str += ' '.join(sub_words[:i])
                         sub_words = []
+                        break
 
         return wrapped_str
 
