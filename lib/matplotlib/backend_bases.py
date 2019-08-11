@@ -2470,20 +2470,53 @@ def button_press_handler(event, canvas, toolbar=None):
 
 
 class NonGuiException(Exception):
+    """Raised when trying show a figure in a non-GUI backend."""
     pass
 
 
 class FigureManagerBase:
     """
-    Helper class for pyplot mode, wraps everything up into a neat bundle.
+    A backend-independent abstraction of a figure container and controller.
+
+    The figure manager is used by pyplot to interact with the window in a
+    backend-independent way. It's an adapter for the real (GUI) framework that
+    represents the visual figure on screen.
+
+    GUI backends define from this class to translate common operations such
+    as *show* or *resize* to the GUI-specific code. Non-GUI backends do not
+    support these operations an can just use the base class.
+
+    This following basic operations are accessible:
+
+    **Window operations**
+
+    - `~.FigureManagerBase.show`
+    - `~.FigureManagerBase.destroy`
+    - `~.FigureManagerBase.full_screen_toggle`
+    - `~.FigureManagerBase.resize`
+    - `~.FigureManagerBase.get_window_title`
+    - `~.FigureManagerBase.set_window_title`
+
+    **Key and mouse button press handling**
+
+    The figure manager sets up default key and mouse button press handling by
+    hooking up the `.key_press_handler` to the matplotlib event system. This
+    ensures the same shortcuts and mouse actions across backends.
+
+    **Other operations**
+
+    Subclasses will have additional attributes and functions to access
+    additional functionality. This is of course backend-specific. For example,
+    most GUI backends have ``window`` and ``toolbar`` attributes that give
+    access to the native GUI widgets of the respective framework.
 
     Attributes
     ----------
     canvas : :class:`FigureCanvasBase`
-        The backend-specific canvas instance
+        The backend-specific canvas instance.
 
     num : int or str
-        The figure number
+        The figure number.
 
     key_press_handler_id : int
         The default key handler cid, when using the toolmanager.
@@ -2498,7 +2531,6 @@ class FigureManagerBase:
 
             figure.canvas.mpl_disconnect(
                 figure.canvas.manager.button_press_handler_id)
-
     """
     def __init__(self, canvas, num):
         self.canvas = canvas
@@ -2540,7 +2572,7 @@ class FigureManagerBase:
         pass
 
     def resize(self, w, h):
-        """"For GUI backends, resize the window (in pixels)."""
+        """For GUI backends, resize the window (in pixels)."""
 
     def key_press(self, event):
         """
@@ -2551,9 +2583,7 @@ class FigureManagerBase:
             key_press_handler(event, self.canvas, self.canvas.toolbar)
 
     def button_press(self, event):
-        """
-        The default Matplotlib button actions for extra mouse buttons.
-        """
+        """The default Matplotlib button actions for extra mouse buttons."""
         if rcParams['toolbar'] != 'toolmanager':
             button_press_handler(event, self.canvas, self.canvas.toolbar)
 
