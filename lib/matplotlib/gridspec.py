@@ -232,38 +232,42 @@ class GridSpecBase:
 
 class GridSpec(GridSpecBase):
     """
-    Specifies the geometry of the grid that a subplot can be placed in.
+    A grid layout to place subplots within a figure.
 
-    The location of grid is determined by similar way as the SubplotParams.
+    The location of the grid cells is determined in a similar way to
+    `~.figure.SubplotParams` using *left*, *right*, *top*, *bottom*, *wspace*
+    and *hspace*.
     """
     def __init__(self, nrows, ncols, figure=None,
                  left=None, bottom=None, right=None, top=None,
                  wspace=None, hspace=None,
                  width_ratios=None, height_ratios=None):
         """
-        The number of rows and number of columns of the grid need to be set.
-        Optionally, the subplot layout parameters (e.g., left, right, etc.)
-        can be tuned.
-
         Parameters
         ----------
         nrows, ncols : int
             The number of rows and columns of the grid.
 
         figure : `~.figure.Figure`, optional
+            Only used for constrained layout to create a proper layoutbox.
 
         left, right, top, bottom : float, optional
             Extent of the subplots as a fraction of figure width or height.
             Left cannot be larger than right, and bottom cannot be larger than
-            top.
+            top. If not given, the values will be inferred from a figure or
+            rcParams when necessary. See also `GridSpec.get_subplot_params`.
 
         wspace : float, optional
             The amount of width reserved for space between subplots,
             expressed as a fraction of the average axis width.
+            If not given, the values will be inferred from a figure or
+            rcParams when necessary. See also `GridSpec.get_subplot_params`.
 
         hspace : float, optional
             The amount of height reserved for space between subplots,
             expressed as a fraction of the average axis height.
+            If not given, the values will be inferred from a figure or
+            rcParams when necessary. See also `GridSpec.get_subplot_params`.
 
         width_ratios : array-like of length *ncols*, optional
             Defines the relative widths of the columns. Each column gets a
@@ -275,9 +279,6 @@ class GridSpec(GridSpecBase):
             relative height of ``height_ratios[i] / sum(height_ratios)``.
             If not given, all rows will have the same height.
 
-        Notes
-        -----
-        See `~.figure.SubplotParams` for descriptions of the layout parameters.
         """
         self.left = left
         self.bottom = bottom
@@ -320,7 +321,12 @@ class GridSpec(GridSpecBase):
 
     def update(self, **kwargs):
         """
-        Update the current values.
+        Update the subplot parameters of the grid.
+
+        Parameters:
+        ----------
+        left, right, top, bottom : float, optional
+        wspace, hspace : float, optional
 
         Values set to None use the rcParams value.
         """
@@ -350,8 +356,13 @@ class GridSpec(GridSpecBase):
 
     def get_subplot_params(self, figure=None):
         """
-        Return a dictionary of subplot layout parameters. The default
-        parameters are from rcParams unless a figure attribute is set.
+        Return the `~.SubplotParams` for the GridSpec.
+
+        In order of precedence the values are taken from
+
+        - non-*None* attributes of the GridSpec
+        - the provided *figure*
+        - :rc:`figure.subplot.*`
         """
         if figure is None:
             kw = {k: rcParams["figure.subplot."+k] for k in self._AllowedKeys}
@@ -364,6 +375,12 @@ class GridSpec(GridSpecBase):
         return subplotpars
 
     def locally_modified_subplot_params(self):
+        """
+        Return a list of the names of the subplot parameters explicitly set
+        in the GridSpec.
+
+        This is a subset of the attributes of `.SubplotParams`.
+        """
         return [k for k in self._AllowedKeys if getattr(self, k)]
 
     def tight_layout(self, figure, renderer=None,
