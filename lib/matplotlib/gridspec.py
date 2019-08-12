@@ -323,7 +323,7 @@ class GridSpec(GridSpecBase):
         """
         Update the subplot parameters of the grid.
 
-        Parameters:
+        Parameters
         ----------
         left, right, top, bottom : float, optional
         wspace, hspace : float, optional

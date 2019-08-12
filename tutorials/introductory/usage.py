@@ -496,9 +496,9 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Using non-builtin backends
 # --------------------------
 # More generally, any importable backend can be selected by using any of the
-# methods above. If `name.of.the.backend` is the module containing the backend,
-# use `module://name.of.the.backend` as the backend name, e.g.
-# `matplotlib.use('module://name.of.the.backend')`.
+# methods above. If ``name.of.the.backend`` is the module containing the
+# backend, use ``module://name.of.the.backend`` as the backend name, e.g.
+# ``matplotlib.use('module://name.of.the.backend')``.
 #
 #
 # .. _interactive-mode:

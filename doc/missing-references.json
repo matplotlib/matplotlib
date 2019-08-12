@@ -373,10 +373,10 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.contourf:133"
     ],
     "P_{xy}": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.csd:167",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.csd:168",
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.csd:89",
       "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.csd:79",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.csd:167",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.csd:168",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.csd:89"
     ],
     "Lines2D": [
@@ -669,7 +669,6 @@
       "doc/gallery/animation/animated_histogram.rst:112",
       "doc/gallery/statistics/errorbars_and_boxes.rst:21",
       "doc/users/prev_whats_new/whats_new_1.5.rst:514",
-      "lib/matplotlib/colorbar.py:docstring of matplotlib.colorbar.ColorbarBase:38",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.delaxes:2",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.plotting:33"
     ],
@@ -778,8 +777,8 @@
       "lib/mpl_toolkits/axes_grid1/axes_size.py:docstring of mpl_toolkits.axes_grid1.axes_size:1"
     ],
     "axes_class": [
-      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:146",
-      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:138"
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:147",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:139"
     ],
     "pyplot.gcf()": [
       "lib/mpl_toolkits/axes_grid1/parasite_axes.py:docstring of mpl_toolkits.axes_grid1.parasite_axes.host_axes:8",
@@ -1371,10 +1370,6 @@
     "draw_gouraud_triangle": [
       "lib/matplotlib/collections.py:docstring of matplotlib.collections.QuadMesh.convert_xunits:4"
     ],
-    "LineCollection": [
-      "lib/matplotlib/colorbar.py:docstring of matplotlib.colorbar.ColorbarBase:41",
-      "lib/matplotlib/container.py:docstring of matplotlib.container.StemContainer:40"
-    ],
     "#rrggbb": [
       "lib/matplotlib/colors.py:docstring of matplotlib.colors:30"
     ],
@@ -1385,6 +1380,9 @@
       "doc/gallery/color/color_demo.rst:26",
       "doc/tutorials/colors/colors.rst:32",
       "lib/matplotlib/colors.py:docstring of matplotlib.colors:54"
+    ],
+    "LineCollection": [
+      "lib/matplotlib/container.py:docstring of matplotlib.container.StemContainer:40"
     ],
     "axes.Axes.contour": [
       "lib/matplotlib/contour.py:docstring of matplotlib.contour.ContourSet:112",
@@ -2511,11 +2509,11 @@
     ],
     "GTK3Agg": [
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:285",
-      "doc/tutorials/introductory/usage.rst:561"
+      "doc/tutorials/introductory/usage.rst:579"
     ],
     "GTK3Cairo": [
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:285",
-      "doc/tutorials/introductory/usage.rst:561"
+      "doc/tutorials/introductory/usage.rst:579"
     ],
     "Text.set_text": [
       "doc/api/prev_api_changes/api_changes_3.0.0.rst:64",
@@ -3003,7 +3001,7 @@
     ],
     "GTK3": [
       "doc/devel/MEP/MEP23.rst:54",
-      "doc/tutorials/introductory/usage.rst:561",
+      "doc/tutorials/introductory/usage.rst:579",
       "doc/users/prev_whats_new/whats_new_1.5.rst:620"
     ],
     "add_canvas": [
@@ -3228,9 +3226,6 @@
     "set_color": [
       "doc/faq/howto_faq.rst:45"
     ],
-    "https://virtualenv.pypa.io/": [
-      "doc/faq/virtualenv_faq.rst:54"
-    ],
     "Patch": [
       "doc/gallery/animation/animated_histogram.rst:112",
       "doc/users/prev_whats_new/whats_new_1.5.rst:321",
@@ -3254,7 +3249,8 @@
       "doc/gallery/axisartist/demo_floating_axes.rst:18"
     ],
     "LinearSegmentedColormap": [
-      "doc/gallery/color/custom_cmap.rst:17"
+      "doc/gallery/color/custom_cmap.rst:17",
+      "doc/tutorials/colors/colormap-manipulation.rst:181"
     ],
     "text.Text": [
       "doc/gallery/images_contours_and_fields/demo_bboximage.rst:14"
@@ -3433,6 +3429,12 @@
     "fig.dpi_scale_trans": [
       "doc/tutorials/advanced/transforms_tutorial.rst:521"
     ],
+    "ListedColormap": [
+      "doc/tutorials/colors/colormap-manipulation.rst:93"
+    ],
+    "LinearSegmentedColormap.from_list": [
+      "doc/tutorials/colors/colormap-manipulation.rst:474"
+    ],
     "vmin=-vmax": [
       "doc/tutorials/colors/colormapnorms.rst:95"
     ],
@@ -3475,27 +3477,27 @@
       "doc/tutorials/introductory/usage.rst:176"
     ],
     "QT_API": [
-      "doc/tutorials/introductory/usage.rst:567"
+      "doc/tutorials/introductory/usage.rst:585"
     ],
     "pyqt": [
-      "doc/tutorials/introductory/usage.rst:567"
+      "doc/tutorials/introductory/usage.rst:585"
     ],
     "pyside": [
-      "doc/tutorials/introductory/usage.rst:567"
+      "doc/tutorials/introductory/usage.rst:585"
     ],
     "PyQt4": [
-      "doc/tutorials/introductory/usage.rst:567",
-      "doc/tutorials/introductory/usage.rst:570"
+      "doc/tutorials/introductory/usage.rst:585",
+      "doc/tutorials/introductory/usage.rst:588"
     ],
     "PySide": [
-      "doc/tutorials/introductory/usage.rst:567",
-      "doc/tutorials/introductory/usage.rst:570"
+      "doc/tutorials/introductory/usage.rst:585",
+      "doc/tutorials/introductory/usage.rst:588"
     ],
     "macosx": [
-      "doc/tutorials/introductory/usage.rst:639"
+      "doc/tutorials/introductory/usage.rst:663"
     ],
     "loc='best'": [
-      "doc/tutorials/introductory/usage.rst:845"
+      "doc/tutorials/introductory/usage.rst:869"
     ],
     "matplotlib.Axes.annotate": [
       "doc/tutorials/text/annotations.rst:88"
@@ -4096,6 +4098,356 @@
     ],
     "subplot2grid": [
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure:71"
+    ],
+    "matplotlib.axes._base._AxesBase.set_adjustable": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:64",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:58",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:76",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:15",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:71",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:72",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:80",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:67",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:31"
+    ],
+    "matplotlib.axes._base._AxesBase.set_anchor": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:67",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:61",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:79",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:18",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:74",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:75",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:83",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:70",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:34"
+    ],
+    "matplotlib.axes._base._AxesBase.set_aspect": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:69",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:63",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:81",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:20",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:76",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:77",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:85",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:72",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:36"
+    ],
+    "matplotlib.axes._base._AxesBase.set_autoscale_on": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:70",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:64",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:82",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:21",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:77",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:78",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:86",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:73",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:37"
+    ],
+    "matplotlib.axes._base._AxesBase.set_autoscalex_on": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:71",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:65",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:83",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:22",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:78",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:79",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:87",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:74",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:38"
+    ],
+    "matplotlib.axes._base._AxesBase.set_autoscaley_on": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:72",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:66",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:84",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:23",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:79",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:80",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:88",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:75",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:39"
+    ],
+    "matplotlib.axes._base._AxesBase.set_axes_locator": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:73",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:67",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:85",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:24",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:80",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:81",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:89",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:76",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:40"
+    ],
+    "matplotlib.axes._base._AxesBase.set_axisbelow": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:74",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:68",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:86",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:25",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:81",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:82",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:90",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:77",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:41"
+    ],
+    "matplotlib.axes._base._AxesBase.set_facecolor": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:79",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:80",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:73",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:74",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:91",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:92",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:30",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:31",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:86",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:87",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:87",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:88",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:95",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:96",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:82",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:83",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:46",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:47"
+    ],
+    "matplotlib.axes._base._AxesBase.set_figure": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:81",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:75",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:93",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:32",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:88",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:89",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:97",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:84",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:48"
+    ],
+    "matplotlib.axes._base._AxesBase.set_frame_on": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:82",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:76",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:94",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:33",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:89",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:90",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:98",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:85",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:49"
+    ],
+    "matplotlib.axes._base._AxesBase.set_navigate": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:86",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:80",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:98",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:37",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:93",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:94",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:102",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:89",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:53"
+    ],
+    "matplotlib.axes._base._AxesBase.set_navigate_mode": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:87",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:81",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:99",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:38",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:94",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:95",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:103",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:90",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:54"
+    ],
+    "matplotlib.axes._base._AxesBase.set_position": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:90",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:84",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:102",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:41",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:97",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:98",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:106",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:93",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:57"
+    ],
+    "matplotlib.axes._base._AxesBase.set_prop_cycle": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:91",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:85",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:103",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:42",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:98",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:99",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:107",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:94",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:58"
+    ],
+    "matplotlib.axes._base._AxesBase.set_rasterization_zorder": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:92",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:86",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:104",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:43",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:99",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:100",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:108",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:95",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:59"
+    ],
+    "matplotlib.axes._axes.Axes.set_title": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:96",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:90",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:108",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:47",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:103",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:104",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:112",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:99",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:63"
+    ],
+    "matplotlib.axes._base._AxesBase.set_xbound": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:100",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:94",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:112",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:51",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:107",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:108",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:116",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:103",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:67"
+    ],
+    "matplotlib.axes._axes.Axes.set_xlabel": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:101",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:95",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:113",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:52",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:108",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:109",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:117",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:104",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:68"
+    ],
+    "matplotlib.axes._base._AxesBase.set_xlim": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:102",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:96",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:114",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:53",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:109",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:110",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:118",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:105",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:69"
+    ],
+    "matplotlib.axes._base._AxesBase.set_xmargin": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:103",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:97",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:115",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:54",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:110",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:111",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:119",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:106",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:70"
+    ],
+    "matplotlib.axes._base._AxesBase.set_xscale": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:104",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:98",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:116",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:55",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:111",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:112",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:120",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:107",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:71"
+    ],
+    "matplotlib.axes._base._AxesBase.set_xticklabels": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:105",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:99",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:117",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:56",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:112",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:113",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:121",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:108",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:72"
+    ],
+    "matplotlib.axes._base._AxesBase.set_xticks": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:106",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:100",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:118",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:57",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:113",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:114",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:122",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:109",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:73"
+    ],
+    "matplotlib.axes._base._AxesBase.set_ybound": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:107",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:101",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:119",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:58",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:114",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:115",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:123",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:110",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:74"
+    ],
+    "matplotlib.axes._axes.Axes.set_ylabel": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:108",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:102",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:120",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:59",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:115",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:116",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:124",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:111",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:75"
+    ],
+    "matplotlib.axes._base._AxesBase.set_ylim": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:109",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:103",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:121",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:60",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:116",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:117",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:125",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:112",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:76"
+    ],
+    "matplotlib.axes._base._AxesBase.set_ymargin": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:110",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:104",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:122",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:61",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:117",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:118",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:126",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:113",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:77"
+    ],
+    "matplotlib.axes._base._AxesBase.set_yscale": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:111",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:105",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:123",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:62",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:118",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:119",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:127",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:114",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:78"
+    ],
+    "matplotlib.axes._base._AxesBase.set_yticklabels": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:112",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:106",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:124",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:63",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:119",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:120",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:128",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:115",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:79"
+    ],
+    "matplotlib.axes._base._AxesBase.set_yticks": [
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:113",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_axes:107",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.add_subplot:125",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.gca:64",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:120",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot:121",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:129",
+      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:116",
+      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:80"
     ],
     "set_xlim": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axhspan:4",
@@ -4953,6 +5305,9 @@
     "matplotlib.axes.Axes.dataLim": [
       "doc/api/prev_api_changes/api_changes_0.99.x.rst:23"
     ],
+    "matplotlib.colorbar.ColorbarBase.ax": [
+      "doc/api/prev_api_changes/api_changes_1.3.x.rst:97"
+    ],
     "name": [
       "lib/matplotlib/scale.py:docstring of matplotlib.scale.ScaleBase:8"
     ],
@@ -5168,7 +5523,7 @@
       "doc/tutorials/intermediate/artists.rst:219"
     ],
     "show": [
-      "doc/tutorials/introductory/usage.rst:663"
+      "doc/tutorials/introductory/usage.rst:687"
     ],
     "matplotlib.Axes.annotate": [
       "doc/tutorials/text/annotations.rst:23"
@@ -5328,7 +5683,7 @@
     ],
     "matplotlib": [
       "doc/gallery/text_labels_and_annotations/annotation_demo.rst:14",
-      "doc/tutorials/introductory/usage.rst:570"
+      "doc/tutorials/introductory/usage.rst:588"
     ],
     "matplotlib.patch": [
       "doc/tutorials/advanced/path_tutorial.rst:16"
@@ -5351,7 +5706,7 @@
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:453"
     ],
     "DISPLAY": [
-      "doc/tutorials/introductory/usage.rst:401"
+      "doc/tutorials/introductory/usage.rst:403"
     ],
     "CC": [
       "INSTALL.rst:93",
