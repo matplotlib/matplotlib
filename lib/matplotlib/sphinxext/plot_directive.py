@@ -279,7 +279,7 @@ class PlotDirective(Directive):
         'context': _option_context,
         'nofigs': directives.flag,
         'encoding': directives.encoding,
-        'outname': str
+        'outname': str,
         }
 
     def run(self):
@@ -304,7 +304,7 @@ def setup(app):
     app.add_config_value('plot_apply_rcparams', False, True)
     app.add_config_value('plot_working_directory', None, True)
     app.add_config_value('plot_template', None, True)
-    app.add_config_value('plot_preserve_dir',          '',    True)
+    app.add_config_value('plot_preserve_dir', '', True)
 
     app.connect('doctree-read', mark_plot_labels)
 
