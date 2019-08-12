@@ -146,7 +146,7 @@ Interactive
    :template: autosummary.rst
    :nosignatures:
 
-
+   Axis.contains
    Axis.get_pickradius
    Axis.set_pickradius
 

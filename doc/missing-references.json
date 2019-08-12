@@ -201,7 +201,7 @@
     ],
     "matplotlib.axes._axes.Axes": [
       "doc/api/artist_api.rst:189",
-      "doc/api/axes_api.rst:686",
+      "doc/api/axes_api.rst:616",
       "lib/matplotlib/projections/polar.py:docstring of matplotlib.projections.polar.PolarAxes:1",
       "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:1",
       "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.Axes:1",
@@ -209,7 +209,7 @@
     ],
     "matplotlib.axes._base._AxesBase": [
       "doc/api/artist_api.rst:189",
-      "doc/api/axes_api.rst:686",
+      "doc/api/axes_api.rst:616",
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:1"
     ],
     "matplotlib.backend_bases.FigureCanvas": [
@@ -564,7 +564,7 @@
       "doc/devel/contributing.rst:562"
     ],
     "Artist.sticky_edges": [
-      "doc/api/axes_api.rst:357:<autosummary>:1",
+      "doc/api/axes_api.rst:362:<autosummary>:1",
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.use_sticky_edges:2"
     ],
     "ArtistInspector.aliasd": [
@@ -583,12 +583,12 @@
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:247"
     ],
     "Axes.dataLim": [
-      "doc/api/axes_api.rst:297:<autosummary>:1",
+      "doc/api/axes_api.rst:302:<autosummary>:1",
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.update_datalim:2",
       "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.update_datalim:2"
     ],
     "Axes.datalim": [
-      "doc/api/axes_api.rst:297:<autosummary>:1",
+      "doc/api/axes_api.rst:302:<autosummary>:1",
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.update_datalim_bounds:2"
     ],
     "Axes.fmt_xdata": [
@@ -606,7 +606,7 @@
       "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:96"
     ],
     "AxesBase": [
-      "doc/api/axes_api.rst:449:<autosummary>:1",
+      "doc/api/axes_api.rst:454:<autosummary>:1",
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.add_child_axes:2"
     ],
     "Axis._update_ticks": [
