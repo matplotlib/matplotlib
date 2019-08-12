@@ -631,7 +631,7 @@ class Text(Artist):
 
         # Build the line incrementally, for a more accurate measure of length
         line_width = self._get_wrap_line_width()
-        wrapped_str = ""
+        wrapped_lines = []
 
         # New lines in the user's text force a split
         unwrapped_lines = self.get_text().split('\n')
@@ -644,7 +644,7 @@ class Text(Artist):
             while len(sub_words) > 0:
                 if len(sub_words) == 1:
                     # Only one word, so just add it to the end
-                    wrapped_str += sub_words.pop(0)
+                    wrapped_lines.append(sub_words.pop(0))
                     continue
 
                 for i in range(2, len(sub_words) + 1):
@@ -655,17 +655,17 @@ class Text(Artist):
                     # If all these words are too wide, append all not including
                     # last word
                     if current_width > line_width:
-                        wrapped_str += ' '.join(sub_words[:i - 1]) + '\n'
+                        wrapped_lines.append(' '.join(sub_words[:i - 1]))
                         sub_words = sub_words[i - 1:]
                         break
 
                     # Otherwise if all words fit in the width, append them all
                     elif i == len(sub_words):
-                        wrapped_str += ' '.join(sub_words[:i])
+                        wrapped_lines.append(' '.join(sub_words[:i]))
                         sub_words = []
                         break
 
-        return wrapped_str
+        return '\n'.join(wrapped_lines)
 
     @artist.allow_rasterization
     def draw(self, renderer):
