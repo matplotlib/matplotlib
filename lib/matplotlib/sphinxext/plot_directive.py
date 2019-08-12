@@ -71,10 +71,10 @@ The ``plot`` directive supports the following options:
         inserted.  This is usually useful with the ``:context:`` option.
 
     outname : str
-        If specified, the names of the generated plots will start with the value
-        of `:outname:`. This is handy for preserving output results if code is
-        reordered between runs. The value of `:outname:` must be unique across
-        the generated documentation.
+        If specified, the names of the generated plots will start with the
+        value of `:outname:`. This is handy for preserving output results if
+        code is reordered between runs. The value of `:outname:` must be
+        unique across the generated documentation.
 
 Additionally, this directive supports all of the options of the `image`
 directive, except for *target* (since plot will add its own target).  These
@@ -142,6 +142,7 @@ The plot directive has the following configuration options:
         Files with outnames are copied to this directory and files in this
         directory are copied back from into the build directory prior to the
         build beginning.
+
 """
 
 import contextlib
@@ -677,13 +678,14 @@ def run(arguments, content, options, state_machine, state, lineno):
     #Ensure that the outname is unique, otherwise copied images will
     #not be what user expects
     if outname and outname in _outname_list:
-      raise Exception("The outname '{0}' is not unique!".format(outname))
+        raise Exception("The outname '{0}' is not unique!".format(outname))
     else:
-      _outname_list.add(outname)
+        _outname_list.add(outname)
 
     if config.plot_preserve_dir:
-      #Ensure `preserve_dir` ends with a slash, otherwise `copy2` will misbehave
-      config.plot_preserve_dir = os.path.join(config.plot_preserve_dir, '')
+        # Ensure `preserve_dir` ends with a slash, otherwise `copy2`
+        # will misbehave
+        config.plot_preserve_dir = os.path.join(config.plot_preserve_dir, '')
 
     if len(arguments):
         if not config.plot_basedir:
@@ -723,7 +725,7 @@ def run(arguments, content, options, state_machine, state, lineno):
     #outname, if present, overrides output_base, but preserve
     #numbering of multi-figure code snippets
     if outname:
-      output_base = re.sub('^[^-]*', outname, output_base)
+        output_base = re.sub('^[^-]*', outname, output_base)
 
     # ensure that LaTeX includegraphics doesn't choke in foo.bar.pdf filenames
     output_base = output_base.replace('.', '-')
@@ -775,10 +777,12 @@ def run(arguments, content, options, state_machine, state, lineno):
     #this copies them into the build directory so that they will
     #not be remade
     if config.plot_preserve_dir and outname:
-      outfiles = glob.glob(os.path.join(config.plot_preserve_dir, outname) + '*')
-      for of in outfiles:
-        _log.info("Copying preserved copy of '{0}' into '{1}'".format(of, build_dir))
-        shutil.copy2(of, build_dir)
+        outfiles = glob.glob(
+            os.path.join(config.plot_preserve_dir, outname) + '*')
+        for of in outfiles:
+            _log.info("Copying preserved copy of '{0}' into '{1}'".format(
+                of, build_dir))
+            shutil.copy2(of, build_dir)
 
     # make figures
     try:
