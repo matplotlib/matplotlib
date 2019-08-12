@@ -2089,8 +2089,10 @@ class Axes(_AxesBase):
               every *x* position, i.e. the interval ``[x[i], x[i+1])`` has the
               value ``y[i]``.
             - 'mid': Steps occur half-way between the *x* positions.
-            - 'edges': Expects dim(x) = dim(y) + 1, steps have y[i] value on
+            - 'between': Expects len(x) = len(y) + 1, steps have y[i] value on
               the interval ``[x[i], x[i+1])``
+            - 'edges': Expects len(x) = len(y) + 1, steps have y[i] value on
+              the interval ``[x[i], x[i+1]), shape is closed at x[0], x[-1]``
 
         Returns
         -------
@@ -2106,16 +2108,23 @@ class Axes(_AxesBase):
         -----
         .. [notes section required to get data note injection right]
         """
-        cbook._check_in_list(('pre', 'post', 'mid', 'edges'), where=where)
-        if where == 'edges':
+        cbook._check_in_list(('pre', 'post', 'mid', 'edges', 'between'), where=where)
+        if where == 'between' or where == 'edges':
             if x.shape[0] != y.shape[0] + 1:
-                raise ValueError(f"When drawing with 'edges', x must have "
-                                 f"first dimension greater then y by exactly "
-                                 f"1, but x, y have shapes {x.shape} and"
+                raise ValueError(f"When drawing with 'edges' or 'between', "
+                                 f"x must have first dimension greater "
+                                 f"then y by exactly 1, but x, y "
+                                 f"have shapes {x.shape} and "
                                  f"{y.shape}")
-            else:
-                y = np.r_[y, y[-1]]
-                where = 'post'
+
+            if where == 'edges':
+                l_edgex, l_edgey = [x[0], x[0]], [0, y[0]]
+                r_edgex, r_edgey = [x[-1], x[-1]], [0, y[-1]]
+                self.add_line(mlines.Line2D(l_edgex, l_edgey))
+                self.add_line(mlines.Line2D(r_edgex, r_edgey))
+
+            y = np.r_[y, y[-1]]
+            where = 'post'
 
         kwargs['drawstyle'] = 'steps-' + where
         return self.plot(x, y, *args, data=data, **kwargs)
