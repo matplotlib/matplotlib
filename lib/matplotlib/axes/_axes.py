@@ -2303,20 +2303,12 @@ class Axes(_AxesBase):
         label = kwargs.pop('label', '')
         tick_labels = kwargs.pop('tick_label', None)
 
-        adjust_ylim = False
-        adjust_xlim = False
-
         y = bottom  # Matches barh call signature.
         if orientation == 'vertical':
-            if bottom is None:
-                if self.get_yscale() == 'log':
-                    adjust_ylim = True
+            if y is None:
                 y = 0
-
         elif orientation == 'horizontal':
             if x is None:
-                if self.get_xscale() == 'log':
-                    adjust_xlim = True
                 x = 0
 
         if orientation == 'vertical':
@@ -2429,21 +2421,6 @@ class Axes(_AxesBase):
         else:
             errorbar = None
 
-        if adjust_xlim:
-            xmin, xmax = self.dataLim.intervalx
-            xmin = min(w for w in width if w > 0)
-            if xerr is not None:
-                xmin = xmin - np.max(xerr)
-            xmin = max(xmin * 0.9, 1e-100)
-            self.dataLim.intervalx = (xmin, xmax)
-
-        if adjust_ylim:
-            ymin, ymax = self.dataLim.intervaly
-            ymin = min(h for h in height if h > 0)
-            if yerr is not None:
-                ymin = ymin - np.max(yerr)
-            ymin = max(ymin * 0.9, 1e-100)
-            self.dataLim.intervaly = (ymin, ymax)
         self._request_autoscale_view()
 
         bar_container = BarContainer(patches, errorbar, label=label)
@@ -6757,30 +6734,8 @@ optional.
             if log:
                 if orientation == 'horizontal':
                     self.set_xscale('log', nonposx='clip')
-                    logbase = self.xaxis._scale.base
                 else:  # orientation == 'vertical'
                     self.set_yscale('log', nonposy='clip')
-                    logbase = self.yaxis._scale.base
-
-                # Setting a minimum of 0 results in problems for log plots
-                if np.min(bottom) > 0:
-                    minimum = np.min(bottom)
-                elif density or weights is not None:
-                    # For data that is normed to form a probability density,
-                    # set to minimum data value / logbase
-                    # (gives 1 full tick-label unit for the lowest filled bin)
-                    ndata = np.array(tops)
-                    minimum = (np.min(ndata[ndata > 0])) / logbase
-                else:
-                    # For non-normed (density = False) data,
-                    # set the min to 1 / log base,
-                    # again so that there is 1 full tick-label unit
-                    # for the lowest bin
-                    minimum = 1.0 / logbase
-
-                y[0], y[-1] = minimum, minimum
-            else:
-                minimum = 0
 
             if align == 'left':
                 x -= 0.5*(bins[1]-bins[0])
@@ -6801,8 +6756,6 @@ optional.
                 # set the top of this polygon
                 y[1:2*len(bins)-1:2], y[2:2*len(bins):2] = (m + bottom,
                                                             m + bottom)
-                if log:
-                    y[y < minimum] = minimum
                 if orientation == 'horizontal':
                     xvals.append(y.copy())
                     yvals.append(x.copy())
@@ -6825,9 +6778,9 @@ optional.
             for patch_list in patches:
                 for patch in patch_list:
                     if orientation == 'vertical':
-                        patch.sticky_edges.y.append(minimum)
+                        patch.sticky_edges.y.append(0)
                     elif orientation == 'horizontal':
-                        patch.sticky_edges.x.append(minimum)
+                        patch.sticky_edges.x.append(0)
 
             # we return patches, so put it back in the expected order
             patches.reverse()
