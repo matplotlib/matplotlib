@@ -272,3 +272,19 @@ def test_figureoptions():
             "matplotlib.backends.qt_editor._formlayout.FormDialog.exec_",
             lambda self: None):
         fig.canvas.manager.toolbar.edit_parameters()
+
+
+@pytest.mark.backend('Qt5Agg')
+def test_double_resize():
+    # Check that resizing a figure twice keeps the same window size
+    fig, ax = plt.subplots()
+    fig.canvas.draw()
+    window = fig.canvas.manager.window
+
+    fig.set_size_inches(2, 2)
+    old_width = window.width()
+    old_height = window.height()
+
+    fig.set_size_inches(2, 2)
+    assert window.width() == old_width
+    assert window.height() == old_height
