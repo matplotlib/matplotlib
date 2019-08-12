@@ -325,7 +325,6 @@ class GridSpec(GridSpecBase):
 
         Parameters
         ----------
-
         left, right, top, bottom : float, optional
         wspace, hspace : float, optional
 
