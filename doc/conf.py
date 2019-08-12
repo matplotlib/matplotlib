@@ -101,6 +101,8 @@ else:
     autodoc_default_options = {'members': None, 'undoc-members': None}
 
 nitpicky = True
+# change this to True to update the allowed failures
+missing_references_write_json = False
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
