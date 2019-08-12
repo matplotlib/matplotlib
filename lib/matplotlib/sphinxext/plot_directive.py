@@ -639,8 +639,11 @@ def render_figures(code, code_path, output_dir, output_base, context,
                 try:
                     figman.canvas.figure.savefig(img.filename(fmt), dpi=dpi)
                     if config.plot_preserve_dir and outname:
-                      _log.info("Preserving '{0}' into '{1}'".format(img.filename(format), config.plot_preserve_dir))
-                      shutil.copy2(img.filename(format), config.plot_preserve_dir)
+                        _log.info(
+                            "Preserving '{0}' into '{1}'".format(
+                                img.filename(fmt), config.plot_preserve_dir))
+                        shutil.copy2(img.filename(fmt),
+                                     config.plot_preserve_dir)
                 except Exception as err:
                     raise PlotError(traceback.format_exc())
                 img.formats.append(fmt)
