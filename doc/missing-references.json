@@ -3493,15 +3493,6 @@
       "doc/tutorials/introductory/usage.rst:585",
       "doc/tutorials/introductory/usage.rst:588"
     ],
-    "name.of.the.backend": [
-      "doc/tutorials/introductory/usage.rst:594"
-    ],
-    "module://name.of.the.backend": [
-      "doc/tutorials/introductory/usage.rst:594"
-    ],
-    "matplotlib.use('module://name.of.the.backend')": [
-      "doc/tutorials/introductory/usage.rst:594"
-    ],
     "macosx": [
       "doc/tutorials/introductory/usage.rst:663"
     ],
