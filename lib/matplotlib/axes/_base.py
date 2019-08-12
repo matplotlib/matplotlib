@@ -1577,10 +1577,13 @@ class _AxesBase(martist.Artist):
             'on'     Turn on axis lines and labels. Same as ``True``.
             'off'    Turn off axis lines and labels. Same as ``False``.
             'equal'  Set equal scaling (i.e., make circles circular) by
-                     changing axis limits.
+                     changing axis limits. This is the same as
+                     ``ax.set_aspect('equal', adjustable='datalim')``.
+                     Explicit data limits may not be respected in this case.
             'scaled' Set equal scaling (i.e., make circles circular) by
-                     changing dimensions of the plot box, then disable further
-                     autoscaling.
+                     changing dimensions of the plot box. This is the same as
+                     ``ax.set_aspect('equal', adjustable='box', anchor='C')``.
+                     Additionally, further autoscaling will be disabled.
             'tight'  Set limits just large enough to show all data, then
                      disable further autoscaling.
             'auto'   Automatic scaling (fill plot box with data).
