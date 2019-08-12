@@ -209,8 +209,8 @@ if __name__ == "__main__":
 
     print("We closed %d issues and merged %d pull requests." % (n_issues, n_pulls))
     if milestone:
-        print("The full list can be seen `on GitHub <https://github.com/%s/milestone/%s>`__"
-            % (project, milestone)
+        print("The full list can be seen `on GitHub <https://github.com/%s/milestone/%s?closed=1>`__"
+            % (project, milestone_id)
         )
 
     print()
@@ -236,7 +236,8 @@ if __name__ == "__main__":
 .. toctree::
     :maxdepth: 1
     :glob:
+    :reversed:
 
-    github_stats_*
+    prev_whats_new/github_stats_*
 
 """)

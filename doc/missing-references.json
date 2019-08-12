@@ -885,6 +885,17 @@
     "MovieWriter.saving": [
       "doc/api/animation_api.rst:213"
     ],
+    "Locator.nonsingular": [
+      "doc/api/prev_api_changes/api_changes_3.1.1.rst:14"
+    ],
+    "LogLocator": [
+      "doc/api/prev_api_changes/api_changes_3.0.0.rst:207",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:59",
+      "doc/api/prev_api_changes/api_changes_3.1.1.rst:14"
+    ],
+    "LogitLocator": [
+      "doc/api/prev_api_changes/api_changes_3.1.1.rst:14"
+    ],
     "PathCollection.get_offsets": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:30"
     ],
@@ -893,10 +904,6 @@
     ],
     "PathCollection.get_array": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:30"
-    ],
-    "LogLocator": [
-      "doc/api/prev_api_changes/api_changes_3.0.0.rst:207",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:59"
     ],
     "AutoLocator": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:59"
@@ -2509,11 +2516,11 @@
     ],
     "GTK3Agg": [
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:285",
-      "doc/tutorials/introductory/usage.rst:579"
+      "doc/tutorials/introductory/usage.rst:582"
     ],
     "GTK3Cairo": [
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:285",
-      "doc/tutorials/introductory/usage.rst:579"
+      "doc/tutorials/introductory/usage.rst:582"
     ],
     "Text.set_text": [
       "doc/api/prev_api_changes/api_changes_3.0.0.rst:64",
@@ -3001,7 +3008,7 @@
     ],
     "GTK3": [
       "doc/devel/MEP/MEP23.rst:54",
-      "doc/tutorials/introductory/usage.rst:579",
+      "doc/tutorials/introductory/usage.rst:582",
       "doc/users/prev_whats_new/whats_new_1.5.rst:620"
     ],
     "add_canvas": [
@@ -3477,27 +3484,27 @@
       "doc/tutorials/introductory/usage.rst:176"
     ],
     "QT_API": [
-      "doc/tutorials/introductory/usage.rst:585"
+      "doc/tutorials/introductory/usage.rst:588"
     ],
     "pyqt": [
-      "doc/tutorials/introductory/usage.rst:585"
+      "doc/tutorials/introductory/usage.rst:588"
     ],
     "pyside": [
-      "doc/tutorials/introductory/usage.rst:585"
+      "doc/tutorials/introductory/usage.rst:588"
     ],
     "PyQt4": [
-      "doc/tutorials/introductory/usage.rst:585",
-      "doc/tutorials/introductory/usage.rst:588"
+      "doc/tutorials/introductory/usage.rst:588",
+      "doc/tutorials/introductory/usage.rst:591"
     ],
     "PySide": [
-      "doc/tutorials/introductory/usage.rst:585",
-      "doc/tutorials/introductory/usage.rst:588"
+      "doc/tutorials/introductory/usage.rst:588",
+      "doc/tutorials/introductory/usage.rst:591"
     ],
     "macosx": [
-      "doc/tutorials/introductory/usage.rst:663"
+      "doc/tutorials/introductory/usage.rst:666"
     ],
     "loc='best'": [
-      "doc/tutorials/introductory/usage.rst:869"
+      "doc/tutorials/introductory/usage.rst:872"
     ],
     "matplotlib.Axes.annotate": [
       "doc/tutorials/text/annotations.rst:88"
@@ -5523,7 +5530,7 @@
       "doc/tutorials/intermediate/artists.rst:219"
     ],
     "show": [
-      "doc/tutorials/introductory/usage.rst:687"
+      "doc/tutorials/introductory/usage.rst:690"
     ],
     "matplotlib.Axes.annotate": [
       "doc/tutorials/text/annotations.rst:23"
@@ -5683,7 +5690,7 @@
     ],
     "matplotlib": [
       "doc/gallery/text_labels_and_annotations/annotation_demo.rst:14",
-      "doc/tutorials/introductory/usage.rst:588"
+      "doc/tutorials/introductory/usage.rst:591"
     ],
     "matplotlib.patch": [
       "doc/tutorials/advanced/path_tutorial.rst:16"
