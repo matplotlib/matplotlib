@@ -2095,9 +2095,9 @@ class Axes(_AxesBase):
             - 'edges': Expects len(x) = len(y) + 1, steps have y[i] value on
               the interval ``[x[i], x[i+1]), shape is closed at x[0], x[-1]``
 
-        flipxy : bool, optional, default : False
-            If *True*, flip x and y axis. You may wish to rotate instead of
-            flipping by parsing y=y[::-1]
+        orientation : {'vertical', 'horizontal'}, optional, default 'vertical'
+            If horizontal, switches x and y axes. You may wish to rotate
+            instead of flipping by parsing y=y[::-1]
 
         bottom : scalar, optional, default : 0
             If plotting with 'edges', sets low bound.
