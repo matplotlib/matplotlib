@@ -1,0 +1,8 @@
+Changes in parameter names
+``````````````````````````
+
+The parameter ``s`` to `.Axes.annotate` and  `.pyplot.annotate` is renamed to
+``text``, matching `.Annotation`.
+
+The old parameter name remains supported for `.Axes.annotate`, but
+support for it will be dropped in a future Matplotlib release.
