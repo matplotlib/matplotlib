@@ -3696,6 +3696,28 @@ def test_step_linestyle():
         ax.set_ylim([-1, 7])
 
 
+@image_comparison(['step_histlike'], remove_text=True, extensions=['png'])
+def test_step_histlike():
+    y = np.array([6, 14, 32, 37, 48, 32, 21,  4])  # hist
+    x = np.array([1., 2., 3., 4., 5., 6., 7., 8., 9.])  # bins
+    fig, ((ax1, ax2), (ax3, ax4), (ax5, ax6), (ax7, ax8)) = plt.subplots(4, 2)
+    ax1.step(x, y, where='between')
+    ax2.step(x, y, where='between', orientation='horizontal')
+    ax3.step(x, y, where='edges')
+    ax4.step(x, y, where='edges', orientation='horizontal')
+
+    ax5.step(x, y, where='edges', bottom=-10)
+    ax6.step(x, y, where='edges', orientation='horizontal', bottom=-10)
+    ax7.step(x, y, where='edges', bottom=-10)
+    ax7.semilogy()
+    ax8.step(x, y, where='edges', orientation='horizontal', bottom=-10)
+    ax8.semilogx()
+    for ax in [ax1, ax3, ax5, ax7]:
+        ax.set_xlim(0, 10)
+    for ax in [ax2, ax4, ax6, ax8]:
+        ax.set_ylim(0, 10)
+
+
 @image_comparison(['mixed_collection'], remove_text=True)
 def test_mixed_collection():
     from matplotlib import patches
