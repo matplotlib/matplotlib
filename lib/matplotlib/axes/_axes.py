@@ -2043,7 +2043,7 @@ class Axes(_AxesBase):
     #### Specialized plotting
 
     # @_preprocess_data() # let 'plot' do the unpacking..
-    def step(self, x, y, *args, where='pre', data=None, **kwargs):
+    def step(self, x, y, *args, where='pre', data=None, bottom=None, flipxy=False, **kwargs):
         """
         Make a step plot.
 
@@ -2094,6 +2094,14 @@ class Axes(_AxesBase):
             - 'edges': Expects len(x) = len(y) + 1, steps have y[i] value on
               the interval ``[x[i], x[i+1]), shape is closed at x[0], x[-1]``
 
+        flipxy : bool, optional, default : False
+            If *True*, flip x and y axis. You may wish to rotate instead of
+            flipping by parsing y=y[::-1]
+
+        bottom : scalar, optional, default : 0
+            If plotting with 'edges', sets low bound.
+
+
         Returns
         -------
         lines
@@ -2117,13 +2125,28 @@ class Axes(_AxesBase):
                                  f"have shapes {x.shape} and "
                                  f"{y.shape}")
 
-            if where == 'edges':
-                l_edgex, l_edgey = [x[0], x[0]], [0, y[0]]
-                r_edgex, r_edgey = [x[-1], x[-1]], [0, y[-1]]
-                self.add_line(mlines.Line2D(l_edgex, l_edgey))
-                self.add_line(mlines.Line2D(r_edgex, r_edgey))
+            if flipxy:
+                y = np.r_[y[0], y]
+                x, y = y, x
+            else:
+                y = np.r_[y, y[-1]]
 
-            y = np.r_[y, y[-1]]
+            if where == 'edges':
+                if flipxy:
+                    self.add_line(
+                        mlines.Line2D([0 if bottom is None else bottom, x[0]],
+                                      [y[0], y[0]]))
+                    self.add_line(
+                        mlines.Line2D([0 if bottom is None else bottom, x[-1]],
+                                      [y[-1], y[-1]]))
+                else:
+                    self.add_line(
+                        mlines.Line2D([x[0], x[0]],
+                                      [0 if bottom is None else bottom, y[0]]))
+                    self.add_line(
+                        mlines.Line2D([x[-1], x[-1]],
+                                      [0 if bottom is None else bottom, y[-1]]))
+
             where = 'post'
 
         kwargs['drawstyle'] = 'steps-' + where
