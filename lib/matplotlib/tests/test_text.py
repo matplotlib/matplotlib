@@ -592,3 +592,28 @@ def test_large_subscript_title():
     tt.set_position((x, 1.01))
     ax.set_title('Old Way', loc='left')
     ax.set_xticklabels('')
+
+
+def test_wrap():
+    fig = plt.figure(figsize=(6, 4))
+    s = 'This is a very long text that should be wrapped multiple times.'
+    text = fig.text(0.7, 0.5, s, wrap=True)
+    fig.canvas.draw()
+    assert text._get_wrapped_text() == ('This is a very long\n'
+                                        'text that should be\n'
+                                        'wrapped multiple\n'
+                                        'times.')
+
+
+def test_long_word_wrap():
+    fig = plt.figure(figsize=(6, 4))
+    text = fig.text(9.5, 8, 'Alonglineoftexttowrap', wrap=True)
+    fig.canvas.draw()
+    assert text._get_wrapped_text() == 'Alonglineoftexttowrap'
+
+
+def test_wrap_no_wrap():
+    fig = plt.figure(figsize=(6, 4))
+    text = fig.text(0, 0, 'non wrapped text', wrap=True)
+    fig.canvas.draw()
+    assert text._get_wrapped_text() == 'non wrapped text'
