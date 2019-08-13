@@ -876,18 +876,24 @@ default: 'top'
         return im
 
     def set_size_inches(self, w, h=None, forward=True):
-        """Set the figure size in inches.
+        """
+        Set the figure size in inches.
 
         Call signatures::
 
              fig.set_size_inches(w, h)  # OR
              fig.set_size_inches((w, h))
 
-        optional kwarg *forward=True* will cause the canvas size to be
-        automatically updated; e.g., you can resize the figure window
-        from the shell
-
-        ACCEPTS: a (w, h) tuple with w, h in inches
+        Parameters
+        ----------
+        w : (float, float) or float
+            Width and height in inches (if height not specified as a separate
+            argument) or width.
+        h : float
+            Height in inches.
+        forward : bool, default: True
+            If ``True``, the canvas size is automatically updated, e.g.,
+            you can resize the figure window from the shell.
 
         See Also
         --------
