@@ -1411,7 +1411,9 @@ class ArtistInspector:
 
         attrs = sorted(self._get_setters_and_targets())
 
-        names = [self.aliased_name_rest(prop, target)
+        names = [self.aliased_name_rest(prop, target).replace(
+            '_base._AxesBase', 'Axes').replace(
+            '_axes.Axes', 'Axes')
                  for prop, target in attrs]
         accepts = [self.get_valid_values(prop) for prop, target in attrs]
 

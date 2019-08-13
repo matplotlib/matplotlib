@@ -425,8 +425,8 @@ As opposed to the numpydoc guide, parameters need not be marked as
 The optional aspect is already clear from the presence of a default value.
 More specifically
 
-- use `{name} : {type}, default: {val}` when possible.
-- use `{name} : {type}, optional` and describe the default in the text if
+- use ``{name} : {type}, default: {val}`` when possible.
+- use ``{name} : {type}, optional`` and describe the default in the text if
   in cannot be explained sufficiently in the above way.
 
 Use ``float`` for a type that can be any number.
