@@ -94,12 +94,12 @@ def get_location(node, app):
     cannot locate the original source file (usually because an extension
     has injected text into the sphinx parsing engine).
     """
-    (path, line) = get_source_line(node)
+    source, line = get_source_line(node)
 
-    if path:
-        # sometimes the 'path' can contain ':' which are forbidden on
-        # windows, but on posix just passes through.
-        path, *post = path.partition(':')
+    if source:
+        # 'source' can have the form '/some/path:docstring of some.api' but the
+        # colons are forbidden on windows, but on posix just passes through.
+        path, *post = source.partition(':')
         post = ''.join(post)
         # We locate references relative to the parent of the doc
         # directory, which for matplotlib, will be the root of the
