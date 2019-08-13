@@ -2043,7 +2043,8 @@ class Axes(_AxesBase):
     #### Specialized plotting
 
     # @_preprocess_data() # let 'plot' do the unpacking..
-    def step(self, x, y, *args, where='pre', data=None, bottom=None, flipxy=False, **kwargs):
+    def step(self, x, y, *args, where='pre', data=None,
+             bottom=0, orientation='vertical', **kwargs):
         """
         Make a step plot.
 
@@ -2116,7 +2117,10 @@ class Axes(_AxesBase):
         -----
         .. [notes section required to get data note injection right]
         """
-        cbook._check_in_list(('pre', 'post', 'mid', 'edges', 'between'), where=where)
+        cbook._check_in_list(('pre', 'post', 'mid', 'edges', 'between'),
+                             where=where)
+        cbook._check_in_list(('horizontal', 'vertical'),
+                             orientation=orientation)
         if where == 'between' or where == 'edges':
             if x.shape[0] != y.shape[0] + 1:
                 raise ValueError(f"When drawing with 'edges' or 'between', "
@@ -2125,28 +2129,23 @@ class Axes(_AxesBase):
                                  f"have shapes {x.shape} and "
                                  f"{y.shape}")
 
-            if flipxy:
+            if orientation == 'horizontal':
                 y = np.r_[y[0], y]
                 x, y = y, x
-            else:
+            elif orientation == 'vertical':
                 y = np.r_[y, y[-1]]
 
             if where == 'edges':
-                if flipxy:
+                if orientation == 'horizontal':
                     self.add_line(
-                        mlines.Line2D([0 if bottom is None else bottom, x[0]],
-                                      [y[0], y[0]]))
+                        mlines.Line2D([bottom, x[0]], [y[0], y[0]]))
                     self.add_line(
-                        mlines.Line2D([0 if bottom is None else bottom, x[-1]],
-                                      [y[-1], y[-1]]))
-                else:
+                        mlines.Line2D([bottom, x[-1]], [y[-1], y[-1]]))
+                elif orientation == 'vertical':
                     self.add_line(
-                        mlines.Line2D([x[0], x[0]],
-                                      [0 if bottom is None else bottom, y[0]]))
+                        mlines.Line2D([x[0], x[0]], [bottom, y[0]]))
                     self.add_line(
-                        mlines.Line2D([x[-1], x[-1]],
-                                      [0 if bottom is None else bottom, y[-1]]))
-
+                        mlines.Line2D([x[-1], x[-1]], [bottom, y[-1]]))
             where = 'post'
 
         kwargs['drawstyle'] = 'steps-' + where
