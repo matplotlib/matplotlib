@@ -837,7 +837,7 @@ class FontProperties:
         Set the filename of the fontfile to use.  In this case, all
         other properties will be ignored.
         """
-        self._file = file
+        self._file = os.fspath(file) if file is not None else None
 
     def set_fontconfig_pattern(self, pattern):
         """
