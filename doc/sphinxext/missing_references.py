@@ -97,7 +97,10 @@ def get_location(node, app):
     (path, line) = get_source_line(node)
 
     if path:
-
+        # sometimes the 'path' can contain ':' which are forbidden on
+        # windows, but on posix just passes through.
+        path, *post = path.partition(':')
+        post = ''.join(post)
         # We locate references relative to the parent of the doc
         # directory, which for matplotlib, will be the root of the
         # matplotlib repo. When matplotlib is not an editable install
@@ -122,11 +125,11 @@ def get_location(node, app):
 
     else:
         path = "<unknown>"
-
+        post = ''
     if not line:
         line = ""
 
-    return f"{path}:{line}"
+    return f"{path}{post}:{line}"
 
 
 def _truncate_location(location):
