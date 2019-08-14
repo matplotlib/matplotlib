@@ -790,7 +790,7 @@ def axes(arg=None, **kwargs):
 
     Parameters
     ----------
-    arg : { None, 4-tuple, Axes }
+    arg : None or 4-tuple
         The exact behavior of this function depends on the type:
 
         - *None*: A new full window axes is added using
@@ -798,13 +798,6 @@ def axes(arg=None, **kwargs):
         - 4-tuple of floats *rect* = ``[left, bottom, width, height]``.
           A new axes is added with dimensions *rect* in normalized
           (0, 1) units using `~.Figure.add_axes` on the current figure.
-        - `~.axes.Axes`: This is equivalent to `.pyplot.sca`.
-          It sets the current axes to *arg*. Note: This implicitly
-          changes the current figure to the parent of *arg*.
-
-          .. note:: The use of an `.axes.Axes` as an argument is deprecated
-                    and will be removed in v3.0. Please use `.pyplot.sca`
-                    instead.
 
     projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
 'polar', 'rectilinear', str}, optional
