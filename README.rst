@@ -95,6 +95,6 @@ Developer notes are now at `Developer Discussions <https://github.com/orgs/matpl
 
 Citing Matplotlib
 =================
-Matplotlib is the brainchild of John Hunter (1968-2012), who, along with its many contributors, have put an immeasurable amount of time and effort into producing a piece of software utilized by thousands of scientists worldwide.
-If Matplotlib contributes to a project that leads to a scientific publication, please acknowledge this work by citing the project.
+If Matplotlib contributes to a project that leads to publication, please
+acknowledge this by citing Matplotlib.
 `A ready-made citation entry <https://matplotlib.org/citing.html>`_ is available.
