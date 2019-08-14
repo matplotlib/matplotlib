@@ -4229,8 +4229,7 @@ class ConnectionPatch(FancyArrowPatch):
                  clip_on=False,
                  dpi_cor=1.,
                  **kwargs):
-        """
-        Connect point *xyA* in *coordsA* with point *xyB* in *coordsB*
+        """Connect point *xyA* in *coordsA* with point *xyB* in *coordsB*
 
         Valid keys are
 
@@ -4275,19 +4274,19 @@ class ConnectionPatch(FancyArrowPatch):
         `~matplotlib.transforms.Transform`.
 
         .. note::
+
            Using :class:`~matplotlib.patches.ConnectionPatch` across
-           two :class:`~matplotlib.axes.Axes` is not directly
-           compatible with :doc:`constrained layout
-           </tutorials/intermediate/constrainedlayout_guide>`. Remove
-           the patch from layout consideration using
-           :meth:`~matplotlib.artist.Artist.set_in_layout` before
-           adding it to the :class:`~matplotlib.axes.Axes`:
+           two :class:`~matplotlib.axes.Axes` instances is not
+           directly compatible with :doc:`constrained layout
+           </tutorials/intermediate/constrainedlayout_guide>`. Add the
+           artist directly to the :class:`~matplotlib.figure.Figure`
+           instead of adding it to a specific Axes.
 
            .. code-block:: default
 
-              con = ConnectionPatch(...)
-              con.set_in_layout(False)
-              ax.add_artist(con)
+              fig, ax = plt.subplots(1, 2, constrained_layout=True)
+              con = ConnectionPatch(..., axesA=ax[0], axesB=ax[1])
+              fig.add_artist(con)
 
         """
         if coordsB is None:
