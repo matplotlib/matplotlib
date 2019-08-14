@@ -581,6 +581,13 @@ example_plot(ax4)
 #
 # * There are small differences in how the backends handle rendering fonts,
 #   so the results will not be pixel-identical.
+#
+# * An artist using axes coordinates that extend beyond the axes
+#   boundary will result in unusual layouts when added to an
+#   axes. This can be avoided by adding the artist directly to the
+#   :class:`~matplotlib.figure.Figure` using
+#   :meth:`~matplotlib.figure.Figure.add_artist`. See
+#   :class:`~matplotlib.patches.ConnectionPatch` for an example.
 
 ###########################################################
 # Debugging
