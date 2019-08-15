@@ -18,7 +18,7 @@ annotate some feature of the plot, and the
 :func:`~matplotlib.axes.Axes.annotate` method provides helper functionality
 to make annotations easy.  In an annotation, there are two points to
 consider: the location being annotated represented by the argument
-``xy`` and the location of the text ``xytext``.  Both of these
+*xy* and the location of the text *xytext*.  Both of these
 arguments are ``(x, y)`` tuples.
 
 .. figure:: ../../gallery/pyplots/images/sphx_glr_annotation_basic_001.png
@@ -28,11 +28,11 @@ arguments are ``(x, y)`` tuples.
 
    Annotation Basic
 
-In this example, both the ``xy`` (arrow tip) and ``xytext`` locations
+In this example, both the *xy* (arrow tip) and *xytext* locations
 (text location) are in data coordinates.  There are a variety of other
 coordinate systems one can choose -- you can specify the coordinate
-system of ``xy`` and ``xytext`` with one of the following strings for
-``xycoords`` and ``textcoords`` (default is 'data')
+system of *xy* and *xytext* with one of the following strings for
+*xycoords* and *textcoords* (default is 'data')
 
 ==================  ========================================================
 argument            coordinate system
@@ -60,11 +60,11 @@ bottom-left of the figure or axes.
 
 Optionally, you can enable drawing of an arrow from the text to the annotated
 point by giving a dictionary of arrow properties in the optional keyword
-argument ``arrowprops``.
+argument *arrowprops*.
 
 
 ==================== =====================================================
-``arrowprops`` key   description
+*arrowprops* key     description
 ==================== =====================================================
 width                the width of the arrow in points
 frac                 the fraction of the arrow length occupied by the head
@@ -77,12 +77,12 @@ shrink               move the tip and base some percent away from
 ==================== =====================================================
 
 
-In the example below, the ``xy`` point is in native coordinates
-(``xycoords`` defaults to 'data').  For a polar axes, this is in
+In the example below, the *xy* point is in native coordinates
+(*xycoords* defaults to 'data').  For a polar axes, this is in
 (theta, radius) space.  The text in this example is placed in the
 fractional figure coordinate system. :class:`matplotlib.text.Text`
-keyword args like ``horizontalalignment``, ``verticalalignment`` and
-``fontsize`` are passed from `~matplotlib.axes.Axes.annotate` to the
+keyword arguments like *horizontalalignment*, *verticalalignment* and
+*fontsize* are passed from `~matplotlib.axes.Axes.annotate` to the
 ``Text`` instance.
 
 .. figure:: ../../gallery/pyplots/images/sphx_glr_annotation_polar_001.png
@@ -120,7 +120,7 @@ Let's start with a simple example.
 
 
 The :func:`~matplotlib.pyplot.text` function in the pyplot module (or
-`~.axes.Axes.text` method of the Axes class) takes bbox keyword argument, and
+`~.axes.Axes.text` method of the Axes class) takes *bbox* keyword argument, and
 when given, a box around the text is drawn. ::
 
     bbox_props = dict(boxstyle="rarrow,pad=0.3", fc="cyan", ec="b", lw=2)
@@ -184,14 +184,14 @@ connecting two points on the plot. ::
                 xytext=(x2, y2), textcoords='offset points',
                 )
 
-This annotates a point at ``xy`` in the given coordinate (``xycoords``)
-with the text at ``xytext`` given in ``textcoords``. Often, the
+This annotates a point at *xy* in the given coordinate (*xycoords*)
+with the text at *xytext* given in *textcoords*. Often, the
 annotated point is specified in the *data* coordinate and the annotating
 text in *offset points*.
 See :func:`~matplotlib.pyplot.annotate` for available coordinate systems.
 
-An arrow connecting two points (xy & xytext) can be optionally drawn by
-specifying the ``arrowprops`` argument. To draw only an arrow, use
+An arrow connecting two points (*xy* & *xytext*) can be optionally drawn by
+specifying the *arrowprops* argument. To draw only an arrow, use
 empty string as the first argument. ::
 
     ax.annotate("",
@@ -444,8 +444,8 @@ more control, it supports a few other options.
                    xytext=(0.5, 0.5), textcoords=ax2.transData,
                    arrowprops=dict(arrowstyle="->"))
 
- 2. :class:`~matplotlib.artist.Artist` instance. The xy value (or
-    xytext) is interpreted as a fractional coordinate of the bbox
+ 2. :class:`~matplotlib.artist.Artist` instance. The *xy* value (or
+    *xytext*) is interpreted as a fractional coordinate of the bbox
     (return value of *get_window_extent*) of the artist. ::
 
       an1 = ax.annotate("Test 1", xy=(0.5, 0.5), xycoords="data",
@@ -526,8 +526,8 @@ you want to connect points in different axes. ::
                         axesA=ax1, axesB=ax2)
   ax2.add_artist(con)
 
-The above code connects point xy in the data coordinates of ``ax1`` to
-point xy in the data coordinates of ``ax2``. Here is a simple example.
+The above code connects point *xy* in the data coordinates of ``ax1`` to
+point *xy* in the data coordinates of ``ax2``. Here is a simple example.
 
 .. figure:: ../../gallery/userdemo/images/sphx_glr_connect_simple01_001.png
    :target: ../../gallery/userdemo/connect_simple01.html
