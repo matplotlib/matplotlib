@@ -15,7 +15,7 @@ Basic annotation
 The uses of the basic :func:`~matplotlib.pyplot.text` will place text
 at an arbitrary position on the Axes.  A common use case of text is to
 annotate some feature of the plot, and the
-:func:`~matplotlib.Axes.annotate` method provides helper functionality
+:func:`~matplotlib.axes.Axes.annotate` method provides helper functionality
 to make annotations easy.  In an annotation, there are two points to
 consider: the location being annotated represented by the argument
 ``xy`` and the location of the text ``xytext``.  Both of these
@@ -82,7 +82,7 @@ In the example below, the ``xy`` point is in native coordinates
 (theta, radius) space.  The text in this example is placed in the
 fractional figure coordinate system. :class:`matplotlib.text.Text`
 keyword args like ``horizontalalignment``, ``verticalalignment`` and
-``fontsize`` are passed from `~matplotlib.Axes.annotate` to the
+``fontsize`` are passed from `~matplotlib.axes.Axes.annotate` to the
 ``Text`` instance.
 
 .. figure:: ../../gallery/pyplots/images/sphx_glr_annotation_polar_001.png
@@ -120,8 +120,8 @@ Let's start with a simple example.
 
 
 The :func:`~matplotlib.pyplot.text` function in the pyplot module (or
-text method of the Axes class) takes bbox keyword argument, and when
-given, a box around the text is drawn. ::
+`~.axes.Axes.text` method of the Axes class) takes bbox keyword argument, and
+when given, a box around the text is drawn. ::
 
     bbox_props = dict(boxstyle="rarrow,pad=0.3", fc="cyan", ec="b", lw=2)
     t = ax.text(0, 0, "Direction", ha="center", va="center", rotation=45,
@@ -135,8 +135,8 @@ The patch object associated with the text can be accessed by::
 
 The return value is an instance of FancyBboxPatch and the patch
 properties like facecolor, edgewidth, etc. can be accessed and
-modified as usual. To change the shape of the box, use the *set_boxstyle*
-method. ::
+modified as usual. To change the shape of the box, use the
+`~.FancyBboxPatch.set_boxstyle` method. ::
 
   bb.set_boxstyle("rarrow", pad=0.6)
 
@@ -176,7 +176,7 @@ Annotating with Arrow
 ~~~~~~~~~~~~~~~~~~~~~
 
 The :func:`~matplotlib.pyplot.annotate` function in the pyplot module
-(or annotate method of the Axes class) is used to draw an arrow
+(or `~.axes.Axes.annotate` method of the Axes class) is used to draw an arrow
 connecting two points on the plot. ::
 
     ax.annotate("Annotation",

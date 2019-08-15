@@ -149,7 +149,7 @@ plt.imshow(lum_img, cmap="hot")
 
 ###############################################################################
 # Note that you can also change colormaps on existing plot objects using the
-# :meth:`~matplotlib.image.Image.set_cmap` method:
+# :meth:`~matplotlib.cm.ScalarMappable.set_cmap` method:
 
 imgplot = plt.imshow(lum_img)
 imgplot.set_cmap('nipy_spectral')
@@ -207,7 +207,7 @@ plt.hist(lum_img.ravel(), bins=256, range=(0.0, 1.0), fc='k', ec='k')
 # image).  Let's adjust the upper limit, so that we effectively "zoom in
 # on" part of the histogram.  We do this by passing the clim argument to
 # imshow.  You could also do this by calling the
-# :meth:`~matplotlib.image.Image.set_clim` method of the image plot
+# :meth:`~matplotlib.cm.ScalarMappable.set_clim` method of the image plot
 # object, but make sure that you do so in the same cell as your plot
 # command when working with the Jupyter Notebook - it will not change
 # plots from earlier cells.

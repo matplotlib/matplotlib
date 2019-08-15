@@ -45,7 +45,7 @@ fig.show()
 #
 # The second example illustrates the use of a
 # :class:`~matplotlib.colors.ListedColormap` which generates a colormap from a
-# set of listed colors, :func:`colors.BoundaryNorm` which generates a colormap
+# set of listed colors, `.colors.BoundaryNorm` which generates a colormap
 # index based on discrete intervals and extended ends to show the "over" and
 # "under" value colors. Over and under are used to display data outside of the
 # normalized [0, 1] range. Here we pass colors as gray shades as a string

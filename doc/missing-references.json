@@ -1380,7 +1380,6 @@
       "lib/matplotlib/colors.py:docstring of matplotlib.colors:30"
     ],
     "'C'": [
-      "doc/tutorials/colors/colors.rst:32",
       "lib/matplotlib/colors.py:docstring of matplotlib.colors:54"
     ],
     "LineCollection": [
@@ -1522,8 +1521,7 @@
       "doc/api/next_api_changes/2019-04-17-AL.rst:14"
     ],
     "figure": [
-      "doc/api/next_api_changes/2019-04-23-TH.rst:4",
-      "doc/tutorials/advanced/transforms_tutorial.rst:14"
+      "doc/api/next_api_changes/2019-04-23-TH.rst:4"
     ],
     "backend_bases.GraphicsContextBase.set_clip_path": [
       "doc/api/next_api_changes/2019-06-07-AL.rst:4"
@@ -1975,7 +1973,6 @@
     ],
     "matplotlibrc": [
       "doc/api/prev_api_changes/api_changes_1.3.x.rst:204",
-      "doc/tutorials/intermediate/constrainedlayout_guide.rst:568",
       "doc/users/prev_whats_new/whats_new_1.3.rst:332",
       "doc/users/prev_whats_new/whats_new_1.3.rst:385",
       "doc/users/prev_whats_new/whats_new_2.2.rst:260",
@@ -1993,11 +1990,7 @@
     ],
     "axes": [
       "doc/api/prev_api_changes/api_changes_1.4.x.rst:12",
-      "doc/api/prev_api_changes/api_changes_1.4.x.rst:16",
-      "doc/tutorials/advanced/transforms_tutorial.rst:14",
-      "doc/tutorials/advanced/transforms_tutorial.rst:244",
-      "doc/tutorials/advanced/transforms_tutorial.rst:315",
-      "doc/tutorials/advanced/transforms_tutorial.rst:633"
+      "doc/api/prev_api_changes/api_changes_1.4.x.rst:16"
     ],
     "_subplot": [
       "doc/api/prev_api_changes/api_changes_1.4.x.rst:14"
@@ -2231,8 +2224,7 @@
       "doc/api/prev_api_changes/api_changes_1.4.x.rst:181"
     ],
     "GridSpec": [
-      "doc/api/prev_api_changes/api_changes_1.4.x.rst:181",
-      "doc/tutorials/intermediate/constrainedlayout_guide.rst:821"
+      "doc/api/prev_api_changes/api_changes_1.4.x.rst:181"
     ],
     "matplotlib.cbook.ls_mapper": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:11",
@@ -2499,12 +2491,10 @@
       "doc/users/prev_whats_new/whats_new_2.2.rst:254"
     ],
     "GTK3Agg": [
-      "doc/api/prev_api_changes/api_changes_2.2.0.rst:285",
-      "doc/tutorials/introductory/usage.rst:582"
+      "doc/api/prev_api_changes/api_changes_2.2.0.rst:285"
     ],
     "GTK3Cairo": [
-      "doc/api/prev_api_changes/api_changes_2.2.0.rst:285",
-      "doc/tutorials/introductory/usage.rst:582"
+      "doc/api/prev_api_changes/api_changes_2.2.0.rst:285"
     ],
     "Text.set_text": [
       "doc/api/prev_api_changes/api_changes_3.0.0.rst:64",
@@ -2991,7 +2981,6 @@
     ],
     "GTK3": [
       "doc/devel/MEP/MEP23.rst:54",
-      "doc/tutorials/introductory/usage.rst:582",
       "doc/users/prev_whats_new/whats_new_1.5.rst:620"
     ],
     "add_canvas": [
@@ -3229,9 +3218,6 @@
       "doc/users/prev_whats_new/whats_new_1.5.rst:321",
       "doc/users/prev_whats_new/whats_new_1.5.rst:324"
     ],
-    "LinearSegmentedColormap": [
-      "doc/tutorials/colors/colormap-manipulation.rst:181"
-    ],
     "Figure.align_xlabels": [
       "doc/users/prev_whats_new/whats_new_2.2.rst:70"
     ],
@@ -3254,8 +3240,7 @@
       "doc/index.rst:44"
     ],
     "mplot3d": [
-      "doc/index.rst:145",
-      "doc/tutorials/introductory/sample_plots.rst:128"
+      "doc/index.rst:145"
     ],
     "axes_grid1": [
       "doc/index.rst:145",
@@ -3265,154 +3250,8 @@
       "doc/index.rst:145",
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:160"
     ],
-    "data": [
-      "doc/tutorials/advanced/transforms_tutorial.rst:122",
-      "doc/tutorials/advanced/transforms_tutorial.rst:14",
-      "doc/tutorials/advanced/transforms_tutorial.rst:203",
-      "doc/tutorials/advanced/transforms_tutorial.rst:244",
-      "doc/tutorials/advanced/transforms_tutorial.rst:276",
-      "doc/tutorials/advanced/transforms_tutorial.rst:315",
-      "doc/tutorials/advanced/transforms_tutorial.rst:580",
-      "doc/tutorials/advanced/transforms_tutorial.rst:633",
-      "doc/tutorials/advanced/transforms_tutorial.rst:87"
-    ],
-    "display": [
-      "doc/tutorials/advanced/transforms_tutorial.rst:122",
-      "doc/tutorials/advanced/transforms_tutorial.rst:14",
-      "doc/tutorials/advanced/transforms_tutorial.rst:203",
-      "doc/tutorials/advanced/transforms_tutorial.rst:580",
-      "doc/tutorials/advanced/transforms_tutorial.rst:601"
-    ],
-    "Transformation Object": [
-      "doc/tutorials/advanced/transforms_tutorial.rst:14"
-    ],
-    "Axes.axes.add_artist": [
-      "doc/tutorials/advanced/transforms_tutorial.rst:73"
-    ],
-    "blended": [
-      "doc/tutorials/advanced/transforms_tutorial.rst:315"
-    ],
-    "xt": [
-      "doc/tutorials/advanced/transforms_tutorial.rst:451"
-    ],
-    "yt": [
-      "doc/tutorials/advanced/transforms_tutorial.rst:451"
-    ],
-    "scale_trans": [
-      "doc/tutorials/advanced/transforms_tutorial.rst:451"
-    ],
-    "xdata[0]": [
-      "doc/tutorials/advanced/transforms_tutorial.rst:455"
-    ],
-    "ydata[0]": [
-      "doc/tutorials/advanced/transforms_tutorial.rst:455"
-    ],
-    "fig.dpi_scale_trans": [
-      "doc/tutorials/advanced/transforms_tutorial.rst:521"
-    ],
-    "ListedColormap": [
-      "doc/tutorials/colors/colormap-manipulation.rst:93"
-    ],
-    "LinearSegmentedColormap.from_list": [
-      "doc/tutorials/colors/colormap-manipulation.rst:474"
-    ],
-    "vmin=-vmax": [
-      "doc/tutorials/colors/colormapnorms.rst:95"
-    ],
-    "subplot": [
-      "doc/tutorials/intermediate/constrainedlayout_guide.rst:821"
-    ],
-    "matplotlib.Figure.subplots": [
-      "doc/tutorials/intermediate/gridspec.rst:17"
-    ],
-    "extent=None": [
-      "doc/tutorials/intermediate/imshow_extent.rst:190"
-    ],
-    "set_xlim": [
-      "doc/tutorials/intermediate/imshow_extent.rst:280"
-    ],
     "set_ylim": [
-      "doc/tutorials/intermediate/imshow_extent.rst:280",
       "doc/users/prev_whats_new/whats_new_2.2.rst:230"
-    ],
-    "rc settings": [
-      "doc/tutorials/introductory/customizing.rst:202"
-    ],
-    "rc parameters": [
-      "doc/tutorials/introductory/customizing.rst:202"
-    ],
-    "$XDG_CONFIG_HOME/matplotlib/matplotlibrc": [
-      "doc/tutorials/introductory/customizing.rst:216"
-    ],
-    "http://www.xkcd.com/": [
-      "doc/tutorials/introductory/sample_plots.rst:416"
-    ],
-    "np.array": [
-      "doc/tutorials/introductory/usage.rst:166"
-    ],
-    "np.ma.masked_array": [
-      "doc/tutorials/introductory/usage.rst:166"
-    ],
-    "np.matrix": [
-      "doc/tutorials/introductory/usage.rst:166",
-      "doc/tutorials/introductory/usage.rst:176"
-    ],
-    "QT_API": [
-      "doc/tutorials/introductory/usage.rst:588"
-    ],
-    "pyqt": [
-      "doc/tutorials/introductory/usage.rst:588"
-    ],
-    "pyside": [
-      "doc/tutorials/introductory/usage.rst:588"
-    ],
-    "PyQt4": [
-      "doc/tutorials/introductory/usage.rst:588",
-      "doc/tutorials/introductory/usage.rst:591"
-    ],
-    "PySide": [
-      "doc/tutorials/introductory/usage.rst:588",
-      "doc/tutorials/introductory/usage.rst:591"
-    ],
-    "macosx": [
-      "doc/tutorials/introductory/usage.rst:666"
-    ],
-    "loc='best'": [
-      "doc/tutorials/introductory/usage.rst:872"
-    ],
-    "matplotlib.Axes.annotate": [
-      "doc/tutorials/text/annotations.rst:88"
-    ],
-    "http://www.w3.org/": [
-      "doc/tutorials/text/text_intro.rst:21"
-    ],
-    "matplotlib.xaxis.set_major_locator": [
-      "doc/tutorials/text/text_intro.rst:357"
-    ],
-    "matplotlib.xaxis.set_minor_locator": [
-      "doc/tutorials/text/text_intro.rst:357"
-    ],
-    "matplotlib.xaxis.set_major_formatter": [
-      "doc/tutorials/text/text_intro.rst:357"
-    ],
-    "matplotlib.xaxis.set_minor_formatter": [
-      "doc/tutorials/text/text_intro.rst:357"
-    ],
-    "dates.DayLocator": [
-      "doc/tutorials/text/text_intro.rst:598"
-    ],
-    "tex_demo.py": [
-      "doc/tutorials/text/usetex.rst:62",
-      "doc/tutorials/text/usetex.rst:71",
-      "doc/tutorials/text/usetex.rst:88"
-    ],
-    "Axes3D": [
-      "doc/tutorials/toolkits/mplot3d.rst:25",
-      "doc/tutorials/toolkits/mplot3d.rst:33"
-    ],
-    "Figure.add_subplot": [
-      "doc/tutorials/toolkits/mplot3d.rst:25",
-      "doc/tutorials/toolkits/mplot3d.rst:37"
     ],
     "'viridis'": [
       "doc/users/dflt_style_changes.rst:121"
@@ -4172,15 +4011,6 @@
     "Axis.set_tick_params": [
       "doc/faq/howto_faq.rst:249"
     ],
-    "matplotlib.image.Image.set_cmap": [
-      "doc/tutorials/introductory/images.rst:268"
-    ],
-    "matplotlib.image.Image.set_clim": [
-      "doc/tutorials/introductory/images.rst:355"
-    ],
-    "mpl_toolkits.axes_grid1.axes_size.Divider.new_locator": [
-      "doc/tutorials/toolkits/axes_grid.rst:409"
-    ],
     "matplotlib.patches.Rectangle.contains": [
       "doc/users/event_handling.rst:163"
     ],
@@ -4366,7 +4196,6 @@
       "doc/api/_as_gen/mpl_toolkits.axisartist.floating_axes.rst:31:<autosummary>:1"
     ],
     "Patch": [
-      "doc/tutorials/introductory/usage.rst:153",
       "lib/matplotlib/spines.py:docstring of matplotlib.spines.Spine.draw:2",
       "lib/matplotlib/table.py:docstring of matplotlib.table.Cell.draw:2",
       "lib/mpl_toolkits/mplot3d/art3d.py:docstring of mpl_toolkits.mplot3d.art3d.Patch3D.get_facecolor:2"
@@ -4616,9 +4445,6 @@
     "numpy.datetime64": [
       "doc/gallery/text_labels_and_annotations/date.rst:18"
     ],
-    "matplotlib.patch.PathPatch": [
-      "doc/tutorials/advanced/path_tutorial.rst:202"
-    ],
     "matplotlib.backend_bases.FigureCanvas": [
       "doc/tutorials/intermediate/artists.rst:18",
       "doc/tutorials/intermediate/artists.rst:20",
@@ -4631,35 +4457,6 @@
     "matplotlib.axes.Subplot": [
       "doc/tutorials/intermediate/artists.rst:34",
       "doc/tutorials/intermediate/artists.rst:57"
-    ],
-    "Axes": [
-      "doc/tutorials/introductory/usage.rst:120",
-      "doc/tutorials/introductory/usage.rst:135",
-      "doc/tutorials/introductory/usage.rst:153"
-    ],
-    "Locator": [
-      "doc/tutorials/introductory/usage.rst:141"
-    ],
-    "Formatter": [
-      "doc/tutorials/introductory/usage.rst:141"
-    ],
-    "Figure": [
-      "doc/tutorials/introductory/usage.rst:153"
-    ],
-    "Axis": [
-      "doc/tutorials/introductory/usage.rst:153"
-    ],
-    "Text": [
-      "doc/tutorials/introductory/usage.rst:153"
-    ],
-    "Line2D": [
-      "doc/tutorials/introductory/usage.rst:153"
-    ],
-    "collection": [
-      "doc/tutorials/introductory/usage.rst:153"
-    ],
-    "mpl_toolkits.axes_grid1.axes_size.Divider": [
-      "doc/tutorials/toolkits/axes_grid.rst:409"
     ],
     "matplotlib.patches.AxesImage": [
       "doc/users/event_handling.rst:414"
@@ -4807,16 +4604,16 @@
     ],
     "matplotlib.figure.Figure.patch": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89",
-      "doc/tutorials/intermediate/artists.rst:171",
-      "doc/tutorials/intermediate/artists.rst:284"
+      "doc/tutorials/intermediate/artists.rst:172",
+      "doc/tutorials/intermediate/artists.rst:285"
     ],
     "matplotlib.axes.Axes.axesPatch": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89"
     ],
     "matplotlib.axes.Axes.patch": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89",
-      "doc/tutorials/intermediate/artists.rst:171",
-      "doc/tutorials/intermediate/artists.rst:382"
+      "doc/tutorials/intermediate/artists.rst:172",
+      "doc/tutorials/intermediate/artists.rst:384"
     ],
     "matplotlib.axes.Axes.axesFrame": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89"
@@ -4901,23 +4698,23 @@
       "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.RadioButtons.set_active:4"
     ],
     "matplotlib.axes.Axes.lines": [
-      "doc/tutorials/intermediate/artists.rst:398",
+      "doc/tutorials/intermediate/artists.rst:400",
       "doc/tutorials/intermediate/artists.rst:90"
     ],
     "matplotlib.figure.Figure.transFigure": [
-      "doc/tutorials/intermediate/artists.rst:333"
+      "doc/tutorials/intermediate/artists.rst:334"
     ],
     "matplotlib.axes.Axes.patches": [
-      "doc/tutorials/intermediate/artists.rst:421"
+      "doc/tutorials/intermediate/artists.rst:423"
     ],
     "matplotlib.axes.Axes.xaxis": [
-      "doc/tutorials/intermediate/artists.rst:520"
+      "doc/tutorials/intermediate/artists.rst:522"
     ],
     "matplotlib.axes.Axes.yaxis": [
-      "doc/tutorials/intermediate/artists.rst:520"
+      "doc/tutorials/intermediate/artists.rst:522"
     ],
     "matplotlib.axis.Axis.label": [
-      "doc/tutorials/intermediate/artists.rst:567"
+      "doc/tutorials/intermediate/artists.rst:569"
     ],
     "button": [
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:338"
@@ -5031,30 +4828,8 @@
     "matplotlib.get_cachedir": [
       "doc/faq/troubleshooting_faq.rst:52"
     ],
-    "colors.BoundaryNorm": [
-      "doc/tutorials/colors/colorbar_only.rst:65",
-      "doc/tutorials/colors/colormapnorms.rst:188"
-    ],
-    "colors.LogNorm": [
-      "doc/tutorials/colors/colormapnorms.rst:46"
-    ],
-    "colors.PowerNorm": [
-      "doc/tutorials/colors/colormapnorms.rst:144"
-    ],
     "matplotlib.pyplot.getp": [
-      "doc/tutorials/intermediate/artists.rst:219"
-    ],
-    "show": [
-      "doc/tutorials/introductory/usage.rst:690"
-    ],
-    "matplotlib.Axes.annotate": [
-      "doc/tutorials/text/annotations.rst:23"
-    ],
-    "zoomed_inset_axes": [
-      "doc/tutorials/toolkits/axes_grid.rst:359"
-    ],
-    "mark_inset": [
-      "doc/tutorials/toolkits/axes_grid.rst:359"
+      "doc/tutorials/intermediate/artists.rst:220"
     ],
     "contourf": [
       "doc/users/prev_whats_new/whats_new_1.3.rst:211"
@@ -5199,32 +4974,15 @@
     ],
     "matplotlib.tests.test_basic": [
       "doc/devel/testing.rst:99"
-    ],
-    "matplotlib": [
-      "doc/tutorials/introductory/usage.rst:591"
-    ],
-    "matplotlib.patch": [
-      "doc/tutorials/advanced/path_tutorial.rst:16"
-    ],
-    "pyplot": [
-      "doc/tutorials/introductory/lifecycle.rst:34"
-    ],
-    "pyplot.style": [
-      "doc/tutorials/introductory/lifecycle.rst:140"
-    ],
-    "pylab": [
-      "doc/tutorials/introductory/usage.rst:260"
-    ],
-    "mpl_toolkits/axes_grid/inset_locator": [
-      "doc/tutorials/toolkits/axes_grid.rst:359"
     ]
   },
   "std:envvar": {
     "QT_API": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:453"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:453",
+      "doc/tutorials/introductory/usage.rst:592"
     ],
     "DISPLAY": [
-      "doc/tutorials/introductory/usage.rst:403"
+      "doc/tutorials/introductory/usage.rst:411"
     ],
     "CC": [
       "INSTALL.rst:93",

@@ -348,10 +348,10 @@ Here is complete examples.
 
    Inset Locator Demo
 
-For example, :func:`zoomed_inset_axes` can be used when you want the
+For example, :func:`.zoomed_inset_axes` can be used when you want the
 inset represents the zoom-up of the small portion in the parent axes.
-And :mod:`~mpl_toolkits/axes_grid/inset_locator` provides a helper
-function :func:`mark_inset` to mark the location of the area
+And :mod:`~mpl_toolkits.axes_grid1.inset_locator` provides a helper
+function :func:`.mark_inset` to mark the location of the area
 represented by the inset axes.
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_inset_locator_demo2_001.png
@@ -391,21 +391,20 @@ yaxis of each axes are shared. ::
 AxesDivider
 ===========
 
-The axes_divider module provides helper classes to adjust the axes
-positions of a set of images at drawing time.
+The `~.axes_grid1.axes_divider` module provides helper classes to adjust the
+axes positions of a set of images at drawing time.
 
 * :mod:`~mpl_toolkits.axes_grid1.axes_size` provides a class of
   units that are used to determine the size of each axes. For example,
   you can specify a fixed size.
 
-* :class:`~mpl_toolkits.axes_grid1.axes_size.Divider` is the class
-  that calculates the axes position. It divides the given
-  rectangular area into several areas. The divider is initialized by
-  setting the lists of horizontal and vertical sizes on which the division
-  will be based. Then use
-  :meth:`~mpl_toolkits.axes_grid1.axes_size.Divider.new_locator`,
-  which returns a callable object that can be used to set the
-  axes_locator of the axes.
+* :class:`~mpl_toolkits.axes_grid1.axes_divider.Divider` is the class that
+  calculates the axes position. It divides the given rectangular area into
+  several areas. The divider is initialized by setting the lists of horizontal
+  and vertical sizes on which the division will be based. Then use
+  :meth:`~mpl_toolkits.axes_grid1.axes_divider.Divider.new_locator`, which
+  returns a callable object that can be used to set the axes_locator of the
+  axes.
 
 
 First, initialize the divider by specifying its grids, i.e.,
