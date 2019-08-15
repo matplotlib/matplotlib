@@ -49,7 +49,7 @@ print(viridis(0.56))
 # ListedColormap
 # --------------
 #
-# `ListedColormap` s store their color values in a ``.colors`` attribute.
+# `.ListedColormap` s store their color values in a ``.colors`` attribute.
 # The list of colors that comprise the colormap can be directly accessed using
 # the ``colors`` property,
 # or it can be accessed indirectly by calling  ``viridis`` with an array
@@ -69,7 +69,7 @@ print('viridis(np.linspace(0, 1, 12))', viridis(np.linspace(0, 1, 12)))
 ##############################################################################
 # LinearSegmentedColormap
 # -----------------------
-# `LinearSegmentedColormap` s do not have a ``.colors`` attribute.
+# `.LinearSegmentedColormap` s do not have a ``.colors`` attribute.
 # However, one may still call the colormap with an integer array, or with a
 # float array between 0 and 1.
 
@@ -238,7 +238,7 @@ plot_linearmap(cdict)
 #
 # The above described is a very versatile approach, but admitedly a bit
 # cumbersome to implement. For some basic cases, the use of
-# `LinearSegmentedColormap.from_list` may be easier. This creates a segmented
+# `.LinearSegmentedColormap.from_list` may be easier. This creates a segmented
 # colormap with equal spacings from a supplied list of colors.
 
 colors = ["darkorange", "gold", "lawngreen", "lightseagreen"]

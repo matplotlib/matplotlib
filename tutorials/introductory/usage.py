@@ -85,15 +85,13 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 # Axes contains two (or three in the case of 3D)
 # :class:`~matplotlib.axis.Axis` objects (be aware of the difference
 # between **Axes** and **Axis**) which take care of the data limits (the
-# data limits can also be controlled via the
-# :meth:`~matplotlib.axes.Axes.set_xlim` and
-# :meth:`~matplotlib.axes.Axes.set_ylim` :class:`Axes` methods).  Each
-# :class:`Axes` has a title (set via
-# :meth:`~matplotlib.axes.Axes.set_title`), an x-label (set via
+# data limits can also be controlled via the :meth:`.axes.Axes.set_xlim` and
+# :meth:`.axes.Axes.set_ylim` methods).  Each :class:`~.axes.Axes` has a title
+# (set via :meth:`~matplotlib.axes.Axes.set_title`), an x-label (set via
 # :meth:`~matplotlib.axes.Axes.set_xlabel`), and a y-label set via
 # :meth:`~matplotlib.axes.Axes.set_ylabel`).
 #
-# The :class:`Axes` class and its member functions are the primary entry
+# The :class:`~.axes.Axes` class and its member functions are the primary entry
 # point to working with the OO interface.
 #
 # :class:`~matplotlib.axis.Axis`
@@ -101,40 +99,38 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 #
 # These are the number-line-like objects. They take
 # care of setting the graph limits and generating the ticks (the marks
-# on the axis) and ticklabels (strings labeling the ticks).  The
-# location of the ticks is determined by a
-# :class:`~matplotlib.ticker.Locator` object and the ticklabel strings
-# are formatted by a :class:`~matplotlib.ticker.Formatter`.  The
-# combination of the correct :class:`Locator` and :class:`Formatter` gives
-# very fine control over the tick locations and labels.
+# on the axis) and ticklabels (strings labeling the ticks).  The location of
+# the ticks is determined by a `~matplotlib.ticker.Locator` object and the
+# ticklabel strings are formatted by a `~matplotlib.ticker.Formatter`.  The
+# combination of the correct `.Locator` and `.Formatter` gives very fine
+# control over the tick locations and labels.
 #
 # :class:`~matplotlib.artist.Artist`
 # ----------------------------------
 #
 # Basically everything you can see on the figure is an artist (even the
-# :class:`Figure`, :class:`Axes`, and :class:`Axis` objects).  This
-# includes :class:`Text` objects, :class:`Line2D` objects,
-# :class:`collection` objects, :class:`Patch` objects ... (you get the
-# idea).  When the figure is rendered, all of the artists are drawn to
-# the **canvas**.  Most Artists are tied to an Axes; such an Artist
-# cannot be shared by multiple Axes, or moved from one to another.
+# `.Figure`, `Axes <.axes.Axes>`, and `~.axis.Axis` objects).  This includes
+# `.Text` objects, `.Line2D` objects, :mod:`.collections` objects, `.Patch`
+# objects ... (you get the idea).  When the figure is rendered, all of the
+# artists are drawn to the **canvas**.  Most Artists are tied to an Axes; such
+# an Artist cannot be shared by multiple Axes, or moved from one to another.
 #
 # .. _input_types:
 #
 # Types of inputs to plotting functions
 # =====================================
 #
-# All of plotting functions expect `np.array` or `np.ma.masked_array` as
+# All of plotting functions expect `numpy.array` or `numpy.ma.masked_array` as
 # input.  Classes that are 'array-like' such as `pandas` data objects
-# and `np.matrix` may or may not work as intended.  It is best to
-# convert these to `np.array` objects prior to plotting.
+# and `numpy.matrix` may or may not work as intended.  It is best to
+# convert these to `numpy.array` objects prior to plotting.
 #
 # For example, to convert a `pandas.DataFrame` ::
 #
 #   a = pandas.DataFrame(np.random.rand(4,5), columns = list('abcde'))
 #   a_asarray = a.values
 #
-# and to convert a `np.matrix` ::
+# and to convert a `numpy.matrix` ::
 #
 #   b = np.matrix([[1, 2], [3, 4]])
 #   b_asarray = np.asarray(b)
@@ -195,7 +191,7 @@ plt.legend()
 # .. note::
 #
 #    In older examples, you may find examples that instead used the so-called
-#    :mod:`pylab` interface, via ``from pylab import *``. This star-import
+#    ``pylab`` interface, via ``from pylab import *``. This star-import
 #    imports everything both from pyplot and from :mod:`numpy`, so that one
 #    could do ::
 #
@@ -483,18 +479,19 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # GTK and Cairo
 # ^^^^^^^^^^^^^
 #
-# `GTK3` backends (*both* `GTK3Agg` and `GTK3Cairo`) depend on Cairo
+# ``GTK3`` backends (*both* ``GTK3Agg`` and ``GTK3Cairo``) depend on Cairo
 # (pycairo>=1.11.0 or cairocffi).
+#
+# .. _QT_API-usage:
 #
 # How do I select PyQt4 or PySide?
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
-# The `QT_API` environment variable can be set to either `pyqt` or `pyside`
-# to use `PyQt4` or `PySide`, respectively.
+# The :envvar:`QT_API` environment variable can be set to either ``pyqt`` or
+# ``pyside`` to use ``PyQt4`` or ``PySide``, respectively.
 #
-# Since the default value for the bindings to be used is `PyQt4`,
-# :mod:`matplotlib` first tries to import it, if the import fails, it tries to
-# import `PySide`.
+# Since the default value for the bindings to be used is ``PyQt4``, Matplotlib
+# first tries to import it, if the import fails, it tries to import ``PySide``.
 #
 # Using non-builtin backends
 # --------------------------
@@ -567,7 +564,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #     ax = plt.gca()
 #     ax.plot([3.1, 2.2])
 #
-# If you are using certain backends (like `macosx`), or an older version
+# If you are using certain backends (like ``macosx``), or an older version
 # of matplotlib, you may not see the new line added to the plot immediately.
 # In this case, you need to explicitly call :func:`~matplotlib.pyplot.draw`
 # in order to update the plot::
@@ -592,22 +589,22 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #     plt.show()
 #
 # Now you see the plot, but your terminal command line is
-# unresponsive; the :func:`show()` command *blocks* the input
+# unresponsive; the :func:`.pyplot.show()` command *blocks* the input
 # of additional commands until you manually kill the plot
 # window.
 #
 # What good is this--being forced to use a blocking function?
 # Suppose you need a script that plots the contents of a file
 # to the screen.  You want to look at that plot, and then end
-# the script.  Without some blocking command such as show(), the
+# the script.  Without some blocking command such as ``show()``, the
 # script would flash up the plot and then end immediately,
 # leaving nothing on the screen.
 #
 # In addition, non-interactive mode delays all drawing until
-# show() is called; this is more efficient than redrawing
+# ``show()`` is called; this is more efficient than redrawing
 # the plot each time a line in the script adds a new feature.
 #
-# Prior to version 1.0, show() generally could not be called
+# Prior to version 1.0, ``show()`` generally could not be called
 # more than once in a single script (although sometimes one
 # could get away with it); for version 1.0.1 and above, this
 # restriction is lifted, so one can write a script like this::
@@ -774,7 +771,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # -------
 #
 # The default legend behavior for axes attempts to find the location
-# that covers the fewest data points (`loc='best'`). This can be a
+# that covers the fewest data points (``loc='best'``). This can be a
 # very expensive computation if there are lots of data points. In
 # this case, you may want to provide a specific location.
 #

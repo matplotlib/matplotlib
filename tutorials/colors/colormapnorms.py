@@ -35,13 +35,12 @@ colormaps in a non-linear fashion.
 Logarithmic
 -----------
 
-One of the most common transformations is to plot data by taking
-its logarithm (to the base-10).  This transformation is useful to
-display changes across disparate scales.  Using :func:`colors.LogNorm`
-normalizes the data via :math:`log_{10}`.  In the example below,
-there are two bumps, one much smaller than the other. Using
-:func:`colors.LogNorm`, the shape and location of each bump can clearly
-be seen:
+One of the most common transformations is to plot data by taking its logarithm
+(to the base-10).  This transformation is useful to display changes across
+disparate scales.  Using `.colors.LogNorm` normalizes the data via
+:math:`log_{10}`.  In the example below, there are two bumps, one much smaller
+than the other. Using `.colors.LogNorm`, the shape and location of each bump
+can clearly be seen:
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -76,7 +75,7 @@ plt.show()
 # Similarly, it sometimes happens that there is data that is positive
 # and negative, but we would still like a logarithmic scaling applied to
 # both.  In this case, the negative numbers are also scaled
-# logarithmically, and mapped to smaller numbers; e.g., if `vmin=-vmax`,
+# logarithmically, and mapped to smaller numbers; e.g., if ``vmin=-vmax``,
 # then they the negative numbers are mapped from 0 to 0.5 and the
 # positive from 0.5 to 1.
 #
@@ -112,7 +111,7 @@ plt.show()
 #
 # Sometimes it is useful to remap the colors onto a power-law
 # relationship (i.e. :math:`y=x^{\gamma}`, where :math:`\gamma` is the
-# power).  For this we use the :func:`colors.PowerNorm`.  It takes as an
+# power).  For this we use the `.colors.PowerNorm`.  It takes as an
 # argument *gamma* (*gamma* == 1.0 will just yield the default linear
 # normalization):
 #
@@ -142,11 +141,10 @@ plt.show()
 # Discrete bounds
 # ---------------
 #
-# Another normaization that comes with Matplotlib is
-# :func:`colors.BoundaryNorm`.  In addition to *vmin* and *vmax*, this
-# takes as arguments boundaries between which data is to be mapped.  The
-# colors are then linearly distributed between these "bounds".  For
-# instance:
+# Another normalization that comes with Matplotlib is `.colors.BoundaryNorm`.
+# In addition to *vmin* and *vmax*, this takes as arguments boundaries between
+# which data is to be mapped.  The colors are then linearly distributed between
+# these "bounds".  For instance:
 #
 # .. ipython::
 #

@@ -5,7 +5,7 @@ Path Tutorial
 
 Defining paths in your Matplotlib visualization.
 
-The object underlying all of the :mod:`matplotlib.patch` objects is
+The object underlying all of the :mod:`matplotlib.patches` objects is
 the :class:`~matplotlib.path.Path`, which supports the standard set of
 moveto, lineto, curveto commands to draw simple and compound outlines
 consisting of line segments and splines.  The ``Path`` is instantiated
@@ -169,7 +169,7 @@ plt.show()
 #     verts[3::5, 1] = bottom
 #
 # All that remains is to create the path, attach it to a
-# :class:`~matplotlib.patch.PathPatch`, and add it to our axes::
+# :class:`~matplotlib.patches.PathPatch`, and add it to our axes::
 #
 #     barpath = path.Path(verts, codes)
 #     patch = patches.PathPatch(barpath, facecolor='green',

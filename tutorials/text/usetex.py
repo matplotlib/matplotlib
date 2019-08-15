@@ -51,7 +51,8 @@ matplotlibrc use::
   #rc('font',**{'family':'serif','serif':['Palatino']})
   rc('text', usetex=True)
 
-Here is the standard example, `tex_demo.py`:
+Here is the standard example,
+:file:`/gallery/text_labels_and_annotations/tex_demo`:
 
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_tex_demo_001.png
    :target: ../../gallery/text_labels_and_annotations/tex_demo.html
@@ -61,8 +62,7 @@ Here is the standard example, `tex_demo.py`:
    TeX Demo
 
 Note that display math mode (``$$ e=mc^2 $$``) is not supported, but adding the
-command ``\displaystyle``, as in `tex_demo.py`, will produce the same
-results.
+command ``\displaystyle``, as in the above demo, will produce the same results.
 
 .. note::
    Certain characters require special escaping in TeX, such as::
@@ -78,7 +78,8 @@ usetex with unicode
 ===================
 
 It is also possible to use unicode strings with the LaTeX text manager, here is
-an example taken from `tex_demo.py`. The axis labels include Unicode text:
+an example taken from :file:`/gallery/text_labels_and_annotations/tex_demo`.
+The axis labels include Unicode text:
 
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_tex_demo_001.png
    :target: ../../gallery/text_labels_and_annotations/tex_demo.html

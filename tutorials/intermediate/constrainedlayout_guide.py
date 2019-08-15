@@ -335,7 +335,7 @@ fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
 # ========
 #
 # There are five :ref:`rcParams<matplotlib-rcparams>` that can be set,
-# either in a script or in the `matplotlibrc` file.
+# either in a script or in the :file:`matplotlibrc` file.
 # They all have the prefix ``figure.constrained_layout``:
 #
 # - ``use``: Whether to use constrained_layout. Default is False
@@ -504,8 +504,8 @@ ax2 = fig.add_axes(bb_ax2)
 # ----------------------
 #
 # ``constrained_layout`` will not work on subplots
-# created via the `subplot` command.  The reason is that each of these
-# commands creates a separate `GridSpec` instance and ``constrained_layout``
+# created via the `.pyplot.subplot` command.  The reason is that each of these
+# commands creates a separate `.GridSpec` instance and ``constrained_layout``
 # uses (nested) gridspecs to carry out the layout.  So the following fails
 # to yield a nice layout:
 
