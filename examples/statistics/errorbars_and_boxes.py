@@ -9,8 +9,8 @@ y- directions. To do this, we have to write our own custom function
 called ``make_error_boxes``. Close inspection of this function will
 reveal the preferred pattern in writing functions for matplotlib:
 
-  1. an ``Axes`` object is passed directly to the function
-  2. the function operates on the `Axes` methods directly, not through
+  1. an `~.axes.Axes` object is passed directly to the function
+  2. the function operates on the ``Axes`` methods directly, not through
      the ``pyplot`` interface
   3. plotting kwargs that could be abbreviated are spelled out for
      better code readability in the future (for example we use

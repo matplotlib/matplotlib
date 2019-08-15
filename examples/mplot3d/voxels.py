@@ -3,7 +3,7 @@
 3D voxel / volumetric plot
 ==========================
 
-Demonstrates plotting 3D volumetric objects with ``ax.voxels``
+Demonstrates plotting 3D volumetric objects with `.Axes3D.voxels`.
 '''
 
 import matplotlib.pyplot as plt

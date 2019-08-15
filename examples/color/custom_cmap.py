@@ -9,7 +9,7 @@ For more detail on creating and manipulating colormaps see
 Creating a :doc:`colormap </tutorials/colors/colormaps>`
 from a list of colors can be done with the
 :meth:`~.colors.LinearSegmentedColormap.from_list` method of
-`LinearSegmentedColormap`. You must pass a list of RGB tuples that define the
+`.LinearSegmentedColormap`. You must pass a list of RGB tuples that define the
 mixture of colors from 0 to 1.
 
 

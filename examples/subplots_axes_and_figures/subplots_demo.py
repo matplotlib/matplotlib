@@ -40,7 +40,7 @@ ax.set_title('A single plot')
 # The first two optional arguments of `.pyplot.subplots` define the number of
 # rows and columns of the subplot grid.
 #
-# When stacking in one direction only, the returned `axs` is a 1D numpy array
+# When stacking in one direction only, the returned ``axs`` is a 1D numpy array
 # containing the list of created Axes.
 
 fig, axs = plt.subplots(2)
@@ -71,7 +71,7 @@ ax2.plot(x, -y)
 # Stacking subplots in two directions
 # """""""""""""""""""""""""""""""""""
 #
-# When stacking in two directions, the returned `axs` is a 2D numpy array.
+# When stacking in two directions, the returned ``axs`` is a 2D NumPy array.
 #
 # If you have to set parameters for each subplot it's handy to iterate over
 # all subplots in a 2D grid using ``for ax in axs.flat:``.

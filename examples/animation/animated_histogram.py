@@ -29,8 +29,8 @@ nrects = len(left)
 
 ###############################################################################
 # Here comes the tricky part -- we have to set up the vertex and path codes
-# arrays using ``plt.Path.MOVETO``, ``plt.Path.LINETO`` and
-# ``plt.Path.CLOSEPOLY`` for each rect.
+# arrays using `.Path.MOVETO`, `.Path.LINETO` and `.Path.CLOSEPOLY` for each
+# rect.
 #
 # * We need 1 ``MOVETO`` per rectangle, which sets the initial point.
 # * We need 3 ``LINETO``'s, which tell Matplotlib to draw lines from
@@ -61,7 +61,7 @@ verts[3::5, 1] = bottom
 # To animate the histogram, we need an ``animate`` function, which generates
 # a random set of numbers and updates the locations of the vertices for the
 # histogram (in this case, only the heights of each rectangle). ``patch`` will
-# eventually be a ``Patch`` object.
+# eventually be a `.Patch` object.
 patch = None
 
 
@@ -75,9 +75,9 @@ def animate(i):
     return [patch, ]
 
 ###############################################################################
-# And now we build the `Path` and `Patch` instances for the histogram using
-# our vertices and codes. We add the patch to the `Axes` instance, and setup
-# the `FuncAnimation` with our animate function.
+# And now we build the `.Path` and `.Patch` instances for the histogram using
+# our vertices and codes. We add the patch to the `~.axes.Axes` instance, and
+# setup the `.FuncAnimation` with our ``animate`` function.
 fig, ax = plt.subplots()
 barpath = path.Path(verts, codes)
 patch = patches.PathPatch(

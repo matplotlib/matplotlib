@@ -3,9 +3,9 @@
 Font properties
 ===============
 
-This example lists the attributes of an `FT2Font` object, which describe global
-font properties.  For individual character metrics, use the `Glyph` object, as
-returned by `load_char`.
+This example lists the attributes of an `.FT2Font` object, which describe
+global font properties.  For individual character metrics, use the `.Glyph`
+object, as returned by `.load_char`.
 """
 
 import os

@@ -3,7 +3,7 @@ r"""
 Nested GridSpecs
 ================
 
-This example demonstrates the use of nested `GridSpec`\s.
+This example demonstrates the use of nested `.GridSpec`\s.
 """
 
 import matplotlib.pyplot as plt

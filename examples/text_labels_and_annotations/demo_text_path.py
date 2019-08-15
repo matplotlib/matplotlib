@@ -3,7 +3,7 @@
 Demo Text Path
 ==============
 
-Use a text as `Path`. The tool that allows for such conversion is a
+Use a text as `.Path`. The tool that allows for such conversion is a
 `~matplotlib.textpath.TextPath`. The resulting path can be employed
 e.g. as a clip path for an image.
 """

@@ -666,8 +666,6 @@
     "Axes": [
       "doc/api/_as_gen/matplotlib.pyplot.rst:173:<autosummary>:1",
       "doc/api/prev_api_changes/api_changes_3.0.0.rst:449",
-      "doc/gallery/animation/animated_histogram.rst:112",
-      "doc/gallery/statistics/errorbars_and_boxes.rst:21",
       "doc/users/prev_whats_new/whats_new_1.5.rst:514",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.delaxes:2",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.plotting:33"
@@ -1177,8 +1175,6 @@
     "Path": [
       "doc/api/prev_api_changes/api_changes_1.3.x.rst:134",
       "doc/api/prev_api_changes/api_changes_1.3.x.rst:147",
-      "doc/gallery/animation/animated_histogram.rst:112",
-      "doc/gallery/text_labels_and_annotations/demo_text_path.rst:14",
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.GraphicsContextBase.get_hatch_path:2",
       "lib/matplotlib/textpath.py:docstring of matplotlib.textpath.TextToPath.get_text_path:37"
     ],
@@ -1384,7 +1380,6 @@
       "lib/matplotlib/colors.py:docstring of matplotlib.colors:30"
     ],
     "'C'": [
-      "doc/gallery/color/color_demo.rst:26",
       "doc/tutorials/colors/colors.rst:32",
       "lib/matplotlib/colors.py:docstring of matplotlib.colors:54"
     ],
@@ -1413,7 +1408,8 @@
     "numpy.datetime64": [
       "doc/faq/howto_faq.rst:18",
       "doc/faq/howto_faq.rst:21",
-      "doc/tutorials/text/text_intro.rst:566",
+      "doc/gallery/recipes/common_date_problems.rst:34",
+      "doc/tutorials/text/text_intro.rst:581",
       "doc/users/prev_whats_new/whats_new_2.2.rst:155",
       "lib/matplotlib/dates.py:docstring of matplotlib.dates.date2num:8"
     ],
@@ -1847,12 +1843,10 @@
       "doc/api/prev_api_changes/api_changes_1.3.x.rst:49"
     ],
     "hist": [
-      "doc/api/prev_api_changes/api_changes_1.3.x.rst:52",
-      "doc/gallery/user_interfaces/svg_histogram_sgskip.rst:33"
+      "doc/api/prev_api_changes/api_changes_1.3.x.rst:52"
     ],
     "width": [
       "doc/api/prev_api_changes/api_changes_1.3.x.rst:52",
-      "doc/gallery/pie_and_polar_charts/nested_pie.rst:39",
       "lib/matplotlib/sphinxext/plot_directive.py:docstring of matplotlib.sphinxext.plot_directive:72"
     ],
     "rwidth": [
@@ -2112,12 +2106,10 @@
       "doc/api/prev_api_changes/api_changes_1.4.x.rst:102"
     ],
     "xytext": [
-      "doc/api/prev_api_changes/api_changes_1.4.x.rst:102",
-      "doc/gallery/text_labels_and_annotations/annotation_demo.rst:39"
+      "doc/api/prev_api_changes/api_changes_1.4.x.rst:102"
     ],
     "textcoords": [
-      "doc/api/prev_api_changes/api_changes_1.4.x.rst:102",
-      "doc/gallery/text_labels_and_annotations/annotation_demo.rst:39"
+      "doc/api/prev_api_changes/api_changes_1.4.x.rst:102"
     ],
     "xyann": [
       "doc/api/prev_api_changes/api_changes_1.4.x.rst:102",
@@ -2132,12 +2124,10 @@
     ],
     "xy": [
       "doc/api/prev_api_changes/api_changes_1.4.x.rst:110",
-      "doc/gallery/text_labels_and_annotations/annotation_demo.rst:39",
       "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.Lasso:8"
     ],
     "xycoords": [
-      "doc/api/prev_api_changes/api_changes_1.4.x.rst:112",
-      "doc/gallery/text_labels_and_annotations/annotation_demo.rst:39"
+      "doc/api/prev_api_changes/api_changes_1.4.x.rst:112"
     ],
     "set_position()": [
       "doc/api/prev_api_changes/api_changes_1.4.x.rst:113"
@@ -2161,7 +2151,6 @@
     ],
     "FormatStrFormatter": [
       "doc/api/prev_api_changes/api_changes_1.4.x.rst:133",
-      "doc/gallery/ticks_and_spines/major_minor_demo.rst:24",
       "doc/users/prev_whats_new/whats_new_1.4.rst:129"
     ],
     "matplotlib.testing.image_util": [
@@ -2243,9 +2232,6 @@
     ],
     "GridSpec": [
       "doc/api/prev_api_changes/api_changes_1.4.x.rst:181",
-      "doc/gallery/userdemo/demo_gridspec01.rst:14",
-      "doc/gallery/userdemo/demo_gridspec03.rst:14",
-      "doc/gallery/userdemo/demo_gridspec06.rst:14",
       "doc/tutorials/intermediate/constrainedlayout_guide.rst:821"
     ],
     "matplotlib.cbook.ls_mapper": [
@@ -2417,7 +2403,6 @@
     ],
     "bar": [
       "doc/api/prev_api_changes/api_changes_2.0.1.rst:36",
-      "doc/gallery/axisartist/demo_floating_axes.rst:16",
       "doc/users/prev_whats_new/whats_new_1.5.rst:457"
     ],
     "plt.bar": [
@@ -2439,8 +2424,7 @@
       "doc/api/prev_api_changes/api_changes_2.1.0.rst:56"
     ],
     "np.datetime64": [
-      "doc/api/prev_api_changes/api_changes_2.1.0.rst:95",
-      "doc/gallery/recipes/common_date_problems.rst:34"
+      "doc/api/prev_api_changes/api_changes_2.1.0.rst:95"
     ],
     "matplotlib.mlab.griddata": [
       "doc/api/prev_api_changes/api_changes_2.1.0.rst:117"
@@ -2644,7 +2628,6 @@
       "lib/matplotlib/projections/polar.py:docstring of matplotlib.projections.polar.ThetaTick:4"
     ],
     "plot": [
-      "doc/gallery/units/units_sample.rst:14",
       "doc/users/prev_whats_new/changelog.rst:232",
       "lib/matplotlib/sphinxext/plot_directive.py:docstring of matplotlib.sphinxext.plot_directive:4"
     ],
@@ -3233,46 +3216,8 @@
     "set_color": [
       "doc/faq/howto_faq.rst:45"
     ],
-    "Patch": [
-      "doc/gallery/animation/animated_histogram.rst:112",
-      "doc/users/prev_whats_new/whats_new_1.5.rst:321",
-      "doc/users/prev_whats_new/whats_new_1.5.rst:324"
-    ],
-    "FuncAnimation": [
-      "doc/gallery/animation/animated_histogram.rst:112"
-    ],
-    "mpl_toolkits.axes_grid1.inset_axes": [
-      "doc/gallery/axes_grid1/demo_colorbar_with_inset_locator.rst:14"
-    ],
-    "scatter": [
-      "doc/gallery/axisartist/demo_floating_axes.rst:16"
-    ],
-    "GridHelperCurveLinear": [
-      "doc/gallery/axisartist/demo_floating_axes.rst:17",
-      "doc/gallery/axisartist/demo_floating_axes.rst:18",
+    "floating_axes.FloatingSubplot": [
       "doc/gallery/axisartist/demo_floating_axes.rst:20"
-    ],
-    "FloatingSubplot": [
-      "doc/gallery/axisartist/demo_floating_axes.rst:18"
-    ],
-    "LinearSegmentedColormap": [
-      "doc/gallery/color/custom_cmap.rst:17",
-      "doc/tutorials/colors/colormap-manipulation.rst:181"
-    ],
-    "text.Text": [
-      "doc/gallery/images_contours_and_fields/demo_bboximage.rst:14"
-    ],
-    "interpolation": [
-      "doc/gallery/images_contours_and_fields/interpolation_methods.rst:17"
-    ],
-    "interpolation=\"antialiased\"": [
-      "doc/gallery/images_contours_and_fields/interpolation_methods.rst:26"
-    ],
-    "extent=(0, 1, 0, 1), transform=ax.transAxes": [
-      "doc/gallery/lines_bars_and_markers/gradient_bar.rst:23"
-    ],
-    "intersect_bbox": [
-      "doc/gallery/misc/bbox_intersect.rst:14"
     ],
     "Glyph": [
       "doc/gallery/misc/ftface_props.rst:14"
@@ -3280,101 +3225,30 @@
     "load_char": [
       "doc/gallery/misc/ftface_props.rst:14"
     ],
-    "from matplotlib.backends.backend_pgf import PdfPages": [
-      "doc/gallery/misc/multipage_pdf.rst:17"
+    "Patch": [
+      "doc/users/prev_whats_new/whats_new_1.5.rst:321",
+      "doc/users/prev_whats_new/whats_new_1.5.rst:324"
     ],
-    "attach_note": [
-      "doc/gallery/misc/multipage_pdf.rst:17"
-    ],
-    "Axes3D.voxels": [
-      "doc/gallery/mplot3d/voxels_rgb.rst:14"
-    ],
-    "wedgeprops": [
-      "doc/gallery/pie_and_polar_charts/nested_pie.rst:39"
-    ],
-    "set_label_coords": [
-      "doc/gallery/pyplots/align_ylabels.rst:74"
-    ],
-    "Figure.constrained_layout": [
-      "doc/gallery/pyplots/auto_subplots_adjust.rst:18"
-    ],
-    "pyplot.subplot": [
-      "doc/gallery/pyplots/pyplot_two_subplots.rst:14"
-    ],
-    "semilogx": [
-      "doc/gallery/scales/log_test.rst:14"
-    ],
-    "maxiter": [
-      "doc/gallery/showcase/mandelbrot.rst:18"
-    ],
-    "maxiter=200": [
-      "doc/gallery/showcase/mandelbrot.rst:18"
-    ],
-    "imshow": [
-      "doc/gallery/specialty_plots/mri_demo.rst:14"
-    ],
-    "errorbar_demo.py": [
-      "doc/gallery/statistics/errorbar_features.rst:14"
-    ],
-    "patches": [
-      "doc/gallery/statistics/hist.rst:72"
+    "LinearSegmentedColormap": [
+      "doc/tutorials/colors/colormap-manipulation.rst:181"
     ],
     "Figure.align_xlabels": [
-      "doc/gallery/subplots_axes_and_figures/align_labels_demo.rst:14",
       "doc/users/prev_whats_new/whats_new_2.2.rst:70"
     ],
     "Figure.align_ylabels": [
-      "doc/gallery/subplots_axes_and_figures/align_labels_demo.rst:14",
       "doc/users/prev_whats_new/whats_new_2.2.rst:70"
     ],
     "Figure.align_labels": [
-      "doc/gallery/subplots_axes_and_figures/align_labels_demo.rst:17",
       "doc/users/prev_whats_new/whats_new_2.2.rst:84"
     ],
-    "Axes.axes.secondary_xaxis": [
-      "doc/gallery/subplots_axes_and_figures/secondary_axis.rst:14"
-    ],
-    "Axes.axes.secondary_yaxis": [
-      "doc/gallery/subplots_axes_and_figures/secondary_axis.rst:14"
-    ],
-    "axs": [
-      "doc/gallery/subplots_axes_and_figures/subplots_demo.rst:138",
-      "doc/gallery/subplots_axes_and_figures/subplots_demo.rst:71"
-    ],
-    "xy=(x, y)": [
-      "doc/gallery/text_labels_and_annotations/annotation_demo.rst:39"
-    ],
-    "xytext=(x, y)": [
-      "doc/gallery/text_labels_and_annotations/annotation_demo.rst:39"
-    ],
-    "font_manager.FontProperties": [
-      "doc/gallery/text_labels_and_annotations/font_file.rst:14"
-    ],
     "ConciseDateConverter": [
-      "doc/gallery/ticks_and_spines/date_concise_formatter.rst:209"
-    ],
-    "MultipleLocator": [
-      "doc/gallery/ticks_and_spines/major_minor_demo.rst:24"
+      "doc/gallery/ticks_and_spines/date_concise_formatter.rst:215"
     ],
     "ScalarFormatter": [
-      "doc/gallery/ticks_and_spines/scalarformatter.rst:14",
       "doc/users/prev_whats_new/whats_new_1.4.rst:293"
     ],
-    "xunits": [
-      "doc/gallery/units/units_sample.rst:14"
-    ],
-    "yunits": [
-      "doc/gallery/units/units_sample.rst:14"
-    ],
-    "title": [
-      "doc/gallery/user_interfaces/svg_tooltip_sgskip.rst:23"
-    ],
     "ConnectionPatch": [
-      "doc/gallery/userdemo/connect_simple01.rst:14",
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:178"
-    ],
-    "plt.subplot2grid": [
-      "doc/gallery/userdemo/demo_gridspec01.rst:14"
     ],
     "pyplot": [
       "doc/index.rst:44"
@@ -4739,14 +4613,8 @@
       "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.RectangleSelector:1",
       "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.SpanSelector:1"
     ],
-    "~.collections.PatchCollection": [
-      "doc/gallery/shapes_and_collections/patch_collection.rst:14"
-    ],
     "numpy.datetime64": [
       "doc/gallery/text_labels_and_annotations/date.rst:18"
-    ],
-    "~matplotlib.spines.Spine": [
-      "doc/gallery/ticks_and_spines/multiple_yaxis_with_spines.rst:18"
     ],
     "matplotlib.patch.PathPatch": [
       "doc/tutorials/advanced/path_tutorial.rst:202"
@@ -5163,9 +5031,6 @@
     "matplotlib.get_cachedir": [
       "doc/faq/troubleshooting_faq.rst:52"
     ],
-    "matplotlib.pyplots.subplots": [
-      "doc/gallery/recipes/create_subplots.rst:43"
-    ],
     "colors.BoundaryNorm": [
       "doc/tutorials/colors/colorbar_only.rst:65",
       "doc/tutorials/colors/colormapnorms.rst:188"
@@ -5335,11 +5200,7 @@
     "matplotlib.tests.test_basic": [
       "doc/devel/testing.rst:99"
     ],
-    "animation": [
-      "doc/gallery/animation/animation_demo.rst:16"
-    ],
     "matplotlib": [
-      "doc/gallery/text_labels_and_annotations/annotation_demo.rst:14",
       "doc/tutorials/introductory/usage.rst:591"
     ],
     "matplotlib.patch": [
