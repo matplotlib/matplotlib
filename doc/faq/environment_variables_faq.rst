@@ -12,14 +12,10 @@ Environment Variables
 
   The user's home directory. On linux, :envvar:`~ <HOME>` is shorthand for :envvar:`HOME`.
 
-.. envvar:: PATH
+.. envvar:: MPLBACKEND
 
-  The list of directories searched to find executable programs
-
-.. envvar:: PYTHONPATH
-
-  The list of directories that is added to Python's standard search list when
-  importing packages and modules
+  This optional variable can be set to choose the Matplotlib backend. See
+  :ref:`what-is-a-backend`.
 
 .. envvar:: MPLCONFIGDIR
 
@@ -31,10 +27,14 @@ Environment Variables
   is used to find a base directory in which the :file:`matplotlib` subdirectory 
   is created.
 
-.. envvar:: MPLBACKEND
+.. envvar:: PATH
 
-  This optional variable can be set to choose the matplotlib backend.  See
-  :ref:`what-is-a-backend`.
+  The list of directories searched to find executable programs.
+
+.. envvar:: PYTHONPATH
+
+  The list of directories that are added to Python's standard search list when
+  importing packages and modules.
 
 .. _setting-linux-osx-environment-variables:
 
