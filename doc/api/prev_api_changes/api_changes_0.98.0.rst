@@ -218,7 +218,7 @@ Old method                                                   New method
 ============================================================ ============================================================
 Old method                                                   New method
 ============================================================ ============================================================
-`Contour._segments`                                          :meth:`matplotlib.contour.Contour.get_paths`` [Returns a
+`Contour._segments`                                          :meth:`matplotlib.contour.Contour.get_paths` [Returns a
                                                              list of :class:`matplotlib.path.Path` instances.]
 ============================================================ ============================================================
 

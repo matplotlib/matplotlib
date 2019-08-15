@@ -865,8 +865,8 @@ future version.
 
 - `.projections.process_projection_requirements`
 
-- `.backend_ps.PsBackendHelper``
-- `.backend_ps.ps_backend_helper``,
+- ``backend_ps.PsBackendHelper``
+- ``backend_ps.ps_backend_helper``,
 
 - `.cbook.iterable`
 - `.cbook.get_label`
@@ -938,7 +938,8 @@ Axes3D
 - `.axes3d.Axes3D.w_yaxis`
 - `.axes3d.Axes3D.w_zaxis`
 
-Use `.axes3d.Axes3D.xaxis`, `.axes3d.Axes3D.and `.axes3d.Axes3D.zaxis` instead.
+Use `.axes3d.Axes3D.xaxis`, `.axes3d.Axes3D.yaxis` and `.axes3d.Axes3D.zaxis`
+instead.
 
 Testing
 ~~~~~~~
@@ -960,8 +961,8 @@ whereas calling ``set_facecolor`` does.
 GUI / backend details
 ~~~~~~~~~~~~~~~~~~~~~
 
-- `.get_py2exe_datafiles``
-- `.tk_window_focus``
+- ``.get_py2exe_datafiles``
+- ``.tk_window_focus``
 - `.backend_gtk3.FileChooserDialog`
 - `.backend_gtk3.NavigationToolbar2GTK3.get_filechooser`
 - `.backend_gtk3.SaveFigureGTK3.get_filechooser`

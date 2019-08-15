@@ -57,8 +57,7 @@ Changes for 0.91.0
   extent of a line of ordinary text.  The default is 1.2;
   ``linespacing=2`` would be like ordinary double spacing, for example.
 
-* Changed default kwarg in
-  :meth:`matplotlib.colors.Normalize.__init__`` to ``clip=False``;
+* Changed default kwarg in `matplotlib.colors.Normalize` to ``clip=False``;
   clipping silently defeats the purpose of the special over, under,
   and bad values in the colormap, thereby leading to unexpected
   behavior.  The new default should reduce such surprises.

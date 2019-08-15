@@ -1060,12 +1060,6 @@
     "matplotlib.pyplot.get_scale_docs()": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:861"
     ],
-    "backend_ps.PsBackendHelper`": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:868"
-    ],
-    "backend_ps.ps_backend_helper`": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:869"
-    ],
     "dates.strpdate2num": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:926"
     ],
@@ -1075,7 +1069,10 @@
     "axes3d.Axes3D.xaxis": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:941"
     ],
-    "axes3d.Axes3D.and `.axes3d.Axes3D.zaxis": [
+    "axes3d.Axes3D.yaxis": [
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:941"
+    ],
+    "axes3d.Axes3D.zaxis": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:941"
     ],
     "pytest.mark.backend(...)": [
@@ -1093,12 +1090,6 @@
       "doc/users/prev_whats_new/whats_new_1.5.rst:321",
       "doc/users/prev_whats_new/whats_new_2.2.rst:198",
       "doc/users/prev_whats_new/whats_new_2.2.rst:201"
-    ],
-    "get_py2exe_datafiles`": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:963"
-    ],
-    "tk_window_focus`": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:964"
     ],
     "backend_gtk3.FileChooserDialog": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:965"
@@ -3884,9 +3875,6 @@
     "FT_Attach_File": [
       "doc/api/prev_api_changes/api_changes_0.91.0.rst:35"
     ],
-    "matplotlib.colors.Normalize.__init__`": [
-      "doc/api/prev_api_changes/api_changes_0.91.0.rst:60"
-    ],
     "matplotlib.cm.ScalarMappable.add_observer": [
       "doc/api/prev_api_changes/api_changes_0.98.0.rst:10"
     ],
@@ -3926,7 +3914,7 @@
     "matplotlib.colors.ColorConvertor.to_rgba_array": [
       "doc/api/prev_api_changes/api_changes_0.98.0.rst:211"
     ],
-    "matplotlib.contour.Contour.get_paths`": [
+    "matplotlib.contour.Contour.get_paths": [
       "doc/api/prev_api_changes/api_changes_0.98.0.rst:222"
     ],
     "matplotlib.backend_bases.GraphicsContext.get_clip_path": [
@@ -4010,6 +3998,9 @@
     ],
     "fig.patch.get_alpha": [
       "doc/users/prev_whats_new/whats_new_1.3.rst:219"
+    ],
+    "matplotlib.dates.DateFormatter.__call__": [
+      "doc/users/prev_whats_new/whats_new_1.5.rst:496"
     ],
     "matplotlib.tickers.Locator.tick_values": [
       "doc/users/prev_whats_new/whats_new_1.5.rst:542"
@@ -4331,9 +4322,6 @@
     "matplotlib.colors.ColorConverter": [
       "doc/api/prev_api_changes/api_changes_1.2.x.rst:140"
     ],
-    "matplotlib.patheffects.AbstractPathEffect`s.\n``matplotlib.patheffects._Base`": [
-      "doc/api/prev_api_changes/api_changes_1.4.x.rst:72"
-    ],
     "matplotlib.backqend_pdf.PdfFile": [
       "doc/api/prev_api_changes/api_changes_2.1.0.rst:435"
     ],
@@ -4466,9 +4454,6 @@
     ],
     "matplotilb.mpl_toolkits.axes_grid.anchored_artists.AnchoredSizeBar": [
       "doc/users/prev_whats_new/whats_new_1.4.rst:398"
-    ],
-    "matplotlib.dates.DateFormatter`s'\n:meth:`~matplotlib.dates.DateFormatter.strftime": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:496"
     ],
     "matplotlib.tickers.Locator": [
       "doc/users/prev_whats_new/whats_new_1.5.rst:542"
@@ -4773,9 +4758,6 @@
     ],
     "matplotlib.compat.subprocess": [
       "doc/api/prev_api_changes/api_changes_1.3.x.rst:198"
-    ],
-    "matplotlib.pyplot.errorbar now supports\nthe string 'none' to suppress drawing of a line and markers; use\nof the *None* object for this is deprecated. The default *fmt*\nvalue is changed to the empty string (''), so the line and markers\nare governed by the :func:`~matplotlib.pyplot.plot": [
-      "doc/api/prev_api_changes/api_changes_1.4.x.rst:49"
     ],
     "matplotlib.axes.Axes._get_legend_handles": [
       "doc/api/prev_api_changes/api_changes_1.4.x.rst:93"
