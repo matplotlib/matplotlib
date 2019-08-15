@@ -8,6 +8,13 @@ Environment Variables
    :backlinks: none
 
 
+.. envvar:: DISPLAY
+
+  The server and screen on which to place windows. This is interpreted by GUI
+  toolkits in a backend-specific manner, but generally refers to an `X.org
+  display name
+  <https://www.x.org/releases/X11R7.7/doc/man/man7/X.7.xhtml#heading5>`_.
+
 .. envvar:: HOME
 
   The user's home directory. On linux, :envvar:`~ <HOME>` is shorthand for :envvar:`HOME`.
@@ -35,6 +42,11 @@ Environment Variables
 
   The list of directories that are added to Python's standard search list when
   importing packages and modules.
+
+.. envvar:: QT_API
+
+   The Python Qt wrapper to prefer when using Qt-based backends. See :ref:`the
+   entry in the usage guide <QT_API-usage>` for more information.
 
 .. _setting-linux-osx-environment-variables:
 

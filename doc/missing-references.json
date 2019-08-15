@@ -4977,13 +4977,6 @@
     ]
   },
   "std:envvar": {
-    "QT_API": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:453",
-      "doc/tutorials/introductory/usage.rst:592"
-    ],
-    "DISPLAY": [
-      "doc/tutorials/introductory/usage.rst:411"
-    ],
     "CC": [
       "INSTALL.rst:93",
       "doc/users/prev_whats_new/whats_new_1.5.rst:737"
