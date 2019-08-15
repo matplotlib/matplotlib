@@ -23,7 +23,7 @@ objects. Two mechanisms could be used to simplify things:
 * assigning classes to each SVG object according to its origin.
 
 For example, instead of modifying the properties of each individual bar,
-the bars from the `hist` function could either be grouped in
+the bars from the `~.pyplot.hist` function could either be grouped in
 a PatchCollection, or be assigned a class="hist_##" attribute.
 
 CSS could also be used more extensively to replace repetitive markup

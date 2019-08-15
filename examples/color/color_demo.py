@@ -15,7 +15,7 @@ Matplotlib recognizes the following formats to specify a color:
 5) a X11/CSS4 ("html") color name, e.g. ``"blue"``;
 6) a name from the `xkcd color survey <https://xkcd.com/color/rgb/>`__,
    prefixed with ``'xkcd:'`` (e.g., ``'xkcd:sky blue'``);
-7) a "Cn" color spec, i.e. `'C'` followed by a number, which is an index into
+7) a "Cn" color spec, i.e. ``'C'`` followed by a number, which is an index into
    the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``); the
    indexing is intended to occur at rendering time, and defaults to black if
    the cycle does not include color.

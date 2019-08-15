@@ -3,7 +3,8 @@
 The default tick formatter
 ==========================
 
-The example shows use of the default `ScalarFormatter` with different settings.
+The example shows use of the default `.ScalarFormatter` with different
+settings.
 
 Example 1 : Default
 

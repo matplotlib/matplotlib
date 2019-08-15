@@ -5,11 +5,14 @@
 
 Demonstration of features of the :mod:`.floating_axes` module:
 
-* Using `scatter` and `bar` with changing the shape of the plot.
-* Using `GridHelperCurveLinear` to rotate the plot and set the plot boundary.
-* Using `FloatingSubplot` to create a subplot using the return value from
-  `GridHelperCurveLinear`.
-* Making a sector plot by adding more features to `GridHelperCurveLinear`.
+* Using `~.axes.Axes.scatter` and `~.axes.Axes.bar` with changing the shape of
+  the plot.
+* Using `~.floating_axes.GridHelperCurveLinear` to rotate the plot and set the
+  plot boundary.
+* Using `~.floating_axes.FloatingSubplot` to create a subplot using the return
+  value from `~.floating_axes.GridHelperCurveLinear`.
+* Making a sector plot by adding more features to
+  `~.floating_axes.GridHelperCurveLinear`.
 """
 
 from matplotlib.transforms import Affine2D

@@ -24,8 +24,8 @@ objects in a numpy record array::
          '2008-10-13', '2008-10-14'], dtype='datetime64[D]')
 
 The dtype of the NumPy record array for the field ``date`` is ``datetime64[D]``
-which means it is a 64-bit `np.datetime64` in 'day' units. While this format is
-more portable, Matplotlib cannot plot this format natively yet. We can plot
+which means it is a 64-bit `numpy.datetime64` in 'day' units. While this format
+is more portable, Matplotlib cannot plot this format natively yet. We can plot
 this data by changing the dates to `datetime.date` instances instead, which can
 be achieved by converting to an object array::
 

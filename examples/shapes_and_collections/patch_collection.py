@@ -4,7 +4,7 @@ Circles, Wedges and Polygons
 ============================
 
 This example demonstrates how to use
-:class:`patch collections<~.collections.PatchCollection>`.
+:class:`patch collections <.collections.PatchCollection>`.
 """
 
 import numpy as np

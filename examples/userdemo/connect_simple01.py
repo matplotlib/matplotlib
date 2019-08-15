@@ -3,7 +3,7 @@
 Connect Simple01
 ================
 
-A `ConnectionPatch` can be used to draw a line (possibly with arrow head)
+A `.ConnectionPatch` can be used to draw a line (possibly with arrow head)
 between points defined in different coordinate systems and/or axes.
 """
 

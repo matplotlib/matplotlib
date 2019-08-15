@@ -4,7 +4,7 @@ Using a ttf font file in Matplotlib
 ===================================
 
 Although it is usually not a good idea to explicitly point to a single ttf file
-for a font instance, you can do so using the `font_manager.FontProperties`
+for a font instance, you can do so using the `.font_manager.FontProperties`
 *fname* argument.
 
 Here, we use the Computer Modern roman font (``cmr10``) shipped with
