@@ -728,7 +728,6 @@
     ],
     "Figure": [
       "doc/devel/testing.rst:161",
-      "doc/faq/howto_faq.rst:647",
       "doc/users/prev_whats_new/whats_new_1.5.rst:22",
       "doc/users/prev_whats_new/whats_new_2.2.rst:70",
       "lib/matplotlib/backend_managers.py:docstring of matplotlib.backend_managers.ToolManager:21",
@@ -1407,8 +1406,9 @@
     "numpy.datetime64": [
       "doc/faq/howto_faq.rst:18",
       "doc/faq/howto_faq.rst:21",
+      "doc/faq/howto_faq.rst:30",
       "doc/gallery/recipes/common_date_problems.rst:34",
-      "doc/tutorials/text/text_intro.rst:581",
+      "doc/tutorials/text/text_intro.rst:580",
       "doc/users/prev_whats_new/whats_new_2.2.rst:155",
       "lib/matplotlib/dates.py:docstring of matplotlib.dates.date2num:8"
     ],
@@ -3199,12 +3199,6 @@
       "doc/devel/testing.rst:50",
       "doc/users/prev_whats_new/whats_new_2.1.0.rst:581"
     ],
-    "datetime64": [
-      "doc/faq/howto_faq.rst:30"
-    ],
-    "set_color": [
-      "doc/faq/howto_faq.rst:45"
-    ],
     "floating_axes.FloatingSubplot": [
       "doc/gallery/axisartist/demo_floating_axes.rst:20"
     ],
@@ -4004,12 +3998,6 @@
     "matplotlib.text.Text.__init__": [
       "doc/devel/contributing.rst:425",
       "doc/devel/contributing.rst:433"
-    ],
-    "Axes.tick_params": [
-      "doc/faq/howto_faq.rst:249"
-    ],
-    "Axis.set_tick_params": [
-      "doc/faq/howto_faq.rst:249"
     ],
     "matplotlib.patches.Rectangle.contains": [
       "doc/users/event_handling.rst:163"
