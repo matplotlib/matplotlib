@@ -503,6 +503,7 @@ def afmFontProperty(fontpath, font):
     return FontEntry(fontpath, name, style, variant, weight, stretch, size)
 
 
+@cbook.deprecated("3.2", alternative="FontManager.addfont")
 def createFontList(fontfiles, fontext='ttf'):
     """
     A function to create a font lookup list.  The default is to create
@@ -967,12 +968,54 @@ class FontManager:
             'ttf': 'DejaVu Sans',
             'afm': 'Helvetica'}
 
-        ttffiles = findSystemFonts(paths) + findSystemFonts()
-        self.ttflist = createFontList(ttffiles)
+        self.afmlist = []
+        self.ttflist = []
+        for fontext in ["afm", "ttf"]:
+            for path in [*findSystemFonts(paths, fontext=fontext),
+                         *findSystemFonts(fontext=fontext)]:
+                self.addfont(path)
 
-        afmfiles = (findSystemFonts(paths, fontext='afm')
-                    + findSystemFonts(fontext='afm'))
-        self.afmlist = createFontList(afmfiles, fontext='afm')
+    def addfont(self, path):
+        """
+        Cache the properties of the font at *path* to make it available to the
+        `FontManager`.  The type of font is inferred from the path suffix.
+
+        Parameters
+        ----------
+        path : str or path-like
+        """
+        if Path(path).suffix.lower() == ".afm":
+            try:
+                with open(path, "rb") as fh:
+                    font = afm.AFM(fh)
+            except EnvironmentError:
+                _log.info("Could not open font file %s", path)
+                return
+            except RuntimeError:
+                _log.info("Could not parse font file %s", path)
+                return
+            try:
+                prop = afmFontProperty(path, font)
+            except KeyError as exc:
+                _log.info("Could not extract properties for %s: %s", path, exc)
+                return
+            self.afmlist.append(prop)
+        else:
+            try:
+                font = ft2font.FT2Font(path)
+            except (OSError, RuntimeError) as exc:
+                _log.info("Could not open font file %s: %s", path, exc)
+                return
+            except UnicodeError:
+                _log.info("Cannot handle unicode filenames")
+                return
+            try:
+                prop = ttfFontProperty(font)
+            except (KeyError, RuntimeError, ValueError,
+                    NotImplementedError) as exc:
+                _log.info("Could not extract properties for %s: %s", path, exc)
+                return
+            self.ttflist.append(prop)
 
     @property
     def defaultFont(self):
