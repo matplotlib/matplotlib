@@ -1569,181 +1569,8 @@
       "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.SimplePatchShadow:39",
       "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.withSimplePatchShadow:40"
     ],
-    "Bbox.intervalx().get_bounds()": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:97"
-    ],
-    "Bbox.intervalx().set_bounds()": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:98"
-    ],
-    "Bbox.intervaly().get_bounds()": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:100"
-    ],
-    "Bbox.intervaly().set_bounds()": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:101"
-    ],
-    "Bbox.overlaps(bboxes)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:115"
-    ],
-    "Bbox.count_overlaps(bboxes)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:115"
-    ],
-    "bbox_all(bboxes)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:117"
-    ],
-    "Bbox.union(bboxes)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:117"
-    ],
-    "lbwh_to_bbox(l, b, w, h)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:120"
-    ],
-    "Bbox.from_bounds(x0, y0, w, h)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:120"
-    ],
-    "inverse_transform_bbox(trans, bbox)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:123"
-    ],
-    "Bbox.inverse_transformed(trans)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:123"
-    ],
-    "Interval.contains_open(v)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:125"
-    ],
-    "interval_contains_open(tuple, v)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:125"
-    ],
-    "Interval.contains(v)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:127"
-    ],
-    "interval_contains(tuple, v)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:127"
-    ],
-    "identity_transform()": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:129"
-    ],
-    "blend_xy_sep_transform(xtrans, ytrans)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:131"
-    ],
-    "blended_transform_factory(xtrans, ytrans)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:131"
-    ],
-    "scale_transform(xs, ys)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:133"
-    ],
-    "Affine2D().scale(xs[, ys])": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:133"
-    ],
-    "get_bbox_transform(boxin, boxout)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:135"
-    ],
-    "BboxTransform(boxin, boxout)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:135"
-    ],
-    "BboxTransformFrom(boxin)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:135"
-    ],
-    "BboxTransformTo(boxout)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:135"
-    ],
-    "Transform.seq_xy_tup(points)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:139"
-    ],
-    "Transform.transform(points)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:139"
-    ],
-    "Transform.inverse_xy_tup(points)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:141"
-    ],
-    "Transform.inverted().transform(points)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:141"
-    ],
-    "Axes.get_position()": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:156"
-    ],
-    "Axes.set_position()": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:158"
-    ],
-    "Axes.toggle_log_lineary()": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:160",
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:173"
-    ],
-    "Subplot": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:162"
-    ],
-    "Artist.set_clip_path(path)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:184"
-    ],
-    "Artist.set_clip_path(path, transform)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:184"
-    ],
     "linestyle": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:198",
       "doc/users/prev_whats_new/changelog.rst:232"
-    ],
-    "linestyles": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:198"
-    ],
-    "ColorConvertor.to_rgba_list(c)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:211"
-    ],
-    "ColorConvertor.to_rgba_array(c)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:211"
-    ],
-    "Contour._segments": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:222"
-    ],
-    "Figure.dpi.get()": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:232"
-    ],
-    "Figure.dpi.set()": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:232"
-    ],
-    "Patch.get_verts()": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:241"
-    ],
-    "GraphicsContext.set_clip_rectangle(tuple)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:251"
-    ],
-    "GraphicsContext.set_clip_rectangle(bbox)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:251"
-    ],
-    "GraphicsContext.get_clip_path()": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:253"
-    ],
-    "GraphicsContext.set_clip_path()": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:255"
-    ],
-    "draw_image(self, x, y, im, bbox)": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:278"
-    ],
-    "draw_arc": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:284"
-    ],
-    "draw_line_collection": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:286"
-    ],
-    "draw_line": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:288"
-    ],
-    "draw_lines": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:290"
-    ],
-    "draw_point": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:292"
-    ],
-    "draw_quad_mesh": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:294"
-    ],
-    "draw_poly_collection": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:296"
-    ],
-    "draw_polygon": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:298"
-    ],
-    "draw_rectangle": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:300"
-    ],
-    "draw_regpoly_collection": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:302"
     ],
     "rasterization_zorder": [
       "doc/api/prev_api_changes/api_changes_1.2.x.rst:10"
@@ -3869,63 +3696,6 @@
       "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.SimplePatchShadow:43",
       "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.withSimplePatchShadow:44"
     ],
-    "Figure.colorbar": [
-      "doc/api/prev_api_changes/api_changes_0.91.0.rst:8"
-    ],
-    "FT_Attach_File": [
-      "doc/api/prev_api_changes/api_changes_0.91.0.rst:35"
-    ],
-    "matplotlib.cm.ScalarMappable.add_observer": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:10"
-    ],
-    "matplotlib.axes.Axes.set_color_cycle": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:18"
-    ],
-    "matplotlib.ticker.Locator.create_dummy_axis": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:64"
-    ],
-    "Bbox.get_bounds": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:91"
-    ],
-    "Bbox.width": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:93"
-    ],
-    "Bbox.height": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:95"
-    ],
-    "Bbox.xmin": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:103"
-    ],
-    "Bbox.ymin": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:106"
-    ],
-    "Bbox.xmax": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:109"
-    ],
-    "Bbox.ymax": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:112"
-    ],
-    "transforms.Bbox.union": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:117"
-    ],
-    "transforms.Bbox.from_bounds": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:120"
-    ],
-    "matplotlib.colors.ColorConvertor.to_rgba_array": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:211"
-    ],
-    "matplotlib.contour.Contour.get_paths": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:222"
-    ],
-    "matplotlib.backend_bases.GraphicsContext.get_clip_path": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:304"
-    ],
-    "matplotlib.backend_bases.GraphicsContext.set_clip_path": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:310"
-    ],
-    "matplotlib.axes.Axes.get_frame": [
-      "doc/api/prev_api_changes/api_changes_0.98.x.rst:89"
-    ],
     "matplotlib.cbook.isvector": [
       "doc/api/prev_api_changes/api_changes_1.2.x.rst:7"
     ],
@@ -4304,21 +4074,6 @@
     "numpy.uint8": [
       "<unknown>:1"
     ],
-    "AFM": [
-      "doc/api/prev_api_changes/api_changes_0.91.0.rst:40"
-    ],
-    "Pbox": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:74"
-    ],
-    "Bbox": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:143"
-    ],
-    "Polar": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:164"
-    ],
-    "matplotlib.label.Label": [
-      "doc/api/prev_api_changes/api_changes_0.98.x.rst:31"
-    ],
     "matplotlib.colors.ColorConverter": [
       "doc/api/prev_api_changes/api_changes_1.2.x.rst:140"
     ],
@@ -4518,78 +4273,18 @@
     "matplotlib.colors.Colormap.name": [
       "lib/matplotlib/cm.py:docstring of matplotlib.cm.register_cmap:10"
     ],
-    "matplotlib.cm.ScalarMappable.callbacks": [
+    "matplotlib.cm.ScalarMappable.callbacksSM": [
       "doc/api/prev_api_changes/api_changes_0.98.0.rst:10"
-    ],
-    "transforms.Bbox.bounds": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:91"
-    ],
-    "transforms.Bbox.width": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:93"
-    ],
-    "transforms.Bbox.height": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:95"
-    ],
-    "transforms.Bbox.intervalx": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:97"
-    ],
-    "Bbox.intervalx": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:98"
-    ],
-    "transforms.Bbox.intervaly": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:100"
-    ],
-    "Bbox.intervaly": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:101"
-    ],
-    "transforms.Bbox.x0": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:103"
-    ],
-    "transforms.Bbox.xmin": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:103"
-    ],
-    "transforms.Bbox.y0": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:106"
-    ],
-    "transforms.Bbox.ymin": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:106"
-    ],
-    "transforms.Bbox.x1": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:109"
-    ],
-    "transforms.Bbox.xmax": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:109"
-    ],
-    "transforms.Bbox.y1": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:112"
-    ],
-    "transforms.Bbox.ymax": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:112"
-    ],
-    "matplotlib.transforms.Bbox.xmin": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:143"
-    ],
-    "viewlim": [
-      "doc/api/prev_api_changes/api_changes_0.98.x.rst:62"
-    ],
-    "matplotlib.figure.Figure.figurePatch": [
-      "doc/api/prev_api_changes/api_changes_0.98.x.rst:89"
     ],
     "matplotlib.figure.Figure.patch": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89",
       "doc/tutorials/intermediate/artists.rst:172",
       "doc/tutorials/intermediate/artists.rst:285"
     ],
-    "matplotlib.axes.Axes.axesPatch": [
-      "doc/api/prev_api_changes/api_changes_0.98.x.rst:89"
-    ],
     "matplotlib.axes.Axes.patch": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89",
       "doc/tutorials/intermediate/artists.rst:172",
       "doc/tutorials/intermediate/artists.rst:384"
-    ],
-    "matplotlib.axes.Axes.axesFrame": [
-      "doc/api/prev_api_changes/api_changes_0.98.x.rst:89"
     ],
     "matplotlib.axes.Axes.frame": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89"
@@ -4712,40 +4407,6 @@
     ],
     "findfont": [
       "lib/matplotlib/font_manager.py:docstring of matplotlib.font_manager:3"
-    ],
-    "cbook.is_file_like": [
-      "doc/api/prev_api_changes/api_changes_0.91.0.rst:5"
-    ],
-    "cbook.is_writable_file_like": [
-      "doc/api/prev_api_changes/api_changes_0.91.0.rst:5"
-    ],
-    "pyplot.colorbar": [
-      "doc/api/prev_api_changes/api_changes_0.91.0.rst:8"
-    ],
-    "cbook.reversed": [
-      "doc/api/prev_api_changes/api_changes_0.91.0.rst:13"
-    ],
-    "csv2rec": [
-      "doc/api/prev_api_changes/api_changes_0.91.0.rst:18",
-      "doc/api/prev_api_changes/api_changes_0.91.2.rst:5"
-    ],
-    "pcolor": [
-      "doc/api/prev_api_changes/api_changes_0.91.0.rst:44"
-    ],
-    "rec2gtk": [
-      "doc/api/prev_api_changes/api_changes_0.91.2.rst:11"
-    ],
-    "rec2excel": [
-      "doc/api/prev_api_changes/api_changes_0.91.2.rst:13"
-    ],
-    "matplotlib.axes.set_default_color_cycle": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:18"
-    ],
-    "izip": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:22"
-    ],
-    "matplotlib.Axes.set_default_color_cycle": [
-      "doc/api/prev_api_changes/api_changes_0.99.x.rst:57"
     ],
     "matplotlib.projections.projection_factory": [
       "doc/api/prev_api_changes/api_changes_1.2.x.rst:42"
@@ -4903,26 +4564,11 @@
     "matplotlib._png": [
       "doc/api/next_api_changes/2019-01-02-AL.rst:4"
     ],
-    "matplotlib.FT2Font": [
-      "doc/api/prev_api_changes/api_changes_0.91.0.rst:35"
+    "matplotlib.ft2font": [
+      "doc/api/prev_api_changes/api_changes_0.91.0.rst:34"
     ],
-    "matplotlib.toolkits.gtktools": [
-      "doc/api/prev_api_changes/api_changes_0.91.2.rst:11"
-    ],
-    "matplotlib.toolkits.exceltools": [
-      "doc/api/prev_api_changes/api_changes_0.91.2.rst:13"
-    ],
-    "matplotlib.__init__": [
+    "matplotlib": [
       "doc/api/prev_api_changes/api_changes_0.91.2.rst:15"
-    ],
-    "matplotlib.axes3d": [
-      "doc/api/prev_api_changes/api_changes_0.98.1.rst:4"
-    ],
-    "matplotlib._pylab_helpers": [
-      "doc/api/prev_api_changes/api_changes_0.98.x.rst:16"
-    ],
-    "matplotlib.numerical_methods": [
-      "doc/api/prev_api_changes/api_changes_0.98.x.rst:106"
     ],
     "matplotlib.compat.subprocess": [
       "doc/api/prev_api_changes/api_changes_3.0.0.rst:352"
