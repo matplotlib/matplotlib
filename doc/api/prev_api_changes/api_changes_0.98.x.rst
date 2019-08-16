@@ -1,10 +1,10 @@
 
 Changes for 0.98.x
 ==================
-* psd(), csd(), and cohere() will now automatically wrap negative
+* ``psd()``, ``csd()``, and ``cohere()`` will now automatically wrap negative
   frequency components to the beginning of the returned arrays.
   This is much more sensible behavior and makes them consistent
-  with specgram().  The previous behavior was more of an oversight
+  with ``specgram()``.  The previous behavior was more of an oversight
   than a design decision.
 
 * Added new keyword parameters *nonposx*, *nonposy* to
@@ -15,7 +15,7 @@ Changes for 0.98.x
 
 * Added new :func:`matplotlib.pyplot.fignum_exists` and
   :func:`matplotlib.pyplot.get_fignums`; they merely expose
-  information that had been hidden in :mod:`matplotlib._pylab_helpers`.
+  information that had been hidden in ``matplotlib._pylab_helpers``.
 
 * Deprecated numerix package.
 
@@ -28,7 +28,7 @@ Changes for 0.98.x
 * Changed the defaults of acorr and xcorr to use usevlines=True,
   maxlags=10 and normed=True since these are the best defaults
 
-* Following keyword parameters for :class:`matplotlib.label.Label` are now
+* Following keyword parameters for :class:`matplotlib.legend.Legend` are now
   deprecated and new set of parameters are introduced. The new parameters
   are given as a fraction of the font-size. Also, *scatteryoffsets*,
   *fancybox* and *columnspacing* are added as keyword parameters.
@@ -61,7 +61,7 @@ Changes for 0.98.x
 
 * :meth:`matplotlib.axes.Axes.set_xlim`,
   :meth:`matplotlib.axes.Axes.set_ylim` now return a copy of the
-  :attr:`viewlim` array to avoid modify-in-place surprises.
+  ``viewlim`` array to avoid modify-in-place surprises.
 
 * :meth:`matplotlib.afm.AFM.get_fullname` and
   :meth:`matplotlib.afm.AFM.get_familyname` no longer raise an
@@ -86,13 +86,13 @@ Changes for 0.98.x
   :meth:`matplotlib.collections.Collection.set_offsets` added to
   :class:`~matplotlib.collections.Collection` base class.
 
-* :attr:`matplotlib.figure.Figure.figurePatch` renamed
+* ``matplotlib.figure.Figure.figurePatch`` renamed
   :attr:`matplotlib.figure.Figure.patch`;
-  :attr:`matplotlib.axes.Axes.axesPatch` renamed
+  ``matplotlib.axes.Axes.axesPatch`` renamed
   :attr:`matplotlib.axes.Axes.patch`;
-  :attr:`matplotlib.axes.Axes.axesFrame` renamed
+  ``matplotlib.axes.Axes.axesFrame`` renamed
   :attr:`matplotlib.axes.Axes.frame`.
-  :meth:`matplotlib.axes.Axes.get_frame`, which returns
+  ``matplotlib.axes.Axes.get_frame``, which returns
   :attr:`matplotlib.axes.Axes.patch`, is deprecated.
 
 * Changes in the :class:`matplotlib.contour.ContourLabeler` attributes
@@ -105,6 +105,6 @@ Changes for 0.98.x
 
 * Moved several functions in :mod:`matplotlib.mlab` and
   :mod:`matplotlib.cbook` into a separate module
-  :mod:`matplotlib.numerical_methods` because they were unrelated to
+  ``matplotlib.numerical_methods`` because they were unrelated to
   the initial purpose of mlab or cbook and appeared more coherent
   elsewhere.

@@ -493,8 +493,8 @@ backends.
 
 DateFormatter strftime
 ``````````````````````
-:class:`~matplotlib.dates.DateFormatter`s'
-:meth:`~matplotlib.dates.DateFormatter.strftime` method will format
+:class:`~matplotlib.dates.DateFormatter`\ 's
+:meth:`~matplotlib.dates.DateFormatter.__call__` method will format
 a :class:`datetime.datetime` object with the format string passed to
 the formatter's constructor. This method accepts datetimes with years
 before 1900, unlike :meth:`datetime.datetime.strftime`.

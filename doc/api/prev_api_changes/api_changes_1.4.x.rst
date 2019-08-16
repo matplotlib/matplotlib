@@ -46,7 +46,7 @@ original location:
   the upper and lower limits (*lolims*, *uplims*, *xlolims*, *xuplims*) now
   point in the correct direction.
 
-* The *fmt* kwarg for :func:`~matplotlib.pyplot.errorbar now supports
+* The *fmt* kwarg for :func:`~matplotlib.pyplot.errorbar` now supports
   the string 'none' to suppress drawing of a line and markers; use
   of the *None* object for this is deprecated. The default *fmt*
   value is changed to the empty string (''), so the line and markers
@@ -72,7 +72,7 @@ original location:
 * For consistency the ``face_alpha`` keyword to
   :class:`matplotlib.patheffects.SimplePatchShadow` has been deprecated in
   favour of the ``alpha`` keyword. Similarly, the keyword ``offset_xy`` is now
-  named ``offset`` across all :class:`~matplotlib.patheffects.AbstractPathEffect`s.
+  named ``offset`` across all :class:`~matplotlib.patheffects.AbstractPathEffect`\ s.
   ``matplotlib.patheffects._Base`` has
   been renamed to :class:`matplotlib.patheffects.AbstractPathEffect`.
   ``matplotlib.patheffect.ProxyRenderer`` has been renamed to
