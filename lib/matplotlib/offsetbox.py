@@ -608,12 +608,9 @@ class PaddedBox(OffsetBox):
         # docstring inherited.
         dpicor = renderer.points_to_pixels(1.)
         pad = self.pad * dpicor
-
         w, h, xd, yd = self._children[0].get_extent(renderer)
-
-        return w + 2 * pad, h + 2 * pad, \
-               xd + pad, yd + pad, \
-               [(0, 0)]
+        return (w + 2 * pad, h + 2 * pad, xd + pad, yd + pad,
+                [(0, 0)])
 
     def draw(self, renderer):
         """
@@ -668,19 +665,13 @@ class DrawingArea(OffsetBox):
         *xdescent*, *ydescent* : descent of the box in x- and y-direction.
         *clip* : Whether to clip the children
         """
-
         super().__init__()
-
         self.width = width
         self.height = height
         self.xdescent = xdescent
         self.ydescent = ydescent
         self._clip_children = clip
-
         self.offset_transform = mtransforms.Affine2D()
-        self.offset_transform.clear()
-        self.offset_transform.translate(0, 0)
-
         self.dpi_transform = mtransforms.Affine2D()
 
     @property
@@ -698,8 +689,7 @@ class DrawingArea(OffsetBox):
 
     def get_transform(self):
         """
-        Return the :class:`~matplotlib.transforms.Transform` applied
-        to the children
+        Return the `~matplotlib.transforms.Transform` applied to the children.
         """
         return self.dpi_transform + self.offset_transform
 
@@ -707,7 +697,6 @@ class DrawingArea(OffsetBox):
         """
         set_transform is ignored.
         """
-        pass
 
     def set_offset(self, xy):
         """
@@ -719,7 +708,6 @@ class DrawingArea(OffsetBox):
             The (x, y) coordinates of the offset in display units.
         """
         self._offset = xy
-
         self.offset_transform.clear()
         self.offset_transform.translate(xy[0], xy[1])
         self.stale = True
@@ -745,8 +733,8 @@ class DrawingArea(OffsetBox):
         """
 
         dpi_cor = renderer.points_to_pixels(1.)
-        return self.width * dpi_cor, self.height * dpi_cor, \
-               self.xdescent * dpi_cor, self.ydescent * dpi_cor
+        return (self.width * dpi_cor, self.height * dpi_cor,
+                self.xdescent * dpi_cor, self.ydescent * dpi_cor)
 
     def add_artist(self, a):
         'Add any :class:`~matplotlib.artist.Artist` to the container box'
@@ -816,23 +804,14 @@ class TextArea(OffsetBox):
         """
         if textprops is None:
             textprops = {}
-
-        if "va" not in textprops:
-            textprops["va"] = "baseline"
-
+        textprops.setdefault("va", "baseline")
         self._text = mtext.Text(0, 0, s, **textprops)
-
         OffsetBox.__init__(self)
-
         self._children = [self._text]
-
         self.offset_transform = mtransforms.Affine2D()
-        self.offset_transform.clear()
-        self.offset_transform.translate(0, 0)
         self._baseline_transform = mtransforms.Affine2D()
         self._text.set_transform(self.offset_transform +
                                  self._baseline_transform)
-
         self._multilinebaseline = multilinebaseline
         self._minimumdescent = minimumdescent
 
@@ -881,7 +860,6 @@ class TextArea(OffsetBox):
         """
         set_transform is ignored.
         """
-        pass
 
     def set_offset(self, xy):
         """
@@ -893,7 +871,6 @@ class TextArea(OffsetBox):
             The (x, y) coordinates of the offset in display units.
         """
         self._offset = xy
-
         self.offset_transform.clear()
         self.offset_transform.translate(xy[0], xy[1])
         self.stale = True
@@ -969,16 +946,10 @@ class AuxTransformBox(OffsetBox):
     def __init__(self, aux_transform):
         self.aux_transform = aux_transform
         OffsetBox.__init__(self)
-
         self.offset_transform = mtransforms.Affine2D()
-        self.offset_transform.clear()
-        self.offset_transform.translate(0, 0)
-
-        # ref_offset_transform is used to make the offset_transform is
-        # always reference to the lower-left corner of the bbox of its
-        # children.
+        # ref_offset_transform makes offset_transform always relative to the
+        # lower-left corner of the bbox of its children.
         self.ref_offset_transform = mtransforms.Affine2D()
-        self.ref_offset_transform.clear()
 
     def add_artist(self, a):
         'Add any :class:`~matplotlib.artist.Artist` to the container box'
@@ -991,15 +962,14 @@ class AuxTransformBox(OffsetBox):
         Return the :class:`~matplotlib.transforms.Transform` applied
         to the children
         """
-        return self.aux_transform + \
-               self.ref_offset_transform + \
-               self.offset_transform
+        return (self.aux_transform
+                + self.ref_offset_transform
+                + self.offset_transform)
 
     def set_transform(self, t):
         """
         set_transform is ignored.
         """
-        pass
 
     def set_offset(self, xy):
         """
@@ -1011,7 +981,6 @@ class AuxTransformBox(OffsetBox):
             The (x, y) coordinates of the offset in display units.
         """
         self._offset = xy
-
         self.offset_transform.clear()
         self.offset_transform.translate(xy[0], xy[1])
         self.stale = True
