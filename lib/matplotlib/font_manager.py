@@ -44,48 +44,48 @@ from matplotlib.fontconfig_pattern import (
 _log = logging.getLogger(__name__)
 
 font_scalings = {
-    'xx-small' : 0.579,
-    'x-small'  : 0.694,
-    'small'    : 0.833,
-    'medium'   : 1.0,
-    'large'    : 1.200,
-    'x-large'  : 1.440,
-    'xx-large' : 1.728,
-    'larger'   : 1.2,
-    'smaller'  : 0.833,
-    None       : 1.0}
-
+    'xx-small': 0.579,
+    'x-small':  0.694,
+    'small':    0.833,
+    'medium':   1.0,
+    'large':    1.200,
+    'x-large':  1.440,
+    'xx-large': 1.728,
+    'larger':   1.2,
+    'smaller':  0.833,
+    None:       1.0,
+}
 stretch_dict = {
-    'ultra-condensed' : 100,
-    'extra-condensed' : 200,
-    'condensed'       : 300,
-    'semi-condensed'  : 400,
-    'normal'          : 500,
-    'semi-expanded'   : 600,
-    'semi-extended'   : 600,
-    'expanded'        : 700,
-    'extended'        : 700,
-    'extra-expanded'  : 800,
-    'extra-extended'  : 800,
-    'ultra-expanded'  : 900,
-    'ultra-extended'  : 900}
-
+    'ultra-condensed': 100,
+    'extra-condensed': 200,
+    'condensed':       300,
+    'semi-condensed':  400,
+    'normal':          500,
+    'semi-expanded':   600,
+    'semi-extended':   600,
+    'expanded':        700,
+    'extended':        700,
+    'extra-expanded':  800,
+    'extra-extended':  800,
+    'ultra-expanded':  900,
+    'ultra-extended':  900,
+}
 weight_dict = {
-    'ultralight' : 100,
-    'light'      : 200,
-    'normal'     : 400,
-    'regular'    : 400,
-    'book'       : 400,
-    'medium'     : 500,
-    'roman'      : 500,
-    'semibold'   : 600,
-    'demibold'   : 600,
-    'demi'       : 600,
-    'bold'       : 700,
-    'heavy'      : 800,
-    'extra bold' : 800,
-    'black'      : 900}
-
+    'ultralight': 100,
+    'light':      200,
+    'normal':     400,
+    'regular':    400,
+    'book':       400,
+    'medium':     500,
+    'roman':      500,
+    'semibold':   600,
+    'demibold':   600,
+    'demi':       600,
+    'bold':       700,
+    'heavy':      800,
+    'extra bold': 800,
+    'black':      900,
+}
 font_family_aliases = {
     'serif',
     'sans-serif',
@@ -93,9 +93,9 @@ font_family_aliases = {
     'cursive',
     'fantasy',
     'monospace',
-    'sans'}
-
-#  OS Font paths
+    'sans',
+}
+# OS Font paths
 MSFolders = \
     r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
 MSFontDirectories = [
@@ -411,12 +411,11 @@ def ttfFontProperty(font):
     #  Relative stretches are: wider, narrower
     #  Child value is: inherit
 
-    if (sfnt4.find('narrow') >= 0 or sfnt4.find('condensed') >= 0 or
-            sfnt4.find('cond') >= 0):
+    if any(word in sfnt4 for word in ['narrow', 'condensed', 'cond']):
         stretch = 'condensed'
-    elif sfnt4.find('demi cond') >= 0:
+    elif 'demi cond' in sfnt4:
         stretch = 'semi-condensed'
-    elif sfnt4.find('wide') >= 0 or sfnt4.find('expanded') >= 0 or sfnt4.find('extended') >= 0:
+    elif any(word in sfnt4 for word in ['wide', 'expanded', 'extended']):
         stretch = 'expanded'
     else:
         stretch = 'normal'
@@ -482,9 +481,9 @@ def afmFontProperty(fontpath, font):
     #  Child value is: inherit
     if 'demi cond' in fontname:
         stretch = 'semi-condensed'
-    elif 'narrow' in fontname or 'cond' in fontname:
+    elif any(word in fontname for word in ['narrow', 'cond']):
         stretch = 'condensed'
-    elif 'wide' in fontname or 'expanded' in fontname or 'extended' in fontname:
+    elif any(word in fontname for word in ['wide', 'expanded', 'extended']):
         stretch = 'expanded'
     else:
         stretch = 'normal'
