@@ -26,14 +26,11 @@ class AbstractPathEffect:
             The offset to apply to the path, measured in points.
         """
         self._offset = offset
-        self._offset_trans = mtransforms.Affine2D()
 
-    def _offset_transform(self, renderer, transform):
+    def _offset_transform(self, renderer):
         """Apply the offset to the given transform."""
-        offset_x = renderer.points_to_pixels(self._offset[0])
-        offset_y = renderer.points_to_pixels(self._offset[1])
-        return transform + self._offset_trans.clear().translate(offset_x,
-                                                                offset_y)
+        return mtransforms.Affine2D().translate(
+            *map(renderer.points_to_pixels, self._offset))
 
     def _update_gc(self, gc, new_gc_dict):
         """
@@ -180,14 +177,11 @@ class Stroke(AbstractPathEffect):
         """
         Draw the path with updated gc.
         """
-        # Do not modify the input! Use copy instead.
-
-        gc0 = renderer.new_gc()
+        gc0 = renderer.new_gc()  # Don't modify gc, but a copy!
         gc0.copy_properties(gc)
-
         gc0 = self._update_gc(gc0, self._gc)
-        trans = self._offset_transform(renderer, affine)
-        renderer.draw_path(gc0, tpath, trans, rgbFace)
+        renderer.draw_path(
+            gc0, tpath, affine + self._offset_transform(renderer), rgbFace)
         gc0.restore()
 
 
@@ -246,11 +240,8 @@ class SimplePatchShadow(AbstractPathEffect):
         """
         Overrides the standard draw_path to add the shadow offset and
         necessary color changes for the shadow.
-
         """
-        # IMPORTANT: Do not modify the input - we copy everything instead.
-        affine0 = self._offset_transform(renderer, affine)
-        gc0 = renderer.new_gc()
+        gc0 = renderer.new_gc()  # Don't modify gc, but a copy!
         gc0.copy_properties(gc)
 
         if self._shadow_rgbFace is None:
@@ -265,7 +256,9 @@ class SimplePatchShadow(AbstractPathEffect):
         gc0.set_linewidth(0)
 
         gc0 = self._update_gc(gc0, self._gc)
-        renderer.draw_path(gc0, tpath, affine0, shadow_rgbFace)
+        renderer.draw_path(
+            gc0, tpath, affine + self._offset_transform(renderer),
+            shadow_rgbFace)
         gc0.restore()
 
 
@@ -317,11 +310,8 @@ class SimpleLineShadow(AbstractPathEffect):
         """
         Overrides the standard draw_path to add the shadow offset and
         necessary color changes for the shadow.
-
         """
-        # IMPORTANT: Do not modify the input - we copy everything instead.
-        affine0 = self._offset_transform(renderer, affine)
-        gc0 = renderer.new_gc()
+        gc0 = renderer.new_gc()  # Don't modify gc, but a copy!
         gc0.copy_properties(gc)
 
         if self._shadow_color is None:
@@ -331,13 +321,12 @@ class SimpleLineShadow(AbstractPathEffect):
         else:
             shadow_rgbFace = self._shadow_color
 
-        fill_color = None
-
         gc0.set_foreground(shadow_rgbFace)
         gc0.set_alpha(self._alpha)
 
         gc0 = self._update_gc(gc0, self._gc)
-        renderer.draw_path(gc0, tpath, affine0, fill_color)
+        renderer.draw_path(
+            gc0, tpath, affine + self._offset_transform(renderer))
         gc0.restore()
 
 
@@ -363,9 +352,8 @@ class PathPatchEffect(AbstractPathEffect):
         self.patch = mpatches.PathPatch([], **kwargs)
 
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):
-        affine = self._offset_transform(renderer, affine)
         self.patch._path = tpath
-        self.patch.set_transform(affine)
+        self.patch.set_transform(affine + self._offset_transform(renderer))
         self.patch.set_clip_box(gc.get_clip_rectangle())
         clip_path = gc.get_clip_path()
         if clip_path:
