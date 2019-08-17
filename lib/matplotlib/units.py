@@ -138,6 +138,14 @@ class ConversionInterface:
         return obj
 
     @staticmethod
+    def un_convert(data, unit, axis):
+        """
+        Convert data that has already been converted back to its original
+        value.
+        """
+        return data
+
+    @staticmethod
     def is_numlike(x):
         """
         The Matplotlib datalim, autoscaling, locators etc work with scalars

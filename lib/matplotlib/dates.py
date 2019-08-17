@@ -1873,15 +1873,13 @@ def weeks(w):
     return w * DAYS_PER_WEEK
 
 
-class DateConverter(units.ConversionInterface):
+class BaseDateConverter(units.ConversionInterface):
     """
-    Converter for datetime.date and datetime.datetime data,
-    or for date/time data represented as it would be converted
-    by :func:`date2num`.
+    A base converter for datetime.date and datetime.datetime data, or for
+    date/time data represented as it would be converted by :func:`date2num`.
 
     The 'unit' tag for such data is None or a tzinfo instance.
     """
-
     @staticmethod
     def axisinfo(unit, axis):
         """
@@ -1930,6 +1928,24 @@ class DateConverter(units.ConversionInterface):
         return None
 
 
+class DateConverter(BaseDateConverter):
+    @staticmethod
+    def un_convert(value, unit, axis):
+        return num2date(value)
+
+
+class Datetime64Converter(BaseDateConverter):
+    @staticmethod
+    def un_convert(value, unit, axis):
+        return np.datetime64(num2date(value).replace(tzinfo=None))
+
+
+class DatetimeConverter(BaseDateConverter):
+    @staticmethod
+    def un_convert(value, unit, axis):
+        return num2date(value)
+
+
 class ConciseDateConverter(DateConverter):
     """
     Converter for datetime.date and datetime.datetime data,
@@ -1968,6 +1984,6 @@ class ConciseDateConverter(DateConverter):
                               default_limits=(datemin, datemax))
 
 
-units.registry[np.datetime64] = DateConverter()
+units.registry[np.datetime64] = Datetime64Converter()
 units.registry[datetime.date] = DateConverter()
-units.registry[datetime.datetime] = DateConverter()
+units.registry[datetime.datetime] = DatetimeConverter()

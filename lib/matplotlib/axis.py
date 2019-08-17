@@ -1576,6 +1576,16 @@ class Axis(martist.Artist):
                                          f'units: {x!r}') from e
         return ret
 
+    @property
+    def _can_unconvert_units(self):
+        if self.converter is not None:
+            if hasattr(self.converter, 'un_convert'):
+                return True
+        return False
+
+    def unconvert_units(self, x):
+        return self.converter.un_convert(x, self.units, self)
+
     def set_units(self, u):
         """
         Set the units for axis.
