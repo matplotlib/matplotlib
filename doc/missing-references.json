@@ -3504,7 +3504,7 @@
     "matplotlib.dviread.Font": [
       "<unknown>:1"
     ],
-    "json.encoder.JSONEncoder": [
+    "matplotlib.font_manager._JSONEncoder": [
       "lib/matplotlib/font_manager.py:docstring of matplotlib.font_manager.JSONEncoder:1"
     ],
     "font_manager.FontProperties": [

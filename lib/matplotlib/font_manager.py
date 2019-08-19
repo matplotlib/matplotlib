@@ -858,7 +858,7 @@ class FontProperties:
         return new
 
 
-class JSONEncoder(json.JSONEncoder):
+class _JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, FontManager):
             return dict(o.__dict__, __class__='FontManager')
@@ -874,6 +874,11 @@ class JSONEncoder(json.JSONEncoder):
             return d
         else:
             return super().default(o)
+
+
+@cbook.deprecated("3.2", alternative="json_dump")
+class JSONEncoder(_JSONEncoder):
+    pass
 
 
 def _json_decode(o):
@@ -896,26 +901,32 @@ def _json_decode(o):
 
 def json_dump(data, filename):
     """
-    Dumps a data structure as JSON in the named file.
+    Dump `FontManager` *data* as JSON to the file named *filename*.
 
-    Handles FontManager and its fields.  File paths that are children of the
-    Matplotlib data path (typically, fonts shipped with Matplotlib) are stored
-    relative to that data path (to remain valid across virtualenvs).
+    Notes
+    -----
+    File paths that are children of the Matplotlib data path (typically, fonts
+    shipped with Matplotlib) are stored relative to that data path (to remain
+    valid across virtualenvs).
+
+    See Also
+    --------
+    json_load
     """
     with open(filename, 'w') as fh:
         try:
-            json.dump(data, fh, cls=JSONEncoder, indent=2)
+            json.dump(data, fh, cls=_JSONEncoder, indent=2)
         except OSError as e:
             _log.warning('Could not save font_manager cache {}'.format(e))
 
 
 def json_load(filename):
     """
-    Loads a data structure as JSON from the named file.
+    Load a `FontManager` from the JSON file named *filename*.
 
-    Handles FontManager and its fields.  Relative file paths are interpreted
-    as being relative to the Matplotlib data path, and transformed into
-    absolute paths.
+    See Also
+    --------
+    json_dump
     """
     with open(filename, 'r') as fh:
         return json.load(fh, object_hook=_json_decode)
