@@ -324,8 +324,7 @@ def switch_backend(newbackend):
     # Need to keep a global reference to the backend for compatibility reasons.
     # See https://github.com/matplotlib/matplotlib/issues/6092
     matplotlib.backends.backend = newbackend
-    if not (isinstance(old_backend, str) and
-            old_backend.lower() == newbackend.lower()):
+    if not cbook._str_equal(old_backend, newbackend):
         close("all")
 
     # make sure the repl display hook is installed in case we become
