@@ -70,6 +70,9 @@ endtrans %}
 {% trans sphinx_version=sphinx_version|e %}Created using
 <a href="http://sphinx-doc.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
 {%- endif %}
+{%- if sha %}
+Doc version {{ sha }}.
+{%- endif %}
     </div>
 </footer>
 <script>
