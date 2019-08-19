@@ -190,7 +190,7 @@ class Axis(maxis.XAxis):
         return mins, maxs, centers, deltas, tc, highs
 
     def draw_pane(self, renderer):
-        renderer.open_group('pane3d')
+        renderer.open_group('pane3d', gid=self.get_gid())
 
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
@@ -209,7 +209,7 @@ class Axis(maxis.XAxis):
     @artist.allow_rasterization
     def draw(self, renderer):
         self.label._transform = self.axes.transData
-        renderer.open_group('axis3d')
+        renderer.open_group('axis3d', gid=self.get_gid())
 
         ticks = self._update_ticks()
 

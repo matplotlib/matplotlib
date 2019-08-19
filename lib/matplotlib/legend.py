@@ -633,7 +633,7 @@ class Legend(Artist):
         if not self.get_visible():
             return
 
-        renderer.open_group('legend')
+        renderer.open_group('legend', gid=self.get_gid())
 
         fontsize = renderer.points_to_pixels(self._fontsize)
 

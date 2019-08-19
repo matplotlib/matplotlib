@@ -291,7 +291,7 @@ class Tick(martist.Artist):
         if not self.get_visible():
             self.stale = False
             return
-        renderer.open_group(self.__name__)
+        renderer.open_group(self.__name__, gid=self.get_gid())
         for artist in [self.gridline, self.tick1line, self.tick2line,
                        self.label1, self.label2]:
             artist.draw(renderer)
@@ -1222,7 +1222,7 @@ class Axis(martist.Artist):
 
         if not self.get_visible():
             return
-        renderer.open_group(__name__)
+        renderer.open_group(__name__, gid=self.get_gid())
 
         ticks_to_draw = self._update_ticks()
         ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw,

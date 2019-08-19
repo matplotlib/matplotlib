@@ -411,7 +411,7 @@ class Table(Artist):
 
         if not self.get_visible():
             return
-        renderer.open_group('table')
+        renderer.open_group('table', gid=self.get_gid())
         self._update_positions(renderer)
 
         for key in sorted(self._cells):
