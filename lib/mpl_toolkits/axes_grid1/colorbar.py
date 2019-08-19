@@ -20,6 +20,7 @@ is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
 
 import numpy as np
 import matplotlib as mpl
+from matplotlib import cbook
 import matplotlib.colors as colors
 import matplotlib.cm as cm
 from matplotlib import docstring
@@ -29,6 +30,10 @@ import matplotlib.contour as contour
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.transforms import Bbox
+
+
+cbook.warn_deprecated(
+    "3.2", name="axes_grid1.colorbar", alternative="matplotlib.colorbar")
 
 
 make_axes_kw_doc = '''
