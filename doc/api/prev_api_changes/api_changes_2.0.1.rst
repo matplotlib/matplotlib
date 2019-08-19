@@ -24,22 +24,22 @@ required that third-party backends extend
 these changes easier.
 
 
-`afm.get_fontconfig_fonts` returns a list of paths and does not check for existence
------------------------------------------------------------------------------------
+``afm.get_fontconfig_fonts`` returns a list of paths and does not check for existence
+-------------------------------------------------------------------------------------
 
-`afm.get_fontconfig_fonts` used to return a set of paths encoded as a
+``afm.get_fontconfig_fonts`` used to return a set of paths encoded as a
 ``{key: 1, ...}`` dict, and checked for the existence of the paths.  It now
 returns a list and dropped the existence check, as the same check is performed
-by the caller (`afm.findSystemFonts`) as well.
+by the caller (``afm.findSystemFonts``) as well.
 
 
-`bar` now returns rectangles of negative height or width if the corresponding input is negative
------------------------------------------------------------------------------------------------
+``bar`` now returns rectangles of negative height or width if the corresponding input is negative
+-------------------------------------------------------------------------------------------------
 
-`plt.bar` used to normalize the coordinates of the rectangles that it created,
-to keep their height and width positives, even if the corresponding input was
-negative.  This normalization has been removed to permit a simpler computation
-of the correct `sticky_edges` to use.
+`.pyplot.bar` used to normalize the coordinates of the rectangles that it
+created, to keep their height and width positives, even if the corresponding
+input was negative.  This normalization has been removed to permit a simpler
+computation of the correct `.Artist.sticky_edges` to use.
 
 
 Do not clip line width when scaling dashes
