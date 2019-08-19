@@ -215,6 +215,7 @@ class TimerQT(TimerBase):
 
 
 class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
+    required_interactive_framework = "qt5"
 
     # map Qt button codes to MouseEvent's ones:
     buttond = {QtCore.Qt.LeftButton: MouseButton.LEFT,
@@ -1026,7 +1027,6 @@ backend_tools.ToolCopyToClipboard = ToolCopyToClipboardQT
 
 @_Backend.export
 class _BackendQT5(_Backend):
-    required_interactive_framework = "qt5"
     FigureCanvas = FigureCanvasQT
     FigureManager = FigureManagerQT
 

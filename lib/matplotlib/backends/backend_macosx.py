@@ -53,8 +53,9 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
     ----------
     figure : `matplotlib.figure.Figure`
         A high-level Figure instance
-
     """
+
+    required_interactive_framework = "macosx"
 
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
@@ -172,7 +173,6 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 
 @_Backend.export
 class _BackendMac(_Backend):
-    required_interactive_framework = "macosx"
     FigureCanvas = FigureCanvasMac
     FigureManager = FigureManagerMac
 

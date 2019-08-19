@@ -224,7 +224,8 @@ def switch_backend(newbackend):
     _log.debug("Loaded backend %s version %s.",
                newbackend, Backend.backend_version)
 
-    required_framework = Backend.required_interactive_framework
+    required_framework = getattr(
+        Backend.FigureCanvas, "required_interactive_framework", None)
     if required_framework is not None:
         current_framework = \
             matplotlib.backends._get_running_interactive_framework()
