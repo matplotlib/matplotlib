@@ -674,7 +674,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if (self._A.ndim == 3 and self._A.shape[-1] == 1):
             # If just one dimension assume grayscale
             self._A = self._A[:, :, 0]
-        
+
         if not (self._A.ndim == 2
                 or self._A.ndim == 3 and self._A.shape[-1] in [3, 4]):
             raise TypeError("Invalid shape {} for image data"
