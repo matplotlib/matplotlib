@@ -47,9 +47,3 @@ properties of the `.Collection` object:
 While this seems complicated, the logic is simply to use the information from
 the object that are in data space for the limits, but not information that is
 in physical units.
-
-LogLocator.nonsingular now maintains the orders of its arguments
-````````````````````````````````````````````````````````````````
-
-It no longer reorders them in increasing order.  The new behavior is consistent
-with MaxNLocator.

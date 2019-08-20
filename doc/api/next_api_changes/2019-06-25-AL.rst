@@ -1,0 +1,7 @@
+API changes
+```````````
+
+``Locator.nonsingular`` (introduced in mpl 3.1), ``DateLocator.nonsingular``, and
+``AutoDateLocator.nonsingular`` now returns a range ``v0, v1`` with ``v0 <= v1``.
+This behavior is consistent with the implementation of ``nonsingular`` by the
+``LogLocator`` and ``LogitLocator`` subclasses.
