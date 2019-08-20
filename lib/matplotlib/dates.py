@@ -189,6 +189,7 @@ HOURS_PER_DAY = 24.
 MIN_PER_HOUR = 60.
 SEC_PER_MIN = 60.
 MONTHS_PER_YEAR = 12.
+DAYS_PER_400Y = 146097
 
 DAYS_PER_WEEK = 7.
 DAYS_PER_MONTH = 30.
@@ -205,6 +206,41 @@ MUSECONDS_PER_DAY = 1e6 * SEC_PER_DAY
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = (
     MO, TU, WE, TH, FR, SA, SU)
 WEEKDAYS = (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
+
+class _datetimey(datetime.datetime):
+
+    def __new__(cls, year, *args, **kwargs):
+        if year < 1 or year > 9999:
+            yearoffset =  int(np.floor(year / 400) * 400) - 2000
+            year = year - yearoffset
+        else:
+            yearoffset = 0
+        new = super().__new__(cls, year, *args, **kwargs)
+        new._yearoffset = yearoffset
+        return new
+
+    def strftime(self, fmt):
+        year0 = self.year + self._yearoffset
+        if year0 < 0:
+            fmt = fmt.replace('%Y', f'{year0:05d}')
+        else:
+            fmt = fmt.replace('%Y', f'{year0:04d}')
+        return super().strftime(fmt)
+
+    def __str__(self):
+        return self.strftime('%Y-%m-%dT%H:%M:%S.%f%z')
+
+    @staticmethod
+    def _datetime_to_datetimey(new, year_offset):
+        return _datetimey(new.year + year_offset, new.month, new.day,
+                         new.hour, new.minute, new.second, new.microsecond,
+                         new.tzinfo)
+
+    def astimezone(self, tz=None):
+        print('self', self)
+        new = super(_datetimey, self).astimezone(tz)
+        new = self._datetime_to_datetimey(new, self._yearoffset)
+        return new
 
 
 def _to_ordinalf(dt):
