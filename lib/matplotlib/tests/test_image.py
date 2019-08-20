@@ -458,6 +458,15 @@ def test_imshow():
     ax.set_ylim(0, 3)
 
 
+@image_comparison(['imshow'], remove_text=True, style='mpl20')
+def test_imshow_10_10_1():
+    fig, ax = plt.subplots()
+    arr = np.arange(100).reshape((10, 10, 1))
+    ax.imshow(arr, interpolation="bilinear", extent=(1, 2, 1, 2))
+    ax.set_xlim(0, 3)
+    ax.set_ylim(0, 3)
+
+
 @image_comparison(['no_interpolation_origin'], remove_text=True)
 def test_no_interpolation_origin():
     fig, axs = plt.subplots(2)
