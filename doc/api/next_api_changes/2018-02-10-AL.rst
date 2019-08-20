@@ -16,10 +16,10 @@ The main differences are:
   ``colorbar.yaxis`` depending on the orientation, rather than
   ``colorbar.cbar_axis``.
 - Overdrawing multiple colorbars on top of one another in a single Axes (e.g.
-  when using the ``cax`` attribute of `ImageGrid` elements) is not supported;
-  if you previously relied on the second colorbar being drawn over the first,
-  you can call ``cax.cla()`` to clear the axes before drawing the second
-  colorbar.
+  when using the ``cax`` attribute of `~.axes_grid1.axes_grid.ImageGrid`
+  elements) is not supported; if you previously relied on the second colorbar
+  being drawn over the first, you can call ``cax.cla()`` to clear the axes
+  before drawing the second colorbar.
 
 During the deprecation period, the ``mpl_toolkits.legacy_colorbar``
 rcParam can be set to True to use ``mpl_toolkits.axes_grid1.colorbar`` in

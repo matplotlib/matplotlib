@@ -4,7 +4,7 @@ Anchored Artists
 ================
 
 This example illustrates the use of the anchored objects without the
-helper classes found in the :ref:`toolkit_axesgrid1-index`. This version
+helper classes found in :mod:`mpl_toolkits.axes_grid1`. This version
 of the figure is similar to the one found in
 :doc:`/gallery/axes_grid1/simple_anchored_artists`, but it is
 implemented using only the matplotlib namespace, without the help
