@@ -821,12 +821,11 @@ class RendererSVG(RendererBase):
         if url is not None:
             self.writer.start('a', attrib={'xlink:href': url})
         if rcParams['svg.image_inline']:
-            bytesio = io.BytesIO()
-            _png.write_png(im, bytesio)
-            oid = oid or self._make_id('image', bytesio.getvalue())
+            buf = _png.write_png(im, None)
+            oid = oid or self._make_id('image', buf)
             attrib['xlink:href'] = (
                 "data:image/png;base64,\n" +
-                base64.b64encode(bytesio.getvalue()).decode('ascii'))
+                base64.b64encode(buf).decode('ascii'))
         else:
             if self.basename is None:
                 raise ValueError("Cannot save image data to filesystem when "
@@ -834,7 +833,8 @@ class RendererSVG(RendererBase):
             filename = '{}.image{}.png'.format(
                 self.basename, next(self._image_counter))
             _log.info('Writing image file for inclusion: %s', filename)
-            _png.write_png(im, filename)
+            with open(filename, 'wb') as file:
+                _png.write_png(im, file)
             oid = oid or 'Im_' + self._make_id('image', filename)
             attrib['xlink:href'] = filename
 
