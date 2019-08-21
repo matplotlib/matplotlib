@@ -773,6 +773,10 @@ class Axes(_AxesBase):
 
     @docstring.dedent_interpd
     def annotate(self, s, xy, *args, **kwargs):
+        if kwargs.get('annotation_clip', None) is not False:
+            if 'clip_on' not in kwargs:
+                kwargs['clip_on'] = True
+
         a = mtext.Annotation(s, xy, *args, **kwargs)
         a.set_transform(mtransforms.IdentityTransform())
         if 'clip_on' in kwargs:
