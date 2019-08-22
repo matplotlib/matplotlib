@@ -1074,8 +1074,8 @@ defaultParams = {
     'font.cursive':    [['Apple Chancery', 'Textile', 'Zapf Chancery',
                          'Sand', 'Script MT', 'Felipa', 'cursive'],
                         validate_stringlist],
-    'font.fantasy':    [['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact',
-                         'Western', 'Humor Sans', 'xkcd', 'fantasy'],
+    'font.fantasy':    [['Comic Neue', 'Comic Sans MS', 'Chicago', 'Charcoal',
+                         'Impact', 'Western', 'Humor Sans', 'xkcd', 'fantasy'],
                         validate_stringlist],
     'font.monospace':  [['DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
                          'Computer Modern Typewriter',
@@ -1425,6 +1425,8 @@ defaultParams = {
     'animation.convert_path':  ['convert', validate_string],
      # Additional arguments for convert movie writer (using pipes)
     'animation.convert_args':  [[], validate_stringlist],
+
+    'mpl_toolkits.legacy_colorbar': [True, validate_bool],
 
     # Classic (pre 2.0) compatibility mode
     # This is used for things that are hard to make backward compatible

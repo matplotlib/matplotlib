@@ -269,12 +269,17 @@ class ScalarMappable:
 
     def set_clim(self, vmin=None, vmax=None):
         """
-        set the norm limits for image scaling; if *vmin* is a length2
-        sequence, interpret it as ``(vmin, vmax)`` which is used to
-        support setp
+        Set the norm limits for image scaling.
 
-        ACCEPTS: a length 2 sequence of floats; may be overridden in methods
-        that have ``vmin`` and ``vmax`` kwargs.
+        Parameters
+        ----------
+        vmin, vmax : float
+             The limits.
+
+             The limits may also be passed as a tuple (*vmin*, *vmax*) as a
+             single positional argument.
+
+             .. ACCEPTS: (vmin: float, vmax: float)
         """
         if vmax is None:
             try:

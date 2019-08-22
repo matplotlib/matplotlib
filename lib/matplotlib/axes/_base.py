@@ -3103,11 +3103,9 @@ class _AxesBase(martist.Artist):
         """
         Set the x-axis view limits.
 
-        .. ACCEPTS: (left: float, right: float)
-
         Parameters
         ----------
-        left : scalar, optional
+        left : float, optional
             The left xlim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
@@ -3115,7 +3113,9 @@ class _AxesBase(martist.Artist):
             (*left*, *right*) as the first positional argument (or as
             the *left* keyword argument).
 
-        right : scalar, optional
+            .. ACCEPTS: (bottom: float, top: float)
+
+        right : float, optional
             The right xlim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
@@ -3487,11 +3487,9 @@ class _AxesBase(martist.Artist):
         """
         Set the y-axis view limits.
 
-        .. ACCEPTS: (bottom: float, top: float)
-
         Parameters
         ----------
-        bottom : scalar, optional
+        bottom : float, optional
             The bottom ylim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
@@ -3499,7 +3497,9 @@ class _AxesBase(martist.Artist):
             (*bottom*, *top*) as the first positional argument (or as
             the *bottom* keyword argument).
 
-        top : scalar, optional
+            .. ACCEPTS: (bottom: float, top: float)
+
+        top : float, optional
             The top ylim in data coordinates. Passing *None* leaves the
             limit unchanged.
 

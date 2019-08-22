@@ -1,0 +1,5 @@
+API changes
+```````````
+
+``font_manager.createFontList`` is deprecated.  `.font_manager.FontManager.addfont`
+is now available to register a font at a given path.

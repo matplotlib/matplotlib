@@ -538,17 +538,17 @@ class Spine(mpatches.Patch):
         """
         Set the spine bounds.
 
-        .. ACCEPTS: (low: float, high: float)
-
         Parameters
         ----------
-        low : scalar, optional
+        low : float or None, optional
             The lower spine bound. Passing *None* leaves the limit unchanged.
 
             The bounds may also be passed as the tuple (*low*, *high*) as the
             first positional argument.
 
-        high : scalar, optional
+            .. ACCEPTS: (low: float, high: float)
+
+        high : float or None, optional
             The higher spine bound. Passing *None* leaves the limit unchanged.
         """
         if self.spine_type == 'circle':

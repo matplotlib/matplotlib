@@ -224,7 +224,8 @@ def switch_backend(newbackend):
     _log.debug("Loaded backend %s version %s.",
                newbackend, Backend.backend_version)
 
-    required_framework = Backend.required_interactive_framework
+    required_framework = getattr(
+        Backend.FigureCanvas, "required_interactive_framework", None)
     if required_framework is not None:
         current_framework = \
             matplotlib.backends._get_running_interactive_framework()
@@ -402,7 +403,8 @@ def xkcd(scale=1, length=100, randomness=2):
 
     from matplotlib import patheffects
     return rc_context({
-        'font.family': ['xkcd', 'xkcd Script', 'Humor Sans', 'Comic Sans MS'],
+        'font.family': ['xkcd', 'xkcd Script', 'Humor Sans', 'Comic Neue',
+                        'Comic Sans MS'],
         'font.size': 14.0,
         'path.sketch': (scale, length, randomness),
         'path.effects': [patheffects.withStroke(linewidth=4, foreground="w")],

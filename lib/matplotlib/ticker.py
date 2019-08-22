@@ -2495,9 +2495,7 @@ class LogLocator(Locator):
         return vmin, vmax
 
     def nonsingular(self, vmin, vmax):
-        swap_vlims = False
         if vmin > vmax:
-            swap_vlims = True
             vmin, vmax = vmax, vmin
         if not np.isfinite(vmin) or not np.isfinite(vmax):
             vmin, vmax = 1, 10  # Initial range, no data plotted yet.
@@ -2515,8 +2513,6 @@ class LogLocator(Locator):
             if vmin == vmax:
                 vmin = _decade_less(vmin, self._base)
                 vmax = _decade_greater(vmax, self._base)
-        if swap_vlims:
-            vmin, vmax = vmax, vmin
         return vmin, vmax
 
 

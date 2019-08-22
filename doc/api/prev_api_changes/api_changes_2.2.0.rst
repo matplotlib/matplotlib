@@ -31,8 +31,8 @@ The unused ``FigureManagerBase.show_popup`` method is deprecated.  This
 introduced in e945059b327d42a99938b939a1be867fa023e7ba in 2005 but never built
 out into any of the backends.
 
-:class:`backend_tkagg.AxisMenu` is deprecated, as it has become
-unused since the removal of "classic" toolbars.
+``backend_tkagg.AxisMenu`` is deprecated, as it has become unused since the
+removal of "classic" toolbars.
 
 
 Changed function signatures
@@ -71,10 +71,10 @@ transparency of figure patches in the nbagg (or any other) backend,
 directly set ``figure.patch.facecolor``, or the ``figure.facecolor``
 rcParam.
 
-Deprecated `Axis.unit_data`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Deprecated ``Axis.unit_data``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use `Axis.units` (which has long existed) instead.
+Use `.Axis.units` (which has long existed) instead.
 
 
 Removals
@@ -107,7 +107,7 @@ The ``Axes.get_axis_bgcolor``, ``Axes.set_axis_bgcolor``,
 
 ``mencoder`` can no longer be used to encode animations.
 
-The unused `FONT_SCALE` and `fontd` attributes of the `RendererSVG`
+The unused ``FONT_SCALE`` and ``fontd`` attributes of the `.RendererSVG`
 class have been removed.
 
 color maps
@@ -155,7 +155,7 @@ behavior for 2D axes.
 Exception type changes
 ----------------------
 
-If `MovieWriterRegistry` can't find the requested `MovieWriter`, a
+If `.MovieWriterRegistry` can't find the requested `.MovieWriter`, a
 more helpful `RuntimeError` message is now raised instead of the
 previously raised `KeyError`.
 
@@ -163,13 +163,13 @@ previously raised `KeyError`.
 instead of `RuntimeError` when sizes of input lists don't match
 
 
-`Figure.set_figwidth` and `Figure.set_figheight` default forward to True
-------------------------------------------------------------------------
+`.Figure.set_figwidth` and `.Figure.set_figheight` default *forward* to True
+----------------------------------------------------------------------------
 
-`matplotlib.Figure.set_figwidth` and `matplotlib.Figure.set_figheight`
-had the kwarg `forward=False`
-by default, but `Figure.set_size_inches` now defaults to `forward=True`.
-This makes these functions conistent.
+`matplotlib.figure.Figure.set_figwidth` and
+`matplotlib.figure.Figure.set_figheight` had the keyword argument
+``forward=False`` by default, but `.figure.Figure.set_size_inches` now defaults
+to ``forward=True``.  This makes these functions conistent.
 
 
 Do not truncate svg sizes to nearest point
@@ -196,27 +196,24 @@ backends.
 Changes to Qt backend class MRO
 -------------------------------
 
-To support both Agg and cairo rendering for Qt backends all of the
-non-Agg specific code previously in
-:class:`.backend_qt5agg.FigureCanvasQTAggBase` has been moved to
-:class:`.backend_qt5.FigureCanvasQT` so it can be shared with the cairo
-implementation.  The :meth:`.FigureCanvasQTAggBase.paintEvent`,
-:meth:`.FigureCanvasQTAggBase.blit`, and
-:meth:`.FigureCanvasQTAggBase.print_figure` methods have moved to
-:meth:`.FigureCanvasQTAgg.paintEvent`, :meth:`.FigureCanvasQTAgg.blit`, and
-:meth:`.FigureCanvasQTAgg.print_figure`.  The first two methods assume that
-the instance is also a :class:`QWidget` so to use
-:class:`FigureCanvasQTAggBase` it was required to multiple inherit
-from a :class:`QWidget` sub-class.
+To support both Agg and cairo rendering for Qt backends all of the non-Agg
+specific code previously in ``backend_qt5agg.FigureCanvasQTAggBase`` has been
+moved to :class:`.backend_qt5.FigureCanvasQT` so it can be shared with the
+cairo implementation.  The ``FigureCanvasQTAggBase.paintEvent``,
+``FigureCanvasQTAggBase.blit``, and ``FigureCanvasQTAggBase.print_figure``
+methods have moved to :meth:`.FigureCanvasQTAgg.paintEvent`,
+:meth:`.FigureCanvasQTAgg.blit`, and :meth:`.FigureCanvasQTAgg.print_figure`.
+The first two methods assume that the instance is also a ``QWidget`` so to use
+``FigureCanvasQTAggBase`` it was required to multiple inherit from a
+``QWidget`` sub-class.
 
 Having moved all of its methods either up or down the class hierarchy
-:class:`FigureCanvasQTAggBase` has been deprecated.  To do this with
-out warning and to preserve as much API as possible,
-:class:`.backend_qt5.FigureCanvasQTAggBase` now inherits from
-:class:`.backend_qt5.FigureCanvasQTAgg`.
+``FigureCanvasQTAggBase`` has been deprecated.  To do this without warning and
+to preserve as much API as possible, ``.backend_qt5agg.FigureCanvasQTAggBase``
+now inherits from :class:`.backend_qt5.FigureCanvasQTAgg`.
 
-The MRO for :class:`FigureCanvasQTAgg` and
-:class:`FigureCanvasQTAggBase` used to be ::
+The MRO for :class:`.FigureCanvasQTAgg` and ``FigureCanvasQTAggBase`` used to
+be ::
 
 
    [matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg,
@@ -270,10 +267,10 @@ and ::
 
 
 
-`Axes.imshow` clips RGB values to the valid range
--------------------------------------------------
+`.axes.Axes.imshow` clips RGB values to the valid range
+-------------------------------------------------------
 
-When `Axes.imshow` is passed an RGB or RGBA value with out-of-range
+When `.axes.Axes.imshow` is passed an RGB or RGBA value with out-of-range
 values, it now logs a warning and clips them to the valid range.
 The old behaviour, wrapping back in to the range, often hid outliers
 and made interpreting RGB images unreliable.
@@ -285,5 +282,5 @@ GTKAgg and GTKCairo backends deprecated
 The GTKAgg and GTKCairo backends have been deprecated. These obsolete backends
 allow figures to be rendered via the GTK+ 2 toolkit. They are untested, known
 to be broken, will not work with Python 3, and their use has been discouraged
-for some time. Instead, use the `GTK3Agg` and `GTK3Cairo` backends for
+for some time. Instead, use the ``GTK3Agg`` and ``GTK3Cairo`` backends for
 rendering to GTK+ 3 windows.

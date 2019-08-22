@@ -945,19 +945,20 @@ static PyObject *PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, PyObject *args,
 const char *PyFT2Font_get_glyph_name__doc__ =
     "get_glyph_name(index)\n"
     "\n"
-    "Retrieves the ASCII name of a given glyph in a face.\n";
+    "Retrieves the ASCII name of a given glyph in a face.\n"
+    "\n"
+    "Due to Matplotlib's internal design, for fonts that do not contain glyph \n"
+    "names (per FT_FACE_FLAG_GLYPH_NAMES), this returns a made-up name which \n"
+    "does *not* roundtrip through `.get_name_index`.\n";
 
 static PyObject *PyFT2Font_get_glyph_name(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     unsigned int glyph_number;
     char buffer[128];
-
     if (!PyArg_ParseTuple(args, "I:get_glyph_name", &glyph_number)) {
         return NULL;
     }
-
     CALL_CPP("get_glyph_name", (self->x->get_glyph_name(glyph_number, buffer)));
-
     return PyUnicode_FromString(buffer);
 }
 

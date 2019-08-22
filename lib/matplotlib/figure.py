@@ -1602,25 +1602,37 @@ default: 'top'
             return axarr
 
     def _remove_ax(self, ax):
-        def _reset_loc_form(axis):
+        def _reset_locators_and_formatters(axis):
             # Set the formatters and locators to be associated with axis
             # (where previously they may have been associated with another
             # Axis isntance)
+            #
+            # Because set_major_formatter() etc. force isDefault_* to be False,
+            # we have to manually check if the original formatter was a
+            # default and manually set isDefault_* if that was the case.
             majfmt = axis.get_major_formatter()
-            if not majfmt.axis.isDefault_majfmt:
-                axis.set_major_formatter(majfmt)
+            isDefault = majfmt.axis.isDefault_majfmt
+            axis.set_major_formatter(majfmt)
+            if isDefault:
+                majfmt.axis.isDefault_majfmt = True
 
             majloc = axis.get_major_locator()
-            if not majloc.axis.isDefault_majloc:
-                axis.set_major_locator(majloc)
+            isDefault = majloc.axis.isDefault_majloc
+            axis.set_major_locator(majloc)
+            if isDefault:
+                majloc.axis.isDefault_majloc = True
 
             minfmt = axis.get_minor_formatter()
-            if not minfmt.axis.isDefault_minfmt:
-                axis.set_minor_formatter(minfmt)
+            isDefault = majloc.axis.isDefault_minfmt
+            axis.set_minor_formatter(minfmt)
+            if isDefault:
+                minfmt.axis.isDefault_minfmt = True
 
             minloc = axis.get_minor_locator()
-            if not minfmt.axis.isDefault_minloc:
-                axis.set_minor_locator(minloc)
+            isDefault = majloc.axis.isDefault_minloc
+            axis.set_minor_locator(minloc)
+            if isDefault:
+                minloc.axis.isDefault_minloc = True
 
         def _break_share_link(ax, grouper):
             siblings = grouper.get_siblings(ax)
@@ -1634,11 +1646,11 @@ default: 'top'
         self.delaxes(ax)
         last_ax = _break_share_link(ax, ax._shared_y_axes)
         if last_ax is not None:
-            _reset_loc_form(last_ax.yaxis)
+            _reset_locators_and_formatters(last_ax.yaxis)
 
         last_ax = _break_share_link(ax, ax._shared_x_axes)
         if last_ax is not None:
-            _reset_loc_form(last_ax.xaxis)
+            _reset_locators_and_formatters(last_ax.xaxis)
 
     def clf(self, keep_observers=False):
         """

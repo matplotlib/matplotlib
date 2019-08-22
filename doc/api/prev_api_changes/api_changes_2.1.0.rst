@@ -50,10 +50,10 @@ A function which take and ``Exception`` as its only argument may also be passed 
 Improved toggling of the axes grids
 -----------------------------------
 
-The `g` key binding now switches the states of the `x` and `y` grids
+The ``g`` key binding now switches the states of the ``x`` and ``y`` grids
 independently (by cycling through all four on/off combinations).
 
-The new `G` key binding switches the states of the minor grids.
+The new ``G`` key binding switches the states of the minor grids.
 
 Both bindings are disabled if only a subset of the grid lines (in either
 direction) is visible, to avoid making irreversible changes to the figure.
@@ -62,7 +62,7 @@ direction) is visible, to avoid making irreversible changes to the figure.
 Ticklabels are turned off instead of being invisible
 ----------------------------------------------------
 
-Internally, the `Tick`'s :func:`~matplotlib.axis.Tick.label1On` attribute
+Internally, the `.Tick`'s ``~matplotlib.axis.Tick.label1On`` attribute
 is now used to hide tick labels instead of setting the visibility on the tick
 label objects.
 This improves overall performance and fixes some issues.
@@ -78,7 +78,7 @@ needs to be used, e.g.
 Removal of warning on empty legends
 -----------------------------------
 
-``plt.legend`` used to issue a warning when no labeled artist could be
+`.pyplot.legend` used to issue a warning when no labeled artist could be
 found.  This warning has been removed.
 
 
@@ -86,7 +86,7 @@ More accurate legend autopositioning
 ------------------------------------
 
 Automatic positioning of legends now prefers using the area surrounded
-by a `Line2D` rather than placing the legend over the line itself.
+by a `.Line2D` rather than placing the legend over the line itself.
 
 
 Cleanup of stock sample data
@@ -100,8 +100,9 @@ the ``msft.csv`` that continues to be shipped in the sample data. If a NumPy
 binary file is acceptable, we suggest using one of the following two new files.
 The ``aapl.npy.gz`` and ``goog.npy`` files have been replaced by ``aapl.npz``
 and ``goog.npz``, wherein the first column's type has changed from
-`datetime.date` to `np.datetime64` for better portability across Python
-versions. Note that Matplotlib does not fully support `np.datetime64` as yet.
+`datetime.date` to `numpy.datetime64` for better portability across Python
+versions. Note that Matplotlib does not fully support `numpy.datetime64` as
+yet.
 
 
 Updated qhull to 2015.2
@@ -120,7 +121,7 @@ using Matplotlib, i.e. any use of `matplotlib.tri.Triangulation` that
 requests that a Delaunay triangulation is calculated, which includes
 `matplotlib.pyplot.tricontour`, `matplotlib.pyplot.tricontourf`,
 `matplotlib.pyplot.tripcolor`, `matplotlib.pyplot.triplot`,
-`matplotlib.mlab.griddata` and
+``matplotlib.mlab.griddata`` and
 `mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf`.
 
 
@@ -135,7 +136,7 @@ It's better maintained and more widely used (by pylint, jaraco, etc).
 ``cbook.is_numlike`` only performs an instance check
 ----------------------------------------------------
 
-:func:`~matplotlib.cbook.is_numlike` now only checks that its argument
+``matplotlib.cbook.is_numlike`` now only checks that its argument
 is an instance of ``(numbers.Number, np.Number)``.  In particular,
 this means that arrays are now not num-like.
 
@@ -195,14 +196,14 @@ will be removed in 2.2
 
 
 
-Correct scaling of :func:`magnitude_spectrum()`
------------------------------------------------
+Correct scaling of ``magnitude_spectrum()``
+-------------------------------------------
 
 The functions :func:`matplotlib.mlab.magnitude_spectrum()` and :func:`matplotlib.pyplot.magnitude_spectrum()` implicitly assumed the sum
 of windowing function values to be one. In Matplotlib and Numpy the
 standard windowing functions are scaled to have maximum value of one,
 which usually results in a sum of the order of n/2 for a n-point
-signal. Thus the amplitude scaling :func:`magnitude_spectrum()` was
+signal. Thus the amplitude scaling ``magnitude_spectrum()`` was
 off by that amount when using standard windowing functions (`Bug 8417
 <https://github.com/matplotlib/matplotlib/issues/8417>`_ ). Now the
 behavior is consistent with :func:`matplotlib.pyplot.psd()` and
@@ -295,13 +296,13 @@ Third-party backends should also migrate to the ``*_dashes`` methods.
 ``NavigationToolbar2.dynamic_update``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use :meth:`draw_idle` method on the ``Canvas`` instance instead.
+Use :meth:`.draw_idle` method on the ``Canvas`` instance instead.
 
 
 Testing
 ~~~~~~~
 
-`matplotlib.testing.noseclasses` is deprecated and will be removed in 2.3
+``matplotlib.testing.noseclasses`` is deprecated and will be removed in 2.3
 
 
 ``EngFormatter`` *num* arg as string
@@ -314,9 +315,9 @@ Passing a string as *num* argument when calling an instance of
 ``mpl_toolkits.axes_grid`` module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-All functionally from `mpl_toolkits.axes_grid` can be found in either
+All functionally from ``mpl_toolkits.axes_grid`` can be found in either
 `mpl_toolkits.axes_grid1` or `mpl_toolkits.axisartist`. Axes classes
-from `mpl_toolkits.axes_grid` based on `Axis` from
+from ``mpl_toolkits.axes_grid`` based on ``Axis`` from
 `mpl_toolkits.axisartist` can be found in `mpl_toolkits.axisartist`.
 
 
@@ -402,9 +403,9 @@ The deprecated ``matplotlib.rcsetup.validate_maskedarray``,
 removed.
 
 
-The kwarg ``resolution`` of
+The keyword argument *resolution* of
 :class:`matplotlib.projections.polar.PolarAxes` has been removed. It
-has deprecation with no effect from version `0.98.x`.
+has deprecation with no effect from version *0.98.x*.
 
 
 ``Axes.set_aspect("normal")``
@@ -421,8 +422,8 @@ The ``shading`` kwarg to `~matplotlib.axes.Axes.pcolor` has been
 removed.  Set ``edgecolors`` appropriately instead.
 
 
-Functions removed from the `lines` module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Functions removed from the `.lines` module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The :mod:`matplotlib.lines` module no longer imports the
 ``pts_to_prestep``, ``pts_to_midstep`` and ``pts_to_poststep``
@@ -433,7 +434,7 @@ PDF backend functions
 ~~~~~~~~~~~~~~~~~~~~~
 
 The methods ``embedTeXFont`` and ``tex_font_mapping`` of
-:class:`matplotlib.backqend_pdf.PdfFile` have been removed.  It is
+:class:`matplotlib.backends.backend_pdf.PdfFile` have been removed.  It is
 unlikely that external users would have called these methods, which
 are related to the font system internal to the PDF backend.
 

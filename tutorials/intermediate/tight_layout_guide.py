@@ -316,7 +316,7 @@ plt.show()
 # Use with AxesGrid1
 # ==================
 #
-# While limited, the axes_grid1 toolkit is also supported.
+# While limited, :mod:`mpl_toolkits.axes_grid1` is also supported.
 
 from mpl_toolkits.axes_grid1 import Grid
 
