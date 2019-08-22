@@ -265,3 +265,14 @@ animated PNG file.  See the example on the PyPI page or at the ``numpngw``
 `github repository <https://github.com/WarrenWeckesser/numpngw>`_.
 
 .. image:: /_static/numpngw_animated_example.png
+
+blume
+=====
+
+`blume <https://pypi.org/project/blume/>`_ provides a replacement for
+the Matplotlib ``table`` module.  It fixes a number of issues with the
+existing table. See the `blume github repository
+<https://github.com/swfiua/blume>`_ for more details.
+
+.. image:: /_static/blume_table_example.png
+           
