@@ -488,7 +488,7 @@ class Axes3D(Axes):
             else:
                 scalez = False
         self.autoscale_view(tight=tight, scalex=scalex, scaley=scaley,
-                                         scalez=scalez)
+                            scalez=scalez)
 
     def auto_scale_xyz(self, X, Y, Z=None, had_data=None):
         # This updates the bounding boxes as to keep a record as to what the
@@ -505,7 +505,7 @@ class Axes3D(Axes):
         self.autoscale_view()
 
     def autoscale_view(self, tight=None, scalex=True, scaley=True,
-                             scalez=True):
+                       scalez=True):
         """
         Autoscale the view limits using the data limits.
         See :meth:`matplotlib.axes.Axes.autoscale_view` for documentation.
@@ -631,7 +631,7 @@ class Axes3D(Axes):
             for other in self._shared_x_axes.get_siblings(self):
                 if other is not self:
                     other.set_xlim(self.xy_viewLim.intervalx,
-                                            emit=False, auto=auto)
+                                   emit=False, auto=auto)
                     if other.figure != self.figure:
                         other.figure.canvas.draw_idle()
         self.stale = True
@@ -692,7 +692,7 @@ class Axes3D(Axes):
             for other in self._shared_y_axes.get_siblings(self):
                 if other is not self:
                     other.set_ylim(self.xy_viewLim.intervaly,
-                                            emit=False, auto=auto)
+                                   emit=False, auto=auto)
                     if other.figure != self.figure:
                         other.figure.canvas.draw_idle()
         self.stale = True
@@ -753,7 +753,7 @@ class Axes3D(Axes):
             for other in self._shared_z_axes.get_siblings(self):
                 if other is not self:
                     other.set_zlim(self.zz_viewLim.intervalx,
-                                            emit=False, auto=auto)
+                                   emit=False, auto=auto)
                     if other.figure != self.figure:
                         other.figure.canvas.draw_idle()
         self.stale = True
@@ -1820,9 +1820,9 @@ class Axes3D(Axes):
         tzlines = [tZ[i] for i in cii]
 
         lines = ([list(zip(xl, yl, zl))
-                  for xl, yl, zl in zip(xlines, ylines, zlines)]
-                + [list(zip(xl, yl, zl))
-                   for xl, yl, zl in zip(txlines, tylines, tzlines)])
+                 for xl, yl, zl in zip(xlines, ylines, zlines)]
+                 + [list(zip(xl, yl, zl))
+                 for xl, yl, zl in zip(txlines, tylines, tzlines)])
 
         linec = art3d.Line3DCollection(lines, *args, **kwargs)
         self.add_collection(linec)
