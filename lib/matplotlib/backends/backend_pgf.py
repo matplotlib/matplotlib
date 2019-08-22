@@ -639,7 +639,8 @@ class RendererPgf(RendererBase):
         fname = os.path.splitext(os.path.basename(self.fh.name))[0]
         fname_img = "%s-img%d.png" % (fname, self.image_counter)
         self.image_counter += 1
-        _png.write_png(im[::-1], os.path.join(path, fname_img))
+        with pathlib.Path(path, fname_img).open("wb") as file:
+            _png.write_png(im[::-1], file)
 
         # reference the image in the pgf picture
         writeln(self.fh, r"\begin{pgfscope}")

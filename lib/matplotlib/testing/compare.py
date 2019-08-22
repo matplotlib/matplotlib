@@ -384,10 +384,10 @@ def compare_images(expected, actual, tol, in_decorator=False):
         expected = convert(expected, True)
 
     # open the image files and remove the alpha channel (if it exists)
-    expected_image = _png.read_png_int(expected)
-    actual_image = _png.read_png_int(actual)
-    expected_image = expected_image[:, :, :3]
-    actual_image = actual_image[:, :, :3]
+    with open(expected, "rb") as expected_file:
+        expected_image = _png.read_png_int(expected_file)[:, :, :3]
+    with open(actual, "rb") as actual_file:
+        actual_image = _png.read_png_int(actual_file)[:, :, :3]
 
     actual_image, expected_image = crop_to_same(
         actual, actual_image, expected, expected_image)
@@ -438,8 +438,10 @@ def save_diff_image(expected, actual, output):
     '''
     # Drop alpha channels, similarly to compare_images.
     from matplotlib import _png
-    expected_image = _png.read_png(expected)[..., :3]
-    actual_image = _png.read_png(actual)[..., :3]
+    with open(expected, "rb") as expected_file:
+        expected_image = _png.read_png(expected_file)[..., :3]
+    with open(actual, "rb") as actual_file:
+        actual_image = _png.read_png(actual_file)[..., :3]
     actual_image, expected_image = crop_to_same(
         actual, actual_image, expected, expected_image)
     expected_image = np.array(expected_image).astype(float)
@@ -465,4 +467,5 @@ def save_diff_image(expected, actual, output):
     # Hard-code the alpha channel to fully solid
     save_image_np[:, :, 3] = 255
 
-    _png.write_png(save_image_np, output)
+    with open(output, "wb") as output_file:
+        _png.write_png(save_image_np, output_file)

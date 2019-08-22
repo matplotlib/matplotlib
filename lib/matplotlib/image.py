@@ -645,7 +645,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         from matplotlib import _png
         im = self.to_rgba(self._A[::-1] if self.origin == 'lower' else self._A,
                           bytes=True, norm=True)
-        _png.write_png(im, fname)
+        with open(fname, "wb") as file:
+            _png.write_png(im, file)
 
     def set_data(self, A):
         """
@@ -1382,12 +1383,6 @@ def imread(fname, format=None):
 
     .. _Pillow documentation: http://pillow.readthedocs.io/en/latest/
     """
-
-    def read_png(*args, **kwargs):
-        from matplotlib import _png
-        return _png.read_png(*args, **kwargs)
-
-    handlers = {'png': read_png, }
     if format is None:
         if isinstance(fname, str):
             parsed = urllib.parse.urlparse(fname)
@@ -1412,34 +1407,24 @@ def imread(fname, format=None):
             ext = 'png'
     else:
         ext = format
-
-    if ext not in handlers:  # Try to load the image with PIL.
-        try:
+    if ext != 'png':
+        try:  # Try to load the image with PIL.
             from PIL import Image
         except ImportError:
-            raise ValueError('Only know how to handle extensions: %s; '
-                             'with Pillow installed matplotlib can handle '
-                             'more images' % list(handlers))
+            raise ValueError('Only know how to handle PNG; with Pillow '
+                             'installed, Matplotlib can handle more images')
         with Image.open(fname) as image:
             return pil_to_array(image)
-
-    handler = handlers[ext]
-
-    # To handle Unicode filenames, we pass a file object to the PNG
-    # reader extension, since Python handles them quite well, but it's
-    # tricky in C.
+    from matplotlib import _png
     if isinstance(fname, str):
         parsed = urllib.parse.urlparse(fname)
         # If fname is a URL, download the data
         if len(parsed.scheme) > 1:
             from urllib import request
             fd = BytesIO(request.urlopen(fname).read())
-            return handler(fd)
-        else:
-            with open(fname, 'rb') as fd:
-                return handler(fd)
-    else:
-        return handler(fname)
+            return _png.read_png(fd)
+    with cbook.open_file_cm(fname, "rb") as file:
+        return _png.read_png(file)
 
 
 def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
@@ -1516,7 +1501,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             arr = arr[::-1]
         rgba = sm.to_rgba(arr, bytes=True)
         if format == "png" and pil_kwargs is None:
-            _png.write_png(rgba, fname, dpi=dpi, metadata=metadata)
+            with cbook.open_file_cm(fname, "wb") as file:
+                _png.write_png(rgba, file, dpi=dpi, metadata=metadata)
         else:
             try:
                 from PIL import Image

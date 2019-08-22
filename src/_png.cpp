@@ -20,8 +20,6 @@ extern "C" {
 }
 
 #include "numpy_cpp.h"
-#include "mplutils.h"
-#include "file_compat.h"
 
 #   include <vector>
 #   include "Python.h"
@@ -88,10 +86,8 @@ const char *Py_write_png__doc__ =
     "    - if D is 3, the image is RGB\n"
     "    - if D is 4, the image is RGBA\n"
     "\n"
-    "file : str path, file-like object or None\n"
-    "    - If a str, must be a file path\n"
-    "    - If a file-like object, must write bytes\n"
-    "    - If None, a byte string containing the PNG data will be returned\n"
+    "file : binary-mode file-like object or None\n"
+    "    If None, a byte string containing the PNG data will be returned\n"
     "\n"
     "dpi : float\n"
     "    The dpi to store in the file metadata.\n"
@@ -179,12 +175,6 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
         row_pointers[row] = (png_bytep)&buffer(row, 0, 0);
     }
 
-    FILE *fp = NULL;
-    mpl_off_t offset = 0;
-    bool close_file = false;
-    bool close_dup_file = false;
-    PyObject *py_file = NULL;
-
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
     struct png_color_8_struct sig_bit;
@@ -215,15 +205,6 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
         goto exit;
     }
 
-    if (PyBytes_Check(filein) || PyUnicode_Check(filein)) {
-        if ((py_file = mpl_PyFile_OpenFile(filein, (char *)"wb")) == NULL) {
-            goto exit;
-        }
-        close_file = true;
-    } else {
-        py_file = filein;
-    }
-
     if (filein == Py_None) {
         buff.size = width * height * 4 + 1024;
         buff.str = PyBytes_FromStringAndSize(NULL, buff.size);
@@ -232,24 +213,15 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
         }
         buff.cursor = 0;
     } else {
-        if (close_file) {
-            fp = mpl_PyFile_Dup(py_file, (char *)"wb", &offset);
-        }
-
-        if (fp) {
-            close_dup_file = true;
-        } else {
-            PyErr_Clear();
-            PyObject *write_method = PyObject_GetAttrString(py_file, "write");
-            if (!(write_method && PyCallable_Check(write_method))) {
-                Py_XDECREF(write_method);
-                PyErr_SetString(PyExc_TypeError,
-                                "Object does not appear to be a 8-bit string path or "
-                                "a Python file-like object");
-                goto exit;
-            }
+        PyErr_Clear();
+        PyObject *write_method = PyObject_GetAttrString(filein, "write");
+        if (!(write_method && PyCallable_Check(write_method))) {
             Py_XDECREF(write_method);
+            PyErr_SetString(PyExc_TypeError,
+                            "Object does not appear to be a file-like object");
+            goto exit;
         }
+        Py_XDECREF(write_method);
     }
 
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -276,10 +248,8 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 
     if (buff.str) {
         png_set_write_fn(png_ptr, (void *)&buff, &write_png_data_buffer, &flush_png_data_buffer);
-    } else if (fp) {
-        png_init_io(png_ptr, fp);
     } else {
-        png_set_write_fn(png_ptr, (void *)py_file, &write_png_data, &flush_png_data);
+        png_set_write_fn(png_ptr, (void *)filein, &write_png_data, &flush_png_data);
     }
     png_set_IHDR(png_ptr,
                  info_ptr,
@@ -369,20 +339,9 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
     png_write_end(png_ptr, info_ptr);
 
 exit:
-
     if (png_ptr && info_ptr) {
         png_destroy_write_struct(&png_ptr, &info_ptr);
     }
-
-    if (close_dup_file) {
-        mpl_PyFile_DupClose(py_file, fp, offset);
-    }
-
-    if (close_file) {
-        mpl_PyFile_CloseFile(py_file);
-        Py_DECREF(py_file);
-    }
-
     if (PyErr_Occurred()) {
         Py_XDECREF(buff.str);
         return NULL;
@@ -436,11 +395,6 @@ static void read_png_data(png_structp png_ptr, png_bytep data, png_size_t length
 static PyObject *_read_png(PyObject *filein, bool float_result)
 {
     png_byte header[8]; // 8 is the maximum size that can be checked
-    FILE *fp = NULL;
-    mpl_off_t offset = 0;
-    bool close_file = false;
-    bool close_dup_file = false;
-    PyObject *py_file = NULL;
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
     int num_dims;
@@ -451,42 +405,19 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
     PyObject *result = NULL;
 
     // TODO: Remove direct calls to Numpy API here
+    PyErr_Clear();
 
-    if (PyBytes_Check(filein) || PyUnicode_Check(filein)) {
-        if ((py_file = mpl_PyFile_OpenFile(filein, (char *)"rb")) == NULL) {
-            goto exit;
-        }
-        close_file = true;
-    } else {
-        py_file = filein;
-    }
-
-    if (close_file) {
-        fp = mpl_PyFile_Dup(py_file, (char *)"rb", &offset);
-    }
-
-    if (fp) {
-        close_dup_file = true;
-        if (fread(header, 1, 8, fp) != 8) {
-            PyErr_SetString(PyExc_IOError, "error reading PNG header");
-            goto exit;
-        }
-    } else {
-        PyErr_Clear();
-
-        PyObject *read_method = PyObject_GetAttrString(py_file, "read");
-        if (!(read_method && PyCallable_Check(read_method))) {
-            Py_XDECREF(read_method);
-            PyErr_SetString(PyExc_TypeError,
-                            "Object does not appear to be a 8-bit string path or "
-                            "a Python file-like object");
-            goto exit;
-        }
+    PyObject *read_method = PyObject_GetAttrString(filein, "read");
+    if (!(read_method && PyCallable_Check(read_method))) {
         Py_XDECREF(read_method);
-        _read_png_data(py_file, header, 8);
-        if (PyErr_Occurred()) {
-            goto exit;
-        }
+        PyErr_SetString(PyExc_TypeError,
+                        "Object does not appear to be a file-like object");
+        goto exit;
+    }
+    Py_XDECREF(read_method);
+    _read_png_data(filein, header, 8);
+    if (PyErr_Occurred()) {
+        goto exit;
     }
 
     if (png_sig_cmp(header, 0, 8)) {
@@ -515,17 +446,11 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
         goto exit;
     }
 
-    if (fp) {
-        png_init_io(png_ptr, fp);
-    } else {
-        png_set_read_fn(png_ptr, (void *)py_file, &read_png_data);
-    }
+    png_set_read_fn(png_ptr, (void *)filein, &read_png_data);
     png_set_sig_bytes(png_ptr, 8);
     png_read_info(png_ptr, info_ptr);
-
     width = png_get_image_width(png_ptr, info_ptr);
     height = png_get_image_height(png_ptr, info_ptr);
-
     bit_depth = png_get_bit_depth(png_ptr, info_ptr);
 
     // Unpack 1, 2, and 4-bit images
@@ -657,15 +582,6 @@ exit:
 #endif
     }
 
-    if (close_dup_file) {
-        mpl_PyFile_DupClose(py_file, fp, offset);
-    }
-
-    if (close_file) {
-        mpl_PyFile_CloseFile(py_file);
-        Py_DECREF(py_file);
-    }
-
     for (png_uint_32 row = 0; row < height; row++) {
         delete[] row_pointers[row];
     }
@@ -686,7 +602,7 @@ const char *Py_read_png_float__doc__ =
     "\n"
     "Parameters\n"
     "----------\n"
-    "file : str path or file-like object\n";
+    "file : binary-mode file-like object\n";
 
 static PyObject *Py_read_png_float(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -700,7 +616,7 @@ const char *Py_read_png_int__doc__ =
     "\n"
     "Parameters\n"
     "----------\n"
-    "file : str path or file-like object\n";
+    "file : binary-mode file-like object\n";
 
 static PyObject *Py_read_png_int(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -717,7 +633,7 @@ const char *Py_read_png__doc__ =
     "\n"
     "Parameters\n"
     "----------\n"
-    "file : str path or file-like object\n";
+    "file : binary-mode file-like object\n";
 
 static PyMethodDef module_methods[] = {
     {"write_png", (PyCFunction)Py_write_png, METH_VARARGS|METH_KEYWORDS, Py_write_png__doc__},
