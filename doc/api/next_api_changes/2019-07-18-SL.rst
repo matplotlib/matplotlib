@@ -1,0 +1,4 @@
+Reduced default value of `axes.formatter.limits`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Changed the default value of `axes.formatter.limits` from -7, 7 to -5, 6 for better readability.

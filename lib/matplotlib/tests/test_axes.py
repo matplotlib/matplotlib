@@ -547,6 +547,9 @@ def test_single_point():
 
 @image_comparison(['single_date.png'], style='mpl20')
 def test_single_date():
+    # use former defaults to match existing baseline image
+    plt.rcParams['axes.formatter.limits'] = -7, 7
+
     time1 = [721964.0]
     data1 = [-65.54]
 
