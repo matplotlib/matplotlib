@@ -1241,7 +1241,7 @@ class Axes3D(Axes):
         label = self.zaxis.get_label()
         return label.get_text()
 
-    #### Axes rectangle characteristics
+    # Axes rectangle characteristics
 
     def get_frame_on(self):
         """
@@ -1344,7 +1344,7 @@ class Axes3D(Axes):
             zkw.pop('labelbottom', None)
             self.zaxis.set_tick_params(**zkw)
 
-    ### data limits, ticks, tick labels, and formatting
+    # data limits, ticks, tick labels, and formatting
 
     def invert_zaxis(self):
         """
