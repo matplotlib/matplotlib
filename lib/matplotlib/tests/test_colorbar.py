@@ -505,7 +505,7 @@ def test_colorbar_scale_reset():
     assert cbar.ax.yaxis.get_scale() == 'linear'
 
 
-def test_colorbar_get_ticks():
+def test_colorbar_get_ticks_2():
     with rc_context({'_internal.classic_mode': False}):
 
         fig, ax = plt.subplots()

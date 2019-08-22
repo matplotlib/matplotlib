@@ -99,44 +99,42 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
 
     """
 
-    '''  Steps:
-
-    1. get a list of unique gridspecs in this figure.  Each gridspec will be
-    constrained separately.
-    2. Check for gaps in the gridspecs.  i.e. if not every axes slot in the
-    gridspec has been filled.  If empty, add a ghost axis that is made so
-    that it cannot be seen (though visible=True).  This is needed to make
-    a blank spot in the layout.
-    3. Compare the tight_bbox of each axes to its `position`, and assume that
-    the difference is the space needed by the elements around the edge of
-    the axes (decorations) like the title, ticklabels, x-labels, etc.  This
-    can include legends who overspill the axes boundaries.
-    4. Constrain gridspec elements to line up:
-        a) if colnum0 != colnumC, the two subplotspecs are stacked next to
-        each other, with the appropriate order.
-        b) if colnum0 == colnumC, line up the left or right side of the
-        _poslayoutbox (depending if it is the min or max num that is equal).
-        c) do the same for rows...
-    5. The above doesn't constrain relative sizes of the _poslayoutboxes at
-    all, and indeed zero-size is a solution that the solver often finds more
-    convenient than expanding the sizes.  Right now the solution is to compare
-    subplotspec sizes (i.e. drowsC and drows0) and constrain the larger
-    _poslayoutbox to be larger than the ratio of the sizes.  i.e. if drows0 >
-    drowsC,  then ax._poslayoutbox > axc._poslayoutbox * drowsC / drows0. This
-    works fine *if* the decorations are similar between the axes.  If the
-    larger subplotspec has much larger axes decorations, then the constraint
-    above is incorrect.
-
-    We need the greater than in the above, in general, rather than an equals
-    sign.  Consider the case of the left column having 2 rows, and the right
-    column having 1 row.  We want the top and bottom of the _poslayoutboxes to
-    line up. So that means if there are decorations on the left column axes
-    they will be smaller than half as large as the right hand axis.
-
-    This can break down if the decoration size for the right hand axis (the
-    margins) is very large.  There must be a math way to check for this case.
-
-    '''
+    # Steps:
+    #
+    # 1. get a list of unique gridspecs in this figure.  Each gridspec will be
+    # constrained separately.
+    # 2. Check for gaps in the gridspecs.  i.e. if not every axes slot in the
+    # gridspec has been filled.  If empty, add a ghost axis that is made so
+    # that it cannot be seen (though visible=True).  This is needed to make
+    # a blank spot in the layout.
+    # 3. Compare the tight_bbox of each axes to its `position`, and assume that
+    # the difference is the space needed by the elements around the edge of
+    # the axes (decorations) like the title, ticklabels, x-labels, etc.  This
+    # can include legends who overspill the axes boundaries.
+    # 4. Constrain gridspec elements to line up:
+    #     a) if colnum0 != colnumC, the two subplotspecs are stacked next to
+    #     each other, with the appropriate order.
+    #     b) if colnum0 == colnumC, line up the left or right side of the
+    #     _poslayoutbox (depending if it is the min or max num that is equal).
+    #     c) do the same for rows...
+    # 5. The above doesn't constrain relative sizes of the _poslayoutboxes
+    # at all, and indeed zero-size is a solution that the solver often finds
+    # more convenient than expanding the sizes.  Right now the solution is to
+    # compare subplotspec sizes (i.e. drowsC and drows0) and constrain the
+    # larger _poslayoutbox to be larger than the ratio of the sizes. i.e. if
+    # drows0 > drowsC, then ax._poslayoutbox > axc._poslayoutbox*drowsC/drows0.
+    # This works fine *if* the decorations are similar between the axes.
+    # If the larger subplotspec has much larger axes decorations, then the
+    # constraint above is incorrect.
+    #
+    # We need the greater than in the above, in general, rather than an equals
+    # sign.  Consider the case of the left column having 2 rows, and the right
+    # column having 1 row.  We want the top and bottom of the _poslayoutboxes
+    # to line up. So that means if there are decorations on the left column
+    # axes they will be smaller than half as large as the right hand axis.
+    #
+    # This can break down if the decoration size for the right hand axis (the
+    # margins) is very large.  There must be a math way to check for this case.
 
     invTransFig = fig.transFigure.inverted().transform_bbox
 
