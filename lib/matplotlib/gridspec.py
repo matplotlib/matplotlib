@@ -255,7 +255,7 @@ class GridSpec(GridSpecBase):
             Extent of the subplots as a fraction of figure width or height.
             Left cannot be larger than right, and bottom cannot be larger than
             top. If not given, the values will be inferred from a figure or
-            rcParams when necessary. See also `GridSpec.get_subplot_params`.
+            rcParams at draw time. See also `GridSpec.get_subplot_params`.
 
         wspace : float, optional
             The amount of width reserved for space between subplots,
@@ -323,12 +323,16 @@ class GridSpec(GridSpecBase):
         """
         Update the subplot parameters of the grid.
 
+        Parameters that are not explicitly given are not changed. Setting a
+        parameter to *None* resets it to :rc:`figure.subplot.*`.
+
         Parameters
         ----------
-        left, right, top, bottom : float, optional
+        left, right, top, bottom : float or None, optional
+            Extent of the subplots as a fraction of figure width or height.
         wspace, hspace : float, optional
-
-        Values set to None use the rcParams value.
+            Spacing between the subplots as a fraction of the average subplot
+            width / height.
         """
         for k, v in kwargs.items():
             if k in self._AllowedKeys:
