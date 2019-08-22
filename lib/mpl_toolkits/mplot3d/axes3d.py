@@ -2333,7 +2333,7 @@ class Axes3D(Axes):
         return patches
 
     def bar3d(self, x, y, z, dx, dy, dz, color=None,
-              zsort='average', shade=True, *args, **kwargs):
+              zsort='average', shade=True, lightsource=None, *args, **kwargs):
         """Generate a 3D barplot.
 
         This method creates three dimensional barplot where the width,
@@ -2375,6 +2375,9 @@ class Axes3D(Axes):
         shade : bool, optional (default = True)
             When true, this shades the dark sides of the bars (relative
             to the plot's source of light).
+            
+        lightsource : matplotlib.color.LightSource, optional (default = None)
+            The lightsource defines the plot's source of light.
 
         **kwargs
             Any additional keyword arguments are passed onto
@@ -2474,7 +2477,7 @@ class Axes3D(Axes):
 
         if shade:
             normals = self._generate_normals(polys)
-            sfacecolors = self._shade_colors(facecolors, normals)
+            sfacecolors = self._shade_colors(facecolors, normals, lightsource)
         else:
             sfacecolors = facecolors
 
