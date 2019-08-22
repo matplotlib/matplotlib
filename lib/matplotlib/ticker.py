@@ -2581,30 +2581,17 @@ class SymmetricalLogLocator(Locator):
         #
         # "simple" mode is when the range falls entirely within (-t,
         # t) -- it should just display (vmin, 0, vmax)
+        if -linthresh < vmin < vmax < linthresh:
+            # only the linear range is present
+            return [vmin, vmax]
 
-        # Determine which of the three ranges we have
-        has_a = has_b = has_c = False
-        if vmin < -linthresh:
-            has_a = True
-            if vmax > -linthresh:
-                has_b = True
-                if vmax > linthresh:
-                    has_c = True
-        elif vmin < 0:
-            if vmax > 0:
-                has_b = True
-                if vmax > linthresh:
-                    has_c = True
-            else:
-                return [vmin, vmax]
-        elif vmin < linthresh:
-            if vmax > linthresh:
-                has_b = True
-                has_c = True
-            else:
-                return [vmin, vmax]
-        else:
-            has_c = True
+        # Lower log range is present
+        has_a = (vmin < -linthresh)
+        # Upper log range is present
+        has_c = (vmax > linthresh)
+
+        # Check if linear range is present
+        has_b = (has_a and vmax > -linthresh) or (has_c and vmin < linthresh)
 
         def get_log_range(lo, hi):
             lo = np.floor(np.log(lo) / np.log(base))
