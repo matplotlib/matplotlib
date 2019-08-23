@@ -210,6 +210,7 @@ WEEKDAYS = (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
 class _datetimey(datetime.datetime):
 
     def __new__(cls, year, *args, **kwargs):
+        print('New datetimey')
         if year < 1 or year > 9999:
             yearoffset =  int(np.floor(year / 400) * 400) - 2000
             year = year - yearoffset
@@ -217,6 +218,7 @@ class _datetimey(datetime.datetime):
             yearoffset = 0
         new = super().__new__(cls, year, *args, **kwargs)
         new._yearoffset = yearoffset
+        print(new._yearoffset)
         return new
 
     def strftime(self, fmt):
@@ -240,8 +242,26 @@ class _datetimey(datetime.datetime):
         print('self', self)
         new = super(_datetimey, self).astimezone(tz)
         new = self._datetime_to_datetimey(new, self._yearoffset)
+        print('yoff', new._yearoffset)
         return new
 
+    def replace(self, *args, **kwargs):
+        year = kwargs.pop('year', None)
+        if year is not None:
+            if year < 1 or year > 9999:
+                yearoffset =  int(np.floor(year / 400) * 400) - 2000
+                year = year - yearoffset
+            else:
+                yearoffset = 0
+            kwargs['year'] = year
+        else:
+            yearoffset = self._yearoffset
+        new = super().replace(*args, **kwargs)
+        return self._datetime_to_datetimey(new, yearoffset)
+
+
+def relativedelta(t1, t2):
+    
 
 def _to_ordinalf(dt):
     """
