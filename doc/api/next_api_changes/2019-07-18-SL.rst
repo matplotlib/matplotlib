@@ -1,4 +1,4 @@
-Reduced default value of `axes.formatter.limits`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Reduced default value of :rc:`axes.formatter.limits`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Changed the default value of `axes.formatter.limits` from -7, 7 to -5, 6 for better readability.
+Changed the default value of :rc:`axes.formatter.limits` from -7, 7 to -5, 6 for better readability.
