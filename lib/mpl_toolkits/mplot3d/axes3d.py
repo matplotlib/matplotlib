@@ -2375,7 +2375,7 @@ class Axes3D(Axes):
         shade : bool, optional (default = True)
             When true, this shades the dark sides of the bars (relative
             to the plot's source of light).
-            
+
         lightsource : `~matplotlib.colors.LightSource`
             The lightsource to use when *shade* is True.
 
