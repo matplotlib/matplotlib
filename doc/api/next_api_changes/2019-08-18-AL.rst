@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+``font_manager.JSONEncoder`` is deprecated.  Use `.font_manager.json_dump` to
+dump a `.FontManager` instance.
