@@ -182,12 +182,25 @@ Open source
     style="float:right; margin-left:20px" />
    </a>
 
+
+Matplotlib is a Sponsored Project of NumFOCUS, a 501(c)(3) nonprofit
+charity in the United States. NumFOCUS provides Matplotlib with
+fiscal, legal, and administrative support to help ensure the health
+and sustainability of the project. Visit `numfocus.org <nf>`_ for more
+information.
+
+Donations to Matplotlib are managed by NumFOCUS. For donors in the
+United States, your gift is tax-deductible to the extent provided by
+law. As with any donation, you should consult with your tax adviser
+about your particular tax situation.
+
 Please consider `donating to the Matplotlib project <donating_>`_ through
 the Numfocus organization or to the `John Hunter Technology Fellowship
 <jdh-fellowship_>`_.
 
 .. _donating: https://numfocus.salsalabs.org/donate-to-matplotlib/index.html
 .. _jdh-fellowship: https://www.numfocus.org/programs/john-hunter-technology-fellowship/
+.. _nf: https://numfocus.org
 
 The :doc:`Matplotlib license <users/license>` is based on the `Python Software
 Foundation (PSF) license <psf-license_>`_.
