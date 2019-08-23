@@ -3,14 +3,15 @@ from os.path import sep
 
 
 def rcparam_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
-    rendered = nodes.Text('rcParams["{}"]'.format(text))
+    rendered = nodes.Text(f'rcParams["{text}"]')
 
     source = inliner.document.attributes['source'].replace(sep, '/')
     rel_source = source.split('/doc/', 1)[1]
 
     levels = rel_source.count('/')
     refuri = ('../' * levels +
-              'tutorials/introductory/customizing.html#matplotlib-rcparams')
+              'tutorials/introductory/customizing.html' +
+              f"?highlight={text}#a-sample-matplotlibrc-file")
 
     ref = nodes.reference(rawtext, rendered, refuri=refuri)
     return [nodes.literal('', '', ref)], []
