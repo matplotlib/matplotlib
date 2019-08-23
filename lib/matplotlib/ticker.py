@@ -2599,38 +2599,32 @@ class SymmetricalLogLocator(Locator):
             return lo, hi
 
         # Calculate all the ranges, so we can determine striding
+        a_lo, a_hi = (0, 0)
         if has_a:
-            if has_b:
-                a_range = get_log_range(linthresh, np.abs(vmin) + 1)
-            else:
-                a_range = get_log_range(np.abs(vmax), np.abs(vmin) + 1)
-        else:
-            a_range = (0, 0)
+            a_upper_lim = min(-linthresh, vmax)
+            a_lo, a_hi = get_log_range(np.abs(a_upper_lim), np.abs(vmin) + 1)
 
+        c_lo, c_hi = (0, 0)
         if has_c:
-            if has_b:
-                c_range = get_log_range(linthresh, vmax + 1)
-            else:
-                c_range = get_log_range(vmin, vmax + 1)
-        else:
-            c_range = (0, 0)
+            c_lower_lim = max(linthresh, vmin)
+            c_lo, c_hi = get_log_range(c_lower_lim, vmax + 1)
 
         # Calculate the total number of integer exponents in a and c ranges
-        total_ticks = (a_range[1] - a_range[0]) + (c_range[1] - c_range[0])
+        total_ticks = (a_hi - a_lo) + (c_hi - c_lo)
         if has_b:
             total_ticks += 1
         stride = max(total_ticks // (self.numticks - 1), 1)
 
         decades = []
         if has_a:
-            decades.extend(-1 * (base ** (np.arange(a_range[0], a_range[1],
+            decades.extend(-1 * (base ** (np.arange(a_lo, a_hi,
                                                     stride)[::-1])))
 
         if has_b:
             decades.append(0.0)
 
         if has_c:
-            decades.extend(base ** (np.arange(c_range[0], c_range[1], stride)))
+            decades.extend(base ** (np.arange(c_lo, c_hi, stride)))
 
         # Add the subticks if requested
         if self._subs is None:
