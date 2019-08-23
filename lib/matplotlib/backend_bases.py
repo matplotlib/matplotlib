@@ -2008,11 +2008,13 @@ class FigureCanvasBase:
         dpi : float, default: :rc:`savefig.dpi`
             The dots per inch to save the figure in.
 
-        facecolor : color, default: :rc:`savefig.facecolor`
-            The facecolor of the figure.
+        facecolor : color or 'auto', default: :rc:`savefig.facecolor`
+            The facecolor of the figure.  If 'auto', use the current figure
+            facecolor.
 
-        edgecolor : color, default: :rc:`savefig.edgecolor`
-            The edgecolor of the figure.
+        edgecolor : color or 'auto', default: :rc:`savefig.edgecolor`
+            The edgecolor of the figure.  If 'auto', use the current figure
+            edgecolor.
 
         orientation : {'landscape', 'portrait'}, default: 'portrait'
             Only currently applies to PostScript printing.
@@ -2068,21 +2070,23 @@ class FigureCanvasBase:
         # but this should be fine.
         with cbook._setattr_cm(self, _is_saving=True, manager=None), \
                 cbook._setattr_cm(self.figure, dpi=dpi):
+            origfacecolor = self.figure.get_facecolor()
+            origedgecolor = self.figure.get_edgecolor()
 
             if facecolor is None:
                 facecolor = rcParams['savefig.facecolor']
+            if cbook._str_equal(facecolor, 'auto'):
+                facecolor = origfacecolor
             if edgecolor is None:
                 edgecolor = rcParams['savefig.edgecolor']
-
-            origfacecolor = self.figure.get_facecolor()
-            origedgecolor = self.figure.get_edgecolor()
+            if cbook._str_equal(edgecolor, 'auto'):
+                edgecolor = origedgecolor
 
             self.figure.set_facecolor(facecolor)
             self.figure.set_edgecolor(edgecolor)
 
             if bbox_inches is None:
                 bbox_inches = rcParams['savefig.bbox']
-
             if bbox_inches:
                 if bbox_inches == "tight":
                     renderer = _get_renderer(

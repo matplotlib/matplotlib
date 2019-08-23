@@ -324,13 +324,13 @@ validate_nseq_int = partial(_make_nseq_validator, int)
 
 def validate_color_or_inherit(s):
     """Return a valid color arg."""
-    if s == 'inherit':
+    if cbook._str_equal(s, 'inherit'):
         return s
     return validate_color(s)
 
 
 def validate_color_or_auto(s):
-    if s == 'auto':
+    if cbook._str_equal(s, 'auto'):
         return s
     return validate_color(s)
 
@@ -1411,8 +1411,8 @@ defaultParams = {
 
     ## Saving figure's properties
     'savefig.dpi':         ['figure', validate_dpi],  # DPI
-    'savefig.facecolor':   ['white', validate_color],
-    'savefig.edgecolor':   ['white', validate_color],
+    'savefig.facecolor':   ['auto', validate_color_or_auto],
+    'savefig.edgecolor':   ['auto', validate_color_or_auto],
     'savefig.orientation': ['portrait', ['landscape', 'portrait']],
     'savefig.jpeg_quality': [95, validate_int],
     # value checked by backend at runtime

@@ -234,3 +234,10 @@ This also means there is a new keyword argument for `.axes.Axes.get_tightbbox`:
 bounding box using the rules above.  `.axis.Axis.get_tightbbox` gets an
 ``ignore_label`` keyword argument, which is *None* by default, but which can
 also be 'x' or 'y'. 
+
+:rc:`savefig.facecolor` and :rc:`savefig.edgecolor` now default to "auto"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This newly allowed value for :rc:`savefig.facecolor` and :rc:`savefig.edgecolor`,
+as well as the *facecolor* and *edgecolor* parameters to `.Figure.savefig`, means
+"use whatever facecolor and edgecolor the figure current has".
