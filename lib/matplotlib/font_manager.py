@@ -1338,7 +1338,8 @@ if hasattr(os, "register_at_fork"):
 def get_font(filename, hinting_factor=None):
     if hinting_factor is None:
         hinting_factor = rcParams['text.hinting_factor']
-    return _get_font(os.fspath(filename), hinting_factor)
+    return _get_font(os.fspath(filename), hinting_factor,
+                     _kerning_factor=rcParams['text.kerning_factor'])
 
 
 def _rebuild():

@@ -48,6 +48,9 @@ def test_get_labels():
 
 @image_comparison(['acorr.png'], style='mpl20')
 def test_acorr():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     np.random.seed(19680801)
     n = 512
     x = np.random.normal(0, 1, n).cumsum()
@@ -5730,6 +5733,9 @@ def test_axisbelow():
 
 @image_comparison(['titletwiny.png'], style='mpl20')
 def test_titletwiny():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     # Test that title is put above xlabel if xlabel at top
     fig, ax = plt.subplots()
     fig.subplots_adjust(top=0.8)

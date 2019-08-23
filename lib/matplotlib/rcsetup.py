@@ -1091,6 +1091,7 @@ defaultParams = {
     'text.latex.preview':  [False, validate_bool],
     'text.hinting':        ['auto', validate_hinting],
     'text.hinting_factor': [8, validate_int],
+    'text.kerning_factor': [0, validate_int],
     'text.antialiased':    [True, validate_bool],
 
     'mathtext.cal':            ['cursive', validate_font_properties],

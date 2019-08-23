@@ -553,10 +553,12 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
     PyObject *fname;
     FT_Open_Args open_args;
     long hinting_factor = 8;
-    const char *names[] = { "filename", "hinting_factor", NULL };
+    int kerning_factor = 0;
+    const char *names[] = { "filename", "hinting_factor", "_kerning_factor", NULL };
 
     if (!PyArg_ParseTupleAndKeywords(
-             args, kwds, "O|l:FT2Font", (char **)names, &fname, &hinting_factor)) {
+             args, kwds, "O|l$i:FT2Font", (char **)names, &fname,
+             &hinting_factor, &kerning_factor)) {
         return -1;
     }
 
@@ -566,6 +568,8 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
 
     CALL_CPP_FULL(
         "FT2Font", (self->x = new FT2Font(open_args, hinting_factor)), PyFT2Font_fail(self), -1);
+
+    CALL_CPP("FT2Font->set_kerning_factor", (self->x->set_kerning_factor(kerning_factor)));
 
     Py_INCREF(fname);
     self->fname = fname;

@@ -316,6 +316,10 @@
 #text.hinting_factor : 8  ## Specifies the amount of softness for hinting in the
                           ## horizontal direction.  A value of 1 will hint to full
                           ## pixels.  A value of 2 will hint to half pixels etc.
+#text.kerning_factor : 0  ## Specifies the scaling factor for kerning values. This
+                          ## is provided solely to allow old test images to remain
+                          ## unchanged. Set to 6 to obtain previous behavior. Values
+                          ## other than 0 or 6 have no defined meaning.
 #text.antialiased : True  ## If True (default), the text will be antialiased.
                           ## This only affects the Agg backend.
 
