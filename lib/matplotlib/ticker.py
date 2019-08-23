@@ -180,6 +180,7 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'StrMethodFormatter', 'ScalarFormatter', 'LogFormatter',
            'LogFormatterExponent', 'LogFormatterMathtext',
            'IndexFormatter', 'LogFormatterSciNotation',
+           'SymmetricalLogFormatter',
            'LogitFormatter', 'EngFormatter', 'PercentFormatter',
            'Locator', 'IndexLocator', 'FixedLocator', 'NullLocator',
            'LinearLocator', 'LogLocator', 'AutoLocator',
@@ -894,6 +895,7 @@ class LogFormatter(Formatter):
     decades, use ``minor_thresholds=(1.5, 1.5)``.
 
     """
+    @cbook._delete_parameter('3.2', 'linthresh')
     def __init__(self, base=10.0, labelOnlyBase=False,
                  minor_thresholds=None,
                  linthresh=None):
@@ -1159,11 +1161,18 @@ class LogFormatterSciNotation(LogFormatterMathtext):
         if is_close_to_int(coeff):
             coeff = round(coeff)
         if usetex:
-            return (r'$%s%g\times%s^{%d}$') % \
-                                        (sign_string, coeff, base, exponent)
+            return ((r'$%s%g\times%s^{%d}$') %
+                    (sign_string, coeff, base, exponent))
         else:
             return ('$%s$' % _mathdefault(r'%s%g\times%s^{%d}' %
-                                        (sign_string, coeff, base, exponent)))
+                    (sign_string, coeff, base, exponent)))
+
+
+class SymmetricalLogFormatter(LogFormatterSciNotation):
+    def __init__(self, linthresh, base=10.0, labelOnlyBase=False,
+                 minor_thresholds=None):
+        super().__init__(base, labelOnlyBase, minor_thresholds)
+        self._linthresh = linthresh
 
 
 class LogitFormatter(Formatter):

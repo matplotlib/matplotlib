@@ -1,0 +1,5 @@
+``linthresh`` paramter to `LogFormatter` is deprecated
+------------------------------------------------------
+Handing the ``linthresh`` parameter to `LogFormatter` is deprecated, and
+code for handling `SymmetricalLogScale` formattng has been moved to the new
+`SymmetricalLogFormatter` class, which takes the ``linthresh`` parameter.
