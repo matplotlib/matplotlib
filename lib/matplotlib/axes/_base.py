@@ -2560,7 +2560,7 @@ class _AxesBase(martist.Artist):
             return
         self._unstale_viewLim()
 
-        renderer.open_group('axes')
+        renderer.open_group('axes', gid=self.get_gid())
 
         # prevent triggering call backs during the draw process
         self._stale = True

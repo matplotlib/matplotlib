@@ -127,7 +127,7 @@ class BezierPath(Line2D):
 
         if not self._visible:
             return
-        renderer.open_group('line2d')
+        renderer.open_group('line2d', gid=self.get_gid())
 
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
@@ -1230,7 +1230,7 @@ class AxisArtist(martist.Artist):
         if not self.get_visible():
             return
 
-        renderer.open_group(__name__)
+        renderer.open_group(__name__, gid=self.get_gid())
 
         self._axis_artist_helper.update_lim(self.axes)
 

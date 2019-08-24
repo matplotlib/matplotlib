@@ -1882,7 +1882,7 @@ class TriMesh(Collection):
     def draw(self, renderer):
         if not self.get_visible():
             return
-        renderer.open_group(self.__class__.__name__)
+        renderer.open_group(self.__class__.__name__, gid=self.get_gid())
         transform = self.get_transform()
 
         # Get a list of triangles and the color at each vertex.

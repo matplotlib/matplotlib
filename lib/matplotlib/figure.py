@@ -1724,7 +1724,7 @@ default: 'top'
                         child.apply_aspect()
 
         try:
-            renderer.open_group('figure')
+            renderer.open_group('figure', gid=self.get_gid())
             if self.get_constrained_layout() and self.axes:
                 self.execute_constrained_layout(renderer)
             if self.get_tight_layout() and self.axes:
