@@ -189,7 +189,7 @@ def test_gid():
         if isinstance(obj, plt.Text):
             if obj.get_text() == "":
                 return False
-            elif not hasattr(obj, "axes") or obj.axes is None:
+            elif obj.axes is None:
                 return False
         if isinstance(obj, plt.Line2D):
             if np.array(obj.get_data()).shape == (2, 1):
