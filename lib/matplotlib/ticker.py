@@ -2577,30 +2577,17 @@ class SymmetricalLogLocator(Locator):
         #
         # "simple" mode is when the range falls entirely within (-t,
         # t) -- it should just display (vmin, 0, vmax)
+        if -linthresh < vmin < vmax < linthresh:
+            # only the linear range is present
+            return [vmin, vmax]
 
-        # Determine which of the three ranges we have
-        has_a = has_b = has_c = False
-        if vmin < -linthresh:
-            has_a = True
-            if vmax > -linthresh:
-                has_b = True
-                if vmax > linthresh:
-                    has_c = True
-        elif vmin < 0:
-            if vmax > 0:
-                has_b = True
-                if vmax > linthresh:
-                    has_c = True
-            else:
-                return [vmin, vmax]
-        elif vmin < linthresh:
-            if vmax > linthresh:
-                has_b = True
-                has_c = True
-            else:
-                return [vmin, vmax]
-        else:
-            has_c = True
+        # Lower log range is present
+        has_a = (vmin < -linthresh)
+        # Upper log range is present
+        has_c = (vmax > linthresh)
+
+        # Check if linear range is present
+        has_b = (has_a and vmax > -linthresh) or (has_c and vmin < linthresh)
 
         def get_log_range(lo, hi):
             lo = np.floor(np.log(lo) / np.log(base))
@@ -2608,38 +2595,32 @@ class SymmetricalLogLocator(Locator):
             return lo, hi
 
         # Calculate all the ranges, so we can determine striding
+        a_lo, a_hi = (0, 0)
         if has_a:
-            if has_b:
-                a_range = get_log_range(linthresh, np.abs(vmin) + 1)
-            else:
-                a_range = get_log_range(np.abs(vmax), np.abs(vmin) + 1)
-        else:
-            a_range = (0, 0)
+            a_upper_lim = min(-linthresh, vmax)
+            a_lo, a_hi = get_log_range(np.abs(a_upper_lim), np.abs(vmin) + 1)
 
+        c_lo, c_hi = (0, 0)
         if has_c:
-            if has_b:
-                c_range = get_log_range(linthresh, vmax + 1)
-            else:
-                c_range = get_log_range(vmin, vmax + 1)
-        else:
-            c_range = (0, 0)
+            c_lower_lim = max(linthresh, vmin)
+            c_lo, c_hi = get_log_range(c_lower_lim, vmax + 1)
 
         # Calculate the total number of integer exponents in a and c ranges
-        total_ticks = (a_range[1] - a_range[0]) + (c_range[1] - c_range[0])
+        total_ticks = (a_hi - a_lo) + (c_hi - c_lo)
         if has_b:
             total_ticks += 1
         stride = max(total_ticks // (self.numticks - 1), 1)
 
         decades = []
         if has_a:
-            decades.extend(-1 * (base ** (np.arange(a_range[0], a_range[1],
+            decades.extend(-1 * (base ** (np.arange(a_lo, a_hi,
                                                     stride)[::-1])))
 
         if has_b:
             decades.append(0.0)
 
         if has_c:
-            decades.extend(base ** (np.arange(c_range[0], c_range[1], stride)))
+            decades.extend(base ** (np.arange(c_lo, c_hi, stride)))
 
         # Add the subticks if requested
         if self._subs is None:
