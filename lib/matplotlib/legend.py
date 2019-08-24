@@ -171,22 +171,19 @@ prop : None or :class:`matplotlib.font_manager.FontProperties` or dict
 
 fontsize : int or float or {'xx-small', 'x-small', 'small', 'medium', \
 'large', 'x-large', 'xx-large'}
-    Controls the font size of the legend. If the value is numeric the
-    size will be the absolute font size in points. String values are
-    relative to the current default font size. This argument is only
-    used if *prop* is not specified.
+    The font size of the legend. If the value is numeric the size will be the
+    absolute font size in points. String values are relative to the current
+    default font size. This argument is only used if *prop* is not specified.
 
 numpoints : None or int
     The number of marker points in the legend when creating a legend
     entry for a `.Line2D` (line).
-    Default is ``None``, which will take the value from
-    :rc:`legend.numpoints`.
+    Default is ``None``, which means using :rc:`legend.numpoints`.
 
 scatterpoints : None or int
     The number of marker points in the legend when creating
     a legend entry for a `.PathCollection` (scatter plot).
-    Default is ``None``, which will take the value from
-    :rc:`legend.scatterpoints`.
+    Default is ``None``, which means using :rc:`legend.scatterpoints`.
 
 scatteryoffsets : iterable of floats
     The vertical offset (relative to the font size) for the markers
@@ -197,8 +194,7 @@ scatteryoffsets : iterable of floats
 markerscale : None or int or float
     The relative size of legend markers compared with the originally
     drawn ones.
-    Default is ``None``, which will take the value from
-    :rc:`legend.markerscale`.
+    Default is ``None``, which means using :rc:`legend.markerscale`.
 
 markerfirst : bool
     If *True*, legend marker is placed to the left of the legend label.
@@ -207,40 +203,33 @@ markerfirst : bool
     Default is *True*.
 
 frameon : None or bool
-    Control whether the legend should be drawn on a patch
-    (frame).
-    Default is ``None``, which will take the value from
-    :rc:`legend.frameon`.
+    Whether the legend should be drawn on a patch (frame).
+    Default is ``None``, which means using :rc:`legend.frameon`.
 
 fancybox : None or bool
-    Control whether round edges should be enabled around the
-    :class:`~matplotlib.patches.FancyBboxPatch` which makes up the
-    legend's background.
-    Default is ``None``, which will take the value from
-    :rc:`legend.fancybox`.
+    Whether round edges should be enabled around the `~.FancyBboxPatch` which
+    makes up the legend's background.
+    Default is ``None``, which means using :rc:`legend.fancybox`.
 
 shadow : None or bool
-    Control whether to draw a shadow behind the legend.
-    Default is ``None``, which will take the value from
-    :rc:`legend.shadow`.
+    Whether to draw a shadow behind the legend.
+    Default is ``None``, which means using :rc:`legend.shadow`.
 
 framealpha : None or float
-    Control the alpha transparency of the legend's background.
-    Default is ``None``, which will take the value from
-    :rc:`legend.framealpha`.  If shadow is activated and
-    *framealpha* is ``None``, the default value is ignored.
+    The alpha transparency of the legend's background.
+    Default is ``None``, which means using :rc:`legend.framealpha`.
+    If *shadow* is activated and *framealpha* is ``None``, the default value is
+    ignored.
 
 facecolor : None or "inherit" or color
-    Control the legend's background color.
-    Default is ``None``, which will take the value from
-    :rc:`legend.facecolor`.  If ``"inherit"``, it will take
-    :rc:`axes.facecolor`.
+    The legend's background color.
+    Default is ``None``, which means using :rc:`legend.facecolor`.
+    If ``"inherit"``, use :rc:`axes.facecolor`.
 
 edgecolor : None or "inherit" or color
-    Control the legend's background patch edge color.
-    Default is ``None``, which will take the value from
-    :rc:`legend.edgecolor` If ``"inherit"``, it will take
-    :rc:`axes.edgecolor`.
+    The legend's background patch edge color.
+    Default is ``None``, which means using :rc:`legend.edgecolor`.
+    If ``"inherit"``, use take :rc:`axes.edgecolor`.
 
 mode : {"expand", None}
     If *mode* is set to ``"expand"`` the legend will be horizontally
@@ -259,40 +248,28 @@ title_fontsize: str or None
     The fontsize of the legend's title.  Default is the default fontsize.
 
 borderpad : float or None
-    The fractional whitespace inside the legend border.
-    Measured in font-size units.
-    Default is ``None``, which will take the value from
-    :rc:`legend.borderpad`.
+    The fractional whitespace inside the legend border, in font-size units.
+    Default is ``None``, which means using :rc:`legend.borderpad`.
 
 labelspacing : float or None
-    The vertical space between the legend entries.
-    Measured in font-size units.
-    Default is ``None``, which will take the value from
-    :rc:`legend.labelspacing`.
+    The vertical space between the legend entries, in font-size units.
+    Default is ``None``, which means using :rc:`legend.labelspacing`.
 
 handlelength : float or None
-    The length of the legend handles.
-    Measured in font-size units.
-    Default is ``None``, which will take the value from
-    :rc:`legend.handlelength`.
+    The length of the legend handles, in font-size units.
+    Default is ``None``, which means using :rc:`legend.handlelength`.
 
 handletextpad : float or None
-    The pad between the legend handle and text.
-    Measured in font-size units.
-    Default is ``None``, which will take the value from
-    :rc:`legend.handletextpad`.
+    The pad between the legend handle and text, in font-size units.
+    Default is ``None``, which means using :rc:`legend.handletextpad`.
 
 borderaxespad : float or None
-    The pad between the axes and legend border.
-    Measured in font-size units.
-    Default is ``None``, which will take the value from
-    :rc:`legend.borderaxespad`.
+    The pad between the axes and legend border, in font-size units.
+    Default is ``None``, which means using :rc:`legend.borderaxespad`.
 
 columnspacing : float or None
-    The spacing between columns.
-    Measured in font-size units.
-    Default is ``None``, which will take the value from
-    :rc:`legend.columnspacing`.
+    The spacing between columns, in font-size units.
+    Default is ``None``, which means using :rc:`legend.columnspacing`.
 
 handler_map : dict or None
     The custom dictionary mapping instances or types to a legend
