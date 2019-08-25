@@ -133,12 +133,22 @@ def _parse_header(fh):
         }
 
     d = {}
+    first_line = True
     for line in fh:
         line = line.rstrip()
         if line.startswith(b'Comment'):
             continue
         lst = line.split(b' ', 1)
         key = lst[0]
+        if first_line:
+            # AFM spec, Section 4: The StartFontMetrics keyword
+            # [followed by a version number] must be the first line in
+            # the file, and the EndFontMetrics keyword must be the
+            # last non-empty line in the file.  We just check the
+            # first header entry.
+            if key != b'StartFontMetrics':
+                raise RuntimeError('Not an AFM file')
+            first_line = False
         if len(lst) == 2:
             val = lst[1]
         else:
@@ -157,12 +167,6 @@ def _parse_header(fh):
             break
     else:
         raise RuntimeError('Bad parse')
-    # AFM spec, Section 4: The StartFontMetrics keyword [followed by a version
-    # number] must be the first line in the file, and the EndFontMetrics
-    # keyword must be the last non-empty line in the file.  We just check the
-    # first header entry.
-    if next(iter(d)) != b'StartFontMetrics':
-        raise RuntimeError('Not an AFM file')
     return d
 
 
