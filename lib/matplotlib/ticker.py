@@ -181,10 +181,11 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'LogFormatterExponent', 'LogFormatterMathtext',
            'IndexFormatter', 'LogFormatterSciNotation',
            'LogitFormatter', 'EngFormatter', 'PercentFormatter',
+           'OldScalarFormatter',
            'Locator', 'IndexLocator', 'FixedLocator', 'NullLocator',
            'LinearLocator', 'LogLocator', 'AutoLocator',
            'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',
-           'SymmetricalLogLocator', 'LogitLocator')
+           'SymmetricalLogLocator', 'LogitLocator', 'OldAutoLocator')
 
 
 def _mathdefault(s):
