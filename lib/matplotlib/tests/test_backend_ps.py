@@ -25,6 +25,7 @@ with warnings.catch_warnings():
 
 # This tests tends to hit a TeX cache lock on AppVeyor.
 @pytest.mark.flaky(reruns=3)
+@pytest.mark.parametrize('orientation', ['portrait', 'landscape'])
 @pytest.mark.parametrize('format, use_log, rcParams', [
     ('ps', False, {}),
     pytest.param('ps', False, {'ps.usedistiller': 'ghostscript'},
@@ -43,7 +44,8 @@ with warnings.catch_warnings():
     'eps afm',
     'eps with usetex'
 ])
-def test_savefig_to_stringio(format, use_log, rcParams, monkeypatch):
+def test_savefig_to_stringio(format, use_log, rcParams, orientation,
+                             monkeypatch):
     mpl.rcParams.update(rcParams)
     monkeypatch.setenv("SOURCE_DATE_EPOCH", "0")  # For reproducibility.
 
@@ -59,8 +61,8 @@ def test_savefig_to_stringio(format, use_log, rcParams, monkeypatch):
         if not mpl.rcParams["text.usetex"]:
             title += " \N{MINUS SIGN}\N{EURO SIGN}"
         ax.set_title(title)
-        fig.savefig(s_buf, format=format)
-        fig.savefig(b_buf, format=format)
+        fig.savefig(s_buf, format=format, orientation=orientation)
+        fig.savefig(b_buf, format=format, orientation=orientation)
 
         s_val = s_buf.getvalue().encode('ascii')
         b_val = b_buf.getvalue()
