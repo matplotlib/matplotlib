@@ -86,7 +86,7 @@ def test_bar3d_lightsource():
                           color=color, shade=True, lightsource=ls)
 
     # Testing that the custom 90° lightsource produces different shading on
-    # the top facecolors then to the default, and that those colors are
+    # the top facecolors compared to the default, and that those colors are
     # precisely the colors from the colormap, due to the illumination parallel
     # to the z-axis.
     np.testing.assert_array_equal(color, collection._facecolors3d[1::6])
