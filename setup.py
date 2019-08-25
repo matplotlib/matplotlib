@@ -266,9 +266,5 @@ if __name__ == '__main__':
             "python-dateutil>=2.1",
         ],
 
-        # matplotlib has C/C++ extensions, so it's not zip safe.
-        # Telling setuptools this prevents it from doing an automatic
-        # check for zip safety.
-        zip_safe=False,
         cmdclass=cmdclass,
     )
