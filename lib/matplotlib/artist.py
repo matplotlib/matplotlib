@@ -1536,7 +1536,7 @@ def setp(obj, *args, **kwargs):
     the name of the property you want to set without a value::
 
       >>> setp(line, 'linestyle')
-          linestyle: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
+          linestyle: {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
 
     If you want to see all the properties that can be set, and their
     possible values, you can do::

@@ -18,7 +18,7 @@ If you want to know the valid types of arguments, you can provide the
 name of the property you want to set without a value::
 
   >>> plt.setp(line, 'linestyle')
-      linestyle: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
+      linestyle: {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
 
 If you want to see all the properties that can be set, and their
 possible values, you can do::

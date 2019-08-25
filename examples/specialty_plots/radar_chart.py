@@ -34,7 +34,7 @@ def radar_factory(num_vars, frame='circle'):
     ----------
     num_vars : int
         Number of variables for radar chart.
-    frame : {'circle' | 'polygon'}
+    frame : {'circle', 'polygon'}
         Shape of frame surrounding axes.
 
     """

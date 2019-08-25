@@ -772,6 +772,6 @@ def _get_scale_docs():
 
 
 docstring.interpd.update(
-    scale=' | '.join([repr(x) for x in get_scale_names()]),
+    scale_type='{%s}' % ', '.join([repr(x) for x in get_scale_names()]),
     scale_docs=_get_scale_docs().rstrip(),
     )

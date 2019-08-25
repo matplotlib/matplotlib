@@ -521,12 +521,6 @@ omitted for string default values.
   If not provided, defaults to :rc:`figure.figsize` = ``[6.4, 4.8]``.
   If not provided, defaults to :rc:`figure.facecolor` = 'w'.
 
-Deprecated formatting conventions
----------------------------------
-Formerly, we have used square brackets for explicit parameter lists
-``['solid' | 'dashed' | 'dotted']``. With numpydoc we have switched to their
-standard using curly braces ``{'solid', 'dashed', 'dotted'}``.
-
 Setters and getters
 -------------------
 

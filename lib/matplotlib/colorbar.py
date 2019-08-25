@@ -66,11 +66,11 @@ colormap_kw_doc = '''
     ============  ====================================================
     Property      Description
     ============  ====================================================
-    *extend*      [ 'neither' | 'both' | 'min' | 'max' ]
+    *extend*      {'neither', 'both', 'min', 'max'}
                   If not 'neither', make pointed end(s) for out-of-
                   range values.  These are set for a given colormap
                   using the colormap set_under and set_over methods.
-    *extendfrac*  [ *None* | 'auto' | length | lengths ]
+    *extendfrac*  {*None*, 'auto', length, lengths}
                   If set to *None*, both the minimum and maximum
                   triangular colorbar extensions with have a length of
                   5% of the interior colorbar length (this is the
@@ -90,14 +90,14 @@ colormap_kw_doc = '''
                   If *False* the minimum and maximum colorbar extensions
                   will be triangular (the default). If *True* the
                   extensions will be rectangular.
-    *spacing*     [ 'uniform' | 'proportional' ]
+    *spacing*     {'uniform', 'proportional'}
                   Uniform spacing gives each discrete color the same
                   space; proportional makes the space proportional to
                   the data interval.
-    *ticks*       [ None | list of ticks | Locator object ]
+    *ticks*       *None* or list of ticks or Locator
                   If None, ticks are determined automatically from the
                   input.
-    *format*      [ None | format string | Formatter object ]
+    *format*      None or str or Formatter
                   If None, the
                   :class:`~matplotlib.ticker.ScalarFormatter` is used.
                   If a format string is given, e.g., '%.3f', that is

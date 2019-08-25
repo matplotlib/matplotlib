@@ -2777,8 +2777,8 @@ class _AxesBase(martist.Artist):
           ==============   =========================================
           Keyword          Description
           ==============   =========================================
-          *axis*           [ 'x' | 'y' | 'both' ]
-          *style*          [ 'sci' (or 'scientific') | 'plain' ]
+          *axis*           {'x', 'y', 'both'}
+          *style*          {'sci' (or 'scientific'), 'plain'}
                            plain turns off scientific notation
           *scilimits*      (m, n), pair of integers; if *style*
                            is 'sci', scientific notation will
@@ -2787,11 +2787,11 @@ class _AxesBase(martist.Artist):
                            Use (0, 0) to include all numbers.
                            Use (m, m) where m != 0 to fix the order
                            of magnitude to 10\ :sup:`m`.
-          *useOffset*      [ bool | offset ]; if True,
-                           the offset will be calculated as needed;
-                           if False, no offset will be used; if a
-                           numeric offset is specified, it will be
-                           used.
+          *useOffset*      bool or float
+                           If True, the offset will be calculated as
+                           needed; if False, no offset will be used;
+                           if a numeric offset is specified, it will
+                           be used.
           *useLocale*      If True, format the number according to
                            the current locale.  This affects things
                            such as the character used for the
