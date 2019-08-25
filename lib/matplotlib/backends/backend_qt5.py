@@ -123,7 +123,7 @@ def _create_qApp():
                     QtCore.Qt.AA_EnableHighDpiScaling)
             except AttributeError:  # Attribute only exists for Qt>=5.6.
                 pass
-            qApp = QtWidgets.QApplication([b"matplotlib"])
+            qApp = QtWidgets.QApplication(["matplotlib"])
             qApp.lastWindowClosed.connect(qApp.quit)
         else:
             qApp = app
