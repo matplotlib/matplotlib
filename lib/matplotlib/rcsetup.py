@@ -458,7 +458,22 @@ def validate_whiskers(s):
                                  "(float, float)]")
 
 
+@cbook.deprecated("3.2")
 def update_savefig_format(value):
+    # The old savefig.extension could also have a value of "auto", but
+    # the new savefig.format does not.  We need to fix this here.
+    value = validate_string(value)
+    if value == 'auto':
+        cbook.warn_deprecated(
+            "3.2", message="Support for setting the 'savefig.format' rcParam "
+            "to 'auto' is deprecated since %(since)s and will be removed "
+            "%(removal)s; set it to 'png' instead.")
+        value = 'png'
+    return value
+
+
+# Replace by validate_string once deprecation period passes.
+def _update_savefig_format(value):
     # The old savefig.extension could also have a value of "auto", but
     # the new savefig.format does not.  We need to fix this here.
     value = validate_string(value)
@@ -1344,7 +1359,7 @@ defaultParams = {
     'savefig.orientation': ['portrait', validate_orientation],
     'savefig.jpeg_quality': [95, validate_int],
     # value checked by backend at runtime
-    'savefig.format':     ['png', update_savefig_format],
+    'savefig.format':     ['png', _update_savefig_format],
     # options are 'tight', or 'standard'. 'standard' validates to None.
     'savefig.bbox':       ['standard', validate_bbox],
     'savefig.pad_inches': [0.1, validate_float],
