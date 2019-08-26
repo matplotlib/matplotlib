@@ -594,6 +594,10 @@ span.linkdescr {
     font-size: 90%;
 }
 
+.highlight span.c1 span.highlighted {
+    background-color: #fce5a6;
+}
+
 ul.search {
     margin: 10px 0 0 20px;
     padding: 0;
