@@ -1,0 +1,9 @@
+Deprecations
+````````````
+
+For the `mpl_toolkits.axistartist.axis_artist.AttributeCopier` class, the
+constructor and the ``set_ref_artist`` method, and the *default_value*
+parameter of ``get_attribute_from_ref_artist``, are deprecated.
+
+Deprecation of the constructor means that classes inheriting from
+`AttributeCopier` should no longer call its constructor.
