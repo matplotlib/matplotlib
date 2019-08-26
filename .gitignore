@@ -54,6 +54,8 @@ Thumbs.db
 ###################################
 lib/matplotlib/mpl-data/matplotlib.conf
 lib/matplotlib/mpl-data/matplotlibrc
+tutorials/intermediate/CL01.png
+tutorials/intermediate/CL02.png
 
 # Documentation generated files #
 #################################
