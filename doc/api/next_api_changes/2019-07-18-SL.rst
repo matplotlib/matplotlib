@@ -9,7 +9,7 @@ Changed the default value of :rc:`axes.formatter.limits` from -7, 7 to
    import matplotlib.pyplot as plt
    import numpy as np
 
-   fig, [ax_old, ax_new] = plt.subplots(1, 2, constrained_layout=True)
+   fig, (ax_old, ax_new) = plt.subplots(1, 2, constrained_layout=True)
 
    ax_new.set_title('new values (-5, 6)')
    ax_old.set_title('old values (-7, 7)')
