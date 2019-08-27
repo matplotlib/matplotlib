@@ -48,9 +48,11 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         left, top = self.mouseEventCoords(rect.topLeft())
         # shift the "top" by the height of the image to get the
         # correct corner for our coordinate system
-        top -= height
-        bbox = Bbox([[left, top], [left + width, top + height]])
-        # create a buffer using this bounding box
+        bottom = top - height
+        # same with the right side of the image
+        right = left + width
+        # create a buffer using the image bounding box
+        bbox = Bbox([[left, bottom], [right, top]])
         reg = self.copy_from_bbox(bbox)
         buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
             memoryview(reg))
