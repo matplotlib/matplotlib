@@ -500,15 +500,8 @@ section of the docstring.
 rcParams
 ~~~~~~~~
 rcParams can be referenced with the custom ``:rc:`` role:
-:literal:`:rc:\`foo\`` yields ``rcParams["foo"]``. Use `= [default-val]`
-to indicate the default value of the parameter. The default value should be
-literal, i.e. enclosed in double backticks. For simplicity these may be
-omitted for string default values.
-
-.. code-block:: rst
-
-  If not provided, defaults to :rc:`figure.figsize` = ``[6.4, 4.8]``.
-  If not provided, defaults to :rc:`figure.facecolor` = 'w'.
+:literal:`:rc:\`foo\`` yields ``rcParams["foo"] = 'default'``, which is a link
+to the :file:`matplotlibrc` file description.
 
 Deprecated formatting conventions
 ---------------------------------
