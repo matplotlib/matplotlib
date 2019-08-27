@@ -461,7 +461,7 @@ div.topic {
     border-left: 0px;
     border-right: 0px;
     margin: 10px 0px;
-    padding: 1em 1.4em;
+    padding-left: 1em;
 }
 
 p.topic-title {
@@ -495,7 +495,8 @@ p.topic-title {
 }
 
 .contents > ul > li {
-    padding-top: 0.7em;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
 }
 
 .contents ul > li::before {
