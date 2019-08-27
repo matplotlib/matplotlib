@@ -151,7 +151,7 @@ def detrend(x, key=None, axis=None):
     x : array or sequence
         Array or sequence containing the data.
 
-    key : [ 'default' | 'constant' | 'mean' | 'linear' | 'none'] or function
+    key : {'default', 'constant', 'mean', 'linear', 'none'} or function
         Specifies the detrend algorithm to use. 'default' is 'mean', which is
         the same as `detrend_mean`. 'constant' is the same. 'linear' is
         the same as `detrend_linear`. 'none' is the same as

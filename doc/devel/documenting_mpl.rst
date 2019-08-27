@@ -514,12 +514,6 @@ rcParams can be referenced with the custom ``:rc:`` role:
 :literal:`:rc:\`foo\`` yields ``rcParams["foo"] = 'default'``, which is a link
 to the :file:`matplotlibrc` file description.
 
-Deprecated formatting conventions
----------------------------------
-Formerly, we have used square brackets for explicit parameter lists
-``['solid' | 'dashed' | 'dotted']``. With numpydoc we have switched to their
-standard using curly braces ``{'solid', 'dashed', 'dotted'}``.
-
 Setters and getters
 -------------------
 

@@ -62,7 +62,7 @@ class Axes3D(Axes):
             Azimuthal viewing angle, defaults to -60.
         elev : float, optional
             Elevation viewing angle, defaults to 30.
-        zscale : [%(scale)s], optional
+        zscale : %(scale_type)s, optional
             The z scale.  Note that currently, only a linear scale is
             supported.
         sharez : Axes3D, optional
