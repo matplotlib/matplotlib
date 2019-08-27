@@ -307,11 +307,10 @@ the list of conda packages.
 
   conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing tornado cycler tk libpng zlib freetype msinttypes
   conda activate matplotlib_build
+  # force the build against static libpng and zlib libraries
+  set MPLSTATICBUILD=True
+  python setup.py bdist_wheel
 
-For building, call the script ``build_alllocal.cmd`` in the root folder of the
-repository::
-
-  build_alllocal.cmd
 
 Conda packages
 ^^^^^^^^^^^^^^
