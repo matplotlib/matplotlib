@@ -624,7 +624,7 @@ class Line2D(Artist):
         bbox = Bbox([[0, 0], [0, 0]])
         trans_data_to_xy = self.get_transform().transform
         bbox.update_from_data_xy(trans_data_to_xy(
-            cbook.pad_arrays(self.get_xydata(), np.nan)), ignore=True)
+            cbook.pad_arrays(self.get_xydata())), ignore=True)
         # correct for marker size, if any
         if self._marker:
             ms = (self._markersize / 72.0 * self.figure.dpi) * 0.5
@@ -780,7 +780,6 @@ class Line2D(Artist):
             x0, x1 = self.axes.get_xbound()
             i0 = self._x_filled.searchsorted(x0, 'left')
             i1 = self._x_filled.searchsorted(x1, 'right')
-            #subslice = slice(max(i0 - 1, 0), i1 + 1)
             subslice = slice(max(i0 - 2, 0), i1 + 2)
             self.ind_offset = subslice.start
             self._transform_path(subslice)

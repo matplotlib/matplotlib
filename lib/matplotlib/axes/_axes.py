@@ -5366,13 +5366,6 @@ optional.
                 kwargs['facecolor'] = \
                     self._get_patches_for_fill.get_next_color()
 
-        if step == 'between':
-            if not len(y) == len(x1) + 1:
-                raise ValueError(f"When plotting with 'between' "
-                                 f"input sizes have to be have to satisfy "
-                                 f"len(y) == len(x1) + 1, but y "
-                                 f"and x1 have size {len(y)} and {len(x1)}")
-
         # Handle united data, such as dates
         self._process_unit_info(ydata=y, xdata=x1, kwargs=kwargs)
         self._process_unit_info(xdata=x2)
@@ -5394,7 +5387,7 @@ optional.
             if where.size != y.size:
                 cbook.warn_deprecated(
                     "3.2",
-                    message="The parameter where must have the same size as x "
+                    message="The parameter where must have the same size as y "
                             "in fill_between(). This will become an error in "
                             "future versions of Matplotlib.")
 

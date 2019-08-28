@@ -1526,8 +1526,8 @@ def broadcaster(v, def_size=1):
             vb = np.broadcast_arrays(*v)
         else:
             raise ValueError(f"Cannot broadcast arrays where more "
-                             f"than one of them have different value "
-                             f"of size > 1. "
+                             f"than one of them have different size, "
+                             f"for sizes > 1. "
                              f"Attempting to broadcast arrays of "
                              f"sizes {get_lens([*v])}.")
     return vb
@@ -1673,6 +1673,7 @@ def pts_to_poststep(x, *args):
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
+
     Returns
     -------
     out : array
