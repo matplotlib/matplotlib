@@ -359,6 +359,7 @@ def _to_ordinalf(dt):
     days, preserving hours, minutes, seconds and microseconds.  Return value
     is a :func:`float`.
     """
+    print('_to_ordinalf')
     # Convert to UTC
     tzi = getattr(dt, 'tzinfo', None)
     if tzi is not None:
@@ -378,6 +379,7 @@ def _to_ordinalf(dt):
         # Append the seconds as a fraction of a day
         base += (dt - rdt).total_seconds() / SEC_PER_DAY
 
+    print('reeeturning ', dt, base)
     return base
 
 
@@ -592,7 +594,7 @@ def date2num(d):
         d = np.asarray(d)
         if np.issubdtype(d.dtype, np.datetime64):
             return _dt64_to_ordinalf(d)
-        elif type(d[0]) == _datetimey:
+        elif d.size and type(d[0]) == _datetimey:
             return _to_ordinalfy_np_vectorized(d)
         if not d.size:
             return d

@@ -150,7 +150,9 @@ def test_too_many_date_ticks():
         assert len(rec) == 1
         assert \
             'Attempting to set identical left == right' in str(rec[0].message)
+    print('Looking here')
     ax.plot([], [])
+    print('Looking here')
     ax.xaxis.set_major_locator(mdates.DayLocator())
     with pytest.raises(RuntimeError):
         fig.savefig('junk.png')
