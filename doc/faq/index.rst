@@ -14,7 +14,6 @@ The Matplotlib FAQ
 .. toctree::
    :maxdepth: 2
 
-   installing_faq.rst
    howto_faq.rst
    troubleshooting_faq.rst
    environment_variables_faq.rst

@@ -1,5 +1,3 @@
-
-
 Overview
 ========
 
@@ -17,7 +15,6 @@ Overview
    users/index.rst
    faq/index.rst
    api/index.rst
-   resources/index.rst
    thirdpartypackages/index.rst
    devel/index.rst
    glossary/index.rst

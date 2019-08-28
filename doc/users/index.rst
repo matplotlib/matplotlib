@@ -10,12 +10,15 @@ User's Guide
     :Date: |today|
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
     installing.rst
     ../tutorials/index.rst
+    getting_help.rst
+    external_resources.rst
     interactive.rst
     whats_new.rst
+    citing.rst
     history.rst
     github_stats.rst
     whats_new_old.rst

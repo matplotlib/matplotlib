@@ -1,8 +1,8 @@
 .. _developers-guide-index:
 
-################################
-The Matplotlib Developers' Guide
-################################
+#################
+Developers' guide
+#################
 
 .. only:: html
 

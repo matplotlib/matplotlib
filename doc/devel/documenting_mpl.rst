@@ -162,7 +162,7 @@ Documents can be linked with the `:doc:` directive:
 
 .. code-block:: rst
 
-   See the :doc:`/faq/installing_faq`
+   See the :doc:`/faq/howto_faq`
 
    See the tutorial :doc:`/tutorials/introductory/sample_plots`
 
@@ -170,31 +170,32 @@ Documents can be linked with the `:doc:` directive:
 
 will render as:
 
-  See the :doc:`/faq/installing_faq`
+  See the :doc:`/faq/howto_faq`
 
   See the tutorial :doc:`/tutorials/introductory/sample_plots`
 
   See the example :doc:`/gallery/lines_bars_and_markers/simple_plot`
 
 Sections can also be given reference names.  For instance from the
-:doc:`/faq/installing_faq` link:
+:doc:`/faq/howto_faq` link:
 
 .. code-block:: rst
 
-   .. _clean-install:
+    .. _howto-faq:
 
-   How to completely remove Matplotlib
-   ===================================
+    ******
+    How-To
+    ******
 
-   Occasionally, problems with Matplotlib can be solved with a clean...
+    ...
 
 and refer to it using the standard reference syntax:
 
 .. code-block:: rst
 
-   See :ref:`clean-install`
+   See :ref:`howto-faq`
 
-will give the following link: :ref:`clean-install`
+will give the following link: :ref:`howto-faq`
 
 To maximize internal consistency in section labeling and references,
 use hyphen separated, descriptive labels for section references.

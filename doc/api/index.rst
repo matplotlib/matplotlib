@@ -1,5 +1,5 @@
-API Overview
-============
+API reference
+=============
 
 .. toctree::
    :hidden:

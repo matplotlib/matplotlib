@@ -1,7 +1,8 @@
-:orphan:
-
-Citing Matplotlib
-=================
+Citing
+------
+Matplotlib is the brainchild of John Hunter (1968-2012), who, along with its
+many contributors, have put an immeasurable amount of time and effort into
+producing a piece of software utilized by thousands of scientists worldwide.
 
 If Matplotlib contributes to a project that leads to a scientific publication,
 please acknowledge this fact by citing `J. D. Hunter, "Matplotlib: A 2D
@@ -26,7 +27,7 @@ pp. 90-95, 2007 <https://doi.org/10.1109/MCSE.2007.55>`_.
    }
 
 DOIs
-----
+~~~~
 v3.1.1
    .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3264781.svg
       :target: https://doi.org/10.5281/zenodo.3264781

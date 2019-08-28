@@ -2,12 +2,6 @@
 
 .. title:: Matplotlib: Python plotting
 
-Matplotlib is a Python 2D plotting library which produces publication quality
-figures in a variety of hardcopy formats and interactive environments across
-platforms.  Matplotlib can be used in Python scripts, the Python and IPython_
-shells, the Jupyter_ notebook, web application servers, and four graphical user
-interface toolkits.
-
 .. _IPython: http://ipython.org
 .. _Jupyter: http://jupyter.org
 
@@ -35,28 +29,30 @@ interface toolkits.
    </div>
    <span class="clear_screenshots"></span>
 
-Matplotlib tries to make easy things easy and hard things possible.  You
-can generate plots, histograms, power spectra, bar charts, errorcharts,
-scatterplots, etc., with just a few lines of code.  For examples, see the
-:doc:`sample plots <tutorials/introductory/sample_plots>` and :doc:`thumbnail
-gallery <gallery/index>`.
 
-For simple plotting the `pyplot` module provides a MATLAB-like interface,
-particularly when combined with IPython.  For the power user, you have full
-control of line styles, font properties, axes properties, etc, via an object
-oriented interface or via a set of functions familiar to MATLAB users.
+Matplotlib is a Python 2D plotting library which produces publication quality
+figures in a variety of hardcopy formats and interactive environments across
+different platforms.
 
-Installation
-------------
+Install Matplotlib
+------------------
+Matplotlib can be installed on the Anaconda Python distribution, or by itself
+using ``pip``. For more information see the
+:doc:`installation instructions <users/installing>`.
 
-Visit the :doc:`Matplotlib installation instructions <users/installing>`.
+Learn Matplotlib
+----------------
+Explore the functionality available in Matplotlib in the
+:doc:`examples <gallery/index>`,
+:doc:`tutorials <tutorials/index>`, and
+:doc:`User's guide <users/index>`,
 
-Documentation
--------------
+Get help
+--------
 
+Other versions
+--------------
 This is the documentation for Matplotlib version |version|.
-
-To get started, read the :doc:`User's Guide <users/index>`.
 
 .. raw:: html
 
@@ -99,80 +95,16 @@ To get started, read the :doc:`User's Guide <users/index>`.
    getSnippet('other_versions', '/versions.html');
    </script>
 
-Trying to learn how to do a particular kind of plot?  Check out the
-:doc:`examples gallery <gallery/index>` or the :doc:`list of plotting commands
-<api/pyplot_summary>`.
 
-Other learning resources
-~~~~~~~~~~~~~~~~~~~~~~~~
+Get involved
+------------
+Matplotlib is hosted on `GitHub <source code_>`_, where anyone is welcome to
+contribute.
 
-There are many :doc:`external learning resources <resources/index>` available
-including printed material, videos and tutorials.
+.. _source code: https://github.com/matplotlib/matplotlib
 
-Need help?
-~~~~~~~~~~
-
-Matplotlib is a welcoming, inclusive project, and we follow the `Python
-Software Foundation Code of Conduct <coc_>`_ in everything we do.
-
-.. _coc: http://www.python.org/psf/codeofconduct/
-
-Check the :doc:`FAQ <faq/index>` and the :doc:`API <api/index>` docs.
-
-For help, join the `gitter channel`_ and the matplotlib-users_,
-matplotlib-devel_, and matplotlib-announce_ mailing lists, or check out the
-Matplotlib tag on stackoverflow_.  The `search <search.html>`_ tool searches
-all of the documentation, including full text search of over 350 complete
-examples which exercise almost every corner of Matplotlib.
-
-.. _gitter channel: https://gitter.im/matplotlib/matplotlib
-.. _matplotlib-users: https://mail.python.org/mailman/listinfo/matplotlib-users
-.. _matplotlib-devel: https://mail.python.org/mailman/listinfo/matplotlib-devel
-.. _matplotlib-announce: https://mail.python.org/mailman/listinfo/matplotlib-announce
-.. _stackoverflow: http://stackoverflow.com/questions/tagged/matplotlib
-
-You can file bugs, patches and feature requests on the `issue tracker`_, but it
-is a good idea to ping us on the mailing list too.
-
-To keep up to date with what's going on in Matplotlib, see the :doc:`what's
-new <users/whats_new>` page or browse the `source code`_.  Anything that could
-require changes to your existing code is logged in the :doc:`API changes
-<api/api_changes>` file.
-
-Toolkits
-========
-
-Matplotlib ships with several add-on :doc:`toolkits <api/toolkits/index>`,
-including 3d plotting with `mplot3d`, axes helpers in `axes_grid1` and axis
-helpers in `axisartist`.
-
-Third party packages
-====================
-
-A large number of :doc:`third party packages <thirdpartypackages/index>`
-extend and build on Matplotlib functionality, including several higher-level
-plotting interfaces (seaborn_, holoviews_, ggplot_, ...), and two projection
-and mapping toolkits (basemap_ and cartopy_).
-
-.. _seaborn: https://seaborn.github.io/
-.. _holoviews: http://holoviews.org
-.. _ggplot: http://ggplot.yhathq.com
-.. _basemap: http://matplotlib.org/basemap
-.. _cartopy: http://scitools.org.uk/cartopy/docs/latest
-
-Citing Matplotlib
-=================
-
-Matplotlib is the brainchild of John Hunter (1968-2012), who, along with its
-many contributors, have put an immeasurable amount of time and effort into
-producing a piece of software utilized by thousands of scientists worldwide.
-
-If Matplotlib contributes to a project that leads to a scientific publication,
-please acknowledge this work by citing the project. A :doc:`ready-made citation
-entry <citing>` is available.
-
-Open source
-===========
+Support Matplotlib
+------------------
 
 .. raw:: html
 
@@ -201,23 +133,3 @@ the Numfocus organization or to the `John Hunter Technology Fellowship
 .. _donating: https://numfocus.salsalabs.org/donate-to-matplotlib/index.html
 .. _jdh-fellowship: https://www.numfocus.org/programs/john-hunter-technology-fellowship/
 .. _nf: https://numfocus.org
-
-The :doc:`Matplotlib license <users/license>` is based on the `Python Software
-Foundation (PSF) license <psf-license_>`_.
-
-.. _psf-license: http://www.python.org/psf/license
-
-There is an active developer community and a long list of people who have made
-significant :doc:`contributions <users/credits>`.
-
-Matplotlib is hosted on `GitHub <source code_>`_.  `Issues <issue tracker_>`_
-and `Pull requests`_ are tracked at GitHub too.
-
-.. _source code: https://github.com/matplotlib/matplotlib
-.. _issue tracker: https://github.com/matplotlib/matplotlib/issues
-.. _pull requests: https://github.com/matplotlib/matplotlib/pulls
-
-For contributers
-================
-
-Visit :doc:`/devel/index`.
