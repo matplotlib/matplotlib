@@ -5191,7 +5191,10 @@ optional.
                                               [x, *y_arrays]))), False)
         where = where & ~functools.reduce(np.logical_or, get_masks)
 
-        y1, y2 = np.broadcast_arrays(*y_arrays)
+        if np.ma.getdata(y1).shape != ():
+            y1, y2 = np.broadcast_arrays(*y_arrays)
+        else:
+            x, y1, y2 = np.broadcast_arrays(*[x, *y_arrays])
 
         polys = []
         for ind0, ind1 in cbook.contiguous_regions(where):
