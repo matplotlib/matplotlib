@@ -4417,7 +4417,6 @@ optional.
             linewidths = rcParams['lines.linewidth']
 
         offsets = np.ma.column_stack([x, y])
-
         collection = mcoll.PathCollection(
                 (path,), scales,
                 facecolors=colors,

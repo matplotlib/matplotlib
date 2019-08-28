@@ -588,15 +588,14 @@ def date2num(d):
         elif (isinstance(d, _datetimey)):
             return _to_ordinalfy(d)
         return _to_ordinalf(d)
-
     else:
         d = np.asarray(d)
-        if not d.size:
-            return d
         if np.issubdtype(d.dtype, np.datetime64):
             return _dt64_to_ordinalf(d)
         elif type(d[0]) == _datetimey:
             return _to_ordinalfy_np_vectorized(d)
+        if not d.size:
+            return d
         return _to_ordinalf_np_vectorized(d)
 
 
