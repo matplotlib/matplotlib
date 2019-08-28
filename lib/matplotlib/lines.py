@@ -232,6 +232,8 @@ class Line2D(Artist):
         'steps-mid':  '_draw_steps_mid',
         'steps-pre':  '_draw_steps_pre',
         'steps-post': '_draw_steps_post',
+        'steps-between': '_draw_steps_between',
+        'steps-edges': '_draw_steps_edges',
     }
 
     _drawStyles_s = {
@@ -621,8 +623,8 @@ class Line2D(Artist):
     def get_window_extent(self, renderer):
         bbox = Bbox([[0, 0], [0, 0]])
         trans_data_to_xy = self.get_transform().transform
-        bbox.update_from_data_xy(trans_data_to_xy(self.get_xydata()),
-                                 ignore=True)
+        bbox.update_from_data_xy(trans_data_to_xy(
+            cbook.pad_arrays(self.get_xydata(), np.nan)), ignore=True)
         # correct for marker size, if any
         if self._marker:
             ms = (self._markersize / 72.0 * self.figure.dpi) * 0.5
@@ -673,8 +675,13 @@ class Line2D(Artist):
         else:
             y = self._y
 
-        self._xy = np.column_stack(np.broadcast_arrays(x, y)).astype(float)
-        self._x, self._y = self._xy.T  # views
+        if self._drawstyle in ["steps-between", "steps-edges"]:
+            # Done separately, as x and y could have different length
+            self._x, self._y = x, y
+            self._xy = np.array([self._x, self._y])
+        else:
+            self._xy = np.column_stack(np.broadcast_arrays(x, y)).astype(float)
+            self._x, self._y = self._xy.T  # views
 
         self._subslice = False
         if (self.axes and len(x) > 1000 and self._is_sorted(x) and
@@ -696,7 +703,11 @@ class Line2D(Artist):
             interpolation_steps = self._path._interpolation_steps
         else:
             interpolation_steps = 1
-        xy = STEP_LOOKUP_MAP[self._drawstyle](*self._xy.T)
+
+        if self._drawstyle in ["steps-between", "steps-edges"]:
+            xy = STEP_LOOKUP_MAP[self._drawstyle](*self._xy)
+        else:
+            xy = STEP_LOOKUP_MAP[self._drawstyle](*self._xy.T)
         self._path = Path(np.asarray(xy).T,
                           _interpolation_steps=interpolation_steps)
         self._transformed_path = None
@@ -711,7 +722,17 @@ class Line2D(Artist):
         """
         # Masked arrays are now handled by the Path class itself
         if subslice is not None:
-            xy = STEP_LOOKUP_MAP[self._drawstyle](*self._xy[subslice, :].T)
+            if self._drawstyle in ["steps-between", "steps-edges"]:
+                xy_asym_sliced = [row[subslice] for row in self._xy]
+                # If not asym after slice, crop as original
+                if len(set(map(len, xy_asym_sliced))):
+                    if len(self._xy[0]) > len(self._xy[1]):
+                        xy_asym_sliced[1] = xy_asym_sliced[1][:-1]
+                    else:
+                        xy_asym_sliced[0] = xy_asym_sliced[0][:-1]
+                xy = STEP_LOOKUP_MAP[self._drawstyle](*xy_asym_sliced)
+            else:
+                xy = STEP_LOOKUP_MAP[self._drawstyle](*self._xy[subslice, :].T)
             _path = Path(np.asarray(xy).T,
                          _interpolation_steps=self._path._interpolation_steps)
         else:
@@ -759,7 +780,8 @@ class Line2D(Artist):
             x0, x1 = self.axes.get_xbound()
             i0 = self._x_filled.searchsorted(x0, 'left')
             i1 = self._x_filled.searchsorted(x1, 'right')
-            subslice = slice(max(i0 - 1, 0), i1 + 1)
+            #subslice = slice(max(i0 - 1, 0), i1 + 1)
+            subslice = slice(max(i0 - 2, 0), i1 + 2)
             self.ind_offset = subslice.start
             self._transform_path(subslice)
         else:
@@ -832,7 +854,7 @@ class Line2D(Artist):
                     self.recache()
                     self._transform_path(subslice)
                     tpath, affine = (self._get_transformed_path()
-                                    .get_transformed_points_and_affine())
+                                     .get_transformed_points_and_affine())
             else:
                 tpath, affine = (self._get_transformed_path()
                                  .get_transformed_points_and_affine())

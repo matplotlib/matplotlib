@@ -2079,7 +2079,8 @@ class Axes(_AxesBase):
             An object with labelled data. If given, provide the label names to
             plot in *x* and *y*.
 
-        where : {'pre', 'post', 'mid'}, optional, default 'pre'
+        where : {'pre', 'post', 'mid', 'between', 'edges'}, optional
+            Default 'pre'
             Define where the steps should be placed:
 
             - 'pre': The y value is continued constantly to the left from
@@ -2089,6 +2090,10 @@ class Axes(_AxesBase):
               every *x* position, i.e. the interval ``[x[i], x[i+1])`` has the
               value ``y[i]``.
             - 'mid': Steps occur half-way between the *x* positions.
+            - 'between': Expects abs(len(x)-len(y)) == 1, steps have value y[i]
+               on the interval ``[x[i], x[i+1])``
+            - 'edges': Expects abs(len(x)-len(y)) == 1, steps have value y[i]
+               on interval ``[x[i], x[i+1]), shape is closed at x[0], x[-1]``
 
         Returns
         -------
@@ -2104,7 +2109,17 @@ class Axes(_AxesBase):
         -----
         .. [notes section required to get data note injection right]
         """
-        cbook._check_in_list(('pre', 'post', 'mid'), where=where)
+        cbook._check_in_list(('pre', 'post', 'mid', 'between', 'edges'),
+                             where=where)
+
+        if where in ['between', 'edges']:
+            if len(x) == len(y) or abs(len(x)-len(y)) > 1:
+                raise ValueError(f"When plotting with 'between' or 'edges'"
+                                 f"input sizes have to be have to satisfy "
+                                 f"len(x) + 1 == len(y) or "
+                                 f"len(x) == len(y) + 1 but x "
+                                 f"and y have size {len(x)} and {len(y)}")
+
         kwargs['drawstyle'] = 'steps-' + where
         return self.plot(x, y, *args, data=data, **kwargs)
 
@@ -5089,7 +5104,7 @@ optional.
             Setting *interpolate* to *True* will calculate the actual
             intersection point and extend the filled region up to this point.
 
-        step : {'pre', 'post', 'mid'}, optional
+        step : {'pre', 'post', 'mid', 'between'}, optional
             Define *step* if the filling should be a step function,
             i.e. constant in between *x*. The value determines where the
             step will occur:
@@ -5101,6 +5116,8 @@ optional.
               every *x* position, i.e. the interval ``[x[i], x[i+1])`` has the
               value ``y[i]``.
             - 'mid': Steps occur half-way between the *x* positions.
+            - 'between': Expects abs(len(x)-len(y)) == 1, steps have value y[i]
+               on the interval ``[x[i], x[i+1])``
 
         Other Parameters
         ----------------
@@ -5124,17 +5141,29 @@ optional.
         .. [notes section required to get data note injection right]
 
         """
+
+        cbook._check_in_list((None, 'pre', 'post', 'mid', 'between'),
+                             step=step)
+
         if not rcParams['_internal.classic_mode']:
             kwargs = cbook.normalize_kwargs(kwargs, mcoll.Collection)
             if not any(c in kwargs for c in ('color', 'facecolor')):
                 kwargs['facecolor'] = \
                     self._get_patches_for_fill.get_next_color()
 
+        if step == 'between':
+            if not len(x) == len(y1) + 1:
+                raise ValueError(f"When plotting with 'between' "
+                                 f"input sizes have to be have to satisfy "
+                                 f"len(x) == len(y1) + 1, but x "
+                                 f"and y1 have size {len(x)} and {len(y1)}")
+
         # Handle united data, such as dates
         self._process_unit_info(xdata=x, ydata=y1, kwargs=kwargs)
         self._process_unit_info(ydata=y2)
 
         # Convert the arrays so we can work with them
+
         x = ma.masked_invalid(self.convert_xunits(x))
         y1 = ma.masked_invalid(self.convert_yunits(y1))
         y2 = ma.masked_invalid(self.convert_yunits(y2))
@@ -5154,10 +5183,15 @@ optional.
                     message="The parameter where must have the same size as x "
                             "in fill_between(). This will become an error in "
                             "future versions of Matplotlib.")
-        where = where & ~functools.reduce(np.logical_or,
-                                          map(np.ma.getmask, [x, y1, y2]))
 
-        x, y1, y2 = np.broadcast_arrays(np.atleast_1d(x), y1, y2)
+        y_arrays = [y1, y2]
+
+        get_masks = cbook.pad_arrays(list(map(np.atleast_1d,
+                                          map(np.ma.getmask,
+                                              [x, *y_arrays]))), False)
+        where = where & ~functools.reduce(np.logical_or, get_masks)
+
+        y1, y2 = np.broadcast_arrays(*y_arrays)
 
         polys = []
         for ind0, ind1 in cbook.contiguous_regions(where):
@@ -5217,8 +5251,9 @@ optional.
         collection = mcoll.PolyCollection(polys, **kwargs)
 
         # now update the datalim and autoscale
-        XY1 = np.array([x[where], y1[where]]).T
-        XY2 = np.array([x[where], y2[where]]).T
+        y1, y2 = cbook.pad_arrays([y1, y2, where], 0)[0:2]
+        XY1 = np.array(cbook.pad_arrays([x[where], y1[where]], 0)).T
+        XY2 = np.array(cbook.pad_arrays([x[where], y2[where]], 0)).T
         self.dataLim.update_from_data_xy(XY1, self.ignore_existing_data_limits,
                                          updatex=True, updatey=True)
         self.ignore_existing_data_limits = False
@@ -5278,7 +5313,7 @@ optional.
             Setting *interpolate* to *True* will calculate the actual
             intersection point and extend the filled region up to this point.
 
-        step : {'pre', 'post', 'mid'}, optional
+        step : {'pre', 'post', 'mid', 'between'}, optional
             Define *step* if the filling should be a step function,
             i.e. constant in between *y*. The value determines where the
             step will occur:
@@ -5290,6 +5325,8 @@ optional.
               every *x* position, i.e. the interval ``[x[i], x[i+1])`` has the
               value ``y[i]``.
             - 'mid': Steps occur half-way between the *x* positions.
+            - 'between': Expects abs(len(x)-len(y)) == 1, steps have value x[i]
+               on the interval ``[y[i], y[i+1])``
 
         Other Parameters
         ----------------
@@ -5313,11 +5350,22 @@ optional.
         .. [notes section required to get data note injection right]
 
         """
+
+        cbook._check_in_list((None, 'pre', 'post', 'mid', 'between'),
+                             step=step)
+
         if not rcParams['_internal.classic_mode']:
             kwargs = cbook.normalize_kwargs(kwargs, mcoll.Collection)
             if not any(c in kwargs for c in ('color', 'facecolor')):
                 kwargs['facecolor'] = \
                     self._get_patches_for_fill.get_next_color()
+
+        if step == 'between':
+            if not len(y) == len(x1) + 1:
+                raise ValueError(f"When plotting with 'between' "
+                                 f"input sizes have to be have to satisfy "
+                                 f"len(y) == len(x1) + 1, but y "
+                                 f"and x1 have size {len(y)} and {len(x1)}")
 
         # Handle united data, such as dates
         self._process_unit_info(ydata=y, xdata=x1, kwargs=kwargs)
@@ -5343,10 +5391,15 @@ optional.
                     message="The parameter where must have the same size as y "
                             "in fill_between(). This will become an error in "
                             "future versions of Matplotlib.")
-        where = where & ~functools.reduce(np.logical_or,
-                                          map(np.ma.getmask, [y, x1, x2]))
 
-        y, x1, x2 = np.broadcast_arrays(np.atleast_1d(y), x1, x2)
+        x_arrays = [x1, x2]
+
+        get_masks = cbook.pad_arrays(list(map(np.atleast_1d,
+                                          map(np.ma.getmask,
+                                              [y, *x_arrays]))), False)
+        where = where & ~functools.reduce(np.logical_or, get_masks)
+
+        x1, x2 = np.broadcast_arrays(*x_arrays)
 
         polys = []
         for ind0, ind1 in cbook.contiguous_regions(where):
@@ -5405,8 +5458,9 @@ optional.
         collection = mcoll.PolyCollection(polys, **kwargs)
 
         # now update the datalim and autoscale
-        X1Y = np.array([x1[where], y[where]]).T
-        X2Y = np.array([x2[where], y[where]]).T
+        x1, x2 = cbook.pad_arrays([x1, x2, where], 0)[0:2]
+        X1Y = np.array(cbook.pad_arrays([x1[where], y[where]], 0)).T
+        X2Y = np.array(cbook.pad_arrays([x2[where], y[where]], 0)).T
         self.dataLim.update_from_data_xy(X1Y, self.ignore_existing_data_limits,
                                          updatex=True, updatey=True)
         self.ignore_existing_data_limits = False

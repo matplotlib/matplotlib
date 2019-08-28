@@ -1,9 +1,9 @@
 """
 =========================
-Hatch-filled histograms
+Filled histograms
 =========================
 
-Hatching capabilities for plotting histograms.
+Filled histograms and hatching capabilities for plotting histograms.
 """
 
 import itertools
@@ -15,6 +15,28 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 from cycler import cycler
 
+###############################################################################
+# Plain filled steps
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5), tight_layout=True)
+ax1.fill_between([0, 1, 2, 3], [1, 2, 3], step='between')
+ax2.fill_betweenx([0, 1, 2, 3], [0, 1, 2], step='between')
+ax1.set_ylabel('counts')
+ax1.set_xlabel('edges')
+ax2.set_xlabel('counts')
+ax2.set_ylabel('edges')
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5), tight_layout=True)
+ax1.fill_between([0, 1, 2, 3], [1, 2, 3], [0, 1, 0], step='between')
+ax2.fill_betweenx([0, 1, 2, 3], [1, 2, 3], [0, 1, 0], step='between')
+ax1.set_ylabel('counts')
+ax1.set_xlabel('edges')
+ax2.set_xlabel('counts')
+ax2.set_ylabel('edges')
+
+
+###############################################################################
+# Hatches
 
 def filled_hist(ax, edges, values, bottoms=None, orientation='v',
                 **kwargs):

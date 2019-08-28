@@ -1460,6 +1460,32 @@ def violin_stats(X, method, points=100, quantiles=None):
     return vpstats
 
 
+def pad_arrays(v, padval=np.nan):
+    """
+    Pad list of arrays of varying lengths to the same size with specified
+    value
+
+    Parameters
+    ----------
+    v : iterable
+        List of arrays to be padded to the largest len. All elements must
+        support iteration
+
+    padval : scalar, bool or NaN, defaul NaN
+        value to pad missing values with
+
+    Returns
+    -------
+    out : array
+        Array of input arrays padded to the same len by specified padval
+
+    Examples
+    --------
+    >>> a, b, c = pad_arrays([1,2,3,4], [1,2,3], [1])
+    """
+    return np.array(list(itertools.zip_longest(*v, fillvalue=padval))).T
+
+
 def pts_to_prestep(x, *args):
     """
     Convert continuous line to pre-steps.
@@ -1498,6 +1524,93 @@ def pts_to_prestep(x, *args):
     return steps
 
 
+def pts_to_betweenstep(x, *args):
+    """
+    Convert continuous line to between-steps.
+
+    Given a set of ``N`` edges and ``N - 1`` values padded with Nan to size N,
+    converts to ``2N - 2`` points, which when connected linearly give
+    a step function connecting step edges at a specified value
+
+    Parameters
+    ----------
+    x : array
+        The x location of the step edges. May be empty.
+
+    y1, ..., yp : array
+        y arrays to be turned into steps; must have length as ``x`` +/- 1.
+    Returns
+    -------
+    out : array
+        The x and y values converted to steps in the same order as the input;
+        can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
+        length ``N``, each of these arrays will be length ``2N - 2``. For
+        ``N=0``, the length will be 0.
+
+    """
+    args = np.array(args)
+    step_length = max(2 * max(len(x), len(args[0])) - 2, 0)
+    steps = np.zeros((1 + len(args), step_length))
+
+    if len(x) == len(args[0]) + 1:
+        steps[0, ::len(steps[0])-1] = x[::len(x)-1]
+        steps[0, 2::2] = x[1:-1]
+        steps[0, 1:-1:2] = x[1:-1]
+        steps[1:, 0::2] = args
+        steps[1:, 1::2] = args
+
+    elif len(x) + 1 == len(args[0]):
+        steps[0, 0::2] = x
+        steps[0, 1::2] = x
+        steps[1:, ::len(steps[0])-1] = args[:, ::len(args[0])-1]
+        steps[1:,  1:-1:2] = args[:, 1:-1]
+        steps[1:,  2:-1:2] = args[:, 1:-1]
+    else:
+        raise ValueError(f"Expects abs(len(x)-len(y)) == 1")
+
+    return steps
+
+
+def pts_to_betweenstep_edges(x, *args):
+    """
+    Convert continuous line to between-steps, adding edges
+
+    Given a set of ``N`` edges and ``N - 1`` values padded with Nan to size N,
+    converts to ``2N`` points, which when connected linearly give
+    a step function connecting step edges at a specified value, with the first
+    and last edge going to 0
+
+    Parameters
+    ----------
+    x : array
+        The x location of the step edges. May be empty.
+
+    y1, ..., yp : array
+        y arrays to be turned into steps; must have length as ``x`` +/- 1.
+    Returns
+    -------
+    out : array
+        The x and y values converted to steps in the same order as the input;
+        can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
+        length ``N``, each of these arrays will be length ``2N``. For
+        ``N=0``, the length will be 0.
+
+    """
+
+    steps = pts_to_betweenstep(x, *args)
+    edge_steps = np.zeros((steps.shape[0], steps.shape[1]+2))
+
+    edge_steps[:, 1:-1] = steps
+    if len(x) == len(args[0]) + 1:
+        edge_steps[0, ::len(edge_steps[0])-1] = steps[0, ::len(steps[0])-1]
+    elif len(x) + 1 == len(args[0]):
+        edge_steps[1:, ::len(edge_steps[0])-1] = steps[1:, ::len(steps[0])-1]
+    else:
+        raise ValueError(f"Expects abs(len(x)-len(y)) == 1")
+
+    return edge_steps
+
+
 def pts_to_poststep(x, *args):
     """
     Convert continuous line to post-steps.
@@ -1513,7 +1626,6 @@ def pts_to_poststep(x, *args):
 
     y1, ..., yp : array
         y arrays to be turned into steps; all must be the same length as ``x``.
-
     Returns
     -------
     out : array
@@ -1576,7 +1688,9 @@ STEP_LOOKUP_MAP = {'default': lambda x, y: (x, y),
                    'steps': pts_to_prestep,
                    'steps-pre': pts_to_prestep,
                    'steps-post': pts_to_poststep,
-                   'steps-mid': pts_to_midstep}
+                   'steps-mid': pts_to_midstep,
+                   'steps-between': pts_to_betweenstep,
+                   'steps-edges': pts_to_betweenstep_edges}
 
 
 def index_of(y):

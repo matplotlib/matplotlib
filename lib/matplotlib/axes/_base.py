@@ -338,9 +338,10 @@ class _process_plot_var_args:
         if self.axes.yaxis is not None:
             self.axes.yaxis.update_units(y)
 
-        if x.shape[0] != y.shape[0]:
-            raise ValueError(f"x and y must have same first dimension, but "
-                             f"have shapes {x.shape} and {y.shape}")
+        if not kwargs.get('drawstyle') in ['steps-between', 'steps-edges']:
+            if x.shape[0] != y.shape[0]:
+                raise ValueError(f"x and y must have same first dimension, but"
+                                 f" have shapes {x.shape} and {y.shape}")
         if x.ndim > 2 or y.ndim > 2:
             raise ValueError(f"x and y can be no greater than 2-D, but have "
                              f"shapes {x.shape} and {y.shape}")

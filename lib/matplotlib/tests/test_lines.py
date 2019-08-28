@@ -106,15 +106,22 @@ def test_valid_linestyles():
 
 @image_comparison(['drawstyle_variants.png'], remove_text=True)
 def test_drawstyle_variants():
-    fig, axs = plt.subplots(6)
-    dss = ["default", "steps-mid", "steps-pre", "steps-post", "steps", None]
+    fig, axs = plt.subplots(4, 2)
+    dss = ["default", "steps", "steps-mid", "steps-pre", "steps-post",
+           "steps-between", "steps-edges", None]
     # We want to check that drawstyles are properly handled even for very long
     # lines (for which the subslice optimization is on); however, we need
     # to zoom in so that the difference between the drawstyles is actually
     # visible.
-    for ax, ds in zip(axs.flat, dss):
-        ax.plot(range(2000), drawstyle=ds)
-        ax.set(xlim=(0, 2), ylim=(0, 2))
+    for ax, ds in zip(axs.T.flat, dss):
+        x = np.arange(1, 1200)
+        if ds in ["steps-between", "steps-edges"]:
+            ax.plot(x, x[:-1], drawstyle=ds)
+            ax.plot(x[:-1], x, drawstyle=ds)
+        else:
+            ax.plot(x, x+1, drawstyle=ds)
+            ax.plot(x+1, x, drawstyle=ds)
+        ax.set(xlim=(0, 4), ylim=(0, 4))
 
 
 def test_valid_drawstyles():

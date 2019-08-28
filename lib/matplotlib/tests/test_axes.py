@@ -1084,6 +1084,29 @@ def test_fill_between_interpolate_decreasing():
     ax.set_ylim(800, 600)
 
 
+@check_figures_equal()
+def test_fill_between_histlike(fig_test, fig_ref):
+    x, y = [0, 1, 2, 3, 4, 5], [1, 2, 3, 4, 5]
+    y2 = np.zeros(len(y))-5
+    # Test
+    fig_test, test_axes = plt.subplots(2, 2)
+    test_axes = test_axes.flatten()
+    test_axes[0].fill_between(x, y, step='between')
+    test_axes[1].fill_betweenx(x, x1=y, step='between')
+    test_axes[2].fill_between(x, y, y2=y2, step='between')
+    test_axes[3].fill_betweenx(x, x1=y, x2=y2, step='between')
+
+    # Ref
+    fig_ref, ref_axes = plt.subplots(2, 2)
+    ref_axes = ref_axes.flatten()
+    ref_axes[0].fill_between(x, np.r_[y, y[-1]], step='post')
+    ref_axes[1].fill_betweenx(x, np.r_[y, y[-1]], step='post')
+    ref_axes[2].fill_between(x, np.r_[y, y[-1]],
+                             np.r_[y2, y2[-1]], step='post')
+    ref_axes[3].fill_betweenx(x, np.r_[y, y[-1]],
+                              np.r_[y2, y2[-1]], step='post')
+
+
 # test_symlog and test_symlog2 used to have baseline images in all three
 # formats, but the png and svg baselines got invalidated by the removal of
 # minor tick overstriking.
@@ -3698,6 +3721,47 @@ def test_step_linestyle():
         ax.step("X", "Y2", lw=5, linestyle=ls, where='post', data=data)
         ax.set_xlim([-1, 5])
         ax.set_ylim([-1, 7])
+
+
+@check_figures_equal()
+def test_step_histlike(fig_test, fig_ref):
+    import matplotlib.lines as mlines
+    y = np.array([6, 14, 32, 37, 48, 32, 21,  4])  # hist
+    x = np.array([1., 2., 3., 4., 5., 6., 7., 8., 9.])  # bins
+    # Test
+    fig_test, test_axes = plt.subplots(3, 2)
+    test_axes = test_axes.flatten()
+    test_axes[0].step(x, y, where='between')
+    test_axes[1].step(y, x, where='between')
+    test_axes[2].step(x, y, where='edges')
+    test_axes[3].step(y, x, where='edges')
+    test_axes[4].step(x, y, where='edges')
+    test_axes[4].semilogy()
+    test_axes[5].step(x, y, where='edges')
+    test_axes[5].semilogy()
+    # Ref
+    fig_ref, ref_axes = plt.subplots(4, 2)
+    ref_axes = ref_axes.flatten()
+    ref_axes[0].plot(x, np.r_[y, y[-1]], drawstyle='steps-post')
+    ref_axes[1].plot(np.r_[y[0], y], x, drawstyle='steps-post')
+
+    ref_axes[2].plot(x, np.r_[y, y[-1]], drawstyle='steps-post')
+    ref_axes[2].add_line(mlines.Line2D([x[0], x[0]], [0, y[0]]))
+    ref_axes[2].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]]))
+
+    ref_axes[3].plot(np.r_[y[0], y], x, drawstyle='steps-post')
+    ref_axes[3].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]]))
+    ref_axes[3].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]]))
+
+    ref_axes[4].plot(x, np.r_[y, y[-1]], drawstyle='steps-post')
+    ref_axes[4].add_line(mlines.Line2D([x[0], x[0]], [0, y[0]]))
+    ref_axes[4].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]]))
+    ref_axes[4].semilogy()
+
+    ref_axes[5].plot(np.r_[y[0], y], x, drawstyle='steps-post')
+    ref_axes[5].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]]))
+    ref_axes[5].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]]))
+    ref_axes[5].semilogx()
 
 
 @image_comparison(['mixed_collection'], remove_text=True)

@@ -29,6 +29,22 @@ plt.plot(x, y, 'C2o', alpha=0.5)
 plt.legend(title='Parameter where:')
 plt.show()
 
+# Plotting with where='between'/'edges'
+values = np.array([6, 14, 32, 37, 48, 32, 21,  4])  # hist
+edges = np.array([1., 2., 3., 4., 5., 6., 7., 8., 9.])  # bins
+fig, axes = plt.subplots(3, 2)
+axes = axes.flatten()
+axes[0].step(edges, values, where='between')
+axes[1].step(values, edges, where='between')
+axes[2].step(edges, values, where='edges')
+axes[3].step(values, edges, where='edges')
+axes[4].step(edges, values, where='edges')
+axes[4].semilogy()
+axes[5].step(edges, values, where='edges')
+axes[5].semilogy()
+
+fig.show()
+
 #############################################################################
 #
 # ------------
