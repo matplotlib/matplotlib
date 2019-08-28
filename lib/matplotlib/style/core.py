@@ -72,7 +72,7 @@ def use(style):
 
     Parameters
     ----------
-    style : str, dict, or list
+    style : str, dict, list or Path object
         A style specification. Valid options are:
 
         +------+-------------------------------------------------------------+
@@ -85,12 +85,17 @@ def use(style):
         | list | A list of style specifiers (str or dict) applied from first |
         |      | to last in the list.                                        |
         +------+-------------------------------------------------------------+
+        | Path | A Path object which is a path to a style file.              |
+        +------+-------------------------------------------------------------+
     """
     style_alias = {'mpl20': 'default',
                    'mpl15': 'classic'}
     if isinstance(style, str) or hasattr(style, 'keys'):
         # If name is a single str or dict, make it a single element list.
         styles = [style]
+    elif isinstance(style, Path):
+        # If the style is pathlib.Path object make a single element list of string
+        styles = [str(style)]
     else:
         styles = style
 
