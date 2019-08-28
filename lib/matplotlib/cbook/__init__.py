@@ -1483,7 +1483,54 @@ def pad_arrays(v, padval=np.nan):
     --------
     >>> a, b, c = pad_arrays([1,2,3,4], [1,2,3], [1])
     """
+    if len(set([k.shape[0] for k in v])) == 1:
+        return v
     return np.array(list(itertools.zip_longest(*v, fillvalue=padval))).T
+
+
+def broadcaster(v, def_size=1):
+    """
+    Broadcast arrays together, if all arrays are of size 1, can specify size
+    to expand to
+
+    Parameters
+    ----------
+    v : iterable
+        List of arrays to be padded to the largest len. All elements must
+        support iteration
+
+    def_size : scalar
+        Size to with to broadcaset to if all broadcasted arrays have size 1.
+
+    Returns
+    -------
+    out : array
+        Array of input arrays padded to the same len by specified padval
+    """
+
+    def get_lens(v):
+        return np.array([np.atleast_1d(k).size for k in v])
+
+    def have_lens(v):
+        return (get_lens(v) > 1)
+
+    if np.sum((have_lens([*v]))) == 0:
+        vb = np.broadcast_arrays(v[0]*np.ones(def_size), *v[1:])
+    elif np.sum((have_lens([*v]))) == 1:
+        vb = np.broadcast_arrays(*v)
+    else:
+        if len(set(get_lens([*v]))) == 1:
+            vb = v
+        elif (len(set(get_lens([*v]))) == 2 and
+              1 in set(get_lens([*v]))):
+            vb = np.broadcast_arrays(*v)
+        else:
+            raise ValueError(f"Cannot broadcast arrays where more "
+                             f"than one of them have different value "
+                             f"of size > 1. "
+                             f"Attempting to broadcast arrays of "
+                             f"sizes {get_lens([*v])}.")
+    return vb
 
 
 def pts_to_prestep(x, *args):

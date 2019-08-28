@@ -5151,13 +5151,6 @@ optional.
                 kwargs['facecolor'] = \
                     self._get_patches_for_fill.get_next_color()
 
-        if step == 'between':
-            if not len(x) == len(y1) + 1:
-                raise ValueError(f"When plotting with 'between' "
-                                 f"input sizes have to be have to satisfy "
-                                 f"len(x) == len(y1) + 1, but x "
-                                 f"and y1 have size {len(x)} and {len(y1)}")
-
         # Handle united data, such as dates
         self._process_unit_info(xdata=x, ydata=y1, kwargs=kwargs)
         self._process_unit_info(ydata=y2)
@@ -5184,21 +5177,26 @@ optional.
                             "in fill_between(). This will become an error in "
                             "future versions of Matplotlib.")
 
-        y_arrays = [y1, y2]
+        if step == 'between':
+            y1, y2, where = cbook.broadcaster([y1, y2, where],
+                                              def_size=x.size - 1)
+        else:
+            y1, y2, where = cbook.broadcaster([y1, y2, where],
+                                              def_size=x.size)
 
         get_masks = cbook.pad_arrays(list(map(np.atleast_1d,
-                                          map(np.ma.getmask,
-                                              [x, *y_arrays]))), False)
+                                              map(np.ma.getmask,
+                                                  [y1, y2]))), False)
+
         where = where & ~functools.reduce(np.logical_or, get_masks)
 
-        if np.ma.getdata(y1).shape != ():
-            y1, y2 = np.broadcast_arrays(*y_arrays)
-        else:
-            x, y1, y2 = np.broadcast_arrays(*[x, *y_arrays])
-
         polys = []
-        for ind0, ind1 in cbook.contiguous_regions(where):
-            xslice = x[ind0:ind1]
+        pad_where = cbook.pad_arrays([where, x], False)[0].astype(bool)
+        for ind0, ind1 in cbook.contiguous_regions(pad_where):
+            if step == 'between':
+                xslice = x[ind0:ind1+1]
+            else:
+                xslice = x[ind0:ind1]
             y1slice = y1[ind0:ind1]
             y2slice = y2[ind0:ind1]
             if step is not None:
@@ -5254,9 +5252,14 @@ optional.
         collection = mcoll.PolyCollection(polys, **kwargs)
 
         # now update the datalim and autoscale
-        y1, y2 = cbook.pad_arrays([y1, y2, where], 0)[0:2]
-        XY1 = np.array(cbook.pad_arrays([x[where], y1[where]], 0)).T
-        XY2 = np.array(cbook.pad_arrays([x[where], y2[where]], 0)).T
+        # For between pad with mean value
+        if step == 'between':
+            y1, y2 = cbook.pad_arrays([y1, y2, x],
+                                      np.mean([np.mean(y1.flatten()),
+                                               np.mean(y2.flatten())]))[:-1]
+            where = cbook.pad_arrays([where, x], 1)[0].astype(bool)
+        XY1 = np.array([x[where], y1[where]]).T
+        XY2 = np.array([x[where], y2[where]]).T
         self.dataLim.update_from_data_xy(XY1, self.ignore_existing_data_limits,
                                          updatex=True, updatey=True)
         self.ignore_existing_data_limits = False
@@ -5391,22 +5394,30 @@ optional.
             if where.size != y.size:
                 cbook.warn_deprecated(
                     "3.2",
-                    message="The parameter where must have the same size as y "
+                    message="The parameter where must have the same size as x "
                             "in fill_between(). This will become an error in "
                             "future versions of Matplotlib.")
 
-        x_arrays = [x1, x2]
+        if step == 'between':
+            x1, x2, where = cbook.broadcaster([x1, x2, where],
+                                              def_size=y.size - 1)
+        else:
+            x1, x2, where = cbook.broadcaster([x1, x2, where],
+                                              def_size=y.size)
 
         get_masks = cbook.pad_arrays(list(map(np.atleast_1d,
-                                          map(np.ma.getmask,
-                                              [y, *x_arrays]))), False)
+                                              map(np.ma.getmask,
+                                                  [x1, x2]))), False)
+
         where = where & ~functools.reduce(np.logical_or, get_masks)
 
-        x1, x2 = np.broadcast_arrays(*x_arrays)
-
         polys = []
-        for ind0, ind1 in cbook.contiguous_regions(where):
-            yslice = y[ind0:ind1]
+        pad_where = cbook.pad_arrays([where, y], False)[0].astype(bool)
+        for ind0, ind1 in cbook.contiguous_regions(pad_where):
+            if step == 'between':
+                yslice = y[ind0:ind1+1]
+            else:
+                yslice = y[ind0:ind1]
             x1slice = x1[ind0:ind1]
             x2slice = x2[ind0:ind1]
             if step is not None:
@@ -5461,9 +5472,14 @@ optional.
         collection = mcoll.PolyCollection(polys, **kwargs)
 
         # now update the datalim and autoscale
-        x1, x2 = cbook.pad_arrays([x1, x2, where], 0)[0:2]
-        X1Y = np.array(cbook.pad_arrays([x1[where], y[where]], 0)).T
-        X2Y = np.array(cbook.pad_arrays([x2[where], y[where]], 0)).T
+        # For between pad with mean value
+        if step == 'between':
+            x1, x2 = cbook.pad_arrays([x1, x2, y],
+                                      np.mean([np.mean(x1.flatten()),
+                                               np.mean(x2.flatten())]))[:-1]
+            where = cbook.pad_arrays([where, y], 1)[0].astype(bool)
+        X1Y = np.array([x1[where], y[where]]).T
+        X2Y = np.array([x2[where], y[where]]).T
         self.dataLim.update_from_data_xy(X1Y, self.ignore_existing_data_limits,
                                          updatex=True, updatey=True)
         self.ignore_existing_data_limits = False
