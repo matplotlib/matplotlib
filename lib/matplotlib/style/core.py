@@ -94,7 +94,8 @@ def use(style):
         # If name is a single str or dict, make it a single element list.
         styles = [style]
     elif isinstance(style, Path):
-        # If the style is pathlib.Path object make a single element list of string
+        # If the style is pathlib.Path object cast to string.
+        # and make it a single element list.
         styles = [str(style)]
     else:
         styles = style
