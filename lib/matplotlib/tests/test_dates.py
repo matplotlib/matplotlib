@@ -156,10 +156,7 @@ def test_too_many_date_ticks():
         fig.savefig('junk.png')
 
 
-@image_comparison(['RRuleLocator_bounds.png'])
 def test_RRuleLocator():
-    import matplotlib.testing.jpl_units as units
-    units.register()
 
     # This will cause the RRuleLocator to go out of bounds when it tries
     # to add padding to the limits, so we make sure it caps at the correct
@@ -191,8 +188,6 @@ def test_RRuleLocator_dayrange():
 
 @image_comparison(['DateFormatter_fractionalSeconds.png'])
 def test_DateFormatter():
-    import matplotlib.testing.jpl_units as units
-    units.register()
 
     # Lets make sure that DateFormatter will allow us to have tick marks
     # at intervals of fractional seconds.
@@ -204,11 +199,6 @@ def test_DateFormatter():
     ax = plt.subplot(111)
     ax.set_autoscale_on(True)
     ax.plot([t0, tf], [0.0, 1.0], marker='o')
-
-    # rrule = mpldates.rrulewrapper( dateutil.rrule.YEARLY, interval=500 )
-    # locator = mpldates.RRuleLocator( rrule )
-    # ax.xaxis.set_major_locator( locator )
-    # ax.xaxis.set_major_formatter( mpldates.AutoDateFormatter(locator) )
 
     ax.autoscale_view()
     fig.autofmt_xdate()
@@ -331,15 +321,15 @@ def test_auto_date_locator():
                  '1990-11-01 00:00:00+00:00', '1990-12-01 00:00:00+00:00']
                 ],
                [datetime.timedelta(days=141),
-                ['1990-01-05 00:00:00+00:00', '1990-01-26 00:00:00+00:00',
-                 '1990-02-16 00:00:00+00:00', '1990-03-09 00:00:00+00:00',
-                 '1990-03-30 00:00:00+00:00', '1990-04-20 00:00:00+00:00',
-                 '1990-05-11 00:00:00+00:00']
+                ['1990-01-01 00:00:00+00:00', '1990-01-22 00:00:00+00:00',
+                 '1990-02-12 00:00:00+00:00', '1990-03-05 00:00:00+00:00',
+                 '1990-03-26 00:00:00+00:00', '1990-04-16 00:00:00+00:00',
+                 '1990-05-07 00:00:00+00:00']
                 ],
                [datetime.timedelta(days=40),
-                ['1990-01-03 00:00:00+00:00', '1990-01-10 00:00:00+00:00',
-                 '1990-01-17 00:00:00+00:00', '1990-01-24 00:00:00+00:00',
-                 '1990-01-31 00:00:00+00:00', '1990-02-07 00:00:00+00:00']
+                ['1990-01-01 00:00:00+00:00', '1990-01-08 00:00:00+00:00',
+                 '1990-01-15 00:00:00+00:00', '1990-01-22 00:00:00+00:00',
+                 '1990-01-29 00:00:00+00:00', '1990-02-05 00:00:00+00:00']
                 ],
                [datetime.timedelta(hours=40),
                 ['1990-01-01 00:00:00+00:00', '1990-01-01 04:00:00+00:00',

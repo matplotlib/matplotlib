@@ -210,7 +210,6 @@ WEEKDAYS = (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
 class _datetimey(datetime.datetime):
 
     def __new__(cls, year, *args, **kwargs):
-        print('New datetimey')
         if year < 1 or year > 9999:
             yearoffset =  int(np.floor(year / 400) * 400) - 2000
             year = year - yearoffset
@@ -218,19 +217,20 @@ class _datetimey(datetime.datetime):
             yearoffset = 0
         new = super().__new__(cls, year, *args, **kwargs)
         new._yearoffset = yearoffset
-        print(new._yearoffset)
         return new
 
     def strftime(self, fmt):
-        year0 = self.year + self._yearoffset
+        year0 = super().year + self._yearoffset
         if year0 < 0:
             fmt = fmt.replace('%Y', f'{year0:05d}')
         else:
             fmt = fmt.replace('%Y', f'{year0:04d}')
         return super().strftime(fmt)
 
-    def __str__(self):
-        return self.strftime('%Y-%m-%dT%H:%M:%S.%f%z')
+    @property
+    def year(self):
+        """year """
+        return super().year + self._yearoffset
 
     @staticmethod
     def _datetime_to_datetimey(new, year_offset):
@@ -238,11 +238,37 @@ class _datetimey(datetime.datetime):
                          new.hour, new.minute, new.second, new.microsecond,
                          new.tzinfo)
 
+    @staticmethod
+    def _ddays(d1, d2):
+        dt1 = _datetimey._datetimey_to_datetime(d1)
+        dt2 = _datetimey._datetimey_to_datetime(d2)
+        ddays = dt1 - dt2
+        dy = (d1._yearoffset - d2._yearoffset) / 400 * DAYS_PER_400Y
+        return int(ddays.days + dy)
+
+    @staticmethod
+    def _datetimey_to_datetime(new):
+        return datetime.datetime(new.year - new._yearoffset, new.month, new.day,
+                         new.hour, new.minute, new.second, new.microsecond,
+                         new.tzinfo)
+
+    @staticmethod
+    def _datetimey_to_datetime_samey0(t1, t2):
+        dt1 = _datetimey._datetimey_to_datetime(t1)
+        dt2 = _datetimey._datetimey_to_datetime(t2)
+        dy = (t2._yearoffset - t1._yearoffset) / 400
+        if t1._yearoffset < t2._yearoffset:
+            dt2 = dt2 + dy * datetime.timedelta(days = DAYS_PER_400Y)
+        else:
+            dt1 = dt1 + datetime.timedelta(days = dy * DAYS_PER_400Y)
+
+        return dt1, dt2
+
+
     def astimezone(self, tz=None):
-        print('self', self)
-        new = super(_datetimey, self).astimezone(tz)
+        dt = _datetimey._datetimey_to_datetime(self)
+        new = dt.astimezone(tz)
         new = self._datetime_to_datetimey(new, self._yearoffset)
-        print('yoff', new._yearoffset)
         return new
 
     def replace(self, *args, **kwargs):
@@ -257,11 +283,75 @@ class _datetimey(datetime.datetime):
         else:
             yearoffset = self._yearoffset
         new = super().replace(*args, **kwargs)
-        return self._datetime_to_datetimey(new, yearoffset)
+        new._yearoffset = yearoffset
+        return new
+
+    def __add__(self, other):
+        # other is a timedelta, but can be big...
+        deltay = int(np.floor(other.years / 400) * 400)
+        newo = other - relativedelta(years=deltay)
+        datet = _datetimey._datetimey_to_datetime(self)
+        try:
+            newdt = datet + newo
+        except:
+            newdt = datet + relativedelta(days=DAYS_PER_400Y) + newo
+            deltay = deltay - 400
+
+        newdty = _datetimey._datetime_to_datetimey(newdt, self._yearoffset + deltay)
+        return newdty
+
+    def __sub__(self, other):
+        if isinstance(other, relativedelta):
+            return self + -other
+        return NotImplemented
+
+    def __gt__(self, other):
+        if self.year > other.year:
+            return True
+        if self.year < other.year:
+            return False
+        datet = _datetimey._datetimey_to_datetime(self)
+        dateo = _datetimey._datetimey_to_datetime(self)
+        return datet > dateo
+
+    def __lt__(self, other):
+        if self.year > other.year:
+            return False
+        if self.year < other.year:
+            return True
+        datet = _datetimey._datetimey_to_datetime(self)
+        dateo = _datetimey._datetimey_to_datetime(self)
+        return datet < dateo
+
+    def __str__(self):
+        st0 = super().__str__()[4:]
+        st0 = f'{self.year:04d}' + st0
+        return st0
+
+    def _to_dt64(self):
+        dt64 = np.datetime64(_datetimey._datetimey_to_datetime(self))
+        dt64 = dt64.astype('datetime64[s]') + np.timedelta64(int(self._yearoffset / 400)* 146097, 'D')
+        return dt64
 
 
-def relativedelta(t1, t2):
-    
+
+def _relativedeltay(t1, t2):
+    """
+    relative delta for exteended _datetimey objects...
+    """
+    # a bit of fanciness to try to adjust things for close dates
+    # that will have a non-year-locator but wrap a 400y boundary...
+    _yearoffset1 = t2._yearoffset
+    if t1._yearoffset - t2._yearoffset == 400:
+        delta = datetime.timedelta(days=DAYS_PER_400Y)
+    else:
+        delta = datetime.timedelta(days=0)
+    dt1 = _datetimey._datetimey_to_datetime(t1) + delta
+    dt2 = _datetimey._datetimey_to_datetime(t2)
+    delta = relativedelta(dt1, dt2)
+    delta = delta + relativedelta(years=_yearoffset1 - t2._yearoffset)
+    return delta
+
 
 def _to_ordinalf(dt):
     """
@@ -293,6 +383,15 @@ def _to_ordinalf(dt):
 
 # a version of _to_ordinalf that can operate on numpy arrays
 _to_ordinalf_np_vectorized = np.vectorize(_to_ordinalf)
+
+
+def _to_ordinalfy(dt):
+    datet = _datetimey._datetimey_to_datetime(dt)
+    base = _to_ordinalf(datet)
+    base = base + dt._yearoffset / 400 * DAYS_PER_400Y
+    return base
+
+_to_ordinalfy_np_vectorized = np.vectorize(_to_ordinalfy)
 
 
 def _dt64_to_ordinalf(d):
@@ -335,14 +434,16 @@ def _from_ordinalf(x, tz=None):
     if tz is None:
         tz = _get_rc_timezone()
 
-    ix, remainder = divmod(x, 1)
-    ix = int(ix)
-    if ix < 1:
-        raise ValueError('Cannot convert {} to a date.  This often happens if '
-                         'non-datetime values are passed to an axis that '
-                         'expects datetime objects.'.format(ix))
-    dt = datetime.datetime.fromordinal(ix).replace(tzinfo=UTC)
+    i0, remainder = divmod(x, 1)
+    # remainder is sub-day.  i0 is integer days
+    i0 = int(i0)
+    year_offset, ix = divmod(i0, DAYS_PER_400Y)
+    year_offset = year_offset * 400
 
+    if ix < 1:
+        ix = ix + DAYS_PER_400Y
+        year_offset += 400
+    dt = datetime.datetime.fromordinal(ix).replace(tzinfo=UTC)
     # Since the input date *x* float is unable to preserve microsecond
     # precision of time representation in non-antique years, the
     # resulting datetime is rounded to the nearest multiple of
@@ -358,8 +459,10 @@ def _from_ordinalf(x, tz=None):
 
     # add hours, minutes, seconds, microseconds
     dt += datetime.timedelta(microseconds=remainder_musec)
-    return dt.astimezone(tz)
+    dt = _datetimey._datetime_to_datetimey(dt, year_offset)
+    dt = dt.astimezone(tz)
 
+    return dt
 
 # a version of _from_ordinalf that can operate on numpy arrays
 _from_ordinalf_np_vectorized = np.vectorize(_from_ordinalf)
@@ -482,14 +585,18 @@ def date2num(d):
                 (isinstance(d, np.ndarray) and
                  np.issubdtype(d.dtype, np.datetime64))):
             return _dt64_to_ordinalf(d)
+        elif (isinstance(d, _datetimey)):
+            return _to_ordinalfy(d)
         return _to_ordinalf(d)
 
     else:
         d = np.asarray(d)
-        if np.issubdtype(d.dtype, np.datetime64):
-            return _dt64_to_ordinalf(d)
         if not d.size:
             return d
+        if np.issubdtype(d.dtype, np.datetime64):
+            return _dt64_to_ordinalf(d)
+        elif type(d[0]) == _datetimey:
+            return _to_ordinalfy_np_vectorized(d)
         return _to_ordinalf_np_vectorized(d)
 
 
@@ -1133,12 +1240,6 @@ class DateLocator(ticker.Locator):
         dmin, dmax = self.axis.get_data_interval()
         if dmin > dmax:
             dmin, dmax = dmax, dmin
-        if dmin < 1:
-            raise ValueError('datalim minimum {} is less than 1 and '
-                             'is an invalid Matplotlib date value. This often '
-                             'happens if you pass a non-datetime '
-                             'value to an axis that has datetime units'
-                             .format(dmin))
         return num2date(dmin, self.tz), num2date(dmax, self.tz)
 
     def viewlim_to_dt(self):
@@ -1148,12 +1249,6 @@ class DateLocator(ticker.Locator):
         vmin, vmax = self.axis.get_view_interval()
         if vmin > vmax:
             vmin, vmax = vmax, vmin
-        if vmin < 1:
-            raise ValueError('view limit minimum {} is less than 1 and '
-                             'is an invalid Matplotlib date value. This '
-                             'often happens if you pass a non-datetime '
-                             'value to an axis that has datetime units'
-                             .format(vmin))
         return num2date(vmin, self.tz), num2date(vmax, self.tz)
 
     def _get_unit(self):
@@ -1200,23 +1295,15 @@ class RRuleLocator(DateLocator):
         return self.tick_values(dmin, dmax)
 
     def tick_values(self, vmin, vmax):
-        delta = relativedelta(vmax, vmin)
-
-        # We need to cap at the endpoints of valid datetime
-        try:
-            start = vmin - delta
-        except (ValueError, OverflowError):
-            start = _from_ordinalf(1.0)
-
-        try:
-            stop = vmax + delta
-        except (ValueError, OverflowError):
-            # The magic number!
-            stop = _from_ordinalf(3652059.9999999)
-
-        self.rule.set(dtstart=start, until=stop)
-
-        dates = self.rule.between(vmin, vmax, True)
+        if not isinstance(vmin, _datetimey):
+            vmin = _datetimey._datetime_to_datetimey(vmin, 0)
+        if not isinstance(vmax, _datetimey):
+            vmax = _datetimey._datetime_to_datetimey(vmax, 0)
+        vmind, vmaxd = _datetimey._datetimey_to_datetime_samey0(vmin, vmax)
+        self.rule.set(dtstart=vmind, until=vmaxd)
+        dates = self.rule.between(vmind, vmaxd, inc=True)
+        dates = [_datetimey._datetime_to_datetimey(date, vmin._yearoffset)
+                 for date in dates]
         if len(dates) == 0:
             return date2num([vmin, vmax])
         return self.raise_if_exceeds(date2num(dates))
@@ -1258,7 +1345,7 @@ class RRuleLocator(DateLocator):
         Set the view limits to include the data range.
         """
         dmin, dmax = self.datalim_to_dt()
-        delta = relativedelta(dmax, dmin)
+        delta = _relativedeltay(dmax, dmin)
 
         # We need to cap at the endpoints of valid datetime
         try:
@@ -1421,25 +1508,24 @@ class AutoDateLocator(DateLocator):
 
     def get_locator(self, dmin, dmax):
         'Pick the best locator based on a distance.'
-        delta = relativedelta(dmax, dmin)
-        tdelta = dmax - dmin
-
+        ndays = _datetimey._ddays(dmax, dmin)
+        tdelta = _relativedeltay(dmax, dmin)
         # take absolute difference
         if dmin > dmax:
-            delta = -delta
-            tdelta = -tdelta
+            #    delta = -delta
+            tdelta = tdelta
 
-        # The following uses a mix of calls to relativedelta and timedelta
+        # The following uses a mix of calls to _relativedeltay and timedelta
         # methods because there is incomplete overlap in the functionality of
         # these similar functions, and it's best to avoid doing our own math
         # whenever possible.
-        numYears = float(delta.years)
-        numMonths = numYears * MONTHS_PER_YEAR + delta.months
-        numDays = tdelta.days   # Avoids estimates of days/month, days/year
-        numHours = numDays * HOURS_PER_DAY + delta.hours
-        numMinutes = numHours * MIN_PER_HOUR + delta.minutes
-        numSeconds = np.floor(tdelta.total_seconds())
-        numMicroseconds = np.floor(tdelta.total_seconds() * 1e6)
+        numYears = float(tdelta.years)
+        numMonths = numYears * MONTHS_PER_YEAR + tdelta.months
+        numDays = ndays   # Avoids estimates of days/month, days/year
+        numHours = numDays * HOURS_PER_DAY + tdelta.hours
+        numMinutes = numHours * MIN_PER_HOUR + tdelta.minutes
+        numSeconds = numMinutes * 60 + tdelta.seconds
+        numMicroseconds = numSeconds * 1e6 + tdelta.microseconds
 
         nums = [numYears, numMonths, numDays, numHours, numMinutes,
                 numSeconds, numMicroseconds]
@@ -1587,7 +1673,6 @@ class YearLocator(DateLocator):
                 # look after pytz
                 if not dt.tzinfo:
                     dt = self.tz.localize(dt, is_dst=True)
-
             ticks.append(dt)
 
     @cbook.deprecated("3.2")
