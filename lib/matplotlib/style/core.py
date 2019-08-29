@@ -72,7 +72,7 @@ def use(style):
 
     Parameters
     ----------
-    style : str, dict, list or Path object
+    style : str, dict, Path or list object
         A style specification. Valid options are:
 
         +------+-------------------------------------------------------------+
@@ -91,8 +91,7 @@ def use(style):
     """
     style_alias = {'mpl20': 'default',
                    'mpl15': 'classic'}
-    if isinstance(style, str) or hasattr(style, 'keys') or \
-            isinstance(style, Path):
+    if isinstance(style, (str, Path)) or hasattr(style, 'keys'):
         # If name is a single str, Path or dict, make it a single element list.
         styles = [style]
     else:
@@ -101,7 +100,7 @@ def use(style):
     styles = (style_alias.get(s, s) if isinstance(s, str) else s
               for s in styles)
     for style in styles:
-        if not isinstance(style, str) and not isinstance(style, Path):
+        if not isinstance(style, (str, Path)):
             _apply_style(style)
         elif style == 'default':
             # Deprecation warnings were already handled when creating
@@ -111,8 +110,6 @@ def use(style):
         elif style in library:
             _apply_style(library[style])
         else:
-            if isinstance(style, Path):
-                style = str(style)
             try:
                 rc = rc_params_from_file(style, use_default_template=False)
                 _apply_style(rc)
@@ -129,7 +126,7 @@ def context(style, after_reset=False):
 
     Parameters
     ----------
-    style : str, dict, or list
+    style : str, dict, Path or list
         A style specification. Valid options are:
 
         +------+-------------------------------------------------------------+
@@ -139,8 +136,10 @@ def context(style, after_reset=False):
         | dict | Dictionary with valid key/value pairs for                   |
         |      | `matplotlib.rcParams`.                                      |
         +------+-------------------------------------------------------------+
-        | list | A list of style specifiers (str or dict) applied from first |
-        |      | to last in the list.                                        |
+        | Path | A Path object which is a path to a style file.              |
+        +------+-------------------------------------------------------------+
+        | list | A list of style specifiers (str, Path or dict) applied from |
+        |      | first to last in the list.                                  |
         +------+-------------------------------------------------------------+
 
     after_reset : bool

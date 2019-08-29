@@ -948,7 +948,7 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
 
     Parameters
     ----------
-    fname : str
+    fname : str, Path
         Name of file parsed for Matplotlib settings.
     fail_on_error : bool
         If True, raise an error when the parser fails to convert a parameter.
