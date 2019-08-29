@@ -5170,7 +5170,7 @@ optional.
             where = True
         else:
             where = np.asarray(where, dtype=bool)
-            if where.size != x.size:
+            if where.size != x.size and step != 'between':
                 cbook.warn_deprecated(
                     "3.2",
                     message="The parameter where must have the same size as x "
@@ -5367,7 +5367,8 @@ optional.
                     self._get_patches_for_fill.get_next_color()
 
         # Handle united data, such as dates
-        self._process_unit_info(ydata=y, xdata=x1, kwargs=kwargs)
+        self._process_unit_info(ydata=y, kwargs=kwargs)
+        self._process_unit_info(xdata=x1)
         self._process_unit_info(xdata=x2)
 
         # Convert the arrays so we can work with them
@@ -5384,7 +5385,7 @@ optional.
             where = True
         else:
             where = np.asarray(where, dtype=bool)
-            if where.size != y.size:
+            if where.size != y.size and step != 'between':
                 cbook.warn_deprecated(
                     "3.2",
                     message="The parameter where must have the same size as y "

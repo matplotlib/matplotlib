@@ -1107,6 +1107,21 @@ def test_fill_between_histlike(fig_test, fig_ref):
                               np.r_[y2, y2[-1]], step='post')
 
 
+@image_comparison(['fill_between_step_between.pdf'], remove_text=True)
+def test_fill_between_step_between():
+    x, y = np.array([1, 2, 3, 4, 5]), np.array([1, 2, 3, 4])
+    where = np.array([False, True, False, True])
+    plt.fill_between(x, y, step='between', color='green')
+    plt.fill_between(x, 1, y, step='between', color='red')
+    plt.fill_between(x, 1, y, where=where, step='between', color='blue')
+    plt.fill_between(x, 4, 5, step='between', color='yellow')
+    plt.fill_between(x, 3, 4, where=~where, step='between', color='purple')
+    plt.fill_between(x, 3, 4, where=False, step='between', color='orange')
+    plt.fill_betweenx([1, 3], 1, [2], step='between', color='gray')
+    plt.fill_betweenx([1, 2, 4], 2, 3, where=[False, True], step='between',
+                      color='black')
+
+
 # test_symlog and test_symlog2 used to have baseline images in all three
 # formats, but the png and svg baselines got invalidated by the removal of
 # minor tick overstriking.
