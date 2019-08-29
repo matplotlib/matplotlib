@@ -1613,7 +1613,8 @@ def pts_to_betweenstep(x, *args):
         steps[1:,  1:-1:2] = args[:, 1:-1]
         steps[1:,  2:-1:2] = args[:, 1:-1]
     else:
-        raise ValueError(f"Expects abs(len(x)-len(y)) == 1")
+        # Fall back to steps-post (legend drawing)
+        steps = pts_to_poststep(x, *args)
 
     return steps
 
@@ -1653,7 +1654,8 @@ def pts_to_betweenstep_edges(x, *args):
     elif len(x) + 1 == len(args[0]):
         edge_steps[1:, ::len(edge_steps[0])-1] = steps[1:, ::len(steps[0])-1]
     else:
-        raise ValueError(f"Expects abs(len(x)-len(y)) == 1")
+        # Fall back to steps-post (legend drawing)
+        edge_steps = pts_to_poststep(x, *args)
 
     return edge_steps
 
