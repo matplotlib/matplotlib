@@ -82,28 +82,26 @@ def use(style):
         | dict | Dictionary with valid key/value pairs for                   |
         |      | `matplotlib.rcParams`.                                      |
         +------+-------------------------------------------------------------+
-        | list | A list of style specifiers (str or dict) applied from first |
-        |      | to last in the list.                                        |
-        +------+-------------------------------------------------------------+
         | Path | A Path object which is a path to a style file.              |
         +------+-------------------------------------------------------------+
+        | list | A list of style specifiers (str, Path or dict) applied from |
+        |      | first to last in the list.                                  |
+        +------+-------------------------------------------------------------+
+
     """
     style_alias = {'mpl20': 'default',
                    'mpl15': 'classic'}
-    if isinstance(style, str) or hasattr(style, 'keys'):
-        # If name is a single str or dict, make it a single element list.
+    if isinstance(style, str) or hasattr(style, 'keys') or \
+            isinstance(style, Path):
+        # If name is a single str, Path or dict, make it a single element list.
         styles = [style]
-    elif isinstance(style, Path):
-        # If the style is pathlib.Path object cast to string.
-        # and make it a single element list.
-        styles = [str(style)]
     else:
         styles = style
 
     styles = (style_alias.get(s, s) if isinstance(s, str) else s
               for s in styles)
     for style in styles:
-        if not isinstance(style, str):
+        if not isinstance(style, str) and not isinstance(style, Path):
             _apply_style(style)
         elif style == 'default':
             # Deprecation warnings were already handled when creating
@@ -113,6 +111,8 @@ def use(style):
         elif style in library:
             _apply_style(library[style])
         else:
+            if isinstance(style, Path):
+                style = str(style)
             try:
                 rc = rc_params_from_file(style, use_default_template=False)
                 _apply_style(rc)
