@@ -341,7 +341,7 @@ def _relativedeltay(t1, t2):
     """
     # a bit of fanciness to try to adjust things for close dates
     # that will have a non-year-locator but wrap a 400y boundary...
-    _yearoffset1 = t2._yearoffset
+    _yearoffset1 = t1._yearoffset
     if t1._yearoffset - t2._yearoffset == 400:
         delta = datetime.timedelta(days=DAYS_PER_400Y)
     else:
@@ -359,7 +359,6 @@ def _to_ordinalf(dt):
     days, preserving hours, minutes, seconds and microseconds.  Return value
     is a :func:`float`.
     """
-    print('_to_ordinalf')
     # Convert to UTC
     tzi = getattr(dt, 'tzinfo', None)
     if tzi is not None:
@@ -379,7 +378,6 @@ def _to_ordinalf(dt):
         # Append the seconds as a fraction of a day
         base += (dt - rdt).total_seconds() / SEC_PER_DAY
 
-    print('reeeturning ', dt, base)
     return base
 
 
