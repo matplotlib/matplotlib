@@ -1,6 +1,0 @@
-Deprecations
-````````````
-
-``FigureFrameWx.statusbar`` and ``NavigationToolbar2Wx.statbar`` are deprecated.
-The status bar can be retrieved by calling standard wx methods
-(``frame.GetStatusBar()`` and ``toolbar.GetTopLevelParent().GetStatusBar()``).

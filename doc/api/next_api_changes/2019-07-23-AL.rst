@@ -1,5 +1,0 @@
-API changes
-```````````
-
-The ``matplotlib.testing.determinism`` module, which exposes no public API, has
-been deleted.

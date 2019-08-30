@@ -1,7 +1,0 @@
-Deprecations
-````````````
-
-The ``matplotlib.testing.disable_internet`` module is deprecated.  Use (for
-example) pytest-remotedata_ instead.
-
-.. _pytest-remotedata: https://pypi.org/project/pytest-remotedata/
