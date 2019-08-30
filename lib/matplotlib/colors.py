@@ -40,6 +40,10 @@ Matplotlib recognizes the following formats to specify a color:
   interval ``[0, 1]`` (e.g., ``(0.1, 0.2, 0.5)`` or ``(0.1, 0.2, 0.5, 0.3)``);
 * a hex RGB or RGBA string (e.g., ``'#0f0f0f'`` or ``'#0f0f0f80'``;
   case-insensitive);
+* a shorthand hex RGB or RGBA string, equivalent to the hex RGB or RGBA
+  string obtained by duplicating each character, (e.g., ``'#abc'``, equivalent
+  to ``'#aabbcc'``, or ``'#abcd'``, equivalent to ``'#aabbccdd'``;
+  case-insensitive);
 * a string representation of a float value in ``[0, 1]`` inclusive for gray
   level (e.g., ``'0.5'``);
 * one of ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``, they are the single
