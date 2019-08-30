@@ -1,5 +1,0 @@
-Deprecations
-````````````
-
-``quiver.QuiverKey.quiverkey_doc`` is deprecated; use
-``quiver.QuiverKey.__init__.__doc__`` instead.
