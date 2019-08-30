@@ -73,7 +73,8 @@ U, V : 1D or 2D array-like
     The x and y direction components of the arrow vectors.
 
     They must have the same number of elements, matching the number of arrow
-    locations. They may be masked.
+    locations. *U* and *V* may be masked. Only locations unmasked in
+    *U*, *V*, and *C* will be drawn.
 
 C : 1D or 2D array-like, optional
     Numeric data that defines the arrow colors by colormapping via *norm* and
