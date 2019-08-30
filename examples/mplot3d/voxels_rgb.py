@@ -3,7 +3,7 @@
 3D voxel / volumetric plot with rgb colors
 ==========================================
 
-Demonstrates using `Axes3D.voxels` to visualize parts of a color space.
+Demonstrates using `.Axes3D.voxels` to visualize parts of a color space.
 """
 
 import matplotlib.pyplot as plt

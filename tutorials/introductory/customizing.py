@@ -130,11 +130,11 @@ plt.plot(data)
 # The :file:`matplotlibrc` file
 # -----------------------------
 #
-# matplotlib uses :file:`matplotlibrc` configuration files to customize all kinds
-# of properties, which we call `rc settings` or `rc parameters`. You can control
-# the defaults of almost every property in matplotlib: figure size and dpi, line
-# width, color and style, axes, axis and grid properties, text and font
-# properties and so on. matplotlib looks for :file:`matplotlibrc` in four
+# Matplotlib uses :file:`matplotlibrc` configuration files to customize all
+# kinds of properties, which we call 'rc settings' or 'rc parameters'. You can
+# control the defaults of almost every property in Matplotlib: figure size and
+# DPI, line width, color and style, axes, axis and grid properties, text and
+# font properties and so on. Matplotlib looks for :file:`matplotlibrc` in four
 # locations, in the following order:
 #
 # 1. :file:`matplotlibrc` in the current working directory, usually used for
@@ -144,8 +144,9 @@ plt.plot(data)
 #
 # 3. It next looks in a user-specific place, depending on your platform:
 #
-#    - On Linux and FreeBSD, it looks in :file:`.config/matplotlib/matplotlibrc`
-#      (or `$XDG_CONFIG_HOME/matplotlib/matplotlibrc`) if you've customized
+#    - On Linux and FreeBSD, it looks in
+#      :file:`.config/matplotlib/matplotlibrc` (or
+#      :file:`$XDG_CONFIG_HOME/matplotlib/matplotlibrc`) if you've customized
 #      your environment.
 #
 #    - On other platforms, it looks in :file:`.matplotlib/matplotlibrc`.

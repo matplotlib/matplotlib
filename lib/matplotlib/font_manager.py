@@ -44,48 +44,48 @@ from matplotlib.fontconfig_pattern import (
 _log = logging.getLogger(__name__)
 
 font_scalings = {
-    'xx-small' : 0.579,
-    'x-small'  : 0.694,
-    'small'    : 0.833,
-    'medium'   : 1.0,
-    'large'    : 1.200,
-    'x-large'  : 1.440,
-    'xx-large' : 1.728,
-    'larger'   : 1.2,
-    'smaller'  : 0.833,
-    None       : 1.0}
-
+    'xx-small': 0.579,
+    'x-small':  0.694,
+    'small':    0.833,
+    'medium':   1.0,
+    'large':    1.200,
+    'x-large':  1.440,
+    'xx-large': 1.728,
+    'larger':   1.2,
+    'smaller':  0.833,
+    None:       1.0,
+}
 stretch_dict = {
-    'ultra-condensed' : 100,
-    'extra-condensed' : 200,
-    'condensed'       : 300,
-    'semi-condensed'  : 400,
-    'normal'          : 500,
-    'semi-expanded'   : 600,
-    'semi-extended'   : 600,
-    'expanded'        : 700,
-    'extended'        : 700,
-    'extra-expanded'  : 800,
-    'extra-extended'  : 800,
-    'ultra-expanded'  : 900,
-    'ultra-extended'  : 900}
-
+    'ultra-condensed': 100,
+    'extra-condensed': 200,
+    'condensed':       300,
+    'semi-condensed':  400,
+    'normal':          500,
+    'semi-expanded':   600,
+    'semi-extended':   600,
+    'expanded':        700,
+    'extended':        700,
+    'extra-expanded':  800,
+    'extra-extended':  800,
+    'ultra-expanded':  900,
+    'ultra-extended':  900,
+}
 weight_dict = {
-    'ultralight' : 100,
-    'light'      : 200,
-    'normal'     : 400,
-    'regular'    : 400,
-    'book'       : 400,
-    'medium'     : 500,
-    'roman'      : 500,
-    'semibold'   : 600,
-    'demibold'   : 600,
-    'demi'       : 600,
-    'bold'       : 700,
-    'heavy'      : 800,
-    'extra bold' : 800,
-    'black'      : 900}
-
+    'ultralight': 100,
+    'light':      200,
+    'normal':     400,
+    'regular':    400,
+    'book':       400,
+    'medium':     500,
+    'roman':      500,
+    'semibold':   600,
+    'demibold':   600,
+    'demi':       600,
+    'bold':       700,
+    'heavy':      800,
+    'extra bold': 800,
+    'black':      900,
+}
 font_family_aliases = {
     'serif',
     'sans-serif',
@@ -93,9 +93,9 @@ font_family_aliases = {
     'cursive',
     'fantasy',
     'monospace',
-    'sans'}
-
-#  OS Font paths
+    'sans',
+}
+# OS Font paths
 MSFolders = \
     r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
 MSFontDirectories = [
@@ -411,12 +411,11 @@ def ttfFontProperty(font):
     #  Relative stretches are: wider, narrower
     #  Child value is: inherit
 
-    if (sfnt4.find('narrow') >= 0 or sfnt4.find('condensed') >= 0 or
-            sfnt4.find('cond') >= 0):
+    if any(word in sfnt4 for word in ['narrow', 'condensed', 'cond']):
         stretch = 'condensed'
-    elif sfnt4.find('demi cond') >= 0:
+    elif 'demi cond' in sfnt4:
         stretch = 'semi-condensed'
-    elif sfnt4.find('wide') >= 0 or sfnt4.find('expanded') >= 0 or sfnt4.find('extended') >= 0:
+    elif any(word in sfnt4 for word in ['wide', 'expanded', 'extended']):
         stretch = 'expanded'
     else:
         stretch = 'normal'
@@ -482,9 +481,9 @@ def afmFontProperty(fontpath, font):
     #  Child value is: inherit
     if 'demi cond' in fontname:
         stretch = 'semi-condensed'
-    elif 'narrow' in fontname or 'cond' in fontname:
+    elif any(word in fontname for word in ['narrow', 'cond']):
         stretch = 'condensed'
-    elif 'wide' in fontname or 'expanded' in fontname or 'extended' in fontname:
+    elif any(word in fontname for word in ['wide', 'expanded', 'extended']):
         stretch = 'expanded'
     else:
         stretch = 'normal'
@@ -503,6 +502,7 @@ def afmFontProperty(fontpath, font):
     return FontEntry(fontpath, name, style, variant, weight, stretch, size)
 
 
+@cbook.deprecated("3.2", alternative="FontManager.addfont")
 def createFontList(fontfiles, fontext='ttf'):
     """
     A function to create a font lookup list.  The default is to create
@@ -837,7 +837,7 @@ class FontProperties:
         Set the filename of the fontfile to use.  In this case, all
         other properties will be ignored.
         """
-        self._file = file
+        self._file = os.fspath(file) if file is not None else None
 
     def set_fontconfig_pattern(self, pattern):
         """
@@ -859,7 +859,7 @@ class FontProperties:
         return new
 
 
-class JSONEncoder(json.JSONEncoder):
+class _JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, FontManager):
             return dict(o.__dict__, __class__='FontManager')
@@ -875,6 +875,11 @@ class JSONEncoder(json.JSONEncoder):
             return d
         else:
             return super().default(o)
+
+
+@cbook.deprecated("3.2", alternative="json_dump")
+class JSONEncoder(_JSONEncoder):
+    pass
 
 
 def _json_decode(o):
@@ -897,26 +902,32 @@ def _json_decode(o):
 
 def json_dump(data, filename):
     """
-    Dumps a data structure as JSON in the named file.
+    Dump `FontManager` *data* as JSON to the file named *filename*.
 
-    Handles FontManager and its fields.  File paths that are children of the
-    Matplotlib data path (typically, fonts shipped with Matplotlib) are stored
-    relative to that data path (to remain valid across virtualenvs).
+    Notes
+    -----
+    File paths that are children of the Matplotlib data path (typically, fonts
+    shipped with Matplotlib) are stored relative to that data path (to remain
+    valid across virtualenvs).
+
+    See Also
+    --------
+    json_load
     """
     with open(filename, 'w') as fh:
         try:
-            json.dump(data, fh, cls=JSONEncoder, indent=2)
+            json.dump(data, fh, cls=_JSONEncoder, indent=2)
         except OSError as e:
             _log.warning('Could not save font_manager cache {}'.format(e))
 
 
 def json_load(filename):
     """
-    Loads a data structure as JSON from the named file.
+    Load a `FontManager` from the JSON file named *filename*.
 
-    Handles FontManager and its fields.  Relative file paths are interpreted
-    as being relative to the Matplotlib data path, and transformed into
-    absolute paths.
+    See Also
+    --------
+    json_dump
     """
     with open(filename, 'r') as fh:
         return json.load(fh, object_hook=_json_decode)
@@ -967,12 +978,54 @@ class FontManager:
             'ttf': 'DejaVu Sans',
             'afm': 'Helvetica'}
 
-        ttffiles = findSystemFonts(paths) + findSystemFonts()
-        self.ttflist = createFontList(ttffiles)
+        self.afmlist = []
+        self.ttflist = []
+        for fontext in ["afm", "ttf"]:
+            for path in [*findSystemFonts(paths, fontext=fontext),
+                         *findSystemFonts(fontext=fontext)]:
+                self.addfont(path)
 
-        afmfiles = (findSystemFonts(paths, fontext='afm')
-                    + findSystemFonts(fontext='afm'))
-        self.afmlist = createFontList(afmfiles, fontext='afm')
+    def addfont(self, path):
+        """
+        Cache the properties of the font at *path* to make it available to the
+        `FontManager`.  The type of font is inferred from the path suffix.
+
+        Parameters
+        ----------
+        path : str or path-like
+        """
+        if Path(path).suffix.lower() == ".afm":
+            try:
+                with open(path, "rb") as fh:
+                    font = afm.AFM(fh)
+            except EnvironmentError:
+                _log.info("Could not open font file %s", path)
+                return
+            except RuntimeError:
+                _log.info("Could not parse font file %s", path)
+                return
+            try:
+                prop = afmFontProperty(path, font)
+            except KeyError as exc:
+                _log.info("Could not extract properties for %s: %s", path, exc)
+                return
+            self.afmlist.append(prop)
+        else:
+            try:
+                font = ft2font.FT2Font(path)
+            except (OSError, RuntimeError) as exc:
+                _log.info("Could not open font file %s: %s", path, exc)
+                return
+            except UnicodeError:
+                _log.info("Cannot handle unicode filenames")
+                return
+            try:
+                prop = ttfFontProperty(font)
+            except (KeyError, RuntimeError, ValueError,
+                    NotImplementedError) as exc:
+                _log.info("Could not extract properties for %s: %s", path, exc)
+                return
+            self.ttflist.append(prop)
 
     @property
     def defaultFont(self):
@@ -1285,7 +1338,8 @@ if hasattr(os, "register_at_fork"):
 def get_font(filename, hinting_factor=None):
     if hinting_factor is None:
         hinting_factor = rcParams['text.hinting_factor']
-    return _get_font(os.fspath(filename), hinting_factor)
+    return _get_font(os.fspath(filename), hinting_factor,
+                     _kerning_factor=rcParams['text.kerning_factor'])
 
 
 def _rebuild():

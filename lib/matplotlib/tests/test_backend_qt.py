@@ -4,6 +4,7 @@ from unittest import mock
 
 import matplotlib
 from matplotlib import pyplot as plt
+from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 
 import pytest
@@ -272,3 +273,23 @@ def test_figureoptions():
             "matplotlib.backends.qt_editor._formlayout.FormDialog.exec_",
             lambda self: None):
         fig.canvas.manager.toolbar.edit_parameters()
+
+
+@pytest.mark.backend('Qt5Agg')
+def test_double_resize():
+    # Check that resizing a figure twice keeps the same window size
+    fig, ax = plt.subplots()
+    fig.canvas.draw()
+    window = fig.canvas.manager.window
+
+    w, h = 3, 2
+    fig.set_size_inches(w, h)
+    assert fig.canvas.width() == w * rcParams['figure.dpi']
+    assert fig.canvas.height() == h * rcParams['figure.dpi']
+
+    old_width = window.width()
+    old_height = window.height()
+
+    fig.set_size_inches(w, h)
+    assert window.width() == old_width
+    assert window.height() == old_height

@@ -132,18 +132,14 @@ class ContourLabeler:
             A list of `.Text` instances for the labels.
         """
 
-        """
-        NOTES on how this all works:
-
-        clabel basically takes the input arguments and uses them to
-        add a list of "label specific" attributes to the ContourSet
-        object.  These attributes are all of the form label* and names
-        should be fairly self explanatory.
-
-        Once these attributes are set, clabel passes control to the
-        labels method (case of automatic label placement) or
-        `BlockingContourLabeler` (case of manual label placement).
-        """
+        # clabel basically takes the input arguments and uses them to
+        # add a list of "label specific" attributes to the ContourSet
+        # object.  These attributes are all of the form label* and names
+        # should be fairly self explanatory.
+        #
+        # Once these attributes are set, clabel passes control to the
+        # labels method (case of automatic label placement) or
+        # `BlockingContourLabeler` (case of manual label placement).
 
         self.labelFmt = fmt
         self._use_clabeltext = use_clabeltext
@@ -249,7 +245,7 @@ class ContourLabeler:
                 self._mathtext_parser = mathtext.MathTextParser('bitmap')
             img, _ = self._mathtext_parser.parse(lev, dpi=72,
                                                  prop=self.labelFontProps)
-            lw = img.get_width()  # at dpi=72, the units are PostScript points
+            _, lw = np.shape(img)  # at dpi=72, the units are PostScript points
         else:
             # width is much less than "font size"
             lw = len(lev) * fsize * 0.6
@@ -1496,12 +1492,8 @@ class QuadContourSet(ContourSet):
 
     def _check_xyz(self, args, kwargs):
         """
-        For functions like contour, check that the dimensions
-        of the input arrays match; if x and y are 1D, convert
-        them to 2D using meshgrid.
-
-        Possible change: I think we should make and use an ArgumentError
-        Exception class (here and elsewhere).
+        Check that the shapes of the input arrays match; if x and y are 1D,
+        convert them to 2D using meshgrid.
         """
         x, y = args[:2]
         kwargs = self.ax._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
@@ -1513,39 +1505,34 @@ class QuadContourSet(ContourSet):
         z = ma.asarray(args[2], dtype=np.float64)
 
         if z.ndim != 2:
-            raise TypeError("Input z must be a 2D array.")
-        elif z.shape[0] < 2 or z.shape[1] < 2:
-            raise TypeError("Input z must be at least a 2x2 array.")
-        else:
-            Ny, Nx = z.shape
+            raise TypeError(f"Input z must be 2D, not {z.ndim}D")
+        if z.shape[0] < 2 or z.shape[1] < 2:
+            raise TypeError(f"Input z must be at least a (2, 2) shaped array, "
+                            f"but has shape {z.shape}")
+        Ny, Nx = z.shape
 
         if x.ndim != y.ndim:
-            raise TypeError("Number of dimensions of x and y should match.")
-
+            raise TypeError(f"Number of dimensions of x ({x.ndim}) and y "
+                            f"({y.ndim}) do not match")
         if x.ndim == 1:
-
             nx, = x.shape
             ny, = y.shape
-
             if nx != Nx:
-                raise TypeError("Length of x must be number of columns in z.")
-
+                raise TypeError(f"Length of x ({nx}) must match number of "
+                                f"columns in z ({Nx})")
             if ny != Ny:
-                raise TypeError("Length of y must be number of rows in z.")
-
+                raise TypeError(f"Length of y ({ny}) must match number of "
+                                f"rows in z ({Ny})")
             x, y = np.meshgrid(x, y)
-
         elif x.ndim == 2:
-
             if x.shape != z.shape:
-                raise TypeError("Shape of x does not match that of z: found "
-                                "{0} instead of {1}.".format(x.shape, z.shape))
-
+                raise TypeError(
+                    f"Shapes of x {x.shape} and z {z.shape} do not match")
             if y.shape != z.shape:
-                raise TypeError("Shape of y does not match that of z: found "
-                                "{0} instead of {1}.".format(y.shape, z.shape))
+                raise TypeError(
+                    f"Shapes of y {y.shape} and z {z.shape} do not match")
         else:
-            raise TypeError("Inputs x and y must be 1D or 2D.")
+            raise TypeError(f"Inputs x and y must be 1D or 2D, not {x.ndim}D")
 
         return x, y, z
 
@@ -1563,9 +1550,10 @@ class QuadContourSet(ContourSet):
         will give the minimum and maximum values of x and y.
         """
         if z.ndim != 2:
-            raise TypeError("Input must be a 2D array.")
+            raise TypeError(f"Input z must be 2D, not {z.ndim}D")
         elif z.shape[0] < 2 or z.shape[1] < 2:
-            raise TypeError("Input z must be at least a 2x2 array.")
+            raise TypeError(f"Input z must be at least a (2, 2) shaped array, "
+                            f"but has shape {z.shape}")
         else:
             Ny, Nx = z.shape
         if self.origin is None:  # Not for image-matching.
@@ -1747,7 +1735,7 @@ class QuadContourSet(ContourSet):
             filled contours, the default is *True*.  For line contours,
             it is taken from :rc:`lines.antialiased`.
 
-        Nchunk : int >= 0, optional
+        nchunk : int >= 0, optional
             If 0, no subdivision of the domain.  Specify a positive integer to
             divide the domain into subdomains of *nchunk* by *nchunk* quads.
             Chunking reduces the maximum length of polygons generated by the

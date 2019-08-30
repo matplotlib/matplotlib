@@ -1,11 +1,12 @@
 from numbers import Number
 
+import matplotlib as mpl
+from matplotlib import cbook
 import matplotlib.axes as maxes
 import matplotlib.ticker as ticker
 from matplotlib.gridspec import SubplotSpec
 
 from .axes_divider import Size, SubplotDivider, Divider
-from .colorbar import Colorbar
 from .mpl_axes import Axes
 
 
@@ -47,6 +48,16 @@ class CbarAxesBase:
         else:
             orientation = "vertical"
 
+        if mpl.rcParams["mpl_toolkits.legacy_colorbar"]:
+            cbook.warn_deprecated(
+                "3.2", message="Since %(since)s, mpl_toolkits's own colorbar "
+                "implementation is deprecated; it will be removed "
+                "%(removal)s.  Set the 'mpl_toolkits.legacy_colorbar' rcParam "
+                "to False to use Matplotlib's default colorbar implementation "
+                "and suppress this deprecation warning.")
+            from .colorbar import Colorbar
+        else:
+            from matplotlib.colorbar import Colorbar
         cb = Colorbar(self, mappable, orientation=orientation, **kwargs)
         self._config_axes()
 
@@ -58,7 +69,10 @@ class CbarAxesBase:
         self.cbid = mappable.callbacksSM.connect('changed', on_changed)
         mappable.colorbar = cb
 
-        self.locator = cb.cbar_axis.get_major_locator()
+        if mpl.rcParams["mpl_toolkits.legacy_colorbar"]:
+            self.locator = cb.cbar_axis.get_major_locator()
+        else:
+            self.locator = cb.locator
 
         return cb
 

@@ -24,7 +24,7 @@ interface. In this case, we utilize an instance of :class:`axes.Axes`
 in order to render visualizations on an instance of :class:`figure.Figure`.
 
 The second is based on MATLAB and uses a state-based interface. This is
-encapsulated in the :mod:`pyplot` module. See the :doc:`pyplot tutorials
+encapsulated in the :mod:`.pyplot` module. See the :doc:`pyplot tutorials
 </tutorials/introductory/pyplot>` for a more in-depth look at the pyplot
 interface.
 
@@ -99,7 +99,7 @@ ax.barh(group_names, group_data)
 #
 # There are many styles available in Matplotlib in order to let you tailor
 # your visualization to your needs. To see a list of styles, we can use
-# :mod:`pyplot.style`.
+# :mod:`.style`.
 
 print(plt.style.available)
 

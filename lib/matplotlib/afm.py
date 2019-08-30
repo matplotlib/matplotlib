@@ -85,25 +85,6 @@ def _to_bool(s):
         return True
 
 
-def _sanity_check(fh):
-    """
-    Check if the file looks like AFM; if it doesn't, raise `RuntimeError`.
-    """
-    # Remember the file position in case the caller wants to
-    # do something else with the file.
-    pos = fh.tell()
-    try:
-        line = next(fh)
-    finally:
-        fh.seek(pos, 0)
-    # AFM spec, Section 4: The StartFontMetrics keyword [followed by a
-    # version number] must be the first line in the file, and the
-    # EndFontMetrics keyword must be the last non-empty line in the
-    # file. We just check the first line.
-    if not line.startswith(b'StartFontMetrics'):
-        raise RuntimeError('Not an AFM file')
-
-
 def _parse_header(fh):
     """
     Reads the font metrics header (up to the char metrics) and returns
@@ -152,18 +133,26 @@ def _parse_header(fh):
         }
 
     d = {}
+    first_line = True
     for line in fh:
         line = line.rstrip()
         if line.startswith(b'Comment'):
             continue
         lst = line.split(b' ', 1)
-
         key = lst[0]
+        if first_line:
+            # AFM spec, Section 4: The StartFontMetrics keyword
+            # [followed by a version number] must be the first line in
+            # the file, and the EndFontMetrics keyword must be the
+            # last non-empty line in the file.  We just check the
+            # first header entry.
+            if key != b'StartFontMetrics':
+                raise RuntimeError('Not an AFM file')
+            first_line = False
         if len(lst) == 2:
             val = lst[1]
         else:
             val = b''
-
         try:
             converter = header_converters[key]
         except KeyError:
@@ -175,8 +164,10 @@ def _parse_header(fh):
             _log.error('Value error parsing header in AFM: %s, %s', key, val)
             continue
         if key == b'StartCharMetrics':
-            return d
-    raise RuntimeError('Bad parse')
+            break
+    else:
+        raise RuntimeError('Bad parse')
+    return d
 
 
 CharMetrics = namedtuple('CharMetrics', 'width, name, bbox')
@@ -366,40 +357,13 @@ def _parse_optional(fh):
     return d[b'StartKernData'], d[b'StartComposites']
 
 
-def _parse_afm(fh):
-    """
-    Parse the Adobe Font Metrics file in file handle *fh*.
-
-    Returns
-    -------
-    header : dict
-        A header dict. See :func:`_parse_header`.
-    cmetrics_by_ascii : dict
-        From :func:`_parse_char_metrics`.
-    cmetrics_by_name : dict
-        From :func:`_parse_char_metrics`.
-    kernpairs : dict
-        From :func:`_parse_kern_pairs`.
-    composites : dict
-        From :func:`_parse_composites`
-
-    """
-    _sanity_check(fh)
-    header = _parse_header(fh)
-    cmetrics_by_ascii, cmetrics_by_name = _parse_char_metrics(fh)
-    kernpairs, composites = _parse_optional(fh)
-    return header, cmetrics_by_ascii, cmetrics_by_name, kernpairs, composites
-
-
 class AFM:
 
     def __init__(self, fh):
         """Parse the AFM file in file object *fh*."""
-        (self._header,
-         self._metrics,
-         self._metrics_by_name,
-         self._kern,
-         self._composite) = _parse_afm(fh)
+        self._header = _parse_header(fh)
+        self._metrics, self._metrics_by_name = _parse_char_metrics(fh)
+        self._kern, self._composite = _parse_optional(fh)
 
     def get_bbox_char(self, c, isord=False):
         if not isord:

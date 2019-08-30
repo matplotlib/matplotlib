@@ -525,6 +525,9 @@ FT2Font::FT2Font(FT_Open_Args &open_args, long hinting_factor_) : image(), face(
         throw_ft_error("Can not load face", error);
     }
 
+    // set default kerning factor to 0, i.e., no kerning manipulation
+    kerning_factor = 0;
+
     // set a default fontsize 12 pt at 72dpi
     hinting_factor = hinting_factor_;
 
@@ -568,7 +571,7 @@ void FT2Font::clear()
 void FT2Font::set_size(double ptsize, double dpi)
 {
     FT_Error error = FT_Set_Char_Size(
-        face, (long)(ptsize * 64), 0, (unsigned int)(dpi * hinting_factor), (unsigned int)dpi);
+        face, (FT_F26Dot6)(ptsize * 64), 0, (FT_UInt)(dpi * hinting_factor), (FT_UInt)dpi);
     if (error) {
         throw_ft_error("Could not set the fontsize", error);
     }
@@ -602,15 +605,22 @@ int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode)
     FT_Vector delta;
 
     if (!FT_Get_Kerning(face, left, right, mode, &delta)) {
-        return (int)(delta.x) / (hinting_factor << 6);
+        return (int)(delta.x) / (hinting_factor << kerning_factor);
     } else {
         return 0;
     }
 }
 
+void FT2Font::set_kerning_factor(int factor)
+{
+    kerning_factor = factor;
+}
+
 void FT2Font::set_text(
     size_t N, uint32_t *codepoints, double angle, FT_Int32 flags, std::vector<double> &xys)
 {
+    FT_Matrix matrix; /* transformation matrix */
+
     angle = angle / 360.0 * 2 * M_PI;
 
     // this computes width and height in subpixels so we have to divide by 64
@@ -638,7 +648,7 @@ void FT2Font::set_text(
         if (use_kerning && previous && glyph_index) {
             FT_Vector delta;
             FT_Get_Kerning(face, previous, glyph_index, FT_KERNING_DEFAULT, &delta);
-            pen.x += (delta.x << 10) / (hinting_factor << 16);
+            pen.x += delta.x / (hinting_factor << kerning_factor);
         }
         if (FT_Error error = FT_Load_Glyph(face, glyph_index, flags)) {
             throw_ft_error("Could not load glyph", error);
@@ -659,7 +669,7 @@ void FT2Font::set_text(
         xys.push_back(pen.x);
         xys.push_back(pen.y);
 
-        FT_Glyph_Get_CBox(thisGlyph, ft_glyph_bbox_subpixels, &glyph_bbox);
+        FT_Glyph_Get_CBox(thisGlyph, FT_GLYPH_BBOX_SUBPIXELS, &glyph_bbox);
 
         bbox.xMin = std::min(bbox.xMin, glyph_bbox.xMin);
         bbox.xMax = std::max(bbox.xMax, glyph_bbox.xMax);

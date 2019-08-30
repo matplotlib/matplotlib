@@ -4,7 +4,7 @@ Changing colors of lines intersecting a box
 ===========================================
 
 The lines intersecting the rectangle are colored in red, while the others
-are left as blue lines. This example showcases the `intersect_bbox` function.
+are left as blue lines. This example showcases the `.intersects_bbox` function.
 
 """
 

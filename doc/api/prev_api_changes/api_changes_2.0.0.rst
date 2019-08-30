@@ -15,13 +15,13 @@ GTK and GDK backends deprecated
 The GDK and GTK backends have been deprecated. These obsolete backends
 allow figures to be rendered via the GDK API to files and GTK2 figures.
 They are untested and known to be broken, and their use has been
-discouraged for some time.  Instead, use the `GTKAgg` and `GTKCairo`
+discouraged for some time.  Instead, use the ``GTKAgg`` and ``GTKCairo``
 backends for rendering to GTK2 windows.
 
 WX backend deprecated
 ~~~~~~~~~~~~~~~~~~~~~
 The WX backend has been deprecated.  It is untested, and its
-use has been discouraged for some time. Instead, use the `WXAgg`
+use has been discouraged for some time. Instead, use the ``WXAgg``
 backend for rendering figures to WX windows.
 
 CocoaAgg backend removed
@@ -39,7 +39,7 @@ was unused internally and has been removed. Instead, use either the
 'hold' functionality deprecated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The 'hold' keyword argument and all functions and methods related
-to it are deprecated, along with the 'axes.hold' `rcParams` entry.
+to it are deprecated, along with the ``axes.hold`` rcParams entry.
 The behavior will remain consistent with the default ``hold=True``
 state that has long been in place.  Instead of using a function
 or keyword argument (``hold=False``) to change that behavior,
@@ -47,28 +47,27 @@ explicitly clear the axes or figure as needed prior to subsequent
 plotting commands.
 
 
-`Artist.update` has return value
---------------------------------
+`.Artist.update` has return value
+---------------------------------
 
-The methods `matplotlib.artist.Artist.set`,
-`matplotlib.Artist.update`, and the function `matplotlib.artist.setp`
-now use a common codepath to look up how to update the given artist
-properties (either using the setter methods or an attribute/property).
+The methods `matplotlib.artist.Artist.set`, `matplotlib.artist.Artist.update`,
+and the function `matplotlib.artist.setp` now use a common codepath to look up
+how to update the given artist properties (either using the setter methods or
+an attribute/property).
 
-The behavior of `matplotlib.Artist.update` is slightly changed to
-return a list of the values returned from the setter methods to avoid
-changing the API of `matplotlib.Artist.set` and
-`matplotlib.artist.setp`.
+The behavior of `matplotlib.artist.Artist.update` is slightly changed to return
+a list of the values returned from the setter methods to avoid changing the API
+of `matplotlib.artist.Artist.set` and `matplotlib.artist.setp`.
 
-The keys passed into `matplotlib.Artist.update` are now converted to
+The keys passed into `matplotlib.artist.Artist.update` are now converted to
 lower case before being processed, to match the behavior of
-`matplotlib.Artist.set` and `matplotlib.artist.setp`.  This should not
+`matplotlib.artist.Artist.set` and `matplotlib.artist.setp`.  This should not
 break any user code because there are no set methods with capitals in
 their names, but this puts a constraint on naming properties in the future.
 
 
-`Legend` initializers gain edgecolor and facecolor kwargs
----------------------------------------------------------
+`.Legend` initializers gain *edgecolor* and *facecolor* keyword arguments
+-------------------------------------------------------------------------
 
 The :class:`~matplotlib.legend.Legend` background patch (or 'frame')
 can have its ``edgecolor`` and ``facecolor`` determined by the
@@ -85,7 +84,7 @@ Qualitative colormaps
 
 Colorbrewer's qualitative/discrete colormaps ("Accent", "Dark2", "Paired",
 "Pastel1", "Pastel2", "Set1", "Set2", "Set3") are now implemented as
-``ListedColormap`` instead of ``LinearSegmentedColormap``.
+`.ListedColormap` instead of `.LinearSegmentedColormap`.
 
 To use these for images where categories are specified as integers, for
 instance, use::
@@ -104,10 +103,10 @@ See the ``draw_image`` docstring for more information.
 
 
 
-`matplotlib.ticker.LinearLocator` algorithm update
---------------------------------------------------
+``matplotlib.ticker.LinearLocator`` algorithm update
+----------------------------------------------------
 
-The ``matplotlib.ticker.LinearLocator`` is used to define the range and
+The `matplotlib.ticker.LinearLocator` is used to define the range and
 location of axis ticks when the user wants an exact number of ticks.
 ``LinearLocator`` thus differs from the default locator ``MaxNLocator``,
 for which the user specifies a maximum number of intervals rather than
@@ -141,8 +140,8 @@ ticks between integer powers of the base.  The algorithm uses
 two parameters supplied in a kwarg tuple named 'minor_thresholds'.
 See the docstring for further explanation.
 
-To improve support for axes using `~matplotlib.ticker.SymmetricLogLocator`,
-a 'linthresh' kwarg was added.
+To improve support for axes using `~matplotlib.ticker.SymmetricalLogLocator`,
+a *linthresh* keyword argument was added.
 
 
 New defaults for 3D quiver function in mpl_toolkits.mplot3d.axes3d.py
@@ -197,7 +196,7 @@ Default install no longer includes test images
 To reduce the size of wheels and source installs, the tests and
 baseline images are no longer included by default.
 
-To restore installing the tests and images, use a `setup.cfg` with ::
+To restore installing the tests and images, use a :file:`setup.cfg` with ::
 
    [packages]
    tests = True

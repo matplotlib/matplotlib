@@ -458,7 +458,22 @@ def validate_whiskers(s):
                                  "(float, float)]")
 
 
+@cbook.deprecated("3.2")
 def update_savefig_format(value):
+    # The old savefig.extension could also have a value of "auto", but
+    # the new savefig.format does not.  We need to fix this here.
+    value = validate_string(value)
+    if value == 'auto':
+        cbook.warn_deprecated(
+            "3.2", message="Support for setting the 'savefig.format' rcParam "
+            "to 'auto' is deprecated since %(since)s and will be removed "
+            "%(removal)s; set it to 'png' instead.")
+        value = 'png'
+    return value
+
+
+# Replace by validate_string once deprecation period passes.
+def _update_savefig_format(value):
     # The old savefig.extension could also have a value of "auto", but
     # the new savefig.format does not.  We need to fix this here.
     value = validate_string(value)
@@ -634,6 +649,7 @@ def validate_sketch(s):
     return result
 
 
+@cbook.deprecated("3.1")
 class ValidateInterval:
     """
     Value must be in interval
@@ -664,6 +680,28 @@ class ValidateInterval:
             raise RuntimeError('Value must be < %f; found "%f"' %
                                (self.vmax, s))
         return s
+
+
+def _validate_greaterequal0_lessthan1(s):
+    s = validate_float(s)
+    if 0 <= s < 1:
+        return s
+    else:
+        raise RuntimeError(f'Value must be >=0 and <1; got {s}')
+
+
+def _validate_greaterequal0_lessequal1(s):
+    s = validate_float(s)
+    if 0 <= s <= 1:
+        return s
+    else:
+        raise RuntimeError(f'Value must be >=0 and <=1; got {s}')
+
+
+_range_validators = {  # Slightly nicer (internal) API.
+    "0 <= x < 1": _validate_greaterequal0_lessthan1,
+    "0 <= x <= 1": _validate_greaterequal0_lessequal1,
+}
 
 
 validate_grid_axis = ValidateInStrings('axes.grid.axis', ['x', 'y', 'both'])
@@ -1074,8 +1112,8 @@ defaultParams = {
     'font.cursive':    [['Apple Chancery', 'Textile', 'Zapf Chancery',
                          'Sand', 'Script MT', 'Felipa', 'cursive'],
                         validate_stringlist],
-    'font.fantasy':    [['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact',
-                         'Western', 'Humor Sans', 'xkcd', 'fantasy'],
+    'font.fantasy':    [['Comic Neue', 'Comic Sans MS', 'Chicago', 'Charcoal',
+                         'Impact', 'Western', 'Humor Sans', 'xkcd', 'fantasy'],
                         validate_stringlist],
     'font.monospace':  [['DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
                          'Computer Modern Typewriter',
@@ -1091,6 +1129,7 @@ defaultParams = {
     'text.latex.preview':  [False, validate_bool],
     'text.hinting':        ['auto', validate_hinting],
     'text.hinting_factor': [8, validate_int],
+    'text.kerning_factor': [0, validate_int],
     'text.antialiased':    [True, validate_bool],
 
     'mathtext.cal':            ['cursive', validate_font_properties],
@@ -1150,7 +1189,7 @@ defaultParams = {
     'axes.labelpad':         [4.0, validate_float],  # space between label and axis
     'axes.labelweight':      ['normal', validate_string],  # fontsize of the x any y labels
     'axes.labelcolor':       ['black', validate_color],    # color of axis label
-    'axes.formatter.limits': [[-7, 7], validate_nseq_int(2)],
+    'axes.formatter.limits': [[-5, 6], validate_nseq_int(2)],
                                # use scientific notation if log10
                                # of the axis range is smaller than the
                                # first or larger than the second
@@ -1175,15 +1214,10 @@ defaultParams = {
     'axes.autolimit_mode': [
         'data',
         ValidateInStrings('autolimit_mode', ['data', 'round_numbers'])],
-    'axes.xmargin': [0.05, ValidateInterval(0, 1,
-                                            closedmin=True,
-                                            closedmax=True)],  # margin added to xaxis
-    'axes.ymargin': [0.05, ValidateInterval(0, 1,
-                                            closedmin=True,
-                                            closedmax=True)],  # margin added to yaxis
+    'axes.xmargin': [0.05, _range_validators["0 <= x <= 1"]],
+    'axes.ymargin': [0.05, _range_validators["0 <= x <= 1"]],
 
-    'polaraxes.grid': [True, validate_bool],  # display polar grid or
-                                                     # not
+    'polaraxes.grid': [True, validate_bool],  # display polar grid or not
     'axes3d.grid': [True, validate_bool],  # display 3d grid
 
     # scatter props
@@ -1297,28 +1331,22 @@ defaultParams = {
     'figure.autolayout': [False, validate_bool],
     'figure.max_open_warning': [20, validate_int],
 
-    'figure.subplot.left': [0.125, ValidateInterval(0, 1, closedmin=True,
-                                                       closedmax=True)],
-    'figure.subplot.right': [0.9, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=True)],
-    'figure.subplot.bottom': [0.11, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=True)],
-    'figure.subplot.top': [0.88, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=True)],
-    'figure.subplot.wspace': [0.2, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=False)],
-    'figure.subplot.hspace': [0.2, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=False)],
+    'figure.subplot.left': [0.125, _range_validators["0 <= x <= 1"]],
+    'figure.subplot.right': [0.9, _range_validators["0 <= x <= 1"]],
+    'figure.subplot.bottom': [0.11, _range_validators["0 <= x <= 1"]],
+    'figure.subplot.top': [0.88, _range_validators["0 <= x <= 1"]],
+    'figure.subplot.wspace': [0.2, _range_validators["0 <= x < 1"]],
+    'figure.subplot.hspace': [0.2, _range_validators["0 <= x < 1"]],
 
     # do constrained_layout.
     'figure.constrained_layout.use': [False, validate_bool],
     # wspace and hspace are fraction of adjacent subplots to use
     # for space.  Much smaller than above because we don't need
     # room for the text.
-    'figure.constrained_layout.hspace': [0.02, ValidateInterval(
-            0, 1, closedmin=True, closedmax=False)],
-    'figure.constrained_layout.wspace': [0.02, ValidateInterval(
-            0, 1, closedmin=True, closedmax=False)],
+    'figure.constrained_layout.hspace':
+        [0.02, _range_validators["0 <= x < 1"]],
+    'figure.constrained_layout.wspace':
+        [0.02, _range_validators["0 <= x < 1"]],
     # This is a buffer around the axes in inches.  This is 3pts.
     'figure.constrained_layout.h_pad': [0.04167, validate_float],
     'figure.constrained_layout.w_pad': [0.04167, validate_float],
@@ -1331,7 +1359,7 @@ defaultParams = {
     'savefig.orientation': ['portrait', validate_orientation],
     'savefig.jpeg_quality': [95, validate_int],
     # value checked by backend at runtime
-    'savefig.format':     ['png', update_savefig_format],
+    'savefig.format':     ['png', _update_savefig_format],
     # options are 'tight', or 'standard'. 'standard' validates to None.
     'savefig.bbox':       ['standard', validate_bbox],
     'savefig.pad_inches': [0.1, validate_float],
@@ -1375,7 +1403,7 @@ defaultParams = {
     'docstring.hardcopy': [False, validate_bool],
 
     'path.simplify': [True, validate_bool],
-    'path.simplify_threshold': [1.0 / 9.0, ValidateInterval(0.0, 1.0)],
+    'path.simplify_threshold': [1 / 9, _range_validators["0 <= x <= 1"]],
     'path.snap': [True, validate_bool],
     'path.sketch': [None, validate_sketch],
     'path.effects': [[], validate_any],
@@ -1425,6 +1453,8 @@ defaultParams = {
     'animation.convert_path':  ['convert', validate_string],
      # Additional arguments for convert movie writer (using pipes)
     'animation.convert_args':  [[], validate_stringlist],
+
+    'mpl_toolkits.legacy_colorbar': [True, validate_bool],
 
     # Classic (pre 2.0) compatibility mode
     # This is used for things that are hard to make backward compatible

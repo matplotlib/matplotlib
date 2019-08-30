@@ -27,7 +27,7 @@ converter with the `matplotlib.units` module::
   from pandas.tseries import converter as pdtc
   pdtc.register()
 
-If you only want to use the `pandas` converter for `datetime64` values ::
+If you only want to use the `pandas` converter for `numpy.datetime64` values ::
 
   from pandas.tseries import converter as pdtc
   import matplotlib.units as munits
@@ -48,7 +48,7 @@ recursively search the artist for any artists it may contain that meet
 some criteria (e.g., match all :class:`~matplotlib.lines.Line2D`
 instances or match some arbitrary filter function).  For example, the
 following snippet finds every object in the figure which has a
-`set_color` property and makes the object blue::
+``set_color`` property and makes the object blue::
 
     def myfunc(x):
         return hasattr(x, 'set_color')
@@ -246,8 +246,8 @@ over so that the tick labels fit in the figure:
 Configure the tick widths
 -------------------------
 
-Wherever possible, it is recommended to use the :meth:`~Axes.tick_params` or
-:meth:`~Axis.set_tick_params` methods to modify tick properties::
+Wherever possible, it is recommended to use the :meth:`~.axes.Axes.tick_params`
+or :meth:`~.axis.Axis.set_tick_params` methods to modify tick properties::
 
     import matplotlib.pyplot as plt
 
@@ -648,7 +648,7 @@ In general, the simplest solution when using Matplotlib in a web server is
 to completely avoid using pyplot (pyplot maintains references to the opened
 figures to make `~.matplotlib.pyplot.show` work, but this will cause memory
 leaks unless the figures are properly closed).  Since Matplotlib 3.1, one
-can directly create figures using the `Figure` constructor and save them to
+can directly create figures using the `.Figure` constructor and save them to
 in-memory buffers.  The following example uses Flask_, but other frameworks
 work similarly::
 

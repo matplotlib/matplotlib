@@ -66,11 +66,11 @@ colormap_kw_doc = '''
     ============  ====================================================
     Property      Description
     ============  ====================================================
-    *extend*      [ 'neither' | 'both' | 'min' | 'max' ]
+    *extend*      {'neither', 'both', 'min', 'max'}
                   If not 'neither', make pointed end(s) for out-of-
                   range values.  These are set for a given colormap
                   using the colormap set_under and set_over methods.
-    *extendfrac*  [ *None* | 'auto' | length | lengths ]
+    *extendfrac*  {*None*, 'auto', length, lengths}
                   If set to *None*, both the minimum and maximum
                   triangular colorbar extensions with have a length of
                   5% of the interior colorbar length (this is the
@@ -90,14 +90,14 @@ colormap_kw_doc = '''
                   If *False* the minimum and maximum colorbar extensions
                   will be triangular (the default). If *True* the
                   extensions will be rectangular.
-    *spacing*     [ 'uniform' | 'proportional' ]
+    *spacing*     {'uniform', 'proportional'}
                   Uniform spacing gives each discrete color the same
                   space; proportional makes the space proportional to
                   the data interval.
-    *ticks*       [ None | list of ticks | Locator object ]
+    *ticks*       *None* or list of ticks or Locator
                   If None, ticks are determined automatically from the
                   input.
-    *format*      [ None | format string | Formatter object ]
+    *format*      None or str or Formatter
                   If None, the
                   :class:`~matplotlib.ticker.ScalarFormatter` is used.
                   If a format string is given, e.g., '%.3f', that is
@@ -350,40 +350,78 @@ class _ColorbarMappableDummy:
 
 
 class ColorbarBase(_ColorbarMappableDummy):
-    '''
+    r"""
     Draw a colorbar in an existing axes.
 
-    This is a base class for the :class:`Colorbar` class, which is the
-    basis for the :func:`~matplotlib.pyplot.colorbar` function and the
-    :meth:`~matplotlib.figure.Figure.colorbar` method, which are the
-    usual ways of creating a colorbar.
+    There are only some rare cases in which you would work directly with a
+    `.ColorbarBase` as an end-user. Typically, colorbars are used
+    with `.ScalarMappable`\s such as an `.AxesImage` generated via
+    `~.axes.Axes.imshow`. For these cases you will use `.Colorbar` and
+    likely create it via `.pyplot.colorbar` or `.Figure.colorbar`.
 
-    It is also useful by itself for showing a colormap.  If the *cmap*
-    kwarg is given but *boundaries* and *values* are left as None,
-    then the colormap will be displayed on a 0-1 scale. To show the
+    The main application of using a `.ColorbarBase` explicitly is drawing
+    colorbars that are not associated with other elements in the figure, e.g.
+    when showing a colormap by itself.
+
+    If the *cmap* kwarg is given but *boundaries* and *values* are left as
+    None, then the colormap will be displayed on a 0-1 scale. To show the
     under- and over-value colors, specify the *norm* as::
 
-        colors.Normalize(clip=False)
+        norm=colors.Normalize(clip=False)
 
     To show the colors versus index instead of on the 0-1 scale,
     use::
 
-        norm=colors.NoNorm.
+        norm=colors.NoNorm()
 
     Useful public methods are :meth:`set_label` and :meth:`add_lines`.
 
     Attributes
     ----------
-    ax : Axes
-        The `Axes` instance in which the colorbar is drawn.
-
+    ax : `~matplotlib.axes.Axes`
+        The `~.axes.Axes` instance in which the colorbar is drawn.
     lines : list
-        A list of `LineCollection` if lines were drawn, otherwise
+        A list of `.LineCollection` if lines were drawn, otherwise
         an empty list.
-
-    dividers : LineCollection
+    dividers : `.LineCollection`
         A LineCollection if *drawedges* is ``True``, otherwise ``None``.
-    '''
+
+    Parameters
+    ----------
+    ax : `~matplotlib.axes.Axes`
+        The `~.axes.Axes` instance in which the colorbar is drawn.
+    cmap : `~matplotlib.colors.Colormap` or None
+        The colormap to use. If *None*, use :rc:`image.cmap`.
+    norm : `~matplotlib.colors.Normalize`
+
+    alpha : float
+
+    values
+
+    boundaries
+
+    orientation : {'vertical', 'horizontal'}
+
+    ticklocation : {'auto', 'left', 'right', 'top', 'bottom'}
+
+    extend : {'neiter', 'both', 'min', 'max'}
+
+    spacing : {'uniform', 'proportional'}
+
+    ticks : `~matplotlib.ticker.Locator` or array-like of float
+
+    format : str or `~matplotlib.ticker.Formatter`
+
+    drawedges : bool
+
+    filled : bool
+
+    extendfrac
+
+    extendrec
+
+    label : str
+    """
     _slice_dict = {'neither': slice(0, None),
                    'both': slice(1, -1),
                    'min': slice(1, None),
@@ -408,7 +446,17 @@ class ColorbarBase(_ColorbarMappableDummy):
                  extendrect=False,
                  label='',
                  ):
-        #: The axes that this colorbar lives in.
+        cbook._check_isinstance([colors.Colormap, None], cmap=cmap)
+        cbook._check_in_list(
+            ['vertical', 'horizontal'], orientation=orientation)
+        cbook._check_in_list(
+            ['auto', 'left', 'right', 'top', 'bottom'],
+            ticklocation=ticklocation)
+        cbook._check_in_list(
+            self._slice_dict, extend=extend)
+        cbook._check_in_list(
+            ['uniform', 'proportional'], spacing=spacing)
+
         self.ax = ax
         self._patch_ax()
         if cmap is None:

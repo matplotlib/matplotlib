@@ -660,11 +660,9 @@ class Artist:
             The amplitude of the wiggle perpendicular to the source
             line, in pixels.  If scale is `None`, or not provided, no
             sketch filter will be provided.
-
         length : float, optional
              The length of the wiggle along the line, in pixels
              (default 128.0)
-
         randomness : float, optional
             The scale factor by which the length is shrunken or
             expanded (default 16.0)
@@ -732,20 +730,28 @@ class Artist:
 
     def set_clip_path(self, path, transform=None):
         """
-        Set the artist's clip path, which may be:
+        Set the artist's clip path.
 
-        - a :class:`~matplotlib.patches.Patch` (or subclass) instance; or
-        - a :class:`~matplotlib.path.Path` instance, in which case a
-          :class:`~matplotlib.transforms.Transform` instance, which will be
-          applied to the path before using it for clipping, must be provided;
-          or
-        - ``None``, to remove a previously set clipping path.
+        Parameters
+        ----------
+        path : `.Patch` or `.Path` or `.TransformedPath` or None
+            The clip path. If given a `.Path`, *transform* must be provided as
+            well. If *None*, a previously set clip path is removed.
+        transform : `~matplotlib.transforms.Transform`, optional
+            Only used if *path* is a `.Path`, in which case the given `.Path`
+            is converted to a `.TransformedPath` using *transform*.
 
-        For efficiency, if the path happens to be an axis-aligned rectangle,
-        this method will set the clipping box to the corresponding rectangle
-        and set the clipping path to ``None``.
+        Notes
+        -----
+        For efficiency, if *path* is a `.Rectangle` this method will set the
+        clipping box to the corresponding rectangle and set the clipping path
+        to ``None``.
 
-        ACCEPTS: [(`~matplotlib.path.Path`, `.Transform`) | `.Patch` | None]
+        For technical reasons (support of ``setp``), a tuple
+        (*path*, *transform*) is also accepted as a single positional
+        parameter.
+
+        .. ACCEPTS: Patch or (Path, Transform) or None
         """
         from matplotlib.patches import Patch, Rectangle
 
@@ -1411,7 +1417,9 @@ class ArtistInspector:
 
         attrs = sorted(self._get_setters_and_targets())
 
-        names = [self.aliased_name_rest(prop, target)
+        names = [self.aliased_name_rest(prop, target).replace(
+            '_base._AxesBase', 'Axes').replace(
+            '_axes.Axes', 'Axes')
                  for prop, target in attrs]
         accepts = [self.get_valid_values(prop) for prop, target in attrs]
 
@@ -1528,7 +1536,7 @@ def setp(obj, *args, **kwargs):
     the name of the property you want to set without a value::
 
       >>> setp(line, 'linestyle')
-          linestyle: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
+          linestyle: {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
 
     If you want to see all the properties that can be set, and their
     possible values, you can do::

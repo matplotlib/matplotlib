@@ -7,7 +7,6 @@ pillow
 pyparsing
 pytest!=4.6.0
 pytest-cov
-pytest-faulthandler
 pytest-rerunfailures
 pytest-timeout
 pytest-xdist

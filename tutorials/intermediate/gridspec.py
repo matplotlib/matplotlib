@@ -9,7 +9,7 @@ How to create grid-shaped combinations of axes.
         Perhaps the primary function used to create figures and axes.
         It's also similar to :func:`.matplotlib.pyplot.subplot`,
         but creates and places all axes on the figure at once.  See also
-        `matplotlib.Figure.subplots`.
+        `matplotlib.figure.Figure.subplots`.
 
     :class:`~matplotlib.gridspec.GridSpec`
         Specifies the geometry of the grid that a subplot will be

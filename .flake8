@@ -28,12 +28,13 @@ exclude =
 
 per-file-ignores =
     setup.py: E402
+    setupext.py: E501
 
     tools/subset.py: E221, E251, E261, E302, E501
 
     lib/matplotlib/_cm.py: E202, E203, E302
     lib/matplotlib/_mathtext_data.py: E203, E261
-    lib/matplotlib/font_manager.py: E203, E221, E251, E501
+    lib/matplotlib/font_manager.py: E221, E251, E501
     lib/matplotlib/mathtext.py: E221, E251
     lib/matplotlib/rcsetup.py: E501
     lib/matplotlib/tests/test_mathtext.py: E501

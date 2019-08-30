@@ -5,8 +5,8 @@ Secondary Axis
 
 Sometimes we want a secondary axis on a plot, for instance to convert
 radians to degrees on the same plot.  We can do this by making a child
-axes with only one axis visible via `.Axes.axes.secondary_xaxis` and
-`.Axes.axes.secondary_yaxis`.  This secondary axis can have a different scale
+axes with only one axis visible via `.axes.Axes.secondary_xaxis` and
+`.axes.Axes.secondary_yaxis`.  This secondary axis can have a different scale
 than the main axis by providing both a forward and an inverse conversion
 function in a tuple to the ``functions`` kwarg:
 """

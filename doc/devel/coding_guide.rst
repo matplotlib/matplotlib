@@ -51,9 +51,9 @@ PR Review guidelines
   the threshold "is this better than it was?" as the review criteria.
 
 * For code changes (anything in ``src`` or ``lib``) at least two
-  developers (those with commit rights) should review all pull
+  core developers (those with commit rights) should review all pull
   requests.  If you are the first to review a PR and approve of the
-  changes use the github `'approve review'
+  changes use the GitHub `'approve review'
   <https://help.github.com/articles/reviewing-changes-in-pull-requests/>`__
   tool to mark it as such.  If you are a subsequent reviewer please
   approve the review and if you think no more review is needed, merge
@@ -63,7 +63,19 @@ PR Review guidelines
   :file:`doc/api/api_changes` and significant new features have and
   entry in :file:`doc/user/whats_new`.
 
-* Make sure the Travis, Appvyor, circle, and codecov tests are passing
+  - If a PR already has a positive review, a core developer (e.g. the first
+    reviewer, but not necessarily) may champion that PR for merging.  In order
+    to do so, they should ping all core devs both on GitHub and on the dev
+    mailing list, and label the PR with the "Merge with single review?" label.
+    Other core devs can then either review the PR and merge or reject it, or
+    simply request that it gets a second review before being merged.  If no one
+    asks for such a second review within a week, the PR can then be merged on
+    the basis of that single review.
+
+    A core dev should only champion one PR at a time and we should try to keep
+    the flow of championed PRs reasonable.
+
+* Make sure the Travis, Appveyor, CircleCI, and codecov tests are passing
   before merging.
 
   - Whenever a pull request is created or updated, Travis and Appveyor
@@ -73,7 +85,7 @@ PR Review guidelines
 
 * Do not self merge, except for 'small' patches to un-break the CI or
   when another reviewer explicitly allows it (ex, "Approve modulo CI
-  passing, may self merge when green")
+  passing, may self merge when green").
 
 * Squashing is case-by-case.  The balance is between burden on the
   contributor, keeping a relatively clean history, and keeping a
@@ -92,8 +104,6 @@ PR Review guidelines
   your branch, thanks for your work.".  If you are going to make
   substantial changes to the code or intent of the PR please check
   with the contributor first.
-
-
 
 
 Branches and Backports
@@ -159,7 +169,7 @@ We do a backport from master to v2.2.x assuming:
 * ``matplotlib`` is a read-only remote branch of the matplotlib/matplotlib repo
 
 The ``TARGET_SHA`` is the hash of the merge commit you would like to
-backport.  This can be read off of the github PR page (in the UI with
+backport.  This can be read off of the GitHub PR page (in the UI with
 the merge notification) or through the git CLI tools.
 
 Assuming that you already have a local branch ``v2.2.x`` (if not, then

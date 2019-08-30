@@ -403,7 +403,8 @@ class TexManager:
         alpha = self.grey_arrayd.get(key)
         if alpha is None:
             pngfile = self.make_png(tex, fontsize, dpi)
-            X = _png.read_png(os.path.join(self.texcache, pngfile))
+            with open(os.path.join(self.texcache, pngfile), "rb") as file:
+                X = _png.read_png(file)
             self.grey_arrayd[key] = alpha = X[:, :, -1]
         return alpha
 

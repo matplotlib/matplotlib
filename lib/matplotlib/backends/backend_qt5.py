@@ -123,7 +123,7 @@ def _create_qApp():
                     QtCore.Qt.AA_EnableHighDpiScaling)
             except AttributeError:  # Attribute only exists for Qt>=5.6.
                 pass
-            qApp = QtWidgets.QApplication([b"matplotlib"])
+            qApp = QtWidgets.QApplication(["matplotlib"])
             qApp.lastWindowClosed.connect(qApp.quit)
         else:
             qApp = app
@@ -215,6 +215,7 @@ class TimerQT(TimerBase):
 
 
 class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
+    required_interactive_framework = "qt5"
 
     # map Qt button codes to MouseEvent's ones:
     buttond = {QtCore.Qt.LeftButton: MouseButton.LEFT,
@@ -571,16 +572,6 @@ class FigureManagerQT(FigureManagerBase):
                 statusbar_label = QtWidgets.QLabel()
                 self.window.statusBar().addWidget(statusbar_label)
                 self.toolbar.message.connect(statusbar_label.setText)
-            tbs_height = self.toolbar.sizeHint().height()
-        else:
-            tbs_height = 0
-
-        # resize the main window so it will display the canvas with the
-        # requested size:
-        cs = canvas.sizeHint()
-        sbs = self.window.statusBar().sizeHint()
-        height = cs.height() + tbs_height + sbs.height()
-        self.window.resize(cs.width(), height)
 
         self.window.setCentralWidget(self.canvas)
 
@@ -631,7 +622,8 @@ class FigureManagerQT(FigureManagerBase):
         # so we do not need to worry about dpi scaling here.
         extra_width = self.window.width() - self.canvas.width()
         extra_height = self.window.height() - self.canvas.height()
-        self.window.resize(width+extra_width, height+extra_height)
+        self.canvas.resize(width, height)
+        self.window.resize(width + extra_width, height + extra_height)
 
     def show(self):
         self.window.show()
@@ -1026,7 +1018,6 @@ backend_tools.ToolCopyToClipboard = ToolCopyToClipboardQT
 
 @_Backend.export
 class _BackendQT5(_Backend):
-    required_interactive_framework = "qt5"
     FigureCanvas = FigureCanvasQT
     FigureManager = FigureManagerQT
 

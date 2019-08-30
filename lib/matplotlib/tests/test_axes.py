@@ -48,6 +48,9 @@ def test_get_labels():
 
 @image_comparison(['acorr.png'], style='mpl20')
 def test_acorr():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     np.random.seed(19680801)
     n = 512
     x = np.random.normal(0, 1, n).cumsum()
@@ -215,7 +218,7 @@ def test_twin_inherit_autoscale_setting():
 
 
 def test_inverted_cla():
-    # Github PR #5450. Setting autoscale should reset
+    # GitHub PR #5450. Setting autoscale should reset
     # axes to be non-inverted.
     # plotting an image, then 1d graph, axis is now down
     fig = plt.figure(0)
@@ -547,6 +550,9 @@ def test_single_point():
 
 @image_comparison(['single_date.png'], style='mpl20')
 def test_single_date():
+    # use former defaults to match existing baseline image
+    plt.rcParams['axes.formatter.limits'] = -7, 7
+
     time1 = [721964.0]
     data1 = [-65.54]
 
@@ -797,6 +803,23 @@ def test_polar_rlim_zero():
     assert ax.get_ylim()[0] == 0
 
 
+@image_comparison(['aitoff_proj'], extensions=["png"],
+                  remove_text=True, style='mpl20')
+def test_aitoff_proj():
+    """
+    Test aitoff projection ref.:
+    https://github.com/matplotlib/matplotlib/pull/14451
+    """
+    x = np.linspace(-np.pi, np.pi, 20)
+    y = np.linspace(-np.pi / 2, np.pi / 2, 20)
+    X, Y = np.meshgrid(x, y)
+
+    fig, ax = plt.subplots(figsize=(8, 4.2),
+                           subplot_kw=dict(projection="aitoff"))
+    ax.grid()
+    ax.plot(X.flat, Y.flat, 'o', markersize=4)
+
+
 @image_comparison(['axvspan_epoch'])
 def test_axvspan_epoch():
     from datetime import datetime
@@ -899,7 +922,12 @@ def test_inverted_limits():
 
     assert ax.get_xlim() == (-5, 4)
     assert ax.get_ylim() == (5, -3)
-    plt.close()
+
+    # Test inverting nonlinear axes.
+    fig, ax = plt.subplots()
+    ax.set_yscale("log")
+    ax.set_ylim(10, 1)
+    assert ax.get_ylim() == (10, 1)
 
 
 @image_comparison(['nonfinite_limits'])
@@ -1628,6 +1656,22 @@ def test_hist_log():
     ax.hist(data, fill=False, log=True)
 
 
+@check_figures_equal(extensions=["png"])
+def test_hist_log_2(fig_test, fig_ref):
+    axs_test = fig_test.subplots(2, 3)
+    axs_ref = fig_ref.subplots(2, 3)
+    for i, histtype in enumerate(["bar", "step", "stepfilled"]):
+        # Set log scale, then call hist().
+        axs_test[0, i].set_yscale("log")
+        axs_test[0, i].hist(1, 1, histtype=histtype)
+        # Call hist(), then set log scale.
+        axs_test[1, i].hist(1, 1, histtype=histtype)
+        axs_test[1, i].set_yscale("log")
+        # Use hist(..., log=True).
+        for ax in axs_ref[:, i]:
+            ax.hist(1, 1, log=True, histtype=histtype)
+
+
 @image_comparison(['hist_bar_empty.png'], remove_text=True)
 def test_hist_bar_empty():
     # From #3886: creating hist from empty dataset raises ValueError
@@ -1640,23 +1684,6 @@ def test_hist_step_empty():
     # From #3886: creating hist from empty dataset raises ValueError
     ax = plt.gca()
     ax.hist([], histtype='step')
-
-
-@image_comparison(['hist_steplog'], remove_text=True, tol=0.1)
-def test_hist_steplog():
-    np.random.seed(0)
-    data = np.random.standard_normal(2000)
-    data += -2.0 - np.min(data)
-    data_pos = data + 2.1
-    data_big = data_pos + 30
-    weights = np.ones_like(data) * 1.e-5
-
-    axs = plt.figure().subplots(4)
-    axs[0].hist(data, 100, histtype='stepfilled', log=True)
-    axs[1].hist(data_pos, 100, histtype='stepfilled', log=True)
-    axs[2].hist(data, 100, weights=weights, histtype='stepfilled', log=True)
-    axs[3].hist(data_big, 100, histtype='stepfilled', log=True,
-                orientation='horizontal')
 
 
 @image_comparison(['hist_step_filled.png'], remove_text=True)
@@ -1684,29 +1711,6 @@ def test_hist_density():
     data = np.random.standard_normal(2000)
     fig, ax = plt.subplots()
     ax.hist(data, density=True)
-
-
-@image_comparison(['hist_step_log_bottom.png'], remove_text=True)
-def test_hist_step_log_bottom():
-    # check that bottom doesn't get overwritten by the 'minimum' on a
-    # log scale histogram (https://github.com/matplotlib/matplotlib/pull/4608)
-    np.random.seed(0)
-    data = np.random.standard_normal(2000)
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    # normal hist (should clip minimum to 1/base)
-    ax.hist(data, bins=10, log=True, histtype='stepfilled',
-            alpha=0.5, color='b')
-    # manual bottom < 1/base (previously buggy, see #4608)
-    ax.hist(data, bins=10, log=True, histtype='stepfilled',
-            alpha=0.5, color='g', bottom=1e-2)
-    # manual bottom > 1/base
-    ax.hist(data, bins=10, log=True, histtype='stepfilled',
-            alpha=0.5, color='r', bottom=0.5)
-    # array bottom with some less than 1/base (should clip to 1/base)
-    ax.hist(data, bins=10, log=True, histtype='stepfilled',
-            alpha=0.5, color='y', bottom=np.arange(10))
-    ax.set_ylim(9e-3, 1e3)
 
 
 def test_hist_unequal_bins_density():
@@ -5552,6 +5556,12 @@ def test_pandas_errorbar_indexing(pd):
     ax.errorbar('x', 'y', xerr='xe', yerr='ye', data=df)
 
 
+def test_pandas_index_shape(pd):
+    df = pd.DataFrame({"XX": [4, 5, 6], "YY": [7, 1, 2]})
+    fig, ax = plt.subplots()
+    ax.plot(df.index, df['YY'])
+
+
 def test_pandas_indexing_hist(pd):
     ser_1 = pd.Series(data=[1, 2, 2, 3, 3, 4, 4, 4, 4, 5])
     ser_2 = ser_1.iloc[1:]
@@ -5723,6 +5733,9 @@ def test_axisbelow():
 
 @image_comparison(['titletwiny.png'], style='mpl20')
 def test_titletwiny():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     # Test that title is put above xlabel if xlabel at top
     fig, ax = plt.subplots()
     fig.subplots_adjust(top=0.8)

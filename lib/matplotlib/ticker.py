@@ -181,10 +181,11 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'LogFormatterExponent', 'LogFormatterMathtext',
            'IndexFormatter', 'LogFormatterSciNotation',
            'LogitFormatter', 'EngFormatter', 'PercentFormatter',
+           'OldScalarFormatter',
            'Locator', 'IndexLocator', 'FixedLocator', 'NullLocator',
            'LinearLocator', 'LogLocator', 'AutoLocator',
            'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',
-           'SymmetricalLogLocator', 'LogitLocator')
+           'SymmetricalLogLocator', 'LogitLocator', 'OldAutoLocator')
 
 
 def _mathdefault(s):
@@ -628,6 +629,8 @@ class ScalarFormatter(Formatter):
         """
         if self._useLocale:
             return locale.format_string('%-12g', (value,))
+        elif isinstance(value, np.ma.MaskedArray) and value.mask:
+            return ''
         else:
             return '%-12g' % value
 
@@ -1697,8 +1700,8 @@ class Locator(TickHelper):
         return locs
 
     def nonsingular(self, v0, v1):
-        """Modify the endpoints of a range as needed to avoid singularities."""
-        return mtransforms.nonsingular(v0, v1, increasing=False, expander=.05)
+        """Expand a range as needed to avoid singularities."""
+        return mtransforms.nonsingular(v0, v1, expander=.05)
 
     def view_limits(self, vmin, vmax):
         """
@@ -2382,7 +2385,16 @@ class LogLocator(Locator):
             cbook._check_in_list(('all', 'auto'), subs=subs)
             self._subs = subs
         else:
-            self._subs = np.asarray(subs, dtype=float)
+            try:
+                self._subs = np.asarray(subs, dtype=float)
+            except ValueError as e:
+                raise ValueError("subs must be None, 'all', 'auto' or "
+                                 "a sequence of floats, not "
+                                 "{}.".format(subs)) from e
+            if self._subs.ndim != 1:
+                raise ValueError("A sequence passed to subs must be "
+                                 "1-dimensional, not "
+                                 "{}-dimensional.".format(self._subs.ndim))
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -2495,9 +2507,7 @@ class LogLocator(Locator):
         return vmin, vmax
 
     def nonsingular(self, vmin, vmax):
-        swap_vlims = False
         if vmin > vmax:
-            swap_vlims = True
             vmin, vmax = vmax, vmin
         if not np.isfinite(vmin) or not np.isfinite(vmax):
             vmin, vmax = 1, 10  # Initial range, no data plotted yet.
@@ -2515,8 +2525,6 @@ class LogLocator(Locator):
             if vmin == vmax:
                 vmin = _decade_less(vmin, self._base)
                 vmax = _decade_greater(vmax, self._base)
-        if swap_vlims:
-            vmin, vmax = vmax, vmin
         return vmin, vmax
 
 
@@ -2581,30 +2589,17 @@ class SymmetricalLogLocator(Locator):
         #
         # "simple" mode is when the range falls entirely within (-t,
         # t) -- it should just display (vmin, 0, vmax)
+        if -linthresh < vmin < vmax < linthresh:
+            # only the linear range is present
+            return [vmin, vmax]
 
-        # Determine which of the three ranges we have
-        has_a = has_b = has_c = False
-        if vmin < -linthresh:
-            has_a = True
-            if vmax > -linthresh:
-                has_b = True
-                if vmax > linthresh:
-                    has_c = True
-        elif vmin < 0:
-            if vmax > 0:
-                has_b = True
-                if vmax > linthresh:
-                    has_c = True
-            else:
-                return [vmin, vmax]
-        elif vmin < linthresh:
-            if vmax > linthresh:
-                has_b = True
-                has_c = True
-            else:
-                return [vmin, vmax]
-        else:
-            has_c = True
+        # Lower log range is present
+        has_a = (vmin < -linthresh)
+        # Upper log range is present
+        has_c = (vmax > linthresh)
+
+        # Check if linear range is present
+        has_b = (has_a and vmax > -linthresh) or (has_c and vmin < linthresh)
 
         def get_log_range(lo, hi):
             lo = np.floor(np.log(lo) / np.log(base))
@@ -2612,38 +2607,32 @@ class SymmetricalLogLocator(Locator):
             return lo, hi
 
         # Calculate all the ranges, so we can determine striding
+        a_lo, a_hi = (0, 0)
         if has_a:
-            if has_b:
-                a_range = get_log_range(linthresh, np.abs(vmin) + 1)
-            else:
-                a_range = get_log_range(np.abs(vmax), np.abs(vmin) + 1)
-        else:
-            a_range = (0, 0)
+            a_upper_lim = min(-linthresh, vmax)
+            a_lo, a_hi = get_log_range(np.abs(a_upper_lim), np.abs(vmin) + 1)
 
+        c_lo, c_hi = (0, 0)
         if has_c:
-            if has_b:
-                c_range = get_log_range(linthresh, vmax + 1)
-            else:
-                c_range = get_log_range(vmin, vmax + 1)
-        else:
-            c_range = (0, 0)
+            c_lower_lim = max(linthresh, vmin)
+            c_lo, c_hi = get_log_range(c_lower_lim, vmax + 1)
 
         # Calculate the total number of integer exponents in a and c ranges
-        total_ticks = (a_range[1] - a_range[0]) + (c_range[1] - c_range[0])
+        total_ticks = (a_hi - a_lo) + (c_hi - c_lo)
         if has_b:
             total_ticks += 1
         stride = max(total_ticks // (self.numticks - 1), 1)
 
         decades = []
         if has_a:
-            decades.extend(-1 * (base ** (np.arange(a_range[0], a_range[1],
+            decades.extend(-1 * (base ** (np.arange(a_lo, a_hi,
                                                     stride)[::-1])))
 
         if has_b:
             decades.append(0.0)
 
         if has_c:
-            decades.extend(base ** (np.arange(c_range[0], c_range[1], stride)))
+            decades.extend(base ** (np.arange(c_lo, c_hi, stride)))
 
         # Add the subticks if requested
         if self._subs is None:

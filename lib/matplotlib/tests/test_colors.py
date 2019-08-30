@@ -28,7 +28,7 @@ def test_create_lookup_table(N, result):
 
 def test_resample():
     """
-    Github issue #6025 pointed to incorrect ListedColormap._resample;
+    GitHub issue #6025 pointed to incorrect ListedColormap._resample;
     here we test the method for LinearSegmentedColormap as well.
     """
     n = 101
@@ -62,7 +62,7 @@ def test_colormap_copy():
 
 def test_colormap_endian():
     """
-    Github issue #1005: a bug in putmask caused erroneous
+    GitHub issue #1005: a bug in putmask caused erroneous
     mapping of 1.0 when input from a non-native-byteorder
     array.
     """
@@ -77,7 +77,7 @@ def test_colormap_endian():
 
 def test_colormap_invalid():
     """
-    Github issue #9892: Handling of nan's were getting mapped to under
+    GitHub issue #9892: Handling of nan's were getting mapped to under
     rather than bad. This tests to make sure all invalid values
     (-inf, nan, inf) are mapped respectively to (under, bad, over).
     """
@@ -131,7 +131,7 @@ def test_colormap_return_types():
 
 def test_BoundaryNorm():
     """
-    Github issue #1258: interpolation was failing with numpy
+    GitHub issue #1258: interpolation was failing with numpy
     1.7 pre-release.
     """
 

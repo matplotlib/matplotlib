@@ -4,7 +4,7 @@ MRI
 ===
 
 This example illustrates how to read an image (of an MRI) into a NumPy
-array, and display it in greyscale using `imshow`.
+array, and display it in greyscale using `~.axes.Axes.imshow`.
 """
 
 import matplotlib.pyplot as plt

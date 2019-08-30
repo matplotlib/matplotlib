@@ -260,7 +260,7 @@
 #font.serif      : DejaVu Serif, Bitstream Vera Serif, Computer Modern Roman, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 #font.sans-serif : DejaVu Sans, Bitstream Vera Sans, Computer Modern Sans Serif, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 #font.cursive    : Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, cursive
-#font.fantasy    : Comic Sans MS, Chicago, Charcoal, ImpactWestern, Humor Sans, xkcd, fantasy
+#font.fantasy    : Comic Neue, Comic Sans MS, Chicago, Charcoal, ImpactWestern, Humor Sans, xkcd, fantasy
 #font.monospace  : DejaVu Sans Mono, Bitstream Vera Sans Mono, Computer Modern Typewriter, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
 
 
@@ -316,6 +316,10 @@
 #text.hinting_factor : 8  ## Specifies the amount of softness for hinting in the
                           ## horizontal direction.  A value of 1 will hint to full
                           ## pixels.  A value of 2 will hint to half pixels etc.
+#text.kerning_factor : 0  ## Specifies the scaling factor for kerning values. This
+                          ## is provided solely to allow old test images to remain
+                          ## unchanged. Set to 6 to obtain previous behavior. Values
+                          ## other than 0 or 6 have no defined meaning.
 #text.antialiased : True  ## If True (default), the text will be antialiased.
                           ## This only affects the Agg backend.
 
@@ -368,7 +372,7 @@
                               ##     - above patches but below lines ('line')
                               ##     - above all (False)
 
-#axes.formatter.limits : -7, 7  ## use scientific notation if log10
+#axes.formatter.limits : -5, 6  ## use scientific notation if log10
                                 ## of the axis range is smaller than the
                                 ## first or larger than the second
 #axes.formatter.use_locale : False  ## When True, format tick labels
@@ -743,3 +747,5 @@
 #animation.convert_args :          ## Additional arguments to pass to convert
 #animation.embed_limit  : 20.0     ## Limit, in MB, of size of base64 encoded
                                    ## animation in HTML (i.e. IPython notebook)
+
+#mpl_toolkits.legacy_colorbar: True

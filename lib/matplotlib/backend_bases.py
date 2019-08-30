@@ -1553,6 +1553,20 @@ def _get_renderer(figure, print_method):
             return figure._cachedRenderer
 
 
+def _is_non_interactive_terminal_ipython(ip):
+    """
+    Return whether we are in a a terminal IPython, but non interactive.
+
+    When in _terminal_ IPython, ip.parent will have and `interact` attribute,
+    if this attribute is False we do not setup eventloop integration as the
+    user will _not_ interact with IPython. In all other case (ZMQKernel, or is
+    interactive), we do.
+    """
+    return (hasattr(ip, 'parent')
+        and (ip.parent is not None)
+        and getattr(ip.parent, 'interact', None) is False)
+
+
 class FigureCanvasBase:
     """
     The canvas the figure renders into.
@@ -1563,8 +1577,12 @@ class FigureCanvasBase:
     ----------
     figure : `matplotlib.figure.Figure`
         A high-level figure instance
-
     """
+
+    # Set to one of {"qt5", "qt4", "gtk3", "wx", "tk", "macosx"} if an
+    # interactive framework is required, or None otherwise.
+    required_interactive_framework = None
+
     events = [
         'resize_event',
         'draw_event',
@@ -1640,20 +1658,12 @@ class FigureCanvasBase:
             # In case we ever move the patch to IPython and remove these APIs,
             # don't break on our side.
             return
-        backend_mod = sys.modules[cls.__module__]
-        rif = getattr(backend_mod, "required_interactive_framework", None)
+        rif = getattr(cls, "required_interactive_framework", None)
         backend2gui_rif = {"qt5": "qt", "qt4": "qt", "gtk3": "gtk3",
                            "wx": "wx", "macosx": "osx"}.get(rif)
         if backend2gui_rif:
-            pt.backend2gui[get_backend()] = backend2gui_rif
-            # Work around pylabtools.find_gui_and_backend always reading from
-            # rcParamsOrig.
-            orig_origbackend = mpl.rcParamsOrig["backend"]
-            try:
-                mpl.rcParamsOrig["backend"] = mpl.rcParams["backend"]
-                ip.enable_matplotlib()
-            finally:
-                mpl.rcParamsOrig["backend"] = orig_origbackend
+            if _is_non_interactive_terminal_ipython(ip):
+                ip.enable_gui(backend2gui_rif)
 
     @contextmanager
     def _idle_draw_cntx(self):
@@ -2463,20 +2473,53 @@ def button_press_handler(event, canvas, toolbar=None):
 
 
 class NonGuiException(Exception):
+    """Raised when trying show a figure in a non-GUI backend."""
     pass
 
 
 class FigureManagerBase:
     """
-    Helper class for pyplot mode, wraps everything up into a neat bundle.
+    A backend-independent abstraction of a figure container and controller.
+
+    The figure manager is used by pyplot to interact with the window in a
+    backend-independent way. It's an adapter for the real (GUI) framework that
+    represents the visual figure on screen.
+
+    GUI backends define from this class to translate common operations such
+    as *show* or *resize* to the GUI-specific code. Non-GUI backends do not
+    support these operations an can just use the base class.
+
+    This following basic operations are accessible:
+
+    **Window operations**
+
+    - `~.FigureManagerBase.show`
+    - `~.FigureManagerBase.destroy`
+    - `~.FigureManagerBase.full_screen_toggle`
+    - `~.FigureManagerBase.resize`
+    - `~.FigureManagerBase.get_window_title`
+    - `~.FigureManagerBase.set_window_title`
+
+    **Key and mouse button press handling**
+
+    The figure manager sets up default key and mouse button press handling by
+    hooking up the `.key_press_handler` to the matplotlib event system. This
+    ensures the same shortcuts and mouse actions across backends.
+
+    **Other operations**
+
+    Subclasses will have additional attributes and functions to access
+    additional functionality. This is of course backend-specific. For example,
+    most GUI backends have ``window`` and ``toolbar`` attributes that give
+    access to the native GUI widgets of the respective framework.
 
     Attributes
     ----------
     canvas : :class:`FigureCanvasBase`
-        The backend-specific canvas instance
+        The backend-specific canvas instance.
 
     num : int or str
-        The figure number
+        The figure number.
 
     key_press_handler_id : int
         The default key handler cid, when using the toolmanager.
@@ -2491,7 +2534,6 @@ class FigureManagerBase:
 
             figure.canvas.mpl_disconnect(
                 figure.canvas.manager.button_press_handler_id)
-
     """
     def __init__(self, canvas, num):
         self.canvas = canvas
@@ -2533,7 +2575,7 @@ class FigureManagerBase:
         pass
 
     def resize(self, w, h):
-        """"For GUI backends, resize the window (in pixels)."""
+        """For GUI backends, resize the window (in pixels)."""
 
     def key_press(self, event):
         """
@@ -2544,9 +2586,7 @@ class FigureManagerBase:
             key_press_handler(event, self.canvas, self.canvas.toolbar)
 
     def button_press(self, event):
-        """
-        The default Matplotlib button actions for extra mouse buttons.
-        """
+        """The default Matplotlib button actions for extra mouse buttons."""
         if rcParams['toolbar'] != 'toolmanager':
             button_press_handler(event, self.canvas, self.canvas.toolbar)
 
@@ -3262,10 +3302,6 @@ class _Backend:
     # class FooBackend(_Backend):
     #     # override the attributes and methods documented below.
 
-    # Set to one of {"qt5", "qt4", "gtk3", "wx", "tk", "macosx"} if an
-    # interactive framework is required, or None otherwise.
-    required_interactive_framework = None
-
     # `backend_version` may be overridden by the subclass.
     backend_version = "unknown"
 
@@ -3348,14 +3384,15 @@ class _Backend:
 
     @staticmethod
     def export(cls):
-        for name in ["required_interactive_framework",
-                     "backend_version",
-                     "FigureCanvas",
-                     "FigureManager",
-                     "new_figure_manager",
-                     "new_figure_manager_given_figure",
-                     "draw_if_interactive",
-                     "show"]:
+        for name in [
+                "backend_version",
+                "FigureCanvas",
+                "FigureManager",
+                "new_figure_manager",
+                "new_figure_manager_given_figure",
+                "draw_if_interactive",
+                "show",
+        ]:
             setattr(sys.modules[cls.__module__], name, getattr(cls, name))
 
         # For back-compatibility, generate a shim `Show` class.

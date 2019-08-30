@@ -10,18 +10,18 @@ Changes for 0.98.0
 * Rewrote the :class:`matplotlib.cm.ScalarMappable` callback
   infrastructure to use :class:`matplotlib.cbook.CallbackRegistry`
   rather than custom callback handling.  Any users of
-  :meth:`matplotlib.cm.ScalarMappable.add_observer` of the
+  ``matplotlib.cm.ScalarMappable.add_observer`` of the
   :class:`~matplotlib.cm.ScalarMappable` should use the
-  :attr:`matplotlib.cm.ScalarMappable.callbacks`
+  :attr:`matplotlib.cm.ScalarMappable.callbacksSM`
   :class:`~matplotlib.cbook.CallbackRegistry` instead.
 
 * New axes function and Axes method provide control over the plot
-  color cycle: :func:`matplotlib.axes.set_default_color_cycle` and
-  :meth:`matplotlib.axes.Axes.set_color_cycle`.
+  color cycle: ``matplotlib.axes.set_default_color_cycle`` and
+  ``matplotlib.axes.Axes.set_color_cycle``.
 
 * Matplotlib now requires Python 2.4, so :mod:`matplotlib.cbook` will
   no longer provide :class:`set`, :func:`enumerate`, :func:`reversed`
-  or :func:`izip` compatibility functions.
+  or ``izip`` compatibility functions.
 
 * In Numpy 1.0, bins are specified by the left edges only.  The axes
   method :meth:`matplotlib.axes.Axes.hist` now uses future Numpy 1.3
@@ -68,10 +68,10 @@ as well.  This means locators must get their limits from their
 the :class:`~matplotlib.axes.Axes`.  If a locator is used temporarily
 and not assigned to an Axis or Axes, (e.g., in
 :mod:`matplotlib.contour`), a dummy axis must be created to store its
-bounds.  Call :meth:`matplotlib.ticker.Locator.create_dummy_axis` to
+bounds.  Call :meth:`matplotlib.ticker.TickHelper.create_dummy_axis` to
 do so.
 
-The functionality of :class:`Pbox` has been merged with
+The functionality of ``Pbox`` has been merged with
 :class:`~matplotlib.transforms.Bbox`.  Its methods now all return
 copies rather than modifying in place.
 
@@ -84,84 +84,95 @@ with a verb in the present tense.
 :mod:`matplotlib.transforms`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-============================================================ ============================================================
-Old method                                                   New method
-============================================================ ============================================================
-:meth:`Bbox.get_bounds`                                      :attr:`transforms.Bbox.bounds`
------------------------------------------------------------- ------------------------------------------------------------
-:meth:`Bbox.width`                                           :attr:`transforms.Bbox.width`
------------------------------------------------------------- ------------------------------------------------------------
-:meth:`Bbox.height`                                          :attr:`transforms.Bbox.height`
------------------------------------------------------------- ------------------------------------------------------------
-`Bbox.intervalx().get_bounds()`                              :attr:`transforms.Bbox.intervalx`
-`Bbox.intervalx().set_bounds()`                              [:attr:`Bbox.intervalx` is now a property.]
------------------------------------------------------------- ------------------------------------------------------------
-`Bbox.intervaly().get_bounds()`                              :attr:`transforms.Bbox.intervaly`
-`Bbox.intervaly().set_bounds()`                              [:attr:`Bbox.intervaly` is now a property.]
------------------------------------------------------------- ------------------------------------------------------------
-:meth:`Bbox.xmin`                                            :attr:`transforms.Bbox.x0` or
-                                                             :attr:`transforms.Bbox.xmin` [1]_
------------------------------------------------------------- ------------------------------------------------------------
-:meth:`Bbox.ymin`                                            :attr:`transforms.Bbox.y0` or
-                                                             :attr:`transforms.Bbox.ymin` [1]_
------------------------------------------------------------- ------------------------------------------------------------
-:meth:`Bbox.xmax`                                            :attr:`transforms.Bbox.x1` or
-                                                             :attr:`transforms.Bbox.xmax` [1]_
------------------------------------------------------------- ------------------------------------------------------------
-:meth:`Bbox.ymax`                                            :attr:`transforms.Bbox.y1` or
-                                                             :attr:`transforms.Bbox.ymax` [1]_
------------------------------------------------------------- ------------------------------------------------------------
-`Bbox.overlaps(bboxes)`                                      `Bbox.count_overlaps(bboxes)`
------------------------------------------------------------- ------------------------------------------------------------
-`bbox_all(bboxes)`                                           `Bbox.union(bboxes)`
-                                                             [:meth:`transforms.Bbox.union` is a staticmethod.]
------------------------------------------------------------- ------------------------------------------------------------
-`lbwh_to_bbox(l, b, w, h)`                                   `Bbox.from_bounds(x0, y0, w, h)`
-                                                             [:meth:`transforms.Bbox.from_bounds` is a staticmethod.]
------------------------------------------------------------- ------------------------------------------------------------
-`inverse_transform_bbox(trans, bbox)`                        `Bbox.inverse_transformed(trans)`
------------------------------------------------------------- ------------------------------------------------------------
-`Interval.contains_open(v)`                                  `interval_contains_open(tuple, v)`
------------------------------------------------------------- ------------------------------------------------------------
-`Interval.contains(v)`                                       `interval_contains(tuple, v)`
------------------------------------------------------------- ------------------------------------------------------------
-`identity_transform()`                                       :class:`matplotlib.transforms.IdentityTransform`
------------------------------------------------------------- ------------------------------------------------------------
-`blend_xy_sep_transform(xtrans, ytrans)`                     `blended_transform_factory(xtrans, ytrans)`
------------------------------------------------------------- ------------------------------------------------------------
-`scale_transform(xs, ys)`                                    `Affine2D().scale(xs[, ys])`
------------------------------------------------------------- ------------------------------------------------------------
-`get_bbox_transform(boxin, boxout)`                          `BboxTransform(boxin, boxout)` or
-                                                             `BboxTransformFrom(boxin)` or
-                                                             `BboxTransformTo(boxout)`
------------------------------------------------------------- ------------------------------------------------------------
-`Transform.seq_xy_tup(points)`                               `Transform.transform(points)`
------------------------------------------------------------- ------------------------------------------------------------
-`Transform.inverse_xy_tup(points)`                           `Transform.inverted().transform(points)`
-============================================================ ============================================================
++--------------------------------------------+------------------------------------------------------+
+| Old method                                 | New method                                           |
++============================================+======================================================+
+| ``Bbox.get_bounds``                        | :attr:`.transforms.Bbox.bounds`                      |
++--------------------------------------------+------------------------------------------------------+
+| ``Bbox.width``                             | :attr:`transforms.Bbox.width                         |
+|                                            | <.transforms.BboxBase.width>`                        |
++--------------------------------------------+------------------------------------------------------+
+| ``Bbox.height``                            | :attr:`transforms.Bbox.height                        |
+|                                            | <.transforms.BboxBase.height>`                       |
++--------------------------------------------+------------------------------------------------------+
+| ``Bbox.intervalx().get_bounds()``          | :attr:`.transforms.Bbox.intervalx`                   |
+| ``Bbox.intervalx().set_bounds()``          | [It is now a property.]                              |
++--------------------------------------------+------------------------------------------------------+
+| ``Bbox.intervaly().get_bounds()``          | :attr:`.transforms.Bbox.intervaly`                   |
+| ``Bbox.intervaly().set_bounds()``          | [It is now a property.]                              |
++--------------------------------------------+------------------------------------------------------+
+| ``Bbox.xmin``                              | :attr:`.transforms.Bbox.x0` or                       |
+|                                            | :attr:`transforms.Bbox.xmin                          |
+|                                            | <.transforms.BboxBase.xmin>` [1]_                    |
++--------------------------------------------+------------------------------------------------------+
+| ``Bbox.ymin``                              | :attr:`.transforms.Bbox.y0` or                       |
+|                                            | :attr:`transforms.Bbox.ymin                          |
+|                                            | <.transforms.BboxBase.ymin>` [1]_                    |
++--------------------------------------------+------------------------------------------------------+
+| ``Bbox.xmax``                              | :attr:`.transforms.Bbox.x1` or                       |
+|                                            | :attr:`transforms.Bbox.xmax                          |
+|                                            | <.transforms.BboxBase.xmax>` [1]_                    |
++--------------------------------------------+------------------------------------------------------+
+| ``Bbox.ymax``                              | :attr:`.transforms.Bbox.y1` or                       |
+|                                            | :attr:`transforms.Bbox.ymax                          |
+|                                            | <.transforms.BboxBase.ymax>` [1]_                    |
++--------------------------------------------+------------------------------------------------------+
+| ``Bbox.overlaps(bboxes)``                  | `Bbox.count_overlaps(bboxes)                         |
+|                                            | <.BboxBase.count_overlaps>`                          |
++--------------------------------------------+------------------------------------------------------+
+| ``bbox_all(bboxes)``                       | `Bbox.union(bboxes) <.BboxBase.union>`               |
+|                                            | [It is a staticmethod.]                              |
++--------------------------------------------+------------------------------------------------------+
+| ``lbwh_to_bbox(l, b, w, h)``               | `Bbox.from_bounds(x0, y0, w, h) <.Bbox.from_bounds>` |
+|                                            | [It is a staticmethod.]                              |
++--------------------------------------------+------------------------------------------------------+
+| ``inverse_transform_bbox(trans, bbox)``    | `Bbox.inverse_transformed(trans)                     |
+|                                            | <.BboxBase.inverse_transformed>`                     |
++--------------------------------------------+------------------------------------------------------+
+| ``Interval.contains_open(v)``              | `interval_contains_open(tuple, v)                    |
+|                                            | <.interval_contains_open>`                           |
++--------------------------------------------+------------------------------------------------------+
+| ``Interval.contains(v)``                   | `interval_contains(tuple, v) <.interval_contains>`   |
++--------------------------------------------+------------------------------------------------------+
+| ``identity_transform()``                   | :class:`.transforms.IdentityTransform`               |
++--------------------------------------------+------------------------------------------------------+
+| ``blend_xy_sep_transform(xtrans, ytrans)`` | `blended_transform_factory(xtrans, ytrans)           |
+|                                            | <.blended_transform_factory>`                        |
++--------------------------------------------+------------------------------------------------------+
+| ``scale_transform(xs, ys)``                | `Affine2D().scale(xs[, ys]) <.Affine2D.scale>`       |
++--------------------------------------------+------------------------------------------------------+
+| ``get_bbox_transform(boxin, boxout)``      | `BboxTransform(boxin, boxout) <.BboxTransform>` or   |
+|                                            | `BboxTransformFrom(boxin) <.BboxTransformFrom>` or   |
+|                                            | `BboxTransformTo(boxout) <.BboxTransformTo>`         |
++--------------------------------------------+------------------------------------------------------+
+| ``Transform.seq_xy_tup(points)``           | `Transform.transform(points) <.Transform.transform>` |
++--------------------------------------------+------------------------------------------------------+
+| ``Transform.inverse_xy_tup(points)``       | `Transform.inverted()                                |
+|                                            | <.Transform.inverted>`.transform(points)             |
++--------------------------------------------+------------------------------------------------------+
 
 .. [1] The :class:`~matplotlib.transforms.Bbox` is bound by the points
    (x0, y0) to (x1, y1) and there is no defined order to these points,
    that is, x0 is not necessarily the left edge of the box.  To get
-   the left edge of the :class:`Bbox`, use the read-only property
-   :attr:`~matplotlib.transforms.Bbox.xmin`.
+   the left edge of the :class:`.Bbox`, use the read-only property
+   :attr:`xmin <matplotlib.transforms.BboxBase.xmin>`.
 
 :mod:`matplotlib.axes`
 ~~~~~~~~~~~~~~~~~~~~~~
 
-============================================================ ============================================================
-Old method                                                   New method
-============================================================ ============================================================
-`Axes.get_position()`                                        :meth:`matplotlib.axes.Axes.get_position` [2]_
------------------------------------------------------------- ------------------------------------------------------------
-`Axes.set_position()`                                        :meth:`matplotlib.axes.Axes.set_position` [3]_
------------------------------------------------------------- ------------------------------------------------------------
-`Axes.toggle_log_lineary()`                                  :meth:`matplotlib.axes.Axes.set_yscale` [4]_
------------------------------------------------------------- ------------------------------------------------------------
-`Subplot` class                                              removed.
-============================================================ ============================================================
+============================= ==============================================
+Old method                    New method
+============================= ==============================================
+``Axes.get_position()``       :meth:`matplotlib.axes.Axes.get_position` [2]_
+----------------------------- ----------------------------------------------
+``Axes.set_position()``       :meth:`matplotlib.axes.Axes.set_position` [3]_
+----------------------------- ----------------------------------------------
+``Axes.toggle_log_lineary()`` :meth:`matplotlib.axes.Axes.set_yscale` [4]_
+----------------------------- ----------------------------------------------
+``Subplot`` class             removed
+============================= ==============================================
 
-The :class:`Polar` class has moved to :mod:`matplotlib.projections.polar`.
+The ``Polar`` class has moved to :mod:`matplotlib.projections.polar`.
 
 .. [2] :meth:`matplotlib.axes.Axes.get_position` used to return a list
    of points, now it returns a :class:`matplotlib.transforms.Bbox`
@@ -172,16 +183,16 @@ The :class:`Polar` class has moved to :mod:`matplotlib.projections.polar`.
 
 .. [4] Since the recfactoring allows for more than two scale types
    ('log' or 'linear'), it no longer makes sense to have a toggle.
-   `Axes.toggle_log_lineary()` has been removed.
+   ``Axes.toggle_log_lineary()`` has been removed.
 
 :mod:`matplotlib.artist`
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-============================================================ ============================================================
-Old method                                                   New method
-============================================================ ============================================================
-`Artist.set_clip_path(path)`                                 `Artist.set_clip_path(path, transform)` [5]_
-============================================================ ============================================================
+============================== ==============================================
+Old method                     New method
+============================== ==============================================
+``Artist.set_clip_path(path)`` ``Artist.set_clip_path(path, transform)`` [5]_
+============================== ==============================================
 
 .. [5] :meth:`matplotlib.artist.Artist.set_clip_path` now accepts a
    :class:`matplotlib.path.Path` instance and a
@@ -191,11 +202,11 @@ Old method                                                   New method
 :mod:`matplotlib.collections`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-============================================================ ============================================================
-Old method                                                   New method
-============================================================ ============================================================
-`linestyle`                                                  `linestyles` [6]_
-============================================================ ============================================================
+=========== =================
+Old method  New method
+=========== =================
+*linestyle* *linestyles* [6]_
+=========== =================
 
 .. [6] Linestyles are now treated like all other collection
    attributes, i.e.  a single value or multiple values may be
@@ -204,55 +215,67 @@ Old method                                                   New method
 :mod:`matplotlib.colors`
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-============================================================ ============================================================
-Old method                                                   New method
-============================================================ ============================================================
-`ColorConvertor.to_rgba_list(c)`                             `ColorConvertor.to_rgba_array(c)`
-                                                             [:meth:`matplotlib.colors.ColorConvertor.to_rgba_array`
-                                                             returns an Nx4 Numpy array of RGBA color quadruples.]
-============================================================ ============================================================
+================================== =====================================================
+Old method                         New method
+================================== =====================================================
+``ColorConvertor.to_rgba_list(c)`` ``colors.to_rgba_array(c)``
+                                   [:meth:`matplotlib.colors.to_rgba_array`
+                                   returns an Nx4 NumPy array of RGBA color quadruples.]
+================================== =====================================================
 
 :mod:`matplotlib.contour`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-============================================================ ============================================================
-Old method                                                   New method
-============================================================ ============================================================
-`Contour._segments`                                          :meth:`matplotlib.contour.Contour.get_paths`` [Returns a
-                                                             list of :class:`matplotlib.path.Path` instances.]
-============================================================ ============================================================
+===================== ===================================================
+Old method            New method
+===================== ===================================================
+``Contour._segments`` ``matplotlib.contour.Contour.get_paths`` [Returns a
+                      list of :class:`matplotlib.path.Path` instances.]
+===================== ===================================================
 
 :mod:`matplotlib.figure`
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-============================================================ ============================================================
-Old method                                                   New method
-============================================================ ============================================================
-`Figure.dpi.get()` / `Figure.dpi.set()`                      :attr:`matplotlib.figure.Figure.dpi` *(a property)*
-============================================================ ============================================================
++----------------------+--------------------------------------+
+| Old method           | New method                           |
++======================+======================================+
+| ``Figure.dpi.get()`` | :attr:`matplotlib.figure.Figure.dpi` |
+| ``Figure.dpi.set()`` | *(a property)*                       |
++----------------------+--------------------------------------+
 
 :mod:`matplotlib.patches`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-============================================================ ============================================================
-Old method                                                   New method
-============================================================ ============================================================
-`Patch.get_verts()`                                          :meth:`matplotlib.patches.Patch.get_path` [Returns a
-                                                             :class:`matplotlib.path.Path` instance]
-============================================================ ============================================================
+===================== ====================================================
+Old method            New method
+===================== ====================================================
+``Patch.get_verts()`` :meth:`matplotlib.patches.Patch.get_path` [Returns a
+                      :class:`matplotlib.path.Path` instance]
+===================== ====================================================
 
 :mod:`matplotlib.backend_bases`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-============================================================ ============================================================
-Old method                                                   New method
-============================================================ ============================================================
-`GraphicsContext.set_clip_rectangle(tuple)`                  `GraphicsContext.set_clip_rectangle(bbox)`
------------------------------------------------------------- ------------------------------------------------------------
-`GraphicsContext.get_clip_path()`                            `GraphicsContext.get_clip_path()` [7]_
------------------------------------------------------------- ------------------------------------------------------------
-`GraphicsContext.set_clip_path()`                            `GraphicsContext.set_clip_path()` [8]_
-============================================================ ============================================================
+============================================= ==========================================
+Old method                                    New method
+============================================= ==========================================
+``GraphicsContext.set_clip_rectangle(tuple)`` `GraphicsContext.set_clip_rectangle(bbox)
+                                              <.GraphicsContextBase.set_clip_rectangle>`
+--------------------------------------------- ------------------------------------------
+``GraphicsContext.get_clip_path()``           `GraphicsContext.get_clip_path()
+                                              <.GraphicsContextBase.get_clip_path>` [7]_
+--------------------------------------------- ------------------------------------------
+``GraphicsContext.set_clip_path()``           `GraphicsContext.set_clip_path()
+                                              <.GraphicsContextBase.set_clip_path>` [8]_
+============================================= ==========================================
+
+.. [7] :meth:`matplotlib.backend_bases.GraphicsContextBase.get_clip_path`
+   returns a tuple of the form (*path*, *affine_transform*), where *path* is a
+   :class:`matplotlib.path.Path` instance and *affine_transform* is a
+   :class:`matplotlib.transforms.Affine2D` instance.
+
+.. [8] :meth:`matplotlib.backend_bases.GraphicsContextBase.set_clip_path` now
+   only accepts a :class:`matplotlib.transforms.TransformedPath` instance.
 
 :class:`~matplotlib.backend_bases.RendererBase`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -275,38 +298,28 @@ New methods:
 
 Changed methods:
 
-  * `draw_image(self, x, y, im, bbox)` is now
+  * ``draw_image(self, x, y, im, bbox)`` is now
     :meth:`draw_image(self, x, y, im, bbox, clippath, clippath_trans)
     <matplotlib.backend_bases.RendererBase.draw_image>`
 
 Removed methods:
 
-  * `draw_arc`
+  * ``draw_arc``
 
-  * `draw_line_collection`
+  * ``draw_line_collection``
 
-  * `draw_line`
+  * ``draw_line``
 
-  * `draw_lines`
+  * ``draw_lines``
 
-  * `draw_point`
+  * ``draw_point``
 
-  * `draw_quad_mesh`
+  * ``draw_quad_mesh``
 
-  * `draw_poly_collection`
+  * ``draw_poly_collection``
 
-  * `draw_polygon`
+  * ``draw_polygon``
 
-  * `draw_rectangle`
+  * ``draw_rectangle``
 
-  * `draw_regpoly_collection`
-
-.. [7] :meth:`matplotlib.backend_bases.GraphicsContext.get_clip_path`
-   returns a tuple of the form (*path*, *affine_transform*), where
-   *path* is a :class:`matplotlib.path.Path` instance and
-   *affine_transform* is a :class:`matplotlib.transforms.Affine2D`
-   instance.
-
-.. [8] :meth:`matplotlib.backend_bases.GraphicsContext.set_clip_path`
-   now only accepts a :class:`matplotlib.transforms.TransformedPath`
-   instance.
+  * ``draw_regpoly_collection``

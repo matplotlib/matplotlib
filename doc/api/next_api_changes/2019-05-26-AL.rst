@@ -1,0 +1,4 @@
+Deprecations
+````````````
+
+``rcsetup.ValidateInterval`` is deprecated.

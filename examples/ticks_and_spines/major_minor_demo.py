@@ -13,9 +13,9 @@ Minor ticks are off by default (using `.NullLocator` and `.NullFormatter`).
 Minor ticks can be turned on without labels by setting the minor locator.
 Minor tick labels can be turned on by setting the minor formatter.
 
-`MultipleLocator` places ticks on multiples of some base.  `FormatStrFormatter`
-uses a format string (e.g., '%d' or '%1.2f' or '%1.1f cm' ) to format the tick
-labels.
+`.MultipleLocator` places ticks on multiples of some base.
+`.FormatStrFormatter` uses a format string (e.g., ``'%d'`` or ``'%1.2f'`` or
+``'%1.1f cm'``) to format the tick labels.
 
 `.pyplot.grid` changes the grid settings of the major ticks of the y and y axis
 together.  If you want to control the grid of the minor ticks for a given axis,
@@ -57,9 +57,9 @@ plt.show()
 # be either 4 or 5 minor tick intervals per major interval, depending on the
 # major interval.
 #
-# One can supply an argument to AutoMinorLocator to specify a fixed number of
-# minor intervals per major interval, e.g. ``AutoMinorLocator(2)`` would lead
-# to a single minor tick between major ticks.
+# One can supply an argument to `.AutoMinorLocator` to specify a fixed number
+# of minor intervals per major interval, e.g. ``AutoMinorLocator(2)`` would
+# lead to a single minor tick between major ticks.
 
 t = np.arange(0.0, 100.0, 0.01)
 s = np.sin(2 * np.pi * t) * np.exp(-t * 0.01)

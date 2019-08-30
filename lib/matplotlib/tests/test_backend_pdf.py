@@ -12,8 +12,6 @@ from matplotlib import dviread, pyplot as plt, checkdep_usetex, rcParams
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.testing.compare import compare_images
 from matplotlib.testing.decorators import image_comparison
-from matplotlib.testing.determinism import (_determinism_source_date_epoch,
-                                            _determinism_check)
 
 
 with warnings.catch_warnings():
@@ -135,36 +133,6 @@ def test_composite_image():
 def test_pdfpages_fspath():
     with PdfPages(Path(os.devnull)) as pdf:
         pdf.savefig(plt.figure())
-
-
-def test_source_date_epoch():
-    """Test SOURCE_DATE_EPOCH support for PDF output"""
-    _determinism_source_date_epoch("pdf", b"/CreationDate (D:20000101000000Z)")
-
-
-def test_determinism_plain():
-    """Test for reproducible PDF output: simple figure"""
-    _determinism_check('', format="pdf")
-
-
-def test_determinism_images():
-    """Test for reproducible PDF output: figure with different images"""
-    _determinism_check('i', format="pdf")
-
-
-def test_determinism_hatches():
-    """Test for reproducible PDF output: figure with different hatches"""
-    _determinism_check('h', format="pdf")
-
-
-def test_determinism_markers():
-    """Test for reproducible PDF output: figure with different markers"""
-    _determinism_check('m', format="pdf")
-
-
-def test_determinism_all():
-    """Test for reproducible PDF output"""
-    _determinism_check(format="pdf")
 
 
 @image_comparison(['hatching_legend.pdf'])

@@ -2,8 +2,6 @@
 # Created: 23 Sep 2005
 # Parts rewritten by Reinier Heeres <reinier@heeres.eu>
 
-import copy
-
 import numpy as np
 
 from matplotlib import (
@@ -12,6 +10,7 @@ from matplotlib import (
 from . import art3d, proj3d
 
 
+@cbook.deprecated("3.1")
 def get_flip_min_max(coord, index, mins, maxs):
     if coord[index] == mins[index]:
         return maxs[index]
@@ -20,16 +19,12 @@ def get_flip_min_max(coord, index, mins, maxs):
 
 
 def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
-    '''Return a coordinate that is moved by "deltas" away from the center.'''
-    coord = copy.copy(coord)
-    for i in range(3):
-        if not axmask[i]:
-            continue
-        if coord[i] < centers[i]:
-            coord[i] -= deltas[i]
-        else:
-            coord[i] += deltas[i]
-    return coord
+    """
+    For each coordinate where *axmask* is True, move *coord* away from
+    *centers* by *deltas*.
+    """
+    coord = np.asarray(coord)
+    return coord + axmask * np.copysign(1, coord - centers) * deltas
 
 
 def tick_update_position(tick, tickxs, tickys, labelpos):
@@ -195,7 +190,7 @@ class Axis(maxis.XAxis):
         return mins, maxs, centers, deltas, tc, highs
 
     def draw_pane(self, renderer):
-        renderer.open_group('pane3d')
+        renderer.open_group('pane3d', gid=self.get_gid())
 
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
@@ -214,7 +209,7 @@ class Axis(maxis.XAxis):
     @artist.allow_rasterization
     def draw(self, renderer):
         self.label._transform = self.axes.transData
-        renderer.open_group('axis3d')
+        renderer.open_group('axis3d', gid=self.get_gid())
 
         ticks = self._update_ticks()
 
@@ -225,18 +220,19 @@ class Axis(maxis.XAxis):
 
         # Determine grid lines
         minmax = np.where(highs, maxs, mins)
+        maxmin = np.where(highs, mins, maxs)
 
         # Draw main axis line
         juggled = info['juggled']
         edgep1 = minmax.copy()
-        edgep1[juggled[0]] = get_flip_min_max(edgep1, juggled[0], mins, maxs)
+        edgep1[juggled[0]] = maxmin[juggled[0]]
 
         edgep2 = edgep1.copy()
-        edgep2[juggled[1]] = get_flip_min_max(edgep2, juggled[1], mins, maxs)
-        pep = proj3d.proj_trans_points([edgep1, edgep2], renderer.M)
-        centpt = proj3d.proj_transform(
-            centers[0], centers[1], centers[2], renderer.M)
-        self.line.set_data((pep[0][0], pep[0][1]), (pep[1][0], pep[1][1]))
+        edgep2[juggled[1]] = maxmin[juggled[1]]
+        pep = np.asarray(
+            proj3d.proj_trans_points([edgep1, edgep2], renderer.M))
+        centpt = proj3d.proj_transform(*centers, renderer.M)
+        self.line.set_data(pep[0], pep[1])
         self.line.draw(renderer)
 
         # Grid points where the planes meet
@@ -244,7 +240,6 @@ class Axis(maxis.XAxis):
         xyz0[:, index] = [tick.get_loc() for tick in ticks]
 
         # Draw labels
-        peparray = np.asanyarray(pep)
         # The transAxes transform is used because the Text object
         # rotates the text relative to the display coordinate system.
         # Therefore, if we want the labels to remain parallel to the
@@ -252,8 +247,8 @@ class Axis(maxis.XAxis):
         # edge points of the plane to display coordinates and calculate
         # an angle from that.
         # TODO: Maybe Text objects should handle this themselves?
-        dx, dy = (self.axes.transAxes.transform([peparray[0:2, 1]]) -
-                  self.axes.transAxes.transform([peparray[0:2, 0]]))[0]
+        dx, dy = (self.axes.transAxes.transform([pep[0:2, 1]]) -
+                  self.axes.transAxes.transform([pep[0:2, 0]]))[0]
 
         lxyz = 0.5 * (edgep1 + edgep2)
 
@@ -268,8 +263,7 @@ class Axis(maxis.XAxis):
         axmask = [True, True, True]
         axmask[index] = False
         lxyz = move_from_center(lxyz, centers, labeldeltas, axmask)
-        tlx, tly, tlz = proj3d.proj_transform(lxyz[0], lxyz[1], lxyz[2],
-                                              renderer.M)
+        tlx, tly, tlz = proj3d.proj_transform(*lxyz, renderer.M)
         self.label.set_position((tlx, tly))
         if self.get_rotate_label(self.label.get_text()):
             angle = art3d._norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
@@ -289,10 +283,9 @@ class Axis(maxis.XAxis):
             outeredgep = edgep2
             outerindex = 1
 
-        pos = copy.copy(outeredgep)
+        pos = outeredgep.copy()
         pos = move_from_center(pos, centers, labeldeltas, axmask)
-        olx, oly, olz = proj3d.proj_transform(
-            pos[0], pos[1], pos[2], renderer.M)
+        olx, oly, olz = proj3d.proj_transform(*pos, renderer.M)
         self.offsetText.set_text(self.major.formatter.get_offset())
         self.offsetText.set_position((olx, oly))
         angle = art3d._norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
@@ -310,16 +303,16 @@ class Axis(maxis.XAxis):
         # using the wrong reference points).
         #
         # (TT, FF, TF, FT) are the shorthand for the tuple of
-        #   (centpt[info['tickdir']] <= peparray[info['tickdir'], outerindex],
-        #    centpt[index] <= peparray[index, outerindex])
+        #   (centpt[info['tickdir']] <= pep[info['tickdir'], outerindex],
+        #    centpt[index] <= pep[index, outerindex])
         #
         # Three-letters (e.g., TFT, FTT) are short-hand for the array of bools
         # from the variable 'highs'.
         # ---------------------------------------------------------------------
-        if centpt[info['tickdir']] > peparray[info['tickdir'], outerindex]:
+        if centpt[info['tickdir']] > pep[info['tickdir'], outerindex]:
             # if FT and if highs has an even number of Trues
-            if (centpt[index] <= peparray[index, outerindex]
-                    and len(highs.nonzero()[0]) % 2 == 0):
+            if (centpt[index] <= pep[index, outerindex]
+                    and np.count_nonzero(highs) % 2 == 0):
                 # Usually, this means align right, except for the FTT case,
                 # in which offset for axis 1 and 2 are aligned left.
                 if highs.tolist() == [False, True, True] and index in (1, 2):
@@ -331,8 +324,8 @@ class Axis(maxis.XAxis):
                 align = 'left'
         else:
             # if TF and if highs has an even number of Trues
-            if (centpt[index] > peparray[index, outerindex]
-                    and len(highs.nonzero()[0]) % 2 == 0):
+            if (centpt[index] > pep[index, outerindex]
+                    and np.count_nonzero(highs) % 2 == 0):
                 # Usually mean align left, except if it is axis 2
                 if index == 2:
                     align = 'right'
@@ -351,14 +344,12 @@ class Axis(maxis.XAxis):
             # Grid points at end of one plane
             xyz1 = xyz0.copy()
             newindex = (index + 1) % 3
-            newval = get_flip_min_max(xyz1[0], newindex, mins, maxs)
-            xyz1[:, newindex] = newval
+            xyz1[:, newindex] = maxmin[newindex]
 
             # Grid points at end of the other plane
             xyz2 = xyz0.copy()
             newindex = (index + 2) % 3
-            newval = get_flip_min_max(xyz2[0], newindex, mins, maxs)
-            xyz2[:, newindex] = newval
+            xyz2[:, newindex] = maxmin[newindex]
 
             lines = np.stack([xyz1, xyz0, xyz2], axis=1)
             self.gridlines.set_segments(lines)
@@ -377,18 +368,16 @@ class Axis(maxis.XAxis):
 
         for tick in ticks:
             # Get tick line positions
-            pos = copy.copy(edgep1)
+            pos = edgep1.copy()
             pos[index] = tick.get_loc()
             pos[tickdir] = (
                 edgep1[tickdir]
                 + info['tick']['outward_factor'] * ticksign * tickdelta)
-            x1, y1, z1 = proj3d.proj_transform(pos[0], pos[1], pos[2],
-                                               renderer.M)
+            x1, y1, z1 = proj3d.proj_transform(*pos, renderer.M)
             pos[tickdir] = (
                 edgep1[tickdir]
                 - info['tick']['inward_factor'] * ticksign * tickdelta)
-            x2, y2, z2 = proj3d.proj_transform(pos[0], pos[1], pos[2],
-                                               renderer.M)
+            x2, y2, z2 = proj3d.proj_transform(*pos, renderer.M)
 
             # Get position of label
             default_offset = 8.  # A rough estimate
@@ -399,8 +388,7 @@ class Axis(maxis.XAxis):
             axmask[index] = False
             pos[tickdir] = edgep1[tickdir]
             pos = move_from_center(pos, centers, labeldeltas, axmask)
-            lx, ly, lz = proj3d.proj_transform(pos[0], pos[1], pos[2],
-                                               renderer.M)
+            lx, ly, lz = proj3d.proj_transform(*pos, renderer.M)
 
             tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
             tick.tick1line.set_linewidth(info['tick']['linewidth'])

@@ -3,7 +3,7 @@
 Pyplot Two Subplots
 ===================
 
-Create a figure with two subplots with `pyplot.subplot`.
+Create a figure with two subplots with `.pyplot.subplot`.
 """
 import numpy as np
 import matplotlib.pyplot as plt

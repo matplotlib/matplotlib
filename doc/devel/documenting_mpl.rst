@@ -350,11 +350,11 @@ An example docstring looks like:
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : array-like of colors, optional, default: 'k'
+        colors : array-like of colors, default: 'k'
 
-        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
+        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, default: 'solid'
 
-        label : string, optional, default: ''
+        label : str, default: ''
 
         Returns
         -------
@@ -362,7 +362,7 @@ An example docstring looks like:
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.collections.LineCollection` properties.
+        **kwargs : `~matplotlib.collections.LineCollection` properties
 
         See also
         --------
@@ -420,9 +420,19 @@ precisely in the text.
 Generally, the `numpydoc docstring guide`_ conventions apply. The following
 rules expand on them where the numpydoc conventions are not specific.
 
+As opposed to the numpydoc guide, parameters need not be marked as
+*optional* if they have a simple default. This removes unnecessary clutter.
+The optional aspect is already clear from the presence of a default value.
+More specifically
+
+- use ``{name} : {type}, default: {val}`` when possible.
+- use ``{name} : {type}, optional`` and describe the default in the text if
+  in cannot be explained sufficiently in the above way.
+
 Use ``float`` for a type that can be any number.
 
-Use ``(float, float)`` to describe a 2D position.
+Use ``(float, float)`` to describe a 2D position. The parentheses should be
+included to make the tuple-ness more obvious.
 
 Use ``array-like`` for homogeneous numeric sequences, which could
 typically be a numpy.array. Dimensionality may be specified using ``2D``,
@@ -501,21 +511,8 @@ section of the docstring.
 rcParams
 ~~~~~~~~
 rcParams can be referenced with the custom ``:rc:`` role:
-:literal:`:rc:\`foo\`` yields ``rcParams["foo"]``. Use `= [default-val]`
-to indicate the default value of the parameter. The default value should be
-literal, i.e. enclosed in double backticks. For simplicity these may be
-omitted for string default values.
-
-.. code-block:: rst
-
-  If not provided, defaults to :rc:`figure.figsize` = ``[6.4, 4.8]``.
-  If not provided, defaults to :rc:`figure.facecolor` = 'w'.
-
-Deprecated formatting conventions
----------------------------------
-Formerly, we have used square brackets for explicit parameter lists
-``['solid' | 'dashed' | 'dotted']``. With numpydoc we have switched to their
-standard using curly braces ``{'solid', 'dashed', 'dotted'}``.
+:literal:`:rc:\`foo\`` yields ``rcParams["foo"] = 'default'``, which is a link
+to the :file:`matplotlibrc` file description.
 
 Setters and getters
 -------------------
@@ -902,8 +899,7 @@ Some helpful functions::
 .. _ReST: http://docutils.sourceforge.net/rst.html
 .. _Sphinx: http://www.sphinx-doc.org
 .. _documentation: https://www.sphinx-doc.org/en/master/contents.html
-.. _`inline markup`: http://www.sphinx-doc.org/markup/inline.html
 .. _index: http://www.sphinx-doc.org/markup/para.html#index-generating-markup
 .. _`Sphinx Gallery`: https://sphinx-gallery.readthedocs.io/en/latest/
-.. _references: http://www.sphinx-doc.org/en/stable/markup/inline.html
+.. _references: https://www.sphinx-doc.org/en/stable/usage/restructuredtext/roles.html
 .. _`numpydoc docstring guide`: https://numpydoc.readthedocs.io/en/latest/format.html

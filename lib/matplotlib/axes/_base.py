@@ -1577,10 +1577,13 @@ class _AxesBase(martist.Artist):
             'on'     Turn on axis lines and labels. Same as ``True``.
             'off'    Turn off axis lines and labels. Same as ``False``.
             'equal'  Set equal scaling (i.e., make circles circular) by
-                     changing axis limits.
+                     changing axis limits. This is the same as
+                     ``ax.set_aspect('equal', adjustable='datalim')``.
+                     Explicit data limits may not be respected in this case.
             'scaled' Set equal scaling (i.e., make circles circular) by
-                     changing dimensions of the plot box, then disable further
-                     autoscaling.
+                     changing dimensions of the plot box. This is the same as
+                     ``ax.set_aspect('equal', adjustable='box', anchor='C')``.
+                     Additionally, further autoscaling will be disabled.
             'tight'  Set limits just large enough to show all data, then
                      disable further autoscaling.
             'auto'   Automatic scaling (fill plot box with data).
@@ -2360,6 +2363,10 @@ class _AxesBase(martist.Artist):
         changed after the artist has been added to an Axes instance.  In that
         case, use :meth:`matplotlib.axes.Axes.relim` prior to calling
         autoscale_view.
+
+        If the views of the axes are fixed, e.g. via `set_xlim`, they will
+        not be changed by autoscale_view().
+        See :meth:`matplotlib.axes.Axes.autoscale` for an alternative.
         """
         if tight is not None:
             self._tight = bool(tight)
@@ -2553,7 +2560,7 @@ class _AxesBase(martist.Artist):
             return
         self._unstale_viewLim()
 
-        renderer.open_group('axes')
+        renderer.open_group('axes', gid=self.get_gid())
 
         # prevent triggering call backs during the draw process
         self._stale = True
@@ -2770,8 +2777,8 @@ class _AxesBase(martist.Artist):
           ==============   =========================================
           Keyword          Description
           ==============   =========================================
-          *axis*           [ 'x' | 'y' | 'both' ]
-          *style*          [ 'sci' (or 'scientific') | 'plain' ]
+          *axis*           {'x', 'y', 'both'}
+          *style*          {'sci' (or 'scientific'), 'plain'}
                            plain turns off scientific notation
           *scilimits*      (m, n), pair of integers; if *style*
                            is 'sci', scientific notation will
@@ -2780,11 +2787,11 @@ class _AxesBase(martist.Artist):
                            Use (0, 0) to include all numbers.
                            Use (m, m) where m != 0 to fix the order
                            of magnitude to 10\ :sup:`m`.
-          *useOffset*      [ bool | offset ]; if True,
-                           the offset will be calculated as needed;
-                           if False, no offset will be used; if a
-                           numeric offset is specified, it will be
-                           used.
+          *useOffset*      bool or float
+                           If True, the offset will be calculated as
+                           needed; if False, no offset will be used;
+                           if a numeric offset is specified, it will
+                           be used.
           *useLocale*      If True, format the number according to
                            the current locale.  This affects things
                            such as the character used for the
@@ -3096,11 +3103,9 @@ class _AxesBase(martist.Artist):
         """
         Set the x-axis view limits.
 
-        .. ACCEPTS: (left: float, right: float)
-
         Parameters
         ----------
-        left : scalar, optional
+        left : float, optional
             The left xlim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
@@ -3108,7 +3113,9 @@ class _AxesBase(martist.Artist):
             (*left*, *right*) as the first positional argument (or as
             the *left* keyword argument).
 
-        right : scalar, optional
+            .. ACCEPTS: (bottom: float, top: float)
+
+        right : float, optional
             The right xlim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
@@ -3203,8 +3210,10 @@ class _AxesBase(martist.Artist):
             cbook._warn_external(
                 f"Attempting to set identical left == right == {left} results "
                 f"in singular transformations; automatically expanding.")
+        reverse = left > right
         left, right = self.xaxis.get_major_locator().nonsingular(left, right)
         left, right = self.xaxis.limit_range_for_scale(left, right)
+        left, right = sorted([left, right], reverse=reverse)
 
         self._viewLim.intervalx = (left, right)
         if auto is not None:
@@ -3265,10 +3274,12 @@ class _AxesBase(martist.Artist):
             ax.stale = True
         self._request_autoscale_view(scaley=False)
 
+    @cbook._make_keyword_only("3.2", "minor")
     def get_xticks(self, minor=False):
         """Return the x ticks as a list of locations"""
         return self.xaxis.get_ticklocs(minor=minor)
 
+    @cbook._make_keyword_only("3.2", "minor")
     def set_xticks(self, ticks, minor=False):
         """
         Set the x ticks with list of *ticks*
@@ -3476,11 +3487,9 @@ class _AxesBase(martist.Artist):
         """
         Set the y-axis view limits.
 
-        .. ACCEPTS: (bottom: float, top: float)
-
         Parameters
         ----------
-        bottom : scalar, optional
+        bottom : float, optional
             The bottom ylim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
@@ -3488,7 +3497,9 @@ class _AxesBase(martist.Artist):
             (*bottom*, *top*) as the first positional argument (or as
             the *bottom* keyword argument).
 
-        top : scalar, optional
+            .. ACCEPTS: (bottom: float, top: float)
+
+        top : float, optional
             The top ylim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
@@ -3583,8 +3594,10 @@ class _AxesBase(martist.Artist):
                 f"Attempting to set identical bottom == top == {bottom} "
                 f"results in singular transformations; automatically "
                 f"expanding.")
+        reverse = bottom > top
         bottom, top = self.yaxis.get_major_locator().nonsingular(bottom, top)
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
+        bottom, top = sorted([bottom, top], reverse=reverse)
 
         self._viewLim.intervaly = (bottom, top)
         if auto is not None:
@@ -3645,10 +3658,12 @@ class _AxesBase(martist.Artist):
             ax.stale = True
         self._request_autoscale_view(scalex=False)
 
+    @cbook._make_keyword_only("3.2", "minor")
     def get_yticks(self, minor=False):
         """Return the y ticks as a list of locations"""
         return self.yaxis.get_ticklocs(minor=minor)
 
+    @cbook._make_keyword_only("3.2", "minor")
     def set_yticks(self, ticks, minor=False):
         """
         Set the y ticks with list of *ticks*

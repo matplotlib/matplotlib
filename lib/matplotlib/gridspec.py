@@ -30,9 +30,18 @@ class GridSpecBase:
 
     def __init__(self, nrows, ncols, height_ratios=None, width_ratios=None):
         """
-        The number of rows and number of columns of the grid need to
-        be set. Optionally, the ratio of heights and widths of rows and
-        columns can be specified.
+        Parameters
+        ----------
+        nrows, ncols : int
+            The number of rows and columns of the grid.
+        width_ratios : array-like of length *ncols*, optional
+            Defines the relative widths of the columns. Each column gets a
+            relative width of ``width_ratios[i] / sum(width_ratios)``.
+            If not given, all columns will have the same width.
+        height_ratios : array-like of length *nrows*, optional
+            Defines the relative heights of the rows. Each column gets a
+            relative height of ``height_ratios[i] / sum(height_ratios)``.
+            If not given, all rows will have the same height.
         """
         self._nrows, self._ncols = nrows, ncols
         self.set_height_ratios(height_ratios)
@@ -57,39 +66,85 @@ class GridSpecBase:
         return self._nrows, self._ncols
 
     def get_subplot_params(self, figure=None):
+        # Must be implemented in subclasses
         pass
 
     def new_subplotspec(self, loc, rowspan=1, colspan=1):
-        """Create and return a `.SubplotSpec` instance."""
+        """
+        Create and return a `.SubplotSpec` instance.
+
+        Parameters
+        ----------
+        loc : (int, int)
+            The position of the subplot in the grid as
+            ``(row_index, column_index)``.
+        rowspan, colspan : int, default: 1
+            The number of rows and columns the subplot should span in the grid.
+        """
         loc1, loc2 = loc
         subplotspec = self[loc1:loc1+rowspan, loc2:loc2+colspan]
         return subplotspec
 
     def set_width_ratios(self, width_ratios):
+        """
+        Set the relative widths of the columns.
+
+        *width_ratios* must be of length *ncols*. Each column gets a relative
+        width of ``width_ratios[i] / sum(width_ratios)``.
+        """
         if width_ratios is not None and len(width_ratios) != self._ncols:
             raise ValueError('Expected the given number of width ratios to '
                              'match the number of columns of the grid')
         self._col_width_ratios = width_ratios
 
     def get_width_ratios(self):
+        """
+        Return the width ratios.
+
+        This is *None* if no width ratios have been set explicitly.
+        """
         return self._col_width_ratios
 
     def set_height_ratios(self, height_ratios):
+        """
+        Set the relative heights of the rows.
+
+        *height_ratios* must be of length *nrows*. Each row gets a relative
+        height of ``height_ratios[i] / sum(height_ratios)``.
+        """
         if height_ratios is not None and len(height_ratios) != self._nrows:
             raise ValueError('Expected the given number of height ratios to '
                              'match the number of rows of the grid')
         self._row_height_ratios = height_ratios
 
     def get_height_ratios(self):
+        """
+        Return the height ratios.
+
+        This is *None* if no height ratios have been set explicitly.
+        """
         return self._row_height_ratios
 
     def get_grid_positions(self, fig, raw=False):
         """
-        Return lists of bottom and top position of rows, left and
-        right positions of columns.
+        Return the positions of the grid cells in figure coordinates.
 
-        If raw=True, then these are all in units relative to the container
-        with no margins.  (used for constrained_layout).
+        Parameters
+        ----------
+        fig : `~matplotlib.figure.Figure`
+            The figure the grid should be applied to. The subplot parameters
+            (margins and spacing between subplots) are taken from *fig*.
+        raw : bool, default: False
+            If *True*, the subplot parameters of the figure are not taken
+            into account. The grid spans the range [0, 1] in both directions
+            without margins and there is no space between grid cells. This is
+            used for constrained_layout.
+
+        Returns
+        -------
+        bottoms, tops, lefts, rights : array
+            The bottom, top, left, right positions of the grid cells in
+            figure coordinates.
         """
         nrows, ncols = self.get_geometry()
 
@@ -177,51 +232,53 @@ class GridSpecBase:
 
 class GridSpec(GridSpecBase):
     """
-    Specifies the geometry of the grid that a subplot can be placed in.
+    A grid layout to place subplots within a figure.
 
-    The location of grid is determined by similar way as the SubplotParams.
+    The location of the grid cells is determined in a similar way to
+    `~.figure.SubplotParams` using *left*, *right*, *top*, *bottom*, *wspace*
+    and *hspace*.
     """
     def __init__(self, nrows, ncols, figure=None,
                  left=None, bottom=None, right=None, top=None,
                  wspace=None, hspace=None,
                  width_ratios=None, height_ratios=None):
         """
-        The number of rows and number of columns of the grid need to be set.
-        Optionally, the subplot layout parameters (e.g., left, right, etc.)
-        can be tuned.
-
         Parameters
         ----------
-        nrows : int
-            Number of rows in grid.
-
-        ncols : int
-            Number or columns in grid.
+        nrows, ncols : int
+            The number of rows and columns of the grid.
 
         figure : `~.figure.Figure`, optional
+            Only used for constrained layout to create a proper layoutbox.
 
         left, right, top, bottom : float, optional
             Extent of the subplots as a fraction of figure width or height.
             Left cannot be larger than right, and bottom cannot be larger than
-            top.
+            top. If not given, the values will be inferred from a figure or
+            rcParams at draw time. See also `GridSpec.get_subplot_params`.
 
         wspace : float, optional
             The amount of width reserved for space between subplots,
             expressed as a fraction of the average axis width.
+            If not given, the values will be inferred from a figure or
+            rcParams when necessary. See also `GridSpec.get_subplot_params`.
 
         hspace : float, optional
             The amount of height reserved for space between subplots,
             expressed as a fraction of the average axis height.
+            If not given, the values will be inferred from a figure or
+            rcParams when necessary. See also `GridSpec.get_subplot_params`.
 
-        width_ratios : length *ncols* iterable, optional
-            Width ratios of the columns.
+        width_ratios : array-like of length *ncols*, optional
+            Defines the relative widths of the columns. Each column gets a
+            relative width of ``width_ratios[i] / sum(width_ratios)``.
+            If not given, all columns will have the same width.
 
-        height_ratios : length *nrows* iterable, optional
-            Height ratios of the rows.
+        height_ratios : array-like of length *nrows*, optional
+            Defines the relative heights of the rows. Each column gets a
+            relative height of ``height_ratios[i] / sum(height_ratios)``.
+            If not given, all rows will have the same height.
 
-        Notes
-        -----
-        See `~.figure.SubplotParams` for descriptions of the layout parameters.
         """
         self.left = left
         self.bottom = bottom
@@ -264,9 +321,18 @@ class GridSpec(GridSpecBase):
 
     def update(self, **kwargs):
         """
-        Update the current values.
+        Update the subplot parameters of the grid.
 
-        Values set to None use the rcParams value.
+        Parameters that are not explicitly given are not changed. Setting a
+        parameter to *None* resets it to :rc:`figure.subplot.*`.
+
+        Parameters
+        ----------
+        left, right, top, bottom : float or None, optional
+            Extent of the subplots as a fraction of figure width or height.
+        wspace, hspace : float, optional
+            Spacing between the subplots as a fraction of the average subplot
+            width / height.
         """
         for k, v in kwargs.items():
             if k in self._AllowedKeys:
@@ -294,8 +360,13 @@ class GridSpec(GridSpecBase):
 
     def get_subplot_params(self, figure=None):
         """
-        Return a dictionary of subplot layout parameters. The default
-        parameters are from rcParams unless a figure attribute is set.
+        Return the `~.SubplotParams` for the GridSpec.
+
+        In order of precedence the values are taken from
+
+        - non-*None* attributes of the GridSpec
+        - the provided *figure*
+        - :rc:`figure.subplot.*`
         """
         if figure is None:
             kw = {k: rcParams["figure.subplot."+k] for k in self._AllowedKeys}
@@ -308,6 +379,12 @@ class GridSpec(GridSpecBase):
         return subplotpars
 
     def locally_modified_subplot_params(self):
+        """
+        Return a list of the names of the subplot parameters explicitly set
+        in the GridSpec.
+
+        This is a subset of the attributes of `.SubplotParams`.
+        """
         return [k for k in self._AllowedKeys if getattr(self, k)]
 
     def tight_layout(self, figure, renderer=None,

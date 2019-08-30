@@ -769,7 +769,7 @@ class TextBox(AxesWidget):
 
         widthtext = self.text[:self.cursor_index]
         no_text = False
-        if(widthtext == "" or widthtext == " " or widthtext == "  "):
+        if widthtext in ["", " ", "  "]:
             no_text = widthtext == ""
             widthtext = ","
 
@@ -1028,11 +1028,9 @@ class RadioButtons(AxesWidget):
         axcolor = ax.get_facecolor()
 
         # scale the radius of the circle with the spacing between each one
-        circle_radius = (dy / 2) - 0.01
-
-        # defaul to hard-coded value if the radius becomes too large
-        if(circle_radius > 0.05):
-            circle_radius = 0.05
+        circle_radius = dy / 2 - 0.01
+        # default to hard-coded value if the radius becomes too large
+        circle_radius = min(circle_radius, 0.05)
 
         self.labels = []
         self.circles = []

@@ -291,7 +291,7 @@ class Tick(martist.Artist):
         if not self.get_visible():
             self.stale = False
             return
-        renderer.open_group(self.__name__)
+        renderer.open_group(self.__name__, gid=self.get_gid())
         for artist in [self.gridline, self.tick1line, self.tick2line,
                        self.label1, self.label2]:
             artist.draw(renderer)
@@ -1222,7 +1222,7 @@ class Axis(martist.Artist):
 
         if not self.get_visible():
             return
-        renderer.open_group(__name__)
+        renderer.open_group(__name__, gid=self.get_gid())
 
         ticks_to_draw = self._update_ticks()
         ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw,
@@ -1753,6 +1753,7 @@ class Axis(martist.Artist):
         self.stale = True
         return ret
 
+    @cbook._make_keyword_only("3.2", "minor")
     def set_ticks(self, ticks, minor=False):
         """
         Set the locations of the tick marks from sequence ticks
@@ -2364,12 +2365,7 @@ class YAxis(Axis):
         position : {'left', 'right'}
         """
         x, y = self.offsetText.get_position()
-        if position == 'left':
-            x = 0
-        elif position == 'right':
-            x = 1
-        else:
-            raise ValueError("Position accepts only [ 'left' | 'right' ]")
+        x = cbook._check_getitem({'left': 0, 'right': 1}, position=position)
 
         self.offsetText.set_ha(position)
         self.offsetText.set_position((x, y))

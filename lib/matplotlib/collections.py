@@ -1580,10 +1580,9 @@ class EventCollection(LineCollection):
         return self._is_horizontal
 
     def get_orientation(self):
-        '''
-        get the orientation of the event line, may be:
-        [ 'horizontal' | 'vertical' ]
-        '''
+        """
+        Return the orientation of the event line ('horizontal' or 'vertical').
+        """
         return 'horizontal' if self.is_horizontal() else 'vertical'
 
     def switch_orientation(self):
@@ -1599,11 +1598,14 @@ class EventCollection(LineCollection):
         self.stale = True
 
     def set_orientation(self, orientation=None):
-        '''
-        set the orientation of the event line
-        [ 'horizontal' | 'vertical' | None ]
-        defaults to 'horizontal' if not specified or None
-        '''
+        """
+        Set the orientation of the event line.
+
+        Parameters
+        ----------
+        orientation: {'horizontal', 'vertical'} or None
+            Defaults to 'horizontal' if not specified or None.
+        """
         if (orientation is None or orientation.lower() == 'none' or
                 orientation.lower() == 'horizontal'):
             is_horizontal = True
@@ -1882,7 +1884,7 @@ class TriMesh(Collection):
     def draw(self, renderer):
         if not self.get_visible():
             return
-        renderer.open_group(self.__class__.__name__)
+        renderer.open_group(self.__class__.__name__, gid=self.get_gid())
         transform = self.get_transform()
 
         # Get a list of triangles and the color at each vertex.

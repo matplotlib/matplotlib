@@ -16,7 +16,7 @@ or PDF, what you see on the screen is what you get in the hardcopy.
 produces very nice, antialiased fonts, that look good even at small
 raster sizes.  Matplotlib includes its own
 :mod:`matplotlib.font_manager` (thanks to Paul Barrett), which
-implements a cross platform, `W3C <http://www.w3.org/>`
+implements a cross platform, `W3C <https://www.w3.org/>`_
 compliant font finding algorithm.
 
 The user has a great deal of control over text properties (font size, font
@@ -233,19 +233,18 @@ plt.show()
 # Terminology
 # ~~~~~~~~~~~
 #
-# *Axes* have a `matplotlib.axis` object for the ``ax.xaxis`` and ``ax.yaxis``
-# that contain the information about how the labels in the axis are laid out.
+# *Axes* have an `matplotlib.axis.Axis` object for the ``ax.xaxis`` and
+# ``ax.yaxis`` that contain the information about how the labels in the axis
+# are laid out.
 #
 # The axis API is explained in detail in the documentation to
 # `~matplotlib.axis`.
 #
 # An Axis object has major and minor ticks.  The Axis has
-# `matplotlib.xaxis.set_major_locator` and
-# `matplotlib.xaxis.set_minor_locator` methods that use the data being plotted
-# to determine
-# the location of major and minor ticks.  There are also
-# `matplotlib.xaxis.set_major_formatter` and
-# `matplotlib.xaxis.set_minor_formatter` methods that format the tick labels.
+# `.Axis.set_major_locator` and `.Axis.set_minor_locator` methods that use the
+# data being plotted to determine the location of major and minor ticks.  There
+# are also `.Axis.set_major_formatter` and `.Axis.set_minor_formatter` methods
+# that format the tick labels.
 #
 # Simple ticks
 # ~~~~~~~~~~~~
@@ -396,11 +395,11 @@ ax.tick_params(axis='x', rotation=70)
 plt.show()
 
 ##############################################################################
-# We can pass a format
-# to `matplotlib.dates.DateFormatter`.  Also note that the 29th and the
-# next month are very close together.  We can fix this by using the
-# `dates.DayLocator` class, which allows us to specify a list of days of the
-# month to use. Similar formatters are listed in the `matplotlib.dates` module.
+# We can pass a format to `matplotlib.dates.DateFormatter`.  Also note that the
+# 29th and the next month are very close together.  We can fix this by using
+# the `.dates.DayLocator` class, which allows us to specify a list of days of
+# the month to use. Similar formatters are listed in the `matplotlib.dates`
+# module.
 
 import matplotlib.dates as mdates
 

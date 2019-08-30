@@ -518,6 +518,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
     we give a hint as to our preferred minimum size.
     """
 
+    required_interactive_framework = "wx"
+
     keyvald = {
         wx.WXK_CONTROL: 'control',
         wx.WXK_SHIFT: 'shift',
@@ -768,6 +770,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         else:
             # variable size
             size = self.GetClientSize()
+            # Do not allow size to become smaller than MinSize
+            size.IncTo(self.GetMinSize())
         if getattr(self, "_width", None):
             if size == (self._width, self._height):
                 # no change in size
@@ -1887,7 +1891,6 @@ class PrintoutWx(wx.Printout):
 
 @_Backend.export
 class _BackendWx(_Backend):
-    required_interactive_framework = "wx"
     FigureCanvas = FigureCanvasWx
     FigureManager = FigureManagerWx
     _frame_class = FigureFrameWx

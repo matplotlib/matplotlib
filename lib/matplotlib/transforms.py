@@ -697,10 +697,13 @@ class BboxBase(TransformNode):
         """Return a `Bbox` that contains all of the given *bboxes*."""
         if not len(bboxes):
             raise ValueError("'bboxes' cannot be empty")
-        x0 = np.min([bbox.xmin for bbox in bboxes])
-        x1 = np.max([bbox.xmax for bbox in bboxes])
-        y0 = np.min([bbox.ymin for bbox in bboxes])
-        y1 = np.max([bbox.ymax for bbox in bboxes])
+        # needed for 1.14.4 < numpy_version < 1.15
+        # can remove once we are at numpy >= 1.15
+        with np.errstate(invalid='ignore'):
+            x0 = np.min([bbox.xmin for bbox in bboxes])
+            x1 = np.max([bbox.xmax for bbox in bboxes])
+            y0 = np.min([bbox.ymin for bbox in bboxes])
+            y1 = np.max([bbox.ymax for bbox in bboxes])
         return Bbox([[x0, y0], [x1, y1]])
 
     @staticmethod
@@ -1227,14 +1230,16 @@ class Transform(TransformNode):
 
     def __init_subclass__(cls):
         # 1d transforms are always separable; we assume higher-dimensional ones
-        # are not but subclasses can also directly set is_separable.
-        if ("is_separable" not in vars(cls)  # Was it overridden explicitly?
+        # are not but subclasses can also directly set is_separable -- this is
+        # verified by checking whether "is_separable" appears more than once in
+        # the class's MRO (it appears once in Transform).
+        if (sum("is_separable" in vars(parent) for parent in cls.__mro__) == 1
                 and cls.input_dims == cls.output_dims == 1):
             cls.is_separable = True
         # Transform.inverted raises NotImplementedError; we assume that if this
         # is overridden then the transform is invertible but subclass can also
         # directly set has_inverse.
-        if ("has_inverse" not in vars(cls)  # Was it overridden explicitly?
+        if (sum("has_inverse" in vars(parent) for parent in cls.__mro__) == 1
                 and hasattr(cls, "inverted")
                 and cls.inverted is not Transform.inverted):
             cls.has_inverse = True
@@ -1870,7 +1875,9 @@ class Affine2D(Affine2DBase):
 
         .
         """
-        self._invalid = 0
+        if self._invalid:
+            self._inverted = None
+            self._invalid = 0
         return self._mtx
 
     def set_matrix(self, mtx):
