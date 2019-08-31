@@ -1,4 +1,0 @@
-API changes
-```````````
-
-``style.core.is_style_file`` and ``style.core.iter_style_files`` are deprecated.

@@ -72,3 +72,13 @@ The following members of ``matplotlib.backends.backend_pdf.PdfFile`` were remove
 - ``nextHatch``
 - ``nextImage``
 - ``alphaStateObject``
+
+The ``required_interactive_framework`` attribute of backend modules introduced
+in Matplotlib 3.0 has been moved to the ``FigureCanvas`` class, in order to
+let it be inherited by third-party canvas subclasses and to make it easier to
+know what interactive framework is required by a canvas class.
+
+``backend_qt4.FigureCanvasQT5``, which is an alias for
+``backend_qt5.FigureCanvasQT`` (but only exists under that name in
+``backend_qt4``), has been removed.
+

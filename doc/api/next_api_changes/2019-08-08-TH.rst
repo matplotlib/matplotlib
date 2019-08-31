@@ -1,5 +1,0 @@
-Deprecations
-````````````
-Using the parameter ``minor`` to ``get_*ticks()`` / ``set_*ticks()`` as a
-positional parameter is deprecated. It will become keyword-only in future
-versions.

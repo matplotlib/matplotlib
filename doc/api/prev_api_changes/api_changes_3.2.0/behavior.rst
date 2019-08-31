@@ -248,3 +248,16 @@ Backends do not need to explicitly define the flag ``supports_blit`` anymore.
 This is only relevant for backend developers. Backends had to define the flag
 ``supports_blit``. This is not needed anymore because the blitting capability
 is now automatically detected.
+
+Exception changes
+~~~~~~~~~~~~~~~~~
+Various APIs that raised a `ValueError` for incorrectly typed inputs now raise
+`TypeError` instead: `backend_bases.GraphicsContextBase.set_clip_path`,
+`blocking_input.BlockingInput.__call__`, `cm.register_cmap`, `dviread.DviFont`,
+`rcsetup.validate_hatch`, `rcsetup.validate_animation_writer_path`, `spines.Spine`,
+many classes in the :mod:`matplotlib.transforms` module and :mod:`matplotlib.tri`
+package, and Axes methods that take a ``norm`` parameter.
+
+If extra kwargs are passed to `.LogScale`, `TypeError` will now be
+raised instead of `ValueError`.
+

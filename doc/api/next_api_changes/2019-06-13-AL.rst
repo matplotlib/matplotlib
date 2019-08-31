@@ -1,4 +1,0 @@
-Deprecations
-````````````
-
-``BboxBase.is_unit`` is deprecated (check the Bbox extents if needed).

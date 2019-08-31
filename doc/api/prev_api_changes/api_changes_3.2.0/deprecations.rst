@@ -27,6 +27,12 @@ Passing more than one positional argument or unsupported keyword arguments to
 `~matplotlib.axes.Axes.axis()` is deprecated (such arguments used to be
 silently ignored).
 
+``minor`` argument will be become keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Using the parameter ``minor`` to ``get_*ticks()`` / ``set_*ticks()`` as a
+positional parameter is deprecated. It will become keyword-only in future
+versions.
+
 ``axes_grid1``
 ~~~~~~~~~~~~~~
 The ``mpl_toolkits.axes_grid1.colorbar`` module and its colorbar implementation
@@ -210,6 +216,14 @@ the public API any longer. Thus, it's deprecated.
 Using a string of single-character colors as a color sequence (e.g. "rgb") is
 deprecated. Use an explicit list instead.
 
+Scales
+~~~~~~
+Passing unsupported keyword arguments to `.ScaleBase` and its subclasses
+`.LinearScale`, and `.SymLogScale` is deprecated and will raise a `TypeError` in 3.3.
+
+If extra kwargs are passed to `.LogScale`, `TypeError` will now be
+raised instead of `ValueError`.
+
 Testing
 ~~~~~~~
 The ``matplotlib.testing.disable_internet`` module is deprecated.  Use (for
@@ -244,3 +258,10 @@ instead.
 
 ``matplotlib.figure.AxesStack`` is considered private API and will be removed
 from the public API in future versions.
+
+``BboxBase.is_unit`` is deprecated (check the Bbox extents if needed).
+
+``style.core.is_style_file`` and ``style.core.iter_style_files``
+are deprecated.
+
+
