@@ -146,7 +146,7 @@ class ScalarMappable:
 
     """
     def __init__(self, norm=None, cmap=None):
-        r"""
+        """
 
         Parameters
         ----------
