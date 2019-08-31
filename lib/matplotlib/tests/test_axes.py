@@ -1647,6 +1647,14 @@ def test_bar_pandas(pd):
     ax.plot(dates, baseline, color='orange', lw=4)
 
 
+def test_bar_pandas_indexed(pd):
+    # Smoke test for indexed pandas
+    df = pd.DataFrame({"x": [1., 2., 3.], "width": [.2, .4, .6]},
+                       index=[1, 2, 3])
+    fig, ax = plt.subplots()
+    ax.bar(df.x, 1., width=df.width)
+
+
 @image_comparison(['hist_log'], remove_text=True)
 def test_hist_log():
     data0 = np.linspace(0, 1, 200)**3

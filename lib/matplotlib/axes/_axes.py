@@ -2140,12 +2140,31 @@ class Axes(_AxesBase):
             try:
                 x0 = x0[0]
             except (TypeError, IndexError, KeyError):
-                x0 = x0
+                try:
+                    xx = np.atleast_1d(np.asarray(x0))
+                    if len(xx) == 1:
+                        # this keeps units for singletons...
+                        x0 = x0
+                    else:
+                        # fallback for objects with length, but strange
+                        # ways of indexing (i.e. pandas)
+                        x0 = xx[0]
+                except:
+                    # generic except.  Think this should never happen, but...
+                    x0 = x0
 
             try:
                 x = xconv[0]
             except (TypeError, IndexError, KeyError):
-                x = xconv
+                try:
+                    xx = np.atleast_1d(np.asarray(xconv))
+                    if len(xx) == 1:
+                        x = xconv
+                    else:
+                        x = xx[0]
+                except:
+                    # generic except.  Think this should never happen, but...
+                    x = xconv
 
             delist = False
             if not np.iterable(dx):
