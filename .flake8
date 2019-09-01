@@ -71,6 +71,7 @@ per-file-ignores =
 
     examples/animation/frame_grabbing_sgskip.py: E402
     examples/axes_grid1/inset_locator_demo.py: E402
+    examples/axes_grid1/scatter_hist_locatable_axes.py: E401, E402
     examples/axisartist/demo_curvelinear_grid.py: E402
     examples/color/color_by_yvalue.py: E402
     examples/color/color_cycle_default.py: E402
@@ -128,6 +129,7 @@ per-file-ignores =
     examples/lines_bars_and_markers/filled_step.py: E402
     examples/lines_bars_and_markers/horizontal_barchart_distribution.py: E402
     examples/lines_bars_and_markers/joinstyle.py: E402
+    examples/lines_bars_and_markers/scatter_hist.py: E402
     examples/lines_bars_and_markers/scatter_piecharts.py: E402
     examples/lines_bars_and_markers/scatter_with_legend.py: E402
     examples/lines_bars_and_markers/span_regions.py: E402
