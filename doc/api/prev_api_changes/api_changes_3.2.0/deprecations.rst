@@ -73,6 +73,9 @@ Axes3D
 
 ``axes3d.unit_bbox`` is deprecated (use ``Bbox.unit`` instead).
 
+``axes3d.Axes3D.w_xaxis``, ``.w_yaxis``, and ``.w_zaxis`` are deprecated (use
+``.xaxis``, ``.yaxis``, and ``.zaxis`` instead).
+
 `matplotlib.cm`
 ~~~~~~~~~~~~~~~
 ``cm.revcmap`` is deprecated.  Use `.Colormap.reversed` to reverse a colormap.
@@ -260,6 +263,9 @@ instead.
 from the public API in future versions.
 
 ``BboxBase.is_unit`` is deprecated (check the Bbox extents if needed).
+
+``Affine2DBase.matrix_from_values(...)`` is deprecated.  Use (for example)
+``Affine2D.from_values(...).get_matrix()`` instead.
 
 ``style.core.is_style_file`` and ``style.core.iter_style_files``
 are deprecated.
