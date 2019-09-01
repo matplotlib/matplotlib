@@ -2138,33 +2138,14 @@ class Axes(_AxesBase):
             # removes the units from unit packages like `pint` that
             # wrap numpy arrays.
             try:
-                x0 = x0[0]
+                x0 = cbook.safe_first_element(x0)
             except (TypeError, IndexError, KeyError):
-                try:
-                    xx = np.atleast_1d(np.asarray(x0))
-                    if len(xx) == 1:
-                        # this keeps units for singletons...
-                        x0 = x0
-                    else:
-                        # fallback for objects with length, but strange
-                        # ways of indexing (i.e. pandas)
-                        x0 = xx[0]
-                except:
-                    # generic except.  Think this should never happen, but...
-                    x0 = x0
+                x0 = x0
 
             try:
-                x = xconv[0]
+                x = cbook.safe_first_element(xconv)
             except (TypeError, IndexError, KeyError):
-                try:
-                    xx = np.atleast_1d(np.asarray(xconv))
-                    if len(xx) == 1:
-                        x = xconv
-                    else:
-                        x = xx[0]
-                except:
-                    # generic except.  Think this should never happen, but...
-                    x = xconv
+                x = xconv
 
             delist = False
             if not np.iterable(dx):
