@@ -72,7 +72,7 @@ def use(style):
 
     Parameters
     ----------
-    style : str, dict, Path or list object
+    style : str, dict, pathlib.Path or list
         A style specification. Valid options are:
 
         +------+-------------------------------------------------------------+
