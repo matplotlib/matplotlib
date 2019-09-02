@@ -2138,12 +2138,12 @@ class Axes(_AxesBase):
             # removes the units from unit packages like `pint` that
             # wrap numpy arrays.
             try:
-                x0 = x0[0]
+                x0 = cbook.safe_first_element(x0)
             except (TypeError, IndexError, KeyError):
                 x0 = x0
 
             try:
-                x = xconv[0]
+                x = cbook.safe_first_element(xconv)
             except (TypeError, IndexError, KeyError):
                 x = xconv
 
