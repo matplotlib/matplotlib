@@ -320,6 +320,9 @@ class Slider(AxesWidget):
         knob.  See the :class:`~matplotlib.patches.Rectangle` documentation for
         valid property names (e.g., `facecolor`, `edgecolor`, `alpha`).
         """
+        if ax.name == '3d':
+            raise ValueError('Sliders cannot be added to 3D Axes')
+
         AxesWidget.__init__(self, ax)
 
         if slidermin is not None and not hasattr(slidermin, 'val'):
