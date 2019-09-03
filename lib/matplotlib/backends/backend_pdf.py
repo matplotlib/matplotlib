@@ -1709,10 +1709,9 @@ end"""
                 if bit_depth is None or palette is None:
                     raise RuntimeError("invalid PNG header")
                 palette = palette[:num_colors * 3]  # Trim padding
-                palette = pdfRepr(palette)
-                obj['ColorSpace'] = Verbatim(b'[/Indexed /DeviceRGB '
-                                             + str(num_colors - 1).encode()
-                                             + b' ' + palette + b']')
+                obj['ColorSpace'] = Verbatim(
+                    b'[/Indexed /DeviceRGB %d %s]'
+                    % (num_colors - 1, pdfRepr(palette)))
                 obj['BitsPerComponent'] = bit_depth
                 color_channels = 1
             else:

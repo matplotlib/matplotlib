@@ -271,7 +271,7 @@ def _stride_windows(x, n, noverlap=0, axis=0):
         if axis == 0:
             return x[np.newaxis]
         else:
-            return x[np.newaxis].transpose()
+            return x[np.newaxis].T
     if n > x.size:
         raise ValueError('n cannot be greater than the length of x')
 

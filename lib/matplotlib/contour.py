@@ -928,10 +928,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             )
 
     def get_transform(self):
-        """
-        Return the :class:`~matplotlib.transforms.Transform`
-        instance used by this ContourSet.
-        """
+        """Return the `.Transform` instance used by this ContourSet."""
         if self._transform is None:
             self._transform = self.axes.transData
         elif (not isinstance(self._transform, mtransforms.Transform)
