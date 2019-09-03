@@ -11,6 +11,7 @@ import matplotlib.transforms as mtransforms
 on_win = (sys.platform == 'win32')
 on_mac = (sys.platform == 'darwin')
 
+
 def velocity_field():
     Y, X = np.mgrid[-3:3:100j, -3:3:100j]
     U = -1 - X**2 + Y
