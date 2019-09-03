@@ -543,10 +543,6 @@ class FileMovieWriter(MovieWriter):
 class PillowWriter(MovieWriter):
     @classmethod
     def isAvailable(cls):
-        try:
-            import PIL
-        except ImportError:
-            return False
         return True
 
     def __init__(self, *args, **kwargs):

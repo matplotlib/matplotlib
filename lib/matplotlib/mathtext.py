@@ -24,6 +24,7 @@ import types
 import unicodedata
 
 import numpy as np
+from PIL import Image
 from pyparsing import (
     Combine, Empty, FollowedBy, Forward, Group, Literal, oneOf, OneOrMore,
     Optional, ParseBaseException, ParseFatalException, ParserElement,
@@ -3430,11 +3431,9 @@ class MathTextParser:
         depth : int
             Offset of the baseline from the bottom of the image, in pixels.
         """
-        from matplotlib import _png
         rgba, depth = self.to_rgba(
             texstr, color=color, dpi=dpi, fontsize=fontsize)
-        with open(filename, "wb") as file:
-            _png.write_png(rgba, file)
+        Image.fromarray(rgba).save(filename, format="png")
         return depth
 
     def get_depth(self, texstr, dpi=120, fontsize=14):

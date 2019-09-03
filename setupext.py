@@ -207,8 +207,6 @@ def deplib(libname):
         return libname
 
     known_libs = {
-        # TODO: support versioned libpng on build system rewrite
-        'libpng16': ('libpng16', '_static'),
         'z': ('zlib', 'static'),
     }
 
@@ -492,11 +490,9 @@ class LibAgg(SetupPackage):
                                for x in agg_sources)
 
 
-# For FreeType2 and libpng, we add a separate checkdep_foo.c source to at the
-# top of the extension sources.  This file is compiled first and immediately
-# aborts the compilation either with "foo.h: No such file or directory" if the
-# header is not found, or an appropriate error message if the header indicates
-# a too-old version.
+# First compile checkdep_freetype2.c, which aborts the compilation either
+# with "foo.h: No such file or directory" if the header is not found, or an
+# appropriate error message if the header indicates a too-old version.
 
 
 class FreeType(SetupPackage):
@@ -639,30 +635,6 @@ class FT2Font(SetupPackage):
         FreeType().add_flags(ext)
         add_numpy_flags(ext)
         LibAgg().add_flags(ext, add_sources=False)
-        return ext
-
-
-class Png(SetupPackage):
-    name = "png"
-
-    def get_extension(self):
-        sources = [
-            'src/checkdep_libpng.c',
-            'src/_png.cpp',
-            'src/mplutils.cpp',
-            ]
-        ext = Extension('matplotlib._png', sources)
-        pkg_config_setup_extension(
-            ext, 'libpng',
-            atleast_version='1.2',
-            alt_exec=['libpng-config', '--ldflags'],
-            default_libraries=(
-                ['png', 'z'] if os.name == 'posix' else
-                # libpng upstream names their lib libpng16.lib, not png.lib.
-                [deplib('libpng16'), deplib('z')] if os.name == 'nt' else
-                []
-            ))
-        add_numpy_flags(ext)
         return ext
 
 

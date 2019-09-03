@@ -11,16 +11,17 @@ Displays Agg images in the browser, with interactivity
 #   application, implemented with tornado.
 
 import datetime
-from io import StringIO
+from io import BytesIO, StringIO
 import json
 import logging
 import os
 from pathlib import Path
 
 import numpy as np
+from PIL import Image
 import tornado
 
-from matplotlib import backend_bases, cbook, _png
+from matplotlib import backend_bases, cbook
 from matplotlib.backends import backend_agg
 from matplotlib.backend_bases import _Backend
 
@@ -194,18 +195,15 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 diff = buff != last_buffer
                 output = np.where(diff, buff, 0)
 
-            # TODO: We should write a new version of write_png that
-            # handles the differencing inline
-            buff = _png.write_png(
-                output.view(dtype=np.uint8).reshape(output.shape + (4,)),
-                None, compression=6, filter=_png.PNG_FILTER_NONE)
-
+            buf = BytesIO()
+            data = output.view(dtype=np.uint8).reshape((*output.shape, 4))
+            Image.fromarray(data).save(buf, format="png")
             # Swap the renderer frames
             self._renderer, self._last_renderer = (
                 self._last_renderer, renderer)
             self._force_full = False
             self._png_is_old = False
-            return buff
+            return buf.getvalue()
 
     def get_renderer(self, cleared=None):
         # Mirrors super.get_renderer, but caches the old one

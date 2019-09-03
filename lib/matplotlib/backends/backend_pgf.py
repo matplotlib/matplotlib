@@ -12,8 +12,10 @@ import sys
 import tempfile
 import weakref
 
+from PIL import Image
+
 import matplotlib as mpl
-from matplotlib import _png, cbook, font_manager as fm, __version__, rcParams
+from matplotlib import cbook, font_manager as fm, __version__, rcParams
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
@@ -658,12 +660,10 @@ class RendererPgf(RendererBase):
             return
 
         # save the images to png files
-        path = os.path.dirname(self.fh.name)
-        fname = os.path.splitext(os.path.basename(self.fh.name))[0]
-        fname_img = "%s-img%d.png" % (fname, self.image_counter)
+        path = pathlib.Path(self.fh.name)
+        fname_img = "%s-img%d.png" % (path.stem, self.image_counter)
+        Image.fromarray(im[::-1]).save(path.parent / fname_img)
         self.image_counter += 1
-        with pathlib.Path(path, fname_img).open("wb") as file:
-            _png.write_png(im[::-1], file)
 
         # reference the image in the pgf picture
         writeln(self.fh, r"\begin{pgfscope}")
