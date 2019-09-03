@@ -1,15 +1,30 @@
-Unit converters now handle instances of subclasses
-``````````````````````````````````````````````````
+
+What's new in Matplotlib 3.2
+============================
+
+For a list of all of the issues and pull requests since the last
+revision, see the :ref:`github-stats`.
+
+.. contents:: Table of Contents
+   :depth: 4
+
+.. toctree::
+   :maxdepth: 4
+
+
+Unit converters and subclasses
+------------------------------
 Unit converters now also handle instances of subclasses of the class they have
 been registered for.
 
-`~pyplot.imsave` gained support for the ``metadata`` and ``pil_kwargs`` parameters
-``````````````````````````````````````````````````````````````````````````````````
-These parameters behave similarly as for the `Figure.savefig()` method.
+`~pyplot.imsave` metadata and PIL options
+-----------------------------------------
+`~pyplot.imsave` has gained support for the ``metadata`` and ``pil_kwargs``
+parameters. These parameters behave similarly as for the `Figure.savefig()`
+method.
 
-
-`cbook.normalize_kwargs` can be used to normalize artist property names
-```````````````````````````````````````````````````````````````````````
+`cbook.normalize_kwargs`
+------------------------
 `cbook.normalize_kwargs` now presents a convenient interface to normalize
 artist properties (e.g., from "lw" to "linewidth"):
 
@@ -20,12 +35,13 @@ The first argument is the mapping to be normalized, and the second argument can
 be an artist class or an artist instance (it can also be a mapping in a
 specific format; see the function's docstring for details).
 
+`FontProperties` and `os.PathLike`
+----------------------------------
 The *fname* argument to `FontProperties` can now be an `os.PathLike`\s
-``````````````````````````````````````````````````````````````````````
 e.g. ``FontProperties(fname=pathlib.Path("/path/to/font.ttf"))``.
 
-Gouraud-shaded mesh alpha channels in the pdf backend
------------------------------------------------------
+Gouraud-shading alpha channel in PDF backend
+--------------------------------------------
 The pdf backend now supports an alpha channel in Gouraud-shaded
 triangle meshes.
 
@@ -63,23 +79,13 @@ depending on font support (e.g., T and e, or the period after the W).
    ax.set_title('After (text.kerning_factor = 0)')
 
 
-bar3d gained support for the ``lightsource`` parameter
-------------------------------------------------------
+bar3d lightsource shading
+-------------------------
 bar3d now supports lighting from different angles when the *shade* parameter is
-True.
+True, which can be configured using the ``lightsource`` parameter.
 
-Errorbar plots can shift which points have error bars
------------------------------------------------------
-Previously, `plt.errorbar()` accepted a kwarg `errorevery` such that the
-command `plt.errorbar(x, y, yerr, errorevery=6)` would add error bars to
-datapoints `x[::6], y[::6]`.
-
-`errorbar()` now also accepts a tuple for `errorevery` such that
-`plt.errorbar(x, y, yerr, errorevery=(start, N))` adds error bars to points
-`x[start::N], y[start::N]`.
-
-Errorbar plots can shift which points have error bars
------------------------------------------------------
+Shifting errorbars
+------------------
 Previously, `plt.errorbar()` accepted a kwarg `errorevery` such that the
 command `plt.errorbar(x, y, yerr, errorevery=6)` would add error bars to
 datapoints `x[::6], y[::6]`.
@@ -101,8 +107,8 @@ scale, depending on used zoom. The number of ticks is controlled. Some minor
 labels are displayed adaptively as sublabels in log scale. Formatting is adapted
 for probabilities and the precision is adapts to the scale.
 
-rcParams for default axes title location and color
---------------------------------------------------
+rcParams for axes title location and color
+------------------------------------------
 Two new rcParams have been added: ``axes.titlelocation`` denotes the default axes title
 alignment, and ``axes.titlecolor`` the default axes title color.
 
