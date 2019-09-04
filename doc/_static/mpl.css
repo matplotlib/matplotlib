@@ -1117,3 +1117,9 @@ div.viewcode-block:target {
 .sidebar-announcement p {
     margin: 0.4em 0.4em 0.6em 0.4em;
 }
+
+.classifier:before {
+    font-style: normal;
+    margin: 0.2em;
+    content: ":";
+}
