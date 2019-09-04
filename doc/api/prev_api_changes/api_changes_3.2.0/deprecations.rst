@@ -27,8 +27,8 @@ Passing more than one positional argument or unsupported keyword arguments to
 `~matplotlib.axes.Axes.axis()` is deprecated (such arguments used to be
 silently ignored).
 
-``minor`` argument will be become keyword-only
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``minor`` argument will become keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Using the parameter ``minor`` to ``get_*ticks()`` / ``set_*ticks()`` as a
 positional parameter is deprecated. It will become keyword-only in future
 versions.
