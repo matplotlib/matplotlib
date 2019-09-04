@@ -105,7 +105,7 @@ Starting from this version, the logit locator has nearly the same behavior as th
 locator for the log scale or the linear
 scale, depending on used zoom. The number of ticks is controlled. Some minor
 labels are displayed adaptively as sublabels in log scale. Formatting is adapted
-for probabilities and the precision is adapts to the scale.
+for probabilities and the precision adapts to the scale.
 
 rcParams for axes title location and color
 ------------------------------------------
