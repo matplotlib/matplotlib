@@ -293,7 +293,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self._imcache = None
 
     def _get_scalar_alpha(self):
-        return self._alpha if np.ndim(self._alpha) == 0 else 1.0
+        return 1.0 if self._alpha is None or np.ndim(self._alpha) > 0 \
+            else self._alpha
 
     def changed(self):
         """
