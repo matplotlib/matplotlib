@@ -1,7 +1,0 @@
-Deprecations
-````````````
-
-``cm.revcmap`` is deprecated.  Use `.Colormap.reversed` to reverse a colormap.
-
-``cm.datad`` no longer contains entries for reversed colormaps in their
-"unconverted" form.

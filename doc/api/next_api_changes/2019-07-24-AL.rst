@@ -1,8 +1,0 @@
-API changes
-```````````
-
-Passing unsupported keyword arguments to `.ScaleBase` and its subclasses
-`.LinearScale`, and `.SymLogScale` is deprecated and will raise a `TypeError` in 3.3.
-
-If extra kwargs are pased to `.LogScale`, `TypeError` will now be
-raised instead of `ValueError`.

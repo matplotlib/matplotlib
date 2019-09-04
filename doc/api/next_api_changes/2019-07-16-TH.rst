@@ -1,6 +1,0 @@
-Backends do not need to explicitly define the flag ``supports_blit`` anymore
-````````````````````````````````````````````````````````````````````````````
-
-This is only relevant for backend developers. Backends had to define the flag
-``supports_blit``. This is not needed anymore because the blitting capability
-is now automatically detected.

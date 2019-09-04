@@ -1,4 +1,0 @@
-Deprecations
-````````````
-``matplotlib.compare_versions`` is deprecated (use comparison of
-``distutils.version.LooseVersion``\s instead).

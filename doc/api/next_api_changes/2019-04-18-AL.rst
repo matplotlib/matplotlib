@@ -1,4 +1,0 @@
-Deprecations
-````````````
-
-``mlab.apply_window`` and ``mlab.stride_repeat`` are deprecated.
