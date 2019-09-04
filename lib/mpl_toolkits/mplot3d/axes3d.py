@@ -626,7 +626,8 @@ class Axes3D(Axes):
         reverse = left > right
         left, right = self.xaxis.get_major_locator().nonsingular(left, right)
         left, right = self.xaxis.limit_range_for_scale(left, right)
-        left, right = sorted([left, right], reverse=reverse)
+        # cast to bool to avoid bad interaction between python 3.8 and np.bool_
+        left, right = sorted([left, right], reverse=bool(reverse))
         self.xy_viewLim.intervalx = (left, right)
 
         if auto is not None:
