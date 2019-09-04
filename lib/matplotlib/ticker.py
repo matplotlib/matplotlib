@@ -2794,9 +2794,7 @@ class LogitLocator(MaxNLocator):
     def nonsingular(self, vmin, vmax):
         standard_minpos = 1e-7
         initial_range = (standard_minpos, 1 - standard_minpos)
-        swap_vlims = False
         if vmin > vmax:
-            swap_vlims = True
             vmin, vmax = vmax, vmin
         if not np.isfinite(vmin) or not np.isfinite(vmax):
             vmin, vmax = initial_range  # Initial range, no data plotted yet.
@@ -2826,8 +2824,7 @@ class LogitLocator(MaxNLocator):
                 vmax = 1 - minpos
             if vmin == vmax:
                 vmin, vmax = 0.1 * vmin, 1 - 0.1 * vmin
-        if swap_vlims:
-            vmin, vmax = vmax, vmin
+
         return vmin, vmax
 
 

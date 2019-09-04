@@ -387,7 +387,7 @@ class TestLogitLocator:
         """
         loc = mticker.LogitLocator()
         lims2 = loc.nonsingular(*lims)
-        assert lims == lims2
+        assert sorted(lims) == sorted(lims2)
 
     @pytest.mark.parametrize("okval", acceptable_vmin_vmax)
     def test_nonsingular_nok(self, okval):
