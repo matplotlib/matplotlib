@@ -3267,7 +3267,8 @@ class _AxesBase(martist.Artist):
         reverse = left > right
         left, right = self.xaxis.get_major_locator().nonsingular(left, right)
         left, right = self.xaxis.limit_range_for_scale(left, right)
-        left, right = sorted([left, right], reverse=reverse)
+        # cast to bool to avoid bad interaction between python 3.8 and np.bool_
+        left, right = sorted([left, right], reverse=bool(reverse))
 
         self.viewLim.intervalx = (left, right)
         if auto is not None:
@@ -3649,7 +3650,8 @@ class _AxesBase(martist.Artist):
         reverse = bottom > top
         bottom, top = self.yaxis.get_major_locator().nonsingular(bottom, top)
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
-        bottom, top = sorted([bottom, top], reverse=reverse)
+        # cast to bool to avoid bad interaction between python 3.8 and np.bool_
+        bottom, top = sorted([bottom, top], reverse=bool(reverse))
 
         self.viewLim.intervaly = (bottom, top)
         if auto is not None:
