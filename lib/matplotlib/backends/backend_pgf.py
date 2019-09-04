@@ -220,6 +220,8 @@ class LatexManager:
             # Include TeX program name as a comment for cache invalidation.
             # TeX does not allow this to be the first line.
             r"% !TeX program = {}".format(rcParams["pgf.texsystem"]),
+            # Test whether \includegraphics supports interpolate option.
+            r"\usepackage{graphicx}",
             latex_preamble,
             latex_fontspec,
             r"\begin{document}",
@@ -376,6 +378,22 @@ class LatexManager:
         return w, h + o, o
 
 
+@functools.lru_cache(1)
+def _get_image_inclusion_command():
+    man = LatexManager._get_cached_or_new()
+    man._stdin_writeln(
+        r"\includegraphics[interpolate=true]{%s}"
+        # Don't mess with backslashes on Windows.
+        % cbook._get_data_path("images/matplotlib.png").as_posix())
+    try:
+        prompt = man._expect_prompt()
+        return r"\includegraphics"
+    except LatexError:
+        # Discard the broken manager.
+        LatexManager._get_cached_or_new_impl.cache_clear()
+        return r"\pgfimage"
+
+
 class RendererPgf(RendererBase):
 
     def __init__(self, figure, fh, dummy=False):
@@ -397,8 +415,7 @@ class RendererPgf(RendererBase):
         self.figure = figure
         self.image_counter = 0
 
-        # get LatexManager instance
-        self.latexManager = LatexManager._get_cached_or_new()
+        self._latexManager = LatexManager._get_cached_or_new()  # deprecated
 
         if dummy:
             # dummy==True deactivate all methods
@@ -412,6 +429,10 @@ class RendererPgf(RendererBase):
                                      "raster graphics, consider using the "
                                      "pgf-to-pdf option", UserWarning)
                 self.__dict__["draw_image"] = lambda *args, **kwargs: None
+
+    @cbook.deprecated("3.2")
+    def latexManager(self):
+        return self._latexManager
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
@@ -660,8 +681,9 @@ class RendererPgf(RendererBase):
         interp = str(transform is None).lower()  # interpolation in PDF reader
         writeln(self.fh,
                 r"\pgftext[left,bottom]"
-                r"{\pgfimage[interpolate=%s,width=%fin,height=%fin]{%s}}" %
-                (interp, w, h, fname_img))
+                r"{%s[interpolate=%s,width=%fin,height=%fin]{%s}}" %
+                (_get_image_inclusion_command(),
+                 interp, w, h, fname_img))
         writeln(self.fh, r"\end{pgfscope}")
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath="TeX!", mtext=None):
@@ -724,7 +746,8 @@ class RendererPgf(RendererBase):
         s = common_texification(s)
 
         # get text metrics in units of latex pt, convert to display units
-        w, h, d = self.latexManager.get_width_height_descent(s, prop)
+        w, h, d = (LatexManager._get_cached_or_new()
+                   .get_width_height_descent(s, prop))
         # TODO: this should be latex_pt_to_in instead of mpl_pt_to_in
         # but having a little bit more space around the text looks better,
         # plus the bounding box reported by LaTeX is VERY narrow

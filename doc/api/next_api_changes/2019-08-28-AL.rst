@@ -1,0 +1,8 @@
+PGF backend changes
+```````````````````
+
+The pgf backend now includes images using ``\includegraphics`` instead of
+``\pgfimage`` if the version of ``graphicx`` is recent enough to support the
+``interpolate`` option (this is detected automatically).
+
+``RendererPgf.latexManager`` is deprecated.
