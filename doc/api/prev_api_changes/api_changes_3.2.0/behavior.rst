@@ -140,10 +140,10 @@ This change improves the margins of axes displaying a `~Axes.streamplot`:
 
 - if the streamplot goes all the way to the edges of the vector field, then the
   axis limits are set to match exactly the vector field limits (whereas they
-  would be sometimes be off by a small floating point error previously).
+  would sometimes be off by a small floating point error previously).
 - if the streamplot does not reach the edges of the vector field (e.g., due to
   the use of ``start_points`` and ``maxlength``), then margins expansion will
-  not cross the the vector field limits anymore.
+  not cross the vector field limits anymore.
 
 This change is also used internally to ensure that polar plots don't display
 negative *r* values unless the user really passes in a negative value.
@@ -188,7 +188,7 @@ To get the old behavior, set :rc:`interpolation` to the old default "nearest"
 
 To always get the anti-aliasing behavior, no matter what the up/down sample
 rate, set :rc:`interpolation` to "hanning" (or one of the other filters
-available.
+available).
 
 Note that the "hanning" filter was chosen because it has only a modest
 performance penalty.  Anti-aliasing can be improved with other filters.
