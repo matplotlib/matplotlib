@@ -226,8 +226,10 @@ github_project_url = "https://github.com/matplotlib/matplotlib/"
 # The style sheet to use for HTML and HTML Help pages. A file of that name
 # must exist either in Sphinx' static/ path, or in one of the custom paths
 # given in html_static_path.
-#html_style = 'matplotlib.css'
-html_style = 'mpl.css'
+if sphinx.version_info < (2, 0):
+    html_style = 'mpl_sphinx1.css'
+else:
+    html_style = 'mpl.css'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
