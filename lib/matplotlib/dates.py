@@ -737,7 +737,7 @@ class ConciseDateFormatter(ticker.Formatter):
         # like 1 Jan can just be labled "Jan".  02:02:00 can
         # just be labeled 02:02.
         if zero_formats:
-            if len(formats) != 6:
+            if len(zero_formats) != 6:
                 raise ValueError('zero_formats argument must be a list of '
                                  '6 format strings (or None)')
             self.zero_formats = zero_formats
