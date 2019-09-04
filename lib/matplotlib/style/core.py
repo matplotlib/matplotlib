@@ -72,7 +72,7 @@ def use(style):
 
     Parameters
     ----------
-    style : str, dict, pathlib.Path or list
+    style : str, dict, Path or list
         A style specification. Valid options are:
 
         +------+-------------------------------------------------------------+
@@ -82,7 +82,7 @@ def use(style):
         | dict | Dictionary with valid key/value pairs for                   |
         |      | `matplotlib.rcParams`.                                      |
         +------+-------------------------------------------------------------+
-        | Path | A Path object which is a path to a style file.              |
+        | Path | A path-like object which is a path to a style file.         |
         +------+-------------------------------------------------------------+
         | list | A list of style specifiers (str, Path or dict) applied from |
         |      | first to last in the list.                                  |
@@ -136,7 +136,7 @@ def context(style, after_reset=False):
         | dict | Dictionary with valid key/value pairs for                   |
         |      | `matplotlib.rcParams`.                                      |
         +------+-------------------------------------------------------------+
-        | Path | A Path object which is a path to a style file.              |
+        | Path | A path-like object which is a path to a style file.         |
         +------+-------------------------------------------------------------+
         | list | A list of style specifiers (str, Path or dict) applied from |
         |      | first to last in the list.                                  |
