@@ -292,3 +292,5 @@ def setup(app):
     app.connect("builder-inited", prepare_missing_references_handler)
     app.connect("missing-reference", record_missing_reference_handler)
     app.connect("build-finished", save_missing_references_handler)
+
+    return {'parallel_read_safe': True}
