@@ -220,9 +220,8 @@ def get_renderer(fig):
 
         if canvas and hasattr(canvas, "get_renderer"):
             renderer = canvas.get_renderer()
-        else:
-            # not sure if this can happen
-            cbook._warn_external("tight_layout : falling back to Agg renderer")
+        else:  # Some noninteractive backends have no renderer until draw time.
+            cbook._warn_external("tight_layout: falling back to Agg renderer")
             from matplotlib.backends.backend_agg import FigureCanvasAgg
             canvas = FigureCanvasAgg(fig)
             renderer = canvas.get_renderer()

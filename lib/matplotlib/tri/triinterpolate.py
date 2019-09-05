@@ -588,7 +588,7 @@ class CubicTriInterpolator(TriInterpolator):
 
 # FEM element used for interpolation and for solving minimisation
 # problem (Reduced HCT element)
-class _ReducedHCT_Element():
+class _ReducedHCT_Element:
     """
     Implementation of reduced HCT triangular element with explicit shape
     functions.
@@ -1006,7 +1006,7 @@ class _ReducedHCT_Element():
 # _DOF_estimator_min_E
 # Private classes used to compute the degree of freedom of each triangular
 # element for the TriCubicInterpolator.
-class _DOF_estimator():
+class _DOF_estimator:
     """
     Abstract base class for classes used to perform estimation of a function
     first derivatives, and deduce the dofs for a CubicTriInterpolator using a

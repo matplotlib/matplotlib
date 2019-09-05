@@ -434,7 +434,7 @@ def test_step_fails(args):
 
 
 def test_grouper():
-    class dummy():
+    class dummy:
         pass
     a, b, c, d, e = objs = [dummy() for j in range(5)]
     g = cbook.Grouper()
@@ -454,7 +454,7 @@ def test_grouper():
 
 
 def test_grouper_private():
-    class dummy():
+    class dummy:
         pass
     objs = [dummy() for j in range(5)]
     g = cbook.Grouper()
@@ -484,7 +484,7 @@ def test_flatiter():
 
 def test_reshape2d():
 
-    class dummy():
+    class dummy:
         pass
 
     xnew = cbook._reshape_2D([], 'x')
