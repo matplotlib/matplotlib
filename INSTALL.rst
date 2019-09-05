@@ -175,27 +175,22 @@ etc., you can install the following:
 
    .. _pkg-config: https://www.freedesktop.org/wiki/Software/pkg-config/
 
-   If not using pkg-config (in particular on Windows), you may need to set the
-   include path (to the FreeType and zlib headers) and link path (to
-   the FreeType and zlib libraries) explicitly, if they are not in
-   standard locations.  This can be done using standard environment variables
-   -- on Linux and OSX:
+   If not using pkg-config (in particular on Windows), you may need to set
+   the include path (to the FreeType headers) and link path (to the FreeType
+   library) explicitly, if they are not in standard locations.  This can be
+   done using standard environment variables -- on Linux and OSX:
 
    .. code-block:: sh
 
-      export CFLAGS='-I/directory/containing/ft2build.h ...'
-      export LDFLAGS='-L/directory/containing/libfreetype.so ...'
+      export CFLAGS='-I/directory/containing/ft2build.h'
+      export LDFLAGS='-L/directory/containing/libfreetype.so'
 
    and on Windows:
 
    .. code-block:: bat
 
-      set CL=/IC:\directory\containing\ft2build.h ...
-      set LINK=/LIBPATH:C:\directory\containing\freetype.lib ...
-
-   where ``...`` means "also give, in the same format, the directories
-   containing ``zlib.h`` for the include path, and for
-   ``libz.so``/``z.lib`` for the link path."
+      set CL=/IC:\directory\containing\ft2build.h
+      set LINK=/LIBPATH:C:\directory\containing\freetype.lib
 
 .. note::
 
@@ -273,7 +268,7 @@ https://packaging.python.org/guides/packaging-binary-extensions/#setting-up-a-bu
 for how to set up a build environment.
 
 Since there is no canonical Windows package manager, the methods for building
-FreeType and zlib from source code are documented as a build script
+FreeType from source code are documented as a build script
 at `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_.
 
 There are a few possibilities to build Matplotlib on Windows:
@@ -296,10 +291,8 @@ the list of conda packages.
 
 ::
 
-  conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing tornado cycler tk zlib freetype
+  conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing tornado cycler tk freetype
   conda activate matplotlib_build
-  # force the build against static zlib libraries
-  set MPLSTATICBUILD=True
   python setup.py bdist_wheel
 
 

@@ -16,16 +16,6 @@ steps:
     prerelease: true
   condition: and(succeeded(), eq(variables['python.version'], 'Pre'))
 
-- ${{ if eq(parameters.installer, 'nuget') }}:
-  - task: NuGetToolInstaller@0
-    displayName: 'Use latest available Nuget'
-
-  - script: |
-      nuget install zlib-msvc14-x64 -ExcludeVersion -OutputDirectory "$(build.BinariesDirectory)"
-      echo ##vso[task.prependpath]$(build.BinariesDirectory)\zlib-msvc14-x64\build\native\bin_release
-
-    displayName: 'Install dependencies with nuget'
-
 - ${{ if eq(parameters.installer, 'brew') }}:
   - script: |
       brew cask install xquartz

@@ -151,31 +151,22 @@ LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 # matplotlib build options, which can be altered using setup.cfg
 options = {
     'backend': None,
-    'staticbuild': False,
-    }
+}
 
 
 setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
 if os.path.exists(setup_cfg):
     config = configparser.ConfigParser()
     config.read(setup_cfg)
-
     if config.has_option('rc_options', 'backend'):
         options['backend'] = config.get("rc_options", "backend")
-
     if config.has_option('test', 'local_freetype'):
         options['local_freetype'] = config.getboolean("test", "local_freetype")
-
-    if config.has_option('build', 'staticbuild'):
-        options['staticbuild'] = config.getboolean("build", "staticbuild")
 else:
     config = None
 
 lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
 options['local_freetype'] = lft or options.get('local_freetype', False)
-
-staticbuild = bool(os.environ.get('MPLSTATICBUILD', os.name == 'nt'))
-options['staticbuild'] = staticbuild or options.get('staticbuild', False)
 
 
 if '-q' in sys.argv or '--quiet' in sys.argv:
@@ -200,21 +191,6 @@ def get_buffer_hash(fd):
         hasher.update(buf)
         buf = fd.read(BLOCKSIZE)
     return hasher.hexdigest()
-
-
-def deplib(libname):
-    if sys.platform != 'win32':
-        return libname
-
-    known_libs = {
-        'z': ('zlib', 'static'),
-    }
-
-    libname, static_postfix = known_libs[libname]
-    if options['staticbuild']:
-        libname += static_postfix
-
-    return libname
 
 
 @functools.lru_cache(1)  # We only need to compute this once.
@@ -521,7 +497,7 @@ class FreeType(SetupPackage):
                 ext, 'freetype2',
                 atleast_version='9.11.3',
                 alt_exec=['freetype-config'],
-                default_libraries=['freetype', deplib('z')])
+                default_libraries=['freetype'])
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
 
     def do_custom_build(self):
