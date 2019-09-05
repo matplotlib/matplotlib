@@ -112,13 +112,6 @@ file will be particularly useful to those packaging Matplotlib.
 
 .. _setup.cfg: https://raw.githubusercontent.com/matplotlib/matplotlib/master/setup.cfg.template
 
-If you have installed prerequisites to nonstandard places and need to
-inform Matplotlib where they are, edit ``setupext.py`` and add the base
-dirs to the ``basedir`` dictionary entry for your ``sys.platform``;
-e.g., if the header of some required library is in
-``/some/path/include/someheader.h``, put ``/some/path`` in the
-``basedir`` list for your platform.
-
 .. _install_requirements:
 
 Dependencies
