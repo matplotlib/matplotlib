@@ -98,8 +98,8 @@ toolchain is prefixed. This may be used for cross compiling. ::
   export CXX=x86_64-pc-linux-gnu-g++
   export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config
 
-Once you have satisfied the requirements detailed below (mainly
-Python, NumPy, and FreeType), you can build Matplotlib.
+Once you have satisfied the requirements detailed below (i.e., Python and
+FreeType), you can build Matplotlib.
 ::
 
   cd matplotlib
@@ -165,32 +165,70 @@ etc., you can install the following:
 * `LaTeX <https://miktex.org/>`_ and `GhostScript (>=9.0)
   <https://ghostscript.com/download/>`_ : for rendering text with LaTeX.
 
-.. note::
+FreeType
+--------
 
-   Matplotlib depends on non-Python libraries.
+Matplotlib depends on FreeType, a font rendering library.  It can either
+download and build its own copy of the library, or use a copy of FreeType
+already installed in your system.
 
-   On Linux and OSX, pkg-config_ can be used to find required non-Python
-   libraries and thus make the install go more smoothly if the libraries and
-   headers are not in the expected locations.
+The easiest option is to make Matplotlib download and build FreeType.  This is
+done by setting the :envvar:`MPLLOCALFREETYPE` environment variable to 1 -- on
+Linux and OSX:
 
-   .. _pkg-config: https://www.freedesktop.org/wiki/Software/pkg-config/
+.. code-block:: sh
 
-   If not using pkg-config (in particular on Windows), you may need to set
-   the include path (to the FreeType headers) and link path (to the FreeType
-   library) explicitly, if they are not in standard locations.  This can be
-   done using standard environment variables -- on Linux and OSX:
+   export MPLLOCALFREETYPE=1
 
-   .. code-block:: sh
+and on Windows:
 
-      export CFLAGS='-I/directory/containing/ft2build.h'
-      export LDFLAGS='-L/directory/containing/libfreetype.so'
+.. code-block:: bat
 
-   and on Windows:
+   set MPLLOCALFREETYPE=1
 
-   .. code-block:: bat
+and you can continue the installation (``python -m pip install .``), ignoring
+everything that follows.
 
-      set CL=/IC:\directory\containing\ft2build.h
-      set LINK=/LIBPATH:C:\directory\containing\freetype.lib
+If you wish, instead, to use the system FreeType, you need to install the
+FreeType library and headers.  This can be achieved using a package manager:
+
+.. code-block:: sh
+
+   # Pick ONE of the following:
+   sudo apt install libfreetype6-dev  # Debian/Ubuntu
+   sudo dnf install freetype-devel  # Fedora
+   brew install freetype  # macOS with Homebrew
+   conda install freetype  # conda, any OS
+
+On Linux and macOS, it is also recommended to install pkg-config_, a helper
+tool for locating FreeType:
+
+.. code-block:: sh
+
+   # Pick ONE of the following:
+   sudo apt install pkg-config  # Debian/Ubuntu
+   sudo dnf install pkgconf  # Fedora
+   brew install pkg-config  # macOS with Homebrew
+   conda install pkg-config  # conda
+
+.. _pkg-config: https://www.freedesktop.org/wiki/Software/pkg-config/
+
+If not using pkg-config (in particular on Windows), you may need to set the
+include path (to the FreeType headers) and link path (to the FreeType library)
+explicitly, if they are not in standard locations.  This can be done using
+standard environment variables -- on Linux and OSX:
+
+.. code-block:: sh
+
+   export CFLAGS='-I/directory/containing/ft2build.h'
+   export LDFLAGS='-L/directory/containing/libfreetype.so'
+
+and on Windows:
+
+.. code-block:: bat
+
+   set CL=/IC:\directory\containing\ft2build.h
+   set LINK=/LIBPATH:C:\directory\containing\freetype.lib
 
 .. note::
 
@@ -200,62 +238,6 @@ etc., you can install the following:
   - ``qhull``: to compute Delaunay triangulation;
   - ``ttconv``: a TrueType font utility.
 
-.. _build_linux:
-
-Building on Linux
------------------
-
-It is easiest to use your system package manager to install the dependencies.
-
-If you are on Debian/Ubuntu, you can get all the dependencies
-required to build Matplotlib with::
-
-   sudo apt-get build-dep python-matplotlib
-
-If you are on Fedora, you can get all the dependencies required to build
-Matplotlib with::
-
-   sudo dnf builddep python-matplotlib
-
-If you are on RedHat, you can get all the dependencies required to build
-Matplotlib by first installing ``yum-builddep`` and then running::
-
-   su -c "yum-builddep python-matplotlib"
-
-These commands do not build Matplotlib, but instead get and install the
-build dependencies, which will make building from source easier.
-
-.. _build_osx:
-
-Building on macOS
------------------
-
-The build situation on macOS is complicated by the various places one
-can get FreeType (MacPorts, Fink,
-/usr/X11R6), the different architectures (e.g., x86, ppc, universal), and
-the different macOS versions (e.g., 10.4 and 10.5). We recommend that you build
-the way we do for the macOS release: get the source from the tarball or the
-git repository and install the required dependencies through a third-party
-package manager. Two widely used package managers are Homebrew, and MacPorts.
-The following example illustrates how to install FreeType using
-``brew``::
-
-  brew install freetype pkg-config
-
-If you are using MacPorts, execute the following instead::
-
-  port install freetype pkgconfig
-
-After installing the above requirements, install Matplotlib from source by
-executing::
-
-  python -m pip install .
-
-Note that your environment is somewhat important. Some conda users have
-found that, to run the tests, their PYTHONPATH must include
-/path/to/anaconda/.../site-packages and their DYLD_FALLBACK_LIBRARY_PATH
-must include /path/to/anaconda/lib.
-
 .. _build_windows:
 
 Building on Windows
@@ -264,40 +246,14 @@ Building on Windows
 The Python shipped from https://www.python.org is compiled with Visual Studio
 2015 for 3.5+.  Python extensions should be compiled with the same
 compiler, see e.g.
-https://packaging.python.org/guides/packaging-binary-extensions/#setting-up-a-build-environment-on-windows
+https://packaging.python.org/guides/packaging-binary-extensions/#binary-extensions-for-windows
 for how to set up a build environment.
-
-Since there is no canonical Windows package manager, the methods for building
-FreeType from source code are documented as a build script
-at `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_.
-
-There are a few possibilities to build Matplotlib on Windows:
-
-* Wheels via `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_
-* Wheels by using conda packages (see below)
-* Conda packages (see below)
 
 If you are building your own Matplotlib wheels (or sdists), note that any DLLs
 that you copy into the source tree will be packaged too.
 
-Wheel builds using conda packages
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This is a wheel build, but we use conda packages to get all the requirements.
-FreeType is statically linked and therefore not needed during the wheel install.
-
-Set up the conda environment. Note, if you want a qt backend, add ``pyqt`` to
-the list of conda packages.
-
-::
-
-  conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing tornado cycler tk freetype
-  conda activate matplotlib_build
-  python setup.py bdist_wheel
-
-
 Conda packages
-^^^^^^^^^^^^^^
+--------------
 
 The conda packaging scripts for Matplotlib are available at
 https://github.com/conda-forge/matplotlib-feedstock.
