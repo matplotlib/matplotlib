@@ -12,20 +12,20 @@ revision, see the :ref:`github-stats`.
    :maxdepth: 4
 
 
-Unit converters and subclasses
-------------------------------
+Unit converters recognize subclasses
+------------------------------------
 Unit converters now also handle instances of subclasses of the class they have
 been registered for.
 
-`~pyplot.imsave` metadata and PIL options
------------------------------------------
-`~pyplot.imsave` has gained support for the ``metadata`` and ``pil_kwargs``
-parameters. These parameters behave similarly as for the `Figure.savefig()`
+`~.pyplot.imsave` accepts metadata and PIL options
+--------------------------------------------------
+`~.pyplot.imsave` has gained support for the ``metadata`` and ``pil_kwargs``
+parameters. These parameters behave similarly as for the `.Figure.savefig()`
 method.
 
 `cbook.normalize_kwargs`
 ------------------------
-`cbook.normalize_kwargs` now presents a convenient interface to normalize
+`.cbook.normalize_kwargs` now presents a convenient interface to normalize
 artist properties (e.g., from "lw" to "linewidth"):
 
 >>> cbook.normalize_kwargs({"lw": 1}, Line2D)
@@ -35,10 +35,12 @@ The first argument is the mapping to be normalized, and the second argument can
 be an artist class or an artist instance (it can also be a mapping in a
 specific format; see the function's docstring for details).
 
-`FontProperties` and `os.PathLike`
-----------------------------------
-The *fname* argument to `FontProperties` can now be an `os.PathLike`\s
-e.g. ``FontProperties(fname=pathlib.Path("/path/to/font.ttf"))``.
+`.FontProperties` accepts `os.PathLike`
+---------------------------------------
+The *fname* argument to `.FontProperties` can now be an `os.PathLike`,
+e.g.
+
+>>> FontProperties(fname=pathlib.Path("/path/to/font.ttf"))
 
 Gouraud-shading alpha channel in PDF backend
 --------------------------------------------
@@ -81,18 +83,19 @@ depending on font support (e.g., T and e, or the period after the W).
 
 bar3d lightsource shading
 -------------------------
-bar3d now supports lighting from different angles when the *shade* parameter is
-True, which can be configured using the ``lightsource`` parameter.
+:meth:`~.Axes3D.bar3d` now supports lighting from different angles when the *shade*
+parameter is ``True``, which can be configured using the ``lightsource``
+parameter.
 
 Shifting errorbars
 ------------------
-Previously, `plt.errorbar()` accepted a kwarg `errorevery` such that the
-command `plt.errorbar(x, y, yerr, errorevery=6)` would add error bars to
-datapoints `x[::6], y[::6]`.
+Previously, `.plt.errorbar()` accepted a kwarg ``errorevery`` such that the
+command ``plt.errorbar(x, y, yerr, errorevery=6)`` would add error bars to
+datapoints ``x[::6], y[::6]``.
 
-`errorbar()` now also accepts a tuple for `errorevery` such that
-`plt.errorbar(x, y, yerr, errorevery=(start, N))` adds error bars to points
-`x[start::N], y[start::N]`.
+`.plt.errorbar()` now also accepts a tuple for `errorevery` such that
+``plt.errorbar(x, y, yerr, errorevery=(start, N))`` adds error bars to points
+``x[start::N], y[start::N]``.
 
 Improvements in Logit scale ticker and formatter
 ------------------------------------------------
@@ -109,8 +112,8 @@ for probabilities and the precision adapts to the scale.
 
 rcParams for axes title location and color
 ------------------------------------------
-Two new rcParams have been added: ``axes.titlelocation`` denotes the default axes title
-alignment, and ``axes.titlecolor`` the default axes title color.
+Two new rcParams have been added: :rc:`axes.titlelocation` denotes the default axes title
+alignment, and :rc:`axes.titlecolor` the default axes title color.
 
 Valid values for ``axes.titlelocation`` are: left, center, and right.
 Valid values for ``axes.titlecolor`` are: auto or a color. Setting it to auto
