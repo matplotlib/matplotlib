@@ -172,32 +172,32 @@ class SubplotParams:
     def __init__(self, left=None, bottom=None, right=None, top=None,
                  wspace=None, hspace=None):
         """
-        All dimensions are fractions of the figure width or height.
         Defaults are given by :rc:`figure.subplot.[name]`.
 
         Parameters
         ----------
         left : float
-            The left side of the subplots of the figure.
-
+            The position of the left edge of the subplots,
+            as a fraction of the figure width.
         right : float
-            The right side of the subplots of the figure.
-
+            The position of the right edge of the subplots,
+            as a fraction of the figure width.
         bottom : float
-            The bottom of the subplots of the figure.
-
+            The position of the bottom edge of the subplots,
+            as a fraction of the figure height.
         top : float
-            The top of the subplots of the figure.
-
+            The position of the top edge of the subplots,
+            as a fraction of the figure height.
         wspace : float
-            The amount of width reserved for space between subplots,
-            expressed as a fraction of the average axis width.
-
+            The width of the padding between subplots,
+            as a fraction of the average axes width.
         hspace : float
-            The amount of height reserved for space between subplots,
-            expressed as a fraction of the average axis height.
+            The height of the padding between subplots,
+            as a fraction of the average axes height.
         """
         self.validate = True
+        for key in ["left", "bottom", "right", "top", "wspace", "hspace"]:
+            setattr(self, key, rcParams[f"figure.subplot.{key}"])
         self.update(left, bottom, right, top, wspace, hspace)
 
     def update(self, left=None, bottom=None, right=None, top=None,
@@ -205,45 +205,25 @@ class SubplotParams:
         """
         Update the dimensions of the passed parameters. *None* means unchanged.
         """
-        thisleft = getattr(self, 'left', None)
-        thisright = getattr(self, 'right', None)
-        thistop = getattr(self, 'top', None)
-        thisbottom = getattr(self, 'bottom', None)
-        thiswspace = getattr(self, 'wspace', None)
-        thishspace = getattr(self, 'hspace', None)
-
-        self._update_this('left', left)
-        self._update_this('right', right)
-        self._update_this('bottom', bottom)
-        self._update_this('top', top)
-        self._update_this('wspace', wspace)
-        self._update_this('hspace', hspace)
-
-        def reset():
-            self.left = thisleft
-            self.right = thisright
-            self.top = thistop
-            self.bottom = thisbottom
-            self.wspace = thiswspace
-            self.hspace = thishspace
-
         if self.validate:
-            if self.left >= self.right:
-                reset()
+            if ((left if left is not None else self.left)
+                    >= (right if right is not None else self.right)):
                 raise ValueError('left cannot be >= right')
-
-            if self.bottom >= self.top:
-                reset()
+            if ((bottom if bottom is not None else self.bottom)
+                    >= (top if top is not None else self.top)):
                 raise ValueError('bottom cannot be >= top')
-
-    def _update_this(self, s, val):
-        if val is None:
-            val = getattr(self, s, None)
-            if val is None:
-                key = 'figure.subplot.' + s
-                val = rcParams[key]
-
-        setattr(self, s, val)
+        if left is not None:
+            self.left = left
+        if right is not None:
+            self.right = right
+        if bottom is not None:
+            self.bottom = bottom
+        if top is not None:
+            self.top = top
+        if wspace is not None:
+            self.wspace = wspace
+        if hspace is not None:
+            self.hspace = hspace
 
 
 class Figure(Artist):
