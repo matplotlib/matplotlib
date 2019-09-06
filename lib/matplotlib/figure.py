@@ -1695,6 +1695,7 @@ default: 'top'
         Render the figure using :class:`matplotlib.backend_bases.RendererBase`
         instance *renderer*.
         """
+        self._cachedRenderer = renderer
 
         # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible():
@@ -1729,8 +1730,7 @@ default: 'top'
                 self.execute_constrained_layout(renderer)
             if self.get_tight_layout() and self.axes:
                 try:
-                    self.tight_layout(renderer,
-                                      **self._tight_parameters)
+                    self.tight_layout(**self._tight_parameters)
                 except ValueError:
                     pass
                     # ValueError can occur when resizing a window.
@@ -1743,7 +1743,6 @@ default: 'top'
         finally:
             self.stale = False
 
-        self._cachedRenderer = renderer
         self.canvas.draw_event(renderer)
 
     def draw_artist(self, a):
@@ -2450,6 +2449,7 @@ default: 'top'
             renderer = layoutbox.get_renderer(fig)
         do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace)
 
+    @cbook._delete_parameter("3.2", "renderer")
     def tight_layout(self, renderer=None, pad=1.08, h_pad=None, w_pad=None,
                      rect=None):
         """
@@ -2462,8 +2462,7 @@ default: 'top'
         Parameters
         ----------
         renderer : subclass of `~.backend_bases.RendererBase`, optional
-            Defaults to the renderer for the figure.
-
+            Defaults to the renderer for the figure.  Deprecated.
         pad : float, optional
             Padding between the figure edge and the edges of subplots,
             as a fraction of the font size.

@@ -1,0 +1,5 @@
+Deprecations
+````````````
+
+The ``renderer`` parameter to `.Figure.tight_layout` is deprecated; this method
+now always uses the renderer instance cached on the `.Figure`.
