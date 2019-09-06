@@ -307,3 +307,23 @@ def test_figureoptions():
             "matplotlib.backends.qt_editor._formlayout.FormDialog.exec_",
             lambda self: None):
         fig.canvas.manager.toolbar.edit_parameters()
+
+
+@pytest.mark.backend("Qt5Agg")
+def test_canvas_reinit():
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+    from functools import partial
+
+    called = False
+
+    def crashing_callback(fig, stale):
+        nonlocal called
+        fig.canvas.draw_idle()
+        called = True
+
+    fig, ax = plt.subplots()
+    fig.stale_callback = crashing_callback
+    # this should not raise
+    canvas = FigureCanvasQTAgg(fig)
+    assert called
