@@ -1,7 +1,7 @@
 import functools
 import uuid
 
-from matplotlib import docstring
+from matplotlib import cbook, docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
 from matplotlib.gridspec import GridSpec, SubplotSpec
@@ -125,26 +125,33 @@ class SubplotBase:
 
     def update_params(self):
         """update the subplot position from fig.subplotpars"""
-
-        self.figbox, self.rowNum, self.colNum, self.numRows, self.numCols = \
+        self.figbox, _, _, self.numRows, self.numCols = \
             self.get_subplotspec().get_position(self.figure,
                                                 return_all=True)
 
-    def is_first_col(self):
-        return self.colNum == 0
+    @cbook.deprecated("3.2", alternative="ax.get_subplotspec().rowspan.start")
+    def rowNum(self):
+        return self.get_subplotspec().rowspan.start
+
+    @cbook.deprecated("3.2", alternative="ax.get_subplotspec().colspan.start")
+    def colNum(self):
+        return self.get_subplotspec().colspan.start
 
     def is_first_row(self):
-        return self.rowNum == 0
+        return self.get_subplotspec().rowspan.start == 0
 
     def is_last_row(self):
-        return self.rowNum == self.numRows - 1
+        return self.get_subplotspec().rowspan.stop == self.get_gridspec().nrows
+
+    def is_first_col(self):
+        return self.get_subplotspec().colspan.start == 0
 
     def is_last_col(self):
-        return self.colNum == self.numCols - 1
+        return self.get_subplotspec().colspan.stop == self.get_gridspec().ncols
 
-    # COVERAGE NOTE: Never used internally.
     def label_outer(self):
-        """Only show "outer" labels and tick labels.
+        """
+        Only show "outer" labels and tick labels.
 
         x-labels are only kept for subplots on the last row; y-labels only for
         subplots on the first column.
