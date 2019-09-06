@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 import re
 import tempfile
-import warnings
 
 import pytest
 
@@ -13,14 +12,12 @@ from matplotlib import cbook, patheffects
 from matplotlib.testing.decorators import image_comparison
 
 
-with warnings.catch_warnings():
-    warnings.simplefilter('ignore')
-    needs_ghostscript = pytest.mark.skipif(
-        "eps" not in mpl.testing.compare.converter,
-        reason="This test needs a ghostscript installation")
-    needs_usetex = pytest.mark.skipif(
-        not mpl.checkdep_usetex(True),
-        reason="This test needs a TeX installation")
+needs_ghostscript = pytest.mark.skipif(
+    "eps" not in mpl.testing.compare.converter,
+    reason="This test needs a ghostscript installation")
+needs_usetex = pytest.mark.skipif(
+    not mpl.checkdep_usetex(True),
+    reason="This test needs a TeX installation")
 
 
 # This tests tends to hit a TeX cache lock on AppVeyor.

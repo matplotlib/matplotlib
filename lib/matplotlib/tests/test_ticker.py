@@ -1,4 +1,7 @@
-import warnings
+try:
+    from contextlib import nullcontext
+except ImportError:
+    from contextlib import ExitStack as nullcontext  # Py 3.6.
 import re
 
 import numpy as np
@@ -242,9 +245,8 @@ class TestNullLocator:
 class _LogitHelper:
     @staticmethod
     def isclose(x, y):
-        if x >= 1 or x <= 0 or y >= 1 or y <= 0:
-            return False
-        return np.isclose(-np.log(1/x-1), -np.log(1/y-1))
+        return (np.isclose(-np.log(1/x-1), -np.log(1/y-1))
+                if 0 < x < 1 and 0 < y < 1 else False)
 
     @staticmethod
     def assert_almost_equal(x, y):
@@ -460,19 +462,15 @@ class TestScalarFormatter:
         fig, ax = plt.subplots()
         formatter = ax.get_xaxis().get_major_formatter()
 
-        with warnings.catch_warnings(record=True) as w:
-            warnings.filterwarnings('always', 'Attempting to set identical',
-                                    UserWarning)
+        with (pytest.warns(UserWarning, match='Attempting to set identical')
+              if left == right else nullcontext()):
             ax.set_xlim(left, right)
-        assert len(w) == (1 if left == right else 0)
         ax.get_xaxis()._update_ticks()
         assert formatter.offset == offset
 
-        with warnings.catch_warnings(record=True) as w:
-            warnings.filterwarnings('always', 'Attempting to set identical',
-                                    UserWarning)
+        with (pytest.warns(UserWarning, match='Attempting to set identical')
+              if left == right else nullcontext()):
             ax.set_xlim(right, left)
-        assert len(w) == (1 if left == right else 0)
         ax.get_xaxis()._update_ticks()
         assert formatter.offset == offset
 
@@ -484,8 +482,7 @@ class TestScalarFormatter:
 
     @pytest.mark.parametrize(
         'sci_type, scilimits, lim, orderOfMag, fewticks', scilimits_data)
-    def test_scilimits(self, sci_type, scilimits, lim, orderOfMag,
-                       fewticks):
+    def test_scilimits(self, sci_type, scilimits, lim, orderOfMag, fewticks):
         tmp_form = mticker.ScalarFormatter()
         tmp_form.set_scientific(sci_type)
         tmp_form.set_powerlimits(scilimits)
@@ -542,7 +539,7 @@ class TestLogFormatterExponent:
         assert formatter(10**0.1) == ''
 
 
-class TestLogFormatterMathtext():
+class TestLogFormatterMathtext:
     fmt = mticker.LogFormatterMathtext()
     test_data = [
         (0, 1, '$\\mathdefault{10^{0}}$'),

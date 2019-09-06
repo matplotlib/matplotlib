@@ -12,11 +12,9 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
 
-with warnings.catch_warnings():
-    warnings.simplefilter('ignore')
-    needs_usetex = pytest.mark.skipif(
-        not matplotlib.checkdep_usetex(True),
-        reason="This test needs a TeX installation")
+needs_usetex = pytest.mark.skipif(
+    not matplotlib.checkdep_usetex(True),
+    reason="This test needs a TeX installation")
 
 
 @image_comparison(['font_styles'])
