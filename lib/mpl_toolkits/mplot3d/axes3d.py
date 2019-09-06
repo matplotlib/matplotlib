@@ -2607,7 +2607,7 @@ pivot='tail', normalize=False, **kwargs)
             self.add_collection(linec)
             return linec
 
-        shaft_dt = np.array([0., length])
+        shaft_dt = np.array([0., length], dtype=float)
         arrow_dt = shaft_dt * arrow_length_ratio
 
         cbook._check_in_list(['tail', 'middle', 'tip'], pivot=pivot)
