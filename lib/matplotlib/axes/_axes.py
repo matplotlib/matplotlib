@@ -5634,12 +5634,11 @@ optional.
 
         if len(args) == 1:
             C = np.asanyarray(args[0])
-            numRows, numCols = C.shape
+            nrows, ncols = C.shape
             if allmatch:
-                X, Y = np.meshgrid(np.arange(numCols), np.arange(numRows))
+                X, Y = np.meshgrid(np.arange(ncols), np.arange(nrows))
             else:
-                X, Y = np.meshgrid(np.arange(numCols + 1),
-                                   np.arange(numRows + 1))
+                X, Y = np.meshgrid(np.arange(ncols + 1), np.arange(nrows + 1))
             C = cbook.safe_masked_invalid(C)
             return X, Y, C
 
@@ -5659,7 +5658,7 @@ optional.
                     X = X.data  # strip mask as downstream doesn't like it...
                 if isinstance(Y, np.ma.core.MaskedArray):
                     Y = Y.data
-            numRows, numCols = C.shape
+            nrows, ncols = C.shape
         else:
             raise TypeError(
                 'Illegal arguments to %s; see help(%s)' % (funcname, funcname))
@@ -5677,12 +5676,12 @@ optional.
                 'Incompatible X, Y inputs to %s; see help(%s)' % (
                 funcname, funcname))
         if allmatch:
-            if (Nx, Ny) != (numCols, numRows):
+            if (Nx, Ny) != (ncols, nrows):
                 raise TypeError('Dimensions of C %s are incompatible with'
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
         else:
-            if not (numCols in (Nx, Nx - 1) and numRows in (Ny, Ny - 1)):
+            if not (ncols in (Nx, Nx - 1) and nrows in (Ny, Ny - 1)):
                 raise TypeError('Dimensions of C %s are incompatible with'
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
