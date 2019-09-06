@@ -387,35 +387,45 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
 
         _, result_dir = _image_directories(func)
 
-        if len(inspect.signature(func).parameters) == 2:
-            # Free-standing function.
-            @pytest.mark.parametrize("ext", extensions)
-            def wrapper(ext):
-                fig_test = plt.figure("test")
-                fig_ref = plt.figure("reference")
-                func(fig_test, fig_ref)
-                test_image_path = result_dir / (func.__name__ + "." + ext)
-                ref_image_path = (
-                    result_dir / (func.__name__ + "-expected." + ext))
-                fig_test.savefig(test_image_path)
-                fig_ref.savefig(ref_image_path)
-                _raise_on_image_difference(
-                    ref_image_path, test_image_path, tol=tol)
+        @pytest.mark.parametrize("ext", extensions)
+        def wrapper(*args, ext, **kwargs):
+            fig_test = plt.figure("test")
+            fig_ref = plt.figure("reference")
+            func(*args, fig_test=fig_test, fig_ref=fig_ref, **kwargs)
+            test_image_path = result_dir / (func.__name__ + "." + ext)
+            ref_image_path = result_dir / (
+                func.__name__ + "-expected." + ext
+            )
+            fig_test.savefig(test_image_path)
+            fig_ref.savefig(ref_image_path)
+            _raise_on_image_difference(
+                ref_image_path, test_image_path, tol=tol
+            )
 
-        elif len(inspect.signature(func).parameters) == 3:
-            # Method.
-            @pytest.mark.parametrize("ext", extensions)
-            def wrapper(self, ext):
-                fig_test = plt.figure("test")
-                fig_ref = plt.figure("reference")
-                func(self, fig_test, fig_ref)
-                test_image_path = result_dir / (func.__name__ + "." + ext)
-                ref_image_path = (
-                    result_dir / (func.__name__ + "-expected." + ext))
-                fig_test.savefig(test_image_path)
-                fig_ref.savefig(ref_image_path)
-                _raise_on_image_difference(
-                    ref_image_path, test_image_path, tol=tol)
+        sig = inspect.signature(func)
+        new_sig = sig.replace(
+            parameters=(
+                [
+                    param
+                    for param in sig.parameters.values()
+                    if param.name not in {"fig_test", "fig_ref"}
+                ]
+                + [
+                    inspect.Parameter(
+                        "ext", inspect.Parameter.POSITIONAL_OR_KEYWORD
+                    )
+                ]
+            )
+        )
+        wrapper.__signature__ = new_sig
+
+        # reach a bit into pytest internals to hoist the marks from
+        # our wrapped function
+        from _pytest.mark.structures import get_unpacked_marks
+
+        wrapper.pytestmark = get_unpacked_marks(
+            wrapper
+        ) + get_unpacked_marks(func)
 
         return wrapper
 
