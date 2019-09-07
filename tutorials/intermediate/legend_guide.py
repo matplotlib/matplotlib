@@ -83,7 +83,7 @@ plt.legend(handles=[red_patch])
 plt.show()
 
 ###############################################################################
-# There are many supported legend handles, instead of creating a patch of color
+# There are many supported legend handles. Instead of creating a patch of color
 # we could have created a line with a marker:
 
 import matplotlib.lines as mlines
@@ -137,7 +137,7 @@ plt.show()
 # the :func:`legend` function multiple times, you will find that only one
 # legend ever exists on the Axes. This has been done so that it is possible
 # to call :func:`legend` repeatedly to update the legend to the latest
-# handles on the Axes, so to persist old legend instances, we must add them
+# handles on the Axes. To keep old legend instances, we must add them
 # manually to the Axes:
 
 line1, = plt.plot([1, 2, 3], label="Line 1", linestyle='--')
