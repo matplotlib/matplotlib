@@ -19,6 +19,8 @@ ignore =
 exclude =
     .git
     build
+    doc/gallery
+    doc/tutorials
     # External files.
     versioneer.py
     tools/gh_api.py
