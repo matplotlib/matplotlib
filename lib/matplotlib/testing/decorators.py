@@ -421,11 +421,8 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
 
         # reach a bit into pytest internals to hoist the marks from
         # our wrapped function
-        from _pytest.mark.structures import get_unpacked_marks
-
-        wrapper.pytestmark = get_unpacked_marks(
-            wrapper
-        ) + get_unpacked_marks(func)
+        new_marks = getattr(func, 'pytestmark', []) + wrapper.pytestmark
+        wrapper.pytestmark = new_marks
 
         return wrapper
 
