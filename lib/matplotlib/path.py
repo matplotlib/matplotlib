@@ -450,12 +450,27 @@ class Path:
 
     def contains_point(self, point, transform=None, radius=0.0):
         """
-        Returns whether the (closed) path contains the given point.
+        Return whether the (closed) path contains the given point.
 
-        If *transform* is not ``None``, the path will be transformed before
-        performing the test.
+        Parameters
+        ----------
+        point : (float, float)
+            The point (x, y) to check.
+        transform : `matplotlib.transforms.Transform`, optional
+            If not ``None``, *point* will be compared to self transformed
+            by *transform*; i.e. for a correct check, *transform* should
+            transform the path into the coordinate system of *point*.
+        radius : float, default: 0.
+            Adds an additional margin on the path in coordinates of *point*.
+            The path is extended tangentially by *radius/2*; i.e. if you would
+            draw the path with a linewidth of *radius*, all points on the line
+            would still be considered to be contained in the area. Conversely,
+            negative values shrink the area; points on the imaginary line
+            will be considered outside the area.
 
-        *radius* allows the path to be made slightly larger or smaller.
+        Returns
+        -------
+        bool
         """
         if transform is not None:
             transform = transform.frozen()
@@ -470,13 +485,27 @@ class Path:
 
     def contains_points(self, points, transform=None, radius=0.0):
         """
-        Returns a bool array which is ``True`` if the (closed) path contains
-        the corresponding point.
+        Return whether the (closed) path contains the given point.
 
-        If *transform* is not ``None``, the path will be transformed before
-        performing the test.
+        Parameters
+        ----------
+        points : (N, 2) array
+            The points to check. Columns contain x and y values.
+        transform : `matplotlib.transforms.Transform`, optional
+            If not ``None``, *points* will be compared to self transformed
+            by *transform*; i.e. for a correct check, *transform* should
+            transform the path into the coordinate system of *points*.
+        radius : float, default: 0.
+            Adds an additional margin on the path in coordinates of *points*.
+            The path is extended tangentially by *radius/2*; i.e. if you would
+            draw the path with a linewidth of *radius*, all points on the line
+            would still be considered to be contained in the area. Conversely,
+            negative values shrink the area; points on the imaginary line
+            will be considered outside the area.
 
-        *radius* allows the path to be made slightly larger or smaller.
+        Returns
+        -------
+        length-N bool array
         """
         if transform is not None:
             transform = transform.frozen()
