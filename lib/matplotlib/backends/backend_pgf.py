@@ -952,14 +952,12 @@ class FigureCanvasPgf(FigureCanvasBase):
         return RendererPgf(self.figure, None, dummy=True)
 
 
-class FigureManagerPgf(FigureManagerBase):
-    pass
+FigureManagerPgf = FigureManagerBase
 
 
 @_Backend.export
 class _BackendPgf(_Backend):
     FigureCanvas = FigureCanvasPgf
-    FigureManager = FigureManagerPgf
 
 
 def _cleanup_all():

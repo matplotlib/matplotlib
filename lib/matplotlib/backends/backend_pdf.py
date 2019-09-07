@@ -2498,14 +2498,9 @@ class FigureCanvasPdf(FigureCanvasBase):
     ----------
     figure : `matplotlib.figure.Figure`
         A high-level Figure instance
-
     """
 
     fixed_dpi = 72
-
-    def draw(self):
-        pass
-
     filetypes = {'pdf': 'Portable Document Format'}
 
     def get_default_filetype(self):
