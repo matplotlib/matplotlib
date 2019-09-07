@@ -70,7 +70,7 @@ def test_use_url(tmpdir):
 
 def test_single_path(tmpdir):
     mpl.rcParams[PARAM] = 'gray'
-    temp_file = '%s.%s' % ('test', STYLE_EXTENSION)
+    temp_file = f'text.{STYLE_EXTENSION}'
     path = Path(tmpdir, temp_file)
     path.write_text("{} : {}".format(PARAM, VALUE))
     with style.context(path):
