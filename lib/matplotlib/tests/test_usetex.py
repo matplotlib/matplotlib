@@ -3,7 +3,6 @@ import pytest
 import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
-from matplotlib.ticker import EngFormatter
 
 
 @pytest.fixture(autouse=True)  # All tests in this module use usetex.

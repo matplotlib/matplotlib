@@ -1,10 +1,9 @@
-import wx
+import wx.lib.wxcairo as wxcairo
 
 from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
 from .backend_wx import (
     _BackendWx, _FigureCanvasWxBase, FigureFrameWx,
     NavigationToolbar2Wx as NavigationToolbar2WxCairo)
-import wx.lib.wxcairo as wxcairo
 
 
 class FigureFrameWxCairo(FigureFrameWx):

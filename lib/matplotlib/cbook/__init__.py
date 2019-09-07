@@ -2,19 +2,16 @@
 A collection of utility functions and classes.  Originally, many
 (but not all) were from the Python Cookbook -- hence the name cbook.
 
-This module is safe to import from anywhere within matplotlib;
-it imports matplotlib only at runtime.
+This module is safe to import from anywhere within Matplotlib;
+it imports Matplotlib only at runtime.
 """
 
 import collections
 import collections.abc
 import contextlib
 import functools
-import glob
 import gzip
 import itertools
-import locale
-import numbers
 import operator
 import os
 from pathlib import Path

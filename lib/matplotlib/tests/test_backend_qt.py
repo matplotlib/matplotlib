@@ -299,7 +299,6 @@ def test_double_resize():
 def test_canvas_reinit():
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-    from functools import partial
 
     called = False
 

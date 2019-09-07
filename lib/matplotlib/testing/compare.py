@@ -17,7 +17,6 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib.testing.exceptions import ImageComparisonFailure
-from matplotlib import cbook
 
 __all__ = ['compare_images', 'comparable_formats']
 

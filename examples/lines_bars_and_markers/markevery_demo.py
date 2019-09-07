@@ -17,12 +17,10 @@ to the theoretical distances will be shown.
 
 A slice or list/array can also be used with ``markevery`` to specify the
 markers to show.
-
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 
 # define a list of markevery cases to plot
 cases = [None,

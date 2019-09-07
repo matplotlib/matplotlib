@@ -1,11 +1,6 @@
-import importlib
 import logging
 import os
 import sys
-
-import matplotlib
-from matplotlib import cbook
-from matplotlib.backend_bases import _Backend
 
 _log = logging.getLogger(__name__)
 

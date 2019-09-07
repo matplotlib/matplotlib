@@ -10,7 +10,6 @@ import numpy as np
 import pytest
 
 from matplotlib import rc_context
-from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison

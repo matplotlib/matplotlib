@@ -1,7 +1,5 @@
 """EpochConverter module containing class EpochConverter."""
 
-import numpy as np
-
 from matplotlib import cbook
 import matplotlib.units as units
 import matplotlib.dates as date_ticker
