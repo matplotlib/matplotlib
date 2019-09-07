@@ -13,7 +13,5 @@ def test_warn_to_fail():
 @pytest.mark.parametrize("a", [1])
 @check_figures_equal(extensions=["png"])
 @pytest.mark.parametrize("b", [1])
-def test_paramatirize_with_check_figure_equal(
-    a, fig_ref, b, fig_test
-):
+def test_parametrize_with_check_figure_equal(a, fig_ref, b, fig_test):
     assert a == b
