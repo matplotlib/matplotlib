@@ -17,16 +17,19 @@ class SubplotBase:
 
     def __init__(self, fig, *args, **kwargs):
         """
-        *fig* is a :class:`matplotlib.figure.Figure` instance.
+        Parameters
+        ----------
+        fig : `matplotlib.figure.Figure`
 
-        *args* is the tuple (*numRows*, *numCols*, *plotNum*), where
-        the array of subplots in the figure has dimensions *numRows*,
-        *numCols*, and where *plotNum* is the number of the subplot
-        being created.  *plotNum* starts at 1 in the upper left
-        corner and increases to the right.
+        *args : tuple (*nrows*, *ncols*, *index*) or int
+            The array of subplots in the figure has dimensions ``(nrows,
+            ncols)``, and *index* is the index of the subplot being created.
+            *index* starts at 1 in the upper left corner and increases to the
+            right.
 
-        If *numRows* <= *numCols* <= *plotNum* < 10, *args* can be the
-        decimal integer *numRows* * 100 + *numCols* * 10 + *plotNum*.
+            If *nrows*, *ncols*, and *index* are all single digit numbers, then
+            *args* can be passed as a single 3-digit number (e.g. 234 for
+            (2, 3, 4)).
         """
 
         self.figure = fig
