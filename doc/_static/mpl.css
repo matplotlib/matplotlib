@@ -676,6 +676,11 @@ dl.class p.rubric + table.docutils td:first-of-type > strong {
     font-weight: normal;
 }
 
+.classifier:before {
+    font-style: normal;
+    margin: 0.2em;
+    content: ":";
+}
 
 /* module summary table */
 .longtable.docutils {

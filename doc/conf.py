@@ -362,6 +362,8 @@ latex_elements = {
     'fontpkg': r'\setmainfont{DejaVu Serif}',
 }
 
+html4_writer = True
+
 
 def setup(app):
     if any(st in version for st in ('post', 'alpha', 'beta')):

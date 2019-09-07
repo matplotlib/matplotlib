@@ -1,6 +1,9 @@
 {% extends "layout.html" %}
 {% set title = _('Search') %}
-{% set script_files = script_files + ['_static/searchtools.js'] %}
+{%- block scripts %}
+    {{ super() }}
+    <script type="text/javascript" src="{{ pathto('_static/searchtools.js', 1) }}"></script>
+{%- endblock %}
 {% block body %}
   <h1 id="search-documentation">{{ _('Search') }}</h1>
   <p>
