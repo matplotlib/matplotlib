@@ -68,7 +68,7 @@ Creating artists specifically for adding to the legend (aka. Proxy artists)
 
 Not all handles can be turned into legend entries automatically,
 so it is often necessary to create an artist which *can*. Legend handles
-don't have to exists on the Figure or Axes in order to be used.
+don't have to exist on the Figure or Axes in order to be used.
 
 Suppose we wanted to create a legend which has an entry for some data which
 is represented by a red color:
@@ -104,7 +104,7 @@ plt.show()
 # The ``bbox_to_anchor`` keyword gives a great degree of control for manual
 # legend placement. For example, if you want your axes legend located at the
 # figure's top right-hand corner instead of the axes' corner, simply specify
-# the corner's location, and the coordinate system of that location::
+# the corner's location and the coordinate system of that location::
 #
 #     plt.legend(bbox_to_anchor=(1, 1),
 #                bbox_transform=plt.gcf().transFigure)
