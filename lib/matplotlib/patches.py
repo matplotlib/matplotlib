@@ -154,10 +154,47 @@ class Patch(artist.Artist):
 
     def contains_point(self, point, radius=None):
         """
-        Returns ``True`` if the given *point* is inside the path
-        (transformed with its transform attribute).
+        Return whether the given point is inside the patch.
 
-        *radius* allows the path to be made slightly larger or smaller.
+        Parameters
+        ----------
+        point : (float, float)
+            The point (x, y) to check in target coordinates of
+            ``self.get_transform()``. For patches added to a figure or axes,
+            these are display coordinates.
+        radius : float, optional
+            Adds an additional margin on the patch in coordinates of transform.
+            target. See `.Path.contains_point` for further details.
+
+        Returns
+        -------
+        bool
+
+        Notes
+        -----
+        The proper use of this method depends on the transform of the patch.
+        Isolated patches do not have a transform. In this, the patch creation
+        coordinates and the point coordinates match. The follow checks that
+        the center of a circle is within the circle
+
+        >>> center = 0, 0
+        >>> c = Circle(center, radius=1)
+        >>> c.contains_point(center)
+        True
+
+        The convention of checking against the transformed patch stems from
+        the fact that this method is predominantly used to check if display
+        coordinates (e.g. from mouse events) are within the patch. If you want
+        to do the above check with data coordinates, you have to properly
+        transform them first:
+
+        >>> center = 0, 0
+        >>> c = Circle(center, radius=1)
+        >>> plt.gca().add_patch(c)
+        >>> transformed_center = c.get_transform().transform(center)
+        >>> c.contains_point(transformed_center)
+        True
+
         """
         radius = self._process_radius(radius)
         return self.get_path().contains_point(point,
@@ -166,12 +203,26 @@ class Patch(artist.Artist):
 
     def contains_points(self, points, radius=None):
         """
-        Returns a bool array which is ``True`` if the (closed) path
-        contains the corresponding point.
-        (transformed with its transform attribute).
+        Return whether the given points are inside the patch.
 
-        *points* must be Nx2 array.
-        *radius* allows the path to be made slightly larger or smaller.
+        Parameters
+        ----------
+        points : (N, 2) array
+            The points to check in target coordinates of
+            ``self.get_transform()``. For patches added to a figure or axes,
+            these are display coordinates. Columns contain x and y values.
+        radius : float, optional
+            Adds an additional margin on the patch in coordinates of transform.
+            target. See `.Path.contains_points` for further details.
+
+        Returns
+        -------
+        length-N bool array
+
+        Notes
+        -----
+        The proper use of this method depends on the transform of the patch.
+        See the notes on `.Patch.contains_point`.
         """
         radius = self._process_radius(radius)
         return self.get_path().contains_points(points,
