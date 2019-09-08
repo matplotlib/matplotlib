@@ -97,7 +97,7 @@ class Patch(artist.Artist):
 
     def get_verts(self):
         """
-        Return a copy of the vertices used in this patch
+        Return a copy of the vertices used in this patch.
 
         If the patch contains Bezier curves, the curves will be
         interpolated by line segments.  To access the curves as
@@ -230,9 +230,7 @@ class Patch(artist.Artist):
                                                radius)
 
     def update_from(self, other):
-        """
-        Updates this :class:`Patch` from the properties of *other*.
-        """
+        """Updates this `.Patch` from the properties of *other*."""
         artist.Artist.update_from(self, other)
         # For some properties we don't need or don't want to go through the
         # getters/setters, so we just copy them directly.
@@ -280,33 +278,23 @@ class Patch(artist.Artist):
         return transforms.IdentityTransform()
 
     def get_antialiased(self):
-        """
-        Returns True if the :class:`Patch` is to be drawn with antialiasing.
-        """
+        """Return whether antialiasing is used for drawing."""
         return self._antialiased
 
     def get_edgecolor(self):
-        """
-        Return the edge color of the :class:`Patch`.
-        """
+        """Return the edge color."""
         return self._edgecolor
 
     def get_facecolor(self):
-        """
-        Return the face color of the :class:`Patch`.
-        """
+        """Return the face color."""
         return self._facecolor
 
     def get_linewidth(self):
-        """
-        Return the line width in points.
-        """
+        """Return the line width in points."""
         return self._linewidth
 
     def get_linestyle(self):
-        """
-        Return the linestyle.
-        """
+        """Return the linestyle."""
         return self._linestyle
 
     def set_antialiased(self, aa):
@@ -467,7 +455,7 @@ class Patch(artist.Artist):
 
     def set_capstyle(self, s):
         """
-        Set the patch capstyle
+        Set the capstyle.
 
         Parameters
         ----------
@@ -479,12 +467,11 @@ class Patch(artist.Artist):
         self.stale = True
 
     def get_capstyle(self):
-        "Return the current capstyle"
+        """Return the capstyle."""
         return self._capstyle
 
     def set_joinstyle(self, s):
-        """
-        Set the patch joinstyle
+        """Set the joinstyle.
 
         Parameters
         ----------
@@ -496,12 +483,12 @@ class Patch(artist.Artist):
         self.stale = True
 
     def get_joinstyle(self):
-        "Return the current joinstyle"
+        """Return the joinstyle."""
         return self._joinstyle
 
     def set_hatch(self, hatch):
         r"""
-        Set the hatching pattern
+        Set the hatching pattern.
 
         *hatch* can be one of::
 
@@ -531,7 +518,7 @@ class Patch(artist.Artist):
         self.stale = True
 
     def get_hatch(self):
-        'Return the current hatching pattern'
+        """Return the hatching pattern."""
         return self._hatch
 
     @contextlib.contextmanager
@@ -595,7 +582,7 @@ class Patch(artist.Artist):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        'Draw the :class:`Patch` to the given *renderer*.'
+        """Draw to the given *renderer*."""
         if not self.get_visible():
             return
 
@@ -613,21 +600,17 @@ class Patch(artist.Artist):
                       self._facecolor if self._facecolor[3] else None)
 
     def get_path(self):
-        """
-        Return the path of this patch
-        """
+        """Return the path of this patch."""
         raise NotImplementedError('Derived must override')
 
     def get_window_extent(self, renderer=None):
         return self.get_path().get_extents(self.get_transform())
 
     def _convert_xy_units(self, xy):
-        """
-        Convert x and y units for a tuple (x, y)
-        """
+        """Convert x and y units for a tuple (x, y)."""
         x = self.convert_xunits(xy[0])
         y = self.convert_yunits(xy[1])
-        return (x, y)
+        return x, y
 
 
 patchdoc = artist.kwdoc(Patch)
@@ -755,9 +738,7 @@ class Rectangle(Patch):
         self._rect_transform = transforms.IdentityTransform()
 
     def get_path(self):
-        """
-        Return the vertices of the rectangle.
-        """
+        """Return the vertices of the rectangle."""
         return Path.unit_rectangle()
 
     def _update_patch_transform(self):
@@ -783,9 +764,7 @@ class Rectangle(Patch):
         self._y1 = self._y0 + self._height
 
     def _convert_units(self):
-        """
-        Convert bounds of the rectangle.
-        """
+        """Convert bounds of the rectangle."""
         x0 = self.convert_xunits(self._x0)
         y0 = self.convert_yunits(self._y0)
         x1 = self.convert_xunits(self._x1)
@@ -797,40 +776,40 @@ class Rectangle(Patch):
         return self._rect_transform
 
     def get_x(self):
-        "Return the left coord of the rectangle."
+        """Return the left coordinate of the rectangle."""
         return self._x0
 
     def get_y(self):
-        "Return the bottom coord of the rectangle."
+        """Return the bottom coordinate of the rectangle."""
         return self._y0
 
     def get_xy(self):
-        "Return the left and bottom coords of the rectangle."
+        """Return the left and bottom coords of the rectangle as a tuple."""
         return self._x0, self._y0
 
     def get_width(self):
-        "Return the width of the rectangle."
+        """Return the width of the rectangle."""
         return self._width
 
     def get_height(self):
-        "Return the height of the rectangle."
+        """Return the height of the rectangle."""
         return self._height
 
     def set_x(self, x):
-        "Set the left coord of the rectangle."
+        """Set the left coordinate of the rectangle."""
         self._x0 = x
         self._update_x1()
         self.stale = True
 
     def set_y(self, y):
-        "Set the bottom coord of the rectangle."
+        """Set the bottom coordinate of the rectangle."""
         self._y0 = y
         self._update_y1()
         self.stale = True
 
     def set_xy(self, xy):
         """
-        Set the left and bottom coords of the rectangle.
+        Set the left and bottom coordinates of the rectangle.
 
         Parameters
         ----------
@@ -877,6 +856,7 @@ class Rectangle(Patch):
         self.stale = True
 
     def get_bbox(self):
+        """Return the `.Bbox`."""
         x0, y0, x1, y1 = self._convert_units()
         return transforms.Bbox.from_extents(x0, y0, x1, y1)
 
@@ -2634,7 +2614,7 @@ class FancyBboxPatch(Patch):
         self.stale = True
 
     def get_bbox(self):
-        """Return the `.Bbox` of the rectangle."""
+        """Return the `.Bbox`."""
         return transforms.Bbox.from_bounds(self._x, self._y,
                                            self._width, self._height)
 
