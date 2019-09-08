@@ -106,3 +106,14 @@ multiple plot calls.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 It previously raised `TypeError`, **except** when the input was of the form
 ``b"C[number]"`` in which case it raised a ValueError.
+
+`.FigureCanvasPS.print_ps` and `.FigureCanvasPS.print_eps` no longer apply edgecolor and facecolor
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These methods now assume that the figure edge and facecolor have been correctly
+applied by `.FigureCanvasBase.print_figure`, as they are normally called
+through it.
+
+This behavior is consistent with other figure saving methods
+(`.FigureCanvasAgg.print_png`, `.FigureCanvasPdf.print_pdf`,
+`.FigureCanvasSVG.print_svg`).
