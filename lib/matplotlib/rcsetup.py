@@ -16,8 +16,10 @@ parameter set listed here should also be visited to the
 from __future__ import absolute_import, division, print_function
 
 import six
-
-from collections import Iterable, Mapping
+try:
+    from collections.abc import Iterable, Mapping
+except ImportError:
+    from collections import Iterable, Mapping
 from functools import reduce
 import operator
 import os

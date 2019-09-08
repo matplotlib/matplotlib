@@ -88,8 +88,10 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import xrange
-
-from collections import Sized
+try:
+    from collections.abc import Sized
+except ImportError:
+    from collections import Sized
 
 import numpy as np
 
