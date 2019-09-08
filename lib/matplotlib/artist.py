@@ -276,7 +276,7 @@ class Artist:
 
         Returns
         -------
-        bbox : `.BBox`
+        bbox : `.Bbox`
             The enclosing bounding box (in figure pixel co-ordinates).
         """
         bbox = self.get_window_extent(renderer)

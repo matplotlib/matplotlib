@@ -106,9 +106,9 @@ class Axes(_AxesBase):
 
     Attributes
     ----------
-    dataLim : `.BBox`
+    dataLim : `.Bbox`
         The bounding box enclosing all data displayed in the Axes.
-    viewLim : `.BBox`
+    viewLim : `.Bbox`
         The view limits in data coordinates.
 
     """

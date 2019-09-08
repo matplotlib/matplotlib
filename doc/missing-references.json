@@ -91,8 +91,6 @@
     "Artist": [
       "doc/api/animation_api.rst:27:<autosummary>:1",
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.ArtistAnimation:2",
-      "lib/matplotlib/text.py:docstring of matplotlib.text.OffsetFrom:28",
-      "lib/matplotlib/text.py:docstring of matplotlib.text.OffsetFrom:31",
       "lib/mpl_toolkits/axisartist/axisline_style.py:docstring of mpl_toolkits.axisartist.axisline_style.AxislineStyle:9"
     ],
     "matplotlib.animation.ArtistAnimation.new_frame_seq": [
@@ -790,32 +788,6 @@
       "lib/matplotlib/collections.py:docstring of matplotlib.collections.TriMesh.get_tightbbox:2",
       "lib/mpl_toolkits/axisartist/axis_artist.py:docstring of mpl_toolkits.axisartist.axis_artist.AxisArtist.get_tightbbox:2",
       "lib/mpl_toolkits/mplot3d/art3d.py:docstring of mpl_toolkits.mplot3d.art3d.Text3D.get_tightbbox:2"
-    ],
-    "BBox": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:26",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes:30",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.AsteriskPolygonCollection.get_tightbbox:26",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.BrokenBarHCollection.get_tightbbox:26",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.CircleCollection.get_tightbbox:26",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.Collection.get_tightbbox:26",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.EllipseCollection.get_tightbbox:26",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.EventCollection.get_tightbbox:26",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.LineCollection.get_tightbbox:26",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.PatchCollection.get_tightbbox:26",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.PathCollection.get_tightbbox:26",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.PolyCollection.get_tightbbox:26",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.QuadMesh.get_tightbbox:26",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.RegularPolyCollection.get_tightbbox:26",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.StarPolygonCollection.get_tightbbox:26",
-      "lib/matplotlib/collections.py:docstring of matplotlib.collections.TriMesh.get_tightbbox:26",
-      "lib/mpl_toolkits/axisartist/axis_artist.py:docstring of mpl_toolkits.axisartist.axis_artist.AxisArtist.get_tightbbox:26",
-      "lib/mpl_toolkits/mplot3d/art3d.py:docstring of mpl_toolkits.mplot3d.art3d.Text3D.get_tightbbox:26"
-    ],
-    "Bbox": [
-      "lib/matplotlib/text.py:docstring of matplotlib.text.Annotation.get_window_extent:2",
-      "lib/matplotlib/text.py:docstring of matplotlib.text.Text.get_window_extent:2",
-      "lib/mpl_toolkits/axisartist/axis_artist.py:docstring of mpl_toolkits.axisartist.axis_artist.AxisLabel.get_window_extent:2",
-      "lib/mpl_toolkits/axisartist/axis_artist.py:docstring of mpl_toolkits.axisartist.axis_artist.LabelBase.get_window_extent:2"
     ],
     "'auto'": [
       "lib/matplotlib/ticker.py:docstring of matplotlib.ticker.MaxNLocator:28",
@@ -1774,14 +1746,9 @@
     "pytest.mark.usefixtures": [
       "lib/matplotlib/testing/decorators.py:docstring of matplotlib.testing.decorators.image_comparison:13"
     ],
-    "BboxBase": [
-      "lib/matplotlib/text.py:docstring of matplotlib.text.OffsetFrom:28",
-      "lib/matplotlib/text.py:docstring of matplotlib.text.OffsetFrom:31"
-    ],
     "Transform": [
       "doc/users/prev_whats_new/whats_new_2.2.rst:357",
-      "doc/users/prev_whats_new/whats_new_2.2.rst:360",
-      "lib/matplotlib/text.py:docstring of matplotlib.text.OffsetFrom:28"
+      "doc/users/prev_whats_new/whats_new_2.2.rst:360"
     ],
     "texmanager.TexManager": [
       "lib/matplotlib/textpath.py:docstring of matplotlib.textpath.TextToPath.get_texmanager:2"

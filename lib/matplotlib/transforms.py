@@ -449,7 +449,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        other : BboxBase
+        other : `.BboxBase`
         """
         ax1, ay1, ax2, ay2 = self.extents
         bx1, by1, bx2, by2 = other.extents
@@ -490,7 +490,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        other : BboxBase
+        other : `.BboxBase`
         """
         ax1, ay1, ax2, ay2 = self.extents
         bx1, by1, bx2, by2 = other.extents
@@ -644,7 +644,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        bboxes : sequence of :class:`BboxBase` objects
+        bboxes : sequence of `.BboxBase`
         """
         return count_bboxes_overlapping_bbox(
             self, np.atleast_3d([np.array(x) for x in bboxes]))
