@@ -2100,7 +2100,7 @@ default: 'top'
         quality : [ *None* | 1 <= scalar <= 100 ]
             The image quality, on a scale from 1 (worst) to 95 (best).
             Applicable only if *format* is jpg or jpeg, ignored otherwise.
-            If *None*, defaults to :rc:`savefig.jpeg_quality` (95 by default).
+            If *None*, defaults to :rc:`savefig.jpeg_quality`.
             Values above 95 should be avoided; 100 completely disables the
             JPEG quantization stage.
 

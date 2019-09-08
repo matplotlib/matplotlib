@@ -5469,11 +5469,11 @@ optional.
               that the data fit in the axes. In general, this will result in
               non-square pixels.
 
-            If not given, use :rc:`image.aspect` (default: 'equal').
+            If not given, use :rc:`image.aspect`.
 
         interpolation : str, optional
-            The interpolation method used. If *None*
-            :rc:`image.interpolation` is used, which defaults to 'nearest'.
+            The interpolation method used. If *None*, :rc:`image.interpolation`
+            is used.
 
             Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
             'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
@@ -5782,7 +5782,7 @@ optional.
             *edgecolors*\ ="none" is used.  This eliminates artificial lines
             at patch boundaries, and works regardless of the value of alpha.
             If *edgecolors* is not "none", then the default *antialiaseds*
-            is taken from :rc:`patch.antialiased`, which defaults to True.
+            is taken from :rc:`patch.antialiased`.
             Stroking the edges may be preferred if *alpha* is 1, but will
             cause artifacts otherwise.
 
@@ -7650,7 +7650,7 @@ optional.
             - 'auto': The axes is kept fixed and the aspect is adjusted so
               that the data fit in the axes. In general, this will result in
               non-square pixels.
-            - *None*: Use :rc:`image.aspect` (default: 'equal').
+            - *None*: Use :rc:`image.aspect`.
 
             Default: 'equal'
 
