@@ -1,34 +1,27 @@
-from .. import axes, cbook
+from .. import axes, docstring, cbook
 from .geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
 from .polar import PolarAxes
 from mpl_toolkits.mplot3d import Axes3D
 
 
 class ProjectionRegistry:
-    """
-    Manages the set of projections available to the system.
-    """
+    """A mapping of registered projection names to projection classes."""
+
     def __init__(self):
         self._all_projection_types = {}
 
     def register(self, *projections):
-        """
-        Register a new set of projections.
-        """
+        """Register a new set of projections."""
         for projection in projections:
             name = projection.name
             self._all_projection_types[name] = projection
 
     def get_projection_class(self, name):
-        """
-        Get a projection class from its *name*.
-        """
+        """Get a projection class from its *name*."""
         return self._all_projection_types[name]
 
     def get_projection_names(self):
-        """
-        Get a list of the names of all projections currently registered.
-        """
+        """Return the names of all projections currently registered."""
         return sorted(self._all_projection_types)
 
 
@@ -68,8 +61,5 @@ def process_projection_requirements(figure, *args, **kwargs):
     return figure._process_projection_requirements(*args, **kwargs)
 
 
-def get_projection_names():
-    """
-    Get a list of acceptable projection names.
-    """
-    return projection_registry.get_projection_names()
+get_projection_names = projection_registry.get_projection_names
+docstring.interpd.update(projection_names=get_projection_names())
