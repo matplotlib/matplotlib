@@ -4,8 +4,12 @@ from matplotlib import rcParamsDefault
 
 
 def rcparam_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
-    param = rcParamsDefault.get(text)
-    rendered = nodes.Text(f'rcParams["{text}"] = {param!r}')
+    try:
+        default_str = f' = {rcParamsDefault[text]!r}'
+    except KeyError:
+        # handling of generic references such as rcParams["figure.subplot.*"]
+        default_str = ''
+    rendered = nodes.Text(f'rcParams["{text}"]' + default_str)
 
     source = inliner.document.attributes['source'].replace(sep, '/')
     rel_source = source.split('/doc/', 1)[1]
