@@ -25,7 +25,9 @@ from matplotlib._pylab_helpers import Gcf
 _log = logging.getLogger(__name__)
 
 
-###############################################################################
+# Note: When formatting floating point values, it is important to use the
+# %f/{:f} format rather than %s/{} to avoid triggering scientific notation,
+# which is not recognized by TeX.
 
 
 def get_fontspec():
@@ -724,14 +726,14 @@ class RendererPgf(RendererBase):
             valign = {"top": "top", "bottom": "bottom",
                       "baseline": "base", "center": ""}
             text_args.extend([
-                f"x={x/dpi}in",
-                f"y={y/dpi}in",
+                f"x={x/dpi:f}in",
+                f"y={y/dpi:f}in",
                 halign[mtext.get_horizontalalignment()],
                 valign[mtext.get_verticalalignment()],
             ])
         else:
             # if not, use the text layout provided by Matplotlib.
-            text_args.append(f"x={x/dpi}in, y={y/dpi}in, left, base")
+            text_args.append(f"x={x/dpi:f}in, y={y/dpi:f}in, left, base")
 
         if angle != 0:
             text_args.append("rotate=%f" % angle)
