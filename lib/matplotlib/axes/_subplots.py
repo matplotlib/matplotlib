@@ -33,45 +33,8 @@ class SubplotBase:
         """
 
         self.figure = fig
-
-        if len(args) == 1:
-            if isinstance(args[0], SubplotSpec):
-                self._subplotspec = args[0]
-            else:
-                try:
-                    s = str(int(args[0]))
-                    rows, cols, num = map(int, s)
-                except ValueError:
-                    raise ValueError('Single argument to subplot must be '
-                        'a 3-digit integer')
-                self._subplotspec = GridSpec(rows, cols,
-                                             figure=self.figure)[num - 1]
-                # num - 1 for converting from MATLAB to python indexing
-        elif len(args) == 3:
-            rows, cols, num = args
-            rows = int(rows)
-            cols = int(cols)
-            if rows <= 0:
-                raise ValueError(f'Number of rows must be > 0, not {rows}')
-            if cols <= 0:
-                raise ValueError(f'Number of columns must be > 0, not {cols}')
-            if isinstance(num, tuple) and len(num) == 2:
-                num = [int(n) for n in num]
-                self._subplotspec = GridSpec(
-                        rows, cols,
-                        figure=self.figure)[(num[0] - 1):num[1]]
-            else:
-                if num < 1 or num > rows*cols:
-                    raise ValueError(
-                        f"num must be 1 <= num <= {rows*cols}, not {num}")
-                self._subplotspec = GridSpec(
-                        rows, cols, figure=self.figure)[int(num) - 1]
-                # num - 1 for converting from MATLAB to python indexing
-        else:
-            raise ValueError(f'Illegal argument(s) to subplot: {args}')
-
+        self._subplotspec = SubplotSpec._from_subplot_args(fig, args)
         self.update_params()
-
         # _axes_class is set in the subplot_class_factory
         self._axes_class.__init__(self, fig, self.figbox, **kwargs)
         # add a layout box to this, for both the full axis, and the poss

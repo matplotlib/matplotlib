@@ -522,6 +522,47 @@ class SubplotSpec:
         else:
             self._layoutbox = None
 
+    @staticmethod
+    def _from_subplot_args(figure, args):
+        """
+        Construct a `.SubplotSpec` from a parent `.Figure` and either
+
+        - a `.SubplotSpec` -- returned as is;
+        - one or three numbers -- a MATLAB-style subplot specifier.
+        """
+        if len(args) == 1:
+            arg, = args
+            if isinstance(arg, SubplotSpec):
+                return arg
+            else:
+                try:
+                    s = str(int(arg))
+                    rows, cols, num = map(int, s)
+                except ValueError:
+                    raise ValueError("Single argument to subplot must be a "
+                                     "3-digit integer")
+                # num - 1 for converting from MATLAB to python indexing
+                return GridSpec(rows, cols, figure=figure)[num - 1]
+        elif len(args) == 3:
+            rows, cols, num = args
+            rows = int(rows)
+            cols = int(cols)
+            if rows <= 0:
+                raise ValueError(f"Number of rows must be > 0, not {rows}")
+            if cols <= 0:
+                raise ValueError(f"Number of columns must be > 0, not {cols}")
+            if isinstance(num, tuple) and len(num) == 2:
+                i, j = map(int, num)
+                return GridSpec(rows, cols, figure=figure)[i-1:j]
+            else:
+                if num < 1 or num > rows*cols:
+                    raise ValueError(
+                        f"num must be 1 <= num <= {rows*cols}, not {num}")
+                # num - 1 for converting from MATLAB to python indexing
+                return GridSpec(rows, cols, figure=figure)[int(num) - 1]
+        else:
+            raise ValueError(f"Illegal argument(s) to subplot: {args}")
+
     # num2 is a property only to handle the case where it is None and someone
     # mutates num1.
 
