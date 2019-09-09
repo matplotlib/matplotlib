@@ -1626,7 +1626,7 @@ class QuadContourSet(ContourSet):
             nearest those points are always masked out, other triangular
             corners comprising three unmasked points are contoured as usual.
 
-            Defaults to :rc:`contour.corner_mask`, which defaults to ``True``.
+            Defaults to :rc:`contour.corner_mask`.
 
         colors : color string or sequence of colors, optional
             The colors of the levels, i.e. the lines for `.contour` and the
