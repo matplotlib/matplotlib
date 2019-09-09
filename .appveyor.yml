@@ -20,9 +20,9 @@ environment:
                  --cov-report= --cov=lib --log-level=DEBUG
 
   matrix:
-    # theoretically the CONDA_INSTALL_LOCN could be only two: one for 32bit,
-    # one for 64bit because we construct envs anyway. But using one for the
-    # right python version is hopefully making it fast due to package caching.
+    # In theory we could use a single CONDA_INSTALL_LOCN because we construct
+    # the envs anyway. But using one for the right python version hopefully
+    # making things faster due to package caching.
     - PYTHON_VERSION: "3.6"
       CONDA_INSTALL_LOCN: "C:\\Miniconda36-x64"
       TEST_ALL: "no"
@@ -48,7 +48,6 @@ init:
 install:
   - set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
   - set PYTHONUNBUFFERED=1
-  # for msinttypes and newer stuff
   - conda config --set always_yes true
   - conda update --all
   - conda config --set show_channel_urls yes
@@ -58,16 +57,13 @@ install:
   - conda info -a
 
   # For building, use a new environment which only includes the requirements for mpl
-  # same things as the requirements in ci/conda_recipe/meta.yaml
   # if conda-forge gets a new pyqt, it might be nice to install it as well to have more backends
   # https://github.com/conda-forge/conda-forge.github.io/issues/157#issuecomment-223536381
-  #
   - conda create -q -n test-environment python=%PYTHON_VERSION%
-    msinttypes freetype=2.6 "libpng>=1.6.21,<1.7" zlib=1.2 tk=8.5
+    freetype=2.6 "libpng>=1.6.21,<1.7" zlib=1.2 tk=8.5
     pip setuptools numpy sphinx tornado
   - activate test-environment
   - echo %PYTHON_VERSION% %TARGET_ARCH%
-  # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
   - pip install -r requirements/testing/travis_all.txt -r requirements/testing/travis36.txt
 
   # Apply patch to `subprocess` on Python versions > 2 and < 3.6.3

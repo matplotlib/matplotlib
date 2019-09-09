@@ -298,7 +298,7 @@ the list of conda packages.
 
 ::
 
-  conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing tornado cycler tk libpng zlib freetype msinttypes
+  conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing tornado cycler tk libpng zlib freetype
   conda activate matplotlib_build
   # force the build against static libpng and zlib libraries
   set MPLSTATICBUILD=True
