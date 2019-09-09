@@ -432,7 +432,6 @@ class FigureManagerTk(FigureManagerBase):
         # widget is getting shrunk first (-> the canvas)
         self.toolbar = self._get_toolbar()
         self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-        self._num = num
 
         self.statusbar = None
 
@@ -471,7 +470,7 @@ class FigureManagerTk(FigureManagerBase):
             if not self._shown:
                 def destroy(*args):
                     self.window = None
-                    Gcf.destroy(self._num)
+                    Gcf.destroy(self.num)
                 self.canvas._tkcanvas.bind("<Destroy>", destroy)
                 self.window.deiconify()
             else:
