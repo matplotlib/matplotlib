@@ -1412,14 +1412,14 @@ end"""
 
     def _unpack(self, im):
         """
-        Unpack the image object im into height, width, data, alpha,
-        where data and alpha are HxWx3 (RGB) or HxWx1 (grayscale or alpha)
-        arrays, except alpha is None if the image is fully opaque.
+        Unpack image array *im* into ``(data, alpha)``, which have shape
+        ``(height, width, 3)`` (RGB) or ``(height, width, 1)`` (grayscale or
+        alpha), except that alpha is None if the image is fully opaque.
         """
         h, w = im.shape[:2]
         im = im[::-1]
         if im.ndim == 2:
-            return h, w, im, None
+            return im, None
         else:
             rgb = im[:, :, :3]
             rgb = np.array(rgb, order='C')
@@ -1432,7 +1432,7 @@ end"""
                     alpha = np.array(alpha, order='C')
             else:
                 alpha = None
-            return h, w, rgb, alpha
+            return rgb, alpha
 
     def _writePng(self, data):
         """
@@ -1455,27 +1455,24 @@ end"""
                 buffer.seek(length, 1)
             buffer.seek(4, 1)   # skip CRC
 
-    def _writeImg(self, data, height, width, grayscale, id, smask=None):
+    def _writeImg(self, data, id, smask=None):
         """
-        Write the image *data* of size *height* x *width*, as grayscale
-        if *grayscale* is true and RGB otherwise, as pdf object *id*
-        and with the soft mask (alpha channel) *smask*, which should be
-        either None or a *height* x *width* x 1 array.
+        Write the image *data*, of shape ``(height, width, 1)`` (grayscale) or
+        ``(height, width, 3)`` (RGB), as pdf object *id* and with the soft mask
+        (alpha channel) *smask*, which should be either None or a ``(height,
+        width, 1)`` array.
         """
-
-        obj = {'Type':             Name('XObject'),
-               'Subtype':          Name('Image'),
-               'Width':            width,
-               'Height':           height,
-               'ColorSpace':       Name('DeviceGray' if grayscale
-                                        else 'DeviceRGB'),
+        height, width, colors = data.shape
+        obj = {'Type': Name('XObject'),
+               'Subtype': Name('Image'),
+               'Width': width,
+               'Height': height,
+               'ColorSpace': Name({1: 'DeviceGray', 3: 'DeviceRGB'}[colors]),
                'BitsPerComponent': 8}
         if smask:
             obj['SMask'] = smask
         if rcParams['pdf.compression']:
-            png = {'Predictor': 10,
-                   'Colors':    1 if grayscale else 3,
-                   'Columns':   width}
+            png = {'Predictor': 10, 'Colors': colors, 'Columns': width}
         else:
             png = None
         self.beginStream(
@@ -1492,14 +1489,13 @@ end"""
 
     def writeImages(self):
         for img, name, ob in self._images.values():
-            height, width, data, adata = self._unpack(img)
+            data, adata = self._unpack(img)
             if adata is not None:
                 smaskObject = self.reserveObject("smask")
-                self._writeImg(adata, height, width, True, smaskObject.id)
+                self._writeImg(adata, smaskObject.id)
             else:
                 smaskObject = None
-            self._writeImg(data, height, width, False,
-                           ob.id, smaskObject)
+            self._writeImg(data, ob.id, smaskObject)
 
     def markerObject(self, path, trans, fill, stroke, lw, joinstyle,
                      capstyle):
