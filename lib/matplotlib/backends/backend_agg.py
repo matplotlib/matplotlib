@@ -584,12 +584,10 @@ class FigureCanvasAgg(FigureCanvasBase):
             FigureCanvasAgg.draw(self)
             if dryrun:
                 return
-            # The image is "pasted" onto a white background image to safely
-            # handle any transparency
+            # The image is pasted onto a white background image to handle
+            # transparency.
             image = Image.fromarray(np.asarray(self.buffer_rgba()))
-            rgba = mcolors.to_rgba(rcParams['savefig.facecolor'])
-            color = tuple([int(x * 255) for x in rgba[:3]])
-            background = Image.new('RGB', image.size, color)
+            background = Image.new('RGB', image.size, "white")
             background.paste(image, image)
             if pil_kwargs is None:
                 pil_kwargs = {}
