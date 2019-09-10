@@ -2008,9 +2008,9 @@ class _AxesBase(martist.Artist):
 
     def update_datalim(self, xys, updatex=True, updatey=True):
         """
-        Extend the `~.Axes.dataLim` BBox to include the given points.
+        Extend the `~.Axes.dataLim` Bbox to include the given points.
 
-        If no data is set currently, the BBox will ignore its limits and set
+        If no data is set currently, the Bbox will ignore its limits and set
         the bound to be the bounds of the xydata (*xys*). Otherwise, it will
         compute the bounds of the union of its current data and the data in
         *xys*.
@@ -2018,7 +2018,7 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         xys : 2D array-like
-            The points to include in the data limits BBox. This can be either
+            The points to include in the data limits Bbox. This can be either
             a list of (x, y) tuples or a Nx2 array.
 
         updatex, updatey : bool, optional, default *True*
@@ -2033,7 +2033,7 @@ class _AxesBase(martist.Artist):
 
     def update_datalim_bounds(self, bounds):
         """
-        Extend the `~.Axes.datalim` BBox to include the given
+        Extend the `~.Axes.datalim` Bbox to include the given
         `~matplotlib.transforms.Bbox`.
 
         Parameters

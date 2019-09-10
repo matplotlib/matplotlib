@@ -514,7 +514,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
         if len(bbox_to_anchor) != 4:
             raise ValueError("Using relative units for width or height "
                              "requires to provide a 4-tuple or a "
-                             "`BBox` instance to `bbox_to_anchor.")
+                             "`Bbox` instance to `bbox_to_anchor.")
 
     axes_locator = AnchoredSizeLocator(bbox_to_anchor,
                                        width, height,
