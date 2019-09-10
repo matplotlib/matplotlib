@@ -10,7 +10,8 @@ import matplotlib.path as mpath
 
 
 class Spine(mpatches.Patch):
-    """an axis spine -- the line noting the data area boundaries
+    """
+    An axis spine -- the line noting the data area boundaries
 
     Spines are the lines connecting the axis tick marks and noting the
     boundaries of the data area. They can be placed at arbitrary
@@ -166,10 +167,8 @@ class Spine(mpatches.Patch):
         --------
         matplotlib.axes.Axes.get_tightbbox
         matplotlib.axes.Axes.get_window_extent
-
         """
-        # make sure the location is updated so that transforms etc are
-        # correct:
+        # make sure the location is updated so that transforms etc are correct:
         self._adjust_location()
         bb = super().get_window_extent(renderer=renderer)
         if self.axis is None:
@@ -197,18 +196,18 @@ class Spine(mpatches.Patch):
             padin = padin * tickl / 72 * self.figure.dpi
 
             if tick.tick1line.get_visible():
-                if self.spine_type in ['left']:
+                if self.spine_type == 'left':
                     bb0.x0 = bb0.x0 - padout
                     bb0.x1 = bb0.x1 + padin
-                elif self.spine_type in ['bottom']:
+                elif self.spine_type == 'bottom':
                     bb0.y0 = bb0.y0 - padout
                     bb0.y1 = bb0.y1 + padin
 
             if tick.tick2line.get_visible():
-                if self.spine_type in ['right']:
+                if self.spine_type == 'right':
                     bb0.x1 = bb0.x1 + padout
                     bb0.x0 = bb0.x0 - padin
-                elif self.spine_type in ['top']:
+                elif self.spine_type == 'top':
                     bb0.y1 = bb0.y1 + padout
                     bb0.y0 = bb0.y0 - padout
             bboxes.append(bb0)
@@ -379,80 +378,6 @@ class Spine(mpatches.Patch):
         self.stale = False
         return ret
 
-    def _calc_offset_transform(self):
-        """Calculate the offset transform performed by the spine."""
-        self._ensure_position_is_set()
-        position = self._position
-        if isinstance(position, str):
-            if position == 'center':
-                position = ('axes', 0.5)
-            elif position == 'zero':
-                position = ('data', 0)
-        assert len(position) == 2, "position should be 2-tuple"
-        position_type, amount = position
-        assert position_type in ('axes', 'outward', 'data')
-        if position_type == 'outward':
-            if amount == 0:
-                # short circuit commonest case
-                self._spine_transform = ('identity',
-                                         mtransforms.IdentityTransform())
-            elif self.spine_type in ['left', 'right', 'top', 'bottom']:
-                offset_vec = {'left': (-1, 0),
-                              'right': (1, 0),
-                              'bottom': (0, -1),
-                              'top': (0, 1),
-                              }[self.spine_type]
-                # calculate x and y offset in dots
-                offset_x = amount * offset_vec[0] / 72.0
-                offset_y = amount * offset_vec[1] / 72.0
-                self._spine_transform = ('post',
-                                         mtransforms.ScaledTranslation(
-                                             offset_x,
-                                             offset_y,
-                                             self.figure.dpi_scale_trans))
-            else:
-                cbook._warn_external('unknown spine type "%s": no spine '
-                                     'offset performed' % self.spine_type)
-                self._spine_transform = ('identity',
-                                         mtransforms.IdentityTransform())
-        elif position_type == 'axes':
-            if self.spine_type in ('left', 'right'):
-                self._spine_transform = ('pre',
-                                         mtransforms.Affine2D.from_values(
-                                             # keep y unchanged, fix x at
-                                             # amount
-                                             0, 0, 0, 1, amount, 0))
-            elif self.spine_type in ('bottom', 'top'):
-                self._spine_transform = ('pre',
-                                         mtransforms.Affine2D.from_values(
-                                             # keep x unchanged, fix y at
-                                             # amount
-                                             1, 0, 0, 0, 0, amount))
-            else:
-                cbook._warn_external('unknown spine type "%s": no spine '
-                                     'offset performed' % self.spine_type)
-                self._spine_transform = ('identity',
-                                         mtransforms.IdentityTransform())
-        elif position_type == 'data':
-            if self.spine_type in ('right', 'top'):
-                # The right and top spines have a default position of 1 in
-                # axes coordinates.  When specifying the position in data
-                # coordinates, we need to calculate the position relative to 0.
-                amount -= 1
-            if self.spine_type in ('left', 'right'):
-                self._spine_transform = ('data',
-                                         mtransforms.Affine2D().translate(
-                                             amount, 0))
-            elif self.spine_type in ('bottom', 'top'):
-                self._spine_transform = ('data',
-                                         mtransforms.Affine2D().translate(
-                                             0, amount))
-            else:
-                cbook._warn_external('unknown spine type "%s": no spine '
-                                     'offset performed' % self.spine_type)
-                self._spine_transform = ('identity',
-                                         mtransforms.IdentityTransform())
-
     def set_position(self, position):
         """Set the position of the spine.
 
@@ -484,7 +409,6 @@ class Spine(mpatches.Patch):
                 raise ValueError("position[0] should be one of 'outward', "
                                  "'axes', or 'data' ")
         self._position = position
-        self._calc_offset_transform()
 
         self.set_transform(self.get_spine_transform())
 
@@ -500,39 +424,61 @@ class Spine(mpatches.Patch):
     def get_spine_transform(self):
         """Return the spine transform."""
         self._ensure_position_is_set()
-        what, how = self._spine_transform
 
-        if what == 'data':
-            # special case data based spine locations
-            data_xform = self.axes.transScale + \
-                (how + self.axes.transLimits + self.axes.transAxes)
-            if self.spine_type in ['left', 'right']:
-                result = mtransforms.blended_transform_factory(
-                    data_xform, self.axes.transData)
-            elif self.spine_type in ['top', 'bottom']:
-                result = mtransforms.blended_transform_factory(
-                    self.axes.transData, data_xform)
-            else:
-                raise ValueError('unknown spine spine_type: %s' %
-                                 self.spine_type)
-            return result
-
+        position = self._position
+        if isinstance(position, str):
+            if position == 'center':
+                position = ('axes', 0.5)
+            elif position == 'zero':
+                position = ('data', 0)
+        assert len(position) == 2, 'position should be 2-tuple'
+        position_type, amount = position
+        cbook._check_in_list(['axes', 'outward', 'data'],
+                             position_type=position_type)
         if self.spine_type in ['left', 'right']:
             base_transform = self.axes.get_yaxis_transform(which='grid')
         elif self.spine_type in ['top', 'bottom']:
             base_transform = self.axes.get_xaxis_transform(which='grid')
         else:
-            raise ValueError('unknown spine spine_type: %s' %
-                             self.spine_type)
+            raise ValueError(f'unknown spine spine_type: {self.spine_type!r}')
 
-        if what == 'identity':
-            return base_transform
-        elif what == 'post':
-            return base_transform + how
-        elif what == 'pre':
-            return how + base_transform
-        else:
-            raise ValueError("unknown spine_transform type: %s" % what)
+        if position_type == 'outward':
+            if amount == 0:  # short circuit commonest case
+                return base_transform
+            else:
+                offset_vec = {'left': (-1, 0), 'right': (1, 0),
+                              'bottom': (0, -1), 'top': (0, 1),
+                              }[self.spine_type]
+                # calculate x and y offset in dots
+                offset_dots = amount * np.array(offset_vec) / 72
+                return (base_transform
+                        + mtransforms.ScaledTranslation(
+                            *offset_dots, self.figure.dpi_scale_trans))
+        elif position_type == 'axes':
+            if self.spine_type in ['left', 'right']:
+                # keep y unchanged, fix x at amount
+                return (mtransforms.Affine2D.from_values(0, 0, 0, 1, amount, 0)
+                        + base_transform)
+            elif self.spine_type in ['bottom', 'top']:
+                # keep x unchanged, fix y at amount
+                return (mtransforms.Affine2D.from_values(1, 0, 0, 0, 0, amount)
+                        + base_transform)
+        elif position_type == 'data':
+            if self.spine_type in ('right', 'top'):
+                # The right and top spines have a default position of 1 in
+                # axes coordinates.  When specifying the position in data
+                # coordinates, we need to calculate the position relative to 0.
+                amount -= 1
+            if self.spine_type in ('left', 'right'):
+                return mtransforms.blended_transform_factory(
+                    mtransforms.Affine2D().translate(amount, 0)
+                    + self.axes.transData,
+                    self.axes.transData)
+            elif self.spine_type in ('bottom', 'top'):
+                return mtransforms.blended_transform_factory(
+                    self.axes.transData,
+                    mtransforms.Affine2D().translate(0, amount)
+                    + self.axes.transData)
 
     def set_bounds(self, low=None, high=None):
         """
