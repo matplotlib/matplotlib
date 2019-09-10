@@ -3,6 +3,7 @@ try:
 except ImportError:
     from contextlib import ExitStack as nullcontext  # Py 3.6.
 import re
+import itertools
 
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
@@ -367,6 +368,44 @@ class TestLogitLocator:
         assert loc.minor
         loc.set_params(minor=False)
         assert not loc.minor
+
+    acceptable_vmin_vmax = [
+        *(2.5 ** np.arange(-3, 0)),
+        *(1 - 2.5 ** np.arange(-3, 0)),
+    ]
+
+    @pytest.mark.parametrize(
+        "lims",
+        [
+            (a, b)
+            for (a, b) in itertools.product(acceptable_vmin_vmax, repeat=2)
+            if a != b
+        ],
+    )
+    def test_nonsingular_ok(self, lims):
+        """
+        Create logit locator, and test the nonsingular method for acceptable
+        value
+        """
+        loc = mticker.LogitLocator()
+        lims2 = loc.nonsingular(*lims)
+        assert sorted(lims) == sorted(lims2)
+
+    @pytest.mark.parametrize("okval", acceptable_vmin_vmax)
+    def test_nonsingular_nok(self, okval):
+        """
+        Create logit locator, and test the nonsingular method for non
+        acceptable value
+        """
+        loc = mticker.LogitLocator()
+        vmin, vmax = (-1, okval)
+        vmin2, vmax2 = loc.nonsingular(vmin, vmax)
+        assert vmax2 == vmax
+        assert 0 < vmin2 < vmax2
+        vmin, vmax = (okval, 2)
+        vmin2, vmax2 = loc.nonsingular(vmin, vmax)
+        assert vmin2 == vmin
+        assert vmin2 < vmax2 < 1
 
 
 class TestFixedLocator:
