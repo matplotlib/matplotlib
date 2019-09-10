@@ -231,6 +231,10 @@ display units rather than in inches, which it previously did.
 The new behavior is the correct one given the uses of ``get_canvas_width_height``
 in the rest of the codebase.
 
+The pgf backend now includes images using ``\includegraphics`` instead of
+``\pgfimage`` if the version of ``graphicx`` is recent enough to support the
+``interpolate`` option (this is detected automatically).
+
 `~matplotlib.cbook`
 ~~~~~~~~~~~~~~~~~~~
 The default value of the "obj_type" parameter to ``cbook.warn_deprecated`` has
@@ -260,4 +264,3 @@ package, and Axes methods that take a ``norm`` parameter.
 
 If extra kwargs are passed to `.LogScale`, `TypeError` will now be
 raised instead of `ValueError`.
-
