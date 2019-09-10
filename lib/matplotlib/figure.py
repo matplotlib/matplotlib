@@ -23,7 +23,7 @@ from matplotlib import get_backend
 
 import matplotlib.artist as martist
 from matplotlib.artist import Artist, allow_rasterization
-from matplotlib.backend_bases import FigureCanvasBase
+from matplotlib.backend_bases import FigureCanvasBase, NonGuiException
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
 import matplotlib.image as mimage
@@ -33,17 +33,13 @@ from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
 from matplotlib.gridspec import GridSpec
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
-from matplotlib.projections import (get_projection_names,
-                                    process_projection_requirements)
+from matplotlib.projections import process_projection_requirements
 from matplotlib.text import Text, TextWithDash
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
 import matplotlib._layoutbox as layoutbox
-from matplotlib.backend_bases import NonGuiException
 
 _log = logging.getLogger(__name__)
-
-docstring.interpd.update(projection_names=get_projection_names())
 
 
 def _stale_figure_callback(self, val):
