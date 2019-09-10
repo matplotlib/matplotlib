@@ -1,6 +1,0 @@
-API changes
-```````````
-
-When more than `.Locator.MAXTICKS` ticks are generated, the behavior of
-`.Locator.raise_if_exceeds` changed from raising a RuntimeError to emitting a
-log at WARNING level.
