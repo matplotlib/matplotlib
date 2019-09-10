@@ -4,12 +4,7 @@ from matplotlib import rcParamsDefault
 
 
 def rcparam_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
-    try:
-        default_str = f' = {rcParamsDefault[text]!r}'
-    except KeyError:
-        # handling of generic references such as rcParams["figure.subplot.*"]
-        default_str = ''
-    rendered = nodes.Text(f'rcParams["{text}"]' + default_str)
+    rendered = nodes.Text(f'rcParams["{text}"]')
 
     source = inliner.document.attributes['source'].replace(sep, '/')
     rel_source = source.split('/doc/', 1)[1]
@@ -20,7 +15,10 @@ def rcparam_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
               f"?highlight={text}#a-sample-matplotlibrc-file")
 
     ref = nodes.reference(rawtext, rendered, refuri=refuri)
-    return [nodes.literal('', '', ref)], []
+    node_list = [nodes.literal('', '', ref)]
+    if text in rcParamsDefault:
+        node_list.append(nodes.Text(f' (default: {rcParamsDefault[text]!r})'))
+    return node_list, []
 
 
 def setup(app):
