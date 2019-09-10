@@ -5504,9 +5504,10 @@ optional.
             which can be set by *filterrad*. Additionally, the antigrain image
             resize filter is controlled by the parameter *filternorm*.
 
-        alpha : scalar, optional
+        alpha : scalar or array-like, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
-            This parameter is ignored for RGBA input data.
+            If *alpha* is an array, the alpha blending values are applied pixel
+            by pixel, and *alpha* must have the same shape as *X*.
 
         vmin, vmax : scalar, optional
             When using scalar data and no explicit *norm*, *vmin* and *vmax*
