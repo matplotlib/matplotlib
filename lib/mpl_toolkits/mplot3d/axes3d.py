@@ -1418,6 +1418,49 @@ class Axes3D(Axes):
     text3D = text
     text2D = Axes.text
 
+    def stem(self, xs, ys, zs, *args, zdir='z', **kwargs):
+        """
+        Plot a 3D stem plot.
+
+        Parameters
+        ----------
+        xs : scalar or 1D array-like
+            x coordinates of vertices; either one for all points or one
+            for each point
+        ys : scalar or 1D array-like
+            y coordinates of vertices; either one for all points or one
+            for each point
+        zs : scalar or 1D array-like
+            z coordinates of vertices; either one for all points or one
+            for each point.
+        zdir : {'x', 'y', 'z'}
+            When plotting 2D data, the direction to use as z ('x', 'y'
+            or 'z'); defaults to 'z'.
+        **kwargs
+            Other arguments are forwarded to `matplotlib.axes.Axes.stem`.
+        """
+        had_data = self.has_data()
+
+        if 'xs' in kwargs:
+            raise TypeError(
+                "stem() for multiple values for argument 'x'")
+        if 'ys' in kwargs:
+            raise TypeError(
+                "stem() for multiple values for argument 'y'")
+
+        xs = np.broadcast_to(xs, len(zs))
+        ys = np.broadcast_to(ys, len(zs))
+
+        lines = super().stem(xs, ys, *args, **kwargs)
+        for line in lines:
+            art3d.line_2d_to_3d(line, zs=zs, zdir=zdir)
+
+        xs, ys, zs = art3d.juggle_axes(xs, ys, zs, zdir)
+        self.auto_scale_xyz(xs, ys, zs, had_data)
+        return lines
+
+    stem3D = stem
+
     def plot(self, xs, ys, *args, zdir='z', **kwargs):
         """
         Plot 2D or 3D data.
