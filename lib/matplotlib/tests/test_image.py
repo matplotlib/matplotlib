@@ -674,8 +674,7 @@ def test_jpeg_alpha():
     plt.figimage(im)
 
     buff = io.BytesIO()
-    with rc_context({'savefig.facecolor': 'red'}):
-        plt.savefig(buff, transparent=True, format='jpg', dpi=300)
+    plt.savefig(buff, facecolor="red", format='jpg', dpi=300)
 
     buff.seek(0)
     image = Image.open(buff)
