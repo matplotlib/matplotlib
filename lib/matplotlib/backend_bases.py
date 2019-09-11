@@ -1167,11 +1167,11 @@ class TimerBase:
         """
         if args or kwargs:
             cbook.warn_deprecated(
-                "3.1", "In a future version, Timer.remove_callback will not "
-                "take *args, **kwargs anymore, but remove all callbacks where "
-                "the callable matches; to keep a specific callback removable "
-                "by itself, pass it to add_callback as a functools.partial "
-                "object.")
+                "3.1", message="In a future version, Timer.remove_callback "
+                "will not take *args, **kwargs anymore, but remove all "
+                "callbacks where the callable matches; to keep a specific "
+                "callback removable by itself, pass it to add_callback as a "
+                "functools.partial object.")
             self.callbacks.remove((func, args, kwargs))
         else:
             funcs = [c[0] for c in self.callbacks]
