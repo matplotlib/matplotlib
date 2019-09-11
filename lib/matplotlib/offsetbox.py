@@ -1308,7 +1308,7 @@ class AnchoredText(AnchoredOffsetbox):
             cbook.warn_deprecated(
                 "3.1", message="Mixing horizontalalignment or "
                 "verticalalignment with AnchoredText is not supported, "
-                "deprecated since %(version)s, and will raise an exception "
+                "deprecated since %(since)s, and will raise an exception "
                 "%(removal)s.")
 
         self.txt = TextArea(s, textprops=prop, minimumdescent=False)
