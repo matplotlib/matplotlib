@@ -159,12 +159,13 @@ class Patch(artist.Artist):
         Parameters
         ----------
         point : (float, float)
-            The point (x, y) to check in target coordinates of
-            ``self.get_transform()``. For patches added to a figure or axes,
-            these are display coordinates.
+            The point (x, y) to check, in target coordinates of
+            ``self.get_transform()``. These are display coordinates for patches
+            that are added to a figure or axes.
         radius : float, optional
-            Adds an additional margin on the patch in coordinates of transform.
-            target. See `.Path.contains_point` for further details.
+            Add an additional margin on the patch in target coordinates of
+            ``self.get_transform()``. See `.Path.contains_point` for further
+            details.
 
         Returns
         -------
@@ -173,9 +174,9 @@ class Patch(artist.Artist):
         Notes
         -----
         The proper use of this method depends on the transform of the patch.
-        Isolated patches do not have a transform. In this, the patch creation
-        coordinates and the point coordinates match. The follow checks that
-        the center of a circle is within the circle
+        Isolated patches do not have a transform. In this case, the patch
+        creation coordinates and the point coordinates match. The following
+        example checks that the center of a circle is within the circle
 
         >>> center = 0, 0
         >>> c = Circle(center, radius=1)
@@ -208,12 +209,13 @@ class Patch(artist.Artist):
         Parameters
         ----------
         points : (N, 2) array
-            The points to check in target coordinates of
-            ``self.get_transform()``. For patches added to a figure or axes,
-            these are display coordinates. Columns contain x and y values.
+            The points to check, in target coordinates of
+            ``self.get_transform()``. These are display coordinates for patches
+            that are added to a figure or axes. Columns contain x and y values.
         radius : float, optional
-            Adds an additional margin on the patch in coordinates of transform.
-            target. See `.Path.contains_points` for further details.
+            Add an additional margin on the patch in target coordinates of
+            ``self.get_transform()``. See `.Path.contains_point` for further
+            details.
 
         Returns
         -------
