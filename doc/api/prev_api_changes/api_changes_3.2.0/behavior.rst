@@ -111,6 +111,41 @@ at least two different bar heights, add the normal axes margins to them (in
 log-scale); if there is only a single bar height, expand the axes limits by one
 order of magnitude around it and then apply axes margins.
 
+
+Axes labels spanning multiple rows/columns
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``Axes.label_outer`` now correctly keep the x labels and tick labels visible
+for Axes spanning multiple rows, as long as they cover the last row of the Axes
+grid.  (This is consistent with keeping the y labels and tick labels visible
+for Axes spanning multiple columns as long as they cover the first column of
+the Axes grid.)
+
+The ``Axes.is_last_row`` and ``Axes.is_last_col`` methods now correctly return
+True for Axes spanning multiple rows, as long as they cover the last row or
+column respectively.  Again this is consistent with the behavior for axes
+covering the first row or column.
+
+The ``Axes.rowNum`` and ``Axes.colNum`` attributes are deprecated, as they only
+refer to the first grid cell covered by the Axes.  Instead, use the new
+``ax.get_subplotspec().rowspan`` and ``ax.get_subplotspec().colspan``
+properties, which are `range` objects indicating the whole span of rows and
+columns covered by the subplot.
+
+(Note that all methods and attributes mentioned here actually only exist on
+the ``Subplot`` subclass of `Axes`, which is used for grid-positioned Axes but
+not for Axes positioned directly in absolute coordinates.)
+
+The `.GridSpec` class gained the ``nrows`` and ``ncols`` properties as more
+explicit synonyms for the parameters returned by ``GridSpec.get_geometry``.
+
+
+Locators
+~~~~~~~~
+When more than `.Locator.MAXTICKS` ticks are generated, the behavior of
+`.Locator.raise_if_exceeds` changed from raising a RuntimeError to emitting a
+log at WARNING level.
+
 nonsingular Locators
 ~~~~~~~~~~~~~~~~~~~~
 ``Locator.nonsingular`` (introduced in mpl 3.1), ``DateLocator.nonsingular``, and
@@ -231,6 +266,10 @@ display units rather than in inches, which it previously did.
 The new behavior is the correct one given the uses of ``get_canvas_width_height``
 in the rest of the codebase.
 
+The pgf backend now includes images using ``\includegraphics`` instead of
+``\pgfimage`` if the version of ``graphicx`` is recent enough to support the
+``interpolate`` option (this is detected automatically).
+
 `~matplotlib.cbook`
 ~~~~~~~~~~~~~~~~~~~
 The default value of the "obj_type" parameter to ``cbook.warn_deprecated`` has
@@ -260,4 +299,3 @@ package, and Axes methods that take a ``norm`` parameter.
 
 If extra kwargs are passed to `.LogScale`, `TypeError` will now be
 raised instead of `ValueError`.
-

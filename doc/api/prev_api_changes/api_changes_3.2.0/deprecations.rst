@@ -139,6 +139,11 @@ Passing scalars to parameter *where* in ``fill_between()`` and
 broadcasted to the size of *x*. Non-matching sizes will raise a ``ValueError``
 in the future.
 
+``tight_layout()``
+~~~~~~~~~~~~~~~~~~
+The ``renderer`` parameter to `.Figure.tight_layout` is deprecated; this method
+now always uses the renderer instance cached on the `.Figure`.
+
 rcParams
 ~~~~~~~~
 The ``rcsetup.validate_animation_writer_path`` function is deprecated.
@@ -177,6 +182,8 @@ PGF
 ~~~
 ``backend_pgf.repl_escapetext`` and ``backend_pgf.repl_mathdefault`` are
 deprecated.
+
+``RendererPgf.latexManager`` is deprecated.
 
 FigureCanvas
 ~~~~~~~~~~~~
@@ -269,5 +276,3 @@ from the public API in future versions.
 
 ``style.core.is_style_file`` and ``style.core.iter_style_files``
 are deprecated.
-
-
