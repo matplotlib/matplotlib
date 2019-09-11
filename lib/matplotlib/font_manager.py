@@ -941,12 +941,11 @@ def _normalize_font_family(family):
 
 class FontManager:
     """
-    On import, the :class:`FontManager` singleton instance creates a
-    list of TrueType fonts based on the font properties: name, style,
-    variant, weight, stretch, and size.  The :meth:`findfont` method
-    does a nearest neighbor search to find the font that most closely
-    matches the specification.  If no good enough match is found, a
-    default font is returned.
+    On import, the `FontManager` singleton instance creates a list of ttf and
+    afm fonts and caches their `FontProperties`.  The `FontManager.findfont`
+    method does a nearest neighbor search to find the font that most closely
+    matches the specification.  If no good enough match is found, the default
+    font is returned.
     """
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires a existing font
@@ -1196,12 +1195,15 @@ class FontManager:
 
         directory : str, optional
             If given, only search this directory and its subdirectories.
+
         fallback_to_default : bool
             If True, will fallback to the default font family (usually
             "DejaVu Sans" or "Helvetica") if the first lookup hard-fails.
+
         rebuild_if_missing : bool
-            Whether to rebuild the font cache and search again if no match
-            is found.
+            Whether to rebuild the font cache and search again if the first
+            match appears to point to a nonexisting font (i.e., the font cache
+            contains outdated entries).
 
         Returns
         -------
@@ -1225,7 +1227,6 @@ class FontManager:
 
         .. _fontconfig patterns:
            https://www.freedesktop.org/software/fontconfig/fontconfig-user.html
-
         """
         # Pass the relevant rcParams (and the font manager, as `self`) to
         # _findfont_cached so to prevent using a stale cache entry after an
@@ -1282,7 +1283,8 @@ class FontManager:
                     prop.get_family(), self.defaultFamily[fontext])
                 default_prop = prop.copy()
                 default_prop.set_family(self.defaultFamily[fontext])
-                return self.findfont(default_prop, fontext, directory, False)
+                return self.findfont(default_prop, fontext, directory,
+                                     fallback_to_default=False)
             else:
                 # This is a hard fail -- we can't find anything reasonable,
                 # so just return the DejaVuSans.ttf
@@ -1300,7 +1302,7 @@ class FontManager:
                     'findfont: Found a missing font file.  Rebuilding cache.')
                 _rebuild()
                 return fontManager.findfont(
-                    prop, fontext, directory, True, False)
+                    prop, fontext, directory, rebuild_if_missing=False)
             else:
                 raise ValueError("No valid font could be found")
 
