@@ -1284,11 +1284,8 @@ class FontManager:
                 default_prop.set_family(self.defaultFamily[fontext])
                 return self.findfont(default_prop, fontext, directory, False)
             else:
-                # This is a hard fail -- we can't find anything reasonable,
-                # so just return the DejaVuSans.ttf
-                _log.warning('findfont: Could not match %s. Returning %s.',
-                             prop, self.defaultFont[fontext])
-                result = self.defaultFont[fontext]
+                raise ValueError(f"Failed to find font {prop}, and fallback "
+                                 f"to the default font was disabled")
         else:
             _log.debug('findfont: Matching %s to %s (%r) with score of %f.',
                        prop, best_font.name, best_font.fname, best_score)
