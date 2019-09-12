@@ -76,19 +76,6 @@ class Thumbnail(QtWidgets.QFrame):
         self.parent.set_large_image(self.index)
 
 
-class ListWidget(QtWidgets.QListWidget):
-    """
-    The list of files on the left-hand side
-    """
-    def __init__(self, parent):
-        super().__init__()
-        self.parent = parent
-        self.currentRowChanged.connect(self.change_row)
-
-    def change_row(self, i):
-        self.parent.set_entry(i)
-
-
 class EventFilter(QtCore.QObject):
     # A hack keypresses can be handled globally and aren't swallowed
     # by the individual widgets
@@ -119,10 +106,12 @@ class Dialog(QtWidgets.QDialog):
         event_filter = EventFilter(self)
         self.installEventFilter(event_filter)
 
-        self.filelist = ListWidget(self)
+        # The list of files on the left-hand side.
+        self.filelist = QtWidgets.QListWidget()
         self.filelist.setMinimumWidth(400)
         for entry in entries:
             self.filelist.addItem(entry.display)
+        self.filelist.currentRowChanged.connect(self.set_entry)
 
         thumbnails_box = QtWidgets.QWidget()
         thumbnails_layout = QtWidgets.QVBoxLayout()
