@@ -1710,7 +1710,19 @@ class Locator(TickHelper):
         return locs
 
     def nonsingular(self, v0, v1):
-        """Expand a range as needed to avoid singularities."""
+        """
+        Adjust a range as needed to avoid singularities.
+
+        This method gets called during autoscaling, with ``(v0, v1)`` set to
+        the data limits on the axes if the axes contains any data, or
+        ``(-inf, +inf)`` if not.
+
+        - If ``v0 == v1`` (possibly up to some floating point slop), this
+          method returns an expanded interval around this value.
+        - If ``(v0, v1) == (-inf, +inf)``, this method returns appropriate
+          default view limits.
+        - Otherwise, ``(v0, v1)`` is returned without modification.
+        """
         return mtransforms.nonsingular(v0, v1, expander=.05)
 
     def view_limits(self, vmin, vmax):
