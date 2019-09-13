@@ -2410,6 +2410,8 @@ class _AxesBase(martist.Artist):
 
             bb = mtransforms.BboxBase.union(dl)
             x0, x1 = getattr(bb, interval)
+            # If x0 and x1 are non finite, use the locator to figure out
+            # default limits.
             locator = axis.get_major_locator()
             x0, x1 = locator.nonsingular(x0, x1)
 
