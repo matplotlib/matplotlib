@@ -1,6 +1,6 @@
-===================
- axis and tick API
-===================
+*******************
+``matplotlib.axis``
+*******************
 
 .. contents:: Table of Contents
    :depth: 3
@@ -61,6 +61,9 @@ Formatters and Locators
    Axis.set_minor_formatter
    Axis.set_minor_locator
 
+   Axis.remove_overlapping_locs
+   Axis.get_remove_overlapping_locs
+   Axis.set_remove_overlapping_locs
 
 Axis Label
 ----------
@@ -103,7 +106,6 @@ Ticks, tick labels and Offset text
    Axis.get_gridlines
    Axis.grid
 
-   Axis.iter_ticks
    Axis.set_tick_params
 
    Axis.axis_date
@@ -365,7 +367,6 @@ YAxis
    YAxis.get_units
    YAxis.get_view_interval
    YAxis.grid
-   YAxis.iter_ticks
    YAxis.limit_range_for_scale
    YAxis.pan
    YAxis.reset_ticks
@@ -432,7 +433,6 @@ XAxis
    XAxis.get_units
    XAxis.get_view_interval
    XAxis.grid
-   XAxis.iter_ticks
    XAxis.limit_range_for_scale
    XAxis.pan
    XAxis.reset_ticks
@@ -470,7 +470,6 @@ Ticks
 
 
    Tick.add_callback
-   Tick.aname
    Tick.axes
    Tick.contains
    Tick.convert_xunits
@@ -536,7 +535,6 @@ Ticks
    Tick.zorder
 
    XTick.add_callback
-   XTick.aname
    XTick.axes
    XTick.contains
    XTick.convert_xunits
@@ -602,7 +600,6 @@ Ticks
    XTick.zorder
 
    YTick.add_callback
-   YTick.aname
    YTick.axes
    YTick.contains
    YTick.convert_xunits
@@ -678,7 +675,6 @@ Axis
 
 
    Axis.add_callback
-   Axis.aname
    Axis.axes
    Axis.contains
    Axis.convert_xunits
@@ -744,7 +740,6 @@ Axis
    Axis.zorder
 
    XAxis.add_callback
-   XAxis.aname
    XAxis.axes
    XAxis.contains
    XAxis.convert_xunits
@@ -810,7 +805,6 @@ Axis
    XAxis.zorder
 
    YAxis.add_callback
-   YAxis.aname
    YAxis.axes
    YAxis.contains
    YAxis.convert_xunits

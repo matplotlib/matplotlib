@@ -7,7 +7,7 @@ Axis within rectangular frame
 
 The following code demonstrates how to put a floating polar curve within a
 rectangular box. In order to get a better sense of polar curves, please look at
-demo_curvelinear_grid.py.
+:doc:`/gallery/axisartist/demo_curvelinear_grid`.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -64,9 +64,7 @@ def curvelinear_test2(fig):
 
     ax1.grid(True)
 
-fig = plt.figure(1, figsize=(5, 5))
-fig.clf()
 
+fig = plt.figure(figsize=(5, 5))
 curvelinear_test2(fig)
-
 plt.show()

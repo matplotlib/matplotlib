@@ -23,6 +23,7 @@ def plot_scatter(ax, prng, nb_samples=100):
         x, y = prng.normal(loc=mu, scale=sigma, size=(2, nb_samples))
         ax.plot(x, y, ls='none', marker=marker)
     ax.set_xlabel('X-label')
+    ax.set_title('Axes title')
     return ax
 
 
@@ -91,8 +92,8 @@ def plot_histograms(ax, prng, nb_samples=10000):
         ax.hist(values, histtype="stepfilled", bins=30,
                 alpha=0.8, density=True)
     # Add a small annotation.
-    ax.annotate('Annotation', xy=(0.25, 4.25), xycoords='data',
-                xytext=(0.9, 0.9), textcoords='axes fraction',
+    ax.annotate('Annotation', xy=(0.25, 4.25),
+                xytext=(0.9, 0.9), textcoords=ax.transAxes,
                 va="top", ha="right",
                 bbox=dict(boxstyle="round", alpha=0.2),
                 arrowprops=dict(
@@ -115,16 +116,16 @@ def plot_figure(style_label=""):
     (fig_width, fig_height) = plt.rcParams['figure.figsize']
     fig_size = [fig_width * 2, fig_height / 2]
 
-    fig, axes = plt.subplots(ncols=6, nrows=1, num=style_label,
-                             figsize=fig_size, squeeze=True)
-    axes[0].set_ylabel(style_label)
+    fig, axs = plt.subplots(ncols=6, nrows=1, num=style_label,
+                            figsize=fig_size, squeeze=True)
+    axs[0].set_ylabel(style_label)
 
-    plot_scatter(axes[0], prng)
-    plot_image_and_patch(axes[1], prng)
-    plot_bar_graphs(axes[2], prng)
-    plot_colored_circles(axes[3], prng)
-    plot_colored_sinusoidal_lines(axes[4])
-    plot_histograms(axes[5], prng)
+    plot_scatter(axs[0], prng)
+    plot_image_and_patch(axs[1], prng)
+    plot_bar_graphs(axs[2], prng)
+    plot_colored_circles(axs[3], prng)
+    plot_colored_sinusoidal_lines(axs[4])
+    plot_histograms(axs[5], prng)
 
     fig.tight_layout()
 

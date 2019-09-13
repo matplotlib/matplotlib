@@ -1,14 +1,23 @@
 import numpy as np
-from matplotlib.transforms import Bbox
-from . import clip_path
-clip_line_to_rect = clip_path.clip_line_to_rect
 
-import matplotlib.ticker as mticker
-from matplotlib.transforms import Transform
+from matplotlib import cbook, ticker as mticker
+from matplotlib.transforms import Bbox, Transform
+from .clip_path import clip_line_to_rect
+
+
+def _deprecate_factor_none(factor):
+    # After the deprecation period, calls to _deprecate_factor_none can just be
+    # removed.
+    if factor is None:
+        cbook.warn_deprecated(
+            "3.2",
+            message="factor=None is deprecated; use/return factor=1 instead")
+        factor = 1
+    return factor
+
 
 # extremes finder
-
-class ExtremeFinderSimple(object):
+class ExtremeFinderSimple:
     def __init__(self, nx, ny):
         self.nx, self.ny = nx, ny
 
@@ -29,9 +38,9 @@ class ExtremeFinderSimple(object):
         return self._add_pad(lon_min, lon_max, lat_min, lat_max)
 
     def _add_pad(self, lon_min, lon_max, lat_min, lat_max):
-        """ a small amount of padding is added because the current
-        clipping algorithms seems to fail when the gridline ends at
-        the bbox boundary.
+        """
+        A small amount of padding is added because the current clipping
+        algorithms seems to fail when the gridline ends at the bbox boundary.
         """
         dlon = (lon_max - lon_min) / self.nx
         dlat = (lat_max - lat_min) / self.ny
@@ -42,31 +51,40 @@ class ExtremeFinderSimple(object):
         return lon_min, lon_max, lat_min, lat_max
 
 
-
-class GridFinderBase(object):
+class GridFinder:
     def __init__(self,
-                 extreme_finder,
-                 grid_locator1,
-                 grid_locator2,
+                 transform,
+                 extreme_finder=None,
+                 grid_locator1=None,
+                 grid_locator2=None,
                  tick_formatter1=None,
                  tick_formatter2=None):
         """
+        transform : transform from the image coordinate (which will be
         the transData of the axes to the world coordinate.
+
+        or transform = (transform_xy, inv_transform_xy)
+
         locator1, locator2 : grid locator for 1st and 2nd axis.
-
-        Derived must define "transform_xy, inv_transform_xy"
-        (may use update_transform)
         """
-        super().__init__()
-
+        if extreme_finder is None:
+            extreme_finder = ExtremeFinderSimple(20, 20)
+        if grid_locator1 is None:
+            grid_locator1 = MaxNLocator()
+        if grid_locator2 is None:
+            grid_locator2 = MaxNLocator()
+        if tick_formatter1 is None:
+            tick_formatter1 = FormatterPrettyPrint()
+        if tick_formatter2 is None:
+            tick_formatter2 = FormatterPrettyPrint()
         self.extreme_finder = extreme_finder
         self.grid_locator1 = grid_locator1
         self.grid_locator2 = grid_locator2
         self.tick_formatter1 = tick_formatter1
         self.tick_formatter2 = tick_formatter2
+        self.update_transform(transform)
 
-    def get_grid_info(self,
-                      x1, y1, x2, y2):
+    def get_grid_info(self, x1, y1, x2, y2):
         """
         lon_values, lat_values : list of grid values. if integer is given,
                            rough number of grids in each direction.
@@ -78,20 +96,11 @@ class GridFinderBase(object):
         # i.e., gridline of lon=0 will be drawn from lat_min to lat_max.
 
         lon_min, lon_max, lat_min, lat_max = extremes
-        lon_levs, lon_n, lon_factor = \
-                  self.grid_locator1(lon_min, lon_max)
-        lat_levs, lat_n, lat_factor = \
-                  self.grid_locator2(lat_min, lat_max)
+        lon_levs, lon_n, lon_factor = self.grid_locator1(lon_min, lon_max)
+        lat_levs, lat_n, lat_factor = self.grid_locator2(lat_min, lat_max)
 
-        if lon_factor is None:
-            lon_values = np.asarray(lon_levs[:lon_n])
-        else:
-            lon_values = np.asarray(lon_levs[:lon_n]/lon_factor)
-        if lat_factor is None:
-            lat_values = np.asarray(lat_levs[:lat_n])
-        else:
-            lat_values = np.asarray(lat_levs[:lat_n]/lat_factor)
-
+        lon_values = lon_levs[:lon_n] / _deprecate_factor_none(lon_factor)
+        lat_values = lat_levs[:lat_n] / _deprecate_factor_none(lat_factor)
 
         lon_lines, lat_lines = self._get_raw_grid_lines(lon_values,
                                                         lat_values,
@@ -102,50 +111,43 @@ class GridFinderBase(object):
         ddy = (y2-y1)*1.e-10
         bb = Bbox.from_extents(x1-ddx, y1-ddy, x2+ddx, y2+ddy)
 
-        grid_info = {}
-        grid_info["extremes"] = extremes
-        grid_info["lon_lines"] = lon_lines
-        grid_info["lat_lines"] = lat_lines
+        grid_info = {
+            "extremes": extremes,
+            "lon_lines": lon_lines,
+            "lat_lines": lat_lines,
+            "lon": self._clip_grid_lines_and_find_ticks(
+                lon_lines, lon_values, lon_levs, bb),
+            "lat": self._clip_grid_lines_and_find_ticks(
+                lat_lines, lat_values, lat_levs, bb),
+        }
 
-        grid_info["lon"] = self._clip_grid_lines_and_find_ticks(lon_lines,
-                                                                lon_values,
-                                                                lon_levs,
-                                                                bb)
-
-        grid_info["lat"] = self._clip_grid_lines_and_find_ticks(lat_lines,
-                                                                lat_values,
-                                                                lat_levs,
-                                                                bb)
-
-        tck_labels = grid_info["lon"]["tick_labels"] = dict()
+        tck_labels = grid_info["lon"]["tick_labels"] = {}
         for direction in ["left", "bottom", "right", "top"]:
             levs = grid_info["lon"]["tick_levels"][direction]
-            tck_labels[direction] = self.tick_formatter1(direction,
-                                                         lon_factor, levs)
+            tck_labels[direction] = self.tick_formatter1(
+                direction, lon_factor, levs)
 
-        tck_labels = grid_info["lat"]["tick_labels"] = dict()
+        tck_labels = grid_info["lat"]["tick_labels"] = {}
         for direction in ["left", "bottom", "right", "top"]:
             levs = grid_info["lat"]["tick_levels"][direction]
-            tck_labels[direction] = self.tick_formatter2(direction,
-                                                         lat_factor, levs)
+            tck_labels[direction] = self.tick_formatter2(
+                direction, lat_factor, levs)
 
         return grid_info
-
 
     def _get_raw_grid_lines(self,
                             lon_values, lat_values,
                             lon_min, lon_max, lat_min, lat_max):
 
-        lons_i = np.linspace(lon_min, lon_max, 100) # for interpolation
+        lons_i = np.linspace(lon_min, lon_max, 100)  # for interpolation
         lats_i = np.linspace(lat_min, lat_max, 100)
 
-        lon_lines = [self.transform_xy(np.zeros_like(lats_i) + lon, lats_i)
+        lon_lines = [self.transform_xy(np.full_like(lats_i, lon), lats_i)
                      for lon in lon_values]
-        lat_lines = [self.transform_xy(lons_i, np.zeros_like(lons_i) + lat)
+        lat_lines = [self.transform_xy(lons_i, np.full_like(lons_i, lat))
                      for lat in lat_values]
 
         return lon_lines, lat_lines
-
 
     def _clip_grid_lines_and_find_ticks(self, lines, values, levs, bb):
         gi = {
@@ -173,19 +175,18 @@ class GridFinderBase(object):
 
         return gi
 
-
     def update_transform(self, aux_trans):
         if isinstance(aux_trans, Transform):
             def transform_xy(x, y):
                 ll1 = np.column_stack([x, y])
                 ll2 = aux_trans.transform(ll1)
-                lon, lat = ll2[:,0], ll2[:,1]
+                lon, lat = ll2[:, 0], ll2[:, 1]
                 return lon, lat
 
             def inv_transform_xy(x, y):
                 ll1 = np.column_stack([x, y])
                 ll2 = aux_trans.inverted().transform(ll1)
-                lon, lat = ll2[:,0], ll2[:,1]
+                lon, lat = ll2[:, 0], ll2[:, 1]
                 return lon, lat
 
         else:
@@ -193,7 +194,6 @@ class GridFinderBase(object):
 
         self.transform_xy = transform_xy
         self.inv_transform_xy = inv_transform_xy
-
 
     def update(self, **kw):
         for k in kw:
@@ -207,40 +207,17 @@ class GridFinderBase(object):
                 raise ValueError("unknown update property '%s'" % k)
 
 
-class GridFinder(GridFinderBase):
-
+@cbook.deprecated("3.2")
+class GridFinderBase(GridFinder):
     def __init__(self,
-                 transform,
-                 extreme_finder=None,
+                 extreme_finder,
                  grid_locator1=None,
                  grid_locator2=None,
                  tick_formatter1=None,
                  tick_formatter2=None):
-        """
-        transform : transform from the image coordinate (which will be
-        the transData of the axes to the world coordinate.
-
-        or transform = (transform_xy, inv_transform_xy)
-
-        locator1, locator2 : grid locator for 1st and 2nd axis.
-        """
-        if extreme_finder is None:
-            extreme_finder = ExtremeFinderSimple(20, 20)
-        if grid_locator1 is None:
-            grid_locator1 = MaxNLocator()
-        if grid_locator2 is None:
-            grid_locator2 = MaxNLocator()
-        if tick_formatter1 is None:
-            tick_formatter1 = FormatterPrettyPrint()
-        if tick_formatter2 is None:
-            tick_formatter2 = FormatterPrettyPrint()
-        super().__init__(
-            extreme_finder,
-            grid_locator1,
-            grid_locator2,
-            tick_formatter1,
-            tick_formatter2)
-        self.update_transform(transform)
+        super().__init__((None, None), extreme_finder,
+                         grid_locator1, grid_locator2,
+                         tick_formatter1, tick_formatter2)
 
 
 class MaxNLocator(mticker.MaxNLocator):
@@ -254,42 +231,34 @@ class MaxNLocator(mticker.MaxNLocator):
                                      integer=integer,
                                      symmetric=symmetric, prune=prune)
         self.create_dummy_axis()
-        self._factor = None
+        self._factor = 1
 
     def __call__(self, v1, v2):
-        if self._factor is not None:
-            self.set_bounds(v1*self._factor, v2*self._factor)
-            locs = mticker.MaxNLocator.__call__(self)
-            return np.array(locs), len(locs), self._factor
-        else:
-            self.set_bounds(v1, v2)
-            locs = mticker.MaxNLocator.__call__(self)
-            return np.array(locs), len(locs), None
+        self.set_bounds(v1 * self._factor, v2 * self._factor)
+        locs = mticker.MaxNLocator.__call__(self)
+        return np.array(locs), len(locs), self._factor
 
     def set_factor(self, f):
-        self._factor = f
+        self._factor = _deprecate_factor_none(f)
 
 
-class FixedLocator(object):
+class FixedLocator:
     def __init__(self, locs):
         self._locs = locs
-        self._factor = None
+        self._factor = 1
 
     def __call__(self, v1, v2):
-        if self._factor is None:
-            v1, v2 = sorted([v1, v2])
-        else:
-            v1, v2 = sorted([v1*self._factor, v2*self._factor])
+        v1, v2 = sorted([v1 * self._factor, v2 * self._factor])
         locs = np.array([l for l in self._locs if v1 <= l <= v2])
         return locs, len(locs), self._factor
 
     def set_factor(self, f):
-        self._factor = f
+        self._factor = _deprecate_factor_none(f)
 
 
 # Tick Formatter
 
-class FormatterPrettyPrint(object):
+class FormatterPrettyPrint:
     def __init__(self, useMathText=True):
         self._fmt = mticker.ScalarFormatter(
             useMathText=useMathText, useOffset=False)
@@ -298,15 +267,11 @@ class FormatterPrettyPrint(object):
 
     def __call__(self, direction, factor, values):
         if not self._ignore_factor:
-            if factor is None:
-                factor = 1.
-            values = [v/factor for v in values]
-        #values = [v for v in values]
-        self._fmt.set_locs(values)
-        return [self._fmt(v) for v in values]
+            values = [v / _deprecate_factor_none(factor) for v in values]
+        return self._fmt.format_ticks(values)
 
 
-class DictFormatter(object):
+class DictFormatter:
     def __init__(self, format_dict, formatter=None):
         """
         format_dict : dictionary for format strings to be used.
@@ -320,13 +285,10 @@ class DictFormatter(object):
         """
         factor is ignored if value is found in the dictionary
         """
-
         if self._fallback_formatter:
             fallback_strings = self._fallback_formatter(
                 direction, factor, values)
         else:
-            fallback_strings = [""]*len(values)
-
-        r = [self._format_dict.get(k, v) for k, v in zip(values,
-                                                         fallback_strings)]
-        return r
+            fallback_strings = [""] * len(values)
+        return [self._format_dict.get(k, v)
+                for k, v in zip(values, fallback_strings)]

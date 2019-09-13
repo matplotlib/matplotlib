@@ -19,15 +19,14 @@ data = np.vstack([
 
 gammas = [0.8, 0.5, 0.3]
 
-fig, axes = plt.subplots(nrows=2, ncols=2)
+fig, axs = plt.subplots(nrows=2, ncols=2)
 
-axes[0, 0].set_title('Linear normalization')
-axes[0, 0].hist2d(data[:, 0], data[:, 1], bins=100)
+axs[0, 0].set_title('Linear normalization')
+axs[0, 0].hist2d(data[:, 0], data[:, 1], bins=100)
 
-for ax, gamma in zip(axes.flat[1:], gammas):
+for ax, gamma in zip(axs.flat[1:], gammas):
     ax.set_title(r'Power law $(\gamma=%1.1f)$' % gamma)
-    ax.hist2d(data[:, 0], data[:, 1],
-              bins=100, norm=mcolors.PowerNorm(gamma))
+    ax.hist2d(data[:, 0], data[:, 1], bins=100, norm=mcolors.PowerNorm(gamma))
 
 fig.tight_layout()
 

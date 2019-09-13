@@ -74,6 +74,7 @@ class FT2Font
     void set_text(
         size_t N, uint32_t *codepoints, double angle, FT_Int32 flags, std::vector<double> &xys);
     int get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode);
+    void set_kerning_factor(int factor);
     void load_char(long charcode, FT_Int32 flags);
     void load_glyph(FT_UInt glyph_index, FT_Int32 flags);
     void get_width_height(long *width, long *height);
@@ -117,18 +118,12 @@ class FT2Font
   private:
     FT2Image image;
     FT_Face face;
-    FT_Matrix matrix; /* transformation matrix */
     FT_Vector pen;    /* untransformed origin  */
-    FT_Error error;
     std::vector<FT_Glyph> glyphs;
-    std::vector<FT_Vector> pos;
     FT_BBox bbox;
     FT_Pos advance;
-    double ptsize;
-    double dpi;
     long hinting_factor;
-
-    void set_scalable_attributes();
+    int kerning_factor;
 
     // prevent copying
     FT2Font(const FT2Font &);

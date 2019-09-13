@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
+import subprocess
 import sys
+import weakref
 
 import numpy as np
 import pytest
@@ -74,8 +76,11 @@ def test_null_movie_writer():
 
 
 def test_movie_writer_dpi_default():
-    # Test setting up movie writer with figure.dpi default.
+    class DummyMovieWriter(animation.MovieWriter):
+        def _run(self):
+            pass
 
+    # Test setting up movie writer with figure.dpi default.
     fig = plt.figure()
 
     filename = "unused.null"
@@ -84,11 +89,7 @@ def test_movie_writer_dpi_default():
     bitrate = 1
     extra_args = ["unused"]
 
-    def run():
-        pass
-
-    writer = animation.MovieWriter(fps, codec, bitrate, extra_args)
-    writer._run = run
+    writer = DummyMovieWriter(fps, codec, bitrate, extra_args)
     writer.setup(fig, filename)
     assert writer.dpi == fig.dpi
 
@@ -122,10 +123,8 @@ WRITER_OUTPUT = [
     ('html', 'movie.html'),
     ('null', 'movie.null')
 ]
-if sys.version_info >= (3, 6):
-    from pathlib import Path
-    WRITER_OUTPUT += [
-        (writer, Path(output)) for writer, output in WRITER_OUTPUT]
+WRITER_OUTPUT += [
+    (writer, Path(output)) for writer, output in WRITER_OUTPUT]
 
 
 # Smoke test for saving animations.  In the future, we should probably
@@ -186,34 +185,24 @@ def test_no_length_frames():
 
 
 def test_movie_writer_registry():
-    ffmpeg_path = mpl.rcParams['animation.ffmpeg_path']
-    # Not sure about the first state as there could be some writer
-    # which set rcparams
-    # assert not animation.writers._dirty
     assert len(animation.writers._registered) > 0
-    animation.writers.list()  # resets dirty state
-    assert not animation.writers._dirty
     mpl.rcParams['animation.ffmpeg_path'] = "not_available_ever_xxxx"
-    assert animation.writers._dirty
-    animation.writers.list()  # resets
-    assert not animation.writers._dirty
     assert not animation.writers.is_available("ffmpeg")
     # something which is guaranteed to be available in path
     # and exits immediately
     bin = "true" if sys.platform != 'win32' else "where"
     mpl.rcParams['animation.ffmpeg_path'] = bin
-    assert animation.writers._dirty
-    animation.writers.list()  # resets
-    assert not animation.writers._dirty
     assert animation.writers.is_available("ffmpeg")
-    mpl.rcParams['animation.ffmpeg_path'] = ffmpeg_path
 
 
-@pytest.mark.skipif(
-    not animation.writers.is_available(mpl.rcParams["animation.writer"]),
-    reason="animation writer not installed")
-@pytest.mark.parametrize("method_name", ["to_html5_video", "to_jshtml"])
+@pytest.mark.parametrize(
+    "method_name",
+    [pytest.param("to_html5_video", marks=pytest.mark.skipif(
+        not animation.writers.is_available(mpl.rcParams["animation.writer"]),
+        reason="animation writer not installed")),
+     "to_jshtml"])
 def test_embed_limit(method_name, caplog, tmpdir):
+    caplog.set_level("WARNING")
     with tmpdir.as_cwd():
         with mpl.rc_context({"animation.embed_limit": 1e-6}):  # ~1 byte.
             getattr(make_animation(frames=1), method_name)()
@@ -223,40 +212,80 @@ def test_embed_limit(method_name, caplog, tmpdir):
             and record.levelname == "WARNING")
 
 
-@pytest.mark.skipif(
-    not animation.writers.is_available(mpl.rcParams["animation.writer"]),
-    reason="animation writer not installed")
 @pytest.mark.parametrize(
     "method_name",
-    ["to_html5_video",
-     pytest.mark.xfail("to_jshtml")])  # Needs to be fixed.
+    [pytest.param("to_html5_video", marks=pytest.mark.skipif(
+        not animation.writers.is_available(mpl.rcParams["animation.writer"]),
+        reason="animation writer not installed")),
+     "to_jshtml"])
 def test_cleanup_temporaries(method_name, tmpdir):
     with tmpdir.as_cwd():
         getattr(make_animation(frames=1), method_name)()
         assert list(Path(str(tmpdir)).iterdir()) == []
 
 
-# Currently, this fails with a ValueError after we try to communicate() twice
-# with the Popen.
-@pytest.mark.xfail
 @pytest.mark.skipif(os.name != "posix", reason="requires a POSIX OS")
 def test_failing_ffmpeg(tmpdir, monkeypatch):
     """
-    Test that we correctly raise an OSError when ffmpeg fails.
+    Test that we correctly raise a CalledProcessError when ffmpeg fails.
 
     To do so, mock ffmpeg using a simple executable shell script that
     succeeds when called with no arguments (so that it gets registered by
     `isAvailable`), but fails otherwise, and add it to the $PATH.
     """
-    try:
-        with tmpdir.as_cwd():
-            monkeypatch.setenv("PATH", ".:" + os.environ["PATH"])
-            exe_path = Path(tmpdir, "ffmpeg")
-            exe_path.write_text("#!/bin/sh\n"
-                                "[[ $@ -eq 0 ]]\n")
-            os.chmod(str(exe_path), 0o755)
-            animation.writers.reset_available_writers()
-            with pytest.raises(OSError):
-                make_animation().save("test.mpeg")
-    finally:
-        animation.writers.reset_available_writers()
+    with tmpdir.as_cwd():
+        monkeypatch.setenv("PATH", ".:" + os.environ["PATH"])
+        exe_path = Path(str(tmpdir), "ffmpeg")
+        exe_path.write_text("#!/bin/sh\n"
+                            "[[ $@ -eq 0 ]]\n")
+        os.chmod(str(exe_path), 0o755)
+        with pytest.raises(subprocess.CalledProcessError):
+            make_animation().save("test.mpeg")
+
+
+@pytest.mark.parametrize("cache_frame_data, weakref_assertion_fn", [
+    pytest.param(
+        False, lambda ref: ref is None, id='cache_frame_data_is_disabled'),
+    pytest.param(
+        True, lambda ref: ref is not None, id='cache_frame_data_is_enabled'),
+])
+def test_funcanimation_holding_frames(cache_frame_data, weakref_assertion_fn):
+    fig, ax = plt.subplots()
+    line, = ax.plot([], [])
+
+    class Frame(dict):
+        # this subclassing enables to use weakref.ref()
+        pass
+
+    def init():
+        line.set_data([], [])
+        return line,
+
+    def animate(frame):
+        line.set_data(frame['x'], frame['y'])
+        return line,
+
+    frames_generated = []
+
+    def frames_generator():
+        for _ in range(5):
+            x = np.linspace(0, 10, 100)
+            y = np.random.rand(100)
+
+            frame = Frame(x=x, y=y)
+
+            # collect weak references to frames
+            # to validate their references later
+            frames_generated.append(weakref.ref(frame))
+
+            yield frame
+
+    anim = animation.FuncAnimation(fig, animate, init_func=init,
+                                   frames=frames_generator,
+                                   cache_frame_data=cache_frame_data)
+
+    writer = NullMovieWriter()
+    anim.save('unused.null', writer=writer)
+    assert len(frames_generated) == 5
+    for f in frames_generated:
+        assert weakref_assertion_fn(f())

@@ -7,7 +7,7 @@
  * See LICENSE/LICENSE.PIL for details.
  *
  */
-
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <cstdlib>
 #include <cstdio>
@@ -15,8 +15,14 @@
 
 #include <agg_basics.h> // agg:int8u
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 // Include our own excerpts from the Tcl / Tk headers
 #include "_tkmini.h"
+
+#include "py_converters.h"
 
 #if defined(_MSC_VER)
 #  define IMG_FORMAT "%d %d %Iu"
@@ -40,169 +46,6 @@ static Tk_FindPhoto_t TK_FIND_PHOTO;
 static Tk_PhotoPutBlock_NoComposite_t TK_PHOTO_PUT_BLOCK_NO_COMPOSITE;
 static Tk_PhotoBlank_t TK_PHOTO_BLANK;
 
-static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
-        argc, char **argv)
-{
-    Tk_PhotoHandle photo;
-    Tk_PhotoImageBlock block;
-
-    // vars for blitting
-
-    size_t pdata;
-    int wdata, hdata, bbox_parse;
-    float x1, x2, y1, y2;
-    bool has_bbox;
-    agg::int8u *destbuffer, *buffer;
-    int destx, desty, destwidth, destheight, deststride;
-
-    long mode;
-    long nval;
-    if (TK_MAIN_WINDOW(interp) == NULL) {
-        // Will throw a _tkinter.TclError with "this isn't a Tk application"
-        return TCL_ERROR;
-    }
-
-    if (argc != 5) {
-        TCL_APPEND_RESULT(interp, "usage: ", argv[0], " destPhoto srcImage", (char *)NULL);
-        return TCL_ERROR;
-    }
-
-    /* get Tcl PhotoImage handle */
-    photo = TK_FIND_PHOTO(interp, argv[1]);
-    if (photo == NULL) {
-        TCL_APPEND_RESULT(interp, "destination photo must exist", (char *)NULL);
-        return TCL_ERROR;
-    }
-    /* get buffer from str which is "height width ptr" */
-    if (sscanf(argv[2], IMG_FORMAT, &hdata, &wdata, &pdata) != 3) {
-        TCL_APPEND_RESULT(interp,
-                          "error reading data, expected height width ptr",
-                          (char *)NULL);
-        return TCL_ERROR;
-    }
-    buffer = (agg::int8u*)pdata;
-
-    /* get array mode (0=mono, 1=rgb, 2=rgba) */
-    mode = atol(argv[3]);
-    if ((mode != 0) && (mode != 1) && (mode != 2)) {
-        TCL_APPEND_RESULT(interp, "illegal image mode", (char *)NULL);
-        return TCL_ERROR;
-    }
-
-    /* check for bbox/blitting */
-    bbox_parse = sscanf(argv[4], BBOX_FORMAT, &x1, &x2, &y1, &y2);
-    if (bbox_parse == 4) {
-        has_bbox = true;
-    }
-    else if ((bbox_parse == 1) && (x1 == 0)){
-        has_bbox = false;
-    } else {
-        TCL_APPEND_RESULT(interp, "illegal bbox", (char *)NULL);
-        return TCL_ERROR;
-    }
-
-    if (has_bbox) {
-        int srcstride = wdata * 4;
-        destx = (int)x1;
-        desty = (int)(hdata - y2);
-        destwidth = (int)(x2 - x1);
-        destheight = (int)(y2 - y1);
-        deststride = 4 * destwidth;
-
-        destbuffer = new agg::int8u[deststride * destheight];
-        if (destbuffer == NULL) {
-            TCL_APPEND_RESULT(interp, "could not allocate memory", (char *)NULL);
-            return TCL_ERROR;
-        }
-
-        for (int i = 0; i < destheight; ++i) {
-            memcpy(destbuffer + (deststride * i),
-                   &buffer[(i + desty) * srcstride + (destx * 4)],
-                   deststride);
-        }
-    } else {
-        destbuffer = NULL;
-        destx = desty = destwidth = destheight = deststride = 0;
-    }
-
-    /* setup tkblock */
-    block.pixelSize = 1;
-    if (mode == 0) {
-        block.offset[0] = block.offset[1] = block.offset[2] = 0;
-        nval = 1;
-    } else {
-        block.offset[0] = 0;
-        block.offset[1] = 1;
-        block.offset[2] = 2;
-        if (mode == 1) {
-            block.offset[3] = 0;
-            block.pixelSize = 3;
-            nval = 3;
-        } else {
-            block.offset[3] = 3;
-            block.pixelSize = 4;
-            nval = 4;
-        }
-    }
-
-    if (has_bbox) {
-        block.width = destwidth;
-        block.height = destheight;
-        block.pitch = deststride;
-        block.pixelPtr = destbuffer;
-
-        TK_PHOTO_PUT_BLOCK_NO_COMPOSITE(photo, &block, destx, desty,
-                destwidth, destheight);
-        delete[] destbuffer;
-
-    } else {
-        block.width = wdata;
-        block.height = hdata;
-        block.pitch = (int)block.width * nval;
-        block.pixelPtr = buffer;
-
-        /* Clear current contents */
-        TK_PHOTO_BLANK(photo);
-        /* Copy opaque block to photo image, and leave the rest to TK */
-        TK_PHOTO_PUT_BLOCK_NO_COMPOSITE(photo, &block, 0, 0, block.width,
-                block.height);
-    }
-
-    return TCL_OK;
-}
-
-static PyObject *_tkinit(PyObject *self, PyObject *args)
-{
-    Tcl_Interp *interp;
-    TkappObject *app;
-
-    PyObject *arg;
-    int is_interp;
-    if (!PyArg_ParseTuple(args, "Oi", &arg, &is_interp)) {
-        return NULL;
-    }
-
-    if (is_interp) {
-        interp = (Tcl_Interp *)PyLong_AsVoidPtr(arg);
-    } else {
-        /* Do it the hard way.  This will break if the TkappObject
-           layout changes */
-        app = (TkappObject *)arg;
-        interp = app->interp;
-    }
-
-    /* This will bomb if interp is invalid... */
-
-    TCL_CREATE_COMMAND(interp,
-                       "PyAggImagePhoto",
-                       (Tcl_CmdProc *)PyAggImagePhoto,
-                       (ClientData)0,
-                       (Tcl_CmdDeleteProc *)NULL);
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
 static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
 {
     Tcl_Interp *interp;
@@ -213,9 +56,9 @@ static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
     int x1, x2, y1, y2;
     Tk_PhotoHandle photo;
     Tk_PhotoImageBlock block;
-    if (!PyArg_ParseTuple(args, "ns(iin)(iiii)(iiii):blit",
-                          &interp, &photo_name,
-                          &height, &width, &data_ptr,
+    if (!PyArg_ParseTuple(args, "O&s(iiO&)(iiii)(iiii):blit",
+                          convert_voidptr, &interp, &photo_name,
+                          &height, &width, convert_voidptr, &data_ptr,
                           &o0, &o1, &o2, &o3,
                           &x1, &x2, &y1, &y2)) {
         goto exit;
@@ -224,6 +67,11 @@ static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_ValueError, "Failed to extract Tk_PhotoHandle");
         goto exit;
     }
+    if (0 > y1 || y1 > y2 || y2 > height || 0 > x1 || x1 > x2 || x2 > width) {
+        PyErr_SetString(PyExc_ValueError, "Attempting to draw out of bounds");
+        goto exit;
+    }
+
     block.pixelPtr = data_ptr + 4 * ((height - y2) * width + x1);
     block.width = x2 - x1;
     block.height = y2 - y1;
@@ -243,15 +91,44 @@ exit:
     }
 }
 
+#ifdef _WIN32
+static PyObject *
+Win32_GetForegroundWindow(PyObject *module, PyObject *args)
+{
+    HWND handle = GetForegroundWindow();
+    if (!PyArg_ParseTuple(args, ":GetForegroundWindow")) {
+        return NULL;
+    }
+    return PyLong_FromSize_t((size_t)handle);
+}
+
+static PyObject *
+Win32_SetForegroundWindow(PyObject *module, PyObject *args)
+{
+    HWND handle;
+    if (!PyArg_ParseTuple(args, "n:SetForegroundWindow", &handle)) {
+        return NULL;
+    }
+    if (!SetForegroundWindow(handle)) {
+        return PyErr_Format(PyExc_RuntimeError, "Error setting window");
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+#endif
+
 static PyMethodDef functions[] = {
     /* Tkinter interface stuff */
-    { "tkinit", (PyCFunction)_tkinit, 1 },
-    { "blit", (PyCFunction)mpl_tk_blit, 1 },
+    { "blit", (PyCFunction)mpl_tk_blit, METH_VARARGS },
+#ifdef _WIN32
+    { "Win32_GetForegroundWindow", (PyCFunction)Win32_GetForegroundWindow, METH_VARARGS },
+    { "Win32_SetForegroundWindow", (PyCFunction)Win32_SetForegroundWindow, METH_VARARGS },
+#endif
     { NULL, NULL } /* sentinel */
 };
 
 // Functions to fill global TCL / Tk function pointers by dynamic loading
-#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
+#ifdef _WIN32
 
 /*
  * On Windows, we can't load the tkinter module to get the TCL or Tk symbols,
@@ -260,7 +137,6 @@ static PyMethodDef functions[] = {
  * Python, we scan all modules in the running process for the TCL and Tk
  * function names.
  */
-#include <windows.h>
 #define PSAPI_VERSION 1
 #include <psapi.h>
 // Must be linked with 'psapi' library

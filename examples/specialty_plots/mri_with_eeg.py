@@ -7,7 +7,6 @@ Displays a set of subplots with an MRI image, its intensity
 histogram and some EEG traces.
 """
 
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
@@ -20,7 +19,7 @@ fig = plt.figure("MRI_with_EEG")
 
 # Load the MRI data (256x256 16 bit integers)
 with cbook.get_sample_data('s1045.ima.gz') as dfile:
-    im = np.fromstring(dfile.read(), np.uint16).reshape((256, 256))
+    im = np.frombuffer(dfile.read(), np.uint16).reshape((256, 256))
 
 # Plot the MRI image
 ax0 = fig.add_subplot(2, 2, 1)

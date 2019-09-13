@@ -1,0 +1,59 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+jobs:
+
+- job: 'Linux_Test'
+  pool:
+    vmImage: ubuntu-16.04
+  strategy:
+    matrix:
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+    maxParallel: 4
+
+  steps:
+    - template: ci/azure-pipelines-steps.yml
+      parameters:
+        platform: ubuntu
+        installer: apt
+
+- job: 'Windows_Test'
+  pool:
+    vmImage: vs2017-win2016
+  strategy:
+    matrix:
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+      PythonPreview:
+        python.version: 'Pre'
+    maxParallel: 4
+
+  steps:
+    - template: ci/azure-pipelines-steps.yml
+      parameters:
+        platform: windows
+        installer: nuget
+
+- job: 'macOS_Test'
+  pool:
+    vmImage: xcode9-macos10.13
+  strategy:
+    matrix:
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+    maxParallel: 4
+
+  steps:
+    - template: ci/azure-pipelines-steps.yml
+      parameters:
+        platform: macos
+        installer: brew

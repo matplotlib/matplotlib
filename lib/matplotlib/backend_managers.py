@@ -1,19 +1,15 @@
-"""
-`ToolManager`
-    Class that makes the bridge between user interaction (key press,
-    toolbar clicks, ..) and the actions in response to the user inputs.
-"""
-
-import warnings
+import logging
 
 import matplotlib.cbook as cbook
 import matplotlib.widgets as widgets
 from matplotlib.rcsetup import validate_stringlist
 import matplotlib.backend_tools as tools
 
+_log = logging.getLogger(__name__)
 
-class ToolEvent(object):
-    """Event for tool manipulation (add/remove)"""
+
+class ToolEvent:
+    """Event for tool manipulation (add/remove)."""
     def __init__(self, name, sender, tool, data=None):
         self.name = name
         self.sender = sender
@@ -22,17 +18,17 @@ class ToolEvent(object):
 
 
 class ToolTriggerEvent(ToolEvent):
-    """Event to inform that a tool has been triggered"""
+    """Event to inform that a tool has been triggered."""
     def __init__(self, name, sender, tool, canvasevent=None, data=None):
         ToolEvent.__init__(self, name, sender, tool, data)
         self.canvasevent = canvasevent
 
 
-class ToolManagerMessageEvent(object):
+class ToolManagerMessageEvent:
     """
-    Event carrying messages from toolmanager
+    Event carrying messages from toolmanager.
 
-    Messages usually get displayed to the user by the toolbar
+    Messages usually get displayed to the user by the toolbar.
     """
     def __init__(self, name, sender, message):
         self.name = name
@@ -40,23 +36,24 @@ class ToolManagerMessageEvent(object):
         self.message = message
 
 
-class ToolManager(object):
+class ToolManager:
     """
-    Helper class that groups all the user interactions for a Figure.
+    Manager for actions triggered by user interactions (key press, toolbar
+    clicks, ...) on a Figure.
 
     Attributes
     ----------
-    figure: `Figure`
-    keypresslock: `widgets.LockDraw`
+    figure : `Figure`
+    keypresslock : `widgets.LockDraw`
         `LockDraw` object to know if the `canvas` key_press_event is locked
-    messagelock: `widgets.LockDraw`
+    messagelock : `widgets.LockDraw`
         `LockDraw` object to know if the message is available to write
     """
 
     def __init__(self, figure=None):
-        warnings.warn('Treat the new Tool classes introduced in v1.5 as ' +
-                       'experimental for now, the API will likely change in ' +
-                       'version 2.1 and perhaps the rcParam as well')
+        _log.warning('Treat the new Tool classes introduced in v1.5 as '
+                     'experimental for now, the API will likely change in '
+                     'version 2.1 and perhaps the rcParam as well')
 
         self._key_press_handler_id = None
 
@@ -74,14 +71,14 @@ class ToolManager(object):
 
     @property
     def canvas(self):
-        """Canvas managed by FigureManager"""
+        """Canvas managed by FigureManager."""
         if not self._figure:
             return None
         return self._figure.canvas
 
     @property
     def figure(self):
-        """Figure that holds the canvas"""
+        """Figure that holds the canvas."""
         return self._figure
 
     @figure.setter
@@ -136,19 +133,18 @@ class ToolManager(object):
 
     def toolmanager_disconnect(self, cid):
         """
-        Disconnect callback id *cid*
+        Disconnect callback id *cid*.
 
         Example usage::
 
-            cid = toolmanager.toolmanager_connect('tool_trigger_zoom',
-                                                  on_press)
+            cid = toolmanager.toolmanager_connect('tool_trigger_zoom', onpress)
             #...later
             toolmanager.toolmanager_disconnect(cid)
         """
         return self._callbacks.disconnect(cid)
 
     def message_event(self, message, sender=None):
-        """ Emit a `ToolManagerMessageEvent`"""
+        """Emit a `ToolManagerMessageEvent`."""
         if sender is None:
             sender = self
 
@@ -158,18 +154,17 @@ class ToolManager(object):
 
     @property
     def active_toggle(self):
-        """Currently toggled tools"""
-
+        """Currently toggled tools."""
         return self._toggled
 
     def get_tool_keymap(self, name):
         """
-        Get the keymap associated with the specified tool
+        Get the keymap associated with the specified tool.
 
         Parameters
         ----------
-        name : string
-            Name of the Tool
+        name : str
+            Name of the Tool.
 
         Returns
         -------
@@ -185,12 +180,12 @@ class ToolManager(object):
 
     def update_keymap(self, name, *keys):
         """
-        Set the keymap to associate with the specified tool
+        Set the keymap to associate with the specified tool.
 
         Parameters
         ----------
-        name : string
-            Name of the Tool
+        name : str
+            Name of the Tool.
         keys : keys to associate with the Tool
         """
 
@@ -202,18 +197,18 @@ class ToolManager(object):
         for key in keys:
             for k in validate_stringlist(key):
                 if k in self._keys:
-                    warnings.warn('Key %s changed from %s to %s' %
-                                  (k, self._keys[k], name))
+                    cbook._warn_external('Key %s changed from %s to %s' %
+                                         (k, self._keys[k], name))
                 self._keys[k] = name
 
     def remove_tool(self, name):
         """
-        Remove tool from `ToolManager`
+        Remove tool named *name*.
 
         Parameters
         ----------
-        name : string
-            Name of the Tool
+        name : str
+            Name of the Tool.
         """
 
         tool = self.get_tool(name)
@@ -233,16 +228,16 @@ class ToolManager(object):
 
     def add_tool(self, name, tool, *args, **kwargs):
         """
-        Add *tool* to `ToolManager`
+        Add *tool* to `ToolManager`.
 
-        If successful adds a new event `tool_trigger_name` where **name** is
-        the **name** of the tool, this event is fired everytime
-        the tool is triggered.
+        If successful, adds a new event ``tool_trigger_{name}`` where
+        ``{name}`` is the *name* of the tool; the event is fired everytime the
+        tool is triggered.
 
         Parameters
         ----------
         name : str
-            Name of the tool, treated as the ID, has to be unique
+            Name of the tool, treated as the ID, has to be unique.
         tool : class_like, i.e. str or type
             Reference to find the class of the Tool to added.
 
@@ -260,8 +255,8 @@ class ToolManager(object):
             raise ValueError('Impossible to find class for %s' % str(tool))
 
         if name in self._tools:
-            warnings.warn('A "Tool class" with the same name already exists, '
-                          'not added')
+            cbook._warn_external('A "Tool class" with the same name already '
+                                 'exists, not added')
             return self._tools[name]
 
         tool_obj = tool_cls(self, name, *args, **kwargs)
@@ -294,13 +289,13 @@ class ToolManager(object):
 
     def _handle_toggle(self, tool, sender, canvasevent, data):
         """
-        Toggle tools, need to untoggle prior to using other Toggle tool
-        Called from trigger_tool
+        Toggle tools, need to untoggle prior to using other Toggle tool.
+        Called from trigger_tool.
 
         Parameters
         ----------
-        tool: Tool object
-        sender: object
+        tool : Tool object
+        sender : object
             Object that wishes to trigger the tool
         canvasevent : Event
             Original Canvas event or None
@@ -354,16 +349,15 @@ class ToolManager(object):
         else:
             return None
 
-    def trigger_tool(self, name, sender=None, canvasevent=None,
-                     data=None):
+    def trigger_tool(self, name, sender=None, canvasevent=None, data=None):
         """
-        Trigger a tool and emit the tool_trigger_[name] event
+        Trigger a tool and emit the ``tool_trigger_{name}`` event.
 
         Parameters
         ----------
-        name : string
-            Name of the tool
-        sender: object
+        name : str
+            Name of the tool.
+        sender : object
             Object that wishes to trigger the tool
         canvasevent : Event
             Original Canvas event or None
@@ -384,11 +378,7 @@ class ToolManager(object):
         self._callbacks.process(s, event)
 
     def _trigger_tool(self, name, sender=None, canvasevent=None, data=None):
-        """
-        Trigger on a tool
-
-        Method to actually trigger the tool
-        """
+        """Actually trigger a tool."""
         tool = self.get_tool(name)
 
         if isinstance(tool, tools.ToolToggleBase):
@@ -409,13 +399,12 @@ class ToolManager(object):
 
     @property
     def tools(self):
-        """Return the tools controlled by `ToolManager`"""
-
+        """A dict mapping tool name -> controlled tool."""
         return self._tools
 
     def get_tool(self, name, warn=True):
         """
-        Return the tool object, also accepts the actual tool for convenience
+        Return the tool object, also accepts the actual tool for convenience.
 
         Parameters
         ----------
@@ -428,6 +417,7 @@ class ToolManager(object):
             return name
         if name not in self._tools:
             if warn:
-                warnings.warn("ToolManager does not control tool %s" % name)
+                cbook._warn_external("ToolManager does not control tool "
+                                     "%s" % name)
             return None
         return self._tools[name]

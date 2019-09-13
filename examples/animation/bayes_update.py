@@ -21,7 +21,7 @@ def beta_pdf(x, a, b):
             / (math.gamma(a) * math.gamma(b)))
 
 
-class UpdateDist(object):
+class UpdateDist:
     def __init__(self, ax, prob=0.5):
         self.success = 0
         self.prob = prob

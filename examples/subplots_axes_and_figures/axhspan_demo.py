@@ -32,6 +32,4 @@ plt.axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
 
 plt.axvspan(1.25, 1.55, facecolor='#2ca02c', alpha=0.5)
 
-plt.axis([-1, 2, -1, 2])
-
 plt.show()

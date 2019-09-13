@@ -1,9 +1,6 @@
-*********
-container
-*********
-
-:mod:`matplotlib.container`
-===========================
+************************
+``matplotlib.container``
+************************
 
 .. automodule:: matplotlib.container
    :members:

@@ -1,10 +1,6 @@
-**********************************
-afm (Adobe Font Metrics interface)
-**********************************
-
-
-:mod:`matplotlib.afm`
-=====================
+******************
+``matplotlib.afm``
+******************
 
 .. automodule:: matplotlib.afm
    :members:

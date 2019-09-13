@@ -125,15 +125,13 @@ circle(-0.3, 0.65)
 text(-0.3, 0.45, "Figure")
 
 color = 'blue'
-ax.annotate('Spines', xy=(4.0, 0.35), xycoords='data',
-            xytext=(3.3, 0.5), textcoords='data',
+ax.annotate('Spines', xy=(4.0, 0.35), xytext=(3.3, 0.5),
             weight='bold', color=color,
             arrowprops=dict(arrowstyle='->',
                             connectionstyle="arc3",
                             color=color))
 
-ax.annotate('', xy=(3.15, 0.0), xycoords='data',
-            xytext=(3.45, 0.45), textcoords='data',
+ax.annotate('', xy=(3.15, 0.0), xytext=(3.45, 0.45),
             weight='bold', color=color,
             arrowprops=dict(arrowstyle='->',
                             connectionstyle="arc3",

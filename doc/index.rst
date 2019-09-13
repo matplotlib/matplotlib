@@ -112,7 +112,7 @@ including printed material, videos and tutorials.
 Need help?
 ~~~~~~~~~~
 
-Matplotlib is a welcoming, inclusive project, and we try to follow the `Python
+Matplotlib is a welcoming, inclusive project, and we follow the `Python
 Software Foundation Code of Conduct <coc_>`_ in everything we do.
 
 .. _coc: http://www.python.org/psf/codeofconduct/
@@ -182,12 +182,25 @@ Open source
     style="float:right; margin-left:20px" />
    </a>
 
+
+Matplotlib is a Sponsored Project of NumFOCUS, a 501(c)(3) nonprofit
+charity in the United States. NumFOCUS provides Matplotlib with
+fiscal, legal, and administrative support to help ensure the health
+and sustainability of the project. Visit `numfocus.org <nf>`_ for more
+information.
+
+Donations to Matplotlib are managed by NumFOCUS. For donors in the
+United States, your gift is tax-deductible to the extent provided by
+law. As with any donation, you should consult with your tax adviser
+about your particular tax situation.
+
 Please consider `donating to the Matplotlib project <donating_>`_ through
 the Numfocus organization or to the `John Hunter Technology Fellowship
 <jdh-fellowship_>`_.
 
-.. _donating: https://www.flipcause.com/secure/cause_pdetails/MjI1OA==
+.. _donating: https://numfocus.salsalabs.org/donate-to-matplotlib/index.html
 .. _jdh-fellowship: https://www.numfocus.org/programs/john-hunter-technology-fellowship/
+.. _nf: https://numfocus.org
 
 The :doc:`Matplotlib license <users/license>` is based on the `Python Software
 Foundation (PSF) license <psf-license_>`_.
@@ -197,9 +210,14 @@ Foundation (PSF) license <psf-license_>`_.
 There is an active developer community and a long list of people who have made
 significant :doc:`contributions <users/credits>`.
 
-Matplotlib is hosted on `Github <source code_>`_.  `Issues <issue tracker_>`_
-and `Pull requests`_ are tracked at Github too.
+Matplotlib is hosted on `GitHub <source code_>`_.  `Issues <issue tracker_>`_
+and `Pull requests`_ are tracked at GitHub too.
 
 .. _source code: https://github.com/matplotlib/matplotlib
 .. _issue tracker: https://github.com/matplotlib/matplotlib/issues
 .. _pull requests: https://github.com/matplotlib/matplotlib/pulls
+
+For contributers
+================
+
+Visit :doc:`/devel/index`.

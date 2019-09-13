@@ -9,8 +9,8 @@ y- directions. To do this, we have to write our own custom function
 called ``make_error_boxes``. Close inspection of this function will
 reveal the preferred pattern in writing functions for matplotlib:
 
-  1. an ``Axes`` object is passed directly to the function
-  2. the function operates on the `Axes` methods directly, not through
+  1. an `~.axes.Axes` object is passed directly to the function
+  2. the function operates on the ``Axes`` methods directly, not through
      the ``pyplot`` interface
   3. plotting kwargs that could be abbreviated are spelled out for
      better code readability in the future (for example we use
@@ -42,13 +42,9 @@ yerr = np.random.rand(2, n) + 0.2
 def make_error_boxes(ax, xdata, ydata, xerror, yerror, facecolor='r',
                      edgecolor='None', alpha=0.5):
 
-    # Create list for all the error patches
-    errorboxes = []
-
     # Loop over data points; create box from errors at each point
-    for x, y, xe, ye in zip(xdata, ydata, xerror.T, yerror.T):
-        rect = Rectangle((x - xe[0], y - ye[0]), xe.sum(), ye.sum())
-        errorboxes.append(rect)
+    errorboxes = [Rectangle((x - xe[0], y - ye[0]), xe.sum(), ye.sum())
+                  for x, y, xe, ye in zip(xdata, ydata, xerror.T, yerror.T)]
 
     # Create patch collection with specified colour/alpha
     pc = PatchCollection(errorboxes, facecolor=facecolor, alpha=alpha,

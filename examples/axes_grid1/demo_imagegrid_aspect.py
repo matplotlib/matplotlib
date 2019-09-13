@@ -7,7 +7,7 @@ Demo Imagegrid Aspect
 import matplotlib.pyplot as plt
 
 from mpl_toolkits.axes_grid1 import ImageGrid
-fig = plt.figure(1)
+fig = plt.figure()
 
 grid1 = ImageGrid(fig, 121, (2, 2), axes_pad=0.1,
                   aspect=True, share_all=True)

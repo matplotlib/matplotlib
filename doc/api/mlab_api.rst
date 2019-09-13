@@ -1,10 +1,6 @@
-****
-mlab
-****
-
-
-:mod:`matplotlib.mlab`
-=======================
+*******************
+``matplotlib.mlab``
+*******************
 
 .. automodule:: matplotlib.mlab
    :members:

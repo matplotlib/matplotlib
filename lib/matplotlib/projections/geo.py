@@ -1,7 +1,6 @@
 import numpy as np
 
-import matplotlib
-from matplotlib import rcParams
+from matplotlib import cbook, rcParams
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
 from matplotlib.patches import Circle
@@ -23,8 +22,7 @@ class GeoAxes(Axes):
             self._round_to = round_to
 
         def __call__(self, x, pos=None):
-            degrees = (x / np.pi) * 180.0
-            degrees = np.round(degrees / self._round_to) * self._round_to
+            degrees = round(np.rad2deg(x) / self._round_to) * self._round_to
             if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
                 return r"$%0.0f^\circ$" % degrees
             else:
@@ -100,8 +98,8 @@ class GeoAxes(Axes):
         yaxis_text_base = \
             yaxis_stretch + \
             self.transProjection + \
-            (yaxis_space + \
-             self.transAffine + \
+            (yaxis_space +
+             self.transAffine +
              self.transAxes)
         self._yaxis_text1_transform = \
             yaxis_text_base + \
@@ -112,16 +110,14 @@ class GeoAxes(Axes):
 
     def _get_affine_transform(self):
         transform = self._get_core_transform(1)
-        xscale, _ = transform.transform_point((np.pi, 0))
-        _, yscale = transform.transform_point((0, np.pi / 2))
+        xscale, _ = transform.transform((np.pi, 0))
+        _, yscale = transform.transform((0, np.pi/2))
         return Affine2D() \
             .scale(0.5 / xscale, 0.5 / yscale) \
             .translate(0.5, 0.5)
 
-    def get_xaxis_transform(self,which='grid'):
-        if which not in ['tick1', 'tick2', 'grid']:
-            raise ValueError(
-                "'which' must be one of 'tick1', 'tick2', or 'grid'")
+    def get_xaxis_transform(self, which='grid'):
+        cbook._check_in_list(['tick1', 'tick2', 'grid'], which=which)
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
@@ -130,10 +126,8 @@ class GeoAxes(Axes):
     def get_xaxis_text2_transform(self, pad):
         return self._xaxis_text2_transform, 'top', 'center'
 
-    def get_yaxis_transform(self,which='grid'):
-        if which not in ['tick1', 'tick2', 'grid']:
-            raise ValueError(
-                "'which' must be one of 'tick1', 'tick2', or 'grid'")
+    def get_yaxis_transform(self, which='grid'):
+        cbook._check_in_list(['tick1', 'tick2', 'grid'], which=which)
         return self._yaxis_transform
 
     def get_yaxis_text1_transform(self, pad):
@@ -146,8 +140,7 @@ class GeoAxes(Axes):
         return Circle((0.5, 0.5), 0.5)
 
     def _gen_axes_spines(self):
-        return {'geo':mspines.Spine.circular_spine(self,
-                                                   (0.5, 0.5), 0.5)}
+        return {'geo': mspines.Spine.circular_spine(self, (0.5, 0.5), 0.5)}
 
     def set_yscale(self, *args, **kwargs):
         if args[0] != 'linear':
@@ -220,7 +213,7 @@ class GeoAxes(Axes):
         """
         return False
 
-    def can_pan(self) :
+    def can_pan(self):
         """
         Return *True* if this axes supports the pan/zoom button functionality.
 
@@ -258,11 +251,9 @@ class _GeoTransform(Transform):
         return "{}({})".format(type(self).__name__, self._resolution)
 
     def transform_path_non_affine(self, path):
-        vertices = path.vertices
+        # docstring inherited
         ipath = path.interpolated(self._resolution)
         return Path(self.transform(ipath.vertices), ipath.codes)
-    transform_path_non_affine.__doc__ = \
-        Transform.transform_path_non_affine.__doc__
 
 
 class AitoffAxes(GeoAxes):
@@ -272,8 +263,8 @@ class AitoffAxes(GeoAxes):
         """The base Aitoff transform."""
 
         def transform_non_affine(self, ll):
-            longitude = ll[:, 0]
-            latitude = ll[:, 1]
+            # docstring inherited
+            longitude, latitude = ll.T
 
             # Pre-compute some values
             half_long = longitude / 2.0
@@ -285,26 +276,24 @@ class AitoffAxes(GeoAxes):
             # We want unnormalized sinc.  numpy.sinc gives us normalized
             sinc_alpha = np.sin(alpha) / alpha
 
-            xy = np.empty_like(ll, float)
-            xy[:, 0] = (cos_latitude * np.sin(half_long)) / sinc_alpha
-            xy[:, 1] = np.sin(latitude) / sinc_alpha
-            return xy
-        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
+            x = (cos_latitude * np.sin(half_long)) / sinc_alpha
+            y = np.sin(latitude) / sinc_alpha
+            return np.column_stack([x, y])
 
         def inverted(self):
+            # docstring inherited
             return AitoffAxes.InvertedAitoffTransform(self._resolution)
-        inverted.__doc__ = Transform.inverted.__doc__
 
     class InvertedAitoffTransform(_GeoTransform):
 
         def transform_non_affine(self, xy):
+            # docstring inherited
             # MGDTODO: Math is hard ;(
             return xy
-        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
         def inverted(self):
+            # docstring inherited
             return AitoffAxes.AitoffTransform(self._resolution)
-        inverted.__doc__ = Transform.inverted.__doc__
 
     def __init__(self, *args, **kwargs):
         self._longitude_cap = np.pi / 2.0
@@ -323,37 +312,33 @@ class HammerAxes(GeoAxes):
         """The base Hammer transform."""
 
         def transform_non_affine(self, ll):
-            longitude = ll[:, 0:1]
-            latitude  = ll[:, 1:2]
-
-            # Pre-compute some values
+            # docstring inherited
+            longitude, latitude = ll.T
             half_long = longitude / 2.0
             cos_latitude = np.cos(latitude)
             sqrt2 = np.sqrt(2.0)
-
             alpha = np.sqrt(1.0 + cos_latitude * np.cos(half_long))
             x = (2.0 * sqrt2) * (cos_latitude * np.sin(half_long)) / alpha
             y = (sqrt2 * np.sin(latitude)) / alpha
-            return np.concatenate((x, y), 1)
-        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
+            return np.column_stack([x, y])
 
         def inverted(self):
+            # docstring inherited
             return HammerAxes.InvertedHammerTransform(self._resolution)
-        inverted.__doc__ = Transform.inverted.__doc__
 
     class InvertedHammerTransform(_GeoTransform):
 
         def transform_non_affine(self, xy):
+            # docstring inherited
             x, y = xy.T
             z = np.sqrt(1 - (x / 4) ** 2 - (y / 2) ** 2)
             longitude = 2 * np.arctan((z * x) / (2 * (2 * z ** 2 - 1)))
             latitude = np.arcsin(y*z)
             return np.column_stack([longitude, latitude])
-        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
         def inverted(self):
+            # docstring inherited
             return HammerAxes.HammerTransform(self._resolution)
-        inverted.__doc__ = Transform.inverted.__doc__
 
     def __init__(self, *args, **kwargs):
         self._longitude_cap = np.pi / 2.0
@@ -372,16 +357,16 @@ class MollweideAxes(GeoAxes):
         """The base Mollweide transform."""
 
         def transform_non_affine(self, ll):
+            # docstring inherited
             def d(theta):
                 delta = (-(theta + np.sin(theta) - pi_sin_l)
                          / (1 + np.cos(theta)))
                 return delta, np.abs(delta) > 0.001
 
-            longitude = ll[:, 0]
-            latitude  = ll[:, 1]
+            longitude, latitude = ll.T
 
             clat = np.pi/2 - np.abs(latitude)
-            ihigh = clat < 0.087 # within 5 degrees of the poles
+            ihigh = clat < 0.087  # within 5 degrees of the poles
             ilow = ~ihigh
             aux = np.empty(latitude.shape, dtype=float)
 
@@ -394,40 +379,36 @@ class MollweideAxes(GeoAxes):
                     delta, large_delta = d(theta)
                 aux[ilow] = theta / 2
 
-            if ihigh.any(): # Taylor series-based approx. solution
+            if ihigh.any():  # Taylor series-based approx. solution
                 e = clat[ihigh]
                 d = 0.5 * (3 * np.pi * e**2) ** (1.0/3)
                 aux[ihigh] = (np.pi/2 - d) * np.sign(latitude[ihigh])
 
             xy = np.empty(ll.shape, dtype=float)
-            xy[:,0] = (2.0 * np.sqrt(2.0) / np.pi) * longitude * np.cos(aux)
-            xy[:,1] = np.sqrt(2.0) * np.sin(aux)
+            xy[:, 0] = (2.0 * np.sqrt(2.0) / np.pi) * longitude * np.cos(aux)
+            xy[:, 1] = np.sqrt(2.0) * np.sin(aux)
 
             return xy
-        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
         def inverted(self):
+            # docstring inherited
             return MollweideAxes.InvertedMollweideTransform(self._resolution)
-        inverted.__doc__ = Transform.inverted.__doc__
 
     class InvertedMollweideTransform(_GeoTransform):
 
         def transform_non_affine(self, xy):
-            x = xy[:, 0:1]
-            y = xy[:, 1:2]
-
+            # docstring inherited
+            x, y = xy.T
             # from Equations (7, 8) of
             # http://mathworld.wolfram.com/MollweideProjection.html
             theta = np.arcsin(y / np.sqrt(2))
-            lon = (np.pi / (2 * np.sqrt(2))) * x / np.cos(theta)
-            lat = np.arcsin((2 * theta + np.sin(2 * theta)) / np.pi)
-
-            return np.concatenate((lon, lat), 1)
-        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
+            longitude = (np.pi / (2 * np.sqrt(2))) * x / np.cos(theta)
+            latitude = np.arcsin((2 * theta + np.sin(2 * theta)) / np.pi)
+            return np.column_stack([longitude, latitude])
 
         def inverted(self):
+            # docstring inherited
             return MollweideAxes.MollweideTransform(self._resolution)
-        inverted.__doc__ = Transform.inverted.__doc__
 
     def __init__(self, *args, **kwargs):
         self._longitude_cap = np.pi / 2.0
@@ -456,8 +437,8 @@ class LambertAxes(GeoAxes):
             self._center_latitude = center_latitude
 
         def transform_non_affine(self, ll):
-            longitude = ll[:, 0:1]
-            latitude  = ll[:, 1:2]
+            # docstring inherited
+            longitude, latitude = ll.T
             clong = self._center_longitude
             clat = self._center_latitude
             cos_lat = np.cos(latitude)
@@ -465,25 +446,21 @@ class LambertAxes(GeoAxes):
             diff_long = longitude - clong
             cos_diff_long = np.cos(diff_long)
 
-            inner_k = (1.0 +
-                       np.sin(clat)*sin_lat +
-                       np.cos(clat)*cos_lat*cos_diff_long)
-            # Prevent divide-by-zero problems
-            inner_k = np.where(inner_k == 0.0, 1e-15, inner_k)
-            k = np.sqrt(2.0 / inner_k)
-            x = k*cos_lat*np.sin(diff_long)
-            y = k*(np.cos(clat)*sin_lat -
-                   np.sin(clat)*cos_lat*cos_diff_long)
+            inner_k = np.maximum(  # Prevent divide-by-zero problems
+                1 + np.sin(clat)*sin_lat + np.cos(clat)*cos_lat*cos_diff_long,
+                1e-15)
+            k = np.sqrt(2 / inner_k)
+            x = k * cos_lat*np.sin(diff_long)
+            y = k * (np.cos(clat)*sin_lat - np.sin(clat)*cos_lat*cos_diff_long)
 
-            return np.concatenate((x, y), 1)
-        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
+            return np.column_stack([x, y])
 
         def inverted(self):
+            # docstring inherited
             return LambertAxes.InvertedLambertTransform(
                 self._center_longitude,
                 self._center_latitude,
                 self._resolution)
-        inverted.__doc__ = Transform.inverted.__doc__
 
     class InvertedLambertTransform(_GeoTransform):
 
@@ -493,30 +470,28 @@ class LambertAxes(GeoAxes):
             self._center_latitude = center_latitude
 
         def transform_non_affine(self, xy):
-            x = xy[:, 0:1]
-            y = xy[:, 1:2]
+            # docstring inherited
+            x, y = xy.T
             clong = self._center_longitude
             clat = self._center_latitude
-            p = np.sqrt(x*x + y*y)
-            p = np.where(p == 0.0, 1e-9, p)
-            c = 2.0 * np.arcsin(0.5 * p)
+            p = np.maximum(np.hypot(x, y), 1e-9)
+            c = 2 * np.arcsin(0.5 * p)
             sin_c = np.sin(c)
             cos_c = np.cos(c)
 
-            lat = np.arcsin(cos_c*np.sin(clat) +
-                             ((y*sin_c*np.cos(clat)) / p))
-            lon = clong + np.arctan(
+            latitude = np.arcsin(cos_c*np.sin(clat) +
+                                 ((y*sin_c*np.cos(clat)) / p))
+            longitude = clong + np.arctan(
                 (x*sin_c) / (p*np.cos(clat)*cos_c - y*np.sin(clat)*sin_c))
 
-            return np.concatenate((lon, lat), 1)
-        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
+            return np.column_stack([longitude, latitude])
 
         def inverted(self):
+            # docstring inherited
             return LambertAxes.LambertTransform(
                 self._center_longitude,
                 self._center_latitude,
                 self._resolution)
-        inverted.__doc__ = Transform.inverted.__doc__
 
     def __init__(self, *args, center_longitude=0, center_latitude=0, **kwargs):
         self._longitude_cap = np.pi / 2

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
-class Scope(object):
+class Scope:
     def __init__(self, ax, maxt=2, dt=0.02):
         self.ax = ax
         self.dt = dt
@@ -40,7 +40,7 @@ class Scope(object):
 
 
 def emitter(p=0.03):
-    'return a random value with probability p, else 0'
+    """Return a random value in [0, 1) with probability p, else 0."""
     while True:
         v = np.random.rand(1)
         if v > p:

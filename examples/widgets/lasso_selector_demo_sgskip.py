@@ -17,7 +17,7 @@ from matplotlib.widgets import LassoSelector
 from matplotlib.path import Path
 
 
-class SelectFromCollection(object):
+class SelectFromCollection:
     """Select indices from a matplotlib collection using `LassoSelector`.
 
     Selected indices are saved in the `ind` attribute. This tool fades out the

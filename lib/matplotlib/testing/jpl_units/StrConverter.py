@@ -1,25 +1,12 @@
-# ==========================================================================
-#
-# StrConverter
-#
-# ==========================================================================
-
-
 """StrConverter module containing class StrConverter."""
 
-# ==========================================================================
-# Place all imports after here.
-#
+import numpy as np
+
 import matplotlib.units as units
-from matplotlib.cbook import iterable
-#
-# Place all imports before here.
-# ==========================================================================
 
 __all__ = ['StrConverter']
 
 
-# ==========================================================================
 class StrConverter(units.ConversionInterface):
     """: A matplotlib converter class.  Provides matplotlib conversion
           functionality for string data values.
@@ -31,7 +18,6 @@ class StrConverter(units.ConversionInterface):
     - 'sorted-inverted' :  A combination of 'sorted' and 'inverted'
     """
 
-    # -----------------------------------------------------------------------
     @staticmethod
     def axisinfo(unit, axis):
         """: Returns information on how to handle an axis that has string data.
@@ -48,7 +34,6 @@ class StrConverter(units.ConversionInterface):
 
         return None
 
-    # -----------------------------------------------------------------------
     @staticmethod
     def convert(value, unit, axis):
         """: Convert value using unit to a float.  If value is a sequence, return
@@ -86,7 +71,7 @@ class StrConverter(units.ConversionInterface):
             ticks = []
             labels = []
 
-        if not iterable(value):
+        if not np.iterable(value):
             value = [value]
 
         newValues = []
@@ -94,21 +79,17 @@ class StrConverter(units.ConversionInterface):
             if v not in labels and v not in newValues:
                 newValues.append(v)
 
-        for v in newValues:
-            if labels:
-                labels.append(v)
-            else:
-                labels = [v]
+        labels.extend(newValues)
 
         # DISABLED: This is disabled because matplotlib bar plots do not
         # DISABLED: recalculate the unit conversion of the data values
         # DISABLED: this is due to design and is not really a bug.
         # DISABLED: If this gets changed, then we can activate the following
         # DISABLED: block of code.  Note that this works for line plots.
-        # DISABLED if (unit):
-        # DISABLED     if (unit.find("sorted") > -1):
+        # DISABLED if unit:
+        # DISABLED     if unit.find("sorted") > -1:
         # DISABLED         labels.sort()
-        # DISABLED     if (unit.find("inverted") > -1):
+        # DISABLED     if unit.find("inverted") > -1:
         # DISABLED         labels = labels[::-1]
 
         # add padding (so they do not appear on the axes themselves)
@@ -128,19 +109,11 @@ class StrConverter(units.ConversionInterface):
         else:
             ax.set_ylim(ticks[0], ticks[-1])
 
-        result = []
-        for v in value:
-            # If v is not in labels then something went wrong with adding new
-            # labels to the list of old labels.
-            errmsg = "This is due to a logic error in the StrConverter class."
-            errmsg += " Please report this error and its message in bugzilla."
-            assert v in labels, errmsg
-            result.append(ticks[labels.index(v)])
+        result = [ticks[labels.index(v)] for v in value]
 
         ax.viewLim.ignore(-1)
         return result
 
-    # -----------------------------------------------------------------------
     @staticmethod
     def default_units(value, axis):
         """: Return the default unit for value, or None.

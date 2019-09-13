@@ -10,16 +10,16 @@ Annotating text with Matplotlib.
 .. _annotations-tutorial:
 
 Basic annotation
-================
+----------------
 
 The uses of the basic :func:`~matplotlib.pyplot.text` will place text
 at an arbitrary position on the Axes.  A common use case of text is to
 annotate some feature of the plot, and the
-:func:`~matplotlib.Axes.annotate` method provides helper functionality
+:func:`~matplotlib.axes.Axes.annotate` method provides helper functionality
 to make annotations easy.  In an annotation, there are two points to
 consider: the location being annotated represented by the argument
-``xy`` and the location of the text ``xytext``.  Both of these
-arguments are ``(x,y)`` tuples.
+*xy* and the location of the text *xytext*.  Both of these
+arguments are ``(x, y)`` tuples.
 
 .. figure:: ../../gallery/pyplots/images/sphx_glr_annotation_basic_001.png
    :target: ../../gallery/pyplots/annotation_basic.html
@@ -28,23 +28,23 @@ arguments are ``(x,y)`` tuples.
 
    Annotation Basic
 
-In this example, both the ``xy`` (arrow tip) and ``xytext`` locations
+In this example, both the *xy* (arrow tip) and *xytext* locations
 (text location) are in data coordinates.  There are a variety of other
 coordinate systems one can choose -- you can specify the coordinate
-system of ``xy`` and ``xytext`` with one of the following strings for
-``xycoords`` and ``textcoords`` (default is 'data')
+system of *xy* and *xytext* with one of the following strings for
+*xycoords* and *textcoords* (default is 'data')
 
-====================  ====================================================
-argument              coordinate system
-====================  ====================================================
-  'figure points'     points from the lower left corner of the figure
-  'figure pixels'     pixels from the lower left corner of the figure
-  'figure fraction'   0,0 is lower left of figure and 1,1 is upper right
-  'axes points'       points from lower left corner of axes
-  'axes pixels'       pixels from lower left corner of axes
-  'axes fraction'     0,0 is lower left of axes and 1,1 is upper right
-  'data'              use the axes data coordinate system
-====================  ====================================================
+==================  ========================================================
+argument            coordinate system
+==================  ========================================================
+'figure points'     points from the lower left corner of the figure
+'figure pixels'     pixels from the lower left corner of the figure
+'figure fraction'   (0, 0) is lower left of figure and (1, 1) is upper right
+'axes points'       points from lower left corner of axes
+'axes pixels'       pixels from lower left corner of axes
+'axes fraction'     (0, 0) is lower left of axes and (1, 1) is upper right
+'data'              use the axes data coordinate system
+==================  ========================================================
 
 For example to place the text coordinates in fractional axes
 coordinates, one could do::
@@ -60,11 +60,11 @@ bottom-left of the figure or axes.
 
 Optionally, you can enable drawing of an arrow from the text to the annotated
 point by giving a dictionary of arrow properties in the optional keyword
-argument ``arrowprops``.
+argument *arrowprops*.
 
 
 ==================== =====================================================
-``arrowprops`` key   description
+*arrowprops* key     description
 ==================== =====================================================
 width                the width of the arrow in points
 frac                 the fraction of the arrow length occupied by the head
@@ -77,12 +77,12 @@ shrink               move the tip and base some percent away from
 ==================== =====================================================
 
 
-In the example below, the ``xy`` point is in native coordinates
-(``xycoords`` defaults to 'data').  For a polar axes, this is in
+In the example below, the *xy* point is in native coordinates
+(*xycoords* defaults to 'data').  For a polar axes, this is in
 (theta, radius) space.  The text in this example is placed in the
 fractional figure coordinate system. :class:`matplotlib.text.Text`
-keyword args like ``horizontalalignment``, ``verticalalignment`` and
-``fontsize`` are passed from `~matplotlib.Axes.annotate` to the
+keyword arguments like *horizontalalignment*, *verticalalignment* and
+*fontsize* are passed from `~matplotlib.axes.Axes.annotate` to the
 ``Text`` instance.
 
 .. figure:: ../../gallery/pyplots/images/sphx_glr_annotation_polar_001.png
@@ -103,12 +103,11 @@ Do not proceed unless you have already read :ref:`annotations-tutorial`,
 
 .. _plotting-guide-annotation:
 
-Advanced Annotation
-===================
-
+Advanced Annotations
+--------------------
 
 Annotating with Text with Box
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Let's start with a simple example.
 
@@ -121,8 +120,8 @@ Let's start with a simple example.
 
 
 The :func:`~matplotlib.pyplot.text` function in the pyplot module (or
-text method of the Axes class) takes bbox keyword argument, and when
-given, a box around the text is drawn. ::
+`~.axes.Axes.text` method of the Axes class) takes *bbox* keyword argument, and
+when given, a box around the text is drawn. ::
 
     bbox_props = dict(boxstyle="rarrow,pad=0.3", fc="cyan", ec="b", lw=2)
     t = ax.text(0, 0, "Direction", ha="center", va="center", rotation=45,
@@ -136,8 +135,8 @@ The patch object associated with the text can be accessed by::
 
 The return value is an instance of FancyBboxPatch and the patch
 properties like facecolor, edgewidth, etc. can be accessed and
-modified as usual. To change the shape of the box, use the *set_boxstyle*
-method. ::
+modified as usual. To change the shape of the box, use the
+`~.FancyBboxPatch.set_boxstyle` method. ::
 
   bb.set_boxstyle("rarrow", pad=0.6)
 
@@ -173,13 +172,11 @@ of bbox argument when initializing the text instance) ::
    bb.set_boxstyle("rarrow,pad=0.6")
 
 
-
-
 Annotating with Arrow
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 The :func:`~matplotlib.pyplot.annotate` function in the pyplot module
-(or annotate method of the Axes class) is used to draw an arrow
+(or `~.axes.Axes.annotate` method of the Axes class) is used to draw an arrow
 connecting two points on the plot. ::
 
     ax.annotate("Annotation",
@@ -187,14 +184,14 @@ connecting two points on the plot. ::
                 xytext=(x2, y2), textcoords='offset points',
                 )
 
-This annotates a point at ``xy`` in the given coordinate (``xycoords``)
-with the text at ``xytext`` given in ``textcoords``. Often, the
+This annotates a point at *xy* in the given coordinate (*xycoords*)
+with the text at *xytext* given in *textcoords*. Often, the
 annotated point is specified in the *data* coordinate and the annotating
 text in *offset points*.
 See :func:`~matplotlib.pyplot.annotate` for available coordinate systems.
 
-An arrow connecting two points (xy & xytext) can be optionally drawn by
-specifying the ``arrowprops`` argument. To draw only an arrow, use
+An arrow connecting two points (*xy* & *xytext*) can be optionally drawn by
+specifying the *arrowprops* argument. To draw only an arrow, use
 empty string as the first argument. ::
 
     ax.annotate("",
@@ -318,8 +315,8 @@ the ``bbox`` argument.
 
 By default, the starting point is set to the center of the text
 extent.  This can be adjusted with ``relpos`` key value. The values
-are normalized to the extent of the text. For example, (0,0) means
-lower-left corner and (1,1) means top-right.
+are normalized to the extent of the text. For example, (0, 0) means
+lower-left corner and (1, 1) means top-right.
 
 .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple04_001.png
    :target: ../../gallery/userdemo/annotate_simple04.html
@@ -330,7 +327,7 @@ lower-left corner and (1,1) means top-right.
 
 
 Placing Artist at the anchored location of the Axes
----------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are classes of artists that can be placed at an anchored location
 in the Axes. A common example is the legend.  This type of artist can
@@ -397,11 +394,11 @@ determined during the drawing time respecting the specified transform. ::
   from mpl_toolkits.axes_grid1.anchored_artists import AnchoredAuxTransformBox
 
   box = AnchoredAuxTransformBox(ax.transData, loc='upper left')
-  el = Ellipse((0,0), width=0.1, height=0.4, angle=30)  # in data coordinates!
+  el = Ellipse((0, 0), width=0.1, height=0.4, angle=30)  # in data coordinates!
   box.drawing_area.add_artist(el)
 
 The ellipse in the above example will have width and height
-corresponding to 0.1 and 0.4 in data coordinateing and will be
+corresponding to 0.1 and 0.4 in data coordinates and will be
 automatically scaled when the view limits of the axes change.
 
 .. figure:: ../../gallery/userdemo/images/sphx_glr_anchored_box03_001.png
@@ -426,7 +423,7 @@ Note that unlike the legend, the ``bbox_transform`` is set
 to IdentityTransform by default.
 
 Using Complex Coordinates with Annotations
-------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Annotation in matplotlib supports several types of coordinates as
 described in :ref:`annotations-tutorial`. For an advanced user who wants
@@ -447,15 +444,15 @@ more control, it supports a few other options.
                    xytext=(0.5, 0.5), textcoords=ax2.transData,
                    arrowprops=dict(arrowstyle="->"))
 
- 2. :class:`~matplotlib.artist.Artist` instance. The xy value (or
-    xytext) is interpreted as a fractional coordinate of the bbox
+ 2. :class:`~matplotlib.artist.Artist` instance. The *xy* value (or
+    *xytext*) is interpreted as a fractional coordinate of the bbox
     (return value of *get_window_extent*) of the artist. ::
 
       an1 = ax.annotate("Test 1", xy=(0.5, 0.5), xycoords="data",
                         va="center", ha="center",
                         bbox=dict(boxstyle="round", fc="w"))
-      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1, # (1,0.5) of the an1's bbox
-                        xytext=(30,0), textcoords="offset points",
+      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,  # (1, 0.5) of the an1's bbox
+                        xytext=(30, 0), textcoords="offset points",
                         va="center", ha="left",
                         bbox=dict(boxstyle="round", fc="w"),
                         arrowprops=dict(arrowstyle="->"))
@@ -482,9 +479,9 @@ more control, it supports a few other options.
     identical results ::
 
       an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,
-                        xytext=(30,0), textcoords="offset points")
+                        xytext=(30, 0), textcoords="offset points")
       an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1.get_window_extent,
-                        xytext=(30,0), textcoords="offset points")
+                        xytext=(30, 0), textcoords="offset points")
 
 
  4. A tuple of two coordinate specifications. The first item is for the
@@ -517,7 +514,7 @@ more control, it supports a few other options.
     :doc:`/gallery/text_labels_and_annotations/annotation_demo`.
 
 Using ConnectionPatch
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 The ConnectionPatch is like an annotation without text. While the annotate
 function is recommended in most situations, the ConnectionPatch is useful when
@@ -529,8 +526,8 @@ you want to connect points in different axes. ::
                         axesA=ax1, axesB=ax2)
   ax2.add_artist(con)
 
-The above code connects point xy in the data coordinates of ``ax1`` to
-point xy in the data coordinates of ``ax2``. Here is a simple example.
+The above code connects point *xy* in the data coordinates of ``ax1`` to
+point *xy* in the data coordinates of ``ax2``. Here is a simple example.
 
 .. figure:: ../../gallery/userdemo/images/sphx_glr_connect_simple01_001.png
    :target: ../../gallery/userdemo/connect_simple01.html
@@ -546,10 +543,10 @@ axes.
 
 
 Advanced Topics
-~~~~~~~~~~~~~~~
+---------------
 
 Zoom effect between Axes
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``mpl_toolkits.axes_grid1.inset_locator`` defines some patch classes useful
 for interconnecting two axes. Understanding the code requires some
@@ -566,7 +563,7 @@ straight forward.
 
 
 Define Custom BoxStyle
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 You can use a custom box style. The value for the ``boxstyle`` can be a
 callable object in the following forms.::

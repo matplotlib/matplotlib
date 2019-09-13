@@ -1,4 +1,5 @@
 import numpy as np
+from io import BytesIO
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -7,7 +8,7 @@ import matplotlib.patches as mpatches
 from matplotlib.ticker import FuncFormatter
 
 
-@image_comparison(baseline_images=['bbox_inches_tight'], remove_text=True,
+@image_comparison(['bbox_inches_tight'], remove_text=True,
                   savefig_kwarg=dict(bbox_inches='tight'))
 def test_bbox_inches_tight():
     #: Test that a figure saved using bbox_inches='tight' is clipped correctly
@@ -31,15 +32,15 @@ def test_bbox_inches_tight():
         yoff = yoff + data[row]
         cellText.append([''])
     plt.xticks([])
+    plt.xlim(0, 5)
     plt.legend([''] * 5, loc=(1.2, 0.2))
     # Add a table at the bottom of the axes
     cellText.reverse()
-    the_table = plt.table(cellText=cellText,
-                          rowLabels=rowLabels,
-                          colLabels=colLabels, loc='bottom')
+    plt.table(cellText=cellText, rowLabels=rowLabels, colLabels=colLabels,
+              loc='bottom')
 
 
-@image_comparison(baseline_images=['bbox_inches_tight_suptile_legend'],
+@image_comparison(['bbox_inches_tight_suptile_legend'],
                   remove_text=False, savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight_suptile_legend():
     plt.plot(np.arange(10), label='a straight line')
@@ -58,7 +59,7 @@ def test_bbox_inches_tight_suptile_legend():
     plt.xlabel('X axis')
 
 
-@image_comparison(baseline_images=['bbox_inches_tight_clipping'],
+@image_comparison(['bbox_inches_tight_clipping'],
                   remove_text=True, savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight_clipping():
     # tests bbox clipping on scatter points, and path clipping on a patch
@@ -79,10 +80,31 @@ def test_bbox_inches_tight_clipping():
     plt.gcf().artists.append(patch)
 
 
-@image_comparison(baseline_images=['bbox_inches_tight_raster'],
+@image_comparison(['bbox_inches_tight_raster'],
                   remove_text=True, savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight_raster():
     """Test rasterization with tight_layout"""
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot([1.0, 2.0], rasterized=True)
+
+
+def test_only_on_non_finite_bbox():
+    fig, ax = plt.subplots()
+    ax.annotate("", xy=(0, float('nan')))
+    ax.set_axis_off()
+    # we only need to test that it does not error out on save
+    fig.savefig(BytesIO(), bbox_inches='tight', format='png')
+
+
+def test_tight_pcolorfast():
+    fig, ax = plt.subplots()
+    ax.pcolorfast(np.arange(4).reshape((2, 2)))
+    ax.set(ylim=(0, .1))
+    buf = BytesIO()
+    fig.savefig(buf, bbox_inches="tight")
+    buf.seek(0)
+    height, width, _ = plt.imread(buf).shape
+    # Previously, the bbox would include the area of the image clipped out by
+    # the axes, resulting in a very tall image given the y limits of (0, 0.1).
+    assert width > height

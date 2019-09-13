@@ -15,15 +15,14 @@ import matplotlib.pyplot as plt
 
 from mpl_toolkits.axisartist.grid_helper_curvelinear import \
     GridHelperCurveLinear
+from mpl_toolkits.axisartist.grid_finder import MaxNLocator
 from mpl_toolkits.axisartist.axislines import Subplot
 
 import mpl_toolkits.axisartist.angle_helper as angle_helper
 
 
 def curvelinear_test1(fig):
-    """
-    grid for custom transform.
-    """
+    """Grid for custom transform."""
 
     def tr(x, y):
         sgn = np.sign(x)
@@ -44,7 +43,10 @@ def curvelinear_test1(fig):
                                                      )
 
     grid_helper = GridHelperCurveLinear((tr, inv_tr),
-                                        extreme_finder=extreme_finder)
+                                        extreme_finder=extreme_finder,
+                                        # better tick density
+                                        grid_locator1=MaxNLocator(nbins=6),
+                                        grid_locator2=MaxNLocator(nbins=6))
 
     ax1 = Subplot(fig, 111, grid_helper=grid_helper)
     # ax1 will have a ticks and gridlines defined by the given
@@ -59,14 +61,8 @@ def curvelinear_test1(fig):
                interpolation="nearest",
                origin="lower")
 
-    # tick density
-    grid_helper.grid_finder.grid_locator1._nbins = 6
-    grid_helper.grid_finder.grid_locator2._nbins = 6
 
-
-if 1:
-    fig = plt.figure(1, figsize=(7, 4))
-    fig.clf()
-
+if __name__ == "__main__":
+    fig = plt.figure(figsize=(7, 4))
     curvelinear_test1(fig)
     plt.show()

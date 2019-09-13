@@ -3,22 +3,12 @@
 
 [egg_info]
 
-[directories]
-# Uncomment to override the default basedir in setupext.py.
-# This can be a single directory or a comma-delimited list of directories.
-#basedirlist = /usr
-
 [test]
 # If you plan to develop Matplotlib and run or add to the test suite,
 # set this to True.  It will download and build a specific version of
 # FreeType, and then use that to build the ft2font extension.  This
 # ensures that test images are exactly reproducible.
 #local_freetype = False
-
-[status]
-# To suppress display of the dependencies and their versions
-# at the top of the build log, uncomment the following line:
-#suppress = True
 
 [packages]
 # There are a number of subpackages of Matplotlib that are considered
@@ -27,10 +17,6 @@
 #
 #tests = False
 #sample_data = True
-#toolkits = True
-# Tests for the toolkits are only automatically installed
-# if the tests and toolkits packages are also getting installed.
-#toolkits_tests = auto
 
 [gui_support]
 # Matplotlib supports multiple GUI toolkits, including
@@ -45,8 +31,6 @@
 #
 # - Tk support requires Tk development headers and Tkinter.
 # - Mac OSX backend requires the Cocoa headers included with XCode.
-# - Windowing is MS-Windows specific, and requires the "windows.h"
-#   header.
 #
 # The other GUI toolkits do not require any extension code, and can be
 # used as long as the libraries are installed on your system --
@@ -63,15 +47,8 @@
 #           behavior
 #
 #agg = auto
-#cairo = auto
-#gtk3agg = auto
-#gtk3cairo = auto
 #macosx = auto
-#pyside = auto
-#qt4agg = auto
 #tkagg = auto
-#windowing = auto
-#wxagg = auto
 
 [rc_options]
 # User-configurable options
@@ -81,13 +58,11 @@
 #
 # The Agg, Ps, Pdf and SVG backends do not require external dependencies. Do
 # not choose MacOSX, or TkAgg if you have disabled the relevant extension
-# modules.  Agg will be used by default.
+# modules.  The default is determined by fallback.
 #
 #backend = Agg
-#
 
-[package_data]
-# Package additional files found in the lib/matplotlib directories.
-#
-# On Windows, package DLL files.
-#dlls = True
+[build]
+# Build options
+# If we should try to use static libraries on Windows
+#staticbuild = True

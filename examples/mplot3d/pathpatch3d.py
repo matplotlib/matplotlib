@@ -11,8 +11,6 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, PathPatch
 from matplotlib.text import TextPath
 from matplotlib.transforms import Affine2D
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 import mpl_toolkits.mplot3d.art3d as art3d
 
 
@@ -29,7 +27,7 @@ def text3d(ax, xyz, s, zdir="z", size=None, angle=0, usetex=False, **kwargs):
     x, y, z = xyz
     if zdir == "y":
         xy1, z1 = (x, z), y
-    elif zdir == "y":
+    elif zdir == "x":
         xy1, z1 = (y, z), x
     else:
         xy1, z1 = (x, y), z

@@ -9,7 +9,10 @@
 
 **Code for reproduction**
 
-<!--A minimum code snippet required to reproduce the bug, also minimizing the number of dependencies required-->
+<!--A minimum code snippet required to reproduce the bug.
+Please make sure to minimize the number of dependencies required, and provide
+any necessary plotted data.
+Avoid using threads, as Matplotlib is (explicitly) not thread-safe.-->
 
 ```python
 # Paste your code here

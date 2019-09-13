@@ -90,7 +90,7 @@ Requirements
 
 This section outlines the requirements that we would like to have.
 
-#. Testing all pull requests by hooking into the Github API, as
+#. Testing all pull requests by hooking into the GitHub API, as
    Travis-CI does
 
 #. Testing on all major platforms: Linux, Mac OS-X, MS Windows (in
@@ -169,7 +169,7 @@ CI Infrastructure
 
 - Investigate finding or building a tool that would collect and
   synthesize test results from a number of sources and post it to
-  Github using the Github API.  This may be of general use to the
+  GitHub using the GitHub API.  This may be of general use to the
   Scipy community.
 
 - For both Windows and Mac, we should document (or better yet, script)

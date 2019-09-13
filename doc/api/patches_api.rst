@@ -1,10 +1,6 @@
-*******
-patches
-*******
-
-
-:mod:`matplotlib.patches`
-=========================
+**********************
+``matplotlib.patches``
+**********************
 
 .. currentmodule:: matplotlib.patches
 
@@ -38,7 +34,6 @@ Classes
    RegularPolygon
    Shadow
    Wedge
-   YAArrow
 
 Functions
 ---------

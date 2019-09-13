@@ -31,7 +31,7 @@ but this seems more generally useful (for example growth rate as a
 function of angle).  The assumption in the current code (as I
 understand it) is that the center of the graph is `r==0`, however it
 would be good to be able to set the center to be at any `r` (with any
-value less than the off set clipped).
+value less than the offset clipped).
 
 Implementation
 ==============

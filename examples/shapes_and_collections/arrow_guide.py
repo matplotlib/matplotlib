@@ -14,7 +14,7 @@ stays static when data limits are altered - an example would be a figure title
 or the axis labels.
 
 Arrows consist of a head (and possibly a tail) and a stem drawn between a
-start point and and end point, called 'anchor points' from now on.
+start point and end point, called 'anchor points' from now on.
 Here we show three use cases for plotting arrows, depending on whether the
 head or anchor points need to be fixed in data or display space:
 

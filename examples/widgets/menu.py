@@ -13,7 +13,7 @@ import matplotlib.artist as artist
 import matplotlib.image as image
 
 
-class ItemProperties(object):
+class ItemProperties:
     def __init__(self, fontsize=14, labelcolor='black', bgcolor='yellow',
                  alpha=1.0):
         self.fontsize = fontsize
@@ -109,7 +109,9 @@ class MenuItem(artist.Artist):
         self.rect.set(facecolor=props.bgcolor, alpha=props.alpha)
 
     def set_hover(self, event):
-        'check the hover status of event and return true if status is changed'
+        """
+        Update the hover status of event and return whether it was changed.
+        """
         b, junk = self.rect.contains(event)
 
         changed = (b != self.hover)
@@ -121,7 +123,7 @@ class MenuItem(artist.Artist):
         return changed
 
 
-class Menu(object):
+class Menu:
     def __init__(self, fig, menuitems):
         self.figure = fig
         fig.suppressComposite = True
@@ -131,8 +133,6 @@ class Menu(object):
 
         maxw = max(item.labelwidth for item in menuitems)
         maxh = max(item.labelheight for item in menuitems)
-
-        totalh = self.numitems*maxh + (self.numitems + 1)*2*MenuItem.pady
 
         x0 = 100
         y0 = 400

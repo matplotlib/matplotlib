@@ -9,13 +9,9 @@ position. This may fail if Axes.adjustable is datalim. Also, This will fail
 for some cases (for example, left or right margin is affected by xlabel).
 """
 
-import warnings
-
-import matplotlib
-from matplotlib.transforms import TransformedBbox, Bbox
-
+from matplotlib import cbook, rcParams
 from matplotlib.font_manager import FontProperties
-rcParams = matplotlib.rcParams
+from matplotlib.transforms import TransformedBbox, Bbox
 
 
 def _get_left(tight_bbox, axes_bbox):
@@ -38,7 +34,8 @@ def auto_adjust_subplotpars(
         fig, renderer, nrows_ncols, num1num2_list, subplot_list,
         ax_bbox_list=None, pad=1.08, h_pad=None, w_pad=None, rect=None):
     """
-    Return a dict of subplot parameters to adjust spacing between subplots.
+    Return a dict of subplot parameters to adjust spacing between subplots
+    or ``None`` if resulting axes would have zero height or width.
 
     Note that this function ignores geometry information of subplot
     itself, but uses what is given by the *nrows_ncols* and *num1num2_list*
@@ -99,11 +96,9 @@ def auto_adjust_subplotpars(
     union = Bbox.union
 
     if ax_bbox_list is None:
-        ax_bbox_list = []
-        for subplots in subplot_list:
-            ax_bbox = union([ax.get_position(original=True)
-                             for ax in subplots])
-            ax_bbox_list.append(ax_bbox)
+        ax_bbox_list = [
+            union([ax.get_position(original=True) for ax in subplots])
+            for subplots in subplot_list]
 
     for subplots, ax_bbox, (num1, num2) in zip(subplot_list,
                                                ax_bbox_list,
@@ -172,15 +167,15 @@ def auto_adjust_subplotpars(
         margin_bottom += pad_inches / fig_height_inch
 
     if margin_left + margin_right >= 1:
-        margin_left = 0.4999
-        margin_right = 0.4999
-        warnings.warn('The left and right margins cannot be made large '
-                      'enough to accommodate all axes decorations. ')
+        cbook._warn_external('Tight layout not applied. The left and right '
+                             'margins cannot be made large enough to '
+                             'accommodate all axes decorations. ')
+        return None
     if margin_bottom + margin_top >= 1:
-        margin_bottom = 0.4999
-        margin_top = 0.4999
-        warnings.warn('The bottom and top margins cannot be made large '
-                      'enough to accommodate all axes decorations. ')
+        cbook._warn_external('Tight layout not applied. The bottom and top '
+                             'margins cannot be made large enough to '
+                             'accommodate all axes decorations. ')
+        return None
 
     kwargs = dict(left=margin_left,
                   right=1 - margin_right,
@@ -195,9 +190,10 @@ def auto_adjust_subplotpars(
         # axes widths:
         h_axes = (1 - margin_right - margin_left - hspace * (cols - 1)) / cols
         if h_axes < 0:
-            warnings.warn('tight_layout cannot make axes width small enough '
-                          'to accommodate all axes decorations')
-            kwargs["wspace"] = 0.5
+            cbook._warn_external('Tight layout not applied. tight_layout '
+                                 'cannot make axes width small enough to '
+                                 'accommodate all axes decorations')
+            return None
         else:
             kwargs["wspace"] = hspace / h_axes
 
@@ -206,9 +202,10 @@ def auto_adjust_subplotpars(
                   + vpad_inches / fig_height_inch)
         v_axes = (1 - margin_top - margin_bottom - vspace * (rows - 1)) / rows
         if v_axes < 0:
-            warnings.warn('tight_layout cannot make axes height small enough '
-                          'to accommodate all axes decorations')
-            kwargs["hspace"] = 0.5
+            cbook._warn_external('Tight layout not applied. tight_layout '
+                                 'cannot make axes height small enough to '
+                                 'accommodate all axes decorations')
+            return None
         else:
             kwargs["hspace"] = vspace / v_axes
 
@@ -223,9 +220,8 @@ def get_renderer(fig):
 
         if canvas and hasattr(canvas, "get_renderer"):
             renderer = canvas.get_renderer()
-        else:
-            # not sure if this can happen
-            warnings.warn("tight_layout : falling back to Agg renderer")
+        else:  # Some noninteractive backends have no renderer until draw time.
+            cbook._warn_external("tight_layout: falling back to Agg renderer")
             from matplotlib.backends.backend_agg import FigureCanvasAgg
             canvas = FigureCanvasAgg(fig)
             renderer = canvas.get_renderer()
@@ -282,11 +278,18 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
         fraction of the font size.
     h_pad, w_pad : float
         Padding (height/width) between edges of adjacent subplots.  Defaults to
-        *pad_inches*.
+        *pad*.
     rect : Tuple[float, float, float, float], optional
         (left, bottom, right, top) rectangle in normalized figure coordinates
         that the whole subplots area (including labels) will fit into.
         Defaults to using the entire figure.
+
+    Returns
+    -------
+    subplotspec or None
+        subplotspec kwargs to be passed to `.Figure.subplots_adjust` or
+        None if tight_layout could not be accomplished.
+
     """
 
     subplot_list = []
@@ -294,8 +297,9 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     ncols_list = []
     ax_bbox_list = []
 
-    subplot_dict = {}  # Multiple axes can share same subplot_interface (e.g.,
-                       # axes_grid1); thus we need to join them together.
+    # Multiple axes can share same subplot_interface (e.g., axes_grid1); thus
+    # we need to join them together.
+    subplot_dict = {}
 
     subplotspec_list2 = []
 
@@ -327,14 +331,14 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
         div_row, mod_row = divmod(max_nrows, rows)
         div_col, mod_col = divmod(max_ncols, cols)
         if mod_row != 0:
-            warnings.warn('tight_layout not applied: '
-                          'number of rows in subplot specifications must'
-                          'be multiples of one another.')
+            cbook._warn_external('tight_layout not applied: number of rows '
+                                 'in subplot specifications must be '
+                                 'multiples of one another.')
             return {}
         if mod_col != 0:
-            warnings.warn('tight_layout not applied: '
-                          'number of columns in subplot specifications must'
-                          'be multiples of one another.')
+            cbook._warn_external('tight_layout not applied: number of '
+                                 'columns in subplot specifications must be '
+                                 'multiples of one another.')
             return {}
 
         rowNum1, colNum1 = divmod(num1, cols)
@@ -355,7 +359,8 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
                                      ax_bbox_list=ax_bbox_list,
                                      pad=pad, h_pad=h_pad, w_pad=w_pad)
 
-    if rect is not None:
+    # kwargs can be none if tight_layout fails...
+    if rect is not None and kwargs is not None:
         # if rect is given, the whole subplots area (including
         # labels) will fit into the rect instead of the
         # figure. Note that the rect argument of
@@ -373,9 +378,6 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
             right -= (1 - kwargs["right"])
         if top is not None:
             top -= (1 - kwargs["top"])
-
-        #if h_pad is None: h_pad = pad
-        #if w_pad is None: w_pad = pad
 
         kwargs = auto_adjust_subplotpars(fig, renderer,
                                          nrows_ncols=(max_nrows, max_ncols),

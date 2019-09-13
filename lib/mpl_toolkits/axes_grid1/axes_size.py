@@ -1,6 +1,5 @@
-
 """
-provides a classes of simple units that will be used with AxesDivider
+Provides classes of simple units that will be used with AxesDivider
 class (or others) to determine the size of each axes. The unit
 classes define `get_size` method that returns a tuple of two floats,
 meaning relative and absolute sizes, respectively.
@@ -8,18 +7,19 @@ meaning relative and absolute sizes, respectively.
 Note that this class is nothing more than a simple tuple of two
 floats. Take a look at the Divider class to see how these two
 values are used.
-
 """
+
 from numbers import Number
 
+from matplotlib import cbook
 from matplotlib.axes import Axes
 
 
-class _Base(object):
+class _Base:
     "Base class"
 
     def __rmul__(self, other):
-        float(other) # just to check if number if given
+        float(other)  # just to check if number if given
         return Fraction(other, self)
 
     def __add__(self, other):
@@ -53,7 +53,9 @@ class AddList(_Base):
 
 
 class Fixed(_Base):
-    "Simple fixed size with absolute part = *fixed_size* and relative part = 0"
+    """
+    Simple fixed size with absolute part = *fixed_size* and relative part = 0.
+    """
     def __init__(self, fixed_size):
         self.fixed_size = fixed_size
 
@@ -64,7 +66,11 @@ class Fixed(_Base):
 
 
 class Scaled(_Base):
-    "Simple scaled(?) size with absolute part = 0 and relative part = *scalable_size*"
+    """
+    Simple scaled(?) size with absolute part = 0 and
+    relative part = *scalable_size*.
+    """
+
     def __init__(self, scalable_size):
         self._scalable_size = scalable_size
 
@@ -105,7 +111,7 @@ class AxesX(_Base):
         l1, l2 = self._axes.get_xlim()
         if self._aspect == "axes":
             ref_aspect = _get_axes_aspect(self._ref_ax)
-            aspect = ref_aspect/_get_axes_aspect(self._axes)
+            aspect = ref_aspect / _get_axes_aspect(self._axes)
         else:
             aspect = self._aspect
 
@@ -148,9 +154,7 @@ class MaxExtent(_Base):
     def __init__(self, artist_list, w_or_h):
         self._artist_list = artist_list
 
-        if w_or_h not in ["width", "height"]:
-            raise ValueError()
-
+        cbook._check_in_list(["width", "height"], w_or_h=w_or_h)
         self._w_or_h = w_or_h
 
     def add_artist(self, a):
@@ -289,38 +293,22 @@ class SizeFromFunc(_Base):
         return rel_size, abs_size
 
 
-class GetExtentHelper(object):
-    def _get_left(self, axes_bbox):
-        return axes_bbox.xmin - self.xmin
-
-    def _get_right(self, axes_bbox):
-        return self.xmax - axes_bbox.xmax
-
-    def _get_bottom(self, axes_bbox):
-        return axes_bbox.ymin - self.ymin
-
-    def _get_top(self, axes_bbox):
-        return self.ymax - axes_bbox.ymax
-
-    _get_func_map = dict(left=_get_left,
-                         right=_get_right,
-                         bottom=_get_bottom,
-                         top=_get_top)
-
-    del _get_left, _get_right, _get_bottom, _get_top
+class GetExtentHelper:
+    _get_func_map = {
+        "left":   lambda self, axes_bbox: axes_bbox.xmin - self.xmin,
+        "right":  lambda self, axes_bbox: self.xmax - axes_bbox.xmax,
+        "bottom": lambda self, axes_bbox: axes_bbox.ymin - self.ymin,
+        "top":    lambda self, axes_bbox: self.ymax - axes_bbox.ymax,
+    }
 
     def __init__(self, ax, direction):
-        if isinstance(ax, Axes):
-            self._ax_list = [ax]
-        else:
-            self._ax_list = ax
-
-        try:
-            self._get_func = self._get_func_map[direction]
-        except KeyError:
-            raise KeyError("direction must be one of left, right, bottom, top")
+        cbook._check_in_list(self._get_func_map, direction=direction)
+        self._ax_list = [ax] if isinstance(ax, Axes) else ax
+        self._direction = direction
 
     def __call__(self, renderer):
-        vl = [self._get_func(ax.get_tightbbox(renderer, False),
-                             ax.bbox) for ax in self._ax_list]
+        get_func = self._get_func_map[self._direction]
+        vl = [get_func(ax.get_tightbbox(renderer, call_axes_locator=False),
+                       ax.bbox)
+              for ax in self._ax_list]
         return max(vl)

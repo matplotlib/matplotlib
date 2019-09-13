@@ -24,9 +24,9 @@ def test_patch_transform_of_none():
     ax.set_xlim([1, 3])
     ax.set_ylim([1, 3])
 
-    # Draw an ellipse over data coord (2,2) by specifying device coords.
+    # Draw an ellipse over data coord (2, 2) by specifying device coords.
     xy_data = (2, 2)
-    xy_pix = ax.transData.transform_point(xy_data)
+    xy_pix = ax.transData.transform(xy_data)
 
     # Not providing a transform of None puts the ellipse in data coordinates .
     e = mpatches.Ellipse(xy_data, width=1, height=1, fc='yellow', alpha=0.5)
@@ -36,7 +36,7 @@ def test_patch_transform_of_none():
     # Providing a transform of None puts the ellipse in device coordinates.
     e = mpatches.Ellipse(xy_pix, width=120, height=120, fc='coral',
                          transform=None, alpha=0.5)
-    assert e.is_transform_set() is True
+    assert e.is_transform_set()
     ax.add_patch(e)
     assert isinstance(e._transform, mtransforms.IdentityTransform)
 
@@ -51,10 +51,10 @@ def test_patch_transform_of_none():
     e = mpatches.Ellipse(xy_pix, width=120, height=120, fc='coral',
                          alpha=0.5)
     intermediate_transform = e.get_transform()
-    assert e.is_transform_set() is False
+    assert not e.is_transform_set()
     ax.add_patch(e)
     assert e.get_transform() != intermediate_transform
-    assert e.is_transform_set() is True
+    assert e.is_transform_set()
     assert e._transform == ax.transData
 
 
@@ -66,9 +66,9 @@ def test_collection_transform_of_none():
     ax.set_xlim([1, 3])
     ax.set_ylim([1, 3])
 
-    # draw an ellipse over data coord (2,2) by specifying device coords
+    # draw an ellipse over data coord (2, 2) by specifying device coords
     xy_data = (2, 2)
-    xy_pix = ax.transData.transform_point(xy_data)
+    xy_pix = ax.transData.transform(xy_data)
 
     # not providing a transform of None puts the ellipse in data coordinates
     e = mpatches.Ellipse(xy_data, width=1, height=1)
@@ -94,7 +94,7 @@ def test_collection_transform_of_none():
     assert isinstance(c._transOffset, mtransforms.IdentityTransform)
 
 
-@image_comparison(baseline_images=["clip_path_clipping"], remove_text=True)
+@image_comparison(["clip_path_clipping"], remove_text=True)
 def test_clipping():
     exterior = mpath.Path.unit_rectangle().deepcopy()
     exterior.vertices *= 4
@@ -142,8 +142,7 @@ def test_cull_markers():
     assert len(svg.getvalue()) < 20000
 
 
-@image_comparison(baseline_images=['hatching'], remove_text=True,
-                  style='default')
+@image_comparison(['hatching'], remove_text=True, style='default')
 def test_hatching():
     fig, ax = plt.subplots(1, 1)
 
@@ -200,9 +199,11 @@ def test_remove():
     assert ax.stale
 
 
-@image_comparison(baseline_images=["default_edges"], remove_text=True,
-                  extensions=['png'], style='default')
+@image_comparison(["default_edges.png"], remove_text=True, style='default')
 def test_default_edges():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2)
 
     ax1.plot(np.arange(10), np.arange(10), 'x',
@@ -234,13 +235,13 @@ def test_setp():
     plt.setp([[]])
 
     # Check arbitrary iterables
-    fig, axes = plt.subplots()
-    lines1 = axes.plot(range(3))
-    lines2 = axes.plot(range(3))
+    fig, ax = plt.subplots()
+    lines1 = ax.plot(range(3))
+    lines2 = ax.plot(range(3))
     martist.setp(chain(lines1, lines2), 'lw', 5)
-    plt.setp(axes.spines.values(), color='green')
+    plt.setp(ax.spines.values(), color='green')
 
-    # Check `file` argument
+    # Check *file* argument
     sio = io.StringIO()
     plt.setp(lines1, 'zorder', file=sio)
     assert sio.getvalue() == '  zorder: float\n'
@@ -258,10 +259,11 @@ def test_None_zorder():
 
 @pytest.mark.parametrize('accept_clause, expected', [
     ('', 'unknown'),
-    ("ACCEPTS: [ '-' | '--' | '-.' ]", "[ '-' | '--' | '-.' ] "),
-    ('ACCEPTS: Some description.', 'Some description. '),
-    ('.. ACCEPTS: Some description.', 'Some description. '),
+    ("ACCEPTS: [ '-' | '--' | '-.' ]", "[ '-' | '--' | '-.' ]"),
+    ('ACCEPTS: Some description.', 'Some description.'),
+    ('.. ACCEPTS: Some description.', 'Some description.'),
     ('arg : int', 'int'),
+    ('*arg : int', 'int'),
     ('arg : int\nACCEPTS: Something else.', 'Something else. '),
 ])
 def test_artist_inspector_get_valid_values(accept_clause, expected):
@@ -276,3 +278,10 @@ def test_artist_inspector_get_valid_values(accept_clause, expected):
     """ % accept_clause
     valid_values = martist.ArtistInspector(TestArtist).get_valid_values('f')
     assert valid_values == expected
+
+
+def test_artist_inspector_get_aliases():
+    # test the correct format and type of get_aliases method
+    ai = martist.ArtistInspector(mlines.Line2D)
+    aliases = ai.get_aliases()
+    assert aliases["linewidth"] == {"lw"}

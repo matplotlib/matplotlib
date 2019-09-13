@@ -1,10 +1,6 @@
-*****
-cbook
-*****
-
-
-:mod:`matplotlib.cbook`
-=======================
+********************
+``matplotlib.cbook``
+********************
 
 .. automodule:: matplotlib.cbook
    :members:

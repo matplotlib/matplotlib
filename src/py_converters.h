@@ -23,6 +23,7 @@ typedef int (*converter)(PyObject *, void *);
 int convert_from_attr(PyObject *obj, const char *name, converter func, void *p);
 int convert_from_method(PyObject *obj, const char *name, converter func, void *p);
 
+int convert_voidptr(PyObject *obj, void *p);
 int convert_double(PyObject *obj, void *p);
 int convert_bool(PyObject *obj, void *p);
 int convert_cap(PyObject *capobj, void *capp);

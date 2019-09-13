@@ -36,11 +36,8 @@ Z = (Z1 - Z2) * 2
 
 class nf(float):
     def __repr__(self):
-        str = '%.1f' % (self.__float__(),)
-        if str[-1] == '0':
-            return '%.0f' % self.__float__()
-        else:
-            return '%.1f' % self.__float__()
+        s = f'{self:.1f}'
+        return f'{self:.0f}' if s[-1] == '0' else s
 
 
 # Basic contour plot

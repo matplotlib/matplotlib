@@ -1,9 +1,11 @@
-import sys
-
 import numpy as np
 
-from . import backend_agg, backend_cairo, backend_gtk3
-from ._gtk3_compat import gi
+from .. import cbook
+try:
+    from . import backend_cairo
+except ImportError as e:
+    raise ImportError('backend Gtk3Agg requires cairo') from e
+from . import backend_agg, backend_gtk3
 from .backend_cairo import cairo
 from .backend_gtk3 import Gtk, _BackendGTK3
 from matplotlib import transforms
@@ -28,7 +30,6 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         w, h = allocation.width, allocation.height
 
         if not len(self._bbox_queue):
-            self._render_figure(w, h)
             Gtk.render_background(
                 self.get_style_context(), ctx,
                 allocation.x, allocation.y,
@@ -45,7 +46,7 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
             width = int(bbox.x1) - int(bbox.x0)
             height = int(bbox.y1) - int(bbox.y0)
 
-            buf = backend_cairo._unmultipled_rgba8888_to_premultiplied_argb32(
+            buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
                 np.asarray(self.copy_from_bbox(bbox)))
             image = cairo.ImageSurface.create_for_data(
                 buf.ravel().data, cairo.FORMAT_ARGB32, width, height)
@@ -64,14 +65,19 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
             bbox = self.figure.bbox
 
         allocation = self.get_allocation()
-        w, h = allocation.width, allocation.height
         x = int(bbox.x0)
-        y = h - int(bbox.y1)
+        y = allocation.height - int(bbox.y1)
         width = int(bbox.x1) - int(bbox.x0)
         height = int(bbox.y1) - int(bbox.y0)
 
         self._bbox_queue.append(bbox)
         self.queue_draw_area(x, y, width, height)
+
+    def draw(self):
+        if self.get_visible() and self.get_mapped():
+            allocation = self.get_allocation()
+            self._render_figure(allocation.width, allocation.height)
+        super().draw()
 
     def print_png(self, filename, *args, **kwargs):
         # Do this so we can save the resolution of figure in the PNG file

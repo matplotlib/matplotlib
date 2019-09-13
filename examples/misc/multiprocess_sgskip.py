@@ -27,7 +27,7 @@ np.random.seed(19680801)
 #
 
 
-class ProcessPlotter(object):
+class ProcessPlotter:
     def __init__(self):
         self.x = []
         self.y = []
@@ -75,7 +75,7 @@ class ProcessPlotter(object):
 #
 
 
-class NBPlot(object):
+class NBPlot:
     def __init__(self):
         self.plot_pipe, plotter_pipe = mp.Pipe()
         self.plotter = ProcessPlotter()

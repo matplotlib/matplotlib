@@ -1,11 +1,6 @@
-
-*******
-contour
-*******
-
-
-:mod:`matplotlib.contour`
-=========================
+**********************
+``matplotlib.contour``
+**********************
 
 .. automodule:: matplotlib.contour
    :members:

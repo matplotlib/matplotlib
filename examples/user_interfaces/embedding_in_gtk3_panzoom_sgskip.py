@@ -1,7 +1,7 @@
 """
-=========================
-Embedding In GTK3 Panzoom
-=========================
+===========================================
+Embedding in GTK3 with a navigation toolbar
+===========================================
 
 Demonstrate NavigationToolbar with GTK3 accessed via pygobject.
 """

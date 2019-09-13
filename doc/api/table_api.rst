@@ -1,9 +1,6 @@
-*****
-table
-*****
-
-:mod:`matplotlib.table`
-===================================
+********************
+``matplotlib.table``
+********************
 
 .. automodule:: matplotlib.table
    :members:

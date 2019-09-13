@@ -3,10 +3,10 @@
 Annotating Plots
 ================
 
-The following examples show how it is possible to annotate plots in matplotlib.
+The following examples show how it is possible to annotate plots in Matplotlib.
 This includes highlighting specific points of interest and using various
 visual tools to call attention to this point. For a more complete and in-depth
-description of the annotation and text tools in :mod:`matplotlib`, see the
+description of the annotation and text tools in Matplotlib, see the
 :doc:`tutorial on annotation </tutorials/text/annotations>`.
 """
 
@@ -20,21 +20,21 @@ from matplotlib.text import OffsetFrom
 # Specifying text points and annotation points
 # --------------------------------------------
 #
-# You must specify an annotation point `xy=(x,y)` to annotate this point.
-# additionally, you may specify a text point `xytext=(x,y)` for the
-# location of the text for this annotation.  Optionally, you can
-# specify the coordinate system of `xy` and `xytext` with one of the
-# following strings for `xycoords` and `textcoords` (default is 'data')::
+# You must specify an annotation point ``xy=(x, y)`` to annotate this point.
+# Additionally, you may specify a text point ``xytext=(x, y)`` for the location
+# of the text for this annotation.  Optionally, you can specify the coordinate
+# system of *xy* and *xytext* with one of the following strings for *xycoords*
+# and *textcoords* (default is 'data')::
 #
-#   'figure points'   : points from the lower left corner of the figure
-#   'figure pixels'   : pixels from the lower left corner of the figure
-#   'figure fraction' : 0,0 is lower left of figure and 1,1 is upper, right
-#   'axes points'     : points from lower left corner of axes
-#   'axes pixels'     : pixels from lower left corner of axes
-#   'axes fraction'   : 0,0 is lower left of axes and 1,1 is upper right
-#   'offset points'   : Specify an offset (in points) from the xy value
-#   'offset pixels'   : Specify an offset (in pixels) from the xy value
-#   'data'            : use the axes data coordinate system
+#  'figure points'   : points from the lower left corner of the figure
+#  'figure pixels'   : pixels from the lower left corner of the figure
+#  'figure fraction' : (0, 0) is lower left of figure and (1, 1) is upper right
+#  'axes points'     : points from lower left corner of axes
+#  'axes pixels'     : pixels from lower left corner of axes
+#  'axes fraction'   : (0, 0) is lower left of axes and (1, 1) is upper right
+#  'offset points'   : Specify an offset (in points) from the xy value
+#  'offset pixels'   : Specify an offset (in pixels) from the xy value
+#  'data'            : use the axes data coordinate system
 #
 # Note: for physical coordinate systems (points or pixels) the origin is the
 # (bottom, left) of the figure or axes.
@@ -100,11 +100,11 @@ ax.set(xlim=(-1, 5), ylim=(-3, 5))
 # Using multiple coordinate systems and axis types
 # ------------------------------------------------
 #
-# You can specify the xypoint and the xytext in different positions and
-# coordinate systems, and optionally turn on a connecting line and mark
-# the point with a marker.  Annotations work on polar axes too.
+# You can specify the *xypoint* and the *xytext* in different positions and
+# coordinate systems, and optionally turn on a connecting line and mark the
+# point with a marker.  Annotations work on polar axes too.
 #
-# In the example below, the xy point is in native coordinates (xycoords
+# In the example below, the *xy* point is in native coordinates (*xycoords*
 # defaults to 'data').  For a polar axes, this is in (theta, radius) space.
 # The text in the example is placed in the fractional figure coordinate system.
 # Text keyword args like horizontal and vertical alignment are respected.
@@ -151,7 +151,7 @@ ax.set(xlim=[-20, 20], ylim=[-20, 20])
 # Customizing arrow and bubble styles
 # -----------------------------------
 #
-# The arrow between xytext and the annotation point, as well as the bubble
+# The arrow between *xytext* and the annotation point, as well as the bubble
 # that covers the annotation text, are highly customizable. Below are a few
 # parameter options as well as their resulting output.
 

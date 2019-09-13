@@ -1,7 +1,7 @@
 """
-================
-Embedding In Wx3
-================
+==================
+Embedding in wx #3
+==================
 
 Copyright (C) 2003-2004 Andrew Straw, Jeremy O'Donoghue and others
 
@@ -12,9 +12,9 @@ https://docs.python.org/3/license.html
 This is yet another example of using matplotlib with wx.  Hopefully
 this is pretty full-featured:
 
-  - both matplotlib toolbar and WX buttons manipulate plot
-  - full wxApp framework, including widget interaction
-  - XRC (XML wxWidgets resource) file to create GUI (made with XRCed)
+- both matplotlib toolbar and WX buttons manipulate plot
+- full wxApp framework, including widget interaction
+- XRC (XML wxWidgets resource) file to create GUI (made with XRCed)
 
 This was derived from embedding_in_wx and dynamic_image_wxagg.
 
@@ -46,7 +46,6 @@ class PlotPanel(wx.Panel):
         self.canvas = FigureCanvas(self, -1, self.fig)
         self.toolbar = NavigationToolbar(self.canvas)  # matplotlib toolbar
         self.toolbar.Realize()
-        # self.toolbar.set_active([0,1])
 
         # Now put all into a sizer
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -131,7 +130,6 @@ class MyApp(wx.App):
         bang_button.Bind(wx.EVT_BUTTON, self.OnBang)
 
         # final setup ------------------
-        sizer = self.panel.GetSizer()
         self.frame.Show(1)
 
         self.SetTopWindow(self.frame)

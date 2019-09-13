@@ -212,7 +212,6 @@ files['pylab'] = [
     'pcolor_log.py',
     'pcolor_small.py',
     'pie_demo2.py',
-    'plotfile_demo.py',
     'polar_demo.py',
     'polar_legend.py',
     'psd_demo.py',
@@ -311,7 +310,7 @@ excluded = {
 
 
 def report_missing(dir, flist):
-    'report the py files in dir that are not in flist'
+    """Report the .py files in *dir* that are not in *flist*."""
     globstr = os.path.join(dir, '*.py')
     fnames = glob.glob(globstr)
 
@@ -418,7 +417,7 @@ def drive(backend, directories, python=['python'], switches=[]):
 
 
 def parse_options():
-    doc = (__doc__ and __doc__.split('\n\n')) or "  "
+    doc = __doc__.split("\n\n") if __doc__ else "  "
     op = OptionParser(description=doc[0].strip(),
                       usage='%prog [options] [--] [backends and switches]',
                       #epilog='\n'.join(doc[1:])  # epilog not supported on my python2.4 machine: JDH

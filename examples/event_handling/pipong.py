@@ -34,7 +34,7 @@ press 'g' -- toggle the game on/off
   """
 
 
-class Pad(object):
+class Pad:
     def __init__(self, disp, x, y, type='l'):
         self.disp = disp
         self.x = x
@@ -57,7 +57,7 @@ class Pad(object):
         return self.disp.get_bbox().contains(loc.x, loc.y)
 
 
-class Puck(object):
+class Puck:
     def __init__(self, disp, pad, field):
         self.vmax = .2
         self.disp = disp
@@ -120,7 +120,7 @@ class Puck(object):
             self.vy = -self.vmax
 
 
-class Game(object):
+class Game:
     def __init__(self, ax):
         # create the initial line
         self.ax = ax
@@ -169,9 +169,8 @@ class Game(object):
         self.on = False
         self.inst = True    # show instructions from the beginning
         self.background = None
-        self.pads = []
-        self.pads.append(Pad(pA, padAx, padAy))
-        self.pads.append(Pad(pB, padBx, padBy, 'r'))
+        self.pads = [Pad(pA, padAx, padAy),
+                     Pad(pB, padBx, padBy, 'r')]
         self.pucks = []
         self.i = self.ax.annotate(instructions, (.5, 0.5),
                                   name='monospace',

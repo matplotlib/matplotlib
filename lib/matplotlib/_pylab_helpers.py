@@ -4,10 +4,9 @@ Manage figures for pyplot interface.
 
 import atexit
 import gc
-import sys
 
 
-class Gcf(object):
+class Gcf:
     """
     Singleton to manage a set of integer-numbered figures.
 
@@ -16,12 +15,11 @@ class Gcf(object):
     methods that operate on those attributes, accessing them
     directly as class attributes.
 
-    Attributes:
-
-        *figs*:
+    Attributes
+    ----------
+    figs
           dictionary of the form {*num*: *manager*, ...}
-
-        *_activeQue*:
+    _activeQue
           list of *managers*, with active one at the end
 
     """
@@ -114,10 +112,7 @@ class Gcf(object):
         Make the figure corresponding to *manager* the active one.
         """
         oldQue = cls._activeQue[:]
-        cls._activeQue = []
-        for m in oldQue:
-            if m != manager:
-                cls._activeQue.append(m)
+        cls._activeQue = [m for m in oldQue if m != manager]
         cls._activeQue.append(manager)
         cls.figs[manager.num] = manager
 

@@ -5,7 +5,7 @@ Scatter plot with pie chart markers
 
 This example makes custom 'pie charts' as the markers for a scatter plot.
 
-Thanks to Manuel Metz for the example
+Thanks to Manuel Metz for the example.
 """
 
 import numpy as np
@@ -19,31 +19,26 @@ r2 = r1 + 0.4  # 40%
 sizes = np.array([60, 80, 120])
 
 # calculate the points of the first pie marker
-#
-# these are just the origin (0,0) +
-# some points on a circle cos,sin
-x = [0] + np.cos(np.linspace(0, 2 * np.pi * r1, 10)).tolist()
-y = [0] + np.sin(np.linspace(0, 2 * np.pi * r1, 10)).tolist()
-xy1 = np.column_stack([x, y])
+# these are just the origin (0, 0) + some (cos, sin) points on a circle
+x1 = np.cos(2 * np.pi * np.linspace(0, r1))
+y1 = np.sin(2 * np.pi * np.linspace(0, r1))
+xy1 = np.row_stack([[0, 0], np.column_stack([x1, y1])])
 s1 = np.abs(xy1).max()
 
-x = [0] + np.cos(np.linspace(2 * np.pi * r1, 2 * np.pi * r2, 10)).tolist()
-y = [0] + np.sin(np.linspace(2 * np.pi * r1, 2 * np.pi * r2, 10)).tolist()
-xy2 = np.column_stack([x, y])
+x2 = np.cos(2 * np.pi * np.linspace(r1, r2))
+y2 = np.sin(2 * np.pi * np.linspace(r1, r2))
+xy2 = np.row_stack([[0, 0], np.column_stack([x2, y2])])
 s2 = np.abs(xy2).max()
 
-x = [0] + np.cos(np.linspace(2 * np.pi * r2, 2 * np.pi, 10)).tolist()
-y = [0] + np.sin(np.linspace(2 * np.pi * r2, 2 * np.pi, 10)).tolist()
-xy3 = np.column_stack([x, y])
+x3 = np.cos(2 * np.pi * np.linspace(r2, 1))
+y3 = np.sin(2 * np.pi * np.linspace(r2, 1))
+xy3 = np.row_stack([[0, 0], np.column_stack([x3, y3])])
 s3 = np.abs(xy3).max()
 
 fig, ax = plt.subplots()
-ax.scatter(range(3), range(3), marker=xy1,
-           s=s1 ** 2 * sizes, facecolor='blue')
-ax.scatter(range(3), range(3), marker=xy2,
-           s=s2 ** 2 * sizes, facecolor='green')
-ax.scatter(range(3), range(3), marker=xy3,
-           s=s3 ** 2 * sizes, facecolor='red')
+ax.scatter(range(3), range(3), marker=xy1, s=s1**2 * sizes, facecolor='blue')
+ax.scatter(range(3), range(3), marker=xy2, s=s2**2 * sizes, facecolor='green')
+ax.scatter(range(3), range(3), marker=xy3, s=s3**2 * sizes, facecolor='red')
 
 plt.show()
 

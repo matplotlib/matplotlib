@@ -18,9 +18,8 @@ and :class:`Colorbar`; the :func:`~matplotlib.pyplot.colorbar` function
 is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
 
 '''
-
+import copy
 import logging
-import warnings
 
 import numpy as np
 
@@ -67,11 +66,11 @@ colormap_kw_doc = '''
     ============  ====================================================
     Property      Description
     ============  ====================================================
-    *extend*      [ 'neither' | 'both' | 'min' | 'max' ]
+    *extend*      {'neither', 'both', 'min', 'max'}
                   If not 'neither', make pointed end(s) for out-of-
                   range values.  These are set for a given colormap
                   using the colormap set_under and set_over methods.
-    *extendfrac*  [ *None* | 'auto' | length | lengths ]
+    *extendfrac*  {*None*, 'auto', length, lengths}
                   If set to *None*, both the minimum and maximum
                   triangular colorbar extensions with have a length of
                   5% of the interior colorbar length (this is the
@@ -91,14 +90,14 @@ colormap_kw_doc = '''
                   If *False* the minimum and maximum colorbar extensions
                   will be triangular (the default). If *True* the
                   extensions will be rectangular.
-    *spacing*     [ 'uniform' | 'proportional' ]
+    *spacing*     {'uniform', 'proportional'}
                   Uniform spacing gives each discrete color the same
                   space; proportional makes the space proportional to
                   the data interval.
-    *ticks*       [ None | list of ticks | Locator object ]
+    *ticks*       *None* or list of ticks or Locator
                   If None, ticks are determined automatically from the
                   input.
-    *format*      [ None | format string | Formatter object ]
+    *format*      None or str or Formatter
                   If None, the
                   :class:`~matplotlib.ticker.ScalarFormatter` is used.
                   If a format string is given, e.g., '%.3f', that is
@@ -141,13 +140,17 @@ but the first are also method signatures for the
 
 Parameters
 ----------
-mappable :
-    The :class:`~matplotlib.image.Image`,
-    :class:`~matplotlib.contour.ContourSet`, etc. to
-    which the colorbar applies; this argument is mandatory for the Figure
-    :meth:`~matplotlib.figure.Figure.colorbar` method but optional for the
-    pyplot :func:`~matplotlib.pyplot.colorbar` function, which sets the
-    default to the current image.
+mappable
+    The `matplotlib.cm.ScalarMappable` (i.e., `~matplotlib.image.Image`,
+    `~matplotlib.contour.ContourSet`, etc.) described by this colorbar.
+    This argument is mandatory for the `.Figure.colorbar` method but optional
+    for the `.pyplot.colorbar` function, which sets the default to the current
+    image.
+
+    Note that one can create a `ScalarMappable` "on-the-fly" to generate
+    colorbars not attached to a previously drawn artist, e.g. ::
+
+        fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
 
 cax : :class:`~matplotlib.axes.Axes` object, optional
     Axes into which the colorbar will be drawn.
@@ -158,18 +161,15 @@ ax : :class:`~matplotlib.axes.Axes`, list of Axes, optional
     colorbar axes.
 
 use_gridspec : bool, optional
-    If *cax* is ``None``, a new *cax* is created as an instance of
-    Axes. If *ax* is an instance of Subplot and *use_gridspec* is ``True``,
-    *cax* is created as an instance of Subplot using the
-    grid_spec module.
-
+    If *cax* is ``None``, a new *cax* is created as an instance of Axes.  If
+    *ax* is an instance of Subplot and *use_gridspec* is ``True``, *cax* is
+    created as an instance of Subplot using the :mod:`~.gridspec` module.
 
 Returns
 -------
-:class:`~matplotlib.colorbar.Colorbar` instance
-    See also its base class, :class:`~matplotlib.colorbar.ColorbarBase`.
-    Call the :meth:`~matplotlib.colorbar.ColorbarBase.set_label` method
-    to label the colorbar.
+colorbar : `~matplotlib.colorbar.Colorbar`
+    See also its base class, `~matplotlib.colorbar.ColorbarBase`.  Use
+    `~.ColorbarBase.set_label` to label the colorbar.
 
 Notes
 -----
@@ -184,25 +184,25 @@ If *mappable* is a :class:`~matplotlib.contours.ContourSet`, its *extend*
 kwarg is included automatically.
 
 The *shrink* kwarg provides a simple way to scale the colorbar with respect
-to the axes. Note that if *cax* is specified it determines the size of the
+to the axes. Note that if *cax* is specified, it determines the size of the
 colorbar and *shrink* and *aspect* kwargs are ignored.
 
 For more precise control, you can manually specify the positions of
 the axes objects in which the mappable and the colorbar are drawn.  In
 this case, do not use any of the axes properties kwargs.
 
-It is known that some vector graphics viewer (svg and pdf) renders white gaps
-between segments of the colorbar. This is due to bugs in the viewers not
-matplotlib. As a workaround the colorbar can be rendered with overlapping
+It is known that some vector graphics viewers (svg and pdf) renders white gaps
+between segments of the colorbar.  This is due to bugs in the viewers, not
+Matplotlib.  As a workaround, the colorbar can be rendered with overlapping
 segments::
 
     cbar = colorbar()
     cbar.solids.set_edgecolor("face")
     draw()
 
-However this has negative consequences in other circumstances. Particularly
-with semi transparent images (alpha < 1) and colorbar extensions and is not
-enabled by default see (issue #1188).
+However this has negative consequences in other circumstances, e.g. with
+semi-transparent images (alpha < 1) and colorbar extensions; therefore, this
+workaround is not used by default (see issue #1188).
 
 ''' % (make_axes_kw_doc, colormap_kw_doc)
 
@@ -212,7 +212,7 @@ docstring.interpd.update(colorbar_doc=colorbar_doc)
 def _set_ticks_on_axis_warn(*args, **kw):
     # a top level function which gets put in at the axes'
     # set_xticks set_yticks by _patch_ax
-    warnings.warn("Use the colorbar set_ticks() method instead.")
+    cbook._warn_external("Use the colorbar set_ticks() method instead.")
 
 
 class _ColorbarAutoLocator(ticker.MaxNLocator):
@@ -235,13 +235,17 @@ class _ColorbarAutoLocator(ticker.MaxNLocator):
         self._colorbar = colorbar
         nbins = 'auto'
         steps = [1, 2, 2.5, 5, 10]
-        ticker.MaxNLocator.__init__(self, nbins=nbins, steps=steps)
+        super().__init__(nbins=nbins, steps=steps)
 
     def tick_values(self, vmin, vmax):
+        # flip if needed:
+        if vmin > vmax:
+            vmin, vmax = vmax, vmin
         vmin = max(vmin, self._colorbar.norm.vmin)
         vmax = min(vmax, self._colorbar.norm.vmax)
-        ticks = ticker.MaxNLocator.tick_values(self, vmin, vmax)
-        return ticks[(ticks >= vmin) & (ticks <= vmax)]
+        ticks = super().tick_values(vmin, vmax)
+        rtol = (vmax - vmin) * 1e-10
+        return ticks[(ticks >= vmin - rtol) & (ticks <= vmax + rtol)]
 
 
 class _ColorbarAutoMinorLocator(ticker.AutoMinorLocator):
@@ -261,13 +265,14 @@ class _ColorbarAutoMinorLocator(ticker.AutoMinorLocator):
         """
         self._colorbar = colorbar
         self.ndivs = n
-        ticker.AutoMinorLocator.__init__(self, n=None)
+        super().__init__(n=None)
 
     def __call__(self):
         vmin = self._colorbar.norm.vmin
         vmax = self._colorbar.norm.vmax
-        ticks = ticker.AutoMinorLocator.__call__(self)
-        return ticks[(ticks >= vmin) & (ticks <= vmax)]
+        ticks = super().__call__()
+        rtol = (vmax - vmin) * 1e-10
+        return ticks[(ticks >= vmin - rtol) & (ticks <= vmax + rtol)]
 
 
 class _ColorbarLogLocator(ticker.LogLocator):
@@ -290,50 +295,133 @@ class _ColorbarLogLocator(ticker.LogLocator):
         same as `~.ticker.LogLocator`.
         """
         self._colorbar = colorbar
-        ticker.LogLocator.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def tick_values(self, vmin, vmax):
-        vmin = self._colorbar.norm.vmin
-        vmax = self._colorbar.norm.vmax
-        ticks = ticker.LogLocator.tick_values(self, vmin, vmax)
-        return ticks[(ticks >= vmin) & (ticks <= vmax)]
+        if vmin > vmax:
+            vmin, vmax = vmax, vmin
+        vmin = max(vmin, self._colorbar.norm.vmin)
+        vmax = min(vmax, self._colorbar.norm.vmax)
+        ticks = super().tick_values(vmin, vmax)
+        rtol = (np.log10(vmax) - np.log10(vmin)) * 1e-10
+        ticks = ticks[(np.log10(ticks) >= np.log10(vmin) - rtol) &
+              (np.log10(ticks) <= np.log10(vmax) + rtol)]
+        return ticks
 
 
-class ColorbarBase(cm.ScalarMappable):
-    '''
+class _ColorbarMappableDummy:
+    """
+    Private class to hold deprecated ColorbarBase methods that used to be
+    inhereted from ScalarMappable.
+    """
+    @cbook.deprecated("3.1", alternative="ScalarMappable.set_norm")
+    def set_norm(self, norm):
+        """
+        `.colorbar.Colorbar.set_norm` does nothing; set the norm on
+        the mappable associated with this colorbar.
+        """
+        pass
+
+    @cbook.deprecated("3.1", alternative="ScalarMappable.set_cmap")
+    def set_cmap(self, cmap):
+        """
+        `.colorbar.Colorbar.set_cmap` does nothing; set the norm on
+        the mappable associated with this colorbar.
+        """
+        pass
+
+    @cbook.deprecated("3.1", alternative="ScalarMappable.set_clim")
+    def set_clim(self, vmin=None, vmax=None):
+        """
+        `.colorbar.Colorbar.set_clim` does nothing; set the limits on
+        the mappable associated with this colorbar.
+        """
+        pass
+
+    @cbook.deprecated("3.1", alternative="ScalarMappable.get_cmap")
+    def get_cmap(self):
+        """Return the colormap."""
+        return self.cmap
+
+    @cbook.deprecated("3.1", alternative="ScalarMappable.get_clim")
+    def get_clim(self):
+        """Return the min, max of the color limits for image scaling."""
+        return self.norm.vmin, self.norm.vmax
+
+
+class ColorbarBase(_ColorbarMappableDummy):
+    r"""
     Draw a colorbar in an existing axes.
 
-    This is a base class for the :class:`Colorbar` class, which is the
-    basis for the :func:`~matplotlib.pyplot.colorbar` function and the
-    :meth:`~matplotlib.figure.Figure.colorbar` method, which are the
-    usual ways of creating a colorbar.
+    There are only some rare cases in which you would work directly with a
+    `.ColorbarBase` as an end-user. Typically, colorbars are used
+    with `.ScalarMappable`\s such as an `.AxesImage` generated via
+    `~.axes.Axes.imshow`. For these cases you will use `.Colorbar` and
+    likely create it via `.pyplot.colorbar` or `.Figure.colorbar`.
 
-    It is also useful by itself for showing a colormap.  If the *cmap*
-    kwarg is given but *boundaries* and *values* are left as None,
-    then the colormap will be displayed on a 0-1 scale. To show the
+    The main application of using a `.ColorbarBase` explicitly is drawing
+    colorbars that are not associated with other elements in the figure, e.g.
+    when showing a colormap by itself.
+
+    If the *cmap* kwarg is given but *boundaries* and *values* are left as
+    None, then the colormap will be displayed on a 0-1 scale. To show the
     under- and over-value colors, specify the *norm* as::
 
-        colors.Normalize(clip=False)
+        norm=colors.Normalize(clip=False)
 
     To show the colors versus index instead of on the 0-1 scale,
     use::
 
-        norm=colors.NoNorm.
+        norm=colors.NoNorm()
 
     Useful public methods are :meth:`set_label` and :meth:`add_lines`.
 
     Attributes
     ----------
-    ax : Axes
-        The `Axes` instance in which the colorbar is drawn.
-
+    ax : `~matplotlib.axes.Axes`
+        The `~.axes.Axes` instance in which the colorbar is drawn.
     lines : list
-        A list of `LineCollection` if lines were drawn, otherwise
+        A list of `.LineCollection` if lines were drawn, otherwise
         an empty list.
-
-    dividers : LineCollection
+    dividers : `.LineCollection`
         A LineCollection if *drawedges* is ``True``, otherwise ``None``.
-    '''
+
+    Parameters
+    ----------
+    ax : `~matplotlib.axes.Axes`
+        The `~.axes.Axes` instance in which the colorbar is drawn.
+    cmap : `~matplotlib.colors.Colormap` or None
+        The colormap to use. If *None*, use :rc:`image.cmap`.
+    norm : `~matplotlib.colors.Normalize`
+
+    alpha : float
+
+    values
+
+    boundaries
+
+    orientation : {'vertical', 'horizontal'}
+
+    ticklocation : {'auto', 'left', 'right', 'top', 'bottom'}
+
+    extend : {'neiter', 'both', 'min', 'max'}
+
+    spacing : {'uniform', 'proportional'}
+
+    ticks : `~matplotlib.ticker.Locator` or array-like of float
+
+    format : str or `~matplotlib.ticker.Formatter`
+
+    drawedges : bool
+
+    filled : bool
+
+    extendfrac
+
+    extendrec
+
+    label : str
+    """
     _slice_dict = {'neither': slice(0, None),
                    'both': slice(1, -1),
                    'min': slice(1, None),
@@ -358,7 +446,17 @@ class ColorbarBase(cm.ScalarMappable):
                  extendrect=False,
                  label='',
                  ):
-        #: The axes that this colorbar lives in.
+        cbook._check_isinstance([colors.Colormap, None], cmap=cmap)
+        cbook._check_in_list(
+            ['vertical', 'horizontal'], orientation=orientation)
+        cbook._check_in_list(
+            ['auto', 'left', 'right', 'top', 'bottom'],
+            ticklocation=ticklocation)
+        cbook._check_in_list(
+            self._slice_dict, extend=extend)
+        cbook._check_in_list(
+            ['uniform', 'proportional'], spacing=spacing)
+
         self.ax = ax
         self._patch_ax()
         if cmap is None:
@@ -366,7 +464,8 @@ class ColorbarBase(cm.ScalarMappable):
         if norm is None:
             norm = colors.Normalize()
         self.alpha = alpha
-        cm.ScalarMappable.__init__(self, cmap=cmap, norm=norm)
+        self.cmap = cmap
+        self.norm = norm
         self.values = values
         self.boundaries = boundaries
         self.extend = extend
@@ -382,38 +481,34 @@ class ColorbarBase(cm.ScalarMappable):
         self.outline = None
         self.patch = None
         self.dividers = None
+        self.locator = None
+        self.formatter = None
+        self._manual_tick_data_values = None
 
         if ticklocation == 'auto':
             ticklocation = 'bottom' if orientation == 'horizontal' else 'right'
         self.ticklocation = ticklocation
 
         self.set_label(label)
-        if cbook.iterable(ticks):
+        self._reset_locator_formatter_scale()
+
+        if np.iterable(ticks):
             self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
             self.locator = ticks    # Handle default in _ticker()
-        if format is None:
-            if isinstance(self.norm, colors.LogNorm):
-                self.formatter = ticker.LogFormatterSciNotation()
-            elif isinstance(self.norm, colors.SymLogNorm):
-                self.formatter = ticker.LogFormatterSciNotation(
-                                        linthresh=self.norm.linthresh)
-            else:
-                self.formatter = ticker.ScalarFormatter()
-        elif isinstance(format, str):
+
+        if isinstance(format, str):
             self.formatter = ticker.FormatStrFormatter(format)
         else:
-            self.formatter = format  # Assume it is a Formatter
-        # The rest is in a method so we can recalculate when clim changes.
-        self.config_axis()
+            self.formatter = format  # Assume it is a Formatter or None
         self.draw_all()
 
     def _extend_lower(self):
-        """Returns whether the lower limit is open ended."""
+        """Return whether the lower limit is open ended."""
         return self.extend in ('both', 'min')
 
     def _extend_upper(self):
-        """Returns whether the uper limit is open ended."""
+        """Return whether the uper limit is open ended."""
         return self.extend in ('both', 'max')
 
     def _patch_ax(self):
@@ -427,7 +522,6 @@ class ColorbarBase(cm.ScalarMappable):
         Calculate any free parameters based on the current cmap and norm,
         and do all the drawing.
         '''
-
         # sets self._boundaries and self._values in real data units.
         # takes into account extend values:
         self._process_values()
@@ -439,18 +533,14 @@ class ColorbarBase(cm.ScalarMappable):
         # units:
         X, Y = self._mesh()
         C = self._values[:, np.newaxis]
+        # decide minor/major axis
+        self.config_axis()
         self._config_axes(X, Y)
         if self.filled:
             self._add_solids(X, Y, C)
 
     def config_axis(self):
         ax = self.ax
-        if (isinstance(self.norm, colors.LogNorm)
-                and self._use_auto_colorbar_locator()):
-            # *both* axes are made log so that determining the
-            # mid point is easier.
-            ax.set_xscale('log')
-            ax.set_yscale('log')
 
         if self.orientation == 'vertical':
             long_axis, short_axis = ax.yaxis, ax.xaxis
@@ -461,7 +551,6 @@ class ColorbarBase(cm.ScalarMappable):
         long_axis.set_ticks_position(self.ticklocation)
         short_axis.set_ticks([])
         short_axis.set_ticks([], minor=True)
-
         self._set_label()
 
     def _get_ticker_locator_formatter(self):
@@ -499,6 +588,20 @@ class ColorbarBase(cm.ScalarMappable):
             else:
                 b = self._boundaries[self._inside]
                 locator = ticker.FixedLocator(b, nbins=10)
+
+        if formatter is None:
+            if isinstance(self.norm, colors.LogNorm):
+                formatter = ticker.LogFormatterSciNotation()
+            elif isinstance(self.norm, colors.SymLogNorm):
+                formatter = ticker.LogFormatterSciNotation(
+                                        linthresh=self.norm.linthresh)
+            else:
+                formatter = ticker.ScalarFormatter()
+        else:
+            formatter = self.formatter
+
+        self.locator = locator
+        self.formatter = formatter
         _log.debug('locator: %r', locator)
         return locator, formatter
 
@@ -507,10 +610,29 @@ class ColorbarBase(cm.ScalarMappable):
         Return if we should use an adjustable tick locator or a fixed
         one.  (check is used twice so factored out here...)
         """
-        return (self.boundaries is None
-                and self.values is None
-                and ((type(self.norm) == colors.Normalize)
-                    or (type(self.norm) == colors.LogNorm)))
+        contouring = ((self.boundaries is not None) and
+                      (self.spacing == 'uniform'))
+        return (((type(self.norm) == colors.Normalize)
+                    or (type(self.norm) == colors.LogNorm))
+                    and not contouring)
+
+    def _reset_locator_formatter_scale(self):
+        """
+        Reset the locator et al to defaults.  Any user-hardcoded changes
+        need to be re-entered if this gets called (either at init, or when
+        the mappable normal gets changed: Colorbar.update_normal)
+        """
+        self.locator = None
+        self.formatter = None
+        if (isinstance(self.norm, colors.LogNorm)):
+            # *both* axes are made log so that determining the
+            # mid point is easier.
+            self.ax.set_xscale('log')
+            self.ax.set_yscale('log')
+            self.minorticks_on()
+        else:
+            self.ax.set_xscale('linear')
+            self.ax.set_yscale('linear')
 
     def update_ticks(self):
         """
@@ -518,26 +640,14 @@ class ColorbarBase(cm.ScalarMappable):
         called whenever the tick locator and/or tick formatter changes.
         """
         ax = self.ax
-        # get the locator and formatter.  Defaults to
-        # self.locator if not None..
+        # Get the locator and formatter; defaults to self.locator if not None.
         locator, formatter = self._get_ticker_locator_formatter()
-
-        if self.orientation == 'vertical':
-            long_axis, short_axis = ax.yaxis, ax.xaxis
-        else:
-            long_axis, short_axis = ax.xaxis, ax.yaxis
-
+        long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
         if self._use_auto_colorbar_locator():
             _log.debug('Using auto colorbar locator on colorbar')
             _log.debug('locator: %r', locator)
             long_axis.set_major_locator(locator)
             long_axis.set_major_formatter(formatter)
-            if type(self.norm) == colors.LogNorm:
-                long_axis.set_minor_locator(_ColorbarLogLocator(self,
-                            base=10., subs='auto'))
-                long_axis.set_minor_formatter(
-                    ticker.LogFormatter()
-                )
         else:
             _log.debug('Using fixed locator on colorbar')
             ticks, ticklabels, offset_string = self._ticker(locator, formatter)
@@ -559,7 +669,7 @@ class ColorbarBase(cm.ScalarMappable):
             use :meth:`update_ticks` to manually update the ticks.
 
         """
-        if cbook.iterable(ticks):
+        if np.iterable(ticks):
             self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
             self.locator = ticks
@@ -569,22 +679,55 @@ class ColorbarBase(cm.ScalarMappable):
         self.stale = True
 
     def get_ticks(self, minor=False):
-        """Return the x ticks as a list of locations"""
-        return self._tick_data_values
+        """Return the x ticks as a list of locations."""
+        if self._manual_tick_data_values is None:
+            ax = self.ax
+            long_axis = (
+                ax.yaxis if self.orientation == 'vertical' else ax.xaxis)
+            return long_axis.get_majorticklocs()
+        else:
+            # We made the axes manually, the old way, and the ylim is 0-1,
+            # so the majorticklocs are in those units, not data units.
+            return self._manual_tick_data_values
 
     def set_ticklabels(self, ticklabels, update_ticks=True):
         """
-        set tick labels. Tick labels are updated immediately unless
-        update_ticks is *False*. To manually update the ticks, call
-        *update_ticks* method explicitly.
+        Set tick labels.
+
+        Tick labels are updated immediately unless *update_ticks* is *False*,
+        in which case one should call `.update_ticks` explicitly.
         """
         if isinstance(self.locator, ticker.FixedLocator):
             self.formatter = ticker.FixedFormatter(ticklabels)
             if update_ticks:
                 self.update_ticks()
         else:
-            warnings.warn("set_ticks() must have been called.")
+            cbook._warn_external("set_ticks() must have been called.")
         self.stale = True
+
+    def minorticks_on(self):
+        """
+        Turns on the minor ticks on the colorbar without extruding
+        into the "extend regions".
+        """
+        ax = self.ax
+        long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
+
+        if long_axis.get_scale() == 'log':
+            long_axis.set_minor_locator(_ColorbarLogLocator(self, base=10.,
+                                                            subs='auto'))
+            long_axis.set_minor_formatter(ticker.LogFormatterSciNotation())
+        else:
+            long_axis.set_minor_locator(_ColorbarAutoMinorLocator(self))
+
+    def minorticks_off(self):
+        """
+        Turns off the minor ticks on the colorbar.
+        """
+        ax = self.ax
+        long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
+
+        long_axis.set_minor_locator(ticker.NullLocator())
 
     def _config_axes(self, X, Y):
         '''
@@ -594,6 +737,7 @@ class ColorbarBase(cm.ScalarMappable):
         ax.set_frame_on(False)
         ax.set_navigate(False)
         xy = self._outline(X, Y)
+        ax.ignore_existing_data_limits = True
         ax.update_datalim(xy)
         ax.set_xlim(*ax.dataLim.intervalx)
         ax.set_ylim(*ax.dataLim.intervaly)
@@ -627,10 +771,8 @@ class ColorbarBase(cm.ScalarMappable):
         self.stale = True
 
     def set_label(self, label, **kw):
-        '''
-        Label the long axis of the colorbar
-        '''
-        self._label = '%s' % (label, )
+        """Label the long axis of the colorbar."""
+        self._label = label
         self._labelkw = kw
         self._set_label()
 
@@ -641,13 +783,11 @@ class ColorbarBase(cm.ScalarMappable):
         '''
         N = X.shape[0]
         ii = [0, 1, N - 2, N - 1, 2 * N - 1, 2 * N - 2, N + 1, N, 0]
-        x = np.take(np.ravel(np.transpose(X)), ii)
-        y = np.take(np.ravel(np.transpose(Y)), ii)
-        x = x.reshape((len(x), 1))
-        y = y.reshape((len(y), 1))
-        if self.orientation == 'horizontal':
-            return np.hstack((y, x))
-        return np.hstack((x, y))
+        x = X.T.reshape(-1)[ii]
+        y = Y.T.reshape(-1)[ii]
+        return (np.column_stack([y, x])
+                if self.orientation == 'horizontal' else
+                np.column_stack([x, y]))
 
     def _edges(self, X, Y):
         '''
@@ -705,13 +845,14 @@ class ColorbarBase(cm.ScalarMappable):
         removing any previously added lines.
         '''
         y = self._locate(levels)
-        igood = (y < 1.001) & (y > -0.001)
+        rtol = (self._y[-1] - self._y[0]) * 1e-10
+        igood = (y < self._y[-1] + rtol) & (y > self._y[0] - rtol)
         y = y[igood]
-        if cbook.iterable(colors):
+        if np.iterable(colors):
             colors = np.asarray(colors)[igood]
-        if cbook.iterable(linewidths):
+        if np.iterable(linewidths):
             linewidths = np.asarray(linewidths)[igood]
-        X, Y = np.meshgrid([0, 1], y)
+        X, Y = np.meshgrid([self._y[0], self._y[-1]], y)
         if self.orientation == 'vertical':
             xy = np.stack([X, Y], axis=-1)
         else:
@@ -750,10 +891,9 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             eps = (intv[1] - intv[0]) * 1e-10
             b = b[(b <= intv[1] + eps) & (b >= intv[0] - eps)]
-        self._tick_data_values = b
+        self._manual_tick_data_values = b
         ticks = self._locate(b)
-        formatter.set_locs(b)
-        ticklabels = [formatter(t, i) for i, t in enumerate(b)]
+        ticklabels = formatter.format_ticks(b)
         offset_string = formatter.get_offset()
         return ticks, ticklabels, offset_string
 
@@ -772,14 +912,14 @@ class ColorbarBase(cm.ScalarMappable):
                                       + self._boundaries[1:])
                 if isinstance(self.norm, colors.NoNorm):
                     self._values = (self._values + 0.00001).astype(np.int16)
-                return
-            self._values = np.array(self.values)
+            else:
+                self._values = np.array(self.values)
             return
         if self.values is not None:
             self._values = np.array(self.values)
             if self.boundaries is None:
-                b = np.zeros(len(self.values) + 1, 'd')
-                b[1:-1] = 0.5 * (self._values[:-1] - self._values[1:])
+                b = np.zeros(len(self.values) + 1)
+                b[1:-1] = 0.5 * (self._values[:-1] + self._values[1:])
                 b[0] = 2.0 * b[1] - b[2]
                 b[-1] = 2.0 * b[-2] - b[-3]
                 self._boundaries = b
@@ -790,7 +930,7 @@ class ColorbarBase(cm.ScalarMappable):
         # make reasonable ones based on cmap and norm.
         if isinstance(self.norm, colors.NoNorm):
             b = self._uniform_y(self.cmap.N + 1) * self.cmap.N - 0.5
-            v = np.zeros((len(b) - 1,), dtype=np.int16)
+            v = np.zeros(len(b) - 1, dtype=np.int16)
             v[self._inside] = np.arange(self.cmap.N, dtype=np.int16)
             if self._extend_lower():
                 v[0] = -1
@@ -806,7 +946,7 @@ class ColorbarBase(cm.ScalarMappable):
             if self._extend_upper():
                 b = b + [b[-1] + 1]
             b = np.array(b)
-            v = np.zeros((len(b) - 1,), dtype=float)
+            v = np.zeros(len(b) - 1)
             bi = self.norm.boundaries
             v[self._inside] = 0.5 * (bi[:-1] + bi[1:])
             if self._extend_lower():
@@ -852,7 +992,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.vmax = b[-1]
 
     def _central_N(self):
-        '''number of boundaries **before** extension of ends'''
+        """Return the number of boundaries excluding end extensions."""
         nb = len(self._boundaries)
         if self.extend == 'both':
             nb -= 2
@@ -881,12 +1021,9 @@ class ColorbarBase(cm.ScalarMappable):
         # Set the default value.
         extendlength = np.array([default, default])
         if isinstance(frac, str):
-            if frac.lower() == 'auto':
-                # Use the provided values when 'auto' is required.
-                extendlength[:] = [automin, automax]
-            else:
-                # Any other string is invalid.
-                raise ValueError('invalid value for extendfrac')
+            cbook._check_in_list(['auto'], extendfrac=frac.lower())
+            # Use the provided values when 'auto' is required.
+            extendlength[:] = [automin, automax]
         elif frac is not None:
             try:
                 # Try to set min and max extension fractions directly.
@@ -966,30 +1103,38 @@ class ColorbarBase(cm.ScalarMappable):
 
     def _mesh(self):
         '''
-        Return X,Y, the coordinate arrays for the colorbar pcolormesh.
-        These are suitable for a vertical colorbar; swapping and
-        transposition for a horizontal colorbar are done outside
-        this function.
-        '''
-        # if boundaries and values are None, then we can go ahead and
-        # scale this up for Auto tick location.  Otherwise we
-        # want to keep normalized between 0 and 1 and use manual tick
-        # locations.
+        Return ``(X, Y)``, the coordinate arrays for the colorbar pcolormesh.
+        These are suitable for a vertical colorbar; swapping and transposition
+        for a horizontal colorbar are done outside this function.
 
+        These are scaled between vmin and vmax.
+        '''
+        # copy the norm and change the vmin and vmax to the vmin and
+        # vmax of the colorbar, not the norm.  This allows the situation
+        # where the colormap has a narrower range than the colorbar, to
+        # accomodate extra contours:
+        norm = copy.copy(self.norm)
+        norm.vmin = self.vmin
+        norm.vmax = self.vmax
         x = np.array([0.0, 1.0])
         if self.spacing == 'uniform':
             y = self._uniform_y(self._central_N())
         else:
             y = self._proportional_y()
-        if self._use_auto_colorbar_locator():
-            y = self.norm.inverse(y)
-            x = self.norm.inverse(x)
+        xmid = np.array([0.5])
+        try:
+            y = norm.inverse(y)
+            x = norm.inverse(x)
+            xmid = norm.inverse(xmid)
+        except ValueError:
+            # occurs for norms that don't have an inverse, in
+            # which case manually scale:
+            dv = self.vmax - self.vmin
+            x = x * dv + self.vmin
+            y = y * dv + self.vmin
+            xmid = xmid * dv + self.vmin
         self._y = y
         X, Y = np.meshgrid(x, y)
-        if self._use_auto_colorbar_locator():
-            xmid = self.norm.inverse(0.5)
-        else:
-            xmid = 0.5
         if self._extend_lower() and not self.extendrect:
             X[0, :] = xmid
         if self._extend_upper() and not self.extendrect:
@@ -1010,20 +1155,19 @@ class ColorbarBase(cm.ScalarMappable):
             b = self.norm(self._boundaries, clip=False).filled()
             xn = self.norm(x, clip=False).filled()
 
-        # The rest is linear interpolation with extrapolation at ends.
-        ii = np.searchsorted(b, xn)
-        i0 = ii - 1
-        itop = (ii == len(b))
-        ibot = (ii == 0)
-        i0[itop] -= 1
-        ii[itop] -= 1
-        i0[ibot] += 1
-        ii[ibot] += 1
+        bunique = b
+        yunique = self._y
+        # trim extra b values at beginning and end if they are
+        # not unique.  These are here for extended colorbars, and are not
+        # wanted for the interpolation.
+        if b[0] == b[1]:
+            bunique = bunique[1:]
+            yunique = yunique[1:]
+        if b[-1] == b[-2]:
+            bunique = bunique[:-1]
+            yunique = yunique[:-1]
 
-        db = np.take(b, ii) - np.take(b, i0)
-        y = self._y
-        dy = np.take(y, ii) - np.take(y, i0)
-        z = np.take(y, i0) + (xn - np.take(b, i0)) * dy / db
+        z = np.interp(xn, bunique, yunique)
         return z
 
     def set_alpha(self, alpha):
@@ -1053,11 +1197,12 @@ class Colorbar(ColorbarBase):
     def __init__(self, ax, mappable, **kw):
         # Ensure the given mappable's norm has appropriate vmin and vmax set
         # even if mappable.draw has not yet been called.
-        mappable.autoscale_None()
+        if mappable.get_array() is not None:
+            mappable.autoscale_None()
 
         self.mappable = mappable
         kw['cmap'] = cmap = mappable.cmap
-        kw['norm'] = norm = mappable.norm
+        kw['norm'] = mappable.norm
 
         if isinstance(mappable, contour.ContourSet):
             CS = mappable
@@ -1065,7 +1210,6 @@ class Colorbar(ColorbarBase):
             kw['boundaries'] = CS._levels
             kw['values'] = CS.cvalues
             kw['extend'] = CS.extend
-            #kw['ticks'] = CS._levels
             kw.setdefault('ticks', ticker.FixedLocator(CS.levels, nbins=10))
             kw['filled'] = CS.filled
             ColorbarBase.__init__(self, ax, **kw)
@@ -1088,8 +1232,7 @@ class Colorbar(ColorbarBase):
         by :func:`colorbar_factory` and should not be called manually.
 
         """
-        self.set_cmap(mappable.get_cmap())
-        self.set_clim(mappable.get_clim())
+        _log.debug('colorbar mappable changed')
         self.update_normal(mappable)
 
     def add_lines(self, CS, erase=True):
@@ -1115,11 +1258,28 @@ class Colorbar(ColorbarBase):
                                erase=erase)
 
     def update_normal(self, mappable):
-        '''
-        update solid, lines, etc. Unlike update_bruteforce, it does
-        not clear the axes.  This is meant to be called when the image
-        or contour plot to which this colorbar belongs is changed.
-        '''
+        """
+        Update solid patches, lines, etc.
+
+        Unlike `.update_bruteforce`, this does not clear the axes.  This is
+        meant to be called when the norm of the image or contour plot to which
+        this colorbar belongs changes.
+
+        If the norm on the mappable is different than before, this resets the
+        locator and formatter for the axis, so if these have been customized,
+        they will need to be customized again.  However, if the norm only
+        changes values of *vmin*, *vmax* or *cmap* then the old formatter
+        and locator will be preserved.
+        """
+
+        _log.debug('colorbar update normal %r %r', mappable.norm, self.norm)
+        self.mappable = mappable
+        self.set_alpha(mappable.get_alpha())
+        self.cmap = mappable.cmap
+        if mappable.norm != self.norm:
+            self.norm = mappable.norm
+            self._reset_locator_formatter_scale()
+
         self.draw_all()
         if isinstance(self.mappable, contour.ContourSet):
             CS = self.mappable
@@ -1141,16 +1301,16 @@ class Colorbar(ColorbarBase):
         # properties have been changed by methods other than the
         # colorbar methods, those changes will be lost.
         self.ax.cla()
+        self.locator = None
+        self.formatter = None
+
         # clearing the axes will delete outline, patch, solids, and lines:
         self.outline = None
         self.patch = None
         self.solids = None
         self.lines = list()
         self.dividers = None
-        self.set_alpha(mappable.get_alpha())
-        self.cmap = mappable.cmap
-        self.norm = mappable.norm
-        self.config_axis()
+        self.update_normal(mappable)
         self.draw_all()
         if isinstance(self.mappable, contour.ContourSet):
             CS = self.mappable
@@ -1191,33 +1351,6 @@ class Colorbar(ColorbarBase):
             # use_gridspec was True
             ax.set_subplotspec(subplotspec)
 
-    def minorticks_on(self):
-        """
-        Turns on the minor ticks on the colorbar without extruding
-        into the "extend regions".
-        """
-        ax = self.ax
-        long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
-
-        if long_axis.get_scale() == 'log':
-            warnings.warn('minorticks_on() has no effect on a '
-                          'logarithmic colorbar axis')
-        else:
-            long_axis.set_minor_locator(_ColorbarAutoMinorLocator(self))
-
-    def minorticks_off(self):
-        """
-        Turns off the minor ticks on the colorbar.
-        """
-        ax = self.ax
-        long_axis = ax.yaxis if self.orientation == 'vertical' else ax.xaxis
-
-        if long_axis.get_scale() == 'log':
-            warnings.warn('minorticks_off() has no effect on a '
-                          'logarithmic colorbar axis')
-        else:
-            long_axis.set_minor_locator(ticker.NullLocator())
-
 
 @docstring.Substitution(make_axes_kw_doc)
 def make_axes(parents, location=None, orientation=None, fraction=0.15,
@@ -1242,6 +1375,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     Returns (cax, kw), the child axes and the reduced kw dictionary to be
     passed when creating the colorbar instance.
     '''
+
     locations = ["left", "right", "top", "bottom"]
     if orientation is not None and location is not None:
         raise TypeError('position and orientation are mutually exclusive. '
@@ -1257,9 +1391,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     if location is None:
         location = 'right' if orientation == 'vertical' else 'bottom'
 
-    if location not in locations:
-        raise ValueError('Invalid colorbar location. Must be one '
-                         'of %s' % ', '.join(locations))
+    cbook._check_in_list(locations, location=location)
 
     default_location_settings = {'left':   {'anchor': (1.0, 0.5),
                                             'panchor': (0.0, 0.5),
@@ -1289,7 +1421,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     anchor = kw.pop('anchor', loc_settings['anchor'])
     parent_anchor = kw.pop('panchor', loc_settings['panchor'])
 
-    parents_iterable = cbook.iterable(parents)
+    parents_iterable = np.iterable(parents)
     # turn parents into a list if it is not already. We do this w/ np
     # because `plt.subplots` can return an ndarray and is natural to
     # pass to `colorbar`.
@@ -1346,7 +1478,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
         if parent_anchor is not False:
             ax.set_anchor(parent_anchor)
 
-    cax = fig.add_axes(pbcb)
+    cax = fig.add_axes(pbcb, label="<colorbar>")
 
     # OK, now make a layoutbox for the cb axis.  Later, we will use this
     # to make the colorbar fit nicely.
@@ -1460,7 +1592,7 @@ def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
     parent.set_anchor(panchor)
 
     fig = parent.get_figure()
-    cax = fig.add_subplot(gs2[1])
+    cax = fig.add_subplot(gs2[1], label="<colorbar>")
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw
 
@@ -1487,8 +1619,6 @@ class ColorbarPatch(Colorbar):
         Draw the colors using :class:`~matplotlib.patches.Patch`;
         optionally add separators.
         """
-        kw = {'alpha': self.alpha, }
-
         n_segments = len(C)
 
         # ensure there are sufficient hatches
@@ -1511,7 +1641,7 @@ class ColorbarPatch(Colorbar):
             patch = mpatches.PathPatch(mpath.Path(xy),
                                        facecolor=self.cmap(self.norm(val)),
                                        hatch=hatch, linewidth=0,
-                                       antialiased=False, **kw)
+                                       antialiased=False, alpha=self.alpha)
             self.ax.add_patch(patch)
             patches.append(patch)
 

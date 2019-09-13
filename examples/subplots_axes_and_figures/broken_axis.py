@@ -42,8 +42,8 @@ ax2.xaxis.tick_bottom()
 # This looks pretty good, and was fairly painless, but you can get that
 # cut-out diagonal lines look with just a bit more work. The important
 # thing to know here is that in axes coordinates, which are always
-# between 0-1, spine endpoints are at these locations (0,0), (0,1),
-# (1,0), and (1,1).  Thus, we just need to put the diagonals in the
+# between 0-1, spine endpoints are at these locations (0, 0), (0, 1),
+# (1, 0), and (1, 1).  Thus, we just need to put the diagonals in the
 # appropriate corners of each of our axes, and so long as we use the
 # right transform and disable clipping.
 

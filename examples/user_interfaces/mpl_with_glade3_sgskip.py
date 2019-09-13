@@ -17,7 +17,7 @@ from matplotlib.backends.backend_gtk3agg import (
 import numpy as np
 
 
-class Window1Signals(object):
+class Window1Signals:
     def on_window1_destroy(self, widget):
         Gtk.main_quit()
 

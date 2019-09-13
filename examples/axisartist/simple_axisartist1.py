@@ -7,7 +7,7 @@ Simple Axisartist1
 import matplotlib.pyplot as plt
 import mpl_toolkits.axisartist as AA
 
-fig = plt.figure(1)
+fig = plt.figure()
 fig.subplots_adjust(right=0.85)
 ax = AA.Subplot(fig, 1, 1, 1)
 fig.add_subplot(ax)

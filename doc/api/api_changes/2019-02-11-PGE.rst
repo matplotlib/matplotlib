@@ -1,0 +1,4 @@
+Added support for RGB(A) images in pcolorfast
+`````````````````````````````````````````````
+
+pcolorfast now accepts 3D images (RGB or RGBA) arrays.

@@ -7,9 +7,6 @@ Demonstrates using ax.plot's zdir keyword to plot 2D data on
 selective axes of a 3D plot.
 """
 
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
-
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -19,7 +16,7 @@ ax = fig.gca(projection='3d')
 # Plot a sin curve using the x and y axes.
 x = np.linspace(0, 1, 100)
 y = np.sin(x * 2 * np.pi) / 2 + 0.5
-ax.plot(x, y, zs=0, zdir='z', label='curve in (x,y)')
+ax.plot(x, y, zs=0, zdir='z', label='curve in (x, y)')
 
 # Plot scatterplot data (20 2D points per colour) on the x and z axes.
 colors = ('r', 'g', 'b', 'k')
@@ -33,8 +30,8 @@ c_list = []
 for c in colors:
     c_list.extend([c] * 20)
 # By using zdir='y', the y value of these points is fixed to the zs value 0
-# and the (x,y) points are plotted on the x and z axes.
-ax.scatter(x, y, zs=0, zdir='y', c=c_list, label='points in (x,z)')
+# and the (x, y) points are plotted on the x and z axes.
+ax.scatter(x, y, zs=0, zdir='y', c=c_list, label='points in (x, z)')
 
 # Make legend, set axes limits and labels
 ax.legend()

@@ -1,4 +1,4 @@
-"""
+r"""
 This module contains functions to handle markers.  Used by both the
 marker functionality of `~matplotlib.axes.Axes.plot` and
 `~matplotlib.axes.Axes.scatter`.
@@ -51,7 +51,7 @@ marker                         symbol description
                                       letter ``f``.
 ``verts``                             A list of (x, y) pairs used for Path
                                       vertices. The center of the marker is
-                                      located at (0,0) and the size is
+                                      located at (0, 0) and the size is
                                       normalized, such that the created path
                                       is encapsulated inside the unit cell.
 path                                  A `~matplotlib.path.Path` instance.
@@ -65,17 +65,12 @@ path                                  A `~matplotlib.path.Path` instance.
                                       ``style``:
                                           the style of the regular symbol:
 
-                                          +---+-----------------------------+
-                                          | 0 | a regular polygon           |
-                                          +---+-----------------------------+
-                                          | 1 | a star-like symbol          |
-                                          +---+-----------------------------+
-                                          | 2 | an asterisk                 |
-                                          +---+-----------------------------+
-                                          | 3 | a circle (``numsides`` and  |
-                                          |   | ``angle`` is ignored);      |
-                                          |   | deprecated.                 |
-                                          +---+-----------------------------+
+                                          - 0: a regular polygon
+                                          - 1: a star-like symbol
+                                          - 2: an asterisk
+                                          - 3: a circle (``numsides`` and
+                                            ``angle`` is ignored);
+                                            deprecated.
 
                                       ``angle``:
                                           the angle of rotation of the symbol
@@ -99,9 +94,8 @@ Integer numbers from ``0`` to ``11`` create lines and triangles. Those are
 equally accessible via capitalized variables, like ``CARETDOWNBASE``.
 Hence the following are equivalent::
 
-    plt.plot([1,2,3], marker=11)
-    plt.plot([1,2,3], marker=matplotlib.markers.CARETDOWNBASE)
-
+    plt.plot([1, 2, 3], marker=11)
+    plt.plot([1, 2, 3], marker=matplotlib.markers.CARETDOWNBASE)
 
 Examples showing the use of markers:
 
@@ -167,7 +161,7 @@ from .transforms import IdentityTransform, Affine2D
 _empty_path = Path(np.empty((0, 2)))
 
 
-class MarkerStyle(object):
+class MarkerStyle:
 
     markers = {
         '.': 'point',
@@ -227,8 +221,6 @@ class MarkerStyle(object):
 
     def __init__(self, marker=None, fillstyle=None):
         """
-        MarkerStyle
-
         Attributes
         ----------
         markers : list of known marks
@@ -239,10 +231,10 @@ class MarkerStyle(object):
 
         Parameters
         ----------
-        marker : string or array_like, optional, default: None
+        marker : str or array-like, optional, default: None
             See the descriptions of possible markers in the module docstring.
 
-        fillstyle : string, optional, default: 'full'
+        fillstyle : str, optional, default: 'full'
             'full', 'left", 'right', 'bottom', 'top', 'none'
         """
         self._marker_function = None
@@ -281,9 +273,7 @@ class MarkerStyle(object):
         """
         if fillstyle is None:
             fillstyle = rcParams['markers.fillstyle']
-        if fillstyle not in self.fillstyles:
-            raise ValueError("Unrecognized fillstyle %s"
-                             % ' '.join(self.fillstyles))
+        cbook._check_in_list(self.fillstyles, fillstyle=fillstyle)
         self._fillstyle = fillstyle
         self._recache()
 
@@ -305,7 +295,7 @@ class MarkerStyle(object):
         elif isinstance(marker, Path):
             self._marker_function = self._set_path_marker
         elif (isinstance(marker, Sized) and len(marker) in (2, 3) and
-                marker[1] in (0, 1, 2, 3)):
+                marker[1] in (0, 1, 2)):
             self._marker_function = self._set_tuple_marker
         elif (not isinstance(marker, (np.ndarray, list)) and
               marker in self.markers):
@@ -357,37 +347,23 @@ class MarkerStyle(object):
 
     def _set_tuple_marker(self):
         marker = self._marker
-        if isinstance(marker[0], Number):
-            if len(marker) == 2:
-                numsides, rotation = marker[0], 0.0
-            elif len(marker) == 3:
-                numsides, rotation = marker[0], marker[2]
-            symstyle = marker[1]
-            if symstyle == 0:
-                self._path = Path.unit_regular_polygon(numsides)
-                self._joinstyle = 'miter'
-            elif symstyle == 1:
-                self._path = Path.unit_regular_star(numsides)
-                self._joinstyle = 'bevel'
-            elif symstyle == 2:
-                self._path = Path.unit_regular_asterisk(numsides)
-                self._filled = False
-                self._joinstyle = 'bevel'
-            elif symstyle == 3:
-                cbook.warn_deprecated(
-                    "3.0", "Setting a circle marker using `(..., 3)` is "
-                    "deprecated since Matplotlib 3.0, and support for it will "
-                    "be removed in 3.2.  Directly pass 'o' instead.")
-                self._path = Path.unit_circle()
-            self._transform = Affine2D().scale(0.5).rotate_deg(rotation)
+        if len(marker) == 2:
+            numsides, rotation = marker[0], 0.0
+        elif len(marker) == 3:
+            numsides, rotation = marker[0], marker[2]
+        symstyle = marker[1]
+        if symstyle == 0:
+            self._path = Path.unit_regular_polygon(numsides)
+            self._joinstyle = 'miter'
+        elif symstyle == 1:
+            self._path = Path.unit_regular_star(numsides)
+            self._joinstyle = 'bevel'
+        elif symstyle == 2:
+            self._path = Path.unit_regular_asterisk(numsides)
+            self._filled = False
+            self._joinstyle = 'bevel'
         else:
-            cbook.warn_deprecated(
-                "3.0", "Passing vertices as `(verts, 0)` is deprecated since "
-                "Matplotlib 3.0, and support for it will be removed in 3.2.  "
-                "Directly pass `verts` instead.")
-            verts = np.asarray(marker[0])
-            path = Path(verts)
-            self._set_custom_marker(path)
+            raise ValueError(f"Unexpected tuple marker: {marker}")
 
     def _set_mathtext_path(self):
         """
@@ -400,10 +376,7 @@ class MarkerStyle(object):
 
         # again, the properties could be initialised just once outside
         # this function
-        # Font size is irrelevant here, it will be rescaled based on
-        # the drawn size later
-        props = FontProperties(size=1.0)
-        text = TextPath(xy=(0, 0), s=self.get_marker(), fontproperties=props,
+        text = TextPath(xy=(0, 0), s=self.get_marker(),
                         usetex=rcParams['text.usetex'])
         if len(text.vertices) == 0:
             return
@@ -420,9 +393,7 @@ class MarkerStyle(object):
         self._snap = False
 
     def _half_fill(self):
-        fs = self.get_fillstyle()
-        result = fs in self._half_fillstyles
-        return result
+        return self.get_fillstyle() in self._half_fillstyles
 
     def _set_circle(self, reduction=1.0):
         self._transform = Affine2D().scale(0.5 * reduction)
@@ -481,7 +452,7 @@ class MarkerStyle(object):
         [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
 
     def _set_triangle(self, rot, skip):
-        self._transform = Affine2D().scale(0.5, 0.5).rotate_deg(rot)
+        self._transform = Affine2D().scale(0.5).rotate_deg(rot)
         self._snap_threshold = 5.0
         fs = self.get_fillstyle()
 

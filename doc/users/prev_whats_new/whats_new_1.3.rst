@@ -96,7 +96,7 @@ to modify each artist's sketch parameters individually with
    :align: center
    :scale: 50
 
-   Xkcd
+   xkcd
 
 Updated Axes3D.contour methods
 ------------------------------

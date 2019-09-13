@@ -6,7 +6,7 @@ from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
 from matplotlib.cbook import MatplotlibDeprecationWarning
-from matplotlib.patches import Polygon, Rectangle
+from matplotlib.patches import Polygon, Rectangle, FancyArrowPatch
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 import matplotlib.pyplot as plt
 from matplotlib import (
@@ -18,7 +18,7 @@ on_win = (sys.platform == 'win32')
 
 
 def test_Polygon_close():
-    #: Github issue #1018 identified a bug in the Polygon handling
+    #: GitHub issue #1018 identified a bug in the Polygon handling
     #: of the closed attribute; the path was not getting closed
     #: when set_xy was used to set the vertices.
 
@@ -84,7 +84,7 @@ def test_negative_rect():
     assert_array_equal(np.roll(neg_vertices, 2, 0), pos_vertices)
 
 
-@image_comparison(baseline_images=['clip_to_bbox'])
+@image_comparison(['clip_to_bbox'])
 def test_clip_to_bbox():
     fig = plt.figure()
 
@@ -114,7 +114,7 @@ def test_clip_to_bbox():
     ax.add_patch(result_patch)
 
 
-@image_comparison(baseline_images=['patch_alpha_coloring'], remove_text=True)
+@image_comparison(['patch_alpha_coloring'], remove_text=True)
 def test_patch_alpha_coloring():
     """
     Test checks that the patch and collection are rendered with the specified
@@ -145,7 +145,7 @@ def test_patch_alpha_coloring():
     ax.set_ylim([-1, 2])
 
 
-@image_comparison(baseline_images=['patch_alpha_override'], remove_text=True)
+@image_comparison(['patch_alpha_override'], remove_text=True)
 def test_patch_alpha_override():
     #: Test checks that specifying an alpha attribute for a patch or
     #: collection will override any alpha component of the facecolor
@@ -185,8 +185,7 @@ def test_patch_color_none():
     assert c.get_facecolor()[0] == 0
 
 
-@image_comparison(baseline_images=['patch_custom_linestyle'],
-                  remove_text=True)
+@image_comparison(['patch_custom_linestyle'], remove_text=True)
 def test_patch_custom_linestyle():
     #: A test to check that patches and collections accept custom dash
     #: patterns as linestyle and that they display correctly.
@@ -216,9 +215,8 @@ def test_patch_custom_linestyle():
 
 
 def test_patch_linestyle_accents():
-    #: Test if linestyle can also be specified with short menoics
-    #: like "--"
-    #: c.f. Gihub issue #2136
+    #: Test if linestyle can also be specified with short mnemonics like "--"
+    #: c.f. GitHub issue #2136
     star = mpath.Path.unit_regular_star(6)
     circle = mpath.Path.unit_circle()
     # concatenate the star with an internal cutout of the circle
@@ -241,7 +239,6 @@ def test_patch_linestyle_accents():
     ax.set_xlim([-1, i + 1])
     ax.set_ylim([-1, i + 1])
     fig.canvas.draw()
-    assert True
 
 
 def test_wedge_movement():
@@ -261,8 +258,7 @@ def test_wedge_movement():
 
 
 # png needs tol>=0.06, pdf tol>=1.617
-@image_comparison(baseline_images=['wedge_range'],
-                  remove_text=True, tol=1.65 if on_win else 0)
+@image_comparison(['wedge_range'], remove_text=True, tol=1.65 if on_win else 0)
 def test_wedge_range():
     ax = plt.axes()
 
@@ -345,16 +341,11 @@ def test_patch_str():
     s = mpatches.Shadow(p, 1, 1)
     assert str(s) == "Shadow(ConnectionPatch((1, 2), (3, 4)))"
 
-    with pytest.warns(MatplotlibDeprecationWarning):
-        p = mpatches.YAArrow(plt.gcf(), (1, 0), (2, 1), width=0.1)
-        assert str(p) == "YAArrow()"
-
     # Not testing Arrow, FancyArrow here
     # because they seem to exist only for historical reasons.
 
 
-@image_comparison(baseline_images=['multi_color_hatch'],
-                  remove_text=True, style='default')
+@image_comparison(['multi_color_hatch'], remove_text=True, style='default')
 def test_multi_color_hatch():
     fig, ax = plt.subplots()
 
@@ -364,13 +355,16 @@ def test_multi_color_hatch():
         rect.set_edgecolor('C{}'.format(i))
         rect.set_hatch('/')
 
+    ax.autoscale_view()
+    ax.autoscale(False)
+
     for i in range(5):
         with mstyle.context({'hatch.color': 'C{}'.format(i)}):
             r = Rectangle((i - .8 / 2, 5), .8, 1, hatch='//', fc='none')
         ax.add_patch(r)
 
 
-@image_comparison(baseline_images=['units_rectangle'], extensions=['png'])
+@image_comparison(['units_rectangle.png'])
 def test_units_rectangle():
     import matplotlib.testing.jpl_units as U
     U.register()
@@ -383,8 +377,7 @@ def test_units_rectangle():
     ax.set_ylim([5*U.km, 9*U.km])
 
 
-@image_comparison(baseline_images=['connection_patch'], extensions=['png'],
-                  style='mpl20', remove_text=True)
+@image_comparison(['connection_patch.png'], style='mpl20', remove_text=True)
 def test_connection_patch():
     fig, (ax1, ax2) = plt.subplots(1, 2)
 
@@ -393,6 +386,26 @@ def test_connection_patch():
                                    axesA=ax2, axesB=ax1,
                                    arrowstyle="->")
     ax2.add_artist(con)
+
+    xyA = (0.6, 1.0)  # in axes coordinates
+    xyB = (0.0, 0.2)  # x in axes coordinates, y in data coordinates
+    coordsA = "axes fraction"
+    coordsB = ax2.get_yaxis_transform()
+    con = mpatches.ConnectionPatch(xyA=xyA, xyB=xyB, coordsA=coordsA,
+                                    coordsB=coordsB, arrowstyle="-")
+    ax2.add_artist(con)
+
+
+def test_connection_patch_fig():
+    # Test that connection patch can be added as figure artist
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    xy = (0.3, 0.2)
+    con = mpatches.ConnectionPatch(xyA=xy, xyB=xy,
+                                   coordsA="data", coordsB="data",
+                                   axesA=ax1, axesB=ax2,
+                                   arrowstyle="->", shrinkB=5)
+    fig.add_artist(con)
+    fig.canvas.draw()
 
 
 def test_datetime_rectangle():
@@ -463,8 +476,17 @@ def test_shadow(fig_test, fig_ref):
     rect = mpatches.Rectangle(xy=xy, width=.5, height=.5)
     shadow = mpatches.Rectangle(
         xy=xy + fig_ref.dpi / 72 * dxy, width=.5, height=.5,
-        fc=np.asarray(mcolors.to_rgb(rect.get_fc())) * .3,
-        ec=np.asarray(mcolors.to_rgb(rect.get_fc())) * .3,
+        fc=np.asarray(mcolors.to_rgb(rect.get_facecolor())) * .3,
+        ec=np.asarray(mcolors.to_rgb(rect.get_facecolor())) * .3,
         alpha=.5)
     a2.add_patch(shadow)
     a2.add_patch(rect)
+
+
+def test_fancyarrow_units():
+    from datetime import datetime
+    # Smoke test to check that FancyArrowPatch works with units
+    dtime = datetime(2000, 1, 1)
+    fig, ax = plt.subplots()
+    arrow = FancyArrowPatch((0, dtime), (0.01, dtime))
+    ax.add_patch(arrow)

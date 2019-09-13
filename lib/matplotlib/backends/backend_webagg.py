@@ -15,7 +15,7 @@ from contextlib import contextmanager
 import errno
 from io import BytesIO
 import json
-import os
+import mimetypes
 from pathlib import Path
 import random
 import sys
@@ -32,7 +32,7 @@ import tornado.web
 import tornado.ioloop
 import tornado.websocket
 
-from matplotlib import rcParams
+from matplotlib import cbook, rcParams
 from matplotlib.backend_bases import _Backend
 from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
@@ -54,6 +54,7 @@ class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
         show()
 
     def new_timer(self, *args, **kwargs):
+        # docstring inherited
         return TimerTornado(*args, **kwargs)
 
 
@@ -64,8 +65,8 @@ class WebAggApplication(tornado.web.Application):
     class FavIcon(tornado.web.RequestHandler):
         def get(self):
             self.set_header('Content-Type', 'image/png')
-            image_path = Path(rcParams["datapath"], "images", "matplotlib.png")
-            self.write(image_path.read_bytes())
+            self.write(
+                cbook._get_data_path('images/matplotlib.png').read_bytes())
 
     class SingleFigurePage(tornado.web.RequestHandler):
         def __init__(self, application, request, *, url_prefix='', **kwargs):
@@ -113,21 +114,8 @@ class WebAggApplication(tornado.web.Application):
         def get(self, fignum, fmt):
             fignum = int(fignum)
             manager = Gcf.get_fig_manager(fignum)
-
-            # TODO: Move this to a central location
-            mimetypes = {
-                'ps': 'application/postscript',
-                'eps': 'application/postscript',
-                'pdf': 'application/pdf',
-                'svg': 'image/svg+xml',
-                'png': 'image/png',
-                'jpeg': 'image/jpeg',
-                'tif': 'image/tiff',
-                'emf': 'application/emf'
-            }
-
-            self.set_header('Content-Type', mimetypes.get(fmt, 'binary'))
-
+            self.set_header(
+                'Content-Type', mimetypes.types_map.get(fmt, 'binary'))
             buff = BytesIO()
             manager.canvas.figure.savefig(buff, format=fmt)
             self.write(buff.getvalue())
@@ -183,7 +171,7 @@ class WebAggApplication(tornado.web.Application):
                  tornado.web.StaticFileHandler,
                  {'path': core.FigureManagerWebAgg.get_static_file_path()}),
 
-                # An MPL favicon
+                # A Matplotlib favicon
                 (url_prefix + r'/favicon.ico', self.FavIcon),
 
                 # The page that contains all of the pieces
@@ -322,7 +310,8 @@ class _BackendWebAgg(_Backend):
     def show():
         WebAggApplication.initialize()
 
-        url = "http://127.0.0.1:{port}{prefix}".format(
+        url = "http://{address}:{port}{prefix}".format(
+            address=WebAggApplication.address,
             port=WebAggApplication.port,
             prefix=WebAggApplication.url_prefix)
 

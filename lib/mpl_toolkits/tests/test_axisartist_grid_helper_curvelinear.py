@@ -7,8 +7,8 @@ from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D, Transform
 from matplotlib.testing.decorators import image_comparison
 
-from mpl_toolkits.axes_grid.parasite_axes import ParasiteAxesAuxTrans, \
-    SubplotHost
+from mpl_toolkits.axes_grid1.parasite_axes import ParasiteAxesAuxTrans
+from mpl_toolkits.axisartist import SubplotHost
 from mpl_toolkits.axes_grid1.parasite_axes import host_subplot_class_factory
 from mpl_toolkits.axisartist import angle_helper
 from mpl_toolkits.axisartist.axislines import Axes
@@ -16,8 +16,7 @@ from mpl_toolkits.axisartist.grid_helper_curvelinear import \
     GridHelperCurveLinear
 
 
-@image_comparison(baseline_images=['custom_transform'],
-                  extensions=['png'], style='default', tol=0.03)
+@image_comparison(['custom_transform.png'], style='default', tol=0.03)
 def test_custom_transform():
     class MyTransform(Transform):
         input_dims = 2
@@ -39,7 +38,6 @@ def test_custom_transform():
         transform_non_affine = transform
 
         def transform_path(self, path):
-            vertices = path.vertices
             ipath = path.interpolated(self._resolution)
             return Path(self.transform(ipath.vertices), ipath.codes)
 
@@ -84,10 +82,12 @@ def test_custom_transform():
     ax1.grid(True)
 
 
-@image_comparison(baseline_images=['polar_box'],
-                  tol={'aarch64': 0.04}.get(platform.machine(), 0.03),
-                  extensions=['png'], style='default')
+@image_comparison(['polar_box.png'], style='default',
+                  tol={'aarch64': 0.04}.get(platform.machine(), 0.03))
 def test_polar_box():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig = plt.figure(figsize=(5, 5))
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate
@@ -146,9 +146,11 @@ def test_polar_box():
     ax1.grid(True)
 
 
-@image_comparison(baseline_images=['axis_direction'],
-                  extensions=['png'], style='default', tol=0.03)
+@image_comparison(['axis_direction.png'], style='default', tol=0.03)
 def test_axis_direction():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig = plt.figure(figsize=(5, 5))
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate

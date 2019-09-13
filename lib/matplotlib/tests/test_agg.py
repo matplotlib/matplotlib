@@ -7,7 +7,6 @@ import pytest
 from matplotlib import (
     collections, path, pyplot as plt, transforms as mtransforms, rcParams)
 from matplotlib.image import imread
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.testing.decorators import image_comparison
 
@@ -17,7 +16,6 @@ def test_repeated_save_with_alpha():
     # alpha of 0.25.
 
     fig = Figure([1, 0.4])
-    canvas = FigureCanvas(fig)
     fig.set_facecolor((0, 1, 0.4))
     fig.patch.set_alpha(0.25)
 
@@ -80,83 +78,72 @@ def test_long_path():
     fig.savefig(buff, format='png')
 
 
-@image_comparison(baseline_images=['agg_filter'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['agg_filter.png'], remove_text=True)
 def test_agg_filter():
     def smooth1d(x, window_len):
-        s = np.r_[2*x[0] - x[window_len:1:-1],
-                  x,
-                  2*x[-1] - x[-1:-window_len:-1]]
+        # copied from http://www.scipy.org/Cookbook/SignalSmooth
+        s = np.r_[
+            2*x[0] - x[window_len:1:-1], x, 2*x[-1] - x[-1:-window_len:-1]]
         w = np.hanning(window_len)
         y = np.convolve(w/w.sum(), s, mode='same')
         return y[window_len-1:-window_len+1]
 
     def smooth2d(A, sigma=3):
-        window_len = max(int(sigma), 3)*2 + 1
-        A1 = np.array([smooth1d(x, window_len) for x in np.asarray(A)])
-        A2 = np.transpose(A1)
-        A3 = np.array([smooth1d(x, window_len) for x in A2])
-        A4 = np.transpose(A3)
+        window_len = max(int(sigma), 3) * 2 + 1
+        A = np.apply_along_axis(smooth1d, 0, A, window_len)
+        A = np.apply_along_axis(smooth1d, 1, A, window_len)
+        return A
 
-        return A4
-
-    class BaseFilter(object):
-        def prepare_image(self, src_image, dpi, pad):
-            ny, nx, depth = src_image.shape
-            padded_src = np.zeros([pad*2 + ny, pad*2 + nx, depth], dtype="d")
-            padded_src[pad:-pad, pad:-pad, :] = src_image[:, :, :]
-
-            return padded_src  # , tgt_image
+    class BaseFilter:
 
         def get_pad(self, dpi):
             return 0
 
+        def process_image(padded_src, dpi):
+            raise NotImplementedError("Should be overridden by subclasses")
+
         def __call__(self, im, dpi):
             pad = self.get_pad(dpi)
-            padded_src = self.prepare_image(im, dpi, pad)
+            padded_src = np.pad(im, [(pad, pad), (pad, pad), (0, 0)],
+                                "constant")
             tgt_image = self.process_image(padded_src, dpi)
             return tgt_image, -pad, -pad
 
     class OffsetFilter(BaseFilter):
-        def __init__(self, offsets=None):
-            if offsets is None:
-                self.offsets = (0, 0)
-            else:
-                self.offsets = offsets
+
+        def __init__(self, offsets=(0, 0)):
+            self.offsets = offsets
 
         def get_pad(self, dpi):
-            return int(max(*self.offsets)/72.*dpi)
+            return int(max(self.offsets) / 72 * dpi)
 
         def process_image(self, padded_src, dpi):
             ox, oy = self.offsets
-            a1 = np.roll(padded_src, int(ox/72.*dpi), axis=1)
-            a2 = np.roll(a1, -int(oy/72.*dpi), axis=0)
+            a1 = np.roll(padded_src, int(ox / 72 * dpi), axis=1)
+            a2 = np.roll(a1, -int(oy / 72 * dpi), axis=0)
             return a2
 
     class GaussianFilter(BaseFilter):
-        "simple gauss filter"
+        """Simple Gaussian filter."""
 
-        def __init__(self, sigma, alpha=0.5, color=None):
+        def __init__(self, sigma, alpha=0.5, color=(0, 0, 0)):
             self.sigma = sigma
             self.alpha = alpha
-            if color is None:
-                self.color = (0, 0, 0)
-            else:
-                self.color = color
+            self.color = color
 
         def get_pad(self, dpi):
-            return int(self.sigma*3/72.*dpi)
+            return int(self.sigma*3 / 72 * dpi)
 
         def process_image(self, padded_src, dpi):
-            tgt_image = np.zeros_like(padded_src)
-            aa = smooth2d(padded_src[:, :, -1]*self.alpha,
-                          self.sigma/72.*dpi)
-            tgt_image[:, :, -1] = aa
-            tgt_image[:, :, :-1] = self.color
+            tgt_image = np.empty_like(padded_src)
+            tgt_image[:, :, :3] = self.color
+            tgt_image[:, :, 3] = smooth2d(padded_src[:, :, 3] * self.alpha,
+                                          self.sigma / 72 * dpi)
             return tgt_image
 
     class DropShadowFilter(BaseFilter):
-        def __init__(self, sigma, alpha=0.3, color=None, offsets=None):
+
+        def __init__(self, sigma, alpha=0.3, color=(0, 0, 0), offsets=(0, 0)):
             self.gauss_filter = GaussianFilter(sigma, alpha, color)
             self.offset_filter = OffsetFilter(offsets)
 
@@ -169,8 +156,7 @@ def test_agg_filter():
             t2 = self.offset_filter.process_image(t1, dpi)
             return t2
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     # draw lines
     l1, = ax.plot([0.1, 0.5, 0.9], [0.1, 0.9, 0.5], "bo-",
@@ -183,7 +169,6 @@ def test_agg_filter():
     for l in [l1, l2]:
 
         # draw shadows with same lines with slight offset.
-
         xx = l.get_xdata()
         yy = l.get_ydata()
         shadow, = ax.plot(xx, yy)
@@ -239,3 +224,25 @@ def test_jpeg_dpi():
     plt.savefig(buf, format="jpg", dpi=200)
     im = Image.open(buf)
     assert im.info['dpi'] == (200, 200)
+
+
+def test_pil_kwargs_png():
+    Image = pytest.importorskip("PIL.Image")
+    from PIL.PngImagePlugin import PngInfo
+    buf = io.BytesIO()
+    pnginfo = PngInfo()
+    pnginfo.add_text("Software", "test")
+    plt.figure().savefig(buf, format="png", pil_kwargs={"pnginfo": pnginfo})
+    im = Image.open(buf)
+    assert im.info["Software"] == "test"
+
+
+def test_pil_kwargs_tiff():
+    Image = pytest.importorskip("PIL.Image")
+    from PIL.TiffTags import TAGS_V2 as TAGS
+    buf = io.BytesIO()
+    pil_kwargs = {"description": "test image"}
+    plt.figure().savefig(buf, format="tiff", pil_kwargs=pil_kwargs)
+    im = Image.open(buf)
+    tags = {TAGS[k].name: v for k, v in im.tag_v2.items()}
+    assert tags["ImageDescription"] == "test image"

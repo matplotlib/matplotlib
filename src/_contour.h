@@ -142,7 +142,7 @@
 #ifndef MPL_CONTOUR_H
 #define MPL_CONTOUR_H
 
-#include "src/numpy_cpp.h"
+#include "numpy_cpp.h"
 #include <stdint.h>
 #include <list>
 #include <iostream>

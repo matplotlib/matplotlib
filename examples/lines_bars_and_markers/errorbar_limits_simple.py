@@ -1,47 +1,68 @@
 """
-===============
-Errorbar Limits
-===============
+========================
+Errorbar limit selection
+========================
 
-Illustration of upper and lower limit symbols on errorbars
+Illustration of selectively drawing lower and/or upper limit symbols on
+errorbars using the parameters ``uplims``, ``lolims`` of `~.pyplot.errorbar`.
+
+Alternatively, you can use 2xN values to draw errorbars in only one direction.
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-###############################################################################
 
-fig = plt.figure(0)
-x = np.arange(10.0)
-y = np.sin(np.arange(10.0) / 20.0 * np.pi)
+fig = plt.figure()
+x = np.arange(10)
+y = 2.5 * np.sin(x / 20 * np.pi)
+yerr = np.linspace(0.05, 0.2, 10)
 
-plt.errorbar(x, y, yerr=0.1)
+plt.errorbar(x, y + 3, yerr=yerr, label='both limits (default)')
 
-y = np.sin(np.arange(10.0) / 20.0 * np.pi) + 1
-plt.errorbar(x, y, yerr=0.1, uplims=True)
+plt.errorbar(x, y + 2, yerr=yerr, uplims=True, label='uplims=True')
 
-y = np.sin(np.arange(10.0) / 20.0 * np.pi) + 2
-upperlimits = np.array([1, 0] * 5)
-lowerlimits = np.array([0, 1] * 5)
-plt.errorbar(x, y, yerr=0.1, uplims=upperlimits, lolims=lowerlimits)
+plt.errorbar(x, y + 1, yerr=yerr, uplims=True, lolims=True,
+             label='uplims=True, lolims=True')
 
-plt.xlim(-1, 10)
+upperlimits = [True, False] * 5
+lowerlimits = [False, True] * 5
+plt.errorbar(x, y, yerr=yerr, uplims=upperlimits, lolims=lowerlimits,
+             label='subsets of uplims and lolims')
 
-###############################################################################
+plt.legend(loc='lower right')
 
-fig = plt.figure(1)
-x = np.arange(10.0) / 10.0
+
+##############################################################################
+# Similarly ``xuplims``and ``xlolims`` can be used on the horizontal ``xerr``
+# errorbars.
+
+fig = plt.figure()
+x = np.arange(10) / 10
 y = (x + 0.1)**2
 
-plt.errorbar(x, y, xerr=0.1, xlolims=True)
+plt.errorbar(x, y, xerr=0.1, xlolims=True, label='xlolims=True')
 y = (x + 0.1)**3
 
-plt.errorbar(x + 0.6, y, xerr=0.1, xuplims=upperlimits, xlolims=lowerlimits)
+plt.errorbar(x + 0.6, y, xerr=0.1, xuplims=upperlimits, xlolims=lowerlimits,
+             label='subsets of xuplims and xlolims')
 
 y = (x + 0.1)**4
-plt.errorbar(x + 1.2, y, xerr=0.1, xuplims=True)
+plt.errorbar(x + 1.2, y, xerr=0.1, xuplims=True, label='xuplims=True')
 
-plt.xlim(-0.2, 2.4)
-plt.ylim(-0.1, 1.3)
-
+plt.legend()
 plt.show()
+
+##############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.axes.Axes.errorbar
+matplotlib.pyplot.errorbar

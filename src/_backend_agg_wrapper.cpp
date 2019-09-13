@@ -525,38 +525,6 @@ PyRendererAgg_draw_gouraud_triangles(PyRendererAgg *self, PyObject *args, PyObje
     Py_RETURN_NONE;
 }
 
-static PyObject *PyRendererAgg_tostring_rgb(PyRendererAgg *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *buffobj = NULL;
-
-    buffobj = PyBytes_FromStringAndSize(NULL, self->x->get_width() * self->x->get_height() * 3);
-    if (buffobj == NULL) {
-        return NULL;
-    }
-
-    CALL_CPP_CLEANUP("tostring_rgb",
-                     (self->x->tostring_rgb((uint8_t *)PyBytes_AS_STRING(buffobj))),
-                     Py_DECREF(buffobj));
-
-    return buffobj;
-}
-
-static PyObject *PyRendererAgg_tostring_argb(PyRendererAgg *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *buffobj = NULL;
-
-    buffobj = PyBytes_FromStringAndSize(NULL, self->x->get_width() * self->x->get_height() * 4);
-    if (buffobj == NULL) {
-        return NULL;
-    }
-
-    CALL_CPP_CLEANUP("tostring_argb",
-                     (self->x->tostring_argb((uint8_t *)PyBytes_AS_STRING(buffobj))),
-                     Py_DECREF(buffobj));
-
-    return buffobj;
-}
-
 static PyObject *
 PyRendererAgg_get_content_extents(PyRendererAgg *self, PyObject *args, PyObject *kwds)
 {
@@ -566,12 +534,6 @@ PyRendererAgg_get_content_extents(PyRendererAgg *self, PyObject *args, PyObject 
 
     return Py_BuildValue(
         "iiii", extents.x1, extents.y1, extents.x2 - extents.x1, extents.y2 - extents.y1);
-}
-
-static PyObject *PyRendererAgg_buffer_rgba(PyRendererAgg *self, PyObject *args, PyObject *kwds)
-{
-    return PyBytes_FromStringAndSize((const char *)self->x->pixBuffer,
-                                     self->x->get_width() * self->x->get_height() * 4);
 }
 
 int PyRendererAgg_get_buffer(PyRendererAgg *self, Py_buffer *buf, int flags)
@@ -664,10 +626,7 @@ static PyTypeObject *PyRendererAgg_init_type(PyObject *m, PyTypeObject *type)
         {"draw_gouraud_triangle", (PyCFunction)PyRendererAgg_draw_gouraud_triangle, METH_VARARGS, NULL},
         {"draw_gouraud_triangles", (PyCFunction)PyRendererAgg_draw_gouraud_triangles, METH_VARARGS, NULL},
 
-        {"tostring_rgb", (PyCFunction)PyRendererAgg_tostring_rgb, METH_NOARGS, NULL},
-        {"tostring_argb", (PyCFunction)PyRendererAgg_tostring_argb, METH_NOARGS, NULL},
         {"get_content_extents", (PyCFunction)PyRendererAgg_get_content_extents, METH_NOARGS, NULL},
-        {"buffer_rgba", (PyCFunction)PyRendererAgg_buffer_rgba, METH_NOARGS, NULL},
         {"clear", (PyCFunction)PyRendererAgg_clear, METH_NOARGS, NULL},
 
         {"copy_from_bbox", (PyCFunction)PyRendererAgg_copy_from_bbox, METH_VARARGS, NULL},

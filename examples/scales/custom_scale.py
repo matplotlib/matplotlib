@@ -5,6 +5,12 @@ Custom scale
 
 Create a custom scale, by implementing the scaling use for latitude data in a
 Mercator Projection.
+
+Unless you are making special use of the `~.Transform` class, you probably
+don't need to use this verbose method, and instead can use
+`~.matplotlib.scale.FuncScale` and the ``'function'`` option of
+`~.matplotlib.axes.Axes.set_xscale` and `~.matplotlib.axes.Axes.set_yscale`.
+See the last example in :doc:`/gallery/scales/scales`.
 """
 
 import numpy as np
@@ -38,21 +44,19 @@ class MercatorLatitudeScale(mscale.ScaleBase):
     http://en.wikipedia.org/wiki/Mercator_projection
     """
 
-    # The scale class must have a member ``name`` that defines the
-    # string used to select the scale.  For example,
-    # ``gca().set_yscale("mercator")`` would be used to select this
-    # scale.
+    # The scale class must have a member ``name`` that defines the string used
+    # to select the scale.  For example, ``gca().set_yscale("mercator")`` would
+    # be used to select this scale.
     name = 'mercator'
 
     def __init__(self, axis, *, thresh=np.deg2rad(85), **kwargs):
         """
-        Any keyword arguments passed to ``set_xscale`` and
-        ``set_yscale`` will be passed along to the scale's
-        constructor.
+        Any keyword arguments passed to ``set_xscale`` and ``set_yscale`` will
+        be passed along to the scale's constructor.
 
         thresh: The degree above which to crop the data.
         """
-        mscale.ScaleBase.__init__(self)
+        super().__init__(axis)
         if thresh >= np.pi / 2:
             raise ValueError("thresh must be less than pi/2")
         self.thresh = thresh
@@ -110,10 +114,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         # being connected together.  When defining transforms for a
         # scale, which are, by definition, separable and have only one
         # dimension, these members should always be set to 1.
-        input_dims = 1
-        output_dims = 1
-        is_separable = True
-        has_inverse = True
+        input_dims = output_dims = 1
 
         def __init__(self, thresh):
             mtransforms.Transform.__init__(self)
@@ -146,10 +147,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
                 self.thresh)
 
     class InvertedMercatorLatitudeTransform(mtransforms.Transform):
-        input_dims = 1
-        output_dims = 1
-        is_separable = True
-        has_inverse = True
+        input_dims = output_dims = 1
 
         def __init__(self, thresh):
             mtransforms.Transform.__init__(self)
@@ -160,6 +158,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
 
         def inverted(self):
             return MercatorLatitudeScale.MercatorLatitudeTransform(self.thresh)
+
 
 # Now that the Scale class has been defined, it must be registered so
 # that ``matplotlib`` can find it.

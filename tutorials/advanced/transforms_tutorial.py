@@ -5,8 +5,8 @@ Transformations Tutorial
 
 Like any graphics packages, Matplotlib is built on top of a
 transformation framework to easily move between coordinate systems,
-the userland `data` coordinate system, the `axes` coordinate system,
-the `figure` coordinate system, and the `display` coordinate system.
+the userland *data* coordinate system, the *axes* coordinate system,
+the *figure* coordinate system, and the *display* coordinate system.
 In 95% of your plotting, you won't need to think about this, as it
 happens under the hood, but as you push the limits of custom figure
 generation, it helps to have an understanding of these objects so you
@@ -14,7 +14,7 @@ can reuse the existing transformations Matplotlib makes available to
 you, or create your own (see :mod:`matplotlib.transforms`).  The table
 below summarizes the some useful coordinate systems, the transformation
 object you should use to work in that coordinate system, and the
-description of that system. In the `Transformation Object` column,
+description of that system. In the ``Transformation Object`` column,
 ``ax`` is a :class:`~matplotlib.axes.Axes` instance, and ``fig`` is a
 :class:`~matplotlib.figure.Figure` instance.
 
@@ -52,23 +52,23 @@ description of that system. In the `Transformation Object` column,
 +----------------+-----------------------------+-----------------------------------+
 
 All of the transformation objects in the table above take inputs in
-their coordinate system, and transform the input to the ``display``
-coordinate system.  That is why the ``display`` coordinate system has
+their coordinate system, and transform the input to the *display*
+coordinate system.  That is why the *display* coordinate system has
 ``None`` for the ``Transformation Object`` column -- it already is in
-display coordinates.  The transformations also know how to invert
-themselves, to go from ``display`` back to the native coordinate system.
+*display* coordinates.  The transformations also know how to invert
+themselves, to go from *display* back to the native coordinate system.
 This is particularly useful when processing events from the user
 interface, which typically occur in display space, and you want to
-know where the mouse click or key-press occurred in your data
+know where the mouse click or key-press occurred in your *data*
 coordinate system.
 
-Note that specifying objects in ``display`` coordinates will change their
+Note that specifying objects in *display* coordinates will change their
 location if the ``dpi`` of the figure changes.  This can cause confusion when
 printing or changing screen resolution, because the object can change location
 and size.  Therefore it is most common
 for artists placed in an axes or figure to have their transform set to
 something *other* than the `~.transforms.IdentityTransform()`; the default when
-an artist is placed on an axes using `~.Axes.axes.add_artist` is for the
+an artist is placed on an axes using `~.axes.Axes.add_artist` is for the
 transform to be ``ax.transData``.
 
 .. _data-coords:
@@ -76,13 +76,12 @@ transform to be ``ax.transData``.
 Data coordinates
 ================
 
-Let's start with the most commonly used coordinate, the `data`
-coordinate system.  Whenever you add data to the axes, Matplotlib
-updates the datalimits, most commonly updated with the
-:meth:`~matplotlib.axes.Axes.set_xlim` and
-:meth:`~matplotlib.axes.Axes.set_ylim` methods.  For example, in the
-figure below, the data limits stretch from 0 to 10 on the x-axis, and
--1 to 1 on the y-axis.
+Let's start with the most commonly used coordinate, the *data* coordinate
+system.  Whenever you add data to the axes, Matplotlib updates the datalimits,
+most commonly updated with the :meth:`~matplotlib.axes.Axes.set_xlim` and
+:meth:`~matplotlib.axes.Axes.set_ylim` methods.  For example, in the figure
+below, the data limits stretch from 0 to 10 on the x-axis, and -1 to 1 on the
+y-axis.
 """
 
 import numpy as np
@@ -101,7 +100,7 @@ plt.show()
 
 ###############################################################################
 # You can use the ``ax.transData`` instance to transform from your
-# `data` to your `display` coordinate system, either a single point or a
+# *data* to your *display* coordinate system, either a single point or a
 # sequence of points as shown below:
 #
 # .. sourcecode:: ipython
@@ -118,7 +117,7 @@ plt.show()
 #            [ 132.435,  642.2  ]])
 #
 # You can use the :meth:`~matplotlib.transforms.Transform.inverted`
-# method to create a transform which will take you from display to data
+# method to create a transform which will take you from *display* to *data*
 # coordinates:
 #
 # .. sourcecode:: ipython
@@ -132,7 +131,7 @@ plt.show()
 #     Out[43]: array([ 5.,  0.])
 #
 # If your are typing along with this tutorial, the exact values of the
-# display coordinates may differ if you have a different window size or
+# *display* coordinates may differ if you have a different window size or
 # dpi setting.  Likewise, in the figure below, the display labeled
 # points are probably not the same as in the ipython session because the
 # documentation figure size defaults are different.
@@ -146,7 +145,7 @@ ax.set_xlim(0, 10)
 ax.set_ylim(-1, 1)
 
 xdata, ydata = 5, 0
-xdisplay, ydisplay = ax.transData.transform_point((xdata, ydata))
+xdisplay, ydisplay = ax.transData.transform((xdata, ydata))
 
 bbox = dict(boxstyle="round", fc="0.8")
 arrowprops = dict(
@@ -170,14 +169,14 @@ plt.show()
 # .. note::
 #
 #   If you run the source code in the example above in a GUI backend,
-#   you may also find that the two arrows for the `data` and `display`
+#   you may also find that the two arrows for the *data* and *display*
 #   annotations do not point to exactly the same point.  This is because
 #   the display point was computed before the figure was displayed, and
 #   the GUI backend may slightly resize the figure when it is created.
 #   The effect is more pronounced if you resize the figure yourself.
-#   This is one good reason why you rarely want to work in display
+#   This is one good reason why you rarely want to work in *display*
 #   space, but you can connect to the ``'on_draw'``
-#   :class:`~matplotlib.backend_bases.Event` to update figure
+#   :class:`~matplotlib.backend_bases.Event` to update *figure*
 #   coordinates on figure draws; see :ref:`event-handling-tutorial`.
 #
 # When you change the x or y limits of your axes, the data limits are
@@ -210,7 +209,7 @@ plt.show()
 # Axes coordinates
 # ================
 #
-# After the `data` coordinate system, `axes` is probably the second most
+# After the *data* coordinate system, *axes* is probably the second most
 # useful coordinate system.  Here the point (0, 0) is the bottom left of
 # your axes or subplot, (0.5, 0.5) is the center, and (1.0, 1.0) is the
 # top right.  You can also refer to points outside the range, so (-0.1,
@@ -230,16 +229,16 @@ for i, label in enumerate(('A', 'B', 'C', 'D')):
 plt.show()
 
 ###############################################################################
-# You can also make lines or patches in the axes coordinate system, but
+# You can also make lines or patches in the *axes* coordinate system, but
 # this is less useful in my experience than using ``ax.transAxes`` for
 # placing text.  Nonetheless, here is a silly example which plots some
-# random dots in `data` space, and overlays a semi-transparent
+# random dots in data space, and overlays a semi-transparent
 # :class:`~matplotlib.patches.Circle` centered in the middle of the axes
 # with a radius one quarter of the axes -- if your axes does not
 # preserve aspect ratio (see :meth:`~matplotlib.axes.Axes.set_aspect`),
 # this will look like an ellipse.  Use the pan/zoom tool to move around,
 # or manually change the data xlim and ylim, and you will see the data
-# move, but the circle will remain fixed because it is not in `data`
+# move, but the circle will remain fixed because it is not in *data*
 # coordinates and will always remain at the center of the axes.
 
 fig, ax = plt.subplots()
@@ -257,7 +256,7 @@ plt.show()
 # Blended transformations
 # =======================
 #
-# Drawing in `blended` coordinate spaces which mix `axes` with `data`
+# Drawing in *blended* coordinate spaces which mix *axes* with *data*
 # coordinates is extremely useful, for example to create a horizontal
 # span which highlights some region of the y-data but spans across the
 # x-axis regardless of the data limits, pan or zoom level, etc.  In fact
@@ -300,9 +299,9 @@ plt.show()
 ###############################################################################
 # .. note::
 #
-#   The blended transformations where x is in data coords and y in axes
+#   The blended transformations where x is in *data* coords and y in *axes*
 #   coordinates is so useful that we have helper methods to return the
-#   versions mpl uses internally for drawing ticks, ticklabels, etc.
+#   versions Matplotlib uses internally for drawing ticks, ticklabels, etc.
 #   The methods are :meth:`matplotlib.axes.Axes.get_xaxis_transform` and
 #   :meth:`matplotlib.axes.Axes.get_yaxis_transform`.  So in the example
 #   above, the call to
@@ -357,14 +356,14 @@ plt.show()
 #
 #   trans = ScaledTranslation(xt, yt, scale_trans)
 #
-# where `xt` and `yt` are the translation offsets, and `scale_trans` is
-# a transformation which scales `xt` and `yt` at transformation time
+# where *xt* and *yt* are the translation offsets, and *scale_trans* is
+# a transformation which scales *xt* and *yt* at transformation time
 # before applying the offsets.
 #
 # Note the use of the plus operator on the transforms below.
 # This code says: first apply the scale transformation ``fig.dpi_scale_trans``
 # to make the ellipse the proper size, but still centered at (0, 0),
-# and then translate the data to `xdata[0]` and `ydata[0]` in data space.
+# and then translate the data to ``xdata[0]`` and ``ydata[0]`` in data space.
 #
 # In interactive use, the ellipse stays the same size even if the
 # axes limits are changed via zoom.
@@ -392,7 +391,7 @@ plt.show()
 #   in data space to the correct spot.
 #   If we had done the ``ScaledTranslation`` first, then
 #   ``xdata[0]`` and ``ydata[0]`` would
-#   first be transformed to ``display`` coordinates (``[ 358.4  475.2]`` on
+#   first be transformed to *display* coordinates (``[ 358.4  475.2]`` on
 #   a 200-dpi monitor) and then those coordinates
 #   would be scaled by ``fig.dpi_scale_trans`` pushing the center of
 #   the ellipse well off the screen (i.e. ``[ 71680.  95040.]``).
@@ -406,7 +405,7 @@ plt.show()
 # a new transformation that is
 # offset from another transformation, e.g., to place one object shifted a
 # bit relative to another object.  Typically you want the shift to be in
-# some physical dimension, like points or inches rather than in data
+# some physical dimension, like points or inches rather than in *data*
 # coordinates, so that the shift effect is constant at different zoom
 # levels and dpi settings.
 #
@@ -418,8 +417,8 @@ plt.show()
 # Here we apply the transforms in the *opposite* order to the use of
 # :class:`~matplotlib.transforms.ScaledTranslation` above. The plot is
 # first made in data units (``ax.transData``) and then shifted by
-# ``dx`` and ``dy`` points using `fig.dpi_scale_trans`.  (In typography,
-# a`point <https://en.wikipedia.org/wiki/Point_%28typography%29>`_ is
+# ``dx`` and ``dy`` points using ``fig.dpi_scale_trans``.  (In typography,
+# a `point <https://en.wikipedia.org/wiki/Point_%28typography%29>`_ is
 # 1/72 inches, and by specifying your offsets in points, your figure
 # will look the same regardless of the dpi resolution it is saved in.)
 
@@ -464,7 +463,7 @@ plt.show()
 #
 # The ``ax.transData`` transform we have been working with in this
 # tutorial is a composite of three different transformations that
-# comprise the transformation pipeline from `data` -> `display`
+# comprise the transformation pipeline from *data* -> *display*
 # coordinates.  Michael Droettboom implemented the transformations
 # framework, taking care to provide a clean API that segregated the
 # nonlinear projections and scales that happen in polar and logarithmic
@@ -485,11 +484,11 @@ plt.show()
 #
 # We've been introduced to the ``transAxes`` instance above in
 # :ref:`axes-coords`, which maps the (0, 0), (1, 1) corners of the
-# axes or subplot bounding box to `display` space, so let's look at
+# axes or subplot bounding box to *display* space, so let's look at
 # these other two pieces.
 #
 # ``self.transLimits`` is the transformation that takes you from
-# ``data`` to ``axes`` coordinates; i.e., it maps your view xlim and ylim
+# *data* to *axes* coordinates; i.e., it maps your view xlim and ylim
 # to the unit space of the axes (and ``transAxes`` then takes that unit
 # space to display space).  We can see this in action here
 #
@@ -516,7 +515,7 @@ plt.show()
 #     Out[87]: array([ 0.5,  0.5])
 #
 # and we can use this same inverted transformation to go from the unit
-# `axes` coordinates back to `data` coordinates.
+# *axes* coordinates back to *data* coordinates.
 #
 # .. sourcecode:: ipython
 #

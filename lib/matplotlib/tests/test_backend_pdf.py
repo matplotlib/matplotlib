@@ -1,5 +1,6 @@
 import io
 import os
+from pathlib import Path
 import sys
 import tempfile
 
@@ -10,8 +11,6 @@ from matplotlib import dviread, pyplot as plt, checkdep_usetex, rcParams
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.testing.compare import compare_images
 from matplotlib.testing.decorators import image_comparison
-from matplotlib.testing.determinism import (_determinism_source_date_epoch,
-                                            _determinism_check)
 
 
 needs_usetex = pytest.mark.skipif(
@@ -19,8 +18,7 @@ needs_usetex = pytest.mark.skipif(
     reason="This test needs a TeX installation")
 
 
-@image_comparison(baseline_images=['pdf_use14corefonts'],
-                  extensions=['pdf'])
+@image_comparison(['pdf_use14corefonts.pdf'])
 def test_use14corefonts():
     rcParams['pdf.use14corefonts'] = True
     rcParams['font.family'] = 'sans-serif'
@@ -129,45 +127,12 @@ def test_composite_image():
         assert len(pdf._file._images) == 2
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
 def test_pdfpages_fspath():
-    from pathlib import Path
     with PdfPages(Path(os.devnull)) as pdf:
         pdf.savefig(plt.figure())
 
 
-def test_source_date_epoch():
-    """Test SOURCE_DATE_EPOCH support for PDF output"""
-    _determinism_source_date_epoch("pdf", b"/CreationDate (D:20000101000000Z)")
-
-
-def test_determinism_plain():
-    """Test for reproducible PDF output: simple figure"""
-    _determinism_check('', format="pdf")
-
-
-def test_determinism_images():
-    """Test for reproducible PDF output: figure with different images"""
-    _determinism_check('i', format="pdf")
-
-
-def test_determinism_hatches():
-    """Test for reproducible PDF output: figure with different hatches"""
-    _determinism_check('h', format="pdf")
-
-
-def test_determinism_markers():
-    """Test for reproducible PDF output: figure with different markers"""
-    _determinism_check('m', format="pdf")
-
-
-def test_determinism_all():
-    """Test for reproducible PDF output"""
-    _determinism_check(format="pdf")
-
-
-@image_comparison(baseline_images=['hatching_legend'],
-                  extensions=['pdf'])
+@image_comparison(['hatching_legend.pdf'])
 def test_hatching_legend():
     """Test for correct hatching on patches in legend"""
     fig = plt.figure(figsize=(1, 2))
@@ -178,8 +143,7 @@ def test_hatching_legend():
     fig.legend([a, b, a, b], ["", "", "", ""])
 
 
-@image_comparison(baseline_images=['grayscale_alpha'],
-                  extensions=['pdf'])
+@image_comparison(['grayscale_alpha.pdf'])
 def test_grayscale_alpha():
     """Masking images with NaN did not work for grayscale images"""
     x, y = np.ogrid[-2:2:.1, -2:2:.1]
@@ -232,3 +196,10 @@ def test_failing_latex(tmpdir):
     plt.xlabel("$22_2_2$")
     with pytest.raises(RuntimeError):
         plt.savefig(path)
+
+
+def test_empty_rasterized():
+    # Check that empty figures that are rasterised save to pdf files fine
+    fig, ax = plt.subplots()
+    ax.plot([], [], rasterized=True)
+    fig.savefig(io.BytesIO(), format="pdf")

@@ -11,27 +11,33 @@
 
 import os
 import shutil
+import subprocess
 import sys
 
 import matplotlib
 import sphinx
 
+if sys.version_info < (3, 0, 0):
+    print("You're using python 2.x, conf.py works with python3+ only.")
+    exit()
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 sys.path.append(os.path.abspath('.'))
+sys.path.append('.')
 
 # General configuration
 # ---------------------
 
-# Add any Sphinx extension module names here, as strings. They can be extensions
-# coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
+# Add any Sphinx extension module names here, as strings. They can be
+# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.doctest',
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'IPython.sphinxext.ipython_console_highlighting',
     'IPython.sphinxext.ipython_directive',
@@ -42,20 +48,25 @@ extensions = [
     'sphinxext.custom_roles',
     'sphinxext.github',
     'sphinxext.math_symbol_table',
+    'sphinxext.missing_references',
     'sphinxext.mock_gui_toolkits',
     'sphinxext.skip_deprecated',
+    'sphinx_copybutton',
 ]
 
 exclude_patterns = ['api/api_changes/*', 'users/whats_new/*']
 
 
-def _check_deps():
-    names = {"colorspacious": 'colorspacious',
-             "IPython.sphinxext.ipython_console_highlighting": 'ipython',
-             "matplotlib": 'matplotlib',
-             "numpydoc": 'numpydoc',
-             "PIL.Image": 'pillow',
-             "sphinx_gallery": 'sphinx_gallery'}
+def _check_dependencies():
+    names = {
+        "colorspacious": 'colorspacious',
+        "IPython.sphinxext.ipython_console_highlighting": 'ipython',
+        "matplotlib": 'matplotlib',
+        "numpydoc": 'numpydoc',
+        "PIL.Image": 'pillow',
+        "sphinx_copybutton": 'sphinx_copybutton',
+        "sphinx_gallery": 'sphinx_gallery',
+    }
     missing = []
     for name in names:
         try:
@@ -66,8 +77,13 @@ def _check_deps():
         raise ImportError(
             "The following dependencies are missing to build the "
             "documentation: {}".format(", ".join(missing)))
+    if shutil.which('dot') is None:
+        raise OSError(
+            "No binary named dot - graphviz must be installed to build the "
+            "documentation")
 
-_check_deps()
+_check_dependencies()
+
 
 # Import only after checking for dependencies.
 # gallery_order.py from the sphinxext folder provides the classes that
@@ -76,22 +92,30 @@ import sphinxext.gallery_order as gallery_order
 # The following import is only necessary to monkey patch the signature later on
 from sphinx_gallery import gen_rst
 
-if shutil.which('dot') is None:
-    raise OSError(
-        "No binary named dot - you need to install the Graph Visualization "
-        "software (usually packaged as 'graphviz') to build the documentation")
+# On Linux, prevent plt.show() from emitting a non-GUI backend warning.
+os.environ.pop("DISPLAY", None)
 
 autosummary_generate = True
 
 autodoc_docstring_signature = True
-autodoc_default_flags = ['members', 'undoc-members']
+if sphinx.version_info < (1, 8):
+    autodoc_default_flags = ['members', 'undoc-members']
+else:
+    autodoc_default_options = {'members': None, 'undoc-members': None}
+
+nitpicky = True
+# change this to True to update the allowed failures
+missing_references_write_json = False
+missing_references_warn_unused_ignores = False
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
-    'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None),
+    'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
+    'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
     'cycler': ('https://matplotlib.org/cycler', None),
+    'dateutil': ('https://dateutil.readthedocs.io/en/stable/', None),
 }
 
 
@@ -137,8 +161,13 @@ source_encoding = "utf-8"
 master_doc = 'contents'
 
 # General substitutions.
-from subprocess import check_output
-SHA = check_output(['git', 'describe', '--dirty']).decode('utf-8').strip()
+try:
+    SHA = subprocess.check_output(
+        ['git', 'describe', '--dirty']).decode('utf-8').strip()
+# Catch the case where git is not installed locally, and use the versioneer
+# version number instead
+except (subprocess.CalledProcessError, FileNotFoundError):
+    SHA = matplotlib.__version__
 
 html_context = {'sha': SHA}
 
@@ -187,7 +216,7 @@ default_role = 'obj'
 
 plot_formats = [('png', 100), ('pdf', 100)]
 
-# Github extension
+# GitHub extension
 
 github_project_url = "https://github.com/matplotlib/matplotlib/"
 
@@ -314,10 +343,6 @@ else:
 # documentation
 autoclass_content = 'both'
 
-rst_epilog = """
-.. |minimum_numpy_version| replace:: %s
-""" % matplotlib.__version__numpy__
-
 texinfo_documents = [
     ("contents", 'matplotlib', 'Matplotlib Documentation',
      'John Hunter@*Darren Dale@*Eric Firing@*Michael Droettboom@*'
@@ -329,3 +354,20 @@ texinfo_documents = [
 # numpydoc config
 
 numpydoc_show_class_members = False
+
+latex_engine = 'xelatex'  # or 'lualatex'
+
+latex_elements = {
+    'babel': r'\usepackage{babel}',
+    'fontpkg': r'\setmainfont{DejaVu Serif}',
+}
+
+html4_writer = True
+
+
+def setup(app):
+    if any(st in version for st in ('post', 'alpha', 'beta')):
+        bld_type = 'dev'
+    else:
+        bld_type = 'rel'
+    app.add_config_value('releaselevel', bld_type, 'env')

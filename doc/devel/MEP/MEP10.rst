@@ -133,8 +133,8 @@ that docstring in the parsed content on the example page.  These
 docstrings could easily include references to any other part of the
 documentation.
 
-Documentation using help() vs a browser
----------------------------------------
+Documentation using help() vs. a browser
+----------------------------------------
 
 Using Sphinx markup in the source allows for good-looking docs in your
 browser, but the markup also makes the raw text returned using help()

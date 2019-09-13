@@ -52,10 +52,13 @@ Paul Kienzle,
 John Porter,
 and Jonathon Taylor.
 
+Thanks to Tony Yu for the original logo design.
+
 We also thank all who have reported bugs, commented on
 proposed changes, or otherwise contributed to Matplotlib's
 development and usefulness.
 """
+
 
 def check_duplicates():
     text = subprocess.check_output(['git', 'shortlog', '--summary', '--email'])
@@ -65,11 +68,12 @@ def check_duplicates():
     email_counter = Counter(emails)
 
     if email_counter.most_common(1)[0][1] > 1:
-        print('DUPLICATE CHECK: The following email addesses are used with more '
-              'than one name.\nConsider adding them to .mailmap.\n')
+        print('DUPLICATE CHECK: The following email addresses are used with '
+              'more than one name.\nConsider adding them to .mailmap.\n')
         for email, count in email_counter.items():
             if count > 1:
-                print('%s\n%s' % (email, '\n'.join(l for l in lines if email in l)))
+                print('{}\n{}'.format(
+                    email, '\n'.join(l for l in lines if email in l)))
 
 
 def generate_credits():

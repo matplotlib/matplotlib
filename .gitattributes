@@ -1,4 +1,5 @@
 * text=auto
+*.ppm binary
 *.svg binary
 *.svg linguist-language=true
 lib/matplotlib/_version.py export-subst

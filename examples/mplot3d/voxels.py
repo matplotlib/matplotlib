@@ -3,14 +3,11 @@
 3D voxel / volumetric plot
 ==========================
 
-Demonstrates plotting 3D volumetric objects with ``ax.voxels``
+Demonstrates plotting 3D volumetric objects with `.Axes3D.voxels`.
 '''
 
 import matplotlib.pyplot as plt
 import numpy as np
-
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 
 # prepare some coordinates

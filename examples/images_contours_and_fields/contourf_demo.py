@@ -30,7 +30,7 @@ Z = np.ma.array(Z)
 Z[:nr // 6, :nc // 6] = np.ma.masked
 
 # mask a circle in the middle:
-interior = np.sqrt((X**2) + (Y**2)) < 0.5
+interior = np.sqrt(X**2 + Y**2) < 0.5
 Z[interior] = np.ma.masked
 
 # We are using automatic selection of contour levels;

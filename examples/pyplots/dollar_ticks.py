@@ -19,8 +19,8 @@ formatter = ticker.FormatStrFormatter('$%1.2f')
 ax.yaxis.set_major_formatter(formatter)
 
 for tick in ax.yaxis.get_major_ticks():
-    tick.label1On = False
-    tick.label2On = True
+    tick.label1.set_visible(False)
+    tick.label2.set_visible(True)
     tick.label2.set_color('green')
 
 plt.show()

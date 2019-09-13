@@ -9,10 +9,6 @@ A very simple 'animation' of a 3D plot.  See also rotate_axes3d_demo.
 intentionally takes a long time to run)
 """
 
-
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
-
 import matplotlib.pyplot as plt
 import numpy as np
 import time

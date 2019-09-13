@@ -1,7 +1,7 @@
 """
-=============================================================
-Demo of the histogram (hist) function with multiple data sets
-=============================================================
+=====================================================
+The histogram (hist) function with multiple data sets
+=====================================================
 
 Plot histogram with multiple sample sets and demonstrate:
 
@@ -24,8 +24,7 @@ np.random.seed(19680801)
 n_bins = 10
 x = np.random.randn(1000, 3)
 
-fig, axes = plt.subplots(nrows=2, ncols=2)
-ax0, ax1, ax2, ax3 = axes.flatten()
+fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2)
 
 colors = ['red', 'tan', 'lime']
 ax0.hist(x, n_bins, density=True, histtype='bar', color=colors, label=colors)

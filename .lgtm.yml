@@ -1,0 +1,14 @@
+path_classifiers:
+    examples:
+        # Exclude example files from analysis by tagging them.
+        # We intentionally use multiple imports and unused variables in the
+        # examples to make them more explicit. These generate a lot of alerts.
+        # Since lgtm does not yet support suppressing selected alerts per
+        # file, we currently deactivate analysis completely here. May be
+        # reactivated when we can selectively suppress
+        # - py/import-and-import-from
+        # - py/repeated-import
+        # - py/unused-local-variable
+        # - py/multiple-definition
+        - examples
+        - tutorials

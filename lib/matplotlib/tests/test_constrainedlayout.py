@@ -33,8 +33,7 @@ def example_pcolor(ax, fontsize=12):
     return pcm
 
 
-@image_comparison(baseline_images=['constrained_layout1'],
-        extensions=['png'])
+@image_comparison(['constrained_layout1.png'])
 def test_constrained_layout1():
     'Test constrained_layout for a single subplot'
     fig = plt.figure(constrained_layout=True)
@@ -42,21 +41,19 @@ def test_constrained_layout1():
     example_plot(ax, fontsize=24)
 
 
-@image_comparison(baseline_images=['constrained_layout2'],
-        extensions=['png'])
+@image_comparison(['constrained_layout2.png'])
 def test_constrained_layout2():
     'Test constrained_layout for 2x2 subplots'
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         example_plot(ax, fontsize=24)
 
 
-@image_comparison(baseline_images=['constrained_layout3'],
-        extensions=['png'])
+@image_comparison(['constrained_layout3.png'])
 def test_constrained_layout3():
     'Test constrained_layout for colorbars with subplots'
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
-    for nn, ax in enumerate(axs.flatten()):
+    for nn, ax in enumerate(axs.flat):
         pcm = example_pcolor(ax, fontsize=24)
         if nn == 3:
             pad = 0.08
@@ -65,32 +62,30 @@ def test_constrained_layout3():
         fig.colorbar(pcm, ax=ax, pad=pad)
 
 
-@image_comparison(baseline_images=['constrained_layout4'])
+@image_comparison(['constrained_layout4'])
 def test_constrained_layout4():
     'Test constrained_layout for a single colorbar with subplots'
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=24)
     fig.colorbar(pcm, ax=axs, pad=0.01, shrink=0.6)
 
 
-@image_comparison(baseline_images=['constrained_layout5'],
-                  tol=5.e-2, extensions=['png'])
+@image_comparison(['constrained_layout5.png'], tol=5.e-2)
 def test_constrained_layout5():
     '''
     Test constrained_layout for a single colorbar with subplots,
     colorbar bottom
     '''
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=24)
     fig.colorbar(pcm, ax=axs,
                  use_gridspec=False, pad=0.01, shrink=0.6,
                  location='bottom')
 
 
-@image_comparison(baseline_images=['constrained_layout6'],
-        extensions=['png'])
+@image_comparison(['constrained_layout6.png'])
 def test_constrained_layout6():
     'Test constrained_layout for nested gridspecs'
     fig = plt.figure(constrained_layout=True)
@@ -122,15 +117,13 @@ def test_constrained_layout7():
         gs = gridspec.GridSpec(1, 2)
         gsl = gridspec.GridSpecFromSubplotSpec(2, 2, gs[0])
         gsr = gridspec.GridSpecFromSubplotSpec(1, 2, gs[1])
-        axsl = []
         for gs in gsl:
-            ax = fig.add_subplot(gs)
+            fig.add_subplot(gs)
         # need to trigger a draw to get warning
         fig.draw(fig.canvas.get_renderer())
 
 
-@image_comparison(baseline_images=['constrained_layout8'],
-        extensions=['png'])
+@image_comparison(['constrained_layout8.png'])
 def test_constrained_layout8():
     'Test for gridspecs that are not completely full'
     fig = plt.figure(figsize=(10, 5), constrained_layout=True)
@@ -157,13 +150,12 @@ def test_constrained_layout8():
     fig.colorbar(pcm, ax=axs, pad=0.01, shrink=0.6)
 
 
-@image_comparison(baseline_images=['constrained_layout9'],
-        extensions=['png'])
+@image_comparison(['constrained_layout9.png'])
 def test_constrained_layout9():
     'Test for handling suptitle and for sharex and sharey'
     fig, axs = plt.subplots(2, 2, constrained_layout=True,
                             sharex=False, sharey=False)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=24)
         ax.set_xlabel('')
         ax.set_ylabel('')
@@ -172,20 +164,18 @@ def test_constrained_layout9():
     fig.suptitle('Test Suptitle', fontsize=28)
 
 
-@image_comparison(baseline_images=['constrained_layout10'],
-        extensions=['png'])
+@image_comparison(['constrained_layout10.png'])
 def test_constrained_layout10():
     'Test for handling legend outside axis'
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         ax.plot(np.arange(12), label='This is a label')
     ax.legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
 
 
-@image_comparison(baseline_images=['constrained_layout11'],
-        extensions=['png'])
+@image_comparison(['constrained_layout11.png'])
 def test_constrained_layout11():
-    'Test for multiple nested gridspecs '
+    'Test for multiple nested gridspecs'
     fig = plt.figure(constrained_layout=True, figsize=(10, 3))
     gs0 = gridspec.GridSpec(1, 2, figure=fig)
     gsl = gridspec.GridSpecFromSubplotSpec(1, 2, gs0[0])
@@ -202,8 +192,7 @@ def test_constrained_layout11():
     example_plot(ax, fontsize=9)
 
 
-@image_comparison(baseline_images=['constrained_layout11rat'],
-        extensions=['png'])
+@image_comparison(['constrained_layout11rat.png'])
 def test_constrained_layout11rat():
     'Test for multiple nested gridspecs with width_ratios'
     fig = plt.figure(constrained_layout=True, figsize=(10, 3))
@@ -223,8 +212,7 @@ def test_constrained_layout11rat():
     example_plot(ax, fontsize=9)
 
 
-@image_comparison(baseline_images=['constrained_layout12'],
-        extensions=['png'])
+@image_comparison(['constrained_layout12.png'])
 def test_constrained_layout12():
     'Test that very unbalanced labeling still works.'
     fig = plt.figure(constrained_layout=True)
@@ -246,23 +234,21 @@ def test_constrained_layout12():
     ax.set_xlabel('x-label')
 
 
-@image_comparison(baseline_images=['constrained_layout13'], tol=2.e-2,
-        extensions=['png'])
+@image_comparison(['constrained_layout13.png'], tol=2.e-2)
 def test_constrained_layout13():
     'Test that padding works.'
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=12)
         fig.colorbar(pcm, ax=ax, shrink=0.6, aspect=20., pad=0.02)
     fig.set_constrained_layout_pads(w_pad=24./72., h_pad=24./72.)
 
 
-@image_comparison(baseline_images=['constrained_layout14'],
-        extensions=['png'])
+@image_comparison(['constrained_layout14.png'])
 def test_constrained_layout14():
     'Test that padding works.'
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=12)
         fig.colorbar(pcm, ax=ax, shrink=0.6, aspect=20., pad=0.02)
     fig.set_constrained_layout_pads(
@@ -270,18 +256,16 @@ def test_constrained_layout14():
             hspace=0.2, wspace=0.2)
 
 
-@image_comparison(baseline_images=['constrained_layout15'],
-        extensions=['png'])
+@image_comparison(['constrained_layout15.png'])
 def test_constrained_layout15():
     'Test that rcparams work.'
     rcParams['figure.constrained_layout.use'] = True
     fig, axs = plt.subplots(2, 2)
-    for ax in axs.flatten():
+    for ax in axs.flat:
         example_plot(ax, fontsize=12)
 
 
-@image_comparison(baseline_images=['constrained_layout16'],
-        extensions=['png'])
+@image_comparison(['constrained_layout16.png'])
 def test_constrained_layout16():
     'Test ax.set_position.'
     fig, ax = plt.subplots(constrained_layout=True)
@@ -289,8 +273,7 @@ def test_constrained_layout16():
     ax2 = fig.add_axes([0.2, 0.2, 0.4, 0.4])
 
 
-@image_comparison(baseline_images=['constrained_layout17'],
-        extensions=['png'])
+@image_comparison(['constrained_layout17.png'])
 def test_constrained_layout17():
     'Test uneven gridspecs'
     fig = plt.figure(constrained_layout=True)
@@ -378,3 +361,42 @@ def test_constrained_layout23():
     for i in range(2):
         fig, ax = plt.subplots(num="123", constrained_layout=True, clear=True)
         fig.suptitle("Suptitle{}".format(i))
+
+
+# This test occasionally fails the image comparison tests, so we mark as
+# flaky.  Apparently the constraint solver occasionally doesn't fully
+# optimize.  Would be nice if this were more deterministic...
+@pytest.mark.timeout(30)
+@pytest.mark.flaky(reruns=3)
+@image_comparison(['test_colorbar_location.png'],
+                  remove_text=True, style='mpl20')
+def test_colorbar_location():
+    """
+    Test that colorbar handling is as expected for various complicated
+    cases...
+    """
+
+    fig, axs = plt.subplots(4, 5, constrained_layout=True)
+    for ax in axs.flat:
+        pcm = example_pcolor(ax)
+        ax.set_xlabel('')
+        ax.set_ylabel('')
+    fig.colorbar(pcm, ax=axs[:, 1], shrink=0.4)
+    fig.colorbar(pcm, ax=axs[-1, :2], shrink=0.5, location='bottom')
+    fig.colorbar(pcm, ax=axs[0, 2:], shrink=0.5, location='bottom')
+    fig.colorbar(pcm, ax=axs[-2, 3:], shrink=0.5, location='top')
+    fig.colorbar(pcm, ax=axs[0, 0], shrink=0.5, location='left')
+    fig.colorbar(pcm, ax=axs[1:3, 2], shrink=0.5, location='right')
+
+
+def test_hidden_axes():
+    # test that if we make an axes not visible that constrained_layout
+    # still works.  Note the axes still takes space in the layout
+    # (as does a gridspec slot that is empty)
+    fig, axs = plt.subplots(2, 2, constrained_layout=True)
+    axs[0, 1].set_visible(False)
+    fig.canvas.draw()
+    extents1 = np.copy(axs[0, 0].get_position().extents)
+
+    np.testing.assert_allclose(extents1,
+        [0.045552, 0.548288, 0.47319, 0.982638], rtol=1e-5)

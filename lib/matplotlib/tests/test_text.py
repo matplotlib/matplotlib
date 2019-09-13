@@ -6,6 +6,8 @@ from numpy.testing import assert_almost_equal
 import pytest
 
 import matplotlib
+from matplotlib.backend_bases import MouseEvent
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
@@ -15,14 +17,12 @@ needs_usetex = pytest.mark.skipif(
     reason="This test needs a TeX installation")
 
 
-@image_comparison(baseline_images=['font_styles'])
+@image_comparison(['font_styles'])
 def test_font_styles():
-    from matplotlib import _get_data_path
-    data_path = _get_data_path()
 
     def find_matplotlib_font(**kw):
         prop = FontProperties(**kw)
-        path = findfont(prop, directory=data_path)
+        path = findfont(prop, directory=matplotlib.get_data_path())
         return FontProperties(fname=path)
 
     from matplotlib.font_manager import FontProperties, findfont
@@ -102,7 +102,7 @@ def test_font_styles():
     ax.set_yticks([])
 
 
-@image_comparison(baseline_images=['multiline'])
+@image_comparison(['multiline'])
 def test_multiline():
     plt.figure()
     ax = plt.subplot(1, 1, 1)
@@ -126,7 +126,58 @@ def test_multiline():
     ax.set_yticks([])
 
 
-@image_comparison(baseline_images=['antialiased'], extensions=['png'])
+@image_comparison(['multiline2'], style='mpl20')
+def test_multiline2():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
+    fig, ax = plt.subplots()
+
+    ax.set_xlim([0, 1.4])
+    ax.set_ylim([0, 2])
+    ax.axhline(0.5, color='C2', linewidth=0.3)
+    sts = ['Line', '2 Lineg\n 2 Lg', '$\\sum_i x $', 'hi $\\sum_i x $\ntest',
+           'test\n $\\sum_i x $', '$\\sum_i x $\n $\\sum_i x $']
+    renderer = fig.canvas.get_renderer()
+
+    def draw_box(ax, tt):
+        bb = tt.get_window_extent(renderer)
+        bbt = bb.inverse_transformed(ax.transAxes)
+        r = mpatches.Rectangle((0, 0), 1, 1, clip_on=False,
+                               transform=ax.transAxes)
+        r.set_bounds(bbt.bounds)
+        ax.add_patch(r)
+
+    horal = 'left'
+    for nn, st in enumerate(sts):
+        tt = ax.text(0.2 * nn + 0.1, 0.5, st, horizontalalignment=horal,
+            verticalalignment='bottom')
+        draw_box(ax, tt)
+    ax.text(1.2, 0.5, 'Bottom align', color='C2')
+
+    ax.axhline(1.3, color='C2', linewidth=0.3)
+    for nn, st in enumerate(sts):
+        tt = ax.text(0.2 * nn + 0.1, 1.3, st, horizontalalignment=horal,
+            verticalalignment='top')
+        draw_box(ax, tt)
+    ax.text(1.2, 1.3, 'Top align', color='C2')
+
+    ax.axhline(1.8, color='C2', linewidth=0.3)
+    for nn, st in enumerate(sts):
+        tt = ax.text(0.2 * nn + 0.1, 1.8, st, horizontalalignment=horal,
+            verticalalignment='baseline')
+        draw_box(ax, tt)
+    ax.text(1.2, 1.8, 'Baseline align', color='C2')
+
+    ax.axhline(0.1, color='C2', linewidth=0.3)
+    for nn, st in enumerate(sts):
+        tt = ax.text(0.2 * nn + 0.1, 0.1, st, horizontalalignment=horal,
+            verticalalignment='bottom', rotation=20)
+        draw_box(ax, tt)
+    ax.text(1.2, 0.1, 'Bot align, rot20', color='C2')
+
+
+@image_comparison(['antialiased.png'])
 def test_antialiasing():
     matplotlib.rcParams['text.antialiased'] = True
 
@@ -151,22 +202,19 @@ def test_afm_kerning():
     assert afm.string_width_height('VAVAVAVAVAVA') == (7174.0, 718)
 
 
-@image_comparison(baseline_images=['text_contains'], extensions=['png'])
+@image_comparison(['text_contains.png'])
 def test_contains():
-    import matplotlib.backend_bases as mbackend
-
     fig = plt.figure()
     ax = plt.axes()
 
-    mevent = mbackend.MouseEvent(
-        'button_press_event', fig.canvas, 0.5, 0.5, 1, None)
+    mevent = MouseEvent('button_press_event', fig.canvas, 0.5, 0.5, 1, None)
 
     xs = np.linspace(0.25, 0.75, 30)
     ys = np.linspace(0.25, 0.75, 30)
     xs, ys = np.meshgrid(xs, ys)
 
     txt = plt.text(
-        0.48, 0.52, 'hello world', ha='center', fontsize=30, rotation=30)
+        0.5, 0.4, 'hello world', ha='center', fontsize=30, rotation=30)
     # uncomment to draw the text's bounding box
     # txt.set_bbox(dict(edgecolor='black', facecolor='none'))
 
@@ -175,7 +223,7 @@ def test_contains():
     fig.canvas.draw()
 
     for x, y in zip(xs.flat, ys.flat):
-        mevent.x, mevent.y = plt.gca().transAxes.transform_point([x, y])
+        mevent.x, mevent.y = plt.gca().transAxes.transform([x, y])
         contains, _ = txt.contains(mevent)
         color = 'yellow' if contains else 'red'
 
@@ -185,7 +233,19 @@ def test_contains():
         ax.viewLim.set(vl)
 
 
-@image_comparison(baseline_images=['titles'])
+def test_annotation_contains():
+    # Check that Annotation.contains looks at the bboxes of the text and the
+    # arrow separately, not at the joint bbox.
+    fig, ax = plt.subplots()
+    ann = ax.annotate(
+        "hello", xy=(.4, .4), xytext=(.6, .6), arrowprops={"arrowstyle": "->"})
+    fig.canvas.draw()   # Needed for the same reason as in test_contains.
+    event = MouseEvent(
+        "button_press_event", fig.canvas, *ax.transData.transform((.5, .6)))
+    assert ann.contains(event) == (False, {})
+
+
+@image_comparison(['titles'])
 def test_titles():
     # left and right side titles
     plt.figure()
@@ -196,7 +256,7 @@ def test_titles():
     ax.set_yticks([])
 
 
-@image_comparison(baseline_images=['text_alignment'])
+@image_comparison(['text_alignment'], style='mpl20')
 def test_alignment():
     plt.figure()
     ax = plt.subplot(1, 1, 1)
@@ -220,7 +280,7 @@ def test_alignment():
     ax.set_yticks([])
 
 
-@image_comparison(baseline_images=['axes_titles'], extensions=['png'])
+@image_comparison(['axes_titles.png'])
 def test_axes_titles():
     # Related to issue #3327
     plt.figure()
@@ -298,15 +358,27 @@ def test_get_rotation_mod360():
         assert_almost_equal(text.get_rotation(i), j)
 
 
-@image_comparison(baseline_images=['text_bboxclip'])
+@pytest.mark.parametrize("ha", ["center", "right", "left"])
+@pytest.mark.parametrize("va", ["center", "top", "bottom",
+                                "baseline", "center_baseline"])
+def test_null_rotation_with_rotation_mode(ha, va):
+    fig, ax = plt.subplots()
+    kw = dict(rotation=0, va=va, ha=ha)
+    t0 = ax.text(.5, .5, 'test', rotation_mode='anchor', **kw)
+    t1 = ax.text(.5, .5, 'test', rotation_mode='default', **kw)
+    fig.canvas.draw()
+    assert_almost_equal(t0.get_window_extent(fig.canvas.renderer).get_points(),
+                        t1.get_window_extent(fig.canvas.renderer).get_points())
+
+
+@image_comparison(['text_bboxclip'])
 def test_bbox_clipping():
     plt.text(0.9, 0.2, 'Is bbox clipped?', backgroundcolor='r', clip_on=True)
     t = plt.text(0.9, 0.5, 'Is fancy bbox clipped?', clip_on=True)
     t.set_bbox({"boxstyle": "round, pad=0.1"})
 
 
-@image_comparison(baseline_images=['annotation_negative_ax_coords'],
-                  extensions=['png'])
+@image_comparison(['annotation_negative_ax_coords.png'])
 def test_annotation_negative_ax_coords():
     fig, ax = plt.subplots()
 
@@ -334,8 +406,7 @@ def test_annotation_negative_ax_coords():
                 va='top')
 
 
-@image_comparison(baseline_images=['annotation_negative_fig_coords'],
-                  extensions=['png'])
+@image_comparison(['annotation_negative_fig_coords.png'])
 def test_annotation_negative_fig_coords():
     fig, ax = plt.subplots()
 
@@ -386,8 +457,7 @@ def test_text_stale():
     assert not fig.stale
 
 
-@image_comparison(baseline_images=['agg_text_clip'],
-                  extensions=['png'])
+@image_comparison(['agg_text_clip.png'])
 def test_agg_text_clip():
     np.random.seed(1)
     fig, (ax1, ax2) = plt.subplots(2)
@@ -407,8 +477,7 @@ def test_text_size_binding():
     assert sz1 == fp.get_size_in_points()
 
 
-@image_comparison(baseline_images=['font_scaling'],
-                  extensions=['pdf'])
+@image_comparison(['font_scaling.pdf'])
 def test_font_scaling():
     matplotlib.rcParams['pdf.fonttype'] = 42
     fig, ax = plt.subplots(figsize=(6.4, 12.4))
@@ -472,8 +541,7 @@ def test_single_artist_usetex():
     fig.canvas.draw()
 
 
-@image_comparison(baseline_images=['text_as_path_opacity'],
-                  extensions=['svg'])
+@image_comparison(['text_as_path_opacity.svg'])
 def test_text_as_path_opacity():
     plt.figure()
     plt.gca().set_axis_off()
@@ -482,8 +550,7 @@ def test_text_as_path_opacity():
     plt.text(0.25, 0.75, 'x', alpha=0.5, color=(0, 0, 0, 1))
 
 
-@image_comparison(baseline_images=['text_as_text_opacity'],
-                  extensions=['svg'])
+@image_comparison(['text_as_text_opacity.svg'])
 def test_text_as_text_opacity():
     matplotlib.rcParams['svg.fonttype'] = 'none'
     plt.figure()
@@ -508,6 +575,49 @@ def test_annotation_update():
     fig.tight_layout()
     extent2 = an.get_window_extent(fig.canvas.get_renderer())
 
-    np.testing.assert_raises(AssertionError, np.testing.assert_allclose,
-                             extent1.get_points(), extent2.get_points(),
-                             rtol=1e-6)
+    assert not np.allclose(extent1.get_points(), extent2.get_points(),
+                           rtol=1e-6)
+
+
+@image_comparison(['large_subscript_title.png'], style='mpl20')
+def test_large_subscript_title():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
+    fig, axs = plt.subplots(1, 2, figsize=(9, 2.5), constrained_layout=True)
+    ax = axs[0]
+    ax.set_title(r'$\sum_{i} x_i$')
+    ax.set_title('New way', loc='left')
+    ax.set_xticklabels('')
+
+    ax = axs[1]
+    tt = ax.set_title(r'$\sum_{i} x_i$')
+    x, y = tt.get_position()
+    tt.set_position((x, 1.01))
+    ax.set_title('Old Way', loc='left')
+    ax.set_xticklabels('')
+
+
+def test_wrap():
+    fig = plt.figure(figsize=(6, 4))
+    s = 'This is a very long text that should be wrapped multiple times.'
+    text = fig.text(0.7, 0.5, s, wrap=True)
+    fig.canvas.draw()
+    assert text._get_wrapped_text() == ('This is a very long\n'
+                                        'text that should be\n'
+                                        'wrapped multiple\n'
+                                        'times.')
+
+
+def test_long_word_wrap():
+    fig = plt.figure(figsize=(6, 4))
+    text = fig.text(9.5, 8, 'Alonglineoftexttowrap', wrap=True)
+    fig.canvas.draw()
+    assert text._get_wrapped_text() == 'Alonglineoftexttowrap'
+
+
+def test_wrap_no_wrap():
+    fig = plt.figure(figsize=(6, 4))
+    text = fig.text(0, 0, 'non wrapped text', wrap=True)
+    fig.canvas.draw()
+    assert text._get_wrapped_text() == 'non wrapped text'

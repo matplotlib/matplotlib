@@ -56,7 +56,7 @@ center or right justified.  Here is an example which uses the
 :func:`~matplotlib.pyplot.text` command to show the various alignment
 possibilities.  The use of ``transform=ax.transAxes`` throughout the
 code indicates that the coordinates are given relative to the axes
-bounding box, with 0,0 being the lower left of the axes and 1,1 the
+bounding box, with (0, 0) being the lower left of the axes and (1, 1) the
 upper right.
 """
 
@@ -72,7 +72,7 @@ top = bottom + height
 fig = plt.figure()
 ax = fig.add_axes([0, 0, 1, 1])
 
-# axes coordinates are 0,0 is bottom left and 1,1 is upper right
+# axes coordinates: (0, 0) is bottom left and (1, 1) is upper right
 p = patches.Rectangle(
     (left, bottom), width, height,
     fill=False, transform=ax.transAxes, clip_on=False
@@ -200,11 +200,9 @@ plt.show()
 # Text with non-latin glyphs
 # ==========================
 #
-# As of v2.0 the :ref:`default font <default_changes_font>` contains
-# glyphs for many western alphabets, but still does not cover all of the
-# glyphs that may be required by mpl users.  For example, DejaVu has no
-# coverage of Chinese, Korean, or Japanese.
-#
+# As of v2.0 the :ref:`default font <default_changes_font>`, DejaVu, contains
+# glyphs for many western alphabets, but not other scripts, such as Chinese,
+# Korean, or Japanese.
 #
 # To set the default font to be one that supports the code points you
 # need, prepend the font name to ``'font.family'`` or the desired alias

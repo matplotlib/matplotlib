@@ -56,7 +56,7 @@ Linking your repository to the upstream repo
 main `Matplotlib`_ repository at `Matplotlib github`_.
 
 Note that we've used ``git://`` for the URL rather than ``https://`` or ``git@``.  The
-``git://`` URL is read only.  This means we that we can't accidentally
+``git://`` URL is read only.  This means that we can't accidentally
 (or deliberately) write to the upstream repo, and we are only going to
 use it to merge into our own code.
 

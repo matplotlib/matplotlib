@@ -12,7 +12,7 @@ Report a compilation problem
 
 See :ref:`reporting-problems`.
 
-matplotlib compiled fine, but nothing shows up when I use it
+Matplotlib compiled fine, but nothing shows up when I use it
 ============================================================
 
 The first thing to try is a :ref:`clean install <clean-install>` and see if
@@ -24,11 +24,11 @@ example::
 
    python -c "from pylab import *; plot(); show()" --verbose-helpful
 
-This will give you additional information about which backends matplotlib is
+This will give you additional information about which backends Matplotlib is
 loading, version information, and more. At this point you might want to make
-sure you understand matplotlib's :doc:`configuration </tutorials/introductory/customizing>`
+sure you understand Matplotlib's :doc:`configuration </tutorials/introductory/customizing>`
 process, governed by the :file:`matplotlibrc` configuration file which contains
-instructions within and the concept of the matplotlib backend.
+instructions within and the concept of the Matplotlib backend.
 
 If you are still having trouble, see :ref:`reporting-problems`.
 
@@ -84,7 +84,7 @@ excellent Python scientific software collections that are now available:
 - Canopy_ from Enthought_
 
 .. _Canopy: https://www.enthought.com/products/canopy/
-.. _Anaconda: https://www.continuum.io/downloads
+.. _Anaconda: https://www.anaconda.com/
 .. _Enthought: https://www.enthought.com
 .. _Continuum Analytics: https://www.continuum.io
 
@@ -195,7 +195,7 @@ and build and install as usual with::
       sudo apt-get build-dep python-matplotlib
 
    If you are on Fedora/RedHat, you can get all the dependencies required to
-   build matplotlib by first installing ``yum-builddep`` and then running::
+   build Matplotlib by first installing ``yum-builddep`` and then running::
 
       su -c 'yum-builddep python-matplotlib'
 
@@ -215,7 +215,7 @@ places.
 
    Windows users please see the :ref:`build_windows` guide.
 
-Then, if you want to update your matplotlib at any time, just do::
+Then, if you want to update your Matplotlib at any time, just do::
 
    git pull
 

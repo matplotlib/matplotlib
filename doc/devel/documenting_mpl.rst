@@ -47,15 +47,10 @@ Installing dependencies
 The documentation for Matplotlib is generated from reStructuredText (ReST_)
 using the Sphinx_ documentation generation tool. There are several extra
 requirements that are needed to build the documentation. They are listed in
-:file:`doc-requirements.txt` and listed below:
+:file:`doc-requirements.txt`, which is shown below:
 
-* Sphinx>=1.3, !=1.5.0, !=1.6.4, !=1.7.3
-* colorspacious
-* IPython
-* numpydoc>=0.4
-* Pillow
-* sphinx-gallery>=0.1.13
-* graphviz
+.. include:: ../../requirements/doc/doc-requirements.txt
+   :literal:
 
 .. note::
 
@@ -86,8 +81,9 @@ Other useful invocations include
    # Build pdf docs.
    make latexpdf
 
-The ``SPHINXOPTS`` variable is set to ``-W`` by default to turn warnings into
-errors.  To unset it, use
+The ``SPHINXOPTS`` variable is set to ``-W --keep-going`` by default to build
+the complete docs but exit with exit status 1 if there are warnings.  To unset
+it, use
 
 .. code-block:: sh
 
@@ -103,7 +99,7 @@ Multiple options can be combined using e.g. ``make O='-j4 -Dplot_gallery=0'
 html``.
 
 On Windows, options needs to be set as environment variables, e.g. ``set O=-W
--j4 & make html``.
+--keep-going -j4 & make html``.
 
 .. _writing-rest-pages:
 
@@ -354,11 +350,11 @@ An example docstring looks like:
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : array-like of colors, optional, default: 'k'
+        colors : array-like of colors, default: 'k'
 
-        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
+        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, default: 'solid'
 
-        label : string, optional, default: ''
+        label : str, default: ''
 
         Returns
         -------
@@ -366,7 +362,7 @@ An example docstring looks like:
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.collections.LineCollection` properties.
+        **kwargs : `~matplotlib.collections.LineCollection` properties
 
         See also
         --------
@@ -408,7 +404,7 @@ Quotes for strings
 Matplotlib does not have a convention whether to use single-quotes or
 double-quotes.  There is a mixture of both in the current code.
 
-Use simple single or double quotes when giving string values, e.g.:: rst
+Use simple single or double quotes when giving string values, e.g.
 
 .. code-block:: rst
 
@@ -424,13 +420,25 @@ precisely in the text.
 Generally, the `numpydoc docstring guide`_ conventions apply. The following
 rules expand on them where the numpydoc conventions are not specific.
 
+As opposed to the numpydoc guide, parameters need not be marked as
+*optional* if they have a simple default. This removes unnecessary clutter.
+The optional aspect is already clear from the presence of a default value.
+More specifically
+
+- use ``{name} : {type}, default: {val}`` when possible.
+- use ``{name} : {type}, optional`` and describe the default in the text if
+  in cannot be explained sufficiently in the above way.
+
 Use ``float`` for a type that can be any number.
+
+Use ``(float, float)`` to describe a 2D position. The parentheses should be
+included to make the tuple-ness more obvious.
 
 Use ``array-like`` for homogeneous numeric sequences, which could
 typically be a numpy.array. Dimensionality may be specified using ``2D``,
 ``3D``, ``n-dimensional``. If you need to have variables denoting the
 sizes of the dimensions, use capital letters in brackets
-(``array-like (M, N)``). When refering to them in the text they are easier
+(``array-like (M, N)``). When referring to them in the text they are easier
 read and no special formatting is needed.
 
 ``float`` is the implicit default dtype for array-likes. For other dtypes
@@ -478,7 +486,9 @@ also`` sections. No need to use backticks there::
 Wrapping parameter lists
 ~~~~~~~~~~~~~~~~~~~~~~~~
 Long parameter lists should be wrapped using a ``\`` for continuation and
-starting on the new line without any indent:
+starting on the new line without any indent (no indent because pydoc will
+parse the docstring and strip the line continuation so that indent would
+result in a lot of whitespace within the line):
 
 .. code-block:: python
 
@@ -488,8 +498,7 @@ starting on the new line without any indent:
 
       Parameters
       ----------
-      projection :
-          {'aitoff', 'hammer', 'lambert', 'mollweide', 'polar', \
+      projection : {'aitoff', 'hammer', 'lambert', 'mollweide', 'polar', \
   'rectilinear'}, optional
           The projection type of the axes.
 
@@ -502,21 +511,8 @@ section of the docstring.
 rcParams
 ~~~~~~~~
 rcParams can be referenced with the custom ``:rc:`` role:
-:literal:`:rc:\`foo\`` yields ``rcParams["foo"]``. Use `= [default-val]`
-to indicate the default value of the parameter. The default value should be
-literal, i.e. enclosed in double backticks. For simplicity these may be
-omitted for string default values.
-
-.. code-block:: rst
-
-  If not provided, defaults to :rc:`figure.figsize` = ``[6.4, 4.8]``.
-  If not provided, defaults to :rc:`figure.facecolor` = 'w'.
-
-Deprecated formatting conventions
----------------------------------
-Formerly, we have used square brackets for explicit parameter lists
-``['solid' | 'dashed' | 'dotted']``. With numpydoc we have switched to their
-standard using curly braces ``{'solid', 'dashed', 'dotted'}``.
+:literal:`:rc:\`foo\`` yields ``rcParams["foo"] = 'default'``, which is a link
+to the :file:`matplotlibrc` file description.
 
 Setters and getters
 -------------------
@@ -614,7 +610,7 @@ Then in any function accepting `~.Line2D` pass-through ``kwargs``, e.g.,
       Some stuff omitted
 
       The kwargs are Line2D properties:
-      %(Line2D)s
+      %(_Line2D_docstr)s
 
       kwargs scalex and scaley, if defined, are passed on
       to autoscale_view to determine whether the x and y axes are
@@ -629,6 +625,29 @@ we can't modify the ``Patch.__init__.__doc__`` docstring outside the class
 definition.  There are some some manual hacks in this case, violating the
 "single entry point" requirement above -- see the ``docstring.interpd.update``
 calls in `matplotlib.patches`.
+
+
+Inheriting docstrings
+---------------------
+
+If a subclass overrides a method but does not change the semantics, we can
+reuse the parent docstring for the method of the child class. Python does this
+automatically, if the subclass method does not have a docstring.
+
+Use a plain comment `# docstring inherited` to denote the intention to reuse
+the parent docstring. That way we do not accidentally create a docstring in
+the future::
+
+    class A:
+        def foo():
+            """The parent docstring."""
+            pass
+
+    class B(A):
+        def foo():
+            # docstring inherited
+            pass
+
 
 .. _docstring-adding-figures:
 
@@ -656,7 +675,7 @@ Note that ``examples/text_labels_and_annotations/legend.py`` has been mapped to
 fixed in future re-organization of the docs.
 
 Plots can also be directly placed inside docstrings.  Details are in
-:doc:`/devel/plot_directive`.  A short example is:
+:doc:`/api/sphinxext_plot_directive_api`.  A short example is:
 
 .. code-block:: python
 
@@ -763,7 +782,7 @@ two step process from within the :file:`/doc/sphinxext/gallery_order.py`:
   and a list of examples for the subsection order. The order of the items
   shown in the doc pages is the order those items appear in those lists.
 * *Implicit order*: If a folder or example is not in those lists, it will be
-  appended after the explicitely ordered items and all of those additional
+  appended after the explicitly ordered items and all of those additional
   items will be ordered by pathname (for the sections) or by filename
   (for the subsections).
 
@@ -785,7 +804,7 @@ which was used to setup the github account but can be used for other
 purposes, like hosting Google docs or Youtube videos.  You can embed a
 Matplotlib animation in the docs by first saving the animation as a
 movie using :meth:`matplotlib.animation.Animation.save`, and then
-uploading to `matplotlib's Youtube
+uploading to `Matplotlib's Youtube
 channel <https://www.youtube.com/user/matplotlib>`_ and inserting the
 embedding string youtube provides like:
 
@@ -879,9 +898,8 @@ Some helpful functions::
 
 .. _ReST: http://docutils.sourceforge.net/rst.html
 .. _Sphinx: http://www.sphinx-doc.org
-.. _documentation: http://www.sphinx-doc.org/contents.html
-.. _`inline markup`: http://www.sphinx-doc.org/markup/inline.html
+.. _documentation: https://www.sphinx-doc.org/en/master/contents.html
 .. _index: http://www.sphinx-doc.org/markup/para.html#index-generating-markup
 .. _`Sphinx Gallery`: https://sphinx-gallery.readthedocs.io/en/latest/
-.. _references: http://www.sphinx-doc.org/en/stable/markup/inline.html
+.. _references: https://www.sphinx-doc.org/en/stable/usage/restructuredtext/roles.html
 .. _`numpydoc docstring guide`: https://numpydoc.readthedocs.io/en/latest/format.html

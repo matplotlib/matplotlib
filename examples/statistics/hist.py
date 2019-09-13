@@ -41,7 +41,7 @@ axs[1].hist(y, bins=n_bins)
 # Updating histogram colors
 # -------------------------
 #
-# The histogram method returns (among other things) a `patches` object. This
+# The histogram method returns (among other things) a ``patches`` object. This
 # gives us access to the properties of the objects drawn. Using this, we can
 # edit the histogram to our liking. Let's change the color of each bar
 # based on its y value.

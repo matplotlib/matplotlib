@@ -1,14 +1,15 @@
 """
-================
-Embedding In Wx4
-================
+==================
+Embedding in wx #4
+==================
 
-An example of how to use wx or wxagg in an application with a custom toolbar.
+An example of how to use wxagg in a wx application with a custom toolbar.
 """
 
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as NavigationToolbar
-from matplotlib.backends.backend_wx import _load_bitmap
+from matplotlib.backends.backend_wxagg import (
+    FigureCanvasWxAgg as FigureCanvas,
+    NavigationToolbar2WxAgg as NavigationToolbar,
+)
 from matplotlib.figure import Figure
 
 import numpy as np
@@ -17,35 +18,23 @@ import wx
 
 
 class MyNavigationToolbar(NavigationToolbar):
-    """
-    Extend the default wx toolbar with your own event handlers
-    """
-    ON_CUSTOM = wx.NewId()
+    """Extend the default wx toolbar with your own event handlers."""
 
-    def __init__(self, canvas, cankill):
+    def __init__(self, canvas):
         NavigationToolbar.__init__(self, canvas)
-
-        # for simplicity I'm going to reuse a bitmap from wx, you'll
-        # probably want to add your own.
-        self.AddTool(self.ON_CUSTOM, 'Click me', _load_bitmap('back.png'),
-                     'Activate custom contol')
-        self.Bind(wx.EVT_TOOL, self._on_custom, id=self.ON_CUSTOM)
+        # We use a stock wx bitmap, but you could also use your own image file.
+        bmp = wx.ArtProvider.GetBitmap(wx.ART_CROSS_MARK, wx.ART_TOOLBAR)
+        tool = self.AddTool(wx.ID_ANY, 'Click me', bmp,
+                            'Activate custom contol')
+        self.Bind(wx.EVT_TOOL, self._on_custom, id=tool.GetId())
 
     def _on_custom(self, evt):
-        # add some text to the axes in a random location in axes (0,1)
-        # coords) with a random color
-
-        # get the axes
+        # add some text to the axes in a random location in axes coords with a
+        # random color
         ax = self.canvas.figure.axes[0]
-
-        # generate a random location can color
-        x, y = np.random.rand(2)
-        rgb = np.random.rand(3)
-
-        # add the text and draw
-        ax.text(x, y, 'You clicked me',
-                transform=ax.transAxes,
-                color=rgb)
+        x, y = np.random.rand(2)  # generate a random location
+        rgb = np.random.rand(3)  # generate a random color
+        ax.text(x, y, 'You clicked me', transform=ax.transAxes, color=rgb)
         self.canvas.draw()
         evt.Skip()
 
@@ -67,7 +56,7 @@ class CanvasFrame(wx.Frame):
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.canvas, 1, wx.TOP | wx.LEFT | wx.EXPAND)
 
-        self.toolbar = MyNavigationToolbar(self.canvas, True)
+        self.toolbar = MyNavigationToolbar(self.canvas)
         self.toolbar.Realize()
         # By adding toolbar in sizer, we are able to put it at the bottom
         # of the frame - so appearance is closer to GTK version.

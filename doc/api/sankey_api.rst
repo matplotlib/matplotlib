@@ -1,10 +1,6 @@
-******
-sankey
-******
-
-
-:mod:`matplotlib.sankey`
-========================
+*********************
+``matplotlib.sankey``
+*********************
 
 .. automodule:: matplotlib.sankey
    :members:

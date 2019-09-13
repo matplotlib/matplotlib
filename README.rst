@@ -1,14 +1,20 @@
-|Travis|_ |AppVeyor|_ |Codecov|_ |PyPi|_ |Gitter|_ |NUMFocus|_
+|Travis|_ |AzurePipelines|_ |AppVeyor|_ |Codecov|_ |LGTM|_ |PyPi|_ |Gitter|_ |NUMFocus|_ |GitTutorial|_
 
 
 .. |Travis| image:: https://travis-ci.org/matplotlib/matplotlib.svg?branch=master
 .. _Travis: https://travis-ci.org/matplotlib/matplotlib
+
+.. |AzurePipelines| image:: https://dev.azure.com/matplotlib/matplotlib/_apis/build/status/matplotlib.matplotlib?branchName=master
+.. _AzurePipelines: https://dev.azure.com/matplotlib/matplotlib/_build/latest?definitionId=1&branchName=master
 
 .. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/github/matplotlib/matplotlib?branch=master&svg=true
 .. _AppVeyor: https://ci.appveyor.com/project/matplotlib/matplotlib
 
 .. |Codecov| image:: https://codecov.io/github/matplotlib/matplotlib/badge.svg?branch=master&service=github
 .. _Codecov: https://codecov.io/github/matplotlib/matplotlib?branch=master
+
+.. |LGTM| image:: https://img.shields.io/lgtm/grade/python/g/matplotlib/matplotlib.svg?logo=lgtm&logoWidth=18
+.. _LGTM: https://lgtm.com/projects/g/matplotlib/matplotlib
 
 .. |PyPi| image:: https://badge.fury.io/py/matplotlib.svg
 .. _PyPi: https://badge.fury.io/py/matplotlib
@@ -19,6 +25,8 @@
 .. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
 .. _NUMFocus: http://www.numfocus.org
 
+.. |GitTutorial| image:: https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?
+.. _GitTutorial: https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project
 
 ##########
 Matplotlib
@@ -35,8 +43,8 @@ being dropped.
 
 `Home page <http://matplotlib.org/>`_
 
-Installation
-============
+Install
+=======
 
 For installation instructions and requirements, see the INSTALL.rst file or the
 `install <http://matplotlib.org/users/installing.html>`_ documentation. If you
@@ -44,8 +52,8 @@ think you may want to contribute to matplotlib, check out the `guide to
 working with the source code
 <http://matplotlib.org/devel/gitwash/index.html>`_.
 
-Testing
-=======
+Test
+====
 
 After installation, you can launch the test suite::
 
@@ -83,4 +91,10 @@ You want to tell us about it – best of all!
 
 Start at the `contributing guide <http://matplotlib.org/devdocs/devel/contributing.html>`_!
 
-Developer notes are now at `Developer Discussions <https://github.com/orgs/matplotlib/teams/developers/discussions>`_
+Developer notes are now at `Developer Discussions <https://github.com/orgs/matplotlib/teams/developers/discussions>`_ (Note: For technical reasons, this is currently only accessible for matplotlib developers.)
+
+Citing Matplotlib
+=================
+If Matplotlib contributes to a project that leads to publication, please
+acknowledge this by citing Matplotlib.
+`A ready-made citation entry <https://matplotlib.org/citing.html>`_ is available.

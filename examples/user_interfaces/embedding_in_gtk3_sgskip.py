@@ -1,6 +1,6 @@
 """
 =================
-Embedding In GTK3
+Embedding in GTK3
 =================
 
 Demonstrate adding a FigureCanvasGTK3Agg widget to a Gtk.ScrolledWindow using

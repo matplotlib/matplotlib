@@ -14,8 +14,8 @@ y2 = 4*np.sin(2*np.pi*2*t)
 
 fig, ax = plt.subplots()
 ax.set_title('Click on legend line to toggle line on/off')
-line1, = ax.plot(t, y1, lw=2, color='red', label='1 HZ')
-line2, = ax.plot(t, y2, lw=2, color='blue', label='2 HZ')
+line1, = ax.plot(t, y1, lw=2, label='1 HZ')
+line2, = ax.plot(t, y2, lw=2, label='2 HZ')
 leg = ax.legend(loc='upper left', fancybox=True, shadow=True)
 leg.get_frame().set_alpha(0.4)
 

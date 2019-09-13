@@ -8,7 +8,7 @@ press, to another figure window.
 
 If you click on a point in the first window, the z and y limits of the second
 will be adjusted so that the center of the zoom in the second window will be
-the x,y coordinates of the clicked point.
+the (x, y) coordinates of the clicked point.
 
 Note the diameter of the circles in the scatter are defined in points**2, so
 their size is independent of the zoom.

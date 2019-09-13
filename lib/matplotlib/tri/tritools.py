@@ -4,14 +4,15 @@ Tools for triangular grids.
 
 import numpy as np
 
+from matplotlib import cbook
 from matplotlib.tri import Triangulation
 
 
-class TriAnalyzer(object):
+class TriAnalyzer:
     """
     Define basic tools for triangular mesh analysis and improvement.
 
-    A TriAnalizer encapsulates a :class:`~matplotlib.tri.Triangulation`
+    A TriAnalyzer encapsulates a :class:`~matplotlib.tri.Triangulation`
     object and provides basic tools for mesh analysis and mesh improvement.
 
     Parameters
@@ -25,8 +26,7 @@ class TriAnalyzer(object):
 
     """
     def __init__(self, triangulation):
-        if not isinstance(triangulation, Triangulation):
-            raise ValueError("Expected a Triangulation object")
+        cbook._check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
     @property
@@ -92,9 +92,9 @@ class TriAnalyzer(object):
         a = tri_pts[:, 1, :] - tri_pts[:, 0, :]
         b = tri_pts[:, 2, :] - tri_pts[:, 1, :]
         c = tri_pts[:, 0, :] - tri_pts[:, 2, :]
-        a = np.sqrt(a[:, 0]**2 + a[:, 1]**2)
-        b = np.sqrt(b[:, 0]**2 + b[:, 1]**2)
-        c = np.sqrt(c[:, 0]**2 + c[:, 1]**2)
+        a = np.hypot(a[:, 0], a[:, 1])
+        b = np.hypot(b[:, 0], b[:, 1])
+        c = np.hypot(c[:, 0], c[:, 1])
         # circumcircle and incircle radii
         s = (a+b+c)*0.5
         prod = s*(a+b-s)*(a+c-s)*(b+c-s)
@@ -180,12 +180,11 @@ class TriAnalyzer(object):
         while nadd != 0:
             # The active wavefront is the triangles from the border (unmasked
             # but with a least 1 neighbor equal to -1
-            wavefront = ((np.min(valid_neighbors, axis=1) == -1)
-                         & ~current_mask)
+            wavefront = (np.min(valid_neighbors, axis=1) == -1) & ~current_mask
             # The element from the active wavefront will be masked if their
             # circle ratio is bad.
-            added_mask = np.logical_and(wavefront, mask_bad_ratio)
-            current_mask = (added_mask | current_mask)
+            added_mask = wavefront & mask_bad_ratio
+            current_mask = added_mask | current_mask
             nadd = np.sum(added_mask)
 
             # now we have to update the tables valid_neighbors
@@ -292,8 +291,8 @@ class TriAnalyzer(object):
         if n is None:
             n = np.size(mask)
         if mask is not None:
-            renum = -np.ones(n, dtype=np.int32)  # Default num is -1
-            valid = np.arange(n, dtype=np.int32).compress(~mask, axis=0)
+            renum = np.full(n, -1, dtype=np.int32)  # Default num is -1
+            valid = np.arange(n, dtype=np.int32)[~mask]
             renum[valid] = np.arange(np.size(valid, 0), dtype=np.int32)
             return renum
         else:

@@ -23,13 +23,6 @@ numbered_bases_to_rates = {v: k for k, v in rates_to_bases.items()}
 lettered_bases_to_rates = {v: 'r' + v for k, v in rates_to_bases.items()}
 
 
-def add_dicts(d1, d2):
-    """Adds two dicts and returns the result."""
-    result = d1.copy()
-    result.update(d2)
-    return result
-
-
 def make_arrow_plot(data, size=4, display='length', shape='right',
                     max_arrow_width=0.03, arrow_sep=0.02, alpha=0.5,
                     normalize_data=False, ec=None, labelcolor=None,
@@ -38,18 +31,25 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
                     **kwargs):
     """Makes an arrow plot.
 
-    Parameters:
-
-    data: dict with probabilities for the bases and pair transitions.
-    size: size of the graph in inches.
-    display: 'length', 'width', or 'alpha' for arrow property to change.
-    shape: 'full', 'left', or 'right' for full or half arrows.
-    max_arrow_width: maximum width of an arrow, data coordinates.
-    arrow_sep: separation between arrows in a pair, data coordinates.
-    alpha: maximum opacity of arrows, default 0.8.
-
-    **kwargs can be anything allowed by a Arrow object, e.g.
-    linewidth and edgecolor.
+    Parameters
+    ----------
+    data
+        Dict with probabilities for the bases and pair transitions.
+    size
+        Size of the graph in inches.
+    display : {'length', 'width', 'alpha'}
+        The arrow property to change.
+    shape : {'full', 'left', 'right'}
+        For full or half arrows.
+    max_arrow_width : float
+        Maximum width of an arrow, data coordinates.
+    arrow_sep : float
+        Separation between arrows in a pair, data coordinates.
+    alpha : float
+        Maximum opacity of arrows.
+    **kwargs
+        Can be anything allowed by a Arrow object, e.g. *linewidth* or
+        *edgecolor*.
     """
 
     plt.xlim(-0.5, 1.5)
@@ -125,7 +125,6 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
     max_head_length = 2 * max_arrow_width
     arrow_params = {'length_includes_head': True, 'shape': shape,
                     'head_starts_at_zero': head_starts_at_zero}
-    ax = plt.gca()
     sf = 0.6  # max arrow size represents this in data coords
 
     d = (r2 / 2 + arrow_h_offset - 0.5) / r2  # distance for diags
@@ -148,10 +147,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
 
     if normalize_data:
         # find maximum value for rates, i.e. where keys are 2 chars long
-        max_val = 0
-        for k, v in data.items():
-            if len(k) == 2:
-                max_val = max(max_val, v)
+        max_val = max((v for k, v in data.items() if len(k) == 2), default=0)
         # divide rates by max val, multiply by arrow scale factor
         for k, v in data.items():
             data[k] = v / max_val * sf
@@ -159,8 +155,8 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
     def draw_arrow(pair, alpha=alpha, ec=ec, labelcolor=labelcolor):
         # set the length of the arrow
         if display == 'length':
-            length = max_head_length + data[pair] / sf * (max_arrow_length -
-                                                          max_head_length)
+            length = (max_head_length
+                      + data[pair] / sf * (max_arrow_length - max_head_length))
         else:
             length = max_arrow_length
         # set the transparency of the arrow

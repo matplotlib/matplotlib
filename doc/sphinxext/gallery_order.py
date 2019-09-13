@@ -1,12 +1,11 @@
 """
 Configuration for the order of gallery sections and examples.
 Paths are relative to the conf.py file.
-
 """
 
 from sphinx_gallery.sorting import ExplicitOrder
 
-# Gallery sections shall be diplayed in the following order.
+# Gallery sections shall be displayed in the following order.
 # Non-matching sections are appended.
 explicit_order_folders = [
                           '../examples/lines_bars_and_markers',
@@ -28,7 +27,7 @@ explicit_order_folders = [
 
 
 class MplExplicitOrder(ExplicitOrder):
-    """ for use within the 'subsection_order' key"""
+    """For use within the 'subsection_order' key."""
     def __call__(self, item):
         """Return a string determining the sort order."""
         if item in self.ordered_list:
@@ -65,8 +64,8 @@ list_all = [
 explicit_subsection_order = [item + ".py" for item in list_all]
 
 
-class MplExplicitSubOrder(object):
-    """ for use within the 'within_subsection_order' key """
+class MplExplicitSubOrder:
+    """For use within the 'within_subsection_order' key."""
     def __init__(self, src_dir):
         self.src_dir = src_dir  # src_dir is unused here
         self.ordered_list = explicit_subsection_order

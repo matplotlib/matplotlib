@@ -51,7 +51,7 @@ Matplotlib).
 To create an axes, ::
 
   import mpl_toolkits.axisartist as AA
-  fig = plt.figure(1)
+  fig = plt.figure()
   ax = AA.Axes(fig, [0.1, 0.1, 0.8, 0.8])
   fig.add_axes(ax)
 
@@ -145,7 +145,7 @@ biggest difference is that the artists responsible to draw axis line,
 ticks, ticklabel and axis labels are separated out from the mpl's Axis
 class, which are much more than artists in the original mpl. This
 change was strongly motivated to support curvilinear grid. Here are a
-few things that mpl_tootlkits.axisartist.Axes is different from original
+few things that mpl_toolkits.axisartist.Axes is different from original
 Axes from mpl.
 
 * Axis elements (axis line(spine), ticks, ticklabel and axis labels)
@@ -179,7 +179,7 @@ bottom and top axis.
 
 xaxis and yaxis attributes are still available, however they are set
 to not visible. As separate artists are used for rendering axis, some
-axis-related method in mpl may have no effect.
+axis-related method in Matplotlib may have no effect.
 In addition to AxisArtist instances, the mpl_toolkits.axisartist.Axes will
 have *gridlines* attribute (Gridlines), which obviously draws grid
 lines.
@@ -247,7 +247,7 @@ Similarly, to make ticklabels invisible ::
 
   ax.axis["bottom"].major_ticklabels.set_visible(False)
 
-AxisAritst provides a helper method to control the visibility of ticks,
+AxisArtist provides a helper method to control the visibility of ticks,
 ticklabels, and label. To make ticklabel invisible, ::
 
   ax.axis["bottom"].toggle(ticklabels=False)
@@ -290,7 +290,7 @@ HowTo
 
   Same as the original mpl's axes.::
 
-   ax.set_xticks([1,2,3])
+   ax.set_xticks([1, 2, 3])
 
 2. Changing axis properties like color, etc.
 
@@ -321,7 +321,7 @@ HowTo
 Rotation and Alignment of TickLabels
 ====================================
 
-This is also quite different from the original mpl and can be
+This is also quite different from standard Matplotlib and can be
 confusing. When you want to rotate the ticklabels, first consider
 using "set_axis_direction" method. ::
 
@@ -415,7 +415,7 @@ direction can be more clear with curved axis.
    Demo Axis Direction
 
 The axis_direction can be adjusted in the AxisArtist level, or in the
-level of its child arists, i.e., ticks, ticklabels, and axis-label. ::
+level of its child artists, i.e., ticks, ticklabels, and axis-label. ::
 
   ax1.axis["left"].set_axis_direction("top")
 
@@ -519,7 +519,7 @@ transform of the axes itself (ax.transData) is still rectilinear
         return x, y-x
 
     # from rectlinear coordinate to curved coordinate.
-    def inv_tr(x,y):
+    def inv_tr(x, y):
         x, y = np.asarray(x), np.asarray(y)
         return x, y+x
 
@@ -557,8 +557,8 @@ required. ::
     # minute, second). The argument is a approximate number of grids.
     grid_locator1 = angle_helper.LocatorDMS(12)
 
-    # And also uses an appropriate formatter.  Note that,the
-    # acceptable Locator and Formatter class is a bit different than
+    # And also uses an appropriate formatter.  Note that the
+    # acceptable Locator and Formatter classes are different than
     # that of mpl's, and you cannot directly use mpl's Locator and
     # Formatter here (but may be possible in the future).
     tick_formatter1 = angle_helper.FormatterDMS()
@@ -578,7 +578,7 @@ coordinates, or you may use Parasite Axes for convenience.::
     # A parasite axes with given transform
     ax2 = ParasiteAxesAuxTrans(ax1, tr, "equal")
     # note that ax2.transData == tr + ax1.transData
-    # Anthing you draw in ax2 will match the ticks and grids of ax1.
+    # Anything you draw in ax2 will match the ticks and grids of ax1.
     ax1.parasites.append(ax2)
 
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png

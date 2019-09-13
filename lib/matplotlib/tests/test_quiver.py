@@ -41,6 +41,37 @@ def test_quiver_key_memory_leak():
     assert sys.getrefcount(qk) == 2
 
 
+def test_quiver_number_of_args():
+    X = [1, 2]
+    with pytest.raises(TypeError,
+            match='takes 2-5 positional arguments but 1 were given'):
+        plt.quiver(X)
+    with pytest.raises(TypeError,
+            match='takes 2-5 positional arguments but 6 were given'):
+        plt.quiver(X, X, X, X, X, X)
+
+
+def test_quiver_arg_sizes():
+    X2 = [1, 2]
+    X3 = [1, 2, 3]
+    with pytest.raises(ValueError,
+            match=('X and Y must be the same size, but '
+                   'X.size is 2 and Y.size is 3.')):
+        plt.quiver(X2, X3, X2, X2)
+    with pytest.raises(ValueError,
+            match=('Argument U has a size 3 which does not match 2,'
+                   ' the number of arrow positions')):
+        plt.quiver(X2, X2, X3, X2)
+    with pytest.raises(ValueError,
+            match=('Argument V has a size 3 which does not match 2,'
+                   ' the number of arrow positions')):
+        plt.quiver(X2, X2, X2, X3)
+    with pytest.raises(ValueError,
+            match=('Argument C has a size 3 which does not match 2,'
+                   ' the number of arrow positions')):
+        plt.quiver(X2, X2, X2, X2, X3)
+
+
 def test_no_warnings():
     fig, ax = plt.subplots()
 
@@ -66,42 +97,32 @@ def test_zero_headlength():
     assert len(w) == 0
 
 
-@image_comparison(baseline_images=['quiver_animated_test_image'],
-                  extensions=['png'])
+@image_comparison(['quiver_animated_test_image.png'])
 def test_quiver_animate():
     # Tests fix for #2616
     fig, ax = plt.subplots()
-
     Q = draw_quiver(ax, animated=True)
-
-    qk = ax.quiverkey(Q, 0.5, 0.92, 2, r'$2 \frac{m}{s}$',
-                      labelpos='W',
-                      fontproperties={'weight': 'bold'})
+    ax.quiverkey(Q, 0.5, 0.92, 2, r'$2 \frac{m}{s}$',
+                 labelpos='W', fontproperties={'weight': 'bold'})
 
 
-@image_comparison(baseline_images=['quiver_with_key_test_image'],
-                  extensions=['png'])
+@image_comparison(['quiver_with_key_test_image.png'])
 def test_quiver_with_key():
     fig, ax = plt.subplots()
     ax.margins(0.1)
-
     Q = draw_quiver(ax)
-
-    qk = ax.quiverkey(Q, 0.5, 0.95, 2,
-                      r'$2\, \mathrm{m}\, \mathrm{s}^{-1}$',
-                      angle=-10,
-                      coordinates='figure',
-                      labelpos='W',
-                      fontproperties={'weight': 'bold',
-                                      'size': 'large'})
+    ax.quiverkey(Q, 0.5, 0.95, 2,
+                 r'$2\, \mathrm{m}\, \mathrm{s}^{-1}$',
+                 angle=-10,
+                 coordinates='figure',
+                 labelpos='W',
+                 fontproperties={'weight': 'bold', 'size': 'large'})
 
 
-@image_comparison(baseline_images=['quiver_single_test_image'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['quiver_single_test_image.png'], remove_text=True)
 def test_quiver_single():
     fig, ax = plt.subplots()
     ax.margins(0.1)
-
     ax.quiver([1], [1], [2], [2])
 
 
@@ -113,8 +134,7 @@ def test_quiver_copy():
     assert q0.V[0] == 2.0
 
 
-@image_comparison(baseline_images=['quiver_key_pivot'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['quiver_key_pivot.png'], remove_text=True)
 def test_quiver_key_pivot():
     fig, ax = plt.subplots()
 
@@ -129,20 +149,42 @@ def test_quiver_key_pivot():
     ax.quiverkey(q, 0, 0.5, 1, 'W', labelpos='W')
 
 
-@image_comparison(baseline_images=['barbs_test_image'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['quiver_key_xy.png'], remove_text=True)
+def test_quiver_key_xy():
+    # With scale_units='xy', ensure quiverkey still matches its quiver.
+    # Note that the quiver and quiverkey lengths depend on the axes aspect
+    # ratio, and that with angles='xy' their angles also depend on the axes
+    # aspect ratio.
+    X = np.arange(8)
+    Y = np.zeros(8)
+    angles = X * (np.pi / 4)
+    uv = np.exp(1j * angles)
+    U = uv.real
+    V = uv.imag
+    fig, axs = plt.subplots(2)
+    for ax, angle_str in zip(axs, ('uv', 'xy')):
+        ax.set_xlim(-1, 8)
+        ax.set_ylim(-0.2, 0.2)
+        q = ax.quiver(X, Y, U, V, pivot='middle',
+                      units='xy', width=0.05,
+                      scale=2, scale_units='xy',
+                      angles=angle_str)
+        for x, angle in zip((0.2, 0.5, 0.8), (0, 45, 90)):
+            ax.quiverkey(q, X=x, Y=0.8, U=1, angle=angle, label='', color='b')
+
+
+@image_comparison(['barbs_test_image.png'], remove_text=True)
 def test_barbs():
     x = np.linspace(-5, 5, 5)
     X, Y = np.meshgrid(x, x)
     U, V = 12*X, 12*Y
     fig, ax = plt.subplots()
-    ax.barbs(X, Y, U, V, np.sqrt(U*U + V*V), fill_empty=True, rounding=False,
+    ax.barbs(X, Y, U, V, np.hypot(U, V), fill_empty=True, rounding=False,
              sizes=dict(emptybarb=0.25, spacing=0.2, height=0.3),
              cmap='viridis')
 
 
-@image_comparison(baseline_images=['barbs_pivot_test_image'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['barbs_pivot_test_image.png'], remove_text=True)
 def test_barbs_pivot():
     x = np.linspace(-5, 5, 5)
     X, Y = np.meshgrid(x, x)
@@ -151,6 +193,18 @@ def test_barbs_pivot():
     ax.barbs(X, Y, U, V, fill_empty=True, rounding=False, pivot=1.7,
              sizes=dict(emptybarb=0.25, spacing=0.2, height=0.3))
     ax.scatter(X, Y, s=49, c='black')
+
+
+@image_comparison(['barbs_test_flip.png'], remove_text=True)
+def test_barbs_flip():
+    """Test barbs with an array for flip_barb."""
+    x = np.linspace(-5, 5, 5)
+    X, Y = np.meshgrid(x, x)
+    U, V = 12*X, 12*Y
+    fig, ax = plt.subplots()
+    ax.barbs(X, Y, U, V, fill_empty=True, rounding=False, pivot=1.7,
+             sizes=dict(emptybarb=0.25, spacing=0.2, height=0.3),
+             flip_barb=Y < 0)
 
 
 def test_bad_masked_sizes():
@@ -175,8 +229,7 @@ def test_angles_and_scale():
     ax.quiver(X, Y, U, V, angles=phi, scale_units='xy')
 
 
-@image_comparison(baseline_images=['quiver_xy'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['quiver_xy.png'], remove_text=True)
 def test_quiver_xy():
     # simple arrow pointing from SW to NE
     fig, ax = plt.subplots(subplot_kw=dict(aspect='equal'))

@@ -1,5 +1,3 @@
-import unittest
-
 import numpy as np
 from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal, assert_array_almost_equal)
@@ -52,7 +50,7 @@ def test_non_affine_caching():
 
 
 def test_external_transform_api():
-    class ScaledBy(object):
+    class ScaledBy:
         def __init__(self, scale_factor):
             self._scale_factor = scale_factor
 
@@ -69,7 +67,7 @@ def test_external_transform_api():
                     mtransforms.Affine2D().scale(10).get_matrix())
 
 
-@image_comparison(baseline_images=['pre_transform_data'],
+@image_comparison(['pre_transform_data'],
                   tol=0.08, remove_text=True, style='mpl20')
 def test_pre_transform_plotting():
     # a catch-all for as many as possible plot layouts which handle
@@ -178,6 +176,17 @@ def test_Affine2D_from_values():
     assert_almost_equal(actual, expected)
 
 
+def test_affine_inverted_invalidated():
+    # Ensure that the an affine transform is not declared valid on access
+    point = [1.0, 1.0]
+    t = mtransforms.Affine2D()
+
+    assert_almost_equal(point, t.transform(t.inverted().transform(point)))
+    # Change and access the transform
+    t.translate(1.0, 1.0).get_matrix()
+    assert_almost_equal(point, t.transform(t.inverted().transform(point)))
+
+
 def test_clipping_of_log():
     # issue 804
     M, L, C = Path.MOVETO, Path.LINETO, Path.CLOSEPOLY
@@ -186,8 +195,8 @@ def test_clipping_of_log():
     path = Path(points, codes)
 
     # something like this happens in plotting logarithmic histograms
-    trans = mtransforms.BlendedGenericTransform(mtransforms.Affine2D(),
-                                            LogScale.Log10Transform('clip'))
+    trans = mtransforms.BlendedGenericTransform(
+        mtransforms.Affine2D(), LogScale.LogTransform(10, 'clip'))
     tpath = trans.transform_path_non_affine(path)
     result = tpath.iter_segments(trans.get_affine(),
                                  clip=(0, 0, 100, 100),
@@ -219,8 +228,8 @@ class NonAffineForTest(mtransforms.Transform):
         return self.real_trans.transform_path(path)
 
 
-class BasicTransformTests(unittest.TestCase):
-    def setUp(self):
+class TestBasicTransform:
+    def setup_method(self):
 
         self.ta1 = mtransforms.Affine2D(shorthand_name='ta1').rotate(np.pi / 2)
         self.ta2 = mtransforms.Affine2D(shorthand_name='ta2').translate(10, 0)
@@ -296,7 +305,7 @@ class BasicTransformTests(unittest.TestCase):
         assert r1.contains_branch(r2)
         assert r1.contains_branch(self.ta1)
         assert not r1.contains_branch(self.ta2)
-        assert not r1.contains_branch((self.ta2 + self.ta2))
+        assert not r1.contains_branch(self.ta2 + self.ta2)
 
         assert r1 == r2
 
@@ -309,10 +318,10 @@ class BasicTransformTests(unittest.TestCase):
         assert not self.stack2_subset.contains_branch(self.stack1)
         assert not self.stack2_subset.contains_branch(self.stack2)
 
-        assert self.stack1.contains_branch((self.ta2 + self.ta3))
-        assert self.stack2.contains_branch((self.ta2 + self.ta3))
+        assert self.stack1.contains_branch(self.ta2 + self.ta3)
+        assert self.stack2.contains_branch(self.ta2 + self.ta3)
 
-        assert not self.stack1.contains_branch((self.tn1 + self.ta2))
+        assert not self.stack1.contains_branch(self.tn1 + self.ta2)
 
     def test_affine_simplification(self):
         # tests that a transform stack only calls as much is absolutely
@@ -352,10 +361,7 @@ class BasicTransformTests(unittest.TestCase):
         assert_array_equal(expected_result, result)
 
 
-class TestTransformPlotInterface(unittest.TestCase):
-    def tearDown(self):
-        plt.close()
-
+class TestTransformPlotInterface:
     def test_line_extent_axes_coords(self):
         # a simple line in axes coordinates
         ax = plt.axes()
@@ -381,7 +387,6 @@ class TestTransformPlotInterface(unittest.TestCase):
         assert_array_equal(ax.dataLim.get_points(),
                            np.array([[np.inf, -5.],
                                      [-np.inf, 35.]]))
-        plt.close()
 
     def test_line_extent_predata_transform_coords(self):
         # a simple line in (offset + data) coordinates
@@ -390,7 +395,6 @@ class TestTransformPlotInterface(unittest.TestCase):
         ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
         assert_array_equal(ax.dataLim.get_points(),
                            np.array([[1., -50.], [12., 350.]]))
-        plt.close()
 
     def test_line_extent_compound_coords2(self):
         # a simple line in (offset + data) coordinates in the y component, and
@@ -401,7 +405,6 @@ class TestTransformPlotInterface(unittest.TestCase):
         ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
         assert_array_equal(ax.dataLim.get_points(),
                            np.array([[np.inf, -50.], [-np.inf, 350.]]))
-        plt.close()
 
     def test_line_extents_affine(self):
         ax = plt.axes()

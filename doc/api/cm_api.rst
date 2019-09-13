@@ -1,9 +1,6 @@
-*************
-cm (colormap)
-*************
-
-:mod:`matplotlib.cm`
-====================
+*****************
+``matplotlib.cm``
+*****************
 
 .. automodule:: matplotlib.cm
    :members:

@@ -1,19 +1,13 @@
-import os
-
+import matplotlib
+from matplotlib import cbook, rcParams
 from matplotlib._pylab_helpers import Gcf
+from matplotlib.backends import _macosx
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     TimerBase)
-
 from matplotlib.figure import Figure
-from matplotlib import rcParams
-
 from matplotlib.widgets import SubplotTool
-
-import matplotlib
-from matplotlib.backends import _macosx
-
-from .backend_agg import FigureCanvasAgg
 
 
 ########################################################################
@@ -59,8 +53,9 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
     ----------
     figure : `matplotlib.figure.Figure`
         A high-level Figure instance
-
     """
+
+    required_interactive_framework = "macosx"
 
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
@@ -82,14 +77,18 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         return renderer
 
     def draw(self):
-        self.invalidate()
+        # docstring inherited
+        self.draw_idle()
         self.flush_events()
 
-    def draw_idle(self, *args, **kwargs):
-        self.invalidate()
+    # draw_idle is provided by _macosx.FigureCanvas
+
+    @cbook.deprecated("3.2", alternative="draw_idle()")
+    def invalidate(self):
+        return self.draw_idle()
 
     def blit(self, bbox=None):
-        self.invalidate()
+        self.draw_idle()
 
     def resize(self, width, height):
         dpi = self.figure.dpi
@@ -102,19 +101,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         self.draw_idle()
 
     def new_timer(self, *args, **kwargs):
-        """
-        Creates a new backend-specific subclass of `backend_bases.Timer`.
-        This is useful for getting periodic events through the backend's native
-        event loop. Implemented only for backends with GUIs.
-
-        Other Parameters
-        ----------------
-        interval : scalar
-            Timer interval in milliseconds
-        callbacks : list
-            Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
-            will be executed by the timer every *interval*.
-        """
+        # docstring inherited
         return TimerMac(*args, **kwargs)
 
 
@@ -147,8 +134,8 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
         NavigationToolbar2.__init__(self, canvas)
 
     def _init_toolbar(self):
-        basedir = os.path.join(rcParams['datapath'], "images")
-        _macosx.NavigationToolbar2.__init__(self, basedir)
+        _macosx.NavigationToolbar2.__init__(
+            self, str(cbook._get_data_path('images')))
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         self.canvas.set_rubberband(int(x0), int(y0), int(x1), int(y1))
@@ -162,15 +149,16 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
     def save_figure(self, *args):
         filename = _macosx.choose_save_file('Save the figure',
                                             self.canvas.get_default_filename())
-        if filename is None: # Cancel
+        if filename is None:  # Cancel
             return
         self.canvas.figure.savefig(filename)
 
     def prepare_configure_subplots(self):
-        toolfig = Figure(figsize=(6,3))
+        toolfig = Figure(figsize=(6, 3))
         canvas = FigureCanvasMac(toolfig)
         toolfig.subplots_adjust(top=0.9)
-        tool = SubplotTool(self.canvas.figure, toolfig)
+        # Need to keep a reference to the tool.
+        _tool = SubplotTool(self.canvas.figure, toolfig)
         return canvas
 
     def set_message(self, message):
@@ -185,18 +173,12 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 
 @_Backend.export
 class _BackendMac(_Backend):
-    required_interactive_framework = "macosx"
     FigureCanvas = FigureCanvasMac
     FigureManager = FigureManagerMac
 
     @staticmethod
     def trigger_manager_draw(manager):
-        # For performance reasons, we don't want to redraw the figure after
-        # each draw command. Instead, we mark the figure as invalid, so that it
-        # will be redrawn as soon as the event loop resumes via PyOS_InputHook.
-        # This function should be called after each draw event, even if
-        # matplotlib is not running interactively.
-        manager.canvas.invalidate()
+        manager.canvas.draw_idle()
 
     @staticmethod
     def mainloop():

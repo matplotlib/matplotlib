@@ -287,7 +287,7 @@ gs2.tight_layout(fig, rect=[0.5, 0 + (bottom-gs2.bottom),
 # Legends and Annotations
 # =======================
 #
-# Pre Matplotlih 2.2, legends and annotations were excluded from the bounding
+# Pre Matplotlib 2.2, legends and annotations were excluded from the bounding
 # box calculations that decide the layout.  Subsequently these artists were
 # added to the calculation, but sometimes it is undesirable to include them.
 # For instance in this case it might be good to have the axes shring a bit
@@ -316,7 +316,7 @@ plt.show()
 # Use with AxesGrid1
 # ==================
 #
-# While limited, the axes_grid1 toolkit is also supported.
+# While limited, :mod:`mpl_toolkits.axes_grid1` is also supported.
 
 from mpl_toolkits.axes_grid1 import Grid
 

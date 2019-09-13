@@ -6,7 +6,10 @@ from .mpl_axes import Axes
 
 def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
     """
-    pad : fraction of the axes height.
+    Parameters
+    ----------
+    pad : float
+        Fraction of the axes height.
     """
 
     divider = make_axes_locatable(ax)
@@ -55,11 +58,11 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
 def imshow_rgb(ax, r, g, b, **kwargs):
     ny, nx = r.shape
     R = np.zeros([ny, nx, 3], dtype="d")
-    R[:,:,0] = r
+    R[:, :, 0] = r
     G = np.zeros_like(R)
-    G[:,:,1] = g
+    G[:, :, 1] = g
     B = np.zeros_like(R)
-    B[:,:,2] = b
+    B[:, :, 2] = b
 
     RGB = R + G + B
 
@@ -68,7 +71,7 @@ def imshow_rgb(ax, r, g, b, **kwargs):
     return im_rgb
 
 
-class RGBAxesBase(object):
+class RGBAxesBase:
     """base class for a 4-panel imshow (RGB, R, G, B)
 
     Layout:
@@ -106,9 +109,9 @@ class RGBAxesBase(object):
             defaults to True.
         axes_class : matplotlib.axes.Axes
 
-        kl :
+        *args
             Unpacked into axes_class() init for RGB
-        kwargs :
+        **kwargs
             Unpacked into axes_class() init for RGB, R, G, B axes
         """
         try:
@@ -202,11 +205,11 @@ class RGBAxesBase(object):
                              .format(r.shape, g.shape, b.shape))
         RGB = np.dstack([r, g, b])
         R = np.zeros_like(RGB)
-        R[:,:,0] = r
+        R[:, :, 0] = r
         G = np.zeros_like(RGB)
-        G[:,:,1] = g
+        G[:, :, 1] = g
         B = np.zeros_like(RGB)
-        B[:,:,2] = b
+        B[:, :, 2] = b
 
         im_rgb = self.RGB.imshow(RGB, **kwargs)
         im_r = self.R.imshow(R, **kwargs)

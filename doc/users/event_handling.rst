@@ -519,7 +519,7 @@ Picking exercise
 Create a data set of 100 arrays of 1000 Gaussian random numbers and
 compute the sample mean and standard deviation of each of them (hint:
 numpy arrays have a mean and std method) and make a xy marker plot of
-the 100 means vs the 100 standard deviations.  Connect the line
+the 100 means vs. the 100 standard deviations.  Connect the line
 created by the plot command to the pick event, and plot the original
 time series of the data that generated the clicked on points.  If more
 than one point is within the tolerance of the clicked on point, you
@@ -528,7 +528,7 @@ can use multiple subplots to plot the multiple time series.
 Exercise solution::
 
     """
-    compute the mean and stddev of 100 data sets and plot mean vs stddev.
+    compute the mean and stddev of 100 data sets and plot mean vs. stddev.
     When you click on one of the mu, sigma points, plot the raw data from
     the dataset that generated the mean and stddev
     """

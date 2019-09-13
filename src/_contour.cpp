@@ -6,8 +6,8 @@
 // to the appropriate make_extension call in setupext.py, and then rebuilding.
 #define NO_IMPORT_ARRAY
 
-#include "src/mplutils.h"
-#include "src/_contour.h"
+#include "mplutils.h"
+#include "_contour.h"
 #include <algorithm>
 
 

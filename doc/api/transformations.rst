@@ -1,12 +1,9 @@
-***************
-transformations
-***************
+*************************
+``matplotlib.transforms``
+*************************
 
 .. inheritance-diagram:: matplotlib.transforms matplotlib.path
    :parts: 1
-
-:mod:`matplotlib.transforms`
-=============================
 
 .. automodule:: matplotlib.transforms
    :members: TransformNode, BboxBase, Bbox, TransformedBbox, Transform,

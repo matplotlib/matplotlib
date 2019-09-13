@@ -1,10 +1,6 @@
-********
-colorbar
-********
-
-
-:mod:`matplotlib.colorbar`
-==========================
+***********************
+``matplotlib.colorbar``
+***********************
 
 .. automodule:: matplotlib.colorbar
    :members:

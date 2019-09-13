@@ -3,11 +3,13 @@ Mesh refinement for triangular grids.
 """
 
 import numpy as np
+
+from matplotlib import cbook
 from matplotlib.tri.triangulation import Triangulation
 import matplotlib.tri.triinterpolate
 
 
-class TriRefiner(object):
+class TriRefiner:
     """
     Abstract base class for classes implementing mesh refinement.
 
@@ -18,7 +20,7 @@ class TriRefiner(object):
 
         - ``refine_triangulation(return_tri_index=False, **kwargs)`` , where
           the optional keyword arguments *kwargs* are defined in each
-          TriRefiner concrete implementation, and which returns :
+          TriRefiner concrete implementation, and which returns:
 
               - a refined triangulation
               - optionally (depending on *return_tri_index*), for each
@@ -39,8 +41,7 @@ class TriRefiner(object):
 
     """
     def __init__(self, triangulation):
-        if not isinstance(triangulation, Triangulation):
-            raise ValueError("Expected a Triangulation object")
+        cbook._check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
 
@@ -111,7 +112,7 @@ class UniformTriRefiner(TriRefiner):
             # We have to initialize found_index with -1 because some nodes
             # may very well belong to no triangle at all, e.g., in case of
             # Delaunay Triangulation with DuplicatePointWarning.
-            found_index = - np.ones(refi_npts, dtype=np.int32)
+            found_index = np.full(refi_npts, -1, dtype=np.int32)
             tri_mask = self._triangulation.mask
             if tri_mask is None:
                 found_index[refi_triangles] = np.repeat(ancestors,
@@ -165,9 +166,8 @@ class UniformTriRefiner(TriRefiner):
             interp = matplotlib.tri.CubicTriInterpolator(
                 self._triangulation, z)
         else:
-            if not isinstance(triinterpolator,
-                              matplotlib.tri.TriInterpolator):
-                raise ValueError("Expected a TriInterpolator object")
+            cbook._check_isinstance(matplotlib.tri.TriInterpolator,
+                                    triinterpolator=triinterpolator)
             interp = triinterpolator
 
         refi_tri, found_index = self.refine_triangulation(
@@ -200,9 +200,9 @@ class UniformTriRefiner(TriRefiner):
         y = triangulation.y
 
         #    According to tri.triangulation doc:
-        #         neighbors[i,j] is the triangle that is the neighbor
-        #         to the edge from point index masked_triangles[i,j] to point
-        #         index masked_triangles[i,(j+1)%3].
+        #         neighbors[i, j] is the triangle that is the neighbor
+        #         to the edge from point index masked_triangles[i, j] to point
+        #         index masked_triangles[i, (j+1)%3].
         neighbors = triangulation.neighbors
         triangles = triangulation.triangles
         npts = np.shape(x)[0]
@@ -238,12 +238,8 @@ class UniformTriRefiner(TriRefiner):
         # (can be -1 if border edge)
         # For slave and master we will identify the apex pointing to the edge
         # start
-        edge_elems = np.ravel(np.vstack([np.arange(ntri, dtype=np.int32),
-                                         np.arange(ntri, dtype=np.int32),
-                                         np.arange(ntri, dtype=np.int32)]))
-        edge_apexes = np.ravel(np.vstack([np.zeros(ntri, dtype=np.int32),
-                                          np.ones(ntri, dtype=np.int32),
-                                          np.ones(ntri, dtype=np.int32)*2]))
+        edge_elems = np.tile(np.arange(ntri, dtype=np.int32), 3)
+        edge_apexes = np.repeat(np.arange(3, dtype=np.int32), ntri)
         edge_neighbors = neighbors[edge_elems, edge_apexes]
         mask_masters = (edge_elems > edge_neighbors)
 

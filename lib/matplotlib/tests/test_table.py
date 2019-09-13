@@ -12,9 +12,7 @@ def test_non_square():
     plt.table(cellColours=cellcolors)
 
 
-@image_comparison(baseline_images=['table_zorder'],
-                  extensions=['png'],
-                  remove_text=True)
+@image_comparison(['table_zorder.png'], remove_text=True)
 def test_zorder():
     data = [[66386, 174296],
             [58230, 381139]]
@@ -47,8 +45,7 @@ def test_zorder():
     plt.yticks([])
 
 
-@image_comparison(baseline_images=['table_labels'],
-                  extensions=['png'])
+@image_comparison(['table_labels.png'])
 def test_label_colours():
     dim = 3
 
@@ -85,15 +82,14 @@ def test_label_colours():
               loc='best')
 
 
-@image_comparison(baseline_images=['table_cell_manipulation'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['table_cell_manipulation.png'], remove_text=True)
 def test_diff_cell_table():
     cells = ('horizontal', 'vertical', 'open', 'closed', 'T', 'R', 'B', 'L')
     cellText = [['1'] * len(cells)] * 2
     colWidths = [0.1] * len(cells)
 
-    _, axes = plt.subplots(nrows=len(cells), figsize=(4, len(cells)+1))
-    for ax, cell in zip(axes, cells):
+    _, axs = plt.subplots(nrows=len(cells), figsize=(4, len(cells)+1))
+    for ax, cell in zip(axs, cells):
         ax.table(
                 colWidths=colWidths,
                 cellText=cellText,
@@ -123,8 +119,7 @@ def test_customcell():
         assert c == code
 
 
-@image_comparison(baseline_images=['table_auto_column'],
-                  extensions=['png'])
+@image_comparison(['table_auto_column.png'])
 def test_auto_column():
     fig = plt.figure()
 
@@ -166,7 +161,7 @@ def test_auto_column():
     tb3.auto_set_column_width(0)
     tb3.auto_set_column_width(1)
 
-    #4 non integer interable input
+    #4 non integer iterable input
     ax4 = fig.add_subplot(4, 1, 4)
     ax4.axis('off')
     tb4 = ax4.table(cellText=[['Fit Text', 2],

@@ -1,11 +1,11 @@
-import sys
-import warnings
+from datetime import datetime
+from pathlib import Path
 import platform
 
 from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
-from matplotlib.ticker import AutoMinorLocator, FixedFormatter
+from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.gridspec as gridspec
@@ -13,7 +13,7 @@ import numpy as np
 import pytest
 
 
-@image_comparison(baseline_images=['figure_align_labels'],
+@image_comparison(['figure_align_labels'],
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_align_labels():
     # Check the figure.align_labels() command
@@ -111,11 +111,11 @@ def test_clf_keyword():
     assert [t.get_text() for t in fig2.texts] == []
 
 
-@image_comparison(baseline_images=['figure_today'])
+@image_comparison(['figure_today'])
 def test_figure():
     # named figure support
     fig = plt.figure('today')
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot()
     ax.set_title(fig.get_label())
     ax.plot(np.arange(5))
     # plot red line in a different figure.
@@ -126,15 +126,15 @@ def test_figure():
     plt.close('tomorrow')
 
 
-@image_comparison(baseline_images=['figure_legend'])
+@image_comparison(['figure_legend'])
 def test_figure_legend():
-    fig, axes = plt.subplots(2)
-    axes[0].plot([0, 1], [1, 0], label='x', color='g')
-    axes[0].plot([0, 1], [0, 1], label='y', color='r')
-    axes[0].plot([0, 1], [0.5, 0.5], label='y', color='k')
+    fig, axs = plt.subplots(2)
+    axs[0].plot([0, 1], [1, 0], label='x', color='g')
+    axs[0].plot([0, 1], [0, 1], label='y', color='r')
+    axs[0].plot([0, 1], [0.5, 0.5], label='y', color='k')
 
-    axes[1].plot([0, 1], [1, 0], label='_y', color='r')
-    axes[1].plot([0, 1], [0, 1], label='z', color='b')
+    axs[1].plot([0, 1], [1, 0], label='_y', color='r')
+    axs[1].plot([0, 1], [0, 1], label='z', color='b')
     fig.legend()
 
 
@@ -147,18 +147,16 @@ def test_gca():
 
     ax2 = fig.add_subplot(121, projection='polar')
     assert fig.gca() is ax2
-    assert fig.gca(polar=True)is ax2
+    assert fig.gca(polar=True) is ax2
 
     ax3 = fig.add_subplot(122)
     assert fig.gca() is ax3
 
     # the final request for a polar axes will end up creating one
     # with a spec of 111.
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter('always')
+    with pytest.warns(UserWarning):
         # Changing the projection will throw a warning
         assert fig.gca(polar=True) is not ax3
-        assert len(w) == 1
     assert fig.gca(polar=True) is not ax2
     assert fig.gca().get_geometry() == (1, 1, 1)
 
@@ -167,7 +165,19 @@ def test_gca():
     assert fig.gca() is ax1
 
 
-@image_comparison(baseline_images=['figure_suptitle'])
+def test_add_subplot_invalid():
+    fig = plt.figure()
+    with pytest.raises(ValueError):
+        fig.add_subplot(2, 0, 1)
+    with pytest.raises(ValueError):
+        fig.add_subplot(0, 2, 1)
+    with pytest.raises(ValueError):
+        fig.add_subplot(2, 2, 0)
+    with pytest.raises(ValueError):
+        fig.add_subplot(2, 2, 5)
+
+
+@image_comparison(['figure_suptitle'])
 def test_suptitle():
     fig, _ = plt.subplots()
     fig.suptitle('hello', color='r')
@@ -183,7 +193,7 @@ def test_suptitle_fontproperties():
     assert txt.get_weight() == fps.get_weight()
 
 
-@image_comparison(baseline_images=['alpha_background'],
+@image_comparison(['alpha_background'],
                   # only test png and svg. The PDF output appears correct,
                   # but Ghostscript does not preserve the background color.
                   extensions=['png', 'svg'],
@@ -204,11 +214,9 @@ def test_alpha():
 
 
 def test_too_many_figures():
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
+    with pytest.warns(RuntimeWarning):
         for i in range(rcParams['figure.max_open_warning'] + 1):
             plt.figure()
-        assert len(w) == 1
 
 
 def test_iterability_axes_argument():
@@ -226,7 +234,7 @@ def test_iterability_axes_argument():
         def __init__(self, *args, myclass=None, **kwargs):
             return Axes.__init__(self, *args, **kwargs)
 
-    class MyClass(object):
+    class MyClass:
 
         def __getitem__(self, item):
             if item != 'a':
@@ -263,11 +271,11 @@ def test_set_fig_size():
 
 
 def test_axes_remove():
-    fig, axes = plt.subplots(2, 2)
-    axes[-1, -1].remove()
-    for ax in axes.ravel()[:-1]:
+    fig, axs = plt.subplots(2, 2)
+    axs[-1, -1].remove()
+    for ax in axs.ravel()[:-1]:
         assert ax in fig.axes
-    assert axes[-1, -1] not in fig.axes
+    assert axs[-1, -1] not in fig.axes
     assert len(fig.axes) == 3
 
 
@@ -330,43 +338,52 @@ def test_change_dpi():
     assert fig.canvas.renderer.width == 200
 
 
-def test_invalid_figure_size():
+@pytest.mark.parametrize('width, height', [
+    (1, np.nan),
+    (0, 1),
+    (-1, 1),
+    (np.inf, 1)
+])
+def test_invalid_figure_size(width, height):
     with pytest.raises(ValueError):
-        plt.figure(figsize=(1, np.nan))
+        plt.figure(figsize=(width, height))
 
     fig = plt.figure()
     with pytest.raises(ValueError):
-        fig.set_size_inches(1, np.nan)
+        fig.set_size_inches(width, height)
 
+
+def test_invalid_figure_add_axes():
+    fig = plt.figure()
     with pytest.raises(ValueError):
         fig.add_axes((.1, .1, .5, np.nan))
 
 
 def test_subplots_shareax_loglabels():
-    fig, ax_arr = plt.subplots(2, 2, sharex=True, sharey=True, squeeze=False)
-    for ax in ax_arr.flatten():
+    fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, squeeze=False)
+    for ax in axs.flat:
         ax.plot([10, 20, 30], [10, 20, 30])
 
     ax.set_yscale("log")
     ax.set_xscale("log")
 
-    for ax in ax_arr[0, :]:
+    for ax in axs[0, :]:
         assert 0 == len(ax.xaxis.get_ticklabels(which='both'))
 
-    for ax in ax_arr[1, :]:
+    for ax in axs[1, :]:
         assert 0 < len(ax.xaxis.get_ticklabels(which='both'))
 
-    for ax in ax_arr[:, 1]:
+    for ax in axs[:, 1]:
         assert 0 == len(ax.yaxis.get_ticklabels(which='both'))
 
-    for ax in ax_arr[:, 0]:
+    for ax in axs[:, 0]:
         assert 0 < len(ax.yaxis.get_ticklabels(which='both'))
 
 
 def test_savefig():
     fig = plt.figure()
-    msg = "savefig() takes 2 positional arguments but 3 were given"
-    with pytest.raises(TypeError, message=msg):
+    msg = r"savefig\(\) takes 2 positional arguments but 3 were given"
+    with pytest.raises(TypeError, match=msg):
         fig.savefig("fname1.png", "fname2.png")
 
 
@@ -388,7 +405,7 @@ def test_add_artist(fig_test, fig_ref):
     fig_test.set_dpi(100)
     fig_ref.set_dpi(100)
 
-    ax = fig_test.subplots()
+    fig_test.subplots()
     l1 = plt.Line2D([.2, .7], [.7, .7], gid='l1')
     l2 = plt.Line2D([.2, .7], [.8, .8], gid='l2')
     r1 = plt.Circle((20, 20), 100, transform=None, gid='C1')
@@ -412,10 +429,8 @@ def test_add_artist(fig_test, fig_ref):
         ax2.add_artist(a)
 
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires Python 3.6+")
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
 def test_fspath(fmt, tmpdir):
-    from pathlib import Path
     out = Path(tmpdir, "test.{}".format(fmt))
     plt.savefig(out)
     with out.open("rb") as file:
@@ -430,20 +445,45 @@ def test_tightbbox():
     t = ax.text(1., 0.5, 'This dangles over end')
     renderer = fig.canvas.get_renderer()
     x1Nom0 = 9.035  # inches
-    assert np.abs(t.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
-    assert np.abs(ax.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
-    assert np.abs(fig.get_tightbbox(renderer).x1 - x1Nom0) < 0.05
-    assert np.abs(fig.get_tightbbox(renderer).x0 - 0.679) < 0.05
+    assert abs(t.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
+    assert abs(ax.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
+    assert abs(fig.get_tightbbox(renderer).x1 - x1Nom0) < 0.05
+    assert abs(fig.get_tightbbox(renderer).x0 - 0.679) < 0.05
     # now exclude t from the tight bbox so now the bbox is quite a bit
     # smaller
     t.set_in_layout(False)
     x1Nom = 7.333
-    assert np.abs(ax.get_tightbbox(renderer).x1 - x1Nom * fig.dpi) < 2
-    assert np.abs(fig.get_tightbbox(renderer).x1 - x1Nom) < 0.05
+    assert abs(ax.get_tightbbox(renderer).x1 - x1Nom * fig.dpi) < 2
+    assert abs(fig.get_tightbbox(renderer).x1 - x1Nom) < 0.05
 
     t.set_in_layout(True)
     x1Nom = 7.333
-    assert np.abs(ax.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
+    assert abs(ax.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
     # test bbox_extra_artists method...
-    assert np.abs(ax.get_tightbbox(renderer,
-                        bbox_extra_artists=[]).x1 - x1Nom * fig.dpi) < 2
+    assert abs(ax.get_tightbbox(renderer, bbox_extra_artists=[]).x1
+               - x1Nom * fig.dpi) < 2
+
+
+def test_axes_removal():
+    # Check that units can set the formatter after an Axes removal
+    fig, axs = plt.subplots(1, 2, sharex=True)
+    axs[1].remove()
+    axs[0].plot([datetime(2000, 1, 1), datetime(2000, 2, 1)], [0, 1])
+    assert isinstance(axs[0].xaxis.get_major_formatter(),
+                      mdates.AutoDateFormatter)
+
+    # Check that manually setting the formatter, then removing Axes keeps
+    # the set formatter.
+    fig, axs = plt.subplots(1, 2, sharex=True)
+    axs[1].xaxis.set_major_formatter(ScalarFormatter())
+    axs[1].remove()
+    axs[0].plot([datetime(2000, 1, 1), datetime(2000, 2, 1)], [0, 1])
+    assert isinstance(axs[0].xaxis.get_major_formatter(),
+                      ScalarFormatter)
+
+
+def test_removed_axis():
+    # Simple smoke test to make sure removing a shared axis works
+    fig, axs = plt.subplots(2, sharex=True)
+    axs[0].remove()
+    fig.canvas.draw()

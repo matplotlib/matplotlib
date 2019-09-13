@@ -3,9 +3,9 @@
 Pick Event Demo2
 ================
 
-compute the mean and standard deviation (stddev) of 100 data sets and plot
-mean vs stddev.  When you click on one of the mu, sigma points, plot the raw
-data from the dataset that generated the mean and stddev.
+Compute the mean (mu) and standard deviation (sigma) of 100 data sets and plot
+mu vs. sigma.  When you click on one of the (mu, sigma) points, plot the raw
+data from the dataset that generated this point.
 """
 import numpy as np
 import matplotlib.pyplot as plt

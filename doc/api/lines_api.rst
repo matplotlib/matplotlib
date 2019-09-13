@@ -1,10 +1,6 @@
-*****
-lines
-*****
-
-
-:mod:`matplotlib.lines`
-========================
+********************
+``matplotlib.lines``
+********************
 
 .. currentmodule:: matplotlib.lines
 

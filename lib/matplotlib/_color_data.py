@@ -2,14 +2,15 @@ from collections import OrderedDict
 
 
 BASE_COLORS = {
-    'b': (0, 0, 1),
-    'g': (0, 0.5, 0),
-    'r': (1, 0, 0),
-    'c': (0, 0.75, 0.75),
-    'm': (0.75, 0, 0.75),
-    'y': (0.75, 0.75, 0),
-    'k': (0, 0, 0),
-    'w': (1, 1, 1)}
+    'b': (0, 0, 1),        # blue
+    'g': (0, 0.5, 0),      # green
+    'r': (1, 0, 0),        # red
+    'c': (0, 0.75, 0.75),  # cyan
+    'm': (0.75, 0, 0.75),  # magenta
+    'y': (0.75, 0.75, 0),  # yellow
+    'k': (0, 0, 0),        # black
+    'w': (1, 1, 1),        # white
+}
 
 
 # These colors are from Tableau
@@ -31,9 +32,11 @@ TABLEAU_COLORS = OrderedDict(
     ('tab:' + name, value) for name, value in TABLEAU_COLORS)
 
 # This mapping of color names -> hex values is taken from
-# a survey run by Randel Monroe see:
-# http://blog.xkcd.com/2010/05/03/color-survey-results/
+# a survey run by Randall Munroe see:
+# https://blog.xkcd.com/2010/05/03/color-survey-results/
 # for more details.  The results are hosted at
+# https://xkcd.com/color/rgb
+# and also available as a text file at
 # https://xkcd.com/color/rgb.txt
 #
 # License: http://creativecommons.org/publicdomain/zero/1.0/

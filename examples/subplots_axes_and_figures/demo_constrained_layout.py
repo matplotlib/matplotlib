@@ -13,8 +13,6 @@ See :doc:`/tutorials/intermediate/constrainedlayout_guide` for more details and
 """
 
 import matplotlib.pyplot as plt
-import itertools
-import warnings
 
 
 def example_plot(ax):
@@ -29,7 +27,7 @@ def example_plot(ax):
 
 fig, axs = plt.subplots(nrows=2, ncols=2, constrained_layout=False)
 
-for ax in axs.flatten():
+for ax in axs.flat:
     example_plot(ax)
 
 ###############################################################################
@@ -37,7 +35,7 @@ for ax in axs.flatten():
 
 fig, axs = plt.subplots(nrows=2, ncols=2, constrained_layout=True)
 
-for ax in axs.flatten():
+for ax in axs.flat:
     example_plot(ax)
 
 ###############################################################################

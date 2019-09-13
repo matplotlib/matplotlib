@@ -6,11 +6,8 @@
 Toolkits
 ########
 
-
-
 Toolkits are collections of application-specific functions that extend
 Matplotlib.
-
 
 .. _toolkit_mplot3d:
 
@@ -41,20 +38,11 @@ Links
 -----
 * mpl3d API: :ref:`toolkit_mplot3d-api`
 
-.. _toolkit_axes_grid1_incl:
-
 .. include:: axes_grid1.rst
    :start-line: 1
 
-.. _toolkit_axisartist_incl:
-   
 .. include:: axisartist.rst
    :start-line: 1
 
-.. _toolkit_axes_grid_incl:
-   
 .. include:: axes_grid.rst
    :start-line: 1
-
-
-

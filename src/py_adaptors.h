@@ -2,7 +2,7 @@
 
 #ifndef MPL_PY_ADAPTORS_H
 #define MPL_PY_ADAPTORS_H
-
+#define PY_SSIZE_T_CLEAN
 /***************************************************************************
  * This module contains a number of C++ classes that adapt Python data
  * structures to C++ and Agg-friendly interfaces.
@@ -240,6 +240,7 @@ class PathGenerator
             throw py::exception();
         }
         if (!convert_path(item, &path)) {
+            Py_DECREF(item);
             throw py::exception();
         }
         Py_DECREF(item);

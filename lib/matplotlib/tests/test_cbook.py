@@ -2,6 +2,7 @@ import itertools
 import pickle
 from weakref import ref
 import warnings
+from unittest.mock import patch, Mock
 
 from datetime import datetime
 
@@ -12,62 +13,52 @@ import pytest
 
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
-from matplotlib.cbook import delete_masked_points as dmp
+from matplotlib.cbook import MatplotlibDeprecationWarning, delete_masked_points
 
 
 def test_is_hashable():
-    s = 'string'
-    assert cbook.is_hashable(s)
+    with pytest.warns(MatplotlibDeprecationWarning):
+        s = 'string'
+        assert cbook.is_hashable(s)
+        lst = ['list', 'of', 'stings']
+        assert not cbook.is_hashable(lst)
 
-    lst = ['list', 'of', 'stings']
-    assert not cbook.is_hashable(lst)
 
-
-class Test_delete_masked_points(object):
-    def setup_method(self):
-        self.mask1 = [False, False, True, True, False, False]
-        self.arr0 = np.arange(1.0, 7.0)
-        self.arr1 = [1, 2, 3, np.nan, np.nan, 6]
-        self.arr2 = np.array(self.arr1)
-        self.arr3 = np.ma.array(self.arr2, mask=self.mask1)
-        self.arr_s = ['a', 'b', 'c', 'd', 'e', 'f']
-        self.arr_s2 = np.array(self.arr_s)
-        self.arr_dt = [datetime(2008, 1, 1), datetime(2008, 1, 2),
-                       datetime(2008, 1, 3), datetime(2008, 1, 4),
-                       datetime(2008, 1, 5), datetime(2008, 1, 6)]
-        self.arr_dt2 = np.array(self.arr_dt)
-        self.arr_colors = ['r', 'g', 'b', 'c', 'm', 'y']
-        self.arr_rgba = mcolors.to_rgba_array(self.arr_colors)
-
+class Test_delete_masked_points:
     def test_bad_first_arg(self):
         with pytest.raises(ValueError):
-            dmp('a string', self.arr0)
+            delete_masked_points('a string', np.arange(1.0, 7.0))
 
     def test_string_seq(self):
-        actual = dmp(self.arr_s, self.arr1)
+        a1 = ['a', 'b', 'c', 'd', 'e', 'f']
+        a2 = [1, 2, 3, np.nan, np.nan, 6]
+        result1, result2 = delete_masked_points(a1, a2)
         ind = [0, 1, 2, 5]
-        expected = (self.arr_s2.take(ind), self.arr2.take(ind))
-        assert_array_equal(actual[0], expected[0])
-        assert_array_equal(actual[1], expected[1])
+        assert_array_equal(result1, np.array(a1)[ind])
+        assert_array_equal(result2, np.array(a2)[ind])
 
     def test_datetime(self):
-        actual = dmp(self.arr_dt, self.arr3)
-        ind = [0, 1,  5]
-        expected = (self.arr_dt2.take(ind),
-                    self.arr3.take(ind).compressed())
-        assert_array_equal(actual[0], expected[0])
-        assert_array_equal(actual[1], expected[1])
+        dates = [datetime(2008, 1, 1), datetime(2008, 1, 2),
+                 datetime(2008, 1, 3), datetime(2008, 1, 4),
+                 datetime(2008, 1, 5), datetime(2008, 1, 6)]
+        a_masked = np.ma.array([1, 2, 3, np.nan, np.nan, 6],
+                               mask=[False, False, True, True, False, False])
+        actual = delete_masked_points(dates, a_masked)
+        ind = [0, 1, 5]
+        assert_array_equal(actual[0], np.array(dates)[ind])
+        assert_array_equal(actual[1], a_masked[ind].compressed())
 
     def test_rgba(self):
-        actual = dmp(self.arr3, self.arr_rgba)
+        a_masked = np.ma.array([1, 2, 3, np.nan, np.nan, 6],
+                               mask=[False, False, True, True, False, False])
+        a_rgba = mcolors.to_rgba_array(['r', 'g', 'b', 'c', 'm', 'y'])
+        actual = delete_masked_points(a_masked, a_rgba)
         ind = [0, 1, 5]
-        expected = (self.arr3.take(ind).compressed(),
-                    self.arr_rgba.take(ind, axis=0))
-        assert_array_equal(actual[0], expected[0])
-        assert_array_equal(actual[1], expected[1])
+        assert_array_equal(actual[0], a_masked[ind].compressed())
+        assert_array_equal(actual[1], a_rgba[ind])
 
 
-class Test_boxplot_stats(object):
+class Test_boxplot_stats:
     def setup(self):
         np.random.seed(937)
         self.nrows = 37
@@ -147,7 +138,7 @@ class Test_boxplot_stats(object):
             assert_array_almost_equal(res[key], value)
 
     def test_results_whiskers_range(self):
-        results = cbook.boxplot_stats(self.data, whis='range')
+        results = cbook.boxplot_stats(self.data, whis=[0, 100])
         res = results[0]
         for key, value in self.known_res_range.items():
             assert_array_almost_equal(res[key], value)
@@ -172,12 +163,12 @@ class Test_boxplot_stats(object):
     def test_label_error(self):
         labels = [1, 2]
         with pytest.raises(ValueError):
-            results = cbook.boxplot_stats(self.data, labels=labels)
+            cbook.boxplot_stats(self.data, labels=labels)
 
     def test_bad_dims(self):
         data = np.random.normal(size=(34, 34, 34))
         with pytest.raises(ValueError):
-            results = cbook.boxplot_stats(data)
+            cbook.boxplot_stats(data)
 
     def test_boxplot_stats_autorange_false(self):
         x = np.zeros(shape=140)
@@ -194,7 +185,7 @@ class Test_boxplot_stats(object):
         assert_array_almost_equal(bstats_true[0]['fliers'], [])
 
 
-class Test_callback_registry(object):
+class Test_callback_registry:
     def setup(self):
         self.signal = 'test'
         self.callbacks = cbook.CallbackRegistry()
@@ -350,6 +341,13 @@ def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
         assert len(w) == 0
 
 
+def test_warn_external_frame_embedded_python():
+    with patch.object(cbook, "sys") as mock_sys:
+        mock_sys._getframe = Mock(return_value=None)
+        with pytest.warns(UserWarning, match=r"\Adummy\Z"):
+            cbook._warn_external("dummy")
+
+
 def test_to_prestep():
     x = np.arange(4)
     y1 = np.arange(4)
@@ -436,7 +434,7 @@ def test_step_fails(args):
 
 
 def test_grouper():
-    class dummy():
+    class dummy:
         pass
     a, b, c, d, e = objs = [dummy() for j in range(5)]
     g = cbook.Grouper()
@@ -456,7 +454,7 @@ def test_grouper():
 
 
 def test_grouper_private():
-    class dummy():
+    class dummy:
         pass
     objs = [dummy() for j in range(5)]
     g = cbook.Grouper()
@@ -482,3 +480,115 @@ def test_flatiter():
 
     assert 0 == next(it)
     assert 1 == next(it)
+
+
+def test_reshape2d():
+
+    class dummy:
+        pass
+
+    xnew = cbook._reshape_2D([], 'x')
+    assert np.shape(xnew) == (1, 0)
+
+    x = [dummy() for j in range(5)]
+
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (1, 5)
+
+    x = np.arange(5)
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (1, 5)
+
+    x = [[dummy() for j in range(5)] for i in range(3)]
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (3, 5)
+
+    # this is strange behaviour, but...
+    x = np.random.rand(3, 5)
+    xnew = cbook._reshape_2D(x, 'x')
+    assert np.shape(xnew) == (5, 3)
+
+    # Now test with a list of lists with different lengths, which means the
+    # array will internally be converted to a 1D object array of lists
+    x = [[1, 2, 3], [3, 4], [2]]
+    xnew = cbook._reshape_2D(x, 'x')
+    assert isinstance(xnew, list)
+    assert isinstance(xnew[0], np.ndarray) and xnew[0].shape == (3,)
+    assert isinstance(xnew[1], np.ndarray) and xnew[1].shape == (2,)
+    assert isinstance(xnew[2], np.ndarray) and xnew[2].shape == (1,)
+
+    # We now need to make sure that this works correctly for Numpy subclasses
+    # where iterating over items can return subclasses too, which may be
+    # iterable even if they are scalars. To emulate this, we make a Numpy
+    # array subclass that returns Numpy 'scalars' when iterating or accessing
+    # values, and these are technically iterable if checking for example
+    # isinstance(x, collections.abc.Iterable).
+
+    class ArraySubclass(np.ndarray):
+
+        def __iter__(self):
+            for value in super().__iter__():
+                yield np.array(value)
+
+        def __getitem__(self, item):
+            return np.array(super().__getitem__(item))
+
+    v = np.arange(10, dtype=float)
+    x = ArraySubclass((10,), dtype=float, buffer=v.data)
+
+    xnew = cbook._reshape_2D(x, 'x')
+
+    # We check here that the array wasn't split up into many individual
+    # ArraySubclass, which is what used to happen due to a bug in _reshape_2D
+    assert len(xnew) == 1
+    assert isinstance(xnew[0], ArraySubclass)
+
+
+def test_contiguous_regions():
+    a, b, c = 3, 4, 5
+    # Starts and ends with True
+    mask = [True]*a + [False]*b + [True]*c
+    expected = [(0, a), (a+b, a+b+c)]
+    assert cbook.contiguous_regions(mask) == expected
+    d, e = 6, 7
+    # Starts with True ends with False
+    mask = mask + [False]*e
+    assert cbook.contiguous_regions(mask) == expected
+    # Starts with False ends with True
+    mask = [False]*d + mask[:-e]
+    expected = [(d, d+a), (d+a+b, d+a+b+c)]
+    assert cbook.contiguous_regions(mask) == expected
+    # Starts and ends with False
+    mask = mask + [False]*e
+    assert cbook.contiguous_regions(mask) == expected
+    # No True in mask
+    assert cbook.contiguous_regions([False]*5) == []
+    # Empty mask
+    assert cbook.contiguous_regions([]) == []
+
+
+def test_safe_first_element_pandas_series(pd):
+    # deliberately create a pandas series with index not starting from 0
+    s = pd.Series(range(5), index=range(10, 15))
+    actual = cbook.safe_first_element(s)
+    assert actual == 0
+
+
+def test_make_keyword_only(recwarn):
+    @cbook._make_keyword_only("3.0", "arg")
+    def func(pre, arg, post=None):
+        pass
+
+    func(1, arg=2)
+    assert len(recwarn) == 0
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        func(1, 2)
+    with pytest.warns(MatplotlibDeprecationWarning):
+        func(1, 2, 3)
+
+
+def test_warn_external(recwarn):
+    cbook._warn_external("oops")
+    assert len(recwarn) == 1
+    assert recwarn[0].filename == __file__

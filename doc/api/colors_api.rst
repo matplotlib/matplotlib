@@ -1,6 +1,6 @@
-******
-colors
-******
+*********************
+``matplotlib.colors``
+*********************
 
 For a visual representation of the Matplotlib colormaps, see:
 
@@ -9,8 +9,6 @@ For a visual representation of the Matplotlib colormaps, see:
 * The :ref:`tutorials-colors` tutorial for an in-depth guide on controlling
   color.
 
-:mod:`matplotlib.colors`
-========================
 
 .. currentmodule:: matplotlib.colors
 
@@ -27,6 +25,7 @@ Classes
 
    BoundaryNorm
    Colormap
+   DivergingNorm
    LightSource
    LinearSegmentedColormap
    ListedColormap

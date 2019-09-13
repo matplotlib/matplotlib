@@ -1,28 +1,15 @@
-# ==========================================================================
-#
-# Duration
-#
-# ==========================================================================
-
-
 """Duration module."""
 
-# ==========================================================================
-# Place all imports after here.
-#
 import operator
-#
-# Place all imports before here.
-# ==========================================================================
+
+from matplotlib import cbook
 
 
-# ==========================================================================
-class Duration(object):
+class Duration:
     """Class Duration in development.
     """
     allowed = ["ET", "UTC"]
 
-    # ----------------------------------------------------------------------
     def __init__(self, frame, seconds):
         """Create a new Duration object.
 
@@ -33,39 +20,29 @@ class Duration(object):
         - frame     The frame of the duration.  Must be 'ET' or 'UTC'
         - seconds  The number of seconds in the Duration.
         """
-        if frame not in self.allowed:
-            msg = "Input frame '%s' is not one of the supported frames of %s" \
-                    % (frame, str(self.allowed))
-            raise ValueError(msg)
-
+        cbook._check_in_list(self.allowed, frame=frame)
         self._frame = frame
         self._seconds = seconds
 
-    # ----------------------------------------------------------------------
     def frame(self):
         """Return the frame the duration is in."""
         return self._frame
 
-    # ----------------------------------------------------------------------
     def __abs__(self):
         """Return the absolute value of the duration."""
         return Duration(self._frame, abs(self._seconds))
 
-    # ----------------------------------------------------------------------
     def __neg__(self):
         """Return the negative value of this Duration."""
         return Duration(self._frame, -self._seconds)
 
-    # ----------------------------------------------------------------------
     def seconds(self):
         """Return the number of seconds in the Duration."""
         return self._seconds
 
-    # ----------------------------------------------------------------------
     def __bool__(self):
         return self._seconds != 0
 
-    # ----------------------------------------------------------------------
     def __eq__(self, rhs):
         return self._cmp(rhs, operator.eq)
 
@@ -97,7 +74,6 @@ class Duration(object):
         self.checkSameFrame(rhs, "compare")
         return op(self._seconds, rhs._seconds)
 
-    # ----------------------------------------------------------------------
     def __add__(self, rhs):
         """Add two Durations.
 
@@ -119,7 +95,6 @@ class Duration(object):
         self.checkSameFrame(rhs, "add")
         return Duration(self._frame, self._seconds + rhs._seconds)
 
-    # ----------------------------------------------------------------------
     def __sub__(self, rhs):
         """Subtract two Durations.
 
@@ -135,7 +110,6 @@ class Duration(object):
         self.checkSameFrame(rhs, "sub")
         return Duration(self._frame, self._seconds - rhs._seconds)
 
-    # ----------------------------------------------------------------------
     def __mul__(self, rhs):
         """Scale a UnitDbl by a value.
 
@@ -147,7 +121,6 @@ class Duration(object):
         """
         return Duration(self._frame, self._seconds * float(rhs))
 
-    # ----------------------------------------------------------------------
     def __rmul__(self, lhs):
         """Scale a Duration by a value.
 
@@ -159,7 +132,6 @@ class Duration(object):
         """
         return Duration(self._frame, self._seconds * float(lhs))
 
-    # ----------------------------------------------------------------------
     def __div__(self, rhs):
         """Divide a Duration by a value.
 
@@ -171,7 +143,6 @@ class Duration(object):
         """
         return Duration(self._frame, self._seconds / rhs)
 
-    # ----------------------------------------------------------------------
     def __rdiv__(self, rhs):
         """Divide a Duration by a value.
 
@@ -183,17 +154,14 @@ class Duration(object):
         """
         return Duration(self._frame, rhs / self._seconds)
 
-    # ----------------------------------------------------------------------
     def __str__(self):
         """Print the Duration."""
         return "%g %s" % (self._seconds, self._frame)
 
-    # ----------------------------------------------------------------------
     def __repr__(self):
         """Print the Duration."""
         return "Duration('%s', %g)" % (self._frame, self._seconds)
 
-    # ----------------------------------------------------------------------
     def checkSameFrame(self, rhs, func):
         """Check to see if frames are the same.
 
@@ -206,9 +174,7 @@ class Duration(object):
         - func    The name of the function doing the check.
         """
         if self._frame != rhs._frame:
-            msg = "Cannot %s Duration's with different frames.\n" \
-                    "LHS: %s\n" \
-                    "RHS: %s" % (func, self._frame, rhs._frame)
-            raise ValueError(msg)
-
-# ==========================================================================
+            raise ValueError(
+                f"Cannot {func} Durations with different frames.\n"
+                f"LHS: {self._frame}\n"
+                f"RHS: {rhs._frame}")

@@ -461,7 +461,7 @@ div.topic {
     border-left: 0px;
     border-right: 0px;
     margin: 10px 0px;
-    padding: 1em 1.4em;
+    padding-left: 1em;
 }
 
 p.topic-title {
@@ -495,7 +495,8 @@ p.topic-title {
 }
 
 .contents > ul > li {
-    padding-top: 0.7em;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
 }
 
 .contents ul > li::before {
@@ -594,6 +595,10 @@ span.linkdescr {
     font-size: 90%;
 }
 
+.highlight span.c1 span.highlighted {
+    background-color: #fce5a6;
+}
+
 ul.search {
     margin: 10px 0 0 20px;
     padding: 0;
@@ -671,6 +676,11 @@ dl.class p.rubric + table.docutils td:first-of-type > strong {
     font-weight: normal;
 }
 
+.classifier:before {
+    font-style: normal;
+    margin: 0.2em;
+    content: ":";
+}
 
 /* module summary table */
 .longtable.docutils {
@@ -683,6 +693,14 @@ dl.class p.rubric + table.docutils td:first-of-type > strong {
 
 .longtable.docutils tr.row-even{
     background-color: #eff3f4;
+}
+
+/* tables inside class descriptions */
+dl.class table.property-table {
+    width: 85%;
+    border-spacing: 2px;
+    border-collapse: collapse;
+    border: 0px;
 }
 
 /* tables inside parameter descriptions */
@@ -723,7 +741,7 @@ td.field-body table.property-table tr:last-of-type td {
 
 /*** function and class description ***/
 /* top-level definitions */
-dl.class, dl.function {
+dl.class, dl.function, dl.data, dl.exception {
     border-top: 1px solid #888;
     padding-top: 0px;
     margin-top: 20px;
@@ -735,8 +753,8 @@ dl.method, dl.classmethod, dl.staticmethod, dl.attribute {
 }
 
 
-dl.class > dt, dl.classmethod > dt, dl.method > dt, dl.function > dt, 
-dl.attribute > dt, dl.staticmethod > dt {
+dl.class > dt, dl.classmethod > dt, dl.method > dt, dl.function > dt,
+dl.attribute > dt, dl.staticmethod > dt, dl.data > dt, dl.exception > dt {
     background-color: #eff3f4;
     padding-left: 6px;
     padding-right: 6px;
@@ -763,7 +781,7 @@ dl.class big, dl.function big {
     font-family: monospace;
 }
 
-dl.class dd, dl.function dd {
+dl.class dd, dl.function dd, dl.data dd {
     padding: 10px;
 }
 
@@ -860,25 +878,6 @@ figcaption {
   text-align: center;
 }
 
-
-/* "Summer Fellowship" message. */
-#summer-fellowship {
-  background: #11557C;
-  box-sizing: border-box;
-  color: #fffa;
-  font-weight: bold;
-  left: 0;
-  min-height: 3em;
-  padding: 0.7em;
-  top: 0;
-  width: 100%;
-  z-index: 10000;
-}
-
-#summer-fellowship a {
-  color: #fff;
-  text-decoration:underline;
-}
 
 /* "Go to released version" message. */
 #unreleased-message {
@@ -1057,6 +1056,10 @@ p.caption {
 
 div#gallery.section, div#tutorials.section {
     overflow: hidden;
+}
+
+.sphx-glr-multi-img{
+    max-width: 99% !important;
 }
 
 .sphx-glr-thumbcontainer {

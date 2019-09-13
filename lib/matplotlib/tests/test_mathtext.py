@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 import matplotlib
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
 from matplotlib import mathtext
 
@@ -55,7 +55,7 @@ math_tests = [
     '$\\alpha \\beta \\gamma \\delta \\epsilon \\zeta \\eta \\theta \\iota \\lambda \\mu \\nu \\xi \\pi \\kappa \\rho \\sigma \\tau \\upsilon \\phi \\chi \\psi$',
 
     # The examples prefixed by 'mmltt' are from the MathML torture test here:
-    # http://www.mozilla.org/projects/mathml/demo/texvsmml.xhtml
+    # https://developer.mozilla.org/en-US/docs/Mozilla/MathML_Project/MathML_Torture_Test
     r'${x}^{2}{y}^{2}$',
     r'${}_{2}F_{3}$',
     r'$\frac{x+{y}^{2}}{k+1}$',
@@ -75,7 +75,7 @@ math_tests = [
     # mathtex doesn't support array
     # 'mmltt18'    : r'$f\left(x\right)=\left\{\begin{array}{cc}\hfill 1/3\hfill & \text{if_}0\le x\le 1;\hfill \\ \hfill 2/3\hfill & \hfill \text{if_}3\le x\le 4;\hfill \\ \hfill 0\hfill & \text{elsewhere.}\hfill \end{array}$',
     # mathtex doesn't support stackrel
-    # 'mmltt19'    : ur'$\stackrel{\stackrel{k\text{times}}{\ufe37}}{x+...+x}$',
+    # 'mmltt19'    : r'$\stackrel{\stackrel{k\text{times}}{\ufe37}}{x+...+x}$',
     r'${y}_{{x}^{2}}$',
     # mathtex doesn't support the "\text" command
     # 'mmltt21'    : r'$\sum _{p\text{\prime}}f\left(p\right)={\int }_{t>1}f\left(t\right) d\pi \left(t\right)$',
@@ -145,15 +145,14 @@ font_test_specs = [
 
 font_tests = []
 for fonts, chars in font_test_specs:
-    wrapper = [' '.join(fonts), ' $']
-    for font in fonts:
-        wrapper.append(r'\%s{' % font)
-    wrapper.append('%s')
-    for font in fonts:
-        wrapper.append('}')
-    wrapper.append('$')
-    wrapper = ''.join(wrapper)
-
+    wrapper = ''.join([
+        ' '.join(fonts),
+        ' $',
+        *(r'\%s{' % font for font in fonts),
+        '%s',
+        *('}' for font in fonts),
+        '$',
+    ])
     for set in chars:
         font_tests.append(wrapper % set)
 
@@ -163,6 +162,10 @@ def baseline_images(request, fontset, index):
     return ['%s_%s_%02d' % (request.param, fontset, index)]
 
 
+# In the following two tests, use recwarn to suppress warnings regarding the
+# deprecation of \stackrel and \mathcircled.
+
+
 @pytest.mark.parametrize('index, test', enumerate(math_tests),
                          ids=[str(index) for index in range(len(math_tests))])
 @pytest.mark.parametrize('fontset',
@@ -170,7 +173,7 @@ def baseline_images(request, fontset, index):
                           'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathtext'], indirect=True)
 @image_comparison(baseline_images=None)
-def test_mathtext_rendering(baseline_images, fontset, index, test):
+def test_mathtext_rendering(baseline_images, fontset, index, test, recwarn):
     matplotlib.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, test,
@@ -184,7 +187,7 @@ def test_mathtext_rendering(baseline_images, fontset, index, test):
                           'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
 @image_comparison(baseline_images=None, extensions=['png'])
-def test_mathfont_rendering(baseline_images, fontset, index, test):
+def test_mathfont_rendering(baseline_images, fontset, index, test, recwarn):
     matplotlib.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, test,
@@ -267,7 +270,13 @@ def test_single_minus_sign():
 
     buff = io.BytesIO()
     plt.savefig(buff, format="rgba", dpi=1000)
-    array = np.fromstring(buff.getvalue(), dtype=np.uint8)
+    array = np.frombuffer(buff.getvalue(), dtype=np.uint8)
 
     # If this fails, it would be all white
     assert not np.all(array == 0xff)
+
+
+@check_figures_equal(extensions=["png"])
+def test_spaces(fig_test, fig_ref):
+    fig_test.subplots().set_title(r"$1\,2\>3\ 4$")
+    fig_ref.subplots().set_title(r"$1\/2\:3~4$")

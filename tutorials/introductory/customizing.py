@@ -86,7 +86,7 @@ print(plt.style.available)
 # for limiting your changes to a specific scope. To isolate your styling
 # changes, you can write something like the following:
 
-with plt.style.context(('dark_background')):
+with plt.style.context('dark_background'):
     plt.plot(np.sin(np.linspace(0, 2 * np.pi)), 'r-o')
 plt.show()
 
@@ -130,11 +130,11 @@ plt.plot(data)
 # The :file:`matplotlibrc` file
 # -----------------------------
 #
-# matplotlib uses :file:`matplotlibrc` configuration files to customize all kinds
-# of properties, which we call `rc settings` or `rc parameters`. You can control
-# the defaults of almost every property in matplotlib: figure size and dpi, line
-# width, color and style, axes, axis and grid properties, text and font
-# properties and so on. matplotlib looks for :file:`matplotlibrc` in four
+# Matplotlib uses :file:`matplotlibrc` configuration files to customize all
+# kinds of properties, which we call 'rc settings' or 'rc parameters'. You can
+# control the defaults of almost every property in Matplotlib: figure size and
+# DPI, line width, color and style, axes, axis and grid properties, text and
+# font properties and so on. Matplotlib looks for :file:`matplotlibrc` in four
 # locations, in the following order:
 #
 # 1. :file:`matplotlibrc` in the current working directory, usually used for
@@ -144,8 +144,9 @@ plt.plot(data)
 #
 # 3. It next looks in a user-specific place, depending on your platform:
 #
-#    - On Linux and FreeBSD, it looks in :file:`.config/matplotlib/matplotlibrc`
-#      (or `$XDG_CONFIG_HOME/matplotlib/matplotlibrc`) if you've customized
+#    - On Linux and FreeBSD, it looks in
+#      :file:`.config/matplotlib/matplotlibrc` (or
+#      :file:`$XDG_CONFIG_HOME/matplotlib/matplotlibrc`) if you've customized
 #      your environment.
 #
 #    - On other platforms, it looks in :file:`.matplotlib/matplotlibrc`.
@@ -154,8 +155,8 @@ plt.plot(data)
 #
 # 4. :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, where
 #    :file:`{INSTALL}` is something like
-#    :file:`/usr/lib/python3.5/site-packages` on Linux, and maybe
-#    :file:`C:\\Python35\\Lib\\site-packages` on Windows. Every time you
+#    :file:`/usr/lib/python3.7/site-packages` on Linux, and maybe
+#    :file:`C:\\Python37\\Lib\\site-packages` on Windows. Every time you
 #    install matplotlib, this file will be overwritten, so if you want
 #    your customizations to be saved, please move this file to your
 #    user-specific matplotlib directory.
@@ -171,12 +172,6 @@ plt.plot(data)
 #   '/home/foo/.config/matplotlib/matplotlibrc'
 #
 # See below for a sample :ref:`matplotlibrc file<matplotlibrc-sample>`.
-# Although all parameters are optional, you should almost always set the
-# `backend` or else matplotlib will choose `Agg`, a *non-interactive* backend.
-# This can lead to unexpected behavior, since if you do not have a
-# :file:`matplotlibrc` file, it would normally fall back to
-# :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, which is often set to an
-# interactive backend by the package maintainer.
 #
 # .. _matplotlibrc-sample:
 #
@@ -186,6 +181,6 @@ plt.plot(data)
 # .. literalinclude:: ../../../matplotlibrc.template
 #
 #
-# .. _ggplot: http://ggplot2.org/
+# .. _ggplot: https://ggplot2.tidyverse.org/
 # .. _R: https://www.r-project.org/
 # .. _provided by Matplotlib: https://github.com/matplotlib/matplotlib/tree/master/lib/matplotlib/mpl-data/stylelib

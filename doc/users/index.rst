@@ -18,5 +18,6 @@ User's Guide
     whats_new.rst
     history.rst
     github_stats.rst
+    whats_new_old.rst
     license.rst
     credits.rst

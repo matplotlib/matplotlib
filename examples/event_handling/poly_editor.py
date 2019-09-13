@@ -9,10 +9,37 @@ Matplotlib event handling to interact with objects on the canvas.
 import numpy as np
 from matplotlib.lines import Line2D
 from matplotlib.artist import Artist
-from matplotlib.mlab import dist_point_to_segment
 
 
-class PolygonInteractor(object):
+def dist(x, y):
+    """
+    Return the distance between two points.
+    """
+    d = x - y
+    return np.sqrt(np.dot(d, d))
+
+
+def dist_point_to_segment(p, s0, s1):
+    """
+    Get the distance of a point to a segment.
+      *p*, *s0*, *s1* are *xy* sequences
+    This algorithm from
+    http://geomalgorithms.com/a02-_lines.html
+    """
+    v = s1 - s0
+    w = p - s0
+    c1 = np.dot(w, v)
+    if c1 <= 0:
+        return dist(p, s0)
+    c2 = np.dot(v, v)
+    if c2 <= c1:
+        return dist(p, s1)
+    b = c1 / c2
+    pb = s0 + b * v
+    return dist(p, pb)
+
+
+class PolygonInteractor:
     """
     A polygon editor.
 
@@ -63,15 +90,17 @@ class PolygonInteractor(object):
         # updated
 
     def poly_changed(self, poly):
-        'this method is called whenever the polygon object is called'
+        """This method is called whenever the pathpatch object is called."""
         # only copy the artist props to the line (except visibility)
         vis = self.line.get_visible()
         Artist.update_from(self.line, poly)
         self.line.set_visible(vis)  # don't use the poly visibility state
 
     def get_ind_under_point(self, event):
-        'get the index of the vertex under point if within epsilon tolerance'
-
+        """
+        Return the index of the point closest to the event position or *None*
+        if no point is within ``self.epsilon`` to the event position.
+        """
         # display coords
         xy = np.asarray(self.poly.xy)
         xyt = self.poly.get_transform().transform(xy)
@@ -86,7 +115,7 @@ class PolygonInteractor(object):
         return ind
 
     def button_press_callback(self, event):
-        'whenever a mouse button is pressed'
+        """Callback for mouse button presses."""
         if not self.showverts:
             return
         if event.inaxes is None:
@@ -96,7 +125,7 @@ class PolygonInteractor(object):
         self._ind = self.get_ind_under_point(event)
 
     def button_release_callback(self, event):
-        'whenever a mouse button is released'
+        """Callback for mouse button releases."""
         if not self.showverts:
             return
         if event.button != 1:
@@ -104,7 +133,7 @@ class PolygonInteractor(object):
         self._ind = None
 
     def key_press_callback(self, event):
-        'whenever a key is pressed'
+        """Callback for key presses."""
         if not event.inaxes:
             return
         if event.key == 't':
@@ -136,7 +165,7 @@ class PolygonInteractor(object):
             self.canvas.draw_idle()
 
     def motion_notify_callback(self, event):
-        'on mouse movement'
+        """Callback for mouse movements."""
         if not self.showverts:
             return
         if self._ind is None:

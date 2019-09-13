@@ -36,16 +36,12 @@ that the draw command is deferred and only called once.
 The upshot of this is that for interactive backends (including
 ``%matplotlib notebook``) in interactive mode (with ``plt.ion()``)
 
-.. ipython :: python
+.. code-block :: python
 
    import matplotlib.pyplot as plt
-
    fig, ax = plt.subplots()
-
    ln, = ax.plot([0, 1, 4, 9, 16])
-
    plt.show()
-
    ln.set_color('g')
 
 
@@ -497,8 +493,8 @@ backends.
 
 DateFormatter strftime
 ``````````````````````
-:class:`~matplotlib.dates.DateFormatter`s'
-:meth:`~matplotlib.dates.DateFormatter.strftime` method will format
+:class:`~matplotlib.dates.DateFormatter`\ 's
+:meth:`~matplotlib.dates.DateFormatter.__call__` method will format
 a :class:`datetime.datetime` object with the format string passed to
 the formatter's constructor. This method accepts datetimes with years
 before 1900, unlike :meth:`datetime.datetime.strftime`.
@@ -508,7 +504,7 @@ Artist-level {get,set}_usetex for text
 ``````````````````````````````````````
 
 Add ``{get,set}_usetex`` methods to :class:`~matplotlib.text.Text` objects
-which allow artist-level control of LaTeX rendering vs the internal mathtex
+which allow artist-level control of LaTeX rendering vs. the internal mathtex
 rendering.
 
 
@@ -738,9 +734,9 @@ IPython's ``HTML`` display class::
 Prefixed pkg-config for building
 --------------------------------
 
-Handling of `pkg-config` has been fixed in so far as it is now
-possible to set it using the environment variable `PKG_CONFIG`. This
-is important if your toolchain is prefixed. This is done in a simpilar
-way as setting `CC` or `CXX` before building. An example follows.
+Handling of pkg-config has been fixed in so far as it is now possible to set it
+using the environment variable :envvar:`PKG_CONFIG`. This is important if your
+toolchain is prefixed. This is done in a simpilar way as setting :envvar:`CC`
+or :envvar:`CXX` before building. An example follows.
 
     export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config

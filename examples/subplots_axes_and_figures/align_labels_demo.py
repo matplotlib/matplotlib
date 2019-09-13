@@ -3,10 +3,10 @@
 Aligning Labels
 ===============
 
-Aligning xlabel and ylabel using `Figure.align_xlabels` and
-`Figure.align_ylabels`
+Aligning xlabel and ylabel using `.Figure.align_xlabels` and
+`.Figure.align_ylabels`
 
-`Figure.align_labels` wraps these two functions.
+`.Figure.align_labels` wraps these two functions.
 
 Note that the xlabel "XLabel1 1" would normally be much closer to the
 x-axis, and "YLabel1 0" would be much closer to the y-axis of their

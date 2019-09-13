@@ -61,9 +61,8 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
                              lb=len(edges), lv=len(values)))
 
     if bottoms is None:
-        bottoms = np.zeros_like(values)
-    if np.isscalar(bottoms):
-        bottoms = np.ones_like(values) * bottoms
+        bottoms = 0
+    bottoms = np.broadcast_to(bottoms, values.shape)
 
     values = np.r_[values, values[-1]]
     bottoms = np.r_[bottoms, bottoms[-1]]
@@ -81,6 +80,8 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
                hist_func=None, labels=None,
                plot_func=None, plot_kwargs=None):
     """
+    Parameters
+    ----------
     ax : axes.Axes
         The axes to add artists too
 

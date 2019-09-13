@@ -4,9 +4,9 @@ Axes Zoom Effect
 ================
 
 """
+
 from matplotlib.transforms import (
     Bbox, TransformedBbox, blended_transform_factory)
-
 from mpl_toolkits.axes_grid1.inset_locator import (
     BboxPatch, BboxConnector, BboxConnectorPatch)
 
@@ -39,14 +39,19 @@ def connect_bbox(bbox1, bbox2,
 
 def zoom_effect01(ax1, ax2, xmin, xmax, **kwargs):
     """
-    ax1 : the main axes
-    ax1 : the zoomed axes
-    (xmin,xmax) : the limits of the colored area in both plot axes.
+    Connect *ax1* and *ax2*. The *xmin*-to-*xmax* range in both axes will
+    be marked.
 
-    connect ax1 & ax2. The x-range of (xmin, xmax) in both axes will
-    be marked.  The keywords parameters will be used ti create
-    patches.
-
+    Parameters
+    ----------
+    ax1
+        The main axes.
+    ax2
+        The zoomed axes.
+    xmin, xmax
+        The limits of the colored area in both plot axes.
+    **kwargs
+        Arguments passed to the patch constructor.
     """
 
     trans1 = blended_transform_factory(ax1.transData, ax1.transAxes)
@@ -106,7 +111,7 @@ def zoom_effect02(ax1, ax2, **kwargs):
 
 import matplotlib.pyplot as plt
 
-plt.figure(1, figsize=(5, 5))
+plt.figure(figsize=(5, 5))
 ax1 = plt.subplot(221)
 ax2 = plt.subplot(212)
 ax2.set_xlim(0, 1)

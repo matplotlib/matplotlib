@@ -25,12 +25,11 @@ plt.legend(('phase field', 'level set', 'sharp interface'),
            shadow=True, loc=(0.01, 0.48), handlelength=1.5, fontsize=16)
 
 # the arrow
-plt.annotate("", xy=(-delta / 2., 0.1), xycoords='data',
-             xytext=(delta / 2., 0.1), textcoords='data',
+plt.annotate("", xy=(-delta / 2., 0.1), xytext=(delta / 2., 0.1),
              arrowprops=dict(arrowstyle="<->", connectionstyle="arc3"))
 plt.text(0, 0.1, r'$\delta$',
-         {'color': 'k', 'fontsize': 24, 'ha': 'center', 'va': 'center',
-          'bbox': dict(boxstyle="round", fc="w", ec="k", pad=0.2)})
+         {'color': 'black', 'fontsize': 24, 'ha': 'center', 'va': 'center',
+          'bbox': dict(boxstyle="round", fc="white", ec="black", pad=0.2)})
 
 # Use tex in labels
 plt.xticks((-1, 0, 1), ('$-1$', r'$\pm 0$', '$+1$'), color='k', size=20)

@@ -2827,7 +2827,7 @@ the `API changes <../../api/api_changes.html>`_.
            now looks correct - SC
 
 2007-01-11 Added Axes.xcorr and Axes.acorr to plot the cross
-           correlation of x vs y or the autocorrelation of x.  pylab
+           correlation of x vs. y or the autocorrelation of x.  pylab
            wrappers also provided.  See examples/xcorr_demo.py - JDH
 
 2007-01-10 Added "Subplot.label_outer" method.  It will set the

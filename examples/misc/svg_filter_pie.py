@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Shadow
 
 # make a square figure and axes
-fig1 = plt.figure(1, figsize=(6, 6))
-ax = fig1.add_axes([0.1, 0.1, 0.8, 0.8])
+fig = plt.figure(figsize=(6, 6))
+ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
 
 labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
 fracs = [15, 30, 45, 10]
@@ -31,7 +31,7 @@ for w in pies[0]:
     w.set_gid(w.get_label())
 
     # we don't want to draw the edge of the pie
-    w.set_ec("none")
+    w.set_edgecolor("none")
 
 for w in pies[0]:
     # create shadow patch

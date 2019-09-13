@@ -5,9 +5,12 @@ Contributing
 ============
 
 This project is a community effort, and everyone is welcome to
-contribute.
+contribute.  We follow the `Python Software Foundation Code of Conduct
+<coc_>`_ in everything we do.
 
 The project is hosted on https://github.com/matplotlib/matplotlib
+
+.. _coc: http://www.python.org/psf/codeofconduct/
 
 Submitting a bug report
 =======================
@@ -64,7 +67,7 @@ environment to build Matplotlib from source.
 To work on Matplotlib sources, it is strongly recommended to set up an alternative
 development environment, using the something like `virtual environments in python
 <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_, or a
-`conda environment <http://conda.pydata.org/docs/using/envs.html>`_.
+`conda environment <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_.
 
 If you choose to use an already existing environment, and not a clean virtual or
 conda environment, uninstall the current version of Matplotlib in that environment
@@ -96,20 +99,29 @@ formed characters, causing these image comparisons to fail.  To make
 them reproducible, Matplotlib can be built with a special local copy
 of FreeType.  This is recommended for all Matplotlib developers.
 
-Copy :file:`setup.cfg.template` to :file:`setup.cfg` and edit it to contain::
+Prior to compiling the C-extensions, copy :file:`setup.cfg.template` to
+:file:`setup.cfg` and edit it to contain::
 
   [test]
   local_freetype = True
   tests = True
 
 or set the ``MPLLOCALFREETYPE`` environmental variable to any true
-value.
+value.  If you have previously built Matplotlib with a different
+version of Freetype, you will also need to remove the c/c++ build
+products.  Do this is to delete the ``build`` folder or ``git clean
+-xfd``.  If you are going to be regularly working on Matplotlib,
+consider putting ::
+
+   export MPLLOCALFREETYPE=1
+
+in your shell start up files.
 
 
 Installing Matplotlib in developer mode
 ---------------------------------------
 
-To install Matplotlib (and compile the c-extensions) run the following
+To install Matplotlib (and compile the C-extensions) run the following
 command from the top-level directory ::
 
    python -mpip install -ve .
@@ -147,11 +159,11 @@ environment is set up properly::
 .. _pytest: http://doc.pytest.org/en/latest/
 .. _pep8: https://pep8.readthedocs.io/en/latest/
 .. _Ghostscript: https://www.ghostscript.com/
-.. _Inkscape: https://inkscape.org>
+.. _Inkscape: https://inkscape.org/
 
 .. note::
 
-  **Additional dependencies for testing**: pytest_ (version 3.4 or later),
+  **Additional dependencies for testing**: pytest_ (version 3.6 or later),
   Ghostscript_, Inkscape_
 
 .. seealso::
@@ -208,6 +220,8 @@ want to consider sending an email to the mailing list for more visibility.
 .. seealso::
 
   * `Git documentation <https://git-scm.com/documentation>`_
+  * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
+  * `Introduction to GitHub  <https://lab.github.com/githubtraining/introduction-to-github>`_
   * :ref:`development-workflow`.
   * :ref:`using-git`
 
@@ -323,6 +337,50 @@ and articles or link to it from your website!
 Coding guidelines
 =================
 
+API changes
+-----------
+
+Changes to the public API must follow a standard deprecation procedure to
+prevent unexpected breaking of code that uses Matplotlib.
+
+- Deprecations must be announced via an entry in `doc/api/next_api_changes`.
+- Deprecations are targeted at the next point-release (i.e. 3.x.0).
+- The deprecated API should, to the maximum extent possible, remain fully
+  functional during the deprecation period. In cases where this is not
+  possible, the deprecation must never make a given piece of code do something
+  different than it was before; at least an exception should be raised.
+- If possible, usage of an deprecated API should emit a
+  `MatplotlibDeprecationWarning`. There are a number of helper tools for this:
+
+  - Use `.cbook.warn_deprecated()` for general deprecation warnings.
+  - Use the decorator ``@cbook.deprecated`` to deprecate classes, functions,
+    methods, or properties.
+  - To warn on changes of the function signature, use the decorators
+    ``@cbook._delete_parameter``, ``@cbook._rename_parameter``, and
+    ``@cbook._make_keyword_only``.
+
+- Deprecated API may be removed two point-releases after they were deprecated.
+
+
+Adding new API
+--------------
+
+Every new function, parameter and attribute that is not explicitly marked as
+private (i.e., starts with an underscore) becomes part of Matplotlib's public
+API. As discussed above, changing the existing API is cumbersome. Therefore,
+take particular care when adding new API:
+
+- Mark helper functions and internal attributes as private by prefixing them
+  with an underscore.
+- Carefully think about good names for your functions and variables.
+- Try to adopt patterns and naming conventions from existing parts of the
+  Matplotlib API.
+- Consider making as many arguments keyword-only as possible. See also
+  `API Evolution the Right Way -- Add Parameters Compatibly`__.
+
+  __ https://emptysqua.re/blog/api-evolution-the-right-way/#adding-parameters
+
+
 New modules and files: installation
 -----------------------------------
 
@@ -433,70 +491,93 @@ To include `logging` in your module, at the top of the module, you need to
 will log to a logger named ``matplotlib.yourmodulename``.
 
 If an end-user of Matplotlib sets up `logging` to display at levels
-more verbose than `logger.WARNING` in their code as follows::
+more verbose than `logger.WARNING` in their code with the Matplotlib-provided
+helper::
+
+  plt.set_loglevel("debug")
+
+or manually with ::
 
   import logging
-  fmt = '%(name)s:%(lineno)5d - %(levelname)s - %(message)s'
-  logging.basicConfig(level=logging.DEBUG, format=fmt)
+  logging.basicConfig(level=logging.DEBUG)
   import matplotlib.pyplot as plt
 
 Then they will receive messages like::
 
-  matplotlib.backends:   89 - INFO - backend MacOSX version unknown
-  matplotlib.yourmodulename: 347 - INFO - Here is some information
-  matplotlib.yourmodulename: 348 - DEBUG - Here is some more detailed information
+  DEBUG:matplotlib.backends:backend MacOSX version unknown
+  DEBUG:matplotlib.yourmodulename:Here is some information
+  DEBUG:matplotlib.yourmodulename:Here is some more detailed information
 
 Which logging level to use?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are five levels at which you can emit messages.
-`logging.critical` and `logging.error`
-are really only there for errors that will end the use of the library but
-not kill the interpreter.  `logging.warning` overlaps with the
-``warnings`` library.  The
-`logging tutorial <https://docs.python.org/3/howto/logging.html#logging-basic-tutorial>`_
-suggests that the difference
-between `logging.warning` and `warnings.warn` is that
-`warnings.warn` be used for things the user must change to stop
-the warning, whereas `logging.warning` can be more persistent.
+
+- `logging.critical` and `logging.error` are really only there for errors that
+  will end the use of the library but not kill the interpreter.
+- `logging.warning` and `cbook._warn_external` are used to warn the user,
+  see below.
+- `logging.info` is for information that the user may want to know if the
+  program behaves oddly. They are not displayed by default. For instance, if
+  an object isn't drawn because its position is ``NaN``, that can usually
+  be ignored, but a mystified user could call
+  ``logging.basicConfig(level=logging.INFO)`` and get an error message that
+  says why.
+- `logging.debug` is the least likely to be displayed, and hence can be the
+  most verbose.  "Expected" code paths (e.g., reporting normal intermediate
+  steps of layouting or rendering) should only log at this level.
 
 By default, `logging` displays all log messages at levels higher than
 `logging.WARNING` to `sys.stderr`.
 
-Calls to `logging.info` are not displayed by default.  They are for
-information that the user may want to know if the program behaves oddly.
-For instance, if an object isn't drawn because its position is ``NaN``,
-that can usually be ignored, but a mystified user could set
-``logging.basicConfig(level=logging.INFO)`` and get an error message that
-says why.
+The `logging tutorial`_ suggests that the difference
+between `logging.warning` and `cbook._warn_external` (which uses
+`warnings.warn`) is that `cbook._warn_external` should be used for things the
+user must change to stop the warning (typically in the source), whereas
+`logging.warning` can be more persistent.  Moreover, note that
+`cbook._warn_external` will by default only emit a given warning *once* for
+each line of user code, whereas `logging.warning` will display the message
+every time it is called.
 
-`logging.debug` is the least likely to be displayed, and hence can
-be the most verbose.
+By default, `warnings.warn` displays the line of code that has the `warn` call.
+This usually isn't more informative than the warning message itself. Therefore,
+Matplotlib uses `cbook._warn_external` which uses `warnings.warn`, but goes
+up the stack and displays the first line of code outside of Matplotlib.
+For example, for the module::
 
-.. _custom_backend:
+    # in my_matplotlib_module.py
+    import warnings
 
-Developing a new backend
-------------------------
+    def set_range(bottom, top):
+        if bottom == top:
+            warnings.warn('Attempting to set identical bottom==top')
 
-If you are working on a custom backend, the *backend* setting in
-:file:`matplotlibrc` (:doc:`/tutorials/introductory/customizing`) supports an
-external backend via the ``module`` directive.  If
-:file:`my_backend.py` is a Matplotlib backend in your
-:envvar:`PYTHONPATH`, you can set it on one of several ways
 
-* in :file:`matplotlibrc`::
+running the script::
 
-    backend : module://my_backend
+    from matplotlib import my_matplotlib_module
+    my_matplotlib_module.set_range(0, 0)  #set range
 
-* with the :envvar:`MPLBACKEND` environment variable::
 
-    > export MPLBACKEND="module://my_backend"
-    > python simple_plot.py
+will display::
 
-* with the use directive in your script::
+    UserWarning: Attempting to set identical bottom==top
+    warnings.warn('Attempting to set identical bottom==top')
 
-    import matplotlib
-    matplotlib.use('module://my_backend')
+Modifying the module to use `cbook._warn_external`::
+
+    from matplotlib import cbook
+
+    def set_range(bottom, top):
+        if bottom == top:
+            cbook._warn_external('Attempting to set identical bottom==top')
+
+and running the same script will display::
+
+  UserWarning: Attempting to set identical bottom==top
+  my_matplotlib_module.set_range(0, 0)  #set range
+
+.. _logging tutorial: https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
 
 .. _sample-data:
 

@@ -75,7 +75,7 @@ x = np.degrees(xy[:, 0])
 y = np.degrees(xy[:, 1])
 x0 = -5
 y0 = 52
-z = np.exp(-0.01 * ((x - x0) * (x - x0) + (y - y0) * (y - y0)))
+z = np.exp(-0.01 * ((x - x0) ** 2 + (y - y0) ** 2))
 
 triangles = np.asarray([
     [67, 66,  1], [65,  2, 66], [ 1, 66,  2], [64,  2, 65], [63,  3, 64],

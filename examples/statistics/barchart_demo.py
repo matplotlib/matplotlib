@@ -1,82 +1,39 @@
 """
-=============
-Barchart Demo
-=============
-
-Bar charts of many shapes and sizes with Matplotlib.
+===================================
+Percentiles as horizontal bar chart
+===================================
 
 Bar charts are useful for visualizing counts, or summary statistics
-with error bars. These examples show a few ways to do this with Matplotlib.
+with error bars. Also see the :doc:`/gallery/lines_bars_and_markers/barchart`
+or the :doc:`/gallery/lines_bars_and_markers/barh` example for simpler versions
+of those features.
 
+This example comes from an application in which grade school gym
+teachers wanted to be able to show parents how their child did across
+a handful of fitness tests, and importantly, relative to how other
+children did. To extract the plotting code for demo purposes, we'll
+just make up some data for little Johnny Doe.
 """
 
-# Credit: Josh Hemann
-
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from collections import namedtuple
 
-
-n_groups = 5
-
-means_men = (20, 35, 30, 35, 27)
-std_men = (2, 3, 4, 1, 2)
-
-means_women = (25, 32, 34, 20, 25)
-std_women = (3, 5, 2, 3, 3)
-
-fig, ax = plt.subplots()
-
-index = np.arange(n_groups)
-bar_width = 0.35
-
-opacity = 0.4
-error_config = {'ecolor': '0.3'}
-
-rects1 = ax.bar(index, means_men, bar_width,
-                alpha=opacity, color='b',
-                yerr=std_men, error_kw=error_config,
-                label='Men')
-
-rects2 = ax.bar(index + bar_width, means_women, bar_width,
-                alpha=opacity, color='r',
-                yerr=std_women, error_kw=error_config,
-                label='Women')
-
-ax.set_xlabel('Group')
-ax.set_ylabel('Scores')
-ax.set_title('Scores by group and gender')
-ax.set_xticks(index + bar_width / 2)
-ax.set_xticklabels(('A', 'B', 'C', 'D', 'E'))
-ax.legend()
-
-fig.tight_layout()
-plt.show()
-
-
-###############################################################################
-# This example comes from an application in which grade school gym
-# teachers wanted to be able to show parents how their child did across
-# a handful of fitness tests, and importantly, relative to how other
-# children did. To extract the plotting code for demo purposes, we'll
-# just make up some data for little Johnny Doe...
+np.random.seed(42)
 
 Student = namedtuple('Student', ['name', 'grade', 'gender'])
 Score = namedtuple('Score', ['score', 'percentile'])
 
 # GLOBAL CONSTANTS
-testNames = ['Pacer Test', 'Flexed Arm\n Hang', 'Mile Run', 'Agility',
-             'Push Ups']
-testMeta = dict(zip(testNames, ['laps', 'sec', 'min:sec', 'sec', '']))
+test_names = ['Pacer Test', 'Flexed Arm\n Hang', 'Mile Run', 'Agility',
+              'Push Ups']
+test_meta = dict(zip(test_names, ['laps', 'sec', 'min:sec', 'sec', '']))
 
 
 def attach_ordinal(num):
-    """helper function to add ordinal string to integers
-
-    1 -> 1st
-    56 -> 56th
-    """
+    """Convert an integer to an ordinal string, e.g. 2 -> '2nd'."""
     suffixes = {str(i): v
                 for i, v in enumerate(['th', 'st', 'nd', 'rd', 'th',
                                        'th', 'th', 'th', 'th', 'th'])}
@@ -92,12 +49,12 @@ def format_score(scr, test):
     """
     Build up the score labels for the right Y-axis by first
     appending a carriage return to each string and then tacking on
-    the appropriate meta information (i.e., 'laps' vs 'seconds'). We
+    the appropriate meta information (i.e., 'laps' vs. 'seconds'). We
     want the labels centered on the ticks, so if there is no meta
     info (like for pushups) then don't add the carriage return to
     the string
     """
-    md = testMeta[test]
+    md = test_meta[test]
     if md:
         return '{0}\n{1}'.format(scr, md)
     else:
@@ -106,10 +63,10 @@ def format_score(scr, test):
 
 def format_ycursor(y):
     y = int(y)
-    if y < 0 or y >= len(testNames):
+    if y < 0 or y >= len(test_names):
         return ''
     else:
-        return testNames[y]
+        return test_names[y]
 
 
 def plot_student_results(student, scores, cohort_size):
@@ -118,12 +75,12 @@ def plot_student_results(student, scores, cohort_size):
     fig.subplots_adjust(left=0.115, right=0.88)
     fig.canvas.set_window_title('Eldorado K-8 Fitness Chart')
 
-    pos = np.arange(len(testNames))
+    pos = np.arange(len(test_names))
 
-    rects = ax1.barh(pos, [scores[k].percentile for k in testNames],
+    rects = ax1.barh(pos, [scores[k].percentile for k in test_names],
                      align='center',
-                     height=0.5, color='m',
-                     tick_label=testNames)
+                     height=0.5,
+                     tick_label=test_names)
 
     ax1.set_title(student.name)
 
@@ -134,15 +91,11 @@ def plot_student_results(student, scores, cohort_size):
 
     # Plot a solid vertical gridline to highlight the median position
     ax1.axvline(50, color='grey', alpha=0.25)
-    # set X-axis tick marks at the deciles
-    cohort_label = ax1.text(.5, -.07, 'Cohort Size: {0}'.format(cohort_size),
-                            horizontalalignment='center', size='small',
-                            transform=ax1.transAxes)
 
     # Set the right-hand Y-axis ticks and labels
     ax2 = ax1.twinx()
 
-    scoreLabels = [format_score(scores[k].score, k) for k in testNames]
+    scoreLabels = [format_score(scores[k].score, k) for k in test_names]
 
     # set the tick locations
     ax2.set_yticks(pos)
@@ -155,10 +108,11 @@ def plot_student_results(student, scores, cohort_size):
 
     ax2.set_ylabel('Test Scores')
 
-    ax2.set_xlabel(('Percentile Ranking Across '
-                    '{grade} Grade {gender}s').format(
-                        grade=attach_ordinal(student.grade),
-                        gender=student.gender.title()))
+    xlabel = ('Percentile Ranking Across {grade} Grade {gender}s\n'
+              'Cohort Size: {cohort_size}')
+    ax1.set_xlabel(xlabel.format(grade=attach_ordinal(student.grade),
+                                 gender=student.gender.title(),
+                                 cohort_size=cohort_size))
 
     rect_labels = []
     # Lastly, write in the ranking inside each bar to aid in interpretation
@@ -170,24 +124,25 @@ def plot_student_results(student, scores, cohort_size):
 
         rankStr = attach_ordinal(width)
         # The bars aren't wide enough to print the ranking inside
-        if width < 5:
+        if width < 40:
             # Shift the text to the right side of the right edge
-            xloc = width + 1
+            xloc = 5
             # Black against white background
             clr = 'black'
             align = 'left'
         else:
             # Shift the text to the left side of the right edge
-            xloc = 0.98*width
+            xloc = -5
             # White on magenta
             clr = 'white'
             align = 'right'
 
         # Center the text vertically in the bar
-        yloc = rect.get_y() + rect.get_height()/2.0
-        label = ax1.text(xloc, yloc, rankStr, horizontalalignment=align,
-                         verticalalignment='center', color=clr, weight='bold',
-                         clip_on=True)
+        yloc = rect.get_y() + rect.get_height() / 2
+        label = ax1.annotate(rankStr, xy=(width, yloc), xytext=(xloc, 0),
+                            textcoords="offset points",
+                            ha=align, va='center',
+                            color=clr, weight='bold', clip_on=True)
         rect_labels.append(label)
 
     # make the interactive mouse over give the bar title
@@ -197,16 +152,33 @@ def plot_student_results(student, scores, cohort_size):
             'ax': ax1,
             'ax_right': ax2,
             'bars': rects,
-            'perc_labels': rect_labels,
-            'cohort_label': cohort_label}
+            'perc_labels': rect_labels}
+
 
 student = Student('Johnny Doe', 2, 'boy')
-scores = dict(zip(testNames,
-                  (Score(v, p) for v, p in
-                   zip(['7', '48', '12:52', '17', '14'],
-                       np.round(np.random.uniform(0, 1,
-                                                  len(testNames))*100, 0)))))
+scores = dict(zip(
+    test_names,
+    (Score(v, p) for v, p in
+     zip(['7', '48', '12:52', '17', '14'],
+         np.round(np.random.uniform(0, 100, len(test_names)), 0)))))
 cohort_size = 62  # The number of other 2nd grade boys
 
 arts = plot_student_results(student, scores, cohort_size)
 plt.show()
+
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods and classes is shown
+# in this example:
+
+matplotlib.axes.Axes.bar
+matplotlib.pyplot.bar
+matplotlib.axes.Axes.annotate
+matplotlib.pyplot.annotate
+matplotlib.axes.Axes.twinx

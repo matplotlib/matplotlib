@@ -28,12 +28,14 @@ axs1[0, 0].barbs(X, Y, U, V)
 
 # Arbitrary set of vectors, make them longer and change the pivot point
 # (point around which they're rotated) to be the middle
-axs1[0, 1].barbs(data['x'], data['y'], data['u'], data['v'], length=8, pivot='middle')
+axs1[0, 1].barbs(
+    data['x'], data['y'], data['u'], data['v'], length=8, pivot='middle')
 
 # Showing colormapping with uniform grid.  Fill the circle for an empty barb,
 # don't round the values, and change some of the size parameters
-axs1[1, 0].barbs(X, Y, U, V, np.sqrt(U * U + V * V), fill_empty=True, rounding=False,
-                 sizes=dict(emptybarb=0.25, spacing=0.2, height=0.3))
+axs1[1, 0].barbs(
+    X, Y, U, V, np.sqrt(U ** 2 + V ** 2), fill_empty=True, rounding=False,
+    sizes=dict(emptybarb=0.25, spacing=0.2, height=0.3))
 
 # Change colors as well as the increments for parts of the barbs
 axs1[1, 1].barbs(data['x'], data['y'], data['u'], data['v'], flagcolor='r',

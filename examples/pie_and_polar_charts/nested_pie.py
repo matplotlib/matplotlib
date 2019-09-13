@@ -21,8 +21,8 @@ import numpy as np
 # own group. In the outer circle, we'll plot them as members of their
 # original 3 groups.
 #
-# The effect of the donut shape is achieved by setting a `width` to
-# the pie's wedges through the `wedgeprops` argument.
+# The effect of the donut shape is achieved by setting a ``width`` to
+# the pie's wedges through the *wedgeprops* argument.
 
 
 fig, ax = plt.subplots()

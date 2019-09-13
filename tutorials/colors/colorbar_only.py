@@ -8,12 +8,10 @@ This tutorial shows how to build colorbars without an attached plot.
 Customized Colorbars
 ====================
 
-:class:`~matplotlib.colorbar.ColorbarBase` derives from
-:mod:`~matplotlib.cm.ScalarMappable` and puts a colorbar in a specified axes,
-so it has everything needed for a standalone colorbar. It can be used as-is to
-make a colorbar for a given colormap; it does not need a mappable object like
-an image. In this tutorial we will explore what can be done with standalone
-colorbar.
+`~matplotlib.colorbar.ColorbarBase` puts a colorbar in a specified axes,
+and can make a colorbar for a given colormap; it does not need a mappable
+object like an image. In this tutorial we will explore what can be done with
+standalone colorbar.
 
 Basic continuous colorbar
 -------------------------
@@ -47,10 +45,10 @@ fig.show()
 #
 # The second example illustrates the use of a
 # :class:`~matplotlib.colors.ListedColormap` which generates a colormap from a
-# set of listed colors, :func:`colors.BoundaryNorm` which generates a colormap
+# set of listed colors, `.colors.BoundaryNorm` which generates a colormap
 # index based on discrete intervals and extended ends to show the "over" and
 # "under" value colors. Over and under are used to display data outside of the
-# normalized [0,1] range. Here we pass colors as gray shades as a string
+# normalized [0, 1] range. Here we pass colors as gray shades as a string
 # encoding a float in the 0-1 range.
 #
 # If a :class:`~matplotlib.colors.ListedColormap` is used, the length of the

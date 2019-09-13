@@ -3,7 +3,7 @@
 Tricontour Smooth Delaunay
 ==========================
 
-Demonstrates high-resolution tricontouring of a random set of points ;
+Demonstrates high-resolution tricontouring of a random set of points;
 a `matplotlib.tri.TriAnalyzer` is used to improve the plot quality.
 
 The initial data points and triangular grid for this demo are:
@@ -34,14 +34,14 @@ import numpy as np
 # Analytical test function
 #-----------------------------------------------------------------------------
 def experiment_res(x, y):
-    """ An analytic function representing experiment results """
-    x = 2. * x
+    """An analytic function representing experiment results."""
+    x = 2 * x
     r1 = np.sqrt((0.5 - x)**2 + (0.5 - y)**2)
     theta1 = np.arctan2(0.5 - x, 0.5 - y)
     r2 = np.sqrt((-x - 0.2)**2 + (-y - 0.2)**2)
     theta2 = np.arctan2(-x - 0.2, -y - 0.2)
-    z = (4 * (np.exp((r1 / 10)**2) - 1) * 30. * np.cos(3 * theta1) +
-         (np.exp((r2 / 10)**2) - 1) * 30. * np.cos(5 * theta2) +
+    z = (4 * (np.exp((r1/10)**2) - 1) * 30 * np.cos(3 * theta1) +
+         (np.exp((r2/10)**2) - 1) * 30 * np.cos(5 * theta2) +
          2 * (x**2 + y**2))
     return (np.max(z) - z) / (np.max(z) - np.min(z))
 
@@ -49,20 +49,23 @@ def experiment_res(x, y):
 # Generating the initial data test points and triangulation for the demo
 #-----------------------------------------------------------------------------
 # User parameters for data test points
-n_test = 200  # Number of test data points, tested from 3 to 5000 for subdiv=3
 
-subdiv = 3  # Number of recursive subdivisions of the initial mesh for smooth
-            # plots. Values >3 might result in a very high number of triangles
-            # for the refine mesh: new triangles numbering = (4**subdiv)*ntri
+# Number of test data points, tested from 3 to 5000 for subdiv=3
+n_test = 200
 
-init_mask_frac = 0.0    # Float > 0. adjusting the proportion of
-                        # (invalid) initial triangles which will be masked
-                        # out. Enter 0 for no mask.
+# Number of recursive subdivisions of the initial mesh for smooth plots.
+# Values >3 might result in a very high number of triangles for the refine
+# mesh: new triangles numbering = (4**subdiv)*ntri
+subdiv = 3
 
-min_circle_ratio = .01  # Minimum circle ratio - border triangles with circle
-                        # ratio below this will be masked if they touch a
-                        # border. Suggested value 0.01; use -1 to keep
-                        # all triangles.
+# Float > 0. adjusting the proportion of (invalid) initial triangles which will
+# be masked out. Enter 0 for no mask.
+init_mask_frac = 0.0
+
+# Minimum circle ratio - border triangles with circle ratio below this will be
+# masked if they touch a border. Suggested value 0.01; use -1 to keep all
+# triangles.
+min_circle_ratio = .01
 
 # Random points
 random_gen = np.random.RandomState(seed=19680801)

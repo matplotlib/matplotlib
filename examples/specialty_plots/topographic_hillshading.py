@@ -44,11 +44,11 @@ with np.load(get_sample_data('jacksboro_fault_dem.npz')) as dem:
 ls = LightSource(azdeg=315, altdeg=45)
 cmap = plt.cm.gist_earth
 
-fig, axes = plt.subplots(nrows=4, ncols=3, figsize=(8, 9))
-plt.setp(axes.flat, xticks=[], yticks=[])
+fig, axs = plt.subplots(nrows=4, ncols=3, figsize=(8, 9))
+plt.setp(axs.flat, xticks=[], yticks=[])
 
 # Vary vertical exaggeration and blend mode and plot all combinations
-for col, ve in zip(axes.T, [0.1, 1, 10]):
+for col, ve in zip(axs.T, [0.1, 1, 10]):
     # Show the hillshade intensity image in the first row
     col[0].imshow(ls.hillshade(z, vert_exag=ve, dx=dx, dy=dy), cmap='gray')
 
@@ -59,18 +59,18 @@ for col, ve in zip(axes.T, [0.1, 1, 10]):
         ax.imshow(rgb)
 
 # Label rows and columns
-for ax, ve in zip(axes[0], [0.1, 1, 10]):
+for ax, ve in zip(axs[0], [0.1, 1, 10]):
     ax.set_title('{0}'.format(ve), size=18)
-for ax, mode in zip(axes[:, 0], ['Hillshade', 'hsv', 'overlay', 'soft']):
+for ax, mode in zip(axs[:, 0], ['Hillshade', 'hsv', 'overlay', 'soft']):
     ax.set_ylabel(mode, size=18)
 
 # Group labels...
-axes[0, 1].annotate('Vertical Exaggeration', (0.5, 1), xytext=(0, 30),
-                    textcoords='offset points', xycoords='axes fraction',
-                    ha='center', va='bottom', size=20)
-axes[2, 0].annotate('Blend Mode', (0, 0.5), xytext=(-30, 0),
-                    textcoords='offset points', xycoords='axes fraction',
-                    ha='right', va='center', size=20, rotation=90)
+axs[0, 1].annotate('Vertical Exaggeration', (0.5, 1), xytext=(0, 30),
+                   textcoords='offset points', xycoords='axes fraction',
+                   ha='center', va='bottom', size=20)
+axs[2, 0].annotate('Blend Mode', (0, 0.5), xytext=(-30, 0),
+                   textcoords='offset points', xycoords='axes fraction',
+                   ha='right', va='center', size=20, rotation=90)
 fig.subplots_adjust(bottom=0.05, right=0.95)
 
 plt.show()

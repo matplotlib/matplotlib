@@ -9,8 +9,7 @@ a text string at a specified offset in screen coordinates
 (dots or inches) relative to a location given in any
 coordinates.
 
-Every Artist--the mpl class from which classes such as
-Text and Line are derived--has a transform that can be
+Every Artist (Text, Line2D, etc.) has a transform that can be
 set when the Artist is created, such as by the corresponding
 pyplot command.  By default this is usually the Axes.transData
 transform, going from data units to screen dots.  We can
@@ -38,7 +37,7 @@ trans_offset = mtransforms.offset_copy(ax.transData, fig=fig,
                                        x=0.05, y=0.10, units='inches')
 
 for x, y in zip(xs, ys):
-    plt.plot((x,), (y,), 'ro')
+    plt.plot(x, y, 'ro')
     plt.text(x, y, '%d, %d' % (int(x), int(y)), transform=trans_offset)
 
 
@@ -49,7 +48,7 @@ trans_offset = mtransforms.offset_copy(ax.transData, fig=fig,
                                        y=6, units='dots')
 
 for x, y in zip(xs, ys):
-    plt.polar((x,), (y,), 'ro')
+    plt.polar(x, y, 'ro')
     plt.text(x, y, '%d, %d' % (int(x), int(y)),
              transform=trans_offset,
              horizontalalignment='center',

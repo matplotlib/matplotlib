@@ -3,7 +3,7 @@
 ## PR Checklist
 
 - [ ] Has Pytest style unit tests
-- [ ] Code is PEP 8 compliant
+- [ ] Code is [Flake 8](http://flake8.pycqa.org/en/latest/) compliant
 - [ ] New features are documented, with examples if plot related
 - [ ] Documentation is sphinx and numpydoc compliant
 - [ ] Added an entry to doc/users/next_whats_new/ if major new feature (follow instructions in README.rst there)

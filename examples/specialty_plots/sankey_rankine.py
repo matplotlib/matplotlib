@@ -3,10 +3,9 @@
 Rankine power cycle
 ===================
 
-Demonstrate the Sankey class with a practical example of a Rankine power
-cycle.
-
+Demonstrate the Sankey class with a practical example of a Rankine power cycle.
 """
+
 import matplotlib.pyplot as plt
 
 from matplotlib.sankey import Sankey

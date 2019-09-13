@@ -19,9 +19,7 @@ from mpl_toolkits.axisartist.grid_helper_curvelinear import \
 
 
 def setup_axes(fig, rect):
-    """
-    polar projection, but in a rectangular box.
-    """
+    """Polar projection, but in a rectangular box."""
 
     # see demo_curvelinear_grid.py for details
     tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
@@ -73,8 +71,7 @@ def add_floating_axis2(ax1):
     return axis
 
 
-fig = plt.figure(1, figsize=(8, 4))
-fig.clf()
+fig = plt.figure(figsize=(8, 4))
 fig.subplots_adjust(left=0.01, right=0.99, bottom=0.01, top=0.99,
                     wspace=0.01, hspace=0.01)
 

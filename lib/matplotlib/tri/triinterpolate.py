@@ -2,10 +2,9 @@
 Interpolation inside triangular grids.
 """
 
-import warnings
-
 import numpy as np
 
+from matplotlib import cbook
 from matplotlib.tri import Triangulation
 from matplotlib.tri.trifinder import TriFinder
 from matplotlib.tri.tritools import TriAnalyzer
@@ -13,7 +12,7 @@ from matplotlib.tri.tritools import TriAnalyzer
 __all__ = ('TriInterpolator', 'LinearTriInterpolator', 'CubicTriInterpolator')
 
 
-class TriInterpolator(object):
+class TriInterpolator:
     """
     Abstract base class for classes used to perform interpolation on
     triangular grids.
@@ -21,20 +20,19 @@ class TriInterpolator(object):
     Derived classes implement the following methods:
 
         - ``__call__(x, y)`` ,
-          where x, y are array_like point coordinates of the same shape, and
+          where x, y are array-like point coordinates of the same shape, and
           that returns a masked array of the same shape containing the
           interpolated z-values.
 
         - ``gradient(x, y)`` ,
-          where x, y are array_like point coordinates of the same
+          where x, y are array-like point coordinates of the same
           shape, and that returns a list of 2 masked arrays of the same shape
           containing the 2 derivatives of the interpolator (derivatives of
           interpolated z values with respect to x and y).
 
     """
     def __init__(self, triangulation, z, trifinder=None):
-        if not isinstance(triangulation, Triangulation):
-            raise ValueError("Expected a Triangulation object")
+        cbook._check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
         self._z = np.asarray(z)
@@ -42,8 +40,7 @@ class TriInterpolator(object):
             raise ValueError("z array must have same length as triangulation x"
                              " and y arrays")
 
-        if trifinder is not None and not isinstance(trifinder, TriFinder):
-            raise ValueError("Expected a TriFinder object")
+        cbook._check_isinstance((TriFinder, None), trifinder=trifinder)
         self._trifinder = trifinder or self._triangulation.get_trifinder()
 
         # Default scaling factors : 1.0 (= no scaling)
@@ -65,7 +62,7 @@ class TriInterpolator(object):
     # confusion in the documentation.
     _docstring__call__ = """
         Returns a masked array containing interpolated values at the specified
-        x,y points.
+        (x, y) points.
 
         Parameters
         ----------
@@ -83,7 +80,7 @@ class TriInterpolator(object):
 
     _docstringgradient = r"""
         Returns a list of 2 masked arrays containing interpolated derivatives
-        at the specified x,y points.
+        at the specified (x, y) points.
 
         Parameters
         ----------
@@ -95,7 +92,7 @@ class TriInterpolator(object):
         -------
         dzdx, dzdy : np.ma.array
             2 masked arrays of the same shape as *x* and *y*; values
-            corresponding to (x,y) points outside of the triangulation
+            corresponding to (x, y) points outside of the triangulation
             are masked out.
             The first returned array contains the values of
             :math:`\frac{\partial z}{\partial x}` and the second those of
@@ -124,7 +121,7 @@ class TriInterpolator(object):
               unnecessary to compute the containing triangles twice)
             - scaling according to self._unit_x, self._unit_y
             - dealing with points outside of the grid (with fill value np.nan)
-            - dealing with multi-dimensionnal *x*, *y* arrays: flattening for
+            - dealing with multi-dimensional *x*, *y* arrays: flattening for
               :meth:`_interpolate_params` call and final reshaping.
 
         (Note that np.vectorize could do most of those things very well for
@@ -135,15 +132,15 @@ class TriInterpolator(object):
         :meth:`_interpolate_single_key`.)
 
         It is guaranteed that the calls to :meth:`_interpolate_single_key`
-        will be done with flattened (1-d) array_like input parameters `x`, `y`
+        will be done with flattened (1-d) array-like input parameters *x*, *y*
         and with flattened, valid `tri_index` arrays (no -1 index allowed).
 
         Parameters
         ----------
-        x, y : array_like
+        x, y : array-like
             x and y coordinates indicating where interpolated values are
             requested.
-        tri_index : integer array_like, optional
+        tri_index : array-like of int, optional
             Array of the containing triangle indices, same shape as
             *x* and *y*. Defaults to None. If None, these indices
             will be computed by a TriFinder instance.
@@ -218,7 +215,7 @@ class TriInterpolator(object):
 
         Parameters
         ----------
-        return_index : string key from {'z', 'dzdx', 'dzdy'}
+        return_index : {'z', 'dzdx', 'dzdy'}
             Identifies the requested values (z or its derivatives)
         tri_index : 1d integer array
             Valid triangle index (-1 prohibited)
@@ -239,7 +236,7 @@ class LinearTriInterpolator(TriInterpolator):
     A LinearTriInterpolator performs linear interpolation on a triangular grid.
 
     Each triangle is represented by a plane so that an interpolated value at
-    point (x,y) lies on the plane of the triangle containing (x,y).
+    point (x, y) lies on the plane of the triangle containing (x, y).
     Interpolated values are therefore continuous across the triangulation, but
     their first derivatives are discontinuous at edges between triangles.
 
@@ -247,7 +244,7 @@ class LinearTriInterpolator(TriInterpolator):
     ----------
     triangulation : :class:`~matplotlib.tri.Triangulation` object
         The triangulation to interpolate over.
-    z : array_like of shape (npoints,)
+    z : array-like of shape (npoints,)
         Array of values, defined at grid points, to interpolate between.
     trifinder : :class:`~matplotlib.tri.TriFinder` object, optional
           If this is not specified, the Triangulation's default TriFinder will
@@ -256,8 +253,8 @@ class LinearTriInterpolator(TriInterpolator):
 
     Methods
     -------
-    `__call__` (x, y) :  Returns interpolated values at x,y points
-    `gradient` (x, y) : Returns interpolated derivatives at x,y points
+    `__call__` (x, y) : Returns interpolated values at (x, y) points.
+    `gradient` (x, y) : Returns interpolated derivatives at (x, y) points.
 
     """
     def __init__(self, triangulation, z, trifinder=None):
@@ -311,7 +308,7 @@ class CubicTriInterpolator(TriInterpolator):
     ----------
     triangulation : :class:`~matplotlib.tri.Triangulation` object
         The triangulation to interpolate over.
-    z : array_like of shape (npoints,)
+    z : array-like of shape (npoints,)
         Array of values, defined at grid points, to interpolate between.
     kind : {'min_E', 'geom', 'user'}, optional
         Choice of the smoothing algorithm, in order to compute
@@ -322,22 +319,22 @@ class CubicTriInterpolator(TriInterpolator):
             - if 'geom': The derivatives at each node is computed as a
               weighted average of relevant triangle normals. To be used for
               speed optimization (large grids).
-            - if 'user': The user provides the argument `dz`, no computation
+            - if 'user': The user provides the argument *dz*, no computation
               is hence needed.
 
     trifinder : :class:`~matplotlib.tri.TriFinder` object, optional
         If not specified, the Triangulation's default TriFinder will
         be used by calling
         :func:`matplotlib.tri.Triangulation.get_trifinder`.
-    dz : tuple of array_likes (dzdx, dzdy), optional
+    dz : tuple of array-likes (dzdx, dzdy), optional
         Used only if  *kind* ='user'. In this case *dz* must be provided as
         (dzdx, dzdy) where dzdx, dzdy are arrays of the same shape as *z* and
         are the interpolant first derivatives at the *triangulation* points.
 
     Methods
     -------
-    `__call__` (x, y) :  Returns interpolated values at x,y points
-    `gradient` (x, y) : Returns interpolated derivatives at x,y points
+    `__call__` (x, y) : Returns interpolated values at (x, y) points.
+    `gradient` (x, y) : Returns interpolated derivatives at (x, y) points.
 
     Notes
     -----
@@ -461,16 +458,16 @@ class CubicTriInterpolator(TriInterpolator):
 
         Parameters
         ----------
-        kind: {'min_E', 'geom', 'user'}
+        kind : {'min_E', 'geom', 'user'}
             Choice of the _DOF_estimator subclass to perform the gradient
             estimation.
-        dz: tuple of array_likes (dzdx, dzdy), optional
+        dz : tuple of array-likes (dzdx, dzdy), optional
             Used only if *kind*=user; in this case passed to the
             :class:`_DOF_estimator_user`.
 
         Returns
         -------
-        dof : array_like, shape (npts,2)
+        dof : array-like, shape (npts, 2)
               Estimation of the gradient at triangulation nodes (stored as
               degree of freedoms of reduced-HCT triangle elements).
         """
@@ -500,12 +497,12 @@ class CubicTriInterpolator(TriInterpolator):
         x, y : array-like of dim 1 (shape (nx,))
                   Coordinates of the points whose points barycentric
                   coordinates are requested
-        tris_pts : array like of dim 3 (shape: (nx,3,2))
+        tris_pts : array like of dim 3 (shape: (nx, 3, 2))
                     Coordinates of the containing triangles apexes.
 
         Returns
         -------
-        alpha : array of dim 2 (shape (nx,3))
+        alpha : array of dim 2 (shape (nx, 3))
                  Barycentric coordinates of the points inside the containing
                  triangles.
         """
@@ -537,12 +534,12 @@ class CubicTriInterpolator(TriInterpolator):
 
         Parameters
         ----------
-        tris_pts : array like of dim 3 (shape: (nx,3,2))
+        tris_pts : array like of dim 3 (shape: (nx, 3, 2))
                     Coordinates of the containing triangles apexes.
 
         Returns
         -------
-        J : array of dim 3 (shape (nx,2,2))
+        J : array of dim 3 (shape (nx, 2, 2))
                  Barycentric coordinates of the points inside the containing
                  triangles.
                  J[itri,:,:] is the jacobian matrix at apex 0 of the triangle
@@ -565,18 +562,18 @@ class CubicTriInterpolator(TriInterpolator):
 
         Parameters
         ----------
-        tris_pts : array like of dim 3 (shape: (nx,3,2))
+        tris_pts : array like of dim 3 (shape: (nx, 3, 2))
                    Coordinates of the triangles apexes.
 
         Returns
         -------
-        ecc : array like of dim 2 (shape: (nx,3))
+        ecc : array like of dim 2 (shape: (nx, 3))
               The so-called eccentricity parameters [1] needed for
               HCT triangular element.
         """
-        a = np.expand_dims(tris_pts[:, 2, :]-tris_pts[:, 1, :], axis=2)
-        b = np.expand_dims(tris_pts[:, 0, :]-tris_pts[:, 2, :], axis=2)
-        c = np.expand_dims(tris_pts[:, 1, :]-tris_pts[:, 0, :], axis=2)
+        a = np.expand_dims(tris_pts[:, 2, :] - tris_pts[:, 1, :], axis=2)
+        b = np.expand_dims(tris_pts[:, 0, :] - tris_pts[:, 2, :], axis=2)
+        c = np.expand_dims(tris_pts[:, 1, :] - tris_pts[:, 0, :], axis=2)
         # Do not use np.squeeze, this is dangerous if only one triangle
         # in the triangulation...
         dot_a = _prod_vectorized(_transpose_vectorized(a), a)[:, 0, 0]
@@ -591,7 +588,7 @@ class CubicTriInterpolator(TriInterpolator):
 
 # FEM element used for interpolation and for solving minimisation
 # problem (Reduced HCT element)
-class _ReducedHCT_Element():
+class _ReducedHCT_Element:
     """
     Implementation of reduced HCT triangular element with explicit shape
     functions.
@@ -820,7 +817,7 @@ class _ReducedHCT_Element():
         Returns
         -------
         Returns the arrays d2sdksi2 (N x 3 x 1) Hessian of shape functions
-        expressed in covariante coordinates in first apex basis.
+        expressed in covariant coordinates in first apex basis.
         """
         subtri = np.argmin(alpha, axis=1)[:, 0]
         ksi = _roll_vectorized(alpha, -subtri, axis=0)
@@ -960,7 +957,7 @@ class _ReducedHCT_Element():
         """
         ntri = np.size(ecc, 0)
         vec_range = np.arange(ntri, dtype=np.int32)
-        c_indices = -np.ones(ntri, dtype=np.int32)  # for unused dofs, -1
+        c_indices = np.full(ntri, -1, dtype=np.int32)  # for unused dofs, -1
         f_dof = [1, 2, 4, 5, 7, 8]
         c_dof = [0, 3, 6]
 
@@ -1009,7 +1006,7 @@ class _ReducedHCT_Element():
 # _DOF_estimator_min_E
 # Private classes used to compute the degree of freedom of each triangular
 # element for the TriCubicInterpolator.
-class _DOF_estimator():
+class _DOF_estimator:
     """
     Abstract base class for classes used to perform estimation of a function
     first derivatives, and deduce the dofs for a CubicTriInterpolator using a
@@ -1019,8 +1016,8 @@ class _DOF_estimator():
     gradient coordinates.
     """
     def __init__(self, interpolator, **kwargs):
-        if not isinstance(interpolator, CubicTriInterpolator):
-            raise ValueError("Expected a CubicTriInterpolator object")
+        cbook._check_isinstance(
+            CubicTriInterpolator, interpolator=interpolator)
         self._pts = interpolator._pts
         self._tris_pts = interpolator._tris_pts
         self.z = interpolator._z
@@ -1051,7 +1048,7 @@ class _DOF_estimator():
         of the local Jacobian at each node.
 
         *tri_z*: array of shape (3,) of f nodal values
-        *tri_dz*: array of shape (3,2) of df/dx, df/dy nodal values
+        *tri_dz*: array of shape (3, 2) of df/dx, df/dy nodal values
         *J*: Jacobian matrix in local basis of apex 0
 
         Returns dof array of shape (9,) so that for each apex iapex:
@@ -1064,9 +1061,9 @@ class _DOF_estimator():
         J1 = _prod_vectorized(_ReducedHCT_Element.J0_to_J1, J)
         J2 = _prod_vectorized(_ReducedHCT_Element.J0_to_J2, J)
 
-        col0 = _prod_vectorized(J, np.expand_dims(tri_dz[:, 0, :], axis=3))
-        col1 = _prod_vectorized(J1, np.expand_dims(tri_dz[:, 1, :], axis=3))
-        col2 = _prod_vectorized(J2, np.expand_dims(tri_dz[:, 2, :], axis=3))
+        col0 = _prod_vectorized(J, np.expand_dims(tri_dz[:, 0, :], axis=2))
+        col1 = _prod_vectorized(J1, np.expand_dims(tri_dz[:, 1, :], axis=2))
+        col2 = _prod_vectorized(J2, np.expand_dims(tri_dz[:, 2, :], axis=2))
 
         dfdksi = _to_matrix_vectorized([
             [col0[:, 0, 0], col1[:, 0, 0], col2[:, 0, 0]],
@@ -1078,7 +1075,8 @@ class _DOF_estimator():
 
 
 class _DOF_estimator_user(_DOF_estimator):
-    """ dz is imposed by user / Accounts for scaling if any """
+    """dz is imposed by user; accounts for scaling if any."""
+
     def compute_dz(self, dz):
         (dzdx, dzdy) = dz
         dzdx = dzdx * self._unit_x
@@ -1087,7 +1085,8 @@ class _DOF_estimator_user(_DOF_estimator):
 
 
 class _DOF_estimator_geom(_DOF_estimator):
-    """ Fast 'geometric' approximation, recommended for large arrays. """
+    """Fast 'geometric' approximation, recommended for large arrays."""
+
     def compute_dz(self):
         """
         self.df is computed as weighted average of _triangles sharing a common
@@ -1136,9 +1135,9 @@ class _DOF_estimator_geom(_DOF_estimator):
             alpha2 = np.arctan2(p2[:, 1]-p0[:, 1], p2[:, 0]-p0[:, 0])
             # In the below formula we could take modulo 2. but
             # modulo 1. is safer regarding round-off errors (flat triangles).
-            angle = np.abs(np.mod((alpha2-alpha1) / np.pi, 1.))
+            angle = np.abs(((alpha2-alpha1) / np.pi) % 1)
             # Weight proportional to angle up np.pi/2; null weight for
-            # degenerated cases 0 and np.pi (note that `angle` is normalized
+            # degenerated cases 0 and np.pi (note that *angle* is normalized
             # by np.pi).
             weights[:, ipt] = 0.5 - np.abs(angle-0.5)
         return weights
@@ -1146,7 +1145,7 @@ class _DOF_estimator_geom(_DOF_estimator):
     def compute_geom_grads(self):
         """
         Compute the (global) gradient component of f assumed linear (~f).
-        returns array df of shape (nelems,2)
+        returns array df of shape (nelems, 2)
         df[ielem].dM[ielem] = dz[ielem] i.e. df = dz x dM = dM.T^-1 x dz
         """
         tris_pts = self._tris_pts
@@ -1214,9 +1213,10 @@ class _DOF_estimator_min_E(_DOF_estimator_geom):
         err0 = np.linalg.norm(Kff_coo.dot(Uf0) - Ff)
         if err0 < err:
             # Maybe a good occasion to raise a warning here ?
-            warnings.warn("In TriCubicInterpolator initialization, PCG sparse"
-                          " solver did not converge after 1000 iterations. "
-                          "`geom` approximation is used instead of `min_E`")
+            cbook._warn_external("In TriCubicInterpolator initialization, "
+                                 "PCG sparse solver did not converge after "
+                                 "1000 iterations. `geom` approximation is "
+                                 "used instead of `min_E`")
             Uf = Uf0
 
         # Building dz from Uf
@@ -1228,14 +1228,14 @@ class _DOF_estimator_min_E(_DOF_estimator_geom):
 
 # The following private :class:_Sparse_Matrix_coo and :func:_cg provide
 # a PCG sparse solver for (symmetric) elliptic problems.
-class _Sparse_Matrix_coo(object):
+class _Sparse_Matrix_coo:
     def __init__(self, vals, rows, cols, shape):
         """
         Creates a sparse matrix in coo format
         *vals*: arrays of values of non-null entries of the matrix
         *rows*: int arrays of rows of non-null entries of the matrix
         *cols*: int arrays of cols of non-null entries of the matrix
-        *shape*: 2-tuple (n,m) of matrix shape
+        *shape*: 2-tuple (n, m) of matrix shape
 
         """
         self.n, self.m = shape
@@ -1307,28 +1307,28 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
 
     Parameters
     ----------
-    A: _Sparse_Matrix_coo
+    A : _Sparse_Matrix_coo
         *A* must have been compressed before by compress_csc or
         compress_csr method.
 
-    b: array
+    b : array
         Right hand side of the linear system.
 
     Returns
     -------
-    x: array.
+    x : array
         The converged solution.
-    err: float
+    err : float
         The absolute error np.linalg.norm(A.dot(x) - b)
 
     Other parameters
     ----------------
-    x0: array.
+    x0 : array
         Starting guess for the solution.
-    tol: float.
+    tol : float
         Tolerance to achieve. The algorithm terminates when the relative
         residual is below tol.
-    maxiter: integer.
+    maxiter : integer
         Maximum number of iterations. Iteration will stop
         after maxiter steps even if the specified tolerance has not
         been achieved.
@@ -1341,7 +1341,7 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
     # Jacobi pre-conditioner
     kvec = A.diag
     # For diag elem < 1e-6 we keep 1e-6.
-    kvec = np.where(kvec > 1.e-6, kvec, 1.e-6)
+    kvec = np.maximum(kvec, 1e-6)
 
     # Initial guess
     if x0 is None:
@@ -1387,7 +1387,7 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
 # matrices - stored as (:, n_rows, n_cols)-shaped np.arrays.
 
 # Development note: Dealing with pathologic 'flat' triangles in the
-# CubicTriInterpolator code and impact on (2,2)-matrix inversion functions
+# CubicTriInterpolator code and impact on (2, 2)-matrix inversion functions
 # :func:`_safe_inv22_vectorized` and :func:`_pseudo_inv22sym_vectorized`.
 #
 # Goals:
@@ -1423,10 +1423,10 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
 # to compute a pseudo-inverse in :func:`_pseudo_inv22sym_vectorized`
 def _safe_inv22_vectorized(M):
     """
-    Inversion of arrays of (2,2) matrices, returns 0 for rank-deficient
+    Inversion of arrays of (2, 2) matrices, returns 0 for rank-deficient
     matrices.
 
-    *M* : array of (2,2) matrices to inverse, shape (n,2,2)
+    *M* : array of (2, 2) matrices to inverse, shape (n, 2, 2)
     """
     assert M.ndim == 3
     assert M.shape[-2:] == (2, 2)
@@ -1454,14 +1454,14 @@ def _safe_inv22_vectorized(M):
 
 def _pseudo_inv22sym_vectorized(M):
     """
-    Inversion of arrays of (2,2) SYMMETRIC matrices; returns the
+    Inversion of arrays of (2, 2) SYMMETRIC matrices; returns the
     (Moore-Penrose) pseudo-inverse for rank-deficient matrices.
 
     In case M is of rank 1, we have M = trace(M) x P where P is the orthogonal
     projection on Im(M), and we return trace(M)^-1 x P == M / trace(M)**2
     In case M is of rank 0, we return the null matrix.
 
-    *M* : array of (2,2) matrices to inverse, shape (n,2,2)
+    *M* : array of (2, 2) matrices to inverse, shape (n, 2, 2)
     """
     assert M.ndim == 3
     assert M.shape[-2:] == (2, 2)
@@ -1566,7 +1566,7 @@ def _to_matrix_vectorized(M):
     *M*: ncols-list of nrows-lists of shape sh.
 
     Returns M_res np.array of shape (sh, nrow, ncols) so that:
-        M_res[...,i,j] = M[i][j]
+        M_res[..., i, j] = M[i][j]
     """
     assert isinstance(M, (tuple, list))
     assert all(isinstance(item, (tuple, list)) for item in M)

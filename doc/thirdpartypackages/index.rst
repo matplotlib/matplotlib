@@ -8,9 +8,9 @@ Several external packages that extend or build on Matplotlib functionality are
 listed below.  They are maintained and distributed separately from Matplotlib
 and thus need to be installed individually.
 
-Please submit an issue or pull request on Github if you have created
+Please submit an issue or pull request on GitHub if you have created
 a package that you would like to have included.  We are also happy to
-host third party packages within the `Matplotlib Github Organization
+host third party packages within the `Matplotlib GitHub Organization
 <https://github.com/matplotlib>`_.
 
 Mapping toolkits
@@ -34,6 +34,25 @@ data processing tools. An example plot from the `Cartopy gallery
 
 .. image:: /_static/cartopy_hurricane_katrina_01_00.png
     :height: 400px
+
+Geoplot
+=======
+`Geoplot <https://residentmario.github.io/geoplot/index.html>`_ builds on top
+of Matplotlib and Cartopy to provide a "standard library" of simple, powerful,
+and customizable plot types. An example plot from the `Geoplot gallery
+<https://residentmario.github.io/geoplot/index.html>`_:
+
+.. image:: /_static/geoplot_nyc_traffic_tickets.png
+    :height: 400px
+
+Ridge Map
+=========
+`ridge_map <https://github.com/ColCarroll/ridge_map>`_ uses Matplotlib,
+SRTM.py, NumPy, and scikit-image to make ridge plots of your favorite
+ridges.
+
+.. image:: /_static/ridge_map_white_mountains.png
+    :height: 364px
 
 Declarative libraries
 *********************
@@ -62,9 +81,9 @@ plotnine
 ========
 
 `plotnine <https://plotnine.readthedocs.io/en/stable/>`_ implements a grammar
-of graphics, similar to R's `ggplot2 <http://ggplot2.org/>`_. The grammar allows
-users to compose plots by explicitly mapping data to the visual objects that
-make up the plot.
+of graphics, similar to R's `ggplot2 <https://ggplot2.tidyverse.org/>`_.
+The grammar allows users to compose plots by explicitly mapping data to the
+visual objects that make up the plot.
 
 .. image:: /_static/plotnine.png
 
@@ -81,7 +100,7 @@ class that can have a visual break to indicate a discontinuous range.
 DeCiDa
 ======
 
-`DeCiDa <https://pypi.python.org/pypi/DeCiDa>`_ is a library of functions
+`DeCiDa <https://pypi.org/project/DeCiDa/>`_ is a library of functions
 and classes for electron device characterization, electronic circuit design and
 general data visualization and analysis.
 
@@ -160,6 +179,13 @@ Windrose
 Numpy library to manage wind data, draw windroses (also known as polar rose
 plots), draw probability density functions and fit Weibull distributions.
 
+Yellowbrick
+===========
+`Yellowbrick <https://www.scikit-yb.org/>`_ is a suite of visual diagnostic tools for machine learning that enables human steering of the model selection process. Yellowbrick combines scikit-learn with matplotlib using an estimator-based API called the ``Visualizer``, which wraps both sklearn models and matplotlib Axes. ``Visualizer`` objects fit neatly into the machine learning workflow allowing data scientists to integrate visual diagnostic and model interpretation tools into experimentation without extra steps.
+
+.. image:: /_static/yellowbrick.png
+    :height: 400px
+
 
 Interactivity
 *************
@@ -174,6 +200,32 @@ MplDataCursor
 `MplDataCursor <https://github.com/joferkington/mpldatacursor>`_ is a toolkit
 written by Joe Kington to provide interactive "data cursors" (clickable
 annotation boxes) for Matplotlib.
+
+animatplot
+==========
+`animatplot <https://animatplot.readthedocs.io/>`_ is a library for
+producing interactive animated plots with the goal of making production of
+animated plots almost as easy as static ones.
+
+.. image:: /_static/animatplot.png
+
+For an animated version of the above picture and more examples, see the
+`animatplot gallery. <https://animatplot.readthedocs.io/en/stable/gallery.html>`_
+
+Rendering backends
+******************
+
+mplcairo
+========
+`mplcairo <https://github.com/anntzer/mplcairo>`_ is a cairo backend for
+Matplotlib, with faster and more accurate marker drawing, support for a wider
+selection of font formats and complex text layout, and various other features.
+
+gr
+==
+`gr <http://gr-framework.org/>`_ is a framework for cross-platform
+visualisation applications, which can be used as a high-performance Matplotlib
+backend.
 
 Miscellaneous
 *************
@@ -194,12 +246,6 @@ feature.
 
 .. image:: /_static/matplotlib_iterm2_demo.png
 
-mplcairo
-========
-`mplcairo <https://github.com/anntzer/mplcairo>`_ is a cairo backend for
-Matplotlib, with faster and more accurate marker drawing, support for a wider
-selection of font formats and complex text layout, and various other features.
-
 mpl-template
 ============
 `mpl-template <https://austinorr.github.io/mpl-template/index.html>`_ provides
@@ -208,3 +254,25 @@ border, and logo.
 
 .. image:: /_static/mpl_template_example.png
     :height: 330px
+
+numpngw
+=======
+
+`numpngw <https://pypi.org/project/numpngw/>`_  provides functions for writing
+NumPy arrays to PNG and animated PNG files.  It also includes the class
+``AnimatedPNGWriter`` that can be used to save a Matplotlib animation as an
+animated PNG file.  See the example on the PyPI page or at the ``numpngw``
+`github repository <https://github.com/WarrenWeckesser/numpngw>`_.
+
+.. image:: /_static/numpngw_animated_example.png
+
+blume
+=====
+
+`blume <https://pypi.org/project/blume/>`_ provides a replacement for
+the Matplotlib ``table`` module.  It fixes a number of issues with the
+existing table. See the `blume github repository
+<https://github.com/swfiua/blume>`_ for more details.
+
+.. image:: /_static/blume_table_example.png
+           

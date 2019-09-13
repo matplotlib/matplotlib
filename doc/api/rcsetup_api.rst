@@ -1,10 +1,6 @@
-*******
-rcsetup
-*******
-
-
-:mod:`matplotlib.rcsetup`
-=========================
+**********************
+``matplotlib.rcsetup``
+**********************
 
 .. automodule:: matplotlib.rcsetup
    :members:

@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots()
 
-ax.plot([1, 2, 3], 'r', label=r'$\sqrt{x^2}$')
+ax.plot([1, 2, 3], label=r'$\sqrt{x^2}$')
 ax.legend()
 
 ax.set_xlabel(r'$\Delta_i^j$', fontsize=20)

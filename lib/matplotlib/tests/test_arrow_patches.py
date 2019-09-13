@@ -11,24 +11,23 @@ def draw_arrow(ax, t, r):
                                 fc="b", ec='k'))
 
 
-@image_comparison(baseline_images=['fancyarrow_test_image'])
+@image_comparison(['fancyarrow_test_image'])
 def test_fancyarrow():
     # Added 0 to test division by zero error described in issue 3930
     r = [0.4, 0.3, 0.2, 0.1, 0]
     t = ["fancy", "simple", mpatches.ArrowStyle.Fancy()]
 
-    fig, axes = plt.subplots(len(t), len(r), squeeze=False,
-                             subplot_kw=dict(aspect=True),
-                             figsize=(8, 4.5))
+    fig, axs = plt.subplots(len(t), len(r), squeeze=False,
+                            figsize=(8, 4.5), subplot_kw=dict(aspect=1))
 
     for i_r, r1 in enumerate(r):
         for i_t, t1 in enumerate(t):
-            ax = axes[i_t, i_r]
+            ax = axs[i_t, i_r]
             draw_arrow(ax, t1, r1)
             ax.tick_params(labelleft=False, labelbottom=False)
 
 
-@image_comparison(baseline_images=['boxarrow_test_image'], extensions=['png'])
+@image_comparison(['boxarrow_test_image.png'])
 def test_boxarrow():
 
     styles = mpatches.BoxStyle.get_styles()
@@ -37,15 +36,15 @@ def test_boxarrow():
     spacing = 1.2
 
     figheight = (n * spacing + .5)
-    fig1 = plt.figure(1, figsize=(4 / 1.5, figheight / 1.5))
+    fig = plt.figure(figsize=(4 / 1.5, figheight / 1.5))
 
     fontsize = 0.3 * 72
 
     for i, stylename in enumerate(sorted(styles)):
-        fig1.text(0.5, ((n - i) * spacing - 0.5)/figheight, stylename,
+        fig.text(0.5, ((n - i) * spacing - 0.5)/figheight, stylename,
                   ha="center",
                   size=fontsize,
-                  transform=fig1.transFigure,
+                  transform=fig.transFigure,
                   bbox=dict(boxstyle=stylename, fc="w", ec="k"))
 
 
@@ -67,8 +66,7 @@ def __prepare_fancyarrow_dpi_cor_test():
     return fig2
 
 
-@image_comparison(baseline_images=['fancyarrow_dpi_cor_100dpi'],
-                  remove_text=True, extensions=['png'],
+@image_comparison(['fancyarrow_dpi_cor_100dpi.png'], remove_text=True,
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   savefig_kwarg=dict(dpi=100))
 def test_fancyarrow_dpi_cor_100dpi():
@@ -83,8 +81,7 @@ def test_fancyarrow_dpi_cor_100dpi():
     __prepare_fancyarrow_dpi_cor_test()
 
 
-@image_comparison(baseline_images=['fancyarrow_dpi_cor_200dpi'],
-                  remove_text=True, extensions=['png'],
+@image_comparison(['fancyarrow_dpi_cor_200dpi.png'], remove_text=True,
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
                   savefig_kwarg=dict(dpi=200))
 def test_fancyarrow_dpi_cor_200dpi():
@@ -96,9 +93,7 @@ def test_fancyarrow_dpi_cor_200dpi():
     __prepare_fancyarrow_dpi_cor_test()
 
 
-@image_comparison(baseline_images=['fancyarrow_dash'],
-                  remove_text=True, extensions=['png'],
-                  style='default')
+@image_comparison(['fancyarrow_dash.png'], remove_text=True, style='default')
 def test_fancyarrow_dash():
     from matplotlib.patches import FancyArrowPatch
     fig, ax = plt.subplots()
@@ -122,8 +117,7 @@ def test_fancyarrow_dash():
     ax.add_patch(e2)
 
 
-@image_comparison(baseline_images=['arrow_styles'], extensions=['png'],
-                  style='mpl20', remove_text=True)
+@image_comparison(['arrow_styles.png'], style='mpl20', remove_text=True)
 def test_arrow_styles():
     styles = mpatches.ArrowStyle.get_styles()
 
@@ -139,8 +133,7 @@ def test_arrow_styles():
         ax.add_patch(patch)
 
 
-@image_comparison(baseline_images=['connection_styles'], extensions=['png'],
-                  style='mpl20', remove_text=True)
+@image_comparison(['connection_styles.png'], style='mpl20', remove_text=True)
 def test_connection_styles():
     styles = mpatches.ConnectionStyle.get_styles()
 

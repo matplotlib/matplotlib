@@ -1,4 +1,3 @@
-import warnings
 import platform
 
 from matplotlib.testing.decorators import image_comparison
@@ -9,9 +8,8 @@ import pytest
 from cycler import cycler
 
 
-@image_comparison(baseline_images=['color_cycle_basic'], remove_text=True,
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
-                  extensions=['png'])
+@image_comparison(['color_cycle_basic.png'], remove_text=True,
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_colorcycle_basic():
     fig, ax = plt.subplots()
     ax.set_prop_cycle(cycler('color', ['r', 'g', 'y']))
@@ -27,9 +25,8 @@ def test_colorcycle_basic():
     ax.legend(loc='upper left')
 
 
-@image_comparison(baseline_images=['marker_cycle', 'marker_cycle'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
-                  remove_text=True, extensions=['png'])
+@image_comparison(['marker_cycle.png', 'marker_cycle.png'], remove_text=True,
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_marker_cycle():
     fig, ax = plt.subplots()
     ax.set_prop_cycle(cycler('c', ['r', 'g', 'y']) +
@@ -61,9 +58,8 @@ def test_marker_cycle():
     ax.legend(loc='upper left')
 
 
-@image_comparison(baseline_images=['lineprop_cycle_basic'], remove_text=True,
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0),
-                  extensions=['png'])
+@image_comparison(['lineprop_cycle_basic.png'], remove_text=True,
+                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_linestylecycle_basic():
     fig, ax = plt.subplots()
     ax.set_prop_cycle(cycler('ls', ['-', '--', ':']))
@@ -79,8 +75,7 @@ def test_linestylecycle_basic():
     ax.legend(loc='upper left')
 
 
-@image_comparison(baseline_images=['fill_cycle_basic'], remove_text=True,
-                  extensions=['png'])
+@image_comparison(['fill_cycle_basic.png'], remove_text=True)
 def test_fillcycle_basic():
     fig, ax = plt.subplots()
     ax.set_prop_cycle(cycler('c',  ['r', 'g', 'y']) +
@@ -98,8 +93,7 @@ def test_fillcycle_basic():
     ax.legend(loc='upper left')
 
 
-@image_comparison(baseline_images=['fill_cycle_ignore'], remove_text=True,
-                  extensions=['png'])
+@image_comparison(['fill_cycle_ignore.png'], remove_text=True)
 def test_fillcycle_ignore():
     fig, ax = plt.subplots()
     ax.set_prop_cycle(cycler('color',  ['r', 'g', 'y']) +
@@ -121,8 +115,7 @@ def test_fillcycle_ignore():
     ax.legend(loc='upper left')
 
 
-@image_comparison(baseline_images=['property_collision_plot'],
-                  remove_text=True, extensions=['png'])
+@image_comparison(['property_collision_plot.png'], remove_text=True)
 def test_property_collision_plot():
     fig, ax = plt.subplots()
     ax.set_prop_cycle('linewidth', [2, 4])
@@ -132,8 +125,7 @@ def test_property_collision_plot():
     ax.plot(np.arange(10), 5 * np.arange(10), color='k')
 
 
-@image_comparison(baseline_images=['property_collision_fill'],
-                  remove_text=True, extensions=['png'])
+@image_comparison(['property_collision_fill.png'], remove_text=True)
 def test_property_collision_fill():
     fig, ax = plt.subplots()
     xs = np.arange(10)
@@ -163,7 +155,6 @@ def test_valid_input_forms():
     ax.set_prop_cycle(lw=np.array([1, 2]),
                       color=np.array(['k', 'w']),
                       ls=np.array(['-', '--']))
-    assert True
 
 
 def test_cycle_reset():

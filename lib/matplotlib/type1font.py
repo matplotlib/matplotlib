@@ -36,7 +36,7 @@ _TokenType = enum.Enum('_TokenType',
                        'whitespace name string delimiter number')
 
 
-class Type1Font(object):
+class Type1Font:
     """
     A class representing a Type-1 font, for use by backends.
 
@@ -202,7 +202,7 @@ class Type1Font(object):
         # The spec calls this an ASCII format; in Python 2.x we could
         # just treat the strings and names as opaque bytes but let's
         # turn them into proper Unicode, and be lenient in case of high bytes.
-        convert = lambda x: x.decode('ascii', 'replace')
+        def convert(x): return x.decode('ascii', 'replace')
         for token, value in filtered:
             if token is _TokenType.name and value.startswith(b'/'):
                 key = convert(value[1:])

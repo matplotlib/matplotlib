@@ -1,24 +1,20 @@
 import datetime
-import tempfile
-from unittest.mock import Mock
+try:
+    from contextlib import nullcontext
+except ImportError:
+    from contextlib import ExitStack as nullcontext  # Py 3.6.
 
 import dateutil.tz
 import dateutil.rrule
 import numpy as np
 import pytest
 
-from matplotlib.testing.decorators import image_comparison
-import matplotlib.pyplot as plt
+from matplotlib import rc_context
 from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.dates as mdates
-
-
-def __has_pytz():
-    try:
-        import pytz
-        return True
-    except ImportError:
-        return False
+import matplotlib.pyplot as plt
+from matplotlib.testing.decorators import image_comparison
+import matplotlib.ticker as mticker
 
 
 def test_date_numpyx():
@@ -31,12 +27,12 @@ def test_date_numpyx():
     ax = fig.add_subplot(1, 1, 1)
     h, = ax.plot(time, data)
     hnp, = ax.plot(timenp, data)
-    assert np.array_equal(h.get_xdata(orig=False), hnp.get_xdata(orig=False))
+    np.testing.assert_equal(h.get_xdata(orig=False), hnp.get_xdata(orig=False))
     fig = plt.figure(figsize=(10, 2))
     ax = fig.add_subplot(1, 1, 1)
     h, = ax.plot(data, time)
     hnp, = ax.plot(data, timenp)
-    assert np.array_equal(h.get_ydata(orig=False), hnp.get_ydata(orig=False))
+    np.testing.assert_equal(h.get_ydata(orig=False), hnp.get_ydata(orig=False))
 
 
 @pytest.mark.parametrize('t0', [datetime.datetime(2017, 1, 1, 0, 1, 1),
@@ -56,7 +52,7 @@ def test_date_date2num_numpy(t0, dtype):
     time = mdates.date2num(t0)
     tnp = np.array(t0, dtype=dtype)
     nptime = mdates.date2num(tnp)
-    assert np.array_equal(time, nptime)
+    np.testing.assert_equal(time, nptime)
 
 
 @pytest.mark.parametrize('dtype', ['datetime64[s]',
@@ -77,9 +73,9 @@ def test_date2num_NaT_scalar(units):
     assert np.isnan(tmpl)
 
 
-@image_comparison(baseline_images=['date_empty'], extensions=['png'])
+@image_comparison(['date_empty.png'])
 def test_date_empty():
-    # make sure mpl does the right thing when told to plot dates even
+    # make sure we do the right thing when told to plot dates even
     # if no date data has been presented, cf
     # http://sourceforge.net/tracker/?func=detail&aid=2850075&group_id=80706&atid=560720
     fig = plt.figure()
@@ -87,7 +83,7 @@ def test_date_empty():
     ax.xaxis_date()
 
 
-@image_comparison(baseline_images=['date_axhspan'], extensions=['png'])
+@image_comparison(['date_axhspan.png'])
 def test_date_axhspan():
     # test ax hspan with date inputs
     t0 = datetime.datetime(2009, 1, 20)
@@ -100,7 +96,7 @@ def test_date_axhspan():
     fig.subplots_adjust(left=0.25)
 
 
-@image_comparison(baseline_images=['date_axvspan'], extensions=['png'])
+@image_comparison(['date_axvspan.png'])
 def test_date_axvspan():
     # test ax hspan with date inputs
     t0 = datetime.datetime(2000, 1, 20)
@@ -113,8 +109,7 @@ def test_date_axvspan():
     fig.autofmt_xdate()
 
 
-@image_comparison(baseline_images=['date_axhline'],
-                  extensions=['png'])
+@image_comparison(['date_axhline.png'])
 def test_date_axhline():
     # test ax hline with date inputs
     t0 = datetime.datetime(2009, 1, 20)
@@ -127,8 +122,7 @@ def test_date_axhline():
     fig.subplots_adjust(left=0.25)
 
 
-@image_comparison(baseline_images=['date_axvline'],
-                  extensions=['png'])
+@image_comparison(['date_axvline.png'])
 def test_date_axvline():
     # test ax hline with date inputs
     t0 = datetime.datetime(2000, 1, 20)
@@ -141,12 +135,13 @@ def test_date_axvline():
     fig.autofmt_xdate()
 
 
-def test_too_many_date_ticks():
+def test_too_many_date_ticks(caplog):
     # Attempt to test SF 2715172, see
     # https://sourceforge.net/tracker/?func=detail&aid=2715172&group_id=80706&atid=560720
     # setting equal datetimes triggers and expander call in
     # transforms.nonsingular which results in too many ticks in the
-    # DayLocator.  This should trigger a Locator.MAXTICKS RuntimeError
+    # DayLocator.  This should emit a log at WARNING level.
+    caplog.set_level("WARNING")
     t0 = datetime.datetime(2000, 1, 20)
     tf = datetime.datetime(2000, 1, 20)
     fig = plt.figure()
@@ -154,14 +149,20 @@ def test_too_many_date_ticks():
     with pytest.warns(UserWarning) as rec:
         ax.set_xlim((t0, tf), auto=True)
         assert len(rec) == 1
-        assert 'Attempting to set identical left==right' in str(rec[0].message)
+        assert \
+            'Attempting to set identical left == right' in str(rec[0].message)
     ax.plot([], [])
     ax.xaxis.set_major_locator(mdates.DayLocator())
-    with pytest.raises(RuntimeError):
-        fig.savefig('junk.png')
+    fig.canvas.draw()
+    # The warning is emitted multiple times because the major locator is also
+    # called both when placing the minor ticks (for overstriking detection) and
+    # during tick label positioning.
+    assert caplog.records and all(
+        record.name == "matplotlib.ticker" and record.levelname == "WARNING"
+        for record in caplog.records)
 
 
-@image_comparison(baseline_images=['RRuleLocator_bounds'], extensions=['png'])
+@image_comparison(['RRuleLocator_bounds.png'])
 def test_RRuleLocator():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -194,8 +195,7 @@ def test_RRuleLocator_dayrange():
     # On success, no overflow error shall be thrown
 
 
-@image_comparison(baseline_images=['DateFormatter_fractionalSeconds'],
-                  extensions=['png'])
+@image_comparison(['DateFormatter_fractionalSeconds.png'])
 def test_DateFormatter():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -220,62 +220,47 @@ def test_DateFormatter():
     fig.autofmt_xdate()
 
 
-def test_date_formatter_strftime():
+def test_locator_set_formatter():
     """
-    Tests that DateFormatter matches datetime.strftime,
-    check microseconds for years before 1900 for bug #3179
-    as well as a few related issues for years before 1900.
+    Test if setting the locator only will update the AutoDateFormatter to use
+    the new locator.
     """
-    def test_strftime_fields(dt):
-        """For datetime object dt, check DateFormatter fields"""
-        # Note: the last couple of %%s are to check multiple %s are handled
-        # properly; %% should get replaced by %.
-        formatter = mdates.DateFormatter("%w %d %m %y %Y %H %I %M %S %%%f %%x")
-        # Compute date fields without using datetime.strftime,
-        # since datetime.strftime does not work before year 1900
-        formatted_date_str = (
-            "{weekday} {day:02d} {month:02d} {year:02d} {full_year:04d} "
-            "{hour24:02d} {hour12:02d} {minute:02d} {second:02d} "
-            "%{microsecond:06d} %x"
-            .format(
-                weekday=str((dt.weekday() + 1) % 7),
-                day=dt.day,
-                month=dt.month,
-                year=dt.year % 100,
-                full_year=dt.year,
-                hour24=dt.hour,
-                hour12=((dt.hour-1) % 12) + 1,
-                minute=dt.minute,
-                second=dt.second,
-                microsecond=dt.microsecond))
-        with pytest.warns(MatplotlibDeprecationWarning):
-            assert formatter.strftime(dt) == formatted_date_str
+    plt.rcParams["date.autoformatter.minute"] = "%d %H:%M"
+    t = [datetime.datetime(2018, 9, 30, 8, 0),
+         datetime.datetime(2018, 9, 30, 8, 59),
+         datetime.datetime(2018, 9, 30, 10, 30)]
+    x = [2, 3, 1]
 
-        try:
-            # Test strftime("%x") with the current locale.
-            import locale  # Might not exist on some platforms, such as Windows
-            locale_formatter = mdates.DateFormatter("%x")
-            locale_d_fmt = locale.nl_langinfo(locale.D_FMT)
-            expanded_formatter = mdates.DateFormatter(locale_d_fmt)
-            with pytest.warns(MatplotlibDeprecationWarning):
-                assert locale_formatter.strftime(dt) == \
-                    expanded_formatter.strftime(dt)
-        except (ImportError, AttributeError):
-            pass
+    fig, ax = plt.subplots()
+    ax.plot(t, x)
+    ax.xaxis.set_major_locator(mdates.MinuteLocator((0, 30)))
+    fig.canvas.draw()
+    ticklabels = [tl.get_text() for tl in ax.get_xticklabels()]
+    expected = ['30 08:00', '30 08:30', '30 09:00',
+                '30 09:30', '30 10:00', '30 10:30']
+    assert ticklabels == expected
 
-    for year in range(1, 3000, 71):
-        # Iterate through random set of years
-        test_strftime_fields(datetime.datetime(year, 1, 1))
-        test_strftime_fields(datetime.datetime(year, 2, 3, 4, 5, 6, 12345))
+    ax.xaxis.set_major_locator(mticker.NullLocator())
+    ax.xaxis.set_minor_locator(mdates.MinuteLocator((5, 55)))
+    decoy_loc = mdates.MinuteLocator((12, 27))
+    ax.xaxis.set_minor_formatter(mdates.AutoDateFormatter(decoy_loc))
+
+    ax.xaxis.set_minor_locator(mdates.MinuteLocator((15, 45)))
+    fig.canvas.draw()
+    ticklabels = [tl.get_text() for tl in ax.get_xticklabels(which="minor")]
+    expected = ['30 08:15', '30 08:45', '30 09:15', '30 09:45', '30 10:15']
+    assert ticklabels == expected
 
 
 def test_date_formatter_callable():
-    scale = -11
-    locator = Mock(_get_unit=Mock(return_value=scale))
-    callable_formatting_function = (lambda dates, _:
-                                    [dt.strftime('%d-%m//%Y') for dt in dates])
 
-    formatter = mdates.AutoDateFormatter(locator)
+    class _Locator:
+        def _get_unit(self): return -11
+
+    def callable_formatting_function(dates, _):
+        return [dt.strftime('%d-%m//%Y') for dt in dates]
+
+    formatter = mdates.AutoDateFormatter(_Locator())
     formatter.scaled[-10] = callable_formatting_function
     assert formatter([datetime.datetime(2014, 12, 25)]) == ['25-12//2014']
 
@@ -323,9 +308,8 @@ def test_empty_date_with_year_formatter():
     yearFmt = dates.DateFormatter('%Y')
     ax.xaxis.set_major_formatter(yearFmt)
 
-    with tempfile.TemporaryFile() as fh:
-        with pytest.raises(ValueError):
-            fig.savefig(fh)
+    with pytest.raises(ValueError):
+        fig.canvas.draw()
 
 
 def test_auto_date_locator():
@@ -395,7 +379,9 @@ def test_auto_date_locator():
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
-        assert list(map(str, mdates.num2date(locator()))) == expected
+        with (pytest.warns(UserWarning) if t_delta.microseconds
+              else nullcontext()):
+            assert list(map(str, mdates.num2date(locator()))) == expected
 
 
 def test_auto_date_locator_intmult():
@@ -406,7 +392,6 @@ def test_auto_date_locator_intmult():
                                   mdates.date2num(date2))
         return locator
 
-    d1 = datetime.datetime(1997, 1, 1)
     results = ([datetime.timedelta(weeks=52 * 200),
                 ['1980-01-01 00:00:00+00:00', '2000-01-01 00:00:00+00:00',
                  '2020-01-01 00:00:00+00:00', '2040-01-01 00:00:00+00:00',
@@ -467,14 +452,138 @@ def test_auto_date_locator_intmult():
                 ],
                )
 
+    d1 = datetime.datetime(1997, 1, 1)
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
-        assert list(map(str, mdates.num2date(locator()))) == expected
+        with (pytest.warns(UserWarning) if t_delta.microseconds
+              else nullcontext()):
+            assert list(map(str, mdates.num2date(locator()))) == expected
 
 
-@image_comparison(baseline_images=['date_inverted_limit'],
-                  extensions=['png'])
+def test_concise_formatter():
+    def _create_auto_date_locator(date1, date2):
+        fig, ax = plt.subplots()
+
+        locator = mdates.AutoDateLocator(interval_multiples=True)
+        formatter = mdates.ConciseDateFormatter(locator)
+        ax.yaxis.set_major_locator(locator)
+        ax.yaxis.set_major_formatter(formatter)
+        ax.set_ylim(date1, date2)
+        fig.canvas.draw()
+        sts = []
+        for st in ax.get_yticklabels():
+            sts += [st.get_text()]
+        return sts
+
+    d1 = datetime.datetime(1997, 1, 1)
+    results = ([datetime.timedelta(weeks=52 * 200),
+                [str(t) for t in range(1980, 2201, 20)]
+                ],
+               [datetime.timedelta(weeks=52),
+                ['1997', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
+                'Sep', 'Oct', 'Nov', 'Dec']
+                ],
+               [datetime.timedelta(days=141),
+                ['Jan', '22', 'Feb', '22', 'Mar', '22', 'Apr', '22',
+                 'May', '22']
+                ],
+               [datetime.timedelta(days=40),
+                ['Jan', '05', '09', '13', '17', '21', '25', '29', 'Feb',
+                 '05', '09']
+                ],
+               [datetime.timedelta(hours=40),
+                ['Jan-01', '04:00', '08:00', '12:00', '16:00', '20:00',
+                 'Jan-02', '04:00', '08:00', '12:00', '16:00']
+                ],
+               [datetime.timedelta(minutes=20),
+                ['00:00', '00:05', '00:10', '00:15', '00:20']
+                ],
+               [datetime.timedelta(seconds=40),
+                ['00:00', '05', '10', '15', '20', '25', '30', '35', '40']
+                ],
+               [datetime.timedelta(seconds=2),
+                ['59.5', '00:00', '00.5', '01.0', '01.5', '02.0', '02.5']
+                ],
+               )
+    for t_delta, expected in results:
+        d2 = d1 + t_delta
+        strings = _create_auto_date_locator(d1, d2)
+        assert strings == expected
+
+
+def test_auto_date_locator_intmult_tz():
+    def _create_auto_date_locator(date1, date2, tz):
+        locator = mdates.AutoDateLocator(interval_multiples=True, tz=tz)
+        locator.create_dummy_axis()
+        locator.set_view_interval(mdates.date2num(date1),
+                                  mdates.date2num(date2))
+        return locator
+
+    results = ([datetime.timedelta(weeks=52*200),
+                ['1980-01-01 00:00:00-08:00', '2000-01-01 00:00:00-08:00',
+                 '2020-01-01 00:00:00-08:00', '2040-01-01 00:00:00-08:00',
+                 '2060-01-01 00:00:00-08:00', '2080-01-01 00:00:00-08:00',
+                 '2100-01-01 00:00:00-08:00', '2120-01-01 00:00:00-08:00',
+                 '2140-01-01 00:00:00-08:00', '2160-01-01 00:00:00-08:00',
+                 '2180-01-01 00:00:00-08:00', '2200-01-01 00:00:00-08:00']
+                ],
+               [datetime.timedelta(weeks=52),
+                ['1997-01-01 00:00:00-08:00', '1997-02-01 00:00:00-08:00',
+                 '1997-03-01 00:00:00-08:00', '1997-04-01 00:00:00-08:00',
+                 '1997-05-01 00:00:00-07:00', '1997-06-01 00:00:00-07:00',
+                 '1997-07-01 00:00:00-07:00', '1997-08-01 00:00:00-07:00',
+                 '1997-09-01 00:00:00-07:00', '1997-10-01 00:00:00-07:00',
+                 '1997-11-01 00:00:00-08:00', '1997-12-01 00:00:00-08:00']
+                ],
+               [datetime.timedelta(days=141),
+                ['1997-01-01 00:00:00-08:00', '1997-01-22 00:00:00-08:00',
+                 '1997-02-01 00:00:00-08:00', '1997-02-22 00:00:00-08:00',
+                 '1997-03-01 00:00:00-08:00', '1997-03-22 00:00:00-08:00',
+                 '1997-04-01 00:00:00-08:00', '1997-04-22 00:00:00-07:00',
+                 '1997-05-01 00:00:00-07:00', '1997-05-22 00:00:00-07:00']
+                ],
+               [datetime.timedelta(days=40),
+                ['1997-01-01 00:00:00-08:00', '1997-01-05 00:00:00-08:00',
+                 '1997-01-09 00:00:00-08:00', '1997-01-13 00:00:00-08:00',
+                 '1997-01-17 00:00:00-08:00', '1997-01-21 00:00:00-08:00',
+                 '1997-01-25 00:00:00-08:00', '1997-01-29 00:00:00-08:00',
+                 '1997-02-01 00:00:00-08:00', '1997-02-05 00:00:00-08:00',
+                 '1997-02-09 00:00:00-08:00']
+                ],
+               [datetime.timedelta(hours=40),
+                ['1997-01-01 00:00:00-08:00', '1997-01-01 04:00:00-08:00',
+                 '1997-01-01 08:00:00-08:00', '1997-01-01 12:00:00-08:00',
+                 '1997-01-01 16:00:00-08:00', '1997-01-01 20:00:00-08:00',
+                 '1997-01-02 00:00:00-08:00', '1997-01-02 04:00:00-08:00',
+                 '1997-01-02 08:00:00-08:00', '1997-01-02 12:00:00-08:00',
+                 '1997-01-02 16:00:00-08:00']
+                ],
+               [datetime.timedelta(minutes=20),
+                ['1997-01-01 00:00:00-08:00', '1997-01-01 00:05:00-08:00',
+                 '1997-01-01 00:10:00-08:00', '1997-01-01 00:15:00-08:00',
+                 '1997-01-01 00:20:00-08:00']
+                ],
+               [datetime.timedelta(seconds=40),
+                ['1997-01-01 00:00:00-08:00', '1997-01-01 00:00:05-08:00',
+                 '1997-01-01 00:00:10-08:00', '1997-01-01 00:00:15-08:00',
+                 '1997-01-01 00:00:20-08:00', '1997-01-01 00:00:25-08:00',
+                 '1997-01-01 00:00:30-08:00', '1997-01-01 00:00:35-08:00',
+                 '1997-01-01 00:00:40-08:00']
+                ]
+               )
+
+    tz = dateutil.tz.gettz('Canada/Pacific')
+    d1 = datetime.datetime(1997, 1, 1, tzinfo=tz)
+    for t_delta, expected in results:
+        with rc_context({'_internal.classic_mode': False}):
+            d2 = d1 + t_delta
+            locator = _create_auto_date_locator(d1, d2, tz)
+            st = list(map(str, mdates.num2date(locator(), tz=tz)))
+            assert st == expected
+
+
+@image_comparison(['date_inverted_limit.png'])
 def test_date_inverted_limit():
     # test ax hline with date inputs
     t0 = datetime.datetime(2009, 1, 20)
@@ -606,15 +715,37 @@ def test_rrulewrapper():
 
 
 @pytest.mark.pytz
-@pytest.mark.skipif(not __has_pytz(), reason="Requires pytz")
 def test_rrulewrapper_pytz():
     # Test to make sure pytz zones are supported in rrules
-    import pytz
+    pytz = pytest.importorskip("pytz")
 
     def attach_tz(dt, zi):
         return zi.localize(dt)
 
     _test_rrulewrapper(attach_tz, pytz.timezone)
+
+
+@pytest.mark.pytz
+def test_yearlocator_pytz():
+    pytz = pytest.importorskip("pytz")
+
+    tz = pytz.timezone('America/New_York')
+    x = [tz.localize(datetime.datetime(2010, 1, 1))
+            + datetime.timedelta(i) for i in range(2000)]
+    locator = mdates.AutoDateLocator(interval_multiples=True, tz=tz)
+    locator.create_dummy_axis()
+    locator.set_view_interval(mdates.date2num(x[0])-1.0,
+                              mdates.date2num(x[-1])+1.0)
+
+    np.testing.assert_allclose([733408.208333, 733773.208333, 734138.208333,
+                                734503.208333, 734869.208333,
+                                735234.208333, 735599.208333], locator())
+    expected = ['2009-01-01 00:00:00-05:00',
+                '2010-01-01 00:00:00-05:00', '2011-01-01 00:00:00-05:00',
+                '2012-01-01 00:00:00-05:00', '2013-01-01 00:00:00-05:00',
+                '2014-01-01 00:00:00-05:00', '2015-01-01 00:00:00-05:00']
+    st = list(map(str, mdates.num2date(locator(), tz=tz)))
+    assert st == expected
 
 
 def test_DayLocator():
@@ -641,3 +772,9 @@ def test_tz_utc():
 def test_num2timedelta(x, tdelta):
     dt = mdates.num2timedelta(x)
     assert dt == tdelta
+
+
+def test_datetime64_in_list():
+    dt = [np.datetime64('2000-01-01'), np.datetime64('2001-01-01')]
+    dn = mdates.date2num(dt)
+    np.testing.assert_equal(dn, [730120.,  730486.])

@@ -28,27 +28,27 @@ fs = 10  # fontsize
 ###############################################################################
 # Demonstrate how to toggle the display of different elements:
 
-fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6, 6), sharey=True)
-axes[0, 0].boxplot(data, labels=labels)
-axes[0, 0].set_title('Default', fontsize=fs)
+fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(6, 6), sharey=True)
+axs[0, 0].boxplot(data, labels=labels)
+axs[0, 0].set_title('Default', fontsize=fs)
 
-axes[0, 1].boxplot(data, labels=labels, showmeans=True)
-axes[0, 1].set_title('showmeans=True', fontsize=fs)
+axs[0, 1].boxplot(data, labels=labels, showmeans=True)
+axs[0, 1].set_title('showmeans=True', fontsize=fs)
 
-axes[0, 2].boxplot(data, labels=labels, showmeans=True, meanline=True)
-axes[0, 2].set_title('showmeans=True,\nmeanline=True', fontsize=fs)
+axs[0, 2].boxplot(data, labels=labels, showmeans=True, meanline=True)
+axs[0, 2].set_title('showmeans=True,\nmeanline=True', fontsize=fs)
 
-axes[1, 0].boxplot(data, labels=labels, showbox=False, showcaps=False)
+axs[1, 0].boxplot(data, labels=labels, showbox=False, showcaps=False)
 tufte_title = 'Tufte Style \n(showbox=False,\nshowcaps=False)'
-axes[1, 0].set_title(tufte_title, fontsize=fs)
+axs[1, 0].set_title(tufte_title, fontsize=fs)
 
-axes[1, 1].boxplot(data, labels=labels, notch=True, bootstrap=10000)
-axes[1, 1].set_title('notch=True,\nbootstrap=10000', fontsize=fs)
+axs[1, 1].boxplot(data, labels=labels, notch=True, bootstrap=10000)
+axs[1, 1].set_title('notch=True,\nbootstrap=10000', fontsize=fs)
 
-axes[1, 2].boxplot(data, labels=labels, showfliers=False)
-axes[1, 2].set_title('showfliers=False', fontsize=fs)
+axs[1, 2].boxplot(data, labels=labels, showfliers=False)
+axs[1, 2].set_title('showfliers=False', fontsize=fs)
 
-for ax in axes.flatten():
+for ax in axs.flat:
     ax.set_yscale('log')
     ax.set_yticklabels([])
 
@@ -67,28 +67,28 @@ meanpointprops = dict(marker='D', markeredgecolor='black',
                       markerfacecolor='firebrick')
 meanlineprops = dict(linestyle='--', linewidth=2.5, color='purple')
 
-fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6, 6), sharey=True)
-axes[0, 0].boxplot(data, boxprops=boxprops)
-axes[0, 0].set_title('Custom boxprops', fontsize=fs)
+fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(6, 6), sharey=True)
+axs[0, 0].boxplot(data, boxprops=boxprops)
+axs[0, 0].set_title('Custom boxprops', fontsize=fs)
 
-axes[0, 1].boxplot(data, flierprops=flierprops, medianprops=medianprops)
-axes[0, 1].set_title('Custom medianprops\nand flierprops', fontsize=fs)
+axs[0, 1].boxplot(data, flierprops=flierprops, medianprops=medianprops)
+axs[0, 1].set_title('Custom medianprops\nand flierprops', fontsize=fs)
 
-axes[0, 2].boxplot(data, whis='range')
-axes[0, 2].set_title('whis="range"', fontsize=fs)
+axs[0, 2].boxplot(data, whis=(0, 100))
+axs[0, 2].set_title('whis=(0, 100)', fontsize=fs)
 
-axes[1, 0].boxplot(data, meanprops=meanpointprops, meanline=False,
-                   showmeans=True)
-axes[1, 0].set_title('Custom mean\nas point', fontsize=fs)
+axs[1, 0].boxplot(data, meanprops=meanpointprops, meanline=False,
+                  showmeans=True)
+axs[1, 0].set_title('Custom mean\nas point', fontsize=fs)
 
-axes[1, 1].boxplot(data, meanprops=meanlineprops, meanline=True,
-                   showmeans=True)
-axes[1, 1].set_title('Custom mean\nas line', fontsize=fs)
+axs[1, 1].boxplot(data, meanprops=meanlineprops, meanline=True,
+                  showmeans=True)
+axs[1, 1].set_title('Custom mean\nas line', fontsize=fs)
 
-axes[1, 2].boxplot(data, whis=[15, 85])
-axes[1, 2].set_title('whis=[15, 85]\n#percentiles', fontsize=fs)
+axs[1, 2].boxplot(data, whis=[15, 85])
+axs[1, 2].set_title('whis=[15, 85]\n#percentiles', fontsize=fs)
 
-for ax in axes.flatten():
+for ax in axs.flat:
     ax.set_yscale('log')
     ax.set_yticklabels([])
 

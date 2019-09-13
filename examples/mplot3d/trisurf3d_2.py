@@ -1,4 +1,4 @@
-'''
+"""
 ===========================
 More triangular 3D surfaces
 ===========================
@@ -8,14 +8,11 @@ Two additional examples of plotting surfaces with triangular mesh.
 The first demonstrates use of plot_trisurf's triangles argument, and the
 second sets a Triangulation object's mask and passes the object directly
 to plot_trisurf.
-'''
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
-
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 
 fig = plt.figure(figsize=plt.figaspect(0.5))
@@ -71,7 +68,7 @@ triang = mtri.Triangulation(x, y)
 # Mask off unwanted triangles.
 xmid = x[triang.triangles].mean(axis=1)
 ymid = y[triang.triangles].mean(axis=1)
-mask = np.where(xmid**2 + ymid**2 < min_radius**2, 1, 0)
+mask = xmid**2 + ymid**2 < min_radius**2
 triang.set_mask(mask)
 
 # Plot the surface.

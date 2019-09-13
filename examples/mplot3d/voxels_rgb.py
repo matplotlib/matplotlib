@@ -1,16 +1,13 @@
-'''
+"""
 ==========================================
 3D voxel / volumetric plot with rgb colors
 ==========================================
 
-Demonstrates using ``ax.voxels`` to visualize parts of a color space
-'''
+Demonstrates using `.Axes3D.voxels` to visualize parts of a color space.
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
-
-# This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 
 def midpoints(x):

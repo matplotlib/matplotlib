@@ -1,4 +1,3 @@
-
 .. _howto-faq:
 
 ******
@@ -23,12 +22,12 @@ As of Matplotlib 2.2, `numpy.datetime64` objects are handled the same way
 as `datetime.datetime` objects.
 
 If you prefer the pandas converters and locators, you can register their
-converter with the `matplolib.units` module::
+converter with the `matplotlib.units` module::
 
   from pandas.tseries import converter as pdtc
   pdtc.register()
 
-If you only want to use the `pandas` converter for `datetime64` values ::
+If you only want to use the `pandas` converter for `numpy.datetime64` values ::
 
   from pandas.tseries import converter as pdtc
   import matplotlib.units as munits
@@ -49,7 +48,7 @@ recursively search the artist for any artists it may contain that meet
 some criteria (e.g., match all :class:`~matplotlib.lines.Line2D`
 instances or match some arbitrary filter function).  For example, the
 following snippet finds every object in the figure which has a
-`set_color` property and makes the object blue::
+``set_color`` property and makes the object blue::
 
     def myfunc(x):
         return hasattr(x, 'set_color')
@@ -190,7 +189,8 @@ specify the location explicitly::
     ax = fig.add_axes([left, bottom, width, height])
 
 where all values are in fractional (0 to 1) coordinates.  See
-:doc:`/gallery/subplots_axes_and_figures/axes_demo` for an example of placing axes manually.
+:doc:`/gallery/subplots_axes_and_figures/axes_demo` for an example of
+placing axes manually.
 
 .. _howto-auto-adjust:
 
@@ -199,8 +199,11 @@ Automatically make room for tick labels
 
 .. note::
    This is now easier to handle than ever before.
-   Calling :func:`~matplotlib.pyplot.tight_layout` can fix many common
-   layout issues. See the :doc:`/tutorials/intermediate/tight_layout_guide`.
+   Calling :func:`~matplotlib.pyplot.tight_layout` or alternatively using
+   ``constrained_layout=True`` argument in :func:`~matplotlib.pyplot.subplots`
+   can fix many common layout issues.  See the
+   :doc:`/tutorials/intermediate/tight_layout_guide` and
+   :doc:`/tutorials/intermediate/constrainedlayout_guide` for more details.
 
    The information below is kept here in case it is useful for other
    purposes.
@@ -243,8 +246,8 @@ over so that the tick labels fit in the figure:
 Configure the tick widths
 -------------------------
 
-Wherever possible, it is recommended to use the :meth:`~Axes.tick_params` or
-:meth:`~Axis.set_tick_params` methods to modify tick properties::
+Wherever possible, it is recommended to use the :meth:`~.axes.Axes.tick_params`
+or :meth:`~.axis.Axis.set_tick_params` methods to modify tick properties::
 
     import matplotlib.pyplot as plt
 
@@ -423,18 +426,12 @@ locators as desired because the two axes are independent.
 Generate images without having a window appear
 ----------------------------------------------
 
-The easiest way to do this is use a non-interactive backend (see
-:ref:`what-is-a-backend`) such as Agg (for PNGs), PDF, SVG or PS.  In
-your figure-generating script, just call the
-:func:`matplotlib.use` directive before importing pylab or
-pyplot::
+Simply do not call `~matplotlib.pyplot.show`, and directly save the figure to
+the desired format::
 
-    import matplotlib
-    matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    plt.plot([1,2,3])
-    plt.savefig('myfig')
-
+    plt.plot([1, 2, 3])
+    plt.savefig('myfig.png')
 
 .. seealso::
 
@@ -454,7 +451,7 @@ the mainloop. Because this mainloop is blocking by default (i.e., script
 execution is paused), you should only call this once per script, at the end.
 Script execution is resumed after the last window is closed. Therefore, if
 you are using Matplotlib to generate only images and do not want a user
-interface window, you do not need to call ``show``  (see :ref:`howto-batch`
+interface window, you do not need to call ``show`` (see :ref:`howto-batch`
 and :ref:`what-is-a-backend`).
 
 .. note::
@@ -540,6 +537,19 @@ Tukey's `box plots <http://matplotlib.org/examples/pylab_examples/boxplot_demo.h
 `Violin plots <http://matplotlib.org/examples/statistics/violinplot_demo.html>`_ are closely related to box plots but add useful information such as the distribution of the sample data (density trace).
 Violin plots were added in Matplotlib 1.4.
 
+.. _how-to-threads:
+
+Working with threads
+--------------------
+
+Matplotlib is not thread-safe: in fact, there are known race conditions
+that affect certain artists.  Hence, if you work with threads, it is your
+responsibility to set up the proper locks to serialize access to Matplotlib
+artists.
+
+You may be able to work on separate figures from separate threads.  However,
+you must in that case use a *non-interactive backend* (typically Agg), because
+most GUI backends *require* being run from the main thread as well.
 
 .. _howto-contribute:
 
@@ -578,7 +588,6 @@ that the bug reports will be a conversation.  If you do not want to
 register with github, please email bug reports to the `mailing list
 <matplotlib-devel@python.org>`_.
 
-
 The easiest way to submit patches to Matplotlib is through pull
 requests on github.  Please see the :ref:`developers-guide-index` for
 the details.
@@ -599,18 +608,18 @@ corners.  This is where you come in.
 There is a good chance you know more about Matplotlib usage in some
 areas, the stuff you do every day, than many of the core developers
 who wrote most of the documentation.  Just pulled your hair out
-compiling Matplotlib for windows?  Write a FAQ or a section for the
+compiling Matplotlib for Windows?  Write a FAQ or a section for the
 :ref:`installing-faq` page.  Are you a digital signal processing wizard?
 Write a tutorial on the signal analysis plotting functions like
 :func:`~matplotlib.pyplot.xcorr`, :func:`~matplotlib.pyplot.psd` and
 :func:`~matplotlib.pyplot.specgram`.  Do you use Matplotlib with
 `django <https://www.djangoproject.com/>`_ or other popular web
 application servers?  Write a FAQ or tutorial and we'll find a place
-for it in the :ref:`users-guide-index`.  Bundle Matplotlib in a
-`py2exe <http://www.py2exe.org/>`_ app?  ... I think you get the idea.
+for it in the :ref:`users-guide-index`.  And so on...  I think you get the
+idea.
 
 Matplotlib is documented using the `sphinx
-<http://www.sphinx-doc.org/index.html>`_ extensions to restructured text
+<http://www.sphinx-doc.org/en/stable/>`_ extensions to restructured text
 `(ReST) <http://docutils.sourceforge.net/rst.html>`_.  sphinx is an
 extensible python framework for documentation projects which generates
 HTML and PDF, and is pretty easy to write; you can see the source for this
@@ -630,82 +639,45 @@ Looking for something to do?  Search for `TODO <../search.html?q=todo>`_
 or look at the open issues on github.
 
 
-
-
 .. _howto-webapp:
 
 Matplotlib in a web application server
 ======================================
 
-Many users report initial problems trying to use maptlotlib in web
-application servers, because by default Matplotlib ships configured to
-work with a graphical user interface which may require an X11
-connection.  Since many barebones application servers do not have X11
-enabled, you may get errors if you don't configure Matplotlib for use
-in these environments.  Most importantly, you need to decide what
-kinds of images you want to generate (PNG, PDF, SVG) and configure the
-appropriate default backend.  For 99% of users, this will be the Agg
-backend, which uses the C++
-`antigrain <http://antigrain.com>`_
-rendering engine to make nice PNGs.  The Agg backend is also
-configured to recognize requests to generate other output formats
-(PDF, PS, EPS, SVG).  The easiest way to configure Matplotlib to use
-Agg is to call::
+In general, the simplest solution when using Matplotlib in a web server is
+to completely avoid using pyplot (pyplot maintains references to the opened
+figures to make `~.matplotlib.pyplot.show` work, but this will cause memory
+leaks unless the figures are properly closed).  Since Matplotlib 3.1, one
+can directly create figures using the `.Figure` constructor and save them to
+in-memory buffers.  The following example uses Flask_, but other frameworks
+work similarly::
 
-    # do this before importing pylab or pyplot
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
+   import base64
+   from io import BytesIO
 
-For more on configuring your backend, see
-:ref:`what-is-a-backend`.
+   from flask import Flask
+   from matplotlib.figure import Figure
 
-Alternatively, you can avoid pylab/pyplot altogether, which will give
-you a little more control, by calling the API directly as shown in
-:doc:`/gallery/user_interfaces/canvasagg`.
+   app = Flask(__name__)
 
-You can either generate hardcopy on the filesystem by calling savefig::
+   @app.route("/")
+   def hello():
+      # Generate the figure **without using pyplot**.
+      fig = Figure()
+      ax = fig.subplots()
+      ax.plot([1, 2])
+      # Save it to a temporary buffer.
+      buf = BytesIO()
+      fig.savefig(buf, format="png")
+      # Embed the result in the html output.
+      data = base64.b64encode(buf.getbuffer()).decode("ascii")
+      return f"<img src='data:image/png;base64,{data}'/>"
 
-    # do this before importing pylab or pyplot
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot([1,2,3])
-    fig.savefig('test.png')
+.. _Flask: http://flask.pocoo.org/
 
-or by saving to a file handle::
+When using Matplotlib versions older than 3.1, it is necessary to explicitly
+instantiate an Agg canvas; see e.g. :doc:`/gallery/user_interfaces/canvasagg`.
 
-    import sys
-    fig.savefig(sys.stdout)
-
-Here is an example using `Pillow <https://pillow.readthedocs.io/en/latest/>`_.
-First, the figure is saved to a BytesIO object which is then fed to
-Pillow for further processing::
-
-    from io import BytesIO
-    from PIL import Image
-    imgdata = BytesIO()
-    fig.savefig(imgdata, format='png')
-    imgdata.seek(0)  # rewind the data
-    im = Image.open(imgdata)
-
-
-Matplotlib with apache
-----------------------
-
-TODO; see :ref:`how-to-contribute-docs`.
-
-Matplotlib with django
-----------------------
-
-TODO; see :ref:`how-to-contribute-docs`.
-
-Matplotlib with zope
---------------------
-
-TODO; see :ref:`how-to-contribute-docs`.
 
 .. _howto-click-maps:
 
@@ -735,36 +707,3 @@ code example page with the keyword ``codex`` for *code example* which
 shouldn't appear anywhere else on this site except in the FAQ.
 So if you want to search for an example that uses an
 ellipse, :ref:`search` for ``codex ellipse``.
-
-
-.. _how-to-cite-mpl:
-
-Cite Matplotlib
-===============
-
-If you want to refer to Matplotlib in a publication, you can use
-"Matplotlib: A 2D Graphics Environment" by J. D. Hunter In Computing
-in Science & Engineering, Vol. 9, No. 3. (2007), pp. 90-95 (see `this
-reference page <https://doi.org/10.1109/MCSE.2007.55>`_)::
-
-  @article{Hunter:2007,
-	  Address = {10662 LOS VAQUEROS CIRCLE, PO BOX 3014, LOS ALAMITOS, CA 90720-1314 USA},
-	  Author = {Hunter, John D.},
-	  Date-Added = {2010-09-23 12:22:10 -0700},
-	  Date-Modified = {2010-09-23 12:22:10 -0700},
-	  Isi = {000245668100019},
-	  Isi-Recid = {155389429},
-	  Journal = {Computing In Science \& Engineering},
-	  Month = {May-Jun},
-	  Number = {3},
-	  Pages = {90--95},
-	  Publisher = {IEEE COMPUTER SOC},
-	  Times-Cited = {21},
-	  Title = {Matplotlib: A 2D graphics environment},
-	  Type = {Editorial Material},
-	  Volume = {9},
-	  Year = {2007},
-	  Abstract = {Matplotlib is a 2D graphics package used for Python for application
-                      development, interactive scripting, and publication-quality image
-                      generation across user interfaces and operating systems.},
-	  Bdsk-Url-1 = {http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcAuth=Alerting&SrcApp=Alerting&DestApp=WOS&DestLinkType=FullRecord;KeyUT=000245668100019}}

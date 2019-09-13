@@ -1,6 +1,11 @@
+try:
+    from contextlib import nullcontext
+except ImportError:
+    from contextlib import ExitStack as nullcontext  # Py 3.6.
+
 from . import backend_cairo, backend_gtk3
-from ._gtk3_compat import gi
 from .backend_gtk3 import Gtk, _BackendGTK3
+from matplotlib import cbook
 from matplotlib.backend_bases import cursors
 
 
@@ -22,20 +27,18 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
 
     def on_draw_event(self, widget, ctx):
         """GtkDrawable draw event."""
-        toolbar = self.toolbar
-        # if toolbar:
-        #     toolbar.set_cursor(cursors.WAIT)
-        self._renderer.set_context(ctx)
-        allocation = self.get_allocation()
-        Gtk.render_background(
-            self.get_style_context(), ctx,
-            allocation.x, allocation.y, allocation.width, allocation.height)
-        self._render_figure(allocation.width, allocation.height)
-        # if toolbar:
-        #     toolbar.set_cursor(toolbar._lastCursor)
-        return False  # finish event propagation?
+        with (self.toolbar._wait_cursor_for_draw_cm() if self.toolbar
+              else nullcontext()):
+            self._renderer.set_context(ctx)
+            allocation = self.get_allocation()
+            Gtk.render_background(
+                self.get_style_context(), ctx,
+                allocation.x, allocation.y,
+                allocation.width, allocation.height)
+            self._render_figure(allocation.width, allocation.height)
 
 
+@cbook.deprecated("3.1", alternative="backend_gtk3.FigureManagerGTK3")
 class FigureManagerGTK3Cairo(backend_gtk3.FigureManagerGTK3):
     pass
 
@@ -43,4 +46,3 @@ class FigureManagerGTK3Cairo(backend_gtk3.FigureManagerGTK3):
 @_BackendGTK3.export
 class _BackendGTK3Cairo(_BackendGTK3):
     FigureCanvas = FigureCanvasGTK3Cairo
-    FigureManager = FigureManagerGTK3Cairo

@@ -16,9 +16,19 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
 
+@pytest.mark.parametrize('N, result', [
+    (5, [1, .6, .2, .1, 0]),
+    (2, [1, 0]),
+    (1, [0]),
+])
+def test_create_lookup_table(N, result):
+    data = [(0.0, 1.0, 1.0), (0.5, 0.2, 0.2), (1.0, 0.0, 0.0)]
+    assert_array_almost_equal(mcolors._create_lookup_table(N, data), result)
+
+
 def test_resample():
     """
-    Github issue #6025 pointed to incorrect ListedColormap._resample;
+    GitHub issue #6025 pointed to incorrect ListedColormap._resample;
     here we test the method for LinearSegmentedColormap as well.
     """
     n = 101
@@ -52,7 +62,7 @@ def test_colormap_copy():
 
 def test_colormap_endian():
     """
-    Github issue #1005: a bug in putmask caused erroneous
+    GitHub issue #1005: a bug in putmask caused erroneous
     mapping of 1.0 when input from a non-native-byteorder
     array.
     """
@@ -65,9 +75,63 @@ def test_colormap_endian():
         assert_array_equal(cmap(anative), cmap(aforeign))
 
 
+def test_colormap_invalid():
+    """
+    GitHub issue #9892: Handling of nan's were getting mapped to under
+    rather than bad. This tests to make sure all invalid values
+    (-inf, nan, inf) are mapped respectively to (under, bad, over).
+    """
+    cmap = cm.get_cmap("plasma")
+    x = np.array([-np.inf, -1, 0, np.nan, .7, 2, np.inf])
+
+    expected = np.array([[0.050383, 0.029803, 0.527975, 1.],
+                         [0.050383, 0.029803, 0.527975, 1.],
+                         [0.050383, 0.029803, 0.527975, 1.],
+                         [0.,       0.,       0.,       0.],
+                         [0.949217, 0.517763, 0.295662, 1.],
+                         [0.940015, 0.975158, 0.131326, 1.],
+                         [0.940015, 0.975158, 0.131326, 1.]])
+    assert_array_equal(cmap(x), expected)
+
+    # Test masked representation (-inf, inf) are now masked
+    expected = np.array([[0.,       0.,       0.,       0.],
+                         [0.050383, 0.029803, 0.527975, 1.],
+                         [0.050383, 0.029803, 0.527975, 1.],
+                         [0.,       0.,       0.,       0.],
+                         [0.949217, 0.517763, 0.295662, 1.],
+                         [0.940015, 0.975158, 0.131326, 1.],
+                         [0.,       0.,       0.,       0.]])
+    assert_array_equal(cmap(np.ma.masked_invalid(x)), expected)
+
+    # Test scalar representations
+    assert_array_equal(cmap(-np.inf), cmap(0))
+    assert_array_equal(cmap(np.inf), cmap(1.0))
+    assert_array_equal(cmap(np.nan), np.array([0., 0., 0., 0.]))
+
+
+def test_colormap_return_types():
+    """
+    Make sure that tuples are returned for scalar input and
+    that the proper shapes are returned for ndarrays.
+    """
+    cmap = cm.get_cmap("plasma")
+    # Test return types and shapes
+    # scalar input needs to return a tuple of length 4
+    assert isinstance(cmap(0.5), tuple)
+    assert len(cmap(0.5)) == 4
+
+    # input array returns an ndarray of shape x.shape + (4,)
+    x = np.ones(4)
+    assert cmap(x).shape == x.shape + (4,)
+
+    # multi-dimensional array input
+    x2d = np.zeros((2, 2))
+    assert cmap(x2d).shape == x2d.shape + (4,)
+
+
 def test_BoundaryNorm():
     """
-    Github issue #1258: interpolation was failing with numpy
+    GitHub issue #1258: interpolation was failing with numpy
     1.7 pre-release.
     """
 
@@ -143,6 +207,16 @@ def test_BoundaryNorm():
     assert np.all(bn(vals).mask)
     vals = np.ma.masked_invalid([np.Inf])
     assert np.all(bn(vals).mask)
+
+
+@pytest.mark.parametrize("vmin,vmax", [[-1, 2], [3, 1]])
+def test_lognorm_invalid(vmin, vmax):
+    # Check that invalid limits in LogNorm error
+    norm = mcolors.LogNorm(vmin=vmin, vmax=vmax)
+    with pytest.raises(ValueError):
+        norm(1)
+    with pytest.raises(ValueError):
+        norm.inverse(1)
 
 
 def test_LogNorm():
@@ -221,6 +295,95 @@ def test_Normalize():
     assert 0 < norm(1 + 50 * eps) < 1
 
 
+def test_DivergingNorm_autoscale():
+    norm = mcolors.DivergingNorm(vcenter=20)
+    norm.autoscale([10, 20, 30, 40])
+    assert norm.vmin == 10.
+    assert norm.vmax == 40.
+
+
+def test_DivergingNorm_autoscale_None_vmin():
+    norm = mcolors.DivergingNorm(2, vmin=0, vmax=None)
+    norm.autoscale_None([1, 2, 3, 4, 5])
+    assert norm(5) == 1
+    assert norm.vmax == 5
+
+
+def test_DivergingNorm_autoscale_None_vmax():
+    norm = mcolors.DivergingNorm(2, vmin=None, vmax=10)
+    norm.autoscale_None([1, 2, 3, 4, 5])
+    assert norm(1) == 0
+    assert norm.vmin == 1
+
+
+def test_DivergingNorm_scale():
+    norm = mcolors.DivergingNorm(2)
+    assert norm.scaled() is False
+    norm([1, 2, 3, 4])
+    assert norm.scaled() is True
+
+
+def test_DivergingNorm_scaleout_center():
+    # test the vmin never goes above vcenter
+    norm = mcolors.DivergingNorm(vcenter=0)
+    norm([1, 2, 3, 5])
+    assert norm.vmin == 0
+    assert norm.vmax == 5
+
+
+def test_DivergingNorm_scaleout_center_max():
+    # test the vmax never goes below vcenter
+    norm = mcolors.DivergingNorm(vcenter=0)
+    norm([-1, -2, -3, -5])
+    assert norm.vmax == 0
+    assert norm.vmin == -5
+
+
+def test_DivergingNorm_Even():
+    norm = mcolors.DivergingNorm(vmin=-1, vcenter=0, vmax=4)
+    vals = np.array([-1.0, -0.5, 0.0, 1.0, 2.0, 3.0, 4.0])
+    expected = np.array([0.0, 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
+    assert_array_equal(norm(vals), expected)
+
+
+def test_DivergingNorm_Odd():
+    norm = mcolors.DivergingNorm(vmin=-2, vcenter=0, vmax=5)
+    vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
+    expected = np.array([0.0, 0.25, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+    assert_array_equal(norm(vals), expected)
+
+
+def test_DivergingNorm_VminEqualsVcenter():
+    with pytest.raises(ValueError):
+        mcolors.DivergingNorm(vmin=-2, vcenter=-2, vmax=2)
+
+
+def test_DivergingNorm_VmaxEqualsVcenter():
+    with pytest.raises(ValueError):
+        mcolors.DivergingNorm(vmin=-2, vcenter=2, vmax=2)
+
+
+def test_DivergingNorm_VminGTVcenter():
+    with pytest.raises(ValueError):
+        mcolors.DivergingNorm(vmin=10, vcenter=0, vmax=20)
+
+
+def test_DivergingNorm_DivergingNorm_VminGTVmax():
+    with pytest.raises(ValueError):
+        mcolors.DivergingNorm(vmin=10, vcenter=0, vmax=5)
+
+
+def test_DivergingNorm_VcenterGTVmax():
+    with pytest.raises(ValueError):
+        mcolors.DivergingNorm(vmin=10, vcenter=25, vmax=20)
+
+
+def test_DivergingNorm_premature_scaling():
+    norm = mcolors.DivergingNorm(vcenter=2)
+    with pytest.raises(ValueError):
+        norm.inverse(np.array([0.1, 0.5, 0.9]))
+
+
 def test_SymLogNorm():
     """
     Test SymLogNorm behavior
@@ -246,7 +409,7 @@ def test_SymLogNorm_colorbar():
     """
     norm = mcolors.SymLogNorm(0.1, vmin=-1, vmax=1, linscale=1)
     fig = plt.figure()
-    cbar = mcolorbar.ColorbarBase(fig.add_subplot(111), norm=norm)
+    mcolorbar.ColorbarBase(fig.add_subplot(111), norm=norm)
     plt.close(fig)
 
 
@@ -287,8 +450,7 @@ def _mask_tester(norm_instance, vals):
     assert_array_equal(masked_array.mask, norm_instance(masked_array).mask)
 
 
-@image_comparison(baseline_images=['levels_and_colors'],
-                  extensions=['png'])
+@image_comparison(['levels_and_colors.png'])
 def test_cmap_and_norm_from_levels_and_colors():
     data = np.linspace(-2, 4, 49).reshape(7, 7)
     levels = [-1, 2, 2.5, 3]
@@ -381,31 +543,23 @@ def test_autoscale_masked():
     plt.draw()
 
 
-def test_colors_no_float():
-    # Gray must be a string to distinguish 3-4 grays from RGB or RGBA.
-    with pytest.raises(ValueError):
-        mcolors.to_rgba(0.4)
-
-
-@image_comparison(baseline_images=['light_source_shading_topo'],
-                  extensions=['png'])
+@image_comparison(['light_source_shading_topo.png'])
 def test_light_source_topo_surface():
     """Shades a DEM using different v.e.'s and blend modes."""
-    fname = cbook.get_sample_data('jacksboro_fault_dem.npz', asfileobj=False)
-    dem = np.load(fname)
-    elev = dem['elevation']
-    # Get the true cellsize in meters for accurate vertical exaggeration
-    #   Convert from decimal degrees to meters
-    dx, dy = dem['dx'], dem['dy']
-    dx = 111320.0 * dx * np.cos(dem['ymin'])
-    dy = 111320.0 * dy
-    dem.close()
+    with cbook.get_sample_data('jacksboro_fault_dem.npz') as file, \
+         np.load(file) as dem:
+        elev = dem['elevation']
+        dx, dy = dem['dx'], dem['dy']
+        # Get the true cellsize in meters for accurate vertical exaggeration
+        # Convert from decimal degrees to meters
+        dx = 111320.0 * dx * np.cos(dem['ymin'])
+        dy = 111320.0 * dy
 
     ls = mcolors.LightSource(315, 45)
     cmap = cm.gist_earth
 
-    fig, axes = plt.subplots(nrows=3, ncols=3)
-    for row, mode in zip(axes, ['hsv', 'overlay', 'soft']):
+    fig, axs = plt.subplots(nrows=3, ncols=3)
+    for row, mode in zip(axs, ['hsv', 'overlay', 'soft']):
         for ax, ve in zip(row, [0.1, 1, 10]):
             rgb = ls.shade(elev, cmap, vert_exag=ve, dx=dx, dy=dy,
                            blend_mode=mode)
@@ -460,7 +614,7 @@ def test_light_source_shading_default():
           [1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00],
           [1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00],
           [1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00]]
-        ]).T
+         ]).T
 
     assert_array_almost_equal(rgb, expect, decimal=2)
 
@@ -517,7 +671,7 @@ def test_light_source_masked_shading():
           [1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00],
           [1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00],
           [1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00]],
-        ]).T
+         ]).T
 
     assert_array_almost_equal(rgb, expect, decimal=2)
 
@@ -637,6 +791,8 @@ def test_cn():
                                                     ['xkcd:blue', 'r'])
     assert mcolors.to_hex("C0") == '#0343df'
     assert mcolors.to_hex("C1") == '#ff0000'
+    assert mcolors.to_hex("C10") == '#0343df'
+    assert mcolors.to_hex("C11") == '#ff0000'
 
     matplotlib.rcParams['axes.prop_cycle'] = cycler('color', ['8e4585', 'r'])
 
@@ -650,6 +806,7 @@ def test_cn():
 def test_conversions():
     # to_rgba_array("none") returns a (0, 4) array.
     assert_array_equal(mcolors.to_rgba_array("none"), np.zeros((0, 4)))
+    assert_array_equal(mcolors.to_rgba_array([]), np.zeros((0, 4)))
     # a list of grayscale levels, not a single color.
     assert_array_equal(
         mcolors.to_rgba_array([".2", ".5", ".8"]),
@@ -663,6 +820,47 @@ def test_conversions():
     hex_color = "#1234abcd"
     assert mcolors.to_hex(mcolors.to_rgba(hex_color), keep_alpha=True) == \
         hex_color
+
+
+def test_conversions_masked():
+    x1 = np.ma.array(['k', 'b'], mask=[True, False])
+    x2 = np.ma.array([[0, 0, 0, 1], [0, 0, 1, 1]])
+    x2[0] = np.ma.masked
+    assert mcolors.to_rgba(x1[0]) == (0, 0, 0, 0)
+    assert_array_equal(mcolors.to_rgba_array(x1),
+                       [[0, 0, 0, 0], [0, 0, 1, 1]])
+    assert_array_equal(mcolors.to_rgba_array(x2), mcolors.to_rgba_array(x1))
+
+
+def test_to_rgba_array_single_str():
+    # single color name is valid
+    assert_array_equal(mcolors.to_rgba_array("red"), [(1, 0, 0, 1)])
+
+    # single char color sequence is deprecated
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match="Using a string of single character colors as a "
+                            "color sequence is deprecated"):
+        array = mcolors.to_rgba_array("rgb")
+    assert_array_equal(array, [(1, 0, 0, 1), (0, 0.5, 0, 1), (0, 0, 1, 1)])
+
+    with pytest.raises(ValueError,
+                       match="neither a valid single color nor a color "
+                             "sequence"):
+        mcolors.to_rgba_array("rgbx")
+
+
+def test_failed_conversions():
+    with pytest.raises(ValueError):
+        mcolors.to_rgba('5')
+    with pytest.raises(ValueError):
+        mcolors.to_rgba('-1')
+    with pytest.raises(ValueError):
+        mcolors.to_rgba('nan')
+    with pytest.raises(ValueError):
+        mcolors.to_rgba('unknown_color')
+    with pytest.raises(ValueError):
+        # Gray must be a string to distinguish 3-4 grays from RGB or RGBA.
+        mcolors.to_rgba(0.4)
 
 
 def test_grey_gray():
@@ -693,8 +891,7 @@ def test_ndarray_subclass_norm(recwarn):
         def __add__(self, other):
             raise RuntimeError
 
-    data = np.arange(-10, 10, 1, dtype=float)
-    data.shape = (10, 2)
+    data = np.arange(-10, 10, 1, dtype=float).reshape((10, 2))
     mydata = data.view(MyArray)
 
     for norm in [mcolors.Normalize(), mcolors.LogNorm(),
@@ -713,3 +910,8 @@ def test_ndarray_subclass_norm(recwarn):
 def test_same_color():
     assert mcolors.same_color('k', (0, 0, 0))
     assert not mcolors.same_color('w', (1, 1, 0))
+
+
+def test_hex_shorthand_notation():
+    assert mcolors.same_color("#123", "#112233")
+    assert mcolors.same_color("#123a", "#112233aa")

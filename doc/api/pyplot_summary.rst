@@ -1,3 +1,7 @@
+*********************
+``matplotlib.pyplot``
+*********************
+
 Pyplot function overview
 ------------------------
 
@@ -8,7 +12,6 @@ Pyplot function overview
    :template: autofunctions.rst
 
    pyplot
-
 
 .. currentmodule:: matplotlib.pyplot
 

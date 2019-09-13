@@ -23,10 +23,9 @@ r = r[-30:]  # get the last 30 days
 date = r.date.astype('O')
 
 # first we'll do it the default way, with gaps on weekends
-fig, axes = plt.subplots(ncols=2, figsize=(8, 4))
-ax = axes[0]
-ax.plot(date, r.adj_close, 'o-')
-ax.set_title("Default")
+fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4))
+ax1.plot(date, r.adj_close, 'o-')
+ax1.set_title("Default")
 fig.autofmt_xdate()
 
 # next we'll write a custom formatter
@@ -38,10 +37,10 @@ def format_date(x, pos=None):
     thisind = np.clip(int(x + 0.5), 0, N - 1)
     return date[thisind].strftime('%Y-%m-%d')
 
-ax = axes[1]
-ax.plot(ind, r.adj_close, 'o-')
-ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
-ax.set_title("Custom tick formatter")
+
+ax2.plot(ind, r.adj_close, 'o-')
+ax2.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
+ax2.set_title("Custom tick formatter")
 fig.autofmt_xdate()
 
 plt.show()

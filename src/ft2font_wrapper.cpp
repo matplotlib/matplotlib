@@ -103,12 +103,19 @@ static PyObject *PyFT2Image_draw_rect_filled(PyFT2Image *self, PyObject *args, P
 const char *PyFT2Image_as_str__doc__ =
     "s = image.as_str()\n"
     "\n"
+    "[*Deprecated*]\n"
     "Return the image buffer as a string\n"
     "\n";
 
 static PyObject *PyFT2Image_as_str(PyFT2Image *self, PyObject *args, PyObject *kwds)
 {
-    // TODO: Use a buffer to avoid the copy
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "FT2Image.as_str is deprecated since Matplotlib 3.2 and "
+                     "will be removed in Matplotlib 3.4; convert the FT2Image "
+                     "to a NumPy array with np.asarray instead.",
+                     1)) {
+        return NULL;
+    }
     return PyBytes_FromStringAndSize((const char *)self->x->get_buffer(),
                                      self->x->get_width() * self->x->get_height());
 }
@@ -116,11 +123,19 @@ static PyObject *PyFT2Image_as_str(PyFT2Image *self, PyObject *args, PyObject *k
 const char *PyFT2Image_as_rgba_str__doc__ =
     "s = image.as_rgba_str()\n"
     "\n"
+    "[*Deprecated*]\n"
     "Return the image buffer as a RGBA string\n"
     "\n";
 
 static PyObject *PyFT2Image_as_rgba_str(PyFT2Image *self, PyObject *args, PyObject *kwds)
 {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "FT2Image.as_rgba_str is deprecated since Matplotlib 3.2 and "
+                     "will be removed in Matplotlib 3.4; convert the FT2Image "
+                     "to a NumPy array with np.asarray instead.",
+                     1)) {
+        return NULL;
+    }
     npy_intp dims[] = {(npy_intp)self->x->get_height(), (npy_intp)self->x->get_width(), 4 };
     numpy::array_view<unsigned char, 3> result(dims);
 
@@ -141,22 +156,44 @@ static PyObject *PyFT2Image_as_rgba_str(PyFT2Image *self, PyObject *args, PyObje
 const char *PyFT2Image_as_array__doc__ =
     "x = image.as_array()\n"
     "\n"
+    "[*Deprecated*]\n"
     "Return the image buffer as a width x height numpy array of ubyte \n"
     "\n";
 
 static PyObject *PyFT2Image_as_array(PyFT2Image *self, PyObject *args, PyObject *kwds)
 {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "FT2Image.as_array is deprecated since Matplotlib 3.2 and "
+                     "will be removed in Matplotlib 3.4; convert the FT2Image "
+                     "to a NumPy array with np.asarray instead.",
+                     1)) {
+        return NULL;
+    }
     npy_intp dims[] = {(npy_intp)self->x->get_height(), (npy_intp)self->x->get_width() };
     return PyArray_SimpleNewFromData(2, dims, NPY_UBYTE, self->x->get_buffer());
 }
 
 static PyObject *PyFT2Image_get_width(PyFT2Image *self, PyObject *args, PyObject *kwds)
 {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "FT2Image.get_width is deprecated since Matplotlib 3.2 and "
+                     "will be removed in Matplotlib 3.4; convert the FT2Image "
+                     "to a NumPy array with np.asarray instead.",
+                     1)) {
+        return NULL;
+    }
     return PyLong_FromLong(self->x->get_width());
 }
 
 static PyObject *PyFT2Image_get_height(PyFT2Image *self, PyObject *args, PyObject *kwds)
 {
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+                     "FT2Image.get_height is deprecated since Matplotlib 3.2 and "
+                     "will be removed in Matplotlib 3.4; convert the FT2Image "
+                     "to a NumPy array with np.asarray instead.",
+                     1)) {
+        return NULL;
+    }
     return PyLong_FromLong(self->x->get_height());
 }
 
@@ -516,10 +553,12 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
     PyObject *fname;
     FT_Open_Args open_args;
     long hinting_factor = 8;
-    const char *names[] = { "filename", "hinting_factor", NULL };
+    int kerning_factor = 0;
+    const char *names[] = { "filename", "hinting_factor", "_kerning_factor", NULL };
 
     if (!PyArg_ParseTupleAndKeywords(
-             args, kwds, "O|l:FT2Font", (char **)names, &fname, &hinting_factor)) {
+             args, kwds, "O|l$i:FT2Font", (char **)names, &fname,
+             &hinting_factor, &kerning_factor)) {
         return -1;
     }
 
@@ -529,6 +568,8 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
 
     CALL_CPP_FULL(
         "FT2Font", (self->x = new FT2Font(open_args, hinting_factor)), PyFT2Font_fail(self), -1);
+
+    CALL_CPP("FT2Font->set_kerning_factor", (self->x->set_kerning_factor(kerning_factor)));
 
     Py_INCREF(fname);
     self->fname = fname;
@@ -908,19 +949,20 @@ static PyObject *PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, PyObject *args,
 const char *PyFT2Font_get_glyph_name__doc__ =
     "get_glyph_name(index)\n"
     "\n"
-    "Retrieves the ASCII name of a given glyph in a face.\n";
+    "Retrieves the ASCII name of a given glyph in a face.\n"
+    "\n"
+    "Due to Matplotlib's internal design, for fonts that do not contain glyph \n"
+    "names (per FT_FACE_FLAG_GLYPH_NAMES), this returns a made-up name which \n"
+    "does *not* roundtrip through `.get_name_index`.\n";
 
 static PyObject *PyFT2Font_get_glyph_name(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     unsigned int glyph_number;
     char buffer[128];
-
     if (!PyArg_ParseTuple(args, "I:get_glyph_name", &glyph_number)) {
         return NULL;
     }
-
     CALL_CPP("get_glyph_name", (self->x->get_glyph_name(glyph_number, buffer)));
-
     return PyUnicode_FromString(buffer);
 }
 
@@ -998,8 +1040,8 @@ static PyObject *PyFT2Font_get_char_index(PyFT2Font *self, PyObject *args, PyObj
 const char *PyFT2Font_get_sfnt__doc__ =
     "get_sfnt(name)\n"
     "\n"
-    "Get all values from the SFNT names table.  Result is a dictionary whose"
-    "key is the platform-ID, ISO-encoding-scheme, language-code, and"
+    "Get all values from the SFNT names table.  Result is a dictionary whose "
+    "key is the platform-ID, ISO-encoding-scheme, language-code, and "
     "description.\n";
 
 static PyObject *PyFT2Font_get_sfnt(PyFT2Font *self, PyObject *args, PyObject *kwds)
@@ -1066,15 +1108,10 @@ static PyObject *PyFT2Font_get_name_index(PyFT2Font *self, PyObject *args, PyObj
 {
     char *glyphname;
     long name_index;
-
-    if (!PyArg_ParseTuple(args, "es:get_name_index", "ascii", &glyphname)) {
+    if (!PyArg_ParseTuple(args, "s:get_name_index", &glyphname)) {
         return NULL;
     }
-
     CALL_CPP("get_name_index", name_index = self->x->get_name_index(glyphname));
-
-    PyMem_Free(glyphname);
-
     return PyLong_FromLong(name_index);
 }
 
@@ -1114,8 +1151,7 @@ const char *PyFT2Font_get_sfnt_table__doc__ =
 static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     char *tagname;
-
-    if (!PyArg_ParseTuple(args, "es:get_sfnt_table", "ascii", &tagname)) {
+    if (!PyArg_ParseTuple(args, "s:get_sfnt_table", &tagname)) {
         return NULL;
     }
 
@@ -1127,8 +1163,6 @@ static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args, PyObj
             break;
         }
     }
-
-    PyMem_Free(tagname);
 
     void *table = FT_Get_Sfnt_Table(self->x->get_face(), (FT_Sfnt_Tag)tag);
     if (!table) {
@@ -1260,7 +1294,7 @@ static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args, PyObj
                              t->sFamilyClass,
                              "panose",
                              t->panose,
-                             10,
+                             Py_ssize_t(10),
                              "ulCharRange",
                              t->ulUnicodeRange1,
                              t->ulUnicodeRange2,
@@ -1268,7 +1302,7 @@ static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args, PyObj
                              t->ulUnicodeRange4,
                              "achVendID",
                              t->achVendID,
-                             4,
+                             Py_ssize_t(4),
                              "fsSelection",
                              t->fsSelection,
                              "fsFirstCharIndex",
@@ -1394,10 +1428,10 @@ static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args, PyObj
                              t->SymbolSet,
                              "typeFace",
                              t->TypeFace,
-                             16,
+                             Py_ssize_t(16),
                              "characterComplement",
                              t->CharacterComplement,
-                             8,
+                             Py_ssize_t(8),
                              "strokeWeight",
                              t->StrokeWeight,
                              "widthType",
