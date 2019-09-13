@@ -380,8 +380,8 @@ def compare_images(expected, actual, tol, in_decorator=False):
         raise IOError('Baseline image %r does not exist.' % expected)
     extension = expected.split('.')[-1]
     if extension != 'png':
-        actual = convert(actual, False)
-        expected = convert(expected, True)
+        actual = convert(actual, cache=False)
+        expected = convert(expected, cache=True)
 
     # open the image files and remove the alpha channel (if it exists)
     with open(expected, "rb") as expected_file:
