@@ -3252,7 +3252,6 @@ class _AxesBase(martist.Artist):
             - `matplotlib.scale.SymmetricalLogScale`
             - `matplotlib.scale.LogitScale`
 
-
         Notes
         -----
         By default, Matplotlib supports the above mentioned scales.
@@ -3260,12 +3259,19 @@ class _AxesBase(martist.Artist):
         `matplotlib.scale.register_scale`. These scales can then also
         be used here.
         """
+        old_default_lims = (self.xaxis.get_major_locator()
+                            .nonsingular(-np.inf, np.inf))
         g = self.get_shared_x_axes()
         for ax in g.get_siblings(self):
             ax.xaxis._set_scale(value, **kwargs)
             ax._update_transScale()
             ax.stale = True
-        self._request_autoscale_view(scaley=False)
+        new_default_lims = (self.xaxis.get_major_locator()
+                            .nonsingular(-np.inf, np.inf))
+        if old_default_lims != new_default_lims:
+            # Force autoscaling now, to take advantage of the scale locator's
+            # nonsingular() before it possibly gets swapped out by the user.
+            self.autoscale_view(scaley=False)
 
     @cbook._make_keyword_only("3.2", "minor")
     def get_xticks(self, minor=False):
@@ -3637,7 +3643,6 @@ class _AxesBase(martist.Artist):
             - `matplotlib.scale.SymmetricalLogScale`
             - `matplotlib.scale.LogitScale`
 
-
         Notes
         -----
         By default, Matplotlib supports the above mentioned scales.
@@ -3645,12 +3650,19 @@ class _AxesBase(martist.Artist):
         `matplotlib.scale.register_scale`. These scales can then also
         be used here.
         """
+        old_default_lims = (self.yaxis.get_major_locator()
+                            .nonsingular(-np.inf, np.inf))
         g = self.get_shared_y_axes()
         for ax in g.get_siblings(self):
             ax.yaxis._set_scale(value, **kwargs)
             ax._update_transScale()
             ax.stale = True
-        self._request_autoscale_view(scalex=False)
+        new_default_lims = (self.yaxis.get_major_locator()
+                            .nonsingular(-np.inf, np.inf))
+        if old_default_lims != new_default_lims:
+            # Force autoscaling now, to take advantage of the scale locator's
+            # nonsingular() before it possibly gets swapped out by the user.
+            self.autoscale_view(scalex=False)
 
     @cbook._make_keyword_only("3.2", "minor")
     def get_yticks(self, minor=False):
