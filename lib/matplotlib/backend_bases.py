@@ -45,7 +45,6 @@ from weakref import WeakKeyDictionary
 
 import numpy as np
 
-import matplotlib as mpl
 from matplotlib import (
     backend_tools as tools, cbook, colors, textpath, tight_bbox, transforms,
     widgets, get_backend, is_interactive, rcParams)
@@ -2552,7 +2551,7 @@ class FigureManagerBase:
         warning in `.Figure.show`.
         """
         # This should be overridden in GUI backends.
-        if mpl.backends._get_running_interactive_framework() != "headless":
+        if cbook._get_running_interactive_framework() != "headless":
             raise NonGuiException(
                 f"Matplotlib is currently using {get_backend()}, which is "
                 f"a non-GUI backend, so cannot show the figure.")

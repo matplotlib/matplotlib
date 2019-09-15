@@ -233,6 +233,18 @@ class Test_callback_registry:
                        "callbacks")
 
 
+def test_callbackregistry_default_exception_handler(monkeypatch):
+    cb = cbook.CallbackRegistry()
+    cb.connect("foo", lambda: None)
+    monkeypatch.setattr(
+        cbook, "_get_running_interactive_framework", lambda: None)
+    with pytest.raises(TypeError):
+        cb.process("foo", "argument mismatch")
+    monkeypatch.setattr(
+        cbook, "_get_running_interactive_framework", lambda: "not-none")
+    cb.process("foo", "argument mismatch")  # No error in that case.
+
+
 def raising_cb_reg(func):
     class TestException(Exception):
         pass
@@ -245,10 +257,6 @@ def raising_cb_reg(func):
             raise TestException
         raise excp
 
-    # default behavior
-    cb = cbook.CallbackRegistry()
-    cb.connect('foo', raising_function)
-
     # old default
     cb_old = cbook.CallbackRegistry(exception_handler=None)
     cb_old.connect('foo', raising_function)
@@ -258,13 +266,14 @@ def raising_cb_reg(func):
     cb_filt.connect('foo', raising_function)
 
     return pytest.mark.parametrize('cb, excp',
-                                   [[cb, None],
-                                    [cb_old, RuntimeError],
+                                   [[cb_old, RuntimeError],
                                     [cb_filt, TestException]])(func)
 
 
 @raising_cb_reg
-def test_callbackregistry_process_exception(cb, excp):
+def test_callbackregistry_custom_exception_handler(monkeypatch, cb, excp):
+    monkeypatch.setattr(
+        cbook, "_get_running_interactive_framework", lambda: None)
     if excp is not None:
         with pytest.raises(excp):
             cb.process('foo')
