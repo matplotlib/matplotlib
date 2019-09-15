@@ -66,6 +66,14 @@ To make subscripts and superscripts, use the ``'_'`` and ``'^'`` symbols::
 
     \alpha_i > \beta_i
 
+Note that to make multi-letter subscripts or superscripts displayed correctly, you should put them in curly braces ``{...}``::
+
+    r'$\alpha^{ic} > \beta_{ic}$'
+
+.. math::
+
+    \alpha^{ic} > \beta_{ic}
+
 Some symbols automatically put their sub/superscripts under and over the
 operator.  For example, to write the sum of :mathmpl:`x_i` from :mathmpl:`0` to
 :mathmpl:`\infty`, you could do::
