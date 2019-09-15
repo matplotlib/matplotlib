@@ -66,7 +66,7 @@ To make subscripts and superscripts, use the ``'_'`` and ``'^'`` symbols::
 
     \alpha_i > \beta_i
 
-Note that to make multi-letter subscripts or superscripts displayed correctly,
+To display multi-letter subscripts or superscripts correctly,
 you should put them in curly braces ``{...}``::
 
     r'$\alpha^{ic} > \beta_{ic}$'
