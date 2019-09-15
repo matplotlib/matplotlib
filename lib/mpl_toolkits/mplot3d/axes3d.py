@@ -1381,29 +1381,23 @@ class Axes3D(Axes):
     def set_zbound(self, lower=None, upper=None):
         """
         Set the lower and upper numerical bounds of the z-axis.
+
         This method will honor axes inversion regardless of parameter order.
-        It will not change the :attr:`_autoscaleZon` attribute.
+        It will not change the autoscaling setting (`.get_autoscalez_on()`).
 
         .. versionadded :: 1.1.0
         """
         if upper is None and np.iterable(lower):
             lower, upper = lower
+
         old_lower, old_upper = self.get_zbound()
         if lower is None:
             lower = old_lower
         if upper is None:
             upper = old_upper
 
-        if self.zaxis_inverted():
-            if lower < upper:
-                self.set_zlim(upper, lower, auto=None)
-            else:
-                self.set_zlim(lower, upper, auto=None)
-        else:
-            if lower < upper:
-                self.set_zlim(lower, upper, auto=None)
-            else:
-                self.set_zlim(upper, lower, auto=None)
+        self.set_zlim(sorted((lower, upper), reverse=self.zaxis_inverted()),
+                      auto=None)
 
     def text(self, x, y, z, s, zdir=None, **kwargs):
         '''
