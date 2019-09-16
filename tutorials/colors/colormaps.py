@@ -350,8 +350,8 @@ for cmap_category, cmap_list in cmaps.items():
 # overlaid, labeled contours could help differentiate between one side of the
 # colormap vs. the other since color cannot be used once a plot is printed to
 # grayscale. Many of the Qualitative and Miscellaneous colormaps, such as
-# Accent, hsv, jet and turbo, change from darker to lighter and back to darker gray
-# throughout the colormap. This would make it impossible for a viewer to
+# Accent, hsv, jet and turbo, change from darker to lighter and back to darker
+# grey throughout the colormap. This would make it impossible for a viewer to
 # interpret the information in a plot once it is printed in grayscale.
 
 mpl.rcParams.update({'font.size': 14})
