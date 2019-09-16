@@ -38,7 +38,7 @@ cmaps = [('Perceptually Uniform Sequential', [
             'flag', 'prism', 'ocean', 'gist_earth', 'terrain', 'gist_stern',
             'gnuplot', 'gnuplot2', 'CMRmap', 'cubehelix', 'brg',
             'gist_rainbow', 'rainbow', 'jet', 'nipy_spectral', 'gist_ncar',
-			'turbo'])]
+            'turbo'])]
 
 
 gradient = np.linspace(0, 1, 256)
