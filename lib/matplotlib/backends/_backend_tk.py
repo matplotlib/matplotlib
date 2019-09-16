@@ -507,17 +507,23 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
     Attributes
     ----------
     canvas : `FigureCanvas`
-        the figure canvas on which to operate
+        The figure canvas on which to operate.
     win : tk.Window
-        the tk.Window which owns this toolbar
-
+        The tk.Window which owns this toolbar.
+    pack_toolbar : bool, default: True
+        If True, add the toolbar to the parent's pack manager's packing list
+        during initialization with *side='bottom'* and *fill='x'*.
+        If you want to use the toolbar with a different layout manager, use
+        *pack_toolbar=False*.
     """
-    def __init__(self, canvas, window):
+    def __init__(self, canvas, window, *, pack_toolbar=True):
         self.canvas = canvas
         # Avoid using self.window (prefer self.canvas.get_tk_widget().master),
         # so that Tool implementations can reuse the methods.
         self.window = window
         NavigationToolbar2.__init__(self, canvas)
+        if pack_toolbar:
+            self.pack(side=tk.BOTTOM, fill=tk.X)
 
     def destroy(self, *args):
         del self.message
@@ -582,7 +588,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         self.message = tk.StringVar(master=self)
         self._message_label = tk.Label(master=self, textvariable=self.message)
         self._message_label.pack(side=tk.RIGHT)
-        self.pack(side=tk.BOTTOM, fill=tk.X)
 
     def configure_subplots(self):
         toolfig = Figure(figsize=(6, 3))
