@@ -190,8 +190,8 @@ cmaps['Qualitative'] = ['Pastel1', 'Pastel2', 'Paired', 'Accent',
 cmaps['Miscellaneous'] = [
             'flag', 'prism', 'ocean', 'gist_earth', 'terrain', 'gist_stern',
             'gnuplot', 'gnuplot2', 'CMRmap', 'cubehelix', 'brg',
-            'gist_rainbow', 'rainbow', 'jet', 'nipy_spectral', 'gist_ncar',
-            'turbo']
+            'gist_rainbow', 'rainbow', 'jet', 'turbo', 'nipy_spectral',
+            'gist_ncar']
 
 ###############################################################################
 # .. _color-colormaps_reference:
