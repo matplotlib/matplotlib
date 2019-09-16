@@ -1644,20 +1644,40 @@ def pts_to_betweenstep_edges(x, *args):
         ``N=0``, the length will be 0.
 
     """
-
     steps = pts_to_betweenstep(x, *args)
-    edge_steps = np.zeros((steps.shape[0], steps.shape[1]+2))
 
-    edge_steps[:, 1:-1] = steps
-    if len(x) == len(args[0]) + 1:
-        edge_steps[0, ::len(edge_steps[0])-1] = steps[0, ::len(steps[0])-1]
-    elif len(x) + 1 == len(args[0]):
-        edge_steps[1:, ::len(edge_steps[0])-1] = steps[1:, ::len(steps[0])-1]
-    else:
+    # Extra steps to plot edges where values are missing (Nan).
+    nan_cols = np.nonzero(np.isnan(np.sum(steps, axis=0)))[0]
+    nan_cols[1::2] = nan_cols[1::2]+1
+    pad_steps = []
+
+    xlike = len(x) == len(args[0]) + 1
+    ylike = len(x) + 1 == len(args[0])
+    if not (xlike or ylike):
         # Fall back to steps-post (legend drawing)
         edge_steps = pts_to_poststep(x, *args)
+        return edge_steps
 
-    return edge_steps
+    for part in np.split(steps, nan_cols, axis=1):
+        if not np.isnan(np.sum(part)):
+            pad_part = np.zeros((2, part.shape[-1]+2))
+            pad_part[:, 1:-1] = part
+            if xlike:
+                pad_part[:, 0] = part[:, 0]
+                pad_part[1, 0] = 0
+                pad_part[:, -1] = part[:, -1]
+                pad_part[1, -1] = 0
+            else:
+                pad_part[:, 0] = 0
+                pad_part[1, 0] = part[1, 0]
+                pad_part[:, -1] = 0
+                pad_part[1, -1] = part[1, -1]
+
+            pad_steps.append(pad_part)
+        else:
+            pad_steps.append(part)
+
+    return np.hstack(pad_steps)
 
 
 def pts_to_poststep(x, *args):
