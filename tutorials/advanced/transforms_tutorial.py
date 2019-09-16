@@ -312,11 +312,11 @@ plt.show()
 #
 # .. _transforms-fig-scale-dpi:
 #
-# Plotting in physical units
-# ==========================
+# Plotting in physical coordinates
+# ================================
 #
 # Sometimes we want an object to be a certain physical size on the plot.
-# Here we draw the same circle as above, but in physical units.  If done
+# Here we draw the same circle as above, but in physical coordinates.  If done
 # interactively, you can see that changing the size of the figure does
 # not change the offset of the circle from the lower-left corner,
 # does not change its size, and the circle remains a circle regardless of
@@ -325,7 +325,7 @@ plt.show()
 fig, ax = plt.subplots(figsize=(5, 4))
 x, y = 10*np.random.rand(2, 1000)
 ax.plot(x, y*10., 'go', alpha=0.2)  # plot some data in data coordinates
-# add a circle in fixed-units
+# add a circle in fixed-coordinates
 circ = mpatches.Circle((2.5, 2), 1.0, transform=fig.dpi_scale_trans,
                        facecolor='blue', alpha=0.75)
 ax.add_patch(circ)
@@ -338,7 +338,7 @@ plt.show()
 fig, ax = plt.subplots(figsize=(7, 2))
 x, y = 10*np.random.rand(2, 1000)
 ax.plot(x, y*10., 'go', alpha=0.2)  # plot some data in data coordinates
-# add a circle in fixed-units
+# add a circle in fixed-coordinates
 circ = mpatches.Circle((2.5, 2), 1.0, transform=fig.dpi_scale_trans,
                        facecolor='blue', alpha=0.75)
 ax.add_patch(circ)
@@ -416,7 +416,7 @@ plt.show()
 #
 # Here we apply the transforms in the *opposite* order to the use of
 # :class:`~matplotlib.transforms.ScaledTranslation` above. The plot is
-# first made in data units (``ax.transData``) and then shifted by
+# first made in data coordinates (``ax.transData``) and then shifted by
 # ``dx`` and ``dy`` points using ``fig.dpi_scale_trans``.  (In typography,
 # a `point <https://en.wikipedia.org/wiki/Point_%28typography%29>`_ is
 # 1/72 inches, and by specifying your offsets in points, your figure
