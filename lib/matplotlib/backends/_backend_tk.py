@@ -512,9 +512,9 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         The tk.Window which owns this toolbar.
     pack_toolbar : bool, default: True
         If True, add the toolbar to the parent's pack manager's packing list
-        during initialization with *side='bottom'* and *fill='x'*.
+        during initialization with ``side='bottom'`` and ``fill='x'``.
         If you want to use the toolbar with a different layout manager, use
-        *pack_toolbar=False*.
+        ``pack_toolbar=False``.
     """
     def __init__(self, canvas, window, *, pack_toolbar=True):
         self.canvas = canvas
