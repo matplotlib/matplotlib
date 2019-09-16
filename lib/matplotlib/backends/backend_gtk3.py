@@ -501,11 +501,15 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             image = Gtk.Image()
             image.set_from_file(
                 str(cbook._get_data_path('images', image_file + '.png')))
-            self._gtk_ids[text] = tbutton = Gtk.ToolButton()
+            self._gtk_ids[text] = tbutton = (
+                Gtk.ToggleToolButton() if callback in ['zoom', 'pan'] else
+                Gtk.ToolButton())
             tbutton.set_label(text)
             tbutton.set_icon_widget(image)
             self.insert(tbutton, -1)
-            tbutton.connect('clicked', getattr(self, callback))
+            # Save the handler id, so that we can block it as needed.
+            tbutton._signal_handler = tbutton.connect(
+                'clicked', getattr(self, callback))
             tbutton.set_tooltip_text(tooltip_text)
 
         toolitem = Gtk.SeparatorToolItem()
@@ -519,6 +523,21 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         toolitem.add(self.message)
 
         self.show_all()
+
+    def _update_buttons_checked(self):
+        for name, active in [("Pan", "PAN"), ("Zoom", "ZOOM")]:
+            button = self._gtk_ids.get(name)
+            if button:
+                with button.handler_block(button._signal_handler):
+                    button.set_active(self._active == active)
+
+    def pan(self, *args):
+        super().pan(*args)
+        self._update_buttons_checked()
+
+    def zoom(self, *args):
+        super().zoom(*args)
+        self._update_buttons_checked()
 
     @cbook.deprecated("3.1")
     def get_filechooser(self):
