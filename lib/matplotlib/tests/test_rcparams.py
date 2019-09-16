@@ -17,6 +17,7 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_colorlist,
                                 validate_color,
                                 validate_bool,
+                                validate_fontweight,
                                 validate_nseq_int,
                                 validate_nseq_float,
                                 validate_cycler,
@@ -410,6 +411,26 @@ def test_validator_valid(validator, arg, target):
 def test_validator_invalid(validator, arg, exception_type):
     with pytest.raises(exception_type):
         validator(arg)
+
+
+@pytest.mark.parametrize('weight, parsed_weight', [
+    ('bold', 'bold'),
+    ('BOLD', ValueError),  # weight is case-sensitive
+    (100, 100),
+    ('100', 100),
+    (np.array(100), 100),
+    # fractional fontweights are not defined. This should actually raise a
+    # ValueError, but historically did not.
+    (20.6, 20),
+    ('20.6', ValueError),
+    ([100], ValueError),
+])
+def test_validate_fontweight(weight, parsed_weight):
+    if parsed_weight is ValueError:
+        with pytest.raises(ValueError):
+            validate_fontweight(weight)
+    else:
+        assert validate_fontweight(weight) == parsed_weight
 
 
 def test_keymaps():

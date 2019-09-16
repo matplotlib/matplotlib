@@ -461,6 +461,19 @@ def validate_fontsize(s):
 validate_fontsizelist = _listify_validator(validate_fontsize)
 
 
+def validate_fontweight(s):
+    weights = [
+        'ultralight', 'light', 'normal', 'regular', 'book', 'medium', 'roman',
+        'semibold', 'demibold', 'demi', 'bold', 'heavy', 'extra bold', 'black']
+    # Note: Historically, weights have been case-sensitive in Matplotlib
+    if s in weights:
+        return s
+    try:
+        return int(s)
+    except (ValueError, TypeError):
+        raise ValueError(f'{s} is not a valid font weight. %s')
+
+
 def validate_font_properties(s):
     parse_fontconfig_pattern(s)
     return s
@@ -1113,7 +1126,7 @@ defaultParams = {
     'font.style':      ['normal', validate_string],
     'font.variant':    ['normal', validate_string],
     'font.stretch':    ['normal', validate_string],
-    'font.weight':     ['normal', validate_string],
+    'font.weight':     ['normal', validate_fontweight],
     'font.size':       [10, validate_float],      # Base font size in points
     'font.serif':      [['DejaVu Serif', 'Bitstream Vera Serif',
                          'Computer Modern Roman',
@@ -1190,7 +1203,7 @@ defaultParams = {
 
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
-    'axes.titleweight':      ['normal', validate_string],  # font weight of axes title
+    'axes.titleweight':      ['normal', validate_fontweight],  # font weight of axes title
     'axes.titlepad':         [6.0, validate_float],  # pad from axes top to title in points
     'axes.grid':             [False, validate_bool],   # display grid or not
     'axes.grid.which':       ['major', validate_axis_locator],  # set whether the gid are by
@@ -1202,7 +1215,7 @@ defaultParams = {
     'axes.labelsize':        ['medium', validate_fontsize],  # fontsize of the
                                                              # x any y labels
     'axes.labelpad':         [4.0, validate_float],  # space between label and axis
-    'axes.labelweight':      ['normal', validate_string],  # fontsize of the x any y labels
+    'axes.labelweight':      ['normal', validate_fontweight],  # fontsize of the x any y labels
     'axes.labelcolor':       ['black', validate_color],    # color of axis label
     'axes.formatter.limits': [[-7, 7], validate_nseq_int(2)],
                                # use scientific notation if log10
@@ -1340,7 +1353,7 @@ defaultParams = {
     ## figure props
     # figure title
     'figure.titlesize':   ['large', validate_fontsize],
-    'figure.titleweight': ['normal', validate_string],
+    'figure.titleweight': ['normal', validate_fontweight],
 
     # figure size in inches: width by height
     'figure.figsize':    [[6.4, 4.8], validate_nseq_float(2)],
