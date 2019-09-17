@@ -12,10 +12,9 @@ Pull request checklist
 Branch selection
 ----------------
 
-In general target the master branch for all new features and
-bug-fixes.  PRs may target maintenance or doc branches on
-a case-by-case basis.
-
+Generally, all pull requests (*PRs*) should target the master branch. Other
+branches are fed through automatic or manual backports. Directly targeting
+other branches is only rarely necessary for special maintenance work.
 
 Documentation
 -------------
@@ -24,9 +23,10 @@ Documentation
   forget to add a new rst file to the API docs.
 
 * Each high-level plotting function should have a small example in
-  the `Example` section of the docstring.  This should be as simple as
-  possible to demonstrate the method.  More complex examples should go
-  in the `examples` section of the documentation.
+  the ``Examples`` section of the docstring.  This should be as simple as
+  possible to demonstrate the method.  More complex examples should go into
+  a dedicated example file in the :file:`examples` directory, which will be
+  rendered to the examples gallery in the documentation.
 
 * Build the docs and make sure all formatting warnings are addressed.
 
@@ -46,6 +46,26 @@ PR Review guidelines
 
 * If you have commit rights, then you are trusted to use them.  Please
   help review and merge PRs!
+
+* If you have the rights to set labels, tag the PR with descriptive labels.
+  See the `list of labels <https://github.com/matplotlib/matplotlib/labels>`__.
+
+* Set the milestone according to these rules:
+
+  * *New features and API changes* are milestoned for the next point-release
+    ``v3.X.0``.
+
+  * *Bugfixes and docstring changes* are milestoned for the next bugfix
+    release ``v3.X.Y``
+
+  * *Documentation changes* (all .rst files and examples) are milestoned
+    ``v3.X-doc``
+
+  If multiple rules apply, choose the first matching from the above list.
+
+  All of these PRs should target the master branch. The milestone tag triggers
+  an :ref:`automatic backport <automated-backports>` for milestones which have
+  a corresponding branch.
 
 * Documentation and examples may be merged by the first reviewer.  Use
   the threshold "is this better than it was?" as the review criteria.
@@ -137,6 +157,8 @@ for and shepherd through the backport.
 The only changes to be backported to 2.2.N-doc are changes to
 ``doc``, ``examples``, or ``tutorials``.  Any changes to
 ``lib`` or ``src`` should not be backported to this branch.
+
+.. _automated-backports:
 
 Automated backports
 -------------------
