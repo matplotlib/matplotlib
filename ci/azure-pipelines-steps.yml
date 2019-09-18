@@ -63,13 +63,13 @@ steps:
 - script: |
 
     python -m pip install --upgrade pip
-    pip install -r requirements/testing/travis_all.txt -r requirements/testing/travis36.txt
+    python -m pip install -r requirements/testing/travis_all.txt -r requirements/testing/travis36.txt
 
   displayName: 'Install dependencies with pip'
 
 - script: |
 
-    pip install -ve .
+    python -m pip install -ve .
 
   displayName: "Install self"
   env:
@@ -80,7 +80,7 @@ steps:
 
 - script: |
     env
-    pytest --junitxml=junit/test-results.xml -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n 2
+    python -m pytest --junitxml=junit/test-results.xml -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n 2
   displayName: 'pytest'
   env:
     PYTHONFAULTHANDLER: 1
