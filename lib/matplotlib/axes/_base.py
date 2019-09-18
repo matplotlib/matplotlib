@@ -487,16 +487,8 @@ class _AxesBase(martist.Artist):
         self._anchor = 'C'
         self._stale_viewlim_x = False
         self._stale_viewlim_y = False
-        self._sharex = sharex
-        self._sharey = sharey
-        if sharex is not None:
-            if not isinstance(sharex, _AxesBase):
-                raise TypeError('sharex must be an axes, not a bool')
-            self._shared_x_axes.join(self, sharex)
-        if sharey is not None:
-            if not isinstance(sharey, _AxesBase):
-                raise TypeError('sharey must be an axes, not a bool')
-            self._shared_y_axes.join(self, sharey)
+        self._sharex = None
+        self._sharey = None
         self.set_label(label)
         self.set_figure(fig)
         self.set_box_aspect(box_aspect)
@@ -514,6 +506,11 @@ class _AxesBase(martist.Artist):
 
         self._rasterization_zorder = None
         self.cla()
+
+        if sharex is not None:
+            self.sharex(sharex)
+        if sharey is not None:
+            self.sharey(sharey)
 
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None
@@ -1008,6 +1005,44 @@ class _AxesBase(martist.Artist):
         return OrderedDict((side, mspines.Spine.linear_spine(self, side))
                            for side in ['left', 'right', 'bottom', 'top'])
 
+    def sharex(self, other):
+        """
+        Share the x-axis with *other*.
+
+        This is equivalent to passing ``sharex=other`` when constructing the
+        axes, and cannot be used if the x-axis is already being shared with
+        another axes.
+        """
+        cbook._check_isinstance(_AxesBase, other=other)
+        if self._sharex is not None and other is not self._sharex:
+            raise ValueError("x-axis is already shared")
+        self._shared_x_axes.join(self, other)
+        self._sharex = other
+        self.xaxis.major = other.xaxis.major  # Ticker instances holding
+        self.xaxis.minor = other.xaxis.minor  # locator and formatter.
+        x0, x1 = other.get_xlim()
+        self.set_xlim(x0, x1, emit=False, auto=other.get_autoscalex_on())
+        self.xaxis._scale = other.xaxis._scale
+
+    def sharey(self, other):
+        """
+        Share the y-axis with *other*.
+
+        This is equivalent to passing ``sharey=other`` when constructing the
+        axes, and cannot be used if the y-axis is already being shared with
+        another axes.
+        """
+        cbook._check_isinstance(_AxesBase, other=other)
+        if self._sharey is not None and other is not self._sharey:
+            raise ValueError("y-axis is already shared")
+        self._shared_y_axes.join(self, other)
+        self._sharey = other
+        self.yaxis.major = other.yaxis.major  # Ticker instances holding
+        self.yaxis.minor = other.yaxis.minor  # locator and formatter.
+        y0, y1 = other.get_ylim()
+        self.set_ylim(y0, y1, emit=False, auto=other.get_autoscaley_on())
+        self.yaxis._scale = other.yaxis._scale
+
     def cla(self):
         """Clear the current axes."""
         # Note: this is called by Axes.__init__()
@@ -1031,38 +1066,25 @@ class _AxesBase(martist.Artist):
         self.callbacks = cbook.CallbackRegistry()
 
         if self._sharex is not None:
-            # major and minor are axis.Ticker class instances with
-            # locator and formatter attributes
-            self.xaxis.major = self._sharex.xaxis.major
-            self.xaxis.minor = self._sharex.xaxis.minor
-            x0, x1 = self._sharex.get_xlim()
-            self.set_xlim(x0, x1, emit=False,
-                          auto=self._sharex.get_autoscalex_on())
-            self.xaxis._scale = self._sharex.xaxis._scale
+            self.sharex(self._sharex)
         else:
             self.xaxis._set_scale('linear')
             try:
                 self.set_xlim(0, 1)
             except TypeError:
                 pass
-
         if self._sharey is not None:
-            self.yaxis.major = self._sharey.yaxis.major
-            self.yaxis.minor = self._sharey.yaxis.minor
-            y0, y1 = self._sharey.get_ylim()
-            self.set_ylim(y0, y1, emit=False,
-                          auto=self._sharey.get_autoscaley_on())
-            self.yaxis._scale = self._sharey.yaxis._scale
+            self.sharey(self._sharey)
         else:
             self.yaxis._set_scale('linear')
             try:
                 self.set_ylim(0, 1)
             except TypeError:
                 pass
+
         # update the minor locator for x and y axis based on rcParams
         if mpl.rcParams['xtick.minor.visible']:
             self.xaxis.set_minor_locator(mticker.AutoMinorLocator())
-
         if mpl.rcParams['ytick.minor.visible']:
             self.yaxis.set_minor_locator(mticker.AutoMinorLocator())
 
@@ -1144,11 +1166,10 @@ class _AxesBase(martist.Artist):
 
         self._shared_x_axes.clean()
         self._shared_y_axes.clean()
-        if self._sharex:
+        if self._sharex is not None:
             self.xaxis.set_visible(xaxis_visible)
             self.patch.set_visible(patch_visible)
-
-        if self._sharey:
+        if self._sharey is not None:
             self.yaxis.set_visible(yaxis_visible)
             self.patch.set_visible(patch_visible)
 
