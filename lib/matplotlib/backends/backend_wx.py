@@ -40,6 +40,7 @@ _DEBUG = 5
 _DEBUG_lvls = {1: 'Low ', 2: 'Med ', 3: 'High', 4: 'Error'}
 
 
+@cbook.deprecated("3.3")
 def DEBUG_MSG(string, lvl=3, o=None):
     if lvl >= _DEBUG:
         print(f"{_DEBUG_lvls[lvl]}- {string} in {type(o)}")
@@ -198,7 +199,7 @@ class RendererWx(RendererBase):
             alternative="wxagg", addendum="See the Matplotlib usage FAQ for "
             "more info on backends.")
         RendererBase.__init__(self)
-        DEBUG_MSG("__init__()", 1, self)
+        _log.debug("%s - __init__()", type(self))
         self.width = bitmap.GetWidth()
         self.height = bitmap.GetHeight()
         self.bitmap = bitmap
@@ -301,7 +302,7 @@ class RendererWx(RendererBase):
 
         if ismath:
             s = cbook.strip_math(s)
-        DEBUG_MSG("draw_text()", 1, self)
+        _log.debug("%s - draw_text()", type(self))
         gc.select()
         self.handle_clip_rectangle(gc)
         gfx_ctx = gc.gfx_ctx
@@ -326,7 +327,7 @@ class RendererWx(RendererBase):
 
     def new_gc(self):
         # docstring inherited
-        DEBUG_MSG('new_gc()', 2, self)
+        _log.debug("%s - new_gc()", type(self))
         self.gc = GraphicsContextWx(self.bitmap, self)
         self.gc.select()
         self.gc.unselect()
@@ -346,7 +347,7 @@ class RendererWx(RendererBase):
         Return a wx font.  Cache instances in a font dictionary for
         efficiency
         """
-        DEBUG_MSG("get_wx_font()", 1, self)
+        _log.debug("%s - get_wx_font()", type(self))
 
         key = hash(prop)
         fontprop = prop
@@ -408,8 +409,7 @@ class GraphicsContextWx(GraphicsContextBase):
     def __init__(self, bitmap, renderer):
         GraphicsContextBase.__init__(self)
         # assert self.Ok(), "wxMemoryDC not OK to use"
-        DEBUG_MSG("__init__()", 1, self)
-        DEBUG_MSG("__init__() 2: %s" % bitmap, 1, self)
+        _log.debug("%s - __init__(): %s", type(self), bitmap)
 
         dc, gfx_ctx = self._cache.get(bitmap, (None, None))
         if dc is None:
@@ -445,7 +445,7 @@ class GraphicsContextWx(GraphicsContextBase):
         # Here we set both to the same colour - if a figure is not to be
         # filled, the renderer will set the brush to be transparent
         # Same goes for text foreground...
-        DEBUG_MSG("set_foreground()", 1, self)
+        _log.debug("%s - set_foreground()", type(self))
         self.select()
         GraphicsContextBase.set_foreground(self, fg, isRGBA)
 
@@ -456,7 +456,7 @@ class GraphicsContextWx(GraphicsContextBase):
     def set_linewidth(self, w):
         # docstring inherited
         w = float(w)
-        DEBUG_MSG("set_linewidth()", 1, self)
+        _log.debug("%s - set_linewidth()", type(self))
         self.select()
         if 0 < w < 1:
             w = 1
@@ -470,7 +470,7 @@ class GraphicsContextWx(GraphicsContextBase):
 
     def set_capstyle(self, cs):
         # docstring inherited
-        DEBUG_MSG("set_capstyle()", 1, self)
+        _log.debug("%s - set_capstyle()", type(self))
         self.select()
         GraphicsContextBase.set_capstyle(self, cs)
         self._pen.SetCap(GraphicsContextWx._capd[self._capstyle])
@@ -479,7 +479,7 @@ class GraphicsContextWx(GraphicsContextBase):
 
     def set_joinstyle(self, js):
         # docstring inherited
-        DEBUG_MSG("set_joinstyle()", 1, self)
+        _log.debug("%s - set_joinstyle()", type(self))
         self.select()
         GraphicsContextBase.set_joinstyle(self, js)
         self._pen.SetJoin(GraphicsContextWx._joind[self._joinstyle])
@@ -488,7 +488,7 @@ class GraphicsContextWx(GraphicsContextBase):
 
     def get_wxcolour(self, color):
         """return a wx.Colour from RGB format"""
-        DEBUG_MSG("get_wx_color()", 1, self)
+        _log.debug("%s - get_wx_color()", type(self))
         if len(color) == 3:
             r, g, b = color
             r *= 255
@@ -600,7 +600,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
         # Create the drawing bitmap
         self.bitmap = wx.Bitmap(w, h)
-        DEBUG_MSG("__init__() - bitmap w:%d h:%d" % (w, h), 2, self)
+        _log.debug("%s - __init__() - bitmap w:%d h:%d", type(self), w, h)
         # TODO: Add support for 'point' inspection and plot navigation.
         self._isDrawn = False
 
@@ -642,7 +642,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
     def draw_idle(self):
         # docstring inherited
-        DEBUG_MSG("draw_idle()", 1, self)
+        _log.debug("%s - draw_idle()", type(self))
         self._isDrawn = False  # Force redraw
         # Triggering a paint event is all that is needed to defer drawing
         # until later. The platform will send the event when it thinks it is
@@ -702,7 +702,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
         The 'WXAgg' backend sets origin accordingly.
         """
-        DEBUG_MSG("gui_repaint()", 1, self)
+        _log.debug("%s - gui_repaint()", type(self))
         if self.IsShownOnScreen():
             if not drawDC:
                 # not called from OnPaint use a ClientDC
@@ -740,11 +740,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             self.draw()
 
     def _onPaint(self, evt):
-        """
-        Called when wxPaintEvt is generated
-        """
-
-        DEBUG_MSG("_onPaint()", 1, self)
+        """Called when wxPaintEvt is generated."""
+        _log.debug("%s - _onPaint()", type(self))
         drawDC = wx.PaintDC(self)
         if not self._isDrawn:
             self.draw(drawDC=drawDC)
@@ -760,7 +757,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         is better to take the performance hit and redraw the whole window.
         """
 
-        DEBUG_MSG("_onSize()", 2, self)
+        _log.debug("%s - _onSize()", type(self))
         sz = self.GetParent().GetSizer()
         if sz:
             si = sz.GetItem(self)
@@ -920,7 +917,7 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         Render the figure using RendererWx instance renderer, or using a
         previously defined renderer if none is specified.
         """
-        DEBUG_MSG("draw()", 1, self)
+        _log.debug("%s - draw()", type(self))
         self.renderer = RendererWx(self.bitmap, self.figure.dpi)
         self.figure.draw(self.renderer)
         self._isDrawn = True
@@ -1020,7 +1017,7 @@ class FigureFrameWx(wx.Frame):
         wx.Frame.__init__(self, parent=None, id=-1, pos=pos,
                           title="Figure %d" % num)
         # Frame will be sized later by the Fit method
-        DEBUG_MSG("__init__()", 1, self)
+        _log.debug("%s - __init__()", type(self))
         self.num = num
         _set_frame_icon(self)
 
@@ -1087,11 +1084,11 @@ class FigureFrameWx(wx.Frame):
         return FigureCanvasWx(self, -1, fig)
 
     def get_figure_manager(self):
-        DEBUG_MSG("get_figure_manager()", 1, self)
+        _log.debug("%s - get_figure_manager()", type(self))
         return self.figmgr
 
     def _onClose(self, evt):
-        DEBUG_MSG("onClose()", 1, self)
+        _log.debug("%s - onClose()", type(self))
         self.canvas.close_event()
         self.canvas.stop_event_loop()
         Gcf.destroy(self.num)
@@ -1134,7 +1131,7 @@ class FigureManagerWx(FigureManagerBase):
     """
 
     def __init__(self, canvas, num, frame):
-        DEBUG_MSG("__init__()", 1, self)
+        _log.debug("%s - __init__()", type(self))
         FigureManagerBase.__init__(self, canvas, num)
         self.frame = frame
         self.window = frame
@@ -1147,7 +1144,7 @@ class FigureManagerWx(FigureManagerBase):
         self.canvas.draw()
 
     def destroy(self, *args):
-        DEBUG_MSG("destroy()", 1, self)
+        _log.debug("%s - destroy()", type(self))
         self.frame.Destroy()
         wxapp = wx.GetApp()
         if wxapp:
@@ -1322,7 +1319,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         return type(self.canvas)(frame, -1, fig)
 
     def _init_toolbar(self):
-        DEBUG_MSG("_init_toolbar", 1, self)
+        _log.debug("%s - _init_toolbar", type(self))
 
         self._parent = self.canvas.GetParent()
 
@@ -1384,9 +1381,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         if dlg.ShowModal() == wx.ID_OK:
             dirname = dlg.GetDirectory()
             filename = dlg.GetFilename()
-            DEBUG_MSG(
-                'Save file dir:%s name:%s' %
-                (dirname, filename), 3, self)
+            _log.debug('%s - Save file dir:%s name:%s',
+                       self, dirname, filename)
             format = exts[dlg.GetFilterIndex()]
             basename, ext = os.path.splitext(filename)
             if ext.startswith('.'):
