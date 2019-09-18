@@ -68,8 +68,7 @@ class fake_stderr:
         print("Stderr: %s\n\r" % msg)
 
 
-# the True dots per inch on the screen; should be display dependent
-# see
+# the True dots per inch on the screen; should be display dependent; see
 # http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5
 # for some info about screen dpi
 PIXELS_PER_INCH = 75
@@ -343,38 +342,19 @@ class RendererWx(RendererBase):
         return self.gc
 
     def get_wx_font(self, s, prop):
-        """
-        Return a wx font.  Cache instances in a font dictionary for
-        efficiency
-        """
+        """Return a wx font.  Cache font instances for efficiency."""
         _log.debug("%s - get_wx_font()", type(self))
-
         key = hash(prop)
-        fontprop = prop
-        fontname = fontprop.get_name()
-
         font = self.fontd.get(key)
         if font is not None:
             return font
-
-        # Allow use of platform independent and dependent font names
-        wxFontname = self.fontnames.get(fontname, wx.ROMAN)
-        wxFacename = ''  # Empty => wxPython chooses based on wx_fontname
-
         # Font colour is determined by the active wx.Pen
         # TODO: It may be wise to cache font information
-        size = self.points_to_pixels(fontprop.get_size_in_points())
-
-        font = wx.Font(int(size + 0.5),             # Size
-                       wxFontname,                # 'Generic' name
-                       self.fontangles[fontprop.get_style()],   # Angle
-                       self.fontweights[fontprop.get_weight()],  # Weight
-                       False,                     # Underline
-                       wxFacename)                # Platform font name
-
-        # cache the font and gc and return it
-        self.fontd[key] = font
-
+        self.fontd[key] = font = wx.Font(  # Cache the font and gc.
+            pointSize=self.points_to_pixels(prop.get_size_in_points()),
+            family=self.fontnames.get(prop.get_name(), wx.ROMAN),
+            style=self.fontangles[prop.get_style()],
+            weight=self.fontweights[prop.get_weight()])
         return font
 
     def points_to_pixels(self, points):
