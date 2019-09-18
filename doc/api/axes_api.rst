@@ -240,10 +240,7 @@ Appearance
    Axes.grid
 
    Axes.get_facecolor
-   Axes.get_fc
-
    Axes.set_facecolor
-   Axes.set_fc
 
 
 Property cycle

@@ -364,6 +364,7 @@ class _process_plot_var_args:
                 for j in range(max(ncx, ncy))]
 
 
+@cbook._define_aliases({"facecolor": ["fc"]})
 class _AxesBase(martist.Artist):
     name = "rectilinear"
 
@@ -1098,7 +1099,6 @@ class _AxesBase(martist.Artist):
     def get_facecolor(self):
         """Get the facecolor of the Axes."""
         return self.patch.get_facecolor()
-    get_fc = get_facecolor
 
     def set_facecolor(self, color):
         """
@@ -1111,7 +1111,6 @@ class _AxesBase(martist.Artist):
         self._facecolor = color
         self.stale = True
         return self.patch.set_facecolor(color)
-    set_fc = set_facecolor
 
     def _set_title_offset_trans(self, title_offset_points):
         """
