@@ -9,7 +9,7 @@ Copyright (C) Jeremy O'Donoghue & John Hunter, 2003-4.
 
 import logging
 import math
-import os.path
+import pathlib
 import sys
 import weakref
 
@@ -1374,29 +1374,28 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         # Fetch the required filename and file type.
         filetypes, exts, filter_index = self.canvas._get_imagesave_wildcards()
         default_file = self.canvas.get_default_filename()
-        dlg = wx.FileDialog(self.canvas.GetParent(),
-                            "Save to file", "", default_file, filetypes,
-                            wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+        dlg = wx.FileDialog(
+            self.canvas.GetParent(), "Save to file",
+            rcParams["savefig.directory"], default_file, filetypes,
+            wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         dlg.SetFilterIndex(filter_index)
         if dlg.ShowModal() == wx.ID_OK:
-            dirname = dlg.GetDirectory()
-            filename = dlg.GetFilename()
-            _log.debug('%s - Save file dir:%s name:%s',
-                       self, dirname, filename)
-            format = exts[dlg.GetFilterIndex()]
-            basename, ext = os.path.splitext(filename)
-            if ext.startswith('.'):
-                ext = ext[1:]
-            if ext in ('svg', 'pdf', 'ps', 'eps', 'png') and format != ext:
+            path = pathlib.Path(dlg.GetPath())
+            _log.debug('%s - Save file path: %s', type(self), path)
+            fmt = exts[dlg.GetFilterIndex()]
+            ext = path.suffix[1:]
+            if ext in self.canvas.get_supported_filetypes() and fmt != ext:
                 # looks like they forgot to set the image type drop
                 # down, going with the extension.
                 _log.warning('extension %s did not match the selected '
                              'image type %s; going with %s',
-                             ext, format, ext)
-                format = ext
+                             ext, fmt, ext)
+                fmt = ext
+            # Save dir for next time, unless empty str (which means use cwd).
+            if rcParams["savefig.directory"]:
+                rcParams["savefig.directory"] = str(path.parent)
             try:
-                self.canvas.figure.savefig(
-                    os.path.join(dirname, filename), format=format)
+                self.canvas.figure.savefig(str(path), format=fmt)
             except Exception as e:
                 error_msg_wx(str(e))
 
