@@ -411,7 +411,7 @@ def validate_fontweight(s):
     try:
         return int(s)
     except (ValueError, TypeError):
-        raise ValueError(f'{s} is not a valid font weight. %s')
+        raise ValueError(f'{s} is not a valid font weight.')
 
 
 def validate_font_properties(s):
