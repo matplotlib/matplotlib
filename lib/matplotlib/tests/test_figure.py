@@ -141,6 +141,10 @@ def test_figure_legend():
 def test_gca():
     fig = plt.figure()
 
+    with pytest.warns(UserWarning):
+        # empty call to add_axes() will throw deprecation warning
+        assert fig.add_axes() is None
+
     ax1 = fig.add_axes([0, 0, 1, 1])
     assert fig.gca(projection='rectilinear') is ax1
     assert fig.gca() is ax1

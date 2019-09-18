@@ -1221,6 +1221,11 @@ default: 'top'
         """
 
         if not len(args):
+            cbook.warn_deprecated(
+                "3.3",
+                message="Calling add_axes() without argument is "
+                "deprecated. You may want to use add_suplot() "
+                "instead.")
             return
 
         # shortcut the projection "key" modifications later on, if an axes
