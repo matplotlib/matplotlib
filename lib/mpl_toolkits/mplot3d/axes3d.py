@@ -39,6 +39,8 @@ def unit_bbox():
     return box
 
 
+@cbook._define_aliases({
+    "xlim3d": ["xlim"], "ylim3d": ["ylim"], "zlim3d": ["zlim"]})
 class Axes3D(Axes):
     """
     3D axes object.
@@ -585,7 +587,6 @@ class Axes3D(Axes):
         Set 3D x limits.
 
         See :meth:`matplotlib.axes.Axes.set_xlim` for full documentation.
-
         """
         if right is None and np.iterable(left):
             left, right = left
@@ -637,7 +638,6 @@ class Axes3D(Axes):
                         other.figure.canvas.draw_idle()
         self.stale = True
         return left, right
-    set_xlim = set_xlim3d
 
     def set_ylim3d(self, bottom=None, top=None, emit=True, auto=False,
                    *, ymin=None, ymax=None):
@@ -645,7 +645,6 @@ class Axes3D(Axes):
         Set 3D y limits.
 
         See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation.
-
         """
         if top is None and np.iterable(bottom):
             bottom, top = bottom
@@ -698,7 +697,6 @@ class Axes3D(Axes):
                         other.figure.canvas.draw_idle()
         self.stale = True
         return bottom, top
-    set_ylim = set_ylim3d
 
     def set_zlim3d(self, bottom=None, top=None, emit=True, auto=False,
                    *, zmin=None, zmax=None):
@@ -706,7 +704,6 @@ class Axes3D(Axes):
         Set 3D z limits.
 
         See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation
-
         """
         if top is None and np.iterable(bottom):
             bottom, top = bottom
@@ -759,14 +756,12 @@ class Axes3D(Axes):
                         other.figure.canvas.draw_idle()
         self.stale = True
         return bottom, top
-    set_zlim = set_zlim3d
 
     def get_xlim3d(self):
         return tuple(self.xy_viewLim.intervalx)
     get_xlim3d.__doc__ = maxes.Axes.get_xlim.__doc__
-    get_xlim = get_xlim3d
-    if get_xlim.__doc__ is not None:
-        get_xlim.__doc__ += """
+    if get_xlim3d.__doc__ is not None:
+        get_xlim3d.__doc__ += """
         .. versionchanged :: 1.1.0
             This function now correctly refers to the 3D x-limits
         """
@@ -774,9 +769,8 @@ class Axes3D(Axes):
     def get_ylim3d(self):
         return tuple(self.xy_viewLim.intervaly)
     get_ylim3d.__doc__ = maxes.Axes.get_ylim.__doc__
-    get_ylim = get_ylim3d
-    if get_ylim.__doc__ is not None:
-        get_ylim.__doc__ += """
+    if get_ylim3d.__doc__ is not None:
+        get_ylim3d.__doc__ += """
         .. versionchanged :: 1.1.0
             This function now correctly refers to the 3D y-limits.
         """
@@ -784,7 +778,6 @@ class Axes3D(Axes):
     def get_zlim3d(self):
         '''Get 3D z limits.'''
         return tuple(self.zz_viewLim.intervalx)
-    get_zlim = get_zlim3d
 
     def get_zscale(self):
         """

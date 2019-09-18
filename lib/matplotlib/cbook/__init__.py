@@ -1884,10 +1884,17 @@ def _define_aliases(alias_d, cls=None):
             raise ValueError(
                 "Neither getter nor setter exists for {!r}".format(prop))
 
-    if hasattr(cls, "_alias_map"):
+    def get_aliased_and_aliases(d):
+        return {*d, *(alias for aliases in d.values() for alias in aliases)}
+
+    preexisting_aliases = getattr(cls, "_alias_map", {})
+    conflicting = (get_aliased_and_aliases(preexisting_aliases)
+                   & get_aliased_and_aliases(alias_d))
+    if conflicting:
         # Need to decide on conflict resolution policy.
-        raise NotImplementedError("Parent class already defines aliases")
-    cls._alias_map = alias_d
+        raise NotImplementedError(
+            f"Parent class already defines conflicting aliases: {conflicting}")
+    cls._alias_map = {**preexisting_aliases, **alias_d}
     return cls
 
 
