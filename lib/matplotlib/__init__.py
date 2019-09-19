@@ -1035,7 +1035,8 @@ def rc_file(fname, *, use_default_template=True):
                          if k not in STYLE_BLACKLIST})
 
 
-class rc_context:
+@contextlib.contextmanager
+def rc_context(rc=None, fname=None):
     """
     Return a context manager for managing rc settings.
 
@@ -1052,49 +1053,24 @@ class rc_context:
         with mpl.rc_context(rc={'text.usetex': True}, fname='screen.rc'):
             plt.plot(x, a)
 
-    The 'rc' dictionary takes precedence over the settings loaded from
-    'fname'.  Passing a dictionary only is also valid. For example a
-    common usage is::
+    The *rc* dictionary takes precedence over the settings loaded from *fname*.
+    Passing a dictionary only is also valid.  For example, a common usage is::
 
-        with mpl.rc_context(rc={'interactive': False}):
+        with mpl.rc_context({'interactive': False}):
             fig, ax = plt.subplots()
             ax.plot(range(3), range(3))
             fig.savefig('A.png', format='png')
             plt.close(fig)
     """
-    # While it may seem natural to implement rc_context using
-    # contextlib.contextmanager, that would entail always calling the finally:
-    # clause of the contextmanager (which restores the original rcs) including
-    # during garbage collection; as a result, something like `plt.xkcd();
-    # gc.collect()` would result in the style being lost (as `xkcd()` is
-    # implemented on top of rc_context, and nothing is holding onto context
-    # manager except possibly circular references.
-
-    def __init__(self, rc=None, fname=None):
-        self._orig = rcParams.copy()
-        try:
-            if fname:
-                rc_file(fname)
-            if rc:
-                rcParams.update(rc)
-        except Exception:
-            self.__fallback()
-            raise
-
-    def __fallback(self):
-        # If anything goes wrong, revert to the original rcs.
-        updated_backend = self._orig['backend']
-        dict.update(rcParams, self._orig)
-        # except for the backend.  If the context block triggered resolving
-        # the auto backend resolution keep that value around
-        if self._orig['backend'] is rcsetup._auto_backend_sentinel:
-            rcParams['backend'] = updated_backend
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, exc_tb):
-        self.__fallback()
+    orig = rcParams.copy()
+    try:
+        if fname:
+            rc_file(fname)
+        if rc:
+            rcParams.update(rc)
+        yield
+    finally:
+        dict.update(rcParams, orig)  # Revert to the original rcs.
 
 
 def use(backend, *, force=True):

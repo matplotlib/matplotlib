@@ -54,6 +54,14 @@ def test_rcparams(tmpdir):
         assert mpl.rcParams['lines.linewidth'] == 44
     assert mpl.rcParams['lines.linewidth'] == linewidth
 
+    # test context as decorator (and test reusability, by calling func twice)
+    @mpl.rc_context({'lines.linewidth': 44})
+    def func():
+        assert mpl.rcParams['lines.linewidth'] == 44
+
+    func()
+    func()
+
     # test rc_file
     mpl.rc_file(rcpath)
     assert mpl.rcParams['lines.linewidth'] == 33
