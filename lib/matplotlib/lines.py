@@ -725,8 +725,8 @@ class Line2D(Artist):
             if self._drawstyle in ["steps-between", "steps-edges"]:
                 xy_asym_sliced = [row[subslice] for row in self._xy]
                 # If not asym after slice, crop as original
-                if len(set(map(len, xy_asym_sliced))):
-                    if len(self._xy[0]) > len(self._xy[1]):
+                if len(set(map(len, xy_asym_sliced))) != 2:
+                    if len(self._xy[0]) < len(self._xy[1]):
                         xy_asym_sliced[1] = xy_asym_sliced[1][:-1]
                     else:
                         xy_asym_sliced[0] = xy_asym_sliced[0][:-1]
@@ -780,7 +780,7 @@ class Line2D(Artist):
             x0, x1 = self.axes.get_xbound()
             i0 = self._x_filled.searchsorted(x0, 'left')
             i1 = self._x_filled.searchsorted(x1, 'right')
-            subslice = slice(max(i0 - 2, 0), i1 + 2)
+            subslice = slice(max(i0 - 1, 0), i1 + 1)
             self.ind_offset = subslice.start
             self._transform_path(subslice)
         else:

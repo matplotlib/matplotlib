@@ -124,6 +124,18 @@ def test_drawstyle_variants():
         ax.set(xlim=(0, 4), ylim=(0, 4))
 
 
+@image_comparison(['drawstyle_variants_at_edges.png'], remove_text=True)
+def test_drawstyle_variants_at_edges():
+    fig, axs = plt.subplots(3, 2)
+    dss = ["steps-between", "steps-edges"]
+    for row, lims in zip(axs, [(-1, 3), (3, 6), (1196, 1200)]):
+        for ax, ds in zip(row.T.flat, dss):
+            x = np.arange(1, 1200)
+            ax.plot(x, x[:-1], drawstyle=ds)
+            ax.plot(x[:-1], x, drawstyle=ds)
+            ax.set(xlim=lims, ylim=lims)
+
+
 def test_valid_drawstyles():
     line = mlines.Line2D([], [])
     with pytest.raises(ValueError):
