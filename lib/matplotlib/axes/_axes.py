@@ -5178,11 +5178,12 @@ optional.
                             "future versions of Matplotlib.")
 
         if step == 'between':
-            y1, y2, where = cbook.broadcaster([y1, y2, where],
-                                              def_size=x.size - 1)
+            pad_size = x.size - 1
         else:
-            y1, y2, where = cbook.broadcaster([y1, y2, where],
-                                              def_size=x.size)
+            pad_size = x.size
+        y1 = np.broadcast_to(y1, pad_size, subok=True)
+        y2 = np.broadcast_to(y2, pad_size, subok=True)
+        where = np.broadcast_to(where, pad_size, subok=True)
 
         get_masks = cbook.pad_arrays(list(map(np.atleast_1d,
                                               map(np.ma.getmask,
@@ -5393,11 +5394,12 @@ optional.
                             "future versions of Matplotlib.")
 
         if step == 'between':
-            x1, x2, where = cbook.broadcaster([x1, x2, where],
-                                              def_size=y.size - 1)
+            pad_size = y.size - 1
         else:
-            x1, x2, where = cbook.broadcaster([x1, x2, where],
-                                              def_size=y.size)
+            pad_size = y.size
+        x1 = np.broadcast_to(x1, pad_size, subok=True)
+        x2 = np.broadcast_to(x2, pad_size, subok=True)
+        where = np.broadcast_to(where, pad_size, subok=True)
 
         get_masks = cbook.pad_arrays(list(map(np.atleast_1d,
                                               map(np.ma.getmask,
