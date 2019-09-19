@@ -17,6 +17,8 @@ import sys
 import matplotlib
 import sphinx
 
+from datetime import datetime
+
 if sys.version_info < (3, 0, 0):
     print("You're using python 2.x, conf.py works with python3+ only.")
     exit()
@@ -174,7 +176,7 @@ html_context = {'sha': SHA}
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
              'Michael Droettboom and the Matplotlib development '
-             'team; 2012 - 2018 The Matplotlib development team')
+             f'team; 2012 - {datetime.now().year} The Matplotlib development team')
 
 
 # The default replacements for |version| and |release|, also used in various
