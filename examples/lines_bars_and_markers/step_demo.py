@@ -30,21 +30,19 @@ plt.legend(title='Parameter where:')
 plt.show()
 
 # Plotting with where='between'/'edges'
-values = np.array([6, 14, 32, 37, 48, 32, 21,  4])  # hist
-edges = np.array([1., 2., 3., 4., 5., 6., 7., 8., 9.])  # bins
-fig, axes = plt.subplots(3, 2)
-axes = axes.flatten()
-axes[0].step(edges, values, where='between')
-axes[1].step(values, edges, where='between')
-axes[2].step(edges, values, where='edges')
-axes[3].step(values, edges, where='edges')
-axes[4].step(edges, values, where='edges')
-axes[4].semilogy()
-axes[5].step(edges, values, where='edges')
-axes[5].semilogy()
+x = np.arange(0, 7, 1)
+y = np.array([2, 3, 4, 5, 4, 3])
 
-fig.show()
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+ax1.step(x, y + 2, where='between', label='between')
+ax1.step(x, y, where='edges', label='edges')
+ax1.legend(title='Parameter where:')
 
+ax2.step(y + 2, x, where='between', label='between')
+ax2.step(y, x, where='edges', label='edges')
+ax2.legend(title='Parameter where:')
+
+plt.show()
 #############################################################################
 #
 # ------------

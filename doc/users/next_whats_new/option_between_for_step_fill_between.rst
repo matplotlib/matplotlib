@@ -2,7 +2,7 @@ step() and fill_between() take a new option where/step="between"
 ------------------------------------------------------------------------
 
 Previously one would need to trick step() and fill_between() to plot
-data where x has one point than y, typically when plotting pre-binned
+data where x has one more point than y, typically when plotting pre-binned
 histograms.
 
 step() now takes where="between" for x, y satisfying either
