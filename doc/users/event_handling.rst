@@ -64,6 +64,7 @@ Event name               Class and description
 =======================  =============================================================================================
 'button_press_event'     :class:`~matplotlib.backend_bases.MouseEvent`     - mouse button is pressed
 'button_release_event'   :class:`~matplotlib.backend_bases.MouseEvent`     - mouse button is released
+'close_event'            :class:`~matplotlib.backend_bases.CloseEvent`     - a figure is closed
 'draw_event'             :class:`~matplotlib.backend_bases.DrawEvent`      - canvas draw (but before screen update)
 'key_press_event'        :class:`~matplotlib.backend_bases.KeyEvent`       - key is pressed
 'key_release_event'      :class:`~matplotlib.backend_bases.KeyEvent`       - key is released
