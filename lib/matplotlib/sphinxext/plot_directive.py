@@ -18,6 +18,18 @@ The source code for the plot may be included in one of three ways:
 
         This is the caption for the plot
 
+   Alternatively, the caption may be given using the :caption: option::
+
+     .. plot:: path/to/plot.py
+        :caption: This is the caption for the plot
+
+   If content is given, then the :caption: option is ignored::
+
+     .. plot:: path/to/plot.py
+        :caption: This caption is not used
+
+        This is the actual caption used for the plot
+
    Additionally, one may specify the name of a function to call (with
    no arguments) immediately after importing the module::
 
@@ -26,6 +38,17 @@ The source code for the plot may be included in one of three ways:
 2. Included as **inline content** to the directive::
 
      .. plot::
+
+        import matplotlib.pyplot as plt
+        import matplotlib.image as mpimg
+        import numpy as np
+        img = mpimg.imread('_static/stinkbug.png')
+        imgplot = plt.imshow(img)
+
+   To add a caption to an inline plot, the :caption: option must be used::
+
+     .. plot::
+        :caption: This is the caption for the plot.
 
         import matplotlib.pyplot as plt
         import matplotlib.image as mpimg
@@ -69,6 +92,11 @@ The ``plot`` directive supports the following options:
     nofigs : bool
         If specified, the code block will be run, but no figures will be
         inserted.  This is usually useful with the ``:context:`` option.
+
+    caption : str
+        If given, the caption to add to the plot. If the code to generate the
+        plot is specified by a external file and the directive has content,
+        then this option is ignored.
 
 Additionally, this directive supports all of the options of the `image`
 directive, except for *target* (since plot will add its own target).  These
@@ -252,6 +280,7 @@ class PlotDirective(Directive):
         'context': _option_context,
         'nofigs': directives.flag,
         'encoding': directives.encoding,
+        'caption': directives.unchanged,
         }
 
     def run(self):
@@ -665,6 +694,11 @@ def run(arguments, content, options, state_machine, state, lineno):
         output_base = '%s-%d.py' % (base, counter)
         function_name = None
         caption = ''
+
+    # We didn't get a caption from the directive content.
+    # See if the options contains one.
+    if not caption:
+        caption = options.get('caption', '')
 
     base, source_ext = os.path.splitext(output_base)
     if source_ext in ('.py', '.rst', '.txt'):
