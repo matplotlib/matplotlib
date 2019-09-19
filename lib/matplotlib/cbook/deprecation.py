@@ -108,7 +108,7 @@ def warn_deprecated(
         since, message, name, alternative, pending, obj_type, addendum,
         removal=removal)
     from . import _warn_external
-    _warn_external(warning)
+    _warn_external(warning, category=MatplotlibDeprecationWarning)
 
 
 def deprecated(since, *, message='', name='', alternative='', pending=False,
