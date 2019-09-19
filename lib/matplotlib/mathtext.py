@@ -32,7 +32,6 @@ from pyparsing import (
 
 from matplotlib import cbook, colors as mcolors, rcParams
 from matplotlib.afm import AFM
-from matplotlib.cbook import get_realpath_and_stat
 from matplotlib.ft2font import FT2Image, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties, get_font
 from matplotlib._mathtext_data import (latex_to_bakoma, latex_to_standard,
@@ -485,10 +484,7 @@ class Fonts:
           - *dpi*: The dpi to draw at.
         """
         info = self._get_info(facename, font_class, sym, fontsize, dpi)
-        realpath, stat_key = get_realpath_and_stat(info.font.fname)
-        used_characters = self.used_characters.setdefault(
-            stat_key, (realpath, set()))
-        used_characters[1].add(info.num)
+        self.used_characters.setdefault(info.font.fname, set()).add(info.num)
         self.mathtext_backend.render_glyph(ox, oy, info)
 
     def render_rect_filled(self, x1, y1, x2, y2):

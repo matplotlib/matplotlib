@@ -524,6 +524,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield from flatten(item, scalarp)
 
 
+@deprecated("3.3", alternative="os.path.realpath and os.stat")
 @functools.lru_cache()
 def get_realpath_and_stat(path):
     realpath = os.path.realpath(path)

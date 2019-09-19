@@ -1339,6 +1339,9 @@ if hasattr(os, "register_at_fork"):
 
 
 def get_font(filename, hinting_factor=None):
+    # Resolving the path avoids embedding the font twice in pdf/ps output if a
+    # single font is selected using two different relative paths.
+    filename = os.path.realpath(filename)
     if hinting_factor is None:
         hinting_factor = rcParams['text.hinting_factor']
     return _get_font(os.fspath(filename), hinting_factor,
