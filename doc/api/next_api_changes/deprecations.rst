@@ -381,3 +381,8 @@ Path helpers in :mod:`.bezier`
 
 ``bezier.concatenate_paths`` is deprecated.  Use ``Path.make_compound_path()``
 instead.
+
+``animation.html_args`` rcParam
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The unused ``animation.html_args`` rcParam and ``animation.HTMLWriter.args_key``
+attribute are deprecated.

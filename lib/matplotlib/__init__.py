@@ -619,6 +619,7 @@ _deprecated_remain_as_none = {
     'datapath': ('3.2.1',),
     'animation.avconv_path': ('3.3',),
     'animation.avconv_args': ('3.3',),
+    'animation.html_args': ('3.3',),
     'mathtext.fallback_to_cm': ('3.3',),
     'keymap.all_axes': ('3.3',),
     'savefig.jpeg_quality': ('3.3',),
