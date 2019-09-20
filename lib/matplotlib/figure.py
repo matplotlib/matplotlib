@@ -1021,16 +1021,6 @@ default: 'top'
 
     frameon = property(get_frameon, set_frameon)
 
-    def delaxes(self, ax):
-        """
-        Remove the `~matplotlib.axes.Axes` *ax* from the figure and update the
-        current axes.
-        """
-        self._axstack.remove(ax)
-        for func in self._axobservers:
-            func(self)
-        self.stale = True
-
     def add_artist(self, artist, clip=False):
         """
         Add any :class:`~matplotlib.artist.Artist` to the figure.
@@ -1357,25 +1347,17 @@ default: 'top'
         ::
 
             fig = plt.figure()
-            fig.add_subplot(221)
 
-            # equivalent but more general
-            ax1 = fig.add_subplot(2, 2, 1)
+            fig.add_subplot(231)
+            ax1 = fig.add_subplot(2, 3, 1)  # equivalent but more general
 
-            # add a subplot with no frame
-            ax2 = fig.add_subplot(222, frameon=False)
+            fig.add_subplot(232, frameon=False)  # subplot with no frame
+            fig.add_subplot(233, projection='polar')  # polar subplot
+            fig.add_subplot(234, sharex=ax1)  # subplot sharing x-axis with ax1
+            fig.add_subplot(235, facecolor="red")  # red subplot
 
-            # add a polar subplot
-            fig.add_subplot(223, projection='polar')
-
-            # add a red subplot that share the x-axis with ax1
-            fig.add_subplot(224, sharex=ax1, facecolor='red')
-
-            #delete x2 from the figure
-            fig.delaxes(ax2)
-
-            #add x2 to the figure again
-            fig.add_subplot(ax2)
+            ax1.remove()  # delete ax1 from the figure
+            fig.add_subplot(ax1)  # add ax1 back to the figure
         """
         if not len(args):
             args = (1, 1, 1)
@@ -1429,7 +1411,7 @@ default: 'top'
         """Private helper for `add_axes` and `add_subplot`."""
         self._axstack.add(key, ax)
         self.sca(ax)
-        ax._remove_method = self._remove_ax
+        ax._remove_method = self.delaxes
         self.stale = True
         ax.stale_callback = _stale_figure_callback
         return ax
@@ -1602,7 +1584,11 @@ default: 'top'
             # Returned axis array will be always 2-d, even if nrows=ncols=1.
             return axarr
 
-    def _remove_ax(self, ax):
+    def delaxes(self, ax):
+        """
+        Remove the `~.axes.Axes` *ax* from the figure; update the current axes.
+        """
+
         def _reset_locators_and_formatters(axis):
             # Set the formatters and locators to be associated with axis
             # (where previously they may have been associated with another
@@ -1644,7 +1630,11 @@ default: 'top'
                         return last_ax
             return None
 
-        self.delaxes(ax)
+        self._axstack.remove(ax)
+        for func in self._axobservers:
+            func(self)
+        self.stale = True
+
         last_ax = _break_share_link(ax, ax._shared_y_axes)
         if last_ax is not None:
             _reset_locators_and_formatters(last_ax.yaxis)

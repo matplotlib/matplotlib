@@ -803,12 +803,10 @@ def axes(arg=None, **kwargs):
 def delaxes(ax=None):
     """
     Remove the `Axes` *ax* (defaulting to the current axes) from its figure.
-
-    A KeyError is raised if the axes doesn't exist.
     """
     if ax is None:
         ax = gca()
-    ax.figure.delaxes(ax)
+    ax.remove()
 
 
 def sca(ax):
