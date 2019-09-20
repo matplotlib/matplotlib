@@ -1969,8 +1969,21 @@ default: 'top'
         return a
 
     def _gci(self):
+        # Helper for `~matplotlib.pyplot.gci`.  Do not use elsewhere.
         """
-        Helper for :func:`~matplotlib.pyplot.gci`. Do not use elsewhere.
+        Get the current colorable artist.
+
+        Specifically, returns the current `.ScalarMappable` instance (`.Image`
+        created by `imshow` or `figimage`, `.Collection` created by `pcolor` or
+        `scatter`, etc.), or *None* if no such instance has been defined.
+
+        The current image is an attribute of the current axes, or the nearest
+        earlier axes in the current figure that contains an image.
+
+        Notes
+        -----
+        Historically, the only colorable artists were images; hence the name
+        ``gci`` (get current image).
         """
         # Look first for an image in the current Axes:
         cax = self._axstack.current_key_axes()[1]
