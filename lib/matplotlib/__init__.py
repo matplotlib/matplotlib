@@ -604,23 +604,10 @@ def matplotlib_fname():
                        "install is broken")
 
 
-# rcParams deprecated and automatically mapped to another key.
-# Values are tuples of (version, new_name, f_old2new, f_new2old).
-_deprecated_map = {}
-
-# rcParams deprecated; some can manually be mapped to another key.
-# Values are tuples of (version, new_name_or_None).
-_deprecated_ignore_map = {
+# Deprecated rcParams, with kwargs to warn_deprecated.  Must at least specify
+# the 'since' key.
+_deprecated_rcs = {
 }
-
-# rcParams deprecated; can use None to suppress warnings; remain actually
-# listed in the rcParams (not included in _all_deprecated).
-# Values are tuples of (version,)
-_deprecated_remain_as_none = {
-}
-
-
-_all_deprecated = {*_deprecated_map, *_deprecated_ignore_map}
 
 
 class RcParams(MutableMapping, dict):
@@ -636,34 +623,20 @@ class RcParams(MutableMapping, dict):
     """
 
     validate = {key: converter
-                for key, (default, converter) in defaultParams.items()
-                if key not in _all_deprecated}
+                for key, (default, converter) in defaultParams.items()}
 
     # validate values on the way in
     def __init__(self, *args, **kwargs):
         self.update(*args, **kwargs)
 
     def __setitem__(self, key, val):
+        if (key == 'backend' and val is rcsetup._auto_backend_sentinel
+                and 'backend' in self):
+            return
+        if key in _deprecated_rcs:
+            cbook.warn_deprecated(
+                **{"name": key, "obj_type": "rcparam", **_deprecated_rcs[key]})
         try:
-            if key in _deprecated_map:
-                version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
-                cbook.warn_deprecated(
-                    version, name=key, obj_type="rcparam", alternative=alt_key)
-                key = alt_key
-                val = alt_val(val)
-            elif key in _deprecated_remain_as_none and val is not None:
-                version, = _deprecated_remain_as_none[key]
-                cbook.warn_deprecated(
-                    version, name=key, obj_type="rcparam")
-            elif key in _deprecated_ignore_map:
-                version, alt_key = _deprecated_ignore_map[key]
-                cbook.warn_deprecated(
-                    version, name=key, obj_type="rcparam", alternative=alt_key)
-                return
-            elif key == 'backend':
-                if val is rcsetup._auto_backend_sentinel:
-                    if 'backend' in self:
-                        return
             try:
                 cval = self.validate[key](val)
             except ValueError as ve:
@@ -675,24 +648,14 @@ class RcParams(MutableMapping, dict):
                 f"a list of valid parameters)")
 
     def __getitem__(self, key):
-        if key in _deprecated_map:
-            version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
-            cbook.warn_deprecated(
-                version, name=key, obj_type="rcparam", alternative=alt_key)
-            return inverse_alt(dict.__getitem__(self, alt_key))
-
-        elif key in _deprecated_ignore_map:
-            version, alt_key = _deprecated_ignore_map[key]
-            cbook.warn_deprecated(
-                version, name=key, obj_type="rcparam", alternative=alt_key)
-            return dict.__getitem__(self, alt_key) if alt_key else None
-
-        elif key == "backend":
+        if key == "backend":
             val = dict.__getitem__(self, key)
             if val is rcsetup._auto_backend_sentinel:
                 from matplotlib import pyplot as plt
                 plt.switch_backend(rcsetup._auto_backend_sentinel)
-
+        if key in _deprecated_rcs:
+            cbook.warn_deprecated(
+                **{"name": key, "obj_type": "rcparam", **_deprecated_rcs[key]})
         return dict.__getitem__(self, key)
 
     def __repr__(self):
@@ -812,11 +775,6 @@ def _rc_params_in_file(fname, fail_on_error=False):
                     error_details = _error_details_fmt % (line_no, line, fname)
                     _log.warning('Bad val %r on %s\n\t%s',
                                  val, error_details, msg)
-        elif key in _deprecated_ignore_map:
-            version, alt_key = _deprecated_ignore_map[key]
-            cbook.warn_deprecated(
-                version, name=key, alternative=alt_key,
-                addendum="Please update your matplotlibrc.")
         else:
             version = 'master' if '.post' in __version__ else f'v{__version__}'
             print(f"""
@@ -850,8 +808,7 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
 
     iter_params = defaultParams.items()
     with cbook._suppress_matplotlib_deprecation_warning():
-        config = RcParams([(key, default) for key, (default, _) in iter_params
-                           if key not in _all_deprecated])
+        config = RcParams((key, default) for key, (default, _) in iter_params)
     config.update(config_from_file)
 
     if config['datapath'] is None:
@@ -876,9 +833,8 @@ rcParams = rc_params()
 
 with cbook._suppress_matplotlib_deprecation_warning():
     rcParamsOrig = RcParams(rcParams.copy())
-    rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
-                                defaultParams.items()
-                                if key not in _all_deprecated])
+    rcParamsDefault = RcParams(
+        (key, default) for key, (default, converter) in defaultParams.items())
 
 if rcParams['axes.formatter.use_locale']:
     locale.setlocale(locale.LC_ALL, '')
