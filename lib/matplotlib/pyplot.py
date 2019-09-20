@@ -813,17 +813,12 @@ def delaxes(ax=None):
 
 def sca(ax):
     """
-    Set the current Axes instance to *ax*.
-
-    The current Figure is updated to the parent of *ax*.
+    Set the current Axes to *ax* and the current Figure to the parent of *ax*.
     """
-    managers = _pylab_helpers.Gcf.get_all_fig_managers()
-    for m in managers:
-        if ax in m.canvas.figure.axes:
-            _pylab_helpers.Gcf.set_active(m)
-            m.canvas.figure.sca(ax)
-            return
-    raise ValueError("Axes instance argument was not found in a figure")
+    if not hasattr(ax.figure.canvas, "manager"):
+        raise ValueError("Axes parent figure is not managed by pyplot")
+    _pylab_helpers.Gcf.set_active(ax.figure.canvas.manager)
+    ax.figure.sca(ax)
 
 
 ## More ways of creating axes ##
