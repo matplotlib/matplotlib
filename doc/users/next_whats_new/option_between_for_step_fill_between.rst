@@ -1,17 +1,22 @@
-step() and fill_between() take a new option where/step="between"
+New drawstyles for steps - "steps-between", "steps-edges"
 ------------------------------------------------------------------------
+They are asymmetrical such that abs(len(x) - len(y)) == 1.  Typically
+to enable plotting histograms with step() and fill_between().
 
-Previously one would need to trick step() and fill_between() to plot
-data where x has one more point than y, typically when plotting pre-binned
-histograms.
+  .. plot::
 
-step() now takes where="between" for x, y satisfying either
-len(x) + 1 = len(y) or len(x) = len(y) + 1. Plotting a step line "between"
-specified edges in either direction. Convenience option where="edges" is
-added to close the shape.
+    import numpy as np
+    import matplotlib.pyplot as plt
 
-fill_between() now takes step="between" for x, y satisfying
-len(x) + 1 = len(y). Plotting fill "between" specified edges.
+    x = np.arange(0,7,1)
+    y = np.array([2,3,4,5,4,3])
 
-fill_betweenx() now takes step="between" for x, y satisfying
-len(x) = len(y) + 1. Plotting fill "between" specified edges.
+    fig, ax = plt.subplots(constrained_layout=True)
+
+    ax.plot(x, y + 2, drawstyle='steps-between')
+    ax.plot(x, y, drawstyle='steps-edges')
+
+    plt.show()
+
+See :doc:`/gallery/lines_bars_and_markers/step_demo` and
+:doc:`/gallery/lines_bars_and_markers/filled_step` for examples.

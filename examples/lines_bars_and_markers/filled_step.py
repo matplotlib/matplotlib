@@ -18,6 +18,8 @@ from cycler import cycler
 ###############################################################################
 # Plain filled steps
 
+# sphinx_gallery_thumbnail_number = 2
+
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5), tight_layout=True)
 ax1.fill_between([0, 1, 2, 3], [1, 2, 3], step='between')
 ax2.fill_betweenx([0, 1, 2, 3], [0, 1, 2], step='between')

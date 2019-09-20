@@ -1085,7 +1085,7 @@ class Line2D(Artist):
         Parameters
         ----------
         drawstyle : {'default', 'steps', 'steps-pre', 'steps-mid', \
-'steps-post'}, default: 'default'
+'steps-post', 'steps-between', 'steps-edges'}, default: 'default'
             For 'default', the points are connected with straight lines.
 
             The steps variants connect the points with step-like lines,
@@ -1097,6 +1097,10 @@ class Line2D(Artist):
             - 'steps-mid': The step is halfway between the points.
             - 'steps-post: The step is at the end of the line segment,
               i.e. the line will be at the y-value of the point to the left.
+            - 'between': Expects abs(len(x)-len(y)) == 1, steps have value y[i]
+               on the interval ``[x[i], x[i+1])``
+            - 'edges': Expects abs(len(x)-len(y)) == 1, steps have value y[i]
+               on interval ``[x[i], x[i+1]), shape is closed at x[0], x[-1]``
             - 'steps' is equal to 'steps-pre' and is maintained for
               backward-compatibility.
 
