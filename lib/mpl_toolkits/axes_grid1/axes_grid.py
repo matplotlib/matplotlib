@@ -31,17 +31,8 @@ def _tick_only(ax, bottom_on, left_on):
 
 class CbarAxesBase:
 
-    def colorbar(self, mappable, *, locator=None, **kwargs):
-
-        if locator is None:
-            if "ticks" not in kwargs:
-                kwargs["ticks"] = ticker.MaxNLocator(5)
-        if locator is not None:
-            if "ticks" in kwargs:
-                raise ValueError("Either *locator* or *ticks* need" +
-                                 " to be given, not both")
-            else:
-                kwargs["ticks"] = locator
+    @cbook._rename_parameter("3.2", "locator", "ticks")
+    def colorbar(self, mappable, *, ticks=None, **kwargs):
 
         if self.orientation in ["top", "bottom"]:
             orientation = "horizontal"
@@ -55,10 +46,13 @@ class CbarAxesBase:
                 "%(removal)s.  Set the 'mpl_toolkits.legacy_colorbar' rcParam "
                 "to False to use Matplotlib's default colorbar implementation "
                 "and suppress this deprecation warning.")
+            if ticks is None:
+                ticks = ticker.MaxNLocator(5)  # For backcompat.
             from .colorbar import Colorbar
         else:
             from matplotlib.colorbar import Colorbar
-        cb = Colorbar(self, mappable, orientation=orientation, **kwargs)
+        cb = Colorbar(
+            self, mappable, orientation=orientation, ticks=ticks, **kwargs)
         self._config_axes()
 
         def on_changed(m):

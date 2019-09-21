@@ -45,10 +45,14 @@ The main differences are:
 
 - Setting the ticks on the colorbar is done by calling ``colorbar.set_ticks``
   rather than ``colorbar.cbar_axis.set_xticks`` or
-  ``colorbar.cbar_axis.set_yticks``.
+  ``colorbar.cbar_axis.set_yticks``; the ``locator`` parameter to ``colorbar()``
+  is deprecated in favor of its synonym ``ticks`` (which already existed
+  previously, and is consistent with :mod:`matplotlib.colorbar`).
 - The colorbar's long axis is accessed with ``colorbar.xaxis`` or
   ``colorbar.yaxis`` depending on the orientation, rather than
   ``colorbar.cbar_axis``.
+- The default ticker is no longer ``MaxNLocator(5)``, but a
+  ``_ColorbarAutoLocator``.
 - Overdrawing multiple colorbars on top of one another in a single Axes (e.g.
   when using the ``cax`` attribute of `~.axes_grid1.axes_grid.ImageGrid`
   elements) is not supported; if you previously relied on the second colorbar

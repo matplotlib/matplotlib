@@ -48,4 +48,16 @@ def test_imagegrid_cbar_mode_edge(legacy_colorbar):
             # the "second" ones.  To achieve this, clear out the axes first.
             for ax in grid:
                 ax.cax.cla()
-                ax.cax.colorbar(ax.images[0])
+                cb = ax.cax.colorbar(
+                    ax.images[0],
+                    ticks=mpl.ticker.MaxNLocator(5))  # old default locator.
+
+
+def test_imagegrid():
+    mpl.rcParams["mpl_toolkits.legacy_colorbar"] = False
+    fig = plt.figure()
+    grid = ImageGrid(fig, 111, nrows_ncols=(1, 1))
+    ax = grid[0]
+    im = ax.imshow([[1, 2]], norm=mpl.colors.LogNorm())
+    cb = ax.cax.colorbar(im)
+    assert isinstance(cb.locator, mpl.colorbar._ColorbarLogLocator)
