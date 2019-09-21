@@ -2,7 +2,7 @@
 .. _howto-faq:
 
 ******
-How-To
+How-to
 ******
 
 .. contents::
@@ -11,8 +11,8 @@ How-To
 
 .. _howto-plotting:
 
-Plotting: howto
-===============
+How-to: Plotting
+================
 
 .. _howto-datetime64:
 
@@ -37,6 +37,36 @@ If you only want to use the `pandas` converter for `datetime64` values ::
   munits.registry[np.datetime64] = pdtc.DatetimeConverter()
 
 
+
+.. _howto-figure-empty:
+
+Check whether a figure is empty
+-------------------------------
+Empty can actually mean different things. Does the figure contain any artists?
+Does a figure with an empty `~.axes.Axes` still count as empty? Is the figure
+empty if it was rendered pure white (there may be artists present, but they
+could be outside the drawing area or transparent)?
+
+For the purpose here, we define empty as: "The figure does not contain any
+artists except it's background patch." The exception for the background is
+necessary, because by default every figure contains a `.Rectangle` as it's
+background patch. This definition could be checked via::
+
+    def is_empty(figure):
+        """
+        Return whether the figure contains no Artists (other than the default
+        background patch).
+        """
+        contained_artists = figure.get_children()
+        return len(contained_artists) <= 1
+
+We've decided not to include this as a figure method because this is only one
+way of defining empty, and checking the above is only rarely necessary.
+Usually the user or program handling the figure know if they have added
+something to the figure.
+
+Checking whether a figure would render empty cannot be reliably checked except
+by actually rendering the figure and investigating the rendered result.
 
 .. _howto-findobj:
 
@@ -549,8 +579,8 @@ GUI backends *require* being run from the main thread as well.
 
 .. _howto-contribute:
 
-Contributing: howto
-===================
+How-to: Contributing
+====================
 
 .. _how-to-request-feature:
 
@@ -637,8 +667,8 @@ or look at the open issues on github.
 
 .. _howto-webapp:
 
-Matplotlib in a web application server
-======================================
+How to use Matplotlib in a web application server
+=================================================
 
 In general, the simplest solution when using Matplotlib in a web server is
 to completely avoid using pyplot (pyplot maintains references to the opened
@@ -690,8 +720,8 @@ contributing to these efforts that would be great.
 
 .. _how-to-search-examples:
 
-Search examples
-===============
+How to search for examples
+==========================
 
 The nearly 300 code :ref:`examples-index` included with the Matplotlib
 source distribution are full-text searchable from the :ref:`search`
