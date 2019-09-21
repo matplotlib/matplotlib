@@ -34,7 +34,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib._animation_data import (
     DISPLAY_TEMPLATE, INCLUDED_FRAMES, JS_INCLUDE, STYLE_INCLUDE)
-from matplotlib import cbook, rcParams, rc_context
+from matplotlib import cbook
 
 
 _log = logging.getLogger(__name__)
@@ -288,17 +288,17 @@ class MovieWriter(AbstractMovieWriter):
         self.frame_format = 'rgba'
 
         if codec is None:
-            self.codec = rcParams['animation.codec']
+            self.codec = mpl.rcParams['animation.codec']
         else:
             self.codec = codec
 
         if bitrate is None:
-            self.bitrate = rcParams['animation.bitrate']
+            self.bitrate = mpl.rcParams['animation.bitrate']
         else:
             self.bitrate = bitrate
 
         if extra_args is None:
-            self.extra_args = list(rcParams[self.args_key])
+            self.extra_args = list(mpl.rcParams[self.args_key])
         else:
             self.extra_args = extra_args
 
@@ -418,7 +418,7 @@ class MovieWriter(AbstractMovieWriter):
         subclass. This is a class method so that the tool can be looked for
         before making a particular MovieWriter subclass available.
         '''
-        return str(rcParams[cls.exec_key])
+        return str(mpl.rcParams[cls.exec_key])
 
     @classmethod
     def isAvailable(cls):
@@ -435,7 +435,7 @@ class FileMovieWriter(MovieWriter):
     '''
     def __init__(self, *args, **kwargs):
         MovieWriter.__init__(self, *args, **kwargs)
-        self.frame_format = rcParams['animation.frame_format']
+        self.frame_format = mpl.rcParams['animation.frame_format']
 
     def setup(self, fig, outfile, dpi=None, frame_prefix='_tmp',
               clear_temp=True):
@@ -802,7 +802,7 @@ class HTMLWriter(FileMovieWriter):
 
         # Save embed limit, which is given in MB
         if embed_limit is None:
-            self._bytes_limit = rcParams['animation.embed_limit']
+            self._bytes_limit = mpl.rcParams['animation.embed_limit']
         else:
             self._bytes_limit = embed_limit
 
@@ -1046,7 +1046,7 @@ class Animation:
         # If the writer is None, use the rc param to find the name of the one
         # to use
         if writer is None:
-            writer = rcParams['animation.writer']
+            writer = mpl.rcParams['animation.writer']
         elif (not isinstance(writer, str) and
               any(arg is not None
                   for arg in (fps, codec, bitrate, extra_args, metadata))):
@@ -1074,15 +1074,15 @@ class Animation:
 
         # Re-use the savefig DPI for ours if none is given
         if dpi is None:
-            dpi = rcParams['savefig.dpi']
+            dpi = mpl.rcParams['savefig.dpi']
         if dpi == 'figure':
             dpi = self._fig.dpi
 
         if codec is None:
-            codec = rcParams['animation.codec']
+            codec = mpl.rcParams['animation.codec']
 
         if bitrate is None:
-            bitrate = rcParams['animation.bitrate']
+            bitrate = mpl.rcParams['animation.bitrate']
 
         all_anim = [self]
         if extra_anim is not None:
@@ -1122,12 +1122,12 @@ class Animation:
         # TODO: Right now, after closing the figure, saving a movie won't work
         # since GUI widgets are gone. Either need to remove extra code to
         # allow for this non-existent use case or find a way to make it work.
-        with rc_context():
-            if rcParams['savefig.bbox'] == 'tight':
+        with mpl.rc_context():
+            if mpl.rcParams['savefig.bbox'] == 'tight':
                 _log.info("Disabling savefig.bbox = 'tight', as it may cause "
                           "frame size to vary, which is inappropriate for "
                           "animation.")
-                rcParams['savefig.bbox'] = None
+                mpl.rcParams['savefig.bbox'] = None
             with writer.saving(self._fig, filename, dpi):
                 for anim in all_anim:
                     # Clear the initial frame
@@ -1313,7 +1313,7 @@ class Animation:
         if not hasattr(self, '_base64_video'):
             # Save embed limit, which is given in MB
             if embed_limit is None:
-                embed_limit = rcParams['animation.embed_limit']
+                embed_limit = mpl.rcParams['animation.embed_limit']
 
             # Convert from MB to bytes
             embed_limit *= 1024 * 1024
@@ -1324,9 +1324,9 @@ class Animation:
                 path = Path(tmpdir, "temp.m4v")
                 # We create a writer manually so that we can get the
                 # appropriate size for the tag
-                Writer = writers[rcParams['animation.writer']]
+                Writer = writers[mpl.rcParams['animation.writer']]
                 writer = Writer(codec='h264',
-                                bitrate=rcParams['animation.bitrate'],
+                                bitrate=mpl.rcParams['animation.bitrate'],
                                 fps=1000. / self._interval)
                 self.save(str(path), writer=writer)
                 # Now open and base64 encode.
@@ -1385,7 +1385,7 @@ class Animation:
 
     def _repr_html_(self):
         '''IPython display hook for rendering.'''
-        fmt = rcParams['animation.html']
+        fmt = mpl.rcParams['animation.html']
         if fmt == 'html5':
             return self.to_html5_video()
         elif fmt == 'jshtml':

@@ -22,7 +22,7 @@ import os
 import re
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import animation, cbook
 from matplotlib.cbook import ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
@@ -619,11 +619,16 @@ def validate_hinting(s):
 validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
                                            ['xelatex', 'lualatex', 'pdflatex'])
 
-validate_movie_writer = ValidateInStrings('animation.writer',
-    ['ffmpeg', 'ffmpeg_file',
-     'avconv', 'avconv_file',
-     'imagemagick', 'imagemagick_file',
-     'html'])
+
+def validate_movie_writer(s):
+    # writers.list() would only list actually available writers, but
+    # FFMpeg.isAvailable is slow and not worth paying for at every import.
+    if s in animation.writers._registered:
+        return s
+    else:
+        raise ValueError(f"Supported animation writers are "
+                         f"{sorted(animation.writers._registered)}")
+
 
 validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
     ['png', 'jpeg', 'tiff', 'raw', 'rgba'])
