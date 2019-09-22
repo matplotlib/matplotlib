@@ -22,6 +22,8 @@ Python and numpy
 We will bump the minimum python and numpy versions as we can every
 minor and major release, but never on a patch release.
 
+See also the :ref:`list-of-dependency-min-versions`.
+
 Python Dependencies
 ===================
 
@@ -62,3 +64,39 @@ For system or c-dependencies (libpng, freetype, GUI frameworks, latex,
 gs, ffmpeg) support as old as practical.  These can be difficult to
 install for end-users and we want to be usable on as many systems as
 possible.  We will bump these on a case-by-case basis.
+
+.. _list-of-dependency-min-versions:
+
+List of dependency versions
+===========================
+
+The following list shows the minimal versions of Python and NumPy dependencies
+for different versions of matplotlib. Follow the links for the full
+specification of the dependencies.
+
+==========  ========  ======
+Matplotlib  Python    NumPy
+==========  ========  ======
+3.3         3.6       1.11.0
+3.2         3.6       1.11.0
+`3.1`_      3.6       1.11.0
+`3.0`_      3.5       1.10.0
+`2.2`_      2.7, 3.4  1.7.1
+`2.1`_      2.7, 3.4  1.7.1
+`2.0`_      2.7, 3.4  1.7.1
+`1.5`_      2.7, 3.4  1.6
+`1.4`_      2.6, 3.3  1.6
+`1.3`_      2.6, 3.3  1.5
+1.2         2.6, 3.1  1.4
+1.1         2.4       1.1
+1.0         2.4       1.1
+==========  ========  ======
+
+.. _`3.1`: https://matplotlib.org/3.1.0/users/installing.html#dependencies
+.. _`3.0`: https://matplotlib.org/3.0.0/users/installing.html#dependencies
+.. _`2.2`: https://matplotlib.org/2.2.0/users/installing.html#dependencies
+.. _`2.1`: https://matplotlib.org/2.1.0/users/installing.html#dependencies
+.. _`2.0`: https://matplotlib.org/2.0.0/users/installing.html#required-dependencies
+.. _`1.5`: https://matplotlib.org/1.5.0/users/installing.html#required-dependencies
+.. _`1.4`: https://matplotlib.org/1.4.0/users/installing.html#required-dependencies
+.. _`1.3`: https://matplotlib.org/1.3.0/users/installing.html#build-requirements
