@@ -264,6 +264,7 @@ if __name__ == '__main__':
             "numpy>=1.11",
             "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
             "python-dateutil>=2.1",
+            'appnope;platform_system=="Darwin"',
         ],
 
         cmdclass=cmdclass,

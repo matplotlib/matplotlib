@@ -53,6 +53,9 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.transforms import Affine2D
 from matplotlib.path import Path
 
+if sys.platform == 'darwin':
+    import appnope
+
 try:
     from PIL import PILLOW_VERSION
     from distutils.version import LooseVersion
@@ -1623,6 +1626,13 @@ class FigureCanvasBase:
 
     def __init__(self, figure):
         self._fix_ipython_backend2gui()
+        if sys.platform == 'darwin':
+            # This disables AppNap for macOS
+            # AppNap uses gui windows usage to decide to put an app in "Nap"
+            # If a terminal shows a window and then hides it, macOS will
+            # reclassify this process as "GUI" that should be slowed down if
+            # no window is active. To avoid this:
+            appnope.nope()
         self._is_idle_drawing = True
         self._is_saving = False
         figure.set_canvas(self)
