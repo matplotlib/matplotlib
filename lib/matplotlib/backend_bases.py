@@ -42,6 +42,8 @@ import os
 import sys
 import time
 from weakref import WeakKeyDictionary
+from distutils.version import LooseVersion
+import platform
 
 import numpy as np
 
@@ -53,7 +55,8 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.transforms import Affine2D
 from matplotlib.path import Path
 
-if sys.platform == 'darwin':
+if (sys.platform == 'darwin'
+        and LooseVersion(platform.mac_ver()[0]) >= LooseVersion('10.9')):
     import appnope
 
 try:
@@ -1626,7 +1629,10 @@ class FigureCanvasBase:
 
     def __init__(self, figure):
         self._fix_ipython_backend2gui()
-        if sys.platform == 'darwin':
+        use_appnope = (
+            sys.platform == 'darwin'
+            and LooseVersion(platform.mac_ver()[0]) >= LooseVersion('10.9'))
+        if use_appnope:
             # This disables AppNap for macOS
             # AppNap uses gui windows usage to decide to put an app in "Nap"
             # If a terminal shows a window and then hides it, macOS will
