@@ -324,58 +324,44 @@ def test_DivergingNorm_scale():
 
 
 def test_DivergingNorm_scaleout_center():
-    # test the vmin never goes above vcenter
+    # test vcenter outside [vmin, vmax]
     norm = mcolors.DivergingNorm(vcenter=0)
-    norm([1, 2, 3, 5])
-    assert norm.vmin == 0
-    assert norm.vmax == 5
+    a = norm([1., 2., 3., 5.])
+    assert norm.vmin == 1.
+    assert norm.vmax == 5.
+    assert_array_almost_equal(a, np.array([0.6, 0.7, 0.8, 1.0]))
 
-
-def test_DivergingNorm_scaleout_center_max():
-    # test the vmax never goes below vcenter
     norm = mcolors.DivergingNorm(vcenter=0)
-    norm([-1, -2, -3, -5])
-    assert norm.vmax == 0
-    assert norm.vmin == -5
+    a = norm([-1., -2., -3., -5.])
+    assert norm.vmax == -1.
+    assert norm.vmin == -5.
+    assert_array_almost_equal(a, np.array([0.4, 0.3, 0.2, 0.0]))
 
 
-def test_DivergingNorm_Even():
-    norm = mcolors.DivergingNorm(vmin=-1, vcenter=0, vmax=4)
-    vals = np.array([-1.0, -0.5, 0.0, 1.0, 2.0, 3.0, 4.0])
-    expected = np.array([0.0, 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
-    assert_array_equal(norm(vals), expected)
+@pytest.mark.parametrize("vmin,vc,vmax,fair,vals,expect",
+    [[-1, 0, 4, False, [-1.0, -0.5, 0.0, 1.0, 2.0, 3.0, 4.0],
+                [0.0, 0.25, 0.5, 0.625, 0.75, 0.875, 1.0]],
+     [-2, 0, 5, False, [-2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0],
+                [0.0, 0.25, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]],
+     [-2, -2, 2, False, [-3, -2, -1, 0, 1, 2, 3],
+                 [-1, 0.5, 0.625, 0.75, 0.875, 1., 2.]],
+     [-2, 2, 2, False, [-3, -2, -1, 0, 1, 2, 3],
+                [-1., 0., 0.125, 0.25, 0.375, 0.5, 2.0]],
+     [10, 0, 20, False, [0, 5, 10, 15, 20], [-1, -1, 0.75, 0.875, 1.]],
+     [10, 30, 20, False, [10, 15, 20, 25, 30], [0., 0.125, 0.25, 2, 2]],
+     [-4, -4, -4, False, [-8, -6, -4, -2, 0], [-1., -1., 0., 2., 2.]],
+     [-6, 0, 12, True, [-12, -6, -3, 0, 6, 12],
+                       [-1, 0.25, 0.375, 0.5, 0.75, 1.]]])
+def test_DivergingNorm_Misc(vmin, vc, vmax, fair, vals, expect):
+    norm = mcolors.DivergingNorm(vmin=vmin, vcenter=vc, vmax=vmax, fair=fair)
+    assert_array_equal(norm(vals), np.array(expect))
 
 
-def test_DivergingNorm_Odd():
-    norm = mcolors.DivergingNorm(vmin=-2, vcenter=0, vmax=5)
-    vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
-    expected = np.array([0.0, 0.25, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
-    assert_array_equal(norm(vals), expected)
-
-
-def test_DivergingNorm_VminEqualsVcenter():
+def test_DivergingNorm_rasing():
+    # test for vmin > vmax -> not allowed
     with pytest.raises(ValueError):
-        mcolors.DivergingNorm(vmin=-2, vcenter=-2, vmax=2)
-
-
-def test_DivergingNorm_VmaxEqualsVcenter():
-    with pytest.raises(ValueError):
-        mcolors.DivergingNorm(vmin=-2, vcenter=2, vmax=2)
-
-
-def test_DivergingNorm_VminGTVcenter():
-    with pytest.raises(ValueError):
-        mcolors.DivergingNorm(vmin=10, vcenter=0, vmax=20)
-
-
-def test_DivergingNorm_DivergingNorm_VminGTVmax():
-    with pytest.raises(ValueError):
-        mcolors.DivergingNorm(vmin=10, vcenter=0, vmax=5)
-
-
-def test_DivergingNorm_VcenterGTVmax():
-    with pytest.raises(ValueError):
-        mcolors.DivergingNorm(vmin=10, vcenter=25, vmax=20)
+        norm = mcolors.DivergingNorm(vmin=10, vcenter=0, vmax=5)
+        norm(np.array([-3, -2, -1, 0, 1, 2, 3]))
 
 
 def test_DivergingNorm_premature_scaling():

@@ -1061,11 +1061,11 @@ class Normalize:
 
 
 class DivergingNorm(Normalize):
-    def __init__(self, vcenter, vmin=None, vmax=None):
+    def __init__(self, vcenter, vmin=None, vmax=None, fair=False):
         """
         Normalize data with a set center.
 
-        Useful when mapping data with an unequal rates of change around a
+        Useful when mapping data around a
         conceptual center, e.g., data that range from -2 to 4, with 0 as
         the midpoint.
 
@@ -1079,6 +1079,12 @@ class DivergingNorm(Normalize):
         vmax : float, optional
             The data value that defines ``1.0`` in the normalization.
             Defaults to the the max value of the dataset.
+        fair : bool, optional
+            If *False* (default), the range between vmin and vmax will be
+            mapped to the normalized range ``[0,1]``. If *True*, the range
+            ``[vcenter-d, vcenter+d]`` with
+            ``d=max(abs(vcenter-vmin), abs(vmax-vcenter))`` is mapped to
+            ``[0,1]``. This is useful to ensure colors are equally distributed.
 
         Examples
         --------
@@ -1091,40 +1097,49 @@ class DivergingNorm(Normalize):
             >>> data = [-4000., -2000., 0., 2500., 5000., 7500., 10000.]
             >>> offset(data)
             array([0., 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
+
+        A more detailed example is found in
+        :doc:`/gallery/userdemo/colormap_normalizations_diverging`
         """
 
         self.vcenter = vcenter
-        self.vmin = vmin
-        self.vmax = vmax
-        if vcenter is not None and vmax is not None and vcenter >= vmax:
-            raise ValueError('vmin, vcenter, and vmax must be in '
-                             'ascending order')
-        if vcenter is not None and vmin is not None and vcenter <= vmin:
-            raise ValueError('vmin, vcenter, and vmax must be in '
-                             'ascending order')
-
-    def autoscale_None(self, A):
-        """
-        Get vmin and vmax, and then clip at vcenter
-        """
-        super().autoscale_None(A)
-        if self.vmin > self.vcenter:
-            self.vmin = self.vcenter
-        if self.vmax < self.vcenter:
-            self.vmax = self.vcenter
+        self.fair = fair
+        super().__init__(vmin=vmin, vmax=vmax)
 
     def __call__(self, value, clip=None):
         """
-        Map value to the interval [0, 1]. The clip argument is unused.
+        Map value to (a subset of) the interval [0, 1].
+        The clip argument is unused.
         """
         result, is_scalar = self.process_value(value)
         self.autoscale_None(result)  # sets self.vmin, self.vmax if None
 
-        if not self.vmin <= self.vcenter <= self.vmax:
-            raise ValueError("vmin, vcenter, vmax must increase monotonically")
-        result = np.ma.masked_array(
-            np.interp(result, [self.vmin, self.vcenter, self.vmax],
-                      [0, 0.5, 1.]), mask=np.ma.getmask(result))
+        if self.vmin > self.vmax:
+            raise ValueError("vmin must be less or equal vmax")
+        elif self.vmin == self.vmax:
+            interp_x = [self.vmin, self.vmax]
+            interp_y = [0.0, 0.0]
+        elif self.vcenter >= self.vmax:
+            interp_x = [self.vmin, self.vcenter]
+            interp_y = [0.0, 0.5]
+        elif self.vcenter <= self.vmin:
+            interp_x = [self.vcenter, self.vmax]
+            interp_y = [0.5, 1.0]
+        elif self.fair:
+            maxrange = max(np.abs(self.vcenter - self.vmin),
+                           np.abs(self.vmax - self.vcenter))
+            interp_x = [self.vcenter - maxrange, self.vcenter + maxrange]
+            interp_y = [0, 1.]
+        else:
+            interp_x = [self.vmin, self.vcenter, self.vmax]
+            interp_y = [0, 0.5, 1.]
+
+        under = result < self.vmin
+        over = result > self.vmax
+        interp = np.interp(result, interp_x, interp_y, left=-1., right=2.)
+        result = np.ma.masked_array(interp, mask=np.ma.getmask(result))
+        result[under] = -1.
+        result[over] = 2.
         if is_scalar:
             result = np.atleast_1d(result)[0]
         return result
