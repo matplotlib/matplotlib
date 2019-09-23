@@ -816,7 +816,7 @@ class Axes(_AxesBase):
         --------
         hlines : Add horizontal lines in data coordinates.
         axhspan : Add a horizontal span (rectangle) across the axis.
-        axhline : Add a line with an arbitrary slope.
+        axline : Add a line with an arbitrary slope.
 
         Examples
         --------
@@ -926,6 +926,10 @@ class Axes(_AxesBase):
         """
         Add an infinitely long straight line that passes through two points.
 
+        This draws a straight line "on the screen", regardless of the x and y
+        scales, and is thus also suitable for drawing exponential decays in
+        semilog plots, power laws in loglog plots, etc.
+
         Parameters
         ----------
         xy1, xy2 : (float, float)
@@ -937,10 +941,11 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
-        with the exception of 'transform':
+        **kwargs
+            Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
+            with the exception of 'transform':
 
-        %(_Line2D_docstr)s
+            %(_Line2D_docstr)s
 
         Examples
         --------
@@ -948,50 +953,29 @@ class Axes(_AxesBase):
 
             >>> axline((0, 0), (1, 1), linewidth=4, color='r')
 
-
         See Also
         --------
         axhline : for horizontal lines
         axvline : for vertical lines
-
-        Notes
-        -----
-        Currently this method does not work properly with non-linear axes.
         """
-        if not self.get_xscale() == self.get_yscale() == 'linear':
-            raise NotImplementedError('axline() is only supported on '
-                                      'linearly scaled axes')
 
         if "transform" in kwargs:
             raise TypeError("'transform' is not allowed as a kwarg; "
-                            "axline generates its own transform.")
-
+                            "axline generates its own transform")
         x1, y1 = xy1
         x2, y2 = xy2
-        # If x values the same, we have a vertical line
-        if np.allclose(x1, x2):
-            if np.allclose(y1, y2):
-                raise ValueError(
-                    'Cannot draw a line through two identical points '
-                    f'(got x1={x1}, x2={x2}, y1={y1}, y2={y2}).')
-            line = self.axvline(x1, **kwargs)
-            return line
+        line = mlines._AxLine([x1, x2], [y1, y2], **kwargs)
+        # Like add_line, but correctly handling data limits.
+        self._set_artist_props(line)
+        if line.get_clip_path() is None:
+            line.set_clip_path(self.patch)
+        if not line.get_label():
+            line.set_label(f"_line{len(self.lines)}")
+        self.lines.append(line)
+        line._remove_method = self.lines.remove
+        self.update_datalim([xy1, xy2])
 
-        slope = (y2 - y1) / (x2 - x1)
-        intercept = y1 - (slope * x1)
-
-        xtrans = mtransforms.BboxTransformTo(self.viewLim)
-        viewLimT = mtransforms.TransformedBbox(
-            self.viewLim,
-            mtransforms.Affine2D().rotate_deg(90).scale(-1, 1))
-        ytrans = (mtransforms.BboxTransformTo(viewLimT) +
-                  mtransforms.Affine2D().scale(slope).translate(0, intercept))
-        trans = mtransforms.blended_transform_factory(xtrans, ytrans)
-
-        line = mlines.Line2D([0, 1], [0, 1],
-                             transform=trans + self.transData,
-                             **kwargs)
-        self.add_line(line)
+        self._request_autoscale_view()
         return line
 
     @docstring.dedent_interpd

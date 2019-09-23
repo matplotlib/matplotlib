@@ -194,6 +194,7 @@ def boilerplate_gen():
         'axhline',
         'axhspan',
         'axis',
+        'axline',
         'axvline',
         'axvspan',
         'bar',
