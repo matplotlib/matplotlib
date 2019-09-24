@@ -70,13 +70,14 @@ or your package manager of choice.
 
 Contact
 =======
-matplotlib's communication channels include active mailing lists:
+* `Discourse <https://discourse.matplotlib.org/>`_ is the discussion forum for general questions and discussions and our recommended starting point. 
+
+Our active active mailing lists (which are mirrored on the discourse) are:
 
 * `Users <https://mail.python.org/mailman/listinfo/matplotlib-users>`_ mailing list: matplotlib-users@python.org
 * `Announcement  <https://mail.python.org/mailman/listinfo/matplotlib-announce>`_ mailing list: matplotlib-announce@python.org
 * `Development <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_ mailing list: matplotlib-devel@python.org
 
-The first is a good starting point for general questions and discussions.
 
 Gitter_ is for coordinating development and asking questions directly related
 to contributing to matplotlib.
