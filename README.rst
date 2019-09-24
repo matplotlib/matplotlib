@@ -70,7 +70,7 @@ or your package manager of choice.
 
 Contact
 =======
-* `Discourse <https://discourse.matplotlib.org/>`_ is the discussion forum for general questions and discussions and our recommended starting point. 
+`Discourse <https://discourse.matplotlib.org/>`_ is the discussion forum for general questions and discussions and our recommended starting point. 
 
 Our active active mailing lists (which are mirrored on discourse) are:
 
