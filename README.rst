@@ -72,7 +72,7 @@ Contact
 =======
 * `Discourse <https://discourse.matplotlib.org/>`_ is the discussion forum for general questions and discussions and our recommended starting point. 
 
-Our active active mailing lists (which are mirrored on the discourse) are:
+Our active active mailing lists (which are mirrored on discourse) are:
 
 * `Users <https://mail.python.org/mailman/listinfo/matplotlib-users>`_ mailing list: matplotlib-users@python.org
 * `Announcement  <https://mail.python.org/mailman/listinfo/matplotlib-announce>`_ mailing list: matplotlib-announce@python.org
