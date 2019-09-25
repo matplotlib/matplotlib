@@ -2563,11 +2563,15 @@ class FigureManagerBase:
     def show(self):
         """
         For GUI backends, show the figure window and redraw.
-        For non-GUI backends, raise an exception to be caught
-        by :meth:`~matplotlib.figure.Figure.show`, for an
-        optional warning.
+        For non-GUI backends, raise an exception, unless running headless (i.e.
+        on Linux with an unset DISPLAY); this exception is converted to a
+        warning in `.Figure.show`.
         """
-        raise NonGuiException()
+        # This should be overridden in GUI backends.
+        if mpl.backends._get_running_interactive_framework() != "headless":
+            raise NonGuiException(
+                f"Matplotlib is currently using {get_backend()}, which is "
+                f"a non-GUI backend, so cannot show the figure.")
 
     def destroy(self):
         pass
@@ -3360,8 +3364,10 @@ class _Backend:
         if not managers:
             return
         for manager in managers:
-            # Emits a warning if the backend is non-interactive.
-            manager.canvas.figure.show()
+            try:
+                manager.show()  # Emits a warning for non-interactive backend.
+            except NonGuiException as exc:
+                cbook._warn_external(str(exc))
         if cls.mainloop is None:
             return
         if block is None:
