@@ -1627,6 +1627,7 @@ class FigureCanvasBase:
         self._is_saving = False
         figure.set_canvas(self)
         self.figure = figure
+        self.manager = None
         # a dictionary from event name to a dictionary that maps cid->func
         self.callbacks = cbook.CallbackRegistry()
         self.widgetlock = widgets.LockDraw()
@@ -2127,7 +2128,7 @@ class FigureCanvasBase:
         Get the title text of the window containing the figure.
         Return None if there is no window (e.g., a PS backend).
         """
-        if hasattr(self, "manager"):
+        if self.manager:
             return self.manager.get_window_title()
 
     def set_window_title(self, title):

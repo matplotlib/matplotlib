@@ -430,25 +430,18 @@ class Figure(Artist):
             If ``True`` and we are not running headless (i.e. on Linux with an
             unset DISPLAY), issue warning when called on a non-GUI backend.
         """
+        if self.canvas.manager is None:
+            raise AttributeError(
+                "Figure.show works only for figures managed by pyplot, "
+                "normally created by pyplot.figure()")
         try:
-            manager = getattr(self.canvas, 'manager')
-        except AttributeError as err:
-            raise AttributeError("%s\n"
-                                 "Figure.show works only "
-                                 "for figures managed by pyplot, normally "
-                                 "created by pyplot.figure()." % err)
-
-        if manager is not None:
-            try:
-                manager.show()
-                return
-            except NonGuiException:
-                pass
-        if (backends._get_running_interactive_framework() != "headless"
-                and warn):
-            cbook._warn_external('Matplotlib is currently using %s, which is '
-                                 'a non-GUI backend, so cannot show the '
-                                 'figure.' % get_backend())
+            self.canvas.manager.show()
+        except NonGuiException:
+            if (backends._get_running_interactive_framework() != "headless"
+                    and warn):
+                cbook._warn_external(
+                    f"Matplotlib is currently using {get_backend()}, which is "
+                    f"a non-GUI backend, so cannot show the figure.")
 
     def _get_axes(self):
         return self._axstack.as_list()
