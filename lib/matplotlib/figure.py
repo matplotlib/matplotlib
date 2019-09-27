@@ -436,12 +436,8 @@ class Figure(Artist):
                 "normally created by pyplot.figure()")
         try:
             self.canvas.manager.show()
-        except NonGuiException:
-            if (backends._get_running_interactive_framework() != "headless"
-                    and warn):
-                cbook._warn_external(
-                    f"Matplotlib is currently using {get_backend()}, which is "
-                    f"a non-GUI backend, so cannot show the figure.")
+        except NonGuiException as exc:
+            cbook._warn_external(str(exc))
 
     def _get_axes(self):
         return self._axstack.as_list()
