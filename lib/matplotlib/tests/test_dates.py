@@ -150,9 +150,7 @@ def test_too_many_date_ticks():
         assert len(rec) == 1
         assert \
             'Attempting to set identical left == right' in str(rec[0].message)
-    print('Looking here')
     ax.plot([], [])
-    print('Looking here')
     ax.xaxis.set_major_locator(mdates.DayLocator())
     with pytest.raises(RuntimeError):
         fig.savefig('junk.png')
@@ -764,3 +762,24 @@ def test_datetime64_in_list():
     dt = [np.datetime64('2000-01-01'), np.datetime64('2001-01-01')]
     dn = mdates.date2num(dt)
     np.testing.assert_equal(dn, [730120.,  730486.])
+
+
+def test_negative_dt64():
+    # test that negative datetime64 work.  
+    dt = np.arange('-4000-01-01', '20000-01-01', 365000, dtype='datetime64[D]')
+    y = np.arange(len(dt))
+    fig, ax = plt.subplots()
+    ax.plot(dt, y)
+    fig.canvas.draw()
+    ticklabels = [tl.get_text() for tl in ax.get_xticklabels()]
+    expected = ['-4000', '0000', '4000', '8000', '12000', '16000', '20000']
+    assert ticklabels == expected
+
+    dt = np.arange('-4000-01-01', '-2000-01-01', 36500, dtype='datetime64[D]')
+    y = np.arange(len(dt))
+    fig, ax = plt.subplots()
+    ax.plot(dt, y)
+    fig.canvas.draw()
+    ticklabels = [tl.get_text() for tl in ax.get_xticklabels()]
+    expected = [str(e) for e in np.arange(-4000, -1999, 200)]
+    assert ticklabels == expected

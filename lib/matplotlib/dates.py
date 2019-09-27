@@ -331,8 +331,8 @@ class _datetimey(datetime.datetime):
 
     def _to_dt64(self):
         dt64 = np.datetime64(_datetimey._datetimey_to_datetime(self))
-        dt64 = dt64.astype('datetime64[s]') +
-               np.timedelta64(int(self._yearoffset / 400)* 146097, 'D')
+        dt64 = (dt64.astype('datetime64[s]') +
+                np.timedelta64(int(self._yearoffset / 400)* 146097, 'D'))
         return dt64
 
 
