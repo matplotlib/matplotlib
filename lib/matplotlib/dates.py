@@ -207,11 +207,12 @@ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = (
     MO, TU, WE, TH, FR, SA, SU)
 WEEKDAYS = (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
 
+
 class _datetimey(datetime.datetime):
 
     def __new__(cls, year, *args, **kwargs):
         if year < 1 or year > 9999:
-            yearoffset =  int(np.floor(year / 400) * 400) - 2000
+            yearoffset = int(np.floor(year / 400) * 400) - 2000
             year = year - yearoffset
         else:
             yearoffset = 0
@@ -229,7 +230,7 @@ class _datetimey(datetime.datetime):
 
     @property
     def year(self):
-        """year """
+        """year"""
         return super().year + self._yearoffset
 
     @staticmethod
@@ -248,9 +249,9 @@ class _datetimey(datetime.datetime):
 
     @staticmethod
     def _datetimey_to_datetime(new):
-        return datetime.datetime(new.year - new._yearoffset, new.month, new.day,
-                         new.hour, new.minute, new.second, new.microsecond,
-                         new.tzinfo)
+        return datetime.datetime(new.year - new._yearoffset, new.month,
+                                 new.day, new.hour, new.minute, new.second,
+                                 new.microsecond, new.tzinfo)
 
     @staticmethod
     def _datetimey_to_datetime_samey0(t1, t2):
@@ -258,12 +259,11 @@ class _datetimey(datetime.datetime):
         dt2 = _datetimey._datetimey_to_datetime(t2)
         dy = (t2._yearoffset - t1._yearoffset) / 400
         if t1._yearoffset < t2._yearoffset:
-            dt2 = dt2 + dy * datetime.timedelta(days = DAYS_PER_400Y)
+            dt2 = dt2 + dy * datetime.timedelta(days=DAYS_PER_400Y)
         else:
-            dt1 = dt1 + datetime.timedelta(days = dy * DAYS_PER_400Y)
+            dt1 = dt1 + datetime.timedelta(days=dy * DAYS_PER_400Y)
 
         return dt1, dt2
-
 
     def astimezone(self, tz=None):
         dt = _datetimey._datetimey_to_datetime(self)
@@ -275,7 +275,7 @@ class _datetimey(datetime.datetime):
         year = kwargs.pop('year', None)
         if year is not None:
             if year < 1 or year > 9999:
-                yearoffset =  int(np.floor(year / 400) * 400) - 2000
+                yearoffset = int(np.floor(year / 400) * 400) - 2000
                 year = year - yearoffset
             else:
                 yearoffset = 0
@@ -297,7 +297,8 @@ class _datetimey(datetime.datetime):
             newdt = datet + relativedelta(days=DAYS_PER_400Y) + newo
             deltay = deltay - 400
 
-        newdty = _datetimey._datetime_to_datetimey(newdt, self._yearoffset + deltay)
+        newdty = _datetimey._datetime_to_datetimey(newdt, self._yearoffset
+                                                   + deltay)
         return newdty
 
     def __sub__(self, other):
@@ -330,9 +331,9 @@ class _datetimey(datetime.datetime):
 
     def _to_dt64(self):
         dt64 = np.datetime64(_datetimey._datetimey_to_datetime(self))
-        dt64 = dt64.astype('datetime64[s]') + np.timedelta64(int(self._yearoffset / 400)* 146097, 'D')
+        dt64 = dt64.astype('datetime64[s]') +
+               np.timedelta64(int(self._yearoffset / 400)* 146097, 'D')
         return dt64
-
 
 
 def _relativedeltay(t1, t2):
