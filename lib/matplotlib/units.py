@@ -23,6 +23,11 @@ datetime objects::
             return dates.date2num(value)
 
         @staticmethod
+        def un_convert(value, unit, axis):
+            'Convert a float back to a datetime value'
+            return dates.num2date(value)
+
+        @staticmethod
         def axisinfo(unit, axis):
             'Return major and minor tick locators and formatters'
             if unit!='date': return None
@@ -44,6 +49,7 @@ datetime objects::
 
 from decimal import Decimal
 from numbers import Number
+import warnings
 
 import numpy as np
 from numpy import ma
@@ -127,6 +133,7 @@ class ConversionInterface:
         """
         return None
 
+    # Make this an abstractmethod in 3.5
     @staticmethod
     def convert(obj, unit, axis):
         """
@@ -135,15 +142,25 @@ class ConversionInterface:
         If *obj* is a sequence, return the converted sequence.  The output must
         be a sequence of scalars that can be used by the numpy array layer.
         """
+        cbook.warn_deprecated(
+            '3.3',
+            message=('Using the default "does nothing" convert() method for '
+                     'Matplotlib ConversionInterface converters is deprecated '
+                     'and will raise an error in version 3.5. '
+                     'Please manually override convert().'))
         return obj
 
+    # Uncomment this in version 3.5 to enforce an un_convert() method
+    '''
     @staticmethod
+    @abc.abstractmethod
     def un_convert(data, unit, axis):
         """
         Convert data that has already been converted back to its original
         value.
         """
-        return data
+        pass
+    '''
 
     @staticmethod
     def is_numlike(x):
@@ -189,6 +206,14 @@ class DecimalConverter(ConversionInterface):
             return converter(value, dtype=np.float)
 
     @staticmethod
+    def un_convert(value, unit, axis):
+        """
+        Un-convert from floats to Decimals.
+        """
+        return Decimal(value)
+
+
+    @staticmethod
     def axisinfo(unit, axis):
         # Since Decimal is a kind of Number, don't need specific axisinfo.
         return AxisInfo()
@@ -201,6 +226,14 @@ class DecimalConverter(ConversionInterface):
 
 class Registry(dict):
     """Register types with conversion interface."""
+
+    def __setitem__(self, cls, converter):
+        if not hasattr(converter, 'un_convert'):
+            warnings.warn(
+                f'{converter.__class__.__name__} does not define an '
+                'un_convert() method. From Matplotlib 3.5 this will be '
+                'required, and if not present will raise an error.')
+        super().__setitem__(cls, converter)
 
     def get_converter(self, x):
         """Get the converter interface instance for *x*, or None."""

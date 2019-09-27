@@ -165,7 +165,10 @@ def test_too_many_date_ticks(caplog):
 @image_comparison(['RRuleLocator_bounds.png'])
 def test_RRuleLocator():
     import matplotlib.testing.jpl_units as units
-    units.register()
+    # Catch warnings thrown whilst jpl unit converters don't have an
+    # un_convert() method
+    with pytest.warns(Warning, match='does not define an un_convert'):
+        units.register()
 
     # This will cause the RRuleLocator to go out of bounds when it tries
     # to add padding to the limits, so we make sure it caps at the correct
@@ -198,7 +201,10 @@ def test_RRuleLocator_dayrange():
 @image_comparison(['DateFormatter_fractionalSeconds.png'])
 def test_DateFormatter():
     import matplotlib.testing.jpl_units as units
-    units.register()
+    # Catch warnings thrown whilst jpl unit converters don't have an
+    # un_convert() method
+    with pytest.warns(Warning, match='does not define an un_convert'):
+        units.register()
 
     # Lets make sure that DateFormatter will allow us to have tick marks
     # at intervals of fractional seconds.

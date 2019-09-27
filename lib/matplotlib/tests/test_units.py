@@ -3,6 +3,7 @@ import platform
 from unittest.mock import MagicMock
 
 import matplotlib.pyplot as plt
+from matplotlib import cbook
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.units as munits
 import numpy as np
@@ -56,6 +57,9 @@ def quantity_converter():
         else:
             return Quantity(value, axis.get_units()).to(unit).magnitude
 
+    def un_convert(value, unit, axis):
+        return Quantitfy(value, unit)
+
     def default_units(value, axis):
         if hasattr(value, 'units'):
             return value.units
@@ -68,6 +72,7 @@ def quantity_converter():
     qc.convert = MagicMock(side_effect=convert)
     qc.axisinfo = MagicMock(side_effect=lambda u, a: munits.AxisInfo(label=u))
     qc.default_units = MagicMock(side_effect=default_units)
+    qc.un_convert = MagicMock(side_effect=un_convert)
     return qc
 
 
@@ -124,7 +129,10 @@ def test_empty_set_limits_with_units(quantity_converter):
                   savefig_kwarg={'dpi': 120}, style='mpl20')
 def test_jpl_bar_units():
     import matplotlib.testing.jpl_units as units
-    units.register()
+    # Catch warnings thrown whilst jpl unit converters don't have an
+    # un_convert() method
+    with pytest.warns(Warning, match='does not define an un_convert'):
+        units.register()
 
     day = units.Duration("ET", 24.0 * 60.0 * 60.0)
     x = [0*units.km, 1*units.km, 2*units.km]
@@ -140,7 +148,10 @@ def test_jpl_bar_units():
                   savefig_kwarg={'dpi': 120}, style='mpl20')
 def test_jpl_barh_units():
     import matplotlib.testing.jpl_units as units
-    units.register()
+    # Catch warnings thrown whilst jpl unit converters don't have an
+    # un_convert() method
+    with pytest.warns(Warning, match='does not define an un_convert'):
+        units.register()
 
     day = units.Duration("ET", 24.0 * 60.0 * 60.0)
     x = [0*units.km, 1*units.km, 2*units.km]
@@ -175,3 +186,17 @@ def test_subclass(fig_test, fig_ref):
 
     fig_test.subplots().plot(subdate(2000, 1, 1), 0, "o")
     fig_ref.subplots().plot(datetime(2000, 1, 1), 0, "o")
+
+
+def test_no_conveter_warnings():
+    class Converter(munits.ConversionInterface):
+        pass
+
+    # Check that a converter without a manuallly defined convert() method
+    # warns
+    with pytest.warns(cbook.deprecation.MatplotlibDeprecationWarning):
+        Converter.convert(0, 0, 0)
+
+    # Check that manually defining a conveter doesn't warn
+    Converter.convert = lambda obj, unit, axis: obj
+    Converter.convert(0, 0, 0)

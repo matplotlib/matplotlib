@@ -97,7 +97,10 @@ def test_matshow():
                    ])
 def test_formatter_ticker():
     import matplotlib.testing.jpl_units as units
-    units.register()
+    # Catch warnings thrown whilst jpl unit converters don't have an
+    # un_convert() method
+    with pytest.warns(Warning, match='does not define an un_convert'):
+        units.register()
 
     # This should affect the tick size.  (Tests issue #543)
     matplotlib.rcParams['lines.markeredgewidth'] = 30
@@ -486,7 +489,10 @@ def test_polar_alignment():
 def test_fill_units():
     from datetime import datetime
     import matplotlib.testing.jpl_units as units
-    units.register()
+    # Catch warnings thrown whilst jpl unit converters don't have an
+    # un_convert() method
+    with pytest.warns(Warning, match='does not define an un_convert'):
+        units.register()
 
     # generate some data
     t = units.Epoch("ET", dt=datetime(2009, 4, 27))
@@ -654,7 +660,10 @@ def test_polar_wrap(fig_test, fig_ref):
 @check_figures_equal()
 def test_polar_units_1(fig_test, fig_ref):
     import matplotlib.testing.jpl_units as units
-    units.register()
+    # Catch warnings thrown whilst jpl unit converters don't have an
+    # un_convert() method
+    with pytest.warns(Warning, match='does not define an un_convert'):
+        units.register()
     xs = [30.0, 45.0, 60.0, 90.0]
     ys = [1.0, 2.0, 3.0, 4.0]
 
@@ -669,7 +678,10 @@ def test_polar_units_1(fig_test, fig_ref):
 @check_figures_equal()
 def test_polar_units_2(fig_test, fig_ref):
     import matplotlib.testing.jpl_units as units
-    units.register()
+    # Catch warnings thrown whilst jpl unit converters don't have an
+    # un_convert() method
+    with pytest.warns(Warning, match='does not define an un_convert'):
+        units.register()
     xs = [30.0, 45.0, 60.0, 90.0]
     xs_deg = [x * units.deg for x in xs]
     ys = [1.0, 2.0, 3.0, 4.0]
@@ -838,7 +850,10 @@ def test_aitoff_proj():
 def test_axvspan_epoch():
     from datetime import datetime
     import matplotlib.testing.jpl_units as units
-    units.register()
+    # Catch warnings thrown whilst jpl unit converters don't have an
+    # un_convert() method
+    with pytest.warns(Warning, match='does not define an un_convert'):
+        units.register()
 
     # generate some data
     t0 = units.Epoch("ET", dt=datetime(2009, 1, 20))
@@ -854,7 +869,10 @@ def test_axvspan_epoch():
 def test_axhspan_epoch():
     from datetime import datetime
     import matplotlib.testing.jpl_units as units
-    units.register()
+    # Catch warnings thrown whilst jpl unit converters don't have an
+    # un_convert() method
+    with pytest.warns(Warning, match='does not define an un_convert'):
+        units.register()
 
     # generate some data
     t0 = units.Epoch("ET", dt=datetime(2009, 1, 20))

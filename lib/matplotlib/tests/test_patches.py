@@ -367,7 +367,10 @@ def test_multi_color_hatch():
 @image_comparison(['units_rectangle.png'])
 def test_units_rectangle():
     import matplotlib.testing.jpl_units as U
-    U.register()
+    # Catch warnings thrown whilst jpl unit converters don't have an
+    # un_convert() method
+    with pytest.warns(Warning, match='does not define an un_convert'):
+        U.register()
 
     p = mpatches.Rectangle((5*U.km, 6*U.km), 1*U.km, 2*U.km)
 
