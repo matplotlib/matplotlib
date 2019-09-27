@@ -25,7 +25,7 @@ added to Matplotlib, see :ref:`whats-new`.
 
       When a release is made
 
-       - All the files in 'next_api_changes/' should be moved to a single file in
+       - The files in 'next_api_changes/' should be moved to a new file in
          'prev_api_changes/'.
        - The include directive below should be changed to point to the new file
          created in the previous step.

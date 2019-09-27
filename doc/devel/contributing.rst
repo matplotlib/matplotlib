@@ -267,8 +267,8 @@ rules before submitting a pull request:
   :file:`doc/users/next_whats_new/README.rst` for more information).
 
 * If you change the API in a backward-incompatible way, please document it in
-  `doc/api/api_changes`, by adding a new file describing your changes (see
-  :file:`doc/api/api_changes/README.rst` for more information)
+  :file:`doc/api/api_changes`, by adding to the relevant file
+  (see :file:`doc/api/api_changes.rst` for more information)
 
 * See below for additional points about :ref:`keyword-argument-processing`, if
   applicable for your pull request.
