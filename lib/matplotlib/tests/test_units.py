@@ -58,7 +58,7 @@ def quantity_converter():
             return Quantity(value, axis.get_units()).to(unit).magnitude
 
     def un_convert(value, unit, axis):
-        return Quantitfy(value, unit)
+        return Quantity(value, unit)
 
     def default_units(value, axis):
         if hasattr(value, 'units'):
