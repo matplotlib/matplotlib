@@ -1929,18 +1929,27 @@ class BaseDateConverter(units.ConversionInterface):
 
 
 class DateConverter(BaseDateConverter):
+    """
+    A converter for `datetime.date` data.
+    """
     @staticmethod
     def un_convert(value, unit, axis):
         return num2date(value)
 
 
 class Datetime64Converter(BaseDateConverter):
+    """
+    A converter for `numpy.datetime64` data.
+    """
     @staticmethod
     def un_convert(value, unit, axis):
         return np.datetime64(num2date(value).replace(tzinfo=None))
 
 
 class DatetimeConverter(BaseDateConverter):
+    """
+    A converter for `datetime.datetime` data.
+    """
     @staticmethod
     def un_convert(value, unit, axis):
         return num2date(value)
