@@ -1576,15 +1576,12 @@ class Axis(martist.Artist):
                                          f'units: {x!r}') from e
         return ret
 
-    @property
-    def _can_unconvert_units(self):
-        if self.converter is not None:
-            if hasattr(self.converter, 'un_convert'):
-                return True
-        return False
-
+    # Uncomment this in 3.5 when Converters are enforced to have an
+    # un_convert() method
+    """
     def unconvert_units(self, x):
         return self.converter.un_convert(x, self.units, self)
+    """
 
     def set_units(self, u):
         """
