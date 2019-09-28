@@ -5192,8 +5192,7 @@ optional.
         where = where & ~functools.reduce(np.logical_or, get_masks)
 
         polys = []
-        pad_where = cbook.pad_arrays([where, x], False)[0].astype(bool)
-        for ind0, ind1 in cbook.contiguous_regions(pad_where):
+        for ind0, ind1 in cbook.contiguous_regions(where):
             if step == 'between':
                 xslice = x[ind0:ind1+1]
             else:
@@ -5253,12 +5252,11 @@ optional.
         collection = mcoll.PolyCollection(polys, **kwargs)
 
         # now update the datalim and autoscale
-        # For between pad with mean value
+        # For between pad last value
         if step == 'between':
-            y1, y2 = cbook.pad_arrays([y1, y2, x],
-                                      np.mean([np.mean(y1.flatten()),
-                                               np.mean(y2.flatten())]))[:-1]
-            where = cbook.pad_arrays([where, x], 1)[0].astype(bool)
+            y1 = np.r_[y1, y1[-1]]
+            y2 = np.r_[y2, y2[-1]]
+            where = np.r_[where, where[-1]]
         XY1 = np.array([x[where], y1[where]]).T
         XY2 = np.array([x[where], y2[where]]).T
         self.dataLim.update_from_data_xy(XY1, self.ignore_existing_data_limits,
@@ -5408,8 +5406,7 @@ optional.
         where = where & ~functools.reduce(np.logical_or, get_masks)
 
         polys = []
-        pad_where = cbook.pad_arrays([where, y], False)[0].astype(bool)
-        for ind0, ind1 in cbook.contiguous_regions(pad_where):
+        for ind0, ind1 in cbook.contiguous_regions(where):
             if step == 'between':
                 yslice = y[ind0:ind1+1]
             else:
@@ -5468,12 +5465,11 @@ optional.
         collection = mcoll.PolyCollection(polys, **kwargs)
 
         # now update the datalim and autoscale
-        # For between pad with mean value
+        # For between pad last value
         if step == 'between':
-            x1, x2 = cbook.pad_arrays([x1, x2, y],
-                                      np.mean([np.mean(x1.flatten()),
-                                               np.mean(x2.flatten())]))[:-1]
-            where = cbook.pad_arrays([where, y], 1)[0].astype(bool)
+            x1 = np.r_[x1, x1[-1]]
+            x2 = np.r_[x2, x2[-1]]
+            where = np.r_[where, where[-1]]
         X1Y = np.array([x1[where], y[where]]).T
         X2Y = np.array([x2[where], y[where]]).T
         self.dataLim.update_from_data_xy(X1Y, self.ignore_existing_data_limits,
