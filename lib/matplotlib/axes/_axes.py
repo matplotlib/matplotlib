@@ -5188,7 +5188,6 @@ optional.
         get_masks = cbook.pad_arrays(list(map(np.atleast_1d,
                                               map(np.ma.getmask,
                                                   [y1, y2]))), False)
-
         where = where & ~functools.reduce(np.logical_or, get_masks)
 
         polys = []
@@ -5256,7 +5255,7 @@ optional.
         if step == 'between':
             y1 = np.r_[y1, y1[-1]]
             y2 = np.r_[y2, y2[-1]]
-            where = np.r_[where, where[-1]]
+            where = np.r_[where, True]
         XY1 = np.array([x[where], y1[where]]).T
         XY2 = np.array([x[where], y2[where]]).T
         self.dataLim.update_from_data_xy(XY1, self.ignore_existing_data_limits,
@@ -5469,7 +5468,7 @@ optional.
         if step == 'between':
             x1 = np.r_[x1, x1[-1]]
             x2 = np.r_[x2, x2[-1]]
-            where = np.r_[where, where[-1]]
+            where = np.r_[where, True]
         X1Y = np.array([x1[where], y[where]]).T
         X2Y = np.array([x2[where], y[where]]).T
         self.dataLim.update_from_data_xy(X1Y, self.ignore_existing_data_limits,
