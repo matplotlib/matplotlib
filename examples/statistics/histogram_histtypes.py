@@ -25,25 +25,23 @@ mu_w = 200
 sigma_w = 10
 w = np.random.normal(mu_w, sigma_w, size=100)
 
-fig, ax = plt.subplots(nrows=2, ncols=2)
+fig, axs = plt.subplots(nrows=2, ncols=2)
 
-ax[0, 0].hist(x, 20, density=True, histtype='stepfilled', facecolor='g', alpha=0.75)
-ax[0, 0].set_title('stepfilled')
+axs[0, 0].hist(x, 20, density=True, histtype='stepfilled', facecolor='g', alpha=0.75)
+axs[0, 0].set_title('stepfilled')
 
-ax[0, 1].hist(x, 20, density=True, histtype='step', facecolor='g', alpha=0.75)
-ax[0, 1].set_title('step')
+axs[0, 1].hist(x, 20, density=True, histtype='step', facecolor='g', alpha=0.75)
+axs[0, 1].set_title('step')
 
 # Plot two histograms to demonstrate the barstacked histtype
-ax[1, 0].hist(x, density=True, histtype='barstacked', rwidth=0.8)
-ax[1, 0].hist(w, density=True, histtype='barstacked', rwidth=0.8)
-ax[1, 0].set_title('barstacked')
+axs[1, 0].hist(x, density=True, histtype='barstacked', rwidth=0.8)
+axs[1, 0].hist(w, density=True, histtype='barstacked', rwidth=0.8)
+axs[1, 0].set_title('barstacked')
 
 # Create a histogram by providing the bin edges (unequally spaced).
 bins = [100, 150, 180, 195, 205, 220, 250, 300]
-ax[1, 1].hist(x, bins, density=True, histtype='bar', rwidth=0.8)
-ax[1, 1].set_title('bar, unequal bins')
-
-
+axs[1, 1].hist(x, bins, density=True, histtype='bar', rwidth=0.8)
+axs[1, 1].set_title('bar, unequal bins')
 
 fig.tight_layout()
 plt.show()
