@@ -2004,8 +2004,8 @@ class FigureCanvasBase:
         orientation : {'landscape', 'portrait'}, optional
             only currently applies to PostScript printing.
 
-        dpi : scalar, optional
-            the dots per inch to save the figure in; if None, use savefig.dpi
+        dpi : float, default: :rc:`savefig.dpi`
+            The dots per inch to save the figure in.
 
         facecolor : color or None, optional
             the facecolor of the figure; if None, defaults to savefig.facecolor

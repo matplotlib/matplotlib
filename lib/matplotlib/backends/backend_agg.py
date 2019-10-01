@@ -561,20 +561,18 @@ class FigureCanvasAgg(FigureCanvasBase):
 
             Other Parameters
             ----------------
-            quality : int
-                The image quality, on a scale from 1 (worst) to 100 (best).
-                The default is :rc:`savefig.jpeg_quality`.  Values above
-                95 should be avoided; 100 completely disables the JPEG
-                quantization stage.
+            quality : int, default: :rc:`savefig.jpeg_quality`
+                The image quality, on a scale from 1 (worst) to 95 (best).
+                Values above 95 should be avoided; 100 disables portions of
+                the JPEG compression algorithm, and results in large files
+                with hardly any gain in image quality.
 
-            optimize : bool
-                If present, indicates that the encoder should
-                make an extra pass over the image in order to select
-                optimal encoder settings.
+            optimize : bool, default: False
+                Whether the encoder should make an extra pass over the image
+                in order to select optimal encoder settings.
 
-            progressive : bool
-                If present, indicates that this image
-                should be stored as a progressive JPEG file.
+            progressive : bool, default: False
+                Whether the image should be stored as a progressive JPEG file.
 
             pil_kwargs : dict, optional
                 Additional keyword arguments that are passed to

@@ -1130,7 +1130,7 @@ default: 'top'
             a custom projection, see `~matplotlib.projections`. The default
             None results in a 'rectilinear' projection.
 
-        polar : boolean, optional
+        polar : bool, default: False
             If True, equivalent to projection='polar'.
 
         sharex, sharey : `~.axes.Axes`, optional
@@ -1280,7 +1280,7 @@ default: 'top'
             name of a custom projection, see `~matplotlib.projections`. The
             default None results in a 'rectilinear' projection.
 
-        polar : boolean, optional
+        polar : bool, default: False
             If True, equivalent to projection='polar'.
 
         sharex, sharey : `~.axes.Axes`, optional
@@ -2068,7 +2068,7 @@ default: 'top'
                   transparent=False, bbox_inches=None, pad_inches=0.1,
                   frameon=None, metadata=None)
 
-        The output formats available depend on the backend being used.
+        The available output formats depend on the backend being used.
 
         Parameters
         ----------
@@ -2086,27 +2086,28 @@ default: 'top'
 
         Other Parameters
         ----------------
-        dpi : [ *None* | scalar > 0 | 'figure' ]
-            The resolution in dots per inch.  If *None*, defaults to
-            :rc:`savefig.dpi`.  If 'figure', uses the figure's dpi value.
+        dpi : float or 'figure', default: :rc:`savefig.dpi`
+            The resolution in dots per inch.  If 'figure', use the figure's
+            dpi value.
 
-        quality : [ *None* | 1 <= scalar <= 100 ]
+        quality : int, default: :rc:`savefig.jpeg_quality`
+            Applicable only if *format* is 'jpg' or 'jpeg', ignored otherwise.
+
             The image quality, on a scale from 1 (worst) to 95 (best).
-            Applicable only if *format* is jpg or jpeg, ignored otherwise.
-            If *None*, defaults to :rc:`savefig.jpeg_quality`.
-            Values above 95 should be avoided; 100 completely disables the
-            JPEG quantization stage.
+            Values above 95 should be avoided; 100 disables portions of
+            the JPEG compression algorithm, and results in large files
+            with hardly any gain in image quality.
 
-        optimize : bool
-            If *True*, indicates that the JPEG encoder should make an extra
-            pass over the image in order to select optimal encoder settings.
-            Applicable only if *format* is jpg or jpeg, ignored otherwise.
-            Is *False* by default.
+        optimize : bool, default: False
+            Applicable only if *format* is 'jpg' or 'jpeg', ignored otherwise.
 
-        progressive : bool
-            If *True*, indicates that this image should be stored as a
-            progressive JPEG file. Applicable only if *format* is jpg or
-            jpeg, ignored otherwise. Is *False* by default.
+            Whether the encoder should make an extra pass over the image
+            in order to select optimal encoder settings.
+
+        progressive : bool, default: False
+            Applicable only if *format* is 'jpg' or 'jpeg', ignored otherwise.
+
+            Whether the image should be stored as a progressive JPEG file.
 
         facecolor : color or None, optional
             The facecolor of the figure; if *None*, defaults to
@@ -2331,11 +2332,9 @@ default: 'top'
         """
         Blocking call to interact with the figure.
 
-        This will return True is a key was pressed, False if a mouse
-        button was pressed and None if *timeout* was reached without
-        either being pressed.
-
-        If *timeout* is negative, does not timeout.
+        Wait for user input and return True if a key was pressed, False if a
+        mouse button was pressed and None if no input was given within
+        *timeout* seconds.  Negative values deactivate *timeout*.
         """
         blocking_input = BlockingKeyMouseInput(self)
         return blocking_input(timeout=timeout)
@@ -2450,7 +2449,7 @@ default: 'top'
 
         To exclude an artist on the axes from the bounding box calculation
         that determines the subplot parameters (i.e. legend, or annotation),
-        then set `a.set_in_layout(False)` for that artist.
+        set `a.set_in_layout(False)` for that artist.
 
         Parameters
         ----------

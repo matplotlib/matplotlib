@@ -732,7 +732,7 @@ def axes(arg=None, **kwargs):
         a custom projection, see `~matplotlib.projections`. The default
         None results in a 'rectilinear' projection.
 
-    polar : boolean, optional
+    polar : bool, default: False
         If True, equivalent to projection='polar'.
 
     sharex, sharey : `~.axes.Axes`, optional
@@ -857,7 +857,7 @@ def subplot(*args, **kwargs):
         of a custom projection, see `~matplotlib.projections`. The default
         None results in a 'rectilinear' projection.
 
-    polar : boolean, optional
+    polar : bool, default: False
         If True, equivalent to projection='polar'.
 
     sharex, sharey : `~.axes.Axes`, optional
