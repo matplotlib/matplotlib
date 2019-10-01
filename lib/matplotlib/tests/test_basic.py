@@ -4,8 +4,6 @@ import subprocess
 import sys
 import textwrap
 
-import matplotlib
-
 
 def test_simple():
     assert 1 + 1 == 2

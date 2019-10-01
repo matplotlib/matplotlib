@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import (BoundaryNorm, LogNorm, PowerNorm, Normalize,
                                DivergingNorm)
 from matplotlib.colorbar import ColorbarBase, _ColorbarLogLocator
-from matplotlib.ticker import LogLocator, LogFormatter, FixedLocator
+from matplotlib.ticker import FixedLocator
 
 
 def _get_cmap_norms():

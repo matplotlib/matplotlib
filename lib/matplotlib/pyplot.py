@@ -61,12 +61,11 @@ from matplotlib.text import Text, Annotation
 from matplotlib.patches import Polygon, Rectangle, Circle, Arrow
 from matplotlib.widgets import SubplotTool, Button, Slider, Widget
 
-from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
-           FuncFormatter, FormatStrFormatter, ScalarFormatter,\
-           LogFormatter, LogFormatterExponent, LogFormatterMathtext,\
-           Locator, IndexLocator, FixedLocator, NullLocator,\
-           LinearLocator, LogLocator, AutoLocator, MultipleLocator,\
-           MaxNLocator
+from .ticker import (
+    TickHelper, Formatter, FixedFormatter, NullFormatter, FuncFormatter,
+    FormatStrFormatter, ScalarFormatter, LogFormatter, LogFormatterExponent,
+    LogFormatterMathtext, Locator, IndexLocator, FixedLocator, NullLocator,
+    LinearLocator, LogLocator, AutoLocator, MultipleLocator, MaxNLocator)
 from matplotlib.backends import _get_running_interactive_framework
 
 _log = logging.getLogger(__name__)
@@ -220,7 +219,7 @@ def switch_backend(newbackend):
 
     backend_mod = importlib.import_module(backend_name)
     Backend = type(
-        "Backend", (matplotlib.backends._Backend,), vars(backend_mod))
+        "Backend", (matplotlib.backend_bases._Backend,), vars(backend_mod))
     _log.debug("Loaded backend %s version %s.",
                newbackend, Backend.backend_version)
 

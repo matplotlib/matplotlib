@@ -18,7 +18,7 @@ The basic operation is:
 from collections import defaultdict
 import json
 import logging
-from pathlib import Path, PosixPath
+from pathlib import Path
 
 from docutils.utils import get_source_line
 from docutils import nodes

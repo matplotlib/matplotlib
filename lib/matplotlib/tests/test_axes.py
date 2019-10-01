@@ -1,6 +1,5 @@
 from collections import namedtuple
 from itertools import product
-from distutils.version import LooseVersion
 import io
 import platform
 

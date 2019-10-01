@@ -1,10 +1,9 @@
 """
 Helper functions for testing.
 """
+
 import locale
 import logging
-import sys
-import warnings
 
 import matplotlib as mpl
 from matplotlib import cbook

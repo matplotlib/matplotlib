@@ -9,7 +9,6 @@ error bars, and *bottom* to stack the women's bars on top of the men's
 bars.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
 
 
