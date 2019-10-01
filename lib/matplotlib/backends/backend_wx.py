@@ -885,8 +885,9 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         # are saving a JPEG, convert the wx.Bitmap to a wx.Image,
         # and set the quality.
         if filetype == wx.BITMAP_TYPE_JPEG:
-            jpeg_quality = kwargs.get('quality',
-                                      mpl.rcParams['savefig.jpeg_quality'])
+            jpeg_quality = kwargs.get(
+                'quality',
+                dict.__getitem__(mpl.rcParams, 'savefig.jpeg_quality'))
             image = self.bitmap.ConvertToImage()
             image.SetOption(wx.IMAGE_OPTION_QUALITY, str(jpeg_quality))
 
