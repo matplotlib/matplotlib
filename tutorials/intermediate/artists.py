@@ -57,7 +57,8 @@ methods (:meth:`~matplotlib.axes.Axes.plot`,
 graphics primitives (:class:`~matplotlib.lines.Line2D`,
 :class:`~matplotlib.text.Text`,
 :class:`~matplotlib.patches.Rectangle`,
-:class:`~matplotlib.image.AxesImage`, respectively).  These helper methods
+:class:`~matplotlib.image.AxesImage`,
+respectively).  These helper methods
 will take your data (e.g., ``numpy`` arrays and strings) and create
 primitive ``Artist`` instances as needed (e.g., ``Line2D``), add them to
 the relevant containers, and draw them when requested.  Most of you
