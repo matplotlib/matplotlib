@@ -280,21 +280,23 @@ class Formatter(TickHelper):
     def set_locs(self, locs):
         self.locs = locs
 
-    def fix_minus(self, s):
+    @staticmethod
+    def fix_minus(s):
         """
-        Some classes may want to replace a hyphen for minus with the
-        proper unicode symbol (U+2212) for typographical correctness.
-        The default is to not replace it.
-
-        Note, if you use this method, e.g., in :meth:`format_data` or
-        call, you probably don't want to use it for
-        :meth:`format_data_short` since the toolbar uses this for
-        interactive coord reporting and I doubt we can expect GUIs
-        across platforms will handle the unicode correctly.  So for
-        now the classes that override :meth:`fix_minus` should have an
-        explicit :meth:`format_data_short` method
+        Some classes may want to replace a hyphen for minus with the proper
+        unicode symbol (U+2212) for typographical correctness.  This is a
+        helper method to perform such a replacement when it is enabled via
+        :rc:`axes.unicode_minus`.
         """
-        return s
+        # Additionally, we disable the replacement when using usetex without
+        # unicode support (this is deprecated, i.e., in a future version,
+        # unicode support will always be enabled).
+        if (rcParams['axes.unicode_minus']
+                and (rcParams['text.latex.unicode']
+                     or not rcParams['text.usetex'])):
+            return s.replace('-', '\N{MINUS SIGN}')
+        else:
+            return s
 
     def _set_locator(self, locator):
         """Subclasses may want to override this to set a locator."""
@@ -565,15 +567,6 @@ class ScalarFormatter(Formatter):
 
     useMathText = property(fget=get_useMathText, fset=set_useMathText)
 
-    def fix_minus(self, s):
-        """
-        Replace hyphens with a unicode minus.
-        """
-        if rcParams['text.usetex'] or not rcParams['axes.unicode_minus']:
-            return s
-        else:
-            return s.replace('-', '\N{MINUS SIGN}')
-
     def __call__(self, x, pos=None):
         """
         Return the format for tick value *x* at position *pos*.
@@ -624,15 +617,12 @@ class ScalarFormatter(Formatter):
         self._powerlimits = lims
 
     def format_data_short(self, value):
-        """
-        Return a short formatted string representation of a number.
-        """
-        if self._useLocale:
-            return locale.format_string('%-12g', (value,))
-        elif isinstance(value, np.ma.MaskedArray) and value.mask:
-            return ''
-        else:
-            return '%-12g' % value
+        # docstring inherited
+        return (
+            "" if isinstance(value, np.ma.MaskedArray) and value.mask else
+            self.fix_minus(
+                locale.format_string("%-12g", (value,)) if self._useLocale else
+                "%-12g" % value))
 
     def format_data(self, value):
         """
@@ -1026,7 +1016,7 @@ class LogFormatter(Formatter):
         vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
         s = self._num_to_string(x, vmin, vmax)
-        return self.fix_minus(s)
+        return s
 
     def format_data(self, value):
         b = self.labelOnlyBase
@@ -1036,9 +1026,7 @@ class LogFormatter(Formatter):
         return value
 
     def format_data_short(self, value):
-        """
-        Return a short formatted string representation of a number.
-        """
+        # docstring inherited
         return '%-12g' % value
 
     @cbook.deprecated("3.1")
@@ -1461,12 +1449,6 @@ class EngFormatter(Formatter):
             self._useMathText = val
 
     useMathText = property(fget=get_useMathText, fset=set_useMathText)
-
-    def fix_minus(self, s):
-        """
-        Replace hyphens with a unicode minus.
-        """
-        return ScalarFormatter.fix_minus(self, s)
 
     def __call__(self, x, pos=None):
         s = "%s%s" % (self.format_eng(x), self.unit)
