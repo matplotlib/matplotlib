@@ -45,6 +45,7 @@ from weakref import WeakKeyDictionary
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import (
     backend_tools as tools, cbook, colors, textpath, tight_bbox, transforms,
     widgets, get_backend, is_interactive, rcParams)
