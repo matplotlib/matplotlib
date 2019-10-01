@@ -25,7 +25,7 @@ class MyNavigationToolbar(NavigationToolbar):
         # We use a stock wx bitmap, but you could also use your own image file.
         bmp = wx.ArtProvider.GetBitmap(wx.ART_CROSS_MARK, wx.ART_TOOLBAR)
         tool = self.AddTool(wx.ID_ANY, 'Click me', bmp,
-                            'Activate custom contol')
+                            'Activate custom control')
         self.Bind(wx.EVT_TOOL, self._on_custom, id=tool.GetId())
 
     def _on_custom(self, evt):
