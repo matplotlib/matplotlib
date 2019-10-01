@@ -3,7 +3,7 @@ import os
 import sys
 
 from docutils import nodes
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 import sphinx
 
 from matplotlib import rcParams
@@ -22,9 +22,6 @@ def fontset_choice(arg):
     return directives.choice(arg, ['cm', 'stix', 'stixsans'])
 
 
-options_spec = {'fontset': fontset_choice}
-
-
 def math_role(role, rawtext, text, lineno, inliner,
               options={}, content=[]):
     i = rawtext.find('`')
@@ -33,11 +30,10 @@ def math_role(role, rawtext, text, lineno, inliner,
     node['latex'] = latex
     node['fontset'] = options.get('fontset', 'cm')
     return [node], []
+math_role.options = {'fontset': fontset_choice}
 
 
-math_role.options = options_spec
-
-
+@cbook.deprecated("3.1", alternative="MathDirective")
 def math_directive(name, arguments, options, content, lineno,
                    content_offset, block_text, state, state_machine):
     latex = ''.join(content)
@@ -45,6 +41,21 @@ def math_directive(name, arguments, options, content, lineno,
     node['latex'] = latex
     node['fontset'] = options.get('fontset', 'cm')
     return [node]
+
+
+class MathDirective(Directive):
+    has_content = True
+    required_arguments = 0
+    optional_arguments = 0
+    final_argument_whitespace = False
+    option_spec = {'fontset': fontset_choice}
+
+    def run(self):
+        latex = ''.join(self.content)
+        node = latex_math(self.block_text)
+        node['latex'] = latex
+        node['fontset'] = self.options.get('fontset', 'cm')
+        return [node]
 
 
 # This uses mathtext to render the expression
@@ -121,12 +132,10 @@ def setup(app):
                  html=(visit_latex_math_html, depart_latex_math_html),
                  latex=(visit_latex_math_latex, depart_latex_math_latex))
     app.add_role('mathmpl', math_role)
-    app.add_directive('mathmpl', math_directive,
-                      True, (0, 0, 0), **options_spec)
+    app.add_directive('mathmpl', MathDirective)
     if sphinx.version_info < (1, 8):
         app.add_role('math', math_role)
-        app.add_directive('math', math_directive,
-                          True, (0, 0, 0), **options_spec)
+        app.add_directive('math', MathDirective)
 
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
     return metadata
