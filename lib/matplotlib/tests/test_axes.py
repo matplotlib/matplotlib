@@ -1754,11 +1754,10 @@ def test_hist_datetime_datasets():
 
 
 @pytest.mark.parametrize("bins_preprocess",
-                         [lambda bins: None,
-                          mpl.dates.date2num,
+                         [mpl.dates.date2num,
                           lambda bins: bins,
                           lambda bins: np.asarray(bins).astype('datetime64')],
-                         ids=['None', 'date2num', 'datetime.datetime',
+                         ids=['date2num', 'datetime.datetime',
                               'np.datetime64'])
 def test_hist_datetime_datasets_bins(bins_preprocess):
     data = [[datetime.datetime(2019, 1, 5), datetime.datetime(2019, 1, 11),
@@ -1770,8 +1769,11 @@ def test_hist_datetime_datasets_bins(bins_preprocess):
                   datetime.datetime(2019, 3, 1)]
 
     fig, ax = plt.subplots()
-    ax.hist(data, bins=bins_preprocess(date_edges), stacked=True)
-    ax.hist(data, bins=bins_preprocess(date_edges), stacked=False)
+    _, bins, _ = ax.hist(data, bins=bins_preprocess(date_edges), stacked=True)
+    np.testing.assert_allclose(bins, mpl.dates.date2num(date_edges))
+
+    _, bins, _ = ax.hist(data, bins=bins_preprocess(date_edges), stacked=False)
+    np.testing.assert_allclose(bins, mpl.dates.date2num(date_edges))
 
 
 @pytest.mark.parametrize('data, expected_number_of_hists',
