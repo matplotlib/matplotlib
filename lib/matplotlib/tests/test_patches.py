@@ -490,3 +490,11 @@ def test_fancyarrow_units():
     fig, ax = plt.subplots()
     arrow = FancyArrowPatch((0, dtime), (0.01, dtime))
     ax.add_patch(arrow)
+
+
+@image_comparison(["large_arc.svg"], style="mpl20")
+def test_large_arc():
+    ax = plt.figure().add_subplot()
+    ax.set_axis_off()
+    # A large arc that crosses the axes view limits.
+    ax.add_patch(mpatches.Arc((-100, 0), 201, 201))

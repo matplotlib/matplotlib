@@ -1592,14 +1592,12 @@ class Arc(Ellipse):
            calculation much easier than doing rotated ellipse
            intersection directly).
 
-           This uses the "line intersecting a circle" algorithm
-           from:
+           This uses the "line intersecting a circle" algorithm from:
 
                Vince, John.  *Geometry for Computer Graphics: Formulae,
                Examples & Proofs.*  London: Springer-Verlag, 2005.
 
-        2. The angles of each of the intersection points are
-           calculated.
+        2. The angles of each of the intersection points are calculated.
 
         3. Proceeding counterclockwise starting in the positive
            x-direction, each of the visible arc-segments between the
@@ -1632,33 +1630,25 @@ class Arc(Ellipse):
             self._path = Path.arc(theta1, theta2)
             return Patch.draw(self, renderer)
 
-        def iter_circle_intersect_on_line(x0, y0, x1, y1):
+        def line_circle_intersect(x0, y0, x1, y1):
             dx = x1 - x0
             dy = y1 - y0
             dr2 = dx * dx + dy * dy
             D = x0 * y1 - x1 * y0
             D2 = D * D
             discrim = dr2 - D2
-
-            # Single (tangential) intersection
-            if discrim == 0.0:
-                x = (D * dy) / dr2
-                y = (-D * dx) / dr2
-                yield x, y
-            elif discrim > 0.0:
-                # The definition of "sign" here is different from
-                # np.sign: we never want to get 0.0
-                if dy < 0.0:
-                    sign_dy = -1.0
-                else:
-                    sign_dy = 1.0
+            if discrim >= 0.0:
+                sign_dy = np.copysign(1, dy)  # +/-1, never 0.
                 sqrt_discrim = np.sqrt(discrim)
-                for sign in (1., -1.):
-                    x = (D * dy + sign * sign_dy * dx * sqrt_discrim) / dr2
-                    y = (-D * dx + sign * np.abs(dy) * sqrt_discrim) / dr2
-                    yield x, y
+                return np.array(
+                    [[(D * dy + sign_dy * dx * sqrt_discrim) / dr2,
+                      (-D * dx + abs(dy) * sqrt_discrim) / dr2],
+                     [(D * dy - sign_dy * dx * sqrt_discrim) / dr2,
+                      (-D * dx - abs(dy) * sqrt_discrim) / dr2]])
+            else:
+                return np.empty((0, 2))
 
-        def iter_circle_intersect_on_line_seg(x0, y0, x1, y1):
+        def segment_circle_intersect(x0, y0, x1, y1):
             epsilon = 1e-9
             if x1 < x0:
                 x0e, x1e = x1, x0
@@ -1668,13 +1658,10 @@ class Arc(Ellipse):
                 y0e, y1e = y1, y0
             else:
                 y0e, y1e = y0, y1
-            x0e -= epsilon
-            y0e -= epsilon
-            x1e += epsilon
-            y1e += epsilon
-            for x, y in iter_circle_intersect_on_line(x0, y0, x1, y1):
-                if x0e <= x <= x1e and y0e <= y <= y1e:
-                    yield x, y
+            xys = line_circle_intersect(x0, y0, x1, y1)
+            xs, ys = xys.T
+            return xys[(x0e - epsilon < xs) & (xs < x1e + epsilon)
+                       & (y0e - epsilon < ys) & (ys < y1e + epsilon)]
 
         # Transforms the axes box_path so that it is relative to the unit
         # circle in the same way that it is relative to the desired ellipse.
@@ -1686,16 +1673,10 @@ class Arc(Ellipse):
         thetas = set()
         # For each of the point pairs, there is a line segment
         for p0, p1 in zip(box_path.vertices[:-1], box_path.vertices[1:]):
-            x0, y0 = p0
-            x1, y1 = p1
-            for x, y in iter_circle_intersect_on_line_seg(x0, y0, x1, y1):
-                theta = np.arccos(x)
-                if y < 0:
-                    theta = 2 * np.pi - theta
-                # Convert radians to angles
-                theta = np.rad2deg(theta)
-                if theta1 < theta < theta2:
-                    thetas.add(theta)
+            xy = segment_circle_intersect(*p0, *p1)
+            x, y = xy.T
+            theta = np.rad2deg(np.arctan2(y, x))
+            thetas.update(theta[(theta1 < theta) & (theta < theta2)])
         thetas = sorted(thetas) + [theta2]
 
         last_theta = theta1
