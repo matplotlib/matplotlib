@@ -13,8 +13,7 @@ from numpy import ma
 from numpy.testing import assert_array_equal
 
 from matplotlib import (
-    colors, image as mimage, patches, pyplot as plt, style,
-    rc_context, rcParams)
+    colors, image as mimage, patches, pyplot as plt, style, rcParams)
 from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
