@@ -1118,6 +1118,10 @@ class DateLocator(ticker.Locator):
         Given the proposed upper and lower extent, adjust the range
         if it is too close to being singular (i.e. a range of ~0).
         """
+        if not np.isfinite(vmin) or not np.isfinite(vmax):
+            # Except if there is no data, then use 2000-2010 as default.
+            return (date2num(datetime.date(2000, 1, 1)),
+                    date2num(datetime.date(2010, 1, 1)))
         if vmax < vmin:
             vmin, vmax = vmax, vmin
         unit = self._get_unit()
@@ -1337,6 +1341,10 @@ class AutoDateLocator(DateLocator):
     def nonsingular(self, vmin, vmax):
         # whatever is thrown at us, we can scale the unit.
         # But default nonsingular date plots at an ~4 year period.
+        if not np.isfinite(vmin) or not np.isfinite(vmax):
+            # Except if there is no data, then use 2000-2010 as default.
+            return (date2num(datetime.date(2000, 1, 1)),
+                    date2num(datetime.date(2010, 1, 1)))
         if vmax < vmin:
             vmin, vmax = vmax, vmin
         if vmin == vmax:
