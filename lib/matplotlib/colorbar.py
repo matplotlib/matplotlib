@@ -541,12 +541,17 @@ class ColorbarBase(_ColorbarMappableDummy):
         X, Y = self._mesh()
         C = self._values[:, np.newaxis]
         # decide minor/major axis
-        self.config_axis()
+        self._config_axis()
         self._config_axes(X, Y)
         if self.filled:
             self._add_solids(X, Y, C)
 
+    @cbook.deprecated("3.3")
     def config_axis(self):
+        self._config_axis()
+
+    def _config_axis(self):
+        """Configure the ticks, ticklabels and label of the underlying Axes."""
         ax = self.ax
 
         if self.orientation == 'vertical':
