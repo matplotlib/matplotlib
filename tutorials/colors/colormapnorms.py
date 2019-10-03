@@ -12,10 +12,10 @@ give a color at the center of the colormap *RdBu_r* (white in this
 case).
 
 Matplotlib does this mapping in two steps, with a normalization from
-[0,1] occurring first, and then mapping onto the indices in the
-colormap.  Normalizations are classes defined in the
-:func:`matplotlib.colors` module.  The default, linear normalization is
-:func:`matplotlib.colors.Normalize`.
+the input data to [0, 1] occurring first, and then mapping onto the
+indices in the colormap.  Normalizations are classes defined in the
+:func:`matplotlib.colors` module.  The default, linear normalization
+is :func:`matplotlib.colors.Normalize`.
 
 Artists that map data to color pass the arguments *vmin* and *vmax* to
 construct a :func:`matplotlib.colors.Normalize` instance, then call it:
@@ -35,13 +35,13 @@ colormaps in a non-linear fashion.
 Logarithmic
 -----------
 
-One of the most common transformations is to plot data by taking
-its logarithm (to the base-10).  This transformation is useful to
-display changes across disparate scales.  Using :func:`colors.LogNorm`
-normalizes the data via :math:`log_{10}`.  In the example below,
-there are two bumps, one much smaller than the other. Using
-:func:`colors.LogNorm`, the shape and location of each bump can clearly
-be seen:
+One of the most common transformations is to plot data by taking its logarithm
+(to the base-10).  This transformation is useful to display changes across
+disparate scales.  Using `.colors.LogNorm` normalizes the data via
+:math:`log_{10}`.  In the example below, there are two bumps, one much smaller
+than the other. Using `.colors.LogNorm`, the shape and location of each bump
+can clearly be seen:
+
 """
 import numpy as np
 import matplotlib.pyplot as plt
