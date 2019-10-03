@@ -574,6 +574,9 @@ class Line2D(Artist):
               be 0.5 multiplied by the display-coordinate-diagonal-distance
               along the line.
 
+            For examples see
+            :doc:`/gallery/lines_bars_and_markers/markevery_demo`.
+
         Notes
         -----
         Setting the markevery property will only show markers at actual data
@@ -1079,6 +1082,7 @@ class Line2D(Artist):
             - 'steps' is equal to 'steps-pre' and is maintained for
               backward-compatibility.
 
+            For examples see :doc:`/gallery/lines_bars_and_markers/step_demo`.
         """
         if drawstyle is None:
             drawstyle = 'default'
@@ -1171,6 +1175,8 @@ class Line2D(Artist):
 
               where ``onoffseq`` is an even length tuple of on and off ink
               in points. See also :meth:`set_dashes`.
+
+            For examples see :doc:`/gallery/lines_bars_and_markers/linestyles`.
         """
         if isinstance(ls, str):
             ds, ls = self._split_drawstyle_linestyle(ls)
@@ -1325,7 +1331,7 @@ class Line2D(Artist):
             self.set_linestyle((0, seq))
 
     def update_from(self, other):
-        """Copy properties from other to self."""
+        """Copy properties from *other* to self."""
         Artist.update_from(self, other)
         self._linestyle = other._linestyle
         self._linewidth = other._linewidth
@@ -1402,6 +1408,7 @@ class Line2D(Artist):
         Parameters
         ----------
         s : {'butt', 'round', 'projecting'}
+            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
         s = s.lower()
         cbook._check_in_list(self.validCap, s=s)
@@ -1416,6 +1423,7 @@ class Line2D(Artist):
         Parameters
         ----------
         s : {'butt', 'round', 'projecting'}
+            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
         s = s.lower()
         cbook._check_in_list(self.validCap, s=s)
