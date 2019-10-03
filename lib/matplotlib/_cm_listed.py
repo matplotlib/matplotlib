@@ -1801,16 +1801,13 @@ _twilight_shifted_data = (_twilight_data[len(_twilight_data)//2:] +
                           _twilight_data[:len(_twilight_data)//2])
 _twilight_shifted_data.reverse()
 
-cmaps = {}
-for (name, data) in (('magma', _magma_data),
-                     ('inferno', _inferno_data),
-                     ('plasma', _plasma_data),
-                     ('viridis', _viridis_data),
-                     ('cividis', _cividis_data),
-                     ('twilight', _twilight_data),
-                     ('twilight_shifted', _twilight_shifted_data)):
-
-    cmaps[name] = ListedColormap(data, name=name)
-    # generate reversed colormap
-    name = name + '_r'
-    cmaps[name] = ListedColormap(list(reversed(data)), name=name)
+cmaps = {
+    name: ListedColormap(data, name=name) for name, data in [
+        ('magma', _magma_data),
+        ('inferno', _inferno_data),
+        ('plasma', _plasma_data),
+        ('viridis', _viridis_data),
+        ('cividis', _cividis_data),
+        ('twilight', _twilight_data),
+        ('twilight_shifted', _twilight_shifted_data),
+    ]}

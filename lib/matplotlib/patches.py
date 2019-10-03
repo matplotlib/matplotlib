@@ -1667,7 +1667,7 @@ class Arc(Ellipse):
         # circle in the same way that it is relative to the desired ellipse.
         box_path = Path.unit_rectangle()
         box_path_transform = (transforms.BboxTransformTo(self.axes.bbox)
-                              - self.get_transform())
+                              + self.get_transform().inverted())
         box_path = box_path.transformed(box_path_transform)
 
         thetas = set()
