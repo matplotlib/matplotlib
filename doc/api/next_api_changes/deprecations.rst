@@ -12,3 +12,7 @@ instead.
 ~~~~~~~~~~~~~~~~~~~~~~~~
 ``backend_wx.DEBUG_MSG`` is deprecated.  The wx backends now use regular
 logging.
+
+``Colorbar.config_axis()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+``Colorbar.config_axis()`` is considered internal. Its use is deprecated.
