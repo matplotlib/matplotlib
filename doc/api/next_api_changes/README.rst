@@ -3,19 +3,28 @@
 Adding API change notes
 =======================
 
-Please place new portions of `api_changes.rst` in the
-`next_api_changes` directory.
+API change notes for future releases are collected in the directory
+:file:`next_api_changes`. They are divided into four categories:
 
-When adding an entry please look at the currently existing files to
-see if you can extend any of them.  If you create a file, name it
-:file:`what_api_changes.rst` (ex :file:`deprecated_rcparams.rst`) with
-contents following the form: ::
+- **Deprecations**: Announcements of future changes. Typically, these will
+  raise a deprecation warning and users of this API should change their code
+  to stay compatible with future releases of Matplotlib. If possible, state
+  what should be used instead.
+- **Removals**: Parts of the API that got removed. If possible, state what
+  should be used instead.
+- **Behaviour changes**: API that stays valid but will yield a different
+  result.
+- **Development changes**: Changes to the build process, dependencies, etc.
 
-    Brief description of change
-    ---------------------------
+Please place new entries in the respective files in this directory. Typically,
+each change will get its own section, but you may also amend existing sections
+when suitable. The overall goal is a comprehensible documentation of the
+changes.
 
-    Long description of change, justification, and work-arounds to
-    maintain old behavior (if any).
+A typical entry could look like this::
 
+    Locators
+    ~~~~~~~~
+    The unused `Locator.autoscale()` method is deprecated (pass the axis
+    limits to `Locator.view_limits()` instead).
 
-If you need more heading levels, please use ``~~~~`` and ``++++``.
