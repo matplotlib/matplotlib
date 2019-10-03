@@ -1,5 +1,0 @@
-Deprecations
-````````````
-
-``backend_wx.DEBUG_MSG`` is deprecated.  The wx backends now use regular
-logging.

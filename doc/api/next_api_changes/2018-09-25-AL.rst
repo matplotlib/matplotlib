@@ -1,7 +1,0 @@
-``FigureCanvasBase`` now always has a ``manager`` attribute, which may be None
-``````````````````````````````````````````````````````````````````````````````
-
-Previously, it did not necessarily have such an attribute.  A check for
-``hasattr(figure.canvas, "manager")`` should now be replaced by
-``figure.canvas.manager is not None`` (or ``getattr(figure.canvas, "manager", None) is not None``
-for back-compatibility).
