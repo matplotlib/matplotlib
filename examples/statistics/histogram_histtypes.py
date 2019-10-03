@@ -4,7 +4,9 @@ Demo of the histogram function's different ``histtype`` settings
 ================================================================
 
 * Histogram with step curve that has a color fill.
+* Histogram with step curve with no fill.
 * Histogram with custom and unequal bin widths.
+* Two histograms with stacked bars.
 
 Selecting different bin counts and sizes can significantly affect the
 shape of a histogram. The Astropy docs have a great section on how to
@@ -35,7 +37,6 @@ axs[0, 1].hist(x, 20, density=True, histtype='step', facecolor='g',
                alpha=0.75)
 axs[0, 1].set_title('step')
 
-# Plot two histograms to demonstrate the barstacked histtype
 axs[1, 0].hist(x, density=True, histtype='barstacked', rwidth=0.8)
 axs[1, 0].hist(w, density=True, histtype='barstacked', rwidth=0.8)
 axs[1, 0].set_title('barstacked')
