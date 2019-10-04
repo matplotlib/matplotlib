@@ -1890,26 +1890,24 @@ class BoxStyle(_Style):
 
     class _Base:
         """
-        :class:`BBoxTransmuterBase` and its derivatives are used to make a
-        fancy box around a given rectangle. The :meth:`__call__` method
-        returns the :class:`~matplotlib.path.Path` of the fancy box. This
-        class is not an artist and actual drawing of the fancy box is done
-        by the :class:`FancyBboxPatch` class.
+        Abstract base class for styling of `.FancyBboxPatch`.
+
+        This class is not an artist itself.  The `__call__` method returns the
+        `~matplotlib.path.Path` for outlining the fancy box. The actual drawing
+        is handled in `.FancyBboxPatch`.
+
+        Subclasses may only use parameters with default values in their
+        ``__init__`` method because they must be able to be initialized
+        without arguments.
+
+        Subclasses must implement the `transmute` method. It receives the
+        enclosing rectangle *x0, y0, width, height* as well as the
+        *mutation_size*, which scales the outline properties such as padding.
+        It returns the outline of the fancy box as `.path.Path`.
         """
 
-        # The derived classes are required to be able to be initialized
-        # w/o arguments, i.e., all its argument (except self) must have
-        # the default values.
-
         def transmute(self, x0, y0, width, height, mutation_size):
-            """
-            The transmute method is a very core of the
-            :class:`BboxTransmuter` class and must be overridden in the
-            subclasses. It receives the location and size of the
-            rectangle, and the mutation_size, with which the amount of
-            padding and etc. will be scaled. It returns a
-            :class:`~matplotlib.path.Path` instance.
-            """
+            """Return the `~.path.Path` outlining the given rectangle."""
             raise NotImplementedError('Derived must override')
 
         def __call__(self, x0, y0, width, height, mutation_size,
@@ -1918,9 +1916,18 @@ class BoxStyle(_Style):
             Given the location and size of the box, return the path of
             the box around it.
 
-              - *x0*, *y0*, *width*, *height* : location and size of the box
-              - *mutation_size* : a reference scale for the mutation.
-              - *aspect_ratio* : aspect-ration for the mutation.
+            Parameters
+            ----------
+            x0, y0, width, height : float
+                Location and size of the box.
+            mutation_size : float
+                A reference scale for the mutation.
+            aspect_ratio : float, default: 1
+                Aspect-ratio for the mutation.
+
+            Returns
+            -------
+            path : `~matplotlib.path.Path`
             """
             # The __call__ method is a thin wrapper around the transmute method
             # and takes care of the aspect.
@@ -1940,15 +1947,14 @@ class BoxStyle(_Style):
     @_register_style(_style_list)
     class Square(_Base):
         """
-        A simple square box.
-        """
+        A square box.
 
+        Parameters
+        ----------
+        pad : float, default: 0.3
+            The amount of padding around the original box.
+        """
         def __init__(self, pad=0.3):
-            """
-            Parameters
-            ----------
-            pad : float
-            """
             self.pad = pad
             super().__init__()
 
@@ -1968,14 +1974,15 @@ class BoxStyle(_Style):
 
     @_register_style(_style_list)
     class Circle(_Base):
-        """A simple circle box."""
+        """
+        A circular box.
+
+        Parameters
+        ----------
+        pad : float, default: 0.3
+            The amount of padding around the original box.
+        """
         def __init__(self, pad=0.3):
-            """
-            Parameters
-            ----------
-            pad : float
-                The amount of padding around the original box.
-            """
             self.pad = pad
             super().__init__()
 
@@ -1991,7 +1998,12 @@ class BoxStyle(_Style):
     @_register_style(_style_list)
     class LArrow(_Base):
         """
-        (left) Arrow Box
+        A box in the shape of a left-pointing arrow.
+
+        Parameters
+        ----------
+        pad : float, default: 0.3
+            The amount of padding around the original box.
         """
         def __init__(self, pad=0.3):
             self.pad = pad
@@ -2029,9 +2041,13 @@ class BoxStyle(_Style):
     @_register_style(_style_list)
     class RArrow(LArrow):
         """
-        (right) Arrow Box
-        """
+        A box in the shape of a right-pointing arrow.
 
+        Parameters
+        ----------
+        pad : float, default: 0.3
+            The amount of padding around the original box.
+        """
         def __init__(self, pad=0.3):
             super().__init__(pad)
 
@@ -2044,7 +2060,12 @@ class BoxStyle(_Style):
     @_register_style(_style_list)
     class DArrow(_Base):
         """
-        (Double) Arrow Box
+        A box in the shape of a two-way arrow.
+
+        Parameters
+        ----------
+        pad : float, default: 0.3
+            The amount of padding around the original box.
         """
         # This source is copied from LArrow,
         # modified to add a right arrow to the bbox.
@@ -2095,16 +2116,15 @@ class BoxStyle(_Style):
     class Round(_Base):
         """
         A box with round corners.
+
+        Parameters
+        ----------
+        pad : float, default: 0.3
+            The amount of padding around the original box.
+        rounding_size : float, default: *pad*
+            Radius of the corners.
         """
-
         def __init__(self, pad=0.3, rounding_size=None):
-            """
-            *pad*
-              amount of padding
-
-            *rounding_size*
-              rounding radius of corners. *pad* if None
-            """
             self.pad = pad
             self.rounding_size = rounding_size
             super().__init__()
@@ -2156,17 +2176,16 @@ class BoxStyle(_Style):
     @_register_style(_style_list)
     class Round4(_Base):
         """
-        Another box with round edges.
+        A box with rounded edges.
+
+        Parameters
+        ----------
+        pad : float, default: 0.3
+            The amount of padding around the original box.
+        rounding_size : float, default: *pad*/2
+             Rounding of edges.
         """
-
         def __init__(self, pad=0.3, rounding_size=None):
-            """
-            *pad*
-              amount of padding
-
-            *rounding_size*
-              rounding size of edges. *pad* if None
-            """
             self.pad = pad
             self.rounding_size = rounding_size
             super().__init__()
@@ -2209,17 +2228,16 @@ class BoxStyle(_Style):
     @_register_style(_style_list)
     class Sawtooth(_Base):
         """
-        A sawtooth box.
+        A box with a sawtooth outline.
+
+        Parameters
+        ----------
+        pad : float, default: 0.3
+            The amount of padding around the original box.
+        tooth_size : float, default: *pad*/2
+             Size of the sawtooth.
         """
-
         def __init__(self, pad=0.3, tooth_size=None):
-            """
-            *pad*
-              amount of padding
-
-            *tooth_size*
-              size of the sawtooth. pad* if None
-            """
             self.pad = pad
             self.tooth_size = tooth_size
             super().__init__()
@@ -2306,15 +2324,17 @@ class BoxStyle(_Style):
 
     @_register_style(_style_list)
     class Roundtooth(Sawtooth):
-        """A rounded tooth box."""
-        def __init__(self, pad=0.3, tooth_size=None):
-            """
-            *pad*
-              amount of padding
+        """
+        A box with a rounded sawtooth outline.
 
-            *tooth_size*
-              size of the sawtooth. pad* if None
-            """
+        Parameters
+        ----------
+        pad : float, default: 0.3
+            The amount of padding around the original box.
+        tooth_size : float, default: *pad*/2
+             Size of the sawtooth.
+        """
+        def __init__(self, pad=0.3, tooth_size=None):
             super().__init__(pad, tooth_size)
 
         def transmute(self, x0, y0, width, height, mutation_size):
@@ -2345,7 +2365,7 @@ class FancyBboxPatch(Patch):
 
     `.FancyBboxPatch` is similar to `.Rectangle`, but it draws a fancy box
     around the rectangle. The transformation of the rectangle box to the
-    fancy box is delegated to the `.BoxTransmuterBase` and its derived classes.
+    fancy box is delegated to the style classes defined in `.BoxStyle`.
     """
 
     _edge_default = True
