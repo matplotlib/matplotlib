@@ -390,7 +390,7 @@ consistent with Python's documentation:
 
 .. code-block:: rst
 
-  If *linestyles* is *None*, the 'solid' is used.
+  If *linestyles* is *None*, the default is 'solid'.
 
 Do not use the ```default role``` or the ````literal```` role:
 
@@ -409,6 +409,12 @@ Use simple single or double quotes when giving string values, e.g.
 .. code-block:: rst
 
   If 'tight', try to figure out the tight bbox of the figure.
+
+  No ``'extra'`` literal quotes.
+
+The use of extra literal quotes around the text is discouraged. While they
+slightly improve the rendered docs, they are cumbersome to type and difficult
+to read in plain-text docs.
 
 Parameter type descriptions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
