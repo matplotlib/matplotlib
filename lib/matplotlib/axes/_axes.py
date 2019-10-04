@@ -1,4 +1,5 @@
 import collections.abc
+import datetime
 import functools
 import itertools
 import logging
@@ -3974,13 +3975,25 @@ class Axes(_AxesBase):
             raise ValueError(datashape_message.format("positions"))
 
         positions = np.array(positions)
+        datetime_axis = False
         if len(positions) > 0 and not isinstance(positions[0], Number):
-            raise TypeError("positions should be an iterable of numbers")
+            # check if datetime-like object
+            if hasattr(positions[0], 'fromtimestamp') or hasattr(positions[0], 'tm_hour'):
+                datetime_axis = True
+            else:
+                raise TypeError("positions should be an iterable of numbers or \
+                                    datetime-like objects")
 
         # width
         if widths is None:
-            widths = [np.clip(0.15 * np.ptp(positions), 0.15, 0.5)] * N
-        elif np.isscalar(widths):
+            if not datetime_axis:
+                conversion = 1
+            else:
+                conversion = datetime.timedelta(days=1)
+            widths = [np.clip(0.15 * np.ptp(positions), 
+                              0.15 * conversion, 
+                              0.5 * conversion)] * N
+        elif np.isscalar(widths) or hasattr(widths, 'seconds'):
             widths = [widths] * N
         elif len(widths) != N:
             raise ValueError(datashape_message.format("widths"))
@@ -3990,7 +4003,7 @@ class Axes(_AxesBase):
             datalabels.append(stats.get('label', pos))
 
             # whisker coords
-            whisker_x = np.ones(2) * pos
+            whisker_x = np.array([pos] * 2)
             whiskerlo_y = np.array([stats['q1'], stats['whislo']])
             whiskerhi_y = np.array([stats['q3'], stats['whishi']])
 
