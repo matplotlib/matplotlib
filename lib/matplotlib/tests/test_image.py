@@ -458,13 +458,33 @@ def test_imshow():
     ax.set_ylim(0, 3)
 
 
-@image_comparison(['imshow'], remove_text=True, style='mpl20')
-def test_imshow_10_10_1():
-    fig, ax = plt.subplots()
+@check_figures_equal(extensions=['png'])
+def test_imshow_10_10_1(fig_test, fig_ref):
+    # 10x10x1 should be the same as 10x10
     arr = np.arange(100).reshape((10, 10, 1))
+    ax = fig_ref.subplots()
+    ax.imshow(arr[:, :, 0], interpolation="bilinear", extent=(1, 2, 1, 2))
+    ax.set_xlim(0, 3)
+    ax.set_ylim(0, 3)
+    
+    ax = fig_test.subplots()
     ax.imshow(arr, interpolation="bilinear", extent=(1, 2, 1, 2))
     ax.set_xlim(0, 3)
     ax.set_ylim(0, 3)
+
+
+def test_imshow_10_10_2():
+    fig, ax = plt.subplots()
+    arr = np.arange(200).reshape((10, 10, 2))
+    with pytest.raises(TypeError):
+        ax.imshow(arr)
+
+
+def test_imshow_10_10_5():
+    fig, ax = plt.subplots()
+    arr = np.arange(500).reshape((10, 10, 5))
+    with pytest.raises(TypeError):
+        ax.imshow(arr)
 
 
 @image_comparison(['no_interpolation_origin'], remove_text=True)
