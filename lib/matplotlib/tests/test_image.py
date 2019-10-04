@@ -466,7 +466,7 @@ def test_imshow_10_10_1(fig_test, fig_ref):
     ax.imshow(arr[:, :, 0], interpolation="bilinear", extent=(1, 2, 1, 2))
     ax.set_xlim(0, 3)
     ax.set_ylim(0, 3)
-    
+
     ax = fig_test.subplots()
     ax.imshow(arr, interpolation="bilinear", extent=(1, 2, 1, 2))
     ax.set_xlim(0, 3)
