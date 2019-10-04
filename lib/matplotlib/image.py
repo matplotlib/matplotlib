@@ -672,7 +672,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                             "float".format(self._A.dtype))
 
         if (self._A.ndim == 3 and self._A.shape[-1] == 1):
-            # If just one dimension assume grayscale
+            # If just one dimension assume scalar and apply colormap
             self._A = self._A[:, :, 0]
 
         if not (self._A.ndim == 2
