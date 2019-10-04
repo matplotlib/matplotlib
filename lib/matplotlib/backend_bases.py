@@ -53,42 +53,37 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.transforms import Affine2D
 from matplotlib.path import Path
 
-try:
-    from PIL import PILLOW_VERSION
-    from distutils.version import LooseVersion
-    if LooseVersion(PILLOW_VERSION) >= "3.4":
-        _has_pil = True
-    else:
-        _has_pil = False
-    del PILLOW_VERSION
-except ImportError:
-    _has_pil = False
 
 _log = logging.getLogger(__name__)
-
 _default_filetypes = {
-    'ps': 'Postscript',
     'eps': 'Encapsulated Postscript',
+    'jpg': 'Joint Photographic Experts Group',
+    'jpeg': 'Joint Photographic Experts Group',
     'pdf': 'Portable Document Format',
     'pgf': 'PGF code for LaTeX',
     'png': 'Portable Network Graphics',
+    'ps': 'Postscript',
     'raw': 'Raw RGBA bitmap',
     'rgba': 'Raw RGBA bitmap',
     'svg': 'Scalable Vector Graphics',
-    'svgz': 'Scalable Vector Graphics'
+    'svgz': 'Scalable Vector Graphics',
+    'tif': 'Tagged Image File Format',
+    'tiff': 'Tagged Image File Format',
 }
-
-
 _default_backends = {
-    'ps': 'matplotlib.backends.backend_ps',
     'eps': 'matplotlib.backends.backend_ps',
+    'jpg': 'matplotlib.backends.backend_agg',
+    'jpeg': 'matplotlib.backends.backend_agg',
     'pdf': 'matplotlib.backends.backend_pdf',
     'pgf': 'matplotlib.backends.backend_pgf',
     'png': 'matplotlib.backends.backend_agg',
+    'ps': 'matplotlib.backends.backend_ps',
     'raw': 'matplotlib.backends.backend_agg',
     'rgba': 'matplotlib.backends.backend_agg',
     'svg': 'matplotlib.backends.backend_svg',
     'svgz': 'matplotlib.backends.backend_svg',
+    'tif': 'matplotlib.backends.backend_agg',
+    'tiff': 'matplotlib.backends.backend_agg',
 }
 
 
@@ -1604,17 +1599,6 @@ class FigureCanvasBase:
     fixed_dpi = None
 
     filetypes = _default_filetypes
-    if _has_pil:
-        # JPEG support
-        register_backend('jpg', 'matplotlib.backends.backend_agg',
-                         'Joint Photographic Experts Group')
-        register_backend('jpeg', 'matplotlib.backends.backend_agg',
-                         'Joint Photographic Experts Group')
-        # TIFF support
-        register_backend('tif', 'matplotlib.backends.backend_agg',
-                         'Tagged Image File Format')
-        register_backend('tiff', 'matplotlib.backends.backend_agg',
-                         'Tagged Image File Format')
 
     @cbook._classproperty
     def supports_blit(cls):

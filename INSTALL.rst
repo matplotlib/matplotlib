@@ -99,7 +99,7 @@ toolchain is prefixed. This may be used for cross compiling. ::
   export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config
 
 Once you have satisfied the requirements detailed below (mainly
-Python, NumPy, libpng and FreeType), you can build Matplotlib.
+Python, NumPy, and FreeType), you can build Matplotlib.
 ::
 
   cd matplotlib
@@ -121,7 +121,6 @@ Matplotlib requires the following dependencies:
 
 * `Python <https://www.python.org/downloads/>`_ (>= 3.6)
 * `FreeType <https://www.freetype.org/>`_ (>= 2.3)
-* `libpng <http://www.libpng.org>`_ (>= 1.2)
 * `NumPy <http://www.numpy.org>`_ (>= 1.11)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 * `cycler <http://matplotlib.org/cycler/>`_ (>= 0.10.0)
@@ -177,8 +176,8 @@ etc., you can install the following:
    .. _pkg-config: https://www.freedesktop.org/wiki/Software/pkg-config/
 
    If not using pkg-config (in particular on Windows), you may need to set the
-   include path (to the FreeType, libpng, and zlib headers) and link path (to
-   the FreeType, libpng, and zlib libraries) explicitly, if they are not in
+   include path (to the FreeType and zlib headers) and link path (to
+   the FreeType and zlib libraries) explicitly, if they are not in
    standard locations.  This can be done using standard environment variables
    -- on Linux and OSX:
 
@@ -195,8 +194,8 @@ etc., you can install the following:
       set LINK=/LIBPATH:C:\directory\containing\freetype.lib ...
 
    where ``...`` means "also give, in the same format, the directories
-   containing ``png.h`` and ``zlib.h`` for the include path, and for
-   ``libpng.so``/``png.lib`` and ``libz.so``/``z.lib`` for the link path."
+   containing ``zlib.h`` for the include path, and for
+   ``libz.so``/``z.lib`` for the link path."
 
 .. note::
 
@@ -237,20 +236,20 @@ Building on macOS
 -----------------
 
 The build situation on macOS is complicated by the various places one
-can get the libpng and FreeType requirements (MacPorts, Fink,
+can get FreeType (MacPorts, Fink,
 /usr/X11R6), the different architectures (e.g., x86, ppc, universal), and
 the different macOS versions (e.g., 10.4 and 10.5). We recommend that you build
 the way we do for the macOS release: get the source from the tarball or the
 git repository and install the required dependencies through a third-party
 package manager. Two widely used package managers are Homebrew, and MacPorts.
-The following example illustrates how to install libpng and FreeType using
+The following example illustrates how to install FreeType using
 ``brew``::
 
-  brew install libpng freetype pkg-config
+  brew install freetype pkg-config
 
 If you are using MacPorts, execute the following instead::
 
-  port install libpng freetype pkgconfig
+  port install freetype pkgconfig
 
 After installing the above requirements, install Matplotlib from source by
 executing::
@@ -274,7 +273,7 @@ https://packaging.python.org/guides/packaging-binary-extensions/#setting-up-a-bu
 for how to set up a build environment.
 
 Since there is no canonical Windows package manager, the methods for building
-FreeType, zlib, and libpng from source code are documented as a build script
+FreeType and zlib from source code are documented as a build script
 at `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_.
 
 There are a few possibilities to build Matplotlib on Windows:
@@ -290,17 +289,16 @@ Wheel builds using conda packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This is a wheel build, but we use conda packages to get all the requirements.
-The binary requirements (png, FreeType,...) are statically linked and therefore
-not needed during the wheel install.
+FreeType is statically linked and therefore not needed during the wheel install.
 
 Set up the conda environment. Note, if you want a qt backend, add ``pyqt`` to
 the list of conda packages.
 
 ::
 
-  conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing tornado cycler tk libpng zlib freetype
+  conda create -n "matplotlib_build" python=3.7 numpy python-dateutil pyparsing tornado cycler tk zlib freetype
   conda activate matplotlib_build
-  # force the build against static libpng and zlib libraries
+  # force the build against static zlib libraries
   set MPLSTATICBUILD=True
   python setup.py bdist_wheel
 

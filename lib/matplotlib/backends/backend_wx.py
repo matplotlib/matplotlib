@@ -17,7 +17,7 @@ import matplotlib
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     MouseButton, NavigationToolbar2, RendererBase, StatusbarBase, TimerBase,
-    ToolContainerBase, _has_pil, cursors)
+    ToolContainerBase, cursors)
 
 from matplotlib import cbook, rcParams, backend_tools
 from matplotlib._pylab_helpers import Gcf
@@ -926,11 +926,10 @@ class FigureCanvasWx(_FigureCanvasWxBase):
     def print_bmp(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_BMP, *args, **kwargs)
 
-    if not _has_pil:
-        def print_jpeg(self, filename, *args, **kwargs):
-            return self._print_image(filename, wx.BITMAP_TYPE_JPEG,
-                                     *args, **kwargs)
-        print_jpg = print_jpeg
+    def print_jpeg(self, filename, *args, **kwargs):
+        return self._print_image(filename, wx.BITMAP_TYPE_JPEG,
+                                 *args, **kwargs)
+    print_jpg = print_jpeg
 
     def print_pcx(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_PCX, *args, **kwargs)
@@ -938,11 +937,9 @@ class FigureCanvasWx(_FigureCanvasWxBase):
     def print_png(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_PNG, *args, **kwargs)
 
-    if not _has_pil:
-        def print_tiff(self, filename, *args, **kwargs):
-            return self._print_image(filename, wx.BITMAP_TYPE_TIF,
-                                     *args, **kwargs)
-        print_tif = print_tiff
+    def print_tiff(self, filename, *args, **kwargs):
+        return self._print_image(filename, wx.BITMAP_TYPE_TIF, *args, **kwargs)
+    print_tif = print_tiff
 
     def print_xpm(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_XPM, *args, **kwargs)

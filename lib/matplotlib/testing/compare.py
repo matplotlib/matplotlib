@@ -14,6 +14,7 @@ import sys
 from tempfile import TemporaryFile
 
 import numpy as np
+import PIL
 
 import matplotlib as mpl
 from matplotlib.testing.exceptions import ImageComparisonFailure
@@ -316,6 +317,10 @@ def calculate_rms(expected_image, actual_image):
     return np.sqrt(((expected_image - actual_image).astype(float) ** 2).mean())
 
 
+# NOTE: compare_image and save_diff_image assume that the image does not have
+# 16-bit depth, as Pillow converts these to RGB incorrectly.
+
+
 def compare_images(expected, actual, tol, in_decorator=False):
     """
     Compare two "image" files checking differences within a tolerance.
@@ -365,8 +370,6 @@ def compare_images(expected, actual, tol, in_decorator=False):
         compare_images(img1, img2, 0.001)
 
     """
-    from matplotlib import _png
-
     actual = os.fspath(actual)
     if not os.path.exists(actual):
         raise Exception("Output image %s does not exist." % actual)
@@ -383,10 +386,8 @@ def compare_images(expected, actual, tol, in_decorator=False):
         expected = convert(expected, cache=True)
 
     # open the image files and remove the alpha channel (if it exists)
-    with open(expected, "rb") as expected_file:
-        expected_image = _png.read_png_int(expected_file)[:, :, :3]
-    with open(actual, "rb") as actual_file:
-        actual_image = _png.read_png_int(actual_file)[:, :, :3]
+    expected_image = np.asarray(PIL.Image.open(expected).convert("RGB"))
+    actual_image = np.asarray(PIL.Image.open(actual).convert("RGB"))
 
     actual_image, expected_image = crop_to_same(
         actual, actual_image, expected, expected_image)
@@ -436,11 +437,8 @@ def save_diff_image(expected, actual, output):
         File path to save difference image to.
     '''
     # Drop alpha channels, similarly to compare_images.
-    from matplotlib import _png
-    with open(expected, "rb") as expected_file:
-        expected_image = _png.read_png(expected_file)[..., :3]
-    with open(actual, "rb") as actual_file:
-        actual_image = _png.read_png(actual_file)[..., :3]
+    expected_image = np.asarray(PIL.Image.open(expected).convert("RGB"))
+    actual_image = np.asarray(PIL.Image.open(actual).convert("RGB"))
     actual_image, expected_image = crop_to_same(
         actual, actual_image, expected, expected_image)
     expected_image = np.array(expected_image).astype(float)
@@ -466,5 +464,4 @@ def save_diff_image(expected, actual, output):
     # Hard-code the alpha channel to fully solid
     save_image_np[:, :, 3] = 255
 
-    with open(output, "wb") as output_file:
-        _png.write_png(save_image_np, output_file)
+    PIL.Image.fromarray(save_image_np).save(output, format="png")

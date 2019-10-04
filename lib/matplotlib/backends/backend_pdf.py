@@ -20,6 +20,7 @@ import warnings
 import zlib
 
 import numpy as np
+from PIL import Image
 
 from matplotlib import _text_layout, cbook, __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
@@ -39,7 +40,6 @@ from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib.dates import UTC
 from matplotlib import _path
-from matplotlib import _png
 from matplotlib import ttconv
 from . import _backend_pdf_ps
 
@@ -1440,7 +1440,9 @@ end"""
         predictors with Flate compression.
         """
         buffer = BytesIO()
-        _png.write_png(data, buffer)
+        if data.shape[-1] == 1:
+            data = data.squeeze(axis=-1)
+        Image.fromarray(data).save(buffer, format="png")
         buffer.seek(8)
         while True:
             length, type = struct.unpack(b'!L4s', buffer.read(8))

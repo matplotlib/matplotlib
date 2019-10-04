@@ -60,7 +60,7 @@ minimum Python and numpy.
 System and C-dependencies
 =========================
 
-For system or c-dependencies (libpng, freetype, GUI frameworks, latex,
+For system or C-dependencies (FreeType, GUI frameworks, LaTeX,
 gs, ffmpeg) support as old as practical.  These can be difficult to
 install for end-users and we want to be usable on as many systems as
 possible.  We will bump these on a case-by-case basis.

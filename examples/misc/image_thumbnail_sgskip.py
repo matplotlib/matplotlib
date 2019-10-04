@@ -4,10 +4,10 @@ Image Thumbnail
 ===============
 
 You can use matplotlib to generate thumbnails from existing images.
-matplotlib natively supports PNG files on the input side, and other
-image types transparently if your have PIL installed
+Matplotlib relies on Pillow_ for reading images, and thus supports all formats
+supported by Pillow.
 
-
+.. _Pillow: http://python-pillow.org/
 """
 
 # build thumbnails of all images in a directory
