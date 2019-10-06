@@ -6354,7 +6354,10 @@ optional.
         a 2-D ndarray in which each column is a dataset.  Note that
         the ndarray form is transposed relative to the list form.
 
-        Masked arrays are not supported at present.
+        Masked arrays are not supported.
+
+        The *bins*, *range*, *weights*, and *density* parameters behave as in
+        `numpy.histogram`.
 
         Parameters
         ----------
@@ -6363,15 +6366,13 @@ optional.
             arrays which are not required to be of the same length.
 
         bins : int or sequence or str, optional
-            If an integer is given, ``bins + 1`` bin edges are calculated and
-            returned, consistent with `numpy.histogram`.
+            If *bins* is an integer, it defines the number of equal-width bins
+            in the range.
 
-            If *bins* is a sequence, gives bin edges, including left edge of
-            first bin and right edge of last bin.  In this case, *bins* is
-            returned unmodified.
-
-            All but the last (righthand-most) bin is half-open.  In other
-            words, if *bins* is::
+            If *bins* is a sequence, it defines the bin edges, including the
+            left edge of the first bin and the right edge of the last bin;
+            in this case, bins may be unequally spaced.  All but the last
+            (righthand-most) bin is half-open.  In other words, if *bins* is::
 
                 [1, 2, 3, 4]
 
@@ -6379,14 +6380,11 @@ optional.
             the second ``[2, 3)``.  The last bin, however, is ``[3, 4]``, which
             *includes* 4.
 
-            Unequally spaced bins are supported if *bins* is a sequence.
+            If *bins* is a string, it is one of the binning strategies
+            supported by `numpy.histogram_bin_edges`: 'auto', 'fd', 'doane',
+            'scott', 'stone', 'rice', 'sturges', or 'sqrt'.
 
-            With Numpy 1.11 or newer, you can alternatively provide a string
-            describing a binning strategy, such as 'auto', 'sturges', 'fd',
-            'doane', 'scott', 'rice' or 'sqrt', see
-            `numpy.histogram`.
-
-            The default is taken from :rc:`hist.bins`.
+            The default is :rc:`hist.bins`.
 
         range : tuple or None, optional
             The lower and upper range of the bins. Lower and upper outliers
