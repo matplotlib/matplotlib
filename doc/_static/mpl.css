@@ -1079,10 +1079,6 @@ p.caption {
     font-weight: bold;
 }
 
-div#gallery.section, div#tutorials.section {
-    overflow: hidden;
-}
-
 .sphx-glr-multi-img{
     max-width: 99% !important;
 }
@@ -1253,4 +1249,8 @@ div.bullet-box li {
     div.bullet-box {
         flex: 0 0 90%;
     }
+}
+
+div#gallery.section .sphx-glr-clear:first-of-type, div#tutorials.section .sphx-glr-clear:first-of-type{
+    display: none;
 }
