@@ -305,7 +305,7 @@ def _from_ordinalf(x, tz=None):
 
 
 # a version of _from_ordinalf that can operate on numpy arrays
-_from_ordinalf_np_vectorized = np.vectorize(_from_ordinalf)
+_from_ordinalf_np_vectorized = np.vectorize(_from_ordinalf, otypes="O")
 
 
 @cbook.deprecated(
@@ -498,20 +498,11 @@ def num2date(x, tz=None):
     """
     if tz is None:
         tz = _get_rc_timezone()
-    if not np.iterable(x):
-        return _from_ordinalf(x, tz)
-    else:
-        x = np.asarray(x)
-        if not x.size:
-            return x
-        return _from_ordinalf_np_vectorized(x, tz).tolist()
+    return _from_ordinalf_np_vectorized(x, tz).tolist()
 
 
-def _ordinalf_to_timedelta(x):
-    return datetime.timedelta(days=x)
-
-
-_ordinalf_to_timedelta_np_vectorized = np.vectorize(_ordinalf_to_timedelta)
+_ordinalf_to_timedelta_np_vectorized = np.vectorize(
+    lambda x: datetime.timedelta(days=x), otypes="O")
 
 
 def num2timedelta(x):
@@ -529,15 +520,8 @@ def num2timedelta(x):
     Returns
     -------
     `datetime.timedelta` or list[`datetime.timedelta`]
-
     """
-    if not np.iterable(x):
-        return _ordinalf_to_timedelta(x)
-    else:
-        x = np.asarray(x)
-        if not x.size:
-            return x
-        return _ordinalf_to_timedelta_np_vectorized(x).tolist()
+    return _ordinalf_to_timedelta_np_vectorized(x).tolist()
 
 
 def drange(dstart, dend, delta):
