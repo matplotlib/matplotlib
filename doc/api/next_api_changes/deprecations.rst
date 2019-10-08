@@ -16,3 +16,9 @@ logging.
 ``Colorbar.config_axis()``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 ``Colorbar.config_axis()`` is considered internal. Its use is deprecated.
+
+``NonUniformImage.is_grayscale`` and ``PcolorImage.is_grayscale``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These attributes are deprecated, for consistency with ``AxesImage.is_grayscale``,
+which was removed back in Matplotlib 2.0.0.  (Note that previously, these
+attributes were only available *after rendering the image*).
