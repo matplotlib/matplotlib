@@ -1069,7 +1069,7 @@ class NonUniformImage(AxesImage):
             raise TypeError("3D arrays must have three (RGB) "
                             "or four (RGBA) color components")
         if A.ndim == 3 and A.shape[2] == 1:
-            A.shape = A.shape[0:2]
+            A = A.squeeze(axis=-1)
         self._A = A
         self._Ax = x
         self._Ay = y
@@ -1230,7 +1230,7 @@ class PcolorImage(AxesImage):
         if A.ndim not in [2, 3]:
             raise ValueError("A must be 2D or 3D")
         if A.ndim == 3 and A.shape[2] == 1:
-            A.shape = A.shape[:2]
+            A = A.squeeze(axis=-1)
         self._is_grayscale = False
         if A.ndim == 3:
             if A.shape[2] in [3, 4]:
