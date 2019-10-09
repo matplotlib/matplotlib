@@ -174,14 +174,12 @@ pivot : {'tail', 'mid', 'middle', 'tip'}, default: 'tail'
 
     'mid' is a synonym for 'middle'.
 
-head_pos : {'tail', 'mid', 'middle', 'tip'}, optional, default: 'tip'
+head_pos : string, in {'tail', 'mid', 'middle', 'tip'}, 
+    or float, in range 0.0<head_pos<1.0
+    optional, default: 'tip'
     The position of the arrowhead along the shaft.
-    
-    'mid' is a synonym for 'middle'.
-
-mid_scale : float, optional, default: 0.5
-    Sets the fractional distance along the shaft to place the arrowhead. 
-    Only used when head_pos = 'middle'. Takes values in range 0:1.
+    'tail' gives value 0.0, 'tip' gives value 1.0
+    'mid' synonymous to 'middle' each gives value 0.5
 
 color : color or color sequence, optional
     Explicit color(s) for the arrows. If *C* has been set, *color* has no
@@ -468,13 +466,13 @@ class Quiver(mcollections.PolyCollection):
     """
 
     _PIVOT_VALS = ('tail', 'middle', 'tip')
-    _HEADPOS_VALS = ('tail', 'middle', 'tip')
 
     @docstring.Substitution(_quiver_doc)
     def __init__(self, ax, *args,
                  scale=None, headwidth=3, headlength=5, headaxislength=4.5,
                  minshaft=1, minlength=1, units='width', scale_units=None,
-                 angles='uv', width=None, color='k', pivot='tail', head_pos='tip', mid_scale=0.5, **kw):
+                 angles='uv', width=None, color='k', pivot='tail',
+                 head_pos='tip', **kw):
         """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
@@ -496,7 +494,6 @@ class Quiver(mcollections.PolyCollection):
         self.headwidth = headwidth
         self.headlength = float(headlength)
         self.headaxislength = headaxislength
-        self.mid_scale = mid_scale
         self.minshaft = minshaft
         self.minlength = minlength
         self.units = units
@@ -505,16 +502,18 @@ class Quiver(mcollections.PolyCollection):
         self.width = width
 
         # Checks the boundaries of mid_scale if outside range default of 0.5
-        if 0.0 < mid_scale < 1.0:
-            self.mid_scale = mid_scale
-        else:
-            self.mid_scale = 0.5
-
-        if head_pos == 'mid':
-            self.head_pos = 'middle'
-        else:
+        if (head_pos == 0.0 )or (head_pos == "tail"):
+            self.head_pos = 0.0
+        elif (head_pos == 1.0) or (head_pos =="tip"):
+            self.head_pos = 1.0
+        elif (head_pos == "mid") or (head_pos =="middle"):
+            self.head_pos = 0.5
+        if 0.0 < head_pos < 1.0:
             self.head_pos = head_pos
-        cbook._check_in_list(self._HEADPOS_VALS, pivot=self.head_pos)
+        else:
+            raise ValueError("'head_pos' must be a value in the bounds 0<mid_scale<1,"
+                             "or a string in {'tail', 'middle', 'tip'}")
+
         if pivot.lower() == 'mid':
             pivot = 'middle'
         self.pivot = pivot.lower()
@@ -753,26 +752,13 @@ class Quiver(mcollections.PolyCollection):
         x0 = np.array([0, minsh - self.headaxislength,
                        minsh - self.headlength, minsh], np.float64)
         y0 = 0.5 * np.array([1, 1, self.headwidth, 0], np.float64)
-        if self.head_pos == 'tip':
+        if self.head_pos == 1.0:
             ii = [0, 1, 2, 3, 2, 1, 0, 0]
             ii_min = [0, 1, 2, 3, 2, 1, 0, 0]
             X = x[:, ii]
             Y = y[:, ii]
             Y[:, 3:-1] *= -1
-        elif self.head_pos == 'middle':
-            # Potential to add scalar variable here to fine tune head positioning
-            ii = [0, 1, 2, 3, 4, 4, 3, 2, 1, 0, 0]
-            ii_min = [0, 1, 2, 3, 2, 1, 0, 0, 0, 0, 0]
-            X = x[:, ii]
-            Y = y[:, ii]
-            X[:, 1:4] *= self.mid_scale
-            X[:, 6:-2] *= self.mid_scale
-            X[:, 1:4] += self.headlength / 4
-            X[:, 6:-2] += self.headlength / 4
-            Y[:, 3] = np.ones(np.shape(Y[:, 3])) * 0.5
-            Y[:, 6] = np.ones(np.shape(Y[:, 6])) * 0.5
-            Y[:, 5:-1] *= -1
-        elif self.head_pos == 'tail':
+        elif self.head_pos == 0.0:
             ii = [0, 2, 3, 4, 4, 3, 2, 0, 0]
             ii_min = [0, 1, 2, 3, 2, 1, 0, 0, 0]
             X = x[:, ii]
@@ -782,8 +768,23 @@ class Quiver(mcollections.PolyCollection):
             Y[:, 2] = np.ones(np.shape(Y[:, 2])) * 0.5
             Y[:, 5] = np.ones(np.shape(Y[:, 5])) * 0.5
             Y[:, 4:-1] *= -1
+        elif 0.0 < self.head_pos < 1.0:
+            # Potential to add scalar variable here to fine tune head positioning
+            ii = [0, 1, 2, 3, 4, 4, 3, 2, 1, 0, 0]
+            ii_min = [0, 1, 2, 3, 2, 1, 0, 0, 0, 0, 0]
+            X = x[:, ii]
+            Y = y[:, ii]
+            X[:, 1:4] *= self.head_pos
+            X[:, 6:-2] *= self.head_pos
+            X[:, 1:4] += self.headlength / 4
+            X[:, 6:-2] += self.headlength / 4
+            Y[:, 3] = np.ones(np.shape(Y[:, 3])) * 0.5
+            Y[:, 6] = np.ones(np.shape(Y[:, 6])) * 0.5
+            Y[:, 5:-1] *= -1
         else:
-            cbook._check_in_list(["middle", "tip", "tail"], pivot=self.pivot)
+            raise ValueError("'head_pos' must be "
+                             "a value in the bounds 0<mid_scale<1,"
+                             "or a string in {'tail', 'middle', 'tip'}")
         X0 = x0[ii_min]
         Y0 = y0[ii_min]
         Y0[3:-1] *= -1

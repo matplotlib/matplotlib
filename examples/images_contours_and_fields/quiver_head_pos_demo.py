@@ -17,7 +17,7 @@ Y = np.arange(-10, 10, 2)
 U, V = np.meshgrid(X, Y)
 
 fig, ax = plt.subplots()
-q = ax.quiver(X, Y, U, V, head_pos='mid', mid_scale=0.6)
+q = ax.quiver(X, Y, U, V, head_pos=0.5)
 ax.quiverkey(q, X=0.3, Y=1.1, U=10,
              label='Quiver key, length = 10', labelpos='E')
 
