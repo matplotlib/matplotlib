@@ -508,10 +508,16 @@ class Quiver(mcollections.PolyCollection):
             self.head_pos = 1.0
         elif (head_pos == "mid") or (head_pos =="middle"):
             self.head_pos = 0.5
-        if 0.0 < head_pos < 1.0:
-            self.head_pos = head_pos
+        elif type(head_pos) == float:
+            if 0.0 < head_pos < 1.0:
+                self.head_pos = head_pos
+            else:
+                raise ValueError("'head_pos' must be "
+                                 "a value in the bounds 0<mid_scale<1,"
+                                 "or a string in {'tail', 'middle', 'tip'}")
         else:
-            raise ValueError("'head_pos' must be a value in the bounds 0<mid_scale<1,"
+            raise ValueError("'head_pos' must be "
+                             "a value in the bounds 0<mid_scale<1,"
                              "or a string in {'tail', 'middle', 'tip'}")
 
         if pivot.lower() == 'mid':
