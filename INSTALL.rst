@@ -103,7 +103,7 @@ Python, NumPy, and FreeType), you can build Matplotlib.
 ::
 
   cd matplotlib
-  python -mpip install .
+  python -m pip install .
 
 We provide a setup.cfg_ file which you can use to customize the build
 process. For example, which default backend to use, whether some of the
@@ -254,7 +254,7 @@ If you are using MacPorts, execute the following instead::
 After installing the above requirements, install Matplotlib from source by
 executing::
 
-  python -mpip install .
+  python -m pip install .
 
 Note that your environment is somewhat important. Some conda users have
 found that, to run the tests, their PYTHONPATH must include
