@@ -50,7 +50,7 @@ triangle, make *headaxislength* the same as *headlength*. To make the
 arrow more pointed, reduce *headwidth* or increase *headlength* and
 *headaxislength*. To make the head smaller relative to the shaft,
 scale down all the head parameters. You will probably do best to leave
-minshaft alone. To set the position of the arrowhead used *head_pos* and 
+minshaft alone. To set the position of the arrowhead used *head_pos* and
 to exactly position the head on the shaft use *mid_scale*.
 
 **Arrow outline**
@@ -174,7 +174,7 @@ pivot : {'tail', 'mid', 'middle', 'tip'}, default: 'tail'
 
     'mid' is a synonym for 'middle'.
 
-head_pos : string, in {'tail', 'mid', 'middle', 'tip'}, 
+head_pos : string, in {'tail', 'mid', 'middle', 'tip'},
     or float, in range 0.0<head_pos<1.0
     optional, default: 'tip'
     The position of the arrowhead along the shaft.
@@ -502,11 +502,11 @@ class Quiver(mcollections.PolyCollection):
         self.width = width
 
         # Checks the boundaries of mid_scale if outside range default of 0.5
-        if (head_pos == 0.0 )or (head_pos == "tail"):
+        if (head_pos == 0.0)or (head_pos == "tail"):
             self.head_pos = 0.0
-        elif (head_pos == 1.0) or (head_pos =="tip"):
+        elif (head_pos == 1.0) or (head_pos == "tip"):
             self.head_pos = 1.0
-        elif (head_pos == "mid") or (head_pos =="middle"):
+        elif (head_pos == "mid") or (head_pos == "middle"):
             self.head_pos = 0.5
         elif type(head_pos) == float:
             if 0.0 < head_pos < 1.0:
@@ -775,7 +775,6 @@ class Quiver(mcollections.PolyCollection):
             Y[:, 5] = np.ones(np.shape(Y[:, 5])) * 0.5
             Y[:, 4:-1] *= -1
         elif 0.0 < self.head_pos < 1.0:
-            # Potential to add scalar variable here to fine tune head positioning
             ii = [0, 1, 2, 3, 4, 4, 3, 2, 1, 0, 0]
             ii_min = [0, 1, 2, 3, 2, 1, 0, 0, 0, 0, 0]
             X = x[:, ii]
@@ -961,6 +960,7 @@ Other Parameters
 """ % docstring.interpd.params
 
 docstring.interpd.update(barbs_doc=_barbs_doc)
+
 
 class Barbs(mcollections.PolyCollection):
     """
