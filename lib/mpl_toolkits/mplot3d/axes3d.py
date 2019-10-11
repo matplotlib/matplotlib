@@ -1389,7 +1389,8 @@ class Axes3D(Axes):
         if upper is None:
             upper = old_upper
 
-        self.set_zlim(sorted((lower, upper), reverse=self.zaxis_inverted()),
+        self.set_zlim(sorted((lower, upper),
+                             reverse=bool(self.zaxis_inverted())),
                       auto=None)
 
     def text(self, x, y, z, s, zdir=None, **kwargs):
