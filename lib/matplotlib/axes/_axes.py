@@ -6573,6 +6573,9 @@ optional.
         if bin_range is not None:
             bin_range = self.convert_xunits(bin_range)
 
+        if not cbook.is_scalar_or_string(bins):
+            bins = self.convert_xunits(bins)
+
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
             w = cbook._reshape_2D(weights, 'weights')
