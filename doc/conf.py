@@ -364,6 +364,8 @@ latex_elements = {
 
 html4_writer = True
 
+inheritance_node_attrs = dict(fontsize=16)
+
 
 def setup(app):
     if any(st in version for st in ('post', 'alpha', 'beta')):
