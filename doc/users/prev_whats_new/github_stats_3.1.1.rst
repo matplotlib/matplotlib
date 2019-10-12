@@ -1,7 +1,7 @@
-.. _github-stats:
+.. _github-stats-3-1-1:
 
-GitHub Stats
-============
+GitHub Stats for Matplotlib 3.1.1
+=================================
 
 GitHub stats for 2019/05/18 - 2019/06/30 (tag: v3.1.0)
 
