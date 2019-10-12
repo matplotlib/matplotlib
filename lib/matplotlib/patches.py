@@ -707,7 +707,7 @@ class Rectangle(Patch):
         Parameters
         ----------
         xy : (float, float)
-            The bottom and left rectangle coordinates
+            The starting coordinates. For most data plotting functions, it is (left, bottom). For imshow(), it is (left, top).
         width : float
             Rectangle width
         height : float
