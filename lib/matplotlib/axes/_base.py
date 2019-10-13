@@ -3112,7 +3112,8 @@ class _AxesBase(martist.Artist):
         if upper is None:
             upper = old_upper
 
-        self.set_xlim(sorted((lower, upper), reverse=self.xaxis_inverted()),
+        self.set_xlim(sorted((lower, upper),
+                             reverse=bool(self.xaxis_inverted())),
                       auto=None)
 
     def get_xlim(self):
@@ -3511,7 +3512,8 @@ class _AxesBase(martist.Artist):
         if upper is None:
             upper = old_upper
 
-        self.set_ylim(sorted((lower, upper), reverse=self.yaxis_inverted()),
+        self.set_ylim(sorted((lower, upper),
+                             reverse=bool(self.yaxis_inverted())),
                       auto=None)
 
     def get_ylim(self):
