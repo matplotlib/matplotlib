@@ -54,7 +54,7 @@ steps:
   displayName: 'Install dependencies with pip'
 
 - bash: |
-    MPLLOCALFREETYPE=1 pip install -ve . ||
+    MPLLOCALFREETYPE=1 python -m pip install -ve . ||
       [[ "$PYTHON_VERSION" = 'Pre' ]]
   displayName: "Install self"
 
@@ -62,7 +62,7 @@ steps:
   displayName: 'print env'
 
 - bash: |
-    PYTHONFAULTHANDLER=1 pytest --junitxml=junit/test-results.xml -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n 2 ||
+    PYTHONFAULTHANDLER=1 python -m pytest --junitxml=junit/test-results.xml -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n 2 ||
       [[ "$PYTHON_VERSION" = 'Pre' ]]
   displayName: 'pytest'
 
