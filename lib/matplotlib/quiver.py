@@ -716,8 +716,6 @@ class Quiver(mcollections.PolyCollection):
                 self.scale = scale * widthu_per_lenu
         length = a * (widthu_per_lenu / (self.scale * self.width))
         X, Y = self._h_arrows(length)
-        print(X)
-        print(Y)
         if str_angles == 'xy':
             theta = angles
         elif str_angles == 'uv':
