@@ -281,6 +281,9 @@ def _from_ordinalf(x, tz=None):
 
     ix, remainder = divmod(x, 1)
     ix = int(ix)
+    # force to valid date via wrapping....
+    dt10k = 3652059
+    ix = (ix - 1) % dt10k + 1
     if ix < 1:
         raise ValueError('Cannot convert {} to a date.  This often happens if '
                          'non-datetime values are passed to an axis that '
@@ -1077,12 +1080,6 @@ class DateLocator(ticker.Locator):
         dmin, dmax = self.axis.get_data_interval()
         if dmin > dmax:
             dmin, dmax = dmax, dmin
-        if dmin < 1:
-            raise ValueError('datalim minimum {} is less than 1 and '
-                             'is an invalid Matplotlib date value. This often '
-                             'happens if you pass a non-datetime '
-                             'value to an axis that has datetime units'
-                             .format(dmin))
         return num2date(dmin, self.tz), num2date(dmax, self.tz)
 
     def viewlim_to_dt(self):
@@ -1092,12 +1089,6 @@ class DateLocator(ticker.Locator):
         vmin, vmax = self.axis.get_view_interval()
         if vmin > vmax:
             vmin, vmax = vmax, vmin
-        if vmin < 1:
-            raise ValueError('view limit minimum {} is less than 1 and '
-                             'is an invalid Matplotlib date value. This '
-                             'often happens if you pass a non-datetime '
-                             'value to an axis that has datetime units'
-                             .format(vmin))
         return num2date(vmin, self.tz), num2date(vmax, self.tz)
 
     def _get_unit(self):
