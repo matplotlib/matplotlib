@@ -141,7 +141,7 @@ The following 140 authors contributed 2611 commits.
 * Tim Hoffmann
 * Tom Flannaghan
 * Travis CI
-* V. Armando Solé
+* V\. Armando Solé
 * Vincent L.M. Mazoyer
 * Viraj Mohile
 * Wafa Soofi
