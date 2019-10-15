@@ -11,23 +11,6 @@ from setuptools.command.build_ext import build_ext as BuildExtCommand
 
 import sys
 
-# distutils is breaking our sdists for files in symlinked dirs.
-# distutils will copy if os.link is not available, so this is a hack
-# to force copying
-import os
-try:
-    del os.link
-except AttributeError:
-    pass
-
-# This 'if' statement is needed to prevent spawning infinite processes
-# on Windows
-if __name__ == '__main__':
-    # BEFORE importing distutils, remove MANIFEST. distutils doesn't properly
-    # update it when the contents of directories change.
-    if os.path.exists('MANIFEST'):
-        os.remove('MANIFEST')
-
 from io import BytesIO
 import os
 from string import Template
