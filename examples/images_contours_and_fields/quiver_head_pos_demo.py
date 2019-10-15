@@ -1,7 +1,7 @@
 """
-==================
+==============================
 Quiver Arrowhead Position Demo
-==================
+==============================
 
 An example of how to add positioning of arrowheads to
 a `~.axes.Axes.quiver` plot with a `~.axes.Axes.quiverkey`.
