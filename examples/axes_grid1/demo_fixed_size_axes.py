@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import Divider, Size
 from mpl_toolkits.axes_grid1.mpl_axes import Axes
 
+###############################################################################
 
 def demo_fixed_size_axes():
     fig = plt.figure(figsize=(6, 6))
@@ -28,6 +29,9 @@ def demo_fixed_size_axes():
 
     ax.plot([1, 2, 3])
 
+demo_fixed_size_axes()
+
+###############################################################################
 
 def demo_fixed_pad_axes():
     fig = plt.figure(figsize=(6, 6))
@@ -47,9 +51,4 @@ def demo_fixed_pad_axes():
 
     ax.plot([1, 2, 3])
 
-
-if __name__ == "__main__":
-    demo_fixed_size_axes()
-    demo_fixed_pad_axes()
-
-    plt.show()
+demo_fixed_pad_axes()
