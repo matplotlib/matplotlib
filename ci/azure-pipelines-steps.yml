@@ -28,7 +28,8 @@ steps:
 
 - ${{ if eq(parameters.installer, 'brew') }}:
   - script: |
-      brew install pkg-config ffmpeg imagemagick mplayer ccache xquartz
+      brew cask install xquartz
+      brew install pkg-config ffmpeg imagemagick mplayer ccache
     displayName: 'Install dependencies with brew'
 
 - ${{ if eq(parameters.installer, 'apt') }}:
