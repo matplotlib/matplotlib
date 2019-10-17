@@ -1520,8 +1520,10 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         pil_shape = (rgba.shape[1], rgba.shape[0])
         image = PIL.Image.frombuffer(
             "RGBA", pil_shape, rgba, "raw", "RGBA", 0, 1)
-        if format == "png" and metadata is not None:
-            # cf. backend_agg's print_png.
+        if (format == "png"
+                and metadata is not None and "pnginfo" not in pil_kwargs):
+            # Only use the metadata kwarg if pnginfo is not set, because the
+            # semantics of duplicate keys in pnginfo is unclear.
             pnginfo = PIL.PngImagePlugin.PngInfo()
             for k, v in metadata.items():
                 pnginfo.add_text(k, v)

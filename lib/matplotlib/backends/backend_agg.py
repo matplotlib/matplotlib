@@ -33,7 +33,6 @@ from math import radians, cos, sin
 
 import numpy as np
 from PIL import Image
-from PIL.PngImagePlugin import PngInfo
 
 import matplotlib as mpl
 from matplotlib import cbook
@@ -502,24 +501,16 @@ class FigureCanvasAgg(FigureCanvasBase):
 
         if metadata is None:
             metadata = {}
-        if pil_kwargs is None:
-            pil_kwargs = {}
         metadata = {
             "Software":
                 f"matplotlib version{mpl.__version__}, http://matplotlib.org/",
             **metadata,
         }
         FigureCanvasAgg.draw(self)
-        # Only use the metadata kwarg if pnginfo is not set, because the
-        # semantics of duplicate keys in pnginfo is unclear.
-        if "pnginfo" not in pil_kwargs:
-            pnginfo = PngInfo()
-            for k, v in metadata.items():
-                pnginfo.add_text(k, v)
-            pil_kwargs["pnginfo"] = pnginfo
-        pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
-        (Image.fromarray(np.asarray(self.buffer_rgba()))
-         .save(filename_or_obj, format="png", **pil_kwargs))
+        mpl.image.imsave(
+            filename_or_obj, np.asarray(self.buffer_rgba()), format="png",
+            origin="upper", dpi=self.figure.dpi,
+            metadata=metadata, pil_kwargs=pil_kwargs)
 
     def print_to_buffer(self):
         FigureCanvasAgg.draw(self)
