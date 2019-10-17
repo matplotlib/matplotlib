@@ -1230,8 +1230,8 @@ class MenuButtonWx(wx.Button):
         """Called when the 'select all axes' menu item is selected."""
         if len(self._axisId) == 0:
             return
-        for i in range(len(self._axisId)):
-            self._menu.Check(self._axisId[i], True)
+        for ax_id in self._axisId:
+            self._menu.Check(ax_id, True)
         self._toolbar.set_active(self.getActiveAxes())
         evt.Skip()
 
@@ -1239,11 +1239,11 @@ class MenuButtonWx(wx.Button):
         """Called when the invert all menu item is selected"""
         if len(self._axisId) == 0:
             return
-        for i in range(len(self._axisId)):
-            if self._menu.IsChecked(self._axisId[i]):
-                self._menu.Check(self._axisId[i], False)
+        for ax_id in self._axisId:
+            if self._menu.IsChecked(ax_id):
+                self._menu.Check(ax_id, False)
             else:
-                self._menu.Check(self._axisId[i], True)
+                self._menu.Check(ax_id, True)
         self._toolbar.set_active(self.getActiveAxes())
         evt.Skip()
 
