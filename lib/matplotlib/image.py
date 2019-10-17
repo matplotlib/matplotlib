@@ -982,6 +982,11 @@ class NonUniformImage(AxesImage):
         """Return False. Do not use unsampled image."""
         return False
 
+    @cbook.deprecated("3.3")
+    @property
+    def is_grayscale(self):
+        return self._is_grayscale
+
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
         if self._A is None:
@@ -992,11 +997,11 @@ class NonUniformImage(AxesImage):
         if A.ndim == 2:
             if A.dtype != np.uint8:
                 A = self.to_rgba(A, bytes=True)
-                self.is_grayscale = self.cmap.is_gray()
+                self._is_grayscale = self.cmap.is_gray()
             else:
                 A = np.repeat(A[:, :, np.newaxis], 4, 2)
                 A[:, :, 3] = 255
-                self.is_grayscale = True
+                self._is_grayscale = True
         else:
             if A.dtype != np.uint8:
                 A = (255*A).astype(np.uint8)
@@ -1005,7 +1010,7 @@ class NonUniformImage(AxesImage):
                 B[:, :, 0:3] = A
                 B[:, :, 3] = 255
                 A = B
-            self.is_grayscale = False
+            self._is_grayscale = False
         x0, y0, v_width, v_height = self.axes.viewLim.bounds
         l, b, r, t = self.axes.bbox.extents
         width = (round(r) + 0.5) - (round(l) - 0.5)
@@ -1115,6 +1120,11 @@ class PcolorImage(AxesImage):
         if A is not None:
             self.set_data(x, y, A)
 
+    @cbook.deprecated("3.3")
+    @property
+    def is_grayscale(self):
+        return self._is_grayscale
+
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
         if self._A is None:
@@ -1134,7 +1144,7 @@ class PcolorImage(AxesImage):
             A = self.to_rgba(self._A, bytes=True)
             self._rgbacache = A
             if self._A.ndim == 2:
-                self.is_grayscale = self.cmap.is_gray()
+                self._is_grayscale = self.cmap.is_gray()
         else:
             A = self._rgbacache
         vl = self.axes.viewLim
@@ -1180,12 +1190,12 @@ class PcolorImage(AxesImage):
             raise ValueError("A must be 2D or 3D")
         if A.ndim == 3 and A.shape[2] == 1:
             A.shape = A.shape[:2]
-        self.is_grayscale = False
+        self._is_grayscale = False
         if A.ndim == 3:
             if A.shape[2] in [3, 4]:
                 if ((A[:, :, 0] == A[:, :, 1]).all() and
                         (A[:, :, 0] == A[:, :, 2]).all()):
-                    self.is_grayscale = True
+                    self._is_grayscale = True
             else:
                 raise ValueError("3D arrays must have RGB or RGBA as last dim")
 

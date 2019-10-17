@@ -337,8 +337,8 @@ def _get_executable_info(name):
                 output = _cpe.output
             else:
                 raise ExecutableNotFoundError(str(_cpe)) from _cpe
-        except FileNotFoundError as _fnf:
-            raise ExecutableNotFoundError(str(_fnf)) from _fnf
+        except OSError as _ose:
+            raise ExecutableNotFoundError(str(_ose)) from _ose
         match = re.search(regex, output)
         if match:
             version = LooseVersion(match.group(1))
