@@ -11,6 +11,7 @@ from mpl_toolkits.axes_grid1.mpl_axes import Axes
 
 ###############################################################################
 
+
 def demo_fixed_size_axes():
     fig = plt.figure(figsize=(6, 6))
 
@@ -32,6 +33,7 @@ def demo_fixed_size_axes():
 demo_fixed_size_axes()
 
 ###############################################################################
+
 
 def demo_fixed_pad_axes():
     fig = plt.figure(figsize=(6, 6))
