@@ -509,10 +509,9 @@ class FigureCanvasAgg(FigureCanvasBase):
 
         if metadata is None:
             metadata = {}
-        metadata = {
+        default_metadata = {
             "Software":
                 f"matplotlib version{__version__}, http://matplotlib.org/",
-            **metadata,
         }
 
         FigureCanvasAgg.draw(self)
@@ -521,9 +520,13 @@ class FigureCanvasAgg(FigureCanvasBase):
             from PIL.PngImagePlugin import PngInfo
             # Only use the metadata kwarg if pnginfo is not set, because the
             # semantics of duplicate keys in pnginfo is unclear.
-            if "pnginfo" not in pil_kwargs:
+            if "pnginfo" in pil_kwargs:
+                if metadata:
+                    cbook._warn_external("'metadata' is overridden by the "
+                                         "'pnginfo' entry in 'pil_kwargs'.")
+            else:
                 pnginfo = PngInfo()
-                for k, v in metadata.items():
+                for k, v in {**default_metadata, **metadata}.items():
                     pnginfo.add_text(k, v)
                 pil_kwargs["pnginfo"] = pnginfo
             pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
@@ -533,8 +536,8 @@ class FigureCanvasAgg(FigureCanvasBase):
         else:
             renderer = self.get_renderer()
             with cbook.open_file_cm(filename_or_obj, "wb") as fh:
-                _png.write_png(renderer._renderer, fh,
-                               self.figure.dpi, metadata=metadata)
+                _png.write_png(renderer._renderer, fh, self.figure.dpi,
+                               metadata={**default_metadata, **metadata})
 
     def print_to_buffer(self):
         FigureCanvasAgg.draw(self)

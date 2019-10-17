@@ -1539,13 +1539,16 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             pil_shape = (rgba.shape[1], rgba.shape[0])
             image = Image.frombuffer(
                 "RGBA", pil_shape, rgba, "raw", "RGBA", 0, 1)
-            if (format == "png"
-                    and metadata is not None and "pnginfo" not in pil_kwargs):
+            if format == "png" and metadata:
                 # cf. backend_agg's print_png.
-                pnginfo = PngInfo()
-                for k, v in metadata.items():
-                    pnginfo.add_text(k, v)
-                pil_kwargs["pnginfo"] = pnginfo
+                if "pnginfo" in pil_kwargs:
+                    cbook._warn_external("'metadata' is overridden by the "
+                                         "'pnginfo' entry in 'pil_kwargs'.")
+                else:
+                    pnginfo = PngInfo()
+                    for k, v in metadata.items():
+                        pnginfo.add_text(k, v)
+                    pil_kwargs["pnginfo"] = pnginfo
             if format in ["jpg", "jpeg"]:
                 format = "jpeg"  # Pillow doesn't recognize "jpg".
                 color = tuple(
