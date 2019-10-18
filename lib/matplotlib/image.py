@@ -1520,14 +1520,22 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         pil_shape = (rgba.shape[1], rgba.shape[0])
         image = PIL.Image.frombuffer(
             "RGBA", pil_shape, rgba, "raw", "RGBA", 0, 1)
-        if (format == "png"
-                and metadata is not None and "pnginfo" not in pil_kwargs):
+        if format == "png":
             # Only use the metadata kwarg if pnginfo is not set, because the
             # semantics of duplicate keys in pnginfo is unclear.
-            pnginfo = PIL.PngImagePlugin.PngInfo()
-            for k, v in metadata.items():
-                pnginfo.add_text(k, v)
-            pil_kwargs["pnginfo"] = pnginfo
+            if "pnginfo" in pil_kwargs:
+                if metadata:
+                    cbook._warn_external("'metadata' is overridden by the "
+                                         "'pnginfo' entry in 'pil_kwargs'.")
+            else:
+                metadata = {
+                    "Software": (f"Matplotlib version{mpl.__version__}, "
+                                 f"https://matplotlib.org/"),
+                    **(metadata if metadata is not None else {}),
+                }
+                pil_kwargs["pnginfo"] = pnginfo = PIL.PngImagePlugin.PngInfo()
+                for k, v in metadata.items():
+                    pnginfo.add_text(k, v)
         if format in ["jpg", "jpeg"]:
             format = "jpeg"  # Pillow doesn't recognize "jpg".
             facecolor = mpl.rcParams["savefig.facecolor"]

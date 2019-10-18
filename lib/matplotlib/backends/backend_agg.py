@@ -498,14 +498,6 @@ class FigureCanvasAgg(FigureCanvasBase):
             If the 'pnginfo' key is present, it completely overrides
             *metadata*, including the default 'Software' key.
         """
-
-        if metadata is None:
-            metadata = {}
-        metadata = {
-            "Software":
-                f"matplotlib version{mpl.__version__}, http://matplotlib.org/",
-            **metadata,
-        }
         FigureCanvasAgg.draw(self)
         mpl.image.imsave(
             filename_or_obj, np.asarray(self.buffer_rgba()), format="png",
