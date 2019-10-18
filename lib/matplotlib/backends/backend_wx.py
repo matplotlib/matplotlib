@@ -1139,6 +1139,8 @@ class FigureManagerWx(FigureManagerBase):
     def show(self):
         self.frame.Show()
         self.canvas.draw()
+        if matplotlib.rcParams['figure.raise_window']:
+            self.frame.Raise()
 
     def destroy(self, *args):
         _log.debug("%s - destroy()", type(self))

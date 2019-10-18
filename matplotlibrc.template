@@ -533,6 +533,7 @@
 #figure.max_open_warning : 20   ## The maximum number of figures to open through
                                 ## the pyplot interface before emitting a warning.
                                 ## If less than one this feature is disabled.
+#figure.raise_window : True     ## Raise the GUI window to front when show() is called
 
 ## The figure subplot parameters.  All dimensions are a fraction of the figure width and height.
 #figure.subplot.left   : 0.125  ## the left side of the subplots of the figure
