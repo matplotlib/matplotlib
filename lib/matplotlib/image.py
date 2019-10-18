@@ -421,12 +421,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if inp_dtype.kind == 'f':
                     scaled_dtype = A.dtype
                     # Cast to float64
-                    if A.dtype not in (np.float32, np.float16):
-                        if A.dtype != np.float64:
-                            cbook._warn_external(
-                                f"Casting input data from '{A.dtype}' to "
-                                f"'float64' for imshow")
-                        scaled_dtype = np.float64
+                    if A.dtype not in (np.float64, np.float32, np.float16):
+                        # warn if decreasing float precision
+                        cbook._warn_external(
+                            f"Casting input data from '{A.dtype}' to "
+                            f"'float64' for imshow")
+                    scaled_dtype = np.float64
                 else:
                     # probably an integer of some type.
                     da = a_max.astype(np.float64) - a_min.astype(np.float64)
