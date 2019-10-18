@@ -119,12 +119,15 @@ Software Foundation Code of Conduct <coc_>`_ in everything we do.
 
 Check the :doc:`FAQ <faq/index>` and the :doc:`API <api/index>` docs.
 
-For help, join the `gitter channel`_ and the matplotlib-users_,
-matplotlib-devel_, and matplotlib-announce_ mailing lists, or check out the
-Matplotlib tag on stackoverflow_.  The `search <search.html>`_ tool searches
-all of the documentation, including full text search of over 350 complete
+For help, write us at `discourse.matplotlib.org`_.  If its something quick
+join the `gitter channel`_ to chat with us.  There are alsothe
+matplotlib-users_, matplotlib-devel_, and matplotlib-announce_ mailing lists,
+or check out the Matplotlib tag on stackoverflow_.
+The `search <search.html>`_ tool searches all of the documentation,
+including full text search of over 350 complete
 examples which exercise almost every corner of Matplotlib.
 
+.. _discourse.matplotlib.org: https://discourse.matplotlib.org
 .. _gitter channel: https://gitter.im/matplotlib/matplotlib
 .. _matplotlib-users: https://mail.python.org/mailman/listinfo/matplotlib-users
 .. _matplotlib-devel: https://mail.python.org/mailman/listinfo/matplotlib-devel
