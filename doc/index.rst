@@ -117,8 +117,8 @@ Software Foundation Code of Conduct <coc_>`_ in everything we do.
 
 .. _coc: http://www.python.org/psf/codeofconduct/
 
-- Community discussion, user help, showcase examples are available at
-  `discourse.matplotlib.org`_.
+- Join our community at `discourse.matplotlib.org`_  to get help, discuss
+  contributing & development, and share your work.
 - If you have questions, be sure to check the :doc:`FAQ <faq/index>`, the
   :doc:`API <api/index>` docs, and the `search <search.html>`_ tool
   searches all of the documentation, including full text search of over 350
