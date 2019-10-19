@@ -97,7 +97,6 @@ matrix:
           - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
           - $HOME/.cache/matplotlib
   allow_failures:
-    - python: "nightly"
 
 before_install: |
   case "$TRAVIS_OS_NAME" in
