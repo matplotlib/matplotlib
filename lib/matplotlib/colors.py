@@ -1060,7 +1060,7 @@ class Normalize:
         return self.vmin is not None and self.vmax is not None
 
 
-class DivergingNorm(Normalize):
+class TwoSlopeNorm(Normalize):
     def __init__(self, vcenter, vmin=None, vmax=None):
         """
         Normalize data with a set center.
@@ -1086,8 +1086,8 @@ class DivergingNorm(Normalize):
         between is linearly interpolated::
 
             >>> import matplotlib.colors as mcolors
-            >>> offset = mcolors.DivergingNorm(vmin=-4000.,
-                                               vcenter=0., vmax=10000)
+            >>> offset = mcolors.TwoSlopeNorm(vmin=-4000.,
+                                              vcenter=0., vmax=10000)
             >>> data = [-4000., -2000., 0., 2500., 5000., 7500., 10000.]
             >>> offset(data)
             array([0., 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
@@ -1128,6 +1128,11 @@ class DivergingNorm(Normalize):
         if is_scalar:
             result = np.atleast_1d(result)[0]
         return result
+
+
+@cbook.deprecation.deprecated('3.2', alternative='TwoSlopeNorm')
+class DivergingNorm(TwoSlopeNorm):
+    ...
 
 
 class LogNorm(Normalize):

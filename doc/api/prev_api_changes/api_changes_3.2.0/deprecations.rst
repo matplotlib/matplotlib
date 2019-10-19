@@ -260,6 +260,14 @@ is deprecated.
 
 ``testing.jpl_units.UnitDbl.UnitDbl.checkUnits`` is deprecated.
 
+``DivergingNorm`` renamed to ``TwoSlopeNorm``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``DivergingNorm`` was a misleading name because it did not diverge (in
+the sense that it is not its self diverging, but is best used with
+diverging norms).  It has been renamed to `.TwoSlopeNorm` to better represent
+the normalization function.
+
 Misc
 ~~~~
 ``matplotlib.get_home`` is deprecated (use e.g. ``os.path.expanduser("~")``)
