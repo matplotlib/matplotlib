@@ -194,23 +194,9 @@ Issues (30):
 * :ghissue:`14318`: Don't try to set missing history buttons.
 * :ghissue:`14265`: symlog looses some points since 3.1.0 (example given)
 * :ghissue:`14274`: BUG: plotting with Numpy array subclasses is slow with Matplotlib 3.1.0 (regression)
-* :ghissue:`14263`: import pyplot issue - 
+* :ghissue:`14263`: import pyplot issue -
 * :ghissue:`14227`: Update "working with Mpl on OSX" docs
 * :ghissue:`13448`: boxplot doesn't normalize properties before applying them
 * :ghissue:`14226`: Modify matplotlib TextBox value without triggering callback
 * :ghissue:`14232`: LinearSegmentedColormap with N=1 gives confusing error message
 * :ghissue:`10365`: Scatter plot with non-sequence ´c´ color should give a better Error message.
-
-
-Previous GitHub Stats
----------------------
-
-
-.. toctree::
-    :maxdepth: 1
-    :glob:
-    :reversed:
-
-    prev_whats_new/github_stats_*
-
-
