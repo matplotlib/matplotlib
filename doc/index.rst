@@ -109,30 +109,40 @@ Other learning resources
 There are many :doc:`external learning resources <resources/index>` available
 including printed material, videos and tutorials.
 
-Need help?
-~~~~~~~~~~
+Join our community!
+~~~~~~~~~~~~~~~~~~~
 
 Matplotlib is a welcoming, inclusive project, and we follow the `Python
 Software Foundation Code of Conduct <coc_>`_ in everything we do.
 
 .. _coc: http://www.python.org/psf/codeofconduct/
 
-Check the :doc:`FAQ <faq/index>` and the :doc:`API <api/index>` docs.
+- Join our community at `discourse.matplotlib.org`_  to get help, discuss
+  contributing & development, and share your work.
+- If you have questions, be sure to check the :doc:`FAQ <faq/index>`, the
+  :doc:`API <api/index>` docs, and the `search <search.html>`_ tool
+  searches all of the documentation, including full text search of over 350
+  complete examples which exercise almost every corner of Matplotlib.
+- If its something quick join the `gitter channel`_ to chat with the
+  community.
+- If you prefer email there are the  matplotlib-users_, matplotlib-devel_,
+  and matplotlib-announce_ mailing lists.
+- Check out the Matplotlib tag on stackoverflow_.
+- Tweet us at Twitter_! or see cool plots on Instagram_!
 
-For help, join the `gitter channel`_ and the matplotlib-users_,
-matplotlib-devel_, and matplotlib-announce_ mailing lists, or check out the
-Matplotlib tag on stackoverflow_.  The `search <search.html>`_ tool searches
-all of the documentation, including full text search of over 350 complete
-examples which exercise almost every corner of Matplotlib.
-
+.. _discourse.matplotlib.org: https://discourse.matplotlib.org
 .. _gitter channel: https://gitter.im/matplotlib/matplotlib
 .. _matplotlib-users: https://mail.python.org/mailman/listinfo/matplotlib-users
 .. _matplotlib-devel: https://mail.python.org/mailman/listinfo/matplotlib-devel
 .. _matplotlib-announce: https://mail.python.org/mailman/listinfo/matplotlib-announce
 .. _stackoverflow: http://stackoverflow.com/questions/tagged/matplotlib
+.. _Twitter: https://twitter.com/matplotlib
+.. _Instagram: https://www.instagram.com/matplotart/
 
 You can file bugs, patches and feature requests on the `issue tracker`_, but it
-is a good idea to ping us on the mailing list too.
+is a good idea to ping us on Discourse_ as well.
+
+.. _Discourse: https://discourse.matplotlib.org
 
 To keep up to date with what's going on in Matplotlib, see the :doc:`what's
 new <users/whats_new>` page or browse the `source code`_.  Anything that could
