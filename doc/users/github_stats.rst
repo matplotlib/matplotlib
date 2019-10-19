@@ -224,7 +224,7 @@ Pull Requests (598):
 * :ghpull:`13510`: Change Locator MAXTICKS checking to emitting a log at WARNING level.
 * :ghpull:`15184`: Mark missing_references extension as parallel read safe
 * :ghpull:`15150`: Autodetect whether pgf can use \includegraphics[interpolate].
-* :ghpull:`15163`: 3.2.0 API changes page 
+* :ghpull:`15163`: 3.2.0 API changes page
 * :ghpull:`15176`: What's new for 3.2.0
 * :ghpull:`11947`: Ensure streamplot Euler step is always called when going out of bounds.
 * :ghpull:`13702`: Deduplicate methods shared between Container and Artist.
@@ -294,7 +294,7 @@ Pull Requests (598):
 * :ghpull:`15067`: Fix cross-references in API changes < 1.0
 * :ghpull:`15061`: Fix cross-references in tutorials and FAQ
 * :ghpull:`15060`: Fix cross-references in examples.
-* :ghpull:`14957`: Documentation for using ConnectionPatch across Axes with constrained_…
+* :ghpull:`14957`: Documentation for using ConnectionPatch across Axes with constrained\_…
 * :ghpull:`15053`: Make citation bit of README less wordy
 * :ghpull:`15044`: numpydoc set_size_inches docstring
 * :ghpull:`15050`: Clarify unnecessary special handling for colons in paths.
@@ -448,7 +448,7 @@ Pull Requests (598):
 * :ghpull:`14763`: Deprecate math_symbol_table function directive
 * :ghpull:`14762`: Decrease uses of get_canvas_width_height.
 * :ghpull:`14748`: Cleanup demo_text_path.
-* :ghpull:`14740`: Remove sudo tag in travis 
+* :ghpull:`14740`: Remove sudo tag in travis
 * :ghpull:`14737`: Cleanup twin axes docstrings.
 * :ghpull:`14729`: Small simplifications.
 * :ghpull:`14726`: Trivial simplification to Axis3d._get_coord_info.
@@ -743,7 +743,7 @@ Pull Requests (598):
 * :ghpull:`13620`: Improve watermark example
 * :ghpull:`13589`: Kill Axes._connected.
 * :ghpull:`13428`: free cart pendulum animation example
-* :ghpull:`10487`: fixed transparency bug 
+* :ghpull:`10487`: fixed transparency bug
 * :ghpull:`13551`: Fix IndexError for pyplot.legend() when plotting empty bar chart with label
 * :ghpull:`13524`: Cleanup docs for GraphicsContextBase.{get,set}_dashes.
 * :ghpull:`13556`: Cleanup warnings handling in tests.
@@ -867,5 +867,3 @@ Previous GitHub Stats
     :reversed:
 
     prev_whats_new/github_stats_*
-
-
