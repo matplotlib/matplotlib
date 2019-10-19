@@ -870,7 +870,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.logscale = True
             if norm is None:
                 norm = colors.LogNorm()
-            if self.extend is not 'neither':
+            if self.extend != 'neither':
                 raise ValueError('extend kwarg does not work yet with log '
                                  ' scale')
         else:
