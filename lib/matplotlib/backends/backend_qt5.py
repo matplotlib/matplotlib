@@ -477,7 +477,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # accumulate multiple draw requests from event handling.
         # TODO: queued signal connection might be safer than singleShot
         if not (getattr(self, '_draw_pending', False) or
-                getattr(self, '._is_drawing', False)):
+                getattr(self, '_is_drawing', False)):
             self._draw_pending = True
             QtCore.QTimer.singleShot(0, self._draw_idle)
 
