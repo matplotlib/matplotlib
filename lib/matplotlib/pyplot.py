@@ -66,7 +66,6 @@ from .ticker import (
     FormatStrFormatter, ScalarFormatter, LogFormatter, LogFormatterExponent,
     LogFormatterMathtext, Locator, IndexLocator, FixedLocator, NullLocator,
     LinearLocator, LogLocator, AutoLocator, MultipleLocator, MaxNLocator)
-from matplotlib.backends import _get_running_interactive_framework
 
 _log = logging.getLogger(__name__)
 
@@ -226,8 +225,7 @@ def switch_backend(newbackend):
     required_framework = getattr(
         Backend.FigureCanvas, "required_interactive_framework", None)
     if required_framework is not None:
-        current_framework = \
-            matplotlib.backends._get_running_interactive_framework()
+        current_framework = cbook._get_running_interactive_framework()
         if (current_framework and required_framework
                 and current_framework != required_framework):
             raise ImportError(
@@ -2250,7 +2248,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 # is compatible with the current running interactive framework.
 if (rcParams["backend_fallback"]
         and dict.__getitem__(rcParams, "backend") in _interactive_bk
-        and _get_running_interactive_framework()):
+        and cbook._get_running_interactive_framework()):
     dict.__setitem__(rcParams, "backend", rcsetup._auto_backend_sentinel)
 # Set up the backend.
 switch_backend(rcParams["backend"])

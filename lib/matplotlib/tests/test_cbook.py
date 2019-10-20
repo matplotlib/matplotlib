@@ -233,6 +233,18 @@ class Test_callback_registry:
                        "callbacks")
 
 
+def test_callbackregistry_default_exception_handler(monkeypatch):
+    cb = cbook.CallbackRegistry()
+    cb.connect("foo", lambda: None)
+    monkeypatch.setattr(
+        cbook, "_get_running_interactive_framework", lambda: None)
+    with pytest.raises(TypeError):
+        cb.process("foo", "argument mismatch")
+    monkeypatch.setattr(
+        cbook, "_get_running_interactive_framework", lambda: "not-none")
+    cb.process("foo", "argument mismatch")  # No error in that case.
+
+
 def raising_cb_reg(func):
     class TestException(Exception):
         pass
@@ -240,14 +252,13 @@ def raising_cb_reg(func):
     def raising_function():
         raise RuntimeError
 
+    def raising_function_VE():
+        raise ValueError
+
     def transformer(excp):
         if isinstance(excp, RuntimeError):
             raise TestException
         raise excp
-
-    # default behavior
-    cb = cbook.CallbackRegistry()
-    cb.connect('foo', raising_function)
 
     # old default
     cb_old = cbook.CallbackRegistry(exception_handler=None)
@@ -257,18 +268,21 @@ def raising_cb_reg(func):
     cb_filt = cbook.CallbackRegistry(exception_handler=transformer)
     cb_filt.connect('foo', raising_function)
 
+    # filter
+    cb_filt_pass = cbook.CallbackRegistry(exception_handler=transformer)
+    cb_filt_pass.connect('foo', raising_function_VE)
+
     return pytest.mark.parametrize('cb, excp',
-                                   [[cb, None],
-                                    [cb_old, RuntimeError],
-                                    [cb_filt, TestException]])(func)
+                                   [[cb_old, RuntimeError],
+                                    [cb_filt, TestException],
+                                    [cb_filt_pass, ValueError]])(func)
 
 
 @raising_cb_reg
-def test_callbackregistry_process_exception(cb, excp):
-    if excp is not None:
-        with pytest.raises(excp):
-            cb.process('foo')
-    else:
+def test_callbackregistry_custom_exception_handler(monkeypatch, cb, excp):
+    monkeypatch.setattr(
+        cbook, "_get_running_interactive_framework", lambda: None)
+    with pytest.raises(excp):
         cb.process('foo')
 
 

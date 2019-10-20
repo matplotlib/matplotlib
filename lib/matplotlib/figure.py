@@ -17,7 +17,7 @@ from numbers import Integral
 import numpy as np
 
 from matplotlib import rcParams
-from matplotlib import backends, docstring, projections
+from matplotlib import docstring, projections
 from matplotlib import __version__ as _mpl_version
 from matplotlib import get_backend
 
