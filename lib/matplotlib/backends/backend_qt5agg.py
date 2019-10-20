@@ -68,7 +68,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             if hasattr(qimage, 'setDevicePixelRatio'):
                 # Not available on Qt4 or some older Qt5.
                 qimage.setDevicePixelRatio(self._dpi_ratio)
-            origin = QtCore.QPoint(l, self.renderer.height - t)
+            origin = QtCore.QPoint(int(l), int(self.renderer.height - t))
             painter.drawImage(origin / self._dpi_ratio, qimage)
 
         self._draw_rect_callback(painter)

@@ -43,8 +43,10 @@ License   : matplotlib license (PSF compatible)
             The font directory code is from ttfquery,
             see license/LICENSE_TTFQUERY.
 """
-
-from collections import Iterable
+try:
+    from collections.abc import Iterable
+except ImportError:
+    from collections import Iterable
 import json
 import os
 import sys

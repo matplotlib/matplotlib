@@ -2419,7 +2419,7 @@ def matshow(A, fignum=None, **kwargs):
 
     """
     A = np.asanyarray(A)
-    if fignum is False or fignum is 0:
+    if fignum is False or fignum == 0:
         ax = gca()
     else:
         # Extract actual aspect ratio of array and make appropriately sized figure

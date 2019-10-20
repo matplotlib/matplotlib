@@ -1,6 +1,6 @@
 #ifndef __FILE_COMPAT_H__
 #define __FILE_COMPAT_H__
-
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <stdio.h>
 #include "numpy/npy_common.h"

@@ -2,7 +2,7 @@
 
 #ifndef __PY_ADAPTORS_H__
 #define __PY_ADAPTORS_H__
-
+#define PY_SSIZE_T_CLEAN
 /***************************************************************************
  * This module contains a number of C++ classes that adapt Python data
  * structures to C++ and Agg-friendly interfaces.
