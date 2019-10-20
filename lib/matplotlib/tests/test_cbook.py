@@ -252,6 +252,9 @@ def raising_cb_reg(func):
     def raising_function():
         raise RuntimeError
 
+    def raising_function_VE():
+        raise ValueError
+
     def transformer(excp):
         if isinstance(excp, RuntimeError):
             raise TestException
@@ -265,9 +268,14 @@ def raising_cb_reg(func):
     cb_filt = cbook.CallbackRegistry(exception_handler=transformer)
     cb_filt.connect('foo', raising_function)
 
+    # filter
+    cb_filt_pass = cbook.CallbackRegistry(exception_handler=transformer)
+    cb_filt_pass.connect('foo', raising_function_VE)
+
     return pytest.mark.parametrize('cb, excp',
                                    [[cb_old, RuntimeError],
-                                    [cb_filt, TestException]])(func)
+                                    [cb_filt, TestException],
+                                    [cb_filt_pass, ValueError]])(func)
 
 
 @raising_cb_reg
