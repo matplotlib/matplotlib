@@ -263,10 +263,12 @@ is deprecated.
 ``DivergingNorm`` renamed to ``TwoSlopeNorm``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``DivergingNorm`` was a misleading name because it did not diverge (in
-the sense that it is not its self diverging, but is best used with
-diverging norms).  It has been renamed to `.TwoSlopeNorm` to better represent
-the normalization function.
+``DivergingNorm`` was a misleading name; although the norm was
+developed with the idea that it would likely be used with diverging
+colormaps, the word 'diverging' does not describe or evoke the norm's
+mapping function.  Since that function is monotonic, continuous, and
+piece-wise linear with two segments, the norm has been renamed to
+`.TwoSlopeNorm`
 
 Misc
 ~~~~
