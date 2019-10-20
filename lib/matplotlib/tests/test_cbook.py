@@ -274,10 +274,7 @@ def raising_cb_reg(func):
 def test_callbackregistry_custom_exception_handler(monkeypatch, cb, excp):
     monkeypatch.setattr(
         cbook, "_get_running_interactive_framework", lambda: None)
-    if excp is not None:
-        with pytest.raises(excp):
-            cb.process('foo')
-    else:
+    with pytest.raises(excp):
         cb.process('foo')
 
 
