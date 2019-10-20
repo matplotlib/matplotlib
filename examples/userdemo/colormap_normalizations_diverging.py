@@ -1,7 +1,7 @@
 """
-=====================================
-DivergingNorm colormap normalization
-=====================================
+===================================
+TwoSlopeNorm colormap normalization
+===================================
 
 Sometimes we want to have a different colormap on either side of a
 conceptual center point, and we want those two colormaps to have
@@ -33,7 +33,7 @@ terrain_map = colors.LinearSegmentedColormap.from_list('terrain_map',
 
 # make the norm:  Note the center is offset so that the land has more
 # dynamic range:
-divnorm = colors.DivergingNorm(vmin=-500, vcenter=0, vmax=4000)
+divnorm = colors.TwoSlopeNorm(vmin=-500, vcenter=0, vmax=4000)
 
 pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
     cmap=terrain_map,)
