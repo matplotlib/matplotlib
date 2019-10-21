@@ -2947,20 +2947,20 @@ class _AxesBase(martist.Artist):
     def tick_params(self, axis='both', **kwargs):
         """Change the appearance of ticks, tick labels, and gridlines.
 
+        Tick properties that are not explicitly set using the keyword
+        arguments remain unchanged unless *reset* is True.
+
         Parameters
         ----------
-        axis : {'x', 'y', 'both'}, optional
-            Which axis to apply the parameters to.
+        axis : {'x', 'y', 'both'}, default: 'both'
+            The axis to which the parameters are applied.
+        which : {'major', 'minor', 'both'}, default: 'major'
+            The group of ticks to which the parameters are applied.
+        reset : bool, default: False
+            Whether to reset the ticks to defaults before updating them.
 
         Other Parameters
         ----------------
-        axis : {'x', 'y', 'both'}
-            Axis on which to operate; default is 'both'.
-        reset : bool, default: False
-            If *True*, set all parameters to defaults before processing other
-            keyword arguments.
-        which : {'major', 'minor', 'both'}
-            Default is 'major'; apply arguments to *which* ticks.
         direction : {'in', 'out', 'inout'}
             Puts ticks inside the axes, outside the axes, or both.
         length : float
