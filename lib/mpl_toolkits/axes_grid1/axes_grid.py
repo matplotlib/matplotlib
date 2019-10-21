@@ -491,7 +491,7 @@ default: None
         if ngrids is None:
             ngrids = self._nrows * self._ncols
         else:
-            if not 0 <= ngrids < self._nrows * self._ncols:
+            if not 0 < ngrids <= self._nrows * self._ncols:
                 raise Exception
 
         self.ngrids = ngrids
