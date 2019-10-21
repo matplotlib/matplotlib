@@ -2,7 +2,6 @@ from numbers import Number
 
 import matplotlib as mpl
 from matplotlib import cbook
-import matplotlib.axes as maxes
 import matplotlib.ticker as ticker
 from matplotlib.gridspec import SubplotSpec
 
@@ -191,14 +190,6 @@ default: None
 
         if axes_class is None:
             axes_class = self._defaultAxesClass
-            axes_class_args = {}
-        else:
-            if (isinstance(axes_class, type)
-                    and issubclass(axes_class,
-                                   self._defaultAxesClass.Axes)):
-                axes_class_args = {}
-            else:
-                axes_class, axes_class_args = axes_class
 
         self.axes_all = []
         self.axes_column = [[] for _ in range(self._ncols)]
@@ -246,8 +237,7 @@ default: None
                 else:
                     sharey = None
 
-            ax = axes_class(fig, rect, sharex=sharex, sharey=sharey,
-                            **axes_class_args)
+            ax = axes_class(fig, rect, sharex=sharex, sharey=sharey)
 
             if share_all:
                 if self._refax is None:
@@ -529,12 +519,6 @@ default: None
 
         if axes_class is None:
             axes_class = self._defaultAxesClass
-            axes_class_args = {}
-        else:
-            if isinstance(axes_class, maxes.Axes):
-                axes_class_args = {}
-            else:
-                axes_class, axes_class_args = axes_class
 
         self.axes_all = []
         self.axes_column = [[] for _ in range(self._ncols)]
@@ -581,8 +565,7 @@ default: None
                 sharex = self._column_refax[col]
                 sharey = self._row_refax[row]
 
-            ax = axes_class(fig, rect, sharex=sharex, sharey=sharey,
-                            **axes_class_args)
+            ax = axes_class(fig, rect, sharex=sharex, sharey=sharey)
 
             self.axes_all.append(ax)
             self.axes_column[col].append(ax)
