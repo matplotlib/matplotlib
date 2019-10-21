@@ -8,7 +8,7 @@ from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib.colors import (BoundaryNorm, LogNorm, PowerNorm, Normalize,
-                               DivergingNorm)
+                               TwoSlopeNorm)
 from matplotlib.colorbar import ColorbarBase, _ColorbarLogLocator
 from matplotlib.ticker import LogLocator, LogFormatter, FixedLocator
 
@@ -536,7 +536,7 @@ def test_colorbar_inverted_ticks():
 
 
 def test_extend_colorbar_customnorm():
-    # This was a funny error with DivergingNorm, maybe with other norms,
+    # This was a funny error with TwoSlopeNorm, maybe with other norms,
     # when extend='both'
     N = 100
     X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
@@ -546,7 +546,7 @@ def test_extend_colorbar_customnorm():
 
     fig, ax = plt.subplots(2, 1)
     pcm = ax[0].pcolormesh(X, Y, Z,
-                           norm=DivergingNorm(vcenter=0., vmin=-2, vmax=1),
+                           norm=TwoSlopeNorm(vcenter=0., vmin=-2, vmax=1),
                            cmap='RdBu_r')
     cb = fig.colorbar(pcm, ax=ax[0], extend='both')
     np.testing.assert_allclose(cb.ax.get_position().extents,

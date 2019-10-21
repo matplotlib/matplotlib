@@ -188,8 +188,8 @@ plt.show()
 
 
 ###############################################################################
-# DivergingNorm: Different mapping on either side of a center
-# -----------------------------------------------------------
+# TwoSlopeNorm: Different mapping on either side of a center
+# ----------------------------------------------------------
 #
 # Sometimes we want to have a different colormap on either side of a
 # conceptual center point, and we want those two colormaps to have
@@ -215,7 +215,7 @@ terrain_map = colors.LinearSegmentedColormap.from_list('terrain_map',
 
 # make the norm:  Note the center is offset so that the land has more
 # dynamic range:
-divnorm = colors.DivergingNorm(vmin=-500., vcenter=0, vmax=4000)
+divnorm = colors.TwoSlopeNorm(vmin=-500., vcenter=0, vmax=4000)
 
 pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
     cmap=terrain_map,)
@@ -230,7 +230,7 @@ plt.show()
 # Custom normalization: Manually implement two linear ranges
 # ----------------------------------------------------------
 #
-# The `.DivergingNorm` described above makes a useful example for
+# The `.TwoSlopeNorm` described above makes a useful example for
 # defining your own norm.
 
 class MidpointNormalize(colors.Normalize):
