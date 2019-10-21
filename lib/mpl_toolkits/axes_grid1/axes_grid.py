@@ -1,5 +1,7 @@
 from numbers import Number
 
+import numpy as np
+
 import matplotlib as mpl
 from matplotlib import cbook
 import matplotlib.ticker as ticker
@@ -183,75 +185,37 @@ default: None
 
         self._init_axes_pad(axes_pad)
 
-        if direction not in ["column", "row"]:
-            raise Exception("")
-
+        cbook._check_in_list(["column", "row"], direction=direction)
         self._direction = direction
 
         if axes_class is None:
             axes_class = self._defaultAxesClass
 
-        self.axes_all = []
-        self.axes_column = [[] for _ in range(self._ncols)]
-        self.axes_row = [[] for _ in range(self._nrows)]
-
-        h = []
-        v = []
-        if isinstance(rect, (str, Number)):
-            self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
-                                           aspect=False)
-        elif isinstance(rect, SubplotSpec):
-            self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
-                                           aspect=False)
+        kw = dict(horizontal=[], vertical=[], aspect=False)
+        if isinstance(rect, (str, Number, SubplotSpec)):
+            self._divider = SubplotDivider(fig, rect, **kw)
         elif len(rect) == 3:
-            kw = dict(horizontal=h, vertical=v, aspect=False)
             self._divider = SubplotDivider(fig, *rect, **kw)
         elif len(rect) == 4:
-            self._divider = Divider(fig, rect, horizontal=h, vertical=v,
-                                    aspect=False)
+            self._divider = Divider(fig, rect, **kw)
         else:
             raise Exception("")
 
         rect = self._divider.get_position()
 
-        # reference axes
-        self._column_refax = [None for _ in range(self._ncols)]
-        self._row_refax = [None for _ in range(self._nrows)]
-        self._refax = None
-
+        axes_array = np.full((self._nrows, self._ncols), None, dtype=object)
         for i in range(self.ngrids):
-
             col, row = self._get_col_row(i)
-
             if share_all:
-                sharex = self._refax
-                sharey = self._refax
+                sharex = sharey = axes_array[0, 0]
             else:
-                if share_x:
-                    sharex = self._column_refax[col]
-                else:
-                    sharex = None
-
-                if share_y:
-                    sharey = self._row_refax[row]
-                else:
-                    sharey = None
-
-            ax = axes_class(fig, rect, sharex=sharex, sharey=sharey)
-
-            if share_all:
-                if self._refax is None:
-                    self._refax = ax
-            else:
-                if sharex is None:
-                    self._column_refax[col] = ax
-                if sharey is None:
-                    self._row_refax[row] = ax
-
-            self.axes_all.append(ax)
-            self.axes_column[col].append(ax)
-            self.axes_row[row].append(ax)
-
+                sharex = axes_array[0, col] if share_x else None
+                sharey = axes_array[row, 0] if share_y else None
+            axes_array[row, col] = axes_class(
+                fig, rect, sharex=sharex, sharey=sharey)
+        self.axes_all = axes_array.ravel().tolist()
+        self.axes_column = axes_array.T.tolist()
+        self.axes_row = axes_array.tolist()
         self.axes_llc = self.axes_column[0][-1]
 
         self._update_locators()
@@ -272,27 +236,19 @@ default: None
     def _update_locators(self):
 
         h = []
-
         h_ax_pos = []
-
-        for _ in self._column_refax:
-            #if h: h.append(Size.Fixed(self._axes_pad))
+        for _ in range(self._ncols):
             if h:
                 h.append(self._horiz_pad_size)
-
             h_ax_pos.append(len(h))
-
             sz = Size.Scaled(1)
             h.append(sz)
 
         v = []
-
         v_ax_pos = []
-        for _ in self._row_refax[::-1]:
-            #if v: v.append(Size.Fixed(self._axes_pad))
+        for _ in range(self._nrows):
             if v:
                 v.append(self._vert_pad_size)
-
             v_ax_pos.append(len(v))
             sz = Size.Scaled(1)
             v.append(sz)
@@ -512,78 +468,43 @@ default: None
 
         self._init_axes_pad(axes_pad)
 
-        if direction not in ["column", "row"]:
-            raise Exception("")
-
+        cbook._check_in_list(["column", "row"], direction=direction)
         self._direction = direction
 
         if axes_class is None:
             axes_class = self._defaultAxesClass
 
-        self.axes_all = []
-        self.axes_column = [[] for _ in range(self._ncols)]
-        self.axes_row = [[] for _ in range(self._nrows)]
-
-        self.cbar_axes = []
-
-        h = []
-        v = []
-        if isinstance(rect, (str, Number)):
-            self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
-                                           aspect=aspect)
-        elif isinstance(rect, SubplotSpec):
-            self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
-                                           aspect=aspect)
+        kw = dict(horizontal=[], vertical=[], aspect=aspect)
+        if isinstance(rect, (str, Number, SubplotSpec)):
+            self._divider = SubplotDivider(fig, rect, **kw)
         elif len(rect) == 3:
-            kw = dict(horizontal=h, vertical=v, aspect=aspect)
             self._divider = SubplotDivider(fig, *rect, **kw)
         elif len(rect) == 4:
-            self._divider = Divider(fig, rect, horizontal=h, vertical=v,
-                                    aspect=aspect)
+            self._divider = Divider(fig, rect, **kw)
         else:
             raise Exception("")
 
         rect = self._divider.get_position()
 
-        # reference axes
-        self._column_refax = [None for _ in range(self._ncols)]
-        self._row_refax = [None for _ in range(self._nrows)]
-        self._refax = None
-
+        axes_array = np.full((self._nrows, self._ncols), None, dtype=object)
         for i in range(self.ngrids):
-
             col, row = self._get_col_row(i)
-
             if share_all:
-                if self.axes_all:
-                    sharex = self.axes_all[0]
-                    sharey = self.axes_all[0]
-                else:
-                    sharex = None
-                    sharey = None
+                sharex = sharey = axes_array[0, 0]
             else:
-                sharex = self._column_refax[col]
-                sharey = self._row_refax[row]
-
-            ax = axes_class(fig, rect, sharex=sharex, sharey=sharey)
-
-            self.axes_all.append(ax)
-            self.axes_column[col].append(ax)
-            self.axes_row[row].append(ax)
-
-            if share_all:
-                if self._refax is None:
-                    self._refax = ax
-            if sharex is None:
-                self._column_refax[col] = ax
-            if sharey is None:
-                self._row_refax[row] = ax
-
-            cax = self._defaultCbarAxesClass(fig, rect,
-                                        orientation=self._colorbar_location)
-            self.cbar_axes.append(cax)
-
+                sharex = axes_array[0, col]
+                sharey = axes_array[row, 0]
+            axes_array[row, col] = axes_class(
+                fig, rect, sharex=sharex, sharey=sharey)
+        self.axes_all = axes_array.ravel().tolist()
+        self.axes_column = axes_array.T.tolist()
+        self.axes_row = axes_array.tolist()
         self.axes_llc = self.axes_column[0][-1]
+
+        self.cbar_axes = [
+            self._defaultCbarAxesClass(fig, rect,
+                                       orientation=self._colorbar_location)
+            for _ in range(self.ngrids)]
 
         self._update_locators()
 
