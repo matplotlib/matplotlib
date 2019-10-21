@@ -182,25 +182,12 @@ or::
 
    git clone git://github.com/matplotlib/matplotlib.git
 
-and build and install as usual with::
+and build and install with::
 
    cd matplotlib
+   export MPLLOCALFREETYPE=1  # on Linux and OSX.
+   set MPLLOCALFREETYPE=1  # on Windows.
    python -mpip install .
-
-.. note::
-
-   If you are on Debian/Ubuntu, you can get all the dependencies required to
-   build Matplotlib with::
-
-      sudo apt-get build-dep python-matplotlib
-
-   If you are on Fedora/RedHat, you can get all the dependencies required to
-   build Matplotlib by first installing ``yum-builddep`` and then running::
-
-      su -c 'yum-builddep python-matplotlib'
-
-   This does not build Matplotlib, but it does get all of the build
-   dependencies, which will make building from source easier.
 
 If you want to be able to follow the development branch as it changes
 just replace the last step with::
@@ -211,8 +198,6 @@ This creates links and installs the command line script in the appropriate
 places.
 
 .. note::
-   OSX users please see the :ref:`build_osx` guide.
-
    Windows users please see the :ref:`build_windows` guide.
 
 Then, if you want to update your Matplotlib at any time, just do::

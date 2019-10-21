@@ -60,7 +60,7 @@ install:
   # if conda-forge gets a new pyqt, it might be nice to install it as well to have more backends
   # https://github.com/conda-forge/conda-forge.github.io/issues/157#issuecomment-223536381
   - conda create -q -n test-environment python=%PYTHON_VERSION%
-    freetype=2.6 zlib=1.2 tk=8.5
+    freetype=2.6 tk=8.5
     pip setuptools numpy sphinx tornado
   - activate test-environment
   - echo %PYTHON_VERSION% %TARGET_ARCH%
@@ -81,9 +81,9 @@ test_script:
   # Now build the thing..
   - set LINK=/LIBPATH:%cd%\lib
   - pip install -ve .
-  # these should show no z or freetype dll...
+  # this should show no freetype dll...
   - set "DUMPBIN=%VS140COMNTOOLS%\..\..\VC\bin\dumpbin.exe"
-  - 'if x%MPLSTATICBUILD% == xTrue "%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
+  - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
 
   # this are optional dependencies so that we don't skip so many tests...
   - if x%TEST_ALL% == xyes conda install -q ffmpeg inkscape miktex pillow
@@ -98,9 +98,8 @@ test_script:
   - pytest %PYTEST_ARGS%
 
 after_test:
-  # After the tests were a success, build wheels with the static libs
+  # After the tests were a success, build wheels.
   # Hide the output, the copied files really clutter the build log...
-  - set MPLSTATICBUILD=True
   - 'python setup.py bdist_wheel > NUL:'
   - dir dist\
   - echo finished...
