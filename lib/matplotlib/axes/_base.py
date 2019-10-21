@@ -2912,7 +2912,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        axis : {'both', 'x', 'y'}, optional
+        axis : {'both', 'x', 'y'}, default: 'both'
             The axis on which to operate.
 
         tight : bool or None, optional
@@ -2936,13 +2936,15 @@ class _AxesBase(martist.Artist):
             ax.locator_params(tight=True, nbins=4)
 
         """
-        _x = axis in ['x', 'both']
-        _y = axis in ['y', 'both']
-        if _x:
+        cbook._check_in_list(['x', 'y', 'both'], axis=axis)
+        update_x = axis in ['x', 'both']
+        update_y = axis in ['y', 'both']
+        if update_x:
             self.xaxis.get_major_locator().set_params(**kwargs)
-        if _y:
+        if update_y:
             self.yaxis.get_major_locator().set_params(**kwargs)
-        self._request_autoscale_view(tight=tight, scalex=_x, scaley=_y)
+        self._request_autoscale_view(tight=tight,
+                                     scalex=update_x, scaley=update_y)
 
     def tick_params(self, axis='both', **kwargs):
         """Change the appearance of ticks, tick labels, and gridlines.
