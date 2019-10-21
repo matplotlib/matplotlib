@@ -889,9 +889,10 @@ class Axis(martist.Artist):
         :meth:`matplotlib.axes.Axes.tick_params`.
         """
         dicts = []
-        if which == 'major' or which == 'both':
+        cbook._check_in_list(['major', 'minor', 'both'], which=which)
+        if which in ['major', 'both']:
             dicts.append(self._major_tick_kw)
-        if which == 'minor' or which == 'both':
+        if which in ['minor', 'both']:
             dicts.append(self._minor_tick_kw)
         kwtrans = self._translate_tick_kw(kw)
 
@@ -906,10 +907,10 @@ class Axis(martist.Artist):
             self.reset_ticks()
         else:
             # apply the new kwargs to the existing ticks
-            if which == 'major' or which == 'both':
+            if which in ['major', 'both']:
                 for tick in self.majorTicks:
                     tick._apply_params(**kwtrans)
-            if which == 'minor' or which == 'both':
+            if which in ['minor', 'both']:
                 for tick in self.minorTicks:
                     tick._apply_params(**kwtrans)
             # special-case label color to also apply to the offset
