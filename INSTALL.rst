@@ -238,16 +238,11 @@ and on Windows:
   - ``qhull``: to compute Delaunay triangulation;
   - ``ttconv``: a TrueType font utility.
 
-.. _build_windows:
-
 Building on Windows
 -------------------
 
-The Python shipped from https://www.python.org is compiled with Visual Studio
-2015 for 3.5+.  Python extensions should be compiled with the same
-compiler, see e.g.
-https://packaging.python.org/guides/packaging-binary-extensions/#binary-extensions-for-windows
-for how to set up a build environment.
+Compiling Matplotlib (or any other extension module, for that matter) requires
+Visual Studio 2015 or later.
 
 If you are building your own Matplotlib wheels (or sdists), note that any DLLs
 that you copy into the source tree will be packaged too.

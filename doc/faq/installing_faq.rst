@@ -127,15 +127,6 @@ from the Terminal.app command line::
 You might also want to install IPython or the Jupyter notebook (``python3 -mpip
 install ipython notebook``).
 
-pip problems
-^^^^^^^^^^^^
-
-If you get errors with pip trying to run a compiler like ``gcc`` or ``clang``,
-then the first thing to try is to `install xcode
-<https://guide.macports.org/chunked/installing.html#installing.xcode>`_ and
-retry the install.  If that does not work, then check
-:ref:`reporting-problems`.
-
 Checking your installation
 --------------------------
 
@@ -174,6 +165,12 @@ picked up by other Pythons.  If all these fail, please :ref:`let us know
 Install from source
 ===================
 
+A C compiler is required.  Typically, on Linux, you will need ``gcc``, which
+should be installed using your distribution's package manager; on macOS, you
+will need xcode_; on Windows, you will need Visual Studio 2015 or later.
+
+.. _xcode: https://guide.macports.org/chunked/installing.html#installing.xcode
+
 Clone the main source using one of::
 
    git clone git@github.com:matplotlib/matplotlib.git
@@ -196,9 +193,6 @@ just replace the last step with::
 
 This creates links and installs the command line script in the appropriate
 places.
-
-.. note::
-   Windows users please see the :ref:`build_windows` guide.
 
 Then, if you want to update your Matplotlib at any time, just do::
 
