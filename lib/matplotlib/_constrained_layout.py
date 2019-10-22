@@ -287,12 +287,9 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
     w_padt = ax._poslayoutbox.w_pad
     if w_padt is None:
         w_padt = w_pad
-    ax._poslayoutbox.edit_left_margin_min(-bbox.x0 +
-            pos.x0 + w_padt)
-    ax._poslayoutbox.edit_right_margin_min(bbox.x1 -
-            pos.x1 + w_padt)
-    ax._poslayoutbox.edit_bottom_margin_min(
-            -bbox.y0 + pos.y0 + h_padt)
+    ax._poslayoutbox.edit_left_margin_min(-bbox.x0 + pos.x0 + w_padt)
+    ax._poslayoutbox.edit_right_margin_min(bbox.x1 - pos.x1 + w_padt)
+    ax._poslayoutbox.edit_bottom_margin_min(-bbox.y0 + pos.y0 + h_padt)
     ax._poslayoutbox.edit_top_margin_min(bbox.y1-pos.y1+h_padt)
     _log.debug('left %f', (-bbox.x0 + pos.x0 + w_pad))
     _log.debug('right %f', (bbox.x1 - pos.x1 + w_pad))
@@ -309,8 +306,7 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
         ax._layoutbox.constrain_height_min(20, strength='weak')
         ax._layoutbox.constrain_width_min(20, strength='weak')
         ax._poslayoutbox.constrain_top_margin(0, strength='weak')
-        ax._poslayoutbox.constrain_bottom_margin(0,
-                strength='weak')
+        ax._poslayoutbox.constrain_bottom_margin(0, strength='weak')
         ax._poslayoutbox.constrain_right_margin(0, strength='weak')
         ax._poslayoutbox.constrain_left_margin(0, strength='weak')
 
@@ -332,12 +328,10 @@ def _align_spines(fig, gs):
         height_ratios = np.ones(nrows)
 
     # get axes in this gridspec....
-    axs = []
-    for ax in fig.axes:
-        if (hasattr(ax, 'get_subplotspec')
-                and ax._layoutbox is not None):
-            if ax.get_subplotspec().get_gridspec() == gs:
-                axs += [ax]
+    axs = [ax for ax in fig.axes
+           if (hasattr(ax, 'get_subplotspec')
+               and ax._layoutbox is not None
+               and ax.get_subplotspec().get_gridspec() == gs)]
     rownummin = np.zeros(len(axs), dtype=np.int8)
     rownummax = np.zeros(len(axs), dtype=np.int8)
     colnummin = np.zeros(len(axs), dtype=np.int8)
@@ -379,15 +373,12 @@ def _align_spines(fig, gs):
             if not alignleft and colnum0min == colnumCmin:
                 # we want the _poslayoutboxes to line up on left
                 # side of the axes spines...
-                layoutbox.align([ax._poslayoutbox,
-                                 axc._poslayoutbox],
+                layoutbox.align([ax._poslayoutbox, axc._poslayoutbox],
                                 'left')
                 alignleft = True
-
             if not alignright and colnum0max == colnumCmax:
                 # line up right sides of _poslayoutbox
-                layoutbox.align([ax._poslayoutbox,
-                                 axc._poslayoutbox],
+                layoutbox.align([ax._poslayoutbox, axc._poslayoutbox],
                                 'right')
                 alignright = True
             # Vertically align axes spines if they have the
@@ -398,7 +389,6 @@ def _align_spines(fig, gs):
                 layoutbox.align([ax._poslayoutbox, axc._poslayoutbox],
                                 'top')
                 aligntop = True
-
             if not alignbot and rownum0max == rownumCmax:
                 # line up bottom of _poslayoutbox
                 _log.debug('rownum0max == rownumCmax')
