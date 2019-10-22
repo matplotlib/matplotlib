@@ -23,7 +23,6 @@ def setup(ax, title):
 
     ax.xaxis.set_ticks_position('bottom')
     ax.tick_params(which='major', width=1.00, length=5)
-    ax.tick_params(which='major', )
     ax.tick_params(which='minor', width=0.75, length=2.5)
     ax.set_xlim(0, 5)
     ax.set_ylim(0, 1)
