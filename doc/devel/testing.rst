@@ -21,8 +21,7 @@ Requirements
 ------------
 
 Install the latest version of Matplotlib as documented in
-:ref:`installing_for_devs` In particular, follow the instructions to use a
-local FreeType build.
+:ref:`installing_for_devs`.
 
 The following software is required to run the tests:
 

@@ -3,12 +3,11 @@
 
 [egg_info]
 
-[test]
-# If you plan to develop Matplotlib and run or add to the test suite,
-# set this to True.  It will download and build a specific version of
-# FreeType, and then use that to build the ft2font extension.  This
-# ensures that test images are exactly reproducible.
-#local_freetype = False
+[libs]
+# By default, Matplotlib downloads and builds its own copy of FreeType.  You
+# may set the following variable to True to instead link against a system
+# FreeType.
+#system_freetype = False
 
 [packages]
 # There are a number of subpackages of Matplotlib that are considered

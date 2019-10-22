@@ -54,7 +54,7 @@ steps:
   displayName: 'Install dependencies with pip'
 
 - bash: |
-    MPLLOCALFREETYPE=1 python -m pip install -ve . ||
+    python -m pip install -ve . ||
       [[ "$PYTHON_VERSION" = 'Pre' ]]
   displayName: "Install self"
 
