@@ -11,10 +11,9 @@
 #local_freetype = False
 
 [packages]
-# There are a number of subpackages of Matplotlib that are considered
-# optional. All except tests are installed by default, but that can
-# be changed here.
-#
+# There are a number of data subpackages from Matplotlib that are
+# considered optional. All except tests data are installed by default,
+# but that can be changed here.
 #tests = False
 #sample_data = True
 
