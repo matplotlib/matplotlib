@@ -420,7 +420,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     a_min, a_max = np.int32(0), np.int32(1)
                 if inp_dtype.kind == 'f':
                     scaled_dtype = A.dtype
-                    # Cast usupported dtypes to nearest supported float depth
+                    # Cast unsupported dtypes to nearest supported float depth
                     if A.dtype not in (np.float64, np.float32):
                         # cast float16 up into float32
                         if A.dtype == np.float16:
