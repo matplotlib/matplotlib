@@ -816,6 +816,7 @@ class Axes(_AxesBase):
         --------
         hlines : Add horizontal lines in data coordinates.
         axhspan : Add a horizontal span (rectangle) across the axis.
+        axline : Add a line with an arbitrary slope.
 
         Examples
         --------
@@ -899,6 +900,7 @@ class Axes(_AxesBase):
         --------
         vlines : Add vertical lines in data coordinates.
         axvspan : Add a vertical span (rectangle) across the axis.
+        axline : Add a line with an abritrary slope.
         """
 
         if "transform" in kwargs:
@@ -918,6 +920,63 @@ class Axes(_AxesBase):
         self.add_line(l)
         self._request_autoscale_view(scalex=scalex, scaley=False)
         return l
+
+    @docstring.dedent_interpd
+    def axline(self, xy1, xy2, **kwargs):
+        """
+        Add an infinitely long straight line that passes through two points.
+
+        This draws a straight line "on the screen", regardless of the x and y
+        scales, and is thus also suitable for drawing exponential decays in
+        semilog plots, power laws in loglog plots, etc.
+
+        Parameters
+        ----------
+        xy1, xy2 : (float, float)
+            Points for the line to pass through.
+
+        Returns
+        -------
+        :class:`~matplotlib.lines.Line2D`
+
+        Other Parameters
+        ----------------
+        **kwargs
+            Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
+            with the exception of 'transform':
+
+            %(_Line2D_docstr)s
+
+        Examples
+        --------
+        Draw a thick red line passing through (0, 0) and (1, 1)::
+
+            >>> axline((0, 0), (1, 1), linewidth=4, color='r')
+
+        See Also
+        --------
+        axhline : for horizontal lines
+        axvline : for vertical lines
+        """
+
+        if "transform" in kwargs:
+            raise TypeError("'transform' is not allowed as a kwarg; "
+                            "axline generates its own transform")
+        x1, y1 = xy1
+        x2, y2 = xy2
+        line = mlines._AxLine([x1, x2], [y1, y2], **kwargs)
+        # Like add_line, but correctly handling data limits.
+        self._set_artist_props(line)
+        if line.get_clip_path() is None:
+            line.set_clip_path(self.patch)
+        if not line.get_label():
+            line.set_label(f"_line{len(self.lines)}")
+        self.lines.append(line)
+        line._remove_method = self.lines.remove
+        self.update_datalim([xy1, xy2])
+
+        self._request_autoscale_view()
+        return line
 
     @docstring.dedent_interpd
     def axhspan(self, ymin, ymax, xmin=0, xmax=1, **kwargs):

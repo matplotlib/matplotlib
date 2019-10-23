@@ -87,6 +87,7 @@ Spans
    Axes.axhspan
    Axes.axvline
    Axes.axvspan
+   Axes.axline
 
 Spectral
 --------
