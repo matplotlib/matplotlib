@@ -5,7 +5,7 @@ Behaviour changes
 ~~~~~~~~~~~~~~~~~~~~~~~
 `.Formatter.fix_minus` now performs hyphen-to-unicode-minus replacement
 whenever :rc:`axes.unicode_minus` is True; i.e. its behavior matches the one
-of ``.ScalarFormatter.fix_minus`` (`.ScalarFormatter` now just inherits that
+of ``ScalarFormatter.fix_minus`` (`.ScalarFormatter` now just inherits that
 implementation).
 
 This replacement is now used by the ``format_data_short`` method of the various
@@ -25,3 +25,8 @@ callbacks when no interactive GUI event loop is running.  If a GUI event loop
 *is* running, `.cbook.CallbackRegistry` still defaults to just printing a
 traceback, as unhandled exceptions can make the program completely ``abort()``
 in that case.
+
+``Axes.locator_params()`` validates ``axis`` parameter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`.axes.Axes.locator_params` used to accept any value for ``axis`` and silently
+did nothing, when passed an unsupported value. It now raises a ``ValueError``.
