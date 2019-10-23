@@ -1,10 +1,6 @@
 {% extends "!layout.html" %}
 
 {%- block rootrellink %}
-        <li><a href="{{ pathto('index') }}">home</a>|&nbsp;</li>
-        <li><a href="{{ pathto('gallery/index') }}">examples</a>|&nbsp;</li>
-        <li><a href="{{ pathto('tutorials/index') }}">tutorials</a>|&nbsp;</li>
-        <li><a href="{{ pathto('api/index') }}">API</a>|&nbsp;</li>
         <li><a href="{{ pathto('contents') }}">contents</a> &raquo;</li>
 {%- endblock %}
 
@@ -45,6 +41,16 @@
     <!-- The "Fork me on github" ribbon -->
     <div id="forkongithub"><a href="https://github.com/matplotlib/matplotlib">Fork me on GitHub</a></div>
     </div>
+
+    <nav class="main-nav">
+        <ul>
+           <li><a href="{{ pathto('tutorials/index') }}">Tutorials</a></li>
+           <li><a href="{{ pathto('gallery/index') }}">Sample Plots</a></li>
+           <li><a href="{{ pathto('devel/index') }}">Contributing</a></li>
+           <li><a href="{{ pathto('contents') }}">Documentation</a></li>
+           <li><a href="{{ pathto('users/installing') }}">Installation</a></li>
+        </ul>
+     </nav>
 {%- endblock %}
 
 {%- block sidebar1 %}{{ sidebar() }}{% endblock %}
