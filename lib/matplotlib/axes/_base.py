@@ -3412,10 +3412,15 @@ class _AxesBase(martist.Artist):
         """
         Set the x-tick labels with list of string labels.
 
+        .. warning::
+            This method should only be used after fixing the tick positions
+            using `~.axes.Axes.set_xticks`. Otherwise, the labels may end up
+            in unexpected positions.
+
         Parameters
         ----------
-        labels : List[str]
-            List of string labels.
+        labels : list of str
+            The label texts.
 
         fontdict : dict, optional
             A dictionary controlling the appearance of the ticklabels.
@@ -3426,12 +3431,13 @@ class _AxesBase(martist.Artist):
                 'verticalalignment': 'baseline',
                 'horizontalalignment': loc}
 
-        minor : bool, optional
+        minor : bool, default: False
             Whether to set the minor ticklabels rather than the major ones.
 
         Returns
         -------
-        A list of `~.text.Text` instances.
+        labels : list of `~.Text`
+            The labels.
 
         Other Parameters
         -----------------
@@ -3792,12 +3798,17 @@ class _AxesBase(martist.Artist):
 
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        Set the y-tick labels with list of strings labels.
+        Set the y-tick labels with list of string labels.
+
+        .. warning::
+            This method should only be used after fixing the tick positions
+            using `~.axes.Axes.set_yticks`. Otherwise, the labels may end up
+            in unexpected positions.
 
         Parameters
         ----------
-        labels : List[str]
-            list of string labels
+        labels : list of str
+            The label texts.
 
         fontdict : dict, optional
             A dictionary controlling the appearance of the ticklabels.
@@ -3808,12 +3819,13 @@ class _AxesBase(martist.Artist):
                 'verticalalignment': 'baseline',
                 'horizontalalignment': loc}
 
-        minor : bool, optional
+        minor : bool, default: False
             Whether to set the minor ticklabels rather than the major ones.
 
         Returns
         -------
-        A list of `~.text.Text` instances.
+        labels
+            A list of `~.text.Text` instances.
 
         Other Parameters
         ----------------

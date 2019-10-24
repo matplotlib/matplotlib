@@ -1632,6 +1632,11 @@ class Axis(martist.Artist):
         formatter : `~matplotlib.ticker.Formatter`
         """
         cbook._check_isinstance(mticker.Formatter, formatter=formatter)
+        if (isinstance(formatter, mticker.FixedFormatter)
+                and len(formatter.seq) > 0
+                and not isinstance(self.major.locator, mticker.FixedLocator)):
+            cbook._warn_external('FixedFormatter should only be used together '
+                                 'with FixedLocator')
         self.isDefault_majfmt = False
         self.major.formatter = formatter
         formatter.set_axis(self)
@@ -1646,6 +1651,11 @@ class Axis(martist.Artist):
         formatter : `~matplotlib.ticker.Formatter`
         """
         cbook._check_isinstance(mticker.Formatter, formatter=formatter)
+        if (isinstance(formatter, mticker.FixedFormatter)
+                and len(formatter.seq) > 0
+                and not isinstance(self.minor.locator, mticker.FixedLocator)):
+            cbook._warn_external('FixedFormatter should only be used together '
+                                 'with FixedLocator')
         self.isDefault_minfmt = False
         self.minor.formatter = formatter
         formatter.set_axis(self)
@@ -1697,6 +1707,11 @@ class Axis(martist.Artist):
         r"""
         Set the text values of the tick labels.
 
+        .. warning::
+            This method should only be used after fixing the tick positions
+            using `.Axis.set_ticks`. Otherwise, the labels may end up in
+            unexpected positions.
+
         Parameters
         ----------
         ticklabels : sequence of str or of `Text`\s
@@ -1718,18 +1733,8 @@ class Axis(martist.Artist):
                 "3.1", message="Additional positional arguments to "
                 "set_ticklabels are ignored, and deprecated since Matplotlib "
                 "3.1; passing them will raise a TypeError in Matplotlib 3.3.")
-        get_labels = []
-        for t in ticklabels:
-            # try calling get_text() to check whether it is Text object
-            # if it is Text, get label content
-            try:
-                get_labels.append(t.get_text())
-            # otherwise add the label to the list directly
-            except AttributeError:
-                get_labels.append(t)
-        # replace the ticklabels list with the processed one
-        ticklabels = get_labels
-
+        ticklabels = [t.get_text() if hasattr(t, 'get_text') else t
+                      for t in ticklabels]
         if minor:
             self.set_minor_formatter(mticker.FixedFormatter(ticklabels))
             ticks = self.get_minor_ticks()

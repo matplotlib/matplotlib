@@ -345,6 +345,11 @@ class NullFormatter(Formatter):
 class FixedFormatter(Formatter):
     """
     Return fixed strings for tick labels based only on position, not value.
+
+    .. note::
+        `.FixedFormatter` should only be used together with `.FixedLocator`.
+        Otherwise, the labels may end up in unexpected positions.
+
     """
     def __init__(self, seq):
         """
