@@ -188,6 +188,8 @@ def switch_backend(newbackend):
     newbackend : str
         The name of the backend to use.
     """
+    global _backend_mod
+
     close("all")
 
     if newbackend is rcsetup._auto_backend_sentinel:
@@ -211,14 +213,12 @@ def switch_backend(newbackend):
             return
 
     backend_name = cbook._backend_module_name(newbackend)
-    backend_mod = importlib.import_module(backend_name)
-    Backend = type(
-        "Backend", (matplotlib.backend_bases._Backend,), vars(backend_mod))
-    _log.debug("Loaded backend %s version %s.",
-               newbackend, Backend.backend_version)
+
+    class backend_mod(matplotlib.backend_bases._Backend):
+        locals().update(vars(importlib.import_module(backend_name)))
 
     required_framework = getattr(
-        Backend.FigureCanvas, "required_interactive_framework", None)
+        backend_mod.FigureCanvas, "required_interactive_framework", None)
     if required_framework is not None:
         current_framework = cbook._get_running_interactive_framework()
         if (current_framework and required_framework
@@ -228,23 +228,30 @@ def switch_backend(newbackend):
                 "framework, as {!r} is currently running".format(
                     newbackend, required_framework, current_framework))
 
-    # Update both rcParams and rcDefaults so restoring the defaults later with
-    # rcdefaults won't change the backend.  A bit of overkill as 'backend' is
-    # already in style.core.STYLE_BLACKLIST, but better to be safe.
-    rcParams['backend'] = rcParamsDefault['backend'] = newbackend
+    _log.debug("Loaded backend %s version %s.",
+               newbackend, backend_mod.backend_version)
 
-    global _backend_mod, new_figure_manager, draw_if_interactive, _show
+    rcParams['backend'] = rcParamsDefault['backend'] = newbackend
     _backend_mod = backend_mod
-    new_figure_manager = Backend.new_figure_manager
-    draw_if_interactive = Backend.draw_if_interactive
-    _show = Backend.show
+    for func_name in ["new_figure_manager", "draw_if_interactive", "show"]:
+        globals()[func_name].__signature__ = inspect.signature(
+            getattr(backend_mod, func_name))
 
     # Need to keep a global reference to the backend for compatibility reasons.
     # See https://github.com/matplotlib/matplotlib/issues/6092
     matplotlib.backends.backend = newbackend
 
 
-def show(*args, **kw):
+def new_figure_manager(*args, **kwargs):
+    """Create a new figure manager instance."""
+    return _backend_mod.new_figure_manager(*args, **kwargs)
+
+
+def draw_if_interactive(*args, **kwargs):
+    return _backend_mod.draw_if_interactive(*args, **kwargs)
+
+
+def show(*args, **kwargs):
     """
     Display all figures.
 
@@ -263,8 +270,7 @@ def show(*args, **kw):
         This is experimental, and may be set to ``True`` or ``False`` to
         override the blocking behavior described above.
     """
-    global _show
-    return _show(*args, **kw)
+    return _backend_mod.show(*args, **kwargs)
 
 
 def isinteractive():
