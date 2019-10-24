@@ -26,6 +26,10 @@ from numbers import Number
 import re
 import sys
 import time
+try:
+    import threading
+except ImportError:
+    import dummy_threading as threading
 
 from cycler import cycler
 import matplotlib
@@ -175,6 +179,11 @@ def findobj(o=None, match=None, include_self=True):
     return o.findobj(match, include_self=include_self)
 
 
+def _get_required_interactive_framework(backend_mod):
+    return getattr(
+        backend_mod.FigureCanvas, "required_interactive_framework", None)
+
+
 def switch_backend(newbackend):
     """
     Close all open figures and set the Matplotlib backend.
@@ -217,8 +226,7 @@ def switch_backend(newbackend):
     class backend_mod(matplotlib.backend_bases._Backend):
         locals().update(vars(importlib.import_module(backend_name)))
 
-    required_framework = getattr(
-        backend_mod.FigureCanvas, "required_interactive_framework", None)
+    required_framework = _get_required_interactive_framework(backend_mod)
     if required_framework is not None:
         current_framework = cbook._get_running_interactive_framework()
         if (current_framework and required_framework
@@ -242,8 +250,17 @@ def switch_backend(newbackend):
     matplotlib.backends.backend = newbackend
 
 
+def _warn_if_gui_out_of_main_thread():
+    if (_get_required_interactive_framework(_backend_mod)
+            and threading.current_thread() is not threading.main_thread()):
+        cbook._warn_external(
+            "Starting a Matplotlib GUI outside of the main thread will likely "
+            "fail.")
+
+
 def new_figure_manager(*args, **kwargs):
     """Create a new figure manager instance."""
+    _warn_if_gui_out_of_main_thread()
     return _backend_mod.new_figure_manager(*args, **kwargs)
 
 
@@ -270,6 +287,7 @@ def show(*args, **kwargs):
         This is experimental, and may be set to ``True`` or ``False`` to
         override the blocking behavior described above.
     """
+    _warn_if_gui_out_of_main_thread()
     return _backend_mod.show(*args, **kwargs)
 
 
