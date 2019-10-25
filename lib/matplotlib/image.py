@@ -822,6 +822,27 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
 
 class AxesImage(_ImageBase):
+    """
+    Parameters
+    ----------
+    cmap : colors.Colormap
+    norm : colors.Normalize
+        Maps luminance to 0-1
+    origin :
+    extent : tuple
+        The data axes (left, right, bottom, top) for making image plots
+        registered with data plots.  Default is to label the pixel
+        centers with the zero-based row and column indices.
+    filternorm :
+    filterrad :
+    resample : bool
+    **kwargs :
+        Additional kwargs are matplotlib.artist properties.
+
+    Notes
+    -----
+    interpolation and cmap default to their rc settings
+    """
     def __str__(self):
         return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
 
@@ -836,19 +857,6 @@ class AxesImage(_ImageBase):
                  resample=False,
                  **kwargs
                  ):
-        """
-        interpolation and cmap default to their rc settings
-
-        cmap is a colors.Colormap instance
-        norm is a colors.Normalize instance to map luminance to 0-1
-
-        extent is data axes (left, right, bottom, top) for making image plots
-        registered with data plots.  Default is to label the pixel
-        centers with the zero-based row and column indices.
-
-        Additional kwargs are matplotlib.artist properties
-
-        """
 
         self._extent = extent
 
