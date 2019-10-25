@@ -2244,8 +2244,8 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 # requested, ignore rcParams['backend'] and force selection of a backend that
 # is compatible with the current running interactive framework.
 if (rcParams["backend_fallback"]
-        and dict.__getitem__(rcParams, "backend") in [
-            k for k in _interactive_bk if k not in ['WebAgg', 'nbAgg']]
+        and dict.__getitem__(rcParams, "backend") in (
+            set(_interactive_bk) - {'WebAgg', 'nbAgg'})
         and cbook._get_running_interactive_framework()):
     dict.__setitem__(rcParams, "backend", rcsetup._auto_backend_sentinel)
 # Set up the backend.
