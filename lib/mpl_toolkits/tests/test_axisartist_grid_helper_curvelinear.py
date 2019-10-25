@@ -206,8 +206,8 @@ def test_axis_direction():
     axis.major_ticklabels.set_axis_direction("top")
     axis.label.set_axis_direction("top")
 
-    grid_helper.grid_finder.grid_locator1.den = 5
-    grid_helper.grid_finder.grid_locator2._nbins = 5
+    grid_helper.grid_finder.grid_locator1.set_params(nbins=5)
+    grid_helper.grid_finder.grid_locator2.set_params(nbins=5)
 
     ax1.set_aspect(1.)
     ax1.set_xlim(-8, 8)

@@ -22,3 +22,10 @@ logging.
 These attributes are deprecated, for consistency with ``AxesImage.is_grayscale``,
 which was removed back in Matplotlib 2.0.0.  (Note that previously, these
 attributes were only available *after rendering the image*).
+
+``den`` parameter and attribute to :mod:`mpl_toolkits.axisartist.angle_helper`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+For all locator classes defined in :mod:`mpl_toolkits.axisartist.angle_helper`,
+the ``den`` parameter has been renamed to ``nbins``, and the ``den`` attribute
+deprecated in favor of its (preexisting) synonym ``nbins``, for consistency
+with locator classes defined in :mod:`matplotlib.ticker`.
