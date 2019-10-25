@@ -3,6 +3,26 @@
  * Originally created by Armin Ronacher for Werkzeug, adapted by Georg Brandl.
  */
 
+/* Carlogo font (simmilar to Calibri in the MPL logo) */
+@font-face {
+    font-family: 'CarlogoRegular';
+    font-style: normal;
+    src:    local('Carlito'),
+            url('fonts/carlogo-regular.woff2') format('woff2'), 
+            url('fonts/carlogo-regular.woff') format('woff'),
+            url('fonts/carlogo-regular.ttf') format('truetype')
+}
+
+@font-face {
+    font-family: 'CarlogoBold';
+    font-style: bold;
+    src:    local('Carlito Bold'),
+            url('fonts/carlogo-bold.woff2') format('woff2'), 
+            url('fonts/carlogo-bold.woff') format('woff'),
+            url('fonts/carlogo-bold.ttf') format('truetype')
+}
+
+
 body {
     font-family: "Helvetica Neue", Helvetica, 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
     font-size: 14px;
@@ -310,6 +330,11 @@ h3 {
     margin: 0.2em 0 0.1em 0;
     padding-top: 0.5em;
     font-size: 1.2em;
+}
+
+h1, h2, h3, h4, h5, h6{
+    font-family: 'CarlogoBold', 'Carlito-bold', sans-serif;
+    font-weight: normal;
 }
 
 h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
@@ -1122,10 +1147,8 @@ div.viewcode-block:target {
 /* new main nav */
 nav.main-nav{
     background-color: #002b47;
-    font-family: Calibri, 'Carlito', 'Gill Sans', 'Gill Sans MT', 'Trebuchet MS', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 12px;
+    font-family: 'CarlogoRegular', 'Carlito', sans-serif;
+    font-size: 16px;
   }
   
   nav.main-nav ul{
