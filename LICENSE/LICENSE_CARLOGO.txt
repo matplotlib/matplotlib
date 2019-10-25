@@ -1,3 +1,5 @@
+----> we renamed carlito -> carlogo to comply with the terms <----
+
 Copyright (c) 2010-2013 by tyPoland Lukasz Dziedzic with Reserved Font Name "Carlito".
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
