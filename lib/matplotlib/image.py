@@ -176,11 +176,10 @@ def _resample(
     if interpolation == 'antialiased':
         # don't antialias if upsampling by an integer number or
         # if zooming in more than a factor of 3
-        shape = list(data.shape)
-        if image_obj.origin == 'upper':
-            shape[0] = 0
-        dispx, dispy = transform.transform([shape[1], shape[0]])
-
+        pos = np.array([[0, 0], [data.shape[1], data.shape[0]]])
+        disp = transform.transform(pos)
+        dispx = np.abs(np.diff(disp[:, 0]))
+        dispy = np.abs(np.diff(disp[:, 1]))
         if ((dispx > 3 * data.shape[1] or
                 dispx == data.shape[1] or
                 dispx == 2 * data.shape[1]) and
@@ -190,7 +189,6 @@ def _resample(
             interpolation = 'nearest'
         else:
             interpolation = 'hanning'
-
     out = np.zeros(out_shape + data.shape[2:], data.dtype)  # 2D->2D, 3D->3D.
     if resample is None:
         resample = image_obj.get_resample()
