@@ -11,7 +11,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
 from matplotlib.testing.decorators import image_comparison, _image_directories
-from matplotlib.backends.backend_pgf import PdfPages
+from matplotlib.backends.backend_pgf import PdfPages, common_texification
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
@@ -79,6 +79,17 @@ def create_figure():
 
     plt.xlim(0, 1)
     plt.ylim(0, 1)
+
+
+@pytest.mark.parametrize('plain_text, escaped_text', [
+    ('cats & dogs', r'cats \& dogs'),
+    ('with_underscores', r'with\_underscores'),
+    ('PR #15530', r'PR \#15530'),
+    ('% not a {comment}', r'\% not a \{comment\}'),
+    ('^not', r'\^not'),
+])
+def test_common_texification(plain_text, escaped_text):
+    assert common_texification(plain_text) == escaped_text
 
 
 # test compiling a figure to pdf with xelatex

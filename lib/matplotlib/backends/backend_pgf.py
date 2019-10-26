@@ -87,7 +87,7 @@ def repl_mathdefault(m):
 _replace_escapetext = functools.partial(
     # When the next character is _, ^, $, or % (not preceded by an escape),
     # insert a backslash.
-    re.compile(NO_ESCAPE + "(?=[_^$%])").sub, "\\\\")
+    re.compile(NO_ESCAPE + "(?=[_^$%#{}&])").sub, "\\\\")
 _replace_mathdefault = functools.partial(
     # Replace \mathdefault (when not preceded by an escape) by empty string.
     re.compile(NO_ESCAPE + r"(\\mathdefault)").sub, "")
