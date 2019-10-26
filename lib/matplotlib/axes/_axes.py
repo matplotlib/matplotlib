@@ -5425,15 +5425,21 @@ optional.
                origin=None, extent=None, shape=None, filternorm=1,
                filterrad=4.0, imlim=None, resample=None, url=None, **kwargs):
         """
-        Display an image, i.e. data on a 2D regular raster.
+        Display data as an image; i.e. on a 2D regular raster.
+
+        The input may either be actual RGB(A) data, or 2D scalar data, which
+        will be rendered as a pseudocolor image. Note: For actually displaying
+        a grayscale image set up the color mapping using the parameters
+        ``cmap='gray', vmin=0, vmax=255``.
 
         Parameters
         ----------
         X : array-like or PIL image
             The image data. Supported array shapes are:
 
-            - (M, N): an image with scalar data. The data is visualized
-              using a colormap.
+            - (M, N): an image with scalar data. The values are mapped to
+              colors using normalization and a colormap. See parameters *norm*,
+              *cmap*, *vmin*, *vmax*.
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
