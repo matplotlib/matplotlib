@@ -1164,11 +1164,9 @@ nav.main-nav{
   }
   
   nav.main-nav a{
-    color: rgba(256, 256, 256, .8);
-    transform: color .2s ease-in-out;
+    color: white;
   }
   
   nav.main-nav a:hover{
-    color: white;
     text-decoration: underline;
   }
