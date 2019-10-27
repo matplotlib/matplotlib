@@ -111,7 +111,7 @@ matplotlib-scalebar
 It is particularly useful when displaying calibrated images plotted using ``plt.imshow(...)``.
 
 .. image:: /_static/gold_on_carbon.png
-    :height: 400px
+    :height: 200px
 
 Matplotlib-Venn
 ===============
