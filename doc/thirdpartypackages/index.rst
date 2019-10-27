@@ -104,6 +104,15 @@ DeCiDa
 and classes for electron device characterization, electronic circuit design and
 general data visualization and analysis.
 
+matplotlib-scalebar
+===================
+
+`matplotlib-scalebar <https://github.com/ppinard/matplotlib-scalebar>`_ provides a new artist to display a scale bar, aka micron bar.
+It is particularly useful when displaying calibrated images plotted using ``plt.imshow(...)``.
+
+.. image:: /_static/gold_on_carbon.png
+    :height: 400px
+
 Matplotlib-Venn
 ===============
 `Matplotlib-Venn <https://github.com/konstantint/matplotlib-venn>`_ provides a
@@ -275,4 +284,4 @@ existing table. See the `blume github repository
 <https://github.com/swfiua/blume>`_ for more details.
 
 .. image:: /_static/blume_table_example.png
-           
+
