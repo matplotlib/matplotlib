@@ -21,7 +21,8 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         super().__init__(figure=figure)
 
     def paintEvent(self, event):
-        """Copy the image from the Agg canvas to the qt.drawable.
+        """
+        Copy the image from the Agg canvas to the qt.drawable.
 
         In Qt, all drawing should be done inside of here when a widget is
         shown onscreen.
@@ -78,8 +79,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         painter.end()
 
     def blit(self, bbox=None):
-        """Blit the region in bbox.
-        """
+        # docstring inherited
         # If bbox is None, blit the entire canvas. Otherwise
         # blit only the area defined by the bbox.
         if bbox is None and self.figure:

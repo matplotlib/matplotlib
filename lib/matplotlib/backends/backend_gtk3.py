@@ -51,8 +51,8 @@ except TypeError as exc:
 
 
 class TimerGTK3(TimerBase):
-    '''
-    Subclass of :class:`backend_bases.TimerBase` using GTK3 for timer events.
+    """
+    Subclass of `.TimerBase` using GTK3 for timer events.
 
     Attributes
     ----------
@@ -65,8 +65,8 @@ class TimerGTK3(TimerBase):
         Stores list of (func, args) tuples that will be called upon timer
         events. This list can be manipulated directly, or the functions
         `add_callback` and `remove_callback` can be used.
+    """
 
-    '''
     def _timer_start(self):
         # Need to stop it, otherwise we potentially leak a timer id that will
         # never be stopped.
