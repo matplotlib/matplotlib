@@ -7,12 +7,12 @@ The axisartist toolkit tutorial.
 
 .. warning::
    *axisartist* uses a custom Axes class
-   (derived from the mpl's original Axes class).
+   (derived from the Matplotlib's original Axes class).
    As a side effect, some commands (mostly tick-related) do not work.
 
 The *axisartist* contains a custom Axes class that is meant to support
 curvilinear grids (e.g., the world coordinate system in astronomy).
-Unlike mpl's original Axes class which uses Axes.xaxis and Axes.yaxis
+Unlike Matplotlib's original Axes class which uses Axes.xaxis and Axes.yaxis
 to draw ticks, ticklines, etc., axisartist uses a special
 artist (AxisArtist) that can handle ticks, ticklines, etc. for
 curved coordinate systems.
@@ -141,11 +141,11 @@ axisartist namespace
 
 The *axisartist* namespace includes a derived Axes implementation. The
 biggest difference is that the artists responsible to draw axis line,
-ticks, ticklabel and axis labels are separated out from the mpl's Axis
-class, which are much more than artists in the original mpl. This
+ticks, ticklabel and axis labels are separated out from the Matplotlib's Axis
+class, which are much more than artists in the original Matplotlib. This
 change was strongly motivated to support curvilinear grid. Here are a
 few things that mpl_toolkits.axisartist.Axes is different from original
-Axes from mpl.
+Axes from Matplotlib.
 
 * Axis elements (axis line(spine), ticks, ticklabel and axis labels)
   are drawn by a AxisArtist instance. Unlike Axis, left, right, top
@@ -187,8 +187,8 @@ In both AxisArtist and Gridlines, the calculation of tick and grid
 location is delegated to an instance of GridHelper class.
 mpl_toolkits.axisartist.Axes class uses GridHelperRectlinear as a grid
 helper. The GridHelperRectlinear class is a wrapper around the *xaxis*
-and *yaxis* of mpl's original Axes, and it was meant to work as the
-way how mpl's original axes works. For example, tick location changes
+and *yaxis* of Matplotlib's original Axes, and it was meant to work as the
+way how Matplotlib's original axes works. For example, tick location changes
 using set_ticks method and etc. should work as expected. But change in
 artist properties (e.g., color) will not work in general, although
 some effort has been made so that some often-change attributes (color,
@@ -209,12 +209,12 @@ attributes which will draw ticks, labels, etc.
 line
 ----
 
-Derived from Line2d class. Responsible for drawing a spinal(?) line.
+Derived from Line2D class. Responsible for drawing a spinal(?) line.
 
 major_ticks, minor_ticks
 ------------------------
 
-Derived from Line2d class. Note that ticks are markers.
+Derived from Line2D class. Note that ticks are markers.
 
 major_ticklabels, minor_ticklabels
 ----------------------------------
@@ -288,7 +288,7 @@ HowTo
 
 1. Changing tick locations and label.
 
-  Same as the original mpl's axes.::
+  Same as the original Matplotlib's axes.::
 
    ax.set_xticks([1, 2, 3])
 
@@ -529,7 +529,7 @@ transform of the axes itself (ax.transData) is still rectilinear
 
     fig.add_subplot(ax1)
 
-You may use matplotlib's Transform instance instead (but a
+You may use Matplotlib's Transform instance instead (but a
 inverse transformation must be defined). Often, coordinate range in a
 curved coordinate system may have a limited range, or may have
 cycles. In those cases, a more customized version of grid helper is
@@ -557,10 +557,10 @@ required. ::
     # minute, second). The argument is a approximate number of grids.
     grid_locator1 = angle_helper.LocatorDMS(12)
 
-    # And also uses an appropriate formatter.  Note that the
-    # acceptable Locator and Formatter classes are different than
-    # that of mpl's, and you cannot directly use mpl's Locator and
-    # Formatter here (but may be possible in the future).
+    # And also uses an appropriate formatter.  Note that the acceptable Locator
+    # and Formatter classes are different than that of Matplotlib's, and you
+    # cannot directly use Matplotlib's Locator and Formatter here (but may be
+    # possible in the future).
     tick_formatter1 = angle_helper.FormatterDMS()
 
     grid_helper = GridHelperCurveLinear(tr,
