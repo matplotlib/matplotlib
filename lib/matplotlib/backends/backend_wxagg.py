@@ -33,10 +33,7 @@ class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
         self.gui_repaint(drawDC=drawDC, origin='WXAgg')
 
     def blit(self, bbox=None):
-        """
-        Transfer the region of the agg buffer defined by bbox to the display.
-        If bbox is None, the entire buffer is transferred.
-        """
+        # docstring inherited
         if bbox is None:
             self.bitmap = _convert_agg_to_wx_bitmap(self.get_renderer(), None)
             self.gui_repaint()

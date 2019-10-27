@@ -19,9 +19,9 @@ from matplotlib.widgets import SubplotTool
 
 
 class TimerMac(_macosx.Timer, TimerBase):
-    '''
-    Subclass of :class:`backend_bases.TimerBase` that uses CoreFoundation
-    run loops for timer events.
+    """
+    Subclass of `.TimerBase` that uses CoreFoundation run loops for timer
+    events.
 
     Attributes
     ----------
@@ -34,8 +34,7 @@ class TimerMac(_macosx.Timer, TimerBase):
         Stores list of (func, args) tuples that will be called upon timer
         events. This list can be manipulated directly, or the functions
         `add_callback` and `remove_callback` can be used.
-
-    '''
+    """
     # completely implemented at the C-level (in _macosx.Timer)
 
 
