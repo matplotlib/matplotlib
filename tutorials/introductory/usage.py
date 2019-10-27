@@ -350,6 +350,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #    use a different backend.  Therefore, you should avoid explicitly calling
 #    `~matplotlib.use` unless absolutely necessary.
 #
+# .. _the-builtin-backends:
 #
 # The builtin backends
 # --------------------

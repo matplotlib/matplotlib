@@ -1951,18 +1951,35 @@ class FigureCanvasBase:
             groupings[name].sort()
         return groupings
 
-    def _get_output_canvas(self, fmt):
+    def _get_output_canvas(self, backend, fmt):
         """
-        Return a canvas suitable for saving figures to a specified file format.
+        Set the canvas in preparation for saving the figure.
 
-        If necessary, this function will switch to a registered backend that
-        supports the format.
+        Parameters
+        ----------
+        backend : str or None
+            If not None, switch the figure canvas to the ``FigureCanvas`` class
+            of the given backend.
+        fmt : str
+            If *backend* is None, then determine a suitable canvas class for
+            saving to format *fmt* -- either the current canvas class, if it
+            supports *fmt*, or whatever `get_registered_canvas_class` returns;
+            switch the figure canvas to that canvas class.
         """
-        # Return the current canvas if it supports the requested format.
-        if hasattr(self, 'print_{}'.format(fmt)):
+        if backend is not None:
+            # Return a specific canvas class, if requested.
+            canvas_class = (
+                importlib.import_module(cbook._backend_module_name(backend))
+                .FigureCanvas)
+            if not hasattr(canvas_class, f"print_{fmt}"):
+                raise ValueError(
+                    f"The {backend!r} backend does not support {fmt} output")
+        elif hasattr(self, f"print_{fmt}"):
+            # Return the current canvas if it supports the requested format.
             return self
-        # Return a default canvas for the requested format, if it exists.
-        canvas_class = get_registered_canvas_class(fmt)
+        else:
+            # Return a default canvas for the requested format, if it exists.
+            canvas_class = get_registered_canvas_class(fmt)
         if canvas_class:
             return self.switch_backends(canvas_class)
         # Else report error for unsupported format.
@@ -1972,7 +1989,7 @@ class FigureCanvasBase:
 
     def print_figure(self, filename, dpi=None, facecolor=None, edgecolor=None,
                      orientation='portrait', format=None,
-                     *, bbox_inches=None, **kwargs):
+                     *, bbox_inches=None, backend=None, **kwargs):
         """
         Render the figure to hardcopy. Set the figure patch face and edge
         colors.  This is useful because some of the GUIs have a gray figure
@@ -2012,6 +2029,13 @@ class FigureCanvasBase:
             A list of extra artists that will be considered when the
             tight bbox is calculated.
 
+        backend : str, optional
+            Use a non-default backend to render the file, e.g. to render a
+            png file with the "cairo" backend rather than the default "agg",
+            or a pdf file with the "pgf" backend rather than the default
+            "pdf".  Note that the default backend is normally sufficient.  See
+            :ref:`the-builtin-backends` for a list of valid backends for each
+            file format.  Custom backends can be referenced as "module://...".
         """
         if format is None:
             # get format from filename, or from backend's default filetype
@@ -2026,7 +2050,7 @@ class FigureCanvasBase:
         format = format.lower()
 
         # get canvas object and print method for format
-        canvas = self._get_output_canvas(format)
+        canvas = self._get_output_canvas(backend, format)
         print_method = getattr(canvas, 'print_%s' % format)
 
         if dpi is None:

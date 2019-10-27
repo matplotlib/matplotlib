@@ -2131,6 +2131,14 @@ default: 'top'
             A list of extra artists that will be considered when the
             tight bbox is calculated.
 
+        backend : str, optional
+            Use a non-default backend to render the file, e.g. to render a
+            png file with the "cairo" backend rather than the default "agg",
+            or a pdf file with the "pgf" backend rather than the default
+            "pdf".  Note that the default backend is normally sufficient.  See
+            :ref:`the-builtin-backends` for a list of valid backends for each
+            file format.  Custom backends can be referenced as "module://...".
+
         metadata : dict, optional
             Key/value pairs to store in the image metadata. The supported keys
             and defaults depend on the image format and backend:
