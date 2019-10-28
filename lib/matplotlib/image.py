@@ -218,6 +218,19 @@ def _rgb_to_rgba(A):
 
 
 class _ImageBase(martist.Artist, cm.ScalarMappable):
+    """
+    interpolation and cmap default to their rc settings
+
+    cmap is a colors.Colormap instance
+    norm is a colors.Normalize instance to map luminance to 0-1
+
+    extent is data axes (left, right, bottom, top) for making image plots
+    registered with data plots.  Default is to label the pixel
+    centers with the zero-based row and column indices.
+
+    Additional kwargs are matplotlib.artist properties
+
+    """
     zorder = 0
 
     def __init__(self, ax,
@@ -230,19 +243,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                  resample=False,
                  **kwargs
                  ):
-        """
-        interpolation and cmap default to their rc settings
-
-        cmap is a colors.Colormap instance
-        norm is a colors.Normalize instance to map luminance to 0-1
-
-        extent is data axes (left, right, bottom, top) for making image plots
-        registered with data plots.  Default is to label the pixel
-        centers with the zero-based row and column indices.
-
-        Additional kwargs are matplotlib.artist properties
-
-        """
         martist.Artist.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
         self._mouseover = True
