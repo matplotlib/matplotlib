@@ -46,11 +46,6 @@ particularly when combined with IPython.  For the power user, you have full
 control of line styles, font properties, axes properties, etc, via an object
 oriented interface or via a set of functions familiar to MATLAB users.
 
-Installation
-------------
-
-Visit the :doc:`Matplotlib installation instructions <users/installing>`.
-
 Documentation
 -------------
 
