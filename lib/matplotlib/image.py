@@ -871,7 +871,7 @@ class AxesImage(_ImageBase):
                  interpolation=None,
                  origin=None,
                  extent=None,
-                 filternorm=1,
+                 filternorm=True,
                  filterrad=4.0,
                  resample=False,
                  **kwargs
@@ -1327,7 +1327,7 @@ class BboxImage(_ImageBase):
                  norm=None,
                  interpolation=None,
                  origin=None,
-                 filternorm=1,
+                 filternorm=True,
                  filterrad=4.0,
                  resample=False,
                  interp_at_native=True,

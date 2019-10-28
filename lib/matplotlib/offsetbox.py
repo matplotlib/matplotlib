@@ -1325,7 +1325,7 @@ class OffsetImage(OffsetBox):
                  norm=None,
                  interpolation=None,
                  origin=None,
-                 filternorm=1,
+                 filternorm=True,
                  filterrad=4.0,
                  resample=False,
                  dpi_cor=True,
