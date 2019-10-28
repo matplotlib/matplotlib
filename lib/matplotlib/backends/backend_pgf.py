@@ -254,21 +254,21 @@ class LatexManager:
             latex_manager._cleanup()
 
     def _stdin_writeln(self, s):
-        self.latex_stdin_utf8.write(s)
-        self.latex_stdin_utf8.write("\n")
-        self.latex_stdin_utf8.flush()
+        self.latex.stdin.write(s)
+        self.latex.stdin.write("\n")
+        self.latex.stdin.flush()
 
     def _expect(self, s):
-        exp = s.encode("utf8")
-        buf = bytearray()
+        s = list(s)
+        chars = []
         while True:
-            b = self.latex.stdout.read(1)
-            buf += b
-            if buf[-len(exp):] == exp:
+            c = self.latex.stdout.read(1)
+            chars.append(c)
+            if chars[-len(s):] == s:
                 break
-            if not len(b):
-                raise LatexError("LaTeX process halted", buf.decode("utf8"))
-        return buf.decode("utf8")
+            if not c:
+                raise LatexError("LaTeX process halted", "".join(chars))
+        return "".join(chars)
 
     def _expect_prompt(self):
         return self._expect("\n*")
@@ -287,10 +287,10 @@ class LatexManager:
         self.latex_header = LatexManager._build_latex_header()
         latex_end = "\n\\makeatletter\n\\@@end\n"
         try:
-            latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
-                                     stdin=subprocess.PIPE,
-                                     stdout=subprocess.PIPE,
-                                     cwd=self.tmpdir)
+            latex = subprocess.Popen(
+                [self.texcommand, "-halt-on-error"],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                encoding="utf-8", cwd=self.tmpdir)
         except FileNotFoundError:
             raise RuntimeError(
                 "Latex command not found. Install %r or change "
@@ -298,17 +298,16 @@ class LatexManager:
         except OSError:
             raise RuntimeError("Error starting process %r" % self.texcommand)
         test_input = self.latex_header + latex_end
-        stdout, stderr = latex.communicate(test_input.encode("utf-8"))
+        stdout, stderr = latex.communicate(test_input)
         if latex.returncode != 0:
             raise LatexError("LaTeX returned an error, probably missing font "
                              "or error in preamble:\n%s" % stdout)
 
         # open LaTeX process for real work
-        latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
-                                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                 cwd=self.tmpdir)
-        self.latex = latex
-        self.latex_stdin_utf8 = codecs.getwriter("utf8")(self.latex.stdin)
+        self.latex = subprocess.Popen(
+            [self.texcommand, "-halt-on-error"],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            encoding="utf-8", cwd=self.tmpdir)
         # write header with 'pgf_backend_query_start' token
         self._stdin_writeln(self._build_latex_header())
         # read all lines until our 'pgf_backend_query_start' token appears
@@ -318,13 +317,15 @@ class LatexManager:
         # cache for strings already processed
         self.str_cache = {}
 
+    @cbook.deprecated("3.3")
+    def latex_stdin_utf8(self):
+        return self.latex.stdin
+
     def _cleanup(self):
         if not self._os_path.isdir(self.tmpdir):
             return
         try:
             self.latex.communicate()
-            self.latex_stdin_utf8.close()
-            self.latex.stdout.close()
         except Exception:
             pass
         try:

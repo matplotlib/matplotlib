@@ -36,3 +36,8 @@ did nothing, when passed an unsupported value. It now raises a ``ValueError``.
 `.Axis.set_tick_params` (and the higher level `.axes.Axes.tick_params` and
 `.pyplot.tick_params`) used to accept any value for ``which`` and silently
 did nothing, when passed an unsupported value. It now raises a ``ValueError``.
+
+``backend_pgf.LatexManager.latex``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``backend_pgf.LatexManager.latex`` is now created with ``encoding="utf-8"``, so
+its ``stdin``, ``stdout``, and ``stderr`` attributes are utf8-encoded.
