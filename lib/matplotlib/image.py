@@ -826,17 +826,38 @@ class AxesImage(_ImageBase):
     Parameters
     ----------
     cmap : colors.Colormap
+        The Colormap instance or registered colormap name used to map scalar
+        data to colors.
     norm : colors.Normalize
-        Maps luminance to 0-1
-    origin :
+        Maps luminance to 0-1.
+    interpolation : str
+        Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
+        'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
+        'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
+        'sinc', 'lanczos'.
+    origin : {'upper', 'lower'}
+        Place the [0, 0] index of the array in the upper left or lower left
+        corner of the axes. The convention 'upper' is typically used for
+        matrices and images.
     extent : tuple
         The data axes (left, right, bottom, top) for making image plots
         registered with data plots.  Default is to label the pixel
         centers with the zero-based row and column indices.
-    filternorm :
-    filterrad :
+    filternorm : bool
+        A parameter for the antigrain image resize filter
+        (see the antigrain documentation).
+        If filternorm is set, the filter normalizes integer values and corrects
+        the rounding errors. It doesn't do anything with the source floating
+        point values, it corrects only integers according to the rule of 1.0
+        which means that any sum of pixel weights must be equal to 1.0. So,
+        the filter function must produce a graph of the proper shape.
+    filterrad : float > 0
+        The filter radius for filters that have a radius parameter, i.e. when
+        interpolation is one of: 'sinc', 'lanczos' or 'blackman'.
     resample : bool
-    **kwargs :
+        When True, use a full resampling method. When False, only resample when
+        the output image is larger than the input image.
+    **kwargs
         Additional kwargs are matplotlib.artist properties.
 
     Notes
