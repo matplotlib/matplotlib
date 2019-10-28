@@ -175,8 +175,8 @@ def _allow_super_init(__init__):
 
 
 class TimerQT(TimerBase):
-    '''
-    Subclass of :class:`backend_bases.TimerBase` that uses Qt timer events.
+    """
+    Subclass of `.TimerBase` that uses Qt timer events.
 
     Attributes
     ----------
@@ -189,8 +189,7 @@ class TimerQT(TimerBase):
         Stores list of (func, args) tuples that will be called upon timer
         events. This list can be manipulated directly, or the functions
         `add_callback` and `remove_callback` can be used.
-
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)

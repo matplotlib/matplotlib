@@ -2401,9 +2401,8 @@ class PdfPages:
 
     Notes
     -----
-    In reality :class:`PdfPages` is a thin wrapper around :class:`PdfFile`, in
-    order to avoid confusion when using :func:`~matplotlib.pyplot.savefig` and
-    forgetting the format argument.
+    In reality `PdfPages` is a thin wrapper around `PdfFile`, in order to avoid
+    confusion when using `~.pyplot.savefig` and forgetting the format argument.
     """
     __slots__ = ('_file', 'keep_empty')
 
@@ -2414,9 +2413,9 @@ class PdfPages:
         Parameters
         ----------
         filename : str or path-like or file-like
-            Plots using :meth:`PdfPages.savefig` will be written to a file at
-            this location. The file is opened at once and any older file with
-            the same name is overwritten.
+            Plots using `PdfPages.savefig` will be written to a file at this
+            location. The file is opened at once and any older file with the
+            same name is overwritten.
         keep_empty : bool, optional
             If set to False, then empty pdf files will be deleted automatically
             when closed.
@@ -2464,18 +2463,17 @@ class PdfPages:
 
     def savefig(self, figure=None, **kwargs):
         """
-        Saves a :class:`~matplotlib.figure.Figure` to this file as a new page.
+        Saves a `.Figure` to this file as a new page.
 
-        Any other keyword arguments are passed to
-        :meth:`~matplotlib.figure.Figure.savefig`.
+        Any other keyword arguments are passed to `~.Figure.savefig`.
 
         Parameters
         ----------
-        figure : :class:`~matplotlib.figure.Figure` or int, optional
+        figure : `.Figure` or int, optional
             Specifies what figure is saved to file. If not specified, the
-            active figure is saved. If a :class:`~matplotlib.figure.Figure`
-            instance is provided, this figure is saved. If an int is specified,
-            the figure instance to save is looked up by number.
+            active figure is saved. If a `.Figure` instance is provided, this
+            figure is saved. If an int is specified, the figure instance to
+            save is looked up by number.
         """
         if not isinstance(figure, Figure):
             if figure is None:
