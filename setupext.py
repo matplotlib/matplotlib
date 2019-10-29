@@ -158,15 +158,11 @@ setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
 if os.path.exists(setup_cfg):
     config = configparser.ConfigParser()
     config.read(setup_cfg)
-    if config.has_option('rc_options', 'backend'):
-        options['backend'] = config.get("rc_options", "backend")
-    if config.has_option('test', 'local_freetype'):
-        options['local_freetype'] = config.getboolean("test", "local_freetype")
+    options['backend'] = config.get('rc_options', 'backend', fallback=None)
+    options['system_freetype'] = config.getboolean('libs', 'system_freetype',
+                                                   fallback=False)
 else:
     config = None
-
-lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
-options['local_freetype'] = lft or options.get('local_freetype', False)
 
 
 if '-q' in sys.argv or '--quiet' in sys.argv:
@@ -476,7 +472,17 @@ class FreeType(SetupPackage):
 
     def add_flags(self, ext):
         ext.sources.insert(0, 'src/checkdep_freetype2.c')
-        if options.get('local_freetype'):
+        if options.get('system_freetype'):
+            pkg_config_setup_extension(
+                # FreeType 2.3 has libtool version 9.11.3 as can be checked
+                # from the tarball.  For FreeType>=2.4, there is a conversion
+                # table in docs/VERSIONS.txt in the FreeType source tree.
+                ext, 'freetype2',
+                atleast_version='9.11.3',
+                alt_exec=['freetype-config'],
+                default_libraries=['freetype'])
+            ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
+        else:
             src_path = pathlib.Path(
                 'build', f'freetype-{LOCAL_FREETYPE_VERSION}')
             # Statically link to the locally-built freetype.
@@ -489,20 +495,10 @@ class FreeType(SetupPackage):
             ext.extra_objects.insert(
                 0, str(src_path / 'objs' / '.libs' / libfreetype))
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'local'))
-        else:
-            pkg_config_setup_extension(
-                # FreeType 2.3 has libtool version 9.11.3 as can be checked
-                # from the tarball.  For FreeType>=2.4, there is a conversion
-                # table in docs/VERSIONS.txt in the FreeType source tree.
-                ext, 'freetype2',
-                atleast_version='9.11.3',
-                alt_exec=['freetype-config'],
-                default_libraries=['freetype'])
-            ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
 
     def do_custom_build(self):
         # We're using a system freetype
-        if not options.get('local_freetype'):
+        if options.get('system_freetype'):
             return
 
         src_path = pathlib.Path('build', f'freetype-{LOCAL_FREETYPE_VERSION}')

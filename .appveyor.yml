@@ -72,8 +72,6 @@ install:
     curl -sL https://github.com/python/cpython/pull/1224.patch |
     patch -fsup 1 -d %CONDA_PREFIX% ) || cmd /c "exit /b 0"
 
-  # enables the local freetype build
-  - set MPLLOCALFREETYPE=1
   # Show the installed packages + versions
   - conda list
 

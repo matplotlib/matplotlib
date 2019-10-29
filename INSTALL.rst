@@ -90,19 +90,8 @@ the latest *tar.gz* release file from `the PyPI files page
 develop Matplotlib or just need the latest bugfixed version, grab the
 latest git version, and see :ref:`install-from-git`.
 
-The standard environment variables :envvar:`CC`, :envvar:`CXX`,
-:envvar:`PKG_CONFIG` are respected.  This means you can set them if your
-toolchain is prefixed. This may be used for cross compiling. ::
+Matplotlib can be installed from the source directory with a simple ::
 
-  export CC=x86_64-pc-linux-gnu-gcc
-  export CXX=x86_64-pc-linux-gnu-g++
-  export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config
-
-Once you have satisfied the requirements detailed below (i.e., Python and
-FreeType), you can build Matplotlib.
-::
-
-  cd matplotlib
   python -m pip install .
 
 We provide a setup.cfg_ file which you can use to customize the build
@@ -168,29 +157,21 @@ etc., you can install the following:
 FreeType
 --------
 
-Matplotlib depends on FreeType, a font rendering library.  It can either
-download and build its own copy of the library, or use a copy of FreeType
-already installed in your system.
+Matplotlib depends on FreeType, a font rendering library.  By default,
+Matplotlib downloads and builds its own copy of FreeType.
 
-The easiest option is to make Matplotlib download and build FreeType.  This is
-done by setting the :envvar:`MPLLOCALFREETYPE` environment variable to 1 -- on
-Linux and OSX:
+To force Matplotlib to use a copy of FreeType already installed in your system,
+create a :file:`setup.cfg` file with the following contents:
 
-.. code-block:: sh
+.. code-block:: cfg
 
-   export MPLLOCALFREETYPE=1
+   [libs]
+   system_freetype = true
 
-and on Windows:
+before running ``python -m pip install .``.
 
-.. code-block:: bat
-
-   set MPLLOCALFREETYPE=1
-
-and you can continue the installation (``python -m pip install .``), ignoring
-everything that follows.
-
-If you wish, instead, to use the system FreeType, you need to install the
-FreeType library and headers.  This can be achieved using a package manager:
+In this case, you need to install the FreeType library and headers.  This can
+be achieved using a package manager:
 
 .. code-block:: sh
 
@@ -210,6 +191,8 @@ tool for locating FreeType:
    sudo dnf install pkgconf  # Fedora
    brew install pkg-config  # macOS with Homebrew
    conda install pkg-config  # conda
+   # Or point the PKG_CONFIG environment variable to the path to pkg-config:
+   export PKG_CONFIG=...
 
 .. _pkg-config: https://www.freedesktop.org/wiki/Software/pkg-config/
 

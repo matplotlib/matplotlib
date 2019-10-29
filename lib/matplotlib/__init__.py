@@ -1316,14 +1316,12 @@ def _init_tests():
     if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or
         ft2font.__freetype_build_type__ != 'local'):
         _log.warning(
-            "Matplotlib is not built with the correct FreeType version to run "
-            "tests.  Set local_freetype=True in setup.cfg and rebuild. "
-            "Expect many image comparison failures below. "
-            "Expected freetype version {0}. "
-            "Found freetype version {1}. "
-            "Freetype build type is {2}local".format(
-                LOCAL_FREETYPE_VERSION,
-                ft2font.__freetype_version__,
+            f"Matplotlib is not built with the correct FreeType version to "
+            f"run tests.  Rebuild without setting system_freetype=1 in "
+            f"setup.cfg.  Expect many image comparison failures below.  "
+            f"Expected freetype version {LOCAL_FREETYPE_VERSION}.  "
+            f"Found freetype version {ft2font.__freetype_version__}.  "
+            "Freetype build type is {}local".format(
                 "" if ft2font.__freetype_build_type__ == 'local' else "not "))
 
     try:

@@ -92,30 +92,11 @@ and might be easier to use if you are using 2-factor authentication.
 Building Matplotlib for image comparison tests
 ----------------------------------------------
 
-Matplotlib's test suite makes heavy use of image comparison tests,
-meaning the result of a plot is compared against a known good result.
-Unfortunately, different versions of FreeType produce differently
-formed characters, causing these image comparisons to fail.  To make
-them reproducible, Matplotlib can be built with a special local copy
-of FreeType.  This is recommended for all Matplotlib developers.
-
-Prior to compiling the C-extensions, copy :file:`setup.cfg.template` to
-:file:`setup.cfg` and edit it to contain::
-
-  [test]
-  local_freetype = True
-  tests = True
-
-or set the ``MPLLOCALFREETYPE`` environmental variable to any true
-value.  If you have previously built Matplotlib with a different
-version of Freetype, you will also need to remove the c/c++ build
-products.  Do this is to delete the ``build`` folder or ``git clean
--xfd``.  If you are going to be regularly working on Matplotlib,
-consider putting ::
-
-   export MPLLOCALFREETYPE=1
-
-in your shell start up files.
+Matplotlib's test suite makes heavy use of image comparison tests, meaning
+the result of a plot is compared against a known good result.  Unfortunately,
+different versions of FreeType produce differently formed characters, causing
+these image comparisons to fail.  To make them reproducible, Matplotlib is, by
+default, built with a special local copy of FreeType.
 
 
 Installing Matplotlib in developer mode

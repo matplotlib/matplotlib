@@ -34,11 +34,6 @@ Environment Variables
   is used to find a base directory in which the :file:`matplotlib` subdirectory
   is created.
 
-.. envvar:: MPLLOCALFREETYPE
-
-  If set, this environment variable directs Matplotlib's build script to
-  download and build its own copy of the FreeType library.
-
 .. envvar:: PATH
 
   The list of directories searched to find executable programs.

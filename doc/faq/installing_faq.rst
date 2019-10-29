@@ -182,8 +182,6 @@ or::
 and build and install with::
 
    cd matplotlib
-   export MPLLOCALFREETYPE=1  # on Linux and OSX.
-   set MPLLOCALFREETYPE=1  # on Windows.
    python -mpip install .
 
 If you want to be able to follow the development branch as it changes
