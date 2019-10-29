@@ -110,8 +110,7 @@ matplotlib-scalebar
 `matplotlib-scalebar <https://github.com/ppinard/matplotlib-scalebar>`_ provides a new artist to display a scale bar, aka micron bar.
 It is particularly useful when displaying calibrated images plotted using ``plt.imshow(...)``.
 
-.. image:: /_static/gold_on_carbon.png
-    :height: 200px
+.. image:: /_static/gold_on_carbon.jpg
 
 Matplotlib-Venn
 ===============
