@@ -219,6 +219,8 @@ def _rgb_to_rgba(A):
 
 class _ImageBase(martist.Artist, cm.ScalarMappable):
     """
+    Base class for images.
+
     interpolation and cmap default to their rc settings
 
     cmap is a colors.Colormap instance
@@ -229,7 +231,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
     centers with the zero-based row and column indices.
 
     Additional kwargs are matplotlib.artist properties
-
     """
     zorder = 0
 
@@ -266,7 +267,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         return state
 
     def get_size(self):
-        """Get the numrows, numcols of the input image"""
+        """Return the size of the image as tuple (numrows, numcols)."""
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
@@ -832,25 +833,27 @@ class AxesImage(_ImageBase):
     """
     Parameters
     ----------
-    cmap : colors.Colormap
+    ax : `~.axes.Axes`
+        The axes the image will belong to.
+    cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
         The Colormap instance or registered colormap name used to map scalar
         data to colors.
-    norm : colors.Normalize
+    norm : `~matplotlib.colors.Normalize`
         Maps luminance to 0-1.
-    interpolation : str
+    interpolation : str, default: :rc:`image.interpolation`
         Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
         'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
         'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
         'sinc', 'lanczos'.
-    origin : {'upper', 'lower'}
+    origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Place the [0, 0] index of the array in the upper left or lower left
         corner of the axes. The convention 'upper' is typically used for
         matrices and images.
-    extent : tuple
+    extent : tuple, optional
         The data axes (left, right, bottom, top) for making image plots
         registered with data plots.  Default is to label the pixel
         centers with the zero-based row and column indices.
-    filternorm : bool
+    filternorm : bool, default: True
         A parameter for the antigrain image resize filter
         (see the antigrain documentation).
         If filternorm is set, the filter normalizes integer values and corrects
@@ -858,18 +861,14 @@ class AxesImage(_ImageBase):
         point values, it corrects only integers according to the rule of 1.0
         which means that any sum of pixel weights must be equal to 1.0. So,
         the filter function must produce a graph of the proper shape.
-    filterrad : float > 0
+    filterrad : float > 0, default: 4
         The filter radius for filters that have a radius parameter, i.e. when
         interpolation is one of: 'sinc', 'lanczos' or 'blackman'.
-    resample : bool
+    resample : bool, default: False
         When True, use a full resampling method. When False, only resample when
         the output image is larger than the input image.
-    **kwargs
-        Additional kwargs are matplotlib.artist properties.
+    **kwargs : `.Artist` properties
 
-    Notes
-    -----
-    interpolation and cmap default to their rc settings
     """
     def __str__(self):
         return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
@@ -936,9 +935,9 @@ class AxesImage(_ImageBase):
 
         Notes
         -----
-        This updates ``ax.dataLim`, and, if autoscaling, sets ``ax.viewLim``
+        This updates ``ax.dataLim``, and, if autoscaling, sets ``ax.viewLim``
         to tightly fit the image, regardless of ``dataLim``.  Autoscaling
-        state is not changed, so following this with ax.autoscale_view
+        state is not changed, so following this with ``ax.autoscale_view()``
         will redo the autoscaling in accord with ``dataLim``.
         """
         self._extent = xmin, xmax, ymin, ymax = extent
