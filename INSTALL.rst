@@ -46,7 +46,7 @@ To run the test suite:
 * extract the :file:`lib/matplotlib/tests` or :file:`lib/mpl_toolkits/tests`
   directories from the source distribution;
 * install test dependencies: `pytest <https://pypi.org/project/pytest>`_,
-  Pillow, MiKTeX, GhostScript, ffmpeg, avconv, ImageMagick, and `Inkscape
+  MiKTeX, GhostScript, ffmpeg, avconv, ImageMagick, and `Inkscape
   <https://inkscape.org/>`_;
 * run ``python -mpytest``.
 
@@ -126,6 +126,7 @@ Matplotlib requires the following dependencies:
 * `cycler <http://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil>`_ (>= 2.1)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.0)
+* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 6.2)
 * `pyparsing <https://pyparsing.wikispaces.com/>`_
 
 Optionally, you can also install a number of packages to enable better user
@@ -160,8 +161,6 @@ etc., you can install the following:
   <https://libav.org/avconv.html>`_: for saving movies;
 * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
   animated gifs;
-* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 3.4): for a larger
-  selection of image file formats: JPEG, BMP, and TIFF image files;
 * `LaTeX <https://miktex.org/>`_ and `GhostScript (>=9.0)
   <https://ghostscript.com/download/>`_ : for rendering text with LaTeX.
 

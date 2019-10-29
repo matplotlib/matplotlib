@@ -1629,8 +1629,9 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
     Parameters
     ----------
     infile : str or file-like
-        The image file -- must be PNG, or Pillow-readable if you have Pillow_
-        installed.
+        The image file. Matplotlib relies on Pillow_ for image reading, and
+        thus supports a wide range of file formats, including PNG, JPG, TIFF
+        and others.
 
         .. _Pillow: http://python-pillow.org/
 

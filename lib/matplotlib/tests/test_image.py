@@ -220,12 +220,8 @@ def test_imshow_zoom(fig_test, fig_ref):
 def test_imshow_pil(fig_test, fig_ref):
     style.use("default")
     PIL = pytest.importorskip("PIL")
-    # Pillow<=6.0 fails to open pathlib.Paths on Windows (pillow#3823), and
-    # Matplotlib's builtin png opener doesn't handle them either.
-    png_path = str(
-        Path(__file__).parent / "baseline_images/pngsuite/basn3p04.png")
-    tiff_path = str(
-        Path(__file__).parent / "baseline_images/test_image/uint16.tif")
+    png_path = Path(__file__).parent / "baseline_images/pngsuite/basn3p04.png"
+    tiff_path = Path(__file__).parent / "baseline_images/test_image/uint16.tif"
     axs = fig_test.subplots(2)
     axs[0].imshow(PIL.Image.open(png_path))
     axs[1].imshow(PIL.Image.open(tiff_path))
