@@ -175,7 +175,7 @@ class _GSConverter(_Converter):
         if not self._proc:
             self._proc = subprocess.Popen(
                 [mpl._get_executable_info("gs").executable,
-                 "-dNOPAUSE", "-sDEVICE=png16m"],
+                 "-dNOSAFER", "-dNOPAUSE", "-sDEVICE=png16m"],
                 # As far as I can see, ghostscript never outputs to stderr.
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             try:
