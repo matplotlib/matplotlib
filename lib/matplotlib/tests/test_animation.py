@@ -132,8 +132,6 @@ WRITER_OUTPUT += [
 # matplotlib.testing.image_comparison
 @pytest.mark.parametrize('writer, output', WRITER_OUTPUT)
 def test_save_animation_smoketest(tmpdir, writer, output):
-    if writer == 'pillow':
-        pytest.importorskip("PIL")
     try:
         # for ImageMagick the rcparams must be patched to account for
         # 'convert' being a built in MS tool, not the imagemagick

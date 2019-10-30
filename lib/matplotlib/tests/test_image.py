@@ -11,6 +11,7 @@ import warnings
 import numpy as np
 from numpy import ma
 from numpy.testing import assert_array_equal
+from PIL import Image
 
 from matplotlib import (
     colors, image as mimage, patches, pyplot as plt, style, rcParams)
@@ -219,23 +220,17 @@ def test_imshow_zoom(fig_test, fig_ref):
 @check_figures_equal()
 def test_imshow_pil(fig_test, fig_ref):
     style.use("default")
-    PIL = pytest.importorskip("PIL")
-    # Pillow<=6.0 fails to open pathlib.Paths on Windows (pillow#3823), and
-    # Matplotlib's builtin png opener doesn't handle them either.
-    png_path = str(
-        Path(__file__).parent / "baseline_images/pngsuite/basn3p04.png")
-    tiff_path = str(
-        Path(__file__).parent / "baseline_images/test_image/uint16.tif")
+    png_path = Path(__file__).parent / "baseline_images/pngsuite/basn3p04.png"
+    tiff_path = Path(__file__).parent / "baseline_images/test_image/uint16.tif"
     axs = fig_test.subplots(2)
-    axs[0].imshow(PIL.Image.open(png_path))
-    axs[1].imshow(PIL.Image.open(tiff_path))
+    axs[0].imshow(Image.open(png_path))
+    axs[1].imshow(Image.open(tiff_path))
     axs = fig_ref.subplots(2)
     axs[0].imshow(plt.imread(png_path))
     axs[1].imshow(plt.imread(tiff_path))
 
 
 def test_imread_pil_uint16():
-    pytest.importorskip("PIL")
     img = plt.imread(os.path.join(os.path.dirname(__file__),
                      'baseline_images', 'test_image', 'uint16.tif'))
     assert img.dtype == np.uint16
@@ -243,7 +238,6 @@ def test_imread_pil_uint16():
 
 
 def test_imread_fspath():
-    pytest.importorskip("PIL")
     img = plt.imread(
         Path(__file__).parent / 'baseline_images/test_image/uint16.tif')
     assert img.dtype == np.uint16
@@ -252,8 +246,6 @@ def test_imread_fspath():
 
 @pytest.mark.parametrize("fmt", ["png", "jpg", "jpeg", "tiff"])
 def test_imsave(fmt):
-    if fmt in ["jpg", "jpeg", "tiff"]:
-        pytest.importorskip("PIL")
     has_alpha = fmt not in ["jpg", "jpeg"]
 
     # The goal here is that the user can specify an output logical DPI
@@ -318,7 +310,6 @@ def test_imsave_color_alpha():
 
 
 def test_imsave_pil_kwargs_png():
-    Image = pytest.importorskip("PIL.Image")
     from PIL.PngImagePlugin import PngInfo
     buf = io.BytesIO()
     pnginfo = PngInfo()
@@ -330,7 +321,6 @@ def test_imsave_pil_kwargs_png():
 
 
 def test_imsave_pil_kwargs_tiff():
-    Image = pytest.importorskip("PIL.Image")
     from PIL.TiffTags import TAGS_V2 as TAGS
     buf = io.BytesIO()
     pil_kwargs = {"description": "test image"}
@@ -668,7 +658,6 @@ def test_nonuniformimage_setnorm():
 
 
 def test_jpeg_2d():
-    Image = pytest.importorskip('PIL.Image')
     # smoke test that mode-L pillow images work.
     imd = np.ones((10, 10), dtype='uint8')
     for i in range(10):
@@ -680,8 +669,6 @@ def test_jpeg_2d():
 
 
 def test_jpeg_alpha():
-    Image = pytest.importorskip('PIL.Image')
-
     plt.figure(figsize=(1, 1), dpi=300)
     # Create an image that is all black, with a gradient from 0-1 in
     # the alpha channel from left to right.
