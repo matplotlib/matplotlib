@@ -9,7 +9,7 @@ import matplotlib
 from matplotlib.backend_bases import MouseEvent
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
 needs_usetex = pytest.mark.skipif(
@@ -621,3 +621,17 @@ def test_wrap_no_wrap():
     text = fig.text(0, 0, 'non wrapped text', wrap=True)
     fig.canvas.draw()
     assert text._get_wrapped_text() == 'non wrapped text'
+
+
+@check_figures_equal(extensions=["png"])
+def test_buffer_size(fig_test, fig_ref):
+    # On old versions of the Agg renderer, large non-ascii single-character
+    # strings (here, "€") would be rendered clipped because the rendering
+    # buffer would be set by the physical size of the smaller "a" character.
+    ax = fig_test.add_subplot()
+    ax.set_yticks([0, 1])
+    ax.set_yticklabels(["€", "a"])
+    ax.yaxis.majorTicks[1].label1.set_color("w")
+    ax = fig_ref.add_subplot()
+    ax.set_yticks([0, 1])
+    ax.set_yticklabels(["€", ""])
