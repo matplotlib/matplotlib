@@ -391,6 +391,16 @@ def test_savefig():
         fig.savefig("fname1.png", "fname2.png")
 
 
+def test_savefig_backend():
+    fig = plt.figure()
+    # Intentionally use an invalid module name.
+    with pytest.raises(ModuleNotFoundError, match="No module named '@absent'"):
+        fig.savefig("test", backend="module://@absent")
+    with pytest.raises(ValueError,
+                       match="The 'pdf' backend does not support png output"):
+        fig.savefig("test.png", backend="pdf")
+
+
 def test_figure_repr():
     fig = plt.figure(figsize=(10, 20), dpi=10)
     assert repr(fig) == "<Figure size 100x200 with 0 Axes>"

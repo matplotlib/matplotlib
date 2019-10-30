@@ -212,10 +212,7 @@ def switch_backend(newbackend):
             rcParamsOrig["backend"] = "agg"
             return
 
-    backend_name = (
-        newbackend[9:] if newbackend.startswith("module://")
-        else "matplotlib.backends.backend_{}".format(newbackend.lower()))
-
+    backend_name = cbook._backend_module_name(newbackend)
     backend_mod = importlib.import_module(backend_name)
     Backend = type(
         "Backend", (matplotlib.backend_bases._Backend,), vars(backend_mod))
