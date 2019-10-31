@@ -527,26 +527,7 @@ def test_concise_formatter_tz():
         return sts, ax.yaxis.get_offset_text().get_text()
 
     d1 = datetime.datetime(1997, 1, 1).replace(tzinfo=datetime.timezone.utc)
-    results = ([datetime.timedelta(weeks=52 * 200),
-                [str(t) for t in range(1980, 2201, 20)],
-                ""
-                ],
-               [datetime.timedelta(weeks=52),
-                ['1997', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
-                'Sep', 'Oct', 'Nov', 'Dec'],
-                "1997"
-                ],
-               [datetime.timedelta(days=141),
-                ['Jan', '22', 'Feb', '22', 'Mar', '22', 'Apr', '22',
-                 'May', '22'],
-                "1997-May"
-                ],
-               [datetime.timedelta(days=40),
-                ['Jan', '05', '09', '13', '17', '21', '25', '29', 'Feb',
-                 '05', '09'],
-                "1997-Feb"
-                ],
-               [datetime.timedelta(hours=40),
+    results = ([datetime.timedelta(hours=40),
                 ['03:00', '07:00', '11:00', '15:00', '19:00', '23:00',
                  '03:00', '07:00', '11:00', '15:00', '19:00'],
                 "1997-Jan-02"
