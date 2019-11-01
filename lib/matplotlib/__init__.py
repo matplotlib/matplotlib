@@ -1302,7 +1302,6 @@ def tk_window_focus():
 
 default_test_modules = [
     'matplotlib.tests',
-    'matplotlib.sphinxext.tests',
     'mpl_toolkits.tests',
 ]
 
