@@ -888,32 +888,29 @@ class Axis(martist.Artist):
         For documentation of keyword arguments, see
         :meth:`matplotlib.axes.Axes.tick_params`.
         """
-        dicts = []
-        if which == 'major' or which == 'both':
-            dicts.append(self._major_tick_kw)
-        if which == 'minor' or which == 'both':
-            dicts.append(self._minor_tick_kw)
+        cbook._check_in_list(['major', 'minor', 'both'], which=which)
         kwtrans = self._translate_tick_kw(kw)
 
-        # this stashes the parameter changes so any new ticks will
-        # automatically get them
-        for d in dicts:
-            if reset:
-                d.clear()
-            d.update(kwtrans)
-
+        # the kwargs are stored in self._major/minor_tick_kw so that any
+        # future new ticks will automatically get them
         if reset:
+            if which in ['major', 'both']:
+                self._major_tick_kw.clear()
+                self._major_tick_kw.update(kwtrans)
+            if which in ['minor', 'both']:
+                self._minor_tick_kw.clear()
+                self._minor_tick_kw.update(kwtrans)
             self.reset_ticks()
         else:
-            # apply the new kwargs to the existing ticks
-            if which == 'major' or which == 'both':
+            if which in ['major', 'both']:
+                self._major_tick_kw.update(kwtrans)
                 for tick in self.majorTicks:
                     tick._apply_params(**kwtrans)
-            if which == 'minor' or which == 'both':
+            if which in ['minor', 'both']:
+                self._minor_tick_kw.update(kwtrans)
                 for tick in self.minorTicks:
                     tick._apply_params(**kwtrans)
-            # special-case label color to also apply to the offset
-            # text
+            # special-case label color to also apply to the offset text
             if 'labelcolor' in kwtrans:
                 self.offsetText.set_color(kwtrans['labelcolor'])
 
