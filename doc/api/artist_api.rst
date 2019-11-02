@@ -182,6 +182,8 @@ Miscellaneous
    :nosignatures:
 
    Artist.sticky_edges
+   Artist.set_in_autoscale
+   Artist.get_in_autoscale
    Artist.set_in_layout
    Artist.get_in_layout
    Artist.stale
