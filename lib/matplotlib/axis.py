@@ -2068,7 +2068,6 @@ class XAxis(Axis):
             else:
                 bbox = mtransforms.Bbox.union(bboxes)
                 bottom = bbox.y0
-            self.offsetText.set_va('bottom')
             self.offsetText.set_position(
                 (x, bottom - self.OFFSETTEXTPAD * self.figure.dpi / 72)
             )
