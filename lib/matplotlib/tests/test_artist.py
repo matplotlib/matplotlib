@@ -564,8 +564,8 @@ def test_draw_wraper_forward_input():
     assert 'aardvark' == art.draw(renderer, extra='aardvark')
 
 
-def test_in_autoscale_true():
-    # test autoscale is performed when in_autoscale=True.
+def test_line_in_autoscale_true():
+    # test autoscale is performed when in_autoscale=True for a line.
     fig, ax = plt.subplots()
     ax.plot([0, 1])
     ax.plot([0, 1, 2, 3], in_autoscale=True)
@@ -574,11 +574,32 @@ def test_in_autoscale_true():
     assert ax.get_xlim() == ax.get_ylim() == (0, 3)
 
 
-def test_in_autoscale_false():
-    # test autoscale is not performed when in_autoscale=False.
+def test_line_in_autoscale_false():
+    # test autoscale is not performed when in_autoscale=False for a line.
     fig, ax = plt.subplots()
     ax.plot([0, 1])
     ax.plot([0, 1, 2, 3], in_autoscale=False)
     ax.margins(0)
     ax.autoscale_view()
     assert ax.get_xlim() == ax.get_ylim() == (0, 1) # The default limits.
+
+def test_patch_in_autoscale_true():
+    # test autoscale is performed when in_autoscale=True for a patch.
+    fig, ax = plt.subplots()
+    ax.plot([0, 1])
+    ax.bar([0, 1, 2, 3], [0, 10, 20, 30], width=0.5, in_autoscale=True)
+    ax.margins(0)
+    ax.autoscale_view()
+    assert ax.get_xlim() == (-.25, 3.25)
+    assert ax.get_ylim() == (0, 30)
+
+
+def test_patch_in_autoscale_false():
+    # test autoscale is not performed when in_autoscale=False for a patch.
+    fig, ax = plt.subplots()
+    ax.plot([0, 1])
+    ax.bar([0, 1, 2, 3], [0, 10, 20, 30], width=0.5, in_autoscale=False)
+    ax.margins(0)
+    ax.autoscale_view()
+    assert ax.get_xlim() == (0, 1)
+    assert ax.get_ylim() == (0, 1)
