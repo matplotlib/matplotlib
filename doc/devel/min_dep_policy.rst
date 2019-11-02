@@ -10,7 +10,7 @@ releases. For projects that use date-based versioning, every release
 is a 'minor version'.
 
 
-Python and numpy
+Python and NumPy
 ================
 
 - support minor versions of ``Python`` initially released

@@ -161,7 +161,7 @@ Pull Requests (224):
 * :ghpull:`12507`: FIX: make minor ticks formatted with science formatter as well
 * :ghpull:`12500`: Adjust the widths of the messages during the build.
 * :ghpull:`12492`: Simplify radar_chart example.
-* :ghpull:`12478`: MAINT: numpy deprecates asscalar in 1.16
+* :ghpull:`12478`: MAINT: NumPy deprecates asscalar in 1.16
 * :ghpull:`12363`: FIX: errors in get_position changes
 * :ghpull:`12495`: Fix duplicate condition in pathpatch3d example
 * :ghpull:`11984`: Strip out pkg-config machinery for agg and libqhull.
