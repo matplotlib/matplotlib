@@ -212,6 +212,7 @@ class Artist:
         self._path_effects = mpl.rcParams['path.effects']
         self._sticky_edges = _XYPair([], [])
         self._in_layout = True
+        self._in_autoscale = True
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -887,6 +888,13 @@ class Artist:
                      or isinstance(clip_path, TransformedPatchPath)
                      and clip_path._patch is self.axes.patch))
 
+    def get_in_autoscale(self):
+        """
+        Return boolean flag, ``True`` if artist is included in autoscale
+        calculations.
+        """
+        return self._in_autoscale
+
     def get_clip_on(self):
         """Return whether the artist uses clipping."""
         return self._clipon
@@ -1089,6 +1097,16 @@ class Artist:
         in_layout : bool
         """
         self._in_layout = in_layout
+
+    def set_in_autoscale(self, in_autoscale):
+        """
+        Set if artist is to be included in autoscale calculations.
+
+        Parameters
+        ----------
+        in_autoscale : bool
+        """
+        self._in_autoscale = in_autoscale
 
     def get_label(self):
         """Return the label used for this artist in the legend."""

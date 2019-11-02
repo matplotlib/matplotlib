@@ -562,3 +562,23 @@ def test_draw_wraper_forward_input():
 
     assert 'aardvark' == art.draw(renderer, 'aardvark')
     assert 'aardvark' == art.draw(renderer, extra='aardvark')
+
+
+def test_in_autoscale_true():
+    # test autoscale is performed when in_autoscale=True.
+    fig, ax = plt.subplots()
+    ax.plot([0, 1])
+    ax.plot([0, 1, 2, 3], in_autoscale=True)
+    ax.margins(0)
+    ax.autoscale_view()
+    assert ax.get_xlim() == ax.get_ylim() == (0, 3)
+
+
+def test_in_autoscale_false():
+    # test autoscale is not performed when in_autoscale=False.
+    fig, ax = plt.subplots()
+    ax.plot([0, 1])
+    ax.plot([0, 1, 2, 3], in_autoscale=False)
+    ax.margins(0)
+    ax.autoscale_view()
+    assert ax.get_xlim() == ax.get_ylim() == (0, 1) # The default limits.
