@@ -4,7 +4,7 @@ import itertools
 import numpy as np
 import pytest
 
-from numpy.testing import assert_array_equal, assert_array_almost_equal
+from numpy.testing import assert_array_equal, assert_array_almost_equal, assert_allclose
 
 from matplotlib import cycler
 import matplotlib
@@ -847,6 +847,36 @@ def test_to_rgba_array_single_str():
                        match="neither a valid single color nor a color "
                              "sequence"):
         mcolors.to_rgba_array("rgbx")
+
+@pytest.mark.parametrize("color,factor", [
+    ([1, 0, 0], 1),
+    ([1, 0, 0], 1.1),
+    ([1, 1, 1], 3),
+    ([0.4, 0.3, 0.1], 1.04),
+    ([0.1, 0.1, 0.1], 1.03),
+    ([1,1,1], 0.5)
+])
+def test_darker(color, factor):
+    from PyQt5.QtGui import QColor
+    scaled_color = [c * 255 for c in color]
+    expected = QColor(*scaled_color).darker(factor * 100)
+    assert_allclose(mcolors.darker(color, factor), [expected.red()/255, expected.green()/255, expected.blue()/255], atol=1/256)
+
+@pytest.mark.parametrize("color,factor", [
+    ([1, 0, 0], 1),
+    ([1, 0, 0], 1.1),
+    ([1, 1, 1], 3),
+    ([0.4, 0.3, 0.1], 1.04),
+    ([1,1,1], 0.5),
+    ("blue", 1.5),
+])
+def test_lighter(color, factor):
+    from PyQt5.QtGui import QColor
+    from matplotlib.colors import to_rgb
+    color = to_rgb(color)
+    scaled_color = [c * 255 for c in color]
+    expected = QColor(*scaled_color).lighter(factor * 100)
+    assert_allclose(mcolors.lighter(color, factor), [expected.red()/255, expected.green()/255, expected.blue()/255], atol=1/256)
 
 
 def test_failed_conversions():

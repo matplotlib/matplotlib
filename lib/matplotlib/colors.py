@@ -215,9 +215,9 @@ def _to_rgba_no_colorcycle(c, alpha=None):
                 if len(orig_c) == 1:
                     cbook.warn_deprecated(
                         "3.1", message="Support for uppercase "
-                        "single-letter colors is deprecated since Matplotlib "
-                        "%(since)s and will be removed %(removal)s; please "
-                        "use lowercase instead.")
+                                       "single-letter colors is deprecated since Matplotlib "
+                                       "%(since)s and will be removed %(removal)s; please "
+                                       "use lowercase instead.")
     if isinstance(c, str):
         # hex color in #rrggbb format.
         match = re.match(r"\A#[a-fA-F0-9]{6}\Z", c)
@@ -229,7 +229,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
         match = re.match(r"\A#[a-fA-F0-9]{3}\Z", c)
         if match:
             return (tuple(int(n, 16) / 255
-                          for n in [c[1]*2, c[2]*2, c[3]*2])
+                          for n in [c[1] * 2, c[2] * 2, c[3] * 2])
                     + (alpha if alpha is not None else 1.,))
         # hex color with alpha in #rrggbbaa format.
         match = re.match(r"\A#[a-fA-F0-9]{8}\Z", c)
@@ -243,7 +243,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
         match = re.match(r"\A#[a-fA-F0-9]{4}\Z", c)
         if match:
             color = [int(n, 16) / 255
-                     for n in [c[1]*2, c[2]*2, c[3]*2, c[4]*2]]
+                     for n in [c[1] * 2, c[2] * 2, c[3] * 2, c[4] * 2]]
             if alpha is not None:
                 color[-1] = alpha
             return tuple(color)
@@ -330,8 +330,8 @@ def to_rgba_array(c, alpha=None):
                 "'rgb'. Note also that the latter is deprecated." % c)
         else:
             cbook.warn_deprecated("3.2", message="Using a string of single "
-                                  "character colors as a color sequence is "
-                                  "deprecated. Use an explicit list instead.")
+                                                 "character colors as a color sequence is "
+                                                 "deprecated. Use an explicit list instead.")
             return result
 
     if len(c) == 0:
@@ -503,6 +503,7 @@ class Colormap:
     ``data->normalize->map-to-color`` processing chain.
 
     """
+
     def __init__(self, name, N=256):
         """
         Parameters
@@ -876,6 +877,7 @@ class ListedColormap(Colormap):
 
         the list will be extended by repetition.
     """
+
     def __init__(self, colors, name='from_list', N=None):
         self.monochrome = False  # Are all colors identical? (for contour.py)
         if N is None:
@@ -941,6 +943,7 @@ class Normalize:
     the ``[0.0, 1.0]`` interval.
 
     """
+
     def __init__(self, vmin=None, vmax=None, clip=False):
         """
         If *vmin* or *vmax* is not given, they are initialized from the
@@ -1012,7 +1015,7 @@ class Normalize:
         (vmin,), _ = self.process_value(self.vmin)
         (vmax,), _ = self.process_value(self.vmax)
         if vmin == vmax:
-            result.fill(0)   # Or should it be all masked?  Or 0.5?
+            result.fill(0)  # Or should it be all masked?  Or 0.5?
         elif vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
         else:
@@ -1209,7 +1212,8 @@ class SymLogNorm(Normalize):
     *linthresh* allows the user to specify the size of this range
     (-*linthresh*, *linthresh*).
     """
-    def __init__(self,  linthresh, linscale=1.0,
+
+    def __init__(self, linthresh, linscale=1.0,
                  vmin=None, vmax=None, clip=False):
         """
         *linthresh*:
@@ -1307,6 +1311,7 @@ class PowerNorm(Normalize):
     Linearly map a given value to the 0-1 range and then apply
     a power-law normalization over that range.
     """
+
     def __init__(self, gamma, vmin=None, vmax=None, clip=False):
         Normalize.__init__(self, vmin, vmax, clip)
         self.gamma = gamma
@@ -1364,6 +1369,7 @@ class BoundaryNorm(Normalize):
     interpolation, but using integers seems simpler, and reduces the number of
     conversions back and forth between integer and floating point.
     """
+
     def __init__(self, boundaries, ncolors, clip=False):
         """
         Parameters
@@ -1442,6 +1448,7 @@ class NoNorm(Normalize):
     Dummy replacement for `Normalize`, for the case where we want to use
     indices directly in a `~matplotlib.cm.ScalarMappable`.
     """
+
     def __call__(self, value, clip=None):
         return value
 
@@ -1608,6 +1615,7 @@ class LightSource:
     The :meth:`shade_rgb`
     The :meth:`hillshade` produces an illumination map of a surface.
     """
+
     def __init__(self, azdeg=315, altdeg=45, hsv_min_val=0, hsv_max_val=1,
                  hsv_min_sat=1, hsv_max_sat=0):
         """
@@ -1878,10 +1886,10 @@ class LightSource:
 
         # Blend the hillshade and rgb data using the specified mode
         lookup = {
-                'hsv': self.blend_hsv,
-                'soft': self.blend_soft_light,
-                'overlay': self.blend_overlay,
-                }
+            'hsv': self.blend_hsv,
+            'soft': self.blend_soft_light,
+            'overlay': self.blend_overlay,
+        }
         if blend_mode in lookup:
             blend = lookup[blend_mode](rgb, intensity, **kwargs)
         else:
@@ -1988,7 +1996,7 @@ class LightSource:
         rgb : ndarray
             An MxNx3 RGB array representing the combined images.
         """
-        return 2 * intensity * rgb + (1 - 2 * intensity) * rgb**2
+        return 2 * intensity * rgb + (1 - 2 * intensity) * rgb ** 2
 
     def blend_overlay(self, rgb, intensity):
         """
@@ -2066,3 +2074,83 @@ def from_levels_and_colors(levels, colors, extend='neither'):
 
     norm = BoundaryNorm(levels, ncolors=n_data_colors)
     return cmap, norm
+
+
+def darker(color, factor):
+    """
+    A helper routine to to generate a darker shade of color.
+
+    Parameters
+    ----------
+    color : color or color sequence
+        The colors to convert.
+    factor : float
+        any value above 1 means darkening the color,
+        any value in [0,1] means brightening the color
+
+    Returns
+    -------
+    result : (..., 3) ndarray
+       Colors converted to RGB values in range [0, 1]
+
+    Notes
+    -----
+    The algorithm is inspired by Qt ``QColor.darker()``.
+    """
+    if factor <= 0:
+        raise ValueError("Cannot input value below 0.")
+    elif factor < 1:
+        return lighter(color, 1 / factor)
+    color = to_rgb(color)
+    hsv = rgb_to_hsv(color)
+    hsv[:][2] = hsv[:][2] / factor
+
+    return hsv_to_rgb(hsv)
+
+
+def lighter(color, factor):
+    """
+    A helper routine to to generate a lighter shade of color inspired by PyQt.
+
+    Parameters
+    ----------
+    color : color or color sequence
+        The colors to convert.
+    factor : float
+        any value above 1 means brightening the color,
+        any value in [0,1] means darkening the color
+
+    Returns
+    -------
+    result : (..., 3) ndarray
+       Colors converted to RGB values in range [0, 1]
+    """
+
+    if factor <= 0:
+        raise ValueError("Cannot input value below 0.")
+    elif factor < 1:
+        return darker(color, 1 / factor)
+    color = to_rgb(color)
+    hsv = rgb_to_hsv(color)
+    is_scalar = hsv.ndim <= 1
+    h, s, v = np.atleast_2d(hsv).T
+    s = s * 255
+    v = v * 255
+
+    v = (factor * v)
+
+    for i in range(len(v)):
+        if v[i] > 255:
+            s[i] -= v[i] - 255
+            if s[i] < 0:
+                s[i] = 0
+            v[i] = 255
+
+    s = s / 255
+    v = v / 255
+
+    result = hsv_to_rgb(np.array([h, s, v]).T)
+    result[result > 1] = 1
+    if is_scalar:
+        return result[0]
+    return result
