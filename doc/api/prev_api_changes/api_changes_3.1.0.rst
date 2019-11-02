@@ -715,9 +715,9 @@ likewise changed.
 Dependency changes
 ------------------
 
-numpy
+NumPy
 ~~~~~
-Matplotlib 3.1 now requires numpy>=1.11.
+Matplotlib 3.1 now requires NumPy>=1.11.
 
 ghostscript
 ~~~~~~~~~~~
@@ -871,7 +871,7 @@ future version.
 - `.cbook.iterable`
 - `.cbook.get_label`
 - `.cbook.safezip`
-  Manually check the lengths of the inputs instead, or rely on numpy to do it.
+  Manually check the lengths of the inputs instead, or rely on NumPy to do it.
 - `.cbook.is_hashable`
   Use ``isinstance(..., collections.abc.Hashable)`` instead.
 
