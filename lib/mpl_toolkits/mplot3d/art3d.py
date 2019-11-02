@@ -496,11 +496,17 @@ class Path3DCollection(PathCollection):
                self._edgecolor3d)
 
         # Sort the points based on z coordinates
-        # Put vzs first to sort based on z value
-        z_markers = sorted(zip(vzs, np.column_stack([vxs, vys]), fcs, ecs),
-                           reverse=True)
+        # Performance optimization: Create a sorted index array and reorder
+        # points and point properties according to the index array
+        z_markers_idx = np.argsort(vzs)[::-1]
 
-        [zzs, vps, fcs, ecs] = zip(*z_markers)
+        # Re-order items
+        zzs = vzs[z_markers_idx]
+        vxs = vxs[z_markers_idx]
+        vys = vys[z_markers_idx]
+        fcs = fcs[z_markers_idx]
+        ecs = ecs[z_markers_idx]
+        vps = np.vstack((vxs, vys)).T
 
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
@@ -668,7 +674,7 @@ class Poly3DCollection(PolyCollection):
             else:
                 cedge = cedge.repeat(len(xyzlist), axis=0)
 
-        # sort by depth (furthest drawn first)
+        # # sort by depth (furthest drawn first)
         z_segments_2d = sorted(
             ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
              for idx, ((xs, ys, zs), fc, ec)
