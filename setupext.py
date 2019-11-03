@@ -149,20 +149,17 @@ LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
 
 # matplotlib build options, which can be altered using setup.cfg
-options = {
-    'backend': None,
-}
-
-
 setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
+config = configparser.ConfigParser()
 if os.path.exists(setup_cfg):
-    config = configparser.ConfigParser()
     config.read(setup_cfg)
-    options['backend'] = config.get('rc_options', 'backend', fallback=None)
-    options['system_freetype'] = config.getboolean('libs', 'system_freetype',
-                                                   fallback=False)
-else:
-    config = None
+options = {
+    'backend': config.get('rc_options', 'backend', fallback=None),
+    'system_freetype': config.getboolean('libs', 'system_freetype',
+                                         fallback=False),
+    'system_qhull': config.getboolean('libs', 'system_qhull',
+                                      fallback=False),
+}
 
 
 if '-q' in sys.argv or '--quiet' in sys.argv:
@@ -318,8 +315,7 @@ class OptionalPackage(SetupPackage):
         insensitively defined as 0, false, no, off for False).
         """
         conf = cls.default_config
-        if (config is not None
-                and config.has_option(cls.config_category, cls.name)):
+        if config.has_option(cls.config_category, cls.name):
             try:
                 conf = config.getboolean(cls.config_category, cls.name)
             except ValueError:
@@ -614,13 +610,13 @@ class Qhull(SetupPackage):
     name = "qhull"
 
     def add_flags(self, ext):
-        # Qhull doesn't distribute pkg-config info, so we have no way of
-        # knowing whether a system install is recent enough.  Thus, always use
-        # the vendored version.
-        ext.include_dirs.insert(0, 'extern')
-        ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
-        if sysconfig.get_config_var('LIBM') == '-lm':
-            ext.libraries.extend('m')
+        if options.get('system_qhull'):
+            ext.libraries.append('qhull')
+        else:
+            ext.include_dirs.insert(0, 'extern')
+            ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
+            if sysconfig.get_config_var('LIBM') == '-lm':
+                ext.libraries.extend('m')
 
 
 class TTConv(SetupPackage):

@@ -109,7 +109,6 @@ Dependencies
 Matplotlib requires the following dependencies:
 
 * `Python <https://www.python.org/downloads/>`_ (>= 3.6)
-* `FreeType <https://www.freetype.org/>`_ (>= 2.3)
 * `NumPy <http://www.numpy.org>`_ (>= 1.11)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 * `cycler <http://matplotlib.org/cycler/>`_ (>= 0.10.0)
@@ -153,24 +152,27 @@ etc., you can install the following:
 * `LaTeX <https://miktex.org/>`_ and `GhostScript (>=9.0)
   <https://ghostscript.com/download/>`_ : for rendering text with LaTeX.
 
-FreeType
---------
+FreeType and Qhull
+------------------
 
-Matplotlib depends on FreeType, a font rendering library.  By default,
-Matplotlib downloads and builds its own copy of FreeType.
+Matplotlib depends on `FreeType <https://www.freetype.org/>`_ (>= 2.3), a
+font rendering library, and on `Qhull <http://www.qhull.org/>`_ (>= 2015.2),
+a library for computing triangulations.  By default, Matplotlib downloads and
+builds its own copy of FreeType, and uses its own copy of Qhull.
 
-To force Matplotlib to use a copy of FreeType already installed in your system,
-create a :file:`setup.cfg` file with the following contents:
+To force Matplotlib to use a copy of FreeType or Qhull already installed in
+your system, create a :file:`setup.cfg` file with the following contents:
 
 .. code-block:: cfg
 
    [libs]
    system_freetype = true
+   system_qhull = true
 
 before running ``python -m pip install .``.
 
-In this case, you need to install the FreeType library and headers.  This can
-be achieved using a package manager:
+In this case, you need to install the FreeType and Qhull library and headers.
+This can be achieved using a package manager, e.g. for FreeType:
 
 .. code-block:: sh
 
@@ -179,6 +181,8 @@ be achieved using a package manager:
    sudo dnf install freetype-devel  # Fedora
    brew install freetype  # macOS with Homebrew
    conda install freetype  # conda, any OS
+
+(adapt accordingly for Qhull).
 
 On Linux and macOS, it is also recommended to install pkg-config_, a helper
 tool for locating FreeType:
@@ -196,7 +200,7 @@ tool for locating FreeType:
 .. _pkg-config: https://www.freedesktop.org/wiki/Software/pkg-config/
 
 If not using pkg-config (in particular on Windows), you may need to set the
-include path (to the FreeType headers) and link path (to the FreeType library)
+include path (to the library headers) and link path (to the libraries)
 explicitly, if they are not in standard locations.  This can be done using
 standard environment variables -- on Linux and OSX:
 
@@ -214,10 +218,9 @@ and on Windows:
 
 .. note::
 
-  The following libraries are shipped with Matplotlib:
+  Matplotlib always uses its own copies of the following libraries:
 
   - ``Agg``: the Anti-Grain Geometry C++ rendering engine;
-  - ``qhull``: to compute Delaunay triangulation;
   - ``ttconv``: a TrueType font utility.
 
 Building on Windows
