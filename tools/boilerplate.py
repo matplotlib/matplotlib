@@ -199,6 +199,7 @@ def boilerplate_gen():
         'bar',
         'barbs',
         'barh',
+        'blabel',
         'boxplot',
         'broken_barh',
         'cla',
