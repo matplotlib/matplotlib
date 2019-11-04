@@ -177,19 +177,34 @@ class FontconfigPatternParser:
 parse_fontconfig_pattern = lru_cache()(FontconfigPatternParser().parse)
 
 
+def _escape_val(val, escape_func):
+    if type(val) == list:
+        val = [escape_func(r'\\\1', str(x)) for x in val
+               if x is not None]
+        if val != []:
+            val = ','.join(val)
+    else:
+        val = escape_func(r'\\\1', str(val))
+
+    return val
+
+
 def generate_fontconfig_pattern(d):
     """
     Given a dictionary of key/value pairs, generates a fontconfig
     pattern string.
     """
     props = []
-    for key in 'family style variant weight stretch file size'.split():
+
+    # Family is added first w/o a keyword
+    family = d.get_family()
+    if family is not None and family != []:
+        props.append("%s" % (_escape_val(family, family_escape)))
+
+    # The other keys are added as key=value
+    for key in ['style', 'variant', 'weight', 'stretch', 'file', 'size']:
         val = getattr(d, 'get_' + key)()
         if val is not None and val != []:
-            if type(val) == list:
-                val = [value_escape(r'\\\1', str(x)) for x in val
-                       if x is not None]
-                if val != []:
-                    val = ','.join(val)
-            props.append(":%s=%s" % (key, val))
+            props.append(":%s=%s" % (key, _escape_val(val, value_escape)))
+
     return ''.join(props)
