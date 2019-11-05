@@ -651,6 +651,13 @@ class FigureManagerQT(FigureManagerBase):
 class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     message = QtCore.Signal(str)
 
+    toolitems = [*NavigationToolbar2.toolitems]
+    toolitems.insert(
+        # Add 'customize' action after 'subplots'
+        [name for name, *_ in toolitems].index("Subplots") + 1,
+        ("Customize", "Edit axis, curve and image parameters",
+         "qt4_editor_options", "edit_parameters"))
+
     def __init__(self, canvas, parent, coordinates=True):
         """coordinates: should we show the coordinates on the right?"""
         self.canvas = canvas
@@ -694,11 +701,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     a.setCheckable(True)
                 if tooltip_text is not None:
                     a.setToolTip(tooltip_text)
-                if text == 'Subplots':
-                    a = self.addAction(self._icon("qt4_editor_options.png",
-                                                  icon_color),
-                                       'Customize', self.edit_parameters)
-                    a.setToolTip('Edit axis, curve and image parameters')
 
         # Add the (x, y) location widget at the right side of the toolbar
         # The stretch factor is 1 which means any resizing of the toolbar
