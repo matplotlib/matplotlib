@@ -41,6 +41,7 @@ from weakref import WeakKeyDictionary
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import (
     backend_tools as tools, cbook, colors, textpath, tight_bbox, transforms,
     widgets, get_backend, is_interactive, rcParams)
@@ -2983,7 +2984,7 @@ class NavigationToolbar2:
         self._button_pressed = None
         self.push_current()
         self.release(event)
-        self.draw()
+        self._draw()
 
     def drag_pan(self, event):
         """Callback for dragging in pan/zoom mode."""
@@ -3026,7 +3027,7 @@ class NavigationToolbar2:
                     (abs(y - start_y) < 5 and event.key != "x")):
                 self._xypress = None
                 self.release(event)
-                self.draw()
+                self._draw()
                 return
 
             # Detect whether this axes is twinned with an earlier axes in the
@@ -3040,14 +3041,20 @@ class NavigationToolbar2:
                 (start_x, start_y, x, y), self._zoom_info["direction"],
                 event.key, twinx, twiny)
 
-        self.draw()
+        self._draw()
         self._zoom_info = None
 
         self.push_current()
         self.release(event)
 
+    @cbook.deprecated("3.3", alternative="toolbar.canvas.draw_idle()")
     def draw(self):
         """Redraw the canvases, update the locators."""
+        self._draw()
+
+    # Can be removed once Locator.refresh() is removed, and replaced by an
+    # inline call to self.canvas.draw_idle().
+    def _draw(self):
         for a in self.canvas.figure.get_axes():
             xaxis = getattr(a, 'xaxis', None)
             yaxis = getattr(a, 'yaxis', None)
@@ -3060,7 +3067,7 @@ class NavigationToolbar2:
                 locators.append(yaxis.get_minor_locator())
 
             for loc in locators:
-                loc.refresh()
+                mpl.ticker._if_refresh_overridden_call_and_emit_deprec(loc)
         self.canvas.draw_idle()
 
     def _update_view(self):

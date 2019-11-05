@@ -439,3 +439,14 @@ names will be passed as is, allowing one to pass names such as *patchA* or
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These attributes are deprecated in favor of ``ContourSet.axes`` and
 ``Quiver.axes``, for consistency with other artists.
+
+``Locator.refresh()`` and associated methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``Locator.refresh()`` is deprecated.  This method was called at certain places
+to let locators update their internal state, typically based on the axis
+limits.  Locators should now always consult the axis limits when called, if
+needed.
+
+The associated helper methods ``NavigationToolbar2.draw()`` and
+``ToolViewsPositions.refresh_locators()`` are deprecated, and should be
+replaced by calls to ``draw_idle()`` on the corresponding canvas.
