@@ -17,9 +17,7 @@ import matplotlib.collections as mcoll
 import matplotlib.font_manager as font_manager
 import matplotlib.text as text
 import matplotlib.cbook as cbook
-import matplotlib.mathtext as mathtext
 import matplotlib.patches as mpatches
-import matplotlib.texmanager as texmanager
 import matplotlib.transforms as mtransforms
 
 # Import needed for adding manual selection capability to clabel
@@ -243,20 +241,12 @@ class ContourLabeler:
         """
         if not isinstance(lev, str):
             lev = self.get_text(lev, fmt)
-        lev, ismath = text.Text()._preprocess_math(lev)
-        if ismath == 'TeX':
-            lw, _, _ = (texmanager.TexManager()
-                        .get_text_width_height_descent(lev, fsize))
-        elif ismath:
-            if not hasattr(self, '_mathtext_parser'):
-                self._mathtext_parser = mathtext.MathTextParser('agg')
-            _, _, _, _, _, img, _ = self._mathtext_parser.parse(
-                lev, dpi=72, prop=self.labelFontProps)
-            _, lw = np.shape(img)  # at dpi=72, the units are PostScript points
-        else:
-            # width is much less than "font size"
-            lw = len(lev) * fsize * 0.6
-        return lw
+        fig = self.axes.figure
+        width = (text.Text(0, 0, lev, figure=fig,
+                           size=fsize, fontproperties=self.labelFontProps)
+                 .get_window_extent(fig.canvas.get_renderer()).width)
+        width *= 72 / fig.dpi
+        return width
 
     def set_label_props(self, label, text, color):
         """Set the label properties - color, fontsize, text."""
