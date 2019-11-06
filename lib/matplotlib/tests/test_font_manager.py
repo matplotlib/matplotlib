@@ -13,7 +13,7 @@ from matplotlib import font_manager as fm
 from matplotlib.font_manager import (
     findfont, findSystemFonts, FontProperties, fontManager, json_dump,
     json_load, get_font, get_fontconfig_fonts, is_opentype_cff_font,
-    MSUserFontDirectories, _call_fc_list)
+    MSUserFontDirectories, _call_fc_list, map_weight_name_to_score, weight_dict)
 from matplotlib import pyplot as plt, rc_context
 
 has_fclist = shutil.which('fc-list') is not None
@@ -199,3 +199,22 @@ def test_fork():
     _model_handler(0)  # Make sure the font cache is filled.
     ctx = multiprocessing.get_context("fork")
     ctx.Pool(processes=2).map(_model_handler, range(2))
+
+def test_map_weights():
+    assert map_weight_name_to_score('ultralight') == 100
+    assert map_weight_name_to_score('light') == 200
+    assert map_weight_name_to_score('normal') == 400
+    assert map_weight_name_to_score('regular') == 400
+    assert map_weight_name_to_score('book') == 400
+    assert map_weight_name_to_score('medium') == 500
+    assert map_weight_name_to_score('roman') == 500
+    assert map_weight_name_to_score('semibold') == 600
+    assert map_weight_name_to_score('demibold') == 600
+    assert map_weight_name_to_score('demi') == 600
+    assert map_weight_name_to_score('bold') == 700
+    assert map_weight_name_to_score('heavy') == 800
+    assert map_weight_name_to_score('extra bold') == 800
+    assert map_weight_name_to_score('black') == 900
+
+
+

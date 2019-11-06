@@ -86,6 +86,10 @@ weight_dict = {
     'extra bold': 800,
     'black':      900,
 }
+
+def map_weight_name_to_score(weight):
+    return weight if isinstance(weight, Number) else weight_dict[weight]
+
 font_family_aliases = {
     'serif',
     'sans-serif',
@@ -1147,8 +1151,8 @@ class FontManager:
         # exact match of the weight names, e.g. weight1 == weight2 == "regular"
         if cbook._str_equal(weight1, weight2):
             return 0.0
-        w1 = weight1 if isinstance(weight1, Number) else weight_dict[weight1]
-        w2 = weight2 if isinstance(weight2, Number) else weight_dict[weight2]
+        w1 = map_weight_name_to_score(weight1)
+        w2 = map_weight_name_to_score(weight2)
         return 0.95 * (abs(w1 - w2) / 1000) + 0.05
 
     def score_size(self, size1, size2):
@@ -1292,6 +1296,10 @@ class FontManager:
             _log.debug('findfont: Matching %s to %s (%r) with score of %f.',
                        prop, best_font.name, best_font.fname, best_score)
             result = best_font.fname
+        
+        if abs(map_weight_name_to_score(prop.get_weight()) - map_weight_name_to_score(best_font.weight)) > 100:
+            _log.warning('findfont: Failed to find font weight %s, now using %s.',
+                        prop.get_weight(), best_font.weight)
 
         if not os.path.isfile(result):
             if rebuild_if_missing:
