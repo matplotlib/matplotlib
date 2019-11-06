@@ -2368,6 +2368,7 @@ class Parser:
         p.symbol           = Forward()
         p.symbol_name      = Forward()
         p.token            = Forward()
+        p.underline        = Forward()
         p.unknown_symbol   = Forward()
 
         # Set names on everything -- very useful for debugging
@@ -2489,6 +2490,11 @@ class Parser:
             - (p.required_group | Error("Expected \\overline{value}"))
         )
 
+        p.underline <<= Group(
+            Suppress(Literal(r"\underline"))
+            - (p.required_group | Error("Expected \\underline{value}"))
+        )
+
         p.unknown_symbol <<= Combine(p.bslash + Regex("[A-Za-z]*"))
 
         p.operatorname <<= Group(
@@ -2513,6 +2519,7 @@ class Parser:
             | p.genfrac
             | p.sqrt
             | p.overline
+            | p.underline
             | p.operatorname
         )
 
@@ -3252,6 +3259,31 @@ class Parser:
         rightside = Vlist([Hrule(state),
                            Fill(),
                            Hlist([body])])
+
+        # Stretch the glue between the hrule and the body
+        rightside.vpack(height + (state.fontsize * state.dpi) / (100.0 * 12.0),
+                        'exactly', depth)
+
+        hlist = Hlist([rightside])
+        return [hlist]
+
+    def underline(self, s, loc, toks):
+        assert len(toks) == 1
+        assert len(toks[0]) == 1
+
+        body = toks[0][0]
+
+        state = self.get_state()
+        thickness = state.font_output.get_underline_thickness(
+            state.font, state.fontsize, state.dpi)
+
+        height = body.height - body.shift_amount + thickness * 3.0
+        depth = body.depth + body.shift_amount
+
+        # Place overline above body
+        rightside = Vlist([Hlist([body]),
+                          Fill(),
+                          Hrule(state)])
 
         # Stretch the glue between the hrule and the body
         rightside.vpack(height + (state.fontsize * state.dpi) / (100.0 * 12.0),
