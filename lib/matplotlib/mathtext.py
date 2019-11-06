@@ -3277,7 +3277,7 @@ class Parser:
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
 
-        height = body.height - body.shift_amount + thickness * 3.0
+        height = body.height + body.shift_amount + thickness * 3.0
         depth = body.depth + body.shift_amount
 
         # Place underline below body
