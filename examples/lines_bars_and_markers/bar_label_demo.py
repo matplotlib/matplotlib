@@ -3,12 +3,12 @@
 Bar Label Demo
 ==============
 
-This example shows how to use `blabel` helper function
+This example shows how to use `bar_label` helper function
 to create bar chart labels.
 
-See also the :doc:`grouped bar chart
+See also the :doc:`grouped bar
 </gallery/lines_bars_and_markers/barchart>`,
-:doc:`stacked bar graph
+:doc:`stacked bar
 </gallery/lines_bars_and_markers/bar_stacked>` and
 :doc:`horizontal bar chart
 </gallery/lines_bars_and_markers/barh>` examples.
@@ -44,8 +44,8 @@ ax1.set_xticklabels(('G1', 'G2', 'G3', 'G4', 'G5'))
 ax1.legend()
 
 # Basic labels
-ax1.blabel(rects1)
-ax1.blabel(rects2)
+ax1.bar_label(rects1)
+ax1.bar_label(rects2)
 
 plt.show()
 
@@ -65,9 +65,9 @@ ax2.set_xticklabels(('G1', 'G2', 'G3', 'G4', 'G5'))
 ax2.legend()
 
 # Label with 'center' mode instead of the default 'edge' mode
-ax2.blabel(p1, mode='center')
-ax2.blabel(p2, mode='center')
-ax2.blabel(p2)
+ax2.bar_label(p1, mode='center')
+ax2.bar_label(p2, mode='center')
+ax2.bar_label(p2)
 
 plt.show()
 
@@ -93,7 +93,7 @@ ax3.set_xlabel('Performance')
 ax3.set_title('How fast do you want to go today?')
 
 # Label with specially formatted floats
-ax3.blabel(hbars1, fmt='%.2f')
+ax3.bar_label(hbars1, fmt='%.2f')
 
 plt.show()
 
@@ -113,8 +113,8 @@ ax4.set_title('How fast do you want to go today?')
 arrowprops = dict(color='b', arrowstyle="-|>",
                   connectionstyle="angle,angleA=0,angleB=90,rad=20")
 
-ax4.blabel(hbars2, captions=['±%.2f' % e for e in error],
-           padding=30, shifting=20, arrowprops=arrowprops, color='b')
+ax4.bar_label(hbars2, captions=['±%.2f' % e for e in error],
+              padding=30, shifting=20, arrowprops=arrowprops, color='b')
 
 plt.show()
 
@@ -132,5 +132,5 @@ matplotlib.axes.Axes.bar
 matplotlib.pyplot.bar
 matplotlib.axes.Axes.barh
 matplotlib.pyplot.barh
-matplotlib.axes.Axes.blabel
-matplotlib.pyplot.blabel
+matplotlib.axes.Axes.bar_label
+matplotlib.pyplot.bar_label

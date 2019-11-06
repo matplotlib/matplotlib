@@ -6782,3 +6782,58 @@ def test_ylabel_ha_with_position(ha):
     ax.set_ylabel("test", y=1, ha=ha)
     ax.yaxis.set_label_position("right")
     assert ax.yaxis.get_label().get_ha() == ha
+
+
+def test_bar_label_location_vertical():
+    ax = plt.gca()
+    xs, heights = [1, 2], [3, -4]
+    rects = ax.bar(xs, heights)
+    labels = ax.bar_label(rects)
+    assert labels[0].xy == (xs[0], heights[0])
+    assert labels[0].get_ha() == 'center'
+    assert labels[0].get_va() == 'bottom'
+    assert labels[1].xy == (xs[1], heights[1])
+    assert labels[1].get_ha() == 'center'
+    assert labels[1].get_va() == 'top'
+
+
+def test_bar_label_location_horizontal():
+    ax = plt.gca()
+    ys, widths = [1, 2], [3, -4]
+    rects = ax.barh(ys, widths)
+    labels = ax.bar_label(rects)
+    assert labels[0].xy == (widths[0], ys[0])
+    assert labels[0].get_ha() == 'left'
+    assert labels[0].get_va() == 'center'
+    assert labels[1].xy == (widths[1], ys[1])
+    assert labels[1].get_ha() == 'right'
+    assert labels[1].get_va() == 'center'
+
+
+def test_bar_label_location_center():
+    ax = plt.gca()
+    ys, widths = [1, 2], [3, -4]
+    rects = ax.barh(ys, widths)
+    labels = ax.bar_label(rects, mode='center')
+    assert labels[0].xy == (widths[0] / 2, ys[0])
+    assert labels[0].get_ha() == 'center'
+    assert labels[0].get_va() == 'center'
+    assert labels[1].xy == (widths[1] / 2, ys[1])
+    assert labels[1].get_ha() == 'center'
+    assert labels[1].get_va() == 'center'
+
+
+def test_bar_label_fmt():
+    ax = plt.gca()
+    rects = ax.bar([1, 2], [3, -4])
+    labels = ax.bar_label(rects, fmt='%.2f')
+    assert labels[0].get_text() == '3.00'
+    assert labels[1].get_text() == '-4.00'
+
+
+def test_bar_label_captions():
+    ax = plt.gca()
+    rects = ax.bar([1, 2], [3, -4])
+    labels = ax.bar_label(rects, captions=['A', 'B'])
+    assert labels[0].get_text() == 'A'
+    assert labels[1].get_text() == 'B'

@@ -2498,8 +2498,8 @@ class Axes(_AxesBase):
                            align=align, **kwargs)
         return patches
 
-    def blabel(self, container, captions=[], fmt="%g", mode="edge",
-               padding=None, shifting=0, autoscale=True, **kwargs):
+    def bar_label(self, container, captions=[], fmt="%g", mode="edge",
+                  padding=None, shifting=0, autoscale=True, **kwargs):
         """
         Label a bar plot.
 
@@ -2543,6 +2543,7 @@ class Axes(_AxesBase):
         def sign(x):
             return 1 if x >= 0 else -1
 
+        cbook._check_in_list(['edge', 'center'], mode=mode)
         if mode == "edge":
             padding = padding or 3
         elif mode == "center":
