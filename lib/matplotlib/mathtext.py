@@ -3280,7 +3280,7 @@ class Parser:
         height = body.height - body.shift_amount + thickness * 3.0
         depth = body.depth + body.shift_amount
 
-        # Place overline above body
+        # Place underline below body
         rightside = Vlist([Hlist([body]),
                           Fill(),
                           Hrule(state)])
