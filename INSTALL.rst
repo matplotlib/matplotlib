@@ -99,27 +99,29 @@ and run: ::
 
   git clone https://github.com/matplotlib/matplotlib.git
 
-Matplotlib can be installed from the source directory with a simple ::
-
-  pip install .
-
 If you're developing, it's better to do it in editable mode. The reason why
-is that there's a few artifacts for testing that are only properly referenced
+is that pytest's test discovery only works for Matplotlib
 if installation is done this way. Also, editable mode allows your code changes
-to be instantly propagated to your library code without rebuilding (though
-you will have to restart your kernel): ::
+to be instantly propagated to your library code without reinstalling (though
+you will have to restart your python process / kernel): ::
 
   pip install -e .
 
-Additionally, if you are planning on contributing, you may need additional
-dev dependencies: ::
+If you're not developing, it can be installed from the source directory with
+a simple ::
+
+  pip install .
+
+To run the tests you will need to install some additional dependencies: ::
 
   pip install -r requirements/dev/dev.txt
 
-**Warning:** The following instructions in this section are for very custom
-installations of Matplotlib. Proceed with caution because these instructions
-may result in your build producing unexpected behavior and/or causing
-local testing to fail.
+.. warning ::
+
+  The following instructions in this section are for very custom
+  installations of Matplotlib. Proceed with caution because these instructions
+  may result in your build producing unexpected behavior and/or causing
+  local testing to fail.
 
 If you would like to build from a tarball, grab the latest *tar.gz* release
 file from `the PyPI files page <https://pypi.org/project/matplotlib/>`_.
