@@ -91,17 +91,40 @@ Installing from source
 
 If you are interested in contributing to Matplotlib development,
 running the latest source code, or just like to build everything
-yourself, it is not difficult to build Matplotlib from source.  Grab
-the latest *tar.gz* release file from `the PyPI files page
-<https://pypi.org/project/matplotlib/>`_, or if you want to
-develop Matplotlib or just need the latest bugfixed version, grab the
-latest git version, and see :ref:`install-from-git`.
+yourself, it is not difficult to build Matplotlib from source.
+
+The easiest way to get the latest development version to start contributing
+is to go to the git `repository <https://github.com/matplotlib/matplotlib>`_
+and run: ::
+
+  git clone https://github.com/matplotlib/matplotlib.git
 
 Matplotlib can be installed from the source directory with a simple ::
 
-  python -m pip install .
+  pip install .
 
-We provide a setup.cfg_ file which you can use to customize the build
+If you're developing, it's better to do it in editable mode. The reason why
+is that there's a few artifacts for testing that are only properly referenced
+if installation is done this way. Also, editable mode allows your code changes
+to be instantly propagated to your library code without rebuilding (though
+you will have to restart your kernel): ::
+
+  pip install -e .
+
+Additionally, if you are planning on contributing, you may need additional
+dev dependencies: ::
+
+  pip install -r requirements/dev/dev.txt
+
+**Warning:** The following instructions in this section are for very custom
+installations of Matplotlib. Proceed with caution because these instructions
+may result in your build producing unexpected behavior and/or causing
+local testing to fail.
+
+If you would like to build from a tarball, grab the latest *tar.gz* release
+file from `the PyPI files page <https://pypi.org/project/matplotlib/>`_.
+
+We provide a `setup.cfg`_ file which you can use to customize the build
 process. For example, which default backend to use, whether some of the
 optional libraries that Matplotlib ships with are installed, and so on.  This
 file will be particularly useful to those packaging Matplotlib.
@@ -112,6 +135,9 @@ file will be particularly useful to those packaging Matplotlib.
 
 Dependencies
 ------------
+
+Matplotlib will automatically install dependencies when you install with
+`pip`, so this section is mostly for your reference.
 
 Matplotlib requires the following dependencies:
 
@@ -239,6 +265,11 @@ and on Windows:
 
   - ``Agg``: the Anti-Grain Geometry C++ rendering engine;
   - ``ttconv``: a TrueType font utility.
+
+If you go this route but need to reset and rebuild to change your settings,
+remember to clear your artifacts before re-building: ::
+
+  git clean -xfd
 
 Building on Windows
 -------------------
