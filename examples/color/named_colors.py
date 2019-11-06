@@ -25,6 +25,7 @@ def plot_colortable(colors, title, sort_colors=True, emptycols=0):
     swatch_width = 48
     margin = 12
     topmargin = 40
+    width_multiplier = 4 / (4 - emptycols)
 
     # Sort colors by hue, saturation, value and name.
     if sort_colors is True:
@@ -58,9 +59,9 @@ def plot_colortable(colors, title, sort_colors=True, emptycols=0):
         col = i // nrows
         y = row * cell_height
 
-        swatch_start_x = cell_width * col
-        swatch_end_x = cell_width * col + swatch_width
-        text_pos_x = cell_width * col + swatch_width + 7
+        swatch_start_x = cell_width * col * width_multiplier
+        swatch_end_x = cell_width * col * width_multiplier + swatch_width
+        text_pos_x = cell_width * col * width_multiplier + swatch_width + 7
 
         ax.text(text_pos_x, y, name, fontsize=14,
                 horizontalalignment='left',
@@ -80,8 +81,8 @@ plot_colortable(mcolors.TABLEAU_COLORS, "Tableau Palette",
 plot_colortable(mcolors.CSS4_COLORS, "CSS Colors")
 
 # Optionally plot the XKCD colors (Caution: will produce large figure)
-#xkcd_fig = plot_colortable(mcolors.XKCD_COLORS, "XKCD Colors")
-#xkcd_fig.savefig("XKCD_Colors.png")
+xkcd_fig = plot_colortable(mcolors.XKCD_COLORS, "XKCD Colors")
+xkcd_fig.savefig("XKCD_Colors.png")
 
 plt.show()
 
