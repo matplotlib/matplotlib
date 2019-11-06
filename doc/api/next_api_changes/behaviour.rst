@@ -36,3 +36,8 @@ did nothing, when passed an unsupported value. It now raises a ``ValueError``.
 `.Axis.set_tick_params` (and the higher level `.axes.Axes.tick_params` and
 `.pyplot.tick_params`) used to accept any value for ``which`` and silently
 did nothing, when passed an unsupported value. It now raises a ``ValueError``.
+
+``font_manager.findfont`` now warns of +-100 font-weight difference of selected font vs found font
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Fonts are mapped from string to number. If the best-matched font is over 100 less than or
+greater than the chosen font, a warning will be logged.
