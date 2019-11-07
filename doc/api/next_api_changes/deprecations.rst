@@ -29,3 +29,9 @@ For all locator classes defined in :mod:`mpl_toolkits.axisartist.angle_helper`,
 the ``den`` parameter has been renamed to ``nbins``, and the ``den`` attribute
 deprecated in favor of its (preexisting) synonym ``nbins``, for consistency
 with locator classes defined in :mod:`matplotlib.ticker`.
+
+``backend_pgf.LatexManager.latex_stdin_utf8``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``backend_pgf.LatexManager.latex`` is now created with ``encoding="utf-8"``, so
+its ``stdin`` attribute is already utf8-encoded; the ``latex_stdin_utf8``
+attribute is thus deprecated.
