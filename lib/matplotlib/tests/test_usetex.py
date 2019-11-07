@@ -1,4 +1,5 @@
 import pytest
+import platform
 
 import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -15,7 +16,7 @@ def usetex():
 
 @image_comparison(baseline_images=['test_usetex'],
                   extensions=['pdf', 'png'],
-                  tol=0.3)
+                  tol={'aarch64': 2.868}.get(platform.machine(), 0.3))
 def test_usetex():
     fig = plt.figure()
     ax = fig.add_subplot(111)
