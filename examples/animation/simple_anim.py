@@ -34,8 +34,8 @@ ani = animation.FuncAnimation(
 #
 # or
 #
-# from matplotlib.animation import FFMpegWriter
-# writer = FFMpegWriter(fps=15, metadata=dict(artist='Me'), bitrate=1800)
+# writer = animation.FFMpegWriter(
+#     fps=15, metadata=dict(artist='Me'), bitrate=1800)
 # ani.save("movie.mp4", writer=writer)
 
 plt.show()
