@@ -40,7 +40,7 @@ def test_simple():
 
 
 @image_comparison(['multi_pickle.png'], remove_text=True, style='mpl20',
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+                  tol={'aarch64': 0.082}.get(platform.machine(), 0.0))
 def test_complete():
     fig = plt.figure('Figure with a label?', figsize=(10, 6))
 
