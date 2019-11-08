@@ -273,6 +273,10 @@ def _call_fc_list():
         'This may take a moment.'))
     timer.start()
     try:
+        if b'--format' not in subprocess.check_output(['fc-list', '--help']):
+            _log.warning(  # fontconfig 2.7 implemented --format.
+                'Matplotlib needs fontconfig>=2.7 to query system fonts.')
+            return []
         out = subprocess.check_output(['fc-list', '--format=%{file}\\n'])
     except (OSError, subprocess.CalledProcessError):
         return []
