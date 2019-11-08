@@ -427,17 +427,18 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     """
     if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
+    if "U" in flag:
+        warn_deprecated("3.3", message="Passing a flag containing 'U' to "
+                        "to_filehandle() is deprecated since %(since)s and "
+                        "will be removed %(removal)s.")
+        flag = flag.replace("U", "")
     if isinstance(fname, str):
         if fname.endswith('.gz'):
-            # get rid of 'U' in flag for gzipped files.
-            flag = flag.replace('U', '')
             fh = gzip.open(fname, flag)
         elif fname.endswith('.bz2'):
             # python may not be complied with bz2 support,
             # bury import until we need it
             import bz2
-            # get rid of 'U' in flag for bz2 files
-            flag = flag.replace('U', '')
             fh = bz2.BZ2File(fname, flag)
         else:
             fh = open(fname, flag, encoding=encoding)

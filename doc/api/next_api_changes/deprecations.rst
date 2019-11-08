@@ -35,3 +35,9 @@ with locator classes defined in :mod:`matplotlib.ticker`.
 ``backend_pgf.LatexManager.latex`` is now created with ``encoding="utf-8"``, so
 its ``stdin`` attribute is already utf8-encoded; the ``latex_stdin_utf8``
 attribute is thus deprecated.
+
+Flags containing "U" passed to `.cbook.to_filehandle` and `.cbook.open_file_cm`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Please remove "U" from flags passed to `.cbook.to_filehandle` and
+`.cbook.open_file_cm`.  This is consistent with their removal from `open` in
+Python 3.9.
