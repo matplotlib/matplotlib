@@ -1201,7 +1201,7 @@ class Artist:
     @property
     def mouseover(self):
         """
-        If this property is set to *True*, the data from the artist will be 
+        If this property is set to *True*, the data from the artist will be
         displayed when the mouse cursor moves.
 
         See also :meth:`get_cursor_data`, :class:`.ToolCursorPosition` and
