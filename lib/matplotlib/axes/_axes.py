@@ -2503,7 +2503,7 @@ class Axes(_AxesBase):
         """
         Label a bar plot.
 
-        Adds labels to bars in the given `BarContainer`.
+        Adds labels to bars in the given `.BarContainer`.
 
         Parameters
         ----------
