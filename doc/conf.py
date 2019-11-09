@@ -135,6 +135,7 @@ sphinx_gallery_conf = {
     'backreferences_dir': 'api/_as_gen',
     'subsection_order': gallery_order.sectionorder,
     'within_subsection_order': gallery_order.subsectionorder,
+    'remove_config_comments': True,
     'min_reported_time': 1,
 }
 
