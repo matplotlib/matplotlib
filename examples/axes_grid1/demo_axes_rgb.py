@@ -13,9 +13,7 @@ from mpl_toolkits.axes_grid1.axes_rgb import make_rgb_axes, RGBAxes
 
 
 def get_rgb():
-    f = cbook.get_sample_data("axes_grid/bivariate_normal.npy")
-    Z = np.load(f)  # 15x15 numpy array.
-
+    Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
     Z[Z < 0] = 0.
     Z = Z / Z.max()
 

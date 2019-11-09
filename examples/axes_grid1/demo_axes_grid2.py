@@ -7,21 +7,13 @@ Grid of images with shared xaxis and yaxis.
 """
 
 import numpy as np
-
+from matplotlib import cbook
+import matplotlib.colors
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
-import matplotlib.colors
 
 
 plt.rcParams["mpl_toolkits.legacy_colorbar"] = False
-
-
-def get_demo_image():
-    from matplotlib.cbook import get_sample_data
-    f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
-    z = np.load(f)
-    # z is a numpy array of 15x15
-    return z, (-3, 4, -4, 3)
 
 
 def add_inner_title(ax, title, loc, **kwargs):
@@ -39,7 +31,8 @@ def add_inner_title(ax, title, loc, **kwargs):
 fig = plt.figure(figsize=(6, 6))
 
 # Prepare images
-Z, extent = get_demo_image()
+Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
+extent = (-3, 4, -4, 3)
 ZS = [Z[i::3, :] for i in range(3)]
 extent = extent[0], extent[1]/3., extent[2], extent[3]
 

@@ -7,6 +7,7 @@ This example shows how to use one common colorbar for each row or column
 of an image grid.
 """
 
+from matplotlib import cbook
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import AxesGrid
 
@@ -15,10 +16,7 @@ plt.rcParams["mpl_toolkits.legacy_colorbar"] = False
 
 
 def get_demo_image():
-    import numpy as np
-    from matplotlib.cbook import get_sample_data
-    f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
-    z = np.load(f)
+    z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
     # z is a numpy array of 15x15
     return z, (-3, 4, -4, 3)
 

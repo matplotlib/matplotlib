@@ -294,3 +294,10 @@ FT_LOAD_DEFAULT, etc.  The old synonyms (respectively "either", "native",
 "auto", and "none") are still supported, but their use is discouraged.  To get
 normalized values, use `.backend_agg.get_hinting_flag`, which returns integer
 flag values.
+
+`.cbook.get_sample_data` auto-loads numpy arrays
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When `.cbook.get_sample_data` is used to load a npy or npz file and the
+keyword-only parameter ``np_load`` is True, the file is automatically loaded
+using `numpy.load`.  ``np_load`` defaults to False for backwards compatibility,
+but will become True in a later release.

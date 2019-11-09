@@ -125,7 +125,7 @@ def test_inset_locator():
 
     # prepare the demo image
     # Z is a 15x15 array
-    Z = np.load(cbook.get_sample_data("axes_grid/bivariate_normal.npy"))
+    Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
     extent = (-3, 4, -4, 3)
     Z2 = np.zeros((150, 150))
     ny, nx = Z.shape
@@ -167,7 +167,7 @@ def test_inset_axes():
 
     # prepare the demo image
     # Z is a 15x15 array
-    Z = np.load(cbook.get_sample_data("axes_grid/bivariate_normal.npy"))
+    Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
     extent = (-3, 4, -4, 3)
     Z2 = np.zeros((150, 150))
     ny, nx = Z.shape
