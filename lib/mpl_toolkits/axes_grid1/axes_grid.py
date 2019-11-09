@@ -11,14 +11,6 @@ from .axes_divider import Size, SubplotDivider, Divider
 from .mpl_axes import Axes
 
 
-def _extend_axes_pad(value):
-    # Check whether a list/tuple/array or scalar has been passed
-    ret = value
-    if not hasattr(ret, "__getitem__"):
-        ret = (value, value)
-    return ret
-
-
 def _tick_only(ax, bottom_on, left_on):
     bottom_off = not bottom_on
     left_off = not left_on
@@ -200,9 +192,7 @@ default: None
         self.set_label_mode(label_mode)
 
     def _init_axes_pad(self, axes_pad):
-        axes_pad = _extend_axes_pad(axes_pad)
-        self._axes_pad = axes_pad
-
+        axes_pad = np.broadcast_to(axes_pad, 2)
         self._horiz_pad_size = Size.Fixed(axes_pad[0])
         self._vert_pad_size = Size.Fixed(axes_pad[1])
 
@@ -265,9 +255,8 @@ default: None
         axes_pad : (float, float)
             The padding (horizontal pad, vertical pad) in inches.
         """
-        self._axes_pad = axes_pad
-
-        # These two lines actually differ from ones in _init_axes_pad
+        # Differs from _init_axes_pad by 1) not broacasting, 2) modifying the
+        # Size.Fixed objects in-place.
         self._horiz_pad_size.fixed_size = axes_pad[0]
         self._vert_pad_size.fixed_size = axes_pad[1]
 
@@ -280,7 +269,8 @@ default: None
         hpad, vpad
             Padding (horizontal pad, vertical pad) in inches.
         """
-        return self._axes_pad
+        return (self._horiz_pad_size.fixed_size,
+                self._vert_pad_size.fixed_size)
 
     def set_aspect(self, aspect):
         """Set the aspect of the SubplotDivider."""
@@ -423,23 +413,20 @@ default: None
 
         self.ngrids = ngrids
 
-        axes_pad = _extend_axes_pad(axes_pad)
-        self._axes_pad = axes_pad
+        self._init_axes_pad(axes_pad)
 
         self._colorbar_mode = cbar_mode
         self._colorbar_location = cbar_location
         if cbar_pad is None:
             # horizontal or vertical arrangement?
             if cbar_location in ("left", "right"):
-                self._colorbar_pad = axes_pad[0]
+                self._colorbar_pad = self._horiz_pad_size.fixed_size
             else:
-                self._colorbar_pad = axes_pad[1]
+                self._colorbar_pad = self._vert_pad_size.fixed_size
         else:
             self._colorbar_pad = cbar_pad
 
         self._colorbar_size = cbar_size
-
-        self._init_axes_pad(axes_pad)
 
         cbook._check_in_list(["column", "row"], direction=direction)
         self._direction = direction
@@ -528,7 +515,7 @@ default: None
 
         for col, ax in enumerate(self.axes_row[0]):
             if h:
-                h.append(self._horiz_pad_size)  # Size.Fixed(self._axes_pad))
+                h.append(self._horiz_pad_size)
 
             if ax:
                 sz = Size.AxesX(ax, aspect="axes", ref_ax=self.axes_all[0])
@@ -559,7 +546,7 @@ default: None
         v_cb_pos = []
         for row, ax in enumerate(self.axes_column[0][::-1]):
             if v:
-                v.append(self._vert_pad_size)  # Size.Fixed(self._axes_pad))
+                v.append(self._vert_pad_size)
 
             if ax:
                 sz = Size.AxesY(ax, aspect="axes", ref_ax=self.axes_all[0])
