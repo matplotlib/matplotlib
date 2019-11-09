@@ -3,7 +3,7 @@
 Bar Label Demo
 ==============
 
-This example shows how to use `bar_label` helper function
+This example shows how to use the `~.Axes.bar_label` helper function
 to create bar chart labels.
 
 See also the :doc:`grouped bar
