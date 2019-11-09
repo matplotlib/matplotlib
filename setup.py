@@ -255,12 +255,12 @@ if __name__ == '__main__':
 
         python_requires='>={}'.format('.'.join(str(n) for n in min_version)),
         setup_requires=[
-            "numpy>=1.11",
+            "numpy>=1.12",
         ],
         install_requires=[
             "cycler>=0.10",
             "kiwisolver>=1.0.1",
-            "numpy>=1.11",
+            "numpy>=1.12",
             "pillow>=6.2.0",
             "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
             "python-dateutil>=2.1",
