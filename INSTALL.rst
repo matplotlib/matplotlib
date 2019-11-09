@@ -164,7 +164,9 @@ etc., you can install the following:
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 3.4): for a larger
   selection of image file formats: JPEG, BMP, and TIFF image files;
 * `LaTeX <https://miktex.org/>`_ and `GhostScript (>=9.0)
-  <https://ghostscript.com/download/>`_ : for rendering text with LaTeX.
+  <https://ghostscript.com/download/>`_ : for rendering text with LaTeX;
+* `fontconfig <https://www.fontconfig.org>`_ (>= 2.7): for detection of system
+  fonts on Linux.
 
 .. note::
 
