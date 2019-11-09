@@ -20,7 +20,7 @@ fig, ax = plt.subplots()
 
 data = np.clip(randn(250, 250), -1, 1)
 
-cax = ax.imshow(data, interpolation='nearest', cmap=cm.coolwarm)
+cax = ax.imshow(data, cmap=cm.coolwarm)
 ax.set_title('Gaussian noise with vertical colorbar')
 
 # Add colorbar, make sure to specify tick locations to match desired ticklabels
@@ -34,7 +34,7 @@ fig, ax = plt.subplots()
 
 data = np.clip(randn(250, 250), -1, 1)
 
-cax = ax.imshow(data, interpolation='nearest', cmap=cm.afmhot)
+cax = ax.imshow(data, cmap=cm.afmhot)
 ax.set_title('Gaussian noise with horizontal colorbar')
 
 cbar = fig.colorbar(cax, ticks=[-1, 0, 1], orientation='horizontal')

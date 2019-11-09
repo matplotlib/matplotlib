@@ -57,9 +57,7 @@ def curvelinear_test1(fig):
     fig.add_subplot(ax1)
 
     ax1.imshow(np.arange(25).reshape(5, 5),
-               vmax=50, cmap=plt.cm.gray_r,
-               interpolation="nearest",
-               origin="lower")
+               vmax=50, cmap=plt.cm.gray_r, origin="lower")
 
 
 if __name__ == "__main__":

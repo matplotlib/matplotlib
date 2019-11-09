@@ -58,8 +58,7 @@ grid = ImageGrid(fig, 211,  # similar to subplot(211)
                  )
 
 for i, (ax, z) in enumerate(zip(grid, ZS)):
-    im = ax.imshow(
-        z, origin="lower", extent=extent, interpolation="nearest")
+    im = ax.imshow(z, origin="lower", extent=extent)
     cb = ax.cax.colorbar(im)
     # Changing the colorbar ticks
     if i in [1, 2]:
@@ -100,9 +99,7 @@ vmax, vmin = np.max(ZS), np.min(ZS)
 norm = matplotlib.colors.Normalize(vmax=vmax, vmin=vmin)
 
 for ax, z in zip(grid2, ZS):
-    im = ax.imshow(z, norm=norm,
-                   origin="lower", extent=extent,
-                   interpolation="nearest")
+    im = ax.imshow(z, norm=norm, origin="lower", extent=extent)
 
 # With cbar_mode="single", cax attribute of all axes are identical.
 ax.cax.colorbar(im)
