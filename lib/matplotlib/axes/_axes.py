@@ -6603,6 +6603,11 @@ optional.
         --------
         hist2d : 2D histograms
 
+        Notes
+        -----
+        For large numbers of bins (>1000), 'step' and 'stepfilled' can be
+        significantly faster than 'bar' and 'barstacked'.
+
         """
         # Avoid shadowing the builtin.
         bin_range = range
