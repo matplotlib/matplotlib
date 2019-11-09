@@ -97,21 +97,7 @@ In both cases step 3 will have to be un-done right after the release.
 
 Finally, make sure that the docs build cleanly ::
 
-  make -Cdoc O=-j$(nproc) html latexpdf
-
-After the docs are built, check that all of the links, internal and external, are still
-valid.  We use ``linkchecker`` for this, which has not been ported to python3 yet.  You will
-need to create a python2 environment with ``requests==2.9.0`` and linkchecker ::
-
-  conda create -p /tmp/lnkchk python=2 requests==2.9.0
-  source activate /tmp/lnkchk
-  pip install linkchecker
-  pushd doc/build/html
-  linkchecker index.html --check-extern
-  popd
-
-Address any issues which may arise.  The internal links are checked on travis, this should only
-flag failed external links.
+  make -Cdoc O=-j$(nproc) html latexpdf linkcheck
 
 .. _release_tag:
 
