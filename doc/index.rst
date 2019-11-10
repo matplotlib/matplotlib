@@ -159,11 +159,11 @@ extend and build on Matplotlib functionality, including several higher-level
 plotting interfaces (seaborn_, holoviews_, ggplot_, ...), and two projection
 and mapping toolkits (basemap_ and cartopy_).
 
-.. _seaborn: https://seaborn.github.io/
+.. _seaborn: https://seaborn.pydata.org
 .. _holoviews: http://holoviews.org
 .. _ggplot: http://ggplot.yhathq.com
-.. _basemap: http://matplotlib.org/basemap
-.. _cartopy: http://scitools.org.uk/cartopy/docs/latest
+.. _basemap: https://matplotlib.org/basemap
+.. _cartopy: https://scitools.org.uk/cartopy/docs/latest
 
 Citing Matplotlib
 =================
