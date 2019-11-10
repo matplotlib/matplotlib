@@ -100,8 +100,7 @@ provide the following information in your e-mail to the `mailing list
      python -c "import matplotlib; print matplotlib.__version__"
 
 * Where you obtained Matplotlib (e.g., your Linux distribution's packages,
-  GitHub, PyPi, or `Anaconda <https://www.anaconda.com/>`_ or
-  `Enthought Canopy <https://www.enthought.com/products/canopy/>`_).
+  GitHub, PyPi, or `Anaconda <https://www.anaconda.com/>`_).
 
 * Any customizations to your ``matplotlibrc`` file (see
   :doc:`/tutorials/introductory/customizing`).
