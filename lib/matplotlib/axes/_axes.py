@@ -2381,8 +2381,8 @@ class Axes(_AxesBase):
 
         self._request_autoscale_view()
 
-        bar_container = BarContainer(patches, errorbar, orientation,
-                                     label=label)
+        bar_container = BarContainer(patches, errorbar,
+                                     orientation=orientation, label=label)
         self.add_container(bar_container)
 
         if tick_labels is not None:
@@ -2498,12 +2498,13 @@ class Axes(_AxesBase):
                            align=align, **kwargs)
         return patches
 
-    def bar_label(self, container, captions=[], fmt="%g", mode="edge",
-                  padding=None, shifting=0, autoscale=True, **kwargs):
+    def bar_label(self, container, captions=[], *, fmt="%g", position="edge",
+                  padding=0, shifting=0, **kwargs):
         """
         Label a bar plot.
 
         Adds labels to bars in the given `.BarContainer`.
+        You may need to adjust the axis limits to fit the labels.
 
         Parameters
         ----------
@@ -2514,40 +2515,33 @@ class Axes(_AxesBase):
             A list of label texts, that should be displayed. If not given, the
             label texts will be the data values formatted with *fmt*.
 
-        fmt : str, optional
-            A format string for the label. Default is '%g'
+        fmt : str, default: '%g'
+            A format string for the label.
 
-        mode : {'edge', 'center'}, optional, default: 'edge'
+        position : {'edge', 'center'}, default: 'edge'
             Position of the label relative to the bar:
 
             - 'edge': Placed at edge, the cumulative values will be shown.
             - 'center': Placed at center, the individual values will be shown.
 
-        padding : float, optional
-            Space in points for label to leave the edge of the bar.
+        padding : float, default: 0
+            Offset in points for label to shift in longitudinal direction.
 
-        shifting : float, optional
-            Translation in points for label to leave the center of the bar.
-
-        autoscale : bool, optional
-            If ``True``, try to rescale to fit the labels. Default is ``True``.
+        shifting : float, default: 0
+            Offset in points for label to shift in lateral direction.
 
         Returns
         -------
         annotations
             A list of `.Text` instances for the labels.
         """
-        def nonefill(a, n):
-            return list(a) + [None] * (n - len(a))
+        def extend_with_none(iterable, length):
+            return list(iterable) + [None] * (length - len(iterable))
 
         def sign(x):
             return 1 if x >= 0 else -1
 
-        cbook._check_in_list(['edge', 'center'], mode=mode)
-        if mode == "edge":
-            padding = padding or 3
-        elif mode == "center":
-            padding = padding or 0
+        cbook._check_in_list(['edge', 'center'], position=position)
 
         bars = container.patches
         errorbar = container.errorbar
@@ -2559,10 +2553,10 @@ class Axes(_AxesBase):
             barlinecols = lines[2]
             barlinecol = barlinecols[0]
             segments = barlinecol.get_segments()
-            errs = nonefill(segments, N)
+            errs = extend_with_none(segments, length=N)
         else:
-            errs = nonefill([], N)
-        caps = nonefill(captions, N)
+            errs = extend_with_none([], length=N)
+        caps = extend_with_none(captions, length=N)
 
         annotations = []
         for bar, err, cap in zip(bars, errs, caps):
@@ -2584,16 +2578,16 @@ class Axes(_AxesBase):
             elif orientation == "horizontal":
                 endpt = err[:, 0].max() if xc >= 0 else err[:, 0].min()
 
-            if mode == "center":
+            if position == "center":
                 value = sign(extrema) * length
-            elif mode == "edge":
+            elif position == "edge":
                 value = extrema
 
-            if mode == "center":
+            if position == "center":
                 xy = xc, yc
-            elif mode == "edge" and orientation == "vertical":
+            elif position == "edge" and orientation == "vertical":
                 xy = xc, endpt
-            elif mode == "edge" and orientation == "horizontal":
+            elif position == "edge" and orientation == "horizontal":
                 xy = endpt, yc
 
             if orientation == "vertical":
@@ -2601,31 +2595,23 @@ class Axes(_AxesBase):
             else:
                 xytext = sign(extrema) * padding, shifting
 
-            if mode == "center":
+            if position == "center":
                 ha, va = "center", "center"
-            elif mode == "edge" and orientation == "vertical" and yc >= 0:
+            elif position == "edge" and orientation == "vertical" and yc >= 0:
                 ha, va = "center", "bottom"
-            elif mode == "edge" and orientation == "vertical" and yc < 0:
+            elif position == "edge" and orientation == "vertical" and yc < 0:
                 ha, va = "center", "top"
-            elif mode == "edge" and orientation == "horizontal" and xc >= 0:
+            elif (
+                position == "edge" and orientation == "horizontal" and xc >= 0
+            ):
                 ha, va = "left", "center"
-            elif mode == "edge" and orientation == "horizontal" and xc < 0:
+            elif position == "edge" and orientation == "horizontal" and xc < 0:
                 ha, va = "right", "center"
 
             annotation = self.annotate(cap or fmt % value, xy, xytext,
                                        textcoords="offset points",
                                        ha=ha, va=va, **kwargs)
             annotations.append(annotation)
-
-        if autoscale:
-            transform = self.transData.inverted()
-            renderer = self.figure.canvas.get_renderer()
-            corners = []
-            for text in annotations:
-                points = text.get_window_extent(renderer).get_points()
-                corners.append(transform.transform(points))
-            self.update_datalim(np.vstack(corners))
-            self.autoscale_view()
 
         return annotations
 

@@ -62,7 +62,7 @@ class BarContainer(Container):
 
     """
 
-    def __init__(self, patches, errorbar=None, orientation=None, **kwargs):
+    def __init__(self, patches, errorbar=None, *, orientation=None, **kwargs):
         self.patches = patches
         self.errorbar = errorbar
         self.orientation = orientation
