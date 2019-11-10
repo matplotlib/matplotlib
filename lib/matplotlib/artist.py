@@ -1200,6 +1200,13 @@ class Artist:
 
     @property
     def mouseover(self):
+        """
+        If this property is set to *True*, the artist will be queried for
+        custom context information when the mouse cursor moves over it.
+
+        See also :meth:`get_cursor_data`, :class:`.ToolCursorPosition` and
+        :class:`.NavigationToolbar2`.
+        """
         return self._mouseover
 
     @mouseover.setter
