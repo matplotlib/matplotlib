@@ -32,7 +32,9 @@ one has to look at the gallery where one such example is provided:
 http://matplotlib.org/examples/text_labels_and_annotations/rainbow_text.html
 
 This example takes a list of strings as well as a list of colors which makes it
-cumbersome to use. An alternative would be to use a restricted set of pango-like markup (see https://developer.gnome.org/pango/stable/PangoMarkupFormat.html) and to interpret this markup.
+cumbersome to use. An alternative would be to use a restricted set of pango_-like markup and to interpret this markup.
+
+.. _pango: https://developer.gnome.org/pygtk/stable/pango-markup-language.html
 
 Some markup examples::
 
