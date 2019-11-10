@@ -20,10 +20,6 @@ def _extend_axes_pad(value):
 def _tick_only(ax, bottom_on, left_on):
     bottom_off = not bottom_on
     left_off = not left_on
-    # [l.set_visible(bottom_off) for l in ax.get_xticklabels()]
-    # [l.set_visible(left_off) for l in ax.get_yticklabels()]
-    # ax.xaxis.label.set_visible(bottom_off)
-    # ax.yaxis.label.set_visible(left_off)
     ax.axis["bottom"].toggle(ticklabels=bottom_off, label=bottom_off)
     ax.axis["left"].toggle(ticklabels=left_off, label=left_off)
 
@@ -73,37 +69,14 @@ class CbarAxesBase:
         """Make an axes patch and outline."""
         ax = self
         ax.set_navigate(False)
-
         ax.axis[:].toggle(all=False)
         b = self._default_label_on
         ax.axis[self.orientation].toggle(all=b)
-
-        # for axis in ax.axis.values():
-        #     axis.major_ticks.set_visible(False)
-        #     axis.minor_ticks.set_visible(False)
-        #     axis.major_ticklabels.set_visible(False)
-        #     axis.minor_ticklabels.set_visible(False)
-        #     axis.label.set_visible(False)
-
-        # axis = ax.axis[self.orientation]
-        # axis.major_ticks.set_visible(True)
-        # axis.minor_ticks.set_visible(True)
-
-        #axis.major_ticklabels.set_size(
-        #    int(axis.major_ticklabels.get_size()*.9))
-        #axis.major_tick_pad = 3
-
-        # axis.major_ticklabels.set_visible(b)
-        # axis.minor_ticklabels.set_visible(b)
-        # axis.label.set_visible(b)
 
     def toggle_label(self, b):
         self._default_label_on = b
         axis = self.axis[self.orientation]
         axis.toggle(ticklabels=b, label=b)
-        #axis.major_ticklabels.set_visible(b)
-        #axis.minor_ticklabels.set_visible(b)
-        #axis.label.set_visible(b)
 
 
 class CbarAxes(CbarAxesBase, Axes):
@@ -618,13 +591,11 @@ default: None
         if (self._colorbar_mode == "single" and
              self._colorbar_location in ('left', 'bottom')):
             if self._colorbar_location == "left":
-                #sz = Size.Fraction(Size.AxesX(self.axes_llc), self._nrows)
                 sz = Size.Fraction(self._nrows, Size.AxesX(self.axes_llc))
                 h.append(Size.from_any(self._colorbar_size, sz))
                 h.append(Size.from_any(self._colorbar_pad, sz))
                 locator = self._divider.new_locator(nx=0, ny=0, ny1=-1)
             elif self._colorbar_location == "bottom":
-                #sz = Size.Fraction(Size.AxesY(self.axes_llc), self._ncols)
                 sz = Size.Fraction(self._ncols, Size.AxesY(self.axes_llc))
                 v.append(Size.from_any(self._colorbar_size, sz))
                 v.append(Size.from_any(self._colorbar_pad, sz))
@@ -695,8 +666,6 @@ default: None
 
         for i in range(self.ngrids):
             col, row = self._get_col_row(i)
-            #locator = self._divider.new_locator(nx=4*col,
-            #                                    ny=2*(self._nrows - row - 1))
             locator = self._divider.new_locator(nx=h_ax_pos[col],
                                                 ny=v_ax_pos[self._nrows-1-row])
             self.axes_all[i].set_axes_locator(locator)
@@ -727,13 +696,11 @@ default: None
 
         if self._colorbar_mode == "single":
             if self._colorbar_location == "right":
-                #sz = Size.Fraction(Size.AxesX(self.axes_llc), self._nrows)
                 sz = Size.Fraction(self._nrows, Size.AxesX(self.axes_llc))
                 h.append(Size.from_any(self._colorbar_pad, sz))
                 h.append(Size.from_any(self._colorbar_size, sz))
                 locator = self._divider.new_locator(nx=-2, ny=0, ny1=-1)
             elif self._colorbar_location == "top":
-                #sz = Size.Fraction(Size.AxesY(self.axes_llc), self._ncols)
                 sz = Size.Fraction(self._ncols, Size.AxesY(self.axes_llc))
                 v.append(Size.from_any(self._colorbar_pad, sz))
                 v.append(Size.from_any(self._colorbar_size, sz))
