@@ -23,8 +23,8 @@
 #include "_tkmini.h"
 #include "py_converters.h"
 
-// Global vars for Tcl / Tk functions.  We load these symbols from the tkinter
-// extension module or loaded Tcl / Tk libraries at run-time.
+// Global vars for Tk functions.  We load these symbols from the tkinter
+// extension module or loaded Tk libraries at run-time.
 static Tk_FindPhoto_t TK_FIND_PHOTO;
 static Tk_PhotoPutBlock_NoComposite_t TK_PHOTO_PUT_BLOCK_NO_COMPOSITE;
 
@@ -108,7 +108,7 @@ static PyMethodDef functions[] = {
     { NULL, NULL } /* sentinel */
 };
 
-// Functions to fill global TCL / Tk function pointers by dynamic loading
+// Functions to fill global Tk function pointers by dynamic loading
 
 template <class T>
 int load_tk(T lib)
@@ -125,23 +125,22 @@ int load_tk(T lib)
 #ifdef _WIN32
 
 /*
- * On Windows, we can't load the tkinter module to get the TCL or Tk symbols,
- * because Windows does not load symbols into the library name-space of
- * importing modules. So, knowing that tkinter has already been imported by
- * Python, we scan all modules in the running process for the TCL and Tk
- * function names.
+ * On Windows, we can't load the tkinter module to get the Tk symbols, because
+ * Windows does not load symbols into the library name-space of importing
+ * modules. So, knowing that tkinter has already been imported by Python, we
+ * scan all modules in the running process for the Tk function names.
  */
 
 void load_tkinter_funcs(void)
 {
-    // Load TCL and Tk functions by searching all modules in current process.
+    // Load Tk functions by searching all modules in current process.
     HMODULE hMods[1024];
     HANDLE hProcess;
     DWORD cbNeeded;
     unsigned int i;
     // Returns pseudo-handle that does not need to be closed
     hProcess = GetCurrentProcess();
-    // Iterate through modules in this process looking for TCL / Tk names
+    // Iterate through modules in this process looking for Tk names.
     if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded)) {
         for (i = 0; i < (cbNeeded / sizeof(HMODULE)); i++) {
             if (load_tk(hMods[i])) {
@@ -154,9 +153,9 @@ void load_tkinter_funcs(void)
 #else  // not Windows
 
 /*
- * On Unix, we can get the TCL and Tk symbols from the tkinter module, because
- * tkinter uses these symbols, and the symbols are therefore visible in the
- * tkinter dynamic library (module).
+ * On Unix, we can get the Tk symbols from the tkinter module, because tkinter
+ * uses these symbols, and the symbols are therefore visible in the tkinter
+ * dynamic library (module).
  */
 
 void load_tkinter_funcs(void)
