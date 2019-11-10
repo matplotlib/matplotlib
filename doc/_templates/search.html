@@ -41,8 +41,5 @@
 {% endblock %}
 {% block footer %}
   {{ super() }}
-<script type="text/javascript">
-    jQuery(function() { Search.loadIndex("searchindex.js"); });
-</script>
-<script type="text/javascript" id="searchindexloader"></script>
+  <script type="text/javascript" src="{{ pathto('searchindex.js', 1) }}" defer></script>
 {% endblock %}
