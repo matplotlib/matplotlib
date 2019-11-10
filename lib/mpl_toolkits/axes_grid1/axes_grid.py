@@ -135,8 +135,7 @@ class Grid:
             - "1": Only the bottom left axes is labelled.
             - "all": all axes are labelled.
 
-        axes_class : a type that is a subclass of `matplotlib.axes.Axes`, \
-default: None
+        axes_class : subclass of `matplotlib.axes.Axes`, default: None
         """
         self._nrows, self._ncols = nrows_ncols
 
@@ -400,8 +399,7 @@ class ImageGrid(Grid):
         cbar_set_cax : bool, default: True
             If True, each axes in the grid has a *cax* attribute that is bound
             to associated *cbar_axes*.
-        axes_class : a type that is a subclass of `matplotlib.axes.Axes`, \
-default: None
+        axes_class : subclass of `matplotlib.axes.Axes`, default: None
         """
         self._nrows, self._ncols = nrows_ncols
 
