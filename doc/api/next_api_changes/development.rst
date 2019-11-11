@@ -1,6 +1,9 @@
 Development changes
 -------------------
 
+Matplotlib now requires numpy>=1.12
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Matplotlib now uses Pillow to save and read pngs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
