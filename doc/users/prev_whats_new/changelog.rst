@@ -1002,7 +1002,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2009-07-19 Fixed the docstring of Axes.step to reflect the correct
            meaning of the kwargs "pre" and "post" - See SF bug
-           https://sourceforge.net/tracker/index.php?func=detail&aid=2823304&group_id=80706&atid=560720
+           \https://sourceforge.net/tracker/index.php?func=detail&aid=2823304&group_id=80706&atid=560720
            - JDH
 
 2009-07-18 Fix support for hatches without color fills to pdf and svg
@@ -1797,7 +1797,7 @@ the `API changes <../../api/api_changes.html>`_.
 2008-06-10 Bar now applies the label only to the first patch only, and
            sets '_nolegend_' for the other patch labels.  This lets
            autolegend work as expected for hist and bar - see
-           https://sourceforge.net/tracker/index.php?func=detail&aid=1986597&group_id=80706&atid=560720
+           \https://sourceforge.net/tracker/index.php?func=detail&aid=1986597&group_id=80706&atid=560720
            JDH
 
 2008-06-10 Fix text baseline alignment bug.  [ 1985420 ] Repair of
@@ -1860,11 +1860,11 @@ the `API changes <../../api/api_changes.html>`_.
 
 2008-05-28 Allow keyword args to configure widget properties as
            requested in
-           http://sourceforge.net/tracker/index.php?func=detail&aid=1866207&group_id=80706&atid=560722
+           \http://sourceforge.net/tracker/index.php?func=detail&aid=1866207&group_id=80706&atid=560722
            - JDH
 
 2008-05-28 Replaced '-' with u'\u2212' for minus sign as requested in
-           http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&group_id=80706&atid=560720
+           \http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&group_id=80706&atid=560720
 
 2008-05-28 zero width/height Rectangles no longer influence the
            autoscaler.  Useful for log histograms with empty bins -
@@ -2555,11 +2555,11 @@ the `API changes <../../api/api_changes.html>`_.
            writable HOME/.matplotlib already exists - JDH
 
 2007-06-27 Fixed locale bug reported at
-           http://sourceforge.net/tracker/index.php?func=detail&aid=1744154&group_id=80706&atid=560720
+           \http://sourceforge.net/tracker/index.php?func=detail&aid=1744154&group_id=80706&atid=560720
            by adding a cbook.unicode_safe function - JDH
 
 2007-06-27 Applied Micheal's tk savefig bugfix described at
-           http://sourceforge.net/tracker/index.php?func=detail&aid=1716732&group_id=80706&atid=560720
+           \http://sourceforge.net/tracker/index.php?func=detail&aid=1716732&group_id=80706&atid=560720
            Thanks Michael!
 
 
@@ -2954,7 +2954,7 @@ the `API changes <../../api/api_changes.html>`_.
            subplots_adjust - JDH
 
 2006-10-31 Applied axes3d patch 1587359
-           http://sourceforge.net/tracker/index.php?func=detail&aid=1587359&group_id=80706&atid=560722
+           \http://sourceforge.net/tracker/index.php?func=detail&aid=1587359&group_id=80706&atid=560722
            JDH
 
 -------------------------
@@ -4098,7 +4098,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2005-05-27 Got win32 build system working again, using a more recent
            version of gtk and pygtk in the win32 build, gtk 2.6 from
-           http://www.gimp.org/~tml/gimp/win32/downloads.html (you
+           https://web.archive.org/web/20050527002647/https://www.gimp.org/~tml/gimp/win32/downloads.html (you
            will also need libpng12.dll to use these).  I haven't
            tested whether this binary build of mpl for win32 will work
            with older gtk runtimes, so you may need to upgrade.
