@@ -52,11 +52,10 @@ def demo_rgb():
 
     r, g, b = get_rgb()
     im_r, im_g, im_b, im_rgb = make_cube(r, g, b)
-    kwargs = dict(origin="lower", interpolation="nearest")
-    ax.imshow(im_rgb, **kwargs)
-    ax_r.imshow(im_r, **kwargs)
-    ax_g.imshow(im_g, **kwargs)
-    ax_b.imshow(im_b, **kwargs)
+    ax.imshow(im_rgb)
+    ax_r.imshow(im_r)
+    ax_g.imshow(im_g)
+    ax_b.imshow(im_b)
 
 
 def demo_rgb2():
@@ -64,11 +63,7 @@ def demo_rgb2():
     ax = RGBAxes(fig, [0.1, 0.1, 0.8, 0.8], pad=0.0)
 
     r, g, b = get_rgb()
-    kwargs = dict(origin="lower", interpolation="nearest")
-    ax.imshow_rgb(r, g, b, **kwargs)
-
-    ax.RGB.set_xlim(0., 9.5)
-    ax.RGB.set_ylim(0.9, 10.6)
+    ax.imshow_rgb(r, g, b)
 
     for ax1 in [ax.RGB, ax.R, ax.G, ax.B]:
         ax1.tick_params(axis='both', direction='in')

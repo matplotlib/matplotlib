@@ -6,8 +6,12 @@ Demo Edge Colorbar
 This example shows how to use one common colorbar for each row or column
 of an image grid.
 """
+
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import AxesGrid
+
+
+plt.rcParams["mpl_toolkits.legacy_colorbar"] = False
 
 
 def get_demo_image():
@@ -38,8 +42,7 @@ def demo_bottom_cbar(fig):
     Z, extent = get_demo_image()
     cmaps = [plt.get_cmap("autumn"), plt.get_cmap("summer")]
     for i in range(4):
-        im = grid[i].imshow(Z, extent=extent, interpolation="nearest",
-                            cmap=cmaps[i//2])
+        im = grid[i].imshow(Z, extent=extent, cmap=cmaps[i//2])
         if i % 2:
             grid.cbar_axes[i//2].colorbar(im)
 
@@ -69,8 +72,7 @@ def demo_right_cbar(fig):
     Z, extent = get_demo_image()
     cmaps = [plt.get_cmap("spring"), plt.get_cmap("winter")]
     for i in range(4):
-        im = grid[i].imshow(Z, extent=extent, interpolation="nearest",
-                            cmap=cmaps[i//2])
+        im = grid[i].imshow(Z, extent=extent, cmap=cmaps[i//2])
         if i % 2:
             grid.cbar_axes[i//2].colorbar(im)
 

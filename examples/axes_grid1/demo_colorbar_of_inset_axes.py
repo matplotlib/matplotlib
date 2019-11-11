@@ -28,8 +28,7 @@ ax.set(aspect=1,
 
 
 axins = zoomed_inset_axes(ax, zoom=2, loc='upper left')
-im = axins.imshow(Z, extent=extent, interpolation="nearest",
-                  origin="lower")
+im = axins.imshow(Z, extent=extent, origin="lower")
 
 plt.xticks(visible=False)
 plt.yticks(visible=False)
