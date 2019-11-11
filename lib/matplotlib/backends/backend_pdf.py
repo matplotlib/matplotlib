@@ -874,9 +874,11 @@ class PdfFile:
         return fontdescObject
 
     def _get_xobject_symbol_name(self, filename, symbol_name):
-        return "%s-%s" % (
+        Fx = self.fontName(filename)
+        return "-".join([
+            Fx.name.decode(),
             os.path.splitext(os.path.basename(filename))[0],
-            symbol_name)
+            symbol_name])
 
     _identityToUnicodeCMap = b"""/CIDInit /ProcSet findresource begin
 12 dict begin
