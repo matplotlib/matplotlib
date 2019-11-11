@@ -136,7 +136,7 @@ class Text(Artist):
                  rotation_mode=None,
                  usetex=None,          # defaults to rcParams['text.usetex']
                  wrap=False,
-                 rotation_transformed=False,
+                 transform_rotates_text=False,
                  **kwargs
                  ):
         """
@@ -158,7 +158,7 @@ class Text(Artist):
         self.set_horizontalalignment(horizontalalignment)
         self._multialignment = multialignment
         self._rotation = rotation
-        self._rotation_transformed = rotation_transformed
+        self._transform_rotates_text = transform_rotates_text
         self._bbox_patch = None  # a FancyBboxPatch instance
         self._renderer = None
         if linespacing is None:
@@ -230,16 +230,18 @@ class Text(Artist):
 
     def get_rotation(self):
         """Return the text angle in degrees between 0 and 360."""
-        if self.get_rotation_transformed():
+        if self.get_transform_rotates_text():
             angle = get_rotation(self._rotation)
             x, y = self.get_unitless_position()
             return self.get_transform().transform_angles([angle, ], [[x, y]])
         else:
             return get_rotation(self._rotation)  # string_or_number -> number
 
-    def get_rotation_transformed(self):
-        """Return if the text rotation get transformed or not."""
-        return self._rotation_transformed
+    def get_transform_rotates_text(self):
+        """
+        Return whether rotations of the transform affect the text direction.
+        """
+        return self._transform_rotates_text
 
     def set_rotation_mode(self, m):
         """
@@ -270,7 +272,7 @@ class Text(Artist):
         self._fontproperties = other._fontproperties.copy()
         self._usetex = other._usetex
         self._rotation = other._rotation
-        self._rotation_transformed = other._rotation_transformed
+        self._transform_rotates_text = other._transform_rotates_text
         self._picker = other._picker
         self._linespacing = other._linespacing
         self.stale = True
@@ -855,7 +857,7 @@ class Text(Artist):
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties),
                 self._rotation, self._rotation_mode,
-                self._rotation_transformed,
+                self._transform_rotates_text,
                 self.figure.dpi, weakref.ref(renderer),
                 self._linespacing
                 )
@@ -1145,15 +1147,15 @@ class Text(Artist):
         self._rotation = s
         self.stale = True
 
-    def set_rotation_transformed(self, t):
+    def set_transform_rotates_text(self, t):
         """
-        Set if the text rotation get transformed or not.
+        Whether rotations of the transform affect the text direction.
 
         Parameters
         ----------
         t : bool
         """
-        self._rotation_transformed = t
+        self._transform_rotates_text = t
         self.stale = True
 
     def set_verticalalignment(self, align):
