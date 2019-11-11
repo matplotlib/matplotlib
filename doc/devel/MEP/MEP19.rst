@@ -122,7 +122,7 @@ This section outlines the requirements that we would like to have.
 #. Make it easy to test a large but sparse matrix of different
    versions of matplotlib's dependencies.  The matplotlib user survey
    provides some good data as to where to focus our efforts:
-   https://docs.google.com/spreadsheet/ccc?key=0AjrPjlTMRTwTdHpQS25pcTZIRWdqX0pNckNSU01sMHc#gid=0
+   https://docs.google.com/spreadsheet/ccc?key=0AjrPjlTMRTwTdHpQS25pcTZIRWdqX0pNckNSU01sMHc
 
 #. Nice to have: A decentralized design so that those with more
    obscure platforms can publish build results to a central dashboard.
