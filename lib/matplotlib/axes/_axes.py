@@ -430,7 +430,7 @@ class Axes(_AxesBase):
             parent axes.
 
         **kwargs
-            Other keyword arguments are passed on to the `.Axes` child axes.
+            Other keyword arguments are passed on to the child `.Axes`.
 
         Returns
         -------
@@ -451,14 +451,13 @@ class Axes(_AxesBase):
         """
         if transform is None:
             transform = self.transAxes
-        label = kwargs.pop('label', 'inset_axes')
+        kwargs.setdefault('label', 'inset_axes')
 
         # This puts the rectangle into figure-relative coordinates.
         inset_locator = _make_inset_locator(bounds, transform, self)
         bb = inset_locator(None, None)
 
-        inset_ax = Axes(self.figure, bb.bounds, zorder=zorder, label=label,
-                        **kwargs)
+        inset_ax = Axes(self.figure, bb.bounds, zorder=zorder, **kwargs)
         # this locator lets the axes move if in data coordinates.
         # it gets called in `ax.apply_aspect() (of all places)
         inset_ax.set_axes_locator(inset_locator)
@@ -478,7 +477,6 @@ class Axes(_AxesBase):
         Warnings
         --------
         This method is experimental as of 3.0, and the API may change.
-
 
         Parameters
         ----------
@@ -510,7 +508,9 @@ class Axes(_AxesBase):
             4.99, is just below the default level of inset axes.
 
         **kwargs
-            Other keyword arguments are passed on to the rectangle patch.
+            Other keyword arguments are passed on to the `.Rectangle` patch:
+
+            %(Rectangle)s
 
         Returns
         -------
@@ -530,13 +530,13 @@ class Axes(_AxesBase):
 
         if transform is None:
             transform = self.transData
-        label = kwargs.pop('label', 'indicate_inset')
+        kwargs.setdefault('label', 'indicate_inset')
 
         x, y, width, height = bounds
         rectangle_patch = mpatches.Rectangle(
             (x, y), width, height,
             facecolor=facecolor, edgecolor=edgecolor, alpha=alpha,
-            zorder=zorder,  label=label, transform=transform, **kwargs)
+            zorder=zorder, transform=transform, **kwargs)
         self.add_patch(rectangle_patch)
 
         connects = []

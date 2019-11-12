@@ -1977,9 +1977,11 @@ class FigureCanvasBase:
             "Format {!r} is not supported (supported formats: {})"
             .format(fmt, ", ".join(sorted(self.get_supported_filetypes()))))
 
-    def print_figure(self, filename, dpi=None, facecolor=None, edgecolor=None,
-                     orientation='portrait', format=None,
-                     *, bbox_inches=None, backend=None, **kwargs):
+    def print_figure(
+            self, filename, dpi=None, facecolor=None, edgecolor=None,
+            orientation='portrait', format=None, *,
+            bbox_inches=None, pad_inches=None, bbox_extra_artists=None,
+            backend=None, **kwargs):
         """
         Render the figure to hardcopy. Set the figure patch face and edge
         colors.  This is useful because some of the GUIs have a gray figure
@@ -2077,14 +2079,11 @@ class FigureCanvasBase:
                             print_method, dpi=dpi, orientation=orientation),
                         draw_disabled=True)
                     self.figure.draw(renderer)
-                    bbox_artists = kwargs.pop("bbox_extra_artists", None)
                     bbox_inches = self.figure.get_tightbbox(
-                        renderer, bbox_extra_artists=bbox_artists)
-                    pad = kwargs.pop("pad_inches", None)
-                    if pad is None:
-                        pad = rcParams['savefig.pad_inches']
-
-                    bbox_inches = bbox_inches.padded(pad)
+                        renderer, bbox_extra_artists=bbox_extra_artists)
+                    if pad_inches is None:
+                        pad_inches = rcParams['savefig.pad_inches']
+                    bbox_inches = bbox_inches.padded(pad_inches)
 
                 # call adjust_bbox to save only the given area
                 restore_bbox = tight_bbox.adjust_bbox(self.figure, bbox_inches,
