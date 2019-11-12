@@ -572,7 +572,10 @@ class DateFormatter(ticker.Formatter):
     `~datetime.datetime.strftime` format string.
     """
 
-    illegal_s = re.compile(r"((^|[^%])(%%)*%s)")
+    @cbook.deprecated("3.3")
+    @property
+    def illegal_s(self):
+        return re.compile(r"((^|[^%])(%%)*%s)")
 
     def __init__(self, fmt, tz=None):
         """
