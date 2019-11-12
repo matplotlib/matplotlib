@@ -630,7 +630,7 @@ Contribute to Matplotlib documentation
 Matplotlib is a big library, which is used in many ways, and the
 documentation has only scratched the surface of everything it can
 do.  So far, the place most people have learned all these features are
-through studying the examples (:ref:`how-to-search-examples`), which is a
+through studying the :ref:`examples-index`, which is a
 recommended and great way to learn, but it would be nice to have more
 official narrative documentation guiding people through all the dark
 corners.  This is where you come in.
