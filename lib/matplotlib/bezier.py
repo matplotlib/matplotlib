@@ -268,8 +268,6 @@ def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
 
     ctl_points_old = ctl_points
 
-    concat = np.concatenate
-
     iold = 0
     i = 1
 
@@ -277,7 +275,7 @@ def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
         iold = i
         i += len(ctl_points) // 2
         if inside(ctl_points[-2:]) != begin_inside:
-            bezier_path = concat([ctl_points_old[-2:], ctl_points])
+            bezier_path = np.concatenate([ctl_points_old[-2:], ctl_points])
             break
         ctl_points_old = ctl_points
     else:
@@ -302,15 +300,15 @@ def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
     verts_right = right[:]
 
     if path.codes is None:
-        path_in = Path(concat([path.vertices[:i], verts_left]))
-        path_out = Path(concat([verts_right, path.vertices[i:]]))
+        path_in = Path(np.concatenate([path.vertices[:i], verts_left]))
+        path_out = Path(np.concatenate([verts_right, path.vertices[i:]]))
 
     else:
-        path_in = Path(concat([path.vertices[:iold], verts_left]),
-                       concat([path.codes[:iold], codes_left]))
+        path_in = Path(np.concatenate([path.vertices[:iold], verts_left]),
+                       np.concatenate([path.codes[:iold], codes_left]))
 
-        path_out = Path(concat([verts_right, path.vertices[i:]]),
-                        concat([codes_right, path.codes[i:]]))
+        path_out = Path(np.concatenate([verts_right, path.vertices[i:]]),
+                        np.concatenate([codes_right, path.codes[i:]]))
 
     if reorder_inout and not begin_inside:
         path_in, path_out = path_out, path_in

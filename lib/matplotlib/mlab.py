@@ -572,9 +572,8 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
 
     if sides == 'twosided':
         # center the frequency range at zero
-        freqs = np.concatenate((freqs[freqcenter:], freqs[:freqcenter]))
-        result = np.concatenate((result[freqcenter:, :],
-                                 result[:freqcenter, :]), 0)
+        freqs = np.roll(freqs, -freqcenter, axis=0)
+        result = np.roll(result, -freqcenter, axis=0)
     elif not pad_to % 2:
         # get the last value correctly, it is negative otherwise
         freqs[-1] *= -1

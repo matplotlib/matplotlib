@@ -20,19 +20,11 @@ def select_step_degree(dv):
     second_limits_ = np.array(minsec_limits_) / 3600
     second_factors = [3600.] * len(second_limits_)
 
-    degree_limits = np.concatenate([second_limits_,
-                                    minute_limits_,
-                                    degree_limits_])
+    degree_limits = [*second_limits_, *minute_limits_, *degree_limits_]
+    degree_steps = [*minsec_steps_, *minsec_steps_, *degree_steps_]
+    degree_factors = [*second_factors, *minute_factors, *degree_factors]
 
-    degree_steps = np.concatenate([minsec_steps_,
-                                   minsec_steps_,
-                                   degree_steps_])
-
-    degree_factors = np.concatenate([second_factors,
-                                     minute_factors,
-                                     degree_factors])
-
-    n = degree_limits.searchsorted(dv)
+    n = np.searchsorted(degree_limits, dv)
     step = degree_steps[n]
     factor = degree_factors[n]
 
@@ -54,19 +46,11 @@ def select_step_hour(dv):
     second_limits_ = np.array(minsec_limits_) / 3600
     second_factors = [3600.] * len(second_limits_)
 
-    hour_limits = np.concatenate([second_limits_,
-                                  minute_limits_,
-                                  hour_limits_])
+    hour_limits = [*second_limits_, *minute_limits_, *hour_limits_]
+    hour_steps = [*minsec_steps_, *minsec_steps_, *hour_steps_]
+    hour_factors = [*second_factors, *minute_factors, *hour_factors]
 
-    hour_steps = np.concatenate([minsec_steps_,
-                                 minsec_steps_,
-                                 hour_steps_])
-
-    hour_factors = np.concatenate([second_factors,
-                                   minute_factors,
-                                   hour_factors])
-
-    n = hour_limits.searchsorted(dv)
+    n = np.searchsorted(hour_limits, dv)
     step = hour_steps[n]
     factor = hour_factors[n]
 
