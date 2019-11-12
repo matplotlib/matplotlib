@@ -115,7 +115,7 @@ ax.set_title('How fast do you want to go today?')
 # Label with given captions, custom padding, shifting and annotate option
 arrowprops = dict(color='b', arrowstyle="-|>",
                   connectionstyle="angle,angleA=0,angleB=90,rad=20")
-ax.bar_label(hbars, captions=['±%.2f' % e for e in error],
+ax.bar_label(hbars, labels=['±%.2f' % e for e in error],
              padding=30, shifting=20, arrowprops=arrowprops, color='b')
 ax.set_xlim(right=17)
 

@@ -2498,7 +2498,7 @@ class Axes(_AxesBase):
                            align=align, **kwargs)
         return patches
 
-    def bar_label(self, container, captions=[], *, fmt="%g", position="edge",
+    def bar_label(self, container, labels=None, *, fmt="%g", position="edge",
                   padding=0, shifting=0, **kwargs):
         """
         Label a bar plot.
@@ -2511,7 +2511,7 @@ class Axes(_AxesBase):
         container : `.BarContainer`
             Container with all the bars and optionally errorbars.
 
-        captions : array-like, optional
+        labels : array-like, optional
             A list of label texts, that should be displayed. If not given, the
             label texts will be the data values formatted with *fmt*.
 
@@ -2521,23 +2521,26 @@ class Axes(_AxesBase):
         position : {'edge', 'center'}, default: 'edge'
             Position of the label relative to the bar:
 
-            - 'edge': Placed at edge, the cumulative values will be shown.
-            - 'center': Placed at center, the individual values will be shown.
+            - 'edge': the value is the position of the edge.
+                      (cumulative for stacked bars)
+            - 'center': the value shown will be the length of the bar.
 
         padding : float, default: 0
-            Offset in points for label to shift in longitudinal direction.
+            Offset in points parallel to the direction of the bar.
 
         shifting : float, default: 0
-            Offset in points for label to shift in lateral direction.
+            Offset in points perpendicular to the direction of the bar.
+
+        **kwargs is passed through to `.Axes.annotate`.
 
         Returns
         -------
         annotations
             A list of `.Text` instances for the labels.
         """
-        def extend_with_none(iterable, length):
-            return list(iterable) + [None] * (length - len(iterable))
 
+        # want to know whether to put label on positive or negative direction
+        # cannot use np.sign here because it will return 0 if x == 0
         def sign(x):
             return 1 if x >= 0 else -1
 
@@ -2547,19 +2550,17 @@ class Axes(_AxesBase):
         errorbar = container.errorbar
         orientation = container.orientation
 
-        N = len(bars)
         if errorbar:
             lines = errorbar.lines
             barlinecols = lines[2]
             barlinecol = barlinecols[0]
-            segments = barlinecol.get_segments()
-            errs = extend_with_none(segments, length=N)
+            errs = barlinecol.get_segments()
         else:
-            errs = extend_with_none([], length=N)
-        caps = extend_with_none(captions, length=N)
+            errs = []
+        lbls = [] if labels is None else labels
 
         annotations = []
-        for bar, err, cap in zip(bars, errs, caps):
+        for bar, err, lbl in itertools.zip_longest(bars, errs, lbls):
 
             (x0, y0), (x1, y1) = bar.get_bbox().get_points()
             xc, yc = (x0 + x1) / 2, (y0 + y1) / 2
@@ -2608,8 +2609,8 @@ class Axes(_AxesBase):
             elif position == "edge" and orientation == "horizontal" and xc < 0:
                 ha, va = "right", "center"
 
-            annotation = self.annotate(cap or fmt % value, xy, xytext,
-                                       textcoords="offset points",
+            annotation = self.annotate(fmt % value if lbl is None else lbl,
+                                       xy, xytext, textcoords="offset points",
                                        ha=ha, va=va, **kwargs)
             annotations.append(annotation)
 
