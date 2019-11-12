@@ -17,7 +17,8 @@ from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
 from matplotlib.backend_managers import ToolManager
 
 from .qt_compat import (
-    QtCore, QtGui, QtWidgets, _getSaveFileName, is_pyqt5, __version__, QT_API)
+    QtCore, QtGui, QtWidgets, _isdeleted, _getSaveFileName,
+    is_pyqt5, __version__, QT_API)
 
 backend_version = __version__
 
@@ -199,6 +200,12 @@ class TimerQT(TimerBase):
         self._timer = QtCore.QTimer()
         self._timer.timeout.connect(self._on_timer)
         self._timer_set_interval()
+
+    def __del__(self):
+        # The check for deletedness is needed to avoid an error at animation
+        # shutdown with PySide2.
+        if not _isdeleted(self._timer):
+            self._timer_stop()
 
     def _timer_set_single_shot(self):
         self._timer.setSingleShot(self._single)
