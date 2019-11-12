@@ -2531,7 +2531,7 @@ class Axes(_AxesBase):
         shifting : float, default: 0
             Offset in points perpendicular to the direction of the bar.
 
-        **kwargs is passed through to `.Axes.annotate`.
+        **kwargs : passed through to `.Axes.annotate`.
 
         Returns
         -------
