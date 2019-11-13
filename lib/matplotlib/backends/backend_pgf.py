@@ -1026,13 +1026,12 @@ class PdfPages:
         metadata : dictionary, optional
             Information dictionary object (see PDF reference section 10.2.1
             'Document Information Dictionary'), e.g.:
-            `{'Creator': 'My software', 'Author': 'Me',
-            'Title': 'Awesome fig'}`
+            ``{'Creator': 'My software', 'Author': 'Me', 'Title': 'Awesome'}``.
 
-            The standard keys are `'Title'`, `'Author'`, `'Subject'`,
-            `'Keywords'`, `'Producer'`, `'Creator'` and `'Trapped'`.
-            Values have been predefined for `'Creator'` and `'Producer'`.
-            They can be removed by setting them to the empty string.
+            The standard keys are 'Title', 'Author', 'Subject', 'Keywords',
+            'Creator', 'Producer', 'CreationDate', 'ModDate', and
+            'Trapped'. Values have been predefined for 'Creator', 'Producer'
+            and 'CreationDate'. They can be removed by setting them to `None`.
         """
         self._outputfile = filename
         self._n_figures = 0

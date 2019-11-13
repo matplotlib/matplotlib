@@ -2036,7 +2036,7 @@ class MaxNLocator(Locator):
         ----------
         nbins : int or 'auto', optional, default: 10
             Maximum number of intervals; one less than max number of
-            ticks.  If the string `'auto'`, the number of bins will be
+            ticks.  If the string 'auto', the number of bins will be
             automatically determined based on the length of the axis.
 
         steps : array-like, optional

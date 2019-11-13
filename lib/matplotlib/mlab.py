@@ -714,7 +714,7 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
     Returns
     -------
     Pxx : 1-D array
-        The values for the power spectrum `P_{xx}` (real valued)
+        The values for the power spectrum :math:`P_{xx}` (real valued)
 
     freqs : 1-D array
         The frequencies corresponding to the elements in *Pxx*
@@ -774,7 +774,8 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
     Returns
     -------
     Pxy : 1-D array
-        The values for the cross spectrum `P_{xy}` before scaling (real valued)
+        The values for the cross spectrum :math:`P_{xy}` before scaling (real
+        valued)
 
     freqs : 1-D array
         The frequencies corresponding to the elements in *Pxy*

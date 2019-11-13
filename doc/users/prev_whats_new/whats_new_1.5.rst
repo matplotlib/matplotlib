@@ -323,7 +323,7 @@ Mostly unified linestyles for `Line2D`, `Patch` and `Collection`
 
 The handling of linestyles for Lines, Patches and Collections has been
 unified.  Now they all support defining linestyles with short symbols,
-like `"--"`, as well as with full names, like ``"dashed"``. Also the
+like "--", as well as with full names, like "dashed". Also the
 definition using a dash pattern (``(0., [3., 3.])``) is supported for all
 methods using `Line2D`, `Patch` or ``Collection``.
 
@@ -619,7 +619,7 @@ backends include a `ToolContainer` called `toolbar`
 .. note::
     At the moment, we release this primarily for feedback purposes and should
     be treated as experimental until further notice as API changes will occur.
-    For the moment the `ToolManager` works only with the `GTK3` and `Tk` backends.
+    For the moment the `ToolManager` works only with the GTK3 and Tk backends.
     Make sure you use one of those.
     Port for the rest of the backends is comming soon.
 

@@ -51,7 +51,7 @@ the `Toolbar` makes it pretty hard to switch between canvases.
 Implementation
 ==============
 
-The first implementation will be done in `GTK3` using a Notebook as
+The first implementation will be done in GTK3 using a Notebook as
 canvas container.
 
 `FigureManagerBase`
