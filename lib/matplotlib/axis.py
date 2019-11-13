@@ -2060,9 +2060,9 @@ class XAxis(Axis):
         boxes of all the ticklabels
         """
         x, y = self.offsetText.get_position()
-        if not hasattr(self, '_text_offset_position'):
-            self._text_offset_position = 'bottom'
-        if self._text_offset_position == 'bottom':
+        if not hasattr(self, '_tick_position'):
+            self._tick_position = 'bottom'
+        if self._tick_position == 'bottom':
             if not len(bboxes):
                 bottom = self.axes.bbox.ymin
             else:
@@ -2071,16 +2071,16 @@ class XAxis(Axis):
             self.offsetText.set_position(
                 (x, bottom - self.OFFSETTEXTPAD * self.figure.dpi / 72)
             )
-            return
-        if not len(bboxes2):
-            top = self.axes.bbox.ymax
         else:
-            bbox = mtransforms.Bbox.union(bboxes2)
-            top = bbox.y1
-        self.offsetText.set_va('top')
-        self.offsetText.set_position(
-            (x, top + self.OFFSETTEXTPAD * self.figure.dpi / 72)
-        )
+            if not len(bboxes2):
+                top = self.axes.bbox.ymax
+            else:
+                bbox = mtransforms.Bbox.union(bboxes2)
+                top = bbox.y1
+            self.offsetText.set_va('top')
+            self.offsetText.set_position(
+                (x, top + self.OFFSETTEXTPAD * self.figure.dpi / 72)
+            )
 
     def get_text_heights(self, renderer):
         """
@@ -2120,11 +2120,11 @@ class XAxis(Axis):
         if position == 'top':
             self.set_tick_params(which='both', top=True, labeltop=True,
                                  bottom=False, labelbottom=False)
-            self._text_offset_position = 'top'
+            self._tick_position = 'top'
         elif position == 'bottom':
             self.set_tick_params(which='both', top=False, labeltop=False,
                                  bottom=True, labelbottom=True)
-            self._text_offset_position = 'bottom'
+            self._tick_position = 'bottom'
         elif position == 'both':
             self.set_tick_params(which='both', top=True,
                                  bottom=True)
@@ -2134,6 +2134,7 @@ class XAxis(Axis):
         elif position == 'default':
             self.set_tick_params(which='both', top=True, labeltop=False,
                                  bottom=True, labelbottom=True)
+            self._tick_position = 'bottom'
         else:
             raise ValueError("invalid position: %s" % position)
         self.stale = True
