@@ -23,18 +23,23 @@ def _get_testable_interactive_backends():
             (["cairo", "gi"], "gtk3cairo"),
             (["PyQt5"], "qt5agg"),
             (["PyQt5", "cairocffi"], "qt5cairo"),
+            (["PySide2"], "qt5agg"),
+            (["PySide2", "cairocffi"], "qt5cairo"),
             (["tkinter"], "tkagg"),
             (["wx"], "wx"),
             (["wx"], "wxagg"),
     ]:
         reason = None
+        missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
         if not os.environ.get("DISPLAY"):
-            reason = "No $DISPLAY"
-        elif any(importlib.util.find_spec(dep) is None for dep in deps):
-            reason = "Missing dependency"
+            reason = "$DISPLAY is unset"
+        elif missing:
+            reason = "{} cannot be imported".format(", ".join(missing))
         if reason:
             backend = pytest.param(
-                backend, marks=pytest.mark.skip(reason=reason))
+                backend,
+                marks=pytest.mark.skip(
+                    reason=f"Skipping {backend} because {reason}"))
         backends.append(backend)
     return backends
 
