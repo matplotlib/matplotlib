@@ -188,6 +188,14 @@ class AbstractMovieWriter(abc.ABC):
     ``writer`` argument of `Animation.save()`.
     '''
 
+    def __init__(self, fps=5, metadata=None, codec=None, bitrate=None):
+        self.fps = fps
+        self.metadata = metadata if metadata is not None else {}
+        self.codec = (
+            mpl.rcParams['animation.codec'] if codec is None else codec)
+        self.bitrate = (
+            mpl.rcParams['animation.bitrate'] if bitrate is None else bitrate)
+
     @abc.abstractmethod
     def setup(self, fig, outfile, dpi=None):
         '''
@@ -203,6 +211,17 @@ class AbstractMovieWriter(abc.ABC):
             The DPI (or resolution) for the file.  This controls the size
             in pixels of the resulting movie file. Default is ``fig.dpi``.
         '''
+        self.outfile = outfile
+        self.fig = fig
+        if dpi is None:
+            dpi = self.fig.dpi
+        self.dpi = dpi
+
+    @property
+    def frame_size(self):
+        '''A tuple ``(width, height)`` in pixels of a movie frame.'''
+        w, h = self.fig.get_size_inches()
+        return int(w * self.dpi), int(h * self.dpi)
 
     @abc.abstractmethod
     def grab_frame(self, **savefig_kwargs):
@@ -275,7 +294,7 @@ class MovieWriter(AbstractMovieWriter):
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
         """
-        if self.__class__ is MovieWriter:
+        if type(self) is MovieWriter:
             # TODO MovieWriter is still an abstract class and needs to be
             #      extended with a mixin. This should be clearer in naming
             #      and description. For now, just give a reasonable error
@@ -284,34 +303,14 @@ class MovieWriter(AbstractMovieWriter):
                 'MovieWriter cannot be instantiated directly. Please use one '
                 'of its subclasses.')
 
-        self.fps = fps
+        super().__init__(fps=fps, metadata=metadata)
+
         self.frame_format = 'rgba'
-
-        if codec is None:
-            self.codec = mpl.rcParams['animation.codec']
-        else:
-            self.codec = codec
-
-        if bitrate is None:
-            self.bitrate = mpl.rcParams['animation.bitrate']
-        else:
-            self.bitrate = bitrate
 
         if extra_args is None:
             self.extra_args = list(mpl.rcParams[self.args_key])
         else:
             self.extra_args = extra_args
-
-        if metadata is None:
-            self.metadata = dict()
-        else:
-            self.metadata = metadata
-
-    @property
-    def frame_size(self):
-        '''A tuple ``(width, height)`` in pixels of a movie frame.'''
-        w, h = self.fig.get_size_inches()
-        return int(w * self.dpi), int(h * self.dpi)
 
     def _adjust_frame_size(self):
         if self.codec == 'h264':
@@ -340,13 +339,8 @@ class MovieWriter(AbstractMovieWriter):
             The DPI (or resolution) for the file.  This controls the size
             in pixels of the resulting movie file. Default is fig.dpi.
         '''
-        self.outfile = outfile
-        self.fig = fig
-        if dpi is None:
-            dpi = self.fig.dpi
-        self.dpi = dpi
+        super().setup(fig, outfile, dpi=dpi)
         self._w, self._h = self._adjust_frame_size()
-
         # Run here so that grab_frame() can write the data to a pipe. This
         # eliminates the need for temp files.
         self._run()
@@ -540,35 +534,27 @@ class FileMovieWriter(MovieWriter):
 
 
 @writers.register('pillow')
-class PillowWriter(MovieWriter):
+class PillowWriter(AbstractMovieWriter):
     @classmethod
     def isAvailable(cls):
         return True
 
-    def __init__(self, *args, **kwargs):
-        if kwargs.get("extra_args") is None:
-            kwargs["extra_args"] = ()
-        super().__init__(*args, **kwargs)
-
     def setup(self, fig, outfile, dpi=None):
+        super().setup(fig, outfile, dpi=dpi)
         self._frames = []
-        self._outfile = outfile
-        self._dpi = dpi
-        self._fig = fig
 
     def grab_frame(self, **savefig_kwargs):
         from PIL import Image
         buf = BytesIO()
-        self._fig.savefig(buf, **dict(savefig_kwargs, format="rgba"))
-        renderer = self._fig.canvas.get_renderer()
+        self.fig.savefig(
+            buf, **{**savefig_kwargs, "format": "rgba", "dpi": self.dpi})
+        renderer = self.fig.canvas.get_renderer()
         self._frames.append(Image.frombuffer(
-            "RGBA",
-            (int(renderer.width), int(renderer.height)), buf.getbuffer(),
-            "raw", "RGBA", 0, 1))
+            "RGBA", self.frame_size, buf.getbuffer(), "raw", "RGBA", 0, 1))
 
     def finish(self):
         self._frames[0].save(
-            self._outfile, save_all=True, append_images=self._frames[1:],
+            self.outfile, save_all=True, append_images=self._frames[1:],
             duration=int(1000 / self.fps), loop=0)
 
 
@@ -1075,11 +1061,15 @@ class Animation:
         if dpi == 'figure':
             dpi = self._fig.dpi
 
-        if codec is None:
-            codec = mpl.rcParams['animation.codec']
-
-        if bitrate is None:
-            bitrate = mpl.rcParams['animation.bitrate']
+        writer_kwargs = {}
+        if codec is not None:
+            writer_kwargs['codec'] = codec
+        if bitrate is not None:
+            writer_kwargs['bitrate'] = bitrate
+        if extra_args is not None:
+            writer_kwargs['extra_args'] = extra_args
+        if metadata is not None:
+            writer_kwargs['metadata'] = metadata
 
         all_anim = [self]
         if extra_anim is not None:
@@ -1091,9 +1081,7 @@ class Animation:
         # registered class.
         if isinstance(writer, str):
             if writers.is_available(writer):
-                writer = writers[writer](fps, codec, bitrate,
-                                         extra_args=extra_args,
-                                         metadata=metadata)
+                writer = writers[writer](fps, **writer_kwargs)
             else:
                 alt_writer = next(writers, None)
                 if alt_writer is None:
@@ -1102,9 +1090,7 @@ class Animation:
                                      "save animations.")
                 _log.warning("MovieWriter %s unavailable; trying to use %s "
                              "instead.", writer, alt_writer)
-                writer = alt_writer(
-                    fps, codec, bitrate,
-                    extra_args=extra_args, metadata=metadata)
+                writer = alt_writer(fps, **writer_kwargs)
         _log.info('Animation.save using %s', type(writer))
 
         if 'bbox_inches' in savefig_kwargs:
