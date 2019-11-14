@@ -216,5 +216,8 @@ def test_map_weights():
     assert map_weight_name_to_score('extra bold') == 800
     assert map_weight_name_to_score('black') == 900
 
-
+def test_font_match_warning():
+        with warnings.catch_warnings(record=True) as warns:
+            font = findfont(FontProperties(family=["PingFang SC"], weight=900))
+            assert len(warns) == 2
 

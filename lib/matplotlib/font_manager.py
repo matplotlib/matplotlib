@@ -1279,9 +1279,8 @@ class FontManager:
                 best_font = font
             if score == 0:
                 break
-        
         if best_font is not None:
-            if abs(map_weight_name_to_score(prop.get_weight()) 
+            if abs(map_weight_name_to_score(prop.get_weight())
                 - map_weight_name_to_score(best_font.weight)) > 100:
                 _log.warning('findfont: Failed to find font weight %s, '
                 + 'now using %s.', prop.get_weight(), best_font.weight)
