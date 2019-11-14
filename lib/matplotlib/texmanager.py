@@ -213,6 +213,7 @@ class TexManager:
 
         s = r"""
 \documentclass{article}
+\newcommand{\mathdefault}[1]{#1}
 %s
 %s
 %s
@@ -266,6 +267,7 @@ class TexManager:
 
         s = r"""
 \documentclass{article}
+\newcommand{\mathdefault}[1]{#1}
 %s
 %s
 %s
