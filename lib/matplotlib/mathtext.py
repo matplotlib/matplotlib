@@ -3320,27 +3320,31 @@ class MathTextParser:
         """
         self._output = output.lower()
 
-    @functools.lru_cache(50)
-    def parse(self, s, dpi = 72, prop = None):
+    def parse(self, s, dpi=72, prop=None):
         """
-        Parse the given math expression *s* at the given *dpi*.  If
-        *prop* is provided, it is a
-        :class:`~matplotlib.font_manager.FontProperties` object
-        specifying the "default" font to use in the math expression,
-        used for all non-math text.
+        Parse the given math expression *s* at the given *dpi*.  If *prop* is
+        provided, it is a `.FontProperties` object specifying the "default"
+        font to use in the math expression, used for all non-math text.
 
         The results are cached, so multiple calls to :meth:`parse`
         with the same expression should be fast.
         """
+        # lru_cache can't decorate parse() directly because the ps.useafm and
+        # mathtext.fontset rcParams also affect the parse (e.g. by affecting
+        # the glyph metrics).
+        return self._parse_cached(
+            s, dpi, prop, rcParams['ps.useafm'], rcParams['mathtext.fontset'])
+
+    @functools.lru_cache(50)
+    def _parse_cached(self, s, dpi, prop, ps_useafm, fontset):
 
         if prop is None:
             prop = FontProperties()
 
-        if self._output == 'ps' and rcParams['ps.useafm']:
+        if self._output == 'ps' and ps_useafm:
             font_output = StandardPsFonts(prop)
         else:
             backend = self._backend_mapping[self._output]()
-            fontset = rcParams['mathtext.fontset'].lower()
             fontset_class = cbook._check_getitem(
                 self._font_type_mapping, fontset=fontset)
             font_output = fontset_class(prop, backend)
