@@ -763,12 +763,12 @@ class Bbox(BboxBase):
     @staticmethod
     def unit():
         """Create a new unit `Bbox` from (0, 0) to (1, 1)."""
-        return Bbox(np.array([[0.0, 0.0], [1.0, 1.0]], float))
+        return Bbox([[0, 0], [1, 1]])
 
     @staticmethod
     def null():
         """Create a new null `Bbox` from (inf, inf) to (-inf, -inf)."""
-        return Bbox(np.array([[np.inf, np.inf], [-np.inf, -np.inf]], float))
+        return Bbox([[np.inf, np.inf], [-np.inf, -np.inf]])
 
     @staticmethod
     def from_bounds(x0, y0, width, height):
@@ -786,8 +786,7 @@ class Bbox(BboxBase):
 
         The *y*-axis increases upwards.
         """
-        points = np.array(args, dtype=float).reshape(2, 2)
-        return Bbox(points)
+        return Bbox(np.reshape(args, (2, 2)))
 
     def __format__(self, fmt):
         return (
