@@ -35,30 +35,6 @@ from matplotlib.axes._base import _AxesBase, _process_plot_format
 from matplotlib.axes._secondary_axes import SecondaryAxis
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 
-try:
-    from numpy.lib.histograms import (
-        histogram_bin_edges as _histogram_bin_edges)
-except ImportError:
-    # this function is new in np 1.15
-    def _histogram_bin_edges(arr, bins, range=None, weights=None):
-        # this in True for 1D arrays, and False for None and str
-        if np.ndim(bins) == 1:
-            return bins
-
-        if isinstance(bins, str):
-            # rather than backporting the internals, just do the full
-            # computation.  If this is too slow for users, they can
-            # update numpy, or pick a manual number of bins
-            return np.histogram(arr, bins, range, weights)[1]
-        else:
-            if bins is None:
-                # hard-code numpy's default
-                bins = 10
-            if range is None:
-                range = np.min(arr), np.max(arr)
-
-            return np.linspace(*range, bins + 1)
-
 
 _log = logging.getLogger(__name__)
 
@@ -6698,8 +6674,8 @@ optional.
                 _w = np.concatenate(w)
             else:
                 _w = None
-
-            bins = _histogram_bin_edges(np.concatenate(x), bins, bin_range, _w)
+            bins = np.histogram_bin_edges(
+                np.concatenate(x), bins, bin_range, _w)
         else:
             hist_kwargs['range'] = bin_range
 
