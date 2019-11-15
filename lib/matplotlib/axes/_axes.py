@@ -7260,27 +7260,24 @@ optional.
         if Fc is None:
             Fc = 0
 
-        if scale is None or scale == 'default':
-            scale = 'linear'
-
         spec, freqs = mlab.magnitude_spectrum(x=x, Fs=Fs, window=window,
                                               pad_to=pad_to, sides=sides)
         freqs += Fc
 
-        if scale == 'linear':
+        yunits = cbook._check_getitem(
+            {None: 'energy', 'default': 'energy', 'linear': 'energy',
+             'dB': 'dB'},
+            scale=scale)
+        if yunits == 'energy':
             Z = spec
-            yunits = 'energy'
-        elif scale == 'dB':
+        else:  # yunits == 'dB'
             Z = 20. * np.log10(spec)
-            yunits = 'dB'
-        else:
-            raise ValueError('Unknown scale %s', scale)
 
-        lines = self.plot(freqs, Z, **kwargs)
+        line, = self.plot(freqs, Z, **kwargs)
         self.set_xlabel('Frequency')
         self.set_ylabel('Magnitude (%s)' % yunits)
 
-        return spec, freqs, lines[0]
+        return spec, freqs, line
 
     @_preprocess_data(replace_names=["x"])
     @docstring.dedent_interpd
