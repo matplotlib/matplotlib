@@ -1259,25 +1259,11 @@ class TestSpectral:
             del fstimst[-1]
             spect[maxind-5:maxind+5] = 0
 
-    def test_spectral_helper_raises_complex_same_data(self):
-        # test that mode 'complex' cannot be used if x is not y
+    @pytest.mark.parametrize(  # Modes that require `x is y`.
+        'mode', ['complex', 'magnitude', 'angle', 'phase'])
+    def test_spectral_helper_mode_requires_x_is_y(self, mode):
         with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y+1, mode='complex')
-
-    def test_spectral_helper_raises_magnitude_same_data(self):
-        # test that mode 'magnitude' cannot be used if x is not y
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y+1, mode='magnitude')
-
-    def test_spectral_helper_raises_angle_same_data(self):
-        # test that mode 'angle' cannot be used if x is not y
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y+1, mode='angle')
-
-    def test_spectral_helper_raises_phase_same_data(self):
-        # test that mode 'phase' cannot be used if x is not y
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y+1, mode='phase')
+            mlab._spectral_helper(x=self.y, y=self.y+1, mode=mode)
 
     def test_spectral_helper_raises_unknown_mode(self):
         # test that unknown value for mode cannot be used
@@ -1305,15 +1291,10 @@ class TestSpectral:
             mlab._spectral_helper(x=self.y, y=self.y, NFFT=10,
                                   window=np.ones(9))
 
-    def test_single_spectrum_helper_raises_mode_default(self):
-        # test that mode 'default' cannot be used with _single_spectrum_helper
+    @pytest.mark.parametrize('mode', ['default', 'psd'])
+    def test_single_spectrum_helper_unsupported_modes(self, mode):
         with pytest.raises(ValueError):
-            mlab._single_spectrum_helper(x=self.y, mode='default')
-
-    def test_single_spectrum_helper_raises_mode_psd(self):
-        # test that mode 'psd' cannot be used with _single_spectrum_helper
-        with pytest.raises(ValueError):
-            mlab._single_spectrum_helper(x=self.y, mode='psd')
+            mlab._single_spectrum_helper(x=self.y, mode=mode)
 
     def test_spectral_helper_psd(self):
         freqs = self.freqs_density
@@ -1397,10 +1378,14 @@ class TestSpectral:
         assert spec.shape == freqs.shape
         self.check_freqs(spec, freqs, fsp, self.fstims)
 
-    def test_psd_detrend_mean_func_offset(self):
+    @pytest.mark.parametrize(
+        'make_data, detrend',
+        [(np.zeros, mlab.detrend_mean), (np.zeros, 'mean'),
+         (np.arange, mlab.detrend_linear), (np.arange, 'linear')])
+    def test_psd_detrend(self, make_data, detrend):
         if self.NFFT_density is None:
             return
-        ydata = np.zeros(self.NFFT_density)
+        ydata = make_data(self.NFFT_density)
         ydata1 = ydata+5
         ydata2 = ydata+3.3
         ydata = np.vstack([ydata1, ydata2])
@@ -1413,118 +1398,13 @@ class TestSpectral:
                                  Fs=self.Fs,
                                  noverlap=0,
                                  sides=self.sides,
-                                 detrend=mlab.detrend_mean)
+                                 detrend=detrend)
         spec_b, fsp_b = mlab.psd(x=ydatab,
                                  NFFT=self.NFFT_density,
                                  Fs=self.Fs,
                                  noverlap=0,
                                  sides=self.sides,
-                                 detrend=mlab.detrend_mean)
-        spec_c, fsp_c = mlab.psd(x=ycontrol,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides)
-        assert_array_equal(fsp_g, fsp_c)
-        assert_array_equal(fsp_b, fsp_c)
-        assert_allclose(spec_g, spec_c, atol=1e-08)
-        # these should not be almost equal
-        with pytest.raises(AssertionError):
-            assert_allclose(spec_b, spec_c, atol=1e-08)
-
-    def test_psd_detrend_mean_str_offset(self):
-        if self.NFFT_density is None:
-            return
-        ydata = np.zeros(self.NFFT_density)
-        ydata1 = ydata+5
-        ydata2 = ydata+3.3
-        ydata = np.vstack([ydata1, ydata2])
-        ydata = np.tile(ydata, (20, 1))
-        ydatab = ydata.T.flatten()
-        ydata = ydata.flatten()
-        ycontrol = np.zeros_like(ydata)
-        spec_g, fsp_g = mlab.psd(x=ydata,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides,
-                                 detrend='mean')
-        spec_b, fsp_b = mlab.psd(x=ydatab,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides,
-                                 detrend='mean')
-        spec_c, fsp_c = mlab.psd(x=ycontrol,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides)
-        assert_array_equal(fsp_g, fsp_c)
-        assert_array_equal(fsp_b, fsp_c)
-        assert_allclose(spec_g, spec_c, atol=1e-08)
-        # these should not be almost equal
-        with pytest.raises(AssertionError):
-            assert_allclose(spec_b, spec_c, atol=1e-08)
-
-    def test_psd_detrend_linear_func_trend(self):
-        if self.NFFT_density is None:
-            return
-        ydata = np.arange(self.NFFT_density)
-        ydata1 = ydata+5
-        ydata2 = ydata+3.3
-        ydata = np.vstack([ydata1, ydata2])
-        ydata = np.tile(ydata, (20, 1))
-        ydatab = ydata.T.flatten()
-        ydata = ydata.flatten()
-        ycontrol = np.zeros_like(ydata)
-        spec_g, fsp_g = mlab.psd(x=ydata,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides,
-                                 detrend=mlab.detrend_linear)
-        spec_b, fsp_b = mlab.psd(x=ydatab,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides,
-                                 detrend=mlab.detrend_linear)
-        spec_c, fsp_c = mlab.psd(x=ycontrol,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides)
-        assert_array_equal(fsp_g, fsp_c)
-        assert_array_equal(fsp_b, fsp_c)
-        assert_allclose(spec_g, spec_c, atol=1e-08)
-        # these should not be almost equal
-        with pytest.raises(AssertionError):
-            assert_allclose(spec_b, spec_c, atol=1e-08)
-
-    def test_psd_detrend_linear_str_trend(self):
-        if self.NFFT_density is None:
-            return
-        ydata = np.arange(self.NFFT_density)
-        ydata1 = ydata+5
-        ydata2 = ydata+3.3
-        ydata = np.vstack([ydata1, ydata2])
-        ydata = np.tile(ydata, (20, 1))
-        ydatab = ydata.T.flatten()
-        ydata = ydata.flatten()
-        ycontrol = np.zeros_like(ydata)
-        spec_g, fsp_g = mlab.psd(x=ydata,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides,
-                                 detrend='linear')
-        spec_b, fsp_b = mlab.psd(x=ydatab,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides,
-                                 detrend='linear')
+                                 detrend=detrend)
         spec_c, fsp_c = mlab.psd(x=ycontrol,
                                  NFFT=self.NFFT_density,
                                  Fs=self.Fs,
@@ -1710,14 +1590,21 @@ class TestSpectral:
         assert_allclose(fsp, freqs, atol=1e-06)
         assert spec.shape == freqs.shape
 
-    def test_specgram_auto(self):
+    @pytest.mark.parametrize(
+        'kwargs',
+        [{}, {'mode': 'default'}, {'mode': 'psd'}, {'mode': 'magnitude'},
+         {'mode': 'complex'}, {'mode': 'angle'}, {'mode': 'phase'}])
+    def test_specgram(self, kwargs):
         freqs = self.freqs_specgram
         spec, fsp, t = mlab.specgram(x=self.y,
                                      NFFT=self.NFFT_specgram,
                                      Fs=self.Fs,
                                      noverlap=self.nover_specgram,
                                      pad_to=self.pad_to_specgram,
-                                     sides=self.sides)
+                                     sides=self.sides,
+                                     **kwargs)
+        if kwargs.get('mode') == 'complex':
+            spec = np.abs(spec)
         specm = np.mean(spec, axis=1)
 
         assert_allclose(fsp, freqs, atol=1e-06)
@@ -1726,129 +1613,14 @@ class TestSpectral:
         assert spec.shape[0] == freqs.shape[0]
         assert spec.shape[1] == self.t_specgram.shape[0]
 
-        # since we are using a single freq, all time slices
-        # should be about the same
-        if np.abs(spec.max()) != 0:
-            assert_allclose(np.diff(spec, axis=1).max()/np.abs(spec.max()), 0,
-                            atol=1e-02)
-        self.check_freqs(specm, freqs, fsp, self.fstims)
-
-    def test_specgram_default(self):
-        freqs = self.freqs_specgram
-        spec, fsp, t = mlab.specgram(x=self.y,
-                                     NFFT=self.NFFT_specgram,
-                                     Fs=self.Fs,
-                                     noverlap=self.nover_specgram,
-                                     pad_to=self.pad_to_specgram,
-                                     sides=self.sides,
-                                     mode='default')
-        specm = np.mean(spec, axis=1)
-
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_specgram, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-
-        # since we are using a single freq, all time slices
-        # should be about the same
-        if np.abs(spec.max()) != 0:
-            assert_allclose(np.diff(spec, axis=1).max()/np.abs(spec.max()), 0,
-                            atol=1e-02)
-        self.check_freqs(specm, freqs, fsp, self.fstims)
-
-    def test_specgram_psd(self):
-        freqs = self.freqs_specgram
-        spec, fsp, t = mlab.specgram(x=self.y,
-                                     NFFT=self.NFFT_specgram,
-                                     Fs=self.Fs,
-                                     noverlap=self.nover_specgram,
-                                     pad_to=self.pad_to_specgram,
-                                     sides=self.sides,
-                                     mode='psd')
-        specm = np.mean(spec, axis=1)
-
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_specgram, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-        # since we are using a single freq, all time slices
-        # should be about the same
-        if np.abs(spec.max()) != 0:
-            assert_allclose(np.diff(spec, axis=1).max()/np.abs(spec.max()), 0,
-                            atol=1e-02)
-        self.check_freqs(specm, freqs, fsp, self.fstims)
-
-    def test_specgram_complex(self):
-        freqs = self.freqs_specgram
-        spec, fsp, t = mlab.specgram(x=self.y,
-                                     NFFT=self.NFFT_specgram,
-                                     Fs=self.Fs,
-                                     noverlap=self.nover_specgram,
-                                     pad_to=self.pad_to_specgram,
-                                     sides=self.sides,
-                                     mode='complex')
-        specm = np.mean(np.abs(spec), axis=1)
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_specgram, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-
-        self.check_freqs(specm, freqs, fsp, self.fstims)
-
-    def test_specgram_magnitude(self):
-        freqs = self.freqs_specgram
-        spec, fsp, t = mlab.specgram(x=self.y,
-                                     NFFT=self.NFFT_specgram,
-                                     Fs=self.Fs,
-                                     noverlap=self.nover_specgram,
-                                     pad_to=self.pad_to_specgram,
-                                     sides=self.sides,
-                                     mode='magnitude')
-        specm = np.mean(spec, axis=1)
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_specgram, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-        # since we are using a single freq, all time slices
-        # should be about the same
-        if np.abs(spec.max()) != 0:
-            assert_allclose(np.diff(spec, axis=1).max()/np.abs(spec.max()), 0,
-                            atol=1e-02)
-        self.check_freqs(specm, freqs, fsp, self.fstims)
-
-    def test_specgram_angle(self):
-        freqs = self.freqs_specgram
-        spec, fsp, t = mlab.specgram(x=self.y,
-                                     NFFT=self.NFFT_specgram,
-                                     Fs=self.Fs,
-                                     noverlap=self.nover_specgram,
-                                     pad_to=self.pad_to_specgram,
-                                     sides=self.sides,
-                                     mode='angle')
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_specgram, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-
-    def test_specgram_phase(self):
-        freqs = self.freqs_specgram
-        spec, fsp, t = mlab.specgram(x=self.y,
-                                     NFFT=self.NFFT_specgram,
-                                     Fs=self.Fs,
-                                     noverlap=self.nover_specgram,
-                                     pad_to=self.pad_to_specgram,
-                                     sides=self.sides,
-                                     mode='phase')
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_specgram, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
+        if kwargs.get('mode') not in ['complex', 'angle', 'phase']:
+            # using a single freq, so all time slices should be about the same
+            if np.abs(spec.max()) != 0:
+                assert_allclose(
+                    np.diff(spec, axis=1).max() / np.abs(spec.max()), 0,
+                    atol=1e-02)
+        if kwargs.get('mode') not in ['angle', 'phase']:
+            self.check_freqs(specm, freqs, fsp, self.fstims)
 
     def test_specgram_warn_only1seg(self):
         """Warning should be raised if len(x) <= NFFT."""
