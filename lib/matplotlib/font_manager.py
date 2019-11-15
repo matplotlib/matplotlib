@@ -749,7 +749,7 @@ class FontProperties:
         is CSS parlance), such as: 'serif', 'sans-serif', 'cursive',
         'fantasy', or 'monospace', a real font name or a list of real
         font names.  Real font names are not supported when
-        `text.usetex` is `True`.
+        :rc:`text.usetex` is `True`.
         """
         if family is None:
             family = rcParams['font.family']

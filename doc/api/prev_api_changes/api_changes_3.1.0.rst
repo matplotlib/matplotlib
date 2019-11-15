@@ -1153,7 +1153,7 @@ will throw an exception in a future version.
 *verticalalignment* kwargs, and used to ignore them with a warning.  This
 behavior is deprecated and will throw an exception in a future version.
 
-Passing steps less than 1 or greater than 10 to `~ticker..MaxNLocator` used to
+Passing steps less than 1 or greater than 10 to `~.ticker.MaxNLocator` used to
 result in undefined behavior.  It now throws a `ValueError`.
 
 The signature of the (private) ``Axis._update_ticks`` has been changed to not

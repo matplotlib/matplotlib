@@ -213,7 +213,7 @@ interpolation, leading to aliasing effects for downscaling and non-integer
 upscaling.
 
 New default for :rc:`image.interpolation` is the new option "antialiased".
-`imshow(A, interpolation='antialiased')` will apply a Hanning filter when
+``imshow(A, interpolation='antialiased')`` will apply a Hanning filter when
 resampling the data in A for display (or saving to file) *if* the upsample
 rate is less than a factor of three, and not an integer; downsampled data is
 always smoothed at resampling.
@@ -291,9 +291,9 @@ is now automatically detected.
 Exception changes
 ~~~~~~~~~~~~~~~~~
 Various APIs that raised a `ValueError` for incorrectly typed inputs now raise
-`TypeError` instead: `backend_bases.GraphicsContextBase.set_clip_path`,
-`blocking_input.BlockingInput.__call__`, `cm.register_cmap`, `dviread.DviFont`,
-`rcsetup.validate_hatch`, `rcsetup.validate_animation_writer_path`, `spines.Spine`,
+`TypeError` instead: `.backend_bases.GraphicsContextBase.set_clip_path`,
+`.blocking_input.BlockingInput.__call__`, `.cm.register_cmap`, `.dviread.DviFont`,
+`.rcsetup.validate_hatch`, `.rcsetup.validate_animation_writer_path`, `.spines.Spine`,
 many classes in the :mod:`matplotlib.transforms` module and :mod:`matplotlib.tri`
 package, and Axes methods that take a ``norm`` parameter.
 

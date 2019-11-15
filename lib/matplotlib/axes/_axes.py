@@ -1553,7 +1553,7 @@ class Axes(_AxesBase):
         ----------
         x, y : array-like or scalar
             The horizontal / vertical coordinates of the data points.
-            *x* values are optional and default to `range(len(y))`.
+            *x* values are optional and default to ``range(len(y))``.
 
             Commonly, these parameters are 1D arrays.
 
@@ -1578,11 +1578,11 @@ class Axes(_AxesBase):
 
             .. note::
                 Technically there's a slight ambiguity in calls where the
-                second label is a valid *fmt*. `plot('n', 'o', data=obj)`
-                could be `plt(x, y)` or `plt(y, fmt)`. In such cases,
+                second label is a valid *fmt*. ``plot('n', 'o', data=obj)``
+                could be ``plt(x, y)`` or ``plt(y, fmt)``. In such cases,
                 the former interpretation is chosen, but a warning is issued.
                 You may suppress the warning by adding an empty format string
-                `plot('n', 'o', '', data=obj)`.
+                ``plot('n', 'o', '', data=obj)``.
 
         Other Parameters
         ----------------
@@ -7036,7 +7036,7 @@ optional.
         Returns
         -------
         Pxx : 1-D array
-            The values for the power spectrum `P_{xx}` before scaling
+            The values for the power spectrum :math:`P_{xx}` before scaling
             (real valued).
 
         freqs : 1-D array
@@ -7154,7 +7154,7 @@ optional.
         Returns
         -------
         Pxy : 1-D array
-            The values for the cross spectrum `P_{xy}` before scaling
+            The values for the cross spectrum :math:`P_{xy}` before scaling
             (complex valued).
 
         freqs : 1-D array
@@ -7179,7 +7179,7 @@ optional.
         Notes
         -----
         For plotting, the power is plotted as
-        :math:`10 \log_{10}(P_{xy})` for decibels, though `P_{xy}` itself
+        :math:`10 \log_{10}(P_{xy})` for decibels, though :math:`P_{xy}` itself
         is returned.
 
         References

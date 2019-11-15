@@ -367,7 +367,7 @@ New modules and files: installation
 
 * If you have added new files or directories, or reorganized existing
   ones, make sure the new files are included in the match patterns in
-  :file:`MANIFEST.in`, and/or in `package_data` in `setup.py`.
+  :file:`MANIFEST.in`, and/or in `package_data` in :file:`setup.py`.
 
 C/C++ extensions
 ----------------
@@ -378,8 +378,8 @@ C/C++ extensions
   address C++, but most of its admonitions still apply).
 
 * Python/C interface code should be kept separate from the core C/C++
-  code.  The interface code should be named `FOO_wrap.cpp` or
-  `FOO_wrapper.cpp`.
+  code.  The interface code should be named :file:`FOO_wrap.cpp` or
+  :file:`FOO_wrapper.cpp`.
 
 * Header file documentation (aka docstrings) should be in Numpydoc
   format.  We don't plan on using automated tools for these
@@ -572,7 +572,7 @@ when the website is built to show up in the `examples
 
 Any sample data that the example uses should be kept small and
 distributed with Matplotlib in the
-`lib/matplotlib/mpl-data/sample_data/` directory.  Then in your
+:file:`lib/matplotlib/mpl-data/sample_data/` directory.  Then in your
 example code you can load it into a file handle with::
 
     import matplotlib.cbook as cbook

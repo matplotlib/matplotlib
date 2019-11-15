@@ -234,7 +234,7 @@ def tricontour(ax, *args, **kwargs):
     tricontour-only keyword arguments:
 
         *linewidths*: [ *None* | number | tuple of numbers ]
-        If *linewidths* is *None*, defaults to rc:`lines.linewidth`.
+        If *linewidths* is *None*, defaults to :rc:`lines.linewidth`.
 
         If a number, all levels will be plotted with this linewidth.
 

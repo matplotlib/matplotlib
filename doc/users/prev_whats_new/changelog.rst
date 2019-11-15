@@ -90,7 +90,7 @@ the `API changes <../../api/api_changes.html>`_.
 2014-04-08 Fixed a bug in parasite_axes.py by making a list out
            of a generator at line 263.
 
-2014-04-02 Added `clipon=False` to patch creation of wedges and shadows
+2014-04-02 Added ``clipon=False`` to patch creation of wedges and shadows
            in `pie`.
 
 2014-02-25 In backend_qt4agg changed from using update -> repaint under
@@ -268,7 +268,7 @@ the `API changes <../../api/api_changes.html>`_.
            the alignment of text elements. - pwuertz
 
 2012-11-26 deprecate matplotlib/mpl.py, which was used only in pylab.py and is
-           now replaced by the more suitable `import matplotlib as mpl`. - PI
+           now replaced by the more suitable ``import matplotlib as mpl``. - PI
 
 2012-11-25 Make rc_context available via pyplot interface - PI
 

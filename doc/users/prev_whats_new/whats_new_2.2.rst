@@ -260,10 +260,10 @@ and made interpreting RGB images unreliable.
 Properties in `matplotlibrc` to place xaxis and yaxis tick labels
 -----------------------------------------------------------------
 
-Introducing four new boolean properties in `.matplotlibrc` for default
+Introducing four new boolean properties in :file:`.matplotlibrc` for default
 positions of xaxis and yaxis tick labels, namely,
-`xtick.labeltop`, `xtick.labelbottom`, `ytick.labelright` and
-`ytick.labelleft`. These can also be changed in rcParams.
+:rc:`xtick.labeltop`, :rc:`xtick.labelbottom`, :rc:`ytick.labelright` and
+:rc:`ytick.labelleft`. These can also be changed in rcParams.
 
 
 PGI bindings for gtk3

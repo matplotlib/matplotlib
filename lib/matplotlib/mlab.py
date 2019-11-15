@@ -622,9 +622,9 @@ docstring.interpd.update(Spectral=inspect.cleandoc("""
 
     window : callable or ndarray
         A function or a vector of length *NFFT*.  To create window vectors see
-        `window_hanning`, `window_none`, `numpy.blackman`, `numpy.hamming`,
+        `.window_hanning`, `.window_none`, `numpy.blackman`, `numpy.hamming`,
         `numpy.bartlett`, `scipy.signal`, `scipy.signal.get_window`, etc.  The
-        default is `window_hanning`.  If a function is passed as the argument,
+        default is `.window_hanning`.  If a function is passed as the argument,
         it must take a data segment as an argument and return the windowed
         version of the segment.
 

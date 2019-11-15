@@ -938,7 +938,7 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         dict
-            Mapping of spine names to `Line2D` or `Patch` instances that are
+            Mapping of spine names to `.Line2D` or `.Patch` instances that are
             used to draw axes spines.
 
             In the standard axes, spines are single line segments, but in other
@@ -1778,11 +1778,11 @@ class _AxesBase(martist.Artist):
         return self.xaxis
 
     def get_xgridlines(self):
-        """Get the x grid lines as a list of `Line2D` instances."""
+        """Get the x grid lines as a list of `.Line2D` instances."""
         return self.xaxis.get_gridlines()
 
     def get_xticklines(self):
-        """Get the x tick lines as a list of `Line2D` instances."""
+        """Get the x tick lines as a list of `.Line2D` instances."""
         return self.xaxis.get_ticklines()
 
     def get_yaxis(self):
@@ -1790,11 +1790,11 @@ class _AxesBase(martist.Artist):
         return self.yaxis
 
     def get_ygridlines(self):
-        """Get the y grid lines as a list of `Line2D` instances."""
+        """Get the y grid lines as a list of `.Line2D` instances."""
         return self.yaxis.get_gridlines()
 
     def get_yticklines(self):
-        """Get the y tick lines as a list of `Line2D` instances."""
+        """Get the y tick lines as a list of `.Line2D` instances."""
         return self.yaxis.get_ticklines()
 
     # Adding and tracking artists
