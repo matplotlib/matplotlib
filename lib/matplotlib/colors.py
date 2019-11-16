@@ -31,7 +31,7 @@ from a list of colors.
 The module also provides functions for checking whether an object can be
 interpreted as a color (:func:`is_color_like`), for converting such an object
 to an RGBA tuple (:func:`to_rgba`) or to an HTML-like hex string in the
-`#rrggbb` format (:func:`to_hex`), and a sequence of colors to an `(n, 4)`
+"#rrggbb" format (:func:`to_hex`), and a sequence of colors to an (n, 4)
 RGBA array (:func:`to_rgba_array`).  Caching is used for efficiency.
 
 Matplotlib recognizes the following formats to specify a color:
@@ -56,10 +56,10 @@ Matplotlib recognizes the following formats to specify a color:
   color cycle): ``{'tab:blue', 'tab:orange', 'tab:green', 'tab:red',
   'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan'}``
   (case-insensitive);
-* a "CN" color spec, i.e. `'C'` followed by a number, which is an index into
-  the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``); the
-  indexing is intended to occur at rendering time, and defaults to black if the
-  cycle does not include color.
+* a "CN" color spec, i.e. 'C' followed by a number, which is an index into the
+  default property cycle (:rc:`axes.prop_cycle`); the indexing is intended to
+  occur at rendering time, and defaults to black if the cycle does not include
+  color.
 
 .. _palettable: https://jiffyclub.github.io/palettable/
 .. _xkcd color survey: https://xkcd.com/color/rgb/

@@ -1013,7 +1013,7 @@ def find_tex_file(filename, format=None):
     ----------
     filename : str or path-like
     format : str or bytes
-        Used as the value of the `--format` option to :program:`kpsewhich`.
+        Used as the value of the ``--format`` option to :program:`kpsewhich`.
         Could be e.g. 'tfm' or 'vf' to limit the search to that type of files.
 
     References

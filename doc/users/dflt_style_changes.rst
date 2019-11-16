@@ -118,7 +118,7 @@ Colormap
 --------
 
 The new default color map used by `matplotlib.cm.ScalarMappable` instances is
- `'viridis'` (aka `option D <https://bids.github.io/colormap/>`__).
+'viridis' (aka `option D <https://bids.github.io/colormap/>`__).
 
 .. plot::
 
@@ -439,7 +439,7 @@ in your :file:`matplotlibrc` file.
 Previously, boxplots were composed of a mish-mash of styles that were, for
 better for worse, inherited from Matlab. Most of the elements were blue,
 but the medians were red. The fliers (outliers) were black plus-symbols
-(`+`) and the whiskers were dashed lines, which created ambiguity if
+('+') and the whiskers were dashed lines, which created ambiguity if
 the (solid and black) caps were not drawn.
 
 For the new defaults, everything is black except for the median and mean

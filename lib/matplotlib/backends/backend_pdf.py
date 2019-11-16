@@ -442,14 +442,12 @@ class PdfFile:
         metadata : dict from strings to strings and dates
             Information dictionary object (see PDF reference section 10.2.1
             'Document Information Dictionary'), e.g.:
-            `{'Creator': 'My software', 'Author': 'Me',
-            'Title': 'Awesome fig'}`.
+            ``{'Creator': 'My software', 'Author': 'Me', 'Title': 'Awesome'}``.
 
-            The standard keys are `'Title'`, `'Author'`, `'Subject'`,
-            `'Keywords'`, `'Creator'`, `'Producer'`, `'CreationDate'`,
-            `'ModDate'`, and `'Trapped'`. Values have been predefined
-            for `'Creator'`, `'Producer'` and `'CreationDate'`. They
-            can be removed by setting them to `None`.
+            The standard keys are 'Title', 'Author', 'Subject', 'Keywords',
+            'Creator', 'Producer', 'CreationDate', 'ModDate', and
+            'Trapped'. Values have been predefined for 'Creator', 'Producer'
+            and 'CreationDate'. They can be removed by setting them to `None`.
         """
         self._object_seq = itertools.count(1)  # consumed by reserveObject
         self.xrefTable = [[0, 65535, 'the zero object']]
@@ -2420,15 +2418,12 @@ class PdfPages:
         metadata : dictionary, optional
             Information dictionary object (see PDF reference section 10.2.1
             'Document Information Dictionary'), e.g.:
-            `{'Creator': 'My software', 'Author': 'Me',
-            'Title': 'Awesome fig'}`
+            ``{'Creator': 'My software', 'Author': 'Me', 'Title': 'Awesome'}``.
 
-            The standard keys are `'Title'`, `'Author'`, `'Subject'`,
-            `'Keywords'`, `'Creator'`, `'Producer'`, `'CreationDate'`,
-            `'ModDate'`, and `'Trapped'`. Values have been predefined
-            for `'Creator'`, `'Producer'` and `'CreationDate'`. They
-            can be removed by setting them to `None`.
-
+            The standard keys are 'Title', 'Author', 'Subject', 'Keywords',
+            'Creator', 'Producer', 'CreationDate', 'ModDate', and
+            'Trapped'. Values have been predefined for 'Creator', 'Producer'
+            and 'CreationDate'. They can be removed by setting them to `None`.
         """
         self._file = PdfFile(filename, metadata=metadata)
         self.keep_empty = keep_empty

@@ -32,7 +32,7 @@ IPython to the rescue
     The mode described here still exists for historical reasons, but it is
     highly advised not to use. It pollutes namespaces with functions that will
     shadow python built-in and can lead to hard to track bugs. To get IPython
-    integration without imports the use of the  `%matplotlib` magic is
+    integration without imports the use of the ``%matplotlib`` magic is
     preferred. See
     `ipython documentation <https://ipython.readthedocs.io/en/stable/interactive/reference.html#plotting-with-matplotlib>`_
     .

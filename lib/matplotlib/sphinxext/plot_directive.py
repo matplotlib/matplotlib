@@ -54,12 +54,12 @@ The ``plot`` directive supports the following options:
 
     encoding : str
         If this source file is in a non-UTF8 or non-ASCII encoding, the
-        encoding must be specified using the `:encoding:` option.  The encoding
-        will not be inferred using the ``-*- coding -*-`` metacomment.
+        encoding must be specified using the ``:encoding:`` option.  The
+        encoding will not be inferred using the ``-*- coding -*-`` metacomment.
 
     context : bool or str
         If provided, the code will be run in the context of all previous plot
-        directives for which the `:context:` option was specified.  This only
+        directives for which the ``:context:`` option was specified.  This only
         applies to inline code plot directives, not those run from files. If
         the ``:context: reset`` option is specified, the context is reset
         for this and future plots, and previous figures are closed prior to

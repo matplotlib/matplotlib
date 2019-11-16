@@ -383,11 +383,11 @@ information.
 XDG base directory support
 ``````````````````````````
 On Linux, matplotlib now uses the `XDG base directory specification
-<http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`
-to find the `matplotlibrc` configuration file.  `matplotlibrc` should
-now be kept in `~/.config/matplotlib`, rather than `~/.matplotlib`.
-If your configuration is found in the old location, it will still be
-used, but a warning will be displayed.
+<http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>` to
+find the :file:`matplotlibrc` configuration file. :file:`matplotlibrc` should
+now be kept in :file:`~/.config/matplotlib`, rather than :file:`~/.matplotlib`.
+If your configuration is found in the old location, it will still be used, but
+a warning will be displayed.
 
 Catch opening too many figures using pyplot
 ```````````````````````````````````````````
