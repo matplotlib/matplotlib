@@ -66,9 +66,9 @@ ax.set_xticks(ind)
 ax.set_xticklabels(('G1', 'G2', 'G3', 'G4', 'G5'))
 ax.legend()
 
-# Label with position 'center' instead of the default 'edge'
-ax.bar_label(p1, position='center')
-ax.bar_label(p2, position='center')
+# Label with label_type 'center' instead of the default 'edge'
+ax.bar_label(p1, label_type='center')
+ax.bar_label(p2, label_type='center')
 ax.bar_label(p2)
 
 plt.show()
@@ -112,12 +112,10 @@ ax.invert_yaxis()  # labels read top-to-bottom
 ax.set_xlabel('Performance')
 ax.set_title('How fast do you want to go today?')
 
-# Label with given captions, custom padding, shifting and annotate option
-arrowprops = dict(color='b', arrowstyle="-|>",
-                  connectionstyle="angle,angleA=0,angleB=90,rad=20")
+# Label with given captions, custom padding and annotate options
 ax.bar_label(hbars, labels=['±%.2f' % e for e in error],
-             padding=30, shifting=20, arrowprops=arrowprops, color='b')
-ax.set_xlim(right=17)
+             padding=8, color='b', fontsize=14)
+ax.set_xlim(right=16)
 
 plt.show()
 

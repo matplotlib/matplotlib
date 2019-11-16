@@ -2498,8 +2498,8 @@ class Axes(_AxesBase):
                            align=align, **kwargs)
         return patches
 
-    def bar_label(self, container, labels=None, *, fmt="%g", position="edge",
-                  padding=0, shifting=0, **kwargs):
+    def bar_label(self, container, labels=None, *, fmt="%g", label_type="edge",
+                  padding=0, **kwargs):
         """
         Label a bar plot.
 
@@ -2518,18 +2518,18 @@ class Axes(_AxesBase):
         fmt : str, default: '%g'
             A format string for the label.
 
-        position : {'edge', 'center'}, default: 'edge'
-            Position of the label relative to the bar:
+        label_type : {'edge', 'center'}, default: 'edge'
+            The label type, Possible values:
 
-            - 'edge': the value is the position of the edge.
-                      (cumulative for stacked bars)
-            - 'center': the value shown will be the length of the bar.
+            - 'edge': label placed at the end-point of the bar segment, and the
+              value displayed will be the position of that end-point.
+            - 'center': label placed in the center of the bar segment, and the
+              value displayed will be the length of that segment.
+              (useful for stacked bars, i.e.
+              :doc:`/gallery/lines_bars_and_markers/bar_label_demo`)
 
         padding : float, default: 0
-            Offset in points parallel to the direction of the bar.
-
-        shifting : float, default: 0
-            Offset in points perpendicular to the direction of the bar.
+            Distance of label from the end of the bar.
 
         **kwargs : passed through to `.Axes.annotate`.
 
@@ -2544,7 +2544,7 @@ class Axes(_AxesBase):
         def sign(x):
             return 1 if x >= 0 else -1
 
-        cbook._check_in_list(['edge', 'center'], position=position)
+        cbook._check_in_list(['edge', 'center'], label_type=label_type)
 
         bars = container.patches
         errorbar = container.errorbar
@@ -2579,35 +2579,34 @@ class Axes(_AxesBase):
             elif orientation == "horizontal":
                 endpt = err[:, 0].max() if xc >= 0 else err[:, 0].min()
 
-            if position == "center":
+            if label_type == "center":
                 value = sign(extrema) * length
-            elif position == "edge":
+            elif label_type == "edge":
                 value = extrema
 
-            if position == "center":
+            if label_type == "center":
                 xy = xc, yc
-            elif position == "edge" and orientation == "vertical":
+            elif label_type == "edge" and orientation == "vertical":
                 xy = xc, endpt
-            elif position == "edge" and orientation == "horizontal":
+            elif label_type == "edge" and orientation == "horizontal":
                 xy = endpt, yc
 
             if orientation == "vertical":
-                xytext = shifting, sign(extrema) * padding
+                xytext = 0, sign(extrema) * padding
             else:
-                xytext = sign(extrema) * padding, shifting
+                xytext = sign(extrema) * padding, 0
 
-            if position == "center":
+            if label_type == "center":
                 ha, va = "center", "center"
-            elif position == "edge" and orientation == "vertical" and yc >= 0:
-                ha, va = "center", "bottom"
-            elif position == "edge" and orientation == "vertical" and yc < 0:
-                ha, va = "center", "top"
-            elif (
-                position == "edge" and orientation == "horizontal" and xc >= 0
-            ):
-                ha, va = "left", "center"
-            elif position == "edge" and orientation == "horizontal" and xc < 0:
-                ha, va = "right", "center"
+            elif label_type == "edge":
+                if orientation == "vertical" and yc >= 0:
+                    ha, va = "center", "bottom"
+                elif orientation == "vertical" and yc < 0:
+                    ha, va = "center", "top"
+                elif orientation == "horizontal" and xc >= 0:
+                    ha, va = "left", "center"
+                elif orientation == "horizontal" and xc < 0:
+                    ha, va = "right", "center"
 
             annotation = self.annotate(fmt % value if lbl is None else lbl,
                                        xy, xytext, textcoords="offset points",
