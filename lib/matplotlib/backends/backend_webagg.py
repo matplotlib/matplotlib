@@ -317,7 +317,8 @@ class _BackendWebAgg(_Backend):
 
         if rcParams['webagg.open_in_browser']:
             import webbrowser
-            webbrowser.open(url)
+            if (webbrowser.open(url)==False):
+                print("To view figure, visit {0}".format(url))
         else:
             print("To view figure, visit {0}".format(url))
 
