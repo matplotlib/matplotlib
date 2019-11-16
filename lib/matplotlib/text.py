@@ -1748,12 +1748,11 @@ class OffsetFrom:
         return tr
 
 
-class _AnnotationBase:
+class AnnotationBase:
     def __init__(self,
                  xy,
                  xycoords='data',
                  annotation_clip=None):
-
         self.xy = xy
         self.xycoords = xycoords
         self.set_annotation_clip(annotation_clip)
@@ -1875,7 +1874,7 @@ class _AnnotationBase:
         else:
             x, y = self.xy
             return self._get_xy(renderer, x, y, self.xycoords)
-        #raise RuntimeError("must be defined by the derived class")
+        # raise RuntimeError("must be defined by the derived class")
 
     # def _get_bbox(self, renderer):
     #     if hasattr(bbox, "bounds"):
@@ -1889,13 +1888,16 @@ class _AnnotationBase:
 
     def set_annotation_clip(self, b):
         """
-        set *annotation_clip* attribute.
+        Set the *annotation_clip* attribute.
 
-          * True: the annotation will only be drawn when self.xy is inside
-                  the axes.
-          * False: the annotation will always be drawn regardless of its
-                   position.
-          * None: the self.xy will be checked only if *xycoords* is "data"
+        Parameters
+        ----------
+        b : None, bool
+          - True: The annotation will only be drawn when self.xy is inside
+            the axes.
+          - False: The annotation will always be drawn regardless of its
+            position.
+          - None: the self.xy will be checked only if *xycoords* is "data".
         """
         self._annotation_clip = b
 
@@ -1928,17 +1930,21 @@ class _AnnotationBase:
 
     def draggable(self, state=None, use_blit=False):
         """
-        Set the draggable state -- if state is
-
-          * None : toggle the current state
-
-          * True : turn draggable on
-
-          * False : turn draggable off
+        Set the draggable state.
 
         If draggable is on, you can drag the annotation on the canvas with
-        the mouse.  The DraggableAnnotation helper instance is returned if
-        draggable is on.
+        the mouse.
+
+        Parameters
+        ----------
+        state : bool, None
+            If ``None``, toggles the current state. Otherwise set the state
+            directly if a bool.
+
+        Returns
+        -------
+        DraggableAnnotation or None
+            DraggableAnnotation is returned if the draggable state is on.
         """
         from matplotlib.offsetbox import DraggableAnnotation
         is_draggable = self._draggable is not None
@@ -1958,7 +1964,7 @@ class _AnnotationBase:
         return self._draggable
 
 
-class Annotation(Text, _AnnotationBase):
+class Annotation(Text, AnnotationBase):
     """
     An `.Annotation` is a `.Text` that can refer to a specific position *xy*.
     Optionally an arrow pointing from the text to *xy* can be drawn.
@@ -2150,10 +2156,10 @@ class Annotation(Text, _AnnotationBase):
         :ref:`plotting-guide-annotation`.
 
         """
-        _AnnotationBase.__init__(self,
-                                 xy,
-                                 xycoords=xycoords,
-                                 annotation_clip=annotation_clip)
+        AnnotationBase.__init__(self,
+                                xy,
+                                xycoords=xycoords,
+                                annotation_clip=annotation_clip)
         # warn about wonky input data
         if (xytext is None and
                 textcoords is not None and

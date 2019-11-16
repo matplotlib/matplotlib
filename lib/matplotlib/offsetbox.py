@@ -25,7 +25,7 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.image import BboxImage
 from matplotlib.patches import (
     FancyBboxPatch, FancyArrowPatch, bbox_artist as mbbox_artist)
-from matplotlib.text import _AnnotationBase
+from matplotlib.text import AnnotationBase
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 
 
@@ -1423,7 +1423,7 @@ class OffsetImage(OffsetBox):
         self.stale = False
 
 
-class AnnotationBbox(martist.Artist, _AnnotationBase):
+class AnnotationBbox(martist.Artist, AnnotationBase):
     """
     Annotation-like class, but with offsetbox instead of Text.
     """
@@ -1462,10 +1462,10 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         """
 
         martist.Artist.__init__(self, **kwargs)
-        _AnnotationBase.__init__(self,
-                                 xy,
-                                 xycoords=xycoords,
-                                 annotation_clip=annotation_clip)
+        AnnotationBase.__init__(self,
+                                xy,
+                                xycoords=xycoords,
+                                annotation_clip=annotation_clip)
 
         self.offsetbox = offsetbox
 
