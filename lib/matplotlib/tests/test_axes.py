@@ -5201,10 +5201,24 @@ def test_unicode_hist_label():
 
 def test_move_offsetlabel():
     data = np.random.random(10) * 1e-22
+
     fig, ax = plt.subplots()
     ax.plot(data)
+    fig.canvas.draw()
+    before = ax.yaxis.offsetText.get_position()
     ax.yaxis.tick_right()
-    assert (1, 0.5) == ax.yaxis.offsetText.get_position()
+    fig.canvas.draw()
+    after = ax.yaxis.offsetText.get_position()
+    assert after[0] > before[0] and after[1] == before[1]
+
+    fig, ax = plt.subplots()
+    ax.plot(data)
+    fig.canvas.draw()
+    before = ax.xaxis.offsetText.get_position()
+    ax.xaxis.tick_top()
+    fig.canvas.draw()
+    after = ax.xaxis.offsetText.get_position()
+    assert after[0] == before[0] and after[1] > before[1]
 
 
 @image_comparison(['rc_spines.png'], savefig_kwarg={'dpi': 40})
