@@ -546,9 +546,10 @@ class Line2D(Artist):
         self.stale = True
 
     def set_markevery(self, every):
-        """Set the markevery property to subsample the plot when using markers.
+        """
+        Set the markevery property to subsample the plot when using markers.
 
-        e.g., if `every=5`, every 5-th marker will be plotted.
+        e.g., if ``every=5``, every 5-th marker will be plotted.
 
         Parameters
         ----------

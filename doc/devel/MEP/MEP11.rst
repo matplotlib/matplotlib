@@ -64,7 +64,7 @@ When installing from source, a :program:`git` checkout or pip_:
   - :file:`setup.py` attempts to ``import numpy``.  If this fails, the
     installation fails.
 
-  - For each of dateutil_, pytz_ and six_, `setup.py` attempts to
+  - For each of dateutil_, pytz_ and six_, :file:`setup.py` attempts to
     import them (from the top-level namespace).  If that fails,
     matplotlib installs its local copy of the library into the
     top-level namespace.

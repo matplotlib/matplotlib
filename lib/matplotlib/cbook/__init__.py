@@ -972,7 +972,7 @@ def delete_masked_points(*args):
     Masks are obtained from all arguments of the correct length
     in categories 1, 2, and 4; a point is bad if masked in a masked
     array or if it is a nan or inf.  No attempt is made to
-    extract a mask from categories 2, 3, and 4 if :meth:`np.isfinite`
+    extract a mask from categories 2, 3, and 4 if `numpy.isfinite`
     does not yield a Boolean array.
 
     All input arguments that are not passed unchanged are returned
@@ -1424,7 +1424,7 @@ def violin_stats(X, method, points=100, quantiles=None):
 
     method : callable
         The method used to calculate the kernel density estimate for each
-        column of data. When called via `method(v, coords)`, it should
+        column of data. When called via ``method(v, coords)``, it should
         return a vector of the values of the KDE evaluated at the values
         specified in coords.
 

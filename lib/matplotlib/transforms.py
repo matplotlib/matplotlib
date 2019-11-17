@@ -81,8 +81,6 @@ class TransformNode:
 
     def __init__(self, shorthand_name=None):
         """
-        Creates a new :class:`TransformNode`.
-
         Parameters
         ----------
         shorthand_name : str
