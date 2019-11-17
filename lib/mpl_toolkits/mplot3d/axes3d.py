@@ -48,10 +48,9 @@ class Axes3D(Axes):
     name = '3d'
     _shared_z_axes = cbook.Grouper()
 
-    @docstring.dedent_interpd
     def __init__(
             self, fig, rect=None, *args,
-            azim=-60, elev=30, zscale=None, sharez=None, proj_type='persp',
+            azim=-60, elev=30, sharez=None, proj_type='persp',
             **kwargs):
         """
         Parameters
@@ -64,13 +63,14 @@ class Axes3D(Axes):
             Azimuthal viewing angle, defaults to -60.
         elev : float, optional
             Elevation viewing angle, defaults to 30.
-        zscale : %(scale_type)s, optional
-            The z scale.  Note that currently, only a linear scale is
-            supported.
         sharez : Axes3D, optional
             Other axes to share z-limits with.
         proj_type : {'persp', 'ortho'}
             The projection type, default 'persp'.
+        **kwargs
+            Other optional keyword arguments:
+
+            %(Axes3D)s
 
         Notes
         -----
@@ -109,9 +109,6 @@ class Axes3D(Axes):
 
         # func used to format z -- fall back on major formatters
         self.fmt_zdata = None
-
-        if zscale is not None:
-            self.set_zscale(zscale)
 
         if self.zaxis is not None:
             self._zcid = self.zaxis.callbacks.connect(
@@ -2874,6 +2871,10 @@ pivot='tail', normalize=False, **kwargs)
             polygons[coord] = poly
 
         return polygons
+
+
+docstring.interpd.update(Axes3D=artist.kwdoc(Axes3D))
+docstring.dedent_interpd(Axes3D.__init__)
 
 
 def get_test_data(delta=0.05):
