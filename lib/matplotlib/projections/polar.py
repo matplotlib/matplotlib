@@ -257,26 +257,19 @@ class ThetaTick(maxis.XTick):
     the spine. The label padding is also applied here since it's not possible
     to use a generic axes transform to produce tick-specific padding.
     """
+
     def __init__(self, axes, *args, **kwargs):
         self._text1_translate = mtransforms.ScaledTranslation(
-            0, 0,
-            axes.figure.dpi_scale_trans)
+            0, 0, axes.figure.dpi_scale_trans)
         self._text2_translate = mtransforms.ScaledTranslation(
-            0, 0,
-            axes.figure.dpi_scale_trans)
+            0, 0, axes.figure.dpi_scale_trans)
         super().__init__(axes, *args, **kwargs)
-
-    def _get_text1(self):
-        t = super()._get_text1()
-        t.set_rotation_mode('anchor')
-        t.set_transform(t.get_transform() + self._text1_translate)
-        return t
-
-    def _get_text2(self):
-        t = super()._get_text2()
-        t.set_rotation_mode('anchor')
-        t.set_transform(t.get_transform() + self._text2_translate)
-        return t
+        self.label1.set(
+            rotation_mode='anchor',
+            transform=self.label1.get_transform() + self._text1_translate)
+        self.label2.set(
+            rotation_mode='anchor',
+            transform=self.label2.get_transform() + self._text2_translate)
 
     def _apply_params(self, **kw):
         super()._apply_params(**kw)
@@ -506,15 +499,11 @@ class RadialTick(maxis.YTick):
     are also rotated to be perpendicular to the spine, when 'auto' rotation is
     enabled.
     """
-    def _get_text1(self):
-        t = super()._get_text1()
-        t.set_rotation_mode('anchor')
-        return t
 
-    def _get_text2(self):
-        t = super()._get_text2()
-        t.set_rotation_mode('anchor')
-        return t
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label1.set_rotation_mode('anchor')
+        self.label2.set_rotation_mode('anchor')
 
     def _determine_anchor(self, mode, angle, start):
         # Note: angle is the (spine angle - 90) because it's used for the tick
