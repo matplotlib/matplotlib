@@ -1438,7 +1438,7 @@ class Axes3D(Axes):
             zs = kwargs.pop('zs', 0)
 
         # Match length
-        zs = np.broadcast_to(zs, len(xs))
+        zs = np.broadcast_to(zs, np.shape(xs))
 
         lines = super().plot(xs, ys, *args, **kwargs)
         for line in lines:
