@@ -160,6 +160,14 @@ def test_lines3d():
     ax.plot(x, y, z)
 
 
+@check_figures_equal(extensions=["png"])
+def test_plot_scalar(fig_test, fig_ref):
+    ax1 = fig_test.gca(projection='3d')
+    ax1.plot([1], [1], "o")
+    ax2 = fig_ref.gca(projection='3d')
+    ax2.plot(1, 1, "o")
+
+
 @image_comparison(['mixedsubplot.png'], remove_text=True)
 def test_mixedsubplots():
     def f(t):
