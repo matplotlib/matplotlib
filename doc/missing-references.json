@@ -417,7 +417,7 @@
     "matplotlib.image.Image": [
       "lib/mpl_toolkits/axes_grid1/colorbar.py:docstring of mpl_toolkits.axes_grid1.colorbar.colorbar:20"
     ],
-    "matplotlib.image._ImageBase": [
+    "matplotlib.image.ImageBase": [
       "doc/api/artist_api.rst:189",
       "lib/matplotlib/image.py:docstring of matplotlib.image.AxesImage:1",
       "lib/matplotlib/image.py:docstring of matplotlib.image.BboxImage:1",

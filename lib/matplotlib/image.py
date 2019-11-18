@@ -124,7 +124,7 @@ def _draw_list_compositing_images(
     between `Figure.draw` and `Axes.draw`, but otherwise should not be
     generally useful.
     """
-    has_images = any(isinstance(x, _ImageBase) for x in artists)
+    has_images = any(isinstance(x, ImageBase) for x in artists)
 
     # override the renderer default if suppressComposite is not None
     not_composite = (suppress_composite if suppress_composite is not None
@@ -152,7 +152,7 @@ def _draw_list_compositing_images(
             del image_group[:]
 
         for a in artists:
-            if isinstance(a, _ImageBase) and a.can_composite():
+            if isinstance(a, ImageBase) and a.can_composite():
                 image_group.append(a)
             else:
                 flush_images()
@@ -215,7 +215,7 @@ def _rgb_to_rgba(A):
     return rgba
 
 
-class _ImageBase(martist.Artist, cm.ScalarMappable):
+class ImageBase(martist.Artist, cm.ScalarMappable):
     """
     Base class for images.
 
@@ -294,7 +294,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         Get a scalar alpha value to be applied to the artist as a whole.
 
         If the alpha value is a matrix, the method returns 1.0 because pixels
-        have individual alpha values (see `~._ImageBase._make_image` for
+        have individual alpha values (see `~.ImageBase._make_image` for
         details). If the alpha value is a scalar, the method returns said value
         to be applied to the artist as a whole because pixels do not have
         individual alpha values.
@@ -304,7 +304,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def changed(self):
         """
-        Call this whenever the mappable is changed so observers can
+        Should be called whenever the mappable is changed so observers can
         update state
         """
         self._imcache = None
@@ -557,11 +557,15 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         """
-        Normalize, rescale, and colormap this image's data for rendering using
-        *renderer*, with the given *magnification*.
+        Normalize, rescale, and colormap this image's data for rendering.
 
-        If *unsampled* is True, the image will not be scaled, but an
-        appropriate affine transformation will be returned instead.
+        Parameters
+        ----------
+        renderer
+        magnification : float
+        unsampled : bool
+            If ``True``, the image will not be scaled, but an appropriate
+            affine transformation will be returned instead.
 
         Returns
         -------
@@ -660,7 +664,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         return inside, {}
 
     def write_png(self, fname):
-        """Write the image to png file with fname"""
+        """Write the image to png file with *fname*"""
         im = self.to_rgba(self._A[::-1] if self.origin == 'lower' else self._A,
                           bytes=True, norm=True)
         PIL.Image.fromarray(im).save(fname, format="png")
@@ -824,7 +828,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         return self._filterrad
 
 
-class AxesImage(_ImageBase):
+class AxesImage(ImageBase):
     """
     Parameters
     ----------
@@ -1260,7 +1264,7 @@ class PcolorImage(AxesImage):
             return None
 
 
-class FigureImage(_ImageBase):
+class FigureImage(ImageBase):
     zorder = 0
 
     _interpolation = 'nearest'
@@ -1321,7 +1325,7 @@ class FigureImage(_ImageBase):
         self.stale = True
 
 
-class BboxImage(_ImageBase):
+class BboxImage(ImageBase):
     """The Image class whose size is determined by the given bbox."""
 
     @cbook._delete_parameter("3.1", "interp_at_native")
