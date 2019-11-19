@@ -1102,33 +1102,31 @@ class Animation:
         # TODO: Right now, after closing the figure, saving a movie won't work
         # since GUI widgets are gone. Either need to remove extra code to
         # allow for this non-existent use case or find a way to make it work.
-        with mpl.rc_context():
-            if mpl.rcParams['savefig.bbox'] == 'tight':
-                _log.info("Disabling savefig.bbox = 'tight', as it may cause "
-                          "frame size to vary, which is inappropriate for "
-                          "animation.")
-                mpl.rcParams['savefig.bbox'] = None
-            with writer.saving(self._fig, filename, dpi):
-                for anim in all_anim:
-                    # Clear the initial frame
-                    anim._init_draw()
-                frame_number = 0
-                # TODO: Currently only FuncAnimation has a save_count
-                #       attribute. Can we generalize this to all Animations?
-                save_count_list = [getattr(a, 'save_count', None)
-                                   for a in all_anim]
-                if None in save_count_list:
-                    total_frames = None
-                else:
-                    total_frames = sum(save_count_list)
-                for data in zip(*[a.new_saved_frame_seq() for a in all_anim]):
-                    for anim, d in zip(all_anim, data):
-                        # TODO: See if turning off blit is really necessary
-                        anim._draw_next_frame(d, blit=False)
-                        if progress_callback is not None:
-                            progress_callback(frame_number, total_frames)
-                            frame_number += 1
-                    writer.grab_frame(**savefig_kwargs)
+        if mpl.rcParams['savefig.bbox'] == 'tight':
+            _log.info("Disabling savefig.bbox = 'tight', as it may cause "
+                      "frame size to vary, which is inappropriate for "
+                      "animation.")
+        with mpl.rc_context({'savefig.bbox': None}), \
+             writer.saving(self._fig, filename, dpi):
+            for anim in all_anim:
+                anim._init_draw()  # Clear the initial frame
+            frame_number = 0
+            # TODO: Currently only FuncAnimation has a save_count
+            #       attribute. Can we generalize this to all Animations?
+            save_count_list = [getattr(a, 'save_count', None)
+                               for a in all_anim]
+            if None in save_count_list:
+                total_frames = None
+            else:
+                total_frames = sum(save_count_list)
+            for data in zip(*[a.new_saved_frame_seq() for a in all_anim]):
+                for anim, d in zip(all_anim, data):
+                    # TODO: See if turning off blit is really necessary
+                    anim._draw_next_frame(d, blit=False)
+                    if progress_callback is not None:
+                        progress_callback(frame_number, total_frames)
+                        frame_number += 1
+                writer.grab_frame(**savefig_kwargs)
 
         # Reconnect signal for first draw if necessary
         if reconnect_first_draw:
