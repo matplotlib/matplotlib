@@ -630,7 +630,7 @@ Contribute to Matplotlib documentation
 Matplotlib is a big library, which is used in many ways, and the
 documentation has only scratched the surface of everything it can
 do.  So far, the place most people have learned all these features are
-through studying the examples (:ref:`how-to-search-examples`), which is a
+through studying the :ref:`examples-index`, which is a
 recommended and great way to learn, but it would be nice to have more
 official narrative documentation guiding people through all the dark
 corners.  This is where you come in.
@@ -720,20 +720,3 @@ has written a nice `article
 on how to make html click maps with Matplotlib agg PNGs.  We would
 also like to add this functionality to SVG.  If you are interested in
 contributing to these efforts that would be great.
-
-
-.. _how-to-search-examples:
-
-How to search for examples
-==========================
-
-The nearly 300 code :ref:`examples-index` included with the Matplotlib
-source distribution are full-text searchable from the :ref:`search`
-page, but sometimes when you search, you get a lot of results from the
-:ref:`api-index` or other documentation that you may not be interested
-in if you just want to find a complete, free-standing, working piece
-of example code.  To facilitate example searches, we have tagged every
-code example page with the keyword ``codex`` for *code example* which
-shouldn't appear anywhere else on this site except in the FAQ.
-So if you want to search for an example that uses an
-ellipse, :ref:`search` for ``codex ellipse``.
