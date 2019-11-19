@@ -68,7 +68,7 @@ class Thumbnail(QtWidgets.QFrame):
         self.image = QtWidgets.QLabel()
         self.image.setAlignment(QtCore.Qt.AlignHCenter |
                                 QtCore.Qt.AlignVCenter)
-        self.image.setMinimumSize(800/3, 600/3)
+        self.image.setMinimumSize(800 // 3, 600 // 3)
         layout.addWidget(self.image)
         self.setLayout(layout)
 
