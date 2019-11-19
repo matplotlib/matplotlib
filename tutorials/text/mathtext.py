@@ -224,21 +224,44 @@ choice of:
     ``\mathrm{\mathsf{sansserif}}``  :math-stix:`\mathrm{\mathsf{sansserif}}`
     ================================ =========================================
 
-There are also three global "font sets" to choose from, which are
+There are also five global "font sets" to choose from, which are
 selected using the ``mathtext.fontset`` parameter in :ref:`matplotlibrc
 <matplotlibrc-sample>`.
 
-``cm``: **Computer Modern (TeX)**
+``dejavusans``: DejaVu Sans
 
-.. image:: ../../_static/cm_fontset.png
+    .. mathmpl::
+       :fontset: dejavusans
 
-``stix``: **STIX** (designed to blend well with Times)
+       \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
 
-.. image:: ../../_static/stix_fontset.png
+``dejavuserif``: DejaVu Serif
 
-``stixsans``: **STIX sans-serif**
+    .. mathmpl::
+       :fontset: dejavuserif
 
-.. image:: ../../_static/stixsans_fontset.png
+       \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
+
+``cm``: Computer Modern (TeX)
+
+    .. mathmpl::
+       :fontset: cm
+
+       \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
+
+``stix``: STIX (designed to blend well with Times)
+
+    .. mathmpl::
+       :fontset: stix
+
+       \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
+
+``stixsans``: STIX sans-serif
+
+    .. mathmpl::
+       :fontset: stixsans
+
+       \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
 
 Additionally, you can use ``\mathdefault{...}`` or its alias
 ``\mathregular{...}`` to use the font used for regular text outside of
