@@ -1062,9 +1062,27 @@ class Axes3D(Axes):
         if event.inaxes == self:
             self.button_pressed = event.button
             self.sx, self.sy = event.xdata, event.ydata
+            toolbar = getattr(self.figure.canvas, "toolbar")
+            if toolbar and toolbar._nav_stack() is None:
+                self.figure.canvas.toolbar.push_current()
 
     def _button_release(self, event):
         self.button_pressed = None
+        toolbar = getattr(self.figure.canvas, "toolbar")
+        if toolbar:
+            self.figure.canvas.toolbar.push_current()
+
+    def _get_view(self):
+        # docstring inherited
+        return (self.get_xlim(), self.get_ylim(), self.get_zlim(),
+                self.elev, self.azim)
+
+    def _set_view(self, view):
+        # docstring inherited
+        xlim, ylim, zlim, elev, azim = view
+        self.set(xlim=xlim, ylim=ylim, zlim=zlim)
+        self.elev = elev
+        self.azim = azim
 
     def format_zdata(self, z):
         """
