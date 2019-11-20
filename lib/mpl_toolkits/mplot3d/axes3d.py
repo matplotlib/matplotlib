@@ -364,8 +364,7 @@ class Axes3D(Axes):
         """
         Set whether autoscaling for the z-axis is applied on plot commands
 
-        .. versionadded :: 1.1.0
-            This function was added, but not tested. Please report any bugs.
+        .. versionadded:: 1.1.0
 
         Parameters
         ----------
@@ -382,8 +381,7 @@ class Axes3D(Axes):
 
         accepts: float in range 0 to 1
 
-        .. versionadded :: 1.1.0
-            This function was added, but not tested. Please report any bugs.
+        .. versionadded:: 1.1.0
         """
         if m < 0 or m > 1:
             raise ValueError("margin must be in range 0 to 1")
@@ -427,8 +425,7 @@ class Axes3D(Axes):
         interval will be added to each end of that interval before
         it is used in autoscaling.
 
-        .. versionadded :: 1.1.0
-            This function was added, but not tested. Please report any bugs.
+        .. versionadded:: 1.1.0
         """
         if margins and x is not None and y is not None and z is not None:
             raise TypeError('Cannot pass both positional and keyword '
@@ -466,8 +463,7 @@ class Axes3D(Axes):
         three axes.  Therefore, 'z' can be passed for *axis*,
         and 'both' applies to all three axes.
 
-        .. versionadded :: 1.1.0
-            This function was added, but not tested. Please report any bugs.
+        .. versionadded:: 1.1.0
         """
         if enable is None:
             scalex = True
@@ -785,60 +781,40 @@ class Axes3D(Axes):
 
     # We need to slightly redefine these to pass scalez=False
     # to their calls of autoscale_view.
+
     def set_xscale(self, value, **kwargs):
         self.xaxis._set_scale(value, **kwargs)
         self.autoscale_view(scaley=False, scalez=False)
         self._update_transScale()
-    if maxes.Axes.set_xscale.__doc__ is not None:
-        set_xscale.__doc__ = maxes.Axes.set_xscale.__doc__ + """
-        .. versionadded :: 1.1.0
-            This function was added, but not tested. Please report any bugs.
-        """
+        self.stale = True
 
     def set_yscale(self, value, **kwargs):
         self.yaxis._set_scale(value, **kwargs)
         self.autoscale_view(scalex=False, scalez=False)
         self._update_transScale()
         self.stale = True
-    if maxes.Axes.set_yscale.__doc__ is not None:
-        set_yscale.__doc__ = maxes.Axes.set_yscale.__doc__ + """
-        .. versionadded :: 1.1.0
-            This function was added, but not tested. Please report any bugs.
-        """
 
     def set_zscale(self, value, **kwargs):
-        """
-        Set the z-axis scale.
-
-        Parameters
-        ----------
-        value : {"linear", "log", "symlog", "logit", ...}
-            The axis scale type to apply.
-
-        **kwargs
-            Different keyword arguments are accepted, depending on the scale.
-            See the respective class keyword arguments:
-
-            - `matplotlib.scale.LinearScale`
-            - `matplotlib.scale.LogScale`
-            - `matplotlib.scale.SymmetricalLogScale`
-            - `matplotlib.scale.LogitScale`
-
-        Notes
-        -----
-        Currently, Axes3D objects only supports linear scales.
-        Other scales may or may not work, and support for these
-        is improving with each release.
-
-        By default, Matplotlib supports the above mentioned scales.
-        Additionally, custom scales may be registered using
-        `matplotlib.scale.register_scale`. These scales may then also
-        be used here as support is added.
-        """
         self.zaxis._set_scale(value, **kwargs)
         self.autoscale_view(scalex=False, scaley=False)
         self._update_transScale()
         self.stale = True
+
+    set_xscale.__doc__, set_yscale.__doc__, set_zscale.__doc__ = map(
+        """
+        Set the {}-axis scale.
+
+        Parameters
+        ----------
+        value : {{"linear"}}
+            The axis scale type to apply.  3D axes currently only support
+            linear scales; other scales yield nonsensical results.
+
+        **kwargs
+            Keyword arguments are nominally forwarded to the scale class, but
+            none of them is applicable for linear scales.
+        """.format,
+        ["x", "y", "z"])
 
     def set_zticks(self, *args, **kwargs):
         """
@@ -1235,18 +1211,12 @@ class Axes3D(Axes):
     # Axes rectangle characteristics
 
     def get_frame_on(self):
-        """
-        Get whether the 3D axes panels are drawn.
-
-        .. versionadded :: 1.1.0
-        """
+        """Get whether the 3D axes panels are drawn."""
         return self._frameon
 
     def set_frame_on(self, b):
         """
         Set whether the 3D axes panels are drawn.
-
-        .. versionadded :: 1.1.0
 
         Parameters
         ----------
@@ -1317,10 +1287,7 @@ class Axes3D(Axes):
         accept settings as if it was like the 'y' axis.
 
         .. note::
-            While this function is currently implemented, the core part
-            of the Axes3D object may ignore some of these settings.
-            Future releases will fix this. Priority will be given to
-            those who file bugs.
+           Axes3D currently ignores some of these settings.
 
         .. versionadded :: 1.1.0
         """
@@ -1871,7 +1838,6 @@ class Axes3D(Axes):
         .. plot:: gallery/mplot3d/trisurf3d_2.py
 
         .. versionadded:: 1.2.0
-            This plotting function was added for the v1.2.0 release.
         """
 
         had_data = self.has_data()
