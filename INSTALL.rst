@@ -105,16 +105,16 @@ if installation is done this way. Also, editable mode allows your code changes
 to be instantly propagated to your library code without reinstalling (though
 you will have to restart your python process / kernel): ::
 
-  pip install -e .
+  python -m pip install -e .
 
 If you're not developing, it can be installed from the source directory with
 a simple ::
 
-  pip install .
+  python -m pip install .
 
 To run the tests you will need to install some additional dependencies: ::
 
-  pip install -r requirements/dev/dev.txt
+  python -m pip install -r requirements/dev/dev.txt
 
 .. warning ::
 
