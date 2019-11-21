@@ -696,7 +696,11 @@ class ImageMagickBase:
 
     @property
     def output_args(self):
-        return [self.outfile]
+        if self.extra_args:
+            args = list(self.extra_args)
+        else:
+            args = []
+        return args + [self.outfile]
 
     @classmethod
     def bin_path(cls):
