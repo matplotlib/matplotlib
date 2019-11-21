@@ -114,7 +114,7 @@ a simple ::
 
 To run the tests you will need to install some additional dependencies: ::
 
-  python -m pip install -r requirements/dev/dev.txt
+  python -m pip install -r requirements/dev/dev-requirements.txt
 
 .. warning ::
 
