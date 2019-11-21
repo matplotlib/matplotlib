@@ -173,3 +173,14 @@ variables is deprecated.  Additional fonts may be registered using
 ``matplotlib.compat``
 ~~~~~~~~~~~~~~~~~~~~~
 This module is deprecated.
+
+AVConv animation writer deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``AVConvBase``, ``AVConvWriter`` and ``AVConvFileWriter`` classes, and the
+associated ``animation.avconv_path`` and ``animation.avconv_args`` rcParams are
+deprecated.
+
+Debian 8 (2015, EOL 06/2020) and Ubuntu 14.04 (EOL 04/2019) were the
+last versions of Debian and Ubuntu to ship avconv.  It remains possible
+to force the use of avconv by using the ffmpeg-based writers with
+:rc:`animation.ffmpeg_path` set to "avconv".
