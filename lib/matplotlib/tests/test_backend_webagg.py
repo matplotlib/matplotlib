@@ -8,11 +8,9 @@ import pytest
 def test_webagg_fallback(backend):
     if backend == "nbagg":
         pytest.importorskip("IPython")
-    env = {}
-    if os.name == "nt":
-        env = dict(os.environ)
-    else:
-        env = {"DISPLAY": ""}
+    env = dict(os.environ)
+    if os.name != "nt":
+        env["DISPLAY"] = ""
 
     env["MPLBACKEND"] = backend
 
