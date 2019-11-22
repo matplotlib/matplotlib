@@ -1764,8 +1764,6 @@ class Annotation(Text, _AnnotationBase):
             xytext = self.xy
         x, y = xytext
 
-        Text.__init__(self, x, y, text, **kwargs)
-
         self.arrowprops = arrowprops
 
         if arrowprops is not None:
@@ -1784,6 +1782,9 @@ class Annotation(Text, _AnnotationBase):
                                                **arrowprops)
         else:
             self.arrow_patch = None
+
+        # Must come last, as some kwargs may be propagated to arrow_patch.
+        Text.__init__(self, x, y, text, **kwargs)
 
     def contains(self, event):
         inside, info = self._default_contains(event)
