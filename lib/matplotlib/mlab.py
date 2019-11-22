@@ -152,12 +152,11 @@ def detrend(x, key=None, axis=None):
         Array or sequence containing the data.
 
     key : {'default', 'constant', 'mean', 'linear', 'none'} or function
-        Specifies the detrend algorithm to use. 'default' is 'mean', which is
-        the same as `detrend_mean`. 'constant' is the same. 'linear' is
-        the same as `detrend_linear`. 'none' is the same as
-        `detrend_none`. The default is 'mean'. See the corresponding
-        functions for more details regarding the algorithms. Can also be a
-        function that carries out the detrend operation.
+        The detrending algorithm to use. 'default', 'mean', and 'constant' are
+        the same as `detrend_mean`. 'linear' is the same as `detrend_linear`.
+        'none' is the same as `detrend_none`. The default is 'mean'. See the
+        corresponding functions for more details regarding the algorithms. Can
+        also be a function that carries out the detrend operation.
 
     axis : integer
         The axis along which to do the detrending.
@@ -629,10 +628,9 @@ docstring.interpd.update(Spectral=inspect.cleandoc("""
         version of the segment.
 
     sides : {'default', 'onesided', 'twosided'}
-        Specifies which sides of the spectrum to return.  Default gives the
-        default behavior, which returns one-sided for real data and both
-        for complex data.  'onesided' forces the return of a one-sided
-        spectrum, while 'twosided' forces two-sided.
+        Which sides of the spectrum to return. 'default' is one-sided for real
+        data and two-sided for complex data. 'onesided' forces the return of a
+        one-sided spectrum, while 'twosided' forces two-sided.
 """))
 
 
@@ -676,10 +674,10 @@ docstring.interpd.update(PSD=inspect.cleandoc("""
         'linear' calls `.detrend_linear`.
 
     scale_by_freq : bool, optional
-        Specifies whether the resulting density values should be scaled
-        by the scaling frequency, which gives density in units of Hz^-1.
-        This allows for integration over the returned frequency values.
-        The default is True for MATLAB compatibility.
+        Whether the resulting density values should be scaled by the scaling
+        frequency, which gives density in units of Hz^-1.  This allows for
+        integration over the returned frequency values.  The default is True
+        for MATLAB compatibility.
 """))
 
 

@@ -2907,7 +2907,7 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     fig : :class:`~matplotlib.figure.Figure`, optional, default: None
         Current figure. It can be None if *units* are 'dots'.
     x, y : float, optional, default: 0.0
-        Specifies the offset to apply.
+        The offset to apply.
     units : {'inches', 'points', 'dots'}, optional
         Units of the offset.
 
