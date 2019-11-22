@@ -661,10 +661,6 @@ class PdfFile:
         elif rcParams['pdf.use14corefonts']:
             filename = findfont(
                 fontprop, fontext='afm', directory=RendererPdf._afm_font_dir)
-            if filename is None:
-                filename = findfont(
-                    "Helvetica",
-                    fontext='afm', directory=RendererPdf._afm_font_dir)
         else:
             filename = findfont(fontprop)
 
