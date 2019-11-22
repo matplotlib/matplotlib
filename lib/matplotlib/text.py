@@ -1765,21 +1765,16 @@ class Annotation(Text, _AnnotationBase):
         x, y = xytext
 
         self.arrowprops = arrowprops
-
         if arrowprops is not None:
+            arrowprops = arrowprops.copy()
             if "arrowstyle" in arrowprops:
-                arrowprops = self.arrowprops.copy()
                 self._arrow_relpos = arrowprops.pop("relpos", (0.5, 0.5))
             else:
                 # modified YAArrow API to be used with FancyArrowPatch
-                shapekeys = ('width', 'headwidth', 'headlength',
-                             'shrink', 'frac')
-                arrowprops = dict()
-                for key, val in self.arrowprops.items():
-                    if key not in shapekeys:
-                        arrowprops[key] = val  # basic Patch properties
-            self.arrow_patch = FancyArrowPatch((0, 0), (1, 1),
-                                               **arrowprops)
+                for key in [
+                        'width', 'headwidth', 'headlength', 'shrink', 'frac']:
+                    arrowprops.pop(key, None)
+            self.arrow_patch = FancyArrowPatch((0, 0), (1, 1), **arrowprops)
         else:
             self.arrow_patch = None
 
