@@ -579,12 +579,9 @@ class FFMpegBase:
         # OSX). Also fixes internet explorer. This is as of 2015/10/29.
         if self.codec == 'h264' and '-pix_fmt' not in self.extra_args:
             args.extend(['-pix_fmt', 'yuv420p'])
-        # The %dk adds 'k' as a suffix so that ffmpeg treats our bitrate as in
-        # kbps
         if self.bitrate > 0:
-            args.extend(['-b', '%dk' % self.bitrate])
-        if self.extra_args:
-            args.extend(self.extra_args)
+            args.extend(['-b', '%dk' % self.bitrate])  # %dk: bitrate in kbps.
+        args.extend(self.extra_args)
         for k, v in self.metadata.items():
             args.extend(['-metadata', '%s=%s' % (k, v)])
 
@@ -696,11 +693,7 @@ class ImageMagickBase:
 
     @property
     def output_args(self):
-        if self.extra_args:
-            args = list(self.extra_args)
-        else:
-            args = []
-        return args + [self.outfile]
+        return [*self.extra_args, self.outfile]
 
     @classmethod
     def bin_path(cls):
