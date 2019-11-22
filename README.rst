@@ -1,8 +1,8 @@
 |Travis|_ |AzurePipelines|_ |AppVeyor|_ |Codecov|_ |LGTM|_ |PyPi|_ |Gitter|_ |NUMFocus|_ |GitTutorial|_
 
 
-.. |Travis| image:: https://travis-ci.org/matplotlib/matplotlib.svg?branch=master
-.. _Travis: https://travis-ci.org/matplotlib/matplotlib
+.. |Travis| image:: https://travis-ci.com/matplotlib/matplotlib.svg?branch=master
+.. _Travis: https://travis-ci.com/matplotlib/matplotlib
 
 .. |AzurePipelines| image:: https://dev.azure.com/matplotlib/matplotlib/_apis/build/status/matplotlib.matplotlib?branchName=master
 .. _AzurePipelines: https://dev.azure.com/matplotlib/matplotlib/_build/latest?definitionId=1&branchName=master
@@ -70,7 +70,7 @@ or your package manager of choice.
 
 Contact
 =======
-`Discourse <https://discourse.matplotlib.org/>`_ is the discussion forum for general questions and discussions and our recommended starting point. 
+`Discourse <https://discourse.matplotlib.org/>`_ is the discussion forum for general questions and discussions and our recommended starting point.
 
 Our active mailing lists (which are mirrored on Discourse) are:
 
