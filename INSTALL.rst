@@ -238,3 +238,20 @@ Conda packages
 
 The conda packaging scripts for Matplotlib are available at
 https://github.com/conda-forge/matplotlib-feedstock.
+
+Docker image
+======================
+
+The official docker image for Matplotlib is avaliable at
+
+- mrakitin/mpl\-docker \- Docker Hub (https://hub.docker.com/r/mrakitin/mpl-docker)
+
+You can pull the image and run Bash in a container from the image with this commands. 
+
+.. code-block:: sh
+
+   docker pull mrakitin/mpl-docker:latest
+   docker run --rm -it mrakitin/mpl-docker:latest bash
+
+
+
