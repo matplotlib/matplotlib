@@ -2251,7 +2251,8 @@ class Axes3D(Axes):
             For more details see the *c* argument of `~.axes.Axes.scatter`.
         depthshade : bool, optional, default: True
             Whether to shade the scatter markers to give the appearance of
-            depth.
+            depth. Each call to ``scatter()`` will perform its depthshading
+            independently.
         **kwargs
             All other arguments are passed on to `~.axes.Axes.scatter`.
 
