@@ -455,38 +455,25 @@ interface window, you do not need to call ``show`` (see :ref:`howto-batch`
 and :ref:`what-is-a-backend`).
 
 .. note::
-   Because closing a figure window invokes the destruction of its plotting
-   elements, you should call :func:`~matplotlib.pyplot.savefig` *before*
-   calling ``show`` if you wish to save the figure as well as view it.
+   Because closing a figure window unregisters it from pyplot, you must call
+   `~matplotlib.pyplot.savefig` *before* calling ``show`` if you wish to save
+   the figure as well as view it.
 
-.. versionadded:: v1.0.0
-   ``show`` now starts the GUI mainloop only if it isn't already running.
-   Therefore, multiple calls to ``show`` are now allowed.
-
-Having ``show`` block further execution of the script or the python
-interpreter depends on whether Matplotlib is set for interactive mode
-or not.  In non-interactive mode (the default setting), execution is paused
+Whether ``show`` blocks further execution of the script or the python
+interpreter depends on whether Matplotlib is set to use interactive mode.
+In non-interactive mode (the default setting), execution is paused
 until the last figure window is closed.  In interactive mode, the execution
 is not paused, which allows you to create additional figures (but the script
 won't finish until the last figure window is closed).
 
-.. note::
-   Support for interactive/non-interactive mode depends upon the backend.
-   Until version 1.0.0 (and subsequent fixes for 1.0.1), the behavior of
-   the interactive mode was not consistent across backends.
-   As of v1.0.1, only the macosx backend differs from other backends
-   because it does not support non-interactive mode.
-
-
 Because it is expensive to draw, you typically will not want Matplotlib
 to redraw a figure many times in a script such as the following::
 
-    plot([1,2,3])            # draw here ?
-    xlabel('time')           # and here ?
-    ylabel('volts')          # and here ?
-    title('a simple plot')   # and here ?
+    plot([1, 2, 3])          # draw here?
+    xlabel('time')           # and here?
+    ylabel('volts')          # and here?
+    title('a simple plot')   # and here?
     show()
-
 
 However, it is *possible* to force Matplotlib to draw after every command,
 which might be what you want when working interactively at the
@@ -504,26 +491,10 @@ you're all done issuing commands and you want to draw the figure now.
     If you want to force a figure draw, use
     :func:`~matplotlib.pyplot.draw` instead.
 
-Many users are frustrated by ``show`` because they want it to be a
-blocking call that raises the figure, pauses the script until they
-close the figure, and then allow the script to continue running until
-the next figure is created and the next show is made.  Something like
-this::
-
-   # WARNING : illustrating how NOT to use show
-   for i in range(10):
-       # make figure i
-       show()
-
-This is not what show does and unfortunately, because doing blocking
-calls across user interfaces can be tricky, is currently unsupported,
-though we have made significant progress towards supporting blocking events.
-
 .. versionadded:: v1.0.0
-   As noted earlier, this restriction has been relaxed to allow multiple
-   calls to ``show``.  In *most* backends, you can now expect to be
-   able to create new figures and raise them in a subsequent call to
-   ``show`` after closing the figures from a previous call to ``show``.
+   Matplotlib 1.0.0 and 1.0.1 added support for calling ``show`` multiple times
+   per script, and harmonized the behavior of interactive mode, across most
+   backends.
 
 .. _howto-boxplot_violinplot:
 
