@@ -648,14 +648,17 @@ class RcParams(MutableMapping, dict):
                 f"a list of valid parameters)")
 
     def __getitem__(self, key):
+        if key in _deprecated_rcs:
+            cbook.warn_deprecated(
+                **{"name": key, "obj_type": "rcparam", **_deprecated_rcs[key]})
+        return self._getitem_skip_deprecation(key)
+
+    def _getitem_skip_deprecation(self, key):
         if key == "backend":
             val = dict.__getitem__(self, key)
             if val is rcsetup._auto_backend_sentinel:
                 from matplotlib import pyplot as plt
                 plt.switch_backend(rcsetup._auto_backend_sentinel)
-        if key in _deprecated_rcs:
-            cbook.warn_deprecated(
-                **{"name": key, "obj_type": "rcparam", **_deprecated_rcs[key]})
         return dict.__getitem__(self, key)
 
     def __repr__(self):
