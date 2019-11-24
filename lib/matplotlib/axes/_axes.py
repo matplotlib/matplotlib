@@ -4297,8 +4297,8 @@ class Axes(_AxesBase):
         vmin, vmax : scalar, default: None
             *vmin* and *vmax* are used in conjunction with *norm* to normalize
             luminance data. If None, the respective min and max of the color
-            array is used. *vmin* and *vmax* are ignored if you pass a *norm*
-            instance.
+            array is used.
+            It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
         alpha : scalar, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -4419,11 +4419,7 @@ default: :rc:`scatter.edgecolors`
             collection.set_array(c)
             collection.set_cmap(cmap)
             collection.set_norm(norm)
-
-            if vmin is not None or vmax is not None:
-                collection.set_clim(vmin, vmax)
-            else:
-                collection.autoscale_None()
+            collection._scale_norm(norm, vmin, vmax)
 
         # Classic mode only:
         # ensure there are margins to allow for the
@@ -4529,7 +4525,8 @@ default: :rc:`scatter.edgecolors`
             The colorbar range. If *None*, suitable min/max values are
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of the bins in case of the default
-            linear scaling). This is ignored if *norm* is given.
+            linear scaling).
+            It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
         alpha : float between 0 and 1, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -4773,11 +4770,7 @@ default: :rc:`scatter.edgecolors`
         collection.set_norm(norm)
         collection.set_alpha(alpha)
         collection.update(kwargs)
-
-        if vmin is not None or vmax is not None:
-            collection.set_clim(vmin, vmax)
-        else:
-            collection.autoscale_None()
+        collection._scale_norm(norm, vmin, vmax)
 
         corners = ((xmin, ymin), (xmax, ymax))
         self.update_datalim(corners)
@@ -5493,7 +5486,7 @@ default: :rc:`scatter.edgecolors`
             When using scalar data and no explicit *norm*, *vmin* and *vmax*
             define the data range that the colormap covers. By default,
             the colormap covers the complete value range of the supplied
-            data. *vmin*, *vmax* are ignored if the *norm* parameter is used.
+            data. It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
         origin : {'upper', 'lower'}, default: :rc:`image.origin`
             Place the [0, 0] index of the array in the upper left or lower
@@ -5589,10 +5582,7 @@ default: :rc:`scatter.edgecolors`
         if im.get_clip_path() is None:
             # image does not already have clipping set, clip to axes patch
             im.set_clip_path(self.patch)
-        if vmin is not None or vmax is not None:
-            im.set_clim(vmin, vmax)
-        else:
-            im.autoscale_None()
+        im._scale_norm(norm, vmin, vmax)
         im.set_url(url)
 
         # update ax.dataLim, and, if autoscaling, set viewLim
@@ -5731,6 +5721,7 @@ default: :rc:`scatter.edgecolors`
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
+            It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
         edgecolors : {'none', None, 'face', color, color sequence}, optional
             The color of the edges. Defaults to 'none'. Possible values:
@@ -5867,8 +5858,7 @@ default: :rc:`scatter.edgecolors`
         collection.set_array(C)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
-        collection.set_clim(vmin, vmax)
-        collection.autoscale_None()
+        collection._scale_norm(norm, vmin, vmax)
         self.grid(False)
 
         x = X.compressed()
@@ -5962,6 +5952,7 @@ default: :rc:`scatter.edgecolors`
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
+            It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
         edgecolors : {'none', None, 'face', color, color sequence}, optional
             The color of the edges. Defaults to 'none'. Possible values:
@@ -6081,8 +6072,7 @@ default: :rc:`scatter.edgecolors`
         collection.set_array(C)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
-        collection.set_clim(vmin, vmax)
-        collection.autoscale_None()
+        collection._scale_norm(norm, vmin, vmax)
 
         self.grid(False)
 
@@ -6196,6 +6186,7 @@ default: :rc:`scatter.edgecolors`
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
+            It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
         alpha : scalar, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -6278,10 +6269,9 @@ default: :rc:`scatter.edgecolors`
             self.add_image(im)
             ret = im
 
-        if vmin is not None or vmax is not None:
-            ret.set_clim(vmin, vmax)
-        elif np.ndim(C) == 2:  # C.ndim == 3 is RGB(A) so doesn't need scaling.
-            ret.autoscale_None()
+        if np.ndim(C) == 2:  # C.ndim == 3 is RGB(A) so doesn't need scaling.
+            ret._scale_norm(norm, vmin, vmax)
+
         if ret.get_clip_path() is None:
             # image does not already have clipping set, clip to axes patch
             ret.set_clip_path(self.patch)

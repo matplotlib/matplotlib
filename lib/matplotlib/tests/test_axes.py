@@ -1001,6 +1001,19 @@ def test_imshow_clip():
     ax.imshow(r, clip_path=clip_path)
 
 
+@check_figures_equal(extensions=["png"])
+def test_imshow_norm_vminvmax(fig_test, fig_ref):
+    """Parameters vmin, vmax should be ignored if norm is given."""
+    a = [[1, 2], [3, 4]]
+    ax = fig_ref.subplots()
+    ax.imshow(a, vmin=0, vmax=5)
+    ax = fig_test.subplots()
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match="Passing parameters norm and vmin/vmax "
+                            "simultaneously is deprecated."):
+        ax.imshow(a, norm=mcolors.Normalize(-10, 10), vmin=0, vmax=5)
+
+
 @image_comparison(['polycollection_joinstyle'], remove_text=True)
 def test_polycollection_joinstyle():
     # Bug #2890979 reported by Matthew West
@@ -1969,6 +1982,19 @@ class TestScatter:
                    cmap=cmap, plotnonfinite=False)
         ax = fig_ref.subplots()
         ax.scatter([0, 2], [0, 2], c=[1, 2], s=[1, 3], cmap=cmap)
+
+    @check_figures_equal(extensions=["png"])
+    def test_scatter_norm_vminvmax(self, fig_test, fig_ref):
+        """Parameters vmin, vmax should be ignored if norm is given."""
+        x = [1, 2, 3]
+        ax = fig_ref.subplots()
+        ax.scatter(x, x, c=x, vmin=0, vmax=5)
+        ax = fig_test.subplots()
+        with pytest.warns(MatplotlibDeprecationWarning,
+                          match="Passing parameters norm and vmin/vmax "
+                                "simultaneously is deprecated."):
+            ax.scatter(x, x, c=x, norm=mcolors.Normalize(-10, 10),
+                       vmin=0, vmax=5)
 
     @check_figures_equal(extensions=["png"])
     def test_scatter_single_point(self, fig_test, fig_ref):

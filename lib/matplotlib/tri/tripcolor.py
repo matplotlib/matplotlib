@@ -120,10 +120,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
     cbook._check_isinstance((Normalize, None), norm=norm)
     collection.set_cmap(cmap)
     collection.set_norm(norm)
-    if vmin is not None or vmax is not None:
-        collection.set_clim(vmin, vmax)
-    else:
-        collection.autoscale_None()
+    collection._scale_norm(norm, vmin, vmax)
     ax.grid(False)
 
     minx = tri.x.min()
