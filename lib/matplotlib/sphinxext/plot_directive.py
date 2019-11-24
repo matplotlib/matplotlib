@@ -140,8 +140,8 @@ The plot directive has the following configuration options:
 
     plot_preserve_dir
         Files with outnames are copied to this directory and files in this
-        directory are copied back from into the build directory prior to the
-        build beginning.
+        directory are copied back into the build directory prior to the build
+        beginning.
 
 """
 
@@ -672,11 +672,11 @@ def run(arguments, content, options, state_machine, state, lineno):
     rst_file = document.attributes['source']
     rst_dir = os.path.dirname(rst_file)
 
-    #Get output name of the images, if the option was provided
+    # Get output name of the images, if the option was provided
     outname = options.get('outname', '')
 
-    #Ensure that the outname is unique, otherwise copied images will
-    #not be what user expects
+    # Ensure that the outname is unique, otherwise copied images will
+    # not be what user expects
     if outname and outname in _outname_list:
         raise Exception("The outname '{0}' is not unique!".format(outname))
     else:
@@ -722,8 +722,8 @@ def run(arguments, content, options, state_machine, state, lineno):
     else:
         source_ext = ''
 
-    #outname, if present, overrides output_base, but preserve
-    #numbering of multi-figure code snippets
+    # outname, if present, overrides output_base, but preserve
+    # numbering of multi-figure code snippets
     if outname:
         output_base = re.sub('^[^-]*', outname, output_base)
 
@@ -773,9 +773,8 @@ def run(arguments, content, options, state_machine, state, lineno):
         build_dir_link = build_dir
     source_link = dest_dir_link + '/' + output_base + source_ext
 
-    #If we previously preserved copies of the generated figures
-    #this copies them into the build directory so that they will
-    #not be remade
+    # If we previously preserved copies of the generated figures this copies
+    # them into the build directory so that they will not be remade.
     if config.plot_preserve_dir and outname:
         outfiles = glob.glob(
             os.path.join(config.plot_preserve_dir, outname) + '*')
