@@ -449,6 +449,8 @@ class PdfFile:
             'Trapped'. Values have been predefined for 'Creator', 'Producer'
             and 'CreationDate'. They can be removed by setting them to `None`.
         """
+        super().__init__()
+
         self._object_seq = itertools.count(1)  # consumed by reserveObject
         self.xrefTable = [[0, 65535, 'the zero object']]
         self.passed_in_file_object = False
@@ -511,7 +513,7 @@ class PdfFile:
         self.dviFontInfo = {}   # maps dvi font names to embedding information
         # differently encoded Type-1 fonts may share the same descriptor
         self.type1Descriptors = {}
-        self.used_characters = {}
+        self._character_tracker = _backend_pdf_ps.CharacterTracker()
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
         self._alpha_state_seq = (Name(f'A{i}') for i in itertools.count(1))
@@ -547,6 +549,11 @@ class PdfFile:
                      'Shading': self.gouraudObject,
                      'ProcSet': procsets}
         self.writeObject(self.resourceObject, resources)
+
+    @cbook.deprecated("3.3")
+    @property
+    def used_characters(self):
+        return self.file._character_tracker.used_characters
 
     def newPage(self, width, height):
         self.endStream()
@@ -718,10 +725,9 @@ class PdfFile:
             else:
                 # a normal TrueType font
                 _log.debug('Writing TrueType font.')
-                realpath, stat_key = cbook.get_realpath_and_stat(filename)
-                chars = self.used_characters.get(stat_key)
-                if chars is not None and len(chars[1]):
-                    fonts[Fx] = self.embedTTF(realpath, chars[1])
+                chars = self._character_tracker.used.get(filename)
+                if chars:
+                    fonts[Fx] = self.embedTTF(filename, chars)
         self.writeObject(self.fontObject, fonts)
 
     def _write_afm_font(self, filename):
@@ -862,9 +868,11 @@ class PdfFile:
         return fontdescObject
 
     def _get_xobject_symbol_name(self, filename, symbol_name):
-        return "%s-%s" % (
+        Fx = self.fontName(filename)
+        return "-".join([
+            Fx.name.decode(),
             os.path.splitext(os.path.basename(filename))[0],
-            symbol_name)
+            symbol_name])
 
     _identityToUnicodeCMap = b"""/CIDInit /ProcSet findresource begin
 12 dict begin
@@ -1669,9 +1677,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
     _use_afm_rc_name = "pdf.use14corefonts"
 
     def __init__(self, file, image_dpi, height, width):
-        RendererBase.__init__(self)
-        self.height = height
-        self.width = width
+        super().__init__(width, height)
         self.file = file
         self.gc = self.new_gc()
         self.mathtext_parser = MathTextParser("Pdf")
@@ -1707,22 +1713,14 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         gc._fillcolor = orig_fill
         gc._effective_alphas = orig_alphas
 
-    def track_characters(self, font, s):
+    @cbook.deprecated("3.3")
+    def track_characters(self, *args, **kwargs):
         """Keeps track of which characters are required from each font."""
-        if isinstance(font, str):
-            fname = font
-        else:
-            fname = font.fname
-        realpath, stat_key = cbook.get_realpath_and_stat(fname)
-        used_characters = self.file.used_characters.setdefault(
-            stat_key, (realpath, set()))
-        used_characters[1].update(map(ord, s))
+        self.file._character_tracker.track(*args, **kwargs)
 
-    def merge_used_characters(self, other):
-        for stat_key, (realpath, charset) in other.items():
-            used_characters = self.file.used_characters.setdefault(
-                stat_key, (realpath, set()))
-            used_characters[1].update(charset)
+    @cbook.deprecated("3.3")
+    def merge_used_characters(self, *args, **kwargs):
+        self.file._character_tracker.merge(*args, **kwargs)
 
     def get_image_magnification(self):
         return self.image_dpi/72.0
@@ -1932,7 +1930,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # TODO: fix positioning and encoding
         width, height, descent, glyphs, rects, used_characters = \
             self.mathtext_parser.parse(s, 72, prop)
-        self.merge_used_characters(used_characters)
+        self.file._character_tracker.merge(used_characters)
 
         # When using Type 3 fonts, we can't use character codes higher
         # than 255, so we use the "Do" command to render those
@@ -2095,7 +2093,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             fonttype = 1
         else:
             font = self._get_font_ttf(prop)
-            self.track_characters(font, s)
+            self.file._character_tracker.track(font, s)
             fonttype = rcParams['pdf.fonttype']
             # We can't subset all OpenType fonts, so switch to Type 42
             # in that case.

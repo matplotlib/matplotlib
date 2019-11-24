@@ -319,6 +319,10 @@
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolGrid:1",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolMinorGrid:1"
     ],
+    "matplotlib.backends._backend_pdf_ps.CharacterTracker": [
+      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfFile:1",
+      "lib/matplotlib/backends/backend_ps.py:docstring of matplotlib.backends.backend_ps.RendererPS:1"
+    ],
     "matplotlib.backends._backend_pdf_ps.RendererPDFPSBase": [
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.RendererPdf:1",
       "lib/matplotlib/backends/backend_ps.py:docstring of matplotlib.backends.backend_ps.RendererPS:1"

@@ -25,8 +25,7 @@ from matplotlib import _text_layout
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
-from matplotlib.cbook import (get_realpath_and_stat, is_writable_file_like,
-                              file_requires_unicode)
+from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import is_opentype_cff_font, get_font
 from matplotlib.ft2font import LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
@@ -202,9 +201,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         # Although postscript itself is dpi independent, we need to inform the
         # image code about a requested dpi to generate high resolution images
         # and them scale them before embedding them.
-        RendererBase.__init__(self)
-        self.width = width
-        self.height = height
+        super().__init__(width, height)
         self._pswriter = pswriter
         if rcParams['text.usetex']:
             self.textcnt = 0
@@ -224,21 +221,22 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         self._clip_paths = {}
         self._path_collection_id = 0
 
-        self.used_characters = {}
+        self._character_tracker = _backend_pdf_ps.CharacterTracker()
         self.mathtext_parser = MathTextParser("PS")
 
-    def track_characters(self, font, s):
-        """Keeps track of which characters are required from each font."""
-        realpath, stat_key = get_realpath_and_stat(font.fname)
-        used_characters = self.used_characters.setdefault(
-            stat_key, (realpath, set()))
-        used_characters[1].update(map(ord, s))
+    @cbook.deprecated("3.3")
+    @property
+    def used_characters(self):
+        return self._character_tracker.used_characters
 
-    def merge_used_characters(self, other):
-        for stat_key, (realpath, charset) in other.items():
-            used_characters = self.used_characters.setdefault(
-                stat_key, (realpath, set()))
-            used_characters[1].update(charset)
+    @cbook.deprecated("3.3")
+    def track_characters(self, *args, **kwargs):
+        """Keeps track of which characters are required from each font."""
+        self._character_tracker.track(*args, **kwargs)
+
+    @cbook.deprecated("3.3")
+    def merge_used_characters(self, *args, **kwargs):
+        self._character_tracker.merge(*args, **kwargs)
 
     def set_color(self, r, g, b, store=1):
         if (r, g, b) != self.color:
@@ -621,7 +619,7 @@ grestore
         else:
             font = self._get_font_ttf(prop)
             font.set_text(s, 0, flags=LOAD_NO_HINTING)
-            self.track_characters(font, s)
+            self._character_tracker.track(font, s)
 
             self.set_color(*gc.get_rgb())
             ps_name = (font.postscript_name
@@ -650,7 +648,7 @@ grestore
 
         width, height, descent, pswriter, used_characters = \
             self.mathtext_parser.parse(s, 72, prop)
-        self.merge_used_characters(used_characters)
+        self._character_tracker.merge(used_characters)
         self.set_color(*gc.get_rgb())
         thetext = pswriter.getvalue()
         self._pswriter.write(f"""\
@@ -980,7 +978,7 @@ class FigureCanvasPS(FigureCanvasBase):
             Ndict = len(psDefs)
             print("%%BeginProlog", file=fh)
             if not rcParams['ps.useafm']:
-                Ndict += len(ps_renderer.used_characters)
+                Ndict += len(ps_renderer._character_tracker.used)
             print("/mpldict %d dict def" % Ndict, file=fh)
             print("mpldict begin", file=fh)
             for d in psDefs:
@@ -988,38 +986,32 @@ class FigureCanvasPS(FigureCanvasBase):
                 for l in d.split('\n'):
                     print(l.strip(), file=fh)
             if not rcParams['ps.useafm']:
-                for font_filename, chars in \
-                        ps_renderer.used_characters.values():
-                    if len(chars):
-                        font = get_font(font_filename)
-                        glyph_ids = [font.get_char_index(c) for c in chars]
-
-                        fonttype = rcParams['ps.fonttype']
-
-                        # Can not use more than 255 characters from a
-                        # single font for Type 3
-                        if len(glyph_ids) > 255:
-                            fonttype = 42
-
-                        # The ttf to ps (subsetting) support doesn't work for
-                        # OpenType fonts that are Postscript inside (like the
-                        # STIX fonts).  This will simply turn that off to avoid
-                        # errors.
-                        if is_opentype_cff_font(font_filename):
-                            raise RuntimeError(
-                                "OpenType CFF fonts can not be saved using "
-                                "the internal Postscript backend at this "
-                                "time; consider using the Cairo backend")
-                        else:
-                            fh.flush()
-                            try:
-                                convert_ttf_to_ps(os.fsencode(font_filename),
-                                                  fh, fonttype, glyph_ids)
-                            except RuntimeError:
-                                _log.warning("The PostScript backend does not "
-                                             "currently support the selected "
-                                             "font.")
-                                raise
+                for font_path, chars \
+                        in ps_renderer._character_tracker.used.items():
+                    if not chars:
+                        continue
+                    font = get_font(font_path)
+                    glyph_ids = [font.get_char_index(c) for c in chars]
+                    fonttype = rcParams['ps.fonttype']
+                    # Can't use more than 255 chars from a single Type 3 font.
+                    if len(glyph_ids) > 255:
+                        fonttype = 42
+                    # The ttf to ps (subsetting) support doesn't work for
+                    # OpenType fonts that are Postscript inside (like the STIX
+                    # fonts).  This will simply turn that off to avoid errors.
+                    if is_opentype_cff_font(font_path):
+                        raise RuntimeError(
+                            "OpenType CFF fonts can not be saved using "
+                            "the internal Postscript backend at this "
+                            "time; consider using the Cairo backend")
+                    fh.flush()
+                    try:
+                        convert_ttf_to_ps(os.fsencode(font_path),
+                                          fh, fonttype, glyph_ids)
+                    except RuntimeError:
+                        _log.warning("The PostScript backend does not "
+                                     "currently support the selected font.")
+                        raise
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 

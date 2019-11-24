@@ -41,3 +41,9 @@ Flags containing "U" passed to `.cbook.to_filehandle` and `.cbook.open_file_cm`
 Please remove "U" from flags passed to `.cbook.to_filehandle` and
 `.cbook.open_file_cm`.  This is consistent with their removal from `open` in
 Python 3.9.
+
+PDF and PS character tracking internals
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``used_characters`` attribute and ``track_characters`` and
+``merge_used_characters`` methods of `.RendererPdf`, `.PdfFile`, and
+`.RendererPS` are deprecated.
