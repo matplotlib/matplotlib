@@ -1234,6 +1234,8 @@ defaultParams = {
     'axes.titlecolor':       ['auto', validate_color_or_auto],  # font color of axes title
     'axes.titley':           [None, validate_float_or_None],  # title location, axes units, None means auto
     'axes.titlepad':         [6.0, validate_float],  # pad from axes top decoration to title in points
+    'axes.panellabelsize':   ['x-large', validate_fontsize],  # fontsize of the panel label
+    'axes.panellabelweight': ['bold', validate_fontweight],  # font weight of panel label
     'axes.grid':             [False, validate_bool],   # display grid or not
     'axes.grid.which':       ['major', ['minor', 'both', 'major']],  # set whether the grid is drawn on
                                                                      # 'major' 'minor' or 'both' ticks

@@ -193,6 +193,88 @@ class Axes(_AxesBase):
         title.update(kwargs)
         return title
 
+    def get_panellabel(self):
+        """
+        Get the (sub-) panel label text.
+
+        This is typically a letter (a, b, c, …) identifying the panel for
+        reference in a figure legend.
+
+        Returns
+        -------
+        label : str
+            The panel label string.
+
+        """
+        return self.panellabel.get_text()
+
+    def set_panellabel(self, label, fontdict=None, h_align='axislabel',
+                       v_align='title', pad=0., **kwargs):
+        """
+        Set a (sub-) panel label.
+
+        This is typically a letter (a, b, c, …) identifying the panel for
+        reference in a figure legend.
+
+        Parameters
+        ----------
+        label : str
+            Text to use for the label
+        fontdict : dict, optional
+            A dictionary controlling the appearance of the label text,
+            the default `fontdict` is::
+
+               {'fontsize': rcParams['axes.panellabelsize'],
+                'fontweight' : rcParams['axes.panellabelweight'],
+                'verticalalignment': 'baseline',
+                'horizontalalignment': 'left'}
+
+        v_align : {'top', 'title', 'axislabel', 'frame'}, optional
+            Set vertical alignment of the label. If 'top', align to top
+            of the title. If 'title', align to baseline of the title. If
+            'axislabel', align to top of the x axis label (only useful if
+            x axis is on top). If 'frame', align to the frame.
+            Defaults to 'title'.
+        h_align : {'axislabel', 'frame'}, optional
+            Set vertical alignment of the label. If
+            'axislabel', align to left edge of the y axis label. If 'frame',
+            align to the frame. Defaults to 'axislabel'.
+        pad : float or pair of float, optional
+            The offset of the label from the left and top of the axes, in
+            points. If only one number is given, it will be used for both
+            dimensions. Default is 0.
+
+        Returns
+        -------
+        text : :class:`~matplotlib.text.Text`
+            The matplotlib text instance representing the panel label
+
+        Other Parameters
+        ----------------
+        **kwargs : `~matplotlib.text.Text` properties
+            Other keyword arguments are text properties, see
+            :class:`~matplotlib.text.Text` for a list of valid text
+            properties.
+        """
+        default = {
+            'fontsize': rcParams['axes.panellabelsize'],
+            'fontweight': rcParams['axes.panellabelweight'],
+            'verticalalignment': 'baseline',
+            'horizontalalignment': 'left'}
+        self.panellabel.set_text(label)
+        self.panellabel.update(default)
+        if fontdict is not None:
+            self.panellabel.update(fontdict)
+        self.panellabel.update(kwargs)
+        self._panellabel_align = (h_align, v_align)
+        if isinstance(pad, Number):
+            pad = (pad, pad)
+        t = mtransforms.ScaledTranslation(
+            pad[0] / 72, pad[1] / 72, self.figure.dpi_scale_trans)
+        self.panellabel.set_transform(self.transAxes + t)
+        self.panellabel.set_clip_box(None)
+        return self.panellabel
+
     def get_xlabel(self):
         """
         Get the xlabel text string.

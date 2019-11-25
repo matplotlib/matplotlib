@@ -361,6 +361,9 @@ class Figure(Artist):
         self._align_xlabel_grp = cbook.Grouper()
         self._align_ylabel_grp = cbook.Grouper()
 
+        self._align_panellabel_x_grp = cbook.Grouper()
+        self._align_panellabel_y_grp = cbook.Grouper()
+
         # list of child gridspecs for this figure
         self._gridspecs = []
 
@@ -2568,6 +2571,62 @@ default: 'top'
         """
         self.align_xlabels(axs=axs)
         self.align_ylabels(axs=axs)
+
+    def align_panellabels(self, axs=None):
+        """
+        Align the panel labels of subplots if label alignment is being done
+        automatically (i.e. the label position is not manually set).
+
+        Alignment persists for draw events after this is called.
+
+        Labels in the same column are moved horizontally to the position of
+        the left-most label. Labels an the same row are moved vertically to
+        the position of the top-most label.
+
+        Parameters
+        ----------
+        axs : list of `~matplotlib.axes.Axes`
+            Optional list (or ndarray) of `~matplotlib.axes.Axes`
+            to align the ylabels.
+            Default is to align all axes on the figure.
+
+        Notes
+        -----
+        This assumes that ``axs`` are from the same `.GridSpec`, so that
+        their `.SubplotSpec` positions correspond to figure positions.
+
+        Examples
+        --------
+        Example with missing y-label::
+
+            fig, axs = plt.subplots(2, 1)
+            axs[0].set_ylabel('YLabel')
+            axs[0].set_panellabel("a")
+            axs[1].set_panellabel("b")
+            fig.align_panellabels()
+
+        """
+        if axs is None:
+            axs = self.axes
+        axs = np.asarray(axs).ravel()
+        for ax in axs:
+            ss = ax.get_subplotspec()
+            nrows, ncols, row0, row1, col0, col1 = ss.get_rows_columns()
+            # loop through other axes and search ones that share the
+            # appropriate column or row number.
+            # Add to a list associated with each axes of siblings.
+            # This list is inspected in `Axes.draw` by
+            # `axis._update_panellabel_position`.
+            for axc in axs:
+                if axc is ax:
+                    continue
+                ss = axc.get_subplotspec()
+                nrows, ncols, rowc0, rowc1, colc0, colc1 = \
+                        ss.get_rows_columns()
+                if colc0 == col0:
+                    self._align_panellabel_x_grp.join(ax, axc)
+                if row0 == rowc0:
+                    self._align_panellabel_y_grp.join(ax, axc)
 
     def add_gridspec(self, nrows=1, ncols=1, **kwargs):
         """
