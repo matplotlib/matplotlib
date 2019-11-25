@@ -1258,12 +1258,12 @@ class Axes(_AxesBase):
             *orientation* parameter).
 
         orientation : {'horizontal', 'vertical'}, optional
-            Controls the direction of the event collections:
+            The direction of the event collections:
 
-                - 'horizontal' : the lines are arranged horizontally in rows,
-                  and are vertical.
-                - 'vertical' : the lines are arranged vertically in columns,
-                  and are horizontal.
+            - 'horizontal': the lines are arranged horizontally in rows,
+              and are vertical.
+            - 'vertical': the lines are arranged vertically in columns,
+              and are horizontal.
 
         lineoffsets : scalar or sequence of scalars, optional, default: 1
             The offset of the center of the lines from the origin, in the
@@ -2910,7 +2910,7 @@ class Axes(_AxesBase):
         textprops : dict, optional, default: None
             Dict of arguments to pass to the text objects.
 
-        center :  list of float, optional, default: (0, 0)
+        center : list of float, optional, default: (0, 0)
             Center position of the chart. Takes value (0, 0) or is a sequence
             of 2 scalars.
 
@@ -3492,7 +3492,7 @@ class Axes(_AxesBase):
         x : Array or a sequence of vectors.
             The input data.
 
-        notch : bool, optional (False)
+        notch : bool, optional, default: False
             If `True`, will produce a notched box plot. Otherwise, a
             rectangular boxplot is produced. The notches represent the
             confidence interval (CI) around the median. See the entry
@@ -3514,9 +3514,9 @@ class Axes(_AxesBase):
             fliers default to 'b+'  If you want more control use the
             flierprops kwarg.
 
-        vert : bool, optional (True)
-            If `True` (default), makes the boxes vertical. If `False`,
-            everything is drawn horizontally.
+        vert : bool, optional, default: True
+            If `True`, draws vertical boxes.
+            If `False`, draw horizontal boxes.
 
         whis : float or (float, float) (default = 1.5)
             The position of the whiskers.
@@ -3576,7 +3576,7 @@ class Axes(_AxesBase):
             sequence. The default is 0.5, or ``0.15*(distance between
             extreme positions)``, if that is smaller.
 
-        patch_artist : bool, optional (False)
+        patch_artist : bool, optional, default: False
             If `False` produces boxes with the Line2D artist. Otherwise,
             boxes and drawn with Patch artists.
 
@@ -3584,47 +3584,47 @@ class Axes(_AxesBase):
             Labels for each dataset. Length must be compatible with
             dimensions of ``x``.
 
-        manage_ticks : bool, optional (True)
+        manage_ticks : bool, optional, default: True
             If True, the tick locations and labels will be adjusted to match
             the boxplot positions.
 
-        autorange : bool, optional (False)
+        autorange : bool, optional, default: False
             When `True` and the data are distributed such that the 25th and
             75th percentiles are equal, ``whis`` is set to (0, 100) such
             that the whisker ends are at the minimum and maximum of the data.
 
-        meanline : bool, optional (False)
+        meanline : bool, optional, default: False
             If `True` (and ``showmeans`` is `True`), will try to render
             the mean as a line spanning the full width of the box
             according to ``meanprops`` (see below). Not recommended if
             ``shownotches`` is also True. Otherwise, means will be shown
             as points.
 
-        zorder : scalar, optional (None)
+        zorder : scalar, optional, default: None
             Sets the zorder of the boxplot.
 
         Other Parameters
         ----------------
-        showcaps : bool, optional (True)
+        showcaps : bool, optional, default: True
             Show the caps on the ends of whiskers.
-        showbox : bool, optional (True)
+        showbox : bool, optional, default: True
             Show the central box.
-        showfliers : bool, optional (True)
+        showfliers : bool, optional, default: True
             Show the outliers beyond the caps.
-        showmeans : bool, optional (False)
+        showmeans : bool, optional, default: False
             Show the arithmetic means.
-        capprops : dict, optional (None)
-            Specifies the style of the caps.
-        boxprops : dict, optional (None)
-            Specifies the style of the box.
-        whiskerprops : dict, optional (None)
-            Specifies the style of the whiskers.
-        flierprops : dict, optional (None)
-            Specifies the style of the fliers.
-        medianprops : dict, optional (None)
-            Specifies the style of the median.
-        meanprops : dict, optional (None)
-            Specifies the style of the mean.
+        capprops : dict, optional, default: None
+            The style of the caps.
+        boxprops : dict, optional, default: None
+            The style of the box.
+        whiskerprops : dict, optional, default: None
+            The style of the whiskers.
+        flierprops : dict, optional, default: None
+            The style of the fliers.
+        medianprops : dict, optional, default: None
+            The style of the median.
+        meanprops : dict, optional, default: None
+            The style of the mean.
 
         Returns
         -------
@@ -5497,9 +5497,9 @@ optional.
             This parameter is ignored for RGB(A) data.
 
         aspect : {'equal', 'auto'} or float, optional
-            Controls the aspect ratio of the axes. The aspect is of particular
-            relevance for images since it may distort the image, i.e. pixel
-            will not be square.
+            The aspect ratio of the axes.  This parameter is particularly
+            relevant for images since it determines whether data pixels are
+            square.
 
             This parameter is a shortcut for explicitly calling
             `.Axes.set_aspect`. See there for further details.
@@ -6504,7 +6504,7 @@ optional.
             Default is 'bar'
 
         align : {'left', 'mid', 'right'}, optional
-            Controls how the histogram is plotted.
+            The horizontal alignment of the histogram bars.
 
             - 'left': bars are centered on the left bin edges.
             - 'mid': bars are centered between the bin edges.
@@ -7682,11 +7682,10 @@ optional.
             matrices and images.
             If not given, :rc:`image.origin` is used, defaulting to 'upper'.
 
-
-        aspect : {'equal', 'auto', None} or float, optional
-            Controls the aspect ratio of the axes. The aspect is of particular
-            relevance for images since it may distort the image, i.e. pixel
-            will not be square.
+        aspect : {'equal', 'auto', None} or float, optional, default: 'equal'
+            The aspect ratio of the axes.  This parameter is particularly
+            relevant for images since it determines whether data pixels are
+            square.
 
             This parameter is a shortcut for explicitly calling
             `.Axes.set_aspect`. See there for further details.
@@ -7696,8 +7695,6 @@ optional.
               that the data fit in the axes. In general, this will result in
               non-square pixels.
             - *None*: Use :rc:`image.aspect`.
-
-            Default: 'equal'
 
         Returns
         -------

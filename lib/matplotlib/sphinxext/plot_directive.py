@@ -46,11 +46,11 @@ Options
 The ``plot`` directive supports the following options:
 
     format : {'python', 'doctest'}
-        Specify the format of the input
+        The format of the input.
 
     include-source : bool
         Whether to display the source code. The default can be changed
-        using the `plot_include_source` variable in conf.py
+        using the `plot_include_source` variable in :file:`conf.py`.
 
     encoding : str
         If this source file is in a non-UTF8 or non-ASCII encoding, the
