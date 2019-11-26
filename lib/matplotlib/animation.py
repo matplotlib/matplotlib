@@ -693,7 +693,7 @@ class ImageMagickBase:
 
     @property
     def output_args(self):
-        return [*self.extra_args, self.outfile]
+        return [*self.compress, *self.extra_args, self.outfile]
 
     @classmethod
     def bin_path(cls):
@@ -721,6 +721,17 @@ class ImageMagickWriter(ImageMagickBase, MovieWriter):
     in a single pass.
 
     '''
+    def __init__(self, compress=False, *args, **kwargs):
+        '''
+        Parameters
+        ----------
+        compress : bool, optional
+            Resulting gif will be compressed. Equivalent of passing
+            '-layers Optimize' to ImageMagick.
+        '''
+        ImageMagickWriter.__init__(self, *args, **kwargs)
+        self.compress = ['-layers', 'Optimize'] if args.compress else []
+
     def _args(self):
         return ([self.bin_path(),
                  '-size', '%ix%i' % self.frame_size, '-depth', '8',
@@ -741,6 +752,17 @@ class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
 
     supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
                          'pbm', 'raw', 'rgba']
+
+    def __init__(self, compress=False, *args, **kwargs):
+        '''
+        Parameters
+        ----------
+        compress : bool, optional
+            Resulting gif will be compressed. Equivalent of passing
+            '-layers Optimize' to ImageMagick.
+        '''
+        ImageMagickWriter.__init__(self, *args, **kwargs)
+        self.compress = ['-layers', 'Optimize'] if args.compress else []
 
     def _args(self):
         return ([self.bin_path(), '-delay', str(self.delay), '-loop', '0',
