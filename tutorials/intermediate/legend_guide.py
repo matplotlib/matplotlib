@@ -68,7 +68,7 @@ Creating artists specifically for adding to the legend (aka. Proxy artists)
 
 Not all handles can be turned into legend entries automatically,
 so it is often necessary to create an artist which *can*. Legend handles
-don't have to exists on the Figure or Axes in order to be used.
+don't have to exist on the Figure or Axes in order to be used.
 
 Suppose we wanted to create a legend which has an entry for some data which
 is represented by a red color:
@@ -83,7 +83,7 @@ plt.legend(handles=[red_patch])
 plt.show()
 
 ###############################################################################
-# There are many supported legend handles, instead of creating a patch of color
+# There are many supported legend handles. Instead of creating a patch of color
 # we could have created a line with a marker:
 
 import matplotlib.lines as mlines
@@ -104,7 +104,7 @@ plt.show()
 # The ``bbox_to_anchor`` keyword gives a great degree of control for manual
 # legend placement. For example, if you want your axes legend located at the
 # figure's top right-hand corner instead of the axes' corner, simply specify
-# the corner's location, and the coordinate system of that location::
+# the corner's location and the coordinate system of that location::
 #
 #     plt.legend(bbox_to_anchor=(1, 1),
 #                bbox_transform=plt.gcf().transFigure)
@@ -137,7 +137,7 @@ plt.show()
 # the :func:`legend` function multiple times, you will find that only one
 # legend ever exists on the Axes. This has been done so that it is possible
 # to call :func:`legend` repeatedly to update the legend to the latest
-# handles on the Axes, so to persist old legend instances, we must add them
+# handles on the Axes. To keep old legend instances, we must add them
 # manually to the Axes:
 
 line1, = plt.plot([1, 2, 3], label="Line 1", linestyle='--')
