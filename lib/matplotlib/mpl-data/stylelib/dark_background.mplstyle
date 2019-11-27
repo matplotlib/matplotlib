@@ -22,12 +22,9 @@ savefig.facecolor: black
 savefig.edgecolor: black
 
 ### Boxplots
-boxplot.boxprops.color: w
-boxplot.capprops.color: w
-boxplot.flierprops.color: w
-boxplot.flierprops.markeredgecolor: w
-boxplot.meanprops.color: g
-boxplot.medianprops.color: g
-boxplot.meanprops.markerfacecolor: g
-boxplot.meanprops.markeredgecolor: w
-boxplot.whiskerprops.color: w
+boxplot.boxprops.color: white
+boxplot.capprops.color: white
+boxplot.flierprops.color: white
+boxplot.flierprops.markeredgecolor: white
+boxplot.meanprops.markeredgecolor: white
+boxplot.whiskerprops.color: white
