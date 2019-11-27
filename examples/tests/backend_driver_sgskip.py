@@ -458,6 +458,7 @@ def parse_options():
         result.dirs[result.dirs.index('pylab_examples')] = 'pylab'
     return result
 
+
 if __name__ == '__main__':
     times = {}
     failures = {}

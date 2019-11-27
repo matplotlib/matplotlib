@@ -1435,8 +1435,7 @@ def imread(fname, format=None):
             if len(parsed.scheme) > 1:
                 ext = 'png'
             else:
-                basename, ext = os.path.splitext(fname)
-                ext = ext.lower()[1:]
+                ext = Path(fname).suffix.lower()[1:]
         elif hasattr(fname, 'geturl'):  # Returned by urlopen().
             # We could try to parse the url's path and use the extension, but
             # returning png is consistent with the block above.  Note that this
@@ -1445,8 +1444,7 @@ def imread(fname, format=None):
             # value "<urllib response>").
             ext = 'png'
         elif hasattr(fname, 'name'):
-            basename, ext = os.path.splitext(fname.name)
-            ext = ext.lower()[1:]
+            ext = Path(fname.name).suffix.lower()[1:]
         else:
             ext = 'png'
     else:

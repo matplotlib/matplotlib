@@ -1,5 +1,5 @@
 import hashlib
-import os
+from pathlib import Path
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -60,7 +60,7 @@ class MathDirective(Directive):
 def latex2png(latex, filename, fontset='cm'):
     latex = "$%s$" % latex
     with mpl.rc_context({'mathtext.fontset': fontset}):
-        if os.path.exists(filename):
+        if Path(filename).exists():
             depth = mathtext_parser.get_depth(latex, dpi=100)
         else:
             try:
@@ -80,11 +80,9 @@ def latex2html(node, source):
     name = 'math-{}'.format(
         hashlib.md5((latex + fontset).encode()).hexdigest()[-10:])
 
-    destdir = os.path.join(setup.app.builder.outdir, '_images', 'mathmpl')
-    if not os.path.exists(destdir):
-        os.makedirs(destdir)
-    dest = os.path.join(destdir, '%s.png' % name)
-    path = '/'.join((setup.app.builder.imgpath, 'mathmpl'))
+    destdir = Path(setup.app.builder.outdir, '_images', 'mathmpl')
+    destdir.mkdir(parents=True, exist_ok=True)
+    dest = destdir / f'{name}.png'
 
     depth = latex2png(latex, dest, fontset)
 
@@ -97,7 +95,8 @@ def latex2html(node, source):
     else:
         style = ''
 
-    return '<img src="%s/%s.png" %s%s/>' % (path, name, cls, style)
+    return (f'<img src="{setup.app.builder.imgpath}/mathmpl/{name}.png"'
+            f' {cls}{style}/>')
 
 
 def setup(app):
