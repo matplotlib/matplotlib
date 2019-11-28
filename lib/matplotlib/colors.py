@@ -550,46 +550,30 @@ class Colormap:
         -------
         Tuple of RGBA values if X is scalar, otherwise an array of
         RGBA values with a shape of ``X.shape + (4, )``.
-
         """
-        # See class docstring for arg/kwarg documentation.
         if not self._isinit:
             self._init()
-        mask_bad = None
-        if np.ma.is_masked(X):
-            mask_bad = X.mask
-        elif np.any(np.isnan(X)):
-            # mask nan's
-            mask_bad = np.isnan(X)
 
+        mask_bad = X.mask if np.ma.is_masked(X) else np.isnan(X)  # Mask nan's.
         xa = np.array(X, copy=True)
-        # Fill bad values to avoid warnings
-        # in the boolean comparisons below.
-        if mask_bad is not None:
-            xa[mask_bad] = 0.
-
-        # Calculations with native byteorder are faster, and avoid a
-        # bug that otherwise can occur with putmask when the last
-        # argument is a numpy scalar.
         if not xa.dtype.isnative:
-            xa = xa.byteswap().newbyteorder()
-
+            xa = xa.byteswap().newbyteorder()  # Native byteorder is faster.
         if xa.dtype.kind == "f":
-            xa *= self.N
-            # Negative values are out of range, but astype(int) would truncate
-            # them towards zero.
-            xa[xa < 0] = -1
-            # xa == 1 (== N after multiplication) is not out of range.
-            xa[xa == self.N] = self.N - 1
-            # Avoid converting large positive values to negative integers.
-            np.clip(xa, -1, self.N, out=xa)
-            xa = xa.astype(int)
+            with np.errstate(invalid="ignore"):
+                xa *= self.N
+                # Negative values are out of range, but astype(int) would
+                # truncate them towards zero.
+                xa[xa < 0] = -1
+                # xa == 1 (== N after multiplication) is not out of range.
+                xa[xa == self.N] = self.N - 1
+                # Avoid converting large positive values to negative integers.
+                np.clip(xa, -1, self.N, out=xa)
+                xa = xa.astype(int)
         # Set the over-range indices before the under-range;
         # otherwise the under-range values get converted to over-range.
         xa[xa > self.N - 1] = self._i_over
         xa[xa < 0] = self._i_under
-        if mask_bad is not None:
-            xa[mask_bad] = self._i_bad
+        xa[mask_bad] = self._i_bad
 
         if bytes:
             lut = (self._lut * 255).astype(np.uint8)
@@ -610,7 +594,7 @@ class Colormap:
                 # If the bad value is set to have a color, then we
                 # override its alpha just as for any other value.
 
-        rgba = lut.take(xa, axis=0, mode='clip')
+        rgba = lut[xa]
         if not np.iterable(X):
             # Return a tuple if the input was a scalar
             rgba = tuple(rgba)
