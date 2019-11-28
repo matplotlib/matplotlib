@@ -101,9 +101,10 @@ autosummary_generate = True
 
 autodoc_docstring_signature = True
 if sphinx.version_info < (1, 8):
-    autodoc_default_flags = ['members', 'undoc-members']
+    autodoc_default_flags = ['members', 'undoc-members', 'inherited-members']
 else:
-    autodoc_default_options = {'members': None, 'undoc-members': None}
+    autodoc_default_options = {'members': None, 'undoc-members': None,
+                               'inherited-members': True}
 
 nitpicky = True
 # change this to True to update the allowed failures
