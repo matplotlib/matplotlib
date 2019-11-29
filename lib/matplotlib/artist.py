@@ -802,7 +802,7 @@ class Artist:
         return self._visible
 
     def get_animated(self):
-        """Return the animated state."""
+        """Return whether the artist is animated."""
         return self._animated
 
     def get_in_layout(self):
@@ -1072,7 +1072,7 @@ class Artist:
         return self._sticky_edges
 
     def update_from(self, other):
-        'Copy properties from *other* to *self*.'
+        """"Copy properties from *other* to *self*."""
         self._transform = other._transform
         self._transformSet = other._transformSet
         self._visible = other._visible

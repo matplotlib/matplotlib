@@ -232,7 +232,7 @@ class Patch(artist.Artist):
                                                radius)
 
     def update_from(self, other):
-        """Updates this `.Patch` from the properties of *other*."""
+        # docstring inherited.
         artist.Artist.update_from(self, other)
         # For some properties we don't need or don't want to go through the
         # getters/setters, so we just copy them directly.
