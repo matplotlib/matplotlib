@@ -178,11 +178,15 @@ parse_fontconfig_pattern = lru_cache()(FontconfigPatternParser().parse)
 
 
 def _escape_val(val, escape_func):
-    if type(val) == list:
+    """
+    Given a string value or a list of string values, run each value through
+    the input escape function to make the values into legal font config
+    strings.  The result is returned as a string.
+    """
+    if isinstance(val, list):
         val = [escape_func(r'\\\1', str(x)) for x in val
                if x is not None]
-        if val != []:
-            val = ','.join(val)
+        val = ','.join(val)
     else:
         val = escape_func(r'\\\1', str(val))
 
@@ -199,7 +203,7 @@ def generate_fontconfig_pattern(d):
     # Family is added first w/o a keyword
     family = d.get_family()
     if family is not None and family != []:
-        props.append("%s" % (_escape_val(family, family_escape)))
+        props.append(_escape_val(family, family_escape))
 
     # The other keys are added as key=value
     for key in ['style', 'variant', 'weight', 'stretch', 'file', 'size']:
