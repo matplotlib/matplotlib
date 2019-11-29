@@ -573,12 +573,6 @@ class Vf(Dvi):
     r"""
     A virtual font (\*.vf file) containing subroutines for dvi files.
 
-    Usage::
-
-      vf = Vf(filename)
-      glyph = vf[code]
-      glyph.text, glyph.boxes, glyph.width
-
     Parameters
     ----------
     filename : str or path-like
@@ -589,6 +583,13 @@ class Vf(Dvi):
     http://mirrors.ctan.org/info/knuth/virtual-fonts
     This class reuses some of the machinery of `Dvi`
     but replaces the `_read` loop and dispatch mechanism.
+
+    Examples
+    --------
+    ::
+        vf = Vf(filename)
+        glyph = vf[code]
+        glyph.text, glyph.boxes, glyph.width
     """
 
     def __init__(self, filename):
@@ -753,20 +754,6 @@ class PsfontsMap:
     """
     A psfonts.map formatted file, mapping TeX fonts to PS fonts.
 
-    Usage::
-
-     >>> map = PsfontsMap(find_tex_file('pdftex.map'))
-     >>> entry = map[b'ptmbo8r']
-     >>> entry.texname
-     b'ptmbo8r'
-     >>> entry.psname
-     b'Times-Bold'
-     >>> entry.encoding
-     '/usr/local/texlive/2008/texmf-dist/fonts/enc/dvips/base/8r.enc'
-     >>> entry.effects
-     {'slant': 0.16700000000000001}
-     >>> entry.filename
-
     Parameters
     ----------
     filename : str or path-like
@@ -792,6 +779,20 @@ class PsfontsMap:
     the Times-Bold example above), while the pdf-related files perhaps
     only avoid the "Base 14" pdf fonts. But the user may have
     configured these files differently.
+
+    Examples
+    --------
+    >>> map = PsfontsMap(find_tex_file('pdftex.map'))
+    >>> entry = map[b'ptmbo8r']
+    >>> entry.texname
+    b'ptmbo8r'
+    >>> entry.psname
+    b'Times-Bold'
+    >>> entry.encoding
+    '/usr/local/texlive/2008/texmf-dist/fonts/enc/dvips/base/8r.enc'
+    >>> entry.effects
+    {'slant': 0.16700000000000001}
+    >>> entry.filename
     """
     __slots__ = ('_font', '_filename')
 
