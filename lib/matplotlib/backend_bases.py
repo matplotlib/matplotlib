@@ -1035,29 +1035,23 @@ class TimerBase:
     own timing mechanisms so that the timer events are integrated into their
     event loops.
 
-    Mandatory functions that must be implemented:
+    Subclasses must override the following methods:
 
-        * `_timer_start`: Contains backend-specific code for starting
-          the timer
+    - ``_timer_start``: Backend-specific code for starting the timer.
+    - ``_timer_stop``: Backend-specific code for stopping the timer.
 
-        * `_timer_stop`: Contains backend-specific code for stopping
-          the timer
+    Subclasses may additionally override the following methods:
 
-    Optional overrides:
+    - ``_timer_set_single_shot``: Code for setting the timer to single shot
+      operating mode, if supported by the timer object.  If not, the `Timer`
+      class itself will store the flag and the ``_on_timer`` method should be
+      overridden to support such behavior.
 
-        * `_timer_set_single_shot`: Code for setting the timer to
-          single shot operating mode, if supported by the timer
-          object. If not, the `Timer` class itself will store the flag
-          and the `_on_timer` method should be overridden to support
-          such behavior.
+    - ``_timer_set_interval``: Code for setting the interval on the timer, if
+      there is a method for doing so on the timer object.
 
-        * `_timer_set_interval`: Code for setting the interval on the
-          timer, if there is a method for doing so on the timer
-          object.
-
-        * `_on_timer`: This is the internal function that any timer
-          object should call, which will handle the task of running
-          all callbacks that have been set.
+    - ``_on_timer``: The internal function that any timer object should call,
+      which will handle the task of running all callbacks that have been set.
 
     Attributes
     ----------
@@ -1414,8 +1408,7 @@ class MouseEvent(LocationEvent):
 
     Examples
     --------
-    Usage::
-
+    ::
         def on_press(event):
             print('you pressed', event.button, event.xdata, event.ydata)
 
@@ -1466,8 +1459,7 @@ class PickEvent(Event):
 
     Examples
     --------
-    Usage::
-
+    ::
         ax.plot(np.rand(100), 'o', picker=5)  # 5 points tolerance
 
         def on_pick(event):
@@ -1477,7 +1469,6 @@ class PickEvent(Event):
             print('on pick line:', np.array([xdata[ind], ydata[ind]]).T)
 
         cid = fig.canvas.mpl_connect('pick_event', on_pick)
-
     """
     def __init__(self, name, canvas, mouseevent, artist,
                  guiEvent=None, **kwargs):
@@ -1514,13 +1505,11 @@ class KeyEvent(LocationEvent):
 
     Examples
     --------
-    Usage::
-
+    ::
         def on_key(event):
             print('you pressed', event.key, event.xdata, event.ydata)
 
         cid = fig.canvas.mpl_connect('key_press_event', on_key)
-
     """
     def __init__(self, name, canvas, key, x=0, y=0, guiEvent=None):
         LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
@@ -2173,44 +2162,50 @@ class FigureCanvasBase:
 
     def mpl_connect(self, s, func):
         """
-        Connect event with string *s* to *func*.  The signature of *func* is::
+        Bind function *func* to event *s*.
 
-          def func(event)
+        Parameters
+        ----------
+        s : str
+            One of the following events ids:
 
-        where event is a :class:`matplotlib.backend_bases.Event`.  The
-        following events are recognized
+            - 'button_press_event'
+            - 'button_release_event'
+            - 'draw_event'
+            - 'key_press_event'
+            - 'key_release_event'
+            - 'motion_notify_event'
+            - 'pick_event'
+            - 'resize_event'
+            - 'scroll_event'
+            - 'figure_enter_event',
+            - 'figure_leave_event',
+            - 'axes_enter_event',
+            - 'axes_leave_event'
+            - 'close_event'.
 
-        - 'button_press_event'
-        - 'button_release_event'
-        - 'draw_event'
-        - 'key_press_event'
-        - 'key_release_event'
-        - 'motion_notify_event'
-        - 'pick_event'
-        - 'resize_event'
-        - 'scroll_event'
-        - 'figure_enter_event',
-        - 'figure_leave_event',
-        - 'axes_enter_event',
-        - 'axes_leave_event'
-        - 'close_event'
+        func : callable
+            The callback function to be executed, which must have the
+            signature::
 
-        For the location events (button and key press/release), if the
-        mouse is over the axes, the variable ``event.inaxes`` will be
-        set to the :class:`~matplotlib.axes.Axes` the event occurs is
-        over, and additionally, the variables ``event.xdata`` and
-        ``event.ydata`` will be defined.  This is the mouse location
-        in data coords.  See
-        :class:`~matplotlib.backend_bases.KeyEvent` and
-        :class:`~matplotlib.backend_bases.MouseEvent` for more info.
+                def func(event: Event) -> Any
 
-        Return value is a connection id that can be used with
-        :meth:`~matplotlib.backend_bases.Event.mpl_disconnect`.
+            For the location events (button and key press/release), if the
+            mouse is over the axes, the ``inaxes`` attribute of the event will
+            be set to the `~matplotlib.axes.Axes` the event occurs is over, and
+            additionally, the variables ``xdata`` and ``ydata`` attributes will
+            be set to the mouse location in data coordinates.  See `.KeyEvent`
+            and `.MouseEvent` for more info.
+
+        Returns
+        -------
+        cid
+            A connection id that can be used with
+            `.FigureCanvasBase.mpl_disconnect`.
 
         Examples
         --------
-        Usage::
-
+        ::
             def on_press(event):
                 print('you pressed', event.button, event.xdata, event.ydata)
 
@@ -2221,24 +2216,23 @@ class FigureCanvasBase:
 
     def mpl_disconnect(self, cid):
         """
-        Disconnect callback id cid
+        Disconnect the callback with id *cid*.
 
         Examples
         --------
-        Usage::
-
+        ::
             cid = canvas.mpl_connect('button_press_event', on_press)
-            #...later
+            # ... later
             canvas.mpl_disconnect(cid)
         """
         return self.callbacks.disconnect(cid)
 
     def new_timer(self, *args, **kwargs):
         """
-        Creates a new backend-specific subclass of
-        :class:`backend_bases.Timer`. This is useful for getting periodic
-        events through the backend's native event loop. Implemented only for
-        backends with GUIs.
+        Create a new backend-specific subclass of `.Timer`.
+
+        This is useful for getting periodic events through the backend's native
+        event loop.  Implemented only for backends with GUIs.
 
         Other Parameters
         ----------------
@@ -2249,13 +2243,12 @@ class FigureCanvasBase:
             Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
             will be executed by the timer every *interval*.
 
-            callbacks which return ``False`` or ``0`` will be removed from the
+            Callbacks which return ``False`` or ``0`` will be removed from the
             timer.
 
         Examples
         --------
         >>> timer = fig.canvas.new_timer(callbacks=[(f1, (1, ), {'a': 3}),])
-
         """
         return TimerBase(*args, **kwargs)
 
