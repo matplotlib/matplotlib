@@ -182,7 +182,7 @@ plt.colorbar()
 
 ###############################################################################
 # This adds a colorbar to your existing figure.  This won't
-# automatically change if you change you switch to a different
+# automatically change if you switch to a different
 # colormap - you have to re-create your plot, and add in the colorbar
 # again.
 #
