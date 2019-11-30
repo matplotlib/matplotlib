@@ -422,6 +422,9 @@ latex_elements['preamble'] = r"""
 latex_elements['maxlistdepth'] = '10'
 latex_elements['pointsize'] = '11pt'
 
+# Better looking general index in PDF
+latex_elements['printindex'] = r'\footnotesize\raggedright\printindex'
+
 # Documents to append as an appendix to all manuals.
 latex_appendices = []
 
