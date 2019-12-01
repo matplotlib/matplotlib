@@ -23,7 +23,7 @@ turn off the use of the offset on the default formatter::
 
    ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
-set the rcParam ``axes.formatter.useoffset=False`` to turn it off
+Set :rc:`axes.formatter.useoffset` to turn it off
 globally, or set a different formatter.
 
 Tick locating

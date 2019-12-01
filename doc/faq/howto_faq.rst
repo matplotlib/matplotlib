@@ -103,7 +103,7 @@ off on a per-axis basis::
 
    ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
-set the rcParam ``axes.formatter.useoffset``, or use a different
+set :rc:`axes.formatter.useoffset`, or use a different
 formatter.  See :mod:`~matplotlib.ticker` for details.
 
 .. _howto-transparent:

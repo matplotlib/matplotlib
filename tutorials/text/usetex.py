@@ -70,7 +70,7 @@ command ``\displaystyle``, as in the above demo, will produce the same results.
      # $ % & ~ _ ^ \ { } \( \) \[ \]
 
    Therefore, these characters will behave differently depending on
-   the rcParam ``text.usetex`` flag.
+   :rc:`text.usetex`.
 
 .. _usetex-unicode:
 
