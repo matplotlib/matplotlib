@@ -94,12 +94,10 @@ def register_backend(format, backend, description=None):
     ----------
     format : str
         File extension
-
     backend : module string or canvas class
         Backend for handling file output
-
-    description : str, optional
-        Description of the file type.  Defaults to an empty string
+    description : str, optional, default: ""
+        Description of the file type.
     """
     if description is None:
         description = ''
@@ -1061,13 +1059,11 @@ class TimerBase:
 
     Attributes
     ----------
-    interval : scalar
-        The time between timer events in milliseconds. Default is 1000 ms.
-
-    single_shot : bool
-        Boolean flag indicating whether this timer should operate as single
-        shot (run once and then stop). Defaults to `False`.
-
+    interval : int, default: 1000ms
+        The time between timer events in milliseconds.
+    single_shot : bool, default: False
+        Whether this timer should operate as single shot (run once and then
+        stop).
     callbacks : List[Tuple[callable, Tuple, Dict]]
         Stores list of (func, args, kwargs) tuples that will be called upon
         timer events. This list can be manipulated directly, or the
@@ -2242,8 +2238,8 @@ class FigureCanvasBase:
 
         Other Parameters
         ----------------
-        interval : scalar
-            Timer interval in milliseconds
+        interval : int
+            Timer interval in milliseconds.
 
         callbacks : List[Tuple[callable, Tuple, Dict]]
             Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
@@ -3181,8 +3177,8 @@ class ToolContainerBase:
             The tool to add, see `ToolManager.get_tool`.
         group : str
             The name of the group to add this tool to.
-        position : int (optional)
-            The position within the group to place this tool.  Defaults to end.
+        position : int, optional, default: -1
+            The position within the group to place this tool.
         """
         tool = self.toolmanager.get_tool(tool)
         image = self._get_image_filename(tool.image)

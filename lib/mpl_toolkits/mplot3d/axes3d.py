@@ -59,10 +59,10 @@ class Axes3D(Axes):
             The parent figure.
         rect : (float, float, float, float)
             The ``(left, bottom, width, height)`` axes position.
-        azim : float, optional
-            Azimuthal viewing angle, defaults to -60.
-        elev : float, optional
-            Elevation viewing angle, defaults to 30.
+        azim : float, optional, default: -60
+            Azimuthal viewing angle.
+        elev : float, optional, default: 30
+            Elevation viewing angle.
         sharez : Axes3D, optional
             Other axes to share z-limits with.
         proj_type : {'persp', 'ortho'}
@@ -1009,12 +1009,10 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        rotate_btn : int or list of int
-            The mouse button or buttons to use for 3D rotation of the axes;
-            defaults to 1.
-        zoom_btn : int or list of int
-            The mouse button or buttons to use to zoom the 3D axes; defaults to
-            3.
+        rotate_btn : int or list of int, default: 1
+            The mouse button or buttons to use for 3D rotation of the axes.
+        zoom_btn : int or list of int, default: 3
+            The mouse button or buttons to use to zoom the 3D axes.
         """
         self.button_pressed = None
         self._cids = [
@@ -1383,9 +1381,8 @@ class Axes3D(Axes):
         zs : scalar or 1D array-like
             z coordinates of vertices; either one for all points or one for
             each point.
-        zdir : {'x', 'y', 'z'}
-            When plotting 2D data, the direction to use as z ('x', 'y' or 'z');
-            defaults to 'z'.
+        zdir : {'x', 'y', 'z'}, default: 'z'
+            When plotting 2D data, the direction to use as z ('x', 'y' or 'z').
         **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.plot`.
         """
@@ -1464,9 +1461,9 @@ class Axes3D(Axes):
         vmin, vmax : float
             Bounds for the normalization.
 
-        shade : bool
-            Whether to shade the facecolors. Defaults to True. Shading is
-            always disabled when `cmap` is specified.
+        shade : bool, default: True
+            Whether to shade the facecolors.  Shading is always disabled when
+            *cmap* is specified.
 
         lightsource : `~matplotlib.colors.LightSource`
             The lightsource to use when `shade` is True.
@@ -1823,9 +1820,9 @@ class Axes3D(Axes):
             An instance of Normalize to map values to colors.
         vmin, vmax : scalar, optional, default: None
             Minimum and maximum value to map.
-        shade : bool
-            Whether to shade the facecolors. Defaults to True. Shading is
-            always disabled when *cmap* is specified.
+        shade : bool, default: True
+            Whether to shade the facecolors.  Shading is always disabled when
+            *cmap* is specified.
         lightsource : `~matplotlib.colors.LightSource`
             The lightsource to use when *shade* is True.
         **kwargs
@@ -1967,12 +1964,12 @@ class Axes3D(Axes):
         ----------
         X, Y, Z : array-likes
             Input data.
-        extend3d : bool
-            Whether to extend contour in 3D; defaults to False.
+        extend3d : bool, default: False
+            Whether to extend contour in 3D.
         stride : int
             Step size for extending contour.
-        zdir : {'x', 'y', 'z'}
-            The direction to use; defaults to 'z'.
+        zdir : {'x', 'y', 'z'}, default: 'z'
+            The direction to use.
         offset : scalar
             If specified, plot a projection of the contour lines at this
             position in a plane normal to zdir
@@ -2010,12 +2007,12 @@ class Axes3D(Axes):
         ----------
         X, Y, Z : array-likes
             Input data.
-        extend3d : bool
-            Whether to extend contour in 3D; defaults to False.
+        extend3d : bool, default: False
+            Whether to extend contour in 3D.
         stride : int
             Step size for extending contour.
-        zdir : {'x', 'y', 'z'}
-            The direction to use; defaults to 'z'.
+        zdir : {'x', 'y', 'z'}, default: 'z'
+            The direction to use.
         offset : scalar
             If specified, plot a projection of the contour lines at this
             position in a plane normal to zdir
@@ -2055,8 +2052,8 @@ class Axes3D(Axes):
         ----------
         X, Y, Z : array-likes
             Input data.
-        zdir : {'x', 'y', 'z'}
-            The direction to use; defaults to 'z'.
+        zdir : {'x', 'y', 'z'}, default: 'z'
+            The direction to use.
         offset : scalar
             If specified, plot a projection of the contour lines at this
             position in a plane normal to zdir
@@ -2095,8 +2092,8 @@ class Axes3D(Axes):
         ----------
         X, Y, Z : array-likes
             Input data.
-        zdir : {'x', 'y', 'z'}
-            The direction to use; defaults to 'z'.
+        zdir : {'x', 'y', 'z'}, default: 'z'
+            The direction to use.
         offset : scalar
             If specified, plot a projection of the contour lines at this
             position in a plane normal to zdir
@@ -2246,9 +2243,8 @@ class Axes3D(Axes):
         zs : scalar or 1D array-like
             Z coordinate of bars; if a single value is specified, it will be
             used for all bars.
-        zdir : {'x', 'y', 'z'}
-            When plotting 2D data, the direction to use as z ('x', 'y' or 'z');
-            defaults to 'z'.
+        zdir : {'x', 'y', 'z'}, default: 'z'
+            When plotting 2D data, the direction to use as z ('x', 'y' or 'z').
         **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.bar`.
 
@@ -2325,7 +2321,7 @@ class Axes3D(Axes):
         zsort : str, optional
             The z-axis sorting scheme passed onto `~.art3d.Poly3DCollection`
 
-        shade : bool, optional (default = True)
+        shade : bool, optional, default: True
             When true, this shades the dark sides of the bars (relative
             to the plot's source of light).
 
@@ -2482,15 +2478,13 @@ pivot='tail', normalize=False, **kwargs)
             The ratio of the arrow head with respect to the quiver,
             default to 0.3
 
-        pivot : {'tail', 'middle', 'tip'}
+        pivot : {'tail', 'middle', 'tip'}, default: 'tail'
             The part of the arrow that is at the grid point; the arrow
             rotates about this point, hence the name *pivot*.
-            Default is 'tail'
 
-        normalize : bool
-            When True, all of the arrows will be the same length. This
-            defaults to False, where the arrows will be different lengths
-            depending on the values of u, v, w.
+        normalize : bool, default: False
+            Whether all arrows are normalized to have the same length, or keep
+            the lengths defined by *u*, *v*, and *w*.
 
         **kwargs
             Any additional keyword arguments are delegated to
@@ -2661,9 +2655,9 @@ pivot='tail', normalize=False, **kwargs)
               - A 4D ndarray of rgb/rgba data, with the components along the
                 last axis.
 
-        shade : bool
-            Whether to shade the facecolors. Defaults to True. Shading is
-            always disabled when *cmap* is specified.
+        shade : bool, default: True
+            Whether to shade the facecolors.  Shading is always disabled when
+            *cmap* is specified.
 
             .. versionadded:: 3.1
 

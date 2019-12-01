@@ -1101,7 +1101,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         Data that will be represented in the boxplots. Should have 2 or
         fewer dimensions.
 
-    whis : float or (float, float) (default = 1.5)
+    whis : float or (float, float), default: 1.5
         The position of the whiskers.
 
         If a float, the lower whisker is at the lowest datum above
@@ -1426,11 +1426,11 @@ def violin_stats(X, method, points=100, quantiles=None):
         return a vector of the values of the KDE evaluated at the values
         specified in coords.
 
-    points : int, default = 100
+    points : int, default: 100
         Defines the number of points to evaluate each of the gaussian kernel
         density estimates at.
 
-    quantiles : array-like, default = None
+    quantiles : array-like, default: None
         Defines (if not None) a list of floats in interval [0, 1] for each
         column of data, which represents the quantiles that will be rendered
         for that column of data. Must have 2 or fewer dimensions. 1D array will

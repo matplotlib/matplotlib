@@ -84,22 +84,20 @@ def cubehelix(gamma=1.0, s=0.5, r=-1.5, h=1.0):
     element. This color element is calculated in a plane of constant
     perceived intensity and controlled by the following parameters.
 
-    Optional keyword arguments:
-
-      =========   =======================================================
-      Keyword     Description
-      =========   =======================================================
-      gamma       gamma factor to emphasise either low intensity values
-                  (gamma < 1), or high intensity values (gamma > 1);
-                  defaults to 1.0.
-      s           the start color; defaults to 0.5 (i.e. purple).
-      r           the number of r, g, b rotations in color that are made
-                  from the start to the end of the color scheme; defaults
-                  to -1.5 (i.e. -> B -> G -> R -> B).
-      h           the hue parameter which controls how saturated the
-                  colors are. If this parameter is zero then the color
-                  scheme is purely a greyscale; defaults to 1.0.
-      =========   =======================================================
+    Parameters
+    ----------
+    gamma : float, optional, default: 1
+        Gamma factor emphasizing either low intensity values (gamma < 1), or
+        high intensity values (gamma > 1).
+    s : float, optional, default: 0.5 (purple)
+        The starting color.
+    r : float, optional, default: -1.5
+        The number of r, g, b rotations in color that are made from the start
+        to the end of the color scheme.  The default of -1.5 corresponds to ->
+        B -> G -> R -> B.
+    h : float, optional, default: 1
+        The hue, i.e. how saturated the colors are. If this parameter is zero
+        then the color scheme is purely a greyscale.
     """
     return {'red': partial(_ch_helper, gamma, s, r, h, -0.14861, 1.78277),
             'green': partial(_ch_helper, gamma, s, r, h, -0.29227, -0.90649),

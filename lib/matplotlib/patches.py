@@ -712,10 +712,10 @@ class Rectangle(Patch):
             Rectangle width
         height : float
             Rectangle height
-        angle : float, optional
-          rotation in degrees anti-clockwise about *xy* (default is 0.0)
-        fill : bool, optional
-            Whether to fill the rectangle (default is ``True``)
+        angle : float, optional, default: 0
+            Rotation in degrees anti-clockwise about *xy*.
+        fill : bool, optional, default: True
+            Whether to fill the rectangle.
 
         Notes
         -----
@@ -878,23 +878,24 @@ class RegularPolygon(Patch):
     def __init__(self, xy, numVertices, radius=5, orientation=0,
                  **kwargs):
         """
-        Constructor arguments:
+        Parameters
+        ----------
+        xy : (float, float)
+            The center position.
 
-        *xy*
-          A length 2 tuple (*x*, *y*) of the center.
+        numVertices : int
+            The number of vertices.
 
-        *numVertices*
-          the number of vertices.
+        radius : float
+            The distance from the center to each of the vertices.
 
-        *radius*
-          The distance from the center to each of the vertices.
+        orientation : float
+            The polygon rotation angle (in radians).
 
-        *orientation*
-          rotates the polygon (in radians).
+        **kwargs
+            `Patch` properties:
 
-        Valid keyword arguments are:
-
-        %(Patch)s
+            %(Patch)s
         """
         self._xy = xy
         self._numVertices = numVertices
@@ -1201,9 +1202,9 @@ class Arrow(Patch):
             Arrow length in the x direction
         dy : scalar
             Arrow length in the y direction
-        width : scalar, optional (default: 1)
-            Scale factor for the width of the arrow. With a default value of
-            1, the tail width is 0.2 and head width is 0.6.
+        width : scalar, optional, default: 1
+            Scale factor for the width of the arrow. With a default value of 1,
+            the tail width is 0.2 and head width is 0.6.
         **kwargs
             Keyword arguments control the `Patch` properties:
 
@@ -1245,33 +1246,35 @@ class FancyArrow(Polygon):
                  head_width=None, head_length=None, shape='full', overhang=0,
                  head_starts_at_zero=False, **kwargs):
         """
-        Constructor arguments
-          *width*: float (default: 0.001)
-            width of full arrow tail
+        Parameters
+        ----------
+        width: float, optional, default: 0.001
+            Width of full arrow tail.
 
-          *length_includes_head*: bool (default: False)
+        length_includes_head: bool, optional, default: False
             True if head is to be counted in calculating the length.
 
-          *head_width*: float or None (default: 3*width)
-            total width of the full arrow head
+        head_width: float or None, optional, default: 3*width
+            Total width of the full arrow head.
 
-          *head_length*: float or None (default: 1.5 * head_width)
-            length of arrow head
+        head_length: float or None, optional, default: 1.5*head_width
+            Length of arrow head.
 
-          *shape*: ['full', 'left', 'right'] (default: 'full')
-            draw the left-half, right-half, or full arrow
+        shape: ['full', 'left', 'right'], optional, default: 'full'
+            Draw the left-half, right-half, or full arrow.
 
-          *overhang*: float (default: 0)
-            fraction that the arrow is swept back (0 overhang means
+        overhang: float, optional, default: 0
+            Fraction that the arrow is swept back (0 overhang means
             triangular shape). Can be negative or greater than one.
 
-          *head_starts_at_zero*: bool (default: False)
-            if True, the head starts being drawn at coordinate 0
+        head_starts_at_zero: bool, optional, default: False
+            If True, the head starts being drawn at coordinate 0
             instead of ending at coordinate 0.
 
-        Other valid kwargs (inherited from :class:`Patch`) are:
+        **kwargs
+            `.Patch` properties:
 
-        %(Patch)s
+            %(Patch)s
         """
         if head_width is None:
             head_width = 3 * width
@@ -1329,7 +1332,8 @@ class FancyArrow(Polygon):
         super().__init__(verts, closed=True, **kwargs)
 
 
-docstring.interpd.update({"FancyArrow": FancyArrow.__init__.__doc__})
+docstring.interpd.update(
+    FancyArrow="\n".join(inspect.getdoc(FancyArrow.__init__).splitlines()[2:]))
 
 
 class CirclePolygon(RegularPolygon):
@@ -3898,14 +3902,14 @@ class FancyArrowPatch(Patch):
 
         Parameters
         ----------
-        posA, posB : (float, float), optional (default: None)
+        posA, posB : (float, float), optional, default: None
             (x, y) coordinates of arrow tail and arrow head respectively.
 
-        path : `~matplotlib.path.Path`, optional (default: None)
+        path : `~matplotlib.path.Path`, optional, default: None
             If provided, an arrow is drawn along this path and *patchA*,
             *patchB*, *shrinkA*, and *shrinkB* are ignored.
 
-        arrowstyle : str or `.ArrowStyle`, optional (default: 'simple')
+        arrowstyle : str or `.ArrowStyle`, optional, default: 'simple'
             Describes how the fancy arrow will be
             drawn. It can be string of the available arrowstyle names,
             with optional comma-separated attributes, or an
@@ -3918,8 +3922,8 @@ class FancyArrowPatch(Patch):
         arrow_transmuter
             Ignored.
 
-        connectionstyle : str or `.ConnectionStyle` or None, optional \
-(default: 'arc3')
+        connectionstyle : str or `.ConnectionStyle` or None, optional, \
+default: 'arc3'
             Describes how *posA* and *posB* are connected. It can be an
             instance of the :class:`ConnectionStyle` class or a string of the
             connectionstyle name, with optional comma-separated attributes. The
@@ -3930,23 +3934,23 @@ class FancyArrowPatch(Patch):
         connector
             Ignored.
 
-        patchA, patchB : `.Patch`, optional (default: None)
+        patchA, patchB : `.Patch`, optional, default: None
             Head and tail patch respectively. :class:`matplotlib.patch.Patch`
             instance.
 
-        shrinkA, shrinkB : float, optional (default: 2)
+        shrinkA, shrinkB : float, optional, default: 2
             Shrinking factor of the tail and head of the arrow respectively.
 
-        mutation_scale : float, optional (default: 1)
+        mutation_scale : float, optional, default: 1
             Value with which attributes of *arrowstyle* (e.g., *head_length*)
             will be scaled.
 
-        mutation_aspect : None or float, optional (default: None)
+        mutation_aspect : None or float, optional, default: None
             The height of the rectangle will be squeezed by this value before
             the mutation and the mutated box will be stretched by the inverse
             of it.
 
-        dpi_cor : float, optional (default: 1)
+        dpi_cor : float, optional, default: 1
             dpi_cor is currently used for linewidth-related things and shrink
             factor. Mutation scale is affected by this.
 
@@ -4113,7 +4117,7 @@ class FancyArrowPatch(Patch):
 
         Parameters
         ----------
-        arrowstyle : None, ArrowStyle, str, optional (default: None)
+        arrowstyle : None, ArrowStyle, str, optional, default: None
             Can be a string with arrowstyle name with optional comma-separated
             attributes, e.g.::
 

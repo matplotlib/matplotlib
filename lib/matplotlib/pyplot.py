@@ -422,7 +422,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         width, height in inches. If not provided, defaults to
         :rc:`figure.figsize` = ``[6.4, 4.8]``.
 
-    dpi : integer, optional, default: None
+    dpi : int, optional, default: None
         resolution of the figure. If not provided, defaults to
         :rc:`figure.dpi` = ``100``.
 
@@ -1263,10 +1263,10 @@ def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
     h_pad, w_pad : float, optional
         Padding (height/width) between edges of adjacent subplots,
         as a fraction of the font size.  Defaults to *pad*.
-    rect : tuple (left, bottom, right, top), optional
+    rect : tuple (left, bottom, right, top), optional, default: (0, 0, 1, 1)
         A rectangle (left, bottom, right, top) in the normalized
         figure coordinate that the whole subplots area (including
-        labels) will fit into. Default is (0, 0, 1, 1).
+        labels) will fit into.
     """
     gcf().tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
 

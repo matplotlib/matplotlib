@@ -1391,11 +1391,11 @@ class EngFormatter(Formatter):
         r"""
         Parameters
         ----------
-        unit : str (default: "")
+        unit : str, optional, default: ""
             Unit symbol to use, suitable for use with single-letter
             representations of powers of 1000. For example, 'Hz' or 'm'.
 
-        places : int (default: None)
+        places : int, optional, default: None
             Precision with which to display the number, specified in
             digits after the decimal point (there will be between one
             and three digits before the decimal point). If it is None,
@@ -1403,7 +1403,7 @@ class EngFormatter(Formatter):
             which displays up to 6 *significant* digits, i.e. the equivalent
             value for *places* varies between 0 and 5 (inclusive).
 
-        sep : str (default: " ")
+        sep : str, optional, default: " "
             Separator used between the value and the prefix/unit. For
             example, one get '3.14 mV' if ``sep`` is " " (default) and
             '3.14mV' if ``sep`` is "". Besides the default behavior, some
@@ -1414,11 +1414,11 @@ class EngFormatter(Formatter):
             * ``sep="\N{NARROW NO-BREAK SPACE}"`` (``U+202F``);
             * ``sep="\N{NO-BREAK SPACE}"`` (``U+00A0``).
 
-        usetex : bool (default: None)
+        usetex : bool, optional, default: None
             To enable/disable the use of TeX's math mode for rendering the
             numbers in the formatter.
 
-        useMathText : bool (default: None)
+        useMathText : bool, optional, default: None
             To enable/disable the use mathtext for rendering the numbers in
             the formatter.
         """

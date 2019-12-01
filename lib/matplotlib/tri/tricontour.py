@@ -170,9 +170,8 @@ def tricontour(ax, *args, **kwargs):
         If a string, like 'r' or 'red', all levels will be plotted in this
         color.
 
-        If a tuple of matplotlib color args (string, float, rgb, etc),
-        different levels will be plotted in different colors in the order
-        specified.
+        If a tuple of colors (string, float, rgb, etc), different levels will
+        be plotted in different colors in the order specified.
 
         *alpha*: float
         The alpha blending value

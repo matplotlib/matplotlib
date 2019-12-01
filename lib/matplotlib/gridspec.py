@@ -405,10 +405,10 @@ class GridSpec(GridSpecBase):
         h_pad, w_pad : float, optional
             Padding (height/width) between edges of adjacent subplots.
             Defaults to *pad*.
-        rect : tuple of 4 floats, optional
+        rect : tuple of 4 floats, optional, default: (0, 0, 1, 1)
             (left, bottom, right, top) rectangle in normalized figure
             coordinates that the whole subplots area (including labels) will
-            fit into.  Default is (0, 0, 1, 1).
+            fit into.
         """
 
         subplotspec_list = tight_layout.get_subplotspec_list(

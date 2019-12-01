@@ -77,23 +77,21 @@ class ContourLabeler:
             - If one string color, e.g., *colors* = 'r' or *colors* =
               'red', all labels will be plotted in this color.
 
-            - If a tuple of matplotlib color args (string, float, rgb, etc),
-              different labels will be plotted in different colors in the order
-              specified.
+            - If a tuple of colors (string, float, rgb, etc), different labels
+              will be plotted in different colors in the order specified.
 
-        inline : bool, optional
+        inline : bool, optional, default: True
             If ``True`` the underlying contour is removed where the label is
-            placed. Default is ``True``.
+            placed.
 
-        inline_spacing : float, optional
-            Space in pixels to leave on each side of label when
-            placing inline. Defaults to 5.
+        inline_spacing : float, optional, default: 5
+            Space in pixels to leave on each side of label when placing inline.
 
             This spacing will be exact for labels at locations where the
             contour is straight, less so for labels on curved contours.
 
-        fmt : str or dict, optional
-            A format string for the label. Default is '%1.3f'
+        fmt : str or dict, optional, default: '%1.3f'
+            A format string for the label.
 
             Alternatively, this can be a dictionary matching contour levels
             with arbitrary strings to use for each contour level (i.e.,
@@ -116,15 +114,15 @@ class ContourLabeler:
             Contour labels will be created as if mouse is clicked at each
             (x, y) position.
 
-        rightside_up : bool, optional
+        rightside_up : bool, optional, default: True
             If ``True``, label rotations will always be plus
-            or minus 90 degrees from level. Default is ``True``.
+            or minus 90 degrees from level.
 
-        use_clabeltext : bool, optional
+        use_clabeltext : bool, optional, default: False
             If ``True``, `.ClabelText` class (instead of `.Text`) is used to
             create labels. `ClabelText` recalculates rotation angles
             of texts during the drawing time, therefore this can be used if
-            aspect of the axes changes. Default is ``False``.
+            aspect of the axes changes.
 
         Returns
         -------
@@ -684,8 +682,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
     ax : `~.axes.Axes`
 
     levels : [level0, level1, ..., leveln]
-        A list of floating point numbers indicating the contour
-        levels.
+        A list of floating point numbers indicating the contour levels.
 
     allsegs : [level0segs, level1segs, ...]
         List of all the polygon segments for all the *levels*.

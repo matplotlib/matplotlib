@@ -433,9 +433,8 @@ class FuncScaleLog(LogScale):
 
                 def forward(values: array-like) -> array-like
 
-        base : float
-            logarithmic base of the scale (default = 10)
-
+        base : float, default: 10
+            Logarithmic base of the scale.
         """
         forward, inverse = functions
         self.subs = None
@@ -515,12 +514,12 @@ class SymmetricalLogScale(ScaleBase):
 
     Parameters
     ----------
-    basex, basey : float
-        The base of the logarithm. Defaults to 10.
+    basex, basey : float, default: 10
+        The base of the logarithm.
 
-    linthreshx, linthreshy : float
+    linthreshx, linthreshy : float, default: 2
         Defines the range ``(-x, x)``, within which the plot is linear.
-        This avoids having the plot go to infinity around zero. Defaults to 2.
+        This avoids having the plot go to infinity around zero.
 
     subsx, subsy : sequence of int
         Where to place the subticks between each major tick.

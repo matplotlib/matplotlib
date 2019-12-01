@@ -170,9 +170,8 @@ class SecondaryAxis(_AxesBase):
         ----------
         ticks : list
             List of x-axis tick locations.
-        minor : bool, optional
+        minor : bool, optional, default: False
             If ``False`` sets major ticks, if ``True`` sets minor ticks.
-            Default is ``False``.
         """
         ret = self._axis.set_ticks(ticks, minor=minor)
         self.stale = True
@@ -354,7 +353,7 @@ class SecondaryAxis(_AxesBase):
 
         Parameters
         ----------
-        color : Matplotlib color
+        color : color
         """
         if self._orientation == 'x':
             self.tick_params(axis='x', colors=color)

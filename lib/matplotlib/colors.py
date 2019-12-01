@@ -162,7 +162,7 @@ def to_rgba(c, alpha=None):
     ----------
     c : Matplotlib color or ``np.ma.masked``
 
-    alpha : scalar, optional
+    alpha : float, optional
         If *alpha* is not ``None``, it forces the alpha value, except if *c* is
         ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
 
@@ -533,7 +533,7 @@ class Colormap:
         """
         Parameters
         ----------
-        X : scalar, ndarray
+        X : float, ndarray
             The data value(s) to convert to RGBA.
             For floats, X should be in the interval ``[0.0, 1.0]`` to
             return the RGBA values ``X*100`` percent along the Colormap line.
@@ -1601,12 +1601,12 @@ class LightSource:
 
         Parameters
         ----------
-        azdeg : number, optional
+        azdeg : float, optional, default: 315 degrees (from the northwest)
             The azimuth (0-360, degrees clockwise from North) of the light
-            source. Defaults to 315 degrees (from the northwest).
-        altdeg : number, optional
+            source.
+        altdeg : float, optional, default: 45 degrees
             The altitude (0-90, degrees up from horizontal) of the light
-            source.  Defaults to 45 degrees from horizontal.
+            source.
 
         Notes
         -----
@@ -1904,7 +1904,7 @@ class LightSource:
             An MxNx3 RGB array of floats ranging from 0 to 1 (color image).
         intensity : ndarray
             An MxNx1 array of floats ranging from 0 to 1 (grayscale image).
-        hsv_max_sat : number, optional
+        hsv_max_sat : number, optional, default: 1
             The maximum saturation value that the *intensity* map can shift the
             output image to. Defaults to 1.
         hsv_min_sat : number, optional

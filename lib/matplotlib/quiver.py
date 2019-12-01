@@ -1020,7 +1020,7 @@ class Barbs(mcollections.PolyCollection):
 
             (*number of flags*, *number of barbs*, *half_flag*, *empty_flag*)
 
-        *half_flag* is a boolean whether half of a barb is needed,
+        The bool *half_flag* indicates whether half of a barb is needed,
         since there should only ever be one half on a given
         barb. *empty_flag* flag is an array of flags to easily tell if
         a barb is empty (too low to plot any barbs/flags.

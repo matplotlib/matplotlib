@@ -208,13 +208,12 @@ class SimplePatchShadow(AbstractPathEffect):
             The offset of the shadow in points.
         shadow_rgbFace : color
             The shadow color.
-        alpha : float
+        alpha : float, default: 0.3
             The alpha transparency of the created shadow patch.
-            Default is 0.3.
             http://matplotlib.1069221.n5.nabble.com/path-effects-question-td27630.html
-        rho : float
+        rho : float, default: 0.3
             A scale factor to apply to the rgbFace color if `shadow_rgbFace`
-            is not specified. Default is 0.3.
+            is not specified.
         **kwargs
             Extra keywords are stored and passed through to
             :meth:`AbstractPathEffect._update_gc`.
@@ -282,16 +281,15 @@ class SimpleLineShadow(AbstractPathEffect):
         ----------
         offset : pair of floats
             The offset to apply to the path, in points.
-        shadow_color : color
-            The shadow color. Default is black.
+        shadow_color : color, default: 'black'
+            The shadow color.
             A value of ``None`` takes the original artist's color
             with a scale factor of *rho*.
-        alpha : float
+        alpha : float, default: 0.3
             The alpha transparency of the created shadow patch.
-            Default is 0.3.
-        rho : float
+        rho : float, default: 0.3
             A scale factor to apply to the rgbFace color if `shadow_rgbFace`
-            is ``None``. Default is 0.3.
+            is ``None``.
         **kwargs
             Extra keywords are stored and passed through to
             :meth:`AbstractPathEffect._update_gc`.

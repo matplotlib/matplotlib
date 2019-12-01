@@ -8,7 +8,6 @@ contains all the plot elements.  The following classes are defined
 
 :class:`Figure`
     Top level container for all plot elements.
-
 """
 
 import logging
@@ -473,7 +472,7 @@ class Figure(Artist):
 
     def get_constrained_layout(self):
         """
-        Return a boolean: True means constrained layout is being used.
+        Return whether constrained layout is being used.
 
         See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
         """
@@ -556,7 +555,7 @@ class Figure(Artist):
 
         Parameters
         ----------
-        relative : boolean
+        relative : bool
             If `True`, then convert from inches to figure relative.
         """
         w_pad = self._constrained_layout_pads['w_pad']
@@ -1004,10 +1003,8 @@ default: 'top'
             The artist to add to the figure. If the added artist has no
             transform previously set, its transform will be set to
             ``figure.transFigure``.
-        clip : bool, optional, default ``False``
-            An optional parameter ``clip`` determines whether the added artist
-            should be clipped by the figure patch. Default is *False*,
-            i.e. no clipping.
+        clip : bool, optional, default: False
+            Whether the added artist should be clipped by the figure patch.
 
         Returns
         -------
@@ -1234,7 +1231,7 @@ default: 'top'
 
         Parameters
         ----------
-        *args
+        *args, default: (1, 1, 1)
             Either a 3-digit integer or three separate integers
             describing the position of the subplot. If the three
             integers are *nrows*, *ncols*, and *index* in order, the
@@ -1247,8 +1244,6 @@ default: 'top'
             the index of the subplot. i.e. fig.add_subplot(235) is the same as
             fig.add_subplot(2, 3, 5). Note that all integers must be less than
             10 for this form to work.
-
-            If no positional arguments are passed, defaults to (1, 1, 1).
 
             In rare circumstances, `.add_subplot` may be called with a single
             argument, a subplot axes instance already created in the
