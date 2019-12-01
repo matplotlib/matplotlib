@@ -1051,22 +1051,24 @@ class PolyCollection(_CollectionWithSizes):
     @docstring.dedent_interpd
     def __init__(self, verts, sizes=None, closed=True, **kwargs):
         """
-        *verts* is a sequence of ( *verts0*, *verts1*, ...) where
-        *verts_i* is a sequence of *xy* tuples of vertices, or an
-        equivalent :mod:`numpy` array of shape (*nv*, 2).
-
-        *sizes* is *None* (default) or a sequence of floats that
-        scale the corresponding *verts_i*.  The scaling is applied
-        before the Artist master transform; if the latter is an identity
-        transform, then the overall scaling is such that if
-        *verts_i* specify a unit square, then *sizes_i* is the area
-        of that square in points^2.
-        If len(*sizes*) < *nv*, the additional values will be
-        taken cyclically from the array.
-
-        *closed*, when *True*, will explicitly close the polygon.
-
-        %(Collection)s
+        Parameters
+        ----------
+        verts : sequence
+            The sequence of polygons [*verts0*, *verts1*, ...] where each
+            element *verts_i* defines the vertices of polygon *i* as a 2D
+            array-like of of shape (M, 2).
+        sizes : array-like, default: None
+            Squared scaling factors for the polygons. The coordinates of each
+            polygon *verts_i* are multiplied by the square-root of the
+            corresponding entry in *sizes* (i.e., *sizes* specify the scaling
+            of areas). The scaling is applied before the Artist master
+            transform. If *sizes* is shorter than *verts*, the additional
+            values will be taken cyclically from the *sizes*.
+        closed : bool, default: True
+            Whether the polygon should be closed by adding a CLOSEPOLY
+            connection at the end.
+        **kwargs
+            %(Collection)s
         """
         Collection.__init__(self, **kwargs)
         self.set_sizes(sizes)
@@ -1074,7 +1076,19 @@ class PolyCollection(_CollectionWithSizes):
         self.stale = True
 
     def set_verts(self, verts, closed=True):
-        '''This allows one to delay initialization of the vertices.'''
+        """
+        Set the vertices of the polygons.
+
+        Parameters
+        ----------
+        verts : sequence
+            The sequence of polygons [*verts0*, *verts1*, ...] where each
+            element *verts_i* defines the vertices of polygon *i* as a 2D
+            array-like of of shape (M, 2).
+        closed : bool, default: True
+            Whether the polygon should be closed by adding a CLOSEPOLY
+            connection at the end.
+        """
         if isinstance(verts, np.ma.MaskedArray):
             verts = verts.astype(float).filled(np.nan)
             # This is much faster than having Path do it one at a time.
@@ -1122,13 +1136,14 @@ class BrokenBarHCollection(PolyCollection):
     @docstring.dedent_interpd
     def __init__(self, xranges, yrange, **kwargs):
         """
-        *xranges*
-            sequence of (*xmin*, *xwidth*)
-
-        *yrange*
-            *ymin*, *ywidth*
-
-        %(Collection)s
+        Parameters
+        ----------
+        xranges : sequence of (float, float)
+            The sequence of (left-edge-position, width) pairs for each bar.
+        yrange : (float, float)
+            The (lower-edge, height) common to all bars.
+        **kwargs
+            %(Collection)s
         """
         ymin, ywidth = yrange
         ymax = ymin + ywidth
@@ -1162,7 +1177,7 @@ class BrokenBarHCollection(PolyCollection):
 
 
 class RegularPolyCollection(_CollectionWithSizes):
-    """Draw a collection of regular polygons with *numsides*."""
+    """A collection of n-sided regular polygons."""
 
     _path_generator = mpath.Path.unit_regular_polygon
     _factor = np.pi ** (-1/2)
@@ -1174,20 +1189,24 @@ class RegularPolyCollection(_CollectionWithSizes):
                  sizes=(1,),
                  **kwargs):
         """
-        *numsides*
-            the number of sides of the polygon
+        Parameters
+        ----------
+        numsides : int
+            The number of sides of the polygon.
+        rotation : float
+            The rotation of the polygon in radians.
+        sizes : tuple of float
+            The area of the circle circumscribing the polygon in points^2.
 
-        *rotation*
-            the rotation of the polygon in radians
+        Other Parameters
+        ----------------
+        **kwargs
+            Other keyword arguments.
+            %(Collection)s
 
-        *sizes*
-            gives the area of the circle circumscribing the
-            regular polygon in points^2
-
-        %(Collection)s
-
-        Example: see :doc:`/gallery/event_handling/lasso_demo` for a
-        complete example::
+        Examples
+        --------
+        See :doc:`/gallery/event_handling/lasso_demo` for a complete example::
 
             offsets = np.random.rand(20, 2)
             facecolors = [cm.jet(x) for x in np.random.rand(20)]
