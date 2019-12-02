@@ -44,7 +44,7 @@ The :meth:`~matplotlib.axes.Axes.get_legend_handles_labels` function returns
 a list of handles/artists which exist on the Axes which can be used to
 generate entries for the resulting legend - it is worth noting however that
 not all artists can be added to a legend, at which point a "proxy" will have
-to be created (see :ref:`proxy_legend_handles` for further details). 
+to be created (see :ref:`proxy_legend_handles` for further details).
 
 Those artists with an empty string as label or with a label starting with
 "_" will be ignored.
