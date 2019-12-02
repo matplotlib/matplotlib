@@ -302,7 +302,7 @@ def image_comparison(baseline_images, extensions=None, tol=0,
         exercising a feature dependent on that backend (see also the
         `check_figures_equal` decorator for that purpose).
 
-    tol : float, optional, default: 0
+    tol : float, default: 0
         The RMS threshold above which the test is considered failed.
 
     freetype_version : str or tuple

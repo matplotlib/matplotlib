@@ -1224,11 +1224,11 @@ def use(backend, warn=False, force=True):
 
         or a string of the form: ``module://my.module.name``.
 
-    warn : bool, optional, default: False
+    warn : bool, default: False
         If True and not *force*, emit a warning if a failure-to-switch
         `ImportError` has been suppressed.  This parameter is deprecated.
 
-    force : bool, optional, default: True
+    force : bool, default: True
         If True (the default), raise an `ImportError` if the backend cannot be
         set up (either because it fails to import, or because an incompatible
         GUI interactive framework is already running); if False, ignore the
@@ -1477,10 +1477,10 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
 
     Parameters
     ----------
-    replace_names : list of str or None, optional, default: None
+    replace_names : list of str or None, default: None
         The list of parameter names for which lookup into *data* should be
         attempted. If None, replacement is attempted for all arguments.
-    label_namer : str, optional, default: None
+    label_namer : str, default: None
         If set e.g. to "namer" (which must be a kwarg in the function's
         signature -- not as ``**kwargs``), if the *namer* argument passed in is
         a (string) key of *data* and no *label* kwarg is passed, then use the

@@ -1315,13 +1315,13 @@ class LineCollection(Collection):
         cmap : str or Colormap, optional
             Colormap name or `~.colors.Colormap` instance.
 
-        pickradius : float, optional, default: 5pt
+        pickradius : float, default: 5pt
             The tolerance in points for mouse clicks picking a line.
 
-        zorder : int, optional, default: 2
+        zorder : int, default: 2
            zorder of the LineCollection.
 
-        facecolors : optional, default: 'none'
+        facecolors : default: 'none'
            The facecolors of the LineCollection.
            Setting to a value other than 'none' will lead to a filled
            polygon being drawn between points on each line.
@@ -1477,21 +1477,21 @@ class EventCollection(LineCollection):
             the orthogonal direction). Defaults to 'horizontal' if not
             specified or None.
 
-        lineoffset : scalar, optional, default: 0
+        lineoffset : scalar, default: 0
             The offset of the center of the markers from the origin, in the
             direction orthogonal to *orientation*.
 
-        linelength : scalar, optional, default: 1
+        linelength : scalar, default: 1
             The total height of the marker (i.e. the marker stretches from
             ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
 
-        linewidth : scalar or None, optional, default: None
+        linewidth : scalar or None, default: None
             If it is None, defaults to its rcParams setting, in sequence form.
 
-        color : color, sequence of colors or None, optional, default: None
+        color : color, sequence of colors or None, default: None
             If it is None, defaults to its rcParams setting, in sequence form.
 
-        linestyle : str or tuple, optional, default: 'solid'
+        linestyle : str or tuple, default: 'solid'
             Valid strings are ['solid', 'dashed', 'dashdot', 'dotted',
             '-', '--', '-.', ':']. Dash tuples should be of the form::
 

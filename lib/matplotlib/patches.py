@@ -712,9 +712,9 @@ class Rectangle(Patch):
             Rectangle width
         height : float
             Rectangle height
-        angle : float, optional, default: 0
+        angle : float, default: 0
             Rotation in degrees anti-clockwise about *xy*.
-        fill : bool, optional, default: True
+        fill : bool, default: True
             Whether to fill the rectangle.
 
         Notes
@@ -1202,7 +1202,7 @@ class Arrow(Patch):
             Arrow length in the x direction
         dy : scalar
             Arrow length in the y direction
-        width : scalar, optional, default: 1
+        width : scalar, default: 1
             Scale factor for the width of the arrow. With a default value of 1,
             the tail width is 0.2 and head width is 0.6.
         **kwargs
@@ -1248,26 +1248,26 @@ class FancyArrow(Polygon):
         """
         Parameters
         ----------
-        width: float, optional, default: 0.001
+        width: float, default: 0.001
             Width of full arrow tail.
 
-        length_includes_head: bool, optional, default: False
+        length_includes_head: bool, default: False
             True if head is to be counted in calculating the length.
 
-        head_width: float or None, optional, default: 3*width
+        head_width: float or None, default: 3*width
             Total width of the full arrow head.
 
-        head_length: float or None, optional, default: 1.5*head_width
+        head_length: float or None, default: 1.5*head_width
             Length of arrow head.
 
-        shape: ['full', 'left', 'right'], optional, default: 'full'
+        shape: ['full', 'left', 'right'], default: 'full'
             Draw the left-half, right-half, or full arrow.
 
-        overhang: float, optional, default: 0
+        overhang: float, default: 0
             Fraction that the arrow is swept back (0 overhang means
             triangular shape). Can be negative or greater than one.
 
-        head_starts_at_zero: bool, optional, default: False
+        head_starts_at_zero: bool, default: False
             If True, the head starts being drawn at coordinate 0
             instead of ending at coordinate 0.
 
@@ -2408,7 +2408,7 @@ class FancyBboxPatch(Patch):
 
             %(AvailableBoxstyles)s
 
-        mutation_scale : float, optional, default: 1
+        mutation_scale : float, default: 1
             Scaling factor applied to the attributes of the box style
             (e.g. pad or rounding_size).
 
@@ -3336,11 +3336,11 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : 0.4
-                Length of the arrow head
+            head_length : float, default: 0.4
+                Length of the arrow head.
 
-            head_width : float, optional, default : 0.2
-                Width of the arrow head
+            head_width : float, default: 0.2
+                Width of the arrow head.
             """
             super().__init__(beginarrow=True, endarrow=False,
                              head_length=head_length, head_width=head_width)
@@ -3355,11 +3355,11 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : 0.4
-                Length of the arrow head
+            head_length : float, default: 0.4
+                Length of the arrow head.
 
-            head_width : float, optional, default : 0.2
-                Width of the arrow head
+            head_width : float, default: 0.2
+                Width of the arrow head.
             """
             super().__init__(beginarrow=False, endarrow=True,
                              head_length=head_length, head_width=head_width)
@@ -3374,11 +3374,11 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : 0.4
-                Length of the arrow head
+            head_length : float, default: 0.4
+                Length of the arrow head.
 
-            head_width : float, optional, default : 0.2
-                Width of the arrow head
+            head_width : float, default: 0.2
+                Width of the arrow head.
             """
             super().__init__(beginarrow=True, endarrow=True,
                              head_length=head_length, head_width=head_width)
@@ -3393,11 +3393,11 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : 0.4
-                Length of the arrow head
+            head_length : float, default: 0.4
+                Length of the arrow head.
 
-            head_width : float, optional, default : 0.2
-                Width of the arrow head
+            head_width : float, default: 0.2
+                Width of the arrow head.
             """
             super().__init__(beginarrow=True, endarrow=False,
                              fillbegin=True, fillend=False,
@@ -3413,11 +3413,11 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : 0.4
-                Length of the arrow head
+            head_length : float, default: 0.4
+                Length of the arrow head.
 
-            head_width : float, optional, default : 0.2
-                Width of the arrow head
+            head_width : float, default: 0.2
+                Width of the arrow head.
             """
             super().__init__(beginarrow=False, endarrow=True,
                              fillbegin=False, fillend=True,
@@ -3433,11 +3433,11 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : 0.4
-                Length of the arrow head
+            head_length : float, default: 0.4
+                Length of the arrow head.
 
-            head_width : float, optional, default : 0.2
-                Width of the arrow head
+            head_width : float, default: 0.2
+                Width of the arrow head.
             """
             super().__init__(beginarrow=True, endarrow=True,
                              fillbegin=True, fillend=True,
@@ -3532,23 +3532,23 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            widthA : float, optional, default : 1.0
-                Width of the bracket
+            widthA : float, default: 1.0
+                Width of the bracket.
 
-            lengthA : float, optional, default : 0.2
-                Length of the bracket
+            lengthA : float, default: 0.2
+                Length of the bracket.
 
-            angleA : float, optional, default : None
-                Angle between the bracket and the line
+            angleA : float, default: None
+                Angle between the bracket and the line.
 
-            widthB : float, optional, default : 1.0
-                Width of the bracket
+            widthB : float, default: 1.0
+                Width of the bracket.
 
-            lengthB : float, optional, default : 0.2
-                Length of the bracket
+            lengthB : float, default: 0.2
+                Length of the bracket.
 
-            angleB : float, optional, default : None
-                Angle between the bracket and the line
+            angleB : float, default: None
+                Angle between the bracket and the line.
             """
             super().__init__(True, True,
                              widthA=widthA, lengthA=lengthA, angleA=angleA,
@@ -3564,14 +3564,14 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            widthA : float, optional, default : 1.0
-                Width of the bracket
+            widthA : float, default: 1.0
+                Width of the bracket.
 
-            lengthA : float, optional, default : 0.2
-                Length of the bracket
+            lengthA : float, default: 0.2
+                Length of the bracket.
 
-            angleA : float, optional, default : None
-                Angle between the bracket and the line
+            angleA : float, default: None
+                Angle between the bracket and the line.
             """
             super().__init__(True, None,
                              widthA=widthA, lengthA=lengthA, angleA=angleA)
@@ -3586,14 +3586,14 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            widthB : float, optional, default : 1.0
-                Width of the bracket
+            widthB : float, default: 1.0
+                Width of the bracket.
 
-            lengthB : float, optional, default : 0.2
-                Length of the bracket
+            lengthB : float, default: 0.2
+                Length of the bracket.
 
-            angleB : float, optional, default : None
-                Angle between the bracket and the line
+            angleB : float, default: None
+                Angle between the bracket and the line.
             """
             super().__init__(None, True,
                              widthB=widthB, lengthB=lengthB, angleB=angleB)
@@ -3610,17 +3610,17 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            widthA : float, optional, default : 1.0
-                Width of the bracket
+            widthA : float, default: 1.0
+                Width of the bracket.
 
-            angleA : float, optional, default : None
-                Angle between the bracket and the line
+            angleA : float, default: None
+                Angle between the bracket and the line.
 
-            widthB : float, optional, default : 1.0
-                Width of the bracket
+            widthB : float, default: 1.0
+                Width of the bracket.
 
-            angleB : float, optional, default : None
-                Angle between the bracket and the line
+            angleB : float, default: None
+                Angle between the bracket and the line.
             """
             super().__init__(True, True,
                              widthA=widthA, lengthA=0, angleA=angleA,
@@ -3636,14 +3636,14 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : 0.5
-                Length of the arrow head
+            head_length : float, default: 0.5
+                Length of the arrow head.
 
-            head_width : float, optional, default : 0.5
-                Width of the arrow head
+            head_width : float, default: 0.5
+                Width of the arrow head.
 
-            tail_width : float, optional, default : 0.2
-                Width of the arrow tail
+            tail_width : float, default: 0.2
+                Width of the arrow tail.
             """
             self.head_length, self.head_width, self.tail_width = \
                 head_length, head_width, tail_width
@@ -3718,14 +3718,14 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : 0.4
-                Length of the arrow head
+            head_length : float, default: 0.4
+                Length of the arrow head.
 
-            head_width : float, optional, default : 0.4
-                Width of the arrow head
+            head_width : float, default: 0.4
+                Width of the arrow head.
 
-            tail_width : float, optional, default : 0.4
-                Width of the arrow tail
+            tail_width : float, default: 0.4
+                Width of the arrow tail.
             """
             self.head_length, self.head_width, self.tail_width = \
                 head_length, head_width, tail_width
@@ -3810,11 +3810,11 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            tail_width : float, optional, default : 0.3
-                Width of the tail
+            tail_width : float, default: 0.3
+                Width of the tail.
 
-            shrink_factor : float, optional, default : 0.5
-                Fraction of the arrow width at the middle point
+            shrink_factor : float, default: 0.5
+                Fraction of the arrow width at the middle point.
             """
             self.tail_width = tail_width
             self.shrink_factor = shrink_factor
@@ -3902,14 +3902,14 @@ class FancyArrowPatch(Patch):
 
         Parameters
         ----------
-        posA, posB : (float, float), optional, default: None
+        posA, posB : (float, float), default: None
             (x, y) coordinates of arrow tail and arrow head respectively.
 
-        path : `~matplotlib.path.Path`, optional, default: None
+        path : `~matplotlib.path.Path`, default: None
             If provided, an arrow is drawn along this path and *patchA*,
             *patchB*, *shrinkA*, and *shrinkB* are ignored.
 
-        arrowstyle : str or `.ArrowStyle`, optional, default: 'simple'
+        arrowstyle : str or `.ArrowStyle`, default: 'simple'
             Describes how the fancy arrow will be
             drawn. It can be string of the available arrowstyle names,
             with optional comma-separated attributes, or an
@@ -3934,23 +3934,23 @@ default: 'arc3'
         connector
             Ignored.
 
-        patchA, patchB : `.Patch`, optional, default: None
+        patchA, patchB : `.Patch`, default: None
             Head and tail patch respectively. :class:`matplotlib.patch.Patch`
             instance.
 
-        shrinkA, shrinkB : float, optional, default: 2
+        shrinkA, shrinkB : float, default: 2
             Shrinking factor of the tail and head of the arrow respectively.
 
-        mutation_scale : float, optional, default: 1
+        mutation_scale : float, default: 1
             Value with which attributes of *arrowstyle* (e.g., *head_length*)
             will be scaled.
 
-        mutation_aspect : None or float, optional, default: None
+        mutation_aspect : None or float, default: None
             The height of the rectangle will be squeezed by this value before
             the mutation and the mutated box will be stretched by the inverse
             of it.
 
-        dpi_cor : float, optional, default: 1
+        dpi_cor : float, default: 1
             dpi_cor is currently used for linewidth-related things and shrink
             factor. Mutation scale is affected by this.
 
@@ -4117,7 +4117,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        arrowstyle : None, ArrowStyle, str, optional, default: None
+        arrowstyle : None or ArrowStyle or str, default: None
             Can be a string with arrowstyle name with optional comma-separated
             attributes, e.g.::
 
