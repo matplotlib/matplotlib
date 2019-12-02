@@ -4,13 +4,15 @@ Make Room For Ylabel Using Axesgrid
 ===================================
 
 """
+
+import matplotlib.pyplot as plt
+
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_area_auto_adjustable
 
 
 plt.figure()
 ax = plt.axes([0, 0, 1, 1])
-#ax = plt.subplot(111)
 
 ax.set_yticks([0.5])
 ax.set_yticklabels(["very long label"])
