@@ -98,7 +98,7 @@ class HandlerBase:
             The legend for which these legend artists are being created.
         orig_handle : :class:`matplotlib.artist.Artist` or similar
             The object for which these legend artists are being created.
-        fontsize : float or int
+        fontsize : int
             The fontsize in pixels. The artists being created should
             be scaled according to the given fontsize.
         handlebox : :class:`matplotlib.offsetbox.OffsetBox` instance
@@ -553,8 +553,8 @@ class HandlerStem(HandlerNpointsYoffsets):
         """
         Parameters
         ----------
-        marker_pad : float
-            Padding between points in legend entry. Default is 0.3.
+        marker_pad : float, default: 0.3
+            Padding between points in legend entry.
 
         numpoints : int, optional
             Number of points to show in legend entry.
@@ -652,17 +652,15 @@ class HandlerTuple(HandlerBase):
 
     Parameters
     ----------
-    ndivide : int, optional
+    ndivide : int, optional, default: 1
         The number of sections to divide the legend area into. If None,
-        use the length of the input tuple. Default is 1.
-
-
-    pad : float, optional
-        If None, fall back to ``legend.borderpad`` as the default.
-        In units of fraction of font size. Default is None.
+        use the length of the input tuple.
+    pad : float, optional, default: None
+        Padding in units of fraction of font size.  If None, use
+        :rc:`legend.borderpad`.
     """
-    def __init__(self, ndivide=1, pad=None, **kwargs):
 
+    def __init__(self, ndivide=1, pad=None, **kwargs):
         self._ndivide = ndivide
         self._pad = pad
         HandlerBase.__init__(self, **kwargs)

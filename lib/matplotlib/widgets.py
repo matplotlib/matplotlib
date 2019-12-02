@@ -1662,20 +1662,20 @@ class SpanSelector(_SelectorWidget):
     direction : {"horizontal", "vertical"}
         The direction along which to draw the span selector.
 
-    minspan : float, default is None
+    minspan : float, default: None
         If selection is less than *minspan*, do not call *onselect*.
 
-    useblit : bool, default is False
+    useblit : bool, default: False
         If True, use the backend-dependent blitting features for faster
         canvas updates.
 
-    rectprops : dict, default is None
+    rectprops : dict, default: None
         Dictionary of `matplotlib.patches.Patch` properties.
 
-    onmove_callback : func(min, max), min/max are floats, default is None
+    onmove_callback : func(min, max), min/max are floats, default: None
         Called on mouse move while the span is being selected.
 
-    span_stays : bool, default is False
+    span_stays : bool, default: False
         If True, the span stays visible after the mouse is released.
 
     button : `.MouseButton` or list of `.MouseButton`
@@ -1964,7 +1964,7 @@ class RectangleSelector(_SelectorWidget):
                  lineprops=None, rectprops=None, spancoords='data',
                  button=None, maxdist=10, marker_props=None,
                  interactive=False, state_modifier_keys=None):
-        """
+        r"""
         Create a selector in *ax*.  When a selection is made, clear
         the span and call onselect with::
 
@@ -1997,10 +1997,8 @@ class RectangleSelector(_SelectorWidget):
         and *minspanx* will be interpreted in the same coordinates as
         the x and y axis. If 'pixels', they are in pixels.
 
-        *button* is a list of integers indicating which mouse buttons should
-        be used for rectangle selection.  You can also specify a single
-        integer if only a single button is desired.  Default is *None*,
-        which does not limit which button can be used.
+        *button* is the `.MouseButton` or list of `.MouseButton`\s used for
+        rectangle selection.  Default is *None*, which means any button.
 
         Note, typically:
          1 = left mouse button

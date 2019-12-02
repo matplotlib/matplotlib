@@ -727,10 +727,10 @@ class Path:
 
         Parameters
         ----------
-        center : pair of floats
-            The center of the circle. Default ``(0, 0)``.
-        radius : float
-            The radius of the circle. Default is 1.
+        center : (float, float), default: (0, 0)
+            The center of the circle.
+        radius : float, default: 1
+            The radius of the circle.
         readonly : bool
             Whether the created path should have the "readonly" argument
             set when creating the Path instance.

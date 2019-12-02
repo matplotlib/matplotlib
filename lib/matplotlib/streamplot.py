@@ -41,7 +41,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         The width of the stream lines. With a 2D array the line width can be
         varied across the grid. The array must have the same shape as *u*
         and *v*.
-    color : matplotlib color code, or 2D array
+    color : color or 2D array
         The streamline color. If given an array, its values are converted to
         colors using *cmap* and *norm*.  The array must have the same shape
         as *u* and *v*.
@@ -66,9 +66,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         Artists with lower zorder values are drawn first.
     maxlength : float
         Maximum length of streamline in axes coordinates.
-    integration_direction : {'forward', 'backward', 'both'}
+    integration_direction : {'forward', 'backward', 'both'}, default: 'both'
         Integrate the streamline in forward, backward or both directions.
-        default is ``'both'``.
 
     Returns
     -------

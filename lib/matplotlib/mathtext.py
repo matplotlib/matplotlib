@@ -54,7 +54,7 @@ def get_unicode_index(symbol, math=True):
     symbol : str
         A single unicode character, a TeX command (e.g. r'\pi') or a Type1
         symbol name (e.g. 'phi').
-    math : bool, default is True
+    math : bool, default: True
         If False, always treat as a single unicode character.
     """
     # for a non-math symbol, simply return its unicode index

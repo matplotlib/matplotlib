@@ -480,7 +480,7 @@ def num2date(x, tz=None):
         Number of days (fraction part represents hours, minutes, seconds)
         since 0001-01-01 00:00:00 UTC, plus one.
     tz : str, optional
-        Timezone of *x* (defaults to rcparams ``timezone``).
+        Timezone of *x* (defaults to :rc:`timezone`).
 
     Returns
     -------
@@ -659,8 +659,8 @@ class ConciseDateFormatter(ticker.Formatter):
 
             ['', '%Y', '%Y-%b', '%Y-%b-%d', '%Y-%b-%d', '%Y-%b-%d %H:%M']
 
-    show_offset : bool
-        Whether to show the offset or not.  Default is ``True``.
+    show_offset : bool, default: True
+        Whether to show the offset or not.
 
     Examples
     --------

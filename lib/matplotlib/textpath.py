@@ -376,11 +376,11 @@ class TextPath(Path):
             ``FontProperties`` with parameters from the
             :ref:`rcParams <matplotlib-rcparams>`.
 
-        _interpolation_steps : integer, optional
+        _interpolation_steps : int, optional
             (Currently ignored)
 
-        usetex : bool, optional
-            Whether to use tex rendering. Defaults to ``False``.
+        usetex : bool, optional, default: False
+            Whether to use tex rendering.
 
         Examples
         --------

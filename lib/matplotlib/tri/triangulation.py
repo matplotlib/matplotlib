@@ -11,11 +11,11 @@ class Triangulation:
     ----------
     x, y : array-like of shape (npoints)
         Coordinates of grid points.
-    triangles : integer array-like of shape (ntri, 3), optional
+    triangles : int array-like of shape (ntri, 3), optional
         For each triangle, the indices of the three points that make
         up the triangle, ordered in an anticlockwise manner.  If not
         specified, the Delaunay triangulation is calculated.
-    mask : boolean array-like of shape (ntri), optional
+    mask : bool array-like of shape (ntri), optional
         Which triangles are masked out.
 
     Attributes
@@ -193,8 +193,11 @@ class Triangulation:
 
     def set_mask(self, mask):
         """
-        Set or clear the mask array.  This is either None, or a boolean
-        array of shape (ntri).
+        Set or clear the mask array.
+
+        Parameters
+        ----------
+        mask : None or bool array of length ntri
         """
         if mask is None:
             self.mask = None

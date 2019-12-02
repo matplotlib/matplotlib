@@ -979,20 +979,16 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     noverlap : int, optional
         The number of points of overlap between blocks.  The default
         value is 128.
-    mode : str, optional
-        What sort of spectrum to use, default is 'psd'.
+    mode : str, optional, default: 'psd'
+        What sort of spectrum to use:
             'psd'
                 Returns the power spectral density.
-
             'complex'
                 Returns the complex-valued frequency spectrum.
-
             'magnitude'
                 Returns the magnitude spectrum.
-
             'angle'
                 Returns the phase spectrum without unwrapping.
-
             'phase'
                 Returns the phase spectrum with unwrapping.
 

@@ -872,8 +872,8 @@ class _CollectionWithSizes(Collection):
         sizes : ndarray or None
             The size to set for each element of the collection.  The
             value is the 'area' of the element.
-        dpi : float
-            The dpi of the canvas. Defaults to 72.0.
+        dpi : float, default: 72
+            The dpi of the canvas.
         """
         if sizes is None:
             self._sizes = np.array([])
@@ -1315,15 +1315,14 @@ class LineCollection(Collection):
         cmap : str or Colormap, optional
             Colormap name or `~.colors.Colormap` instance.
 
-        pickradius : float, optional
+        pickradius : float, optional, default: 5pt
             The tolerance in points for mouse clicks picking a line.
-            Default is 5 pt.
 
-        zorder : int, optional
-           zorder of the LineCollection. Default is 2.
+        zorder : int, optional, default: 2
+           zorder of the LineCollection.
 
-        facecolors : optional
-           The facecolors of the LineCollection. Default is 'none'.
+        facecolors : optional, default: 'none'
+           The facecolors of the LineCollection.
            Setting to a value other than 'none' will lead to a filled
            polygon being drawn between points on each line.
 
@@ -1432,8 +1431,8 @@ class LineCollection(Collection):
         Parameters
         ----------
         c : color or list of colors
-            Matplotlib color argument (all patches have same color), or a
-            sequence or rgba tuples; if it is a sequence the patches will
+            Single color (all patches have same color), or a
+            sequence of rgba tuples; if it is a sequence the patches will
             cycle through the sequence.
         """
         self.set_edgecolor(c)

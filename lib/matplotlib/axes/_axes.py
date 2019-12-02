@@ -106,8 +106,8 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        loc : {'center', 'left', 'right'}, str, optional
-            Which title to get, defaults to 'center'.
+        loc : {'center', 'left', 'right'}, str, optional, default: 'center'
+            Which title to return.
 
         Returns
         -------
@@ -381,8 +381,7 @@ class Axes(_AxesBase):
     def _remove_legend(self, legend):
         self.legend_ = None
 
-    def inset_axes(self, bounds, *, transform=None, zorder=5,
-            **kwargs):
+    def inset_axes(self, bounds, *, transform=None, zorder=5, **kwargs):
         """
         Add a child inset axes to this existing axes.
 
@@ -472,12 +471,11 @@ class Axes(_AxesBase):
             `ax.transAxes`, i.e. the units of *rect* are in axes-relative
             coordinates.
 
-        facecolor : Matplotlib color
-            Facecolor of the rectangle (default 'none').
+        facecolor : color, default: 'none'
+            Facecolor of the rectangle.
 
-        edgecolor : Matplotlib color
-            Color of the rectangle and color of the connecting lines.  Default
-            is '0.5'.
+        edgecolor : color, default: '0.5'
+            Color of the rectangle and color of the connecting lines.
 
         alpha : float
             Transparency of the rectangle and connector lines.  Default is 0.5.
@@ -971,15 +969,13 @@ class Axes(_AxesBase):
         Parameters
         ----------
         ymin : float
-               Lower limit of the horizontal span in data units.
+            Lower y-coordinate of the span, in data units.
         ymax : float
-               Upper limit of the horizontal span in data units.
+            Upper y-coordinate of the span, in data units.
         xmin : float, optional, default: 0
-               Lower limit of the vertical span in axes (relative
-               0-1) units.
+            Lower x-coordinate of the span, in x-axis (0-1) units.
         xmax : float, optional, default: 1
-               Upper limit of the vertical span in axes (relative
-               0-1) units.
+            Upper x-coordinate of the span, in x-axis (0-1) units.
 
         Returns
         -------
@@ -1024,18 +1020,14 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        xmin : scalar
-            Number indicating the first X-axis coordinate of the vertical
-            span rectangle in data units.
-        xmax : scalar
-            Number indicating the second X-axis coordinate of the vertical
-            span rectangle in data units.
-        ymin : scalar, optional
-            Number indicating the first Y-axis coordinate of the vertical
-            span rectangle in relative Y-axis units (0-1). Default to 0.
-        ymax : scalar, optional
-            Number indicating the second Y-axis coordinate of the vertical
-            span rectangle in relative Y-axis units (0-1). Default to 1.
+        xmin : float
+            Lower x-coordinate of the span, in data units.
+        xmax : float
+            Upper x-coordinate of the span, in data units.
+        ymin : float, optional, default: 0
+            Lower y-coordinate of the span, in y-axis units (0-1).
+        ymax : float, optional, default: 1
+            Upper y-coordinate of the span, in y-axis units (0-1).
 
         Returns
         -------
@@ -1923,7 +1915,7 @@ class Axes(_AxesBase):
         detrend : callable, optional, default: `mlab.detrend_none`
             *x* is detrended by the *detrend* callable. This must be a
             function ``x = detrend(x)`` accepting and returning an
-            `numpy.array`. Default is no normalization.
+            `numpy.array`. Default is no detrending.
 
         normed : bool, optional, default: True
             If ``True``, input vectors are normalised to unit length.
@@ -1993,7 +1985,7 @@ class Axes(_AxesBase):
         detrend : callable, optional, default: `mlab.detrend_none`
             *x* and *y* are detrended by the *detrend* callable. This must be a
             function ``x = detrend(x)`` accepting and returning an
-            `numpy.array`. Default is no normalization.
+            `numpy.array`. Default is no detrending.
 
         normed : bool, optional, default: True
             If ``True``, input vectors are normalised to unit length.
@@ -2220,11 +2212,11 @@ class Axes(_AxesBase):
         height : scalar or sequence of scalars
             The height(s) of the bars.
 
-        width : scalar or array-like, optional
-            The width(s) of the bars (default: 0.8).
+        width : scalar or array-like, optional, default: 0.8
+            The width(s) of the bars.
 
-        bottom : scalar or array-like, optional
-            The y coordinate(s) of the bars bases (default: 0).
+        bottom : scalar or array-like, optional, default: 0
+            The y coordinate(s) of the bars bases.
 
         align : {'center', 'edge'}, optional, default: 'center'
             Alignment of the bars to the *x* coordinates:
@@ -2495,8 +2487,8 @@ class Axes(_AxesBase):
         height : sequence of scalars, optional, default: 0.8
             The heights of the bars.
 
-        left : sequence of scalars
-            The x coordinates of the left sides of the bars (default: 0).
+        left : sequence of scalars, default: 0
+            The x coordinates of the left sides of the bars.
 
         align : {'center', 'edge'}, optional, default: 'center'
             Alignment of the base to the *y* coordinates*:
@@ -2706,10 +2698,8 @@ class Axes(_AxesBase):
             Default: 'C0o', i.e. filled circles with the first color of the
             color cycle.
 
-        basefmt : str, optional
+        basefmt : str, optional, default: 'C3-' ('C2-' in classic mode)
             A format string defining the properties of the baseline.
-
-            Default: 'C3-' ('C2-' in classic mode).
 
         bottom : float, optional, default: 0
             The y-position of the baseline.
@@ -2724,13 +2714,11 @@ class Axes(_AxesBase):
             option in Matplotlib 3.3. If ``False``, defaults to the old
             behavior of using a list of `.Line2D` objects.
 
-
         Returns
         -------
         container : :class:`~matplotlib.container.StemContainer`
             The container may be treated like a tuple
             (*markerline*, *stemlines*, *baseline*)
-
 
         Notes
         -----
@@ -2738,7 +2726,6 @@ class Axes(_AxesBase):
             The MATLAB function
             `stem <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
             which inspired this method.
-
         """
         if not 1 <= len(args) <= 5:
             raise TypeError('stem expected between 1 and 5 positional '
@@ -2868,9 +2855,8 @@ class Axes(_AxesBase):
             A sequence of strings providing the labels for each wedge
 
         colors : array-like, optional, default: None
-            A sequence of matplotlib color args through which the pie chart
-            will cycle.  If *None*, will use the colors in the currently
-            active cycle.
+            A sequence of colors through which the pie chart will cycle.  If
+            *None*, will use the colors in the currently active cycle.
 
         autopct : None (default), str, or function, optional
             If not *None*, is a string or function used to label the wedges
@@ -3518,7 +3504,7 @@ class Axes(_AxesBase):
             If `True`, draws vertical boxes.
             If `False`, draw horizontal boxes.
 
-        whis : float or (float, float) (default = 1.5)
+        whis : float or (float, float), default: 1.5
             The position of the whiskers.
 
             If a float, the lower whisker is at the lowest datum above
@@ -3814,38 +3800,38 @@ class Axes(_AxesBase):
           - ``label``: Name of the dataset (string). If available,
             this will be used a tick label for the boxplot
 
-        positions : array-like, default = [1, 2, ..., n]
+        positions : array-like, default: [1, 2, ..., n]
           Sets the positions of the boxes. The ticks and limits
           are automatically set to match the positions.
 
-        widths : array-like, default = None
+        widths : array-like, default: None
           Either a scalar or a vector and sets the width of each
           box. The default is ``0.15*(distance between extreme
           positions)``, clipped to no less than 0.15 and no more than
           0.5.
 
-        vert : bool, default = True
+        vert : bool, default: True
           If `True` (default), makes the boxes vertical.  If `False`,
           makes horizontal boxes.
 
-        patch_artist : bool, default = False
+        patch_artist : bool, default: False
           If `False` produces boxes with the `.Line2D` artist.
           If `True` produces boxes with the `~matplotlib.patches.Patch` artist.
 
-        shownotches : bool, default = False
+        shownotches : bool, default: False
           If `False` (default), produces a rectangular box plot.
           If `True`, will produce a notched box plot
 
-        showmeans : bool, default = False
+        showmeans : bool, default: False
           If `True`, will toggle on the rendering of the means
 
-        showcaps  : bool, default = True
+        showcaps  : bool, default: True
           If `True`, will toggle on the rendering of the caps
 
-        showbox  : bool, default = True
+        showbox  : bool, default: True
           If `True`, will toggle on the rendering of the box
 
-        showfliers : bool, default = True
+        showfliers : bool, default: True
           If `True`, will toggle on the rendering of the fliers
 
         boxprops : dict or None (default)
@@ -3866,17 +3852,17 @@ class Axes(_AxesBase):
         meanprops : dict or None (default)
           If provided, will set the plotting style of the means
 
-        meanline : bool, default = False
+        meanline : bool, default: False
           If `True` (and *showmeans* is `True`), will try to render the mean
           as a line spanning the full width of the box according to
           *meanprops*. Not recommended if *shownotches* is also True.
           Otherwise, means will be shown as points.
 
-        manage_ticks : bool, default = True
+        manage_ticks : bool, default: True
           If True, the tick locations and labels will be adjusted to match the
           boxplot positions.
 
-        zorder : scalar, default = None
+        zorder : scalar, default: None
           The zorder of the resulting boxplot.
 
         Returns
@@ -4333,8 +4319,8 @@ class Axes(_AxesBase):
 
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
             A `.Colormap` instance or registered colormap name. *cmap* is only
-            used if *c* is an array of floats. If ``None``, defaults to rc
-            ``image.cmap``.
+            used if *c* is an array of floats. If ``None``, defaults to
+            :rc:`image.cmap`.
 
         norm : `~matplotlib.colors.Normalize`, optional, default: None
             A `.Normalize` instance is used to scale luminance data to 0, 1.
@@ -4361,7 +4347,7 @@ optional.
 
             - 'face': The edge color will always be the same as the face color.
             - 'none': No patch boundary will be drawn.
-            - A Matplotlib color or sequence of color.
+            - A color or sequence of colors.
 
             Defaults to ``None``, in which case it takes the value of
             :rc:`scatter.edgecolors` = 'face'.
@@ -4369,7 +4355,7 @@ optional.
             For non-filled markers, the *edgecolors* kwarg is ignored and
             forced to 'face' internally.
 
-        plotnonfinite : boolean, optional, default: False
+        plotnonfinite : bool, optional, default: False
             Set to plot points with nonfinite *c*, in conjunction with
             `~matplotlib.colors.Colormap.set_bad`.
 
@@ -4595,9 +4581,9 @@ optional.
             - 'none': No edges are drawn. This can sometimes lead to unsightly
               unpainted pixels between the hexagons.
             - *None*: Draw outlines in the default color.
-            - An explicit matplotlib color.
+            - An explicit color.
 
-        reduce_C_function : callable, default is `numpy.mean`
+        reduce_C_function : callable, default: `numpy.mean`
             The function to aggregate *C* within the bins. It is ignored if
             *C* is not given. This must have the signature::
 
@@ -4939,21 +4925,16 @@ optional.
         ----------
         x, y : float
             The x and y coordinates of the arrow base.
+
         dx, dy : float
             The length of the arrow along x and y direction.
+
+        %(FancyArrow)s
 
         Returns
         -------
         arrow : `.FancyArrow`
             The created `.FancyArrow` object.
-
-        Other Parameters
-        ----------------
-        **kwargs
-            Optional kwargs (inherited from `.FancyArrow` patch) control the
-            arrow construction and properties:
-
-        %(FancyArrow)s
 
         Notes
         -----
@@ -7005,9 +6986,8 @@ optional.
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        return_line : bool
+        return_line : bool, default: False
             Whether to include the line object plotted in the returned values.
-            Default is False.
 
         Returns
         -------
@@ -7123,9 +7103,8 @@ optional.
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        return_line : bool
+        return_line : bool, default: False
             Whether to include the line object plotted in the returned values.
-            Default is False.
 
         Returns
         -------
@@ -7843,34 +7822,34 @@ optional.
         dataset : Array or a sequence of vectors.
           The input data.
 
-        positions : array-like, default = [1, 2, ..., n]
+        positions : array-like, default: [1, 2, ..., n]
           Sets the positions of the violins. The ticks and limits are
           automatically set to match the positions.
 
-        vert : bool, default = True.
+        vert : bool, default: True.
           If true, creates a vertical violin plot.
           Otherwise, creates a horizontal violin plot.
 
-        widths : array-like, default = 0.5
+        widths : array-like, default: 0.5
           Either a scalar or a vector that sets the maximal width of
           each violin. The default is 0.5, which uses about half of the
           available horizontal space.
 
-        showmeans : bool, default = False
+        showmeans : bool, default: False
           If `True`, will toggle rendering of the means.
 
-        showextrema : bool, default = True
+        showextrema : bool, default: True
           If `True`, will toggle rendering of the extrema.
 
-        showmedians : bool, default = False
+        showmedians : bool, default: False
           If `True`, will toggle rendering of the medians.
 
-        quantiles : array-like, default = None
+        quantiles : array-like, default: None
           If not None, set a list of floats in interval [0, 1] for each violin,
           which stands for the quantiles that will be rendered for that
           violin.
 
-        points : scalar, default = 100
+        points : scalar, default: 100
           Defines the number of points to evaluate each of the
           gaussian kernel density estimations at.
 
@@ -7959,26 +7938,26 @@ optional.
           - ``quantiles``: A list of scalars containing the quantile values
             for this violin's dataset.
 
-        positions : array-like, default = [1, 2, ..., n]
+        positions : array-like, default: [1, 2, ..., n]
           Sets the positions of the violins. The ticks and limits are
           automatically set to match the positions.
 
-        vert : bool, default = True.
+        vert : bool, default: True.
           If true, plots the violins vertically.
           Otherwise, plots the violins horizontally.
 
-        widths : array-like, default = 0.5
+        widths : array-like, default: 0.5
           Either a scalar or a vector that sets the maximal width of
           each violin. The default is 0.5, which uses about half of the
           available horizontal space.
 
-        showmeans : bool, default = False
+        showmeans : bool, default: False
           If true, will toggle rendering of the means.
 
-        showextrema : bool, default = True
+        showextrema : bool, default: True
           If true, will toggle rendering of the extrema.
 
-        showmedians : bool, default = False
+        showmedians : bool, default: False
           If true, will toggle rendering of the medians.
 
         Returns

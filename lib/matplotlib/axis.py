@@ -1300,10 +1300,9 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        minor : boolean
+        minor : bool, default: False
             True to return the minor tick directions,
-            False to return the major tick directions,
-            Default is False
+            False to return the major tick directions.
 
         Returns
         -------

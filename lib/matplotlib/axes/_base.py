@@ -1247,9 +1247,8 @@ class _AxesBase(martist.Artist):
 
             See `.set_anchor` for further details.
 
-        share : bool, optional
+        share : bool, optional, default: False
             If ``True``, apply the settings to all shared Axes.
-            Default is ``False``.
 
         See Also
         --------
@@ -1310,9 +1309,8 @@ class _AxesBase(martist.Artist):
             If 'box', change the physical dimensions of the Axes.
             If 'datalim', change the ``x`` or ``y`` data limits.
 
-        share : bool, optional
+        share : bool, optional, default: False
             If ``True``, apply the settings to all shared Axes.
-            Default is ``False``.
 
         See Also
         --------
@@ -1445,9 +1443,8 @@ class _AxesBase(martist.Artist):
               | 'SW' | 'S'  | 'SE' |
               +------+------+------+
 
-        share : bool, optional
+        share : bool, optional, default: False
             If ``True``, apply the settings to all shared Axes.
-            Default is ``False``.
 
         See Also
         --------
@@ -2059,8 +2056,8 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        visible_only : bool
-            Whether to exclude invisible artists.  Defaults to False.
+        visible_only : bool, default: False
+            Whether to exclude invisible artists.
         """
         # Collections are deliberately not supported (yet); see
         # the TODO note in artists.py.
@@ -2301,7 +2298,7 @@ class _AxesBase(martist.Artist):
             arguments, but can be used individually to alter on e.g.,
             only the y-axis.
 
-        tight : bool or None, default is True
+        tight : bool or None, default: True
             The *tight* parameter is passed to :meth:`autoscale_view`,
             which is executed after a margin is changed; the default
             here is *True*, on the assumption that when margins are
@@ -2373,14 +2370,12 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        enable : bool or None, optional
-            True (default) turns autoscaling on, False turns it off.
+        enable : bool or None, optional, default: True
+            True turns autoscaling on, False turns it off.
             None leaves the autoscaling state unchanged.
-
-        axis : {'both', 'x', 'y'}, optional
-            Which axis to operate on; default is 'both'.
-
-        tight : bool or None, optional
+        axis : {'both', 'x', 'y'}, optional, default: 'both'
+            Which axis to operate on.
+        tight : bool or None, optional, default: None
             If True, first set the margins to zero.  Then, this argument is
             forwarded to `autoscale_view` (regardless of its value); see the
             description of its behavior there.
@@ -2423,11 +2418,11 @@ class _AxesBase(martist.Artist):
             sets :rc:`axes.autolimit_mode` to 'data', in which case this
             behaves like True).
 
-        scalex : bool
-            Whether to autoscale the x axis (default is True).
+        scalex : bool, default: True
+            Whether to autoscale the x axis.
 
-        scaley : bool
-            Whether to autoscale the x axis (default is True).
+        scaley : bool, default: True
+            Whether to autoscale the y axis.
 
         Notes
         -----
@@ -3179,12 +3174,12 @@ class _AxesBase(martist.Artist):
             The right xlim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
-        emit : bool, optional
-            Whether to notify observers of limit change (default: True).
+        emit : bool, optional, default: True
+            Whether to notify observers of limit change.
 
-        auto : bool or None, optional
+        auto : bool or None, optional, default: False
             Whether to turn on autoscaling of the x-axis. True turns on,
-            False turns off (default action), None leaves unchanged.
+            False turns off, None leaves unchanged.
 
         xmin, xmax : scalar, optional
             They are equivalent to left and right respectively,
@@ -3355,10 +3350,8 @@ class _AxesBase(martist.Artist):
         ----------
         ticks : list
             List of x-axis tick locations.
-
-        minor : bool, optional
+        minor : bool, optional, default: False
             If ``False`` sets major ticks, if ``True`` sets minor ticks.
-            Default is ``False``.
         """
         ret = self.xaxis.set_ticks(ticks, minor=minor)
         self.stale = True
@@ -3562,12 +3555,12 @@ class _AxesBase(martist.Artist):
             The top ylim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
-        emit : bool, optional
-            Whether to notify observers of limit change (default: ``True``).
+        emit : bool, optional, default: True
+            Whether to notify observers of limit change.
 
-        auto : bool or None, optional
+        auto : bool or None, optional, default: False
             Whether to turn on autoscaling of the y-axis. *True* turns on,
-            *False* turns off (default action), *None* leaves unchanged.
+            *False* turns off, *None* leaves unchanged.
 
         ymin, ymax : scalar, optional
             They are equivalent to bottom and top respectively,
@@ -3738,10 +3731,8 @@ class _AxesBase(martist.Artist):
         ----------
         ticks : list
             List of y-axis tick locations
-
-        minor : bool, optional
+        minor : bool, optional, default: False
             If ``False`` sets major ticks, if ``True`` sets minor ticks.
-            Default is ``False``.
         """
         ret = self.yaxis.set_ticks(ticks, minor=minor)
         return ret
@@ -4330,7 +4321,7 @@ class _AxesBase(martist.Artist):
             ``None`` (default), then all artist children of the axes are
             included in the tight bounding box.
 
-        call_axes_locator : boolean (default ``True``)
+        call_axes_locator : bool, default: True
             If *call_axes_locator* is ``False``, it does not call the
             ``_axes_locator`` attribute, which is necessary to get the correct
             bounding box. ``call_axes_locator=False`` can be used if the
