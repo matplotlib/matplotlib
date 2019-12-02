@@ -14,7 +14,7 @@ A module for parsing and generating `fontconfig patterns`_.
 
 from functools import lru_cache
 import re
-
+import numpy as np
 from pyparsing import (Literal, ZeroOrMore, Optional, Regex, StringEnd,
                        ParseException, Suppress)
 
@@ -183,14 +183,11 @@ def _escape_val(val, escape_func):
     the input escape function to make the values into legal font config
     strings.  The result is returned as a string.
     """
-    if isinstance(val, list):
-        val = [escape_func(r'\\\1', str(x)) for x in val
-               if x is not None]
-        val = ','.join(val)
-    else:
-        val = escape_func(r'\\\1', str(val))
+    if not np.iterable(val) or isinstance(val, str):
+        val = [val]
 
-    return val
+    return ','.join(escape_func(r'\\\1', str(x)) for x in val
+                    if x is not None)
 
 
 def generate_fontconfig_pattern(d):
@@ -208,6 +205,7 @@ def generate_fontconfig_pattern(d):
     # The other keys are added as key=value
     for key in ['style', 'variant', 'weight', 'stretch', 'file', 'size']:
         val = getattr(d, 'get_' + key)()
+        # Don't use 'if not val' because 0 is a valid input.
         if val is not None and val != []:
             props.append(":%s=%s" % (key, _escape_val(val, value_escape)))
 
