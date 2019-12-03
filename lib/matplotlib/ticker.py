@@ -837,15 +837,15 @@ class LogFormatter(Formatter):
 
     Parameters
     ----------
-    base : float, optional, default: 10.
+    base : float, default: 10.
         Base of the logarithm used in all calculations.
 
-    labelOnlyBase : bool, optional, default: False
+    labelOnlyBase : bool, default: False
         If True, label ticks only at integer powers of base.
         This is normally True for major ticks and False for
         minor ticks.
 
-    minor_thresholds : (subset, all), optional, default: (1, 0.4)
+    minor_thresholds : (subset, all), default: (1, 0.4)
         If labelOnlyBase is False, these two numbers control
         the labeling of ticks that are not at integer powers of
         base; normally these are the minor ticks. The controlling
@@ -857,7 +857,7 @@ class LogFormatter(Formatter):
         avoid crowding. If ``numdec > subset`` then no minor ticks will
         be labeled.
 
-    linthresh : None or float, optional, default: None
+    linthresh : None or float, default: None
         If a symmetric log scale is in use, its ``linthresh``
         parameter must be supplied here.
 
@@ -1391,11 +1391,11 @@ class EngFormatter(Formatter):
         r"""
         Parameters
         ----------
-        unit : str, optional, default: ""
+        unit : str, default: ""
             Unit symbol to use, suitable for use with single-letter
             representations of powers of 1000. For example, 'Hz' or 'm'.
 
-        places : int, optional, default: None
+        places : int, default: None
             Precision with which to display the number, specified in
             digits after the decimal point (there will be between one
             and three digits before the decimal point). If it is None,
@@ -1403,7 +1403,7 @@ class EngFormatter(Formatter):
             which displays up to 6 *significant* digits, i.e. the equivalent
             value for *places* varies between 0 and 5 (inclusive).
 
-        sep : str, optional, default: " "
+        sep : str, default: " "
             Separator used between the value and the prefix/unit. For
             example, one get '3.14 mV' if ``sep`` is " " (default) and
             '3.14mV' if ``sep`` is "". Besides the default behavior, some
@@ -2034,7 +2034,7 @@ class MaxNLocator(Locator):
         """
         Parameters
         ----------
-        nbins : int or 'auto', optional, default: 10
+        nbins : int or 'auto', default: 10
             Maximum number of intervals; one less than max number of
             ticks.  If the string 'auto', the number of bins will be
             automatically determined based on the length of the axis.
@@ -2047,24 +2047,24 @@ class MaxNLocator(Locator):
             they are multiples of 2.  However, 30, 60, 90 would not
             be allowed because 3 does not appear in the list of steps.
 
-        integer : bool, optional, default: False
+        integer : bool, default: False
             If True, ticks will take only integer values, provided
             at least `min_n_ticks` integers are found within the
             view limits.
 
-        symmetric : bool, optional, default: False
+        symmetric : bool, default: False
             If True, autoscaling will result in a range symmetric about zero.
 
-        prune : {'lower', 'upper', 'both', None}, optional, default: None
+        prune : {'lower', 'upper', 'both', None}, default: None
             Remove edge ticks -- useful for stacked or ganged plots where
             the upper tick of one axes overlaps with the lower tick of the
             axes above it, primarily when :rc:`axes.autolimit_mode` is
             ``'round_numbers'``.  If ``prune=='lower'``, the smallest tick will
             be removed.  If ``prune == 'upper'``, the largest tick will be
             removed.  If ``prune == 'both'``, the largest and smallest ticks
-            will be removed.  If ``prune == None``, no ticks will be removed.
+            will be removed.  If *prune* is *None*, no ticks will be removed.
 
-        min_n_ticks : int, optional, default: 2
+        min_n_ticks : int, default: 2
             Relax *nbins* and *integer* constraints if necessary to obtain
             this minimum number of ticks.
 

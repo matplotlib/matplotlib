@@ -106,7 +106,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        loc : {'center', 'left', 'right'}, str, optional, default: 'center'
+        loc : {'center', 'left', 'right'}, str, default: 'center'
             Which title to return.
 
         Returns
@@ -206,7 +206,7 @@ class Axes(_AxesBase):
         xlabel : str
             The label text.
 
-        labelpad : scalar, optional, default: None
+        labelpad : float, default: None
             Spacing in points from the axes bounding box including ticks
             and tick labels.
 
@@ -239,7 +239,7 @@ class Axes(_AxesBase):
         ylabel : str
             The label text.
 
-        labelpad : scalar, optional, default: None
+        labelpad : float, default: None
             Spacing in points from the axes bounding box including ticks
             and tick labels.
 
@@ -676,11 +676,11 @@ class Axes(_AxesBase):
         s : str
             The text.
 
-        fontdict : dictionary, optional, default: None
+        fontdict : dict, default: None
             A dictionary to override the default text properties. If fontdict
             is None, the defaults are determined by your rc parameters.
 
-        withdash : boolean, optional, default: False
+        withdash : bool, default: False
             Creates a `~matplotlib.text.TextWithDash` instance instead of a
             `~matplotlib.text.Text` instance.
 
@@ -764,14 +764,14 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        y : scalar, optional, default: 0
+        y : float, default: 0
             y position in data coordinates of the horizontal line.
 
-        xmin : scalar, optional, default: 0
+        xmin : float, default: 0
             Should be between 0 and 1, 0 being the far left of the plot, 1 the
             far right of the plot.
 
-        xmax : scalar, optional, default: 1
+        xmax : float, default: 1
             Should be between 0 and 1, 0 being the far left of the plot, 1 the
             far right of the plot.
 
@@ -833,14 +833,14 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x : scalar, optional, default: 0
+        x : float, default: 0
             x position in data coordinates of the vertical line.
 
-        ymin : scalar, optional, default: 0
+        ymin : float, default: 0
             Should be between 0 and 1, 0 being the bottom of the plot, 1 the
             top of the plot.
 
-        ymax : scalar, optional, default: 1
+        ymax : float, default: 1
             Should be between 0 and 1, 0 being the bottom of the plot, 1 the
             top of the plot.
 
@@ -972,9 +972,9 @@ class Axes(_AxesBase):
             Lower y-coordinate of the span, in data units.
         ymax : float
             Upper y-coordinate of the span, in data units.
-        xmin : float, optional, default: 0
+        xmin : float, default: 0
             Lower x-coordinate of the span, in x-axis (0-1) units.
-        xmax : float, optional, default: 1
+        xmax : float, default: 1
             Upper x-coordinate of the span, in x-axis (0-1) units.
 
         Returns
@@ -1024,9 +1024,9 @@ class Axes(_AxesBase):
             Lower x-coordinate of the span, in data units.
         xmax : float
             Upper x-coordinate of the span, in data units.
-        ymin : float, optional, default: 0
+        ymin : float, default: 0
             Lower y-coordinate of the span, in y-axis units (0-1).
-        ymax : float, optional, default: 1
+        ymax : float, default: 1
             Upper y-coordinate of the span, in y-axis units (0-1).
 
         Returns
@@ -1083,11 +1083,11 @@ class Axes(_AxesBase):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have same length.
 
-        colors : array-like of colors, optional, default: 'k'
+        colors : array-like of colors, default: 'k'
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
-        label : str, optional, default: ''
+        label : str, default: ''
 
         Returns
         -------
@@ -1161,11 +1161,11 @@ class Axes(_AxesBase):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have same length.
 
-        colors : array-like of colors, optional, default: 'k'
+        colors : array-like of colors, default: 'k'
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
-        label : str, optional, default: ''
+        label : str, default: ''
 
         Returns
         -------
@@ -1257,19 +1257,19 @@ class Axes(_AxesBase):
             - 'vertical': the lines are arranged vertically in columns,
               and are horizontal.
 
-        lineoffsets : scalar or sequence of scalars, optional, default: 1
+        lineoffsets : scalar or sequence of scalars, default: 1
             The offset of the center of the lines from the origin, in the
             direction orthogonal to *orientation*.
 
-        linelengths : scalar or sequence of scalars, optional, default: 1
+        linelengths : scalar or sequence of scalars, default: 1
             The total height of the lines (i.e. the lines stretches from
             ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
 
-        linewidths : scalar, scalar sequence or None, optional, default: None
+        linewidths : scalar, scalar sequence or None, default: None
             The line width(s) of the event lines, in points. If it is None,
             defaults to its rcParams setting.
 
-        colors : color, sequence of colors or None, optional, default: None
+        colors : color, sequence of colors or None, default: None
             The color(s) of the event lines. If it is None, defaults to its
             rcParams setting.
 
@@ -1554,7 +1554,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        scalex, scaley : bool, optional, default: True
+        scalex, scaley : bool, default: True
             These parameters determined if the view limits are adapted to
             the data limits. The values are passed on to `autoscale_view`.
 
@@ -1702,10 +1702,10 @@ class Axes(_AxesBase):
             The time zone to use in labeling dates. If *None*, defaults to
             :rc:`timezone`.
 
-        xdate : bool, optional, default: True
+        xdate : bool, default: True
             If *True*, the *x*-axis will be interpreted as Matplotlib dates.
 
-        ydate : bool, optional, default: False
+        ydate : bool, default: False
             If *True*, the *y*-axis will be interpreted as Matplotlib dates.
 
 
@@ -1912,15 +1912,15 @@ class Axes(_AxesBase):
         ----------
         x : array-like
 
-        detrend : callable, optional, default: `mlab.detrend_none`
+        detrend : callable, default: `mlab.detrend_none`
             *x* is detrended by the *detrend* callable. This must be a
             function ``x = detrend(x)`` accepting and returning an
             `numpy.array`. Default is no detrending.
 
-        normed : bool, optional, default: True
+        normed : bool, default: True
             If ``True``, input vectors are normalised to unit length.
 
-        usevlines : bool, optional, default: True
+        usevlines : bool, default: True
             Determines the plot style.
 
             If ``True``, vertical lines are plotted from 0 to the acorr value
@@ -1930,7 +1930,7 @@ class Axes(_AxesBase):
             If ``False``, markers are plotted at the acorr values using
             `Axes.plot`.
 
-        maxlags : int, optional, default: 10
+        maxlags : int, default: 10
             Number of lags to show. If ``None``, will return all
             ``2 * len(x) - 1`` lags.
 
@@ -1955,7 +1955,7 @@ class Axes(_AxesBase):
             The linestyle for plotting the data points.
             Only used if *usevlines* is ``False``.
 
-        marker : str, optional, default: 'o'
+        marker : str, default: 'o'
             The marker for plotting the data points.
             Only used if *usevlines* is ``False``.
 
@@ -1982,15 +1982,15 @@ class Axes(_AxesBase):
 
         y : array-like of length n
 
-        detrend : callable, optional, default: `mlab.detrend_none`
+        detrend : callable, default: `mlab.detrend_none`
             *x* and *y* are detrended by the *detrend* callable. This must be a
             function ``x = detrend(x)`` accepting and returning an
             `numpy.array`. Default is no detrending.
 
-        normed : bool, optional, default: True
+        normed : bool, default: True
             If ``True``, input vectors are normalised to unit length.
 
-        usevlines : bool, optional, default: True
+        usevlines : bool, default: True
             Determines the plot style.
 
             If ``True``, vertical lines are plotted from 0 to the xcorr value
@@ -2000,7 +2000,7 @@ class Axes(_AxesBase):
             If ``False``, markers are plotted at the xcorr values using
             `Axes.plot`.
 
-        maxlags : int, optional, default: 10
+        maxlags : int, default: 10
             Number of lags to show. If None, will return all ``2 * len(x) - 1``
             lags.
 
@@ -2025,7 +2025,7 @@ class Axes(_AxesBase):
             The linestyle for plotting the data points.
             Only used if *usevlines* is ``False``.
 
-        marker : str, optional, default: 'o'
+        marker : str, default: 'o'
             The marker for plotting the data points.
             Only used if *usevlines* is ``False``.
 
@@ -2107,7 +2107,7 @@ class Axes(_AxesBase):
             An object with labelled data. If given, provide the label names to
             plot in *x* and *y*.
 
-        where : {'pre', 'post', 'mid'}, optional, default 'pre'
+        where : {'pre', 'post', 'mid'}, default: 'pre'
             Define where the steps should be placed:
 
             - 'pre': The y value is continued constantly to the left from
@@ -2212,13 +2212,13 @@ class Axes(_AxesBase):
         height : scalar or sequence of scalars
             The height(s) of the bars.
 
-        width : scalar or array-like, optional, default: 0.8
+        width : scalar or array-like, default: 0.8
             The width(s) of the bars.
 
-        bottom : scalar or array-like, optional, default: 0
+        bottom : scalar or array-like, default: 0
             The y coordinate(s) of the bars bases.
 
-        align : {'center', 'edge'}, optional, default: 'center'
+        align : {'center', 'edge'}, default: 'center'
             Alignment of the bars to the *x* coordinates:
 
             - 'center': Center the base on the *x* positions.
@@ -2261,7 +2261,7 @@ class Axes(_AxesBase):
             See :doc:`/gallery/statistics/errorbar_features`
             for an example on the usage of ``xerr`` and ``yerr``.
 
-        ecolor : scalar or array-like, optional, default: 'black'
+        ecolor : scalar or array-like, default: 'black'
             The line color of the errorbars.
 
         capsize : scalar, optional
@@ -2274,7 +2274,7 @@ class Axes(_AxesBase):
             method. Values of *ecolor* or *capsize* defined here take
             precedence over the independent kwargs.
 
-        log : bool, optional, default: False
+        log : bool, default: False
             If *True*, set the y-axis to be log scale.
 
         orientation : {'vertical',  'horizontal'}, optional
@@ -2484,13 +2484,13 @@ class Axes(_AxesBase):
         width : scalar or array-like
             The width(s) of the bars.
 
-        height : sequence of scalars, optional, default: 0.8
+        height : sequence of scalars, default: 0.8
             The heights of the bars.
 
         left : sequence of scalars, default: 0
             The x coordinates of the left sides of the bars.
 
-        align : {'center', 'edge'}, optional, default: 'center'
+        align : {'center', 'edge'}, default: 'center'
             Alignment of the base to the *y* coordinates*:
 
             - 'center': Center the bars on the *y* positions.
@@ -2534,7 +2534,7 @@ class Axes(_AxesBase):
             See :doc:`/gallery/statistics/errorbar_features`
             for an example on the usage of ``xerr`` and ``yerr``.
 
-        ecolor : scalar or array-like, optional, default: 'black'
+        ecolor : scalar or array-like, default: 'black'
             The line color of the errorbars.
 
         capsize : scalar, optional
@@ -2547,7 +2547,7 @@ class Axes(_AxesBase):
             method. Values of *ecolor* or *capsize* defined here take
             precedence over the independent kwargs.
 
-        log : bool, optional, default: False
+        log : bool, default: False
             If ``True``, set the x-axis to be log scale.
 
         See also
@@ -2698,16 +2698,16 @@ class Axes(_AxesBase):
             Default: 'C0o', i.e. filled circles with the first color of the
             color cycle.
 
-        basefmt : str, optional, default: 'C3-' ('C2-' in classic mode)
+        basefmt : str, default: 'C3-' ('C2-' in classic mode)
             A format string defining the properties of the baseline.
 
-        bottom : float, optional, default: 0
+        bottom : float, default: 0
             The y-position of the baseline.
 
-        label : str, optional, default: None
+        label : str, default: None
             The label to use for the stems in legends.
 
-        use_line_collection : bool, optional, default: False
+        use_line_collection : bool, default: False
             If ``True``, store and plot the stem lines as a
             `~.collections.LineCollection` instead of individual lines. This
             significantly increases performance, and will become the default
@@ -2847,63 +2847,62 @@ class Axes(_AxesBase):
         x : array-like
             The wedge sizes.
 
-        explode : array-like, optional, default: None
+        explode : array-like, default: None
             If not *None*, is a ``len(x)`` array which specifies the fraction
             of the radius with which to offset each wedge.
 
-        labels : list, optional, default: None
+        labels : list, default: None
             A sequence of strings providing the labels for each wedge
 
-        colors : array-like, optional, default: None
+        colors : array-like, default: None
             A sequence of colors through which the pie chart will cycle.  If
             *None*, will use the colors in the currently active cycle.
 
-        autopct : None (default), str, or function, optional
+        autopct : None or str or callable, default: None
             If not *None*, is a string or function used to label the wedges
             with their numeric value.  The label will be placed inside the
             wedge.  If it is a format string, the label will be ``fmt%pct``.
             If it is a function, it will be called.
 
-        pctdistance : float, optional, default: 0.6
+        pctdistance : float, default: 0.6
             The ratio between the center of each pie slice and the start of
             the text generated by *autopct*.  Ignored if *autopct* is *None*.
 
-        shadow : bool, optional, default: False
+        shadow : bool, default: False
             Draw a shadow beneath the pie.
 
-        labeldistance : float or None, optional, default: 1.1
+        labeldistance : float or None, default: 1.1
             The radial distance at which the pie labels are drawn.
             If set to ``None``, label are not drawn, but are stored for use in
             ``legend()``
 
-        startangle : float, optional, default: None
+        startangle : float, default: None
             If not *None*, rotates the start of the pie chart by *angle*
             degrees counterclockwise from the x-axis.
 
-        radius : float, optional, default: None
+        radius : float, default: None
             The radius of the pie, if *radius* is *None* it will be set to 1.
 
-        counterclock : bool, optional, default: True
+        counterclock : bool, default: True
             Specify fractions direction, clockwise or counterclockwise.
 
-        wedgeprops : dict, optional, default: None
+        wedgeprops : dict, default: None
             Dict of arguments passed to the wedge objects making the pie.
             For example, you can pass in ``wedgeprops = {'linewidth': 3}``
             to set the width of the wedge border lines equal to 3.
             For more details, look at the doc/arguments of the wedge object.
             By default ``clip_on=False``.
 
-        textprops : dict, optional, default: None
+        textprops : dict, default: None
             Dict of arguments to pass to the text objects.
 
-        center : list of float, optional, default: (0, 0)
-            Center position of the chart. Takes value (0, 0) or is a sequence
-            of 2 scalars.
+        center : (float, float), default: (0, 0)
+            The coordinates of the center of the chart.
 
-        frame : bool, optional, default: False
+        frame : bool, default: False
             Plot axes frame with the chart if true.
 
-        rotatelabels : bool, optional, default: False
+        rotatelabels : bool, default: False
             Rotate each label to the angle of the corresponding slice if true.
 
         Returns
@@ -3093,26 +3092,26 @@ class Axes(_AxesBase):
             See :doc:`/gallery/statistics/errorbar_features`
             for an example on the usage of ``xerr`` and ``yerr``.
 
-        fmt : str, optional, default: ''
+        fmt : str, default: ''
             The format for the data points / data lines. See `.plot` for
             details.
 
             Use 'none' (case insensitive) to plot errorbars without any data
             markers.
 
-        ecolor : color, optional, default: None
+        ecolor : color, default: None
             The color of the errorbar lines.  If None, use the color of the
             line connecting the markers.
 
-        elinewidth : scalar, optional, default: None
+        elinewidth : scalar, default: None
             The linewidth of the errorbar lines. If None, the linewidth of
             the current style is used.
 
-        capsize : scalar, optional, default: None
+        capsize : scalar, default: None
             The length of the error bar caps in points. If None, it will take
             the value from :rc:`errorbar.capsize`.
 
-        capthick : scalar, optional, default: None
+        capthick : scalar, default: None
             An alias to the keyword argument *markeredgewidth* (a.k.a. *mew*).
             This setting is a more sensible name for the property that
             controls the thickness of the error bar cap in points. For
@@ -3120,18 +3119,18 @@ class Axes(_AxesBase):
             then they will over-ride *capthick*. This may change in future
             releases.
 
-        barsabove : bool, optional, default: False
+        barsabove : bool, default: False
             If True, will plot the errorbars above the plot
             symbols. Default is below.
 
-        lolims, uplims, xlolims, xuplims : bool, optional, default: False
+        lolims, uplims, xlolims, xuplims : bool, default: False
             These arguments can be used to indicate that a value gives only
             upper/lower limits. In that case a caret symbol is used to
             indicate this. *lims*-arguments may be of the same type as *xerr*
             and *yerr*.  To use limits with inverted axes, :meth:`set_xlim`
             or :meth:`set_ylim` must be called before :meth:`errorbar`.
 
-        errorevery : int or (int, int), optional, default: 1
+        errorevery : int or (int, int), default: 1
             draws error bars on a subset of the data. *errorevery* =N draws
             error bars on the points (x[::N], y[::N]).
             *errorevery* =(start, N) draws error bars on the points
@@ -3478,7 +3477,7 @@ class Axes(_AxesBase):
         x : Array or a sequence of vectors.
             The input data.
 
-        notch : bool, optional, default: False
+        notch : bool, default: False
             If `True`, will produce a notched box plot. Otherwise, a
             rectangular boxplot is produced. The notches represent the
             confidence interval (CI) around the median. See the entry
@@ -3500,7 +3499,7 @@ class Axes(_AxesBase):
             fliers default to 'b+'  If you want more control use the
             flierprops kwarg.
 
-        vert : bool, optional, default: True
+        vert : bool, default: True
             If `True`, draws vertical boxes.
             If `False`, draw horizontal boxes.
 
@@ -3562,7 +3561,7 @@ class Axes(_AxesBase):
             sequence. The default is 0.5, or ``0.15*(distance between
             extreme positions)``, if that is smaller.
 
-        patch_artist : bool, optional, default: False
+        patch_artist : bool, default: False
             If `False` produces boxes with the Line2D artist. Otherwise,
             boxes and drawn with Patch artists.
 
@@ -3570,46 +3569,46 @@ class Axes(_AxesBase):
             Labels for each dataset. Length must be compatible with
             dimensions of ``x``.
 
-        manage_ticks : bool, optional, default: True
+        manage_ticks : bool, default: True
             If True, the tick locations and labels will be adjusted to match
             the boxplot positions.
 
-        autorange : bool, optional, default: False
+        autorange : bool, default: False
             When `True` and the data are distributed such that the 25th and
             75th percentiles are equal, ``whis`` is set to (0, 100) such
             that the whisker ends are at the minimum and maximum of the data.
 
-        meanline : bool, optional, default: False
+        meanline : bool, default: False
             If `True` (and ``showmeans`` is `True`), will try to render
             the mean as a line spanning the full width of the box
             according to ``meanprops`` (see below). Not recommended if
             ``shownotches`` is also True. Otherwise, means will be shown
             as points.
 
-        zorder : scalar, optional, default: None
+        zorder : scalar, default: None
             Sets the zorder of the boxplot.
 
         Other Parameters
         ----------------
-        showcaps : bool, optional, default: True
+        showcaps : bool, default: True
             Show the caps on the ends of whiskers.
-        showbox : bool, optional, default: True
+        showbox : bool, default: True
             Show the central box.
-        showfliers : bool, optional, default: True
+        showfliers : bool, default: True
             Show the outliers beyond the caps.
-        showmeans : bool, optional, default: False
+        showmeans : bool, default: False
             Show the arithmetic means.
-        capprops : dict, optional, default: None
+        capprops : dict, default: None
             The style of the caps.
-        boxprops : dict, optional, default: None
+        boxprops : dict, default: None
             The style of the box.
-        whiskerprops : dict, optional, default: None
+        whiskerprops : dict, default: None
             The style of the whiskers.
-        flierprops : dict, optional, default: None
+        flierprops : dict, default: None
             The style of the fliers.
-        medianprops : dict, optional, default: None
+        medianprops : dict, default: None
             The style of the median.
-        meanprops : dict, optional, default: None
+        meanprops : dict, default: None
             The style of the mean.
 
         Returns
@@ -4317,26 +4316,26 @@ class Axes(_AxesBase):
             :rc:`scatter.marker` = 'o'.
             See `~matplotlib.markers` for more information about marker styles.
 
-        cmap : `~matplotlib.colors.Colormap`, optional, default: None
+        cmap : `~matplotlib.colors.Colormap`, optional
             A `.Colormap` instance or registered colormap name. *cmap* is only
             used if *c* is an array of floats. If ``None``, defaults to
             :rc:`image.cmap`.
 
-        norm : `~matplotlib.colors.Normalize`, optional, default: None
+        norm : `~matplotlib.colors.Normalize`, default: None
             A `.Normalize` instance is used to scale luminance data to 0, 1.
             *norm* is only used if *c* is an array of floats. If *None*, use
             the default `.colors.Normalize`.
 
-        vmin, vmax : scalar, optional, default: None
+        vmin, vmax : scalar, default: None
             *vmin* and *vmax* are used in conjunction with *norm* to normalize
             luminance data. If None, the respective min and max of the color
             array is used. *vmin* and *vmax* are ignored if you pass a *norm*
             instance.
 
-        alpha : scalar, optional, default: None
+        alpha : scalar, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-        linewidths : scalar or array-like, optional, default: None
+        linewidths : scalar or array-like, default: None
             The linewidth of the marker edges. Note: The default *edgecolors*
             is 'face'. You may want to change this as well.
             If *None*, defaults to :rc:`lines.linewidth`.
@@ -4355,7 +4354,7 @@ optional.
             For non-filled markers, the *edgecolors* kwarg is ignored and
             forced to 'face' internally.
 
-        plotnonfinite : bool, optional, default: False
+        plotnonfinite : bool, default: False
             Set to plot points with nonfinite *c*, in conjunction with
             `~matplotlib.colors.Colormap.set_bad`.
 
@@ -4512,7 +4511,7 @@ optional.
             Alternatively, if a tuple (*nx*, *ny*), the number of hexagons
             in the *x*-direction and the *y*-direction.
 
-        bins : 'log' or int or sequence, default: *None*
+        bins : 'log' or int or sequence, default: None
             Discretization of the hexagon values.
 
             - If *None*, no binning is applied; the color of each hexagon
@@ -4562,7 +4561,7 @@ optional.
             colormap range [0, 1] for mapping to colors. By default, the data
             range is mapped to the colorbar range using linear scaling.
 
-        vmin, vmax : float, optional, default: None
+        vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of the bins in case of the default
@@ -5080,10 +5079,10 @@ optional.
         y1 : array (length N) or scalar
             The y coordinates of the nodes defining the first curve.
 
-        y2 : array (length N) or scalar, optional, default: 0
+        y2 : array (length N) or scalar, default: 0
             The y coordinates of the nodes defining the second curve.
 
-        where : array of bool (length N), optional, default: None
+        where : array of bool (length N), optional
             Define *where* to exclude some horizontal regions from being
             filled. The filled regions are defined by the coordinates
             ``x[where]``.  More precisely, fill between ``x[i]`` and ``x[i+1]``
@@ -5092,7 +5091,7 @@ optional.
             *where* will not result in filling.  Both sides of the *True*
             position remain unfilled due to the adjacent *False* values.
 
-        interpolate : bool, optional
+        interpolate : bool, default: False
             This option is only relevant if *where* is used and the two curves
             are crossing each other.
 
@@ -5269,10 +5268,10 @@ optional.
         x1 : array (length N) or scalar
             The x coordinates of the nodes defining the first curve.
 
-        x2 : array (length N) or scalar, optional, default: 0
+        x2 : array (length N) or scalar, default: 0
             The x coordinates of the nodes defining the second curve.
 
-        where : array of bool (length N), optional, default: None
+        where : array of bool (length N), optional
             Define *where* to exclude some vertical regions from being
             filled. The filled regions are defined by the coordinates
             ``y[where]``.  More precisely, fill between ``y[i]`` and ``y[i+1]``
@@ -5570,7 +5569,7 @@ optional.
             See the :doc:`/tutorials/intermediate/imshow_extent` tutorial for
             examples and a more detailed description.
 
-        filternorm : bool, optional, default: True
+        filternorm : bool, default: True
             A parameter for the antigrain image resize filter (see the
             antigrain documentation).  If *filternorm* is set, the filter
             normalizes integer values and corrects the rounding errors. It
@@ -5579,7 +5578,7 @@ optional.
             that any sum of pixel weights must be equal to 1.0.  So, the
             filter function must produce a graph of the proper shape.
 
-        filterrad : float > 0, optional, default: 4.0
+        filterrad : float > 0, default: 4.0
             The filter radius for filters that have a radius parameter, i.e.
             when interpolation is one of: 'sinc', 'lanczos' or 'blackman'.
 
@@ -5770,7 +5769,7 @@ optional.
             colormap range [0, 1] for mapping to colors. By default, the data
             range is mapped to the colorbar range using linear scaling.
 
-        vmin, vmax : scalar, optional, default: None
+        vmin, vmax : scalar, default: None
             The colorbar range. If *None*, suitable min/max values are
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
@@ -5787,12 +5786,12 @@ optional.
 
             The singular form *edgecolor* works as an alias.
 
-        alpha : scalar, optional, default: None
+        alpha : scalar, default: None
             The alpha blending value of the face color, between 0 (transparent)
             and 1 (opaque). Note: The edgecolor is currently not affected by
             this.
 
-        snap : bool, optional, default: False
+        snap : bool, default: False
             Whether to snap the mesh to pixel boundaries.
 
         Returns
@@ -5801,7 +5800,7 @@ optional.
 
         Other Parameters
         ----------------
-        antialiaseds : bool, optional, default: False
+        antialiaseds : bool, default: False
             The default *antialiaseds* is False if the default
             *edgecolors*\ ="none" is used.  This eliminates artificial lines
             at patch boundaries, and works regardless of the value of alpha.
@@ -6001,7 +6000,7 @@ optional.
             colormap range [0, 1] for mapping to colors. By default, the data
             range is mapped to the colorbar range using linear scaling.
 
-        vmin, vmax : scalar, optional, default: None
+        vmin, vmax : scalar, default: None
             The colorbar range. If *None*, suitable min/max values are
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
@@ -6018,7 +6017,7 @@ optional.
 
             The singular form *edgecolor* works as an alias.
 
-        alpha : scalar, optional, default: None
+        alpha : scalar, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
         shading : {'flat', 'gouraud'}, optional
@@ -6032,7 +6031,7 @@ optional.
               the area in between is interpolated from the corner values.
               When Gouraud shading is used, *edgecolors* is ignored.
 
-        snap : bool, optional, default: False
+        snap : bool, default: False
             Whether to snap the mesh to pixel boundaries.
 
         Returns
@@ -6235,16 +6234,16 @@ optional.
             colormap range [0, 1] for mapping to colors. By default, the data
             range is mapped to the colorbar range using linear scaling.
 
-        vmin, vmax : scalar, optional, default: None
+        vmin, vmax : scalar, default: None
             The colorbar range. If *None*, suitable min/max values are
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
 
-        alpha : scalar, optional, default: None
+        alpha : scalar, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-        snap : bool, optional, default: False
+        snap : bool, default: False
             Whether to snap the mesh to pixel boundaries.
 
         Returns
@@ -6869,17 +6868,17 @@ optional.
 
             The default value is 10.
 
-        range : array-like shape(2, 2), optional, default: None
+        range : array-like shape(2, 2), optional
             The leftmost and rightmost edges of the bins along each dimension
             (if not specified explicitly in the bins parameters): ``[[xmin,
             xmax], [ymin, ymax]]``. All values outside of this range will be
             considered outliers and not tallied in the histogram.
 
-        density : bool, optional, default: False
+        density : bool, default: False
             Normalize histogram.  *normed* is a deprecated synonym for this
             parameter.
 
-        weights : array-like, shape (n, ), optional, default: None
+        weights : array-like, shape (n, ), optional
             An array of values w_i weighing each sample (x_i, y_i).
 
         cmin : scalar, optional, default: None
@@ -7647,7 +7646,7 @@ optional.
         Z : array-like (M, N)
             The array to be plotted.
 
-        precision : float or 'present', optional, default: 0
+        precision : float or 'present', default: 0
             If *precision* is 0, any non-zero value will be plotted. Otherwise,
             values of :math:`|Z| > precision` will be plotted.
 
@@ -7655,13 +7654,12 @@ optional.
             pass 'present'. In this case any value present in the array
             will be plotted, even if it is identically zero.
 
-        origin : {'upper', 'lower'}, optional
+        origin : {'upper', 'lower'}, default: :rc:`image.origin`
             Place the [0, 0] index of the array in the upper left or lower left
             corner of the axes. The convention 'upper' is typically used for
             matrices and images.
-            If not given, :rc:`image.origin` is used, defaulting to 'upper'.
 
-        aspect : {'equal', 'auto', None} or float, optional, default: 'equal'
+        aspect : {'equal', 'auto', None} or float, default: 'equal'
             The aspect ratio of the axes.  This parameter is particularly
             relevant for images since it determines whether data pixels are
             square.
