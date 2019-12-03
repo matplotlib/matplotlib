@@ -79,6 +79,7 @@ examples/*/*.svgz
 examples/tests/*
 !examples/tests/backend_driver_sgskip.py
 result_images
+doc/automodapi
 
 # Nose/Pytest generated files #
 ###############################

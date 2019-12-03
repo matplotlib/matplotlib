@@ -41,6 +41,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
+    'sphinx_automodapi.automodapi',
     'IPython.sphinxext.ipython_console_highlighting',
     'IPython.sphinxext.ipython_directive',
     'numpydoc',  # Needs to be loaded *after* autodoc.
@@ -57,6 +58,7 @@ extensions = [
 ]
 
 exclude_patterns = ['api/api_changes/*', 'users/whats_new/*']
+automodapi_toctreedirnm = 'automodapi'
 
 
 def _check_dependencies():
