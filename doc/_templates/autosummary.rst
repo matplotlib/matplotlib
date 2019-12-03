@@ -5,12 +5,14 @@
 
 
 {% if objtype in ['class'] %}
+{% if module in ['matplotlib.image'] %}
 .. auto{{ objtype }}:: {{ objname }}
     :show-inheritance:
-
+    :inherited-members:
 {% else %}
 .. auto{{ objtype }}:: {{ objname }}
-
+    :show-inheritance:
+{% endif %}
 {% endif %}
 
 {% if objtype in ['class', 'method', 'function'] %}
