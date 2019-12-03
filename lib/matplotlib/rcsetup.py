@@ -14,12 +14,16 @@ parameter set listed here should also be visited to the
 :file:`matplotlibrc.template` in matplotlib's root source directory.
 """
 
+import ast
 from collections.abc import Iterable, Mapping
 from functools import partial, reduce
 import logging
+from numbers import Number
 import operator
 import os
 import re
+
+import numpy as np
 
 import matplotlib as mpl
 from matplotlib import animation, cbook
@@ -532,6 +536,50 @@ def validate_ps_distiller(s):
                          'ghostscript or xpdf')
 
 
+# A validator dedicated to the named line styles, based on the items in
+# ls_mapper, and a list of possible strings read from Line2D.set_linestyle
+_validate_named_linestyle = ValidateInStrings(
+    'linestyle',
+    [*ls_mapper.keys(), *ls_mapper.values(), 'None', 'none', ' ', ''],
+    ignorecase=True)
+
+
+def _validate_linestyle(ls):
+    """
+    A validator for all possible line styles, the named ones *and*
+    the on-off ink sequences.
+    """
+    if isinstance(ls, str):
+        try:  # Look first for a valid named line style, like '--' or 'solid'.
+            return _validate_named_linestyle(ls)
+        except ValueError:
+            pass
+        try:
+            ls = ast.literal_eval(ls)  # Parsing matplotlibrc.
+        except (SyntaxError, ValueError):
+            pass  # Will error with the ValueError at the end.
+
+    def _is_iterable_not_string_like(x):
+        # Explicitly exclude bytes/bytearrays so that they are not
+        # nonsensically interpreted as sequences of numbers (codepoints).
+        return np.iterable(x) and not isinstance(x, (str, bytes, bytearray))
+
+    # (offset, (on, off, on, off, ...))
+    if (_is_iterable_not_string_like(ls)
+            and len(ls) == 2
+            and isinstance(ls[0], (type(None), Number))
+            and _is_iterable_not_string_like(ls[1])
+            and len(ls[1]) % 2 == 0
+            and all(isinstance(elem, Number) for elem in ls[1])):
+        return ls
+    # For backcompat: (on, off, on, off, ...); the offset is implicitly None.
+    if (_is_iterable_not_string_like(ls)
+            and len(ls) % 2 == 0
+            and all(isinstance(elem, Number) for elem in ls)):
+        return (None, ls)
+    raise ValueError(f"linestyle {ls!r} is not a valid on-off ink sequence.")
+
+
 validate_joinstyle = ValidateInStrings('joinstyle',
                                        ['miter', 'round', 'bevel'],
                                        ignorecase=True)
@@ -748,7 +796,7 @@ _prop_validators = {
         'color': _listify_validator(validate_color_for_prop_cycle,
                                     allow_stringlist=True),
         'linewidth': validate_floatlist,
-        'linestyle': validate_stringlist,
+        'linestyle': _listify_validator(_validate_linestyle),
         'facecolor': validate_colorlist,
         'edgecolor': validate_colorlist,
         'joinstyle': validate_joinstylelist,
@@ -968,43 +1016,6 @@ def validate_webagg_address(s):
             raise ValueError("'webagg.address' is not a valid IP address")
         return s
     raise ValueError("'webagg.address' is not a valid IP address")
-
-
-# A validator dedicated to the named line styles, based on the items in
-# ls_mapper, and a list of possible strings read from Line2D.set_linestyle
-_validate_named_linestyle = ValidateInStrings(
-    'linestyle',
-    [*ls_mapper.keys(), *ls_mapper.values(), 'None', 'none', ' ', ''],
-    ignorecase=True)
-
-
-def _validate_linestyle(ls):
-    """
-    A validator for all possible line styles, the named ones *and*
-    the on-off ink sequences.
-    """
-    # Look first for a valid named line style, like '--' or 'solid' Also
-    # includes bytes(-arrays) here (they all fail _validate_named_linestyle);
-    # otherwise, if *ls* is of even-length, it will be passed to the instance
-    # of validate_nseq_float, which will return an absurd on-off ink
-    # sequence...
-    if isinstance(ls, (str, bytes, bytearray)):
-        return _validate_named_linestyle(ls)
-
-    # Look for an on-off ink sequence (in points) *of even length*.
-    # Offset is set to None.
-    try:
-        if len(ls) % 2 != 0:
-            raise ValueError("the linestyle sequence {!r} is not of even "
-                             "length.".format(ls))
-
-        return (None, validate_nseq_float()(ls))
-
-    except (ValueError, TypeError):
-        # TypeError can be raised inside the instance of validate_nseq_float,
-        # by wrong types passed to float(), like NoneType.
-        raise ValueError("linestyle {!r} is not a valid on-off ink "
-                         "sequence.".format(ls))
 
 
 validate_axes_titlelocation = ValidateInStrings('axes.titlelocation', ['left', 'center', 'right'])
