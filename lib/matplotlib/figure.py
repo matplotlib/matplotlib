@@ -861,7 +861,13 @@ default: 'top'
 
         See Also
         --------
-        matplotlib.Figure.get_size_inches
+        matplotlib.figure.Figure.get_size_inches
+        matplotlib.figure.Figure.set_figwidth
+        matplotlib.figure.Figure.set_figheight
+
+        Notes
+        -----
+        To transform from pixels to inches divide by `Figure.dpi`.
         """
         if h is None:  # Got called with a single pair as argument.
             w, h = w
@@ -889,7 +895,13 @@ default: 'top'
 
         See Also
         --------
-        matplotlib.Figure.set_size_inches
+        matplotlib.figure.Figure.set_size_inches
+        matplotlib.figure.Figure.get_figwidth
+        matplotlib.figure.Figure.get_figheight
+
+        Notes
+        -----
+        The size in pixels can be obtained by multiplying with `Figure.dpi`.
         """
         return np.array(self.bbox_inches.p1)
 
@@ -902,11 +914,11 @@ default: 'top'
         return self.patch.get_facecolor()
 
     def get_figwidth(self):
-        """Return the figure width as a float."""
+        """Return the figure width in inches."""
         return self.bbox_inches.width
 
     def get_figheight(self):
-        """Return the figure height as a float."""
+        """Return the figure height in inches."""
         return self.bbox_inches.height
 
     def get_dpi(self):
@@ -960,6 +972,12 @@ default: 'top'
         ----------
         val : float
         forward : bool
+            See `set_size_inches`.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.set_figheight
+        matplotlib.figure.Figure.set_size_inches
         """
         self.set_size_inches(val, self.get_figheight(), forward=forward)
 
@@ -971,6 +989,12 @@ default: 'top'
         ----------
         val : float
         forward : bool
+            See `set_size_inches`.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.set_figwidth
+        matplotlib.figure.Figure.set_size_inches
         """
         self.set_size_inches(self.get_figwidth(), val, forward=forward)
 
