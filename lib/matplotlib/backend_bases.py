@@ -711,7 +711,7 @@ class GraphicsContextBase:
         self._capstyle = 'butt'
         self._cliprect = None
         self._clippath = None
-        self._dashes = None, None
+        self._dashes = 0, None
         self._joinstyle = 'round'
         self._linestyle = 'solid'
         self._linewidth = 1

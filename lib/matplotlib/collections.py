@@ -115,9 +115,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         cm.ScalarMappable.__init__(self, norm, cmap)
         # list of un-scaled dash patterns
         # this is needed scaling the dash pattern by linewidth
-        self._us_linestyles = [(None, None)]
+        self._us_linestyles = [(0, None)]
         # list of dash patterns
-        self._linestyles = [(None, None)]
+        self._linestyles = [(0, None)]
         # list of unbroadcast/scaled linewidths
         self._us_lw = [0]
         self._linewidths = [0]
@@ -333,7 +333,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if (len(paths) == 1 and len(trans) <= 1 and
             len(facecolors) == 1 and len(edgecolors) == 1 and
             len(self._linewidths) == 1 and
-            self._linestyles == [(None, None)] and
+            all(ls[1] is None for ls in self._linestyles) and
             len(self._antialiaseds) == 1 and len(self._urls) == 1 and
             self.get_hatch() is None):
             if len(trans):

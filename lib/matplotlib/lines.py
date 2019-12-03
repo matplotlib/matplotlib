@@ -38,7 +38,8 @@ def _get_dash_pattern(style):
         style = ls_mapper.get(style, style)
     # un-dashed styles
     if style in ['solid', 'None']:
-        offset, dashes = None, None
+        offset = 0
+        dashes = None
     # dashed styles
     elif style in ['dashed', 'dashdot', 'dotted']:
         offset = 0
@@ -46,11 +47,17 @@ def _get_dash_pattern(style):
     #
     elif isinstance(style, tuple):
         offset, dashes = style
+        if offset is None:
+            cbook.warn_deprecated(
+                "3.3", message="Passing the dash offset as None is deprecated "
+                "since %(since)s and support for it will be removed "
+                "%(removal)s; pass it as zero instead.")
+            offset = 0
     else:
         raise ValueError('Unrecognized linestyle: %s' % str(style))
 
     # normalize offset to be positive and shorter than the dash cycle
-    if dashes is not None and offset is not None:
+    if dashes is not None:
         dsum = sum(dashes)
         if dsum:
             offset %= dsum
@@ -61,14 +68,9 @@ def _get_dash_pattern(style):
 def _scale_dashes(offset, dashes, lw):
     if not rcParams['lines.scale_dashes']:
         return offset, dashes
-
-    scaled_offset = scaled_dashes = None
-    if offset is not None:
-        scaled_offset = offset * lw
-    if dashes is not None:
-        scaled_dashes = [x * lw if x is not None else None
-                         for x in dashes]
-
+    scaled_offset = offset * lw
+    scaled_dashes = ([x * lw if x is not None else None for x in dashes]
+                     if dashes is not None else None)
     return scaled_offset, scaled_dashes
 
 
