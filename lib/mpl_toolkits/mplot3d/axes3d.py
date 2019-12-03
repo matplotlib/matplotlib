@@ -2507,13 +2507,15 @@ class Axes3D(Axes):
         if color is None:
             color = [self._get_patches_for_fill.get_next_color()]
 
+        color = list(mcolors.to_rgba_array(color))
+
         if len(color) == len(x):
             # bar colors specified, need to expand to number of faces
             for c in color:
                 facecolors.extend([c] * 6)
         else:
             # a single color specified, or face colors specified explicitly
-            facecolors = list(mcolors.to_rgba_array(color))
+            facecolors = color
             if len(facecolors) < len(x):
                 facecolors *= (6 * len(x))
 
