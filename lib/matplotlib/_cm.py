@@ -86,16 +86,16 @@ def cubehelix(gamma=1.0, s=0.5, r=-1.5, h=1.0):
 
     Parameters
     ----------
-    gamma : float, optional, default: 1
+    gamma : float, default: 1
         Gamma factor emphasizing either low intensity values (gamma < 1), or
         high intensity values (gamma > 1).
-    s : float, optional, default: 0.5 (purple)
+    s : float, default: 0.5 (purple)
         The starting color.
-    r : float, optional, default: -1.5
+    r : float, default: -1.5
         The number of r, g, b rotations in color that are made from the start
         to the end of the color scheme.  The default of -1.5 corresponds to ->
         B -> G -> R -> B.
-    h : float, optional, default: 1
+    h : float, default: 1
         The hue, i.e. how saturated the colors are. If this parameter is zero
         then the color scheme is purely a greyscale.
     """

@@ -1414,11 +1414,11 @@ class EngFormatter(Formatter):
             * ``sep="\N{NARROW NO-BREAK SPACE}"`` (``U+202F``);
             * ``sep="\N{NO-BREAK SPACE}"`` (``U+00A0``).
 
-        usetex : bool, optional, default: None
+        usetex : bool, default: :rc:`text.usetex`
             To enable/disable the use of TeX's math mode for rendering the
             numbers in the formatter.
 
-        useMathText : bool, optional, default: None
+        useMathText : bool, default: :rc:`axes.formatter.use_mathtext`
             To enable/disable the use mathtext for rendering the numbers in
             the formatter.
         """
@@ -2338,7 +2338,7 @@ class LogLocator(Locator):
 
         Parameters
         ----------
-        subs : None, str, or sequence of float, optional, default (1.0,)
+        subs : None or str or sequence of float, default: (1.0,)
             Gives the multiples of integer powers of the base at which
             to place ticks.  The default places ticks only at
             integer powers of the base.

@@ -66,7 +66,7 @@ class TriAnalyzer:
 
         Parameters
         ----------
-        rescale : bool, optional, default: True
+        rescale : bool, default: True
             If True, a rescaling will be internally performed (based on
             :attr:`scale_factors`, so that the (unmasked) triangles fit
             exactly inside a unit square mesh.

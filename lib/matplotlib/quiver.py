@@ -101,7 +101,7 @@ units : {'width', 'height', 'dots', 'inches', 'x', 'y' 'xy'}, default: 'width'
     height of the axes, respectively, when the window is resized;
     for 'dots' or 'inches', resizing does not change the arrows.
 
-angles : {'uv', 'xy'} or array-like, optional, default: 'uv'
+angles : {'uv', 'xy'} or array-like, default: 'uv'
     Method for determining the angle of the arrows.
 
     - 'uv': The arrow axis aspect ratio is 1 so that
@@ -150,24 +150,24 @@ width : float, optional
     above, and number of vectors; a typical starting value is about
     0.005 times the width of the plot.
 
-headwidth : float, optional, default: 3
+headwidth : float, default: 3
     Head width as multiple of shaft width.
 
-headlength : float, optional, default: 5
+headlength : float, default: 5
     Head length as multiple of shaft width.
 
-headaxislength : float, optional, default: 4.5
+headaxislength : float, default: 4.5
     Head length at shaft intersection.
 
-minshaft : float, optional, default: 1
+minshaft : float, default: 1
     Length below which arrow scales, in units of head length. Do not
     set this to less than 1, or small arrows will look terrible!
 
-minlength : float, optional, default: 1
+minlength : float, default: 1
     Minimum length as a multiple of shaft width; if an arrow length
     is less than this, plot a dot (hexagon) of this diameter instead.
 
-pivot : {'tail', 'mid', 'middle', 'tip'}, optional, default: 'tail'
+pivot : {'tail', 'mid', 'middle', 'tip'}, default: 'tail'
     The part of the arrow that is anchored to the *X*, *Y* grid. The arrow
     rotates about this point.
 

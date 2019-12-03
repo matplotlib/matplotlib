@@ -1191,7 +1191,7 @@ class FontManager:
             `.FontProperties` object or a string defining a
             `fontconfig patterns`_.
 
-        fontext : {'ttf', 'afm'}, optional, default: 'ttf'
+        fontext : {'ttf', 'afm'}, default: 'ttf'
             The extension of the font file:
 
             - 'ttf': TrueType and OpenType fonts (.ttf, .ttc, .otf)

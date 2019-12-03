@@ -1192,10 +1192,10 @@ class PolarAxes(Axes):
             The top limit (default: None, which leaves the top limit
             unchanged).
 
-        emit : bool, optional, default: True
+        emit : bool, default: True
             Whether to notify observers of limit change.
 
-        auto : bool or None, optional, default: False
+        auto : bool or None, default: False
             Whether to turn on autoscaling of the y-axis. True turns on,
             False turns off, None leaves unchanged.
 

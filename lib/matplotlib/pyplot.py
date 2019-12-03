@@ -408,7 +408,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
     Parameters
     ----------
-    num : int or str, optional, default: None
+    num : int or str, optional
         If not provided, a new figure will be created, and the figure number
         will be incremented. The figure objects holds this number in a `number`
         attribute.
@@ -418,29 +418,25 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         If num is a string, the window title will be set to this figure's
         *num*.
 
-    figsize : (float, float), optional, default: None
-        width, height in inches. If not provided, defaults to
-        :rc:`figure.figsize` = ``[6.4, 4.8]``.
+    figsize : (float, float), default: :rc:`figure.figsize`
+        Width, height in inches.
 
-    dpi : int, optional, default: None
-        resolution of the figure. If not provided, defaults to
-        :rc:`figure.dpi` = ``100``.
+    dpi : int, default: :rc:`figure.dpi`
+        The resolution of the figure in dots-per-inch.
 
-    facecolor : color
-        the background color. If not provided, defaults to
-        :rc:`figure.facecolor` = ``'w'``.
+    facecolor : color, default: :rc:`figure.facecolor`
+        The background color.
 
-    edgecolor : color
-        the border color. If not provided, defaults to
-        :rc:`figure.edgecolor` = ``'w'``.
+    edgecolor : color, default: :rc:`figure.edgecolor`
+        The border color.
 
-    frameon : bool, optional, default: True
+    frameon : bool, default: True
         If False, suppress drawing the figure frame.
 
     FigureClass : subclass of `~matplotlib.figure.Figure`
         Optionally use a custom `.Figure` instance.
 
-    clear : bool, optional, default: False
+    clear : bool, default: False
         If True and the figure already exists, then it is cleared.
 
     Returns
@@ -985,7 +981,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
     Parameters
     ----------
-    nrows, ncols : int, optional, default: 1
+    nrows, ncols : int, default: 1
         Number of rows/columns of the subplot grid.
 
     sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
@@ -1003,7 +999,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         column subplot are created. To later turn other subplots' ticklabels
         on, use `~matplotlib.axes.Axes.tick_params`.
 
-    squeeze : bool, optional, default: True
+    squeeze : bool, default: True
         - If True, extra dimensions are squeezed out from the returned
           array of `~matplotlib.axes.Axes`:
 
@@ -1016,9 +1012,6 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         - If False, no squeezing at all is done: the returned Axes object is
           always a 2D array containing Axes instances, even if it ends up
           being 1x1.
-
-    num : int or str, optional, default: None
-        A `.pyplot.figure` keyword that sets the figure number or label.
 
     subplot_kw : dict, optional
         Dict with keywords passed to the
@@ -1263,7 +1256,7 @@ def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
     h_pad, w_pad : float, optional
         Padding (height/width) between edges of adjacent subplots,
         as a fraction of the font size.  Defaults to *pad*.
-    rect : tuple (left, bottom, right, top), optional, default: (0, 0, 1, 1)
+    rect : tuple (left, bottom, right, top), default: (0, 0, 1, 1)
         A rectangle (left, bottom, right, top) in the normalized
         figure coordinate that the whole subplots area (including
         labels) will fit into.

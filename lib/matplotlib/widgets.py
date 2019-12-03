@@ -274,30 +274,30 @@ class Slider(AxesWidget):
         valmax : float
             The maximum value of the slider.
 
-        valinit : float, optional, default: 0.5
+        valinit : float, default: 0.5
             The slider initial position.
 
-        valfmt : str, optional, default: "%1.2f"
+        valfmt : str, default: "%1.2f"
             Used to format the slider value, fprint format string.
 
-        closedmin : bool, optional, default: True
+        closedmin : bool, default: True
             Whether the slider interval is closed on the bottom.
 
-        closedmax : bool, optional, default: True
+        closedmax : bool, default: True
             Whether the slider interval is closed on the top.
 
-        slidermin : Slider, optional, default: None
+        slidermin : Slider, default: None
             Do not allow the current slider to have a value less than
             the value of the Slider `slidermin`.
 
-        slidermax : Slider, optional, default: None
+        slidermax : Slider, default: None
             Do not allow the current slider to have a value greater than
             the value of the Slider `slidermax`.
 
-        dragging : bool, optional, default: True
+        dragging : bool, default: True
             If True the slider can be dragged by the mouse.
 
-        valstep : float, optional, default: None
+        valstep : float, default: None
             If given, the slider will snap to multiples of `valstep`.
 
         orientation : {'horizontal', 'vertical'}, default: 'horizontal'
@@ -1234,11 +1234,11 @@ class Cursor(AxesWidget):
     ----------
     ax : `matplotlib.axes.Axes`
         The `~.axes.Axes` to attach the cursor to.
-    horizOn : bool, optional, default: True
+    horizOn : bool, default: True
         Whether to draw the horizontal line.
-    vertOn : bool, optional, default: True
+    vertOn : bool, default: True
         Whether to draw the vertical line.
-    useblit : bool, optional, default: False
+    useblit : bool, default: False
         Use blitting for faster drawing if supported by the backend.
 
     Other Parameters

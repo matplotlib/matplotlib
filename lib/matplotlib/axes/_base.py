@@ -1247,7 +1247,7 @@ class _AxesBase(martist.Artist):
 
             See `.set_anchor` for further details.
 
-        share : bool, optional, default: False
+        share : bool, default: False
             If ``True``, apply the settings to all shared Axes.
 
         See Also
@@ -1309,7 +1309,7 @@ class _AxesBase(martist.Artist):
             If 'box', change the physical dimensions of the Axes.
             If 'datalim', change the ``x`` or ``y`` data limits.
 
-        share : bool, optional, default: False
+        share : bool, default: False
             If ``True``, apply the settings to all shared Axes.
 
         See Also
@@ -1443,7 +1443,7 @@ class _AxesBase(martist.Artist):
               | 'SW' | 'S'  | 'SE' |
               +------+------+------+
 
-        share : bool, optional, default: False
+        share : bool, default: False
             If ``True``, apply the settings to all shared Axes.
 
         See Also
@@ -1664,7 +1664,7 @@ class _AxesBase(martist.Artist):
                      ``xmax-xmin == ymax-ymin``.
             ======== ==========================================================
 
-        emit : bool, optional, default *True*
+        emit : bool, default: True
             Whether observers are notified of the axis limit change.
             This option is passed on to `~.Axes.set_xlim` and
             `~.Axes.set_ylim`.
@@ -2092,7 +2092,7 @@ class _AxesBase(martist.Artist):
             The points to include in the data limits Bbox. This can be either
             a list of (x, y) tuples or a Nx2 array.
 
-        updatex, updatey : bool, optional, default *True*
+        updatex, updatey : bool, default: True
             Whether to update the x/y limits.
         """
         xys = np.asarray(xys)
@@ -2370,12 +2370,12 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        enable : bool or None, optional, default: True
+        enable : bool or None, default: True
             True turns autoscaling on, False turns it off.
             None leaves the autoscaling state unchanged.
-        axis : {'both', 'x', 'y'}, optional, default: 'both'
+        axis : {'both', 'x', 'y'}, default: 'both'
             Which axis to operate on.
-        tight : bool or None, optional, default: None
+        tight : bool or None, default: None
             If True, first set the margins to zero.  Then, this argument is
             forwarded to `autoscale_view` (regardless of its value); see the
             description of its behavior there.
@@ -3174,14 +3174,14 @@ class _AxesBase(martist.Artist):
             The right xlim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
-        emit : bool, optional, default: True
+        emit : bool, default: True
             Whether to notify observers of limit change.
 
-        auto : bool or None, optional, default: False
+        auto : bool or None, default: False
             Whether to turn on autoscaling of the x-axis. True turns on,
             False turns off, None leaves unchanged.
 
-        xmin, xmax : scalar, optional
+        xmin, xmax : float, optional
             They are equivalent to left and right respectively,
             and it is an error to pass both *xmin* and *left* or
             *xmax* and *right*.
@@ -3350,7 +3350,7 @@ class _AxesBase(martist.Artist):
         ----------
         ticks : list
             List of x-axis tick locations.
-        minor : bool, optional, default: False
+        minor : bool, default: False
             If ``False`` sets major ticks, if ``True`` sets minor ticks.
         """
         ret = self.xaxis.set_ticks(ticks, minor=minor)
@@ -3555,10 +3555,10 @@ class _AxesBase(martist.Artist):
             The top ylim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
-        emit : bool, optional, default: True
+        emit : bool, default: True
             Whether to notify observers of limit change.
 
-        auto : bool or None, optional, default: False
+        auto : bool or None, default: False
             Whether to turn on autoscaling of the y-axis. *True* turns on,
             *False* turns off, *None* leaves unchanged.
 
@@ -3731,7 +3731,7 @@ class _AxesBase(martist.Artist):
         ----------
         ticks : list
             List of y-axis tick locations
-        minor : bool, optional, default: False
+        minor : bool, default: False
             If ``False`` sets major ticks, if ``True`` sets minor ticks.
         """
         ret = self.yaxis.set_ticks(ticks, minor=minor)

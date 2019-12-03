@@ -932,12 +932,11 @@ class PathCollection(_CollectionWithSizes):
 
         Parameters
         ----------
-        prop : string, optional, default *"colors"*
-            Can be *"colors"* or *"sizes"*. In case of *"colors"*, the legend
-            handles will show the different colors of the collection. In case
-            of "sizes", the legend will show the different sizes.
+        prop : {"colors", "sizes"}, default: "colors"
+            If "colors", the legend handles will show the different colors of
+            the collection. If "sizes", the legend will show the different
+            sizes.
         num : int, None, "auto" (default), array-like, or `~.ticker.Locator`,
-            optional
             Target number of elements to create.
             If None, use all unique elements of the mappable array. If an
             integer, target to use *num* elements in the normed range.
