@@ -3,66 +3,69 @@
 Zorder Demo
 ===========
 
-The default drawing order for axes is patches, lines, text.  This
-order is determined by the zorder attribute.  The following defaults
-are set
+The drawing order of artists is determined by their ``zorder`` attribute, which
+is a floating point number. Artists with higher ``zorder`` are drawn on top.
+You can change the order for individual artists by setting their ``zorder``.
+The default value depends on the type of the Artist:
 
-=======================    =======
-Artist                     Z-order
-=======================    =======
-Patch / PatchCollection    1
-Line2D / LineCollection    2
-Text                       3
-=======================    =======
+================================================================    =======
+Artist                                                              Z-order
+================================================================    =======
+Images (`.AxesImage`, `.FigureImage`, `.BboxImage`)                 0
+`.Patch`, `.PatchCollection`                                        1
+`.Line2D`, `.LineCollection` (including minor ticks, grid lines)    2
+Major ticks                                                         2.01
+`.Text` (including axes labels and titles)                          3
+`.Legend`                                                           5
+================================================================    =======
 
-You can change the order for individual artists by setting the zorder.  Any
-individual plot() call can set a value for the zorder of that particular item.
+Any call to a plotting method can set a value for the zorder of that particular
+item explicitly.
 
-In the fist subplot below, the lines are drawn above the patch
-collection from the scatter, which is the default.
+.. note::
 
-In the subplot below, the order is reversed.
-
-The second figure shows how to control the zorder of individual lines.
+   `~.axes.Axes.set_axisbelow` and :rc:`axes.axisbelow` can further modify the
+   zorder of ticks and grid lines.
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Fixing random state for reproducibility
-np.random.seed(19680801)
-
-
-x = np.random.random(20)
-y = np.random.random(20)
+r = np.linspace(0.3, 1, 30)
+theta = np.linspace(0, 4*np.pi, 30)
+x = r * np.sin(theta)
+y = r * np.cos(theta)
 
 ###############################################################################
-# Lines on top of scatter
+# The following example contains a `.Line2D` created by `~.axes.Axes.plot()`
+# and the dots (a `.PatchCollection`) created by `~.axes.Axes.scatter()`.
+# Hence, by default the dots are below the line (first subplot).
+# In the second subplot, the ``zorder`` is set explicitly to move the dots
+# on top of the line.
 
-plt.figure()
-plt.subplot(211)
-plt.plot(x, y, 'C3', lw=3)
-plt.scatter(x, y, s=120)
-plt.title('Lines on top of dots')
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6, 3.2))
 
-# Scatter plot on top of lines
-plt.subplot(212)
-plt.plot(x, y, 'C3', zorder=1, lw=3)
-plt.scatter(x, y, s=120, zorder=2)
-plt.title('Dots on top of lines')
+ax1.plot(x, y, 'C3', lw=3)
+ax1.scatter(x, y, s=120)
+ax1.set_title('Lines on top of dots')
+
+ax2.plot(x, y, 'C3', lw=3)
+ax2.scatter(x, y, s=120, zorder=2.5)  # move dots on top of line
+ax2.set_title('Dots on top of lines')
+
 plt.tight_layout()
 
 ###############################################################################
-# A new figure, with individually ordered items
+# Many functions that create a visible object accepts a ``zorder`` parameter.
+# Alternatively, you can call ``set_order()`` on the created object later.
 
-x = np.linspace(0, 2*np.pi, 100)
-plt.rcParams['lines.linewidth'] = 10
+x = np.linspace(0, 7.5, 100)
+plt.rcParams['lines.linewidth'] = 5
 plt.figure()
-plt.plot(x, np.sin(x), label='zorder=10', zorder=10)  # on top
-plt.plot(x, np.sin(1.1*x), label='zorder=1', zorder=1)  # bottom
-plt.plot(x, np.sin(1.2*x), label='zorder=3',  zorder=3)
-plt.axhline(0, label='zorder=2', color='grey', zorder=2)
+plt.plot(x, np.sin(x), label='zorder=2', zorder=2)  # bottom
+plt.plot(x, np.sin(x+0.5), label='zorder=3',  zorder=3)
+plt.axhline(0, label='zorder=2.5', color='lightgrey', zorder=2.5)
 plt.title('Custom order of elements')
 l = plt.legend(loc='upper right')
-l.set_zorder(20)  # put the legend on top
+l.set_zorder(2.5)  # legend between blue and orange line
 plt.show()
