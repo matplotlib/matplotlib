@@ -6776,13 +6776,18 @@ optional.
             xvals, yvals = [], []
             for m in tops:
                 if stacked:
-                    # starting point for drawing polygon
-                    y[0] = y[1]
                     # top of the previous polygon becomes the bottom
                     y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
                 # set the top of this polygon
                 y[1:2*len(bins)-1:2], y[2:2*len(bins):2] = (m + bottom,
                                                             m + bottom)
+
+                # The starting point of the polygon has not yet been
+                # updated. So far only the endpoint was adjusted. This
+                # assignment closes the polygon. The redundant endpoint is
+                # later discarded (for step and stepfilled).
+                y[0] = y[-1]
+
                 if orientation == 'horizontal':
                     xvals.append(y.copy())
                     yvals.append(x.copy())
