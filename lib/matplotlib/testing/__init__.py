@@ -1,10 +1,9 @@
 """
 Helper functions for testing.
 """
+
 import locale
 import logging
-import sys
-import warnings
 
 import matplotlib as mpl
 from matplotlib import cbook
@@ -20,7 +19,7 @@ def is_called_from_pytest():
 
 def set_font_settings_for_testing():
     mpl.rcParams['font.family'] = 'DejaVu Sans'
-    mpl.rcParams['text.hinting'] = False
+    mpl.rcParams['text.hinting'] = 'none'
     mpl.rcParams['text.hinting_factor'] = 8
 
 

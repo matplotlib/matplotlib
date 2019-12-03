@@ -5,11 +5,15 @@ Demo Axes Grid2
 
 Grid of images with shared xaxis and yaxis.
 """
+
 import numpy as np
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 import matplotlib.colors
+
+
+plt.rcParams["mpl_toolkits.legacy_colorbar"] = False
 
 
 def get_demo_image():
@@ -53,10 +57,12 @@ grid = ImageGrid(fig, 211,  # similar to subplot(211)
                  cbar_pad="1%",
                  )
 
-for ax, z in zip(grid, ZS):
-    im = ax.imshow(
-        z, origin="lower", extent=extent, interpolation="nearest")
-    ax.cax.colorbar(im)
+for i, (ax, z) in enumerate(zip(grid, ZS)):
+    im = ax.imshow(z, origin="lower", extent=extent)
+    cb = ax.cax.colorbar(im)
+    # Changing the colorbar ticks
+    if i in [1, 2]:
+        cb.set_ticks([-1, 0, 1])
 
 for ax, im_title in zip(grid, ["Image 1", "Image 2", "Image 3"]):
     t = add_inner_title(ax, im_title, loc='lower left')
@@ -68,10 +74,6 @@ for ax, z in zip(grid, ZS):
     #axis.label.set_text("counts s$^{-1}$")
     #axis.label.set_size(10)
     #axis.major_ticklabels.set_size(6)
-
-# Changing the colorbar ticks
-grid[1].cax.set_xticks([-1, 0, 1])
-grid[2].cax.set_xticks([-1, 0, 1])
 
 grid[0].set_xticks([-2, 0])
 grid[0].set_yticks([-2, 0, 2])
@@ -97,9 +99,7 @@ vmax, vmin = np.max(ZS), np.min(ZS)
 norm = matplotlib.colors.Normalize(vmax=vmax, vmin=vmin)
 
 for ax, z in zip(grid2, ZS):
-    im = ax.imshow(z, norm=norm,
-                   origin="lower", extent=extent,
-                   interpolation="nearest")
+    im = ax.imshow(z, norm=norm, origin="lower", extent=extent)
 
 # With cbar_mode="single", cax attribute of all axes are identical.
 ax.cax.colorbar(im)

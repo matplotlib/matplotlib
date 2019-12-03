@@ -2,5 +2,5 @@
 
 ipykernel
 nbconvert[execute]
-pandas
+pandas!=0.25.0
 pytz

@@ -176,6 +176,17 @@ def test_Affine2D_from_values():
     assert_almost_equal(actual, expected)
 
 
+def test_affine_inverted_invalidated():
+    # Ensure that the an affine transform is not declared valid on access
+    point = [1.0, 1.0]
+    t = mtransforms.Affine2D()
+
+    assert_almost_equal(point, t.transform(t.inverted().transform(point)))
+    # Change and access the transform
+    t.translate(1.0, 1.0).get_matrix()
+    assert_almost_equal(point, t.transform(t.inverted().transform(point)))
+
+
 def test_clipping_of_log():
     # issue 804
     M, L, C = Path.MOVETO, Path.LINETO, Path.CLOSEPOLY
@@ -217,7 +228,7 @@ class NonAffineForTest(mtransforms.Transform):
         return self.real_trans.transform_path(path)
 
 
-class TestBasicTransform():
+class TestBasicTransform:
     def setup_method(self):
 
         self.ta1 = mtransforms.Affine2D(shorthand_name='ta1').rotate(np.pi / 2)

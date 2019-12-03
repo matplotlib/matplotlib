@@ -101,12 +101,10 @@ class RGBAxesBase:
         """
         Parameters
         ----------
-        pad : float
+        pad : float, default: 0
             fraction of the axes height to put as padding.
-            defaults to 0.0
-        add_all : bool
-            True: Add the {rgb, r, g, b} axes to the figure
-            defaults to True.
+        add_all : bool, default: True
+            Whether to add the {rgb, r, g, b} axes to the figure
         axes_class : matplotlib.axes.Axes
 
         *args
@@ -162,8 +160,8 @@ class RGBAxesBase:
 
         Parameters
         ----------
-        line_color : any matplotlib color
-        marker_edge_color : any matplotlib color
+        line_color : color
+        marker_edge_color : color
         """
         for ax1 in [self.RGB, self.R, self.G, self.B]:
             ax1.axis[:].line.set_color(line_color)

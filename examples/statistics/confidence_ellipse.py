@@ -40,11 +40,11 @@ import matplotlib.transforms as transforms
 
 def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
     """
-    Create a plot of the covariance confidence ellipse of `x` and `y`
+    Create a plot of the covariance confidence ellipse of *x* and *y*.
 
     Parameters
     ----------
-    x, y : array_like, shape (n, )
+    x, y : array-like, shape (n, )
         Input data.
 
     ax : matplotlib.axes.Axes

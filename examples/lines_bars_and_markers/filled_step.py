@@ -80,6 +80,8 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
                hist_func=None, labels=None,
                plot_func=None, plot_kwargs=None):
     """
+    Parameters
+    ----------
     ax : axes.Axes
         The axes to add artists too
 
@@ -90,8 +92,8 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
     sty_cycle : Cycler or operable of dict
         Style to apply to each set
 
-    bottoms : array, optional
-        The initial positions of the bottoms, defaults to 0
+    bottoms : array, optional, default: 0
+        The initial positions of the bottoms.
 
     hist_func : callable, optional
         Must have signature `bin_vals, bin_edges = f(data)`.

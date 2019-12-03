@@ -397,7 +397,7 @@ def test_null_collection_datalim():
 
 def test_add_collection():
     # Test if data limits are unchanged by adding an empty collection.
-    # Github issue #1490, pull #1497.
+    # GitHub issue #1490, pull #1497.
     plt.figure()
     ax = plt.axes()
     coll = ax.scatter([0, 1], [0, 1])
@@ -691,7 +691,7 @@ def test_pathcollection_legend_elements():
     l3 = ax.legend(h, l, loc=4)
 
     h, l = sc.legend_elements(prop="sizes", num=4, fmt="{x:.2f}",
-                           func=lambda x: 2*x)
+                              func=lambda x: 2*x)
     actsizes = [line.get_markersize() for line in h]
     labeledsizes = np.sqrt(np.array(l).astype(float)/2)
     assert_array_almost_equal(actsizes, labeledsizes)
@@ -711,3 +711,10 @@ def test_pathcollection_legend_elements():
         ax.add_artist(l)
 
     fig.canvas.draw()
+
+
+def test_EventCollection_nosort():
+    # Check that EventCollection doesn't modify input in place
+    arr = np.array([3, 2, 1, 10])
+    coll = EventCollection(arr)
+    np.testing.assert_array_equal(arr, np.array([3, 2, 1, 10]))

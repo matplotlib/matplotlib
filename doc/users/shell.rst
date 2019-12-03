@@ -32,7 +32,7 @@ IPython to the rescue
     The mode described here still exists for historical reasons, but it is
     highly advised not to use. It pollutes namespaces with functions that will
     shadow python built-in and can lead to hard to track bugs. To get IPython
-    integration without imports the use of the  `%matplotlib` magic is
+    integration without imports the use of the ``%matplotlib`` magic is
     preferred. See
     `ipython documentation <https://ipython.readthedocs.io/en/stable/interactive/reference.html#plotting-with-matplotlib>`_
     .
@@ -73,7 +73,7 @@ run so you can continue tweaking the figure manually.
 There has been a lot of recent work to embed ipython, with pylab
 support, into various GUI applications, so check on the ipython
 mailing `list
-<https://mail.scipy.org/mailman/listinfo/ipython-user>`_ for the
+<https://mail.python.org/mailman/listinfo/ipython-dev>`_ for the
 latest status.
 
 .. _other-shells:

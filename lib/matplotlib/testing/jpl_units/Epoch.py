@@ -3,6 +3,8 @@
 import operator
 import math
 import datetime as DT
+
+from matplotlib import cbook
 from matplotlib.dates import date2num
 
 
@@ -56,11 +58,7 @@ class Epoch:
                 "dnum= %s\n"
                 "dt  = %s" % (sec, jd, daynum, dt))
 
-        if frame not in self.allowed:
-            raise ValueError(
-                "Input frame '%s' is not one of the supported frames of %s" %
-                (frame, list(self.allowed.keys())))
-
+        cbook._check_in_list(self.allowed, frame=frame)
         self._frame = frame
 
         if dt is not None:

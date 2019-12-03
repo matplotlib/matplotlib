@@ -23,7 +23,7 @@ static PyObject* PyTriangulation_new(PyTypeObject* type, PyObject* args, PyObjec
 
 const char* PyTriangulation_init__doc__ =
     "Triangulation(x, y, triangles, mask, edges, neighbors)\n"
-    "\n"
+    "--\n\n"
     "Create a new C++ Triangulation object\n"
     "This should not be called directly, instead use the python class\n"
     "matplotlib.tri.Triangulation instead.\n";
@@ -100,7 +100,7 @@ static void PyTriangulation_dealloc(PyTriangulation* self)
 
 const char* PyTriangulation_calculate_plane_coefficients__doc__ =
     "calculate_plane_coefficients(z, plane_coefficients)\n"
-    "\n"
+    "--\n\n"
     "Calculate plane equation coefficients for all unmasked triangles";
 
 static PyObject* PyTriangulation_calculate_plane_coefficients(PyTriangulation* self, PyObject* args, PyObject* kwds)
@@ -125,7 +125,7 @@ static PyObject* PyTriangulation_calculate_plane_coefficients(PyTriangulation* s
 
 const char* PyTriangulation_get_edges__doc__ =
     "get_edges()\n"
-    "\n"
+    "--\n\n"
     "Return edges array";
 
 static PyObject* PyTriangulation_get_edges(PyTriangulation* self, PyObject* args, PyObject* kwds)
@@ -142,7 +142,7 @@ static PyObject* PyTriangulation_get_edges(PyTriangulation* self, PyObject* args
 
 const char* PyTriangulation_get_neighbors__doc__ =
     "get_neighbors()\n"
-    "\n"
+    "--\n\n"
     "Return neighbors array";
 
 static PyObject* PyTriangulation_get_neighbors(PyTriangulation* self, PyObject* args, PyObject* kwds)
@@ -159,7 +159,7 @@ static PyObject* PyTriangulation_get_neighbors(PyTriangulation* self, PyObject* 
 
 const char* PyTriangulation_set_mask__doc__ =
     "set_mask(mask)\n"
-    "\n"
+    "--\n\n"
     "Set or clear the mask array.";
 
 static PyObject* PyTriangulation_set_mask(PyTriangulation* self, PyObject* args, PyObject* kwds)
@@ -234,7 +234,7 @@ static PyObject* PyTriContourGenerator_new(PyTypeObject* type, PyObject* args, P
 
 const char* PyTriContourGenerator_init__doc__ =
     "TriContourGenerator(triangulation, z)\n"
-    "\n"
+    "--\n\n"
     "Create a new C++ TriContourGenerator object\n"
     "This should not be called directly, instead use the functions\n"
     "matplotlib.axes.tricontour and tricontourf instead.\n";
@@ -369,7 +369,7 @@ static PyObject* PyTrapezoidMapTriFinder_new(PyTypeObject* type, PyObject* args,
 
 const char* PyTrapezoidMapTriFinder_init__doc__ =
     "TrapezoidMapTriFinder(triangulation)\n"
-    "\n"
+    "--\n\n"
     "Create a new C++ TrapezoidMapTriFinder object\n"
     "This should not be called directly, instead use the python class\n"
     "matplotlib.tri.TrapezoidMapTriFinder instead.\n";
@@ -415,7 +415,7 @@ static PyObject* PyTrapezoidMapTriFinder_find_many(PyTrapezoidMapTriFinder* self
 
     if (x.empty() || y.empty() || x.dim(0) != y.dim(0)) {
         PyErr_SetString(PyExc_ValueError,
-            "x and y must be array_like with same shape");
+            "x and y must be array-like with same shape");
         return NULL;
     }
 

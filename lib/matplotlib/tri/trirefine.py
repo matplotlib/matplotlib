@@ -3,6 +3,8 @@ Mesh refinement for triangular grids.
 """
 
 import numpy as np
+
+from matplotlib import cbook
 from matplotlib.tri.triangulation import Triangulation
 import matplotlib.tri.triinterpolate
 
@@ -39,8 +41,7 @@ class TriRefiner:
 
     """
     def __init__(self, triangulation):
-        if not isinstance(triangulation, Triangulation):
-            raise ValueError("Expected a Triangulation object")
+        cbook._check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
 
@@ -76,23 +77,21 @@ class UniformTriRefiner(TriRefiner):
 
         Parameters
         ----------
-        return_tri_index : boolean, optional
-            Boolean indicating whether an index table indicating the father
-            triangle index of each point will be returned. Default value
-            False.
-        subdiv : integer, optional
-            Recursion level for the subdivision. Defaults value 3.
+        return_tri_index : bool, optional, default: False
+            Whether an index table indicating the father triangle index of each
+            point will be returned.
+        subdiv : int, optional, default: 3
+            Recursion level for the subdivision.
             Each triangle will be divided into ``4**subdiv`` child triangles.
 
         Returns
         -------
         refi_triangulation : :class:`~matplotlib.tri.Triangulation`
             The returned refined triangulation
-        found_index : array-like of integers
+        found_index : int array
             Index of the initial triangulation containing triangle, for each
             point of *refi_triangulation*.
             Returned only if *return_tri_index* is set to True.
-
         """
         refi_triangulation = self._triangulation
         ntri = refi_triangulation.triangles.shape[0]
@@ -150,8 +149,8 @@ class UniformTriRefiner(TriRefiner):
             Interpolator used for field interpolation. If not specified,
             a :class:`~matplotlib.tri.CubicTriInterpolator` will
             be used.
-        subdiv : integer, optional
-            Recursion level for the subdivision. Defaults to 3.
+        subdiv : int, optional, default: 3
+            Recursion level for the subdivision.
             Each triangle will be divided into ``4**subdiv`` child triangles.
 
         Returns
@@ -165,9 +164,8 @@ class UniformTriRefiner(TriRefiner):
             interp = matplotlib.tri.CubicTriInterpolator(
                 self._triangulation, z)
         else:
-            if not isinstance(triinterpolator,
-                              matplotlib.tri.TriInterpolator):
-                raise ValueError("Expected a TriInterpolator object")
+            cbook._check_isinstance(matplotlib.tri.TriInterpolator,
+                                    triinterpolator=triinterpolator)
             interp = triinterpolator
 
         refi_tri, found_index = self.refine_triangulation(
@@ -200,9 +198,9 @@ class UniformTriRefiner(TriRefiner):
         y = triangulation.y
 
         #    According to tri.triangulation doc:
-        #         neighbors[i,j] is the triangle that is the neighbor
-        #         to the edge from point index masked_triangles[i,j] to point
-        #         index masked_triangles[i,(j+1)%3].
+        #         neighbors[i, j] is the triangle that is the neighbor
+        #         to the edge from point index masked_triangles[i, j] to point
+        #         index masked_triangles[i, (j+1)%3].
         neighbors = triangulation.neighbors
         triangles = triangulation.triangles
         npts = np.shape(x)[0]

@@ -11,6 +11,9 @@ from mpl_toolkits.axisartist import Axes
 
 @image_comparison(['SubplotZero.png'], style='default')
 def test_SubplotZero():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig = plt.figure()
 
     ax = SubplotZero(fig, 1, 1, 1)
@@ -29,6 +32,9 @@ def test_SubplotZero():
 
 @image_comparison(['Subplot.png'], style='default')
 def test_Subplot():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig = plt.figure()
 
     ax = Subplot(fig, 1, 1, 1)

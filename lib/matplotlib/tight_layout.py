@@ -96,11 +96,9 @@ def auto_adjust_subplotpars(
     union = Bbox.union
 
     if ax_bbox_list is None:
-        ax_bbox_list = []
-        for subplots in subplot_list:
-            ax_bbox = union([ax.get_position(original=True)
-                             for ax in subplots])
-            ax_bbox_list.append(ax_bbox)
+        ax_bbox_list = [
+            union([ax.get_position(original=True) for ax in subplots])
+            for subplots in subplot_list]
 
     for subplots, ax_bbox, (num1, num2) in zip(subplot_list,
                                                ax_bbox_list,
@@ -222,9 +220,8 @@ def get_renderer(fig):
 
         if canvas and hasattr(canvas, "get_renderer"):
             renderer = canvas.get_renderer()
-        else:
-            # not sure if this can happen
-            cbook._warn_external("tight_layout : falling back to Agg renderer")
+        else:  # Some noninteractive backends have no renderer until draw time.
+            cbook._warn_external("tight_layout: falling back to Agg renderer")
             from matplotlib.backends.backend_agg import FigureCanvasAgg
             canvas = FigureCanvasAgg(fig)
             renderer = canvas.get_renderer()
@@ -281,7 +278,7 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
         fraction of the font size.
     h_pad, w_pad : float
         Padding (height/width) between edges of adjacent subplots.  Defaults to
-        *pad_inches*.
+        *pad*.
     rect : Tuple[float, float, float, float], optional
         (left, bottom, right, top) rectangle in normalized figure coordinates
         that the whole subplots area (including labels) will fit into.

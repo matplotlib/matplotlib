@@ -284,7 +284,7 @@ fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
 # Spacing between subplots is set by ``wspace`` and ``hspace``. There are
 # specified as a fraction of the size of the subplot group as a whole.
 # If the size of the figure is changed, then these spaces change in
-# proportion.  Note in the blow how the space at the edges doesn't change from
+# proportion.  Note in the below how the space at the edges doesn't change from
 # the above, but the space between subplots does.
 
 fig, axs = plt.subplots(2, 2, constrained_layout=True)
@@ -335,7 +335,7 @@ fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
 # ========
 #
 # There are five :ref:`rcParams<matplotlib-rcparams>` that can be set,
-# either in a script or in the `matplotlibrc` file.
+# either in a script or in the :file:`matplotlibrc` file.
 # They all have the prefix ``figure.constrained_layout``:
 #
 # - ``use``: Whether to use constrained_layout. Default is False
@@ -504,8 +504,8 @@ ax2 = fig.add_axes(bb_ax2)
 # ----------------------
 #
 # ``constrained_layout`` will not work on subplots
-# created via the `subplot` command.  The reason is that each of these
-# commands creates a separate `GridSpec` instance and ``constrained_layout``
+# created via the `.pyplot.subplot` command.  The reason is that each of these
+# commands creates a separate `.GridSpec` instance and ``constrained_layout``
 # uses (nested) gridspecs to carry out the layout.  So the following fails
 # to yield a nice layout:
 
@@ -581,6 +581,13 @@ example_plot(ax4)
 #
 # * There are small differences in how the backends handle rendering fonts,
 #   so the results will not be pixel-identical.
+#
+# * An artist using axes coordinates that extend beyond the axes
+#   boundary will result in unusual layouts when added to an
+#   axes. This can be avoided by adding the artist directly to the
+#   :class:`~matplotlib.figure.Figure` using
+#   :meth:`~matplotlib.figure.Figure.add_artist`. See
+#   :class:`~matplotlib.patches.ConnectionPatch` for an example.
 
 ###########################################################
 # Debugging
@@ -636,7 +643,7 @@ example_plot(ax4)
 #
 # Each `~matplotlib.axes.Axes` has *two* layoutboxes.  The first one,
 # ``ax._layoutbox`` represents the outside of the Axes and all its
-# decorations (i.e. ticklabels,axis labels, etc.).
+# decorations (i.e. ticklabels, axis labels, etc.).
 # The second layoutbox corresponds to the Axes' ``ax.position``, which sets
 # where in the figure the spines are placed.
 #

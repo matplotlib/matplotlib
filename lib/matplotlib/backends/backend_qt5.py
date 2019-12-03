@@ -59,7 +59,7 @@ SPECIAL_KEYS = {QtCore.Qt.Key_Control: 'control',
                 QtCore.Qt.Key_Clear: 'clear', }
 
 # define which modifier keys are collected on keyboard events.
-# elements are (mpl names, Modifier Flag, Qt Key) tuples
+# elements are (Matplotlib modifier names, Modifier Flag, Qt Key) tuples
 SUPER = 0
 ALT = 1
 CTRL = 2
@@ -118,7 +118,12 @@ def _create_qApp():
                 if display is None or not re.search(r':\d', display):
                     raise RuntimeError('Invalid DISPLAY variable')
 
-            qApp = QtWidgets.QApplication([b"matplotlib"])
+            try:
+                QtWidgets.QApplication.setAttribute(
+                    QtCore.Qt.AA_EnableHighDpiScaling)
+            except AttributeError:  # Attribute only exists for Qt>=5.6.
+                pass
+            qApp = QtWidgets.QApplication(["matplotlib"])
             qApp.lastWindowClosed.connect(qApp.quit)
         else:
             qApp = app
@@ -126,7 +131,6 @@ def _create_qApp():
     if is_pyqt5():
         try:
             qApp.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
-            qApp.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
         except AttributeError:
             pass
 
@@ -171,22 +175,21 @@ def _allow_super_init(__init__):
 
 
 class TimerQT(TimerBase):
-    '''
-    Subclass of :class:`backend_bases.TimerBase` that uses Qt timer events.
+    """
+    Subclass of `.TimerBase` that uses Qt timer events.
 
     Attributes
     ----------
-    interval : int
-        The time between timer events in milliseconds. Default is 1000 ms.
-    single_shot : bool
-        Boolean flag indicating whether this timer should
-        operate as single shot (run once and then stop). Defaults to False.
+    interval : int, default: 1000ms
+        The time between timer events in milliseconds.
+    single_shot : bool, default: False
+        Whether this timer should operate as single shot (run once and then
+        stop).
     callbacks : list
         Stores list of (func, args) tuples that will be called upon timer
         events. This list can be manipulated directly, or the functions
         `add_callback` and `remove_callback` can be used.
-
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
@@ -211,6 +214,7 @@ class TimerQT(TimerBase):
 
 
 class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
+    required_interactive_framework = "qt5"
 
     # map Qt button codes to MouseEvent's ones:
     buttond = {QtCore.Qt.LeftButton: MouseButton.LEFT,
@@ -471,7 +475,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # current event loop in order to ensure thread affinity and to
         # accumulate multiple draw requests from event handling.
         # TODO: queued signal connection might be safer than singleShot
-        if not (self._draw_pending or self._is_drawing):
+        if not (getattr(self, '_draw_pending', False) or
+                getattr(self, '_is_drawing', False)):
             self._draw_pending = True
             QtCore.QTimer.singleShot(0, self._draw_idle)
 
@@ -627,7 +632,8 @@ class FigureManagerQT(FigureManagerBase):
         # so we do not need to worry about dpi scaling here.
         extra_width = self.window.width() - self.canvas.width()
         extra_height = self.window.height() - self.canvas.height()
-        self.window.resize(width+extra_width, height+extra_height)
+        self.canvas.resize(width, height)
+        self.window.resize(width + extra_width, height + extra_height)
 
     def show(self):
         self.window.show()
@@ -655,6 +661,13 @@ class FigureManagerQT(FigureManagerBase):
 class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     message = QtCore.Signal(str)
 
+    toolitems = [*NavigationToolbar2.toolitems]
+    toolitems.insert(
+        # Add 'customize' action after 'subplots'
+        [name for name, *_ in toolitems].index("Subplots") + 1,
+        ("Customize", "Edit axis, curve and image parameters",
+         "qt4_editor_options", "edit_parameters"))
+
     def __init__(self, canvas, parent, coordinates=True):
         """coordinates: should we show the coordinates on the right?"""
         self.canvas = canvas
@@ -666,34 +679,40 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         QtWidgets.QToolBar.__init__(self, parent)
         NavigationToolbar2.__init__(self, canvas)
 
-    def _icon(self, name):
+    def _icon(self, name, color=None):
         if is_pyqt5():
             name = name.replace('.png', '_large.png')
         pm = QtGui.QPixmap(os.path.join(self.basedir, name))
         if hasattr(pm, 'setDevicePixelRatio'):
             pm.setDevicePixelRatio(self.canvas._dpi_ratio)
+        if color is not None:
+            mask = pm.createMaskFromColor(QtGui.QColor('black'),
+                                          QtCore.Qt.MaskOutColor)
+            pm.fill(color)
+            pm.setMask(mask)
         return QtGui.QIcon(pm)
 
     def _init_toolbar(self):
         self.basedir = str(cbook._get_data_path('images'))
 
+        background_color = self.palette().color(self.backgroundRole())
+        foreground_color = self.palette().color(self.foregroundRole())
+        icon_color = (foreground_color
+                      if background_color.value() < 128 else None)
+
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
                 self.addSeparator()
             else:
-                a = self.addAction(self._icon(image_file + '.png'),
+                a = self.addAction(self._icon(image_file + '.png', icon_color),
                                    text, getattr(self, callback))
                 self._actions[callback] = a
                 if callback in ['zoom', 'pan']:
                     a.setCheckable(True)
                 if tooltip_text is not None:
                     a.setToolTip(tooltip_text)
-                if text == 'Subplots':
-                    a = self.addAction(self._icon("qt4_editor_options.png"),
-                                       'Customize', self.edit_parameters)
-                    a.setToolTip('Edit axis, curve and image parameters')
 
-        # Add the x,y location widget at the right side of the toolbar
+        # Add the (x, y) location widget at the right side of the toolbar
         # The stretch factor is 1 which means any resizing of the toolbar
         # will resize this label instead of the buttons.
         if self.coordinates:
@@ -706,13 +725,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             labelAction = self.addWidget(self.locLabel)
             labelAction.setVisible(True)
 
-        # Esthetic adjustments - we need to set these explicitly in PyQt5
-        # otherwise the layout looks different - but we don't want to set it if
-        # not using HiDPI icons otherwise they look worse than before.
-        if is_pyqt5():
-            self.setIconSize(QtCore.QSize(24, 24))
-            self.layout().setSpacing(12)
-
     @cbook.deprecated("3.1")
     @property
     def buttons(self):
@@ -722,15 +734,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     @property
     def adj_window(self):
         return None
-
-    if is_pyqt5():
-        # For some reason, self.setMinimumHeight doesn't seem to carry over to
-        # the actual sizeHint, so override it instead in order to make the
-        # aesthetic adjustments noted above.
-        def sizeHint(self):
-            size = super().sizeHint()
-            size.setHeight(max(48, size.height()))
-            return size
 
     def edit_parameters(self):
         axes = self.canvas.figure.get_axes()
@@ -761,8 +764,10 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
     def _update_buttons_checked(self):
         # sync button checkstates to match active mode
-        self._actions['pan'].setChecked(self._active == 'PAN')
-        self._actions['zoom'].setChecked(self._active == 'ZOOM')
+        if 'pan' in self._actions:
+            self._actions['pan'].setChecked(self._active == 'PAN')
+        if 'zoom' in self._actions:
+            self._actions['zoom'].setChecked(self._active == 'ZOOM')
 
     def pan(self, *args):
         super().pan(*args)
@@ -1029,7 +1034,6 @@ backend_tools.ToolCopyToClipboard = ToolCopyToClipboardQT
 
 @_Backend.export
 class _BackendQT5(_Backend):
-    required_interactive_framework = "qt5"
     FigureCanvas = FigureCanvasQT
     FigureManager = FigureManagerQT
 

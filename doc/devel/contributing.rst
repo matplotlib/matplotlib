@@ -5,9 +5,12 @@ Contributing
 ============
 
 This project is a community effort, and everyone is welcome to
-contribute.
+contribute.  We follow the `Python Software Foundation Code of Conduct
+<coc_>`_ in everything we do.
 
 The project is hosted on https://github.com/matplotlib/matplotlib
+
+.. _coc: http://www.python.org/psf/codeofconduct/
 
 Submitting a bug report
 =======================
@@ -89,21 +92,11 @@ and might be easier to use if you are using 2-factor authentication.
 Building Matplotlib for image comparison tests
 ----------------------------------------------
 
-Matplotlib's test suite makes heavy use of image comparison tests,
-meaning the result of a plot is compared against a known good result.
-Unfortunately, different versions of FreeType produce differently
-formed characters, causing these image comparisons to fail.  To make
-them reproducible, Matplotlib can be built with a special local copy
-of FreeType.  This is recommended for all Matplotlib developers.
-
-Copy :file:`setup.cfg.template` to :file:`setup.cfg` and edit it to contain::
-
-  [test]
-  local_freetype = True
-  tests = True
-
-or set the ``MPLLOCALFREETYPE`` environmental variable to any true
-value.
+Matplotlib's test suite makes heavy use of image comparison tests, meaning
+the result of a plot is compared against a known good result.  Unfortunately,
+different versions of FreeType produce differently formed characters, causing
+these image comparisons to fail.  To make them reproducible, Matplotlib is, by
+default, built with a special local copy of FreeType.
 
 
 Installing Matplotlib in developer mode
@@ -209,7 +202,7 @@ want to consider sending an email to the mailing list for more visibility.
 
   * `Git documentation <https://git-scm.com/documentation>`_
   * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
-  * `Introduction to Github  <https://lab.github.com/githubtraining/introduction-to-github>`_
+  * `Introduction to GitHub  <https://lab.github.com/githubtraining/introduction-to-github>`_
   * :ref:`development-workflow`.
   * :ref:`using-git`
 
@@ -255,8 +248,8 @@ rules before submitting a pull request:
   :file:`doc/users/next_whats_new/README.rst` for more information).
 
 * If you change the API in a backward-incompatible way, please document it in
-  `doc/api/api_changes`, by adding a new file describing your changes (see
-  :file:`doc/api/api_changes/README.rst` for more information)
+  :file:`doc/api/api_changes`, by adding to the relevant file
+  (see :file:`doc/api/api_changes.rst` for more information)
 
 * See below for additional points about :ref:`keyword-argument-processing`, if
   applicable for your pull request.
@@ -325,12 +318,56 @@ and articles or link to it from your website!
 Coding guidelines
 =================
 
+API changes
+-----------
+
+Changes to the public API must follow a standard deprecation procedure to
+prevent unexpected breaking of code that uses Matplotlib.
+
+- Deprecations must be announced via an entry in `doc/api/next_api_changes`.
+- Deprecations are targeted at the next point-release (i.e. 3.x.0).
+- The deprecated API should, to the maximum extent possible, remain fully
+  functional during the deprecation period. In cases where this is not
+  possible, the deprecation must never make a given piece of code do something
+  different than it was before; at least an exception should be raised.
+- If possible, usage of an deprecated API should emit a
+  `MatplotlibDeprecationWarning`. There are a number of helper tools for this:
+
+  - Use `.cbook.warn_deprecated()` for general deprecation warnings.
+  - Use the decorator ``@cbook.deprecated`` to deprecate classes, functions,
+    methods, or properties.
+  - To warn on changes of the function signature, use the decorators
+    ``@cbook._delete_parameter``, ``@cbook._rename_parameter``, and
+    ``@cbook._make_keyword_only``.
+
+- Deprecated API may be removed two point-releases after they were deprecated.
+
+
+Adding new API
+--------------
+
+Every new function, parameter and attribute that is not explicitly marked as
+private (i.e., starts with an underscore) becomes part of Matplotlib's public
+API. As discussed above, changing the existing API is cumbersome. Therefore,
+take particular care when adding new API:
+
+- Mark helper functions and internal attributes as private by prefixing them
+  with an underscore.
+- Carefully think about good names for your functions and variables.
+- Try to adopt patterns and naming conventions from existing parts of the
+  Matplotlib API.
+- Consider making as many arguments keyword-only as possible. See also
+  `API Evolution the Right Way -- Add Parameters Compatibly`__.
+
+  __ https://emptysqua.re/blog/api-evolution-the-right-way/#adding-parameters
+
+
 New modules and files: installation
 -----------------------------------
 
 * If you have added new files or directories, or reorganized existing
   ones, make sure the new files are included in the match patterns in
-  :file:`MANIFEST.in`, and/or in `package_data` in `setup.py`.
+  :file:`MANIFEST.in`, and/or in `package_data` in :file:`setup.py`.
 
 C/C++ extensions
 ----------------
@@ -341,8 +378,8 @@ C/C++ extensions
   address C++, but most of its admonitions still apply).
 
 * Python/C interface code should be kept separate from the core C/C++
-  code.  The interface code should be named `FOO_wrap.cpp` or
-  `FOO_wrapper.cpp`.
+  code.  The interface code should be named :file:`FOO_wrap.cpp` or
+  :file:`FOO_wrapper.cpp`.
 
 * Header file documentation (aka docstrings) should be in Numpydoc
   format.  We don't plan on using automated tools for these
@@ -523,31 +560,6 @@ and running the same script will display::
 
 .. _logging tutorial: https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
 
-.. _custom_backend:
-
-Developing a new backend
-------------------------
-
-If you are working on a custom backend, the *backend* setting in
-:file:`matplotlibrc` (:doc:`/tutorials/introductory/customizing`) supports an
-external backend via the ``module`` directive.  If
-:file:`my_backend.py` is a Matplotlib backend in your
-:envvar:`PYTHONPATH`, you can set it on one of several ways
-
-* in :file:`matplotlibrc`::
-
-    backend : module://my_backend
-
-* with the :envvar:`MPLBACKEND` environment variable::
-
-    > export MPLBACKEND="module://my_backend"
-    > python simple_plot.py
-
-* with the use directive in your script::
-
-    import matplotlib
-    matplotlib.use('module://my_backend')
-
 .. _sample-data:
 
 Writing examples
@@ -560,7 +572,7 @@ when the website is built to show up in the `examples
 
 Any sample data that the example uses should be kept small and
 distributed with Matplotlib in the
-`lib/matplotlib/mpl-data/sample_data/` directory.  Then in your
+:file:`lib/matplotlib/mpl-data/sample_data/` directory.  Then in your
 example code you can load it into a file handle with::
 
     import matplotlib.cbook as cbook

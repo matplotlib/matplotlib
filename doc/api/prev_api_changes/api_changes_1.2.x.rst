@@ -4,16 +4,16 @@ Changes in 1.2.x
 * The ``classic`` option of the rc parameter ``toolbar`` is deprecated
   and will be removed in the next release.
 
-* The :meth:`~matplotlib.cbook.isvector` method has been removed since it
+* The ``matplotlib.cbook.isvector`` method has been removed since it
   is no longer functional.
 
-* The `rasterization_zorder` property on `~matplotlib.axes.Axes` a
+* The ``rasterization_zorder`` property on `~matplotlib.axes.Axes` sets a
   zorder below which artists are rasterized.  This has defaulted to
-  -30000.0, but it now defaults to `None`, meaning no artists will be
+  -30000.0, but it now defaults to *None*, meaning no artists will be
   rasterized.  In order to rasterize artists below a given zorder
-  value, `set_rasterization_zorder` must be explicitly called.
+  value, `.set_rasterization_zorder` must be explicitly called.
 
-* In :meth:`~matplotlib.axes.Axes.scatter`, and `~pyplot.scatter`,
+* In :meth:`~matplotlib.axes.Axes.scatter`, and `~.pyplot.scatter`,
   when specifying a marker using a tuple, the angle is now specified
   in degrees, not radians.
 
@@ -35,11 +35,11 @@ Changes in 1.2.x
   ``savefig.extension``, and sets the default file format used by
   :meth:`matplotlib.figure.Figure.savefig`.
 
-* In :meth:`~matplotlib.pyplot.pie` and :meth:`~matplotlib.Axes.pie`, one can
-  now set the radius of the pie; setting the *radius* to 'None' (the default
-  value), will result in a pie with a radius of 1 as before.
+* In :func:`.pyplot.pie` and :meth:`.axes.Axes.pie`, one can now set the radius
+  of the pie; setting the *radius* to 'None' (the default value), will result
+  in a pie with a radius of 1 as before.
 
-* Use of :func:`~matplotlib.projections.projection_factory` is now deprecated
+* Use of ``matplotlib.projections.projection_factory`` is now deprecated
   in favour of axes class identification using
   :func:`~matplotlib.projections.process_projection_requirements` followed by
   direct axes class invocation (at the time of writing, functions which do this
@@ -137,7 +137,7 @@ Changes in 1.2.x
   and py2.7. It is anticipated that the Qt3 support will be completely
   removed for the next release.
 
-* :class:`~matplotlib.colors.ColorConverter`,
+* ``matplotlib.colors.ColorConverter``,
   :class:`~matplotlib.colors.Colormap` and
   :class:`~matplotlib.colors.Normalize` now subclasses ``object``
 

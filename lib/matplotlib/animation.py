@@ -34,7 +34,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib._animation_data import (
     DISPLAY_TEMPLATE, INCLUDED_FRAMES, JS_INCLUDE, STYLE_INCLUDE)
-from matplotlib import cbook, rcParams, rc_context
+from matplotlib import cbook
 
 
 _log = logging.getLogger(__name__)
@@ -96,13 +96,11 @@ def adjusted_figsize(w, h, dpi, n):
 class MovieWriterRegistry:
     '''Registry of available writer classes by human readable name.'''
     def __init__(self):
-        self.avail = dict()
         self._registered = dict()
-        self._dirty = False
 
+    @cbook.deprecated("3.2")
     def set_dirty(self):
         """Sets a flag to re-setup the writers."""
-        self._dirty = True
 
     def register(self, name):
         """Decorator for registering a class under a name.
@@ -113,32 +111,27 @@ class MovieWriterRegistry:
             class Foo:
                 pass
         """
-        def wrapper(writerClass):
-            self._registered[name] = writerClass
-            if writerClass.isAvailable():
-                self.avail[name] = writerClass
-            return writerClass
+        def wrapper(writer_cls):
+            self._registered[name] = writer_cls
+            return writer_cls
         return wrapper
 
+    @cbook.deprecated("3.2")
     def ensure_not_dirty(self):
         """If dirty, reasks the writers if they are available"""
-        if self._dirty:
-            self.reset_available_writers()
 
+    @cbook.deprecated("3.2")
     def reset_available_writers(self):
         """Reset the available state of all registered writers"""
-        self.avail = {name: writerClass
-                      for name, writerClass in self._registered.items()
-                      if writerClass.isAvailable()}
-        self._dirty = False
 
-    def list(self):
-        '''Get a list of available MovieWriters.'''
-        self.ensure_not_dirty()
-        return list(self.avail)
+    @cbook.deprecated("3.2")
+    @property
+    def avail(self):
+        return {name: self._registered[name] for name in self.list()}
 
     def is_available(self, name):
-        '''Check if given writer is available by name.
+        """
+        Check if given writer is available by name.
 
         Parameters
         ----------
@@ -147,19 +140,28 @@ class MovieWriterRegistry:
         Returns
         -------
         available : bool
-        '''
-        self.ensure_not_dirty()
-        return name in self.avail
+        """
+        try:
+            cls = self._registered[name]
+        except KeyError:
+            return False
+        return cls.isAvailable()
+
+    def __iter__(self):
+        """Iterate over names of available writer class."""
+        for name in self._registered:
+            if self.is_available(name):
+                yield name
+
+    def list(self):
+        """Get a list of available MovieWriters."""
+        return [*self]
 
     def __getitem__(self, name):
-        self.ensure_not_dirty()
-        if not self.avail:
-            raise RuntimeError("No MovieWriters available!")
-        try:
-            return self.avail[name]
-        except KeyError:
-            raise RuntimeError(
-                'Requested MovieWriter ({}) not available'.format(name))
+        """Get an available writer class from its name."""
+        if self.is_available(name):
+            return self._registered[name]
+        raise RuntimeError(f"Requested MovieWriter ({name}) not available")
 
 
 writers = MovieWriterRegistry()
@@ -186,6 +188,14 @@ class AbstractMovieWriter(abc.ABC):
     ``writer`` argument of `Animation.save()`.
     '''
 
+    def __init__(self, fps=5, metadata=None, codec=None, bitrate=None):
+        self.fps = fps
+        self.metadata = metadata if metadata is not None else {}
+        self.codec = (
+            mpl.rcParams['animation.codec'] if codec is None else codec)
+        self.bitrate = (
+            mpl.rcParams['animation.bitrate'] if bitrate is None else bitrate)
+
     @abc.abstractmethod
     def setup(self, fig, outfile, dpi=None):
         '''
@@ -193,14 +203,25 @@ class AbstractMovieWriter(abc.ABC):
 
         Parameters
         ----------
-        fig : `matplotlib.figure.Figure` instance
+        fig : `~matplotlib.figure.Figure`
             The figure object that contains the information for frames
-        outfile : string
+        outfile : str
             The filename of the resulting movie file
         dpi : int, optional
             The DPI (or resolution) for the file.  This controls the size
             in pixels of the resulting movie file. Default is ``fig.dpi``.
         '''
+        self.outfile = outfile
+        self.fig = fig
+        if dpi is None:
+            dpi = self.fig.dpi
+        self.dpi = dpi
+
+    @property
+    def frame_size(self):
+        '''A tuple ``(width, height)`` in pixels of a movie frame.'''
+        w, h = self.fig.get_size_inches()
+        return int(w * self.dpi), int(h * self.dpi)
 
     @abc.abstractmethod
     def grab_frame(self, **savefig_kwargs):
@@ -231,7 +252,8 @@ class AbstractMovieWriter(abc.ABC):
 
 
 class MovieWriter(AbstractMovieWriter):
-    '''Base class for writing movies.
+    """
+    Base class for writing movies.
 
     This is a base class for MovieWriter subclasses that write a movie frame
     data to a pipe. You cannot instantiate this class directly.
@@ -240,40 +262,39 @@ class MovieWriter(AbstractMovieWriter):
     Attributes
     ----------
     frame_format : str
-        The format used in writing frame data, defaults to 'rgba'
+        The format used in writing frame data, defaults to 'rgba'.
     fig : `~matplotlib.figure.Figure`
         The figure to capture data from.
         This must be provided by the sub-classes.
 
-    '''
+    """
 
     def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None,
                  metadata=None):
-        '''MovieWriter
-
+        """
         Parameters
         ----------
         fps : int
             Framerate for movie.
-        codec : string or None, optional
-            The codec to use. If ``None`` (the default) the ``animation.codec``
-            rcParam is used.
+        codec : str or None, optional
+            The codec to use. If ``None`` (the default) :rc:`animation.codec`
+            is used.
         bitrate : int or None, optional
             The bitrate for the saved movie file, which is one way to control
             the output file size and quality. The default value is ``None``,
-            which uses the ``animation.bitrate`` rcParam.  A value of -1
-            implies that the bitrate should be determined automatically by the
-            underlying utility.
-        extra_args : list of strings or None, optional
+            which uses :rc:`animation.bitrate`.  A value of -1 implies that
+            the bitrate should be determined automatically by the underlying
+            utility.
+        extra_args : list of str or None, optional
             A list of extra string arguments to be passed to the underlying
             movie utility. The default is ``None``, which passes the additional
-            arguments in the ``animation.extra_args`` rcParam.
+            arguments in :rc:`animation.extra_args`.
         metadata : Dict[str, str] or None
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
-        '''
-        if self.__class__ is MovieWriter:
+        """
+        if type(self) is MovieWriter:
             # TODO MovieWriter is still an abstract class and needs to be
             #      extended with a mixin. This should be clearer in naming
             #      and description. For now, just give a reasonable error
@@ -282,42 +303,22 @@ class MovieWriter(AbstractMovieWriter):
                 'MovieWriter cannot be instantiated directly. Please use one '
                 'of its subclasses.')
 
-        self.fps = fps
+        super().__init__(fps=fps, metadata=metadata)
+
         self.frame_format = 'rgba'
 
-        if codec is None:
-            self.codec = rcParams['animation.codec']
-        else:
-            self.codec = codec
-
-        if bitrate is None:
-            self.bitrate = rcParams['animation.bitrate']
-        else:
-            self.bitrate = bitrate
-
         if extra_args is None:
-            self.extra_args = list(rcParams[self.args_key])
+            self.extra_args = list(mpl.rcParams[self.args_key])
         else:
             self.extra_args = extra_args
-
-        if metadata is None:
-            self.metadata = dict()
-        else:
-            self.metadata = metadata
-
-    @property
-    def frame_size(self):
-        '''A tuple ``(width, height)`` in pixels of a movie frame.'''
-        w, h = self.fig.get_size_inches()
-        return int(w * self.dpi), int(h * self.dpi)
 
     def _adjust_frame_size(self):
         if self.codec == 'h264':
             wo, ho = self.fig.get_size_inches()
             w, h = adjusted_figsize(wo, ho, self.dpi, 2)
-            if not (wo, ho) == (w, h):
+            if (wo, ho) != (w, h):
                 self.fig.set_size_inches(w, h, forward=True)
-                _log.info('figure size (inches) has been adjusted '
+                _log.info('figure size in inches has been adjusted '
                           'from %s x %s to %s x %s', wo, ho, w, h)
         else:
             w, h = self.fig.get_size_inches()
@@ -330,21 +331,16 @@ class MovieWriter(AbstractMovieWriter):
 
         Parameters
         ----------
-        fig : matplotlib.figure.Figure
+        fig : `~matplotlib.figure.Figure`
             The figure object that contains the information for frames
-        outfile : string
+        outfile : str
             The filename of the resulting movie file
         dpi : int, optional
             The DPI (or resolution) for the file.  This controls the size
             in pixels of the resulting movie file. Default is fig.dpi.
         '''
-        self.outfile = outfile
-        self.fig = fig
-        if dpi is None:
-            dpi = self.fig.dpi
-        self.dpi = dpi
+        super().setup(fig, outfile, dpi=dpi)
         self._w, self._h = self._adjust_frame_size()
-
         # Run here so that grab_frame() can write the data to a pipe. This
         # eliminates the need for temp files.
         self._run()
@@ -416,7 +412,7 @@ class MovieWriter(AbstractMovieWriter):
         subclass. This is a class method so that the tool can be looked for
         before making a particular MovieWriter subclass available.
         '''
-        return str(rcParams[cls.exec_key])
+        return str(mpl.rcParams[cls.exec_key])
 
     @classmethod
     def isAvailable(cls):
@@ -433,7 +429,7 @@ class FileMovieWriter(MovieWriter):
     '''
     def __init__(self, *args, **kwargs):
         MovieWriter.__init__(self, *args, **kwargs)
-        self.frame_format = rcParams['animation.frame_format']
+        self.frame_format = mpl.rcParams['animation.frame_format']
 
     def setup(self, fig, outfile, dpi=None, frame_prefix='_tmp',
               clear_temp=True):
@@ -441,7 +437,7 @@ class FileMovieWriter(MovieWriter):
 
         Parameters
         ----------
-        fig : matplotlib.figure.Figure
+        fig : `~matplotlib.figure.Figure`
             The figure to grab the rendered frames from.
         outfile : str
             The filename of the resulting movie file.
@@ -538,39 +534,27 @@ class FileMovieWriter(MovieWriter):
 
 
 @writers.register('pillow')
-class PillowWriter(MovieWriter):
+class PillowWriter(AbstractMovieWriter):
     @classmethod
     def isAvailable(cls):
-        try:
-            import PIL
-        except ImportError:
-            return False
         return True
 
-    def __init__(self, *args, **kwargs):
-        if kwargs.get("extra_args") is None:
-            kwargs["extra_args"] = ()
-        super().__init__(*args, **kwargs)
-
     def setup(self, fig, outfile, dpi=None):
+        super().setup(fig, outfile, dpi=dpi)
         self._frames = []
-        self._outfile = outfile
-        self._dpi = dpi
-        self._fig = fig
 
     def grab_frame(self, **savefig_kwargs):
         from PIL import Image
         buf = BytesIO()
-        self._fig.savefig(buf, **dict(savefig_kwargs, format="rgba"))
-        renderer = self._fig.canvas.get_renderer()
+        self.fig.savefig(
+            buf, **{**savefig_kwargs, "format": "rgba", "dpi": self.dpi})
+        renderer = self.fig.canvas.get_renderer()
         self._frames.append(Image.frombuffer(
-            "RGBA",
-            (int(renderer.width), int(renderer.height)), buf.getbuffer(),
-            "raw", "RGBA", 0, 1))
+            "RGBA", self.frame_size, buf.getbuffer(), "raw", "RGBA", 0, 1))
 
     def finish(self):
         self._frames[0].save(
-            self._outfile, save_all=True, append_images=self._frames[1:],
+            self.outfile, save_all=True, append_images=self._frames[1:],
             duration=int(1000 / self.fps), loop=0)
 
 
@@ -591,16 +575,13 @@ class FFMpegBase:
         args = ['-vcodec', self.codec]
         # For h264, the default format is yuv444p, which is not compatible
         # with quicktime (and others). Specifying yuv420p fixes playback on
-        # iOS,as well as HTML5 video in firefox and safari (on both Win and
+        # iOS, as well as HTML5 video in firefox and safari (on both Win and
         # OSX). Also fixes internet explorer. This is as of 2015/10/29.
         if self.codec == 'h264' and '-pix_fmt' not in self.extra_args:
             args.extend(['-pix_fmt', 'yuv420p'])
-        # The %dk adds 'k' as a suffix so that ffmpeg treats our bitrate as in
-        # kbps
         if self.bitrate > 0:
-            args.extend(['-b', '%dk' % self.bitrate])
-        if self.extra_args:
-            args.extend(self.extra_args)
+            args.extend(['-b', '%dk' % self.bitrate])  # %dk: bitrate in kbps.
+        args.extend(self.extra_args)
         for k, v in self.metadata.items():
             args.extend(['-metadata', '%s=%s' % (k, v)])
 
@@ -712,7 +693,7 @@ class ImageMagickBase:
 
     @property
     def output_args(self):
-        return [self.outfile]
+        return [*self.extra_args, self.outfile]
 
     @classmethod
     def bin_path(cls):
@@ -725,7 +706,9 @@ class ImageMagickBase:
     def isAvailable(cls):
         try:
             return super().isAvailable()
-        except FileNotFoundError:  # May be raised by get_executable_info.
+        except mpl.ExecutableNotFoundError as _enf:
+            # May be raised by get_executable_info.
+            _log.debug('ImageMagick unavailable due to: %s', _enf)
             return False
 
 
@@ -799,7 +782,7 @@ class HTMLWriter(FileMovieWriter):
 
         # Save embed limit, which is given in MB
         if embed_limit is None:
-            self._bytes_limit = rcParams['animation.embed_limit']
+            self._bytes_limit = mpl.rcParams['animation.embed_limit']
         else:
             self._bytes_limit = embed_limit
 
@@ -889,7 +872,7 @@ class Animation:
 
     Parameters
     ----------
-    fig : matplotlib.figure.Figure
+    fig : `~matplotlib.figure.Figure`
        The figure object that is used to get draw, resize, and any
        other needed events.
 
@@ -1043,7 +1026,7 @@ class Animation:
         # If the writer is None, use the rc param to find the name of the one
         # to use
         if writer is None:
-            writer = rcParams['animation.writer']
+            writer = mpl.rcParams['animation.writer']
         elif (not isinstance(writer, str) and
               any(arg is not None
                   for arg in (fps, codec, bitrate, extra_args, metadata))):
@@ -1071,15 +1054,19 @@ class Animation:
 
         # Re-use the savefig DPI for ours if none is given
         if dpi is None:
-            dpi = rcParams['savefig.dpi']
+            dpi = mpl.rcParams['savefig.dpi']
         if dpi == 'figure':
             dpi = self._fig.dpi
 
-        if codec is None:
-            codec = rcParams['animation.codec']
-
-        if bitrate is None:
-            bitrate = rcParams['animation.bitrate']
+        writer_kwargs = {}
+        if codec is not None:
+            writer_kwargs['codec'] = codec
+        if bitrate is not None:
+            writer_kwargs['bitrate'] = bitrate
+        if extra_args is not None:
+            writer_kwargs['extra_args'] = extra_args
+        if metadata is not None:
+            writer_kwargs['metadata'] = metadata
 
         all_anim = [self]
         if extra_anim is not None:
@@ -1090,22 +1077,17 @@ class Animation:
         # If we have the name of a writer, instantiate an instance of the
         # registered class.
         if isinstance(writer, str):
-            if writer in writers.avail:
-                writer = writers[writer](fps, codec, bitrate,
-                                         extra_args=extra_args,
-                                         metadata=metadata)
+            if writers.is_available(writer):
+                writer = writers[writer](fps, **writer_kwargs)
             else:
-                if writers.list():
-                    alt_writer = writers[writers.list()[0]]
-                    _log.warning("MovieWriter %s unavailable; trying to use "
-                                 "%s instead.", writer, alt_writer)
-                    writer = alt_writer(
-                        fps, codec, bitrate,
-                        extra_args=extra_args, metadata=metadata)
-                else:
+                alt_writer = next(writers, None)
+                if alt_writer is None:
                     raise ValueError("Cannot save animation: no writers are "
                                      "available. Please install ffmpeg to "
                                      "save animations.")
+                _log.warning("MovieWriter %s unavailable; trying to use %s "
+                             "instead.", writer, alt_writer)
+                writer = alt_writer(fps, **writer_kwargs)
         _log.info('Animation.save using %s', type(writer))
 
         if 'bbox_inches' in savefig_kwargs:
@@ -1120,12 +1102,12 @@ class Animation:
         # TODO: Right now, after closing the figure, saving a movie won't work
         # since GUI widgets are gone. Either need to remove extra code to
         # allow for this non-existent use case or find a way to make it work.
-        with rc_context():
-            if rcParams['savefig.bbox'] == 'tight':
+        with mpl.rc_context():
+            if mpl.rcParams['savefig.bbox'] == 'tight':
                 _log.info("Disabling savefig.bbox = 'tight', as it may cause "
                           "frame size to vary, which is inappropriate for "
                           "animation.")
-                rcParams['savefig.bbox'] = None
+                mpl.rcParams['savefig.bbox'] = None
             with writer.saving(self._fig, filename, dpi):
                 for anim in all_anim:
                     # Clear the initial frame
@@ -1215,12 +1197,18 @@ class Animation:
         # Handles blitted drawing, which renders only the artists given instead
         # of the entire figure.
         updated_ax = []
+
+        # Enumerate artists to cache axes' backgrounds. We do not draw
+        # artists yet to not cache foreground from plots with shared axes
         for a in artists:
             # If we haven't cached the background for this axes object, do
             # so now. This might not always be reliable, but it's an attempt
             # to automate the process.
             if a.axes not in bg_cache:
                 bg_cache[a.axes] = a.figure.canvas.copy_from_bbox(a.axes.bbox)
+
+        # Make a separate pass to draw foreground
+        for a in artists:
             a.axes.draw_artist(a)
             updated_ax.append(a.axes)
 
@@ -1305,7 +1293,7 @@ class Animation:
         if not hasattr(self, '_base64_video'):
             # Save embed limit, which is given in MB
             if embed_limit is None:
-                embed_limit = rcParams['animation.embed_limit']
+                embed_limit = mpl.rcParams['animation.embed_limit']
 
             # Convert from MB to bytes
             embed_limit *= 1024 * 1024
@@ -1316,9 +1304,9 @@ class Animation:
                 path = Path(tmpdir, "temp.m4v")
                 # We create a writer manually so that we can get the
                 # appropriate size for the tag
-                Writer = writers[rcParams['animation.writer']]
+                Writer = writers[mpl.rcParams['animation.writer']]
                 writer = Writer(codec='h264',
-                                bitrate=rcParams['animation.bitrate'],
+                                bitrate=mpl.rcParams['animation.bitrate'],
                                 fps=1000. / self._interval)
                 self.save(str(path), writer=writer)
                 # Now open and base64 encode.
@@ -1377,7 +1365,7 @@ class Animation:
 
     def _repr_html_(self):
         '''IPython display hook for rendering.'''
-        fmt = rcParams['animation.html']
+        fmt = mpl.rcParams['animation.html']
         if fmt == 'html5':
             return self.to_html5_video()
         elif fmt == 'jshtml':
@@ -1391,7 +1379,7 @@ class TimedAnimation(Animation):
 
     Parameters
     ----------
-    fig : matplotlib.figure.Figure
+    fig : `~matplotlib.figure.Figure`
        The figure object that is used to get draw, resize, and any
        other needed events.
 
@@ -1474,7 +1462,7 @@ class ArtistAnimation(TimedAnimation):
 
     Parameters
     ----------
-    fig : matplotlib.figure.Figure
+    fig : `~matplotlib.figure.Figure`
        The figure object that is used to get draw, resize, and any
        other needed events.
 
@@ -1551,7 +1539,7 @@ class FuncAnimation(TimedAnimation):
 
     Parameters
     ----------
-    fig : matplotlib.figure.Figure
+    fig : `~matplotlib.figure.Figure`
        The figure object that is used to get draw, resize, and any
        other needed events.
 

@@ -109,7 +109,9 @@ class MenuItem(artist.Artist):
         self.rect.set(facecolor=props.bgcolor, alpha=props.alpha)
 
     def set_hover(self, event):
-        'check the hover status of event and return true if status is changed'
+        """
+        Update the hover status of event and return whether it was changed.
+        """
         b, junk = self.rect.contains(event)
 
         changed = (b != self.hover)

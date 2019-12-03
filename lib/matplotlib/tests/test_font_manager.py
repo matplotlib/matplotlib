@@ -1,4 +1,5 @@
 from io import BytesIO
+import multiprocessing
 import os
 from pathlib import Path
 import shutil
@@ -178,9 +179,22 @@ def test_user_fonts_win32():
     os.makedirs(user_fonts_dir)
 
     # Copy the test font to the user font directory
-    shutil.copyfile(os.path.join(os.path.dirname(__file__), font_test_file),
-                    os.path.join(user_fonts_dir, font_test_file))
+    shutil.copy(Path(__file__).parent / font_test_file, user_fonts_dir)
 
     # Now, the font should be available
     fonts = findSystemFonts()
     assert any(font_test_file in font for font in fonts)
+
+
+def _model_handler(_):
+    fig, ax = plt.subplots()
+    fig.savefig(BytesIO(), format="pdf")
+    plt.close()
+
+
+@pytest.mark.skipif(not hasattr(os, "register_at_fork"),
+                    reason="Cannot register at_fork handlers")
+def test_fork():
+    _model_handler(0)  # Make sure the font cache is filled.
+    ctx = multiprocessing.get_context("fork")
+    ctx.Pool(processes=2).map(_model_handler, range(2))

@@ -319,10 +319,10 @@ class LayoutBox:
         sol.suggestValue(self.width, width)
 
     def constrain_width(self, width, strength='strong'):
-        '''
-        Constrain the width of the layout box.  `width` is
+        """
+        Constrain the width of the layout box.  *width* is
         either a float or a layoutbox.width.
-        '''
+        """
         c = (self.width == width)
         self.solver.addConstraint(c | strength)
 
@@ -392,8 +392,7 @@ class LayoutBox:
         parent = self.parent
 
         # OK, now, we want to set the position of this subplotspec
-        # based on its subplotspec parameters.  The new gridspec will inherit.
-
+        # based on its subplotspec parameters.  The new gridspec will inherit
         # from gridspec.  prob should be new method in gridspec
         left = 0.0
         right = 1.0
@@ -406,32 +405,31 @@ class LayoutBox:
 
         # calculate accumulated heights of columns
         cellH = totHeight / (nrows + hspace * (nrows - 1))
-        sepH = hspace*cellH
+        sepH = hspace * cellH
 
         if gs._row_height_ratios is not None:
             netHeight = cellH * nrows
-            tr = float(sum(gs._row_height_ratios))
-            cellHeights = [netHeight*r/tr for r in gs._row_height_ratios]
+            tr = sum(gs._row_height_ratios)
+            cellHeights = [netHeight * r / tr for r in gs._row_height_ratios]
         else:
             cellHeights = [cellH] * nrows
 
         sepHeights = [0] + ([sepH] * (nrows - 1))
-        cellHs = np.add.accumulate(np.ravel(
-                list(zip(sepHeights, cellHeights))))
+        cellHs = np.cumsum(np.column_stack([sepHeights, cellHeights]).flat)
 
         # calculate accumulated widths of rows
-        cellW = totWidth/(ncols + wspace * (ncols - 1))
-        sepW = wspace*cellW
+        cellW = totWidth / (ncols + wspace * (ncols - 1))
+        sepW = wspace * cellW
 
         if gs._col_width_ratios is not None:
             netWidth = cellW * ncols
-            tr = float(sum(gs._col_width_ratios))
+            tr = sum(gs._col_width_ratios)
             cellWidths = [netWidth * r / tr for r in gs._col_width_ratios]
         else:
             cellWidths = [cellW] * ncols
 
         sepWidths = [0] + ([sepW] * (ncols - 1))
-        cellWs = np.add.accumulate(np.ravel(list(zip(sepWidths, cellWidths))))
+        cellWs = np.cumsum(np.column_stack([sepWidths, cellWidths]).flat)
 
         figTops = [top - cellHs[2 * rowNum] for rowNum in range(nrows)]
         figBottoms = [top - cellHs[2 * rowNum + 1] for rowNum in range(nrows)]
@@ -445,7 +443,7 @@ class LayoutBox:
         figLeft = min(figLefts[colNum1], figLefts[colNum2])
         figRight = max(figRights[colNum1], figRights[colNum2])
 
-        # These are numbers relative to 0,0,1,1.  Need to constrain
+        # These are numbers relative to (0, 0, 1, 1).  Need to constrain
         # relative to parent.
 
         width = figRight - figLeft
@@ -471,7 +469,7 @@ class LayoutBox:
 def hstack(boxes, padding=0, strength='strong'):
     '''
     Stack LayoutBox instances from left to right.
-    `padding` is in figure-relative units.
+    *padding* is in figure-relative units.
     '''
 
     for i in range(1, len(boxes)):
@@ -623,29 +621,21 @@ _layoutboxobjnum = itertools.count()
 
 
 def seq_id():
-    '''
-    Generate a short sequential id for layoutbox objects...
-    '''
-
-    global _layoutboxobjnum
-
-    return ('%06d' % (next(_layoutboxobjnum)))
+    """Generate a short sequential id for layoutbox objects."""
+    return '%06d' % next(_layoutboxobjnum)
 
 
 def print_children(lb):
-    '''
-    Print the children of the layoutbox
-    '''
+    """Print the children of the layoutbox."""
     print(lb)
     for child in lb.children:
         print_children(child)
 
 
 def nonetree(lb):
-    '''
-    Make all elements in this tree none...  This signals not to do any more
-    layout.
-    '''
+    """
+    Make all elements in this tree None, signalling not to do any more layout.
+    """
     if lb is not None:
         if lb.parent is None:
             # Clear the solver.  Hopefully this garbage collects.
@@ -700,9 +690,9 @@ def plot_children(fig, box, level=0, printit=True):
             print(child)
         ax.add_patch(
             patches.Rectangle(
-                (child.left.value(), child.bottom.value()),   # (x,y)
-                child.width.value(),          # width
-                child.height.value(),          # height
+                (child.left.value(), child.bottom.value()),  # (x, y)
+                child.width.value(),  # width
+                child.height.value(),  # height
                 fc='none',
                 alpha=0.8,
                 ec=colors[level]

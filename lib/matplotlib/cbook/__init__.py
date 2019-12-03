@@ -2,19 +2,16 @@
 A collection of utility functions and classes.  Originally, many
 (but not all) were from the Python Cookbook -- hence the name cbook.
 
-This module is safe to import from anywhere within matplotlib;
-it imports matplotlib only at runtime.
+This module is safe to import from anywhere within Matplotlib;
+it imports Matplotlib only at runtime.
 """
 
 import collections
 import collections.abc
 import contextlib
 import functools
-import glob
 import gzip
 import itertools
-import locale
-import numbers
 import operator
 import os
 from pathlib import Path
@@ -39,8 +36,51 @@ from .deprecation import (
     MatplotlibDeprecationWarning, mplDeprecation)
 
 
+def _get_running_interactive_framework():
+    """
+    Return the interactive framework whose event loop is currently running, if
+    any, or "headless" if no event loop can be started, or None.
+
+    Returns
+    -------
+    Optional[str]
+        One of the following values: "qt5", "qt4", "gtk3", "wx", "tk",
+        "macosx", "headless", ``None``.
+    """
+    QtWidgets = (sys.modules.get("PyQt5.QtWidgets")
+                 or sys.modules.get("PySide2.QtWidgets"))
+    if QtWidgets and QtWidgets.QApplication.instance():
+        return "qt5"
+    QtGui = (sys.modules.get("PyQt4.QtGui")
+             or sys.modules.get("PySide.QtGui"))
+    if QtGui and QtGui.QApplication.instance():
+        return "qt4"
+    Gtk = sys.modules.get("gi.repository.Gtk")
+    if Gtk and Gtk.main_level():
+        return "gtk3"
+    wx = sys.modules.get("wx")
+    if wx and wx.GetApp():
+        return "wx"
+    tkinter = sys.modules.get("tkinter")
+    if tkinter:
+        for frame in sys._current_frames().values():
+            while frame:
+                if frame.f_code == tkinter.mainloop.__code__:
+                    return "tk"
+                frame = frame.f_back
+    if 'matplotlib.backends._macosx' in sys.modules:
+        if sys.modules["matplotlib.backends._macosx"].event_loop_is_running():
+            return "macosx"
+    if sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
+        return "headless"
+    return None
+
+
 def _exception_printer(exc):
-    traceback.print_exc()
+    if _get_running_interactive_framework() in ["headless", None]:
+        raise exc
+    else:
+        traceback.print_exc()
 
 
 class _StrongRef:
@@ -152,7 +192,12 @@ class CallbackRegistry:
         self.callbacks[s][cid] = proxy
         return cid
 
-    def _remove_proxy(self, proxy):
+    # Keep a reference to sys.is_finalizing, as sys may have been cleared out
+    # at that point.
+    def _remove_proxy(self, proxy, *, _is_finalizing=sys.is_finalizing):
+        if _is_finalizing():
+            # Weakrefs can't be properly torn down at that point anymore.
+            return
         for signal, proxies in list(self._func_cid_map.items()):
             try:
                 del self.callbacks[signal][proxies[proxy]]
@@ -200,9 +245,20 @@ class CallbackRegistry:
 
 class silent_list(list):
     """
-    override repr when returning a list of matplotlib artists to
-    prevent long, meaningless output.  This is meant to be used for a
-    homogeneous list of a given type
+    A list with a short ``repr()``.
+
+    This is meant to be used for a homogeneous list of artists, so that they
+    don't cause long, meaningless output.
+
+    Instead of ::
+
+        [<matplotlib.lines.Line2D object at 0x7f5749fed3c8>,
+         <matplotlib.lines.Line2D object at 0x7f5749fed4e0>,
+         <matplotlib.lines.Line2D object at 0x7f5758016550>]
+
+    one will get ::
+
+        <a list of 3 Line2D objects>
     """
     def __init__(self, type, seq=None):
         self.type = type
@@ -226,7 +282,7 @@ class silent_list(list):
 class IgnoredKeywordWarning(UserWarning):
     """
     A class for issuing warnings about keyword arguments that will be ignored
-    by matplotlib
+    by Matplotlib.
     """
     pass
 
@@ -235,7 +291,7 @@ def local_over_kwdict(local_var, kwargs, *keys):
     """
     Enforces the priority of a local variable over potentially conflicting
     argument(s) from a kwargs dict. The following possible output values are
-    considered in order of priority:
+    considered in order of priority::
 
         local_var > kwargs[keys[0]] > ... > kwargs[keys[-1]]
 
@@ -245,26 +301,26 @@ def local_over_kwdict(local_var, kwargs, *keys):
 
     Parameters
     ----------
-        local_var : any object
-            The local variable (highest priority)
+    local_var : any object
+        The local variable (highest priority).
 
-        kwargs : dict
-            Dictionary of keyword arguments; modified in place
+    kwargs : dict
+        Dictionary of keyword arguments; modified in place.
 
-        keys : str(s)
-            Name(s) of keyword arguments to process, in descending order of
-            priority
+    keys : str(s)
+        Name(s) of keyword arguments to process, in descending order of
+        priority.
 
     Returns
     -------
-        out : any object
-            Either local_var or one of kwargs[key] for key in keys
+    out : any object
+        Either local_var or one of kwargs[key] for key in keys.
 
     Raises
     ------
-        IgnoredKeywordWarning
-            For each key in keys that is removed from kwargs but not used as
-            the output value
+    IgnoredKeywordWarning
+        For each key in keys that is removed from kwargs but not used as
+        the output value.
 
     """
     out = local_var
@@ -349,7 +405,7 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
 
     Parameters
     ----------
-    fname : str or PathLike or file-like object
+    fname : str or path-like or file-like object
         If `str` or `os.PathLike`, the file is opened using the flags specified
         by *flag* and *encoding*.  If a file-like object, it is passed through.
     flag : str, default 'r'
@@ -371,17 +427,18 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     """
     if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
+    if "U" in flag:
+        warn_deprecated("3.3", message="Passing a flag containing 'U' to "
+                        "to_filehandle() is deprecated since %(since)s and "
+                        "will be removed %(removal)s.")
+        flag = flag.replace("U", "")
     if isinstance(fname, str):
         if fname.endswith('.gz'):
-            # get rid of 'U' in flag for gzipped files.
-            flag = flag.replace('U', '')
             fh = gzip.open(fname, flag)
         elif fname.endswith('.bz2'):
             # python may not be complied with bz2 support,
             # bury import until we need it
             import bz2
-            # get rid of 'U' in flag for bz2 files
-            flag = flag.replace('U', '')
             fh = bz2.BZ2File(fname, flag)
         else:
             fh = open(fname, flag, encoding=encoding)
@@ -447,7 +504,7 @@ def _get_data_path(*args):
 
 def flatten(seq, scalarp=is_scalar_or_string):
     """
-    Return a generator of flattened nested containers
+    Return a generator of flattened nested containers.
 
     For example:
 
@@ -467,6 +524,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield from flatten(item, scalarp)
 
 
+@deprecated("3.3", alternative="os.path.realpath and os.stat")
 @functools.lru_cache()
 def get_realpath_and_stat(path):
     realpath = os.path.realpath(path)
@@ -526,9 +584,12 @@ def dedent(s):
 
 class maxdict(dict):
     """
-    A dictionary with a maximum size; this doesn't override all the
-    relevant methods to constrain the size, just setitem, so use with
-    caution
+    A dictionary with a maximum size.
+
+    Notes
+    -----
+    This doesn't override all the relevant methods to constrain the size,
+    just ``__setitem__``, so use with caution.
     """
     def __init__(self, maxsize):
         dict.__init__(self)
@@ -686,12 +747,9 @@ def safezip(*args):
 def safe_masked_invalid(x, copy=False):
     x = np.array(x, subok=True, copy=copy)
     if not x.dtype.isnative:
-        # Note that the argument to `byteswap` is 'inplace',
-        # thus if we have already made a copy, do the byteswap in
-        # place, else make a copy with the byte order swapped.
-        # Be explicit that we are swapping the byte order of the dtype
-        x = x.byteswap(copy).newbyteorder('S')
-
+        # If we have already made a copy, do the byteswap in place, else make a
+        # copy with the byte order swapped.
+        x = x.byteswap(inplace=copy).newbyteorder('N')  # Swap to native order.
     try:
         xm = np.ma.masked_invalid(x, copy=False)
         xm.shrink_mask()
@@ -702,15 +760,18 @@ def safe_masked_invalid(x, copy=False):
 
 def print_cycles(objects, outstream=sys.stdout, show_progress=False):
     """
-    *objects*
-        A list of objects to find cycles in.  It is often useful to
-        pass in gc.garbage to find the cycles that are preventing some
-        objects from being garbage collected.
+    Print loops of cyclic references in the given *objects*.
 
-    *outstream*
+    It is often useful to pass in ``gc.garbage`` to find the cycles that are
+    preventing some objects from being garbage collected.
+
+    Parameters
+    ----------
+    objects
+        A list of objects to find cycles in.
+    outstream
         The stream for output.
-
-    *show_progress*
+    show_progress : bool
         If True, print the number of objects reached as they are found.
     """
     import gc
@@ -868,6 +929,9 @@ def simple_linear_interpolation(a, steps):
     """
     Resample an array with ``steps - 1`` points between original point pairs.
 
+    Along each column of *a*, ``(steps - 1)`` points are introduced between
+    each original values; the values are linearly interpolated.
+
     Parameters
     ----------
     a : array, shape (n, ...)
@@ -875,10 +939,8 @@ def simple_linear_interpolation(a, steps):
 
     Returns
     -------
-    array, shape ``((n - 1) * steps + 1, ...)``
-
-    Along each column of *a*, ``(steps - 1)`` points are introduced between
-    each original values; the values are linearly interpolated.
+    array
+        shape ``((n - 1) * steps + 1, ...)``
     """
     fps = a.reshape((len(a), -1))
     xp = np.arange(len(a)) * steps
@@ -908,7 +970,7 @@ def delete_masked_points(*args):
     Masks are obtained from all arguments of the correct length
     in categories 1, 2, and 4; a point is bad if masked in a masked
     array or if it is a nan or inf.  No attempt is made to
-    extract a mask from categories 2, 3, and 4 if :meth:`np.isfinite`
+    extract a mask from categories 2, 3, and 4 if `numpy.isfinite`
     does not yield a Boolean array.
 
     All input arguments that are not passed unchanged are returned
@@ -1031,7 +1093,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     of box and whisker plots. The `Returns` section enumerates the
     required keys of the dictionary. Users can skip this function and
     pass a user-defined set of dictionaries to the new `axes.bxp` method
-    instead of relying on MPL to do the calculations.
+    instead of relying on Matplotlib to do the calculations.
 
     Parameters
     ----------
@@ -1039,7 +1101,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         Data that will be represented in the boxplots. Should have 2 or
         fewer dimensions.
 
-    whis : float or (float, float) (default = 1.5)
+    whis : float or (float, float), default: 1.5
         The position of the whiskers.
 
         If a float, the lower whisker is at the lowest datum above
@@ -1065,7 +1127,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     labels : array-like, optional
         Labels for each dataset. Length must be compatible with
-        dimensions of `X`.
+        dimensions of *X*.
 
     autorange : bool, optional (False)
         When `True` and the data are distributed such that the 25th and 75th
@@ -1246,8 +1308,8 @@ ls_mapper_r = {v: k for k, v in ls_mapper.items()}
 
 def contiguous_regions(mask):
     """
-    Return a list of (ind0, ind1) such that mask[ind0:ind1].all() is
-    True and we cover all such regions
+    Return a list of (ind0, ind1) such that ``mask[ind0:ind1].all()`` is
+    True and we cover all such regions.
     """
     mask = np.asarray(mask, dtype=bool)
 
@@ -1271,8 +1333,12 @@ def contiguous_regions(mask):
 
 
 def is_math_text(s):
-    # Did we find an even number of non-escaped dollar signs?
-    # If so, treat is as math text.
+    """
+    Returns whether the string *s* contains math expressions.
+
+    This is done by checking whether *s* contains an even number of
+    non-escaped dollar signs.
+    """
     s = str(s)
     dollar_count = s.count(r'$') - s.count(r'\$')
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
@@ -1299,7 +1365,13 @@ def _check_1d(x):
         return np.atleast_1d(x)
     else:
         try:
-            x[:, None]
+            ndim = x[:, None].ndim
+            # work around https://github.com/pandas-dev/pandas/issues/27775
+            # which mean the shape is not as expected. That this ever worked
+            # was an unintentional quirk of pandas the above line will raise
+            # an exception in the future.
+            if ndim < 2:
+                return np.atleast_1d(x)
             return x
         except (IndexError, TypeError):
             return np.atleast_1d(x)
@@ -1333,10 +1405,14 @@ def _reshape_2D(X, name):
 def violin_stats(X, method, points=100, quantiles=None):
     """
     Returns a list of dictionaries of data which can be used to draw a series
-    of violin plots. See the `Returns` section below to view the required keys
-    of the dictionary. Users can skip this function and pass a user-defined set
-    of dictionaries to the `axes.vplot` method instead of using MPL to do the
-    calculations.
+    of violin plots.
+
+    See the Returns section below to view the required keys of the dictionary.
+
+    Users can skip this function and pass a user-defined set of dictionaries
+    with the same keys to `~.axes.Axes.violinplot` instead of using Matplotlib
+    to do the calculations. See the *Returns* section below for the keys
+    that must be present in the dictionaries.
 
     Parameters
     ----------
@@ -1346,15 +1422,15 @@ def violin_stats(X, method, points=100, quantiles=None):
 
     method : callable
         The method used to calculate the kernel density estimate for each
-        column of data. When called via `method(v, coords)`, it should
+        column of data. When called via ``method(v, coords)``, it should
         return a vector of the values of the KDE evaluated at the values
         specified in coords.
 
-    points : scalar, default = 100
+    points : int, default: 100
         Defines the number of points to evaluate each of the gaussian kernel
         density estimates at.
 
-    quantiles : array-like, default = None
+    quantiles : array-like, default: None
         Defines (if not None) a list of floats in interval [0, 1] for each
         column of data, which represents the quantiles that will be rendered
         for that column of data. Must have 2 or fewer dimensions. 1D array will
@@ -1362,8 +1438,9 @@ def violin_stats(X, method, points=100, quantiles=None):
 
     Returns
     -------
-    A list of dictionaries containing the results for each column of data.
-    The dictionaries contain at least the following:
+    vpstats : list of dict
+        A list of dictionaries containing the results for each column of data.
+        The dictionaries contain at least the following:
 
         - coords: A list of scalars containing the coordinates this particular
           kernel density estimate was evaluated at.
@@ -1448,10 +1525,10 @@ def pts_to_prestep(x, *args):
 
     Examples
     --------
-    >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
+    >>> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
     """
     steps = np.zeros((1 + len(args), max(2 * len(x) - 1, 0)))
-    # In all `pts_to_*step` functions, only assign *once* using `x` and `args`,
+    # In all `pts_to_*step` functions, only assign once using *x* and *args*,
     # as converting to an array may be expensive.
     steps[0, 0::2] = x
     steps[0, 1::2] = steps[0, 0:-2:2]
@@ -1486,7 +1563,7 @@ def pts_to_poststep(x, *args):
 
     Examples
     --------
-    >> x_s, y1_s, y2_s = pts_to_poststep(x, y1, y2)
+    >>> x_s, y1_s, y2_s = pts_to_poststep(x, y1, y2)
     """
     steps = np.zeros((1 + len(args), max(2 * len(x) - 1, 0)))
     steps[0, 0::2] = x
@@ -1522,7 +1599,7 @@ def pts_to_midstep(x, *args):
 
     Examples
     --------
-    >> x_s, y1_s, y2_s = pts_to_midstep(x, y1, y2)
+    >>> x_s, y1_s, y2_s = pts_to_midstep(x, y1, y2)
     """
     steps = np.zeros((1 + len(args), 2 * len(x)))
     x = np.asanyarray(x)
@@ -1543,11 +1620,12 @@ STEP_LOOKUP_MAP = {'default': lambda x, y: (x, y),
 
 def index_of(y):
     """
-    A helper function to get the index of an input to plot
-    against if x values are not explicitly given.
+    A helper function to create reasonable x values for the given *y*.
 
-    Tries to get `y.index` (works if this is a pd.Series), if that
-    fails, return np.arange(y.shape[0]).
+    This is used for plotting (x, y) if x values are not explicitly given.
+
+    First try ``y.index`` (assuming *y* is a `pandas.Series`), if that
+    fails, use ``range(len(y))``.
 
     This will be extended in the future to deal with more types of
     labeled data.
@@ -1555,7 +1633,6 @@ def index_of(y):
     Parameters
     ----------
     y : scalar or array-like
-        The proposed y-value
 
     Returns
     -------
@@ -1570,6 +1647,12 @@ def index_of(y):
 
 
 def safe_first_element(obj):
+    """
+    Return the first element in *obj*.
+
+    This is an type-independent way of obtaining the first element, supporting
+    both index access and the iterator protocol.
+    """
     if isinstance(obj, collections.abc.Iterator):
         # needed to accept `array.flat` as input.
         # np.flatiter reports as an instance of collections.Iterator
@@ -1586,27 +1669,33 @@ def safe_first_element(obj):
 
 
 def sanitize_sequence(data):
-    """Converts dictview object to list"""
+    """
+    Convert dictview objects to list. Other inputs are returned unchanged.
+    """
     return (list(data) if isinstance(data, collections.abc.MappingView)
             else data)
 
 
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
                      allowed=None):
-    """Helper function to normalize kwarg inputs
+    """
+    Helper function to normalize kwarg inputs.
 
     The order they are resolved are:
 
-     1. aliasing
-     2. required
-     3. forbidden
-     4. allowed
+    1. aliasing
+    2. required
+    3. forbidden
+    4. allowed
 
     This order means that only the canonical names need appear in
-    `allowed`, `forbidden`, `required`
+    *allowed*, *forbidden*, *required*.
 
     Parameters
     ----------
+    kw : dict
+        A dict of keyword arguments.
+
     alias_mapping : dict or Artist subclass or Artist instance, optional
         A mapping between a canonical name to a list of
         aliases, in order of precedence from lowest to highest.
@@ -1617,17 +1706,17 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         If an Artist subclass or instance is passed, use its properties alias
         mapping.
 
-    required : iterable, optional
-        A tuple of fields that must be in kwargs.
+    required : list of str, optional
+        A list of keys that must be in *kws*.
 
-    forbidden : iterable, optional
-        A list of keys which may not be in kwargs
+    forbidden : list of str, optional
+        A list of keys which may not be in *kw*.
 
-    allowed : tuple, optional
-        A tuple of allowed fields.  If this not None, then raise if
-        `kw` contains any keys not in the union of `required`
-        and `allowed`.  To allow only the required fields pass in
-        ``()`` for `allowed`
+    allowed : list of str, optional
+        A list of allowed fields.  If this not None, then raise if
+        *kw* contains any keys not in the union of *required*
+        and *allowed*.  To allow only the required fields pass in
+        an empty tuple ``allowed=()``.
 
     Raises
     ------
@@ -1834,10 +1923,17 @@ def _define_aliases(alias_d, cls=None):
             raise ValueError(
                 "Neither getter nor setter exists for {!r}".format(prop))
 
-    if hasattr(cls, "_alias_map"):
+    def get_aliased_and_aliases(d):
+        return {*d, *(alias for aliases in d.values() for alias in aliases)}
+
+    preexisting_aliases = getattr(cls, "_alias_map", {})
+    conflicting = (get_aliased_and_aliases(preexisting_aliases)
+                   & get_aliased_and_aliases(alias_d))
+    if conflicting:
         # Need to decide on conflict resolution policy.
-        raise NotImplementedError("Parent class already defines aliases")
-    cls._alias_map = alias_d
+        raise NotImplementedError(
+            f"Parent class already defines conflicting aliases: {conflicting}")
+    cls._alias_map = {**preexisting_aliases, **alias_d}
     return cls
 
 
@@ -1855,7 +1951,7 @@ def _array_perimeter(arr):
     perimeter : ndarray, shape (2*(M - 1) + 2*(N - 1),)
         The elements on the perimeter of the array::
 
-            [arr[0,0] ... arr[0,-1] ... arr[-1, -1] ... arr[-1,0] ...]
+           [arr[0, 0], ..., arr[0, -1], ..., arr[-1, -1], ..., arr[-1, 0], ...]
 
     Examples
     --------
@@ -1991,37 +2087,136 @@ def _pformat_subprocess(command):
 
 def _check_and_log_subprocess(command, logger, **kwargs):
     """
-    Run *command* using `subprocess.check_output`.  If it succeeds, return the
-    output (stdout and stderr); if not, raise an exception whose text includes
-    the failed command and captured output.  Both the command and the output
-    are logged at DEBUG level on *logger*.
+    Run *command*, returning its stdout output if it succeeds.
+
+    If it fails (exits with nonzero return code), raise an exception whose text
+    includes the failed command and captured stdout and stderr output.
+
+    Regardless of the return code, the command is logged at DEBUG level on
+    *logger*.  In case of success, the output is likewise logged.
     """
     logger.debug('%s', _pformat_subprocess(command))
-    try:
-        report = subprocess.check_output(
-            command, stderr=subprocess.STDOUT, **kwargs)
-    except subprocess.CalledProcessError as exc:
+    proc = subprocess.run(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
+    if proc.returncode:
         raise RuntimeError(
-            'The command\n'
-            '    {}\n'
-            'failed and generated the following output:\n'
-            '{}'
-            .format(_pformat_subprocess(command), exc.output.decode('utf-8')))
-    logger.debug(report)
-    return report
+            f"The command\n"
+            f"    {_pformat_subprocess(command)}\n"
+            f"failed and generated the following output:\n"
+            f"{proc.stdout.decode('utf-8')}\n"
+            f"and the following error:\n"
+            f"{proc.stderr.decode('utf-8')}")
+    logger.debug("stdout:\n%s", proc.stdout)
+    logger.debug("stderr:\n%s", proc.stderr)
+    return proc.stdout
 
 
-def _check_in_list(values, **kwargs):
+# In the following _check_foo functions, the first parameter starts with an
+# underscore because it is intended to be positional-only (e.g., so that
+# `_check_isinstance([...], types=foo)` doesn't fail.
+
+
+def _check_isinstance(_types, **kwargs):
     """
-    For each *key, value* pair in *kwargs*, check that *value* is in *values*;
+    For each *key, value* pair in *kwargs*, check that *value* is an instance
+    of one of *_types*; if not, raise an appropriate TypeError.
+
+    As a special case, a ``None`` entry in *_types* is treated as NoneType.
+
+    Examples
+    --------
+    >>> cbook._check_isinstance((SomeClass, None), arg=arg)
+    """
+    types = _types
+    if isinstance(types, type) or types is None:
+        types = (types,)
+    none_allowed = None in types
+    types = tuple(tp for tp in types if tp is not None)
+
+    def type_name(tp):
+        return (tp.__qualname__ if tp.__module__ == "builtins"
+                else f"{tp.__module__}.{tp.__qualname__}")
+
+    names = [*map(type_name, types)]
+    if none_allowed:
+        types = (*types, type(None))
+        names.append("None")
+    for k, v in kwargs.items():
+        if not isinstance(v, types):
+            raise TypeError(
+                "{!r} must be an instance of {}, not a {}".format(
+                    k,
+                    ", ".join(names[:-1]) + " or " + names[-1]
+                    if len(names) > 1 else names[0],
+                    type_name(type(v))))
+
+
+def _check_in_list(_values, **kwargs):
+    """
+    For each *key, value* pair in *kwargs*, check that *value* is in *_values*;
     if not, raise an appropriate ValueError.
 
     Examples
     --------
     >>> cbook._check_in_list(["foo", "bar"], arg=arg, other_arg=other_arg)
     """
+    values = _values
     for k, v in kwargs.items():
         if v not in values:
             raise ValueError(
                 "{!r} is not a valid value for {}; supported values are {}"
                 .format(v, k, ', '.join(map(repr, values))))
+
+
+def _check_getitem(_mapping, **kwargs):
+    """
+    *kwargs* must consist of a single *key, value* pair.  If *key* is in
+    *_mapping*, return ``_mapping[value]``; else, raise an appropriate
+    ValueError.
+
+    Examples
+    --------
+    >>> cbook._check_getitem({"foo": "bar"}, arg=arg)
+    """
+    mapping = _mapping
+    if len(kwargs) != 1:
+        raise ValueError("_check_getitem takes a single keyword argument")
+    (k, v), = kwargs.items()
+    try:
+        return mapping[v]
+    except KeyError:
+        raise ValueError(
+            "{!r} is not a valid value for {}; supported values are {}"
+            .format(v, k, ', '.join(map(repr, mapping)))) from None
+
+
+class _classproperty:
+    """
+    Like `property`, but also triggers on access via the class, and it is the
+    *class* that's passed as argument.
+
+    Examples
+    --------
+    ::
+        class C:
+            @classproperty
+            def foo(cls):
+                return cls.__name__
+
+        assert C.foo == "C"
+    """
+
+    def __init__(self, fget):
+        self._fget = fget
+
+    def __get__(self, instance, owner):
+        return self._fget(owner)
+
+
+def _backend_module_name(name):
+    """
+    Convert a backend name (either a standard backend -- "Agg", "TkAgg", ... --
+    or a custom backend -- "module://...") to the corresponding module name).
+    """
+    return (name[9:] if name.startswith("module://")
+            else "matplotlib.backends.backend_{}".format(name.lower()))

@@ -6,6 +6,7 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 import pytest
+import platform
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -42,6 +43,12 @@ needs_pdflatex = pytest.mark.skipif(not check_for('pdflatex'),
                                     reason='pdflatex + pgf is required')
 needs_lualatex = pytest.mark.skipif(not check_for('lualatex'),
                                     reason='lualatex + pgf is required')
+
+
+def _has_sfmath():
+    return (shutil.which("kpsewhich")
+            and subprocess.run(["kpsewhich", "sfmath.sty"],
+                               stdout=subprocess.PIPE).returncode == 0)
 
 
 def compare_figure(fname, savefig_kwargs={}, tol=0):
@@ -113,6 +120,7 @@ def test_pdflatex():
 # test updating the rc parameters for each figure
 @needs_xelatex
 @needs_pdflatex
+@pytest.mark.skipif(not _has_sfmath(), reason='needs sfmath.sty')
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
 def test_rcupdate():
@@ -158,7 +166,8 @@ def test_pathclip():
 # test mixed mode rendering
 @needs_xelatex
 @pytest.mark.backend('pgf')
-@image_comparison(['pgf_mixedmode.pdf'], style='default')
+@image_comparison(['pgf_mixedmode.pdf'], style='default',
+                  tol={'aarch64': 1.086}.get(platform.machine(), 0.0))
 def test_mixedmode():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}

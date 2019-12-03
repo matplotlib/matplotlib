@@ -49,7 +49,7 @@ class ToolBase:
         ToolManager that controls this Tool
     figure : `FigureCanvas`
         Figure instance that is affected by this Tool
-    name : string
+    name : str
         Used as **Id** of the tool, has to be unique among tools of the same
         ToolManager
     """
@@ -75,7 +75,7 @@ class ToolBase:
     Filename of the image
 
     **String**: Filename of the image to use in the toolbar. If None, the
-    `name` is used as a label in the toolbar button
+    *name* is used as a label in the toolbar button
     """
 
     def __init__(self, toolmanager, name):
@@ -941,7 +941,7 @@ class ToolZoom(ZoomPanBase):
                 self._cancel_action()
                 return
 
-            # detect twinx,y axes and avoid double zooming
+            # detect twinx, twiny axes and avoid double zooming
             twinx, twiny = False, False
             if last_a:
                 for la in last_a:
@@ -1051,13 +1051,9 @@ class ToolHelpBase(ToolBase):
         return ", ".join(self.format_shortcut(keymap) for keymap in keymaps)
 
     def _get_help_entries(self):
-        entries = []
-        for name, tool in sorted(self.toolmanager.tools.items()):
-            if not tool.description:
-                continue
-            entries.append((name, self._format_tool_keymap(name),
-                            tool.description))
-        return entries
+        return [(name, self._format_tool_keymap(name), tool.description)
+                for name, tool in sorted(self.toolmanager.tools.items())
+                if tool.description]
 
     def _get_help_text(self):
         entries = self._get_help_entries()

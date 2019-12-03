@@ -3,19 +3,16 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 
 .. seealso::
 
-  :doc:`/gallery/color/colormap_reference` for a list of builtin
-  colormaps.
+  :doc:`/gallery/color/colormap_reference` for a list of builtin colormaps.
 
   :doc:`/tutorials/colors/colormap-manipulation` for examples of how to
-  make colormaps and
+  make colormaps.
 
   :doc:`/tutorials/colors/colormaps` an in-depth discussion of
   choosing colormaps.
 
   :doc:`/tutorials/colors/colormapnorms` for more details about data
-  normalization
-
-
+  normalization.
 """
 
 import functools
@@ -30,31 +27,18 @@ from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
 
 
-cmap_d = {}
+def _reverser(f, x):  # Deprecated, remove this at the same time as revcmap.
+    return f(1 - x)  # Toplevel helper for revcmap ensuring cmap picklability.
 
 
-# reverse all the colormaps.
-# reversed colormaps have '_r' appended to the name.
-
-
-def _reverser(f, x=None):
-    """Helper such that ``_reverser(f)(x) == f(1 - x)``."""
-    if x is None:
-        # Returning a partial object keeps it picklable.
-        return functools.partial(_reverser, f)
-    return f(1 - x)
-
-
+@cbook.deprecated("3.2", alternative="Colormap.reversed()")
 def revcmap(data):
     """Can only handle specification *data* in dictionary format."""
     data_r = {}
     for key, val in data.items():
         if callable(val):
-            valnew = _reverser(val)
-            # This doesn't work: lambda x: val(1-x)
-            # The same "val" (the first one) is used
-            # each time, so the colors are identical
-            # and the result is shades of gray.
+            # Return a partial object so that the result is picklable.
+            valnew = functools.partial(_reverser, val)
         else:
             # Flip x and exchange the y values facing x = 0 and x = 1.
             valnew = [(1.0 - x, y1, y0) for x, y0, y1 in reversed(val)]
@@ -62,51 +46,30 @@ def revcmap(data):
     return data_r
 
 
-def _reverse_cmap_spec(spec):
-    """Reverses cmap specification *spec*, can handle both dict and tuple
-    type specs."""
-
-    if 'listed' in spec:
-        return {'listed': spec['listed'][::-1]}
-
-    if 'red' in spec:
-        return revcmap(spec)
-    else:
-        revspec = list(reversed(spec))
-        if len(revspec[0]) == 2:    # e.g., (1, (1.0, 0.0, 1.0))
-            revspec = [(1.0 - a, b) for a, b in revspec]
-        return revspec
-
-
-def _generate_cmap(name, lutsize):
-    """Generates the requested cmap from its *name*.  The lut size is
-    *lutsize*."""
-
-    spec = datad[name]
-
-    # Generate the colormap object.
-    if 'red' in spec:
-        return colors.LinearSegmentedColormap(name, spec, lutsize)
-    elif 'listed' in spec:
-        return colors.ListedColormap(spec['listed'], name)
-    else:
-        return colors.LinearSegmentedColormap.from_list(name, spec, lutsize)
-
-
 LUTSIZE = mpl.rcParams['image.lut']
 
-# Generate the reversed specifications (all at once, to avoid
-# modify-when-iterating).
-datad.update({cmapname + '_r': _reverse_cmap_spec(spec)
-              for cmapname, spec in datad.items()})
 
-# Precache the cmaps with ``lutsize = LUTSIZE``.
-# Also add the reversed ones added in the section above:
-for cmapname in datad:
-    cmap_d[cmapname] = _generate_cmap(cmapname, LUTSIZE)
+def _gen_cmap_d():
+    """
+    Generate a dict mapping standard colormap names to standard colormaps, as
+    well as the reversed colormaps.
+    """
+    cmap_d = {**cmaps_listed}
+    for name, spec in datad.items():
+        cmap_d[name] = (  # Precache the cmaps at a fixed lutsize..
+            colors.LinearSegmentedColormap(name, spec, LUTSIZE)
+            if 'red' in spec else
+            colors.ListedColormap(spec['listed'], name)
+            if 'listed' in spec else
+            colors.LinearSegmentedColormap.from_list(name, spec, LUTSIZE))
+    # Generate reversed cmaps.
+    for cmap in list(cmap_d.values()):
+        rmap = cmap.reversed()
+        cmap_d[rmap.name] = rmap
+    return cmap_d
 
-cmap_d.update(cmaps_listed)
 
+cmap_d = _gen_cmap_d()
 locals().update(cmap_d)
 
 
@@ -130,21 +93,16 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     In the second case, the three arguments are passed to
     the :class:`~matplotlib.colors.LinearSegmentedColormap` initializer,
     and the resulting colormap is registered.
-
     """
+    cbook._check_isinstance((str, None), name=name)
     if name is None:
         try:
             name = cmap.name
         except AttributeError:
             raise ValueError("Arguments must include a name or a Colormap")
-
-    if not isinstance(name, str):
-        raise ValueError("Colormap name must be a string")
-
     if isinstance(cmap, colors.Colormap):
         cmap_d[name] = cmap
         return
-
     # For the remainder, let exceptions propagate.
     if lut is None:
         lut = mpl.rcParams['image.lut']
@@ -159,12 +117,15 @@ def get_cmap(name=None, lut=None):
     Colormaps added with :func:`register_cmap` take precedence over
     built-in colormaps.
 
-    If *name* is a :class:`matplotlib.colors.Colormap` instance, it will be
-    returned.
-
-    If *lut* is not None it must be an integer giving the number of
-    entries desired in the lookup table, and *name* must be a standard
-    mpl colormap name.
+    Parameters
+    ----------
+    name : `matplotlib.colors.Colormap` or str or None, default: None
+        If a `Colormap` instance, it will be returned.  Otherwise, the name of
+        a colormap known to Matplotlib, which will be resampled by *lut*.  The
+        default, None, means :rc:`image.cmap`.
+    lut : int or None, default: None
+        If *name* is not already a Colormap instance and *lut* is not None, the
+        colormap will be resampled to have *lut* entries in the lookup table.
     """
     if name is None:
         name = mpl.rcParams['image.cmap']
@@ -185,7 +146,7 @@ class ScalarMappable:
 
     """
     def __init__(self, norm=None, cmap=None):
-        r"""
+        """
 
         Parameters
         ----------
@@ -295,25 +256,32 @@ class ScalarMappable:
         self.update_dict['array'] = True
 
     def get_array(self):
-        'Return the array'
+        """Return the data array."""
         return self._A
 
     def get_cmap(self):
-        'return the colormap'
+        """Return the `.Colormap` instance."""
         return self.cmap
 
     def get_clim(self):
-        'return the min, max of the color limits for image scaling'
+        """
+        Return the values (min, max) that are mapped to the colormap limits.
+        """
         return self.norm.vmin, self.norm.vmax
 
     def set_clim(self, vmin=None, vmax=None):
         """
-        set the norm limits for image scaling; if *vmin* is a length2
-        sequence, interpret it as ``(vmin, vmax)`` which is used to
-        support setp
+        Set the norm limits for image scaling.
 
-        ACCEPTS: a length 2 sequence of floats; may be overridden in methods
-        that have ``vmin`` and ``vmax`` kwargs.
+        Parameters
+        ----------
+        vmin, vmax : float
+             The limits.
+
+             The limits may also be passed as a tuple (*vmin*, *vmax*) as a
+             single positional argument.
+
+             .. ACCEPTS: (vmin: float, vmax: float)
         """
         if vmax is None:
             try:
@@ -362,6 +330,7 @@ class ScalarMappable:
         on the colorbar to default.
 
         """
+        cbook._check_isinstance((colors.Normalize, None), norm=norm)
         if norm is None:
             norm = colors.Normalize()
         self.norm = norm

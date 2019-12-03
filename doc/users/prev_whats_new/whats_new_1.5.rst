@@ -191,43 +191,45 @@ Configuration (rcParams)
 
 Some parameters have been added, others have been improved.
 
-+-------------------------+--------------------------------------------------+
-| Parameter               | Description                                      |
-+=========================+==================================================+
-|`{x,y}axis.labelpad`     | mplot3d now respects these parameters            |
-+-------------------------+--------------------------------------------------+
-|`axes.labelpad`          | Default space between the axis and the label     |
-+-------------------------+--------------------------------------------------+
-|`errorbar.capsize`       | Default length of end caps on error bars         |
-+-------------------------+--------------------------------------------------+
-|`{x,y}tick.minor.visible`| Default visibility of minor x/y ticks            |
-+-------------------------+--------------------------------------------------+
-|`legend.framealpha`      | Default transparency of the legend frame box     |
-+-------------------------+--------------------------------------------------+
-|`legend.facecolor`       | Default facecolor of legend frame box (or        |
-|                         | ``'inherit'`` from `axes.facecolor`)             |
-+-------------------------+--------------------------------------------------+
-|`legend.edgecolor`       | Default edgecolor of legend frame box (or        |
-|                         | ``'inherit'`` from `axes.edgecolor`)             |
-+-------------------------+--------------------------------------------------+
-|`figure.titlesize`       | Default font size for figure suptitles           |
-+-------------------------+--------------------------------------------------+
-|`figure.titleweight`     | Default font weight for figure suptitles         |
-+-------------------------+--------------------------------------------------+
-|`image.composite_image`  | Whether a vector graphics backend should         |
-|                         | composite several images into a single image or  |
-|                         | not when saving. Useful when needing to edit the |
-|                         | files further in Inkscape or other programs.     |
-+-------------------------+--------------------------------------------------+
-|`markers.fillstyle`      | Default fillstyle of markers. Possible values    |
-|                         | are ``'full'`` (the default), ``'left'``,        |
-|                         | ``'right'``, ``'bottom'``, ``'top'`` and         |
-|                         | ``'none'``                                       |
-+-------------------------+--------------------------------------------------+
-|`toolbar`                | Added ``'toolmanager'`` as a valid value,        |
-|                         | enabling the experimental ``ToolManager``        |
-|                         | feature.                                         |
-+-------------------------+--------------------------------------------------+
++---------------------------+--------------------------------------------------+
+| Parameter                 | Description                                      |
++===========================+==================================================+
+|:rc:`xaxis.labelpad`,      | mplot3d now respects these parameters            |
+|:rc:`yaxis.labelpad`       |                                                  |
++---------------------------+--------------------------------------------------+
+|:rc:`axes.labelpad`        | Default space between the axis and the label     |
++---------------------------+--------------------------------------------------+
+|:rc:`errorbar.capsize`     | Default length of end caps on error bars         |
++---------------------------+--------------------------------------------------+
+|:rc:`xtick.minor.visible`, | Default visibility of minor x/y ticks            |
+|:rc:`ytick.minor.visible`  |                                                  |
++---------------------------+--------------------------------------------------+
+|:rc:`legend.framealpha`    | Default transparency of the legend frame box     |
++---------------------------+--------------------------------------------------+
+|:rc:`legend.facecolor`     | Default facecolor of legend frame box (or        |
+|                           | ``'inherit'`` from :rc:`axes.facecolor`)         |
++---------------------------+--------------------------------------------------+
+|:rc:`legend.edgecolor`     | Default edgecolor of legend frame box (or        |
+|                           | ``'inherit'`` from :rc:`axes.edgecolor`)         |
++---------------------------+--------------------------------------------------+
+|:rc:`figure.titlesize`     | Default font size for figure suptitles           |
++---------------------------+--------------------------------------------------+
+|:rc:`figure.titleweight`   | Default font weight for figure suptitles         |
++---------------------------+--------------------------------------------------+
+|:rc:`image.composite_image`| Whether a vector graphics backend should         |
+|                           | composite several images into a single image or  |
+|                           | not when saving. Useful when needing to edit the |
+|                           | files further in Inkscape or other programs.     |
++---------------------------+--------------------------------------------------+
+|:rc:`markers.fillstyle`    | Default fillstyle of markers. Possible values    |
+|                           | are ``'full'`` (the default), ``'left'``,        |
+|                           | ``'right'``, ``'bottom'``, ``'top'`` and         |
+|                           | ``'none'``                                       |
++---------------------------+--------------------------------------------------+
+|:rc:`toolbar`              | Added ``'toolmanager'`` as a valid value,        |
+|                           | enabling the experimental ``ToolManager``        |
+|                           | feature.                                         |
++---------------------------+--------------------------------------------------+
 
 
 Widgets
@@ -259,7 +261,7 @@ Example::
 Improved RectangleSelector and new EllipseSelector Widget
 `````````````````````````````````````````````````````````
 
-Adds an `interactive` keyword which enables visible handles for manipulating the shape after it has been drawn.
+Adds an *interactive* keyword which enables visible handles for manipulating the shape after it has been drawn.
 
 Adds keyboard modifiers for:
 
@@ -318,14 +320,14 @@ specified, the default value is taken from rcParams.
    Contour Corner Mask
 
 
-Mostly unified linestyles for `Line2D`, `Patch` and `Collection`
-`````````````````````````````````````````````````````````````````
+Mostly unified linestyles for `.Line2D`, `.Patch` and `.Collection`
+```````````````````````````````````````````````````````````````````
 
 The handling of linestyles for Lines, Patches and Collections has been
 unified.  Now they all support defining linestyles with short symbols,
-like `"--"`, as well as with full names, like ``"dashed"``. Also the
+like "--", as well as with full names, like "dashed". Also the
 definition using a dash pattern (``(0., [3., 3.])``) is supported for all
-methods using `Line2D`, `Patch` or ``Collection``.
+methods using `.Line2D`, `.Patch` or `.Collection`.
 
 
 Legend marker order
@@ -410,13 +412,13 @@ Updated Figure.savefig() can now use figure's dpi
 `````````````````````````````````````````````````
 
 Added support to save the figure with the same dpi as the figure on the
-screen using `dpi='figure'`.
+screen using ``dpi='figure'``:.
 
 Example::
 
-   f = plt.figure(dpi=25)               # dpi set to 25
+   f = plt.figure(dpi=25)  # dpi set to 25
    S = plt.scatter([1,2,3],[4,5,6])
-   f.savefig('output.png', dpi='figure')    # output savefig dpi set to 25 (same as figure)
+   f.savefig('output.png', dpi='figure')  # output savefig dpi set to 25 (same as figure)
 
 
 Updated Table to control edge visibility
@@ -493,8 +495,8 @@ backends.
 
 DateFormatter strftime
 ``````````````````````
-:class:`~matplotlib.dates.DateFormatter`s'
-:meth:`~matplotlib.dates.DateFormatter.strftime` method will format
+:class:`~matplotlib.dates.DateFormatter`\ 's
+:meth:`~matplotlib.dates.DateFormatter.__call__` method will format
 a :class:`datetime.datetime` object with the format string passed to
 the formatter's constructor. This method accepts datetimes with years
 before 1900, unlike :meth:`datetime.datetime.strftime`.
@@ -504,7 +506,7 @@ Artist-level {get,set}_usetex for text
 ``````````````````````````````````````
 
 Add ``{get,set}_usetex`` methods to :class:`~matplotlib.text.Text` objects
-which allow artist-level control of LaTeX rendering vs the internal mathtex
+which allow artist-level control of LaTeX rendering vs. the internal mathtex
 rendering.
 
 
@@ -606,8 +608,8 @@ that comes as replacement for `NavigationToolbar2`
 
 `ToolManager` offers a new way of looking at the user interactions
 with the figures.  Before we had the `NavigationToolbar2` with its own
-tools like `zoom/pan/home/save/...` and also we had the shortcuts like
-`yscale/grid/quit/....` `Toolmanager` relocate all those actions as
+tools like ``zoom/pan/home/save/...`` and also we had the shortcuts like
+``yscale/grid/quit/....``. `Toolmanager` relocate all those actions as
 `Tools` (located in `~matplotlib.backend_tools`), and defines a way to
 `access/trigger/reconfigure` them.
 
@@ -619,7 +621,7 @@ backends include a `ToolContainer` called `toolbar`
 .. note::
     At the moment, we release this primarily for feedback purposes and should
     be treated as experimental until further notice as API changes will occur.
-    For the moment the `ToolManager` works only with the `GTK3` and `Tk` backends.
+    For the moment the `ToolManager` works only with the GTK3 and Tk backends.
     Make sure you use one of those.
     Port for the rest of the backends is comming soon.
 
@@ -734,9 +736,9 @@ IPython's ``HTML`` display class::
 Prefixed pkg-config for building
 --------------------------------
 
-Handling of `pkg-config` has been fixed in so far as it is now
-possible to set it using the environment variable `PKG_CONFIG`. This
-is important if your toolchain is prefixed. This is done in a simpilar
-way as setting `CC` or `CXX` before building. An example follows.
+Handling of pkg-config has been fixed in so far as it is now possible to set it
+using the environment variable :envvar:`PKG_CONFIG`. This is important if your
+toolchain is prefixed. This is done in a simpilar way as setting :envvar:`CC`
+or :envvar:`CXX` before building. An example follows.
 
     export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config

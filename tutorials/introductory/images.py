@@ -12,16 +12,17 @@ Startup commands
 
 First, let's start IPython.  It is a most excellent enhancement to the
 standard Python prompt, and it ties in especially well with
-Matplotlib.  Start IPython either at a shell, or the IPython Notebook now.
+Matplotlib.  Start IPython either directly at a shell, or with the Jupyter
+Notebook (where IPython as a running kernel).
 
 With IPython started, we now need to connect to a GUI event loop.  This
 tells IPython where (and how) to display plots.  To connect to a GUI
 loop, execute the **%matplotlib** magic at your IPython prompt.  There's more
 detail on exactly what this does at `IPython's documentation on GUI
 event loops
-<http://ipython.org/ipython-doc/2/interactive/reference.html#gui-event-loop-support>`_.
+<https://ipython.readthedocs.io/en/stable/interactive/reference.html#gui-event-loop-support>`_.
 
-If you're using IPython Notebook, the same commands are available, but
+If you're using Jupyter Notebook, the same commands are available, but
 people commonly use a specific argument to the %matplotlib magic:
 
 .. sourcecode:: ipython
@@ -148,7 +149,7 @@ plt.imshow(lum_img, cmap="hot")
 
 ###############################################################################
 # Note that you can also change colormaps on existing plot objects using the
-# :meth:`~matplotlib.image.Image.set_cmap` method:
+# :meth:`~matplotlib.cm.ScalarMappable.set_cmap` method:
 
 imgplot = plt.imshow(lum_img)
 imgplot.set_cmap('nipy_spectral')
@@ -157,7 +158,7 @@ imgplot.set_cmap('nipy_spectral')
 #
 # .. note::
 #
-#    However, remember that in the IPython notebook with the inline backend,
+#    However, remember that in the Jupyter Notebook with the inline backend,
 #    you can't make changes to plots that have already been rendered.  If you
 #    create imgplot here in one cell, you cannot call set_cmap() on it in a later
 #    cell and expect the earlier plot to change.  Make sure that you enter these
@@ -174,17 +175,12 @@ imgplot.set_cmap('nipy_spectral')
 # ------------------------
 #
 # It's helpful to have an idea of what value a color represents.  We can
-# do that by adding color bars.
+# do that by adding a color bar to your figure:
 
 imgplot = plt.imshow(lum_img)
 plt.colorbar()
 
 ###############################################################################
-# This adds a colorbar to your existing figure.  This won't
-# automatically change if you change you switch to a different
-# colormap - you have to re-create your plot, and add in the colorbar
-# again.
-#
 # .. _`Data ranges`:
 #
 # Examining a specific data range
@@ -206,9 +202,9 @@ plt.hist(lum_img.ravel(), bins=256, range=(0.0, 1.0), fc='k', ec='k')
 # image).  Let's adjust the upper limit, so that we effectively "zoom in
 # on" part of the histogram.  We do this by passing the clim argument to
 # imshow.  You could also do this by calling the
-# :meth:`~matplotlib.image.Image.set_clim` method of the image plot
+# :meth:`~matplotlib.cm.ScalarMappable.set_clim` method of the image plot
 # object, but make sure that you do so in the same cell as your plot
-# command when working with the IPython Notebook - it will not change
+# command when working with the Jupyter Notebook - it will not change
 # plots from earlier cells.
 #
 # You can specify the clim in the call to ``plot``.

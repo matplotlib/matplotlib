@@ -19,8 +19,7 @@ except ImportError:
 
 from matplotlib import cbook, is_interactive
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, NavigationToolbar2)
+from matplotlib.backend_bases import _Backend, NavigationToolbar2
 from matplotlib.backends.backend_webagg_core import (
     FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg,
     TimerTornado)
@@ -139,7 +138,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
     def remove_comm(self, comm_id):
         self.web_sockets = {socket for socket in self.web_sockets
-                            if not socket.comm.comm_id == comm_id}
+                            if socket.comm.comm_id != comm_id}
 
 
 class FigureCanvasNbAgg(FigureCanvasWebAggCore):

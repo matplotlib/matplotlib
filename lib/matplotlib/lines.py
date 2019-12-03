@@ -15,7 +15,8 @@ from .cbook import (
     _to_unmasked_float_array, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
 from .markers import MarkerStyle
 from .path import Path
-from .transforms import Bbox, TransformedPath
+from .transforms import (
+    Affine2D, Bbox, BboxTransformFrom, BboxTransformTo, TransformedPath)
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
@@ -163,15 +164,11 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
             delta = np.empty((len(disp_coords), 2))
             delta[0, :] = 0
             delta[1:, :] = disp_coords[1:, :] - disp_coords[:-1, :]
-            delta = np.sum(delta**2, axis=1)
-            delta = np.sqrt(delta)
-            delta = np.cumsum(delta)
+            delta = np.hypot(*delta.T).cumsum()
             # calc distance between markers along path based on the axes
             # bounding box diagonal being a distance of unity:
-            scale = ax_transform.transform(np.array([[0, 0], [1, 1]]))
-            scale = np.diff(scale, axis=0)
-            scale = np.sum(scale**2)
-            scale = np.sqrt(scale)
+            (x0, y0), (x1, y1) = ax_transform.transform([[0, 0], [1, 1]])
+            scale = np.hypot(x1 - x0, y1 - y0)
             marker_delta = np.arange(start * scale, delta[-1], step * scale)
             # find closest actual data point that is closest to
             # the theoretical distance along the path:
@@ -292,10 +289,10 @@ class Line2D(Artist):
                  **kwargs
                  ):
         """
-        Create a :class:`~matplotlib.lines.Line2D` instance with *x*
-        and *y* data in sequences *xdata*, *ydata*.
+        Create a `.Line2D` instance with *x* and *y* data in sequences of
+        *xdata*, *ydata*.
 
-        The kwargs are :class:`~matplotlib.lines.Line2D` properties:
+        Additional keyword arguments are `.Line2D` properties:
 
         %(_Line2D_docstr)s
 
@@ -450,8 +447,9 @@ class Line2D(Artist):
 
             TODO: sort returned indices by distance
         """
-        if callable(self._contains):
-            return self._contains(self, mouseevent)
+        inside, info = self._default_contains(mouseevent)
+        if inside is not None:
+            return inside, info
 
         if not isinstance(self.pickradius, Number):
             raise ValueError("pick radius should be a distance")
@@ -548,9 +546,10 @@ class Line2D(Artist):
         self.stale = True
 
     def set_markevery(self, every):
-        """Set the markevery property to subsample the plot when using markers.
+        """
+        Set the markevery property to subsample the plot when using markers.
 
-        e.g., if `every=5`, every 5-th marker will be plotted.
+        e.g., if ``every=5``, every 5-th marker will be plotted.
 
         Parameters
         ----------
@@ -576,6 +575,9 @@ class Line2D(Artist):
               functionality as every=0.1 is exhibited but the first marker will
               be 0.5 multiplied by the display-coordinate-diagonal-distance
               along the line.
+
+            For examples see
+            :doc:`/gallery/lines_bars_and_markers/markevery_demo`.
 
         Notes
         -----
@@ -835,10 +837,10 @@ class Line2D(Artist):
                     self.recache()
                     self._transform_path(subslice)
                     tpath, affine = (self._get_transformed_path()
-                                    .get_transformed_path_and_affine())
+                                    .get_transformed_points_and_affine())
             else:
                 tpath, affine = (self._get_transformed_path()
-                                 .get_transformed_path_and_affine())
+                                 .get_transformed_points_and_affine())
 
             if len(tpath.vertices):
                 # subsample the markers if markevery is not None
@@ -1082,6 +1084,7 @@ class Line2D(Artist):
             - 'steps' is equal to 'steps-pre' and is maintained for
               backward-compatibility.
 
+            For examples see :doc:`/gallery/lines_bars_and_markers/step_demo`.
         """
         if drawstyle is None:
             drawstyle = 'default'
@@ -1099,6 +1102,7 @@ class Line2D(Artist):
         Parameters
         ----------
         w : float
+            Line width, in points.
         """
         w = float(w)
 
@@ -1173,6 +1177,8 @@ class Line2D(Artist):
 
               where ``onoffseq`` is an even length tuple of on and off ink
               in points. See also :meth:`set_dashes`.
+
+            For examples see :doc:`/gallery/lines_bars_and_markers/linestyles`.
         """
         if isinstance(ls, str):
             ds, ls = self._split_drawstyle_linestyle(ls)
@@ -1231,6 +1237,7 @@ class Line2D(Artist):
         Parameters
         ----------
         ew : float
+             Marker edge width, in points.
         """
         if ew is None:
             ew = rcParams['lines.markeredgewidth']
@@ -1273,6 +1280,7 @@ class Line2D(Artist):
         Parameters
         ----------
         sz : float
+             Marker size, in points.
         """
         sz = float(sz)
         if self._markersize != sz:
@@ -1325,7 +1333,7 @@ class Line2D(Artist):
             self.set_linestyle((0, seq))
 
     def update_from(self, other):
-        """Copy properties from other to self."""
+        """Copy properties from *other* to self."""
         Artist.update_from(self, other)
         self._linestyle = other._linestyle
         self._linewidth = other._linewidth
@@ -1402,6 +1410,7 @@ class Line2D(Artist):
         Parameters
         ----------
         s : {'butt', 'round', 'projecting'}
+            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
         s = s.lower()
         cbook._check_in_list(self.validCap, s=s)
@@ -1416,6 +1425,7 @@ class Line2D(Artist):
         Parameters
         ----------
         s : {'butt', 'round', 'projecting'}
+            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
         s = s.lower()
         cbook._check_in_list(self.validCap, s=s)
@@ -1448,10 +1458,51 @@ class Line2D(Artist):
         return self._linestyle in ('--', '-.', ':')
 
 
+class _AxLine(Line2D):
+    """
+    A helper class that implements `~.Axes.axline`, by recomputing the artist
+    transform at draw time.
+    """
+
+    def get_transform(self):
+        ax = self.axes
+        (x1, y1), (x2, y2) = ax.transScale.transform([*zip(*self.get_data())])
+        dx = x2 - x1
+        dy = y2 - y1
+        if np.allclose(x1, x2):
+            if np.allclose(y1, y2):
+                raise ValueError(
+                    f"Cannot draw a line through two identical points "
+                    f"(x={self.get_xdata()}, y={self.get_ydata()})")
+            # First send y1 to 0 and y2 to 1.
+            return (Affine2D.from_values(1, 0, 0, 1 / dy, 0, -y1 / dy)
+                    + ax.get_xaxis_transform(which="grid"))
+        if np.allclose(y1, y2):
+            # First send x1 to 0 and x2 to 1.
+            return (Affine2D.from_values(1 / dx, 0, 0, 1, -x1 / dx, 0)
+                    + ax.get_yaxis_transform(which="grid"))
+        (vxlo, vylo), (vxhi, vyhi) = ax.transScale.transform(ax.viewLim)
+        # General case: find intersections with view limits in either
+        # direction, and draw between the middle two points.
+        _, start, stop, _ = sorted([
+            (vxlo, y1 + (vxlo - x1) * dy / dx),
+            (vxhi, y1 + (vxhi - x1) * dy / dx),
+            (x1 + (vylo - y1) * dx / dy, vylo),
+            (x1 + (vyhi - y1) * dx / dy, vyhi),
+        ])
+        return (BboxTransformFrom(Bbox([*zip(*self.get_data())]))
+                + BboxTransformTo(Bbox([start, stop]))
+                + ax.transLimits + ax.transAxes)
+
+    def draw(self, renderer):
+        self._transformed_path = None  # Force regen.
+        super().draw(renderer)
+
+
 class VertexSelector:
     """
     Manage the callbacks to maintain a list of selected vertices for
-    :class:`matplotlib.lines.Line2D`. Derived classes should override
+    `.Line2D`. Derived classes should override
     :meth:`~matplotlib.lines.VertexSelector.process_selected` to do
     something with the picks.
 
@@ -1481,10 +1532,9 @@ class VertexSelector:
     """
     def __init__(self, line):
         """
-        Initialize the class with a :class:`matplotlib.lines.Line2D`
-        instance.  The line should already be added to some
-        :class:`matplotlib.axes.Axes` instance and should have the
-        picker property set.
+        Initialize the class with a `.Line2D` instance.  The line should
+        already be added to some :class:`matplotlib.axes.Axes` instance and
+        should have the picker property set.
         """
         if line.axes is None:
             raise RuntimeError('You must first add the line to the Axes')

@@ -26,16 +26,13 @@ def check_shared(axs, x_shared, y_shared):
 
 
 def check_visible(axs, x_visible, y_visible):
-    def tostr(v):
-        return "invisible" if v else "visible"
-
-    for ax, vx, vy in zip(axs, x_visible, y_visible):
+    for i, (ax, vx, vy) in enumerate(zip(axs, x_visible, y_visible)):
         for l in ax.get_xticklabels() + [ax.get_xaxis().offsetText]:
             assert l.get_visible() == vx, \
-                    "X axis was incorrectly %s" % (tostr(vx))
+                    f"Visibility of x axis #{i} is incorrectly {vx}"
         for l in ax.get_yticklabels() + [ax.get_yaxis().offsetText]:
             assert l.get_visible() == vy, \
-                    "Y axis was incorrectly %s" % (tostr(vy))
+                    f"Visibility of y axis #{i} is incorrectly {vy}"
 
 
 def test_shared():
@@ -97,6 +94,26 @@ def test_shared():
     for ax in axs:
         ax.label_outer()
     check_visible(axs, [False, False, True, True], [True, False, True, False])
+
+
+def test_label_outer_span():
+    fig = plt.figure()
+    gs = fig.add_gridspec(3, 3)
+    # +---+---+---+
+    # |   1   |   |
+    # +---+---+---+
+    # |   |   | 3 |
+    # + 2 +---+---+
+    # |   | 4 |   |
+    # +---+---+---+
+    a1 = fig.add_subplot(gs[0, 0:2])
+    a2 = fig.add_subplot(gs[1:3, 0])
+    a3 = fig.add_subplot(gs[1, 2])
+    a4 = fig.add_subplot(gs[2, 1])
+    for ax in fig.axes:
+        ax.label_outer()
+    check_visible(
+        fig.axes, [False, True, False, True], [True, True, False, False])
 
 
 def test_shared_and_moved():

@@ -1,10 +1,11 @@
+from datetime import datetime
+import platform
 from unittest.mock import MagicMock
 
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.units as munits
 import numpy as np
-import platform
 import pytest
 
 
@@ -75,6 +76,9 @@ def quantity_converter():
 @image_comparison(['plot_pint.png'], remove_text=False, style='mpl20',
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_numpy_facade(quantity_converter):
+    # use former defaults to match existing baseline image
+    plt.rcParams['axes.formatter.limits'] = -7, 7
+
     # Register the class
     munits.registry[Quantity] = quantity_converter
 
@@ -119,7 +123,6 @@ def test_empty_set_limits_with_units(quantity_converter):
 @image_comparison(['jpl_bar_units.png'],
                   savefig_kwarg={'dpi': 120}, style='mpl20')
 def test_jpl_bar_units():
-    from datetime import datetime
     import matplotlib.testing.jpl_units as units
     units.register()
 
@@ -136,7 +139,6 @@ def test_jpl_bar_units():
 @image_comparison(['jpl_barh_units.png'],
                   savefig_kwarg={'dpi': 120}, style='mpl20')
 def test_jpl_barh_units():
-    from datetime import datetime
     import matplotlib.testing.jpl_units as units
     units.register()
 
@@ -153,3 +155,23 @@ def test_jpl_barh_units():
 def test_empty_arrays():
     # Check that plotting an empty array with a dtype works
     plt.scatter(np.array([], dtype='datetime64[ns]'), np.array([]))
+
+
+def test_scatter_element0_masked():
+
+    times = np.arange('2005-02', '2005-03', dtype='datetime64[D]')
+
+    y = np.arange(len(times), dtype='float')
+    y[0] = np.nan
+    fig, ax = plt.subplots()
+    ax.scatter(times, y)
+    fig.canvas.draw()
+
+
+@check_figures_equal(extensions=["png"])
+def test_subclass(fig_test, fig_ref):
+    class subdate(datetime):
+        pass
+
+    fig_test.subplots().plot(subdate(2000, 1, 1), 0, "o")
+    fig_ref.subplots().plot(datetime(2000, 1, 1), 0, "o")

@@ -117,9 +117,9 @@ def pick_custom_hit():
 
     def line_picker(line, mouseevent):
         """
-        find the points within a certain distance from the mouseclick in
+        Find the points within a certain distance from the mouseclick in
         data coords and attach some extra attributes, pickx and picky
-        which are the data points that were picked
+        which are the data points that were picked.
         """
         if mouseevent.xdata is None:
             return False, dict()

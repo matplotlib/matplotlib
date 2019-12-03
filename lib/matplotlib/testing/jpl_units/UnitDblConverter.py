@@ -28,8 +28,8 @@ def rad_fn(x, pos=None):
 
 
 class UnitDblConverter(units.ConversionInterface):
-    """: A matplotlib converter class.  Provides matplotlib conversion
-          functionality for the Monte UnitDbl class.
+    """
+    Provides Matplotlib conversion functionality for the Monte UnitDbl class.
     """
     # default for plotting
     defaults = {
@@ -81,16 +81,12 @@ class UnitDblConverter(units.ConversionInterface):
         = RETURN VALUE
         - Returns the value parameter converted to floats.
         """
-        # Delay-load due to circular dependencies.
-        import matplotlib.testing.jpl_units as U
-
         if not cbook.is_scalar_or_string(value):
             return [UnitDblConverter.convert(x, unit, axis) for x in value]
-        # If the incoming value behaves like a number, but is not a UnitDbl,
+        # If the incoming value behaves like a number,
         # then just return it because we don't know how to convert it
         # (or it is already converted)
-        if (units.ConversionInterface.is_numlike(value)
-                and not isinstance(value, U.UnitDbl)):
+        if units.ConversionInterface.is_numlike(value):
             return value
         # If no units were specified, then get the default units to use.
         if unit is None:

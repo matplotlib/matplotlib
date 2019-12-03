@@ -9,7 +9,7 @@ Matplotlib date format
 ----------------------
 Matplotlib represents dates using floating point numbers specifying the number
 of days since 0001-01-01 UTC, plus 1.  For example, 0001-01-01, 06:00 is 1.25,
-not 0.25. Values < 1, i.e. dates before 0001-01-01 UTC are not supported.
+not 0.25. Values < 1, i.e. dates before 0001-01-01 UTC, are not supported.
 
 There are a number of helper functions to convert between :mod:`datetime`
 objects and Matplotlib dates:
@@ -25,15 +25,14 @@ objects and Matplotlib dates:
    num2timedelta
    epoch2num
    num2epoch
-   mx2num
    drange
 
 .. note::
 
-   Like Python's datetime, mpl uses the Gregorian calendar for all
+   Like Python's datetime, Matplotlib uses the Gregorian calendar for all
    conversions between dates and floating point numbers. This practice
    is not universal, and calendar differences can cause confusing
-   differences between what Python and mpl give as the number of days
+   differences between what Python and Matplotlib give as the number of days
    since 0001-01-01 and what other software and databases yield.  For
    example, the US Naval Observatory uses a calendar that switches
    from Julian to Gregorian in October, 1582.  Hence, using their
@@ -45,10 +44,10 @@ objects and Matplotlib dates:
      Out[1]: 732401
 
 All the Matplotlib date converters, tickers and formatters are timezone aware.
-If no explicit timezone is provided, the rcParam ``timezone`` is assumed.  If
-you want to use a custom time zone, pass a :class:`datetime.tzinfo` instance
-with the tz keyword argument to :func:`num2date`, :func:`.plot_date`, and any
-custom date tickers or locators you create.
+If no explicit timezone is provided, :rc:`timezone` is assumed.  If you want to
+use a custom time zone, pass a `datetime.tzinfo` instance with the tz keyword
+argument to `num2date`, `~.Axes.plot_date`, and any custom date tickers or
+locators you create.
 
 A wide range of specific and general purpose date tick locators and
 formatters are provided in this module.  See
@@ -86,54 +85,51 @@ The rrule locator allows completely general date ticking::
     rule = rrulewrapper(YEARLY, byeaster=1, interval=5)
     loc = RRuleLocator(rule)
 
-Here are all the date tickers:
+The available date tickers are:
 
-    * :class:`MicrosecondLocator`: locate microseconds
+* `MicrosecondLocator`: locate microseconds
 
-    * :class:`SecondLocator`: locate seconds
+* `SecondLocator`: locate seconds
 
-    * :class:`MinuteLocator`: locate minutes
+* `MinuteLocator`: locate minutes
 
-    * :class:`HourLocator`: locate hours
+* `HourLocator`: locate hours
 
-    * :class:`DayLocator`: locate specified days of the month
+* `DayLocator`: locate specified days of the month
 
-    * :class:`WeekdayLocator`: Locate days of the week, e.g., MO, TU
+* `WeekdayLocator`: Locate days of the week, e.g., MO, TU
 
-    * :class:`MonthLocator`: locate months, e.g., 7 for july
+* `MonthLocator`: locate months, e.g., 7 for july
 
-    * :class:`YearLocator`: locate years that are multiples of base
+* `YearLocator`: locate years that are multiples of base
 
-    * :class:`RRuleLocator`: locate using a `matplotlib.dates.rrulewrapper`.
-      `.rrulewrapper` is a simple wrapper around dateutil_'s `dateutil.rrule`
-      which allow almost arbitrary date tick specifications.  See :doc:`rrule
-      example </gallery/ticks_and_spines/date_demo_rrule>`.
+* `RRuleLocator`: locate using a `matplotlib.dates.rrulewrapper`.
+  `.rrulewrapper` is a simple wrapper around dateutil_'s `dateutil.rrule` which
+  allow almost arbitrary date tick specifications.  See :doc:`rrule example
+  </gallery/ticks_and_spines/date_demo_rrule>`.
 
-    * :class:`AutoDateLocator`: On autoscale, this class picks the best
-      :class:`DateLocator` (e.g., :class:`RRuleLocator`)
-      to set the view limits and the tick
-      locations.  If called with ``interval_multiples=True`` it will
-      make ticks line up with sensible multiples of the tick intervals.  E.g.
-      if the interval is 4 hours, it will pick hours 0, 4, 8, etc as ticks.
-      This behaviour is not guaranteed by default.
+* `AutoDateLocator`: On autoscale, this class picks the best `DateLocator`
+  (e.g., `RRuleLocator`) to set the view limits and the tick locations.  If
+  called with ``interval_multiples=True`` it will make ticks line up with
+  sensible multiples of the tick intervals.  E.g. if the interval is 4 hours,
+  it will pick hours 0, 4, 8, etc as ticks.  This behaviour is not guaranteed
+  by default.
 
 Date formatters
 ---------------
 
-Here all all the date formatters:
+The available date formatters are:
 
-    * :class:`AutoDateFormatter`: attempts to figure out the best format
-      to use.  This is most useful when used with the :class:`AutoDateLocator`.
+* `AutoDateFormatter`: attempts to figure out the best format to use.  This is
+  most useful when used with the `AutoDateLocator`.
 
-    * :class:`ConciseDateFormatter`: also attempts to figure out the best
-      format to use, and to make the format as compact as possible while
-      still having complete date information.  This is most useful when used
-      with the :class:`AutoDateLocator`.
+* `ConciseDateFormatter`: also attempts to figure out the best format to use,
+  and to make the format as compact as possible while still having complete
+  date information.  This is most useful when used with the `AutoDateLocator`.
 
-    * :class:`DateFormatter`: use :func:`strftime` format strings
+* `DateFormatter`: use `~datetime.datetime.strftime` format strings.
 
-    * :class:`IndexDateFormatter`: date plots with implicit *x*
-      indexing.
+* `IndexDateFormatter`: date plots with implicit *x* indexing.
 """
 
 import datetime
@@ -142,7 +138,6 @@ import logging
 import math
 import re
 import time
-import warnings
 
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
@@ -291,7 +286,7 @@ def _from_ordinalf(x, tz=None):
                          'expects datetime objects.'.format(ix))
     dt = datetime.datetime.fromordinal(ix).replace(tzinfo=UTC)
 
-    # Since the input date `x` float is unable to preserve microsecond
+    # Since the input date *x* float is unable to preserve microsecond
     # precision of time representation in non-antique years, the
     # resulting datetime is rounded to the nearest multiple of
     # `musec_prec`. A value of 20 is appropriate for current dates.
@@ -310,7 +305,7 @@ def _from_ordinalf(x, tz=None):
 
 
 # a version of _from_ordinalf that can operate on numpy arrays
-_from_ordinalf_np_vectorized = np.vectorize(_from_ordinalf)
+_from_ordinalf_np_vectorized = np.vectorize(_from_ordinalf, otypes="O")
 
 
 @cbook.deprecated(
@@ -321,12 +316,22 @@ class strpdate2num:
     you know the date format string of the date you are parsing.
     """
     def __init__(self, fmt):
-        """fmt: any valid strptime format is supported"""
+        """
+        Parameters
+        ----------
+        fmt : any valid strptime format
+        """
         self.fmt = fmt
 
     def __call__(self, s):
-        """s : string to be converted
-           return value: a date2num float
+        """
+        Parameters
+        ----------
+        s : str
+
+        Returns
+        -------
+        date2num float
         """
         return date2num(datetime.datetime(*time.strptime(s, self.fmt)[:6]))
 
@@ -341,19 +346,24 @@ class bytespdate2num(strpdate2num):
     """
     def __init__(self, fmt, encoding='utf-8'):
         """
-        Args:
-            fmt: any valid strptime format is supported
-            encoding: encoding to use on byte input (default: 'utf-8')
+        Parameters
+        ----------
+        fmt : any valid strptime format
+        encoding : str
+            Encoding to use on byte input.
         """
         super().__init__(fmt)
         self.encoding = encoding
 
     def __call__(self, b):
         """
-        Args:
-            b: byte input to be converted
-        Returns:
-            A date2num float
+        Parameters
+        ----------
+        b : bytes
+
+        Returns
+        -------
+        date2num float
         """
         s = b.decode(self.encoding)
         return super().__call__(s)
@@ -369,7 +379,7 @@ def datestr2num(d, default=None):
 
     Parameters
     ----------
-    d : string or sequence of strings
+    d : str or sequence of str
         The dates to convert.
 
     default : datetime instance, optional
@@ -469,8 +479,8 @@ def num2date(x, tz=None):
     x : float or sequence of floats
         Number of days (fraction part represents hours, minutes, seconds)
         since 0001-01-01 00:00:00 UTC, plus one.
-    tz : string, optional
-        Timezone of *x* (defaults to rcparams ``timezone``).
+    tz : str, optional
+        Timezone of *x* (defaults to :rc:`timezone`).
 
     Returns
     -------
@@ -488,20 +498,11 @@ def num2date(x, tz=None):
     """
     if tz is None:
         tz = _get_rc_timezone()
-    if not np.iterable(x):
-        return _from_ordinalf(x, tz)
-    else:
-        x = np.asarray(x)
-        if not x.size:
-            return x
-        return _from_ordinalf_np_vectorized(x, tz).tolist()
+    return _from_ordinalf_np_vectorized(x, tz).tolist()
 
 
-def _ordinalf_to_timedelta(x):
-    return datetime.timedelta(days=x)
-
-
-_ordinalf_to_timedelta_np_vectorized = np.vectorize(_ordinalf_to_timedelta)
+_ordinalf_to_timedelta_np_vectorized = np.vectorize(
+    lambda x: datetime.timedelta(days=x), otypes="O")
 
 
 def num2timedelta(x):
@@ -519,15 +520,8 @@ def num2timedelta(x):
     Returns
     -------
     `datetime.timedelta` or list[`datetime.timedelta`]
-
     """
-    if not np.iterable(x):
-        return _ordinalf_to_timedelta(x)
-    else:
-        x = np.asarray(x)
-        if not x.size:
-            return x
-        return _ordinalf_to_timedelta_np_vectorized(x).tolist()
+    return _ordinalf_to_timedelta_np_vectorized(x).tolist()
 
 
 def drange(dstart, dend, delta):
@@ -574,21 +568,20 @@ def drange(dstart, dend, delta):
 
 class DateFormatter(ticker.Formatter):
     """
-    Tick location is seconds since the epoch.  Use a :func:`strftime`
-    format string.
-
-    Python only supports :mod:`datetime` :func:`strftime` formatting
-    for years greater than 1900.  Thanks to Andrew Dalke, Dalke
-    Scientific Software who contributed the :func:`strftime` code
-    below to include dates earlier than this year.
+    Format a tick (in days since the epoch) with a
+    `~datetime.datetime.strftime` format string.
     """
 
     illegal_s = re.compile(r"((^|[^%])(%%)*%s)")
 
     def __init__(self, fmt, tz=None):
         """
-        *fmt* is a :func:`strftime` format string; *tz* is the
-         :class:`tzinfo` instance.
+        Parameters
+        ----------
+        fmt : str
+            `~datetime.datetime.strftime` format string
+        tz : `tzinfo`, default: :rc:`timezone`
+            Ticks timezone.
         """
         if tz is None:
             tz = _get_rc_timezone()
@@ -608,14 +601,12 @@ class DateFormatter(ticker.Formatter):
 
 
 class IndexDateFormatter(ticker.Formatter):
-    """
-    Use with :class:`~matplotlib.ticker.IndexLocator` to cycle format
-    strings by index.
-    """
+    """Use with `.IndexLocator` to cycle format strings by index."""
+
     def __init__(self, t, fmt, tz=None):
         """
         *t* is a sequence of dates (floating point days).  *fmt* is a
-        :func:`strftime` format string.
+        `~datetime.datetime.strftime` format string.
         """
         if tz is None:
             tz = _get_rc_timezone()
@@ -625,7 +616,7 @@ class IndexDateFormatter(ticker.Formatter):
 
     def __call__(self, x, pos=0):
         'Return the label for time *x* at position *pos*'
-        ind = int(np.round(x))
+        ind = int(round(x))
         if ind >= len(self.t) or ind <= 0:
             return ''
         return num2date(self.t[ind], self.tz).strftime(self.fmt)
@@ -635,8 +626,7 @@ class ConciseDateFormatter(ticker.Formatter):
     """
     This class attempts to figure out the best format to use for the
     date, and to make it as compact as possible, but still be complete. This is
-    most useful when used with the :class:`AutoDateLocator`::
-
+    most useful when used with the `AutoDateLocator`::
 
     >>> locator = AutoDateLocator()
     >>> formatter = ConciseDateFormatter(locator)
@@ -646,7 +636,7 @@ class ConciseDateFormatter(ticker.Formatter):
     locator : `.ticker.Locator`
         Locator that this axis is using.
 
-    tz : string, optional
+    tz : str, optional
         Passed to `.dates.date2num`.
 
     formats : list of 6 strings, optional
@@ -669,8 +659,8 @@ class ConciseDateFormatter(ticker.Formatter):
 
             ['', '%Y', '%Y-%b', '%Y-%b-%d', '%Y-%b-%d', '%Y-%b-%d %H:%M']
 
-    show_offset : bool
-        Whether to show the offset or not.  Default is ``True``.
+    show_offset : bool, default: True
+        Whether to show the offset or not.
 
     Examples
     --------
@@ -729,7 +719,7 @@ class ConciseDateFormatter(ticker.Formatter):
         # like 1 Jan can just be labled "Jan".  02:02:00 can
         # just be labeled 02:02.
         if zero_formats:
-            if len(formats) != 6:
+            if len(zero_formats) != 6:
                 raise ValueError('zero_formats argument must be a list of '
                                  '6 format strings (or None)')
             self.zero_formats = zero_formats
@@ -761,7 +751,7 @@ class ConciseDateFormatter(ticker.Formatter):
         return formatter(x, pos=pos)
 
     def format_ticks(self, values):
-        tickdatetime = [num2date(value) for value in values]
+        tickdatetime = [num2date(value, tz=self._tz) for value in values]
         tickdate = np.array([tdt.timetuple()[:6] for tdt in tickdatetime])
 
         # basic algorithm:
@@ -827,13 +817,13 @@ class ConciseDateFormatter(ticker.Formatter):
         return self.offset_string
 
     def format_data_short(self, value):
-        return num2date(value).strftime('%Y-%m-%d %H:%M:%S')
+        return num2date(value, tz=self._tz).strftime('%Y-%m-%d %H:%M:%S')
 
 
 class AutoDateFormatter(ticker.Formatter):
     """
     This class attempts to figure out the best format to use.  This is
-    most useful when used with the :class:`AutoDateLocator`.
+    most useful when used with the `AutoDateLocator`.
 
     The AutoDateFormatter has a scale dictionary that maps the scale
     of the tick (the distance in days between one major tick) and a
@@ -859,10 +849,9 @@ class AutoDateFormatter(ticker.Formatter):
     >>> formatter = AutoDateFormatter(locator)
     >>> formatter.scaled[1/(24.*60.)] = '%M:%S' # only show min and sec
 
-    A custom :class:`~matplotlib.ticker.FuncFormatter` can also be used.
-    The following example shows how to use a custom format function to strip
-    trailing zeros from decimal seconds and adds the date to the first
-    ticklabel::
+    A custom `.FuncFormatter` can also be used.  The following example shows
+    how to use a custom format function to strip trailing zeros from decimal
+    seconds and adds the date to the first ticklabel::
 
         >>> def my_format_function(x, pos=None):
         ...     x = matplotlib.dates.num2date(x)
@@ -1109,8 +1098,13 @@ class DateLocator(ticker.Locator):
         """
         Given the proposed upper and lower extent, adjust the range
         if it is too close to being singular (i.e. a range of ~0).
-
         """
+        if not np.isfinite(vmin) or not np.isfinite(vmax):
+            # Except if there is no data, then use 2000-2010 as default.
+            return (date2num(datetime.date(2000, 1, 1)),
+                    date2num(datetime.date(2010, 1, 1)))
+        if vmax < vmin:
+            vmin, vmax = vmax, vmin
         unit = self._get_unit()
         interval = self._get_interval()
         if abs(vmax - vmin) < 1e-6:
@@ -1188,6 +1182,7 @@ class RRuleLocator(DateLocator):
     def _get_interval(self):
         return self.rule._rrule._interval
 
+    @cbook.deprecated("3.2")
     def autoscale(self):
         """
         Set the view limits to include the data range.
@@ -1226,48 +1221,27 @@ class RRuleLocator(DateLocator):
 
 class AutoDateLocator(DateLocator):
     """
-    On autoscale, this class picks the best
-    :class:`DateLocator` to set the view limits and the tick
-    locations.
-    """
-    def __init__(self, tz=None, minticks=5, maxticks=None,
-                 interval_multiples=True):
-        """
-        *minticks* is the minimum number of ticks desired, which is used to
-        select the type of ticking (yearly, monthly, etc.).
+    On autoscale, this class picks the best `DateLocator` to set the view
+    limits and the tick locations.
 
-        *maxticks* is the maximum number of ticks desired, which controls
-        any interval between ticks (ticking every other, every 3, etc.).
-        For really fine-grained control, this can be a dictionary mapping
-        individual rrule frequency constants (YEARLY, MONTHLY, etc.)
-        to their own maximum number of ticks.  This can be used to keep
-        the number of ticks appropriate to the format chosen in
-        :class:`AutoDateFormatter`. Any frequency not specified in this
-        dictionary is given a default value.
+    Attributes
+    ----------
+    intervald : dict
 
-        *tz* is a :class:`tzinfo` instance.
+        Mapping of tick frequencies (a constant from dateutil.rrule) to
+        multiples allowed for that ticking.  The default looks like this::
 
-        *interval_multiples* is a boolean that indicates whether ticks
-        should be chosen to be multiple of the interval. This will lock
-        ticks to 'nicer' locations. For example, this will force the
-        ticks to be at hours 0,6,12,18 when hourly ticking is done at
-        6 hour intervals.
-
-        The AutoDateLocator has an interval dictionary that maps the
-        frequency of the tick (a constant from dateutil.rrule) and a
-        multiple allowed for that ticking.  The default looks like this::
-
-          self.intervald = {
-            YEARLY  : [1, 2, 4, 5, 10, 20, 40, 50, 100, 200, 400, 500,
-                      1000, 2000, 4000, 5000, 10000],
-            MONTHLY : [1, 2, 3, 4, 6],
-            DAILY   : [1, 2, 3, 7, 14],
-            HOURLY  : [1, 2, 3, 4, 6, 12],
-            MINUTELY: [1, 5, 10, 15, 30],
-            SECONDLY: [1, 5, 10, 15, 30],
-            MICROSECONDLY: [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000,
-                           5000, 10000, 20000, 50000, 100000, 200000, 500000,
-                           1000000],
+            self.intervald = {
+                YEARLY  : [1, 2, 4, 5, 10, 20, 40, 50, 100, 200, 400, 500,
+                           1000, 2000, 4000, 5000, 10000],
+                MONTHLY : [1, 2, 3, 4, 6],
+                DAILY   : [1, 2, 3, 7, 14],
+                HOURLY  : [1, 2, 3, 4, 6, 12],
+                MINUTELY: [1, 5, 10, 15, 30],
+                SECONDLY: [1, 5, 10, 15, 30],
+                MICROSECONDLY: [1, 2, 5, 10, 20, 50, 100, 200, 500,
+                                1000, 2000, 5000, 10000, 20000, 50000,
+                                100000, 200000, 500000, 1000000],
             }
 
         The interval is used to specify multiples that are appropriate for
@@ -1275,8 +1249,34 @@ class AutoDateLocator(DateLocator):
         for daily ticks, but for minutes/seconds, 15 or 30 make sense.
         You can customize this dictionary by doing::
 
-          locator = AutoDateLocator()
-          locator.intervald[HOURLY] = [3] # only show every 3 hours
+            locator = AutoDateLocator()
+            locator.intervald[HOURLY] = [3]  # only show every 3 hours
+    """
+
+    def __init__(self, tz=None, minticks=5, maxticks=None,
+                 interval_multiples=True):
+        """
+        Parameters
+        ----------
+        tz : `tzinfo`
+            Ticks timezone.
+        minticks : int
+            The minimum number of ticks desired; controls whether ticks occur
+            yearly, monthly, etc.
+        maxticks : int
+            The maximum number of ticks desired; controls the interval between
+            ticks (ticking every other, every 3, etc.).  For fine-grained
+            control, this can be a dictionary mapping individual rrule
+            frequency constants (YEARLY, MONTHLY, etc.) to their own maximum
+            number of ticks.  This can be used to keep the number of ticks
+            appropriate to the format chosen in `AutoDateFormatter`. Any
+            frequency not specified in this dictionary is given a default
+            value.
+        interval_multiples : bool, default: True
+            Whether ticks should be chosen to be multiple of the interval,
+            locking them to 'nicer' locations.  For example, this will force
+            the ticks to be at hours 0, 6, 12, 18 when hourly ticking is done
+            at 6 hour intervals.
         """
         DateLocator.__init__(self, tz)
         self._locator = YearLocator(tz=tz)
@@ -1309,7 +1309,7 @@ class AutoDateLocator(DateLocator):
                             1000000]}
         if interval_multiples:
             # Swap "3" for "4" in the DAILY list; If we use 3 we get bad
-            # tick loc for months w/ 31 days: 1, 4,..., 28, 31, 1
+            # tick loc for months w/ 31 days: 1, 4, ..., 28, 31, 1
             # If we use 4 then we get: 1, 5, ... 25, 29, 1
             self.intervald[DAILY] = [1, 2, 4, 7, 14, 21]
 
@@ -1327,6 +1327,12 @@ class AutoDateLocator(DateLocator):
     def nonsingular(self, vmin, vmax):
         # whatever is thrown at us, we can scale the unit.
         # But default nonsingular date plots at an ~4 year period.
+        if not np.isfinite(vmin) or not np.isfinite(vmax):
+            # Except if there is no data, then use 2000-2010 as default.
+            return (date2num(datetime.date(2000, 1, 1)),
+                    date2num(datetime.date(2010, 1, 1)))
+        if vmax < vmin:
+            vmin, vmax = vmax, vmin
         if vmin == vmax:
             vmin = vmin - DAYS_PER_YEAR * 2
             vmax = vmax + DAYS_PER_YEAR * 2
@@ -1337,7 +1343,7 @@ class AutoDateLocator(DateLocator):
         self._locator.set_axis(axis)
 
     def refresh(self):
-        'Refresh internal information based on current limits.'
+        # docstring inherited
         dmin, dmax = self.viewlim_to_dt()
         self._locator = self.get_locator(dmin, dmax)
 
@@ -1347,6 +1353,7 @@ class AutoDateLocator(DateLocator):
         else:
             return RRuleLocator.get_unit_generic(self._freq)
 
+    @cbook.deprecated("3.2")
     def autoscale(self):
         'Try to choose the view limits intelligently.'
         dmin, dmax = self.datalim_to_dt()
@@ -1447,9 +1454,10 @@ class AutoDateLocator(DateLocator):
         else:
             locator = MicrosecondLocator(interval, tz=self.tz)
             if dmin.year > 20 and interval < 1000:
-                _log.warning('Plotting microsecond time intervals is not well '
-                             'supported. Please see the MicrosecondLocator '
-                             'documentation for details.')
+                cbook._warn_external(
+                    'Plotting microsecond time intervals is not well '
+                    'supported; please see the MicrosecondLocator '
+                    'documentation for details.')
 
         locator.set_axis(self.axis)
 
@@ -1523,6 +1531,7 @@ class YearLocator(DateLocator):
 
             ticks.append(dt)
 
+    @cbook.deprecated("3.2")
     def autoscale(self):
         """
         Set the view limits to include the data range.
@@ -1548,7 +1557,7 @@ class MonthLocator(RRuleLocator):
     def __init__(self, bymonth=None, bymonthday=1, interval=1, tz=None):
         """
         Mark every month in *bymonth*; *bymonth* can be an int or
-        sequence.  Default is ``range(1,13)``, i.e. every month.
+        sequence.  Default is ``range(1, 13)``, i.e. every month.
 
         *interval* is the interval between each iteration.  For
         example, if ``interval=2``, mark every second occurrence.
@@ -1601,12 +1610,11 @@ class DayLocator(RRuleLocator):
     """
     def __init__(self, bymonthday=None, interval=1, tz=None):
         """
-        Mark every day in *bymonthday*; *bymonthday* can be an int or
-        sequence.
+        Mark every day in *bymonthday*; *bymonthday* can be an int or sequence.
 
-        Default is to tick every day of the month: ``bymonthday=range(1,32)``
+        Default is to tick every day of the month: ``bymonthday=range(1, 32)``.
         """
-        if not interval == int(interval) or interval < 1:
+        if interval != int(interval) or interval < 1:
             raise ValueError("interval must be an integer greater than 0")
         if bymonthday is None:
             bymonthday = range(1, 32)
@@ -1768,6 +1776,7 @@ def num2epoch(d):
     return (np.asarray(d) - EPOCH_OFFSET) * SEC_PER_DAY
 
 
+@cbook.deprecated("3.2")
 def mx2num(mxdates):
     """
     Convert mx :class:`datetime` instance (or sequence of mx
@@ -1860,9 +1869,8 @@ def weeks(w):
 
 class DateConverter(units.ConversionInterface):
     """
-    Converter for datetime.date and datetime.datetime data,
-    or for date/time data represented as it would be converted
-    by :func:`date2num`.
+    Converter for `datetime.date` and `datetime.datetime` data, or for
+    date/time data represented as it would be converted by `date2num`.
 
     The 'unit' tag for such data is None or a tzinfo instance.
     """
@@ -1870,7 +1878,7 @@ class DateConverter(units.ConversionInterface):
     @staticmethod
     def axisinfo(unit, axis):
         """
-        Return the :class:`~matplotlib.units.AxisInfo` for *unit*.
+        Return the `~matplotlib.units.AxisInfo` for *unit*.
 
         *unit* is a tzinfo instance or None.
         The *axis* argument is required but not used.
@@ -1888,8 +1896,8 @@ class DateConverter(units.ConversionInterface):
     @staticmethod
     def convert(value, unit, axis):
         """
-        If *value* is not already a number or sequence of numbers,
-        convert it with :func:`date2num`.
+        If *value* is not already a number or sequence of numbers, convert it
+        with `date2num`.
 
         The *unit* and *axis* arguments are not used.
         """
@@ -1916,13 +1924,7 @@ class DateConverter(units.ConversionInterface):
 
 
 class ConciseDateConverter(DateConverter):
-    """
-    Converter for datetime.date and datetime.datetime data,
-    or for date/time data represented as it would be converted
-    by :func:`date2num`.
-
-    The 'unit' tag for such data is None or a tzinfo instance.
-    """
+    # docstring inherited
 
     def __init__(self, formats=None, zero_formats=None, offset_formats=None,
                  show_offset=True):
@@ -1933,14 +1935,8 @@ class ConciseDateConverter(DateConverter):
         super().__init__()
 
     def axisinfo(self, unit, axis):
-        """
-        Return the :class:`~matplotlib.units.AxisInfo` for *unit*.
-
-        *unit* is a tzinfo instance or None.
-        The *axis* argument is required but not used.
-        """
+        # docstring inherited
         tz = unit
-
         majloc = AutoDateLocator(tz=tz)
         majfmt = ConciseDateFormatter(majloc, tz=tz, formats=self._formats,
                                       zero_formats=self._zero_formats,
@@ -1948,7 +1944,6 @@ class ConciseDateConverter(DateConverter):
                                       show_offset=self._show_offset)
         datemin = datetime.date(2000, 1, 1)
         datemax = datetime.date(2010, 1, 1)
-
         return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
                               default_limits=(datemin, datemax))
 

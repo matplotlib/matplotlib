@@ -5,7 +5,6 @@ import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
-from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.patches import Polygon, Rectangle, FancyArrowPatch
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 import matplotlib.pyplot as plt
@@ -18,7 +17,7 @@ on_win = (sys.platform == 'win32')
 
 
 def test_Polygon_close():
-    #: Github issue #1018 identified a bug in the Polygon handling
+    #: GitHub issue #1018 identified a bug in the Polygon handling
     #: of the closed attribute; the path was not getting closed
     #: when set_xy was used to set the vertices.
 
@@ -216,7 +215,7 @@ def test_patch_custom_linestyle():
 
 def test_patch_linestyle_accents():
     #: Test if linestyle can also be specified with short mnemonics like "--"
-    #: c.f. Github issue #2136
+    #: c.f. GitHub issue #2136
     star = mpath.Path.unit_regular_star(6)
     circle = mpath.Path.unit_circle()
     # concatenate the star with an internal cutout of the circle
@@ -396,6 +395,18 @@ def test_connection_patch():
     ax2.add_artist(con)
 
 
+def test_connection_patch_fig():
+    # Test that connection patch can be added as figure artist
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    xy = (0.3, 0.2)
+    con = mpatches.ConnectionPatch(xyA=xy, xyB=xy,
+                                   coordsA="data", coordsB="data",
+                                   axesA=ax1, axesB=ax2,
+                                   arrowstyle="->", shrinkB=5)
+    fig.add_artist(con)
+    fig.canvas.draw()
+
+
 def test_datetime_rectangle():
     # Check that creating a rectangle with timedeltas doesn't fail
     from datetime import datetime, timedelta
@@ -478,3 +489,11 @@ def test_fancyarrow_units():
     fig, ax = plt.subplots()
     arrow = FancyArrowPatch((0, dtime), (0.01, dtime))
     ax.add_patch(arrow)
+
+
+@image_comparison(["large_arc.svg"], style="mpl20")
+def test_large_arc():
+    ax = plt.figure().add_subplot()
+    ax.set_axis_off()
+    # A large arc that crosses the axes view limits.
+    ax.add_patch(mpatches.Arc((-100, 0), 201, 201))

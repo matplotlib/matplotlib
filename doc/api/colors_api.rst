@@ -34,6 +34,7 @@ Classes
    Normalize
    PowerNorm
    SymLogNorm
+   TwoSlopeNorm
 
 Functions
 ---------

@@ -8,9 +8,9 @@ Several external packages that extend or build on Matplotlib functionality are
 listed below.  They are maintained and distributed separately from Matplotlib
 and thus need to be installed individually.
 
-Please submit an issue or pull request on Github if you have created
+Please submit an issue or pull request on GitHub if you have created
 a package that you would like to have included.  We are also happy to
-host third party packages within the `Matplotlib Github Organization
+host third party packages within the `Matplotlib GitHub Organization
 <https://github.com/matplotlib>`_.
 
 Mapping toolkits
@@ -33,6 +33,16 @@ data processing tools. An example plot from the `Cartopy gallery
 <http://scitools.org.uk/cartopy/docs/latest/gallery.html>`_:
 
 .. image:: /_static/cartopy_hurricane_katrina_01_00.png
+    :height: 400px
+
+Geoplot
+=======
+`Geoplot <https://residentmario.github.io/geoplot/index.html>`_ builds on top
+of Matplotlib and Cartopy to provide a "standard library" of simple, powerful,
+and customizable plot types. An example plot from the `Geoplot gallery
+<https://residentmario.github.io/geoplot/index.html>`_:
+
+.. image:: /_static/geoplot_nyc_traffic_tickets.png
     :height: 400px
 
 Ridge Map
@@ -90,9 +100,17 @@ class that can have a visual break to indicate a discontinuous range.
 DeCiDa
 ======
 
-`DeCiDa <https://pypi.python.org/pypi/DeCiDa>`_ is a library of functions
+`DeCiDa <https://pypi.org/project/DeCiDa/>`_ is a library of functions
 and classes for electron device characterization, electronic circuit design and
 general data visualization and analysis.
+
+matplotlib-scalebar
+===================
+
+`matplotlib-scalebar <https://github.com/ppinard/matplotlib-scalebar>`_ provides a new artist to display a scale bar, aka micron bar.
+It is particularly useful when displaying calibrated images plotted using ``plt.imshow(...)``.
+
+.. image:: /_static/gold_on_carbon.jpg
 
 Matplotlib-Venn
 ===============
@@ -202,6 +220,21 @@ animated plots almost as easy as static ones.
 For an animated version of the above picture and more examples, see the
 `animatplot gallery. <https://animatplot.readthedocs.io/en/stable/gallery.html>`_
 
+Rendering backends
+******************
+
+mplcairo
+========
+`mplcairo <https://github.com/anntzer/mplcairo>`_ is a cairo backend for
+Matplotlib, with faster and more accurate marker drawing, support for a wider
+selection of font formats and complex text layout, and various other features.
+
+gr
+==
+`gr <http://gr-framework.org/>`_ is a framework for cross-platform
+visualisation applications, which can be used as a high-performance Matplotlib
+backend.
+
 Miscellaneous
 *************
 
@@ -221,12 +254,6 @@ feature.
 
 .. image:: /_static/matplotlib_iterm2_demo.png
 
-mplcairo
-========
-`mplcairo <https://github.com/anntzer/mplcairo>`_ is a cairo backend for
-Matplotlib, with faster and more accurate marker drawing, support for a wider
-selection of font formats and complex text layout, and various other features.
-
 mpl-template
 ============
 `mpl-template <https://austinorr.github.io/mpl-template/index.html>`_ provides
@@ -235,3 +262,25 @@ border, and logo.
 
 .. image:: /_static/mpl_template_example.png
     :height: 330px
+
+numpngw
+=======
+
+`numpngw <https://pypi.org/project/numpngw/>`_  provides functions for writing
+NumPy arrays to PNG and animated PNG files.  It also includes the class
+``AnimatedPNGWriter`` that can be used to save a Matplotlib animation as an
+animated PNG file.  See the example on the PyPI page or at the ``numpngw``
+`github repository <https://github.com/WarrenWeckesser/numpngw>`_.
+
+.. image:: /_static/numpngw_animated_example.png
+
+blume
+=====
+
+`blume <https://pypi.org/project/blume/>`_ provides a replacement for
+the Matplotlib ``table`` module.  It fixes a number of issues with the
+existing table. See the `blume github repository
+<https://github.com/swfiua/blume>`_ for more details.
+
+.. image:: /_static/blume_table_example.png
+

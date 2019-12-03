@@ -34,7 +34,6 @@ im2 = Z[:, :10]
 im3 = Z[:, 10:]
 vmin, vmax = Z.min(), Z.max()
 for ax, im in zip(grid, [im1, im2, im3]):
-    ax.imshow(im, origin="lower", vmin=vmin, vmax=vmax,
-              interpolation="nearest")
+    ax.imshow(im, origin="lower", vmin=vmin, vmax=vmax)
 
 plt.show()

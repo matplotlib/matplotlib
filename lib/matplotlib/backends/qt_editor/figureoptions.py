@@ -1,13 +1,12 @@
 # Copyright © 2009 Pierre Raybaut
 # Licensed under the terms of the MIT License
-# see the mpl licenses directory for a copy of the license
+# see the Matplotlib licenses directory for a copy of the license
 
 
-"""Module that provides a GUI-based editor for matplotlib's figure options."""
+"""Module that provides a GUI-based editor for Matplotlib's figure options."""
 
 import re
 
-import matplotlib
 from matplotlib import cbook, cm, colors as mcolors, markers, image as mimage
 from matplotlib.backends.qt_compat import QtGui
 from matplotlib.backends.qt_editor import _formlayout
@@ -78,9 +77,9 @@ def figure_edit(axes, parent=None):
     def prepare_data(d, init):
         """Prepare entry for FormLayout.
 
-        `d` is a mapping of shorthands to style names (a single style may
+        *d* is a mapping of shorthands to style names (a single style may
         have multiple shorthands, in particular the shorthands `None`,
-        `"None"`, `"none"` and `""` are synonyms); `init` is one shorthand
+        `"None"`, `"none"` and `""` are synonyms); *init* is one shorthand
         of the initial style.
 
         This function returns an list suitable for initializing a

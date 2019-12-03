@@ -3,7 +3,7 @@
 ========================================
 
 :meth:`~.Axes.imshow` allows you to render an image (either a 2D array
-which will be color-mapped (based on *norm* and *cmap*) or and 3D RGB(A)
+which will be color-mapped (based on *norm* and *cmap*) or a 3D RGB(A)
 array which will be used as-is) to a rectangular region in dataspace.
 The orientation of the image in the final rendering is controlled by
 the *origin* and *extent* kwargs (and attributes on the resulting
@@ -172,7 +172,7 @@ def generate_imshow_demo_grid(extents, xlim=None, ylim=None):
 # Default extent
 # --------------
 #
-# First, let's have a look at the default `extent=None`
+# First, let's have a look at the default ``extent=None``
 
 generate_imshow_demo_grid(extents=[None])
 
@@ -240,8 +240,8 @@ set_extent_None_text(columns['lower'][0])
 # Explicit extent and axes limits
 # -------------------------------
 #
-# If we fix the axes limits by explicitly setting `set_xlim` / `set_ylim`, we
-# force a certain size and orientation of the axes.
+# If we fix the axes limits by explicitly setting `~.axes.Axes.set_xlim` /
+# `~.axes.Axes.set_ylim`, we force a certain size and orientation of the axes.
 # This can decouple the 'left-right' and 'top-bottom' sense of the image from
 # the orientation on the screen.
 #

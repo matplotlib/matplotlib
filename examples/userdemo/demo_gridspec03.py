@@ -3,7 +3,7 @@
 GridSpec demo
 =============
 
-This example demonstrates the use of `GridSpec` to generate subplots,
+This example demonstrates the use of `.GridSpec` to generate subplots,
 the control of the relative sizes of subplots with *width_ratios* and
 *height_ratios*, and the control of the spacing around and between subplots
 using subplot params (*left*, *right*, *bottom*, *top*, *wspace*, and

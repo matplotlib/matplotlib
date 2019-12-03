@@ -52,11 +52,12 @@ def cleanup(style=None):
 
     Parameters
     ----------
-    style : str, optional
-        The name of the style to apply.
+    style : str, dict, or list, optional
+        The style(s) to apply.  Defaults to ``["classic",
+        "_classic_test_patch"]``.
     """
 
-    # If cleanup is used without arguments, `style` will be a callable, and we
+    # If cleanup is used without arguments, *style* will be a callable, and we
     # pass it directly to the wrapper generator.  If cleanup if called with an
     # argument, it is a string naming a style, and the function will be passed
     # as an argument to what we return.  This is a confusing, but somewhat
@@ -76,13 +77,13 @@ def cleanup(style=None):
 
         return wrapped_callable
 
-    if isinstance(style, str):
-        return make_cleanup
-    else:
+    if callable(style):
         result = make_cleanup(style)
         # Default of mpl_test_settings fixture and image_comparison too.
-        style = '_classic_test'
+        style = ["classic", "_classic_test_patch"]
         return result
+    else:
+        return make_cleanup
 
 
 def check_freetype_version(ver):
@@ -127,10 +128,6 @@ def _raise_on_image_difference(expected, actual, tol):
     __tracebackhide__ = True
 
     err = compare_images(expected, actual, tol, in_decorator=True)
-
-    if not os.path.exists(expected):
-        raise ImageComparisonFailure('image does not exist: %s' % expected)
-
     if err:
         for key in ["actual", "expected"]:
             err[key] = os.path.relpath(err[key])
@@ -172,33 +169,33 @@ class _ImageComparisonBase:
     This class provides *just* the comparison-related functionality and avoids
     any code that would be specific to any testing framework.
     """
-    def __init__(self, tol, remove_text, savefig_kwargs):
-        self.func = self.baseline_dir = self.result_dir = None
+
+    def __init__(self, func, tol, remove_text, savefig_kwargs):
+        self.func = func
+        self.baseline_dir, self.result_dir = _image_directories(func)
         self.tol = tol
         self.remove_text = remove_text
         self.savefig_kwargs = savefig_kwargs
 
-    def delayed_init(self, func):
-        assert self.func is None, "it looks like same decorator used twice"
-        self.func = func
-        self.baseline_dir, self.result_dir = _image_directories(func)
-
     def copy_baseline(self, baseline, extension):
-        baseline_path = os.path.join(self.baseline_dir, baseline)
-        orig_expected_fname = baseline_path + '.' + extension
-        if extension == 'eps' and not os.path.exists(orig_expected_fname):
-            orig_expected_fname = baseline_path + '.pdf'
+        baseline_path = self.baseline_dir / baseline
+        orig_expected_path = baseline_path.with_suffix(f'.{extension}')
+        if extension == 'eps' and not orig_expected_path.exists():
+            orig_expected_path = orig_expected_path.with_suffix('.pdf')
         expected_fname = make_test_filename(
-            os.path.join(self.result_dir,
-                         os.path.basename(orig_expected_fname)),
-            'expected')
-        if os.path.exists(orig_expected_fname):
-            shutil.copyfile(orig_expected_fname, expected_fname)
-        else:
-            reason = ("Do not have baseline image {} because this "
-                      "file does not exist: {}".format(expected_fname,
-                                                       orig_expected_fname))
-            raise ImageComparisonFailure(reason)
+            self.result_dir / orig_expected_path.name, 'expected')
+        try:
+            # os.symlink errors if the target already exists.
+            with contextlib.suppress(OSError):
+                os.remove(expected_fname)
+            try:
+                os.symlink(orig_expected_path, expected_fname)
+            except OSError:  # On Windows, symlink *may* be unavailable.
+                shutil.copyfile(orig_expected_path, expected_fname)
+        except OSError:
+            raise ImageComparisonFailure(
+                f"Missing baseline image {expected_fname} because the "
+                f"following file cannot be accessed: {orig_expected_path}")
         return expected_fname
 
     def compare(self, idx, baseline, extension):
@@ -209,17 +206,16 @@ class _ImageComparisonBase:
         if self.remove_text:
             remove_ticks_and_titles(fig)
 
-        actual_fname = (
-            os.path.join(self.result_dir, baseline) + '.' + extension)
+        actual_path = (self.result_dir / baseline).with_suffix(f'.{extension}')
         kwargs = self.savefig_kwargs.copy()
         if extension == 'pdf':
             kwargs.setdefault('metadata',
                               {'Creator': None, 'Producer': None,
                                'CreationDate': None})
-        fig.savefig(actual_fname, **kwargs)
+        fig.savefig(actual_path, **kwargs)
 
-        expected_fname = self.copy_baseline(baseline, extension)
-        _raise_on_image_difference(expected_fname, actual_fname, self.tol)
+        expected_path = self.copy_baseline(baseline, extension)
+        _raise_on_image_difference(expected_path, actual_path, self.tol)
 
 
 def _pytest_image_comparison(baseline_images, extensions, tol,
@@ -249,9 +245,8 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             __tracebackhide__ = True
-            img = _ImageComparisonBase(tol=tol, remove_text=remove_text,
+            img = _ImageComparisonBase(func, tol=tol, remove_text=remove_text,
                                        savefig_kwargs=savefig_kwargs)
-            img.delayed_init(func)
             matplotlib.testing.set_font_settings_for_testing()
             func(*args, **kwargs)
 
@@ -277,7 +272,7 @@ def image_comparison(baseline_images, extensions=None, tol=0,
                      freetype_version=None, remove_text=False,
                      savefig_kwarg=None,
                      # Default of mpl_test_settings fixture and cleanup too.
-                     style='_classic_test'):
+                     style=("classic", "_classic_test_patch")):
     """
     Compare images generated by the test with those specified in
     *baseline_images*, which must correspond, else an `ImageComparisonFailure`
@@ -307,7 +302,7 @@ def image_comparison(baseline_images, extensions=None, tol=0,
         exercising a feature dependent on that backend (see also the
         `check_figures_equal` decorator for that purpose).
 
-    tol : float, optional, default: 0
+    tol : float, default: 0
         The RMS threshold above which the test is considered failed.
 
     freetype_version : str or tuple
@@ -325,10 +320,10 @@ def image_comparison(baseline_images, extensions=None, tol=0,
     savefig_kwarg : dict
         Optional arguments that are passed to the savefig method.
 
-    style : string
-        Optional name for the base style to apply to the image test. The test
-        itself can also apply additional styles if desired. Defaults to the
-        '_classic_test' style.
+    style : str, dict, or list
+        The optional style(s) to apply to the image test. The test itself
+        can also apply additional styles if desired. Defaults to ``["classic",
+        "_classic_test_patch"]``.
     """
 
     if baseline_images is not None:
@@ -386,43 +381,44 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
             fig_test.subplots().plot([1, 3, 5])
             fig_ref.subplots().plot([0, 1, 2], [1, 3, 5])
     """
-
+    POSITIONAL_OR_KEYWORD = inspect.Parameter.POSITIONAL_OR_KEYWORD
     def decorator(func):
         import pytest
 
-        _, result_dir = map(Path, _image_directories(func))
+        _, result_dir = _image_directories(func)
 
-        if len(inspect.signature(func).parameters) == 2:
-            # Free-standing function.
-            @pytest.mark.parametrize("ext", extensions)
-            def wrapper(ext):
+        @pytest.mark.parametrize("ext", extensions)
+        def wrapper(*args, ext, **kwargs):
+            try:
                 fig_test = plt.figure("test")
                 fig_ref = plt.figure("reference")
-                func(fig_test, fig_ref)
-                test_image_path = str(
-                    result_dir / (func.__name__ + "." + ext))
-                ref_image_path = str(
-                    result_dir / (func.__name__ + "-expected." + ext))
+                func(*args, fig_test=fig_test, fig_ref=fig_ref, **kwargs)
+                test_image_path = result_dir / (func.__name__ + "." + ext)
+                ref_image_path = result_dir / (
+                    func.__name__ + "-expected." + ext
+                )
                 fig_test.savefig(test_image_path)
                 fig_ref.savefig(ref_image_path)
                 _raise_on_image_difference(
-                    ref_image_path, test_image_path, tol=tol)
+                    ref_image_path, test_image_path, tol=tol
+                )
+            finally:
+                plt.close(fig_test)
+                plt.close(fig_ref)
 
-        elif len(inspect.signature(func).parameters) == 3:
-            # Method.
-            @pytest.mark.parametrize("ext", extensions)
-            def wrapper(self, ext):
-                fig_test = plt.figure("test")
-                fig_ref = plt.figure("reference")
-                func(self, fig_test, fig_ref)
-                test_image_path = str(
-                    result_dir / (func.__name__ + "." + ext))
-                ref_image_path = str(
-                    result_dir / (func.__name__ + "-expected." + ext))
-                fig_test.savefig(test_image_path)
-                fig_ref.savefig(ref_image_path)
-                _raise_on_image_difference(
-                    ref_image_path, test_image_path, tol=tol)
+        sig = inspect.signature(func)
+        new_sig = sig.replace(
+            parameters=([param
+                         for param in sig.parameters.values()
+                         if param.name not in {"fig_test", "fig_ref"}]
+                        + [inspect.Parameter("ext", POSITIONAL_OR_KEYWORD)])
+        )
+        wrapper.__signature__ = new_sig
+
+        # reach a bit into pytest internals to hoist the marks from
+        # our wrapped function
+        new_marks = getattr(func, "pytestmark", []) + wrapper.pytestmark
+        wrapper.pytestmark = new_marks
 
         return wrapper
 
@@ -442,7 +438,7 @@ def _image_directories(func):
     baseline_dir = module_path.parent / "baseline_images" / module_path.stem
     result_dir = Path().resolve() / "result_images" / module_path.stem
     result_dir.mkdir(parents=True, exist_ok=True)
-    return str(baseline_dir), str(result_dir)
+    return baseline_dir, result_dir
 
 
 @cbook.deprecated("3.1", alternative="pytest.mark.backend")

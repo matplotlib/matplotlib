@@ -67,8 +67,11 @@ def blit(photoimage, aggimage, offsets, bbox=None):
     dataptr = (height, width, data.ctypes.data)
     if bbox is not None:
         (x1, y1), (x2, y2) = bbox.__array__()
-        bboxptr = (math.floor(x1), math.ceil(x2),
-                   math.floor(y1), math.ceil(y2))
+        x1 = max(math.floor(x1), 0)
+        x2 = min(math.ceil(x2), width)
+        y1 = max(math.floor(y1), 0)
+        y2 = min(math.ceil(y2), height)
+        bboxptr = (x1, x2, y1, y2)
     else:
         photoimage.blank()
         bboxptr = (0, width, 0, height)
@@ -82,11 +85,11 @@ class TimerTk(TimerBase):
 
     Attributes
     ----------
-    interval : int
-        The time between timer events in milliseconds. Default is 1000 ms.
-    single_shot : bool
-        Boolean flag indicating whether this timer should operate as single
-        shot (run once and then stop). Defaults to False.
+    interval : int, default: 1000ms
+        The time between timer events in milliseconds.
+    single_shot : bool, default: False
+        Whether this timer should operate as single shot (run once and then
+        stop).
     callbacks : list
         Stores list of (func, args) tuples that will be called upon timer
         events. This list can be manipulated directly, or the functions
@@ -121,6 +124,8 @@ class TimerTk(TimerBase):
 
 
 class FigureCanvasTk(FigureCanvasBase):
+    required_interactive_framework = "tk"
+
     keyvald = {65507: 'control',
                65505: 'shift',
                65513: 'alt',
@@ -427,7 +432,6 @@ class FigureManagerTk(FigureManagerBase):
         # widget is getting shrunk first (-> the canvas)
         self.toolbar = self._get_toolbar()
         self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-        self._num = num
 
         self.statusbar = None
 
@@ -462,15 +466,11 @@ class FigureManagerTk(FigureManagerBase):
             self.toolbar.configure(width=width)
 
     def show(self):
-        """
-        this function doesn't segfault but causes the
-        PyEval_RestoreThread: NULL state bug on win32
-        """
         with _restore_foreground_window_at_end():
             if not self._shown:
                 def destroy(*args):
                     self.window = None
-                    Gcf.destroy(self._num)
+                    Gcf.destroy(self.num)
                 self.canvas._tkcanvas.bind("<Destroy>", destroy)
                 self.window.deiconify()
             else:
@@ -507,17 +507,23 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
     Attributes
     ----------
     canvas : `FigureCanvas`
-        the figure canvas on which to operate
+        The figure canvas on which to operate.
     win : tk.Window
-        the tk.Window which owns this toolbar
-
+        The tk.Window which owns this toolbar.
+    pack_toolbar : bool, default: True
+        If True, add the toolbar to the parent's pack manager's packing list
+        during initialization with ``side='bottom'`` and ``fill='x'``.
+        If you want to use the toolbar with a different layout manager, use
+        ``pack_toolbar=False``.
     """
-    def __init__(self, canvas, window):
+    def __init__(self, canvas, window, *, pack_toolbar=True):
         self.canvas = canvas
-        # Avoid using self.window (prefer self.canvas.manager.window), so that
-        # Tool implementations can reuse the methods.
+        # Avoid using self.window (prefer self.canvas.get_tk_widget().master),
+        # so that Tool implementations can reuse the methods.
         self.window = window
         NavigationToolbar2.__init__(self, canvas)
+        if pack_toolbar:
+            self.pack(side=tk.BOTTOM, fill=tk.X)
 
     def destroy(self, *args):
         del self.message
@@ -540,7 +546,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             del self.lastrect
 
     def set_cursor(self, cursor):
-        window = self.canvas.manager.window
+        window = self.canvas.get_tk_widget().master
         window.configure(cursor=cursord[cursor])
         window.update_idletasks()
 
@@ -582,7 +588,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         self.message = tk.StringVar(master=self)
         self._message_label = tk.Label(master=self, textvariable=self.message)
         self._message_label.pack(side=tk.RIGHT)
-        self.pack(side=tk.BOTTOM, fill=tk.X)
 
     def configure_subplots(self):
         toolfig = Figure(figsize=(6, 3))
@@ -614,7 +619,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         initialdir = os.path.expanduser(rcParams['savefig.directory'])
         initialfile = self.canvas.get_default_filename()
         fname = tkinter.filedialog.asksaveasfilename(
-            master=self.canvas.manager.window,
+            master=self.canvas.get_tk_widget().master,
             title='Save the figure',
             filetypes=tk_filetypes,
             defaultextension=defaultextension,
@@ -865,7 +870,6 @@ Toolbar = ToolbarTk
 
 @_Backend.export
 class _BackendTk(_Backend):
-    required_interactive_framework = "tk"
     FigureManager = FigureManagerTk
 
     @classmethod
@@ -877,11 +881,12 @@ class _BackendTk(_Backend):
             window = tk.Tk(className="matplotlib")
             window.withdraw()
 
-            # Put a mpl icon on the window rather than the default tk icon.
-            # Tkinter doesn't allow colour icons on linux systems, but tk>=8.5
-            # has a iconphoto command which we call directly. Source:
+            # Put a Matplotlib icon on the window rather than the default tk
+            # icon.  Tkinter doesn't allow colour icons on linux systems, but
+            # tk>=8.5 has a iconphoto command which we call directly.  See
             # http://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
-            icon_fname = str(cbook._get_data_path('images/matplotlib.ppm'))
+            icon_fname = str(cbook._get_data_path(
+                'images/matplotlib_128.ppm'))
             icon_img = tk.PhotoImage(file=icon_fname, master=window)
             try:
                 window.iconphoto(False, icon_img)

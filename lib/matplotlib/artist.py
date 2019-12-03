@@ -161,11 +161,9 @@ class Artist:
         # TODO: add legend support
 
     def have_units(self):
-        """Return *True* if units are set on the *x* or *y* axes."""
+        """Return *True* if units are set on any axis."""
         ax = self.axes
-        if ax is None or ax.xaxis is None:
-            return False
-        return ax.xaxis.have_units() or ax.yaxis.have_units()
+        return ax and any(axis.have_units() for axis in ax._get_axis_list())
 
     def convert_xunits(self, x):
         """
@@ -249,6 +247,23 @@ class Artist:
         """
         return Bbox([[0, 0], [0, 0]])
 
+    def _get_clipping_extent_bbox(self):
+        """
+        Return a bbox with the extents of the intersection of the clip_path
+        and clip_box for this artist, or None if both of these are
+        None, or ``get_clip_on`` is False.
+        """
+        bbox = None
+        if self.get_clip_on():
+            clip_box = self.get_clip_box()
+            if clip_box is not None:
+                bbox = clip_box
+            clip_path = self.get_clip_path()
+            if clip_path is not None and bbox is not None:
+                clip_path = clip_path.get_fully_transformed_path()
+                bbox = Bbox.intersection(bbox, clip_path.get_extents())
+        return bbox
+
     def get_tightbbox(self, renderer):
         """
         Like `Artist.get_window_extent`, but includes any clipping.
@@ -261,7 +276,7 @@ class Artist:
 
         Returns
         -------
-        bbox : `.BBox`
+        bbox : `.Bbox`
             The enclosing bounding box (in figure pixel co-ordinates).
         """
         bbox = self.get_window_extent(renderer)
@@ -366,6 +381,32 @@ class Artist:
         r"""Return a list of the child `.Artist`\s of this `.Artist`."""
         return []
 
+    def _default_contains(self, mouseevent, figure=None):
+        """
+        Base impl. for checking whether a mouseevent happened in an artist.
+
+        1. If the artist defines a custom checker, use it.
+        2. If the artist figure is known and the event did not occur in that
+           figure (by checking its ``canvas`` attribute), reject it.
+        3. Otherwise, return `None, {}`, indicating that the subclass'
+           implementation should be used.
+
+        Subclasses should start their definition of `contains` as follows:
+
+            inside, info = self._default_contains(mouseevent)
+            if inside is not None:
+                return inside, info
+            # subclass-specific implementation follows
+
+        The `canvas` kwarg is provided for the implementation of
+        `Figure.contains`.
+        """
+        if callable(self._contains):
+            return self._contains(self, mouseevent)
+        if figure is not None and mouseevent.canvas is not figure.canvas:
+            return False, {}
+        return None, {}
+
     def contains(self, mouseevent):
         """Test whether the artist contains the mouse event.
 
@@ -386,8 +427,9 @@ class Artist:
         --------
         set_contains, get_contains
         """
-        if self._contains is not None:
-            return self._contains(self, mouseevent)
+        inside, info = self._default_contains(mouseevent)
+        if inside is not None:
+            return inside, info
         _log.warning("%r needs 'contains' method", self.__class__.__name__)
         return False, {}
 
@@ -618,11 +660,9 @@ class Artist:
             The amplitude of the wiggle perpendicular to the source
             line, in pixels.  If scale is `None`, or not provided, no
             sketch filter will be provided.
-
         length : float, optional
              The length of the wiggle along the line, in pixels
              (default 128.0)
-
         randomness : float, optional
             The scale factor by which the length is shrunken or
             expanded (default 16.0)
@@ -664,7 +704,7 @@ class Artist:
         if self.figure is fig:
             return
         # if we currently have a figure (the case of both `self.figure`
-        # and `fig` being none is taken care of above) we then user is
+        # and *fig* being none is taken care of above) we then user is
         # trying to change the figure an artist is associated with which
         # is not allowed for the same reason as adding the same instance
         # to more than one Axes
@@ -690,20 +730,28 @@ class Artist:
 
     def set_clip_path(self, path, transform=None):
         """
-        Set the artist's clip path, which may be:
+        Set the artist's clip path.
 
-        - a :class:`~matplotlib.patches.Patch` (or subclass) instance; or
-        - a :class:`~matplotlib.path.Path` instance, in which case a
-          :class:`~matplotlib.transforms.Transform` instance, which will be
-          applied to the path before using it for clipping, must be provided;
-          or
-        - ``None``, to remove a previously set clipping path.
+        Parameters
+        ----------
+        path : `.Patch` or `.Path` or `.TransformedPath` or None
+            The clip path. If given a `.Path`, *transform* must be provided as
+            well. If *None*, a previously set clip path is removed.
+        transform : `~matplotlib.transforms.Transform`, optional
+            Only used if *path* is a `.Path`, in which case the given `.Path`
+            is converted to a `.TransformedPath` using *transform*.
 
-        For efficiency, if the path happens to be an axis-aligned rectangle,
-        this method will set the clipping box to the corresponding rectangle
-        and set the clipping path to ``None``.
+        Notes
+        -----
+        For efficiency, if *path* is a `.Rectangle` this method will set the
+        clipping box to the corresponding rectangle and set the clipping path
+        to ``None``.
 
-        ACCEPTS: [(`~matplotlib.path.Path`, `.Transform`) | `.Patch` | None]
+        For technical reasons (support of ``setp``), a tuple
+        (*path*, *transform*) is also accepted as a single positional
+        parameter.
+
+        .. ACCEPTS: Patch or (Path, Transform) or None
         """
         from matplotlib.patches import Patch, Rectangle
 
@@ -754,7 +802,7 @@ class Artist:
         return self._visible
 
     def get_animated(self):
-        """Return the animated state."""
+        """Return whether the artist is animated."""
         return self._animated
 
     def get_in_layout(self):
@@ -1024,7 +1072,7 @@ class Artist:
         return self._sticky_edges
 
     def update_from(self, other):
-        'Copy properties from *other* to *self*.'
+        """"Copy properties from *other* to *self*."""
         self._transform = other._transform
         self._transformSet = other._transformSet
         self._visible = other._visible
@@ -1152,6 +1200,13 @@ class Artist:
 
     @property
     def mouseover(self):
+        """
+        If this property is set to *True*, the artist will be queried for
+        custom context information when the mouse cursor moves over it.
+
+        See also :meth:`get_cursor_data`, :class:`.ToolCursorPosition` and
+        :class:`.NavigationToolbar2`.
+        """
         return self._mouseover
 
     @mouseover.setter
@@ -1266,18 +1321,12 @@ class ArtistInspector:
             if not name.startswith('set_'):
                 continue
             func = getattr(self.o, name)
-            if not callable(func):
+            if (not callable(func)
+                    or len(inspect.signature(func).parameters) < 2
+                    or self.is_alias(func)):
                 continue
-            nargs = len(inspect.getfullargspec(func).args)
-            if nargs < 2 or self.is_alias(func):
-                continue
-            source_class = self.o.__module__ + "." + self.o.__name__
-            for cls in self.o.mro():
-                if name in cls.__dict__:
-                    source_class = cls.__module__ + "." + cls.__name__
-                    break
-            source_class = self._replace_path(source_class)
-            setters.append((name[4:], source_class + "." + name))
+            setters.append(
+                (name[4:], f"{func.__module__}.{func.__qualname__}"))
         return setters
 
     def _replace_path(self, source_class):
@@ -1375,7 +1424,9 @@ class ArtistInspector:
 
         attrs = sorted(self._get_setters_and_targets())
 
-        names = [self.aliased_name_rest(prop, target)
+        names = [self.aliased_name_rest(prop, target).replace(
+            '_base._AxesBase', 'Axes').replace(
+            '_axes.Axes', 'Axes')
                  for prop, target in attrs]
         accepts = [self.get_valid_values(prop) for prop, target in attrs]
 
@@ -1485,14 +1536,14 @@ def setp(obj, *args, **kwargs):
     introspection on the object.  For example, to set the linestyle of a
     line to be dashed, you can do::
 
-      >>> line, = plot([1,2,3])
+      >>> line, = plot([1, 2, 3])
       >>> setp(line, linestyle='--')
 
     If you want to know the valid types of arguments, you can provide
     the name of the property you want to set without a value::
 
       >>> setp(line, 'linestyle')
-          linestyle: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
+          linestyle: {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
 
     If you want to see all the properties that can be set, and their
     possible values, you can do::
@@ -1501,7 +1552,7 @@ def setp(obj, *args, **kwargs):
           ... long output listing omitted
 
     You may specify another output file to `setp` if `sys.stdout` is not
-    acceptable for some reason using the `file` keyword-only argument::
+    acceptable for some reason using the *file* keyword-only argument::
 
       >>> with fopen('output.log') as f:
       >>>     setp(line, file=f)
@@ -1513,7 +1564,7 @@ def setp(obj, *args, **kwargs):
     suppose you have a list of two lines, the following will make both
     lines thicker and red::
 
-      >>> x = arange(0,1.0,0.01)
+      >>> x = arange(0, 1, 0.01)
       >>> y1 = sin(2*pi*x)
       >>> y2 = sin(4*pi*x)
       >>> lines = plot(x, y1, x, y2)

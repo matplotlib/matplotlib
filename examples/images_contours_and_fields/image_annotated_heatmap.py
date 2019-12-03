@@ -161,7 +161,7 @@ def heatmap(data, row_labels, col_labels, ax=None,
 
 
 def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
-                     textcolors=["black", "white"],
+                     textcolors=("black", "white"),
                      threshold=None, **textkw):
     """
     A function to annotate a heatmap.
@@ -177,8 +177,8 @@ def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
         use the string format method, e.g. "$ {x:.2f}", or be a
         `matplotlib.ticker.Formatter`.  Optional.
     textcolors
-        A list or array of two color specifications.  The first is used for
-        values below a threshold, the second for those above.  Optional.
+        A pair of colors.  The first is used for values below a threshold,
+        the second for those above.  Optional.
     threshold
         Value in data units according to which the colors from textcolors are
         applied.  If None (the default) uses the middle of the colormap as
@@ -260,7 +260,7 @@ x = ["Store {}".format(i) for i in list("ABCDEFG")]
 im, _ = heatmap(data, y, x, ax=ax2, vmin=0,
                 cmap="magma_r", cbarlabel="weekly sold copies")
 annotate_heatmap(im, valfmt="{x:d}", size=7, threshold=20,
-                 textcolors=["red", "white"])
+                 textcolors=("red", "white"))
 
 # Sometimes even the data itself is categorical. Here we use a
 # :class:`matplotlib.colors.BoundaryNorm` to get the data into classes
@@ -281,7 +281,7 @@ im, _ = heatmap(data, y, x, ax=ax3,
                 cbarlabel="Quality Rating")
 
 annotate_heatmap(im, valfmt=fmt, size=9, fontweight="bold", threshold=-1,
-                 textcolors=["red", "black"])
+                 textcolors=("red", "black"))
 
 # We can nicely plot a correlation matrix. Since this is bound by -1 and 1,
 # we use those as vmin and vmax. We may also remove leading zeros and hide

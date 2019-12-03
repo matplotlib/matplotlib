@@ -19,7 +19,7 @@ np.random.seed(19680801)
 X = 10*np.random.rand(5, 3)
 
 fig, ax = plt.subplots()
-ax.imshow(X, interpolation='nearest')
+ax.imshow(X)
 
 numrows, numcols = X.shape
 

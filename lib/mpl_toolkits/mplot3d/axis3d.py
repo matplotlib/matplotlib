@@ -2,8 +2,6 @@
 # Created: 23 Sep 2005
 # Parts rewritten by Reinier Heeres <reinier@heeres.eu>
 
-import copy
-
 import numpy as np
 
 from matplotlib import (
@@ -12,6 +10,7 @@ from matplotlib import (
 from . import art3d, proj3d
 
 
+@cbook.deprecated("3.1")
 def get_flip_min_max(coord, index, mins, maxs):
     if coord[index] == mins[index]:
         return maxs[index]
@@ -20,16 +19,12 @@ def get_flip_min_max(coord, index, mins, maxs):
 
 
 def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
-    '''Return a coordinate that is moved by "deltas" away from the center.'''
-    coord = copy.copy(coord)
-    for i in range(3):
-        if not axmask[i]:
-            continue
-        if coord[i] < centers[i]:
-            coord[i] -= deltas[i]
-        else:
-            coord[i] += deltas[i]
-    return coord
+    """
+    For each coordinate where *axmask* is True, move *coord* away from
+    *centers* by *deltas*.
+    """
+    coord = np.asarray(coord)
+    return coord + axmask * np.copysign(1, coord - centers) * deltas
 
 
 def tick_update_position(tick, tickxs, tickys, labelpos):
@@ -68,9 +63,6 @@ class Axis(maxis.XAxis):
                  rotate_label=None, **kwargs):
         # adir identifies which axes this is
         self.adir = adir
-        # data and viewing intervals for this direction
-        self.d_interval = d_intervalx
-        self.v_interval = v_intervalx
 
         # This is a temporary member variable.
         # Do not depend on this existing in future releases!
@@ -105,6 +97,10 @@ class Axis(maxis.XAxis):
                  })
 
         maxis.XAxis.__init__(self, axes, *args, **kwargs)
+
+        # data and viewing intervals for this direction
+        self.d_interval = d_intervalx
+        self.v_interval = v_intervalx
         self.set_rotate_label(rotate_label)
 
     def init3d(self):
@@ -175,15 +171,11 @@ class Axis(maxis.XAxis):
             return len(text) > 4
 
     def _get_coord_info(self, renderer):
-        minx, maxx, miny, maxy, minz, maxz = self.axes.get_w_lims()
-        if minx > maxx:
-            minx, maxx = maxx, minx
-        if miny > maxy:
-            miny, maxy = maxy, miny
-        if minz > maxz:
-            minz, maxz = maxz, minz
-        mins = np.array((minx, miny, minz))
-        maxs = np.array((maxx, maxy, maxz))
+        mins, maxs = np.array([
+            self.axes.get_xbound(),
+            self.axes.get_ybound(),
+            self.axes.get_zbound(),
+        ]).T
         centers = (maxs + mins) / 2.
         deltas = (maxs - mins) / 12.
         mins = mins - deltas / 4.
@@ -198,7 +190,7 @@ class Axis(maxis.XAxis):
         return mins, maxs, centers, deltas, tc, highs
 
     def draw_pane(self, renderer):
-        renderer.open_group('pane3d')
+        renderer.open_group('pane3d', gid=self.get_gid())
 
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
@@ -217,7 +209,7 @@ class Axis(maxis.XAxis):
     @artist.allow_rasterization
     def draw(self, renderer):
         self.label._transform = self.axes.transData
-        renderer.open_group('axis3d')
+        renderer.open_group('axis3d', gid=self.get_gid())
 
         ticks = self._update_ticks()
 
@@ -228,29 +220,26 @@ class Axis(maxis.XAxis):
 
         # Determine grid lines
         minmax = np.where(highs, maxs, mins)
+        maxmin = np.where(highs, mins, maxs)
 
         # Draw main axis line
         juggled = info['juggled']
         edgep1 = minmax.copy()
-        edgep1[juggled[0]] = get_flip_min_max(edgep1, juggled[0], mins, maxs)
+        edgep1[juggled[0]] = maxmin[juggled[0]]
 
         edgep2 = edgep1.copy()
-        edgep2[juggled[1]] = get_flip_min_max(edgep2, juggled[1], mins, maxs)
-        pep = proj3d.proj_trans_points([edgep1, edgep2], renderer.M)
-        centpt = proj3d.proj_transform(
-            centers[0], centers[1], centers[2], renderer.M)
-        self.line.set_data((pep[0][0], pep[0][1]), (pep[1][0], pep[1][1]))
+        edgep2[juggled[1]] = maxmin[juggled[1]]
+        pep = np.asarray(
+            proj3d.proj_trans_points([edgep1, edgep2], renderer.M))
+        centpt = proj3d.proj_transform(*centers, renderer.M)
+        self.line.set_data(pep[0], pep[1])
         self.line.draw(renderer)
 
         # Grid points where the planes meet
-        xyz0 = []
-        for tick in ticks:
-            coord = minmax.copy()
-            coord[index] = tick.get_loc()
-            xyz0.append(coord)
+        xyz0 = np.tile(minmax, (len(ticks), 1))
+        xyz0[:, index] = [tick.get_loc() for tick in ticks]
 
         # Draw labels
-        peparray = np.asanyarray(pep)
         # The transAxes transform is used because the Text object
         # rotates the text relative to the display coordinate system.
         # Therefore, if we want the labels to remain parallel to the
@@ -258,8 +247,8 @@ class Axis(maxis.XAxis):
         # edge points of the plane to display coordinates and calculate
         # an angle from that.
         # TODO: Maybe Text objects should handle this themselves?
-        dx, dy = (self.axes.transAxes.transform([peparray[0:2, 1]]) -
-                  self.axes.transAxes.transform([peparray[0:2, 0]]))[0]
+        dx, dy = (self.axes.transAxes.transform([pep[0:2, 1]]) -
+                  self.axes.transAxes.transform([pep[0:2, 0]]))[0]
 
         lxyz = 0.5 * (edgep1 + edgep2)
 
@@ -274,8 +263,7 @@ class Axis(maxis.XAxis):
         axmask = [True, True, True]
         axmask[index] = False
         lxyz = move_from_center(lxyz, centers, labeldeltas, axmask)
-        tlx, tly, tlz = proj3d.proj_transform(lxyz[0], lxyz[1], lxyz[2],
-                                              renderer.M)
+        tlx, tly, tlz = proj3d.proj_transform(*lxyz, renderer.M)
         self.label.set_position((tlx, tly))
         if self.get_rotate_label(self.label.get_text()):
             angle = art3d._norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
@@ -295,10 +283,8 @@ class Axis(maxis.XAxis):
             outeredgep = edgep2
             outerindex = 1
 
-        pos = copy.copy(outeredgep)
-        pos = move_from_center(pos, centers, labeldeltas, axmask)
-        olx, oly, olz = proj3d.proj_transform(
-            pos[0], pos[1], pos[2], renderer.M)
+        pos = move_from_center(outeredgep, centers, labeldeltas, axmask)
+        olx, oly, olz = proj3d.proj_transform(*pos, renderer.M)
         self.offsetText.set_text(self.major.formatter.get_offset())
         self.offsetText.set_position((olx, oly))
         angle = art3d._norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
@@ -316,16 +302,16 @@ class Axis(maxis.XAxis):
         # using the wrong reference points).
         #
         # (TT, FF, TF, FT) are the shorthand for the tuple of
-        #   (centpt[info['tickdir']] <= peparray[info['tickdir'], outerindex],
-        #    centpt[index] <= peparray[index, outerindex])
+        #   (centpt[info['tickdir']] <= pep[info['tickdir'], outerindex],
+        #    centpt[index] <= pep[index, outerindex])
         #
         # Three-letters (e.g., TFT, FTT) are short-hand for the array of bools
         # from the variable 'highs'.
         # ---------------------------------------------------------------------
-        if centpt[info['tickdir']] > peparray[info['tickdir'], outerindex]:
+        if centpt[info['tickdir']] > pep[info['tickdir'], outerindex]:
             # if FT and if highs has an even number of Trues
-            if (centpt[index] <= peparray[index, outerindex]
-                    and len(highs.nonzero()[0]) % 2 == 0):
+            if (centpt[index] <= pep[index, outerindex]
+                    and np.count_nonzero(highs) % 2 == 0):
                 # Usually, this means align right, except for the FTT case,
                 # in which offset for axis 1 and 2 are aligned left.
                 if highs.tolist() == [False, True, True] and index in (1, 2):
@@ -337,8 +323,8 @@ class Axis(maxis.XAxis):
                 align = 'left'
         else:
             # if TF and if highs has an even number of Trues
-            if (centpt[index] > peparray[index, outerindex]
-                    and len(highs.nonzero()[0]) % 2 == 0):
+            if (centpt[index] > pep[index, outerindex]
+                    and np.count_nonzero(highs) % 2 == 0):
                 # Usually mean align left, except if it is axis 2
                 if index == 2:
                     align = 'right'
@@ -352,31 +338,19 @@ class Axis(maxis.XAxis):
         self.offsetText.set_ha(align)
         self.offsetText.draw(renderer)
 
-        # Draw grid lines
-        if len(xyz0) > 0:
-            # Grid points at end of one plane
-            xyz1 = copy.deepcopy(xyz0)
-            newindex = (index + 1) % 3
-            newval = get_flip_min_max(xyz1[0], newindex, mins, maxs)
-            for i in range(len(ticks)):
-                xyz1[i][newindex] = newval
-
-            # Grid points at end of the other plane
-            xyz2 = copy.deepcopy(xyz0)
-            newindex = (index + 2) % 3
-            newval = get_flip_min_max(xyz2[0], newindex, mins, maxs)
-            for i in range(len(ticks)):
-                xyz2[i][newindex] = newval
-
-            lines = list(zip(xyz1, xyz0, xyz2))
-            if self.axes._draw_grid:
-                self.gridlines.set_segments(lines)
-                self.gridlines.set_color([info['grid']['color']] * len(lines))
-                self.gridlines.set_linewidth(
-                    [info['grid']['linewidth']] * len(lines))
-                self.gridlines.set_linestyle(
-                    [info['grid']['linestyle']] * len(lines))
-                self.gridlines.draw(renderer, project=True)
+        if self.axes._draw_grid and len(ticks):
+            # Grid lines go from the end of one plane through the plane
+            # intersection (at xyz0) to the end of the other plane.  The first
+            # point (0) differs along dimension index-2 and the last (2) along
+            # dimension index-1.
+            lines = np.stack([xyz0, xyz0, xyz0], axis=1)
+            lines[:, 0, index - 2] = maxmin[index - 2]
+            lines[:, 2, index - 1] = maxmin[index - 1]
+            self.gridlines.set_segments(lines)
+            self.gridlines.set_color(info['grid']['color'])
+            self.gridlines.set_linewidth(info['grid']['linewidth'])
+            self.gridlines.set_linestyle(info['grid']['linestyle'])
+            self.gridlines.draw(renderer, project=True)
 
         # Draw ticks
         tickdir = info['tickdir']
@@ -388,18 +362,16 @@ class Axis(maxis.XAxis):
 
         for tick in ticks:
             # Get tick line positions
-            pos = copy.copy(edgep1)
+            pos = edgep1.copy()
             pos[index] = tick.get_loc()
             pos[tickdir] = (
                 edgep1[tickdir]
                 + info['tick']['outward_factor'] * ticksign * tickdelta)
-            x1, y1, z1 = proj3d.proj_transform(pos[0], pos[1], pos[2],
-                                               renderer.M)
+            x1, y1, z1 = proj3d.proj_transform(*pos, renderer.M)
             pos[tickdir] = (
                 edgep1[tickdir]
                 - info['tick']['inward_factor'] * ticksign * tickdelta)
-            x2, y2, z2 = proj3d.proj_transform(pos[0], pos[1], pos[2],
-                                               renderer.M)
+            x2, y2, z2 = proj3d.proj_transform(*pos, renderer.M)
 
             # Get position of label
             default_offset = 8.  # A rough estimate
@@ -410,8 +382,7 @@ class Axis(maxis.XAxis):
             axmask[index] = False
             pos[tickdir] = edgep1[tickdir]
             pos = move_from_center(pos, centers, labeldeltas, axmask)
-            lx, ly, lz = proj3d.proj_transform(pos[0], pos[1], pos[2],
-                                               renderer.M)
+            lx, ly, lz = proj3d.proj_transform(*pos, renderer.M)
 
             tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
             tick.tick1line.set_linewidth(info['tick']['linewidth'])
@@ -420,18 +391,6 @@ class Axis(maxis.XAxis):
         renderer.close_group('axis3d')
         self.stale = False
 
-    def get_view_interval(self):
-        # docstring inherited
-        return self.v_interval
-
-    def set_view_interval(self, vmin, vmax, ignore=False):
-        # docstring inherited
-        if ignore:
-            self.v_interval = vmin, vmax
-        else:
-            Vmin, Vmax = self.get_view_interval()
-            self.v_interval = min(vmin, Vmin), max(vmax, Vmax)
-
     # TODO: Get this to work properly when mplot3d supports
     #       the transforms framework.
     def get_tightbbox(self, renderer):
@@ -439,23 +398,42 @@ class Axis(maxis.XAxis):
         # doesn't return junk info.
         return None
 
+    @property
+    def d_interval(self):
+        return self.get_data_interval()
+
+    @d_interval.setter
+    def d_interval(self, minmax):
+        return self.set_data_interval(*minmax)
+
+    @property
+    def v_interval(self):
+        return self.get_view_interval()
+
+    @d_interval.setter
+    def v_interval(self, minmax):
+        return self.set_view_interval(*minmax)
+
 
 # Use classes to look at different data limits
 
 
 class XAxis(Axis):
-    def get_data_interval(self):
-        # docstring inherited
-        return self.axes.xy_dataLim.intervalx
+    get_view_interval, set_view_interval = maxis._make_getset_interval(
+        "view", "xy_viewLim", "intervalx")
+    get_data_interval, set_data_interval = maxis._make_getset_interval(
+        "data", "xy_dataLim", "intervalx")
 
 
 class YAxis(Axis):
-    def get_data_interval(self):
-        # docstring inherited
-        return self.axes.xy_dataLim.intervaly
+    get_view_interval, set_view_interval = maxis._make_getset_interval(
+        "view", "xy_viewLim", "intervaly")
+    get_data_interval, set_data_interval = maxis._make_getset_interval(
+        "data", "xy_dataLim", "intervaly")
 
 
 class ZAxis(Axis):
-    def get_data_interval(self):
-        # docstring inherited
-        return self.axes.zz_dataLim.intervalx
+    get_view_interval, set_view_interval = maxis._make_getset_interval(
+        "view", "zz_viewLim", "intervalx")
+    get_data_interval, set_data_interval = maxis._make_getset_interval(
+        "data", "zz_dataLim", "intervalx")

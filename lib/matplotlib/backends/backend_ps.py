@@ -3,6 +3,7 @@ A PostScript backend, which can produce both PostScript .ps and .eps.
 """
 
 import datetime
+from enum import Enum
 import glob
 from io import StringIO, TextIOWrapper
 import logging
@@ -20,17 +21,18 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import (
     cbook, _path, __version__, rcParams, checkdep_ghostscript)
+from matplotlib import _text_layout
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
-from matplotlib.cbook import (get_realpath_and_stat, is_writable_file_like,
-                              file_requires_unicode)
+from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import is_opentype_cff_font, get_font
-from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
+from matplotlib.ft2font import LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
+from matplotlib.texmanager import TexManager
 from matplotlib.transforms import Affine2D
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from . import _backend_pdf_ps
@@ -199,9 +201,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         # Although postscript itself is dpi independent, we need to inform the
         # image code about a requested dpi to generate high resolution images
         # and them scale them before embedding them.
-        RendererBase.__init__(self)
-        self.width = width
-        self.height = height
+        super().__init__(width, height)
         self._pswriter = pswriter
         if rcParams['text.usetex']:
             self.textcnt = 0
@@ -221,21 +221,22 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         self._clip_paths = {}
         self._path_collection_id = 0
 
-        self.used_characters = {}
+        self._character_tracker = _backend_pdf_ps.CharacterTracker()
         self.mathtext_parser = MathTextParser("PS")
 
-    def track_characters(self, font, s):
-        """Keeps track of which characters are required from each font."""
-        realpath, stat_key = get_realpath_and_stat(font.fname)
-        used_characters = self.used_characters.setdefault(
-            stat_key, (realpath, set()))
-        used_characters[1].update(map(ord, s))
+    @cbook.deprecated("3.3")
+    @property
+    def used_characters(self):
+        return self._character_tracker.used_characters
 
-    def merge_used_characters(self, other):
-        for stat_key, (realpath, charset) in other.items():
-            used_characters = self.used_characters.setdefault(
-                stat_key, (realpath, set()))
-            used_characters[1].update(charset)
+    @cbook.deprecated("3.3")
+    def track_characters(self, *args, **kwargs):
+        """Keeps track of which characters are required from each font."""
+        self._character_tracker.track(*args, **kwargs)
+
+    @cbook.deprecated("3.3")
+    def merge_used_characters(self, *args, **kwargs):
+        self._character_tracker.merge(*args, **kwargs)
 
     def set_color(self, r, g, b, store=1):
         if (r, g, b) != self.color:
@@ -299,31 +300,30 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         name = 'H%d' % len(self._hatches)
         linewidth = rcParams['hatch.linewidth']
         pageheight = self.height * 72
-        self._pswriter.write("""\
+        self._pswriter.write(f"""\
   << /PatternType 1
      /PaintType 2
      /TilingType 2
-     /BBox[0 0 %(sidelen)d %(sidelen)d]
-     /XStep %(sidelen)d
-     /YStep %(sidelen)d
+     /BBox[0 0 {sidelen:d} {sidelen:d}]
+     /XStep {sidelen:d}
+     /YStep {sidelen:d}
 
-     /PaintProc {
+     /PaintProc {{
         pop
-        %(linewidth)f setlinewidth
-""" % locals())
-        self._pswriter.write(
-            self._convert_path(Path.hatch(hatch), Affine2D().scale(sidelen),
-                               simplify=False))
-        self._pswriter.write("""\
+        {linewidth:f} setlinewidth
+{self._convert_path(
+    Path.hatch(hatch), Affine2D().scale(sidelen), simplify=False)}
+        gsave
         fill
+        grestore
         stroke
-     } bind
+     }} bind
    >>
    matrix
-   0.0 %(pageheight)f translate
+   0.0 {pageheight:f} translate
    makepattern
-   /%(name)s exch def
-""" % locals())
+   /{name} exch def
+""")
         self._hatches[hatch] = name
         return name
 
@@ -369,20 +369,20 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             clip.append('%s' % id)
         clip = '\n'.join(clip)
 
-        ps = """gsave
-%(clip)s
-%(x)s %(y)s translate
-[%(matrix)s] concat
-%(xscale)s %(yscale)s scale
-/DataString %(w)s string def
-%(w)s %(h)s 8 [ %(w)s 0 0 -%(h)s 0 %(h)s ]
-{
+        self._pswriter.write(f"""\
+gsave
+{clip}
+{x:f} {y:f} translate
+[{matrix}] concat
+{xscale:f} {yscale:f} scale
+/DataString {w:d} string def
+{w:d} {h:d} 8 [ {w:d} 0 0 -{h:d} 0 {h:d} ]
+{{
 currentfile DataString readhexstring pop
-} bind %(imagecmd)s
-%(hexlines)s
+}} bind {imagecmd}
+{hexlines}
 grestore
-""" % locals()
-        self._pswriter.write(ps)
+""")
 
     def _convert_path(self, path, transform, clip=False, simplify=None):
         if clip:
@@ -548,15 +548,13 @@ translate
                 r'\psfrag{%s}[bl][bl][1][%f]{\fontsize{%f}{%f}%s}' % (
                     thetext, angle, fontsize, fontsize*1.25, tex))
 
-        ps = """\
+        self._pswriter.write(f"""\
 gsave
-%(pos)s moveto
-(%(thetext)s)
+{pos} moveto
+({thetext})
 show
 grestore
-    """ % locals()
-
-        self._pswriter.write(ps)
+""")
         self.textcnt += 1
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
@@ -607,61 +605,37 @@ grestore
                 thisx += width * scale
 
             thetext = "\n".join(lines)
-            ps = """\
+            self._pswriter.write(f"""\
 gsave
-/%(fontname)s findfont
-%(fontsize)s scalefont
+/{fontname} findfont
+{fontsize} scalefont
 setfont
-%(x)f %(y)f translate
-%(angle)f rotate
-%(thetext)s
+{x:f} {y:f} translate
+{angle:f} rotate
+{thetext}
 grestore
-    """ % locals()
-            self._pswriter.write(ps)
+""")
 
         else:
             font = self._get_font_ttf(prop)
             font.set_text(s, 0, flags=LOAD_NO_HINTING)
-            self.track_characters(font, s)
+            self._character_tracker.track(font, s)
 
             self.set_color(*gc.get_rgb())
             ps_name = (font.postscript_name
                        .encode('ascii', 'replace').decode('ascii'))
             self.set_font(ps_name, prop.get_size_in_points())
 
-            lastgind = None
-            lines = []
-            thisx = 0
-            thisy = 0
-            for c in s:
-                ccode = ord(c)
-                gind = font.get_char_index(ccode)
-                if gind is None:
-                    ccode = ord('?')
-                    name = '.notdef'
-                    gind = 0
-                else:
-                    name = font.get_glyph_name(gind)
-                glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
-
-                if lastgind is not None:
-                    kern = font.get_kerning(lastgind, gind, KERNING_DEFAULT)
-                else:
-                    kern = 0
-                lastgind = gind
-                thisx += kern / 64
-
-                lines.append('%f %f m /%s glyphshow' % (thisx, thisy, name))
-                thisx += glyph.linearHoriAdvance / 65536
-
-            thetext = '\n'.join(lines)
-            ps = """gsave
-%(x)f %(y)f translate
-%(angle)f rotate
-%(thetext)s
+            thetext = '\n'.join(
+                '%f 0 m /%s glyphshow' % (x, font.get_glyph_name(glyph_idx))
+                for glyph_idx, x in _text_layout.layout(s, font))
+            self._pswriter.write(f"""\
+gsave
+{x:f} {y:f} translate
+{angle:f} rotate
+{thetext}
 grestore
-""" % locals()
-            self._pswriter.write(ps)
+""")
 
     def new_gc(self):
         # docstring inherited
@@ -674,16 +648,16 @@ grestore
 
         width, height, descent, pswriter, used_characters = \
             self.mathtext_parser.parse(s, 72, prop)
-        self.merge_used_characters(used_characters)
+        self._character_tracker.merge(used_characters)
         self.set_color(*gc.get_rgb())
         thetext = pswriter.getvalue()
-        ps = """gsave
-%(x)f %(y)f translate
-%(angle)f rotate
-%(thetext)s
+        self._pswriter.write(f"""\
+gsave
+{x:f} {y:f} translate
+{angle:f} rotate
+{thetext}
 grestore
-""" % locals()
-        self._pswriter.write(ps)
+""")
 
     def draw_gouraud_triangle(self, gc, points, colors, trans):
         self.draw_gouraud_triangles(gc, points.reshape((1, 3, 2)),
@@ -720,7 +694,7 @@ grestore
 
         stream = quote_ps_string(streamarr.tostring())
 
-        self._pswriter.write("""
+        self._pswriter.write(f"""\
 gsave
 << /ShadingType 4
    /ColorSpace [/DeviceRGB]
@@ -728,12 +702,12 @@ gsave
    /BitsPerComponent 8
    /BitsPerFlag 8
    /AntiAlias true
-   /Decode [ %(xmin)f %(xmax)f %(ymin)f %(ymax)f 0 1 0 1 0 1 ]
-   /DataSource (%(stream)s)
+   /Decode [ {xmin:f} {xmax:f} {ymin:f} {ymax:f} 0 1 0 1 0 1 ]
+   /DataSource ({stream})
 >>
 shfill
 grestore
-""" % locals())
+""")
 
     def _draw_ps(self, ps, gc, rgbFace, fill=True, stroke=True, command=None):
         """
@@ -830,6 +804,13 @@ class GraphicsContextPS(GraphicsContextBase):
                 (len(self.get_rgb()) <= 3 or self.get_rgb()[3] != 0.0))
 
 
+class _Orientation(Enum):
+    portrait, landscape = range(2)
+
+    def swap_if_landscape(self, shape):
+        return shape[::-1] if self.name == "landscape" else shape
+
+
 class FigureCanvasPS(FigureCanvasBase):
     fixed_dpi = 72
 
@@ -855,34 +836,24 @@ class FigureCanvasPS(FigureCanvasBase):
         if papertype is None:
             papertype = rcParams['ps.papersize']
         papertype = papertype.lower()
-        if papertype == 'auto':
-            pass
-        elif papertype not in papersize:
-            raise RuntimeError('%s is not a valid papertype. Use one of %s' %
-                               (papertype, ', '.join(papersize)))
+        cbook._check_in_list(['auto', *papersize], papertype=papertype)
 
-        orientation = orientation.lower()
-        cbook._check_in_list(['landscape', 'portrait'],
-                             orientation=orientation)
-        is_landscape = (orientation == 'landscape')
+        orientation = cbook._check_getitem(
+            _Orientation, orientation=orientation.lower())
 
         self.figure.set_dpi(72)  # Override the dpi kwarg
 
-        if rcParams['text.usetex']:
-            self._print_figure_tex(outfile, format, dpi, facecolor, edgecolor,
-                                   orientation, is_landscape, papertype,
-                                   **kwargs)
-        else:
-            self._print_figure(outfile, format, dpi, facecolor, edgecolor,
-                               orientation, is_landscape, papertype,
-                               **kwargs)
+        printer = (self._print_figure_tex
+                   if rcParams['text.usetex'] else
+                   self._print_figure)
+        printer(outfile, format, dpi, facecolor, edgecolor,
+                orientation, papertype, **kwargs)
 
     @cbook._delete_parameter("3.2", "dryrun")
     def _print_figure(
-            self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
-            orientation='portrait', is_landscape=False, papertype=None,
-            metadata=None, *,
-            dryrun=False, bbox_inches_restore=None, **kwargs):
+            self, outfile, format, dpi, facecolor, edgecolor,
+            orientation, papertype, *,
+            metadata=None, dryrun=False, bbox_inches_restore=None, **kwargs):
         """
         Render the figure to hardcopy.  Set the figure patch face and
         edge colors.  This is useful because some of the GUIs have a
@@ -913,26 +884,18 @@ class FigureCanvasPS(FigureCanvasBase):
         # find the appropriate papertype
         width, height = self.figure.get_size_inches()
         if papertype == 'auto':
-            if is_landscape:
-                papertype = _get_papertype(height, width)
-            else:
-                papertype = _get_papertype(width, height)
+            papertype = _get_papertype(
+                *orientation.swap_if_landscape((width, height)))
+        paper_width, paper_height = orientation.swap_if_landscape(
+            papersize[papertype])
 
-        if is_landscape:
-            paper_height, paper_width = papersize[papertype]
-        else:
-            paper_width, paper_height = papersize[papertype]
-
-        if rcParams['ps.usedistiller'] and not papertype == 'auto':
-            # distillers will improperly clip eps files if the pagesize is
-            # too small
+        if rcParams['ps.usedistiller']:
+            # distillers improperly clip eps files if pagesize is too small
             if width > paper_width or height > paper_height:
-                if is_landscape:
-                    papertype = _get_papertype(height, width)
-                    paper_height, paper_width = papersize[papertype]
-                else:
-                    papertype = _get_papertype(width, height)
-                    paper_width, paper_height = papersize[papertype]
+                papertype = _get_papertype(
+                    *orientation.swap_if_landscape(width, height))
+                paper_width, paper_height = orientation.swap_if_landscape(
+                    papersize[papertype])
 
         # center the figure on the paper
         xo = 72 * 0.5 * (paper_width - width)
@@ -944,7 +907,7 @@ class FigureCanvasPS(FigureCanvasBase):
         urx = llx + w
         ury = lly + h
         rotation = 0
-        if is_landscape:
+        if orientation is _Orientation.landscape:
             llx, lly, urx, ury = lly, llx, ury, urx
             xo, yo = 72 * paper_height - yo, xo
             rotation = 90
@@ -991,9 +954,9 @@ class FigureCanvasPS(FigureCanvasBase):
             if is_eps:
                 print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             else:
-                print("%!PS-Adobe-3.0\n"
-                      "%%DocumentPaperSizes: {papertype}\n"
-                      "%%Pages: 1\n".format(papertype=papertype),
+                print(f"%!PS-Adobe-3.0\n"
+                      f"%%DocumentPaperSizes: {papertype}\n"
+                      f"%%Pages: 1\n",
                       end="", file=fh)
             if title:
                 print("%%Title: " + title, file=fh)
@@ -1005,19 +968,17 @@ class FigureCanvasPS(FigureCanvasBase):
                     int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
             else:
                 source_date = time.ctime()
-            print("%%Creator: {creator_str}\n"
-                  "%%CreationDate: {source_date}\n"
-                  "%%Orientation: {orientation}\n"
-                  "%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}\n"
-                  "%%EndComments\n"
-                  .format(creator_str=creator_str, source_date=source_date,
-                          orientation=orientation, bbox=bbox),
+            print(f"%%Creator: {creator_str}\n"
+                  f"%%CreationDate: {source_date}\n"
+                  f"%%Orientation: {orientation.name}\n"
+                  f"%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}\n"
+                  f"%%EndComments\n",
                   end="", file=fh)
 
             Ndict = len(psDefs)
             print("%%BeginProlog", file=fh)
             if not rcParams['ps.useafm']:
-                Ndict += len(ps_renderer.used_characters)
+                Ndict += len(ps_renderer._character_tracker.used)
             print("/mpldict %d dict def" % Ndict, file=fh)
             print("mpldict begin", file=fh)
             for d in psDefs:
@@ -1025,38 +986,32 @@ class FigureCanvasPS(FigureCanvasBase):
                 for l in d.split('\n'):
                     print(l.strip(), file=fh)
             if not rcParams['ps.useafm']:
-                for font_filename, chars in \
-                        ps_renderer.used_characters.values():
-                    if len(chars):
-                        font = get_font(font_filename)
-                        glyph_ids = [font.get_char_index(c) for c in chars]
-
-                        fonttype = rcParams['ps.fonttype']
-
-                        # Can not use more than 255 characters from a
-                        # single font for Type 3
-                        if len(glyph_ids) > 255:
-                            fonttype = 42
-
-                        # The ttf to ps (subsetting) support doesn't work for
-                        # OpenType fonts that are Postscript inside (like the
-                        # STIX fonts).  This will simply turn that off to avoid
-                        # errors.
-                        if is_opentype_cff_font(font_filename):
-                            raise RuntimeError(
-                                "OpenType CFF fonts can not be saved using "
-                                "the internal Postscript backend at this "
-                                "time; consider using the Cairo backend")
-                        else:
-                            fh.flush()
-                            try:
-                                convert_ttf_to_ps(os.fsencode(font_filename),
-                                                  fh, fonttype, glyph_ids)
-                            except RuntimeError:
-                                _log.warning("The PostScript backend does not "
-                                             "currently support the selected "
-                                             "font.")
-                                raise
+                for font_path, chars \
+                        in ps_renderer._character_tracker.used.items():
+                    if not chars:
+                        continue
+                    font = get_font(font_path)
+                    glyph_ids = [font.get_char_index(c) for c in chars]
+                    fonttype = rcParams['ps.fonttype']
+                    # Can't use more than 255 chars from a single Type 3 font.
+                    if len(glyph_ids) > 255:
+                        fonttype = 42
+                    # The ttf to ps (subsetting) support doesn't work for
+                    # OpenType fonts that are Postscript inside (like the STIX
+                    # fonts).  This will simply turn that off to avoid errors.
+                    if is_opentype_cff_font(font_path):
+                        raise RuntimeError(
+                            "OpenType CFF fonts can not be saved using "
+                            "the internal Postscript backend at this "
+                            "time; consider using the Cairo backend")
+                    fh.flush()
+                    try:
+                        convert_ttf_to_ps(os.fsencode(font_path),
+                                          fh, fonttype, glyph_ids)
+                    except RuntimeError:
+                        _log.warning("The PostScript backend does not "
+                                     "currently support the selected font.")
+                        raise
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
@@ -1114,10 +1069,11 @@ class FigureCanvasPS(FigureCanvasBase):
                 with open(outfile, 'w', encoding='latin-1') as fh:
                     print_figure_impl(fh)
 
+    @cbook._delete_parameter("3.2", "dryrun")
     def _print_figure_tex(
             self, outfile, format, dpi, facecolor, edgecolor,
-            orientation, is_landscape, papertype, metadata=None, *,
-            dryrun=False, bbox_inches_restore=None, **kwargs):
+            orientation, papertype, *,
+            metadata=None, dryrun=False, bbox_inches_restore=None, **kwargs):
         """
         If text.usetex is True in rc, a temporary pair of tex/eps files
         are created to allow tex to manage the text layout via the PSFrags
@@ -1188,54 +1144,39 @@ class FigureCanvasPS(FigureCanvasBase):
 
         with TemporaryDirectory() as tmpdir:
             tmpfile = os.path.join(tmpdir, "tmp.ps")
-            with open(tmpfile, 'w', encoding='latin-1') as fh:
-                # write the Encapsulated PostScript headers
-                print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
-                if title:
-                    print("%%Title: "+title, file=fh)
-                # get source date from SOURCE_DATE_EPOCH, if set
-                # See https://reproducible-builds.org/specs/source-date-epoch/
-                source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
-                if source_date_epoch:
-                    source_date = datetime.datetime.utcfromtimestamp(
-                        int(source_date_epoch)).strftime(
-                            "%a %b %d %H:%M:%S %Y")
-                else:
-                    source_date = time.ctime()
-                print(
-                    "%%Creator: {creator_str}\n"
-                    "%%CreationDate: {source_date}\n"
-                    "%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}\n"
-                    "%%EndComments\n"
-                    .format(creator_str=creator_str, source_date=source_date,
-                            bbox=bbox),
-                    end="", file=fh)
+            # get source date from SOURCE_DATE_EPOCH, if set
+            # See https://reproducible-builds.org/specs/source-date-epoch/
+            source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
+            if source_date_epoch:
+                source_date = datetime.datetime.utcfromtimestamp(
+                    int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
+            else:
+                source_date = time.ctime()
+            pathlib.Path(tmpfile).write_text(
+                f"""\
+%!PS-Adobe-3.0 EPSF-3.0
+{f'''%%Title: {title}
+''' if title else ""}\
+%%Creator: {creator_str}
+%%CreationDate: {source_date}
+%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}
+%%EndComments
+%%BeginProlog
+/mpldict {len(psDefs)} dict def
+mpldict begin
+{"".join(psDefs)}
+end
+%%EndProlog
+mpldict begin
+{_nums_to_str(xo, yo)} translate
+{_nums_to_str(width*72, height*72)} 0 0 clipbox
+{self._pswriter.getvalue()}
+end
+showpage
+""",
+                encoding="latin-1")
 
-                print("%%BeginProlog\n"
-                      "/mpldict {len_psDefs} dict def\n"
-                      "mpldict begin\n"
-                      "{psDefs}\n"
-                      "end\n"
-                      "%%EndProlog\n"
-                      .format(len_psDefs=len(psDefs),
-                              psDefs="\n".join(psDefs)),
-                      end="", file=fh)
-
-                print("mpldict begin", file=fh)
-                print("%s translate" % _nums_to_str(xo, yo), file=fh)
-                print("%s clipbox" % _nums_to_str(width*72, height*72, 0, 0),
-                      file=fh)
-
-                # write the figure
-                print(self._pswriter.getvalue(), file=fh)
-
-                # write the trailer
-                print("end", file=fh)
-                print("showpage", file=fh)
-                fh.flush()
-
-            if is_landscape:  # now we are ready to rotate
-                is_landscape = True
+            if orientation is _Orientation.landscape:  # now, ready to rotate
                 width, height = height, width
                 bbox = (lly, llx, ury, urx)
 
@@ -1243,9 +1184,8 @@ class FigureCanvasPS(FigureCanvasBase):
             # resulting ps file has the given size with correct bounding
             # box so that there is no need to call 'pstoeps'
             if is_eps:
-                paper_width, paper_height = self.figure.get_size_inches()
-                if is_landscape:
-                    paper_width, paper_height = paper_height, paper_width
+                paper_width, paper_height = orientation.swap_if_landscape(
+                    self.figure.get_size_inches())
             else:
                 temp_papertype = _get_papertype(width, height)
                 if papertype == 'auto':
@@ -1262,7 +1202,7 @@ class FigureCanvasPS(FigureCanvasBase):
                                              font_preamble,
                                              custom_preamble, paper_width,
                                              paper_height,
-                                             orientation)
+                                             orientation.name)
 
             if (rcParams['ps.usedistiller'] == 'ghostscript'
                     or rcParams['text.usetex']):
@@ -1284,85 +1224,42 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     commands to convert those tags to text. LaTeX/dvips produces the postscript
     file that includes the actual text.
     """
-    tmpdir = os.path.split(tmpfile)[0]
-    epsfile = tmpfile+'.eps'
-    shutil.move(tmpfile, epsfile)
-    latexfile = tmpfile+'.tex'
-    dvifile = tmpfile+'.dvi'
-    psfile = tmpfile+'.ps'
+    with mpl.rc_context({
+            "text.latex.preamble":
+            rcParams["text.latex.preamble"] +
+            r"\usepackage{psfrag,color}"
+            r"\usepackage[dvips]{graphicx}"
+            r"\PassOptionsToPackage{dvips}{geometry}"}):
+        dvifile = TexManager().make_dvi(
+            r"\newgeometry{papersize={%(width)sin,%(height)sin},"
+            r"body={%(width)sin,%(height)sin}, margin={0in,0in}}""\n"
+            r"\begin{figure}"
+            r"\centering\leavevmode%(psfrags)s"
+            r"\includegraphics*[angle=%(angle)s]{%(epsfile)s}"
+            r"\end{figure}"
+            % {
+                "width": paper_width, "height": paper_height,
+                "psfrags": "\n".join(psfrags),
+                "angle": 90 if orientation == 'landscape' else 0,
+                "epsfile": pathlib.Path(tmpfile).resolve().as_posix(),
+            },
+            fontsize=10)  # tex's default fontsize.
 
-    if orientation == 'landscape':
-        angle = 90
-    else:
-        angle = 0
-
-    if rcParams['text.latex.unicode']:
-        unicode_preamble = """\\usepackage{ucs}
-\\usepackage[utf8x]{inputenc}"""
-    else:
-        unicode_preamble = ''
-
-    s = r"""\documentclass{article}
-%s
-%s
-%s
-\usepackage[
-    dvips, papersize={%sin,%sin}, body={%sin,%sin}, margin={0in,0in}]{geometry}
-\usepackage{psfrag}
-\usepackage[dvips]{graphicx}
-\usepackage{color}
-\pagestyle{empty}
-\begin{document}
-\begin{figure}
-\centering
-\leavevmode
-%s
-\includegraphics*[angle=%s]{%s}
-\end{figure}
-\end{document}
-""" % (font_preamble, unicode_preamble, custom_preamble,
-       paper_width, paper_height, paper_width, paper_height,
-       '\n'.join(psfrags), angle, os.path.split(epsfile)[-1])
-
-    try:
-        pathlib.Path(latexfile).write_text(
-            s, encoding='utf-8' if rcParams['text.latex.unicode'] else 'ascii')
-    except UnicodeEncodeError:
-        _log.info("You are using unicode and latex, but have not enabled the "
-                  "Matplotlib 'text.latex.unicode' rcParam.")
-        raise
-
-    # Replace \\ for / so latex does not think there is a function call
-    latexfile = latexfile.replace("\\", "/")
-    # Replace ~ so Latex does not think it is line break
-    latexfile = latexfile.replace("~", "\\string~")
-
-    cbook._check_and_log_subprocess(
-        ["latex", "-interaction=nonstopmode", '"%s"' % latexfile],
-        _log, cwd=tmpdir)
-    cbook._check_and_log_subprocess(
-        ['dvips', '-q', '-R0', '-o', os.path.basename(psfile),
-         os.path.basename(dvifile)], _log, cwd=tmpdir)
-    os.remove(epsfile)
-    shutil.move(psfile, tmpfile)
+    with TemporaryDirectory() as tmpdir:
+        psfile = os.path.join(tmpdir, "tmp.ps")
+        cbook._check_and_log_subprocess(
+            ['dvips', '-q', '-R0', '-o', psfile, dvifile], _log)
+        shutil.move(psfile, tmpfile)
 
     # check if the dvips created a ps in landscape paper.  Somehow,
     # above latex+dvips results in a ps file in a landscape mode for a
-    # certain figure sizes (e.g., 8.3in,5.8in which is a5). And the
+    # certain figure sizes (e.g., 8.3in, 5.8in which is a5). And the
     # bounding box of the final output got messed up. We check see if
     # the generated ps file is in landscape and return this
     # information. The return value is used in pstoeps step to recover
     # the correct bounding box. 2010-06-05 JJL
     with open(tmpfile) as fh:
-        if "Landscape" in fh.read(1000):
-            psfrag_rotated = True
-        else:
-            psfrag_rotated = False
-
-    if not debugPS:
-        for fname in glob.glob(tmpfile+'.*'):
-            os.remove(fname)
-
+        psfrag_rotated = "Landscape" in fh.read(1000)
     return psfrag_rotated
 
 

@@ -114,10 +114,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         # being connected together.  When defining transforms for a
         # scale, which are, by definition, separable and have only one
         # dimension, these members should always be set to 1.
-        input_dims = 1
-        output_dims = 1
-        is_separable = True
-        has_inverse = True
+        input_dims = output_dims = 1
 
         def __init__(self, thresh):
             mtransforms.Transform.__init__(self)
@@ -150,10 +147,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
                 self.thresh)
 
     class InvertedMercatorLatitudeTransform(mtransforms.Transform):
-        input_dims = 1
-        output_dims = 1
-        is_separable = True
-        has_inverse = True
+        input_dims = output_dims = 1
 
         def __init__(self, thresh):
             mtransforms.Transform.__init__(self)
@@ -164,6 +158,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
 
         def inverted(self):
             return MercatorLatitudeScale.MercatorLatitudeTransform(self.thresh)
+
 
 # Now that the Scale class has been defined, it must be registered so
 # that ``matplotlib`` can find it.

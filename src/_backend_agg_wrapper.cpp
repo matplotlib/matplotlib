@@ -536,12 +536,6 @@ PyRendererAgg_get_content_extents(PyRendererAgg *self, PyObject *args, PyObject 
         "iiii", extents.x1, extents.y1, extents.x2 - extents.x1, extents.y2 - extents.y1);
 }
 
-static PyObject *PyRendererAgg_buffer_rgba(PyRendererAgg *self, PyObject *args, PyObject *kwds)
-{
-    return PyBytes_FromStringAndSize((const char *)self->x->pixBuffer,
-                                     self->x->get_width() * self->x->get_height() * 4);
-}
-
 int PyRendererAgg_get_buffer(PyRendererAgg *self, Py_buffer *buf, int flags)
 {
     Py_INCREF(self);
@@ -633,7 +627,6 @@ static PyTypeObject *PyRendererAgg_init_type(PyObject *m, PyTypeObject *type)
         {"draw_gouraud_triangles", (PyCFunction)PyRendererAgg_draw_gouraud_triangles, METH_VARARGS, NULL},
 
         {"get_content_extents", (PyCFunction)PyRendererAgg_get_content_extents, METH_NOARGS, NULL},
-        {"buffer_rgba", (PyCFunction)PyRendererAgg_buffer_rgba, METH_NOARGS, NULL},
         {"clear", (PyCFunction)PyRendererAgg_clear, METH_NOARGS, NULL},
 
         {"copy_from_bbox", (PyCFunction)PyRendererAgg_copy_from_bbox, METH_VARARGS, NULL},

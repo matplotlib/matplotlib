@@ -715,9 +715,9 @@ likewise changed.
 Dependency changes
 ------------------
 
-numpy
+NumPy
 ~~~~~
-Matplotlib 3.1 now requires numpy>=1.11.
+Matplotlib 3.1 now requires NumPy>=1.11.
 
 ghostscript
 ~~~~~~~~~~~
@@ -865,13 +865,13 @@ future version.
 
 - `.projections.process_projection_requirements`
 
-- `.backend_ps.PsBackendHelper``
-- `.backend_ps.ps_backend_helper``,
+- ``backend_ps.PsBackendHelper``
+- ``backend_ps.ps_backend_helper``,
 
 - `.cbook.iterable`
 - `.cbook.get_label`
 - `.cbook.safezip`
-  Manually check the lengths of the inputs instead, or rely on numpy to do it.
+  Manually check the lengths of the inputs instead, or rely on NumPy to do it.
 - `.cbook.is_hashable`
   Use ``isinstance(..., collections.abc.Hashable)`` instead.
 
@@ -938,7 +938,8 @@ Axes3D
 - `.axes3d.Axes3D.w_yaxis`
 - `.axes3d.Axes3D.w_zaxis`
 
-Use `.axes3d.Axes3D.xaxis`, `.axes3d.Axes3D.and `.axes3d.Axes3D.zaxis` instead.
+Use `.axes3d.Axes3D.xaxis`, `.axes3d.Axes3D.yaxis` and `.axes3d.Axes3D.zaxis`
+instead.
 
 Testing
 ~~~~~~~
@@ -960,8 +961,8 @@ whereas calling ``set_facecolor`` does.
 GUI / backend details
 ~~~~~~~~~~~~~~~~~~~~~
 
-- `.get_py2exe_datafiles``
-- `.tk_window_focus``
+- ``.get_py2exe_datafiles``
+- ``.tk_window_focus``
 - `.backend_gtk3.FileChooserDialog`
 - `.backend_gtk3.NavigationToolbar2GTK3.get_filechooser`
 - `.backend_gtk3.SaveFigureGTK3.get_filechooser`
@@ -1152,7 +1153,7 @@ will throw an exception in a future version.
 *verticalalignment* kwargs, and used to ignore them with a warning.  This
 behavior is deprecated and will throw an exception in a future version.
 
-Passing steps less than 1 or greater than 10 to `~ticker..MaxNLocator` used to
+Passing steps less than 1 or greater than 10 to `~.ticker.MaxNLocator` used to
 result in undefined behavior.  It now throws a `ValueError`.
 
 The signature of the (private) ``Axis._update_ticks`` has been changed to not

@@ -47,7 +47,7 @@ plt.show()
 # sequence of y values, and automatically generates the x values for
 # you.  Since python ranges start with 0, the default x vector has the
 # same length as y but starts with 0.  Hence the x data are
-# ``[0,1,2,3]``.
+# ``[0, 1, 2, 3]``.
 #
 # :func:`~matplotlib.pyplot.plot` is a versatile command, and will take
 # an arbitrary number of arguments.  For example, to plot x versus y,
@@ -80,7 +80,7 @@ plt.show()
 # If matplotlib were limited to working with lists, it would be fairly
 # useless for numeric processing.  Generally, you will use `numpy
 # <http://www.numpy.org>`_ arrays.  In fact, all sequences are
-# converted to numpy arrays internally.  The example below illustrates a
+# converted to numpy arrays internally.  The example below illustrates
 # plotting several lines with different format styles in one command
 # using arrays.
 
@@ -384,7 +384,7 @@ plt.show()
 # functionality to make annotations easy.  In an annotation, there are
 # two points to consider: the location being annotated represented by
 # the argument ``xy`` and the location of the text ``xytext``.  Both of
-# these arguments are ``(x,y)`` tuples.
+# these arguments are ``(x, y)`` tuples.
 
 ax = plt.subplot(111)
 
@@ -420,12 +420,10 @@ plt.show()
 # An example of four plots with the same data and different scales for the y axis
 # is shown below.
 
-from matplotlib.ticker import NullFormatter  # useful for `logit` scale
-
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
-# make up some data in the interval ]0, 1[
+# make up some data in the open interval (0, 1)
 y = np.random.normal(loc=0.5, scale=0.4, size=1000)
 y = y[(y > 0) & (y < 1)]
 y.sort()
@@ -441,14 +439,12 @@ plt.yscale('linear')
 plt.title('linear')
 plt.grid(True)
 
-
 # log
 plt.subplot(222)
 plt.plot(x, y)
 plt.yscale('log')
 plt.title('log')
 plt.grid(True)
-
 
 # symmetric log
 plt.subplot(223)
@@ -463,9 +459,6 @@ plt.plot(x, y)
 plt.yscale('logit')
 plt.title('logit')
 plt.grid(True)
-# Format the minor tick labels of the y-axis into empty strings with
-# `NullFormatter`, to avoid cumbering the axis with too many labels.
-plt.gca().yaxis.set_minor_formatter(NullFormatter())
 # Adjust the subplot layout, because the logit one may take more space
 # than usual, due to y-tick labels like "1 - 10^{-3}"
 plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.25,

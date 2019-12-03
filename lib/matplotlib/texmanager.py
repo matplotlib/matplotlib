@@ -22,7 +22,7 @@ as follows::
   texmanager = TexManager()
   s = ('\TeX\ is Number '
        '$\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!')
-  Z = texmanager.get_rgba(s, fontsize=12, dpi=80, rgb=(1,0,0))
+  Z = texmanager.get_rgba(s, fontsize=12, dpi=80, rgb=(1, 0, 0))
 
 To enable tex rendering of all text in your matplotlib figure, set
 :rc:`text.usetex` to True.
@@ -206,11 +206,10 @@ class TexManager:
                                                        r'{\rmfamily %s}')
         tex = fontcmd % tex
 
-        if rcParams['text.latex.unicode']:
-            unicode_preamble = r"""
-\usepackage[utf8]{inputenc}"""
-        else:
-            unicode_preamble = ''
+        unicode_preamble = "\n".join([
+            r"\usepackage[utf8]{inputenc}",
+            r"\DeclareUnicodeCharacter{2212}{\ensuremath{-}}",
+        ]) if rcParams["text.latex.unicode"] else ""
 
         s = r"""
 \documentclass{article}
@@ -257,11 +256,10 @@ class TexManager:
                                                        r'{\rmfamily %s}')
         tex = fontcmd % tex
 
-        if rcParams['text.latex.unicode']:
-            unicode_preamble = r"""
-\usepackage[utf8]{inputenc}"""
-        else:
-            unicode_preamble = ''
+        unicode_preamble = "\n".join([
+            r"\usepackage[utf8]{inputenc}",
+            r"\DeclareUnicodeCharacter{2212}{\ensuremath{-}}",
+        ]) if rcParams["text.latex.unicode"] else ""
 
         # newbox, setbox, immediate, etc. are used to find the box
         # extent of the rendered text.
@@ -400,12 +398,11 @@ class TexManager:
 
     def get_grey(self, tex, fontsize=None, dpi=None):
         """Return the alpha channel."""
-        from matplotlib import _png
         key = tex, self.get_font_config(), fontsize, dpi
         alpha = self.grey_arrayd.get(key)
         if alpha is None:
             pngfile = self.make_png(tex, fontsize, dpi)
-            X = _png.read_png(os.path.join(self.texcache, pngfile))
+            X = mpl.image.imread(os.path.join(self.texcache, pngfile))
             self.grey_arrayd[key] = alpha = X[:, :, -1]
         return alpha
 

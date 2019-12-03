@@ -20,7 +20,8 @@ Make sure you have pip >= 9.0.1.
 """.format('.'.join(str(n) for n in min_version)),
     sys.exit(error)
 
-import os
+from pathlib import Path
+import shutil
 from zipfile import ZipFile
 
 from setuptools import setup, find_packages, Extension
@@ -42,25 +43,21 @@ else:
 from distutils.dist import Distribution
 
 import setupext
-from setupext import (print_line, print_raw, print_message, print_status,
-                      download_or_cache)
+from setupext import print_raw, print_status, download_or_cache
 
 # Get the version from versioneer
 import versioneer
 __version__ = versioneer.get_version()
 
 
-# These are the packages in the order we want to display them.  This
-# list may contain strings to create section headers for the display.
+# These are the packages in the order we want to display them.
 mpl_packages = [
-    'Building Matplotlib',
     setupext.Matplotlib(),
     setupext.Python(),
     setupext.Platform(),
     setupext.LibAgg(),
     setupext.FreeType(),
     setupext.FT2Font(),
-    setupext.Png(),
     setupext.Qhull(),
     setupext.Image(),
     setupext.TTConv(),
@@ -68,15 +65,11 @@ mpl_packages = [
     setupext.Contour(),
     setupext.QhullWrap(),
     setupext.Tri(),
-    'Optional subpackages',
     setupext.SampleData(),
     setupext.Tests(),
-    'Optional backend extensions',
     setupext.BackendAgg(),
     setupext.BackendTkAgg(),
     setupext.BackendMacOSX(),
-    'Optional package data',
-    setupext.Dlls(),
     ]
 
 
@@ -125,15 +118,22 @@ def _download_jquery_to(dest):
     # Note: When bumping the jquery-ui version, also update the versions in
     # single_figure.html and all_figures.html.
     url = "https://jqueryui.com/resources/download/jquery-ui-1.12.1.zip"
-    sha = 'f8233674366ab36b2c34c577ec77a3d70cac75d2e387d8587f3836345c0f624d'
-    if not os.path.exists(os.path.join(dest, "jquery-ui-1.12.1")):
-        os.makedirs(dest, exist_ok=True)
+    sha = "f8233674366ab36b2c34c577ec77a3d70cac75d2e387d8587f3836345c0f624d"
+    name = Path(url).stem
+    if (dest / name).exists():
+        return
+    # If we are installing from an sdist, use the already downloaded jquery-ui.
+    sdist_src = Path("lib/matplotlib/backends/web_backend", name)
+    if sdist_src.exists():
+        shutil.copytree(sdist_src, dest / name)
+        return
+    if not (dest / name).exists():
+        dest.mkdir(parents=True, exist_ok=True)
         try:
             buff = download_or_cache(url, sha)
         except Exception:
-            raise IOError("Failed to download jquery-ui.  Please download " +
-                          "{url} and extract it to {dest}.".format(
-                              url=url, dest=dest))
+            raise IOError(f"Failed to download jquery-ui.  Please download "
+                          f"{url} and extract it to {dest}.")
         with ZipFile(buff) as zf:
             zf.extractall(dest)
 
@@ -141,23 +141,23 @@ def _download_jquery_to(dest):
 # Relying on versioneer's implementation detail.
 class sdist_with_jquery(cmdclass['sdist']):
     def make_release_tree(self, base_dir, files):
-        super(sdist_with_jquery, self).make_release_tree(base_dir, files)
+        super().make_release_tree(base_dir, files)
         _download_jquery_to(
-            os.path.join(base_dir, "lib/matplotlib/backends/web_backend/"))
+            Path(base_dir, "lib/matplotlib/backends/web_backend/"))
 
 
 # Affects install and bdist_wheel.
 class install_lib_with_jquery(InstallLibCommand):
     def run(self):
-        super(install_lib_with_jquery, self).run()
+        super().run()
         _download_jquery_to(
-            os.path.join(self.install_dir, "matplotlib/backends/web_backend/"))
+            Path(self.install_dir, "matplotlib/backends/web_backend/"))
 
 
 class develop_with_jquery(DevelopCommand):
     def run(self):
-        super(develop_with_jquery, self).run()
-        _download_jquery_to("lib/matplotlib/backends/web_backend/")
+        super().run()
+        _download_jquery_to(Path("lib/matplotlib/backends/web_backend/"))
 
 
 cmdclass['sdist'] = sdist_with_jquery
@@ -178,39 +178,26 @@ if __name__ == '__main__':
             or 'clean' in sys.argv):
         # Go through all of the packages and figure out which ones we are
         # going to build/install.
-        print_line()
-        print_raw("Edit setup.cfg to change the build options")
+        print_raw()
+        print_raw("Edit setup.cfg to change the build options; "
+                  "suppress output with --quiet.")
+        print_raw()
+        print_raw("BUILDING MATPLOTLIB")
 
-        required_failed = []
         good_packages = []
         for package in mpl_packages:
-            if isinstance(package, str):
-                print_raw('')
-                print_raw(package.upper())
+            try:
+                result = package.check()
+                if result is not None:
+                    print_status(package.name, 'yes [%s]' % result)
+            except setupext.CheckFailed as e:
+                print_status(package.name, 'no  [%s]' % str(e))
+                if not package.optional:
+                    sys.exit("Failed to build %s" % package.name)
             else:
-                try:
-                    result = package.check()
-                    if result is not None:
-                        message = 'yes [%s]' % result
-                        print_status(package.name, message)
-                except setupext.CheckFailed as e:
-                    msg = str(e).strip()
-                    if len(msg):
-                        print_status(package.name, 'no  [%s]' % msg)
-                    else:
-                        print_status(package.name, 'no')
-                    if not package.optional:
-                        required_failed.append(package)
-                else:
-                    good_packages.append(package)
-        print_raw('')
+                good_packages.append(package)
 
-        # Abort if any of the required packages can not be built.
-        if required_failed:
-            print_line()
-            print_message("The following required packages can not be built: "
-                          "%s" % ", ".join(x.name for x in required_failed))
-            sys.exit(1)
+        print_raw()
 
         # Now collect all of the information we need to build all of the
         # packages.
@@ -268,19 +255,16 @@ if __name__ == '__main__':
 
         python_requires='>={}'.format('.'.join(str(n) for n in min_version)),
         setup_requires=[
-            "numpy>=1.11",
+            "numpy>=1.15",
         ],
         install_requires=[
             "cycler>=0.10",
             "kiwisolver>=1.0.1",
-            "numpy>=1.11",
+            "numpy>=1.15",
+            "pillow>=6.2.0",
             "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
             "python-dateutil>=2.1",
         ],
 
-        # matplotlib has C/C++ extensions, so it's not zip safe.
-        # Telling setuptools this prevents it from doing an automatic
-        # check for zip safety.
-        zip_safe=False,
         cmdclass=cmdclass,
     )

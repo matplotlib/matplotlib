@@ -100,15 +100,15 @@ class Path:
 
         Parameters
         ----------
-        vertices : array_like
-            The ``(n, 2)`` float array, masked array or sequence of pairs
+        vertices : array-like
+            The ``(N, 2)`` float array, masked array or sequence of pairs
             representing the vertices of the path.
 
             If *vertices* contains masked values, they will be converted
             to NaNs which are then handled correctly by the Agg
             PathIterator and other consumers of path data, such as
             :meth:`iter_segments`.
-        codes : {None, array_like}, optional
+        codes : array-like or None, optional
             n-length array integers representing the codes of the path.
             If not None, codes must be the same length as vertices.
             If None, *vertices* will be treated as a series of line segments.
@@ -450,17 +450,32 @@ class Path:
 
     def contains_point(self, point, transform=None, radius=0.0):
         """
-        Returns whether the (closed) path contains the given point.
+        Return whether the (closed) path contains the given point.
 
-        If *transform* is not ``None``, the path will be transformed before
-        performing the test.
+        Parameters
+        ----------
+        point : (float, float)
+            The point (x, y) to check.
+        transform : `matplotlib.transforms.Transform`, optional
+            If not ``None``, *point* will be compared to ``self`` transformed
+            by *transform*; i.e. for a correct check, *transform* should
+            transform the path into the coordinate system of *point*.
+        radius : float, default: 0
+            Add an additional margin on the path in coordinates of *point*.
+            The path is extended tangentially by *radius/2*; i.e. if you would
+            draw the path with a linewidth of *radius*, all points on the line
+            would still be considered to be contained in the area. Conversely,
+            negative values shrink the area: Points on the imaginary line
+            will be considered outside the area.
 
-        *radius* allows the path to be made slightly larger or smaller.
+        Returns
+        -------
+        bool
         """
         if transform is not None:
             transform = transform.frozen()
         # `point_in_path` does not handle nonlinear transforms, so we
-        # transform the path ourselves.  If `transform` is affine, letting
+        # transform the path ourselves.  If *transform* is affine, letting
         # `point_in_path` handle the transform avoids allocating an extra
         # buffer.
         if transform and not transform.is_affine:
@@ -470,13 +485,27 @@ class Path:
 
     def contains_points(self, points, transform=None, radius=0.0):
         """
-        Returns a bool array which is ``True`` if the (closed) path contains
-        the corresponding point.
+        Return whether the (closed) path contains the given point.
 
-        If *transform* is not ``None``, the path will be transformed before
-        performing the test.
+        Parameters
+        ----------
+        points : (N, 2) array
+            The points to check. Columns contain x and y values.
+        transform : `matplotlib.transforms.Transform`, optional
+            If not ``None``, *points* will be compared to ``self`` transformed
+            by *transform*; i.e. for a correct check, *transform* should
+            transform the path into the coordinate system of *points*.
+        radius : float, default: 0.
+            Add an additional margin on the path in coordinates of *points*.
+            The path is extended tangentially by *radius/2*; i.e. if you would
+            draw the path with a linewidth of *radius*, all points on the line
+            would still be considered to be contained in the area. Conversely,
+            negative values shrink the area: Points on the imaginary line
+            will be considered outside the area.
 
-        *radius* allows the path to be made slightly larger or smaller.
+        Returns
+        -------
+        length-N bool array
         """
         if transform is not None:
             transform = transform.frozen()
@@ -698,10 +727,10 @@ class Path:
 
         Parameters
         ----------
-        center : pair of floats
-            The center of the circle. Default ``(0, 0)``.
-        radius : float
-            The radius of the circle. Default is 1.
+        center : (float, float), default: (0, 0)
+            The center of the circle.
+        radius : float, default: 1
+            The radius of the circle.
         readonly : bool
             Whether the created path should have the "readonly" argument
             set when creating the Path instance.

@@ -1,7 +1,7 @@
 """
-================================================
-Creating multiple subplots using ``plt.subplot``
-================================================
+=================================================
+Creating multiple subplots using ``plt.subplots``
+=================================================
 
 `.pyplot.subplots` creates a figure and a grid of subplots with a single call,
 while providing reasonable control over how the individual plots are created.
@@ -40,7 +40,7 @@ ax.set_title('A single plot')
 # The first two optional arguments of `.pyplot.subplots` define the number of
 # rows and columns of the subplot grid.
 #
-# When stacking in one direction only, the returned `axs` is a 1D numpy array
+# When stacking in one direction only, the returned ``axs`` is a 1D numpy array
 # containing the list of created Axes.
 
 fig, axs = plt.subplots(2)
@@ -71,20 +71,20 @@ ax2.plot(x, -y)
 # Stacking subplots in two directions
 # """""""""""""""""""""""""""""""""""
 #
-# When stacking in two directions, the returned `axs` is a 2D numpy array.
+# When stacking in two directions, the returned ``axs`` is a 2D NumPy array.
 #
 # If you have to set parameters for each subplot it's handy to iterate over
 # all subplots in a 2D grid using ``for ax in axs.flat:``.
 
 fig, axs = plt.subplots(2, 2)
 axs[0, 0].plot(x, y)
-axs[0, 0].set_title('Axis [0,0]')
+axs[0, 0].set_title('Axis [0, 0]')
 axs[0, 1].plot(x, y, 'tab:orange')
-axs[0, 1].set_title('Axis [0,1]')
+axs[0, 1].set_title('Axis [0, 1]')
 axs[1, 0].plot(x, -y, 'tab:green')
-axs[1, 0].set_title('Axis [1,0]')
+axs[1, 0].set_title('Axis [1, 0]')
 axs[1, 1].plot(x, -y, 'tab:red')
-axs[1, 1].set_title('Axis [1,1]')
+axs[1, 1].set_title('Axis [1, 1]')
 
 for ax in axs.flat:
     ax.set(xlabel='x-label', ylabel='y-label')

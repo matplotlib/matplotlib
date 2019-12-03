@@ -81,7 +81,7 @@ ax.annotate("Test",
             bbox=dict(boxstyle="round", fc="w", ),
             arrowprops=dict(arrowstyle="->", relpos=(0., 0.))
             )
-ax.text(.05, .95, "relpos=(0,0)", transform=ax.transAxes, ha="left", va="top")
+ax.text(.05, .95, "relpos=(0, 0)", transform=ax.transAxes, ha="left", va="top")
 
 for ax in axs.flat:
     ax.set(xlim=(0, 1), ylim=(0, 1), xticks=[], yticks=[], aspect=1)

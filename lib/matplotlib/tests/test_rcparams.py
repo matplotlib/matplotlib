@@ -19,6 +19,7 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_colorlist,
                                 validate_color,
                                 validate_bool,
+                                validate_fontweight,
                                 validate_nseq_int,
                                 validate_nseq_float,
                                 validate_cycler,
@@ -28,13 +29,15 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 _validate_linestyle)
 
 
-def test_rcparams():
+def test_rcparams(tmpdir):
     mpl.rc('text', usetex=False)
     mpl.rc('lines', linewidth=22)
 
     usetex = mpl.rcParams['text.usetex']
     linewidth = mpl.rcParams['lines.linewidth']
-    fname = os.path.join(os.path.dirname(__file__), 'test_rcparams.rc')
+
+    rcpath = Path(tmpdir) / 'test_rcparams.rc'
+    rcpath.write_text('lines.linewidth: 33')
 
     # test context given dictionary
     with mpl.rc_context(rc={'text.usetex': not usetex}):
@@ -42,17 +45,17 @@ def test_rcparams():
     assert mpl.rcParams['text.usetex'] == usetex
 
     # test context given filename (mpl.rc sets linewidth to 33)
-    with mpl.rc_context(fname=fname):
+    with mpl.rc_context(fname=rcpath):
         assert mpl.rcParams['lines.linewidth'] == 33
     assert mpl.rcParams['lines.linewidth'] == linewidth
 
     # test context given filename and dictionary
-    with mpl.rc_context(fname=fname, rc={'lines.linewidth': 44}):
+    with mpl.rc_context(fname=rcpath, rc={'lines.linewidth': 44}):
         assert mpl.rcParams['lines.linewidth'] == 44
     assert mpl.rcParams['lines.linewidth'] == linewidth
 
     # test rc_file
-    mpl.rc_file(fname)
+    mpl.rc_file(rcpath)
     assert mpl.rcParams['lines.linewidth'] == 33
 
 
@@ -177,11 +180,18 @@ def test_mec_rcparams():
     assert ln.get_markeredgecolor() == 'r'
 
 
-def test_Issue_1713():
-    utf32_be = os.path.join(os.path.dirname(__file__),
-                           'test_utf32_be_rcparams.rc')
+def test_axes_titlecolor_rcparams():
+    mpl.rcParams['axes.titlecolor'] = 'r'
+    _, ax = plt.subplots()
+    title = ax.set_title("Title")
+    assert title.get_color() == 'r'
+
+
+def test_Issue_1713(tmpdir):
+    rcpath = Path(tmpdir) / 'test_rcparams.rc'
+    rcpath.write_text('timezone: UTC', encoding='UTF-32-BE')
     with mock.patch('locale.getpreferredencoding', return_value='UTF-32-BE'):
-        rc = mpl.rc_params_from_file(utf32_be, True, False)
+        rc = mpl.rc_params_from_file(rcpath, True, False)
     assert rc.get('timezone') == 'UTC'
 
 
@@ -404,6 +414,26 @@ def test_validator_valid(validator, arg, target):
 def test_validator_invalid(validator, arg, exception_type):
     with pytest.raises(exception_type):
         validator(arg)
+
+
+@pytest.mark.parametrize('weight, parsed_weight', [
+    ('bold', 'bold'),
+    ('BOLD', ValueError),  # weight is case-sensitive
+    (100, 100),
+    ('100', 100),
+    (np.array(100), 100),
+    # fractional fontweights are not defined. This should actually raise a
+    # ValueError, but historically did not.
+    (20.6, 20),
+    ('20.6', ValueError),
+    ([100], ValueError),
+])
+def test_validate_fontweight(weight, parsed_weight):
+    if parsed_weight is ValueError:
+        with pytest.raises(ValueError):
+            validate_fontweight(weight)
+    else:
+        assert validate_fontweight(weight) == parsed_weight
 
 
 def test_keymaps():

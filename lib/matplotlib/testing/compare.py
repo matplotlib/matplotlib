@@ -14,18 +14,17 @@ import sys
 from tempfile import TemporaryFile
 
 import numpy as np
+import PIL
 
 import matplotlib as mpl
 from matplotlib.testing.exceptions import ImageComparisonFailure
-from matplotlib import cbook
 
 __all__ = ['compare_images', 'comparable_formats']
 
 
 def make_test_filename(fname, purpose):
     """
-    Make a new filename by inserting `purpose` before the file's
-    extension.
+    Make a new filename by inserting *purpose* before the file's extension.
     """
     base, ext = os.path.splitext(fname)
     return '%s-%s%s' % (base, purpose, ext)
@@ -131,7 +130,7 @@ class _GSConverter(_Converter):
         if not self._proc:
             self._proc = subprocess.Popen(
                 [mpl._get_executable_info("gs").executable,
-                 "-dNOPAUSE", "-sDEVICE=png16m"],
+                 "-dNOSAFER", "-dNOPAUSE", "-sDEVICE=png16m"],
                 # As far as I can see, ghostscript never outputs to stderr.
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             try:
@@ -221,13 +220,13 @@ class _SVGConverter(_Converter):
 def _update_converter():
     try:
         mpl._get_executable_info("gs")
-    except FileNotFoundError:
+    except mpl.ExecutableNotFoundError:
         pass
     else:
         converter['pdf'] = converter['eps'] = _GSConverter()
     try:
         mpl._get_executable_info("inkscape")
-    except FileNotFoundError:
+    except mpl.ExecutableNotFoundError:
         pass
     else:
         converter['svg'] = _SVGConverter()
@@ -264,7 +263,7 @@ def convert(filename, cache):
     hash of the exact contents of the input file.  There is no limit on the
     size of the cache, so it may need to be manually cleared periodically.
     """
-    base, extension = filename.rsplit('.', 1)
+    base, extension = os.fspath(filename).rsplit('.', 1)
     if extension not in converter:
         import pytest
         pytest.skip(f"Don't know how to convert {extension} files to png")
@@ -318,6 +317,10 @@ def calculate_rms(expected_image, actual_image):
     return np.sqrt(((expected_image - actual_image).astype(float) ** 2).mean())
 
 
+# NOTE: compare_image and save_diff_image assume that the image does not have
+# 16-bit depth, as Pillow converts these to RGB incorrectly.
+
+
 def compare_images(expected, actual, tol, in_decorator=False):
     """
     Compare two "image" files checking differences within a tolerance.
@@ -367,29 +370,24 @@ def compare_images(expected, actual, tol, in_decorator=False):
         compare_images(img1, img2, 0.001)
 
     """
-    from matplotlib import _png
-
+    actual = os.fspath(actual)
     if not os.path.exists(actual):
         raise Exception("Output image %s does not exist." % actual)
-
     if os.stat(actual).st_size == 0:
         raise Exception("Output image file %s is empty." % actual)
 
     # Convert the image to png
-    extension = expected.split('.')[-1]
-
+    expected = os.fspath(expected)
     if not os.path.exists(expected):
         raise IOError('Baseline image %r does not exist.' % expected)
-
+    extension = expected.split('.')[-1]
     if extension != 'png':
-        actual = convert(actual, False)
-        expected = convert(expected, True)
+        actual = convert(actual, cache=False)
+        expected = convert(expected, cache=True)
 
     # open the image files and remove the alpha channel (if it exists)
-    expected_image = _png.read_png_int(expected)
-    actual_image = _png.read_png_int(actual)
-    expected_image = expected_image[:, :, :3]
-    actual_image = actual_image[:, :, :3]
+    expected_image = np.asarray(PIL.Image.open(expected).convert("RGB"))
+    actual_image = np.asarray(PIL.Image.open(actual).convert("RGB"))
 
     actual_image, expected_image = crop_to_same(
         actual, actual_image, expected, expected_image)
@@ -439,9 +437,8 @@ def save_diff_image(expected, actual, output):
         File path to save difference image to.
     '''
     # Drop alpha channels, similarly to compare_images.
-    from matplotlib import _png
-    expected_image = _png.read_png(expected)[..., :3]
-    actual_image = _png.read_png(actual)[..., :3]
+    expected_image = np.asarray(PIL.Image.open(expected).convert("RGB"))
+    actual_image = np.asarray(PIL.Image.open(actual).convert("RGB"))
     actual_image, expected_image = crop_to_same(
         actual, actual_image, expected, expected_image)
     expected_image = np.array(expected_image).astype(float)
@@ -467,4 +464,4 @@ def save_diff_image(expected, actual, output):
     # Hard-code the alpha channel to fully solid
     save_image_np[:, :, 3] = 255
 
-    _png.write_png(save_image_np, output)
+    PIL.Image.fromarray(save_image_np).save(output, format="png")

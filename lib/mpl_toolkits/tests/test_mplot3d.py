@@ -1,8 +1,10 @@
 import pytest
 
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
+import matplotlib as mpl
 from matplotlib import cm
 from matplotlib import path as mpath
+from matplotlib import colors as mcolors
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
 from matplotlib.collections import LineCollection, PolyCollection
@@ -64,6 +66,33 @@ def test_bar3d_notshaded():
     z = x2d + y2d
     ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=False)
     fig.canvas.draw()
+
+    
+def test_bar3d_lightsource():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1, projection="3d")
+
+    ls = mcolors.LightSource(azdeg=0, altdeg=90)
+
+    length, width = 3, 4
+    area = length * width
+
+    x, y = np.meshgrid(np.arange(length), np.arange(width))
+    x = x.ravel()
+    y = y.ravel()
+    dz = x + y
+
+    color = [cm.coolwarm(i/area) for i in range(area)]
+
+    collection = ax.bar3d(x=x, y=y, z=0,
+                          dx=1, dy=1, dz=dz,
+                          color=color, shade=True, lightsource=ls)
+
+    # Testing that the custom 90° lightsource produces different shading on
+    # the top facecolors compared to the default, and that those colors are
+    # precisely the colors from the colormap, due to the illumination parallel
+    # to the z-axis.
+    np.testing.assert_array_equal(color, collection._facecolors3d[1::6])
 
 
 @image_comparison(['contour3d.png'],
@@ -137,6 +166,14 @@ def test_lines3d():
     x = r * np.sin(theta)
     y = r * np.cos(theta)
     ax.plot(x, y, z)
+
+
+@check_figures_equal(extensions=["png"])
+def test_plot_scalar(fig_test, fig_ref):
+    ax1 = fig_test.gca(projection='3d')
+    ax1.plot([1], [1], "o")
+    ax2 = fig_ref.gca(projection='3d')
+    ax2.plot(1, 1, "o")
 
 
 @image_comparison(['mixedsubplot.png'],
@@ -475,12 +512,10 @@ def test_poly3dcollection_alpha():
 
 @image_comparison(['axes3d_labelpad.png'], style='default')
 def test_axes3d_labelpad():
-    from matplotlib import rcParams
-
     fig = plt.figure()
     ax = Axes3D(fig)
     # labelpad respects rcParams
-    assert ax.xaxis.labelpad == rcParams['axes.labelpad']
+    assert ax.xaxis.labelpad == mpl.rcParams['axes.labelpad']
     # labelpad can be set in set_label
     ax.set_xlabel('X LABEL', labelpad=10)
     assert ax.xaxis.labelpad == 10
@@ -839,8 +874,20 @@ def test_line3d_set_get_data_3d():
     np.testing.assert_array_equal((x2, y2, z2), line.get_data_3d())
 
 
+@check_figures_equal(extensions=["png"])
+def test_inverted(fig_test, fig_ref):
+    # Plot then invert.
+    ax = fig_test.add_subplot(projection="3d")
+    ax.plot([1, 1, 10, 10], [1, 10, 10, 10], [1, 1, 1, 10])
+    ax.invert_yaxis()
+    # Invert then plot.
+    ax = fig_ref.add_subplot(projection="3d")
+    ax.invert_yaxis()
+    ax.plot([1, 1, 10, 10], [1, 10, 10, 10], [1, 1, 1, 10])
+
+
 def test_inverted_cla():
-    # Github PR #5450. Setting autoscale should reset
+    # GitHub PR #5450. Setting autoscale should reset
     # axes to be non-inverted.
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     # 1. test that a new axis is not inverted per default
@@ -929,3 +976,59 @@ def test_ax3d_tickcolour():
         assert tick.tick1line._color == 'red'
     for tick in ax.zaxis.get_major_ticks():
         assert tick.tick1line._color == 'red'
+
+
+@check_figures_equal(extensions=["png"])
+def test_ticklabel_format(fig_test, fig_ref):
+    axs = fig_test.subplots(4, 5, subplot_kw={"projection": "3d"})
+    for ax in axs.flat:
+        ax.set_xlim(1e7, 1e7 + 10)
+    for row, name in zip(axs, ["x", "y", "z", "both"]):
+        row[0].ticklabel_format(
+            axis=name, style="plain")
+        row[1].ticklabel_format(
+            axis=name, scilimits=(-2, 2))
+        row[2].ticklabel_format(
+            axis=name, useOffset=not mpl.rcParams["axes.formatter.useoffset"])
+        row[3].ticklabel_format(
+            axis=name, useLocale=not mpl.rcParams["axes.formatter.use_locale"])
+        row[4].ticklabel_format(
+            axis=name,
+            useMathText=not mpl.rcParams["axes.formatter.use_mathtext"])
+
+    def get_formatters(ax, names):
+        return [getattr(ax, name).get_major_formatter() for name in names]
+
+    axs = fig_ref.subplots(4, 5, subplot_kw={"projection": "3d"})
+    for ax in axs.flat:
+        ax.set_xlim(1e7, 1e7 + 10)
+    for row, names in zip(
+            axs, [["xaxis"], ["yaxis"], ["zaxis"], ["xaxis", "yaxis", "zaxis"]]
+    ):
+        for fmt in get_formatters(row[0], names):
+            fmt.set_scientific(False)
+        for fmt in get_formatters(row[1], names):
+            fmt.set_powerlimits((-2, 2))
+        for fmt in get_formatters(row[2], names):
+            fmt.set_useOffset(not mpl.rcParams["axes.formatter.useoffset"])
+        for fmt in get_formatters(row[3], names):
+            fmt.set_useLocale(not mpl.rcParams["axes.formatter.use_locale"])
+        for fmt in get_formatters(row[4], names):
+            fmt.set_useMathText(
+                not mpl.rcParams["axes.formatter.use_mathtext"])
+
+
+@check_figures_equal(extensions=["png"])
+def test_quiver3D_smoke(fig_test, fig_ref):
+    pivot = "middle"
+    # Make the grid
+    x, y, z = np.meshgrid(
+        np.arange(-0.8, 1, 0.2),
+        np.arange(-0.8, 1, 0.2),
+        np.arange(-0.8, 1, 0.8)
+    )
+    u = v = w = np.ones_like(x)
+
+    for fig, length in zip((fig_ref, fig_test), (1, 1.0)):
+        ax = fig.gca(projection="3d")
+        ax.quiver(x, y, z, u, v, w, length=length, pivot=pivot)

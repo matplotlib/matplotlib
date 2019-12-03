@@ -9,14 +9,12 @@ import matplotlib
 from matplotlib.backend_bases import MouseEvent
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
-with warnings.catch_warnings():
-    warnings.simplefilter('ignore')
-    needs_usetex = pytest.mark.skipif(
-        not matplotlib.checkdep_usetex(True),
-        reason="This test needs a TeX installation")
+needs_usetex = pytest.mark.skipif(
+    not matplotlib.checkdep_usetex(True),
+    reason="This test needs a TeX installation")
 
 
 @image_comparison(['font_styles'])
@@ -130,6 +128,9 @@ def test_multiline():
 
 @image_comparison(['multiline2'], style='mpl20')
 def test_multiline2():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig, ax = plt.subplots()
 
     ax.set_xlim([0, 1.4])
@@ -222,7 +223,7 @@ def test_contains():
     fig.canvas.draw()
 
     for x, y in zip(xs.flat, ys.flat):
-        mevent.x, mevent.y = plt.gca().transAxes.transform_point([x, y])
+        mevent.x, mevent.y = plt.gca().transAxes.transform([x, y])
         contains, _ = txt.contains(mevent)
         color = 'yellow' if contains else 'red'
 
@@ -240,8 +241,7 @@ def test_annotation_contains():
         "hello", xy=(.4, .4), xytext=(.6, .6), arrowprops={"arrowstyle": "->"})
     fig.canvas.draw()   # Needed for the same reason as in test_contains.
     event = MouseEvent(
-        "button_press_event", fig.canvas,
-        *ax.transData.transform_point((.5, .6)))
+        "button_press_event", fig.canvas, *ax.transData.transform((.5, .6)))
     assert ann.contains(event) == (False, {})
 
 
@@ -581,6 +581,9 @@ def test_annotation_update():
 
 @image_comparison(['large_subscript_title.png'], style='mpl20')
 def test_large_subscript_title():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     fig, axs = plt.subplots(1, 2, figsize=(9, 2.5), constrained_layout=True)
     ax = axs[0]
     ax.set_title(r'$\sum_{i} x_i$')
@@ -593,3 +596,42 @@ def test_large_subscript_title():
     tt.set_position((x, 1.01))
     ax.set_title('Old Way', loc='left')
     ax.set_xticklabels('')
+
+
+def test_wrap():
+    fig = plt.figure(figsize=(6, 4))
+    s = 'This is a very long text that should be wrapped multiple times.'
+    text = fig.text(0.7, 0.5, s, wrap=True)
+    fig.canvas.draw()
+    assert text._get_wrapped_text() == ('This is a very long\n'
+                                        'text that should be\n'
+                                        'wrapped multiple\n'
+                                        'times.')
+
+
+def test_long_word_wrap():
+    fig = plt.figure(figsize=(6, 4))
+    text = fig.text(9.5, 8, 'Alonglineoftexttowrap', wrap=True)
+    fig.canvas.draw()
+    assert text._get_wrapped_text() == 'Alonglineoftexttowrap'
+
+
+def test_wrap_no_wrap():
+    fig = plt.figure(figsize=(6, 4))
+    text = fig.text(0, 0, 'non wrapped text', wrap=True)
+    fig.canvas.draw()
+    assert text._get_wrapped_text() == 'non wrapped text'
+
+
+@check_figures_equal(extensions=["png"])
+def test_buffer_size(fig_test, fig_ref):
+    # On old versions of the Agg renderer, large non-ascii single-character
+    # strings (here, "€") would be rendered clipped because the rendering
+    # buffer would be set by the physical size of the smaller "a" character.
+    ax = fig_test.add_subplot()
+    ax.set_yticks([0, 1])
+    ax.set_yticklabels(["€", "a"])
+    ax.yaxis.majorTicks[1].label1.set_color("w")
+    ax = fig_ref.add_subplot()
+    ax.set_yticks([0, 1])
+    ax.set_yticklabels(["€", ""])

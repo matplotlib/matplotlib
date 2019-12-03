@@ -1,7 +1,6 @@
 language: python
 
 dist: xenial
-sudo: false
 
 services:
   - xvfb
@@ -82,7 +81,7 @@ matrix:
         - DELETE_FONT_CACHE=1
         - EXTRAREQS='-r requirements/testing/travis36.txt'
     - python: 3.7
-      sudo: true
+    - python: 3.8
     - python: "nightly"
       env:
         - PRE=--pre
@@ -99,7 +98,6 @@ matrix:
           - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
           - $HOME/.cache/matplotlib
   allow_failures:
-    - python: "nightly"
 
 before_install: |
   case "$TRAVIS_OS_NAME" in
@@ -145,6 +143,10 @@ install:
       python -c 'import PyQt5.QtCore' &&
       echo 'PyQt5 is available' ||
       echo 'PyQt5 is not available'
+    python -mpip install --upgrade pyside2 &&
+      python -c 'import PySide2.QtCore' &&
+      echo 'PySide2 is available' ||
+      echo 'PySide2 is not available'
     python -mpip install --upgrade \
       -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 \
       wxPython &&
@@ -158,7 +160,7 @@ install:
       export CPPFLAGS=--coverage
     fi
   - |
-    MPLLOCALFREETYPE=1 python -mpip install -ve .  # Install Matplotlib.
+    python -mpip install -ve .  # Install Matplotlib.
   - |
     if [[ $TRAVIS_OS_NAME != 'osx' ]] && [[ $RUN_PYTEST == 1 ]]; then
       unset CPPFLAGS

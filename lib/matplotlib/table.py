@@ -44,9 +44,9 @@ class Cell(Rectangle):
         The cell width.
     height : float
         The cell height.
-    edgecolor : color spec
+    edgecolor : color
         The color of the cell border.
-    facecolor : color spec
+    facecolor : color
         The cell facecolor.
     fill : bool
         Whether the cell background is filled.
@@ -171,7 +171,7 @@ class Cell(Rectangle):
         """
         Update the text properties.
 
-        Valid kwargs are
+        Valid keyword arguments are:
 
         %(Text)s
         """
@@ -227,16 +227,11 @@ class CustomCell(Cell):
     def get_path(self):
         """Return a `.Path` for the `.visible_edges`."""
         codes = [Path.MOVETO]
-
-        for edge in self._edges:
-            if edge in self._visible_edges:
-                codes.append(Path.LINETO)
-            else:
-                codes.append(Path.MOVETO)
-
+        codes.extend(
+            Path.LINETO if edge in self._visible_edges else Path.MOVETO
+            for edge in self._edges)
         if Path.MOVETO not in codes[1:]:  # All sides are visible
             codes[-1] = Path.CLOSEPOLY
-
         return Path(
             [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]],
             codes,
@@ -360,8 +355,7 @@ class Table(Artist):
         """
         Set a custom cell in a given position.
         """
-        if not isinstance(cell, CustomCell):
-            raise TypeError('Table only accepts CustomCell')
+        cbook._check_isinstance(CustomCell, cell=cell)
         try:
             row, col = position[0], position[1]
         except Exception:
@@ -417,7 +411,7 @@ class Table(Artist):
 
         if not self.get_visible():
             return
-        renderer.open_group('table')
+        renderer.open_group('table', gid=self.get_gid())
         self._update_positions(renderer)
 
         for key in sorted(self._cells):
@@ -427,9 +421,11 @@ class Table(Artist):
         self.stale = False
 
     def _get_grid_bbox(self, renderer):
-        """Get a bbox, in axes co-ordinates for the cells.
+        """
+        Get a bbox, in axes co-ordinates for the cells.
 
-        Only include those in the range (0,0) to (maxRow, maxCol)"""
+        Only include those in the range (0, 0) to (maxRow, maxCol).
+        """
         boxes = [cell.get_window_extent(renderer)
                  for (row, col), cell in self._cells.items()
                  if row >= 0 and col >= 0]
@@ -438,9 +434,9 @@ class Table(Artist):
 
     def contains(self, mouseevent):
         # docstring inherited
-        if self._contains is not None:
-            return self._contains(self, mouseevent)
-
+        inside, info = self._default_contains(mouseevent)
+        if inside is not None:
+            return inside, info
         # TODO: Return index of the cell containing the cursor so that the user
         # doesn't have to bind to each one individually.
         renderer = self.figure._cachedRenderer
@@ -689,7 +685,7 @@ def table(ax,
         *Note*: Line breaks in the strings are currently not accounted for and
         will result in the text exceeding the cell boundaries.
 
-    cellColours : 2D list of matplotlib color specs, optional
+    cellColours : 2D list of colors, optional
         The background colors of the cells.
 
     cellLoc : {'left', 'center', 'right'}, default: 'right'
@@ -702,7 +698,7 @@ def table(ax,
     rowLabels : list of str, optional
         The text of the row header cells.
 
-    rowColours : list of matplotlib color specs, optional
+    rowColours : list of colors, optional
         The colors of the row header cells.
 
     rowLoc : {'left', 'center', 'right'}, optional, default: 'left'
@@ -711,10 +707,10 @@ def table(ax,
     colLabels : list of str, optional
         The text of the column header cells.
 
-    colColours : list of matplotlib color specs, optional
+    colColours : list of colors, optional
         The colors of the column header cells.
 
-    rowLoc : {'left', 'center', 'right'}, optional, default: 'left'
+    colLoc : {'left', 'center', 'right'}, optional, default: 'left'
         The text alignment of the column header cells.
 
     loc : str, optional

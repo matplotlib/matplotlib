@@ -51,7 +51,7 @@ marker                         symbol description
                                       letter ``f``.
 ``verts``                             A list of (x, y) pairs used for Path
                                       vertices. The center of the marker is
-                                      located at (0,0) and the size is
+                                      located at (0, 0) and the size is
                                       normalized, such that the created path
                                       is encapsulated inside the unit cell.
 path                                  A `~matplotlib.path.Path` instance.
@@ -94,9 +94,8 @@ Integer numbers from ``0`` to ``11`` create lines and triangles. Those are
 equally accessible via capitalized variables, like ``CARETDOWNBASE``.
 Hence the following are equivalent::
 
-    plt.plot([1,2,3], marker=11)
-    plt.plot([1,2,3], marker=matplotlib.markers.CARETDOWNBASE)
-
+    plt.plot([1, 2, 3], marker=11)
+    plt.plot([1, 2, 3], marker=matplotlib.markers.CARETDOWNBASE)
 
 Examples showing the use of markers:
 
@@ -146,7 +145,6 @@ Examples showing the use of markers:
 """
 
 from collections.abc import Sized
-from numbers import Number
 
 import numpy as np
 
@@ -232,10 +230,10 @@ class MarkerStyle:
 
         Parameters
         ----------
-        marker : string or array_like, optional, default: None
+        marker : str or array-like, optional, default: None
             See the descriptions of possible markers in the module docstring.
 
-        fillstyle : string, optional, default: 'full'
+        fillstyle : str, optional, default: 'full'
             'full', 'left", 'right', 'bottom', 'top', 'none'
         """
         self._marker_function = None
@@ -373,7 +371,6 @@ class MarkerStyle:
         Submitted by tcb
         """
         from matplotlib.text import TextPath
-        from matplotlib.font_manager import FontProperties
 
         # again, the properties could be initialised just once outside
         # this function
@@ -453,7 +450,7 @@ class MarkerStyle:
         [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
 
     def _set_triangle(self, rot, skip):
-        self._transform = Affine2D().scale(0.5, 0.5).rotate_deg(rot)
+        self._transform = Affine2D().scale(0.5).rotate_deg(rot)
         self._snap_threshold = 5.0
         fs = self.get_fillstyle()
 

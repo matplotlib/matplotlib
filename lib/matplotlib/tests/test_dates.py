@@ -1,18 +1,19 @@
 import datetime
-import tempfile
-from unittest.mock import Mock
+try:
+    from contextlib import nullcontext
+except ImportError:
+    from contextlib import ExitStack as nullcontext  # Py 3.6.
 
 import dateutil.tz
 import dateutil.rrule
 import numpy as np
 import pytest
 
-from matplotlib.testing.decorators import image_comparison
-import matplotlib.pyplot as plt
-from matplotlib.cbook import MatplotlibDeprecationWarning
-import matplotlib.dates as mdates
-import matplotlib.ticker as mticker
 from matplotlib import rc_context
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+from matplotlib.testing.decorators import image_comparison
+import matplotlib.ticker as mticker
 
 
 def test_date_numpyx():
@@ -73,7 +74,7 @@ def test_date2num_NaT_scalar(units):
 
 @image_comparison(['date_empty.png'])
 def test_date_empty():
-    # make sure mpl does the right thing when told to plot dates even
+    # make sure we do the right thing when told to plot dates even
     # if no date data has been presented, cf
     # http://sourceforge.net/tracker/?func=detail&aid=2850075&group_id=80706&atid=560720
     fig = plt.figure()
@@ -133,12 +134,13 @@ def test_date_axvline():
     fig.autofmt_xdate()
 
 
-def test_too_many_date_ticks():
+def test_too_many_date_ticks(caplog):
     # Attempt to test SF 2715172, see
     # https://sourceforge.net/tracker/?func=detail&aid=2715172&group_id=80706&atid=560720
     # setting equal datetimes triggers and expander call in
     # transforms.nonsingular which results in too many ticks in the
-    # DayLocator.  This should trigger a Locator.MAXTICKS RuntimeError
+    # DayLocator.  This should emit a log at WARNING level.
+    caplog.set_level("WARNING")
     t0 = datetime.datetime(2000, 1, 20)
     tf = datetime.datetime(2000, 1, 20)
     fig = plt.figure()
@@ -150,8 +152,13 @@ def test_too_many_date_ticks():
             'Attempting to set identical left == right' in str(rec[0].message)
     ax.plot([], [])
     ax.xaxis.set_major_locator(mdates.DayLocator())
-    with pytest.raises(RuntimeError):
-        fig.savefig('junk.png')
+    fig.canvas.draw()
+    # The warning is emitted multiple times because the major locator is also
+    # called both when placing the minor ticks (for overstriking detection) and
+    # during tick label positioning.
+    assert caplog.records and all(
+        record.name == "matplotlib.ticker" and record.levelname == "WARNING"
+        for record in caplog.records)
 
 
 @image_comparison(['RRuleLocator_bounds.png'])
@@ -245,12 +252,14 @@ def test_locator_set_formatter():
 
 
 def test_date_formatter_callable():
-    scale = -11
-    locator = Mock(_get_unit=Mock(return_value=scale))
-    callable_formatting_function = (lambda dates, _:
-                                    [dt.strftime('%d-%m//%Y') for dt in dates])
 
-    formatter = mdates.AutoDateFormatter(locator)
+    class _Locator:
+        def _get_unit(self): return -11
+
+    def callable_formatting_function(dates, _):
+        return [dt.strftime('%d-%m//%Y') for dt in dates]
+
+    formatter = mdates.AutoDateFormatter(_Locator())
     formatter.scaled[-10] = callable_formatting_function
     assert formatter([datetime.datetime(2014, 12, 25)]) == ['25-12//2014']
 
@@ -298,9 +307,8 @@ def test_empty_date_with_year_formatter():
     yearFmt = dates.DateFormatter('%Y')
     ax.xaxis.set_major_formatter(yearFmt)
 
-    with tempfile.TemporaryFile() as fh:
-        with pytest.raises(ValueError):
-            fig.savefig(fh)
+    with pytest.raises(ValueError):
+        fig.canvas.draw()
 
 
 def test_auto_date_locator():
@@ -370,7 +378,9 @@ def test_auto_date_locator():
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
-        assert list(map(str, mdates.num2date(locator()))) == expected
+        with (pytest.warns(UserWarning) if t_delta.microseconds
+              else nullcontext()):
+            assert list(map(str, mdates.num2date(locator()))) == expected
 
 
 def test_auto_date_locator_intmult():
@@ -445,7 +455,9 @@ def test_auto_date_locator_intmult():
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
-        assert list(map(str, mdates.num2date(locator()))) == expected
+        with (pytest.warns(UserWarning) if t_delta.microseconds
+              else nullcontext()):
+            assert list(map(str, mdates.num2date(locator()))) == expected
 
 
 def test_concise_formatter():
@@ -497,6 +509,49 @@ def test_concise_formatter():
         d2 = d1 + t_delta
         strings = _create_auto_date_locator(d1, d2)
         assert strings == expected
+
+
+def test_concise_formatter_tz():
+    def _create_auto_date_locator(date1, date2, tz):
+        fig, ax = plt.subplots()
+
+        locator = mdates.AutoDateLocator(interval_multiples=True)
+        formatter = mdates.ConciseDateFormatter(locator, tz=tz)
+        ax.yaxis.set_major_locator(locator)
+        ax.yaxis.set_major_formatter(formatter)
+        ax.set_ylim(date1, date2)
+        fig.canvas.draw()
+        sts = []
+        for st in ax.get_yticklabels():
+            sts += [st.get_text()]
+        return sts, ax.yaxis.get_offset_text().get_text()
+
+    d1 = datetime.datetime(1997, 1, 1).replace(tzinfo=datetime.timezone.utc)
+    results = ([datetime.timedelta(hours=40),
+                ['03:00', '07:00', '11:00', '15:00', '19:00', '23:00',
+                 '03:00', '07:00', '11:00', '15:00', '19:00'],
+                "1997-Jan-02"
+                ],
+               [datetime.timedelta(minutes=20),
+                ['03:00', '03:05', '03:10', '03:15', '03:20'],
+                "1997-Jan-01"
+                ],
+               [datetime.timedelta(seconds=40),
+                ['03:00', '05', '10', '15', '20', '25', '30', '35', '40'],
+                "1997-Jan-01 03:00"
+                ],
+               [datetime.timedelta(seconds=2),
+                ['59.5', '03:00', '00.5', '01.0', '01.5', '02.0', '02.5'],
+                "1997-Jan-01 03:00"
+                ],
+               )
+
+    new_tz = datetime.timezone(datetime.timedelta(hours=3))
+    for t_delta, expected_strings, expected_offset in results:
+        d2 = d1 + t_delta
+        strings, offset = _create_auto_date_locator(d1, d2, new_tz)
+        assert strings == expected_strings
+        assert offset == expected_offset
 
 
 def test_auto_date_locator_intmult_tz():

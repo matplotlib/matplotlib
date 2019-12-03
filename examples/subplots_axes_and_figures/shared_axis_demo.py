@@ -9,7 +9,7 @@ passing an axes instance as a sharex or sharey kwarg.
 Changing the axis limits on one axes will be reflected automatically
 in the other, and vice-versa, so when you navigate with the toolbar
 the axes will follow each other on their shared axes.  Ditto for
-changes in the axis scaling (e.g., log vs linear).  However, it is
+changes in the axis scaling (e.g., log vs. linear).  However, it is
 possible to have differences in tick labeling, e.g., you can selectively
 turn off the tick labels on one axes.
 

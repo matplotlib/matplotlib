@@ -1,29 +1,24 @@
+from itertools import product
+import platform
+
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import (
-    image_comparison, remove_ticks_and_titles)
-
-from mpl_toolkits.axes_grid1 import host_subplot
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from mpl_toolkits.axes_grid1 import AxesGrid
-from mpl_toolkits.axes_grid1 import ImageGrid
-from mpl_toolkits.axes_grid1.inset_locator import (
-    zoomed_inset_axes,
-    mark_inset,
-    inset_axes,
-    BboxConnectorPatch
-)
-from mpl_toolkits.axes_grid1.anchored_artists import (
-    AnchoredSizeBar,
-    AnchoredDirectionArrows)
-
+from matplotlib import cbook
+from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.colors import LogNorm
 from matplotlib.transforms import Bbox, TransformedBbox
-from itertools import product
+from matplotlib.testing.decorators import (
+    image_comparison, remove_ticks_and_titles)
+
+from mpl_toolkits.axes_grid1 import (
+    host_subplot, make_axes_locatable, AxesGrid, ImageGrid)
+from mpl_toolkits.axes_grid1.anchored_artists import (
+    AnchoredSizeBar, AnchoredDirectionArrows)
+from mpl_toolkits.axes_grid1.inset_locator import (
+    zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
 
 import pytest
-import platform
 
 import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
@@ -100,10 +95,14 @@ def test_twin_axes_empty_and_removed():
     plt.subplots_adjust(wspace=0.5, hspace=1)
 
 
-def test_axesgrid_colorbar_log_smoketest():
+@pytest.mark.parametrize("legacy_colorbar", [False, True])
+def test_axesgrid_colorbar_log_smoketest(legacy_colorbar):
+    matplotlib.rcParams["mpl_toolkits.legacy_colorbar"] = legacy_colorbar
+
     fig = plt.figure()
     grid = AxesGrid(fig, 111,  # modified to be only subplot
                     nrows_ncols=(1, 1),
+                    ngrids=1,
                     label_mode="L",
                     cbar_location="top",
                     cbar_mode="single",
@@ -112,23 +111,21 @@ def test_axesgrid_colorbar_log_smoketest():
     Z = 10000 * np.random.rand(10, 10)
     im = grid[0].imshow(Z, interpolation="nearest", norm=LogNorm())
 
-    grid.cbar_axes[0].colorbar(im)
+    if legacy_colorbar:
+        with pytest.warns(MatplotlibDeprecationWarning):
+            grid.cbar_axes[0].colorbar(im)
+    else:
+        grid.cbar_axes[0].colorbar(im)
 
 
 @image_comparison(['inset_locator.png'], style='default', remove_text=True)
 def test_inset_locator():
-    def get_demo_image():
-        from matplotlib.cbook import get_sample_data
-        import numpy as np
-        f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
-        z = np.load(f)
-        # z is a numpy array of 15x15
-        return z, (-3, 4, -4, 3)
-
     fig, ax = plt.subplots(figsize=[5, 4])
 
     # prepare the demo image
-    Z, extent = get_demo_image()
+    # Z is a 15x15 array
+    Z = np.load(cbook.get_sample_data("axes_grid/bivariate_normal.npy"))
+    extent = (-3, 4, -4, 3)
     Z2 = np.zeros([150, 150], dtype="d")
     ny, nx = Z.shape
     Z2[30:30 + ny, 30:30 + nx] = Z
@@ -165,18 +162,12 @@ def test_inset_locator():
 
 @image_comparison(['inset_axes.png'], style='default', remove_text=True)
 def test_inset_axes():
-    def get_demo_image():
-        from matplotlib.cbook import get_sample_data
-        import numpy as np
-        f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
-        z = np.load(f)
-        # z is a numpy array of 15x15
-        return z, (-3, 4, -4, 3)
-
     fig, ax = plt.subplots(figsize=[5, 4])
 
     # prepare the demo image
-    Z, extent = get_demo_image()
+    # Z is a 15x15 array
+    Z = np.load(cbook.get_sample_data("axes_grid/bivariate_normal.npy"))
+    extent = (-3, 4, -4, 3)
     Z2 = np.zeros([150, 150], dtype="d")
     ny, nx = Z.shape
     Z2[30:30 + ny, 30:30 + nx] = Z
@@ -355,7 +346,7 @@ def test_zooming_with_inverted_axes():
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_anchored_direction_arrows():
     fig, ax = plt.subplots()
-    ax.imshow(np.zeros((10, 10)))
+    ax.imshow(np.zeros((10, 10)), interpolation='nearest')
 
     simple_arrow = AnchoredDirectionArrows(ax.transAxes, 'X', 'Y')
     ax.add_artist(simple_arrow)
@@ -394,7 +385,7 @@ def test_image_grid():
     grid = ImageGrid(fig, 111, nrows_ncols=(2, 2), axes_pad=0.1)
 
     for i in range(4):
-        grid[i].imshow(im)
+        grid[i].imshow(im, interpolation='nearest')
         grid[i].set_title('test {0}{0}'.format(i))
 
 

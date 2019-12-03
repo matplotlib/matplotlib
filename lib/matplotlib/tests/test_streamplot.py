@@ -9,6 +9,7 @@ import matplotlib.transforms as mtransforms
 
 
 on_win = (sys.platform == 'win32')
+on_mac = (sys.platform == 'darwin')
 
 
 def velocity_field():
@@ -79,7 +80,8 @@ def test_masks_and_nans():
 
 
 @image_comparison(['streamplot_maxlength.png'],
-                  remove_text=True, style='mpl20')
+                  remove_text=True, style='mpl20',
+                  tol=0.002 if on_mac else 0)
 def test_maxlength():
     x, y, U, V = swirl_velocity_field()
     ax = plt.figure().subplots()

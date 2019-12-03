@@ -38,7 +38,7 @@ def clip(xlines, ylines, x0, clip="right", xdir=True, ydir=True):
         else:
             ns = -1
         segx, segy = [], []
-        for (i,) in np.argwhere(db!=0):
+        for (i,) in np.argwhere(db):
             c = db[i]
             if c == -1:
                 dx = (x0 - x[i])

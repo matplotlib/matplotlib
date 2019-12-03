@@ -13,15 +13,16 @@ that actually reflects the values given here. Any additions or deletions to the
 parameter set listed here should also be visited to the
 :file:`matplotlibrc.template` in matplotlib's root source directory.
 """
+
 from collections.abc import Iterable, Mapping
-from functools import reduce
+from functools import partial, reduce
 import logging
 import operator
 import os
 import re
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import animation, cbook
 from matplotlib.cbook import ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
@@ -67,7 +68,7 @@ class ValidateInStrings:
                          % (self.key, s, list(self.valid.values())))
 
 
-def _listify_validator(scalar_validator, allow_stringlist=False):
+def _listify_validator(scalar_validator, allow_stringlist=False, *, doc=None):
     def f(s):
         if isinstance(s, str):
             try:
@@ -93,13 +94,13 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
             return [scalar_validator(v) for v in s
                     if not isinstance(v, str) or v]
         else:
-            raise ValueError("{!r} must be of type: string or non-dictionary "
+            raise ValueError("{!r} must be of type: str or non-dictionary "
                              "iterable".format(s))
     try:
         f.__name__ = "{}list".format(scalar_validator.__name__)
     except AttributeError:  # class instance.
         f.__name__ = "{}List".format(type(scalar_validator).__name__)
-    f.__doc__ = scalar_validator.__doc__
+    f.__doc__ = doc if doc is not None else scalar_validator.__doc__
     return f
 
 
@@ -108,6 +109,7 @@ def validate_any(s):
 validate_anylist = _listify_validator(validate_any)
 
 
+@cbook.deprecated("3.2", alternative="os.path.exists")
 def validate_path_exists(s):
     """If s is a path, return s, else False"""
     if s is None:
@@ -142,40 +144,6 @@ def validate_bool_maybe_none(b):
         return False
     else:
         raise ValueError('Could not convert "%s" to boolean' % b)
-
-
-def validate_float(s):
-    """Convert s to float or raise."""
-    try:
-        return float(s)
-    except ValueError:
-        raise ValueError('Could not convert "%s" to float' % s)
-validate_floatlist = _listify_validator(validate_float)
-
-
-def validate_float_or_None(s):
-    """Convert s to float, None or raise."""
-    # values directly from the rc file can only be strings,
-    # so we need to recognize the string "None" and convert
-    # it into the object. We will be case-sensitive here to
-    # avoid confusion between string values of 'none', which
-    # can be a valid string value for some other parameters.
-    if s is None or s == 'None':
-        return None
-    try:
-        return float(s)
-    except ValueError:
-        raise ValueError('Could not convert "%s" to float or None' % s)
-
-
-def validate_string_or_None(s):
-    """Convert s to string or raise."""
-    if s is None:
-        return None
-    try:
-        return validate_string(s)
-    except ValueError:
-        raise ValueError('Could not convert "%s" to string' % s)
 
 
 def _validate_tex_preamble(s):
@@ -215,24 +183,34 @@ def validate_dpi(s):
             ' could not convert "%s" to float' % (s, s))
 
 
-def validate_int(s):
-    """Convert s to int or raise."""
-    try:
-        return int(s)
-    except ValueError:
-        raise ValueError('Could not convert "%s" to int' % s)
+def _make_type_validator(cls, *, allow_none=False):
+    """
+    Return a validator that converts inputs to *cls* or raises (and possibly
+    allows ``None`` as well).
+    """
+
+    def validator(s):
+        if (allow_none and
+                (s is None or isinstance(s, str) and s.lower() == "none")):
+            return None
+        try:
+            return cls(s)
+        except ValueError:
+            raise ValueError(f'Could not convert {s!r} to {cls.__name__}')
+
+    return validator
 
 
-def validate_int_or_None(s):
-    """Return None if s is None or return ``int(s)``, otherwise raise."""
-    if s == 'None':
-        s = None
-    if s is None:
-        return None
-    try:
-        return int(s)
-    except ValueError:
-        raise ValueError('Could not convert "%s" to int' % s)
+validate_string = _make_type_validator(str)
+validate_string_or_None = _make_type_validator(str, allow_none=True)
+validate_stringlist = _listify_validator(
+    validate_string, doc='return a list or strings')
+validate_int = _make_type_validator(int)
+validate_int_or_None = _make_type_validator(int, allow_none=True)
+validate_float = _make_type_validator(float)
+validate_float_or_None = _make_type_validator(float, allow_none=True)
+validate_floatlist = _listify_validator(
+    validate_float, doc='return a list of floats')
 
 
 def validate_fonttype(s):
@@ -284,65 +262,37 @@ def validate_qt5(s):
     return ValidateInStrings("backend.qt5", ['PyQt5', 'PySide2'])(s)
 
 
-def validate_toolbar(s):
-    validator = ValidateInStrings(
-                'toolbar',
-                ['None', 'toolbar2', 'toolmanager'],
-                ignorecase=True)
-    return validator(s)
+validate_toolbar = ValidateInStrings(
+    'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True)
 
 
-_seq_err_msg = ('You must supply exactly {n} values, you provided {num} '
-                'values: {s}')
+def _make_nseq_validator(cls, n=None, allow_none=False):
 
-_str_err_msg = ('You must supply exactly {n} comma-separated values, you '
-                'provided {num} comma-separated values: {s}')
-
-
-class validate_nseq_float:
-    def __init__(self, n=None, allow_none=False):
-        self.n = n
-        self.allow_none = allow_none
-
-    def __call__(self, s):
-        """Return a list of *n* floats or raise."""
+    def validator(s):
+        """Convert *n* objects using ``cls``, or raise."""
         if isinstance(s, str):
             s = [x.strip() for x in s.split(',')]
-            err_msg = _str_err_msg
+            if n is not None and len(s) != n:
+                raise ValueError(
+                    f'Expected exactly {n} comma-separated values, '
+                    f'but got {len(s)} comma-separated values: {s}')
         else:
-            err_msg = _seq_err_msg
-
-        if self.n is not None and len(s) != self.n:
-            raise ValueError(err_msg.format(n=self.n, num=len(s), s=s))
-
+            if n is not None and len(s) != n:
+                raise ValueError(
+                    f'Expected exactly {n} values, '
+                    f'but got {len(s)} values: {s}')
         try:
-            return [float(val)
-                    if not self.allow_none or val is not None
-                    else val
+            return [cls(val) if not allow_none or val is not None else val
                     for val in s]
         except ValueError:
-            raise ValueError('Could not convert all entries to floats')
+            raise ValueError(
+                f'Could not convert all entries to {cls.__name__}s')
+
+    return validator
 
 
-class validate_nseq_int:
-    def __init__(self, n=None):
-        self.n = n
-
-    def __call__(self, s):
-        """Return a list of *n* ints or raise."""
-        if isinstance(s, str):
-            s = [x.strip() for x in s.split(',')]
-            err_msg = _str_err_msg
-        else:
-            err_msg = _seq_err_msg
-
-        if self.n is not None and len(s) != self.n:
-            raise ValueError(err_msg.format(n=self.n, num=len(s), s=s))
-
-        try:
-            return [int(val) for val in s]
-        except ValueError:
-            raise ValueError('Could not convert all entries to ints')
+validate_nseq_float = partial(_make_nseq_validator, float)
+validate_nseq_int = partial(_make_nseq_validator, int)
 
 
 def validate_color_or_inherit(s):
@@ -412,21 +362,8 @@ def validate_color(s):
     raise ValueError('%s does not look like a color arg%s' % (s, msg))
 
 
-validate_colorlist = _listify_validator(validate_color, allow_stringlist=True)
-validate_colorlist.__doc__ = 'return a list of colorspecs'
-
-
-def validate_string(s):
-    if isinstance(s, str):
-        # Always leave str as str and unicode as unicode
-        return s
-    else:
-        return str(s)
-
-
-validate_stringlist = _listify_validator(str)
-validate_stringlist.__doc__ = 'return a list'
-
+validate_colorlist = _listify_validator(
+    validate_color, allow_stringlist=True, doc='return a list of colorspecs')
 validate_orientation = ValidateInStrings(
     'orientation', ['landscape', 'portrait'])
 
@@ -462,6 +399,19 @@ def validate_fontsize(s):
 
 
 validate_fontsizelist = _listify_validator(validate_fontsize)
+
+
+def validate_fontweight(s):
+    weights = [
+        'ultralight', 'light', 'normal', 'regular', 'book', 'medium', 'roman',
+        'semibold', 'demibold', 'demi', 'bold', 'heavy', 'extra bold', 'black']
+    # Note: Historically, weights have been case-sensitive in Matplotlib
+    if s in weights:
+        return s
+    try:
+        return int(s)
+    except (ValueError, TypeError):
+        raise ValueError(f'{s} is not a valid font weight.')
 
 
 def validate_font_properties(s):
@@ -521,11 +471,30 @@ def validate_whiskers(s):
                                  "(float, float)]")
 
 
+@cbook.deprecated("3.2")
 def update_savefig_format(value):
     # The old savefig.extension could also have a value of "auto", but
     # the new savefig.format does not.  We need to fix this here.
     value = validate_string(value)
     if value == 'auto':
+        cbook.warn_deprecated(
+            "3.2", message="Support for setting the 'savefig.format' rcParam "
+            "to 'auto' is deprecated since %(since)s and will be removed "
+            "%(removal)s; set it to 'png' instead.")
+        value = 'png'
+    return value
+
+
+# Replace by validate_string once deprecation period passes.
+def _update_savefig_format(value):
+    # The old savefig.extension could also have a value of "auto", but
+    # the new savefig.format does not.  We need to fix this here.
+    value = validate_string(value)
+    if value == 'auto':
+        cbook.warn_deprecated(
+            "3.2", message="Support for setting the 'savefig.format' rcParam "
+            "to 'auto' is deprecated since %(since)s and will be removed "
+            "%(removal)s; set it to 'png' instead.")
         value = 'png'
     return value
 
@@ -546,14 +515,14 @@ def validate_ps_distiller(s):
     elif s in ('ghostscript', 'xpdf'):
         try:
             mpl._get_executable_info("gs")
-        except FileNotFoundError:
+        except mpl.ExecutableNotFoundError:
             _log.warning("Setting rcParams['ps.usedistiller'] requires "
                          "ghostscript.")
             return None
         if s == "xpdf":
             try:
                 mpl._get_executable_info("pdftops")
-            except FileNotFoundError:
+            except mpl.ExecutableNotFoundError:
                 _log.warning("Setting rcParams['ps.usedistiller'] to 'xpdf' "
                              "requires xpdf.")
                 return None
@@ -577,10 +546,6 @@ validate_fillstyle = ValidateInStrings('markers.fillstyle',
                                        ['full', 'left', 'right', 'bottom',
                                         'top', 'none'])
 validate_fillstylelist = _listify_validator(validate_fillstyle)
-
-_validate_negative_linestyle = ValidateInStrings('negative_linestyle',
-                                                 ['solid', 'dashed'],
-                                                 ignorecase=True)
 
 
 def validate_markevery(s):
@@ -636,16 +601,15 @@ validate_legend_loc = ValidateInStrings(
      'upper center',
      'center'], ignorecase=True)
 
-
-def validate_svg_fonttype(s):
-    if s in ["none", "path"]:
-        return s
-    raise ValueError("Unrecognized svg.fonttype string '{}'; "
-                     "valid strings are 'none', 'path'")
+validate_svg_fonttype = ValidateInStrings('svg.fonttype', ['none', 'path'])
 
 
 def validate_hinting(s):
     if s in (True, False):
+        cbook.warn_deprecated(
+            "3.2", message="Support for setting the text.hinting rcParam to "
+            "True or False is deprecated since %(since)s and will be removed "
+            "%(removal)s; set it to its synonyms 'auto' or 'none' instead.")
         return s
     if s.lower() in ('auto', 'native', 'either', 'none'):
         return s.lower()
@@ -655,11 +619,16 @@ def validate_hinting(s):
 validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
                                            ['xelatex', 'lualatex', 'pdflatex'])
 
-validate_movie_writer = ValidateInStrings('animation.writer',
-    ['ffmpeg', 'ffmpeg_file',
-     'avconv', 'avconv_file',
-     'imagemagick', 'imagemagick_file',
-     'html'])
+
+def validate_movie_writer(s):
+    # writers.list() would only list actually available writers, but
+    # FFMpeg.isAvailable is slow and not worth paying for at every import.
+    if s in animation.writers._registered:
+        return s
+    else:
+        raise ValueError(f"Supported animation writers are "
+                         f"{sorted(animation.writers._registered)}")
+
 
 validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
     ['png', 'jpeg', 'tiff', 'raw', 'rgba'])
@@ -698,6 +667,7 @@ def validate_sketch(s):
     return result
 
 
+@cbook.deprecated("3.1")
 class ValidateInterval:
     """
     Value must be in interval
@@ -730,6 +700,28 @@ class ValidateInterval:
         return s
 
 
+def _validate_greaterequal0_lessthan1(s):
+    s = validate_float(s)
+    if 0 <= s < 1:
+        return s
+    else:
+        raise RuntimeError(f'Value must be >=0 and <1; got {s}')
+
+
+def _validate_greaterequal0_lessequal1(s):
+    s = validate_float(s)
+    if 0 <= s <= 1:
+        return s
+    else:
+        raise RuntimeError(f'Value must be >=0 and <=1; got {s}')
+
+
+_range_validators = {  # Slightly nicer (internal) API.
+    "0 <= x < 1": _validate_greaterequal0_lessthan1,
+    "0 <= x <= 1": _validate_greaterequal0_lessequal1,
+}
+
+
 validate_grid_axis = ValidateInStrings('axes.grid.axis', ['x', 'y', 'both'])
 
 
@@ -738,10 +730,10 @@ def validate_hatch(s):
     Validate a hatch pattern.
     A hatch pattern string can have any sequence of the following
     characters: ``\ / | - + * . x o O``.
-
     """
     if not isinstance(s, str):
         raise ValueError("Hatch pattern must be a string")
+    cbook._check_isinstance(str, hatch_pattern=s)
     unknown = set(s) - {'\\', '/', '|', '-', '+', '*', '.', 'x', 'o', 'O'}
     if unknown:
         raise ValueError("Unknown hatch symbol(s): %s" % list(unknown))
@@ -951,12 +943,12 @@ def validate_hist_bins(s):
                      " a sequence of floats".format(valid_strs))
 
 
+@cbook.deprecated("3.2")
 def validate_animation_writer_path(p):
     # Make sure it's a string and then figure out if the animations
     # are already loaded and reset the writers (which will validate
     # the path on next call)
-    if not isinstance(p, str):
-        raise ValueError("path must be a (unicode) string")
+    cbook._check_isinstance(str, path=p)
     from sys import modules
     # set dirty, so that the next call to the registry will re-evaluate
     # the state.
@@ -1026,8 +1018,7 @@ defaultParams = {
     'webagg.open_in_browser': [True, validate_bool],
     'webagg.port_retries': [50, validate_int],
     'toolbar':           ['toolbar2', validate_toolbar],
-    'datapath':          [None, validate_path_exists],  # handled by
-                                                        # _get_data_path_cached
+    'datapath':          [None, validate_any],  # see _get_data_path_cached
     'interactive':       [False, validate_bool],
     'timezone':          ['UTC', validate_string],
 
@@ -1122,7 +1113,7 @@ defaultParams = {
     'font.style':      ['normal', validate_string],
     'font.variant':    ['normal', validate_string],
     'font.stretch':    ['normal', validate_string],
-    'font.weight':     ['normal', validate_string],
+    'font.weight':     ['normal', validate_fontweight],
     'font.size':       [10, validate_float],      # Base font size in points
     'font.serif':      [['DejaVu Serif', 'Bitstream Vera Serif',
                          'Computer Modern Roman',
@@ -1139,8 +1130,8 @@ defaultParams = {
     'font.cursive':    [['Apple Chancery', 'Textile', 'Zapf Chancery',
                          'Sand', 'Script MT', 'Felipa', 'cursive'],
                         validate_stringlist],
-    'font.fantasy':    [['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact',
-                         'Western', 'Humor Sans', 'xkcd', 'fantasy'],
+    'font.fantasy':    [['Comic Neue', 'Comic Sans MS', 'Chicago', 'Charcoal',
+                         'Impact', 'Western', 'Humor Sans', 'xkcd', 'fantasy'],
                         validate_stringlist],
     'font.monospace':  [['DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
                          'Computer Modern Typewriter',
@@ -1156,6 +1147,7 @@ defaultParams = {
     'text.latex.preview':  [False, validate_bool],
     'text.hinting':        ['auto', validate_hinting],
     'text.hinting_factor': [8, validate_int],
+    'text.kerning_factor': [0, validate_int],
     'text.antialiased':    [True, validate_bool],
 
     'mathtext.cal':            ['cursive', validate_font_properties],
@@ -1169,7 +1161,7 @@ defaultParams = {
     'mathtext.fallback_to_cm': [True, validate_bool],
 
     'image.aspect':        ['equal', validate_aspect],  # equal, auto, a number
-    'image.interpolation': ['nearest', validate_string],
+    'image.interpolation': ['antialiased', validate_string],
     'image.cmap':          ['viridis', validate_string],  # gray, jet, etc.
     'image.lut':           [256, validate_int],  # lookup table
     'image.origin':        ['upper',
@@ -1200,7 +1192,8 @@ defaultParams = {
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
     'axes.titlelocation':    ['center', validate_axes_titlelocation],  # alignment of axes title
-    'axes.titleweight':      ['normal', validate_string],  # font weight of axes title
+    'axes.titleweight':      ['normal', validate_fontweight],  # font weight of axes title
+    'axes.titlecolor':       ['auto', validate_color_or_auto],  # font color of axes title
     'axes.titlepad':         [6.0, validate_float],  # pad from axes top to title in points
     'axes.grid':             [False, validate_bool],   # display grid or not
     'axes.grid.which':       ['major', validate_axis_locator],  # set whether the gid are by
@@ -1212,9 +1205,9 @@ defaultParams = {
     'axes.labelsize':        ['medium', validate_fontsize],  # fontsize of the
                                                              # x any y labels
     'axes.labelpad':         [4.0, validate_float],  # space between label and axis
-    'axes.labelweight':      ['normal', validate_string],  # fontsize of the x any y labels
+    'axes.labelweight':      ['normal', validate_fontweight],  # fontsize of the x any y labels
     'axes.labelcolor':       ['black', validate_color],    # color of axis label
-    'axes.formatter.limits': [[-7, 7], validate_nseq_int(2)],
+    'axes.formatter.limits': [[-5, 6], validate_nseq_int(2)],
                                # use scientific notation if log10
                                # of the axis range is smaller than the
                                # first or larger than the second
@@ -1239,15 +1232,10 @@ defaultParams = {
     'axes.autolimit_mode': [
         'data',
         ValidateInStrings('autolimit_mode', ['data', 'round_numbers'])],
-    'axes.xmargin': [0.05, ValidateInterval(0, 1,
-                                            closedmin=True,
-                                            closedmax=True)],  # margin added to xaxis
-    'axes.ymargin': [0.05, ValidateInterval(0, 1,
-                                            closedmin=True,
-                                            closedmax=True)],  # margin added to yaxis
+    'axes.xmargin': [0.05, _range_validators["0 <= x <= 1"]],
+    'axes.ymargin': [0.05, _range_validators["0 <= x <= 1"]],
 
-    'polaraxes.grid': [True, validate_bool],  # display polar grid or
-                                                     # not
+    'polaraxes.grid': [True, validate_bool],  # display polar grid or not
     'axes3d.grid': [True, validate_bool],  # display 3d grid
 
     # scatter props
@@ -1350,7 +1338,7 @@ defaultParams = {
     ## figure props
     # figure title
     'figure.titlesize':   ['large', validate_fontsize],
-    'figure.titleweight': ['normal', validate_string],
+    'figure.titleweight': ['normal', validate_fontweight],
 
     # figure size in inches: width by height
     'figure.figsize':    [[6.4, 4.8], validate_nseq_float(2)],
@@ -1361,28 +1349,22 @@ defaultParams = {
     'figure.autolayout': [False, validate_bool],
     'figure.max_open_warning': [20, validate_int],
 
-    'figure.subplot.left': [0.125, ValidateInterval(0, 1, closedmin=True,
-                                                       closedmax=True)],
-    'figure.subplot.right': [0.9, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=True)],
-    'figure.subplot.bottom': [0.11, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=True)],
-    'figure.subplot.top': [0.88, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=True)],
-    'figure.subplot.wspace': [0.2, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=False)],
-    'figure.subplot.hspace': [0.2, ValidateInterval(0, 1, closedmin=True,
-                                                     closedmax=False)],
+    'figure.subplot.left': [0.125, _range_validators["0 <= x <= 1"]],
+    'figure.subplot.right': [0.9, _range_validators["0 <= x <= 1"]],
+    'figure.subplot.bottom': [0.11, _range_validators["0 <= x <= 1"]],
+    'figure.subplot.top': [0.88, _range_validators["0 <= x <= 1"]],
+    'figure.subplot.wspace': [0.2, _range_validators["0 <= x < 1"]],
+    'figure.subplot.hspace': [0.2, _range_validators["0 <= x < 1"]],
 
     # do constrained_layout.
     'figure.constrained_layout.use': [False, validate_bool],
     # wspace and hspace are fraction of adjacent subplots to use
     # for space.  Much smaller than above because we don't need
     # room for the text.
-    'figure.constrained_layout.hspace': [0.02, ValidateInterval(
-            0, 1, closedmin=True, closedmax=False)],
-    'figure.constrained_layout.wspace': [0.02, ValidateInterval(
-            0, 1, closedmin=True, closedmax=False)],
+    'figure.constrained_layout.hspace':
+        [0.02, _range_validators["0 <= x < 1"]],
+    'figure.constrained_layout.wspace':
+        [0.02, _range_validators["0 <= x < 1"]],
     # This is a buffer around the axes in inches.  This is 3pts.
     'figure.constrained_layout.h_pad': [0.04167, validate_float],
     'figure.constrained_layout.w_pad': [0.04167, validate_float],
@@ -1395,7 +1377,7 @@ defaultParams = {
     'savefig.orientation': ['portrait', validate_orientation],
     'savefig.jpeg_quality': [95, validate_int],
     # value checked by backend at runtime
-    'savefig.format':     ['png', update_savefig_format],
+    'savefig.format':     ['png', _update_savefig_format],
     # options are 'tight', or 'standard'. 'standard' validates to None.
     'savefig.bbox':       ['standard', validate_bbox],
     'savefig.pad_inches': [0.1, validate_float],
@@ -1439,7 +1421,7 @@ defaultParams = {
     'docstring.hardcopy': [False, validate_bool],
 
     'path.simplify': [True, validate_bool],
-    'path.simplify_threshold': [1.0 / 9.0, ValidateInterval(0.0, 1.0)],
+    'path.simplify_threshold': [1 / 9, _range_validators["0 <= x <= 1"]],
     'path.snap': [True, validate_bool],
     'path.sketch': [None, validate_sketch],
     'path.effects': [[], validate_any],
@@ -1478,17 +1460,19 @@ defaultParams = {
     # Additional arguments for HTML writer
     'animation.html_args':    [[], validate_stringlist],
     # Path to ffmpeg binary. If just binary name, subprocess uses $PATH.
-    'animation.ffmpeg_path':  ['ffmpeg', validate_animation_writer_path],
+    'animation.ffmpeg_path':  ['ffmpeg', validate_string],
     # Additional arguments for ffmpeg movie writer (using pipes)
     'animation.ffmpeg_args':   [[], validate_stringlist],
     # Path to AVConv binary. If just binary name, subprocess uses $PATH.
-    'animation.avconv_path':   ['avconv', validate_animation_writer_path],
+    'animation.avconv_path':   ['avconv', validate_string],
     # Additional arguments for avconv movie writer (using pipes)
     'animation.avconv_args':   [[], validate_stringlist],
      # Path to convert binary. If just binary name, subprocess uses $PATH.
-    'animation.convert_path':  ['convert', validate_animation_writer_path],
+    'animation.convert_path':  ['convert', validate_string],
      # Additional arguments for convert movie writer (using pipes)
     'animation.convert_args':  [[], validate_stringlist],
+
+    'mpl_toolkits.legacy_colorbar': [True, validate_bool],
 
     # Classic (pre 2.0) compatibility mode
     # This is used for things that are hard to make backward compatible

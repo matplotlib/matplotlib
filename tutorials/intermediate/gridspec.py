@@ -9,7 +9,7 @@ How to create grid-shaped combinations of axes.
         Perhaps the primary function used to create figures and axes.
         It's also similar to :func:`.matplotlib.pyplot.subplot`,
         but creates and places all axes on the figure at once.  See also
-        `matplotlib.Figure.subplots`.
+        `matplotlib.figure.Figure.subplots`.
 
     :class:`~matplotlib.gridspec.GridSpec`
         Specifies the geometry of the grid that a subplot will be
@@ -137,14 +137,14 @@ for row in range(3):
 
 gs_kw = dict(width_ratios=widths, height_ratios=heights)
 fig6, f6_axes = plt.subplots(ncols=3, nrows=3, constrained_layout=True,
-        gridspec_kw=gs_kw)
+                             gridspec_kw=gs_kw)
 for r, row in enumerate(f6_axes):
     for c, ax in enumerate(row):
         label = 'Width: {}\nHeight: {}'.format(widths[c], heights[r])
         ax.annotate(label, (0.1, 0.5), xycoords='axes fraction', va='center')
 
 ############################################################################
-# The ``subplots`` and ``gridspec`` methods can be combined since it is
+# The ``subplots`` and ``get_gridspec`` methods can be combined since it is
 # sometimes more convenient to make most of the subplots using ``subplots``
 # and then remove some and combine them.  Here we create a layout with
 # the bottom two axes in the last column combined.

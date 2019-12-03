@@ -1,53 +1,47 @@
 from numbers import Number
 
-import matplotlib.axes as maxes
+import numpy as np
+
+import matplotlib as mpl
+from matplotlib import cbook
 import matplotlib.ticker as ticker
 from matplotlib.gridspec import SubplotSpec
 
 from .axes_divider import Size, SubplotDivider, Divider
-from .colorbar import Colorbar
 from .mpl_axes import Axes
-
-
-def _extend_axes_pad(value):
-    # Check whether a list/tuple/array or scalar has been passed
-    ret = value
-    if not hasattr(ret, "__getitem__"):
-        ret = (value, value)
-    return ret
 
 
 def _tick_only(ax, bottom_on, left_on):
     bottom_off = not bottom_on
     left_off = not left_on
-    # [l.set_visible(bottom_off) for l in ax.get_xticklabels()]
-    # [l.set_visible(left_off) for l in ax.get_yticklabels()]
-    # ax.xaxis.label.set_visible(bottom_off)
-    # ax.yaxis.label.set_visible(left_off)
     ax.axis["bottom"].toggle(ticklabels=bottom_off, label=bottom_off)
     ax.axis["left"].toggle(ticklabels=left_off, label=left_off)
 
 
 class CbarAxesBase:
 
-    def colorbar(self, mappable, *, locator=None, **kwargs):
-
-        if locator is None:
-            if "ticks" not in kwargs:
-                kwargs["ticks"] = ticker.MaxNLocator(5)
-        if locator is not None:
-            if "ticks" in kwargs:
-                raise ValueError("Either *locator* or *ticks* need" +
-                                 " to be given, not both")
-            else:
-                kwargs["ticks"] = locator
+    @cbook._rename_parameter("3.2", "locator", "ticks")
+    def colorbar(self, mappable, *, ticks=None, **kwargs):
 
         if self.orientation in ["top", "bottom"]:
             orientation = "horizontal"
         else:
             orientation = "vertical"
 
-        cb = Colorbar(self, mappable, orientation=orientation, **kwargs)
+        if mpl.rcParams["mpl_toolkits.legacy_colorbar"]:
+            cbook.warn_deprecated(
+                "3.2", message="Since %(since)s, mpl_toolkits's own colorbar "
+                "implementation is deprecated; it will be removed "
+                "%(removal)s.  Set the 'mpl_toolkits.legacy_colorbar' rcParam "
+                "to False to use Matplotlib's default colorbar implementation "
+                "and suppress this deprecation warning.")
+            if ticks is None:
+                ticks = ticker.MaxNLocator(5)  # For backcompat.
+            from .colorbar import Colorbar
+        else:
+            from matplotlib.colorbar import Colorbar
+        cb = Colorbar(
+            self, mappable, orientation=orientation, ticks=ticks, **kwargs)
         self._config_axes()
 
         def on_changed(m):
@@ -58,7 +52,10 @@ class CbarAxesBase:
         self.cbid = mappable.callbacksSM.connect('changed', on_changed)
         mappable.colorbar = cb
 
-        self.locator = cb.cbar_axis.get_major_locator()
+        if mpl.rcParams["mpl_toolkits.legacy_colorbar"]:
+            self.locator = cb.cbar_axis.get_major_locator()
+        else:
+            self.locator = cb.locator
 
         return cb
 
@@ -66,37 +63,14 @@ class CbarAxesBase:
         """Make an axes patch and outline."""
         ax = self
         ax.set_navigate(False)
-
         ax.axis[:].toggle(all=False)
         b = self._default_label_on
         ax.axis[self.orientation].toggle(all=b)
-
-        # for axis in ax.axis.values():
-        #     axis.major_ticks.set_visible(False)
-        #     axis.minor_ticks.set_visible(False)
-        #     axis.major_ticklabels.set_visible(False)
-        #     axis.minor_ticklabels.set_visible(False)
-        #     axis.label.set_visible(False)
-
-        # axis = ax.axis[self.orientation]
-        # axis.major_ticks.set_visible(True)
-        # axis.minor_ticks.set_visible(True)
-
-        #axis.major_ticklabels.set_size(
-        #    int(axis.major_ticklabels.get_size()*.9))
-        #axis.major_tick_pad = 3
-
-        # axis.major_ticklabels.set_visible(b)
-        # axis.minor_ticklabels.set_visible(b)
-        # axis.label.set_visible(b)
 
     def toggle_label(self, b):
         self._default_label_on = b
         axis = self.axis[self.orientation]
         axis.toggle(ticklabels=b, label=b)
-        #axis.major_ticklabels.set_visible(b)
-        #axis.minor_ticklabels.set_visible(b)
-        #axis.label.set_visible(b)
 
 
 class CbarAxes(CbarAxesBase, Axes):
@@ -161,8 +135,7 @@ class Grid:
             - "1": Only the bottom left axes is labelled.
             - "all": all axes are labelled.
 
-        axes_class : a type that is a subclass of `matplotlib.axes.Axes`, \
-default: None
+        axes_class : subclass of `matplotlib.axes.Axes`, default: None
         """
         self._nrows, self._ncols = nrows_ncols
 
@@ -176,84 +149,37 @@ default: None
 
         self._init_axes_pad(axes_pad)
 
-        if direction not in ["column", "row"]:
-            raise Exception("")
-
+        cbook._check_in_list(["column", "row"], direction=direction)
         self._direction = direction
 
         if axes_class is None:
             axes_class = self._defaultAxesClass
-            axes_class_args = {}
-        else:
-            if (isinstance(axes_class, type)
-                    and issubclass(axes_class,
-                                   self._defaultAxesClass.Axes)):
-                axes_class_args = {}
-            else:
-                axes_class, axes_class_args = axes_class
 
-        self.axes_all = []
-        self.axes_column = [[] for _ in range(self._ncols)]
-        self.axes_row = [[] for _ in range(self._nrows)]
-
-        h = []
-        v = []
-        if isinstance(rect, (str, Number)):
-            self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
-                                           aspect=False)
-        elif isinstance(rect, SubplotSpec):
-            self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
-                                           aspect=False)
+        kw = dict(horizontal=[], vertical=[], aspect=False)
+        if isinstance(rect, (str, Number, SubplotSpec)):
+            self._divider = SubplotDivider(fig, rect, **kw)
         elif len(rect) == 3:
-            kw = dict(horizontal=h, vertical=v, aspect=False)
             self._divider = SubplotDivider(fig, *rect, **kw)
         elif len(rect) == 4:
-            self._divider = Divider(fig, rect, horizontal=h, vertical=v,
-                                    aspect=False)
+            self._divider = Divider(fig, rect, **kw)
         else:
             raise Exception("")
 
         rect = self._divider.get_position()
 
-        # reference axes
-        self._column_refax = [None for _ in range(self._ncols)]
-        self._row_refax = [None for _ in range(self._nrows)]
-        self._refax = None
-
+        axes_array = np.full((self._nrows, self._ncols), None, dtype=object)
         for i in range(self.ngrids):
-
             col, row = self._get_col_row(i)
-
             if share_all:
-                sharex = self._refax
-                sharey = self._refax
+                sharex = sharey = axes_array[0, 0]
             else:
-                if share_x:
-                    sharex = self._column_refax[col]
-                else:
-                    sharex = None
-
-                if share_y:
-                    sharey = self._row_refax[row]
-                else:
-                    sharey = None
-
-            ax = axes_class(fig, rect, sharex=sharex, sharey=sharey,
-                            **axes_class_args)
-
-            if share_all:
-                if self._refax is None:
-                    self._refax = ax
-            else:
-                if sharex is None:
-                    self._column_refax[col] = ax
-                if sharey is None:
-                    self._row_refax[row] = ax
-
-            self.axes_all.append(ax)
-            self.axes_column[col].append(ax)
-            self.axes_row[row].append(ax)
-
+                sharex = axes_array[0, col] if share_x else None
+                sharey = axes_array[row, 0] if share_y else None
+            axes_array[row, col] = axes_class(
+                fig, rect, sharex=sharex, sharey=sharey)
+        self.axes_all = axes_array.ravel().tolist()
+        self.axes_column = axes_array.T.tolist()
+        self.axes_row = axes_array.tolist()
         self.axes_llc = self.axes_column[0][-1]
 
         self._update_locators()
@@ -265,36 +191,26 @@ default: None
         self.set_label_mode(label_mode)
 
     def _init_axes_pad(self, axes_pad):
-        axes_pad = _extend_axes_pad(axes_pad)
-        self._axes_pad = axes_pad
-
+        axes_pad = np.broadcast_to(axes_pad, 2)
         self._horiz_pad_size = Size.Fixed(axes_pad[0])
         self._vert_pad_size = Size.Fixed(axes_pad[1])
 
     def _update_locators(self):
 
         h = []
-
         h_ax_pos = []
-
-        for _ in self._column_refax:
-            #if h: h.append(Size.Fixed(self._axes_pad))
+        for _ in range(self._ncols):
             if h:
                 h.append(self._horiz_pad_size)
-
             h_ax_pos.append(len(h))
-
             sz = Size.Scaled(1)
             h.append(sz)
 
         v = []
-
         v_ax_pos = []
-        for _ in self._row_refax[::-1]:
-            #if v: v.append(Size.Fixed(self._axes_pad))
+        for _ in range(self._nrows):
             if v:
                 v.append(self._vert_pad_size)
-
             v_ax_pos.append(len(v))
             sz = Size.Scaled(1)
             v.append(sz)
@@ -338,9 +254,8 @@ default: None
         axes_pad : (float, float)
             The padding (horizontal pad, vertical pad) in inches.
         """
-        self._axes_pad = axes_pad
-
-        # These two lines actually differ from ones in _init_axes_pad
+        # Differs from _init_axes_pad by 1) not broacasting, 2) modifying the
+        # Size.Fixed objects in-place.
         self._horiz_pad_size.fixed_size = axes_pad[0]
         self._vert_pad_size.fixed_size = axes_pad[1]
 
@@ -353,7 +268,8 @@ default: None
         hpad, vpad
             Padding (horizontal pad, vertical pad) in inches.
         """
-        return self._axes_pad
+        return (self._horiz_pad_size.fixed_size,
+                self._vert_pad_size.fixed_size)
 
     def set_aspect(self, aspect):
         """Set the aspect of the SubplotDivider."""
@@ -483,116 +399,70 @@ class ImageGrid(Grid):
         cbar_set_cax : bool, default: True
             If True, each axes in the grid has a *cax* attribute that is bound
             to associated *cbar_axes*.
-        axes_class : a type that is a subclass of `matplotlib.axes.Axes`, \
-default: None
+        axes_class : subclass of `matplotlib.axes.Axes`, default: None
         """
         self._nrows, self._ncols = nrows_ncols
 
         if ngrids is None:
             ngrids = self._nrows * self._ncols
         else:
-            if not 0 <= ngrids < self._nrows * self._ncols:
+            if not 0 < ngrids <= self._nrows * self._ncols:
                 raise Exception
 
         self.ngrids = ngrids
 
-        axes_pad = _extend_axes_pad(axes_pad)
-        self._axes_pad = axes_pad
+        self._init_axes_pad(axes_pad)
 
         self._colorbar_mode = cbar_mode
         self._colorbar_location = cbar_location
         if cbar_pad is None:
             # horizontal or vertical arrangement?
             if cbar_location in ("left", "right"):
-                self._colorbar_pad = axes_pad[0]
+                self._colorbar_pad = self._horiz_pad_size.fixed_size
             else:
-                self._colorbar_pad = axes_pad[1]
+                self._colorbar_pad = self._vert_pad_size.fixed_size
         else:
             self._colorbar_pad = cbar_pad
 
         self._colorbar_size = cbar_size
 
-        self._init_axes_pad(axes_pad)
-
-        if direction not in ["column", "row"]:
-            raise Exception("")
-
+        cbook._check_in_list(["column", "row"], direction=direction)
         self._direction = direction
 
         if axes_class is None:
             axes_class = self._defaultAxesClass
-            axes_class_args = {}
-        else:
-            if isinstance(axes_class, maxes.Axes):
-                axes_class_args = {}
-            else:
-                axes_class, axes_class_args = axes_class
 
-        self.axes_all = []
-        self.axes_column = [[] for _ in range(self._ncols)]
-        self.axes_row = [[] for _ in range(self._nrows)]
-
-        self.cbar_axes = []
-
-        h = []
-        v = []
-        if isinstance(rect, (str, Number)):
-            self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
-                                           aspect=aspect)
-        elif isinstance(rect, SubplotSpec):
-            self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
-                                           aspect=aspect)
+        kw = dict(horizontal=[], vertical=[], aspect=aspect)
+        if isinstance(rect, (str, Number, SubplotSpec)):
+            self._divider = SubplotDivider(fig, rect, **kw)
         elif len(rect) == 3:
-            kw = dict(horizontal=h, vertical=v, aspect=aspect)
             self._divider = SubplotDivider(fig, *rect, **kw)
         elif len(rect) == 4:
-            self._divider = Divider(fig, rect, horizontal=h, vertical=v,
-                                    aspect=aspect)
+            self._divider = Divider(fig, rect, **kw)
         else:
             raise Exception("")
 
         rect = self._divider.get_position()
 
-        # reference axes
-        self._column_refax = [None for _ in range(self._ncols)]
-        self._row_refax = [None for _ in range(self._nrows)]
-        self._refax = None
-
+        axes_array = np.full((self._nrows, self._ncols), None, dtype=object)
         for i in range(self.ngrids):
-
             col, row = self._get_col_row(i)
-
             if share_all:
-                if self.axes_all:
-                    sharex = self.axes_all[0]
-                    sharey = self.axes_all[0]
-                else:
-                    sharex = None
-                    sharey = None
+                sharex = sharey = axes_array[0, 0]
             else:
-                sharex = self._column_refax[col]
-                sharey = self._row_refax[row]
-
-            ax = axes_class(fig, rect, sharex=sharex, sharey=sharey,
-                            **axes_class_args)
-
-            self.axes_all.append(ax)
-            self.axes_column[col].append(ax)
-            self.axes_row[row].append(ax)
-
-            if share_all:
-                if self._refax is None:
-                    self._refax = ax
-            if sharex is None:
-                self._column_refax[col] = ax
-            if sharey is None:
-                self._row_refax[row] = ax
-
-            cax = self._defaultCbarAxesClass(fig, rect,
-                                        orientation=self._colorbar_location)
-            self.cbar_axes.append(cax)
-
+                sharex = axes_array[0, col]
+                sharey = axes_array[row, 0]
+            axes_array[row, col] = axes_class(
+                fig, rect, sharex=sharex, sharey=sharey)
+        self.axes_all = axes_array.ravel().tolist()
+        self.axes_column = axes_array.T.tolist()
+        self.axes_row = axes_array.tolist()
         self.axes_llc = self.axes_column[0][-1]
+
+        self.cbar_axes = [
+            self._defaultCbarAxesClass(fig, rect,
+                                       orientation=self._colorbar_location)
+            for _ in range(self.ngrids)]
 
         self._update_locators()
 
@@ -627,13 +497,11 @@ default: None
         if (self._colorbar_mode == "single" and
              self._colorbar_location in ('left', 'bottom')):
             if self._colorbar_location == "left":
-                #sz = Size.Fraction(Size.AxesX(self.axes_llc), self._nrows)
                 sz = Size.Fraction(self._nrows, Size.AxesX(self.axes_llc))
                 h.append(Size.from_any(self._colorbar_size, sz))
                 h.append(Size.from_any(self._colorbar_pad, sz))
                 locator = self._divider.new_locator(nx=0, ny=0, ny1=-1)
             elif self._colorbar_location == "bottom":
-                #sz = Size.Fraction(Size.AxesY(self.axes_llc), self._ncols)
                 sz = Size.Fraction(self._ncols, Size.AxesY(self.axes_llc))
                 v.append(Size.from_any(self._colorbar_size, sz))
                 v.append(Size.from_any(self._colorbar_pad, sz))
@@ -645,7 +513,7 @@ default: None
 
         for col, ax in enumerate(self.axes_row[0]):
             if h:
-                h.append(self._horiz_pad_size)  # Size.Fixed(self._axes_pad))
+                h.append(self._horiz_pad_size)
 
             if ax:
                 sz = Size.AxesX(ax, aspect="axes", ref_ax=self.axes_all[0])
@@ -676,7 +544,7 @@ default: None
         v_cb_pos = []
         for row, ax in enumerate(self.axes_column[0][::-1]):
             if v:
-                v.append(self._vert_pad_size)  # Size.Fixed(self._axes_pad))
+                v.append(self._vert_pad_size)
 
             if ax:
                 sz = Size.AxesY(ax, aspect="axes", ref_ax=self.axes_all[0])
@@ -704,8 +572,6 @@ default: None
 
         for i in range(self.ngrids):
             col, row = self._get_col_row(i)
-            #locator = self._divider.new_locator(nx=4*col,
-            #                                    ny=2*(self._nrows - row - 1))
             locator = self._divider.new_locator(nx=h_ax_pos[col],
                                                 ny=v_ax_pos[self._nrows-1-row])
             self.axes_all[i].set_axes_locator(locator)
@@ -736,13 +602,11 @@ default: None
 
         if self._colorbar_mode == "single":
             if self._colorbar_location == "right":
-                #sz = Size.Fraction(Size.AxesX(self.axes_llc), self._nrows)
                 sz = Size.Fraction(self._nrows, Size.AxesX(self.axes_llc))
                 h.append(Size.from_any(self._colorbar_pad, sz))
                 h.append(Size.from_any(self._colorbar_size, sz))
                 locator = self._divider.new_locator(nx=-2, ny=0, ny1=-1)
             elif self._colorbar_location == "top":
-                #sz = Size.Fraction(Size.AxesY(self.axes_llc), self._ncols)
                 sz = Size.Fraction(self._ncols, Size.AxesY(self.axes_llc))
                 v.append(Size.from_any(self._colorbar_pad, sz))
                 v.append(Size.from_any(self._colorbar_size, sz))

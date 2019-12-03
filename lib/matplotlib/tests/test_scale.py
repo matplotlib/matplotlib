@@ -7,7 +7,6 @@ from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import numpy as np
 from numpy.testing import assert_allclose
 import io
-import platform
 import pytest
 
 
@@ -106,10 +105,19 @@ def test_logscale_mask():
     ax.set(yscale="log")
 
 
-def test_extra_kwargs_raise():
+def test_extra_kwargs_raise_or_warn():
     fig, ax = plt.subplots()
-    with pytest.raises(ValueError):
+
+    # with pytest.raises(TypeError):
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ax.set_yscale('linear', nonpos='mask')
+
+    with pytest.raises(TypeError):
         ax.set_yscale('log', nonpos='mask')
+
+    # with pytest.raises(TypeError):
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ax.set_yscale('symlog', nonpos='mask')
 
 
 def test_logscale_invert_transform():

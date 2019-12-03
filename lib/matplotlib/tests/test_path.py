@@ -63,11 +63,11 @@ def test_nonlinear_containment():
     ax.set(xscale="log", ylim=(0, 1))
     polygon = ax.axvspan(1, 10)
     assert polygon.get_path().contains_point(
-        ax.transData.transform_point((5, .5)), ax.transData)
+        ax.transData.transform((5, .5)), ax.transData)
     assert not polygon.get_path().contains_point(
-        ax.transData.transform_point((.5, .5)), ax.transData)
+        ax.transData.transform((.5, .5)), ax.transData)
     assert not polygon.get_path().contains_point(
-        ax.transData.transform_point((50, .5)), ax.transData)
+        ax.transData.transform((50, .5)), ax.transData)
 
 
 @image_comparison(['arrow_contains_point.png'],
@@ -100,7 +100,7 @@ def test_arrow_contains_point():
     X, Y = np.meshgrid(np.arange(0, 2, 0.1),
                        np.arange(0, 2, 0.1))
     for k, (x, y) in enumerate(zip(X.ravel(), Y.ravel())):
-        xdisp, ydisp = ax.transData.transform_point([x, y])
+        xdisp, ydisp = ax.transData.transform([x, y])
         event = MouseEvent('button_press_event', fig.canvas, xdisp, ydisp)
         for m, patch in enumerate(patches_list):
             # set the points to red only if the arrow contains the point

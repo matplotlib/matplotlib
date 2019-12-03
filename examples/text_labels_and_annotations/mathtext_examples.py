@@ -56,7 +56,7 @@ mathext_demos = {
 
 
 def doall():
-    # Colors used in mpl online documentation.
+    # Colors used in Matplotlib online documentation.
     mpl_blue_rvb = (191. / 255., 209. / 256., 212. / 255.)
     mpl_orange_rvb = (202. / 255., 121. / 256., 0. / 255.)
     mpl_grey_rvb = (51. / 255., 51. / 255., 51. / 255.)

@@ -1,30 +1,10 @@
-import collections
 import numpy as np
-import numbers
 
-import warnings
-
+import matplotlib.cbook as cbook
 import matplotlib.docstring as docstring
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
-import matplotlib.scale as mscale
-import matplotlib.cbook as cbook
-
 from matplotlib.axes._base import _AxesBase
-
-from matplotlib.ticker import (
-    AutoLocator,
-    AutoMinorLocator,
-    FixedLocator,
-    FuncFormatter,
-    LogFormatterSciNotation,
-    LogLocator,
-    NullLocator,
-    NullFormatter,
-    ScalarFormatter
-)
-
-from matplotlib.scale import Log10Transform
 
 
 def _make_secondary_locator(rect, parent):
@@ -82,6 +62,7 @@ class SecondaryAxis(_AxesBase):
             self._axis = self.yaxis
             self._locstrings = ['right', 'left']
             self._otherstrings = ['top', 'bottom']
+        self._parentscale = self._axis.get_scale()
         # this gets positioned w/o constrained_layout so exclude:
         self._layoutbox = None
         self._poslayoutbox = None
@@ -115,10 +96,9 @@ class SecondaryAxis(_AxesBase):
 
         Parameters
         ----------
-        align :: string
+        align : str
             either 'top' or 'bottom' for orientation='x' or
-            'left' or 'right' for orientation='y' axis
-
+            'left' or 'right' for orientation='y' axis.
         """
         if align in self._locstrings:
             if align == self._locstrings[1]:
@@ -141,12 +121,12 @@ class SecondaryAxis(_AxesBase):
 
         Parameters
         ----------
-        location : string or scalar
+        location : {'top', 'bottom', 'left', 'right'} or float
             The position to put the secondary axis.  Strings can be 'top' or
             'bottom' for orientation='x' and 'right' or 'left' for
-            orientation='y', scalar can be a float indicating the relative
-            position on the parent axes to put the new axes, 0.0 being the
-            bottom (or left) and 1.0 being the top (or right).
+            orientation='y'. A float indicates the relative position on the
+            parent axes to put the new axes, 0.0 being the bottom (or left)
+            and 1.0 being the top (or right).
         """
 
         # This puts the rectangle into figure-relative coordinates.
@@ -177,9 +157,11 @@ class SecondaryAxis(_AxesBase):
         self.set_axes_locator(secondary_locator)
 
     def apply_aspect(self, position=None):
+        # docstring inherited.
         self._set_lims()
         super().apply_aspect(position)
 
+    @cbook._make_keyword_only("3.2", "minor")
     def set_ticks(self, ticks, minor=False):
         """
         Set the x ticks with list of *ticks*
@@ -188,10 +170,8 @@ class SecondaryAxis(_AxesBase):
         ----------
         ticks : list
             List of x-axis tick locations.
-
-        minor : bool, optional
+        minor : bool, optional, default: False
             If ``False`` sets major ticks, if ``True`` sets minor ticks.
-            Default is ``False``.
         """
         ret = self._axis.set_ticks(ticks, minor=minor)
         self.stale = True
@@ -214,7 +194,6 @@ class SecondaryAxis(_AxesBase):
 
             If a transform is supplied, then the transform must have an
             inverse.
-
         """
 
         if self._orientation == 'x':
@@ -243,7 +222,8 @@ class SecondaryAxis(_AxesBase):
                              'must be a two-tuple of callable functions '
                              'with the first function being the transform '
                              'and the second being the inverse')
-        set_scale(defscale, functions=self._functions)
+        # need to invert the roles here for the ticks to line up.
+        set_scale(defscale, functions=self._functions[::-1])
 
     def draw(self, renderer=None, inframe=False):
         """
@@ -253,9 +233,7 @@ class SecondaryAxis(_AxesBase):
         using the converter specified by
         `~.axes._secondary_axes.set_functions` (or *functions*
         parameter when axes initialized.)
-
         """
-
         self._set_lims()
         # this sets the scale in case the parent has set its scale.
         self._set_scale()
@@ -272,6 +250,11 @@ class SecondaryAxis(_AxesBase):
         if self._orientation == 'y':
             pscale = self._parent.yaxis.get_scale()
             set_scale = self.set_yscale
+        if pscale == self._parentscale:
+            return
+        else:
+            self._parentscale = pscale
+
         if pscale == 'log':
             defscale = 'functionlog'
         else:
@@ -280,17 +263,18 @@ class SecondaryAxis(_AxesBase):
         if self._ticks_set:
             ticks = self._axis.get_ticklocs()
 
-        set_scale(defscale, functions=self._functions)
+        # need to invert the roles here for the ticks to line up.
+        set_scale(defscale, functions=self._functions[::-1])
 
         # OK, set_scale sets the locators, but if we've called
         # axsecond.set_ticks, we want to keep those.
         if self._ticks_set:
-            self._axis.set_major_locator(FixedLocator(ticks))
+            self._axis.set_major_locator(mticker.FixedLocator(ticks))
 
     def _set_lims(self):
         """
         Set the limits based on parent limits and the convert method
-        between the parent and this secondary axes
+        between the parent and this secondary axes.
         """
         if self._orientation == 'x':
             lims = self._parent.get_xlim()
@@ -305,44 +289,6 @@ class SecondaryAxis(_AxesBase):
             # Flip because the transform will take care of the flipping.
             lims = lims[::-1]
         set_lim(lims)
-
-    def get_tightbbox(self, renderer, call_axes_locator=True):
-        """
-        Return the tight bounding box of the axes.
-        The dimension of the Bbox in canvas coordinate.
-
-        If *call_axes_locator* is *False*, it does not call the
-        _axes_locator attribute, which is necessary to get the correct
-        bounding box. ``call_axes_locator==False`` can be used if the
-        caller is only intereted in the relative size of the tightbbox
-        compared to the axes bbox.
-        """
-
-        bb = []
-
-        if not self.get_visible():
-            return None
-
-        self._set_lims()
-        locator = self.get_axes_locator()
-        if locator and call_axes_locator:
-            pos = locator(self, renderer)
-            self.apply_aspect(pos)
-        else:
-            self.apply_aspect()
-
-        if self._orientation == 'x':
-            bb_axis = self.xaxis.get_tightbbox(renderer)
-        else:
-            bb_axis = self.yaxis.get_tightbbox(renderer)
-        if bb_axis:
-            bb.append(bb_axis)
-
-        bb.append(self.get_window_extent(renderer))
-        _bbox = mtransforms.Bbox.union(
-            [b for b in bb if b.width != 0 or b.height != 0])
-
-        return _bbox
 
     def set_aspect(self, *args, **kwargs):
         """
@@ -403,12 +349,12 @@ class SecondaryAxis(_AxesBase):
 
     def set_color(self, color):
         """
-        Change the color of the secondary axes and all decorators
+        Change the color of the secondary axes and all decorators.
+
         Parameters
         ----------
-        color : Matplotlib color
+        color : color
         """
-
         if self._orientation == 'x':
             self.tick_params(axis='x', colors=color)
             self.spines['bottom'].set_color(color)
@@ -428,12 +374,12 @@ This method is experimental as of 3.1, and the API may change.
 
 Parameters
 ----------
-location : string or scalar
+location : {'top', 'bottom', 'left', 'right'} or float
     The position to put the secondary axis.  Strings can be 'top' or
-    'bottom', for x-oriented axises or 'left' or 'right' for y-oriented axises
-    or a scalar can be a float indicating the relative position
-    on the axes to put the new axes (0 being the bottom (left), and 1.0 being
-    the top (right).)
+    'bottom' for orientation='x' and 'right' or 'left' for
+    orientation='y'. A float indicates the relative position on the
+    parent axes to put the new axes, 0.0 being the bottom (or left)
+    and 1.0 being the top (or right).
 
 functions : 2-tuple of func, or Transform with an inverse
 

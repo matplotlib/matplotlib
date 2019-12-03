@@ -17,8 +17,7 @@ import logging
 
 import numpy as np
 
-import matplotlib.units as units
-import matplotlib.ticker as ticker
+from matplotlib import cbook, ticker, units
 
 
 _log = logging.getLogger(__name__)
@@ -33,7 +32,7 @@ class StrCategoryConverter(units.ConversionInterface):
 
         Parameters
         ----------
-        value : string or iterable
+        value : str or iterable
             Value or list of values to be converted.
         unit : `.UnitData`
             An object mapping strings to integers.
@@ -94,7 +93,7 @@ class StrCategoryConverter(units.ConversionInterface):
 
         Parameters
         ----------
-        data : string or iterable of strings
+        data : str or iterable of str
         axis : `~matplotlib.axis.Axis`
             axis on which the data is plotted
 
@@ -180,7 +179,8 @@ class UnitData:
         except ValueError:
             try:
                 dateutil.parser.parse(val)
-            except ValueError:
+            except (ValueError, TypeError):
+                # TypeError if dateutil >= 2.8.1 else ValueError
                 return False
         return True
 
@@ -204,8 +204,7 @@ class UnitData:
         convertible = True
         for val in OrderedDict.fromkeys(data):
             # OrderedDict just iterates over unique values in data.
-            if not isinstance(val, (str, bytes)):
-                raise TypeError("{val!r} is not a string".format(val=val))
+            cbook._check_isinstance((str, bytes), value=val)
             if convertible:
                 # this will only be called so long as convertible is True.
                 convertible = self._str_is_convertible(val)

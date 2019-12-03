@@ -115,6 +115,7 @@ Matplotlib consists of the following submodules:
    rcsetup_api.rst
    sankey_api.rst
    scale_api.rst
+   sphinxext_plot_directive_api.rst
    spines_api.rst
    style_api.rst
    table_api.rst

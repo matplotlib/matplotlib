@@ -298,7 +298,7 @@ class FormWidget(QtWidgets.QWidget):
                     field.setCheckState(QtCore.Qt.Unchecked)
             elif isinstance(value, Integral):
                 field = QtWidgets.QSpinBox(self)
-                field.setRange(-1e9, 1e9)
+                field.setRange(-10**9, 10**9)
                 field.setValue(value)
             elif isinstance(value, Real):
                 field = QtWidgets.QLineEdit(repr(value), self)
@@ -491,8 +491,8 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
     (if Cancel button is pressed, return None)
 
     data: datalist, datagroup
-    title: string
-    comment: string
+    title: str
+    comment: str
     icon: QIcon instance
     parent: parent QWidget
     apply: apply callback (function)

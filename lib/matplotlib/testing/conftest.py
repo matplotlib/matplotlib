@@ -5,6 +5,21 @@ from matplotlib import cbook
 
 
 def pytest_configure(config):
+    # config is initialized here rather than in pytest.ini so that `pytest
+    # --pyargs matplotlib` (which would not find pytest.ini) works.  The only
+    # entries in pytest.ini set minversion (which is checked earlier) and
+    # testpaths/python_files, as they are required to properly find the tests.
+    for key, value in [
+        ("markers", "flaky: (Provided by pytest-rerunfailures.)"),
+        ("markers", "timeout: (Provided by pytest-timeout.)"),
+        ("markers", "backend: Set alternate Matplotlib backend temporarily."),
+        ("markers", "style: Set alternate Matplotlib style temporarily."),
+        ("markers", "baseline_images: Compare output against references."),
+        ("markers", "pytz: Tests that require pytz to be installed."),
+        ("filterwarnings", "error"),
+    ]:
+        config.addinivalue_line(key, value)
+
     matplotlib.use('agg', force=True)
     matplotlib._called_from_pytest = True
     matplotlib._init_tests()
@@ -26,9 +41,12 @@ def mpl_test_settings(request):
             assert len(backend_marker.args) == 1, \
                 "Marker 'backend' must specify 1 backend."
             backend, = backend_marker.args
+            skip_on_importerror = backend_marker.kwargs.get(
+                'skip_on_importerror', False)
             prev_backend = matplotlib.get_backend()
 
-        style = '_classic_test'  # Default of cleanup and image_comparison too.
+        # Default of cleanup and image_comparison too.
+        style = ["classic", "_classic_test_patch"]
         style_marker = request.node.get_closest_marker('style')
         if style_marker is not None:
             assert len(style_marker.args) == 1, \
@@ -45,7 +63,7 @@ def mpl_test_settings(request):
             except ImportError as exc:
                 # Should only occur for the cairo backend tests, if neither
                 # pycairo nor cairocffi are installed.
-                if 'cairo' in backend.lower():
+                if 'cairo' in backend.lower() or skip_on_importerror:
                     pytest.skip("Failed to switch to backend {} ({})."
                                 .format(backend, exc))
                 else:

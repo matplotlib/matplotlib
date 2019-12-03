@@ -1,8 +1,7 @@
-
 .. _howto-faq:
 
 ******
-How-To
+How-to
 ******
 
 .. contents::
@@ -11,8 +10,8 @@ How-To
 
 .. _howto-plotting:
 
-Plotting: howto
-===============
+How-to: Plotting
+================
 
 .. _howto-datetime64:
 
@@ -28,7 +27,7 @@ converter with the `matplotlib.units` module::
   from pandas.tseries import converter as pdtc
   pdtc.register()
 
-If you only want to use the `pandas` converter for `datetime64` values ::
+If you only want to use the `pandas` converter for `numpy.datetime64` values ::
 
   from pandas.tseries import converter as pdtc
   import matplotlib.units as munits
@@ -37,6 +36,36 @@ If you only want to use the `pandas` converter for `datetime64` values ::
   munits.registry[np.datetime64] = pdtc.DatetimeConverter()
 
 
+
+.. _howto-figure-empty:
+
+Check whether a figure is empty
+-------------------------------
+Empty can actually mean different things. Does the figure contain any artists?
+Does a figure with an empty `~.axes.Axes` still count as empty? Is the figure
+empty if it was rendered pure white (there may be artists present, but they
+could be outside the drawing area or transparent)?
+
+For the purpose here, we define empty as: "The figure does not contain any
+artists except it's background patch." The exception for the background is
+necessary, because by default every figure contains a `.Rectangle` as it's
+background patch. This definition could be checked via::
+
+    def is_empty(figure):
+        """
+        Return whether the figure contains no Artists (other than the default
+        background patch).
+        """
+        contained_artists = figure.get_children()
+        return len(contained_artists) <= 1
+
+We've decided not to include this as a figure method because this is only one
+way of defining empty, and checking the above is only rarely necessary.
+Usually the user or program handling the figure know if they have added
+something to the figure.
+
+Checking whether a figure would render empty cannot be reliably checked except
+by actually rendering the figure and investigating the rendered result.
 
 .. _howto-findobj:
 
@@ -49,7 +78,7 @@ recursively search the artist for any artists it may contain that meet
 some criteria (e.g., match all :class:`~matplotlib.lines.Line2D`
 instances or match some arbitrary filter function).  For example, the
 following snippet finds every object in the figure which has a
-`set_color` property and makes the object blue::
+``set_color`` property and makes the object blue::
 
     def myfunc(x):
         return hasattr(x, 'set_color')
@@ -74,7 +103,7 @@ off on a per-axis basis::
 
    ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
-set the rcParam ``axes.formatter.useoffset``, or use a different
+set :rc:`axes.formatter.useoffset`, or use a different
 formatter.  See :mod:`~matplotlib.ticker` for details.
 
 .. _howto-transparent:
@@ -190,7 +219,8 @@ specify the location explicitly::
     ax = fig.add_axes([left, bottom, width, height])
 
 where all values are in fractional (0 to 1) coordinates.  See
-:doc:`/gallery/subplots_axes_and_figures/axes_demo` for an example of placing axes manually.
+:doc:`/gallery/subplots_axes_and_figures/axes_demo` for an example of
+placing axes manually.
 
 .. _howto-auto-adjust:
 
@@ -199,8 +229,11 @@ Automatically make room for tick labels
 
 .. note::
    This is now easier to handle than ever before.
-   Calling :func:`~matplotlib.pyplot.tight_layout` can fix many common
-   layout issues. See the :doc:`/tutorials/intermediate/tight_layout_guide`.
+   Calling :func:`~matplotlib.pyplot.tight_layout` or alternatively using
+   ``constrained_layout=True`` argument in :func:`~matplotlib.pyplot.subplots`
+   can fix many common layout issues.  See the
+   :doc:`/tutorials/intermediate/tight_layout_guide` and
+   :doc:`/tutorials/intermediate/constrainedlayout_guide` for more details.
 
    The information below is kept here in case it is useful for other
    purposes.
@@ -243,8 +276,8 @@ over so that the tick labels fit in the figure:
 Configure the tick widths
 -------------------------
 
-Wherever possible, it is recommended to use the :meth:`~Axes.tick_params` or
-:meth:`~Axis.set_tick_params` methods to modify tick properties::
+Wherever possible, it is recommended to use the :meth:`~.axes.Axes.tick_params`
+or :meth:`~.axis.Axis.set_tick_params` methods to modify tick properties::
 
     import matplotlib.pyplot as plt
 
@@ -452,38 +485,25 @@ interface window, you do not need to call ``show`` (see :ref:`howto-batch`
 and :ref:`what-is-a-backend`).
 
 .. note::
-   Because closing a figure window invokes the destruction of its plotting
-   elements, you should call :func:`~matplotlib.pyplot.savefig` *before*
-   calling ``show`` if you wish to save the figure as well as view it.
+   Because closing a figure window unregisters it from pyplot, you must call
+   `~matplotlib.pyplot.savefig` *before* calling ``show`` if you wish to save
+   the figure as well as view it.
 
-.. versionadded:: v1.0.0
-   ``show`` now starts the GUI mainloop only if it isn't already running.
-   Therefore, multiple calls to ``show`` are now allowed.
-
-Having ``show`` block further execution of the script or the python
-interpreter depends on whether Matplotlib is set for interactive mode
-or not.  In non-interactive mode (the default setting), execution is paused
+Whether ``show`` blocks further execution of the script or the python
+interpreter depends on whether Matplotlib is set to use interactive mode.
+In non-interactive mode (the default setting), execution is paused
 until the last figure window is closed.  In interactive mode, the execution
 is not paused, which allows you to create additional figures (but the script
 won't finish until the last figure window is closed).
 
-.. note::
-   Support for interactive/non-interactive mode depends upon the backend.
-   Until version 1.0.0 (and subsequent fixes for 1.0.1), the behavior of
-   the interactive mode was not consistent across backends.
-   As of v1.0.1, only the macosx backend differs from other backends
-   because it does not support non-interactive mode.
-
-
 Because it is expensive to draw, you typically will not want Matplotlib
 to redraw a figure many times in a script such as the following::
 
-    plot([1,2,3])            # draw here ?
-    xlabel('time')           # and here ?
-    ylabel('volts')          # and here ?
-    title('a simple plot')   # and here ?
+    plot([1, 2, 3])          # draw here?
+    xlabel('time')           # and here?
+    ylabel('volts')          # and here?
+    title('a simple plot')   # and here?
     show()
-
 
 However, it is *possible* to force Matplotlib to draw after every command,
 which might be what you want when working interactively at the
@@ -501,38 +521,29 @@ you're all done issuing commands and you want to draw the figure now.
     If you want to force a figure draw, use
     :func:`~matplotlib.pyplot.draw` instead.
 
-Many users are frustrated by ``show`` because they want it to be a
-blocking call that raises the figure, pauses the script until they
-close the figure, and then allow the script to continue running until
-the next figure is created and the next show is made.  Something like
-this::
-
-   # WARNING : illustrating how NOT to use show
-   for i in range(10):
-       # make figure i
-       show()
-
-This is not what show does and unfortunately, because doing blocking
-calls across user interfaces can be tricky, is currently unsupported,
-though we have made significant progress towards supporting blocking events.
-
 .. versionadded:: v1.0.0
-   As noted earlier, this restriction has been relaxed to allow multiple
-   calls to ``show``.  In *most* backends, you can now expect to be
-   able to create new figures and raise them in a subsequent call to
-   ``show`` after closing the figures from a previous call to ``show``.
+   Matplotlib 1.0.0 and 1.0.1 added support for calling ``show`` multiple times
+   per script, and harmonized the behavior of interactive mode, across most
+   backends.
 
 .. _howto-boxplot_violinplot:
 
 Interpreting box plots and violin plots
 ---------------------------------------
 
-Tukey's `box plots <http://matplotlib.org/examples/pylab_examples/boxplot_demo.html>`_ (Robert McGill, John W. Tukey and Wayne A. Larsen: "The American Statistician" Vol. 32, No. 1, Feb., 1978, pp. 12-16) are statistical plots that provide useful information about the data distribution such as skewness. However, bar plots with error bars are still the common standard in most scientific literature, and thus, the interpretation of box plots can be challenging for the unfamiliar reader. The figure below illustrates the different visual features of a box plot.
+Tukey's :doc:`box plots </gallery/statistics/boxplot_demo>` (Robert McGill,
+John W. Tukey and Wayne A. Larsen: "The American Statistician" Vol. 32, No. 1,
+Feb., 1978, pp. 12-16) are statistical plots that provide useful information
+about the data distribution such as skewness. However, bar plots with error
+bars are still the common standard in most scientific literature, and thus, the
+interpretation of box plots can be challenging for the unfamiliar reader. The
+figure below illustrates the different visual features of a box plot.
 
 .. figure:: ../_static/boxplot_explanation.png
 
-`Violin plots <http://matplotlib.org/examples/statistics/violinplot_demo.html>`_ are closely related to box plots but add useful information such as the distribution of the sample data (density trace).
-Violin plots were added in Matplotlib 1.4.
+:doc:`Violin plots </gallery/statistics/violinplot>` are closely related to box
+plots but add useful information such as the distribution of the sample data
+(density trace).  Violin plots were added in Matplotlib 1.4.
 
 .. _how-to-threads:
 
@@ -544,13 +555,14 @@ that affect certain artists.  Hence, if you work with threads, it is your
 responsibility to set up the proper locks to serialize access to Matplotlib
 artists.
 
-Note that (for the case where you are working with an interactive backend) most
-GUI backends *require* being run from the main thread as well.
+You may be able to work on separate figures from separate threads.  However,
+you must in that case use a *non-interactive backend* (typically Agg), because
+most GUI backends *require* being run from the main thread as well.
 
 .. _howto-contribute:
 
-Contributing: howto
-===================
+How-to: Contributing
+====================
 
 .. _how-to-request-feature:
 
@@ -596,7 +608,7 @@ Contribute to Matplotlib documentation
 Matplotlib is a big library, which is used in many ways, and the
 documentation has only scratched the surface of everything it can
 do.  So far, the place most people have learned all these features are
-through studying the examples (:ref:`how-to-search-examples`), which is a
+through studying the :ref:`examples-index`, which is a
 recommended and great way to learn, but it would be nice to have more
 official narrative documentation guiding people through all the dark
 corners.  This is where you come in.
@@ -637,14 +649,14 @@ or look at the open issues on github.
 
 .. _howto-webapp:
 
-Matplotlib in a web application server
-======================================
+How to use Matplotlib in a web application server
+=================================================
 
 In general, the simplest solution when using Matplotlib in a web server is
 to completely avoid using pyplot (pyplot maintains references to the opened
 figures to make `~.matplotlib.pyplot.show` work, but this will cause memory
 leaks unless the figures are properly closed).  Since Matplotlib 3.1, one
-can directly create figures using the `Figure` constructor and save them to
+can directly create figures using the `.Figure` constructor and save them to
 in-memory buffers.  The following example uses Flask_, but other frameworks
 work similarly::
 
@@ -686,20 +698,3 @@ has written a nice `article
 on how to make html click maps with Matplotlib agg PNGs.  We would
 also like to add this functionality to SVG.  If you are interested in
 contributing to these efforts that would be great.
-
-
-.. _how-to-search-examples:
-
-Search examples
-===============
-
-The nearly 300 code :ref:`examples-index` included with the Matplotlib
-source distribution are full-text searchable from the :ref:`search`
-page, but sometimes when you search, you get a lot of results from the
-:ref:`api-index` or other documentation that you may not be interested
-in if you just want to find a complete, free-standing, working piece
-of example code.  To facilitate example searches, we have tagged every
-code example page with the keyword ``codex`` for *code example* which
-shouldn't appear anywhere else on this site except in the FAQ.
-So if you want to search for an example that uses an
-ellipse, :ref:`search` for ``codex ellipse``.

@@ -1,13 +1,11 @@
 """
-=============
-Fancybox Demo
-=============
+===================
+Drawing fancy boxes
+===================
 
-Plotting fancy boxes with Matplotlib.
-
-The following examples show how to plot boxes with different
-visual properties.
+The following examples show how to plot boxes with different visual properties.
 """
+
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatch
@@ -25,10 +23,9 @@ fontsize = 0.3 * 72
 
 for i, stylename in enumerate(sorted(styles)):
     fig.text(0.5, (spacing * (len(styles) - i) - 0.5) / figheight, stylename,
-              ha="center",
-              size=fontsize,
-              transform=fig.transFigure,
-              bbox=dict(boxstyle=stylename, fc="w", ec="k"))
+             ha="center",
+             size=fontsize,
+             bbox=dict(boxstyle=stylename, fc="w", ec="k"))
 
 plt.show()
 
@@ -210,3 +207,5 @@ matplotlib.patches.FancyBboxPatch
 matplotlib.patches.BoxStyle
 matplotlib.patches.BoxStyle.get_styles
 matplotlib.transforms.Bbox
+matplotlib.figure.Figure.text
+matplotlib.axes.Axes.text

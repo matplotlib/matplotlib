@@ -81,8 +81,6 @@ class TransformNode:
 
     def __init__(self, shorthand_name=None):
         """
-        Creates a new :class:`TransformNode`.
-
         Parameters
         ----------
         shorthand_name : str
@@ -278,6 +276,7 @@ class BboxBase(TransformNode):
     def __array__(self, *args, **kwargs):
         return self.get_points()
 
+    @cbook.deprecated("3.2")
     def is_unit(self):
         """Return whether this is the unit box (from (0, 0) to (1, 1))."""
         return self.get_points().tolist() == [[0., 0.], [1., 1.]]
@@ -448,7 +447,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        other : BboxBase
+        other : `.BboxBase`
         """
         ax1, ay1, ax2, ay2 = self.extents
         bx1, by1, bx2, by2 = other.extents
@@ -489,7 +488,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        other : BboxBase
+        other : `.BboxBase`
         """
         ax1, ay1, ax2, ay2 = self.extents
         bx1, by1, bx2, by2 = other.extents
@@ -643,7 +642,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        bboxes : sequence of :class:`BboxBase` objects
+        bboxes : sequence of `.BboxBase`
         """
         return count_bboxes_overlapping_bbox(
             self, np.atleast_3d([np.array(x) for x in bboxes]))
@@ -696,10 +695,13 @@ class BboxBase(TransformNode):
         """Return a `Bbox` that contains all of the given *bboxes*."""
         if not len(bboxes):
             raise ValueError("'bboxes' cannot be empty")
-        x0 = np.min([bbox.xmin for bbox in bboxes])
-        x1 = np.max([bbox.xmax for bbox in bboxes])
-        y0 = np.min([bbox.ymin for bbox in bboxes])
-        y1 = np.max([bbox.ymax for bbox in bboxes])
+        # needed for 1.14.4 < numpy_version < 1.15
+        # can remove once we are at numpy >= 1.15
+        with np.errstate(invalid='ignore'):
+            x0 = np.min([bbox.xmin for bbox in bboxes])
+            x1 = np.max([bbox.xmax for bbox in bboxes])
+            y0 = np.min([bbox.ymin for bbox in bboxes])
+            y1 = np.max([bbox.ymax for bbox in bboxes])
         return Bbox([[x0, y0], [x1, y1]])
 
     @staticmethod
@@ -759,12 +761,12 @@ class Bbox(BboxBase):
     @staticmethod
     def unit():
         """Create a new unit `Bbox` from (0, 0) to (1, 1)."""
-        return Bbox(np.array([[0.0, 0.0], [1.0, 1.0]], float))
+        return Bbox([[0, 0], [1, 1]])
 
     @staticmethod
     def null():
         """Create a new null `Bbox` from (inf, inf) to (-inf, -inf)."""
-        return Bbox(np.array([[np.inf, np.inf], [-np.inf, -np.inf]], float))
+        return Bbox([[np.inf, np.inf], [-np.inf, -np.inf]])
 
     @staticmethod
     def from_bounds(x0, y0, width, height):
@@ -782,8 +784,7 @@ class Bbox(BboxBase):
 
         The *y*-axis increases upwards.
         """
-        points = np.array(args, dtype=float).reshape(2, 2)
-        return Bbox(points)
+        return Bbox(np.reshape(args, (2, 2)))
 
     def __format__(self, fmt):
         return (
@@ -989,9 +990,7 @@ class TransformedBbox(BboxBase):
         """
         if not bbox.is_bbox:
             raise ValueError("'bbox' is not a bbox")
-        if not isinstance(transform, Transform):
-            raise ValueError("'transform' must be an instance of "
-                             "'matplotlib.transform.Transform'")
+        cbook._check_isinstance(Transform, transform=transform)
         if transform.input_dims != 2 or transform.output_dims != 2:
             raise ValueError(
                 "The input and output dimensions of 'transform' must be 2")
@@ -1189,19 +1188,25 @@ class Transform(TransformNode):
     Subclasses of this class should override the following members (at
     minimum):
 
-      - :attr:`input_dims`
-      - :attr:`output_dims`
-      - :meth:`transform`
-      - :attr:`is_separable`
-      - :attr:`has_inverse`
-      - :meth:`inverted` (if :attr:`has_inverse` is True)
+    - :attr:`input_dims`
+    - :attr:`output_dims`
+    - :meth:`transform`
+    - :meth:`inverted` (if an inverse exists)
+
+    The following attributes may be overridden if the default is unsuitable:
+
+    - :attr:`is_separable` (defaults to True for 1d -> 1d transforms, False
+      otherwise)
+    - :attr:`has_inverse` (defaults to True if :meth:`inverted` is overridden,
+      False otherwise)
 
     If the transform needs to do something non-standard with
     :class:`matplotlib.path.Path` objects, such as adding curves
     where there were once line segments, it should override:
 
-      - :meth:`transform_path`
+    - :meth:`transform_path`
     """
+
     input_dims = None
     """
     The number of input dimensions of this transform.
@@ -1214,11 +1219,27 @@ class Transform(TransformNode):
     Must be overridden (with integers) in the subclass.
     """
 
+    is_separable = False
+    """True if this transform is separable in the x- and y- dimensions."""
+
     has_inverse = False
     """True if this transform has a corresponding inverse transform."""
 
-    is_separable = False
-    """True if this transform is separable in the x- and y- dimensions."""
+    def __init_subclass__(cls):
+        # 1d transforms are always separable; we assume higher-dimensional ones
+        # are not but subclasses can also directly set is_separable -- this is
+        # verified by checking whether "is_separable" appears more than once in
+        # the class's MRO (it appears once in Transform).
+        if (sum("is_separable" in vars(parent) for parent in cls.__mro__) == 1
+                and cls.input_dims == cls.output_dims == 1):
+            cls.is_separable = True
+        # Transform.inverted raises NotImplementedError; we assume that if this
+        # is overridden then the transform is invertible but subclass can also
+        # directly set has_inverse.
+        if (sum("has_inverse" in vars(parent) for parent in cls.__mro__) == 1
+                and hasattr(cls, "inverted")
+                and cls.inverted is not Transform.inverted):
+            cls.has_inverse = True
 
     def __add__(self, other):
         """
@@ -1404,11 +1425,17 @@ class Transform(TransformNode):
         affine transformations, this is equivalent to
         ``transform(values)``.
 
-        Accepts a numpy array of shape (N x :attr:`input_dims`) and
-        returns a numpy array of shape (N x :attr:`output_dims`).
+        Parameters
+        ----------
+        values : array
+            The input values as NumPy array of length :attr:`input_dims` or
+            shape (N x :attr:`input_dims`).
 
-        Alternatively, accepts a numpy array of length :attr:`input_dims`
-        and returns a numpy array of length :attr:`output_dims`.
+        Returns
+        -------
+        values : array
+            The output values as NumPy array of length :attr:`input_dims` or
+            shape (N x :attr:`output_dims`), depending on the input.
         """
         return self.get_affine().transform(values)
 
@@ -1423,11 +1450,17 @@ class Transform(TransformNode):
         ``transform(values)``.  In affine transformations, this is
         always a no-op.
 
-        Accepts a numpy array of shape (N x :attr:`input_dims`) and
-        returns a numpy array of shape (N x :attr:`output_dims`).
+        Parameters
+        ----------
+        values : array
+            The input values as NumPy array of length :attr:`input_dims` or
+            shape (N x :attr:`input_dims`).
 
-        Alternatively, accepts a numpy array of length :attr:`input_dims`
-        and returns a numpy array of length :attr:`output_dims`.
+        Returns
+        -------
+        values : array
+            The output values as NumPy array of length :attr:`input_dims` or
+            shape (N x :attr:`output_dims`), depending on the input.
         """
         return values
 
@@ -1456,8 +1489,11 @@ class Transform(TransformNode):
 
     def transform_point(self, point):
         """
-        A convenience function that returns the transformed copy of a
-        single point.
+        Return a transformed point.
+
+        This function is only kept for backcompatibility; the more general
+        `.transform` method is capable of transforming both a list of points
+        and a single point.
 
         The point is given as a sequence of length :attr:`input_dims`.
         The transformed point is returned as a sequence of length
@@ -1465,7 +1501,7 @@ class Transform(TransformNode):
         """
         if len(point) != self.input_dims:
             raise ValueError("The length of 'point' must be 'self.input_dims'")
-        return self.transform(np.asarray([point]))[0]
+        return self.transform(point)
 
     def transform_path(self, path):
         """
@@ -1535,7 +1571,7 @@ class Transform(TransformNode):
             raise ValueError("'angles' must be a column vector and have same "
                              "number of rows as 'pts'")
         if pts.shape[1] != 2:
-            raise ValueError("'pts' must be array with 2 columns for x,y")
+            raise ValueError("'pts' must be array with 2 columns for x, y")
         # Convert to radians if desired
         if not radians:
             angles = np.deg2rad(angles)
@@ -1556,11 +1592,11 @@ class Transform(TransformNode):
         """
         Return the corresponding inverse transformation.
 
+        It holds ``x == self.inverted().transform(self.transform(x))``.
+
         The return value of this method should be treated as
         temporary.  An update to *self* does not cause a corresponding
         update to its inverted copy.
-
-        ``x === self.inverted().transform(self.transform(x))``
         """
         raise NotImplementedError()
 
@@ -1586,9 +1622,7 @@ class TransformWrapper(Transform):
         *child*: A class:`Transform` instance.  This child may later
         be replaced with :meth:`set`.
         """
-        if not isinstance(child, Transform):
-            raise ValueError("'child' must be an instance of "
-                             "'matplotlib.transform.Transform'")
+        cbook._check_isinstance(Transform, child=child)
         self._init(child)
         self.set_children(child)
 
@@ -1666,7 +1700,7 @@ class AffineBase(Transform):
         self._inverted = None
 
     def __array__(self, *args, **kwargs):
-        # optimises the access of the transform matrix vs the superclass
+        # optimises the access of the transform matrix vs. the superclass
         return self.get_matrix()
 
     def __eq__(self, other):
@@ -1721,8 +1755,6 @@ class Affine2DBase(AffineBase):
     Subclasses of this class will generally only need to override a
     constructor and :meth:`get_matrix` that generates a custom 3x3 matrix.
     """
-    has_inverse = True
-
     input_dims = 2
     output_dims = 2
 
@@ -1743,6 +1775,8 @@ class Affine2DBase(AffineBase):
         return tuple(mtx[:2].swapaxes(0, 1).flat)
 
     @staticmethod
+    @cbook.deprecated(
+        "3.2", alternative="Affine2D.from_values(...).get_matrix()")
     def matrix_from_values(a, b, c, d, e, f):
         """
         Create a new transformation matrix as a 3x3 numpy array of the form::
@@ -1759,11 +1793,6 @@ class Affine2DBase(AffineBase):
             tpoints = affine_transform(points.data, mtx)
             return np.ma.MaskedArray(tpoints, mask=np.ma.getmask(points))
         return affine_transform(points, mtx)
-
-    def transform_point(self, point):
-        # docstring inherited
-        mtx = self.get_matrix()
-        return affine_transform([point], mtx)[0]
 
     if DEBUG:
         _transform_affine = transform_affine
@@ -1843,7 +1872,9 @@ class Affine2D(Affine2DBase):
 
         .
         """
-        self._invalid = 0
+        if self._invalid:
+            self._inverted = None
+            self._invalid = 0
         return self._mtx
 
     def set_matrix(self, mtx):
@@ -1864,9 +1895,7 @@ class Affine2D(Affine2DBase):
         Set this transformation from the frozen copy of another
         :class:`Affine2DBase` object.
         """
-        if not isinstance(other, Affine2DBase):
-            raise ValueError("'other' must be an instance of "
-                             "'matplotlib.transform.Affine2DBase'")
+        cbook._check_isinstance(Affine2DBase, other=other)
         self._mtx = other.get_matrix()
         self.invalidate()
 
@@ -2626,11 +2655,9 @@ class ScaledTranslation(Affine2DBase):
     def get_matrix(self):
         # docstring inherited
         if self._invalid:
-            xt, yt = self._scale_trans.transform_point(self._t)
-            self._mtx = np.array([[1.0, 0.0, xt],
-                                  [0.0, 1.0, yt],
-                                  [0.0, 0.0, 1.0]],
-                                 float)
+            # A bit faster than np.identity(3).
+            self._mtx = IdentityTransform._mtx.copy()
+            self._mtx[:2, 2] = self._scale_trans.transform(self._t)
             self._invalid = 0
             self._inverted = None
         return self._mtx
@@ -2655,11 +2682,8 @@ class TransformedPath(TransformNode):
         path : `~.path.Path`
         transform : `Transform`
         """
-        if not isinstance(transform, Transform):
-            raise ValueError("'transform' must be an instance of "
-                             "'matplotlib.transform.Transform'")
+        cbook._check_isinstance(Transform, transform=transform)
         TransformNode.__init__(self)
-
         self._path = path
         self._transform = transform
         self.set_children(transform)
@@ -2883,7 +2907,7 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     fig : :class:`~matplotlib.figure.Figure`, optional, default: None
         Current figure. It can be None if *units* are 'dots'.
     x, y : float, optional, default: 0.0
-        Specifies the offset to apply.
+        The offset to apply.
     units : {'inches', 'points', 'dots'}, optional
         Units of the offset.
 
@@ -2899,6 +2923,8 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     if units == 'points':
         x /= 72.0
         y /= 72.0
-    elif not units == 'inches':
-        raise ValueError('units must be dots, points, or inches')
+    elif units == 'inches':
+        pass
+    else:
+        cbook._check_in_list(['dots', 'points', 'inches'], units=units)
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)

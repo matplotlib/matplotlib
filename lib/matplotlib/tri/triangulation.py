@@ -11,11 +11,11 @@ class Triangulation:
     ----------
     x, y : array-like of shape (npoints)
         Coordinates of grid points.
-    triangles : integer array_like of shape (ntri, 3), optional
+    triangles : int array-like of shape (ntri, 3), optional
         For each triangle, the indices of the three points that make
         up the triangle, ordered in an anticlockwise manner.  If not
         specified, the Delaunay triangulation is calculated.
-    mask : boolean array-like of shape (ntri), optional
+    mask : bool array-like of shape (ntri), optional
         Which triangles are masked out.
 
     Attributes
@@ -28,7 +28,7 @@ class Triangulation:
         Masked out triangles.
     is_delaunay : bool
         Whether the Triangulation is a calculated Delaunay
-        triangulation (where `triangles` was not specified) or not.
+        triangulation (where *triangles* was not specified) or not.
 
     Notes
     -----
@@ -134,12 +134,9 @@ class Triangulation:
         the possible args and kwargs.
         """
         if isinstance(args[0], Triangulation):
-            triangulation = args[0]
-            args = args[1:]
+            triangulation, *args = args
         else:
-            x = args[0]
-            y = args[1]
-            args = args[2:]  # Consumed first two args.
+            x, y, *args = args
 
             # Check triangles in kwargs then args.
             triangles = kwargs.pop('triangles', None)
@@ -182,14 +179,13 @@ class Triangulation:
     @property
     def neighbors(self):
         """
-        Return integer array of shape (ntri, 3) containing neighbor
-        triangles.
+        Return integer array of shape (ntri, 3) containing neighbor triangles.
 
         For each triangle, the indices of the three triangles that
         share the same edges, or -1 if there is no such neighboring
-        triangle.  neighbors[i,j] is the triangle that is the neighbor
-        to the edge from point index triangles[i,j] to point index
-        triangles[i,(j+1)%3].
+        triangle.  ``neighbors[i, j]`` is the triangle that is the neighbor
+        to the edge from point index ``triangles[i,j]`` to point index
+        ``triangles[i,(j+1)%3]``.
         """
         if self._neighbors is None:
             self._neighbors = self.get_cpp_triangulation().get_neighbors()
@@ -197,8 +193,11 @@ class Triangulation:
 
     def set_mask(self, mask):
         """
-        Set or clear the mask array.  This is either None, or a boolean
-        array of shape (ntri).
+        Set or clear the mask array.
+
+        Parameters
+        ----------
+        mask : None or bool array of length ntri
         """
         if mask is None:
             self.mask = None

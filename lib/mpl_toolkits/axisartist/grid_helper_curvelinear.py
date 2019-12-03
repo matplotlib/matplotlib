@@ -161,13 +161,13 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         grid_finder = self.grid_helper.grid_finder
         (xx1,), (yy1,) = grid_finder.transform_xy([xx0], [yy0])
 
-        trans_passingthrough_point = axes.transData + axes.transAxes.inverted()
-        p = trans_passingthrough_point.transform_point([xx1, yy1])
+        data_to_axes = axes.transData - axes.transAxes
+        p = data_to_axes.transform([xx1, yy1])
 
         if 0 <= p[0] <= 1 and 0 <= p[1] <= 1:
-            xx1c, yy1c = axes.transData.transform_point([xx1, yy1])
+            xx1c, yy1c = axes.transData.transform([xx1, yy1])
             (xx2,), (yy2,) = grid_finder.transform_xy([xx0 + dxx], [yy0 + dyy])
-            xx2c, yy2c = axes.transData.transform_point([xx2, yy2])
+            xx2c, yy2c = axes.transData.transform([xx2, yy2])
             return (xx1c, yy1c), np.rad2deg(np.arctan2(yy2c-yy1c, xx2c-xx1c))
         else:
             return None, None
@@ -221,7 +221,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             xx1, yy1 = transform_xy(xx0, yy0)
 
             xx00 = xx0.copy()
-            xx00[xx0+dx>e1] -= dx
+            xx00[xx0 + dx > e1] -= dx
             xx1a, yy1a = transform_xy(xx00, yy0)
             xx1b, yy1b = transform_xy(xx00+dx, yy0)
 
@@ -240,7 +240,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             xx1b, yy1b = transform_xy(xx0, yy0+dy)
 
             xx00 = xx0.copy()
-            xx00[xx0+dx>e1] -= dx
+            xx00[xx0 + dx > e1] -= dx
             xx2a, yy2a = transform_xy(xx00, yy0)
             xx2b, yy2b = transform_xy(xx00+dx, yy0)
 
@@ -250,13 +250,12 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         def f1():
             dd = np.arctan2(yy1b-yy1a, xx1b-xx1a)  # angle normal
             dd2 = np.arctan2(yy2b-yy2a, xx2b-xx2a)  # angle tangent
-            mm = (yy1b-yy1a == 0) & (xx1b-xx1a == 0)  # mask where dd1 is not defined
+            mm = (yy1b == yy1a) & (xx1b == xx1a)  # mask where dd not defined
             dd[mm] = dd2[mm] + np.pi / 2
 
-            trans_tick = self.get_tick_transform(axes)
-            tr2ax = trans_tick + axes.transAxes.inverted()
+            tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
-                c2 = tr2ax.transform_point((x, y))
+                c2 = tick_to_axes.transform((x, y))
                 delta = 0.00001
                 if 0-delta <= c2[0] <= 1+delta and 0-delta <= c2[1] <= 1+delta:
                     d1, d2 = np.rad2deg([d, d2])
@@ -387,13 +386,15 @@ class GridHelperCurveLinear(GridHelperBase):
         # angle = [0, 90, 180, 270][axisnr]
         lon_or_lat = ["lon", "lat"][nth_coord]
         if not minor:  # major ticks
-            for (xy, a), l in zip(self.grid_info[lon_or_lat]["tick_locs"][axis_side],
-                                  self.grid_info[lon_or_lat]["tick_labels"][axis_side]):
+            for (xy, a), l in zip(
+                    self.grid_info[lon_or_lat]["tick_locs"][axis_side],
+                    self.grid_info[lon_or_lat]["tick_labels"][axis_side]):
                 angle_normal = a
                 yield xy, angle_normal, angle_tangent, l
         else:
-            for (xy, a), l in zip(self.grid_info[lon_or_lat]["tick_locs"][axis_side],
-                                  self.grid_info[lon_or_lat]["tick_labels"][axis_side]):
+            for (xy, a), l in zip(
+                    self.grid_info[lon_or_lat]["tick_locs"][axis_side],
+                    self.grid_info[lon_or_lat]["tick_labels"][axis_side]):
                 angle_normal = a
                 yield xy, angle_normal, angle_tangent, ""
             # for xy, a, l in self.grid_info[lon_or_lat]["ticks"][axis_side]:

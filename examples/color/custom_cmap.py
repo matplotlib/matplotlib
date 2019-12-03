@@ -9,7 +9,7 @@ For more detail on creating and manipulating colormaps see
 Creating a :doc:`colormap </tutorials/colors/colormaps>`
 from a list of colors can be done with the
 :meth:`~.colors.LinearSegmentedColormap.from_list` method of
-`LinearSegmentedColormap`. You must pass a list of RGB tuples that define the
+`.LinearSegmentedColormap`. You must pass a list of RGB tuples that define the
 mixture of colors from 0 to 1.
 
 
@@ -92,10 +92,9 @@ fig, axs = plt.subplots(2, 2, figsize=(6, 9))
 fig.subplots_adjust(left=0.02, bottom=0.06, right=0.95, top=0.94, wspace=0.05)
 for n_bin, ax in zip(n_bins, axs.ravel()):
     # Create the colormap
-    cm = LinearSegmentedColormap.from_list(
-        cmap_name, colors, N=n_bin)
+    cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bin)
     # Fewer bins will result in "coarser" colomap interpolation
-    im = ax.imshow(Z, interpolation='nearest', origin='lower', cmap=cm)
+    im = ax.imshow(Z, origin='lower', cmap=cm)
     ax.set_title("N bins: %s" % n_bin)
     fig.colorbar(im, ax=ax)
 
@@ -188,11 +187,11 @@ fig.subplots_adjust(left=0.02, bottom=0.06, right=0.95, top=0.94, wspace=0.05)
 
 # Make 4 subplots:
 
-im1 = axs[0, 0].imshow(Z, interpolation='nearest', cmap=blue_red1)
+im1 = axs[0, 0].imshow(Z, cmap=blue_red1)
 fig.colorbar(im1, ax=axs[0, 0])
 
 cmap = plt.get_cmap('BlueRed2')
-im2 = axs[1, 0].imshow(Z, interpolation='nearest', cmap=cmap)
+im2 = axs[1, 0].imshow(Z, cmap=cmap)
 fig.colorbar(im2, ax=axs[1, 0])
 
 # Now we will set the third cmap as the default.  One would
@@ -201,7 +200,7 @@ fig.colorbar(im2, ax=axs[1, 0])
 
 plt.rcParams['image.cmap'] = 'BlueRed3'
 
-im3 = axs[0, 1].imshow(Z, interpolation='nearest')
+im3 = axs[0, 1].imshow(Z)
 fig.colorbar(im3, ax=axs[0, 1])
 axs[0, 1].set_title("Alpha = 1")
 
@@ -215,7 +214,7 @@ axs[0, 1].set_title("Alpha = 1")
 # Draw a line with low zorder so it will be behind the image.
 axs[1, 1].plot([0, 10 * np.pi], [0, 20 * np.pi], color='c', lw=20, zorder=-1)
 
-im4 = axs[1, 1].imshow(Z, interpolation='nearest')
+im4 = axs[1, 1].imshow(Z)
 fig.colorbar(im4, ax=axs[1, 1])
 
 # Here it is: changing the colormap for the current image and its

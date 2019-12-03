@@ -2,12 +2,14 @@ from collections import OrderedDict
 import base64
 import gzip
 import hashlib
-import io
+from io import BytesIO, StringIO, TextIOWrapper
+import itertools
 import logging
 import re
 import uuid
 
 import numpy as np
+from PIL import Image
 
 from matplotlib import cbook, __version__, rcParams
 from matplotlib.backend_bases import (
@@ -20,7 +22,6 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D, Affine2DBase
-from matplotlib import _png
 
 _log = logging.getLogger(__name__)
 
@@ -151,12 +152,12 @@ class XMLWriter:
         self.__write(self.__indentation[:len(self.__tags) - 1])
         self.__write("<%s" % tag)
         for k, v in sorted({**attrib, **extra}.items()):
-            if not v == '':
+            if v:
                 k = escape_cdata(k)
                 v = escape_attrib(v)
                 self.__write(' %s="%s"' % (k, v))
         self.__open = 1
-        return len(self.__tags)-1
+        return len(self.__tags) - 1
 
     def comment(self, comment):
         """
@@ -229,7 +230,7 @@ class XMLWriter:
         :meth:`data`, and :meth:`end` in sequence. The *text* argument can be
         omitted.
         """
-        self.start(*(tag, attrib), **extra)
+        self.start(tag, attrib, **extra)
         if text:
             self.data(text)
         self.end(indent=False)
@@ -241,7 +242,7 @@ class XMLWriter:
 
 def generate_transform(transform_list=[]):
     if len(transform_list):
-        output = io.StringIO()
+        output = StringIO()
         for type, value in transform_list:
             if (type == 'scale' and (value == (1,) or value == (1, 1))
                     or type == 'translate' and value == (0, 0)
@@ -257,7 +258,7 @@ def generate_transform(transform_list=[]):
 
 def generate_css(attrib={}):
     if attrib:
-        output = io.StringIO()
+        output = StringIO()
         attrib = sorted(attrib.items())
         for k, v in attrib:
             k = escape_attrib(k)
@@ -278,14 +279,11 @@ class RendererSVG(RendererBase):
         self.image_dpi = image_dpi  # actual dpi at which we rasterize stuff
 
         self._groupd = {}
-        if not rcParams['svg.image_inline']:
-            assert basename is not None
-            self.basename = basename
-            self._imaged = {}
+        self.basename = basename
+        self._image_counter = itertools.count()
         self._clipd = OrderedDict()
         self._markers = {}
         self._path_collection_id = 0
-        self._imaged = {}
         self._hatchd = OrderedDict()
         self._has_gouraud = False
         self._n_gradients = 0
@@ -823,19 +821,20 @@ class RendererSVG(RendererBase):
         if url is not None:
             self.writer.start('a', attrib={'xlink:href': url})
         if rcParams['svg.image_inline']:
-            bytesio = io.BytesIO()
-            _png.write_png(im, bytesio)
-            oid = oid or self._make_id('image', bytesio.getvalue())
+            buf = BytesIO()
+            Image.fromarray(im).save(buf, format="png")
+            oid = oid or self._make_id('image', buf.getvalue())
             attrib['xlink:href'] = (
                 "data:image/png;base64,\n" +
-                base64.b64encode(bytesio.getvalue()).decode('ascii'))
+                base64.b64encode(buf.getvalue()).decode('ascii'))
         else:
-            self._imaged[self.basename] = (
-                self._imaged.get(self.basename, 0) + 1)
-            filename = '%s.image%d.png' % (
-                self.basename, self._imaged[self.basename])
+            if self.basename is None:
+                raise ValueError("Cannot save image data to filesystem when "
+                                 "writing SVG to an in-memory buffer")
+            filename = '{}.image{}.png'.format(
+                self.basename, next(self._image_counter))
             _log.info('Writing image file for inclusion: %s', filename)
-            _png.write_png(im, filename)
+            Image.fromarray(im).save(filename)
             oid = oid or 'Im_' + self._make_id('image', filename)
             attrib['xlink:href'] = filename
 
@@ -1038,8 +1037,7 @@ class RendererSVG(RendererBase):
 
                 # Get anchor coordinates.
                 transform = mtext.get_transform()
-                ax, ay = transform.transform_point(
-                    mtext.get_unitless_position())
+                ax, ay = transform.transform(mtext.get_unitless_position())
                 ay = self.height - ay
 
                 # Don't do vertical anchor alignment. Most applications do not
@@ -1192,7 +1190,7 @@ class FigureCanvasSVG(FigureCanvasBase):
             if cbook.file_requires_unicode(fh):
                 detach = False
             else:
-                fh = io.TextIOWrapper(fh, 'utf-8')
+                fh = TextIOWrapper(fh, 'utf-8')
                 detach = True
 
             result = self._print_svg(filename, fh, **kwargs)

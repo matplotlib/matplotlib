@@ -11,7 +11,7 @@ Inset Locator Demo
 # height and optionally a location (loc) that accepts locations as codes,
 # similar to `~matplotlib.axes.Axes.legend`.
 # By default, the inset is offset by some points from the axes,
-# controlled via the `borderpad` parameter.
+# controlled via the *borderpad* parameter.
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
@@ -44,20 +44,20 @@ plt.show()
 
 
 ###############################################################################
-# The arguments `bbox_to_anchor` and `bbox_transfrom` can be used for a more
+# The arguments *bbox_to_anchor* and *bbox_transfrom* can be used for a more
 # fine grained control over the inset position and size or even to position
 # the inset at completely arbitrary positions.
-# The `bbox_to_anchor` sets the bounding box in coordinates according to the
-# `bbox_transform`.
+# The *bbox_to_anchor* sets the bounding box in coordinates according to the
+# *bbox_transform*.
 #
 
 fig = plt.figure(figsize=[5.5, 2.8])
 ax = fig.add_subplot(121)
 
 # We use the axes transform as bbox_transform. Therefore the bounding box
-# needs to be specified in axes coordinates ((0,0) is the lower left corner
-# of the axes, (1,1) is the upper right corner).
-# The bounding box (.2, .4, .6, .5) starts at (.2,.4) and ranges to (.8,.9)
+# needs to be specified in axes coordinates ((0, 0) is the lower left corner
+# of the axes, (1, 1) is the upper right corner).
+# The bounding box (.2, .4, .6, .5) starts at (.2, .4) and ranges to (.8, .9)
 # in those coordinates.
 # Inside of this bounding box an inset of half the bounding box' width and
 # three quarters of the bounding box' height is created. The lower left corner

@@ -61,13 +61,11 @@ from matplotlib.text import Text, Annotation
 from matplotlib.patches import Polygon, Rectangle, Circle, Arrow
 from matplotlib.widgets import SubplotTool, Button, Slider, Widget
 
-from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
-           FuncFormatter, FormatStrFormatter, ScalarFormatter,\
-           LogFormatter, LogFormatterExponent, LogFormatterMathtext,\
-           Locator, IndexLocator, FixedLocator, NullLocator,\
-           LinearLocator, LogLocator, AutoLocator, MultipleLocator,\
-           MaxNLocator
-from matplotlib.backends import _get_running_interactive_framework
+from .ticker import (
+    TickHelper, Formatter, FixedFormatter, NullFormatter, FuncFormatter,
+    FormatStrFormatter, ScalarFormatter, LogFormatter, LogFormatterExponent,
+    LogFormatterMathtext, Locator, IndexLocator, FixedLocator, NullLocator,
+    LinearLocator, LogLocator, AutoLocator, MultipleLocator, MaxNLocator)
 
 _log = logging.getLogger(__name__)
 
@@ -214,20 +212,17 @@ def switch_backend(newbackend):
             rcParamsOrig["backend"] = "agg"
             return
 
-    backend_name = (
-        newbackend[9:] if newbackend.startswith("module://")
-        else "matplotlib.backends.backend_{}".format(newbackend.lower()))
-
+    backend_name = cbook._backend_module_name(newbackend)
     backend_mod = importlib.import_module(backend_name)
     Backend = type(
-        "Backend", (matplotlib.backends._Backend,), vars(backend_mod))
+        "Backend", (matplotlib.backend_bases._Backend,), vars(backend_mod))
     _log.debug("Loaded backend %s version %s.",
                newbackend, Backend.backend_version)
 
-    required_framework = Backend.required_interactive_framework
+    required_framework = getattr(
+        Backend.FigureCanvas, "required_interactive_framework", None)
     if required_framework is not None:
-        current_framework = \
-            matplotlib.backends._get_running_interactive_framework()
+        current_framework = cbook._get_running_interactive_framework()
         if (current_framework and required_framework
                 and current_framework != required_framework):
             raise ImportError(
@@ -272,7 +267,7 @@ def show(*args, **kw):
 
 
 def isinteractive():
-    """Return the status of interactive mode."""
+    """Return whether to redraw after every plotting command."""
     return matplotlib.is_interactive()
 
 
@@ -331,31 +326,6 @@ def rcdefaults():
         draw_all()
 
 
-## Current image ##
-
-
-def gci():
-    """
-    Get the current colorable artist.
-
-    Specifically, returns the current `.ScalarMappable` instance (`.Image`
-    created by `imshow` or `figimage`, `.Collection` created by `pcolor` or
-    `scatter`, etc.), or *None* if no such instance has been defined.
-
-    The current image is an attribute of the current axes, or the nearest
-    earlier axes in the current figure that contains an image.
-
-    Notes
-    -----
-    Historically, the only colorable artists were images; hence the name
-    ``gci`` (get current image).
-    """
-    return gcf()._gci()
-
-
-## Any Artist ##
-
-
 # (getp is simply imported)
 @docstring.copy(_setp)
 def setp(obj, *args, **kwargs):
@@ -402,7 +372,8 @@ def xkcd(scale=1, length=100, randomness=2):
 
     from matplotlib import patheffects
     return rc_context({
-        'font.family': ['xkcd', 'Humor Sans', 'Comic Sans MS'],
+        'font.family': ['xkcd', 'xkcd Script', 'Humor Sans', 'Comic Neue',
+                        'Comic Sans MS'],
         'font.size': 14.0,
         'path.sketch': (scale, length, randomness),
         'path.effects': [patheffects.withStroke(linewidth=4, foreground="w")],
@@ -437,7 +408,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
     Parameters
     ----------
-    num : integer or string, optional, default: None
+    num : int or str, optional, default: None
         If not provided, a new figure will be created, and the figure number
         will be incremented. The figure objects holds this number in a `number`
         attribute.
@@ -445,21 +416,21 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         it active, and returns a reference to it. If this figure does not
         exists, create it and returns it.
         If num is a string, the window title will be set to this figure's
-        `num`.
+        *num*.
 
     figsize : (float, float), optional, default: None
         width, height in inches. If not provided, defaults to
         :rc:`figure.figsize` = ``[6.4, 4.8]``.
 
-    dpi : integer, optional, default: None
+    dpi : int, optional, default: None
         resolution of the figure. If not provided, defaults to
         :rc:`figure.dpi` = ``100``.
 
-    facecolor : color spec
+    facecolor : color
         the background color. If not provided, defaults to
         :rc:`figure.facecolor` = ``'w'``.
 
-    edgecolor : color spec
+    edgecolor : color
         the border color. If not provided, defaults to
         :rc:`figure.edgecolor` = ``'w'``.
 
@@ -740,7 +711,7 @@ def axes(arg=None, **kwargs):
 
     Parameters
     ----------
-    arg : { None, 4-tuple, Axes }
+    arg : None or 4-tuple
         The exact behavior of this function depends on the type:
 
         - *None*: A new full window axes is added using
@@ -748,21 +719,14 @@ def axes(arg=None, **kwargs):
         - 4-tuple of floats *rect* = ``[left, bottom, width, height]``.
           A new axes is added with dimensions *rect* in normalized
           (0, 1) units using `~.Figure.add_axes` on the current figure.
-        - `~.axes.Axes`: This is equivalent to `.pyplot.sca`.
-          It sets the current axes to *arg*. Note: This implicitly
-          changes the current figure to the parent of *arg*.
-
-          .. note:: The use of an `.axes.Axes` as an argument is deprecated
-                    and will be removed in v3.0. Please use `.pyplot.sca`
-                    instead.
 
     projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
 'polar', 'rectilinear', str}, optional
         The projection type of the `~.axes.Axes`. *str* is the name of
-        a costum projection, see `~matplotlib.projections`. The default
+        a custom projection, see `~matplotlib.projections`. The default
         None results in a 'rectilinear' projection.
 
-    polar : boolean, optional
+    polar : bool, default: False
         If True, equivalent to projection='polar'.
 
     sharex, sharey : `~.axes.Axes`, optional
@@ -833,48 +797,20 @@ def axes(arg=None, **kwargs):
 def delaxes(ax=None):
     """
     Remove the `Axes` *ax* (defaulting to the current axes) from its figure.
-
-    A KeyError is raised if the axes doesn't exist.
     """
     if ax is None:
         ax = gca()
-    ax.figure.delaxes(ax)
+    ax.remove()
 
 
 def sca(ax):
     """
-    Set the current Axes instance to *ax*.
-
-    The current Figure is updated to the parent of *ax*.
+    Set the current Axes to *ax* and the current Figure to the parent of *ax*.
     """
-    managers = _pylab_helpers.Gcf.get_all_fig_managers()
-    for m in managers:
-        if ax in m.canvas.figure.axes:
-            _pylab_helpers.Gcf.set_active(m)
-            m.canvas.figure.sca(ax)
-            return
-    raise ValueError("Axes instance argument was not found in a figure")
-
-
-def gca(**kwargs):
-    """
-    Get the current :class:`~matplotlib.axes.Axes` instance on the
-    current figure matching the given keyword args, or create one.
-
-    Examples
-    --------
-    To get the current polar axes on the current figure::
-
-        plt.gca(projection='polar')
-
-    If the current axes doesn't exist, or isn't a polar one, the appropriate
-    axes will be created and then returned.
-
-    See Also
-    --------
-    matplotlib.figure.Figure.gca : The figure's gca method.
-    """
-    return gcf().gca(**kwargs)
+    if not hasattr(ax.figure.canvas, "manager"):
+        raise ValueError("Axes parent figure is not managed by pyplot")
+    _pylab_helpers.Gcf.set_active(ax.figure.canvas.manager)
+    ax.figure.sca(ax)
 
 
 ## More ways of creating axes ##
@@ -912,10 +848,10 @@ def subplot(*args, **kwargs):
     projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
 'polar', 'rectilinear', str}, optional
         The projection type of the subplot (`~.axes.Axes`). *str* is the name
-        of a costum projection, see `~matplotlib.projections`. The default
+        of a custom projection, see `~matplotlib.projections`. The default
         None results in a 'rectilinear' projection.
 
-    polar : boolean, optional
+    polar : bool, default: False
         If True, equivalent to projection='polar'.
 
     sharex, sharey : `~.axes.Axes`, optional
@@ -955,7 +891,7 @@ def subplot(*args, **kwargs):
 
         import matplotlib.pyplot as plt
         # plot a line, implicitly creating a subplot(111)
-        plt.plot([1,2,3])
+        plt.plot([1, 2, 3])
         # now create a subplot which represents the top plot of a grid
         # with 2 rows and 1 column. Since this subplot will overlap the
         # first, the plot (and its axes) previously created, will be removed
@@ -1007,9 +943,9 @@ def subplot(*args, **kwargs):
 
         # add ax2 to the figure again
         plt.subplot(ax2)
-        """
+    """
 
-    # if subplot called without arguments, create subplot(1,1,1)
+    # if subplot called without arguments, create subplot(1, 1, 1)
     if len(args) == 0:
         args = (1, 1, 1)
 
@@ -1081,7 +1017,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
           always a 2D array containing Axes instances, even if it ends up
           being 1x1.
 
-    num : integer or string, optional, default: None
+    num : int or str, optional, default: None
         A `.pyplot.figure` keyword that sets the figure number or label.
 
     subplot_kw : dict, optional
@@ -1327,10 +1263,10 @@ def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
     h_pad, w_pad : float, optional
         Padding (height/width) between edges of adjacent subplots,
         as a fraction of the font size.  Defaults to *pad*.
-    rect : tuple (left, bottom, right, top), optional
+    rect : tuple (left, bottom, right, top), optional, default: (0, 0, 1, 1)
         A rectangle (left, bottom, right, top) in the normalized
         figure coordinate that the whole subplots area (including
-        labels) will fit into. Default is (0, 0, 1, 1).
+        labels) will fit into.
     """
     gcf().tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
 
@@ -1443,11 +1379,11 @@ def xticks(ticks=None, labels=None, **kwargs):
 
     Parameters
     ----------
-    ticks : array_like
+    ticks : array-like
         A list of positions at which ticks should be placed. You can pass an
         empty list to disable xticks.
 
-    labels : array_like, optional
+    labels : array-like, optional
         A list of explicit labels to place at the given *locs*.
 
     **kwargs
@@ -1504,7 +1440,7 @@ def xticks(ticks=None, labels=None, **kwargs):
     for l in labels:
         l.update(kwargs)
 
-    return locs, silent_list('Text xticklabel', labels)
+    return locs, labels
 
 
 def yticks(ticks=None, labels=None, **kwargs):
@@ -1518,11 +1454,11 @@ def yticks(ticks=None, labels=None, **kwargs):
 
     Parameters
     ----------
-    ticks : array_like
+    ticks : array-like
         A list of positions at which ticks should be placed. You can pass an
         empty list to disable yticks.
 
-    labels : array_like, optional
+    labels : array-like, optional
         A list of explicit labels to place at the given *locs*.
 
     **kwargs
@@ -1579,7 +1515,7 @@ def yticks(ticks=None, labels=None, **kwargs):
     for l in labels:
         l.update(kwargs)
 
-    return locs, silent_list('Text yticklabel', labels)
+    return locs, labels
 
 
 def rgrids(*args, **kwargs):
@@ -1646,8 +1582,7 @@ def rgrids(*args, **kwargs):
         labels = ax.yaxis.get_ticklabels()
     else:
         lines, labels = ax.set_rgrids(*args, **kwargs)
-    return (silent_list('Line2D rgridline', lines),
-            silent_list('Text rgridlabel', labels))
+    return lines, labels
 
 
 def thetagrids(*args, **kwargs):
@@ -1691,10 +1626,10 @@ def thetagrids(*args, **kwargs):
     ::
 
       # set the locations of the angular gridlines
-      lines, labels = thetagrids( range(45,360,90) )
+      lines, labels = thetagrids(range(45, 360, 90))
 
       # set the locations and labels of the angular gridlines
-      lines, labels = thetagrids( range(45,360,90), ('NE', 'NW', 'SW','SE') )
+      lines, labels = thetagrids(range(45, 360, 90), ('NE', 'NW', 'SW', 'SE'))
 
     See Also
     --------
@@ -1711,8 +1646,7 @@ def thetagrids(*args, **kwargs):
         labels = ax.xaxis.get_ticklabels()
     else:
         lines, labels = ax.set_thetagrids(*args, **kwargs)
-    return (silent_list('Line2D thetagridline', lines),
-            silent_list('Text thetagridlabel', labels))
+    return lines, labels
 
 
 ## Plotting Info ##
@@ -1935,9 +1869,9 @@ def colormaps():
                     of perceived brightness. Also, when printed on a black
                     and white postscript printer, the scheme results in a
                     greyscale with monotonically increasing brightness.
-                    This color scheme is named cubehelix because the r,g,b
+                    This color scheme is named cubehelix because the (r, g, b)
                     values produced can be visualised as a squashed helix
-                    around the diagonal in the r,g,b color cube.
+                    around the diagonal in the (r, g, b) color cube.
       gnuplot       gnuplot's traditional pm3d scheme
                     (black-blue-red-yellow)
       gnuplot2      sequential color printable as gray
@@ -2229,11 +2163,11 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     Example usage::
 
       # plot the 2nd and 4th column against the 1st in two subplots
-      plotfile(fname, (0,1,3))
+      plotfile(fname, (0, 1, 3))
 
       # plot using column names; specify an alternate plot type for volume
       plotfile(fname, ('date', 'volume', 'adj_close'),
-                                    plotfuncs={'volume': 'semilogy'})
+               plotfuncs={'volume': 'semilogy'})
 
     Note: plotfile is intended as a convenience for quickly plotting
     data from flat files; it is not intended as an alternative
@@ -2310,8 +2244,9 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 # requested, ignore rcParams['backend'] and force selection of a backend that
 # is compatible with the current running interactive framework.
 if (rcParams["backend_fallback"]
-        and dict.__getitem__(rcParams, "backend") in _interactive_bk
-        and _get_running_interactive_framework()):
+        and dict.__getitem__(rcParams, "backend") in (
+            set(_interactive_bk) - {'WebAgg', 'nbAgg'})
+        and cbook._get_running_interactive_framework()):
     dict.__setitem__(rcParams, "backend", rcsetup._auto_backend_sentinel)
 # Set up the backend.
 switch_backend(rcParams["backend"])
@@ -2344,6 +2279,18 @@ def figtext(
         withdash=cbook.deprecation._deprecated_parameter, **kwargs):
     return gcf().text(
         x, y, s, fontdict=fontdict, withdash=withdash, **kwargs)
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@docstring.copy(Figure.gca)
+def gca(**kwargs):
+    return gcf().gca(**kwargs)
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@docstring.copy(Figure._gci)
+def gci():
+    return gcf()._gci()
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -2420,6 +2367,12 @@ def axhspan(ymin, ymax, xmin=0, xmax=1, **kwargs):
 @docstring.copy(Axes.axis)
 def axis(*args, emit=True, **kwargs):
     return gca().axis(*args, emit=emit, **kwargs)
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@docstring.copy(Axes.axline)
+def axline(xy1, xy2, **kwargs):
+    return gca().axline(xy1, xy2, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -2633,7 +2586,7 @@ def hexbin(
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @docstring.copy(Axes.hist)
 def hist(
-        x, bins=None, range=None, density=None, weights=None,
+        x, bins=None, range=None, density=False, weights=None,
         cumulative=False, bottom=None, histtype='bar', align='mid',
         orientation='vertical', rwidth=None, log=False, color=None,
         label=None, stacked=False, *, data=None, **kwargs):
@@ -2674,9 +2627,10 @@ def hlines(
 def imshow(
         X, cmap=None, norm=None, aspect=None, interpolation=None,
         alpha=None, vmin=None, vmax=None, origin=None, extent=None,
-        shape=cbook.deprecation._deprecated_parameter, filternorm=1,
-        filterrad=4.0, imlim=cbook.deprecation._deprecated_parameter,
-        resample=None, url=None, *, data=None, **kwargs):
+        shape=cbook.deprecation._deprecated_parameter,
+        filternorm=True, filterrad=4.0,
+        imlim=cbook.deprecation._deprecated_parameter, resample=None,
+        url=None, *, data=None, **kwargs):
     __ret = gca().imshow(
         X, cmap=cmap, norm=norm, aspect=aspect,
         interpolation=interpolation, alpha=alpha, vmin=vmin,

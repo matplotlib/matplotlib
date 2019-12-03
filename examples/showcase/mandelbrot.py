@@ -7,7 +7,7 @@ The Mandelbrot set rendering can be improved by using a normalized recount
 associated with a power normalized colormap (gamma=0.3). Rendering can be
 further enhanced thanks to shading.
 
-The `maxiter` gives the precision of the computation. `maxiter=200` should
+The ``maxiter`` gives the precision of the computation. ``maxiter=200`` should
 take a few seconds on most modern laptops.
 """
 import numpy as np

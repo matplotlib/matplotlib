@@ -4,6 +4,7 @@ Tools for triangular grids.
 
 import numpy as np
 
+from matplotlib import cbook
 from matplotlib.tri import Triangulation
 
 
@@ -25,8 +26,7 @@ class TriAnalyzer:
 
     """
     def __init__(self, triangulation):
-        if not isinstance(triangulation, Triangulation):
-            raise ValueError("Expected a Triangulation object")
+        cbook._check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
     @property
@@ -66,10 +66,10 @@ class TriAnalyzer:
 
         Parameters
         ----------
-        rescale : boolean, optional
+        rescale : bool, optional, default: True
             If True, a rescaling will be internally performed (based on
             :attr:`scale_factors`, so that the (unmasked) triangles fit
-            exactly inside a unit square mesh. Default is True.
+            exactly inside a unit square mesh.
 
         Returns
         -------
@@ -140,7 +140,7 @@ class TriAnalyzer:
         min_circle_ratio : float, optional
             Border triangles with incircle/circumcircle radii ratio r/R will
             be removed if r/R < *min_circle_ratio*. Default value: 0.01
-        rescale : boolean, optional
+        rescale : bool, optional
             If True, a rescaling will first be internally performed (based on
             :attr:`scale_factors` ), so that the (unmasked) triangles fit
             exactly inside a unit square mesh. This rescaling accounts for the
@@ -149,7 +149,7 @@ class TriAnalyzer:
 
         Returns
         -------
-        new_mask : array-like of booleans
+        new_mask : bool array-like
             Mask to apply to encapsulated triangulation.
             All the initially masked triangles remain masked in the
             *new_mask*.
@@ -206,11 +206,11 @@ class TriAnalyzer:
 
         Parameters
         ----------
-        return_tri_renum : boolean, optional
+        return_tri_renum : bool, optional
             Indicates whether a renumbering table to translate the triangle
             numbers from the encapsulated triangulation numbering into the
             new (compressed) renumbering will be returned.
-        return_node_renum : boolean, optional
+        return_node_renum : bool, optional
             Indicates whether a renumbering table to translate the nodes
             numbers from the encapsulated triangulation numbering into the
             new (compressed) renumbering will be returned.
@@ -223,12 +223,12 @@ class TriAnalyzer:
             the returned compressed triangulation 1st coordinate
         compressed_y : array-like
             the returned compressed triangulation 2nd coordinate
-        tri_renum : array-like of integers
+        tri_renum : int array
             renumbering table to translate the triangle numbers from the
             encapsulated triangulation into the new (compressed) renumbering.
             -1 for masked triangles (deleted from *compressed_triangles*).
             Returned only if *return_tri_renum* is True.
-        node_renum : array-like of integers
+        node_renum : int array
             renumbering table to translate the point numbers from the
             encapsulated triangulation into the new (compressed) renumbering.
             -1 for unused points (i.e. those deleted from *compressed_x* and
@@ -271,22 +271,21 @@ class TriAnalyzer:
         """
         Parameters
         ----------
-        mask : 1d boolean array or None
+        mask : 1d bool array or None
             mask
-        n : integer
+        n : int
             length of the mask. Useful only id mask can be None
 
         Returns
         -------
-        renum : integer array
+        renum : int array
             array so that (`valid_array` being a compressed array
-            based on a `masked_array` with mask *mask*) :
+            based on a `masked_array` with mask *mask*):
 
-                  - For all i such as mask[i] = False:
-                    valid_array[renum[i]] = masked_array[i]
-                  - For all i such as mask[i] = True:
-                    renum[i] = -1 (invalid value)
-
+            - For all i such as mask[i] = False:
+              valid_array[renum[i]] = masked_array[i]
+            - For all i such as mask[i] = True:
+              renum[i] = -1 (invalid value)
         """
         if n is None:
             n = np.size(mask)

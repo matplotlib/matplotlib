@@ -7,9 +7,9 @@
 ===============
 
 
-.. admonition::  This document is only relevant for matplotlib release managers.
+.. admonition::  This document is only relevant for Matplotlib release managers.
 
-   A guide for developers who are doing a matplotlib release.
+   A guide for developers who are doing a Matplotlib release.
 
 
 .. note::

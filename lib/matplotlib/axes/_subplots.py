@@ -1,7 +1,7 @@
 import functools
 import uuid
 
-from matplotlib import docstring
+from matplotlib import cbook, docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
 from matplotlib.gridspec import GridSpec, SubplotSpec
@@ -17,58 +17,24 @@ class SubplotBase:
 
     def __init__(self, fig, *args, **kwargs):
         """
-        *fig* is a :class:`matplotlib.figure.Figure` instance.
+        Parameters
+        ----------
+        fig : `matplotlib.figure.Figure`
 
-        *args* is the tuple (*numRows*, *numCols*, *plotNum*), where
-        the array of subplots in the figure has dimensions *numRows*,
-        *numCols*, and where *plotNum* is the number of the subplot
-        being created.  *plotNum* starts at 1 in the upper left
-        corner and increases to the right.
+        *args : tuple (*nrows*, *ncols*, *index*) or int
+            The array of subplots in the figure has dimensions ``(nrows,
+            ncols)``, and *index* is the index of the subplot being created.
+            *index* starts at 1 in the upper left corner and increases to the
+            right.
 
-        If *numRows* <= *numCols* <= *plotNum* < 10, *args* can be the
-        decimal integer *numRows* * 100 + *numCols* * 10 + *plotNum*.
+            If *nrows*, *ncols*, and *index* are all single digit numbers, then
+            *args* can be passed as a single 3-digit number (e.g. 234 for
+            (2, 3, 4)).
         """
 
         self.figure = fig
-
-        if len(args) == 1:
-            if isinstance(args[0], SubplotSpec):
-                self._subplotspec = args[0]
-            else:
-                try:
-                    s = str(int(args[0]))
-                    rows, cols, num = map(int, s)
-                except ValueError:
-                    raise ValueError('Single argument to subplot must be '
-                        'a 3-digit integer')
-                self._subplotspec = GridSpec(rows, cols,
-                                             figure=self.figure)[num - 1]
-                # num - 1 for converting from MATLAB to python indexing
-        elif len(args) == 3:
-            rows, cols, num = args
-            rows = int(rows)
-            cols = int(cols)
-            if rows <= 0:
-                raise ValueError(f'Number of rows must be > 0, not {rows}')
-            if cols <= 0:
-                raise ValueError(f'Number of columns must be > 0, not {cols}')
-            if isinstance(num, tuple) and len(num) == 2:
-                num = [int(n) for n in num]
-                self._subplotspec = GridSpec(
-                        rows, cols,
-                        figure=self.figure)[(num[0] - 1):num[1]]
-            else:
-                if num < 1 or num > rows*cols:
-                    raise ValueError(
-                        f"num must be 1 <= num <= {rows*cols}, not {num}")
-                self._subplotspec = GridSpec(
-                        rows, cols, figure=self.figure)[int(num) - 1]
-                # num - 1 for converting from MATLAB to python indexing
-        else:
-            raise ValueError(f'Illegal argument(s) to subplot: {args}')
-
+        self._subplotspec = SubplotSpec._from_subplot_args(fig, args)
         self.update_params()
-
         # _axes_class is set in the subplot_class_factory
         self._axes_class.__init__(self, fig, self.figbox, **kwargs)
         # add a layout box to this, for both the full axis, and the poss
@@ -99,13 +65,13 @@ class SubplotBase:
                 self.__getstate__())
 
     def get_geometry(self):
-        """get the subplot geometry, e.g., 2,2,3"""
+        """Get the subplot geometry, e.g., (2, 2, 3)."""
         rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
         return rows, cols, num1 + 1  # for compatibility
 
     # COVERAGE NOTE: Never used internally or from examples
     def change_geometry(self, numrows, numcols, num):
-        """change subplot geometry, e.g., from 1,1,1 to 2,2,3"""
+        """Change subplot geometry, e.g., from (1, 1, 1) to (2, 2, 3)."""
         self._subplotspec = GridSpec(numrows, numcols,
                                      figure=self.figure)[num - 1]
         self.update_params()
@@ -125,26 +91,33 @@ class SubplotBase:
 
     def update_params(self):
         """update the subplot position from fig.subplotpars"""
-
-        self.figbox, self.rowNum, self.colNum, self.numRows, self.numCols = \
+        self.figbox, _, _, self.numRows, self.numCols = \
             self.get_subplotspec().get_position(self.figure,
                                                 return_all=True)
 
-    def is_first_col(self):
-        return self.colNum == 0
+    @cbook.deprecated("3.2", alternative="ax.get_subplotspec().rowspan.start")
+    def rowNum(self):
+        return self.get_subplotspec().rowspan.start
+
+    @cbook.deprecated("3.2", alternative="ax.get_subplotspec().colspan.start")
+    def colNum(self):
+        return self.get_subplotspec().colspan.start
 
     def is_first_row(self):
-        return self.rowNum == 0
+        return self.get_subplotspec().rowspan.start == 0
 
     def is_last_row(self):
-        return self.rowNum == self.numRows - 1
+        return self.get_subplotspec().rowspan.stop == self.get_gridspec().nrows
+
+    def is_first_col(self):
+        return self.get_subplotspec().colspan.start == 0
 
     def is_last_col(self):
-        return self.colNum == self.numCols - 1
+        return self.get_subplotspec().colspan.stop == self.get_gridspec().ncols
 
-    # COVERAGE NOTE: Never used internally.
     def label_outer(self):
-        """Only show "outer" labels and tick labels.
+        """
+        Only show "outer" labels and tick labels.
 
         x-labels are only kept for subplots on the last row; y-labels only for
         subplots on the first column.
@@ -163,9 +136,7 @@ class SubplotBase:
             self.set_ylabel("")
 
     def _make_twin_axes(self, *args, **kwargs):
-        """
-        Make a twinx axes of self. This is used for twinx and twiny.
-        """
+        """Make a twinx axes of self. This is used for twinx and twiny."""
         if 'sharex' in kwargs and 'sharey' in kwargs:
             # The following line is added in v2.2 to avoid breaking Seaborn,
             # which currently uses this internal API.

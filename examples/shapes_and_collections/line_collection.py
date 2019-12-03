@@ -19,7 +19,7 @@ import numpy as np
 # simple example showing how it is done.
 
 x = np.arange(100)
-# Here are many sets of y to plot vs x
+# Here are many sets of y to plot vs. x
 ys = x[:50, np.newaxis] + x[np.newaxis, :]
 
 segs = np.zeros((50, 100, 2))
@@ -56,7 +56,7 @@ plt.show()
 
 N = 50
 x = np.arange(N)
-# Here are many sets of y to plot vs x
+# Here are many sets of y to plot vs. x
 ys = [x + i for i in x]
 
 # We need to set the plot limits, they will not autoscale
@@ -71,7 +71,7 @@ ax.set_ylim(np.min(ys), np.max(ys))
 #          If linestyle is omitted, 'solid' is used
 # See :class:`matplotlib.collections.LineCollection` for more information
 
-# Make a sequence of x,y pairs
+# Make a sequence of (x, y) pairs.
 line_segments = LineCollection([np.column_stack([x, y]) for y in ys],
                                linewidths=(0.5, 1, 1.5, 2),
                                linestyles='solid')

@@ -54,7 +54,6 @@ Spectral functions
 """
 
 import csv
-import inspect
 from numbers import Number
 
 import numpy as np
@@ -151,13 +150,12 @@ def detrend(x, key=None, axis=None):
     x : array or sequence
         Array or sequence containing the data.
 
-    key : [ 'default' | 'constant' | 'mean' | 'linear' | 'none'] or function
-        Specifies the detrend algorithm to use. 'default' is 'mean', which is
-        the same as `detrend_mean`. 'constant' is the same. 'linear' is
-        the same as `detrend_linear`. 'none' is the same as
-        `detrend_none`. The default is 'mean'. See the corresponding
-        functions for more details regarding the algorithms. Can also be a
-        function that carries out the detrend operation.
+    key : {'default', 'constant', 'mean', 'linear', 'none'} or function
+        The detrending algorithm to use. 'default', 'mean', and 'constant' are
+        the same as `detrend_mean`. 'linear' is the same as `detrend_linear`.
+        'none' is the same as `detrend_none`. The default is 'mean'. See the
+        corresponding functions for more details regarding the algorithms. Can
+        also be a function that carries out the detrend operation.
 
     axis : integer
         The axis along which to do the detrending.
@@ -174,30 +172,22 @@ def detrend(x, key=None, axis=None):
         return detrend(x, key=detrend_linear, axis=axis)
     elif key == 'none':
         return detrend(x, key=detrend_none, axis=axis)
-    elif isinstance(key, str):
-        raise ValueError("Unknown value for key %s, must be one of: "
-                         "'default', 'constant', 'mean', "
-                         "'linear', or a function" % key)
-
-    if not callable(key):
-        raise ValueError("Unknown value for key %s, must be one of: "
-                         "'default', 'constant', 'mean', "
-                         "'linear', or a function" % key)
-
-    x = np.asarray(x)
-
-    if axis is not None and axis+1 > x.ndim:
-        raise ValueError('axis(=%s) out of bounds' % axis)
-
-    if (axis is None and x.ndim == 0) or (not axis and x.ndim == 1):
-        return key(x)
-
-    # try to use the 'axis' argument if the function supports it,
-    # otherwise use apply_along_axis to do it
-    try:
-        return key(x, axis=axis)
-    except TypeError:
-        return np.apply_along_axis(key, axis=axis, arr=x)
+    elif callable(key):
+        x = np.asarray(x)
+        if axis is not None and axis + 1 > x.ndim:
+            raise ValueError(f'axis(={axis}) out of bounds')
+        if (axis is None and x.ndim == 0) or (not axis and x.ndim == 1):
+            return key(x)
+        # try to use the 'axis' argument if the function supports it,
+        # otherwise use apply_along_axis to do it
+        try:
+            return key(x, axis=axis)
+        except TypeError:
+            return np.apply_along_axis(key, axis=axis, arr=x)
+    else:
+        raise ValueError(
+            f"Unknown value for key: {key!r}, must be one of: 'default', "
+            f"'constant', 'mean', 'linear', or a function")
 
 
 @cbook.deprecated("3.1", alternative="detrend_mean")
@@ -622,73 +612,62 @@ def _single_spectrum_helper(x, mode, Fs=None, window=None, pad_to=None,
 
 
 # Split out these keyword docs so that they can be used elsewhere
-docstring.interpd.update(Spectral=inspect.cleandoc("""
-    Fs : scalar
-        The sampling frequency (samples per time unit).  It is used
-        to calculate the Fourier frequencies, freqs, in cycles per time
-        unit. The default value is 2.
+docstring.interpd.update(
+    Spectral="""\
+Fs : scalar, default: 2
+    The sampling frequency (samples per time unit).  It is used to calculate
+    the Fourier frequencies, *freqs*, in cycles per time unit.
 
-    window : callable or ndarray
-        A function or a vector of length *NFFT*.  To create window vectors see
-        `window_hanning`, `window_none`, `numpy.blackman`, `numpy.hamming`,
-        `numpy.bartlett`, `scipy.signal`, `scipy.signal.get_window`, etc.  The
-        default is `window_hanning`.  If a function is passed as the argument,
-        it must take a data segment as an argument and return the windowed
-        version of the segment.
+window : callable or ndarray, default: `.window_hanning`
+    A function or a vector of length *NFFT*.  To create window vectors see
+    `.window_hanning`, `.window_none`, `numpy.blackman`, `numpy.hamming`,
+    `numpy.bartlett`, `scipy.signal`, `scipy.signal.get_window`, etc.  If a
+    function is passed as the argument, it must take a data segment as an
+    argument and return the windowed version of the segment.
 
-    sides : {'default', 'onesided', 'twosided'}
-        Specifies which sides of the spectrum to return.  Default gives the
-        default behavior, which returns one-sided for real data and both
-        for complex data.  'onesided' forces the return of a one-sided
-        spectrum, while 'twosided' forces two-sided.
-"""))
+sides : {'default', 'onesided', 'twosided'}, optional
+    Which sides of the spectrum to return. 'default' is one-sided for real
+    data and two-sided for complex data. 'onesided' forces the return of a
+    one-sided spectrum, while 'twosided' forces two-sided.""",
 
+    Single_Spectrum="""\
+pad_to : int, optional
+    The number of points to which the data segment is padded when performing
+    the FFT.  While not increasing the actual resolution of the spectrum (the
+    minimum distance between resolvable peaks), this can give more points in
+    the plot, allowing for more detail. This corresponds to the *n* parameter
+    in the call to fft().  The default is None, which sets *pad_to* equal to
+    the length of the input signal (i.e. no padding).""",
 
-docstring.interpd.update(Single_Spectrum=inspect.cleandoc("""
-    pad_to : int
-        The number of points to which the data segment is padded when
-        performing the FFT.  While not increasing the actual resolution of
-        the spectrum (the minimum distance between resolvable peaks),
-        this can give more points in the plot, allowing for more
-        detail. This corresponds to the *n* parameter in the call to fft().
-        The default is None, which sets *pad_to* equal to the length of the
-        input signal (i.e. no padding).
-"""))
+    PSD="""\
+pad_to : int, optional
+    The number of points to which the data segment is padded when performing
+    the FFT.  This can be different from *NFFT*, which specifies the number
+    of data points used.  While not increasing the actual resolution of the
+    spectrum (the minimum distance between resolvable peaks), this can give
+    more points in the plot, allowing for more detail. This corresponds to
+    the *n* parameter in the call to fft(). The default is None, which sets
+    *pad_to* equal to *NFFT*
 
+NFFT : int, default: 256
+    The number of data points used in each block for the FFT.  A power 2 is
+    most efficient.  This should *NOT* be used to get zero padding, or the
+    scaling of the result will be incorrect; use *pad_to* for this instead.
 
-docstring.interpd.update(PSD=inspect.cleandoc("""
-    pad_to : int
-        The number of points to which the data segment is padded when
-        performing the FFT.  This can be different from *NFFT*, which
-        specifies the number of data points used.  While not increasing
-        the actual resolution of the spectrum (the minimum distance between
-        resolvable peaks), this can give more points in the plot,
-        allowing for more detail. This corresponds to the *n* parameter
-        in the call to fft(). The default is None, which sets *pad_to*
-        equal to *NFFT*
+detrend : {'none', 'mean', 'linear'} or callable, default 'none'
+    The function applied to each segment before fft-ing, designed to remove
+    the mean or linear trend.  Unlike in MATLAB, where the *detrend* parameter
+    is a vector, in Matplotlib is it a function.  The :mod:`~matplotlib.mlab`
+    module defines `.detrend_none`, `.detrend_mean`, and `.detrend_linear`,
+    but you can use a custom function as well.  You can also use a string to
+    choose one of the functions: 'none' calls `.detrend_none`. 'mean' calls
+    `.detrend_mean`. 'linear' calls `.detrend_linear`.
 
-    NFFT : int
-        The number of data points used in each block for the FFT.
-        A power 2 is most efficient.  The default value is 256.
-        This should *NOT* be used to get zero padding, or the scaling of the
-        result will be incorrect. Use *pad_to* for this instead.
-
-    detrend : {'none', 'mean', 'linear'} or callable, default 'none'
-        The function applied to each segment before fft-ing, designed to
-        remove the mean or linear trend.  Unlike in MATLAB, where the
-        *detrend* parameter is a vector, in Matplotlib is it a function.
-        The :mod:`~matplotlib.mlab` module defines `.detrend_none`,
-        `.detrend_mean`, and `.detrend_linear`, but you can use a custom
-        function as well.  You can also use a string to choose one of the
-        functions: 'none' calls `.detrend_none`. 'mean' calls `.detrend_mean`.
-        'linear' calls `.detrend_linear`.
-
-    scale_by_freq : bool, optional
-        Specifies whether the resulting density values should be scaled
-        by the scaling frequency, which gives density in units of Hz^-1.
-        This allows for integration over the returned frequency values.
-        The default is True for MATLAB compatibility.
-"""))
+scale_by_freq : bool, optional, default: True
+    Whether the resulting density values should be scaled by the scaling
+    frequency, which gives density in units of Hz^-1.  This allows for
+    integration over the returned frequency values.  The default is True for
+    MATLAB compatibility.""")
 
 
 @docstring.dedent_interpd
@@ -722,7 +701,7 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
     Returns
     -------
     Pxx : 1-D array
-        The values for the power spectrum `P_{xx}` (real valued)
+        The values for the power spectrum :math:`P_{xx}` (real valued)
 
     freqs : 1-D array
         The frequencies corresponding to the elements in *Pxx*
@@ -782,7 +761,8 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
     Returns
     -------
     Pxy : 1-D array
-        The values for the cross spectrum `P_{xy}` before scaling (real valued)
+        The values for the cross spectrum :math:`P_{xy}` before scaling (real
+        valued)
 
     freqs : 1-D array
         The frequencies corresponding to the elements in *Pxy*
@@ -989,7 +969,7 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
 
     Parameters
     ----------
-    x : array_like
+    x : array-like
         1-D array or sequence.
 
     %(Spectral)s
@@ -999,32 +979,28 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     noverlap : int, optional
         The number of points of overlap between blocks.  The default
         value is 128.
-    mode : str, optional
-        What sort of spectrum to use, default is 'psd'.
+    mode : str, optional, default: 'psd'
+        What sort of spectrum to use:
             'psd'
                 Returns the power spectral density.
-
             'complex'
                 Returns the complex-valued frequency spectrum.
-
             'magnitude'
                 Returns the magnitude spectrum.
-
             'angle'
                 Returns the phase spectrum without unwrapping.
-
             'phase'
                 Returns the phase spectrum with unwrapping.
 
     Returns
     -------
-    spectrum : array_like
+    spectrum : array-like
         2-D array, columns are the periodograms of successive segments.
 
-    freqs : array_like
+    freqs : array-like
         1-D array, frequencies corresponding to the rows in *spectrum*.
 
-    t : array_like
+    t : array-like
         1-D array, the times corresponding to midpoints of segments
         (i.e the columns in *spectrum*).
 
@@ -1400,7 +1376,7 @@ class GaussianKDE:
 
     Parameters
     ----------
-    dataset : array_like
+    dataset : array-like
         Datapoints to estimate from. In case of univariate data this is a 1-D
         array, otherwise a 2-D array with shape (# of dims, # of data).
 
@@ -1427,11 +1403,11 @@ class GaussianKDE:
         the covariance matrix is multiplied.
 
     covariance : ndarray
-        The covariance matrix of `dataset`, scaled by the calculated bandwidth
+        The covariance matrix of *dataset*, scaled by the calculated bandwidth
         (`kde.factor`).
 
     inv_cov : ndarray
-        The inverse of `covariance`.
+        The inverse of *covariance*.
 
     Methods
     -------
@@ -1484,9 +1460,8 @@ class GaussianKDE:
 
         self.covariance = self.data_covariance * self.factor ** 2
         self.inv_cov = self.data_inv_cov / self.factor ** 2
-        self.norm_factor = np.sqrt(
-            np.linalg.det(
-                2 * np.pi * self.covariance)) * self.num_dp
+        self.norm_factor = (np.sqrt(np.linalg.det(2 * np.pi * self.covariance))
+                            * self.num_dp)
 
     def scotts_factor(self):
         return np.power(self.num_dp, -1. / (self.dim + 4))

@@ -36,8 +36,8 @@ Here is an example ``.gitconfig`` file:
   [merge]
           summary = true
 
-You can edit this file directly or you can use the ``git config --global``
-command::
+You can check what is already in your config file using the ``git config --list`` command.  You can edit the ``.gitconfig`` file directly or you can use the ``git config --global``
+command.::
 
   git config --global user.name "Your Name"
   git config --global user.email you@yourdomain.example.com
@@ -75,7 +75,7 @@ should now contain a user section with your name and email:
         name = Your Name
         email = you@yourdomain.example.com
 
-Of course you'll need to replace ``Your Name`` and ``you@yourdomain.example.com``
+You'll need to replace ``Your Name`` and ``you@yourdomain.example.com``
 with your actual name and email address.
 
 Aliases

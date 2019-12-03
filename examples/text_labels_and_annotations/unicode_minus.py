@@ -5,7 +5,7 @@ Unicode minus
 
 By default, tick labels at negative values are rendered using a `Unicode
 minus`__ (U+2212) rather than an ASCII hyphen (U+002D).  This can be controlled
-by setting :rc:`axes.unicode_minus` (which defaults to True).
+by setting :rc:`axes.unicode_minus`.
 
 __ https://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
 

@@ -7,7 +7,6 @@ Demo Colorbar of Inset Axes
 import matplotlib.pyplot as plt
 
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes, zoomed_inset_axes
-from mpl_toolkits.axes_grid1.colorbar import colorbar
 
 
 def get_demo_image():
@@ -29,8 +28,7 @@ ax.set(aspect=1,
 
 
 axins = zoomed_inset_axes(ax, zoom=2, loc='upper left')
-im = axins.imshow(Z, extent=extent, interpolation="nearest",
-                  origin="lower")
+im = axins.imshow(Z, extent=extent, origin="lower")
 
 plt.xticks(visible=False)
 plt.yticks(visible=False)
@@ -46,6 +44,6 @@ cax = inset_axes(axins,
                  borderpad=0,
                  )
 
-colorbar(im, cax=cax)
+fig.colorbar(im, cax=cax)
 
 plt.show()

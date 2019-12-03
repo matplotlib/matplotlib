@@ -11,7 +11,6 @@ import numpy as np
 
 import matplotlib.patches as mpatches
 from matplotlib.path import Path
-from matplotlib.transforms import IdentityTransform
 import matplotlib.axes as maxes
 
 from mpl_toolkits.axes_grid1.parasite_axes import host_axes_class_factory
@@ -70,26 +69,19 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             xx0 = lon_levs
             dx = 0.001
 
-        _extremes = self.grid_helper._extremes
-        xmin, xmax = sorted(_extremes[:2])
-        ymin, ymax = sorted(_extremes[2:])
-        if self.nth_coord == 0:
-            mask = (ymin <= yy0) & (yy0 <= ymax)
-            yy0 = yy0[mask]
-        elif self.nth_coord == 1:
-            mask = (xmin <= xx0) & (xx0 <= xmax)
-            xx0 = xx0[mask]
+        extremes = self.grid_helper._extremes
+        xmin, xmax = sorted(extremes[:2])
+        ymin, ymax = sorted(extremes[2:])
 
         def transform_xy(x, y):
             x1, y1 = grid_finder.transform_xy(x, y)
-            x2y2 = axes.transData.transform(np.array([x1, y1]).transpose())
-            x2, y2 = x2y2.transpose()
+            x2, y2 = axes.transData.transform(np.array([x1, y1]).T).T
             return x2, y2
 
-        # find angles
         if self.nth_coord == 0:
+            mask = (ymin <= yy0) & (yy0 <= ymax)
+            yy0 = yy0[mask]
             xx0 = np.full_like(yy0, self.value)
-
             xx1, yy1 = transform_xy(xx0, yy0)
 
             xx00 = xx0.astype(float, copy=True)
@@ -106,8 +98,9 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             labels = [l for l, m in zip(labels, mask) if m]
 
         elif self.nth_coord == 1:
+            mask = (xmin <= xx0) & (xx0 <= xmax)
+            xx0 = xx0[mask]
             yy0 = np.full_like(xx0, self.value)
-
             xx1, yy1 = transform_xy(xx0, yy0)
 
             yy00 = yy0.astype(float, copy=True)
@@ -129,10 +122,9 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             mm = (yy1b - yy1a == 0) & (xx1b - xx1a == 0)  # mask not defined dd
             dd[mm] = dd2[mm] + np.pi / 2
 
-            trans_tick = self.get_tick_transform(axes)
-            tr2ax = trans_tick + axes.transAxes.inverted()
+            tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
-                c2 = tr2ax.transform_point((x, y))
+                c2 = tick_to_axes.transform((x, y))
                 delta = 0.00001
                 if 0-delta <= c2[0] <= 1+delta and 0-delta <= c2[1] <= 1+delta:
                     d1, d2 = np.rad2deg([d, d2])
@@ -294,7 +286,7 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
 
     def get_boundary(self):
         """
-        return Nx2 array of x,y coordinate of the boundary
+        Return (N, 2) array of (x, y) coordinate of the boundary.
         """
         x0, x1, y0, y1 = self._extremes
         tr = self._aux_trans

@@ -14,7 +14,7 @@ distributing L/GPL code through an separate channel, possibly a
 toolkit.  If you include code, make sure you include a copy of that
 code's license in the license directory if the code's license requires
 you to distribute the license with it.  Non-BSD compatible licenses
-are acceptable in matplotlib toolkits (e.g., basemap), but make sure you
+are acceptable in Matplotlib toolkits (e.g., basemap), but make sure you
 clearly state the licenses you are using.
 
 Why BSD compatible?
@@ -50,8 +50,8 @@ Famous projects released under a BSD-style license in the permissive
 sense of the last paragraph are the BSD operating system, python and
 TeX.
 
-There are several reasons why early matplotlib developers selected a
-BSD compatible license. matplotlib is a python extension, and we
+There are several reasons why early Matplotlib developers selected a
+BSD compatible license. Matplotlib is a python extension, and we
 choose a license that was based on the python license (BSD
 compatible).  Also, we wanted to attract as many users and developers
 as possible, and many software companies will not use GPL code in
@@ -60,9 +60,9 @@ to open source development, such as `enthought
 <https://www.enthought.com>`_, out of legitimate concern that use of the
 GPL will "infect" their code base by its viral nature. In effect, they
 want to retain the right to release some proprietary code. Companies
-and institutions who use matplotlib often make significant
+and institutions who use Matplotlib often make significant
 contributions, because they have the resources to get a job done, even
-a boring one. Two of the matplotlib backends (FLTK and WX) were
+a boring one. Two of the Matplotlib backends (FLTK and WX) were
 contributed by private companies.  The final reason behind the
 licensing choice is compatibility with the other python extensions for
 scientific computing: ipython, numpy, scipy, the enthought tool suite

@@ -141,6 +141,10 @@ def test_figure_legend():
 def test_gca():
     fig = plt.figure()
 
+    with pytest.warns(UserWarning):
+        # empty call to add_axes() will throw deprecation warning
+        assert fig.add_axes() is None
+
     ax1 = fig.add_axes([0, 0, 1, 1])
     assert fig.gca(projection='rectilinear') is ax1
     assert fig.gca() is ax1
@@ -387,6 +391,16 @@ def test_savefig():
         fig.savefig("fname1.png", "fname2.png")
 
 
+def test_savefig_backend():
+    fig = plt.figure()
+    # Intentionally use an invalid module name.
+    with pytest.raises(ModuleNotFoundError, match="No module named '@absent'"):
+        fig.savefig("test", backend="module://@absent")
+    with pytest.raises(ValueError,
+                       match="The 'pdf' backend does not support png output"):
+        fig.savefig("test.png", backend="pdf")
+
+
 def test_figure_repr():
     fig = plt.figure(figsize=(10, 20), dpi=10)
     assert repr(fig) == "<Figure size 100x200 with 0 Axes>"
@@ -480,3 +494,10 @@ def test_axes_removal():
     axs[0].plot([datetime(2000, 1, 1), datetime(2000, 2, 1)], [0, 1])
     assert isinstance(axs[0].xaxis.get_major_formatter(),
                       ScalarFormatter)
+
+
+def test_removed_axis():
+    # Simple smoke test to make sure removing a shared axis works
+    fig, axs = plt.subplots(2, sharex=True)
+    axs[0].remove()
+    fig.canvas.draw()

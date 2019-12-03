@@ -1,9 +1,7 @@
 import numpy as np
 from io import BytesIO
-import os
 import re
 import tempfile
-import warnings
 import xml.parsers.expat
 
 import pytest
@@ -15,11 +13,9 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
 
-with warnings.catch_warnings():
-    warnings.simplefilter('ignore')
-    needs_usetex = pytest.mark.skipif(
-        not mpl.checkdep_usetex(True),
-        reason="This test needs a TeX installation")
+needs_usetex = pytest.mark.skipif(
+    not mpl.checkdep_usetex(True),
+    reason="This test needs a TeX installation")
 
 
 def test_visibility():
@@ -98,65 +94,6 @@ def test_bold_font_output_with_none_fonttype():
     ax.set_title('bold-title', fontweight='bold')
 
 
-def _test_determinism_save(filename, usetex):
-    # This function is mostly copy&paste from "def test_visibility"
-    mpl.rc('svg', hashsalt='asdf')
-    mpl.rc('text', usetex=usetex)
-
-    fig = Figure()  # Require no GUI.
-    ax = fig.add_subplot(111)
-
-    x = np.linspace(0, 4 * np.pi, 50)
-    y = np.sin(x)
-    yerr = np.ones_like(y)
-
-    a, b, c = ax.errorbar(x, y, yerr=yerr, fmt='ko')
-    for artist in b:
-        artist.set_visible(False)
-    ax.set_title('A string $1+2+\\sigma$')
-    ax.set_xlabel('A string $1+2+\\sigma$')
-    ax.set_ylabel('A string $1+2+\\sigma$')
-
-    fig.savefig(filename, format="svg")
-
-
-@pytest.mark.parametrize(
-    "filename, usetex",
-    # unique filenames to allow for parallel testing
-    [("determinism_notex.svg", False),
-     pytest.param("determinism_tex.svg", True, marks=needs_usetex)])
-def test_determinism(filename, usetex):
-    import sys
-    from subprocess import check_output, STDOUT, CalledProcessError
-    plots = []
-    for i in range(3):
-        # Using check_output and setting stderr to STDOUT will capture the real
-        # problem in the output property of the exception
-        try:
-            check_output(
-                [sys.executable, '-R', '-c',
-                 'import matplotlib; '
-                 'matplotlib._called_from_pytest = True; '
-                 'matplotlib.use("svg", force=True); '
-                 'from matplotlib.tests.test_backend_svg '
-                 'import _test_determinism_save;'
-                 '_test_determinism_save(%r, %r)' % (filename, usetex)],
-                stderr=STDOUT)
-        except CalledProcessError as e:
-            # it's easier to use utf8 and ask for forgiveness than try
-            # to figure out what the current console has as an
-            # encoding :-/
-            print(e.output.decode(encoding="utf-8", errors="ignore"))
-            raise e
-        else:
-            with open(filename, 'rb') as fd:
-                plots.append(fd.read())
-        finally:
-            os.unlink(filename)
-    for p in plots[1:]:
-        assert p == plots[0]
-
-
 @needs_usetex
 def test_missing_psfont(monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""
@@ -204,3 +141,67 @@ def test_svgnone_with_data_coordinates():
         buf = fd.read().decode()
 
     assert expected in buf
+
+
+def test_gid():
+    """Test that object gid appears in output svg."""
+    from matplotlib.offsetbox import OffsetBox
+    from matplotlib.axis import Tick
+
+    fig = plt.figure()
+
+    ax1 = fig.add_subplot(131)
+    ax1.imshow([[1., 2.], [2., 3.]], aspect="auto")
+    ax1.scatter([1, 2, 3], [1, 2, 3], label="myscatter")
+    ax1.plot([2, 3, 1], label="myplot")
+    ax1.legend()
+    ax1a = ax1.twinx()
+    ax1a.bar([1, 2, 3], [1, 2, 3])
+
+    ax2 = fig.add_subplot(132, projection="polar")
+    ax2.plot([0, 1.5, 3], [1, 2, 3])
+
+    ax3 = fig.add_subplot(133, projection="3d")
+    ax3.plot([1, 2], [1, 2], [1, 2])
+
+    fig.canvas.draw()
+
+    gdic = {}
+    for idx, obj in enumerate(fig.findobj(include_self=True)):
+        if obj.get_visible():
+            gid = f"test123{obj.__class__.__name__}_{idx}"
+            gdic[gid] = obj
+            obj.set_gid(gid)
+
+    fd = BytesIO()
+    fig.savefig(fd, format='svg')
+    fd.seek(0)
+    buf = fd.read().decode()
+    fd.close()
+
+    def include(gid, obj):
+        # we need to exclude certain objects which will not appear in the svg
+        if isinstance(obj, OffsetBox):
+            return False
+        if isinstance(obj, plt.Text):
+            if obj.get_text() == "":
+                return False
+            elif obj.axes is None:
+                return False
+        if isinstance(obj, plt.Line2D):
+            if np.array(obj.get_data()).shape == (2, 1):
+                return False
+            elif not hasattr(obj, "axes") or obj.axes is None:
+                return False
+        if isinstance(obj, Tick):
+            loc = obj.get_loc()
+            if loc == 0:
+                return False
+            vi = obj.get_view_interval()
+            if loc < min(vi) or loc > max(vi):
+                return False
+        return True
+
+    for gid, obj in gdic.items():
+        if include(gid, obj):
+            assert gid in buf

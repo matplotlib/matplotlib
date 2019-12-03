@@ -8,9 +8,9 @@ from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib.colors import (BoundaryNorm, LogNorm, PowerNorm, Normalize,
-                               DivergingNorm)
+                               TwoSlopeNorm)
 from matplotlib.colorbar import ColorbarBase, _ColorbarLogLocator
-from matplotlib.ticker import LogLocator, LogFormatter, FixedLocator
+from matplotlib.ticker import FixedLocator
 
 
 def _get_cmap_norms():
@@ -505,7 +505,7 @@ def test_colorbar_scale_reset():
     assert cbar.ax.yaxis.get_scale() == 'linear'
 
 
-def test_colorbar_get_ticks():
+def test_colorbar_get_ticks_2():
     with rc_context({'_internal.classic_mode': False}):
 
         fig, ax = plt.subplots()
@@ -536,7 +536,7 @@ def test_colorbar_inverted_ticks():
 
 
 def test_extend_colorbar_customnorm():
-    # This was a funny error with DivergingNorm, maybe with other norms,
+    # This was a funny error with TwoSlopeNorm, maybe with other norms,
     # when extend='both'
     N = 100
     X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
@@ -546,7 +546,7 @@ def test_extend_colorbar_customnorm():
 
     fig, ax = plt.subplots(2, 1)
     pcm = ax[0].pcolormesh(X, Y, Z,
-                           norm=DivergingNorm(vcenter=0., vmin=-2, vmax=1),
+                           norm=TwoSlopeNorm(vcenter=0., vmin=-2, vmax=1),
                            cmap='RdBu_r')
     cb = fig.colorbar(pcm, ax=ax[0], extend='both')
     np.testing.assert_allclose(cb.ax.get_position().extents,
@@ -559,3 +559,24 @@ def test_mappable_no_alpha():
     fig.colorbar(sm)
     sm.set_cmap('plasma')
     plt.draw()
+
+
+def test_colorbar_label():
+    """
+    Test the label parameter. It should just be mapped to the xlabel/ylabel of
+    the axes, depending on the orientation.
+    """
+    fig, ax = plt.subplots()
+    im = ax.imshow([[1, 2], [3, 4]])
+    cbar = fig.colorbar(im, label='cbar')
+    assert cbar.ax.get_ylabel() == 'cbar'
+    cbar.set_label(None)
+    assert cbar.ax.get_ylabel() == ''
+    cbar.set_label('cbar 2')
+    assert cbar.ax.get_ylabel() == 'cbar 2'
+
+    cbar2 = fig.colorbar(im, label=None)
+    assert cbar2.ax.get_ylabel() == ''
+
+    cbar3 = fig.colorbar(im, orientation='horizontal', label='horizontal cbar')
+    assert cbar3.ax.get_xlabel() == 'horizontal cbar'

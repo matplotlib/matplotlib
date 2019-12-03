@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -29,7 +28,7 @@ def test_patheffect2():
 
     ax2 = plt.subplot(111)
     arr = np.arange(25).reshape((5, 5))
-    ax2.imshow(arr)
+    ax2.imshow(arr, interpolation='nearest')
     cntr = ax2.contour(arr, colors="k")
 
     plt.setp(cntr.collections,
@@ -97,17 +96,14 @@ def test_patheffects_stroked_text():
     ax.axis('off')
 
 
-@pytest.mark.xfail
 def test_PathEffect_points_to_pixels():
     fig = plt.figure(dpi=150)
     p1, = plt.plot(range(10))
     p1.set_path_effects([path_effects.SimpleLineShadow(),
                          path_effects.Normal()])
-
     renderer = fig.canvas.get_renderer()
-    pe_renderer = path_effects.SimpleLineShadow().get_proxy_renderer(renderer)
-
-    assert isinstance(pe_renderer, path_effects.PathEffectRenderer)
+    pe_renderer = path_effects.PathEffectRenderer(
+        p1.get_path_effects(), renderer)
     # Confirm that using a path effects renderer maintains point sizes
     # appropriately. Otherwise rendered font would be the wrong size.
     assert renderer.points_to_pixels(15) == pe_renderer.points_to_pixels(15)

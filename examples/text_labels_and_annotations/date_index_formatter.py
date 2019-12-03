@@ -18,13 +18,10 @@ import matplotlib.ticker as ticker
 with cbook.get_sample_data('goog.npz') as datafile:
     r = np.load(datafile)['price_data'].view(np.recarray)
 r = r[-30:]  # get the last 30 days
-# Matplotlib works better with datetime.datetime than np.datetime64, but the
-# latter is more portable.
-date = r.date.astype('O')
 
 # first we'll do it the default way, with gaps on weekends
 fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4))
-ax1.plot(date, r.adj_close, 'o-')
+ax1.plot(r.date, r.adj_close, 'o-')
 ax1.set_title("Default")
 fig.autofmt_xdate()
 
@@ -35,7 +32,7 @@ ind = np.arange(N)  # the evenly spaced plot indices
 
 def format_date(x, pos=None):
     thisind = np.clip(int(x + 0.5), 0, N - 1)
-    return date[thisind].strftime('%Y-%m-%d')
+    return r.date[thisind].item().strftime('%Y-%m-%d')
 
 
 ax2.plot(ind, r.adj_close, 'o-')

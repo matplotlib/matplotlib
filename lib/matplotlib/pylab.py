@@ -84,11 +84,11 @@ _Plotting commands
   stem     - make a stem plot
   subplot  - make one subplot (numrows, numcols, axesnum)
   subplots - make a figure with a set of (numrows, numcols) subplots
-  subplots_adjust - change the params controlling the subplot positions of current figure
+  subplots_adjust - control the subplot positions of current figure
   subplot_tool - launch the subplot configuration tool
   suptitle   - add a figure title
   table    - add a table to the plot
-  text     - add some text at location x,y to the current axes
+  text     - add some text at location (x, y) to the current axes
   thetagrids - customize the radial theta grids and labels for polar
   tick_params - control the appearance of ticks and tick labels
   ticklabel_format - control the format of tick labels
@@ -141,7 +141,7 @@ _Matrix commands
   logspace  - a log spaced vector of N values from min to max inclusive
   meshgrid  - repeat x and y to make regular matrices
   ones      - an array of ones
-  rand      - an array from the uniform distribution [0,1]
+  rand      - an array from the uniform distribution [0, 1]
   randn     - an array from the normal distribution
   rot90     - rotate matrix k*90 degrees counterclockwise
   squeeze   - squeeze an array removing any dimensions of length 1

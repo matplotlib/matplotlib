@@ -310,7 +310,7 @@ excluded = {
 
 
 def report_missing(dir, flist):
-    'report the py files in dir that are not in flist'
+    """Report the .py files in *dir* that are not in *flist*."""
     globstr = os.path.join(dir, '*.py')
     fnames = glob.glob(globstr)
 
@@ -457,6 +457,7 @@ def parse_options():
     if 'pylab_examples' in result.dirs:
         result.dirs[result.dirs.index('pylab_examples')] = 'pylab'
     return result
+
 
 if __name__ == '__main__':
     times = {}

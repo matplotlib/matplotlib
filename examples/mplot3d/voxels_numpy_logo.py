@@ -3,7 +3,7 @@
 3D voxel plot of the numpy logo
 ===============================
 
-Demonstrates using ``ax.voxels`` with uneven coordinates
+Demonstrates using `.Axes3D.voxels` with uneven coordinates.
 '''
 import matplotlib.pyplot as plt
 import numpy as np

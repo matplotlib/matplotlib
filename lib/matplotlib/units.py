@@ -64,6 +64,8 @@ def _is_natively_supported(x):
     if np.iterable(x):
         # Assume lists are homogeneous as other functions in unit system.
         for thisx in x:
+            if thisx is ma.masked:
+                continue
             return isinstance(thisx, Number) and not isinstance(thisx, Decimal)
     else:
         return isinstance(x, Number) and not isinstance(x, Decimal)
@@ -110,6 +112,7 @@ class ConversionInterface:
     The minimal interface for a converter to take custom data types (or
     sequences) and convert them to values Matplotlib can use.
     """
+
     @staticmethod
     def axisinfo(unit, axis):
         """
@@ -144,15 +147,16 @@ class ConversionInterface:
         """
         if np.iterable(x):
             for thisx in x:
+                if thisx is ma.masked:
+                    continue
                 return isinstance(thisx, Number)
         else:
             return isinstance(x, Number)
 
 
 class DecimalConverter(ConversionInterface):
-    """
-    Converter for decimal.Decimal data to float.
-    """
+    """Converter for decimal.Decimal data to float."""
+
     @staticmethod
     def convert(value, unit, axis):
         """
@@ -167,13 +171,13 @@ class DecimalConverter(ConversionInterface):
         """
         # If value is a Decimal
         if isinstance(value, Decimal):
-            return np.float(value)
+            return float(value)
         else:
             # assume x is a list of Decimal
             converter = np.asarray
             if isinstance(value, ma.MaskedArray):
                 converter = ma.asarray
-            return converter(value, dtype=np.float)
+            return converter(value, dtype=float)
 
     @staticmethod
     def axisinfo(unit, axis):
@@ -201,18 +205,20 @@ class Registry(dict):
             # If there are no elements in x, infer the units from its dtype
             if not x.size:
                 return self.get_converter(np.array([0], dtype=x.dtype))
-        try:  # Look up in the cache.
-            return self[type(x)]
-        except KeyError:
-            try:  # If cache lookup fails, look up based on first element...
-                first = cbook.safe_first_element(x)
-            except (TypeError, StopIteration):
+        for cls in type(x).__mro__:  # Look up in the cache.
+            try:
+                return self[cls]
+            except KeyError:
                 pass
-            else:
-                # ... and avoid infinite recursion for pathological iterables
-                # where indexing returns instances of the same iterable class.
-                if type(first) is not type(x):
-                    return self.get_converter(first)
+        try:  # If cache lookup fails, look up based on first element...
+            first = cbook.safe_first_element(x)
+        except (TypeError, StopIteration):
+            pass
+        else:
+            # ... and avoid infinite recursion for pathological iterables for
+            # which indexing returns instances of the same iterable class.
+            if type(first) is not type(x):
+                return self.get_converter(first)
         return None
 
 

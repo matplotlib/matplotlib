@@ -39,7 +39,7 @@ class GeoAxes(Axes):
             self._round_to = round_to
 
         def __call__(self, x, pos=None):
-            degrees = np.round(np.rad2deg(x) / self._round_to) * self._round_to
+            degrees = round(np.rad2deg(x) / self._round_to) * self._round_to
             if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
                 return r"$%0.0f^\circ$" % degrees
             else:
@@ -174,8 +174,8 @@ class GeoAxes(Axes):
 
     def _get_affine_transform(self):
         transform = self._get_core_transform(1)
-        xscale, _ = transform.transform_point((np.pi, 0))
-        _, yscale = transform.transform_point((0, np.pi / 2.0))
+        xscale, _ = transform.transform((np.pi, 0))
+        _, yscale = transform.transform((0, np.pi/2))
         return Affine2D() \
             .scale(0.5 / xscale, 0.5 / yscale) \
             .translate(0.5, 0.5)

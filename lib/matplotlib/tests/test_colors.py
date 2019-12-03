@@ -28,7 +28,7 @@ def test_create_lookup_table(N, result):
 
 def test_resample():
     """
-    Github issue #6025 pointed to incorrect ListedColormap._resample;
+    GitHub issue #6025 pointed to incorrect ListedColormap._resample;
     here we test the method for LinearSegmentedColormap as well.
     """
     n = 101
@@ -62,7 +62,7 @@ def test_colormap_copy():
 
 def test_colormap_endian():
     """
-    Github issue #1005: a bug in putmask caused erroneous
+    GitHub issue #1005: a bug in putmask caused erroneous
     mapping of 1.0 when input from a non-native-byteorder
     array.
     """
@@ -77,7 +77,7 @@ def test_colormap_endian():
 
 def test_colormap_invalid():
     """
-    Github issue #9892: Handling of nan's were getting mapped to under
+    GitHub issue #9892: Handling of nan's were getting mapped to under
     rather than bad. This tests to make sure all invalid values
     (-inf, nan, inf) are mapped respectively to (under, bad, over).
     """
@@ -131,7 +131,7 @@ def test_colormap_return_types():
 
 def test_BoundaryNorm():
     """
-    Github issue #1258: interpolation was failing with numpy
+    GitHub issue #1258: interpolation was failing with numpy
     1.7 pre-release.
     """
 
@@ -295,91 +295,91 @@ def test_Normalize():
     assert 0 < norm(1 + 50 * eps) < 1
 
 
-def test_DivergingNorm_autoscale():
-    norm = mcolors.DivergingNorm(vcenter=20)
+def test_TwoSlopeNorm_autoscale():
+    norm = mcolors.TwoSlopeNorm(vcenter=20)
     norm.autoscale([10, 20, 30, 40])
     assert norm.vmin == 10.
     assert norm.vmax == 40.
 
 
-def test_DivergingNorm_autoscale_None_vmin():
-    norm = mcolors.DivergingNorm(2, vmin=0, vmax=None)
+def test_TwoSlopeNorm_autoscale_None_vmin():
+    norm = mcolors.TwoSlopeNorm(2, vmin=0, vmax=None)
     norm.autoscale_None([1, 2, 3, 4, 5])
     assert norm(5) == 1
     assert norm.vmax == 5
 
 
-def test_DivergingNorm_autoscale_None_vmax():
-    norm = mcolors.DivergingNorm(2, vmin=None, vmax=10)
+def test_TwoSlopeNorm_autoscale_None_vmax():
+    norm = mcolors.TwoSlopeNorm(2, vmin=None, vmax=10)
     norm.autoscale_None([1, 2, 3, 4, 5])
     assert norm(1) == 0
     assert norm.vmin == 1
 
 
-def test_DivergingNorm_scale():
-    norm = mcolors.DivergingNorm(2)
+def test_TwoSlopeNorm_scale():
+    norm = mcolors.TwoSlopeNorm(2)
     assert norm.scaled() is False
     norm([1, 2, 3, 4])
     assert norm.scaled() is True
 
 
-def test_DivergingNorm_scaleout_center():
+def test_TwoSlopeNorm_scaleout_center():
     # test the vmin never goes above vcenter
-    norm = mcolors.DivergingNorm(vcenter=0)
+    norm = mcolors.TwoSlopeNorm(vcenter=0)
     norm([1, 2, 3, 5])
     assert norm.vmin == 0
     assert norm.vmax == 5
 
 
-def test_DivergingNorm_scaleout_center_max():
+def test_TwoSlopeNorm_scaleout_center_max():
     # test the vmax never goes below vcenter
-    norm = mcolors.DivergingNorm(vcenter=0)
+    norm = mcolors.TwoSlopeNorm(vcenter=0)
     norm([-1, -2, -3, -5])
     assert norm.vmax == 0
     assert norm.vmin == -5
 
 
-def test_DivergingNorm_Even():
-    norm = mcolors.DivergingNorm(vmin=-1, vcenter=0, vmax=4)
+def test_TwoSlopeNorm_Even():
+    norm = mcolors.TwoSlopeNorm(vmin=-1, vcenter=0, vmax=4)
     vals = np.array([-1.0, -0.5, 0.0, 1.0, 2.0, 3.0, 4.0])
     expected = np.array([0.0, 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
     assert_array_equal(norm(vals), expected)
 
 
-def test_DivergingNorm_Odd():
-    norm = mcolors.DivergingNorm(vmin=-2, vcenter=0, vmax=5)
+def test_TwoSlopeNorm_Odd():
+    norm = mcolors.TwoSlopeNorm(vmin=-2, vcenter=0, vmax=5)
     vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
     expected = np.array([0.0, 0.25, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
     assert_array_equal(norm(vals), expected)
 
 
-def test_DivergingNorm_VminEqualsVcenter():
+def test_TwoSlopeNorm_VminEqualsVcenter():
     with pytest.raises(ValueError):
-        mcolors.DivergingNorm(vmin=-2, vcenter=-2, vmax=2)
+        mcolors.TwoSlopeNorm(vmin=-2, vcenter=-2, vmax=2)
 
 
-def test_DivergingNorm_VmaxEqualsVcenter():
+def test_TwoSlopeNorm_VmaxEqualsVcenter():
     with pytest.raises(ValueError):
-        mcolors.DivergingNorm(vmin=-2, vcenter=2, vmax=2)
+        mcolors.TwoSlopeNorm(vmin=-2, vcenter=2, vmax=2)
 
 
-def test_DivergingNorm_VminGTVcenter():
+def test_TwoSlopeNorm_VminGTVcenter():
     with pytest.raises(ValueError):
-        mcolors.DivergingNorm(vmin=10, vcenter=0, vmax=20)
+        mcolors.TwoSlopeNorm(vmin=10, vcenter=0, vmax=20)
 
 
-def test_DivergingNorm_DivergingNorm_VminGTVmax():
+def test_TwoSlopeNorm_TwoSlopeNorm_VminGTVmax():
     with pytest.raises(ValueError):
-        mcolors.DivergingNorm(vmin=10, vcenter=0, vmax=5)
+        mcolors.TwoSlopeNorm(vmin=10, vcenter=0, vmax=5)
 
 
-def test_DivergingNorm_VcenterGTVmax():
+def test_TwoSlopeNorm_VcenterGTVmax():
     with pytest.raises(ValueError):
-        mcolors.DivergingNorm(vmin=10, vcenter=25, vmax=20)
+        mcolors.TwoSlopeNorm(vmin=10, vcenter=25, vmax=20)
 
 
-def test_DivergingNorm_premature_scaling():
-    norm = mcolors.DivergingNorm(vcenter=2)
+def test_TwoSlopeNorm_premature_scaling():
+    norm = mcolors.TwoSlopeNorm(vcenter=2)
     with pytest.raises(ValueError):
         norm.inverse(np.array([0.1, 0.5, 0.9]))
 
@@ -910,3 +910,13 @@ def test_ndarray_subclass_norm(recwarn):
 def test_same_color():
     assert mcolors.same_color('k', (0, 0, 0))
     assert not mcolors.same_color('w', (1, 1, 0))
+
+
+def test_hex_shorthand_notation():
+    assert mcolors.same_color("#123", "#112233")
+    assert mcolors.same_color("#123a", "#112233aa")
+
+
+def test_DivergingNorm_deprecated():
+    with pytest.warns(cbook.MatplotlibDeprecationWarning):
+        norm = mcolors.DivergingNorm(vcenter=0)

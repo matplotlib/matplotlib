@@ -22,6 +22,7 @@ import enum
 from functools import lru_cache, partial, wraps
 import logging
 import os
+from pathlib import Path
 import re
 import struct
 import textwrap
@@ -203,12 +204,9 @@ class Dvi:
 
     def _get_baseline(self, filename):
         if rcParams['text.latex.preview']:
-            base, ext = os.path.splitext(filename)
-            baseline_filename = base + ".baseline"
-            if os.path.exists(baseline_filename):
-                with open(baseline_filename, 'rb') as fd:
-                    l = fd.read().split()
-                height, depth, width = l
+            baseline = Path(filename).with_suffix(".baseline")
+            if baseline.exists():
+                height, depth, width = baseline.read_bytes().split()
                 return float(depth)
         return None
 
@@ -483,7 +481,7 @@ class Dvi:
 
     @_dispatch(min=250, max=255)
     def _malformed(self, offset):
-        raise ValueError("unknown command: byte %d", 250 + offset)
+        raise ValueError(f"unknown command: byte {250 + offset}")
 
 
 class DviFont:
@@ -525,9 +523,7 @@ class DviFont:
     __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
 
     def __init__(self, scale, tfm, texname, vf):
-        if not isinstance(texname, bytes):
-            raise ValueError("texname must be a bytestring, got %s"
-                             % type(texname))
+        cbook._check_isinstance(bytes, texname=texname)
         self._scale = scale
         self._tfm = tfm
         self.texname = texname
@@ -577,15 +573,9 @@ class Vf(Dvi):
     r"""
     A virtual font (\*.vf file) containing subroutines for dvi files.
 
-    Usage::
-
-      vf = Vf(filename)
-      glyph = vf[code]
-      glyph.text, glyph.boxes, glyph.width
-
     Parameters
     ----------
-    filename : string or bytestring
+    filename : str or path-like
 
     Notes
     -----
@@ -593,6 +583,13 @@ class Vf(Dvi):
     http://mirrors.ctan.org/info/knuth/virtual-fonts
     This class reuses some of the machinery of `Dvi`
     but replaces the `_read` loop and dispatch mechanism.
+
+    Examples
+    --------
+    ::
+        vf = Vf(filename)
+        glyph = vf[code]
+        glyph.text, glyph.boxes, glyph.width
     """
 
     def __init__(self, filename):
@@ -706,7 +703,7 @@ class Tfm:
 
     Parameters
     ----------
-    filename : string or bytestring
+    filename : str or path-like
 
     Attributes
     ----------
@@ -757,23 +754,9 @@ class PsfontsMap:
     """
     A psfonts.map formatted file, mapping TeX fonts to PS fonts.
 
-    Usage::
-
-     >>> map = PsfontsMap(find_tex_file('pdftex.map'))
-     >>> entry = map[b'ptmbo8r']
-     >>> entry.texname
-     b'ptmbo8r'
-     >>> entry.psname
-     b'Times-Bold'
-     >>> entry.encoding
-     '/usr/local/texlive/2008/texmf-dist/fonts/enc/dvips/base/8r.enc'
-     >>> entry.effects
-     {'slant': 0.16700000000000001}
-     >>> entry.filename
-
     Parameters
     ----------
-    filename : string or bytestring
+    filename : str or path-like
 
     Notes
     -----
@@ -796,6 +779,20 @@ class PsfontsMap:
     the Times-Bold example above), while the pdf-related files perhaps
     only avoid the "Base 14" pdf fonts. But the user may have
     configured these files differently.
+
+    Examples
+    --------
+    >>> map = PsfontsMap(find_tex_file('pdftex.map'))
+    >>> entry = map[b'ptmbo8r']
+    >>> entry.texname
+    b'ptmbo8r'
+    >>> entry.psname
+    b'Times-Bold'
+    >>> entry.encoding
+    '/usr/local/texlive/2008/texmf-dist/fonts/enc/dvips/base/8r.enc'
+    >>> entry.effects
+    {'slant': 0.16700000000000001}
+    >>> entry.filename
     """
     __slots__ = ('_font', '_filename')
 
@@ -932,7 +929,7 @@ class Encoding:
 
     Parameters
     ----------
-    filename : string or bytestring
+    filename : str or path-like
 
     Attributes
     ----------
@@ -991,7 +988,7 @@ def _parse_enc(path):
     with open(path, encoding="ascii") as file:
         no_comments = "\n".join(line.split("%")[0].rstrip() for line in file)
     array = re.search(r"(?s)\[(.*)\]", no_comments).group(1)
-    lines = [line for line in array.split("\n") if line]
+    lines = [line for line in array.split() if line]
     if all(line.startswith("/") for line in lines):
         return [line[1:] for line in lines]
     else:
@@ -1013,9 +1010,9 @@ def find_tex_file(filename, format=None):
 
     Parameters
     ----------
-    filename : string or bytestring
-    format : string or bytestring
-        Used as the value of the `--format` option to :program:`kpsewhich`.
+    filename : str or path-like
+    format : str or bytes
+        Used as the value of the ``--format`` option to :program:`kpsewhich`.
         Could be e.g. 'tfm' or 'vf' to limit the search to that type of files.
 
     References
@@ -1034,7 +1031,7 @@ def find_tex_file(filename, format=None):
     if os.name == 'nt':
         # On Windows only, kpathsea can use utf-8 for cmd args and output.
         # The `command_line_encoding` environment variable is set to force it
-        # to always use utf-8 encoding. See mpl issue #11848 for more info.
+        # to always use utf-8 encoding.  See Matplotlib issue #11848.
         kwargs = dict(env=dict(os.environ, command_line_encoding='utf-8'))
     else:
         kwargs = {}

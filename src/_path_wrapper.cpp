@@ -631,8 +631,12 @@ static PyObject *Py_cleanup_path(PyObject *self, PyObject *args, PyObject *kwds)
 
     if (simplifyobj == Py_None) {
         simplify = path.should_simplify();
-    } else if (PyObject_IsTrue(simplifyobj)) {
-        simplify = true;
+    } else {
+        switch (PyObject_IsTrue(simplifyobj)) {
+            case 0: simplify = false; break;
+            case 1: simplify = true; break;
+            default: return NULL;  // errored.
+        }
     }
 
     bool do_clip = (clip_rect.x1 < clip_rect.x2 && clip_rect.y1 < clip_rect.y2);
@@ -709,8 +713,12 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
 
     if (simplifyobj == Py_None) {
         simplify = path.should_simplify();
-    } else if (PyObject_IsTrue(simplifyobj)) {
-        simplify = true;
+    } else {
+        switch (PyObject_IsTrue(simplifyobj)) {
+            case 0: simplify = false; break;
+            case 1: simplify = true; break;
+            default: return NULL;  // errored.
+        }
     }
 
     CALL_CPP("convert_to_string",

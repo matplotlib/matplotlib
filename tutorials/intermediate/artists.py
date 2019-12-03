@@ -57,7 +57,7 @@ methods (:meth:`~matplotlib.axes.Axes.plot`,
 graphics primitives (:class:`~matplotlib.lines.Line2D`,
 :class:`~matplotlib.text.Text`,
 :class:`~matplotlib.patches.Rectangle`,
-:class:`~matplotlib.image.Image`, respectively).  These helper methods
+:class:`~matplotlib.image.AxesImage`, respectively).  These helper methods
 will take your data (e.g., ``numpy`` arrays and strings) and create
 primitive ``Artist`` instances as needed (e.g., ``Line2D``), add them to
 the relevant containers, and draw them when requested.  Most of you
@@ -420,10 +420,10 @@ plt.show()
 #     In [262]: fig, ax = plt.subplots()
 #
 #     # create a rectangle instance
-#     In [263]: rect = matplotlib.patches.Rectangle( (1,1), width=5, height=12)
+#     In [263]: rect = matplotlib.patches.Rectangle((1, 1), width=5, height=12)
 #
 #     # by default the axes instance is None
-#     In [264]: print(rect.get_axes())
+#     In [264]: print(rect.axes)
 #     None
 #
 #     # and the transformation instance is set to the "identity transform"
@@ -435,7 +435,7 @@ plt.show()
 #
 #     # and notice that the ax.add_patch method has set the axes
 #     # instance
-#     In [267]: print(rect.get_axes())
+#     In [267]: print(rect.axes)
 #     Axes(0.125,0.1;0.775x0.8)
 #
 #     # and the transformation has been set too
@@ -555,25 +555,23 @@ axis.get_ticklocs()
 axis.get_ticklabels()
 
 ###############################################################################
-# note there are twice as many ticklines as labels because by
-#  default there are tick lines at the top and bottom but only tick
-#  labels below the xaxis; this can be customized
+# note there are twice as many ticklines as labels because by default there are
+# tick lines at the top and bottom but only tick labels below the xaxis;
+# however, this can be customized.
 
 axis.get_ticklines()
 
 ###############################################################################
-# by default you get the major ticks back
+# And with the above methods, you only get lists of major ticks back by default,
+# but you can also ask for the minor ticks:
 
-axis.get_ticklines()
-
-###############################################################################
-# but you can also ask for the minor ticks
-
+axis.get_ticklabels(minor=True)
 axis.get_ticklines(minor=True)
 
+###############################################################################
 # Here is a summary of some of the useful accessor methods of the ``Axis``
 # (these have corresponding setters where useful, such as
-# set_major_formatter)
+# :meth:`~matplotlib.axis.Axis.set_major_formatter`.)
 #
 # ======================  =========================================================
 # Accessor method         Description

@@ -117,8 +117,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
 
     collection.set_alpha(alpha)
     collection.set_array(C)
-    if norm is not None and not isinstance(norm, Normalize):
-        raise ValueError("'norm' must be an instance of 'Normalize'")
+    cbook._check_isinstance((Normalize, None), norm=norm)
     collection.set_cmap(cmap)
     collection.set_norm(norm)
     if vmin is not None or vmax is not None:

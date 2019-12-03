@@ -1,4 +1,4 @@
-from unittest.mock import Mock
+from types import SimpleNamespace
 
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
@@ -54,7 +54,7 @@ def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
     *step*
         number of scroll steps (positive for 'up', negative for 'down')
     """
-    event = Mock()
+    event = SimpleNamespace()
     event.button = button
     ax = tool.ax
     event.x, event.y = ax.transData.transform([(xdata, ydata),
@@ -264,6 +264,9 @@ def test_CheckButtons():
 
 @image_comparison(['check_radio_buttons.png'], style='mpl20', remove_text=True)
 def test_check_radio_buttons_image():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['text.kerning_factor'] = 6
+
     get_ax()
     plt.subplots_adjust(left=0.3)
     rax1 = plt.axes([0.05, 0.7, 0.15, 0.15])

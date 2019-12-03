@@ -79,11 +79,7 @@ class StrConverter(units.ConversionInterface):
             if v not in labels and v not in newValues:
                 newValues.append(v)
 
-        for v in newValues:
-            if labels:
-                labels.append(v)
-            else:
-                labels = [v]
+        labels.extend(newValues)
 
         # DISABLED: This is disabled because matplotlib bar plots do not
         # DISABLED: recalculate the unit conversion of the data values
@@ -113,14 +109,7 @@ class StrConverter(units.ConversionInterface):
         else:
             ax.set_ylim(ticks[0], ticks[-1])
 
-        result = []
-        for v in value:
-            # If v is not in labels then something went wrong with adding new
-            # labels to the list of old labels.
-            errmsg = "This is due to a logic error in the StrConverter class."
-            errmsg += " Please report this error and its message in bugzilla."
-            assert v in labels, errmsg
-            result.append(ticks[labels.index(v)])
+        result = [ticks[labels.index(v)] for v in value]
 
         ax.viewLim.ignore(-1)
         return result

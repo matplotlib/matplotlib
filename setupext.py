@@ -1,5 +1,5 @@
 import configparser
-from distutils import sysconfig
+from distutils import ccompiler, sysconfig
 from distutils.core import Extension
 import functools
 import glob
@@ -33,7 +33,7 @@ def _get_xdg_cache_dir():
         cache_dir = os.path.expanduser('~/.cache')
         if cache_dir.startswith('~/'):  # Expansion failed.
             return None
-    return os.path.join(cache_dir, 'matplotlib')
+    return pathlib.Path(cache_dir, 'matplotlib')
 
 
 def get_fd_hash(fd):
@@ -74,7 +74,7 @@ def download_or_cache(url, sha):
     def get_from_cache(local_fn):
         if cache_dir is None:
             raise Exception("no cache dir")
-        buf = BytesIO(pathlib.Path(cache_dir, local_fn).read_bytes())
+        buf = BytesIO((cache_dir / local_fn).read_bytes())
         if get_fd_hash(buf) != sha:
             return None
         buf.seek(0)
@@ -83,11 +83,10 @@ def download_or_cache(url, sha):
     def write_cache(local_fn, data):
         if cache_dir is None:
             raise Exception("no cache dir")
-        cache_filename = os.path.join(cache_dir, local_fn)
-        os.makedirs(cache_dir, exist_ok=True)
+        cache_dir.mkdir(parents=True, exist_ok=True)
         old_pos = data.tell()
         data.seek(0)
-        with open(cache_filename, "xb") as fout:
+        with open(cache_dir / local_fn, "xb") as fout:
             fout.write(data.read())
         data.seek(old_pos)
 
@@ -107,10 +106,9 @@ def download_or_cache(url, sha):
     file_sha = get_fd_hash(file_contents)
 
     if file_sha != sha:
-        raise Exception(("The download file does not match the "
-                         "expected sha.  {url} was expected to have "
-                         "{sha} but it had {file_sha}").format(
-                             sha=sha, file_sha=file_sha, url=url))
+        raise Exception(
+            f"The download file does not match the expected sha.  {url} was "
+            f"expected to have {sha} but it had {file_sha}")
 
     try:
         write_cache(sha, file_contents)
@@ -123,15 +121,24 @@ def download_or_cache(url, sha):
 
 # SHA256 hashes of the FreeType tarballs
 _freetype_hashes = {
-    '2.6.1': '0a3c7dfbda6da1e8fce29232e8e96d987ababbbf71ebc8c75659e4132c367014',
-    '2.6.2': '8da42fc4904e600be4b692555ae1dcbf532897da9c5b9fb5ebd3758c77e5c2d4',
-    '2.6.3': '7942096c40ee6fea882bd4207667ad3f24bff568b96b10fd3885e11a7baad9a3',
-    '2.6.4': '27f0e38347a1850ad57f84fc4dfed68ba0bc30c96a6fa6138ef84d485dd9a8d7',
-    '2.6.5': '3bb24add9b9ec53636a63ea8e867ed978c4f8fdd8f1fa5ccfd41171163d4249a',
-    '2.7': '7b657d5f872b0ab56461f3bd310bd1c5ec64619bd15f0d8e08282d494d9cfea4',
-    '2.7.1': '162ef25aa64480b1189cdb261228e6c5c44f212aac4b4621e28cf2157efb59f5',
-    '2.8': '33a28fabac471891d0523033e99c0005b95e5618dc8ffa7fa47f9dadcacb1c9b',
-    '2.8.1': '876711d064a6a1bd74beb18dd37f219af26100f72daaebd2d86cb493d7cd7ec6',
+    '2.6.1':
+        '0a3c7dfbda6da1e8fce29232e8e96d987ababbbf71ebc8c75659e4132c367014',
+    '2.6.2':
+        '8da42fc4904e600be4b692555ae1dcbf532897da9c5b9fb5ebd3758c77e5c2d4',
+    '2.6.3':
+        '7942096c40ee6fea882bd4207667ad3f24bff568b96b10fd3885e11a7baad9a3',
+    '2.6.4':
+        '27f0e38347a1850ad57f84fc4dfed68ba0bc30c96a6fa6138ef84d485dd9a8d7',
+    '2.6.5':
+        '3bb24add9b9ec53636a63ea8e867ed978c4f8fdd8f1fa5ccfd41171163d4249a',
+    '2.7':
+        '7b657d5f872b0ab56461f3bd310bd1c5ec64619bd15f0d8e08282d494d9cfea4',
+    '2.7.1':
+        '162ef25aa64480b1189cdb261228e6c5c44f212aac4b4621e28cf2157efb59f5',
+    '2.8':
+        '33a28fabac471891d0523033e99c0005b95e5618dc8ffa7fa47f9dadcacb1c9b',
+    '2.8.1':
+        '876711d064a6a1bd74beb18dd37f219af26100f72daaebd2d86cb493d7cd7ec6',
 }
 # This is the version of FreeType to use when building a local
 # version.  It must match the value in
@@ -142,56 +149,31 @@ LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
 
 # matplotlib build options, which can be altered using setup.cfg
-options = {
-    'display_status': True,
-    'backend': None,
-    }
-
-
 setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
+config = configparser.ConfigParser()
 if os.path.exists(setup_cfg):
-    config = configparser.ConfigParser()
     config.read(setup_cfg)
+options = {
+    'backend': config.get('rc_options', 'backend', fallback=None),
+    'system_freetype': config.getboolean('libs', 'system_freetype',
+                                         fallback=False),
+    'system_qhull': config.getboolean('libs', 'system_qhull',
+                                      fallback=False),
+}
 
-    if config.has_option('status', 'suppress'):
-        options['display_status'] = not config.getboolean("status", "suppress")
 
-    if config.has_option('rc_options', 'backend'):
-        options['backend'] = config.get("rc_options", "backend")
-
-    if config.has_option('test', 'local_freetype'):
-        options['local_freetype'] = config.getboolean("test", "local_freetype")
+if '-q' in sys.argv or '--quiet' in sys.argv:
+    def print_raw(*args, **kwargs): pass  # Suppress our own output.
 else:
-    config = None
-
-lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
-options['local_freetype'] = lft or options.get('local_freetype', False)
+    print_raw = print
 
 
-# Define the display functions only if display_status is True.
-if options['display_status']:
-    def print_line(char='='):
-        print(char * 80)
-
-    def print_status(package, status):
-        initial_indent = "%12s: " % package
-        indent = ' ' * 18
-        print(textwrap.fill(str(status), width=80,
+def print_status(package, status):
+    initial_indent = "%12s: " % package
+    indent = ' ' * 18
+    print_raw(textwrap.fill(str(status), width=80,
                             initial_indent=initial_indent,
                             subsequent_indent=indent))
-
-    def print_message(message):
-        indent = ' ' * 18 + "* "
-        print(textwrap.fill(str(message), width=80,
-                            initial_indent=indent,
-                            subsequent_indent=indent))
-
-    def print_raw(section):
-        print(section)
-else:
-    def print_line(*args, **kwargs):
-        pass
-    print_status = print_message = print_raw = print_line
 
 
 def get_buffer_hash(fd):
@@ -213,9 +195,10 @@ def get_pkg_config():
         return None
     pkg_config = os.environ.get('PKG_CONFIG', 'pkg-config')
     if shutil.which(pkg_config) is None:
-        print("IMPORTANT WARNING:\n"
-              "    pkg-config is not installed.\n"
-              "    matplotlib may not be able to find some of its dependencies.")
+        print(
+            "IMPORTANT WARNING:\n"
+            "    pkg-config is not installed.\n"
+            "    Matplotlib may not be able to find some of its dependencies.")
         return None
     pkg_config_path = sysconfig.get_config_var('LIBDIR')
     if pkg_config_path is not None:
@@ -319,7 +302,6 @@ class SetupPackage:
 
 class OptionalPackage(SetupPackage):
     optional = True
-    force = False
     config_category = "packages"
     default_config = "auto"
 
@@ -332,7 +314,7 @@ class OptionalPackage(SetupPackage):
         insensitively defined as 0, false, no, off for False).
         """
         conf = cls.default_config
-        if config is not None and config.has_option(cls.config_category, cls.name):
+        if config.has_option(cls.config_category, cls.name):
             try:
                 conf = config.getboolean(cls.config_category, cls.name)
             except ValueError:
@@ -345,26 +327,13 @@ class OptionalPackage(SetupPackage):
 
         May be overridden by subclasses for additional checks.
         """
-        # Check configuration file
-        conf = self.get_config()
-        # Default "auto" state or install forced by user
-        if conf in [True, 'auto']:
-            # Set non-optional if user sets `True` in config
-            if conf is True:
+        conf = self.get_config()  # Check configuration file
+        if conf in [True, 'auto']:  # Default "auto", or install forced by user
+            if conf is True:  # Set non-optional if user sets `True` in config
                 self.optional = False
             return "installing"
-        # Configuration opt-out by user
-        else:
-            # Some backend extensions (e.g. Agg) need to be built for certain
-            # other GUI backends (e.g. TkAgg) even when manually disabled
-            if self.force is True:
-                return "installing forced (config override)"
-            else:
-                raise CheckFailed("skipping due to configuration")
-
-
-class OptionalBackendPackage(OptionalPackage):
-    config_category = "gui_support"
+        else:  # Configuration opt-out by user
+            raise CheckFailed("skipping due to configuration")
 
 
 class Platform(SetupPackage):
@@ -401,6 +370,7 @@ class Matplotlib(SetupPackage):
                 *_pkg_data_helper('matplotlib', 'mpl-data/images'),
                 *_pkg_data_helper('matplotlib', 'mpl-data/stylelib'),
                 *_pkg_data_helper('matplotlib', 'backends/web_backend'),
+                '*.dll',  # Only actually matters on Windows.
             ],
         }
 
@@ -431,8 +401,6 @@ class Tests(OptionalPackage):
                 *_pkg_data_helper('matplotlib', 'tests/tinypages'),
                 'tests/cmr10.pfb',
                 'tests/mpltest.ttf',
-                'tests/test_rcparams.rc',
-                'tests/test_utf32_be_rcparams.rc',
             ],
             'mpl_toolkits': [
                 *_pkg_data_helper('mpl_toolkits', 'tests/baseline_images'),
@@ -476,11 +444,9 @@ class LibAgg(SetupPackage):
                                for x in agg_sources)
 
 
-# For FreeType2 and libpng, we add a separate checkdep_foo.c source to at the
-# top of the extension sources.  This file is compiled first and immediately
-# aborts the compilation either with "foo.h: No such file or directory" if the
-# header is not found, or an appropriate error message if the header indicates
-# a too-old version.
+# First compile checkdep_freetype2.c, which aborts the compilation either
+# with "foo.h: No such file or directory" if the header is not found, or an
+# appropriate error message if the header indicates a too-old version.
 
 
 class FreeType(SetupPackage):
@@ -488,20 +454,7 @@ class FreeType(SetupPackage):
 
     def add_flags(self, ext):
         ext.sources.insert(0, 'src/checkdep_freetype2.c')
-        if options.get('local_freetype'):
-            src_path = os.path.join(
-                'build', 'freetype-{0}'.format(LOCAL_FREETYPE_VERSION))
-            # Statically link to the locally-built freetype.
-            # This is certainly broken on Windows.
-            ext.include_dirs.insert(0, os.path.join(src_path, 'include'))
-            if sys.platform == 'win32':
-                libfreetype = 'libfreetype.lib'
-            else:
-                libfreetype = 'libfreetype.a'
-            ext.extra_objects.insert(
-                0, os.path.join(src_path, 'objs', '.libs', libfreetype))
-            ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'local'))
-        else:
+        if options.get('system_freetype'):
             pkg_config_setup_extension(
                 # FreeType 2.3 has libtool version 9.11.3 as can be checked
                 # from the tarball.  For FreeType>=2.4, there is a conversion
@@ -509,16 +462,28 @@ class FreeType(SetupPackage):
                 ext, 'freetype2',
                 atleast_version='9.11.3',
                 alt_exec=['freetype-config'],
-                default_libraries=['freetype', 'z'])
+                default_libraries=['freetype'])
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
+        else:
+            src_path = pathlib.Path(
+                'build', f'freetype-{LOCAL_FREETYPE_VERSION}')
+            # Statically link to the locally-built freetype.
+            # This is certainly broken on Windows.
+            ext.include_dirs.insert(0, str(src_path / 'include'))
+            if sys.platform == 'win32':
+                libfreetype = 'libfreetype.lib'
+            else:
+                libfreetype = 'libfreetype.a'
+            ext.extra_objects.insert(
+                0, str(src_path / 'objs' / '.libs' / libfreetype))
+            ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'local'))
 
     def do_custom_build(self):
         # We're using a system freetype
-        if not options.get('local_freetype'):
+        if options.get('system_freetype'):
             return
 
-        src_path = os.path.join(
-            'build', 'freetype-{0}'.format(LOCAL_FREETYPE_VERSION))
+        src_path = pathlib.Path('build', f'freetype-{LOCAL_FREETYPE_VERSION}')
 
         # We've already built freetype
         if sys.platform == 'win32':
@@ -527,12 +492,11 @@ class FreeType(SetupPackage):
             libfreetype = 'libfreetype.a'
 
         # bailing because it is already built
-        if os.path.isfile(os.path.join(
-                src_path, 'objs', '.libs', libfreetype)):
+        if (src_path / 'objs' / '.libs' / libfreetype).is_file():
             return
 
         # do we need to download / load the source from cache?
-        if not os.path.exists(src_path):
+        if not src_path.exists():
             os.makedirs('build', exist_ok=True)
 
             url_fmts = [
@@ -541,7 +505,7 @@ class FreeType(SetupPackage):
                 ('https://download.savannah.gnu.org/releases/freetype'
                  '/{tarball}')
             ]
-            tarball = 'freetype-{0}.tar.gz'.format(LOCAL_FREETYPE_VERSION)
+            tarball = f'freetype-{LOCAL_FREETYPE_VERSION}.tar.gz'
 
             target_urls = [
                 url_fmt.format(version=LOCAL_FREETYPE_VERSION,
@@ -556,22 +520,20 @@ class FreeType(SetupPackage):
                 except Exception:
                     pass
             else:
-                raise IOError("Failed to download FreeType.  Please download "
-                              "one of {target_urls} and extract it into "
-                              "{src_path} at the top-level of the source "
-                              "repository".format(
-                                  target_urls=target_urls, src_path=src_path))
+                raise IOError(
+                    f"Failed to download FreeType. Please download one of "
+                    f"{target_urls} and extract it into {src_path} at the "
+                    f"top-level of the source repository.")
 
-            print("Extracting {}".format(tarball))
+            print(f"Extracting {tarball}")
             # just to be sure
             tar_contents.seek(0)
             with tarfile.open(tarball, mode="r:gz",
                               fileobj=tar_contents) as tgz:
                 tgz.extractall("build")
 
-        print("Building freetype in {}".format(src_path))
-        if sys.platform != 'win32':
-            # compilation on all other platforms than windows
+        print(f"Building freetype in {src_path}")
+        if sys.platform != 'win32':  # compilation on non-windows
             env = {**os.environ,
                    "CFLAGS": "{} -fPIC".format(os.environ.get("CFLAGS", ""))}
             subprocess.check_call(
@@ -583,35 +545,34 @@ class FreeType(SetupPackage):
             # compilation on windows
             shutil.rmtree(str(pathlib.Path(src_path, "objs")),
                           ignore_errors=True)
-            FREETYPE_BUILD_CMD = r"""
-call "%ProgramFiles%\Microsoft SDKs\Windows\v7.0\Bin\SetEnv.Cmd" ^
-    /Release /{xXX} /xp
-call "{vcvarsall}" {xXX}
-set MSBUILD=C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
-%MSBUILD% "builds\windows\{vc20xx}\freetype.sln" ^
-    /t:Clean;Build /p:Configuration="Release";Platform={WinXX}
-"""
-            import distutils.msvc9compiler as msvc
-            # Note: freetype has no build profile for 2014, so we don't bother...
+            msbuild_platform = (
+                'x64' if platform.architecture()[0] == '64bit' else 'Win32')
+            base_path = pathlib.Path("build/freetype-2.6.1/builds/windows")
             vc = 'vc2010'
-            WinXX = 'x64' if platform.architecture()[0] == '64bit' else 'Win32'
-            xXX = 'x64' if platform.architecture()[0] == '64bit' else 'x86'
-            vcvarsall = msvc.find_vcvarsall(10.0)
-            if vcvarsall is None:
-                raise RuntimeError('Microsoft VS 2010 required')
-            cmdfile = pathlib.Path("build/build_freetype.cmd")
-            cmdfile.write_text(FREETYPE_BUILD_CMD.format(
-                vc20xx=vc, WinXX=WinXX, xXX=xXX, vcvarsall=vcvarsall))
-            subprocess.check_call([str(cmdfile.resolve())],
-                                  shell=True, cwd=src_path)
+            sln_path = (
+                base_path / vc / "freetype.sln"
+            )
+            # https://developercommunity.visualstudio.com/comments/190992/view.html
+            (sln_path.parent / "Directory.Build.props").write_text("""
+<Project>
+ <PropertyGroup>
+  <!-- The following line *cannot* be split over multiple lines. -->
+  <WindowsTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</WindowsTargetPlatformVersion>
+ </PropertyGroup>
+</Project>
+""")
+            cc = ccompiler.new_compiler()
+            cc.initialize()  # Get devenv & msbuild in the %PATH% of cc.spawn.
+            cc.spawn(["devenv", str(sln_path), "/upgrade"])
+            cc.spawn(["msbuild", str(sln_path),
+                      "/t:Clean;Build",
+                      f"/p:Configuration=Release;Platform={msbuild_platform}"])
             # Move to the corresponding Unix build path.
-            pathlib.Path(src_path, "objs/.libs").mkdir()
+            (src_path / "objs" / ".libs").mkdir()
             # Be robust against change of FreeType version.
-            lib_path, = (pathlib.Path(src_path, "objs", vc, xXX)
-                         .glob("freetype*.lib"))
-            shutil.copy2(
-                str(lib_path),
-                str(pathlib.Path(src_path, "objs/.libs/libfreetype.lib")))
+            lib_path, = (src_path / "objs" / vc / msbuild_platform).glob(
+                "freetype*.lib")
+            shutil.copy2(lib_path, src_path / "objs/.libs/libfreetype.lib")
 
 
 class FT2Font(SetupPackage):
@@ -631,36 +592,17 @@ class FT2Font(SetupPackage):
         return ext
 
 
-class Png(SetupPackage):
-    name = "png"
-
-    def get_extension(self):
-        sources = [
-            'src/checkdep_libpng.c',
-            'src/_png.cpp',
-            'src/mplutils.cpp',
-            ]
-        ext = Extension('matplotlib._png', sources)
-        pkg_config_setup_extension(
-            ext, 'libpng',
-            atleast_version='1.2',
-            alt_exec=['libpng-config', '--ldflags'],
-            default_libraries=['png', 'z'])
-        add_numpy_flags(ext)
-        return ext
-
-
 class Qhull(SetupPackage):
     name = "qhull"
 
     def add_flags(self, ext):
-        # Qhull doesn't distribute pkg-config info, so we have no way of
-        # knowing whether a system install is recent enough.  Thus, always use
-        # the vendored version.
-        ext.include_dirs.insert(0, 'extern')
-        ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
-        if sysconfig.get_config_var('LIBM') == '-lm':
-            ext.libraries.extend('m')
+        if options.get('system_qhull'):
+            ext.libraries.append('qhull')
+        else:
+            ext.include_dirs.insert(0, 'extern')
+            ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
+            if sysconfig.get_config_var('LIBM') == '-lm':
+                ext.libraries.extend('m')
 
 
 class TTConv(SetupPackage):
@@ -751,9 +693,8 @@ class Tri(SetupPackage):
         return ext
 
 
-class BackendAgg(OptionalBackendPackage):
+class BackendAgg(SetupPackage):
     name = "agg"
-    force = True
 
     def get_extension(self):
         sources = [
@@ -769,9 +710,8 @@ class BackendAgg(OptionalBackendPackage):
         return ext
 
 
-class BackendTkAgg(OptionalBackendPackage):
+class BackendTkAgg(SetupPackage):
     name = "tkagg"
-    force = True
 
     def check(self):
         return "installing; run-time loading from Python Tcl/Tk"
@@ -799,7 +739,8 @@ class BackendTkAgg(OptionalBackendPackage):
             ext.libraries.extend(['dl'])
 
 
-class BackendMacOSX(OptionalBackendPackage):
+class BackendMacOSX(OptionalPackage):
+    config_category = 'gui_support'
     name = 'macosx'
 
     def check(self):
@@ -816,35 +757,3 @@ class BackendMacOSX(OptionalBackendPackage):
         if platform.python_implementation().lower() == 'pypy':
             ext.extra_compile_args.append('-DPYPY=1')
         return ext
-
-
-class OptionalPackageData(OptionalPackage):
-    config_category = "package_data"
-
-
-class Dlls(OptionalPackageData):
-    """
-    On Windows, this packages any DLL files that can be found in the
-    lib/matplotlib/* directories.
-    """
-    name = "dlls"
-
-    def check(self):
-        if sys.platform != 'win32':
-            raise CheckFailed("Microsoft Windows only")
-        return super().check()
-
-    def get_package_data(self):
-        return {'': ['*.dll']}
-
-    @classmethod
-    def get_config(cls):
-        """
-        Look at `setup.cfg` and return one of ["auto", True, False] indicating
-        if the package is at default state ("auto"), forced by the user (True)
-        or opted-out (False).
-        """
-        try:
-            return config.getboolean(cls.config_category, cls.name)
-        except Exception:
-            return False  # <-- default

@@ -9,8 +9,7 @@ a text string at a specified offset in screen coordinates
 (dots or inches) relative to a location given in any
 coordinates.
 
-Every Artist--the mpl class from which classes such as
-Text and Line are derived--has a transform that can be
+Every Artist (Text, Line2D, etc.) has a transform that can be
 set when the Artist is created, such as by the corresponding
 pyplot command.  By default this is usually the Axes.transData
 transform, going from data units to screen dots.  We can
