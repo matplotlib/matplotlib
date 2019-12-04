@@ -109,7 +109,7 @@ const char *PyFT2Image_as_str__doc__ =
 
 static PyObject *PyFT2Image_as_str(PyFT2Image *self, PyObject *args, PyObject *kwds)
 {
-    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+    if (PyErr_WarnEx(PyExc_FutureWarning,
                      "FT2Image.as_str is deprecated since Matplotlib 3.2 and "
                      "will be removed in Matplotlib 3.4; convert the FT2Image "
                      "to a NumPy array with np.asarray instead.",
@@ -129,7 +129,7 @@ const char *PyFT2Image_as_rgba_str__doc__ =
 
 static PyObject *PyFT2Image_as_rgba_str(PyFT2Image *self, PyObject *args, PyObject *kwds)
 {
-    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+    if (PyErr_WarnEx(PyExc_FutureWarning,
                      "FT2Image.as_rgba_str is deprecated since Matplotlib 3.2 and "
                      "will be removed in Matplotlib 3.4; convert the FT2Image "
                      "to a NumPy array with np.asarray instead.",
@@ -162,7 +162,7 @@ const char *PyFT2Image_as_array__doc__ =
 
 static PyObject *PyFT2Image_as_array(PyFT2Image *self, PyObject *args, PyObject *kwds)
 {
-    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+    if (PyErr_WarnEx(PyExc_FutureWarning,
                      "FT2Image.as_array is deprecated since Matplotlib 3.2 and "
                      "will be removed in Matplotlib 3.4; convert the FT2Image "
                      "to a NumPy array with np.asarray instead.",
@@ -175,7 +175,7 @@ static PyObject *PyFT2Image_as_array(PyFT2Image *self, PyObject *args, PyObject 
 
 static PyObject *PyFT2Image_get_width(PyFT2Image *self, PyObject *args, PyObject *kwds)
 {
-    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+    if (PyErr_WarnEx(PyExc_FutureWarning,
                      "FT2Image.get_width is deprecated since Matplotlib 3.2 and "
                      "will be removed in Matplotlib 3.4; convert the FT2Image "
                      "to a NumPy array with np.asarray instead.",
@@ -187,7 +187,7 @@ static PyObject *PyFT2Image_get_width(PyFT2Image *self, PyObject *args, PyObject
 
 static PyObject *PyFT2Image_get_height(PyFT2Image *self, PyObject *args, PyObject *kwds)
 {
-    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+    if (PyErr_WarnEx(PyExc_FutureWarning,
                      "FT2Image.get_height is deprecated since Matplotlib 3.2 and "
                      "will be removed in Matplotlib 3.4; convert the FT2Image "
                      "to a NumPy array with np.asarray instead.",
