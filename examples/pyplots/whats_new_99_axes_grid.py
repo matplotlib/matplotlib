@@ -42,8 +42,7 @@ fig = plt.figure()
 ax = RGBAxes(fig, [0.1, 0.1, 0.8, 0.8])
 
 r, g, b = get_rgb()
-kwargs = dict(origin="lower", interpolation="nearest")
-ax.imshow_rgb(r, g, b, **kwargs)
+ax.imshow_rgb(r, g, b, origin="lower")
 
 ax.RGB.set_xlim(0., 9.5)
 ax.RGB.set_ylim(0.9, 10.6)

@@ -1,8 +1,11 @@
-|Travis|_ |AzurePipelines|_ |AppVeyor|_ |Codecov|_ |LGTM|_ |PyPi|_ |Gitter|_ |NUMFocus|_ |GitTutorial|_
+|PyPi|_ |Downloads|_ |NUMFocus|_
 
+|DiscourseBadge|_ |Gitter|_ |GitHubIssues|_ |GitTutorial|_
 
-.. |Travis| image:: https://travis-ci.org/matplotlib/matplotlib.svg?branch=master
-.. _Travis: https://travis-ci.org/matplotlib/matplotlib
+|Travis|_ |AzurePipelines|_ |AppVeyor|_ |Codecov|_ |LGTM|_
+
+.. |Travis| image:: https://travis-ci.com/matplotlib/matplotlib.svg?branch=master
+.. _Travis: https://travis-ci.com/matplotlib/matplotlib
 
 .. |AzurePipelines| image:: https://dev.azure.com/matplotlib/matplotlib/_apis/build/status/matplotlib.matplotlib?branchName=master
 .. _AzurePipelines: https://dev.azure.com/matplotlib/matplotlib/_build/latest?definitionId=1&branchName=master
@@ -16,17 +19,27 @@
 .. |LGTM| image:: https://img.shields.io/lgtm/grade/python/g/matplotlib/matplotlib.svg?logo=lgtm&logoWidth=18
 .. _LGTM: https://lgtm.com/projects/g/matplotlib/matplotlib
 
+.. |DiscourseBadge| image:: https://img.shields.io/badge/help_forum-discourse-blue.svg
+.. _DiscourseBadge: https://discourse.matplotlib.org
+
+.. |Gitter| image:: https://badges.gitter.im/matplotlib/matplotlib.svg
+.. _Gitter: https://gitter.im/matplotlib/matplotlib
+
+.. |GitHubIssues| image:: https://img.shields.io/badge/issue_tracking-github-blue.svg
+.. _GitHubIssues: https://github.com/matplotlib/matplotlib/issues
+
+.. |GitTutorial| image:: https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?
+.. _GitTutorial: https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project
+
 .. |PyPi| image:: https://badge.fury.io/py/matplotlib.svg
 .. _PyPi: https://badge.fury.io/py/matplotlib
 
-.. |Gitter| image:: https://badges.gitter.im/matplotlib/matplotlib.png
-.. _Gitter: https://gitter.im/matplotlib/matplotlib
+.. |Downloads| image:: https://pepy.tech/badge/matplotlib/month
+.. _Downloads: https://pepy.tech/project/matplotlib/month
 
 .. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
 .. _NUMFocus: http://www.numfocus.org
 
-.. |GitTutorial| image:: https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?
-.. _GitTutorial: https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project
 
 ##########
 Matplotlib
@@ -70,13 +83,14 @@ or your package manager of choice.
 
 Contact
 =======
-matplotlib's communication channels include active mailing lists:
+`Discourse <https://discourse.matplotlib.org/>`_ is the discussion forum for general questions and discussions and our recommended starting point.
+
+Our active mailing lists (which are mirrored on Discourse) are:
 
 * `Users <https://mail.python.org/mailman/listinfo/matplotlib-users>`_ mailing list: matplotlib-users@python.org
 * `Announcement  <https://mail.python.org/mailman/listinfo/matplotlib-announce>`_ mailing list: matplotlib-announce@python.org
 * `Development <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_ mailing list: matplotlib-devel@python.org
 
-The first is a good starting point for general questions and discussions.
 
 Gitter_ is for coordinating development and asking questions directly related
 to contributing to matplotlib.

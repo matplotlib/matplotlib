@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 import sys
 import tempfile
-import warnings
 
 import numpy as np
 import pytest
@@ -14,11 +13,9 @@ from matplotlib.testing.compare import compare_images
 from matplotlib.testing.decorators import image_comparison
 
 
-with warnings.catch_warnings():
-    warnings.simplefilter('ignore')
-    needs_usetex = pytest.mark.skipif(
-        not checkdep_usetex(True),
-        reason="This test needs a TeX installation")
+needs_usetex = pytest.mark.skipif(
+    not checkdep_usetex(True),
+    reason="This test needs a TeX installation")
 
 
 @image_comparison(['pdf_use14corefonts.pdf'])

@@ -18,7 +18,7 @@ Branches and Pull requests
 
 #1623, #1924, #2181
 
-PR `#2474 <https://github.com/matplotlib/matplotlib/pull/2474`>_
+PR `#2474 <https://github.com/matplotlib/matplotlib/pull/2474>`_
 demonstrates a single example being cleaned up and moved to the
 appropriate section.
 

@@ -24,6 +24,7 @@ import types
 import unicodedata
 
 import numpy as np
+from PIL import Image
 from pyparsing import (
     Combine, Empty, FollowedBy, Forward, Group, Literal, oneOf, OneOrMore,
     Optional, ParseBaseException, ParseFatalException, ParserElement,
@@ -31,7 +32,6 @@ from pyparsing import (
 
 from matplotlib import cbook, colors as mcolors, rcParams
 from matplotlib.afm import AFM
-from matplotlib.cbook import get_realpath_and_stat
 from matplotlib.ft2font import FT2Image, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties, get_font
 from matplotlib._mathtext_data import (latex_to_bakoma, latex_to_standard,
@@ -54,7 +54,7 @@ def get_unicode_index(symbol, math=True):
     symbol : str
         A single unicode character, a TeX command (e.g. r'\pi') or a Type1
         symbol name (e.g. 'phi').
-    math : bool, default is True
+    math : bool, default: True
         If False, always treat as a single unicode character.
     """
     # for a non-math symbol, simply return its unicode index
@@ -387,13 +387,13 @@ class Fonts:
 
     def __init__(self, default_font_prop, mathtext_backend):
         """
-        *default_font_prop*: A
-        :class:`~matplotlib.font_manager.FontProperties` object to use
-        for the default non-math font, or the base font for Unicode
-        (generic) font rendering.
-
-        *mathtext_backend*: A subclass of :class:`MathTextBackend`
-        used to delegate the actual rendering.
+        Parameters
+        ----------
+        default_font_prop: `~.font_manager.FontProperties`
+            The default non-math font, or the base font for Unicode (generic)
+            font rendering.
+        mathtext_backend: `MathtextBackend` subclass
+            Backend to which rendering is actually delegated.
         """
         self.default_font_prop = default_font_prop
         self.mathtext_backend = mathtext_backend
@@ -484,10 +484,7 @@ class Fonts:
           - *dpi*: The dpi to draw at.
         """
         info = self._get_info(facename, font_class, sym, fontsize, dpi)
-        realpath, stat_key = get_realpath_and_stat(info.font.fname)
-        used_characters = self.used_characters.setdefault(
-            stat_key, (realpath, set()))
-        used_characters[1].add(info.num)
+        self.used_characters.setdefault(info.font.fname, set()).add(info.num)
         self.mathtext_backend.render_glyph(ox, oy, info)
 
     def render_rect_filled(self, x1, y1, x2, y2):
@@ -3319,27 +3316,31 @@ class MathTextParser:
         """
         self._output = output.lower()
 
-    @functools.lru_cache(50)
-    def parse(self, s, dpi = 72, prop = None):
+    def parse(self, s, dpi=72, prop=None):
         """
-        Parse the given math expression *s* at the given *dpi*.  If
-        *prop* is provided, it is a
-        :class:`~matplotlib.font_manager.FontProperties` object
-        specifying the "default" font to use in the math expression,
-        used for all non-math text.
+        Parse the given math expression *s* at the given *dpi*.  If *prop* is
+        provided, it is a `.FontProperties` object specifying the "default"
+        font to use in the math expression, used for all non-math text.
 
         The results are cached, so multiple calls to :meth:`parse`
         with the same expression should be fast.
         """
+        # lru_cache can't decorate parse() directly because the ps.useafm and
+        # mathtext.fontset rcParams also affect the parse (e.g. by affecting
+        # the glyph metrics).
+        return self._parse_cached(
+            s, dpi, prop, rcParams['ps.useafm'], rcParams['mathtext.fontset'])
+
+    @functools.lru_cache(50)
+    def _parse_cached(self, s, dpi, prop, ps_useafm, fontset):
 
         if prop is None:
             prop = FontProperties()
 
-        if self._output == 'ps' and rcParams['ps.useafm']:
+        if self._output == 'ps' and ps_useafm:
             font_output = StandardPsFonts(prop)
         else:
             backend = self._backend_mapping[self._output]()
-            fontset = rcParams['mathtext.fontset'].lower()
             fontset_class = cbook._check_getitem(
                 self._font_type_mapping, fontset=fontset)
             font_output = fontset_class(prop, backend)
@@ -3430,11 +3431,9 @@ class MathTextParser:
         depth : int
             Offset of the baseline from the bottom of the image, in pixels.
         """
-        from matplotlib import _png
         rgba, depth = self.to_rgba(
             texstr, color=color, dpi=dpi, fontsize=fontsize)
-        with open(filename, "wb") as file:
-            _png.write_png(rgba, file)
+        Image.fromarray(rgba).save(filename, format="png")
         return depth
 
     def get_depth(self, texstr, dpi=120, fontsize=14):

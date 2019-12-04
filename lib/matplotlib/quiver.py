@@ -72,12 +72,17 @@ X, Y : 1D or 2D array-like, optional
 U, V : 1D or 2D array-like
     The x and y direction components of the arrow vectors.
 
+    They must have the same number of elements, matching the number of arrow
+    locations. *U* and *V* may be masked. Only locations unmasked in
+    *U*, *V*, and *C* will be drawn.
+
 C : 1D or 2D array-like, optional
     Numeric data that defines the arrow colors by colormapping via *norm* and
     *cmap*.
 
     This does not support explicit colors. If you want to set colors directly,
-    use *color* instead.
+    use *color* instead.  The size of *C* must match the number of arrow
+    locations.
 
 units : {'width', 'height', 'dots', 'inches', 'x', 'y' 'xy'}, default: 'width'
     The arrow dimensions (except for *length*) are measured in multiples of
@@ -428,10 +433,13 @@ def _parse_args(*args, caller_name='function'):
         Y = Y.ravel()
         if len(X) == nc and len(Y) == nr:
             X, Y = [a.ravel() for a in np.meshgrid(X, Y)]
+        elif len(X) != len(Y):
+            raise ValueError('X and Y must be the same size, but '
+                             f'X.size is {X.size} and Y.size is {Y.size}.')
     else:
         indexgrid = np.meshgrid(np.arange(nc), np.arange(nr))
         X, Y = [np.ravel(a) for a in indexgrid]
-
+    # Size validation for U, V, C is left to the set_UVC method.
     return X, Y, U, V, C
 
 
@@ -589,9 +597,16 @@ class Quiver(mcollections.PolyCollection):
         # to an array that might change before draw().
         U = ma.masked_invalid(U, copy=True).ravel()
         V = ma.masked_invalid(V, copy=True).ravel()
-        mask = ma.mask_or(U.mask, V.mask, copy=False, shrink=True)
         if C is not None:
             C = ma.masked_invalid(C, copy=True).ravel()
+        for name, var in zip(('U', 'V', 'C'), (U, V, C)):
+            if var is not None and var.size != self.N:
+                raise ValueError(f'Argument {name} has a size {var.size}'
+                                 f' which does not match {self.N},'
+                                 ' the number of arrow positions')
+
+        mask = ma.mask_or(U.mask, V.mask, copy=False, shrink=True)
+        if C is not None:
             mask = ma.mask_or(mask, C.mask, copy=False, shrink=True)
             if mask is ma.nomask:
                 C = C.filled()
@@ -853,18 +868,16 @@ pivot : {'tip', 'middle'} or float, default: 'tip'
     start of the barb that many points away from grid point.
 
 barbcolor : color or color sequence
-    Specifies the color of all parts of the barb except for the flags.  This
-    parameter is analogous to the *edgecolor* parameter for polygons,
-    which can be used instead. However this parameter will override
-    facecolor.
+    The color of all parts of the barb except for the flags.  This parameter
+    is analogous to the *edgecolor* parameter for polygons, which can be used
+    instead. However this parameter will override facecolor.
 
 flagcolor : color or color sequence
-    Specifies the color of any flags on the barb.  This parameter is
-    analogous to the *facecolor* parameter for polygons, which can be
-    used instead. However, this parameter will override facecolor.  If
-    this is not set (and *C* has not either) then *flagcolor* will be
-    set to match *barbcolor* so that the barb has a uniform color. If
-    *C* has been set, *flagcolor* has no effect.
+    The color of any flags on the barb.  This parameter is analogous to the
+    *facecolor* parameter for polygons, which can be used instead. However,
+    this parameter will override facecolor.  If this is not set (and *C* has
+    not either) then *flagcolor* will be set to match *barbcolor* so that the
+    barb has a uniform color. If *C* has been set, *flagcolor* has no effect.
 
 sizes : dict, optional
     A dictionary of coefficients specifying the ratio of a given
@@ -1007,7 +1020,7 @@ class Barbs(mcollections.PolyCollection):
 
             (*number of flags*, *number of barbs*, *half_flag*, *empty_flag*)
 
-        *half_flag* is a boolean whether half of a barb is needed,
+        The bool *half_flag* indicates whether half of a barb is needed,
         since there should only ever be one half on a given
         barb. *empty_flag* flag is an array of flags to easily tell if
         a barb is empty (too low to plot any barbs/flags.

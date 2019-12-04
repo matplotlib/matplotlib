@@ -12,7 +12,6 @@ import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
-from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
 from matplotlib import rc_context
 
 

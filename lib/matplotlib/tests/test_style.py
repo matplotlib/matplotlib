@@ -68,6 +68,16 @@ def test_use_url(tmpdir):
             assert mpl.rcParams['axes.facecolor'] == "#adeade"
 
 
+def test_single_path(tmpdir):
+    mpl.rcParams[PARAM] = 'gray'
+    temp_file = f'text.{STYLE_EXTENSION}'
+    path = Path(tmpdir, temp_file)
+    path.write_text(f'{PARAM} : {VALUE}')
+    with style.context(path):
+        assert mpl.rcParams[PARAM] == VALUE
+    assert mpl.rcParams[PARAM] == 'gray'
+
+
 def test_context():
     mpl.rcParams[PARAM] = 'gray'
     with temp_style('test', DUMMY_SETTINGS):

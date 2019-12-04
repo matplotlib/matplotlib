@@ -2,7 +2,6 @@ import numpy as np
 from io import BytesIO
 import re
 import tempfile
-import warnings
 import xml.parsers.expat
 
 import pytest
@@ -14,11 +13,9 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
 
-with warnings.catch_warnings():
-    warnings.simplefilter('ignore')
-    needs_usetex = pytest.mark.skipif(
-        not mpl.checkdep_usetex(True),
-        reason="This test needs a TeX installation")
+needs_usetex = pytest.mark.skipif(
+    not mpl.checkdep_usetex(True),
+    reason="This test needs a TeX installation")
 
 
 def test_visibility():

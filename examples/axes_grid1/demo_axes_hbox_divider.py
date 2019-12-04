@@ -34,8 +34,8 @@ if __name__ == "__main__":
     arr2 = np.arange(20).reshape((5, 4))
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
-    ax1.imshow(arr1, interpolation="nearest")
-    ax2.imshow(arr2, interpolation="nearest")
+    ax1.imshow(arr1)
+    ax2.imshow(arr2)
 
     rect = 111  # subplot param for combined axes
     make_heights_equal(fig, rect, ax1, ax2, pad=0.5)  # pad in inches

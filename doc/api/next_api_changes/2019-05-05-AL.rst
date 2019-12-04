@@ -1,4 +1,0 @@
-Deprecations
-````````````
-
-The ``dryrun`` parameter to the various ``FigureCanvasFoo.print_foo`` methods is deprecated.

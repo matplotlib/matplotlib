@@ -1,5 +1,9 @@
-import warnings
+try:
+    from contextlib import nullcontext
+except ImportError:
+    from contextlib import ExitStack as nullcontext  # Py 3.6.
 import re
+import itertools
 
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
@@ -242,9 +246,8 @@ class TestNullLocator:
 class _LogitHelper:
     @staticmethod
     def isclose(x, y):
-        if x >= 1 or x <= 0 or y >= 1 or y <= 0:
-            return False
-        return np.isclose(-np.log(1/x-1), -np.log(1/y-1))
+        return (np.isclose(-np.log(1/x-1), -np.log(1/y-1))
+                if 0 < x < 1 and 0 < y < 1 else False)
 
     @staticmethod
     def assert_almost_equal(x, y):
@@ -366,6 +369,44 @@ class TestLogitLocator:
         loc.set_params(minor=False)
         assert not loc.minor
 
+    acceptable_vmin_vmax = [
+        *(2.5 ** np.arange(-3, 0)),
+        *(1 - 2.5 ** np.arange(-3, 0)),
+    ]
+
+    @pytest.mark.parametrize(
+        "lims",
+        [
+            (a, b)
+            for (a, b) in itertools.product(acceptable_vmin_vmax, repeat=2)
+            if a != b
+        ],
+    )
+    def test_nonsingular_ok(self, lims):
+        """
+        Create logit locator, and test the nonsingular method for acceptable
+        value
+        """
+        loc = mticker.LogitLocator()
+        lims2 = loc.nonsingular(*lims)
+        assert sorted(lims) == sorted(lims2)
+
+    @pytest.mark.parametrize("okval", acceptable_vmin_vmax)
+    def test_nonsingular_nok(self, okval):
+        """
+        Create logit locator, and test the nonsingular method for non
+        acceptable value
+        """
+        loc = mticker.LogitLocator()
+        vmin, vmax = (-1, okval)
+        vmin2, vmax2 = loc.nonsingular(vmin, vmax)
+        assert vmax2 == vmax
+        assert 0 < vmin2 < vmax2
+        vmin, vmax = (okval, 2)
+        vmin2, vmax2 = loc.nonsingular(vmin, vmax)
+        assert vmin2 == vmin
+        assert vmin2 < vmax2 < 1
+
 
 class TestFixedLocator:
     def test_set_params(self):
@@ -455,24 +496,28 @@ class TestScalarFormatter:
         (True, (6, 6), (-1e5, 1e5), 6, False),
     ]
 
+    @pytest.mark.parametrize('unicode_minus, result',
+                             [(True, "\N{MINUS SIGN}1"), (False, "-1")])
+    def test_unicode_minus(self, unicode_minus, result):
+        matplotlib.rcParams['axes.unicode_minus'] = unicode_minus
+        assert (
+            plt.gca().xaxis.get_major_formatter().format_data_short(-1).strip()
+            == result)
+
     @pytest.mark.parametrize('left, right, offset', offset_data)
     def test_offset_value(self, left, right, offset):
         fig, ax = plt.subplots()
         formatter = ax.get_xaxis().get_major_formatter()
 
-        with warnings.catch_warnings(record=True) as w:
-            warnings.filterwarnings('always', 'Attempting to set identical',
-                                    UserWarning)
+        with (pytest.warns(UserWarning, match='Attempting to set identical')
+              if left == right else nullcontext()):
             ax.set_xlim(left, right)
-        assert len(w) == (1 if left == right else 0)
         ax.get_xaxis()._update_ticks()
         assert formatter.offset == offset
 
-        with warnings.catch_warnings(record=True) as w:
-            warnings.filterwarnings('always', 'Attempting to set identical',
-                                    UserWarning)
+        with (pytest.warns(UserWarning, match='Attempting to set identical')
+              if left == right else nullcontext()):
             ax.set_xlim(right, left)
-        assert len(w) == (1 if left == right else 0)
         ax.get_xaxis()._update_ticks()
         assert formatter.offset == offset
 
@@ -484,8 +529,7 @@ class TestScalarFormatter:
 
     @pytest.mark.parametrize(
         'sci_type, scilimits, lim, orderOfMag, fewticks', scilimits_data)
-    def test_scilimits(self, sci_type, scilimits, lim, orderOfMag,
-                       fewticks):
+    def test_scilimits(self, sci_type, scilimits, lim, orderOfMag, fewticks):
         tmp_form = mticker.ScalarFormatter()
         tmp_form.set_scientific(sci_type)
         tmp_form.set_powerlimits(scilimits)
@@ -542,7 +586,7 @@ class TestLogFormatterExponent:
         assert formatter(10**0.1) == ''
 
 
-class TestLogFormatterMathtext():
+class TestLogFormatterMathtext:
     fmt = mticker.LogFormatterMathtext()
     test_data = [
         (0, 1, '$\\mathdefault{10^{0}}$'),

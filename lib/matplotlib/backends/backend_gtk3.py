@@ -51,22 +51,22 @@ except TypeError as exc:
 
 
 class TimerGTK3(TimerBase):
-    '''
-    Subclass of :class:`backend_bases.TimerBase` using GTK3 for timer events.
+    """
+    Subclass of `.TimerBase` using GTK3 for timer events.
 
     Attributes
     ----------
-    interval : int
-        The time between timer events in milliseconds. Default is 1000 ms.
-    single_shot : bool
-        Boolean flag indicating whether this timer should operate as single
-        shot (run once and then stop). Defaults to False.
+    interval : int, default: 1000ms
+        The time between timer events in milliseconds.
+    single_shot : bool, default: False
+        Whether this timer should operate as single shot (run once and then
+        stop).
     callbacks : list
         Stores list of (func, args) tuples that will be called upon timer
         events. This list can be manipulated directly, or the functions
         `add_callback` and `remove_callback` can be used.
+    """
 
-    '''
     def _timer_start(self):
         # Need to stop it, otherwise we potentially leak a timer id that will
         # never be stopped.
@@ -501,11 +501,15 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             image = Gtk.Image()
             image.set_from_file(
                 str(cbook._get_data_path('images', image_file + '.png')))
-            self._gtk_ids[text] = tbutton = Gtk.ToolButton()
+            self._gtk_ids[text] = tbutton = (
+                Gtk.ToggleToolButton() if callback in ['zoom', 'pan'] else
+                Gtk.ToolButton())
             tbutton.set_label(text)
             tbutton.set_icon_widget(image)
             self.insert(tbutton, -1)
-            tbutton.connect('clicked', getattr(self, callback))
+            # Save the handler id, so that we can block it as needed.
+            tbutton._signal_handler = tbutton.connect(
+                'clicked', getattr(self, callback))
             tbutton.set_tooltip_text(tooltip_text)
 
         toolitem = Gtk.SeparatorToolItem()
@@ -519,6 +523,21 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         toolitem.add(self.message)
 
         self.show_all()
+
+    def _update_buttons_checked(self):
+        for name, active in [("Pan", "PAN"), ("Zoom", "ZOOM")]:
+            button = self._gtk_ids.get(name)
+            if button:
+                with button.handler_block(button._signal_handler):
+                    button.set_active(self._active == active)
+
+    def pan(self, *args):
+        super().pan(*args)
+        self._update_buttons_checked()
+
+    def zoom(self, *args):
+        super().zoom(*args)
+        self._update_buttons_checked()
 
     @cbook.deprecated("3.1")
     def get_filechooser(self):

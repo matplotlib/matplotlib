@@ -3,7 +3,8 @@ r"""
 Overview of axes_grid1 toolkit
 ==============================
 
-Controlling the layout of plots with the axes_grid toolkit.
+Controlling the layout of plots with the
+:mod:`mpl_toolkits.axes_grid1` toolkit.
 
 .. _axes_grid1_users-guide-index:
 
@@ -11,13 +12,13 @@ Controlling the layout of plots with the axes_grid toolkit.
 What is axes_grid1 toolkit?
 ===========================
 
-*axes_grid1* is a collection of helper classes to ease displaying
-(multiple) images with matplotlib.  In matplotlib, the axes location
+:mod:`mpl_toolkits.axes_grid1` is a collection of helper classes to ease
+displaying (multiple) images with matplotlib. In matplotlib, the axes location
 (and size) is specified in the normalized figure coordinates, which
 may not be ideal for displaying images that needs to have a given
 aspect ratio.  For example, it helps if you have a colorbar whose
 height always matches that of the image.  `ImageGrid`_, `RGB Axes`_ and
-`AxesDivider`_ are helper classes that deals with adjusting the
+`AxesDivider`_ are helper classes that deal with adjusting the
 location of (multiple) Axes.  They provides a framework to adjust the
 position of multiple axes at the drawing time. `ParasiteAxes`_
 provides twinx(or twiny)-like features so that you can plot different
@@ -119,7 +120,7 @@ ImageGrid takes following arguments,
  *aspect*
   By default (False), widths and heights of axes in the grid are
   scaled independently. If True, they are scaled according to their
-  data limits (similar to aspect parameter in mpl).
+  data limits (similar to aspect parameter in Matplotlib).
 
  *share_all*
   if True, xaxis and yaxis of all axes are shared.
@@ -161,19 +162,19 @@ AxesDivider Class
 -----------------
 
 Behind the scene, the ImageGrid class and the RGBAxes class utilize the
-AxesDivider class, whose role is to calculate the location of the axes
-at drawing time. While a more about the AxesDivider is (will be)
-explained in (yet to be written) AxesDividerGuide, direct use of the
-AxesDivider class will not be necessary for most users.  The
-axes_divider module provides a helper function make_axes_locatable,
-which can be useful. It takes a existing axes instance and create a
-divider for it. ::
+`~.axes_grid1.axes_divider.AxesDivider` class, whose role is to calculate the
+location of the axes at drawing time. Direct use of the
+AxesDivider class will not be necessary for most users. The
+axes_divider module provides a helper function
+`~.axes_grid1.axes_divider.make_axes_locatable`, which can be useful.
+It takes a existing axes instance and create a divider for it. ::
 
   ax = subplot(1, 1, 1)
   divider = make_axes_locatable(ax)
 
-*make_axes_locatable* returns an instance of the AxesLocator class,
-derived from the Locator. It provides *append_axes* method that
+*make_axes_locatable* returns an instance of the
+`~.axes_grid1.axes_divider.AxesDivider` class. It provides an
+`~.AxesDivider.append_axes` method that
 creates a new axes on the given side of ("top", "right", "bottom" and
 "left") of the original axes.
 
@@ -193,7 +194,7 @@ scatter_hist.py with AxesDivider
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The :doc:`/gallery/lines_bars_and_markers/scatter_hist` example can be
-rewritten using *make_axes_locatable*::
+rewritten using `~.axes_grid1.axes_divider.make_axes_locatable`::
 
     axScatter = subplot(111)
     axScatter.scatter(x, y)
@@ -219,10 +220,11 @@ See the full source code below.
 
    Scatter Hist
 
-The scatter_hist using the AxesDivider has some advantage over the
-original scatter_hist.py in mpl. For example, you can set the aspect
-ratio of the scatter plot, even with the x-axis or y-axis is shared
-accordingly.
+The :doc:`/gallery/axes_grid1/scatter_hist_locatable_axes` using the
+AxesDivider has some advantage over the
+original :doc:`/gallery/lines_bars_and_markers/scatter_hist` in Matplotlib.
+For example, you can set the aspect ratio of the scatter plot, even with the
+x-axis or y-axis is shared accordingly.
 
 
 ParasiteAxes
@@ -297,7 +299,7 @@ AnchoredArtists
 ---------------
 
 It's a collection of artists whose location is anchored to the (axes)
-bbox, like the legend. It is derived from *OffsetBox* in mpl, and
+bbox, like the legend. It is derived from *OffsetBox* in Matplotlib, and
 artist need to be drawn in the canvas coordinate. But, there is a
 limited support for an arbitrary transform. For example, the ellipse
 in the example below will have width and height in the data
@@ -391,8 +393,8 @@ yaxis of each axes are shared. ::
 AxesDivider
 ===========
 
-The `~.axes_grid1.axes_divider` module provides helper classes to adjust the
-axes positions of a set of images at drawing time.
+The :mod:`mpl_toolkits.axes_grid1.axes_divider` module provides helper classes
+to adjust the axes positions of a set of images at drawing time.
 
 * :mod:`~mpl_toolkits.axes_grid1.axes_size` provides a class of
   units that are used to determine the size of each axes. For example,

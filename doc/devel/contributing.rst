@@ -92,30 +92,11 @@ and might be easier to use if you are using 2-factor authentication.
 Building Matplotlib for image comparison tests
 ----------------------------------------------
 
-Matplotlib's test suite makes heavy use of image comparison tests,
-meaning the result of a plot is compared against a known good result.
-Unfortunately, different versions of FreeType produce differently
-formed characters, causing these image comparisons to fail.  To make
-them reproducible, Matplotlib can be built with a special local copy
-of FreeType.  This is recommended for all Matplotlib developers.
-
-Prior to compiling the C-extensions, copy :file:`setup.cfg.template` to
-:file:`setup.cfg` and edit it to contain::
-
-  [test]
-  local_freetype = True
-  tests = True
-
-or set the ``MPLLOCALFREETYPE`` environmental variable to any true
-value.  If you have previously built Matplotlib with a different
-version of Freetype, you will also need to remove the c/c++ build
-products.  Do this is to delete the ``build`` folder or ``git clean
--xfd``.  If you are going to be regularly working on Matplotlib,
-consider putting ::
-
-   export MPLLOCALFREETYPE=1
-
-in your shell start up files.
+Matplotlib's test suite makes heavy use of image comparison tests, meaning
+the result of a plot is compared against a known good result.  Unfortunately,
+different versions of FreeType produce differently formed characters, causing
+these image comparisons to fail.  To make them reproducible, Matplotlib is, by
+default, built with a special local copy of FreeType.
 
 
 Installing Matplotlib in developer mode
@@ -267,8 +248,8 @@ rules before submitting a pull request:
   :file:`doc/users/next_whats_new/README.rst` for more information).
 
 * If you change the API in a backward-incompatible way, please document it in
-  `doc/api/api_changes`, by adding a new file describing your changes (see
-  :file:`doc/api/api_changes/README.rst` for more information)
+  :file:`doc/api/api_changes`, by adding to the relevant file
+  (see :file:`doc/api/api_changes.rst` for more information)
 
 * See below for additional points about :ref:`keyword-argument-processing`, if
   applicable for your pull request.
@@ -386,7 +367,7 @@ New modules and files: installation
 
 * If you have added new files or directories, or reorganized existing
   ones, make sure the new files are included in the match patterns in
-  :file:`MANIFEST.in`, and/or in `package_data` in `setup.py`.
+  :file:`MANIFEST.in`, and/or in `package_data` in :file:`setup.py`.
 
 C/C++ extensions
 ----------------
@@ -397,8 +378,8 @@ C/C++ extensions
   address C++, but most of its admonitions still apply).
 
 * Python/C interface code should be kept separate from the core C/C++
-  code.  The interface code should be named `FOO_wrap.cpp` or
-  `FOO_wrapper.cpp`.
+  code.  The interface code should be named :file:`FOO_wrap.cpp` or
+  :file:`FOO_wrapper.cpp`.
 
 * Header file documentation (aka docstrings) should be in Numpydoc
   format.  We don't plan on using automated tools for these
@@ -591,7 +572,7 @@ when the website is built to show up in the `examples
 
 Any sample data that the example uses should be kept small and
 distributed with Matplotlib in the
-`lib/matplotlib/mpl-data/sample_data/` directory.  Then in your
+:file:`lib/matplotlib/mpl-data/sample_data/` directory.  Then in your
 example code you can load it into a file handle with::
 
     import matplotlib.cbook as cbook

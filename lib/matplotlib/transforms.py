@@ -81,8 +81,6 @@ class TransformNode:
 
     def __init__(self, shorthand_name=None):
         """
-        Creates a new :class:`TransformNode`.
-
         Parameters
         ----------
         shorthand_name : str
@@ -449,7 +447,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        other : BboxBase
+        other : `.BboxBase`
         """
         ax1, ay1, ax2, ay2 = self.extents
         bx1, by1, bx2, by2 = other.extents
@@ -490,7 +488,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        other : BboxBase
+        other : `.BboxBase`
         """
         ax1, ay1, ax2, ay2 = self.extents
         bx1, by1, bx2, by2 = other.extents
@@ -644,7 +642,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        bboxes : sequence of :class:`BboxBase` objects
+        bboxes : sequence of `.BboxBase`
         """
         return count_bboxes_overlapping_bbox(
             self, np.atleast_3d([np.array(x) for x in bboxes]))
@@ -763,12 +761,12 @@ class Bbox(BboxBase):
     @staticmethod
     def unit():
         """Create a new unit `Bbox` from (0, 0) to (1, 1)."""
-        return Bbox(np.array([[0.0, 0.0], [1.0, 1.0]], float))
+        return Bbox([[0, 0], [1, 1]])
 
     @staticmethod
     def null():
         """Create a new null `Bbox` from (inf, inf) to (-inf, -inf)."""
-        return Bbox(np.array([[np.inf, np.inf], [-np.inf, -np.inf]], float))
+        return Bbox([[np.inf, np.inf], [-np.inf, -np.inf]])
 
     @staticmethod
     def from_bounds(x0, y0, width, height):
@@ -786,8 +784,7 @@ class Bbox(BboxBase):
 
         The *y*-axis increases upwards.
         """
-        points = np.array(args, dtype=float).reshape(2, 2)
-        return Bbox(points)
+        return Bbox(np.reshape(args, (2, 2)))
 
     def __format__(self, fmt):
         return (
@@ -2910,7 +2907,7 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     fig : :class:`~matplotlib.figure.Figure`, optional, default: None
         Current figure. It can be None if *units* are 'dots'.
     x, y : float, optional, default: 0.0
-        Specifies the offset to apply.
+        The offset to apply.
     units : {'inches', 'points', 'dots'}, optional
         Units of the offset.
 

@@ -146,7 +146,7 @@ class ScalarMappable:
 
     """
     def __init__(self, norm=None, cmap=None):
-        r"""
+        """
 
         Parameters
         ----------
@@ -256,15 +256,17 @@ class ScalarMappable:
         self.update_dict['array'] = True
 
     def get_array(self):
-        'Return the array'
+        """Return the data array."""
         return self._A
 
     def get_cmap(self):
-        'return the colormap'
+        """Return the `.Colormap` instance."""
         return self.cmap
 
     def get_clim(self):
-        'return the min, max of the color limits for image scaling'
+        """
+        Return the values (min, max) that are mapped to the colormap limits.
+        """
         return self.norm.vmin, self.norm.vmax
 
     def set_clim(self, vmin=None, vmax=None):

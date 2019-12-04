@@ -10,6 +10,8 @@ multiple axes at drawing time.
     object that can be used to set the axes_locator of the axes.
 """
 
+import numpy as np
+
 from matplotlib import cbook
 from matplotlib.axes import SubplotBase
 from matplotlib.gridspec import SubplotSpec, GridSpec
@@ -274,10 +276,7 @@ class Divider:
             cbook._check_in_list(["left", "right", "bottom", "top"],
                                  position=position)
 
-    def add_auto_adjustable_area(self,
-                                 use_axes, pad=0.1,
-                                 adjust_dirs=None,
-                                 ):
+    def add_auto_adjustable_area(self, use_axes, pad=0.1, adjust_dirs=None):
         if adjust_dirs is None:
             adjust_dirs = ["left", "right", "bottom", "top"]
         from .axes_size import Padded, SizeFromFunc, GetExtentHelper
@@ -350,99 +349,29 @@ class SubplotDivider(Divider):
         """
         Parameters
         ----------
-        fig : :class:`matplotlib.figure.Figure`
-        *args : tuple (*numRows*, *numCols*, *plotNum*)
-            The array of subplots in the figure has dimensions *numRows*,
-            *numCols*, and *plotNum* is the number of the subplot
-            being created.  *plotNum* starts at 1 in the upper left
-            corner and increases to the right.
+        fig : `matplotlib.figure.Figure`
 
-            If *numRows* <= *numCols* <= *plotNum* < 10, *args* can be the
-            decimal integer *numRows* * 100 + *numCols* * 10 + *plotNum*.
+        *args : tuple (*nrows*, *ncols*, *index*) or int
+            The array of subplots in the figure has dimensions ``(nrows,
+            ncols)``, and *index* is the index of the subplot being created.
+            *index* starts at 1 in the upper left corner and increases to the
+            right.
+
+            If *nrows*, *ncols*, and *index* are all single digit numbers, then
+            *args* can be passed as a single 3-digit number (e.g. 234 for
+            (2, 3, 4)).
         """
-
         self.figure = fig
-
-        if len(args) == 1:
-            if isinstance(args[0], SubplotSpec):
-                self._subplotspec = args[0]
-            else:
-                try:
-                    s = str(int(args[0]))
-                    rows, cols, num = map(int, s)
-                except ValueError:
-                    raise ValueError(
-                        'Single argument to subplot must be a 3-digit integer')
-                self._subplotspec = GridSpec(rows, cols)[num-1]
-                # num - 1 for converting from MATLAB to python indexing
-        elif len(args) == 3:
-            rows, cols, num = args
-            rows = int(rows)
-            cols = int(cols)
-            if isinstance(num, tuple) and len(num) == 2:
-                num = [int(n) for n in num]
-                self._subplotspec = GridSpec(rows, cols)[num[0]-1:num[1]]
-            else:
-                self._subplotspec = GridSpec(rows, cols)[int(num)-1]
-                # num - 1 for converting from MATLAB to python indexing
-        else:
-            raise ValueError(f'Illegal argument(s) to subplot: {args}')
-
-        # total = rows*cols
-        # num -= 1    # convert from matlab to python indexing
-        #             # i.e., num in range(0, total)
-        # if num >= total:
-        #     raise ValueError( 'Subplot number exceeds total subplots')
-        # self._rows = rows
-        # self._cols = cols
-        # self._num = num
-
-        # self.update_params()
-
-        # sets self.fixbox
-        self.update_params()
-
-        pos = self.figbox.bounds
-
-        Divider.__init__(self, fig, pos, horizontal or [], vertical or [],
+        self._subplotspec = SubplotSpec._from_subplot_args(fig, args)
+        self.update_params()  # sets self.figbox
+        Divider.__init__(self, fig, pos=self.figbox.bounds,
+                         horizontal=horizontal or [], vertical=vertical or [],
                          aspect=aspect, anchor=anchor)
 
     def get_position(self):
         "return the bounds of the subplot box"
-
         self.update_params()  # update self.figbox
         return self.figbox.bounds
-
-    # def update_params(self):
-    #     'update the subplot position from fig.subplotpars'
-
-    #     rows = self._rows
-    #     cols = self._cols
-    #     num = self._num
-
-    #     pars = self.figure.subplotpars
-    #     left = pars.left
-    #     right = pars.right
-    #     bottom = pars.bottom
-    #     top = pars.top
-    #     wspace = pars.wspace
-    #     hspace = pars.hspace
-    #     totWidth = right-left
-    #     totHeight = top-bottom
-
-    #     figH = totHeight/(rows + hspace*(rows-1))
-    #     sepH = hspace*figH
-
-    #     figW = totWidth/(cols + wspace*(cols-1))
-    #     sepW = wspace*figW
-
-    #     rowNum, colNum =  divmod(num, cols)
-
-    #     figBottom = top - (rowNum+1)*figH - rowNum*sepH
-    #     figLeft = left + colNum*(figW + sepW)
-
-    #     self.figbox = mtransforms.Bbox.from_bounds(figLeft, figBottom,
-    #                                                figW, figH)
 
     def update_params(self):
         """Update the subplot position from fig.subplotpars."""
@@ -662,16 +591,12 @@ class AxesDivider(Divider):
 
 class HBoxDivider(SubplotDivider):
 
-    def __init__(self, fig, *args, **kwargs):
-        SubplotDivider.__init__(self, fig, *args, **kwargs)
-
     @staticmethod
     def _determine_karray(equivalent_sizes, appended_sizes,
                           max_equivalent_size,
                           total_appended_size):
 
         n = len(equivalent_sizes)
-        import numpy as np
         A = np.mat(np.zeros((n+1, n+1), dtype="d"))
         B = np.zeros((n+1), dtype="d")
         # AxK = B

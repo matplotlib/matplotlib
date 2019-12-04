@@ -1,4 +1,0 @@
-Deprecations
-````````````
-
-``mplot3d.axis3d.get_flip_min_max`` is deprecated.

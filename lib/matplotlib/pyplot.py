@@ -61,13 +61,11 @@ from matplotlib.text import Text, Annotation
 from matplotlib.patches import Polygon, Rectangle, Circle, Arrow
 from matplotlib.widgets import SubplotTool, Button, Slider, Widget
 
-from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
-           FuncFormatter, FormatStrFormatter, ScalarFormatter,\
-           LogFormatter, LogFormatterExponent, LogFormatterMathtext,\
-           Locator, IndexLocator, FixedLocator, NullLocator,\
-           LinearLocator, LogLocator, AutoLocator, MultipleLocator,\
-           MaxNLocator
-from matplotlib.backends import _get_running_interactive_framework
+from .ticker import (
+    TickHelper, Formatter, FixedFormatter, NullFormatter, FuncFormatter,
+    FormatStrFormatter, ScalarFormatter, LogFormatter, LogFormatterExponent,
+    LogFormatterMathtext, Locator, IndexLocator, FixedLocator, NullLocator,
+    LinearLocator, LogLocator, AutoLocator, MultipleLocator, MaxNLocator)
 
 _log = logging.getLogger(__name__)
 
@@ -214,21 +212,17 @@ def switch_backend(newbackend):
             rcParamsOrig["backend"] = "agg"
             return
 
-    backend_name = (
-        newbackend[9:] if newbackend.startswith("module://")
-        else "matplotlib.backends.backend_{}".format(newbackend.lower()))
-
+    backend_name = cbook._backend_module_name(newbackend)
     backend_mod = importlib.import_module(backend_name)
     Backend = type(
-        "Backend", (matplotlib.backends._Backend,), vars(backend_mod))
+        "Backend", (matplotlib.backend_bases._Backend,), vars(backend_mod))
     _log.debug("Loaded backend %s version %s.",
                newbackend, Backend.backend_version)
 
     required_framework = getattr(
         Backend.FigureCanvas, "required_interactive_framework", None)
     if required_framework is not None:
-        current_framework = \
-            matplotlib.backends._get_running_interactive_framework()
+        current_framework = cbook._get_running_interactive_framework()
         if (current_framework and required_framework
                 and current_framework != required_framework):
             raise ImportError(
@@ -332,31 +326,6 @@ def rcdefaults():
         draw_all()
 
 
-## Current image ##
-
-
-def gci():
-    """
-    Get the current colorable artist.
-
-    Specifically, returns the current `.ScalarMappable` instance (`.Image`
-    created by `imshow` or `figimage`, `.Collection` created by `pcolor` or
-    `scatter`, etc.), or *None* if no such instance has been defined.
-
-    The current image is an attribute of the current axes, or the nearest
-    earlier axes in the current figure that contains an image.
-
-    Notes
-    -----
-    Historically, the only colorable artists were images; hence the name
-    ``gci`` (get current image).
-    """
-    return gcf()._gci()
-
-
-## Any Artist ##
-
-
 # (getp is simply imported)
 @docstring.copy(_setp)
 def setp(obj, *args, **kwargs):
@@ -453,7 +422,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         width, height in inches. If not provided, defaults to
         :rc:`figure.figsize` = ``[6.4, 4.8]``.
 
-    dpi : integer, optional, default: None
+    dpi : int, optional, default: None
         resolution of the figure. If not provided, defaults to
         :rc:`figure.dpi` = ``100``.
 
@@ -757,7 +726,7 @@ def axes(arg=None, **kwargs):
         a custom projection, see `~matplotlib.projections`. The default
         None results in a 'rectilinear' projection.
 
-    polar : boolean, optional
+    polar : bool, default: False
         If True, equivalent to projection='polar'.
 
     sharex, sharey : `~.axes.Axes`, optional
@@ -828,48 +797,20 @@ def axes(arg=None, **kwargs):
 def delaxes(ax=None):
     """
     Remove the `Axes` *ax* (defaulting to the current axes) from its figure.
-
-    A KeyError is raised if the axes doesn't exist.
     """
     if ax is None:
         ax = gca()
-    ax.figure.delaxes(ax)
+    ax.remove()
 
 
 def sca(ax):
     """
-    Set the current Axes instance to *ax*.
-
-    The current Figure is updated to the parent of *ax*.
+    Set the current Axes to *ax* and the current Figure to the parent of *ax*.
     """
-    managers = _pylab_helpers.Gcf.get_all_fig_managers()
-    for m in managers:
-        if ax in m.canvas.figure.axes:
-            _pylab_helpers.Gcf.set_active(m)
-            m.canvas.figure.sca(ax)
-            return
-    raise ValueError("Axes instance argument was not found in a figure")
-
-
-def gca(**kwargs):
-    """
-    Get the current :class:`~matplotlib.axes.Axes` instance on the
-    current figure matching the given keyword args, or create one.
-
-    Examples
-    --------
-    To get the current polar axes on the current figure::
-
-        plt.gca(projection='polar')
-
-    If the current axes doesn't exist, or isn't a polar one, the appropriate
-    axes will be created and then returned.
-
-    See Also
-    --------
-    matplotlib.figure.Figure.gca : The figure's gca method.
-    """
-    return gcf().gca(**kwargs)
+    if not hasattr(ax.figure.canvas, "manager"):
+        raise ValueError("Axes parent figure is not managed by pyplot")
+    _pylab_helpers.Gcf.set_active(ax.figure.canvas.manager)
+    ax.figure.sca(ax)
 
 
 ## More ways of creating axes ##
@@ -910,7 +851,7 @@ def subplot(*args, **kwargs):
         of a custom projection, see `~matplotlib.projections`. The default
         None results in a 'rectilinear' projection.
 
-    polar : boolean, optional
+    polar : bool, default: False
         If True, equivalent to projection='polar'.
 
     sharex, sharey : `~.axes.Axes`, optional
@@ -1322,10 +1263,10 @@ def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
     h_pad, w_pad : float, optional
         Padding (height/width) between edges of adjacent subplots,
         as a fraction of the font size.  Defaults to *pad*.
-    rect : tuple (left, bottom, right, top), optional
+    rect : tuple (left, bottom, right, top), optional, default: (0, 0, 1, 1)
         A rectangle (left, bottom, right, top) in the normalized
         figure coordinate that the whole subplots area (including
-        labels) will fit into. Default is (0, 0, 1, 1).
+        labels) will fit into.
     """
     gcf().tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
 
@@ -2303,8 +2244,9 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 # requested, ignore rcParams['backend'] and force selection of a backend that
 # is compatible with the current running interactive framework.
 if (rcParams["backend_fallback"]
-        and dict.__getitem__(rcParams, "backend") in _interactive_bk
-        and _get_running_interactive_framework()):
+        and dict.__getitem__(rcParams, "backend") in (
+            set(_interactive_bk) - {'WebAgg', 'nbAgg'})
+        and cbook._get_running_interactive_framework()):
     dict.__setitem__(rcParams, "backend", rcsetup._auto_backend_sentinel)
 # Set up the backend.
 switch_backend(rcParams["backend"])
@@ -2337,6 +2279,18 @@ def figtext(
         withdash=cbook.deprecation._deprecated_parameter, **kwargs):
     return gcf().text(
         x, y, s, fontdict=fontdict, withdash=withdash, **kwargs)
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@docstring.copy(Figure.gca)
+def gca(**kwargs):
+    return gcf().gca(**kwargs)
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@docstring.copy(Figure._gci)
+def gci():
+    return gcf()._gci()
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -2413,6 +2367,12 @@ def axhspan(ymin, ymax, xmin=0, xmax=1, **kwargs):
 @docstring.copy(Axes.axis)
 def axis(*args, emit=True, **kwargs):
     return gca().axis(*args, emit=emit, **kwargs)
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@docstring.copy(Axes.axline)
+def axline(xy1, xy2, **kwargs):
+    return gca().axline(xy1, xy2, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -2667,9 +2627,10 @@ def hlines(
 def imshow(
         X, cmap=None, norm=None, aspect=None, interpolation=None,
         alpha=None, vmin=None, vmax=None, origin=None, extent=None,
-        shape=cbook.deprecation._deprecated_parameter, filternorm=1,
-        filterrad=4.0, imlim=cbook.deprecation._deprecated_parameter,
-        resample=None, url=None, *, data=None, **kwargs):
+        shape=cbook.deprecation._deprecated_parameter,
+        filternorm=True, filterrad=4.0,
+        imlim=cbook.deprecation._deprecated_parameter, resample=None,
+        url=None, *, data=None, **kwargs):
     __ret = gca().imshow(
         X, cmap=cmap, norm=norm, aspect=aspect,
         interpolation=interpolation, alpha=alpha, vmin=vmin,

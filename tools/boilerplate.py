@@ -177,6 +177,8 @@ def boilerplate_gen():
     _figure_commands = (
         'figimage',
         'figtext:text',
+        'gca',
+        'gci:_gci',
         'ginput',
         'suptitle',
         'waitforbuttonpress',
@@ -192,6 +194,7 @@ def boilerplate_gen():
         'axhline',
         'axhspan',
         'axis',
+        'axline',
         'axvline',
         'axvspan',
         'bar',

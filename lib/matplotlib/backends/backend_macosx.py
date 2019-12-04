@@ -19,23 +19,22 @@ from matplotlib.widgets import SubplotTool
 
 
 class TimerMac(_macosx.Timer, TimerBase):
-    '''
-    Subclass of :class:`backend_bases.TimerBase` that uses CoreFoundation
-    run loops for timer events.
+    """
+    Subclass of `.TimerBase` that uses CoreFoundation run loops for timer
+    events.
 
     Attributes
     ----------
-    interval : int
-        The time between timer events in milliseconds. Default is 1000 ms.
-    single_shot : bool
-        Boolean flag indicating whether this timer should operate as single
-        shot (run once and then stop). Defaults to False.
+    interval : int, default: 1000ms
+        The time between timer events in milliseconds.
+    single_shot : bool, default: False
+        Whether this timer should operate as single shot (run once and then
+        stop).
     callbacks : list
         Stores list of (func, args) tuples that will be called upon timer
         events. This list can be manipulated directly, or the functions
         `add_callback` and `remove_callback` can be used.
-
-    '''
+    """
     # completely implemented at the C-level (in _macosx.Timer)
 
 

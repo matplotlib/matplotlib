@@ -715,9 +715,9 @@ likewise changed.
 Dependency changes
 ------------------
 
-numpy
+NumPy
 ~~~~~
-Matplotlib 3.1 now requires numpy>=1.11.
+Matplotlib 3.1 now requires NumPy>=1.11.
 
 ghostscript
 ~~~~~~~~~~~
@@ -871,7 +871,7 @@ future version.
 - `.cbook.iterable`
 - `.cbook.get_label`
 - `.cbook.safezip`
-  Manually check the lengths of the inputs instead, or rely on numpy to do it.
+  Manually check the lengths of the inputs instead, or rely on NumPy to do it.
 - `.cbook.is_hashable`
   Use ``isinstance(..., collections.abc.Hashable)`` instead.
 
@@ -1153,7 +1153,7 @@ will throw an exception in a future version.
 *verticalalignment* kwargs, and used to ignore them with a warning.  This
 behavior is deprecated and will throw an exception in a future version.
 
-Passing steps less than 1 or greater than 10 to `~ticker..MaxNLocator` used to
+Passing steps less than 1 or greater than 10 to `~.ticker.MaxNLocator` used to
 result in undefined behavior.  It now throws a `ValueError`.
 
 The signature of the (private) ``Axis._update_ticks`` has been changed to not

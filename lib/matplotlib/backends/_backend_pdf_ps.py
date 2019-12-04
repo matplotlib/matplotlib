@@ -16,10 +16,50 @@ def _cached_get_afm_from_fname(fname):
         return AFM(fh)
 
 
+class CharacterTracker:
+    """
+    Helper for font subsetting by the pdf and ps backends.
+
+    Maintains a mapping of font paths to the set of character codepoints that
+    are being used from that font.
+    """
+
+    def __init__(self):
+        self.used = {}
+
+    @mpl.cbook.deprecated("3.3")
+    @property
+    def used_characters(self):
+        d = {}
+        for fname, chars in self.used.items():
+            realpath, stat_key = mpl.cbook.get_realpath_and_stat(fname)
+            d[stat_key] = (realpath, chars)
+        return d
+
+    def track(self, font, s):
+        """Record that string *s* is being typeset using font *font*."""
+        if isinstance(font, str):
+            # Unused, can be removed after removal of track_characters.
+            fname = font
+        else:
+            fname = font.fname
+        self.used.setdefault(fname, set()).update(map(ord, s))
+
+    def merge(self, other):
+        """Update self with a font path to character codepoints."""
+        for fname, charset in other.items():
+            self.used.setdefault(fname, set()).update(charset)
+
+
 class RendererPDFPSBase(RendererBase):
     # The following attributes must be defined by the subclasses:
     # - _afm_font_dir
     # - _use_afm_rc_name
+
+    def __init__(self, width, height):
+        super().__init__()
+        self.width = width
+        self.height = height
 
     def flipy(self):
         # docstring inherited
@@ -69,11 +109,8 @@ class RendererPDFPSBase(RendererBase):
             return w, h, d
 
     def _get_font_afm(self, prop):
-        fname = (
-            font_manager.findfont(
-                prop, fontext="afm", directory=self._afm_font_dir)
-            or font_manager.findfont(
-                "Helvetica", fontext="afm", directory=self._afm_font_dir))
+        fname = font_manager.findfont(
+            prop, fontext="afm", directory=self._afm_font_dir)
         return _cached_get_afm_from_fname(fname)
 
     def _get_font_ttf(self, prop):

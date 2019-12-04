@@ -19,8 +19,7 @@ except ImportError:
 
 from matplotlib import cbook, is_interactive
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, NavigationToolbar2)
+from matplotlib.backend_bases import _Backend, NavigationToolbar2
 from matplotlib.backends.backend_webagg_core import (
     FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg,
     TimerTornado)

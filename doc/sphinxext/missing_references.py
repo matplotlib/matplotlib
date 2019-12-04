@@ -18,7 +18,7 @@ The basic operation is:
 from collections import defaultdict
 import json
 import logging
-from pathlib import Path, PosixPath
+from pathlib import Path
 
 from docutils.utils import get_source_line
 from docutils import nodes
@@ -211,13 +211,13 @@ def _write_missing_references_json(records, json_path):
     Convert from ``{(domain_type, target): locations}`` to
     ``{domain_type: {target: locations}}`` since JSON can't serialize tuples.
     """
+    # Sorting records and keys avoids needlessly big diffs when
+    # missing_references.json is regenerated.
     transformed_records = defaultdict(dict)
-
     for (domain_type, target), paths in records.items():
         transformed_records[domain_type][target] = sorted(paths)
-
     with json_path.open("w") as stream:
-        json.dump(transformed_records, stream, indent=2)
+        json.dump(transformed_records, stream, sort_keys=True, indent=2)
 
 
 def _read_missing_references_json(json_path):
@@ -292,3 +292,5 @@ def setup(app):
     app.connect("builder-inited", prepare_missing_references_handler)
     app.connect("missing-reference", record_missing_reference_handler)
     app.connect("build-finished", save_missing_references_handler)
+
+    return {'parallel_read_safe': True}

@@ -194,7 +194,7 @@ def _check_versions():
             ("cycler", "0.10"),
             ("dateutil", "2.1"),
             ("kiwisolver", "1.0.1"),
-            ("numpy", "1.11"),
+            ("numpy", "1.15"),
             ("pyparsing", "2.0.1"),
     ]:
         module = importlib.import_module(modname)
@@ -337,8 +337,8 @@ def _get_executable_info(name):
                 output = _cpe.output
             else:
                 raise ExecutableNotFoundError(str(_cpe)) from _cpe
-        except FileNotFoundError as _fnf:
-            raise ExecutableNotFoundError(str(_fnf)) from _fnf
+        except OSError as _ose:
+            raise ExecutableNotFoundError(str(_ose)) from _ose
         match = re.search(regex, output)
         if match:
             version = LooseVersion(match.group(1))
@@ -948,7 +948,7 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
 
     Parameters
     ----------
-    fname : str
+    fname : str or path-like
         Name of file parsed for Matplotlib settings.
     fail_on_error : bool
         If True, raise an error when the parser fails to convert a parameter.
@@ -1224,11 +1224,11 @@ def use(backend, warn=False, force=True):
 
         or a string of the form: ``module://my.module.name``.
 
-    warn : bool, optional, default: False
+    warn : bool, default: False
         If True and not *force*, emit a warning if a failure-to-switch
         `ImportError` has been suppressed.  This parameter is deprecated.
 
-    force : bool, optional, default: True
+    force : bool, default: True
         If True (the default), raise an `ImportError` if the backend cannot be
         set up (either because it fails to import, or because an incompatible
         GUI interactive framework is already running); if False, ignore the
@@ -1302,7 +1302,6 @@ def tk_window_focus():
 
 default_test_modules = [
     'matplotlib.tests',
-    'matplotlib.sphinxext.tests',
     'mpl_toolkits.tests',
 ]
 
@@ -1316,14 +1315,12 @@ def _init_tests():
     if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or
         ft2font.__freetype_build_type__ != 'local'):
         _log.warning(
-            "Matplotlib is not built with the correct FreeType version to run "
-            "tests.  Set local_freetype=True in setup.cfg and rebuild. "
-            "Expect many image comparison failures below. "
-            "Expected freetype version {0}. "
-            "Found freetype version {1}. "
-            "Freetype build type is {2}local".format(
-                LOCAL_FREETYPE_VERSION,
-                ft2font.__freetype_version__,
+            f"Matplotlib is not built with the correct FreeType version to "
+            f"run tests.  Rebuild without setting system_freetype=1 in "
+            f"setup.cfg.  Expect many image comparison failures below.  "
+            f"Expected freetype version {LOCAL_FREETYPE_VERSION}.  "
+            f"Found freetype version {ft2font.__freetype_version__}.  "
+            "Freetype build type is {}local".format(
                 "" if ft2font.__freetype_build_type__ == 'local' else "not "))
 
     try:
@@ -1480,10 +1477,10 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
 
     Parameters
     ----------
-    replace_names : list of str or None, optional, default: None
+    replace_names : list of str or None, default: None
         The list of parameter names for which lookup into *data* should be
         attempted. If None, replacement is attempted for all arguments.
-    label_namer : str, optional, default: None
+    label_namer : str, default: None
         If set e.g. to "namer" (which must be a kwarg in the function's
         signature -- not as ``**kwargs``), if the *namer* argument passed in is
         a (string) key of *data* and no *label* kwarg is passed, then use the

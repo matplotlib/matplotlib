@@ -12,10 +12,10 @@ give a color at the center of the colormap *RdBu_r* (white in this
 case).
 
 Matplotlib does this mapping in two steps, with a normalization from
-[0, 1] occurring first, and then mapping onto the indices in the
-colormap.  Normalizations are classes defined in the
-:func:`matplotlib.colors` module.  The default, linear normalization is
-:func:`matplotlib.colors.Normalize`.
+the input data to [0, 1] occurring first, and then mapping onto the
+indices in the colormap.  Normalizations are classes defined in the
+:func:`matplotlib.colors` module.  The default, linear normalization
+is :func:`matplotlib.colors.Normalize`.
 
 Artists that map data to color pass the arguments *vmin* and *vmax* to
 construct a :func:`matplotlib.colors.Normalize` instance, then call it:
@@ -41,6 +41,7 @@ disparate scales.  Using `.colors.LogNorm` normalizes the data via
 :math:`log_{10}`.  In the example below, there are two bumps, one much smaller
 than the other. Using `.colors.LogNorm`, the shape and location of each bump
 can clearly be seen:
+
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -187,8 +188,8 @@ plt.show()
 
 
 ###############################################################################
-# DivergingNorm: Different mapping on either side of a center
-# -----------------------------------------------------------
+# TwoSlopeNorm: Different mapping on either side of a center
+# ----------------------------------------------------------
 #
 # Sometimes we want to have a different colormap on either side of a
 # conceptual center point, and we want those two colormaps to have
@@ -214,7 +215,7 @@ terrain_map = colors.LinearSegmentedColormap.from_list('terrain_map',
 
 # make the norm:  Note the center is offset so that the land has more
 # dynamic range:
-divnorm = colors.DivergingNorm(vmin=-500., vcenter=0, vmax=4000)
+divnorm = colors.TwoSlopeNorm(vmin=-500., vcenter=0, vmax=4000)
 
 pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
     cmap=terrain_map,)
@@ -229,7 +230,7 @@ plt.show()
 # Custom normalization: Manually implement two linear ranges
 # ----------------------------------------------------------
 #
-# The `.DivergingNorm` described above makes a useful example for
+# The `.TwoSlopeNorm` described above makes a useful example for
 # defining your own norm.
 
 class MidpointNormalize(colors.Normalize):

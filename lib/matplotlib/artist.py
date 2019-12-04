@@ -276,7 +276,7 @@ class Artist:
 
         Returns
         -------
-        bbox : `.BBox`
+        bbox : `.Bbox`
             The enclosing bounding box (in figure pixel co-ordinates).
         """
         bbox = self.get_window_extent(renderer)
@@ -802,7 +802,7 @@ class Artist:
         return self._visible
 
     def get_animated(self):
-        """Return the animated state."""
+        """Return whether the artist is animated."""
         return self._animated
 
     def get_in_layout(self):
@@ -1072,7 +1072,7 @@ class Artist:
         return self._sticky_edges
 
     def update_from(self, other):
-        'Copy properties from *other* to *self*.'
+        """"Copy properties from *other* to *self*."""
         self._transform = other._transform
         self._transformSet = other._transformSet
         self._visible = other._visible
@@ -1200,6 +1200,13 @@ class Artist:
 
     @property
     def mouseover(self):
+        """
+        If this property is set to *True*, the artist will be queried for
+        custom context information when the mouse cursor moves over it.
+
+        See also :meth:`get_cursor_data`, :class:`.ToolCursorPosition` and
+        :class:`.NavigationToolbar2`.
+        """
         return self._mouseover
 
     @mouseover.setter

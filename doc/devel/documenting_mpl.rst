@@ -158,7 +158,7 @@ Referring to other documents and sections
 
 Sphinx_ allows internal references_ between documents.
 
-Documents can be linked with the `:doc:` directive:
+Documents can be linked with the ``:doc:`` directive:
 
 .. code-block:: rst
 
@@ -390,7 +390,7 @@ consistent with Python's documentation:
 
 .. code-block:: rst
 
-  If *linestyles* is *None*, the 'solid' is used.
+  If *linestyles* is *None*, the default is 'solid'.
 
 Do not use the ```default role``` or the ````literal```` role:
 
@@ -409,6 +409,12 @@ Use simple single or double quotes when giving string values, e.g.
 .. code-block:: rst
 
   If 'tight', try to figure out the tight bbox of the figure.
+
+  No ``'extra'`` literal quotes.
+
+The use of extra literal quotes around the text is discouraged. While they
+slightly improve the rendered docs, they are cumbersome to type and difficult
+to read in plain-text docs.
 
 Parameter type descriptions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -634,7 +640,7 @@ If a subclass overrides a method but does not change the semantics, we can
 reuse the parent docstring for the method of the child class. Python does this
 automatically, if the subclass method does not have a docstring.
 
-Use a plain comment `# docstring inherited` to denote the intention to reuse
+Use a plain comment ``# docstring inherited`` to denote the intention to reuse
 the parent docstring. That way we do not accidentally create a docstring in
 the future::
 
@@ -655,8 +661,8 @@ Adding figures
 --------------
 
 As above (see :ref:`rst-figures-and-includes`), figures in the examples gallery
-can be referenced with a `:plot:` directive pointing to the python script that
-created the figure.  For instance the `~.Axes.legend` docstring references
+can be referenced with a ``:plot:`` directive pointing to the python script
+that created the figure.  For instance the `~.Axes.legend` docstring references
 the file :file:`examples/text_labels_and_annotations/legend.py`:
 
 .. code-block:: python
@@ -745,7 +751,7 @@ Tutorials are made with the exact same mechanism, except they are longer, and
 typically have more than one comment block (i.e.
 :doc:`/tutorials/introductory/usage`).  The first comment block
 can be the same as the example above.  Subsequent blocks of ReST text
-are delimited by a line of `###` characters:
+are delimited by a line of ``###`` characters:
 
 .. code-block:: python
 

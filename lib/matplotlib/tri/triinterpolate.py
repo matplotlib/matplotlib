@@ -138,8 +138,7 @@ class TriInterpolator:
         Parameters
         ----------
         x, y : array-like
-            x and y coordinates indicating where interpolated values are
-            requested.
+            x and y coordinates where interpolated values are requested.
         tri_index : array-like of int, optional
             Array of the containing triangle indices, same shape as
             *x* and *y*. Defaults to None. If None, these indices
@@ -217,7 +216,7 @@ class TriInterpolator:
         ----------
         return_index : {'z', 'dzdx', 'dzdy'}
             Identifies the requested values (z or its derivatives)
-        tri_index : 1d integer array
+        tri_index : 1d int array
             Valid triangle index (-1 prohibited)
         x, y : 1d arrays, same shape as `tri_index`
             Valid locations where interpolation is requested.
@@ -588,7 +587,7 @@ class CubicTriInterpolator(TriInterpolator):
 
 # FEM element used for interpolation and for solving minimisation
 # problem (Reduced HCT element)
-class _ReducedHCT_Element():
+class _ReducedHCT_Element:
     """
     Implementation of reduced HCT triangular element with explicit shape
     functions.
@@ -1006,7 +1005,7 @@ class _ReducedHCT_Element():
 # _DOF_estimator_min_E
 # Private classes used to compute the degree of freedom of each triangular
 # element for the TriCubicInterpolator.
-class _DOF_estimator():
+class _DOF_estimator:
     """
     Abstract base class for classes used to perform estimation of a function
     first derivatives, and deduce the dofs for a CubicTriInterpolator using a
@@ -1328,10 +1327,9 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
     tol : float
         Tolerance to achieve. The algorithm terminates when the relative
         residual is below tol.
-    maxiter : integer
-        Maximum number of iterations. Iteration will stop
-        after maxiter steps even if the specified tolerance has not
-        been achieved.
+    maxiter : int
+        Maximum number of iterations.  Iteration will stop after *maxiter*
+        steps even if the specified tolerance has not been achieved.
     """
     n = b.size
     assert A.n == n

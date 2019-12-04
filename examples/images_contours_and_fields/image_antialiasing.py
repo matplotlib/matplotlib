@@ -1,6 +1,6 @@
 """
 ==================
-Image Antialiasing
+Image antialiasing
 ==================
 
 Images are represented by discrete pixels, either on the screen or in an
@@ -13,14 +13,14 @@ is upsampling by a factor of 1, 2 or >=3 is 'nearest' neighbor interpolation
 used.
 
 Other anti-aliasing filters can be specified in `.Axes.imshow` using the
-*interpolation* kwarg.
+*interpolation* keyword argument.
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 
 ###############################################################################
-# First we generate an image with varying frequency content:
+# First we generate a 500x500 px image with varying frequency content:
 x = np.arange(500) / 500 - 0.5
 y = np.arange(500) / 500 - 0.5
 
@@ -32,38 +32,44 @@ a = np.sin(np.pi * 2 * (f0 * R + k * R**2 / 2))
 
 
 ###############################################################################
-# The following images are subsampled from 1000 data pixels to 604 rendered
-# pixels. The Moire patterns in the "nearest" interpolation are caused by the
-# high-frequency data being subsampled.  The "antialiased" image
+# The following images are subsampled from 500 data pixels to 303 rendered
+# pixels. The Moire patterns in the 'nearest' interpolation are caused by the
+# high-frequency data being subsampled.  The 'antialiased' image
 # still has some Moire patterns as well, but they are greatly reduced.
 fig, axs = plt.subplots(1, 2, figsize=(7, 4), constrained_layout=True)
-for n, interp in enumerate(['nearest', 'antialiased']):
-    im = axs[n].imshow(a, interpolation=interp, cmap='gray')
-    axs[n].set_title(interp)
+for ax, interp in zip(axs, ['nearest', 'antialiased']):
+    ax.imshow(a, interpolation=interp, cmap='gray')
+    ax.set_title(f"interpolation='{interp}'")
 plt.show()
 
 ###############################################################################
-# Even up-sampling an image will lead to Moire patterns unless the upsample
-# is an integer number of pixels.
-fig, ax = plt.subplots(1, 1, figsize=(5.3, 5.3))
-ax.set_position([0, 0, 1, 1])
-im = ax.imshow(a, interpolation='nearest', cmap='gray')
+# Even up-sampling an image with 'nearest' interpolation will lead to Moire
+# patterns when the upsampling factor is not integer. The following image
+# upsamples 500 data pixels to 530 rendered pixels. You may note a grid of
+# 30 line-like artifacts which stem from the 524 - 500 = 24 extra pixels that
+# had to be made up. Since interpolation is 'nearest' they are the same as a
+# neighboring line of pixels and thus stretch the image locally so that it
+# looks distorted.
+fig, ax = plt.subplots(figsize=(6.8, 6.8))
+ax.imshow(a, interpolation='nearest', cmap='gray')
+ax.set_title("upsampled by factor a 1.048, interpolation='nearest'")
 plt.show()
 
 ###############################################################################
-# The patterns aren't as bad, but still benefit from anti-aliasing
-fig, ax = plt.subplots(1, 1, figsize=(5.3, 5.3))
-ax.set_position([0, 0, 1, 1])
-im = ax.imshow(a, interpolation='antialiased', cmap='gray')
+# Better antialiasing algorithms can reduce this effect:
+fig, ax = plt.subplots(figsize=(6.8, 6.8))
+ax.imshow(a, interpolation='antialiased', cmap='gray')
+ax.set_title("upsampled by factor a 1.048, interpolation='antialiased'")
 plt.show()
 
 ###############################################################################
-# If the small Moire patterns in the default "hanning" antialiasing are
-# still undesireable, then we can use other filters.
+# Apart from the default 'hanning' antialiasing  `~.Axes.imshow` supports a
+# number of different interpolation algorithms, which may work better or
+# worse depending on the pattern.
 fig, axs = plt.subplots(1, 2, figsize=(7, 4), constrained_layout=True)
-for n, interp in enumerate(['hanning', 'lanczos']):
-    im = axs[n].imshow(a, interpolation=interp, cmap='gray')
-    axs[n].set_title(interp)
+for ax, interp in zip(axs, ['hanning', 'lanczos']):
+    ax.imshow(a, interpolation=interp, cmap='gray')
+    ax.set_title(f"interpolation='{interp}'")
 plt.show()
 
 

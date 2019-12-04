@@ -866,7 +866,7 @@ class Text(Artist):
 
     def get_window_extent(self, renderer=None, dpi=None):
         """
-        Return the `Bbox` bounding the text, in display units.
+        Return the `.Bbox` bounding the text, in display units.
 
         In addition to being used internally, this is useful for specifying
         clickable regions in a png file on a web page.
@@ -976,7 +976,8 @@ class Text(Artist):
     def set_linespacing(self, spacing):
         """
         Set the line spacing as a multiple of the font size.
-        Default is 1.2.
+
+        The default line spacing is 1.2.
 
         Parameters
         ----------
@@ -1671,11 +1672,11 @@ class OffsetFrom:
         '''
         Parameters
         ----------
-        artist : `Artist`, `BboxBase`, or `Transform`
+        artist : `.Artist`, `.BboxBase`, or `.Transform`
             The object to compute the offset from.
 
         ref_coord : length 2 sequence
-            If *artist* is an `Artist` or `BboxBase`, this values is
+            If *artist* is an `.Artist` or `.BboxBase`, this values is
             the location to of the offset origin in fractions of the
             *artist* bounding box.
 
@@ -2379,7 +2380,7 @@ class Annotation(Text, _AnnotationBase):
 
     def get_window_extent(self, renderer=None):
         """
-        Return the `Bbox` bounding the text and arrow, in display units.
+        Return the `.Bbox` bounding the text and arrow, in display units.
 
         Parameters
         ----------

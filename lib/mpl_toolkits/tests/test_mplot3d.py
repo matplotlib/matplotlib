@@ -160,6 +160,14 @@ def test_lines3d():
     ax.plot(x, y, z)
 
 
+@check_figures_equal(extensions=["png"])
+def test_plot_scalar(fig_test, fig_ref):
+    ax1 = fig_test.gca(projection='3d')
+    ax1.plot([1], [1], "o")
+    ax2 = fig_ref.gca(projection='3d')
+    ax2.plot(1, 1, "o")
+
+
 @image_comparison(['mixedsubplot.png'], remove_text=True)
 def test_mixedsubplots():
     def f(t):
@@ -970,3 +978,19 @@ def test_ticklabel_format(fig_test, fig_ref):
         for fmt in get_formatters(row[4], names):
             fmt.set_useMathText(
                 not mpl.rcParams["axes.formatter.use_mathtext"])
+
+
+@check_figures_equal(extensions=["png"])
+def test_quiver3D_smoke(fig_test, fig_ref):
+    pivot = "middle"
+    # Make the grid
+    x, y, z = np.meshgrid(
+        np.arange(-0.8, 1, 0.2),
+        np.arange(-0.8, 1, 0.2),
+        np.arange(-0.8, 1, 0.8)
+    )
+    u = v = w = np.ones_like(x)
+
+    for fig, length in zip((fig_ref, fig_test), (1, 1.0)):
+        ax = fig.gca(projection="3d")
+        ax.quiver(x, y, z, u, v, w, length=length, pivot=pivot)

@@ -420,8 +420,6 @@ plt.show()
 # An example of four plots with the same data and different scales for the y axis
 # is shown below.
 
-from matplotlib.ticker import NullFormatter  # useful for `logit` scale
-
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
@@ -441,14 +439,12 @@ plt.yscale('linear')
 plt.title('linear')
 plt.grid(True)
 
-
 # log
 plt.subplot(222)
 plt.plot(x, y)
 plt.yscale('log')
 plt.title('log')
 plt.grid(True)
-
 
 # symmetric log
 plt.subplot(223)

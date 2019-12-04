@@ -162,15 +162,15 @@ bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
 
         loc='upper right', bbox_to_anchor=(0.5, 0.5)
 
-ncol : integer
-    The number of columns that the legend has. Default is 1.
+ncol : int, default: 1
+    The number of columns that the legend has.
 
 prop : None or :class:`matplotlib.font_manager.FontProperties` or dict
     The font properties of the legend. If None (default), the current
     :data:`matplotlib.rcParams` will be used.
 
-fontsize : int or float or {'xx-small', 'x-small', 'small', 'medium', \
-'large', 'x-large', 'xx-large'}
+fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
+'x-large', 'xx-large'}
     The font size of the legend. If the value is numeric the size will be the
     absolute font size in points. String values are relative to the current
     default font size. This argument is only used if *prop* is not specified.
@@ -185,22 +185,20 @@ scatterpoints : None or int
     a legend entry for a `.PathCollection` (scatter plot).
     Default is ``None``, which means using :rc:`legend.scatterpoints`.
 
-scatteryoffsets : iterable of floats
+scatteryoffsets : iterable of floats, default: ``[0.375, 0.5, 0.3125]``
     The vertical offset (relative to the font size) for the markers
     created for a scatter plot legend entry. 0.0 is at the base the
     legend text, and 1.0 is at the top. To draw all markers at the
-    same height, set to ``[0.5]``. Default is ``[0.375, 0.5, 0.3125]``.
+    same height, set to ``[0.5]``.
 
-markerscale : None or int or float
+markerscale : None or float
     The relative size of legend markers compared with the originally
     drawn ones.
     Default is ``None``, which means using :rc:`legend.markerscale`.
 
-markerfirst : bool
+markerfirst : bool, default: True
     If *True*, legend marker is placed to the left of the legend label.
-    If *False*, legend marker is placed to the right of the legend
-    label.
-    Default is *True*.
+    If *False*, legend marker is placed to the right of the legend label.
 
 frameon : None or bool
     Whether the legend should be drawn on a patch (frame).
@@ -367,8 +365,8 @@ class Legend(Artist):
         Notes
         -----
         Users can specify any arbitrary location for the legend using the
-        *bbox_to_anchor* keyword argument. bbox_to_anchor can be an instance
-        of BboxBase(or its derivatives) or a tuple of 2 or 4 floats.
+        *bbox_to_anchor* keyword argument. *bbox_to_anchor* can be a
+        `.BboxBase` (or derived therefrom) or a tuple of 2 or 4 floats.
         See :meth:`set_bbox_to_anchor` for more detail.
 
         The legend location can be specified by setting *loc* with a tuple of

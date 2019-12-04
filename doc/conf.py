@@ -17,6 +17,8 @@ import sys
 import matplotlib
 import sphinx
 
+from datetime import datetime
+
 if sys.version_info < (3, 0, 0):
     print("You're using python 2.x, conf.py works with python3+ only.")
     exit()
@@ -133,6 +135,7 @@ sphinx_gallery_conf = {
     'backreferences_dir': 'api/_as_gen',
     'subsection_order': gallery_order.sectionorder,
     'within_subsection_order': gallery_order.subsectionorder,
+    'remove_config_comments': True,
     'min_reported_time': 1,
 }
 
@@ -174,7 +177,7 @@ html_context = {'sha': SHA}
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
              'Michael Droettboom and the Matplotlib development '
-             'team; 2012 - 2018 The Matplotlib development team')
+             f'team; 2012 - {datetime.now().year} The Matplotlib development team')
 
 
 # The default replacements for |version| and |release|, also used in various
@@ -227,7 +230,7 @@ github_project_url = "https://github.com/matplotlib/matplotlib/"
 # must exist either in Sphinx' static/ path, or in one of the custom paths
 # given in html_static_path.
 #html_style = 'matplotlib.css'
-html_style = 'mpl.css'
+html_style = f'mpl.css?{SHA}'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -361,6 +364,10 @@ latex_elements = {
     'babel': r'\usepackage{babel}',
     'fontpkg': r'\setmainfont{DejaVu Serif}',
 }
+
+html4_writer = True
+
+inheritance_node_attrs = dict(fontsize=16)
 
 
 def setup(app):

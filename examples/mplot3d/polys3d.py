@@ -10,7 +10,6 @@ of 'jagged stained glass' effect.
 
 from matplotlib.collections import PolyCollection
 import matplotlib.pyplot as plt
-from matplotlib import colors as mcolors
 import numpy as np
 
 # Fixing random state for reproducibility

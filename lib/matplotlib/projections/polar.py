@@ -257,26 +257,19 @@ class ThetaTick(maxis.XTick):
     the spine. The label padding is also applied here since it's not possible
     to use a generic axes transform to produce tick-specific padding.
     """
+
     def __init__(self, axes, *args, **kwargs):
         self._text1_translate = mtransforms.ScaledTranslation(
-            0, 0,
-            axes.figure.dpi_scale_trans)
+            0, 0, axes.figure.dpi_scale_trans)
         self._text2_translate = mtransforms.ScaledTranslation(
-            0, 0,
-            axes.figure.dpi_scale_trans)
+            0, 0, axes.figure.dpi_scale_trans)
         super().__init__(axes, *args, **kwargs)
-
-    def _get_text1(self):
-        t = super()._get_text1()
-        t.set_rotation_mode('anchor')
-        t.set_transform(t.get_transform() + self._text1_translate)
-        return t
-
-    def _get_text2(self):
-        t = super()._get_text2()
-        t.set_rotation_mode('anchor')
-        t.set_transform(t.get_transform() + self._text2_translate)
-        return t
+        self.label1.set(
+            rotation_mode='anchor',
+            transform=self.label1.get_transform() + self._text1_translate)
+        self.label2.set(
+            rotation_mode='anchor',
+            transform=self.label2.get_transform() + self._text2_translate)
 
     def _apply_params(self, **kw):
         super()._apply_params(**kw)
@@ -506,15 +499,11 @@ class RadialTick(maxis.YTick):
     are also rotated to be perpendicular to the spine, when 'auto' rotation is
     enabled.
     """
-    def _get_text1(self):
-        t = super()._get_text1()
-        t.set_rotation_mode('anchor')
-        return t
 
-    def _get_text2(self):
-        t = super()._get_text2()
-        t.set_rotation_mode('anchor')
-        return t
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label1.set_rotation_mode('anchor')
+        self.label2.set_rotation_mode('anchor')
 
     def _determine_anchor(self, mode, angle, start):
         # Note: angle is the (spine angle - 90) because it's used for the tick
@@ -719,9 +708,7 @@ class _WedgeBbox(mtransforms.Bbox):
         Bbox determining the origin for the wedge, if different from *viewLim*
     """
     def __init__(self, center, viewLim, originLim, **kwargs):
-        mtransforms.Bbox.__init__(self,
-                                  np.array([[0.0, 0.0], [1.0, 1.0]], np.float),
-                                  **kwargs)
+        mtransforms.Bbox.__init__(self, [[0, 0], [1, 1]], **kwargs)
         self._center = center
         self._viewLim = viewLim
         self._originLim = originLim
@@ -1205,12 +1192,12 @@ class PolarAxes(Axes):
             The top limit (default: None, which leaves the top limit
             unchanged).
 
-        emit : bool, optional
-            Whether to notify observers of limit change (default: True).
+        emit : bool, optional, default: True
+            Whether to notify observers of limit change.
 
-        auto : bool or None, optional
+        auto : bool or None, optional, default: False
             Whether to turn on autoscaling of the y-axis. True turns on,
-            False turns off (default action), None leaves unchanged.
+            False turns off, None leaves unchanged.
 
         ymin, ymax : scalar, optional
             These arguments are deprecated and will be removed in a future

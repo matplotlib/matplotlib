@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt

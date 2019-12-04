@@ -1,6 +1,0 @@
-Deprecations
-````````````
-
-The ``as_str``, ``as_rgba_str``, ``as_array``, ``get_width`` and ``get_height``
-methods of ``matplotlib.ft2font.FT2Image`` are deprecated.  Convert the ``FT2Image``
-to a numpy array with ``np.asarray`` before processing it.

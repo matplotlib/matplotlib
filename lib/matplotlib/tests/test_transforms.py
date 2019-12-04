@@ -228,7 +228,7 @@ class NonAffineForTest(mtransforms.Transform):
         return self.real_trans.transform_path(path)
 
 
-class TestBasicTransform():
+class TestBasicTransform:
     def setup_method(self):
 
         self.ta1 = mtransforms.Affine2D(shorthand_name='ta1').rotate(np.pi / 2)

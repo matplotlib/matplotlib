@@ -2,13 +2,14 @@ from collections import OrderedDict
 import base64
 import gzip
 import hashlib
-import io
+from io import BytesIO, StringIO, TextIOWrapper
 import itertools
 import logging
 import re
 import uuid
 
 import numpy as np
+from PIL import Image
 
 from matplotlib import cbook, __version__, rcParams
 from matplotlib.backend_bases import (
@@ -21,7 +22,6 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D, Affine2DBase
-from matplotlib import _png
 
 _log = logging.getLogger(__name__)
 
@@ -242,7 +242,7 @@ class XMLWriter:
 
 def generate_transform(transform_list=[]):
     if len(transform_list):
-        output = io.StringIO()
+        output = StringIO()
         for type, value in transform_list:
             if (type == 'scale' and (value == (1,) or value == (1, 1))
                     or type == 'translate' and value == (0, 0)
@@ -258,7 +258,7 @@ def generate_transform(transform_list=[]):
 
 def generate_css(attrib={}):
     if attrib:
-        output = io.StringIO()
+        output = StringIO()
         attrib = sorted(attrib.items())
         for k, v in attrib:
             k = escape_attrib(k)
@@ -821,11 +821,12 @@ class RendererSVG(RendererBase):
         if url is not None:
             self.writer.start('a', attrib={'xlink:href': url})
         if rcParams['svg.image_inline']:
-            buf = _png.write_png(im, None)
-            oid = oid or self._make_id('image', buf)
+            buf = BytesIO()
+            Image.fromarray(im).save(buf, format="png")
+            oid = oid or self._make_id('image', buf.getvalue())
             attrib['xlink:href'] = (
                 "data:image/png;base64,\n" +
-                base64.b64encode(buf).decode('ascii'))
+                base64.b64encode(buf.getvalue()).decode('ascii'))
         else:
             if self.basename is None:
                 raise ValueError("Cannot save image data to filesystem when "
@@ -833,8 +834,7 @@ class RendererSVG(RendererBase):
             filename = '{}.image{}.png'.format(
                 self.basename, next(self._image_counter))
             _log.info('Writing image file for inclusion: %s', filename)
-            with open(filename, 'wb') as file:
-                _png.write_png(im, file)
+            Image.fromarray(im).save(filename)
             oid = oid or 'Im_' + self._make_id('image', filename)
             attrib['xlink:href'] = filename
 
@@ -1190,7 +1190,7 @@ class FigureCanvasSVG(FigureCanvasBase):
             if cbook.file_requires_unicode(fh):
                 detach = False
             else:
-                fh = io.TextIOWrapper(fh, 'utf-8')
+                fh = TextIOWrapper(fh, 'utf-8')
                 detach = True
 
             result = self._print_svg(filename, fh, **kwargs)

@@ -34,7 +34,7 @@ def demo_simple_grid(fig):
                      )
     Z, extent = get_demo_image()
     for ax in grid:
-        ax.imshow(Z, extent=extent, interpolation="nearest")
+        ax.imshow(Z, extent=extent)
     # This only affects axes in first column and second row as share_all=False.
     grid.axes_llc.set_xticks([-2, 0, 2])
     grid.axes_llc.set_yticks([-2, 0, 2])
@@ -55,7 +55,7 @@ def demo_grid_with_single_cbar(fig):
 
     Z, extent = get_demo_image()
     for ax in grid:
-        im = ax.imshow(Z, extent=extent, interpolation="nearest")
+        im = ax.imshow(Z, extent=extent)
     grid.cbar_axes[0].colorbar(im)
 
     for cax in grid.cbar_axes:
@@ -82,7 +82,7 @@ def demo_grid_with_each_cbar(fig):
                      )
     Z, extent = get_demo_image()
     for ax, cax in zip(grid, grid.cbar_axes):
-        im = ax.imshow(Z, extent=extent, interpolation="nearest")
+        im = ax.imshow(Z, extent=extent)
         cax.colorbar(im)
         cax.toggle_label(False)
 
@@ -110,8 +110,7 @@ def demo_grid_with_each_cbar_labelled(fig):
     # Use a different colorbar range every time
     limits = ((0, 1), (-2, 2), (-1.7, 1.4), (-1.5, 1))
     for ax, cax, vlim in zip(grid, grid.cbar_axes, limits):
-        im = ax.imshow(Z, extent=extent, interpolation="nearest",
-                       vmin=vlim[0], vmax=vlim[1])
+        im = ax.imshow(Z, extent=extent, vmin=vlim[0], vmax=vlim[1])
         cb = cax.colorbar(im)
         cb.set_ticks((vlim[0], vlim[1]))
 

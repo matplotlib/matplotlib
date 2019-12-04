@@ -3,6 +3,26 @@
  * Originally created by Armin Ronacher for Werkzeug, adapted by Georg Brandl.
  */
 
+/* Carlogo font (simmilar to Calibri in the MPL logo) */
+@font-face {
+    font-family: 'CarlogoRegular';
+    font-style: normal;
+    src:    local('Carlito'),
+            url('fonts/carlogo-regular.woff2') format('woff2'), 
+            url('fonts/carlogo-regular.woff') format('woff'),
+            url('fonts/carlogo-regular.ttf') format('truetype')
+}
+
+@font-face {
+    font-family: 'CarlogoBold';
+    font-style: bold;
+    src:    local('Carlito Bold'),
+            url('fonts/carlogo-bold.woff2') format('woff2'), 
+            url('fonts/carlogo-bold.woff') format('woff'),
+            url('fonts/carlogo-bold.ttf') format('truetype')
+}
+
+
 body {
     font-family: "Helvetica Neue", Helvetica, 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
     font-size: 14px;
@@ -312,6 +332,11 @@ h3 {
     font-size: 1.2em;
 }
 
+h1, h2, h3, h4, h5, h6{
+    font-family: 'CarlogoBold', 'Carlito-bold', sans-serif;
+    font-weight: normal;
+}
+
 h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
     color: black!important;
 }
@@ -349,7 +374,7 @@ div.footer {
     padding: 3px 8px 3px 0;
     clear: both;
     font-size: 0.8em;
-    text-align: right;
+    text-align: center;
 }
 
 div.footer a {
@@ -676,6 +701,11 @@ dl.class p.rubric + table.docutils td:first-of-type > strong {
     font-weight: normal;
 }
 
+.classifier:before {
+    font-style: normal;
+    margin: 0.2em;
+    content: ":";
+}
 
 /* module summary table */
 .longtable.docutils {
@@ -1113,3 +1143,30 @@ div.viewcode-block:target {
 .sidebar-announcement p {
     margin: 0.4em 0.4em 0.6em 0.4em;
 }
+
+/* new main nav */
+nav.main-nav{
+    background-color: #002b47;
+    font-family: 'CarlogoRegular', 'Carlito', sans-serif;
+    font-size: 16px;
+  }
+  
+  nav.main-nav ul{
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+  }
+  
+  nav.main-nav li{
+    margin: 8px 15px;
+    list-style-type: none;
+  }
+  
+  nav.main-nav a{
+    color: white;
+  }
+  
+  nav.main-nav a:hover{
+    text-decoration: underline;
+  }

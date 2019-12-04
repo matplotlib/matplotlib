@@ -45,7 +45,6 @@ from weakref import WeakKeyDictionary
 
 import numpy as np
 
-import matplotlib as mpl
 from matplotlib import (
     backend_tools as tools, cbook, colors, textpath, tight_bbox, transforms,
     widgets, get_backend, is_interactive, rcParams)
@@ -53,42 +52,37 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.transforms import Affine2D
 from matplotlib.path import Path
 
-try:
-    from PIL import PILLOW_VERSION
-    from distutils.version import LooseVersion
-    if LooseVersion(PILLOW_VERSION) >= "3.4":
-        _has_pil = True
-    else:
-        _has_pil = False
-    del PILLOW_VERSION
-except ImportError:
-    _has_pil = False
 
 _log = logging.getLogger(__name__)
-
 _default_filetypes = {
-    'ps': 'Postscript',
     'eps': 'Encapsulated Postscript',
+    'jpg': 'Joint Photographic Experts Group',
+    'jpeg': 'Joint Photographic Experts Group',
     'pdf': 'Portable Document Format',
     'pgf': 'PGF code for LaTeX',
     'png': 'Portable Network Graphics',
+    'ps': 'Postscript',
     'raw': 'Raw RGBA bitmap',
     'rgba': 'Raw RGBA bitmap',
     'svg': 'Scalable Vector Graphics',
-    'svgz': 'Scalable Vector Graphics'
+    'svgz': 'Scalable Vector Graphics',
+    'tif': 'Tagged Image File Format',
+    'tiff': 'Tagged Image File Format',
 }
-
-
 _default_backends = {
-    'ps': 'matplotlib.backends.backend_ps',
     'eps': 'matplotlib.backends.backend_ps',
+    'jpg': 'matplotlib.backends.backend_agg',
+    'jpeg': 'matplotlib.backends.backend_agg',
     'pdf': 'matplotlib.backends.backend_pdf',
     'pgf': 'matplotlib.backends.backend_pgf',
     'png': 'matplotlib.backends.backend_agg',
+    'ps': 'matplotlib.backends.backend_ps',
     'raw': 'matplotlib.backends.backend_agg',
     'rgba': 'matplotlib.backends.backend_agg',
     'svg': 'matplotlib.backends.backend_svg',
     'svgz': 'matplotlib.backends.backend_svg',
+    'tif': 'matplotlib.backends.backend_agg',
+    'tiff': 'matplotlib.backends.backend_agg',
 }
 
 
@@ -100,12 +94,10 @@ def register_backend(format, backend, description=None):
     ----------
     format : str
         File extension
-
     backend : module string or canvas class
         Backend for handling file output
-
-    description : str, optional
-        Description of the file type.  Defaults to an empty string
+    description : str, optional, default: ""
+        Description of the file type.
     """
     if description is None:
         description = ''
@@ -148,6 +140,7 @@ class RendererBase:
     """
 
     def __init__(self):
+        super().__init__()
         self._texmanager = None
         self._text2path = textpath.TextToPath()
 
@@ -1040,39 +1033,31 @@ class TimerBase:
     own timing mechanisms so that the timer events are integrated into their
     event loops.
 
-    Mandatory functions that must be implemented:
+    Subclasses must override the following methods:
 
-        * `_timer_start`: Contains backend-specific code for starting
-          the timer
+    - ``_timer_start``: Backend-specific code for starting the timer.
+    - ``_timer_stop``: Backend-specific code for stopping the timer.
 
-        * `_timer_stop`: Contains backend-specific code for stopping
-          the timer
+    Subclasses may additionally override the following methods:
 
-    Optional overrides:
+    - ``_timer_set_single_shot``: Code for setting the timer to single shot
+      operating mode, if supported by the timer object.  If not, the `Timer`
+      class itself will store the flag and the ``_on_timer`` method should be
+      overridden to support such behavior.
 
-        * `_timer_set_single_shot`: Code for setting the timer to
-          single shot operating mode, if supported by the timer
-          object. If not, the `Timer` class itself will store the flag
-          and the `_on_timer` method should be overridden to support
-          such behavior.
+    - ``_timer_set_interval``: Code for setting the interval on the timer, if
+      there is a method for doing so on the timer object.
 
-        * `_timer_set_interval`: Code for setting the interval on the
-          timer, if there is a method for doing so on the timer
-          object.
-
-        * `_on_timer`: This is the internal function that any timer
-          object should call, which will handle the task of running
-          all callbacks that have been set.
+    - ``_on_timer``: The internal function that any timer object should call,
+      which will handle the task of running all callbacks that have been set.
 
     Attributes
     ----------
-    interval : scalar
-        The time between timer events in milliseconds. Default is 1000 ms.
-
-    single_shot : bool
-        Boolean flag indicating whether this timer should operate as single
-        shot (run once and then stop). Defaults to `False`.
-
+    interval : int, default: 1000ms
+        The time between timer events in milliseconds.
+    single_shot : bool, default: False
+        Whether this timer should operate as single shot (run once and then
+        stop).
     callbacks : List[Tuple[callable, Tuple, Dict]]
         Stores list of (func, args, kwargs) tuples that will be called upon
         timer events. This list can be manipulated directly, or the
@@ -1161,17 +1146,17 @@ class TimerBase:
 
         *args* and *kwargs* are optional and used to distinguish between copies
         of the same function registered to be called with different arguments.
-        This behavior is deprecated.  In the future, `*args, **kwargs` won't be
-        considered anymore; to keep a specific callback removable by itself,
+        This behavior is deprecated.  In the future, ``*args, **kwargs`` won't
+        be considered anymore; to keep a specific callback removable by itself,
         pass it to `add_callback` as a `functools.partial` object.
         """
         if args or kwargs:
             cbook.warn_deprecated(
-                "3.1", "In a future version, Timer.remove_callback will not "
-                "take *args, **kwargs anymore, but remove all callbacks where "
-                "the callable matches; to keep a specific callback removable "
-                "by itself, pass it to add_callback as a functools.partial "
-                "object.")
+                "3.1", message="In a future version, Timer.remove_callback "
+                "will not take *args, **kwargs anymore, but remove all "
+                "callbacks where the callable matches; to keep a specific "
+                "callback removable by itself, pass it to add_callback as a "
+                "functools.partial object.")
             self.callbacks.remove((func, args, kwargs))
         else:
             funcs = [c[0] for c in self.callbacks]
@@ -1419,8 +1404,7 @@ class MouseEvent(LocationEvent):
 
     Examples
     --------
-    Usage::
-
+    ::
         def on_press(event):
             print('you pressed', event.button, event.xdata, event.ydata)
 
@@ -1471,8 +1455,7 @@ class PickEvent(Event):
 
     Examples
     --------
-    Usage::
-
+    ::
         ax.plot(np.rand(100), 'o', picker=5)  # 5 points tolerance
 
         def on_pick(event):
@@ -1482,7 +1465,6 @@ class PickEvent(Event):
             print('on pick line:', np.array([xdata[ind], ydata[ind]]).T)
 
         cid = fig.canvas.mpl_connect('pick_event', on_pick)
-
     """
     def __init__(self, name, canvas, mouseevent, artist,
                  guiEvent=None, **kwargs):
@@ -1519,13 +1501,11 @@ class KeyEvent(LocationEvent):
 
     Examples
     --------
-    Usage::
-
+    ::
         def on_key(event):
             print('you pressed', event.key, event.xdata, event.ydata)
 
         cid = fig.canvas.mpl_connect('key_press_event', on_key)
-
     """
     def __init__(self, name, canvas, key, x=0, y=0, guiEvent=None):
         LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
@@ -1604,17 +1584,6 @@ class FigureCanvasBase:
     fixed_dpi = None
 
     filetypes = _default_filetypes
-    if _has_pil:
-        # JPEG support
-        register_backend('jpg', 'matplotlib.backends.backend_agg',
-                         'Joint Photographic Experts Group')
-        register_backend('jpeg', 'matplotlib.backends.backend_agg',
-                         'Joint Photographic Experts Group')
-        # TIFF support
-        register_backend('tif', 'matplotlib.backends.backend_agg',
-                         'Tagged Image File Format')
-        register_backend('tiff', 'matplotlib.backends.backend_agg',
-                         'Tagged Image File Format')
 
     @cbook._classproperty
     def supports_blit(cls):
@@ -1627,6 +1596,7 @@ class FigureCanvasBase:
         self._is_saving = False
         figure.set_canvas(self)
         self.figure = figure
+        self.manager = None
         # a dictionary from event name to a dictionary that maps cid->func
         self.callbacks = cbook.CallbackRegistry()
         self.widgetlock = widgets.LockDraw()
@@ -1967,18 +1937,35 @@ class FigureCanvasBase:
             groupings[name].sort()
         return groupings
 
-    def _get_output_canvas(self, fmt):
+    def _get_output_canvas(self, backend, fmt):
         """
-        Return a canvas suitable for saving figures to a specified file format.
+        Set the canvas in preparation for saving the figure.
 
-        If necessary, this function will switch to a registered backend that
-        supports the format.
+        Parameters
+        ----------
+        backend : str or None
+            If not None, switch the figure canvas to the ``FigureCanvas`` class
+            of the given backend.
+        fmt : str
+            If *backend* is None, then determine a suitable canvas class for
+            saving to format *fmt* -- either the current canvas class, if it
+            supports *fmt*, or whatever `get_registered_canvas_class` returns;
+            switch the figure canvas to that canvas class.
         """
-        # Return the current canvas if it supports the requested format.
-        if hasattr(self, 'print_{}'.format(fmt)):
+        if backend is not None:
+            # Return a specific canvas class, if requested.
+            canvas_class = (
+                importlib.import_module(cbook._backend_module_name(backend))
+                .FigureCanvas)
+            if not hasattr(canvas_class, f"print_{fmt}"):
+                raise ValueError(
+                    f"The {backend!r} backend does not support {fmt} output")
+        elif hasattr(self, f"print_{fmt}"):
+            # Return the current canvas if it supports the requested format.
             return self
-        # Return a default canvas for the requested format, if it exists.
-        canvas_class = get_registered_canvas_class(fmt)
+        else:
+            # Return a default canvas for the requested format, if it exists.
+            canvas_class = get_registered_canvas_class(fmt)
         if canvas_class:
             return self.switch_backends(canvas_class)
         # Else report error for unsupported format.
@@ -1988,7 +1975,7 @@ class FigureCanvasBase:
 
     def print_figure(self, filename, dpi=None, facecolor=None, edgecolor=None,
                      orientation='portrait', format=None,
-                     *, bbox_inches=None, **kwargs):
+                     *, bbox_inches=None, backend=None, **kwargs):
         """
         Render the figure to hardcopy. Set the figure patch face and edge
         colors.  This is useful because some of the GUIs have a gray figure
@@ -2003,8 +1990,8 @@ class FigureCanvasBase:
         orientation : {'landscape', 'portrait'}, optional
             only currently applies to PostScript printing.
 
-        dpi : scalar, optional
-            the dots per inch to save the figure in; if None, use savefig.dpi
+        dpi : float, default: :rc:`savefig.dpi`
+            The dots per inch to save the figure in.
 
         facecolor : color or None, optional
             the facecolor of the figure; if None, defaults to savefig.facecolor
@@ -2028,6 +2015,13 @@ class FigureCanvasBase:
             A list of extra artists that will be considered when the
             tight bbox is calculated.
 
+        backend : str, optional
+            Use a non-default backend to render the file, e.g. to render a
+            png file with the "cairo" backend rather than the default "agg",
+            or a pdf file with the "pgf" backend rather than the default
+            "pdf".  Note that the default backend is normally sufficient.  See
+            :ref:`the-builtin-backends` for a list of valid backends for each
+            file format.  Custom backends can be referenced as "module://...".
         """
         if format is None:
             # get format from filename, or from backend's default filetype
@@ -2042,7 +2036,7 @@ class FigureCanvasBase:
         format = format.lower()
 
         # get canvas object and print method for format
-        canvas = self._get_output_canvas(format)
+        canvas = self._get_output_canvas(backend, format)
         print_method = getattr(canvas, 'print_%s' % format)
 
         if dpi is None:
@@ -2116,8 +2110,8 @@ class FigureCanvasBase:
     @classmethod
     def get_default_filetype(cls):
         """
-        Get the default savefig file format as specified in rcParam
-        ``savefig.format``. Returned string excludes period. Overridden
+        Get the default savefig file format as specified in
+        :rc:`savefig.format`. Returned string excludes period. Overridden
         in backends that only support a single file type.
         """
         return rcParams['savefig.format']
@@ -2127,7 +2121,7 @@ class FigureCanvasBase:
         Get the title text of the window containing the figure.
         Return None if there is no window (e.g., a PS backend).
         """
-        if hasattr(self, "manager"):
+        if self.manager:
             return self.manager.get_window_title()
 
     def set_window_title(self, title):
@@ -2164,44 +2158,50 @@ class FigureCanvasBase:
 
     def mpl_connect(self, s, func):
         """
-        Connect event with string *s* to *func*.  The signature of *func* is::
+        Bind function *func* to event *s*.
 
-          def func(event)
+        Parameters
+        ----------
+        s : str
+            One of the following events ids:
 
-        where event is a :class:`matplotlib.backend_bases.Event`.  The
-        following events are recognized
+            - 'button_press_event'
+            - 'button_release_event'
+            - 'draw_event'
+            - 'key_press_event'
+            - 'key_release_event'
+            - 'motion_notify_event'
+            - 'pick_event'
+            - 'resize_event'
+            - 'scroll_event'
+            - 'figure_enter_event',
+            - 'figure_leave_event',
+            - 'axes_enter_event',
+            - 'axes_leave_event'
+            - 'close_event'.
 
-        - 'button_press_event'
-        - 'button_release_event'
-        - 'draw_event'
-        - 'key_press_event'
-        - 'key_release_event'
-        - 'motion_notify_event'
-        - 'pick_event'
-        - 'resize_event'
-        - 'scroll_event'
-        - 'figure_enter_event',
-        - 'figure_leave_event',
-        - 'axes_enter_event',
-        - 'axes_leave_event'
-        - 'close_event'
+        func : callable
+            The callback function to be executed, which must have the
+            signature::
 
-        For the location events (button and key press/release), if the
-        mouse is over the axes, the variable ``event.inaxes`` will be
-        set to the :class:`~matplotlib.axes.Axes` the event occurs is
-        over, and additionally, the variables ``event.xdata`` and
-        ``event.ydata`` will be defined.  This is the mouse location
-        in data coords.  See
-        :class:`~matplotlib.backend_bases.KeyEvent` and
-        :class:`~matplotlib.backend_bases.MouseEvent` for more info.
+                def func(event: Event) -> Any
 
-        Return value is a connection id that can be used with
-        :meth:`~matplotlib.backend_bases.Event.mpl_disconnect`.
+            For the location events (button and key press/release), if the
+            mouse is over the axes, the ``inaxes`` attribute of the event will
+            be set to the `~matplotlib.axes.Axes` the event occurs is over, and
+            additionally, the variables ``xdata`` and ``ydata`` attributes will
+            be set to the mouse location in data coordinates.  See `.KeyEvent`
+            and `.MouseEvent` for more info.
+
+        Returns
+        -------
+        cid
+            A connection id that can be used with
+            `.FigureCanvasBase.mpl_disconnect`.
 
         Examples
         --------
-        Usage::
-
+        ::
             def on_press(event):
                 print('you pressed', event.button, event.xdata, event.ydata)
 
@@ -2212,41 +2212,39 @@ class FigureCanvasBase:
 
     def mpl_disconnect(self, cid):
         """
-        Disconnect callback id cid
+        Disconnect the callback with id *cid*.
 
         Examples
         --------
-        Usage::
-
+        ::
             cid = canvas.mpl_connect('button_press_event', on_press)
-            #...later
+            # ... later
             canvas.mpl_disconnect(cid)
         """
         return self.callbacks.disconnect(cid)
 
     def new_timer(self, *args, **kwargs):
         """
-        Creates a new backend-specific subclass of
-        :class:`backend_bases.Timer`. This is useful for getting periodic
-        events through the backend's native event loop. Implemented only for
-        backends with GUIs.
+        Create a new backend-specific subclass of `.Timer`.
+
+        This is useful for getting periodic events through the backend's native
+        event loop.  Implemented only for backends with GUIs.
 
         Other Parameters
         ----------------
-        interval : scalar
-            Timer interval in milliseconds
+        interval : int
+            Timer interval in milliseconds.
 
         callbacks : List[Tuple[callable, Tuple, Dict]]
             Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
             will be executed by the timer every *interval*.
 
-            callbacks which return ``False`` or ``0`` will be removed from the
+            Callbacks which return ``False`` or ``0`` will be removed from the
             timer.
 
         Examples
         --------
         >>> timer = fig.canvas.new_timer(callbacks=[(f1, (1, ), {'a': 3}),])
-
         """
         return TimerBase(*args, **kwargs)
 
@@ -2562,11 +2560,15 @@ class FigureManagerBase:
     def show(self):
         """
         For GUI backends, show the figure window and redraw.
-        For non-GUI backends, raise an exception to be caught
-        by :meth:`~matplotlib.figure.Figure.show`, for an
-        optional warning.
+        For non-GUI backends, raise an exception, unless running headless (i.e.
+        on Linux with an unset DISPLAY); this exception is converted to a
+        warning in `.Figure.show`.
         """
-        raise NonGuiException()
+        # This should be overridden in GUI backends.
+        if cbook._get_running_interactive_framework() != "headless":
+            raise NonGuiException(
+                f"Matplotlib is currently using {get_backend()}, which is "
+                f"a non-GUI backend, so cannot show the figure.")
 
     def destroy(self):
         pass
@@ -3168,8 +3170,8 @@ class ToolContainerBase:
             The tool to add, see `ToolManager.get_tool`.
         group : str
             The name of the group to add this tool to.
-        position : int (optional)
-            The position within the group to place this tool.  Defaults to end.
+        position : int, optional, default: -1
+            The position within the group to place this tool.
         """
         tool = self.toolmanager.get_tool(tool)
         image = self._get_image_filename(tool.image)
@@ -3359,8 +3361,10 @@ class _Backend:
         if not managers:
             return
         for manager in managers:
-            # Emits a warning if the backend is non-interactive.
-            manager.canvas.figure.show()
+            try:
+                manager.show()  # Emits a warning for non-interactive backend.
+            except NonGuiException as exc:
+                cbook._warn_external(str(exc))
         if cls.mainloop is None:
             return
         if block is None:

@@ -22,6 +22,7 @@ import enum
 from functools import lru_cache, partial, wraps
 import logging
 import os
+from pathlib import Path
 import re
 import struct
 import textwrap
@@ -203,12 +204,9 @@ class Dvi:
 
     def _get_baseline(self, filename):
         if rcParams['text.latex.preview']:
-            base, ext = os.path.splitext(filename)
-            baseline_filename = base + ".baseline"
-            if os.path.exists(baseline_filename):
-                with open(baseline_filename, 'rb') as fd:
-                    l = fd.read().split()
-                height, depth, width = l
+            baseline = Path(filename).with_suffix(".baseline")
+            if baseline.exists():
+                height, depth, width = baseline.read_bytes().split()
                 return float(depth)
         return None
 
@@ -483,7 +481,7 @@ class Dvi:
 
     @_dispatch(min=250, max=255)
     def _malformed(self, offset):
-        raise ValueError("unknown command: byte %d", 250 + offset)
+        raise ValueError(f"unknown command: byte {250 + offset}")
 
 
 class DviFont:
@@ -575,12 +573,6 @@ class Vf(Dvi):
     r"""
     A virtual font (\*.vf file) containing subroutines for dvi files.
 
-    Usage::
-
-      vf = Vf(filename)
-      glyph = vf[code]
-      glyph.text, glyph.boxes, glyph.width
-
     Parameters
     ----------
     filename : str or path-like
@@ -591,6 +583,13 @@ class Vf(Dvi):
     http://mirrors.ctan.org/info/knuth/virtual-fonts
     This class reuses some of the machinery of `Dvi`
     but replaces the `_read` loop and dispatch mechanism.
+
+    Examples
+    --------
+    ::
+        vf = Vf(filename)
+        glyph = vf[code]
+        glyph.text, glyph.boxes, glyph.width
     """
 
     def __init__(self, filename):
@@ -755,20 +754,6 @@ class PsfontsMap:
     """
     A psfonts.map formatted file, mapping TeX fonts to PS fonts.
 
-    Usage::
-
-     >>> map = PsfontsMap(find_tex_file('pdftex.map'))
-     >>> entry = map[b'ptmbo8r']
-     >>> entry.texname
-     b'ptmbo8r'
-     >>> entry.psname
-     b'Times-Bold'
-     >>> entry.encoding
-     '/usr/local/texlive/2008/texmf-dist/fonts/enc/dvips/base/8r.enc'
-     >>> entry.effects
-     {'slant': 0.16700000000000001}
-     >>> entry.filename
-
     Parameters
     ----------
     filename : str or path-like
@@ -794,6 +779,20 @@ class PsfontsMap:
     the Times-Bold example above), while the pdf-related files perhaps
     only avoid the "Base 14" pdf fonts. But the user may have
     configured these files differently.
+
+    Examples
+    --------
+    >>> map = PsfontsMap(find_tex_file('pdftex.map'))
+    >>> entry = map[b'ptmbo8r']
+    >>> entry.texname
+    b'ptmbo8r'
+    >>> entry.psname
+    b'Times-Bold'
+    >>> entry.encoding
+    '/usr/local/texlive/2008/texmf-dist/fonts/enc/dvips/base/8r.enc'
+    >>> entry.effects
+    {'slant': 0.16700000000000001}
+    >>> entry.filename
     """
     __slots__ = ('_font', '_filename')
 
@@ -1013,7 +1012,7 @@ def find_tex_file(filename, format=None):
     ----------
     filename : str or path-like
     format : str or bytes
-        Used as the value of the `--format` option to :program:`kpsewhich`.
+        Used as the value of the ``--format`` option to :program:`kpsewhich`.
         Could be e.g. 'tfm' or 'vf' to limit the search to that type of files.
 
     References

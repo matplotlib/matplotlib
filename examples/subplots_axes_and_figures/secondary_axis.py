@@ -15,9 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import datetime
 import matplotlib.dates as mdates
-from matplotlib.transforms import Transform
-from matplotlib.ticker import (
-    AutoLocator, AutoMinorLocator)
+from matplotlib.ticker import AutoMinorLocator
 
 fig, ax = plt.subplots(constrained_layout=True)
 x = np.arange(0, 360, 1)

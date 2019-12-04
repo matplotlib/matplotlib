@@ -273,6 +273,10 @@ def _call_fc_list():
         'This may take a moment.'))
     timer.start()
     try:
+        if b'--format' not in subprocess.check_output(['fc-list', '--help']):
+            _log.warning(  # fontconfig 2.7 implemented --format.
+                'Matplotlib needs fontconfig>=2.7 to query system fonts.')
+            return []
         out = subprocess.check_output(['fc-list', '--format=%{file}\\n'])
     except (OSError, subprocess.CalledProcessError):
         return []
@@ -745,7 +749,7 @@ class FontProperties:
         is CSS parlance), such as: 'serif', 'sans-serif', 'cursive',
         'fantasy', or 'monospace', a real font name or a list of real
         font names.  Real font names are not supported when
-        `text.usetex` is `True`.
+        :rc:`text.usetex` is `True`.
         """
         if family is None:
             family = rcParams['font.family']
@@ -941,12 +945,11 @@ def _normalize_font_family(family):
 
 class FontManager:
     """
-    On import, the :class:`FontManager` singleton instance creates a
-    list of TrueType fonts based on the font properties: name, style,
-    variant, weight, stretch, and size.  The :meth:`findfont` method
-    does a nearest neighbor search to find the font that most closely
-    matches the specification.  If no good enough match is found, a
-    default font is returned.
+    On import, the `FontManager` singleton instance creates a list of ttf and
+    afm fonts and caches their `FontProperties`.  The `FontManager.findfont`
+    method does a nearest neighbor search to find the font that most closely
+    matches the specification.  If no good enough match is found, the default
+    font is returned.
     """
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires a existing font
@@ -1196,12 +1199,15 @@ class FontManager:
 
         directory : str, optional
             If given, only search this directory and its subdirectories.
+
         fallback_to_default : bool
             If True, will fallback to the default font family (usually
             "DejaVu Sans" or "Helvetica") if the first lookup hard-fails.
+
         rebuild_if_missing : bool
-            Whether to rebuild the font cache and search again if no match
-            is found.
+            Whether to rebuild the font cache and search again if the first
+            match appears to point to a nonexisting font (i.e., the font cache
+            contains outdated entries).
 
         Returns
         -------
@@ -1225,7 +1231,6 @@ class FontManager:
 
         .. _fontconfig patterns:
            https://www.freedesktop.org/software/fontconfig/fontconfig-user.html
-
         """
         # Pass the relevant rcParams (and the font manager, as `self`) to
         # _findfont_cached so to prevent using a stale cache entry after an
@@ -1233,9 +1238,10 @@ class FontManager:
         rc_params = tuple(tuple(rcParams[key]) for key in [
             "font.serif", "font.sans-serif", "font.cursive", "font.fantasy",
             "font.monospace"])
-        return self._findfont_cached(
+        filename = self._findfont_cached(
             prop, fontext, directory, fallback_to_default, rebuild_if_missing,
             rc_params)
+        return os.path.realpath(filename)
 
     @lru_cache()
     def _findfont_cached(self, prop, fontext, directory, fallback_to_default,
@@ -1282,13 +1288,11 @@ class FontManager:
                     prop.get_family(), self.defaultFamily[fontext])
                 default_prop = prop.copy()
                 default_prop.set_family(self.defaultFamily[fontext])
-                return self.findfont(default_prop, fontext, directory, False)
+                return self.findfont(default_prop, fontext, directory,
+                                     fallback_to_default=False)
             else:
-                # This is a hard fail -- we can't find anything reasonable,
-                # so just return the DejaVuSans.ttf
-                _log.warning('findfont: Could not match %s. Returning %s.',
-                             prop, self.defaultFont[fontext])
-                result = self.defaultFont[fontext]
+                raise ValueError(f"Failed to find font {prop}, and fallback "
+                                 f"to the default font was disabled")
         else:
             _log.debug('findfont: Matching %s to %s (%r) with score of %f.',
                        prop, best_font.name, best_font.fname, best_score)
@@ -1300,7 +1304,7 @@ class FontManager:
                     'findfont: Found a missing font file.  Rebuilding cache.')
                 _rebuild()
                 return fontManager.findfont(
-                    prop, fontext, directory, True, False)
+                    prop, fontext, directory, rebuild_if_missing=False)
             else:
                 raise ValueError("No valid font could be found")
 
@@ -1336,6 +1340,9 @@ if hasattr(os, "register_at_fork"):
 
 
 def get_font(filename, hinting_factor=None):
+    # Resolving the path avoids embedding the font twice in pdf/ps output if a
+    # single font is selected using two different relative paths.
+    filename = os.path.realpath(filename)
     if hinting_factor is None:
         hinting_factor = rcParams['text.hinting_factor']
     return _get_font(os.fspath(filename), hinting_factor,

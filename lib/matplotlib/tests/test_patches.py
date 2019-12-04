@@ -5,7 +5,6 @@ import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
-from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.patches import Polygon, Rectangle, FancyArrowPatch
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 import matplotlib.pyplot as plt
@@ -490,3 +489,11 @@ def test_fancyarrow_units():
     fig, ax = plt.subplots()
     arrow = FancyArrowPatch((0, dtime), (0.01, dtime))
     ax.add_patch(arrow)
+
+
+@image_comparison(["large_arc.svg"], style="mpl20")
+def test_large_arc():
+    ax = plt.figure().add_subplot()
+    ax.set_axis_off()
+    # A large arc that crosses the axes view limits.
+    ax.add_patch(mpatches.Arc((-100, 0), 201, 201))

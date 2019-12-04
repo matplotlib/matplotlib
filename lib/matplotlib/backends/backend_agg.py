@@ -8,7 +8,7 @@ Features that are implemented
  * linewidth
  * lines, rectangles, ellipses
  * clipping to a rectangle
- * output to RGBA and PNG, optionally JPEG and TIFF
+ * output to RGBA and Pillow-supported image formats
  * alpha blending
  * DPI scaling properly - everything scales properly (dashes, linewidths, etc)
  * draw polygon
@@ -30,6 +30,8 @@ except ImportError:
 from math import radians, cos, sin
 
 import numpy as np
+from PIL import Image
+from PIL.PngImagePlugin import PngInfo
 
 from matplotlib import cbook, rcParams, __version__
 from matplotlib.backend_bases import (
@@ -41,13 +43,8 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
 from matplotlib import colors as mcolors
-
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 
-from matplotlib.backend_bases import _has_pil
-
-if _has_pil:
-    from PIL import Image
 
 backend_version = 'v2.2'
 
@@ -178,12 +175,9 @@ class RendererAgg(RendererBase):
 
         if font is None:
             return None
-        if len(s) == 1 and ord(s) > 127:
-            font.load_char(ord(s), flags=flags)
-        else:
-            # We pass '0' for angle here, since it will be rotated (in raster
-            # space) in the following call to draw_text_image).
-            font.set_text(s, 0, flags=flags)
+        # We pass '0' for angle here, since it will be rotated (in raster
+        # space) in the following call to draw_text_image).
+        font.set_text(s, 0, flags=flags)
         font.draw_glyphs_to_bitmap(antialiased=rcParams['text.antialiased'])
         d = font.get_descent() / 64.0
         # The descent needs to be adjusted for the angle.
@@ -498,43 +492,32 @@ class FigureCanvasAgg(FigureCanvasBase):
                 https://www.w3.org/TR/2003/REC-PNG-20031110/#11keywords
 
         pil_kwargs : dict, optional
-            If set to a non-None value, use Pillow to save the figure instead
-            of Matplotlib's builtin PNG support, and pass these keyword
-            arguments to `PIL.Image.save`.
+            Keyword arguments passed to `PIL.Image.save`.
 
             If the 'pnginfo' key is present, it completely overrides
             *metadata*, including the default 'Software' key.
         """
-        from matplotlib import _png
 
         if metadata is None:
             metadata = {}
+        if pil_kwargs is None:
+            pil_kwargs = {}
         metadata = {
             "Software":
                 f"matplotlib version{__version__}, http://matplotlib.org/",
             **metadata,
         }
-
         FigureCanvasAgg.draw(self)
-        if pil_kwargs is not None:
-            from PIL import Image
-            from PIL.PngImagePlugin import PngInfo
-            # Only use the metadata kwarg if pnginfo is not set, because the
-            # semantics of duplicate keys in pnginfo is unclear.
-            if "pnginfo" not in pil_kwargs:
-                pnginfo = PngInfo()
-                for k, v in metadata.items():
-                    pnginfo.add_text(k, v)
-                pil_kwargs["pnginfo"] = pnginfo
-            pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
-            (Image.fromarray(np.asarray(self.buffer_rgba()))
-             .save(filename_or_obj, format="png", **pil_kwargs))
-
-        else:
-            renderer = self.get_renderer()
-            with cbook.open_file_cm(filename_or_obj, "wb") as fh:
-                _png.write_png(renderer._renderer, fh,
-                               self.figure.dpi, metadata=metadata)
+        # Only use the metadata kwarg if pnginfo is not set, because the
+        # semantics of duplicate keys in pnginfo is unclear.
+        if "pnginfo" not in pil_kwargs:
+            pnginfo = PngInfo()
+            for k, v in metadata.items():
+                pnginfo.add_text(k, v)
+            pil_kwargs["pnginfo"] = pnginfo
+        pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
+        (Image.fromarray(np.asarray(self.buffer_rgba()))
+         .save(filename_or_obj, format="png", **pil_kwargs))
 
     def print_to_buffer(self):
         FigureCanvasAgg.draw(self)
@@ -542,80 +525,74 @@ class FigureCanvasAgg(FigureCanvasBase):
         return (bytes(renderer.buffer_rgba()),
                 (int(renderer.width), int(renderer.height)))
 
-    if _has_pil:
+    # Note that these methods should typically be called via savefig() and
+    # print_figure(), and the latter ensures that `self.figure.dpi` already
+    # matches the dpi kwarg (if any).
 
-        # Note that these methods should typically be called via savefig() and
-        # print_figure(), and the latter ensures that `self.figure.dpi` already
-        # matches the dpi kwarg (if any).
+    @cbook._delete_parameter("3.2", "dryrun")
+    def print_jpg(self, filename_or_obj, *args, dryrun=False, pil_kwargs=None,
+                  **kwargs):
+        """
+        Write the figure to a JPEG file.
 
-        @cbook._delete_parameter("3.2", "dryrun")
-        def print_jpg(self, filename_or_obj, *args, dryrun=False,
-                      pil_kwargs=None, **kwargs):
-            """
-            Write the figure to a JPEG file.
+        Parameters
+        ----------
+        filename_or_obj : str or PathLike or file-like object
+            The file to write to.
 
-            Parameters
-            ----------
-            filename_or_obj : str or PathLike or file-like object
-                The file to write to.
+        Other Parameters
+        ----------------
+        quality : int, default: :rc:`savefig.jpeg_quality`
+            The image quality, on a scale from 1 (worst) to 95 (best).
+            Values above 95 should be avoided; 100 disables portions of
+            the JPEG compression algorithm, and results in large files
+            with hardly any gain in image quality.
 
-            Other Parameters
-            ----------------
-            quality : int
-                The image quality, on a scale from 1 (worst) to 100 (best).
-                The default is :rc:`savefig.jpeg_quality`.  Values above
-                95 should be avoided; 100 completely disables the JPEG
-                quantization stage.
+        optimize : bool, default: False
+            Whether the encoder should make an extra pass over the image
+            in order to select optimal encoder settings.
 
-            optimize : bool
-                If present, indicates that the encoder should
-                make an extra pass over the image in order to select
-                optimal encoder settings.
+        progressive : bool, default: False
+            Whether the image should be stored as a progressive JPEG file.
 
-            progressive : bool
-                If present, indicates that this image
-                should be stored as a progressive JPEG file.
+        pil_kwargs : dict, optional
+            Additional keyword arguments that are passed to
+            `PIL.Image.save` when saving the figure.  These take precedence
+            over *quality*, *optimize* and *progressive*.
+        """
+        FigureCanvasAgg.draw(self)
+        if dryrun:
+            return
+        # The image is "pasted" onto a white background image to safely
+        # handle any transparency
+        image = Image.fromarray(np.asarray(self.buffer_rgba()))
+        background = Image.new("RGB", image.size, "white")
+        background.paste(image, image)
+        if pil_kwargs is None:
+            pil_kwargs = {}
+        for k in ["quality", "optimize", "progressive"]:
+            if k in kwargs:
+                pil_kwargs.setdefault(k, kwargs[k])
+        pil_kwargs.setdefault("quality", rcParams["savefig.jpeg_quality"])
+        pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
+        return background.save(
+            filename_or_obj, format='jpeg', **pil_kwargs)
 
-            pil_kwargs : dict, optional
-                Additional keyword arguments that are passed to
-                `PIL.Image.save` when saving the figure.  These take precedence
-                over *quality*, *optimize* and *progressive*.
-            """
-            FigureCanvasAgg.draw(self)
-            if dryrun:
-                return
-            # The image is "pasted" onto a white background image to safely
-            # handle any transparency
-            image = Image.fromarray(np.asarray(self.buffer_rgba()))
-            rgba = mcolors.to_rgba(rcParams['savefig.facecolor'])
-            color = tuple([int(x * 255) for x in rgba[:3]])
-            background = Image.new('RGB', image.size, color)
-            background.paste(image, image)
-            if pil_kwargs is None:
-                pil_kwargs = {}
-            for k in ["quality", "optimize", "progressive"]:
-                if k in kwargs:
-                    pil_kwargs.setdefault(k, kwargs[k])
-            pil_kwargs.setdefault("quality", rcParams["savefig.jpeg_quality"])
-            pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
-            return background.save(
-                filename_or_obj, format='jpeg', **pil_kwargs)
+    print_jpeg = print_jpg
 
-        print_jpeg = print_jpg
+    @cbook._delete_parameter("3.2", "dryrun")
+    def print_tif(self, filename_or_obj, *args, dryrun=False, pil_kwargs=None,
+                  **kwargs):
+        FigureCanvasAgg.draw(self)
+        if dryrun:
+            return
+        if pil_kwargs is None:
+            pil_kwargs = {}
+        pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
+        return (Image.fromarray(np.asarray(self.buffer_rgba()))
+                .save(filename_or_obj, format='tiff', **pil_kwargs))
 
-        @cbook._delete_parameter("3.2", "dryrun")
-        def print_tif(self, filename_or_obj, *args, dryrun=False,
-                      pil_kwargs=None, **kwargs):
-            FigureCanvasAgg.draw(self)
-            if dryrun:
-                return
-            if pil_kwargs is None:
-                pil_kwargs = {}
-            pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
-            return (Image.fromarray(np.asarray(self.buffer_rgba()))
-                    .save(filename_or_obj, format='tiff', **pil_kwargs))
-
-        print_tiff = print_tif
+    print_tiff = print_tif
 
 
 @_Backend.export

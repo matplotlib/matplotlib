@@ -31,7 +31,7 @@ from a list of colors.
 The module also provides functions for checking whether an object can be
 interpreted as a color (:func:`is_color_like`), for converting such an object
 to an RGBA tuple (:func:`to_rgba`) or to an HTML-like hex string in the
-`#rrggbb` format (:func:`to_hex`), and a sequence of colors to an `(n, 4)`
+"#rrggbb" format (:func:`to_hex`), and a sequence of colors to an (n, 4)
 RGBA array (:func:`to_rgba_array`).  Caching is used for efficiency.
 
 Matplotlib recognizes the following formats to specify a color:
@@ -39,6 +39,10 @@ Matplotlib recognizes the following formats to specify a color:
 * an RGB or RGBA (red, green, blue, alpha) tuple of float values in closed
   interval ``[0, 1]`` (e.g., ``(0.1, 0.2, 0.5)`` or ``(0.1, 0.2, 0.5, 0.3)``);
 * a hex RGB or RGBA string (e.g., ``'#0f0f0f'`` or ``'#0f0f0f80'``;
+  case-insensitive);
+* a shorthand hex RGB or RGBA string, equivalent to the hex RGB or RGBA
+  string obtained by duplicating each character, (e.g., ``'#abc'``, equivalent
+  to ``'#aabbcc'``, or ``'#abcd'``, equivalent to ``'#aabbccdd'``;
   case-insensitive);
 * a string representation of a float value in ``[0, 1]`` inclusive for gray
   level (e.g., ``'0.5'``);
@@ -52,10 +56,10 @@ Matplotlib recognizes the following formats to specify a color:
   color cycle): ``{'tab:blue', 'tab:orange', 'tab:green', 'tab:red',
   'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan'}``
   (case-insensitive);
-* a "CN" color spec, i.e. `'C'` followed by a number, which is an index into
-  the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``); the
-  indexing is intended to occur at rendering time, and defaults to black if the
-  cycle does not include color.
+* a "CN" color spec, i.e. 'C' followed by a number, which is an index into the
+  default property cycle (:rc:`axes.prop_cycle`); the indexing is intended to
+  occur at rendering time, and defaults to black if the cycle does not include
+  color.
 
 .. _palettable: https://jiffyclub.github.io/palettable/
 .. _xkcd color survey: https://xkcd.com/color/rgb/
@@ -158,7 +162,7 @@ def to_rgba(c, alpha=None):
     ----------
     c : Matplotlib color or ``np.ma.masked``
 
-    alpha : scalar, optional
+    alpha : float, optional
         If *alpha* is not ``None``, it forces the alpha value, except if *c* is
         ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
 
@@ -215,17 +219,31 @@ def _to_rgba_no_colorcycle(c, alpha=None):
                         "%(since)s and will be removed %(removal)s; please "
                         "use lowercase instead.")
     if isinstance(c, str):
-        # hex color with no alpha.
+        # hex color in #rrggbb format.
         match = re.match(r"\A#[a-fA-F0-9]{6}\Z", c)
         if match:
             return (tuple(int(n, 16) / 255
                           for n in [c[1:3], c[3:5], c[5:7]])
                     + (alpha if alpha is not None else 1.,))
-        # hex color with alpha.
+        # hex color in #rgb format, shorthand for #rrggbb.
+        match = re.match(r"\A#[a-fA-F0-9]{3}\Z", c)
+        if match:
+            return (tuple(int(n, 16) / 255
+                          for n in [c[1]*2, c[2]*2, c[3]*2])
+                    + (alpha if alpha is not None else 1.,))
+        # hex color with alpha in #rrggbbaa format.
         match = re.match(r"\A#[a-fA-F0-9]{8}\Z", c)
         if match:
             color = [int(n, 16) / 255
                      for n in [c[1:3], c[3:5], c[5:7], c[7:9]]]
+            if alpha is not None:
+                color[-1] = alpha
+            return tuple(color)
+        # hex color with alpha in #rgba format, shorthand for #rrggbbaa.
+        match = re.match(r"\A#[a-fA-F0-9]{4}\Z", c)
+        if match:
+            color = [int(n, 16) / 255
+                     for n in [c[1]*2, c[2]*2, c[3]*2, c[4]*2]]
             if alpha is not None:
                 color[-1] = alpha
             return tuple(color)
@@ -515,7 +533,7 @@ class Colormap:
         """
         Parameters
         ----------
-        X : scalar, ndarray
+        X : float, ndarray
             The data value(s) to convert to RGBA.
             For floats, X should be in the interval ``[0.0, 1.0]`` to
             return the RGBA values ``X*100`` percent along the Colormap line.
@@ -532,46 +550,30 @@ class Colormap:
         -------
         Tuple of RGBA values if X is scalar, otherwise an array of
         RGBA values with a shape of ``X.shape + (4, )``.
-
         """
-        # See class docstring for arg/kwarg documentation.
         if not self._isinit:
             self._init()
-        mask_bad = None
-        if np.ma.is_masked(X):
-            mask_bad = X.mask
-        elif np.any(np.isnan(X)):
-            # mask nan's
-            mask_bad = np.isnan(X)
 
+        mask_bad = X.mask if np.ma.is_masked(X) else np.isnan(X)  # Mask nan's.
         xa = np.array(X, copy=True)
-        # Fill bad values to avoid warnings
-        # in the boolean comparisons below.
-        if mask_bad is not None:
-            xa[mask_bad] = 0.
-
-        # Calculations with native byteorder are faster, and avoid a
-        # bug that otherwise can occur with putmask when the last
-        # argument is a numpy scalar.
         if not xa.dtype.isnative:
-            xa = xa.byteswap().newbyteorder()
-
+            xa = xa.byteswap().newbyteorder()  # Native byteorder is faster.
         if xa.dtype.kind == "f":
-            xa *= self.N
-            # Negative values are out of range, but astype(int) would truncate
-            # them towards zero.
-            xa[xa < 0] = -1
-            # xa == 1 (== N after multiplication) is not out of range.
-            xa[xa == self.N] = self.N - 1
-            # Avoid converting large positive values to negative integers.
-            np.clip(xa, -1, self.N, out=xa)
-            xa = xa.astype(int)
+            with np.errstate(invalid="ignore"):
+                xa *= self.N
+                # Negative values are out of range, but astype(int) would
+                # truncate them towards zero.
+                xa[xa < 0] = -1
+                # xa == 1 (== N after multiplication) is not out of range.
+                xa[xa == self.N] = self.N - 1
+                # Avoid converting large positive values to negative integers.
+                np.clip(xa, -1, self.N, out=xa)
+                xa = xa.astype(int)
         # Set the over-range indices before the under-range;
         # otherwise the under-range values get converted to over-range.
         xa[xa > self.N - 1] = self._i_over
         xa[xa < 0] = self._i_under
-        if mask_bad is not None:
-            xa[mask_bad] = self._i_bad
+        xa[mask_bad] = self._i_bad
 
         if bytes:
             lut = (self._lut * 255).astype(np.uint8)
@@ -592,7 +594,7 @@ class Colormap:
                 # If the bad value is set to have a color, then we
                 # override its alpha just as for any other value.
 
-        rgba = lut.take(xa, axis=0, mode='clip')
+        rgba = lut[xa]
         if not np.iterable(X):
             # Return a tuple if the input was a scalar
             rgba = tuple(rgba)
@@ -1042,7 +1044,7 @@ class Normalize:
         return self.vmin is not None and self.vmax is not None
 
 
-class DivergingNorm(Normalize):
+class TwoSlopeNorm(Normalize):
     def __init__(self, vcenter, vmin=None, vmax=None):
         """
         Normalize data with a set center.
@@ -1068,8 +1070,8 @@ class DivergingNorm(Normalize):
         between is linearly interpolated::
 
             >>> import matplotlib.colors as mcolors
-            >>> offset = mcolors.DivergingNorm(vmin=-4000.,
-                                               vcenter=0., vmax=10000)
+            >>> offset = mcolors.TwoSlopeNorm(vmin=-4000.,
+                                              vcenter=0., vmax=10000)
             >>> data = [-4000., -2000., 0., 2500., 5000., 7500., 10000.]
             >>> offset(data)
             array([0., 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
@@ -1110,6 +1112,11 @@ class DivergingNorm(Normalize):
         if is_scalar:
             result = np.atleast_1d(result)[0]
         return result
+
+
+@cbook.deprecation.deprecated('3.2', alternative='TwoSlopeNorm')
+class DivergingNorm(TwoSlopeNorm):
+    ...
 
 
 class LogNorm(Normalize):
@@ -1594,12 +1601,12 @@ class LightSource:
 
         Parameters
         ----------
-        azdeg : number, optional
+        azdeg : float, optional, default: 315 degrees (from the northwest)
             The azimuth (0-360, degrees clockwise from North) of the light
-            source. Defaults to 315 degrees (from the northwest).
-        altdeg : number, optional
+            source.
+        altdeg : float, optional, default: 45 degrees
             The altitude (0-90, degrees up from horizontal) of the light
-            source.  Defaults to 45 degrees from horizontal.
+            source.
 
         Notes
         -----
@@ -1897,7 +1904,7 @@ class LightSource:
             An MxNx3 RGB array of floats ranging from 0 to 1 (color image).
         intensity : ndarray
             An MxNx1 array of floats ranging from 0 to 1 (grayscale image).
-        hsv_max_sat : number, optional
+        hsv_max_sat : number, optional, default: 1
             The maximum saturation value that the *intensity* map can shift the
             output image to. Defaults to 1.
         hsv_min_sat : number, optional

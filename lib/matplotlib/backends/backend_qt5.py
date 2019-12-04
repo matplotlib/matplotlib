@@ -175,22 +175,21 @@ def _allow_super_init(__init__):
 
 
 class TimerQT(TimerBase):
-    '''
-    Subclass of :class:`backend_bases.TimerBase` that uses Qt timer events.
+    """
+    Subclass of `.TimerBase` that uses Qt timer events.
 
     Attributes
     ----------
-    interval : int
-        The time between timer events in milliseconds. Default is 1000 ms.
-    single_shot : bool
-        Boolean flag indicating whether this timer should
-        operate as single shot (run once and then stop). Defaults to False.
+    interval : int, default: 1000ms
+        The time between timer events in milliseconds.
+    single_shot : bool, default: False
+        Whether this timer should operate as single shot (run once and then
+        stop).
     callbacks : list
         Stores list of (func, args) tuples that will be called upon timer
         events. This list can be manipulated directly, or the functions
         `add_callback` and `remove_callback` can be used.
-
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
@@ -476,7 +475,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # current event loop in order to ensure thread affinity and to
         # accumulate multiple draw requests from event handling.
         # TODO: queued signal connection might be safer than singleShot
-        if not (self._draw_pending or self._is_drawing):
+        if not (getattr(self, '_draw_pending', False) or
+                getattr(self, '_is_drawing', False)):
             self._draw_pending = True
             QtCore.QTimer.singleShot(0, self._draw_idle)
 
@@ -572,6 +572,16 @@ class FigureManagerQT(FigureManagerBase):
                 statusbar_label = QtWidgets.QLabel()
                 self.window.statusBar().addWidget(statusbar_label)
                 self.toolbar.message.connect(statusbar_label.setText)
+            tbs_height = self.toolbar.sizeHint().height()
+        else:
+            tbs_height = 0
+
+        # resize the main window so it will display the canvas with the
+        # requested size:
+        cs = canvas.sizeHint()
+        sbs = self.window.statusBar().sizeHint()
+        height = cs.height() + tbs_height + sbs.height()
+        self.window.resize(cs.width(), height)
 
         self.window.setCentralWidget(self.canvas)
 
@@ -651,6 +661,13 @@ class FigureManagerQT(FigureManagerBase):
 class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     message = QtCore.Signal(str)
 
+    toolitems = [*NavigationToolbar2.toolitems]
+    toolitems.insert(
+        # Add 'customize' action after 'subplots'
+        [name for name, *_ in toolitems].index("Subplots") + 1,
+        ("Customize", "Edit axis, curve and image parameters",
+         "qt4_editor_options", "edit_parameters"))
+
     def __init__(self, canvas, parent, coordinates=True):
         """coordinates: should we show the coordinates on the right?"""
         self.canvas = canvas
@@ -677,8 +694,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
     def _init_toolbar(self):
         self.basedir = str(cbook._get_data_path('images'))
-        # Ensure that zoom and pan are mutually exclusive.
-        self._button_group = QtWidgets.QButtonGroup()
 
         background_color = self.palette().color(self.backgroundRole())
         foreground_color = self.palette().color(self.foregroundRole())
@@ -694,14 +709,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 self._actions[callback] = a
                 if callback in ['zoom', 'pan']:
                     a.setCheckable(True)
-                    self._button_group.addButton(self.widgetForAction(a))
                 if tooltip_text is not None:
                     a.setToolTip(tooltip_text)
-                if text == 'Subplots':
-                    a = self.addAction(self._icon("qt4_editor_options.png",
-                                                  icon_color),
-                                       'Customize', self.edit_parameters)
-                    a.setToolTip('Edit axis, curve and image parameters')
 
         # Add the (x, y) location widget at the right side of the toolbar
         # The stretch factor is 1 which means any resizing of the toolbar
@@ -753,13 +762,20 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             ax = axes[titles.index(item)]
         figureoptions.figure_edit(ax, self)
 
+    def _update_buttons_checked(self):
+        # sync button checkstates to match active mode
+        if 'pan' in self._actions:
+            self._actions['pan'].setChecked(self._active == 'PAN')
+        if 'zoom' in self._actions:
+            self._actions['zoom'].setChecked(self._active == 'ZOOM')
+
     def pan(self, *args):
         super().pan(*args)
-        self._actions['pan'].setChecked(self._active == 'PAN')
+        self._update_buttons_checked()
 
     def zoom(self, *args):
         super().zoom(*args)
-        self._actions['zoom'].setChecked(self._active == 'ZOOM')
+        self._update_buttons_checked()
 
     def set_message(self, s):
         self.message.emit(s)

@@ -145,7 +145,6 @@ Examples showing the use of markers:
 """
 
 from collections.abc import Sized
-from numbers import Number
 
 import numpy as np
 
@@ -372,7 +371,6 @@ class MarkerStyle:
         Submitted by tcb
         """
         from matplotlib.text import TextPath
-        from matplotlib.font_manager import FontProperties
 
         # again, the properties could be initialised just once outside
         # this function

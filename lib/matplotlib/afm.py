@@ -37,9 +37,7 @@ from collections import namedtuple
 import logging
 import re
 
-
 from ._mathtext_data import uni2type1
-from matplotlib.cbook import deprecated
 
 
 _log = logging.getLogger(__name__)

@@ -11,7 +11,6 @@ import numpy as np
 
 import matplotlib.patches as mpatches
 from matplotlib.path import Path
-from matplotlib.transforms import IdentityTransform
 import matplotlib.axes as maxes
 
 from mpl_toolkits.axes_grid1.parasite_axes import host_axes_class_factory

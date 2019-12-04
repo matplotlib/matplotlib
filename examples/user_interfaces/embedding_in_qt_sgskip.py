@@ -69,4 +69,6 @@ if __name__ == "__main__":
 
     app = ApplicationWindow()
     app.show()
+    app.activateWindow()
+    app.raise_()
     qapp.exec_()

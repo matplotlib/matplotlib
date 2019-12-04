@@ -1,4 +1,0 @@
-Deprecations
-````````````
-
-``dates.mx2num`` is deprecated.

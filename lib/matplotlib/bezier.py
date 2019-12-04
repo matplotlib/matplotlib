@@ -2,6 +2,8 @@
 A module providing some utility functions regarding Bezier path manipulation.
 """
 
+import math
+
 import numpy as np
 
 import matplotlib.cbook as cbook
@@ -167,36 +169,26 @@ def find_bezier_t_intersecting_with_closedpath(
 
 class BezierSegment:
     """
-    A 2-dimensional Bezier segment.
+    A D-dimensional Bezier segment.
 
     Parameters
     ----------
-    control_points : array-like (N, 2)
-        A list of the (x, y) positions of control points of the Bezier line.
-        This must contain N points, where N is the order of the Bezier line.
-        1 <= N <= 3 is supported.
+    control_points : (N, D) array
+        Location of the *N* control points.
     """
-    # Higher order Bezier lines can be supported by simplying adding
-    # corresponding values.
-    _binom_coeff = {1: np.array([1., 1.]),
-                    2: np.array([1., 2., 1.]),
-                    3: np.array([1., 3., 3., 1.])}
 
     def __init__(self, control_points):
-        _o = len(control_points)
-        self._orders = np.arange(_o)
-
-        _coeff = BezierSegment._binom_coeff[_o - 1]
-        xx, yy = np.asarray(control_points).T
-        self._px = xx * _coeff
-        self._py = yy * _coeff
+        n = len(control_points)
+        self._orders = np.arange(n)
+        coeff = [math.factorial(n - 1)
+                 // (math.factorial(i) * math.factorial(n - 1 - i))
+                 for i in range(n)]
+        self._px = np.asarray(control_points).T * coeff
 
     def point_at_t(self, t):
-        """Return the point (x, y) at parameter *t*."""
-        tt = ((1 - t) ** self._orders)[::-1] * t ** self._orders
-        _x = np.dot(tt, self._px)
-        _y = np.dot(tt, self._py)
-        return _x, _y
+        """Return the point on the Bezier curve for parameter *t*."""
+        return tuple(
+            self._px @ (((1 - t) ** self._orders)[::-1] * t ** self._orders))
 
 
 @cbook._rename_parameter("3.1", "tolerence", "tolerance")

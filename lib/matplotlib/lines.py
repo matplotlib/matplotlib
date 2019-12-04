@@ -15,7 +15,8 @@ from .cbook import (
     _to_unmasked_float_array, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
 from .markers import MarkerStyle
 from .path import Path
-from .transforms import Bbox, TransformedPath
+from .transforms import (
+    Affine2D, Bbox, BboxTransformFrom, BboxTransformTo, TransformedPath)
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
@@ -547,9 +548,10 @@ class Line2D(Artist):
         self.stale = True
 
     def set_markevery(self, every):
-        """Set the markevery property to subsample the plot when using markers.
+        """
+        Set the markevery property to subsample the plot when using markers.
 
-        e.g., if `every=5`, every 5-th marker will be plotted.
+        e.g., if ``every=5``, every 5-th marker will be plotted.
 
         Parameters
         ----------
@@ -575,6 +577,9 @@ class Line2D(Artist):
               functionality as every=0.1 is exhibited but the first marker will
               be 0.5 multiplied by the display-coordinate-diagonal-distance
               along the line.
+
+            For examples see
+            :doc:`/gallery/lines_bars_and_markers/markevery_demo`.
 
         Notes
         -----
@@ -1104,6 +1109,7 @@ class Line2D(Artist):
             - 'steps' is equal to 'steps-pre' and is maintained for
               backward-compatibility.
 
+            For examples see :doc:`/gallery/lines_bars_and_markers/step_demo`.
         """
         if drawstyle is None:
             drawstyle = 'default'
@@ -1196,6 +1202,8 @@ class Line2D(Artist):
 
               where ``onoffseq`` is an even length tuple of on and off ink
               in points. See also :meth:`set_dashes`.
+
+            For examples see :doc:`/gallery/lines_bars_and_markers/linestyles`.
         """
         if isinstance(ls, str):
             ds, ls = self._split_drawstyle_linestyle(ls)
@@ -1350,7 +1358,7 @@ class Line2D(Artist):
             self.set_linestyle((0, seq))
 
     def update_from(self, other):
-        """Copy properties from other to self."""
+        """Copy properties from *other* to self."""
         Artist.update_from(self, other)
         self._linestyle = other._linestyle
         self._linewidth = other._linewidth
@@ -1427,6 +1435,7 @@ class Line2D(Artist):
         Parameters
         ----------
         s : {'butt', 'round', 'projecting'}
+            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
         s = s.lower()
         cbook._check_in_list(self.validCap, s=s)
@@ -1441,6 +1450,7 @@ class Line2D(Artist):
         Parameters
         ----------
         s : {'butt', 'round', 'projecting'}
+            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
         s = s.lower()
         cbook._check_in_list(self.validCap, s=s)
@@ -1471,6 +1481,47 @@ class Line2D(Artist):
         See also `~.Line2D.set_linestyle`.
         """
         return self._linestyle in ('--', '-.', ':')
+
+
+class _AxLine(Line2D):
+    """
+    A helper class that implements `~.Axes.axline`, by recomputing the artist
+    transform at draw time.
+    """
+
+    def get_transform(self):
+        ax = self.axes
+        (x1, y1), (x2, y2) = ax.transScale.transform([*zip(*self.get_data())])
+        dx = x2 - x1
+        dy = y2 - y1
+        if np.allclose(x1, x2):
+            if np.allclose(y1, y2):
+                raise ValueError(
+                    f"Cannot draw a line through two identical points "
+                    f"(x={self.get_xdata()}, y={self.get_ydata()})")
+            # First send y1 to 0 and y2 to 1.
+            return (Affine2D.from_values(1, 0, 0, 1 / dy, 0, -y1 / dy)
+                    + ax.get_xaxis_transform(which="grid"))
+        if np.allclose(y1, y2):
+            # First send x1 to 0 and x2 to 1.
+            return (Affine2D.from_values(1 / dx, 0, 0, 1, -x1 / dx, 0)
+                    + ax.get_yaxis_transform(which="grid"))
+        (vxlo, vylo), (vxhi, vyhi) = ax.transScale.transform(ax.viewLim)
+        # General case: find intersections with view limits in either
+        # direction, and draw between the middle two points.
+        _, start, stop, _ = sorted([
+            (vxlo, y1 + (vxlo - x1) * dy / dx),
+            (vxhi, y1 + (vxhi - x1) * dy / dx),
+            (x1 + (vylo - y1) * dx / dy, vylo),
+            (x1 + (vyhi - y1) * dx / dy, vyhi),
+        ])
+        return (BboxTransformFrom(Bbox([*zip(*self.get_data())]))
+                + BboxTransformTo(Bbox([start, stop]))
+                + ax.transLimits + ax.transAxes)
+
+    def draw(self, renderer):
+        self._transformed_path = None  # Force regen.
+        super().draw(renderer)
 
 
 class VertexSelector:

@@ -350,6 +350,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #    use a different backend.  Therefore, you should avoid explicitly calling
 #    `~matplotlib.use` unless absolutely necessary.
 #
+# .. _the-builtin-backends:
 #
 # The builtin backends
 # --------------------
@@ -391,16 +392,13 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # ========  =========  =======================================================
 # AGG       png        raster_ graphics -- high quality images using the
 #                      `Anti-Grain Geometry`_ engine
-# PS        ps,        vector_ graphics -- Postscript_ output
-#           eps
 # PDF       pdf        vector_ graphics -- `Portable Document Format`_
+# PS        ps, eps    vector_ graphics -- Postscript_ output
 # SVG       svg        vector_ graphics -- `Scalable Vector Graphics`_
+# PGF       pgf, pdf   vector_ graphics -- using the pgf_ package
 # Cairo     png, ps,   raster_ or vector_ graphics -- using the Cairo_ library
 #           pdf, svg
 # ========  =========  =======================================================
-#
-# To save plots using the non-interactive backends, use the
-# ``matplotlib.pyplot.savefig('filename')`` method.
 #
 # To save plots using the non-interactive backends, use the
 # ``matplotlib.pyplot.savefig('filename')`` method.
@@ -444,9 +442,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #    'qt5agg' are equivalent.
 #
 # .. _`Anti-Grain Geometry`: http://antigrain.com/
-# .. _Postscript: https://en.wikipedia.org/wiki/PostScript
 # .. _`Portable Document Format`: https://en.wikipedia.org/wiki/Portable_Document_Format
+# .. _Postscript: https://en.wikipedia.org/wiki/PostScript
 # .. _`Scalable Vector Graphics`: https://en.wikipedia.org/wiki/Scalable_Vector_Graphics
+# .. _pgf: https://ctan.org/pkg/pgf
 # .. _Cairo: https://www.cairographics.org
 # .. _PyGObject: https://wiki.gnome.org/action/show/Projects/PyGObject
 # .. _pycairo: https://www.cairographics.org/pycairo/

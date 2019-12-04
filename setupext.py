@@ -149,33 +149,17 @@ LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
 
 # matplotlib build options, which can be altered using setup.cfg
-options = {
-    'backend': None,
-    'staticbuild': False,
-    }
-
-
 setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
+config = configparser.ConfigParser()
 if os.path.exists(setup_cfg):
-    config = configparser.ConfigParser()
     config.read(setup_cfg)
-
-    if config.has_option('rc_options', 'backend'):
-        options['backend'] = config.get("rc_options", "backend")
-
-    if config.has_option('test', 'local_freetype'):
-        options['local_freetype'] = config.getboolean("test", "local_freetype")
-
-    if config.has_option('build', 'staticbuild'):
-        options['staticbuild'] = config.getboolean("build", "staticbuild")
-else:
-    config = None
-
-lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
-options['local_freetype'] = lft or options.get('local_freetype', False)
-
-staticbuild = bool(os.environ.get('MPLSTATICBUILD', os.name == 'nt'))
-options['staticbuild'] = staticbuild or options.get('staticbuild', False)
+options = {
+    'backend': config.get('rc_options', 'backend', fallback=None),
+    'system_freetype': config.getboolean('libs', 'system_freetype',
+                                         fallback=False),
+    'system_qhull': config.getboolean('libs', 'system_qhull',
+                                      fallback=False),
+}
 
 
 if '-q' in sys.argv or '--quiet' in sys.argv:
@@ -200,23 +184,6 @@ def get_buffer_hash(fd):
         hasher.update(buf)
         buf = fd.read(BLOCKSIZE)
     return hasher.hexdigest()
-
-
-def deplib(libname):
-    if sys.platform != 'win32':
-        return libname
-
-    known_libs = {
-        # TODO: support versioned libpng on build system rewrite
-        'libpng16': ('libpng16', '_static'),
-        'z': ('zlib', 'static'),
-    }
-
-    libname, static_postfix = known_libs[libname]
-    if options['staticbuild']:
-        libname += static_postfix
-
-    return libname
 
 
 @functools.lru_cache(1)  # We only need to compute this once.
@@ -335,7 +302,6 @@ class SetupPackage:
 
 class OptionalPackage(SetupPackage):
     optional = True
-    force = False
     config_category = "packages"
     default_config = "auto"
 
@@ -348,8 +314,7 @@ class OptionalPackage(SetupPackage):
         insensitively defined as 0, false, no, off for False).
         """
         conf = cls.default_config
-        if (config is not None
-                and config.has_option(cls.config_category, cls.name)):
+        if config.has_option(cls.config_category, cls.name):
             try:
                 conf = config.getboolean(cls.config_category, cls.name)
             except ValueError:
@@ -362,26 +327,13 @@ class OptionalPackage(SetupPackage):
 
         May be overridden by subclasses for additional checks.
         """
-        # Check configuration file
-        conf = self.get_config()
-        # Default "auto" state or install forced by user
-        if conf in [True, 'auto']:
-            # Set non-optional if user sets `True` in config
-            if conf is True:
+        conf = self.get_config()  # Check configuration file
+        if conf in [True, 'auto']:  # Default "auto", or install forced by user
+            if conf is True:  # Set non-optional if user sets `True` in config
                 self.optional = False
             return "installing"
-        # Configuration opt-out by user
-        else:
-            # Some backend extensions (e.g. Agg) need to be built for certain
-            # other GUI backends (e.g. TkAgg) even when manually disabled
-            if self.force is True:
-                return "installing forced (config override)"
-            else:
-                raise CheckFailed("skipping due to configuration")
-
-
-class OptionalBackendPackage(OptionalPackage):
-    config_category = "gui_support"
+        else:  # Configuration opt-out by user
+            raise CheckFailed("skipping due to configuration")
 
 
 class Platform(SetupPackage):
@@ -492,11 +444,9 @@ class LibAgg(SetupPackage):
                                for x in agg_sources)
 
 
-# For FreeType2 and libpng, we add a separate checkdep_foo.c source to at the
-# top of the extension sources.  This file is compiled first and immediately
-# aborts the compilation either with "foo.h: No such file or directory" if the
-# header is not found, or an appropriate error message if the header indicates
-# a too-old version.
+# First compile checkdep_freetype2.c, which aborts the compilation either
+# with "foo.h: No such file or directory" if the header is not found, or an
+# appropriate error message if the header indicates a too-old version.
 
 
 class FreeType(SetupPackage):
@@ -504,7 +454,17 @@ class FreeType(SetupPackage):
 
     def add_flags(self, ext):
         ext.sources.insert(0, 'src/checkdep_freetype2.c')
-        if options.get('local_freetype'):
+        if options.get('system_freetype'):
+            pkg_config_setup_extension(
+                # FreeType 2.3 has libtool version 9.11.3 as can be checked
+                # from the tarball.  For FreeType>=2.4, there is a conversion
+                # table in docs/VERSIONS.txt in the FreeType source tree.
+                ext, 'freetype2',
+                atleast_version='9.11.3',
+                alt_exec=['freetype-config'],
+                default_libraries=['freetype'])
+            ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
+        else:
             src_path = pathlib.Path(
                 'build', f'freetype-{LOCAL_FREETYPE_VERSION}')
             # Statically link to the locally-built freetype.
@@ -517,20 +477,10 @@ class FreeType(SetupPackage):
             ext.extra_objects.insert(
                 0, str(src_path / 'objs' / '.libs' / libfreetype))
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'local'))
-        else:
-            pkg_config_setup_extension(
-                # FreeType 2.3 has libtool version 9.11.3 as can be checked
-                # from the tarball.  For FreeType>=2.4, there is a conversion
-                # table in docs/VERSIONS.txt in the FreeType source tree.
-                ext, 'freetype2',
-                atleast_version='9.11.3',
-                alt_exec=['freetype-config'],
-                default_libraries=['freetype', deplib('z')])
-            ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
 
     def do_custom_build(self):
         # We're using a system freetype
-        if not options.get('local_freetype'):
+        if options.get('system_freetype'):
             return
 
         src_path = pathlib.Path('build', f'freetype-{LOCAL_FREETYPE_VERSION}')
@@ -642,41 +592,17 @@ class FT2Font(SetupPackage):
         return ext
 
 
-class Png(SetupPackage):
-    name = "png"
-
-    def get_extension(self):
-        sources = [
-            'src/checkdep_libpng.c',
-            'src/_png.cpp',
-            'src/mplutils.cpp',
-            ]
-        ext = Extension('matplotlib._png', sources)
-        pkg_config_setup_extension(
-            ext, 'libpng',
-            atleast_version='1.2',
-            alt_exec=['libpng-config', '--ldflags'],
-            default_libraries=(
-                ['png', 'z'] if os.name == 'posix' else
-                # libpng upstream names their lib libpng16.lib, not png.lib.
-                [deplib('libpng16'), deplib('z')] if os.name == 'nt' else
-                []
-            ))
-        add_numpy_flags(ext)
-        return ext
-
-
 class Qhull(SetupPackage):
     name = "qhull"
 
     def add_flags(self, ext):
-        # Qhull doesn't distribute pkg-config info, so we have no way of
-        # knowing whether a system install is recent enough.  Thus, always use
-        # the vendored version.
-        ext.include_dirs.insert(0, 'extern')
-        ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
-        if sysconfig.get_config_var('LIBM') == '-lm':
-            ext.libraries.extend('m')
+        if options.get('system_qhull'):
+            ext.libraries.append('qhull')
+        else:
+            ext.include_dirs.insert(0, 'extern')
+            ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
+            if sysconfig.get_config_var('LIBM') == '-lm':
+                ext.libraries.extend('m')
 
 
 class TTConv(SetupPackage):
@@ -767,9 +693,8 @@ class Tri(SetupPackage):
         return ext
 
 
-class BackendAgg(OptionalBackendPackage):
+class BackendAgg(SetupPackage):
     name = "agg"
-    force = True
 
     def get_extension(self):
         sources = [
@@ -785,9 +710,8 @@ class BackendAgg(OptionalBackendPackage):
         return ext
 
 
-class BackendTkAgg(OptionalBackendPackage):
+class BackendTkAgg(SetupPackage):
     name = "tkagg"
-    force = True
 
     def check(self):
         return "installing; run-time loading from Python Tcl/Tk"
@@ -815,7 +739,8 @@ class BackendTkAgg(OptionalBackendPackage):
             ext.libraries.extend(['dl'])
 
 
-class BackendMacOSX(OptionalBackendPackage):
+class BackendMacOSX(OptionalPackage):
+    config_category = 'gui_support'
     name = 'macosx'
 
     def check(self):

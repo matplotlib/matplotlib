@@ -175,17 +175,12 @@ imgplot.set_cmap('nipy_spectral')
 # ------------------------
 #
 # It's helpful to have an idea of what value a color represents.  We can
-# do that by adding color bars.
+# do that by adding a color bar to your figure:
 
 imgplot = plt.imshow(lum_img)
 plt.colorbar()
 
 ###############################################################################
-# This adds a colorbar to your existing figure.  This won't
-# automatically change if you change you switch to a different
-# colormap - you have to re-create your plot, and add in the colorbar
-# again.
-#
 # .. _`Data ranges`:
 #
 # Examining a specific data range

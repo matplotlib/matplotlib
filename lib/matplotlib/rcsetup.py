@@ -22,7 +22,7 @@ import os
 import re
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import animation, cbook
 from matplotlib.cbook import ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
@@ -401,6 +401,19 @@ def validate_fontsize(s):
 validate_fontsizelist = _listify_validator(validate_fontsize)
 
 
+def validate_fontweight(s):
+    weights = [
+        'ultralight', 'light', 'normal', 'regular', 'book', 'medium', 'roman',
+        'semibold', 'demibold', 'demi', 'bold', 'heavy', 'extra bold', 'black']
+    # Note: Historically, weights have been case-sensitive in Matplotlib
+    if s in weights:
+        return s
+    try:
+        return int(s)
+    except (ValueError, TypeError):
+        raise ValueError(f'{s} is not a valid font weight.')
+
+
 def validate_font_properties(s):
     parse_fontconfig_pattern(s)
     return s
@@ -606,11 +619,16 @@ def validate_hinting(s):
 validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
                                            ['xelatex', 'lualatex', 'pdflatex'])
 
-validate_movie_writer = ValidateInStrings('animation.writer',
-    ['ffmpeg', 'ffmpeg_file',
-     'avconv', 'avconv_file',
-     'imagemagick', 'imagemagick_file',
-     'html'])
+
+def validate_movie_writer(s):
+    # writers.list() would only list actually available writers, but
+    # FFMpeg.isAvailable is slow and not worth paying for at every import.
+    if s in animation.writers._registered:
+        return s
+    else:
+        raise ValueError(f"Supported animation writers are "
+                         f"{sorted(animation.writers._registered)}")
+
 
 validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
     ['png', 'jpeg', 'tiff', 'raw', 'rgba'])
@@ -1095,7 +1113,7 @@ defaultParams = {
     'font.style':      ['normal', validate_string],
     'font.variant':    ['normal', validate_string],
     'font.stretch':    ['normal', validate_string],
-    'font.weight':     ['normal', validate_string],
+    'font.weight':     ['normal', validate_fontweight],
     'font.size':       [10, validate_float],      # Base font size in points
     'font.serif':      [['DejaVu Serif', 'Bitstream Vera Serif',
                          'Computer Modern Roman',
@@ -1174,7 +1192,7 @@ defaultParams = {
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
     'axes.titlelocation':    ['center', validate_axes_titlelocation],  # alignment of axes title
-    'axes.titleweight':      ['normal', validate_string],  # font weight of axes title
+    'axes.titleweight':      ['normal', validate_fontweight],  # font weight of axes title
     'axes.titlecolor':       ['auto', validate_color_or_auto],  # font color of axes title
     'axes.titlepad':         [6.0, validate_float],  # pad from axes top to title in points
     'axes.grid':             [False, validate_bool],   # display grid or not
@@ -1187,7 +1205,7 @@ defaultParams = {
     'axes.labelsize':        ['medium', validate_fontsize],  # fontsize of the
                                                              # x any y labels
     'axes.labelpad':         [4.0, validate_float],  # space between label and axis
-    'axes.labelweight':      ['normal', validate_string],  # fontsize of the x any y labels
+    'axes.labelweight':      ['normal', validate_fontweight],  # fontsize of the x any y labels
     'axes.labelcolor':       ['black', validate_color],    # color of axis label
     'axes.formatter.limits': [[-5, 6], validate_nseq_int(2)],
                                # use scientific notation if log10
@@ -1320,7 +1338,7 @@ defaultParams = {
     ## figure props
     # figure title
     'figure.titlesize':   ['large', validate_fontsize],
-    'figure.titleweight': ['normal', validate_string],
+    'figure.titleweight': ['normal', validate_fontweight],
 
     # figure size in inches: width by height
     'figure.figsize':    [[6.4, 4.8], validate_nseq_float(2)],

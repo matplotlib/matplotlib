@@ -141,6 +141,10 @@ def test_figure_legend():
 def test_gca():
     fig = plt.figure()
 
+    with pytest.warns(UserWarning):
+        # empty call to add_axes() will throw deprecation warning
+        assert fig.add_axes() is None
+
     ax1 = fig.add_axes([0, 0, 1, 1])
     assert fig.gca(projection='rectilinear') is ax1
     assert fig.gca() is ax1
@@ -385,6 +389,16 @@ def test_savefig():
     msg = r"savefig\(\) takes 2 positional arguments but 3 were given"
     with pytest.raises(TypeError, match=msg):
         fig.savefig("fname1.png", "fname2.png")
+
+
+def test_savefig_backend():
+    fig = plt.figure()
+    # Intentionally use an invalid module name.
+    with pytest.raises(ModuleNotFoundError, match="No module named '@absent'"):
+        fig.savefig("test", backend="module://@absent")
+    with pytest.raises(ValueError,
+                       match="The 'pdf' backend does not support png output"):
+        fig.savefig("test.png", backend="pdf")
 
 
 def test_figure_repr():

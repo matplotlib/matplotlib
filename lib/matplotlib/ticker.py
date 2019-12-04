@@ -23,7 +23,7 @@ turn off the use of the offset on the default formatter::
 
    ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
-set the rcParam ``axes.formatter.useoffset=False`` to turn it off
+Set :rc:`axes.formatter.useoffset` to turn it off
 globally, or set a different formatter.
 
 Tick locating
@@ -280,21 +280,23 @@ class Formatter(TickHelper):
     def set_locs(self, locs):
         self.locs = locs
 
-    def fix_minus(self, s):
+    @staticmethod
+    def fix_minus(s):
         """
-        Some classes may want to replace a hyphen for minus with the
-        proper unicode symbol (U+2212) for typographical correctness.
-        The default is to not replace it.
-
-        Note, if you use this method, e.g., in :meth:`format_data` or
-        call, you probably don't want to use it for
-        :meth:`format_data_short` since the toolbar uses this for
-        interactive coord reporting and I doubt we can expect GUIs
-        across platforms will handle the unicode correctly.  So for
-        now the classes that override :meth:`fix_minus` should have an
-        explicit :meth:`format_data_short` method
+        Some classes may want to replace a hyphen for minus with the proper
+        unicode symbol (U+2212) for typographical correctness.  This is a
+        helper method to perform such a replacement when it is enabled via
+        :rc:`axes.unicode_minus`.
         """
-        return s
+        # Additionally, we disable the replacement when using usetex without
+        # unicode support (this is deprecated, i.e., in a future version,
+        # unicode support will always be enabled).
+        if (rcParams['axes.unicode_minus']
+                and (rcParams['text.latex.unicode']
+                     or not rcParams['text.usetex'])):
+            return s.replace('-', '\N{MINUS SIGN}')
+        else:
+            return s
 
     def _set_locator(self, locator):
         """Subclasses may want to override this to set a locator."""
@@ -565,15 +567,6 @@ class ScalarFormatter(Formatter):
 
     useMathText = property(fget=get_useMathText, fset=set_useMathText)
 
-    def fix_minus(self, s):
-        """
-        Replace hyphens with a unicode minus.
-        """
-        if rcParams['text.usetex'] or not rcParams['axes.unicode_minus']:
-            return s
-        else:
-            return s.replace('-', '\N{MINUS SIGN}')
-
     def __call__(self, x, pos=None):
         """
         Return the format for tick value *x* at position *pos*.
@@ -624,15 +617,12 @@ class ScalarFormatter(Formatter):
         self._powerlimits = lims
 
     def format_data_short(self, value):
-        """
-        Return a short formatted string representation of a number.
-        """
-        if self._useLocale:
-            return locale.format_string('%-12g', (value,))
-        elif isinstance(value, np.ma.MaskedArray) and value.mask:
-            return ''
-        else:
-            return '%-12g' % value
+        # docstring inherited
+        return (
+            "" if isinstance(value, np.ma.MaskedArray) and value.mask else
+            self.fix_minus(
+                locale.format_string("%-12g", (value,)) if self._useLocale else
+                "%-12g" % value))
 
     def format_data(self, value):
         """
@@ -847,15 +837,15 @@ class LogFormatter(Formatter):
 
     Parameters
     ----------
-    base : float, optional, default: 10.
+    base : float, default: 10.
         Base of the logarithm used in all calculations.
 
-    labelOnlyBase : bool, optional, default: False
+    labelOnlyBase : bool, default: False
         If True, label ticks only at integer powers of base.
         This is normally True for major ticks and False for
         minor ticks.
 
-    minor_thresholds : (subset, all), optional, default: (1, 0.4)
+    minor_thresholds : (subset, all), default: (1, 0.4)
         If labelOnlyBase is False, these two numbers control
         the labeling of ticks that are not at integer powers of
         base; normally these are the minor ticks. The controlling
@@ -867,7 +857,7 @@ class LogFormatter(Formatter):
         avoid crowding. If ``numdec > subset`` then no minor ticks will
         be labeled.
 
-    linthresh : None or float, optional, default: None
+    linthresh : None or float, default: None
         If a symmetric log scale is in use, its ``linthresh``
         parameter must be supplied here.
 
@@ -1026,7 +1016,7 @@ class LogFormatter(Formatter):
         vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
         s = self._num_to_string(x, vmin, vmax)
-        return self.fix_minus(s)
+        return s
 
     def format_data(self, value):
         b = self.labelOnlyBase
@@ -1036,9 +1026,7 @@ class LogFormatter(Formatter):
         return value
 
     def format_data_short(self, value):
-        """
-        Return a short formatted string representation of a number.
-        """
+        # docstring inherited
         return '%-12g' % value
 
     @cbook.deprecated("3.1")
@@ -1403,11 +1391,11 @@ class EngFormatter(Formatter):
         r"""
         Parameters
         ----------
-        unit : str (default: "")
+        unit : str, default: ""
             Unit symbol to use, suitable for use with single-letter
             representations of powers of 1000. For example, 'Hz' or 'm'.
 
-        places : int (default: None)
+        places : int, default: None
             Precision with which to display the number, specified in
             digits after the decimal point (there will be between one
             and three digits before the decimal point). If it is None,
@@ -1415,7 +1403,7 @@ class EngFormatter(Formatter):
             which displays up to 6 *significant* digits, i.e. the equivalent
             value for *places* varies between 0 and 5 (inclusive).
 
-        sep : str (default: " ")
+        sep : str, default: " "
             Separator used between the value and the prefix/unit. For
             example, one get '3.14 mV' if ``sep`` is " " (default) and
             '3.14mV' if ``sep`` is "". Besides the default behavior, some
@@ -1426,11 +1414,11 @@ class EngFormatter(Formatter):
             * ``sep="\N{NARROW NO-BREAK SPACE}"`` (``U+202F``);
             * ``sep="\N{NO-BREAK SPACE}"`` (``U+00A0``).
 
-        usetex : bool (default: None)
+        usetex : bool, optional, default: None
             To enable/disable the use of TeX's math mode for rendering the
             numbers in the formatter.
 
-        useMathText : bool (default: None)
+        useMathText : bool, optional, default: None
             To enable/disable the use mathtext for rendering the numbers in
             the formatter.
         """
@@ -1461,12 +1449,6 @@ class EngFormatter(Formatter):
             self._useMathText = val
 
     useMathText = property(fget=get_useMathText, fset=set_useMathText)
-
-    def fix_minus(self, s):
-        """
-        Replace hyphens with a unicode minus.
-        """
-        return ScalarFormatter.fix_minus(self, s)
 
     def __call__(self, x, pos=None):
         s = "%s%s" % (self.format_eng(x), self.unit)
@@ -1692,15 +1674,37 @@ class Locator(TickHelper):
         raise NotImplementedError('Derived must override')
 
     def raise_if_exceeds(self, locs):
-        """Raise a RuntimeError if ``len(locs) > self.MAXTICKS``."""
+        """
+        Log at WARNING level if *locs* is longer than `Locator.MAXTICKS`.
+
+        This is intended to be called immediately before returning *locs* from
+        ``__call__`` to inform users in case their Locator returns a huge
+        number of ticks, causing Matplotlib to run out of memory.
+
+        The "strange" name of this method dates back to when it would raise an
+        exception instead of emitting a log.
+        """
         if len(locs) >= self.MAXTICKS:
-            raise RuntimeError("Locator attempting to generate {} ticks from "
-                               "{} to {}: exceeds Locator.MAXTICKS".format(
-                                   len(locs), locs[0], locs[-1]))
+            _log.warning(
+                "Locator attempting to generate %s ticks ([%s, ..., %s]), "
+                "which exceeds Locator.MAXTICKS (%s).",
+                len(locs), locs[0], locs[-1], self.MAXTICKS)
         return locs
 
     def nonsingular(self, v0, v1):
-        """Expand a range as needed to avoid singularities."""
+        """
+        Adjust a range as needed to avoid singularities.
+
+        This method gets called during autoscaling, with ``(v0, v1)`` set to
+        the data limits on the axes if the axes contains any data, or
+        ``(-inf, +inf)`` if not.
+
+        - If ``v0 == v1`` (possibly up to some floating point slop), this
+          method returns an expanded interval around this value.
+        - If ``(v0, v1) == (-inf, +inf)``, this method returns appropriate
+          default view limits.
+        - Otherwise, ``(v0, v1)`` is returned without modification.
+        """
         return mtransforms.nonsingular(v0, v1, expander=.05)
 
     def view_limits(self, vmin, vmax):
@@ -2030,9 +2034,9 @@ class MaxNLocator(Locator):
         """
         Parameters
         ----------
-        nbins : int or 'auto', optional, default: 10
+        nbins : int or 'auto', default: 10
             Maximum number of intervals; one less than max number of
-            ticks.  If the string `'auto'`, the number of bins will be
+            ticks.  If the string 'auto', the number of bins will be
             automatically determined based on the length of the axis.
 
         steps : array-like, optional
@@ -2043,24 +2047,24 @@ class MaxNLocator(Locator):
             they are multiples of 2.  However, 30, 60, 90 would not
             be allowed because 3 does not appear in the list of steps.
 
-        integer : bool, optional, default: False
+        integer : bool, default: False
             If True, ticks will take only integer values, provided
             at least `min_n_ticks` integers are found within the
             view limits.
 
-        symmetric : bool, optional, default: False
+        symmetric : bool, default: False
             If True, autoscaling will result in a range symmetric about zero.
 
-        prune : {'lower', 'upper', 'both', None}, optional, default: None
+        prune : {'lower', 'upper', 'both', None}, default: None
             Remove edge ticks -- useful for stacked or ganged plots where
             the upper tick of one axes overlaps with the lower tick of the
             axes above it, primarily when :rc:`axes.autolimit_mode` is
             ``'round_numbers'``.  If ``prune=='lower'``, the smallest tick will
             be removed.  If ``prune == 'upper'``, the largest tick will be
             removed.  If ``prune == 'both'``, the largest and smallest ticks
-            will be removed.  If ``prune == None``, no ticks will be removed.
+            will be removed.  If *prune* is *None*, no ticks will be removed.
 
-        min_n_ticks : int, optional, default: 2
+        min_n_ticks : int, default: 2
             Relax *nbins* and *integer* constraints if necessary to obtain
             this minimum number of ticks.
 
@@ -2781,32 +2785,38 @@ class LogitLocator(MaxNLocator):
         return MaxNLocator.tick_values(self, vmin, vmax)
 
     def nonsingular(self, vmin, vmax):
-        initial_range = (1e-7, 1 - 1e-7)
-        if not np.isfinite(vmin) or not np.isfinite(vmax):
-            return initial_range  # no data plotted yet
-
+        standard_minpos = 1e-7
+        initial_range = (standard_minpos, 1 - standard_minpos)
         if vmin > vmax:
             vmin, vmax = vmax, vmin
-
-        # what to do if a window beyond ]0, 1[ is chosen
-        if self.axis is not None:
-            minpos = self.axis.get_minpos()
-            if not np.isfinite(minpos):
-                return initial_range  # again, no data plotted
+        if not np.isfinite(vmin) or not np.isfinite(vmax):
+            vmin, vmax = initial_range  # Initial range, no data plotted yet.
+        elif vmax <= 0 or vmin >= 1:
+            # vmax <= 0 occurs when all values are negative
+            # vmin >= 1 occurs when all values are greater than one
+            cbook._warn_external(
+                "Data has no values between 0 and 1, and therefore cannot be "
+                "logit-scaled."
+            )
+            vmin, vmax = initial_range
         else:
-            minpos = 1e-7  # should not occur in normal use
-
-        # NOTE: for vmax, we should query a property similar to get_minpos, but
-        # related to the maximal, less-than-one data point. Unfortunately,
-        # Bbox._minpos is defined very deep in the BBox and updated with data,
-        # so for now we use 1 - minpos as a substitute.
-
-        if vmin <= 0:
-            vmin = minpos
-        if vmax >= 1:
-            vmax = 1 - minpos
-        if vmin == vmax:
-            return 0.1 * vmin, 1 - 0.1 * vmin
+            minpos = (
+                self.axis.get_minpos()
+                if self.axis is not None
+                else standard_minpos
+            )
+            if not np.isfinite(minpos):
+                minpos = standard_minpos  # This should never take effect.
+            if vmin <= 0:
+                vmin = minpos
+            # NOTE: for vmax, we should query a property similar to get_minpos,
+            # but related to the maximal, less-than-one data point.
+            # Unfortunately, Bbox._minpos is defined very deep in the BBox and
+            # updated with data, so for now we use 1 - minpos as a substitute.
+            if vmax >= 1:
+                vmax = 1 - minpos
+            if vmin == vmax:
+                vmin, vmax = 0.1 * vmin, 1 - 0.1 * vmin
 
         return vmin, vmax
 

@@ -118,7 +118,7 @@ Colormap
 --------
 
 The new default color map used by `matplotlib.cm.ScalarMappable` instances is
- `'viridis'` (aka `option D <https://bids.github.io/colormap/>`__).
+'viridis' (aka `option D <https://bids.github.io/colormap/>`__).
 
 .. plot::
 
@@ -276,7 +276,7 @@ The following changes were made to the default behavior of
 `~matplotlib.axes.Axes.scatter`
 
 - The default size of the elements in a scatter plot is now based on
-  the rcParam ``lines.markersize`` so it is consistent with ``plot(X,
+  :rc:`lines.markersize` so it is consistent with ``plot(X,
   Y, 'o')``.  The old value was 20, and the new value is 36 (6^2).
 - Scatter markers no longer have a black edge.
 - If the color of the markers is not specified it will follow the
@@ -439,7 +439,7 @@ in your :file:`matplotlibrc` file.
 Previously, boxplots were composed of a mish-mash of styles that were, for
 better for worse, inherited from Matlab. Most of the elements were blue,
 but the medians were red. The fliers (outliers) were black plus-symbols
-(`+`) and the whiskers were dashed lines, which created ambiguity if
+('+') and the whiskers were dashed lines, which created ambiguity if
 the (solid and black) caps were not drawn.
 
 For the new defaults, everything is black except for the median and mean
@@ -643,7 +643,7 @@ Hatching
 The color of the lines in the hatch is now determined by
 
 - If an edge color is explicitly set, use that for the hatch color
-- If the edge color is not explicitly set, use ``rcParam['hatch.color']`` which
+- If the edge color is not explicitly set, use :rc:`hatch.color` which
   is looked up at artist creation time.
 
 The width of the lines in a hatch pattern is now configurable by the
@@ -948,8 +948,8 @@ sets the view limits to 5% wider than the data range.
 
 The size of the padding in the x and y directions is controlled by the
 ``'axes.xmargin'`` and ``'axes.ymargin'`` rcParams respectively. Whether
-the view limits should be 'round numbers' is controlled by the
-``'axes.autolimit_mode'`` rcParam.  In the original ``'round_number'`` mode,
+the view limits should be 'round numbers' is controlled by
+:rc:`axes.autolimit_mode`.  In the original ``'round_number'`` mode,
 the view limits coincide with ticks.
 
 The previous default can be restored by using::
@@ -1132,7 +1132,7 @@ but cannot be controlled independently via ``rcParams``.
 
 With the default of ``rcParams['axes.formatter.useoffset'] = True``,
 an offset will be used when it will save 4 or more digits.  This can
-be controlled with the new rcParam, ``axes.formatter.offset_threshold``.
+be controlled with the new :rc:`axes.formatter.offset_threshold`.
 To restore the previous behavior of using an offset to save 2 or more
 digits, use ``rcParams['axes.formatter.offset_threshold'] = 2``.
 

@@ -2,19 +2,16 @@
 A collection of utility functions and classes.  Originally, many
 (but not all) were from the Python Cookbook -- hence the name cbook.
 
-This module is safe to import from anywhere within matplotlib;
-it imports matplotlib only at runtime.
+This module is safe to import from anywhere within Matplotlib;
+it imports Matplotlib only at runtime.
 """
 
 import collections
 import collections.abc
 import contextlib
 import functools
-import glob
 import gzip
 import itertools
-import locale
-import numbers
 import operator
 import os
 from pathlib import Path
@@ -39,8 +36,51 @@ from .deprecation import (
     MatplotlibDeprecationWarning, mplDeprecation)
 
 
+def _get_running_interactive_framework():
+    """
+    Return the interactive framework whose event loop is currently running, if
+    any, or "headless" if no event loop can be started, or None.
+
+    Returns
+    -------
+    Optional[str]
+        One of the following values: "qt5", "qt4", "gtk3", "wx", "tk",
+        "macosx", "headless", ``None``.
+    """
+    QtWidgets = (sys.modules.get("PyQt5.QtWidgets")
+                 or sys.modules.get("PySide2.QtWidgets"))
+    if QtWidgets and QtWidgets.QApplication.instance():
+        return "qt5"
+    QtGui = (sys.modules.get("PyQt4.QtGui")
+             or sys.modules.get("PySide.QtGui"))
+    if QtGui and QtGui.QApplication.instance():
+        return "qt4"
+    Gtk = sys.modules.get("gi.repository.Gtk")
+    if Gtk and Gtk.main_level():
+        return "gtk3"
+    wx = sys.modules.get("wx")
+    if wx and wx.GetApp():
+        return "wx"
+    tkinter = sys.modules.get("tkinter")
+    if tkinter:
+        for frame in sys._current_frames().values():
+            while frame:
+                if frame.f_code == tkinter.mainloop.__code__:
+                    return "tk"
+                frame = frame.f_back
+    if 'matplotlib.backends._macosx' in sys.modules:
+        if sys.modules["matplotlib.backends._macosx"].event_loop_is_running():
+            return "macosx"
+    if sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
+        return "headless"
+    return None
+
+
 def _exception_printer(exc):
-    traceback.print_exc()
+    if _get_running_interactive_framework() in ["headless", None]:
+        raise exc
+    else:
+        traceback.print_exc()
 
 
 class _StrongRef:
@@ -387,17 +427,18 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     """
     if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
+    if "U" in flag:
+        warn_deprecated("3.3", message="Passing a flag containing 'U' to "
+                        "to_filehandle() is deprecated since %(since)s and "
+                        "will be removed %(removal)s.")
+        flag = flag.replace("U", "")
     if isinstance(fname, str):
         if fname.endswith('.gz'):
-            # get rid of 'U' in flag for gzipped files.
-            flag = flag.replace('U', '')
             fh = gzip.open(fname, flag)
         elif fname.endswith('.bz2'):
             # python may not be complied with bz2 support,
             # bury import until we need it
             import bz2
-            # get rid of 'U' in flag for bz2 files
-            flag = flag.replace('U', '')
             fh = bz2.BZ2File(fname, flag)
         else:
             fh = open(fname, flag, encoding=encoding)
@@ -483,6 +524,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield from flatten(item, scalarp)
 
 
+@deprecated("3.3", alternative="os.path.realpath and os.stat")
 @functools.lru_cache()
 def get_realpath_and_stat(path):
     realpath = os.path.realpath(path)
@@ -705,12 +747,9 @@ def safezip(*args):
 def safe_masked_invalid(x, copy=False):
     x = np.array(x, subok=True, copy=copy)
     if not x.dtype.isnative:
-        # Note that the argument to `byteswap` is 'inplace',
-        # thus if we have already made a copy, do the byteswap in
-        # place, else make a copy with the byte order swapped.
-        # Be explicit that we are swapping the byte order of the dtype
-        x = x.byteswap(copy).newbyteorder('S')
-
+        # If we have already made a copy, do the byteswap in place, else make a
+        # copy with the byte order swapped.
+        x = x.byteswap(inplace=copy).newbyteorder('N')  # Swap to native order.
     try:
         xm = np.ma.masked_invalid(x, copy=False)
         xm.shrink_mask()
@@ -931,7 +970,7 @@ def delete_masked_points(*args):
     Masks are obtained from all arguments of the correct length
     in categories 1, 2, and 4; a point is bad if masked in a masked
     array or if it is a nan or inf.  No attempt is made to
-    extract a mask from categories 2, 3, and 4 if :meth:`np.isfinite`
+    extract a mask from categories 2, 3, and 4 if `numpy.isfinite`
     does not yield a Boolean array.
 
     All input arguments that are not passed unchanged are returned
@@ -1062,7 +1101,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         Data that will be represented in the boxplots. Should have 2 or
         fewer dimensions.
 
-    whis : float or (float, float) (default = 1.5)
+    whis : float or (float, float), default: 1.5
         The position of the whiskers.
 
         If a float, the lower whisker is at the lowest datum above
@@ -1383,15 +1422,15 @@ def violin_stats(X, method, points=100, quantiles=None):
 
     method : callable
         The method used to calculate the kernel density estimate for each
-        column of data. When called via `method(v, coords)`, it should
+        column of data. When called via ``method(v, coords)``, it should
         return a vector of the values of the KDE evaluated at the values
         specified in coords.
 
-    points : int, default = 100
+    points : int, default: 100
         Defines the number of points to evaluate each of the gaussian kernel
         density estimates at.
 
-    quantiles : array-like, default = None
+    quantiles : array-like, default: None
         Defines (if not None) a list of floats in interval [0, 1] for each
         column of data, which represents the quantiles that will be rendered
         for that column of data. Must have 2 or fewer dimensions. 1D array will
@@ -2023,10 +2062,17 @@ def _define_aliases(alias_d, cls=None):
             raise ValueError(
                 "Neither getter nor setter exists for {!r}".format(prop))
 
-    if hasattr(cls, "_alias_map"):
+    def get_aliased_and_aliases(d):
+        return {*d, *(alias for aliases in d.values() for alias in aliases)}
+
+    preexisting_aliases = getattr(cls, "_alias_map", {})
+    conflicting = (get_aliased_and_aliases(preexisting_aliases)
+                   & get_aliased_and_aliases(alias_d))
+    if conflicting:
         # Need to decide on conflict resolution policy.
-        raise NotImplementedError("Parent class already defines aliases")
-    cls._alias_map = alias_d
+        raise NotImplementedError(
+            f"Parent class already defines conflicting aliases: {conflicting}")
+    cls._alias_map = {**preexisting_aliases, **alias_d}
     return cls
 
 
@@ -2304,3 +2350,12 @@ class _classproperty:
 
     def __get__(self, instance, owner):
         return self._fget(owner)
+
+
+def _backend_module_name(name):
+    """
+    Convert a backend name (either a standard backend -- "Agg", "TkAgg", ... --
+    or a custom backend -- "module://...") to the corresponding module name).
+    """
+    return (name[9:] if name.startswith("module://")
+            else "matplotlib.backends.backend_{}".format(name.lower()))

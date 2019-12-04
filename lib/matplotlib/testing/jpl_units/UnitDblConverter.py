@@ -81,9 +81,6 @@ class UnitDblConverter(units.ConversionInterface):
         = RETURN VALUE
         - Returns the value parameter converted to floats.
         """
-        # Delay-load due to circular dependencies.
-        import matplotlib.testing.jpl_units as U
-
         if not cbook.is_scalar_or_string(value):
             return [UnitDblConverter.convert(x, unit, axis) for x in value]
         # If the incoming value behaves like a number,

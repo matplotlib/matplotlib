@@ -27,12 +27,9 @@ import matplotlib.pyplot as plt
 with cbook.get_sample_data('aapl.npz') as fh:
     r = np.load(fh)['price_data'].view(np.recarray)
 r = r[-250:]  # get the last 250 days
-# Matplotlib works better with datetime.datetime than np.datetime64, but the
-# latter is more portable.
-date = r.date.astype('O')
 
 fig, ax = plt.subplots()
-ax.plot(date, r.adj_close)
+ax.plot(r.date, r.adj_close)
 
 ax.xaxis.set_major_locator(dates.MonthLocator())
 # 16 is a slight approximation since months differ in number of days.
@@ -47,5 +44,5 @@ for tick in ax.xaxis.get_minor_ticks():
     tick.label1.set_horizontalalignment('center')
 
 imid = len(r) // 2
-ax.set_xlabel(str(date[imid].year))
+ax.set_xlabel(str(r.date[imid].item().year))
 plt.show()

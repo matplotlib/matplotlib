@@ -1,6 +1,5 @@
 from collections import namedtuple
 from itertools import product
-from distutils.version import LooseVersion
 import io
 import platform
 
@@ -634,43 +633,57 @@ def test_const_xy():
     plt.plot(np.ones(10), np.ones(10), 'o')
 
 
-@image_comparison(['polar_wrap_180', 'polar_wrap_360'], style='default')
-def test_polar_wrap():
+def test_polar_twice():
     fig = plt.figure()
-    plt.subplot(111, polar=True)
-    plt.polar(np.deg2rad([179, -179]), [0.2, 0.1], "b.-")
-    plt.polar(np.deg2rad([179,  181]), [0.2, 0.1], "g.-")
-    plt.rgrids([0.05, 0.1, 0.15, 0.2, 0.25, 0.3])
+    plt.polar([1, 2], [.1, .2])
+    plt.polar([3, 4], [.3, .4])
     assert len(fig.axes) == 1, 'More than one polar axes created.'
 
-    fig = plt.figure()
-    plt.subplot(111, polar=True)
-    plt.polar(np.deg2rad([2, -2]), [0.2, 0.1], "b.-")
-    plt.polar(np.deg2rad([2, 358]), [0.2, 0.1], "g.-")
-    plt.polar(np.deg2rad([358, 2]), [0.2, 0.1], "r.-")
-    plt.rgrids([0.05, 0.1, 0.15, 0.2, 0.25, 0.3])
+
+@check_figures_equal()
+def test_polar_wrap(fig_test, fig_ref):
+    ax = fig_test.add_subplot(projection="polar")
+    ax.plot(np.deg2rad([179, -179]), [0.2, 0.1])
+    ax.plot(np.deg2rad([2, -2]), [0.2, 0.1])
+    ax = fig_ref.add_subplot(projection="polar")
+    ax.plot(np.deg2rad([179, 181]), [0.2, 0.1])
+    ax.plot(np.deg2rad([2, 358]), [0.2, 0.1])
 
 
-@image_comparison(['polar_units', 'polar_units_2'], style='default')
-def test_polar_units():
+@check_figures_equal()
+def test_polar_units_1(fig_test, fig_ref):
     import matplotlib.testing.jpl_units as units
     units.register()
-
-    deg = units.deg
-    km = units.km
-
-    xs = [30.0*deg, 45.0*deg, 60.0*deg, 90.0*deg]
+    xs = [30.0, 45.0, 60.0, 90.0]
     ys = [1.0, 2.0, 3.0, 4.0]
 
-    plt.figure()
-    plt.polar(xs, ys, color="blue")
+    plt.figure(fig_test.number)
+    plt.polar([x * units.deg for x in xs], ys)
 
-    plt.figure()
-    # make sure runits and theta units work
-    ykm = [y*km for y in ys]
-    plt.polar(xs, ykm, color="blue", thetaunits="rad", runits="km")
+    ax = fig_ref.add_subplot(projection="polar")
+    ax.plot(np.deg2rad(xs), ys)
+    ax.set(xlabel="deg")
+
+
+@check_figures_equal()
+def test_polar_units_2(fig_test, fig_ref):
+    import matplotlib.testing.jpl_units as units
+    units.register()
+    xs = [30.0, 45.0, 60.0, 90.0]
+    xs_deg = [x * units.deg for x in xs]
+    ys = [1.0, 2.0, 3.0, 4.0]
+    ys_km = [y * units.km for y in ys]
+
+    plt.figure(fig_test.number)
+    # test {theta,r}units.
+    plt.polar(xs_deg, ys_km, thetaunits="rad", runits="km")
     assert isinstance(plt.gca().get_xaxis().get_major_formatter(),
                       units.UnitDblFormatter)
+
+    ax = fig_ref.add_subplot(projection="polar")
+    ax.plot(np.deg2rad(xs), ys)
+    ax.xaxis.set_major_formatter(mticker.FuncFormatter("{:.12}".format))
+    ax.set(xlabel="rad", ylabel="km")
 
 
 @image_comparison(['polar_rmin'], style='default')
@@ -1685,6 +1698,14 @@ def test_bar_pandas(pd):
     ax.plot(dates, baseline, color='orange', lw=4)
 
 
+def test_bar_pandas_indexed(pd):
+    # Smoke test for indexed pandas
+    df = pd.DataFrame({"x": [1., 2., 3.], "width": [.2, .4, .6]},
+                       index=[1, 2, 3])
+    fig, ax = plt.subplots()
+    ax.bar(df.x, 1., width=df.width)
+
+
 @image_comparison(['hist_log'], remove_text=True)
 def test_hist_log():
     data0 = np.linspace(0, 1, 200)**3
@@ -1768,6 +1789,29 @@ def test_hist_datetime_datasets():
     fig, ax = plt.subplots()
     ax.hist(data, stacked=True)
     ax.hist(data, stacked=False)
+
+
+@pytest.mark.parametrize("bins_preprocess",
+                         [mpl.dates.date2num,
+                          lambda bins: bins,
+                          lambda bins: np.asarray(bins).astype('datetime64')],
+                         ids=['date2num', 'datetime.datetime',
+                              'np.datetime64'])
+def test_hist_datetime_datasets_bins(bins_preprocess):
+    data = [[datetime.datetime(2019, 1, 5), datetime.datetime(2019, 1, 11),
+             datetime.datetime(2019, 2, 1), datetime.datetime(2019, 3, 1)],
+            [datetime.datetime(2019, 1, 11), datetime.datetime(2019, 2, 5),
+             datetime.datetime(2019, 2, 18), datetime.datetime(2019, 3, 1)]]
+
+    date_edges = [datetime.datetime(2019, 1, 1), datetime.datetime(2019, 2, 1),
+                  datetime.datetime(2019, 3, 1)]
+
+    fig, ax = plt.subplots()
+    _, bins, _ = ax.hist(data, bins=bins_preprocess(date_edges), stacked=True)
+    np.testing.assert_allclose(bins, mpl.dates.date2num(date_edges))
+
+    _, bins, _ = ax.hist(data, bins=bins_preprocess(date_edges), stacked=False)
+    np.testing.assert_allclose(bins, mpl.dates.date2num(date_edges))
 
 
 @pytest.mark.parametrize('data, expected_number_of_hists',
@@ -2184,6 +2228,13 @@ def test_log_scales():
     ax.set_yscale('log', basey=5.5)
     ax.invert_yaxis()
     ax.set_xscale('log', basex=9.0)
+
+
+def test_log_scales_no_data():
+    _, ax = plt.subplots()
+    ax.set(xscale="log", yscale="log")
+    ax.xaxis.set_major_locator(mticker.MultipleLocator(1))
+    assert ax.get_xlim() == ax.get_ylim() == (1, 10)
 
 
 def test_log_scales_invalid():
@@ -3276,6 +3327,136 @@ def test_hist_step_bottom():
     ax.hist(d1, bottom=np.arange(10), histtype="stepfilled")
 
 
+def test_hist_stepfilled_geometry():
+    bins = [0, 1, 2, 3]
+    data = [0, 0, 1, 1, 1, 2]
+    _, _, (polygon, ) = plt.hist(data,
+                                 bins=bins,
+                                 histtype='stepfilled')
+    xy = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1],
+          [3, 0], [2, 0], [2, 0], [1, 0], [1, 0], [0, 0]]
+    assert_array_equal(polygon.get_xy(), xy)
+
+
+def test_hist_step_geometry():
+    bins = [0, 1, 2, 3]
+    data = [0, 0, 1, 1, 1, 2]
+    _, _, (polygon, ) = plt.hist(data,
+                                 bins=bins,
+                                 histtype='step')
+    xy = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1], [3, 0]]
+    assert_array_equal(polygon.get_xy(), xy)
+
+
+def test_hist_stepfilled_bottom_geometry():
+    bins = [0, 1, 2, 3]
+    data = [0, 0, 1, 1, 1, 2]
+    _, _, (polygon, ) = plt.hist(data,
+                                 bins=bins,
+                                 bottom=[1, 2, 1.5],
+                                 histtype='stepfilled')
+    xy = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5],
+          [3, 1.5], [2, 1.5], [2, 2], [1, 2], [1, 1], [0, 1]]
+    assert_array_equal(polygon.get_xy(), xy)
+
+
+def test_hist_step_bottom_geometry():
+    bins = [0, 1, 2, 3]
+    data = [0, 0, 1, 1, 1, 2]
+    _, _, (polygon, ) = plt.hist(data,
+                                 bins=bins,
+                                 bottom=[1, 2, 1.5],
+                                 histtype='step')
+    xy = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5], [3, 1.5]]
+    assert_array_equal(polygon.get_xy(), xy)
+
+
+def test_hist_stacked_stepfilled_geometry():
+    bins = [0, 1, 2, 3]
+    data_1 = [0, 0, 1, 1, 1, 2]
+    data_2 = [0, 1, 2]
+    _, _, patches = plt.hist([data_1, data_2],
+                             bins=bins,
+                             stacked=True,
+                             histtype='stepfilled')
+
+    assert len(patches) == 2
+
+    polygon,  = patches[0]
+    xy = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1],
+          [3, 0], [2, 0], [2, 0], [1, 0], [1, 0], [0, 0]]
+    assert_array_equal(polygon.get_xy(), xy)
+
+    polygon,  = patches[1]
+    xy = [[0, 2], [0, 3], [1, 3], [1, 4], [2, 4], [2, 2], [3, 2],
+          [3, 1], [2, 1], [2, 3], [1, 3], [1, 2], [0, 2]]
+    assert_array_equal(polygon.get_xy(), xy)
+
+
+def test_hist_stacked_step_geometry():
+    bins = [0, 1, 2, 3]
+    data_1 = [0, 0, 1, 1, 1, 2]
+    data_2 = [0, 1, 2]
+    _, _, patches = plt.hist([data_1, data_2],
+                             bins=bins,
+                             stacked=True,
+                             histtype='step')
+
+    assert len(patches) == 2
+
+    polygon,  = patches[0]
+    xy = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1], [3, 0]]
+    assert_array_equal(polygon.get_xy(), xy)
+
+    polygon,  = patches[1]
+    xy = [[0, 2], [0, 3], [1, 3], [1, 4], [2, 4], [2, 2], [3, 2], [3, 1]]
+    assert_array_equal(polygon.get_xy(), xy)
+
+
+def test_hist_stacked_stepfilled_bottom_geometry():
+    bins = [0, 1, 2, 3]
+    data_1 = [0, 0, 1, 1, 1, 2]
+    data_2 = [0, 1, 2]
+    _, _, patches = plt.hist([data_1, data_2],
+                             bins=bins,
+                             stacked=True,
+                             bottom=[1, 2, 1.5],
+                             histtype='stepfilled')
+
+    assert len(patches) == 2
+
+    polygon,  = patches[0]
+    xy = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5],
+          [3, 1.5], [2, 1.5], [2, 2], [1, 2], [1, 1], [0, 1]]
+    assert_array_equal(polygon.get_xy(), xy)
+
+    polygon,  = patches[1]
+    xy = [[0, 3], [0, 4], [1, 4], [1, 6], [2, 6], [2, 3.5], [3, 3.5],
+          [3, 2.5], [2, 2.5], [2, 5], [1, 5], [1, 3], [0, 3]]
+    assert_array_equal(polygon.get_xy(), xy)
+
+
+def test_hist_stacked_step_bottom_geometry():
+    bins = [0, 1, 2, 3]
+    data_1 = [0, 0, 1, 1, 1, 2]
+    data_2 = [0, 1, 2]
+    _, _, patches = plt.hist([data_1, data_2],
+                             bins=bins,
+                             stacked=True,
+                             bottom=[1, 2, 1.5],
+                             histtype='step')
+
+    assert len(patches) == 2
+
+    polygon,  = patches[0]
+    xy = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5], [3, 1.5]]
+    assert_array_equal(polygon.get_xy(), xy)
+
+    polygon,  = patches[1]
+    xy = [[0, 3], [0, 4], [1, 4], [1, 6], [2, 6], [2, 3.5], [3, 3.5], [3, 2.5]]
+    assert_array_equal(polygon.get_xy(), xy)
+
+
 @image_comparison(['hist_stacked_bar'])
 def test_hist_stacked_bar():
     # make some data
@@ -3626,6 +3807,21 @@ def test_eb_line_zorder():
         ax.axhline(-j, lw=5, color='k', zorder=j)
 
     ax.set_title("errorbar zorder test")
+
+
+@check_figures_equal()
+def test_axline(fig_test, fig_ref):
+    ax = fig_test.subplots()
+    ax.set(xlim=(-1, 1), ylim=(-1, 1))
+    ax.axline((0, 0), (1, 1))
+    ax.axline((0, 0), (1, 0), color='C1')
+    ax.axline((0, 0.5), (1, 0.5), color='C2')
+
+    ax = fig_ref.subplots()
+    ax.set(xlim=(-1, 1), ylim=(-1, 1))
+    ax.plot([-1, 1], [-1, 1])
+    ax.axhline(0, color='C1')
+    ax.axhline(0.5, color='C2')
 
 
 @image_comparison(['vlines_basic', 'vlines_with_nan', 'vlines_masked'],
@@ -5214,10 +5410,24 @@ def test_unicode_hist_label():
 
 def test_move_offsetlabel():
     data = np.random.random(10) * 1e-22
+
     fig, ax = plt.subplots()
     ax.plot(data)
+    fig.canvas.draw()
+    before = ax.yaxis.offsetText.get_position()
     ax.yaxis.tick_right()
-    assert (1, 0.5) == ax.yaxis.offsetText.get_position()
+    fig.canvas.draw()
+    after = ax.yaxis.offsetText.get_position()
+    assert after[0] > before[0] and after[1] == before[1]
+
+    fig, ax = plt.subplots()
+    ax.plot(data)
+    fig.canvas.draw()
+    before = ax.xaxis.offsetText.get_position()
+    ax.xaxis.tick_top()
+    fig.canvas.draw()
+    after = ax.xaxis.offsetText.get_position()
+    assert after[0] == before[0] and after[1] > before[1]
 
 
 @image_comparison(['rc_spines.png'], savefig_kwarg={'dpi': 40})
@@ -5669,9 +5879,9 @@ def test_axis_set_tick_params_labelsize_labelcolor():
 
     # Expected values after setting the ticks
     assert axis_1.yaxis.majorTicks[0]._size == 4.0
-    assert axis_1.yaxis.majorTicks[0]._color == 'k'
-    assert axis_1.yaxis.majorTicks[0]._labelsize == 30.0
-    assert axis_1.yaxis.majorTicks[0]._labelcolor == 'red'
+    assert axis_1.yaxis.majorTicks[0].tick1line.get_color() == 'k'
+    assert axis_1.yaxis.majorTicks[0].label1.get_size() == 30.0
+    assert axis_1.yaxis.majorTicks[0].label1.get_color() == 'red'
 
 
 def test_axes_tick_params_gridlines():
@@ -5680,10 +5890,10 @@ def test_axes_tick_params_gridlines():
     ax.tick_params(grid_color='b', grid_linewidth=5, grid_alpha=0.5,
                    grid_linestyle='dashdot')
     for axis in ax.xaxis, ax.yaxis:
-        assert axis.majorTicks[0]._grid_color == 'b'
-        assert axis.majorTicks[0]._grid_linewidth == 5
-        assert axis.majorTicks[0]._grid_alpha == 0.5
-        assert axis.majorTicks[0]._grid_linestyle == 'dashdot'
+        assert axis.majorTicks[0].gridline.get_color() == 'b'
+        assert axis.majorTicks[0].gridline.get_linewidth() == 5
+        assert axis.majorTicks[0].gridline.get_alpha() == 0.5
+        assert axis.majorTicks[0].gridline.get_linestyle() == '-.'
 
 
 def test_axes_tick_params_ylabelside():
@@ -6651,5 +6861,70 @@ def test_aspect_nonlinear_adjustable_datalim():
            aspect=1, adjustable="datalim")
     ax.margins(0)
     ax.apply_aspect()
+
     assert ax.get_xlim() == pytest.approx([1*10**(1/2), 100/10**(1/2)])
     assert ax.get_ylim() == (1 / 101, 1 / 11)
+
+
+def test_box_aspect():
+    # Test if axes with box_aspect=1 has same dimensions
+    # as axes with aspect equal and adjustable="box"
+
+    fig1, ax1 = plt.subplots()
+    axtwin = ax1.twinx()
+    axtwin.plot([12, 344])
+
+    ax1.set_box_aspect(1)
+
+    fig2, ax2 = plt.subplots()
+    ax2.margins(0)
+    ax2.plot([0, 2], [6, 8])
+    ax2.set_aspect("equal", adjustable="box")
+
+    fig1.canvas.draw()
+    fig2.canvas.draw()
+
+    bb1 = ax1.get_position()
+    bbt = axtwin.get_position()
+    bb2 = ax2.get_position()
+
+    assert_array_equal(bb1.extents, bb2.extents)
+    assert_array_equal(bbt.extents, bb2.extents)
+
+
+def test_box_aspect_custom_position():
+    # Test if axes with custom position and box_aspect
+    # behaves the same independent of the order of setting those.
+
+    fig1, ax1 = plt.subplots()
+    ax1.set_position([0.1, 0.1, 0.9, 0.2])
+    fig1.canvas.draw()
+    ax1.set_box_aspect(1.)
+
+    fig2, ax2 = plt.subplots()
+    ax2.set_box_aspect(1.)
+    fig2.canvas.draw()
+    ax2.set_position([0.1, 0.1, 0.9, 0.2])
+
+    fig1.canvas.draw()
+    fig2.canvas.draw()
+
+    bb1 = ax1.get_position()
+    bb2 = ax2.get_position()
+
+    assert_array_equal(bb1.extents, bb2.extents)
+
+
+def test_bbox_aspect_axes_init():
+    # Test that box_aspect can be given to axes init and produces
+    # all equal square axes.
+    fig, axs = plt.subplots(2, 3, subplot_kw=dict(box_aspect=1),
+                        constrained_layout=True)
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    sizes = []
+    for ax in axs.flat:
+        bb = ax.get_window_extent(renderer)
+        sizes.extend([bb.width, bb.height])
+
+    assert_allclose(sizes, sizes[0])
