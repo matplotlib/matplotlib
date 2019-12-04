@@ -604,7 +604,9 @@ def test_shaped_data():
     plt.plot(y2)
 
     plt.subplot(413)
-    with pytest.raises(ValueError):
+    # DeprecationWarning is raised by numpy 1.19 on object array creation;
+    # later it will be a ValueError again.
+    with pytest.raises((ValueError, DeprecationWarning)):
         plt.plot((y1, y2))
 
     plt.subplot(414)
@@ -2697,7 +2699,9 @@ def test_boxplot_bad_ci_2():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    with pytest.raises(ValueError):
+    # DeprecationWarning is raised by numpy 1.19 on object array creation;
+    # later it will be a ValueError again.
+    with pytest.raises((ValueError, DeprecationWarning)):
         ax.boxplot([x, x], conf_intervals=[[1, 2], [1]])
 
 

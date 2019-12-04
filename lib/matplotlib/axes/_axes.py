@@ -6586,8 +6586,6 @@ optional.
         if histtype == 'barstacked' and not stacked:
             stacked = True
 
-        # basic input validation
-        input_empty = np.size(x) == 0
         # Massage 'x' for processing.
         x = cbook._reshape_2D(x, 'x')
         nx = len(x)  # number of datasets
@@ -6649,13 +6647,10 @@ optional.
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
         # and supply that to np.histogram.
-        if not input_empty and len(x) > 1:
-            if weights is not None:
-                _w = np.concatenate(w)
-            else:
-                _w = None
-            bins = np.histogram_bin_edges(
-                np.concatenate(x), bins, bin_range, _w)
+        all_xs = np.concatenate(x)
+        if len(all_xs):
+            all_ws = np.concatenate(w) if weights is not None else None
+            bins = np.histogram_bin_edges(all_xs, bins, bin_range, all_ws)
         else:
             hist_kwargs['range'] = bin_range
 
