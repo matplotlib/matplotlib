@@ -295,8 +295,8 @@ latex_paper_size = 'letter'
 
 latex_documents = [
     ('contents', 'Matplotlib.tex', 'Matplotlib',
-     'John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the '
-     'matplotlib development team', 'manual'),
+     'John Hunter\\and Darren Dale\\and Eric Firing\\and Michael Droettboom'
+     '\\and and the matplotlib development team', 'manual'),
 ]
 
 
@@ -307,6 +307,9 @@ latex_logo = None
 latex_elements = {}
 # Additional stuff for the LaTeX preamble.
 latex_elements['preamble'] = r"""
+   % One line per author on title page
+   \DeclareRobustCommand{\and}%
+     {\end{tabular}\kern-\tabcolsep\\\begin{tabular}[t]{c}}%
    % In the parameters section, place a newline after the Parameters
    % header.  (This is stolen directly from Numpy's conf.py, since it
    % affects Numpy-style docstrings).
