@@ -320,7 +320,19 @@ latex_documents = [
 # the title page.
 latex_logo = None
 
+# Use Unicode aware LaTeX engine
+latex_engine = 'xelatex'  # or 'lualatex'
+
 latex_elements = {}
+
+# Keep babel usage also with xelatex (Sphinx default is polyglossia)
+# If this key is removed or changed, latex build directory must be cleaned
+latex_elements['babel'] = r'\usepackage{babel}'
+
+# Font configuration
+# Sphinx default since 2.x is GNU FreeFont
+latex_elements['fontpkg'] = r'\setmainfont{DejaVu Serif}'
+
 # Additional stuff for the LaTeX preamble.
 latex_elements['preamble'] = r"""
    % One line per author on title page
@@ -332,11 +344,6 @@ latex_elements['preamble'] = r"""
    \usepackage{expdlist}
    \let\latexdescription=\description
    \def\description{\latexdescription{}{} \breaklabel}
-
-   \usepackage{amsmath}
-   \usepackage{amsfonts}
-   \usepackage{amssymb}
-   \usepackage{txfonts}
 
    % The enumitem package provides unlimited nesting of lists and
    % enums.  Sphinx may use this in the future, in which case this can
@@ -370,13 +377,6 @@ texinfo_documents = [
 # numpydoc config
 
 numpydoc_show_class_members = False
-
-latex_engine = 'xelatex'  # or 'lualatex'
-
-latex_elements = {
-    'babel': r'\usepackage{babel}',
-    'fontpkg': r'\setmainfont{DejaVu Serif}',
-}
 
 html4_writer = True
 
