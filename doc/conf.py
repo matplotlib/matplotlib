@@ -352,6 +352,12 @@ latex_elements = {}
 latex_elements['babel'] = r'\usepackage{babel}'
 
 # Font configuration
+# Fix fontspec converting " into right curly quotes in PDF
+# cf https://github.com/sphinx-doc/sphinx/pull/6888/
+latex_elements['fontenc'] = r'''
+\usepackage{fontspec}
+\defaultfontfeatures[\rmfamily,\sffamily,\ttfamily]{}
+'''
 # Sphinx 2.0 adopts GNU FreeFont by default, but it does not have all
 # the Unicode codepoints needed for the section about Mathtext
 # "Writing mathematical expressions"
