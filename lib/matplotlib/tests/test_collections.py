@@ -59,82 +59,33 @@ def generate_EventCollection_plot():
 
 
 @image_comparison(['EventCollection_plot__default'])
-def test__EventCollection__get_segments():
-    '''
-    check to make sure the default segments have the correct coordinates
-    '''
+def test__EventCollection__get_props():
     _, coll, props = generate_EventCollection_plot()
+    # check that the default segments have the correct coordinates
     check_segments(coll,
                    props['positions'],
                    props['linelength'],
                    props['lineoffset'],
                    props['orientation'])
-
-
-def test__EventCollection__get_positions():
-    '''
-    check to make sure the default positions match the input positions
-    '''
-    _, coll, props = generate_EventCollection_plot()
+    # check that the default positions match the input positions
     np.testing.assert_array_equal(props['positions'], coll.get_positions())
-
-
-def test__EventCollection__get_orientation():
-    '''
-    check to make sure the default orientation matches the input
-    orientation
-    '''
-    _, coll, props = generate_EventCollection_plot()
+    # check that the default orientation matches the input orientation
     assert props['orientation'] == coll.get_orientation()
-
-
-def test__EventCollection__is_horizontal():
-    '''
-    check to make sure the default orientation matches the input
-    orientation
-    '''
-    _, coll, _ = generate_EventCollection_plot()
+    # check that the default orientation matches the input orientation
     assert coll.is_horizontal()
-
-
-def test__EventCollection__get_linelength():
-    '''
-    check to make sure the default linelength matches the input linelength
-    '''
-    _, coll, props = generate_EventCollection_plot()
+    # check that the default linelength matches the input linelength
     assert props['linelength'] == coll.get_linelength()
-
-
-def test__EventCollection__get_lineoffset():
-    '''
-    check to make sure the default lineoffset matches the input lineoffset
-    '''
-    _, coll, props = generate_EventCollection_plot()
+    # check that the default lineoffset matches the input lineoffset
     assert props['lineoffset'] == coll.get_lineoffset()
-
-
-def test__EventCollection__get_linestyle():
-    '''
-    check to make sure the default linestyle matches the input linestyle
-    '''
-    _, coll, _ = generate_EventCollection_plot()
+    # check that the default linestyle matches the input linestyle
     assert coll.get_linestyle() == [(None, None)]
-
-
-def test__EventCollection__get_color():
-    '''
-    check to make sure the default color matches the input color
-    '''
-    _, coll, props = generate_EventCollection_plot()
-    np.testing.assert_array_equal(props['color'], coll.get_color())
-    check_allprop_array(coll.get_colors(), props['color'])
+    # check that the default color matches the input color
+    for color in [coll.get_color(), *coll.get_colors()]:
+        np.testing.assert_array_equal(color, props['color'])
 
 
 @image_comparison(['EventCollection_plot__set_positions'])
 def test__EventCollection__set_positions():
-    '''
-    check to make sure set_positions works properly
-    '''
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'], props['extra_positions']])
     coll.set_positions(new_positions)
@@ -149,9 +100,6 @@ def test__EventCollection__set_positions():
 
 @image_comparison(['EventCollection_plot__add_positions'])
 def test__EventCollection__add_positions():
-    '''
-    check to make sure add_positions works properly
-    '''
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'],
                                props['extra_positions'][0]])
@@ -168,9 +116,6 @@ def test__EventCollection__add_positions():
 
 @image_comparison(['EventCollection_plot__append_positions'])
 def test__EventCollection__append_positions():
-    '''
-    check to make sure append_positions works properly
-    '''
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'],
                                props['extra_positions'][2]])
@@ -187,9 +132,6 @@ def test__EventCollection__append_positions():
 
 @image_comparison(['EventCollection_plot__extend_positions'])
 def test__EventCollection__extend_positions():
-    '''
-    check to make sure extend_positions works properly
-    '''
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'],
                                props['extra_positions'][1:]])
@@ -206,9 +148,6 @@ def test__EventCollection__extend_positions():
 
 @image_comparison(['EventCollection_plot__switch_orientation'])
 def test__EventCollection__switch_orientation():
-    '''
-    check to make sure switch_orientation works properly
-    '''
     splt, coll, props = generate_EventCollection_plot()
     new_orientation = 'vertical'
     coll.switch_orientation()
@@ -226,10 +165,10 @@ def test__EventCollection__switch_orientation():
 
 @image_comparison(['EventCollection_plot__switch_orientation__2x'])
 def test__EventCollection__switch_orientation_2x():
-    '''
-    check to make sure calling switch_orientation twice sets the
-    orientation back to the default
-    '''
+    """
+    Check that calling switch_orientation twice sets the orientation back to
+    the default.
+    """
     splt, coll, props = generate_EventCollection_plot()
     coll.switch_orientation()
     coll.switch_orientation()
@@ -247,9 +186,6 @@ def test__EventCollection__switch_orientation_2x():
 
 @image_comparison(['EventCollection_plot__set_orientation'])
 def test__EventCollection__set_orientation():
-    '''
-    check to make sure set_orientation works properly
-    '''
     splt, coll, props = generate_EventCollection_plot()
     new_orientation = 'vertical'
     coll.set_orientation(new_orientation)
@@ -267,9 +203,6 @@ def test__EventCollection__set_orientation():
 
 @image_comparison(['EventCollection_plot__set_linelength'])
 def test__EventCollection__set_linelength():
-    '''
-    check to make sure set_linelength works properly
-    '''
     splt, coll, props = generate_EventCollection_plot()
     new_linelength = 15
     coll.set_linelength(new_linelength)
@@ -285,9 +218,6 @@ def test__EventCollection__set_linelength():
 
 @image_comparison(['EventCollection_plot__set_lineoffset'])
 def test__EventCollection__set_lineoffset():
-    '''
-    check to make sure set_lineoffset works properly
-    '''
     splt, coll, props = generate_EventCollection_plot()
     new_lineoffset = -5.
     coll.set_lineoffset(new_lineoffset)
@@ -301,62 +231,38 @@ def test__EventCollection__set_lineoffset():
     splt.set_ylim(-6, -4)
 
 
-@image_comparison(['EventCollection_plot__set_linestyle'])
-def test__EventCollection__set_linestyle():
-    '''
-    check to make sure set_linestyle works properly
-    '''
-    splt, coll, _ = generate_EventCollection_plot()
-    new_linestyle = 'dashed'
-    coll.set_linestyle(new_linestyle)
-    assert coll.get_linestyle() == [(0, (6.0, 6.0))]
-    splt.set_title('EventCollection: set_linestyle')
-
-
-@image_comparison(['EventCollection_plot__set_ls_dash'], remove_text=True)
-def test__EventCollection__set_linestyle_single_dash():
-    '''
-    check to make sure set_linestyle accepts a single dash pattern
-    '''
-    splt, coll, _ = generate_EventCollection_plot()
-    new_linestyle = (0, (6., 6.))
-    coll.set_linestyle(new_linestyle)
-    assert coll.get_linestyle() == [(0, (6.0, 6.0))]
-    splt.set_title('EventCollection: set_linestyle')
-
-
-@image_comparison(['EventCollection_plot__set_linewidth'])
-def test__EventCollection__set_linewidth():
-    '''
-    check to make sure set_linestyle works properly
-    '''
-    splt, coll, _ = generate_EventCollection_plot()
-    new_linewidth = 5
-    coll.set_linewidth(new_linewidth)
-    assert coll.get_linewidth() == new_linewidth
-    splt.set_title('EventCollection: set_linewidth')
+@image_comparison([
+    'EventCollection_plot__set_linestyle',
+    'EventCollection_plot__set_linestyle',
+    'EventCollection_plot__set_linewidth',
+])
+def test__EventCollection__set_prop():
+    for prop, value, expected in [
+            ('linestyle', 'dashed', [(0, (6.0, 6.0))]),
+            ('linestyle', (0, (6., 6.)), [(0, (6.0, 6.0))]),
+            ('linewidth', 5, 5),
+    ]:
+        splt, coll, _ = generate_EventCollection_plot()
+        coll.set(**{prop: value})
+        assert plt.getp(coll, prop) == expected
+        splt.set_title(f'EventCollection: set_{prop}')
 
 
 @image_comparison(['EventCollection_plot__set_color'])
 def test__EventCollection__set_color():
-    '''
-    check to make sure set_color works properly
-    '''
     splt, coll, _ = generate_EventCollection_plot()
     new_color = np.array([0, 1, 1, 1])
     coll.set_color(new_color)
-    np.testing.assert_array_equal(new_color, coll.get_color())
-    check_allprop_array(coll.get_colors(), new_color)
+    for color in [coll.get_color(), *coll.get_colors()]:
+        np.testing.assert_array_equal(color, new_color)
     splt.set_title('EventCollection: set_color')
 
 
 def check_segments(coll, positions, linelength, lineoffset, orientation):
-    '''
-    check to make sure all values in the segment are correct, given a
-    particular set of inputs
-
-    note: this is not a test, it is used by tests
-    '''
+    """
+    Test helper checking that all values in the segment are correct, given a
+    particular set of inputs.
+    """
     segments = coll.get_segments()
     if (orientation.lower() == 'horizontal'
             or orientation.lower() == 'none' or orientation is None):
@@ -376,16 +282,6 @@ def check_segments(coll, positions, linelength, lineoffset, orientation):
         assert segment[1, pos1] == lineoffset - linelength / 2
         assert segment[0, pos2] == positions[i]
         assert segment[1, pos2] == positions[i]
-
-
-def check_allprop_array(values, target):
-    '''
-    check to make sure all values match the given target if arrays
-
-    note: this is not a test, it is used by tests
-    '''
-    for value in values:
-        np.testing.assert_array_equal(value, target)
 
 
 def test_null_collection_datalim():
