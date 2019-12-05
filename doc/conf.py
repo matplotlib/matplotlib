@@ -338,20 +338,31 @@ latex_elements['preamble'] = r"""
    % One line per author on title page
    \DeclareRobustCommand{\and}%
      {\end{tabular}\kern-\tabcolsep\\\begin{tabular}[t]{c}}%
-   % In the parameters section, place a newline after the Parameters
-   % header.  (This is stolen directly from Numpy's conf.py, since it
-   % affects Numpy-style docstrings).
    \usepackage{expdlist}
    \let\latexdescription=\description
    \def\description{\latexdescription{}{} \breaklabel}
-
-   % The enumitem package provides unlimited nesting of lists and
-   % enums.  Sphinx may use this in the future, in which case this can
-   % be removed.  See
-   % https://bitbucket.org/birkenfeld/sphinx/issue/777/latex-output-too-deeply-nested
-   \usepackage{enumitem}
-   \setlistdepth{2048}
+   % But expdlist old LaTeX package requires fixes:
+   % 1) remove extra space
+   \usepackage{etoolbox}
+   \makeatletter
+   \patchcmd\@item{{\@breaklabel} }{{\@breaklabel}}{}{}
+   \makeatother
+   % 2) fix bug in expdlist's way of breaking the line after long item label
+   \makeatletter
+   \def\breaklabel{%
+       \def\@breaklabel{%
+           \leavevmode\par
+           % now a hack because Sphinx inserts \leavevmode after term node
+           \def\leavevmode{\def\leavevmode{\unhbox\voidb@x}}%
+      }%
+   }
+   \makeatother
 """
+# Sphinx 1.5 provides this to avoid "too deeply nested" LaTeX error
+# and usage of "enumitem" LaTeX package is unneeded.
+# Value can be increased but do not set it to something such as 2048
+# which needlessly would trigger creation of thousands of TeX macros
+latex_elements['maxlistdepth'] = '10'
 latex_elements['pointsize'] = '11pt'
 
 # Documents to append as an appendix to all manuals.
