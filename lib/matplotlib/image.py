@@ -1167,7 +1167,6 @@ class PcolorImage(AxesImage):
         l, b, r, t = self.axes.bbox.extents
         width = (round(r) + 0.5) - (round(l) - 0.5)
         height = (round(t) + 0.5) - (round(b) - 0.5)
-        # The extra cast-to-int is only needed for python2
         width = int(round(width * magnification))
         height = int(round(height * magnification))
         if self._rgbacache is None:
