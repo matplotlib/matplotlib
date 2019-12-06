@@ -475,7 +475,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        offsets : array-like (N, 2) or (2, )
+        offsets : array-like (N, 2) or (2,)
         """
         offsets = np.asanyarray(offsets, float)
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
