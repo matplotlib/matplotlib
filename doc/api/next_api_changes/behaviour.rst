@@ -117,3 +117,8 @@ through it.
 This behavior is consistent with other figure saving methods
 (`.FigureCanvasAgg.print_png`, `.FigureCanvasPdf.print_pdf`,
 `.FigureCanvasSVG.print_svg`).
+
+`.pyplot.subplot()` now raises TypeError when given an incorrect number of arguments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is consistent with other signature mismatch errors.  Previously a
+ValueError was raised.
