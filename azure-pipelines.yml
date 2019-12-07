@@ -49,7 +49,6 @@ steps:
 - bash: |
     case "$(python -c 'import sys; print(sys.platform)')" in
     linux)
-      sudo apt-add-repository ppa:jonathonf/ffmpeg-3
       sudo apt-get update
       sudo apt-get install \
         cm-super \
