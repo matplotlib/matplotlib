@@ -1365,29 +1365,24 @@ def xticks(ticks=None, labels=None, **kwargs):
     """
     Get or set the current tick locations and labels of the x-axis.
 
-    Call signatures::
-
-        locs, labels = xticks()            # Get locations and labels
-        xticks(ticks, [labels], **kwargs)  # Set locations and labels
+    Pass no arguments to return the current values without modifying them.
 
     Parameters
     ----------
-    ticks : array-like
-        A list of positions at which ticks should be placed. You can pass an
-        empty list to disable xticks.
-
+    ticks : array-like, optional
+        The list of xtick locations.  Passing an empty list removes all xticks.
     labels : array-like, optional
-        A list of explicit labels to place at the given *locs*.
-
+        The labels to place at the given *ticks* locations.  This argument can
+        only be passed if *ticks* is passed as well.
     **kwargs
         `.Text` properties can be used to control the appearance of the labels.
 
     Returns
     -------
     locs
-        An array of label locations.
+        The list of xtick locations.
     labels
-        A list of `.Text` objects.
+        The list of xlabel `.Text` objects.
 
     Notes
     -----
@@ -1399,25 +1394,12 @@ def xticks(ticks=None, labels=None, **kwargs):
 
     Examples
     --------
-    Get the current locations and labels:
-
-        >>> locs, labels = xticks()
-
-    Set label locations:
-
-        >>> xticks(np.arange(0, 1, step=0.2))
-
-    Set text labels:
-
-        >>> xticks(np.arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue'))
-
-    Set text labels and properties:
-
-        >>> xticks(np.arange(12), calendar.month_name[1:13], rotation=20)
-
-    Disable xticks:
-
-        >>> xticks([])
+    >>> locs, labels = xticks()  # Get the current locations and labels.
+    >>> xticks(np.arange(0, 1, step=0.2))  # Set label locations.
+    >>> xticks(np.arange(3), ['Tom', 'Dick', 'Sue'])  # Set text labels.
+    >>> xticks([0, 1, 2], ['January', 'February', 'March'],
+    ...        rotation=20)  # Set text labels and properties.
+    >>> xticks([])  # Disable xticks.
     """
     ax = gca()
 
@@ -1440,29 +1422,24 @@ def yticks(ticks=None, labels=None, **kwargs):
     """
     Get or set the current tick locations and labels of the y-axis.
 
-    Call signatures::
-
-        locs, labels = yticks()            # Get locations and labels
-        yticks(ticks, [labels], **kwargs)  # Set locations and labels
+    Pass no arguments to return the current values without modifying them.
 
     Parameters
     ----------
-    ticks : array-like
-        A list of positions at which ticks should be placed. You can pass an
-        empty list to disable yticks.
-
+    ticks : array-like, optional
+        The list of xtick locations.  Passing an empty list removes all xticks.
     labels : array-like, optional
-        A list of explicit labels to place at the given *locs*.
-
+        The labels to place at the given *ticks* locations.  This argument can
+        only be passed if *ticks* is passed as well.
     **kwargs
         `.Text` properties can be used to control the appearance of the labels.
 
     Returns
     -------
     locs
-        An array of label locations.
+        The list of ytick locations.
     labels
-        A list of `.Text` objects.
+        The list of ylabel `.Text` objects.
 
     Notes
     -----
@@ -1474,25 +1451,12 @@ def yticks(ticks=None, labels=None, **kwargs):
 
     Examples
     --------
-    Get the current locations and labels:
-
-        >>> locs, labels = yticks()
-
-    Set label locations:
-
-        >>> yticks(np.arange(0, 1, step=0.2))
-
-    Set text labels:
-
-        >>> yticks(np.arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue'))
-
-    Set text labels and properties:
-
-        >>> yticks(np.arange(12), calendar.month_name[1:13], rotation=45)
-
-    Disable yticks:
-
-        >>> yticks([])
+    >>> locs, labels = yticks()  # Get the current locations and labels.
+    >>> yticks(np.arange(0, 1, step=0.2))  # Set label locations.
+    >>> yticks(np.arange(3), ['Tom', 'Dick', 'Sue'])  # Set text labels.
+    >>> yticks([0, 1, 2], ['January', 'February', 'March'],
+    ...        rotation=45)  # Set text labels and properties.
+    >>> yticks([])  # Disable yticks.
     """
     ax = gca()
 
