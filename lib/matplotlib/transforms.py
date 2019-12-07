@@ -2781,16 +2781,16 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     ----------
     vmin, vmax : float
         The initial endpoints.
-    expander : float, optional, default: 0.001
+    expander : float, default: 0.001
         Fractional amount by which *vmin* and *vmax* are expanded if
         the original interval is too small, based on *tiny*.
-    tiny : float, optional, default: 1e-15
+    tiny : float, default: 1e-15
         Threshold for the ratio of the interval to the maximum absolute
         value of its endpoints.  If the interval is smaller than
         this, it will be expanded.  This value should be around
         1e-15 or larger; otherwise the interval will be approaching
         the double precision resolution limit.
-    increasing : bool, optional, default: True
+    increasing : bool, default: True
         If True, swap *vmin*, *vmax* if *vmin* > *vmax*.
 
     Returns
@@ -2904,11 +2904,11 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     ----------
     trans : :class:`Transform` instance
         Any transform, to which offset will be applied.
-    fig : :class:`~matplotlib.figure.Figure`, optional, default: None
+    fig : :class:`~matplotlib.figure.Figure`, default: None
         Current figure. It can be None if *units* are 'dots'.
-    x, y : float, optional, default: 0.0
+    x, y : float, default: 0.0
         The offset to apply.
-    units : {'inches', 'points', 'dots'}, optional
+    units : {'inches', 'points', 'dots'}, default: 'inches'
         Units of the offset.
 
     Returns

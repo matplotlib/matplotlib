@@ -77,10 +77,10 @@ class UniformTriRefiner(TriRefiner):
 
         Parameters
         ----------
-        return_tri_index : bool, optional, default: False
+        return_tri_index : bool, default: False
             Whether an index table indicating the father triangle index of each
             point will be returned.
-        subdiv : int, optional, default: 3
+        subdiv : int, default: 3
             Recursion level for the subdivision.
             Each triangle will be divided into ``4**subdiv`` child triangles.
 
@@ -149,7 +149,7 @@ class UniformTriRefiner(TriRefiner):
             Interpolator used for field interpolation. If not specified,
             a :class:`~matplotlib.tri.CubicTriInterpolator` will
             be used.
-        subdiv : int, optional, default: 3
+        subdiv : int, default: 3
             Recursion level for the subdivision.
             Each triangle will be divided into ``4**subdiv`` child triangles.
 

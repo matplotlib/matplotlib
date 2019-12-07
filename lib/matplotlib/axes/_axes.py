@@ -1771,7 +1771,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        basex, basey : scalar, optional, default 10
+        basex, basey : float, default: 10
             Base of the x/y logarithm.
 
         subsx, subsy : sequence, optional
@@ -1780,7 +1780,7 @@ class Axes(_AxesBase):
             decades in the plot.
             See `.Axes.set_xscale` / `.Axes.set_yscale` for details.
 
-        nonposx, nonposy : {'mask', 'clip'}, optional, default 'mask'
+        nonposx, nonposy : {'mask', 'clip'}, default: 'mask'
             Non-positive values in x or y can be masked as invalid, or clipped
             to a very small positive number.
 
@@ -1825,7 +1825,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        basex : scalar, optional, default 10
+        basex : float, default: 10
             Base of the x logarithm.
 
         subsx : array-like, optional
@@ -1833,7 +1833,7 @@ class Axes(_AxesBase):
             are automatically chosen depending on the number of decades in the
             plot. See `.Axes.set_xscale` for details.
 
-        nonposx : {'mask', 'clip'}, optional, default 'mask'
+        nonposx : {'mask', 'clip'}, default: 'mask'
             Non-positive values in x can be masked as invalid, or clipped to a
             very small positive number.
 
@@ -1874,7 +1874,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        basey : scalar, optional, default 10
+        basey : float, default: 10
             Base of the y logarithm.
 
         subsy : array-like, optional
@@ -1882,7 +1882,7 @@ class Axes(_AxesBase):
             are automatically chosen depending on the number of decades in the
             plot. See `.Axes.set_yscale` for details.
 
-        nonposy : {'mask', 'clip'}, optional, default 'mask'
+        nonposy : {'mask', 'clip'}, default: 'mask'
             Non-positive values in y can be masked as invalid, or clipped to a
             very small positive number.
 

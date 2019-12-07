@@ -64,7 +64,7 @@ class ContourLabeler:
             A list of level values, that should be labeled. The list must be
             a subset of ``cs.levels``. If not given, all levels are labeled.
 
-        fontsize : str or float, optional
+        fontsize : str or float, default: :rc:`font.size`
             Size in points or relative size e.g., 'smaller', 'x-large'.
             See `.Text.set_size` for accepted string values.
 
@@ -80,17 +80,17 @@ class ContourLabeler:
             - If a tuple of colors (string, float, rgb, etc), different labels
               will be plotted in different colors in the order specified.
 
-        inline : bool, optional, default: True
+        inline : bool, default: True
             If ``True`` the underlying contour is removed where the label is
             placed.
 
-        inline_spacing : float, optional, default: 5
+        inline_spacing : float, default: 5
             Space in pixels to leave on each side of label when placing inline.
 
             This spacing will be exact for labels at locations where the
             contour is straight, less so for labels on curved contours.
 
-        fmt : str or dict, optional, default: '%1.3f'
+        fmt : str or dict, default: '%1.3f'
             A format string for the label.
 
             Alternatively, this can be a dictionary matching contour levels
@@ -114,11 +114,11 @@ class ContourLabeler:
             Contour labels will be created as if mouse is clicked at each
             (x, y) position.
 
-        rightside_up : bool, optional, default: True
+        rightside_up : bool, default: True
             If ``True``, label rotations will always be plus
             or minus 90 degrees from level.
 
-        use_clabeltext : bool, optional, default: False
+        use_clabeltext : bool, default: False
             If ``True``, `.ClabelText` class (instead of `.Text`) is used to
             create labels. `ClabelText` recalculates rotation angles
             of texts during the drawing time, therefore this can be used if
@@ -461,10 +461,10 @@ class ContourLabeler:
         x, y : float
             The approximate location of the label.
 
-        inline : bool, optional, default: True
+        inline : bool, default: True
             If *True* remove the segment of the contour beneath the label.
 
-        inline_spacing : int, optional, default: 5
+        inline_spacing : int, default: 5
             Space in pixels to leave on each side of label when placing
             inline. This spacing will be exact for labels at locations where
             the contour is straight, less so for labels on curved contours.
@@ -1686,8 +1686,7 @@ class QuadContourSet(ContourSet):
             are not given explicitly via *levels*.
             Defaults to `~.ticker.MaxNLocator`.
 
-        extend : {'neither', 'both', 'min', 'max'}, optional, default: \
-'neither'
+        extend : {'neither', 'both', 'min', 'max'}, default: 'neither'
             Determines the ``contourf``-coloring of values that are outside the
             *levels* range.
 

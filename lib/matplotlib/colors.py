@@ -1602,10 +1602,10 @@ class LightSource:
 
         Parameters
         ----------
-        azdeg : float, optional, default: 315 degrees (from the northwest)
+        azdeg : float, default: 315 degrees (from the northwest)
             The azimuth (0-360, degrees clockwise from North) of the light
             source.
-        altdeg : float, optional, default: 45 degrees
+        altdeg : float, default: 45 degrees
             The altitude (0-90, degrees up from horizontal) of the light
             source.
 

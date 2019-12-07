@@ -379,7 +379,7 @@ class TextPath(Path):
         _interpolation_steps : int, optional
             (Currently ignored)
 
-        usetex : bool, optional, default: False
+        usetex : bool, default: False
             Whether to use tex rendering.
 
         Examples

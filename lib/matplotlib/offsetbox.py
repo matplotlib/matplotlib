@@ -791,7 +791,7 @@ class TextArea(OffsetBox):
         s : str
             a string to be displayed.
 
-        textprops : dictionary, optional, default: None
+        textprops : dict, optional
             Dictionary of keyword parameters to be passed to the
             `~matplotlib.text.Text` instance contained inside TextArea.
 
@@ -1291,7 +1291,7 @@ class AnchoredText(AnchoredOffsetbox):
         borderpad : float, optional
             Pad between the frame and the axes (or *bbox_to_anchor*).
 
-        prop : dictionary, optional, default: None
+        prop : dict, optional
             Dictionary of keyword parameters to be passed to the
             `~matplotlib.text.Text` instance contained inside AnchoredText.
 

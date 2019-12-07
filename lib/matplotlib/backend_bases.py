@@ -3170,7 +3170,7 @@ class ToolContainerBase:
             The tool to add, see `ToolManager.get_tool`.
         group : str
             The name of the group to add this tool to.
-        position : int, optional, default: -1
+        position : int, default: -1
             The position within the group to place this tool.
         """
         tool = self.toolmanager.get_tool(tool)

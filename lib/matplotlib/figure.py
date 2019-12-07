@@ -1027,7 +1027,7 @@ default: 'top'
             The artist to add to the figure. If the added artist has no
             transform previously set, its transform will be set to
             ``figure.transFigure``.
-        clip : bool, optional, default: False
+        clip : bool, default: False
             Whether the added artist should be clipped by the figure patch.
 
         Returns
@@ -1414,7 +1414,7 @@ default: 'top'
 
         Parameters
         ----------
-        nrows, ncols : int, optional, default: 1
+        nrows, ncols : int, default: 1
             Number of rows/columns of the subplot grid.
 
         sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
@@ -1432,7 +1432,7 @@ default: 'top'
             first column subplot are created. To later turn other subplots'
             ticklabels on, use `~matplotlib.axes.Axes.tick_params`.
 
-        squeeze : bool, optional, default: True
+        squeeze : bool, default: True
             - If True, extra dimensions are squeezed out from the returned
               array of Axes:
 
@@ -1841,12 +1841,13 @@ default: 'top'
         s : str
             The text string.
 
-        fontdict : dictionary, optional, default: None
-            A dictionary to override the default text properties. If fontdict
-            is None, the defaults are determined by your rc parameters. A
-            property in *kwargs* override the same property in fontdict.
+        fontdict : dict, optional
+            A dictionary to override the default text properties. If not given,
+            the defaults are determined by your rc parameters. Properties
+            passed as *kwargs* override the corresponding ones given in
+            *fontdict*.
 
-        withdash : boolean, optional, default: False
+        withdash : bool, default: False
             Creates a `~matplotlib.text.TextWithDash` instance instead of a
             `~matplotlib.text.Text` instance.
 
@@ -2298,19 +2299,19 @@ default: 'top'
 
         Parameters
         ----------
-        n : int, optional, default: 1
+        n : int, default: 1
             Number of mouse clicks to accumulate. If negative, accumulate
             clicks until the input is terminated manually.
-        timeout : scalar, optional, default: 30
+        timeout : scalar, default: 30 seconds
             Number of seconds to wait before timing out. If zero or negative
             will never timeout.
-        show_clicks : bool, optional, default: True
+        show_clicks : bool, default: True
             If True, show a red cross at the location of each click.
-        mouse_add : {1, 2, 3, None}, optional, default: 1 (left click)
+        mouse_add : {1, 2, 3, None}, default: 1 (left click)
             Mouse button used to add points.
-        mouse_pop : {1, 2, 3, None}, optional, default: 3 (right click)
+        mouse_pop : {1, 2, 3, None}, default: 3 (right click)
             Mouse button used to remove the most recently added point.
-        mouse_stop : {1, 2, 3, None}, optional, default: 2 (middle click)
+        mouse_stop : {1, 2, 3, None}, default: 2 (middle click)
             Mouse button used to stop input.
 
         Returns
