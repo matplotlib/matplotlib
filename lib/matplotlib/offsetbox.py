@@ -91,8 +91,8 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     offsets : array of float
         The left offsets of the boxes.
     """
-    w_list, d_list = zip(*wd_list)
-    # d_list is currently not used.
+    w_list, d_list = zip(*wd_list)  # d_list is currently not used.
+    cbook._check_in_list(["fixed", "expand", "equal"], mode=mode)
 
     if mode == "fixed":
         offsets_ = np.cumsum([0] + [w + sep for w in w_list])
@@ -119,15 +119,12 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
         if total is None:
             if sep is None:
                 raise ValueError("total and sep cannot both be None when "
-                                 "using layout mode 'equal'.")
+                                 "using layout mode 'equal'")
             total = (maxh + sep) * len(w_list)
         else:
             sep = total / len(w_list) - maxh
         offsets = (maxh + sep) * np.arange(len(w_list))
         return total, offsets
-
-    else:
-        raise ValueError("Unknown mode : %s" % (mode,))
 
 
 def _get_aligned_offsets(hd_list, height, align="baseline"):
@@ -146,6 +143,8 @@ def _get_aligned_offsets(hd_list, height, align="baseline"):
 
     if height is None:
         height = max(h for h, d in hd_list)
+    cbook._check_in_list(
+        ["baseline", "left", "top", "right", "bottom", "center"], align=align)
 
     if align == "baseline":
         height_descent = max(h - d for h, d in hd_list)
@@ -161,8 +160,6 @@ def _get_aligned_offsets(hd_list, height, align="baseline"):
     elif align == "center":
         descent = 0.
         offsets = [(height - h) * .5 + d for h, d in hd_list]
-    else:
-        raise ValueError("Unknown Align mode : %s" % (align,))
 
     return height, descent, offsets
 
