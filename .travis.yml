@@ -21,8 +21,6 @@ addons:
     paths:
     - result_images.tar.bz2
   apt:
-    sources:
-      - sourceline: ppa:jonathonf/ffmpeg-3
     packages:
       - cm-super
       - dvipng
