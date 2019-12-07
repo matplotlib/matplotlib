@@ -93,7 +93,6 @@ class Axes3D(Axes):
         # inhibit autoscale_view until the axes are defined
         # they can't be defined until Axes.__init__ has been called
         self.view_init(self.initial_elev, self.initial_azim)
-        self._ready = 0
 
         self._sharez = sharez
         if sharez is not None:
@@ -116,7 +115,6 @@ class Axes3D(Axes):
         else:
             self._zcid = None
 
-        self._ready = 1
         self.mouse_init()
         self.set_top_view()
 
@@ -513,11 +511,7 @@ class Axes3D(Axes):
 
         .. versionchanged :: 1.2.1
             This is now fully functional.
-
         """
-        if not self._ready:
-            return
-
         # This method looks at the rectangular volume (see above)
         # of data and decides how to scale the view portal to fit it.
         if tight is None:
