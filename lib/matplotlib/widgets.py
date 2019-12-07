@@ -2453,15 +2453,12 @@ class LassoSelector(_SelectorWidget):
                  button=None):
         _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
                                  button=button)
-
         self.verts = None
-
         if lineprops is None:
             lineprops = dict()
-        if useblit:
-            lineprops['animated'] = True
+        # self.useblit may be != useblit, if the canvas doesn't support blit.
+        lineprops.update(animated=self.useblit, visible=False)
         self.line = Line2D([], [], **lineprops)
-        self.line.set_visible(False)
         self.ax.add_line(self.line)
         self.artists = [self.line]
 
