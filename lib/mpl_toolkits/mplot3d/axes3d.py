@@ -79,7 +79,6 @@ class Axes3D(Axes):
 
         if rect is None:
             rect = [0.0, 0.0, 1.0, 1.0]
-        self._cids = []
 
         self.initial_azim = azim
         self.initial_elev = elev
@@ -115,6 +114,12 @@ class Axes3D(Axes):
             self._zcid = None
 
         self.mouse_init()
+        self.figure.canvas.mpl_connect(
+            'motion_notify_event', self._on_move),
+        self.figure.canvas.mpl_connect(
+            'button_press_event', self._button_press),
+        self.figure.canvas.mpl_connect(
+            'button_release_event', self._button_release),
         self.set_top_view()
 
         self.patch.set_linewidth(0)
@@ -1004,8 +1009,7 @@ class Axes3D(Axes):
 
     def mouse_init(self, rotate_btn=1, zoom_btn=3):
         """
-        Initializes mouse button callbacks to enable 3D rotation of the axes.
-        Also optionally sets the mouse buttons for 3D rotation and zooming.
+        Set the mouse buttons for 3D rotation and zooming.
 
         Parameters
         ----------
@@ -1015,19 +1019,15 @@ class Axes3D(Axes):
             The mouse button or buttons to use to zoom the 3D axes.
         """
         self.button_pressed = None
-        self._cids = [
-            self.figure.canvas.mpl_connect(
-                'motion_notify_event', self._on_move),
-            self.figure.canvas.mpl_connect(
-                'button_press_event', self._button_press),
-            self.figure.canvas.mpl_connect(
-                'button_release_event', self._button_release),
-        ]
         # coerce scalars into array-like, then convert into
         # a regular list to avoid comparisons against None
         # which breaks in recent versions of numpy.
         self._rotate_btn = np.atleast_1d(rotate_btn).tolist()
         self._zoom_btn = np.atleast_1d(zoom_btn).tolist()
+
+    def disable_mouse_rotation(self):
+        """Disable mouse buttons for 3D rotation and zooming."""
+        self.mouse_init(rotate_btn=[], zoom_btn=[])
 
     def can_zoom(self):
         """
@@ -1068,13 +1068,6 @@ class Axes3D(Axes):
         self._zmargin = 0
 
         self.grid(rcParams['axes3d.grid'])
-
-    def disable_mouse_rotation(self):
-        """Disable mouse button callbacks."""
-        # Disconnect the various events we set.
-        for cid in self._cids:
-            self.figure.canvas.mpl_disconnect(cid)
-        self._cids = []
 
     def _button_press(self, event):
         if event.inaxes == self:
