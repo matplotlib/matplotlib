@@ -6276,8 +6276,8 @@ optional.
                 else:
                     dx = np.diff(x)
                     dy = np.diff(y)
-                    if (np.ptp(dx) < 0.01 * np.abs(dx.mean()) and
-                        np.ptp(dy) < 0.01 * np.abs(dy.mean())):
+                    if (np.ptp(dx) < 0.01 * abs(dx.mean()) and
+                        np.ptp(dy) < 0.01 * abs(dy.mean())):
                         style = "image"
                     else:
                         style = "pcolorimage"

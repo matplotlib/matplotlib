@@ -575,7 +575,7 @@ class ScalarFormatter(Formatter):
             return ''
         else:
             xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
-            if np.abs(xp) < 1e-8:
+            if abs(xp) < 1e-8:
                 xp = 0
             if self._useLocale:
                 s = locale.format_string(self.format, (xp,))
@@ -792,7 +792,7 @@ class ScalarFormatter(Formatter):
     @cbook.deprecated("3.1")
     def pprint_val(self, x):
         xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
-        if np.abs(xp) < 1e-8:
+        if abs(xp) < 1e-8:
             xp = 0
         if self._useLocale:
             return locale.format_string(self.format, (xp,))
@@ -1123,7 +1123,7 @@ class LogFormatterMathtext(LogFormatter):
         else:
             base = '%s' % b
 
-        if np.abs(fx) < min_exp:
+        if abs(fx) < min_exp:
             if usetex:
                 return r'${0}{1:g}$'.format(sign_string, x)
             else:
@@ -2269,7 +2269,7 @@ def is_decade(x, base=10, *, rtol=1e-10):
         return False
     if x == 0.0:
         return True
-    lx = np.log(np.abs(x)) / np.log(base)
+    lx = np.log(abs(x)) / np.log(base)
     return is_close_to_int(lx, atol=rtol)
 
 
@@ -2614,7 +2614,7 @@ class SymmetricalLogLocator(Locator):
         a_lo, a_hi = (0, 0)
         if has_a:
             a_upper_lim = min(-linthresh, vmax)
-            a_lo, a_hi = get_log_range(np.abs(a_upper_lim), np.abs(vmin) + 1)
+            a_lo, a_hi = get_log_range(abs(a_upper_lim), abs(vmin) + 1)
 
         c_lo, c_hi = (0, 0)
         if has_c:

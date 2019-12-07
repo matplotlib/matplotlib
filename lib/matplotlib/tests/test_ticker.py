@@ -1008,7 +1008,7 @@ class TestLogitFormatter:
                 x2 = 1 - float(fx[2:])
             else:
                 x2 = float(fx)
-            assert np.abs(x - x2) < 1 / N
+            assert abs(x - x2) < 1 / N
 
 
 class TestFormatStrFormatter:
