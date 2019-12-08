@@ -764,7 +764,7 @@ class GraphicsContextBase:
         return self._alpha
 
     def get_antialiased(self):
-        "Return whether the object should try to do antialiased rendering."
+        """Return whether the object should try to do antialiased rendering."""
         return self._antialiased
 
     def get_capstyle(self):
@@ -1434,7 +1434,7 @@ class MouseEvent(LocationEvent):
 
 class PickEvent(Event):
     """
-    a pick event, fired when the user picks a location on the canvas
+    A pick event, fired when the user picks a location on the canvas
     sufficiently close to an artist.
 
     Attrs: all the :class:`Event` attributes plus
@@ -1455,7 +1455,9 @@ class PickEvent(Event):
 
     Examples
     --------
-    ::
+    Bind a function ``on_pick()`` to pick events, that prints the coordinates
+    of the picked data point::
+
         ax.plot(np.rand(100), 'o', picker=5)  # 5 points tolerance
 
         def on_pick(event):
@@ -1551,8 +1553,6 @@ class FigureCanvasBase:
     """
     The canvas the figure renders into.
 
-    Public attributes
-
     Attributes
     ----------
     figure : `matplotlib.figure.Figure`
@@ -1643,7 +1643,7 @@ class FigureCanvasBase:
 
     def is_saving(self):
         """
-        Returns whether the renderer is in the process of saving
+        Return whether the renderer is in the process of saving
         to a file, rather than rendering for an on-screen buffer.
         """
         return self._is_saving
@@ -1711,8 +1711,10 @@ class FigureCanvasBase:
 
     def pick_event(self, mouseevent, artist, **kwargs):
         """
+        Callback processing for pick events.
+
         This method will be called by artists who are picked and will
-        fire off :class:`PickEvent` callbacks registered listeners
+        fire off :class:`PickEvent` callbacks registered listeners.
         """
         s = 'pick_event'
         event = PickEvent(s, self, mouseevent, artist,
@@ -1722,6 +1724,8 @@ class FigureCanvasBase:
 
     def scroll_event(self, x, y, step, guiEvent=None):
         """
+        Callback processing for scroll events.
+
         Backend derived classes should call this function on any
         scroll wheel event.  (*x*, *y*) are the canvas coords ((0, 0) is lower
         left).  button and key are as defined in MouseEvent.
@@ -1740,6 +1744,8 @@ class FigureCanvasBase:
 
     def button_press_event(self, x, y, button, dblclick=False, guiEvent=None):
         """
+        Callback processing for mouse button press events.
+
         Backend derived classes should call this function on any mouse
         button press.  (*x*, *y*) are the canvas coords ((0, 0) is lower left).
         button and key are as defined in :class:`MouseEvent`.
@@ -1755,6 +1761,8 @@ class FigureCanvasBase:
 
     def button_release_event(self, x, y, button, guiEvent=None):
         """
+        Callback processing for mouse button release events.
+
         Backend derived classes should call this function on any mouse
         button release.
 
@@ -1777,6 +1785,8 @@ class FigureCanvasBase:
 
     def motion_notify_event(self, x, y, guiEvent=None):
         """
+        Callback processing for mouse movement events.
+
         Backend derived classes should call this function on any
         motion-notify-event.
 
@@ -1800,8 +1810,10 @@ class FigureCanvasBase:
 
     def leave_notify_event(self, guiEvent=None):
         """
+        Callback processing for the mouse cursor leaving the canvas.
+
         Backend derived classes should call this function when leaving
-        canvas
+        canvas.
 
         Parameters
         ----------
@@ -1814,8 +1826,10 @@ class FigureCanvasBase:
 
     def enter_notify_event(self, guiEvent=None, xy=None):
         """
+        Callback processing for the mouse cursor entering the canvas.
+
         Backend derived classes should call this function when entering
-        canvas
+        canvas.
 
         Parameters
         ----------
@@ -1839,19 +1853,17 @@ class FigureCanvasBase:
 
     def inaxes(self, xy):
         """
-        Check if a point is in an axes.
+        Return the topmost `~.axes.Axes` containing the point *xy*.
 
         Parameters
         ----------
-        xy : tuple or list
-            (x, y) coordinates.
-            x position - pixels from left of canvas.
-            y position - pixels from bottom of canvas.
+        xy : (float, float)
+            (x, y) pixel positions from left/bottom of the canvas.
 
         Returns
         -------
-        axes: topmost axes containing the point, or None if no axes.
-
+        axes : `~matplotlib.axes.Axes` or None
+            The topmost axes containing the point, or None if no axes.
         """
         axes_list = [a for a in self.figure.get_axes()
                      if a.patch.contains_point(xy)]
@@ -1865,10 +1877,10 @@ class FigureCanvasBase:
 
     def grab_mouse(self, ax):
         """
-        Set the child axes which are currently grabbing the mouse events.
-        Usually called by the widgets themselves.
-        It is an error to call this if the mouse is already grabbed by
-        another axes.
+        Set the child `~.axes.Axes` which is grabbing the mouse events.
+
+        Usually called by the widgets themselves. It is an error to call this
+        if the mouse is already grabbed by another axes.
         """
         if self.mouse_grabber not in (None, ax):
             raise RuntimeError("Another Axes already grabs mouse input")
@@ -1876,10 +1888,10 @@ class FigureCanvasBase:
 
     def release_mouse(self, ax):
         """
-        Release the mouse grab held by the axes, ax.
-        Usually called by the widgets.
-        It is ok to call this even if you ax doesn't have the mouse
-        grab currently.
+        Release the mouse grab held by the `~.axes.Axes` *ax*.
+
+        Usually called by the widgets. It is ok to call this even if *ax*
+        doesn't have the mouse grab currently.
         """
         if self.mouse_grabber is ax:
             self.mouse_grabber = None
@@ -1914,7 +1926,7 @@ class FigureCanvasBase:
     def get_width_height(self):
         """
         Return the figure width and height in points or pixels
-        (depending on the backend), truncated to integers
+        (depending on the backend), truncated to integers.
         """
         return int(self.figure.bbox.width), int(self.figure.bbox.height)
 
@@ -2110,16 +2122,18 @@ class FigureCanvasBase:
     @classmethod
     def get_default_filetype(cls):
         """
-        Get the default savefig file format as specified in
-        :rc:`savefig.format`. Returned string excludes period. Overridden
-        in backends that only support a single file type.
+        Return the default savefig file format as specified in
+        :rc:`savefig.format`.
+
+        The returned string does not include a period. This method is
+        overridden in backends that only support a single file type.
         """
         return rcParams['savefig.format']
 
     def get_window_title(self):
         """
-        Get the title text of the window containing the figure.
-        Return None if there is no window (e.g., a PS backend).
+        Return the title text of the window containing the figure, or None
+        if there is no window (e.g., a PS backend).
         """
         if self.manager:
             return self.manager.get_window_title()
@@ -2594,9 +2608,8 @@ class FigureManagerBase:
 
     def get_window_title(self):
         """
-        Get the title text of the window containing the figure.
-
-        Return None for non-GUI (e.g., PS) backends.
+        Return the title text of the window containing the figure, or None
+        if there is no window (e.g., a PS backend).
         """
         return 'image'
 
@@ -3154,15 +3167,15 @@ class ToolContainerBase:
 
     def _tool_toggled_cbk(self, event):
         """
-        Captures the 'tool_trigger_[name]'
+        Capture the 'tool_trigger_[name]'
 
-        This only gets used for toggled tools
+        This only gets used for toggled tools.
         """
         self.toggle_toolitem(event.tool.name, event.tool.toggled)
 
     def add_tool(self, tool, group, position=-1):
         """
-        Adds a tool to this container
+        Add a tool to this container.
 
         Parameters
         ----------
@@ -3186,7 +3199,7 @@ class ToolContainerBase:
                 self.toggle_toolitem(tool.name, True)
 
     def _remove_tool_cbk(self, event):
-        """Captures the 'tool_removed_event' signal and removes the tool."""
+        """Capture the 'tool_removed_event' signal and removes the tool."""
         self.remove_toolitem(event.tool.name)
 
     def _get_image_filename(self, image):
@@ -3206,7 +3219,7 @@ class ToolContainerBase:
 
     def trigger_tool(self, name):
         """
-        Trigger the tool
+        Trigger the tool.
 
         Parameters
         ----------
@@ -3217,42 +3230,42 @@ class ToolContainerBase:
 
     def add_toolitem(self, name, group, position, image, description, toggle):
         """
-        Add a toolitem to the container
+        Add a toolitem to the container.
 
-        This method must get implemented per backend
+        This method must be implemented per backend.
 
         The callback associated with the button click event,
-        must be **EXACTLY** `self.trigger_tool(name)`
+        must be *exactly* ``self.trigger_tool(name)``.
 
         Parameters
         ----------
         name : str
             Name of the tool to add, this gets used as the tool's ID and as the
-            default label of the buttons
-        group : String
-            Name of the group that this tool belongs to
-        position : Int
-            Position of the tool within its group, if -1 it goes at the End
-        image_file : String
-            Filename of the image for the button or `None`
-        description : String
-            Description of the tool, used for the tooltips
-        toggle : Bool
+            default label of the buttons.
+        group : str
+            Name of the group that this tool belongs to.
+        position : int
+            Position of the tool within its group, if -1 it goes at the end.
+        image_file : str
+            Filename of the image for the button or `None`.
+        description : str
+            Description of the tool, used for the tooltips.
+        toggle : bool
             * `True` : The button is a toggle (change the pressed/unpressed
-              state between consecutive clicks)
+              state between consecutive clicks).
             * `False` : The button is a normal button (returns to unpressed
-              state after release)
+              state after release).
         """
         raise NotImplementedError
 
     def toggle_toolitem(self, name, toggled):
         """
-        Toggle the toolitem without firing event
+        Toggle the toolitem without firing event.
 
         Parameters
         ----------
-        name : String
-            Id of the tool to toggle
+        name : str
+            Id of the tool to toggle.
         toggled : bool
             Whether to set this tool as toggled or not.
         """
