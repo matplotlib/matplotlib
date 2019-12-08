@@ -155,15 +155,14 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        text : :class:`~matplotlib.text.Text`
+        text : `.Text`
             The matplotlib text instance representing the title
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.text.Text` properties
-            Other keyword arguments are text properties, see
-            :class:`~matplotlib.text.Text` for a list of valid text
-            properties.
+        **kwargs : `.Text` properties
+            Other keyword arguments are text properties, see `.Text` for a list
+            of valid text properties.
         """
         if loc is None:
             loc = rcParams['axes.titlelocation']
@@ -912,13 +911,13 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        :class:`~matplotlib.lines.Line2D`
+        `.Line2D`
 
         Other Parameters
         ----------------
         **kwargs
-            Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
-            with the exception of 'transform':
+            Valid kwargs are `.Line2D` properties, with the exception of
+            'transform':
 
             %(_Line2D_docstr)s
 
@@ -1285,14 +1284,12 @@ class Axes(_AxesBase):
 
         **kwargs : optional
             Other keyword arguments are line collection properties.  See
-            :class:`~matplotlib.collections.LineCollection` for a list of
-            the valid properties.
+            `.LineCollection` for a list of the valid properties.
 
         Returns
         -------
-        list : A list of :class:`~.collections.EventCollection` objects.
-            Contains the :class:`~.collections.EventCollection` that
-            were added.
+        list : list of `.EventCollection`
+            The `.EventCollection` that were added.
 
         Notes
         -----
@@ -1961,7 +1958,7 @@ class Axes(_AxesBase):
 
         Notes
         -----
-        The cross correlation is performed with :func:`numpy.correlate` with
+        The cross correlation is performed with `numpy.correlate` with
         ``mode = "full"``.
         """
         return self.xcorr(x, x, **kwargs)
@@ -2031,7 +2028,7 @@ class Axes(_AxesBase):
 
         Notes
         -----
-        The cross correlation is performed with :func:`numpy.correlate` with
+        The cross correlation is performed with `numpy.correlate` with
         ``mode = "full"``.
         """
         Nx = len(x)
@@ -2597,7 +2594,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs : :class:`.BrokenBarHCollection` properties
+        **kwargs : `.BrokenBarHCollection` properties
 
             Each *kwarg* can be either a single argument applying to all
             rectangles, e.g.::
@@ -2616,7 +2613,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        collection : A :class:`~.collections.BrokenBarHCollection`
+        collection : `~.collections.BrokenBarHCollection`
         """
         # process the unit information
         if len(xranges):
@@ -2716,7 +2713,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        container : :class:`~matplotlib.container.StemContainer`
+        container : `.StemContainer`
             The container may be treated like a tuple
             (*markerline*, *stemlines*, *baseline*)
 
@@ -2908,15 +2905,14 @@ class Axes(_AxesBase):
         Returns
         -------
         patches : list
-            A sequence of :class:`matplotlib.patches.Wedge` instances
+            A sequence of `matplotlib.patches.Wedge` instances
 
         texts : list
-            A list of the label :class:`matplotlib.text.Text` instances.
+            A list of the label `.Text` instances.
 
         autotexts : list
-            A list of :class:`~matplotlib.text.Text` instances for the numeric
-            labels. This will only be returned if the parameter *autopct* is
-            not *None*.
+            A list of `.Text` instances for the numeric labels. This will only
+            be returned if the parameter *autopct* is not *None*.
 
         Notes
         -----
@@ -3141,14 +3137,13 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        container : :class:`~.container.ErrorbarContainer`
+        container : `.ErrorbarContainer`
             The container contains:
 
             - plotline: `.Line2D` instance of x, y plot markers and/or line.
             - caplines: A tuple of `.Line2D` instances of the error bar caps.
-            - barlinecols: A tuple of
-              :class:`~matplotlib.collections.LineCollection` with the
-              horizontal and vertical error ranges.
+            - barlinecols: A tuple of `.LineCollection` with the horizontal and
+              vertical error ranges.
 
         Other Parameters
         ----------------
@@ -5035,11 +5030,11 @@ optional.
 
         Returns
         -------
-        a list of :class:`~matplotlib.patches.Polygon`
+        list of `~matplotlib.patches.Polygon`
 
         Other Parameters
         ----------------
-        **kwargs : :class:`~matplotlib.patches.Polygon` properties
+        **kwargs : `~matplotlib.patches.Polygon` properties
 
         Notes
         -----
@@ -7015,16 +7010,14 @@ optional.
 
         See Also
         --------
-        :func:`specgram`
-            :func:`specgram` differs in the default overlap; in not returning
-            the mean of the segment periodograms; in returning the times of the
-            segments; and in plotting a colormap instead of a line.
-
-        :func:`magnitude_spectrum`
-            :func:`magnitude_spectrum` plots the magnitude spectrum.
-
-        :func:`csd`
-            :func:`csd` plots the spectral density between two signals.
+        specgram
+            Differs in the default overlap; in not returning the mean of the
+            segment periodograms; in returning the times of the segments; and
+            in plotting a colormap instead of a line.
+        magnitude_spectrum
+            Plots the magnitude spectrum.
+        csd
+            Plots the spectral density between two signals.
 
         Notes
         -----
@@ -7132,8 +7125,7 @@ optional.
 
         See Also
         --------
-        :func:`psd`
-            :func:`psd` is the equivalent to setting y=x.
+        psd : is equivalent to setting ``y = x``.
 
         Notes
         -----
@@ -7224,21 +7216,15 @@ optional.
 
         See Also
         --------
-        :func:`psd`
-            :func:`psd` plots the power spectral density.`.
-
-        :func:`angle_spectrum`
-            :func:`angle_spectrum` plots the angles of the corresponding
-            frequencies.
-
-        :func:`phase_spectrum`
-            :func:`phase_spectrum` plots the phase (unwrapped angle) of the
-            corresponding frequencies.
-
-        :func:`specgram`
-            :func:`specgram` can plot the magnitude spectrum of segments within
-            the signal in a colormap.
-
+        psd
+            Plots the power spectral density.
+        angle_spectrum
+            Plots the angles of the corresponding frequencies.
+        phase_spectrum
+            Plots the phase (unwrapped angle) of the corresponding frequencies.
+        specgram
+            Can plot the magnitude spectrum of segments within the signal in a
+            colormap.
         """
         if Fc is None:
             Fc = 0
@@ -7308,18 +7294,13 @@ optional.
 
         See Also
         --------
-        :func:`magnitude_spectrum`
-            :func:`angle_spectrum` plots the magnitudes of the corresponding
-            frequencies.
-
-        :func:`phase_spectrum`
-            :func:`phase_spectrum` plots the unwrapped version of this
-            function.
-
-        :func:`specgram`
-            :func:`specgram` can plot the angle spectrum of segments within the
-            signal in a colormap.
-
+        magnitude_spectrum
+            Plots the magnitudes of the corresponding frequencies.
+        phase_spectrum
+            Plots the unwrapped version of this function.
+        specgram
+            Can plot the angle spectrum of segments within the signal in a
+            colormap.
         """
         if Fc is None:
             Fc = 0
@@ -7380,17 +7361,13 @@ optional.
 
         See Also
         --------
-        :func:`magnitude_spectrum`
-            :func:`magnitude_spectrum` plots the magnitudes of the
-            corresponding frequencies.
-
-        :func:`angle_spectrum`
-            :func:`angle_spectrum` plots the wrapped version of this function.
-
-        :func:`specgram`
-            :func:`specgram` can plot the phase spectrum of segments within the
-            signal in a colormap.
-
+        magnitude_spectrum
+            Plots the magnitudes of the corresponding frequencies.
+        angle_spectrum
+            Plots the wrapped version of this function.
+        specgram
+            Can plot the phase spectrum of segments within the signal in a
+            colormap.
         """
         if Fc is None:
             Fc = 0
@@ -7519,9 +7496,7 @@ optional.
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        cmap
-            A :class:`matplotlib.colors.Colormap` instance; if *None*, use
-            default determined by rc
+        cmap : `.Colormap`, default: :rc:`image.cmap`
 
         xextent : *None* or (xmin, xmax)
             The image extent along the x-axis. The default sets *xmin* to the
@@ -7545,25 +7520,22 @@ optional.
             The times corresponding to midpoints of segments (i.e., the columns
             in *spectrum*).
 
-        im : instance of class :class:`~matplotlib.image.AxesImage`
-            The image created by imshow containing the spectrogram
+        im : instance of class `.AxesImage`
+            The image created by imshow containing the spectrogram.
 
         See Also
         --------
-        :func:`psd`
-            :func:`psd` differs in the default overlap; in returning the mean
-            of the segment periodograms; in not returning times; and in
-            generating a line plot instead of colormap.
-
-        :func:`magnitude_spectrum`
+        psd
+            Differs in the default overlap; in returning the mean of the
+            segment periodograms; in not returning times; and in generating a
+            line plot instead of colormap.
+        magnitude_spectrum
             A single spectrum, similar to having a single segment when *mode*
             is 'magnitude'. Plots a line instead of a colormap.
-
-        :func:`angle_spectrum`
+        angle_spectrum
             A single spectrum, similar to having a single segment when *mode*
             is 'angle'. Plots a line instead of a colormap.
-
-        :func:`phase_spectrum`
+        phase_spectrum
             A single spectrum, similar to having a single segment when *mode*
             is 'phase'. Plots a line instead of a colormap.
 
@@ -7655,7 +7627,7 @@ optional.
             If *precision* is 0, any non-zero value will be plotted. Otherwise,
             values of :math:`|Z| > precision` will be plotted.
 
-            For :class:`scipy.sparse.spmatrix` instances, you can also
+            For `scipy.sparse.spmatrix` instances, you can also
             pass 'present'. In this case any value present in the array
             will be plotted, even if it is identically zero.
 
