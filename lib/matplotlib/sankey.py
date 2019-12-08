@@ -463,7 +463,7 @@ class Sankey:
             raise ValueError(
                 "'trunklength' is negative, which is not allowed because it "
                 "would cause poor layout")
-        if np.abs(np.sum(flows)) > self.tolerance:
+        if abs(np.sum(flows)) > self.tolerance:
             _log.info("The sum of the flows is nonzero (%f; patchlabel=%r); "
                       "is the system not at steady state?",
                       np.sum(flows), patchlabel)

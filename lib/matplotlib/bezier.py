@@ -34,7 +34,7 @@ def get_intersection(cx1, cy1, cos_t1, sin_t1,
     c, d = sin_t2, -cos_t2
 
     ad_bc = a * d - b * c
-    if np.abs(ad_bc) < 1.0e-12:
+    if abs(ad_bc) < 1e-12:
         raise ValueError("Given lines do not intersect. Please verify that "
                          "the angles are not equal or differ by 180 degrees.")
 
@@ -368,10 +368,10 @@ def check_if_parallel(dx1, dy1, dx2, dy2, tolerance=1.e-5):
     """
     theta1 = np.arctan2(dx1, dy1)
     theta2 = np.arctan2(dx2, dy2)
-    dtheta = np.abs(theta1 - theta2)
+    dtheta = abs(theta1 - theta2)
     if dtheta < tolerance:
         return 1
-    elif np.abs(dtheta - np.pi) < tolerance:
+    elif abs(dtheta - np.pi) < tolerance:
         return -1
     else:
         return False
