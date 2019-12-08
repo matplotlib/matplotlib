@@ -27,7 +27,7 @@ label                       any string
 linespacing                 `float`
 multialignment              [``'left'`` | ``'right'`` | ``'center'`` ]
 name or fontname            string e.g., [``'Sans'`` | ``'Courier'`` | ``'Helvetica'`` ...]
-picker                      [None|float|boolean|callable]
+picker                      [None|float|bool|callable]
 position                    (x, y)
 rotation                    [ angle in degrees | ``'vertical'`` | ``'horizontal'`` ]
 size or fontsize            [ size in points | relative size, e.g., ``'smaller'``, ``'x-large'`` ]
