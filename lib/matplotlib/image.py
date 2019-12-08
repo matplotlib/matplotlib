@@ -1357,11 +1357,6 @@ class BboxImage(_ImageBase):
         self._interp_at_native = interp_at_native
         self._transform = IdentityTransform()
 
-    @cbook.deprecated("3.1")
-    @property
-    def interp_at_native(self):
-        return self._interp_at_native
-
     def get_transform(self):
         return self._transform
 

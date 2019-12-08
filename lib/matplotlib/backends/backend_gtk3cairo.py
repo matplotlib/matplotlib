@@ -38,11 +38,6 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
             self._render_figure(allocation.width, allocation.height)
 
 
-@cbook.deprecated("3.1", alternative="backend_gtk3.FigureManagerGTK3")
-class FigureManagerGTK3Cairo(backend_gtk3.FigureManagerGTK3):
-    pass
-
-
 @_BackendGTK3.export
 class _BackendGTK3Cairo(_BackendGTK3):
     FigureCanvas = FigureCanvasGTK3Cairo

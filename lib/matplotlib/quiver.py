@@ -528,21 +528,6 @@ class Quiver(mcollections.PolyCollection):
         self._cid = self.ax.figure.callbacks.connect('dpi_changed',
                                                      on_dpi_change)
 
-    @cbook.deprecated("3.1", alternative="get_facecolor()")
-    @property
-    def color(self):
-        return self.get_facecolor()
-
-    @cbook.deprecated("3.1")
-    @property
-    def keyvec(self):
-        return None
-
-    @cbook.deprecated("3.1")
-    @property
-    def keytext(self):
-        return None
-
     def remove(self):
         """
         Overload the remove method

@@ -639,11 +639,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         except Exception as e:
             tkinter.messagebox.showerror("Error saving file", str(e))
 
-    @cbook.deprecated("3.1")
-    def set_active(self, ind):
-        self._ind = ind
-        self._active = [self._axes[i] for i in self._ind]
-
     def update(self):
         self._axes = self.canvas.figure.axes
         with _restore_foreground_window_at_end():

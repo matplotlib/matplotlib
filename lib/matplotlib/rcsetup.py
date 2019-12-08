@@ -248,20 +248,6 @@ def validate_backend(s):
     return backend
 
 
-@cbook.deprecated("3.1")
-def validate_qt4(s):
-    if s is None:
-        return None
-    return ValidateInStrings("backend.qt4", ['PyQt4', 'PySide', 'PyQt4v2'])(s)
-
-
-@cbook.deprecated("3.1")
-def validate_qt5(s):
-    if s is None:
-        return None
-    return ValidateInStrings("backend.qt5", ['PyQt5', 'PySide2'])(s)
-
-
 validate_toolbar = ValidateInStrings(
     'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True)
 
@@ -444,11 +430,6 @@ _validate_alignment = ValidateInStrings(
 _validate_verbose = ValidateInStrings(
     'verbose',
     ['silent', 'helpful', 'debug', 'debug-annoying'])
-
-
-@cbook.deprecated("3.1")
-def validate_verbose(s):
-    return _validate_verbose(s)
 
 
 def validate_whiskers(s):
@@ -665,39 +646,6 @@ def validate_sketch(s):
     if len(result) != 3:
         raise ValueError("path.sketch must be a tuple (scale, length, randomness)")
     return result
-
-
-@cbook.deprecated("3.1")
-class ValidateInterval:
-    """
-    Value must be in interval
-    """
-    def __init__(self, vmin, vmax, closedmin=True, closedmax=True):
-        self.vmin = vmin
-        self.vmax = vmax
-        self.cmin = closedmin
-        self.cmax = closedmax
-
-    def __call__(self, s):
-        try:
-            s = float(s)
-        except ValueError:
-            raise RuntimeError('Value must be a float; found "%s"' % s)
-
-        if self.cmin and s < self.vmin:
-            raise RuntimeError('Value must be >= %f; found "%f"' %
-                               (self.vmin, s))
-        elif not self.cmin and s <= self.vmin:
-            raise RuntimeError('Value must be > %f; found "%f"' %
-                               (self.vmin, s))
-
-        if self.cmax and s > self.vmax:
-            raise RuntimeError('Value must be <= %f; found "%f"' %
-                               (self.vmax, s))
-        elif not self.cmax and s >= self.vmax:
-            raise RuntimeError('Value must be < %f; found "%f"' %
-                               (self.vmax, s))
-        return s
 
 
 def _validate_greaterequal0_lessthan1(s):

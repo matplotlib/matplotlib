@@ -318,47 +318,7 @@ class _ColorbarLogLocator(ticker.LogLocator):
         return ticks
 
 
-class _ColorbarMappableDummy:
-    """
-    Private class to hold deprecated ColorbarBase methods that used to be
-    inhereted from ScalarMappable.
-    """
-    @cbook.deprecated("3.1", alternative="ScalarMappable.set_norm")
-    def set_norm(self, norm):
-        """
-        `.colorbar.Colorbar.set_norm` does nothing; set the norm on
-        the mappable associated with this colorbar.
-        """
-        pass
-
-    @cbook.deprecated("3.1", alternative="ScalarMappable.set_cmap")
-    def set_cmap(self, cmap):
-        """
-        `.colorbar.Colorbar.set_cmap` does nothing; set the norm on
-        the mappable associated with this colorbar.
-        """
-        pass
-
-    @cbook.deprecated("3.1", alternative="ScalarMappable.set_clim")
-    def set_clim(self, vmin=None, vmax=None):
-        """
-        `.colorbar.Colorbar.set_clim` does nothing; set the limits on
-        the mappable associated with this colorbar.
-        """
-        pass
-
-    @cbook.deprecated("3.1", alternative="ScalarMappable.get_cmap")
-    def get_cmap(self):
-        """Return the colormap."""
-        return self.cmap
-
-    @cbook.deprecated("3.1", alternative="ScalarMappable.get_clim")
-    def get_clim(self):
-        """Return the min, max of the color limits for image scaling."""
-        return self.norm.vmin, self.norm.vmax
-
-
-class ColorbarBase(_ColorbarMappableDummy):
+class ColorbarBase:
     r"""
     Draw a colorbar in an existing axes.
 

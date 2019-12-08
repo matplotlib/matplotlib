@@ -224,34 +224,6 @@ def split_bezier_intersecting_with_closedpath(
     return _left, _right
 
 
-@cbook.deprecated("3.1")
-@cbook._rename_parameter("3.1", "tolerence", "tolerance")
-def find_r_to_boundary_of_closedpath(
-        inside_closedpath, xy, cos_t, sin_t, rmin=0., rmax=1., tolerance=0.01):
-    """
-    Find a radius r (centered at *xy*) between *rmin* and *rmax* at
-    which it intersect with the path.
-
-    Parameters
-    ----------
-    inside_closedpath : callable
-        A function returning True if a given point (x, y) is inside the
-        closed path.
-    xy : float, float
-        The center of the radius.
-    cos_t, sin_t : float
-        Cosine and sine for the angle.
-    rmin, rmax : float
-        Starting parameters for the radius search.
-    """
-    cx, cy = xy
-
-    def _f(r):
-        return cos_t * r + cx, sin_t * r + cy
-
-    find_bezier_t_intersecting_with_closedpath(
-        _f, inside_closedpath, t0=rmin, t1=rmax, tolerance=tolerance)
-
 # matplotlib specific
 
 

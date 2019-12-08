@@ -213,6 +213,6 @@ Configuration and rcParams
   other rcParams.
 
 * Removed call of :meth:`~matplotlib.axes.Axes.grid` in
-  :meth:`~matplotlib.pyplot.plotfile`. To draw the axes grid, set the
+  ``matplotlib.pyplot.plotfile``. To draw the axes grid, set the
   ``axes.grid`` rcParam to *True*, or explicitly call
   :meth:`~matplotlib.axes.Axes.grid`.
