@@ -90,9 +90,11 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     instance.  The *name* is optional; if absent, the name will
     be the :attr:`~matplotlib.colors.Colormap.name` attribute of the *cmap*.
 
-    In the second case, the three arguments are passed to
+    The second case is deprecated. Here, the three arguments are passed to
     the :class:`~matplotlib.colors.LinearSegmentedColormap` initializer,
-    and the resulting colormap is registered.
+    and the resulting colormap is registered. Instead of this implicit
+    colormap creation, create a `.LinearSegmentedColormap` and use the first
+    case: ``register_cmap(cmap=LinearSegmentedColormap(name, data, lut))``.
     """
     cbook._check_isinstance((str, None), name=name)
     if name is None:
@@ -103,6 +105,13 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     if isinstance(cmap, colors.Colormap):
         cmap_d[name] = cmap
         return
+    if lut is not None or data is not None:
+        cbook.warn_deprecated(
+            "3.3",
+            message="Passing raw data via parameters data and lut to "
+                    "register_cmap() is deprecated. Instead use: "
+                    "register_cmap("
+                    "cmap=LinearSegmentedColormap(name, data, lut))")
     # For the remainder, let exceptions propagate.
     if lut is None:
         lut = mpl.rcParams['image.lut']
