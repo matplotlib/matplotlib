@@ -426,15 +426,6 @@ precisely in the text.
 Generally, the `numpydoc docstring guide`_ conventions apply. The following
 rules expand on them where the numpydoc conventions are not specific.
 
-As opposed to the numpydoc guide, parameters need not be marked as
-*optional* if they have a simple default. This removes unnecessary clutter.
-The optional aspect is already clear from the presence of a default value.
-More specifically
-
-- use ``{name} : {type}, default: {val}`` when possible.
-- use ``{name} : {type}, optional`` and describe the default in the text if
-  in cannot be explained sufficiently in the above way.
-
 Use ``float`` for a type that can be any number.
 
 Use ``(float, float)`` to describe a 2D position. The parentheses should be
@@ -476,8 +467,50 @@ Use abbreviated links ```.Normalize``` in the text.
 
 .. code-block:: rst
 
-  norm : `~matplotlib.colors.Normalize`, optional
-     A `.Normalize` instance is used to scale luminance data to 0, 1.
+   norm : `~matplotlib.colors.Normalize`, optional
+        A `.Normalize` instance is used to scale luminance data to 0, 1.
+
+Default values
+~~~~~~~~~~~~~~
+As opposed to the numpydoc guide, parameters need not be marked as
+*optional* if they have a simple default:
+
+- use ``{name} : {type}, default: {val}`` when possible.
+- use ``{name} : {type}, optional`` and describe the default in the text if
+  it cannot be explained sufficiently in the recommended manner.
+
+The default value should provide semantic information targeted at a human
+reader. In simple cases, it restates the value in the function signature.
+If applicable, units should be added.
+
+.. code-block:: rst
+
+   Prefer:
+       interval : int, default: 1000ms
+   over:
+       interval : int, default: 1000
+
+If *None* is only used as a sentinel value for "parameter not specified", do
+not document it as the default. Depending on the context, give the actual
+default, or mark the parameter as optional if not specifying has no particular
+effect.
+
+.. code-block:: rst
+
+   Prefer:
+       dpi : int, default: :rc:`figure.dpi`
+   over:
+       dpi : int, default: None
+
+   Prefer:
+       textprops : dict, optional
+           Dictionary of keyword parameters to be passed to the
+           `~matplotlib.text.Text` instance contained inside TextArea.
+   over:
+       textprops : dict, default: None
+           Dictionary of keyword parameters to be passed to the
+           `~matplotlib.text.Text` instance contained inside TextArea.
+
 
 ``See also`` sections
 ~~~~~~~~~~~~~~~~~~~~~
