@@ -55,30 +55,13 @@ marker                         symbol description
                                       normalized, such that the created path
                                       is encapsulated inside the unit cell.
 path                                  A `~matplotlib.path.Path` instance.
-``(numsides, style, angle)``          The marker can also be a tuple
-                                      ``(numsides, style, angle)``, which
-                                      will create a custom, regular symbol.
-
-                                      ``numsides``:
-                                          the number of sides
-
-                                      ``style``:
-                                          the style of the regular symbol:
-
-                                          - 0: a regular polygon
-                                          - 1: a star-like symbol
-                                          - 2: an asterisk
-                                          - 3: a circle (``numsides`` and
-                                            ``angle`` is ignored);
-                                            deprecated.
-
-                                      ``angle``:
-                                          the angle of rotation of the symbol
+``(numsides, 0, angle)``              A regular polygon with ``numsides``
+                                      sides, rotated by ``angle``.
+``(numsides, 1, angle)``              A star-like symbol with ``numsides``
+                                      sides, rotated by ``angle``.
+``(numsides, 2, angle)``              An asterisk with ``numsides`` sides,
+                                      rotated by ``angle``.
 ============================== ====== =========================================
-
-For backward compatibility, the form ``(verts, 0)`` is also accepted, but it is
-deprecated and equivalent to just ``verts`` for giving a raw set of vertices
-that define the shape.
 
 ``None`` is the default which means 'nothing', however this table is
 referred to from other docs for the valid inputs from marker inputs and in
