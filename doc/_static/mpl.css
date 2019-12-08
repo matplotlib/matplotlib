@@ -1137,7 +1137,7 @@ div.viewcode-block:target {
     border: 1px solid #11557C;
     background: #eff9ff;
     padding: 2px;
-    margin-top: 40px;
+    margin-top: 1em;
 }
 
 .sidebar-announcement p {
@@ -1162,11 +1162,21 @@ nav.main-nav{
     margin: 8px 15px;
     list-style-type: none;
   }
-  
+
   nav.main-nav a{
     color: white;
   }
   
   nav.main-nav a:hover{
     text-decoration: underline;
+  }
+
+  nav.main-nav li.nav-right{
+    margin: 6px 15px 0 auto;
+  }
+
+  nav.main-nav input {
+    border: 0;
+    padding: 3px 6px;
+    width: 198px;
   }
