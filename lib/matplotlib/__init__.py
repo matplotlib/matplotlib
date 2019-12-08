@@ -767,7 +767,7 @@ class RcParams(MutableMapping, dict):
             try:
                 cval = self.validate[key](val)
             except ValueError as ve:
-                raise ValueError("Key %s: %s" % (key, str(ve)))
+                raise ValueError(f"Key {key}: {ve}") from None
             dict.__setitem__(self, key, cval)
         except KeyError:
             raise KeyError(
