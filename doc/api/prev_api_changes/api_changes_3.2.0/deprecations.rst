@@ -290,3 +290,8 @@ from the public API in future versions.
 
 ``style.core.is_style_file`` and ``style.core.iter_style_files``
 are deprecated.
+
+The ``datapath`` rcParam
+~~~~~~~~~~~~~~~~~~~~~~~~
+Use `.get_data_path` instead.  (The rcParam is deprecated because it cannot be
+meaningfully set by an end user.)  This was deprecated only in 3.2.1.

@@ -619,8 +619,9 @@ def get_cachedir():
     return _get_config_or_cache_dir(_get_xdg_cache_dir())
 
 
-def _get_data_path():
-    """Return the path to matplotlib data."""
+@_logged_cached('matplotlib data path: %s')
+def get_data_path():
+    """Return the path to Matplotlib data."""
 
     if 'MATPLOTLIBDATA' in os.environ:
         path = os.environ['MATPLOTLIBDATA']
@@ -633,6 +634,7 @@ def _get_data_path():
 
     path = Path(__file__).with_name("mpl-data")
     if path.is_dir():
+        defaultParams['datapath'][0] = str(path)
         return str(path)
 
     cbook.warn_deprecated(
@@ -655,16 +657,10 @@ def _get_data_path():
 
     for path in get_candidate_paths():
         if path.is_dir():
+            defaultParams['datapath'][0] = str(path)
             return str(path)
 
     raise RuntimeError('Could not find the matplotlib data files')
-
-
-@_logged_cached('matplotlib data path: %s')
-def get_data_path():
-    if defaultParams['datapath'][0] is None:
-        defaultParams['datapath'][0] = _get_data_path()
-    return defaultParams['datapath'][0]
 
 
 @cbook.deprecated("3.1")
@@ -736,6 +732,7 @@ _deprecated_remain_as_none = {
     'savefig.frameon': ('3.1',),
     'verbose.fileo': ('3.1',),
     'verbose.level': ('3.1',),
+    'datapath': ('3.2.1',),
 }
 
 
@@ -973,8 +970,9 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
                            if key not in _all_deprecated])
     config.update(config_from_file)
 
-    if config['datapath'] is None:
-        config['datapath'] = get_data_path()
+    with cbook._suppress_matplotlib_deprecation_warning():
+        if config['datapath'] is None:
+            config['datapath'] = get_data_path()
 
     if "".join(config['text.latex.preamble']):
         _log.info("""
