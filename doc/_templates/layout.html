@@ -236,6 +236,11 @@ parents[-1].link|e }}" />
             <li><a href="{{ pathto('gallery/index') }}">Examples</a></li>
             <li><a href="{{ pathto('tutorials/index') }}">Tutorials</a></li>
             <li><a href="{{ pathto('devel/index') }}">Contributing</a></li>
+            <li class="nav-right">
+                <form class="search" action="search.html" method="get">
+                <input type="text" name="q" aria-labelledby="searchlabel" placeholder="Search"/>
+                </form>
+            </li>
         </ul>
      </nav>
 {%- endblock %}
