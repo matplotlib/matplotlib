@@ -3864,14 +3864,11 @@ class FancyArrowPatch(Patch):
     _edge_default = True
 
     def __str__(self):
-
         if self._posA_posB is not None:
             (x1, y1), (x2, y2) = self._posA_posB
-            return self.__class__.__name__ \
-                + "((%g, %g)->(%g, %g))" % (x1, y1, x2, y2)
+            return f"{type(self).__name__}(({x1:g}, {y1:g})->({x2:g}, {y2:g}))"
         else:
-            return self.__class__.__name__ \
-                + "(%s)" % (str(self._path_original),)
+            return f"{type(self).__name__}({self._path_original})"
 
     @docstring.dedent_interpd
     def __init__(self, posA=None, posB=None,

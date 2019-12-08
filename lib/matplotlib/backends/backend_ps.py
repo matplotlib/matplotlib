@@ -684,14 +684,11 @@ grestore
         xmax, ymax = points_max
 
         streamarr = np.empty(
-            (shape[0] * shape[1],),
-            dtype=[('flags', 'u1'),
-                   ('points', '>u4', (2,)),
-                   ('colors', 'u1', (3,))])
+            shape[0] * shape[1],
+            dtype=[('flags', 'u1'), ('points', '2>u4'), ('colors', '3u1')])
         streamarr['flags'] = 0
         streamarr['points'] = (flat_points - points_min) * factor
         streamarr['colors'] = flat_colors[:, :3] * 255.0
-
         stream = quote_ps_string(streamarr.tostring())
 
         self._pswriter.write(f"""\
