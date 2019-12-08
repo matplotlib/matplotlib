@@ -580,19 +580,41 @@ def _validate_linestyle(ls):
     raise ValueError(f"linestyle {ls!r} is not a valid on-off ink sequence.")
 
 
-validate_joinstyle = ValidateInStrings('joinstyle',
-                                       ['miter', 'round', 'bevel'],
-                                       ignorecase=True)
+def _deprecate_case_insensitive_join_cap(s):
+    s_low = s.lower()
+    if s != s_low:
+        if s_low in ['miter', 'round', 'bevel']:
+            cbook.warn_deprecated(
+                "3.3", message="Case-insensitive capstyles are deprecated "
+                "since %(since)s and support for them will be removed "
+                "%(removal)s; please pass them in lowercase.")
+        elif s_low in ['butt', 'round', 'projecting']:
+            cbook.warn_deprecated(
+                "3.3", message="Case-insensitive joinstyles are deprecated "
+                "since %(since)s and support for them will be removed "
+                "%(removal)s; please pass them in lowercase.")
+        # Else, error out at the check_in_list stage.
+    return s_low
+
+
+def validate_joinstyle(s):
+    s = _deprecate_case_insensitive_join_cap(s)
+    cbook._check_in_list(['miter', 'round', 'bevel'], joinstyle=s)
+    return s
+
+
+def validate_capstyle(s):
+    s = _deprecate_case_insensitive_join_cap(s)
+    cbook._check_in_list(['butt', 'round', 'projecting'], capstyle=s)
+    return s
+
+
+validate_fillstyle = ValidateInStrings(
+    'markers.fillstyle', ['full', 'left', 'right', 'bottom', 'top', 'none'])
+
+
 validate_joinstylelist = _listify_validator(validate_joinstyle)
-
-validate_capstyle = ValidateInStrings('capstyle',
-                                      ['butt', 'round', 'projecting'],
-                                      ignorecase=True)
 validate_capstylelist = _listify_validator(validate_capstyle)
-
-validate_fillstyle = ValidateInStrings('markers.fillstyle',
-                                       ['full', 'left', 'right', 'bottom',
-                                        'top', 'none'])
 validate_fillstylelist = _listify_validator(validate_fillstyle)
 
 
