@@ -158,7 +158,7 @@ plt.show()
 #   In [5]: print(norm([-0.2,-0.15,-0.02, 0.3, 0.8, 0.99]))
 #   [0 0 1 2 3 3]
 #
-# Note unlike the other norms, this norm returns values from 0 to *ncolors*-1.
+# Note: Unlike the other norms, this norm returns values from 0 to *ncolors*-1.
 
 N = 100
 X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
