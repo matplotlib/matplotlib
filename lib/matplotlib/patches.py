@@ -32,8 +32,8 @@ class Patch(artist.Artist):
     are *None*, they default to their rc params setting.
     """
     zorder = 1
-    validCap = ('butt', 'round', 'projecting')
-    validJoin = ('miter', 'round', 'bevel')
+    validCap = mlines.Line2D.validCap
+    validJoin = mlines.Line2D.validJoin
 
     # Whether to draw an edge by default.  Set on a
     # subclass-by-subclass basis.
@@ -463,7 +463,7 @@ class Patch(artist.Artist):
         ----------
         s : {'butt', 'round', 'projecting'}
         """
-        s = s.lower()
+        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
         cbook._check_in_list(self.validCap, capstyle=s)
         self._capstyle = s
         self.stale = True
@@ -479,7 +479,7 @@ class Patch(artist.Artist):
         ----------
         s : {'miter', 'round', 'bevel'}
         """
-        s = s.lower()
+        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
         cbook._check_in_list(self.validJoin, joinstyle=s)
         self._joinstyle = s
         self.stale = True

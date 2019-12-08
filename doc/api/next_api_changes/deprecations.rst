@@ -47,3 +47,8 @@ PDF and PS character tracking internals
 The ``used_characters`` attribute and ``track_characters`` and
 ``merge_used_characters`` methods of `.RendererPdf`, `.PdfFile`, and
 `.RendererPS` are deprecated.
+
+Case-insensitive capstyles and joinstyles
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Please pass capstyles ("miter", "round", "bevel") and joinstyles ("butt",
+"round", "projecting") as lowercase.
