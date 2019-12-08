@@ -179,6 +179,7 @@ rcParams
 - The ``pgf.debug``, ``verbose.fileo`` and ``verbose.verbose.level`` rcParams,
   which had no effect, have been removed.
 - Support for setting :rc:`mathtext.default` to "circled" has been removed.
+- The ``datapath`` rcParam has been removed.  Use `.get_data_path` instead.
 
 Environment variables
 ~~~~~~~~~~~~~~~~~~~~~

@@ -509,29 +509,8 @@ def get_cachedir():
 
 
 @_logged_cached('matplotlib data path: %s')
-def get_data_path(*, _from_rc=None):
+def get_data_path():
     """Return the path to Matplotlib data."""
-    if _from_rc is not None:
-        cbook.warn_deprecated(
-            "3.2",
-            message=("Setting the datapath via matplotlibrc is deprecated "
-                     "%(since)s and will be removed in %(removal)s."),
-            removal='3.3')
-        path = Path(_from_rc)
-        if path.is_dir():
-            defaultParams['datapath'][0] = str(path)
-            return str(path)
-        else:
-            warnings.warn(f"You passed datapath: {_from_rc!r} in your "
-                          f"matplotribrc file ({matplotlib_fname()}). "
-                          "However this path does not exist, falling back "
-                          "to standard paths.")
-
-    return _get_data_path()
-
-
-@_logged_cached('(private) matplotlib data path: %s')
-def _get_data_path():
     path = Path(__file__).with_name("mpl-data")
     if path.is_dir():
         defaultParams['datapath'][0] = str(path)
@@ -594,7 +573,7 @@ def matplotlib_fname():
             yield matplotlibrc
             yield os.path.join(matplotlibrc, 'matplotlibrc')
         yield os.path.join(get_configdir(), 'matplotlibrc')
-        yield os.path.join(_get_data_path(), 'matplotlibrc')
+        yield os.path.join(get_data_path(), 'matplotlibrc')
 
     for fname in gen_candidates():
         if os.path.exists(fname) and not os.path.isdir(fname):
@@ -861,10 +840,7 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
     config.update(config_from_file)
 
     with cbook._suppress_matplotlib_deprecation_warning():
-        if config['datapath'] is None:
-            config['datapath'] = _get_data_path()
-        else:
-            config['datapath'] = get_data_path(_from_rc=config['datapath'])
+        config['datapath'] = get_data_path()
 
     if "".join(config['text.latex.preamble']):
         _log.info("""
