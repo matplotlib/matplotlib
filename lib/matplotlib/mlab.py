@@ -98,7 +98,7 @@ def apply_window(x, window, axis=0, return_window=None):
         Either a function to generate a window or an array with length
         *x*.shape[*axis*]
 
-    axis : integer
+    axis : int
         The axis over which to do the repetition.
         Must be 0 or 1.  The default is 0
 
@@ -157,7 +157,7 @@ def detrend(x, key=None, axis=None):
         corresponding functions for more details regarding the algorithms. Can
         also be a function that carries out the detrend operation.
 
-    axis : integer
+    axis : int
         The axis along which to do the detrending.
 
     See Also
@@ -201,7 +201,7 @@ def demean(x, axis=0):
         Array or sequence containing the data
         Can have any dimensionality
 
-    axis : integer
+    axis : int
         The axis along which to take the mean.  See numpy.mean for a
         description of this argument.
 
@@ -222,7 +222,7 @@ def detrend_mean(x, axis=None):
         Array or sequence containing the data
         Can have any dimensionality
 
-    axis : integer
+    axis : int
         The axis along which to take the mean.  See numpy.mean for a
         description of this argument.
 
@@ -249,7 +249,7 @@ def detrend_none(x, axis=None):
     x : any object
         An object containing the data
 
-    axis : integer
+    axis : int
         This parameter is ignored.
         It is included for compatibility with detrend_mean
 
@@ -271,7 +271,7 @@ def detrend_linear(y):
     y : 0-D or 1-D array or sequence
         Array or sequence containing the data
 
-    axis : integer
+    axis : int
         The axis along which to take the mean.  See numpy.mean for a
         description of this argument.
 
@@ -316,14 +316,14 @@ def stride_windows(x, n, noverlap=None, axis=0):
     x : 1D array or sequence
         Array or sequence containing the data.
 
-    n : integer
+    n : int
         The number of data points in each window.
 
-    noverlap : integer
+    noverlap : int
         The overlap between adjacent windows.
         Default is 0 (no overlap)
 
-    axis : integer
+    axis : int
         The axis along which the windows will run.
 
     References
@@ -385,10 +385,10 @@ def stride_repeat(x, n, axis=0):
     x : 1D array or sequence
         Array or sequence containing the data.
 
-    n : integer
+    n : int
         The number of time to repeat the array.
 
-    axis : integer
+    axis : int
         The axis along which the data will run.
 
     References
@@ -694,7 +694,7 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
 
     %(PSD)s
 
-    noverlap : integer
+    noverlap : int
         The number of points of overlap between segments.
         The default value is 0 (no overlap).
 
@@ -754,7 +754,7 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
 
     %(PSD)s
 
-    noverlap : integer
+    noverlap : int
         The number of points of overlap between segments.
         The default value is 0 (no overlap).
 
@@ -1059,7 +1059,7 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     %(PSD)s
 
-    noverlap : integer
+    noverlap : int
         The number of points of overlap between blocks.  The default value
         is 0 (no overlap).
 

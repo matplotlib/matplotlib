@@ -121,7 +121,7 @@ def validate_path_exists(s):
 
 
 def validate_bool(b):
-    """Convert b to a boolean or raise"""
+    """Convert b to ``bool`` or raise."""
     if isinstance(b, str):
         b = b.lower()
     if b in ('t', 'y', 'yes', 'on', 'true', '1', 1, True):
@@ -129,11 +129,11 @@ def validate_bool(b):
     elif b in ('f', 'n', 'no', 'off', 'false', '0', 0, False):
         return False
     else:
-        raise ValueError('Could not convert "%s" to boolean' % b)
+        raise ValueError('Could not convert "%s" to bool' % b)
 
 
 def validate_bool_maybe_none(b):
-    """Convert b to a boolean or raise."""
+    """Convert b to ``bool`` or raise, passing through *None*."""
     if isinstance(b, str):
         b = b.lower()
     if b is None or b == 'none':
@@ -143,7 +143,7 @@ def validate_bool_maybe_none(b):
     elif b in ('f', 'n', 'no', 'off', 'false', '0', 0, False):
         return False
     else:
-        raise ValueError('Could not convert "%s" to boolean' % b)
+        raise ValueError('Could not convert "%s" to bool' % b)
 
 
 def _validate_tex_preamble(s):

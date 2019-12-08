@@ -164,7 +164,7 @@ def tricontour(ax, *args, **kwargs):
 
     Optional keyword arguments:
 
-        *colors*: [ *None* | string | (mpl_colors) ]
+        *colors*: [ *None* | str | (mpl_colors) ]
         If *None*, the colormap specified by cmap will be used.
 
         If a string, like 'r' or 'red', all levels will be plotted in this

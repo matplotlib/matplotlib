@@ -2409,7 +2409,7 @@ class PdfPages:
         keep_empty : bool, optional
             If set to False, then empty pdf files will be deleted automatically
             when closed.
-        metadata : dictionary, optional
+        metadata : dict, optional
             Information dictionary object (see PDF reference section 10.2.1
             'Document Information Dictionary'), e.g.:
             ``{'Creator': 'My software', 'Author': 'Me', 'Title': 'Awesome'}``.
