@@ -238,7 +238,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
     def merge_used_characters(self, *args, **kwargs):
         self._character_tracker.merge(*args, **kwargs)
 
-    def set_color(self, r, g, b, store=1):
+    def set_color(self, r, g, b, store=True):
         if (r, g, b) != self.color:
             if r == g and r == b:
                 self._pswriter.write("%1.3f setgray\n" % r)
@@ -248,26 +248,26 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if store:
                 self.color = (r, g, b)
 
-    def set_linewidth(self, linewidth, store=1):
+    def set_linewidth(self, linewidth, store=True):
         linewidth = float(linewidth)
         if linewidth != self.linewidth:
             self._pswriter.write("%1.3f setlinewidth\n" % linewidth)
             if store:
                 self.linewidth = linewidth
 
-    def set_linejoin(self, linejoin, store=1):
+    def set_linejoin(self, linejoin, store=True):
         if linejoin != self.linejoin:
             self._pswriter.write("%d setlinejoin\n" % linejoin)
             if store:
                 self.linejoin = linejoin
 
-    def set_linecap(self, linecap, store=1):
+    def set_linecap(self, linecap, store=True):
         if linecap != self.linecap:
             self._pswriter.write("%d setlinecap\n" % linecap)
             if store:
                 self.linecap = linecap
 
-    def set_linedash(self, offset, seq, store=1):
+    def set_linedash(self, offset, seq, store=True):
         if self.linedash is not None:
             oldo, oldseq = self.linedash
             if np.array_equal(seq, oldseq) and oldo == offset:
@@ -281,7 +281,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         if store:
             self.linedash = (offset, seq)
 
-    def set_font(self, fontname, fontsize, store=1):
+    def set_font(self, fontname, fontsize, store=True):
         if rcParams['ps.useafm']:
             return
         if (fontname, fontsize) != (self.fontname, self.fontsize):
@@ -757,7 +757,7 @@ grestore
         if fill:
             if stroke or hatch:
                 write("gsave\n")
-            self.set_color(store=0, *rgbFace[:3])
+            self.set_color(*rgbFace[:3], store=False)
             write("fill\n")
             if stroke or hatch:
                 write("grestore\n")
