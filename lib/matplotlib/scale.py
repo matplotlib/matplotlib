@@ -200,81 +200,6 @@ class FuncScale(ScaleBase):
             axis.set_minor_locator(NullLocator())
 
 
-@cbook.deprecated("3.1", alternative="LogTransform")
-class LogTransformBase(Transform):
-    input_dims = output_dims = 1
-
-    def __init__(self, nonpos='clip'):
-        Transform.__init__(self)
-        self._clip = {"clip": True, "mask": False}[nonpos]
-
-    def transform_non_affine(self, a):
-        return LogTransform.transform_non_affine(self, a)
-
-    def __str__(self):
-        return "{}({!r})".format(
-            type(self).__name__, "clip" if self._clip else "mask")
-
-
-@cbook.deprecated("3.1", alternative="InvertedLogTransform")
-class InvertedLogTransformBase(Transform):
-    input_dims = output_dims = 1
-
-    def transform_non_affine(self, a):
-        return ma.power(self.base, a)
-
-    def __str__(self):
-        return "{}()".format(type(self).__name__)
-
-
-@cbook.deprecated("3.1", alternative="LogTransform")
-class Log10Transform(LogTransformBase):
-    base = 10.0
-
-    def inverted(self):
-        return InvertedLog10Transform()
-
-
-@cbook.deprecated("3.1", alternative="InvertedLogTransform")
-class InvertedLog10Transform(InvertedLogTransformBase):
-    base = 10.0
-
-    def inverted(self):
-        return Log10Transform()
-
-
-@cbook.deprecated("3.1", alternative="LogTransform")
-class Log2Transform(LogTransformBase):
-    base = 2.0
-
-    def inverted(self):
-        return InvertedLog2Transform()
-
-
-@cbook.deprecated("3.1", alternative="InvertedLogTransform")
-class InvertedLog2Transform(InvertedLogTransformBase):
-    base = 2.0
-
-    def inverted(self):
-        return Log2Transform()
-
-
-@cbook.deprecated("3.1", alternative="LogTransform")
-class NaturalLogTransform(LogTransformBase):
-    base = np.e
-
-    def inverted(self):
-        return InvertedNaturalLogTransform()
-
-
-@cbook.deprecated("3.1", alternative="InvertedLogTransform")
-class InvertedNaturalLogTransform(InvertedLogTransformBase):
-    base = np.e
-
-    def inverted(self):
-        return NaturalLogTransform()
-
-
 class LogTransform(Transform):
     input_dims = output_dims = 1
 
@@ -313,7 +238,7 @@ class LogTransform(Transform):
         return InvertedLogTransform(self.base)
 
 
-class InvertedLogTransform(InvertedLogTransformBase):
+class InvertedLogTransform(Transform):
     input_dims = output_dims = 1
 
     def __init__(self, base):
@@ -336,14 +261,6 @@ class LogScale(ScaleBase):
     """
     name = 'log'
 
-    # compatibility shim
-    LogTransformBase = LogTransformBase
-    Log10Transform = Log10Transform
-    InvertedLog10Transform = InvertedLog10Transform
-    Log2Transform = Log2Transform
-    InvertedLog2Transform = InvertedLog2Transform
-    NaturalLogTransform = NaturalLogTransform
-    InvertedNaturalLogTransform = InvertedNaturalLogTransform
     LogTransform = LogTransform
     InvertedLogTransform = InvertedLogTransform
 

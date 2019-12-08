@@ -462,38 +462,6 @@ class OldScalarFormatter(Formatter):
             s = s.rstrip('0').rstrip('.')
         return s
 
-    @cbook.deprecated("3.1")
-    def pprint_val(self, x, d):
-        """
-        Formats the value *x* based on the size of the axis range *d*.
-        """
-        # If the number is not too big and it's an int, format it as an int.
-        if abs(x) < 1e4 and x == int(x):
-            return '%d' % x
-
-        if d < 1e-2:
-            fmt = '%1.3e'
-        elif d < 1e-1:
-            fmt = '%1.3f'
-        elif d > 1e5:
-            fmt = '%1.1e'
-        elif d > 10:
-            fmt = '%1.1f'
-        elif d > 1:
-            fmt = '%1.2f'
-        else:
-            fmt = '%1.3f'
-        s = fmt % x
-        tup = s.split('e')
-        if len(tup) == 2:
-            mantissa = tup[0].rstrip('0').rstrip('.')
-            sign = tup[1][0].replace('+', '')
-            exponent = tup[1][1:].lstrip('0')
-            s = '%se%s%s' % (mantissa, sign, exponent)
-        else:
-            s = s.rstrip('0').rstrip('.')
-        return s
-
 
 class ScalarFormatter(Formatter):
     """
@@ -779,16 +747,6 @@ class ScalarFormatter(Formatter):
         if self._usetex or self._useMathText:
             self.format = r'$\mathdefault{%s}$' % self.format
 
-    @cbook.deprecated("3.1")
-    def pprint_val(self, x):
-        xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
-        if abs(xp) < 1e-8:
-            xp = 0
-        if self._useLocale:
-            return locale.format_string(self.format, (xp,))
-        else:
-            return self.format % xp
-
     def _formatSciNotation(self, s):
         # transform 1e+004 into 1e4, for example
         if self._useLocale:
@@ -1018,10 +976,6 @@ class LogFormatter(Formatter):
     def format_data_short(self, value):
         # docstring inherited
         return '%-12g' % value
-
-    @cbook.deprecated("3.1")
-    def pprint_val(self, *args, **kwargs):
-        return self._pprint_val(*args, **kwargs)
 
     def _pprint_val(self, x, d):
         # If the number is not too big and it's an int, format it as an int.
@@ -2213,24 +2167,6 @@ class MaxNLocator(Locator):
             return self._raw_ticks(dmin, dmax)[[0, -1]]
         else:
             return dmin, dmax
-
-
-@cbook.deprecated("3.1")
-def decade_down(x, base=10):
-    """Floor x to the nearest lower decade."""
-    if x == 0.0:
-        return -base
-    lx = np.floor(np.log(x) / np.log(base))
-    return base ** lx
-
-
-@cbook.deprecated("3.1")
-def decade_up(x, base=10):
-    """Ceil x to the nearest higher decade."""
-    if x == 0.0:
-        return base
-    lx = np.ceil(np.log(x) / np.log(base))
-    return base ** lx
 
 
 def is_decade(x, base=10, *, rtol=1e-10):

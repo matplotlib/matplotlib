@@ -191,28 +191,6 @@ def detrend(x, key=None, axis=None):
             f"'constant', 'mean', 'linear', or a function")
 
 
-@cbook.deprecated("3.1", alternative="detrend_mean")
-def demean(x, axis=0):
-    '''
-    Return x minus its mean along the specified axis.
-
-    Parameters
-    ----------
-    x : array or sequence
-        Array or sequence containing the data
-        Can have any dimensionality
-
-    axis : int
-        The axis along which to take the mean.  See numpy.mean for a
-        description of this argument.
-
-    See Also
-    --------
-    detrend_mean : Same as `demean` except for the default *axis*.
-    '''
-    return detrend_mean(x, axis=axis)
-
-
 def detrend_mean(x, axis=None):
     '''
     Return x minus the mean(x).

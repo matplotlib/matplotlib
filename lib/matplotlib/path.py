@@ -989,23 +989,3 @@ def get_path_collection_extents(
     return Bbox.from_extents(*_path.get_path_collection_extents(
         master_transform, paths, np.atleast_3d(transforms),
         offsets, offset_transform))
-
-
-@cbook.deprecated("3.1", alternative="get_paths_collection_extents")
-def get_paths_extents(paths, transforms=[]):
-    """
-    Given a sequence of :class:`Path` objects and optional
-    :class:`~matplotlib.transforms.Transform` objects, returns the
-    bounding box that encapsulates all of them.
-
-    *paths* is a sequence of :class:`Path` instances.
-
-    *transforms* is an optional sequence of
-    :class:`~matplotlib.transforms.Affine2D` instances to apply to
-    each path.
-    """
-    from .transforms import Bbox, Affine2D
-    if len(paths) == 0:
-        raise ValueError("No paths provided")
-    return Bbox.from_extents(*_path.get_path_collection_extents(
-        Affine2D(), paths, transforms, [], Affine2D()))

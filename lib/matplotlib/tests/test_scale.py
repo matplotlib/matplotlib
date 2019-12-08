@@ -1,7 +1,7 @@
 from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
-from matplotlib.scale import (Log10Transform, InvertedLog10Transform,
-                              SymmetricalLogTransform)
+from matplotlib.scale import (
+    LogTransform, InvertedLogTransform, SymmetricalLogTransform)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 import numpy as np
@@ -127,8 +127,7 @@ def test_logscale_invert_transform():
     tform = (ax.transAxes + ax.transData.inverted()).inverted()
 
     # direct test of log transform inversion
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert isinstance(Log10Transform().inverted(), InvertedLog10Transform)
+    assert isinstance(LogTransform(base=10).inverted(), InvertedLogTransform)
 
 
 def test_logscale_transform_repr():
@@ -137,8 +136,7 @@ def test_logscale_transform_repr():
     repr(ax.transData)  # check that repr of log transform succeeds
 
     # check that repr of log transform succeeds
-    with pytest.warns(MatplotlibDeprecationWarning):
-        repr(Log10Transform(nonpos='clip'))
+    repr(LogTransform(base=10, nonpos='clip'))
 
 
 @image_comparison(['logscale_nonpos_values.png'],

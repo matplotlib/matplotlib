@@ -31,16 +31,6 @@ def math_role(role, rawtext, text, lineno, inliner,
 math_role.options = {'fontset': fontset_choice}
 
 
-@cbook.deprecated("3.1", alternative="MathDirective")
-def math_directive(name, arguments, options, content, lineno,
-                   content_offset, block_text, state, state_machine):
-    latex = ''.join(content)
-    node = latex_math(block_text)
-    node['latex'] = latex
-    node['fontset'] = options.get('fontset', 'cm')
-    return [node]
-
-
 class MathDirective(Directive):
     has_content = True
     required_arguments = 0

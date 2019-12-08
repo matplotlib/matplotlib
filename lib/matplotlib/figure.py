@@ -32,7 +32,6 @@ from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
 from matplotlib.gridspec import GridSpec
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
-from matplotlib.projections import process_projection_requirements
 from matplotlib.text import Text
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)

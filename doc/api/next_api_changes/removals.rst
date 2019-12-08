@@ -51,6 +51,8 @@ Classes and methods
 
 - ``sphinxext.plot_directive.plot_directive()``
   (use the class ``PlotDirective`` instead)
+- ``sphinxext.mathmpl.math_directive()``
+  (use the class ``MathDirective`` instead)
 
 - ``Artist.aname`` property (no replacement)
 - ``Axis.iter_ticks`` (no replacement)
@@ -70,6 +72,47 @@ Classes and methods
 - ``colorbar.ColorbarBase.set_norm`` (use ``ScalarMappable.set_norm`` instead)
 
 - ``text.TextWithDash`` (use ``text.Annotation`` instead)
+
+- ``dates.seconds()`` (no replacement)
+- ``dates.minutes()`` (no replacement)
+- ``dates.hours()`` (no replacement)
+- ``dates.weeks()`` (no replacement)
+
+- ``font_manager.OSXInstalledFonts()`` (no replacement)
+
+- ``mlab.demean()`` (use ``mlab.detrend_mean()`` instead)
+- ``projections.process_projection_requirements()`` (no replacement)
+- ``path.get_paths_extents()``
+  (use ``path.get_path_collection_extents()`` instead)
+
+- ``docstring.Appender`` (no replacement)
+- ``docstring.dedent()`` (use `inspect.getdoc` instead)
+- ``docstring.copy_dedent()``
+  (use ``docstring.copy()`` and `inspect.getdoc` instead)
+
+- ``ticker.OldScalarFormatter.pprint_val()`` (no replacement)
+- ``ticker.ScalarFormatter.pprint_val()`` (no replacement)
+- ``ticker.LogFormatter.pprint_val()`` (no replacement)
+- ``ticker.decade_down()`` (no replacement)
+- ``ticker.decade_up()`` (no replacement)
+
+- ``scale.LogTransformBase`` (use ``scale.LogTransform`` instead)
+- ``scale.InvertedLogTransformBase`` (use ``scale.InvertedLogTransform`` instead)
+- ``scale.Log10TransformBase`` (use ``scale.LogTransform`` instead)
+- ``scale.InvertedLog10TransformBase`` (use ``scale.InvertedLogTransform`` instead)
+- ``scale.Log2Transform`` (use ``scale.LogTransform`` instead)
+- ``scale.InvertedLog2Transform`` (use ``scale.InvertedLogTransform`` instead)
+- ``scale.NaturalLogTransform`` (use ``scale.LogTransform`` instead)
+- ``scale.InvertedNaturalLogTransform`` (use ``scale.InvertedLogTransform`` instead)
+
+- ``spines.Spine.is_frame_like()`` (no replacement)
+- ``text.is_math_text()`` (use ``cbook.is_math_text()`` instead)
+- ``text.TextWithDash()`` (use ``text.Annotation`` instead)
+- ``textpath.TextPath.is_math_text()`` (use ``cbook.is_math_text()`` instead)
+- ``textpath.TextPath.text_get_vertices_codes()``
+  (use ``textpath.text_to_path.get_text_path()`` instead)
+
+- ``widgets.SpanSelector.buttonDown`` property (no replacement)
 
 - ``mplot3d.proj3d.line2d()`` (no replacement)
 - ``mplot3d.proj3d.line2d_dist()`` (no replacement)
@@ -99,7 +142,13 @@ Classes and methods
 - ``axisartist.axislines.Axes.AxisDict``
   (use ``axis_grid1.mpl_axes.Axes.AxisDict`` instead)
 
+- ``testing.decorators.switch_backend()`` (use ``pytest.mark.backend`` instead)
+
 Arguments
 ~~~~~~~~~
 - ``Axes.text()`` / ``pyplot.text()`` do not support the parameter ``withdash``
   anymore. Use ``Axes.annotate()`` and ``pyplot.annotate()`` instead.
+
+Others
+~~~~~~
+- The math text command ``\stackrel`` is removed. Use ``\genfrac`` instead.
