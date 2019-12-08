@@ -370,18 +370,21 @@ def generate_validator_testcases(valid):
                      ('', ''), (' ', ' '),
                      ('None', 'none'), ('none', 'none'),
                      ('DoTtEd', 'dotted'),  # case-insensitive
-                     (['1.23', '4.56'], (None, [1.23, 4.56])),
+                     ('1, 3', (None, (1, 3))),
                      ([1.23, 456], (None, [1.23, 456.0])),
                      ([1, 2, 3, 4], (None, [1.0, 2.0, 3.0, 4.0])),
+                     ((None, [1, 2]), (None, [1, 2])),
+                     ((0, [1, 2]), (0, [1, 2])),
+                     ((-1, [1, 2]), (-1, [1, 2])),
                      ),
          'fail': (('aardvark', ValueError),  # not a valid string
                   (b'dotted', ValueError),
                   ('dotted'.encode('utf-16'), ValueError),
-                  ((None, [1, 2]), ValueError),  # (offset, dashes) != OK
-                  ((0, [1, 2]), ValueError),  # idem
-                  ((-1, [1, 2]), ValueError),  # idem
                   ([1, 2, 3], ValueError),  # sequence with odd length
                   (1.23, ValueError),  # not a sequence
+                  (("a", [1, 2]), ValueError),  # wrong explicit offset
+                  ((1, [1, 2, 3]), ValueError),  # odd length sequence
+                  (([1, 2], 1), ValueError),  # inverted offset/onoff
                   )
          },
     )
