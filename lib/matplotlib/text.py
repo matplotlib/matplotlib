@@ -1667,9 +1667,10 @@ docstring.interpd.update(TextWithDash=artist.kwdoc(TextWithDash))
 
 
 class OffsetFrom:
-    'Callable helper class for working with `Annotation`'
+    """Callable helper class for working with `Annotation`."""
+
     def __init__(self, artist, ref_coord, unit="points"):
-        '''
+        """
         Parameters
         ----------
         artist : `.Artist`, `.BboxBase`, or `.Transform`
@@ -1684,27 +1685,25 @@ class OffsetFrom:
             transform applied to this value.
 
         unit : {'points, 'pixels'}
-            The screen units to use (pixels or points) for the offset
-            input.
-
-        '''
+            The screen units to use (pixels or points) for the offset input.
+        """
         self._artist = artist
         self._ref_coord = ref_coord
         self.set_unit(unit)
 
     def set_unit(self, unit):
-        '''
+        """
         The unit for input to the transform used by ``__call__``
 
         Parameters
         ----------
         unit : {'points', 'pixels'}
-        '''
+        """
         cbook._check_in_list(["points", "pixels"], unit=unit)
         self._unit = unit
 
     def get_unit(self):
-        'The unit for input to the transform used by ``__call__``'
+        """The unit for input to the transform used by ``__call__``."""
         return self._unit
 
     def _get_scale(self, renderer):
@@ -1715,7 +1714,7 @@ class OffsetFrom:
             return renderer.points_to_pixels(1.)
 
     def __call__(self, renderer):
-        '''
+        """
         Return the offset transform.
 
         Parameters
@@ -1728,7 +1727,7 @@ class OffsetFrom:
         transform : `Transform`
             Maps (x, y) in pixel or point units to screen units
             relative to the given artist.
-        '''
+        """
         if isinstance(self._artist, Artist):
             bbox = self._artist.get_window_extent(renderer)
             l, b, w, h = bbox.bounds
@@ -1890,56 +1889,55 @@ class _AnnotationBase:
 
     def set_annotation_clip(self, b):
         """
-        set *annotation_clip* attribute.
+        Set the annotation's clipping behavior.
 
-          * True: the annotation will only be drawn when self.xy is inside
-                  the axes.
-          * False: the annotation will always be drawn regardless of its
-                   position.
-          * None: the self.xy will be checked only if *xycoords* is "data"
+        Parameters
+        ----------
+        b : bool or None
+            - True: the annotation will only be drawn when self.xy is inside
+              the axes.
+            - False: the annotation will always be drawn regardless of its
+              position.
+            - None: the self.xy will be checked only if *xycoords* is "data".
         """
         self._annotation_clip = b
 
     def get_annotation_clip(self):
         """
-        Return *annotation_clip* attribute.
-        See :meth:`set_annotation_clip` for the meaning of return values.
+        Return the annotation's clipping behavior.
+
+        See `set_annotation_clip` for the meaning of return values.
         """
         return self._annotation_clip
 
     def _get_position_xy(self, renderer):
-        "Return the pixel position of the annotated point."
+        """Return the pixel position of the annotated point."""
         x, y = self.xy
         return self._get_xy(renderer, x, y, self.xycoords)
 
     def _check_xy(self, renderer, xy_pixel):
-        """
-        given the xy pixel coordinate, check if the annotation need to
-        be drawn.
-        """
-
+        """Check whether the annotation at *xy_pixel* should be drawn."""
         b = self.get_annotation_clip()
-
         if b or (b is None and self.xycoords == "data"):
             # check if self.xy is inside the axes.
-            if not self.axes.contains_point(xy_pixel):
-                return False
-
+            return self.axes.contains_point(xy_pixel)
         return True
 
     def draggable(self, state=None, use_blit=False):
         """
-        Set the draggable state -- if state is
+        Set whether the annotation is draggable with the mouse.
 
-          * None : toggle the current state
+        Parameters
+        ----------
+        state : bool or None
+            - True or False: set the draggability.
+            - None: toggle the draggability.
 
-          * True : turn draggable on
-
-          * False : turn draggable off
-
-        If draggable is on, you can drag the annotation on the canvas with
-        the mouse.  The DraggableAnnotation helper instance is returned if
-        draggable is on.
+        Returns
+        -------
+        DraggableAnnotation or None
+            If the annotation is draggable, the corresponding
+            `.DraggableAnnotation` helper is returned.
         """
         from matplotlib.offsetbox import DraggableAnnotation
         is_draggable = self._draggable is not None
