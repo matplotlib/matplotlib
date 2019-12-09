@@ -646,7 +646,7 @@ class Colormap:
         self._lut[self._i_bad] = self._rgba_bad
 
     def _init(self):
-        """Generate the lookup table, self._lut"""
+        """Generate the lookup table, ``self._lut``."""
         raise NotImplementedError("Abstract class only")
 
     def is_gray(self):
@@ -983,9 +983,9 @@ class Normalize:
         """
         Normalize *value* data in the ``[vmin, vmax]`` interval into
         the ``[0.0, 1.0]`` interval and return it.  *clip* defaults
-        to *self.clip* (which defaults to *False*).  If not already
+        to ``self.clip`` (which defaults to *False*).  If not already
         initialized, *vmin* and *vmax* are initialized using
-        *autoscale_None(value)*.
+        ``autoscale_None(value)``.
         """
         if clip is None:
             clip = self.clip

@@ -15,7 +15,7 @@ def test_non_affine_caching():
     class AssertingNonAffineTransform(mtransforms.Transform):
         """
         This transform raises an assertion error when called when it
-        shouldn't be and self.raise_on_transform is True.
+        shouldn't be and ``self.raise_on_transform`` is True.
 
         """
         input_dims = output_dims = 2

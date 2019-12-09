@@ -1245,7 +1245,7 @@ class _Sparse_Matrix_coo:
     def dot(self, V):
         """
         Dot product of self by a vector *V* in sparse-dense to dense format
-        *V* dense vector of shape (self.m,)
+        *V* dense vector of shape (self.m,).
         """
         assert V.shape == (self.m,)
         return np.bincount(self.rows,
