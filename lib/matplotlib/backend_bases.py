@@ -1,34 +1,30 @@
 """
 Abstract base classes define the primitives that renderers and
-graphics contexts must implement to serve as a matplotlib backend
+graphics contexts must implement to serve as a Matplotlib backend.
 
-:class:`RendererBase`
+`RendererBase`
     An abstract base class to handle drawing/rendering operations.
 
-:class:`FigureCanvasBase`
-    The abstraction layer that separates the
-    :class:`matplotlib.figure.Figure` from the backend specific
-    details like a user interface drawing area
+`FigureCanvasBase`
+    The abstraction layer that separates the `.Figure` from the backend
+    specific details like a user interface drawing area.
 
-:class:`GraphicsContextBase`
-    An abstract base class that provides color, line styles, etc...
+`GraphicsContextBase`
+    An abstract base class that provides color, line styles, etc.
 
-:class:`Event`
-    The base class for all of the matplotlib event
-    handling.  Derived classes such as :class:`KeyEvent` and
-    :class:`MouseEvent` store the meta data like keys and buttons
-    pressed, x and y locations in pixel and
-    :class:`~matplotlib.axes.Axes` coordinates.
+`Event`
+    The base class for all of the Matplotlib event handling.  Derived classes
+    such as `KeyEvent` and `MouseEvent` store the meta data like keys and
+    buttons pressed, x and y locations in pixel and `~.axes.Axes` coordinates.
 
-:class:`ShowBase`
-    The base class for the Show class of each interactive backend;
-    the 'show' callable is then set to Show.__call__, inherited from
-    ShowBase.
+`ShowBase`
+    The base class for the ``Show`` class of each interactive backend; the
+    'show' callable is then set to ``Show.__call__``.
 
-:class:`ToolContainerBase`
-     The base class for the Toolbar class of each interactive backend.
+`ToolContainerBase`
+    The base class for the Toolbar class of each interactive backend.
 
-:class:`StatusbarBase`
+`StatusbarBase`
     The base class for the messaging area.
 """
 
@@ -470,13 +466,13 @@ class RendererBase:
         transform : `matplotlib.transforms.Affine2DBase`
             If and only if the concrete backend is written such that
             :meth:`option_scale_image` returns ``True``, an affine
-            transformation *may* be passed to :meth:`draw_image`. It takes the
-            form of a :class:`~matplotlib.transforms.Affine2DBase` instance.
-            The translation vector of the transformation is given in physical
-            units (i.e., dots or pixels). Note that the transformation does not
-            override *x* and *y*, and has to be applied *before* translating
-            the result by *x* and *y* (this can be accomplished by adding *x*
-            and *y* to the translation vector defined by *transform*).
+            transformation (i.e., an `.Affine2DBase`) *may* be passed to
+            :meth:`draw_image`.  The translation vector of the transformation
+            is given in physical units (i.e., dots or pixels). Note that
+            the transformation does not override *x* and *y*, and has to be
+            applied *before* translating the result by *x* and *y* (this can
+            be accomplished by adding *x* and *y* to the translation vector
+            defined by *transform*).
         """
         raise NotImplementedError
 
@@ -584,7 +580,7 @@ class RendererBase:
         s : str
             The text to be converted.
         usetex : bool
-            Whether to use matplotlib usetex mode.
+            Whether to use usetex mode.
         ismath : bool or "TeX"
             If True, use mathtext parser. If "TeX", use *usetex* mode.
         """
@@ -598,7 +594,7 @@ class RendererBase:
         """
         Get the width, height, and descent (offset from the bottom
         to the baseline), in display coords, of the string *s* with
-        :class:`~matplotlib.font_manager.FontProperties` *prop*
+        `.FontProperties` *prop*.
         """
         if ismath == 'TeX':
             # todo: handle props
@@ -782,7 +778,7 @@ class GraphicsContextBase:
     def get_clip_path(self):
         """
         Return the clip path in the form (path, transform), where path
-        is a :class:`~matplotlib.path.Path` instance, and transform is
+        is a `~.path.Path` instance, and transform is
         an affine transform to apply to the path before clipping.
         """
         if self._clippath is not None:
@@ -1191,21 +1187,18 @@ class TimerBase:
 
 class Event:
     """
-    A matplotlib event.  Attach additional attributes as defined in
+    A Matplotlib event.  Attach additional attributes as defined in
     :meth:`FigureCanvasBase.mpl_connect`.  The following attributes
     are defined and shown with their default values
 
     Attributes
     ----------
     name : str
-        the event name
-
+        The event name.
     canvas : `FigureCanvasBase`
-        the backend-specific canvas instance generating the event
-
+        The backend-specific canvas instance generating the event.
     guiEvent
-        the GUI event that triggered the matplotlib event
-
+        The GUI event that triggered the Matplotlib event.
     """
     def __init__(self, name, canvas, guiEvent=None):
         self.name = name
@@ -1227,14 +1220,13 @@ class DrawEvent(Event):
        Calling ``canvas.draw`` and ``canvas.blit`` in these callbacks may
        not be safe with all backends and may cause infinite recursion.
 
-    In addition to the :class:`Event` attributes, the following event
+    In addition to the `Event` attributes, the following event
     attributes are defined:
 
     Attributes
     ----------
     renderer : `RendererBase`
-        the renderer for the draw event
-
+        The renderer for the draw event.
     """
     def __init__(self, name, canvas, renderer):
         Event.__init__(self, name, canvas)
@@ -1245,17 +1237,15 @@ class ResizeEvent(Event):
     """
     An event triggered by a canvas resize
 
-    In addition to the :class:`Event` attributes, the following event
+    In addition to the `Event` attributes, the following event
     attributes are defined:
 
     Attributes
     ----------
     width : scalar
-        width of the canvas in pixels
-
+        Width of the canvas in pixels.
     height : scalar
-        height of the canvas in pixels
-
+        Height of the canvas in pixels.
     """
     def __init__(self, name, canvas):
         Event.__init__(self, name, canvas)
@@ -1273,25 +1263,21 @@ class LocationEvent(Event):
     The following additional attributes are defined and shown with
     their default values.
 
-    In addition to the :class:`Event` attributes, the following
+    In addition to the `Event` attributes, the following
     event attributes are defined:
 
     Attributes
     ----------
     x : scalar
-        x position - pixels from left of canvas
-
+        x position - pixels from left of canvas.
     y : scalar
-        y position - pixels from bottom of canvas
-
-    inaxes : bool
-        the :class:`~matplotlib.axes.Axes` instance if mouse is over axes
-
-    xdata : scalar
-        x coord of mouse in data coords
-
-    ydata : scalar
-        y coord of mouse in data coords
+        y position - pixels from bottom of canvas.
+    inaxes : `~.axes.Axes` or None
+        The `~.axes.Axes` instance over which the mouse is, if any.
+    xdata : float or None
+        x data coordinate of the mouse.
+    ydata : float or None
+        y data coordinate of the mouse.
     """
 
     lastevent = None  # the last event that was triggered before this one
@@ -1373,13 +1359,12 @@ class MouseEvent(LocationEvent):
                    'scroll_event',
                    'motion_notify_event').
 
-    In addition to the :class:`Event` and :class:`LocationEvent`
+    In addition to the `Event` and `LocationEvent`
     attributes, the following attributes are defined:
 
     Attributes
     ----------
-    button : {None, MouseButton.LEFT, MouseButton.MIDDLE, MouseButton.RIGHT, \
-'up', 'down'}
+    button : None or `MouseButton` or {'up', 'down'}
         The button pressed. 'up' and 'down' are used for scroll events.
         Note that in the nbagg backend, both the middle and right clicks
         return RIGHT since right clicking will bring up the context menu in
@@ -1437,21 +1422,18 @@ class PickEvent(Event):
     A pick event, fired when the user picks a location on the canvas
     sufficiently close to an artist.
 
-    Attrs: all the :class:`Event` attributes plus
+    Attrs: all the `Event` attributes plus
 
     Attributes
     ----------
     mouseevent : `MouseEvent`
-        the mouse event that generated the pick
-
+        The mouse event that generated the pick.
     artist : `matplotlib.artist.Artist`
-        the picked artist
-
+        The picked artist.
     other
-        extra class dependent attrs -- e.g., a
-        :class:`~matplotlib.lines.Line2D` pick may define different
-        extra attributes than a
-        :class:`~matplotlib.collections.PatchCollection` pick event
+        Additional attributes may be present depending on the type of the
+        picked object; e.g., a `~.Line2D` pick may define different extra
+        attributes than a `~.PatchCollection` pick.
 
     Examples
     --------
@@ -1483,7 +1465,7 @@ class KeyEvent(LocationEvent):
     Attach additional attributes as defined in
     :meth:`FigureCanvasBase.mpl_connect`.
 
-    In addition to the :class:`Event` and :class:`LocationEvent`
+    In addition to the `Event` and `LocationEvent`
     attributes, the following attributes are defined:
 
     Attributes
@@ -1556,7 +1538,7 @@ class FigureCanvasBase:
     Attributes
     ----------
     figure : `matplotlib.figure.Figure`
-        A high-level figure instance
+        A high-level figure instance.
     """
 
     # Set to one of {"qt5", "qt4", "gtk3", "wx", "tk", "macosx"} if an
@@ -1714,7 +1696,7 @@ class FigureCanvasBase:
         Callback processing for pick events.
 
         This method will be called by artists who are picked and will
-        fire off :class:`PickEvent` callbacks registered listeners.
+        fire off `PickEvent` callbacks registered listeners.
         """
         s = 'pick_event'
         event = PickEvent(s, self, mouseevent, artist,
@@ -1728,10 +1710,10 @@ class FigureCanvasBase:
 
         Backend derived classes should call this function on any
         scroll wheel event.  (*x*, *y*) are the canvas coords ((0, 0) is lower
-        left).  button and key are as defined in MouseEvent.
+        left).  button and key are as defined in `MouseEvent`.
 
-        This method will be call all functions connected to the
-        'scroll_event' with a :class:`MouseEvent` instance.
+        This method will callall functions connected to the 'scroll_event' with
+        a `MouseEvent` instance.
         """
         if step >= 0:
             self._button = 'up'
@@ -1748,10 +1730,10 @@ class FigureCanvasBase:
 
         Backend derived classes should call this function on any mouse
         button press.  (*x*, *y*) are the canvas coords ((0, 0) is lower left).
-        button and key are as defined in :class:`MouseEvent`.
+        button and key are as defined in `MouseEvent`.
 
-        This method will be call all functions connected to the
-        'button_press_event' with a :class:`MouseEvent` instance.
+        This method will callall functions connected to the
+        'button_press_event' with a `MouseEvent` instance.
         """
         self._button = button
         s = 'button_press_event'
@@ -1767,7 +1749,7 @@ class FigureCanvasBase:
         button release.
 
         This method will call all functions connected to the
-        'button_release_event' with a :class:`MouseEvent` instance.
+        'button_release_event' with a `MouseEvent` instance.
 
         Parameters
         ----------
@@ -1791,7 +1773,7 @@ class FigureCanvasBase:
         motion-notify-event.
 
         This method will call all functions connected to the
-        'motion_notify_event' with a :class:`MouseEvent` instance.
+        'motion_notify_event' with a `MouseEvent` instance.
 
         Parameters
         ----------
@@ -1897,7 +1879,7 @@ class FigureCanvasBase:
             self.mouse_grabber = None
 
     def draw(self, *args, **kwargs):
-        """Render the :class:`~matplotlib.figure.Figure`."""
+        """Render the `.Figure`."""
 
     def draw_idle(self, *args, **kwargs):
         """
@@ -2313,11 +2295,11 @@ def key_press_handler(event, canvas, toolbar=None):
 
     Parameters
     ----------
-    event : :class:`KeyEvent`
+    event : `KeyEvent`
         a key press/release event
-    canvas : :class:`FigureCanvasBase`
+    canvas : `FigureCanvasBase`
         the backend-specific canvas instance
-    toolbar : :class:`NavigationToolbar2`
+    toolbar : `NavigationToolbar2`
         the navigation cursor toolbar
     """
     # these bindings happen whether you are over an axes or not
@@ -2527,7 +2509,7 @@ class FigureManagerBase:
 
     Attributes
     ----------
-    canvas : :class:`FigureCanvasBase`
+    canvas : `FigureCanvasBase`
         The backend-specific canvas instance.
 
     num : int or str
