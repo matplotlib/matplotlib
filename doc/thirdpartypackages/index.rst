@@ -284,8 +284,8 @@ existing table. See the `blume github repository
 
 .. image:: /_static/blume_table_example.png
 
-GUI tool kit
-*******
+GUI applications
+****************
 
 sviewgui
 ========
