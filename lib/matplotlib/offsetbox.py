@@ -1078,7 +1078,7 @@ class AnchoredOffsetbox(OffsetBox):
 
         frameon : draw a frame box if True.
 
-        bbox_to_anchor : bbox to anchor. Use self.axes.bbox if None.
+        bbox_to_anchor : bbox to anchor. Use ``self.axes.bbox`` if None.
 
         bbox_transform : with which the bbox_to_anchor will be transformed.
 

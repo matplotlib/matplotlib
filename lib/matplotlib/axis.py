@@ -228,7 +228,7 @@ class Tick(martist.Artist):
         self._labelrotation = (mode, angle)
 
     def apply_tickdir(self, tickdir):
-        """Calculate self._pad and self._tickmarkers."""
+        """Calculate ``self._pad`` and ``self._tickmarkers``."""
 
     def get_tickdir(self):
         return self._tickdir
