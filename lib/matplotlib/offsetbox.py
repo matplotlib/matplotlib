@@ -1421,9 +1421,8 @@ class OffsetImage(OffsetBox):
 
 
 class AnnotationBbox(martist.Artist, _AnnotationBase):
-    """
-    Annotation-like class, but with offsetbox instead of Text.
-    """
+    """`.Annotation`-like class, but with `OffsetBox` instead of `.Text`."""
+
     zorder = 3
 
     def __str__(self):
@@ -1444,12 +1443,9 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         """
         *offsetbox* : OffsetBox instance
 
-        *xycoords* : same as Annotation but can be a tuple of two
-           strings which are interpreted as x and y coordinates.
+        *xycoords* : same as Annotation
 
-        *boxcoords* : similar to textcoords as Annotation but can be a
-           tuple of two strings which are interpreted as x and y
-           coordinates.
+        *boxcoords* : similar to Annotation's textcoords
 
         *box_alignment* : a tuple of two floats for a vertical and
            horizontal alignment of the offset box w.r.t. the *boxcoords*.
