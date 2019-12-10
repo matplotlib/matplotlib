@@ -6,6 +6,7 @@ import pytest
 
 @pytest.mark.parametrize("backend", ["webagg", "nbagg"])
 def test_webagg_fallback(backend):
+    pytest.importorskip("tornado")
     if backend == "nbagg":
         pytest.importorskip("IPython")
     env = dict(os.environ)
