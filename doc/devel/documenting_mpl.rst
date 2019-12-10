@@ -562,44 +562,55 @@ By convention, these setters and getters are named ``set_PROPERTYNAME`` and
 ``get_PROPERTYNAME``; the list of properties thusly defined on an artist and
 their values can be listed by the `~.pyplot.setp` and `~.pyplot.getp` functions.
 
-.. note::
-
-   ``ACCEPTS`` blocks have recently become optional. You may now use a
-   numpydoc ``Parameters`` block because the accepted values can now be read
-   from the type description of the first parameter.
-
-Property setter methods should indicate the values they accept using a (legacy)
-special block in the docstring, starting with ``ACCEPTS``, as follows:
+The Parameters block of property setter methods is parsed to document the
+accepted values, e.g. the docstring of `.Line2D.set_linestyle` starts with
 
 .. code-block:: python
 
-   # in lines.py
-   def set_linestyle(self, linestyle):
+   def set_linestyle(self, ls):
        """
-       Set the linestyle of the line
+       Set the linestyle of the line.
 
-       ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
+       Parameters
+       ----------
+       ls : {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
+           etc.
        """
 
-The ACCEPTS block is used to render a table of all properties and their
-acceptable values in the docs; it can also be displayed using, e.g.,
-``plt.setp(Line2D)`` (all properties) or ``plt.setp(Line2D, 'linestyle')``
-(just one property).
+which results in the following line in the output of ``plt.setp(line)`` or
+``plt.setp(line, "linestyle")``::
 
-There are cases in which the ACCEPTS string is not useful in the
-generated Sphinx documentation, e.g. if the valid parameters are already
-defined in the numpydoc parameter list. You can hide the ACCEPTS string from
-Sphinx by making it a ReST comment (i.e. use ``.. ACCEPTS:``):
+    linestyle or ls: {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
+
+In some rare cases (mostly, setters which accept both a single tuple and an
+unpacked tuple), the accepted values cannot be documented in such a fashion;
+in that case, they can be documented as an ``.. ACCEPTS:`` block, e.g. for
+`.axes.Axes.set_xlim`:
 
 .. code-block:: python
 
-   def set_linestyle(self, linestyle):
+   def set_xlim(self, ...):
        """
-       An ACCEPTS string invisible to Sphinx.
+       Set the x-axis view limits.
 
-       .. ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
+       Parameters
+       ----------
+       left : float, optional
+           The left xlim in data coordinates. Passing *None* leaves the
+           limit unchanged.
+
+           The left and right xlims may also be passed as the tuple
+           (*left*, *right*) as the first positional argument (or as
+           the *left* keyword argument).
+
+           .. ACCEPTS: (bottom: float, top: float)
+
+       right : float, optional
+           etc.
        """
 
+Note that the leading ``..`` makes the ``.. ACCEPTS:`` block a reST comment,
+hiding it from the rendered docs.
 
 Keyword arguments
 -----------------
