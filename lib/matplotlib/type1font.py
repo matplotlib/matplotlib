@@ -10,8 +10,8 @@ Usage::
 
    >>> font = Type1Font(filename)
    >>> clear_part, encrypted_part, finale = font.parts
-   >>> slanted_font = font.transform({'slant': 0.167})
-   >>> extended_font = font.transform({'extend': 1.2})
+   >>> slanted_font = font.transform(slant=0.167)
+   >>> extended_font = font.transform(extend=1.2)
 
 Sources:
 
@@ -29,6 +29,8 @@ import re
 import struct
 
 import numpy as np
+
+from matplotlib import cbook
 
 
 # token types
@@ -54,8 +56,13 @@ class Type1Font:
 
     def __init__(self, input):
         """
-        Initialize a Type-1 font. *input* can be either the file name of
-        a pfb file or a 3-tuple of already-decoded Type-1 font parts.
+        Initialize a Type-1 font.
+
+        Parameters
+        ----------
+        input : str or 3-tuple
+            Either a pfb file name, or a 3-tuple of already-decoded Type-1
+            font `~Type1Font.parts`.
         """
         if isinstance(input, tuple) and len(input) == 3:
             self.parts = input
@@ -67,9 +74,7 @@ class Type1Font:
         self._parse()
 
     def _read(self, file):
-        """
-        Read the font from a file, decoding into usable parts.
-        """
+        """Read the font from a file, decoding into usable parts."""
         rawdata = file.read()
         if not rawdata.startswith(b'\x80'):
             return rawdata
@@ -304,17 +309,40 @@ class Type1Font:
             else:
                 yield value
 
-    def transform(self, effects):
+    def transform(self, effects=None, *, slant=0, extend=1):
         """
-        Transform the font by slanting or extending. *effects* should
-        be a dict where ``effects['slant']`` is the tangent of the
-        angle that the font is to be slanted to the right (so negative
-        values slant to the left) and ``effects['extend']`` is the
-        multiplier by which the font is to be extended (so values less
-        than 1.0 condense). Returns a new :class:`Type1Font` object.
+        Return a new font that is slanted or extended.
+
+        Parameters
+        ----------
+        effects : dict
+            *Deprecated*. Use the keyword arguments *slanted* and *extended*
+            instead.
+
+            A dict with optional keys 'slant' and 'extend'. The effect is the
+            same as for the respective keyword arguments. If given, the
+            keyword arguments take precedence over the dict values.
+        slant : float, default: 0
+            Tangent of the angle that the font is to be slanted to the right.
+            Negative values slant to the left.
+        extend : float, default: 1
+            Scaling factor for the font width. Values less than 1 condense the
+            glyphs.
+
+        Returns
+        -------
+        font : `Type1Font`
         """
+        if effects is not None:
+            cbook.warn_deprecated(
+                "3.3",
+                message="The passing effects as a dict is deprecated. Use "
+                        "keyword arguments slant and extend instead.")
+        if slant == 0 and effects is not None:
+            slant = effects.get('slant', slant)
+        if extend == 1 and effects is not None:
+            extend = effects.get('extend', slant)
+
         tokenizer = self._tokens(self.parts[0])
-        transformed = self._transformer(tokenizer,
-                                        slant=effects.get('slant', 0.0),
-                                        extend=effects.get('extend', 1.0))
+        transformed = self._transformer(tokenizer, slant=slant, extend=extend)
         return Type1Font((b"".join(transformed), self.parts[1], self.parts[2]))
