@@ -94,7 +94,7 @@ class DraggableLegend(DraggableOffsetBox):
         self.legend.set_bbox_to_anchor(loc_in_bbox)
 
 
-_legend_kw_doc = '''
+docstring.interpd.update(_legend_kw_doc="""
 loc : str or pair of floats, default: :rc:`legend.loc` ('best' for axes, \
 'upper right' for figures)
     The location of the legend.
@@ -175,15 +175,13 @@ fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
     absolute font size in points. String values are relative to the current
     default font size. This argument is only used if *prop* is not specified.
 
-numpoints : None or int
+numpoints : int, default: :rc:`legend.numpoints`
     The number of marker points in the legend when creating a legend
     entry for a `.Line2D` (line).
-    Default is ``None``, which means using :rc:`legend.numpoints`.
 
-scatterpoints : None or int
+scatterpoints : int, default: :rc:`legend.scatterpoints`
     The number of marker points in the legend when creating
     a legend entry for a `.PathCollection` (scatter plot).
-    Default is ``None``, which means using :rc:`legend.scatterpoints`.
 
 scatteryoffsets : iterable of floats, default: ``[0.375, 0.5, 0.3125]``
     The vertical offset (relative to the font size) for the markers
@@ -191,42 +189,35 @@ scatteryoffsets : iterable of floats, default: ``[0.375, 0.5, 0.3125]``
     legend text, and 1.0 is at the top. To draw all markers at the
     same height, set to ``[0.5]``.
 
-markerscale : None or float
+markerscale : float, default: :rc:`legend.markerscale`
     The relative size of legend markers compared with the originally
     drawn ones.
-    Default is ``None``, which means using :rc:`legend.markerscale`.
 
 markerfirst : bool, default: True
     If *True*, legend marker is placed to the left of the legend label.
     If *False*, legend marker is placed to the right of the legend label.
 
-frameon : None or bool
+frameon : bool, default: :rc:`legend.frameon`
     Whether the legend should be drawn on a patch (frame).
-    Default is ``None``, which means using :rc:`legend.frameon`.
 
-fancybox : None or bool
+fancybox : bool, default: :rc:`legend.fancybox`
     Whether round edges should be enabled around the `~.FancyBboxPatch` which
     makes up the legend's background.
-    Default is ``None``, which means using :rc:`legend.fancybox`.
 
-shadow : None or bool
+shadow : bool, default: :rc:`legend.shadow`
     Whether to draw a shadow behind the legend.
-    Default is ``None``, which means using :rc:`legend.shadow`.
 
-framealpha : None or float
+framealpha : float, default: :rc:`legend.framealpha`
     The alpha transparency of the legend's background.
-    Default is ``None``, which means using :rc:`legend.framealpha`.
     If *shadow* is activated and *framealpha* is ``None``, the default value is
     ignored.
 
-facecolor : None or "inherit" or color
+facecolor : "inherit" or color, default: :rc:`legend.facecolor`
     The legend's background color.
-    Default is ``None``, which means using :rc:`legend.facecolor`.
     If ``"inherit"``, use :rc:`axes.facecolor`.
 
-edgecolor : None or "inherit" or color
+edgecolor : "inherit" or color, default: :rc:`legend.edgecolor`
     The legend's background patch edge color.
-    Default is ``None``, which means using :rc:`legend.edgecolor`.
     If ``"inherit"``, use take :rc:`axes.edgecolor`.
 
 mode : {"expand", None}
@@ -245,37 +236,29 @@ title : str or None
 title_fontsize: str or None
     The fontsize of the legend's title.  Default is the default fontsize.
 
-borderpad : float or None
+borderpad : float, default: :rc:`legend.borderpad`
     The fractional whitespace inside the legend border, in font-size units.
-    Default is ``None``, which means using :rc:`legend.borderpad`.
 
-labelspacing : float or None
+labelspacing : float, default: :rc:`legend.labelspacing`
     The vertical space between the legend entries, in font-size units.
-    Default is ``None``, which means using :rc:`legend.labelspacing`.
 
-handlelength : float or None
+handlelength : float, default: :rc:`legend.handlelength`
     The length of the legend handles, in font-size units.
-    Default is ``None``, which means using :rc:`legend.handlelength`.
 
-handletextpad : float or None
+handletextpad : float, default: :rc:`legend.handletextpad`
     The pad between the legend handle and text, in font-size units.
-    Default is ``None``, which means using :rc:`legend.handletextpad`.
 
-borderaxespad : float or None
+borderaxespad : float, default: :rc:`legend.borderaxespad`
     The pad between the axes and legend border, in font-size units.
-    Default is ``None``, which means using :rc:`legend.borderaxespad`.
 
-columnspacing : float or None
+columnspacing : float, default: :rc:`legend.columnspacing`
     The spacing between columns, in font-size units.
-    Default is ``None``, which means using :rc:`legend.columnspacing`.
 
 handler_map : dict or None
     The custom dictionary mapping instances or types to a legend
     handler. This `handler_map` updates the default handler map
     found at :func:`matplotlib.legend.Legend.get_legend_handler_map`.
-
-'''
-docstring.interpd.update(_legend_kw_doc=_legend_kw_doc)
+""")
 
 
 class Legend(Artist):
@@ -905,7 +888,7 @@ class Legend(Artist):
         self.set_frame_on(b)
 
     def get_children(self):
-        'Return a list of child artists.'
+        """Return the list of child artists."""
         children = []
         if self._legend_box:
             children.append(self._legend_box)
@@ -914,23 +897,21 @@ class Legend(Artist):
         return children
 
     def get_frame(self):
-        '''
-        Return the `~.patches.Rectangle` instances used to frame the legend.
-        '''
+        """Return the `~.patches.Rectangle` used to frame the legend."""
         return self.legendPatch
 
     def get_lines(self):
-        'Return a list of `~.lines.Line2D` instances in the legend.'
+        r"""Return the list of `~.lines.Line2D`\s in the legend."""
         return [h for h in self.legendHandles if isinstance(h, Line2D)]
 
     def get_patches(self):
-        'Return a list of `~.patches.Patch` instances in the legend.'
+        r"""Return the list of `~.patches.Patch`\s in the legend."""
         return silent_list('Patch',
                            [h for h in self.legendHandles
                             if isinstance(h, Patch)])
 
     def get_texts(self):
-        'Return a list of `~.text.Text` instances in the legend.'
+        r"""Return the list of `~.text.Text`\s in the legend."""
         return silent_list('Text', self.texts)
 
     def set_title(self, title, prop=None):
@@ -954,11 +935,11 @@ class Legend(Artist):
         self.stale = True
 
     def get_title(self):
-        'Return the `.Text` instance for the legend title.'
+        """Return the `.Text` instance for the legend title."""
         return self._legend_title_box._text
 
     def get_window_extent(self, renderer=None):
-        'Return extent of the legend.'
+        # docstring inherited
         if renderer is None:
             renderer = self.figure._cachedRenderer
         return self._legend_box.get_window_extent(renderer=renderer)
