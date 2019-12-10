@@ -145,7 +145,7 @@ def test_invalid_input_forms():
     with pytest.raises((TypeError, ValueError)):
         ax.set_prop_cycle('linewidth', 1)
     with pytest.raises((TypeError, ValueError)):
-        ax.set_prop_cycle('linewidth', {'1': 1, '2': 2})
+        ax.set_prop_cycle('linewidth', {1, 2})
     with pytest.raises((TypeError, ValueError)):
         ax.set_prop_cycle(linewidth=1, color='r')
 
