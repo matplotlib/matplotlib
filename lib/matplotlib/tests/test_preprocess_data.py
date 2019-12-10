@@ -189,50 +189,29 @@ def test_docstring_addition():
     @_preprocess_data()
     def funcy(ax, *args, **kwargs):
         """Funcy does nothing"""
-        pass
 
-    assert re.search(r".*All positional and all keyword arguments\.",
-                     funcy.__doc__)
-    assert not re.search(r".*All positional arguments\.",
-                         funcy.__doc__)
-    assert not re.search(r".*All arguments with the following names: .*",
-                         funcy.__doc__)
+    assert re.search(r"every other argument", funcy.__doc__)
+    assert not re.search(r"the following arguments", funcy.__doc__)
 
     @_preprocess_data(replace_names=[])
     def funcy(ax, x, y, z, bar=None):
         """Funcy does nothing"""
-        pass
 
-    assert not re.search(r".*All positional arguments\.",
-                         funcy.__doc__)
-    assert not re.search(r".*All positional and all keyword arguments\.",
-                         funcy.__doc__)
-    assert not re.search(r".*All arguments with the following names: .*",
-                         funcy.__doc__)
+    assert not re.search(r"every other argument", funcy.__doc__)
+    assert not re.search(r"the following arguments", funcy.__doc__)
 
     @_preprocess_data(replace_names=["bar"])
     def funcy(ax, x, y, z, bar=None):
         """Funcy does nothing"""
-        pass
 
-    assert not re.search(r".*All positional arguments\.",
-                         funcy.__doc__)
-    assert re.search(r".*All arguments with the following names: 'bar'\.",
-                     funcy.__doc__)
-    assert not re.search(r".*All positional and all keyword arguments\.",
+    assert not re.search(r"every other argument", funcy.__doc__)
+    assert not re.search(r"the following arguments .*: \*bar\*\.",
                          funcy.__doc__)
 
-    @_preprocess_data(replace_names=["x", "bar"])
-    def funcy(ax, x, y, z, bar=None):
+    @_preprocess_data(replace_names=["x", "t"])
+    def funcy(ax, x, y, z, t=None):
         """Funcy does nothing"""
-        pass
 
-    # lists can print in any order, so test for both x, bar and bar, x.
-    assert re.search(r".*All arguments with the following names: '.*', '.*'\.",
-                     funcy.__doc__)
-    assert re.search(r".*'x'.*", funcy.__doc__)
-    assert re.search(r".*'bar'.*", funcy.__doc__)
-    assert not re.search(r".*All positional and all keyword arguments\.",
-                         funcy.__doc__)
-    assert not re.search(r".*All positional arguments\.",
+    assert not re.search(r"every other argument", funcy.__doc__)
+    assert not re.search(r"the following arguments .*: \*x\*, \*t\*\.",
                          funcy.__doc__)
