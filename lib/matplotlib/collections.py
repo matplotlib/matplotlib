@@ -1511,42 +1511,18 @@ class EventCollection(LineCollection):
         --------
         .. plot:: gallery/lines_bars_and_markers/eventcollection_demo.py
         """
-        if positions is None:
-            raise ValueError('positions must be an array-like object')
-        # Force a copy of positions
-        positions = np.array(positions, copy=True)
-        segment = (lineoffset + linelength / 2.,
-                   lineoffset - linelength / 2.)
-        if positions.size == 0:
-            segments = []
-        elif positions.ndim > 1:
-            raise ValueError('positions cannot be an array with more than '
-                             'one dimension.')
-        elif (orientation is None or orientation.lower() == 'none' or
-              orientation.lower() == 'horizontal'):
-            positions.sort()
-            segments = [[(coord1, coord2) for coord2 in segment] for
-                        coord1 in positions]
-            self._is_horizontal = True
-        elif orientation.lower() == 'vertical':
-            positions.sort()
-            segments = [[(coord2, coord1) for coord2 in segment] for
-                        coord1 in positions]
-            self._is_horizontal = False
-        else:
-            cbook._check_in_list(['horizontal', 'vertical'],
-                                 orientation=orientation)
-
         LineCollection.__init__(self,
-                                segments,
+                                [],
                                 linewidths=linewidth,
                                 colors=color,
                                 antialiaseds=antialiased,
                                 linestyles=linestyle,
                                 **kwargs)
-
+        self._is_horizontal = True  # Initial value, may be switched below.
         self._linelength = linelength
         self._lineoffset = lineoffset
+        self.set_orientation(orientation)
+        self.set_positions(positions)
 
     def get_positions(self):
         """
@@ -1556,24 +1532,18 @@ class EventCollection(LineCollection):
         return [segment[0, pos] for segment in self.get_segments()]
 
     def set_positions(self, positions):
-        """Set the positions of the events to the specified value."""
-        if positions is None or (hasattr(positions, 'len') and
-                                 len(positions) == 0):
-            self.set_segments([])
-            return
-
+        """Set the positions of the events."""
+        if positions is None:
+            positions = []
+        if np.ndim(positions) != 1:
+            raise ValueError('positions must be one-dimensional')
         lineoffset = self.get_lineoffset()
         linelength = self.get_linelength()
-        segment = (lineoffset + linelength / 2.,
-                   lineoffset - linelength / 2.)
-        positions = np.asanyarray(positions)
-        positions.sort()
-        if self.is_horizontal():
-            segments = [[(coord1, coord2) for coord2 in segment] for
-                        coord1 in positions]
-        else:
-            segments = [[(coord2, coord1) for coord2 in segment] for
-                        coord1 in positions]
+        pos_idx = 0 if self.is_horizontal() else 1
+        segments = np.empty((len(positions), 2, 2))
+        segments[:, :, pos_idx] = np.sort(positions)[:, None]
+        segments[:, 0, 1 - pos_idx] = lineoffset + linelength / 2
+        segments[:, 1, 1 - pos_idx] = lineoffset - linelength / 2
         self.set_segments(segments)
 
     def add_positions(self, position):
