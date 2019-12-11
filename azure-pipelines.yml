@@ -1,6 +1,3 @@
-# Python package
-# Create and test a Python package on multiple Python versions.
-# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
 strategy:
@@ -11,21 +8,27 @@ strategy:
     Linux_py37:
       vmImage: 'ubuntu-16.04'
       python.version: '3.7'
+    Linux_py38:
+      vmImage: 'ubuntu-16.04'
+      python.version: '3.8'
     macOS_py36:
       vmImage: 'xcode9-macOS10.13'
       python.version: '3.6'
     macOS_py37:
       vmImage: 'xcode9-macOS10.13'
       python.version: '3.7'
+    macOS_py38:
+      vmImage: 'xcode9-macOS10.13'
+      python.version: '3.8'
     Windows_py36:
       vmImage: 'vs2017-win2016'
       python.version: '3.6'
     Windows_py37:
       vmImage: 'vs2017-win2016'
       python.version: '3.7'
-    Windows_pyPre:
+    Windows_py38:
       vmImage: 'vs2017-win2016'
-      python.version: 'Pre'
+      python.version: '3.8'
   maxParallel: 4
 
 pool:
@@ -38,13 +41,6 @@ steps:
     versionSpec: '$(python.version)'
     architecture: 'x64'
   displayName: 'Use Python $(python.version)'
-  condition: and(succeeded(), ne(variables['python.version'], 'Pre'))
-
-- task: stevedower.python.InstallPython.InstallPython@1
-  displayName: 'Use prerelease Python'
-  inputs:
-    prerelease: true
-  condition: and(succeeded(), eq(variables['python.version'], 'Pre'))
 
 - bash: |
     case "$(python -c 'import sys; print(sys.platform)')" in
@@ -68,7 +64,8 @@ steps:
         texlive-latex-base \
         texlive-latex-extra \
         texlive-latex-recommended \
-        texlive-xetex texlive-luatex
+        texlive-luatex \
+        texlive-xetex
       ;;
     darwin)
       brew cask install xquartz
