@@ -1455,8 +1455,8 @@ class EventCollection(LineCollection):
     _edge_default = True
 
     def __init__(self,
-                 positions,     # Cannot be None.
-                 orientation=None,
+                 positions,  # Cannot be None.
+                 orientation='horizontal',
                  lineoffset=0,
                  linelength=1,
                  linewidth=None,
@@ -1471,10 +1471,9 @@ class EventCollection(LineCollection):
         positions : 1D array-like
             Each value is an event.
 
-        orientation : {None, 'horizontal', 'vertical'}, optional
+        orientation : {'horizontal', 'vertical'}, default: 'horizontal'
             The orientation of the **collection** (the event bars are along
-            the orthogonal direction). Defaults to 'horizontal' if not
-            specified or None.
+            the orthogonal direction).
 
         lineoffset : scalar, default: 0
             The offset of the center of the markers from the origin, in the
@@ -1584,17 +1583,26 @@ class EventCollection(LineCollection):
 
         Parameters
         ----------
-        orientation: {'horizontal', 'vertical'} or None
-            Defaults to 'horizontal' if not specified or None.
+        orientation : {'horizontal', 'vertical'}
         """
-        if (orientation is None or orientation.lower() == 'none' or
-                orientation.lower() == 'horizontal'):
-            is_horizontal = True
-        elif orientation.lower() == 'vertical':
-            is_horizontal = False
-        else:
-            cbook._check_in_list(['horizontal', 'vertical'],
-                                 orientation=orientation)
+        try:
+            is_horizontal = cbook._check_getitem(
+                {"horizontal": True, "vertical": False},
+                orientation=orientation)
+        except ValueError:
+            if (orientation is None or orientation.lower() == "none"
+                    or orientation.lower() == "horizontal"):
+                is_horizontal = True
+            elif orientation.lower() == "vertical":
+                is_horizontal = False
+            else:
+                raise
+            normalized = "horizontal" if is_horizontal else "vertical"
+            cbook.warn_deprecated(
+                "3.3", message="Support for setting the orientation of "
+                f"EventCollection to {orientation!r} is deprecated since "
+                f"%(since)s and will be removed %(removal)s; please set it to "
+                f"{normalized!r} instead.")
         if is_horizontal == self.is_horizontal():
             return
         self.switch_orientation()
