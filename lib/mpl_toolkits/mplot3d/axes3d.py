@@ -2459,18 +2459,16 @@ pivot='tail', normalize=False, **kwargs)
         ----------
         X, Y, Z : array-like
             The x, y and z coordinates of the arrow locations (default is
-            tail of arrow; see *pivot* kwarg)
+            tail of arrow; see *pivot* kwarg).
 
         U, V, W : array-like
-            The x, y and z components of the arrow vectors
+            The x, y and z components of the arrow vectors.
 
-        length : float
-            The length of each quiver, default to 1.0, the unit is
-            the same with the axes
+        length : float, default: 1
+            The length of each quiver.
 
-        arrow_length_ratio : float
-            The ratio of the arrow head with respect to the quiver,
-            default to 0.3
+        arrow_length_ratio : float, default: 0.3
+            The ratio of the arrow head with respect to the quiver.
 
         pivot : {'tail', 'middle', 'tip'}, default: 'tail'
             The part of the arrow that is at the grid point; the arrow

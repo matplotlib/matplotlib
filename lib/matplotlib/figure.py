@@ -677,12 +677,10 @@ default: 'top'
             The font weight of the text. See `.Text.set_weight` for possible
             values.
 
-
         Returns
         -------
-            text
-                The `.Text` instance of the title.
-
+        text
+            The `.Text` instance of the title.
 
         Other Parameters
         ----------------
@@ -694,7 +692,6 @@ default: 'top'
 
         **kwargs
             Additional kwargs are :class:`matplotlib.text.Text` properties.
-
 
         Examples
         --------
@@ -776,20 +773,20 @@ default: 'top'
         alpha : None or float
             The alpha blending value.
 
-        norm : :class:`matplotlib.colors.Normalize`
+        norm : `matplotlib.colors.Normalize`
             A :class:`.Normalize` instance to map the luminance to the
             interval [0, 1].
 
-        cmap : str or :class:`matplotlib.colors.Colormap`
-            The colormap to use. Default: :rc:`image.cmap`.
+        cmap : str or `matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+            The colormap to use.
 
         vmin, vmax : scalar
             If *norm* is not given, these values set the data limits for the
             colormap.
 
-        origin : {'upper', 'lower'}
+        origin : {'upper', 'lower'}, default: :rc:`image.origin`
             Indicates where the [0, 0] index of the array is in the upper left
-            or lower left corner of the axes. Defaults to :rc:`image.origin`.
+            or lower left corner of the axes.
 
         resize : bool
             If *True*, resize the figure to match the given image size.
@@ -805,14 +802,14 @@ default: 'top'
 
         Notes
         -----
-        figimage complements the axes image
-        (:meth:`~matplotlib.axes.Axes.imshow`) which will be resampled
-        to fit the current axes.  If you want a resampled image to
-        fill the entire figure, you can define an
-        :class:`~matplotlib.axes.Axes` with extent [0, 0, 1, 1].
+        figimage complements the axes image (`~matplotlib.axes.Axes.imshow`)
+        which will be resampled to fit the current axes.  If you want
+        a resampled image to fill the entire figure, you can define an
+        `~matplotlib.axes.Axes` with extent [0, 0, 1, 1].
 
-
-        Examples::
+        Examples
+        --------
+        ::
 
             f = plt.figure()
             nx = int(f.get_figwidth() * f.dpi)
@@ -820,7 +817,6 @@ default: 'top'
             data = np.random.random((ny, nx))
             f.figimage(data)
             plt.show()
-
         """
         if resize:
             dpi = self.get_dpi()
@@ -2109,13 +2105,11 @@ default: 'top'
 
             Whether the image should be stored as a progressive JPEG file.
 
-        facecolor : color or None, optional
-            The facecolor of the figure; if *None*, defaults to
-            :rc:`savefig.facecolor`.
+        facecolor : color, default: :rc:`savefig.facecolor`
+            The facecolor of the figure.
 
-        edgecolor : color or None, optional
-            The edgecolor of the figure; if *None*, defaults to
-            :rc:`savefig.edgecolor`
+        edgecolor : color, default: :rc:`savefig.edgecolor`
+            The edgecolor of the figure.
 
         orientation : {'landscape', 'portrait'}
             Currently only supported by the postscript backend.

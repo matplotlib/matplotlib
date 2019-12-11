@@ -140,18 +140,16 @@ class Axes(_AxesBase):
             the default *fontdict* is::
 
                {'fontsize': rcParams['axes.titlesize'],
-                'fontweight' : rcParams['axes.titleweight'],
-                'color' : rcParams['axes.titlecolor'],
+                'fontweight': rcParams['axes.titleweight'],
+                'color': rcParams['axes.titlecolor'],
                 'verticalalignment': 'baseline',
                 'horizontalalignment': loc}
 
-        loc : {'center', 'left', 'right'}, str, optional
+        loc : {'center', 'left', 'right'}, default: :rc:`axes.titlelocation`
             Which title to set.
-            If *None*, defaults to :rc:`axes.titlelocation`.
 
-        pad : float
+        pad : float, default: :rc:`axes.titlepad`
             The offset of the title from the top of the axes, in points.
-            If *None*, defaults to :rc:`axes.titlepad`.
 
         Returns
         -------
@@ -476,12 +474,12 @@ class Axes(_AxesBase):
         edgecolor : color, default: '0.5'
             Color of the rectangle and color of the connecting lines.
 
-        alpha : float
-            Transparency of the rectangle and connector lines.  Default is 0.5.
+        alpha : float, default: 0.5
+            Transparency of the rectangle and connector lines.
 
-        zorder : float
-            Drawing order of the rectangle and connector lines. Default is 4.99
-            (just below the default level of inset axes).
+        zorder : float, default: 4.99
+            Drawing order of the rectangle and connector lines.  The default,
+            4.99, is just below the default level of inset axes.
 
         **kwargs
             Other keyword arguments are passed on to the rectangle patch.
@@ -1695,9 +1693,8 @@ class Axes(_AxesBase):
             The plot format string. For details, see the corresponding
             parameter in `.plot`.
 
-        tz : timezone string or `tzinfo` or None
-            The time zone to use in labeling dates. If *None*, defaults to
-            :rc:`timezone`.
+        tz : timezone string or `tzinfo`, default: :rc:`timezone`
+            The time zone to use in labeling dates.
 
         xdate : bool, default: True
             If *True*, the *x*-axis will be interpreted as Matplotlib dates.
@@ -1705,12 +1702,10 @@ class Axes(_AxesBase):
         ydate : bool, default: False
             If *True*, the *y*-axis will be interpreted as Matplotlib dates.
 
-
         Returns
         -------
         lines
             A list of `.Line2D` objects representing the plotted data.
-
 
         Other Parameters
         ----------------
@@ -1909,10 +1904,11 @@ class Axes(_AxesBase):
         ----------
         x : array-like
 
-        detrend : callable, default: `mlab.detrend_none`
-            *x* is detrended by the *detrend* callable. This must be a
-            function ``x = detrend(x)`` accepting and returning an
-            `numpy.array`. Default is no detrending.
+        detrend : callable, default: `mlab.detrend_none` (no detrending)
+            A detrending function applied to *x*.  It must have the
+            signature ::
+
+                detrend(x: np.ndarray) -> np.ndarray
 
         normed : bool, default: True
             If ``True``, input vectors are normalised to unit length.
@@ -1975,14 +1971,13 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x : array-like of length n
+        x, y : array-like of length n
 
-        y : array-like of length n
+        detrend : callable, default: `mlab.detrend_none` (no detrending)
+            A detrending function applied to *x* and *y*.  It must have the
+            signature ::
 
-        detrend : callable, default: `mlab.detrend_none`
-            *x* and *y* are detrended by the *detrend* callable. This must be a
-            function ``x = detrend(x)`` accepting and returning an
-            `numpy.array`. Default is no detrending.
+                detrend(x: np.ndarray) -> np.ndarray
 
         normed : bool, default: True
             If ``True``, input vectors are normalised to unit length.
@@ -3103,9 +3098,8 @@ class Axes(_AxesBase):
             The linewidth of the errorbar lines. If None, the linewidth of
             the current style is used.
 
-        capsize : scalar, default: None
-            The length of the error bar caps in points. If None, it will take
-            the value from :rc:`errorbar.capsize`.
+        capsize : scalar, default: :rc:`errorbar.capsize`
+            The length of the error bar caps in points.
 
         capthick : scalar, default: None
             An alias to the keyword argument *markeredgewidth* (a.k.a. *mew*).
@@ -3549,7 +3543,7 @@ class Axes(_AxesBase):
         positions : array-like, optional
             Sets the positions of the boxes. The ticks and limits are
             automatically set to match the positions. Defaults to
-            `range(1, N+1)` where N is the number of boxes to be drawn.
+            ``range(1, N+1)`` where N is the number of boxes to be drawn.
 
         widths : scalar or array-like
             Sets the width of each box either with a scalar or a
@@ -4304,17 +4298,15 @@ class Axes(_AxesBase):
             by the next color of the ``Axes``' current "shape and fill" color
             cycle. This cycle defaults to :rc:`axes.prop_cycle`.
 
-        marker : `~matplotlib.markers.MarkerStyle`, optional
+        marker : `~.markers.MarkerStyle`, default: :rc:`scatter.marker`
             The marker style. *marker* can be either an instance of the class
             or the text shorthand for a particular marker.
-            Defaults to ``None``, in which case it takes the value of
-            :rc:`scatter.marker` = 'o'.
-            See `~matplotlib.markers` for more information about marker styles.
+            See :mod:`matplotlib.markers` for more information about marker
+            styles.
 
-        cmap : `~matplotlib.colors.Colormap`, optional
+        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             A `.Colormap` instance or registered colormap name. *cmap* is only
-            used if *c* is an array of floats. If ``None``, defaults to
-            :rc:`image.cmap`.
+            used if *c* is an array of floats.
 
         norm : `~matplotlib.colors.Normalize`, default: None
             A `.Normalize` instance is used to scale luminance data to 0, 1.
@@ -4330,21 +4322,17 @@ class Axes(_AxesBase):
         alpha : scalar, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-        linewidths : scalar or array-like, default: None
+        linewidths : scalar or array-like, default: :rc:`lines.linewidth`
             The linewidth of the marker edges. Note: The default *edgecolors*
             is 'face'. You may want to change this as well.
-            If *None*, defaults to :rc:`lines.linewidth`.
 
         edgecolors : {'face', 'none', *None*} or color or sequence of color, \
-optional.
+default: :rc:`scatter.edgecolors`
             The edge color of the marker. Possible values:
 
             - 'face': The edge color will always be the same as the face color.
             - 'none': No patch boundary will be drawn.
             - A color or sequence of colors.
-
-            Defaults to ``None``, in which case it takes the value of
-            :rc:`scatter.edgecolors` = 'face'.
 
             For non-filled markers, the *edgecolors* kwarg is ignored and
             forced to 'face' internally.
@@ -4547,9 +4535,9 @@ optional.
 
         Other Parameters
         ----------------
-        cmap : str or `~matplotlib.colors.Colormap`, optional
+        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             The Colormap instance or registered colormap name used to map
-            the bin values to colors. Defaults to :rc:`image.cmap`.
+            the bin values to colors.
 
         norm : `~matplotlib.colors.Normalize`, optional
             The Normalize instance scales the bin values to the canonical
@@ -5065,7 +5053,6 @@ optional.
         By default, the edges connect the given points directly. Use *step* if
         the filling should be a step function, i.e. constant in between *x*.
 
-
         Parameters
         ----------
         x : array (length N)
@@ -5253,7 +5240,6 @@ optional.
 
         By default, the edges connect the given points directly. Use *step* if
         the filling should be a step function, i.e. constant in between *y*.
-
 
         Parameters
         ----------
@@ -5460,10 +5446,9 @@ optional.
 
             Out-of-range RGB(A) values are clipped.
 
-        cmap : str or `~matplotlib.colors.Colormap`, optional
+        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             The Colormap instance or registered colormap name used to map
             scalar data to colors. This parameter is ignored for RGB(A) data.
-            Defaults to :rc:`image.cmap`.
 
         norm : `~matplotlib.colors.Normalize`, optional
             The `Normalize` instance used to scale scalar data to the [0, 1]
@@ -5471,7 +5456,7 @@ optional.
             scaling mapping the lowest value to 0 and the highest to 1 is used.
             This parameter is ignored for RGB(A) data.
 
-        aspect : {'equal', 'auto'} or float, optional
+        aspect : {'equal', 'auto'} or float, default: :rc:`image.aspect`
             The aspect ratio of the axes.  This parameter is particularly
             relevant for images since it determines whether data pixels are
             square.
@@ -5486,11 +5471,8 @@ optional.
               that the data fit in the axes. In general, this will result in
               non-square pixels.
 
-            If not given, use :rc:`image.aspect`.
-
-        interpolation : str, optional
-            The interpolation method used. If *None*, :rc:`image.interpolation`
-            is used.
+        interpolation : str, default: :rc:`image.interpolation`
+            The interpolation method used.
 
             Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
             'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
@@ -5532,11 +5514,10 @@ optional.
             the colormap covers the complete value range of the supplied
             data. *vmin*, *vmax* are ignored if the *norm* parameter is used.
 
-        origin : {'upper', 'lower'}, optional
-            Place the [0, 0] index of the array in the upper left or lower left
-            corner of the axes. The convention 'upper' is typically used for
-            matrices and images.
-            If not given, :rc:`image.origin` is used, defaulting to 'upper'.
+        origin : {'upper', 'lower'}, default: :rc:`image.origin`
+            Place the [0, 0] index of the array in the upper left or lower
+            left corner of the axes. The convention (the default) 'upper' is
+            typically used for matrices and images.
 
             Note that the vertical axes points upward for 'lower'
             but downward for 'upper'.
@@ -5755,9 +5736,9 @@ optional.
             expanded as needed into the appropriate 2-D arrays, making a
             rectangular grid.
 
-        cmap : str or `~matplotlib.colors.Colormap`, optional
+        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             A Colormap instance or registered colormap name. The colormap
-            maps the *C* values to colors. Defaults to :rc:`image.cmap`.
+            maps the *C* values to colors.
 
         norm : `~matplotlib.colors.Normalize`, optional
             The Normalize instance scales the data values to the canonical
@@ -5986,9 +5967,9 @@ optional.
             expanded as needed into the appropriate 2-D arrays, making a
             rectangular grid.
 
-        cmap : str or `~matplotlib.colors.Colormap`, optional
+        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             A Colormap instance or registered colormap name. The colormap
-            maps the *C* values to colors. Defaults to :rc:`image.cmap`.
+            maps the *C* values to colors.
 
         norm : `~matplotlib.colors.Normalize`, optional
             The Normalize instance scales the data values to the canonical
@@ -6220,9 +6201,9 @@ optional.
 
             These arguments can only be passed positionally.
 
-        cmap : str or `~matplotlib.colors.Colormap`, optional
+        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             A Colormap instance or registered colormap name. The colormap
-            maps the *C* values to colors. Defaults to :rc:`image.cmap`.
+            maps the *C* values to colors.
 
         norm : `~matplotlib.colors.Normalize`, optional
             The Normalize instance scales the data values to the canonical
@@ -6382,7 +6363,7 @@ optional.
             Input values, this takes either a single array or a sequence of
             arrays which are not required to be of the same length.
 
-        bins : int or sequence or str, optional
+        bins : int or sequence or str, default: :rc:`hist.bins`
             If *bins* is an integer, it defines the number of equal-width bins
             in the range.
 
@@ -6400,8 +6381,6 @@ optional.
             If *bins* is a string, it is one of the binning strategies
             supported by `numpy.histogram_bin_edges`: 'auto', 'fd', 'doane',
             'scott', 'stone', 'rice', 'sturges', or 'sqrt'.
-
-            The default is :rc:`hist.bins`.
 
         range : tuple or None, optional
             The lower and upper range of the bins. Lower and upper outliers
@@ -6975,15 +6954,13 @@ optional.
 
         %(PSD)s
 
-        noverlap : int
+        noverlap : int, default: 0 (no overlap)
             The number of points of overlap between segments.
-            The default value is 0 (no overlap).
 
-        Fc : int
-            The center frequency of *x* (defaults to 0), which offsets
-            the x extents of the plot to reflect the frequency range used
-            when a signal is acquired and then filtered and downsampled to
-            baseband.
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
 
         return_line : bool, default: False
             Whether to include the line object plotted in the returned values.
@@ -7090,15 +7067,13 @@ optional.
 
         %(PSD)s
 
-        noverlap : int
+        noverlap : int, default: 0 (no overlap)
             The number of points of overlap between segments.
-            The default value is 0 (no overlap).
 
-        Fc : int
-            The center frequency of *x* (defaults to 0), which offsets
-            the x extents of the plot to reflect the frequency range used
-            when a signal is acquired and then filtered and downsampled to
-            baseband.
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
 
         return_line : bool, default: False
             Whether to include the line object plotted in the returned values.
@@ -7190,11 +7165,10 @@ optional.
             'dB' returns the values in dB scale, i.e., the dB amplitude
             (20 * log10). 'default' is 'linear'.
 
-        Fc : int
-            The center frequency of *x* (defaults to 0), which offsets
-            the x extents of the plot to reflect the frequency range used
-            when a signal is acquired and then filtered and downsampled to
-            baseband.
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
 
         Returns
         -------
@@ -7268,11 +7242,10 @@ optional.
 
         %(Single_Spectrum)s
 
-        Fc : int
-            The center frequency of *x* (defaults to 0), which offsets
-            the x extents of the plot to reflect the frequency range used
-            when a signal is acquired and then filtered and downsampled to
-            baseband.
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
 
         Returns
         -------
@@ -7335,11 +7308,10 @@ optional.
 
         %(Single_Spectrum)s
 
-        Fc : int
-            The center frequency of *x* (defaults to 0), which offsets
-            the x extents of the plot to reflect the frequency range used
-            when a signal is acquired and then filtered and downsampled to
-            baseband.
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
 
         Returns
         -------
@@ -7403,16 +7375,13 @@ optional.
 
         %(PSD)s
 
-        noverlap : int
-            The number of points of overlap between blocks.  The
-            default value is 0 (no overlap).
+        noverlap : int, default: 0 (no overlap)
+            The number of points of overlap between blocks.
 
-        Fc : int
-            The center frequency of *x* (defaults to 0), which offsets
-            the x extents of the plot to reflect the frequency range used
-            when a signal is acquired and then filtered and downsampled to
-            baseband.
-
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
 
         Returns
         -------
@@ -7490,11 +7459,10 @@ optional.
             'magnitude' and 'linear' otherwise.  This must be 'linear'
             if *mode* is 'angle' or 'phase'.
 
-        Fc : int
-            The center frequency of *x* (defaults to 0), which offsets
-            the x extents of the plot to reflect the frequency range used
-            when a signal is acquired and then filtered and downsampled to
-            baseband.
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
 
         cmap : `.Colormap`, default: :rc:`image.cmap`
 
