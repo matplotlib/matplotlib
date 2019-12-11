@@ -528,7 +528,7 @@ def _create_tmp_config_or_cache_dir():
     If the config or cache directory cannot be created, create a temporary one.
     """
     configdir = os.environ['MPLCONFIGDIR'] = (
-        tempfile.mkdtemp(prefix='matplotlib-'))
+        tempfile.mkdtemp(prefix='matplotlib-{}-'.format(os.getpid())))
     atexit.register(shutil.rmtree, configdir)
     return configdir
 
