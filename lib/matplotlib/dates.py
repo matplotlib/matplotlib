@@ -837,13 +837,11 @@ class AutoDateFormatter(ticker.Formatter):
             1. / (MINUTES_PER_DAY): rcParams['date.autoformat.minute'],
             1. / (SEC_PER_DAY): rcParams['date.autoformat.second'],
             1. / (MUSECONDS_PER_DAY): rcParams['date.autoformat.microsecond'],
-            }
-
+        }
 
     The algorithm picks the key in the dictionary that is >= the
     current scale and uses that format string.  You can customize this
     dictionary by doing::
-
 
     >>> locator = AutoDateLocator()
     >>> formatter = AutoDateFormatter(locator)

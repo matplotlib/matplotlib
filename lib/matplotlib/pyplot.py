@@ -730,7 +730,6 @@ def axes(arg=None, **kwargs):
         The axis will have the same limits, ticks, and scale as the axis
         of the shared axes.
 
-
     label : str
         A label for the returned axes.
 
@@ -1114,26 +1113,18 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
 
     Parameters
     ----------
-    shape : sequence of 2 ints
-        Shape of grid in which to place axis.
-        First entry is number of rows, second entry is number of columns.
-
-    loc : sequence of 2 ints
-        Location to place axis within grid.
-        First entry is row number, second entry is column number.
-
+    shape : (int, int)
+        Number of rows and of columns of the grid in which to place axis.
+    loc : (int, int)
+        Row number and column number of the axis location within the grid.
     rowspan : int
         Number of rows for the axis to span to the right.
-
     colspan : int
         Number of columns for the axis to span downwards.
-
     fig : `Figure`, optional
         Figure to place axis in. Defaults to current figure.
-
     **kwargs
         Additional keyword arguments are handed to `add_subplot`.
-
 
     Notes
     -----
@@ -1143,8 +1134,8 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
 
     is identical to ::
 
-        gridspec=GridSpec(shape[0], shape[1])
-        subplotspec=gridspec.new_subplotspec(loc, rowspan, colspan)
+        gridspec = GridSpec(shape[0], shape[1])
+        subplotspec = gridspec.new_subplotspec(loc, rowspan, colspan)
         subplot(subplotspec)
     """
 
@@ -1803,7 +1794,6 @@ def colormaps():
       twilight_shifted  perceptually uniform shades of
                         black-blue-white-red-black
       ================  =================================================
-
 
     Other miscellaneous schemes:
 

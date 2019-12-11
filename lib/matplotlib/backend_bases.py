@@ -2614,7 +2614,6 @@ class NavigationToolbar2:
     'button_press_event' and 'button_release_event'.  See
     :meth:`FigureCanvasBase.mpl_connect` for more information
 
-
     They must also define
 
       :meth:`save_figure`

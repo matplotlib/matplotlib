@@ -52,7 +52,6 @@ def stackplot(axes, x, *args,
     **kwargs
         All other keyword arguments are passed to `Axes.fill_between()`.
 
-
     Returns
     -------
     list : list of `.PolyCollection`

@@ -399,8 +399,8 @@ class ColorbarBase(_ColorbarMappableDummy):
     ----------
     ax : `~matplotlib.axes.Axes`
         The `~.axes.Axes` instance in which the colorbar is drawn.
-    cmap : `~matplotlib.colors.Colormap` or None
-        The colormap to use. If *None*, use :rc:`image.cmap`.
+    cmap : `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+        The colormap to use.
     norm : `~matplotlib.colors.Normalize`
 
     alpha : float

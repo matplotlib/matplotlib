@@ -1616,14 +1616,12 @@ class QuadContourSet(ContourSet):
 
         Other Parameters
         ----------------
-        corner_mask : bool, optional
+        corner_mask : bool, default: :rc:`contour.corner_mask`
             Enable/disable corner masking, which only has an effect if *Z* is
             a masked array.  If ``False``, any quad touching a masked point is
             masked out.  If ``True``, only the triangular corners of quads
             nearest those points are always masked out, other triangular
             corners comprising three unmasked points are contoured as usual.
-
-            Defaults to :rc:`contour.corner_mask`.
 
         colors : color string or sequence of colors, optional
             The colors of the levels, i.e. the lines for `.contour` and the
@@ -1643,10 +1641,9 @@ class QuadContourSet(ContourSet):
         alpha : float, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-        cmap : str or `.Colormap`, optional
+        cmap : str or `.Colormap`, default: :rc:`image.cmap`
             A `.Colormap` instance or registered colormap name. The colormap
             maps the level values to colors.
-            Defaults to :rc:`image.cmap`.
 
             If both *colors* and *cmap* are given, an error is raised.
 
@@ -1740,7 +1737,7 @@ class QuadContourSet(ContourSet):
             however introduce rendering artifacts at chunk boundaries depending
             on the backend, the *antialiased* flag and value of *alpha*.
 
-        linewidths : float or sequence of float, optional
+        linewidths : float or sequence of float, default: :rc:`lines.linewidth`
             *Only applies to* `.contour`.
 
             The line width of the contour lines.
@@ -1749,8 +1746,6 @@ class QuadContourSet(ContourSet):
 
             If a sequence, the levels in ascending order will be plotted with
             the linewidths in the order specified.
-
-            Defaults to :rc:`lines.linewidth`.
 
         linestyles : {*None*, 'solid', 'dashed', 'dashdot', 'dotted'}, optional
             *Only applies to* `.contour`.

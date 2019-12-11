@@ -2990,7 +2990,7 @@ class _AxesBase(martist.Artist):
 
         Examples
         --------
-        Usage ::
+        ::
 
             ax.tick_params(direction='out', length=6, width=2, colors='r',
                            grid_color='r', grid_alpha=0.5)
@@ -3818,8 +3818,8 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        tz : str or `tzinfo` instance, optional
-            Timezone.  Defaults to :rc:`timezone`.
+        tz : str or `tzinfo`, default: :rc:`timezone`
+            Timezone.
         """
         # should be enough to inform the unit conversion interface
         # dates are coming in
@@ -3831,8 +3831,8 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        tz : str or `tzinfo` instance, optional
-            Timezone.  Defaults to :rc:`timezone`.
+        tz : str or `tzinfo`, default: :rc:`timezone`
+            Timezone.
         """
         self.yaxis.axis_date(tz)
 
