@@ -209,10 +209,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(p) for p in paths]
-            transform = transform.get_affine()
+            # Don't convert transform to transform.get_affine() here because
+            # we may have transform.contains_branch(transData) but not
+            # transforms.get_affine().contains_branch(transData).  But later,
+            # be careful to only apply the affine part that remains.
         if not transOffset.is_affine:
             offsets = transOffset.transform_non_affine(offsets)
-            transOffset = transOffset.get_affine()
 
         if isinstance(offsets, np.ma.MaskedArray):
             offsets = offsets.filled(np.nan)
@@ -225,8 +227,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 # offset.  LineCollections that have no offsets can
                 # also use this algorithm (like streamplot).
                 result = mpath.get_path_collection_extents(
-                    transform.frozen(), paths, self.get_transforms(),
-                    offsets, transOffset.frozen())
+                    transform.get_affine(), paths, self.get_transforms(),
+                    offsets, transOffset.get_affine().frozen())
                 return result.inverse_transformed(transData)
             if not self._offsetsNone:
                 # this is for collections that have their paths (shapes)
@@ -235,7 +237,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 # those shapes, so we just set the limits based on their
                 # location.
                 # Finish the transform:
-                offsets = (transOffset +
+                offsets = (transOffset.get_affine() +
                            transData.inverted()).transform(offsets)
                 offsets = np.ma.masked_invalid(offsets)
                 if not offsets.mask.all():
