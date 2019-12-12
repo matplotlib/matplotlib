@@ -1,4 +1,3 @@
-import collections.abc
 import functools
 import itertools
 import logging
@@ -4204,7 +4203,7 @@ class Axes(_AxesBase):
                  else get_next_color_func())
         c_is_string_or_strings = (
             isinstance(c, str)
-            or (isinstance(c, collections.abc.Iterable) and len(c) > 0
+            or (np.iterable(c) and len(c) > 0
                 and isinstance(cbook.safe_first_element(c), str)))
 
         def invalid_shape_exception(csize, xsize):
@@ -4238,7 +4237,7 @@ class Axes(_AxesBase):
         if not c_is_mapped:
             try:  # Is 'c' acceptable as PathCollection facecolors?
                 colors = mcolors.to_rgba_array(c)
-            except ValueError:
+            except (TypeError, ValueError):
                 if not valid_shape:
                     raise invalid_shape_exception(c.size, xsize)
                 # Both the mapping *and* the RGBA conversion failed: pretty
