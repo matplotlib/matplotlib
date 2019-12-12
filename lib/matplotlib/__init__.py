@@ -192,10 +192,6 @@ def _check_versions():
 _check_versions()
 
 
-if not hasattr(sys, 'argv'):  # for modpython
-    sys.argv = ['modpython']
-
-
 # The decorator ensures this always returns the same handler (and it is only
 # attached once).
 @functools.lru_cache()
