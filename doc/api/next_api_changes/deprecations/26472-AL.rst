@@ -1,0 +1,5 @@
+Auto-closing of figures when switching backend
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated.  Explicitly call ``plt.close("all")`` if necessary.  In the
+future, allowable backend switches (i.e. those that do not swap a GUI event
+loop with another one) will not close existing figures.

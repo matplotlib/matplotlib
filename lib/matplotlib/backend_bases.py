@@ -45,7 +45,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import (
     _api, backend_tools as tools, cbook, colors, _docstring, text,
-    _tight_bbox, transforms, widgets, get_backend, is_interactive, rcParams)
+    _tight_bbox, transforms, widgets, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import _setattr_cm
@@ -2736,8 +2736,8 @@ class FigureManagerBase:
             # thus warrants a warning.
             return
         raise NonGuiException(
-            f"Matplotlib is currently using {get_backend()}, which is a "
-            f"non-GUI backend, so cannot show the figure.")
+            f"{type(self.canvas).__name__} is non-interactive, and thus cannot be "
+            f"shown")
 
     def destroy(self):
         pass
