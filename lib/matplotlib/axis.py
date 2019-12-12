@@ -1508,18 +1508,12 @@ class Axis(martist.Artist):
         ----------
         u : units tag
         """
-        pchanged = False
-        if u is None:
-            self.units = None
-            pchanged = True
-        else:
-            if u != self.units:
-                self.units = u
-                pchanged = True
-        if pchanged:
-            self._update_axisinfo()
-            self.callbacks.process('units')
-            self.callbacks.process('units finalize')
+        if u == self.units:
+            return
+        self.units = u
+        self._update_axisinfo()
+        self.callbacks.process('units')
+        self.callbacks.process('units finalize')
         self.stale = True
 
     def get_units(self):
