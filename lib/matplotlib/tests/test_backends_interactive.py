@@ -167,6 +167,7 @@ def _test_interactive_impl():
             fig = plt.figure()
             assert (type(fig.canvas).__module__ ==
                     f"matplotlib.backends.backend_{alt_backend}")
+            plt.close("all")
 
         if importlib.util.find_spec("cairocffi"):
             check_alt_backend(backend[:-3] + "cairo")

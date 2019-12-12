@@ -75,7 +75,9 @@ def mpl_test_settings(request):
         try:
             yield
         finally:
-            matplotlib.use(prev_backend)
+            if backend is not None:
+                plt.close("all")
+                matplotlib.use(prev_backend)
 
 
 @pytest.fixture
