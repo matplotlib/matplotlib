@@ -60,10 +60,6 @@ class Artist:
 
     Typically, all visible elements in a figure are subclasses of Artist.
     """
-    @cbook.deprecated("3.1")
-    @property
-    def aname(self):
-        return 'Artist'
 
     zorder = 0
     # order of precedence when bulk setting/updating properties

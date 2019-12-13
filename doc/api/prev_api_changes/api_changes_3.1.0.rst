@@ -820,7 +820,7 @@ suggest that custom backends let their ``GraphicsContext`` class
 inherit from `.GraphicsContextBase`, to at least provide stubs for all
 required methods.
 
-- `.spine.Spine.is_frame_like`
+- ``spine.Spine.is_frame_like``
 
 This has not been used in the codebase since its addition in 2009.
 
@@ -829,28 +829,28 @@ This has not been used in the codebase since its addition in 2009.
   This has never been used internally, there is no equivalent method exists on
   the 2D Axis classes, and despite the similar name, it has a completely
   different behavior from the 2D Axis' `axis.Axis.get_ticks_position` method.
-- `.backend_pgf.LatexManagerFactory`
+- ``.backend_pgf.LatexManagerFactory``
 
-- `.mpl_toolkits.axisartist.axislines.SimpleChainedObjects`
-- `.mpl_toolkits.Axes.AxisDict`
+- ``mpl_toolkits.axisartist.axislines.SimpleChainedObjects``
+- ``mpl_toolkits.Axes.AxisDict``
 
 Internal Helper Functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- `.checkdep_dvipng`
-- `.checkdep_ghostscript`
-- `.checkdep_pdftops`
-- `.checkdep_inkscape`
+- ``checkdep_dvipng``
+- ``checkdep_ghostscript``
+- ``checkdep_pdftops``
+- ``checkdep_inkscape``
 
 
-- `.ticker.decade_up`
-- `.ticker.decade_down`
+- ``ticker.decade_up``
+- ``ticker.decade_down``
 
 
-- `.cbook.dedent`
-- `.docstring.Appender`
-- `.docstring.dedent`
-- `.docstring.copy_dedent`
+- ``cbook.dedent``
+- ``docstring.Appender``
+- ``docstring.dedent``
+- ``docstring.copy_dedent``
 
 Use the standard library's docstring manipulation tools instead, such as
 `inspect.cleandoc` and `inspect.getdoc`.
@@ -875,7 +875,7 @@ future version.
 - `.cbook.is_hashable`
   Use ``isinstance(..., collections.abc.Hashable)`` instead.
 
-- The `.backend_bases.RendererBase.strip_math`.  Use
+- The ``.backend_bases.RendererBase.strip_math``.  Use
   `.cbook.strip_math` instead.
 
 Multiple internal functions that were exposed as part of the public API
@@ -910,19 +910,19 @@ If your project relies on these functions, consider vendoring them.
 Font Handling
 ~~~~~~~~~~~~~
 
-- `.backend_pdf.RendererPdf.afm_font_cache`
-- `.backend_ps.RendererPS.afmfontd`
-- `.font_manager.OSXInstalledFonts`
+- ``backend_pdf.RendererPdf.afm_font_cache``
+- ``backend_ps.RendererPS.afmfontd``
+- ``font_manager.OSXInstalledFonts``
 - `.TextToPath.glyph_to_path` (Instead call ``font.get_path()`` and manually transform the path.)
 
 
 Date related functions
 ~~~~~~~~~~~~~~~~~~~~~~
 
-- `.dates.seconds()`
-- `.dates.minutes()`
-- `.dates.hours()`
-- `.dates.weeks()`
+- ``dates.seconds()``
+- ``dates.minutes()``
+- ``dates.hours()``
+- ``dates.weeks()``
 - `.dates.strpdate2num`
 - `.dates.bytespdate2num`
 
@@ -983,7 +983,7 @@ available on PyPI. Install that module separately if you need it.
 
 .. _formlayout: https://pypi.org/project/formlayout/
 
-- `.GraphicsContextPS.shouldstroke`
+- ``GraphicsContextPS.shouldstroke``
 
 
 Transforms / scales
@@ -1038,11 +1038,11 @@ Text
 Unused attributes
 ~~~~~~~~~~~~~~~~~
 
-- `.NavigationToolbar2QT.buttons`
-- `.Line2D.verticalOffset`
-- `.Quiver.keytext`
-- `.Quiver.keyvec`
-- `.SpanSelector.buttonDown`
+- ``NavigationToolbar2QT.buttons``
+- ``Line2D.verticalOffset``
+- ``Quiver.keytext``
+- ``Quiver.keyvec``
+- ``SpanSelector.buttonDown``
 
 These are unused and never updated.
 

@@ -19,8 +19,7 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import (
-    cbook, _path, __version__, rcParams, checkdep_ghostscript)
+from matplotlib import cbook, _path, __version__, rcParams
 from matplotlib import _text_layout
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -45,58 +44,8 @@ debugPS = 0
 
 
 class PsBackendHelper:
-
     def __init__(self):
         self._cached = {}
-
-    @cbook.deprecated("3.1")
-    @property
-    def gs_exe(self):
-        """
-        executable name of ghostscript.
-        """
-        try:
-            return self._cached["gs_exe"]
-        except KeyError:
-            pass
-
-        gs_exe, gs_version = checkdep_ghostscript()
-        if gs_exe is None:
-            gs_exe = 'gs'
-
-        self._cached["gs_exe"] = str(gs_exe)
-        return str(gs_exe)
-
-    @cbook.deprecated("3.1")
-    @property
-    def gs_version(self):
-        """
-        version of ghostscript.
-        """
-        try:
-            return self._cached["gs_version"]
-        except KeyError:
-            pass
-
-        s = subprocess.Popen(
-            [self.gs_exe, "--version"], stdout=subprocess.PIPE)
-        pipe, stderr = s.communicate()
-        ver = pipe.decode('ascii')
-        try:
-            gs_version = tuple(map(int, ver.strip().split(".")))
-        except ValueError:
-            # if something went wrong parsing return null version number
-            gs_version = (0, 0)
-        self._cached["gs_version"] = gs_version
-        return gs_version
-
-    @cbook.deprecated("3.1")
-    @property
-    def supports_ps2write(self):
-        """
-        True if the installed ghostscript supports ps2write device.
-        """
-        return self.gs_version[0] >= 9
 
 
 ps_backend_helper = PsBackendHelper()
@@ -188,11 +137,6 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
     The renderer handles all the drawing primitives using a graphics
     context instance that controls the colors/styles.
     """
-
-    @property
-    @cbook.deprecated("3.1")
-    def afmfontd(self, _cache=cbook.maxdict(50)):
-        return _cache
 
     _afm_font_dir = cbook._get_data_path("fonts/afm")
     _use_afm_rc_name = "ps.useafm"
@@ -794,11 +738,6 @@ class GraphicsContextPS(GraphicsContextBase):
     def get_joinstyle(self):
         return {'miter': 0, 'round': 1, 'bevel': 2}[
             GraphicsContextBase.get_joinstyle(self)]
-
-    @cbook.deprecated("3.1")
-    def shouldstroke(self):
-        return (self.get_linewidth() > 0.0 and
-                (len(self.get_rgb()) <= 3 or self.get_rgb()[3] != 0.0))
 
 
 class _Orientation(Enum):

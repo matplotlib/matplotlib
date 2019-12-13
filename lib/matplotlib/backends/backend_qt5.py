@@ -725,16 +725,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             labelAction = self.addWidget(self.locLabel)
             labelAction.setVisible(True)
 
-    @cbook.deprecated("3.1")
-    @property
-    def buttons(self):
-        return {}
-
-    @cbook.deprecated("3.1")
-    @property
-    def adj_window(self):
-        return None
-
     def edit_parameters(self):
         axes = self.canvas.figure.get_axes()
         if not axes:

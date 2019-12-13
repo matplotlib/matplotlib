@@ -419,11 +419,6 @@ class Line2D(Artist):
 
         self.set_data(xdata, ydata)
 
-    @cbook.deprecated("3.1")
-    @property
-    def verticalOffset(self):
-        return None
-
     def contains(self, mouseevent):
         """
         Test whether the mouse event occurred on the line.  The pick
