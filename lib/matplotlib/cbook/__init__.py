@@ -1803,15 +1803,6 @@ def get_label(y, default_name):
         return default_name
 
 
-_lockstr = """\
-LOCKERROR: matplotlib is trying to acquire the lock
-    {!r}
-and has failed.  This maybe due to any other process holding this
-lock.  If you are sure no other matplotlib process is running try
-removing these folders and trying again.
-"""
-
-
 @contextlib.contextmanager
 def _lock_path(path):
     """
