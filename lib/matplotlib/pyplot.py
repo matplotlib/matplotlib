@@ -221,6 +221,11 @@ def switch_backend(newbackend):
             rcParamsOrig["backend"] = "agg"
             return
 
+    # Backends are implemented as modules, but "inherit" default method
+    # implementations from backend_bases._Backend.  This is achieved by
+    # creating a "class" that inherits from backend_bases._Backend and whose
+    # body is filled with the module's globals.
+
     backend_name = cbook._backend_module_name(newbackend)
 
     class backend_mod(matplotlib.backend_bases._Backend):
@@ -258,16 +263,19 @@ def _warn_if_gui_out_of_main_thread():
             "fail.")
 
 
+# This function's signature is rewritten upon backend-load by switch_backend.
 def new_figure_manager(*args, **kwargs):
     """Create a new figure manager instance."""
     _warn_if_gui_out_of_main_thread()
     return _backend_mod.new_figure_manager(*args, **kwargs)
 
 
+# This function's signature is rewritten upon backend-load by switch_backend.
 def draw_if_interactive(*args, **kwargs):
     return _backend_mod.draw_if_interactive(*args, **kwargs)
 
 
+# This function's signature is rewritten upon backend-load by switch_backend.
 def show(*args, **kwargs):
     """
     Display all figures.
