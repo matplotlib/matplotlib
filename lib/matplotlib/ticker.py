@@ -188,10 +188,6 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'SymmetricalLogLocator', 'LogitLocator', 'OldAutoLocator')
 
 
-def _mathdefault(s):
-    return '\\mathdefault{%s}' % s
-
-
 class _DummyAxis:
     def __init__(self, minpos=0):
         self.dataLim = mtransforms.Bbox.unit()
@@ -664,14 +660,10 @@ class ScalarFormatter(Formatter):
                     sciNotStr = self.format_data(10 ** self.orderOfMagnitude)
                 else:
                     sciNotStr = '1e%d' % self.orderOfMagnitude
-            if self._useMathText:
+            if self._useMathText or self._usetex:
                 if sciNotStr != '':
-                    sciNotStr = r'\times%s' % _mathdefault(sciNotStr)
-                s = ''.join(('$', sciNotStr, _mathdefault(offsetStr), '$'))
-            elif self._usetex:
-                if sciNotStr != '':
-                    sciNotStr = r'\times%s' % sciNotStr
-                s = ''.join(('$', sciNotStr, offsetStr, '$'))
+                    sciNotStr = r'\times\mathdefault{%s}' % sciNotStr
+                s = r'$%s\mathdefault{%s}$' % (sciNotStr, offsetStr)
             else:
                 s = ''.join((sciNotStr, offsetStr))
 
@@ -794,10 +786,8 @@ class ScalarFormatter(Formatter):
                 break
         sigfigs += 1
         self.format = '%1.' + str(sigfigs) + 'f'
-        if self._usetex:
-            self.format = '$%s$' % self.format
-        elif self._useMathText:
-            self.format = '$%s$' % _mathdefault(self.format)
+        if self._usetex or self._useMathText:
+            self.format = r'$\mathdefault{%s}$' % self.format
 
     @cbook.deprecated("3.1")
     def pprint_val(self, x):
@@ -1091,11 +1081,7 @@ class LogFormatterMathtext(LogFormatter):
 
     def _non_decade_format(self, sign_string, base, fx, usetex):
         'Return string for non-decade locations'
-        if usetex:
-            return (r'$%s%s^{%.2f}$') % (sign_string, base, fx)
-        else:
-            return ('$%s$' % _mathdefault('%s%s^{%.2f}' %
-                                          (sign_string, base, fx)))
+        return r'$\mathdefault{%s%s^{%.2f}}$' % (sign_string, base, fx)
 
     def __call__(self, x, pos=None):
         """
@@ -1107,10 +1093,7 @@ class LogFormatterMathtext(LogFormatter):
         min_exp = rcParams['axes.formatter.min_exponent']
 
         if x == 0:  # Symlog
-            if usetex:
-                return '$0$'
-            else:
-                return '$%s$' % _mathdefault('0')
+            return r'$\mathdefault{0}$'
 
         sign_string = '-' if x < 0 else ''
         x = abs(x)
@@ -1135,18 +1118,12 @@ class LogFormatterMathtext(LogFormatter):
         else:
             base = '%s' % b
 
-        if np.abs(fx) < min_exp:
-            if usetex:
-                return r'${0}{1:g}$'.format(sign_string, x)
-            else:
-                return '${0}$'.format(_mathdefault(
-                    '{0}{1:g}'.format(sign_string, x)))
+        if abs(fx) < min_exp:
+            return r'$\mathdefault{%s%g}$' % (sign_string, x)
         elif not is_x_decade:
             return self._non_decade_format(sign_string, base, fx, usetex)
-        elif usetex:
-            return r'$%s%s^{%d}$' % (sign_string, base, fx)
         else:
-            return '$%s$' % _mathdefault('%s%s^{%d}' % (sign_string, base, fx))
+            return r'$\mathdefault{%s%s^{%d}}$' % (sign_string, base, fx)
 
 
 class LogFormatterSciNotation(LogFormatterMathtext):
@@ -1161,12 +1138,8 @@ class LogFormatterSciNotation(LogFormatterMathtext):
         coeff = b ** fx / b ** exponent
         if is_close_to_int(coeff):
             coeff = round(coeff)
-        if usetex:
-            return (r'$%s%g\times%s^{%d}$') % \
-                                        (sign_string, coeff, base, exponent)
-        else:
-            return ('$%s$' % _mathdefault(r'%s%g\times%s^{%d}' %
-                                        (sign_string, coeff, base, exponent)))
+        return r'$\mathdefault{%s%g\times%s^{%d}}$' \
+            % (sign_string, coeff, base, exponent)
 
 
 class LogitFormatter(Formatter):
@@ -1338,8 +1311,6 @@ class LogitFormatter(Formatter):
             return ""
         if x <= 0 or x >= 1:
             return ""
-        usetex = rcParams["text.usetex"]
-
         if is_close_to_int(2 * x) and round(2 * x) == 1:
             s = self._one_half
         elif x < 0.5 and is_decade(x, rtol=1e-7):
@@ -1354,9 +1325,7 @@ class LogitFormatter(Formatter):
             s = self._one_minus(self._format_value(1-x, 1-self.locs))
         else:
             s = self._format_value(x, self.locs, sci_notation=False)
-        if usetex:
-            return "$%s$" % s
-        return "$%s$" % _mathdefault(s)
+        return r"$\mathdefault{%s}$" % s
 
     def format_data_short(self, value):
         """
