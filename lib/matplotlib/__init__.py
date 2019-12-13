@@ -431,16 +431,6 @@ def get_home():
         return None
 
 
-def _create_tmp_config_or_cache_dir():
-    """
-    If the config or cache directory cannot be created, create a temporary one.
-    """
-    configdir = os.environ['MPLCONFIGDIR'] = (
-        tempfile.mkdtemp(prefix='matplotlib-'))
-    atexit.register(shutil.rmtree, configdir)
-    return configdir
-
-
 def _get_xdg_config_dir():
     """
     Return the XDG configuration directory, according to the `XDG
@@ -474,7 +464,19 @@ def _get_config_or_cache_dir(xdg_base):
     else:
         if os.access(str(configdir), os.W_OK) and configdir.is_dir():
             return str(configdir)
-    return _create_tmp_config_or_cache_dir()
+    # If the config or cache directory cannot be created or is not a writable
+    # directory, create a temporary one.
+    tmpdir = os.environ["MPLCONFIGDIR"] = \
+        tempfile.mkdtemp(prefix="matplotlib-")
+    atexit.register(shutil.rmtree, tmpdir)
+    _log.warning(
+        "Matplotlib created a temporary config/cache directory at %s because "
+        "the default path (%s) is not a writable directory; it is highly "
+        "recommended to set the MPLCONFIGDIR environment variable to a "
+        "writable directory, in particular to speed up the import of "
+        "Matplotlib and to better support multiprocessing.",
+        configdir, tmpdir)
+    return tmpdir
 
 
 @_logged_cached('CONFIGDIR=%s')
