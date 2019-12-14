@@ -2921,9 +2921,8 @@ class Axes(_AxesBase):
                 "and will be removed %(removal)s; pass a 1D array instead.")
             x = np.atleast_1d(x.squeeze())
 
-        for part in x:
-            if part < 0:
-                raise ValueError("wedge sizes must be non negative values")
+        if np.any(x < 0):
+            raise ValueError("wedge sizes must be non negative values")
 
         sx = x.sum()
         if sx > 1:
