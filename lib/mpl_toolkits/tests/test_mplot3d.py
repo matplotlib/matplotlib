@@ -42,7 +42,7 @@ def test_bar3d_shaded():
     y = np.arange(5)
     x2d, y2d = np.meshgrid(x, y)
     x2d, y2d = x2d.ravel(), y2d.ravel()
-    z = x2d + y2d
+    z = x2d + y2d + 1  # Avoid triggering bug with zero-depth boxes.
 
     views = [(-60, 30), (30, 30), (30, -30), (120, -30)]
     fig = plt.figure(figsize=plt.figaspect(1 / len(views)))
