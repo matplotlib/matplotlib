@@ -6849,3 +6849,10 @@ def test_bbox_aspect_axes_init():
         sizes.extend([bb.width, bb.height])
 
     assert_allclose(sizes, sizes[0])
+
+
+def test_pi_get_negative_values():
+    # Test the ValueError raised when feeding negative values into axes.pie
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError):
+        ax.pie([5, 5, -3], explode=[0, .1, .2])
