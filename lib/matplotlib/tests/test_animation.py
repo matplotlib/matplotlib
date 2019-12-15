@@ -169,12 +169,8 @@ def test_save_animation_smoketest(tmpdir, writer, output):
     # per frame with known names.
     with tmpdir.as_cwd():
         anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
-        try:
-            anim.save(output, fps=30, writer=writer, bitrate=500, dpi=dpi,
-                      codec=codec)
-        except UnicodeDecodeError:
-            pytest.xfail("There can be errors in the numpy import stack, "
-                         "see issues #1891 and #2679")
+        anim.save(output, fps=30, writer=writer, bitrate=500, dpi=dpi,
+                  codec=codec)
 
 
 def test_no_length_frames():
