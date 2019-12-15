@@ -39,4 +39,3 @@ matplotlib.pyplot.axhline
 matplotlib.pyplot.axvline
 matplotlib.axes.Axes.axhline
 matplotlib.axes.Axes.axvline
-
