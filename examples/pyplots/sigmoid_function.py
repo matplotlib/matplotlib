@@ -1,21 +1,23 @@
 """
 ============
-Sigmoid Function
+Infinite horizontal and vertical lines
 ============
-A script that showes the sigmoid function with horizontal lines for emphasis of important values.
+A script that showes the infinite horizontal and vertical lines together with a sigmoid function.
 """
 import numpy as np
 import matplotlib.pyplot as plt
+
 t = np.linspace(-10, 10, 100)
 sig = 1 / (1 + np.exp(-t))
-plt.figure(figsize=(9, 5))
-plt.axhline(c="k")
-plt.axvline(c="k")
-plt.axhline(y=0.5,c="k", ls = ":")
-plt.axhline(y=1.0,c="k", ls = ":")
-plt.plot(t, sig, "b-", linewidth=2, label=r"$\sigma(t) = \frac{1}{1 + e^{-t}}$")
+
+plt.axhline(y=0, color="black", linestyle="--")
+plt.axhline(y=0.5, color="black", linestyle=":")
+plt.axhline(y=1.0, color="black", linestyle="--")
+plt.axvline(color="grey")
+plt.plot(t, sig, linewidth=2, label=r"$\sigma(t) = \frac{1}{1 + e^{-t}}$")
+plt.xlim(-10, 10)
 plt.xlabel("t")
-plt.legend(loc="upper left", fontsize=20)
+plt.legend(fontsize=14)
 plt.show()
 
 #############################################################################
