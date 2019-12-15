@@ -216,6 +216,7 @@ per-file-ignores =
     examples/pyplots/whats_new_99_axes_grid.py: E402
     examples/pyplots/whats_new_99_mplot3d.py: E402
     examples/pyplots/whats_new_99_spines.py: E231, E402
+    examples/pyplots/sigmoid_function.py : E402
     examples/recipes/placing_text_boxes.py: E501
     examples/scales/power_norm.py: E402
     examples/scales/scales.py: E402
