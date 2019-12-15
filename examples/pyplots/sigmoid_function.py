@@ -1,8 +1,12 @@
 """
-============
+======================================
 Infinite horizontal and vertical lines
-============
-A script that showes infinite horizontal and vertical lines together with a sigmoid function.
+======================================
+
+`~.axes.Axes.axvline` and `~.axes.Axes.axhline` draw infinite vertical /
+horizontal lines, at given *x* / *y* positions. They are usually used to mark
+special data values, e.g. in this example the center and limit values of the
+sigmoid function.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -31,5 +35,8 @@ plt.show()
 # in this example:
 
 import matplotlib
+matplotlib.pyplot.axhline
+matplotlib.pyplot.axvline
 matplotlib.axes.Axes.axhline
 matplotlib.axes.Axes.axvline
+
