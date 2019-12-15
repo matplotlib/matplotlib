@@ -2,7 +2,7 @@
 ============
 Infinite horizontal and vertical lines
 ============
-A script that showes the infinite horizontal and vertical lines together with a sigmoid function.
+A script that showes infinite horizontal and vertical lines together with a sigmoid function.
 """
 import numpy as np
 import matplotlib.pyplot as plt
