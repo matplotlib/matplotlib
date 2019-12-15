@@ -291,9 +291,13 @@ sviewgui
 ========
 
 `sviewgui <https://pypi.org/project/sviewgui/>`_ is a PyQt-based GUI for data visualisation. This GUI is based on the matplotlib and you can visualize your csv file in various ways by a method 'buildGUI()'. Here are the main features;
+
 • Scatter, line, density, histgram, and box plot for visualisation your csv.
+
 • Detail setting for the marker size, line width, number of bins of histgram, color map (from cmocean).
+
 • Save figure as editable PDF
+
 The source code of plotted graph is available from 'Log' tab.
 
 .. image:: /_static/sviewgui_sample.png
