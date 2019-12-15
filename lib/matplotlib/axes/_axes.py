@@ -970,11 +970,12 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        Polygon : `~matplotlib.patches.Polygon`
+        rectangle : `~matplotlib.patches.Polygon`
+            Horizontal span (rectangle) from (xmin, ymin) to (xmax, ymax).
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.patches.Polygon` properties.
+        **kwargs : `~matplotlib.patches.Polygon` properties
 
         %(Polygon)s
 
@@ -1027,8 +1028,9 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs
-            Optional parameters are properties of the class `.Polygon`.
+        **kwargs : `~matplotlib.patches.Polygon` properties
+
+        %(Polygon)s
 
         See Also
         --------
@@ -6134,7 +6136,7 @@ default: :rc:`scatter.edgecolors`
 
           ax.pcolorfast([X, Y], C, /, **kwargs)
 
-        This method is similar to ~.Axes.pcolor` and `~.Axes.pcolormesh`.
+        This method is similar to `~.Axes.pcolor` and `~.Axes.pcolormesh`.
         It's designed to provide the fastest pcolor-type plotting with the
         Agg backend. To achieve this, it uses different algorithms internally
         depending on the complexity of the input grid (regular rectangular,
@@ -7470,8 +7472,8 @@ default: :rc:`scatter.edgecolors`
             of the bins is smaller than those of the segments.
 
         **kwargs
-            Additional keyword arguments are passed on to imshow which makes
-            the specgram image.
+            Additional keyword arguments are passed on to `~.axes.Axes.imshow`
+            which makes the specgram image.
 
         Returns
         -------
