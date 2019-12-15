@@ -225,7 +225,7 @@ class GridSpecBase:
             try:
                 k1, k2 = key
             except ValueError:
-                raise ValueError("unrecognized subplot spec")
+                raise ValueError("Unrecognized subplot spec")
             num1, num2 = np.ravel_multi_index(
                 [_normalize(k1, nrows, 0), _normalize(k2, ncols, 1)],
                 (nrows, ncols))

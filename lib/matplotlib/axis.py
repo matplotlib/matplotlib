@@ -2013,6 +2013,8 @@ class XAxis(Axis):
         ----------
         position : {'top', 'bottom', 'both', 'default', 'none'}
         """
+        cbook._check_in_list(['top', 'bottom', 'both', 'default', 'none'],
+                             position=position)
         if position == 'top':
             self.set_tick_params(which='both', top=True, labeltop=True,
                                  bottom=False, labelbottom=False)
@@ -2032,7 +2034,7 @@ class XAxis(Axis):
                                  bottom=True, labelbottom=True)
             self._tick_position = 'bottom'
         else:
-            raise ValueError("invalid position: %s" % position)
+            assert False, "unhandled parameter not caught by _check_in_list"
         self.stale = True
 
     def tick_top(self):
@@ -2300,6 +2302,8 @@ class YAxis(Axis):
         ----------
         position : {'left', 'right', 'both', 'default', 'none'}
         """
+        cbook._check_in_list(['left', 'right', 'both', 'default', 'none'],
+                             position=position)
         if position == 'right':
             self.set_tick_params(which='both', right=True, labelright=True,
                                  left=False, labelleft=False)
@@ -2318,7 +2322,7 @@ class YAxis(Axis):
             self.set_tick_params(which='both', right=True, labelright=False,
                                  left=True, labelleft=True)
         else:
-            raise ValueError("invalid position: %s" % position)
+            assert False, "unhandled parameter not caught by _check_in_list"
         self.stale = True
 
     def tick_right(self):

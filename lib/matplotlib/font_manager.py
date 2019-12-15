@@ -901,7 +901,7 @@ def _json_decode(o):
             r.fname = os.path.join(mpl.get_data_path(), r.fname)
         return r
     else:
-        raise ValueError("don't know how to deserialize __class__=%s" % cls)
+        raise ValueError("Don't know how to deserialize __class__=%s" % cls)
 
 
 def json_dump(data, filename):

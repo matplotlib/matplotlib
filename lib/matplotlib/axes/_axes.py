@@ -2922,7 +2922,7 @@ class Axes(_AxesBase):
             x = np.atleast_1d(x.squeeze())
 
         if np.any(x < 0):
-            raise ValueError("wedge sizes must be non negative values")
+            raise ValueError("Wedge sizes 'x' must be non negative values")
 
         sx = x.sum()
         if sx > 1:

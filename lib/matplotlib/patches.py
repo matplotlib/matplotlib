@@ -3991,7 +3991,7 @@ default: 'arc3'
         elif posA is None and posB is None and path is not None:
             self._posA_posB = None
         else:
-            raise ValueError("either posA and posB, or path need to provided")
+            raise ValueError("Either posA and posB, or path need to provided")
 
         self.patchA = patchA
         self.patchB = patchB

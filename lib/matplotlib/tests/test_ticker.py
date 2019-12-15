@@ -865,7 +865,7 @@ class TestLogitFormatter:
         if match:
             num, deno = float(match["num"]), float(match["deno"])
             return num / deno
-        raise ValueError("not formatted by LogitFormatter")
+        raise ValueError("Not formatted by LogitFormatter")
 
     @pytest.mark.parametrize(
         "fx, x",
