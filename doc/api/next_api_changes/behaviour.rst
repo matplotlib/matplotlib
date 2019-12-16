@@ -41,3 +41,12 @@ did nothing, when passed an unsupported value. It now raises a ``ValueError``.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ``backend_pgf.LatexManager.latex`` is now created with ``encoding="utf-8"``, so
 its ``stdin``, ``stdout``, and ``stderr`` attributes are utf8-encoded.
+
+``pyplot.xticks()`` and ``pyplot.yticks()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, passing labels without passing the ticks to either `.pyplot.xticks`
+and `.pyplot.yticks` would result in
+
+    TypeError: object of type 'NoneType' has no len()
+
+It now raises a ``TypeError`` with a proper description of the error.
