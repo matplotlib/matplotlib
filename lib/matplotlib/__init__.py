@@ -48,8 +48,7 @@ Modules include:
         defines classes for drawing polygons
 
     :mod:`matplotlib.text`
-        defines the :class:`~matplotlib.text.Text`,
-        :class:`~matplotlib.text.TextWithDash`, and
+        defines the :class:`~matplotlib.text.Text` and
         :class:`~matplotlib.text.Annotate` classes
 
     :mod:`matplotlib.image`

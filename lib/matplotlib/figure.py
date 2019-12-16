@@ -33,7 +33,7 @@ from matplotlib.gridspec import GridSpec
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
 from matplotlib.projections import process_projection_requirements
-from matplotlib.text import Text, TextWithDash
+from matplotlib.text import Text
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
 import matplotlib._layoutbox as layoutbox
@@ -1821,9 +1821,8 @@ default: 'top'
         self.stale = True
         return l
 
-    @cbook._delete_parameter("3.1", "withdash")
     @docstring.dedent_interpd
-    def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
+    def text(self, x, y, s, fontdict=None, **kwargs):
         """
         Add text to figure.
 
@@ -1843,10 +1842,6 @@ default: 'top'
             passed as *kwargs* override the corresponding ones given in
             *fontdict*.
 
-        withdash : bool, default: False
-            Creates a `~matplotlib.text.TextWithDash` instance instead of a
-            `~matplotlib.text.Text` instance.
-
         Other Parameters
         ----------------
         **kwargs : `~matplotlib.text.Text` properties
@@ -1863,19 +1858,12 @@ default: 'top'
         .Axes.text
         .pyplot.text
         """
-        default = dict(transform=self.transFigure)
-
-        if (withdash
-                and withdash is not cbook.deprecation._deprecated_parameter):
-            text = TextWithDash(x=x, y=y, text=s)
-        else:
-            text = Text(x=x, y=y, text=s)
-
-        text.update(default)
-        if fontdict is not None:
-            text.update(fontdict)
-        text.update(kwargs)
-
+        effective_kwargs = {
+            'transform': self.transFigure,
+            **(fontdict if fontdict is not None else {}),
+            **kwargs,
+        }
+        text = Text(x=x, y=y, text=s, **effective_kwargs)
         text.set_figure(self)
         text.stale_callback = _stale_figure_callback
 

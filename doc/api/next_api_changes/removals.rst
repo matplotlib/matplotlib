@@ -68,3 +68,10 @@ Classes and methods
 - ``colorbar.ColorbarBase.get_clim`` (use ``ScalarMappable.get_clim`` instead)
 - ``colorbar.ColorbarBase.set_clim`` (use ``ScalarMappable.set_clim`` instead)
 - ``colorbar.ColorbarBase.set_norm`` (use ``ScalarMappable.set_norm`` instead)
+
+- ``text.TextWithDash`` (use ``text.Annotation`` instead)
+
+Arguments
+~~~~~~~~~
+- ``Axes.text()`` / ``pyplot.text()`` do not support the parameter ``withdash``
+  anymore. Use ``Axes.annotate()`` and ``pyplot.annotate()`` instead.

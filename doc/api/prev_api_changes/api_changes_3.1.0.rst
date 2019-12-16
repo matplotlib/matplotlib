@@ -1030,7 +1030,7 @@ This has always returned None instead of the requested radius.
 Text
 ~~~~
 
-- `.text.TextWithDash`
+- ``text.TextWithDash``
 - `.Text.is_math_text`
 - `.TextPath.is_math_text`
 - `.TextPath.text_get_vertices_codes` (As an alternative, construct a new ``TextPath`` object.)
