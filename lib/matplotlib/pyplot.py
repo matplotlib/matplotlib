@@ -1394,14 +1394,17 @@ def xticks(ticks=None, labels=None, **kwargs):
     """
     ax = gca()
 
-    if ticks is None and labels is None:
+    if ticks is None:
         locs = ax.get_xticks()
-        labels = ax.get_xticklabels()
-    elif labels is None:
-        locs = ax.set_xticks(ticks)
-        labels = ax.get_xticklabels()
+        if labels is not None:
+            raise TypeError("xticks(): Parameter 'labels' can't be set "
+                            "without setting 'ticks'")
     else:
         locs = ax.set_xticks(ticks)
+
+    if labels is None:
+        labels = ax.get_xticklabels()
+    else:
         labels = ax.set_xticklabels(labels, **kwargs)
     for l in labels:
         l.update(kwargs)
@@ -1451,14 +1454,17 @@ def yticks(ticks=None, labels=None, **kwargs):
     """
     ax = gca()
 
-    if ticks is None and labels is None:
+    if ticks is None:
         locs = ax.get_yticks()
-        labels = ax.get_yticklabels()
-    elif labels is None:
-        locs = ax.set_yticks(ticks)
-        labels = ax.get_yticklabels()
+        if labels is not None:
+            raise TypeError("yticks(): Parameter 'labels' can't be set "
+                            "without setting 'ticks'")
     else:
         locs = ax.set_yticks(ticks)
+
+    if labels is None:
+        labels = ax.get_yticklabels()
+    else:
         labels = ax.set_yticklabels(labels, **kwargs)
     for l in labels:
         l.update(kwargs)
