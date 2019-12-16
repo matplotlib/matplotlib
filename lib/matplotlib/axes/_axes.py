@@ -650,8 +650,7 @@ class Axes(_AxesBase):
             raise ValueError('secondary_yaxis location must be either '
                              'a float or "left"/"right"')
 
-    @cbook._delete_parameter("3.1", "withdash")
-    def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
+    def text(self, x, y, s, fontdict=None, **kwargs):
         """
         Add text to the axes.
 
@@ -670,10 +669,6 @@ class Axes(_AxesBase):
         fontdict : dict, default: None
             A dictionary to override the default text properties. If fontdict
             is None, the defaults are determined by your rc parameters.
-
-        withdash : bool, default: False
-            Creates a `~matplotlib.text.TextWithDash` instance instead of a
-            `~matplotlib.text.Text` instance.
 
         Returns
         -------
@@ -707,32 +702,15 @@ class Axes(_AxesBase):
 
             >>> text(x, y, s, bbox=dict(facecolor='red', alpha=0.5))
         """
-        if fontdict is None:
-            fontdict = {}
-
         effective_kwargs = {
             'verticalalignment': 'baseline',
             'horizontalalignment': 'left',
             'transform': self.transData,
             'clip_on': False,
-            **fontdict,
+            **(fontdict if fontdict is not None else {}),
             **kwargs,
         }
-
-        # At some point if we feel confident that TextWithDash
-        # is robust as a drop-in replacement for Text and that
-        # the performance impact of the heavier-weight class
-        # isn't too significant, it may make sense to eliminate
-        # the withdash kwarg and simply delegate whether there's
-        # a dash to TextWithDash and dashlength.
-
-        if (withdash
-                and withdash is not cbook.deprecation._deprecated_parameter):
-            t = mtext.TextWithDash(x, y, text=s)
-        else:
-            t = mtext.Text(x, y, text=s)
-        t.update(effective_kwargs)
-
+        t = mtext.Text(x, y, text=s, **effective_kwargs)
         t.set_clip_path(self.patch)
         self._add_text(t)
         return t
