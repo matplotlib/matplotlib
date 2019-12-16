@@ -1470,7 +1470,7 @@ class EventCollection(LineCollection):
         """
         Parameters
         ----------
-        positions : 1D array-like object
+        positions : 1D array-like
             Each value is an event.
 
         orientation : {None, 'horizontal', 'vertical'}, optional

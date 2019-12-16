@@ -161,10 +161,10 @@ mappable
 
         fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
 
-cax : :class:`~matplotlib.axes.Axes` object, optional
+cax : `~matplotlib.axes.Axes`, optional
     Axes into which the colorbar will be drawn.
 
-ax : :class:`~matplotlib.axes.Axes`, list of Axes, optional
+ax : `~matplotlib.axes.Axes`, list of Axes, optional
     Parent axes from which space for a new colorbar axes will be stolen.
     If a list of axes is given they will all be resized to make room for the
     colorbar axes.

@@ -97,7 +97,7 @@ class TextToPath:
 
         Parameters
         ----------
-        prop : `matplotlib.font_manager.FontProperties` instance
+        prop : `~matplotlib.font_manager.FontProperties`
             The font properties for the text.
 
         s : str

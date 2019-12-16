@@ -2902,7 +2902,7 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
 
     Parameters
     ----------
-    trans : :class:`Transform` instance
+    trans : `Transform` subclass
         Any transform, to which offset will be applied.
     fig : :class:`~matplotlib.figure.Figure`, default: None
         Current figure. It can be None if *units* are 'dots'.
@@ -2913,7 +2913,7 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
 
     Returns
     -------
-    trans : :class:`Transform` instance
+    trans : `Transform` subclass
         Transform with applied offset.
     """
     if units == 'dots':

@@ -1454,7 +1454,7 @@ default: 'top'
 
         Returns
         -------
-        ax : `~.axes.Axes` object or array of Axes objects.
+        ax : `~.axes.Axes` or array of Axes
             *ax* can be either a single `~matplotlib.axes.Axes` object or
             an array of Axes objects if more than one subplot was created. The
             dimensions of the resulting array can be controlled with the
@@ -1792,7 +1792,7 @@ default: 'top'
 
         Returns
         -------
-        :class:`matplotlib.legend.Legend` instance
+        `~matplotlib.legend.Legend`
 
         Notes
         -----
@@ -2356,7 +2356,7 @@ default: 'top'
 
         Parameters
         ----------
-        renderer : `.RendererBase` instance
+        renderer : `.RendererBase` subclass
             renderer that will be used to draw the figures (i.e.
             ``fig.canvas.get_renderer()``)
 

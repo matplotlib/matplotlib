@@ -1660,7 +1660,7 @@ class SpanSelector(_SelectorWidget):
 
     Parameters
     ----------
-    ax : `matplotlib.axes.Axes` object
+    ax : `matplotlib.axes.Axes`
 
     onselect : func(min, max), min/max are floats
 
