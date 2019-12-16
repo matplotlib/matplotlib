@@ -1029,7 +1029,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     -------
     fig : `~.figure.Figure`
 
-    ax : `.axes.Axes` object or array of Axes objects.
+    ax : `.axes.Axes` or array of Axes
         *ax* can be either a single `~matplotlib.axes.Axes` object or an
         array of Axes objects if more than one subplot was created.  The
         dimensions of the resulting array can be controlled with the squeeze

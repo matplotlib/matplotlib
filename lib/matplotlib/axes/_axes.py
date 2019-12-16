@@ -7485,7 +7485,7 @@ default: :rc:`scatter.edgecolors`
             The times corresponding to midpoints of segments (i.e., the columns
             in *spectrum*).
 
-        im : instance of class `.AxesImage`
+        im : `.AxesImage`
             The image created by imshow containing the spectrogram.
 
         See Also

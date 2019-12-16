@@ -382,7 +382,7 @@ def datestr2num(d, default=None):
     d : str or sequence of str
         The dates to convert.
 
-    default : datetime instance, optional
+    default : datetime.datetime, optional
         The default date to use when fields are missing in *d*.
     """
     if isinstance(d, str):

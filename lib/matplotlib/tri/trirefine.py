@@ -155,7 +155,7 @@ class UniformTriRefiner(TriRefiner):
 
         Returns
         -------
-        refi_tri : :class:`~matplotlib.tri.Triangulation` object
+        refi_tri : `~matplotlib.tri.Triangulation`
                      The returned refined triangulation
         refi_z : 1d array of length: *refi_tri* node count.
                    The returned interpolated field (at *refi_tri* nodes)

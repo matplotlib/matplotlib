@@ -1747,7 +1747,7 @@ class LightSource:
         data : array-like
             A 2d array (or equivalent) of the height values used to generate a
             shaded map.
-        cmap : `~matplotlib.colors.Colormap` instance
+        cmap : `~matplotlib.colors.Colormap`
             The colormap used to color the *data* array. Note that this must be
             a `~matplotlib.colors.Colormap` instance.  For example, rather than
             passing in `cmap='gist_earth'`, use
