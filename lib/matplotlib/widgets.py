@@ -1120,51 +1120,25 @@ class SubplotTool(Widget):
 
         self.targetfig = targetfig
         toolfig.subplots_adjust(left=0.2, right=0.9)
+        toolfig.suptitle("Click on slider to adjust subplot param")
 
-        self.axleft = toolfig.add_subplot(711)
-        self.axleft.set_title('Click on slider to adjust subplot param')
-        self.axleft.set_navigate(False)
-
-        self.sliderleft = Slider(self.axleft, 'left',
-                                 0, 1, targetfig.subplotpars.left,
-                                 closedmax=False)
-        self.sliderleft.on_changed(self.funcleft)
-
-        self.axbottom = toolfig.add_subplot(712)
-        self.axbottom.set_navigate(False)
-        self.sliderbottom = Slider(self.axbottom,
-                                   'bottom', 0, 1,
-                                   targetfig.subplotpars.bottom,
-                                   closedmax=False)
-        self.sliderbottom.on_changed(self.funcbottom)
-
-        self.axright = toolfig.add_subplot(713)
-        self.axright.set_navigate(False)
-        self.sliderright = Slider(self.axright, 'right', 0, 1,
-                                  targetfig.subplotpars.right,
-                                  closedmin=False)
-        self.sliderright.on_changed(self.funcright)
-
-        self.axtop = toolfig.add_subplot(714)
-        self.axtop.set_navigate(False)
-        self.slidertop = Slider(self.axtop, 'top', 0, 1,
-                                targetfig.subplotpars.top,
-                                closedmin=False)
-        self.slidertop.on_changed(self.functop)
-
-        self.axwspace = toolfig.add_subplot(715)
-        self.axwspace.set_navigate(False)
-        self.sliderwspace = Slider(self.axwspace, 'wspace',
-                                   0, 1, targetfig.subplotpars.wspace,
-                                   closedmax=False)
-        self.sliderwspace.on_changed(self.funcwspace)
-
-        self.axhspace = toolfig.add_subplot(716)
-        self.axhspace.set_navigate(False)
-        self.sliderhspace = Slider(self.axhspace, 'hspace',
-                                   0, 1, targetfig.subplotpars.hspace,
-                                   closedmax=False)
-        self.sliderhspace.on_changed(self.funchspace)
+        self._sliders = []
+        names = ["left", "bottom", "right", "top", "wspace", "hspace"]
+        # The last subplot, removed below, keeps space for the "Reset" button.
+        for name, ax in zip(names, toolfig.subplots(len(names) + 1)):
+            ax.set_navigate(False)
+            slider = Slider(ax, name,
+                            0, 1, getattr(targetfig.subplotpars, name))
+            slider.on_changed(self._on_slider_changed)
+            self._sliders.append(slider)
+        toolfig.axes[-1].remove()
+        (self.sliderleft, self.sliderbottom, self.sliderright, self.slidertop,
+         self.sliderwspace, self.sliderhspace) = self._sliders
+        for slider in [self.sliderleft, self.sliderbottom,
+                       self.sliderwspace, self.sliderhspace]:
+            slider.closedmax = False
+        for slider in [self.sliderright, self.slidertop]:
+            slider.closedmin = False
 
         # constraints
         self.sliderleft.slidermax = self.sliderright
@@ -1175,57 +1149,78 @@ class SubplotTool(Widget):
         bax = toolfig.add_axes([0.8, 0.05, 0.15, 0.075])
         self.buttonreset = Button(bax, 'Reset')
 
-        sliders = (self.sliderleft, self.sliderbottom, self.sliderright,
-                   self.slidertop, self.sliderwspace, self.sliderhspace,)
-
-        def func(event):
-            with ExitStack() as stack:
-                # Temporarily disable drawing on self and self's sliders.
-                stack.enter_context(cbook._setattr_cm(self, drawon=False))
-                for slider in sliders:
-                    stack.enter_context(
-                        cbook._setattr_cm(slider, drawon=False))
-                # Reset the slider to the initial position.
-                for slider in sliders:
-                    slider.reset()
-            # Draw the canvas.
-            if self.drawon:
-                toolfig.canvas.draw()
-                self.targetfig.canvas.draw()
-
-        # during reset there can be a temporary invalid state
-        # depending on the order of the reset so we turn off
-        # validation for the resetting
+        # During reset there can be a temporary invalid state depending on the
+        # order of the reset so we turn off validation for the resetting
         validate = toolfig.subplotpars.validate
         toolfig.subplotpars.validate = False
-        self.buttonreset.on_clicked(func)
+        self.buttonreset.on_clicked(self._on_reset)
         toolfig.subplotpars.validate = validate
 
+    def _on_slider_changed(self, _):
+        self.targetfig.subplots_adjust(
+            **{slider.label.get_text(): slider.val
+               for slider in self._sliders})
+        if self.drawon:
+            self.targetfig.canvas.draw()
+
+    def _on_reset(self, event):
+        with ExitStack() as stack:
+            # Temporarily disable drawing on self and self's sliders.
+            stack.enter_context(cbook._setattr_cm(self, drawon=False))
+            for slider in self._sliders:
+                stack.enter_context(cbook._setattr_cm(slider, drawon=False))
+            # Reset the slider to the initial position.
+            for slider in self._sliders:
+                slider.reset()
+        # Draw the canvas.
+        if self.drawon:
+            event.canvas.draw()
+            self.targetfig.canvas.draw()
+
+    axleft = cbook.deprecated("3.3", name="axleft")(
+        property(lambda self: self.sliderleft.ax))
+    axright = cbook.deprecated("3.3", name="axright")(
+        property(lambda self: self.sliderright.ax))
+    axbottom = cbook.deprecated("3.3", name="axbottom")(
+        property(lambda self: self.sliderbottom.ax))
+    axtop = cbook.deprecated("3.3", name="axtop")(
+        property(lambda self: self.slidertop.ax))
+    axwspace = cbook.deprecated("3.3", name="axwspace")(
+        property(lambda self: self.sliderwspace.ax))
+    axhspace = cbook.deprecated("3.3", name="axhspace")(
+        property(lambda self: self.sliderhspace.ax))
+
+    @cbook.deprecated("3.3")
     def funcleft(self, val):
         self.targetfig.subplots_adjust(left=val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
+    @cbook.deprecated("3.3")
     def funcright(self, val):
         self.targetfig.subplots_adjust(right=val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
+    @cbook.deprecated("3.3")
     def funcbottom(self, val):
         self.targetfig.subplots_adjust(bottom=val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
+    @cbook.deprecated("3.3")
     def functop(self, val):
         self.targetfig.subplots_adjust(top=val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
+    @cbook.deprecated("3.3")
     def funcwspace(self, val):
         self.targetfig.subplots_adjust(wspace=val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
+    @cbook.deprecated("3.3")
     def funchspace(self, val):
         self.targetfig.subplots_adjust(hspace=val)
         if self.drawon:

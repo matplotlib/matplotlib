@@ -349,3 +349,12 @@ The *dummy* parameter of `.RendererPgf` is deprecated.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The ``set_factor`` method of :mod:`mpl_toolkits.axisartist` locators (which are
 different from "standard" Matplotlib tick locators) is deprecated.
+
+`.widgets.SubplotTool` callbacks and axes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``funcleft``, ``funcright``, ``funcbottom``, ``functop``, ``funcwspace``,
+and ``funchspace`` methods of `.widgets.SubplotTool` are deprecated.
+
+The ``axleft``, ``axright``, ``axbottom``, ``axtop``, ``axwspace``, and
+``axhspace`` attributes of `.widgets.SubplotTool` are deprecated.  Access the
+``ax`` attribute of the corresponding slider, if needed.
