@@ -195,6 +195,7 @@ per-file-ignores =
     examples/pyplots/annotation_basic.py: E402
     examples/pyplots/annotation_polar.py: E231, E402
     examples/pyplots/auto_subplots_adjust.py: E231, E302, E402
+    examples/pyplots/axline.py: E402
     examples/pyplots/boxplot_demo_pyplot.py: E231, E402
     examples/pyplots/compound_path_demo.py: E231
     examples/pyplots/dollar_ticks.py: E402
