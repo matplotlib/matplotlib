@@ -203,7 +203,7 @@ Please consider `donating to the Matplotlib project <donating_>`_ through
 the Numfocus organization or to the `John Hunter Technology Fellowship
 <jdh-fellowship_>`_.
 
-.. _donating: https://numfocus.salsalabs.org/donate-to-matplotlib/index.html
+.. _donating: https://numfocus.org/donate-to-matplotlib
 .. _jdh-fellowship: https://www.numfocus.org/programs/john-hunter-technology-fellowship/
 .. _nf: https://numfocus.org
 
