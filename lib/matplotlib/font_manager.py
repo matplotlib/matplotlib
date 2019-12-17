@@ -986,7 +986,13 @@ class FontManager:
         for fontext in ["afm", "ttf"]:
             for path in [*findSystemFonts(paths, fontext=fontext),
                          *findSystemFonts(fontext=fontext)]:
-                self.addfont(path)
+                try:
+                    self.addfont(path)
+                except OSError as exc:
+                    _log.info("Failed to open font file %s: %s", path, exc)
+                except Exception as exc:
+                    _log.info("Failed to extract font properties from %s: %s",
+                              path, exc)
 
     def addfont(self, path):
         """
@@ -998,36 +1004,13 @@ class FontManager:
         path : str or path-like
         """
         if Path(path).suffix.lower() == ".afm":
-            try:
-                with open(path, "rb") as fh:
-                    font = afm.AFM(fh)
-            except EnvironmentError:
-                _log.info("Could not open font file %s", path)
-                return
-            except RuntimeError:
-                _log.info("Could not parse font file %s", path)
-                return
-            try:
-                prop = afmFontProperty(path, font)
-            except KeyError as exc:
-                _log.info("Could not extract properties for %s: %s", path, exc)
-                return
+            with open(path, "rb") as fh:
+                font = afm.AFM(fh)
+            prop = afmFontProperty(path, font)
             self.afmlist.append(prop)
         else:
-            try:
-                font = ft2font.FT2Font(path)
-            except (OSError, RuntimeError) as exc:
-                _log.info("Could not open font file %s: %s", path, exc)
-                return
-            except UnicodeError:
-                _log.info("Cannot handle unicode filenames")
-                return
-            try:
-                prop = ttfFontProperty(font)
-            except (KeyError, RuntimeError, ValueError,
-                    NotImplementedError) as exc:
-                _log.info("Could not extract properties for %s: %s", path, exc)
-                return
+            font = ft2font.FT2Font(path)
+            prop = ttfFontProperty(font)
             self.ttflist.append(prop)
 
     @property
