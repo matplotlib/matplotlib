@@ -5489,6 +5489,13 @@ def test_shared_scale():
         assert ax.get_xscale() == 'linear'
 
 
+def test_shared_bool():
+    with pytest.raises(TypeError):
+        plt.subplot(sharex=True)
+    with pytest.raises(TypeError):
+        plt.subplot(sharey=True)
+
+
 def test_violin_point_mass():
     """Violin plot should handle point mass pdf gracefully."""
     plt.violinplot(np.array([0, 0]))

@@ -51,3 +51,12 @@ def test_pyplot_box():
 def test_stackplot_smoke():
     # Small smoke test for stackplot (see #12405)
     plt.stackplot([1, 2, 3], [1, 2, 3])
+
+
+def test_nrows_warn():
+     with pytest.raises(AttributeError):
+         with pytest.warns(UserWarning) as rec:
+             plt.subplot(nrows=1)
+     with pytest.raises(AttributeError):
+         with pytest.warns(UserWarning) as rec:
+             plt.subplot(ncols=1)
