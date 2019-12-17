@@ -232,6 +232,8 @@ class LatexManager:
             latex_manager._cleanup()
 
     def _stdin_writeln(self, s):
+        if self.latex is None:
+            self._setup_latex_process()
         self.latex.stdin.write(s)
         self.latex.stdin.write("\n")
         self.latex.stdin.flush()
@@ -245,6 +247,8 @@ class LatexManager:
             if chars[-len(s):] == s:
                 break
             if not c:
+                self.latex.kill()
+                self.latex = None
                 raise LatexError("LaTeX process halted", "".join(chars))
         return "".join(chars)
 
@@ -281,6 +285,10 @@ class LatexManager:
             raise LatexError("LaTeX returned an error, probably missing font "
                              "or error in preamble:\n%s" % stdout)
 
+        self.latex = None  # Will be set up on first use.
+        self.str_cache = {}  # cache for strings already processed
+
+    def _setup_latex_process(self):
         # open LaTeX process for real work
         self.latex = subprocess.Popen(
             [self.texcommand, "-halt-on-error"],
@@ -291,9 +299,6 @@ class LatexManager:
         # read all lines until our 'pgf_backend_query_start' token appears
         self._expect("*pgf_backend_query_start")
         self._expect_prompt()
-
-        # cache for strings already processed
-        self.str_cache = {}
 
     @cbook.deprecated("3.3")
     def latex_stdin_utf8(self):
@@ -408,10 +413,10 @@ class RendererPgf(RendererBase):
         else:
             # if fh does not belong to a filename, deactivate draw_image
             if not hasattr(fh, 'name') or not os.path.exists(fh.name):
-                cbook._warn_external("streamed pgf-code does not support "
-                                     "raster graphics, consider using the "
-                                     "pgf-to-pdf option", UserWarning)
-                self.__dict__["draw_image"] = lambda *args, **kwargs: None
+                self.__dict__["draw_image"] = \
+                    lambda *args, **kwargs: cbook._warn_external(
+                        "streamed pgf-code does not support raster graphics, "
+                        "consider using the pgf-to-pdf option")
 
     @cbook.deprecated("3.2")
     def latexManager(self):
