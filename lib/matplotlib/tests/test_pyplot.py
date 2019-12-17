@@ -53,10 +53,8 @@ def test_stackplot_smoke():
     plt.stackplot([1, 2, 3], [1, 2, 3])
 
 
-def test_nrows_warn():
-     with pytest.raises(AttributeError):
-         with pytest.warns(UserWarning) as rec:
-             plt.subplot(nrows=1)
-     with pytest.raises(AttributeError):
-         with pytest.warns(UserWarning) as rec:
-             plt.subplot(ncols=1)
+def test_nrows_error():
+    with pytest.raises(TypeError):
+        plt.subplot(nrows=1)
+    with pytest.raises(TypeError):
+        plt.subplot(ncols=1)

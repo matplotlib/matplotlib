@@ -956,8 +956,8 @@ def subplot(*args, **kwargs):
                              "subplots()?")
     # Check for nrows and ncols, which are not valid subplot args:
     if 'nrows' in kwargs or 'ncols' in kwargs:
-        cbook._warn_external("You have passed nrows and/or ncols to "
-                             "subplot(). Did you mean to use subplots()?")
+        raise TypeError("subplot() got an unexpected keyword argument 'ncols' "
+                         "and/or 'nrows'.  Did you intend to call subplots()?")
 
     fig = gcf()
     a = fig.add_subplot(*args, **kwargs)
