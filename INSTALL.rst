@@ -159,7 +159,9 @@ FreeType and Qhull
 Matplotlib depends on `FreeType <https://www.freetype.org/>`_ (>= 2.3), a
 font rendering library, and on `Qhull <http://www.qhull.org/>`_ (>= 2015.2),
 a library for computing triangulations.  By default, Matplotlib downloads and
-builds its own copy of FreeType, and uses its own copy of Qhull.
+builds its own copy of FreeType (this is necessary to run the test suite,
+because different versions of FreeType rasterize characters differently), and
+uses its own copy of Qhull.
 
 To force Matplotlib to use a copy of FreeType or Qhull already installed in
 your system, create a :file:`setup.cfg` file with the following contents:
