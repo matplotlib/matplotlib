@@ -63,3 +63,7 @@ it via the *cmap* parameter:
 ``DateFormatter.illegal_s``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This attribute is unused and deprecated.
+
+``widgets.TextBox.params_to_disable``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This attribute is deprecated.

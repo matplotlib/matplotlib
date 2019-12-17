@@ -1223,11 +1223,9 @@ def subplot_tool(targetfig=None):
     if targetfig is None:
         targetfig = gcf()
 
-    tbar = rcParams['toolbar']  # Turn off navigation toolbar for the toolfig.
-    rcParams['toolbar'] = 'None'
-    toolfig = figure(figsize=(6, 3))
+    with rc_context({'toolbar': 'None'}):  # No nav toolbar for the toolfig.
+        toolfig = figure(figsize=(6, 3))
     toolfig.subplots_adjust(top=0.9)
-    rcParams['toolbar'] = tbar
 
     if hasattr(targetfig.canvas, "manager"):  # Restore the current figure.
         _pylab_helpers.Gcf.set_active(targetfig.canvas.manager)

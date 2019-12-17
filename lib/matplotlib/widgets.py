@@ -15,7 +15,8 @@ from numbers import Integral
 
 import numpy as np
 
-from . import cbook, rcParams
+import matplotlib as mpl
+from . import cbook
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
 from .transforms import blended_transform_factory
@@ -678,6 +679,11 @@ class TextBox(AxesWidget):
         The color of the text box when hovering.
     """
 
+    @cbook.deprecated("3.3")
+    @property
+    def params_to_disable(self):
+        return [key for key in mpl.rcParams if 'keymap' in key]
+
     def __init__(self, ax, label, initial='',
                  color='.95', hovercolor='1', label_pad=.01):
         """
@@ -699,8 +705,6 @@ class TextBox(AxesWidget):
         AxesWidget.__init__(self, ax)
 
         self.DIST_FROM_LEFT = .05
-
-        self.params_to_disable = [key for key in rcParams if 'keymap' in key]
 
         self.text = initial
         self.label = ax.text(-label_pad, 0.5, label,
@@ -845,10 +849,10 @@ class TextBox(AxesWidget):
         if self.ax.figure.canvas.manager.key_press_handler_id is not None:
             # disable command keys so that the user can type without
             # command keys causing figure to be saved, etc
-            self.reset_params = {}
-            for key in self.params_to_disable:
-                self.reset_params[key] = rcParams[key]
-                rcParams[key] = []
+            self._restore_keymap = ExitStack()
+            self._restore_keymap.enter_context(
+                mpl.rc_context(
+                    {k: [] for k in mpl.rcParams if k.startswith('keymap.')}))
         else:
             self.ax.figure.canvas.manager.toolmanager.keypresslock(self)
 
@@ -861,8 +865,7 @@ class TextBox(AxesWidget):
             if self.ax.figure.canvas.manager.key_press_handler_id is not None:
                 # since the user is no longer typing,
                 # reactivate the standard command keys
-                for key in self.params_to_disable:
-                    rcParams[key] = self.reset_params[key]
+                self._restore_keymap.close()
             else:
                 toolmanager = self.ax.figure.canvas.manager.toolmanager
                 toolmanager.keypresslock.release(self)
