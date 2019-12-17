@@ -954,6 +954,10 @@ def subplot(*args, **kwargs):
         cbook._warn_external("The subplot index argument to subplot() appears "
                              "to be a boolean. Did you intend to use "
                              "subplots()?")
+    # Check for nrows and ncols, which are not valid subplot args:
+    if 'nrows' in kwargs or 'ncols' in kwargs:
+        cbook._warn_external("You have passed nrows and/or ncols to "
+                             "subplot(). Did you mean to use subplots()?")
 
     fig = gcf()
     a = fig.add_subplot(*args, **kwargs)
