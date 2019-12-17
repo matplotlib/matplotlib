@@ -1369,7 +1369,7 @@ class BboxImage(_ImageBase):
         elif callable(self.bbox):
             return self.bbox(renderer)
         else:
-            raise ValueError("unknown type of bbox")
+            raise ValueError("Unknown type of bbox")
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred within the image."""

@@ -82,7 +82,7 @@ def radar_factory(num_vars, frame='circle'):
                 return RegularPolygon((0.5, 0.5), num_vars,
                                       radius=.5, edgecolor="k")
             else:
-                raise ValueError("unknown value for 'frame': %s" % frame)
+                raise ValueError("Unknown value for 'frame': %s" % frame)
 
         def _gen_axes_spines(self):
             if frame == 'circle':
@@ -99,7 +99,7 @@ def radar_factory(num_vars, frame='circle'):
                                     + self.transAxes)
                 return {'polar': spine}
             else:
-                raise ValueError("unknown value for 'frame': %s" % frame)
+                raise ValueError("Unknown value for 'frame': %s" % frame)
 
     register_projection(RadarAxes)
     return theta

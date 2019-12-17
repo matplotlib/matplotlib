@@ -178,7 +178,7 @@ def _option_boolean(arg):
 def _option_context(arg):
     if arg in [None, 'reset', 'close-figs']:
         return arg
-    raise ValueError("argument should be None or 'reset' or 'close-figs'")
+    raise ValueError("Argument should be None or 'reset' or 'close-figs'")
 
 
 def _option_format(arg):
