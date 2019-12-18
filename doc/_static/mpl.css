@@ -8,7 +8,7 @@
     font-family: 'CarlogoRegular';
     font-style: normal;
     src:    local('Carlito'),
-            url('fonts/carlogo-regular.woff2') format('woff2'), 
+            url('fonts/carlogo-regular.woff2') format('woff2'),
             url('fonts/carlogo-regular.woff') format('woff'),
             url('fonts/carlogo-regular.ttf') format('truetype')
 }
@@ -17,7 +17,7 @@
     font-family: 'CarlogoBold';
     font-style: bold;
     src:    local('Carlito Bold'),
-            url('fonts/carlogo-bold.woff2') format('woff2'), 
+            url('fonts/carlogo-bold.woff2') format('woff2'),
             url('fonts/carlogo-bold.woff') format('woff'),
             url('fonts/carlogo-bold.ttf') format('truetype')
 }
@@ -926,6 +926,30 @@ figcaption {
 #unreleased-message a {
   color: #fff;
   text-decoration:underline;
+
+}
+
+/* "We're hiring" message. */
+#job-posting {
+  box-sizing: border-box;
+  left: 0;
+  min-height: 3em;
+  padding: 0.7em;
+  top: 0;
+  width: 100%;
+  z-index: 10000;
+  background-image: linear-gradient(90deg, #440154, #482475, #414487, #355f8d, #2a788e, #21908d, #22a884, #42be71, #7ad151, #bddf26, #bddf26);
+  padding: 5px
+}
+
+#job-posting a {
+    font-weight: bold;
+}
+
+#job-posting p{
+    background-color: rgba(255, 255, 255, .8);
+    padding: 13px;
+    margin:0;
 }
 
 /* Fork me on GitHub "button" */
@@ -1150,23 +1174,23 @@ nav.main-nav{
     font-family: 'CarlogoRegular', 'Carlito', sans-serif;
     font-size: 16px;
   }
-  
+
   nav.main-nav ul{
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: row;
   }
-  
+
   nav.main-nav li{
     margin: 8px 15px;
     list-style-type: none;
   }
-  
+
   nav.main-nav a{
     color: white;
   }
-  
+
   nav.main-nav a:hover{
     text-decoration: underline;
   }
