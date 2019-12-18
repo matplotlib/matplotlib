@@ -438,8 +438,12 @@ class _AxesBase(martist.Artist):
         self._sharex = sharex
         self._sharey = sharey
         if sharex is not None:
+            if not isinstance(sharex, _AxesBase):
+                raise TypeError('sharex must be an axes, not a bool')
             self._shared_x_axes.join(self, sharex)
         if sharey is not None:
+            if not isinstance(sharey, _AxesBase):
+                raise TypeError('sharey must be an axes, not a bool')
             self._shared_y_axes.join(self, sharey)
         self.set_label(label)
         self.set_figure(fig)

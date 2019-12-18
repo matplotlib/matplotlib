@@ -51,3 +51,10 @@ def test_pyplot_box():
 def test_stackplot_smoke():
     # Small smoke test for stackplot (see #12405)
     plt.stackplot([1, 2, 3], [1, 2, 3])
+
+
+def test_nrows_error():
+    with pytest.raises(TypeError):
+        plt.subplot(nrows=1)
+    with pytest.raises(TypeError):
+        plt.subplot(ncols=1)
