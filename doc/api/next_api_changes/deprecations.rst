@@ -338,3 +338,9 @@ an internal helper).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This method is deprecated.  If needed, directly assign to the ``params``
 attribute of the Substitution object.
+
+PGF backend cleanups
+~~~~~~~~~~~~~~~~~~~~
+The *dummy* parameter of `.RendererPgf` is deprecated.
+
+`.GraphicsContextPgf` is deprecated (use `.GraphicsContextBase` instead).
