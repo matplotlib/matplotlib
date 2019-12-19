@@ -1155,15 +1155,14 @@ class BrokenBarHCollection(PolyCollection):
                   (xmin, ymin)] for xmin, xwidth in xranges]
         PolyCollection.__init__(self, verts, **kwargs)
 
-    @staticmethod
-    def span_where(x, ymin, ymax, where, **kwargs):
+    @classmethod
+    def span_where(cls, x, ymin, ymax, where, **kwargs):
         """
-        Create a BrokenBarHCollection to plot horizontal bars from
+        Return a `BrokenBarHCollection` that plots horizontal bars from
         over the regions in *x* where *where* is True.  The bars range
         on the y-axis from *ymin* to *ymax*
 
-        A :class:`BrokenBarHCollection` is returned.  *kwargs* are
-        passed on to the collection.
+        *kwargs* are passed on to the collection.
         """
         xranges = []
         for ind0, ind1 in cbook.contiguous_regions(where):
@@ -1171,10 +1170,7 @@ class BrokenBarHCollection(PolyCollection):
             if not len(xslice):
                 continue
             xranges.append((xslice[0], xslice[-1] - xslice[0]))
-
-        collection = BrokenBarHCollection(
-            xranges, [ymin, ymax - ymin], **kwargs)
-        return collection
+        return cls(xranges, [ymin, ymax - ymin], **kwargs)
 
 
 class RegularPolyCollection(_CollectionWithSizes):
