@@ -276,9 +276,8 @@
 ## ***************************************************************************
 ## * LaTeX                                                                   *
 ## ***************************************************************************
-## See following links for more information on LaTex properties:
+## For more information on LaTex properties, see
 ## https://matplotlib.org/tutorials/text/usetex.html
-## https://scipy-cookbook.readthedocs.io/items/idx_matplotlib_typesetting.html
 #text.usetex : False  ## use latex for all text handling. The following fonts
                       ## are supported through the usual rc parameter settings:
                       ## new century schoolbook, bookman, times, palatino,
