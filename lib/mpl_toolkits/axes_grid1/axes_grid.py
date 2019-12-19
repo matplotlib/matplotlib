@@ -44,12 +44,7 @@ class CbarAxesBase:
             self, mappable, orientation=orientation, ticks=ticks, **kwargs)
         self._config_axes()
 
-        def on_changed(m):
-            cb.set_cmap(m.get_cmap())
-            cb.set_clim(m.get_clim())
-            cb.update_bruteforce(m)
-
-        self.cbid = mappable.callbacksSM.connect('changed', on_changed)
+        self.cbid = mappable.callbacksSM.connect('changed', cb.update_normal)
         mappable.colorbar = cb
 
         if mpl.rcParams["mpl_toolkits.legacy_colorbar"]:

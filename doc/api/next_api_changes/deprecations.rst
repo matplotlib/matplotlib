@@ -144,3 +144,9 @@ and containment checks) via `.Line2D.set_picker` is deprecated.  Use
 
 `.Line2D.set_picker` no longer sets the artist's custom-contain() check.  Use
 ``Line2D.set_contains`` instead.
+
+`~matplotlib.colorbar.Colorbar` methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``on_mappable_changed`` and ``update_bruteforce`` methods of
+`~matplotlib.colorbar.Colorbar` are deprecated; both can be replaced by calls
+to `~matplotlib.colorbar.Colorbar.update_normal`.
