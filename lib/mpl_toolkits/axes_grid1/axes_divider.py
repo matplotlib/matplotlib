@@ -597,8 +597,8 @@ class HBoxDivider(SubplotDivider):
                           total_appended_size):
 
         n = len(equivalent_sizes)
-        A = np.mat(np.zeros((n+1, n+1), dtype="d"))
-        B = np.zeros((n+1), dtype="d")
+        A = np.mat(np.zeros((n + 1, n + 1)))
+        B = np.zeros(n + 1)
         # AxK = B
 
         # populated A

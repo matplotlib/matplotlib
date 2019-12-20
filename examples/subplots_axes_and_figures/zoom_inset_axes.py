@@ -23,9 +23,9 @@ fig, ax = plt.subplots(figsize=[5, 4])
 
 # make data
 Z, extent = get_demo_image()
-Z2 = np.zeros([150, 150], dtype="d")
+Z2 = np.zeros((150, 150))
 ny, nx = Z.shape
-Z2[30:30 + ny, 30:30 + nx] = Z
+Z2[30:30+ny, 30:30+nx] = Z
 
 ax.imshow(Z2, extent=extent, origin="lower")
 

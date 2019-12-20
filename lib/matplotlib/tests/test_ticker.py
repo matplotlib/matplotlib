@@ -575,7 +575,7 @@ class TestLogFormatterExponent:
         # formatted.
         (False, 10, np.array([0.1, 0.00001, np.pi, 0.2, -0.2, -0.00001]),
          range(6), ['0.1', '1e-05', '3.14', '0.2', '-0.2', '-1e-05']),
-        (False, 50, np.array([3, 5, 12, 42], dtype='float'), range(6),
+        (False, 50, np.array([3, 5, 12, 42], dtype=float), range(6),
          ['3', '5', '12', '42']),
     ]
 
