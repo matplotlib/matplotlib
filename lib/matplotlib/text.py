@@ -168,9 +168,7 @@ class Text(Artist):
         self.update(kwargs)
 
     def update(self, kwargs):
-        """
-        Update properties from a dictionary.
-        """
+        # docstring inherited
         # Update bbox last, as it depends on font properties.
         sentinel = object()  # bbox can be None, so use another sentinel.
         bbox = kwargs.pop("bbox", sentinel)
