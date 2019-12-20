@@ -37,7 +37,7 @@ plt.show()
 # -------------------------
 #
 # Another option for creating a legend for a scatter is to use the
-# :class:`~matplotlib.collections.PathCollection`'s
+# `~matplotlib.collections.PathCollection`'s
 # :meth:`~.PathCollection.legend_elements` method.
 # It will automatically try to determine a useful number of legend entries
 # to be shown and return a tuple of handles and labels. Those can be passed

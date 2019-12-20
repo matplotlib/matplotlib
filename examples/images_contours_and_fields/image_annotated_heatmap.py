@@ -32,9 +32,8 @@ universal function.
 # tick labels (:meth:`set_xticklabels<matplotlib.axes.Axes.set_xticklabels>`),
 # otherwise they would become out of sync. The locations are just
 # the ascending integer numbers, while the ticklabels are the labels to show.
-# Finally we can label the data itself by creating a
-# :class:`~matplotlib.text.Text` within each cell showing the value of
-# that cell.
+# Finally we can label the data itself by creating a `~matplotlib.text.Text`
+# within each cell showing the value of that cell.
 
 
 import numpy as np
@@ -263,7 +262,7 @@ annotate_heatmap(im, valfmt="{x:d}", size=7, threshold=20,
                  textcolors=("red", "white"))
 
 # Sometimes even the data itself is categorical. Here we use a
-# :class:`matplotlib.colors.BoundaryNorm` to get the data into classes
+# `matplotlib.colors.BoundaryNorm` to get the data into classes
 # and use this to colorize the plot, but also to obtain the class
 # labels from an array of classes.
 
@@ -286,7 +285,7 @@ annotate_heatmap(im, valfmt=fmt, size=9, fontweight="bold", threshold=-1,
 # We can nicely plot a correlation matrix. Since this is bound by -1 and 1,
 # we use those as vmin and vmax. We may also remove leading zeros and hide
 # the diagonal elements (which are all 1) by using a
-# :class:`matplotlib.ticker.FuncFormatter`.
+# `matplotlib.ticker.FuncFormatter`.
 
 corr_matrix = np.corrcoef(np.random.rand(6, 5))
 im, _ = heatmap(corr_matrix, vegetables, vegetables, ax=ax4,

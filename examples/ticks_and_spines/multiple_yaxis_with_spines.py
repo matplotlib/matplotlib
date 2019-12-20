@@ -1,4 +1,4 @@
-"""
+r"""
 ==========================
 Multiple Yaxis With Spines
 ==========================
@@ -8,7 +8,7 @@ a `~.axes.Axes.twinx` axes, turning all spines but the right one invisible
 and offset its position using `~.spines.Spine.set_position`.
 
 Note that this approach uses `matplotlib.axes.Axes` and their
-:class:`Spines <matplotlib.spines.Spine>`. An alternative approach for parasite
+`~matplotlib.spines.Spine`\s. An alternative approach for parasite
 axes is shown in the :doc:`/gallery/axisartist/demo_parasite_axes` and
 :doc:`/gallery/axisartist/demo_parasite_axes2` examples.
 """
