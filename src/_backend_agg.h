@@ -251,7 +251,7 @@ class RendererAgg
     template <class R>
     void set_clipbox(const agg::rect_d &cliprect, R &rasterizer);
 
-    bool render_clippath(py::PathIterator &clippath, const agg::trans_affine &clippath_trans);
+    bool render_clippath(py::PathIterator &clippath, const agg::trans_affine &clippath_trans, e_snap_mode snap_mode);
 
     template <class PathIteratorType>
     void _draw_path(PathIteratorType &path, bool has_clippath, const facepair_t &face, GCAgg &gc);
@@ -379,7 +379,7 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const facepair_t &face,
         // function
         set_clipbox(gc.cliprect, theRasterizer);
         if (has_clippath) {
-            render_clippath(gc.clippath.path, gc.clippath.trans);
+            render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
         }
 
         // Transfer the hatch to the main image buffer
@@ -468,7 +468,7 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
     set_clipbox(gc.cliprect, theRasterizer);
-    bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans);
+    bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
 
     trans *= agg::trans_affine_scaling(1.0, -1.0);
     trans *= agg::trans_affine_translation(0.0, (double)height);
@@ -586,7 +586,7 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
         theRasterizer.reset_clipping();
         rendererBase.reset_clipping(true);
         set_clipbox(gc.cliprect, rendererBase);
-        bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans);
+        bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
 
         double x, y;
 
@@ -832,7 +832,7 @@ inline void RendererAgg::draw_image(GCAgg &gc,
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
     set_clipbox(gc.cliprect, theRasterizer);
-    bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans);
+    bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
 
     agg::rendering_buffer buffer;
     buffer.attach(
@@ -941,7 +941,7 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
     set_clipbox(cliprect, theRasterizer);
-    bool has_clippath = render_clippath(clippath, clippath_trans);
+    bool has_clippath = render_clippath(clippath, clippath_trans, gc.snap_mode);
 
     // Set some defaults, assuming no face or edge
     gc.linewidth = 0.0;
@@ -1249,7 +1249,7 @@ inline void RendererAgg::draw_gouraud_triangle(GCAgg &gc,
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
     set_clipbox(gc.cliprect, theRasterizer);
-    bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans);
+    bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
 
     _draw_gouraud_triangle(points, colors, trans, has_clippath);
 }
@@ -1263,7 +1263,7 @@ inline void RendererAgg::draw_gouraud_triangles(GCAgg &gc,
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
     set_clipbox(gc.cliprect, theRasterizer);
-    bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans);
+    bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
 
     for (int i = 0; i < points.dim(0); ++i) {
         typename PointArray::sub_t point = points.subarray(i);

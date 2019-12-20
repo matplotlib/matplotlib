@@ -129,10 +129,15 @@ RendererAgg::restore_region(BufferRegion &region, int xx1, int yy1, int xx2, int
 }
 
 bool RendererAgg::render_clippath(py::PathIterator &clippath,
-                                  const agg::trans_affine &clippath_trans)
+                                  const agg::trans_affine &clippath_trans,
+                                  e_snap_mode snap_mode)
 {
     typedef agg::conv_transform<py::PathIterator> transformed_path_t;
-    typedef agg::conv_curve<transformed_path_t> curve_t;
+    typedef PathNanRemover<transformed_path_t> nan_removed_t;
+    typedef PathClipper<nan_removed_t> clipped_t;
+    typedef PathSnapper<clipped_t> snapped_t;
+    typedef PathSimplifier<snapped_t> simplify_t;
+    typedef agg::conv_curve<simplify_t> curve_t;
 
     bool has_clippath = (clippath.total_vertices() != 0);
 
@@ -145,7 +150,13 @@ bool RendererAgg::render_clippath(py::PathIterator &clippath,
 
         rendererBaseAlphaMask.clear(agg::gray8(0, 0));
         transformed_path_t transformed_clippath(clippath, trans);
-        curve_t curved_clippath(transformed_clippath);
+        nan_removed_t nan_removed_clippath(transformed_clippath, true, clippath.has_curves());
+        clipped_t clipped_clippath(nan_removed_clippath, !clippath.has_curves(), width, height);
+        snapped_t snapped_clippath(clipped_clippath, snap_mode, clippath.total_vertices(), 0.0);
+        simplify_t simplified_clippath(snapped_clippath,
+                                       clippath.should_simplify() && !clippath.has_curves(),
+                                       clippath.simplify_threshold());
+        curve_t curved_clippath(simplified_clippath);
         theRasterizer.add_path(curved_clippath);
         rendererAlphaMask.color(agg::gray8(255, 255));
         agg::render_scanlines(theRasterizer, scanlineAlphaMask, rendererAlphaMask);
