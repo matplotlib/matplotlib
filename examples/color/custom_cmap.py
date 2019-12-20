@@ -6,11 +6,9 @@ Creating a colormap from a list of colors
 For more detail on creating and manipulating colormaps see
 :doc:`/tutorials/colors/colormap-manipulation`.
 
-Creating a :doc:`colormap </tutorials/colors/colormaps>`
-from a list of colors can be done with the
-:meth:`~.colors.LinearSegmentedColormap.from_list` method of
-`.LinearSegmentedColormap`. You must pass a list of RGB tuples that define the
-mixture of colors from 0 to 1.
+Creating a :doc:`colormap </tutorials/colors/colormaps>` from a list of colors
+can be done with the `.LinearSegmentedColormap.from_list` method.  You must
+pass a list of RGB tuples that define the mixture of colors from 0 to 1.
 
 
 Creating custom colormaps

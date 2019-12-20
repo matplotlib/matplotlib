@@ -4,7 +4,7 @@ Streamplot
 ==========
 
 A stream plot, or streamline plot, is used to display 2D vector fields. This
-example shows a few features of the :meth:`~.axes.Axes.streamplot` function:
+example shows a few features of the `~.axes.Axes.streamplot` function:
 
 * Varying the color along a streamline.
 * Varying the density of streamlines.

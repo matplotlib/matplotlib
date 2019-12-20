@@ -7,7 +7,8 @@ It is often desirable to show data which depends on two independent
 variables as a color coded image plot. This is often referred to as a
 heatmap. If the data is categorical, this would be called a categorical
 heatmap.
-Matplotlib's :meth:`imshow <matplotlib.axes.Axes.imshow>` function makes
+
+Matplotlib's `~matplotlib.axes.Axes.imshow` function makes
 production of such plots particularly easy.
 
 The following examples show how to create a heatmap with annotations.
@@ -25,11 +26,11 @@ universal function.
 # which defines the data to color code. We then also need two lists or arrays
 # of categories; of course the number of elements in those lists
 # need to match the data along the respective axes.
-# The heatmap itself is an :meth:`imshow <matplotlib.axes.Axes.imshow>` plot
+# The heatmap itself is an `~matplotlib.axes.Axes.imshow` plot
 # with the labels set to the categories we have.
 # Note that it is important to set both, the tick locations
-# (:meth:`set_xticks<matplotlib.axes.Axes.set_xticks>`) as well as the
-# tick labels (:meth:`set_xticklabels<matplotlib.axes.Axes.set_xticklabels>`),
+# (`~matplotlib.axes.Axes.set_xticks`) as well as the
+# tick labels (`~matplotlib.axes.Axes.set_xticklabels`),
 # otherwise they would become out of sync. The locations are just
 # the ascending integer numbers, while the ticklabels are the labels to show.
 # Finally we can label the data itself by creating a `~matplotlib.text.Text`
