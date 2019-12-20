@@ -1,3 +1,4 @@
+from datetime import datetime
 import io
 import warnings
 
@@ -577,6 +578,18 @@ def test_annotation_update():
 
     assert not np.allclose(extent1.get_points(), extent2.get_points(),
                            rtol=1e-6)
+
+
+@check_figures_equal(extensions=["png"])
+def test_annotation_units(fig_test, fig_ref):
+    ax = fig_test.add_subplot()
+    ax.plot(datetime.now(), 1, "o")  # Implicitly set axes extents.
+    ax.annotate("x", (datetime.now(), 0.5), xycoords=("data", "axes fraction"),
+                # This used to crash before.
+                xytext=(0, 0), textcoords="offset points")
+    ax = fig_ref.add_subplot()
+    ax.plot(datetime.now(), 1, "o")
+    ax.annotate("x", (datetime.now(), 0.5), xycoords=("data", "axes fraction"))
 
 
 @image_comparison(['large_subscript_title.png'], style='mpl20')
