@@ -3881,8 +3881,7 @@ class Axes(_AxesBase):
             if not use_marker:
                 d['marker'] = ''
             if explicit is not None:
-                d.update(
-                    cbook.normalize_kwargs(explicit, mlines.Line2D._alias_map))
+                d.update(cbook.normalize_kwargs(explicit, mlines.Line2D))
             return d
 
         # box properties
@@ -3897,8 +3896,7 @@ class Axes(_AxesBase):
             )
             if boxprops is not None:
                 final_boxprops.update(
-                    cbook.normalize_kwargs(
-                        boxprops, mpatches.PathPatch._alias_map))
+                    cbook.normalize_kwargs(boxprops, mpatches.PathPatch))
         else:
             final_boxprops = line_props_with_rcdefaults('boxprops', boxprops,
                                                         use_marker=False)

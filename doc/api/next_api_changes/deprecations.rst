@@ -159,3 +159,7 @@ e.g. `.FuncFormatter`.
 ``OldAutoLocator``
 ~~~~~~~~~~~~~~~~~~
 This ticker is deprecated.
+
+*required*, *forbidden* and *allowed* parameters of `.cbook.normalize_kwargs`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These parameters are deprecated.
