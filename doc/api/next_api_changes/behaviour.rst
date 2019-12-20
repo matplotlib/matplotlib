@@ -50,3 +50,9 @@ and `.pyplot.yticks` would result in
     TypeError: object of type 'NoneType' has no len()
 
 It now raises a ``TypeError`` with a proper description of the error.
+
+Setting the same property under multiple aliases now raises a TypeError
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, calling e.g. ``plot(..., color=somecolor, c=othercolor)`` would
+emit a warning because ``color`` and ``c`` actually map to the same Artist
+property.  This now raises a TypeError.
