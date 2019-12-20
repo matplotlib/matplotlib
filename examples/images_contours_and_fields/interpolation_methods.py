@@ -4,7 +4,7 @@ Interpolations for imshow
 =========================
 
 This example displays the difference between interpolation methods for
-:meth:`~.axes.Axes.imshow`.
+`~.axes.Axes.imshow`.
 
 If *interpolation* is None, it defaults to the :rc:`image.interpolation`.
 If the interpolation is ``'none'``, then no interpolation is performed for the

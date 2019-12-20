@@ -3,11 +3,9 @@
 pcolormesh
 ==========
 
-Shows how to combine Normalization and Colormap instances to draw
-"levels" in :meth:`~.axes.Axes.pcolor`, :meth:`~.axes.Axes.pcolormesh`
-and :meth:`~.axes.Axes.imshow` type plots in a similar
-way to the levels keyword argument to contour/contourf.
-
+Shows how to combine Normalization and Colormap instances to draw "levels" in
+`~.axes.Axes.pcolor`, `~.axes.Axes.pcolormesh` and `~.axes.Axes.imshow` type
+plots in a similar way to the levels keyword argument to contour/contourf.
 """
 
 import matplotlib

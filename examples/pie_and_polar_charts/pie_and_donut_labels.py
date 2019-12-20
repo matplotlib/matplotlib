@@ -3,10 +3,10 @@
 Labeling a pie and a donut
 ==========================
 
-Welcome to the matplotlib bakery. We will create a pie and a donut
-chart through the :meth:`pie method <matplotlib.axes.Axes.pie>` and
-show how to label them with a :meth:`legend <matplotlib.axes.Axes.legend>`
-as well as with :meth:`annotations <matplotlib.axes.Axes.annotate>`.
+Welcome to the Matplotlib bakery. We will create a pie and a donut
+chart through the `pie method <matplotlib.axes.Axes.pie>` and
+show how to label them with a `legend <matplotlib.axes.Axes.legend>`
+as well as with `annotations <matplotlib.axes.Axes.annotate>`.
 """
 
 ###############################################################################
@@ -71,7 +71,7 @@ plt.show()
 # This is done via the ``wedgeprops`` argument.
 #
 # We then want to label the wedges via
-# :meth:`annotations <matplotlib.axes.Axes.annotate>`. We first create some
+# `annotations <matplotlib.axes.Axes.annotate>`. We first create some
 # dictionaries of common properties, which we can later pass as keyword
 # argument. We then iterate over all wedges and for each
 #

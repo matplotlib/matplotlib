@@ -3,8 +3,9 @@
 Contourf Demo
 =============
 
-How to use the :meth:`.axes.Axes.contourf` method to create filled contour plots.
+How to use the `.axes.Axes.contourf` method to create filled contour plots.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
