@@ -7,13 +7,13 @@ Show how to make date plots in Matplotlib using date tick locators and
 formatters.  See :doc:`/gallery/ticks_and_spines/major_minor_demo` for more
 information on controlling major and minor ticks.
 
-All matplotlib date plotting is done by converting date instances into days
-since 0001-01-01 00:00:00 UTC plus one day (for historical reasons).  The
-conversion, tick locating and formatting is done behind the scenes so this
-is most transparent to you.  The dates module provides several converter
-functions `matplotlib.dates.date2num` and `matplotlib.dates.num2date`.
-These can convert between `datetime.datetime` objects and
-:class:`numpy.datetime64` objects.
+All Matplotlib date plotting is done by converting date instances into
+days since 0001-01-01 00:00:00 UTC plus one day (for historical reasons).
+The conversion, tick locating and formatting is done behind the scenes
+so this is most transparent to you.  The :mod:`matplotlib.dates` module
+provides the converter functions `.date2num` and `.num2date`, which convert
+`datetime.datetime` and `numpy.datetime64` objects to and from Matplotlib's
+internal representation.
 """
 
 import numpy as np

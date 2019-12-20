@@ -3,10 +3,9 @@
 BboxImage Demo
 ==============
 
-A :class:`~matplotlib.image.BboxImage` can be used to position
-an image according to a bounding box. This demo shows how to
-show an image inside a `.text.Text`'s bounding box as well as
-how to manually create a bounding box for the image.
+A `~matplotlib.image.BboxImage` can be used to position an image according to
+a bounding box. This demo shows how to show an image inside a `.text.Text`'s
+bounding box as well as how to manually create a bounding box for the image.
 """
 import matplotlib.pyplot as plt
 import numpy as np

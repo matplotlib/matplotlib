@@ -5,9 +5,10 @@ Line Collection
 
 Plotting lines with Matplotlib.
 
-:class:`~matplotlib.collections.LineCollection` allows one to plot multiple
+`~matplotlib.collections.LineCollection` allows one to plot multiple
 lines on a figure. Below we show off some of its properties.
 """
+
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib import colors as mcolors
@@ -34,12 +35,12 @@ fig, ax = plt.subplots()
 ax.set_xlim(x.min(), x.max())
 ax.set_ylim(ys.min(), ys.max())
 
-# colors is sequence of rgba tuples
-# linestyle is a string or dash tuple. Legal string values are
-#          solid|dashed|dashdot|dotted.  The dash tuple is (offset, onoffseq)
-#          where onoffseq is an even length tuple of on and off ink in points.
-#          If linestyle is omitted, 'solid' is used
-# See :class:`matplotlib.collections.LineCollection` for more information
+# *colors* is sequence of rgba tuples.
+# *linestyle* is a string or dash tuple. Legal string values are
+# solid|dashed|dashdot|dotted.  The dash tuple is (offset, onoffseq) where
+# onoffseq is an even length tuple of on and off ink in points.  If linestyle
+# is omitted, 'solid' is used.
+# See `matplotlib.collections.LineCollection` for more information.
 colors = [mcolors.to_rgba(c)
           for c in plt.rcParams['axes.prop_cycle'].by_key()['color']]
 
@@ -69,7 +70,7 @@ ax.set_ylim(np.min(ys), np.max(ys))
 #          solid|dashed|dashdot|dotted.  The dash tuple is (offset, onoffseq)
 #          where onoffseq is an even length tuple of on and off ink in points.
 #          If linestyle is omitted, 'solid' is used
-# See :class:`matplotlib.collections.LineCollection` for more information
+# See `matplotlib.collections.LineCollection` for more information
 
 # Make a sequence of (x, y) pairs.
 line_segments = LineCollection([np.column_stack([x, y]) for y in ys],

@@ -19,16 +19,14 @@ as well as with :meth:`annotations <matplotlib.axes.Axes.annotate>`.
 # automatic percentage labeling by showing absolute values; we calculate
 # the latter back from relative data and the known sum of all values.
 #
-# We then create the pie and store the returned objects for later.
-# The first returned element of the returned tuple is a list of the wedges.
-# Those are
-# :class:`matplotlib.patches.Wedge <matplotlib.patches.Wedge>` patches, which
-# can directly be used as the handles for a legend. We can use the
-# legend's ``bbox_to_anchor`` argument to position the legend outside of
-# the pie. Here we use the axes coordinates ``(1, 0, 0.5, 1)`` together
-# with the location ``"center left"``; i.e.
-# the left central point of the legend will be at the left central point of the
-# bounding box, spanning from ``(1, 0)`` to ``(1.5, 1)`` in axes coordinates.
+# We then create the pie and store the returned objects for later.  The first
+# returned element of the returned tuple is a list of the wedges.  Those are
+# `matplotlib.patches.Wedge` patches, which can directly be used as the handles
+# for a legend. We can use the legend's ``bbox_to_anchor`` argument to position
+# the legend outside of the pie. Here we use the axes coordinates ``(1, 0, 0.5,
+# 1)`` together with the location ``"center left"``; i.e. the left central
+# point of the legend will be at the left central point of the bounding box,
+# spanning from ``(1, 0)`` to ``(1.5, 1)`` in axes coordinates.
 
 import numpy as np
 import matplotlib.pyplot as plt
