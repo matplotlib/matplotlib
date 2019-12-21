@@ -57,7 +57,7 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
 
 def imshow_rgb(ax, r, g, b, **kwargs):
     ny, nx = r.shape
-    R = np.zeros([ny, nx, 3], dtype="d")
+    R = np.zeros((ny, nx, 3))
     R[:, :, 0] = r
     G = np.zeros_like(R)
     G[:, :, 1] = g

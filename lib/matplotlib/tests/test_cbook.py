@@ -369,9 +369,9 @@ def test_to_prestep():
 
     xs, y1s, y2s = cbook.pts_to_prestep(x, y1, y2)
 
-    x_target = np.asarray([0, 0, 1, 1, 2, 2, 3], dtype='float')
-    y1_target = np.asarray([0, 1, 1, 2, 2, 3, 3], dtype='float')
-    y2_target = np.asarray([3, 2, 2, 1, 1, 0, 0], dtype='float')
+    x_target = np.asarray([0, 0, 1, 1, 2, 2, 3], dtype=float)
+    y1_target = np.asarray([0, 1, 1, 2, 2, 3, 3], dtype=float)
+    y2_target = np.asarray([3, 2, 2, 1, 1, 0, 0], dtype=float)
 
     assert_array_equal(x_target, xs)
     assert_array_equal(y1_target, y1s)
@@ -394,9 +394,9 @@ def test_to_poststep():
 
     xs, y1s, y2s = cbook.pts_to_poststep(x, y1, y2)
 
-    x_target = np.asarray([0, 1, 1, 2, 2, 3, 3], dtype='float')
-    y1_target = np.asarray([0, 0, 1, 1, 2, 2, 3], dtype='float')
-    y2_target = np.asarray([3, 3, 2, 2, 1, 1, 0], dtype='float')
+    x_target = np.asarray([0, 1, 1, 2, 2, 3, 3], dtype=float)
+    y1_target = np.asarray([0, 0, 1, 1, 2, 2, 3], dtype=float)
+    y2_target = np.asarray([3, 3, 2, 2, 1, 1, 0], dtype=float)
 
     assert_array_equal(x_target, xs)
     assert_array_equal(y1_target, y1s)
@@ -419,9 +419,9 @@ def test_to_midstep():
 
     xs, y1s, y2s = cbook.pts_to_midstep(x, y1, y2)
 
-    x_target = np.asarray([0, .5, .5, 1.5, 1.5, 2.5, 2.5, 3], dtype='float')
-    y1_target = np.asarray([0, 0, 1, 1, 2, 2, 3, 3], dtype='float')
-    y2_target = np.asarray([3, 3, 2, 2, 1, 1, 0, 0], dtype='float')
+    x_target = np.asarray([0, .5, .5, 1.5, 1.5, 2.5, 2.5, 3], dtype=float)
+    y1_target = np.asarray([0, 0, 1, 1, 2, 2, 3, 3], dtype=float)
+    y2_target = np.asarray([3, 3, 2, 2, 1, 1, 0, 0], dtype=float)
 
     assert_array_equal(x_target, xs)
     assert_array_equal(y1_target, y1s)
