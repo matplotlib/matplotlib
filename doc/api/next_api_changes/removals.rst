@@ -71,6 +71,34 @@ Classes and methods
 
 - ``text.TextWithDash`` (use ``text.Annotation`` instead)
 
+- ``mplot3d.proj3d.line2d()`` (no replacement)
+- ``mplot3d.proj3d.line2d_dist()`` (no replacement)
+- ``mplot3d.proj3d.line2d_seg_dist()`` (no replacement)
+- ``mplot3d.proj3d.mod()`` (use `numpy.linalg.norm` instead)
+- ``mplot3d.proj3d.proj_transform_vec()`` (no replacement)
+- ``mplot3d.proj3d.proj_transform_vec_clip()`` (no replacement)
+- ``mplot3d.proj3d.vec_pad_ones()`` (no replacement)
+- ``mplot3d.proj3d.proj_trans_clip_points()`` (no replacement)
+
+- ``mplot3d.art3d.norm_angle()`` (no replacement)
+- ``mplot3d.art3d.norm_text_angle()`` (no replacement)
+- ``mplot3d.art3d.path_to_3d_segment()`` (no replacement)
+- ``mplot3d.art3d.paths_to_3d_segments()`` (no replacement)
+- ``mplot3d.art3d.path_to_3d_segment_with_codes()`` (no replacement)
+- ``mplot3d.art3d.paths_to_3d_segments_with_codes()`` (no replacement)
+- ``mplot3d.art3d.get_patch_verts()`` (no replacement)
+- ``mplot3d.art3d.get_colors()`` (no replacement)
+- ``mplot3d.art3d.zalpha()`` (no replacement)
+
+- ``mplot3d.axis3d.get_flip_min_max()`` (no replacement)
+- ``mplot3d.axis3d.Axis.get_tick_positions()`` (no replacement)
+
+- ``axisartist.axis_artist.UnimplementedException`` (no replacement)
+- ``axisartist.axislines.SimpleChainedObjects``
+  (use ``axis_grid1.mpl_axes.SimpleChainedObjects`` instead)
+- ``axisartist.axislines.Axes.AxisDict``
+  (use ``axis_grid1.mpl_axes.Axes.AxisDict`` instead)
+
 Arguments
 ~~~~~~~~~
 - ``Axes.text()`` / ``pyplot.text()`` do not support the parameter ``withdash``

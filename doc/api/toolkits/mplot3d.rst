@@ -79,25 +79,16 @@ Art3D Utility Functions
    :toctree: ../_as_gen
    :template: autosummary.rst
 
-   art3d.get_colors
    art3d.get_dir_vector
-   art3d.get_patch_verts
    art3d.juggle_axes
    art3d.line_2d_to_3d
    art3d.line_collection_2d_to_3d
-   art3d.norm_angle
-   art3d.norm_text_angle
    art3d.patch_2d_to_3d
    art3d.patch_collection_2d_to_3d
-   art3d.path_to_3d_segment
-   art3d.path_to_3d_segment_with_codes
    art3d.pathpatch_2d_to_3d
-   art3d.paths_to_3d_segments
-   art3d.paths_to_3d_segments_with_codes
    art3d.poly_collection_2d_to_3d
    art3d.rotate_axes
    art3d.text_2d_to_3d
-   art3d.zalpha
 
 .. _toolkit_mplot3d-projapi:
 
@@ -109,20 +100,12 @@ Art3D Utility Functions
    :template: autosummary.rst
 
    proj3d.inv_transform
-   proj3d.line2d
-   proj3d.line2d_dist
-   proj3d.line2d_seg_dist
-   proj3d.mod
    proj3d.persp_transformation
    proj3d.proj_points
-   proj3d.proj_trans_clip_points
    proj3d.proj_trans_points
    proj3d.proj_transform
    proj3d.proj_transform_clip
-   proj3d.proj_transform_vec
-   proj3d.proj_transform_vec_clip
    proj3d.rot_x
    proj3d.transform
-   proj3d.vec_pad_ones
    proj3d.view_transformation
    proj3d.world_transformation
