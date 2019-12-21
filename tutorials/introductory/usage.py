@@ -122,15 +122,11 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 #
 # All of plotting functions expect `numpy.array` or `numpy.ma.masked_array` as
 # input.  Classes that are 'array-like' such as `pandas` data objects
-# and `numpy.matrix` may or may not work as intended.  It is best to
-# convert these to `numpy.array` objects prior to plotting.
+# and `numpy.matrix` may or may not work as intended.  It is best to use
+# `numpy.asarray` to convert these to `numpy.array` objects prior to plotting::
 #
-# For example, to convert a `pandas.DataFrame` ::
-#
-#   a = pandas.DataFrame(np.random.rand(4,5), columns = list('abcde'))
-#   a_asarray = a.values
-#
-# and to convert a `numpy.matrix` ::
+#   a = pandas.DataFrame(np.random.rand(4,5), columns=list('abcde'))
+#   a_asarray = np.asarray(a)
 #
 #   b = np.matrix([[1, 2], [3, 4]])
 #   b_asarray = np.asarray(b)
