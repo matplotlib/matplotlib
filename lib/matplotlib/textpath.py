@@ -89,8 +89,7 @@ class TextToPath:
         d /= 64.0
         return w * scale, h * scale, d * scale
 
-    @cbook._delete_parameter("3.1", "usetex")
-    def get_text_path(self, prop, s, ismath=False, usetex=False):
+    def get_text_path(self, prop, s, ismath=False):
         """
         Convert text *s* to path (a tuple of vertices and codes for
         matplotlib.path.Path).
@@ -105,9 +104,6 @@ class TextToPath:
 
         ismath : {False, True, "TeX"}
             If True, use mathtext parser.  If "TeX", use tex for renderering.
-
-        usetex : bool, optional
-            If set, forces *ismath* to True.  This parameter is deprecated.
 
         Returns
         -------
@@ -130,8 +126,6 @@ class TextToPath:
 
         Also see `TextPath` for a more direct way to create a path from a text.
         """
-        if usetex:
-            ismath = "TeX"
         if ismath == "TeX":
             glyph_info, glyph_map, rects = self.get_glyphs_tex(prop, s)
         elif not ismath:

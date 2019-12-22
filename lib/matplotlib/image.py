@@ -1323,7 +1323,6 @@ class FigureImage(_ImageBase):
 class BboxImage(_ImageBase):
     """The Image class whose size is determined by the given bbox."""
 
-    @cbook._delete_parameter("3.1", "interp_at_native")
     def __init__(self, bbox,
                  cmap=None,
                  norm=None,
@@ -1332,7 +1331,6 @@ class BboxImage(_ImageBase):
                  filternorm=True,
                  filterrad=4.0,
                  resample=False,
-                 interp_at_native=True,
                  **kwargs
                  ):
         """
@@ -1354,7 +1352,6 @@ class BboxImage(_ImageBase):
         )
 
         self.bbox = bbox
-        self._interp_at_native = interp_at_native
         self._transform = IdentityTransform()
 
     def get_transform(self):

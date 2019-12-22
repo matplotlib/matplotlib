@@ -15,7 +15,6 @@ from PIL import Image
 
 from matplotlib import (
     colors, image as mimage, patches, pyplot as plt, style, rcParams)
-from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -1103,20 +1102,6 @@ def test_relim():
     ax.relim()
     ax.autoscale()
     assert ax.get_xlim() == ax.get_ylim() == (0, 1)
-
-
-def test_deprecation():
-    data = [[1, 2], [3, 4]]
-    ax = plt.figure().subplots()
-    for obj in [ax, plt]:
-        with pytest.warns(None) as record:
-            obj.imshow(data)
-            assert len(record) == 0
-        with pytest.warns(MatplotlibDeprecationWarning):
-            obj.imshow(data, shape=None)
-        with pytest.warns(MatplotlibDeprecationWarning):
-            # Enough arguments to pass "shape" positionally.
-            obj.imshow(data, *[None] * 10)
 
 
 def test_respects_bbox():

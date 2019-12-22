@@ -75,3 +75,15 @@ Arguments
 ~~~~~~~~~
 - ``Axes.text()`` / ``pyplot.text()`` do not support the parameter ``withdash``
   anymore. Use ``Axes.annotate()`` and ``pyplot.annotate()`` instead.
+- The first parameter of `matplotlib.use` has been renamed from ``arg`` to
+  ``backend`` (only relevant if you pass by keyword).
+- The parameter ``warn`` of `matplotlib.use` has been removed. A failure to
+  switch the backend will now always raise an ``ImportError`` if ``force`` is
+  set; catch that error if necessary.
+- All parameters of `matplotlib.use` except the first one are now keyword-only.
+- The unused parameters ``shape`` and ``imlim`` of `~.axes.Axes.imshow()` are
+  now removed. All parameters beyond ``extent`` are now keyword-only.
+- The unused parameter ``interp_at_native`` of `.BboxImage` has been removed.
+- The parameter ``usetex`` of `.TextToPath.get_text_path` has been removed.
+  Use ``ismath='TeX'`` instead.
+- The parameter ``block`` of ``show()`` is now keyword-only.
