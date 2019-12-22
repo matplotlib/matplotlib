@@ -12,7 +12,6 @@ import numpy as np
 from . import artist, cbook, docstring, rcParams
 from .artist import Artist
 from .font_manager import FontProperties
-from .lines import Line2D
 from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
 from .textpath import TextPath  # Unused, but imported by others.
 from .transforms import (

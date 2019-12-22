@@ -5,7 +5,6 @@ except ImportError:
 
 from . import backend_cairo, backend_gtk3
 from .backend_gtk3 import Gtk, _BackendGTK3
-from matplotlib import cbook
 from matplotlib.backend_bases import cursors
 
 

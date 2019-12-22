@@ -42,7 +42,6 @@ from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
-from matplotlib import colors as mcolors
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 
 
