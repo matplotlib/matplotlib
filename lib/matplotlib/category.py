@@ -138,7 +138,12 @@ class StrCategoryFormatter(ticker.Formatter):
         self._units = units_mapping
 
     def __call__(self, x, pos=None):
-        return '' if pos is None else self.format_ticks([x])[0]
+        """
+        Return the category label string for tick val *x*.
+
+        The position *pos* is ignored.
+        """
+        return self.format_ticks([x])[0]
 
     def format_ticks(self, values):
         r_mapping = {v: self._text(k) for k, v in self._units.items()}
