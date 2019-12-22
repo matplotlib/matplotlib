@@ -328,13 +328,19 @@ class Text(Artist):
                         w += legend_spacing
                         thisx += legend_spacing
                         # position relative to the beginning of first line
-                        legend_offset = (-legend_spacing, 0)
+                        legend_offset = (
+                            -legend_spacing,
+                            (h-d - legend_height) / 2
+                        )
                     elif rotation == 90:
                         legend_spacing = legend_height + padding
                         w += legend_spacing
                         thisx += legend_spacing
                         # position relative to the beginning of first line
-                        legend_offset = (-legend_width, -legend_spacing)
+                        legend_offset = (
+                            -(h-d + legend_width) / 2,
+                            -legend_spacing
+                        )
             else:
                 # put baseline a good distance from bottom of previous line
                 thisy -= max(min_dy, (h - d) * self._linespacing)
