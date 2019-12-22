@@ -156,7 +156,7 @@ class Line3D(lines.Line2D):
         try:
             len_zs = len(zs)
         except TypeError:  # object of type 'int' has no len()
-            zs = np.full_like(xs, fill_value=zs)
+            zs = np.full(xs.shape, fill_value=zs)
         else:
             len_xs = len(xs)
             if len_zs != len_xs:
