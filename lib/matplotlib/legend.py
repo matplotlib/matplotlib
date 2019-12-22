@@ -175,24 +175,6 @@ fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
     absolute font size in points. String values are relative to the current
     default font size. This argument is only used if *prop* is not specified.
 
-numpoints : int, default: :rc:`legend.numpoints`
-    The number of marker points in the legend when creating a legend
-    entry for a `.Line2D` (line).
-
-scatterpoints : int, default: :rc:`legend.scatterpoints`
-    The number of marker points in the legend when creating
-    a legend entry for a `.PathCollection` (scatter plot).
-
-scatteryoffsets : iterable of floats, default: ``[0.375, 0.5, 0.3125]``
-    The vertical offset (relative to the font size) for the markers
-    created for a scatter plot legend entry. 0.0 is at the base the
-    legend text, and 1.0 is at the top. To draw all markers at the
-    same height, set to ``[0.5]``.
-
-markerscale : float, default: :rc:`legend.markerscale`
-    The relative size of legend markers compared with the originally
-    drawn ones.
-
 markerfirst : bool, default: True
     If *True*, legend marker is placed to the left of the legend label.
     If *False*, legend marker is placed to the right of the legend label.
@@ -236,23 +218,43 @@ title : str or None
 title_fontsize: str or None
     The fontsize of the legend's title.  Default is the default fontsize.
 
-borderpad : float, default: :rc:`legend.borderpad`
-    The fractional whitespace inside the legend border, in font-size units.
-
 labelspacing : float, default: :rc:`legend.labelspacing`
     The vertical space between the legend entries, in font-size units.
-
-handlelength : float, default: :rc:`legend.handlelength`
-    The length of the legend handles, in font-size units.
-
-handletextpad : float, default: :rc:`legend.handletextpad`
-    The pad between the legend handle and text, in font-size units.
 
 borderaxespad : float, default: :rc:`legend.borderaxespad`
     The pad between the axes and legend border, in font-size units.
 
 columnspacing : float, default: :rc:`legend.columnspacing`
     The spacing between columns, in font-size units.
+""")
+
+docstring.interpd.update(_basic_legend_kw_doc="""
+numpoints : int, default: :rc:`legend.numpoints`
+    The number of marker points in the legend when creating a legend
+    entry for a `.Line2D` (line).
+
+scatterpoints : int, default: :rc:`legend.scatterpoints`
+    The number of marker points in the legend when creating
+    a legend entry for a `.PathCollection` (scatter plot).
+
+scatteryoffsets : iterable of floats, default: ``[0.375, 0.5, 0.3125]``
+    The vertical offset (relative to the font size) for the markers
+    created for a scatter plot legend entry. 0.0 is at the base the
+    legend text, and 1.0 is at the top. To draw all markers at the
+    same height, set to ``[0.5]``.
+
+markerscale : float, default: :rc:`legend.markerscale`
+    The relative size of legend markers compared with the originally
+    drawn ones.
+
+borderpad : float, default: :rc:`legend.borderpad`
+    The fractional whitespace inside the legend border, in font-size units.
+
+handlelength : float, default: :rc:`legend.handlelength`
+    The length of the legend handles, in font-size units.
+
+handletextpad : float, default: :rc:`legend.handletextpad`
+    The pad between the legend handle and text, in font-size units.
 
 handler_map : dict or None
     The custom dictionary mapping instances or types to a legend
@@ -261,7 +263,218 @@ handler_map : dict or None
 """)
 
 
-class Legend(Artist):
+class BasicLegend(object):
+    """
+    Shared elements of regular legends and axis-label legends.
+    """
+    @docstring.dedent_interpd
+    def __init__(self,
+                 numpoints=None,    # the number of points in the legend line
+                 markerscale=None,  # the relative size of legend markers
+                                    # vs. original
+                 scatterpoints=None,    # number of scatter points
+                 scatteryoffsets=None,
+
+                 # spacing & pad defined as a fraction of the font-size
+                 borderpad=None,      # the whitespace inside the legend border
+                 handlelength=None,   # the length of the legend handles
+                 handleheight=None,   # the height of the legend handles
+                 handletextpad=None,  # the pad between the legend handle
+                                      # and text
+                 handler_map=None,
+                 ):
+        """
+        Parameters
+        ----------
+        %(_basic_legend_kw_doc)s
+        """
+
+        #: A dictionary with the extra handler mappings for this Legend
+        #: instance.
+        self._custom_handler_map = handler_map
+
+        locals_view = locals()
+        for name in ['numpoints', 'markerscale', 'scatterpoints', 'borderpad',
+                     'handleheight', 'handlelength', 'handletextpad']:
+            if locals_view[name] is None:
+                value = rcParams["legend." + name]
+            else:
+                value = locals_view[name]
+            setattr(self, name, value)
+        del locals_view
+
+        if self.numpoints <= 0:
+            raise ValueError("numpoints must be > 0; it was %d" % numpoints)
+
+        # introduce y-offset for handles of the scatter plot
+        if scatteryoffsets is None:
+            self._scatteryoffsets = np.array([3. / 8., 4. / 8., 2.5 / 8.])
+        else:
+            self._scatteryoffsets = np.asarray(scatteryoffsets)
+        reps = self.scatterpoints // len(self._scatteryoffsets) + 1
+        self._scatteryoffsets = np.tile(self._scatteryoffsets,
+                                        reps)[:self.scatterpoints]
+
+    def _approx_box_height(self, fontsize, renderer=None):
+        """
+        Return the approximate height and descent of the DrawingArea
+        holding the legend handle.
+        """
+        if renderer is None:
+            size = fontsize
+        else:
+            size = renderer.points_to_pixels(fontsize)
+
+        # The approximate height and descent of text. These values are
+        # only used for plotting the legend handle.
+        descent = 0.35 * size * (self.handleheight - 0.7)
+        # 0.35 and 0.7 are just heuristic numbers and may need to be improved.
+        height = size * self.handleheight - descent
+        # each handle needs to be drawn inside a box of (x, y, w, h) =
+        # (0, -descent, width, height).  And their coordinates should
+        # be given in the display coordinates.
+        return descent, height
+
+    # _default_handler_map defines the default mapping between plot
+    # elements and the legend handlers.
+
+    _default_handler_map = {
+        StemContainer: legend_handler.HandlerStem(),
+        ErrorbarContainer: legend_handler.HandlerErrorbar(),
+        Line2D: legend_handler.HandlerLine2D(),
+        Patch: legend_handler.HandlerPatch(),
+        LineCollection: legend_handler.HandlerLineCollection(),
+        RegularPolyCollection: legend_handler.HandlerRegularPolyCollection(),
+        CircleCollection: legend_handler.HandlerCircleCollection(),
+        BarContainer: legend_handler.HandlerPatch(
+            update_func=legend_handler.update_from_first_child),
+        tuple: legend_handler.HandlerTuple(),
+        PathCollection: legend_handler.HandlerPathCollection(),
+        PolyCollection: legend_handler.HandlerPolyCollection()
+        }
+
+    # (get|set|update)_default_handler_maps are public interfaces to
+    # modify the default handler map.
+
+    @classmethod
+    def get_default_handler_map(cls):
+        """
+        A class method that returns the default handler map.
+        """
+        return cls._default_handler_map
+
+    @classmethod
+    def set_default_handler_map(cls, handler_map):
+        """
+        A class method to set the default handler map.
+        """
+        cls._default_handler_map = handler_map
+
+    @classmethod
+    def update_default_handler_map(cls, handler_map):
+        """
+        A class method to update the default handler map.
+        """
+        cls._default_handler_map.update(handler_map)
+
+    def get_legend_handler_map(self):
+        """
+        Return the handler map.
+        """
+
+        default_handler_map = self.get_default_handler_map()
+
+        if self._custom_handler_map:
+            hm = default_handler_map.copy()
+            hm.update(self._custom_handler_map)
+            return hm
+        else:
+            return default_handler_map
+
+    @staticmethod
+    def get_legend_handler(legend_handler_map, orig_handle):
+        """
+        Return a legend handler from *legend_handler_map* that
+        corresponds to *orig_handler*.
+
+        *legend_handler_map* should be a dictionary object (that is
+        returned by the get_legend_handler_map method).
+
+        It first checks if the *orig_handle* itself is a key in the
+        *legend_handler_map* and return the associated value.
+        Otherwise, it checks for each of the classes in its
+        method-resolution-order. If no matching key is found, it
+        returns ``None``.
+        """
+        try:
+            return legend_handler_map[orig_handle]
+        except (TypeError, KeyError):  # TypeError if unhashable.
+            pass
+        for handle_type in type(orig_handle).mro():
+            try:
+                return legend_handler_map[handle_type]
+            except KeyError:
+                pass
+        return None
+
+    def _warn_unsupported_artist(self, handle):
+        cbook._warn_external(
+            "Legend does not support {!r} instances.\nA proxy artist "
+            "may be used instead.\nSee: "
+            "http://matplotlib.org/users/legend_guide.html"
+            "#creating-artists-specifically-for-adding-to-the-legend-"
+            "aka-proxy-artists".format(handle))
+
+
+class AxisLabelLegend(BasicLegend):
+    """
+    Place a legend next to the axis labels.
+    """
+    def __init__(self, text, **kwargs):
+        """
+        Parameters
+        ----------
+        text: `.Text`
+            The text object this legend belongs to.
+
+        **kwargs: `.BasicLegend` properties
+            Additional properties controlling legend appearance.
+
+        """
+        BasicLegend.__init__(self, **kwargs)
+        self.text = text
+        self.figure = text.figure
+
+    def init_legend(self, handle, rotate):
+        """Initialize DrawingArea and legend artist"""
+        fontsize = self.text.get_fontsize()
+        descent, height = self._approx_box_height(fontsize)
+
+        legend_handler_map = self.get_legend_handler_map()
+        handler = self.get_legend_handler(legend_handler_map, handle)
+        if handler is None:
+            self._warn_unsupported_artist(handle)
+            return None
+        if rotate:
+            box_width, box_height = height, self.handlelength * fontsize
+            xdescent, ydescent = descent, 0
+        else:
+            box_width, box_height = self.handlelength * fontsize, height
+            xdescent, ydescent = 0, descent
+
+        self.box = DrawingArea(width=box_width, height=box_height,
+                               xdescent=xdescent, ydescent=ydescent)
+        # Create the artist for the legend which represents the
+        # original artist/handle.
+        handler.legend_artist(self, handle, fontsize, self.box, rotate)
+        return self
+
+    def _set_artist_props(self, a):
+        a.set_figure(self.text.figure)
+        a.axes = self.text.axes
+
+
+class Legend(Artist, BasicLegend):
     """
     Place a legend on the axes at location loc.
 
@@ -287,24 +500,14 @@ class Legend(Artist):
     @docstring.dedent_interpd
     def __init__(self, parent, handles, labels,
                  loc=None,
-                 numpoints=None,    # the number of points in the legend line
-                 markerscale=None,  # the relative size of legend markers
-                                    # vs. original
                  markerfirst=True,  # controls ordering (left-to-right) of
                                     # legend marker and label
-                 scatterpoints=None,    # number of scatter points
-                 scatteryoffsets=None,
                  prop=None,          # properties for the legend texts
                  fontsize=None,        # keyword to set font size directly
 
                  # spacing & pad defined as a fraction of the font-size
-                 borderpad=None,      # the whitespace inside the legend border
                  labelspacing=None,   # the vertical space between the legend
                                       # entries
-                 handlelength=None,   # the length of the legend handles
-                 handleheight=None,   # the height of the legend handles
-                 handletextpad=None,  # the pad between the legend handle
-                                      # and text
                  borderaxespad=None,  # the pad between the axes and legend
                                       # border
                  columnspacing=None,  # spacing between columns
@@ -325,7 +528,7 @@ class Legend(Artist):
                  bbox_to_anchor=None,  # bbox that the legend will be anchored.
                  bbox_transform=None,  # transform for the bbox
                  frameon=None,  # draw frame
-                 handler_map=None,
+                 **kwargs
                  ):
         """
         Parameters
@@ -345,6 +548,8 @@ class Legend(Artist):
         ----------------
         %(_legend_kw_doc)s
 
+        %(_basic_legend_kw_doc)s
+
         Notes
         -----
         Users can specify any arbitrary location for the legend using the
@@ -361,6 +566,7 @@ class Legend(Artist):
         from matplotlib.figure import Figure
 
         Artist.__init__(self)
+        BasicLegend.__init__(self, **kwargs)
 
         if prop is None:
             if fontsize is not None:
@@ -380,14 +586,8 @@ class Legend(Artist):
         self.legendHandles = []
         self._legend_title_box = None
 
-        #: A dictionary with the extra handler mappings for this Legend
-        #: instance.
-        self._custom_handler_map = handler_map
-
         locals_view = locals()
-        for name in ["numpoints", "markerscale", "shadow", "columnspacing",
-                     "scatterpoints", "handleheight", 'borderpad',
-                     'labelspacing', 'handlelength', 'handletextpad',
+        for name in ['shadow', 'columnspacing', 'labelspacing',
                      'borderaxespad']:
             if locals_view[name] is None:
                 value = rcParams["legend." + name]
@@ -411,18 +611,6 @@ class Legend(Artist):
         if len(handles) < 2:
             ncol = 1
         self._ncol = ncol
-
-        if self.numpoints <= 0:
-            raise ValueError("numpoints must be > 0; it was %d" % numpoints)
-
-        # introduce y-offset for handles of the scatter plot
-        if scatteryoffsets is None:
-            self._scatteryoffsets = np.array([3. / 8., 4. / 8., 2.5 / 8.])
-        else:
-            self._scatteryoffsets = np.asarray(scatteryoffsets)
-        reps = self.scatterpoints // len(self._scatteryoffsets) + 1
-        self._scatteryoffsets = np.tile(self._scatteryoffsets,
-                                        reps)[:self.scatterpoints]
 
         # _legend_box is an OffsetBox instance that contains all
         # legend items and will be initialized from _init_legend_box()
@@ -613,98 +801,6 @@ class Legend(Artist):
         renderer.close_group('legend')
         self.stale = False
 
-    def _approx_text_height(self, renderer=None):
-        """
-        Return the approximate height of the text. This is used to place
-        the legend handle.
-        """
-        if renderer is None:
-            return self._fontsize
-        else:
-            return renderer.points_to_pixels(self._fontsize)
-
-    # _default_handler_map defines the default mapping between plot
-    # elements and the legend handlers.
-
-    _default_handler_map = {
-        StemContainer: legend_handler.HandlerStem(),
-        ErrorbarContainer: legend_handler.HandlerErrorbar(),
-        Line2D: legend_handler.HandlerLine2D(),
-        Patch: legend_handler.HandlerPatch(),
-        LineCollection: legend_handler.HandlerLineCollection(),
-        RegularPolyCollection: legend_handler.HandlerRegularPolyCollection(),
-        CircleCollection: legend_handler.HandlerCircleCollection(),
-        BarContainer: legend_handler.HandlerPatch(
-            update_func=legend_handler.update_from_first_child),
-        tuple: legend_handler.HandlerTuple(),
-        PathCollection: legend_handler.HandlerPathCollection(),
-        PolyCollection: legend_handler.HandlerPolyCollection()
-        }
-
-    # (get|set|update)_default_handler_maps are public interfaces to
-    # modify the default handler map.
-
-    @classmethod
-    def get_default_handler_map(cls):
-        """
-        A class method that returns the default handler map.
-        """
-        return cls._default_handler_map
-
-    @classmethod
-    def set_default_handler_map(cls, handler_map):
-        """
-        A class method to set the default handler map.
-        """
-        cls._default_handler_map = handler_map
-
-    @classmethod
-    def update_default_handler_map(cls, handler_map):
-        """
-        A class method to update the default handler map.
-        """
-        cls._default_handler_map.update(handler_map)
-
-    def get_legend_handler_map(self):
-        """
-        Return the handler map.
-        """
-
-        default_handler_map = self.get_default_handler_map()
-
-        if self._custom_handler_map:
-            hm = default_handler_map.copy()
-            hm.update(self._custom_handler_map)
-            return hm
-        else:
-            return default_handler_map
-
-    @staticmethod
-    def get_legend_handler(legend_handler_map, orig_handle):
-        """
-        Return a legend handler from *legend_handler_map* that
-        corresponds to *orig_handler*.
-
-        *legend_handler_map* should be a dictionary object (that is
-        returned by the get_legend_handler_map method).
-
-        It first checks if the *orig_handle* itself is a key in the
-        *legend_handler_map* and return the associated value.
-        Otherwise, it checks for each of the classes in its
-        method-resolution-order. If no matching key is found, it
-        returns ``None``.
-        """
-        try:
-            return legend_handler_map[orig_handle]
-        except (TypeError, KeyError):  # TypeError if unhashable.
-            pass
-        for handle_type in type(orig_handle).mro():
-            try:
-                return legend_handler_map[handle_type]
-            except KeyError:
-                pass
-        return None
-
     def _init_legend_box(self, handles, labels, markerfirst=True):
         """
         Initialize the legend_box. The legend_box is an instance of
@@ -732,14 +828,7 @@ class Legend(Artist):
                           fontproperties=self.prop,
                           )
 
-        # The approximate height and descent of text. These values are
-        # only used for plotting the legend handle.
-        descent = 0.35 * self._approx_text_height() * (self.handleheight - 0.7)
-        # 0.35 and 0.7 are just heuristic numbers and may need to be improved.
-        height = self._approx_text_height() * self.handleheight - descent
-        # each handle needs to be drawn inside a box of (x, y, w, h) =
-        # (0, -descent, width, height).  And their coordinates should
-        # be given in the display coordinates.
+        descent, height = self._approx_box_height(self._fontsize)
 
         # The transformation of each handle will be automatically set
         # to self.get_transform(). If the artist does not use its
@@ -750,12 +839,7 @@ class Legend(Artist):
         for orig_handle, lab in zip(handles, labels):
             handler = self.get_legend_handler(legend_handler_map, orig_handle)
             if handler is None:
-                cbook._warn_external(
-                    "Legend does not support {!r} instances.\nA proxy artist "
-                    "may be used instead.\nSee: "
-                    "http://matplotlib.org/users/legend_guide.html"
-                    "#creating-artists-specifically-for-adding-to-the-legend-"
-                    "aka-proxy-artists".format(orig_handle))
+                self._warn_unsupported_artist(orig_handle)
                 # We don't have a handle for this artist, so we just defer
                 # to None.
                 handle_list.append(None)

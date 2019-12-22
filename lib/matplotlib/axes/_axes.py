@@ -214,6 +214,21 @@ class Axes(_AxesBase):
             self.xaxis.labelpad = labelpad
         return self.xaxis.set_label_text(xlabel, fontdict, **kwargs)
 
+    def set_xlabel_legend(self, handle, **kwargs):
+        """
+        Place a legend next to the axis label.
+
+        Parameters
+        ----------
+        handle: `.Artist`
+            An artist (e.g. lines, patches) to be shown as legend.
+
+        **kwargs: `.BasicLegend` properties
+            Additional properties to control legend appearance.
+        """
+        label = self.xaxis.get_label()
+        label.set_legend_handle(handle, **kwargs)
+
     def get_ylabel(self):
         """
         Get the ylabel text string.
@@ -247,6 +262,36 @@ class Axes(_AxesBase):
         if labelpad is not None:
             self.yaxis.labelpad = labelpad
         return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
+
+    def set_ylabel_legend(self, handle, **kwargs):
+        """
+        Place a legend next to the axis label.
+
+        Parameters
+        ----------
+        handle: `.Artist`
+            An artist (e.g. lines, patches) to be shown as legend.
+
+        **kwargs: `.BasicLegend` properties
+            Additional properties to control legend appearance.
+
+        Examples
+        --------
+        Plot two lines on different axes with legends placed next to the
+        axis labels::
+
+            artist, = plt.plot([0, 1, 2], [0, 1, 2], "b-")
+            plt.ylabel('Density')
+            plt.ylabel_legend(artist)
+
+            plt.twinx()
+            artist, = plt.plot([0, 1, 2], [0, 3, 2], "r-")
+            plt.ylabel('Temperature')
+            plt.ylabel_legend(artist)
+            plt.show()
+        """
+        label = self.yaxis.get_label()
+        label.set_legend_handle(handle, **kwargs)
 
     def get_legend_handles_labels(self, legend_handler_map=None):
         """
