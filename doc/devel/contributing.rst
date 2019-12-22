@@ -53,28 +53,8 @@ Thank you for your help in keeping bug reports complete, targeted and descriptiv
 Retrieving and installing the latest version of the code
 ========================================================
 
-When developing Matplotlib, sources must be downloaded, built, and installed into
-a local environment on your machine.
-
-Follow the instructions detailed :ref:`here <install_from_source>` to set up your
-environment to build Matplotlib from source.
-
-.. warning::
-
-   When working on Matplotlib sources, having multiple versions installed by
-   different methods into the same environment may not always work as expected.
-
-To work on Matplotlib sources, it is strongly recommended to set up an alternative
-development environment, using the something like `virtual environments in python
-<http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_, or a
-`conda environment <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_.
-
-If you choose to use an already existing environment, and not a clean virtual or
-conda environment, uninstall the current version of Matplotlib in that environment
-using the same method used to install it.
-
-If working on Matplotlib documentation only, the above steps are *not* absolutely
-necessary.
+When developing Matplotlib, sources must be downloaded, built, and installed
+into a local environment on your machine.
 
 We use `Git <https://git-scm.com/>`_ for version control and
 `GitHub <https://github.com/>`_ for hosting our main repository.
@@ -88,19 +68,24 @@ and navigate to the :file:`matplotlib` directory. If you have the proper privile
 you can use ``git@`` instead of  ``https://``, which works through the ssh protocol
 and might be easier to use if you are using 2-factor authentication.
 
-
-Building Matplotlib for image comparison tests
-----------------------------------------------
-
-Matplotlib's test suite makes heavy use of image comparison tests, meaning
-the result of a plot is compared against a known good result.  Unfortunately,
-different versions of FreeType produce differently formed characters, causing
-these image comparisons to fail.  To make them reproducible, Matplotlib is, by
-default, built with a special local copy of FreeType.
-
-
 Installing Matplotlib in developer mode
 ---------------------------------------
+
+It is strongly recommended to set up a clean `virtual environment`_.  Do not
+use on a preexisting environment!
+
+A new environment can be set up with ::
+
+   python3 -mvenv /path/to/devel/env
+
+and activated with one of the following::
+
+   source /path/to/devel/env/bin/activate  # Linux/macOS
+   /path/to/devel/env/Scripts/activate.bat  # Windows cmd.exe
+   /path/to/devel/env/Scripts/Activate.ps1  # Windows PowerShell
+
+Whenever you plan to work on Matplotlib, remember to activate the development
+environment in your shell!
 
 To install Matplotlib (and compile the C-extensions) run the following
 command from the top-level directory ::
@@ -115,28 +100,15 @@ reflected the next time you import the library.  If you change the
 C-extension source (which might happen if you change branches) you
 will need to run ::
 
-   python setup.py build
+   python setup.py build_ext --inplace
 
 or re-run ``python -mpip install -ve .``.
 
-Alternatively, if you do ::
+You can then run the tests to check your work environment is set up properly::
 
-   python -mpip install -v .
+   python -mpytest
 
-all of the files will be copied to the installation directory however,
-you will have to rerun this command every time the source is changed.
-Additionally you will need to copy :file:`setup.cfg.template` to
-:file:`setup.cfg` and edit it to contain ::
-
-  [test]
-  local_freetype = True
-  tests = True
-
-In either case you can then run the tests to check your work
-environment is set up properly::
-
-  pytest
-
+.. _virtual environment: https://docs.python.org/3/library/venv.html
 .. _pytest: http://doc.pytest.org/en/latest/
 .. _pep8: https://pep8.readthedocs.io/en/latest/
 .. _Ghostscript: https://www.ghostscript.com/
@@ -260,7 +232,7 @@ tools:
 * Code with a good unittest coverage (at least 70%, better 100%), check with::
 
    python -mpip install coverage
-   pytest --cov=matplotlib --showlocals -v
+   python -mpytest --cov=matplotlib --showlocals -v
 
 * No pyflakes warnings, check with::
 
