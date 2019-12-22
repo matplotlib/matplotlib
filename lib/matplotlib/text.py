@@ -40,9 +40,17 @@ def _wrap_text(textobj):
 # Extracted from Text's method to serve as a function
 def get_rotation(rotation):
     """
-    Return the text angle as float between 0 and 360 degrees.
+    Return *rotation* normalized to an angle between 0 and 360 degrees.
 
-    *rotation* may be 'horizontal', 'vertical', or a numeric value in degrees.
+    Parameters
+    ----------
+    rotation : float or {None, 'horizontal', 'vertical'}
+        Rotation angle in degrees. *None* and 'horizontal' equal 0,
+        'vertical' equals 90.
+
+    Returns
+    -------
+    float
     """
     try:
         return float(rotation) % 360
@@ -183,14 +191,9 @@ class Text(Artist):
         return d
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occurred in the patch.
-
-        In the case of text, a hit is true anywhere in the
-        axis-aligned bounding-box containing the text.
-
-        Returns
-        -------
-        bool : bool
+        """
+        Return whether the mouse event occurred inside the axis-aligned
+        bounding-box of the text.
         """
         inside, info = self._default_contains(mouseevent)
         if inside is not None:
@@ -232,7 +235,7 @@ class Text(Artist):
             return self._horizontalalignment
 
     def get_rotation(self):
-        """Return the text angle as float in degrees."""
+        """Return the text angle in degrees between 0 and 360."""
         return get_rotation(self._rotation)  # string_or_number -> number
 
     def set_rotation_mode(self, m):
@@ -251,11 +254,11 @@ class Text(Artist):
         self.stale = True
 
     def get_rotation_mode(self):
-        """Get the text rotation mode."""
+        """Return the text rotation mode."""
         return self._rotation_mode
 
     def update_from(self, other):
-        """Copy properties from other to self."""
+        # docstring inherited
         Artist.update_from(self, other)
         self._color = other._color
         self._multialignment = other._multialignment
@@ -269,7 +272,7 @@ class Text(Artist):
 
     def _get_layout(self, renderer):
         """
-        return the extent (bbox) of the text together with
+        Return the extent (bbox) of the text together with
         multiple-alignment information. Note that it returns an extent
         of a rotated text when necessary.
         """
@@ -546,11 +549,12 @@ class Text(Artist):
         self._update_clip_properties()
 
     def get_wrap(self):
-        """Return the wrapping state for the text."""
+        """Return whether the text can be wrapped."""
         return self._wrap
 
     def set_wrap(self, wrap):
-        """Set the wrapping state for the text.
+        """
+        Set whether the text can be wrapped.
 
         Parameters
         ----------
@@ -668,6 +672,7 @@ class Text(Artist):
     @artist.allow_rasterization
     def draw(self, renderer):
         # docstring inherited
+
         if renderer is not None:
             self._renderer = renderer
         if not self.get_visible():
@@ -733,16 +738,16 @@ class Text(Artist):
         self.stale = False
 
     def get_color(self):
-        "Return the color of the text"
+        """Return the color of the text."""
         return self._color
 
     def get_fontproperties(self):
-        "Return the `.font_manager.FontProperties` object"
+        """Return the `.font_manager.FontProperties`."""
         return self._fontproperties
 
     def get_fontfamily(self):
         """
-        Return the list of font families used for font lookup
+        Return the list of font families used for font lookup.
 
         See Also
         --------
@@ -752,7 +757,7 @@ class Text(Artist):
 
     def get_fontname(self):
         """
-        Return the font name as string
+        Return the font name as a string.
 
         See Also
         --------
@@ -762,7 +767,7 @@ class Text(Artist):
 
     def get_fontstyle(self):
         """
-        Return the font style as string
+        Return the font style as a string.
 
         See Also
         --------
@@ -772,7 +777,7 @@ class Text(Artist):
 
     def get_fontsize(self):
         """
-        Return the font size as integer
+        Return the font size as an integer.
 
         See Also
         --------
@@ -782,7 +787,7 @@ class Text(Artist):
 
     def get_fontvariant(self):
         """
-        Return the font variant as a string
+        Return the font variant as a string.
 
         See Also
         --------
@@ -792,7 +797,7 @@ class Text(Artist):
 
     def get_fontweight(self):
         """
-        Get the font weight as string or number
+        Return the font weight as a string or a number.
 
         See Also
         --------
@@ -802,7 +807,7 @@ class Text(Artist):
 
     def get_stretch(self):
         """
-        Get the font stretch as a string or number
+        Return the font stretch as a string or a number.
 
         See Also
         --------
@@ -812,13 +817,13 @@ class Text(Artist):
 
     def get_horizontalalignment(self):
         """
-        Return the horizontal alignment as string.  Will be one of
+        Return the horizontal alignment as a string.  Will be one of
         'left', 'center' or 'right'.
         """
         return self._horizontalalignment
 
     def get_unitless_position(self):
-        "Return the unitless position of the text as a tuple (*x*, *y*)"
+        """Return the (x, y) unitless position of the text."""
         # This will get the position with all unit information stripped away.
         # This is here for convenience since it is done in several locations.
         x = float(self.convert_xunits(self._x))
@@ -826,7 +831,7 @@ class Text(Artist):
         return x, y
 
     def get_position(self):
-        "Return the position of the text as a tuple (*x*, *y*)"
+        """Return the (x, y) position of the text."""
         # This should return the same data (possible unitized) as was
         # specified with 'set_x' and 'set_y'.
         return self._x, self._y
@@ -850,12 +855,12 @@ class Text(Artist):
                 )
 
     def get_text(self):
-        "Get the text as string"
+        """Return the text string."""
         return self._text
 
     def get_verticalalignment(self):
         """
-        Return the vertical alignment as string.  Will be one of
+        Return the vertical alignment as a string.  Will be one of
         'top', 'center', 'bottom' or 'baseline'.
         """
         return self._verticalalignment
@@ -956,10 +961,11 @@ class Text(Artist):
 
     def set_multialignment(self, align):
         """
-        Set the alignment for multiple lines layout.  The layout of the
-        bounding box of all the lines is determined by the horizontalalignment
-        and verticalalignment properties, but the multiline text within that
-        box can be
+        Set the text alignment for multiline texts.
+
+        The layout of the bounding box of all the lines is determined by the
+        horizontalalignment and verticalalignment properties. This property
+        controls the alignment of the text lines within that box.
 
         Parameters
         ----------
@@ -1008,7 +1014,7 @@ class Text(Artist):
 
     def set_fontvariant(self, variant):
         """
-        Set the font variant, either 'normal' or 'small-caps'.
+        Set the font variant.
 
         Parameters
         ----------
@@ -1038,13 +1044,14 @@ class Text(Artist):
 
     def set_fontsize(self, fontsize):
         """
-        Set the font size.  May be either a size string, relative to
-        the default font size, or an absolute font size in points.
+        Set the font size.
 
         Parameters
         ----------
-        fontsize : {size in points, 'xx-small', 'x-small', 'small', 'medium', \
+        fontsize : float or {'xx-small', 'x-small', 'small', 'medium', \
 'large', 'x-large', 'xx-large'}
+            If float, the fontsize in points. The string values denote sizes
+            relative to the default font size.
 
         See Also
         --------
@@ -1126,14 +1133,16 @@ class Text(Artist):
 
         Parameters
         ----------
-        s : {angle in degrees, 'vertical', 'horizontal'}
+        s : float or {'vertical', 'horizontal'}
+            The rotation angle in degrees in mathematically positive direction
+            (counterclockwise). 'horizontal' equals 0, 'vertical' equals 90.
         """
         self._rotation = s
         self.stale = True
 
     def set_verticalalignment(self, align):
         """
-        Set the vertical alignment
+        Set the vertical alignment.
 
         Parameters
         ----------
@@ -1154,8 +1163,8 @@ class Text(Artist):
         Parameters
         ----------
         s : object
-            Any object gets converted to its `str`, except ``None`` which
-            becomes ``''``.
+            Any object gets converted to its `str` representation, except for
+            ``None`` which is converted to an empty string.
         """
         if s is None:
             s = ''
@@ -1269,10 +1278,10 @@ class OffsetFrom:
         """
         Parameters
         ----------
-        artist : `.Artist`, `.BboxBase`, or `.Transform`
+        artist : `.Artist` or `.BboxBase` or `.Transform`
             The object to compute the offset from.
 
-        ref_coord : length 2 sequence
+        ref_coord : (float, float)
             If *artist* is an `.Artist` or `.BboxBase`, this values is
             the location to of the offset origin in fractions of the
             *artist* bounding box.
@@ -1280,7 +1289,7 @@ class OffsetFrom:
             If *artist* is a transform, the offset origin is the
             transform applied to this value.
 
-        unit : {'points, 'pixels'}
+        unit : {'points, 'pixels'}, default: 'points'
             The screen units to use (pixels or points) for the offset input.
         """
         self._artist = artist
@@ -1289,7 +1298,7 @@ class OffsetFrom:
 
     def set_unit(self, unit):
         """
-        The unit for input to the transform used by ``__call__``
+        Set the unit for input to the transform used by ``__call__``.
 
         Parameters
         ----------
@@ -1299,7 +1308,7 @@ class OffsetFrom:
         self._unit = unit
 
     def get_unit(self):
-        """The unit for input to the transform used by ``__call__``."""
+        """Return the unit for input to the transform used by ``__call__``."""
         return self._unit
 
     def _get_scale(self, renderer):
@@ -1452,8 +1461,8 @@ class _AnnotationBase:
 
     def _get_ref_xy(self, renderer):
         """
-        return x, y (in display coordinate) that is to be used for a reference
-        of any offset coordinate
+        Return x, y (in display coordinate) that is to be used for a reference
+        of any offset coordinate.
         """
         def is_offset(s):
             return isinstance(s, str) and s.split()[0] == "offset"
@@ -1589,13 +1598,15 @@ class Annotation(Text, _AnnotationBase):
             parameter.
 
         xy : (float, float)
-            The point *(x, y)* to annotate.
+            The point *(x, y)* to annotate. The coordinate system is determined
+            by *xycoords*.
 
-        xytext : (float, float), optional
-            The position *(x, y)* to place the text at.
-            If *None*, defaults to *xy*.
+        xytext : (float, float), default: *xy*
+            The position *(x, y)* to place the text at. The coordinate system
+            is determined by *textcoords*.
 
-        xycoords : str, `.Artist`, `.Transform`, callable or tuple, optional
+        xycoords : str or `.Artist` or `.Transform` or callable or \
+(float, float), default: 'data'
 
             The coordinate system that *xy* is given in. The following types
             of values are supported:
@@ -1639,9 +1650,8 @@ class Annotation(Text, _AnnotationBase):
 
             See :ref:`plotting-guide-annotation` for more details.
 
-            Defaults to 'data'.
-
-        textcoords : str, `.Artist`, `.Transform`, callable or tuple, optional
+        textcoords : str or `.Artist` or `.Transform` or callable or \
+(float, float), default: value of *xycoords*
             The coordinate system that *xytext* is given in.
 
             All *xycoords* values are valid as well as the following
@@ -1654,12 +1664,8 @@ class Annotation(Text, _AnnotationBase):
             'offset pixels'     Offset (in pixels) from the *xy* value
             =================   =========================================
 
-            Defaults to the value of *xycoords*, i.e. use the same coordinate
-            system for annotation point and text position.
-
         arrowprops : dict, optional
-            The properties used to draw a
-            `~matplotlib.patches.FancyArrowPatch` arrow between the
+            The properties used to draw a `.FancyArrowPatch` arrow between the
             positions *xy* and *xytext*.
 
             If *arrowprops* does not contain the key 'arrowstyle' the
@@ -1715,7 +1721,7 @@ class Annotation(Text, _AnnotationBase):
 
             Defaults to None, i.e. no arrow is drawn.
 
-        annotation_clip : bool or None, optional
+        annotation_clip : bool or None, default: None
             Whether to draw the annotation when the annotation point *xy* is
             outside the axes area.
 
@@ -1724,8 +1730,6 @@ class Annotation(Text, _AnnotationBase):
             - If *False*, the annotation will always be drawn.
             - If *None*, the annotation will only be drawn when *xy* is
               within the axes and *xycoords* is 'data'.
-
-            Defaults to *None*.
 
         **kwargs
             Additional kwargs are passed to `~matplotlib.text.Text`.
@@ -1736,7 +1740,7 @@ class Annotation(Text, _AnnotationBase):
 
         See Also
         --------
-        :ref:`plotting-guide-annotation`.
+        :ref:`plotting-guide-annotation`
 
         """
         _AnnotationBase.__init__(self,
@@ -1829,6 +1833,7 @@ class Annotation(Text, _AnnotationBase):
     """
 
     def set_figure(self, fig):
+        # docstring inherited
         if self.arrow_patch is not None:
             self.arrow_patch.set_figure(fig)
         Artist.set_figure(self, fig)
@@ -1942,6 +1947,7 @@ class Annotation(Text, _AnnotationBase):
     @artist.allow_rasterization
     def draw(self, renderer):
         # docstring inherited
+
         if renderer is not None:
             self._renderer = renderer
         if not self.get_visible():
