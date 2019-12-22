@@ -1863,19 +1863,12 @@ class _AnnotationBase:
             return isinstance(s, str) and s.split()[0] == "offset"
 
         if isinstance(self.xycoords, tuple):
-            s1, s2 = self.xycoords
-            if is_offset(s1) or is_offset(s2):
+            if any(map(is_offset, self.xycoords)):
                 raise ValueError("xycoords should not be an offset coordinate")
-            x, y = self.xy
-            x1, y1 = self._get_xy(renderer, x, y, s1)
-            x2, y2 = self._get_xy(renderer, x, y, s2)
-            return x1, y2
         elif is_offset(self.xycoords):
             raise ValueError("xycoords should not be an offset coordinate")
-        else:
-            x, y = self.xy
-            return self._get_xy(renderer, x, y, self.xycoords)
-        #raise RuntimeError("must be defined by the derived class")
+        x, y = self.xy
+        return self._get_xy(renderer, x, y, self.xycoords)
 
     # def _get_bbox(self, renderer):
     #     if hasattr(bbox, "bounds"):
