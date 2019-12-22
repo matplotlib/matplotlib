@@ -259,7 +259,7 @@ handletextpad : float, default: :rc:`legend.handletextpad`
 handler_map : dict or None
     The custom dictionary mapping instances or types to a legend
     handler. This `handler_map` updates the default handler map
-    found at :func:`matplotlib.legend.Legend.get_legend_handler_map`.
+    found at :func:`matplotlib.legend.BasicLegend.get_legend_handler_map`.
 """)
 
 
