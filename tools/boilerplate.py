@@ -260,6 +260,8 @@ def boilerplate_gen():
         'title:set_title',
         'xlabel:set_xlabel',
         'ylabel:set_ylabel',
+        'xlabel_legend:set_xlabel_legend',
+        'ylabel_legend:set_ylabel_legend',
         'xscale:set_xscale',
         'yscale:set_yscale',
     )
