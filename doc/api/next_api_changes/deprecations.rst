@@ -67,3 +67,9 @@ This attribute is unused and deprecated.
 ``widgets.TextBox.params_to_disable``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This attribute is deprecated.
+
+Revert deprecation \*min, \*max keyword arguments to ``set_x/y/zlim_3d()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These keyword arguments  were deprecated in 3.0, alongside with the respective
+parameters in ``set_xlim()`` / ``set_ylim()``. The deprecations of the 2D
+versions were already reverted in in 3.1.
