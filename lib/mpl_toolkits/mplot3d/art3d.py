@@ -154,11 +154,18 @@ class Line3D(lines.Line2D):
         ys = self.get_ydata()
 
         try:
-            # If *zs* is a list or array, then this will fail and
-            # just proceed to juggle_axes().
-            zs = np.full_like(xs, fill_value=float(zs))
-        except TypeError:
-            pass
+            len_zs = len(zs)
+        except TypeError:  # object of type 'int' has no len()
+            zs = np.full_like(xs, fill_value=zs)
+        else:
+            len_xs = len(xs)
+            if len_zs != len_xs:
+                raise ValueError(
+                    "zs has wrong length (len(zs) = {} != {} = len(xs)).".format(
+                        len_zs, len_xs
+                    )
+                )
+
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
         self.stale = True
 
