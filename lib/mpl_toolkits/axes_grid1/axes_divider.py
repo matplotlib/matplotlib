@@ -597,26 +597,22 @@ class HBoxDivider(SubplotDivider):
                           total_appended_size):
 
         n = len(equivalent_sizes)
-        A = np.mat(np.zeros((n + 1, n + 1)))
+        eq_rs, eq_as = np.asarray(equivalent_sizes).T
+        ap_rs, ap_as = np.asarray(appended_sizes).T
+        A = np.zeros((n + 1, n + 1))
         B = np.zeros(n + 1)
-        # AxK = B
+        np.fill_diagonal(A[:n, :n], eq_rs)
+        A[:n, -1] = -1
+        A[-1, :-1] = ap_rs
+        B[:n] = -eq_as
+        B[-1] = total_appended_size - sum(ap_as)
 
-        # populated A
-        for i, (r, a) in enumerate(equivalent_sizes):
-            A[i, i] = r
-            A[i, -1] = -1
-            B[i] = -a
-        A[-1, :-1] = [r for r, a in appended_sizes]
-        B[-1] = total_appended_size - sum([a for rs, a in appended_sizes])
-
-        karray_H = (A.I*np.mat(B).T).A1
+        karray_H = np.linalg.solve(A, B)  # A @ K = B
         karray = karray_H[:-1]
         H = karray_H[-1]
 
         if H > max_equivalent_size:
-            karray = ((max_equivalent_size -
-                      np.array([a for r, a in equivalent_sizes]))
-                      / np.array([r for r, a in equivalent_sizes]))
+            karray = (max_equivalent_size - eq_as) / eq_rs
         return karray
 
     @staticmethod
