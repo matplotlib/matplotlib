@@ -152,20 +152,7 @@ class Line3D(lines.Line2D):
     def set_3d_properties(self, zs=0, zdir='z'):
         xs = self.get_xdata()
         ys = self.get_ydata()
-
-        try:
-            len_zs = len(zs)
-        except TypeError:  # object of type 'int' has no len()
-            zs = np.full(xs.shape, fill_value=zs)
-        else:
-            len_xs = len(xs)
-            if len_zs != len_xs:
-                raise ValueError(
-                    "zs has wrong length (len(zs) = {} != {} = len(xs)).".format(
-                        len_zs, len_xs
-                    )
-                )
-
+        zs = np.broadcast_to(zs, xs.shape)
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
         self.stale = True
 
