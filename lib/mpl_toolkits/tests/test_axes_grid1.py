@@ -12,9 +12,10 @@ from matplotlib.testing.decorators import (
     image_comparison, remove_ticks_and_titles)
 
 from mpl_toolkits.axes_grid1 import (
-    host_subplot, make_axes_locatable, AxesGrid, ImageGrid)
+    axes_size as Size, host_subplot, make_axes_locatable, AxesGrid, ImageGrid)
 from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredSizeBar, AnchoredDirectionArrows)
+from mpl_toolkits.axes_grid1.axes_divider import HBoxDivider
 from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
 
@@ -461,3 +462,26 @@ def test_picking_callbacks_overlap(big_on_axes, small_on_axes, click_on):
     assert big in event_rects
     if click_on == "small":
         assert small in event_rects
+
+
+def test_hbox_divider():
+    arr1 = np.arange(20).reshape((4, 5))
+    arr2 = np.arange(20).reshape((5, 4))
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    ax1.imshow(arr1)
+    ax2.imshow(arr2)
+
+    pad = 0.5  # inches.
+    divider = HBoxDivider(
+        fig, 111,  # Position of combined axes.
+        horizontal=[Size.AxesX(ax1), Size.Fixed(pad), Size.AxesX(ax2)],
+        vertical=[Size.AxesY(ax1), Size.Scaled(1), Size.AxesY(ax2)])
+    ax1.set_axes_locator(divider.new_locator(0))
+    ax2.set_axes_locator(divider.new_locator(2))
+
+    fig.canvas.draw()
+    p1 = ax1.get_position()
+    p2 = ax2.get_position()
+    assert p1.height == p2.height
+    assert p2.width / p1.width == pytest.approx((4 / 5) ** 2)

@@ -5,6 +5,7 @@ Demo Axes Hbox Divider
 
 Hbox Divider to arrange subplots.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.axes_divider import HBoxDivider
@@ -13,19 +14,12 @@ import mpl_toolkits.axes_grid1.axes_size as Size
 
 def make_heights_equal(fig, rect, ax1, ax2, pad):
     # pad in inches
-
-    h1, v1 = Size.AxesX(ax1), Size.AxesY(ax1)
-    h2, v2 = Size.AxesX(ax2), Size.AxesY(ax2)
-
-    pad_v = Size.Scaled(1)
-    pad_h = Size.Fixed(pad)
-
-    my_divider = HBoxDivider(fig, rect,
-                             horizontal=[h1, pad_h, h2],
-                             vertical=[v1, pad_v, v2])
-
-    ax1.set_axes_locator(my_divider.new_locator(0))
-    ax2.set_axes_locator(my_divider.new_locator(2))
+    divider = HBoxDivider(
+        fig, rect,
+        horizontal=[Size.AxesX(ax1), Size.Fixed(pad), Size.AxesX(ax2)],
+        vertical=[Size.AxesY(ax1), Size.Scaled(1), Size.AxesY(ax2)])
+    ax1.set_axes_locator(divider.new_locator(0))
+    ax2.set_axes_locator(divider.new_locator(2))
 
 
 if __name__ == "__main__":
@@ -37,11 +31,13 @@ if __name__ == "__main__":
     ax1.imshow(arr1)
     ax2.imshow(arr2)
 
-    rect = 111  # subplot param for combined axes
-    make_heights_equal(fig, rect, ax1, ax2, pad=0.5)  # pad in inches
-
-    for ax in [ax1, ax2]:
-        ax.locator_params(nbins=4)
+    pad = 0.5  # inches.
+    divider = HBoxDivider(
+        fig, 111,  # Position of combined axes.
+        horizontal=[Size.AxesX(ax1), Size.Fixed(pad), Size.AxesX(ax2)],
+        vertical=[Size.AxesY(ax1), Size.Scaled(1), Size.AxesY(ax2)])
+    ax1.set_axes_locator(divider.new_locator(0))
+    ax2.set_axes_locator(divider.new_locator(2))
 
     # annotate
     ax3 = plt.axes([0.5, 0.5, 0.001, 0.001], frameon=False)
