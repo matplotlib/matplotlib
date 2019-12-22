@@ -45,6 +45,26 @@ def test_get_labels():
     assert ax.get_ylabel() == 'y label'
 
 
+@image_comparison(['label_legend.png'], style='mpl20')
+def test_label_legends():
+    fig, ax1 = plt.subplots()
+
+    line1, _, _ = ax1.bar([0, 1, 2], [0, 1, 2], color='gray')
+    ax1.set_xlabel('X label 1')
+    ax1.set_ylabel('A very long Y label which requires\nmultiple lines')
+    ax1.set_ylabel_legend(line1)
+
+    ax2 = ax1.twinx()
+    line2, = ax2.plot([0, 1, 2], [20, 10, 0], color='red')
+    ax2.set_ylabel('Y label 2')
+    ax2.set_ylabel_legend(line2)
+
+    ax3 = ax2.twiny()
+    line3, = ax3.plot([100, 200, 300], [20, 5, 10], marker='D')
+    ax3.set_xlabel('X label 2')
+    ax3.set_xlabel_legend(line3)
+
+
 @image_comparison(['acorr.png'], style='mpl20')
 def test_acorr():
     # Remove this line when this test image is regenerated.
