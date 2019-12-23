@@ -580,7 +580,7 @@ class Legend(Artist):
 
     @allow_rasterization
     def draw(self, renderer):
-        "Draw everything that belongs to the legend."
+        # docstring inherited
         if not self.get_visible():
             return
 

@@ -2613,7 +2613,7 @@ class _AxesBase(martist.Artist):
     # Drawing
     @martist.allow_rasterization
     def draw(self, renderer=None, inframe=False):
-        """Draw everything (plot lines, axes, labels)"""
+        # docstring inherited
         if renderer is None:
             renderer = self.figure._cachedRenderer
         if renderer is None:

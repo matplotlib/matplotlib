@@ -1219,7 +1219,7 @@ class AxisArtist(martist.Artist):
 
     @martist.allow_rasterization
     def draw(self, renderer):
-        """Draw the axis lines, tick lines and labels."""
+        # docstring inherited
 
         if not self.get_visible():
             return

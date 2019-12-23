@@ -584,10 +584,9 @@ class Patch(artist.Artist):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        """Draw to the given *renderer*."""
+        # docstring inherited
         if not self.get_visible():
             return
-
         # Patch has traditionally ignored the dashoffset.
         with cbook._setattr_cm(self, _dashoffset=0), \
                 self._bind_draw_path_function(renderer) as draw_path:
