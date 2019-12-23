@@ -1216,18 +1216,17 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        aspect : {'auto', 'equal'} or num
+        aspect : {'auto'} or num
             Possible values:
 
-            ========   ================================================
+            ========   =================================================
             value      description
-            ========   ================================================
-            'auto'     automatic; fill the position rectangle with data
-            'equal'    same scaling from data to plot units for x and y
-             num       a circle will be stretched such that the height
-                       is num times the width. aspect=1 is the same as
-                       aspect='equal'.
-            ========   ================================================
+            ========   =================================================
+            'auto'     automatic; fill the position rectangle with data.
+            num        a circle will be stretched such that the height
+                       is *num* times the width.  'equal' is a synonym
+                       for ``aspect=1``, i.e. same scaling for x and y.
+            ========   =================================================
 
         adjustable : None or {'box', 'datalim'}, optional
             If not ``None``, this defines which parameter will be adjusted to
@@ -1262,14 +1261,14 @@ class _AxesBase(martist.Artist):
         matplotlib.axes.Axes.set_anchor
             defining the position in case of extra space.
         """
-        if not (cbook._str_equal(aspect, 'equal')
-                or cbook._str_equal(aspect, 'auto')):
+        if cbook._str_equal(aspect, 'equal'):
+            aspect = 1
+        if not cbook._str_equal(aspect, 'auto'):
+            if self.name == '3d':
+                raise NotImplementedError(
+                    'It is not currently possible to manually set the aspect '
+                    'on 3D axes')
             aspect = float(aspect)  # raise ValueError if necessary
-
-        if (not cbook._str_equal(aspect, 'auto')) and self.name == '3d':
-            raise NotImplementedError(
-                'It is not currently possible to manually set the aspect '
-                'on 3D axes')
 
         if share:
             axes = {*self._shared_x_axes.get_siblings(self),
@@ -1531,9 +1530,6 @@ class _AxesBase(martist.Artist):
         if aspect == 'auto' and self._box_aspect is None:
             self._set_position(position, which='active')
             return
-
-        if aspect == 'equal':
-            aspect = 1
 
         fig_width, fig_height = self.get_figure().get_size_inches()
         fig_aspect = fig_height / fig_width
