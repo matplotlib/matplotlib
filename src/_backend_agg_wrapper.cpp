@@ -672,6 +672,8 @@ static struct PyModuleDef moduledef = {
     NULL
 };
 
+#pragma GCC visibility push(default)
+
 PyMODINIT_FUNC PyInit__backend_agg(void)
 {
     PyObject *m;
@@ -694,3 +696,5 @@ PyMODINIT_FUNC PyInit__backend_agg(void)
 
     return m;
 }
+
+#pragma GCC visibility pop

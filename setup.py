@@ -22,6 +22,7 @@ Make sure you have pip >= 9.0.1.
            '.'.join(str(n) for n in sys.version_info[:3]))
     sys.exit(error)
 
+import os
 from pathlib import Path
 import shutil
 from zipfile import ZipFile
@@ -42,6 +43,7 @@ except ImportError:
 else:
     del sdist.sdist.make_release_tree
 
+from distutils.errors import CompileError
 from distutils.dist import Distribution
 
 import setupext
@@ -64,6 +66,19 @@ mpl_packages = [
     ]
 
 
+# From https://bugs.python.org/issue26689
+def has_flag(self, flagname):
+    """Return whether a flag name is supported on the specified compiler."""
+    import tempfile
+    with tempfile.NamedTemporaryFile('w', suffix='.cpp') as f:
+        f.write('int main (int argc, char **argv) { return 0; }')
+        try:
+            self.compile([f.name], extra_postargs=[flagname])
+        except CompileError:
+            return False
+    return True
+
+
 class NoopTestCommand(TestCommand):
     def __init__(self, dist):
         print("Matplotlib does not support running tests with "
@@ -79,6 +94,24 @@ class BuildExtraLibraries(BuildExtCommand):
         ]
         super().finalize_options()
 
+    def add_optional_flags(self):
+        env = os.environ.copy()
+        if sys.platform == 'win32':
+            return env
+
+        cppflags = []
+        if 'CPPFLAGS' in os.environ:
+            cppflags.append(os.environ['CPPFLAGS'])
+
+        if has_flag(self.compiler, '-fvisibility=hidden'):
+            for ext in self.extensions:
+                ext.extra_compile_args.append('-fvisibility=hidden')
+            cppflags.append('-fvisibility=hidden')
+
+        env['CPPFLAGS'] = ' '.join(cppflags)
+
+        return env
+
     def build_extensions(self):
         # Remove the -Wstrict-prototypes option, it's not valid for C++.  Fixed
         # in Py3.7 as bpo-5755.
@@ -86,8 +119,10 @@ class BuildExtraLibraries(BuildExtCommand):
             self.compiler.compiler_so.remove('-Wstrict-prototypes')
         except (ValueError, AttributeError):
             pass
+
+        env = self.add_optional_flags()
         for package in good_packages:
-            package.do_custom_build()
+            package.do_custom_build(env)
         return super().build_extensions()
 
 
