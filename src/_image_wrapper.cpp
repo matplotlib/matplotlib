@@ -1,6 +1,7 @@
 #include "mplutils.h"
 #include "_image_resample.h"
 #include "_image.h"
+#include "numpy_cpp.h"
 #include "py_converters.h"
 
 

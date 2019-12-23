@@ -1,4 +1,5 @@
 #include "mplutils.h"
+#include "numpy_cpp.h"
 #include "py_converters.h"
 #include "_backend_agg.h"
 
