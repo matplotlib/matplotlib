@@ -5,17 +5,8 @@
 import numpy as np
 
 from matplotlib import (
-    artist, cbook, lines as mlines, axis as maxis, patches as mpatches,
-    rcParams)
+    artist, lines as mlines, axis as maxis, patches as mpatches, rcParams)
 from . import art3d, proj3d
-
-
-@cbook.deprecated("3.1")
-def get_flip_min_max(coord, index, mins, maxs):
-    if coord[index] == mins[index]:
-        return maxs[index]
-    else:
-        return mins[index]
 
 
 def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
@@ -125,12 +116,6 @@ class Axis(maxis.XAxis):
         # Need to be able to place the label at the correct location
         self.label._transform = self.axes.transData
         self.offsetText._transform = self.axes.transData
-
-    @cbook.deprecated("3.1")
-    def get_tick_positions(self):
-        majorLocs = self.major.locator()
-        majorLabels = self.major.formatter.format_ticks(majorLocs)
-        return majorLabels, majorLocs
 
     def get_major_ticks(self, numticks=None):
         ticks = maxis.XAxis.get_major_ticks(self, numticks)
