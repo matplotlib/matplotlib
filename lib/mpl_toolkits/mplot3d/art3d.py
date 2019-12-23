@@ -152,13 +152,7 @@ class Line3D(lines.Line2D):
     def set_3d_properties(self, zs=0, zdir='z'):
         xs = self.get_xdata()
         ys = self.get_ydata()
-
-        try:
-            # If *zs* is a list or array, then this will fail and
-            # just proceed to juggle_axes().
-            zs = np.full_like(xs, fill_value=float(zs))
-        except TypeError:
-            pass
+        zs = np.broadcast_to(zs, xs.shape)
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
         self.stale = True
 
