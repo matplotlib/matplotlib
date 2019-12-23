@@ -23,7 +23,6 @@ fig = plt.figure(figsize=(5.5, 3.5))
 grid = ImageGrid(fig, 111,  # similar to subplot(111)
                  nrows_ncols=(1, 3),
                  axes_pad=0.1,
-                 add_all=True,
                  label_mode="L",
                  )
 

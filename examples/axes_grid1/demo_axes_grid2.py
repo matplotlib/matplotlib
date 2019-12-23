@@ -46,9 +46,7 @@ extent = extent[0], extent[1]/3., extent[2], extent[3]
 # *** Demo 1: colorbar at each axes ***
 grid = ImageGrid(fig, 211,  # similar to subplot(211)
                  nrows_ncols=(1, 3),
-                 direction="row",
                  axes_pad=0.05,
-                 add_all=True,
                  label_mode="1",
                  share_all=True,
                  cbar_location="top",
@@ -81,9 +79,7 @@ grid[0].set_yticks([-2, 0, 2])
 # *** Demo 2: shared colorbar ***
 grid2 = ImageGrid(fig, 212,
                   nrows_ncols=(1, 3),
-                  direction="row",
                   axes_pad=0.05,
-                  add_all=True,
                   label_mode="1",
                   share_all=True,
                   cbar_location="right",
