@@ -102,13 +102,23 @@ class BuildExtraLibraries(BuildExtCommand):
         cppflags = []
         if 'CPPFLAGS' in os.environ:
             cppflags.append(os.environ['CPPFLAGS'])
+        cxxflags = []
+        if 'CXXFLAGS' in os.environ:
+            cxxflags.append(os.environ['CXXFLAGS'])
 
         if has_flag(self.compiler, '-fvisibility=hidden'):
             for ext in self.extensions:
                 ext.extra_compile_args.append('-fvisibility=hidden')
             cppflags.append('-fvisibility=hidden')
+        if has_flag(self.compiler, '-fvisibility-inlines-hidden'):
+            for ext in self.extensions:
+                if self.compiler.detect_language(ext.sources) != 'cpp':
+                    continue
+                ext.extra_compile_args.append('-fvisibility-inlines-hidden')
+            cxxflags.append('-fvisibility-inlines-hidden')
 
         env['CPPFLAGS'] = ' '.join(cppflags)
+        env['CXXFLAGS'] = ' '.join(cxxflags)
 
         return env
 
