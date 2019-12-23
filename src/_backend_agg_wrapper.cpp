@@ -660,8 +660,6 @@ static PyTypeObject *PyRendererAgg_init_type(PyObject *m, PyTypeObject *type)
     return type;
 }
 
-extern "C" {
-
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_backend_agg",
@@ -696,5 +694,3 @@ PyMODINIT_FUNC PyInit__backend_agg(void)
 
     return m;
 }
-
-} // extern "C"

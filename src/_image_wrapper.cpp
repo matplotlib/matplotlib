@@ -434,8 +434,6 @@ static PyMethodDef module_functions[] = {
     {NULL}
 };
 
-extern "C" {
-
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_image",
@@ -483,5 +481,3 @@ PyMODINIT_FUNC PyInit__image(void)
 
     return m;
 }
-
-} // extern "C"
