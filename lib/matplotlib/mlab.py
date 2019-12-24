@@ -54,6 +54,7 @@ Spectral functions
 """
 
 import csv
+import functools
 from numbers import Number
 
 import numpy as np
@@ -584,13 +585,13 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
     return result, freqs, t
 
 
-def _single_spectrum_helper(x, mode, Fs=None, window=None, pad_to=None,
-                            sides=None):
-    '''
+def _single_spectrum_helper(
+        mode, x, Fs=None, window=None, pad_to=None, sides=None):
+    """
     This is a helper function that implements the commonality between the
     complex, magnitude, angle, and phase spectrums.
     It is *NOT* meant to be used outside of mlab and may change at any time.
-    '''
+    """
     cbook._check_in_list(['complex', 'magnitude', 'angle', 'phase'], mode=mode)
 
     if pad_to is None:
@@ -792,166 +793,60 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
     return Pxy, freqs
 
 
-@docstring.dedent_interpd
-def complex_spectrum(x, Fs=None, window=None, pad_to=None,
-                     sides=None):
-    """
-    Compute the complex-valued frequency spectrum of *x*.  Data is padded to a
-    length of *pad_to* and the windowing function *window* is applied to the
-    signal.
+_single_spectrum_docs = """\
+Compute the {quantity} of *x*.
+Data is padded to a length of *pad_to* and the windowing function *window* is
+applied to the signal.
 
-    Parameters
-    ----------
-    x : 1-D array or sequence
-        Array or sequence containing the data
+Parameters
+----------
+x : 1-D array or sequence
+    Array or sequence containing the data
 
-    %(Spectral)s
+{Spectral}
 
-    %(Single_Spectrum)s
+{Single_Spectrum}
 
-    Returns
-    -------
-    spectrum : 1-D array
-        The values for the complex spectrum (complex valued)
+Returns
+-------
+spectrum : 1-D array
+    The {quantity}.
+freqs : 1-D array
+    The frequencies corresponding to the elements in *spectrum*.
 
-    freqs : 1-D array
-        The frequencies corresponding to the elements in *spectrum*
-
-    See Also
-    --------
-    magnitude_spectrum
-        Returns the absolute value of this function.
-    angle_spectrum
-        Returns the angle of this function.
-    phase_spectrum
-        Returns the phase (unwrapped angle) of this function.
-    specgram
-        Can return the complex spectrum of segments within the signal.
-    """
-    return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
-                                   sides=sides, mode='complex')
+See Also
+--------
+psd
+    Returns the power spectral density.
+complex_spectrum
+    Returns the complex-valued frequency spectrum.
+magnitude_spectrum
+    Returns the absolute value of the `complex_spectrum`.
+angle_spectrum
+    Returns the angle of the `complex_spectrum`.
+phase_spectrum
+    Returns the phase (unwrapped angle) of the `complex_spectrum`.
+specgram
+    Can return the complex spectrum of segments within the signal.
+"""
 
 
-@docstring.dedent_interpd
-def magnitude_spectrum(x, Fs=None, window=None, pad_to=None,
-                       sides=None):
-    """
-    Compute the magnitude (absolute value) of the frequency spectrum of
-    *x*.  Data is padded to a length of *pad_to* and the windowing function
-    *window* is applied to the signal.
-
-    Parameters
-    ----------
-    x : 1-D array or sequence
-        Array or sequence containing the data
-
-    %(Spectral)s
-
-    %(Single_Spectrum)s
-
-    Returns
-    -------
-    spectrum : 1-D array
-        The values for the magnitude spectrum (real valued)
-
-    freqs : 1-D array
-        The frequencies corresponding to the elements in *spectrum*
-
-    See Also
-    --------
-    psd
-        Returns the power spectral density.
-    complex_spectrum
-        This function returns the absolute value of `complex_spectrum`.
-    angle_spectrum
-        Returns the angles of the corresponding frequencies.
-    phase_spectrum
-        Returns the phase (unwrapped angle) of the corresponding frequencies.
-    specgram
-        Can return the complex spectrum of segments within the signal.
-    """
-    return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
-                                   sides=sides, mode='magnitude')
-
-
-@docstring.dedent_interpd
-def angle_spectrum(x, Fs=None, window=None, pad_to=None,
-                   sides=None):
-    """
-    Compute the angle of the frequency spectrum (wrapped phase spectrum) of
-    *x*.  Data is padded to a length of *pad_to* and the windowing function
-    *window* is applied to the signal.
-
-    Parameters
-    ----------
-    x : 1-D array or sequence
-        Array or sequence containing the data
-
-    %(Spectral)s
-
-    %(Single_Spectrum)s
-
-    Returns
-    -------
-    spectrum : 1-D array
-        The values for the angle spectrum in radians (real valued)
-
-    freqs : 1-D array
-        The frequencies corresponding to the elements in *spectrum*
-
-    See Also
-    --------
-    complex_spectrum
-        This function returns the angle value of `complex_spectrum`.
-    magnitude_spectrum
-        Returns the magnitudes of the corresponding frequencies.
-    phase_spectrum
-        Returns the phase (unwrapped angle) of the corresponding frequencies.
-    specgram
-        Can return the complex spectrum of segments within the signal.
-    """
-    return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
-                                   sides=sides, mode='angle')
-
-
-@docstring.dedent_interpd
-def phase_spectrum(x, Fs=None, window=None, pad_to=None,
-                   sides=None):
-    """
-    Compute the phase of the frequency spectrum (unwrapped angle spectrum) of
-    *x*.  Data is padded to a length of *pad_to* and the windowing function
-    *window* is applied to the signal.
-
-    Parameters
-    ----------
-    x : 1-D array or sequence
-        Array or sequence containing the data
-
-    %(Spectral)s
-
-    %(Single_Spectrum)s
-
-    Returns
-    -------
-    spectrum : 1-D array
-        The values for the phase spectrum in radians (real valued)
-
-    freqs : 1-D array
-        The frequencies corresponding to the elements in *spectrum*
-
-    See Also
-    --------
-    complex_spectrum
-        This function returns the phase value of `complex_spectrum`.
-    magnitude_spectrum
-        Returns the magnitudes of the corresponding frequencies.
-    angle_spectrum
-        Returns the angle (wrapped phase) of the corresponding frequencies.
-    specgram
-        Can return the complex spectrum of segments within the signal.
-    """
-    return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
-                                   sides=sides, mode='phase')
+complex_spectrum = functools.partial(_single_spectrum_helper, "complex")
+complex_spectrum.__doc__ = _single_spectrum_docs.format(
+    quantity="complex-valued frequency spectrum",
+    **docstring.interpd.params)
+magnitude_spectrum = functools.partial(_single_spectrum_helper, "magnitude")
+magnitude_spectrum.__doc__ = _single_spectrum_docs.format(
+    quantity="magnitude (absolute value) of the frequency spectrum",
+    **docstring.interpd.params)
+angle_spectrum = functools.partial(_single_spectrum_helper, "angle")
+angle_spectrum.__doc__ = _single_spectrum_docs.format(
+    quantity="angle of the frequency spectrum (wrapped phase spectrum)",
+    **docstring.interpd.params)
+phase_spectrum = functools.partial(_single_spectrum_helper, "phase")
+phase_spectrum.__doc__ = _single_spectrum_docs.format(
+    quantity="phase of the frequency spectrum (unwrapped phase spectrum)",
+    **docstring.interpd.params)
 
 
 @docstring.dedent_interpd
