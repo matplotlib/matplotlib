@@ -822,11 +822,12 @@ def subplot(*args, **kwargs):
 
        subplot(nrows, ncols, index, **kwargs)
        subplot(pos, **kwargs)
+       subplot(**kwargs)
        subplot(ax)
 
     Parameters
     ----------
-    *args
+    *args, default: (1, 1, 1)
         Either a 3-digit integer or three separate integers
         describing the position of the subplot. If the three
         integers are *nrows*, *ncols*, and *index* in order, the
