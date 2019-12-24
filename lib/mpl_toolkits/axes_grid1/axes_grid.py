@@ -497,12 +497,12 @@ class ImageGrid(Grid):
         if (self._colorbar_mode == "single" and
              self._colorbar_location in ('left', 'bottom')):
             if self._colorbar_location == "left":
-                sz = Size.Fraction(self._nrows, Size.AxesX(self.axes_llc))
+                sz = self._nrows * Size.AxesX(self.axes_llc)
                 h.append(Size.from_any(self._colorbar_size, sz))
                 h.append(Size.from_any(self._colorbar_pad, sz))
                 locator = self._divider.new_locator(nx=0, ny=0, ny1=-1)
             elif self._colorbar_location == "bottom":
-                sz = Size.Fraction(self._ncols, Size.AxesY(self.axes_llc))
+                sz = self._ncols * Size.AxesY(self.axes_llc)
                 v.append(Size.from_any(self._colorbar_size, sz))
                 v.append(Size.from_any(self._colorbar_pad, sz))
                 locator = self._divider.new_locator(nx=0, nx1=-1, ny=0)
@@ -602,12 +602,12 @@ class ImageGrid(Grid):
 
         if self._colorbar_mode == "single":
             if self._colorbar_location == "right":
-                sz = Size.Fraction(self._nrows, Size.AxesX(self.axes_llc))
+                sz = self._nrows * Size.AxesX(self.axes_llc)
                 h.append(Size.from_any(self._colorbar_pad, sz))
                 h.append(Size.from_any(self._colorbar_size, sz))
                 locator = self._divider.new_locator(nx=-2, ny=0, ny1=-1)
             elif self._colorbar_location == "top":
-                sz = Size.Fraction(self._ncols, Size.AxesY(self.axes_llc))
+                sz = self._ncols * Size.AxesY(self.axes_llc)
                 v.append(Size.from_any(self._colorbar_pad, sz))
                 v.append(Size.from_any(self._colorbar_size, sz))
                 locator = self._divider.new_locator(nx=0, nx1=-1, ny=-2)
