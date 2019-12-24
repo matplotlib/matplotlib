@@ -3910,10 +3910,13 @@ class Axes(_AxesBase):
 
         zdelta = 0.1
 
-        def line_props_with_rcdefaults(subkey, explicit, zdelta=0):
+        def line_props_with_rcdefaults(subkey, explicit, zdelta=0,
+                                       use_marker=True):
             d = {k.split('.')[-1]: v for k, v in rcParams.items()
                  if k.startswith(f'boxplot.{subkey}')}
             d['zorder'] = zorder + zdelta
+            if not use_marker:
+                d['marker'] = ''
             if explicit is not None:
                 d.update(
                     cbook.normalize_kwargs(explicit, mlines.Line2D._alias_map))
@@ -3934,15 +3937,16 @@ class Axes(_AxesBase):
                     cbook.normalize_kwargs(
                         boxprops, mpatches.PathPatch._alias_map))
         else:
-            final_boxprops = line_props_with_rcdefaults('boxprops', boxprops)
+            final_boxprops = line_props_with_rcdefaults('boxprops', boxprops,
+                                                        use_marker=False)
         final_whiskerprops = line_props_with_rcdefaults(
-            'whiskerprops', whiskerprops)
+            'whiskerprops', whiskerprops, use_marker=False)
         final_capprops = line_props_with_rcdefaults(
-            'capprops', capprops)
+            'capprops', capprops, use_marker=False)
         final_flierprops = line_props_with_rcdefaults(
             'flierprops', flierprops)
         final_medianprops = line_props_with_rcdefaults(
-            'medianprops', medianprops, zdelta)
+            'medianprops', medianprops, zdelta, use_marker=False)
         final_meanprops = line_props_with_rcdefaults(
             'meanprops', meanprops, zdelta)
         removed_prop = 'marker' if meanline else 'linestyle'
