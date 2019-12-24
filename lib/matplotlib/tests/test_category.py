@@ -154,6 +154,7 @@ class TestStrCategoryFormatter:
         labels = cat.StrCategoryFormatter(unit._mapping)
         for i, d in enumerate(ydata):
             assert labels(i, i) == d
+            assert labels(i, None) == d
 
     @pytest.mark.parametrize("ydata", cases, ids=ids)
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
