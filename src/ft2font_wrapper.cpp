@@ -1708,8 +1708,6 @@ static PyTypeObject *PyFT2Font_init_type(PyObject *m, PyTypeObject *type)
     return type;
 }
 
-extern "C" {
-
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "ft2font",
@@ -1812,5 +1810,3 @@ PyMODINIT_FUNC PyInit_ft2font(void)
 
     return m;
 }
-
-} // extern "C"
