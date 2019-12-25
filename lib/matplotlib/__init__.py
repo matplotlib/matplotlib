@@ -1404,15 +1404,12 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     new_sig = sig.replace(parameters=params)
     arg_names = arg_names[1:]  # remove the first "ax" / self arg
 
-    if replace_names is not None:
-        replace_names = set(replace_names)
-
-    assert (replace_names or set()) <= set(arg_names) or varkwargs_name, (
+    assert {*arg_names}.issuperset(replace_names or []) or varkwargs_name, (
         "Matplotlib internal error: invalid replace_names ({!r}) for {!r}"
         .format(replace_names, func.__name__))
     assert label_namer is None or label_namer in arg_names, (
         "Matplotlib internal error: invalid label_namer ({!r}) for {!r}"
-            .format(label_namer, func.__name__))
+        .format(label_namer, func.__name__))
 
     @functools.wraps(func)
     def inner(ax, *args, data=None, **kwargs):
