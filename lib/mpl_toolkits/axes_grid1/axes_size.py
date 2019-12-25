@@ -84,14 +84,8 @@ Scalable = Scaled
 
 def _get_axes_aspect(ax):
     aspect = ax.get_aspect()
-    # when aspec is "auto", consider it as 1.
-    if aspect in ('normal', 'auto'):
+    if aspect == "auto":
         aspect = 1.
-    elif aspect == "equal":
-        aspect = 1
-    else:
-        aspect = float(aspect)
-
     return aspect
 
 
