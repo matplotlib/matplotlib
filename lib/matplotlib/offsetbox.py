@@ -610,10 +610,7 @@ class PaddedBox(OffsetBox):
                 [(0, 0)])
 
     def draw(self, renderer):
-        """
-        Update the location of children if necessary and draw them
-        to the given *renderer*.
-        """
+        # docstring inherited
         width, height, xdescent, ydescent, offsets = self.get_extent_offsets(
                                                         renderer)
 
@@ -745,9 +742,7 @@ class DrawingArea(OffsetBox):
             a.set_figure(fig)
 
     def draw(self, renderer):
-        """
-        Draw the children
-        """
+        # docstring inherited
 
         dpi_cor = renderer.points_to_pixels(1.)
         self.dpi_transform.clear()
@@ -916,12 +911,8 @@ class TextArea(OffsetBox):
         return w, h, 0., d
 
     def draw(self, renderer):
-        """
-        Draw the children
-        """
-
+        # docstring inherited
         self._text.draw(renderer)
-
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
         self.stale = False
 
@@ -1012,13 +1003,9 @@ class AuxTransformBox(OffsetBox):
         return ub.width, ub.height, 0., 0.
 
     def draw(self, renderer):
-        """
-        Draw the children
-        """
-
+        # docstring inherited
         for c in self._children:
             c.draw(renderer)
-
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
         self.stale = False
 
@@ -1217,7 +1204,7 @@ class AnchoredOffsetbox(OffsetBox):
             self.patch.set_mutation_scale(fontsize)
 
     def draw(self, renderer):
-        "draw the artist"
+        # docstring inherited
 
         if not self.get_visible():
             return
@@ -1412,9 +1399,7 @@ class OffsetImage(OffsetBox):
         return w, h, 0, 0
 
     def draw(self, renderer):
-        """
-        Draw the children
-        """
+        # docstring inherited
         self.image.draw(renderer)
         # bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
         self.stale = False
@@ -1630,9 +1615,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
             self.arrow_patch.set_patchA(patchA)
 
     def draw(self, renderer):
-        """
-        Draw the :class:`Annotation` object to the given *renderer*.
-        """
+        # docstring inherited
 
         if renderer is not None:
             self._renderer = renderer

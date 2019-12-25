@@ -667,9 +667,7 @@ class Text(Artist):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        """
-        Draws the `.Text` object to the given *renderer*.
-        """
+        # docstring inherited
         if renderer is not None:
             self._renderer = renderer
         if not self.get_visible():
@@ -1943,10 +1941,7 @@ class Annotation(Text, _AnnotationBase):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        """
-        Draw the :class:`Annotation` object to the given *renderer*.
-        """
-
+        # docstring inherited
         if renderer is not None:
             self._renderer = renderer
         if not self.get_visible():

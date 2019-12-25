@@ -902,15 +902,18 @@ class Artist:
 
     def draw(self, renderer, *args, **kwargs):
         """
-        Draw the Artist using the given renderer.
+        Draw the Artist (and its children) using the given renderer.
 
-        This method will be overridden in the Artist subclasses. Typically,
-        it is implemented to not have any effect if the Artist is not visible
-        (`.Artist.get_visible` is *False*).
+        This has no effect if the artist is not visible (`.Artist.get_visible`
+        returns False).
 
         Parameters
         ----------
         renderer : `.RendererBase` subclass.
+
+        Notes
+        -----
+        This method is overridden in the Artist subclasses.
         """
         if not self.get_visible():
             return

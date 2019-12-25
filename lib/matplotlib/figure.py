@@ -1666,10 +1666,7 @@ default: 'top'
 
     @allow_rasterization
     def draw(self, renderer):
-        """
-        Render the figure using :class:`matplotlib.backend_bases.RendererBase`
-        instance *renderer*.
-        """
+        # docstring inherited
         self._cachedRenderer = renderer
 
         # draw the figure bounding box, perhaps none for white figure

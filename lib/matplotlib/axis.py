@@ -1135,7 +1135,7 @@ class Axis(martist.Artist):
 
     @martist.allow_rasterization
     def draw(self, renderer, *args, **kwargs):
-        'Draw the axis lines, grid lines, tick lines and labels'
+        # docstring inherited
 
         if not self.get_visible():
             return
