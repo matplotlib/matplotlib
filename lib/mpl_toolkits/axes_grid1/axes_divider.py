@@ -221,8 +221,8 @@ class Divider:
             ox = self._calc_offsets(hsizes, k)
             oy = self._calc_offsets(vsizes, k)
 
-            ww = (ox[-1] - ox[0])/figW
-            hh = (oy[-1] - oy[0])/figH
+            ww = (ox[-1] - ox[0]) / figW
+            hh = (oy[-1] - oy[0]) / figH
             pb = mtransforms.Bbox.from_bounds(x, y, w, h)
             pb1 = mtransforms.Bbox.from_bounds(x, y, ww, hh)
             pb1_anchored = pb1.anchored(self.get_anchor(), pb)
@@ -234,12 +234,12 @@ class Divider:
             x0, y0 = x, y
 
         if nx1 is None:
-            nx1 = nx+1
+            nx1 = nx + 1
         if ny1 is None:
-            ny1 = ny+1
+            ny1 = ny + 1
 
-        x1, w1 = x0 + ox[nx]/figW, (ox[nx1] - ox[nx])/figW
-        y1, h1 = y0 + oy[ny]/figH, (oy[ny1] - oy[ny])/figH
+        x1, w1 = x0 + ox[nx] / figW, (ox[nx1] - ox[nx]) / figW
+        y1, h1 = y0 + oy[ny] / figH, (oy[ny1] - oy[ny]) / figH
 
         return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
 
@@ -313,9 +313,9 @@ class AxesLocator:
         self._nx, self._ny = nx - _xrefindex, ny - _yrefindex
 
         if nx1 is None:
-            nx1 = nx+1
+            nx1 = nx + 1
         if ny1 is None:
-            ny1 = ny+1
+            ny1 = ny + 1
 
         self._nx1 = nx1 - _xrefindex
         self._ny1 = ny1 - _yrefindex
@@ -380,7 +380,7 @@ class SubplotDivider(Divider):
     def get_geometry(self):
         """Get the subplot geometry, e.g., (2, 2, 3)."""
         rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
-        return rows, cols, num1+1  # for compatibility
+        return rows, cols, num1 + 1  # for compatibility
 
     # COVERAGE NOTE: Never used internally or from examples
     def change_geometry(self, numrows, numcols, num):
@@ -642,33 +642,20 @@ class HBoxDivider(SubplotDivider):
     def _locate(self, x, y, w, h,
                 y_equivalent_sizes, x_appended_sizes,
                 figW, figH):
-        """
-        Parameters
-        ----------
-        x
-        y
-        w
-        h
-        y_equivalent_sizes
-        x_appended_sizes
-        figW
-        figH
-        """
-
         equivalent_sizes = y_equivalent_sizes
         appended_sizes = x_appended_sizes
 
-        max_equivalent_size = figH*h
-        total_appended_size = figW*w
+        max_equivalent_size = figH * h
+        total_appended_size = figW * w
         karray = self._determine_karray(equivalent_sizes, appended_sizes,
                                         max_equivalent_size,
                                         total_appended_size)
 
         ox = self._calc_offsets(appended_sizes, karray)
 
-        ww = (ox[-1] - ox[0])/figW
+        ww = (ox[-1] - ox[0]) / figW
         ref_h = equivalent_sizes[0]
-        hh = (karray[0]*ref_h[0] + ref_h[1])/figH
+        hh = (karray[0]*ref_h[0] + ref_h[1]) / figH
         pb = mtransforms.Bbox.from_bounds(x, y, w, h)
         pb1 = mtransforms.Bbox.from_bounds(x, y, ww, hh)
         pb1_anchored = pb1.anchored(self.get_anchor(), pb)
@@ -701,9 +688,9 @@ class HBoxDivider(SubplotDivider):
                                       y_equivalent_sizes, x_appended_sizes,
                                       figW, figH)
         if nx1 is None:
-            nx1 = nx+1
+            nx1 = nx + 1
 
-        x1, w1 = x0 + ox[nx]/figW, (ox[nx1] - ox[nx])/figW
+        x1, w1 = x0 + ox[nx] / figW, (ox[nx1] - ox[nx]) / figW
         y1, h1 = y0, hh
 
         return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
@@ -755,10 +742,10 @@ class VBoxDivider(HBoxDivider):
                                       x_equivalent_sizes, y_appended_sizes,
                                       figH, figW)
         if ny1 is None:
-            ny1 = ny+1
+            ny1 = ny + 1
 
         x1, w1 = x0, ww
-        y1, h1 = y0 + oy[ny]/figH, (oy[ny1] - oy[ny])/figH
+        y1, h1 = y0 + oy[ny] / figH, (oy[ny1] - oy[ny]) / figH
 
         return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
 
