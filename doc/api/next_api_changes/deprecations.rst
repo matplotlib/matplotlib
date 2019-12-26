@@ -119,3 +119,8 @@ The following parameters do not have any effect and are deprecated:
 - parameter *quantize* of `.Path.cleaned()`
 - parameter *s* of `.AnnotationBbox.get_fontsize()`
 - parameter *label* of `.Tick`
+
+``Axes.update_datalim_bounds``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This method is deprecated.  Use
+``ax.dataLim.set(Bbox.union([ax.dataLim, bounds]))`` instead.
