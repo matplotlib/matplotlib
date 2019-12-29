@@ -28,8 +28,7 @@ import matplotlib.transforms as mtransforms
 from numpy.testing import (
     assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib import rc_context
-from matplotlib.cbook import (
-    IgnoredKeywordWarning, MatplotlibDeprecationWarning)
+from matplotlib.cbook import MatplotlibDeprecationWarning
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -3661,7 +3660,7 @@ def test_eventplot_colors(colors):
 
 
 @image_comparison(['test_eventplot_problem_kwargs.png'], remove_text=True)
-def test_eventplot_problem_kwargs():
+def test_eventplot_problem_kwargs(recwarn):
     '''
     test that 'singular' versions of LineCollection props raise an
     IgnoredKeywordWarning rather than overriding the 'plural' versions (e.g.
@@ -3676,19 +3675,18 @@ def test_eventplot_problem_kwargs():
     fig = plt.figure()
     axobj = fig.add_subplot(111)
 
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        axobj.eventplot(data,
-                        colors=['r', 'b'],
-                        color=['c', 'm'],
-                        linewidths=[2, 1],
-                        linewidth=[1, 2],
-                        linestyles=['solid', 'dashed'],
-                        linestyle=['dashdot', 'dotted'])
+    axobj.eventplot(data,
+                    colors=['r', 'b'],
+                    color=['c', 'm'],
+                    linewidths=[2, 1],
+                    linewidth=[1, 2],
+                    linestyles=['solid', 'dashed'],
+                    linestyle=['dashdot', 'dotted'])
 
-        # check that three IgnoredKeywordWarnings were raised
-        assert len(w) == 3
-        assert all(issubclass(wi.category, IgnoredKeywordWarning) for wi in w)
+    # check that three IgnoredKeywordWarnings were raised
+    assert len(recwarn) == 3
+    assert all(issubclass(wi.category, MatplotlibDeprecationWarning)
+               for wi in recwarn)
 
 
 def test_empty_eventplot():
