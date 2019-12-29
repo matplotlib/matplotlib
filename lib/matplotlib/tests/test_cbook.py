@@ -301,16 +301,12 @@ def test_sanitize_sequence():
 fail_mapping = (
     ({'a': 1}, {'forbidden': ('a')}),
     ({'a': 1}, {'required': ('b')}),
-    ({'a': 1, 'b': 2}, {'required': ('a'), 'allowed': ()})
-)
-
-warn_passing_mapping = (
-    ({'a': 1, 'b': 2}, {'a': 1}, {'alias_mapping': {'a': ['b']}}, 1),
-    ({'a': 1, 'b': 2}, {'a': 1},
-     {'alias_mapping': {'a': ['b']}, 'allowed': ('a',)}, 1),
-    ({'a': 1, 'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}, 1),
-    ({'a': 1, 'b': 2, 'c': 3}, {'a': 1, 'c': 3},
-     {'alias_mapping': {'a': ['b']}, 'required': ('a', )}, 1),
+    ({'a': 1, 'b': 2}, {'required': ('a'), 'allowed': ()}),
+    ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}}),
+    ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}, 'allowed': ('a',)}),
+    ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
+    ({'a': 1, 'b': 2, 'c': 3},
+     {'alias_mapping': {'a': ['b']}, 'required': ('a', )}),
 )
 
 pass_mapping = (
@@ -335,15 +331,6 @@ pass_mapping = (
 def test_normalize_kwargs_fail(inp, kwargs_to_norm):
     with pytest.raises(TypeError):
         cbook.normalize_kwargs(inp, **kwargs_to_norm)
-
-
-@pytest.mark.parametrize('inp, expected, kwargs_to_norm, warn_count',
-                         warn_passing_mapping)
-def test_normalize_kwargs_warn(inp, expected, kwargs_to_norm, warn_count):
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
-        assert len(w) == warn_count
 
 
 @pytest.mark.parametrize('inp, expected, kwargs_to_norm',

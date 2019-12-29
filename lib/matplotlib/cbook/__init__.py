@@ -1763,11 +1763,9 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         if tmp:
             ret[canonical] = tmp[-1]
             if len(tmp) > 1:
-                warn_deprecated(
-                    "3.1", message=f"Saw kwargs {seen!r} which are all "
-                    f"aliases for {canonical!r}.  Kept value from "
-                    f"{seen[-1]!r}.  Passing multiple aliases for the same "
-                    f"property will raise a TypeError %(removal)s.")
+                raise TypeError("Got the following keyword arguments which "
+                                "are aliases of one another: {}"
+                                .format(", ".join(map(repr, seen))))
 
     # at this point we know that all keys which are aliased are removed, update
     # the return dictionary from the cleaned local copy of the input
