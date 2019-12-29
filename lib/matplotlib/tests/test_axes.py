@@ -5283,17 +5283,13 @@ def test_length_one_hist():
     ax.hist([1])
 
 
-def test_pathological_hexbin():
+def test_pathological_hexbin(recwarn):
     # issue #2863
-    out = io.BytesIO()
-
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        mylist = [10] * 100
-        fig, ax = plt.subplots(1, 1)
-        ax.hexbin(mylist, mylist)
-        fig.savefig(out)
-        assert len(w) == 0
+    mylist = [10] * 100
+    fig, ax = plt.subplots(1, 1)
+    ax.hexbin(mylist, mylist)
+    fig.savefig(io.BytesIO())
+    assert len(recwarn) == 0
 
 
 def test_color_None():
