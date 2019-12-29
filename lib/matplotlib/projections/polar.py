@@ -1362,10 +1362,7 @@ class PolarAxes(Axes):
                 "You can not set the xscale on a polar plot.")
 
     def format_coord(self, theta, r):
-        """
-        Return a format string formatting the coordinate using Unicode
-        characters.
-        """
+        # docstring inherited
         if theta < 0:
             theta += 2 * np.pi
         theta /= np.pi
