@@ -1570,15 +1570,11 @@ def hsv_to_rgb(hsv):
 
 def _vector_magnitude(arr):
     # things that don't work here:
-    #  * np.linalg.norm
-    #    - doesn't broadcast in numpy 1.7
-    #    - drops the mask from ma.array
-    #  * using keepdims - broken on ma.array until 1.11.2
-    #  * using sum - discards mask on ma.array unless entire vector is masked
-
+    #  * np.linalg.norm: drops mask from ma.array
+    #  * np.sum: drops mask from ma.array unless entire vector is masked
     sum_sq = 0
     for i in range(arr.shape[-1]):
-        sum_sq += np.square(arr[..., i, np.newaxis])
+        sum_sq += arr[..., i, np.newaxis] ** 2
     return np.sqrt(sum_sq)
 
 
