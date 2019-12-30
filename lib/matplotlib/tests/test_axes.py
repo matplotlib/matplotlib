@@ -2701,6 +2701,24 @@ def test_boxplot_bad_ci_2():
         ax.boxplot([x, x], conf_intervals=[[1, 2], [1]])
 
 
+def test_boxplot_marker_behavior():
+    plt.rcParams['lines.marker'] = 's'
+    plt.rcParams['boxplot.flierprops.marker'] = 'o'
+    plt.rcParams['boxplot.meanprops.marker'] = '^'
+    fig, ax = plt.subplots()
+    test_data = np.arange(100)
+    test_data[-1] = 150  # a flier point
+    bxp_handle = ax.boxplot(test_data, showmeans=True)
+    for bxp_lines in ['whiskers', 'caps', 'boxes', 'medians']:
+        for each_line in bxp_handle[bxp_lines]:
+            # Ensure that the rcParams['lines.marker'] is overridden by ''
+            assert each_line.get_marker() == ''
+
+    # Ensure that markers for fliers and means aren't overridden with ''
+    assert bxp_handle['fliers'][0].get_marker() == 'o'
+    assert bxp_handle['means'][0].get_marker() == '^'
+
+
 @image_comparison(['boxplot_mod_artists_after_plotting.png'],
                   remove_text=True, savefig_kwarg={'dpi': 40}, style='default')
 def test_boxplot_mod_artist_after_plotting():
