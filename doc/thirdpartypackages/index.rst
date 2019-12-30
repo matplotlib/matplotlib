@@ -291,7 +291,7 @@ sviewgui
 ========
 
 `sviewgui <https://pypi.org/project/sviewgui/>`_ is a PyQt-based GUI for
-visualisation of data from csv files or `pandas.DataFrames`. Main features:
+visualisation of data from csv files or `pandas.DataFrame`\s. Main features:
 
 - Scatter, line, density, histgram, and box plot types
 - Settings for the marker size, line width, number of bins of histgram,
