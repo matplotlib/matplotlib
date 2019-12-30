@@ -51,6 +51,8 @@ Classes and methods
 
 - ``sphinxext.plot_directive.plot_directive()``
   (use the class ``PlotDirective`` instead)
+- ``sphinxext.mathmpl.math_directive()``
+  (use the class ``MathDirective`` instead)
 
 - ``Artist.aname`` property (no replacement)
 - ``Axis.iter_ticks`` (no replacement)
@@ -68,6 +70,20 @@ Classes and methods
 - ``colorbar.ColorbarBase.get_clim`` (use ``ScalarMappable.get_clim`` instead)
 - ``colorbar.ColorbarBase.set_clim`` (use ``ScalarMappable.set_clim`` instead)
 - ``colorbar.ColorbarBase.set_norm`` (use ``ScalarMappable.set_norm`` instead)
+
+- ``dates.seconds()`` (no replacement)
+- ``dates.minutes()`` (no replacement)
+- ``dates.hours()`` (no replacement)
+- ``dates.weeks()`` (no replacement)
+
+- ``font_manager.OSXInstalledFonts()`` (no replacement)
+
+- ``mlab.demean()`` (use ``mlab.detrend_mean()`` instead)
+
+- ``projections.process_projection_requirements()`` (no replacement)
+
+- ``path.get_paths_extents()``
+  (use ``path.get_path_collection_extents()`` instead)
 
 - ``text.TextWithDash`` (use ``text.Annotation`` instead)
 

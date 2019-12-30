@@ -253,16 +253,6 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     return [str(path) for path in items if path.suffix.lower() in fontext]
 
 
-@cbook.deprecated("3.1")
-def OSXInstalledFonts(directories=None, fontext='ttf'):
-    """Get list of font files on OS X."""
-    if directories is None:
-        directories = OSXFontDirectories
-    return [path
-            for directory in directories
-            for path in list_fonts(directory, get_fontext_synonyms(fontext))]
-
-
 @lru_cache()
 def _call_fc_list():
     """Cache and list the font filenames known to `fc-list`.
