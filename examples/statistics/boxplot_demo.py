@@ -193,13 +193,13 @@ plt.show()
 
 
 def fakeBootStrapper(n):
-    '''
+    """
     This is just a placeholder for the user's method of
     bootstrapping the median and its confidence intervals.
 
     Returns an arbitrary median and confidence intervals
     packed into a tuple
-    '''
+    """
     if n == 1:
         med = 0.1
         CI = (-0.25, 0.25)

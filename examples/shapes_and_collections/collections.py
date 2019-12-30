@@ -1,4 +1,4 @@
-'''
+"""
 =========================================================
 Line, Poly and RegularPoly Collection with autoscaling
 =========================================================
@@ -16,7 +16,7 @@ The last subplot illustrates the use of "offsets=(xo, yo)",
 that is, a single tuple instead of a list of tuples, to generate
 successively offset curves, with the offset given in data
 units.  This behavior is available only for the LineCollection.
-'''
+"""
 
 import matplotlib.pyplot as plt
 from matplotlib import collections, colors, transforms

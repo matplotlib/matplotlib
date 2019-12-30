@@ -578,7 +578,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         self.SetBackgroundColour(wx.WHITE)
 
     def Copy_to_Clipboard(self, event=None):
-        "copy bitmap of canvas to system clipboard"
+        """Copy bitmap of canvas to system clipboard."""
         bmp_obj = wx.BitmapDataObject()
         bmp_obj.SetBitmap(self.bitmap)
 
@@ -627,7 +627,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             del self._event_loop
 
     def _get_imagesave_wildcards(self):
-        'return the wildcard string for the filesave dialog'
+        """Return the wildcard string for the filesave dialog."""
         default_filetype = self.get_default_filetype()
         filetypes = self.get_supported_filetypes_grouped()
         sorted_filetypes = sorted(filetypes.items())
@@ -1097,7 +1097,7 @@ class FigureManagerWx(FigureManagerBase):
         self.window.SetTitle(title)
 
     def resize(self, width, height):
-        'Set the canvas size in pixels'
+        """Set the canvas size in pixels."""
         self.canvas.SetInitialSize(wx.Size(width, height))
         self.window.GetSizer().Fit(self.window)
 

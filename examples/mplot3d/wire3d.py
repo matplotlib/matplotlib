@@ -1,10 +1,10 @@
-'''
+"""
 =================
 3D wireframe plot
 =================
 
 A very basic demonstration of a wireframe plot.
-'''
+"""
 
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt

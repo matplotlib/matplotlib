@@ -618,7 +618,7 @@ class IndexDateFormatter(ticker.Formatter):
         self.tz = tz
 
     def __call__(self, x, pos=0):
-        'Return the label for time *x* at position *pos*'
+        """Return the label for time *x* at position *pos*."""
         ind = int(round(x))
         if ind >= len(self.t) or ind <= 0:
             return ''
@@ -1317,7 +1317,7 @@ class AutoDateLocator(DateLocator):
                           range(0, 24), range(0, 60), range(0, 60), None]
 
     def __call__(self):
-        'Return the locations of the ticks'
+        """Return the locations of the ticks."""
         self.refresh()
         return self._locator()
 
@@ -1355,13 +1355,13 @@ class AutoDateLocator(DateLocator):
 
     @cbook.deprecated("3.2")
     def autoscale(self):
-        'Try to choose the view limits intelligently.'
+        """Try to choose the view limits intelligently."""
         dmin, dmax = self.datalim_to_dt()
         self._locator = self.get_locator(dmin, dmax)
         return self._locator.autoscale()
 
     def get_locator(self, dmin, dmax):
-        'Pick the best locator based on a distance.'
+        """Pick the best locator based on a distance."""
         delta = relativedelta(dmax, dmin)
         tdelta = dmax - dmin
 

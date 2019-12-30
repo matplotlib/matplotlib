@@ -16,7 +16,6 @@ from matplotlib.axes import Axes
 
 
 class _Base:
-    "Base class"
 
     def __rmul__(self, other):
         float(other)  # just to check if number if given

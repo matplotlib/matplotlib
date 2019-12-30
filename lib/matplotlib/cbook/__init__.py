@@ -1363,10 +1363,10 @@ def _to_unmasked_float_array(x):
 
 
 def _check_1d(x):
-    '''
+    """
     Converts a sequence of less than 1 dimension, to an array of 1
     dimension; leaves everything else untouched.
-    '''
+    """
     if not hasattr(x, 'shape') or len(x.shape) < 1:
         return np.atleast_1d(x)
     else:

@@ -312,7 +312,7 @@ class GridHelperCurveLinear(GridHelperBase):
         self.invalidate()
 
     def _update(self, x1, x2, y1, y2):
-        "bbox in 0-based image coordinates"
+        """bbox in 0-based image coordinates"""
         # update wcsgrid
         if self.valid() and self._old_values == (x1, x2, y1, y2):
             return

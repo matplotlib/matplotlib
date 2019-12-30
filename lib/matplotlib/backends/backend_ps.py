@@ -105,7 +105,9 @@ def _nums_to_str(*args):
 
 
 def quote_ps_string(s):
-    "Quote dangerous characters of S for use in a PostScript string constant."
+    """
+    Quote dangerous characters of S for use in a PostScript string constant.
+    """
     s = s.replace(b"\\", b"\\\\")
     s = s.replace(b"(", b"\\(")
     s = s.replace(b")", b"\\)")

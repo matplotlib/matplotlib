@@ -20,7 +20,7 @@ money = [1.5e5, 2.5e6, 5.5e6, 2.0e7]
 
 
 def millions(x, pos):
-    'The two args are the value and tick position'
+    """The two args are the value and tick position."""
     return '$%1.1fM' % (x * 1e-6)
 
 

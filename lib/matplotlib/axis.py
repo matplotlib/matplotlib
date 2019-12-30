@@ -280,26 +280,26 @@ class Tick(martist.Artist):
         self.stale = True
 
     def get_pad(self):
-        'Get the value of the tick label pad in points'
+        """Get the value of the tick label pad in points."""
         return self._base_pad
 
     def _get_text1(self):
-        'Get the default Text 1 instance'
+        """Get the default Text 1 instance."""
 
     def _get_text2(self):
-        'Get the default Text 2 instance'
+        """Get the default Text 2 instance."""
 
     def _get_tick1line(self):
-        'Get the default line2D instance for tick1'
+        """Get the default line2D instance for tick1."""
 
     def _get_tick2line(self):
-        'Get the default line2D instance for tick2'
+        """Get the default line2D instance for tick2."""
 
     def _get_gridline(self):
-        'Get the default grid Line2d instance for this tick'
+        """Get the default grid Line2d instance for this tick."""
 
     def get_loc(self):
-        'Return the tick location (data coords) as a scalar'
+        """Return the tick location (data coords) as a scalar."""
         return self._loc
 
     @martist.allow_rasterization
@@ -403,7 +403,7 @@ class Tick(martist.Artist):
             setattr(self, '_grid_' + k, v)
 
     def update_position(self, loc):
-        'Set the location of tick in data coords with scalar *loc*'
+        """Set the location of tick in data coords with scalar *loc*."""
         raise NotImplementedError('Derived must override')
 
     def _get_text1_transform(self):
@@ -1165,32 +1165,32 @@ class Axis(martist.Artist):
         self.stale = False
 
     def get_gridlines(self):
-        'Return the grid lines as a list of Line2D instance'
+        """Return the grid lines as a list of Line2D instance."""
         ticks = self.get_major_ticks()
         return cbook.silent_list('Line2D gridline',
                                  [tick.gridline for tick in ticks])
 
     def get_label(self):
-        'Return the axis label as a Text instance'
+        """Return the axis label as a Text instance."""
         return self.label
 
     def get_offset_text(self):
-        'Return the axis offsetText as a Text instance'
+        """Return the axis offsetText as a Text instance."""
         return self.offsetText
 
     def get_pickradius(self):
-        'Return the depth of the axis used by the picker'
+        """Return the depth of the axis used by the picker."""
         return self.pickradius
 
     def get_majorticklabels(self):
-        'Return a list of Text instances for the major ticklabels.'
+        """Return a list of Text instances for the major ticklabels."""
         ticks = self.get_major_ticks()
         labels1 = [tick.label1 for tick in ticks if tick.label1.get_visible()]
         labels2 = [tick.label2 for tick in ticks if tick.label2.get_visible()]
         return cbook.silent_list('Text major ticklabel', labels1 + labels2)
 
     def get_minorticklabels(self):
-        'Return a list of Text instances for the minor ticklabels.'
+        """Return a list of Text instances for the minor ticklabels."""
         ticks = self.get_minor_ticks()
         labels1 = [tick.label1 for tick in ticks if tick.label1.get_visible()]
         labels2 = [tick.label2 for tick in ticks if tick.label2.get_visible()]
@@ -1231,7 +1231,7 @@ class Axis(martist.Artist):
         return self.get_majorticklabels()
 
     def get_majorticklines(self):
-        'Return the major tick lines as a list of Line2D instances'
+        """Return the major tick lines as a list of Line2D instances."""
         lines = []
         ticks = self.get_major_ticks()
         for tick in ticks:
@@ -1240,7 +1240,7 @@ class Axis(martist.Artist):
         return cbook.silent_list('Line2D ticklines', lines)
 
     def get_minorticklines(self):
-        'Return the minor tick lines as a list of Line2D instances'
+        """Return the minor tick lines as a list of Line2D instances."""
         lines = []
         ticks = self.get_minor_ticks()
         for tick in ticks:
@@ -1249,7 +1249,7 @@ class Axis(martist.Artist):
         return cbook.silent_list('Line2D ticklines', lines)
 
     def get_ticklines(self, minor=False):
-        'Return the tick lines as a list of Line2D instances'
+        """Return the tick lines as a list of Line2D instances."""
         if minor:
             return self.get_minorticklines()
         return self.get_majorticklines()
@@ -1316,27 +1316,27 @@ class Axis(martist.Artist):
         dest.gridline.update_from(src.gridline)
 
     def get_label_text(self):
-        'Get the text of the label'
+        """Get the text of the label."""
         return self.label.get_text()
 
     def get_major_locator(self):
-        'Get the locator of the major ticker'
+        """Get the locator of the major ticker."""
         return self.major.locator
 
     def get_minor_locator(self):
-        'Get the locator of the minor ticker'
+        """Get the locator of the minor ticker."""
         return self.minor.locator
 
     def get_major_formatter(self):
-        'Get the formatter of the major ticker'
+        """Get the formatter of the major ticker."""
         return self.major.formatter
 
     def get_minor_formatter(self):
-        'Get the formatter of the minor ticker'
+        """Get the formatter of the minor ticker."""
         return self.minor.formatter
 
     def get_major_ticks(self, numticks=None):
-        'Get the tick instances; grow as necessary.'
+        """Get the tick instances; grow as necessary."""
         if numticks is None:
             numticks = len(self.get_majorticklocs())
 
@@ -1350,7 +1350,7 @@ class Axis(martist.Artist):
         return self.majorTicks[:numticks]
 
     def get_minor_ticks(self, numticks=None):
-        'Get the minor tick instances; grow as necessary.'
+        """Get the minor tick instances; grow as necessary."""
         if numticks is None:
             numticks = len(self.get_minorticklocs())
 

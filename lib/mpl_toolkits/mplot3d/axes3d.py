@@ -187,7 +187,7 @@ class Axes3D(Axes):
         super().set_ylim(-ydwl, ydw, auto=None)
 
     def _init_axis(self):
-        '''Init 3D axes; overrides creation of regular X/Y axes'''
+        """Init 3D axes; overrides creation of regular X/Y axes."""
         self.xaxis = axis3d.XAxis('x', self.xy_viewLim.intervalx,
                                   self.xy_dataLim.intervalx, self)
         self.yaxis = axis3d.YAxis('y', self.xy_viewLim.intervaly,
@@ -198,7 +198,7 @@ class Axes3D(Axes):
             ax.init3d()
 
     def get_zaxis(self):
-        '''Return the ``ZAxis`` (`~.axis3d.Axis`) instance.'''
+        """Return the ``ZAxis`` (`~.axis3d.Axis`) instance."""
         return self.zaxis
 
     @cbook.deprecated("3.1", alternative="xaxis", pending=True)
@@ -562,7 +562,7 @@ class Axes3D(Axes):
             self.set_zbound(z0, z1)
 
     def get_w_lims(self):
-        '''Get 3D world limits.'''
+        """Get 3D world limits."""
         minx, maxx = self.get_xlim3d()
         miny, maxy = self.get_ylim3d()
         minz, maxz = self.get_zlim3d()
@@ -751,7 +751,7 @@ class Axes3D(Axes):
         """
 
     def get_zlim3d(self):
-        '''Get 3D z limits.'''
+        """Get 3D z limits."""
         return tuple(self.zz_viewLim.intervalx)
 
     def get_zscale(self):
@@ -1189,9 +1189,9 @@ class Axes3D(Axes):
             self.figure.canvas.draw_idle()
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
-        '''
+        """
         Set zlabel.  See doc for :meth:`set_ylabel` for description.
-        '''
+        """
         if labelpad is not None:
             self.zaxis.labelpad = labelpad
         return self.zaxis.set_label_text(zlabel, fontdict, **kwargs)
@@ -1224,7 +1224,7 @@ class Axes3D(Axes):
         self.stale = True
 
     def grid(self, b=True, **kwargs):
-        '''
+        """
         Set / unset 3D grid.
 
         .. note::
@@ -1234,7 +1234,7 @@ class Axes3D(Axes):
             eventually support that behavior.
 
         .. versionadded :: 1.1.0
-        '''
+        """
         # TODO: Operate on each axes separately
         if len(kwargs):
             b = True
@@ -1313,11 +1313,11 @@ class Axes3D(Axes):
         self.set_zlim(top, bottom, auto=None)
 
     def zaxis_inverted(self):
-        '''
+        """
         Returns True if the z-axis is inverted.
 
         .. versionadded :: 1.1.0
-        '''
+        """
         bottom, top = self.get_zlim()
         return top < bottom
 
@@ -1356,11 +1356,11 @@ class Axes3D(Axes):
                       auto=None)
 
     def text(self, x, y, z, s, zdir=None, **kwargs):
-        '''
+        """
         Add text to the plot. kwargs will be passed on to Axes.text,
         except for the `zdir` keyword, which sets the direction to be
         used as the z direction.
-        '''
+        """
         text = super().text(x, y, s, **kwargs)
         art3d.text_2d_to_3d(text, z, zdir)
         return text
@@ -1886,9 +1886,9 @@ class Axes3D(Axes):
         return polyc
 
     def _3d_extend_contour(self, cset, stride=5):
-        '''
+        """
         Extend a contour in 3D by creating
-        '''
+        """
 
         levels = cset.levels
         colls = cset.collections
@@ -2134,7 +2134,7 @@ class Axes3D(Axes):
         return cset
 
     def add_collection3d(self, col, zs=0, zdir='z'):
-        '''
+        """
         Add a 3D collection object to the plot.
 
         2D collection types are converted to a 3D version by
@@ -2144,7 +2144,7 @@ class Axes3D(Axes):
             - PolyCollection
             - LineCollection
             - PatchCollection
-        '''
+        """
         zvals = np.atleast_1d(zs)
         zsortval = (np.min(zvals) if zvals.size
                     else 0)  # FIXME: arbitrary default
@@ -2837,9 +2837,7 @@ docstring.dedent_interpd(Axes3D.__init__)
 
 
 def get_test_data(delta=0.05):
-    '''
-    Return a tuple X, Y, Z with a test data set.
-    '''
+    """Return a tuple X, Y, Z with a test data set."""
     x = y = np.arange(-3.0, 3.0, delta)
     X, Y = np.meshgrid(x, y)
 

@@ -722,7 +722,7 @@ class GraphicsContextBase:
         self._sketch = None
 
     def copy_properties(self, gc):
-        'Copy properties from gc to self'
+        """Copy properties from *gc* to self."""
         self._alpha = gc._alpha
         self._forced_alpha = gc._forced_alpha
         self._antialiased = gc._antialiased
@@ -1314,7 +1314,7 @@ class LocationEvent(Event):
         self._update_enter_leave()
 
     def _update_enter_leave(self):
-        'process the figure/axes enter leave events'
+        """Process the figure/axes enter leave events."""
         if LocationEvent.lastevent is not None:
             last = LocationEvent.lastevent
             if last.inaxes != self.inaxes:

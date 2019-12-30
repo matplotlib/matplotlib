@@ -64,30 +64,30 @@ from matplotlib import docstring
 
 
 def window_hanning(x):
-    '''
+    """
     Return x times the hanning window of len(x).
 
     See Also
     --------
     window_none : Another window algorithm.
-    '''
+    """
     return np.hanning(len(x))*x
 
 
 def window_none(x):
-    '''
+    """
     No window function; simply return x.
 
     See Also
     --------
     window_hanning : Another window algorithm.
-    '''
+    """
     return x
 
 
 @cbook.deprecated("3.2")
 def apply_window(x, window, axis=0, return_window=None):
-    '''
+    """
     Apply the given window to the given 1D or 2D array along the given axis.
 
     Parameters
@@ -105,7 +105,7 @@ def apply_window(x, window, axis=0, return_window=None):
 
     return_window : bool
         If true, also return the 1D values of the window that was applied
-    '''
+    """
     x = np.asarray(x)
 
     if x.ndim < 1 or x.ndim > 2:
@@ -143,7 +143,7 @@ def apply_window(x, window, axis=0, return_window=None):
 
 
 def detrend(x, key=None, axis=None):
-    '''
+    """
     Return x with its trend removed.
 
     Parameters
@@ -166,7 +166,7 @@ def detrend(x, key=None, axis=None):
     detrend_mean : Implementation of the 'mean' algorithm.
     detrend_linear : Implementation of the 'linear' algorithm.
     detrend_none : Implementation of the 'none' algorithm.
-    '''
+    """
     if key is None or key in ['constant', 'mean', 'default']:
         return detrend(x, key=detrend_mean, axis=axis)
     elif key == 'linear':
@@ -193,7 +193,7 @@ def detrend(x, key=None, axis=None):
 
 @cbook.deprecated("3.1", alternative="detrend_mean")
 def demean(x, axis=0):
-    '''
+    """
     Return x minus its mean along the specified axis.
 
     Parameters
@@ -209,12 +209,12 @@ def demean(x, axis=0):
     See Also
     --------
     detrend_mean : Same as `demean` except for the default *axis*.
-    '''
+    """
     return detrend_mean(x, axis=axis)
 
 
 def detrend_mean(x, axis=None):
-    '''
+    """
     Return x minus the mean(x).
 
     Parameters
@@ -232,7 +232,7 @@ def detrend_mean(x, axis=None):
     detrend_linear : Another detrend algorithm.
     detrend_none : Another detrend algorithm.
     detrend : A wrapper around all the detrend algorithms.
-    '''
+    """
     x = np.asarray(x)
 
     if axis is not None and axis+1 > x.ndim:
@@ -242,7 +242,7 @@ def detrend_mean(x, axis=None):
 
 
 def detrend_none(x, axis=None):
-    '''
+    """
     Return x: no detrending.
 
     Parameters
@@ -259,12 +259,12 @@ def detrend_none(x, axis=None):
     detrend_mean : Another detrend algorithm.
     detrend_linear : Another detrend algorithm.
     detrend : A wrapper around all the detrend algorithms.
-    '''
+    """
     return x
 
 
 def detrend_linear(y):
-    '''
+    """
     Return x minus best fit line; 'linear' detrending.
 
     Parameters
@@ -281,7 +281,7 @@ def detrend_linear(y):
     detrend_mean : Another detrend algorithm.
     detrend_none : Another detrend algorithm.
     detrend : A wrapper around all the detrend algorithms.
-    '''
+    """
     # This is faster than an algorithm based on linalg.lstsq.
     y = np.asarray(y)
 
@@ -302,7 +302,7 @@ def detrend_linear(y):
 
 
 def stride_windows(x, n, noverlap=None, axis=0):
-    '''
+    """
     Get all windows of x with length n as a single array,
     using strides to avoid data duplication.
 
@@ -333,7 +333,7 @@ def stride_windows(x, n, noverlap=None, axis=0):
     <http://stackoverflow.com/a/6811241>`_
     `stackoverflow: Using strides for an efficient moving average filter
     <http://stackoverflow.com/a/4947453>`_
-    '''
+    """
     if noverlap is None:
         noverlap = 0
 
@@ -371,7 +371,7 @@ def stride_windows(x, n, noverlap=None, axis=0):
 
 @cbook.deprecated("3.2")
 def stride_repeat(x, n, axis=0):
-    '''
+    """
     Repeat the values in an array in a memory-efficient manner.  Array x is
     stacked vertically n times.
 
@@ -396,7 +396,7 @@ def stride_repeat(x, n, axis=0):
     ----------
     `stackoverflow: Repeat NumPy array without replicating data?
     <http://stackoverflow.com/a/5568169>`_
-    '''
+    """
     if axis not in [0, 1]:
         raise ValueError('axis must be 0 or 1')
     x = np.asarray(x)
@@ -428,11 +428,11 @@ def stride_repeat(x, n, axis=0):
 def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
                      window=None, noverlap=None, pad_to=None,
                      sides=None, scale_by_freq=None, mode=None):
-    '''
+    """
     This is a helper function that implements the commonality between the
     psd, csd, spectrogram and complex, magnitude, angle, and phase spectrums.
     It is *NOT* meant to be used outside of mlab and may change at any time.
-    '''
+    """
     if y is None:
         # if y is None use x for y
         same_data = True
@@ -1096,7 +1096,7 @@ def _csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     process_skiprows(reader)
 
     def ismissing(name, val):
-        "Should the value val in column name be masked?"
+        """Return whether the value val in column name should be masked."""
         return val == missing or val == missingd.get(name) or val == ''
 
     def with_default_value(func, default):

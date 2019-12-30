@@ -156,7 +156,7 @@ class GeoAxes(Axes):
     set_ylim = set_xlim
 
     def format_coord(self, lon, lat):
-        'return a format string formatting the coordinate'
+        """Return a format string formatting the coordinate."""
         lon, lat = np.rad2deg([lon, lat])
         if lat >= 0.0:
             ns = 'N'
@@ -198,9 +198,7 @@ class GeoAxes(Axes):
             .translate(0.0, -self._longitude_cap)
 
     def get_data_ratio(self):
-        '''
-        Return the aspect ratio of the data itself.
-        '''
+        """Return the aspect ratio of the data itself."""
         return 1.0
 
     ### Interactive panning

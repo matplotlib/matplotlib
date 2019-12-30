@@ -101,7 +101,7 @@ class MathtextBackend:
         self.depth = 0
 
     def set_canvas_size(self, w, h, d):
-        'Dimension the drawing canvas'
+        """Set the dimension of the drawing canvas."""
         self.width  = w
         self.height = h
         self.depth  = d
@@ -1107,7 +1107,7 @@ class StandardPsFonts(Fonts):
         return cached_font
 
     def _get_info(self, fontname, font_class, sym, fontsize, dpi, math=True):
-        'load the cmfont, metrics and glyph with caching'
+        """Load the cmfont, metrics and glyph with caching."""
         key = fontname, sym, fontsize, dpi
         tup = self.glyphd.get(key)
 

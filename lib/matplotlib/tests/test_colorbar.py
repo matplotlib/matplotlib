@@ -34,12 +34,12 @@ def _get_cmap_norms():
 
 
 def _colorbar_extension_shape(spacing):
-    '''
+    """
     Produce 4 colorbars with rectangular extensions for either uniform
     or proportional spacing.
 
     Helper function for test_colorbar_extension_shape.
-    '''
+    """
     # Get a colormap and appropriate norms for each extension type.
     cmap, norms = _get_cmap_norms()
     # Create a figure and adjust whitespace for subplots.
@@ -64,12 +64,12 @@ def _colorbar_extension_shape(spacing):
 
 
 def _colorbar_extension_length(spacing):
-    '''
+    """
     Produce 12 colorbars with variable length extensions for either
     uniform or proportional spacing.
 
     Helper function for test_colorbar_extension_length.
-    '''
+    """
     # Get a colormap and appropriate norms for each extension type.
     cmap, norms = _get_cmap_norms()
     # Create a figure and adjust whitespace for subplots.
@@ -97,7 +97,7 @@ def _colorbar_extension_length(spacing):
 @image_comparison(['colorbar_extensions_shape_uniform.png',
                    'colorbar_extensions_shape_proportional.png'])
 def test_colorbar_extension_shape():
-    '''Test rectangular colorbar extensions.'''
+    """Test rectangular colorbar extensions."""
     # Create figures for uniform and proportionally spaced colorbars.
     _colorbar_extension_shape('uniform')
     _colorbar_extension_shape('proportional')
@@ -106,7 +106,7 @@ def test_colorbar_extension_shape():
 @image_comparison(['colorbar_extensions_uniform.png',
                    'colorbar_extensions_proportional.png'])
 def test_colorbar_extension_length():
-    '''Test variable length colorbar extensions.'''
+    """Test variable length colorbar extensions."""
     # Create figures for uniform and proportionally spaced colorbars.
     _colorbar_extension_length('uniform')
     _colorbar_extension_length('proportional')

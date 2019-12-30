@@ -919,7 +919,7 @@ docstring.interpd.update(barbs_doc=_barbs_doc)
 
 
 class Barbs(mcollections.PolyCollection):
-    '''
+    """
     Specialized PolyCollection for barbs.
 
     The only API method is :meth:`set_UVC`, which can be used to
@@ -931,7 +931,7 @@ class Barbs(mcollections.PolyCollection):
     exactly what should be put on the barb given the vector magnitude.
     From there :meth:`_make_barbs` is used to find the vertices of the
     polygon to represent the barb based on this information.
-    '''
+    """
     # This may be an abuse of polygons here to render what is essentially maybe
     # 1 triangle and a series of lines.  It works fine as far as I can tell
     # however.
@@ -996,7 +996,7 @@ class Barbs(mcollections.PolyCollection):
         self.set_UVC(u, v, c)
 
     def _find_tails(self, mag, rounding=True, half=5, full=10, flag=50):
-        '''
+        """
         Find how many of each of the tail pieces is necessary.  Flag
         specifies the increment for a flag, barb for a full barb, and half for
         half a barb. Mag should be the magnitude of a vector (i.e., >= 0).
@@ -1009,7 +1009,7 @@ class Barbs(mcollections.PolyCollection):
         since there should only ever be one half on a given
         barb. *empty_flag* flag is an array of flags to easily tell if
         a barb is empty (too low to plot any barbs/flags.
-        '''
+        """
 
         # If rounding, round to the nearest multiple of half, the smallest
         # increment
@@ -1029,7 +1029,7 @@ class Barbs(mcollections.PolyCollection):
 
     def _make_barbs(self, u, v, nflags, nbarbs, half_barb, empty_flag, length,
                     pivot, sizes, fill_empty, flip):
-        '''
+        """
         This function actually creates the wind barbs.  *u* and *v*
         are components of the vector in the *x* and *y* directions,
         respectively.
@@ -1072,7 +1072,7 @@ class Barbs(mcollections.PolyCollection):
         This function returns list of arrays of vertices, defining a polygon
         for each of the wind barbs.  These polygons have been rotated to
         properly align with the vector direction.
-        '''
+        """
 
         # These control the spacing and size of barb elements relative to the
         # length of the shaft

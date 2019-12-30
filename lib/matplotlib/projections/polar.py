@@ -370,7 +370,7 @@ class ThetaAxis(maxis.XAxis):
         self._wrap_locator_formatter()
 
     def _copy_tick_props(self, src, dest):
-        'Copy the props from src tick to dest tick'
+        """Copy the props from src tick to dest tick."""
         if src is None or dest is None:
             return
         super()._copy_tick_props(src, dest)
@@ -801,7 +801,7 @@ class PolarAxes(Axes):
         self.set_theta_direction(self._default_theta_direction)
 
     def _init_axis(self):
-        "move this out of __init__ because non-separable axes don't use it"
+        # This is moved out of __init__ because non-separable axes don't use it
         self.xaxis = ThetaAxis(self)
         self.yaxis = RadialAxis(self)
         # Calling polar_axes.xaxis.cla() or polar_axes.xaxis.cla()
@@ -1370,10 +1370,10 @@ class PolarAxes(Axes):
                 '(%0.3f\N{DEGREE SIGN}), r=%0.3f') % (theta, theta * 180.0, r)
 
     def get_data_ratio(self):
-        '''
+        """
         Return the aspect ratio of the data itself.  For a polar plot,
         this should always be 1.0
-        '''
+        """
         return 1.0
 
     # # # Interactive panning

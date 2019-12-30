@@ -279,19 +279,19 @@ class LayoutBox:
                 self.width.value(), self.height.value())
 
     def update_variables(self):
-        '''
+        """
         Update *all* the variables that are part of the solver this LayoutBox
-        is created with
-        '''
+        is created with.
+        """
         self.solver.updateVariables()
 
     def edit_height(self, height, strength='strong'):
-        '''
+        """
         Set the height of the layout box.
 
         This is done as an editable variable so that the value can change
         due to resizing.
-        '''
+        """
         sol = self.solver
         for i in [self.height]:
             if not sol.hasEditVariable(i):
@@ -299,10 +299,10 @@ class LayoutBox:
         sol.suggestValue(self.height, height)
 
     def constrain_height(self, height, strength='strong'):
-        '''
+        """
         Constrain the height of the layout box.  height is
         either a float or a layoutbox.height.
-        '''
+        """
         c = (self.height == height)
         self.solver.addConstraint(c | strength)
 
@@ -346,26 +346,24 @@ class LayoutBox:
         self.solver.addConstraint(c | strength)
 
     def _is_subplotspec_layoutbox(self):
-        '''
-        Helper to check if this layoutbox is the layoutbox of a
-        subplotspec
-        '''
+        """
+        Helper to check if this layoutbox is the layoutbox of a subplotspec.
+        """
         name = self.name.split('.')[-1]
         return name[:2] == 'ss'
 
     def _is_gridspec_layoutbox(self):
-        '''
-        Helper to check if this layoutbox is the layoutbox of a
-        gridspec
-        '''
+        """
+        Helper to check if this layoutbox is the layoutbox of a gridspec.
+        """
         name = self.name.split('.')[-1]
         return name[:8] == 'gridspec'
 
     def find_child_subplots(self):
-        '''
+        """
         Find children of this layout box that are subplots.  We want to line
         poss up, and this is an easy way to find them all.
-        '''
+        """
         if self.subplot:
             subplots = [self]
         else:
@@ -466,10 +464,10 @@ class LayoutBox:
 
 # Utility functions that act on layoutboxes...
 def hstack(boxes, padding=0, strength='strong'):
-    '''
+    """
     Stack LayoutBox instances from left to right.
     *padding* is in figure-relative units.
-    '''
+    """
 
     for i in range(1, len(boxes)):
         c = (boxes[i-1].right + padding <= boxes[i].left)
@@ -477,9 +475,7 @@ def hstack(boxes, padding=0, strength='strong'):
 
 
 def hpack(boxes, padding=0, strength='strong'):
-    '''
-    Stack LayoutBox instances from left to right.
-    '''
+    """Stack LayoutBox instances from left to right."""
 
     for i in range(1, len(boxes)):
         c = (boxes[i-1].right + padding == boxes[i].left)
@@ -487,9 +483,7 @@ def hpack(boxes, padding=0, strength='strong'):
 
 
 def vstack(boxes, padding=0, strength='strong'):
-    '''
-    Stack LayoutBox instances from top to bottom
-    '''
+    """Stack LayoutBox instances from top to bottom."""
 
     for i in range(1, len(boxes)):
         c = (boxes[i-1].bottom - padding >= boxes[i].top)
@@ -497,9 +491,7 @@ def vstack(boxes, padding=0, strength='strong'):
 
 
 def vpack(boxes, padding=0, strength='strong'):
-    '''
-    Stack LayoutBox instances from top to bottom
-    '''
+    """Stack LayoutBox instances from top to bottom."""
 
     for i in range(1, len(boxes)):
         c = (boxes[i-1].bottom - padding >= boxes[i].top)
@@ -507,9 +499,7 @@ def vpack(boxes, padding=0, strength='strong'):
 
 
 def match_heights(boxes, height_ratios=None, strength='medium'):
-    '''
-    Stack LayoutBox instances from top to bottom
-    '''
+    """Stack LayoutBox instances from top to bottom."""
 
     if height_ratios is None:
         height_ratios = np.ones(len(boxes))
@@ -520,9 +510,7 @@ def match_heights(boxes, height_ratios=None, strength='medium'):
 
 
 def match_widths(boxes, width_ratios=None, strength='medium'):
-    '''
-    Stack LayoutBox instances from top to bottom
-    '''
+    """Stack LayoutBox instances from top to bottom."""
 
     if width_ratios is None:
         width_ratios = np.ones(len(boxes))
@@ -652,9 +640,7 @@ def nonechildren(lb):
 
 
 def print_tree(lb):
-    '''
-    Print the tree of layoutboxes
-    '''
+    """Print the tree of layoutboxes."""
 
     if lb.parent is None:
         print('LayoutBox Tree\n')
@@ -666,9 +652,7 @@ def print_tree(lb):
 
 
 def plot_children(fig, box, level=0, printit=True):
-    '''
-    Simple plotting to show where boxes are
-    '''
+    """Simple plotting to show where boxes are."""
     import matplotlib
     import matplotlib.pyplot as plt
 

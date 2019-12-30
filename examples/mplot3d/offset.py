@@ -1,4 +1,4 @@
-'''
+"""
 =========================
 Automatic Text Offsetting
 =========================
@@ -11,7 +11,7 @@ from the center of the plot.
 This demo triggers the display of the offset text for the x and
 y axis by adding 1e5 to X and Y. Anything less would not
 automatically trigger it.
-'''
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np

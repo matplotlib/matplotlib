@@ -19,7 +19,7 @@ def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
 
 
 def tick_update_position(tick, tickxs, tickys, labelpos):
-    '''Update tick line and label position and style.'''
+    """Update tick line and label position and style."""
 
     tick.label1.set_position(labelpos)
     tick.label2.set_position(labelpos)
@@ -134,7 +134,7 @@ class Axis(maxis.XAxis):
         self.stale = True
 
     def set_pane_color(self, color):
-        '''Set pane color to a RGBA tuple.'''
+        """Set pane color to a RGBA tuple."""
         self._axinfo['color'] = color
         self.pane.set_edgecolor(color)
         self.pane.set_facecolor(color)
@@ -142,10 +142,10 @@ class Axis(maxis.XAxis):
         self.stale = True
 
     def set_rotate_label(self, val):
-        '''
+        """
         Whether to rotate the axis label: True, False or None.
         If set to None the label will be rotated if longer than 4 chars.
-        '''
+        """
         self._rotate_label = val
         self.stale = True
 

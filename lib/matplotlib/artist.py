@@ -824,11 +824,11 @@ class Artist:
         return self._clippath
 
     def get_transformed_clip_path_and_affine(self):
-        '''
+        """
         Return the clip path with the non-affine part of its
         transformation applied, and the remaining affine part of its
         transformation.
-        '''
+        """
         if self._clippath is not None:
             return self._clippath.get_transformed_path_and_affine()
         return None, None
@@ -851,7 +851,7 @@ class Artist:
         self.stale = True
 
     def _set_gc_clip(self, gc):
-        'Set the clip properly for the gc'
+        """Set the clip properly for the gc."""
         if self._clipon:
             if self.clipbox is not None:
                 gc.set_clip_rectangle(self.clipbox)
@@ -1058,7 +1058,7 @@ class Artist:
         return self._sticky_edges
 
     def update_from(self, other):
-        """"Copy properties from *other* to *self*."""
+        """Copy properties from *other* to *self*."""
         self._transform = other._transform
         self._transformSet = other._transformSet
         self._visible = other._visible
