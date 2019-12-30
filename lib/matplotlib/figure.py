@@ -18,7 +18,6 @@ import numpy as np
 from matplotlib import rcParams
 from matplotlib import docstring, projections
 from matplotlib import __version__ as _mpl_version
-from matplotlib import get_backend
 
 import matplotlib.artist as martist
 from matplotlib.artist import Artist, allow_rasterization
@@ -32,7 +31,6 @@ from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
 from matplotlib.gridspec import GridSpec
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
-from matplotlib.projections import process_projection_requirements
 from matplotlib.text import Text
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)

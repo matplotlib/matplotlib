@@ -11,7 +11,6 @@ import os
 import pathlib
 import re
 import shutil
-import subprocess
 from tempfile import TemporaryDirectory
 import textwrap
 import time

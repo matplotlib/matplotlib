@@ -3,7 +3,6 @@ The image module supports basic image loading, rescaling and display
 operations.
 """
 
-from io import BytesIO
 import math
 import os
 import logging
