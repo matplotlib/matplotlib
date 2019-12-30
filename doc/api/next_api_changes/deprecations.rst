@@ -96,3 +96,13 @@ colormapping such as ``scatter()`` and ``imshow()`` is deprecated.
 Inestead of ``norm=LogNorm(), vmin=min_val, vmax=max_val`` pass
 ``norm=LogNorm(min_val, max_val)``. *vmin* and *vmax* should only be used
 without setting *norm*.
+
+Effectless parameters of `.Figure.colorbar` and `matplotlib.colorbar.Colorbar`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *cmap* and *norm* parameters of `.Figure.colorbar` and
+`matplotlib.colorbar.Colorbar` have no effect because they are always
+overridden by the mappable's colormap and norm; they are thus deprecated.
+Likewise, passing the *alpha*, *boundaries*, *values*, *extend*, or *filled*
+parameters with a `.ContourSet` mappable, or the *alpha* parameter with an
+`.Artist` mappable, is deprecated, as the mappable would likewise override
+them.

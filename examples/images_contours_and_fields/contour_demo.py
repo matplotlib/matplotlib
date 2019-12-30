@@ -82,7 +82,7 @@ fig, ax = plt.subplots()
 im = ax.imshow(Z, interpolation='bilinear', origin='lower',
                cmap=cm.gray, extent=(-3, 3, -2, 2))
 levels = np.arange(-1.2, 1.6, 0.2)
-CS = ax.contour(Z, levels, origin='lower', cmap='flag',
+CS = ax.contour(Z, levels, origin='lower', cmap='flag', extend='both',
                 linewidths=2, extent=(-3, 3, -2, 2))
 
 # Thicken the zero contour.
@@ -93,7 +93,7 @@ ax.clabel(CS, levels[1::2],  # label every second level
           inline=1, fmt='%1.1f', fontsize=14)
 
 # make a colorbar for the contour lines
-CB = fig.colorbar(CS, shrink=0.8, extend='both')
+CB = fig.colorbar(CS, shrink=0.8)
 
 ax.set_title('Lines with colorbar')
 
