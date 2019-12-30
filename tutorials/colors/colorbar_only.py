@@ -35,9 +35,8 @@ fig.subplots_adjust(bottom=0.5)
 cmap = mpl.cm.cool
 norm = mpl.colors.Normalize(vmin=5, vmax=10)
 
-cb1 = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
-                   cax=ax, orientation='horizontal')
-cb1.set_label('Some Units')
+fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
+             cax=ax, orientation='horizontal', label='Some Units')
 
 ###############################################################################
 # Discrete intervals colorbar
@@ -70,15 +69,16 @@ cmap.set_under('0.75')
 
 bounds = [1, 2, 4, 7, 8]
 norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
-cb2 = fig.colorbar(
+fig.colorbar(
     mpl.cm.ScalarMappable(cmap=cmap, norm=norm),
     cax=ax,
     boundaries=[0] + bounds + [13],
     extend='both',
     ticks=bounds,
     spacing='proportional',
-    orientation='horizontal')
-cb2.set_label('Discrete intervals, some other units')
+    orientation='horizontal',
+    label='Discrete intervals, some other units',
+)
 
 ###############################################################################
 # Colorbar with custom extension lengths
@@ -98,7 +98,7 @@ cmap.set_under('blue')
 
 bounds = [-1.0, -0.5, 0.0, 0.5, 1.0]
 norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
-cb3 = fig.colorbar(
+fig.colorbar(
     mpl.cm.ScalarMappable(cmap=cmap, norm=norm),
     cax=ax,
     boundaries=[-10] + bounds + [10],
@@ -106,7 +106,8 @@ cb3 = fig.colorbar(
     extendfrac='auto',
     ticks=bounds,
     spacing='uniform',
-    orientation='horizontal')
-cb3.set_label('Custom extension lengths, some other units')
+    orientation='horizontal',
+    label='Custom extension lengths, some other units',
+)
 
 plt.show()
