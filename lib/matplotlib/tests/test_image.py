@@ -6,7 +6,6 @@ from pathlib import Path
 import platform
 import sys
 import urllib.request
-import warnings
 
 import numpy as np
 from numpy import ma
@@ -981,11 +980,9 @@ def test_imshow_masked_interpolation():
         ax.axis('off')
 
 
-def test_imshow_no_warn_invalid():
-    with warnings.catch_warnings(record=True) as warns:
-        warnings.simplefilter("always")
-        plt.imshow([[1, 2], [3, np.nan]])
-    assert len(warns) == 0
+def test_imshow_no_warn_invalid(recwarn):
+    plt.imshow([[1, 2], [3, np.nan]])
+    assert len(recwarn) == 0
 
 
 @pytest.mark.parametrize(
