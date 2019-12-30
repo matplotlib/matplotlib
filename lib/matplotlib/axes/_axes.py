@@ -1295,9 +1295,9 @@ class Axes(_AxesBase):
 
         # prevent 'singular' keys from **kwargs dict from overriding the effect
         # of 'plural' keyword arguments (e.g. 'color' overriding 'colors')
-        colors = cbook.local_over_kwdict(colors, kwargs, 'color')
-        linewidths = cbook.local_over_kwdict(linewidths, kwargs, 'linewidth')
-        linestyles = cbook.local_over_kwdict(linestyles, kwargs, 'linestyle')
+        colors = cbook._local_over_kwdict(colors, kwargs, 'color')
+        linewidths = cbook._local_over_kwdict(linewidths, kwargs, 'linewidth')
+        linestyles = cbook._local_over_kwdict(linestyles, kwargs, 'linestyle')
 
         if not np.iterable(lineoffsets):
             lineoffsets = [lineoffsets]

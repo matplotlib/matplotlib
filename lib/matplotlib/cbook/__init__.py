@@ -279,6 +279,7 @@ class silent_list(list):
         self.extend(state['seq'])
 
 
+@deprecated("3.3")
 class IgnoredKeywordWarning(UserWarning):
     """
     A class for issuing warnings about keyword arguments that will be ignored
@@ -287,6 +288,7 @@ class IgnoredKeywordWarning(UserWarning):
     pass
 
 
+@deprecated("3.3", alternative="normalize_kwargs")
 def local_over_kwdict(local_var, kwargs, *keys):
     """
     Enforces the priority of a local variable over potentially conflicting
@@ -321,8 +323,12 @@ def local_over_kwdict(local_var, kwargs, *keys):
     IgnoredKeywordWarning
         For each key in keys that is removed from kwargs but not used as
         the output value.
-
     """
+    return _local_over_kwdict(local_var, kwargs, *keys, IgnoredKeywordWarning)
+
+
+def _local_over_kwdict(
+        local_var, kwargs, *keys, warning_cls=MatplotlibDeprecationWarning):
     out = local_var
     for key in keys:
         kwarg_val = kwargs.pop(key, None)
@@ -331,7 +337,7 @@ def local_over_kwdict(local_var, kwargs, *keys):
                 out = kwarg_val
             else:
                 _warn_external('"%s" keyword argument will be ignored' % key,
-                               IgnoredKeywordWarning)
+                               warning_cls)
     return out
 
 

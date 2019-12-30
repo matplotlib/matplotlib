@@ -73,3 +73,12 @@ Revert deprecation \*min, \*max keyword arguments to ``set_x/y/zlim_3d()``
 These keyword arguments  were deprecated in 3.0, alongside with the respective
 parameters in ``set_xlim()`` / ``set_ylim()``. The deprecations of the 2D
 versions were already reverted in in 3.1.
+
+``cbook.local_over_kwdict``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This function is deprecated.  Use `.cbook.normalize_kwargs` instead.
+
+Passing both singular and plural *colors*, *linewidths*, *linestyles* to `.Axes.eventplot`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing e.g. both *linewidth* and *linewidths* will raise a TypeError in the
+future.
