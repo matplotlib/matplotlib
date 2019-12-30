@@ -200,7 +200,6 @@ class Artist:
         self._axes = new_axes
         if new_axes is not None and new_axes is not self:
             self.stale_callback = _stale_axes_callback
-        return new_axes
 
     @property
     def stale(self):

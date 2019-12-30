@@ -389,7 +389,7 @@ class Axis(maxis.XAxis):
 
     @d_interval.setter
     def d_interval(self, minmax):
-        return self.set_data_interval(*minmax)
+        self.set_data_interval(*minmax)
 
     @property
     def v_interval(self):
@@ -397,7 +397,7 @@ class Axis(maxis.XAxis):
 
     @d_interval.setter
     def v_interval(self, minmax):
-        return self.set_view_interval(*minmax)
+        self.set_view_interval(*minmax)
 
 
 # Use classes to look at different data limits

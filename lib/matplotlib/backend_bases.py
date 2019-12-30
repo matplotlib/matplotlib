@@ -2876,7 +2876,7 @@ class NavigationToolbar2:
         """Callback for mouse button press in zoom to rect mode."""
         # If we're already in the middle of a zoom, pressing another
         # button works to "cancel"
-        if self._ids_zoom != []:
+        if self._ids_zoom:
             for zoom_id in self._ids_zoom:
                 self.canvas.mpl_disconnect(zoom_id)
             self.release(event)

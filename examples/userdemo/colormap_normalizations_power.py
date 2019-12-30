@@ -18,7 +18,7 @@ PowerNorm: Here a power-law trend in X partially obscures a rectified
 sine wave in Y. We can remove the power law using a PowerNorm.
 '''
 X, Y = np.mgrid[0:3:complex(0, N), 0:2:complex(0, N)]
-Z1 = (1 + np.sin(Y * 10.)) * X**(2.)
+Z1 = (1 + np.sin(Y * 10.)) * X**2
 
 fig, ax = plt.subplots(2, 1)
 

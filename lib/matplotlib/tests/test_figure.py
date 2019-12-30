@@ -42,8 +42,8 @@ def test_align_labels():
 
     for i in range(3):
         ax = fig.add_subplot(gs[2, i])
-        ax.set_xlabel('XLabel2 %d' % (i))
-        ax.set_ylabel('YLabel2 %d' % (i))
+        ax.set_xlabel(f'XLabel2 {i}')
+        ax.set_ylabel(f'YLabel2 {i}')
 
         if i == 2:
             ax.plot(np.arange(0, 1e4, 10))
