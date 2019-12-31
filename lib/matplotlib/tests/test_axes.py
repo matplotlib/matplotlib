@@ -13,8 +13,6 @@ from cycler import cycler
 from decimal import Decimal
 import pytest
 
-import warnings
-
 import matplotlib
 import matplotlib as mpl
 from matplotlib.testing.decorators import (
