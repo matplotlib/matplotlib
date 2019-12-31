@@ -941,7 +941,7 @@ def meshgrid_triangles(n):
     tri = []
     for i in range(n-1):
         for j in range(n-1):
-            a = i + j*(n)
+            a = i + j*n
             b = (i+1) + j*n
             c = i + (j+1)*n
             d = (i+1) + (j+1)*n

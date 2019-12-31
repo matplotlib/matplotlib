@@ -1193,14 +1193,12 @@ class FigureCanvasSVG(FigureCanvasBase):
                 fh = TextIOWrapper(fh, 'utf-8')
                 detach = True
 
-            result = self._print_svg(filename, fh, **kwargs)
+            self._print_svg(filename, fh, **kwargs)
 
             # Detach underlying stream from wrapper so that it remains open in
             # the caller.
             if detach:
                 fh.detach()
-
-        return result
 
     def print_svgz(self, filename, *args, **kwargs):
         with cbook.open_file_cm(filename, "wb") as fh, \

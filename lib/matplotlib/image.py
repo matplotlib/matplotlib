@@ -683,7 +683,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             raise TypeError("Image data of dtype {} cannot be converted to "
                             "float".format(self._A.dtype))
 
-        if (self._A.ndim == 3 and self._A.shape[-1] == 1):
+        if self._A.ndim == 3 and self._A.shape[-1] == 1:
             # If just one dimension assume scalar and apply colormap
             self._A = self._A[:, :, 0]
 

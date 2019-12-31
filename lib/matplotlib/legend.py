@@ -1048,7 +1048,7 @@ class Legend(Artist):
         c = anchor_coefs[loc]
 
         fontsize = renderer.points_to_pixels(self._fontsize)
-        container = parentbbox.padded(-(self.borderaxespad) * fontsize)
+        container = parentbbox.padded(-self.borderaxespad * fontsize)
         anchored_box = bbox.anchored(c, container=container)
         return anchored_box.x0, anchored_box.y0
 

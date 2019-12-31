@@ -1429,7 +1429,7 @@ class QuadContourSet(ContourSet):
             if (t != self.ax.transData and
                     any(t.contains_branch_seperately(self.ax.transData))):
                 trans_to_data = t - self.ax.transData
-                pts = (np.vstack([x.flat, y.flat]).T)
+                pts = np.vstack([x.flat, y.flat]).T
                 transformed_pts = trans_to_data.transform(pts)
                 x = transformed_pts[..., 0]
                 y = transformed_pts[..., 1]

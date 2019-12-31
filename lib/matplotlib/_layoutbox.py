@@ -350,7 +350,7 @@ class LayoutBox:
         Helper to check if this layoutbox is the layoutbox of a
         subplotspec
         '''
-        name = (self.name).split('.')[-1]
+        name = self.name.split('.')[-1]
         return name[:2] == 'ss'
 
     def _is_gridspec_layoutbox(self):
@@ -358,7 +358,7 @@ class LayoutBox:
         Helper to check if this layoutbox is the layoutbox of a
         gridspec
         '''
-        name = (self.name).split('.')[-1]
+        name = self.name.split('.')[-1]
         return name[:8] == 'gridspec'
 
     def find_child_subplots(self):

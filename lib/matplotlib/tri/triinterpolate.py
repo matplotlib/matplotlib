@@ -1125,7 +1125,7 @@ class _DOF_estimator_geom(_DOF_estimator):
         weights = np.zeros([np.size(self._triangles, 0), 3])
         tris_pts = self._tris_pts
         for ipt in range(3):
-            p0 = tris_pts[:, (ipt) % 3, :]
+            p0 = tris_pts[:, ipt % 3, :]
             p1 = tris_pts[:, (ipt+1) % 3, :]
             p2 = tris_pts[:, (ipt-1) % 3, :]
             alpha1 = np.arctan2(p1[:, 1]-p0[:, 1], p1[:, 0]-p0[:, 0])

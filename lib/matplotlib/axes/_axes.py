@@ -610,7 +610,7 @@ class Axes(_AxesBase):
             secax.set_xlabel('Period [s]')
             plt.show()
         """
-        if (location in ['top', 'bottom'] or isinstance(location, Number)):
+        if location in ['top', 'bottom'] or isinstance(location, Number):
             secondary_ax = SecondaryAxis(self, 'x', location, functions,
                                          **kwargs)
             self.add_child_axes(secondary_ax)

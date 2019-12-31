@@ -2523,7 +2523,7 @@ class _AxesBase(martist.Artist):
             'minposy', self.yaxis, self._ymargin, y_stickies, self.set_ybound)
 
     def _get_axis_list(self):
-        return (self.xaxis, self.yaxis)
+        return self.xaxis, self.yaxis
 
     def _get_axis_map(self):
         """
@@ -3966,7 +3966,7 @@ class _AxesBase(martist.Artist):
         """
         xmin, xmax = self.get_xlim()
         ymin, ymax = self.get_ylim()
-        return (xmin, xmax, ymin, ymax)
+        return xmin, xmax, ymin, ymax
 
     def _set_view(self, view):
         """

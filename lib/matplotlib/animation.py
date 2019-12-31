@@ -89,7 +89,7 @@ def adjusted_figsize(w, h, dpi, n):
 
     wnew = int(w * dpi / n) * n / dpi
     hnew = int(h * dpi / n) * n / dpi
-    return (correct_roundoff(wnew, dpi, n), correct_roundoff(hnew, dpi, n))
+    return correct_roundoff(wnew, dpi, n), correct_roundoff(hnew, dpi, n)
 
 
 # A registry for available MovieWriter classes

@@ -1982,7 +1982,7 @@ class _Edge_integer:
         'Return the largest n: n*step <= x.'
         d, m = divmod(x, self.step)
         if self.closeto(m / self.step, 1):
-            return (d + 1)
+            return d + 1
         return d
 
     def ge(self, x):
@@ -1990,7 +1990,7 @@ class _Edge_integer:
         d, m = divmod(x, self.step)
         if self.closeto(m / self.step, 0):
             return d
-        return (d + 1)
+        return d + 1
 
 
 class MaxNLocator(Locator):

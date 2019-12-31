@@ -868,7 +868,7 @@ class ToolZoom(ZoomPanBase):
 
         # If we're already in the middle of a zoom, pressing another
         # button works to "cancel"
-        if self._ids_zoom != []:
+        if self._ids_zoom:
             self._cancel_action()
 
         if event.button == 1:
