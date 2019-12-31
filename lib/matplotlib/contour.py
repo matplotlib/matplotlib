@@ -261,7 +261,7 @@ class ContourLabeler:
         label.set_text(text)
         label.set_color(color)
         label.set_fontproperties(self.labelFontProps)
-        label.set_clip_box(self.ax.bbox)
+        label.set_clip_box(self.axes.bbox)
 
     def get_text(self, lev, fmt):
         """Get the text of the label."""
@@ -401,7 +401,7 @@ class ContourLabeler:
         return rotation, nlc
 
     def _get_label_text(self, x, y, rotation):
-        dx, dy = self.ax.transData.inverted().transform((x, y))
+        dx, dy = self.axes.transData.inverted().transform((x, y))
         t = text.Text(dx, dy, rotation=rotation,
                       horizontalalignment='center',
                       verticalalignment='center', zorder=self._clabel_zorder)
@@ -412,7 +412,7 @@ class ContourLabeler:
         # the data coordinate and create a label using ClabelText
         # class. This way, the rotation of the clabel is along the
         # contour line always.
-        transDataInv = self.ax.transData.inverted()
+        transDataInv = self.axes.transData.inverted()
         dx, dy = transDataInv.transform((x, y))
         drotation = transDataInv.transform_angles(np.array([rotation]),
                                                   np.array([[x, y]]))
@@ -432,7 +432,7 @@ class ContourLabeler:
         self.labelXYs.append((x, y))
 
         # Add label to plot here - useful for manual mode label selection
-        self.ax.add_artist(t)
+        self.axes.add_artist(t)
 
     def add_label(self, x, y, rotation, lev, cvalue):
         """
@@ -476,7 +476,7 @@ class ContourLabeler:
         """
 
         if transform is None:
-            transform = self.ax.transData
+            transform = self.axes.transData
 
         if transform:
             x, y = transform.transform((x, y))
@@ -495,7 +495,7 @@ class ContourLabeler:
         # grab its vertices
         lc = active_path.vertices
         # sort out where the new vertex should be added data-units
-        xcmin = self.ax.transData.inverted().transform([xmin, ymin])
+        xcmin = self.axes.transData.inverted().transform([xmin, ymin])
         # if there isn't a vertex close enough
         if not np.allclose(xcmin, lc[imin]):
             # insert new data into the vertex list
@@ -511,13 +511,13 @@ class ContourLabeler:
         lc = paths[segmin].vertices
 
         # In pixel/screen space
-        slc = self.ax.transData.transform(lc)
+        slc = self.axes.transData.transform(lc)
 
         # Get label width for rotating labels and breaking contours
         lw = self.get_label_width(self.labelLevelList[lmin],
                                   self.labelFmt, self.labelFontSizeList[lmin])
         # lw is in points.
-        lw *= self.ax.figure.dpi / 72.0  # scale to screen coordinates
+        lw *= self.axes.figure.dpi / 72  # scale to screen coordinates
         # now lw in pixels
 
         # Figure out label rotation.
@@ -556,7 +556,7 @@ class ContourLabeler:
             con = self.collections[icon]
             trans = con.get_transform()
             lw = self.get_label_width(lev, self.labelFmt, fsize)
-            lw *= self.ax.figure.dpi / 72.0  # scale to screen coordinates
+            lw *= self.axes.figure.dpi / 72  # scale to screen coordinates
             additions = []
             paths = con.get_paths()
             for segNum, linepath in enumerate(paths):
@@ -773,7 +773,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             Keyword arguments are as described in the docstring of
             `~.Axes.contour`.
         """
-        self.ax = ax
+        self.axes = ax
         self.levels = levels
         self.filled = filled
         self.linewidths = linewidths
@@ -889,7 +889,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     alpha=self.alpha,
                     transform=self.get_transform(),
                     zorder=self._contour_zorder)
-                self.ax.add_collection(col, autolim=False)
+                self.axes.add_collection(col, autolim=False)
                 self.collections.append(col)
         else:
             tlinewidths = self._process_linewidths()
@@ -911,14 +911,14 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     transform=self.get_transform(),
                     zorder=self._contour_zorder)
                 col.set_label('_nolegend_')
-                self.ax.add_collection(col, autolim=False)
+                self.axes.add_collection(col, autolim=False)
                 self.collections.append(col)
 
         for col in self.collections:
             col.sticky_edges.x[:] = [self._mins[0], self._maxs[0]]
             col.sticky_edges.y[:] = [self._mins[1], self._maxs[1]]
-        self.ax.update_datalim([self._mins, self._maxs])
-        self.ax.autoscale_view(tight=True)
+        self.axes.update_datalim([self._mins, self._maxs])
+        self.axes.autoscale_view(tight=True)
 
         self.changed()  # set the colors
 
@@ -927,16 +927,21 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             cbook._warn_external('The following kwargs were not used by '
                                  'contour: ' + s)
 
+    @cbook.deprecated("3.3")
+    @property
+    def ax(self):
+        return self.axes
+
     def get_transform(self):
         """
         Return the :class:`~matplotlib.transforms.Transform`
         instance used by this ContourSet.
         """
         if self._transform is None:
-            self._transform = self.ax.transData
+            self._transform = self.axes.transData
         elif (not isinstance(self._transform, mtransforms.Transform)
               and hasattr(self._transform, '_as_mpl_transform')):
-            self._transform = self._transform._as_mpl_transform(self.ax)
+            self._transform = self._transform._as_mpl_transform(self.axes)
         return self._transform
 
     def __getstate__(self):
@@ -1431,9 +1436,9 @@ class QuadContourSet(ContourSet):
 
             # if the transform is not trans data, and some part of it
             # contains transData, transform the xs and ys to data coordinates
-            if (t != self.ax.transData and
-                    any(t.contains_branch_seperately(self.ax.transData))):
-                trans_to_data = t - self.ax.transData
+            if (t != self.axes.transData and
+                    any(t.contains_branch_seperately(self.axes.transData))):
+                trans_to_data = t - self.axes.transData
                 pts = np.vstack([x.flat, y.flat]).T
                 transformed_pts = trans_to_data.transform(pts)
                 x = transformed_pts[..., 0]
@@ -1498,9 +1503,9 @@ class QuadContourSet(ContourSet):
         convert them to 2D using meshgrid.
         """
         x, y = args[:2]
-        kwargs = self.ax._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
-        x = self.ax.convert_xunits(x)
-        y = self.ax.convert_yunits(y)
+        kwargs = self.axes._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
+        x = self.axes.convert_xunits(x)
+        y = self.axes.convert_yunits(y)
 
         x = np.asarray(x, dtype=np.float64)
         y = np.asarray(y, dtype=np.float64)
