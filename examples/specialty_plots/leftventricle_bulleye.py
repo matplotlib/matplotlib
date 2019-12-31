@@ -147,30 +147,17 @@ axl3 = fig.add_axes([0.69, 0.15, 0.2, 0.05])
 # the colorbar will be used.
 cmap = mpl.cm.viridis
 norm = mpl.colors.Normalize(vmin=1, vmax=17)
-
-# ColorbarBase derives from ScalarMappable and puts a colorbar
-# in a specified axes, so it has everything needed for a
-# standalone colorbar.  There are many more kwargs, but the
-# following gives a basic continuous colorbar with ticks
-# and labels.
-cb1 = mpl.colorbar.ColorbarBase(axl, cmap=cmap, norm=norm,
-                                orientation='horizontal')
-cb1.set_label('Some Units')
+# Create an empty ScalarMappable to set the colorbar's colormap and norm.
+# The following gives a basic continuous colorbar with ticks and labels.
+fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap, norm=norm),
+             cax=axl, orientation='horizontal', label='Some Units')
 
 
-# Set the colormap and norm to correspond to the data for which
-# the colorbar will be used.
+# And again for the second colorbar.
 cmap2 = mpl.cm.cool
 norm2 = mpl.colors.Normalize(vmin=1, vmax=17)
-
-# ColorbarBase derives from ScalarMappable and puts a colorbar
-# in a specified axes, so it has everything needed for a
-# standalone colorbar.  There are many more kwargs, but the
-# following gives a basic continuous colorbar with ticks
-# and labels.
-cb2 = mpl.colorbar.ColorbarBase(axl2, cmap=cmap2, norm=norm2,
-                                orientation='horizontal')
-cb2.set_label('Some other units')
+fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap2, norm=norm2),
+             cax=axl2, orientation='horizontal', label='Some other units')
 
 
 # The second example illustrates the use of a ListedColormap, a
@@ -179,21 +166,20 @@ cb2.set_label('Some other units')
 cmap3 = mpl.colors.ListedColormap(['r', 'g', 'b', 'c'])
 cmap3.set_over('0.35')
 cmap3.set_under('0.75')
-
 # If a ListedColormap is used, the length of the bounds array must be
 # one greater than the length of the color list.  The bounds must be
 # monotonically increasing.
 bounds = [2, 3, 7, 9, 15]
 norm3 = mpl.colors.BoundaryNorm(bounds, cmap3.N)
-cb3 = mpl.colorbar.ColorbarBase(axl3, cmap=cmap3, norm=norm3,
-                                # to use 'extend', you must
-                                # specify two extra boundaries:
-                                boundaries=[0] + bounds + [18],
-                                extend='both',
-                                ticks=bounds,  # optional
-                                spacing='proportional',
-                                orientation='horizontal')
-cb3.set_label('Discrete intervals, some other units')
+fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap3, norm=norm3),
+             cax=axl3,
+             # to use 'extend', you must specify two extra boundaries:
+             boundaries=[0] + bounds + [18],
+             extend='both',
+             ticks=bounds,  # optional
+             spacing='proportional',
+             orientation='horizontal',
+             label='Discrete intervals, some other units')
 
 
 # Create the 17 segment model
