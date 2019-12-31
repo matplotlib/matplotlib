@@ -124,8 +124,7 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
     Parameters
     ----------
     since : str
-        The release at which this API became deprecated.  This is
-        required.
+        The release at which this API became deprecated.
 
     message : str, optional
         Override the default deprecation message.  The format
