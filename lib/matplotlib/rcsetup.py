@@ -15,7 +15,6 @@ parameter set listed here should also be visited to the
 """
 
 import ast
-from collections.abc import Iterable, Mapping
 from functools import partial, reduce
 import logging
 from numbers import Number
@@ -86,11 +85,9 @@ def _listify_validator(scalar_validator, allow_stringlist=False, *, doc=None):
                             for v in s if v.strip()]
                 else:
                     raise
-        # We should allow any generic sequence type, including generators,
-        # Numpy ndarrays, and pandas data structures.  However, unordered
-        # sequences, such as sets, should be allowed but discouraged unless the
-        # user desires pseudorandom behavior.
-        elif isinstance(s, Iterable) and not isinstance(s, Mapping):
+        # Allow any ordered sequence type -- generators, np.ndarray, pd.Series
+        # -- but not sets, whose iteration order is non-deterministic.
+        elif np.iterable(s) and not isinstance(s, (set, frozenset)):
             # The condition on this list comprehension will preserve the
             # behavior of filtering out any empty strings (behavior was
             # from the original validate_stringlist()), while allowing
@@ -104,6 +101,7 @@ def _listify_validator(scalar_validator, allow_stringlist=False, *, doc=None):
         f.__name__ = "{}list".format(scalar_validator.__name__)
     except AttributeError:  # class instance.
         f.__name__ = "{}List".format(type(scalar_validator).__name__)
+    f.__qualname__ = f.__qualname__.rsplit(".", 1)[0] + "." + f.__name__
     f.__doc__ = doc if doc is not None else scalar_validator.__doc__
     return f
 
@@ -151,12 +149,19 @@ def validate_bool_maybe_none(b):
 
 
 def _validate_tex_preamble(s):
+    message = (
+        f"Support for setting the 'text.latex.unicode' and 'pdf.preamble' "
+        f"rcParams to {s!r} is deprecated since %(since)s and will be "
+        f"removed %(removal)s; please set them to plain (possibly empty) "
+        f"strings instead.")
     if s is None or s == 'None':
+        cbook.warn_deprecated("3.3", message=message)
         return ""
     try:
         if isinstance(s, str):
             return s
-        elif isinstance(s, Iterable):
+        elif np.iterable(s):
+            cbook.warn_deprecated("3.3", message=message)
             return '\n'.join(s)
         else:
             raise TypeError
@@ -202,6 +207,11 @@ def _make_type_validator(cls, *, allow_none=False):
         except ValueError:
             raise ValueError(f'Could not convert {s!r} to {cls.__name__}')
 
+    validator.__name__ = f"validate_{cls.__name__}"
+    if allow_none:
+        validator.__name__ += "_or_None"
+    validator.__qualname__ = (
+        validator.__qualname__.rsplit(".", 1)[0] + "." + validator.__name__)
     return validator
 
 

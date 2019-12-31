@@ -218,7 +218,7 @@ def generate_validator_testcases(valid):
                      ((1, 2), ['1', '2']),
                      (np.array([1, 2]), ['1', '2']),
                      ),
-         'fail': ((dict(), ValueError),
+         'fail': ((set(), ValueError),
                   (1, ValueError),
                   )
          },
