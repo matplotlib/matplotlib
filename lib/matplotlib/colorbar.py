@@ -106,6 +106,8 @@ colormap_kw_doc = '''
                   given instead.
     *drawedges*   bool
                   Whether to draw lines at color boundaries.
+    *label*       str
+                  The label on the colorbar's long axis.
     ============  ====================================================
 
     The following will probably be useful only in the context of
@@ -168,8 +170,7 @@ use_gridspec : bool, optional
 Returns
 -------
 colorbar : `~matplotlib.colorbar.Colorbar`
-    See also its base class, `~matplotlib.colorbar.ColorbarBase`.  Use
-    `~.ColorbarBase.set_label` to label the colorbar.
+    See also its base class, `~matplotlib.colorbar.ColorbarBase`.
 
 Notes
 -----
