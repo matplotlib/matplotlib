@@ -184,6 +184,27 @@ class ScalarMappable:
         self.colorbar = None
         self.update_dict = {'array': False}
 
+    def _scale_norm(self, norm, vmin, vmax):
+        """
+        Helper for initial scaling.
+
+        Used by public functions that create a ScalarMappable and support
+        parameters *vmin*, *vmax* and *norm*. This makes sure that a *norm*
+        will take precedence over *vmin*, *vmax*.
+
+        Note that this method does not set the norm.
+        """
+        if vmin is not None or vmax is not None:
+            self.set_clim(vmin, vmax)
+            if norm is not None:
+                cbook.warn_deprecated(
+                    "3.3",
+                    message="Passing parameters norm and vmin/vmax "
+                            "simultaneously is deprecated. Please pass "
+                            "vmin/vmax directly to the norm when creating it.")
+        else:
+            self.autoscale_None()
+
     def to_rgba(self, x, alpha=None, bytes=False, norm=True):
         """
         Return a normalized rgba array corresponding to *x*.
