@@ -1051,7 +1051,7 @@ div.responsive_subfig img {
     width: 100%;
 }
 
-@media only screen and (max-width: 1000px){
+@media only screen and (max-width: 930px){
     /* The value of 1000px was handcrafted to provide a more or less */
     /* smooth transition between the 1x4 and the 2x2 layouts. It is  */
     /* NB: it is slightly below 1024px: so one should still have a   */
@@ -1180,3 +1180,41 @@ nav.main-nav{
     padding: 3px 6px;
     width: 198px;
   }
+
+/* community items on main page */
+div.box {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+div.box-item {
+    flex: 0 0 45%;
+    padding: 4px;
+    margin: 8px 12px;
+}
+
+div.box-item img {
+    float: left;
+    width: 30px;
+    height: 30px;
+    fill: #888;
+
+}
+div.box-item p {
+    margin: 0 0 0 50px;
+}
+
+div.box-item ul {
+    margin: 0 0 0 50px;
+    padding-left: 20px;
+}
+
+hr.box-sep {
+    margin: 1em 2em;
+}
+
+@media only screen and (max-width: 930px){
+    div.box-item {
+        flex: 0 0 90%;
+    }
+}
