@@ -373,6 +373,16 @@ class Spine(mpatches.Patch):
 
     @allow_rasterization
     def draw(self, renderer):
+        # The calls to get_x/yaxis_transform are necessary to set up the spine
+        # transforms properly in the case of rectilinear axes.  (This was
+        # previously done implicitly on tick init, but now ticks are init'ed
+        # lazily at draw time.)  Really, one just needs to call
+        # _ensure_position_is_set(), except that this breaks polar axes which
+        # are brittle.
+        self.axes.get_xaxis_transform('tick1')
+        self.axes.get_xaxis_transform('tick2')
+        self.axes.get_yaxis_transform('tick1')
+        self.axes.get_yaxis_transform('tick2')
         self._adjust_location()
         ret = super().draw(renderer)
         self.stale = False
