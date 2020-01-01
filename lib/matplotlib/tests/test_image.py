@@ -819,7 +819,7 @@ def test_rotate_image():
     x = y = np.arange(-3.0, 3.0, delta)
     X, Y = np.meshgrid(x, y)
     Z1 = np.exp(-(X**2 + Y**2) / 2) / (2 * np.pi)
-    Z2 = (np.exp(-(((X - 1) / 1.5)**2 + ((Y - 1) / 0.5)**2) / 2) /
+    Z2 = (np.exp(-(((X-1) / 1.5)**2 + ((Y-1) / 0.5)**2) / 2) /
           (2 * np.pi * 0.5 * 1.5))
     Z = Z2 - Z1  # difference of Gaussians
 
@@ -881,7 +881,7 @@ def test_mask_image_over_under():
     x = y = np.arange(-3.0, 3.0, delta)
     X, Y = np.meshgrid(x, y)
     Z1 = np.exp(-(X**2 + Y**2) / 2) / (2 * np.pi)
-    Z2 = (np.exp(-(((X - 1) / 1.5)**2 + ((Y - 1) / 0.5)**2) / 2) /
+    Z2 = (np.exp(-(((X-1) / 1.5)**2 + ((Y-1) / 0.5)**2) / 2) /
           (2 * np.pi * 0.5 * 1.5))
     Z = 10*(Z2 - Z1)  # difference of Gaussians
 
@@ -1082,7 +1082,7 @@ def test_composite(fmt, counted, composite_image, count):
     # Test that figures can be saved with and without combining multiple images
     # (on a single set of axes) into a single composite image.
     X, Y = np.meshgrid(np.arange(-5, 5, 1), np.arange(-5, 5, 1))
-    Z = np.sin(Y ** 2)
+    Z = np.sin(Y**2)
 
     fig, ax = plt.subplots()
     ax.set_xlim(0, 3)
@@ -1155,7 +1155,7 @@ def test_image_array_alpha(fig_test, fig_ref):
     x = np.linspace(0, 1)
     xx, yy = np.meshgrid(x, x)
 
-    zz = np.exp(- 3 * ((xx - 0.5) ** 2) + (yy - 0.7 ** 2))
+    zz = np.exp(- 3 * ((xx-0.5)**2) + (yy - 0.7**2))
     alpha = zz / zz.max()
 
     cmap = plt.get_cmap('viridis')

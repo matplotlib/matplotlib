@@ -483,4 +483,4 @@ def test_hbox_divider():
     p1 = ax1.get_position()
     p2 = ax2.get_position()
     assert p1.height == p2.height
-    assert p2.width / p1.width == pytest.approx((4 / 5) ** 2)
+    assert p2.width / p1.width == pytest.approx((4 / 5)**2)

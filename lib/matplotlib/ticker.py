@@ -696,22 +696,22 @@ class ScalarFormatter(Formatter):
         sign = math.copysign(1, lmin)
         # What is the smallest power of ten such that abs_min and abs_max are
         # equal up to that precision?
-        # Note: Internally using oom instead of 10 ** oom avoids some numerical
+        # Note: Internally using oom instead of 10**oom avoids some numerical
         # accuracy issues.
         oom_max = np.ceil(math.log10(abs_max))
         oom = 1 + next(oom for oom in itertools.count(oom_max, -1)
-                       if abs_min // 10 ** oom != abs_max // 10 ** oom)
-        if (abs_max - abs_min) / 10 ** oom <= 1e-2:
+                       if abs_min // 10**oom != abs_max // 10**oom)
+        if (abs_max - abs_min) / 10**oom <= 1e-2:
             # Handle the case of straddling a multiple of a large power of ten
             # (relative to the span).
             # What is the smallest power of ten such that abs_min and abs_max
             # are no more than 1 apart at that precision?
             oom = 1 + next(oom for oom in itertools.count(oom_max, -1)
-                           if abs_max // 10 ** oom - abs_min // 10 ** oom > 1)
+                           if abs_max // 10**oom - abs_min // 10**oom > 1)
         # Only use offset if it saves at least _offset_threshold digits.
         n = self._offset_threshold - 1
-        self.offset = (sign * (abs_max // 10 ** oom) * 10 ** oom
-                       if abs_max // 10 ** oom >= 10**n
+        self.offset = (sign * (abs_max // 10**oom) * 10**oom
+                       if abs_max // 10**oom >= 10**n
                        else 0)
 
     def _set_order_of_magnitude(self):
@@ -2700,7 +2700,7 @@ class LogitLocator(MaxNLocator):
         # linscale: ... 1e-3 1e-2 1e-1 1/2 1-1e-1 1-1e-2 1-1e-3 ...
         # b-scale : ... -3   -2   -1   0   1      2      3      ...
         def ideal_ticks(x):
-            return 10 ** x if x < 0 else 1 - (10 ** (-x)) if x > 0 else 1 / 2
+            return 10**x if x < 0 else 1 - 10**(-x) if x > 0 else 1 / 2
 
         vmin, vmax = self.nonsingular(vmin, vmax)
         binf = int(
@@ -2741,14 +2741,14 @@ class LogitLocator(MaxNLocator):
                 ticklocs = []
                 for b in range(binf, bsup):
                     if b < -1:
-                        ticklocs.extend(np.arange(2, 10) * 10 ** b)
+                        ticklocs.extend(np.arange(2, 10) * 10**b)
                     elif b == -1:
                         ticklocs.extend(np.arange(2, 5) / 10)
                     elif b == 0:
                         ticklocs.extend(np.arange(6, 9) / 10)
                     else:
                         ticklocs.extend(
-                            1 - np.arange(2, 10)[::-1] * 10 ** (-b - 1)
+                            1 - np.arange(2, 10)[::-1] * 10**(-b - 1)
                         )
                 return self.raise_if_exceeds(np.array(ticklocs))
             ticklocs = [ideal_ticks(b) for b in range(binf, bsup + 1)]
@@ -2921,7 +2921,7 @@ class OldAutoLocator(Locator):
                 raise RuntimeError('AutoLocator illegal data interval range')
 
             fld = math.floor(ld)
-            base = 10 ** fld
+            base = 10**fld
 
             #if ld==fld:  base = 10**(fld-1)
             #else:        base = 10**fld

@@ -302,7 +302,7 @@ class LogTransform(Transform):
                 # Inkscape (which uses cairo for rendering) runs into cairo's
                 # 24-bit limit (which is apparently shared by Agg).
                 # Ghostscript (used for pdf rendering appears to overflow even
-                # earlier, with the max value around 2 ** 15 for the tests to
+                # earlier, with the max value around 2**15 for the tests to
                 # pass. On the other hand, in practice, we want to clip beyond
                 #     np.log10(np.nextafter(0, 1)) ~ -323
                 # so 1000 seems safe.
@@ -457,7 +457,7 @@ class SymmetricalLogTransform(Transform):
         self.base = base
         self.linthresh = linthresh
         self.linscale = linscale
-        self._linscale_adj = (linscale / (1.0 - self.base ** -1))
+        self._linscale_adj = (linscale / (1 - 1/self.base))
         self._log_base = np.log(base)
 
     def transform_non_affine(self, a):
@@ -485,7 +485,7 @@ class InvertedSymmetricalLogTransform(Transform):
         self.linthresh = linthresh
         self.invlinthresh = symlog.transform(linthresh)
         self.linscale = linscale
-        self._linscale_adj = (linscale / (1.0 - self.base ** -1))
+        self._linscale_adj = (linscale / (1 - 1/self.base))
 
     def transform_non_affine(self, a):
         abs_a = np.abs(a)

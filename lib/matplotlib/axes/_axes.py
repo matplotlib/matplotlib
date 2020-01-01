@@ -4365,7 +4365,7 @@ default: :rc:`scatter.edgecolors`
 
         if s is None:
             s = (20 if rcParams['_internal.classic_mode'] else
-                 rcParams['lines.markersize'] ** 2.0)
+                 rcParams['lines.markersize']**2)
         s = np.ma.ravel(s)
         if len(s) not in (1, x.size):
             raise ValueError("s must be a scalar, or the same size as x and y")
@@ -4633,8 +4633,8 @@ default: :rc:`scatter.edgecolors`
         ny2 = ny
         n = nx1 * ny1 + nx2 * ny2
 
-        d1 = (x - ix1) ** 2 + 3.0 * (y - iy1) ** 2
-        d2 = (x - ix2 - 0.5) ** 2 + 3.0 * (y - iy2 - 0.5) ** 2
+        d1 = (x - ix1)**2 + 3.0 * (y - iy1)**2
+        d2 = (x - ix2 - 0.5)**2 + 3.0 * (y - iy2 - 0.5)**2
         bdist = (d1 < d2)
         if C is None:
             lattice1 = np.zeros((nx1, ny1))

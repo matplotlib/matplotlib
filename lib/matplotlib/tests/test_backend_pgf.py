@@ -68,7 +68,7 @@ def create_figure():
     x = np.linspace(0, 1, 15)
 
     # line plot
-    plt.plot(x, x ** 2, "b-")
+    plt.plot(x, x**2, "b-")
 
     # marker
     plt.plot(x, 1 - x**2, "g>")

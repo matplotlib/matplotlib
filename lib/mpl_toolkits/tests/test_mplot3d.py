@@ -152,7 +152,7 @@ def test_lines3d():
     ax = fig.gca(projection='3d')
     theta = np.linspace(-4 * np.pi, 4 * np.pi, 100)
     z = np.linspace(-2, 2, 100)
-    r = z ** 2 + 1
+    r = z**2 + 1
     x = r * np.sin(theta)
     y = r * np.cos(theta)
     ax.plot(x, y, z)
@@ -255,7 +255,7 @@ def test_surface3d_shaded():
     X = np.arange(-5, 5, 0.25)
     Y = np.arange(-5, 5, 0.25)
     X, Y = np.meshgrid(X, Y)
-    R = np.sqrt(X ** 2 + Y ** 2)
+    R = np.sqrt(X**2 + Y**2)
     Z = np.sin(R)
     ax.plot_surface(X, Y, Z, rstride=5, cstride=5,
                     color=[0.25, 1, 0.25], lw=1, antialiased=False)
@@ -712,7 +712,7 @@ class TestVoxels:
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
         x, y, z = np.indices((5, 5, 4))
-        voxels = ((x - 2)**2 + (y - 2)**2 + (z-1.5)**2) < 2.2**2
+        voxels = ((x-2)**2 + (y-2)**2 + (z-1.5)**2) < 2.2**2
         v = ax.voxels(voxels, linewidths=3, edgecolor='C1')
 
         # change the edge color of one voxel
@@ -781,7 +781,7 @@ class TestVoxels:
         bc = midpoints(b)
 
         # define a sphere about [0.5, 0.5, 0.5]
-        sphere = (rc - 0.5)**2 + (gc - 0.5)**2 + (bc - 0.5)**2 < 0.5**2
+        sphere = (rc-0.5)**2 + (gc-0.5)**2 + (bc-0.5)**2 < 0.5**2
 
         # combine the color components
         colors = np.zeros(sphere.shape + (3,))

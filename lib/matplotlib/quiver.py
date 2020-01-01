@@ -726,8 +726,8 @@ class Quiver(mcollections.PolyCollection):
         length = length.reshape(N, 1)
         # This number is chosen based on when pixel values overflow in Agg
         # causing rendering errors
-        # length = np.minimum(length, 2 ** 16)
-        np.clip(length, 0, 2 ** 16, out=length)
+        # length = np.minimum(length, 2**16)
+        np.clip(length, 0, 2**16, out=length)
         # x, y: normal horizontal arrow
         x = np.array([0, -self.headaxislength,
                       -self.headlength, 0],
@@ -987,7 +987,7 @@ class Barbs(mcollections.PolyCollection):
         xy = np.column_stack((x, y))
 
         # Make a collection
-        barb_size = self._length ** 2 / 4  # Empirically determined
+        barb_size = self._length**2 / 4  # Empirically determined
         mcollections.PolyCollection.__init__(self, [], (barb_size,),
                                              offsets=xy,
                                              transOffset=transform, **kw)

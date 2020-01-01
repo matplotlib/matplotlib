@@ -56,7 +56,7 @@ _prism_data = {'red': _prism_red, 'green': _prism_green, 'blue': _prism_blue}
 def _ch_helper(gamma, s, r, h, p0, p1, x):
     """Helper function for generating picklable cubehelix color maps."""
     # Apply gamma factor to emphasise low or high intensity values
-    xg = x ** gamma
+    xg = x**gamma
     # Calculate amplitude and angle of deviation from the black to white
     # diagonal in the plane of constant perceived intensity.
     a = h * xg * (1 - xg) / 2
@@ -113,15 +113,15 @@ def _g0(x): return 0
 def _g1(x): return 0.5
 def _g2(x): return 1
 def _g3(x): return x
-def _g4(x): return x ** 2
-def _g5(x): return x ** 3
-def _g6(x): return x ** 4
+def _g4(x): return x**2
+def _g5(x): return x**3
+def _g6(x): return x**4
 def _g7(x): return np.sqrt(x)
 def _g8(x): return np.sqrt(np.sqrt(x))
 def _g9(x): return np.sin(x * np.pi / 2)
 def _g10(x): return np.cos(x * np.pi / 2)
 def _g11(x): return np.abs(x - 0.5)
-def _g12(x): return (2 * x - 1) ** 2
+def _g12(x): return (2 * x - 1)**2
 def _g13(x): return np.sin(x * np.pi)
 def _g14(x): return np.abs(np.cos(x * np.pi))
 def _g15(x): return np.sin(x * 2 * np.pi)

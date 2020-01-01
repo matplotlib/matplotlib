@@ -6235,7 +6235,7 @@ def test_plot_columns_cycle_deprecation():
 @check_figures_equal(extensions=["png"])
 def test_plot_decimal(fig_test, fig_ref):
     x0 = np.arange(-10, 10, 0.3)
-    y0 = [5.2 * x ** 3 - 2.1 * x ** 2 + 7.34 * x + 4.5 for x in x0]
+    y0 = [5.2 * x**3 - 2.1 * x**2 + 7.34 * x + 4.5 for x in x0]
     x = [Decimal(i) for i in x0]
     y = [Decimal(i) for i in y0]
     # Test image - line plot with Decimal input
@@ -6271,7 +6271,7 @@ def test_inset():
     # generate 2 2d grids for the x & y bounds
     y, x = np.mgrid[slice(1, 5 + dy, dy),
                     slice(1, 5 + dx, dx)]
-    z = np.sin(x) ** 10 + np.cos(10 + y * x) * np.cos(x)
+    z = np.sin(x)**10 + np.cos(10 + y * x) * np.cos(x)
 
     fig, ax = plt.subplots()
     ax.pcolormesh(x, y, z)

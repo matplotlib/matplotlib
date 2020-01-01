@@ -981,7 +981,7 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
                  scale_by_freq)
     Pxy, f = csd(x, y, NFFT, Fs, detrend, window, noverlap, pad_to, sides,
                  scale_by_freq)
-    Cxy = np.abs(Pxy) ** 2 / (Pxx * Pyy)
+    Cxy = np.abs(Pxy)**2 / (Pxx * Pyy)
     return Cxy, f
 
 
@@ -1353,8 +1353,8 @@ class GaussianKDE:
                     bias=False))
             self.data_inv_cov = np.linalg.inv(self.data_covariance)
 
-        self.covariance = self.data_covariance * self.factor ** 2
-        self.inv_cov = self.data_inv_cov / self.factor ** 2
+        self.covariance = self.data_covariance * self.factor**2
+        self.inv_cov = self.data_inv_cov / self.factor**2
         self.norm_factor = (np.sqrt(np.linalg.det(2 * np.pi * self.covariance))
                             * self.num_dp)
 

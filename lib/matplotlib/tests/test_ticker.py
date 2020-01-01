@@ -868,7 +868,7 @@ class TestLogitFormatter:
             comp = match["comp"] is not None
             mantissa = float(match["mant"]) if match["mant"] else 1
             expo = int(match["expo"]) if match["expo"] is not None else 0
-            value = mantissa * 10 ** expo
+            value = mantissa * 10**expo
             if match["mant"] or match["expo"] is not None:
                 if comp:
                     return 1 - value
@@ -901,8 +901,8 @@ class TestLogitFormatter:
             assert _LogitHelper.isclose(x, y)
 
     decade_test = sorted(
-        [10 ** (-i) for i in range(1, 10)]
-        + [1 - 10 ** (-i) for i in range(1, 10)]
+        [10**(-i) for i in range(1, 10)]
+        + [1 - 10**(-i) for i in range(1, 10)]
         + [1 / 2]
     )
 

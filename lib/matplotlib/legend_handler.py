@@ -356,8 +356,8 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
             handle_sizes = orig_handle.get_sizes()
             if not len(handle_sizes):
                 handle_sizes = [1]
-            size_max = max(handle_sizes) * legend.markerscale ** 2
-            size_min = min(handle_sizes) * legend.markerscale ** 2
+            size_max = max(handle_sizes) * legend.markerscale**2
+            size_min = min(handle_sizes) * legend.markerscale**2
 
             numpoints = self.get_numpoints(legend)
             if numpoints < 4:

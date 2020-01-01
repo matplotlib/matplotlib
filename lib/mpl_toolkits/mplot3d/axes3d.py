@@ -2503,8 +2503,8 @@ pivot='tail', normalize=False, **kwargs)
 
             # construct the rotation matrices
             Rpos = np.array(
-                [[c + (x_p ** 2) * (1 - c), x_p * y_p * (1 - c), y_p * s],
-                [y_p * x_p * (1 - c), c + (y_p ** 2) * (1 - c), -x_p * s],
+                [[c + x_p**2 * (1 - c), x_p * y_p * (1 - c), y_p * s],
+                [y_p * x_p * (1 - c), c + y_p**2 * (1 - c), -x_p * s],
                 [-y_p * s, x_p * s, np.full_like(x_p, c)]])
             Rpos = Rpos.transpose(2, 0, 1)
 
@@ -2842,7 +2842,7 @@ def get_test_data(delta=0.05):
     X, Y = np.meshgrid(x, y)
 
     Z1 = np.exp(-(X**2 + Y**2) / 2) / (2 * np.pi)
-    Z2 = (np.exp(-(((X - 1) / 1.5)**2 + ((Y - 1) / 0.5)**2) / 2) /
+    Z2 = (np.exp(-(((X-1) / 1.5)**2 + ((Y-1) / 0.5)**2) / 2) /
           (2 * np.pi * 0.5 * 1.5))
     Z = Z2 - Z1
 

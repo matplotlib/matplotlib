@@ -422,7 +422,7 @@ def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
     # speed (path length) will be in axes-coordinates
     u_ax = u / (dmap.grid.nx - 1)
     v_ax = v / (dmap.grid.ny - 1)
-    speed = np.ma.sqrt(u_ax ** 2 + v_ax ** 2)
+    speed = np.ma.sqrt(u_ax**2 + v_ax**2)
 
     def forward_time(xi, yi):
         if not dmap.grid.within_grid(xi, yi):
@@ -579,7 +579,7 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
         if error == 0:
             ds = maxds
         else:
-            ds = min(maxds, 0.85 * ds * (maxerror / error) ** 0.5)
+            ds = min(maxds, 0.85 * ds * (maxerror / error)**0.5)
 
     return stotal, xf_traj, yf_traj
 

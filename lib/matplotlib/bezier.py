@@ -299,11 +299,11 @@ def inside_circle(cx, cy, r):
 
         f(xy: Tuple[float, float]) -> bool
     """
-    r2 = r ** 2
+    r2 = r**2
 
     def _f(xy):
         x, y = xy
-        return (x - cx) ** 2 + (y - cy) ** 2 < r2
+        return (x-cx)**2 + (y-cy)**2 < r2
     return _f
 
 
@@ -311,7 +311,7 @@ def inside_circle(cx, cy, r):
 
 def get_cos_sin(x0, y0, x1, y1):
     dx, dy = x1 - x0, y1 - y0
-    d = (dx * dx + dy * dy) ** .5
+    d = (dx*dx + dy*dy)**.5
     # Account for divide by zero
     if d == 0:
         return 0.0, 0.0

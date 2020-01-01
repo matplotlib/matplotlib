@@ -111,7 +111,7 @@ def test_composite_image():
     # Test that figures can be saved with and without combining multiple images
     # (on a single set of axes) into a single composite image.
     X, Y = np.meshgrid(np.arange(-5, 5, 1), np.arange(-5, 5, 1))
-    Z = np.sin(Y ** 2)
+    Z = np.sin(Y**2)
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.set_xlim(0, 3)

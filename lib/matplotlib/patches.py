@@ -1346,7 +1346,7 @@ class CirclePolygon(RegularPolygon):
     @docstring.dedent_interpd
     def __init__(self, xy, radius=5,
                  resolution=20,  # the number of vertices
-                 ** kwargs):
+                 **kwargs):
         """
         Create a circle at *xy* = (*x*, *y*) with given *radius*.
         This circle is approximated by a regular polygon with
@@ -2945,7 +2945,7 @@ class ConnectionStyle(_Style):
                 if rounded:
                     xp, yp = rounded[-1]
                     dx, dy = x_armB - xp, y_armB - yp
-                    dd = (dx * dx + dy * dy) ** .5
+                    dd = (dx*dx + dy*dy)**.5
 
                     rounded.append((xp + self.rad * dx / dd,
                                     yp + self.rad * dy / dd))
@@ -2956,7 +2956,7 @@ class ConnectionStyle(_Style):
                 else:
                     xp, yp = vertices[-1]
                     dx, dy = x_armB - xp, y_armB - yp
-                    dd = (dx * dx + dy * dy) ** .5
+                    dd = (dx*dx + dy*dy)**.5
 
                 d = dd - self.rad
                 rounded = [(xp + d * dx / dd, yp + d * dy / dd),
@@ -2965,7 +2965,7 @@ class ConnectionStyle(_Style):
             if rounded:
                 xp, yp = rounded[-1]
                 dx, dy = x2 - xp, y2 - yp
-                dd = (dx * dx + dy * dy) ** .5
+                dd = (dx*dx + dy*dy)**.5
 
                 rounded.append((xp + self.rad * dx / dd,
                                 yp + self.rad * dy / dd))
@@ -3017,7 +3017,7 @@ class ConnectionStyle(_Style):
 
             theta1 = math.atan2(y2 - y1, x2 - x1)
             dx, dy = x2 - x1, y2 - y1
-            dd = (dx * dx + dy * dy) ** .5
+            dd = (dx*dx + dy*dy)**.5
             ddx, ddy = dx / dd, dy / dd
 
             armA, armB = self.armA, self.armB
@@ -3032,7 +3032,7 @@ class ConnectionStyle(_Style):
 
                 # update
                 dx, dy = x2 - x1, y2 - y1
-                dd2 = (dx * dx + dy * dy) ** .5
+                dd2 = (dx*dx + dy*dy)**.5
                 ddx, ddy = dx / dd2, dy / dd2
 
             arm = max(armA, armB)
@@ -3063,7 +3063,7 @@ def _point_along_a_line(x0, y0, x1, y1, d):
     distance from (*x0*, *y0*) is *d*.
     """
     dx, dy = x0 - x1, y0 - y1
-    ff = d / (dx * dx + dy * dy) ** .5
+    ff = d / (dx*dx + dy*dy)**.5
     x2, y2 = x0 - ff * dx, y0 - ff * dy
 
     return x2, y2

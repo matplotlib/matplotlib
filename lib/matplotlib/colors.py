@@ -445,7 +445,7 @@ def _create_lookup_table(N, data, gamma=1.0):
     """
 
     if callable(data):
-        xind = np.linspace(0, 1, N) ** gamma
+        xind = np.linspace(0, 1, N)**gamma
         lut = np.clip(np.array(data(xind), dtype=float), 0, 1)
         return lut
 
@@ -472,7 +472,7 @@ def _create_lookup_table(N, data, gamma=1.0):
         lut = np.array(y0[-1])
     else:
         x = x * (N - 1)
-        xind = (N - 1) * np.linspace(0, 1, N) ** gamma
+        xind = (N - 1) * np.linspace(0, 1, N)**gamma
         ind = np.searchsorted(x, xind)[1:-1]
 
         distance = (xind[1:-1] - x[ind - 1]) / (x[ind] - x[ind - 1])
@@ -1212,7 +1212,7 @@ class SymLogNorm(Normalize):
         """
         Normalize.__init__(self, vmin, vmax, clip)
         self.linthresh = float(linthresh)
-        self._linscale_adj = (linscale / (1.0 - np.e ** -1))
+        self._linscale_adj = (linscale / (1.0 - np.exp(-1)))
         if vmin is not None and vmax is not None:
             self._transform_vmin_vmax()
 
@@ -1318,7 +1318,7 @@ class PowerNorm(Normalize):
             resdat -= vmin
             resdat[resdat < 0] = 0
             np.power(resdat, gamma, resdat)
-            resdat /= (vmax - vmin) ** gamma
+            resdat /= (vmax - vmin)**gamma
 
             result = np.ma.array(resdat, mask=result.mask, copy=False)
         if is_scalar:
@@ -1574,7 +1574,7 @@ def _vector_magnitude(arr):
     #  * np.sum: drops mask from ma.array unless entire vector is masked
     sum_sq = 0
     for i in range(arr.shape[-1]):
-        sum_sq += arr[..., i, np.newaxis] ** 2
+        sum_sq += arr[..., i, np.newaxis]**2
     return np.sqrt(sum_sq)
 
 

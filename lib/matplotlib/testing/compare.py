@@ -44,7 +44,7 @@ def get_cache_dir():
     return cache_dir
 
 
-def get_file_hash(path, block_size=2 ** 20):
+def get_file_hash(path, block_size=2**20):
     md5 = hashlib.md5()
     with open(path, 'rb') as fd:
         while True:

@@ -1177,7 +1177,7 @@ class RegularPolyCollection(_CollectionWithSizes):
     """A collection of n-sided regular polygons."""
 
     _path_generator = mpath.Path.unit_regular_polygon
-    _factor = np.pi ** (-1/2)
+    _factor = np.pi**(-0.5)
 
     @docstring.dedent_interpd
     def __init__(self,
@@ -1680,7 +1680,7 @@ class EventCollection(LineCollection):
 class CircleCollection(_CollectionWithSizes):
     """A collection of circles, drawn using splines."""
 
-    _factor = np.pi ** (-1/2)
+    _factor = np.pi**(-0.5)
 
     @docstring.dedent_interpd
     def __init__(self, sizes, **kwargs):

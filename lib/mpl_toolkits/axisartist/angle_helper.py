@@ -256,7 +256,7 @@ class FormatterDMS:
         values = np.abs(values)
 
         if number_fraction is not None:
-            values, frac_part = divmod(values, 10 ** number_fraction)
+            values, frac_part = divmod(values, 10**number_fraction)
             frac_fmt = "%%0%dd" % (number_fraction,)
             frac_str = [frac_fmt % (f1,) for f1 in frac_part]
 

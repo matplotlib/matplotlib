@@ -1074,7 +1074,7 @@ if __name__ == '__main__':
             print('=== new page ===')
             for font, group in itertools.groupby(
                     page.text, lambda text: text.font):
-                print('font', font.texname, 'scaled', font._scale / 2 ** 20)
+                print('font', font.texname, 'scaled', font._scale / 2**20)
                 for text in group:
                     print(text.x, text.y, text.glyph,
                           chr(text.glyph) if chr(text.glyph).isprintable()

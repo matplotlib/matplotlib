@@ -197,7 +197,7 @@ def test_labels():
     y = np.arange(-2.0, 2.0, delta)
     X, Y = np.meshgrid(x, y)
     Z1 = np.exp(-(X**2 + Y**2) / 2) / (2 * np.pi)
-    Z2 = (np.exp(-(((X - 1) / 1.5)**2 + ((Y - 1) / 0.5)**2) / 2) /
+    Z2 = (np.exp(-(((X-1) / 1.5)**2 + ((Y-1) / 0.5)**2) / 2) /
           (2 * np.pi * 0.5 * 1.5))
 
     # difference of Gaussians
