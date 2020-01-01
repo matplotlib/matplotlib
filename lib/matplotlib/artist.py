@@ -26,7 +26,10 @@ def allow_rasterization(draw):
     renderer.
     """
 
-    # the axes class has a second argument inframe for its draw method.
+    # Axes has a second (deprecated) argument inframe for its draw method.
+    # args and kwargs are deprecated, but we don't wrap this in
+    # cbook._delete_parameter for performance; the relevant deprecation
+    # warning will be emitted by the inner draw() call.
     @wraps(draw)
     def draw_wrapper(artist, renderer, *args, **kwargs):
         try:
@@ -895,6 +898,8 @@ class Artist:
         self._agg_filter = filter_func
         self.stale = True
 
+    @cbook._delete_parameter("3.3", "args")
+    @cbook._delete_parameter("3.3", "kwargs")
     def draw(self, renderer, *args, **kwargs):
         """
         Draw the Artist (and its children) using the given renderer.

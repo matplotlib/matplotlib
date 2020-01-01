@@ -307,7 +307,7 @@ class _deprecated_parameter_class:
 _deprecated_parameter = _deprecated_parameter_class()
 
 
-def _delete_parameter(since, name, func=None):
+def _delete_parameter(since, name, func=None, **kwargs):
     """
     Decorator indicating that parameter *name* of *func* is being deprecated.
 
@@ -320,6 +320,8 @@ def _delete_parameter(since, name, func=None):
     such after the deprecation period has passed and the deprecated parameter
     is removed.
 
+    Additional keyword arguments are passed to `.warn_deprecated`.
+
     Examples
     --------
     ::
@@ -329,29 +331,45 @@ def _delete_parameter(since, name, func=None):
     """
 
     if func is None:
-        return functools.partial(_delete_parameter, since, name)
+        return functools.partial(_delete_parameter, since, name, **kwargs)
 
     signature = inspect.signature(func)
     assert name in signature.parameters, (
         f"Matplotlib internal error: {name!r} must be a parameter for "
         f"{func.__name__}()")
-    func.__signature__ = signature.replace(parameters=[
-        param.replace(default=_deprecated_parameter) if param.name == name
-        else param
-        for param in signature.parameters.values()])
+    kind = signature.parameters[name].kind
+    is_varargs = kind is inspect.Parameter.VAR_POSITIONAL
+    is_varkwargs = kind is inspect.Parameter.VAR_KEYWORD
+    if not is_varargs and not is_varkwargs:
+        func.__signature__ = signature = signature.replace(parameters=[
+            param.replace(default=_deprecated_parameter) if param.name == name
+            else param
+            for param in signature.parameters.values()])
 
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        arguments = func.__signature__.bind(*args, **kwargs).arguments
+    def wrapper(*inner_args, **inner_kwargs):
+        arguments = signature.bind(*inner_args, **inner_kwargs).arguments
+        if is_varargs and arguments.get(name):
+            warn_deprecated(
+                since, message=f"Additional positional arguments to "
+                f"{func.__name__}() are deprecated since %(since)s and "
+                f"support for them will be removed %(removal)s.")
+        elif is_varkwargs and arguments.get(name):
+            warn_deprecated(
+                since, message=f"Additional keyword arguments to "
+                f"{func.__name__}() are deprecated since %(since)s and "
+                f"support for them will be removed %(removal)s.")
         # We cannot just check `name not in arguments` because the pyplot
         # wrappers always pass all arguments explicitly.
-        if name in arguments and arguments[name] != _deprecated_parameter:
+        elif name in arguments and arguments[name] != _deprecated_parameter:
             warn_deprecated(
-                since, message=f"The {name!r} parameter of {func.__name__}() "
-                f"is deprecated since Matplotlib {since} and will be removed "
-                f"%(removal)s.  If any parameter follows {name!r}, they "
-                f"should be pass as keyword, not positionally.")
-        return func(*args, **kwargs)
+                since,
+                name=repr(name),
+                obj_type=f"parameter of {func.__name__}()",
+                addendum=(f"If any parameter follows {name!r}, they should be "
+                          f"passed as keyword, not positionally."),
+                **kwargs)
+        return func(*inner_args, **inner_kwargs)
 
     return wrapper
 
