@@ -209,9 +209,9 @@ class FourierDemoFrame(wx.Frame):
     def compute(self, f0, A):
         f = np.arange(-6., 6., 0.02)
         t = np.arange(-2., 2., 0.01)
-        x = A * np.cos(2 * np.pi * f0 * t) * np.exp(-np.pi * t ** 2)
+        x = A * np.cos(2 * np.pi * f0 * t) * np.exp(-np.pi * t**2)
         X = A / 2 * \
-            (np.exp(-np.pi * (f - f0) ** 2) + np.exp(-np.pi * (f + f0) ** 2))
+            (np.exp(-np.pi * (f - f0)**2) + np.exp(-np.pi * (f + f0)**2))
         return f, X, t, x
 
     def setKnob(self, value):

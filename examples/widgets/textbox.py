@@ -16,8 +16,8 @@ from matplotlib.widgets import TextBox
 fig, ax = plt.subplots()
 plt.subplots_adjust(bottom=0.2)
 t = np.arange(-2.0, 2.0, 0.001)
-s = t ** 2
-initial_text = "t ** 2"
+s = t**2
+initial_text = "t**2"
 l, = plt.plot(t, s, lw=2)
 
 

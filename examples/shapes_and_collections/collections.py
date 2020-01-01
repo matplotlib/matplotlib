@@ -105,7 +105,7 @@ offs = (0.1, 0.0)
 
 yy = np.linspace(0, 2*np.pi, nverts)
 ym = np.max(yy)
-xx = (0.2 + (ym - yy) / ym) ** 2 * np.cos(yy - 0.4) * 0.5
+xx = (0.2 + (ym - yy) / ym)**2 * np.cos(yy - 0.4) * 0.5
 segs = []
 for i in range(ncurves):
     xxx = xx + 0.02*rs.randn(nverts)

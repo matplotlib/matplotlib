@@ -26,8 +26,8 @@ xdata1.sort()
 xdata2.sort()
 
 # create some y data points
-ydata1 = xdata1 ** 2
-ydata2 = 1 - xdata2 ** 3
+ydata1 = xdata1**2
+ydata2 = 1 - xdata2**3
 
 # plot the data
 fig = plt.figure()

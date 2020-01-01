@@ -17,7 +17,7 @@ import numpy as np
 
 # Some example data to display
 x = np.linspace(0, 2 * np.pi, 400)
-y = np.sin(x ** 2)
+y = np.sin(x**2)
 
 ###############################################################################
 # A figure with just one subplot
@@ -134,7 +134,7 @@ ax2.plot(x + 1, -y)
 
 fig, axs = plt.subplots(3, sharex=True, sharey=True)
 fig.suptitle('Sharing both axes')
-axs[0].plot(x, y ** 2)
+axs[0].plot(x, y**2)
 axs[1].plot(x, 0.3 * y, 'o')
 axs[2].plot(x, y, '+')
 
@@ -152,7 +152,7 @@ axs[2].plot(x, y, '+')
 
 fig, axs = plt.subplots(3, sharex=True, sharey=True, gridspec_kw={'hspace': 0})
 fig.suptitle('Sharing both axes')
-axs[0].plot(x, y ** 2)
+axs[0].plot(x, y**2)
 axs[1].plot(x, 0.3 * y, 'o')
 axs[2].plot(x, y, '+')
 
@@ -186,6 +186,6 @@ for ax in axs.flat:
 
 fig, (ax1, ax2) = plt.subplots(1, 2, subplot_kw=dict(projection='polar'))
 ax1.plot(x, y)
-ax2.plot(x, y ** 2)
+ax2.plot(x, y**2)
 
 plt.show()

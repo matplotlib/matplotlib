@@ -34,7 +34,7 @@ axs1[0, 1].barbs(
 # Showing colormapping with uniform grid.  Fill the circle for an empty barb,
 # don't round the values, and change some of the size parameters
 axs1[1, 0].barbs(
-    X, Y, U, V, np.sqrt(U ** 2 + V ** 2), fill_empty=True, rounding=False,
+    X, Y, U, V, np.sqrt(U**2 + V**2), fill_empty=True, rounding=False,
     sizes=dict(emptybarb=0.25, spacing=0.2, height=0.3))
 
 # Change colors as well as the increments for parts of the barbs
