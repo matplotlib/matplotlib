@@ -405,7 +405,7 @@ on, use the key/value keyword args in the function definition rather
 than the ``**kwargs`` idiom.
 
 In some cases, you may want to consume some keys in the local
-function, and let others pass through.  Instead of poping arguments to
+function, and let others pass through.  Instead of popping arguments to
 use off ``**kwargs``, specify them as keyword-only arguments to the local
 function.  This makes it obvious at a glance which arguments will be
 consumed in the function.  For example, in
