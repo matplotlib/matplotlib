@@ -538,17 +538,9 @@ def test_colorbar_inverted_ticks():
 def test_extend_colorbar_customnorm():
     # This was a funny error with TwoSlopeNorm, maybe with other norms,
     # when extend='both'
-    N = 100
-    X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
-    Z1 = np.exp(-X**2 - Y**2)
-    Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
-    Z = (Z1 - Z2) * 2
-
-    fig, ax = plt.subplots(2, 1)
-    pcm = ax[0].pcolormesh(X, Y, Z,
-                           norm=TwoSlopeNorm(vcenter=0., vmin=-2, vmax=1),
-                           cmap='RdBu_r')
-    cb = fig.colorbar(pcm, ax=ax[0], extend='both')
+    fig, (ax0, ax1) = plt.subplots(2, 1)
+    pcm = ax0.pcolormesh([[0]], norm=TwoSlopeNorm(vcenter=0., vmin=-2, vmax=1))
+    cb = fig.colorbar(pcm, ax=ax0, extend='both')
     np.testing.assert_allclose(cb.ax.get_position().extents,
                                [0.78375, 0.536364, 0.796147, 0.9], rtol=1e-3)
 
