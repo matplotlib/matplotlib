@@ -156,16 +156,16 @@ class TestStrCategoryFormatter:
         unit = cat.UnitData(ydata)
         labels = cat.StrCategoryFormatter(unit._mapping)
         for i, d in enumerate(ydata):
-            assert labels(i, i) == _to_str(d)
+            assert labels(i, i) == d
+            assert labels(i, None) == d
 
     @pytest.mark.parametrize("ydata", cases, ids=ids)
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
     def test_StrCategoryFormatterPlot(self, ax, ydata, plotter):
         plotter(ax, range(len(ydata)), ydata)
         for i, d in enumerate(ydata):
-            assert ax.yaxis.major.formatter(i, i) == _to_str(d)
-        assert ax.yaxis.major.formatter(i+1, i+1) == ""
-        assert ax.yaxis.major.formatter(0, None) == ""
+            assert ax.yaxis.major.formatter(i) == d
+        assert ax.yaxis.major.formatter(i+1) == ""
 
 
 def axis_test(axis, labels):
