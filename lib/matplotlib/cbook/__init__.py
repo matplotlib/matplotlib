@@ -1499,41 +1499,6 @@ def violin_stats(X, method, points=100, quantiles=None):
     return vpstats
 
 
-def pad_arrays(v, padval=np.nan):
-    """
-    Pad list of arrays of varying lengths to the same size with specified
-    value
-
-    Parameters
-    ----------
-    v : iterable
-        List of arrays to be padded to the largest len. All elements must
-        support iteration
-
-    padval : scalar, bool or NaN, defaul NaN
-        value to pad missing values with
-
-    Returns
-    -------
-    out : array
-        Array of input arrays padded to the same len by specified padval
-
-    Examples
-    --------
-    >>> a, b, c = pad_arrays([np.array([1,2,3,4]), np.array([1,2,3]),
-                              np.array([1])])
-    >>> a
-    array([1., 2., 3., 4.])
-    >>> b
-    array([ 1.,  2.,  3., nan])
-    >>> c
-    array([ 1., nan, nan, nan])
-    """
-    if len(set([k.shape[0] for k in v])) == 1:
-        return v
-    return np.array(list(itertools.zip_longest(*v, fillvalue=padval))).T
-
-
 def pts_to_prestep(x, *args):
     """
     Convert continuous line to pre-steps.
