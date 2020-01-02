@@ -116,14 +116,17 @@ class StrCategoryLocator(ticker.Locator):
         """
         Parameters
         -----------
-        units_mapping : Dict[str, int]
+        units_mapping : dict
+            Mapping of category names (str) to indices (int).
         """
         self._units = units_mapping
 
     def __call__(self):
+        # docstring inherited
         return list(self._units.values())
 
     def tick_values(self, vmin, vmax):
+        # docstring inherited
         return self()
 
 
@@ -133,19 +136,17 @@ class StrCategoryFormatter(ticker.Formatter):
         """
         Parameters
         ----------
-        units_mapping : Dict[Str, int]
+        units_mapping : dict
+            Mapping of category names (str) to indices (int).
         """
         self._units = units_mapping
 
     def __call__(self, x, pos=None):
-        """
-        Return the category label string for tick val *x*.
-
-        The position *pos* is ignored.
-        """
+        # docstring inherited
         return self.format_ticks([x])[0]
 
     def format_ticks(self, values):
+        # docstring inherited
         r_mapping = {v: self._text(k) for k, v in self._units.items()}
         return [r_mapping.get(round(val), '') for val in values]
 
