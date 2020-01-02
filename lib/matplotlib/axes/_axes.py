@@ -5133,7 +5133,7 @@ optional.
               every *x* position, i.e. the interval ``[x[i], x[i+1])`` has the
               value ``y[i]``.
             - 'mid': Steps occur half-way between the *x* positions.
-            - 'between': Expects abs(len(x)-len(y)) == 1, steps have value y[i]
+            - 'between': Expects len(x) = len(y) + 1, steps have value y[i]
                on the interval ``[x[i], x[i+1])``
 
         Other Parameters
@@ -5202,10 +5202,9 @@ optional.
         y2 = np.broadcast_to(y2, pad_size, subok=True)
         where = np.broadcast_to(where, pad_size, subok=True)
 
-        get_masks = cbook.pad_arrays(list(map(np.atleast_1d,
-                                              map(np.ma.getmask,
-                                                  [y1, y2]))), False)
-        where = where & ~functools.reduce(np.logical_or, get_masks)
+        _get_masks = list(map(np.atleast_1d,
+                             map(np.ma.getmask, [y1, y2])))
+        where = where & ~functools.reduce(np.logical_or, _get_masks)
 
         polys = []
         for ind0, ind1 in cbook.contiguous_regions(where):
@@ -5346,7 +5345,7 @@ optional.
               every *x* position, i.e. the interval ``[x[i], x[i+1])`` has the
               value ``y[i]``.
             - 'mid': Steps occur half-way between the *x* positions.
-            - 'between': Expects abs(len(x)-len(y)) == 1, steps have value x[i]
+            - 'between': Expects len(y) = len(x) + 1, steps have value x[i]
                on the interval ``[y[i], y[i+1])``
 
         Other Parameters
@@ -5415,11 +5414,9 @@ optional.
         x2 = np.broadcast_to(x2, pad_size, subok=True)
         where = np.broadcast_to(where, pad_size, subok=True)
 
-        get_masks = cbook.pad_arrays(list(map(np.atleast_1d,
-                                              map(np.ma.getmask,
-                                                  [x1, x2]))), False)
-
-        where = where & ~functools.reduce(np.logical_or, get_masks)
+        _get_masks = list(map(np.atleast_1d, 
+                             map(np.ma.getmask, [x1, x2])))
+        where = where & ~functools.reduce(np.logical_or, _get_masks)
 
         polys = []
         for ind0, ind1 in cbook.contiguous_regions(where):

@@ -1520,7 +1520,14 @@ def pad_arrays(v, padval=np.nan):
 
     Examples
     --------
-    >>> a, b, c = pad_arrays([1,2,3,4], [1,2,3], [1])
+    >>> a, b, c = pad_arrays([np.array([1,2,3,4]), np.array([1,2,3]),
+                              np.array([1])])
+    >>> a
+    array([1., 2., 3., 4.])
+    >>> b
+    array([ 1.,  2.,  3., nan])
+    >>> c
+    array([ 1., nan, nan, nan])
     """
     if len(set([k.shape[0] for k in v])) == 1:
         return v
