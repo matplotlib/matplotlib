@@ -64,11 +64,11 @@ Default Scatter Colormap
 ------------------------
 
 For heat-map like applications it can be desirable to cover as much of
-the luminence scale as possible, however when color mapping markers,
+the luminance scale as possible, however when color mapping markers,
 having markers too close to white can be a problem.  For that reason
 we propose using a different (but maybe related) color map to the
 heat map for marker-based.  The design parameters are the same as
-above, only with a more limited luminence variation.
+above, only with a more limited luminance variation.
 
 
 Example script
