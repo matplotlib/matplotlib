@@ -5193,11 +5193,10 @@ optional.
                     message="The parameter where must have the same size as x "
                             "in fill_between(). This will become an error in "
                             "future versions of Matplotlib.")
-
+        pad_size = x.size
         if step == 'between':
-            pad_size = x.size - 1
-        else:
-            pad_size = x.size
+            pad_size -= 1
+
         y1 = np.broadcast_to(y1, pad_size, subok=True)
         y2 = np.broadcast_to(y2, pad_size, subok=True)
         where = np.broadcast_to(where, pad_size, subok=True)
@@ -5406,10 +5405,10 @@ optional.
                             "in fill_between(). This will become an error in "
                             "future versions of Matplotlib.")
 
+        pad_size = y.size
         if step == 'between':
-            pad_size = y.size - 1
-        else:
-            pad_size = y.size
+            pad_size -= 1
+
         x1 = np.broadcast_to(x1, pad_size, subok=True)
         x2 = np.broadcast_to(x2, pad_size, subok=True)
         where = np.broadcast_to(where, pad_size, subok=True)
