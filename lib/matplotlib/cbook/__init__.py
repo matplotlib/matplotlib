@@ -2152,6 +2152,7 @@ class _classproperty:
     Examples
     --------
     ::
+
         class C:
             @classproperty
             def foo(cls):

@@ -691,7 +691,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         List of all the polygon segments for all the *levels*.
         For contour lines ``len(allsegs) == len(levels)``, and for
         filled contour regions ``len(allsegs) = len(levels)-1``. The lists
-        should look like::
+        should look like ::
 
             level0segs = [polygon0, polygon1, ...]
             polygon0 = [[x0, y0], [x1, y1], ...]
@@ -701,7 +701,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         described and used in Path. This is used to allow multiply-
         connected paths such as holes within filled polygons.
         If not ``None``, ``len(allkinds) == len(allsegs)``. The lists
-        should look like::
+        should look like ::
 
             level0kinds = [polygon0kinds, ...]
             polygon0kinds = [vertexcode0, vertexcode1, ...]
@@ -757,7 +757,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             List of all the polygon segments for all the *levels*.
             For contour lines ``len(allsegs) == len(levels)``, and for
             filled contour regions ``len(allsegs) = len(levels)-1``. The lists
-            should look like::
+            should look like ::
 
                 level0segs = [polygon0, polygon1, ...]
                 polygon0 = [[x0, y0], [x1, y1], ...]
@@ -767,7 +767,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             described and used in Path. This is used to allow multiply-
             connected paths such as holes within filled polygons.
             If not ``None``, ``len(allkinds) == len(allsegs)``. The lists
-            should look like::
+            should look like ::
 
                 level0kinds = [polygon0kinds, ...]
                 polygon0kinds = [vertexcode0, vertexcode1, ...]

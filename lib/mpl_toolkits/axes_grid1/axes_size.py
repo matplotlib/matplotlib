@@ -225,9 +225,8 @@ class MaxHeight(_Base):
 class Fraction(_Base):
     """
     An instance whose size is a *fraction* of the *ref_size*.
-    ::
 
-      >>> s = Fraction(0.3, AxesX(ax))
+    >>> s = Fraction(0.3, AxesX(ax))
 
     """
     def __init__(self, fraction, ref_size):
