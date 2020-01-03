@@ -307,11 +307,7 @@ class MovieWriter(AbstractMovieWriter):
         super().__init__(fps=fps, metadata=metadata)
 
         self.frame_format = 'rgba'
-
-        if extra_args is None:
-            self.extra_args = list(mpl.rcParams[self.args_key])
-        else:
-            self.extra_args = extra_args
+        self.extra_args = extra_args
 
     def _adjust_frame_size(self):
         if self.codec == 'h264':
@@ -583,15 +579,17 @@ class FFMpegBase:
     @property
     def output_args(self):
         args = ['-vcodec', self.codec]
+        extra_args = (self.extra_args if self.extra_args is not None
+                      else mpl.rcParams[self.args_key])
         # For h264, the default format is yuv444p, which is not compatible
         # with quicktime (and others). Specifying yuv420p fixes playback on
         # iOS, as well as HTML5 video in firefox and safari (on both Win and
         # OSX). Also fixes internet explorer. This is as of 2015/10/29.
-        if self.codec == 'h264' and '-pix_fmt' not in self.extra_args:
+        if self.codec == 'h264' and '-pix_fmt' not in extra_args:
             args.extend(['-pix_fmt', 'yuv420p'])
         if self.bitrate > 0:
             args.extend(['-b', '%dk' % self.bitrate])  # %dk: bitrate in kbps.
-        args.extend(self.extra_args)
+        args.extend(extra_args)
         for k, v in self.metadata.items():
             args.extend(['-metadata', '%s=%s' % (k, v)])
 
@@ -707,7 +705,9 @@ class ImageMagickBase:
 
     @property
     def output_args(self):
-        return [*self.extra_args, self.outfile]
+        extra_args = (self.extra_args if self.extra_args is not None
+                      else mpl.rcParams[self.args_key])
+        return [*extra_args, self.outfile]
 
     @classmethod
     def bin_path(cls):
