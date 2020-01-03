@@ -1155,6 +1155,19 @@ class ColorbarBase:
         self.ax.remove()
 
 
+def _add_disjoint_kwargs(d, **kwargs):
+    """
+    Update dict *d* with entries in *kwargs*, which must be absent from *d*.
+    """
+    for k, v in kwargs.items():
+        if k in d:
+            cbook.warn_deprecated(
+                "3.3", message=f"The {k!r} parameter to Colorbar has no "
+                "effect because it is overridden by the mappable; it is "
+                "deprecated since %(since)s and will be removed %(removal)s.")
+        d[k] = v
+
+
 class Colorbar(ColorbarBase):
     """
     This class connects a `ColorbarBase` to a `~.cm.ScalarMappable`
@@ -1165,35 +1178,36 @@ class Colorbar(ColorbarBase):
         `.Figure.colorbar` or `.pyplot.colorbar` to create a colorbar.
     """
 
-    def __init__(self, ax, mappable, **kw):
+    def __init__(self, ax, mappable, **kwargs):
         # Ensure the given mappable's norm has appropriate vmin and vmax set
         # even if mappable.draw has not yet been called.
         if mappable.get_array() is not None:
             mappable.autoscale_None()
 
         self.mappable = mappable
-        kw['cmap'] = cmap = mappable.cmap
-        kw['norm'] = mappable.norm
+        _add_disjoint_kwargs(kwargs, cmap=mappable.cmap, norm=mappable.norm)
 
         if isinstance(mappable, contour.ContourSet):
-            CS = mappable
-            kw['alpha'] = mappable.get_alpha()
-            kw['boundaries'] = CS._levels
-            kw['values'] = CS.cvalues
-            kw['extend'] = CS.extend
-            kw.setdefault('ticks', ticker.FixedLocator(CS.levels, nbins=10))
-            kw['filled'] = CS.filled
-            ColorbarBase.__init__(self, ax, **kw)
-            if not CS.filled:
-                self.add_lines(CS)
+            cs = mappable
+            _add_disjoint_kwargs(
+                kwargs,
+                alpha=cs.get_alpha(),
+                boundaries=cs._levels,
+                values=cs.cvalues,
+                extend=cs.extend,
+                filled=cs.filled,
+            )
+            kwargs.setdefault(
+                'ticks', ticker.FixedLocator(cs.levels, nbins=10))
+            ColorbarBase.__init__(self, ax, **kwargs)
+            if not cs.filled:
+                self.add_lines(cs)
         else:
-            if getattr(cmap, 'colorbar_extend', False) is not False:
-                kw.setdefault('extend', cmap.colorbar_extend)
-
+            if getattr(mappable.cmap, 'colorbar_extend', False) is not False:
+                kwargs.setdefault('extend', mappable.cmap.colorbar_extend)
             if isinstance(mappable, martist.Artist):
-                kw['alpha'] = mappable.get_alpha()
-
-            ColorbarBase.__init__(self, ax, **kw)
+                _add_disjoint_kwargs(kwargs, alpha=mappable.get_alpha())
+            ColorbarBase.__init__(self, ax, **kwargs)
 
     def on_mappable_changed(self, mappable):
         """

@@ -243,8 +243,7 @@ def test_colorbar_closed_patch():
     # because it is matched to the data range in the image and to
     # the number of colors in the LUT.
     values = np.linspace(0, 10, 5)
-    cbar_kw = dict(cmap=cmap, orientation='horizontal', values=values,
-                   ticks=[])
+    cbar_kw = dict(orientation='horizontal', values=values, ticks=[])
 
     # The wide line is to show that the closed path is being handled
     # correctly.  See PR #4186.
@@ -264,9 +263,8 @@ def test_colorbar_ticks():
     Z = X * Y
     clevs = np.array([-12, -5, 0, 5, 12], dtype=float)
     colors = ['r', 'g', 'b', 'c']
-    cs = ax.contourf(X, Y, Z, clevs, colors=colors)
-    cbar = fig.colorbar(cs, ax=ax, extend='neither',
-                        orientation='horizontal', ticks=clevs)
+    cs = ax.contourf(X, Y, Z, clevs, colors=colors, extend='neither')
+    cbar = fig.colorbar(cs, ax=ax, orientation='horizontal', ticks=clevs)
     assert len(cbar.ax.xaxis.get_ticklocs()) == len(clevs)
 
 
