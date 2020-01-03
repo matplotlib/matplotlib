@@ -433,7 +433,7 @@ class FileMovieWriter(MovieWriter):
         MovieWriter.__init__(self, *args, **kwargs)
         self.frame_format = mpl.rcParams['animation.frame_format']
 
-    def setup(self, fig, outfile, dpi=None, frame_prefix='_tmp',
+    def setup(self, fig, outfile, dpi=None, frame_prefix=None,
               clear_temp=True):
         """
         Perform setup for writing the movie file.
@@ -449,13 +449,13 @@ class FileMovieWriter(MovieWriter):
             controls the size in pixels of the resulting movie file.
             Default is fig.dpi.
         frame_prefix : str, optional
-            The filename prefix to use for temporary files.  Defaults to
-            ``'_tmp'``.
+            The filename prefix to use for temporary files.  If None (the
+            default), files are written to a temporary directory which is
+            deleted by `cleanup` (regardless of the value of *clear_temp*).
         clear_temp : bool, optional
             If the temporary files should be deleted after stitching
             the final result.  Setting this to ``False`` can be useful for
             debugging.  Defaults to ``True``.
-
         """
         self.fig = fig
         self.outfile = outfile
@@ -464,8 +464,13 @@ class FileMovieWriter(MovieWriter):
         self.dpi = dpi
         self._adjust_frame_size()
 
+        if frame_prefix is None:
+            self._tmpdir = TemporaryDirectory()
+            self.temp_prefix = str(Path(self._tmpdir.name, 'tmp'))
+        else:
+            self._tmpdir = None
+            self.temp_prefix = frame_prefix
         self.clear_temp = clear_temp
-        self.temp_prefix = frame_prefix
         self._frame_counter = 0  # used for generating sequential file names
         self._temp_paths = list()
         self.fname_format_str = '%s%%07d.%s'
@@ -527,13 +532,15 @@ class FileMovieWriter(MovieWriter):
 
     def cleanup(self):
         MovieWriter.cleanup(self)
-
-        # Delete temporary files
-        if self.clear_temp:
-            _log.debug('MovieWriter: clearing temporary paths=%s',
-                       self._temp_paths)
-            for path in self._temp_paths:
-                path.unlink()
+        if self._tmpdir:
+            _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
+            self._tmpdir.cleanup()
+        else:
+            if self.clear_temp:
+                _log.debug('MovieWriter: clearing temporary paths=%s',
+                           self._temp_paths)
+                for path in self._temp_paths:
+                    path.unlink()
 
 
 @writers.register('pillow')
