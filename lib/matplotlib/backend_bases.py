@@ -92,7 +92,7 @@ def register_backend(format, backend, description=None):
         File extension
     backend : module string or canvas class
         Backend for handling file output
-    description : str, optional, default: ""
+    description : str, default: ""
         Description of the file type.
     """
     if description is None:
@@ -450,14 +450,14 @@ class RendererBase:
         Parameters
         ----------
         gc : `GraphicsContextBase`
-            a graphics context with clipping information.
+            A graphics context with clipping information.
 
         x : scalar
-            the distance in physical units (i.e., dots or pixels) from the left
+            The distance in physical units (i.e., dots or pixels) from the left
             hand side of the canvas.
 
         y : scalar
-            the distance in physical units (i.e., dots or pixels) from the
+            The distance in physical units (i.e., dots or pixels) from the
             bottom side of the canvas.
 
         im : array-like, shape=(N, M, 4), dtype=np.uint8
@@ -506,22 +506,22 @@ class RendererBase:
         ----------
         gc : `GraphicsContextBase`
             The graphics context.
-        x : scalar
+        x : float
             The x location of the text in display coords.
-        y : scalar
+        y : float
             The y location of the text baseline in display coords.
         s : str
             The text string.
         prop : `matplotlib.font_manager.FontProperties`
             The font properties.
-        angle : scalar
-            The rotation angle in degrees.
+        angle : float
+            The rotation angle in degrees anti-clockwise.
         mtext : `matplotlib.text.Text`
             The original text object to be rendered.
 
         Notes
         -----
-        **backend implementers note**
+        **Note for backend implementers:**
 
         When you are trying to determine if you have gotten your bounding box
         right (which is what enables the text layout/alignment to work
@@ -653,11 +653,11 @@ class RendererBase:
         doesn't have a dpi, e.g., postscript or svg).  Some imaging
         systems assume some value for pixels per inch::
 
-            points to pixels = points * pixels_per_inch/72.0 * dpi/72.0
+            points to pixels = points * pixels_per_inch/72 * dpi/72
 
         Parameters
         ----------
-        points : scalar or array-like
+        points : float or array-like
             a float or a numpy array of float
 
         Returns
@@ -1007,11 +1007,10 @@ class GraphicsContextBase:
             The amplitude of the wiggle perpendicular to the source line, in
             pixels.  If scale is `None`, or not provided, no sketch filter will
             be provided.
-        length : float, optional
-             The length of the wiggle along the line, in pixels (default 128).
-        randomness : float, optional
-            The scale factor by which the length is shrunken or expanded
-            (default 16).
+        length : float, default: 128
+             The length of the wiggle along the line, in pixels.
+        randomness : float, default: 16
+            The scale factor by which the length is shrunken or expanded.
         """
         self._sketch = (
             None if scale is None
@@ -1238,9 +1237,9 @@ class ResizeEvent(Event):
 
     Attributes
     ----------
-    width : scalar
+    width : int
         Width of the canvas in pixels.
-    height : scalar
+    height : int
         Height of the canvas in pixels.
     """
     def __init__(self, name, canvas):
@@ -1264,9 +1263,9 @@ class LocationEvent(Event):
 
     Attributes
     ----------
-    x : scalar
+    x : int
         x position - pixels from left of canvas.
-    y : scalar
+    y : int
         y position - pixels from bottom of canvas.
     inaxes : `~.axes.Axes` or None
         The `~.axes.Axes` instance over which the mouse is, if any.
@@ -1374,7 +1373,7 @@ class MouseEvent(LocationEvent):
         The key pressed when the mouse event triggered, e.g. 'shift'.
         See `KeyEvent`.
 
-    step : scalar
+    step : int
         The number of scroll steps (positive for 'up', negative for 'down').
         This applies only to 'scroll_event' and defaults to 0 otherwise.
 
@@ -1977,29 +1976,31 @@ class FigureCanvasBase:
         filename
             can also be a file object on image backends
 
-        orientation : {'landscape', 'portrait'}, optional
+        orientation : {'landscape', 'portrait'}, default: 'portrait'
             only currently applies to PostScript printing.
 
         dpi : float, default: :rc:`savefig.dpi`
             The dots per inch to save the figure in.
 
-        facecolor : color or None, optional
-            the facecolor of the figure; if None, defaults to savefig.facecolor
+        facecolor : color, default: :rc:`savefig.facecolor`
+            The facecolor of the figure.
 
-        edgecolor : color or None, optional
-            the edgecolor of the figure; if None, defaults to savefig.edgecolor
+        edgecolor : color, default: :rc:`savefig.edgecolor`
+            The edgecolor of the figure.
 
         format : str, optional
-            when set, forcibly set the file format to save to
+            Force a specific file format. If not given, the format is inferred
+            from the *filename* extension, and if that fails from
+            :rc:`savefig.format`.
 
-        bbox_inches : str or `~matplotlib.transforms.Bbox`, optional
+        bbox_inches : 'tight' or `~matplotlib.transforms.Bbox`, \
+default: :rc:`savefig.bbox`
             Bbox in inches. Only the given portion of the figure is
             saved. If 'tight', try to figure out the tight bbox of
-            the figure. If None, use savefig.bbox
+            the figure.
 
-        pad_inches : scalar, optional
-            Amount of padding around the figure when bbox_inches is
-            'tight'. If None, use savefig.pad_inches
+        pad_inches : float, default: :rc:`savefig.pad_inches`
+            Amount of padding around the figure when *bbox_inches* is 'tight'.
 
         bbox_extra_artists : list of `~matplotlib.artist.Artist`, optional
             A list of extra artists that will be considered when the
@@ -3401,9 +3402,9 @@ class _Backend:
 
 class ShowBase(_Backend):
     """
-    Simple base class to generate a show() callable in backends.
+    Simple base class to generate a ``show()`` function in backends.
 
-    Subclass must override mainloop() method.
+    Subclass must override ``mainloop()`` method.
     """
 
     def __call__(self, block=None):
