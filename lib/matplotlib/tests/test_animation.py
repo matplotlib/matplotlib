@@ -237,13 +237,8 @@ def test_failing_ffmpeg(tmpdir, monkeypatch):
             make_animation().save("test.mpeg")
 
 
-@pytest.mark.parametrize("cache_frame_data, weakref_assertion_fn", [
-    pytest.param(
-        False, lambda ref: ref is None, id='cache_frame_data_is_disabled'),
-    pytest.param(
-        True, lambda ref: ref is not None, id='cache_frame_data_is_enabled'),
-])
-def test_funcanimation_holding_frames(cache_frame_data, weakref_assertion_fn):
+@pytest.mark.parametrize("cache_frame_data", [False, True])
+def test_funcanimation_cache_frame_data(cache_frame_data):
     fig, ax = plt.subplots()
     line, = ax.plot([], [])
 
@@ -282,4 +277,6 @@ def test_funcanimation_holding_frames(cache_frame_data, weakref_assertion_fn):
     anim.save('unused.null', writer=writer)
     assert len(frames_generated) == 5
     for f in frames_generated:
-        assert weakref_assertion_fn(f())
+        # If cache_frame_data is True, then the weakref should be alive;
+        # if cache_frame_data is False, then the weakref should be dead (None).
+        assert (f() is None) != cache_frame_data
