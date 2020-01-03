@@ -939,9 +939,11 @@ class Animation:
         Starts interactive animation. Adds the draw frame command to the GUI
         handler, calls show to start the event loop.
         """
+        # Do not start the event source if saving() it.
+        if self._fig.canvas.is_saving():
+            return
         # First disconnect our draw event handler
         self._fig.canvas.mpl_disconnect(self._first_draw_id)
-        self._first_draw_id = None  # So we can check on save
 
         # Now do any initial draw
         self._init_draw()
@@ -1057,14 +1059,6 @@ class Animation:
         if savefig_kwargs is None:
             savefig_kwargs = {}
 
-        # Need to disconnect the first draw callback, since we'll be doing
-        # draws. Otherwise, we'll end up starting the animation.
-        if self._first_draw_id is not None:
-            self._fig.canvas.mpl_disconnect(self._first_draw_id)
-            reconnect_first_draw = True
-        else:
-            reconnect_first_draw = False
-
         if fps is None and hasattr(self, '_interval'):
             # Convert interval in ms to frames per second
             fps = 1000. / self._interval
@@ -1123,8 +1117,11 @@ class Animation:
             _log.info("Disabling savefig.bbox = 'tight', as it may cause "
                       "frame size to vary, which is inappropriate for "
                       "animation.")
+        # canvas._is_saving = True makes the draw_event animation-starting
+        # callback a no-op.
         with mpl.rc_context({'savefig.bbox': None}), \
-             writer.saving(self._fig, filename, dpi):
+             writer.saving(self._fig, filename, dpi), \
+             cbook._setattr_cm(self._fig.canvas, _is_saving=True):
             for anim in all_anim:
                 anim._init_draw()  # Clear the initial frame
             frame_number = 0
@@ -1144,11 +1141,6 @@ class Animation:
                         progress_callback(frame_number, total_frames)
                         frame_number += 1
                 writer.grab_frame(**savefig_kwargs)
-
-        # Reconnect signal for first draw if necessary
-        if reconnect_first_draw:
-            self._first_draw_id = self._fig.canvas.mpl_connect('draw_event',
-                                                               self._start)
 
     def _step(self, *args):
         """
