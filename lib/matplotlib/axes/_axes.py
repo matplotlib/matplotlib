@@ -5368,7 +5368,7 @@ default: :rc:`scatter.edgecolors`
         x2 = np.broadcast_to(x2, pad_size, subok=True)
         where = np.broadcast_to(where, pad_size, subok=True)
 
-        _get_masks = list(map(np.atleast_1d, 
+        _get_masks = list(map(np.atleast_1d,
                              map(np.ma.getmask, [x1, x2])))
         where = where & ~functools.reduce(np.logical_or, _get_masks)
 
