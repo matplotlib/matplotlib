@@ -89,7 +89,7 @@ class AxislineStyle(_Style):
 
        __call__(self, axis_artist, path, transform)
 
-    When called, this should return an `Artist` with the following methods::
+    When called, this should return an `.Artist` with the following methods::
 
       def set_path(self, path):
           # set the path for axisline.
