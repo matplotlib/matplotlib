@@ -1,3 +1,4 @@
+from io import BytesIO
 import os
 from pathlib import Path
 import shutil
@@ -111,8 +112,8 @@ def test_pdflatex():
     rc_pdflatex = {'font.family': 'serif',
                    'pgf.rcfonts': False,
                    'pgf.texsystem': 'pdflatex',
-                   'pgf.preamble': ['\\usepackage[utf8x]{inputenc}',
-                                    '\\usepackage[T1]{fontenc}']}
+                   'pgf.preamble': ('\\usepackage[utf8x]{inputenc}'
+                                    '\\usepackage[T1]{fontenc}')}
     mpl.rcParams.update(rc_pdflatex)
     create_figure()
 
@@ -136,9 +137,9 @@ def test_rcupdate():
                 'lines.markersize': 20,
                 'pgf.rcfonts': False,
                 'pgf.texsystem': 'pdflatex',
-                'pgf.preamble': ['\\usepackage[utf8x]{inputenc}',
-                                 '\\usepackage[T1]{fontenc}',
-                                 '\\usepackage{sfmath}']}]
+                'pgf.preamble': ('\\usepackage[utf8x]{inputenc}'
+                                 '\\usepackage[T1]{fontenc}'
+                                 '\\usepackage{sfmath}')}]
     tol = [6, 0]
     for i, rc_set in enumerate(rc_sets):
         with mpl.rc_context(rc_set):
@@ -276,3 +277,15 @@ def test_pdf_pages_lualatex():
         pdf.savefig(fig)
 
         assert pdf.get_pagecount() == 2
+
+
+@needs_xelatex
+def test_tex_restart_after_error():
+    fig = plt.figure()
+    fig.suptitle(r"\oops")
+    with pytest.raises(ValueError):
+        fig.savefig(BytesIO(), format="pgf")
+
+    fig = plt.figure()  # start from scratch
+    fig.suptitle(r"this is ok")
+    fig.savefig(BytesIO(), format="pgf")

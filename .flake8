@@ -14,7 +14,7 @@ ignore =
     # pydocstyle
     D100, D101, D102, D103, D104, D105, D106, D107,
     D200, D202, D203, D204, D205, D207, D209, D212, D213,
-    D300, D301
+    D301
     D400, D401, D402, D403, D413,
 
 exclude =
@@ -45,7 +45,6 @@ per-file-ignores =
     lib/matplotlib/backends/backend_*.py: F401
     lib/matplotlib/backends/qt_editor/formlayout.py: F401, F403
     lib/matplotlib/cbook/__init__.py: F401
-    lib/matplotlib/figure.py: F401
     lib/matplotlib/font_manager.py: E221, E251, E501
     lib/matplotlib/image.py: F401, F403
     lib/matplotlib/lines.py: F401
@@ -195,6 +194,7 @@ per-file-ignores =
     examples/pyplots/annotation_basic.py: E402
     examples/pyplots/annotation_polar.py: E231, E402
     examples/pyplots/auto_subplots_adjust.py: E231, E302, E402
+    examples/pyplots/axline.py: E402
     examples/pyplots/boxplot_demo_pyplot.py: E231, E402
     examples/pyplots/compound_path_demo.py: E231
     examples/pyplots/dollar_ticks.py: E402

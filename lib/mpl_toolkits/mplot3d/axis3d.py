@@ -5,17 +5,8 @@
 import numpy as np
 
 from matplotlib import (
-    artist, cbook, lines as mlines, axis as maxis, patches as mpatches,
-    rcParams)
+    artist, lines as mlines, axis as maxis, patches as mpatches, rcParams)
 from . import art3d, proj3d
-
-
-@cbook.deprecated("3.1")
-def get_flip_min_max(coord, index, mins, maxs):
-    if coord[index] == mins[index]:
-        return maxs[index]
-    else:
-        return mins[index]
 
 
 def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
@@ -28,7 +19,7 @@ def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
 
 
 def tick_update_position(tick, tickxs, tickys, labelpos):
-    '''Update tick line and label position and style.'''
+    """Update tick line and label position and style."""
 
     tick.label1.set_position(labelpos)
     tick.label2.set_position(labelpos)
@@ -126,12 +117,6 @@ class Axis(maxis.XAxis):
         self.label._transform = self.axes.transData
         self.offsetText._transform = self.axes.transData
 
-    @cbook.deprecated("3.1")
-    def get_tick_positions(self):
-        majorLocs = self.major.locator()
-        majorLabels = self.major.formatter.format_ticks(majorLocs)
-        return majorLabels, majorLocs
-
     def get_major_ticks(self, numticks=None):
         ticks = maxis.XAxis.get_major_ticks(self, numticks)
         for t in ticks:
@@ -149,7 +134,7 @@ class Axis(maxis.XAxis):
         self.stale = True
 
     def set_pane_color(self, color):
-        '''Set pane color to a RGBA tuple.'''
+        """Set pane color to a RGBA tuple."""
         self._axinfo['color'] = color
         self.pane.set_edgecolor(color)
         self.pane.set_facecolor(color)
@@ -157,10 +142,10 @@ class Axis(maxis.XAxis):
         self.stale = True
 
     def set_rotate_label(self, val):
-        '''
+        """
         Whether to rotate the axis label: True, False or None.
         If set to None the label will be rotated if longer than 4 chars.
-        '''
+        """
         self._rotate_label = val
         self.stale = True
 
@@ -404,7 +389,7 @@ class Axis(maxis.XAxis):
 
     @d_interval.setter
     def d_interval(self, minmax):
-        return self.set_data_interval(*minmax)
+        self.set_data_interval(*minmax)
 
     @property
     def v_interval(self):
@@ -412,7 +397,7 @@ class Axis(maxis.XAxis):
 
     @d_interval.setter
     def v_interval(self, minmax):
-        return self.set_view_interval(*minmax)
+        self.set_view_interval(*minmax)
 
 
 # Use classes to look at different data limits

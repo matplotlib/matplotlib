@@ -452,42 +452,10 @@ class GridHelperRectlinear(GridHelperBase):
         return gridlines
 
 
-@cbook.deprecated("3.1")
-class SimpleChainedObjects:
-    def __init__(self, objects):
-        self._objects = objects
-
-    def __getattr__(self, k):
-        _a = SimpleChainedObjects([getattr(a, k) for a in self._objects])
-        return _a
-
-    def __call__(self, *args, **kwargs):
-        for m in self._objects:
-            m(*args, **kwargs)
-
-
 class Axes(maxes.Axes):
 
-    @cbook.deprecated("3.1")
-    class AxisDict(dict):
-        def __init__(self, axes):
-            self.axes = axes
-            super().__init__()
-
-        def __getitem__(self, k):
-            if isinstance(k, tuple):
-                return SimpleChainedObjects(
-                    [dict.__getitem__(self, k1) for k1 in k])
-            elif isinstance(k, slice):
-                if k == slice(None):
-                    return SimpleChainedObjects(list(self.values()))
-                else:
-                    raise ValueError("Unsupported slice")
-            else:
-                return dict.__getitem__(self, k)
-
-        def __call__(self, *args, **kwargs):
-            return maxes.Axes.axis(self.axes, *args, **kwargs)
+    def __call__(self, *args, **kwargs):
+        return maxes.Axes.axis(self.axes, *args, **kwargs)
 
     def __init__(self, *args, grid_helper=None, **kwargs):
         self._axisline_on = True

@@ -64,7 +64,7 @@ class ContourLabeler:
             A list of level values, that should be labeled. The list must be
             a subset of ``cs.levels``. If not given, all levels are labeled.
 
-        fontsize : str or float, optional
+        fontsize : str or float, default: :rc:`font.size`
             Size in points or relative size e.g., 'smaller', 'x-large'.
             See `.Text.set_size` for accepted string values.
 
@@ -80,17 +80,17 @@ class ContourLabeler:
             - If a tuple of colors (string, float, rgb, etc), different labels
               will be plotted in different colors in the order specified.
 
-        inline : bool, optional, default: True
+        inline : bool, default: True
             If ``True`` the underlying contour is removed where the label is
             placed.
 
-        inline_spacing : float, optional, default: 5
+        inline_spacing : float, default: 5
             Space in pixels to leave on each side of label when placing inline.
 
             This spacing will be exact for labels at locations where the
             contour is straight, less so for labels on curved contours.
 
-        fmt : str or dict, optional, default: '%1.3f'
+        fmt : str or dict, default: '%1.3f'
             A format string for the label.
 
             Alternatively, this can be a dictionary matching contour levels
@@ -114,11 +114,11 @@ class ContourLabeler:
             Contour labels will be created as if mouse is clicked at each
             (x, y) position.
 
-        rightside_up : bool, optional, default: True
+        rightside_up : bool, default: True
             If ``True``, label rotations will always be plus
             or minus 90 degrees from level.
 
-        use_clabeltext : bool, optional, default: False
+        use_clabeltext : bool, default: False
             If ``True``, `.ClabelText` class (instead of `.Text`) is used to
             create labels. `ClabelText` recalculates rotation angles
             of texts during the drawing time, therefore this can be used if
@@ -194,12 +194,12 @@ class ContourLabeler:
         return self.labelTextsList
 
     def print_label(self, linecontour, labelwidth):
-        "Return *False* if contours are too short for a label."
+        """Return *False* if contours are too short for a label."""
         return (len(linecontour) > 10 * labelwidth
                 or (np.ptp(linecontour, axis=0) > 1.2 * labelwidth).any())
 
     def too_close(self, x, y, lw):
-        "Return *True* if a label is already near this location."
+        """Return *True* if a label is already near this location."""
         thresh = (1.2 * lw) ** 2
         return any((x - loc[0]) ** 2 + (y - loc[1]) ** 2 < thresh
                    for loc in self.labelXYs)
@@ -461,10 +461,10 @@ class ContourLabeler:
         x, y : float
             The approximate location of the label.
 
-        inline : bool, optional, default: True
+        inline : bool, default: True
             If *True* remove the segment of the contour beneath the label.
 
-        inline_spacing : int, optional, default: 5
+        inline_spacing : int, default: 5
             Space in pixels to leave on each side of label when placing
             inline. This spacing will be exact for labels at locations where
             the contour is straight, less so for labels on curved contours.
@@ -688,7 +688,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         List of all the polygon segments for all the *levels*.
         For contour lines ``len(allsegs) == len(levels)``, and for
         filled contour regions ``len(allsegs) = len(levels)-1``. The lists
-        should look like::
+        should look like ::
 
             level0segs = [polygon0, polygon1, ...]
             polygon0 = [[x0, y0], [x1, y1], ...]
@@ -698,7 +698,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         described and used in Path. This is used to allow multiply-
         connected paths such as holes within filled polygons.
         If not ``None``, ``len(allkinds) == len(allsegs)``. The lists
-        should look like::
+        should look like ::
 
             level0kinds = [polygon0kinds, ...]
             polygon0kinds = [vertexcode0, vertexcode1, ...]
@@ -754,7 +754,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             List of all the polygon segments for all the *levels*.
             For contour lines ``len(allsegs) == len(levels)``, and for
             filled contour regions ``len(allsegs) = len(levels)-1``. The lists
-            should look like::
+            should look like ::
 
                 level0segs = [polygon0, polygon1, ...]
                 polygon0 = [[x0, y0], [x1, y1], ...]
@@ -764,7 +764,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             described and used in Path. This is used to allow multiply-
             connected paths such as holes within filled polygons.
             If not ``None``, ``len(allkinds) == len(allsegs)``. The lists
-            should look like::
+            should look like ::
 
                 level0kinds = [polygon0kinds, ...]
                 polygon0kinds = [vertexcode0, vertexcode1, ...]
@@ -1429,7 +1429,7 @@ class QuadContourSet(ContourSet):
             if (t != self.ax.transData and
                     any(t.contains_branch_seperately(self.ax.transData))):
                 trans_to_data = t - self.ax.transData
-                pts = (np.vstack([x.flat, y.flat]).T)
+                pts = np.vstack([x.flat, y.flat]).T
                 transformed_pts = trans_to_data.transform(pts)
                 x = transformed_pts[..., 0]
                 y = transformed_pts[..., 1]
@@ -1616,14 +1616,12 @@ class QuadContourSet(ContourSet):
 
         Other Parameters
         ----------------
-        corner_mask : bool, optional
+        corner_mask : bool, default: :rc:`contour.corner_mask`
             Enable/disable corner masking, which only has an effect if *Z* is
             a masked array.  If ``False``, any quad touching a masked point is
             masked out.  If ``True``, only the triangular corners of quads
             nearest those points are always masked out, other triangular
             corners comprising three unmasked points are contoured as usual.
-
-            Defaults to :rc:`contour.corner_mask`.
 
         colors : color string or sequence of colors, optional
             The colors of the levels, i.e. the lines for `.contour` and the
@@ -1643,10 +1641,9 @@ class QuadContourSet(ContourSet):
         alpha : float, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-        cmap : str or `.Colormap`, optional
+        cmap : str or `.Colormap`, default: :rc:`image.cmap`
             A `.Colormap` instance or registered colormap name. The colormap
             maps the level values to colors.
-            Defaults to :rc:`image.cmap`.
 
             If both *colors* and *cmap* are given, an error is raised.
 
@@ -1686,8 +1683,7 @@ class QuadContourSet(ContourSet):
             are not given explicitly via *levels*.
             Defaults to `~.ticker.MaxNLocator`.
 
-        extend : {'neither', 'both', 'min', 'max'}, optional, default: \
-'neither'
+        extend : {'neither', 'both', 'min', 'max'}, default: 'neither'
             Determines the ``contourf``-coloring of values that are outside the
             *levels* range.
 
@@ -1741,7 +1737,7 @@ class QuadContourSet(ContourSet):
             however introduce rendering artifacts at chunk boundaries depending
             on the backend, the *antialiased* flag and value of *alpha*.
 
-        linewidths : float or sequence of float, optional
+        linewidths : float or sequence of float, default: :rc:`lines.linewidth`
             *Only applies to* `.contour`.
 
             The line width of the contour lines.
@@ -1750,8 +1746,6 @@ class QuadContourSet(ContourSet):
 
             If a sequence, the levels in ascending order will be plotted with
             the linewidths in the order specified.
-
-            Defaults to :rc:`lines.linewidth`.
 
         linestyles : {*None*, 'solid', 'dashed', 'dashdot', 'dotted'}, optional
             *Only applies to* `.contour`.

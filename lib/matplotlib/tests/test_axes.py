@@ -13,8 +13,6 @@ from cycler import cycler
 from decimal import Decimal
 import pytest
 
-import warnings
-
 import matplotlib
 import matplotlib as mpl
 from matplotlib.testing.decorators import (
@@ -28,8 +26,7 @@ import matplotlib.transforms as mtransforms
 from numpy.testing import (
     assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib import rc_context
-from matplotlib.cbook import (
-    IgnoredKeywordWarning, MatplotlibDeprecationWarning)
+from matplotlib.cbook import MatplotlibDeprecationWarning
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -1002,6 +999,19 @@ def test_imshow_clip():
 
     # Plot the image clipped by the contour
     ax.imshow(r, clip_path=clip_path)
+
+
+@check_figures_equal(extensions=["png"])
+def test_imshow_norm_vminvmax(fig_test, fig_ref):
+    """Parameters vmin, vmax should be ignored if norm is given."""
+    a = [[1, 2], [3, 4]]
+    ax = fig_ref.subplots()
+    ax.imshow(a, vmin=0, vmax=5)
+    ax = fig_test.subplots()
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match="Passing parameters norm and vmin/vmax "
+                            "simultaneously is deprecated."):
+        ax.imshow(a, norm=mcolors.Normalize(-10, 10), vmin=0, vmax=5)
 
 
 @image_comparison(['polycollection_joinstyle'], remove_text=True)
@@ -2012,6 +2022,19 @@ class TestScatter:
         ax.scatter([0, 2], [0, 2], c=[1, 2], s=[1, 3], cmap=cmap)
 
     @check_figures_equal(extensions=["png"])
+    def test_scatter_norm_vminvmax(self, fig_test, fig_ref):
+        """Parameters vmin, vmax should be ignored if norm is given."""
+        x = [1, 2, 3]
+        ax = fig_ref.subplots()
+        ax.scatter(x, x, c=x, vmin=0, vmax=5)
+        ax = fig_test.subplots()
+        with pytest.warns(MatplotlibDeprecationWarning,
+                          match="Passing parameters norm and vmin/vmax "
+                                "simultaneously is deprecated."):
+            ax.scatter(x, x, c=x, norm=mcolors.Normalize(-10, 10),
+                       vmin=0, vmax=5)
+
+    @check_figures_equal(extensions=["png"])
     def test_scatter_single_point(self, fig_test, fig_ref):
         ax = fig_test.subplots()
         ax.scatter(1, 1, c=1)
@@ -2737,6 +2760,24 @@ def test_boxplot_bad_ci_2():
     fig, ax = plt.subplots()
     with pytest.raises(ValueError):
         ax.boxplot([x, x], conf_intervals=[[1, 2], [1]])
+
+
+def test_boxplot_marker_behavior():
+    plt.rcParams['lines.marker'] = 's'
+    plt.rcParams['boxplot.flierprops.marker'] = 'o'
+    plt.rcParams['boxplot.meanprops.marker'] = '^'
+    fig, ax = plt.subplots()
+    test_data = np.arange(100)
+    test_data[-1] = 150  # a flier point
+    bxp_handle = ax.boxplot(test_data, showmeans=True)
+    for bxp_lines in ['whiskers', 'caps', 'boxes', 'medians']:
+        for each_line in bxp_handle[bxp_lines]:
+            # Ensure that the rcParams['lines.marker'] is overridden by ''
+            assert each_line.get_marker() == ''
+
+    # Ensure that markers for fliers and means aren't overridden with ''
+    assert bxp_handle['fliers'][0].get_marker() == 'o'
+    assert bxp_handle['means'][0].get_marker() == '^'
 
 
 @image_comparison(['boxplot_mod_artists_after_plotting.png'],
@@ -3609,9 +3650,6 @@ def test_alpha():
 
 @image_comparison(['eventplot', 'eventplot'], remove_text=True)
 def test_eventplot():
-    '''
-    test that eventplot produces the correct output
-    '''
     np.random.seed(0)
 
     data1 = np.random.random([32, 20]).tolist()
@@ -3656,10 +3694,10 @@ def test_eventplot():
 
 @image_comparison(['test_eventplot_defaults.png'], remove_text=True)
 def test_eventplot_defaults():
-    '''
+    """
     test that eventplot produces the correct output given the default params
     (see bug #3728)
-    '''
+    """
     np.random.seed(0)
 
     data1 = np.random.random([32, 20]).tolist()
@@ -3677,8 +3715,8 @@ def test_eventplot_defaults():
     ('red', (0, 1, 0), None, (1, 0, 1, 0.5)),  # a tricky case mixing types
 ])
 def test_eventplot_colors(colors):
-    '''Test the *colors* parameter of eventplot. Inspired by the issue #8193.
-    '''
+    """Test the *colors* parameter of eventplot. Inspired by the issue #8193.
+    """
     data = [[i] for i in range(4)]  # 4 successive events of different nature
 
     # Build the list of the expected colors
@@ -3699,12 +3737,12 @@ def test_eventplot_colors(colors):
 
 
 @image_comparison(['test_eventplot_problem_kwargs.png'], remove_text=True)
-def test_eventplot_problem_kwargs():
-    '''
+def test_eventplot_problem_kwargs(recwarn):
+    """
     test that 'singular' versions of LineCollection props raise an
     IgnoredKeywordWarning rather than overriding the 'plural' versions (e.g.
     to prevent 'color' from overriding 'colors', see issue #4297)
-    '''
+    """
     np.random.seed(0)
 
     data1 = np.random.random([20]).tolist()
@@ -3714,19 +3752,18 @@ def test_eventplot_problem_kwargs():
     fig = plt.figure()
     axobj = fig.add_subplot(111)
 
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        axobj.eventplot(data,
-                        colors=['r', 'b'],
-                        color=['c', 'm'],
-                        linewidths=[2, 1],
-                        linewidth=[1, 2],
-                        linestyles=['solid', 'dashed'],
-                        linestyle=['dashdot', 'dotted'])
+    axobj.eventplot(data,
+                    colors=['r', 'b'],
+                    color=['c', 'm'],
+                    linewidths=[2, 1],
+                    linewidth=[1, 2],
+                    linestyles=['solid', 'dashed'],
+                    linestyle=['dashdot', 'dotted'])
 
-        # check that three IgnoredKeywordWarnings were raised
-        assert len(w) == 3
-        assert all(issubclass(wi.category, IgnoredKeywordWarning) for wi in w)
+    # check that three IgnoredKeywordWarnings were raised
+    assert len(recwarn) == 3
+    assert all(issubclass(wi.category, MatplotlibDeprecationWarning)
+               for wi in recwarn)
 
 
 def test_empty_eventplot():
@@ -4014,7 +4051,7 @@ def test_subplot_key_hash():
 @image_comparison(['specgram_freqs.png', 'specgram_freqs_linear.png'],
                   remove_text=True, tol=0.07, style='default')
 def test_specgram_freqs():
-    '''test axes.specgram in default (psd) mode with sinusoidal stimuli'''
+    """test axes.specgram in default (psd) mode with sinusoidal stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4070,7 +4107,7 @@ def test_specgram_freqs():
 @image_comparison(['specgram_noise.png', 'specgram_noise_linear.png'],
                   remove_text=True, tol=0.01, style='default')
 def test_specgram_noise():
-    '''test axes.specgram in default (psd) mode with noise stimuli'''
+    """test axes.specgram in default (psd) mode with noise stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4121,7 +4158,7 @@ def test_specgram_noise():
                    'specgram_magnitude_freqs_linear.png'],
                   remove_text=True, tol=0.07, style='default')
 def test_specgram_magnitude_freqs():
-    '''test axes.specgram in magnitude mode with sinusoidal stimuli'''
+    """test axes.specgram in magnitude mode with sinusoidal stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4180,7 +4217,7 @@ def test_specgram_magnitude_freqs():
                    'specgram_magnitude_noise_linear.png'],
                   remove_text=True, style='default')
 def test_specgram_magnitude_noise():
-    '''test axes.specgram in magnitude mode with noise stimuli'''
+    """test axes.specgram in magnitude mode with noise stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4230,7 +4267,7 @@ def test_specgram_magnitude_noise():
 @image_comparison(['specgram_angle_freqs.png'],
                   remove_text=True, tol=0.007, style='default')
 def test_specgram_angle_freqs():
-    '''test axes.specgram in angle mode with sinusoidal stimuli'''
+    """test axes.specgram in angle mode with sinusoidal stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4288,7 +4325,7 @@ def test_specgram_angle_freqs():
 @image_comparison(['specgram_angle_noise.png'],
                   remove_text=True, style='default')
 def test_specgram_noise_angle():
-    '''test axes.specgram in angle mode with noise stimuli'''
+    """test axes.specgram in angle mode with noise stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4338,7 +4375,7 @@ def test_specgram_noise_angle():
 @image_comparison(['specgram_phase_freqs.png'],
                   remove_text=True, style='default')
 def test_specgram_freqs_phase():
-    '''test axes.specgram in phase mode with sinusoidal stimuli'''
+    """test axes.specgram in phase mode with sinusoidal stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4395,7 +4432,7 @@ def test_specgram_freqs_phase():
 @image_comparison(['specgram_phase_noise.png'],
                   remove_text=True, style='default')
 def test_specgram_noise_phase():
-    '''test axes.specgram in phase mode with noise stimuli'''
+    """test axes.specgram in phase mode with noise stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4443,7 +4480,7 @@ def test_specgram_noise_phase():
 
 @image_comparison(['psd_freqs.png'], remove_text=True)
 def test_psd_freqs():
-    '''test axes.psd with sinusoidal stimuli'''
+    """test axes.psd with sinusoidal stimuli"""
     n = 10000
     Fs = 100.
 
@@ -4487,7 +4524,7 @@ def test_psd_freqs():
 
 @image_comparison(['psd_noise.png'], remove_text=True)
 def test_psd_noise():
-    '''test axes.psd with noise stimuli'''
+    """test axes.psd with noise stimuli"""
     np.random.seed(0)
 
     n = 10000
@@ -4525,7 +4562,7 @@ def test_psd_noise():
 
 @image_comparison(['csd_freqs.png'], remove_text=True, tol=0.002)
 def test_csd_freqs():
-    '''test axes.csd with sinusoidal stimuli'''
+    """test axes.csd with sinusoidal stimuli"""
     n = 10000
     Fs = 100.
 
@@ -4568,7 +4605,7 @@ def test_csd_freqs():
 
 @image_comparison(['csd_noise.png'], remove_text=True)
 def test_csd_noise():
-    '''test axes.csd with noise stimuli'''
+    """test axes.csd with noise stimuli"""
     np.random.seed(0)
 
     n = 10000
@@ -4607,7 +4644,7 @@ def test_csd_noise():
                    'magnitude_spectrum_freqs_dB.png'],
                   remove_text=True)
 def test_magnitude_spectrum_freqs():
-    '''test axes.magnitude_spectrum with sinusoidal stimuli'''
+    """test axes.magnitude_spectrum with sinusoidal stimuli"""
     n = 10000
     Fs = 100.
 
@@ -4670,7 +4707,7 @@ def test_magnitude_spectrum_freqs():
                    'magnitude_spectrum_noise_dB.png'],
                   remove_text=True)
 def test_magnitude_spectrum_noise():
-    '''test axes.magnitude_spectrum with noise stimuli'''
+    """test axes.magnitude_spectrum with noise stimuli"""
     np.random.seed(0)
 
     n = 10000
@@ -4728,7 +4765,7 @@ def test_magnitude_spectrum_noise():
 
 @image_comparison(['angle_spectrum_freqs.png'], remove_text=True)
 def test_angle_spectrum_freqs():
-    '''test axes.angle_spectrum with sinusoidal stimuli'''
+    """test axes.angle_spectrum with sinusoidal stimuli"""
     n = 10000
     Fs = 100.
 
@@ -4766,7 +4803,7 @@ def test_angle_spectrum_freqs():
 
 @image_comparison(['angle_spectrum_noise.png'], remove_text=True)
 def test_angle_spectrum_noise():
-    '''test axes.angle_spectrum with noise stimuli'''
+    """test axes.angle_spectrum with noise stimuli"""
     np.random.seed(0)
 
     n = 10000
@@ -4801,7 +4838,7 @@ def test_angle_spectrum_noise():
 
 @image_comparison(['phase_spectrum_freqs.png'], remove_text=True)
 def test_phase_spectrum_freqs():
-    '''test axes.phase_spectrum with sinusoidal stimuli'''
+    """test axes.phase_spectrum with sinusoidal stimuli"""
     n = 10000
     Fs = 100.
 
@@ -4839,7 +4876,7 @@ def test_phase_spectrum_freqs():
 
 @image_comparison(['phase_spectrum_noise.png'], remove_text=True)
 def test_phase_spectrum_noise():
-    '''test axes.phase_spectrum with noise stimuli'''
+    """test axes.phase_spectrum with noise stimuli"""
     np.random.seed(0)
 
     n = 10000
@@ -5273,11 +5310,15 @@ def test_set_get_ticklabels():
     ax[1].set_title(ha[1])
 
     # set ticklabel to 1 plot in normal way
-    ax[0].set_xticklabels(('a', 'b', 'c', 'd'))
-    ax[0].set_yticklabels(('11', '12', '13', '14'))
+    ax[0].set_xticks(range(10))
+    ax[0].set_yticks(range(10))
+    ax[0].set_xticklabels(['a', 'b', 'c', 'd'])
+    ax[0].set_yticklabels(['11', '12', '13', '14'])
 
     # set ticklabel to the other plot, expect the 2 plots have same label
     # setting pass get_ticklabels return value as ticklabels argument
+    ax[1].set_xticks(ax[0].get_xticks())
+    ax[1].set_yticks(ax[0].get_yticks())
     ax[1].set_xticklabels(ax[0].get_xticklabels())
     ax[1].set_yticklabels(ax[0].get_yticklabels())
 
@@ -5362,17 +5403,13 @@ def test_length_one_hist():
     ax.hist([1])
 
 
-def test_pathological_hexbin():
+def test_pathological_hexbin(recwarn):
     # issue #2863
-    out = io.BytesIO()
-
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        mylist = [10] * 100
-        fig, ax = plt.subplots(1, 1)
-        ax.hexbin(mylist, mylist)
-        fig.savefig(out)
-        assert len(w) == 0
+    mylist = [10] * 100
+    fig, ax = plt.subplots(1, 1)
+    ax.hexbin(mylist, mylist)
+    fig.savefig(io.BytesIO())
+    assert len(recwarn) == 0
 
 
 def test_color_None():
@@ -5514,13 +5551,11 @@ def test_square_plot():
     ax.axis('square')
     xlim, ylim = ax.get_xlim(), ax.get_ylim()
     assert np.diff(xlim) == np.diff(ylim)
-    assert ax.get_aspect() == 'equal'
+    assert ax.get_aspect() == 1
     assert_array_almost_equal(
-            ax.get_position(original=True).extents,
-            np.array((0.125, 0.1, 0.9, 0.9)))
+        ax.get_position(original=True).extents, (0.125, 0.1, 0.9, 0.9))
     assert_array_almost_equal(
-        ax.get_position(original=False).extents,
-        np.array((0.2125, 0.1, 0.8125, 0.9)))
+        ax.get_position(original=False).extents, (0.2125, 0.1, 0.8125, 0.9))
 
 
 def test_no_None():
@@ -5566,6 +5601,13 @@ def test_shared_scale():
     for ax in axs.flat:
         assert ax.get_yscale() == 'linear'
         assert ax.get_xscale() == 'linear'
+
+
+def test_shared_bool():
+    with pytest.raises(TypeError):
+        plt.subplot(sharex=True)
+    with pytest.raises(TypeError):
+        plt.subplot(sharey=True)
 
 
 def test_violin_point_mass():
@@ -6289,7 +6331,7 @@ def test_markerfacecolor_none_alpha(fig_test, fig_ref):
 
 
 def test_tick_padding_tightbbox():
-    "Test that tick padding gets turned off if axis is off"
+    """Test that tick padding gets turned off if axis is off"""
     plt.rcParams["xtick.direction"] = "out"
     plt.rcParams["ytick.direction"] = "out"
     fig, ax = plt.subplots()
@@ -6928,3 +6970,10 @@ def test_bbox_aspect_axes_init():
         sizes.extend([bb.width, bb.height])
 
     assert_allclose(sizes, sizes[0])
+
+
+def test_pi_get_negative_values():
+    # Test the ValueError raised when feeding negative values into axes.pie
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError):
+        ax.pie([5, 5, -3], explode=[0, .1, .2])

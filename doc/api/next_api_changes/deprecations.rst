@@ -47,3 +47,62 @@ PDF and PS character tracking internals
 The ``used_characters`` attribute and ``track_characters`` and
 ``merge_used_characters`` methods of `.RendererPdf`, `.PdfFile`, and
 `.RendererPS` are deprecated.
+
+Case-insensitive capstyles and joinstyles
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Please pass capstyles ("miter", "round", "bevel") and joinstyles ("butt",
+"round", "projecting") as lowercase.
+
+Passing raw data to ``register_cmap()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing raw data via parameters *data* and *lut* to `.register_cmap()` is
+deprecated. Instead, explicitly create a `.LinearSegmentedColormap` and pass
+it via the *cmap* parameter:
+``register_cmap(cmap=LinearSegmentedColormap(name, data, lut))``.
+
+``DateFormatter.illegal_s``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This attribute is unused and deprecated.
+
+``widgets.TextBox.params_to_disable``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This attribute is deprecated.
+
+Revert deprecation \*min, \*max keyword arguments to ``set_x/y/zlim_3d()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These keyword arguments  were deprecated in 3.0, alongside with the respective
+parameters in ``set_xlim()`` / ``set_ylim()``. The deprecations of the 2D
+versions were already reverted in in 3.1.
+
+``cbook.local_over_kwdict``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This function is deprecated.  Use `.cbook.normalize_kwargs` instead.
+
+Passing both singular and plural *colors*, *linewidths*, *linestyles* to `.Axes.eventplot`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing e.g. both *linewidth* and *linewidths* will raise a TypeError in the
+future.
+
+Setting :rc:`text.latex.preamble` or :rc:`pdf.preamble` to non-strings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These rcParams should be set to string values.  Support for None (meaning the
+empty string) and lists of strings (implicitly joined with newlines) is
+deprecated.
+
+Parameters *norm* and *vmin*/*vmax* should not be used simultaneously
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing parameters *norm* and *vmin*/*vmax* simultaneously to functions using
+colormapping such as ``scatter()`` and ``imshow()`` is deprecated.
+Inestead of ``norm=LogNorm(), vmin=min_val, vmax=max_val`` pass
+``norm=LogNorm(min_val, max_val)``. *vmin* and *vmax* should only be used
+without setting *norm*.
+
+Effectless parameters of `.Figure.colorbar` and `matplotlib.colorbar.Colorbar`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *cmap* and *norm* parameters of `.Figure.colorbar` and
+`matplotlib.colorbar.Colorbar` have no effect because they are always
+overridden by the mappable's colormap and norm; they are thus deprecated.
+Likewise, passing the *alpha*, *boundaries*, *values*, *extend*, or *filled*
+parameters with a `.ContourSet` mappable, or the *alpha* parameter with an
+`.Artist` mappable, is deprecated, as the mappable would likewise override
+them.

@@ -11,7 +11,6 @@ import os
 import pathlib
 import re
 import shutil
-import subprocess
 from tempfile import TemporaryDirectory
 import textwrap
 import time
@@ -19,8 +18,7 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import (
-    cbook, _path, __version__, rcParams, checkdep_ghostscript)
+from matplotlib import cbook, _path, __version__, rcParams
 from matplotlib import _text_layout
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -45,58 +43,8 @@ debugPS = 0
 
 
 class PsBackendHelper:
-
     def __init__(self):
         self._cached = {}
-
-    @cbook.deprecated("3.1")
-    @property
-    def gs_exe(self):
-        """
-        executable name of ghostscript.
-        """
-        try:
-            return self._cached["gs_exe"]
-        except KeyError:
-            pass
-
-        gs_exe, gs_version = checkdep_ghostscript()
-        if gs_exe is None:
-            gs_exe = 'gs'
-
-        self._cached["gs_exe"] = str(gs_exe)
-        return str(gs_exe)
-
-    @cbook.deprecated("3.1")
-    @property
-    def gs_version(self):
-        """
-        version of ghostscript.
-        """
-        try:
-            return self._cached["gs_version"]
-        except KeyError:
-            pass
-
-        s = subprocess.Popen(
-            [self.gs_exe, "--version"], stdout=subprocess.PIPE)
-        pipe, stderr = s.communicate()
-        ver = pipe.decode('ascii')
-        try:
-            gs_version = tuple(map(int, ver.strip().split(".")))
-        except ValueError:
-            # if something went wrong parsing return null version number
-            gs_version = (0, 0)
-        self._cached["gs_version"] = gs_version
-        return gs_version
-
-    @cbook.deprecated("3.1")
-    @property
-    def supports_ps2write(self):
-        """
-        True if the installed ghostscript supports ps2write device.
-        """
-        return self.gs_version[0] >= 9
 
 
 ps_backend_helper = PsBackendHelper()
@@ -157,7 +105,9 @@ def _nums_to_str(*args):
 
 
 def quote_ps_string(s):
-    "Quote dangerous characters of S for use in a PostScript string constant."
+    """
+    Quote dangerous characters of S for use in a PostScript string constant.
+    """
     s = s.replace(b"\\", b"\\\\")
     s = s.replace(b"(", b"\\(")
     s = s.replace(b")", b"\\)")
@@ -188,11 +138,6 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
     The renderer handles all the drawing primitives using a graphics
     context instance that controls the colors/styles.
     """
-
-    @property
-    @cbook.deprecated("3.1")
-    def afmfontd(self, _cache=cbook.maxdict(50)):
-        return _cache
 
     _afm_font_dir = cbook._get_data_path("fonts/afm")
     _use_afm_rc_name = "ps.useafm"
@@ -238,7 +183,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
     def merge_used_characters(self, *args, **kwargs):
         self._character_tracker.merge(*args, **kwargs)
 
-    def set_color(self, r, g, b, store=1):
+    def set_color(self, r, g, b, store=True):
         if (r, g, b) != self.color:
             if r == g and r == b:
                 self._pswriter.write("%1.3f setgray\n" % r)
@@ -248,26 +193,26 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if store:
                 self.color = (r, g, b)
 
-    def set_linewidth(self, linewidth, store=1):
+    def set_linewidth(self, linewidth, store=True):
         linewidth = float(linewidth)
         if linewidth != self.linewidth:
             self._pswriter.write("%1.3f setlinewidth\n" % linewidth)
             if store:
                 self.linewidth = linewidth
 
-    def set_linejoin(self, linejoin, store=1):
+    def set_linejoin(self, linejoin, store=True):
         if linejoin != self.linejoin:
             self._pswriter.write("%d setlinejoin\n" % linejoin)
             if store:
                 self.linejoin = linejoin
 
-    def set_linecap(self, linecap, store=1):
+    def set_linecap(self, linecap, store=True):
         if linecap != self.linecap:
             self._pswriter.write("%d setlinecap\n" % linecap)
             if store:
                 self.linecap = linecap
 
-    def set_linedash(self, offset, seq, store=1):
+    def set_linedash(self, offset, seq, store=True):
         if self.linedash is not None:
             oldo, oldseq = self.linedash
             if np.array_equal(seq, oldseq) and oldo == offset:
@@ -281,7 +226,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         if store:
             self.linedash = (offset, seq)
 
-    def set_font(self, fontname, fontsize, store=1):
+    def set_font(self, fontname, fontsize, store=True):
         if rcParams['ps.useafm']:
             return
         if (fontname, fontsize) != (self.fontname, self.fontsize):
@@ -684,14 +629,11 @@ grestore
         xmax, ymax = points_max
 
         streamarr = np.empty(
-            (shape[0] * shape[1],),
-            dtype=[('flags', 'u1'),
-                   ('points', '>u4', (2,)),
-                   ('colors', 'u1', (3,))])
+            shape[0] * shape[1],
+            dtype=[('flags', 'u1'), ('points', '2>u4'), ('colors', '3u1')])
         streamarr['flags'] = 0
         streamarr['points'] = (flat_points - points_min) * factor
         streamarr['colors'] = flat_colors[:, :3] * 255.0
-
         stream = quote_ps_string(streamarr.tostring())
 
         self._pswriter.write(f"""\
@@ -757,7 +699,7 @@ grestore
         if fill:
             if stroke or hatch:
                 write("gsave\n")
-            self.set_color(store=0, *rgbFace[:3])
+            self.set_color(*rgbFace[:3], store=False)
             write("fill\n")
             if stroke or hatch:
                 write("grestore\n")
@@ -797,11 +739,6 @@ class GraphicsContextPS(GraphicsContextBase):
     def get_joinstyle(self):
         return {'miter': 0, 'round': 1, 'bevel': 2}[
             GraphicsContextBase.get_joinstyle(self)]
-
-    @cbook.deprecated("3.1")
-    def shouldstroke(self):
-        return (self.get_linewidth() > 0.0 and
-                (len(self.get_rgb()) <= 3 or self.get_rgb()[3] != 0.0))
 
 
 class _Orientation(Enum):

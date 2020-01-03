@@ -426,15 +426,6 @@ precisely in the text.
 Generally, the `numpydoc docstring guide`_ conventions apply. The following
 rules expand on them where the numpydoc conventions are not specific.
 
-As opposed to the numpydoc guide, parameters need not be marked as
-*optional* if they have a simple default. This removes unnecessary clutter.
-The optional aspect is already clear from the presence of a default value.
-More specifically
-
-- use ``{name} : {type}, default: {val}`` when possible.
-- use ``{name} : {type}, optional`` and describe the default in the text if
-  in cannot be explained sufficiently in the above way.
-
 Use ``float`` for a type that can be any number.
 
 Use ``(float, float)`` to describe a 2D position. The parentheses should be
@@ -476,8 +467,50 @@ Use abbreviated links ```.Normalize``` in the text.
 
 .. code-block:: rst
 
-  norm : `~matplotlib.colors.Normalize`, optional
-     A `.Normalize` instance is used to scale luminance data to 0, 1.
+   norm : `~matplotlib.colors.Normalize`, optional
+        A `.Normalize` instance is used to scale luminance data to 0, 1.
+
+Default values
+~~~~~~~~~~~~~~
+As opposed to the numpydoc guide, parameters need not be marked as
+*optional* if they have a simple default:
+
+- use ``{name} : {type}, default: {val}`` when possible.
+- use ``{name} : {type}, optional`` and describe the default in the text if
+  it cannot be explained sufficiently in the recommended manner.
+
+The default value should provide semantic information targeted at a human
+reader. In simple cases, it restates the value in the function signature.
+If applicable, units should be added.
+
+.. code-block:: rst
+
+   Prefer:
+       interval : int, default: 1000ms
+   over:
+       interval : int, default: 1000
+
+If *None* is only used as a sentinel value for "parameter not specified", do
+not document it as the default. Depending on the context, give the actual
+default, or mark the parameter as optional if not specifying has no particular
+effect.
+
+.. code-block:: rst
+
+   Prefer:
+       dpi : int, default: :rc:`figure.dpi`
+   over:
+       dpi : int, default: None
+
+   Prefer:
+       textprops : dict, optional
+           Dictionary of keyword parameters to be passed to the
+           `~matplotlib.text.Text` instance contained inside TextArea.
+   over:
+       textprops : dict, default: None
+           Dictionary of keyword parameters to be passed to the
+           `~matplotlib.text.Text` instance contained inside TextArea.
+
 
 ``See also`` sections
 ~~~~~~~~~~~~~~~~~~~~~
@@ -529,44 +562,55 @@ By convention, these setters and getters are named ``set_PROPERTYNAME`` and
 ``get_PROPERTYNAME``; the list of properties thusly defined on an artist and
 their values can be listed by the `~.pyplot.setp` and `~.pyplot.getp` functions.
 
-.. note::
-
-   ``ACCEPTS`` blocks have recently become optional. You may now use a
-   numpydoc ``Parameters`` block because the accepted values can now be read
-   from the type description of the first parameter.
-
-Property setter methods should indicate the values they accept using a (legacy)
-special block in the docstring, starting with ``ACCEPTS``, as follows:
+The Parameters block of property setter methods is parsed to document the
+accepted values, e.g. the docstring of `.Line2D.set_linestyle` starts with
 
 .. code-block:: python
 
-   # in lines.py
-   def set_linestyle(self, linestyle):
+   def set_linestyle(self, ls):
        """
-       Set the linestyle of the line
+       Set the linestyle of the line.
 
-       ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
+       Parameters
+       ----------
+       ls : {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
+           etc.
        """
 
-The ACCEPTS block is used to render a table of all properties and their
-acceptable values in the docs; it can also be displayed using, e.g.,
-``plt.setp(Line2D)`` (all properties) or ``plt.setp(Line2D, 'linestyle')``
-(just one property).
+which results in the following line in the output of ``plt.setp(line)`` or
+``plt.setp(line, "linestyle")``::
 
-There are cases in which the ACCEPTS string is not useful in the
-generated Sphinx documentation, e.g. if the valid parameters are already
-defined in the numpydoc parameter list. You can hide the ACCEPTS string from
-Sphinx by making it a ReST comment (i.e. use ``.. ACCEPTS:``):
+    linestyle or ls: {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
+
+In some rare cases (mostly, setters which accept both a single tuple and an
+unpacked tuple), the accepted values cannot be documented in such a fashion;
+in that case, they can be documented as an ``.. ACCEPTS:`` block, e.g. for
+`.axes.Axes.set_xlim`:
 
 .. code-block:: python
 
-   def set_linestyle(self, linestyle):
+   def set_xlim(self, ...):
        """
-       An ACCEPTS string invisible to Sphinx.
+       Set the x-axis view limits.
 
-       .. ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
+       Parameters
+       ----------
+       left : float, optional
+           The left xlim in data coordinates. Passing *None* leaves the
+           limit unchanged.
+
+           The left and right xlims may also be passed as the tuple
+           (*left*, *right*) as the first positional argument (or as
+           the *left* keyword argument).
+
+           .. ACCEPTS: (bottom: float, top: float)
+
+       right : float, optional
+           etc.
        """
 
+Note that the leading ``..`` makes the ``.. ACCEPTS:`` block a reST comment,
+hiding it from the rendered docs.
 
 Keyword arguments
 -----------------

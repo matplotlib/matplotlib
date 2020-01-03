@@ -447,6 +447,20 @@ class TestSymmetricalLogLocator:
         assert sym.numticks == 8
 
 
+class TestIndexFormatter:
+    @pytest.mark.parametrize('x, label', [(-2, ''),
+                                          (-1, 'label0'),
+                                          (0, 'label0'),
+                                          (0.5, 'label1'),
+                                          (1, 'label1'),
+                                          (1.5, 'label2'),
+                                          (2, 'label2'),
+                                          (2.5, '')])
+    def test_formatting(self, x, label):
+        formatter = mticker.IndexFormatter(['label0', 'label1', 'label2'])
+        assert formatter(x) == label
+
+
 class TestScalarFormatter:
     offset_data = [
         (123, 189, 0),
@@ -561,7 +575,7 @@ class TestLogFormatterExponent:
         # formatted.
         (False, 10, np.array([0.1, 0.00001, np.pi, 0.2, -0.2, -0.00001]),
          range(6), ['0.1', '1e-05', '3.14', '0.2', '-0.2', '-1e-05']),
-        (False, 50, np.array([3, 5, 12, 42], dtype='float'), range(6),
+        (False, 50, np.array([3, 5, 12, 42], dtype=float), range(6),
          ['3', '5', '12', '42']),
     ]
 
@@ -778,7 +792,7 @@ class TestLogFormatter:
         assert label == expected
 
     def _sub_labels(self, axis, subs=()):
-        "Test whether locator marks subs to be labeled"
+        """Test whether locator marks subs to be labeled."""
         fmt = axis.get_minor_formatter()
         minor_tlocs = axis.get_minorticklocs()
         fmt.set_locs(minor_tlocs)
@@ -865,7 +879,7 @@ class TestLogitFormatter:
         if match:
             num, deno = float(match["num"]), float(match["deno"])
             return num / deno
-        raise ValueError("not formatted by LogitFormatter")
+        raise ValueError("Not formatted by LogitFormatter")
 
     @pytest.mark.parametrize(
         "fx, x",
@@ -1008,7 +1022,7 @@ class TestLogitFormatter:
                 x2 = 1 - float(fx[2:])
             else:
                 x2 = float(fx)
-            assert np.abs(x - x2) < 1 / N
+            assert abs(x - x2) < 1 / N
 
 
 class TestFormatStrFormatter:

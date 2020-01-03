@@ -94,14 +94,14 @@ class HandlerBase:
 
         Parameters
         ----------
-        legend : :class:`matplotlib.legend.Legend` instance
+        legend : `~matplotlib.legend.Legend`
             The legend for which these legend artists are being created.
         orig_handle : :class:`matplotlib.artist.Artist` or similar
             The object for which these legend artists are being created.
         fontsize : int
             The fontsize in pixels. The artists being created should
             be scaled according to the given fontsize.
-        handlebox : :class:`matplotlib.offsetbox.OffsetBox` instance
+        handlebox : `matplotlib.offsetbox.OffsetBox`
             The box which has been created to hold this legend entry's
             artists. Artists created in the `legend_artist` method must
             be added to this handlebox inside this method.
@@ -652,12 +652,11 @@ class HandlerTuple(HandlerBase):
 
     Parameters
     ----------
-    ndivide : int, optional, default: 1
+    ndivide : int, default: 1
         The number of sections to divide the legend area into. If None,
         use the length of the input tuple.
-    pad : float, optional, default: None
-        Padding in units of fraction of font size.  If None, use
-        :rc:`legend.borderpad`.
+    pad : float, default: :rc:`legend.borderpad`
+        Padding in units of fraction of font size.
     """
 
     def __init__(self, ndivide=1, pad=None, **kwargs):

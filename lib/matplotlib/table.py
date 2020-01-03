@@ -701,7 +701,7 @@ def table(ax,
     rowColours : list of colors, optional
         The colors of the row header cells.
 
-    rowLoc : {'left', 'center', 'right'}, optional, default: 'left'
+    rowLoc : {'left', 'center', 'right'}, default: 'left'
         The text alignment of the row header cells.
 
     colLabels : list of str, optional
@@ -710,7 +710,7 @@ def table(ax,
     colColours : list of colors, optional
         The colors of the column header cells.
 
-    colLoc : {'left', 'center', 'right'}, optional, default: 'left'
+    colLoc : {'left', 'center', 'right'}, default: 'left'
         The text alignment of the column header cells.
 
     loc : str, optional

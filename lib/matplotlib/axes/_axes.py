@@ -1,4 +1,3 @@
-import collections.abc
 import functools
 import itertools
 import logging
@@ -91,11 +90,6 @@ class Axes(_AxesBase):
     """
     ### Labelling, legend and texts
 
-    @cbook.deprecated("3.1")
-    @property
-    def aname(self):
-        return 'Axes'
-
     def get_title(self, loc="center"):
         """
         Get an axes title.
@@ -140,30 +134,27 @@ class Axes(_AxesBase):
             the default *fontdict* is::
 
                {'fontsize': rcParams['axes.titlesize'],
-                'fontweight' : rcParams['axes.titleweight'],
-                'color' : rcParams['axes.titlecolor'],
+                'fontweight': rcParams['axes.titleweight'],
+                'color': rcParams['axes.titlecolor'],
                 'verticalalignment': 'baseline',
                 'horizontalalignment': loc}
 
-        loc : {'center', 'left', 'right'}, str, optional
+        loc : {'center', 'left', 'right'}, default: :rc:`axes.titlelocation`
             Which title to set.
-            If *None*, defaults to :rc:`axes.titlelocation`.
 
-        pad : float
+        pad : float, default: :rc:`axes.titlepad`
             The offset of the title from the top of the axes, in points.
-            If *None*, defaults to :rc:`axes.titlepad`.
 
         Returns
         -------
-        text : :class:`~matplotlib.text.Text`
+        text : `.Text`
             The matplotlib text instance representing the title
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.text.Text` properties
-            Other keyword arguments are text properties, see
-            :class:`~matplotlib.text.Text` for a list of valid text
-            properties.
+        **kwargs : `.Text` properties
+            Other keyword arguments are text properties, see `.Text` for a list
+            of valid text properties.
         """
         if loc is None:
             loc = rcParams['axes.titlelocation']
@@ -477,12 +468,12 @@ class Axes(_AxesBase):
         edgecolor : color, default: '0.5'
             Color of the rectangle and color of the connecting lines.
 
-        alpha : float
-            Transparency of the rectangle and connector lines.  Default is 0.5.
+        alpha : float, default: 0.5
+            Transparency of the rectangle and connector lines.
 
-        zorder : float
-            Drawing order of the rectangle and connector lines. Default is 4.99
-            (just below the default level of inset axes).
+        zorder : float, default: 4.99
+            Drawing order of the rectangle and connector lines.  The default,
+            4.99, is just below the default level of inset axes.
 
         **kwargs
             Other keyword arguments are passed on to the rectangle patch.
@@ -619,7 +610,7 @@ class Axes(_AxesBase):
             secax.set_xlabel('Period [s]')
             plt.show()
         """
-        if (location in ['top', 'bottom'] or isinstance(location, Number)):
+        if location in ['top', 'bottom'] or isinstance(location, Number):
             secondary_ax = SecondaryAxis(self, 'x', location, functions,
                                          **kwargs)
             self.add_child_axes(secondary_ax)
@@ -659,8 +650,7 @@ class Axes(_AxesBase):
             raise ValueError('secondary_yaxis location must be either '
                              'a float or "left"/"right"')
 
-    @cbook._delete_parameter("3.1", "withdash")
-    def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
+    def text(self, x, y, s, fontdict=None, **kwargs):
         """
         Add text to the axes.
 
@@ -679,10 +669,6 @@ class Axes(_AxesBase):
         fontdict : dict, default: None
             A dictionary to override the default text properties. If fontdict
             is None, the defaults are determined by your rc parameters.
-
-        withdash : bool, default: False
-            Creates a `~matplotlib.text.TextWithDash` instance instead of a
-            `~matplotlib.text.Text` instance.
 
         Returns
         -------
@@ -716,32 +702,15 @@ class Axes(_AxesBase):
 
             >>> text(x, y, s, bbox=dict(facecolor='red', alpha=0.5))
         """
-        if fontdict is None:
-            fontdict = {}
-
         effective_kwargs = {
             'verticalalignment': 'baseline',
             'horizontalalignment': 'left',
             'transform': self.transData,
             'clip_on': False,
-            **fontdict,
+            **(fontdict if fontdict is not None else {}),
             **kwargs,
         }
-
-        # At some point if we feel confident that TextWithDash
-        # is robust as a drop-in replacement for Text and that
-        # the performance impact of the heavier-weight class
-        # isn't too significant, it may make sense to eliminate
-        # the withdash kwarg and simply delegate whether there's
-        # a dash to TextWithDash and dashlength.
-
-        if (withdash
-                and withdash is not cbook.deprecation._deprecated_parameter):
-            t = mtext.TextWithDash(x, y, text=s)
-        else:
-            t = mtext.Text(x, y, text=s)
-        t.update(effective_kwargs)
-
+        t = mtext.Text(x, y, text=s, **effective_kwargs)
         t.set_clip_path(self.patch)
         self._add_text(t)
         return t
@@ -912,13 +881,13 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        :class:`~matplotlib.lines.Line2D`
+        `.Line2D`
 
         Other Parameters
         ----------------
         **kwargs
-            Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
-            with the exception of 'transform':
+            Valid kwargs are `.Line2D` properties, with the exception of
+            'transform':
 
             %(_Line2D_docstr)s
 
@@ -979,11 +948,12 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        Polygon : `~matplotlib.patches.Polygon`
+        rectangle : `~matplotlib.patches.Polygon`
+            Horizontal span (rectangle) from (xmin, ymin) to (xmax, ymax).
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.patches.Polygon` properties.
+        **kwargs : `~matplotlib.patches.Polygon` properties
 
         %(Polygon)s
 
@@ -1036,8 +1006,9 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs
-            Optional parameters are properties of the class `.Polygon`.
+        **kwargs : `~matplotlib.patches.Polygon` properties
+
+        %(Polygon)s
 
         See Also
         --------
@@ -1285,14 +1256,12 @@ class Axes(_AxesBase):
 
         **kwargs : optional
             Other keyword arguments are line collection properties.  See
-            :class:`~matplotlib.collections.LineCollection` for a list of
-            the valid properties.
+            `.LineCollection` for a list of the valid properties.
 
         Returns
         -------
-        list : A list of :class:`~.collections.EventCollection` objects.
-            Contains the :class:`~.collections.EventCollection` that
-            were added.
+        list : list of `.EventCollection`
+            The `.EventCollection` that were added.
 
         Notes
         -----
@@ -1326,9 +1295,9 @@ class Axes(_AxesBase):
 
         # prevent 'singular' keys from **kwargs dict from overriding the effect
         # of 'plural' keyword arguments (e.g. 'color' overriding 'colors')
-        colors = cbook.local_over_kwdict(colors, kwargs, 'color')
-        linewidths = cbook.local_over_kwdict(linewidths, kwargs, 'linewidth')
-        linestyles = cbook.local_over_kwdict(linestyles, kwargs, 'linestyle')
+        colors = cbook._local_over_kwdict(colors, kwargs, 'color')
+        linewidths = cbook._local_over_kwdict(linewidths, kwargs, 'linewidth')
+        linestyles = cbook._local_over_kwdict(linestyles, kwargs, 'linestyle')
 
         if not np.iterable(lineoffsets):
             lineoffsets = [lineoffsets]
@@ -1698,9 +1667,8 @@ class Axes(_AxesBase):
             The plot format string. For details, see the corresponding
             parameter in `.plot`.
 
-        tz : timezone string or `tzinfo` or None
-            The time zone to use in labeling dates. If *None*, defaults to
-            :rc:`timezone`.
+        tz : timezone string or `tzinfo`, default: :rc:`timezone`
+            The time zone to use in labeling dates.
 
         xdate : bool, default: True
             If *True*, the *x*-axis will be interpreted as Matplotlib dates.
@@ -1708,12 +1676,10 @@ class Axes(_AxesBase):
         ydate : bool, default: False
             If *True*, the *y*-axis will be interpreted as Matplotlib dates.
 
-
         Returns
         -------
         lines
             A list of `.Line2D` objects representing the plotted data.
-
 
         Other Parameters
         ----------------
@@ -1771,7 +1737,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        basex, basey : scalar, optional, default 10
+        basex, basey : float, default: 10
             Base of the x/y logarithm.
 
         subsx, subsy : sequence, optional
@@ -1780,7 +1746,7 @@ class Axes(_AxesBase):
             decades in the plot.
             See `.Axes.set_xscale` / `.Axes.set_yscale` for details.
 
-        nonposx, nonposy : {'mask', 'clip'}, optional, default 'mask'
+        nonposx, nonposy : {'mask', 'clip'}, default: 'mask'
             Non-positive values in x or y can be masked as invalid, or clipped
             to a very small positive number.
 
@@ -1825,7 +1791,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        basex : scalar, optional, default 10
+        basex : float, default: 10
             Base of the x logarithm.
 
         subsx : array-like, optional
@@ -1833,7 +1799,7 @@ class Axes(_AxesBase):
             are automatically chosen depending on the number of decades in the
             plot. See `.Axes.set_xscale` for details.
 
-        nonposx : {'mask', 'clip'}, optional, default 'mask'
+        nonposx : {'mask', 'clip'}, default: 'mask'
             Non-positive values in x can be masked as invalid, or clipped to a
             very small positive number.
 
@@ -1874,7 +1840,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        basey : scalar, optional, default 10
+        basey : float, default: 10
             Base of the y logarithm.
 
         subsy : array-like, optional
@@ -1882,7 +1848,7 @@ class Axes(_AxesBase):
             are automatically chosen depending on the number of decades in the
             plot. See `.Axes.set_yscale` for details.
 
-        nonposy : {'mask', 'clip'}, optional, default 'mask'
+        nonposy : {'mask', 'clip'}, default: 'mask'
             Non-positive values in y can be masked as invalid, or clipped to a
             very small positive number.
 
@@ -1912,10 +1878,11 @@ class Axes(_AxesBase):
         ----------
         x : array-like
 
-        detrend : callable, default: `mlab.detrend_none`
-            *x* is detrended by the *detrend* callable. This must be a
-            function ``x = detrend(x)`` accepting and returning an
-            `numpy.array`. Default is no detrending.
+        detrend : callable, default: `mlab.detrend_none` (no detrending)
+            A detrending function applied to *x*.  It must have the
+            signature ::
+
+                detrend(x: np.ndarray) -> np.ndarray
 
         normed : bool, default: True
             If ``True``, input vectors are normalised to unit length.
@@ -1961,7 +1928,7 @@ class Axes(_AxesBase):
 
         Notes
         -----
-        The cross correlation is performed with :func:`numpy.correlate` with
+        The cross correlation is performed with `numpy.correlate` with
         ``mode = "full"``.
         """
         return self.xcorr(x, x, **kwargs)
@@ -1978,14 +1945,13 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x : array-like of length n
+        x, y : array-like of length n
 
-        y : array-like of length n
+        detrend : callable, default: `mlab.detrend_none` (no detrending)
+            A detrending function applied to *x* and *y*.  It must have the
+            signature ::
 
-        detrend : callable, default: `mlab.detrend_none`
-            *x* and *y* are detrended by the *detrend* callable. This must be a
-            function ``x = detrend(x)`` accepting and returning an
-            `numpy.array`. Default is no detrending.
+                detrend(x: np.ndarray) -> np.ndarray
 
         normed : bool, default: True
             If ``True``, input vectors are normalised to unit length.
@@ -2031,7 +1997,7 @@ class Axes(_AxesBase):
 
         Notes
         -----
-        The cross correlation is performed with :func:`numpy.correlate` with
+        The cross correlation is performed with `numpy.correlate` with
         ``mode = "full"``.
         """
         Nx = len(x)
@@ -2613,7 +2579,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs : :class:`.BrokenBarHCollection` properties
+        **kwargs : `.BrokenBarHCollection` properties
 
             Each *kwarg* can be either a single argument applying to all
             rectangles, e.g.::
@@ -2632,7 +2598,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        collection : A :class:`~.collections.BrokenBarHCollection`
+        collection : `~.collections.BrokenBarHCollection`
         """
         # process the unit information
         if len(xranges):
@@ -2732,7 +2698,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        container : :class:`~matplotlib.container.StemContainer`
+        container : `.StemContainer`
             The container may be treated like a tuple
             (*markerline*, *stemlines*, *baseline*)
 
@@ -2924,15 +2890,14 @@ class Axes(_AxesBase):
         Returns
         -------
         patches : list
-            A sequence of :class:`matplotlib.patches.Wedge` instances
+            A sequence of `matplotlib.patches.Wedge` instances
 
         texts : list
-            A list of the label :class:`matplotlib.text.Text` instances.
+            A list of the label `.Text` instances.
 
         autotexts : list
-            A list of :class:`~matplotlib.text.Text` instances for the numeric
-            labels. This will only be returned if the parameter *autopct* is
-            not *None*.
+            A list of `.Text` instances for the numeric labels. This will only
+            be returned if the parameter *autopct* is not *None*.
 
         Notes
         -----
@@ -2951,6 +2916,9 @@ class Axes(_AxesBase):
                 "squeeze()d, but this behavior is deprecated since %(since)s "
                 "and will be removed %(removal)s; pass a 1D array instead.")
             x = np.atleast_1d(x.squeeze())
+
+        if np.any(x < 0):
+            raise ValueError("Wedge sizes 'x' must be non negative values")
 
         sx = x.sum()
         if sx > 1:
@@ -3123,9 +3091,8 @@ class Axes(_AxesBase):
             The linewidth of the errorbar lines. If None, the linewidth of
             the current style is used.
 
-        capsize : scalar, default: None
-            The length of the error bar caps in points. If None, it will take
-            the value from :rc:`errorbar.capsize`.
+        capsize : scalar, default: :rc:`errorbar.capsize`
+            The length of the error bar caps in points.
 
         capthick : scalar, default: None
             An alias to the keyword argument *markeredgewidth* (a.k.a. *mew*).
@@ -3157,14 +3124,13 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        container : :class:`~.container.ErrorbarContainer`
+        container : `.ErrorbarContainer`
             The container contains:
 
             - plotline: `.Line2D` instance of x, y plot markers and/or line.
             - caplines: A tuple of `.Line2D` instances of the error bar caps.
-            - barlinecols: A tuple of
-              :class:`~matplotlib.collections.LineCollection` with the
-              horizontal and vertical error ranges.
+            - barlinecols: A tuple of `.LineCollection` with the horizontal and
+              vertical error ranges.
 
         Other Parameters
         ----------------
@@ -3570,7 +3536,7 @@ class Axes(_AxesBase):
         positions : array-like, optional
             Sets the positions of the boxes. The ticks and limits are
             automatically set to match the positions. Defaults to
-            `range(1, N+1)` where N is the number of boxes to be drawn.
+            ``range(1, N+1)`` where N is the number of boxes to be drawn.
 
         widths : scalar or array-like
             Sets the width of each box either with a scalar or a
@@ -3926,10 +3892,13 @@ class Axes(_AxesBase):
 
         zdelta = 0.1
 
-        def line_props_with_rcdefaults(subkey, explicit, zdelta=0):
+        def line_props_with_rcdefaults(subkey, explicit, zdelta=0,
+                                       use_marker=True):
             d = {k.split('.')[-1]: v for k, v in rcParams.items()
                  if k.startswith(f'boxplot.{subkey}')}
             d['zorder'] = zorder + zdelta
+            if not use_marker:
+                d['marker'] = ''
             if explicit is not None:
                 d.update(
                     cbook.normalize_kwargs(explicit, mlines.Line2D._alias_map))
@@ -3950,15 +3919,16 @@ class Axes(_AxesBase):
                     cbook.normalize_kwargs(
                         boxprops, mpatches.PathPatch._alias_map))
         else:
-            final_boxprops = line_props_with_rcdefaults('boxprops', boxprops)
+            final_boxprops = line_props_with_rcdefaults('boxprops', boxprops,
+                                                        use_marker=False)
         final_whiskerprops = line_props_with_rcdefaults(
-            'whiskerprops', whiskerprops)
+            'whiskerprops', whiskerprops, use_marker=False)
         final_capprops = line_props_with_rcdefaults(
-            'capprops', capprops)
+            'capprops', capprops, use_marker=False)
         final_flierprops = line_props_with_rcdefaults(
             'flierprops', flierprops)
         final_medianprops = line_props_with_rcdefaults(
-            'medianprops', medianprops, zdelta)
+            'medianprops', medianprops, zdelta, use_marker=False)
         final_meanprops = line_props_with_rcdefaults(
             'meanprops', meanprops, zdelta)
         removed_prop = 'marker' if meanline else 'linestyle'
@@ -4231,7 +4201,7 @@ class Axes(_AxesBase):
                  else get_next_color_func())
         c_is_string_or_strings = (
             isinstance(c, str)
-            or (isinstance(c, collections.abc.Iterable) and len(c) > 0
+            or (np.iterable(c) and len(c) > 0
                 and isinstance(cbook.safe_first_element(c), str)))
 
         def invalid_shape_exception(csize, xsize):
@@ -4265,7 +4235,7 @@ class Axes(_AxesBase):
         if not c_is_mapped:
             try:  # Is 'c' acceptable as PathCollection facecolors?
                 colors = mcolors.to_rgba_array(c)
-            except ValueError:
+            except (TypeError, ValueError):
                 if not valid_shape:
                     raise invalid_shape_exception(c.size, xsize)
                 # Both the mapping *and* the RGBA conversion failed: pretty
@@ -4325,17 +4295,15 @@ class Axes(_AxesBase):
             by the next color of the ``Axes``' current "shape and fill" color
             cycle. This cycle defaults to :rc:`axes.prop_cycle`.
 
-        marker : `~matplotlib.markers.MarkerStyle`, optional
+        marker : `~.markers.MarkerStyle`, default: :rc:`scatter.marker`
             The marker style. *marker* can be either an instance of the class
             or the text shorthand for a particular marker.
-            Defaults to ``None``, in which case it takes the value of
-            :rc:`scatter.marker` = 'o'.
-            See `~matplotlib.markers` for more information about marker styles.
+            See :mod:`matplotlib.markers` for more information about marker
+            styles.
 
-        cmap : `~matplotlib.colors.Colormap`, optional
+        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             A `.Colormap` instance or registered colormap name. *cmap* is only
-            used if *c* is an array of floats. If ``None``, defaults to
-            :rc:`image.cmap`.
+            used if *c* is an array of floats.
 
         norm : `~matplotlib.colors.Normalize`, default: None
             A `.Normalize` instance is used to scale luminance data to 0, 1.
@@ -4345,27 +4313,23 @@ class Axes(_AxesBase):
         vmin, vmax : scalar, default: None
             *vmin* and *vmax* are used in conjunction with *norm* to normalize
             luminance data. If None, the respective min and max of the color
-            array is used. *vmin* and *vmax* are ignored if you pass a *norm*
-            instance.
+            array is used.
+            It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
         alpha : scalar, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-        linewidths : scalar or array-like, default: None
+        linewidths : scalar or array-like, default: :rc:`lines.linewidth`
             The linewidth of the marker edges. Note: The default *edgecolors*
             is 'face'. You may want to change this as well.
-            If *None*, defaults to :rc:`lines.linewidth`.
 
         edgecolors : {'face', 'none', *None*} or color or sequence of color, \
-optional.
+default: :rc:`scatter.edgecolors`
             The edge color of the marker. Possible values:
 
             - 'face': The edge color will always be the same as the face color.
             - 'none': No patch boundary will be drawn.
             - A color or sequence of colors.
-
-            Defaults to ``None``, in which case it takes the value of
-            :rc:`scatter.edgecolors` = 'face'.
 
             For non-filled markers, the *edgecolors* kwarg is ignored and
             forced to 'face' internally.
@@ -4471,11 +4435,7 @@ optional.
             collection.set_array(c)
             collection.set_cmap(cmap)
             collection.set_norm(norm)
-
-            if vmin is not None or vmax is not None:
-                collection.set_clim(vmin, vmax)
-            else:
-                collection.autoscale_None()
+            collection._scale_norm(norm, vmin, vmax)
 
         # Classic mode only:
         # ensure there are margins to allow for the
@@ -4568,9 +4528,9 @@ optional.
 
         Other Parameters
         ----------------
-        cmap : str or `~matplotlib.colors.Colormap`, optional
+        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             The Colormap instance or registered colormap name used to map
-            the bin values to colors. Defaults to :rc:`image.cmap`.
+            the bin values to colors.
 
         norm : `~matplotlib.colors.Normalize`, optional
             The Normalize instance scales the bin values to the canonical
@@ -4581,7 +4541,8 @@ optional.
             The colorbar range. If *None*, suitable min/max values are
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of the bins in case of the default
-            linear scaling). This is ignored if *norm* is given.
+            linear scaling).
+            It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
         alpha : float between 0 and 1, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -4825,11 +4786,7 @@ optional.
         collection.set_norm(norm)
         collection.set_alpha(alpha)
         collection.update(kwargs)
-
-        if vmin is not None or vmax is not None:
-            collection.set_clim(vmin, vmax)
-        else:
-            collection.autoscale_None()
+        collection._scale_norm(norm, vmin, vmax)
 
         corners = ((xmin, ymin), (xmax, ymax))
         self.update_datalim(corners)
@@ -5051,11 +5008,11 @@ optional.
 
         Returns
         -------
-        a list of :class:`~matplotlib.patches.Polygon`
+        list of `~matplotlib.patches.Polygon`
 
         Other Parameters
         ----------------
-        **kwargs : :class:`~matplotlib.patches.Polygon` properties
+        **kwargs : `~matplotlib.patches.Polygon` properties
 
         Notes
         -----
@@ -5085,7 +5042,6 @@ optional.
 
         By default, the edges connect the given points directly. Use *step* if
         the filling should be a step function, i.e. constant in between *x*.
-
 
         Parameters
         ----------
@@ -5296,7 +5252,6 @@ optional.
 
         By default, the edges connect the given points directly. Use *step* if
         the filling should be a step function, i.e. constant in between *y*.
-
 
         Parameters
         ----------
@@ -5526,10 +5481,9 @@ optional.
 
             Out-of-range RGB(A) values are clipped.
 
-        cmap : str or `~matplotlib.colors.Colormap`, optional
+        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             The Colormap instance or registered colormap name used to map
             scalar data to colors. This parameter is ignored for RGB(A) data.
-            Defaults to :rc:`image.cmap`.
 
         norm : `~matplotlib.colors.Normalize`, optional
             The `Normalize` instance used to scale scalar data to the [0, 1]
@@ -5537,7 +5491,7 @@ optional.
             scaling mapping the lowest value to 0 and the highest to 1 is used.
             This parameter is ignored for RGB(A) data.
 
-        aspect : {'equal', 'auto'} or float, optional
+        aspect : {'equal', 'auto'} or float, default: :rc:`image.aspect`
             The aspect ratio of the axes.  This parameter is particularly
             relevant for images since it determines whether data pixels are
             square.
@@ -5552,11 +5506,8 @@ optional.
               that the data fit in the axes. In general, this will result in
               non-square pixels.
 
-            If not given, use :rc:`image.aspect`.
-
-        interpolation : str, optional
-            The interpolation method used. If *None*, :rc:`image.interpolation`
-            is used.
+        interpolation : str, default: :rc:`image.interpolation`
+            The interpolation method used.
 
             Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
             'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
@@ -5596,13 +5547,12 @@ optional.
             When using scalar data and no explicit *norm*, *vmin* and *vmax*
             define the data range that the colormap covers. By default,
             the colormap covers the complete value range of the supplied
-            data. *vmin*, *vmax* are ignored if the *norm* parameter is used.
+            data. It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
-        origin : {'upper', 'lower'}, optional
-            Place the [0, 0] index of the array in the upper left or lower left
-            corner of the axes. The convention 'upper' is typically used for
-            matrices and images.
-            If not given, :rc:`image.origin` is used, defaulting to 'upper'.
+        origin : {'upper', 'lower'}, default: :rc:`image.origin`
+            Place the [0, 0] index of the array in the upper left or lower
+            left corner of the axes. The convention (the default) 'upper' is
+            typically used for matrices and images.
 
             Note that the vertical axes points upward for 'lower'
             but downward for 'upper'.
@@ -5693,10 +5643,7 @@ optional.
         if im.get_clip_path() is None:
             # image does not already have clipping set, clip to axes patch
             im.set_clip_path(self.patch)
-        if vmin is not None or vmax is not None:
-            im.set_clim(vmin, vmax)
-        else:
-            im.autoscale_None()
+        im._scale_norm(norm, vmin, vmax)
         im.set_url(url)
 
         # update ax.dataLim, and, if autoscaling, set viewLim
@@ -5821,9 +5768,9 @@ optional.
             expanded as needed into the appropriate 2-D arrays, making a
             rectangular grid.
 
-        cmap : str or `~matplotlib.colors.Colormap`, optional
+        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             A Colormap instance or registered colormap name. The colormap
-            maps the *C* values to colors. Defaults to :rc:`image.cmap`.
+            maps the *C* values to colors.
 
         norm : `~matplotlib.colors.Normalize`, optional
             The Normalize instance scales the data values to the canonical
@@ -5835,6 +5782,7 @@ optional.
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
+            It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
         edgecolors : {'none', None, 'face', color, color sequence}, optional
             The color of the edges. Defaults to 'none'. Possible values:
@@ -5971,8 +5919,7 @@ optional.
         collection.set_array(C)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
-        collection.set_clim(vmin, vmax)
-        collection.autoscale_None()
+        collection._scale_norm(norm, vmin, vmax)
         self.grid(False)
 
         x = X.compressed()
@@ -6052,9 +5999,9 @@ optional.
             expanded as needed into the appropriate 2-D arrays, making a
             rectangular grid.
 
-        cmap : str or `~matplotlib.colors.Colormap`, optional
+        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             A Colormap instance or registered colormap name. The colormap
-            maps the *C* values to colors. Defaults to :rc:`image.cmap`.
+            maps the *C* values to colors.
 
         norm : `~matplotlib.colors.Normalize`, optional
             The Normalize instance scales the data values to the canonical
@@ -6066,6 +6013,7 @@ optional.
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
+            It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
         edgecolors : {'none', None, 'face', color, color sequence}, optional
             The color of the edges. Defaults to 'none'. Possible values:
@@ -6185,8 +6133,7 @@ optional.
         collection.set_array(C)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
-        collection.set_clim(vmin, vmax)
-        collection.autoscale_None()
+        collection._scale_norm(norm, vmin, vmax)
 
         self.grid(False)
 
@@ -6222,7 +6169,7 @@ optional.
 
           ax.pcolorfast([X, Y], C, /, **kwargs)
 
-        This method is similar to ~.Axes.pcolor` and `~.Axes.pcolormesh`.
+        This method is similar to `~.Axes.pcolor` and `~.Axes.pcolormesh`.
         It's designed to provide the fastest pcolor-type plotting with the
         Agg backend. To achieve this, it uses different algorithms internally
         depending on the complexity of the input grid (regular rectangular,
@@ -6286,9 +6233,9 @@ optional.
 
             These arguments can only be passed positionally.
 
-        cmap : str or `~matplotlib.colors.Colormap`, optional
+        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             A Colormap instance or registered colormap name. The colormap
-            maps the *C* values to colors. Defaults to :rc:`image.cmap`.
+            maps the *C* values to colors.
 
         norm : `~matplotlib.colors.Normalize`, optional
             The Normalize instance scales the data values to the canonical
@@ -6300,6 +6247,7 @@ optional.
             automatically chosen by the `~.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
+            It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
         alpha : scalar, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -6337,8 +6285,8 @@ optional.
                 else:
                     dx = np.diff(x)
                     dy = np.diff(y)
-                    if (np.ptp(dx) < 0.01 * np.abs(dx.mean()) and
-                        np.ptp(dy) < 0.01 * np.abs(dy.mean())):
+                    if (np.ptp(dx) < 0.01 * abs(dx.mean()) and
+                        np.ptp(dy) < 0.01 * abs(dy.mean())):
                         style = "image"
                     else:
                         style = "pcolorimage"
@@ -6382,10 +6330,9 @@ optional.
             self.add_image(im)
             ret = im
 
-        if vmin is not None or vmax is not None:
-            ret.set_clim(vmin, vmax)
-        elif np.ndim(C) == 2:  # C.ndim == 3 is RGB(A) so doesn't need scaling.
-            ret.autoscale_None()
+        if np.ndim(C) == 2:  # C.ndim == 3 is RGB(A) so doesn't need scaling.
+            ret._scale_norm(norm, vmin, vmax)
+
         if ret.get_clip_path() is None:
             # image does not already have clipping set, clip to axes patch
             ret.set_clip_path(self.patch)
@@ -6448,7 +6395,7 @@ optional.
             Input values, this takes either a single array or a sequence of
             arrays which are not required to be of the same length.
 
-        bins : int or sequence or str, optional
+        bins : int or sequence or str, default: :rc:`hist.bins`
             If *bins* is an integer, it defines the number of equal-width bins
             in the range.
 
@@ -6466,8 +6413,6 @@ optional.
             If *bins* is a string, it is one of the binning strategies
             supported by `numpy.histogram_bin_edges`: 'auto', 'fd', 'doane',
             'scott', 'stone', 'rice', 'sturges', or 'sqrt'.
-
-            The default is :rc:`hist.bins`.
 
         range : tuple or None, optional
             The lower and upper range of the bins. Lower and upper outliers
@@ -7041,15 +6986,13 @@ optional.
 
         %(PSD)s
 
-        noverlap : int
+        noverlap : int, default: 0 (no overlap)
             The number of points of overlap between segments.
-            The default value is 0 (no overlap).
 
-        Fc : int
-            The center frequency of *x* (defaults to 0), which offsets
-            the x extents of the plot to reflect the frequency range used
-            when a signal is acquired and then filtered and downsampled to
-            baseband.
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
 
         return_line : bool, default: False
             Whether to include the line object plotted in the returned values.
@@ -7076,16 +7019,14 @@ optional.
 
         See Also
         --------
-        :func:`specgram`
-            :func:`specgram` differs in the default overlap; in not returning
-            the mean of the segment periodograms; in returning the times of the
-            segments; and in plotting a colormap instead of a line.
-
-        :func:`magnitude_spectrum`
-            :func:`magnitude_spectrum` plots the magnitude spectrum.
-
-        :func:`csd`
-            :func:`csd` plots the spectral density between two signals.
+        specgram
+            Differs in the default overlap; in not returning the mean of the
+            segment periodograms; in returning the times of the segments; and
+            in plotting a colormap instead of a line.
+        magnitude_spectrum
+            Plots the magnitude spectrum.
+        csd
+            Plots the spectral density between two signals.
 
         Notes
         -----
@@ -7158,15 +7099,13 @@ optional.
 
         %(PSD)s
 
-        noverlap : int
+        noverlap : int, default: 0 (no overlap)
             The number of points of overlap between segments.
-            The default value is 0 (no overlap).
 
-        Fc : int
-            The center frequency of *x* (defaults to 0), which offsets
-            the x extents of the plot to reflect the frequency range used
-            when a signal is acquired and then filtered and downsampled to
-            baseband.
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
 
         return_line : bool, default: False
             Whether to include the line object plotted in the returned values.
@@ -7193,8 +7132,7 @@ optional.
 
         See Also
         --------
-        :func:`psd`
-            :func:`psd` is the equivalent to setting y=x.
+        psd : is equivalent to setting ``y = x``.
 
         Notes
         -----
@@ -7259,11 +7197,10 @@ optional.
             'dB' returns the values in dB scale, i.e., the dB amplitude
             (20 * log10). 'default' is 'linear'.
 
-        Fc : int
-            The center frequency of *x* (defaults to 0), which offsets
-            the x extents of the plot to reflect the frequency range used
-            when a signal is acquired and then filtered and downsampled to
-            baseband.
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
 
         Returns
         -------
@@ -7285,21 +7222,15 @@ optional.
 
         See Also
         --------
-        :func:`psd`
-            :func:`psd` plots the power spectral density.`.
-
-        :func:`angle_spectrum`
-            :func:`angle_spectrum` plots the angles of the corresponding
-            frequencies.
-
-        :func:`phase_spectrum`
-            :func:`phase_spectrum` plots the phase (unwrapped angle) of the
-            corresponding frequencies.
-
-        :func:`specgram`
-            :func:`specgram` can plot the magnitude spectrum of segments within
-            the signal in a colormap.
-
+        psd
+            Plots the power spectral density.
+        angle_spectrum
+            Plots the angles of the corresponding frequencies.
+        phase_spectrum
+            Plots the phase (unwrapped angle) of the corresponding frequencies.
+        specgram
+            Can plot the magnitude spectrum of segments within the signal in a
+            colormap.
         """
         if Fc is None:
             Fc = 0
@@ -7343,11 +7274,10 @@ optional.
 
         %(Single_Spectrum)s
 
-        Fc : int
-            The center frequency of *x* (defaults to 0), which offsets
-            the x extents of the plot to reflect the frequency range used
-            when a signal is acquired and then filtered and downsampled to
-            baseband.
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
 
         Returns
         -------
@@ -7369,18 +7299,13 @@ optional.
 
         See Also
         --------
-        :func:`magnitude_spectrum`
-            :func:`angle_spectrum` plots the magnitudes of the corresponding
-            frequencies.
-
-        :func:`phase_spectrum`
-            :func:`phase_spectrum` plots the unwrapped version of this
-            function.
-
-        :func:`specgram`
-            :func:`specgram` can plot the angle spectrum of segments within the
-            signal in a colormap.
-
+        magnitude_spectrum
+            Plots the magnitudes of the corresponding frequencies.
+        phase_spectrum
+            Plots the unwrapped version of this function.
+        specgram
+            Can plot the angle spectrum of segments within the signal in a
+            colormap.
         """
         if Fc is None:
             Fc = 0
@@ -7415,11 +7340,10 @@ optional.
 
         %(Single_Spectrum)s
 
-        Fc : int
-            The center frequency of *x* (defaults to 0), which offsets
-            the x extents of the plot to reflect the frequency range used
-            when a signal is acquired and then filtered and downsampled to
-            baseband.
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
 
         Returns
         -------
@@ -7441,17 +7365,13 @@ optional.
 
         See Also
         --------
-        :func:`magnitude_spectrum`
-            :func:`magnitude_spectrum` plots the magnitudes of the
-            corresponding frequencies.
-
-        :func:`angle_spectrum`
-            :func:`angle_spectrum` plots the wrapped version of this function.
-
-        :func:`specgram`
-            :func:`specgram` can plot the phase spectrum of segments within the
-            signal in a colormap.
-
+        magnitude_spectrum
+            Plots the magnitudes of the corresponding frequencies.
+        angle_spectrum
+            Plots the wrapped version of this function.
+        specgram
+            Can plot the phase spectrum of segments within the signal in a
+            colormap.
         """
         if Fc is None:
             Fc = 0
@@ -7487,16 +7407,13 @@ optional.
 
         %(PSD)s
 
-        noverlap : int
-            The number of points of overlap between blocks.  The
-            default value is 0 (no overlap).
+        noverlap : int, default: 0 (no overlap)
+            The number of points of overlap between blocks.
 
-        Fc : int
-            The center frequency of *x* (defaults to 0), which offsets
-            the x extents of the plot to reflect the frequency range used
-            when a signal is acquired and then filtered and downsampled to
-            baseband.
-
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
 
         Returns
         -------
@@ -7574,15 +7491,12 @@ optional.
             'magnitude' and 'linear' otherwise.  This must be 'linear'
             if *mode* is 'angle' or 'phase'.
 
-        Fc : int
-            The center frequency of *x* (defaults to 0), which offsets
-            the x extents of the plot to reflect the frequency range used
-            when a signal is acquired and then filtered and downsampled to
-            baseband.
+        Fc : int, default: 0
+            The center frequency of *x*, which offsets the x extents of the
+            plot to reflect the frequency range used when a signal is acquired
+            and then filtered and downsampled to baseband.
 
-        cmap
-            A :class:`matplotlib.colors.Colormap` instance; if *None*, use
-            default determined by rc
+        cmap : `.Colormap`, default: :rc:`image.cmap`
 
         xextent : *None* or (xmin, xmax)
             The image extent along the x-axis. The default sets *xmin* to the
@@ -7591,8 +7505,8 @@ optional.
             of the bins is smaller than those of the segments.
 
         **kwargs
-            Additional keyword arguments are passed on to imshow which makes
-            the specgram image.
+            Additional keyword arguments are passed on to `~.axes.Axes.imshow`
+            which makes the specgram image.
 
         Returns
         -------
@@ -7606,25 +7520,22 @@ optional.
             The times corresponding to midpoints of segments (i.e., the columns
             in *spectrum*).
 
-        im : instance of class :class:`~matplotlib.image.AxesImage`
-            The image created by imshow containing the spectrogram
+        im : `.AxesImage`
+            The image created by imshow containing the spectrogram.
 
         See Also
         --------
-        :func:`psd`
-            :func:`psd` differs in the default overlap; in returning the mean
-            of the segment periodograms; in not returning times; and in
-            generating a line plot instead of colormap.
-
-        :func:`magnitude_spectrum`
+        psd
+            Differs in the default overlap; in returning the mean of the
+            segment periodograms; in not returning times; and in generating a
+            line plot instead of colormap.
+        magnitude_spectrum
             A single spectrum, similar to having a single segment when *mode*
             is 'magnitude'. Plots a line instead of a colormap.
-
-        :func:`angle_spectrum`
+        angle_spectrum
             A single spectrum, similar to having a single segment when *mode*
             is 'angle'. Plots a line instead of a colormap.
-
-        :func:`phase_spectrum`
+        phase_spectrum
             A single spectrum, similar to having a single segment when *mode*
             is 'phase'. Plots a line instead of a colormap.
 
@@ -7716,7 +7627,7 @@ optional.
             If *precision* is 0, any non-zero value will be plotted. Otherwise,
             values of :math:`|Z| > precision` will be plotted.
 
-            For :class:`scipy.sparse.spmatrix` instances, you can also
+            For `scipy.sparse.spmatrix` instances, you can also
             pass 'present'. In this case any value present in the array
             will be plotted, even if it is identically zero.
 

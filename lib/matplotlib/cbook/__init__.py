@@ -279,6 +279,7 @@ class silent_list(list):
         self.extend(state['seq'])
 
 
+@deprecated("3.3")
 class IgnoredKeywordWarning(UserWarning):
     """
     A class for issuing warnings about keyword arguments that will be ignored
@@ -287,6 +288,7 @@ class IgnoredKeywordWarning(UserWarning):
     pass
 
 
+@deprecated("3.3", alternative="normalize_kwargs")
 def local_over_kwdict(local_var, kwargs, *keys):
     """
     Enforces the priority of a local variable over potentially conflicting
@@ -321,8 +323,12 @@ def local_over_kwdict(local_var, kwargs, *keys):
     IgnoredKeywordWarning
         For each key in keys that is removed from kwargs but not used as
         the output value.
-
     """
+    return _local_over_kwdict(local_var, kwargs, *keys, IgnoredKeywordWarning)
+
+
+def _local_over_kwdict(
+        local_var, kwargs, *keys, warning_cls=MatplotlibDeprecationWarning):
     out = local_var
     for key in keys:
         kwarg_val = kwargs.pop(key, None)
@@ -331,7 +337,7 @@ def local_over_kwdict(local_var, kwargs, *keys):
                 out = kwarg_val
             else:
                 _warn_external('"%s" keyword argument will be ignored' % key,
-                               IgnoredKeywordWarning)
+                               warning_cls)
     return out
 
 
@@ -1357,10 +1363,10 @@ def _to_unmasked_float_array(x):
 
 
 def _check_1d(x):
-    '''
+    """
     Converts a sequence of less than 1 dimension, to an array of 1
     dimension; leaves everything else untouched.
-    '''
+    """
     if not hasattr(x, 'shape') or len(x.shape) < 1:
         return np.atleast_1d(x)
     else:
@@ -1874,11 +1880,9 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         if tmp:
             ret[canonical] = tmp[-1]
             if len(tmp) > 1:
-                warn_deprecated(
-                    "3.1", message=f"Saw kwargs {seen!r} which are all "
-                    f"aliases for {canonical!r}.  Kept value from "
-                    f"{seen[-1]!r}.  Passing multiple aliases for the same "
-                    f"property will raise a TypeError %(removal)s.")
+                raise TypeError("Got the following keyword arguments which "
+                                "are aliases of one another: {}"
+                                .format(", ".join(map(repr, seen))))
 
     # at this point we know that all keys which are aliased are removed, update
     # the return dictionary from the cleaned local copy of the input
@@ -1912,15 +1916,6 @@ def get_label(y, default_name):
         return y.name
     except AttributeError:
         return default_name
-
-
-_lockstr = """\
-LOCKERROR: matplotlib is trying to acquire the lock
-    {!r}
-and has failed.  This maybe due to any other process holding this
-lock.  If you are sure no other matplotlib process is running try
-removing these folders and trying again.
-"""
 
 
 @contextlib.contextmanager
@@ -2309,6 +2304,7 @@ class _classproperty:
     Examples
     --------
     ::
+
         class C:
             @classproperty
             def foo(cls):

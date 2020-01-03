@@ -18,7 +18,6 @@ import numpy as np
 from matplotlib import rcParams
 from matplotlib import docstring, projections
 from matplotlib import __version__ as _mpl_version
-from matplotlib import get_backend
 
 import matplotlib.artist as martist
 from matplotlib.artist import Artist, allow_rasterization
@@ -32,8 +31,7 @@ from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
 from matplotlib.gridspec import GridSpec
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
-from matplotlib.projections import process_projection_requirements
-from matplotlib.text import Text, TextWithDash
+from matplotlib.text import Text
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
 import matplotlib._layoutbox as layoutbox
@@ -677,12 +675,10 @@ default: 'top'
             The font weight of the text. See `.Text.set_weight` for possible
             values.
 
-
         Returns
         -------
-            text
-                The `.Text` instance of the title.
-
+        text
+            The `.Text` instance of the title.
 
         Other Parameters
         ----------------
@@ -694,7 +690,6 @@ default: 'top'
 
         **kwargs
             Additional kwargs are :class:`matplotlib.text.Text` properties.
-
 
         Examples
         --------
@@ -776,20 +771,20 @@ default: 'top'
         alpha : None or float
             The alpha blending value.
 
-        norm : :class:`matplotlib.colors.Normalize`
+        norm : `matplotlib.colors.Normalize`
             A :class:`.Normalize` instance to map the luminance to the
             interval [0, 1].
 
-        cmap : str or :class:`matplotlib.colors.Colormap`
-            The colormap to use. Default: :rc:`image.cmap`.
+        cmap : str or `matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+            The colormap to use.
 
         vmin, vmax : scalar
             If *norm* is not given, these values set the data limits for the
             colormap.
 
-        origin : {'upper', 'lower'}
+        origin : {'upper', 'lower'}, default: :rc:`image.origin`
             Indicates where the [0, 0] index of the array is in the upper left
-            or lower left corner of the axes. Defaults to :rc:`image.origin`.
+            or lower left corner of the axes.
 
         resize : bool
             If *True*, resize the figure to match the given image size.
@@ -805,14 +800,14 @@ default: 'top'
 
         Notes
         -----
-        figimage complements the axes image
-        (:meth:`~matplotlib.axes.Axes.imshow`) which will be resampled
-        to fit the current axes.  If you want a resampled image to
-        fill the entire figure, you can define an
-        :class:`~matplotlib.axes.Axes` with extent [0, 0, 1, 1].
+        figimage complements the axes image (`~matplotlib.axes.Axes.imshow`)
+        which will be resampled to fit the current axes.  If you want
+        a resampled image to fill the entire figure, you can define an
+        `~matplotlib.axes.Axes` with extent [0, 0, 1, 1].
 
-
-        Examples::
+        Examples
+        --------
+        ::
 
             f = plt.figure()
             nx = int(f.get_figwidth() * f.dpi)
@@ -820,7 +815,6 @@ default: 'top'
             data = np.random.random((ny, nx))
             f.figimage(data)
             plt.show()
-
         """
         if resize:
             dpi = self.get_dpi()
@@ -1027,7 +1021,7 @@ default: 'top'
             The artist to add to the figure. If the added artist has no
             transform previously set, its transform will be set to
             ``figure.transFigure``.
-        clip : bool, optional, default: False
+        clip : bool, default: False
             Whether the added artist should be clipped by the figure patch.
 
         Returns
@@ -1414,7 +1408,7 @@ default: 'top'
 
         Parameters
         ----------
-        nrows, ncols : int, optional, default: 1
+        nrows, ncols : int, default: 1
             Number of rows/columns of the subplot grid.
 
         sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
@@ -1432,7 +1426,7 @@ default: 'top'
             first column subplot are created. To later turn other subplots'
             ticklabels on, use `~matplotlib.axes.Axes.tick_params`.
 
-        squeeze : bool, optional, default: True
+        squeeze : bool, default: True
             - If True, extra dimensions are squeezed out from the returned
               array of Axes:
 
@@ -1458,7 +1452,7 @@ default: 'top'
 
         Returns
         -------
-        ax : `~.axes.Axes` object or array of Axes objects.
+        ax : `~.axes.Axes` or array of Axes
             *ax* can be either a single `~matplotlib.axes.Axes` object or
             an array of Axes objects if more than one subplot was created. The
             dimensions of the resulting array can be controlled with the
@@ -1670,10 +1664,7 @@ default: 'top'
 
     @allow_rasterization
     def draw(self, renderer):
-        """
-        Render the figure using :class:`matplotlib.backend_bases.RendererBase`
-        instance *renderer*.
-        """
+        # docstring inherited
         self._cachedRenderer = renderer
 
         # draw the figure bounding box, perhaps none for white figure
@@ -1796,7 +1787,7 @@ default: 'top'
 
         Returns
         -------
-        :class:`matplotlib.legend.Legend` instance
+        `~matplotlib.legend.Legend`
 
         Notes
         -----
@@ -1825,9 +1816,8 @@ default: 'top'
         self.stale = True
         return l
 
-    @cbook._delete_parameter("3.1", "withdash")
     @docstring.dedent_interpd
-    def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
+    def text(self, x, y, s, fontdict=None, **kwargs):
         """
         Add text to figure.
 
@@ -1841,14 +1831,11 @@ default: 'top'
         s : str
             The text string.
 
-        fontdict : dictionary, optional, default: None
-            A dictionary to override the default text properties. If fontdict
-            is None, the defaults are determined by your rc parameters. A
-            property in *kwargs* override the same property in fontdict.
-
-        withdash : boolean, optional, default: False
-            Creates a `~matplotlib.text.TextWithDash` instance instead of a
-            `~matplotlib.text.Text` instance.
+        fontdict : dict, optional
+            A dictionary to override the default text properties. If not given,
+            the defaults are determined by your rc parameters. Properties
+            passed as *kwargs* override the corresponding ones given in
+            *fontdict*.
 
         Other Parameters
         ----------------
@@ -1866,19 +1853,12 @@ default: 'top'
         .Axes.text
         .pyplot.text
         """
-        default = dict(transform=self.transFigure)
-
-        if (withdash
-                and withdash is not cbook.deprecation._deprecated_parameter):
-            text = TextWithDash(x=x, y=y, text=s)
-        else:
-            text = Text(x=x, y=y, text=s)
-
-        text.update(default)
-        if fontdict is not None:
-            text.update(fontdict)
-        text.update(kwargs)
-
+        effective_kwargs = {
+            'transform': self.transFigure,
+            **(fontdict if fontdict is not None else {}),
+            **kwargs,
+        }
+        text = Text(x=x, y=y, text=s, **effective_kwargs)
         text.set_figure(self)
         text.stale_callback = _stale_figure_callback
 
@@ -2108,13 +2088,11 @@ default: 'top'
 
             Whether the image should be stored as a progressive JPEG file.
 
-        facecolor : color or None, optional
-            The facecolor of the figure; if *None*, defaults to
-            :rc:`savefig.facecolor`.
+        facecolor : color, default: :rc:`savefig.facecolor`
+            The facecolor of the figure.
 
-        edgecolor : color or None, optional
-            The edgecolor of the figure; if *None*, defaults to
-            :rc:`savefig.edgecolor`
+        edgecolor : color, default: :rc:`savefig.edgecolor`
+            The edgecolor of the figure.
 
         orientation : {'landscape', 'portrait'}
             Currently only supported by the postscript backend.
@@ -2298,19 +2276,19 @@ default: 'top'
 
         Parameters
         ----------
-        n : int, optional, default: 1
+        n : int, default: 1
             Number of mouse clicks to accumulate. If negative, accumulate
             clicks until the input is terminated manually.
-        timeout : scalar, optional, default: 30
+        timeout : scalar, default: 30 seconds
             Number of seconds to wait before timing out. If zero or negative
             will never timeout.
-        show_clicks : bool, optional, default: True
+        show_clicks : bool, default: True
             If True, show a red cross at the location of each click.
-        mouse_add : {1, 2, 3, None}, optional, default: 1 (left click)
+        mouse_add : {1, 2, 3, None}, default: 1 (left click)
             Mouse button used to add points.
-        mouse_pop : {1, 2, 3, None}, optional, default: 3 (right click)
+        mouse_pop : {1, 2, 3, None}, default: 3 (right click)
             Mouse button used to remove the most recently added point.
-        mouse_stop : {1, 2, 3, None}, optional, default: 2 (middle click)
+        mouse_stop : {1, 2, 3, None}, default: 2 (middle click)
             Mouse button used to stop input.
 
         Returns
@@ -2361,7 +2339,7 @@ default: 'top'
 
         Parameters
         ----------
-        renderer : `.RendererBase` instance
+        renderer : `.RendererBase` subclass
             renderer that will be used to draw the figures (i.e.
             ``fig.canvas.get_renderer()``)
 

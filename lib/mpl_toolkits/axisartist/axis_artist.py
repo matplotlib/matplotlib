@@ -157,11 +157,6 @@ class BezierPath(Line2D):
         renderer.close_group('line2d')
 
 
-@cbook.deprecated("3.1")
-class UnimplementedException(Exception):
-    pass
-
-
 class AttributeCopier:
     @cbook.deprecated("3.2")
     def __init__(self, ref_artist, klass=Artist):
@@ -339,7 +334,7 @@ class LabelBase(mtext.Text):
         text_ref_angle = self._get_text_ref_angle()
         offset_ref_angle = self._get_offset_ref_angle()
 
-        theta = (offset_ref_angle)/180.*np.pi
+        theta = np.deg2rad(offset_ref_angle)
         dd = self._get_offset_radius()
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
         offset_tr.translate(dx, dy)
@@ -362,7 +357,7 @@ class LabelBase(mtext.Text):
         text_ref_angle = self._get_text_ref_angle()
         offset_ref_angle = self._get_offset_ref_angle()
 
-        theta = (offset_ref_angle)/180.*np.pi
+        theta = np.deg2rad(offset_ref_angle)
         dd = self._get_offset_radius()
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
         offset_tr.translate(dx, dy)
@@ -727,7 +722,7 @@ class AxisArtist(martist.Artist):
 
     @LABELPAD.setter
     def LABELPAD(self, v):
-        return self.label.set_pad(v)
+        self.label.set_pad(v)
 
     def __init__(self, axes,
                  helper,
@@ -1219,7 +1214,7 @@ class AxisArtist(martist.Artist):
 
     @martist.allow_rasterization
     def draw(self, renderer):
-        """Draw the axis lines, tick lines and labels."""
+        # docstring inherited
 
         if not self.get_visible():
             return

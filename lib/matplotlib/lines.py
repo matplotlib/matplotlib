@@ -9,6 +9,7 @@ import logging
 
 import numpy as np
 
+import matplotlib as mpl
 from . import artist, cbook, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
 from .cbook import (
@@ -120,10 +121,7 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
     codes, verts = tpath.codes, tpath.vertices
 
     def _slice_or_none(in_v, slc):
-        '''
-        Helper function to cope with `codes` being an
-        ndarray or `None`
-        '''
+        """Helper function to cope with `codes` being an ndarray or `None`."""
         if in_v is None:
             return None
         return in_v[slc]
@@ -420,11 +418,6 @@ class Line2D(Artist):
 
         self.set_data(xdata, ydata)
 
-    @cbook.deprecated("3.1")
-    @property
-    def verticalOffset(self):
-        return None
-
     def contains(self, mouseevent):
         """
         Test whether the mouse event occurred on the line.  The pick
@@ -541,8 +534,7 @@ class Line2D(Artist):
               half of the marker is filled with *markerfacecoloralt*.
             - 'none': No filling.
 
-            For examples see
-            :doc:`/gallery/lines_bars_and_markers/marker_fillstyle_reference`.
+            For examples see :ref:`marker_fill_styles`.
         """
         self._marker.set_fillstyle(fs)
         self.stale = True
@@ -773,7 +765,7 @@ class Line2D(Artist):
 
     @allow_rasterization
     def draw(self, renderer):
-        # docstring inherited from Artist.draw.
+        # docstring inherited
 
         if not self.get_visible():
             return
@@ -1391,7 +1383,7 @@ class Line2D(Artist):
         s : {'miter', 'round', 'bevel'}
             For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
-        s = s.lower()
+        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
         cbook._check_in_list(self.validJoin, s=s)
         if self._dashjoinstyle != s:
             self.stale = True
@@ -1406,7 +1398,7 @@ class Line2D(Artist):
         s : {'miter', 'round', 'bevel'}
             For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
-        s = s.lower()
+        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
         cbook._check_in_list(self.validJoin, s=s)
         if self._solidjoinstyle != s:
             self.stale = True
@@ -1437,7 +1429,7 @@ class Line2D(Artist):
         s : {'butt', 'round', 'projecting'}
             For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
-        s = s.lower()
+        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
         cbook._check_in_list(self.validCap, s=s)
         if self._dashcapstyle != s:
             self.stale = True
@@ -1452,7 +1444,7 @@ class Line2D(Artist):
         s : {'butt', 'round', 'projecting'}
             For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
-        s = s.lower()
+        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
         cbook._check_in_list(self.validCap, s=s)
         if self._solidcapstyle != s:
             self.stale = True

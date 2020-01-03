@@ -101,7 +101,7 @@ class MathtextBackend:
         self.depth = 0
 
     def set_canvas_size(self, w, h, d):
-        'Dimension the drawing canvas'
+        """Set the dimension of the drawing canvas."""
         self.width  = w
         self.height = h
         self.depth  = d
@@ -568,7 +568,7 @@ class TruetypeFonts(Fonts):
 
     def _get_offset(self, font, glyph, fontsize, dpi):
         if font.postscript_name == 'Cmex10':
-            return ((glyph.height/64.0/2.0) + (fontsize/3.0 * dpi/72.0))
+            return (glyph.height / 64 / 2) + (fontsize/3 * dpi/72)
         return 0.
 
     def _get_info(self, fontname, font_class, sym, fontsize, dpi, math=True):
@@ -1107,7 +1107,7 @@ class StandardPsFonts(Fonts):
         return cached_font
 
     def _get_info(self, fontname, font_class, sym, fontsize, dpi, math=True):
-        'load the cmfont, metrics and glyph with caching'
+        """Load the cmfont, metrics and glyph with caching."""
         key = fontname, sym, fontsize, dpi
         tup = self.glyphd.get(key)
 
@@ -2025,7 +2025,7 @@ class AutoHeightChar(Hlist):
         shift = 0
         if state.font != 0:
             if factor is None:
-                factor = (target_total) / (char.height + char.depth)
+                factor = target_total / (char.height + char.depth)
             state.fontsize *= factor
             char = Char(sym, state)
 

@@ -382,7 +382,7 @@ def datestr2num(d, default=None):
     d : str or sequence of str
         The dates to convert.
 
-    default : datetime instance, optional
+    default : datetime.datetime, optional
         The default date to use when fields are missing in *d*.
     """
     if isinstance(d, str):
@@ -572,7 +572,10 @@ class DateFormatter(ticker.Formatter):
     `~datetime.datetime.strftime` format string.
     """
 
-    illegal_s = re.compile(r"((^|[^%])(%%)*%s)")
+    @cbook.deprecated("3.3")
+    @property
+    def illegal_s(self):
+        return re.compile(r"((^|[^%])(%%)*%s)")
 
     def __init__(self, fmt, tz=None):
         """
@@ -615,7 +618,7 @@ class IndexDateFormatter(ticker.Formatter):
         self.tz = tz
 
     def __call__(self, x, pos=0):
-        'Return the label for time *x* at position *pos*'
+        """Return the label for time *x* at position *pos*."""
         ind = int(round(x))
         if ind >= len(self.t) or ind <= 0:
             return ''
@@ -837,13 +840,11 @@ class AutoDateFormatter(ticker.Formatter):
             1. / (MINUTES_PER_DAY): rcParams['date.autoformat.minute'],
             1. / (SEC_PER_DAY): rcParams['date.autoformat.second'],
             1. / (MUSECONDS_PER_DAY): rcParams['date.autoformat.microsecond'],
-            }
-
+        }
 
     The algorithm picks the key in the dictionary that is >= the
     current scale and uses that format string.  You can customize this
     dictionary by doing::
-
 
     >>> locator = AutoDateLocator()
     >>> formatter = AutoDateFormatter(locator)
@@ -888,16 +889,15 @@ class AutoDateFormatter(ticker.Formatter):
         self._tz = tz
         self.defaultfmt = defaultfmt
         self._formatter = DateFormatter(self.defaultfmt, tz)
-        self.scaled = {DAYS_PER_YEAR: rcParams['date.autoformatter.year'],
-                       DAYS_PER_MONTH: rcParams['date.autoformatter.month'],
-                       1.0: rcParams['date.autoformatter.day'],
-                       1. / HOURS_PER_DAY: rcParams['date.autoformatter.hour'],
-                       1. / (MINUTES_PER_DAY):
-                           rcParams['date.autoformatter.minute'],
-                       1. / (SEC_PER_DAY):
-                           rcParams['date.autoformatter.second'],
-                       1. / (MUSECONDS_PER_DAY):
-                           rcParams['date.autoformatter.microsecond']}
+        self.scaled = {
+            DAYS_PER_YEAR: rcParams['date.autoformatter.year'],
+            DAYS_PER_MONTH: rcParams['date.autoformatter.month'],
+            1: rcParams['date.autoformatter.day'],
+            1 / HOURS_PER_DAY: rcParams['date.autoformatter.hour'],
+            1 / MINUTES_PER_DAY: rcParams['date.autoformatter.minute'],
+            1 / SEC_PER_DAY: rcParams['date.autoformatter.second'],
+            1 / MUSECONDS_PER_DAY: rcParams['date.autoformatter.microsecond']
+        }
 
     def _set_locator(self, locator):
         self._locator = locator
@@ -1317,7 +1317,7 @@ class AutoDateLocator(DateLocator):
                           range(0, 24), range(0, 60), range(0, 60), None]
 
     def __call__(self):
-        'Return the locations of the ticks'
+        """Return the locations of the ticks."""
         self.refresh()
         return self._locator()
 
@@ -1355,13 +1355,13 @@ class AutoDateLocator(DateLocator):
 
     @cbook.deprecated("3.2")
     def autoscale(self):
-        'Try to choose the view limits intelligently.'
+        """Try to choose the view limits intelligently."""
         dmin, dmax = self.datalim_to_dt()
         self._locator = self.get_locator(dmin, dmax)
         return self._locator.autoscale()
 
     def get_locator(self, dmin, dmax):
-        'Pick the best locator based on a distance.'
+        """Pick the best locator based on a distance."""
         delta = relativedelta(dmax, dmin)
         tdelta = dmax - dmin
 

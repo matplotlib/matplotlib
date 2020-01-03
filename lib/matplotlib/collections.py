@@ -209,10 +209,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(p) for p in paths]
-            transform = transform.get_affine()
+            # Don't convert transform to transform.get_affine() here because
+            # we may have transform.contains_branch(transData) but not
+            # transforms.get_affine().contains_branch(transData).  But later,
+            # be careful to only apply the affine part that remains.
         if not transOffset.is_affine:
             offsets = transOffset.transform_non_affine(offsets)
-            transOffset = transOffset.get_affine()
 
         if isinstance(offsets, np.ma.MaskedArray):
             offsets = offsets.filled(np.nan)
@@ -225,8 +227,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 # offset.  LineCollections that have no offsets can
                 # also use this algorithm (like streamplot).
                 result = mpath.get_path_collection_extents(
-                    transform.frozen(), paths, self.get_transforms(),
-                    offsets, transOffset.frozen())
+                    transform.get_affine(), paths, self.get_transforms(),
+                    offsets, transOffset.get_affine().frozen())
                 return result.inverse_transformed(transData)
             if not self._offsetsNone:
                 # this is for collections that have their paths (shapes)
@@ -235,7 +237,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 # those shapes, so we just set the limits based on their
                 # location.
                 # Finish the transform:
-                offsets = (transOffset +
+                offsets = (transOffset.get_affine() +
                            transData.inverted()).transform(offsets)
                 offsets = np.ma.masked_invalid(offsets)
                 if not offsets.mask.all():
@@ -475,7 +477,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        offsets : float or sequence of floats
+        offsets : array-like (N, 2) or (2,)
         """
         offsets = np.asanyarray(offsets, float)
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
@@ -793,11 +795,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.stale = True
 
     def get_fill(self):
-        'return whether fill is set'
+        """Return whether fill is set."""
         return self._is_filled
 
     def update_from(self, other):
-        'copy properties from other to self'
+        """Copy properties from other to self."""
 
         artist.Artist.update_from(self, other)
         self._antialiaseds = other._antialiaseds
@@ -932,12 +934,11 @@ class PathCollection(_CollectionWithSizes):
 
         Parameters
         ----------
-        prop : string, optional, default *"colors"*
-            Can be *"colors"* or *"sizes"*. In case of *"colors"*, the legend
-            handles will show the different colors of the collection. In case
-            of "sizes", the legend will show the different sizes.
+        prop : {"colors", "sizes"}, default: "colors"
+            If "colors", the legend handles will show the different colors of
+            the collection. If "sizes", the legend will show the different
+            sizes.
         num : int, None, "auto" (default), array-like, or `~.ticker.Locator`,
-            optional
             Target number of elements to create.
             If None, use all unique elements of the mappable array. If an
             integer, target to use *num* elements in the normed range.
@@ -1154,15 +1155,14 @@ class BrokenBarHCollection(PolyCollection):
                   (xmin, ymin)] for xmin, xwidth in xranges]
         PolyCollection.__init__(self, verts, **kwargs)
 
-    @staticmethod
-    def span_where(x, ymin, ymax, where, **kwargs):
+    @classmethod
+    def span_where(cls, x, ymin, ymax, where, **kwargs):
         """
-        Create a BrokenBarHCollection to plot horizontal bars from
+        Return a `BrokenBarHCollection` that plots horizontal bars from
         over the regions in *x* where *where* is True.  The bars range
         on the y-axis from *ymin* to *ymax*
 
-        A :class:`BrokenBarHCollection` is returned.  *kwargs* are
-        passed on to the collection.
+        *kwargs* are passed on to the collection.
         """
         xranges = []
         for ind0, ind1 in cbook.contiguous_regions(where):
@@ -1170,10 +1170,7 @@ class BrokenBarHCollection(PolyCollection):
             if not len(xslice):
                 continue
             xranges.append((xslice[0], xslice[-1] - xslice[0]))
-
-        collection = BrokenBarHCollection(
-            xranges, [ymin, ymax - ymin], **kwargs)
-        return collection
+        return cls(xranges, [ymin, ymax - ymin], **kwargs)
 
 
 class RegularPolyCollection(_CollectionWithSizes):
@@ -1469,7 +1466,7 @@ class EventCollection(LineCollection):
         """
         Parameters
         ----------
-        positions : 1D array-like object
+        positions : 1D array-like
             Each value is an event.
 
         orientation : {None, 'horizontal', 'vertical'}, optional
@@ -1550,16 +1547,14 @@ class EventCollection(LineCollection):
         self._lineoffset = lineoffset
 
     def get_positions(self):
-        '''
-        return an array containing the floating-point values of the positions
-        '''
+        """
+        Return an array containing the floating-point values of the positions.
+        """
         pos = 0 if self.is_horizontal() else 1
         return [segment[0, pos] for segment in self.get_segments()]
 
     def set_positions(self, positions):
-        '''
-        set the positions of the events to the specified value
-        '''
+        """Set the positions of the events to the specified value."""
         if positions is None or (hasattr(positions, 'len') and
                                  len(positions) == 0):
             self.set_segments([])
@@ -1580,9 +1575,7 @@ class EventCollection(LineCollection):
         self.set_segments(segments)
 
     def add_positions(self, position):
-        '''
-        add one or more events at the specified positions
-        '''
+        """Add one or more events at the specified positions."""
         if position is None or (hasattr(position, 'len') and
                                 len(position) == 0):
             return
@@ -1592,9 +1585,7 @@ class EventCollection(LineCollection):
     extend_positions = append_positions = add_positions
 
     def is_horizontal(self):
-        '''
-        True if the eventcollection is horizontal, False if vertical
-        '''
+        """True if the eventcollection is horizontal, False if vertical."""
         return self._is_horizontal
 
     def get_orientation(self):
@@ -1604,10 +1595,10 @@ class EventCollection(LineCollection):
         return 'horizontal' if self.is_horizontal() else 'vertical'
 
     def switch_orientation(self):
-        '''
-        switch the orientation of the event line, either from vertical to
-        horizontal or vice versus
-        '''
+        """
+        Switch the orientation of the event line, either from vertical to
+        horizontal or vice versus.
+        """
         segments = self.get_segments()
         for i, segment in enumerate(segments):
             segments[i] = np.fliplr(segment)
@@ -1637,15 +1628,15 @@ class EventCollection(LineCollection):
         self.switch_orientation()
 
     def get_linelength(self):
-        '''
+        """
         get the length of the lines used to mark each event
-        '''
+        """
         return self._linelength
 
     def set_linelength(self, linelength):
-        '''
+        """
         set the length of the lines used to mark each event
-        '''
+        """
         if linelength == self.get_linelength():
             return
         lineoffset = self.get_lineoffset()
@@ -1658,15 +1649,11 @@ class EventCollection(LineCollection):
         self._linelength = linelength
 
     def get_lineoffset(self):
-        '''
-        get the offset of the lines used to mark each event
-        '''
+        """Return the offset of the lines used to mark each event."""
         return self._lineoffset
 
     def set_lineoffset(self, lineoffset):
-        '''
-        set the offset of the lines used to mark each event
-        '''
+        """Set the offset of the lines used to mark each event."""
         if lineoffset == self.get_lineoffset():
             return
         linelength = self.get_linelength()
@@ -1686,9 +1673,7 @@ class EventCollection(LineCollection):
         return super(EventCollection, self).get_linewidth()
 
     def get_color(self):
-        '''
-        get the color of the lines used to mark each event
-        '''
+        """Return the color of the lines used to mark each event."""
         return self.get_colors()[0]
 
 

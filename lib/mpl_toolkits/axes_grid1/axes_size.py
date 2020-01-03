@@ -16,7 +16,6 @@ from matplotlib.axes import Axes
 
 
 class _Base:
-    "Base class"
 
     def __rmul__(self, other):
         float(other)  # just to check if number if given
@@ -84,14 +83,8 @@ Scalable = Scaled
 
 def _get_axes_aspect(ax):
     aspect = ax.get_aspect()
-    # when aspec is "auto", consider it as 1.
-    if aspect in ('normal', 'auto'):
+    if aspect == "auto":
         aspect = 1.
-    elif aspect == "equal":
-        aspect = 1
-    else:
-        aspect = float(aspect)
-
     return aspect
 
 
@@ -225,9 +218,8 @@ class MaxHeight(_Base):
 class Fraction(_Base):
     """
     An instance whose size is a *fraction* of the *ref_size*.
-    ::
 
-      >>> s = Fraction(0.3, AxesX(ax))
+    >>> s = Fraction(0.3, AxesX(ax))
 
     """
     def __init__(self, fraction, ref_size):

@@ -241,15 +241,12 @@ Here is the solution::
     plt.show()
 
 
-**Extra credit**: use the animation blit techniques discussed in the
-`animations recipe
-<https://scipy-cookbook.readthedocs.io/items/Matplotlib_Animations.html>`_ to
-make the animated drawing faster and smoother.
+**Extra credit**: Use blitting to make the animated drawing faster and
+smoother.
 
 Extra credit solution::
 
-    # draggable rectangle with the animation blit techniques; see
-    # http://www.scipy.org/Cookbook/Matplotlib/Animations
+    # Draggable rectangle with blitting.
     import numpy as np
     import matplotlib.pyplot as plt
 

@@ -7,7 +7,7 @@ Do a mouseclick somewhere, move the mouse to some destination, release
 the button.  This class gives click- and release-events and also draws
 a line or a box from the click-point to the actual mouseposition
 (within the same axes) until the button is released.  Within the
-method 'self.ignore()' it is checked whether the button from eventpress
+method ``self.ignore()`` it is checked whether the button from eventpress
 and eventrelease are the same.
 """
 from matplotlib.widgets import RectangleSelector

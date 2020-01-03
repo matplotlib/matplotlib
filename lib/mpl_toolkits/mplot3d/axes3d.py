@@ -93,7 +93,6 @@ class Axes3D(Axes):
         # inhibit autoscale_view until the axes are defined
         # they can't be defined until Axes.__init__ has been called
         self.view_init(self.initial_elev, self.initial_azim)
-        self._ready = 0
 
         self._sharez = sharez
         if sharez is not None:
@@ -116,7 +115,6 @@ class Axes3D(Axes):
         else:
             self._zcid = None
 
-        self._ready = 1
         self.mouse_init()
         self.set_top_view()
 
@@ -145,7 +143,7 @@ class Axes3D(Axes):
         For artists in an axes, if the zaxis has units support,
         convert *z* using zaxis unit type
 
-        .. versionadded :: 1.2.1
+        .. versionadded:: 1.2.1
 
         """
         return self.zaxis.convert_units(z)
@@ -189,7 +187,7 @@ class Axes3D(Axes):
         super().set_ylim(-ydwl, ydw, auto=None)
 
     def _init_axis(self):
-        '''Init 3D axes; overrides creation of regular X/Y axes'''
+        """Init 3D axes; overrides creation of regular X/Y axes."""
         self.xaxis = axis3d.XAxis('x', self.xy_viewLim.intervalx,
                                   self.xy_dataLim.intervalx, self)
         self.yaxis = axis3d.YAxis('y', self.xy_viewLim.intervaly,
@@ -200,7 +198,7 @@ class Axes3D(Axes):
             ax.init3d()
 
     def get_zaxis(self):
-        '''Return the ``ZAxis`` (`~.axis3d.Axis`) instance.'''
+        """Return the ``ZAxis`` (`~.axis3d.Axis`) instance."""
         return self.zaxis
 
     @cbook.deprecated("3.1", alternative="xaxis", pending=True)
@@ -332,7 +330,7 @@ class Axes3D(Axes):
         """
         Get whether autoscaling is applied for all axes on plot commands
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
         return super().get_autoscale_on() and self.get_autoscalez_on()
@@ -341,7 +339,7 @@ class Axes3D(Axes):
         """
         Get whether autoscaling for the z-axis is applied on plot commands
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
         return self._autoscaleZon
@@ -350,7 +348,7 @@ class Axes3D(Axes):
         """
         Set whether autoscaling is applied on plot commands
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
 
         Parameters
@@ -392,7 +390,8 @@ class Axes3D(Axes):
         """
         Convenience method to set or retrieve autoscaling margins.
 
-        signatures::
+        Call signatures::
+
             margins()
 
         returns xmargin, ymargin, zmargin
@@ -507,17 +506,13 @@ class Axes3D(Axes):
         Note that this function applies to the 3D axes, and as such
         adds the *scalez* to the function arguments.
 
-        .. versionchanged :: 1.1.0
+        .. versionchanged:: 1.1.0
             Function signature was changed to better match the 2D version.
             *tight* is now explicitly a kwarg and placed first.
 
-        .. versionchanged :: 1.2.1
+        .. versionchanged:: 1.2.1
             This is now fully functional.
-
         """
-        if not self._ready:
-            return
-
         # This method looks at the rectangular volume (see above)
         # of data and decides how to scale the view portal to fit it.
         if tight is None:
@@ -568,7 +563,7 @@ class Axes3D(Axes):
             self.set_zbound(z0, z1)
 
     def get_w_lims(self):
-        '''Get 3D world limits.'''
+        """Get 3D world limits."""
         minx, maxx = self.get_xlim3d()
         miny, maxy = self.get_ylim3d()
         minz, maxz = self.get_zlim3d()
@@ -584,14 +579,10 @@ class Axes3D(Axes):
         if right is None and np.iterable(left):
             left, right = left
         if xmin is not None:
-            cbook.warn_deprecated('3.0', name='`xmin`',
-                                  alternative='`left`', obj_type='argument')
             if left is not None:
                 raise TypeError('Cannot pass both `xmin` and `left`')
             left = xmin
         if xmax is not None:
-            cbook.warn_deprecated('3.0', name='`xmax`',
-                                  alternative='`right`', obj_type='argument')
             if right is not None:
                 raise TypeError('Cannot pass both `xmax` and `right`')
             right = xmax
@@ -642,14 +633,10 @@ class Axes3D(Axes):
         if top is None and np.iterable(bottom):
             bottom, top = bottom
         if ymin is not None:
-            cbook.warn_deprecated('3.0', name='`ymin`',
-                                  alternative='`bottom`', obj_type='argument')
             if bottom is not None:
                 raise TypeError('Cannot pass both `ymin` and `bottom`')
             bottom = ymin
         if ymax is not None:
-            cbook.warn_deprecated('3.0', name='`ymax`',
-                                  alternative='`top`', obj_type='argument')
             if top is not None:
                 raise TypeError('Cannot pass both `ymax` and `top`')
             top = ymax
@@ -701,14 +688,10 @@ class Axes3D(Axes):
         if top is None and np.iterable(bottom):
             bottom, top = bottom
         if zmin is not None:
-            cbook.warn_deprecated('3.0', name='`zmin`',
-                                  alternative='`bottom`', obj_type='argument')
             if bottom is not None:
                 raise TypeError('Cannot pass both `zmin` and `bottom`')
             bottom = zmin
         if zmax is not None:
-            cbook.warn_deprecated('3.0', name='`zmax`',
-                                  alternative='`top`', obj_type='argument')
             if top is not None:
                 raise TypeError('Cannot pass both `zmax` and `top`')
             top = zmax
@@ -755,7 +738,7 @@ class Axes3D(Axes):
     get_xlim3d.__doc__ = maxes.Axes.get_xlim.__doc__
     if get_xlim3d.__doc__ is not None:
         get_xlim3d.__doc__ += """
-        .. versionchanged :: 1.1.0
+        .. versionchanged:: 1.1.0
             This function now correctly refers to the 3D x-limits
         """
 
@@ -764,12 +747,12 @@ class Axes3D(Axes):
     get_ylim3d.__doc__ = maxes.Axes.get_ylim.__doc__
     if get_ylim3d.__doc__ is not None:
         get_ylim3d.__doc__ += """
-        .. versionchanged :: 1.1.0
+        .. versionchanged:: 1.1.0
             This function now correctly refers to the 3D y-limits.
         """
 
     def get_zlim3d(self):
-        '''Get 3D z limits.'''
+        """Get 3D z limits."""
         return tuple(self.zz_viewLim.intervalx)
 
     def get_zscale(self):
@@ -845,7 +828,7 @@ class Axes3D(Axes):
         """
         Get the ztick labels as a list of Text instances
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
         """
         return self.zaxis.get_majorticklabels()
 
@@ -857,7 +840,7 @@ class Axes3D(Axes):
             Minor ticks are not supported. This function was added
             only for completeness.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
         """
         return self.zaxis.get_minorticklabels()
 
@@ -897,7 +880,7 @@ class Axes3D(Axes):
             Axes3D objects do not officially support dates for ticks,
             and so this may or may not work as expected.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
         self.zaxis.axis_date(tz)
@@ -1080,9 +1063,27 @@ class Axes3D(Axes):
         if event.inaxes == self:
             self.button_pressed = event.button
             self.sx, self.sy = event.xdata, event.ydata
+            toolbar = getattr(self.figure.canvas, "toolbar")
+            if toolbar and toolbar._nav_stack() is None:
+                self.figure.canvas.toolbar.push_current()
 
     def _button_release(self, event):
         self.button_pressed = None
+        toolbar = getattr(self.figure.canvas, "toolbar")
+        if toolbar:
+            self.figure.canvas.toolbar.push_current()
+
+    def _get_view(self):
+        # docstring inherited
+        return (self.get_xlim(), self.get_ylim(), self.get_zlim(),
+                self.elev, self.azim)
+
+    def _set_view(self, view):
+        # docstring inherited
+        xlim, ylim, zlim, elev, azim = view
+        self.set(xlim=xlim, ylim=ylim, zlim=zlim)
+        self.elev = elev
+        self.azim = azim
 
     def format_zdata(self, z):
         """
@@ -1189,9 +1190,9 @@ class Axes3D(Axes):
             self.figure.canvas.draw_idle()
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
-        '''
+        """
         Set zlabel.  See doc for :meth:`set_ylabel` for description.
-        '''
+        """
         if labelpad is not None:
             self.zaxis.labelpad = labelpad
         return self.zaxis.set_label_text(zlabel, fontdict, **kwargs)
@@ -1200,7 +1201,7 @@ class Axes3D(Axes):
         """
         Get the z-label text string.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
         label = self.zaxis.get_label()
@@ -1224,7 +1225,7 @@ class Axes3D(Axes):
         self.stale = True
 
     def grid(self, b=True, **kwargs):
-        '''
+        """
         Set / unset 3D grid.
 
         .. note::
@@ -1233,8 +1234,8 @@ class Axes3D(Axes):
             :meth:`matplotlib.axes.Axes.grid`, but it is intended to
             eventually support that behavior.
 
-        .. versionadded :: 1.1.0
-        '''
+        .. versionadded:: 1.1.0
+        """
         # TODO: Operate on each axes separately
         if len(kwargs):
             b = True
@@ -1252,7 +1253,7 @@ class Axes3D(Axes):
         can also take a value of 'z' to apply parameters to the
         z axis.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
         _x = axis in ['x', 'both']
@@ -1287,7 +1288,7 @@ class Axes3D(Axes):
         .. note::
            Axes3D currently ignores some of these settings.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
         """
         cbook._check_in_list(['x', 'y', 'z', 'both'], axis=axis)
         if axis in ['x', 'y', 'both']:
@@ -1306,18 +1307,18 @@ class Axes3D(Axes):
         """
         Invert the z-axis.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
         bottom, top = self.get_zlim()
         self.set_zlim(top, bottom, auto=None)
 
     def zaxis_inverted(self):
-        '''
+        """
         Returns True if the z-axis is inverted.
 
-        .. versionadded :: 1.1.0
-        '''
+        .. versionadded:: 1.1.0
+        """
         bottom, top = self.get_zlim()
         return top < bottom
 
@@ -1325,7 +1326,7 @@ class Axes3D(Axes):
         """
         Return the lower and upper z-axis bounds, in increasing order.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
         """
         bottom, top = self.get_zlim()
         if bottom < top:
@@ -1340,7 +1341,7 @@ class Axes3D(Axes):
         This method will honor axes inversion regardless of parameter order.
         It will not change the autoscaling setting (`.get_autoscalez_on()`).
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
         """
         if upper is None and np.iterable(lower):
             lower, upper = lower
@@ -1356,11 +1357,11 @@ class Axes3D(Axes):
                       auto=None)
 
     def text(self, x, y, z, s, zdir=None, **kwargs):
-        '''
+        """
         Add text to the plot. kwargs will be passed on to Axes.text,
         except for the `zdir` keyword, which sets the direction to be
         used as the z direction.
-        '''
+        """
         text = super().text(x, y, s, **kwargs)
         art3d.text_2d_to_3d(text, z, zdir)
         return text
@@ -1886,9 +1887,9 @@ class Axes3D(Axes):
         return polyc
 
     def _3d_extend_contour(self, cset, stride=5):
-        '''
+        """
         Extend a contour in 3D by creating
-        '''
+        """
 
         levels = cset.levels
         colls = cset.collections
@@ -2134,7 +2135,7 @@ class Axes3D(Axes):
         return cset
 
     def add_collection3d(self, col, zs=0, zdir='z'):
-        '''
+        """
         Add a 3D collection object to the plot.
 
         2D collection types are converted to a 3D version by
@@ -2144,7 +2145,7 @@ class Axes3D(Axes):
             - PolyCollection
             - LineCollection
             - PatchCollection
-        '''
+        """
         zvals = np.atleast_1d(zs)
         zsortval = (np.min(zvals) if zvals.size
                     else 0)  # FIXME: arbitrary default
@@ -2465,18 +2466,16 @@ pivot='tail', normalize=False, **kwargs)
         ----------
         X, Y, Z : array-like
             The x, y and z coordinates of the arrow locations (default is
-            tail of arrow; see *pivot* kwarg)
+            tail of arrow; see *pivot* kwarg).
 
         U, V, W : array-like
-            The x, y and z components of the arrow vectors
+            The x, y and z components of the arrow vectors.
 
-        length : float
-            The length of each quiver, default to 1.0, the unit is
-            the same with the axes
+        length : float, default: 1
+            The length of each quiver.
 
-        arrow_length_ratio : float
-            The ratio of the arrow head with respect to the quiver,
-            default to 0.3
+        arrow_length_ratio : float, default: 0.3
+            The ratio of the arrow head with respect to the quiver.
 
         pivot : {'tail', 'middle', 'tip'}, default: 'tail'
             The part of the arrow that is at the grid point; the arrow
@@ -2839,9 +2838,7 @@ docstring.dedent_interpd(Axes3D.__init__)
 
 
 def get_test_data(delta=0.05):
-    '''
-    Return a tuple X, Y, Z with a test data set.
-    '''
+    """Return a tuple X, Y, Z with a test data set."""
     x = y = np.arange(-3.0, 3.0, delta)
     X, Y = np.meshgrid(x, y)
 

@@ -46,28 +46,6 @@ def DEBUG_MSG(string, lvl=3, o=None):
         print(f"{_DEBUG_lvls[lvl]}- {string} in {type(o)}")
 
 
-@cbook.deprecated("3.1")
-def debug_on_error(type, value, tb):
-    """Code due to Thomas Heller - published in Python Cookbook (O'Reilly)"""
-    import pdb
-    import traceback
-    traceback.print_exception(type, value, tb)
-    print()
-    pdb.pm()
-
-
-@cbook.deprecated("3.1")
-class fake_stderr:
-    """
-    Wx does strange things with stderr, as it makes the assumption that
-    there is probably no console. This redirects stderr to the console, since
-    we know that there is one!
-    """
-
-    def write(self, msg):
-        print("Stderr: %s\n\r" % msg)
-
-
 # the True dots per inch on the screen; should be display dependent; see
 # http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5
 # for some info about screen dpi
@@ -88,14 +66,6 @@ def error_msg_wx(msg, parent=None):
     dialog.ShowModal()
     dialog.Destroy()
     return None
-
-
-@cbook.deprecated("3.1")
-def raise_msg_to_str(msg):
-    """msg is a return arg from a raise.  Join with new lines."""
-    if not isinstance(msg, str):
-        msg = '\n'.join(map(str, msg))
-    return msg
 
 
 class TimerWx(TimerBase):
@@ -608,7 +578,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         self.SetBackgroundColour(wx.WHITE)
 
     def Copy_to_Clipboard(self, event=None):
-        "copy bitmap of canvas to system clipboard"
+        """Copy bitmap of canvas to system clipboard."""
         bmp_obj = wx.BitmapDataObject()
         bmp_obj.SetBitmap(self.bitmap)
 
@@ -657,7 +627,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             del self._event_loop
 
     def _get_imagesave_wildcards(self):
-        'return the wildcard string for the filesave dialog'
+        """Return the wildcard string for the filesave dialog."""
         default_filetype = self.get_default_filetype()
         filetypes = self.get_supported_filetypes_grouped()
         sorted_filetypes = sorted(filetypes.items())
@@ -841,22 +811,14 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
     def _onMouseWheel(self, evt):
         """Translate mouse wheel events into matplotlib events"""
-
         # Determine mouse location
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
-
         # Convert delta/rotation/rate into a floating point step size
-        delta = evt.GetWheelDelta()
-        rotation = evt.GetWheelRotation()
-        rate = evt.GetLinesPerAction()
-        step = rate * rotation / delta
-
+        step = evt.LinesPerAction * evt.WheelRotation / evt.WheelDelta
         # Done handling event
         evt.Skip()
-
-        # Mac is giving two events for every wheel event
-        # Need to skip every second one
+        # Mac gives two events for every wheel event; skip every second one.
         if wx.Platform == '__WXMAC__':
             if not hasattr(self, '_skipwheelevent'):
                 self._skipwheelevent = True
@@ -865,7 +827,6 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
                 return  # Return without processing event
             else:
                 self._skipwheelevent = True
-
         FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=evt)
 
     def _onMotion(self, evt):
@@ -1080,7 +1041,10 @@ class FigureFrameWx(wx.Frame):
             # Rationale for line above: see issue 2941338.
         except AttributeError:
             pass  # classic toolbar lacks the attribute
-        if not self.IsBeingDeleted():
+        # The "if self" check avoids a "wrapped C/C++ object has been deleted"
+        # RuntimeError at exit with e.g.
+        # MPLBACKEND=wxagg python -c 'from pylab import *; plot()'.
+        if self and not self.IsBeingDeleted():
             wx.Frame.Destroy(self, *args, **kwargs)
             if self.toolbar is not None:
                 self.toolbar.Destroy()
@@ -1133,7 +1097,7 @@ class FigureManagerWx(FigureManagerBase):
         self.window.SetTitle(title)
 
     def resize(self, width, height):
-        'Set the canvas size in pixels'
+        """Set the canvas size in pixels."""
         self.canvas.SetInitialSize(wx.Size(width, height))
         self.window.GetSizer().Fit(self.window)
 
@@ -1163,110 +1127,6 @@ def _set_frame_icon(frame):
             return
         bundle.AddIcon(icon)
     frame.SetIcons(bundle)
-
-
-@cbook.deprecated("3.1")
-class MenuButtonWx(wx.Button):
-    """
-    wxPython does not permit a menu to be incorporated directly into a toolbar.
-    This class simulates the effect by associating a pop-up menu with a button
-    in the toolbar, and managing this as though it were a menu.
-    """
-
-    def __init__(self, parent):
-
-        wx.Button.__init__(self, parent, wx.ID_ANY, "Axes:        ",
-                           style=wx.BU_EXACTFIT)
-        self._toolbar = parent
-        self._menu = wx.Menu()
-        self._axisId = []
-        # First two menu items never change...
-        self._allId = wx.NewId()
-        self._invertId = wx.NewId()
-        self._menu.Append(self._allId, "All", "Select all axes", False)
-        self._menu.Append(self._invertId, "Invert", "Invert axes selected",
-                          False)
-        self._menu.AppendSeparator()
-
-        self.Bind(wx.EVT_BUTTON, self._onMenuButton, id=self.GetId())
-        self.Bind(wx.EVT_MENU, self._handleSelectAllAxes, id=self._allId)
-        self.Bind(wx.EVT_MENU, self._handleInvertAxesSelected,
-                  id=self._invertId)
-
-    def Destroy(self):
-        self._menu.Destroy()
-        self.Destroy()
-
-    def _onMenuButton(self, evt):
-        """Handle menu button pressed."""
-        x, y = self.GetPosition()
-        w, h = self.GetSize()
-        self.PopupMenuXY(self._menu, x, y + h - 4)
-        # When menu returned, indicate selection in button
-        evt.Skip()
-
-    def _handleSelectAllAxes(self, evt):
-        """Called when the 'select all axes' menu item is selected."""
-        if len(self._axisId) == 0:
-            return
-        for ax_id in self._axisId:
-            self._menu.Check(ax_id, True)
-        self._toolbar.set_active(self.getActiveAxes())
-        evt.Skip()
-
-    def _handleInvertAxesSelected(self, evt):
-        """Called when the invert all menu item is selected"""
-        if len(self._axisId) == 0:
-            return
-        for ax_id in self._axisId:
-            if self._menu.IsChecked(ax_id):
-                self._menu.Check(ax_id, False)
-            else:
-                self._menu.Check(ax_id, True)
-        self._toolbar.set_active(self.getActiveAxes())
-        evt.Skip()
-
-    def _onMenuItemSelected(self, evt):
-        """Called whenever one of the specific axis menu items is selected"""
-        current = self._menu.IsChecked(evt.GetId())
-        if current:
-            new = False
-        else:
-            new = True
-        self._menu.Check(evt.GetId(), new)
-        # Lines above would be deleted based on svn tracker ID 2841525;
-        # not clear whether this matters or not.
-        self._toolbar.set_active(self.getActiveAxes())
-        evt.Skip()
-
-    def updateAxes(self, maxAxis):
-        """Ensures that there are entries for max_axis axes in the menu
-        (selected by default)."""
-        if maxAxis > len(self._axisId):
-            for i in range(len(self._axisId) + 1, maxAxis + 1):
-                menuId = wx.NewId()
-                self._axisId.append(menuId)
-                self._menu.Append(menuId, "Axis %d" % i,
-                                  "Select axis %d" % i,
-                                  True)
-                self._menu.Check(menuId, True)
-                self.Bind(wx.EVT_MENU, self._onMenuItemSelected, id=menuId)
-        elif maxAxis < len(self._axisId):
-            for menuId in self._axisId[maxAxis:]:
-                self._menu.Delete(menuId)
-            self._axisId = self._axisId[:maxAxis]
-        self._toolbar.set_active(list(range(maxAxis)))
-
-    def getActiveAxes(self):
-        """Return a list of the selected axes."""
-        active = [idx for idx, ax_id in enumerate(self._axisId)
-                  if self._menu.IsChecked(ax_id)]
-        return active
-
-    def updateButtonText(self, lst):
-        """Update the list of selected axes in the menu button."""
-        self.SetLabel(
-            'Axes: ' + ','.join('%d' % (e + 1) for e in lst))
 
 
 cursord = {
@@ -1772,92 +1632,6 @@ backend_tools.ToolSetCursor = SetCursorWx
 backend_tools.ToolRubberband = RubberbandWx
 backend_tools.ToolHelp = HelpWx
 backend_tools.ToolCopyToClipboard = ToolCopyToClipboardWx
-
-
-# < Additions for printing support: Matt Newville
-
-@cbook.deprecated("3.1")
-class PrintoutWx(wx.Printout):
-    """
-    Simple wrapper around wx Printout class -- all the real work
-    here is scaling the matplotlib canvas bitmap to the current
-    printer's definition.
-    """
-
-    def __init__(self, canvas, width=5.5, margin=0.5, title='matplotlib'):
-        wx.Printout.__init__(self, title=title)
-        self.canvas = canvas
-        # width, in inches of output figure (approximate)
-        self.width = width
-        self.margin = margin
-
-    def HasPage(self, page):
-        # current only supports 1 page print
-        return page == 1
-
-    def GetPageInfo(self):
-        return (1, 1, 1, 1)
-
-    def OnPrintPage(self, page):
-        self.canvas.draw()
-
-        dc = self.GetDC()
-        ppw, pph = self.GetPPIPrinter()      # printer's pixels per in
-        pgw, pgh = self.GetPageSizePixels()  # page size in pixels
-        dcw, dch = dc.GetSize()
-        grw, grh = self.canvas.GetSize()
-
-        # save current figure dpi resolution and bg color,
-        # so that we can temporarily set them to the dpi of
-        # the printer, and the bg color to white
-        bgcolor = self.canvas.figure.get_facecolor()
-        fig_dpi = self.canvas.figure.dpi
-
-        # draw the bitmap, scaled appropriately
-        vscale = float(ppw) / fig_dpi
-
-        # set figure resolution,bg color for printer
-        self.canvas.figure.dpi = ppw
-        self.canvas.figure.set_facecolor('#FFFFFF')
-
-        renderer = RendererWx(self.canvas.bitmap, self.canvas.figure.dpi)
-        self.canvas.figure.draw(renderer)
-        self.canvas.bitmap.SetWidth(
-            int(self.canvas.bitmap.GetWidth() * vscale))
-        self.canvas.bitmap.SetHeight(
-            int(self.canvas.bitmap.GetHeight() * vscale))
-        self.canvas.draw()
-
-        # page may need additional scaling on preview
-        page_scale = 1.0
-        if self.IsPreview():
-            page_scale = float(dcw) / pgw
-
-        # get margin in pixels = (margin in in) * (pixels/in)
-        top_margin = int(self.margin * pph * page_scale)
-        left_margin = int(self.margin * ppw * page_scale)
-
-        # set scale so that width of output is self.width inches
-        # (assuming grw is size of graph in inches....)
-        user_scale = (self.width * fig_dpi * page_scale) / float(grw)
-
-        dc.SetDeviceOrigin(left_margin, top_margin)
-        dc.SetUserScale(user_scale, user_scale)
-
-        # this cute little number avoid API inconsistencies in wx
-        try:
-            dc.DrawBitmap(self.canvas.bitmap, 0, 0)
-        except Exception:
-            try:
-                dc.DrawBitmap(self.canvas.bitmap, (0, 0))
-            except Exception:
-                pass
-
-        # restore original figure  resolution
-        self.canvas.figure.set_facecolor(bgcolor)
-        self.canvas.figure.dpi = fig_dpi
-        self.canvas.draw()
-        return True
 
 
 @_Backend.export

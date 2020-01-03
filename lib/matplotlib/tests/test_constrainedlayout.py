@@ -35,7 +35,7 @@ def example_pcolor(ax, fontsize=12):
 
 @image_comparison(['constrained_layout1.png'])
 def test_constrained_layout1():
-    'Test constrained_layout for a single subplot'
+    """Test constrained_layout for a single subplot"""
     fig = plt.figure(constrained_layout=True)
     ax = fig.add_subplot(111)
     example_plot(ax, fontsize=24)
@@ -43,7 +43,7 @@ def test_constrained_layout1():
 
 @image_comparison(['constrained_layout2.png'])
 def test_constrained_layout2():
-    'Test constrained_layout for 2x2 subplots'
+    """Test constrained_layout for 2x2 subplots"""
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
     for ax in axs.flat:
         example_plot(ax, fontsize=24)
@@ -51,7 +51,7 @@ def test_constrained_layout2():
 
 @image_comparison(['constrained_layout3.png'])
 def test_constrained_layout3():
-    'Test constrained_layout for colorbars with subplots'
+    """Test constrained_layout for colorbars with subplots"""
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
     for nn, ax in enumerate(axs.flat):
         pcm = example_pcolor(ax, fontsize=24)
@@ -64,7 +64,7 @@ def test_constrained_layout3():
 
 @image_comparison(['constrained_layout4'])
 def test_constrained_layout4():
-    'Test constrained_layout for a single colorbar with subplots'
+    """Test constrained_layout for a single colorbar with subplots"""
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
     for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=24)
@@ -73,10 +73,10 @@ def test_constrained_layout4():
 
 @image_comparison(['constrained_layout5.png'], tol=5.e-2)
 def test_constrained_layout5():
-    '''
+    """
     Test constrained_layout for a single colorbar with subplots,
     colorbar bottom
-    '''
+    """
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
     for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=24)
@@ -87,7 +87,7 @@ def test_constrained_layout5():
 
 @image_comparison(['constrained_layout6.png'])
 def test_constrained_layout6():
-    'Test constrained_layout for nested gridspecs'
+    """Test constrained_layout for nested gridspecs"""
     fig = plt.figure(constrained_layout=True)
     gs = fig.add_gridspec(1, 2, figure=fig)
     gsl = gs[0].subgridspec(2, 2)
@@ -110,7 +110,7 @@ def test_constrained_layout6():
 
 
 def test_constrained_layout7():
-    'Test for proper warning if fig not set in GridSpec'
+    """Test for proper warning if fig not set in GridSpec"""
     with pytest.warns(UserWarning, match='Calling figure.constrained_layout, '
                             'but figure not setup to do constrained layout'):
         fig = plt.figure(constrained_layout=True)
@@ -125,7 +125,7 @@ def test_constrained_layout7():
 
 @image_comparison(['constrained_layout8.png'])
 def test_constrained_layout8():
-    'Test for gridspecs that are not completely full'
+    """Test for gridspecs that are not completely full"""
     fig = plt.figure(figsize=(10, 5), constrained_layout=True)
     gs = gridspec.GridSpec(3, 5, figure=fig)
     axs = []
@@ -152,7 +152,7 @@ def test_constrained_layout8():
 
 @image_comparison(['constrained_layout9.png'])
 def test_constrained_layout9():
-    'Test for handling suptitle and for sharex and sharey'
+    """Test for handling suptitle and for sharex and sharey"""
     fig, axs = plt.subplots(2, 2, constrained_layout=True,
                             sharex=False, sharey=False)
     for ax in axs.flat:
@@ -166,7 +166,7 @@ def test_constrained_layout9():
 
 @image_comparison(['constrained_layout10.png'])
 def test_constrained_layout10():
-    'Test for handling legend outside axis'
+    """Test for handling legend outside axis"""
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
     for ax in axs.flat:
         ax.plot(np.arange(12), label='This is a label')
@@ -175,7 +175,7 @@ def test_constrained_layout10():
 
 @image_comparison(['constrained_layout11.png'])
 def test_constrained_layout11():
-    'Test for multiple nested gridspecs'
+    """Test for multiple nested gridspecs"""
     fig = plt.figure(constrained_layout=True, figsize=(10, 3))
     gs0 = gridspec.GridSpec(1, 2, figure=fig)
     gsl = gridspec.GridSpecFromSubplotSpec(1, 2, gs0[0])
@@ -194,7 +194,7 @@ def test_constrained_layout11():
 
 @image_comparison(['constrained_layout11rat.png'])
 def test_constrained_layout11rat():
-    'Test for multiple nested gridspecs with width_ratios'
+    """Test for multiple nested gridspecs with width_ratios"""
     fig = plt.figure(constrained_layout=True, figsize=(10, 3))
     gs0 = gridspec.GridSpec(1, 2, figure=fig, width_ratios=[6., 1.])
     gsl = gridspec.GridSpecFromSubplotSpec(1, 2, gs0[0])
@@ -214,7 +214,7 @@ def test_constrained_layout11rat():
 
 @image_comparison(['constrained_layout12.png'])
 def test_constrained_layout12():
-    'Test that very unbalanced labeling still works.'
+    """Test that very unbalanced labeling still works."""
     fig = plt.figure(constrained_layout=True)
 
     gs0 = gridspec.GridSpec(6, 2, figure=fig)
@@ -236,7 +236,7 @@ def test_constrained_layout12():
 
 @image_comparison(['constrained_layout13.png'], tol=2.e-2)
 def test_constrained_layout13():
-    'Test that padding works.'
+    """Test that padding works."""
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
     for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=12)
@@ -246,7 +246,7 @@ def test_constrained_layout13():
 
 @image_comparison(['constrained_layout14.png'])
 def test_constrained_layout14():
-    'Test that padding works.'
+    """Test that padding works."""
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
     for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=12)
@@ -258,7 +258,7 @@ def test_constrained_layout14():
 
 @image_comparison(['constrained_layout15.png'])
 def test_constrained_layout15():
-    'Test that rcparams work.'
+    """Test that rcparams work."""
     rcParams['figure.constrained_layout.use'] = True
     fig, axs = plt.subplots(2, 2)
     for ax in axs.flat:
@@ -267,7 +267,7 @@ def test_constrained_layout15():
 
 @image_comparison(['constrained_layout16.png'])
 def test_constrained_layout16():
-    'Test ax.set_position.'
+    """Test ax.set_position."""
     fig, ax = plt.subplots(constrained_layout=True)
     example_plot(ax, fontsize=12)
     ax2 = fig.add_axes([0.2, 0.2, 0.4, 0.4])
@@ -275,7 +275,7 @@ def test_constrained_layout16():
 
 @image_comparison(['constrained_layout17.png'])
 def test_constrained_layout17():
-    'Test uneven gridspecs'
+    """Test uneven gridspecs"""
     fig = plt.figure(constrained_layout=True)
     gs = gridspec.GridSpec(3, 3, figure=fig)
 
@@ -291,7 +291,7 @@ def test_constrained_layout17():
 
 
 def test_constrained_layout18():
-    'Test twinx'
+    """Test twinx"""
     fig, ax = plt.subplots(constrained_layout=True)
     ax2 = ax.twinx()
     example_plot(ax)
@@ -301,7 +301,7 @@ def test_constrained_layout18():
 
 
 def test_constrained_layout19():
-    'Test twiny'
+    """Test twiny"""
     fig, ax = plt.subplots(constrained_layout=True)
     ax2 = ax.twiny()
     example_plot(ax)
@@ -313,7 +313,7 @@ def test_constrained_layout19():
 
 
 def test_constrained_layout20():
-    'Smoke test cl does not mess up added axes'
+    """Smoke test cl does not mess up added axes"""
     gx = np.linspace(-5, 5, 4)
     img = np.hypot(gx, gx[:, None])
 
@@ -324,7 +324,7 @@ def test_constrained_layout20():
 
 
 def test_constrained_layout21():
-    '#11035: repeated calls to suptitle should not alter the layout'
+    """#11035: repeated calls to suptitle should not alter the layout"""
     fig, ax = plt.subplots(constrained_layout=True)
 
     fig.suptitle("Suptitle0")
@@ -339,7 +339,7 @@ def test_constrained_layout21():
 
 
 def test_constrained_layout22():
-    '#11035: suptitle should not be include in CL if manually positioned'
+    """#11035: suptitle should not be include in CL if manually positioned"""
     fig, ax = plt.subplots(constrained_layout=True)
 
     fig.canvas.draw()
@@ -353,10 +353,10 @@ def test_constrained_layout22():
 
 
 def test_constrained_layout23():
-    '''
+    """
     Comment in #11035: suptitle used to cause an exception when
     reusing a figure w/ CL with ``clear=True``.
-    '''
+    """
 
     for i in range(2):
         fig, ax = plt.subplots(num="123", constrained_layout=True, clear=True)

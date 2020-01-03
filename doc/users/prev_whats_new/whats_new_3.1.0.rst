@@ -96,7 +96,7 @@ show in the legend manually.  Now,
 handles and labels for a scatter plot in an automated way. This makes
 creating a legend for a scatter plot as easy as
 
-.. plot ::
+.. plot::
 
     scatter = plt.scatter([1,2,3], [4,5,6], c=[7,2,3])
     plt.legend(*scatter.legend_elements())

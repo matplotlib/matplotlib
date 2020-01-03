@@ -34,12 +34,12 @@ def _get_cmap_norms():
 
 
 def _colorbar_extension_shape(spacing):
-    '''
+    """
     Produce 4 colorbars with rectangular extensions for either uniform
     or proportional spacing.
 
     Helper function for test_colorbar_extension_shape.
-    '''
+    """
     # Get a colormap and appropriate norms for each extension type.
     cmap, norms = _get_cmap_norms()
     # Create a figure and adjust whitespace for subplots.
@@ -64,12 +64,12 @@ def _colorbar_extension_shape(spacing):
 
 
 def _colorbar_extension_length(spacing):
-    '''
+    """
     Produce 12 colorbars with variable length extensions for either
     uniform or proportional spacing.
 
     Helper function for test_colorbar_extension_length.
-    '''
+    """
     # Get a colormap and appropriate norms for each extension type.
     cmap, norms = _get_cmap_norms()
     # Create a figure and adjust whitespace for subplots.
@@ -97,7 +97,7 @@ def _colorbar_extension_length(spacing):
 @image_comparison(['colorbar_extensions_shape_uniform.png',
                    'colorbar_extensions_shape_proportional.png'])
 def test_colorbar_extension_shape():
-    '''Test rectangular colorbar extensions.'''
+    """Test rectangular colorbar extensions."""
     # Create figures for uniform and proportionally spaced colorbars.
     _colorbar_extension_shape('uniform')
     _colorbar_extension_shape('proportional')
@@ -106,7 +106,7 @@ def test_colorbar_extension_shape():
 @image_comparison(['colorbar_extensions_uniform.png',
                    'colorbar_extensions_proportional.png'])
 def test_colorbar_extension_length():
-    '''Test variable length colorbar extensions.'''
+    """Test variable length colorbar extensions."""
     # Create figures for uniform and proportionally spaced colorbars.
     _colorbar_extension_length('uniform')
     _colorbar_extension_length('proportional')
@@ -243,8 +243,7 @@ def test_colorbar_closed_patch():
     # because it is matched to the data range in the image and to
     # the number of colors in the LUT.
     values = np.linspace(0, 10, 5)
-    cbar_kw = dict(cmap=cmap, orientation='horizontal', values=values,
-                   ticks=[])
+    cbar_kw = dict(orientation='horizontal', values=values, ticks=[])
 
     # The wide line is to show that the closed path is being handled
     # correctly.  See PR #4186.
@@ -264,9 +263,8 @@ def test_colorbar_ticks():
     Z = X * Y
     clevs = np.array([-12, -5, 0, 5, 12], dtype=float)
     colors = ['r', 'g', 'b', 'c']
-    cs = ax.contourf(X, Y, Z, clevs, colors=colors)
-    cbar = fig.colorbar(cs, ax=ax, extend='neither',
-                        orientation='horizontal', ticks=clevs)
+    cs = ax.contourf(X, Y, Z, clevs, colors=colors, extend='neither')
+    cbar = fig.colorbar(cs, ax=ax, orientation='horizontal', ticks=clevs)
     assert len(cbar.ax.xaxis.get_ticklocs()) == len(clevs)
 
 
@@ -538,17 +536,9 @@ def test_colorbar_inverted_ticks():
 def test_extend_colorbar_customnorm():
     # This was a funny error with TwoSlopeNorm, maybe with other norms,
     # when extend='both'
-    N = 100
-    X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
-    Z1 = np.exp(-X**2 - Y**2)
-    Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
-    Z = (Z1 - Z2) * 2
-
-    fig, ax = plt.subplots(2, 1)
-    pcm = ax[0].pcolormesh(X, Y, Z,
-                           norm=TwoSlopeNorm(vcenter=0., vmin=-2, vmax=1),
-                           cmap='RdBu_r')
-    cb = fig.colorbar(pcm, ax=ax[0], extend='both')
+    fig, (ax0, ax1) = plt.subplots(2, 1)
+    pcm = ax0.pcolormesh([[0]], norm=TwoSlopeNorm(vcenter=0., vmin=-2, vmax=1))
+    cb = fig.colorbar(pcm, ax=ax0, extend='both')
     np.testing.assert_allclose(cb.ax.get_position().extents,
                                [0.78375, 0.536364, 0.796147, 0.9], rtol=1e-3)
 

@@ -489,20 +489,22 @@ class ImageGrid(Grid):
 
     def _update_locators(self):
 
+        cb_mode = self._colorbar_mode
+        cb_location = self._colorbar_location
+
         h = []
         v = []
 
         h_ax_pos = []
         h_cb_pos = []
-        if (self._colorbar_mode == "single" and
-             self._colorbar_location in ('left', 'bottom')):
-            if self._colorbar_location == "left":
-                sz = Size.Fraction(self._nrows, Size.AxesX(self.axes_llc))
+        if cb_mode == "single" and cb_location in ("left", "bottom"):
+            if cb_location == "left":
+                sz = self._nrows * Size.AxesX(self.axes_llc)
                 h.append(Size.from_any(self._colorbar_size, sz))
                 h.append(Size.from_any(self._colorbar_pad, sz))
                 locator = self._divider.new_locator(nx=0, ny=0, ny1=-1)
-            elif self._colorbar_location == "bottom":
-                sz = Size.Fraction(self._ncols, Size.AxesY(self.axes_llc))
+            elif cb_location == "bottom":
+                sz = self._ncols * Size.AxesY(self.axes_llc)
                 v.append(Size.from_any(self._colorbar_size, sz))
                 v.append(Size.from_any(self._colorbar_pad, sz))
                 locator = self._divider.new_locator(nx=0, nx1=-1, ny=0)
@@ -521,21 +523,19 @@ class ImageGrid(Grid):
                 sz = Size.AxesX(self.axes_all[0],
                                 aspect="axes", ref_ax=self.axes_all[0])
 
-            if (self._colorbar_mode == "each" or
-                    (self._colorbar_mode == 'edge' and
-                        col == 0)) and self._colorbar_location == "left":
+            if (cb_location == "left"
+                    and (cb_mode == "each"
+                         or (cb_mode == "edge" and col == 0))):
                 h_cb_pos.append(len(h))
                 h.append(Size.from_any(self._colorbar_size, sz))
                 h.append(Size.from_any(self._colorbar_pad, sz))
 
             h_ax_pos.append(len(h))
-
             h.append(sz)
 
-            if ((self._colorbar_mode == "each" or
-                    (self._colorbar_mode == 'edge' and
-                        col == self._ncols - 1)) and
-                    self._colorbar_location == "right"):
+            if (cb_location == "right"
+                    and (cb_mode == "each"
+                         or (cb_mode == "edge" and col == self._ncols - 1))):
                 h.append(Size.from_any(self._colorbar_pad, sz))
                 h_cb_pos.append(len(h))
                 h.append(Size.from_any(self._colorbar_size, sz))
@@ -552,9 +552,9 @@ class ImageGrid(Grid):
                 sz = Size.AxesY(self.axes_all[0],
                                 aspect="axes", ref_ax=self.axes_all[0])
 
-            if (self._colorbar_mode == "each" or
-                    (self._colorbar_mode == 'edge' and
-                        row == 0)) and self._colorbar_location == "bottom":
+            if (cb_location == "bottom"
+                    and (cb_mode == "each"
+                         or (cb_mode == "edge" and row == 0))):
                 v_cb_pos.append(len(v))
                 v.append(Size.from_any(self._colorbar_size, sz))
                 v.append(Size.from_any(self._colorbar_pad, sz))
@@ -562,10 +562,9 @@ class ImageGrid(Grid):
             v_ax_pos.append(len(v))
             v.append(sz)
 
-            if ((self._colorbar_mode == "each" or
-                    (self._colorbar_mode == 'edge' and
-                        row == self._nrows - 1)) and
-                        self._colorbar_location == "top"):
+            if (cb_location == "top"
+                    and (cb_mode == "each"
+                         or (cb_mode == "edge" and row == self._nrows - 1))):
                 v.append(Size.from_any(self._colorbar_pad, sz))
                 v_cb_pos.append(len(v))
                 v.append(Size.from_any(self._colorbar_size, sz))
@@ -576,51 +575,49 @@ class ImageGrid(Grid):
                                                 ny=v_ax_pos[self._nrows-1-row])
             self.axes_all[i].set_axes_locator(locator)
 
-            if self._colorbar_mode == "each":
-                if self._colorbar_location in ("right", "left"):
+            if cb_mode == "each":
+                if cb_location in ("right", "left"):
                     locator = self._divider.new_locator(
                         nx=h_cb_pos[col], ny=v_ax_pos[self._nrows - 1 - row])
 
-                elif self._colorbar_location in ("top", "bottom"):
+                elif cb_location in ("top", "bottom"):
                     locator = self._divider.new_locator(
                         nx=h_ax_pos[col], ny=v_cb_pos[self._nrows - 1 - row])
 
                 self.cbar_axes[i].set_axes_locator(locator)
-            elif self._colorbar_mode == 'edge':
-                if ((self._colorbar_location == 'left' and col == 0) or
-                        (self._colorbar_location == 'right'
-                         and col == self._ncols-1)):
+            elif cb_mode == "edge":
+                if (cb_location == "left" and col == 0
+                        or cb_location == "right" and col == self._ncols - 1):
                     locator = self._divider.new_locator(
                         nx=h_cb_pos[0], ny=v_ax_pos[self._nrows - 1 - row])
                     self.cbar_axes[row].set_axes_locator(locator)
-                elif ((self._colorbar_location == 'bottom' and
-                       row == self._nrows - 1) or
-                        (self._colorbar_location == 'top' and row == 0)):
+                elif (cb_location == "bottom" and row == self._nrows - 1
+                      or cb_location == "top" and row == 0):
                     locator = self._divider.new_locator(nx=h_ax_pos[col],
                                                         ny=v_cb_pos[0])
                     self.cbar_axes[col].set_axes_locator(locator)
 
-        if self._colorbar_mode == "single":
-            if self._colorbar_location == "right":
-                sz = Size.Fraction(self._nrows, Size.AxesX(self.axes_llc))
+        if cb_mode == "single":
+            if cb_location == "right":
+                sz = self._nrows * Size.AxesX(self.axes_llc)
                 h.append(Size.from_any(self._colorbar_pad, sz))
                 h.append(Size.from_any(self._colorbar_size, sz))
                 locator = self._divider.new_locator(nx=-2, ny=0, ny1=-1)
-            elif self._colorbar_location == "top":
-                sz = Size.Fraction(self._ncols, Size.AxesY(self.axes_llc))
+            elif cb_location == "top":
+                sz = self._ncols * Size.AxesY(self.axes_llc)
                 v.append(Size.from_any(self._colorbar_pad, sz))
                 v.append(Size.from_any(self._colorbar_size, sz))
                 locator = self._divider.new_locator(nx=0, nx1=-1, ny=-2)
-            if self._colorbar_location in ("right", "top"):
+            if cb_location in ("right", "top"):
                 for i in range(self.ngrids):
                     self.cbar_axes[i].set_visible(False)
                 self.cbar_axes[0].set_axes_locator(locator)
                 self.cbar_axes[0].set_visible(True)
-        elif self._colorbar_mode == "each":
+        elif cb_mode == "each":
             for i in range(self.ngrids):
                 self.cbar_axes[i].set_visible(True)
-        elif self._colorbar_mode == "edge":
-            if self._colorbar_location in ('right', 'left'):
+        elif cb_mode == "edge":
+            if cb_location in ("right", "left"):
                 count = self._nrows
             else:
                 count = self._ncols

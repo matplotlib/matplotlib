@@ -116,6 +116,8 @@ colormap_kw_doc = """
                   An alternative `~.ticker.Formatter` may be given instead.
     *drawedges*   bool
                   Whether to draw lines at color boundaries.
+    *label*       str
+                  The label on the colorbar's long axis.
     ============  ====================================================
 
     The following will probably be useful only in the context of
@@ -161,10 +163,10 @@ mappable
 
         fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
 
-cax : :class:`~matplotlib.axes.Axes` object, optional
+cax : `~matplotlib.axes.Axes`, optional
     Axes into which the colorbar will be drawn.
 
-ax : :class:`~matplotlib.axes.Axes`, list of Axes, optional
+ax : `~matplotlib.axes.Axes`, list of Axes, optional
     Parent axes from which space for a new colorbar axes will be stolen.
     If a list of axes is given they will all be resized to make room for the
     colorbar axes.
@@ -177,8 +179,7 @@ use_gridspec : bool, optional
 Returns
 -------
 colorbar : `~matplotlib.colorbar.Colorbar`
-    See also its base class, `~matplotlib.colorbar.ColorbarBase`.  Use
-    `~.ColorbarBase.set_label` to label the colorbar.
+    See also its base class, `~matplotlib.colorbar.ColorbarBase`.
 
 Notes
 -----
@@ -318,47 +319,7 @@ class _ColorbarLogLocator(ticker.LogLocator):
         return ticks
 
 
-class _ColorbarMappableDummy:
-    """
-    Private class to hold deprecated ColorbarBase methods that used to be
-    inhereted from ScalarMappable.
-    """
-    @cbook.deprecated("3.1", alternative="ScalarMappable.set_norm")
-    def set_norm(self, norm):
-        """
-        `.colorbar.Colorbar.set_norm` does nothing; set the norm on
-        the mappable associated with this colorbar.
-        """
-        pass
-
-    @cbook.deprecated("3.1", alternative="ScalarMappable.set_cmap")
-    def set_cmap(self, cmap):
-        """
-        `.colorbar.Colorbar.set_cmap` does nothing; set the norm on
-        the mappable associated with this colorbar.
-        """
-        pass
-
-    @cbook.deprecated("3.1", alternative="ScalarMappable.set_clim")
-    def set_clim(self, vmin=None, vmax=None):
-        """
-        `.colorbar.Colorbar.set_clim` does nothing; set the limits on
-        the mappable associated with this colorbar.
-        """
-        pass
-
-    @cbook.deprecated("3.1", alternative="ScalarMappable.get_cmap")
-    def get_cmap(self):
-        """Return the colormap."""
-        return self.cmap
-
-    @cbook.deprecated("3.1", alternative="ScalarMappable.get_clim")
-    def get_clim(self):
-        """Return the min, max of the color limits for image scaling."""
-        return self.norm.vmin, self.norm.vmax
-
-
-class ColorbarBase(_ColorbarMappableDummy):
+class ColorbarBase:
     r"""
     Draw a colorbar in an existing axes.
 
@@ -399,8 +360,8 @@ class ColorbarBase(_ColorbarMappableDummy):
     ----------
     ax : `~matplotlib.axes.Axes`
         The `~.axes.Axes` instance in which the colorbar is drawn.
-    cmap : `~matplotlib.colors.Colormap` or None
-        The colormap to use. If *None*, use :rc:`image.cmap`.
+    cmap : `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+        The colormap to use.
     norm : `~matplotlib.colors.Normalize`
 
     alpha : float
@@ -1194,6 +1155,19 @@ class ColorbarBase(_ColorbarMappableDummy):
         self.ax.remove()
 
 
+def _add_disjoint_kwargs(d, **kwargs):
+    """
+    Update dict *d* with entries in *kwargs*, which must be absent from *d*.
+    """
+    for k, v in kwargs.items():
+        if k in d:
+            cbook.warn_deprecated(
+                "3.3", message=f"The {k!r} parameter to Colorbar has no "
+                "effect because it is overridden by the mappable; it is "
+                "deprecated since %(since)s and will be removed %(removal)s.")
+        d[k] = v
+
+
 class Colorbar(ColorbarBase):
     """
     This class connects a `ColorbarBase` to a `~.cm.ScalarMappable`
@@ -1204,35 +1178,36 @@ class Colorbar(ColorbarBase):
         `.Figure.colorbar` or `.pyplot.colorbar` to create a colorbar.
     """
 
-    def __init__(self, ax, mappable, **kw):
+    def __init__(self, ax, mappable, **kwargs):
         # Ensure the given mappable's norm has appropriate vmin and vmax set
         # even if mappable.draw has not yet been called.
         if mappable.get_array() is not None:
             mappable.autoscale_None()
 
         self.mappable = mappable
-        kw['cmap'] = cmap = mappable.cmap
-        kw['norm'] = mappable.norm
+        _add_disjoint_kwargs(kwargs, cmap=mappable.cmap, norm=mappable.norm)
 
         if isinstance(mappable, contour.ContourSet):
-            CS = mappable
-            kw['alpha'] = mappable.get_alpha()
-            kw['boundaries'] = CS._levels
-            kw['values'] = CS.cvalues
-            kw['extend'] = CS.extend
-            kw.setdefault('ticks', ticker.FixedLocator(CS.levels, nbins=10))
-            kw['filled'] = CS.filled
-            ColorbarBase.__init__(self, ax, **kw)
-            if not CS.filled:
-                self.add_lines(CS)
+            cs = mappable
+            _add_disjoint_kwargs(
+                kwargs,
+                alpha=cs.get_alpha(),
+                boundaries=cs._levels,
+                values=cs.cvalues,
+                extend=cs.extend,
+                filled=cs.filled,
+            )
+            kwargs.setdefault(
+                'ticks', ticker.FixedLocator(cs.levels, nbins=10))
+            ColorbarBase.__init__(self, ax, **kwargs)
+            if not cs.filled:
+                self.add_lines(cs)
         else:
-            if getattr(cmap, 'colorbar_extend', False) is not False:
-                kw.setdefault('extend', cmap.colorbar_extend)
-
+            if getattr(mappable.cmap, 'colorbar_extend', False) is not False:
+                kwargs.setdefault('extend', mappable.cmap.colorbar_extend)
             if isinstance(mappable, martist.Artist):
-                kw['alpha'] = mappable.get_alpha()
-
-            ColorbarBase.__init__(self, ax, **kw)
+                _add_disjoint_kwargs(kwargs, alpha=mappable.get_alpha())
+            ColorbarBase.__init__(self, ax, **kwargs)
 
     def on_mappable_changed(self, mappable):
         """

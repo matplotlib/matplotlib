@@ -34,7 +34,7 @@ def get_rgb():
 
 def make_cube(r, g, b):
     ny, nx = r.shape
-    R = np.zeros([ny, nx, 3], dtype="d")
+    R = np.zeros((ny, nx, 3))
     R[:, :, 0] = r
     G = np.zeros_like(R)
     G[:, :, 1] = g

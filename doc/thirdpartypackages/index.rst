@@ -284,3 +284,20 @@ existing table. See the `blume github repository
 
 .. image:: /_static/blume_table_example.png
 
+GUI applications
+****************
+
+sviewgui
+========
+
+`sviewgui <https://pypi.org/project/sviewgui/>`_ is a PyQt-based GUI for
+visualisation of data from csv files or `pandas.DataFrame`\s. Main features:
+
+- Scatter, line, density, histgram, and box plot types
+- Settings for the marker size, line width, number of bins of histgram,
+  color map (from cmocean)
+- Save figure as editable PDF
+- Code of the plotted graph is available so that it can be reused and modified
+  outside of sviewgui
+
+.. image:: /_static/sviewgui_sample.png

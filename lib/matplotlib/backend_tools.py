@@ -59,7 +59,7 @@ class ToolBase:
     Keymap to associate with this tool
 
     **String**: List of comma separated keys that will be used to call this
-    tool when the keypress event of *self.figure.canvas* is emitted
+    tool when the keypress event of ``self.figure.canvas`` is emitted
     """
 
     description = None
@@ -675,8 +675,8 @@ class ToolViewsPositions(ToolBase):
 
     def update_home_views(self, figure=None):
         """
-        Make sure that self.home_views has an entry for all axes present in the
-        figure
+        Make sure that ``self.home_views`` has an entry for all axes present
+        in the figure.
         """
 
         if not figure:
@@ -868,7 +868,7 @@ class ToolZoom(ZoomPanBase):
 
         # If we're already in the middle of a zoom, pressing another
         # button works to "cancel"
-        if self._ids_zoom != []:
+        if self._ids_zoom:
             self._cancel_action()
 
         if event.button == 1:

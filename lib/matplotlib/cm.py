@@ -90,9 +90,11 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     instance.  The *name* is optional; if absent, the name will
     be the :attr:`~matplotlib.colors.Colormap.name` attribute of the *cmap*.
 
-    In the second case, the three arguments are passed to
+    The second case is deprecated. Here, the three arguments are passed to
     the :class:`~matplotlib.colors.LinearSegmentedColormap` initializer,
-    and the resulting colormap is registered.
+    and the resulting colormap is registered. Instead of this implicit
+    colormap creation, create a `.LinearSegmentedColormap` and use the first
+    case: ``register_cmap(cmap=LinearSegmentedColormap(name, data, lut))``.
     """
     cbook._check_isinstance((str, None), name=name)
     if name is None:
@@ -103,6 +105,13 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     if isinstance(cmap, colors.Colormap):
         cmap_d[name] = cmap
         return
+    if lut is not None or data is not None:
+        cbook.warn_deprecated(
+            "3.3",
+            message="Passing raw data via parameters data and lut to "
+                    "register_cmap() is deprecated. Instead use: "
+                    "register_cmap("
+                    "cmap=LinearSegmentedColormap(name, data, lut))")
     # For the remainder, let exceptions propagate.
     if lut is None:
         lut = mpl.rcParams['image.lut']
@@ -150,12 +159,12 @@ class ScalarMappable:
 
         Parameters
         ----------
-        norm : :class:`matplotlib.colors.Normalize` instance
+        norm : `matplotlib.colors.Normalize` (or subclass thereof)
             The normalizing object which scales data, typically into the
             interval ``[0, 1]``.
             If *None*, *norm* defaults to a *colors.Normalize* object which
             initializes its scaling based on the first data processed.
-        cmap : str or :class:`~matplotlib.colors.Colormap` instance
+        cmap : str or `~matplotlib.colors.Colormap`
             The colormap used to map normalized data values to RGBA colors.
         """
 
@@ -174,6 +183,27 @@ class ScalarMappable:
         #: The last colorbar associated with this ScalarMappable. May be None.
         self.colorbar = None
         self.update_dict = {'array': False}
+
+    def _scale_norm(self, norm, vmin, vmax):
+        """
+        Helper for initial scaling.
+
+        Used by public functions that create a ScalarMappable and support
+        parameters *vmin*, *vmax* and *norm*. This makes sure that a *norm*
+        will take precedence over *vmin*, *vmax*.
+
+        Note that this method does not set the norm.
+        """
+        if vmin is not None or vmax is not None:
+            self.set_clim(vmin, vmax)
+            if norm is not None:
+                cbook.warn_deprecated(
+                    "3.3",
+                    message="Passing parameters norm and vmin/vmax "
+                            "simultaneously is deprecated. Please pass "
+                            "vmin/vmax directly to the norm when creating it.")
+        else:
+            self.autoscale_None()
 
     def to_rgba(self, x, alpha=None, bytes=False, norm=True):
         """
@@ -220,7 +250,7 @@ class ScalarMappable:
                 elif x.shape[2] == 4:
                     xx = x
                 else:
-                    raise ValueError("third dimension must be 3 or 4")
+                    raise ValueError("Third dimension must be 3 or 4")
                 if xx.dtype.kind == 'f':
                     if norm and (xx.max() > 1 or xx.min() < 0):
                         raise ValueError("Floating point image RGB values "

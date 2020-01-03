@@ -48,6 +48,16 @@ def test_resample():
     assert_array_almost_equal(lc3([0, 0.5, 1]), expected)
 
 
+def test_register_cmap():
+    new_cm = copy.copy(plt.cm.viridis)
+    cm.register_cmap('viridis2', new_cm)
+    assert plt.get_cmap('viridis2') == new_cm
+
+    with pytest.raises(ValueError,
+                       match='Arguments must include a name or a Colormap'):
+        cm.register_cmap()
+
+
 def test_colormap_copy():
     cm = plt.cm.Reds
     cm_copy = copy.copy(cm)

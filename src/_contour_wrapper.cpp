@@ -152,8 +152,6 @@ static PyTypeObject* PyQuadContourGenerator_init_type(PyObject* m, PyTypeObject*
 
 /* Module */
 
-extern "C" {
-
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_contour",
@@ -184,5 +182,3 @@ PyMODINIT_FUNC PyInit__contour(void)
 
     return m;
 }
-
-} // extern "C"

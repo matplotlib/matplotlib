@@ -48,8 +48,7 @@ Modules include:
         defines classes for drawing polygons
 
     :mod:`matplotlib.text`
-        defines the :class:`~matplotlib.text.Text`,
-        :class:`~matplotlib.text.TextWithDash`, and
+        defines the :class:`~matplotlib.text.Text` and
         :class:`~matplotlib.text.Annotate` classes
 
     :mod:`matplotlib.image`
@@ -97,22 +96,7 @@ developed and maintained by a host of others.
 
 Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
-
 """
-# NOTE: This file must remain Python 2 compatible for the foreseeable future,
-# to ensure that we error out properly for existing editable installs.
-
-import sys
-if sys.version_info < (3, 5):  # noqa: E402
-    raise ImportError("""
-Matplotlib 3.0+ does not support Python 2.x, 3.0, 3.1, 3.2, 3.3, or 3.4.
-Beginning with Matplotlib 3.0, Python 3.5 and above is required.
-
-See Matplotlib `INSTALL.rst` file for more information:
-
-    https://github.com/matplotlib/matplotlib/blob/master/INSTALL.rst
-
-""")
 
 import atexit
 from collections import namedtuple
@@ -131,6 +115,7 @@ import pprint
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 
 # cbook must import matplotlib only within function
@@ -169,7 +154,7 @@ __bibtex__ = r"""@Article{Hunter:2007,
 
 @cbook.deprecated("3.2")
 def compare_versions(a, b):
-    "Return whether version *a* is greater than or equal to version *b*."
+    """Return whether version *a* is greater than or equal to version *b*."""
     if isinstance(a, bytes):
         cbook.warn_deprecated(
             "3.0", message="compare_versions arguments should be strs.")
@@ -204,10 +189,6 @@ def _check_versions():
 
 
 _check_versions()
-
-
-if not hasattr(sys, 'argv'):  # for modpython
-    sys.argv = ['modpython']
 
 
 # The decorator ensures this always returns the same handler (and it is only
@@ -409,81 +390,6 @@ def _get_executable_info(name):
         raise ValueError("Unknown executable: {!r}".format(name))
 
 
-@cbook.deprecated("3.1")
-def checkdep_dvipng():
-    try:
-        s = subprocess.Popen(['dvipng', '-version'],
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        stdout, stderr = s.communicate()
-        line = stdout.decode('ascii').split('\n')[1]
-        v = line.split()[-1]
-        return v
-    except (IndexError, ValueError, OSError):
-        return None
-
-
-@cbook.deprecated("3.1")
-def checkdep_ghostscript():
-    if checkdep_ghostscript.executable is None:
-        if sys.platform == 'win32':
-            # mgs is the name in miktex
-            gs_execs = ['gswin32c', 'gswin64c', 'mgs', 'gs']
-        else:
-            gs_execs = ['gs']
-        for gs_exec in gs_execs:
-            try:
-                s = subprocess.Popen(
-                    [gs_exec, '--version'], stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
-                stdout, stderr = s.communicate()
-                if s.returncode == 0:
-                    v = stdout[:-1].decode('ascii')
-                    if compare_versions(v, '9.0'):
-                        checkdep_ghostscript.executable = gs_exec
-                        checkdep_ghostscript.version = v
-            except (IndexError, ValueError, OSError):
-                pass
-    return checkdep_ghostscript.executable, checkdep_ghostscript.version
-checkdep_ghostscript.executable = None
-checkdep_ghostscript.version = None
-
-
-@cbook.deprecated("3.1")
-def checkdep_pdftops():
-    try:
-        s = subprocess.Popen(['pdftops', '-v'], stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        stdout, stderr = s.communicate()
-        lines = stderr.decode('ascii').split('\n')
-        for line in lines:
-            if 'version' in line:
-                v = line.split()[-1]
-        return v
-    except (IndexError, ValueError, UnboundLocalError, OSError):
-        return None
-
-
-@cbook.deprecated("3.1")
-def checkdep_inkscape():
-    if checkdep_inkscape.version is None:
-        try:
-            s = subprocess.Popen(['inkscape', '-V'],
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-            stdout, stderr = s.communicate()
-            lines = stdout.decode('ascii').split('\n')
-            for line in lines:
-                if 'Inkscape' in line:
-                    v = line.split()[1]
-                    break
-            checkdep_inkscape.version = v
-        except (IndexError, ValueError, UnboundLocalError, OSError):
-            pass
-    return checkdep_inkscape.version
-checkdep_inkscape.version = None
-
-
 @cbook.deprecated("3.2")
 def checkdep_ps_distiller(s):
     if not s:
@@ -662,16 +568,6 @@ def get_data_path():
     return defaultParams['datapath'][0]
 
 
-@cbook.deprecated("3.1")
-def get_py2exe_datafiles():
-    data_path = Path(get_data_path())
-    d = {}
-    for path in filter(Path.is_file, data_path.glob("**/*")):
-        (d.setdefault(str(path.parent.relative_to(data_path.parent)), [])
-         .append(str(path)))
-    return list(d.items())
-
-
 def matplotlib_fname():
     """
     Get the location of the config file.
@@ -781,7 +677,7 @@ class RcParams(MutableMapping, dict):
             try:
                 cval = self.validate[key](val)
             except ValueError as ve:
-                raise ValueError("Key %s: %s" % (key, str(ve)))
+                raise ValueError(f"Key {key}: {ve}") from None
             dict.__setitem__(self, key, cval)
         except KeyError:
             raise KeyError(
@@ -1287,19 +1183,6 @@ def is_interactive():
     return rcParams['interactive']
 
 
-@cbook.deprecated("3.1", alternative="rcParams['tk.window_focus']")
-def tk_window_focus():
-    """
-    Return true if focus maintenance under TkAgg on win32 is on.
-
-    This currently works only for python.exe and IPython.exe.
-    Both IDLE and Pythonwin.exe fail badly when tk_window_focus is on.
-    """
-    if rcParams['backend'] != 'TkAgg':
-        return False
-    return rcParams['tk.window_focus']
-
-
 default_test_modules = [
     'matplotlib.tests',
     'mpl_toolkits.tests',
@@ -1416,14 +1299,12 @@ Notes
 _DATA_DOC_APPENDIX = """
 
 .. note::
-    In addition to the above described arguments, this function can take a
-    **data** keyword argument. If such a **data** argument is given, the
-    following arguments are replaced by **data[<arg>]**:
+    In addition to the above described arguments, this function can take
+    a *data* keyword argument. If such a *data* argument is given,
+{replaced}
 
-    {replaced}
-
-    Objects passed as **data** must support item access (``data[<arg>]``) and
-    membership test (``<arg> in data``).
+    Objects passed as **data** must support item access (``data[s]``) and
+    membership test (``s in data``).
 """
 
 
@@ -1443,13 +1324,17 @@ def _add_data_doc(docstring, replace_names):
     -------
         The augmented docstring.
     """
-    docstring = inspect.cleandoc(docstring) if docstring is not None else ""
-    repl = ("* All positional and all keyword arguments."
-            if replace_names is None else
-            ""
-            if len(replace_names) == 0 else
-            "* All arguments with the following names: {}.".format(
-                ", ".join(map(repr, sorted(replace_names)))))
+    if (docstring is None
+            or replace_names is not None and len(replace_names) == 0):
+        return docstring
+    docstring = inspect.cleandoc(docstring)
+    repl = (
+        ("    every other argument can also be string ``s``, which is\n"
+         "    interpreted as ``data[s]`` (unless this raises an exception).")
+        if replace_names is None else
+        ("    the following arguments can also be string ``s``, which is\n"
+         "    interpreted as ``data[s]`` (unless this raises an exception):\n"
+         "    " + ", ".join(map("*{}*".format, replace_names))) + ".")
     addendum = _DATA_DOC_APPENDIX.format(replaced=repl)
     if _DATA_DOC_TITLE not in docstring:
         addendum = _DATA_DOC_TITLE + addendum
@@ -1460,11 +1345,12 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     """
     A decorator to add a 'data' kwarg to a function.
 
-    ::
+    When applied::
+
         @_preprocess_data()
         def func(ax, *args, **kwargs): ...
 
-    is a function with signature ``decorated(ax, *args, data=None, **kwargs)``
+    the signature is modified to ``decorated(ax, *args, data=None, **kwargs)``
     with the following behavior:
 
     - if called with ``data=None``, forward the other arguments to ``func``;

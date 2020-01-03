@@ -15,7 +15,8 @@ from numbers import Integral
 
 import numpy as np
 
-from . import cbook, rcParams
+import matplotlib as mpl
+from . import cbook
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
 from .transforms import blended_transform_factory
@@ -91,7 +92,7 @@ class Widget:
 
 class AxesWidget(Widget):
     """
-    Widget that is connected to a single `~matplotlib.axes.Axes`.
+    Widget connected to a single `~matplotlib.axes.Axes`.
 
     To guarantee that the widget remains responsive and not garbage-collected,
     a reference to the object should be maintained by the user.
@@ -105,7 +106,7 @@ class AxesWidget(Widget):
     ----------
     ax : `~matplotlib.axes.Axes`
         The parent axes for the widget.
-    canvas : `~matplotlib.backend_bases.FigureCanvasBase` subclass
+    canvas : `~matplotlib.backend_bases.FigureCanvasBase`
         The parent figure canvas for the widget.
     active : bool
         If False, the widget does not respond to events.
@@ -158,10 +159,10 @@ class Button(AxesWidget):
         ax : `~matplotlib.axes.Axes`
             The `~.axes.Axes` instance the button will be placed into.
         label : str
-            The button text. Accepts string.
-        image : array-like or PIL image
-            The image to place in the button, if not *None*.
-            Supported inputs are the same as for `.Axes.imshow`.
+            The button text.
+        image : array-like or PIL Image
+            The image to place in the button, if not *None*.  The parameter is
+            directly forwarded to `~matplotlib.axes.Axes.imshow`.
         color : color
             The color of the button when not activated.
         hovercolor : color
@@ -274,30 +275,30 @@ class Slider(AxesWidget):
         valmax : float
             The maximum value of the slider.
 
-        valinit : float, optional, default: 0.5
+        valinit : float, default: 0.5
             The slider initial position.
 
-        valfmt : str, optional, default: "%1.2f"
+        valfmt : str, default: "%1.2f"
             Used to format the slider value, fprint format string.
 
-        closedmin : bool, optional, default: True
+        closedmin : bool, default: True
             Whether the slider interval is closed on the bottom.
 
-        closedmax : bool, optional, default: True
+        closedmax : bool, default: True
             Whether the slider interval is closed on the top.
 
-        slidermin : Slider, optional, default: None
+        slidermin : Slider, default: None
             Do not allow the current slider to have a value less than
             the value of the Slider `slidermin`.
 
-        slidermax : Slider, optional, default: None
+        slidermax : Slider, default: None
             Do not allow the current slider to have a value greater than
             the value of the Slider `slidermax`.
 
-        dragging : bool, optional, default: True
+        dragging : bool, default: True
             If True the slider can be dragged by the mouse.
 
-        valstep : float, optional, default: None
+        valstep : float, default: None
             If given, the slider will snap to multiples of `valstep`.
 
         orientation : {'horizontal', 'vertical'}, default: 'horizontal'
@@ -507,20 +508,19 @@ class CheckButtons(AxesWidget):
     For the check buttons to remain responsive you must keep a
     reference to this object.
 
-    Connect to the CheckButtons with the :meth:`on_clicked` method
+    Connect to the CheckButtons with the `.on_clicked` method.
 
     Attributes
     ----------
-    ax
-        The `matplotlib.axes.Axes` the button are located in.
-    labels
-        A list of `matplotlib.text.Text`\ s.
-    lines
-        List of (line1, line2) tuples for the x's in the check boxes.
-        These lines exist for each box, but have ``set_visible(False)``
-        when its box is not checked.
-    rectangles
-        A list of `matplotlib.patches.Rectangle`\ s.
+    ax : `~matplotlib.axes.Axes`
+        The parent axes for the widget.
+    labels : list of `.Text`
+
+    rectangles : list of `.Rectangle`
+
+    lines : list of (`.Line2D`, `.Line2D`) pairs
+        List of lines for the x's in the check boxes.  These lines exist for
+        each box, but have ``set_visible(False)`` when its box is not checked.
     """
 
     def __init__(self, ax, labels, actives=None):
@@ -602,13 +602,19 @@ class CheckButtons(AxesWidget):
 
     def set_active(self, index):
         """
-        Directly (de)activate a check button by index.
-
-        *index* is an index into the original label list
-            that this object was constructed with.
-            Raises ValueError if *index* is invalid.
+        Toggle (activate or deactivate) a check button by index.
 
         Callbacks will be triggered if :attr:`eventson` is True.
+
+        Parameters
+        ----------
+        index : int
+            Index of the check button to toggle.
+
+        Raises
+        ------
+        ValueError
+            If *index* is invalid.
         """
         if not 0 <= index < len(self.labels):
             raise ValueError("Invalid CheckButton index: %d" % index)
@@ -656,22 +662,27 @@ class TextBox(AxesWidget):
 
     For the text box to remain responsive you must keep a reference to it.
 
-    Call :meth:`on_text_change` to be updated whenever the text changes.
+    Call `.on_text_change` to be updated whenever the text changes.
 
-    Call :meth:`on_submit` to be updated whenever the user hits enter or
+    Call `.on_submit` to be updated whenever the user hits enter or
     leaves the text entry field.
 
     Attributes
     ----------
-    ax
-        The `matplotlib.axes.Axes` the button renders into.
-    label
-        A `matplotlib.text.Text` instance.
-    color
-        The color of the button when not hovering.
-    hovercolor
-        The color of the button when hovering.
+    ax : `~matplotlib.axes.Axes`
+        The parent axes for the widget.
+    label : `.Text`
+
+    color : color
+        The color of the text box when not hovering.
+    hovercolor : color
+        The color of the text box when hovering.
     """
+
+    @cbook.deprecated("3.3")
+    @property
+    def params_to_disable(self):
+        return [key for key in mpl.rcParams if 'keymap' in key]
 
     def __init__(self, ax, label, initial='',
                  color='.95', hovercolor='1', label_pad=.01):
@@ -694,8 +705,6 @@ class TextBox(AxesWidget):
         AxesWidget.__init__(self, ax)
 
         self.DIST_FROM_LEFT = .05
-
-        self.params_to_disable = [key for key in rcParams if 'keymap' in key]
 
         self.text = initial
         self.label = ax.text(-label_pad, 0.5, label,
@@ -840,10 +849,10 @@ class TextBox(AxesWidget):
         if self.ax.figure.canvas.manager.key_press_handler_id is not None:
             # disable command keys so that the user can type without
             # command keys causing figure to be saved, etc
-            self.reset_params = {}
-            for key in self.params_to_disable:
-                self.reset_params[key] = rcParams[key]
-                rcParams[key] = []
+            self._restore_keymap = ExitStack()
+            self._restore_keymap.enter_context(
+                mpl.rc_context(
+                    {k: [] for k in mpl.rcParams if k.startswith('keymap.')}))
         else:
             self.ax.figure.canvas.manager.toolmanager.keypresslock(self)
 
@@ -856,8 +865,7 @@ class TextBox(AxesWidget):
             if self.ax.figure.canvas.manager.key_press_handler_id is not None:
                 # since the user is no longer typing,
                 # reactivate the standard command keys
-                for key in self.params_to_disable:
-                    rcParams[key] = self.reset_params[key]
+                self._restore_keymap.close()
             else:
                 toolmanager = self.ax.figure.canvas.manager.toolmanager
                 toolmanager.keypresslock.release(self)
@@ -963,18 +971,18 @@ class RadioButtons(AxesWidget):
     For the buttons to remain responsive you must keep a reference to this
     object.
 
-    Connect to the RadioButtons with the :meth:`on_clicked` method.
+    Connect to the RadioButtons with the `.on_clicked` method.
 
     Attributes
     ----------
-    ax
-        The containing `~.axes.Axes` instance.
-    activecolor
+    ax : `~matplotlib.axes.Axes`
+        The parent axes for the widget.
+    activecolor : color
         The color of the selected button.
-    labels
-        A list of `~.text.Text` instances containing the button labels.
-    circles
-        A list of `~.patches.Circle` instances defining the buttons.
+    labels : list of `.Text`
+        The button labels.
+    circles : list of `~.patches.Circle`
+        The buttons.
     value_selected : str
         The label text of the currently selected button.
     """
@@ -1234,11 +1242,11 @@ class Cursor(AxesWidget):
     ----------
     ax : `matplotlib.axes.Axes`
         The `~.axes.Axes` to attach the cursor to.
-    horizOn : bool, optional, default: True
+    horizOn : bool, default: True
         Whether to draw the horizontal line.
-    vertOn : bool, optional, default: True
+    vertOn : bool, default: True
         Whether to draw the vertical line.
-    useblit : bool, optional, default: False
+    useblit : bool, default: False
         Use blitting for faster drawing if supported by the backend.
 
     Other Parameters
@@ -1655,7 +1663,7 @@ class SpanSelector(_SelectorWidget):
 
     Parameters
     ----------
-    ax : `matplotlib.axes.Axes` object
+    ax : `matplotlib.axes.Axes`
 
     onselect : func(min, max), min/max are floats
 
@@ -2453,15 +2461,12 @@ class LassoSelector(_SelectorWidget):
                  button=None):
         _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
                                  button=button)
-
         self.verts = None
-
         if lineprops is None:
             lineprops = dict()
-        if useblit:
-            lineprops['animated'] = True
+        # self.useblit may be != useblit, if the canvas doesn't support blit.
+        lineprops.update(animated=self.useblit, visible=False)
         self.line = Line2D([], [], **lineprops)
-        self.line.set_visible(False)
         self.ax.add_line(self.line)
         self.artists = [self.line]
 
@@ -2504,8 +2509,7 @@ class PolygonSelector(_SelectorWidget):
     drag anywhere in the axes to move all vertices. Press the *esc* key to
     start a new polygon.
 
-    For the selector to remain responsive you must keep a reference to
-    it.
+    For the selector to remain responsive you must keep a reference to it.
 
     Parameters
     ----------

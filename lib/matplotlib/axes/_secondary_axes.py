@@ -170,7 +170,7 @@ class SecondaryAxis(_AxesBase):
         ----------
         ticks : list
             List of x-axis tick locations.
-        minor : bool, optional, default: False
+        minor : bool, default: False
             If ``False`` sets major ticks, if ``True`` sets minor ticks.
         """
         ret = self._axis.set_ticks(ticks, minor=minor)
@@ -306,7 +306,7 @@ class SecondaryAxis(_AxesBase):
         xlabel : str
             The label text.
 
-        labelpad : scalar, optional, default: None
+        labelpad : float, default: ``self.xaxis.labelpad``
             Spacing in points between the label and the x-axis.
 
         Other Parameters
@@ -324,15 +324,15 @@ class SecondaryAxis(_AxesBase):
 
     def set_ylabel(self, ylabel, fontdict=None, labelpad=None, **kwargs):
         """
-        Set the label for the x-axis.
+        Set the label for the y-axis.
 
         Parameters
         ----------
         ylabel : str
             The label text.
 
-        labelpad : scalar, optional, default: None
-            Spacing in points between the label and the x-axis.
+        labelpad : scalar, default: ``self.yaxis.labelpad``
+            Spacing in points between the label and the y-axis.
 
         Other Parameters
         ----------------

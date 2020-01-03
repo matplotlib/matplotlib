@@ -10,10 +10,9 @@ if so desired).
 
 plotfile
 ~~~~~~~~
-`.pyplot.plotfile` is deprecated in favor of separately loading and plotting
-the data.  See :doc:`/gallery/misc/plotfile_demo_sgskip` for various ways to
-use pandas or NumPy to load data, and pandas or matplotlib to plot the
-resulting data.
+``.pyplot.plotfile`` is deprecated in favor of separately loading and plotting
+the data.  Use pandas or NumPy to load data, and pandas or matplotlib to plot
+the resulting data.
 
 axes and axis
 ~~~~~~~~~~~~~

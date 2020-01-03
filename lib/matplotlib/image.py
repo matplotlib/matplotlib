@@ -3,7 +3,6 @@ The image module supports basic image loading, rescaling and display
 operations.
 """
 
-from io import BytesIO
 import math
 import os
 import logging
@@ -69,7 +68,7 @@ def composite_images(images, renderer, magnification=1.0):
         enforced by this function.  Each image must have a purely
         affine transformation with no shear.
 
-    renderer : RendererBase instance
+    renderer : `.RendererBase`
 
     magnification : float
         The additional magnification to apply for the renderer in use.
@@ -684,7 +683,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             raise TypeError("Image data of dtype {} cannot be converted to "
                             "float".format(self._A.dtype))
 
-        if (self._A.ndim == 3 and self._A.shape[-1] == 1):
+        if self._A.ndim == 3 and self._A.shape[-1] == 1:
             # If just one dimension assume scalar and apply colormap
             self._A = self._A[:, :, 0]
 
@@ -1167,7 +1166,6 @@ class PcolorImage(AxesImage):
         l, b, r, t = self.axes.bbox.extents
         width = (round(r) + 0.5) - (round(l) - 0.5)
         height = (round(t) + 0.5) - (round(b) - 0.5)
-        # The extra cast-to-int is only needed for python2
         width = int(round(width * magnification))
         height = int(round(height * magnification))
         if self._rgbacache is None:
@@ -1358,11 +1356,6 @@ class BboxImage(_ImageBase):
         self._interp_at_native = interp_at_native
         self._transform = IdentityTransform()
 
-    @cbook.deprecated("3.1")
-    @property
-    def interp_at_native(self):
-        return self._interp_at_native
-
     def get_transform(self):
         return self._transform
 
@@ -1375,7 +1368,7 @@ class BboxImage(_ImageBase):
         elif callable(self.bbox):
             return self.bbox(renderer)
         else:
-            raise ValueError("unknown type of bbox")
+            raise ValueError("Unknown type of bbox")
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred within the image."""

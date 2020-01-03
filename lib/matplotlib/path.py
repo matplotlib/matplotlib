@@ -688,8 +688,8 @@ class Path:
             theta += np.pi / 2.0
             r = np.ones(ns2 + 1)
             r[1::2] = innerCircle
-            verts = np.vstack((r*np.cos(theta), r*np.sin(theta))).transpose()
-            codes = np.empty((ns2 + 1,))
+            verts = (r * np.vstack((np.cos(theta), np.sin(theta)))).T
+            codes = np.empty(ns2 + 1)
             codes[0] = cls.MOVETO
             codes[1:-1] = cls.LINETO
             codes[-1] = cls.CLOSEPOLY

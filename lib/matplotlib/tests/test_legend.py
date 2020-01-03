@@ -35,7 +35,7 @@ def test_legend_ordereddict():
 
 @image_comparison(['legend_auto1'], remove_text=True)
 def test_legend_auto1():
-    'Test automatic legend placement'
+    """Test automatic legend placement"""
     fig = plt.figure()
     ax = fig.add_subplot(111)
     x = np.arange(100)
@@ -46,7 +46,7 @@ def test_legend_auto1():
 
 @image_comparison(['legend_auto2'], remove_text=True)
 def test_legend_auto2():
-    'Test automatic legend placement'
+    """Test automatic legend placement"""
     fig = plt.figure()
     ax = fig.add_subplot(111)
     x = np.arange(100)
@@ -57,7 +57,7 @@ def test_legend_auto2():
 
 @image_comparison(['legend_auto3'])
 def test_legend_auto3():
-    'Test automatic legend placement'
+    """Test automatic legend placement"""
     fig = plt.figure()
     ax = fig.add_subplot(111)
     x = [0.9, 0.1, 0.1, 0.9, 0.9, 0.5]
@@ -171,7 +171,7 @@ def test_rc():
 
 @image_comparison(['legend_expand'], remove_text=True)
 def test_legend_expand():
-    'Test expand mode'
+    """Test expand mode"""
     legend_modes = [None, "expand"]
     fig, axes_list = plt.subplots(len(legend_modes), 1)
     x = np.arange(100)
@@ -361,7 +361,7 @@ class TestLegendFigureFunction:
 
 @image_comparison(['legend_stackplot.png'])
 def test_legend_stackplot():
-    '''test legend for PolyCollection using stackplot'''
+    """test legend for PolyCollection using stackplot"""
     # related to #1341, #1943, and PR #3303
     fig = plt.figure()
     ax = fig.add_subplot(111)

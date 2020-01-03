@@ -188,10 +188,6 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'SymmetricalLogLocator', 'LogitLocator', 'OldAutoLocator')
 
 
-def _mathdefault(s):
-    return '\\mathdefault{%s}' % s
-
-
 class _DummyAxis:
     def __init__(self, minpos=0):
         self.dataLim = mtransforms.Bbox.unit()
@@ -345,6 +341,11 @@ class NullFormatter(Formatter):
 class FixedFormatter(Formatter):
     """
     Return fixed strings for tick labels based only on position, not value.
+
+    .. note::
+        `.FixedFormatter` should only be used together with `.FixedLocator`.
+        Otherwise, the labels may end up in unexpected positions.
+
     """
     def __init__(self, seq):
         """
@@ -575,7 +576,7 @@ class ScalarFormatter(Formatter):
             return ''
         else:
             xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
-            if np.abs(xp) < 1e-8:
+            if abs(xp) < 1e-8:
                 xp = 0
             if self._useLocale:
                 s = locale.format_string(self.format, (xp,))
@@ -654,14 +655,10 @@ class ScalarFormatter(Formatter):
                     sciNotStr = self.format_data(10 ** self.orderOfMagnitude)
                 else:
                     sciNotStr = '1e%d' % self.orderOfMagnitude
-            if self._useMathText:
+            if self._useMathText or self._usetex:
                 if sciNotStr != '':
-                    sciNotStr = r'\times%s' % _mathdefault(sciNotStr)
-                s = ''.join(('$', sciNotStr, _mathdefault(offsetStr), '$'))
-            elif self._usetex:
-                if sciNotStr != '':
-                    sciNotStr = r'\times%s' % sciNotStr
-                s = ''.join(('$', sciNotStr, offsetStr, '$'))
+                    sciNotStr = r'\times\mathdefault{%s}' % sciNotStr
+                s = r'$%s\mathdefault{%s}$' % (sciNotStr, offsetStr)
             else:
                 s = ''.join((sciNotStr, offsetStr))
 
@@ -784,15 +781,13 @@ class ScalarFormatter(Formatter):
                 break
         sigfigs += 1
         self.format = '%1.' + str(sigfigs) + 'f'
-        if self._usetex:
-            self.format = '$%s$' % self.format
-        elif self._useMathText:
-            self.format = '$%s$' % _mathdefault(self.format)
+        if self._usetex or self._useMathText:
+            self.format = r'$\mathdefault{%s}$' % self.format
 
     @cbook.deprecated("3.1")
     def pprint_val(self, x):
         xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
-        if np.abs(xp) < 1e-8:
+        if abs(xp) < 1e-8:
             xp = 0
         if self._useLocale:
             return locale.format_string(self.format, (xp,))
@@ -1078,12 +1073,8 @@ class LogFormatterMathtext(LogFormatter):
     """
 
     def _non_decade_format(self, sign_string, base, fx, usetex):
-        'Return string for non-decade locations'
-        if usetex:
-            return (r'$%s%s^{%.2f}$') % (sign_string, base, fx)
-        else:
-            return ('$%s$' % _mathdefault('%s%s^{%.2f}' %
-                                          (sign_string, base, fx)))
+        """Return string for non-decade locations."""
+        return r'$\mathdefault{%s%s^{%.2f}}$' % (sign_string, base, fx)
 
     def __call__(self, x, pos=None):
         """
@@ -1095,10 +1086,7 @@ class LogFormatterMathtext(LogFormatter):
         min_exp = rcParams['axes.formatter.min_exponent']
 
         if x == 0:  # Symlog
-            if usetex:
-                return '$0$'
-            else:
-                return '$%s$' % _mathdefault('0')
+            return r'$\mathdefault{0}$'
 
         sign_string = '-' if x < 0 else ''
         x = abs(x)
@@ -1123,18 +1111,12 @@ class LogFormatterMathtext(LogFormatter):
         else:
             base = '%s' % b
 
-        if np.abs(fx) < min_exp:
-            if usetex:
-                return r'${0}{1:g}$'.format(sign_string, x)
-            else:
-                return '${0}$'.format(_mathdefault(
-                    '{0}{1:g}'.format(sign_string, x)))
+        if abs(fx) < min_exp:
+            return r'$\mathdefault{%s%g}$' % (sign_string, x)
         elif not is_x_decade:
             return self._non_decade_format(sign_string, base, fx, usetex)
-        elif usetex:
-            return r'$%s%s^{%d}$' % (sign_string, base, fx)
         else:
-            return '$%s$' % _mathdefault('%s%s^{%d}' % (sign_string, base, fx))
+            return r'$\mathdefault{%s%s^{%d}}$' % (sign_string, base, fx)
 
 
 class LogFormatterSciNotation(LogFormatterMathtext):
@@ -1143,18 +1125,14 @@ class LogFormatterSciNotation(LogFormatterMathtext):
     """
 
     def _non_decade_format(self, sign_string, base, fx, usetex):
-        'Return string for non-decade locations'
+        """Return string for non-decade locations."""
         b = float(base)
         exponent = math.floor(fx)
         coeff = b ** fx / b ** exponent
         if is_close_to_int(coeff):
             coeff = round(coeff)
-        if usetex:
-            return (r'$%s%g\times%s^{%d}$') % \
-                                        (sign_string, coeff, base, exponent)
-        else:
-            return ('$%s$' % _mathdefault(r'%s%g\times%s^{%d}' %
-                                        (sign_string, coeff, base, exponent)))
+        return r'$\mathdefault{%s%g\times%s^{%d}}$' \
+            % (sign_string, coeff, base, exponent)
 
 
 class LogitFormatter(Formatter):
@@ -1326,8 +1304,6 @@ class LogitFormatter(Formatter):
             return ""
         if x <= 0 or x >= 1:
             return ""
-        usetex = rcParams["text.usetex"]
-
         if is_close_to_int(2 * x) and round(2 * x) == 1:
             s = self._one_half
         elif x < 0.5 and is_decade(x, rtol=1e-7):
@@ -1342,9 +1318,7 @@ class LogitFormatter(Formatter):
             s = self._one_minus(self._format_value(1-x, 1-self.locs))
         else:
             s = self._format_value(x, self.locs, sci_notation=False)
-        if usetex:
-            return "$%s$" % s
-        return "$%s$" % _mathdefault(s)
+        return r"$\mathdefault{%s}$" % s
 
     def format_data_short(self, value):
         """
@@ -1414,11 +1388,11 @@ class EngFormatter(Formatter):
             * ``sep="\N{NARROW NO-BREAK SPACE}"`` (``U+202F``);
             * ``sep="\N{NO-BREAK SPACE}"`` (``U+00A0``).
 
-        usetex : bool, optional, default: None
+        usetex : bool, default: :rc:`text.usetex`
             To enable/disable the use of TeX's math mode for rendering the
             numbers in the formatter.
 
-        useMathText : bool, optional, default: None
+        useMathText : bool, default: :rc:`axes.formatter.use_mathtext`
             To enable/disable the use mathtext for rendering the numbers in
             the formatter.
         """
@@ -1738,7 +1712,7 @@ class Locator(TickHelper):
         self.axis.set_view_interval(vmin, vmax, ignore=True)
 
     def zoom(self, direction):
-        "Zoom in/out on axis; if direction is >0 zoom in, else zoom out"
+        """Zoom in/out on axis; if direction is >0 zoom in, else zoom out."""
 
         vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
@@ -1804,7 +1778,7 @@ class FixedLocator(Locator):
         return self.tick_values(None, None)
 
     def tick_values(self, vmin, vmax):
-        """"
+        """
         Return the locations of the ticks.
 
         .. note::
@@ -1833,7 +1807,7 @@ class NullLocator(Locator):
         return self.tick_values(None, None)
 
     def tick_values(self, vmin, vmax):
-        """"
+        """
         Return the locations of the ticks.
 
         .. note::
@@ -1881,7 +1855,7 @@ class LinearLocator(Locator):
             self.numticks = numticks
 
     def __call__(self):
-        'Return the locations of the ticks'
+        """Return the locations of the ticks."""
         vmin, vmax = self.axis.get_view_interval()
         return self.tick_values(vmin, vmax)
 
@@ -1900,7 +1874,7 @@ class LinearLocator(Locator):
         return self.raise_if_exceeds(ticklocs)
 
     def view_limits(self, vmin, vmax):
-        'Try to choose the view limits intelligently'
+        """Try to choose the view limits intelligently."""
 
         if vmax < vmin:
             vmin, vmax = vmax, vmin
@@ -1934,7 +1908,7 @@ class MultipleLocator(Locator):
             self._edge = _Edge_integer(base, 0)
 
     def __call__(self):
-        'Return the locations of the ticks'
+        """Return the locations of the ticks."""
         vmin, vmax = self.axis.get_view_interval()
         return self.tick_values(vmin, vmax)
 
@@ -2005,18 +1979,18 @@ class _Edge_integer:
         return abs(ms - edge) < tol
 
     def le(self, x):
-        'Return the largest n: n*step <= x.'
+        """Return the largest n: n*step <= x."""
         d, m = divmod(x, self.step)
         if self.closeto(m / self.step, 1):
-            return (d + 1)
+            return d + 1
         return d
 
     def ge(self, x):
-        'Return the smallest n: n*step >= x.'
+        """Return the smallest n: n*step >= x."""
         d, m = divmod(x, self.step)
         if self.closeto(m / self.step, 0):
             return d
-        return (d + 1)
+        return d + 1
 
 
 class MaxNLocator(Locator):
@@ -2269,7 +2243,7 @@ def is_decade(x, base=10, *, rtol=1e-10):
         return False
     if x == 0.0:
         return True
-    lx = np.log(np.abs(x)) / np.log(base)
+    lx = np.log(abs(x)) / np.log(base)
     return is_close_to_int(lx, atol=rtol)
 
 
@@ -2338,7 +2312,7 @@ class LogLocator(Locator):
 
         Parameters
         ----------
-        subs : None, str, or sequence of float, optional, default (1.0,)
+        subs : None or str or sequence of float, default: (1.0,)
             Gives the multiples of integer powers of the base at which
             to place ticks.  The default places ticks only at
             integer powers of the base.
@@ -2401,7 +2375,7 @@ class LogLocator(Locator):
                                  "{}-dimensional.".format(self._subs.ndim))
 
     def __call__(self):
-        'Return the locations of the ticks'
+        """Return the locations of the ticks."""
         vmin, vmax = self.axis.get_view_interval()
         return self.tick_values(vmin, vmax)
 
@@ -2495,7 +2469,7 @@ class LogLocator(Locator):
             return self.raise_if_exceeds(ticklocs)
 
     def view_limits(self, vmin, vmax):
-        'Try to choose the view limits intelligently'
+        """Try to choose the view limits intelligently."""
         b = self._base
 
         vmin, vmax = self.nonsingular(vmin, vmax)
@@ -2614,7 +2588,7 @@ class SymmetricalLogLocator(Locator):
         a_lo, a_hi = (0, 0)
         if has_a:
             a_upper_lim = min(-linthresh, vmax)
-            a_lo, a_hi = get_log_range(np.abs(a_upper_lim), np.abs(vmin) + 1)
+            a_lo, a_hi = get_log_range(abs(a_upper_lim), abs(vmin) + 1)
 
         c_lo, c_hi = (0, 0)
         if has_c:
@@ -2657,7 +2631,7 @@ class SymmetricalLogLocator(Locator):
         return self.raise_if_exceeds(np.array(ticklocs))
 
     def view_limits(self, vmin, vmax):
-        'Try to choose the view limits intelligently'
+        """Try to choose the view limits intelligently."""
         b = self._base
         if vmax < vmin:
             vmin, vmax = vmax, vmin
@@ -2857,7 +2831,7 @@ class AutoMinorLocator(Locator):
         self.ndivs = n
 
     def __call__(self):
-        'Return the locations of the ticks'
+        """Return the locations of the ticks."""
         if self.axis.get_scale() == 'log':
             cbook._warn_external('AutoMinorLocator does not work with '
                                  'logarithmic scale')
@@ -2912,7 +2886,7 @@ class OldAutoLocator(Locator):
         self._locator = LinearLocator()
 
     def __call__(self):
-        'Return the locations of the ticks'
+        """Return the locations of the ticks."""
         self.refresh()
         return self.raise_if_exceeds(self._locator())
 
@@ -2928,7 +2902,7 @@ class OldAutoLocator(Locator):
         self._locator = self.get_locator(d)
 
     def view_limits(self, vmin, vmax):
-        'Try to choose the view limits intelligently'
+        """Try to choose the view limits intelligently."""
 
         d = abs(vmax - vmin)
         self._locator = self.get_locator(d)

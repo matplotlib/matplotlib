@@ -41,3 +41,18 @@ did nothing, when passed an unsupported value. It now raises a ``ValueError``.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ``backend_pgf.LatexManager.latex`` is now created with ``encoding="utf-8"``, so
 its ``stdin``, ``stdout``, and ``stderr`` attributes are utf8-encoded.
+
+``pyplot.xticks()`` and ``pyplot.yticks()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, passing labels without passing the ticks to either `.pyplot.xticks`
+and `.pyplot.yticks` would result in
+
+    TypeError: object of type 'NoneType' has no len()
+
+It now raises a ``TypeError`` with a proper description of the error.
+
+Setting the same property under multiple aliases now raises a TypeError
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, calling e.g. ``plot(..., color=somecolor, c=othercolor)`` would
+emit a warning because ``color`` and ``c`` actually map to the same Artist
+property.  This now raises a TypeError.

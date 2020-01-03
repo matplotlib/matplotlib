@@ -595,7 +595,7 @@ class PdfFile:
         self.pageAnnotations.append(annotObject)
 
     def finalize(self):
-        "Write out the various deferred objects and the pdf end matter."
+        """Write out the various deferred objects and the pdf end matter."""
 
         self.endStream()
         self.writeFonts()
@@ -627,7 +627,7 @@ class PdfFile:
         self.writeTrailer()
 
     def close(self):
-        "Flush all buffers and free all resources."
+        """Flush all buffers and free all resources."""
 
         self.endStream()
         if self.passed_in_file_object:
@@ -682,7 +682,7 @@ class PdfFile:
     def dviFontName(self, dvifont):
         """
         Given a dvi font object, return a name suitable for Op.selectfont.
-        This registers the font information in self.dviFontInfo if not yet
+        This registers the font information in ``self.dviFontInfo`` if not yet
         registered.
         """
 
@@ -902,7 +902,7 @@ end"""
         fonttype = rcParams['pdf.fonttype']
 
         def cvt(length, upe=font.units_per_EM, nearest=True):
-            "Convert font coordinates to PDF glyph coordinates"
+            """Convert font coordinates to PDF glyph coordinates."""
             value = length / upe * 1000
             if nearest:
                 return round(value)
@@ -1668,10 +1668,6 @@ end"""
 
 
 class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
-    @property
-    @cbook.deprecated("3.1")
-    def afm_font_cache(self, _cache=cbook.maxdict(50)):
-        return _cache
 
     _afm_font_dir = cbook._get_data_path("fonts/pdfcorefonts")
     _use_afm_rc_name = "pdf.use14corefonts"
@@ -2282,7 +2278,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         return [Op.grestore]
 
     def clip_cmd(self, cliprect, clippath):
-        """Set clip rectangle. Calls self.pop() and self.push()."""
+        """Set clip rectangle. Calls `.pop()` and `.push()`."""
         cmds = []
         # Pop graphics state until we hit the right one or the stack is empty
         while ((self._cliprect, self._clippath) != (cliprect, clippath)
@@ -2409,7 +2405,7 @@ class PdfPages:
         keep_empty : bool, optional
             If set to False, then empty pdf files will be deleted automatically
             when closed.
-        metadata : dictionary, optional
+        metadata : dict, optional
             Information dictionary object (see PDF reference section 10.2.1
             'Document Information Dictionary'), e.g.:
             ``{'Creator': 'My software', 'Author': 'Me', 'Title': 'Awesome'}``.

@@ -30,15 +30,13 @@ class SelectFromCollection:
 
     Parameters
     ----------
-    ax : :class:`~matplotlib.axes.Axes`
+    ax : `~matplotlib.axes.Axes`
         Axes to interact with.
-
-    collection : :class:`matplotlib.collections.Collection` subclass
+    collection : `matplotlib.collections.Collection` subclass
         Collection you want to select from.
-
     alpha_other : 0 <= float <= 1
         To highlight a selection, this tool sets all selected points to an
-        alpha value of 1 and non-selected points to `alpha_other`.
+        alpha value of 1 and non-selected points to *alpha_other*.
     """
 
     def __init__(self, ax, collection, alpha_other=0.3):

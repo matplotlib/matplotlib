@@ -42,7 +42,6 @@ from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
-from matplotlib import colors as mcolors
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 
 
@@ -124,7 +123,7 @@ class RendererAgg(RendererBase):
         nmax = rcParams['agg.path.chunksize']  # here at least for testing
         npts = path.vertices.shape[0]
 
-        if (nmax > 100 and npts > nmax and path.should_simplify and
+        if (npts > nmax > 100 and path.should_simplify and
                 rgbFace is None and gc.get_hatch() is None):
             nch = np.ceil(npts / nmax)
             chsize = int(np.ceil(npts / nch))

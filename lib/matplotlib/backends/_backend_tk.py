@@ -80,7 +80,7 @@ def blit(photoimage, aggimage, offsets, bbox=None):
 
 
 class TimerTk(TimerBase):
-    '''
+    """
     Subclass of :class:`backend_bases.TimerBase` that uses Tk's timer events.
 
     Attributes
@@ -95,7 +95,7 @@ class TimerTk(TimerBase):
         events. This list can be manipulated directly, or the functions
         `add_callback` and `remove_callback` can be used.
 
-    '''
+    """
     def __init__(self, parent, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
         self.parent = parent
@@ -639,11 +639,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         except Exception as e:
             tkinter.messagebox.showerror("Error saving file", str(e))
 
-    @cbook.deprecated("3.1")
-    def set_active(self, ind):
-        self._ind = ind
-        self._active = [self._axes[i] for i in self._ind]
-
     def update(self):
         self._axes = self.canvas.figure.axes
         with _restore_foreground_window_at_end():
@@ -672,7 +667,7 @@ class ToolTip:
         self.x = self.y = 0
 
     def showtip(self, text):
-        "Display text in tooltip window"
+        """Display text in tooltip window."""
         self.text = text
         if self.tipwindow or not self.text:
             return

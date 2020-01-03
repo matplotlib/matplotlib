@@ -1,10 +1,10 @@
-'''
+"""
 ==========================
 3D voxel / volumetric plot
 ==========================
 
 Demonstrates plotting 3D volumetric objects with `.Axes3D.voxels`.
-'''
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np

@@ -32,8 +32,8 @@ class Patch(artist.Artist):
     are *None*, they default to their rc params setting.
     """
     zorder = 1
-    validCap = ('butt', 'round', 'projecting')
-    validJoin = ('miter', 'round', 'bevel')
+    validCap = mlines.Line2D.validCap
+    validJoin = mlines.Line2D.validJoin
 
     # Whether to draw an edge by default.  Set on a
     # subclass-by-subclass basis.
@@ -414,7 +414,7 @@ class Patch(artist.Artist):
 
         Alternatively a dash tuple of the following form can be provided::
 
-            (offset, onoffseq),
+            (offset, onoffseq)
 
         where ``onoffseq`` is an even length tuple of on and off ink in points.
 
@@ -463,7 +463,7 @@ class Patch(artist.Artist):
         ----------
         s : {'butt', 'round', 'projecting'}
         """
-        s = s.lower()
+        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
         cbook._check_in_list(self.validCap, capstyle=s)
         self._capstyle = s
         self.stale = True
@@ -479,7 +479,7 @@ class Patch(artist.Artist):
         ----------
         s : {'miter', 'round', 'bevel'}
         """
-        s = s.lower()
+        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
         cbook._check_in_list(self.validJoin, joinstyle=s)
         self._joinstyle = s
         self.stale = True
@@ -584,10 +584,9 @@ class Patch(artist.Artist):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        """Draw to the given *renderer*."""
+        # docstring inherited
         if not self.get_visible():
             return
-
         # Patch has traditionally ignored the dashoffset.
         with cbook._setattr_cm(self, _dashoffset=0), \
                 self._bind_draw_path_function(renderer) as draw_path:
@@ -3864,14 +3863,11 @@ class FancyArrowPatch(Patch):
     _edge_default = True
 
     def __str__(self):
-
         if self._posA_posB is not None:
             (x1, y1), (x2, y2) = self._posA_posB
-            return self.__class__.__name__ \
-                + "((%g, %g)->(%g, %g))" % (x1, y1, x2, y2)
+            return f"{type(self).__name__}(({x1:g}, {y1:g})->({x2:g}, {y2:g}))"
         else:
-            return self.__class__.__name__ \
-                + "(%s)" % (str(self._path_original),)
+            return f"{type(self).__name__}({self._path_original})"
 
     @docstring.dedent_interpd
     def __init__(self, posA=None, posB=None,
@@ -3994,7 +3990,7 @@ default: 'arc3'
         elif posA is None and posB is None and path is not None:
             self._posA_posB = None
         else:
-            raise ValueError("either posA and posB, or path need to provided")
+            raise ValueError("Either posA and posB, or path need to provided")
 
         self.patchA = patchA
         self.patchB = patchB

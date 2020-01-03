@@ -14,12 +14,15 @@ parameter set listed here should also be visited to the
 :file:`matplotlibrc.template` in matplotlib's root source directory.
 """
 
-from collections.abc import Iterable, Mapping
+import ast
 from functools import partial, reduce
 import logging
+from numbers import Number
 import operator
 import os
 import re
+
+import numpy as np
 
 import matplotlib as mpl
 from matplotlib import animation, cbook
@@ -48,7 +51,7 @@ all_backends = interactive_bk + non_interactive_bk
 
 class ValidateInStrings:
     def __init__(self, key, valid, ignorecase=False):
-        'valid is a list of legal strings'
+        """*valid* is a list of legal strings."""
         self.key = key
         self.ignorecase = ignorecase
 
@@ -82,11 +85,9 @@ def _listify_validator(scalar_validator, allow_stringlist=False, *, doc=None):
                             for v in s if v.strip()]
                 else:
                     raise
-        # We should allow any generic sequence type, including generators,
-        # Numpy ndarrays, and pandas data structures.  However, unordered
-        # sequences, such as sets, should be allowed but discouraged unless the
-        # user desires pseudorandom behavior.
-        elif isinstance(s, Iterable) and not isinstance(s, Mapping):
+        # Allow any ordered sequence type -- generators, np.ndarray, pd.Series
+        # -- but not sets, whose iteration order is non-deterministic.
+        elif np.iterable(s) and not isinstance(s, (set, frozenset)):
             # The condition on this list comprehension will preserve the
             # behavior of filtering out any empty strings (behavior was
             # from the original validate_stringlist()), while allowing
@@ -100,6 +101,7 @@ def _listify_validator(scalar_validator, allow_stringlist=False, *, doc=None):
         f.__name__ = "{}list".format(scalar_validator.__name__)
     except AttributeError:  # class instance.
         f.__name__ = "{}List".format(type(scalar_validator).__name__)
+    f.__qualname__ = f.__qualname__.rsplit(".", 1)[0] + "." + f.__name__
     f.__doc__ = doc if doc is not None else scalar_validator.__doc__
     return f
 
@@ -121,7 +123,7 @@ def validate_path_exists(s):
 
 
 def validate_bool(b):
-    """Convert b to a boolean or raise"""
+    """Convert b to ``bool`` or raise."""
     if isinstance(b, str):
         b = b.lower()
     if b in ('t', 'y', 'yes', 'on', 'true', '1', 1, True):
@@ -129,11 +131,11 @@ def validate_bool(b):
     elif b in ('f', 'n', 'no', 'off', 'false', '0', 0, False):
         return False
     else:
-        raise ValueError('Could not convert "%s" to boolean' % b)
+        raise ValueError('Could not convert "%s" to bool' % b)
 
 
 def validate_bool_maybe_none(b):
-    """Convert b to a boolean or raise."""
+    """Convert b to ``bool`` or raise, passing through *None*."""
     if isinstance(b, str):
         b = b.lower()
     if b is None or b == 'none':
@@ -143,16 +145,23 @@ def validate_bool_maybe_none(b):
     elif b in ('f', 'n', 'no', 'off', 'false', '0', 0, False):
         return False
     else:
-        raise ValueError('Could not convert "%s" to boolean' % b)
+        raise ValueError('Could not convert "%s" to bool' % b)
 
 
 def _validate_tex_preamble(s):
+    message = (
+        f"Support for setting the 'text.latex.unicode' and 'pdf.preamble' "
+        f"rcParams to {s!r} is deprecated since %(since)s and will be "
+        f"removed %(removal)s; please set them to plain (possibly empty) "
+        f"strings instead.")
     if s is None or s == 'None':
+        cbook.warn_deprecated("3.3", message=message)
         return ""
     try:
         if isinstance(s, str):
             return s
-        elif isinstance(s, Iterable):
+        elif np.iterable(s):
+            cbook.warn_deprecated("3.3", message=message)
             return '\n'.join(s)
         else:
             raise TypeError
@@ -198,6 +207,11 @@ def _make_type_validator(cls, *, allow_none=False):
         except ValueError:
             raise ValueError(f'Could not convert {s!r} to {cls.__name__}')
 
+    validator.__name__ = f"validate_{cls.__name__}"
+    if allow_none:
+        validator.__name__ += "_or_None"
+    validator.__qualname__ = (
+        validator.__qualname__.rsplit(".", 1)[0] + "." + validator.__name__)
     return validator
 
 
@@ -246,20 +260,6 @@ def validate_backend(s):
         s if s is _auto_backend_sentinel or s.startswith("module://")
         else _validate_standard_backends(s))
     return backend
-
-
-@cbook.deprecated("3.1")
-def validate_qt4(s):
-    if s is None:
-        return None
-    return ValidateInStrings("backend.qt4", ['PyQt4', 'PySide', 'PyQt4v2'])(s)
-
-
-@cbook.deprecated("3.1")
-def validate_qt5(s):
-    if s is None:
-        return None
-    return ValidateInStrings("backend.qt5", ['PyQt5', 'PySide2'])(s)
 
 
 validate_toolbar = ValidateInStrings(
@@ -446,11 +446,6 @@ _validate_verbose = ValidateInStrings(
     ['silent', 'helpful', 'debug', 'debug-annoying'])
 
 
-@cbook.deprecated("3.1")
-def validate_verbose(s):
-    return _validate_verbose(s)
-
-
 def validate_whiskers(s):
     if s == 'range':
         cbook.warn_deprecated(
@@ -532,19 +527,85 @@ def validate_ps_distiller(s):
                          'ghostscript or xpdf')
 
 
-validate_joinstyle = ValidateInStrings('joinstyle',
-                                       ['miter', 'round', 'bevel'],
-                                       ignorecase=True)
+# A validator dedicated to the named line styles, based on the items in
+# ls_mapper, and a list of possible strings read from Line2D.set_linestyle
+_validate_named_linestyle = ValidateInStrings(
+    'linestyle',
+    [*ls_mapper.keys(), *ls_mapper.values(), 'None', 'none', ' ', ''],
+    ignorecase=True)
+
+
+def _validate_linestyle(ls):
+    """
+    A validator for all possible line styles, the named ones *and*
+    the on-off ink sequences.
+    """
+    if isinstance(ls, str):
+        try:  # Look first for a valid named line style, like '--' or 'solid'.
+            return _validate_named_linestyle(ls)
+        except ValueError:
+            pass
+        try:
+            ls = ast.literal_eval(ls)  # Parsing matplotlibrc.
+        except (SyntaxError, ValueError):
+            pass  # Will error with the ValueError at the end.
+
+    def _is_iterable_not_string_like(x):
+        # Explicitly exclude bytes/bytearrays so that they are not
+        # nonsensically interpreted as sequences of numbers (codepoints).
+        return np.iterable(x) and not isinstance(x, (str, bytes, bytearray))
+
+    # (offset, (on, off, on, off, ...))
+    if (_is_iterable_not_string_like(ls)
+            and len(ls) == 2
+            and isinstance(ls[0], (type(None), Number))
+            and _is_iterable_not_string_like(ls[1])
+            and len(ls[1]) % 2 == 0
+            and all(isinstance(elem, Number) for elem in ls[1])):
+        return ls
+    # For backcompat: (on, off, on, off, ...); the offset is implicitly None.
+    if (_is_iterable_not_string_like(ls)
+            and len(ls) % 2 == 0
+            and all(isinstance(elem, Number) for elem in ls)):
+        return (None, ls)
+    raise ValueError(f"linestyle {ls!r} is not a valid on-off ink sequence.")
+
+
+def _deprecate_case_insensitive_join_cap(s):
+    s_low = s.lower()
+    if s != s_low:
+        if s_low in ['miter', 'round', 'bevel']:
+            cbook.warn_deprecated(
+                "3.3", message="Case-insensitive capstyles are deprecated "
+                "since %(since)s and support for them will be removed "
+                "%(removal)s; please pass them in lowercase.")
+        elif s_low in ['butt', 'round', 'projecting']:
+            cbook.warn_deprecated(
+                "3.3", message="Case-insensitive joinstyles are deprecated "
+                "since %(since)s and support for them will be removed "
+                "%(removal)s; please pass them in lowercase.")
+        # Else, error out at the check_in_list stage.
+    return s_low
+
+
+def validate_joinstyle(s):
+    s = _deprecate_case_insensitive_join_cap(s)
+    cbook._check_in_list(['miter', 'round', 'bevel'], joinstyle=s)
+    return s
+
+
+def validate_capstyle(s):
+    s = _deprecate_case_insensitive_join_cap(s)
+    cbook._check_in_list(['butt', 'round', 'projecting'], capstyle=s)
+    return s
+
+
+validate_fillstyle = ValidateInStrings(
+    'markers.fillstyle', ['full', 'left', 'right', 'bottom', 'top', 'none'])
+
+
 validate_joinstylelist = _listify_validator(validate_joinstyle)
-
-validate_capstyle = ValidateInStrings('capstyle',
-                                      ['butt', 'round', 'projecting'],
-                                      ignorecase=True)
 validate_capstylelist = _listify_validator(validate_capstyle)
-
-validate_fillstyle = ValidateInStrings('markers.fillstyle',
-                                       ['full', 'left', 'right', 'bottom',
-                                        'top', 'none'])
 validate_fillstylelist = _listify_validator(validate_fillstyle)
 
 
@@ -667,39 +728,6 @@ def validate_sketch(s):
     return result
 
 
-@cbook.deprecated("3.1")
-class ValidateInterval:
-    """
-    Value must be in interval
-    """
-    def __init__(self, vmin, vmax, closedmin=True, closedmax=True):
-        self.vmin = vmin
-        self.vmax = vmax
-        self.cmin = closedmin
-        self.cmax = closedmax
-
-    def __call__(self, s):
-        try:
-            s = float(s)
-        except ValueError:
-            raise RuntimeError('Value must be a float; found "%s"' % s)
-
-        if self.cmin and s < self.vmin:
-            raise RuntimeError('Value must be >= %f; found "%f"' %
-                               (self.vmin, s))
-        elif not self.cmin and s <= self.vmin:
-            raise RuntimeError('Value must be > %f; found "%f"' %
-                               (self.vmin, s))
-
-        if self.cmax and s > self.vmax:
-            raise RuntimeError('Value must be <= %f; found "%f"' %
-                               (self.vmax, s))
-        elif not self.cmax and s >= self.vmax:
-            raise RuntimeError('Value must be < %f; found "%f"' %
-                               (self.vmax, s))
-        return s
-
-
 def _validate_greaterequal0_lessthan1(s):
     s = validate_float(s)
     if 0 <= s < 1:
@@ -748,7 +776,7 @@ _prop_validators = {
         'color': _listify_validator(validate_color_for_prop_cycle,
                                     allow_stringlist=True),
         'linewidth': validate_floatlist,
-        'linestyle': validate_stringlist,
+        'linestyle': _listify_validator(_validate_linestyle),
         'facecolor': validate_colorlist,
         'edgecolor': validate_colorlist,
         'joinstyle': validate_joinstylelist,
@@ -968,43 +996,6 @@ def validate_webagg_address(s):
             raise ValueError("'webagg.address' is not a valid IP address")
         return s
     raise ValueError("'webagg.address' is not a valid IP address")
-
-
-# A validator dedicated to the named line styles, based on the items in
-# ls_mapper, and a list of possible strings read from Line2D.set_linestyle
-_validate_named_linestyle = ValidateInStrings(
-    'linestyle',
-    [*ls_mapper.keys(), *ls_mapper.values(), 'None', 'none', ' ', ''],
-    ignorecase=True)
-
-
-def _validate_linestyle(ls):
-    """
-    A validator for all possible line styles, the named ones *and*
-    the on-off ink sequences.
-    """
-    # Look first for a valid named line style, like '--' or 'solid' Also
-    # includes bytes(-arrays) here (they all fail _validate_named_linestyle);
-    # otherwise, if *ls* is of even-length, it will be passed to the instance
-    # of validate_nseq_float, which will return an absurd on-off ink
-    # sequence...
-    if isinstance(ls, (str, bytes, bytearray)):
-        return _validate_named_linestyle(ls)
-
-    # Look for an on-off ink sequence (in points) *of even length*.
-    # Offset is set to None.
-    try:
-        if len(ls) % 2 != 0:
-            raise ValueError("the linestyle sequence {!r} is not of even "
-                             "length.".format(ls))
-
-        return (None, validate_nseq_float()(ls))
-
-    except (ValueError, TypeError):
-        # TypeError can be raised inside the instance of validate_nseq_float,
-        # by wrong types passed to float(), like NoneType.
-        raise ValueError("linestyle {!r} is not a valid on-off ink "
-                         "sequence.".format(ls))
 
 
 validate_axes_titlelocation = ValidateInStrings('axes.titlelocation', ['left', 'center', 'right'])

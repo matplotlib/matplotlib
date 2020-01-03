@@ -97,7 +97,7 @@ class TextToPath:
 
         Parameters
         ----------
-        prop : `matplotlib.font_manager.FontProperties` instance
+        prop : `~matplotlib.font_manager.FontProperties`
             The font properties for the text.
 
         s : str
@@ -379,7 +379,7 @@ class TextPath(Path):
         _interpolation_steps : int, optional
             (Currently ignored)
 
-        usetex : bool, optional, default: False
+        usetex : bool, default: False
             Whether to use tex rendering.
 
         Examples

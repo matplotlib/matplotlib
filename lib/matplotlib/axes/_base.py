@@ -439,8 +439,12 @@ class _AxesBase(martist.Artist):
         self._sharex = sharex
         self._sharey = sharey
         if sharex is not None:
+            if not isinstance(sharex, _AxesBase):
+                raise TypeError('sharex must be an axes, not a bool')
             self._shared_x_axes.join(self, sharex)
         if sharey is not None:
+            if not isinstance(sharey, _AxesBase):
+                raise TypeError('sharey must be an axes, not a bool')
             self._shared_y_axes.join(self, sharey)
         self.set_label(label)
         self.set_figure(fig)
@@ -558,7 +562,7 @@ class _AxesBase(martist.Artist):
         return self.bbox
 
     def _init_axis(self):
-        "move this out of __init__ because non-separable axes don't use it"
+        # This is moved out of __init__ because non-separable axes don't use it
         self.xaxis = maxis.XAxis(self)
         self.spines['bottom'].register_axis(self.xaxis)
         self.spines['top'].register_axis(self.xaxis)
@@ -1213,18 +1217,17 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        aspect : {'auto', 'equal'} or num
+        aspect : {'auto'} or num
             Possible values:
 
-            ========   ================================================
+            ========   =================================================
             value      description
-            ========   ================================================
-            'auto'     automatic; fill the position rectangle with data
-            'equal'    same scaling from data to plot units for x and y
-             num       a circle will be stretched such that the height
-                       is num times the width. aspect=1 is the same as
-                       aspect='equal'.
-            ========   ================================================
+            ========   =================================================
+            'auto'     automatic; fill the position rectangle with data.
+            num        a circle will be stretched such that the height
+                       is *num* times the width.  'equal' is a synonym
+                       for ``aspect=1``, i.e. same scaling for x and y.
+            ========   =================================================
 
         adjustable : None or {'box', 'datalim'}, optional
             If not ``None``, this defines which parameter will be adjusted to
@@ -1248,7 +1251,7 @@ class _AxesBase(martist.Artist):
 
             See `.set_anchor` for further details.
 
-        share : bool, optional, default: False
+        share : bool, default: False
             If ``True``, apply the settings to all shared Axes.
 
         See Also
@@ -1259,14 +1262,14 @@ class _AxesBase(martist.Artist):
         matplotlib.axes.Axes.set_anchor
             defining the position in case of extra space.
         """
-        if not (cbook._str_equal(aspect, 'equal')
-                or cbook._str_equal(aspect, 'auto')):
+        if cbook._str_equal(aspect, 'equal'):
+            aspect = 1
+        if not cbook._str_equal(aspect, 'auto'):
+            if self.name == '3d':
+                raise NotImplementedError(
+                    'It is not currently possible to manually set the aspect '
+                    'on 3D axes')
             aspect = float(aspect)  # raise ValueError if necessary
-
-        if (not cbook._str_equal(aspect, 'auto')) and self.name == '3d':
-            raise NotImplementedError(
-                'It is not currently possible to manually set the aspect '
-                'on 3D axes')
 
         if share:
             axes = {*self._shared_x_axes.get_siblings(self),
@@ -1310,7 +1313,7 @@ class _AxesBase(martist.Artist):
             If 'box', change the physical dimensions of the Axes.
             If 'datalim', change the ``x`` or ``y`` data limits.
 
-        share : bool, optional, default: False
+        share : bool, default: False
             If ``True``, apply the settings to all shared Axes.
 
         See Also
@@ -1444,7 +1447,7 @@ class _AxesBase(martist.Artist):
               | 'SW' | 'S'  | 'SE' |
               +------+------+------+
 
-        share : bool, optional, default: False
+        share : bool, default: False
             If ``True``, apply the settings to all shared Axes.
 
         See Also
@@ -1528,9 +1531,6 @@ class _AxesBase(martist.Artist):
         if aspect == 'auto' and self._box_aspect is None:
             self._set_position(position, which='active')
             return
-
-        if aspect == 'equal':
-            aspect = 1
 
         fig_width, fig_height = self.get_figure().get_size_inches()
         fig_aspect = fig_height / fig_width
@@ -1665,7 +1665,7 @@ class _AxesBase(martist.Artist):
                      ``xmax-xmin == ymax-ymin``.
             ======== ==========================================================
 
-        emit : bool, optional, default *True*
+        emit : bool, default: True
             Whether observers are notified of the axis limit change.
             This option is passed on to `~.Axes.set_xlim` and
             `~.Axes.set_ylim`.
@@ -1813,10 +1813,7 @@ class _AxesBase(martist.Artist):
         self._current_image = im
 
     def _gci(self):
-        """
-        Helper for :func:`~matplotlib.pyplot.gci`;
-        do not use elsewhere.
-        """
+        """Helper for `~matplotlib.pyplot.gci`; do not use elsewhere."""
         return self._current_image
 
     def has_data(self):
@@ -2093,7 +2090,7 @@ class _AxesBase(martist.Artist):
             The points to include in the data limits Bbox. This can be either
             a list of (x, y) tuples or a Nx2 array.
 
-        updatex, updatey : bool, optional, default *True*
+        updatex, updatey : bool, default: True
             Whether to update the x/y limits.
         """
         xys = np.asarray(xys)
@@ -2371,12 +2368,12 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        enable : bool or None, optional, default: True
+        enable : bool or None, default: True
             True turns autoscaling on, False turns it off.
             None leaves the autoscaling state unchanged.
-        axis : {'both', 'x', 'y'}, optional, default: 'both'
+        axis : {'both', 'x', 'y'}, default: 'both'
             Which axis to operate on.
-        tight : bool or None, optional, default: None
+        tight : bool or None, default: None
             If True, first set the margins to zero.  Then, this argument is
             forwarded to `autoscale_view` (regardless of its value); see the
             description of its behavior there.
@@ -2527,7 +2524,7 @@ class _AxesBase(martist.Artist):
             'minposy', self.yaxis, self._ymargin, y_stickies, self.set_ybound)
 
     def _get_axis_list(self):
-        return (self.xaxis, self.yaxis)
+        return self.xaxis, self.yaxis
 
     def _get_axis_map(self):
         """
@@ -2613,7 +2610,7 @@ class _AxesBase(martist.Artist):
     # Drawing
     @martist.allow_rasterization
     def draw(self, renderer=None, inframe=False):
-        """Draw everything (plot lines, axes, labels)"""
+        # docstring inherited
         if renderer is None:
             renderer = self.figure._cachedRenderer
         if renderer is None:
@@ -2994,7 +2991,7 @@ class _AxesBase(martist.Artist):
 
         Examples
         --------
-        Usage ::
+        ::
 
             ax.tick_params(direction='out', length=6, width=2, colors='r',
                            grid_color='r', grid_alpha=0.5)
@@ -3175,14 +3172,14 @@ class _AxesBase(martist.Artist):
             The right xlim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
-        emit : bool, optional, default: True
+        emit : bool, default: True
             Whether to notify observers of limit change.
 
-        auto : bool or None, optional, default: False
+        auto : bool or None, default: False
             Whether to turn on autoscaling of the x-axis. True turns on,
             False turns off, None leaves unchanged.
 
-        xmin, xmax : scalar, optional
+        xmin, xmax : float, optional
             They are equivalent to left and right respectively,
             and it is an error to pass both *xmin* and *left* or
             *xmax* and *right*.
@@ -3351,7 +3348,7 @@ class _AxesBase(martist.Artist):
         ----------
         ticks : list
             List of x-axis tick locations.
-        minor : bool, optional, default: False
+        minor : bool, default: False
             If ``False`` sets major ticks, if ``True`` sets minor ticks.
         """
         ret = self.xaxis.set_ticks(ticks, minor=minor)
@@ -3406,10 +3403,15 @@ class _AxesBase(martist.Artist):
         """
         Set the x-tick labels with list of string labels.
 
+        .. warning::
+            This method should only be used after fixing the tick positions
+            using `~.axes.Axes.set_xticks`. Otherwise, the labels may end up
+            in unexpected positions.
+
         Parameters
         ----------
-        labels : List[str]
-            List of string labels.
+        labels : list of str
+            The label texts.
 
         fontdict : dict, optional
             A dictionary controlling the appearance of the ticklabels.
@@ -3420,12 +3422,13 @@ class _AxesBase(martist.Artist):
                 'verticalalignment': 'baseline',
                 'horizontalalignment': loc}
 
-        minor : bool, optional
+        minor : bool, default: False
             Whether to set the minor ticklabels rather than the major ones.
 
         Returns
         -------
-        A list of `~.text.Text` instances.
+        labels : list of `~.Text`
+            The labels.
 
         Other Parameters
         -----------------
@@ -3556,10 +3559,10 @@ class _AxesBase(martist.Artist):
             The top ylim in data coordinates. Passing *None* leaves the
             limit unchanged.
 
-        emit : bool, optional, default: True
+        emit : bool, default: True
             Whether to notify observers of limit change.
 
-        auto : bool or None, optional, default: False
+        auto : bool or None, default: False
             Whether to turn on autoscaling of the y-axis. *True* turns on,
             *False* turns off, *None* leaves unchanged.
 
@@ -3732,7 +3735,7 @@ class _AxesBase(martist.Artist):
         ----------
         ticks : list
             List of y-axis tick locations
-        minor : bool, optional, default: False
+        minor : bool, default: False
             If ``False`` sets major ticks, if ``True`` sets minor ticks.
         """
         ret = self.yaxis.set_ticks(ticks, minor=minor)
@@ -3784,12 +3787,17 @@ class _AxesBase(martist.Artist):
 
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        Set the y-tick labels with list of strings labels.
+        Set the y-tick labels with list of string labels.
+
+        .. warning::
+            This method should only be used after fixing the tick positions
+            using `~.axes.Axes.set_yticks`. Otherwise, the labels may end up
+            in unexpected positions.
 
         Parameters
         ----------
-        labels : List[str]
-            list of string labels
+        labels : list of str
+            The label texts.
 
         fontdict : dict, optional
             A dictionary controlling the appearance of the ticklabels.
@@ -3800,12 +3808,13 @@ class _AxesBase(martist.Artist):
                 'verticalalignment': 'baseline',
                 'horizontalalignment': loc}
 
-        minor : bool, optional
+        minor : bool, default: False
             Whether to set the minor ticklabels rather than the major ones.
 
         Returns
         -------
-        A list of `~.text.Text` instances.
+        labels
+            A list of `~.text.Text` instances.
 
         Other Parameters
         ----------------
@@ -3822,8 +3831,8 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        tz : str or `tzinfo` instance, optional
-            Timezone.  Defaults to :rc:`timezone`.
+        tz : str or `tzinfo`, default: :rc:`timezone`
+            Timezone.
         """
         # should be enough to inform the unit conversion interface
         # dates are coming in
@@ -3835,8 +3844,8 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        tz : str or `tzinfo` instance, optional
-            Timezone.  Defaults to :rc:`timezone`.
+        tz : str or `tzinfo`, default: :rc:`timezone`
+            Timezone.
         """
         self.yaxis.axis_date(tz)
 
@@ -3958,7 +3967,7 @@ class _AxesBase(martist.Artist):
         """
         xmin, xmax = self.get_xlim()
         ymin, ymax = self.get_ylim()
-        return (xmin, xmax, ymin, ymax)
+        return xmin, xmax, ymin, ymax
 
     def _set_view(self, view):
         """
@@ -4313,7 +4322,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        renderer : `.RendererBase` instance
+        renderer : `.RendererBase` subclass
             renderer that will be used to draw the figures (i.e.
             ``fig.canvas.get_renderer()``)
 

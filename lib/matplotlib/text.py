@@ -12,7 +12,6 @@ import numpy as np
 from . import artist, cbook, docstring, rcParams
 from .artist import Artist
 from .font_manager import FontProperties
-from .lines import Line2D
 from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
 from .textpath import TextPath  # Unused, but imported by others.
 from .transforms import (
@@ -40,9 +39,17 @@ def _wrap_text(textobj):
 # Extracted from Text's method to serve as a function
 def get_rotation(rotation):
     """
-    Return the text angle as float between 0 and 360 degrees.
+    Return *rotation* normalized to an angle between 0 and 360 degrees.
 
-    *rotation* may be 'horizontal', 'vertical', or a numeric value in degrees.
+    Parameters
+    ----------
+    rotation : float or {None, 'horizontal', 'vertical'}
+        Rotation angle in degrees. *None* and 'horizontal' equal 0,
+        'vertical' equals 90.
+
+    Returns
+    -------
+    float
     """
     try:
         return float(rotation) % 360
@@ -168,9 +175,7 @@ class Text(Artist):
         self.update(kwargs)
 
     def update(self, kwargs):
-        """
-        Update properties from a dictionary.
-        """
+        # docstring inherited
         # Update bbox last, as it depends on font properties.
         sentinel = object()  # bbox can be None, so use another sentinel.
         bbox = kwargs.pop("bbox", sentinel)
@@ -185,14 +190,9 @@ class Text(Artist):
         return d
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occurred in the patch.
-
-        In the case of text, a hit is true anywhere in the
-        axis-aligned bounding-box containing the text.
-
-        Returns
-        -------
-        bool : bool
+        """
+        Return whether the mouse event occurred inside the axis-aligned
+        bounding-box of the text.
         """
         inside, info = self._default_contains(mouseevent)
         if inside is not None:
@@ -234,7 +234,7 @@ class Text(Artist):
             return self._horizontalalignment
 
     def get_rotation(self):
-        """Return the text angle as float in degrees."""
+        """Return the text angle in degrees between 0 and 360."""
         return get_rotation(self._rotation)  # string_or_number -> number
 
     def set_rotation_mode(self, m):
@@ -253,11 +253,11 @@ class Text(Artist):
         self.stale = True
 
     def get_rotation_mode(self):
-        """Get the text rotation mode."""
+        """Return the text rotation mode."""
         return self._rotation_mode
 
     def update_from(self, other):
-        """Copy properties from other to self."""
+        # docstring inherited
         Artist.update_from(self, other)
         self._color = other._color
         self._multialignment = other._multialignment
@@ -271,7 +271,7 @@ class Text(Artist):
 
     def _get_layout(self, renderer):
         """
-        return the extent (bbox) of the text together with
+        Return the extent (bbox) of the text together with
         multiple-alignment information. Note that it returns an extent
         of a rotated text when necessary.
         """
@@ -494,7 +494,7 @@ class Text(Artist):
             trans = self.get_transform()
 
             # don't use self.get_unitless_position here, which refers to text
-            # position in Text, and dash position in TextWithDash:
+            # position in Text:
             posx = float(self.convert_xunits(self._x))
             posy = float(self.convert_yunits(self._y))
 
@@ -548,11 +548,12 @@ class Text(Artist):
         self._update_clip_properties()
 
     def get_wrap(self):
-        """Return the wrapping state for the text."""
+        """Return whether the text can be wrapped."""
         return self._wrap
 
     def set_wrap(self, wrap):
-        """Set the wrapping state for the text.
+        """
+        Set whether the text can be wrapped.
 
         Parameters
         ----------
@@ -669,9 +670,8 @@ class Text(Artist):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        """
-        Draws the `.Text` object to the given *renderer*.
-        """
+        # docstring inherited
+
         if renderer is not None:
             self._renderer = renderer
         if not self.get_visible():
@@ -686,7 +686,7 @@ class Text(Artist):
             trans = textobj.get_transform()
 
             # don't use textobj.get_position here, which refers to text
-            # position in Text, and dash position in TextWithDash:
+            # position in Text:
             posx = float(textobj.convert_xunits(textobj._x))
             posy = float(textobj.convert_yunits(textobj._y))
             posx, posy = trans.transform((posx, posy))
@@ -737,16 +737,16 @@ class Text(Artist):
         self.stale = False
 
     def get_color(self):
-        "Return the color of the text"
+        """Return the color of the text."""
         return self._color
 
     def get_fontproperties(self):
-        "Return the `.font_manager.FontProperties` object"
+        """Return the `.font_manager.FontProperties`."""
         return self._fontproperties
 
     def get_fontfamily(self):
         """
-        Return the list of font families used for font lookup
+        Return the list of font families used for font lookup.
 
         See Also
         --------
@@ -756,7 +756,7 @@ class Text(Artist):
 
     def get_fontname(self):
         """
-        Return the font name as string
+        Return the font name as a string.
 
         See Also
         --------
@@ -766,7 +766,7 @@ class Text(Artist):
 
     def get_fontstyle(self):
         """
-        Return the font style as string
+        Return the font style as a string.
 
         See Also
         --------
@@ -776,7 +776,7 @@ class Text(Artist):
 
     def get_fontsize(self):
         """
-        Return the font size as integer
+        Return the font size as an integer.
 
         See Also
         --------
@@ -786,7 +786,7 @@ class Text(Artist):
 
     def get_fontvariant(self):
         """
-        Return the font variant as a string
+        Return the font variant as a string.
 
         See Also
         --------
@@ -796,7 +796,7 @@ class Text(Artist):
 
     def get_fontweight(self):
         """
-        Get the font weight as string or number
+        Return the font weight as a string or a number.
 
         See Also
         --------
@@ -806,7 +806,7 @@ class Text(Artist):
 
     def get_stretch(self):
         """
-        Get the font stretch as a string or number
+        Return the font stretch as a string or a number.
 
         See Also
         --------
@@ -816,13 +816,13 @@ class Text(Artist):
 
     def get_horizontalalignment(self):
         """
-        Return the horizontal alignment as string.  Will be one of
+        Return the horizontal alignment as a string.  Will be one of
         'left', 'center' or 'right'.
         """
         return self._horizontalalignment
 
     def get_unitless_position(self):
-        "Return the unitless position of the text as a tuple (*x*, *y*)"
+        """Return the (x, y) unitless position of the text."""
         # This will get the position with all unit information stripped away.
         # This is here for convenience since it is done in several locations.
         x = float(self.convert_xunits(self._x))
@@ -830,7 +830,7 @@ class Text(Artist):
         return x, y
 
     def get_position(self):
-        "Return the position of the text as a tuple (*x*, *y*)"
+        """Return the (x, y) position of the text."""
         # This should return the same data (possible unitized) as was
         # specified with 'set_x' and 'set_y'.
         return self._x, self._y
@@ -854,12 +854,12 @@ class Text(Artist):
                 )
 
     def get_text(self):
-        "Get the text as string"
+        """Return the text string."""
         return self._text
 
     def get_verticalalignment(self):
         """
-        Return the vertical alignment as string.  Will be one of
+        Return the vertical alignment as a string.  Will be one of
         'top', 'center', 'bottom' or 'baseline'.
         """
         return self._verticalalignment
@@ -960,10 +960,11 @@ class Text(Artist):
 
     def set_multialignment(self, align):
         """
-        Set the alignment for multiple lines layout.  The layout of the
-        bounding box of all the lines is determined by the horizontalalignment
-        and verticalalignment properties, but the multiline text within that
-        box can be
+        Set the text alignment for multiline texts.
+
+        The layout of the bounding box of all the lines is determined by the
+        horizontalalignment and verticalalignment properties. This property
+        controls the alignment of the text lines within that box.
 
         Parameters
         ----------
@@ -1012,7 +1013,7 @@ class Text(Artist):
 
     def set_fontvariant(self, variant):
         """
-        Set the font variant, either 'normal' or 'small-caps'.
+        Set the font variant.
 
         Parameters
         ----------
@@ -1042,13 +1043,14 @@ class Text(Artist):
 
     def set_fontsize(self, fontsize):
         """
-        Set the font size.  May be either a size string, relative to
-        the default font size, or an absolute font size in points.
+        Set the font size.
 
         Parameters
         ----------
-        fontsize : {size in points, 'xx-small', 'x-small', 'small', 'medium', \
+        fontsize : float or {'xx-small', 'x-small', 'small', 'medium', \
 'large', 'x-large', 'xx-large'}
+            If float, the fontsize in points. The string values denote sizes
+            relative to the default font size.
 
         See Also
         --------
@@ -1130,14 +1132,16 @@ class Text(Artist):
 
         Parameters
         ----------
-        s : {angle in degrees, 'vertical', 'horizontal'}
+        s : float or {'vertical', 'horizontal'}
+            The rotation angle in degrees in mathematically positive direction
+            (counterclockwise). 'horizontal' equals 0, 'vertical' equals 90.
         """
         self._rotation = s
         self.stale = True
 
     def set_verticalalignment(self, align):
         """
-        Set the vertical alignment
+        Set the vertical alignment.
 
         Parameters
         ----------
@@ -1158,8 +1162,8 @@ class Text(Artist):
         Parameters
         ----------
         s : object
-            Any object gets converted to its `str`, except ``None`` which
-            becomes ``''``.
+            Any object gets converted to its `str` representation, except for
+            ``None`` which is converted to an empty string.
         """
         if s is None:
             s = ''
@@ -1266,416 +1270,17 @@ docstring.interpd.update(Text=artist.kwdoc(Text))
 docstring.dedent_interpd(Text.__init__)
 
 
-@cbook.deprecated("3.1", alternative="Annotation")
-class TextWithDash(Text):
-    """
-    This is basically a :class:`~matplotlib.text.Text` with a dash
-    (drawn with a :class:`~matplotlib.lines.Line2D`) before/after
-    it. It is intended to be a drop-in replacement for
-    :class:`~matplotlib.text.Text`, and should behave identically to
-    it when *dashlength* = 0.0.
-
-    The dash always comes between the point specified by
-    :meth:`~matplotlib.text.Text.set_position` and the text. When a
-    dash exists, the text alignment arguments (*horizontalalignment*,
-    *verticalalignment*) are ignored.
-
-    *dashlength* is the length of the dash in canvas units.
-    (default = 0.0).
-
-    *dashdirection* is one of 0 or 1, where 0 draws the dash after the
-    text and 1 before.  (default = 0).
-
-    *dashrotation* specifies the rotation of the dash, and should
-    generally stay *None*. In this case
-    :meth:`~matplotlib.text.TextWithDash.get_dashrotation` returns
-    :meth:`~matplotlib.text.Text.get_rotation`.  (i.e., the dash takes
-    its rotation from the text's rotation). Because the text center is
-    projected onto the dash, major deviations in the rotation cause
-    what may be considered visually unappealing results.
-    (default = *None*)
-
-    *dashpad* is a padding length to add (or subtract) space
-    between the text and the dash, in canvas units.
-    (default = 3)
-
-    *dashpush* "pushes" the dash and text away from the point
-    specified by :meth:`~matplotlib.text.Text.set_position` by the
-    amount in canvas units.  (default = 0)
-
-    .. note::
-
-        The alignment of the two objects is based on the bounding box
-        of the :class:`~matplotlib.text.Text`, as obtained by
-        :meth:`~matplotlib.artist.Artist.get_window_extent`.  This, in
-        turn, appears to depend on the font metrics as given by the
-        rendering backend. Hence the quality of the "centering" of the
-        label text with respect to the dash varies depending on the
-        backend used.
-
-    .. note::
-
-        I'm not sure that I got the
-        :meth:`~matplotlib.text.TextWithDash.get_window_extent` right,
-        or whether that's sufficient for providing the object bounding
-        box.
-
-    """
-    __name__ = 'textwithdash'
-
-    def __str__(self):
-        return "TextWithDash(%g, %g, %r)" % (self._x, self._y, self._text)
-
-    def __init__(self,
-                 x=0, y=0, text='',
-                 color=None,          # defaults to rc params
-                 verticalalignment='center',
-                 horizontalalignment='center',
-                 multialignment=None,
-                 fontproperties=None,  # defaults to FontProperties()
-                 rotation=None,
-                 linespacing=None,
-                 dashlength=0.0,
-                 dashdirection=0,
-                 dashrotation=None,
-                 dashpad=3,
-                 dashpush=0,
-                 ):
-
-        Text.__init__(self, x=x, y=y, text=text, color=color,
-                      verticalalignment=verticalalignment,
-                      horizontalalignment=horizontalalignment,
-                      multialignment=multialignment,
-                      fontproperties=fontproperties,
-                      rotation=rotation,
-                      linespacing=linespacing,
-                      )
-
-        # The position (x, y) values for text and dashline
-        # are bogus as given in the instantiation; they will
-        # be set correctly by update_coords() in draw()
-
-        self.dashline = Line2D(xdata=(x, x),
-                               ydata=(y, y),
-                               color='k',
-                               linestyle='-')
-
-        self._dashx = float(x)
-        self._dashy = float(y)
-        self._dashlength = dashlength
-        self._dashdirection = dashdirection
-        self._dashrotation = dashrotation
-        self._dashpad = dashpad
-        self._dashpush = dashpush
-
-        #self.set_bbox(dict(pad=0))
-
-    def get_unitless_position(self):
-        "Return the unitless position of the text as a tuple (*x*, *y*)"
-        # This will get the position with all unit information stripped away.
-        # This is here for convenience since it is done in several locations.
-        x = float(self.convert_xunits(self._dashx))
-        y = float(self.convert_yunits(self._dashy))
-        return x, y
-
-    def get_position(self):
-        "Return the position of the text as a tuple (*x*, *y*)"
-        # This should return the same data (possibly unitized) as was
-        # specified with set_x and set_y
-        return self._dashx, self._dashy
-
-    def get_prop_tup(self, renderer=None):
-        """
-        Return a hashable tuple of properties.
-
-        Not intended to be human readable, but useful for backends who
-        want to cache derived information about text (e.g., layouts) and
-        need to know if the text has changed.
-        """
-        return (*Text.get_prop_tup(self, renderer=renderer),
-                self._x, self._y, self._dashlength, self._dashdirection,
-                self._dashrotation, self._dashpad, self._dashpush)
-
-    def draw(self, renderer):
-        """
-        Draw the :class:`TextWithDash` object to the given *renderer*.
-        """
-        self.update_coords(renderer)
-        Text.draw(self, renderer)
-        if self.get_dashlength() > 0.0:
-            self.dashline.draw(renderer)
-        self.stale = False
-
-    def update_coords(self, renderer):
-        """
-        Computes the actual *x*, *y* coordinates for text based on the
-        input *x*, *y* and the *dashlength*. Since the rotation is
-        with respect to the actual canvas's coordinates we need to map
-        back and forth.
-        """
-        dashx, dashy = self.get_unitless_position()
-        dashlength = self.get_dashlength()
-        # Shortcircuit this process if we don't have a dash
-        if dashlength == 0.0:
-            self._x, self._y = dashx, dashy
-            return
-
-        dashrotation = self.get_dashrotation()
-        dashdirection = self.get_dashdirection()
-        dashpad = self.get_dashpad()
-        dashpush = self.get_dashpush()
-
-        angle = get_rotation(dashrotation)
-        theta = np.pi * (angle / 180.0 + dashdirection - 1)
-        cos_theta, sin_theta = np.cos(theta), np.sin(theta)
-
-        transform = self.get_transform()
-
-        # Compute the dash end points
-        # The 'c' prefix is for canvas coordinates
-        cxy = transform.transform((dashx, dashy))
-        cd = np.array([cos_theta, sin_theta])
-        c1 = cxy + dashpush * cd
-        c2 = cxy + (dashpush + dashlength) * cd
-
-        inverse = transform.inverted()
-        (x1, y1), (x2, y2) = inverse.transform([c1, c2])
-        self.dashline.set_data((x1, x2), (y1, y2))
-
-        # We now need to extend this vector out to
-        # the center of the text area.
-        # The basic problem here is that we're "rotating"
-        # two separate objects but want it to appear as
-        # if they're rotated together.
-        # This is made non-trivial because of the
-        # interaction between text rotation and alignment -
-        # text alignment is based on the bbox after rotation.
-        # We reset/force both alignments to 'center'
-        # so we can do something relatively reasonable.
-        # There's probably a better way to do this by
-        # embedding all this in the object's transformations,
-        # but I don't grok the transformation stuff
-        # well enough yet.
-        we = Text.get_window_extent(self, renderer=renderer)
-        w, h = we.width, we.height
-        # Watch for zeros
-        if sin_theta == 0.0:
-            dx = w
-            dy = 0.0
-        elif cos_theta == 0.0:
-            dx = 0.0
-            dy = h
-        else:
-            tan_theta = sin_theta / cos_theta
-            dx = w
-            dy = w * tan_theta
-            if dy > h or dy < -h:
-                dy = h
-                dx = h / tan_theta
-        cwd = np.array([dx, dy]) / 2
-        cwd *= 1 + dashpad / np.sqrt(np.dot(cwd, cwd))
-        cw = c2 + (dashdirection * 2 - 1) * cwd
-
-        self._x, self._y = inverse.transform(cw)
-
-        # Now set the window extent
-        # I'm not at all sure this is the right way to do this.
-        we = Text.get_window_extent(self, renderer=renderer)
-        self._twd_window_extent = we.frozen()
-        self._twd_window_extent.update_from_data_xy(np.array([c1]), False)
-
-        # Finally, make text align center
-        Text.set_horizontalalignment(self, 'center')
-        Text.set_verticalalignment(self, 'center')
-
-    def get_window_extent(self, renderer=None):
-        '''
-        Return a :class:`~matplotlib.transforms.Bbox` object bounding
-        the text, in display units.
-
-        In addition to being used internally, this is useful for
-        specifying clickable regions in a png file on a web page.
-
-        *renderer* defaults to the _renderer attribute of the text
-        object.  This is not assigned until the first execution of
-        :meth:`draw`, so you must use this kwarg if you want
-        to call :meth:`get_window_extent` prior to the first
-        :meth:`draw`.  For getting web page regions, it is
-        simpler to call the method after saving the figure.
-        '''
-        self.update_coords(renderer)
-        if self.get_dashlength() == 0.0:
-            return Text.get_window_extent(self, renderer=renderer)
-        else:
-            return self._twd_window_extent
-
-    def get_dashlength(self):
-        """
-        Get the length of the dash.
-        """
-        return self._dashlength
-
-    def set_dashlength(self, dl):
-        """
-        Set the length of the dash, in canvas units.
-
-        Parameters
-        ----------
-        dl : float
-        """
-        self._dashlength = dl
-        self.stale = True
-
-    def get_dashdirection(self):
-        """
-        Get the direction dash.  1 is before the text and 0 is after.
-        """
-        return self._dashdirection
-
-    def set_dashdirection(self, dd):
-        """
-        Set the direction of the dash following the text.  1 is before the text
-        and 0 is after. The default is 0, which is what you'd want for the
-        typical case of ticks below and on the left of the figure.
-
-        Parameters
-        ----------
-        dd : int (1 is before, 0 is after)
-        """
-        self._dashdirection = dd
-        self.stale = True
-
-    def get_dashrotation(self):
-        """
-        Get the rotation of the dash in degrees.
-        """
-        if self._dashrotation is None:
-            return self.get_rotation()
-        else:
-            return self._dashrotation
-
-    def set_dashrotation(self, dr):
-        """
-        Set the rotation of the dash, in degrees.
-
-        Parameters
-        ----------
-        dr : float
-        """
-        self._dashrotation = dr
-        self.stale = True
-
-    def get_dashpad(self):
-        """
-        Get the extra spacing between the dash and the text, in canvas units.
-        """
-        return self._dashpad
-
-    def set_dashpad(self, dp):
-        """
-        Set the "pad" of the TextWithDash, which is the extra spacing
-        between the dash and the text, in canvas units.
-
-        Parameters
-        ----------
-        dp : float
-        """
-        self._dashpad = dp
-        self.stale = True
-
-    def get_dashpush(self):
-        """
-        Get the extra spacing between the dash and the specified text
-        position, in canvas units.
-        """
-        return self._dashpush
-
-    def set_dashpush(self, dp):
-        """
-        Set the "push" of the TextWithDash, which is the extra spacing between
-        the beginning of the dash and the specified position.
-
-        Parameters
-        ----------
-        dp : float
-        """
-        self._dashpush = dp
-        self.stale = True
-
-    def set_position(self, xy):
-        """
-        Set the (*x*, *y*) position of the :class:`TextWithDash`.
-
-        Parameters
-        ----------
-        xy : (float, float)
-        """
-        self.set_x(xy[0])
-        self.set_y(xy[1])
-
-    def set_x(self, x):
-        """
-        Set the *x* position of the :class:`TextWithDash`.
-
-        Parameters
-        ----------
-        x : float
-        """
-        self._dashx = float(x)
-        self.stale = True
-
-    def set_y(self, y):
-        """
-        Set the *y* position of the :class:`TextWithDash`.
-
-        Parameters
-        ----------
-        y : float
-        """
-        self._dashy = float(y)
-        self.stale = True
-
-    def set_transform(self, t):
-        """
-        Set the :class:`matplotlib.transforms.Transform` instance used
-        by this artist.
-
-        Parameters
-        ----------
-        t : `~matplotlib.transforms.Transform`
-        """
-        Text.set_transform(self, t)
-        self.dashline.set_transform(t)
-        self.stale = True
-
-    def get_figure(self):
-        """Return the figure instance the artist belongs to."""
-        return self.figure
-
-    def set_figure(self, fig):
-        """
-        Set the figure instance the artist belongs to.
-
-        Parameters
-        ----------
-        fig : `~matplotlib.figure.Figure`
-        """
-        Text.set_figure(self, fig)
-        self.dashline.set_figure(fig)
-
-docstring.interpd.update(TextWithDash=artist.kwdoc(TextWithDash))
-
-
 class OffsetFrom:
-    'Callable helper class for working with `Annotation`'
+    """Callable helper class for working with `Annotation`."""
+
     def __init__(self, artist, ref_coord, unit="points"):
-        '''
+        """
         Parameters
         ----------
-        artist : `.Artist`, `.BboxBase`, or `.Transform`
+        artist : `.Artist` or `.BboxBase` or `.Transform`
             The object to compute the offset from.
 
-        ref_coord : length 2 sequence
+        ref_coord : (float, float)
             If *artist* is an `.Artist` or `.BboxBase`, this values is
             the location to of the offset origin in fractions of the
             *artist* bounding box.
@@ -1683,28 +1288,26 @@ class OffsetFrom:
             If *artist* is a transform, the offset origin is the
             transform applied to this value.
 
-        unit : {'points, 'pixels'}
-            The screen units to use (pixels or points) for the offset
-            input.
-
-        '''
+        unit : {'points, 'pixels'}, default: 'points'
+            The screen units to use (pixels or points) for the offset input.
+        """
         self._artist = artist
         self._ref_coord = ref_coord
         self.set_unit(unit)
 
     def set_unit(self, unit):
-        '''
-        The unit for input to the transform used by ``__call__``
+        """
+        Set the unit for input to the transform used by ``__call__``.
 
         Parameters
         ----------
         unit : {'points', 'pixels'}
-        '''
+        """
         cbook._check_in_list(["points", "pixels"], unit=unit)
         self._unit = unit
 
     def get_unit(self):
-        'The unit for input to the transform used by ``__call__``'
+        """Return the unit for input to the transform used by ``__call__``."""
         return self._unit
 
     def _get_scale(self, renderer):
@@ -1715,7 +1318,7 @@ class OffsetFrom:
             return renderer.points_to_pixels(1.)
 
     def __call__(self, renderer):
-        '''
+        """
         Return the offset transform.
 
         Parameters
@@ -1728,7 +1331,7 @@ class OffsetFrom:
         transform : `Transform`
             Maps (x, y) in pixel or point units to screen units
             relative to the given artist.
-        '''
+        """
         if isinstance(self._artist, Artist):
             bbox = self._artist.get_window_extent(renderer)
             l, b, w, h = bbox.bounds
@@ -1857,26 +1460,19 @@ class _AnnotationBase:
 
     def _get_ref_xy(self, renderer):
         """
-        return x, y (in display coordinate) that is to be used for a reference
-        of any offset coordinate
+        Return x, y (in display coordinate) that is to be used for a reference
+        of any offset coordinate.
         """
         def is_offset(s):
             return isinstance(s, str) and s.split()[0] == "offset"
 
         if isinstance(self.xycoords, tuple):
-            s1, s2 = self.xycoords
-            if is_offset(s1) or is_offset(s2):
+            if any(map(is_offset, self.xycoords)):
                 raise ValueError("xycoords should not be an offset coordinate")
-            x, y = self.xy
-            x1, y1 = self._get_xy(renderer, x, y, s1)
-            x2, y2 = self._get_xy(renderer, x, y, s2)
-            return x1, y2
         elif is_offset(self.xycoords):
             raise ValueError("xycoords should not be an offset coordinate")
-        else:
-            x, y = self.xy
-            return self._get_xy(renderer, x, y, self.xycoords)
-        #raise RuntimeError("must be defined by the derived class")
+        x, y = self.xy
+        return self._get_xy(renderer, x, y, self.xycoords)
 
     # def _get_bbox(self, renderer):
     #     if hasattr(bbox, "bounds"):
@@ -1890,56 +1486,56 @@ class _AnnotationBase:
 
     def set_annotation_clip(self, b):
         """
-        set *annotation_clip* attribute.
+        Set the annotation's clipping behavior.
 
-          * True: the annotation will only be drawn when self.xy is inside
-                  the axes.
-          * False: the annotation will always be drawn regardless of its
-                   position.
-          * None: the self.xy will be checked only if *xycoords* is "data"
+        Parameters
+        ----------
+        b : bool or None
+            - True: the annotation will only be drawn when ``self.xy`` is
+              inside the axes.
+            - False: the annotation will always be drawn regardless of its
+              position.
+            - None: the ``self.xy`` will be checked only if *xycoords* is
+              "data".
         """
         self._annotation_clip = b
 
     def get_annotation_clip(self):
         """
-        Return *annotation_clip* attribute.
-        See :meth:`set_annotation_clip` for the meaning of return values.
+        Return the annotation's clipping behavior.
+
+        See `set_annotation_clip` for the meaning of return values.
         """
         return self._annotation_clip
 
     def _get_position_xy(self, renderer):
-        "Return the pixel position of the annotated point."
+        """Return the pixel position of the annotated point."""
         x, y = self.xy
         return self._get_xy(renderer, x, y, self.xycoords)
 
     def _check_xy(self, renderer, xy_pixel):
-        """
-        given the xy pixel coordinate, check if the annotation need to
-        be drawn.
-        """
-
+        """Check whether the annotation at *xy_pixel* should be drawn."""
         b = self.get_annotation_clip()
-
         if b or (b is None and self.xycoords == "data"):
             # check if self.xy is inside the axes.
-            if not self.axes.contains_point(xy_pixel):
-                return False
-
+            return self.axes.contains_point(xy_pixel)
         return True
 
     def draggable(self, state=None, use_blit=False):
         """
-        Set the draggable state -- if state is
+        Set whether the annotation is draggable with the mouse.
 
-          * None : toggle the current state
+        Parameters
+        ----------
+        state : bool or None
+            - True or False: set the draggability.
+            - None: toggle the draggability.
 
-          * True : turn draggable on
-
-          * False : turn draggable off
-
-        If draggable is on, you can drag the annotation on the canvas with
-        the mouse.  The DraggableAnnotation helper instance is returned if
-        draggable is on.
+        Returns
+        -------
+        DraggableAnnotation or None
+            If the annotation is draggable, the corresponding
+            `.DraggableAnnotation` helper is returned.
         """
         from matplotlib.offsetbox import DraggableAnnotation
         is_draggable = self._draggable is not None
@@ -2001,13 +1597,15 @@ class Annotation(Text, _AnnotationBase):
             parameter.
 
         xy : (float, float)
-            The point *(x, y)* to annotate.
+            The point *(x, y)* to annotate. The coordinate system is determined
+            by *xycoords*.
 
-        xytext : (float, float), optional
-            The position *(x, y)* to place the text at.
-            If *None*, defaults to *xy*.
+        xytext : (float, float), default: *xy*
+            The position *(x, y)* to place the text at. The coordinate system
+            is determined by *textcoords*.
 
-        xycoords : str, `.Artist`, `.Transform`, callable or tuple, optional
+        xycoords : str or `.Artist` or `.Transform` or callable or \
+(float, float), default: 'data'
 
             The coordinate system that *xy* is given in. The following types
             of values are supported:
@@ -2051,9 +1649,8 @@ class Annotation(Text, _AnnotationBase):
 
             See :ref:`plotting-guide-annotation` for more details.
 
-            Defaults to 'data'.
-
-        textcoords : str, `.Artist`, `.Transform`, callable or tuple, optional
+        textcoords : str or `.Artist` or `.Transform` or callable or \
+(float, float), default: value of *xycoords*
             The coordinate system that *xytext* is given in.
 
             All *xycoords* values are valid as well as the following
@@ -2066,12 +1663,8 @@ class Annotation(Text, _AnnotationBase):
             'offset pixels'     Offset (in pixels) from the *xy* value
             =================   =========================================
 
-            Defaults to the value of *xycoords*, i.e. use the same coordinate
-            system for annotation point and text position.
-
         arrowprops : dict, optional
-            The properties used to draw a
-            `~matplotlib.patches.FancyArrowPatch` arrow between the
+            The properties used to draw a `.FancyArrowPatch` arrow between the
             positions *xy* and *xytext*.
 
             If *arrowprops* does not contain the key 'arrowstyle' the
@@ -2127,7 +1720,7 @@ class Annotation(Text, _AnnotationBase):
 
             Defaults to None, i.e. no arrow is drawn.
 
-        annotation_clip : bool or None, optional
+        annotation_clip : bool or None, default: None
             Whether to draw the annotation when the annotation point *xy* is
             outside the axes area.
 
@@ -2136,8 +1729,6 @@ class Annotation(Text, _AnnotationBase):
             - If *False*, the annotation will always be drawn.
             - If *None*, the annotation will only be drawn when *xy* is
               within the axes and *xycoords* is 'data'.
-
-            Defaults to *None*.
 
         **kwargs
             Additional kwargs are passed to `~matplotlib.text.Text`.
@@ -2148,7 +1739,7 @@ class Annotation(Text, _AnnotationBase):
 
         See Also
         --------
-        :ref:`plotting-guide-annotation`.
+        :ref:`plotting-guide-annotation`
 
         """
         _AnnotationBase.__init__(self,
@@ -2241,6 +1832,7 @@ class Annotation(Text, _AnnotationBase):
     """
 
     def set_figure(self, fig):
+        # docstring inherited
         if self.arrow_patch is not None:
             self.arrow_patch.set_figure(fig)
         Artist.set_figure(self, fig)
@@ -2353,9 +1945,7 @@ class Annotation(Text, _AnnotationBase):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        """
-        Draw the :class:`Annotation` object to the given *renderer*.
-        """
+        # docstring inherited
 
         if renderer is not None:
             self._renderer = renderer

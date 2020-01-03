@@ -1,6 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 import platform
+import warnings
 
 from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
@@ -42,8 +43,8 @@ def test_align_labels():
 
     for i in range(3):
         ax = fig.add_subplot(gs[2, i])
-        ax.set_xlabel('XLabel2 %d' % (i))
-        ax.set_ylabel('YLabel2 %d' % (i))
+        ax.set_xlabel(f'XLabel2 {i}')
+        ax.set_ylabel(f'YLabel2 {i}')
 
         if i == 2:
             ax.plot(np.arange(0, 1e4, 10))
@@ -317,7 +318,11 @@ def test_autofmt_xdate(which):
     ax.xaxis_date()
 
     ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    ax.xaxis.set_minor_formatter(FixedFormatter(minors))
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            'ignore',
+            'FixedFormatter should only be used together with FixedLocator')
+        ax.xaxis.set_minor_formatter(FixedFormatter(minors))
 
     fig.autofmt_xdate(0.2, angle, 'right', which)
 

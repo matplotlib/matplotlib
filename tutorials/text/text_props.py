@@ -21,19 +21,19 @@ clip_on                     bool
 clip_path                   a `~matplotlib.path.Path` instance and a `~matplotlib.transforms.Transform` instance, a `~matplotlib.patches.Patch`
 color                       any matplotlib :doc:`color </tutorials/colors/colors>`
 family                      [ ``'serif'`` | ``'sans-serif'`` | ``'cursive'`` | ``'fantasy'`` | ``'monospace'`` ]
-fontproperties              a `~matplotlib.font_manager.FontProperties` instance
+fontproperties              `~matplotlib.font_manager.FontProperties`
 horizontalalignment or ha   [ ``'center'`` | ``'right'`` | ``'left'`` ]
 label                       any string
 linespacing                 `float`
 multialignment              [``'left'`` | ``'right'`` | ``'center'`` ]
 name or fontname            string e.g., [``'Sans'`` | ``'Courier'`` | ``'Helvetica'`` ...]
-picker                      [None|float|boolean|callable]
+picker                      [None|float|bool|callable]
 position                    (x, y)
 rotation                    [ angle in degrees | ``'vertical'`` | ``'horizontal'`` ]
 size or fontsize            [ size in points | relative size, e.g., ``'smaller'``, ``'x-large'`` ]
 style or fontstyle          [ ``'normal'`` | ``'italic'`` | ``'oblique'`` ]
 text                        string or anything printable with '%s' conversion
-transform                   a `~matplotlib.transforms.Transform` instance
+transform                   `~matplotlib.transforms.Transform` subclass
 variant                     [ ``'normal'`` | ``'small-caps'`` ]
 verticalalignment or va     [ ``'center'`` | ``'top'`` | ``'bottom'`` | ``'baseline'`` ]
 visible                     bool

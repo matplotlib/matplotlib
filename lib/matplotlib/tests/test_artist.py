@@ -1,6 +1,5 @@
 import io
 from itertools import chain
-import warnings
 
 import numpy as np
 
@@ -220,13 +219,10 @@ def test_default_edges():
     ax4.add_patch(pp1)
 
 
-def test_properties():
+def test_properties(recwarn):
     ln = mlines.Line2D([], [])
-    with warnings.catch_warnings(record=True) as w:
-        # Cause all warnings to always be triggered.
-        warnings.simplefilter("always")
-        ln.properties()
-        assert len(w) == 0
+    ln.properties()
+    assert len(recwarn) == 0
 
 
 def test_setp():

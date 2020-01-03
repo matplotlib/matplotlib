@@ -68,6 +68,7 @@ Matplotlib recognizes the following formats to specify a color:
 from collections.abc import Sized
 import functools
 import itertools
+from numbers import Number
 import re
 
 import numpy as np
@@ -260,16 +261,16 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             return c, c, c, alpha if alpha is not None else 1.
         raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
     # tuple color.
-    c = np.array(c)
-    if not np.can_cast(c.dtype, float, "same_kind") or c.ndim != 1:
-        # Test the dtype explicitly as `map(float, ...)`, `np.array(...,
-        # float)` and `np.array(...).astype(float)` all convert "0.5" to 0.5.
-        # Test dimensionality to reject single floats.
+    if not np.iterable(c):
         raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
-    # Return a tuple to prevent the cached value from being modified.
-    c = tuple(c.astype(float))
     if len(c) not in [3, 4]:
         raise ValueError("RGBA sequence should have length 3 or 4")
+    if not all(isinstance(x, Number) for x in c):
+        # Checks that don't work: `map(float, ...)`, `np.array(..., float)` and
+        # `np.array(...).astype(float)` would all convert "0.5" to 0.5.
+        raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
+    # Return a tuple to prevent the cached value from being modified.
+    c = tuple(map(float, c))
     if len(c) == 3 and alpha is None:
         alpha = 1
     if alpha is not None:
@@ -645,7 +646,7 @@ class Colormap:
         self._lut[self._i_bad] = self._rgba_bad
 
     def _init(self):
-        """Generate the lookup table, self._lut"""
+        """Generate the lookup table, ``self._lut``."""
         raise NotImplementedError("Abstract class only")
 
     def is_gray(self):
@@ -850,11 +851,11 @@ class ListedColormap(Colormap):
     N : int, optional
         Number of entries in the map. The default is *None*, in which case
         there is one colormap entry for each element in the list of colors.
-        If::
+        If ::
 
             N < len(colors)
 
-        the list will be truncated at *N*. If::
+        the list will be truncated at *N*. If ::
 
             N > len(colors)
 
@@ -932,7 +933,7 @@ class Normalize:
         processed.  That is, *__call__(A)* calls *autoscale_None(A)*.
         If *clip* is *True* and the given value falls outside the range,
         the returned value will be 0 or 1, whichever is closer.
-        Returns 0 if::
+        Returns 0 if ::
 
             vmin==vmax
 
@@ -982,9 +983,9 @@ class Normalize:
         """
         Normalize *value* data in the ``[vmin, vmax]`` interval into
         the ``[0.0, 1.0]`` interval and return it.  *clip* defaults
-        to *self.clip* (which defaults to *False*).  If not already
+        to ``self.clip`` (which defaults to *False*).  If not already
         initialized, *vmin* and *vmax* are initialized using
-        *autoscale_None(value)*.
+        ``autoscale_None(value)``.
         """
         if clip is None:
             clip = self.clip
@@ -1569,15 +1570,11 @@ def hsv_to_rgb(hsv):
 
 def _vector_magnitude(arr):
     # things that don't work here:
-    #  * np.linalg.norm
-    #    - doesn't broadcast in numpy 1.7
-    #    - drops the mask from ma.array
-    #  * using keepdims - broken on ma.array until 1.11.2
-    #  * using sum - discards mask on ma.array unless entire vector is masked
-
+    #  * np.linalg.norm: drops mask from ma.array
+    #  * np.sum: drops mask from ma.array unless entire vector is masked
     sum_sq = 0
     for i in range(arr.shape[-1]):
-        sum_sq += np.square(arr[..., i, np.newaxis])
+        sum_sq += arr[..., i, np.newaxis] ** 2
     return np.sqrt(sum_sq)
 
 
@@ -1601,10 +1598,10 @@ class LightSource:
 
         Parameters
         ----------
-        azdeg : float, optional, default: 315 degrees (from the northwest)
+        azdeg : float, default: 315 degrees (from the northwest)
             The azimuth (0-360, degrees clockwise from North) of the light
             source.
-        altdeg : float, optional, default: 45 degrees
+        altdeg : float, default: 45 degrees
             The altitude (0-90, degrees up from horizontal) of the light
             source.
 
@@ -1665,6 +1662,7 @@ class LightSource:
             full illumination or shadow (and clipping any values that move
             beyond 0 or 1). Note that this is not visually or mathematically
             the same as vertical exaggeration.
+
         Returns
         -------
         intensity : ndarray
@@ -1746,7 +1744,7 @@ class LightSource:
         data : array-like
             A 2d array (or equivalent) of the height values used to generate a
             shaded map.
-        cmap : `~matplotlib.colors.Colormap` instance
+        cmap : `~matplotlib.colors.Colormap`
             The colormap used to color the *data* array. Note that this must be
             a `~matplotlib.colors.Colormap` instance.  For example, rather than
             passing in `cmap='gist_earth'`, use

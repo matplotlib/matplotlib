@@ -12,9 +12,10 @@ from matplotlib.testing.decorators import (
     image_comparison, remove_ticks_and_titles)
 
 from mpl_toolkits.axes_grid1 import (
-    host_subplot, make_axes_locatable, AxesGrid, ImageGrid)
+    axes_size as Size, host_subplot, make_axes_locatable, AxesGrid, ImageGrid)
 from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredSizeBar, AnchoredDirectionArrows)
+from mpl_toolkits.axes_grid1.axes_divider import HBoxDivider
 from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
 
@@ -102,7 +103,6 @@ def test_axesgrid_colorbar_log_smoketest(legacy_colorbar):
     fig = plt.figure()
     grid = AxesGrid(fig, 111,  # modified to be only subplot
                     nrows_ncols=(1, 1),
-                    ngrids=1,
                     label_mode="L",
                     cbar_location="top",
                     cbar_mode="single",
@@ -126,9 +126,9 @@ def test_inset_locator():
     # Z is a 15x15 array
     Z = np.load(cbook.get_sample_data("axes_grid/bivariate_normal.npy"))
     extent = (-3, 4, -4, 3)
-    Z2 = np.zeros([150, 150], dtype="d")
+    Z2 = np.zeros((150, 150))
     ny, nx = Z.shape
-    Z2[30:30 + ny, 30:30 + nx] = Z
+    Z2[30:30+ny, 30:30+nx] = Z
 
     # extent = [-3, 4, -4, 3]
     ax.imshow(Z2, extent=extent, interpolation="nearest",
@@ -168,9 +168,9 @@ def test_inset_axes():
     # Z is a 15x15 array
     Z = np.load(cbook.get_sample_data("axes_grid/bivariate_normal.npy"))
     extent = (-3, 4, -4, 3)
-    Z2 = np.zeros([150, 150], dtype="d")
+    Z2 = np.zeros((150, 150))
     ny, nx = Z.shape
-    Z2[30:30 + ny, 30:30 + nx] = Z
+    Z2[30:30+ny, 30:30+nx] = Z
 
     # extent = [-3, 4, -4, 3]
     ax.imshow(Z2, extent=extent, interpolation="nearest",
@@ -461,3 +461,26 @@ def test_picking_callbacks_overlap(big_on_axes, small_on_axes, click_on):
     assert big in event_rects
     if click_on == "small":
         assert small in event_rects
+
+
+def test_hbox_divider():
+    arr1 = np.arange(20).reshape((4, 5))
+    arr2 = np.arange(20).reshape((5, 4))
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    ax1.imshow(arr1)
+    ax2.imshow(arr2)
+
+    pad = 0.5  # inches.
+    divider = HBoxDivider(
+        fig, 111,  # Position of combined axes.
+        horizontal=[Size.AxesX(ax1), Size.Fixed(pad), Size.AxesX(ax2)],
+        vertical=[Size.AxesY(ax1), Size.Scaled(1), Size.AxesY(ax2)])
+    ax1.set_axes_locator(divider.new_locator(0))
+    ax2.set_axes_locator(divider.new_locator(2))
+
+    fig.canvas.draw()
+    p1 = ax1.get_position()
+    p2 = ax2.get_position()
+    assert p1.height == p2.height
+    assert p2.width / p1.width == pytest.approx((4 / 5) ** 2)

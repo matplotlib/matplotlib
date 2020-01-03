@@ -204,7 +204,7 @@ class GridFinder:
                      "tick_formatter2"]:
                 setattr(self, k, kw[k])
             else:
-                raise ValueError("unknown update property '%s'" % k)
+                raise ValueError("Unknown update property '%s'" % k)
 
 
 @cbook.deprecated("3.2")

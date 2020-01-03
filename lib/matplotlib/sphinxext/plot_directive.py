@@ -163,16 +163,6 @@ __version__ = 2
 # -----------------------------------------------------------------------------
 
 
-@cbook.deprecated("3.1", alternative="PlotDirective")
-def plot_directive(name, arguments, options, content, lineno,
-                   content_offset, block_text, state, state_machine):
-    """Implementation of the ``.. plot::`` directive.
-
-    See the module docstring for details.
-    """
-    return run(arguments, content, options, state_machine, state, lineno)
-
-
 def _option_boolean(arg):
     if not arg or not arg.strip():
         # no argument given, assume used as a flag
@@ -188,7 +178,7 @@ def _option_boolean(arg):
 def _option_context(arg):
     if arg in [None, 'reset', 'close-figs']:
         return arg
-    raise ValueError("argument should be None or 'reset' or 'close-figs'")
+    raise ValueError("Argument should be None or 'reset' or 'close-figs'")
 
 
 def _option_format(arg):

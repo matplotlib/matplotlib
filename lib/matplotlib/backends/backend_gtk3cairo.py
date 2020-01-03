@@ -5,7 +5,6 @@ except ImportError:
 
 from . import backend_cairo, backend_gtk3
 from .backend_gtk3 import Gtk, _BackendGTK3
-from matplotlib import cbook
 from matplotlib.backend_bases import cursors
 
 
@@ -36,11 +35,6 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
                 allocation.x, allocation.y,
                 allocation.width, allocation.height)
             self._render_figure(allocation.width, allocation.height)
-
-
-@cbook.deprecated("3.1", alternative="backend_gtk3.FigureManagerGTK3")
-class FigureManagerGTK3Cairo(backend_gtk3.FigureManagerGTK3):
-    pass
 
 
 @_BackendGTK3.export

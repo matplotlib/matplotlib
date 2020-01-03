@@ -228,7 +228,7 @@ class Tick(martist.Artist):
         self._labelrotation = (mode, angle)
 
     def apply_tickdir(self, tickdir):
-        """Calculate self._pad and self._tickmarkers."""
+        """Calculate ``self._pad`` and ``self._tickmarkers``."""
 
     def get_tickdir(self):
         return self._tickdir
@@ -280,26 +280,26 @@ class Tick(martist.Artist):
         self.stale = True
 
     def get_pad(self):
-        'Get the value of the tick label pad in points'
+        """Get the value of the tick label pad in points."""
         return self._base_pad
 
     def _get_text1(self):
-        'Get the default Text 1 instance'
+        """Get the default Text 1 instance."""
 
     def _get_text2(self):
-        'Get the default Text 2 instance'
+        """Get the default Text 2 instance."""
 
     def _get_tick1line(self):
-        'Get the default line2D instance for tick1'
+        """Get the default line2D instance for tick1."""
 
     def _get_tick2line(self):
-        'Get the default line2D instance for tick2'
+        """Get the default line2D instance for tick2."""
 
     def _get_gridline(self):
-        'Get the default grid Line2d instance for this tick'
+        """Get the default grid Line2d instance for this tick."""
 
     def get_loc(self):
-        'Return the tick location (data coords) as a scalar'
+        """Return the tick location (data coords) as a scalar."""
         return self._loc
 
     @martist.allow_rasterization
@@ -403,7 +403,7 @@ class Tick(martist.Artist):
             setattr(self, '_grid_' + k, v)
 
     def update_position(self, loc):
-        'Set the location of tick in data coords with scalar *loc*'
+        """Set the location of tick in data coords with scalar *loc*."""
         raise NotImplementedError('Derived must override')
 
     def _get_text1_transform(self):
@@ -981,20 +981,6 @@ class Axis(martist.Artist):
             return
         a.set_figure(self.figure)
 
-    @cbook.deprecated("3.1")
-    def iter_ticks(self):
-        """
-        Yield ``(Tick, location, label)`` tuples for major and minor ticks.
-        """
-        major_locs = self.get_majorticklocs()
-        major_labels = self.major.formatter.format_ticks(major_locs)
-        major_ticks = self.get_major_ticks(len(major_locs))
-        yield from zip(major_ticks, major_locs, major_labels)
-        minor_locs = self.get_minorticklocs()
-        minor_labels = self.minor.formatter.format_ticks(minor_locs)
-        minor_ticks = self.get_minor_ticks(len(minor_locs))
-        yield from zip(minor_ticks, minor_locs, minor_labels)
-
     def get_ticklabel_extents(self, renderer):
         """
         Get the extents of the tick labels on either side
@@ -1149,7 +1135,7 @@ class Axis(martist.Artist):
 
     @martist.allow_rasterization
     def draw(self, renderer, *args, **kwargs):
-        'Draw the axis lines, grid lines, tick lines and labels'
+        # docstring inherited
 
         if not self.get_visible():
             return
@@ -1179,32 +1165,32 @@ class Axis(martist.Artist):
         self.stale = False
 
     def get_gridlines(self):
-        'Return the grid lines as a list of Line2D instance'
+        """Return the grid lines as a list of Line2D instance."""
         ticks = self.get_major_ticks()
         return cbook.silent_list('Line2D gridline',
                                  [tick.gridline for tick in ticks])
 
     def get_label(self):
-        'Return the axis label as a Text instance'
+        """Return the axis label as a Text instance."""
         return self.label
 
     def get_offset_text(self):
-        'Return the axis offsetText as a Text instance'
+        """Return the axis offsetText as a Text instance."""
         return self.offsetText
 
     def get_pickradius(self):
-        'Return the depth of the axis used by the picker'
+        """Return the depth of the axis used by the picker."""
         return self.pickradius
 
     def get_majorticklabels(self):
-        'Return a list of Text instances for the major ticklabels.'
+        """Return a list of Text instances for the major ticklabels."""
         ticks = self.get_major_ticks()
         labels1 = [tick.label1 for tick in ticks if tick.label1.get_visible()]
         labels2 = [tick.label2 for tick in ticks if tick.label2.get_visible()]
         return cbook.silent_list('Text major ticklabel', labels1 + labels2)
 
     def get_minorticklabels(self):
-        'Return a list of Text instances for the minor ticklabels.'
+        """Return a list of Text instances for the minor ticklabels."""
         ticks = self.get_minor_ticks()
         labels1 = [tick.label1 for tick in ticks if tick.label1.get_visible()]
         labels2 = [tick.label2 for tick in ticks if tick.label2.get_visible()]
@@ -1245,7 +1231,7 @@ class Axis(martist.Artist):
         return self.get_majorticklabels()
 
     def get_majorticklines(self):
-        'Return the major tick lines as a list of Line2D instances'
+        """Return the major tick lines as a list of Line2D instances."""
         lines = []
         ticks = self.get_major_ticks()
         for tick in ticks:
@@ -1254,7 +1240,7 @@ class Axis(martist.Artist):
         return cbook.silent_list('Line2D ticklines', lines)
 
     def get_minorticklines(self):
-        'Return the minor tick lines as a list of Line2D instances'
+        """Return the minor tick lines as a list of Line2D instances."""
         lines = []
         ticks = self.get_minor_ticks()
         for tick in ticks:
@@ -1263,7 +1249,7 @@ class Axis(martist.Artist):
         return cbook.silent_list('Line2D ticklines', lines)
 
     def get_ticklines(self, minor=False):
-        'Return the tick lines as a list of Line2D instances'
+        """Return the tick lines as a list of Line2D instances."""
         if minor:
             return self.get_minorticklines()
         return self.get_majorticklines()
@@ -1330,27 +1316,27 @@ class Axis(martist.Artist):
         dest.gridline.update_from(src.gridline)
 
     def get_label_text(self):
-        'Get the text of the label'
+        """Get the text of the label."""
         return self.label.get_text()
 
     def get_major_locator(self):
-        'Get the locator of the major ticker'
+        """Get the locator of the major ticker."""
         return self.major.locator
 
     def get_minor_locator(self):
-        'Get the locator of the minor ticker'
+        """Get the locator of the minor ticker."""
         return self.minor.locator
 
     def get_major_formatter(self):
-        'Get the formatter of the major ticker'
+        """Get the formatter of the major ticker."""
         return self.major.formatter
 
     def get_minor_formatter(self):
-        'Get the formatter of the minor ticker'
+        """Get the formatter of the minor ticker."""
         return self.minor.formatter
 
     def get_major_ticks(self, numticks=None):
-        'Get the tick instances; grow as necessary.'
+        """Get the tick instances; grow as necessary."""
         if numticks is None:
             numticks = len(self.get_majorticklocs())
 
@@ -1364,7 +1350,7 @@ class Axis(martist.Artist):
         return self.majorTicks[:numticks]
 
     def get_minor_ticks(self, numticks=None):
-        'Get the minor tick instances; grow as necessary.'
+        """Get the minor tick instances; grow as necessary."""
         if numticks is None:
             numticks = len(self.get_minorticklocs())
 
@@ -1508,18 +1494,12 @@ class Axis(martist.Artist):
         ----------
         u : units tag
         """
-        pchanged = False
-        if u is None:
-            self.units = None
-            pchanged = True
-        else:
-            if u != self.units:
-                self.units = u
-                pchanged = True
-        if pchanged:
-            self._update_axisinfo()
-            self.callbacks.process('units')
-            self.callbacks.process('units finalize')
+        if u == self.units:
+            return
+        self.units = u
+        self._update_axisinfo()
+        self.callbacks.process('units')
+        self.callbacks.process('units finalize')
         self.stale = True
 
     def get_units(self):
@@ -1556,6 +1536,11 @@ class Axis(martist.Artist):
         formatter : `~matplotlib.ticker.Formatter`
         """
         cbook._check_isinstance(mticker.Formatter, formatter=formatter)
+        if (isinstance(formatter, mticker.FixedFormatter)
+                and len(formatter.seq) > 0
+                and not isinstance(self.major.locator, mticker.FixedLocator)):
+            cbook._warn_external('FixedFormatter should only be used together '
+                                 'with FixedLocator')
         self.isDefault_majfmt = False
         self.major.formatter = formatter
         formatter.set_axis(self)
@@ -1570,6 +1555,11 @@ class Axis(martist.Artist):
         formatter : `~matplotlib.ticker.Formatter`
         """
         cbook._check_isinstance(mticker.Formatter, formatter=formatter)
+        if (isinstance(formatter, mticker.FixedFormatter)
+                and len(formatter.seq) > 0
+                and not isinstance(self.minor.locator, mticker.FixedLocator)):
+            cbook._warn_external('FixedFormatter should only be used together '
+                                 'with FixedLocator')
         self.isDefault_minfmt = False
         self.minor.formatter = formatter
         formatter.set_axis(self)
@@ -1621,6 +1611,11 @@ class Axis(martist.Artist):
         r"""
         Set the text values of the tick labels.
 
+        .. warning::
+            This method should only be used after fixing the tick positions
+            using `.Axis.set_ticks`. Otherwise, the labels may end up in
+            unexpected positions.
+
         Parameters
         ----------
         ticklabels : sequence of str or of `Text`\s
@@ -1642,18 +1637,8 @@ class Axis(martist.Artist):
                 "3.1", message="Additional positional arguments to "
                 "set_ticklabels are ignored, and deprecated since Matplotlib "
                 "3.1; passing them will raise a TypeError in Matplotlib 3.3.")
-        get_labels = []
-        for t in ticklabels:
-            # try calling get_text() to check whether it is Text object
-            # if it is Text, get label content
-            try:
-                get_labels.append(t.get_text())
-            # otherwise add the label to the list directly
-            except AttributeError:
-                get_labels.append(t)
-        # replace the ticklabels list with the processed one
-        ticklabels = get_labels
-
+        ticklabels = [t.get_text() if hasattr(t, 'get_text') else t
+                      for t in ticklabels]
         if minor:
             self.set_minor_formatter(mticker.FixedFormatter(ticklabels))
             ticks = self.get_minor_ticks()
@@ -2033,6 +2018,8 @@ class XAxis(Axis):
         ----------
         position : {'top', 'bottom', 'both', 'default', 'none'}
         """
+        cbook._check_in_list(['top', 'bottom', 'both', 'default', 'none'],
+                             position=position)
         if position == 'top':
             self.set_tick_params(which='both', top=True, labeltop=True,
                                  bottom=False, labelbottom=False)
@@ -2052,7 +2039,7 @@ class XAxis(Axis):
                                  bottom=True, labelbottom=True)
             self._tick_position = 'bottom'
         else:
-            raise ValueError("invalid position: %s" % position)
+            assert False, "unhandled parameter not caught by _check_in_list"
         self.stale = True
 
     def tick_top(self):
@@ -2320,6 +2307,8 @@ class YAxis(Axis):
         ----------
         position : {'left', 'right', 'both', 'default', 'none'}
         """
+        cbook._check_in_list(['left', 'right', 'both', 'default', 'none'],
+                             position=position)
         if position == 'right':
             self.set_tick_params(which='both', right=True, labelright=True,
                                  left=False, labelleft=False)
@@ -2338,7 +2327,7 @@ class YAxis(Axis):
             self.set_tick_params(which='both', right=True, labelright=False,
                                  left=True, labelleft=True)
         else:
-            raise ValueError("invalid position: %s" % position)
+            assert False, "unhandled parameter not caught by _check_in_list"
         self.stale = True
 
     def tick_right(self):

@@ -549,7 +549,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
         coordinates (i.e., "zoomed in"), while *zoom* < 1 will shrink the
         coordinates (i.e., "zoomed out").
 
-    loc : int or str, optional, default to 1
+    loc : int or str, optional, default: 'upper right'
         Location to place the inset axes. The valid locations are::
 
             'upper right'  : 1,

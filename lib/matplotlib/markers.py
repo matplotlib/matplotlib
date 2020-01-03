@@ -55,30 +55,13 @@ marker                         symbol description
                                       normalized, such that the created path
                                       is encapsulated inside the unit cell.
 path                                  A `~matplotlib.path.Path` instance.
-``(numsides, style, angle)``          The marker can also be a tuple
-                                      ``(numsides, style, angle)``, which
-                                      will create a custom, regular symbol.
-
-                                      ``numsides``:
-                                          the number of sides
-
-                                      ``style``:
-                                          the style of the regular symbol:
-
-                                          - 0: a regular polygon
-                                          - 1: a star-like symbol
-                                          - 2: an asterisk
-                                          - 3: a circle (``numsides`` and
-                                            ``angle`` is ignored);
-                                            deprecated.
-
-                                      ``angle``:
-                                          the angle of rotation of the symbol
+``(numsides, 0, angle)``              A regular polygon with ``numsides``
+                                      sides, rotated by ``angle``.
+``(numsides, 1, angle)``              A star-like symbol with ``numsides``
+                                      sides, rotated by ``angle``.
+``(numsides, 2, angle)``              An asterisk with ``numsides`` sides,
+                                      rotated by ``angle``.
 ============================== ====== =========================================
-
-For backward compatibility, the form ``(verts, 0)`` is also accepted, but it is
-deprecated and equivalent to just ``verts`` for giving a raw set of vertices
-that define the shape.
 
 ``None`` is the default which means 'nothing', however this table is
 referred to from other docs for the valid inputs from marker inputs and in
@@ -100,7 +83,6 @@ Hence the following are equivalent::
 Examples showing the use of markers:
 
 * :doc:`/gallery/lines_bars_and_markers/marker_reference`
-* :doc:`/gallery/lines_bars_and_markers/marker_fillstyle_reference`
 * :doc:`/gallery/shapes_and_collections/marker_path`
 
 
@@ -330,9 +312,7 @@ class MarkerStyle:
         self._filled = False
 
     def _set_custom_marker(self, path):
-        verts = path.vertices
-        rescale = max(np.max(np.abs(verts[:, 0])),
-                      np.max(np.abs(verts[:, 1])))
+        rescale = np.max(np.abs(path.vertices))  # max of x's and y's.
         self._transform = Affine2D().scale(0.5 / rescale)
         self._path = path
 
@@ -340,9 +320,7 @@ class MarkerStyle:
         self._set_custom_marker(self._marker)
 
     def _set_vertices(self):
-        verts = self._marker
-        marker = Path(verts)
-        self._set_custom_marker(marker)
+        self._set_custom_marker(Path(self._marker))
 
     def _set_tuple_marker(self):
         marker = self._marker

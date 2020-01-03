@@ -3,8 +3,7 @@
 Circles, Wedges and Polygons
 ============================
 
-This example demonstrates how to use
-:class:`patch collections <.collections.PatchCollection>`.
+This example demonstrates how to use `.collections.PatchCollection`.
 """
 
 import numpy as np

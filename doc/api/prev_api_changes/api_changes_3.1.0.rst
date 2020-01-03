@@ -820,37 +820,37 @@ suggest that custom backends let their ``GraphicsContext`` class
 inherit from `.GraphicsContextBase`, to at least provide stubs for all
 required methods.
 
-- `.spine.Spine.is_frame_like`
+- ``spine.Spine.is_frame_like``
 
 This has not been used in the codebase since its addition in 2009.
 
-- `.axis3d.Axis.get_tick_positions`
+- ``axis3d.Axis.get_tick_positions``
 
   This has never been used internally, there is no equivalent method exists on
   the 2D Axis classes, and despite the similar name, it has a completely
   different behavior from the 2D Axis' `axis.Axis.get_ticks_position` method.
-- `.backend_pgf.LatexManagerFactory`
+- ``.backend_pgf.LatexManagerFactory``
 
-- `.mpl_toolkits.axisartist.axislines.SimpleChainedObjects`
-- `.mpl_toolkits.Axes.AxisDict`
+- ``mpl_toolkits.axisartist.axislines.SimpleChainedObjects``
+- ``mpl_toolkits.Axes.AxisDict``
 
 Internal Helper Functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- `.checkdep_dvipng`
-- `.checkdep_ghostscript`
-- `.checkdep_pdftops`
-- `.checkdep_inkscape`
+- ``checkdep_dvipng``
+- ``checkdep_ghostscript``
+- ``checkdep_pdftops``
+- ``checkdep_inkscape``
 
 
-- `.ticker.decade_up`
-- `.ticker.decade_down`
+- ``ticker.decade_up``
+- ``ticker.decade_down``
 
 
-- `.cbook.dedent`
-- `.docstring.Appender`
-- `.docstring.dedent`
-- `.docstring.copy_dedent`
+- ``cbook.dedent``
+- ``docstring.Appender``
+- ``docstring.dedent``
+- ``docstring.copy_dedent``
 
 Use the standard library's docstring manipulation tools instead, such as
 `inspect.cleandoc` and `inspect.getdoc`.
@@ -863,7 +863,7 @@ Use the standard library's docstring manipulation tools instead, such as
 These are considered internal and will be removed from the public API in a
 future version.
 
-- `.projections.process_projection_requirements`
+- ``projections.process_projection_requirements``
 
 - ``backend_ps.PsBackendHelper``
 - ``backend_ps.ps_backend_helper``,
@@ -875,7 +875,7 @@ future version.
 - `.cbook.is_hashable`
   Use ``isinstance(..., collections.abc.Hashable)`` instead.
 
-- The `.backend_bases.RendererBase.strip_math`.  Use
+- The ``.backend_bases.RendererBase.strip_math``.  Use
   `.cbook.strip_math` instead.
 
 Multiple internal functions that were exposed as part of the public API
@@ -883,26 +883,26 @@ of `.mpl_toolkits.mplot3d` are deprecated,
 
 **mpl_toolkits.mplot3d.art3d**
 
-- :func:`mpl_toolkits.mplot3d.art3d.norm_angle`
-- :func:`mpl_toolkits.mplot3d.art3d.norm_text_angle`
-- :func:`mpl_toolkits.mplot3d.art3d.path_to_3d_segment`
-- :func:`mpl_toolkits.mplot3d.art3d.paths_to_3d_segments`
-- :func:`mpl_toolkits.mplot3d.art3d.path_to_3d_segment_with_codes`
-- :func:`mpl_toolkits.mplot3d.art3d.paths_to_3d_segments_with_codes`
-- :func:`mpl_toolkits.mplot3d.art3d.get_patch_verts`
-- :func:`mpl_toolkits.mplot3d.art3d.get_colors`
-- :func:`mpl_toolkits.mplot3d.art3d.zalpha`
+- ``mpl_toolkits.mplot3d.art3d.norm_angle``
+- ``mpl_toolkits.mplot3d.art3d.norm_text_angle``
+- ``mpl_toolkits.mplot3d.art3d.path_to_3d_segment``
+- ``mpl_toolkits.mplot3d.art3d.paths_to_3d_segments``
+- ``mpl_toolkits.mplot3d.art3d.path_to_3d_segment_with_codes``
+- ``mpl_toolkits.mplot3d.art3d.paths_to_3d_segments_with_codes``
+- ``mpl_toolkits.mplot3d.art3d.get_patch_verts``
+- ``mpl_toolkits.mplot3d.art3d.get_colors``
+- ``mpl_toolkits.mplot3d.art3d.zalpha``
 
 **mpl_toolkits.mplot3d.proj3d**
 
-- :func:`mpl_toolkits.mplot3d.proj3d.line2d`
-- :func:`mpl_toolkits.mplot3d.proj3d.line2d_dist`
-- :func:`mpl_toolkits.mplot3d.proj3d.line2d_seg_dist`
-- :func:`mpl_toolkits.mplot3d.proj3d.mod`
-- :func:`mpl_toolkits.mplot3d.proj3d.proj_transform_vec`
-- :func:`mpl_toolkits.mplot3d.proj3d.proj_transform_vec_clip`
-- :func:`mpl_toolkits.mplot3d.proj3d.vec_pad_ones`
-- :func:`mpl_toolkits.mplot3d.proj3d.proj_trans_clip_points`
+- ``mpl_toolkits.mplot3d.proj3d.line2d``
+- ``mpl_toolkits.mplot3d.proj3d.line2d_dist``
+- ``mpl_toolkits.mplot3d.proj3d.line2d_seg_dist``
+- ``mpl_toolkits.mplot3d.proj3d.mod``
+- ``mpl_toolkits.mplot3d.proj3d.proj_transform_vec``
+- ``mpl_toolkits.mplot3d.proj3d.proj_transform_vec_clip``
+- ``mpl_toolkits.mplot3d.proj3d.vec_pad_ones``
+- ``mpl_toolkits.mplot3d.proj3d.proj_trans_clip_points``
 
 If your project relies on these functions, consider vendoring them.
 
@@ -910,19 +910,19 @@ If your project relies on these functions, consider vendoring them.
 Font Handling
 ~~~~~~~~~~~~~
 
-- `.backend_pdf.RendererPdf.afm_font_cache`
-- `.backend_ps.RendererPS.afmfontd`
-- `.font_manager.OSXInstalledFonts`
+- ``backend_pdf.RendererPdf.afm_font_cache``
+- ``backend_ps.RendererPS.afmfontd``
+- ``font_manager.OSXInstalledFonts``
 - `.TextToPath.glyph_to_path` (Instead call ``font.get_path()`` and manually transform the path.)
 
 
 Date related functions
 ~~~~~~~~~~~~~~~~~~~~~~
 
-- `.dates.seconds()`
-- `.dates.minutes()`
-- `.dates.hours()`
-- `.dates.weeks()`
+- ``dates.seconds()``
+- ``dates.minutes()``
+- ``dates.hours()``
+- ``dates.weeks()``
 - `.dates.strpdate2num`
 - `.dates.bytespdate2num`
 
@@ -944,7 +944,7 @@ instead.
 Testing
 ~~~~~~~
 
-- `matplotlib.testing.decorators.switch_backend` decorator
+- ``matplotlib.testing.decorators.switch_backend`` decorator
 
 Test functions should use `pytest.mark.backend(...)`, and the mark will be
 picked up by the `matplotlib.testing.conftest.mpl_test_settings` fixture.
@@ -971,7 +971,7 @@ GUI / backend details
   This is unused and only relevant to the now removed wx "idling" code (note that
   as it is a module-level global, no deprecation warning is emitted when
   accessing it).
-- `.mlab.demean`
+- ``mlab.demean``
 - ``backend_gtk3cairo.FigureCanvasGTK3Cairo``,
 - ``backend_wx.debug_on_error``, ``backend_wx.fake_stderr``,
   ``backend_wx.raise_msg_to_str``, ``backend_wx.MenuButtonWx``,
@@ -983,7 +983,7 @@ available on PyPI. Install that module separately if you need it.
 
 .. _formlayout: https://pypi.org/project/formlayout/
 
-- `.GraphicsContextPS.shouldstroke`
+- ``GraphicsContextPS.shouldstroke``
 
 
 Transforms / scales
@@ -1015,7 +1015,7 @@ formatter classes.
 Path tools
 ~~~~~~~~~~
 
-- `.path.get_paths_extents`
+- ``path.get_paths_extents``
 
 Use `~.path.get_path_collection_extents` instead.
 
@@ -1030,19 +1030,19 @@ This has always returned None instead of the requested radius.
 Text
 ~~~~
 
-- `.text.TextWithDash`
-- `.Text.is_math_text`
-- `.TextPath.is_math_text`
-- `.TextPath.text_get_vertices_codes` (As an alternative, construct a new ``TextPath`` object.)
+- ``text.TextWithDash``
+- ``Text.is_math_text``
+- ``TextPath.is_math_text``
+- ``TextPath.text_get_vertices_codes`` (As an alternative, construct a new ``TextPath`` object.)
 
 Unused attributes
 ~~~~~~~~~~~~~~~~~
 
-- `.NavigationToolbar2QT.buttons`
-- `.Line2D.verticalOffset`
-- `.Quiver.keytext`
-- `.Quiver.keyvec`
-- `.SpanSelector.buttonDown`
+- ``NavigationToolbar2QT.buttons``
+- ``Line2D.verticalOffset``
+- ``Quiver.keytext``
+- ``Quiver.keyvec``
+- ``SpanSelector.buttonDown``
 
 These are unused and never updated.
 

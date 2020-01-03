@@ -241,14 +241,13 @@ class LinearTriInterpolator(TriInterpolator):
 
     Parameters
     ----------
-    triangulation : :class:`~matplotlib.tri.Triangulation` object
+    triangulation : `~matplotlib.tri.Triangulation`
         The triangulation to interpolate over.
     z : array-like of shape (npoints,)
         Array of values, defined at grid points, to interpolate between.
-    trifinder : :class:`~matplotlib.tri.TriFinder` object, optional
+    trifinder : `~matplotlib.tri.TriFinder`, optional
           If this is not specified, the Triangulation's default TriFinder will
-          be used by calling
-          :func:`matplotlib.tri.Triangulation.get_trifinder`.
+          be used by calling `matplotlib.tri.Triangulation.get_trifinder`.
 
     Methods
     -------
@@ -305,7 +304,7 @@ class CubicTriInterpolator(TriInterpolator):
 
     Parameters
     ----------
-    triangulation : :class:`~matplotlib.tri.Triangulation` object
+    triangulation : `~matplotlib.tri.Triangulation`
         The triangulation to interpolate over.
     z : array-like of shape (npoints,)
         Array of values, defined at grid points, to interpolate between.
@@ -321,10 +320,9 @@ class CubicTriInterpolator(TriInterpolator):
             - if 'user': The user provides the argument *dz*, no computation
               is hence needed.
 
-    trifinder : :class:`~matplotlib.tri.TriFinder` object, optional
+    trifinder : `~matplotlib.tri.TriFinder`, optional
         If not specified, the Triangulation's default TriFinder will
-        be used by calling
-        :func:`matplotlib.tri.Triangulation.get_trifinder`.
+        be used by calling `matplotlib.tri.Triangulation.get_trifinder`.
     dz : tuple of array-likes (dzdx, dzdy), optional
         Used only if  *kind* ='user'. In this case *dz* must be provided as
         (dzdx, dzdy) where dzdx, dzdy are arrays of the same shape as *z* and
@@ -1127,7 +1125,7 @@ class _DOF_estimator_geom(_DOF_estimator):
         weights = np.zeros([np.size(self._triangles, 0), 3])
         tris_pts = self._tris_pts
         for ipt in range(3):
-            p0 = tris_pts[:, (ipt) % 3, :]
+            p0 = tris_pts[:, ipt % 3, :]
             p1 = tris_pts[:, (ipt+1) % 3, :]
             p2 = tris_pts[:, (ipt-1) % 3, :]
             alpha1 = np.arctan2(p1[:, 1]-p0[:, 1], p1[:, 0]-p0[:, 0])
@@ -1245,7 +1243,7 @@ class _Sparse_Matrix_coo:
     def dot(self, V):
         """
         Dot product of self by a vector *V* in sparse-dense to dense format
-        *V* dense vector of shape (self.m,)
+        *V* dense vector of shape (self.m,).
         """
         assert V.shape == (self.m,)
         return np.bincount(self.rows,

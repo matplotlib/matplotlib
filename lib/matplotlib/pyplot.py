@@ -134,12 +134,12 @@ def uninstall_repl_displayhook():
     """
     Uninstall the matplotlib display hook.
 
-    .. warning
+    .. warning::
 
        Need IPython >= 2 for this to work.  For IPython < 2 will raise a
        ``NotImplementedError``
 
-    .. warning
+    .. warning::
 
        If you are using vanilla python and have installed another
        display hook this will reset ``sys.displayhook`` to what ever
@@ -408,7 +408,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
     Parameters
     ----------
-    num : int or str, optional, default: None
+    num : int or str, optional
         If not provided, a new figure will be created, and the figure number
         will be incremented. The figure objects holds this number in a `number`
         attribute.
@@ -418,29 +418,25 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         If num is a string, the window title will be set to this figure's
         *num*.
 
-    figsize : (float, float), optional, default: None
-        width, height in inches. If not provided, defaults to
-        :rc:`figure.figsize` = ``[6.4, 4.8]``.
+    figsize : (float, float), default: :rc:`figure.figsize`
+        Width, height in inches.
 
-    dpi : int, optional, default: None
-        resolution of the figure. If not provided, defaults to
-        :rc:`figure.dpi` = ``100``.
+    dpi : int, default: :rc:`figure.dpi`
+        The resolution of the figure in dots-per-inch.
 
-    facecolor : color
-        the background color. If not provided, defaults to
-        :rc:`figure.facecolor` = ``'w'``.
+    facecolor : color, default: :rc:`figure.facecolor`
+        The background color.
 
-    edgecolor : color
-        the border color. If not provided, defaults to
-        :rc:`figure.edgecolor` = ``'w'``.
+    edgecolor : color, default: :rc:`figure.edgecolor`
+        The border color.
 
-    frameon : bool, optional, default: True
+    frameon : bool, default: True
         If False, suppress drawing the figure frame.
 
     FigureClass : subclass of `~matplotlib.figure.Figure`
         Optionally use a custom `.Figure` instance.
 
-    clear : bool, optional, default: False
+    clear : bool, default: False
         If True and the figure already exists, then it is cleared.
 
     Returns
@@ -734,7 +730,6 @@ def axes(arg=None, **kwargs):
         The axis will have the same limits, ticks, and scale as the axis
         of the shared axes.
 
-
     label : str
         A label for the returned axes.
 
@@ -827,11 +822,12 @@ def subplot(*args, **kwargs):
 
        subplot(nrows, ncols, index, **kwargs)
        subplot(pos, **kwargs)
+       subplot(**kwargs)
        subplot(ax)
 
     Parameters
     ----------
-    *args
+    *args, default: (1, 1, 1)
         Either a 3-digit integer or three separate integers
         describing the position of the subplot. If the three
         integers are *nrows*, *ncols*, and *index* in order, the
@@ -959,6 +955,10 @@ def subplot(*args, **kwargs):
         cbook._warn_external("The subplot index argument to subplot() appears "
                              "to be a boolean. Did you intend to use "
                              "subplots()?")
+    # Check for nrows and ncols, which are not valid subplot args:
+    if 'nrows' in kwargs or 'ncols' in kwargs:
+        raise TypeError("subplot() got an unexpected keyword argument 'ncols' "
+                         "and/or 'nrows'.  Did you intend to call subplots()?")
 
     fig = gcf()
     a = fig.add_subplot(*args, **kwargs)
@@ -985,7 +985,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
     Parameters
     ----------
-    nrows, ncols : int, optional, default: 1
+    nrows, ncols : int, default: 1
         Number of rows/columns of the subplot grid.
 
     sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
@@ -1003,7 +1003,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         column subplot are created. To later turn other subplots' ticklabels
         on, use `~matplotlib.axes.Axes.tick_params`.
 
-    squeeze : bool, optional, default: True
+    squeeze : bool, default: True
         - If True, extra dimensions are squeezed out from the returned
           array of `~matplotlib.axes.Axes`:
 
@@ -1016,9 +1016,6 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         - If False, no squeezing at all is done: the returned Axes object is
           always a 2D array containing Axes instances, even if it ends up
           being 1x1.
-
-    num : int or str, optional, default: None
-        A `.pyplot.figure` keyword that sets the figure number or label.
 
     subplot_kw : dict, optional
         Dict with keywords passed to the
@@ -1037,7 +1034,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     -------
     fig : `~.figure.Figure`
 
-    ax : `.axes.Axes` object or array of Axes objects.
+    ax : `.axes.Axes` or array of Axes
         *ax* can be either a single `~matplotlib.axes.Axes` object or an
         array of Axes objects if more than one subplot was created.  The
         dimensions of the resulting array can be controlled with the squeeze
@@ -1121,26 +1118,18 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
 
     Parameters
     ----------
-    shape : sequence of 2 ints
-        Shape of grid in which to place axis.
-        First entry is number of rows, second entry is number of columns.
-
-    loc : sequence of 2 ints
-        Location to place axis within grid.
-        First entry is row number, second entry is column number.
-
+    shape : (int, int)
+        Number of rows and of columns of the grid in which to place axis.
+    loc : (int, int)
+        Row number and column number of the axis location within the grid.
     rowspan : int
         Number of rows for the axis to span to the right.
-
     colspan : int
         Number of columns for the axis to span downwards.
-
     fig : `Figure`, optional
         Figure to place axis in. Defaults to current figure.
-
     **kwargs
         Additional keyword arguments are handed to `add_subplot`.
-
 
     Notes
     -----
@@ -1150,8 +1139,8 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
 
     is identical to ::
 
-        gridspec=GridSpec(shape[0], shape[1])
-        subplotspec=gridspec.new_subplotspec(loc, rowspan, colspan)
+        gridspec = GridSpec(shape[0], shape[1])
+        subplotspec = gridspec.new_subplotspec(loc, rowspan, colspan)
         subplot(subplotspec)
     """
 
@@ -1239,11 +1228,9 @@ def subplot_tool(targetfig=None):
     if targetfig is None:
         targetfig = gcf()
 
-    tbar = rcParams['toolbar']  # Turn off navigation toolbar for the toolfig.
-    rcParams['toolbar'] = 'None'
-    toolfig = figure(figsize=(6, 3))
+    with rc_context({'toolbar': 'None'}):  # No nav toolbar for the toolfig.
+        toolfig = figure(figsize=(6, 3))
     toolfig.subplots_adjust(top=0.9)
-    rcParams['toolbar'] = tbar
 
     if hasattr(targetfig.canvas, "manager"):  # Restore the current figure.
         _pylab_helpers.Gcf.set_active(targetfig.canvas.manager)
@@ -1263,7 +1250,7 @@ def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
     h_pad, w_pad : float, optional
         Padding (height/width) between edges of adjacent subplots,
         as a fraction of the font size.  Defaults to *pad*.
-    rect : tuple (left, bottom, right, top), optional, default: (0, 0, 1, 1)
+    rect : tuple (left, bottom, right, top), default: (0, 0, 1, 1)
         A rectangle (left, bottom, right, top) in the normalized
         figure coordinate that the whole subplots area (including
         labels) will fit into.
@@ -1372,29 +1359,24 @@ def xticks(ticks=None, labels=None, **kwargs):
     """
     Get or set the current tick locations and labels of the x-axis.
 
-    Call signatures::
-
-        locs, labels = xticks()            # Get locations and labels
-        xticks(ticks, [labels], **kwargs)  # Set locations and labels
+    Pass no arguments to return the current values without modifying them.
 
     Parameters
     ----------
-    ticks : array-like
-        A list of positions at which ticks should be placed. You can pass an
-        empty list to disable xticks.
-
+    ticks : array-like, optional
+        The list of xtick locations.  Passing an empty list removes all xticks.
     labels : array-like, optional
-        A list of explicit labels to place at the given *locs*.
-
+        The labels to place at the given *ticks* locations.  This argument can
+        only be passed if *ticks* is passed as well.
     **kwargs
         `.Text` properties can be used to control the appearance of the labels.
 
     Returns
     -------
     locs
-        An array of label locations.
+        The list of xtick locations.
     labels
-        A list of `.Text` objects.
+        The list of xlabel `.Text` objects.
 
     Notes
     -----
@@ -1406,36 +1388,26 @@ def xticks(ticks=None, labels=None, **kwargs):
 
     Examples
     --------
-    Get the current locations and labels:
-
-        >>> locs, labels = xticks()
-
-    Set label locations:
-
-        >>> xticks(np.arange(0, 1, step=0.2))
-
-    Set text labels:
-
-        >>> xticks(np.arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue'))
-
-    Set text labels and properties:
-
-        >>> xticks(np.arange(12), calendar.month_name[1:13], rotation=20)
-
-    Disable xticks:
-
-        >>> xticks([])
+    >>> locs, labels = xticks()  # Get the current locations and labels.
+    >>> xticks(np.arange(0, 1, step=0.2))  # Set label locations.
+    >>> xticks(np.arange(3), ['Tom', 'Dick', 'Sue'])  # Set text labels.
+    >>> xticks([0, 1, 2], ['January', 'February', 'March'],
+    ...        rotation=20)  # Set text labels and properties.
+    >>> xticks([])  # Disable xticks.
     """
     ax = gca()
 
-    if ticks is None and labels is None:
+    if ticks is None:
         locs = ax.get_xticks()
-        labels = ax.get_xticklabels()
-    elif labels is None:
-        locs = ax.set_xticks(ticks)
-        labels = ax.get_xticklabels()
+        if labels is not None:
+            raise TypeError("xticks(): Parameter 'labels' can't be set "
+                            "without setting 'ticks'")
     else:
         locs = ax.set_xticks(ticks)
+
+    if labels is None:
+        labels = ax.get_xticklabels()
+    else:
         labels = ax.set_xticklabels(labels, **kwargs)
     for l in labels:
         l.update(kwargs)
@@ -1447,29 +1419,24 @@ def yticks(ticks=None, labels=None, **kwargs):
     """
     Get or set the current tick locations and labels of the y-axis.
 
-    Call signatures::
-
-        locs, labels = yticks()            # Get locations and labels
-        yticks(ticks, [labels], **kwargs)  # Set locations and labels
+    Pass no arguments to return the current values without modifying them.
 
     Parameters
     ----------
-    ticks : array-like
-        A list of positions at which ticks should be placed. You can pass an
-        empty list to disable yticks.
-
+    ticks : array-like, optional
+        The list of xtick locations.  Passing an empty list removes all xticks.
     labels : array-like, optional
-        A list of explicit labels to place at the given *locs*.
-
+        The labels to place at the given *ticks* locations.  This argument can
+        only be passed if *ticks* is passed as well.
     **kwargs
         `.Text` properties can be used to control the appearance of the labels.
 
     Returns
     -------
     locs
-        An array of label locations.
+        The list of ytick locations.
     labels
-        A list of `.Text` objects.
+        The list of ylabel `.Text` objects.
 
     Notes
     -----
@@ -1481,36 +1448,26 @@ def yticks(ticks=None, labels=None, **kwargs):
 
     Examples
     --------
-    Get the current locations and labels:
-
-        >>> locs, labels = yticks()
-
-    Set label locations:
-
-        >>> yticks(np.arange(0, 1, step=0.2))
-
-    Set text labels:
-
-        >>> yticks(np.arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue'))
-
-    Set text labels and properties:
-
-        >>> yticks(np.arange(12), calendar.month_name[1:13], rotation=45)
-
-    Disable yticks:
-
-        >>> yticks([])
+    >>> locs, labels = yticks()  # Get the current locations and labels.
+    >>> yticks(np.arange(0, 1, step=0.2))  # Set label locations.
+    >>> yticks(np.arange(3), ['Tom', 'Dick', 'Sue'])  # Set text labels.
+    >>> yticks([0, 1, 2], ['January', 'February', 'March'],
+    ...        rotation=45)  # Set text labels and properties.
+    >>> yticks([])  # Disable yticks.
     """
     ax = gca()
 
-    if ticks is None and labels is None:
+    if ticks is None:
         locs = ax.get_yticks()
-        labels = ax.get_yticklabels()
-    elif labels is None:
-        locs = ax.set_yticks(ticks)
-        labels = ax.get_yticklabels()
+        if labels is not None:
+            raise TypeError("yticks(): Parameter 'labels' can't be set "
+                            "without setting 'ticks'")
     else:
         locs = ax.set_yticks(ticks)
+
+    if labels is None:
+        labels = ax.get_yticklabels()
+    else:
         labels = ax.set_yticklabels(labels, **kwargs)
     for l in labels:
         l.update(kwargs)
@@ -1847,7 +1804,6 @@ def colormaps():
                         black-blue-white-red-black
       ================  =================================================
 
-
     Other miscellaneous schemes:
 
       ============= =======================================================
@@ -2109,137 +2065,6 @@ def polar(*args, **kwargs):
     return ret
 
 
-@cbook.deprecated("3.1")
-def plotfile(fname, cols=(0,), plotfuncs=None,
-             comments='#', skiprows=0, checkrows=5, delimiter=',',
-             names=None, subplots=True, newfig=True, **kwargs):
-    """
-    Plot the data in a file.
-
-    *cols* is a sequence of column identifiers to plot.  An identifier
-    is either an int or a string.  If it is an int, it indicates the
-    column number.  If it is a string, it indicates the column header.
-    matplotlib will make column headers lower case, replace spaces with
-    underscores, and remove all illegal characters; so ``'Adj Close*'``
-    will have name ``'adj_close'``.
-
-    - If len(*cols*) == 1, only that column will be plotted on the *y* axis.
-
-    - If len(*cols*) > 1, the first element will be an identifier for
-      data for the *x* axis and the remaining elements will be the
-      column indexes for multiple subplots if *subplots* is *True*
-      (the default), or for lines in a single subplot if *subplots*
-      is *False*.
-
-    *plotfuncs*, if not *None*, is a dictionary mapping identifier to
-    an :class:`~matplotlib.axes.Axes` plotting function as a string.
-    Default is 'plot', other choices are 'semilogy', 'fill', 'bar',
-    etc.  You must use the same type of identifier in the *cols*
-    vector as you use in the *plotfuncs* dictionary, e.g., integer
-    column numbers in both or column names in both. If *subplots*
-    is *False*, then including any function such as 'semilogy'
-    that changes the axis scaling will set the scaling for all
-    columns.
-
-    - *comments*: the character used to indicate the start of a comment
-      in the file, or *None* to switch off the removal of comments
-
-    - *skiprows*: is the number of rows from the top to skip
-
-    - *checkrows*: is the number of rows to check to validate the column
-      data type.  When set to zero all rows are validated.
-
-    - *delimiter*: is the character(s) separating row items
-
-    - *names*: if not None, is a list of header names.  In this case, no
-      header will be read from the file
-
-    If *newfig* is *True*, the plot always will be made in a new figure;
-    if *False*, it will be made in the current figure if one exists,
-    else in a new figure.
-
-    kwargs are passed on to plotting functions.
-
-    Example usage::
-
-      # plot the 2nd and 4th column against the 1st in two subplots
-      plotfile(fname, (0, 1, 3))
-
-      # plot using column names; specify an alternate plot type for volume
-      plotfile(fname, ('date', 'volume', 'adj_close'),
-               plotfuncs={'volume': 'semilogy'})
-
-    Note: plotfile is intended as a convenience for quickly plotting
-    data from flat files; it is not intended as an alternative
-    interface to general plotting with pyplot or matplotlib.
-    """
-
-    if newfig:
-        fig = figure()
-    else:
-        fig = gcf()
-
-    if len(cols) < 1:
-        raise ValueError('must have at least one column of data')
-
-    if plotfuncs is None:
-        plotfuncs = {}
-    with cbook._suppress_matplotlib_deprecation_warning():
-        r = mlab._csv2rec(fname, comments=comments, skiprows=skiprows,
-                          checkrows=checkrows, delimiter=delimiter,
-                          names=names)
-
-    def getname_val(identifier):
-        'return the name and column data for identifier'
-        if isinstance(identifier, str):
-            return identifier, r[identifier]
-        elif isinstance(identifier, Number):
-            name = r.dtype.names[int(identifier)]
-            return name, r[name]
-        else:
-            raise TypeError('identifier must be a string or integer')
-
-    xname, x = getname_val(cols[0])
-    ynamelist = []
-
-    if len(cols) == 1:
-        ax1 = fig.add_subplot(1, 1, 1)
-        funcname = plotfuncs.get(cols[0], 'plot')
-        func = getattr(ax1, funcname)
-        func(x, **kwargs)
-        ax1.set_ylabel(xname)
-    else:
-        N = len(cols)
-        for i in range(1, N):
-            if subplots:
-                if i == 1:
-                    ax = ax1 = fig.add_subplot(N - 1, 1, i)
-                else:
-                    ax = fig.add_subplot(N - 1, 1, i, sharex=ax1)
-            elif i == 1:
-                ax = fig.add_subplot(1, 1, 1)
-
-            yname, y = getname_val(cols[i])
-            ynamelist.append(yname)
-
-            funcname = plotfuncs.get(cols[i], 'plot')
-            func = getattr(ax, funcname)
-
-            func(x, y, **kwargs)
-            if subplots:
-                ax.set_ylabel(yname)
-            if ax.is_last_row():
-                ax.set_xlabel(xname)
-            else:
-                ax.set_xlabel('')
-
-    if not subplots:
-        ax.legend(ynamelist)
-
-    if xname == 'date':
-        fig.autofmt_xdate()
-
-
 # If rcParams['backend_fallback'] is true, and an interactive backend is
 # requested, ignore rcParams['backend'] and force selection of a backend that
 # is compatible with the current running interactive framework.
@@ -2274,11 +2099,8 @@ def figimage(
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @docstring.copy(Figure.text)
-def figtext(
-        x, y, s, fontdict=None,
-        withdash=cbook.deprecation._deprecated_parameter, **kwargs):
-    return gcf().text(
-        x, y, s, fontdict=fontdict, withdash=withdash, **kwargs)
+def figtext(x, y, s, fontdict=None, **kwargs):
+    return gcf().text(x, y, s, fontdict=fontdict, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -2915,10 +2737,8 @@ def table(
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @docstring.copy(Axes.text)
-def text(
-        x, y, s, fontdict=None,
-        withdash=cbook.deprecation._deprecated_parameter, **kwargs):
-    return gca().text(x, y, s, fontdict=fontdict, withdash=withdash, **kwargs)
+def text(x, y, s, fontdict=None, **kwargs):
+    return gca().text(x, y, s, fontdict=fontdict, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.

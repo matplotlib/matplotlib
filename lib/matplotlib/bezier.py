@@ -34,7 +34,7 @@ def get_intersection(cx1, cy1, cos_t1, sin_t1,
     c, d = sin_t2, -cos_t2
 
     ad_bc = a * d - b * c
-    if np.abs(ad_bc) < 1.0e-12:
+    if abs(ad_bc) < 1e-12:
         raise ValueError("Given lines do not intersect. Please verify that "
                          "the angles are not equal or differ by 180 degrees.")
 
@@ -224,34 +224,6 @@ def split_bezier_intersecting_with_closedpath(
     return _left, _right
 
 
-@cbook.deprecated("3.1")
-@cbook._rename_parameter("3.1", "tolerence", "tolerance")
-def find_r_to_boundary_of_closedpath(
-        inside_closedpath, xy, cos_t, sin_t, rmin=0., rmax=1., tolerance=0.01):
-    """
-    Find a radius r (centered at *xy*) between *rmin* and *rmax* at
-    which it intersect with the path.
-
-    Parameters
-    ----------
-    inside_closedpath : callable
-        A function returning True if a given point (x, y) is inside the
-        closed path.
-    xy : float, float
-        The center of the radius.
-    cos_t, sin_t : float
-        Cosine and sine for the angle.
-    rmin, rmax : float
-        Starting parameters for the radius search.
-    """
-    cx, cy = xy
-
-    def _f(r):
-        return cos_t * r + cx, sin_t * r + cy
-
-    find_bezier_t_intersecting_with_closedpath(
-        _f, inside_closedpath, t0=rmin, t1=rmax, tolerance=tolerance)
-
 # matplotlib specific
 
 
@@ -368,10 +340,10 @@ def check_if_parallel(dx1, dy1, dx2, dy2, tolerance=1.e-5):
     """
     theta1 = np.arctan2(dx1, dy1)
     theta2 = np.arctan2(dx2, dy2)
-    dtheta = np.abs(theta1 - theta2)
+    dtheta = abs(theta1 - theta2)
     if dtheta < tolerance:
         return 1
-    elif np.abs(dtheta - np.pi) < tolerance:
+    elif abs(dtheta - np.pi) < tolerance:
         return -1
     else:
         return False
