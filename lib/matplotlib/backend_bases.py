@@ -1210,7 +1210,7 @@ class DrawEvent(Event):
     updated.  Any extra artists drawn to the canvas's renderer will
     be reflected without an explicit call to ``blit``.
 
-    .. warning ::
+    .. warning::
 
        Calling ``canvas.draw`` and ``canvas.blit`` in these callbacks may
        not be safe with all backends and may cause infinite recursion.
@@ -1385,6 +1385,7 @@ class MouseEvent(LocationEvent):
     Examples
     --------
     ::
+
         def on_press(event):
             print('you pressed', event.button, event.xdata, event.ydata)
 
@@ -1481,6 +1482,7 @@ class KeyEvent(LocationEvent):
     Examples
     --------
     ::
+
         def on_key(event):
             print('you pressed', event.key, event.xdata, event.ydata)
 
@@ -2195,6 +2197,7 @@ default: :rc:`savefig.bbox`
         Examples
         --------
         ::
+
             def on_press(event):
                 print('you pressed', event.button, event.xdata, event.ydata)
 
@@ -2210,6 +2213,7 @@ default: :rc:`savefig.bbox`
         Examples
         --------
         ::
+
             cid = canvas.mpl_connect('button_press_event', on_press)
             # ... later
             canvas.mpl_disconnect(cid)

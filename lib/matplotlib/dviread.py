@@ -587,6 +587,7 @@ class Vf(Dvi):
     Examples
     --------
     ::
+
         vf = Vf(filename)
         glyph = vf[code]
         glyph.text, glyph.boxes, glyph.width

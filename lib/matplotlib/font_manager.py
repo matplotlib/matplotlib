@@ -160,7 +160,7 @@ def list_fonts(directory, extensions):
 def win32FontDirectory():
     r"""
     Return the user-specified font directory for Win32.  This is
-    looked up from the registry key::
+    looked up from the registry key ::
 
       \\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\Fonts
 
@@ -594,7 +594,7 @@ class FontProperties:
         absolute font size, e.g., 12
 
     The default font property for TrueType fonts (as specified in the
-    default rcParams) is::
+    default rcParams) is ::
 
       sans-serif, normal, normal, normal, normal, scalable.
 

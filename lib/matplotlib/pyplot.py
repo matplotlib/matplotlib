@@ -134,12 +134,12 @@ def uninstall_repl_displayhook():
     """
     Uninstall the matplotlib display hook.
 
-    .. warning
+    .. warning::
 
        Need IPython >= 2 for this to work.  For IPython < 2 will raise a
        ``NotImplementedError``
 
-    .. warning
+    .. warning::
 
        If you are using vanilla python and have installed another
        display hook this will reset ``sys.displayhook`` to what ever

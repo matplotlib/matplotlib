@@ -143,7 +143,7 @@ class Axes3D(Axes):
         For artists in an axes, if the zaxis has units support,
         convert *z* using zaxis unit type
 
-        .. versionadded :: 1.2.1
+        .. versionadded:: 1.2.1
 
         """
         return self.zaxis.convert_units(z)
@@ -330,7 +330,7 @@ class Axes3D(Axes):
         """
         Get whether autoscaling is applied for all axes on plot commands
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
         return super().get_autoscale_on() and self.get_autoscalez_on()
@@ -339,7 +339,7 @@ class Axes3D(Axes):
         """
         Get whether autoscaling for the z-axis is applied on plot commands
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
         return self._autoscaleZon
@@ -348,7 +348,7 @@ class Axes3D(Axes):
         """
         Set whether autoscaling is applied on plot commands
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
 
         Parameters
@@ -390,7 +390,8 @@ class Axes3D(Axes):
         """
         Convenience method to set or retrieve autoscaling margins.
 
-        signatures::
+        Call signatures::
+
             margins()
 
         returns xmargin, ymargin, zmargin
@@ -505,11 +506,11 @@ class Axes3D(Axes):
         Note that this function applies to the 3D axes, and as such
         adds the *scalez* to the function arguments.
 
-        .. versionchanged :: 1.1.0
+        .. versionchanged:: 1.1.0
             Function signature was changed to better match the 2D version.
             *tight* is now explicitly a kwarg and placed first.
 
-        .. versionchanged :: 1.2.1
+        .. versionchanged:: 1.2.1
             This is now fully functional.
         """
         # This method looks at the rectangular volume (see above)
@@ -737,7 +738,7 @@ class Axes3D(Axes):
     get_xlim3d.__doc__ = maxes.Axes.get_xlim.__doc__
     if get_xlim3d.__doc__ is not None:
         get_xlim3d.__doc__ += """
-        .. versionchanged :: 1.1.0
+        .. versionchanged:: 1.1.0
             This function now correctly refers to the 3D x-limits
         """
 
@@ -746,7 +747,7 @@ class Axes3D(Axes):
     get_ylim3d.__doc__ = maxes.Axes.get_ylim.__doc__
     if get_ylim3d.__doc__ is not None:
         get_ylim3d.__doc__ += """
-        .. versionchanged :: 1.1.0
+        .. versionchanged:: 1.1.0
             This function now correctly refers to the 3D y-limits.
         """
 
@@ -827,7 +828,7 @@ class Axes3D(Axes):
         """
         Get the ztick labels as a list of Text instances
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
         """
         return self.zaxis.get_majorticklabels()
 
@@ -839,7 +840,7 @@ class Axes3D(Axes):
             Minor ticks are not supported. This function was added
             only for completeness.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
         """
         return self.zaxis.get_minorticklabels()
 
@@ -879,7 +880,7 @@ class Axes3D(Axes):
             Axes3D objects do not officially support dates for ticks,
             and so this may or may not work as expected.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
         self.zaxis.axis_date(tz)
@@ -1200,7 +1201,7 @@ class Axes3D(Axes):
         """
         Get the z-label text string.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
         label = self.zaxis.get_label()
@@ -1233,7 +1234,7 @@ class Axes3D(Axes):
             :meth:`matplotlib.axes.Axes.grid`, but it is intended to
             eventually support that behavior.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
         """
         # TODO: Operate on each axes separately
         if len(kwargs):
@@ -1252,7 +1253,7 @@ class Axes3D(Axes):
         can also take a value of 'z' to apply parameters to the
         z axis.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
         _x = axis in ['x', 'both']
@@ -1287,7 +1288,7 @@ class Axes3D(Axes):
         .. note::
            Axes3D currently ignores some of these settings.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
         """
         cbook._check_in_list(['x', 'y', 'z', 'both'], axis=axis)
         if axis in ['x', 'y', 'both']:
@@ -1306,7 +1307,7 @@ class Axes3D(Axes):
         """
         Invert the z-axis.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
         bottom, top = self.get_zlim()
@@ -1316,7 +1317,7 @@ class Axes3D(Axes):
         """
         Returns True if the z-axis is inverted.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
         """
         bottom, top = self.get_zlim()
         return top < bottom
@@ -1325,7 +1326,7 @@ class Axes3D(Axes):
         """
         Return the lower and upper z-axis bounds, in increasing order.
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
         """
         bottom, top = self.get_zlim()
         if bottom < top:
@@ -1340,7 +1341,7 @@ class Axes3D(Axes):
         This method will honor axes inversion regardless of parameter order.
         It will not change the autoscaling setting (`.get_autoscalez_on()`).
 
-        .. versionadded :: 1.1.0
+        .. versionadded:: 1.1.0
         """
         if upper is None and np.iterable(lower):
             lower, upper = lower
