@@ -851,11 +851,11 @@ class ListedColormap(Colormap):
     N : int, optional
         Number of entries in the map. The default is *None*, in which case
         there is one colormap entry for each element in the list of colors.
-        If::
+        If ::
 
             N < len(colors)
 
-        the list will be truncated at *N*. If::
+        the list will be truncated at *N*. If ::
 
             N > len(colors)
 
@@ -933,7 +933,7 @@ class Normalize:
         processed.  That is, *__call__(A)* calls *autoscale_None(A)*.
         If *clip* is *True* and the given value falls outside the range,
         the returned value will be 0 or 1, whichever is closer.
-        Returns 0 if::
+        Returns 0 if ::
 
             vmin==vmax
 

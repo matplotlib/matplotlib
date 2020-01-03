@@ -268,6 +268,7 @@ def _rename_parameter(since, old, new, func=None):
     Examples
     --------
     ::
+
         @_rename_parameter("3.1", "bad_name", "good_name")
         def func(good_name): ...
     """
@@ -325,6 +326,7 @@ def _delete_parameter(since, name, func=None):
     Examples
     --------
     ::
+
         @_delete_parameter("3.1", "unused")
         def func(used_arg, other_arg, unused, more_args): ...
     """

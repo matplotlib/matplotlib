@@ -1345,11 +1345,12 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     """
     A decorator to add a 'data' kwarg to a function.
 
-    ::
+    When applied::
+
         @_preprocess_data()
         def func(ax, *args, **kwargs): ...
 
-    is a function with signature ``decorated(ax, *args, data=None, **kwargs)``
+    the signature is modified to ``decorated(ax, *args, data=None, **kwargs)``
     with the following behavior:
 
     - if called with ``data=None``, forward the other arguments to ``func``;
