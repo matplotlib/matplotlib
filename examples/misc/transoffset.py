@@ -1,4 +1,4 @@
-'''
+"""
 ===========
 Transoffset
 ===========
@@ -16,7 +16,7 @@ transform, going from data units to screen dots.  We can
 use the offset_copy function to make a modified copy of
 this transform, where the modification consists of an
 offset.
-'''
+"""
 
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms

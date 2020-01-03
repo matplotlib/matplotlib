@@ -795,11 +795,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.stale = True
 
     def get_fill(self):
-        'return whether fill is set'
+        """Return whether fill is set."""
         return self._is_filled
 
     def update_from(self, other):
-        'copy properties from other to self'
+        """Copy properties from other to self."""
 
         artist.Artist.update_from(self, other)
         self._antialiaseds = other._antialiaseds
@@ -1547,16 +1547,14 @@ class EventCollection(LineCollection):
         self._lineoffset = lineoffset
 
     def get_positions(self):
-        '''
-        return an array containing the floating-point values of the positions
-        '''
+        """
+        Return an array containing the floating-point values of the positions.
+        """
         pos = 0 if self.is_horizontal() else 1
         return [segment[0, pos] for segment in self.get_segments()]
 
     def set_positions(self, positions):
-        '''
-        set the positions of the events to the specified value
-        '''
+        """Set the positions of the events to the specified value."""
         if positions is None or (hasattr(positions, 'len') and
                                  len(positions) == 0):
             self.set_segments([])
@@ -1577,9 +1575,7 @@ class EventCollection(LineCollection):
         self.set_segments(segments)
 
     def add_positions(self, position):
-        '''
-        add one or more events at the specified positions
-        '''
+        """Add one or more events at the specified positions."""
         if position is None or (hasattr(position, 'len') and
                                 len(position) == 0):
             return
@@ -1589,9 +1585,7 @@ class EventCollection(LineCollection):
     extend_positions = append_positions = add_positions
 
     def is_horizontal(self):
-        '''
-        True if the eventcollection is horizontal, False if vertical
-        '''
+        """True if the eventcollection is horizontal, False if vertical."""
         return self._is_horizontal
 
     def get_orientation(self):
@@ -1601,10 +1595,10 @@ class EventCollection(LineCollection):
         return 'horizontal' if self.is_horizontal() else 'vertical'
 
     def switch_orientation(self):
-        '''
-        switch the orientation of the event line, either from vertical to
-        horizontal or vice versus
-        '''
+        """
+        Switch the orientation of the event line, either from vertical to
+        horizontal or vice versus.
+        """
         segments = self.get_segments()
         for i, segment in enumerate(segments):
             segments[i] = np.fliplr(segment)
@@ -1634,15 +1628,15 @@ class EventCollection(LineCollection):
         self.switch_orientation()
 
     def get_linelength(self):
-        '''
+        """
         get the length of the lines used to mark each event
-        '''
+        """
         return self._linelength
 
     def set_linelength(self, linelength):
-        '''
+        """
         set the length of the lines used to mark each event
-        '''
+        """
         if linelength == self.get_linelength():
             return
         lineoffset = self.get_lineoffset()
@@ -1655,15 +1649,11 @@ class EventCollection(LineCollection):
         self._linelength = linelength
 
     def get_lineoffset(self):
-        '''
-        get the offset of the lines used to mark each event
-        '''
+        """Return the offset of the lines used to mark each event."""
         return self._lineoffset
 
     def set_lineoffset(self, lineoffset):
-        '''
-        set the offset of the lines used to mark each event
-        '''
+        """Set the offset of the lines used to mark each event."""
         if lineoffset == self.get_lineoffset():
             return
         linelength = self.get_linelength()
@@ -1683,9 +1673,7 @@ class EventCollection(LineCollection):
         return super(EventCollection, self).get_linewidth()
 
     def get_color(self):
-        '''
-        get the color of the lines used to mark each event
-        '''
+        """Return the color of the lines used to mark each event."""
         return self.get_colors()[0]
 
 

@@ -1073,7 +1073,7 @@ class LogFormatterMathtext(LogFormatter):
     """
 
     def _non_decade_format(self, sign_string, base, fx, usetex):
-        'Return string for non-decade locations'
+        """Return string for non-decade locations."""
         return r'$\mathdefault{%s%s^{%.2f}}$' % (sign_string, base, fx)
 
     def __call__(self, x, pos=None):
@@ -1125,7 +1125,7 @@ class LogFormatterSciNotation(LogFormatterMathtext):
     """
 
     def _non_decade_format(self, sign_string, base, fx, usetex):
-        'Return string for non-decade locations'
+        """Return string for non-decade locations."""
         b = float(base)
         exponent = math.floor(fx)
         coeff = b ** fx / b ** exponent
@@ -1712,7 +1712,7 @@ class Locator(TickHelper):
         self.axis.set_view_interval(vmin, vmax, ignore=True)
 
     def zoom(self, direction):
-        "Zoom in/out on axis; if direction is >0 zoom in, else zoom out"
+        """Zoom in/out on axis; if direction is >0 zoom in, else zoom out."""
 
         vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
@@ -1778,7 +1778,7 @@ class FixedLocator(Locator):
         return self.tick_values(None, None)
 
     def tick_values(self, vmin, vmax):
-        """"
+        """
         Return the locations of the ticks.
 
         .. note::
@@ -1807,7 +1807,7 @@ class NullLocator(Locator):
         return self.tick_values(None, None)
 
     def tick_values(self, vmin, vmax):
-        """"
+        """
         Return the locations of the ticks.
 
         .. note::
@@ -1855,7 +1855,7 @@ class LinearLocator(Locator):
             self.numticks = numticks
 
     def __call__(self):
-        'Return the locations of the ticks'
+        """Return the locations of the ticks."""
         vmin, vmax = self.axis.get_view_interval()
         return self.tick_values(vmin, vmax)
 
@@ -1874,7 +1874,7 @@ class LinearLocator(Locator):
         return self.raise_if_exceeds(ticklocs)
 
     def view_limits(self, vmin, vmax):
-        'Try to choose the view limits intelligently'
+        """Try to choose the view limits intelligently."""
 
         if vmax < vmin:
             vmin, vmax = vmax, vmin
@@ -1908,7 +1908,7 @@ class MultipleLocator(Locator):
             self._edge = _Edge_integer(base, 0)
 
     def __call__(self):
-        'Return the locations of the ticks'
+        """Return the locations of the ticks."""
         vmin, vmax = self.axis.get_view_interval()
         return self.tick_values(vmin, vmax)
 
@@ -1979,14 +1979,14 @@ class _Edge_integer:
         return abs(ms - edge) < tol
 
     def le(self, x):
-        'Return the largest n: n*step <= x.'
+        """Return the largest n: n*step <= x."""
         d, m = divmod(x, self.step)
         if self.closeto(m / self.step, 1):
             return d + 1
         return d
 
     def ge(self, x):
-        'Return the smallest n: n*step >= x.'
+        """Return the smallest n: n*step >= x."""
         d, m = divmod(x, self.step)
         if self.closeto(m / self.step, 0):
             return d
@@ -2375,7 +2375,7 @@ class LogLocator(Locator):
                                  "{}-dimensional.".format(self._subs.ndim))
 
     def __call__(self):
-        'Return the locations of the ticks'
+        """Return the locations of the ticks."""
         vmin, vmax = self.axis.get_view_interval()
         return self.tick_values(vmin, vmax)
 
@@ -2469,7 +2469,7 @@ class LogLocator(Locator):
             return self.raise_if_exceeds(ticklocs)
 
     def view_limits(self, vmin, vmax):
-        'Try to choose the view limits intelligently'
+        """Try to choose the view limits intelligently."""
         b = self._base
 
         vmin, vmax = self.nonsingular(vmin, vmax)
@@ -2631,7 +2631,7 @@ class SymmetricalLogLocator(Locator):
         return self.raise_if_exceeds(np.array(ticklocs))
 
     def view_limits(self, vmin, vmax):
-        'Try to choose the view limits intelligently'
+        """Try to choose the view limits intelligently."""
         b = self._base
         if vmax < vmin:
             vmin, vmax = vmax, vmin
@@ -2831,7 +2831,7 @@ class AutoMinorLocator(Locator):
         self.ndivs = n
 
     def __call__(self):
-        'Return the locations of the ticks'
+        """Return the locations of the ticks."""
         if self.axis.get_scale() == 'log':
             cbook._warn_external('AutoMinorLocator does not work with '
                                  'logarithmic scale')
@@ -2886,7 +2886,7 @@ class OldAutoLocator(Locator):
         self._locator = LinearLocator()
 
     def __call__(self):
-        'Return the locations of the ticks'
+        """Return the locations of the ticks."""
         self.refresh()
         return self.raise_if_exceeds(self._locator())
 
@@ -2902,7 +2902,7 @@ class OldAutoLocator(Locator):
         self._locator = self.get_locator(d)
 
     def view_limits(self, vmin, vmax):
-        'Try to choose the view limits intelligently'
+        """Try to choose the view limits intelligently."""
 
         d = abs(vmax - vmin)
         self._locator = self.get_locator(d)

@@ -308,7 +308,9 @@ def crop_to_same(actual_path, actual_image, expected_path, expected_image):
 
 
 def calculate_rms(expected_image, actual_image):
-    "Calculate the per-pixel errors, then compute the root mean square error."
+    """
+    Calculate the per-pixel errors, then compute the root mean square error.
+    """
     if expected_image.shape != actual_image.shape:
         raise ImageComparisonFailure(
             "Image sizes do not match expected size: {} "
@@ -426,7 +428,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
 
 
 def save_diff_image(expected, actual, output):
-    '''
+    """
     Parameters
     ----------
     expected : str
@@ -435,7 +437,7 @@ def save_diff_image(expected, actual, output):
         File path of actual image.
     output : str
         File path to save difference image to.
-    '''
+    """
     # Drop alpha channels, similarly to compare_images.
     expected_image = np.asarray(PIL.Image.open(expected).convert("RGB"))
     actual_image = np.asarray(PIL.Image.open(actual).convert("RGB"))

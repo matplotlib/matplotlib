@@ -121,10 +121,7 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
     codes, verts = tpath.codes, tpath.vertices
 
     def _slice_or_none(in_v, slc):
-        '''
-        Helper function to cope with `codes` being an
-        ndarray or `None`
-        '''
+        """Helper function to cope with `codes` being an ndarray or `None`."""
         if in_v is None:
             return None
         return in_v[slc]

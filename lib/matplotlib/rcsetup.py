@@ -51,7 +51,7 @@ all_backends = interactive_bk + non_interactive_bk
 
 class ValidateInStrings:
     def __init__(self, key, valid, ignorecase=False):
-        'valid is a list of legal strings'
+        """*valid* is a list of legal strings."""
         self.key = key
         self.ignorecase = ignorecase
 

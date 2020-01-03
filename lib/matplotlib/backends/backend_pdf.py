@@ -595,7 +595,7 @@ class PdfFile:
         self.pageAnnotations.append(annotObject)
 
     def finalize(self):
-        "Write out the various deferred objects and the pdf end matter."
+        """Write out the various deferred objects and the pdf end matter."""
 
         self.endStream()
         self.writeFonts()
@@ -627,7 +627,7 @@ class PdfFile:
         self.writeTrailer()
 
     def close(self):
-        "Flush all buffers and free all resources."
+        """Flush all buffers and free all resources."""
 
         self.endStream()
         if self.passed_in_file_object:
@@ -902,7 +902,7 @@ end"""
         fonttype = rcParams['pdf.fonttype']
 
         def cvt(length, upe=font.units_per_EM, nearest=True):
-            "Convert font coordinates to PDF glyph coordinates"
+            """Convert font coordinates to PDF glyph coordinates."""
             value = length / upe * 1000
             if nearest:
                 return round(value)

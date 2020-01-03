@@ -25,7 +25,7 @@ import pytest
 
 @image_comparison(['image_interps'], style='mpl20')
 def test_image_interps():
-    'make the basic nearest, bilinear and bicubic interps'
+    """Make the basic nearest, bilinear and bicubic interps."""
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
 
@@ -49,7 +49,7 @@ def test_image_interps():
 
 @image_comparison(['interp_alpha.png'], remove_text=True)
 def test_alpha_interp():
-    'Test the interpolation of the alpha channel on RGBA images'
+    """Test the interpolation of the alpha channel on RGBA images"""
     fig, (axl, axr) = plt.subplots(1, 2)
     # full green image
     img = np.zeros((5, 5, 4))
@@ -63,7 +63,7 @@ def test_alpha_interp():
 @image_comparison(['interp_nearest_vs_none'],
                   extensions=['pdf', 'svg'], remove_text=True)
 def test_interp_nearest_vs_none():
-    'Test the effect of "nearest" and "none" interpolation'
+    """Test the effect of "nearest" and "none" interpolation"""
     # Setting dpi to something really small makes the difference very
     # visible. This works fine with pdf, since the dpi setting doesn't
     # affect anything but images, but the agg output becomes unusably
@@ -1151,7 +1151,7 @@ def test_image_cursor_formatting():
 
 @check_figures_equal()
 def test_image_array_alpha(fig_test, fig_ref):
-    '''per-pixel alpha channel test'''
+    """per-pixel alpha channel test"""
     x = np.linspace(0, 1)
     xx, yy = np.meshgrid(x, x)
 

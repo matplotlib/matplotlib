@@ -100,7 +100,7 @@ class Divider:
 
     def set_position(self, pos):
         """
-        set the position of the rectangle.
+        Set the position of the rectangle.
 
         Parameters
         ----------
@@ -110,7 +110,7 @@ class Divider:
         self._pos = pos
 
     def get_position(self):
-        "return the position of the rectangle."
+        """Return the position of the rectangle."""
         return self._pos
 
     def set_anchor(self, anchor):
@@ -140,7 +140,7 @@ class Divider:
         self._anchor = anchor
 
     def get_anchor(self):
-        "return the anchor"
+        """Return the anchor."""
         return self._anchor
 
     def set_horizontal(self, h):
@@ -153,7 +153,7 @@ class Divider:
         self._horizontal = h
 
     def get_horizontal(self):
-        "return horizontal sizes"
+        """Return horizontal sizes."""
         return self._horizontal
 
     def set_vertical(self, v):
@@ -166,7 +166,7 @@ class Divider:
         self._vertical = v
 
     def get_vertical(self):
-        "return vertical sizes"
+        """Return vertical sizes."""
         return self._vertical
 
     def set_aspect(self, aspect=False):
@@ -178,7 +178,7 @@ class Divider:
         self._aspect = aspect
 
     def get_aspect(self):
-        "return aspect"
+        """Return aspect."""
         return self._aspect
 
     def set_locator(self, _locator):
@@ -369,7 +369,7 @@ class SubplotDivider(Divider):
                          aspect=aspect, anchor=anchor)
 
     def get_position(self):
-        "return the bounds of the subplot box"
+        """Return the bounds of the subplot box."""
         self.update_params()  # update self.figbox
         return self.figbox.bounds
 

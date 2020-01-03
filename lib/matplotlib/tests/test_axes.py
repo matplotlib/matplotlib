@@ -3612,9 +3612,6 @@ def test_alpha():
 
 @image_comparison(['eventplot', 'eventplot'], remove_text=True)
 def test_eventplot():
-    '''
-    test that eventplot produces the correct output
-    '''
     np.random.seed(0)
 
     data1 = np.random.random([32, 20]).tolist()
@@ -3659,10 +3656,10 @@ def test_eventplot():
 
 @image_comparison(['test_eventplot_defaults.png'], remove_text=True)
 def test_eventplot_defaults():
-    '''
+    """
     test that eventplot produces the correct output given the default params
     (see bug #3728)
-    '''
+    """
     np.random.seed(0)
 
     data1 = np.random.random([32, 20]).tolist()
@@ -3680,8 +3677,8 @@ def test_eventplot_defaults():
     ('red', (0, 1, 0), None, (1, 0, 1, 0.5)),  # a tricky case mixing types
 ])
 def test_eventplot_colors(colors):
-    '''Test the *colors* parameter of eventplot. Inspired by the issue #8193.
-    '''
+    """Test the *colors* parameter of eventplot. Inspired by the issue #8193.
+    """
     data = [[i] for i in range(4)]  # 4 successive events of different nature
 
     # Build the list of the expected colors
@@ -3703,11 +3700,11 @@ def test_eventplot_colors(colors):
 
 @image_comparison(['test_eventplot_problem_kwargs.png'], remove_text=True)
 def test_eventplot_problem_kwargs(recwarn):
-    '''
+    """
     test that 'singular' versions of LineCollection props raise an
     IgnoredKeywordWarning rather than overriding the 'plural' versions (e.g.
     to prevent 'color' from overriding 'colors', see issue #4297)
-    '''
+    """
     np.random.seed(0)
 
     data1 = np.random.random([20]).tolist()
@@ -3975,7 +3972,7 @@ def test_subplot_key_hash():
 @image_comparison(['specgram_freqs.png', 'specgram_freqs_linear.png'],
                   remove_text=True, tol=0.07, style='default')
 def test_specgram_freqs():
-    '''test axes.specgram in default (psd) mode with sinusoidal stimuli'''
+    """test axes.specgram in default (psd) mode with sinusoidal stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4031,7 +4028,7 @@ def test_specgram_freqs():
 @image_comparison(['specgram_noise.png', 'specgram_noise_linear.png'],
                   remove_text=True, tol=0.01, style='default')
 def test_specgram_noise():
-    '''test axes.specgram in default (psd) mode with noise stimuli'''
+    """test axes.specgram in default (psd) mode with noise stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4082,7 +4079,7 @@ def test_specgram_noise():
                    'specgram_magnitude_freqs_linear.png'],
                   remove_text=True, tol=0.07, style='default')
 def test_specgram_magnitude_freqs():
-    '''test axes.specgram in magnitude mode with sinusoidal stimuli'''
+    """test axes.specgram in magnitude mode with sinusoidal stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4141,7 +4138,7 @@ def test_specgram_magnitude_freqs():
                    'specgram_magnitude_noise_linear.png'],
                   remove_text=True, style='default')
 def test_specgram_magnitude_noise():
-    '''test axes.specgram in magnitude mode with noise stimuli'''
+    """test axes.specgram in magnitude mode with noise stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4191,7 +4188,7 @@ def test_specgram_magnitude_noise():
 @image_comparison(['specgram_angle_freqs.png'],
                   remove_text=True, tol=0.007, style='default')
 def test_specgram_angle_freqs():
-    '''test axes.specgram in angle mode with sinusoidal stimuli'''
+    """test axes.specgram in angle mode with sinusoidal stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4249,7 +4246,7 @@ def test_specgram_angle_freqs():
 @image_comparison(['specgram_angle_noise.png'],
                   remove_text=True, style='default')
 def test_specgram_noise_angle():
-    '''test axes.specgram in angle mode with noise stimuli'''
+    """test axes.specgram in angle mode with noise stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4299,7 +4296,7 @@ def test_specgram_noise_angle():
 @image_comparison(['specgram_phase_freqs.png'],
                   remove_text=True, style='default')
 def test_specgram_freqs_phase():
-    '''test axes.specgram in phase mode with sinusoidal stimuli'''
+    """test axes.specgram in phase mode with sinusoidal stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4356,7 +4353,7 @@ def test_specgram_freqs_phase():
 @image_comparison(['specgram_phase_noise.png'],
                   remove_text=True, style='default')
 def test_specgram_noise_phase():
-    '''test axes.specgram in phase mode with noise stimuli'''
+    """test axes.specgram in phase mode with noise stimuli"""
 
     # use former defaults to match existing baseline image
     matplotlib.rcParams['image.interpolation'] = 'nearest'
@@ -4404,7 +4401,7 @@ def test_specgram_noise_phase():
 
 @image_comparison(['psd_freqs.png'], remove_text=True)
 def test_psd_freqs():
-    '''test axes.psd with sinusoidal stimuli'''
+    """test axes.psd with sinusoidal stimuli"""
     n = 10000
     Fs = 100.
 
@@ -4448,7 +4445,7 @@ def test_psd_freqs():
 
 @image_comparison(['psd_noise.png'], remove_text=True)
 def test_psd_noise():
-    '''test axes.psd with noise stimuli'''
+    """test axes.psd with noise stimuli"""
     np.random.seed(0)
 
     n = 10000
@@ -4486,7 +4483,7 @@ def test_psd_noise():
 
 @image_comparison(['csd_freqs.png'], remove_text=True, tol=0.002)
 def test_csd_freqs():
-    '''test axes.csd with sinusoidal stimuli'''
+    """test axes.csd with sinusoidal stimuli"""
     n = 10000
     Fs = 100.
 
@@ -4529,7 +4526,7 @@ def test_csd_freqs():
 
 @image_comparison(['csd_noise.png'], remove_text=True)
 def test_csd_noise():
-    '''test axes.csd with noise stimuli'''
+    """test axes.csd with noise stimuli"""
     np.random.seed(0)
 
     n = 10000
@@ -4568,7 +4565,7 @@ def test_csd_noise():
                    'magnitude_spectrum_freqs_dB.png'],
                   remove_text=True)
 def test_magnitude_spectrum_freqs():
-    '''test axes.magnitude_spectrum with sinusoidal stimuli'''
+    """test axes.magnitude_spectrum with sinusoidal stimuli"""
     n = 10000
     Fs = 100.
 
@@ -4631,7 +4628,7 @@ def test_magnitude_spectrum_freqs():
                    'magnitude_spectrum_noise_dB.png'],
                   remove_text=True)
 def test_magnitude_spectrum_noise():
-    '''test axes.magnitude_spectrum with noise stimuli'''
+    """test axes.magnitude_spectrum with noise stimuli"""
     np.random.seed(0)
 
     n = 10000
@@ -4689,7 +4686,7 @@ def test_magnitude_spectrum_noise():
 
 @image_comparison(['angle_spectrum_freqs.png'], remove_text=True)
 def test_angle_spectrum_freqs():
-    '''test axes.angle_spectrum with sinusoidal stimuli'''
+    """test axes.angle_spectrum with sinusoidal stimuli"""
     n = 10000
     Fs = 100.
 
@@ -4727,7 +4724,7 @@ def test_angle_spectrum_freqs():
 
 @image_comparison(['angle_spectrum_noise.png'], remove_text=True)
 def test_angle_spectrum_noise():
-    '''test axes.angle_spectrum with noise stimuli'''
+    """test axes.angle_spectrum with noise stimuli"""
     np.random.seed(0)
 
     n = 10000
@@ -4762,7 +4759,7 @@ def test_angle_spectrum_noise():
 
 @image_comparison(['phase_spectrum_freqs.png'], remove_text=True)
 def test_phase_spectrum_freqs():
-    '''test axes.phase_spectrum with sinusoidal stimuli'''
+    """test axes.phase_spectrum with sinusoidal stimuli"""
     n = 10000
     Fs = 100.
 
@@ -4800,7 +4797,7 @@ def test_phase_spectrum_freqs():
 
 @image_comparison(['phase_spectrum_noise.png'], remove_text=True)
 def test_phase_spectrum_noise():
-    '''test axes.phase_spectrum with noise stimuli'''
+    """test axes.phase_spectrum with noise stimuli"""
     np.random.seed(0)
 
     n = 10000
@@ -6255,7 +6252,7 @@ def test_markerfacecolor_none_alpha(fig_test, fig_ref):
 
 
 def test_tick_padding_tightbbox():
-    "Test that tick padding gets turned off if axis is off"
+    """Test that tick padding gets turned off if axis is off"""
     plt.rcParams["xtick.direction"] = "out"
     plt.rcParams["ytick.direction"] = "out"
     fig, ax = plt.subplots()

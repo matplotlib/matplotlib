@@ -960,16 +960,16 @@ class Bbox(BboxBase):
             self.invalidate()
 
     def mutated(self):
-        'Return whether the bbox has changed since init.'
+        """Return whether the bbox has changed since init."""
         return self.mutatedx() or self.mutatedy()
 
     def mutatedx(self):
-        'Return whether the x-limits have changed since init.'
+        """Return whether the x-limits have changed since init."""
         return (self._points[0, 0] != self._points_orig[0, 0] or
                 self._points[1, 0] != self._points_orig[1, 0])
 
     def mutatedy(self):
-        'Return whether the y-limits have changed since init.'
+        """Return whether the y-limits have changed since init."""
         return (self._points[0, 1] != self._points_orig[0, 1] or
                 self._points[1, 1] != self._points_orig[1, 1])
 

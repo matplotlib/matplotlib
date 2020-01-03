@@ -23,9 +23,11 @@ class TestStride:
         return y
 
     def calc_window_target(self, x, NFFT, noverlap=0, axis=0):
-        '''This is an adaptation of the original window extraction
-        algorithm.  This is here to test to make sure the new implementation
-        has the same result'''
+        """
+        This is an adaptation of the original window extraction algorithm.
+        This is here to test to make sure the new implementation has the same
+        result.
+        """
         step = NFFT - noverlap
         ind = np.arange(0, len(x) - NFFT + 1, step)
         n = len(ind)
@@ -198,9 +200,11 @@ class TestWindow:
         self.sig_ones = np.ones(n)
 
     def check_window_apply_repeat(self, x, window, NFFT, noverlap):
-        '''This is an adaptation of the original window application
-        algorithm.  This is here to test to make sure the new implementation
-        has the same result'''
+        """
+        This is an adaptation of the original window application algorithm.
+        This is here to test to make sure the new implementation has the same
+        result.
+        """
         step = NFFT - noverlap
         ind = np.arange(0, len(x) - NFFT + 1, step)
         n = len(ind)
@@ -1644,8 +1648,10 @@ class TestSpectral:
         assert_array_equal(freqsxx, freqsxy)
 
     def test_specgram_auto_default_equal(self):
-        '''test that mlab.specgram without mode and with mode 'default' and
-        'psd' are all the same'''
+        """
+        Test that mlab.specgram without mode and with mode 'default' and 'psd'
+        are all the same.
+        """
         speca, freqspeca, ta = mlab.specgram(x=self.y,
                                              NFFT=self.NFFT_specgram,
                                              Fs=self.Fs,
@@ -1664,8 +1670,10 @@ class TestSpectral:
         assert_array_equal(ta, tb)
 
     def test_specgram_auto_psd_equal(self):
-        '''test that mlab.specgram without mode and with mode 'default' and
-        'psd' are all the same'''
+        """
+        Test that mlab.specgram without mode and with mode 'default' and 'psd'
+        are all the same.
+        """
         speca, freqspeca, ta = mlab.specgram(x=self.y,
                                              NFFT=self.NFFT_specgram,
                                              Fs=self.Fs,

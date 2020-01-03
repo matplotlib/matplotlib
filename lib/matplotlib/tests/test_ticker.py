@@ -792,7 +792,7 @@ class TestLogFormatter:
         assert label == expected
 
     def _sub_labels(self, axis, subs=()):
-        "Test whether locator marks subs to be labeled"
+        """Test whether locator marks subs to be labeled."""
         fmt = axis.get_minor_formatter()
         minor_tlocs = axis.get_minorticklocs()
         fmt.set_locs(minor_tlocs)

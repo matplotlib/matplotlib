@@ -713,25 +713,20 @@ class DrawingArea(OffsetBox):
         return self._offset
 
     def get_window_extent(self, renderer):
-        '''
-        get the bounding box in display space.
-        '''
+        """Return the bounding box in display space."""
         w, h, xd, yd = self.get_extent(renderer)
         ox, oy = self.get_offset()  # w, h, xd, yd)
 
         return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
 
     def get_extent(self, renderer):
-        """
-        Return with, height, xdescent, ydescent of box
-        """
-
+        """Return width, height, xdescent, ydescent of box."""
         dpi_cor = renderer.points_to_pixels(1.)
         return (self.width * dpi_cor, self.height * dpi_cor,
                 self.xdescent * dpi_cor, self.ydescent * dpi_cor)
 
     def add_artist(self, a):
-        'Add any :class:`~matplotlib.artist.Artist` to the container box'
+        """Add an `.Artist` to the container box."""
         self._children.append(a)
         if not a.is_transform_set():
             a.set_transform(self.get_transform())
@@ -808,12 +803,12 @@ class TextArea(OffsetBox):
         self._minimumdescent = minimumdescent
 
     def set_text(self, s):
-        "Set the text of this area as a string."
+        """Set the text of this area as a string."""
         self._text.set_text(s)
         self.stale = True
 
     def get_text(self):
-        "Returns the string representation of this area's text"
+        """Return the string representation of this area's text."""
         return self._text.get_text()
 
     def set_multilinebaseline(self, t):
@@ -874,9 +869,7 @@ class TextArea(OffsetBox):
         return self._offset
 
     def get_window_extent(self, renderer):
-        '''
-        get the bounding box in display space.
-        '''
+        """Return the bounding box in display space."""
         w, h, xd, yd = self.get_extent(renderer)
         ox, oy = self.get_offset()  # w, h, xd, yd)
         return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
@@ -940,7 +933,7 @@ class AuxTransformBox(OffsetBox):
         self.ref_offset_transform = mtransforms.Affine2D()
 
     def add_artist(self, a):
-        'Add any :class:`~matplotlib.artist.Artist` to the container box'
+        """Add an `.Artist` to the container box."""
         self._children.append(a)
         a.set_transform(self.get_transform())
         self.stale = True
@@ -980,9 +973,7 @@ class AuxTransformBox(OffsetBox):
         return self._offset
 
     def get_window_extent(self, renderer):
-        '''
-        get the bounding box in display space.
-        '''
+        """Return the bounding box in display space."""
         w, h, xd, yd = self.get_extent(renderer)
         ox, oy = self.get_offset()  # w, h, xd, yd)
         return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
@@ -1101,18 +1092,18 @@ class AnchoredOffsetbox(OffsetBox):
         self._drawFrame = frameon
 
     def set_child(self, child):
-        "set the child to be anchored"
+        """Set the child to be anchored."""
         self._child = child
         if child is not None:
             child.axes = self.axes
         self.stale = True
 
     def get_child(self):
-        "return the child"
+        """Return the child."""
         return self._child
 
     def get_children(self):
-        "return the list of children"
+        """Return the list of children."""
         return [self._child]
 
     def get_extent(self, renderer):
@@ -1166,9 +1157,7 @@ class AnchoredOffsetbox(OffsetBox):
         self.stale = True
 
     def get_window_extent(self, renderer):
-        '''
-        get the bounding box in display space.
-        '''
+        """Return the bounding box in display space."""
         self._update_offset_func(renderer)
         w, h, xd, yd = self.get_extent(renderer)
         ox, oy = self.get_offset(w, h, xd, yd, renderer)
@@ -1378,9 +1367,7 @@ class OffsetImage(OffsetBox):
         return [self.image]
 
     def get_window_extent(self, renderer):
-        '''
-        get the bounding box in display space.
-        '''
+        """Return the bounding box in display space."""
         w, h, xd, yd = self.get_extent(renderer)
         ox, oy = self.get_offset()
         return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)

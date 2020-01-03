@@ -562,7 +562,7 @@ class Legend(Artist):
     _loc = property(_get_loc, _set_loc)
 
     def _findoffset(self, width, height, xdescent, ydescent, renderer):
-        "Helper function to locate the legend."
+        """Helper function to locate the legend."""
 
         if self._loc == 0:  # "best".
             x, y = self._find_best_position(width, height, renderer)
@@ -878,13 +878,13 @@ class Legend(Artist):
         return [vertices, bboxes, lines, offsets]
 
     def draw_frame(self, b):
-        '''
-        Set draw frame to b.
+        """
+        Set whether to draw a frame around the legend box.
 
         Parameters
         ----------
         b : bool
-        '''
+        """
         self.set_frame_on(b)
 
     def get_children(self):

@@ -445,7 +445,7 @@ class FigureManagerGTK3(FigureManagerBase):
         self.window.set_title(title)
 
     def resize(self, width, height):
-        'set the canvas size in pixels'
+        """Set the canvas size in pixels."""
         #_, _, cw, ch = self.canvas.allocation
         #_, _, ww, wh = self.window.allocation
         #self.window.resize (width-cw+ww, height-ch+wh)

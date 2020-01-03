@@ -16,9 +16,7 @@ from matplotlib.testing.decorators import image_comparison
 
 
 def generate_EventCollection_plot():
-    '''
-    generate the initial collection and plot it
-    '''
+    """Generate the initial collection and plot it."""
     positions = np.array([0., 1., 2., 3., 5., 8., 13., 21.])
     extra_positions = np.array([34., 55., 89.])
     orientation = 'horizontal'

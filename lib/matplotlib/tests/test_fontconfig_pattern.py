@@ -12,7 +12,7 @@ keys = [
 
 
 def test_fontconfig_pattern():
-    "Test converting a FontProperties to string then back."
+    """Test converting a FontProperties to string then back."""
 
     # Defaults
     test = "defaults "
@@ -45,7 +45,7 @@ def test_fontconfig_pattern():
 
 
 def test_fontconfig_str():
-    "Test FontProperties string conversions for correctness"
+    """Test FontProperties string conversions for correctness."""
 
     # Known good strings taken from actual font config specs on a linux box
     # and modified for MPL defaults.

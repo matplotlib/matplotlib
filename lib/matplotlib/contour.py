@@ -194,12 +194,12 @@ class ContourLabeler:
         return self.labelTextsList
 
     def print_label(self, linecontour, labelwidth):
-        "Return *False* if contours are too short for a label."
+        """Return *False* if contours are too short for a label."""
         return (len(linecontour) > 10 * labelwidth
                 or (np.ptp(linecontour, axis=0) > 1.2 * labelwidth).any())
 
     def too_close(self, x, y, lw):
-        "Return *True* if a label is already near this location."
+        """Return *True* if a label is already near this location."""
         thresh = (1.2 * lw) ** 2
         return any((x - loc[0]) ** 2 + (y - loc[1]) ** 2 < thresh
                    for loc in self.labelXYs)

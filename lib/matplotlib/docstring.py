@@ -91,13 +91,13 @@ class Appender:
 
 @cbook.deprecated("3.1", alternative="inspect.getdoc()")
 def dedent(func):
-    "Dedent a docstring (if present)"
+    """Dedent a docstring (if present)."""
     func.__doc__ = func.__doc__ and cbook.dedent(func.__doc__)
     return func
 
 
 def copy(source):
-    "Copy a docstring from another source function (if present)"
+    """Copy a docstring from another source function (if present)."""
     def do_copy(target):
         if source.__doc__:
             target.__doc__ = source.__doc__

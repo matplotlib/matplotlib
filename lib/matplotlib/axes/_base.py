@@ -561,7 +561,7 @@ class _AxesBase(martist.Artist):
         return self.bbox
 
     def _init_axis(self):
-        "move this out of __init__ because non-separable axes don't use it"
+        # This is moved out of __init__ because non-separable axes don't use it
         self.xaxis = maxis.XAxis(self)
         self.spines['bottom'].register_axis(self.xaxis)
         self.spines['top'].register_axis(self.xaxis)

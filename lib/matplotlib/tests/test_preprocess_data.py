@@ -93,7 +93,7 @@ def test_function_call_with_dict_data(func):
 
 @pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
 def test_function_call_with_dict_data_not_in_data(func):
-    "test for the case that one var is not in data -> half replaces, half kept"
+    """test the case that one var is not in data -> half replaces, half kept"""
     data = {"a": [1, 2], "w": "NOT"}
     assert (func(None, "a", "b", data=data) ==
             "x: [1, 2], y: ['b'], ls: x, w: xyz, label: b")
