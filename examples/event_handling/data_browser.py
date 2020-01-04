@@ -27,7 +27,7 @@ class PointBrowser:
         self.selected, = ax.plot([xs[0]], [ys[0]], 'o', ms=12, alpha=0.4,
                                  color='yellow', visible=False)
 
-    def onpress(self, event):
+    def on_press(self, event):
         if self.lastind is None:
             return
         if event.key not in ('n', 'p'):
@@ -41,7 +41,7 @@ class PointBrowser:
         self.lastind = np.clip(self.lastind, 0, len(xs) - 1)
         self.update()
 
-    def onpick(self, event):
+    def on_pick(self, event):
 
         if event.artist != line:
             return True
@@ -95,7 +95,7 @@ if __name__ == '__main__':
 
     browser = PointBrowser()
 
-    fig.canvas.mpl_connect('pick_event', browser.onpick)
-    fig.canvas.mpl_connect('key_press_event', browser.onpress)
+    fig.canvas.mpl_connect('pick_event', browser.on_pick)
+    fig.canvas.mpl_connect('key_press_event', browser.on_press)
 
     plt.show()

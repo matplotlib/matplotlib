@@ -31,7 +31,7 @@ axsrc.scatter(x, y, s, c)
 axzoom.scatter(x, y, s, c)
 
 
-def onpress(event):
+def on_press(event):
     if event.button != 1:
         return
     x, y = event.xdata, event.ydata
@@ -39,5 +39,5 @@ def onpress(event):
     axzoom.set_ylim(y - 0.1, y + 0.1)
     figzoom.canvas.draw()
 
-figsrc.canvas.mpl_connect('button_press_event', onpress)
+figsrc.canvas.mpl_connect('button_press_event', on_press)
 plt.show()

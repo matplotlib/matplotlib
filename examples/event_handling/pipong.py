@@ -179,7 +179,7 @@ class Game:
                                   multialignment='left',
                                   textcoords='axes fraction',
                                   animated=False)
-        self.canvas.mpl_connect('key_press_event', self.key_press)
+        self.canvas.mpl_connect('key_press_event', self.on_key_press)
 
     def draw(self, evt):
         draw_artist = self.ax.draw_artist
@@ -237,7 +237,7 @@ class Game:
         self.cnt += 1
         return True
 
-    def key_press(self, event):
+    def on_key_press(self, event):
         if event.key == '3':
             self.res *= 5.0
         if event.key == '4':
