@@ -675,7 +675,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
     """
     Store a set of contour lines or filled regions.
 
-    User-callable method: `~.axes.Axes.clabel`
+    User-callable method: `~.Axes.clabel`
 
     Parameters
     ----------
@@ -709,7 +709,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     **kwargs
         Keyword arguments are as described in the docstring of
-        `~.axes.Axes.contour`.
+        `~.Axes.contour`.
 
     Attributes
     ----------
@@ -775,7 +775,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         **kwargs
             Keyword arguments are as described in the docstring of
-            `~axes.Axes.contour`.
+            `~.Axes.contour`.
         """
         self.ax = ax
         self.levels = levels
@@ -1375,7 +1375,7 @@ class QuadContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions.
 
-    User-callable method: `~axes.Axes.clabel`
+    User-callable method: `~.Axes.clabel`
 
     Attributes
     ----------

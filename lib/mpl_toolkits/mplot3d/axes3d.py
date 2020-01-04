@@ -2633,7 +2633,7 @@ pivot='tail', normalize=False, **kwargs)
         x, y, z : 3D np.array, optional
             The coordinates of the corners of the voxels. This should broadcast
             to a shape one larger in every dimension than the shape of
-            `filled`.  These can be used to plot non-cubic voxels.
+            *filled*.  These can be used to plot non-cubic voxels.
 
             If not specified, defaults to increasing integers along each axis,
             like those returned by :func:`~numpy.indices`.

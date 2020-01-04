@@ -160,7 +160,7 @@ def tricontour(ax, *args, **kwargs):
     Use keyword args to control colors, linewidth, origin, cmap ... see
     below for more details.
 
-    `.tricontour(...)` returns a `~matplotlib.contour.TriContourSet` object.
+    `~.Axes.tricontour` returns a `~matplotlib.contour.TriContourSet` object.
 
     Optional keyword arguments:
 

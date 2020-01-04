@@ -1747,8 +1747,8 @@ class LightSource:
         cmap : `~matplotlib.colors.Colormap`
             The colormap used to color the *data* array. Note that this must be
             a `~matplotlib.colors.Colormap` instance.  For example, rather than
-            passing in `cmap='gist_earth'`, use
-            `cmap=plt.get_cmap('gist_earth')` instead.
+            passing in ``cmap='gist_earth'``, use
+            ``cmap=plt.get_cmap('gist_earth')`` instead.
         norm : `~matplotlib.colors.Normalize` instance, optional
             The normalization used to scale values before colormapping. If
             None, the input will be linearly scaled between its min and max.
@@ -1760,7 +1760,7 @@ class LightSource:
             user-defined function is supplied, it is expected to
             combine an MxNx3 RGB array of floats (ranging 0 to 1) with
             an MxNx1 hillshade array (also 0 to 1).  (Call signature
-            `func(rgb, illum, **kwargs)`) Additional kwargs supplied
+            ``func(rgb, illum, **kwargs)``) Additional kwargs supplied
             to this function will be passed on to the *blend_mode*
             function.
         vmin : scalar or None, optional
@@ -1834,7 +1834,8 @@ class LightSource:
             "overlay" or "soft" appear more visually realistic. If a
             user-defined function is supplied, it is expected to combine an
             MxNx3 RGB array of floats (ranging 0 to 1) with an MxNx1 hillshade
-            array (also 0 to 1).  (Call signature `func(rgb, illum, **kwargs)`)
+            array (also 0 to 1).  (Call signature
+            ``func(rgb, illum, **kwargs)``)
             Additional kwargs supplied to this function will be passed on to
             the *blend_mode* function.
         vert_exag : number, optional

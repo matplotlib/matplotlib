@@ -72,7 +72,7 @@ The ``plot`` directive supports the following options:
 
 Additionally, this directive supports all of the options of the `image`
 directive, except for *target* (since plot will add its own target).  These
-include `alt`, `height`, `width`, `scale`, `align` and `class`.
+include *alt*, *height*, *width*, *scale*, *align* and *class*.
 
 Configuration options
 ---------------------

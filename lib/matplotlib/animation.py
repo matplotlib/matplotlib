@@ -229,8 +229,8 @@ class AbstractMovieWriter(abc.ABC):
         """
         Grab the image information from the figure and save as a movie frame.
 
-        All keyword arguments in savefig_kwargs are passed on to the `savefig`
-        command that saves the figure.
+        All keyword arguments in *savefig_kwargs* are passed on to the
+        `~.Figure.savefig` command that saves the figure.
         """
 
     @abc.abstractmethod
@@ -374,12 +374,7 @@ class MovieWriter(AbstractMovieWriter):
         self.cleanup()
 
     def grab_frame(self, **savefig_kwargs):
-        """
-        Grab the image information from the figure and save as a movie frame.
-
-        All keyword arguments in savefig_kwargs are passed on to the `savefig`
-        command that saves the figure.
-        """
+        # docstring inherited
         _log.debug('MovieWriter.grab_frame: Grabbing frame.')
         # re-adjust the figure size in case it has been changed by the
         # user.  We must ensure that every frame is the same size or
@@ -522,11 +517,7 @@ class FileMovieWriter(MovieWriter):
         return open(path, 'wb')
 
     def grab_frame(self, **savefig_kwargs):
-        """
-        Grab the image information from the figure and save as a movie frame.
-        All keyword arguments in savefig_kwargs are passed on to the `savefig`
-        command that saves the figure.
-        """
+        # docstring inherited
         # Overloaded to explicitly close temp file.
         _log.debug('MovieWriter.grab_frame: Grabbing frame.')
         # Tell the figure to save its data to the sink, using the
@@ -1030,7 +1021,7 @@ class Animation:
 
         savefig_kwargs : dict, optional
            Is a dictionary containing keyword arguments to be passed
-           on to the `savefig` command which is called repeatedly to
+           on to the `~.Figure.savefig` command which is called repeatedly to
            save the individual frames.
 
         progress_callback : function, optional
@@ -1477,7 +1468,7 @@ class TimedAnimation(Animation):
 
 class ArtistAnimation(TimedAnimation):
     """
-    Animation using a fixed set of `Artist` objects.
+    Animation using a fixed set of `.Artist` objects.
 
     Before creating an instance, all plotting should have taken place
     and the relevant artists saved.

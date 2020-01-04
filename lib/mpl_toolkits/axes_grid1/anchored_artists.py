@@ -444,8 +444,7 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
 
         text_props, arrow_props : dict
             Properties of the text and arrows, passed to
-            :class:`matplotlib.text.TextPath` and
-            `matplotlib.patches.FancyArrowPatch`
+            `.textpath.TextPath` and `.patches.FancyArrowPatch`.
 
         **kwargs
             Keyworded arguments to pass to
@@ -456,7 +455,7 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
         arrow_x, arrow_y : `matplotlib.patches.FancyArrowPatch`
             Arrow x and y
 
-        text_path_x, text_path_y : `matplotlib.text.TextPath`
+        text_path_x, text_path_y : `matplotlib.textpath.TextPath`
             Path for arrow labels
 
         p_x, p_y : `matplotlib.patches.PathPatch`

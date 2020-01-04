@@ -17,7 +17,7 @@ A new method to automatically decide spacing between subplots and their
 organizing ``GridSpec`` instances has been added.  It is meant to
 replace the venerable ``tight_layout`` method.  It is invoked via
 a new ``constrained_layout=True`` kwarg to
-`~.figure.Figure` or `~.figure.subplots`.
+`~.figure.Figure` or `~.Figure.subplots`.
 
 There are new ``rcParams`` for this package, and spacing can be
 more finely tuned with the new `~.set_constrained_layout_pads`.
@@ -27,7 +27,7 @@ Features include:
   - Automatic spacing for subplots with a fixed-size padding in inches around
     subplots and all their decorators, and space between as a fraction
     of subplot size between subplots.
-  - Spacing for `~.figure.suptitle`, and colorbars that are attached to
+  - Spacing for `~.Figure.suptitle`, and colorbars that are attached to
     more than one axes.
   - Nested `~.GridSpec` layouts using `~.GridSpecFromSubplotSpec`.
 
@@ -46,7 +46,7 @@ constrained_layout.
 New ``ax.set_position`` behaviour
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:meth:`~matplotlib.axes.set_position` now makes the specified axis no
+`.Axes.set_position` now makes the specified axis no
 longer responsive to ``constrained_layout``, consistent with the idea that the
 user wants to place an axis manually.
 
@@ -155,7 +155,7 @@ Support for numpy.datetime64
 Matplotlib has supported `datetime.datetime` dates for a long time in
 `matplotlib.dates`.  We
 now support `numpy.datetime64` dates as well.  Anywhere that
-`dateime.datetime` could be used, `numpy.datetime64` can be used.  eg::
+`datetime.datetime` could be used, `numpy.datetime64` can be used.  eg::
 
   time = np.arange('2005-02-01', '2005-02-02', dtype='datetime64[h]')
   plt.plot(time)
@@ -248,19 +248,19 @@ and 'grid_linestyle' for overriding the defaults in `rcParams`:
 'grid.color', etc.
 
 
-`Axes.imshow` clips RGB values to the valid range
--------------------------------------------------
+`.Axes.imshow` clips RGB values to the valid range
+--------------------------------------------------
 
-When `Axes.imshow` is passed an RGB or RGBA value with out-of-range
+When `.Axes.imshow` is passed an RGB or RGBA value with out-of-range
 values, it now logs a warning and clips them to the valid range.
 The old behaviour, wrapping back in to the range, often hid outliers
 and made interpreting RGB images unreliable.
 
 
-Properties in `matplotlibrc` to place xaxis and yaxis tick labels
------------------------------------------------------------------
+Properties in :file:`matplotlibrc` to place xaxis and yaxis tick labels
+-----------------------------------------------------------------------
 
-Introducing four new boolean properties in :file:`.matplotlibrc` for default
+Introducing four new boolean properties in :file:`matplotlibrc` for default
 positions of xaxis and yaxis tick labels, namely,
 :rc:`xtick.labeltop`, :rc:`xtick.labelbottom`, :rc:`ytick.labelright` and
 :rc:`ytick.labelleft`. These can also be changed in rcParams.
@@ -314,7 +314,7 @@ For example
 
 Treat the new Tool classes experimental for now, the API will likely change and perhaps the rcParam as well
 
-The main example `examples/user_interfaces/toolmanager_sgskip.py` shows more
+The main example :doc:`/gallery/user_interfaces/toolmanager_sgskip` shows more
 details, just adjust the header to use QT instead of GTK3
 
 
