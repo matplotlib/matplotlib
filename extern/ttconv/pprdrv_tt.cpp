@@ -24,7 +24,6 @@
 ** Last revised 19 December 1995.
 */
 
-#include "global_defines.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -130,7 +129,7 @@ BYTE *GetTable(struct TTFONT *font, const char *name)
     /* We must search the table directory. */
     ptr = font->offset_table + 12;
     x=0;
-    while (TRUE)
+    while (true)
     {
         if ( strncmp((const char*)ptr,name,4) == 0 )
         {
@@ -559,7 +558,7 @@ void ttfont_FontInfo(TTStreamWriter& stream, struct TTFONT *font)
 -------------------------------------------------------------------*/
 int string_len;
 int line_len;
-int in_string;
+bool in_string;
 
 /*
 ** This is called once at the start.
@@ -567,7 +566,7 @@ int in_string;
 void sfnts_start(TTStreamWriter& stream)
 {
     stream.puts("/sfnts[<");
-    in_string=TRUE;
+    in_string=true;
     string_len=0;
     line_len=8;
 } /* end of sfnts_start() */
@@ -584,7 +583,7 @@ void sfnts_pputBYTE(TTStreamWriter& stream, BYTE n)
         stream.put_char('<');
         string_len=0;
         line_len++;
-        in_string=TRUE;
+        in_string=true;
     }
 
     stream.put_char( hexdigits[ n / 16 ] );
@@ -650,7 +649,7 @@ void sfnts_end_string(TTStreamWriter& stream)
         stream.put_char('>');
         line_len++;
     }
-    in_string=FALSE;
+    in_string=false;
 } /* end of sfnts_end_string() */
 
 /*

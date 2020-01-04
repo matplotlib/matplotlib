@@ -32,7 +32,6 @@
 ** Last revised 11 July 1995.
 */
 
-#include "global_defines.h"
 #include <cstdlib>
 #include <cmath>
 #include <cstring>

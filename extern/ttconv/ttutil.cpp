@@ -9,7 +9,6 @@
 /* Very simple interface to the ppr TT routines */
 /* (c) Frank Siegert 1996 */
 
-#include "global_defines.h"
 #include <cstdio>
 #include <cstdarg>
 #include <cstdlib>
