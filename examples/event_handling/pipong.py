@@ -181,7 +181,7 @@ class Game:
                                   animated=False)
         self.canvas.mpl_connect('key_press_event', self.key_press)
 
-    def draw(self, evt):
+    def draw(self, event):
         draw_artist = self.ax.draw_artist
         if self.background is None:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)

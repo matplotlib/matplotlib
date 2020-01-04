@@ -72,7 +72,7 @@ class Thumbnail(QtWidgets.QFrame):
         layout.addWidget(self.image)
         self.setLayout(layout)
 
-    def mousePressEvent(self, ev):
+    def mousePressEvent(self, event):
         self.parent.set_large_image(self.index)
 
 

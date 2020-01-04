@@ -78,7 +78,7 @@ class PlotPanel(wx.Panel):
         # unmanaged toolbar in your frame
         return self.toolbar
 
-    def OnWhiz(self, evt):
+    def OnWhiz(self, event):
         self.x += np.pi / 15
         self.y += np.pi / 20
         z = np.sin(self.x) + np.cos(self.y)

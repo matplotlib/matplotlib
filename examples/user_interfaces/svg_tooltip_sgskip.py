@@ -63,7 +63,7 @@ plt.savefig(f, format="svg")
 
 # Create XML tree from the SVG file.
 tree, xmlid = ET.XMLID(f.getvalue())
-tree.set('onload', 'init(evt)')
+tree.set('onload', 'init(event)')
 
 for i in shapes:
     # Get the index of the shape
@@ -81,9 +81,9 @@ script = """
     <script type="text/ecmascript">
     <![CDATA[
 
-    function init(evt) {
+    function init(event) {
         if ( window.svgDocument == null ) {
-            svgDocument = evt.target.ownerDocument;
+            svgDocument = event.target.ownerDocument;
             }
         }
 
