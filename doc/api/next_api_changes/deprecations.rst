@@ -110,3 +110,12 @@ them.
 ``args_key`` and ``exec_key`` attributes of builtin `.MovieWriter`\s
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These attributes are deprecated.
+
+Unused parameters
+~~~~~~~~~~~~~~~~~
+The following parameters do not have any effect and are deprecated:
+
+- arbitrary keyword arguments to ``StreamplotSet``
+- parameter *quantize* of `.Path.cleaned()`
+- parameter *s* of `.AnnotationBbox.get_fontsize()`
+- parameter *label* of `.Tick`

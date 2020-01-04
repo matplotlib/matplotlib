@@ -53,7 +53,8 @@ class Tick(martist.Artist):
         The right/top tick label.
 
     """
-    def __init__(self, axes, loc, label,
+    @cbook._delete_parameter("3.3", "label")
+    def __init__(self, axes, loc, label=None,
                  size=None,  # points
                  width=None,
                  color=None,
@@ -1877,7 +1878,7 @@ class XAxis(Axis):
             tick_kw = self._major_tick_kw
         else:
             tick_kw = self._minor_tick_kw
-        return XTick(self.axes, 0, '', major=major, **tick_kw)
+        return XTick(self.axes, 0, major=major, **tick_kw)
 
     def set_label_position(self, position):
         """
@@ -2173,7 +2174,7 @@ class YAxis(Axis):
             tick_kw = self._major_tick_kw
         else:
             tick_kw = self._minor_tick_kw
-        return YTick(self.axes, 0, '', major=major, **tick_kw)
+        return YTick(self.axes, 0, major=major, **tick_kw)
 
     def set_label_position(self, position):
         """

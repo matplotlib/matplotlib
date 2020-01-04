@@ -1524,6 +1524,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         self.prop = FontProperties(size=s)
         self.stale = True
 
+    @cbook._delete_parameter("3.3", "s")
     def get_fontsize(self, s=None):
         """
         return fontsize in points

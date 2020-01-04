@@ -416,6 +416,7 @@ class Path:
                     curr_vertices = np.append(curr_vertices, next(vertices))
             yield curr_vertices, code
 
+    @cbook._delete_parameter("3.3", "quantize")
     def cleaned(self, transform=None, remove_nans=False, clip=None,
                 quantize=False, simplify=False, curves=False,
                 stroke_width=1.0, snap=False, sketch=None):
