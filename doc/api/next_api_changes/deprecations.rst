@@ -120,6 +120,11 @@ The following parameters do not have any effect and are deprecated:
 - parameter *s* of `.AnnotationBbox.get_fontsize()`
 - parameter *label* of `.Tick`
 
+Passing *props* to `.Shadow`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The parameter *props* of `.Shadow` is deprecated. Use keyword arguments
+instead.
+
 ``Axes.update_datalim_bounds``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This method is deprecated.  Use
