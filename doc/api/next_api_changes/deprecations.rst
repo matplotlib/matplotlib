@@ -204,3 +204,10 @@ use e.g. ``ax.set_xscale("log", base=10); ax.set_yscale("log", base=2)``.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This method is deprecated.  If you previously reimplemented it in a subclass,
 set the artist's picker instead with `.Artist.set_picker`.
+
+*clear_temp* parameter and attribute of `.FileMovieWriter`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *clear_temp* parameter and attribute of `.FileMovieWriter` is
+deprecated.  In the future, files placed in a temporary directory (using
+``frame_prefix=None``, the default) will be cleared; files placed elsewhere
+will not.
