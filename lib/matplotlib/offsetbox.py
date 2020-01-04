@@ -2,7 +2,7 @@ r"""
 Container classes for `.Artist`\s.
 
 `OffsetBox`
-    The base of all container artists.
+    The base of all container artists defined in this module.
 
 `AnchoredOffsetbox`, `AnchoredText`
     Anchor and align an arbitrary `.Artist` or a text relative to the parent
@@ -16,11 +16,10 @@ Container classes for `.Artist`\s.
     Containers for layouting their children vertically or horizontally.
 
 `PaddedBox`
-    A container for add a padding around an `.Artist`.
+    A container to add a padding around an `.Artist`.
 
 `TextArea`
     Contains a single `.Text` instance.
-
 """
 
 import numpy as np
@@ -396,8 +395,8 @@ class PackerBase(OffsetBox):
 
         Notes
         -----
-        *pad* and *sep* need to be given in points and will be scaled with
-        the renderer dpi, while *width* and *height* need to be in pixels.
+        *pad* and *sep* are in points and will be scaled with the renderer
+        dpi, while *width* and *height* are in in pixels.
         """
         super().__init__()
 
@@ -449,8 +448,8 @@ class VPacker(PackerBase):
 
         Notes
         -----
-        *pad* and *sep* need to be given in points and will be scaled with
-        the renderer dpi, while *width* and *height* need to be in pixels.
+        *pad* and *sep* are in points and will be scaled with the renderer
+        dpi, while *width* and *height* are in in pixels.
         """
         super().__init__(pad, sep, width, height, align, mode, children)
 
@@ -527,8 +526,8 @@ class HPacker(PackerBase):
 
         Notes
         -----
-        *pad* and *sep* need to be given in points and will be scaled with
-        the renderer dpi, while *width* and *height* need to be in pixels.
+        *pad* and *sep* are in points and will be scaled with the renderer
+        dpi, while *width* and *height* are in in pixels.
         """
         super().__init__(pad, sep, width, height, align, mode, children)
 
@@ -1012,12 +1011,12 @@ class AuxTransformBox(OffsetBox):
 
 class AnchoredOffsetbox(OffsetBox):
     """
-    A container of an `.OffsetBox` placing it according to location *loc*.
+    An offset box placed according to location *loc*.
 
-    AnchoredOffsetbox has a single child. When multiple children
-    is needed, use other OffsetBox class to enclose them.  By default,
-    the offset box is anchored against its parent axes. You may
-    explicitly specify the bbox_to_anchor.
+    AnchoredOffsetbox has a single child.  When multiple children are needed,
+    use an extra OffsetBox to enclose them.  By default, the offset box is
+    anchored against its parent axes. You may explicitly specify the
+    *bbox_to_anchor*.
     """
     zorder = 5  # zorder of the legend
 
@@ -1044,27 +1043,20 @@ class AnchoredOffsetbox(OffsetBox):
         Parameters
         ----------
         loc : str
-            The box location.
+            The box location. Supported values:
 
-            For back-compatibility, ``'center right'`` (but no other location)
-            can also be spelled ``'right'``, and each "string" locations can
-            also be given as a numeric value:
+            - 'upper right'
+            - 'upper left'
+            - 'lower left'
+            - 'lower right'
+            - 'center left'
+            - 'center right'
+            - 'lower center'
+            - 'upper center'
+            - 'center'
 
-            ===============   =============
-            Location String   Location Code
-            ===============   =============
-            'best'            0
-            'upper right'     1
-            'upper left'      2
-            'lower left'      3
-            'lower right'     4
-            'right'           5
-            'center left'     6
-            'center right'    7
-            'lower center'    8
-            'upper center'    9
-            'center'          10
-            ===============   =============
+            For backward compatibility, numeric values are accepted as well.
+             See the parameter *loc* of `.Legend` for details.
 
         pad : float, default: 0.4
             Padding around the child as fraction of the fontsize.
@@ -1279,9 +1271,6 @@ class AnchoredOffsetbox(OffsetBox):
 class AnchoredText(AnchoredOffsetbox):
     """
     AnchoredOffsetbox with Text.
-
-    This is a convenience class. Technically, it is just an `AnchoredOffsetbox`
-    containing a `TextArea`.
     """
 
     def __init__(self, s, loc, pad=0.4, borderpad=0.5, prop=None, **kwargs):
