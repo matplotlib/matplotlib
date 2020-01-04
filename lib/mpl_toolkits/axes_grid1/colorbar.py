@@ -386,7 +386,7 @@ class ColorbarBase(cm.ScalarMappable):
         elif ticks is not None:
             self.cbar_axis.set_major_locator(ticks)
         else:
-            self._select_locator(formatter)
+            self._select_locator()
 
         self._config_axes()
 
@@ -563,7 +563,7 @@ class ColorbarBase(cm.ScalarMappable):
         col.set_color(colors)
         self.ax.add_collection(col)
 
-    def _select_locator(self, formatter):
+    def _select_locator(self):
         """Select a suitable locator."""
         if self.boundaries is None:
             if isinstance(self.norm, colors.NoNorm):

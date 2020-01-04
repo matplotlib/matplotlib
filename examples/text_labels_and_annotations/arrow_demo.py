@@ -110,14 +110,10 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
         return float(np.clip(max_text_size * np.sqrt(data[k]),
                              min_text_size, max_text_size))
 
-    A = plt.text(0, 1, '$A_3$', color='r', size=do_fontsize('A'),
-                 **text_params)
-    T = plt.text(1, 1, '$T_3$', color='k', size=do_fontsize('T'),
-                 **text_params)
-    G = plt.text(0, 0, '$G_3$', color='g', size=do_fontsize('G'),
-                 **text_params)
-    C = plt.text(1, 0, '$C_3$', color='b', size=do_fontsize('C'),
-                 **text_params)
+    plt.text(0, 1, '$A_3$', color='r', size=do_fontsize('A'), **text_params)
+    plt.text(1, 1, '$T_3$', color='k', size=do_fontsize('T'), **text_params)
+    plt.text(0, 0, '$G_3$', color='g', size=do_fontsize('G'), **text_params)
+    plt.text(1, 0, '$C_3$', color='b', size=do_fontsize('C'), **text_params)
 
     arrow_h_offset = 0.25  # data coordinates, empirically determined
     max_arrow_length = 1 - 2 * arrow_h_offset
