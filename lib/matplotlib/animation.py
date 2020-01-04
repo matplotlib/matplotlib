@@ -1184,7 +1184,7 @@ class Animation:
         # Perform any cleaning or whatnot before the drawing of the frame.
         # This default implementation allows blit to clear the frame.
         if blit:
-            self._blit_clear(self._drawn_artists, self._blit_cache)
+            self._blit_clear(self._drawn_artists)
 
     def _draw_frame(self, framedata):
         # Performs actual drawing of the frame.
@@ -1196,53 +1196,53 @@ class Animation:
         # the draw, which can be a direct draw_idle() or make use of the
         # blitting.
         if blit and self._drawn_artists:
-            self._blit_draw(self._drawn_artists, self._blit_cache)
+            self._blit_draw(self._drawn_artists)
         else:
             self._fig.canvas.draw_idle()
 
     # The rest of the code in this class is to facilitate easy blitting
-    def _blit_draw(self, artists, bg_cache):
+    def _blit_draw(self, artists):
         # Handles blitted drawing, which renders only the artists given instead
         # of the entire figure.
-        updated_ax = []
-
+        updated_ax = {a.axes for a in artists}
         # Enumerate artists to cache axes' backgrounds. We do not draw
         # artists yet to not cache foreground from plots with shared axes
-        for a in artists:
-            # If we haven't cached the background for this axes object, do
-            # so now. This might not always be reliable, but it's an attempt
-            # to automate the process.
-            if a.axes not in bg_cache:
-                bg_cache[a.axes] = a.figure.canvas.copy_from_bbox(a.axes.bbox)
-
-        # Make a separate pass to draw foreground
+        for ax in updated_ax:
+            # If we haven't cached the background for the current view of this
+            # axes object, do so now. This might not always be reliable, but
+            # it's an attempt to automate the process.
+            cur_view = ax._get_view()
+            view, bg = self._blit_cache.get(ax, (object(), None))
+            if cur_view != view:
+                self._blit_cache[ax] = (
+                    cur_view, ax.figure.canvas.copy_from_bbox(ax.bbox))
+        # Make a separate pass to draw foreground.
         for a in artists:
             a.axes.draw_artist(a)
-            updated_ax.append(a.axes)
-
         # After rendering all the needed artists, blit each axes individually.
-        for ax in set(updated_ax):
+        for ax in updated_ax:
             ax.figure.canvas.blit(ax.bbox)
 
-    def _blit_clear(self, artists, bg_cache):
+    def _blit_clear(self, artists):
         # Get a list of the axes that need clearing from the artists that
         # have been drawn. Grab the appropriate saved background from the
         # cache and restore.
         axes = {a.axes for a in artists}
-        for a in axes:
-            if a in bg_cache:
-                a.figure.canvas.restore_region(bg_cache[a])
+        for ax in axes:
+            try:
+                view, bg = self._blit_cache[ax]
+            except KeyError:
+                continue
+            if ax._get_view() == view:
+                ax.figure.canvas.restore_region(bg)
+            else:
+                self._blit_cache.pop(ax)
 
     def _setup_blit(self):
         # Setting up the blit requires: a cache of the background for the
         # axes
         self._blit_cache = dict()
         self._drawn_artists = []
-        for ax in self._fig.axes:
-            ax.callbacks.connect('xlim_changed',
-                                 lambda ax: self._blit_cache.pop(ax, None))
-            ax.callbacks.connect('ylim_changed',
-                                 lambda ax: self._blit_cache.pop(ax, None))
         self._resize_id = self._fig.canvas.mpl_connect('resize_event',
                                                        self._handle_resize)
         self._post_draw(None, self._blit)
@@ -1523,7 +1523,7 @@ class ArtistAnimation(TimedAnimation):
         """Clears artists from the last frame."""
         if blit:
             # Let blit handle clearing
-            self._blit_clear(self._drawn_artists, self._blit_cache)
+            self._blit_clear(self._drawn_artists)
         else:
             # Otherwise, make all the artists from the previous frame invisible
             for artist in self._drawn_artists:
