@@ -414,7 +414,7 @@ class Patch(artist.Artist):
 
         Alternatively a dash tuple of the following form can be provided::
 
-            (offset, onoffseq),
+            (offset, onoffseq)
 
         where ``onoffseq`` is an even length tuple of on and off ink in points.
 
