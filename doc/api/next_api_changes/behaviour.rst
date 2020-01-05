@@ -147,3 +147,6 @@ The parameter ``s`` to `.Axes.annotate` and  `.pyplot.annotate` is renamed to
 The old parameter name remains supported, but
 support for it will be dropped in a future Matplotlib release.
 
+`.font_manager.json_dump` now locks the font manager dump file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... to prevent multiple processes from writing to it at the same time.
