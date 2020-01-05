@@ -133,6 +133,8 @@ install:
     python -mpip install --upgrade $PRE -r requirements/testing/travis_all.txt $EXTRAREQS $PINNEDVERS
   - |
     # Install optional dependencies from PyPI.
+    # Sphinx is needed to run sphinxext tests
+    python -mpip install --upgrade sphinx
     # GUI toolkits are pip-installable only for some versions of Python so
     # don't fail if we can't install them.  Make it easier to check whether the
     # install was successful by trying to import the toolkit (sometimes, the

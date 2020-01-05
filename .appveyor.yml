@@ -26,6 +26,7 @@ environment:
     - PYTHON_VERSION: "3.6"
       CONDA_INSTALL_LOCN: "C:\\Miniconda36-x64"
       TEST_ALL: "no"
+      EXTRAREQS: "-r requirements/testing/travis36.txt"
     - PYTHON_VERSION: "3.7"
       CONDA_INSTALL_LOCN: "C:\\Miniconda37-x64"
       TEST_ALL: "no"
@@ -49,22 +50,18 @@ install:
   - set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
   - set PYTHONUNBUFFERED=1
   - conda config --set always_yes true
-  - conda update --all
   - conda config --set show_channel_urls yes
   - conda config --prepend channels conda-forge
-  # this is now the downloaded conda...
-  - activate
-  - conda info -a
 
-  # For building, use a new environment which only includes the requirements for mpl
-  # if conda-forge gets a new pyqt, it might be nice to install it as well to have more backends
-  # https://github.com/conda-forge/conda-forge.github.io/issues/157#issuecomment-223536381
-  - conda create -q -n test-environment python=%PYTHON_VERSION%
-    freetype=2.6 tk=8.5
-    pip setuptools numpy sphinx tornado
+  # For building, use a new environment
+  - conda create -q -n test-environment python=%PYTHON_VERSION% tk
   - activate test-environment
   - echo %PYTHON_VERSION% %TARGET_ARCH%
-  - pip install -r requirements/testing/travis_all.txt -r requirements/testing/travis36.txt
+  # Install dependencies from PyPI.
+  - python -mpip install --upgrade -r requirements/testing/travis_all.txt %EXTRAREQS% %PINNEDVERS%
+  # Install optional dependencies from PyPI.
+  # Sphinx is needed to run sphinxext tests
+  - python -mpip install --upgrade sphinx
 
   # Apply patch to `subprocess` on Python versions > 2 and < 3.6.3
   # https://github.com/matplotlib/matplotlib/issues/9176
@@ -84,7 +81,7 @@ test_script:
   - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
 
   # this are optional dependencies so that we don't skip so many tests...
-  - if x%TEST_ALL% == xyes conda install -q ffmpeg inkscape miktex pillow
+  - if x%TEST_ALL% == xyes conda install -q ffmpeg inkscape miktex
   # missing packages on conda-forge for avconv imagemagick
   # This install sometimes failed randomly :-(
   #- choco install imagemagick
