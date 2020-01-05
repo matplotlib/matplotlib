@@ -267,8 +267,23 @@ class MovieWriter(AbstractMovieWriter):
     fig : `~matplotlib.figure.Figure`
         The figure to capture data from.
         This must be provided by the sub-classes.
-
     """
+
+    # Builtin writer subclasses additionally define the _exec_key and _args_key
+    # attributes, which indicate the rcParams entries where the path to the
+    # executable and additional command-line arguments to the executable are
+    # stored.  Third-party writers cannot meaningfully set these as they cannot
+    # extend rcParams with new keys.
+
+    @cbook.deprecated("3.3")
+    @property
+    def exec_key(self):
+        return self._exec_key
+
+    @cbook.deprecated("3.3")
+    @property
+    def args_key(self):
+        return self._args_key
 
     def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None,
                  metadata=None):
@@ -409,7 +424,7 @@ class MovieWriter(AbstractMovieWriter):
         subclass. This is a class method so that the tool can be looked for
         before making a particular MovieWriter subclass available.
         """
-        return str(mpl.rcParams[cls.exec_key])
+        return str(mpl.rcParams[cls._exec_key])
 
     @classmethod
     def isAvailable(cls):
@@ -573,14 +588,14 @@ class FFMpegBase:
     `MovieWriterBase` sub-class.
     """
 
-    exec_key = 'animation.ffmpeg_path'
-    args_key = 'animation.ffmpeg_args'
+    _exec_key = 'animation.ffmpeg_path'
+    _args_key = 'animation.ffmpeg_args'
 
     @property
     def output_args(self):
         args = ['-vcodec', self.codec]
         extra_args = (self.extra_args if self.extra_args is not None
-                      else mpl.rcParams[self.args_key])
+                      else mpl.rcParams[self._args_key])
         # For h264, the default format is yuv444p, which is not compatible
         # with quicktime (and others). Specifying yuv420p fixes playback on
         # iOS, as well as HTML5 video in firefox and safari (on both Win and
@@ -658,8 +673,8 @@ class AVConvBase(FFMpegBase):
     `MovieWriterBase` sub-class.
     """
 
-    exec_key = 'animation.avconv_path'
-    args_key = 'animation.avconv_args'
+    _exec_key = 'animation.avconv_path'
+    _args_key = 'animation.avconv_args'
 
     # NOTE : should be removed when the same method is removed in FFMpegBase.
     isAvailable = classmethod(MovieWriter.isAvailable.__func__)
@@ -696,8 +711,8 @@ class ImageMagickBase:
     `MovieWriterBase` sub-class.
     """
 
-    exec_key = 'animation.convert_path'
-    args_key = 'animation.convert_args'
+    _exec_key = 'animation.convert_path'
+    _args_key = 'animation.convert_args'
 
     @property
     def delay(self):
@@ -706,7 +721,7 @@ class ImageMagickBase:
     @property
     def output_args(self):
         extra_args = (self.extra_args if self.extra_args is not None
-                      else mpl.rcParams[self.args_key])
+                      else mpl.rcParams[self._args_key])
         return [*extra_args, self.outfile]
 
     @classmethod
@@ -784,7 +799,7 @@ def _embedded_frames(frame_list, frame_format):
 @writers.register('html')
 class HTMLWriter(FileMovieWriter):
     supported_formats = ['png', 'jpeg', 'tiff', 'svg']
-    args_key = 'animation.html_args'
+    _args_key = 'animation.html_args'
 
     @classmethod
     def isAvailable(cls):

@@ -106,3 +106,7 @@ Likewise, passing the *alpha*, *boundaries*, *values*, *extend*, or *filled*
 parameters with a `.ContourSet` mappable, or the *alpha* parameter with an
 `.Artist` mappable, is deprecated, as the mappable would likewise override
 them.
+
+``args_key`` and ``exec_key`` attributes of builtin `.MovieWriter`\s
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These attributes are deprecated.
