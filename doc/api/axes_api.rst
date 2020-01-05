@@ -307,6 +307,8 @@ Axis Labels, title, and legend
    Axes.get_xlabel
    Axes.set_ylabel
    Axes.get_ylabel
+   Axes.set_xlabel_legend
+   Axes.set_ylabel_legend
 
    Axes.set_title
    Axes.get_title

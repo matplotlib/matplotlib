@@ -30,6 +30,7 @@ import numpy as np
 
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
+from matplotlib.transforms import Affine2D
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 
@@ -87,7 +88,7 @@ class HandlerBase:
         return xdescent, ydescent, width, height
 
     def legend_artist(self, legend, orig_handle,
-                      fontsize, handlebox):
+                      fontsize, handlebox, rotate=False):
         """
         Return the artist that this HandlerBase generates for the given
         original artist/handle.
@@ -112,9 +113,16 @@ class HandlerBase:
                  handlebox.xdescent, handlebox.ydescent,
                  handlebox.width, handlebox.height,
                  fontsize)
+        transform = handlebox.get_transform()
+        if rotate:
+            point = (width - xdescent) / 2
+            rotate_transform = Affine2D().rotate_deg_around(point, point, 90)
+            transform = rotate_transform + transform
+            width, height = height, width
+            xdescent, ydescent = ydescent, xdescent
         artists = self.create_artists(legend, orig_handle,
                                       xdescent, ydescent, width, height,
-                                      fontsize, handlebox.get_transform())
+                                      fontsize, transform)
 
         # create_artists will return a list of artists.
         for a in artists:
@@ -407,6 +415,12 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
 
         self.update_prop(p, orig_handle, legend)
         p._transOffset = trans
+        if trans.is_affine:
+            # trans has only been applied to offset so far.
+            # Manually apply rotation and scaling to p
+            m = trans.get_matrix().copy()
+            m[:2, 2] = 0
+            p.set_transform(Affine2D(m))
         return [p]
 
 

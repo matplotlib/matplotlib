@@ -82,7 +82,7 @@ def _get_textbox(text, renderer):
     theta = np.deg2rad(text.get_rotation())
     tr = Affine2D().rotate(-theta)
 
-    _, parts, d = text._get_layout(renderer)
+    _, parts, d, _ = text._get_layout(renderer)
 
     for t, wh, x, y in parts:
         w, h = wh
@@ -171,6 +171,7 @@ class Text(Artist):
         if linespacing is None:
             linespacing = 1.2   # Maybe use rcParam later.
         self._linespacing = linespacing
+        self.legend = None
         self.set_rotation_mode(rotation_mode)
         self.update(kwargs)
 
@@ -281,6 +282,7 @@ class Text(Artist):
 
         thisx, thisy = 0.0, 0.0
         lines = self.get_text().split("\n")  # Ensures lines is not empty.
+        legend_offset = (0, 0)
 
         ws = []
         hs = []
@@ -307,7 +309,6 @@ class Text(Artist):
             h = max(h, lp_h)
             d = max(d, lp_d)
 
-            ws.append(w)
             hs.append(h)
 
             # Metrics of the last line that are needed later:
@@ -316,11 +317,37 @@ class Text(Artist):
             if i == 0:
                 # position at baseline
                 thisy = -(h - d)
+                # reserve some space for the legend symbol
+                if self.legend is not None:
+                    legend_extent = self.legend.box.get_extent(renderer)
+                    legend_width, legend_height, _, _ = legend_extent
+                    padding = self.legend.handletextpad * self.get_size()
+                    rotation = self.get_rotation()
+                    if rotation == 0:
+                        legend_spacing = legend_width + padding
+                        w += legend_spacing
+                        thisx += legend_spacing
+                        # position relative to the beginning of first line
+                        legend_offset = (
+                            -legend_spacing,
+                            (h-d - legend_height) / 2
+                        )
+                    elif rotation == 90:
+                        legend_spacing = legend_height + padding
+                        w += legend_spacing
+                        thisx += legend_spacing
+                        # position relative to the beginning of first line
+                        legend_offset = (
+                            -(h-d + legend_width) / 2,
+                            -legend_spacing
+                        )
             else:
                 # put baseline a good distance from bottom of previous line
                 thisy -= max(min_dy, (h - d) * self._linespacing)
+                thisx = 0
 
-            xs.append(thisx)  # == 0.
+            ws.append(w)
+            xs.append(thisx)
             ys.append(thisy)
 
             thisy -= d
@@ -422,7 +449,10 @@ class Text(Artist):
         # now rotate the positions around the first (x, y) position
         xys = M.transform(offset_layout) - (offsetx, offsety)
 
-        ret = bbox, list(zip(lines, zip(ws, hs), *xys.T)), descent
+        ret = (bbox,
+            list(zip(lines, zip(ws, hs), *xys.T)),
+            descent,
+            xys[0, :] + legend_offset)
         self._cached[key] = ret
         return ret
 
@@ -682,7 +712,7 @@ class Text(Artist):
         renderer.open_group('text', self.get_gid())
 
         with _wrap_text(self) as textobj:
-            bbox, info, descent = textobj._get_layout(renderer)
+            bbox, info, descent, legend_pos = textobj._get_layout(renderer)
             trans = textobj.get_transform()
 
             # don't use textobj.get_position here, which refers to text
@@ -731,10 +761,40 @@ class Text(Artist):
                     textrenderer.draw_text(gc, x, y, clean_line,
                                            textobj._fontproperties, angle,
                                            ismath=ismath, mtext=mtext)
+            if self.legend is not None and angle in [0, 90]:
+                x, y = legend_pos
+                self.legend.box.set_offset((x + posx, y + posy))
+                self.legend.box.draw(renderer)
 
         gc.restore()
         renderer.close_group('text')
         self.stale = False
+
+    def set_legend_handle(self, handle=None, **kwargs):
+        """
+        Set a legend to be shown next to the text.
+
+        Parameters
+        ----------
+        handle: `.Artist`
+            An artist (e.g. lines, patches) to be shown as legend.
+
+        **kwargs: `.BasicLegend` properties
+            Additional properties to control legend appearance.
+        """
+        # import AxisLabelLegend here to avoid circular import
+        from matplotlib.legend import AxisLabelLegend
+        if handle is not None:
+            rotation = self.get_rotation()
+            if rotation not in [0, 90]:
+                cbook._warn_external("Legend symbols are only supported "
+                    "for non-rotated texts and texts rotated by 90°.")
+                return
+            legend = AxisLabelLegend(self, **kwargs)
+            self.legend = legend.init_legend(handle, rotation == 90)
+        else:
+            self.legend = None
+        self.stale = True
 
     def get_color(self):
         """Return the color of the text."""
@@ -902,7 +962,7 @@ class Text(Artist):
         if self._renderer is None:
             raise RuntimeError('Cannot get window extent w/o renderer')
 
-        bbox, info, descent = self._get_layout(self._renderer)
+        bbox, info, descent, _ = self._get_layout(self._renderer)
         x, y = self.get_unitless_position()
         x, y = self.get_transform().transform((x, y))
         bbox = bbox.translated(x, y)
