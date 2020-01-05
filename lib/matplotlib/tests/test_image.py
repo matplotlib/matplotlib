@@ -518,8 +518,8 @@ def test_image_shift():
 
 
 def test_image_edges():
-    f = plt.figure(figsize=[1, 1])
-    ax = f.add_axes([0, 0, 1, 1], frameon=False)
+    fig = plt.figure(figsize=[1, 1])
+    ax = fig.add_axes([0, 0, 1, 1], frameon=False)
 
     data = np.tile(np.arange(12), 15).reshape(20, 9)
 
@@ -534,7 +534,7 @@ def test_image_edges():
     ax.set_yticks([])
 
     buf = io.BytesIO()
-    f.savefig(buf, facecolor=(0, 1, 0))
+    fig.savefig(buf, facecolor=(0, 1, 0))
 
     buf.seek(0)
 

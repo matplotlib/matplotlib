@@ -214,14 +214,14 @@ imgplot = plt.imshow(lum_img, clim=(0.0, 0.7))
 ###############################################################################
 # You can also specify the clim using the returned object
 fig = plt.figure()
-a = fig.add_subplot(1, 2, 1)
+ax = fig.add_subplot(1, 2, 1)
 imgplot = plt.imshow(lum_img)
-a.set_title('Before')
+ax.set_title('Before')
 plt.colorbar(ticks=[0.1, 0.3, 0.5, 0.7], orientation='horizontal')
-a = fig.add_subplot(1, 2, 2)
+ax = fig.add_subplot(1, 2, 2)
 imgplot = plt.imshow(lum_img)
 imgplot.set_clim(0.0, 0.7)
-a.set_title('After')
+ax.set_title('After')
 plt.colorbar(ticks=[0.1, 0.3, 0.5, 0.7], orientation='horizontal')
 
 ###############################################################################
