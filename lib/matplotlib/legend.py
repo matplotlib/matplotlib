@@ -70,9 +70,6 @@ class DraggableLegend(DraggableOffsetBox):
         DraggableOffsetBox.__init__(self, legend, legend._legend_box,
                                     use_blit=use_blit)
 
-    def artist_picker(self, legend, evt):
-        return self.legend.contains(evt)
-
     def finalize_offset(self):
         update_method = cbook._check_getitem(
             {"loc": self._update_loc, "bbox": self._bbox_to_anchor},
