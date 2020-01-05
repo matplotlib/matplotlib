@@ -199,3 +199,8 @@ The change from "nonpos" to "nonpositive" also affects `~.scale.LogTransform`,
 
 To use *different* bases for the x-axis and y-axis of a `~.Axes.loglog` plot,
 use e.g. ``ax.set_xscale("log", base=10); ax.set_yscale("log", base=2)``.
+
+``DraggableBase.artist_picker``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This method is deprecated.  If you previously reimplemented it in a subclass,
+set the artist's picker instead with `.Artist.set_picker`.
