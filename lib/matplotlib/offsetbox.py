@@ -1734,8 +1734,14 @@ class DraggableBase:
             dx = evt.x - self.mouse_x
             dy = evt.y - self.mouse_y
             self.update_offset(dx, dy)
-            self.canvas.draw()
+            if self._use_blit:
+                self.canvas.restore_region(self.background)
+                self.ref_artist.draw(self.ref_artist.figure._cachedRenderer)
+                self.canvas.blit()
+            else:
+                self.canvas.draw()
 
+    @cbook.deprecated("3.3", alternative="self.on_motion")
     def on_motion_blit(self, evt):
         if self._check_still_parented() and self.got_artist:
             dx = evt.x - self.mouse_x
@@ -1747,23 +1753,18 @@ class DraggableBase:
 
     def on_pick(self, evt):
         if self._check_still_parented() and evt.artist == self.ref_artist:
-
             self.mouse_x = evt.mouseevent.x
             self.mouse_y = evt.mouseevent.y
             self.got_artist = True
-
             if self._use_blit:
                 self.ref_artist.set_animated(True)
                 self.canvas.draw()
-                self.background = self.canvas.copy_from_bbox(
-                                    self.ref_artist.figure.bbox)
+                self.background = \
+                    self.canvas.copy_from_bbox(self.ref_artist.figure.bbox)
                 self.ref_artist.draw(self.ref_artist.figure._cachedRenderer)
                 self.canvas.blit()
-                self._c1 = self.canvas.mpl_connect('motion_notify_event',
-                                                   self.on_motion_blit)
-            else:
-                self._c1 = self.canvas.mpl_connect('motion_notify_event',
-                                                   self.on_motion)
+            self._c1 = self.canvas.mpl_connect(
+                "motion_notify_event", self.on_motion)
             self.save_offset()
 
     def on_release(self, event):
