@@ -112,37 +112,71 @@ Software Foundation Code of Conduct <coc_>`_ in everything we do.
 
 .. _coc: http://www.python.org/psf/codeofconduct/
 
-- Join our community at `discourse.matplotlib.org`_  to get help, discuss
-  contributing & development, and share your work.
-- If you have questions, be sure to check the :doc:`FAQ <faq/index>`, the
-  :doc:`API <api/index>` docs, and the `search <search.html>`_ tool
-  searches all of the documentation, including full text search of over 350
-  complete examples which exercise almost every corner of Matplotlib.
-- If its something quick join the `gitter channel`_ to chat with the
-  community.
-- If you prefer email there are the  matplotlib-users_, matplotlib-devel_,
-  and matplotlib-announce_ mailing lists.
-- Check out the Matplotlib tag on stackoverflow_.
-- Tweet us at Twitter_! or see cool plots on Instagram_!
 
-.. _discourse.matplotlib.org: https://discourse.matplotlib.org
-.. _gitter channel: https://gitter.im/matplotlib/matplotlib
-.. _matplotlib-users: https://mail.python.org/mailman/listinfo/matplotlib-users
-.. _matplotlib-devel: https://mail.python.org/mailman/listinfo/matplotlib-devel
-.. _matplotlib-announce: https://mail.python.org/mailman/listinfo/matplotlib-announce
-.. _stackoverflow: http://stackoverflow.com/questions/tagged/matplotlib
-.. _Twitter: https://twitter.com/matplotlib
-.. _Instagram: https://www.instagram.com/matplotart/
+.. raw:: html
 
-You can file bugs, patches and feature requests on the `issue tracker`_, but it
-is a good idea to ping us on Discourse_ as well.
+    <h3>Get help</h3>
+    <div class="box">
+      <div class="box-item">
+        <img src="_static/fa/discourse-brands.svg" alt="Discourse">
+        <p>Join our community at <a href="https://discourse.matplotlib.org">discourse.matplotlib.org</a>
+        to get help, discuss contributing &amp; development, and share your work.</p>
+      </div>
+      <div class="box-item">
+        <img src="_static/fa/question-circle-regular.svg" alt="Questions">
+        <p>If you have questions, be sure to check the <a href="faq/index.html">FAQ</a>,
+        the <a href="api/index.html">API</a> docs. The full text
+        <a href="search.html">search</a> is a good way to discover the docs including the many examples.</p>
+      </div>
+      <div class="box-item">
+        <img src="_static/fa/stack-overflow-brands.svg" alt="Stackoverflow">
+        <p>Check out the Matplotlib tag on <a href="http://stackoverflow.com/questions/tagged/matplotlib">stackoverflow</a>.</p>
+      </div>
+      <div class="box-item">
+        <img src="_static/fa/gitter-brands.svg" alt="Gitter">
+        <p>Short questions may be posted on the <a href="https://gitter.im/matplotlib/matplotlib">gitter channel</a>.</p>
+      </div>
+    </div>
+    <hr class='box-sep'>
+    <h3>News</h3>
+    <div class="box">
+      <div class="box-item">
+        <img src="_static/fa/plus-square-regular.svg" alt="News">
+        <p>To keep up to date with what's going on in Matplotlib, see the
+        <a href="users/whats_new.html">what's new</a> page or browse the
+        <a href="https://github.com/matplotlib/matplotlib">source code</a>.  Anything that could
+        require changes to your existing code is logged in the
+        <a href="api/api_changes.html">API changes</a> file.</p>
+      </div>
+      <div class="box-item">
+        <img src="_static/fa/hashtag-solid.svg" alt="Social media">
+        <p>Tweet us at <a href="https://twitter.com/matplotlib">Twitter</a>!
+        or see cool plots on <a href="https://www.instagram.com/matplotart/">Instagram</a>!</p>
+      </div>
+    </div>
+    <hr class='box-sep'>
+    <h3>Development</h3>
+    <div class="box">
+      <div class="box-item">
+        <img src="_static/fa/github-brands.svg" alt="Github">
+        <p>Matplotlib is hosted on <a href="https://github.com/matplotlib/matplotlib">GitHub</a>.</p>
+        <ul>
+        <li>File bugs and feature requests on the <a href="https://github.com/matplotlib/matplotlib/issues">issue tracker</a>.</li>
+        <li><a href="https://github.com/matplotlib/matplotlib/pulls">Pull requests</a> are always welcome.</li>
+        </ul>
+        <p>It is a good idea to ping us on <a href="https://discourse.matplotlib.org">Discourse</a> as well.</p>
+      </div>
+      <div class="box-item">
+        <img src="_static/fa/envelope-regular.svg" alt="Mailing lists">
+        <p>Mailing lists</p>
+        <ul>
+        <li><a href="https://mail.python.org/mailman/listinfo/matplotlib-users">matplotlib-users</a> for usage questions</li>
+        <li><a href="https://mail.python.org/mailman/listinfo/matplotlib-devel">matplotlib-devel</a> for development</li>
+        <li><a href="https://mail.python.org/mailman/listinfo/matplotlib-announce">matplotlib-announce</a> for project announcements</li>
+        </ul>
+      </div>
+    </div>
 
-.. _Discourse: https://discourse.matplotlib.org
-
-To keep up to date with what's going on in Matplotlib, see the :doc:`what's
-new <users/whats_new>` page or browse the `source code`_.  Anything that could
-require changes to your existing code is logged in the :doc:`API changes
-<api/api_changes>` file.
 
 Toolkits
 ========
@@ -214,10 +248,3 @@ Foundation (PSF) license <psf-license_>`_.
 
 There is an active developer community and a long list of people who have made
 significant :doc:`contributions <users/credits>`.
-
-Matplotlib is hosted on `GitHub <source code_>`_.  `Issues <issue tracker_>`_
-and `Pull requests`_ are tracked at GitHub too.
-
-.. _source code: https://github.com/matplotlib/matplotlib
-.. _issue tracker: https://github.com/matplotlib/matplotlib/issues
-.. _pull requests: https://github.com/matplotlib/matplotlib/pulls
