@@ -57,19 +57,19 @@ class PlotPanel(wx.Panel):
         self.Fit()
 
     def init_plot_data(self):
-        a = self.fig.add_subplot(111)
+        ax = self.fig.add_subplot(111)
 
         x = np.arange(120.0) * 2 * np.pi / 60.0
         y = np.arange(100.0) * 2 * np.pi / 50.0
         self.x, self.y = np.meshgrid(x, y)
         z = np.sin(self.x) + np.cos(self.y)
-        self.im = a.imshow(z, cmap=cm.RdBu)
+        self.im = ax.imshow(z, cmap=cm.RdBu)
 
         zmax = np.max(z) - ERR_TOL
         ymax_i, xmax_i = np.nonzero(z >= zmax)
         if self.im.origin == 'upper':
             ymax_i = z.shape[0] - ymax_i
-        self.lines = a.plot(xmax_i, ymax_i, 'ko')
+        self.lines = ax.plot(xmax_i, ymax_i, 'ko')
 
         self.toolbar.update()  # Not sure why this is needed - ADS
 

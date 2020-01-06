@@ -38,9 +38,9 @@ def generate_EventCollection_plot():
                            )
 
     fig = plt.figure()
-    splt = fig.add_subplot(1, 1, 1)
-    splt.add_collection(coll)
-    splt.set_title('EventCollection: default')
+    ax = fig.add_subplot(1, 1, 1)
+    ax.add_collection(coll)
+    ax.set_title('EventCollection: default')
     props = {'positions': positions,
              'extra_positions': extra_positions,
              'orientation': orientation,
@@ -51,9 +51,9 @@ def generate_EventCollection_plot():
              'linestyle': linestyle,
              'antialiased': antialiased
              }
-    splt.set_xlim(-1, 22)
-    splt.set_ylim(0, 2)
-    return splt, coll, props
+    ax.set_xlim(-1, 22)
+    ax.set_ylim(0, 2)
+    return ax, coll, props
 
 
 @image_comparison(['EventCollection_plot__default'])
