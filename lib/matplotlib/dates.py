@@ -163,7 +163,8 @@ __all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
            'rrule', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU',
            'YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY',
            'HOURLY', 'MINUTELY', 'SECONDLY', 'MICROSECONDLY', 'relativedelta',
-           'seconds', 'minutes', 'hours', 'weeks')
+           'seconds', 'minutes', 'hours', 'weeks',
+           'DateConverter', 'ConciseDateConverter')
 
 
 _log = logging.getLogger(__name__)

@@ -205,11 +205,11 @@ they are drawn.
 Non-linear scales on image plots
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:func:`imshow` now draws data at the requested points in data space after the
+`~.Axes.imshow` now draws data at the requested points in data space after the
 application of non-linear scales.
 
 The image on the left demonstrates the new, correct behavior.
-The old behavior can be recreated using :func:`pcolormesh` as
+The old behavior can be recreated using `~.Axes.pcolormesh` as
 demonstrated on the right.
 
 
@@ -265,10 +265,8 @@ will be removed in version 2.2.
 Boxplot Zorder Keyword Argument
 -------------------------------
 
-The ``zorder`` parameter now exists for :func:`boxplot`. This allows the zorder
-of a boxplot to be set in the plotting function call.
-
-::
+The *zorder* parameter now exists for `~.Axes.boxplot`. This allows the zorder
+of a boxplot to be set in the plotting function call. ::
 
     boxplot(np.arange(10), zorder=10)
 
@@ -298,9 +296,9 @@ arguments.
 Streamplot Zorder Keyword Argument Changes
 ------------------------------------------
 
-The ``zorder`` parameter for :func:`streamplot` now has default
+The ``zorder`` parameter for `~.Axes.streamplot` now has default
 value of ``None`` instead of ``2``. If ``None`` is given as ``zorder``,
-:func:`streamplot` has a default ``zorder`` of
+`~.Axes.streamplot` has a default ``zorder`` of
 ``matplotlib.lines.Line2D.zorder``.
 
 .. _gc_get_hatch_color_wn:

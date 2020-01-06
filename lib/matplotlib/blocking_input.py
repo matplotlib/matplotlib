@@ -8,15 +8,16 @@ windows:
 
 `BlockingKeyMouseInput`
     Creates a callable object to retrieve key or mouse clicks in a blocking
-    way for interactive sessions.  Used by `waitforbuttonpress`.
+    way for interactive sessions.  Used by `~.Figure.waitforbuttonpress`.
 
 `BlockingMouseInput`
     Creates a callable object to retrieve mouse clicks in a blocking way for
-    interactive sessions.  Used by `ginput`.
+    interactive sessions.  Used by `~.Figure.ginput`.
 
 `BlockingContourLabeler`
     Creates a callable object to retrieve mouse clicks in a blocking way that
-    will then be used to place labels on a `ContourSet`.  Used by `clabel`.
+    will then be used to place labels on a `ContourSet`.  Used by
+    `~.Axes.clabel`.
 """
 
 import logging

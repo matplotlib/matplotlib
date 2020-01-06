@@ -19,7 +19,7 @@ New in matplotlib 1.5
 Interactive OO usage
 --------------------
 
-All `Artists` now keep track of if their internal state has been
+All `.Artist`\s now keep track of if their internal state has been
 changed but not reflected in the display ('stale') by a call to
 ``draw``.  It is thus possible to pragmatically determine if a given
 `Figure` needs to be re-drawn in an interactive session.
@@ -97,11 +97,11 @@ This is a more generic form of the now-deprecated ``axes.color_cycle`` param.
 Now, we can cycle more than just colors, but also linestyles, hatches,
 and just about any other artist property. Cycler notation is used for
 defining property cycles. Adding cyclers together will be like you are
-`zip()`-ing together two or more property cycles together::
+`zip`-ing together two or more property cycles together::
 
     axes.prop_cycle: cycler('color', 'rgb') + cycler('lw', [1, 2, 3])
 
-You can even multiply cyclers, which is like using `itertools.product()`
+You can even multiply cyclers, which is like using `itertools.product`
 on two or more property cycles. Remember to use parentheses if writing
 a multi-line `prop_cycle` parameter.
 
@@ -184,7 +184,7 @@ current snapshot will work on Python 2.7+ and 3.4+.
 If you have multiple versions of wxPython installed, then the user code is
 responsible setting the wxPython version.  How to do this is
 explained in the comment at the beginning of the example
-`examples\user_interfaces\embedding_in_wx2.py`.
+:doc:`/gallery/user_interfaces/embedding_in_wx2_sgskip`.
 
 Configuration (rcParams)
 ------------------------
@@ -367,10 +367,10 @@ for data between 0 and 1 excluded.
 Add step kwargs to fill_between
 ```````````````````````````````
 
-Added ``step`` kwarg to `Axes.fill_between` to allow to fill between
+Added ``step`` kwarg to `.Axes.fill_between` to allow to fill between
 lines drawn using the 'step' draw style.  The values of ``step`` match
-those of the ``where`` kwarg of `Axes.step`.  The asymmetry of of the
-kwargs names is not ideal, but `Axes.fill_between` already has a
+those of the ``where`` kwarg of `.Axes.step`.  The asymmetry of of the
+kwargs names is not ideal, but `.Axes.fill_between` already has a
 ``where`` kwarg.
 
 This is particularly useful for plotting pre-binned histograms.
@@ -425,7 +425,7 @@ Updated Table to control edge visibility
 ````````````````````````````````````````
 
 Added the ability to toggle the visibility of lines in Tables.
-Functionality added to the :func:`pyplot.table` factory function under
+Functionality added to the `.pyplot.table` factory function under
 the keyword argument "edges".  Values can be the strings "open", "closed",
 "horizontal", "vertical" or combinations of the letters "L", "R", "T",
 "B" which represent left, right, top, and bottom respectively.
@@ -456,7 +456,7 @@ column line plots.
 Plot bar and barh with labels
 `````````````````````````````
 
-Added kwarg ``"tick_label"`` to `bar` and `barh` to support plotting bar graphs with a
+Added kwarg *tick_label* to `~.Axes.bar` and `~.Axes.barh` to support plotting bar graphs with a
 text label for each bar.
 
 .. plot::
@@ -523,11 +523,11 @@ API Consistency fix within Locators set_params() function
 
 :meth:`~matplotlib.ticker.Locator.set_params` function, which sets parameters
 within a :class:`~matplotlib.ticker.Locator` type
-instance, is now available to all `Locator` types. The implementation
+instance, is now available to all `.Locator` types. The implementation
 also prevents unsafe usage by strictly defining the parameters that a
 user can set.
 
-To use, call ``set_params()`` on a `Locator` instance with desired arguments:
+To use, call ``set_params()`` on a `.Locator` instance with desired arguments:
 ::
 
     loc = matplotlib.ticker.LogLocator()
@@ -542,8 +542,8 @@ Date Locators
 `````````````
 
 Date Locators (derived from :class:`~matplotlib.dates.DateLocator`) now
-implement the :meth:`~matplotlib.tickers.Locator.tick_values` method.
-This is expected of all Locators derived from :class:`~matplotlib.tickers.Locator`.
+implement the `~matplotlib.ticker.Locator.tick_values` method.
+This is expected of all Locators derived from `~matplotlib.ticker.Locator`.
 
 The Date Locators can now be used easily without creating axes ::
 
@@ -557,22 +557,22 @@ The Date Locators can now be used easily without creating axes ::
 OffsetBoxes now support clipping
 ````````````````````````````````
 
-`Artists` draw onto objects of type :class:`~OffsetBox`
-through :class:`~OffsetBox.DrawingArea` and :class:`~OffsetBox.TextArea`.
-The `TextArea` calculates the required space for the text and so the
+`Artist`\s draw onto objects of type `.OffsetBox`
+through `~.offsetbox.DrawingArea` and `~.offsetbox.TextArea`.
+The `.TextArea` calculates the required space for the text and so the
 text is always within the bounds, for this nothing has changed.
 
-However, `DrawingArea` acts as a parent for zero or more `Artists` that
-draw on it and may do so beyond the bounds. Now child `Artists` can be
-clipped to the bounds of the `DrawingArea`.
+However, `.DrawingArea` acts as a parent for zero or more `.Artist`\s that
+draw on it and may do so beyond the bounds. Now child `.Artist`\s can be
+clipped to the bounds of the `.DrawingArea`.
 
 
 OffsetBoxes now considered by tight_layout
 ``````````````````````````````````````````
 
-When `~matplotlib.pyplot.tight_layout()` or `Figure.tight_layout()`
-or `GridSpec.tight_layout()` is called, `OffsetBoxes` that are
-anchored outside the axes will not get chopped out. The `OffsetBoxes` will
+When `~matplotlib.pyplot.tight_layout()` or `.Figure.tight_layout`
+or `.GridSpec.tight_layout()` is called, `.OffsetBox`\es that are
+anchored outside the axes will not get chopped out. The `.OffsetBox`\es will
 also not get overlapped by other axes in case of multiple subplots.
 
 Per-page pdf notes in multi-page pdfs (PdfPages)
@@ -586,7 +586,7 @@ viewer that has this facility (Adobe Reader, OSX Preview, Skim,
 etc.). Per default the note itself is kept off-page to prevent it to
 appear in print-outs.
 
-`PdfPages.attach_note` needs to be called before `savefig()` in order to be
+`.PdfPages.attach_note` needs to be called before `~.Figure.savefig` in order to be
 added to the correct figure.
 
 Updated fignum_exists to take figure name
@@ -606,10 +606,10 @@ ToolManager
 Federico Ariza wrote the new `~matplotlib.backend_managers.ToolManager`
 that comes as replacement for `NavigationToolbar2`
 
-`ToolManager` offers a new way of looking at the user interactions
+`.ToolManager` offers a new way of looking at the user interactions
 with the figures.  Before we had the `NavigationToolbar2` with its own
 tools like ``zoom/pan/home/save/...`` and also we had the shortcuts like
-``yscale/grid/quit/....``. `Toolmanager` relocate all those actions as
+``yscale/grid/quit/....``. `.ToolManager` relocate all those actions as
 `Tools` (located in `~matplotlib.backend_tools`), and defines a way to
 `access/trigger/reconfigure` them.
 
@@ -621,11 +621,11 @@ backends include a `ToolContainer` called `toolbar`
 .. note::
     At the moment, we release this primarily for feedback purposes and should
     be treated as experimental until further notice as API changes will occur.
-    For the moment the `ToolManager` works only with the GTK3 and Tk backends.
+    For the moment the `.ToolManager` works only with the GTK3 and Tk backends.
     Make sure you use one of those.
     Port for the rest of the backends is comming soon.
 
-    To activate the `ToolManager` include the following at the top of your file ::
+    To activate the `.ToolManager` include the following at the top of your file ::
 
       >>> matplotlib.rcParams['toolbar'] = 'toolmanager'
 
@@ -656,7 +656,7 @@ A very simple tool that prints "You're awesome" would be::
             print("You're awesome")
 
 
-To add this tool to `ToolManager`
+To add this tool to `.ToolManager`
 
  >>> fig.canvas.manager.toolmanager.add_tool('Awesome', AwesomeTool)
 

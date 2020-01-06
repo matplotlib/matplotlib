@@ -30,7 +30,7 @@ There should instead be short summary tables that link to detailed
 documentation.  In addition, some of the docstrings themselves are
 quite long and contain redundant information.
 
-Building the documentation takes a long time and uses a `make.py`
+Building the documentation takes a long time and uses a :file:`make.py`
 script rather than a Makefile.
 
 Detailed description
@@ -163,17 +163,17 @@ Implementation
    This should hopefully have minimal impact on the narrative
    documentation.
 
-4. Modify the example page generator (`gen_rst.py`) so that it
+4. Modify the example page generator (:file:`gen_rst.py`) so that it
    extracts the module docstring from the example and includes it in a
    non-literal part of the example page.
 
 5. Use `sphinx-quickstart` to generate a new-style Sphinx Makefile.
-   The following features in the current `make.py` will have to be
+   The following features in the current :file:`make.py` will have to be
    addressed in some other way:
 
-    - Copying of some static content
+   - Copying of some static content
 
-    - Specifying a "small" build (only low-resolution PNG files for examples)
+   - Specifying a "small" build (only low-resolution PNG files for examples)
 
 Steps 1, 2, and 3 are interdependent.  4 and 5 may be done
 independently, though 5 has some dependency on 3.

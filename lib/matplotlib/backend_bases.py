@@ -174,7 +174,7 @@ class RendererBase:
 
         Parameters
         ----------
-        gc : `GraphicsContextBase`
+        gc : `.GraphicsContextBase`
             The graphics context.
 
         marker_trans : `matplotlib.transforms.Transform`
@@ -449,7 +449,7 @@ class RendererBase:
 
         Parameters
         ----------
-        gc : `GraphicsContextBase`
+        gc : `.GraphicsContextBase`
             A graphics context with clipping information.
 
         x : scalar
@@ -504,7 +504,7 @@ class RendererBase:
 
         Parameters
         ----------
-        gc : `GraphicsContextBase`
+        gc : `.GraphicsContextBase`
             The graphics context.
         x : float
             The x location of the text in display coords.
@@ -642,7 +642,7 @@ class RendererBase:
         return self._texmanager
 
     def new_gc(self):
-        """Return an instance of a `GraphicsContextBase`."""
+        """Return an instance of a `.GraphicsContextBase`."""
         return GraphicsContextBase()
 
     def points_to_pixels(self, points):
@@ -2256,8 +2256,9 @@ default: :rc:`savefig.bbox`
         """
         Start a blocking event loop.
 
-        Such an event loop is used by interactive functions, such as `ginput`
-        and `waitforbuttonpress`, to wait for events.
+        Such an event loop is used by interactive functions, such as
+        `~.Figure.ginput` and `~.Figure.waitforbuttonpress`, to wait for
+        events.
 
         The event loop blocks until a callback function triggers
         `stop_event_loop`, or *timeout* is reached.

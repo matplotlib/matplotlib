@@ -909,7 +909,7 @@ class Axis(martist.Artist):
     def set_view_interval(self, vmin, vmax, ignore=False):
         """
         Set the axis view limits.  This method is for internal use; Matplotlib
-        users should typically use e.g. `~Axes.set_xlim` and `~Axes.set_ylim`.
+        users should typically use e.g. `~.Axes.set_xlim` or `~.Axes.set_ylim`.
 
         If *ignore* is False (the default), this method will never reduce the
         preexisting view limits, only expand them if *vmin* or *vmax* are not

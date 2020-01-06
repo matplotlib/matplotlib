@@ -51,7 +51,7 @@ system (typically ax.transAxes), and arrow labels. There are several optional
 parameters that can be used to alter layout. For example, the arrow pairs can
 be rotated and the color can be changed. By default the labels and arrows have
 the same color, but the class may also pass arguments for customizing arrow
-and text layout, these are passed to :class:`matplotlib.text.TextPath` and
+and text layout, these are passed to :class:`matplotlib.textpath.TextPath` and
 `matplotlib.patches.FancyArrowPatch`. Location, length and width for both
 arrow tail and head can be adjusted, the the direction arrows and labels can
 have a frame. Padding and separation parameters can be adjusted.

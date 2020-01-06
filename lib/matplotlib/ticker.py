@@ -81,7 +81,7 @@ The Locator subclasses defined here are
 
 
 There are a number of locators specialized for date locations - see
-the `dates` module.
+the :mod:`.dates` module.
 
 You can define your own locator by deriving from Locator. You must
 override the ``__call__`` method, which returns a sequence of locations,
@@ -416,8 +416,7 @@ class FormatStrFormatter(Formatter):
 
 class StrMethodFormatter(Formatter):
     """
-    Use a new-style format string (as used by `str.format()`)
-    to format the tick.
+    Use a new-style format string (as used by `str.format`) to format the tick.
 
     The field used for the value must be labeled *x* and the field used
     for the position must be labeled *pos*.
@@ -1530,8 +1529,8 @@ class PercentFormatter(Formatter):
         Formats the number as a percentage number with the correct
         number of decimals and adds the percent symbol, if any.
 
-        If `self.decimals` is `None`, the number of digits after the
-        decimal point is set based on the `display_range` of the axis
+        If ``self.decimals`` is `None`, the number of digits after the
+        decimal point is set based on the *display_range* of the axis
         as follows:
 
         +---------------+----------+------------------------+

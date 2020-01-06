@@ -306,7 +306,7 @@ Assuming that you already have a local branch ``v2.2.x`` (if not, then
   git cherry-pick -m 1 TARGET_SHA
   # resolve conflicts and commit if required
 
-Files with conflicts can be listed by `git status`,
+Files with conflicts can be listed by ``git status``,
 and will have to be fixed by hand (search on ``>>>>>``).  Once
 the conflict is resolved, you will have to re-add the file(s) to the branch
 and then continue the cherry pick::

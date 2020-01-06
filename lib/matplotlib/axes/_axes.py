@@ -298,7 +298,7 @@ class Axes(_AxesBase):
 
         Specific lines can be excluded from the automatic legend element
         selection by defining a label starting with an underscore.
-        This is default for all artists, so calling `Axes.legend` without
+        This is default for all artists, so calling `.Axes.legend` without
         any arguments and without setting the labels manually will result in
         no legend being drawn.
 
@@ -1448,7 +1448,7 @@ class Axes(_AxesBase):
         >>> plot('xlabel', 'ylabel', data=obj)
 
         All indexable objects are supported. This could e.g. be a `dict`, a
-        `pandas.DataFame` or a structured numpy array.
+        `pandas.DataFrame` or a structured numpy array.
 
 
         **Plotting multiple sets of data**
@@ -1878,7 +1878,7 @@ class Axes(_AxesBase):
         ----------
         x : array-like
 
-        detrend : callable, default: `mlab.detrend_none` (no detrending)
+        detrend : callable, default: `.mlab.detrend_none` (no detrending)
             A detrending function applied to *x*.  It must have the
             signature ::
 
@@ -1891,11 +1891,11 @@ class Axes(_AxesBase):
             Determines the plot style.
 
             If ``True``, vertical lines are plotted from 0 to the acorr value
-            using `Axes.vlines`. Additionally, a horizontal line is plotted
-            at y=0 using `Axes.axhline`.
+            using `.Axes.vlines`. Additionally, a horizontal line is plotted
+            at y=0 using `.Axes.axhline`.
 
             If ``False``, markers are plotted at the acorr values using
-            `Axes.plot`.
+            `.Axes.plot`.
 
         maxlags : int, default: 10
             Number of lags to show. If ``None``, will return all
@@ -1947,7 +1947,7 @@ class Axes(_AxesBase):
         ----------
         x, y : array-like of length n
 
-        detrend : callable, default: `mlab.detrend_none` (no detrending)
+        detrend : callable, default: `.mlab.detrend_none` (no detrending)
             A detrending function applied to *x* and *y*.  It must have the
             signature ::
 
@@ -1960,11 +1960,11 @@ class Axes(_AxesBase):
             Determines the plot style.
 
             If ``True``, vertical lines are plotted from 0 to the xcorr value
-            using `Axes.vlines`. Additionally, a horizontal line is plotted
-            at y=0 using `Axes.axhline`.
+            using `.Axes.vlines`. Additionally, a horizontal line is plotted
+            at y=0 using `.Axes.axhline`.
 
             If ``False``, markers are plotted at the xcorr values using
-            `Axes.plot`.
+            `.Axes.plot`.
 
         maxlags : int, default: 10
             Number of lags to show. If None, will return all ``2 * len(x) - 1``
@@ -2888,7 +2888,7 @@ class Axes(_AxesBase):
         The pie chart will probably look best if the figure and axes are
         square, or the Axes aspect is equal.
         This method sets the aspect ratio of the axis to "equal".
-        The axes aspect ratio can be controlled with `Axes.set_aspect`.
+        The axes aspect ratio can be controlled with `.Axes.set_aspect`.
         """
         self.set_aspect('equal')
         # The use of float32 is "historical", but can't be changed without
@@ -3131,7 +3131,7 @@ class Axes(_AxesBase):
             property names, *markerfacecolor*, *markeredgecolor*, *markersize*
             and *markeredgewidth*.
 
-            Valid kwargs for the marker properties are `.Lines2D` properties:
+            Valid kwargs for the marker properties are `.Line2D` properties:
 
             %(_Line2D_docstr)s
         """
@@ -5905,7 +5905,7 @@ default: :rc:`scatter.edgecolors`
 
         .. note::
 
-           `~Axes.pcolormesh` is similar to `~Axes.pcolor`. It's much faster
+           `~.Axes.pcolormesh` is similar to `~.Axes.pcolor`. It's much faster
            and preferred in most cases. For a detailed discussion on the
            differences see :ref:`Differences between pcolor() and pcolormesh()
            <differences-pcolor-pcolormesh>`.
@@ -6385,7 +6385,7 @@ default: :rc:`scatter.edgecolors`
             Default is ``None``.
 
             This parameter can be used to draw a histogram of data that has
-            already been binned, e.g. using `np.histogram` (by treating each
+            already been binned, e.g. using `numpy.histogram` (by treating each
             bin as a single point with a weight equal to its count) ::
 
                 counts, bins = np.histogram(data)

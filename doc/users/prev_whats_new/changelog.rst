@@ -28,13 +28,13 @@ the `API changes <../../api/api_changes.html>`_.
 2015-01-23 Text bounding boxes are now computed with advance width rather than
            ink area.  This may result in slightly different placement of text.
 
-2014-10-27 Allowed selection of the backend using the `MPLBACKEND` environment
+2014-10-27 Allowed selection of the backend using the :envvar:`MPLBACKEND` environment
            variable. Added documentation on backend selection methods.
 
-2014-09-27 Overhauled `colors.LightSource`.  Added `LightSource.hillshade` to
+2014-09-27 Overhauled `.colors.LightSource`.  Added `.LightSource.hillshade` to
            allow the independent generation of illumination maps. Added new
            types of blending for creating more visually appealing shaded relief
-           plots (e.g.  `blend_mode="overlay"`, etc, in addition to the legacy
+           plots (e.g.  ``blend_mode="overlay"``, etc, in addition to the legacy
            "hsv" mode).
 
 2014-06-10 Added Colorbar.remove()
@@ -78,10 +78,10 @@ the `API changes <../../api/api_changes.html>`_.
 
 2014-04-22 Added an example showing the difference between
            interpolation = 'none' and interpolation = 'nearest' in
-           `imshow()` when saving vector graphics files.
+           `~.Axes.imshow` when saving vector graphics files.
 
-2014-04-22 Added violin plotting functions. See `Axes.violinplot`,
-           `Axes.violin`, `cbook.violin_stats` and `mlab.GaussianKDE` for
+2014-04-22 Added violin plotting functions. See `.Axes.violinplot`,
+           `.Axes.violin`, `.cbook.violin_stats` and `.mlab.GaussianKDE` for
            details.
 
 2014-04-10 Fixed the triangular marker rendering error. The "Up" triangle was
@@ -91,10 +91,10 @@ the `API changes <../../api/api_changes.html>`_.
            of a generator at line 263.
 
 2014-04-02 Added ``clipon=False`` to patch creation of wedges and shadows
-           in `pie`.
+           in `~.Axes.pie`.
 
 2014-02-25 In backend_qt4agg changed from using update -> repaint under
-           windows.  See comment in source near `self._priv_update` for
+           windows.  See comment in source near ``self._priv_update`` for
            longer explaination.
 
 2014-03-27 Added tests for pie ccw parameter. Removed pdf and svg images
@@ -123,7 +123,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2014-03-13 Add parameter 'clockwise' to function pie, True by default.
 
-2014-02-28 Added 'origin' kwarg to `spy`
+2014-02-28 Added 'origin' kwarg to `~.Axes.spy`
 
 2014-02-27 Implemented separate horizontal/vertical axes padding to the
            ImageGrid in the AxesGrid toolkit
@@ -134,10 +134,10 @@ the `API changes <../../api/api_changes.html>`_.
            along the line.
 
 2014-02-25 In backend_qt4agg changed from using update -> repaint under
-           windows.  See comment in source near `self._priv_update` for
+           windows.  See comment in source near ``self._priv_update`` for
            longer explaination.
 
-2014-01-02 `triplot` now returns the artist it adds and support of line and
+2014-01-02 `~.Axes.triplot` now returns the artist it adds and support of line and
            marker kwargs has been improved. GBY
 
 2013-12-30 Made streamplot grid size consistent for different types of density
@@ -146,7 +146,7 @@ the `API changes <../../api/api_changes.html>`_.
 
 2013-12-03 Added a pure boxplot-drawing method that allow a more complete
            customization of boxplots. It takes a list of dicts contains stats.
-           Also created a function (`cbook.boxplot_stats`) that generates the
+           Also created a function (`.cbook.boxplot_stats`) that generates the
            stats needed.
 
 2013-11-28 Added qhull extension module to perform Delaunay triangulation more
@@ -228,8 +228,8 @@ the `API changes <../../api/api_changes.html>`_.
 2013-03-31 Added support for arbitrary unstructured user-specified
            triangulations to Axes3D.tricontour[f] - Damon McDougall
 
-2013-03-19 Added support for passing `linestyle` kwarg to `step` so all `plot`
-           kwargs are passed to the underlying `plot` call.  -TAC
+2013-03-19 Added support for passing *linestyle* kwarg to `~.Axes.step` so all `~.Axes.plot`
+           kwargs are passed to the underlying `~.Axes.plot` call.  -TAC
 
 2013-02-25 Added classes CubicTriInterpolator, UniformTriRefiner, TriAnalyzer
            to matplotlib.tri module. - GBy

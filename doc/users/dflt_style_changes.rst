@@ -647,7 +647,7 @@ The color of the lines in the hatch is now determined by
   is looked up at artist creation time.
 
 The width of the lines in a hatch pattern is now configurable by the
-rcParams `hatch.linewidth`, which defaults to 1 point.  The old
+rcParams :rc:`hatch.linewidth`, which defaults to 1 point.  The old
 behavior for the line width was different depending on backend:
 
 - PDF: 0.1 pt
@@ -1083,7 +1083,7 @@ uses ``MaxNLocator`` internally.
 For a log-scaled axis the default locator is the
 `~matplotlib.ticker.LogLocator`.  Previously the maximum number
 of ticks was set to 15, and could not be changed. Now there is a
-`numticks` kwarg for setting the maximum to any integer value,
+*numticks* kwarg for setting the maximum to any integer value,
 to the string 'auto', or to its default value of None which is
 equivalent to 'auto'.  With the 'auto' setting the maximum number
 will be no larger than 9, and will be reduced depending on the
