@@ -424,7 +424,7 @@ class Legend(Artist):
         self._scatteryoffsets = np.tile(self._scatteryoffsets,
                                         reps)[:self.scatterpoints]
 
-        # _legend_box is an OffsetBox instance that contains all
+        # _legend_box is a VPacker instance that contains all
         # legend items and will be initialized from _init_legend_box()
         # method.
         self._legend_box = None
