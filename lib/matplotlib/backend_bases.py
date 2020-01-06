@@ -2692,7 +2692,13 @@ class NavigationToolbar2:
         """Display a message on toolbar or in status bar."""
 
     def back(self, *args):
-        """Move back up the view lim stack."""
+        """
+        Move back up the view lim stack.
+
+        For convenience of being directly connected as a GUI callback, which
+        often get passed additional parameters, this method accepts arbitrary
+        parameters, but does not use them.
+        """
         self._nav_stack.back()
         self.set_history_buttons()
         self._update_view()
@@ -2708,13 +2714,25 @@ class NavigationToolbar2:
         """Remove the rubberband."""
 
     def forward(self, *args):
-        """Move forward in the view lim stack."""
+        """
+        Move forward in the view lim stack.
+
+        For convenience of being directly connected as a GUI callback, which
+        often get passed additional parameters, this method accepts arbitrary
+        parameters, but does not use them.
+        """
         self._nav_stack.forward()
         self.set_history_buttons()
         self._update_view()
 
     def home(self, *args):
-        """Restore the original view."""
+        """
+        Restore the original view.
+
+        For convenience of being directly connected as a GUI callback, which
+        often get passed additional parameters, this method accepts arbitrary
+        parameters, but does not use them.
+        """
         self._nav_stack.home()
         self.set_history_buttons()
         self._update_view()
