@@ -5389,12 +5389,10 @@ default: :rc:`scatter.edgecolors`
 
     #### plotting z(x, y): imshow, pcolor and relatives, contour
     @_preprocess_data()
-    @cbook._delete_parameter("3.1", "shape")
-    @cbook._delete_parameter("3.1", "imlim")
     def imshow(self, X, cmap=None, norm=None, aspect=None,
                interpolation=None, alpha=None, vmin=None, vmax=None,
-               origin=None, extent=None, shape=None, filternorm=True,
-               filterrad=4.0, imlim=None, resample=None, url=None, **kwargs):
+               origin=None, extent=None, *, filternorm=True, filterrad=4.0,
+               resample=None, url=None, **kwargs):
         """
         Display data as an image; i.e. on a 2D regular raster.
 

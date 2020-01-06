@@ -3362,8 +3362,7 @@ class _Backend:
                 cls.trigger_manager_draw(manager)
 
     @classmethod
-    @cbook._make_keyword_only("3.1", "block")
-    def show(cls, block=None):
+    def show(cls, *, block=None):
         """
         Show all figures.
 
