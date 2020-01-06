@@ -1992,7 +1992,7 @@ class QuadMesh(Collection):
         """
         Converts a given mesh into a sequence of triangles, each point
         with its own color.  This is useful for experiments using
-        `draw_gouraud_triangle`.
+        `~.RendererBase.draw_gouraud_triangle`.
         """
         if isinstance(coordinates, np.ma.MaskedArray):
             p = coordinates.data

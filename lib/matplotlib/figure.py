@@ -294,14 +294,13 @@ class Figure(Artist):
             ``h_pad``, and ``rect``, the default `.tight_layout` paddings
             will be overridden.
 
-        constrained_layout : bool
+        constrained_layout : bool, default: :rc:`figure.constrained_layout.use`
             If ``True`` use constrained layout to adjust positioning of plot
             elements.  Like ``tight_layout``, but designed to be more
             flexible.  See
             :doc:`/tutorials/intermediate/constrainedlayout_guide`
-            for examples.  (Note: does not work with :meth:`.subplot` or
-            :meth:`.subplot2grid`.)
-            Defaults to :rc:`figure.constrained_layout.use`.
+            for examples.  (Note: does not work with `add_subplot` or
+            `~.pyplot.subplot2grid`.)
         """
         super().__init__()
         # remove the non-figure artist _axes property
@@ -416,15 +415,25 @@ class Figure(Artist):
         except NonGuiException as exc:
             cbook._warn_external(str(exc))
 
-    def _get_axes(self):
+    def get_axes(self):
+        """
+        Return a list of axes in the Figure. You can access and modify the
+        axes in the Figure through this list.
+
+        Do not modify the list itself. Instead, use `~Figure.add_axes`,
+        `~.Figure.add_subplot` or `~.Figure.delaxes` to add or remove an axes.
+
+        Note: This is equivalent to the property `~.Figure.axes`.
+        """
         return self._axstack.as_list()
 
-    axes = property(fget=_get_axes,
-                    doc="List of axes in the Figure. You can access the "
-                        "axes in the Figure through this list. "
-                        "Do not modify the list itself. Instead, use "
-                        "`~Figure.add_axes`, `~.Figure.subplot` or "
-                        "`~.Figure.delaxes` to add or remove an axes.")
+    axes = property(get_axes, doc="""
+        List of axes in the Figure.  You can access and modify the axes in the
+        Figure through this list.
+
+        Do not modify the list itself. Instead, use "`~Figure.add_axes`,
+        `~.Figure.add_subplot` or `~.Figure.delaxes` to add or remove an axes.
+        """)
 
     def _get_dpi(self):
         return self._dpi
@@ -546,8 +555,8 @@ class Figure(Artist):
         """
         Get padding for ``constrained_layout``.
 
-        Returns a list of `w_pad, h_pad` in inches and
-        `wspace` and `hspace` as fractions of the subplot.
+        Returns a list of ``w_pad, h_pad`` in inches and
+        ``wspace`` and ``hspace`` as fractions of the subplot.
 
         See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
 
@@ -1412,7 +1421,7 @@ default: 'top'
             Number of rows/columns of the subplot grid.
 
         sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
-            Controls sharing of properties among x (`sharex`) or y (`sharey`)
+            Controls sharing of properties among x (*sharex*) or y (*sharey*)
             axes:
 
             - True or 'all': x- or y-axis will be shared among all subplots.
@@ -1724,18 +1733,6 @@ default: 'top'
             raise AttributeError("draw_artist can only be used after an "
                                  "initial draw which caches the renderer")
         a.draw(self._cachedRenderer)
-
-    def get_axes(self):
-        """
-        Return a list of axes in the Figure. You can access and modify the
-        axes in the Figure through this list.
-
-        Do not modify the list itself. Instead, use `~Figure.add_axes`,
-        `~.Figure.subplot` or `~.Figure.delaxes` to add or remove an axes.
-
-        Note: This is equivalent to the property `~.Figure.axes`.
-        """
-        return self.axes
 
     # Note: in the docstring below, the newlines in the examples after the
     # calls to legend() allow replacing it with figlegend() to generate the
@@ -2432,7 +2429,7 @@ default: 'top'
 
         To exclude an artist on the axes from the bounding box calculation
         that determines the subplot parameters (i.e. legend, or annotation),
-        set `a.set_in_layout(False)` for that artist.
+        set ``a.set_in_layout(False)`` for that artist.
 
         Parameters
         ----------

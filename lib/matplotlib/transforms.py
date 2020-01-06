@@ -2719,7 +2719,7 @@ class TransformedPath(TransformNode):
 class TransformedPatchPath(TransformedPath):
     """
     A `TransformedPatchPath` caches a non-affine transformed copy of the
-    `~.patch.Patch`. This cached copy is automatically updated when the
+    `~.patches.Patch`. This cached copy is automatically updated when the
     non-affine part of the transform or the patch changes.
     """
     def __init__(self, patch):

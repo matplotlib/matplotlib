@@ -109,12 +109,13 @@ missing_references_warn_unused_ignores = False
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
-    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
-    'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
-    'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
     'cycler': ('https://matplotlib.org/cycler', None),
     'dateutil': ('https://dateutil.readthedocs.io/en/stable/', None),
+    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+    'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
+    'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
+    'pytest': ('https://pytest.org/en/stable', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
 }
 
 

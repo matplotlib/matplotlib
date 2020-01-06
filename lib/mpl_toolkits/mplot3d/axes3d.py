@@ -1359,7 +1359,7 @@ class Axes3D(Axes):
     def text(self, x, y, z, s, zdir=None, **kwargs):
         """
         Add text to the plot. kwargs will be passed on to Axes.text,
-        except for the `zdir` keyword, which sets the direction to be
+        except for the *zdir* keyword, which sets the direction to be
         used as the z direction.
         """
         text = super().text(x, y, s, **kwargs)
@@ -1467,7 +1467,7 @@ class Axes3D(Axes):
             *cmap* is specified.
 
         lightsource : `~matplotlib.colors.LightSource`
-            The lightsource to use when `shade` is True.
+            The lightsource to use when *shade* is True.
 
         **kwargs
             Other arguments are forwarded to `.Poly3DCollection`.

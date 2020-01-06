@@ -566,10 +566,10 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        rectangle_patch : `.Patches.Rectangle`
+        rectangle_patch : `.patches.Rectangle`
              Rectangle artist.
 
-        connector_lines : 4-tuple of `.Patches.ConnectionPatch`
+        connector_lines : 4-tuple of `.patches.ConnectionPatch`
             Each of four connector lines coming from the rectangle drawn on
             this axis, in the order lower left, upper left, lower right,
             upper right.
@@ -3091,8 +3091,8 @@ class Axes(_AxesBase):
             These arguments can be used to indicate that a value gives only
             upper/lower limits. In that case a caret symbol is used to
             indicate this. *lims*-arguments may be of the same type as *xerr*
-            and *yerr*.  To use limits with inverted axes, :meth:`set_xlim`
-            or :meth:`set_ylim` must be called before :meth:`errorbar`.
+            and *yerr*.  To use limits with inverted axes, `~.Axes.set_xlim`
+            or `~.Axes.set_ylim` must be called before :meth:`errorbar`.
 
         errorevery : int or (int, int), default: 1
             draws error bars on a subset of the data. *errorevery* =N draws
@@ -5420,7 +5420,7 @@ default: :rc:`scatter.edgecolors`
             scalar data to colors. This parameter is ignored for RGB(A) data.
 
         norm : `~matplotlib.colors.Normalize`, optional
-            The `Normalize` instance used to scale scalar data to the [0, 1]
+            The `.Normalize` instance used to scale scalar data to the [0, 1]
             range before mapping to colors using *cmap*. By default, a linear
             scaling mapping the lowest value to 0 and the highest to 1 is used.
             This parameter is ignored for RGB(A) data.

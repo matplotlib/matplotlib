@@ -19,7 +19,7 @@ replace the venerable ``tight_layout`` method.  It is invoked via
 a new ``constrained_layout=True`` kwarg to
 `~.figure.Figure` or `~.Figure.subplots`.
 
-There are new ``rcParams`` for this package, and spacing can be
+There are new `.rcParams` for this package, and spacing can be
 more finely tuned with the new `~.set_constrained_layout_pads`.
 
 Features include:
@@ -70,7 +70,7 @@ xlabels and ylabels can now be automatically aligned
 Subplot axes ``ylabels`` can be misaligned horizontally if the tick labels
 are very different widths.  The same can happen to ``xlabels`` if the
 ticklabels are rotated on one subplot (for instance).  The new methods
-on the `Figure` class: `Figure.align_xlabels` and `Figure.align_ylabels`
+on the `.Figure` class: `.Figure.align_xlabels` and `.Figure.align_ylabels`
 will now align these labels horizontally or vertically.  If the user only
 wants to align some axes, a list of axes can be passed.  If no list is
 passed, the algorithm looks at all the labels on the figure.
@@ -81,7 +81,7 @@ subplot layout.
 
 Alignemnt is persistent and automatic after these are called.
 
-A convenience wrapper `Figure.align_labels` calls both functions at once.
+A convenience wrapper `.Figure.align_labels` calls both functions at once.
 
 .. plot::
 
@@ -195,10 +195,10 @@ If *closedmax==True*, then the slider will snap to *valmax* as well.
 
 
 
-``capstyle`` and ``joinstyle`` attributes added to `Collection`
----------------------------------------------------------------
+``capstyle`` and ``joinstyle`` attributes added to `.Collection`
+----------------------------------------------------------------
 
-The `Collection` class now has customizable ``capstyle`` and ``joinstyle``
+The `.Collection` class now has customizable ``capstyle`` and ``joinstyle``
 attributes. This allows the user for example to set the ``capstyle`` of
 errorbars.
 
@@ -206,10 +206,10 @@ errorbars.
 *pad* kwarg added to ax.set_title
 ---------------------------------
 
-The method `axes.set_title` now has a *pad* kwarg, that specifies the
+The method `.Axes.set_title` now has a *pad* kwarg, that specifies the
 distance from the top of an axes to where the title is drawn.  The units
 of *pad* is points, and the default is the value of the (already-existing)
-``rcParams['axes.titlepad']``.
+:rc:`axes.titlepad`.
 
 
 Comparison of 2 colors in Matplotlib
@@ -227,7 +227,7 @@ Setting the limits automatically in a polar plot now snaps the radial limit
 to zero if the automatic limit is nearby. This means plotting from zero doesn't
 automatically scale to include small negative values on the radial axis.
 
-The limits can still be set manually in the usual way using `set_ylim`.
+The limits can still be set manually in the usual way using `~.Axes.set_ylim`.
 
 
 PathLike support
@@ -238,13 +238,13 @@ On Python 3.6+, `~matplotlib.pyplot.savefig`, `~matplotlib.pyplot.imsave`,
 as input.
 
 
-`Axes.tick_params` can set gridline properties
-----------------------------------------------
+`.Axes.tick_params` can set gridline properties
+-----------------------------------------------
 
-`Tick` objects hold gridlines as well as the tick mark and its label.
-`Axis.set_tick_params`, `Axes.tick_params` and `pyplot.tick_params`
+`.Tick` objects hold gridlines as well as the tick mark and its label.
+`.Axis.set_tick_params`, `.Axes.tick_params` and `.pyplot.tick_params`
 now have keyword arguments 'grid_color', 'grid_alpha', 'grid_linewidth',
-and 'grid_linestyle' for overriding the defaults in `rcParams`:
+and 'grid_linestyle' for overriding the defaults in `.rcParams`:
 'grid.color', etc.
 
 
@@ -336,7 +336,7 @@ Matplotlib has in the past (sporadically) used an internal
 verbose-output reporter.  This version converts those calls to using the
 standard python `logging` library.
 
-Support for the old ``rcParams`` ``verbose.level`` and ``verbose.fileo`` is
+Support for the old `.rcParams` ``verbose.level`` and ``verbose.fileo`` is
 dropped.
 
 The command-line options ``--verbose-helpful`` and ``--verbose-debug`` are
@@ -354,10 +354,10 @@ developers in :ref:`contributing`.
 
 .. _logging: https://docs.python.org/3/library/logging.html
 
-Improved `repr` for `Transform`\s
----------------------------------
+Improved `repr` for `.Transform`\s
+----------------------------------
 
-`Transform`\s now indent their `repr`\s in a more legible manner:
+`.Transform`\s now indent their `repr`\s in a more legible manner:
 
 .. code-block:: ipython
 

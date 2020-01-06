@@ -46,7 +46,7 @@ Running the tests is simple. Make sure you have pytest installed and run::
 
 in the root directory of the repository.
 
-`pytest` can be configured via a lot of `commandline parameters`_. Some
+pytest can be configured via a lot of `commandline parameters`_. Some
 particularly useful ones are:
 
 =============================  ===========
@@ -160,7 +160,7 @@ the tests, they should now pass.
 Baseline images take a lot of space in the Matplotlib repository.
 An alternative approach for image comparison tests is to use the
 `~matplotlib.testing.decorators.check_figures_equal` decorator, which should be
-used to decorate a function taking two `Figure` parameters and draws the same
+used to decorate a function taking two `.Figure` parameters and draws the same
 images on the figures using two different methods (the tested method and the
 baseline method).  The decorator will arrange for setting up the figures and
 then collect the drawn results and compare them.

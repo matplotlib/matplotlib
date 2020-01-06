@@ -22,7 +22,7 @@ Interactive OO usage
 All `.Artist`\s now keep track of if their internal state has been
 changed but not reflected in the display ('stale') by a call to
 ``draw``.  It is thus possible to pragmatically determine if a given
-`Figure` needs to be re-drawn in an interactive session.
+`.Figure` needs to be re-drawn in an interactive session.
 
 To facilitate interactive usage a ``draw_all`` method has been added
 to ``pyplot`` which will redraw all of the figures which are 'stale'.
@@ -340,7 +340,7 @@ Added ability to place the label before the marker in a legend box with
 Support for legend for PolyCollection and stackplot
 ```````````````````````````````````````````````````
 
-Added a `legend_handler` for :class:`~matplotlib.collections.PolyCollection` as well as a `labels` argument to
+Added a :mod:`.legend_handler` for :class:`~matplotlib.collections.PolyCollection` as well as a *labels* argument to
 :func:`~matplotlib.axes.Axes.stackplot`.
 
 
@@ -510,11 +510,11 @@ which allow artist-level control of LaTeX rendering vs. the internal mathtex
 rendering.
 
 
-`ax.remove()` works as expected
-```````````````````````````````
+`.Axes.remove()` works as expected
+``````````````````````````````````
 
 As with artists added to an :class:`~matplotlib.axes.Axes`,
-`Axes` objects can be removed from their figure via
+`~.axes.Axes` objects can be removed from their figure via
 :meth:`~matplotlib.axes.Axes.remove()`.
 
 
@@ -557,7 +557,7 @@ The Date Locators can now be used easily without creating axes ::
 OffsetBoxes now support clipping
 ````````````````````````````````
 
-`Artist`\s draw onto objects of type `.OffsetBox`
+`.Artist`\s draw onto objects of type `.OffsetBox`
 through `~.offsetbox.DrawingArea` and `~.offsetbox.TextArea`.
 The `.TextArea` calculates the required space for the text and so the
 text is always within the bounds, for this nothing has changed.
@@ -604,14 +604,14 @@ ToolManager
 -----------
 
 Federico Ariza wrote the new `~matplotlib.backend_managers.ToolManager`
-that comes as replacement for `NavigationToolbar2`
+that comes as replacement for `.NavigationToolbar2`
 
 `.ToolManager` offers a new way of looking at the user interactions
-with the figures.  Before we had the `NavigationToolbar2` with its own
+with the figures.  Before we had the `.NavigationToolbar2` with its own
 tools like ``zoom/pan/home/save/...`` and also we had the shortcuts like
 ``yscale/grid/quit/....``. `.ToolManager` relocate all those actions as
 `Tools` (located in `~matplotlib.backend_tools`), and defines a way to
-`access/trigger/reconfigure` them.
+access/trigger/reconfigure them.
 
 The `Toolbars` are replaced for `ToolContainers` that are just GUI
 interfaces to `trigger` the tools. But don't worry the default
@@ -673,7 +673,7 @@ To add it to the toolbar inside the group 'foo'
 There is a second class of tools, "Toggleable Tools", this are almost
 the same as our basic tools, just that belong to a group, and are
 mutually exclusive inside that group.  For tools derived from
-`ToolToggleBase` there are two basic methods `enable` and `disable`
+`.ToolToggleBase` there are two basic methods `~.ToolToggleBase.enable` and `~.ToolToggleBase.disable`
 that are called automatically whenever it is toggled.
 
 

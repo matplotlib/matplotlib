@@ -42,8 +42,7 @@ from matplotlib.gridspec import GridSpec
 from matplotlib import rcParams, rcParamsDefault, get_backend, rcParamsOrig
 from matplotlib import rc_context
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
-from matplotlib.artist import getp, get, Artist
-from matplotlib.artist import setp as _setp
+from matplotlib.artist import Artist
 from matplotlib.axes import Axes, Subplot
 from matplotlib.projections import PolarAxes
 from matplotlib import mlab  # for _csv2rec, detrend_none, window_hanning
@@ -326,10 +325,22 @@ def rcdefaults():
         draw_all()
 
 
-# (getp is simply imported)
-@docstring.copy(_setp)
+# getp/get/setp are explicitly reexported so that they show up in pyplot docs.
+
+
+@docstring.copy(matplotlib.artist.getp)
+def getp(obj, *args, **kwargs):
+    return matplotlib.artist.getp(obj, *args, **kwargs)
+
+
+@docstring.copy(matplotlib.artist.get)
+def get(obj, *args, **kwargs):
+    return matplotlib.artist.get(obj, *args, **kwargs)
+
+
+@docstring.copy(matplotlib.artist.setp)
 def setp(obj, *args, **kwargs):
-    return _setp(obj, *args, **kwargs)
+    return matplotlib.artist.setp(obj, *args, **kwargs)
 
 
 def xkcd(scale=1, length=100, randomness=2):
@@ -791,7 +802,7 @@ def axes(arg=None, **kwargs):
 
 def delaxes(ax=None):
     """
-    Remove the `Axes` *ax* (defaulting to the current axes) from its figure.
+    Remove an `~.axes.Axes` (defaulting to the current axes) from its figure.
     """
     if ax is None:
         ax = gca()
@@ -1126,7 +1137,7 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
         Number of rows for the axis to span to the right.
     colspan : int
         Number of columns for the axis to span downwards.
-    fig : `Figure`, optional
+    fig : `.Figure`, optional
         Figure to place axis in. Defaults to current figure.
     **kwargs
         Additional keyword arguments are handed to `add_subplot`.
@@ -1964,7 +1975,7 @@ def set_cmap(cmap):
 
     Parameters
     ----------
-    cmap : `~matplotib.colors.Colormap` or str
+    cmap : `~matplotlib.colors.Colormap` or str
         A colormap instance or the name of a registered colormap.
 
     See Also

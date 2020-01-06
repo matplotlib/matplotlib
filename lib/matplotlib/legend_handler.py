@@ -336,9 +336,8 @@ class HandlerLineCollection(HandlerLine2D):
 
 
 class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
-    """
-    Handler for `.RegularPolyCollections`.
-    """
+    r"""Handler for `.RegularPolyCollection`\s."""
+
     def __init__(self, yoffsets=None, sizes=None, **kw):
         HandlerNpointsYoffsets.__init__(self, yoffsets=yoffsets, **kw)
 
@@ -411,9 +410,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
 
 
 class HandlerPathCollection(HandlerRegularPolyCollection):
-    """
-    Handler for `.PathCollections`, which are used by `~.Axes.scatter`.
-    """
+    r"""Handler for `.PathCollection`\s, which are used by `~.Axes.scatter`."""
     def create_collection(self, orig_handle, sizes, offsets, transOffset):
         p = type(orig_handle)([orig_handle.get_paths()[0]],
                               sizes=sizes,
@@ -424,9 +421,7 @@ class HandlerPathCollection(HandlerRegularPolyCollection):
 
 
 class HandlerCircleCollection(HandlerRegularPolyCollection):
-    """
-    Handler for `.CircleCollections`.
-    """
+    r"""Handler for `.CircleCollection`\s."""
     def create_collection(self, orig_handle, sizes, offsets, transOffset):
         p = type(orig_handle)(sizes,
                               offsets=offsets,
@@ -436,9 +431,8 @@ class HandlerCircleCollection(HandlerRegularPolyCollection):
 
 
 class HandlerErrorbar(HandlerLine2D):
-    """
-    Handler for Errorbars.
-    """
+    """Handler for Errorbars."""
+
     def __init__(self, xerr_size=0.5, yerr_size=None,
                  marker_pad=0.3, numpoints=None, **kw):
 

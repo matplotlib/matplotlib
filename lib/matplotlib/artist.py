@@ -261,7 +261,7 @@ class Artist:
 
     def get_tightbbox(self, renderer):
         """
-        Like `Artist.get_window_extent`, but includes any clipping.
+        Like `.Artist.get_window_extent`, but includes any clipping.
 
         Parameters
         ----------
@@ -1482,9 +1482,8 @@ def getp(obj, property=None):
         getp(obj)  # get all the object properties
         getp(obj, 'linestyle')  # get the linestyle property
 
-    *obj* is a :class:`Artist` instance, e.g.,
-    :class:`~matplotlib.lines.Line2D` or an instance of a
-    :class:`~matplotlib.axes.Axes` or :class:`matplotlib.text.Text`.
+    *obj* is a `.Artist` instance, e.g., `~matplotlib.lines.Line2D` or an
+    instance of a `~matplotlib.axes.Axes` or `matplotlib.text.Text`.
     If the *property* is 'somename', this function returns
 
       obj.get_somename()

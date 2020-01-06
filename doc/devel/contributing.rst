@@ -444,7 +444,7 @@ To include `logging` in your module, at the top of the module, you need to
 will log to a logger named ``matplotlib.yourmodulename``.
 
 If an end-user of Matplotlib sets up `logging` to display at levels
-more verbose than `logger.WARNING` in their code with the Matplotlib-provided
+more verbose than `logging.WARNING` in their code with the Matplotlib-provided
 helper::
 
   plt.set_loglevel("debug")

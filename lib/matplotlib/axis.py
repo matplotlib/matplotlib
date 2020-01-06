@@ -1619,7 +1619,7 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        ticklabels : sequence of str or of `Text`\s
+        ticklabels : sequence of str or of `.Text`\s
             List of texts for tick labels; must include values for non-visible
             labels.
         minor : bool
@@ -1629,7 +1629,7 @@ class Axis(martist.Artist):
 
         Returns
         -------
-        labels : list of `Text`\s
+        labels : list of `.Text`\s
             For each tick, includes ``tick.label1`` if it is visible, then
             ``tick.label2`` if it is visible, in that order.
         """

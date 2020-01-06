@@ -381,7 +381,7 @@ def host_axes(*args, axes_class=None, figure=None, **kwargs):
     ----------
     figure : `matplotlib.figure.Figure`
         Figure to which the axes will be added. Defaults to the current figure
-        `pyplot.gcf()`.
+        `.pyplot.gcf()`.
 
     *args, **kwargs
         Will be passed on to the underlying ``Axes`` object creation.
@@ -404,7 +404,7 @@ def host_subplot(*args, axes_class=None, figure=None, **kwargs):
     ----------
     figure : `matplotlib.figure.Figure`
         Figure to which the subplot will be added. Defaults to the current
-        figure `pyplot.gcf()`.
+        figure `.pyplot.gcf()`.
 
     *args, **kwargs
         Will be passed on to the underlying ``Axes`` object creation.

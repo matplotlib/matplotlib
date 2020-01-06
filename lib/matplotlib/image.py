@@ -1640,8 +1640,8 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
         If True, the default backend (presumably a user interface
         backend) will be used which will cause a figure to be raised if
         `~matplotlib.pyplot.show` is called.  If it is False, the figure is
-        created using `FigureCanvasBase` and the drawing backend is selected
-        as `~matplotlib.figure.savefig` would normally do.
+        created using `.FigureCanvasBase` and the drawing backend is selected
+        as `.Figure.savefig` would normally do.
 
     Returns
     -------

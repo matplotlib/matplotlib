@@ -942,7 +942,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
     def legend_elements(self, variable_name='x', str_format=str):
         """
         Return a list of artists and labels suitable for passing through
-        to :func:`plt.legend` which represent this ContourSet.
+        to `~.Axes.legend` which represent this ContourSet.
 
         The labels have the form "0 < x <= 1" stating the data ranges which
         the artists represent.

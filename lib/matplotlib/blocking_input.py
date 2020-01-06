@@ -16,7 +16,7 @@ windows:
 
 `BlockingContourLabeler`
     Creates a callable object to retrieve mouse clicks in a blocking way that
-    will then be used to place labels on a `ContourSet`.  Used by
+    will then be used to place labels on a `.ContourSet`.  Used by
     `~.Axes.clabel`.
 """
 

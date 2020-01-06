@@ -2021,9 +2021,8 @@ class MaxNLocator(Locator):
             be allowed because 3 does not appear in the list of steps.
 
         integer : bool, default: False
-            If True, ticks will take only integer values, provided
-            at least `min_n_ticks` integers are found within the
-            view limits.
+            If True, ticks will take only integer values, provided at least
+            *min_n_ticks* integers are found within the view limits.
 
         symmetric : bool, default: False
             If True, autoscaling will result in a range symmetric about zero.
@@ -2040,7 +2039,6 @@ class MaxNLocator(Locator):
         min_n_ticks : int, default: 2
             Relax *nbins* and *integer* constraints if necessary to obtain
             this minimum number of ticks.
-
         """
         if args:
             if 'nbins' in kwargs:

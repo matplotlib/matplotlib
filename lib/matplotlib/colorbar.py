@@ -152,13 +152,13 @@ but the first are also method signatures for the `~.Figure.colorbar` method::
 Parameters
 ----------
 mappable
-    The `matplotlib.cm.ScalarMappable` (i.e., `~matplotlib.image.Image`,
+    The `matplotlib.cm.ScalarMappable` (i.e., `~matplotlib.image.AxesImage`,
     `~matplotlib.contour.ContourSet`, etc.) described by this colorbar.
     This argument is mandatory for the `.Figure.colorbar` method but optional
     for the `.pyplot.colorbar` function, which sets the default to the current
     image.
 
-    Note that one can create a `ScalarMappable` "on-the-fly" to generate
+    Note that one can create a `.ScalarMappable` "on-the-fly" to generate
     colorbars not attached to a previously drawn artist, e.g. ::
 
         fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)

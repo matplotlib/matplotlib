@@ -1881,7 +1881,7 @@ class BoxStyle(_Style):
 
        __call__(self, x0, y0, width, height, mutation_size, aspect_ratio=1.)
 
-    and returns a :class:`Path` instance. *x0*, *y0*, *width* and
+    and returns a `.Path` instance. *x0*, *y0*, *width* and
     *height* specify the location and size of the box to be
     drawn. *mutation_scale* determines the overall size of the
     mutation (by which I mean the transformation of the rectangle to
@@ -2655,7 +2655,7 @@ class ConnectionStyle(_Style):
                  patchA=None, patchB=None,
                  shrinkA=2., shrinkB=2.)
 
-    and it returns a :class:`Path` instance. *posA* and *posB* are
+    and it returns a `.Path` instance. *posA* and *posB* are
     tuples of (x, y) coordinates of the two points to be
     connected. *patchA* (or *patchB*) is given, the returned path is
     clipped so that it start (or end) from the boundary of the
@@ -3096,8 +3096,8 @@ class ArrowStyle(_Style):
 
         __call__(self, path, mutation_size, linewidth, aspect_ratio=1.)
 
-    and it returns a tuple of a :class:`Path` instance and a boolean
-    value. *path* is a :class:`Path` instance along which the arrow
+    and it returns a tuple of a `.Path` instance and a boolean
+    value. *path* is a `.Path` instance along which the arrow
     will be drawn. *mutation_size* and *aspect_ratio* have the same
     meaning as in :class:`BoxStyle`. *linewidth* is a line width to be
     stroked. This is meant to be used to correct the location of the

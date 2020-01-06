@@ -124,9 +124,9 @@ class StemContainer(Container):
         ----------
         markerline_stemlines_baseline : tuple
             Tuple of ``(markerline, stemlines, baseline)``.
-            ``markerline`` contains the `LineCollection` of the markers,
-            ``stemlines`` is a `LineCollection` of the main lines,
-            ``baseline`` is the `Line2D` of the baseline.
+            ``markerline`` contains the `.LineCollection` of the markers,
+            ``stemlines`` is a `.LineCollection` of the main lines,
+            ``baseline`` is the `.Line2D` of the baseline.
         """
         markerline, stemlines, baseline = markerline_stemlines_baseline
         self.markerline = markerline

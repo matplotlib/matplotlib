@@ -376,7 +376,7 @@ _dateutil_parser_parse_np_vectorized = np.vectorize(dateutil.parser.parse)
 
 def datestr2num(d, default=None):
     """
-    Convert a date string to a datenum using :func:`dateutil.parser.parse`.
+    Convert a date string to a datenum using `dateutil.parser.parse`.
 
     Parameters
     ----------
@@ -488,7 +488,7 @@ def num2date(x, tz=None):
     `~datetime.datetime` or sequence of `~datetime.datetime`
         Dates are returned in timezone *tz*.
 
-        If *x* is a sequence, a sequence of :class:`datetime` objects will
+        If *x* is a sequence, a sequence of `~datetime.datetime` objects will
         be returned.
 
     Notes
