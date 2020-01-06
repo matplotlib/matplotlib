@@ -932,7 +932,7 @@ div.responsive_subfig img {
     width: 100%;
 }
 
-@media only screen and (max-width: 1000px){
+@media only screen and (max-width: 930px){
     /* The value of 1000px was handcrafted to provide a more or less */
     /* smooth transition between the 1x4 and the 2x2 layouts. It is  */
     /* NB: it is slightly below 1024px: so one should still have a   */
@@ -1015,4 +1015,79 @@ div.viewcode-block:target {
 
 .sidebar-announcement p {
     margin: 0.4em 0.4em 0.6em 0.4em;
+}
+
+/* new main nav */
+nav.main-nav{
+    background-color: #002b47;
+    font-family: 'CarlogoRegular', 'Carlito', sans-serif;
+    font-size: 16px;
+  }
+  
+  nav.main-nav ul{
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+  }
+  
+  nav.main-nav li{
+    margin: 8px 15px;
+    list-style-type: none;
+  }
+
+  nav.main-nav a{
+    color: white;
+  }
+  
+  nav.main-nav a:hover{
+    text-decoration: underline;
+  }
+
+  nav.main-nav li.nav-right{
+    margin: 6px 15px 0 auto;
+  }
+
+  nav.main-nav input {
+    border: 0;
+    padding: 3px 6px;
+    width: 198px;
+  }
+
+/* community items on main page */
+div.box {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+div.box-item {
+    flex: 0 0 45%;
+    padding: 4px;
+    margin: 8px 12px;
+}
+
+div.box-item img {
+    float: left;
+    width: 30px;
+    height: 30px;
+    fill: #888;
+
+}
+div.box-item p {
+    margin: 0 0 0 50px;
+}
+
+div.box-item ul {
+    margin: 0 0 0 50px;
+    padding-left: 20px;
+}
+
+hr.box-sep {
+    margin: 1em 2em;
+}
+
+@media only screen and (max-width: 930px){
+    div.box-item {
+        flex: 0 0 90%;
+    }
 }
