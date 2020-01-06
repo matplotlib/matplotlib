@@ -153,19 +153,17 @@ class Text(Artist):
             color = rcParams['text.color']
         if fontproperties is None:
             fontproperties = FontProperties()
-        elif isinstance(fontproperties, str):
-            fontproperties = FontProperties(fontproperties)
 
         self._text = ''
         self.set_text(text)
         self.set_color(color)
+        self.set_fontproperties(fontproperties)
         self.set_usetex(usetex)
         self.set_wrap(wrap)
         self.set_verticalalignment(verticalalignment)
         self.set_horizontalalignment(horizontalalignment)
         self._multialignment = multialignment
         self._rotation = rotation
-        self._fontproperties = fontproperties
         self._bbox_patch = None  # a FancyBboxPatch instance
         self._renderer = None
         if linespacing is None:

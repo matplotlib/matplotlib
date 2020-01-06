@@ -657,9 +657,6 @@ class FontProperties:
         self.set_file(fname)
         self.set_size(size)
 
-    def _parse_fontconfig_pattern(self, pattern):
-        return parse_fontconfig_pattern(pattern)
-
     def __hash__(self):
         l = (tuple(self.get_family()),
              self.get_slant(),
@@ -850,7 +847,7 @@ class FontProperties:
         This support does not depend on fontconfig; we are merely borrowing its
         pattern syntax for use here.
         """
-        for key, val in self._parse_fontconfig_pattern(pattern).items():
+        for key, val in parse_fontconfig_pattern(pattern).items():
             if type(val) == list:
                 getattr(self, "set_" + key)(val[0])
             else:
