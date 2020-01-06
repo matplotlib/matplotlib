@@ -1534,7 +1534,8 @@ def pad_arrays(*v, padval=np.nan):
 
     if len(set([k.shape[0] for k in v])) == 1:
         return v
-    return np.array(list(itertools.zip_longest(*v, fillvalue=padval)), dtype=float).T
+    padded_v = list(itertools.zip_longest(*v, fillvalue=padval))
+    return np.array(padded_v, dtype=float).T
 
 
 def pts_to_prestep(x, *args):
@@ -1603,7 +1604,7 @@ def pts_to_betweenstep(x, *args):
     step_length = max(2 * max(len(x), len(args[0])) - 2, 0)
     steps = np.zeros((1 + len(args), step_length))
 
-    def __between__(steps, sl0, sl1, _x, _args):    
+    def __between__(steps, sl0, sl1, _x, _args):
         # Be agnostic whether xlike or ylike
         if _x.flatten().shape != x.shape:
             if _x.flatten().shape[-1] == _x.shape[-1]:
@@ -1612,7 +1613,7 @@ def pts_to_betweenstep(x, *args):
         steps[sl0, 2::2] = _x[1:-1]
         steps[sl0, 1:-1:2] = _x[1:-1]
         steps[sl1, 0::2] = _args
-        steps[sl1, 1::2] = _args      
+        steps[sl1, 1::2] = _args
         return steps
 
     if len(x) == len(args[0]) + 1:
@@ -1665,7 +1666,6 @@ def pts_to_betweenstep_edges(x, *args):
 
     """
     steps = pts_to_betweenstep(x, *args)
-    print("XXX")
     # Extra steps to plot edges where values are missing (Nan).
     nan_cols = np.nonzero(np.isnan(np.sum(steps, axis=0)))[0]
     nan_cols[1::2] = nan_cols[1::2]+1
@@ -1673,7 +1673,6 @@ def pts_to_betweenstep_edges(x, *args):
 
     xlike = len(x) == len(args[0]) + 1
     ylike = len(x) + 1 == len(args[0])
-    print(x,args)
     if not (xlike or ylike):
         # Fall back to steps-post (legend drawing)
         edge_steps = pts_to_poststep(x, *args)
