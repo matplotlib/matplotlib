@@ -1509,17 +1509,21 @@ def pad_arrays(*v, padval=np.nan):
     """
     Pad list of arrays of varying lengths to the same size with specified
     value. Useful for padding asymetrical arrays
+
     Parameters
     ----------
     v : iterable
         List of arrays to be padded to the largest len. All elements must
         support iteration
+        
     padval : scalar, bool or NaN, defaul NaN
         value to pad missing values with
+
     Returns
     -------
     out : array
         Array of input arrays padded to the same len by specified padval
+
     Examples
     --------
     >>> a, b, c = pad_arrays(np.array([1,2,3,4]), np.array([1,2,3]),
