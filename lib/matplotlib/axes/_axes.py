@@ -5364,6 +5364,7 @@ default: :rc:`scatter.edgecolors`
         if step == 'between':
             pad_size -= 1
 
+        # Broadcast scalar values
         x1 = np.broadcast_to(x1, pad_size, subok=True)
         x2 = np.broadcast_to(x2, pad_size, subok=True)
         where = np.broadcast_to(where, pad_size, subok=True)

@@ -1505,6 +1505,38 @@ def violin_stats(X, method, points=100, quantiles=None):
     return vpstats
 
 
+def pad_arrays(*v, padval=np.nan):
+    """
+    Pad list of arrays of varying lengths to the same size with specified
+    value. Useful for padding asymetrical arrays
+    Parameters
+    ----------
+    v : iterable
+        List of arrays to be padded to the largest len. All elements must
+        support iteration
+    padval : scalar, bool or NaN, defaul NaN
+        value to pad missing values with
+    Returns
+    -------
+    out : array
+        Array of input arrays padded to the same len by specified padval
+    Examples
+    --------
+    >>> a, b, c = pad_arrays(np.array([1,2,3,4]), np.array([1,2,3]),
+                             np.array([1]))
+    >>> a
+    np.array([1, 2, 3, 4])
+    >>> b
+    np.array([1, 2, 3, np.nan]
+    >>> c
+    np.array([1, np.nan, np.nan, np.nan])
+    """
+
+    if len(set([k.shape[0] for k in v])) == 1:
+        return v
+    return np.array(list(itertools.zip_longest(*v, fillvalue=padval)), dtype=float).T
+
+
 def pts_to_prestep(x, *args):
     """
     Convert continuous line to pre-steps.
@@ -1571,19 +1603,35 @@ def pts_to_betweenstep(x, *args):
     step_length = max(2 * max(len(x), len(args[0])) - 2, 0)
     steps = np.zeros((1 + len(args), step_length))
 
+    def __between__(steps, sl0, sl1, _x, _args):    
+        # Be agnostic whether xlike or ylike
+        if _x.flatten().shape != x.shape:
+            if _x.flatten().shape[-1] == _x.shape[-1]:
+                _x = _x[0]
+        steps[sl0, ::steps.shape[-1]-1] = _x[::_x.shape[-1]-1]
+        steps[sl0, 2::2] = _x[1:-1]
+        steps[sl0, 1:-1:2] = _x[1:-1]
+        steps[sl1, 0::2] = _args
+        steps[sl1, 1::2] = _args      
+        return steps
+
     if len(x) == len(args[0]) + 1:
-        steps[0, ::len(steps[0])-1] = x[::len(x)-1]
-        steps[0, 2::2] = x[1:-1]
-        steps[0, 1:-1:2] = x[1:-1]
-        steps[1:, 0::2] = args
-        steps[1:, 1::2] = args
+        steps = __between__(steps, 0, slice(1, None),
+                            x, args)
+        # steps[0, ::len(steps[0])-1] = x[::len(x)-1]
+        # steps[0, 2::2] = x[1:-1]
+        # steps[0, 1:-1:2] = x[1:-1]
+        # steps[1:, 0::2] = args
+        # steps[1:, 1::2] = args
 
     elif len(x) + 1 == len(args[0]):
-        steps[0, 0::2] = x
-        steps[0, 1::2] = x
-        steps[1:, ::len(steps[0])-1] = args[:, ::len(args[0])-1]
-        steps[1:,  1:-1:2] = args[:, 1:-1]
-        steps[1:,  2:-1:2] = args[:, 1:-1]
+        steps = __between__(steps, slice(1, None), 0,
+                                args, x)
+        # steps[0, 0::2] = x
+        # steps[0, 1::2] = x
+        # steps[1:, ::len(steps[0])-1] = args[:, ::len(args[0])-1]
+        # steps[1:,  1:-1:2] = args[:, 1:-1]
+        # steps[1:,  2:-1:2] = args[:, 1:-1]
     else:
         # Fall back to steps-post (legend drawing)
         steps = pts_to_poststep(x, *args)
@@ -1617,7 +1665,7 @@ def pts_to_betweenstep_edges(x, *args):
 
     """
     steps = pts_to_betweenstep(x, *args)
-
+    print("XXX")
     # Extra steps to plot edges where values are missing (Nan).
     nan_cols = np.nonzero(np.isnan(np.sum(steps, axis=0)))[0]
     nan_cols[1::2] = nan_cols[1::2]+1
@@ -1625,6 +1673,7 @@ def pts_to_betweenstep_edges(x, *args):
 
     xlike = len(x) == len(args[0]) + 1
     ylike = len(x) + 1 == len(args[0])
+    print(x,args)
     if not (xlike or ylike):
         # Fall back to steps-post (legend drawing)
         edge_steps = pts_to_poststep(x, *args)

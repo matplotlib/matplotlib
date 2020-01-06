@@ -609,7 +609,7 @@ class Line2D(Artist):
         Parameters
         ----------
         p : float or callable[[Artist, Event], Tuple[bool, dict]]
-            If a float, it is used as the pick radius in points.
+            If a float, it is used as the pick radius in poits.
         """
         if callable(p):
             self._contains = p
@@ -620,8 +620,9 @@ class Line2D(Artist):
     def get_window_extent(self, renderer):
         bbox = Bbox([[0, 0], [0, 0]])
         trans_data_to_xy = self.get_transform().transform
-        bbox.update_from_data_xy(
-            trans_data_to_xy(self.get_xydata()), ignore=True)
+        padded_xy = np.column_stack(
+            cbook.pad_arrays(*self.get_xydata())).astype(float)
+        bbox.update_from_data_xy(trans_data_to_xy(padded_xy), ignore=True)
         # correct for marker size, if any
         if self._marker:
             ms = (self._markersize / 72.0 * self.figure.dpi) * 0.5
@@ -673,7 +674,7 @@ class Line2D(Artist):
             y = self._y
 
         if self._drawstyle in ["steps-between", "steps-edges"]:
-            # Done separately, as x and y could have different length
+            # Account for varying x, y length
             self._x, self._y = x, y
             self._xy = np.array([self._x, self._y])
         else:
