@@ -124,3 +124,10 @@ The following parameters do not have any effect and are deprecated:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This method is deprecated.  Use
 ``ax.dataLim.set(Bbox.union([ax.dataLim, bounds]))`` instead.
+
+``{,Symmetrical}LogScale.{,Inverted}LogTransform``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``LogScale.LogTransform``, ``LogScale.InvertedLogTransform``,
+``SymmetricalScale.SymmetricalTransform`` and
+``SymmetricalScale.InvertedSymmetricalTransform`` are deprecated.  Directly
+access the transform classes from the :mod:`.scale` module.

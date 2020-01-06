@@ -344,8 +344,16 @@ class LogScale(ScaleBase):
     InvertedLog2Transform = InvertedLog2Transform
     NaturalLogTransform = NaturalLogTransform
     InvertedNaturalLogTransform = InvertedNaturalLogTransform
-    LogTransform = LogTransform
-    InvertedLogTransform = InvertedLogTransform
+
+    @cbook.deprecated("3.3", alternative="scale.LogTransform")
+    @property
+    def LogTransform(self):
+        return LogTransform
+
+    @cbook.deprecated("3.3", alternative="scale.InvertedLogTransform")
+    @property
+    def InvertedLogTransform(self):
+        return InvertedLogTransform
 
     def __init__(self, axis, **kwargs):
         """
@@ -535,9 +543,17 @@ class SymmetricalLogScale(ScaleBase):
         the logarithmic range.
     """
     name = 'symlog'
-    # compatibility shim
-    SymmetricalLogTransform = SymmetricalLogTransform
-    InvertedSymmetricalLogTransform = InvertedSymmetricalLogTransform
+
+    @cbook.deprecated("3.3", alternative="scale.SymmetricalLogTransform")
+    @property
+    def SymmetricalLogTransform(self):
+        return SymmetricalLogTransform
+
+    @cbook.deprecated(
+        "3.3", alternative="scale.InvertedSymmetricalLogTransform")
+    @property
+    def InvertedSymmetricalLogTransform(self):
+        return InvertedSymmetricalLogTransform
 
     def __init__(self, axis, **kwargs):
         if axis.axis_name == 'x':
