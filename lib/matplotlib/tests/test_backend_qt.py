@@ -183,11 +183,11 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
         def key(self): return getattr(qt_core.Qt, qt_key)
         def modifiers(self): return qt_mod
 
-    def receive(event):
+    def on_key_press(event):
         assert event.key == answer
 
     qt_canvas = plt.figure().canvas
-    qt_canvas.mpl_connect('key_press_event', receive)
+    qt_canvas.mpl_connect('key_press_event', on_key_press)
     qt_canvas.keyPressEvent(_Event())
 
 

@@ -30,7 +30,7 @@ class Cursor:
         # text location in axes coords
         self.txt = ax.text(0.7, 0.9, '', transform=ax.transAxes)
 
-    def mouse_move(self, event):
+    def on_mouse_move(self, event):
         if not event.inaxes:
             return
 
@@ -58,7 +58,7 @@ class SnaptoCursor:
         # text location in axes coords
         self.txt = ax.text(0.7, 0.9, '', transform=ax.transAxes)
 
-    def mouse_move(self, event):
+    def on_mouse_move(self, event):
         if not event.inaxes:
             return
 
@@ -81,11 +81,11 @@ s = np.sin(2 * 2 * np.pi * t)
 fig, ax = plt.subplots()
 ax.plot(t, s, 'o')
 cursor = Cursor(ax)
-fig.canvas.mpl_connect('motion_notify_event', cursor.mouse_move)
+fig.canvas.mpl_connect('motion_notify_event', cursor.on_mouse_move)
 
 fig, ax = plt.subplots()
 ax.plot(t, s, 'o')
 snap_cursor = SnaptoCursor(ax, t, s)
-fig.canvas.mpl_connect('motion_notify_event', snap_cursor.mouse_move)
+fig.canvas.mpl_connect('motion_notify_event', snap_cursor.on_mouse_move)
 
 plt.show()

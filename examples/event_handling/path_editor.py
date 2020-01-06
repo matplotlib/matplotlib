@@ -66,7 +66,7 @@ class PathInteractor:
         canvas.mpl_connect('button_press_event', self.on_button_press)
         canvas.mpl_connect('key_press_event', self.on_key_press)
         canvas.mpl_connect('button_release_event', self.on_button_release)
-        canvas.mpl_connect('motion_notify_event', self.on_motion_notify)
+        canvas.mpl_connect('motion_notify_event', self.on_mouse_move)
         self.canvas = canvas
 
     def get_ind_under_point(self, event):
@@ -119,7 +119,7 @@ class PathInteractor:
                 self._ind = None
         self.canvas.draw()
 
-    def on_motion_notify(self, event):
+    def on_mouse_move(self, event):
         """Callback for mouse movements."""
         if (self._ind is None
                 or event.inaxes is None

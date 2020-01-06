@@ -29,7 +29,7 @@ for legline, origline in zip(leg.get_lines(), lines):
     lined[legline] = origline
 
 
-def onpick(event):
+def on_pick(event):
     # on the pick event, find the orig line corresponding to the
     # legend proxy line, and toggle the visibility
     legline = event.artist
@@ -44,6 +44,6 @@ def onpick(event):
         legline.set_alpha(0.2)
     fig.canvas.draw()
 
-fig.canvas.mpl_connect('pick_event', onpick)
+fig.canvas.mpl_connect('pick_event', on_pick)
 
 plt.show()

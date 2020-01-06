@@ -23,7 +23,7 @@ def update_polygon(tri):
     polygon.set_xy(np.column_stack([xs, ys]))
 
 
-def motion_notify(event):
+def on_mouse_move(event):
     if event.inaxes is None:
         tri = -1
     else:
@@ -57,5 +57,5 @@ plt.triplot(triang, 'bo-')
 polygon = Polygon([[0, 0], [0, 0]], facecolor='y')  # dummy data for (xs, ys)
 update_polygon(-1)
 plt.gca().add_patch(polygon)
-plt.gcf().canvas.mpl_connect('motion_notify_event', motion_notify)
+plt.gcf().canvas.mpl_connect('motion_notify_event', on_mouse_move)
 plt.show()

@@ -1249,10 +1249,10 @@ class Animation:
         self._blit_cache = dict()
         self._drawn_artists = []
         self._resize_id = self._fig.canvas.mpl_connect('resize_event',
-                                                       self._handle_resize)
+                                                       self._on_resize)
         self._post_draw(None, self._blit)
 
-    def _handle_resize(self, *args):
+    def _on_resize(self, event):
         # On resize, we need to disable the resize event handling so we don't
         # get too many events. Also stop the animation events, so that
         # we're paused. Reset the cache and re-init. Set up an event handler
@@ -1271,7 +1271,7 @@ class Animation:
         self.event_source.start()
         self._fig.canvas.mpl_disconnect(self._resize_id)
         self._resize_id = self._fig.canvas.mpl_connect('resize_event',
-                                                       self._handle_resize)
+                                                       self._on_resize)
 
     def to_html5_video(self, embed_limit=None):
         """
