@@ -777,6 +777,8 @@ def _embedded_frames(frame_list, frame_format):
 
 @writers.register('html')
 class HTMLWriter(FileMovieWriter):
+    """Writer for JavaScript-based HTML movies."""
+
     supported_formats = ['png', 'jpeg', 'tiff', 'svg']
     _args_key = 'animation.html_args'
 
