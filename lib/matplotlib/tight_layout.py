@@ -90,8 +90,8 @@ def auto_adjust_subplotpars(
         else:
             margin_top = None
 
-    vspaces = [[] for i in range((rows + 1) * cols)]
-    hspaces = [[] for i in range(rows * (cols + 1))]
+    vspaces = [[] for _ in range((rows + 1) * cols)]
+    hspaces = [[] for _ in range(rows * (cols + 1))]
 
     union = Bbox.union
 

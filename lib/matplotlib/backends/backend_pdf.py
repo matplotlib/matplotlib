@@ -1418,7 +1418,6 @@ end"""
         ``(height, width, 3)`` (RGB) or ``(height, width, 1)`` (grayscale or
         alpha), except that alpha is None if the image is fully opaque.
         """
-        h, w = im.shape[:2]
         im = im[::-1]
         if im.ndim == 2:
             return im, None

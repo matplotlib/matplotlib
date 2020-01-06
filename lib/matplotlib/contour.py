@@ -1140,7 +1140,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         return lev[i0:i1]
 
-    def _contour_level_args(self, z, args):
+    def _process_contour_level_args(self, args):
         """
         Determine the contour levels and store in self.levels.
         """
@@ -1484,7 +1484,7 @@ class QuadContourSet(ContourSet):
             cbook._warn_external('Log scale: values of z <= 0 have been '
                                  'masked')
             self.zmin = float(z.min())
-        self._contour_level_args(z, args)
+        self._process_contour_level_args(args)
         return (x, y, z)
 
     def _check_xyz(self, args, kwargs):

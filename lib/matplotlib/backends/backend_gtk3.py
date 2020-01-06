@@ -364,7 +364,7 @@ class FigureManagerGTK3(FigureManagerBase):
         self.toolbar = self._get_toolbar()
         self.statusbar = None
 
-        def add_widget(child, expand, fill, padding):
+        def add_widget(child):
             child.show()
             self.vbox.pack_end(child, False, False, 0)
             size_request = child.size_request()
@@ -375,12 +375,12 @@ class FigureManagerGTK3(FigureManagerBase):
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
                 self.statusbar = StatusbarGTK3(self.toolmanager)
-                h += add_widget(self.statusbar, False, False, 0)
-                h += add_widget(Gtk.HSeparator(), False, False, 0)
+                h += add_widget(self.statusbar)
+                h += add_widget(Gtk.HSeparator())
 
         if self.toolbar is not None:
             self.toolbar.show()
-            h += add_widget(self.toolbar, False, False, 0)
+            h += add_widget(self.toolbar)
 
         self.window.set_default_size(w, h)
 
