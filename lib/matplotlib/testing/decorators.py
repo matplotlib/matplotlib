@@ -373,7 +373,7 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
 
     Examples
     --------
-    Check that calling `Axes.plot` with a single argument plots it against
+    Check that calling `.Axes.plot` with a single argument plots it against
     ``[0, 1, 2, ...]``::
 
         @check_figures_equal()

@@ -352,7 +352,7 @@ class ThetaAxis(maxis.XAxis):
             tick_kw = self._major_tick_kw
         else:
             tick_kw = self._minor_tick_kw
-        return ThetaTick(self.axes, 0, '', major=major, **tick_kw)
+        return ThetaTick(self.axes, 0, major=major, **tick_kw)
 
     def _wrap_locator_formatter(self):
         self.set_major_locator(ThetaLocator(self.get_major_locator()))
@@ -659,7 +659,7 @@ class RadialAxis(maxis.YAxis):
             tick_kw = self._major_tick_kw
         else:
             tick_kw = self._minor_tick_kw
-        return RadialTick(self.axes, 0, '', major=major, **tick_kw)
+        return RadialTick(self.axes, 0, major=major, **tick_kw)
 
     def _wrap_locator_formatter(self):
         self.set_major_locator(RadialLocator(self.get_major_locator(),

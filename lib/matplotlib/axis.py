@@ -53,7 +53,8 @@ class Tick(martist.Artist):
         The right/top tick label.
 
     """
-    def __init__(self, axes, loc, label,
+    @cbook._delete_parameter("3.3", "label")
+    def __init__(self, axes, loc, label=None,
                  size=None,  # points
                  width=None,
                  color=None,
@@ -908,7 +909,7 @@ class Axis(martist.Artist):
     def set_view_interval(self, vmin, vmax, ignore=False):
         """
         Set the axis view limits.  This method is for internal use; Matplotlib
-        users should typically use e.g. `~Axes.set_xlim` and `~Axes.set_ylim`.
+        users should typically use e.g. `~.Axes.set_xlim` or `~.Axes.set_ylim`.
 
         If *ignore* is False (the default), this method will never reduce the
         preexisting view limits, only expand them if *vmin* or *vmax* are not
@@ -1877,7 +1878,7 @@ class XAxis(Axis):
             tick_kw = self._major_tick_kw
         else:
             tick_kw = self._minor_tick_kw
-        return XTick(self.axes, 0, '', major=major, **tick_kw)
+        return XTick(self.axes, 0, major=major, **tick_kw)
 
     def set_label_position(self, position):
         """
@@ -2173,7 +2174,7 @@ class YAxis(Axis):
             tick_kw = self._major_tick_kw
         else:
             tick_kw = self._minor_tick_kw
-        return YTick(self.axes, 0, '', major=major, **tick_kw)
+        return YTick(self.axes, 0, major=major, **tick_kw)
 
     def set_label_position(self, position):
         """

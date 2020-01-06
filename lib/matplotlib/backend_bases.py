@@ -174,7 +174,7 @@ class RendererBase:
 
         Parameters
         ----------
-        gc : `GraphicsContextBase`
+        gc : `.GraphicsContextBase`
             The graphics context.
 
         marker_trans : `matplotlib.transforms.Transform`
@@ -449,7 +449,7 @@ class RendererBase:
 
         Parameters
         ----------
-        gc : `GraphicsContextBase`
+        gc : `.GraphicsContextBase`
             A graphics context with clipping information.
 
         x : scalar
@@ -504,7 +504,7 @@ class RendererBase:
 
         Parameters
         ----------
-        gc : `GraphicsContextBase`
+        gc : `.GraphicsContextBase`
             The graphics context.
         x : float
             The x location of the text in display coords.
@@ -642,7 +642,7 @@ class RendererBase:
         return self._texmanager
 
     def new_gc(self):
-        """Return an instance of a `GraphicsContextBase`."""
+        """Return an instance of a `.GraphicsContextBase`."""
         return GraphicsContextBase()
 
     def points_to_pixels(self, points):
@@ -2256,8 +2256,9 @@ default: :rc:`savefig.bbox`
         """
         Start a blocking event loop.
 
-        Such an event loop is used by interactive functions, such as `ginput`
-        and `waitforbuttonpress`, to wait for events.
+        Such an event loop is used by interactive functions, such as
+        `~.Figure.ginput` and `~.Figure.waitforbuttonpress`, to wait for
+        events.
 
         The event loop blocks until a callback function triggers
         `stop_event_loop`, or *timeout* is reached.
@@ -2692,7 +2693,13 @@ class NavigationToolbar2:
         """Display a message on toolbar or in status bar."""
 
     def back(self, *args):
-        """Move back up the view lim stack."""
+        """
+        Move back up the view lim stack.
+
+        For convenience of being directly connected as a GUI callback, which
+        often get passed additional parameters, this method accepts arbitrary
+        parameters, but does not use them.
+        """
         self._nav_stack.back()
         self.set_history_buttons()
         self._update_view()
@@ -2708,13 +2715,25 @@ class NavigationToolbar2:
         """Remove the rubberband."""
 
     def forward(self, *args):
-        """Move forward in the view lim stack."""
+        """
+        Move forward in the view lim stack.
+
+        For convenience of being directly connected as a GUI callback, which
+        often get passed additional parameters, this method accepts arbitrary
+        parameters, but does not use them.
+        """
         self._nav_stack.forward()
         self.set_history_buttons()
         self._update_view()
 
     def home(self, *args):
-        """Restore the original view."""
+        """
+        Restore the original view.
+
+        For convenience of being directly connected as a GUI callback, which
+        often get passed additional parameters, this method accepts arbitrary
+        parameters, but does not use them.
+        """
         self._nav_stack.home()
         self.set_history_buttons()
         self._update_view()
@@ -3343,8 +3362,7 @@ class _Backend:
                 cls.trigger_manager_draw(manager)
 
     @classmethod
-    @cbook._make_keyword_only("3.1", "block")
-    def show(cls, block=None):
+    def show(cls, *, block=None):
         """
         Show all figures.
 

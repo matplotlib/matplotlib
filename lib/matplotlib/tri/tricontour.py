@@ -99,7 +99,7 @@ class TriContourSet(ContourSet):
         self.zmin = float(z_check.min())
         if self.logscale and self.zmin <= 0:
             raise ValueError('Cannot %s log of negative values.' % fn)
-        self._contour_level_args(z, args[1:])
+        self._process_contour_level_args(args[1:])
         return (tri, z)
 
 
@@ -160,7 +160,7 @@ def tricontour(ax, *args, **kwargs):
     Use keyword args to control colors, linewidth, origin, cmap ... see
     below for more details.
 
-    `.tricontour(...)` returns a `~matplotlib.contour.TriContourSet` object.
+    `~.Axes.tricontour` returns a `~matplotlib.contour.TriContourSet` object.
 
     Optional keyword arguments:
 

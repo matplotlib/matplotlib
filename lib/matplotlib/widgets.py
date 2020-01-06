@@ -289,17 +289,17 @@ class Slider(AxesWidget):
 
         slidermin : Slider, default: None
             Do not allow the current slider to have a value less than
-            the value of the Slider `slidermin`.
+            the value of the Slider *slidermin*.
 
         slidermax : Slider, default: None
             Do not allow the current slider to have a value greater than
-            the value of the Slider `slidermax`.
+            the value of the Slider *slidermax*.
 
         dragging : bool, default: True
             If True the slider can be dragged by the mouse.
 
         valstep : float, default: None
-            If given, the slider will snap to multiples of `valstep`.
+            If given, the slider will snap to multiples of *valstep*.
 
         orientation : {'horizontal', 'vertical'}, default: 'horizontal'
             The orientation of the slider.
@@ -1658,8 +1658,8 @@ class SpanSelector(_SelectorWidget):
 
     To guarantee that the selector remains responsive, keep a reference to it.
 
-    In order to turn off the SpanSelector, set `span_selector.active=False`. To
-    turn it back on, set `span_selector.active=True`.
+    In order to turn off the SpanSelector, set ``span_selector.active`` to
+    False.  To turn it back on, set it to True.
 
     Parameters
     ----------
@@ -2713,7 +2713,7 @@ class Lasso(AxesWidget):
     `~matplotlib.path.Path.contains_point` to select data points from an image.
 
     Unlike `LassoSelector`, this must be initialized with a starting
-    point `xy`, and the `Lasso` events are destroyed upon release.
+    point *xy*, and the `Lasso` events are destroyed upon release.
 
     Parameters
     ----------

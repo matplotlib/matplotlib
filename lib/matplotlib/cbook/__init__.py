@@ -478,7 +478,7 @@ def is_scalar_or_string(val):
 def get_sample_data(fname, asfileobj=True):
     """
     Return a sample data file.  *fname* is a path relative to the
-    `mpl-data/sample_data` directory.  If *asfileobj* is `True`
+    :file:`mpl-data/sample_data` directory.  If *asfileobj* is `True`
     return a file object, otherwise just a file path.
 
     Sample data files are stored in the 'mpl-data/sample_data' directory within
@@ -1095,10 +1095,10 @@ def _combine_masks(*args):
 def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
                   autorange=False):
     r"""
-    Returns list of dictionaries of statistics used to draw a series
+    Return a list of dictionaries of statistics used to draw a series
     of box and whisker plots. The `Returns` section enumerates the
     required keys of the dictionary. Users can skip this function and
-    pass a user-defined set of dictionaries to the new `axes.bxp` method
+    pass a user-defined set of dictionaries to the new `~.Axes.bxp` method
     instead of relying on Matplotlib to do the calculations.
 
     Parameters

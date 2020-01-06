@@ -137,11 +137,11 @@ ordered from best/hardest to worst/easiest):
        our installer, but use the post-install-script to install them
        *only* if they can not already be found.
 
-    3. Move all of these packages inside a (new) `matplotlib.extern`
+    3. Move all of these packages inside a (new) ``matplotlib.extern``
        namespace so it is clear for outside users that these are
        external packages.  Add some conditional imports in the core
        matplotlib codebase so dateutil_ (at the top-level) is tried
-       first, and failing that `matplotlib.extern.dateutil` is used.
+       first, and failing that ``matplotlib.extern.dateutil`` is used.
 
 2 and 3 are undesirable as they still require maintaining copies of
 these packages in our tree -- and this is exacerbated by the fact that

@@ -75,14 +75,14 @@ class PolygonInteractor:
         self.cid = self.poly.add_callback(self.poly_changed)
         self._ind = None  # the active vert
 
-        canvas.mpl_connect('draw_event', self.draw_callback)
-        canvas.mpl_connect('button_press_event', self.button_press_callback)
-        canvas.mpl_connect('key_press_event', self.key_press_callback)
-        canvas.mpl_connect('button_release_event', self.button_release_callback)
-        canvas.mpl_connect('motion_notify_event', self.motion_notify_callback)
+        canvas.mpl_connect('draw_event', self.on_draw)
+        canvas.mpl_connect('button_press_event', self.on_button_press)
+        canvas.mpl_connect('key_press_event', self.on_key_press)
+        canvas.mpl_connect('button_release_event', self.on_button_release)
+        canvas.mpl_connect('motion_notify_event', self.on_mouse_move)
         self.canvas = canvas
 
-    def draw_callback(self, event):
+    def on_draw(self, event):
         self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self.poly)
         self.ax.draw_artist(self.line)
@@ -114,7 +114,7 @@ class PolygonInteractor:
 
         return ind
 
-    def button_press_callback(self, event):
+    def on_button_press(self, event):
         """Callback for mouse button presses."""
         if not self.showverts:
             return
@@ -124,7 +124,7 @@ class PolygonInteractor:
             return
         self._ind = self.get_ind_under_point(event)
 
-    def button_release_callback(self, event):
+    def on_button_release(self, event):
         """Callback for mouse button releases."""
         if not self.showverts:
             return
@@ -132,7 +132,7 @@ class PolygonInteractor:
             return
         self._ind = None
 
-    def key_press_callback(self, event):
+    def on_key_press(self, event):
         """Callback for key presses."""
         if not event.inaxes:
             return
@@ -164,7 +164,7 @@ class PolygonInteractor:
         if self.line.stale:
             self.canvas.draw_idle()
 
-    def motion_notify_callback(self, event):
+    def on_mouse_move(self, event):
         """Callback for mouse movements."""
         if not self.showverts:
             return

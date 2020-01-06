@@ -299,8 +299,6 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             xscale = 1.0
             yscale = 1.0
 
-        figh = self.height * 72
-
         bbox = gc.get_clip_rectangle()
         clippath, clippath_trans = gc.get_clip_path()
 

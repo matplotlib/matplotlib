@@ -16,13 +16,11 @@ that handle data in two or more dimensions at a time, are called
 "projections".
 
 From the user's perspective, the scale of a plot can be set with
-:meth:`~matplotlib.axes.Axes.set_xscale` and
-:meth:`~matplotlib.axes.Axes.set_yscale`.  Projections can be chosen
-using the ``projection`` keyword argument to the
-:func:`~matplotlib.pylab.plot` or :func:`~matplotlib.pylab.subplot`
-functions, e.g.::
+`.Axes.set_xscale` and `.Axes.set_yscale`.  Projections can be chosen using the
+*projection* keyword argument of functions that create Axes, such as
+`.pyplot.subplot` or `.pyplot.axes`, e.g. ::
 
-    plot(x, y, projection="custom")
+    plt.subplot(projection="custom")
 
 This document is intended for developers and advanced users who need
 to create new scales and projections for Matplotlib.  The necessary

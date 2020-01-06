@@ -81,8 +81,8 @@ Testing
 New plotting features
 ---------------------
 
-`xkcd`-style sketch plotting
-````````````````````````````
+`~.xkcd`-style sketch plotting
+``````````````````````````````
 To give your plots a sense of authority that they may be missing,
 Michael Droettboom (inspired by the work of many others in
 :ghpull:`1329`) has added an `xkcd-style <http://xkcd.com/>`__ sketch
@@ -212,17 +212,17 @@ Phil Elson added the :func:`matplotlib.colors.from_levels_and_colors`
 function to easily create a colormap and normalizer for representation
 of discrete colors for plot types such as
 :func:`matplotlib.pyplot.pcolormesh`, with a similar interface to that
-of :func:`contourf`.
+of `matplotlib.pyplot.contourf`.
 
 Full control of the background color
 ````````````````````````````````````
 Wes Campaigne and Phil Elson fixed the Agg backend such that PNGs are
 now saved with the correct background color when
-:meth:`fig.patch.get_alpha` is not 1.
+``fig.patch.get_alpha()`` is not 1.
 
 Improved ``bbox_inches="tight"`` functionality
 ``````````````````````````````````````````````
-Passing ``bbox_inches="tight"`` through to :func:`plt.save` now takes
+Passing ``bbox_inches="tight"`` through to `.pyplot.savefig` now takes
 into account *all* artists on a figure - this was previously not the
 case and led to several corner cases which did not function as
 expected.
@@ -331,7 +331,7 @@ Remember save directory
 ```````````````````````
 Martin Spacek made the save figure dialog remember the last directory
 saved to. The default is configurable with the new :rc:`savefig.directory`
-rcParam in `matplotlibrc`.
+rcParam in :file:`matplotlibrc`.
 
 Documentation and examples
 --------------------------

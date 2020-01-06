@@ -70,14 +70,14 @@ relies on a new function (:func:`~matplotlib.cbook.boxplot_stats`), which
 accepts any data structure currently compatible with
 :func:`~matplotlib.pyplot.boxplot`, and returns a list of dictionaries
 containing the positions for each element of the boxplots. Then
-a second method, :func:`~matplotlib.Axes.bxp` is called to draw the boxplots
+a second method, `~.Axes.bxp` is called to draw the boxplots
 based on the stats.
 
 The :func:`~matplotlib.pyplot.boxplot` function can be used as before to
 generate boxplots from data in one step. But now the user has the
 flexibility to generate the statistics independently, or to modify the
 output of :func:`~matplotlib.cbook.boxplot_stats` prior to plotting
-with :func:`~matplotlib.Axes.bxp`.
+with `~.Axes.bxp`.
 
 Lastly, each artist (e.g., the box, outliers, cap, notches) can now be
 toggled on or off and their styles can be passed in through individual
@@ -138,9 +138,9 @@ Consistent grid sizes in streamplots
 
 Get a list of all tick labels (major and minor)
 ```````````````````````````````````````````````
-Added the `kwarg` 'which' to :func:`~matplotlib.Axes.get_xticklabels`,
-:func:`~matplotlib.Axes.get_yticklabels` and
-:func:`~matplotlib.Axis.get_ticklabels`.  'which' can be 'major', 'minor', or
+Added the `kwarg` 'which' to `.Axes.get_xticklabels`,
+`.Axes.get_yticklabels` and
+`.Axis.get_ticklabels`.  'which' can be 'major', 'minor', or
 'both' select which ticks to return, like
 :func:`~matplotlib.Axis.set_ticks_position`.  If 'which' is `None` then the old
 behaviour (controlled by the bool `minor`).
@@ -155,9 +155,9 @@ every subplot and you need to make some space for legend's labels.
 Support for skewed transformations
 ``````````````````````````````````
 The :class:`~matplotlib.transforms.Affine2D` gained additional methods
-`skew` and `skew_deg` to create skewed transformations. Additionally,
+`.skew` and `.skew_deg` to create skewed transformations. Additionally,
 matplotlib internals were cleaned up to support using such transforms in
-:class:`~matplotlib.Axes`. This transform is important for some plot types,
+`~matplotlib.axes.Axes`. This transform is important for some plot types,
 specifically the Skew-T used in meteorology.
 
 .. figure:: ../../gallery/specialty_plots/images/sphx_glr_skewt_001.png
@@ -169,7 +169,7 @@ specifically the Skew-T used in meteorology.
 
 Support for specifying properties of wedge and text in pie charts.
 ``````````````````````````````````````````````````````````````````
-Added the `kwargs` 'wedgeprops' and 'textprops' to :func:`~matplotlib.Axes.pie`
+Added the kwargs 'wedgeprops' and 'textprops' to `~.Axes.pie`
 to accept properties for wedge and text objects in a pie. For example, one can
 specify wedgeprops = {'linewidth':3} to specify the width of the borders of
 the wedges in the pie. For more properties that the user can specify, look at
@@ -195,7 +195,7 @@ plots. Violin plots can be used to represent the distribution of sample data.
 They are similar to box plots, but use a kernel density estimation function to
 present a smooth approximation of the data sample used. The added features are:
 
-:func:`~matplotlib.Axes.violin` - Renders a violin plot from a collection of
+`~.Axes.violin` - Renders a violin plot from a collection of
 statistics.
 :func:`~matplotlib.cbook.violin_stats` - Produces a collection of statistics
 suitable for rendering a violin plot.
@@ -258,7 +258,7 @@ Caradec Bisesar and Vlad Vassilovski.
 polar-plot r-tick locations
 ```````````````````````````
 Added the ability to control the angular position of the r-tick labels
-on a polar plot via :func:`~matplotlib.Axes.axes.set_rlabel_position`.
+on a polar plot via `~.PolarAxes.set_rlabel_position`.
 
 
 Date handling
@@ -280,7 +280,7 @@ Configuration (rcParams)
 ``savefig.transparent`` added
 `````````````````````````````
 Controls whether figures are saved with a transparent
-background by default.  Previously `savefig` always defaulted
+background by default.  Previously `~.Figure.savefig` always defaulted
 to a non-transparent background.
 
 
@@ -290,7 +290,7 @@ Added rcParam to control the weight of the title
 
 ``axes.formatter.useoffset`` added
 ``````````````````````````````````
-Controls the default value of `useOffset` in `ScalarFormatter`.  If
+Controls the default value of *useOffset* in `.ScalarFormatter`.  If
 `True` and the data range is much smaller than the data average, then
 an offset will be determined such that the tick labels are
 meaningful. If `False` then the full number will be formatted in all
@@ -396,7 +396,7 @@ class.
 Anchored sizebar font
 `````````````````````
 Added the ``fontproperties`` kwarg to
-:class:`~matplotilb.mpl_toolkits.axes_grid.anchored_artists.AnchoredSizeBar` to
+`~mpl_toolkits.axes_grid1.anchored_artists.AnchoredSizeBar` to
 control the font properties.
 
 Sphinx extensions

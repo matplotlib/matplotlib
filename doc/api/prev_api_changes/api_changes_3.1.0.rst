@@ -29,10 +29,10 @@ Invalid points in PathCollections
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PathCollections created with `~.Axes.scatter` now keep track of invalid points.
 Previously, points with nonfinite (infinite or nan) coordinates would not be
-included in the offsets (as returned by `PathCollection.get_offsets`) of a
-`PathCollection` created by `~.Axes.scatter`, and points with nonfinite values
+included in the offsets (as returned by `.PathCollection.get_offsets`) of a
+`.PathCollection` created by `~.Axes.scatter`, and points with nonfinite values
 (as specified by the *c* kwarg) would not be included in the array (as returned
-by `PathCollection.get_array`)
+by `.PathCollection.get_array`)
 
 Such points are now included, but masked out by returning a masked array.
 
@@ -56,9 +56,9 @@ instead of adding a decade only to the right.
 
 Log-scaled axes
 ~~~~~~~~~~~~~~~
-When the default `LogLocator` would generate no ticks for an axis (e.g., an
+When the default `.LogLocator` would generate no ticks for an axis (e.g., an
 axis with limits from 0.31 to 0.39) or only a single tick, it now instead falls
-back on the linear `AutoLocator` to pick reasonable tick positions.
+back on the linear `.AutoLocator` to pick reasonable tick positions.
 
 `.Figure.add_subplot` with no arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -124,7 +124,7 @@ would be::
 
 usetex support
 ~~~~~~~~~~~~~~
-Previously, if :rc:`text.usetex` was True, then constructing a `TextPath` on
+Previously, if :rc:`text.usetex` was True, then constructing a `.TextPath` on
 a non-mathtext string with ``usetex=False`` would rely on the mathtext parser
 (but not on usetex support!) to parse the string.  The mathtext parser is not
 invoked anymore, which may cause slight changes in glyph positioning.
@@ -247,9 +247,9 @@ return 2 lists of histogram values. Previously, a single list was returned.
 `.backend_bases.Timer.remove_callback` future signature change
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Currently, `.backend_bases.Timer.remove_callback(func, *args,
-**kwargs)` removes a callback previously added by
-`.backend_bases.Timer.add_callback(func, *args, **kwargs)`, but if
+Currently, ``backend_bases.Timer.remove_callback(func, *args,
+**kwargs)`` removes a callback previously added by
+``backend_bases.Timer.add_callback(func, *args, **kwargs)``, but if
 ``*args, **kwargs`` is not passed in (ex,
 ``Timer.remove_callback(func)``), then the first callback with a
 matching ``func`` is removed, regardless of whether it was added with
@@ -277,7 +277,7 @@ The new API is modelled after `atexit.register` / `atexit.unregister`.
 `~.collections.LineCollection` object instead of a list of
 `~.lines.Line2D` objects for stem lines plotted using
 `~.Axes.stem`. This gives a very large performance boost to displaying
-and moving `~Axes.stem` plots.
+and moving `~.Axes.stem` plots.
 
 This will become the default behaviour in Matplotlib 3.3. To use it
 now, the *use_line_collection* keyword argument to `~.Axes.stem` can
@@ -299,7 +299,7 @@ retrieve the collection properties.
 `.cm.ScalarMappable`.  This inheritance lead to a confusing situation
 where the `.cm.ScalarMappable` passed to `matplotlib.colorbar.Colorbar`
 (`~.Figure.colorbar`) had a ``set_norm`` method, as did the colorbar.
-The colorbar is now purely a follower to the `ScalarMappable` norm and
+The colorbar is now purely a follower to the `.ScalarMappable` norm and
 colormap, and the old inherited methods
 `~matplotlib.colorbar.ColorbarBase.set_norm`,
 `~matplotlib.colorbar.ColorbarBase.set_cmap`,
@@ -364,7 +364,7 @@ them.
 Furthermore, `.Axes.spy` spy does now allow for an *extent* argument
 (was silently ignored so far).
 
-A bug with `.Axes.spy(..., origin='lower')` is fixed.  Previously this
+A bug with ``Axes.spy(..., origin='lower')`` is fixed.  Previously this
 flipped the data but not the y-axis resulting in a mismatch between
 axes labels and actual data indices. Now, *origin='lower'* flips both
 the data and the y-axis labels.
@@ -383,7 +383,7 @@ limits, ticks, and tick labels.
 
 MouseEvents
 ~~~~~~~~~~~
-MouseEvents now include the event name in their `str()`.
+MouseEvents now include the event name in their ``str()``.
 Previously they contained the prefix "MPL MouseEvent".
 
 RGBA buffer return type
@@ -411,8 +411,8 @@ non-callable), the exception would be silently ignored and the default
 formatter be used instead.  This is no longer the case; the exception
 is now propagated out.
 
-Deprecation of redundant `Tick` attributes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Deprecation of redundant `.Tick` attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``gridOn``, ``tick1On``, ``tick2On``, ``label1On``, and ``label2On``
 `~.Tick` attributes have been deprecated.  Directly get and set the visibility
@@ -734,7 +734,7 @@ Deprecations
 - The ``\stackrel`` mathtext command hsa been deprecated (it behaved differently
   from LaTeX's ``\stackrel``.  To stack two mathtext expressions, use
   ``\genfrac{left-delim}{right-delim}{fraction-bar-thickness}{}{top}{bottom}``.
-- The `\mathcircled` mathtext command (which is not a real TeX command)
+- The ``\mathcircled`` mathtext command (which is not a real TeX command)
   is deprecated.  Directly use unicode characters (e.g.
   ``"\N{CIRCLED LATIN CAPITAL LETTER A}"`` or ``"\u24b6"``) instead.
 - Support for setting :rc:`mathtext.default` to circled is deprecated.
@@ -796,7 +796,7 @@ Changes in parameter names
   as a keyword argument. The common usage pattern as a positional argument
   ``matplotlib.use('Qt5Agg')`` is not affected.
 - The *normed* parameter to `Axes.hist2d` has been renamed to *density*.
-- The *s* parameter to `Annotation` (and indirectly `Axes.annotation`) has
+- The *s* parameter to `.Annotation` (and indirectly `Axes.annotation`) has
   been renamed to *text*.
 - The *tolerence* parameter to
   `bezier.find_bezier_t_intersecting_with_closedpath`,
@@ -946,7 +946,7 @@ Testing
 
 - ``matplotlib.testing.decorators.switch_backend`` decorator
 
-Test functions should use `pytest.mark.backend(...)`, and the mark will be
+Test functions should use ``pytest.mark.backend``, and the mark will be
 picked up by the `matplotlib.testing.conftest.mpl_test_settings` fixture.
 
 Quiver
@@ -998,7 +998,7 @@ Transforms / scales
 - ``InvertedLog2Transform``
 - ``InvertedNaturalLogTransform``
 
-These classes defined in :mod:`matplotlib.scales` are deprecated.
+These classes defined in :mod:`matplotlib.scale` are deprecated.
 As a replacement, use the general `LogTransform` and `InvertedLogTransform`
 classes, whose constructors take a *base* argument.
 
@@ -1069,7 +1069,7 @@ Environmental Variables
 Axis
 ~~~~
 
-- `.Axis.iter_ticks`
+- ``Axis.iter_ticks``
 
 This only served as a helper to the private `.Axis._update_ticks`
 

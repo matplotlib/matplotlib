@@ -1098,9 +1098,7 @@ class rc_context:
         self.__fallback()
 
 
-@cbook._rename_parameter("3.1", "arg", "backend")
-@cbook._delete_parameter("3.1", "warn")
-def use(backend, warn=False, force=True):
+def use(backend, *, force=True):
     """
     Select the backend used for rendering and GUI integration.
 
@@ -1119,10 +1117,6 @@ def use(backend, warn=False, force=True):
           agg, cairo, pdf, pgf, ps, svg, template
 
         or a string of the form: ``module://my.module.name``.
-
-    warn : bool, default: False
-        If True and not *force*, emit a warning if a failure-to-switch
-        `ImportError` has been suppressed.  This parameter is deprecated.
 
     force : bool, default: True
         If True (the default), raise an `ImportError` if the backend cannot be
@@ -1148,12 +1142,9 @@ def use(backend, warn=False, force=True):
         try:
             from matplotlib import pyplot as plt
             plt.switch_backend(name)
-        except ImportError as exc:
+        except ImportError:
             if force:
                 raise
-            if warn:
-                cbook._warn_external(
-                    f"Failed to switch backend to {backend}: {exc}")
 
 
 if os.environ.get('MPLBACKEND'):

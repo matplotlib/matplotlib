@@ -1,6 +1,6 @@
 r"""
 :mod:`~matplotlib.gridspec` contains classes that help to layout multiple
-`~axes.Axes` in a grid-like pattern within a figure.
+`~.axes.Axes` in a grid-like pattern within a figure.
 
 The `GridSpec` specifies the overall grid structure. Individual cells within
 the grid are referenced by `SubplotSpec`\s.
@@ -521,6 +521,11 @@ class SubplotSpec:
                     artist=self)
         else:
             self._layoutbox = None
+
+    def __repr__(self):
+        return (f"{self.get_gridspec()}["
+                f"{self.rowspan.start}:{self.rowspan.stop}, "
+                f"{self.colspan.start}:{self.colspan.stop}]")
 
     @staticmethod
     def _from_subplot_args(figure, args):

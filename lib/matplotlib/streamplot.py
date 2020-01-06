@@ -233,6 +233,10 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 class StreamplotSet:
 
     def __init__(self, lines, arrows, **kwargs):
+        if kwargs:
+            cbook.warn_deprecated(
+                "3.3", "Passing arbitrary keyword arguments to StreamplotSet "
+                       "is deprecated.")
         self.lines = lines
         self.arrows = arrows
 

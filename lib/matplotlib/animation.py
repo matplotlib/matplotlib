@@ -229,8 +229,8 @@ class AbstractMovieWriter(abc.ABC):
         """
         Grab the image information from the figure and save as a movie frame.
 
-        All keyword arguments in savefig_kwargs are passed on to the `savefig`
-        command that saves the figure.
+        All keyword arguments in *savefig_kwargs* are passed on to the
+        `~.Figure.savefig` command that saves the figure.
         """
 
     @abc.abstractmethod
@@ -267,8 +267,23 @@ class MovieWriter(AbstractMovieWriter):
     fig : `~matplotlib.figure.Figure`
         The figure to capture data from.
         This must be provided by the sub-classes.
-
     """
+
+    # Builtin writer subclasses additionally define the _exec_key and _args_key
+    # attributes, which indicate the rcParams entries where the path to the
+    # executable and additional command-line arguments to the executable are
+    # stored.  Third-party writers cannot meaningfully set these as they cannot
+    # extend rcParams with new keys.
+
+    @cbook.deprecated("3.3")
+    @property
+    def exec_key(self):
+        return self._exec_key
+
+    @cbook.deprecated("3.3")
+    @property
+    def args_key(self):
+        return self._args_key
 
     def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None,
                  metadata=None):
@@ -307,11 +322,7 @@ class MovieWriter(AbstractMovieWriter):
         super().__init__(fps=fps, metadata=metadata)
 
         self.frame_format = 'rgba'
-
-        if extra_args is None:
-            self.extra_args = list(mpl.rcParams[self.args_key])
-        else:
-            self.extra_args = extra_args
+        self.extra_args = extra_args
 
     def _adjust_frame_size(self):
         if self.codec == 'h264':
@@ -363,12 +374,7 @@ class MovieWriter(AbstractMovieWriter):
         self.cleanup()
 
     def grab_frame(self, **savefig_kwargs):
-        """
-        Grab the image information from the figure and save as a movie frame.
-
-        All keyword arguments in savefig_kwargs are passed on to the `savefig`
-        command that saves the figure.
-        """
+        # docstring inherited
         _log.debug('MovieWriter.grab_frame: Grabbing frame.')
         # re-adjust the figure size in case it has been changed by the
         # user.  We must ensure that every frame is the same size or
@@ -413,7 +419,7 @@ class MovieWriter(AbstractMovieWriter):
         subclass. This is a class method so that the tool can be looked for
         before making a particular MovieWriter subclass available.
         """
-        return str(mpl.rcParams[cls.exec_key])
+        return str(mpl.rcParams[cls._exec_key])
 
     @classmethod
     def isAvailable(cls):
@@ -433,7 +439,7 @@ class FileMovieWriter(MovieWriter):
         MovieWriter.__init__(self, *args, **kwargs)
         self.frame_format = mpl.rcParams['animation.frame_format']
 
-    def setup(self, fig, outfile, dpi=None, frame_prefix='_tmp',
+    def setup(self, fig, outfile, dpi=None, frame_prefix=None,
               clear_temp=True):
         """
         Perform setup for writing the movie file.
@@ -449,13 +455,13 @@ class FileMovieWriter(MovieWriter):
             controls the size in pixels of the resulting movie file.
             Default is fig.dpi.
         frame_prefix : str, optional
-            The filename prefix to use for temporary files.  Defaults to
-            ``'_tmp'``.
+            The filename prefix to use for temporary files.  If None (the
+            default), files are written to a temporary directory which is
+            deleted by `cleanup` (regardless of the value of *clear_temp*).
         clear_temp : bool, optional
             If the temporary files should be deleted after stitching
             the final result.  Setting this to ``False`` can be useful for
             debugging.  Defaults to ``True``.
-
         """
         self.fig = fig
         self.outfile = outfile
@@ -464,8 +470,13 @@ class FileMovieWriter(MovieWriter):
         self.dpi = dpi
         self._adjust_frame_size()
 
+        if frame_prefix is None:
+            self._tmpdir = TemporaryDirectory()
+            self.temp_prefix = str(Path(self._tmpdir.name, 'tmp'))
+        else:
+            self._tmpdir = None
+            self.temp_prefix = frame_prefix
         self.clear_temp = clear_temp
-        self.temp_prefix = frame_prefix
         self._frame_counter = 0  # used for generating sequential file names
         self._temp_paths = list()
         self.fname_format_str = '%s%%07d.%s'
@@ -506,11 +517,7 @@ class FileMovieWriter(MovieWriter):
         return open(path, 'wb')
 
     def grab_frame(self, **savefig_kwargs):
-        """
-        Grab the image information from the figure and save as a movie frame.
-        All keyword arguments in savefig_kwargs are passed on to the `savefig`
-        command that saves the figure.
-        """
+        # docstring inherited
         # Overloaded to explicitly close temp file.
         _log.debug('MovieWriter.grab_frame: Grabbing frame.')
         # Tell the figure to save its data to the sink, using the
@@ -527,13 +534,15 @@ class FileMovieWriter(MovieWriter):
 
     def cleanup(self):
         MovieWriter.cleanup(self)
-
-        # Delete temporary files
-        if self.clear_temp:
-            _log.debug('MovieWriter: clearing temporary paths=%s',
-                       self._temp_paths)
-            for path in self._temp_paths:
-                path.unlink()
+        if self._tmpdir:
+            _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
+            self._tmpdir.cleanup()
+        else:
+            if self.clear_temp:
+                _log.debug('MovieWriter: clearing temporary paths=%s',
+                           self._temp_paths)
+                for path in self._temp_paths:
+                    path.unlink()
 
 
 @writers.register('pillow')
@@ -570,21 +579,23 @@ class FFMpegBase:
     `MovieWriterBase` sub-class.
     """
 
-    exec_key = 'animation.ffmpeg_path'
-    args_key = 'animation.ffmpeg_args'
+    _exec_key = 'animation.ffmpeg_path'
+    _args_key = 'animation.ffmpeg_args'
 
     @property
     def output_args(self):
         args = ['-vcodec', self.codec]
+        extra_args = (self.extra_args if self.extra_args is not None
+                      else mpl.rcParams[self._args_key])
         # For h264, the default format is yuv444p, which is not compatible
         # with quicktime (and others). Specifying yuv420p fixes playback on
         # iOS, as well as HTML5 video in firefox and safari (on both Win and
         # OSX). Also fixes internet explorer. This is as of 2015/10/29.
-        if self.codec == 'h264' and '-pix_fmt' not in self.extra_args:
+        if self.codec == 'h264' and '-pix_fmt' not in extra_args:
             args.extend(['-pix_fmt', 'yuv420p'])
         if self.bitrate > 0:
             args.extend(['-b', '%dk' % self.bitrate])  # %dk: bitrate in kbps.
-        args.extend(self.extra_args)
+        args.extend(extra_args)
         for k, v in self.metadata.items():
             args.extend(['-metadata', '%s=%s' % (k, v)])
 
@@ -653,8 +664,8 @@ class AVConvBase(FFMpegBase):
     `MovieWriterBase` sub-class.
     """
 
-    exec_key = 'animation.avconv_path'
-    args_key = 'animation.avconv_args'
+    _exec_key = 'animation.avconv_path'
+    _args_key = 'animation.avconv_args'
 
     # NOTE : should be removed when the same method is removed in FFMpegBase.
     isAvailable = classmethod(MovieWriter.isAvailable.__func__)
@@ -691,8 +702,8 @@ class ImageMagickBase:
     `MovieWriterBase` sub-class.
     """
 
-    exec_key = 'animation.convert_path'
-    args_key = 'animation.convert_args'
+    _exec_key = 'animation.convert_path'
+    _args_key = 'animation.convert_args'
 
     @property
     def delay(self):
@@ -700,7 +711,9 @@ class ImageMagickBase:
 
     @property
     def output_args(self):
-        return [*self.extra_args, self.outfile]
+        extra_args = (self.extra_args if self.extra_args is not None
+                      else mpl.rcParams[self._args_key])
+        return [*extra_args, self.outfile]
 
     @classmethod
     def bin_path(cls):
@@ -777,7 +790,7 @@ def _embedded_frames(frame_list, frame_format):
 @writers.register('html')
 class HTMLWriter(FileMovieWriter):
     supported_formats = ['png', 'jpeg', 'tiff', 'svg']
-    args_key = 'animation.html_args'
+    _args_key = 'animation.html_args'
 
     @classmethod
     def isAvailable(cls):
@@ -932,9 +945,11 @@ class Animation:
         Starts interactive animation. Adds the draw frame command to the GUI
         handler, calls show to start the event loop.
         """
+        # Do not start the event source if saving() it.
+        if self._fig.canvas.is_saving():
+            return
         # First disconnect our draw event handler
         self._fig.canvas.mpl_disconnect(self._first_draw_id)
-        self._first_draw_id = None  # So we can check on save
 
         # Now do any initial draw
         self._init_draw()
@@ -1006,7 +1021,7 @@ class Animation:
 
         savefig_kwargs : dict, optional
            Is a dictionary containing keyword arguments to be passed
-           on to the `savefig` command which is called repeatedly to
+           on to the `~.Figure.savefig` command which is called repeatedly to
            save the individual frames.
 
         progress_callback : function, optional
@@ -1049,14 +1064,6 @@ class Animation:
 
         if savefig_kwargs is None:
             savefig_kwargs = {}
-
-        # Need to disconnect the first draw callback, since we'll be doing
-        # draws. Otherwise, we'll end up starting the animation.
-        if self._first_draw_id is not None:
-            self._fig.canvas.mpl_disconnect(self._first_draw_id)
-            reconnect_first_draw = True
-        else:
-            reconnect_first_draw = False
 
         if fps is None and hasattr(self, '_interval'):
             # Convert interval in ms to frames per second
@@ -1116,8 +1123,11 @@ class Animation:
             _log.info("Disabling savefig.bbox = 'tight', as it may cause "
                       "frame size to vary, which is inappropriate for "
                       "animation.")
+        # canvas._is_saving = True makes the draw_event animation-starting
+        # callback a no-op.
         with mpl.rc_context({'savefig.bbox': None}), \
-             writer.saving(self._fig, filename, dpi):
+             writer.saving(self._fig, filename, dpi), \
+             cbook._setattr_cm(self._fig.canvas, _is_saving=True):
             for anim in all_anim:
                 anim._init_draw()  # Clear the initial frame
             frame_number = 0
@@ -1137,11 +1147,6 @@ class Animation:
                         progress_callback(frame_number, total_frames)
                         frame_number += 1
                 writer.grab_frame(**savefig_kwargs)
-
-        # Reconnect signal for first draw if necessary
-        if reconnect_first_draw:
-            self._first_draw_id = self._fig.canvas.mpl_connect('draw_event',
-                                                               self._start)
 
     def _step(self, *args):
         """
@@ -1184,7 +1189,7 @@ class Animation:
         # Perform any cleaning or whatnot before the drawing of the frame.
         # This default implementation allows blit to clear the frame.
         if blit:
-            self._blit_clear(self._drawn_artists, self._blit_cache)
+            self._blit_clear(self._drawn_artists)
 
     def _draw_frame(self, framedata):
         # Performs actual drawing of the frame.
@@ -1196,58 +1201,58 @@ class Animation:
         # the draw, which can be a direct draw_idle() or make use of the
         # blitting.
         if blit and self._drawn_artists:
-            self._blit_draw(self._drawn_artists, self._blit_cache)
+            self._blit_draw(self._drawn_artists)
         else:
             self._fig.canvas.draw_idle()
 
     # The rest of the code in this class is to facilitate easy blitting
-    def _blit_draw(self, artists, bg_cache):
+    def _blit_draw(self, artists):
         # Handles blitted drawing, which renders only the artists given instead
         # of the entire figure.
-        updated_ax = []
-
+        updated_ax = {a.axes for a in artists}
         # Enumerate artists to cache axes' backgrounds. We do not draw
         # artists yet to not cache foreground from plots with shared axes
-        for a in artists:
-            # If we haven't cached the background for this axes object, do
-            # so now. This might not always be reliable, but it's an attempt
-            # to automate the process.
-            if a.axes not in bg_cache:
-                bg_cache[a.axes] = a.figure.canvas.copy_from_bbox(a.axes.bbox)
-
-        # Make a separate pass to draw foreground
+        for ax in updated_ax:
+            # If we haven't cached the background for the current view of this
+            # axes object, do so now. This might not always be reliable, but
+            # it's an attempt to automate the process.
+            cur_view = ax._get_view()
+            view, bg = self._blit_cache.get(ax, (object(), None))
+            if cur_view != view:
+                self._blit_cache[ax] = (
+                    cur_view, ax.figure.canvas.copy_from_bbox(ax.bbox))
+        # Make a separate pass to draw foreground.
         for a in artists:
             a.axes.draw_artist(a)
-            updated_ax.append(a.axes)
-
         # After rendering all the needed artists, blit each axes individually.
-        for ax in set(updated_ax):
+        for ax in updated_ax:
             ax.figure.canvas.blit(ax.bbox)
 
-    def _blit_clear(self, artists, bg_cache):
+    def _blit_clear(self, artists):
         # Get a list of the axes that need clearing from the artists that
         # have been drawn. Grab the appropriate saved background from the
         # cache and restore.
         axes = {a.axes for a in artists}
-        for a in axes:
-            if a in bg_cache:
-                a.figure.canvas.restore_region(bg_cache[a])
+        for ax in axes:
+            try:
+                view, bg = self._blit_cache[ax]
+            except KeyError:
+                continue
+            if ax._get_view() == view:
+                ax.figure.canvas.restore_region(bg)
+            else:
+                self._blit_cache.pop(ax)
 
     def _setup_blit(self):
         # Setting up the blit requires: a cache of the background for the
         # axes
         self._blit_cache = dict()
         self._drawn_artists = []
-        for ax in self._fig.axes:
-            ax.callbacks.connect('xlim_changed',
-                                 lambda ax: self._blit_cache.pop(ax, None))
-            ax.callbacks.connect('ylim_changed',
-                                 lambda ax: self._blit_cache.pop(ax, None))
         self._resize_id = self._fig.canvas.mpl_connect('resize_event',
-                                                       self._handle_resize)
+                                                       self._on_resize)
         self._post_draw(None, self._blit)
 
-    def _handle_resize(self, *args):
+    def _on_resize(self, event):
         # On resize, we need to disable the resize event handling so we don't
         # get too many events. Also stop the animation events, so that
         # we're paused. Reset the cache and re-init. Set up an event handler
@@ -1266,7 +1271,7 @@ class Animation:
         self.event_source.start()
         self._fig.canvas.mpl_disconnect(self._resize_id)
         self._resize_id = self._fig.canvas.mpl_connect('resize_event',
-                                                       self._handle_resize)
+                                                       self._on_resize)
 
     def to_html5_video(self, embed_limit=None):
         """
@@ -1463,7 +1468,7 @@ class TimedAnimation(Animation):
 
 class ArtistAnimation(TimedAnimation):
     """
-    Animation using a fixed set of `Artist` objects.
+    Animation using a fixed set of `.Artist` objects.
 
     Before creating an instance, all plotting should have taken place
     and the relevant artists saved.
@@ -1523,7 +1528,7 @@ class ArtistAnimation(TimedAnimation):
         """Clears artists from the last frame."""
         if blit:
             # Let blit handle clearing
-            self._blit_clear(self._drawn_artists, self._blit_cache)
+            self._blit_clear(self._drawn_artists)
         else:
             # Otherwise, make all the artists from the previous frame invisible
             for artist in self._drawn_artists:

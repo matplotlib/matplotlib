@@ -171,7 +171,7 @@ an axis limit did not coincide with a sticky edge, it cannot *cross* a sticky
 edge through margin application -- instead, the margins will only expand the
 axis limit until it bumps against the sticky edge.
 
-This change improves the margins of axes displaying a `~Axes.streamplot`:
+This change improves the margins of axes displaying a `~.Axes.streamplot`:
 
 - if the streamplot goes all the way to the edges of the vector field, then the
   axis limits are set to match exactly the vector field limits (whereas they
@@ -201,9 +201,9 @@ that Times New Roman Bold is now correctly detected as bold, not normal weight.
 
 Color-like checking
 ~~~~~~~~~~~~~~~~~~~
-`matplotlib.color.is_colorlike()` used to return True for all string
+`matplotlib.colors.is_color_like` used to return True for all string
 representations of floats. However, only those with values in 0-1 are valid
-colors (representing grayscale values). ``is_colorlike()`` now returns False
+colors (representing grayscale values). `.is_color_like` now returns False
 for string representations of floats outside 0-1.
 
 Default image interpolation
@@ -243,7 +243,7 @@ for better readability.
 
 ``add_subplot()``
 ~~~~~~~~~~~~~~~~~
-`.Figure.add_subplot()` and `.pyplot.subplot()` do not accept a `figure`
+`.Figure.add_subplot()` and `.pyplot.subplot()` do not accept a *figure*
 keyword argument anymore. It only used to work anyway if the passed figure
 was ``self`` or the current figure, respectively.
 

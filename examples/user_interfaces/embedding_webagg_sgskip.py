@@ -38,10 +38,10 @@ def create_figure():
     Creates a simple example figure.
     """
     fig = Figure()
-    a = fig.add_subplot(111)
+    ax = fig.add_subplot(111)
     t = np.arange(0.0, 3.0, 0.01)
     s = np.sin(2 * np.pi * t)
-    a.plot(t, s)
+    ax.plot(t, s)
     return fig
 
 

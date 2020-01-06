@@ -9,13 +9,13 @@ subplotparams will collapse axes to zero width or height.  This prevents
 To improve import (startup) time, private modules are now imported lazily.
 These modules are no longer available at these locations:
 
-  - `matplotlib.backends.backend_agg._png`
-  - `matplotlib.contour._contour`
-  - `matplotlib.image._png`
-  - `matplotlib.mathtext._png`
-  - `matplotlib.testing.compare._png`
-  - `matplotlib.texmanager._png`
-  - `matplotlib.tri.triangulation._tri`
-  - `matplotlib.tri.triangulation._qhull`
-  - `matplotlib.tri.tricontour._tri`
-  - `matplotlib.tri.trifinder._tri`
+- ``matplotlib.backends.backend_agg._png``
+- ``matplotlib.contour._contour``
+- ``matplotlib.image._png``
+- ``matplotlib.mathtext._png``
+- ``matplotlib.testing.compare._png``
+- ``matplotlib.texmanager._png``
+- ``matplotlib.tri.triangulation._tri``
+- ``matplotlib.tri.triangulation._qhull``
+- ``matplotlib.tri.tricontour._tri``
+- ``matplotlib.tri.trifinder._tri``

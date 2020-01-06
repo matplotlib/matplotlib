@@ -196,7 +196,7 @@ an existing Line3D.
 ``Axes3D.voxels`` now shades the resulting voxels
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The :meth:`~mpl_toolkits.mplot3d.Axes3D.voxels` method now takes a
+The `.Axes3D.voxels` method now takes a
 *shade* parameter that defaults to `True`. This shades faces based
 on their orientation, behaving just like the matching parameters to
 :meth:`~mpl_toolkits.mplot3d.Axes3D.trisurf` and
@@ -257,10 +257,10 @@ Default minor tick spacing was changed from 0.625 to 0.5 for major ticks spaced
 2.5 units apart.
 
 
-`.EngFormatter` now accepts `usetex`, `useMathText` as keyword only arguments
+`.EngFormatter` now accepts *usetex*, *useMathText* as keyword only arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A public API has been added to `EngFormatter` to control how the
+A public API has been added to `.EngFormatter` to control how the
 numbers in the ticklabels will be rendered. By default,
 ``useMathText`` evaluates to
 :rc:`axes.formatter.use_mathtext'` and ``usetex`` evaluates

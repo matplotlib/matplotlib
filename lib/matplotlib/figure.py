@@ -1358,8 +1358,8 @@ default: 'top'
 
         if isinstance(args[0], SubplotBase):
 
-            a = args[0]
-            if a.get_figure() is not self:
+            ax = args[0]
+            if ax.get_figure() is not self:
                 raise ValueError(
                     "The Subplot must have been created in the present figure")
             # make a key for the subplot (which includes the axes object id
@@ -1385,9 +1385,9 @@ default: 'top'
                     # more similar to add_axes.
                     self._axstack.remove(ax)
 
-            a = subplot_class_factory(projection_class)(self, *args, **kwargs)
+            ax = subplot_class_factory(projection_class)(self, *args, **kwargs)
 
-        return self._add_axes_internal(key, a)
+        return self._add_axes_internal(key, ax)
 
     def _add_axes_internal(self, key, ax):
         """Private helper for `add_axes` and `add_subplot`."""

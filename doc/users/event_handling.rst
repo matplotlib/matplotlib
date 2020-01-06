@@ -413,7 +413,7 @@ You can enable picking by setting the ``picker`` property of an
 :class:`~matplotlib.artist.Artist` (e.g., a matplotlib
 :class:`~matplotlib.lines.Line2D`, :class:`~matplotlib.text.Text`,
 :class:`~matplotlib.patches.Patch`, :class:`~matplotlib.patches.Polygon`,
-:class:`~matplotlib.patches.AxesImage`, etc...)
+:class:`~matplotlib.image.AxesImage`, etc...)
 
 There are a variety of meanings of the ``picker`` property:
 

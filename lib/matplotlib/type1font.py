@@ -291,7 +291,7 @@ class Type1Font:
             return replacer
 
         def suppress(tokens):
-            for x in itertools.takewhile(lambda x: x[1] != b'def', tokens):
+            for _ in itertools.takewhile(lambda x: x[1] != b'def', tokens):
                 pass
             yield b''
 

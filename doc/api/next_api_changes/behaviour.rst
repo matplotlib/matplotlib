@@ -56,3 +56,9 @@ Setting the same property under multiple aliases now raises a TypeError
 Previously, calling e.g. ``plot(..., color=somecolor, c=othercolor)`` would
 emit a warning because ``color`` and ``c`` actually map to the same Artist
 property.  This now raises a TypeError.
+
+`.FileMovieWriter` temporary frames directory
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`.FileMovieWriter` now defaults to writing temporary frames in a temporary
+directory, which is always cleared at exit.  In order to keep the individual
+frames saved on the filesystem, pass an explicit *frame_prefix*.

@@ -961,18 +961,18 @@ def subplot(*args, **kwargs):
                          "and/or 'nrows'.  Did you intend to call subplots()?")
 
     fig = gcf()
-    a = fig.add_subplot(*args, **kwargs)
-    bbox = a.bbox
-    byebye = []
-    for other in fig.axes:
-        if other == a:
+    ax = fig.add_subplot(*args, **kwargs)
+    bbox = ax.bbox
+    axes_to_delete = []
+    for other_ax in fig.axes:
+        if other_ax == ax:
             continue
-        if bbox.fully_overlaps(other.bbox):
-            byebye.append(other)
-    for ax in byebye:
-        delaxes(ax)
+        if bbox.fully_overlaps(other_ax.bbox):
+            axes_to_delete.append(other_ax)
+    for ax_to_del in axes_to_delete:
+        delaxes(ax_to_del)
 
-    return a
+    return ax
 
 
 def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
@@ -1151,18 +1151,18 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
     subplotspec = GridSpec(s1, s2).new_subplotspec(loc,
                                                    rowspan=rowspan,
                                                    colspan=colspan)
-    a = fig.add_subplot(subplotspec, **kwargs)
-    bbox = a.bbox
-    byebye = []
-    for other in fig.axes:
-        if other == a:
+    ax = fig.add_subplot(subplotspec, **kwargs)
+    bbox = ax.bbox
+    axes_to_delete = []
+    for other_ax in fig.axes:
+        if other_ax == ax:
             continue
-        if bbox.fully_overlaps(other.bbox):
-            byebye.append(other)
-    for ax in byebye:
-        delaxes(ax)
+        if bbox.fully_overlaps(other_ax.bbox):
+            axes_to_delete.append(other_ax)
+    for ax_to_del in axes_to_delete:
+        delaxes(ax_to_del)
 
-    return a
+    return ax
 
 
 def twinx(ax=None):
@@ -2448,18 +2448,16 @@ def hlines(
 @docstring.copy(Axes.imshow)
 def imshow(
         X, cmap=None, norm=None, aspect=None, interpolation=None,
-        alpha=None, vmin=None, vmax=None, origin=None, extent=None,
-        shape=cbook.deprecation._deprecated_parameter,
-        filternorm=True, filterrad=4.0,
-        imlim=cbook.deprecation._deprecated_parameter, resample=None,
-        url=None, *, data=None, **kwargs):
+        alpha=None, vmin=None, vmax=None, origin=None, extent=None, *,
+        filternorm=True, filterrad=4.0, resample=None, url=None,
+        data=None, **kwargs):
     __ret = gca().imshow(
         X, cmap=cmap, norm=norm, aspect=aspect,
         interpolation=interpolation, alpha=alpha, vmin=vmin,
-        vmax=vmax, origin=origin, extent=extent, shape=shape,
-        filternorm=filternorm, filterrad=filterrad, imlim=imlim,
-        resample=resample, url=url, **({"data": data} if data is not
-        None else {}), **kwargs)
+        vmax=vmax, origin=origin, extent=extent,
+        filternorm=filternorm, filterrad=filterrad, resample=resample,
+        url=url, **({"data": data} if data is not None else {}),
+        **kwargs)
     sci(__ret)
     return __ret
 

@@ -1369,7 +1369,7 @@ class _AxesBase(martist.Artist):
         """
         Set the axes box aspect. The box aspect is the ratio of the
         axes height to the axes width in physical units. This is not to be
-        confused with the data aspect, set via `~Axes.set_aspect`.
+        confused with the data aspect, set via `~.Axes.set_aspect`.
 
         Parameters
         ----------
