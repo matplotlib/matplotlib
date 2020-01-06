@@ -522,6 +522,11 @@ class SubplotSpec:
         else:
             self._layoutbox = None
 
+    def __repr__(self):
+        return (f"{self.get_gridspec()}["
+                f"{self.rowspan.start}:{self.rowspan.stop}, "
+                f"{self.colspan.start}:{self.colspan.stop}]")
+
     @staticmethod
     def _from_subplot_args(figure, args):
         """
