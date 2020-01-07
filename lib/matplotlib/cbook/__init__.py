@@ -1515,7 +1515,7 @@ def pad_arrays(*v, padval=np.nan):
     v : iterable
         List of arrays to be padded to the largest len. All elements must
         support iteration
-        
+
     padval : scalar, bool or NaN, defaul NaN
         value to pad missing values with
 
