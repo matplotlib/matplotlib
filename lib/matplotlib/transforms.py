@@ -1576,7 +1576,8 @@ class Transform(TransformNode):
         if not radians:
             angles = np.deg2rad(angles)
         # Move a short distance away
-        pts2 = pts + pushoff * np.c_[np.cos(angles), np.sin(angles)]
+        pts2 = pts + pushoff * np.column_stack([np.cos(angles),
+                                                np.sin(angles)])
         # Transform both sets of points
         tpts = self.transform(pts)
         tpts2 = self.transform(pts2)
