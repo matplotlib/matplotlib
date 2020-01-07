@@ -2100,6 +2100,8 @@ class _AxesBase(martist.Artist):
                                          updatex=updatex, updatey=updatey)
         self.ignore_existing_data_limits = False
 
+    @cbook.deprecated(
+        "3.3", alternative="ax.dataLim.set(Bbox.union([ax.dataLim, bounds]))")
     def update_datalim_bounds(self, bounds):
         """
         Extend the `~.Axes.datalim` Bbox to include the given
