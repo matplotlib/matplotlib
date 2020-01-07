@@ -446,7 +446,7 @@ class Axis(maxis.XAxis):
     def v_interval(self):
         return self.get_view_interval()
 
-    @d_interval.setter
+    @v_interval.setter
     def v_interval(self, minmax):
         return self.set_view_interval(*minmax)
 
