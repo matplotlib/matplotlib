@@ -47,7 +47,7 @@ import numpy as np
 from matplotlib.patches import Ellipse
 
 angle_step = 45  # degrees
-angles = np.arange(0, 360, angle_step)
+angles = np.arange(0, 180, angle_step)
 
 ax = plt.subplot(aspect='equal')
 
