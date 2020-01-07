@@ -5142,7 +5142,7 @@ default: :rc:`scatter.edgecolors`
         pad_size = x.size
         if step == 'between':
             pad_size -= 1
-            
+
         if where is None:
             where = np.ones(pad_size).astype(bool)
         else:
@@ -5364,7 +5364,7 @@ default: :rc:`scatter.edgecolors`
                     message="The parameter where must have the same size as y "
                             "in fill_between(). This will become an error in "
                             "future versions of Matplotlib.")
-            
+
         # Broadcast scalar values
         x1 = np.broadcast_to(x1, pad_size, subok=True)
         x2 = np.broadcast_to(x2, pad_size, subok=True)
