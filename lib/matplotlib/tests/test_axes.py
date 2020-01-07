@@ -1122,12 +1122,12 @@ def test_fill_between_histlike(fig_test, fig_ref):
     # Ref
     fig_ref, ref_axes = plt.subplots(2, 2)
     ref_axes = ref_axes.flatten()
-    ref_axes[0].fill_between(x, np.r_[y, y[-1]], step='post')
-    ref_axes[1].fill_betweenx(x, np.r_[y, y[-1]], step='post')
-    ref_axes[2].fill_between(x, np.r_[y, y[-1]],
-                             np.r_[y2, y2[-1]], step='post')
-    ref_axes[3].fill_betweenx(x, np.r_[y, y[-1]],
-                              np.r_[y2, y2[-1]], step='post')
+    ref_axes[0].fill_between(x, np.append(y, y[-1]), step='post')
+    ref_axes[1].fill_betweenx(x, np.append(y, y[-1]), step='post')
+    ref_axes[2].fill_between(x, np.append(y, y[-1]),
+                             np.append(y2, y2[-1]), step='post')
+    ref_axes[3].fill_betweenx(x, np.append(y, y[-1]),
+                              np.append(y2, y2[-1]), step='post')
 
 
 @image_comparison(['fill_between_step_between.pdf'], remove_text=True)
@@ -3990,23 +3990,23 @@ def test_step_histlike(fig_test, fig_ref):
     # Ref
     fig_ref, ref_axes = plt.subplots(4, 2)
     ref_axes = ref_axes.flatten()
-    ref_axes[0].plot(x, np.r_[y, y[-1]], drawstyle='steps-post')
-    ref_axes[1].plot(np.r_[y[0], y], x, drawstyle='steps-post')
+    ref_axes[0].plot(x, np.append(y, y[-1]), drawstyle='steps-post')
+    ref_axes[1].plot(np.append(y[0], y), x, drawstyle='steps-post')
 
-    ref_axes[2].plot(x, np.r_[y, y[-1]], drawstyle='steps-post')
+    ref_axes[2].plot(x, np.append(y, y[-1]), drawstyle='steps-post')
     ref_axes[2].add_line(mlines.Line2D([x[0], x[0]], [0, y[0]]))
     ref_axes[2].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]]))
 
-    ref_axes[3].plot(np.r_[y[0], y], x, drawstyle='steps-post')
+    ref_axes[3].plot(np.append(y[0], y), x, drawstyle='steps-post')
     ref_axes[3].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]]))
     ref_axes[3].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]]))
 
-    ref_axes[4].plot(x, np.r_[y, y[-1]], drawstyle='steps-post')
+    ref_axes[4].plot(x, np.append(y, y[-1]), drawstyle='steps-post')
     ref_axes[4].add_line(mlines.Line2D([x[0], x[0]], [0, y[0]]))
     ref_axes[4].add_line(mlines.Line2D([x[-1], x[-1]], [0, y[-1]]))
     ref_axes[4].semilogy()
 
-    ref_axes[5].plot(np.r_[y[0], y], x, drawstyle='steps-post')
+    ref_axes[5].plot(np.append(y[0], y), x, drawstyle='steps-post')
     ref_axes[5].add_line(mlines.Line2D([0, y[0]], [x[0], x[0]]))
     ref_axes[5].add_line(mlines.Line2D([0, y[-1]], [x[-1], x[-1]]))
     ref_axes[5].semilogx()

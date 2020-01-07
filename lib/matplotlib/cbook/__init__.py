@@ -1608,6 +1608,9 @@ def pts_to_betweenstep(x, *args):
     step_length = max(2 * max(len(x), len(args[0])) - 2, 0)
     steps = np.zeros((1 + len(args), step_length))
 
+    xlike = len(x) == len(args[0]) + 1
+    ylike = len(x) + 1 == len(args[0])
+
     def __between__(steps, sl0, sl1, _x, _args):
         # Be agnostic whether xlike or ylike
         if _x.flatten().shape != x.shape:
@@ -1620,25 +1623,14 @@ def pts_to_betweenstep(x, *args):
         steps[sl1, 1::2] = _args
         return steps
 
-    if len(x) == len(args[0]) + 1:
+    if xlike:
         steps = __between__(steps, 0, slice(1, None),
                             x, args)
-        # steps[0, ::len(steps[0])-1] = x[::len(x)-1]
-        # steps[0, 2::2] = x[1:-1]
-        # steps[0, 1:-1:2] = x[1:-1]
-        # steps[1:, 0::2] = args
-        # steps[1:, 1::2] = args
-
-    elif len(x) + 1 == len(args[0]):
+    elif ylike:
         steps = __between__(steps, slice(1, None), 0,
                                 args, x)
-        # steps[0, 0::2] = x
-        # steps[0, 1::2] = x
-        # steps[1:, ::len(steps[0])-1] = args[:, ::len(args[0])-1]
-        # steps[1:,  1:-1:2] = args[:, 1:-1]
-        # steps[1:,  2:-1:2] = args[:, 1:-1]
     else:
-        # Fall back to steps-post (legend drawing)
+        # Fall back to steps-post (e.g. legend drawing)
         steps = pts_to_poststep(x, *args)
 
     return steps
@@ -1669,18 +1661,17 @@ def pts_to_betweenstep_edges(x, *args):
         ``N=0``, the length will be 0.
 
     """
+    xlike = len(x) == len(args[0]) + 1
+    ylike = len(x) + 1 == len(args[0])
+    if not (xlike or ylike):
+        # Fall back to steps-post (e.g. legend drawing)
+        return pts_to_poststep(x, *args)
+
     steps = pts_to_betweenstep(x, *args)
     # Extra steps to plot edges where values are missing (Nan).
     nan_cols = np.nonzero(np.isnan(np.sum(steps, axis=0)))[0]
     nan_cols[1::2] = nan_cols[1::2]+1
     pad_steps = []
-
-    xlike = len(x) == len(args[0]) + 1
-    ylike = len(x) + 1 == len(args[0])
-    if not (xlike or ylike):
-        # Fall back to steps-post (legend drawing)
-        edge_steps = pts_to_poststep(x, *args)
-        return edge_steps
 
     for part in np.split(steps, nan_cols, axis=1):
         if not np.isnan(np.sum(part)):
@@ -1696,7 +1687,6 @@ def pts_to_betweenstep_edges(x, *args):
                 pad_part[1, 0] = part[1, 0]
                 pad_part[:, -1] = 0
                 pad_part[1, -1] = part[1, -1]
-
             pad_steps.append(pad_part)
         else:
             pad_steps.append(part)

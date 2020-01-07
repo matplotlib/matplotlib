@@ -5125,11 +5125,11 @@ default: :rc:`scatter.edgecolors`
                     self._get_patches_for_fill.get_next_color()
 
         # Handle united data, such as dates
-        self._process_unit_info(xdata=x, ydata=y1, kwargs=kwargs)
+        self._process_unit_info(xdata=x, kwargs=kwargs)
+        self._process_unit_info(ydata=y1)
         self._process_unit_info(ydata=y2)
 
         # Convert the arrays so we can work with them
-
         x = ma.masked_invalid(self.convert_xunits(x))
         y1 = ma.masked_invalid(self.convert_yunits(y1))
         y2 = ma.masked_invalid(self.convert_yunits(y2))
@@ -5139,8 +5139,12 @@ default: :rc:`scatter.edgecolors`
                 raise ValueError('Input passed into argument "%r"' % name +
                                  'is not 1-dimensional.')
 
+        pad_size = x.size
+        if step == 'between':
+            pad_size -= 1
+            
         if where is None:
-            where = True
+            where = np.ones(pad_size).astype(bool)
         else:
             where = np.asarray(where, dtype=bool)
             if where.size != x.size and step != 'between':
@@ -5149,16 +5153,13 @@ default: :rc:`scatter.edgecolors`
                     message="The parameter where must have the same size as x "
                             "in fill_between(). This will become an error in "
                             "future versions of Matplotlib.")
-        pad_size = x.size
-        if step == 'between':
-            pad_size -= 1
 
+        # Broadcast scalar values
         y1 = np.broadcast_to(y1, pad_size, subok=True)
         y2 = np.broadcast_to(y2, pad_size, subok=True)
         where = np.broadcast_to(where, pad_size, subok=True)
 
-        _get_masks = list(map(np.atleast_1d,
-                             map(np.ma.getmask, [y1, y2])))
+        _get_masks = list(map(np.ma.getmask, [y1, y2]))
         where = where & ~functools.reduce(np.logical_or, _get_masks)
 
         polys = []
@@ -5224,9 +5225,9 @@ default: :rc:`scatter.edgecolors`
         # now update the datalim and autoscale
         # For between pad last value
         if step == 'between':
-            y1 = np.r_[y1, y1[-1]]
-            y2 = np.r_[y2, y2[-1]]
-            where = np.r_[where, True]
+            y1 = np.append(y1, y1[-1])
+            y2 = np.append(y2, y2[-1])
+            where = np.append(where, True)
         XY1 = np.array([x[where], y1[where]]).T
         XY2 = np.array([x[where], y2[where]]).T
         self.dataLim.update_from_data_xy(XY1, self.ignore_existing_data_limits,
@@ -5349,8 +5350,12 @@ default: :rc:`scatter.edgecolors`
                 raise ValueError('Input passed into argument "%r"' % name +
                                  'is not 1-dimensional.')
 
+        pad_size = y.size
+        if step == 'between':
+            pad_size -= 1
+
         if where is None:
-            where = True
+            where = np.ones(pad_size).astype(bool)
         else:
             where = np.asarray(where, dtype=bool)
             if where.size != y.size and step != 'between':
@@ -5359,18 +5364,13 @@ default: :rc:`scatter.edgecolors`
                     message="The parameter where must have the same size as y "
                             "in fill_between(). This will become an error in "
                             "future versions of Matplotlib.")
-
-        pad_size = y.size
-        if step == 'between':
-            pad_size -= 1
-
+            
         # Broadcast scalar values
         x1 = np.broadcast_to(x1, pad_size, subok=True)
         x2 = np.broadcast_to(x2, pad_size, subok=True)
         where = np.broadcast_to(where, pad_size, subok=True)
 
-        _get_masks = list(map(np.atleast_1d,
-                             map(np.ma.getmask, [x1, x2])))
+        _get_masks = list(map(np.ma.getmask, [x1, x2]))
         where = where & ~functools.reduce(np.logical_or, _get_masks)
 
         polys = []
@@ -5435,9 +5435,9 @@ default: :rc:`scatter.edgecolors`
         # now update the datalim and autoscale
         # For between pad last value
         if step == 'between':
-            x1 = np.r_[x1, x1[-1]]
-            x2 = np.r_[x2, x2[-1]]
-            where = np.r_[where, True]
+            x1 = np.append(x1, x1[-1])
+            x2 = np.append(x2, x2[-1])
+            where = np.append(where, True)
         X1Y = np.array([x1[where], y[where]]).T
         X2Y = np.array([x2[where], y[where]]).T
         self.dataLim.update_from_data_xy(X1Y, self.ignore_existing_data_limits,
