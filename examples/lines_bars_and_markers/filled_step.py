@@ -64,8 +64,8 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
         bottoms = 0
     bottoms = np.broadcast_to(bottoms, values.shape)
 
-    values = np.r_[values, values[-1]]
-    bottoms = np.r_[bottoms, bottoms[-1]]
+    values = np.append(values, values[-1])
+    bottoms = np.append(bottoms, bottoms[-1])
     if orientation == 'h':
         return ax.fill_betweenx(edges, values, bottoms,
                                 **kwargs)

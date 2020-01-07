@@ -331,11 +331,9 @@ class ContourLabeler:
         # Check if closed and, if so, rotate contour so label is at edge
         closed = _is_closed_polygon(slc)
         if closed:
-            slc = np.r_[slc[ind:-1], slc[:ind + 1]]
-
+            slc = np.concatenate([slc[ind:-1], slc[:ind + 1]])
             if len(lc):  # Rotate lc also if not empty
-                lc = np.r_[lc[ind:-1], lc[:ind + 1]]
-
+                lc = np.concatenate([lc[ind:-1], lc[:ind + 1]])
             ind = 0
 
         # Calculate path lengths
@@ -494,7 +492,7 @@ class ContourLabeler:
         # if there isn't a vertex close enough
         if not np.allclose(xcmin, lc[imin]):
             # insert new data into the vertex list
-            lc = np.r_[lc[:imin], np.array(xcmin)[None, :], lc[imin:]]
+            lc = np.row_stack([lc[:imin], xcmin, lc[imin:]])
             # replace the path with the new one
             paths[segmin] = mpath.Path(lc)
 
@@ -568,7 +566,7 @@ class ContourLabeler:
                 # functions, this is not necessary and should probably be
                 # eventually removed.
                 if _is_closed_polygon(lc):
-                    slc = np.r_[slc0, slc0[1:2, :]]
+                    slc = np.row_stack([slc0, slc0[1:2]])
                 else:
                     slc = slc0
 

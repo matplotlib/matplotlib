@@ -1681,7 +1681,7 @@ def test_bar_pandas_indexed(pd):
 @image_comparison(['hist_log'], remove_text=True)
 def test_hist_log():
     data0 = np.linspace(0, 1, 200)**3
-    data = np.r_[1-data0, 1+data0]
+    data = np.concatenate([1 - data0, 1 + data0])
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist(data, fill=False, log=True)
