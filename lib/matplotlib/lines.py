@@ -418,12 +418,12 @@ class Line2D(Artist):
 
     def contains(self, mouseevent):
         """
-        Test whether the mouse event occurred on the line.  The pick
-        radius determines the precision of the location test (usually
-        within five points of the value).  Use
-        :meth:`~matplotlib.lines.Line2D.get_pickradius` or
-        :meth:`~matplotlib.lines.Line2D.set_pickradius` to view or
-        modify it.
+        Test whether *mouseevent* occurred on the line.
+
+        An event is deemed to have occurred "on" the line if it is less
+        than ``self.pickradius`` (default: 5 points) away from it.  Use
+        `~.Line2D.get_pickradius` or `~.Line2D.set_pickradius` to get or set
+        the pick radius.
 
         Parameters
         ----------
