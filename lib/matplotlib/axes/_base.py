@@ -3397,6 +3397,11 @@ class _AxesBase(martist.Artist):
         -------
         ret : list
            List of `~matplotlib.text.Text` instances.
+        
+        Notes
+        -----
+        Please note that the tick label list is not populated until ``plt.draw()`` has been called.
+        See also: https://stackoverflow.com/questions/32700935/get-xticklabels-contains-empty-text-instances
         """
         return self.xaxis.get_ticklabels(minor=minor, which=which)
 
