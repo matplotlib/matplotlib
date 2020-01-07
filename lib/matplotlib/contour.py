@@ -554,23 +554,14 @@ class ContourLabeler:
             paths = con.get_paths()
             for segNum, linepath in enumerate(paths):
                 lc = linepath.vertices  # Line contour
-                slc0 = trans.transform(lc)  # Line contour in screen coords
-
-                # For closed polygons, add extra point to avoid division by
-                # zero in print_label and locate_label.  Other than these
-                # functions, this is not necessary and should probably be
-                # eventually removed.
-                if _is_closed_polygon(lc):
-                    slc = np.row_stack([slc0, slc0[1:2]])
-                else:
-                    slc = slc0
+                slc = trans.transform(lc)  # Line contour in screen coords
 
                 # Check if long enough for a label
                 if self.print_label(slc, lw):
                     x, y, ind = self.locate_label(slc, lw)
 
                     rotation, new = self.calc_label_rot_and_inline(
-                        slc0, ind, lw, lc if inline else None, inline_spacing)
+                        slc, ind, lw, lc if inline else None, inline_spacing)
 
                     # Actually add the label
                     add_label(x, y, rotation, lev, cvalue)
