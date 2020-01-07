@@ -6364,12 +6364,14 @@ default: :rc:`scatter.edgecolors`
 
         density : bool, optional
             If ``True``, the first element of the return tuple will
-            be the counts normalized to form a probability density, i.e.,
-            the area (or integral) under the histogram will sum to 1.
-            This is achieved by dividing the count by the number of
-            observations times the bin width and not dividing by the total
-            number of observations. If *stacked* is also ``True``, the sum of
-            the histograms is normalized to 1.
+            be the raw counts per bin normalized to form a probability density
+            so that the area under the histogram will integrate to 1, i.e.
+            ``np.sum(n * np.diff(bins)) == 1``.  (Computed by dividing the
+            raw counts ``n0`` by the total number of data points and
+            multiplying by the bin width: ``n = n0 / sum(n0) * np.diff(bins)``)
+
+            If *stacked* is also ``True``, the sum of the histograms is
+            normalized to 1.
 
             Default is ``False``.
 
