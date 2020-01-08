@@ -1791,7 +1791,7 @@ default: 'top'
 
         Notes
         -----
-        Not all kinds of artist are supported by the legend command. See
+        Some artists are not supported by this function.  See
         :doc:`/tutorials/intermediate/legend_guide` for details.
         """
 

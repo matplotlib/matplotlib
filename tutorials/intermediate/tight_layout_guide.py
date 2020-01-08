@@ -47,9 +47,8 @@ example_plot(ax, fontsize=24)
 ###############################################################################
 # To prevent this, the location of axes needs to be adjusted. For
 # subplots, this can be done by adjusting the subplot params
-# (:ref:`howto-subplots-adjust`). Matplotlib v1.1 introduces a new
-# command :func:`~matplotlib.pyplot.tight_layout` that does this
-# automatically for you.
+# (:ref:`howto-subplots-adjust`). Matplotlib v1.1 introduced
+# `.Figure.tight_layout` that does this automatically for you.
 
 fig, ax = plt.subplots()
 example_plot(ax, fontsize=24)
@@ -336,10 +335,9 @@ plt.tight_layout()
 # Colorbar
 # ========
 #
-# If you create a colorbar with the :func:`~matplotlib.pyplot.colorbar`
-# command, the created colorbar is an instance of Axes, *not* Subplot, so
-# tight_layout does not work. With Matplotlib v1.1, you may create a
-# colorbar as a subplot using the gridspec.
+# If you create a colorbar with `.Figure.colorbar`, the created colorbar is
+# an instance of Axes, *not* Subplot, so tight_layout does not work. With
+# Matplotlib v1.1, you may create a colorbar as a subplot using the gridspec.
 
 plt.close('all')
 arr = np.arange(100).reshape((10, 10))

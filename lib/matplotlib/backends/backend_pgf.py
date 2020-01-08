@@ -275,8 +275,9 @@ class LatexManager:
                 encoding="utf-8", cwd=self.tmpdir)
         except FileNotFoundError:
             raise RuntimeError(
-                "Latex command not found. Install %r or change "
-                "pgf.texsystem to the desired command." % self.texcommand)
+                f"{self.texcommand} not found.  Install it or change "
+                f"rcParams['pgf.texsystem'] to an available TeX "
+                f"implementation.")
         except OSError:
             raise RuntimeError("Error starting process %r" % self.texcommand)
         test_input = self.latex_header + latex_end
@@ -856,7 +857,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 
     def print_pgf(self, fname_or_fh, *args, **kwargs):
         """
-        Output pgf commands for drawing the figure so it can be included and
+        Output pgf macros for drawing the figure so it can be included and
         rendered in latex documents.
         """
         if kwargs.get("dryrun", False):

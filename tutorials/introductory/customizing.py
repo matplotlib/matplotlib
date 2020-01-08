@@ -112,14 +112,14 @@ plt.plot(data)
 
 ###############################################################################
 # Matplotlib also provides a couple of convenience functions for modifying rc
-# settings. The :func:`matplotlib.rc` command can be used to modify multiple
+# settings. `matplotlib.rc` can be used to modify multiple
 # settings in a single group at once, using keyword arguments:
 
 mpl.rc('lines', linewidth=4, color='g')
 plt.plot(data)
 
 ###############################################################################
-# The :func:`matplotlib.rcdefaults` command will restore the standard matplotlib
+# `matplotlib.rcdefaults` will restore the standard matplotlib
 # default settings.
 #
 # There is some degree of validation when setting the values of rcParams, see

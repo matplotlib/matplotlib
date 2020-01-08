@@ -116,8 +116,7 @@ def _process_plot_format(fmt):
 
 class _process_plot_var_args:
     """
-    Process variable length arguments to the plot command, so that
-    plot commands like the following are supported::
+    Process variable length arguments to `~.Axes.plot`, to support ::
 
       plot(t, s)
       plot(t1, s1, t2, s2)
