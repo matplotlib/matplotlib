@@ -149,7 +149,8 @@ class Grid:
 
         self.ngrids = ngrids
 
-        self._init_axes_pad(axes_pad)
+        self._horiz_pad_size, self._vert_pad_size = map(
+            Size.Fixed, np.broadcast_to(axes_pad, 2))
 
         cbook._check_in_list(["column", "row"], direction=direction)
         self._direction = direction
@@ -191,11 +192,6 @@ class Grid:
                 fig.add_axes(ax)
 
         self.set_label_mode(label_mode)
-
-    def _init_axes_pad(self, axes_pad):
-        axes_pad = np.broadcast_to(axes_pad, 2)
-        self._horiz_pad_size = Size.Fixed(axes_pad[0])
-        self._vert_pad_size = Size.Fixed(axes_pad[1])
 
     def _init_locators(self):
 
@@ -256,8 +252,6 @@ class Grid:
         axes_pad : (float, float)
             The padding (horizontal pad, vertical pad) in inches.
         """
-        # Differs from _init_axes_pad by 1) not broacasting, 2) modifying the
-        # Size.Fixed objects in-place.
         self._horiz_pad_size.fixed_size = axes_pad[0]
         self._vert_pad_size.fixed_size = axes_pad[1]
 
