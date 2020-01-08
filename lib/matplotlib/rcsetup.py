@@ -150,7 +150,7 @@ def validate_bool_maybe_none(b):
 
 def _validate_tex_preamble(s):
     message = (
-        f"Support for setting the 'text.latex.unicode' and 'pdf.preamble' "
+        f"Support for setting the 'text.latex.preamble' and 'pdf.preamble' "
         f"rcParams to {s!r} is deprecated since %(since)s and will be "
         f"removed %(removal)s; please set them to plain (possibly empty) "
         f"strings instead.")
