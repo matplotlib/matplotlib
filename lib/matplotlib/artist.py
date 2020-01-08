@@ -516,7 +516,7 @@ class Artist:
 
         Parameters
         ----------
-        picker : None or bool or float or callable
+        picker : None or bool or callable
             This can be one of the following:
 
             - *None*: Picking is disabled for this artist (default).
@@ -524,14 +524,6 @@ class Artist:
             - A boolean: If *True* then picking will be enabled and the
               artist will fire a pick event if the mouse event is over
               the artist.
-
-            - A float: If picker is a number it is interpreted as an
-              epsilon tolerance in points and the artist will fire
-              off an event if it's data is within epsilon of the mouse
-              event.  For some artists like lines and patch collections,
-              the artist may provide additional data to the pick event
-              that is generated, e.g., the indices of the data within
-              epsilon of the pick event
 
             - A function: If picker is callable, it is a user supplied
               function which determines whether the artist is hit by the
@@ -543,6 +535,10 @@ class Artist:
               artist, return *hit=True* and props is a dictionary of
               properties you want added to the PickEvent attributes.
 
+            - *deprecated*: For `.Line2D` only, *picker* can also be a float
+              that sets the tolerance for checking whether an event occurred
+              "on" the line; this is deprecated.  Use `.Line2D.set_pickradius`
+              instead.
         """
         self._picker = picker
 

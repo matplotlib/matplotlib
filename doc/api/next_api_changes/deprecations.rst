@@ -135,3 +135,12 @@ access the transform classes from the :mod:`.scale` module.
 ``TexManager.cachedir``
 ~~~~~~~~~~~~~~~~~~~~~~~
 Use `matplotlib.get_cachedir()` instead.
+
+Setting `.Line2D`\'s pickradius via `.Line2D.set_picker`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Setting a `.Line2D`\'s pickradius (i.e. the tolerance for pick events
+and containment checks) via `.Line2D.set_picker` is deprecated.  Use
+`.Line2D.set_pickradius` instead.
+
+`.Line2D.set_picker` no longer sets the artist's custom-contain() check.  Use
+``Line2D.set_contains`` instead.
