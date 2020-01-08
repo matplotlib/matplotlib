@@ -336,15 +336,15 @@ plt.tight_layout()
 # ========
 #
 # If you create a colorbar with `.Figure.colorbar`, the created colorbar is
-# an instance of Axes, *not* Subplot, so tight_layout does not work. With
-# Matplotlib v1.1, you may create a colorbar as a subplot using the gridspec.
+# drawn in a Subplot as long as the parent axes is also a Subplot, so
+# `.Figure.tight_layout` will work.
 
 plt.close('all')
 arr = np.arange(100).reshape((10, 10))
 fig = plt.figure(figsize=(4, 4))
 im = plt.imshow(arr, interpolation="none")
 
-plt.colorbar(im, use_gridspec=True)
+plt.colorbar(im)
 
 plt.tight_layout()
 
