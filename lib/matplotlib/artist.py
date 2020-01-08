@@ -383,7 +383,7 @@ class Artist:
         """
         Base impl. for checking whether a mouseevent happened in an artist.
 
-        1. If the artist defines a custom checker, use it.
+        1. If the artist defines a custom checker, use it (deprecated).
         2. If the artist figure is known and the event did not occur in that
            figure (by checking its ``canvas`` attribute), reject it.
         3. Otherwise, return `None, {}`, indicating that the subclass'
@@ -396,7 +396,7 @@ class Artist:
                 return inside, info
             # subclass-specific implementation follows
 
-        The `canvas` kwarg is provided for the implementation of
+        The *figure* kwarg is provided for the implementation of
         `Figure.contains`.
         """
         if callable(self._contains):
@@ -406,7 +406,8 @@ class Artist:
         return None, {}
 
     def contains(self, mouseevent):
-        """Test whether the artist contains the mouse event.
+        """
+        Test whether the artist contains the mouse event.
 
         Parameters
         ----------
@@ -420,10 +421,6 @@ class Artist:
             An artist-specific dictionary of details of the event context,
             such as which points are contained in the pick radius. See the
             individual Artist subclasses for details.
-
-        See Also
-        --------
-        set_contains, get_contains
         """
         inside, info = self._default_contains(mouseevent)
         if inside is not None:
@@ -431,6 +428,7 @@ class Artist:
         _log.warning("%r needs 'contains' method", self.__class__.__name__)
         return False, {}
 
+    @cbook.deprecated("3.3", alternative="set_picker")
     def set_contains(self, picker):
         """
         Define a custom contains test for the artist.
@@ -458,6 +456,7 @@ class Artist:
             raise TypeError("picker is not a callable")
         self._contains = picker
 
+    @cbook.deprecated("3.3", alternative="get_picker")
     def get_contains(self):
         """
         Return the custom contains function of the artist if set, or *None*.

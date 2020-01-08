@@ -142,8 +142,13 @@ Setting a `.Line2D`\'s pickradius (i.e. the tolerance for pick events
 and containment checks) via `.Line2D.set_picker` is deprecated.  Use
 `.Line2D.set_pickradius` instead.
 
-`.Line2D.set_picker` no longer sets the artist's custom-contain() check.  Use
-``Line2D.set_contains`` instead.
+`.Line2D.set_picker` no longer sets the artist's custom-contain() check.
+
+``Artist.set_contains``, ``Artist.get_contains``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Setting a custom method overridding `.Artist.contains` is deprecated.
+There is no replacement, but you may still customize pick events using
+`.Artist.set_picker`.
 
 `~matplotlib.colorbar.Colorbar` methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
