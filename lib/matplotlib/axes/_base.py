@@ -3400,8 +3400,10 @@ class _AxesBase(martist.Artist):
         
         Notes
         -----
-        Please note that the tick label list is not populated until ``plt.draw()`` has been called.
-        See also: https://stackoverflow.com/questions/32700935/get-xticklabels-contains-empty-text-instances
+        Please note that the tick label list is not populated until a ``draw``
+        method has been called.
+
+        See also: `~pyplot.draw` and `~canvas.draw`.
         """
         return self.xaxis.get_ticklabels(minor=minor, which=which)
 
