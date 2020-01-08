@@ -194,7 +194,7 @@ class ContourLabeler:
         return self.labelTextsList
 
     def print_label(self, linecontour, labelwidth):
-        """Return *False* if contours are too short for a label."""
+        """Return whether a contour is long enough to hold a label."""
         return (len(linecontour) > 10 * labelwidth
                 or (np.ptp(linecontour, axis=0) > 1.2 * labelwidth).any())
 
@@ -514,13 +514,8 @@ class ContourLabeler:
         # now lw in pixels
 
         # Figure out label rotation.
-        if inline:
-            lcarg = lc
-        else:
-            lcarg = None
         rotation, nlc = self.calc_label_rot_and_inline(
-            slc, imin, lw, lcarg,
-            inline_spacing)
+            slc, imin, lw, lc if inline else None, inline_spacing)
 
         self.add_label(xmin, ymin, rotation, self.labelLevelList[lmin],
                        self.labelCValueList[lmin])
@@ -574,13 +569,8 @@ class ContourLabeler:
                 if self.print_label(slc, lw):
                     x, y, ind = self.locate_label(slc, lw)
 
-                    if inline:
-                        lcarg = lc
-                    else:
-                        lcarg = None
                     rotation, new = self.calc_label_rot_and_inline(
-                        slc0, ind, lw, lcarg,
-                        inline_spacing)
+                        slc0, ind, lw, lc if inline else None, inline_spacing)
 
                     # Actually add the label
                     add_label(x, y, rotation, lev, cvalue)
