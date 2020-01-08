@@ -6351,7 +6351,7 @@ default: :rc:`scatter.edgecolors`
             supported by `numpy.histogram_bin_edges`: 'auto', 'fd', 'doane',
             'scott', 'stone', 'rice', 'sturges', or 'sqrt'.
 
-        range : tuple or None, optional, default: None
+        range : tuple or None, default: None
             The lower and upper range of the bins. Lower and upper outliers
             are ignored. If not provided, *range* is ``(x.min(), x.max())``.
             Range has no effect if *bins* is a sequence.
@@ -6360,7 +6360,7 @@ default: :rc:`scatter.edgecolors`
             is based on the specified bin range instead of the
             range of x.
 
-        density : bool, optional, default: False
+        density : bool, default: False
             If ``True``, the first element of the return tuple will
             be the raw counts per bin normalized to form a probability density
             so that the area under the histogram will integrate to 1, i.e.
@@ -6371,8 +6371,7 @@ default: :rc:`scatter.edgecolors`
             If *stacked* is also ``True``, the sum of the histograms is
             normalized to 1.
 
-
-        weights : (n, ) array-like or None, optional, default: None
+        weights : (n,) array-like or None, default: None
             An array of weights, of the same shape as *x*.  Each value in *x*
             only contributes its associated weight towards the bin count
             (instead of 1).  If *normed* or *density* is ``True``,
@@ -6388,7 +6387,7 @@ default: :rc:`scatter.edgecolors`
 
             (or you may alternatively use `~.bar()`).
 
-        cumulative : bool or -1, optional, default: False
+        cumulative : bool or -1, default: False
             If ``True``, then a histogram is computed where each bin gives the
             counts in that bin plus all bins for smaller values. The last bin
             gives the total number of datapoints.
@@ -6401,15 +6400,13 @@ default: :rc:`scatter.edgecolors`
             ``True``, then the histogram is normalized such that the first bin
             equals 1.
 
-
         bottom : array-like, scalar, or None, default: None
             Location of the bottom baseline of each bin.  If a scalar,
             the base line for each bin is shifted by the same amount.
             If an array, each bin is shifted independently and the length
             of bottom must match the number of bins.  If None, defaults to 0.
 
-
-        histtype : {'bar', 'barstacked', 'step',  'stepfilled'}, optional
+        histtype : {'bar', 'barstacked', 'step', 'stepfilled'}, default: 'bar'
             The type of histogram to draw.
 
             - 'bar' is a traditional bar-type histogram.  If multiple data
@@ -6419,45 +6416,39 @@ default: :rc:`scatter.edgecolors`
             - 'step' generates a lineplot that is by default unfilled.
             - 'stepfilled' generates a lineplot that is by default filled.
 
-            Default is 'bar'
-
-        align : {'left', 'mid', 'right'}, optional, default 'mid'
+        align : {'left', 'mid', 'right'}, default: 'mid'
             The horizontal alignment of the histogram bars.
 
             - 'left': bars are centered on the left bin edges.
             - 'mid': bars are centered between the bin edges.
             - 'right': bars are centered on the right bin edges.
 
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
+            If 'horizontal', `~.Axes.barh` will be used for bar-type histograms
+            and the *bottom* kwarg will be the left edges.
 
-        orientation : {'horizontal', 'vertical'}, optional
-            If 'horizontal', `~matplotlib.pyplot.barh` will be used for
-            bar-type histograms and the *bottom* kwarg will be the left edges.
-
-        rwidth : scalar or None, optional, default: None
+        rwidth : scalar or None, default: None
             The relative width of the bars as a fraction of the bin width.  If
             ``None``, automatically compute the width.
 
             Ignored if *histtype* is 'step' or 'stepfilled'.
 
-
-        log : bool, optional, default: False
+        log : bool, default: False
             If ``True``, the histogram axis will be set to a log scale. If
             *log* is ``True`` and *x* is a 1D array, empty bins will be
             filtered out and only the non-empty ``(n, bins, patches)``
             will be returned.
 
-        color : color or array-like of colors or None, optional, default: None
+        color : color or array-like of colors or None, default: None
             Color or sequence of colors, one per dataset.  Default (``None``)
             uses the standard line color sequence.
 
-            Default is ``None``
-
-        label : str or None, optional, default: None
+        label : str or None, default: None
             String, or sequence of strings to match multiple datasets.  Bar
             charts yield multiple patches per dataset, but only the first gets
             the label, so that the legend command will work as expected.
 
-        stacked : bool, optional, default:False
+        stacked : bool, default: False
             If ``True``, multiple data are stacked on top of each other If
             ``False`` multiple data are arranged side by side if histtype is
             'bar' or on top of each other if histtype is 'step'
