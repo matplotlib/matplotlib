@@ -3,11 +3,11 @@ from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal, assert_array_almost_equal)
 import pytest
 
+from matplotlib import scale
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
 from matplotlib.path import Path
-from matplotlib.scale import LogScale
 from matplotlib.testing.decorators import image_comparison
 
 
@@ -196,7 +196,7 @@ def test_clipping_of_log():
 
     # something like this happens in plotting logarithmic histograms
     trans = mtransforms.BlendedGenericTransform(
-        mtransforms.Affine2D(), LogScale.LogTransform(10, 'clip'))
+        mtransforms.Affine2D(), scale.LogTransform(10, 'clip'))
     tpath = trans.transform_path_non_affine(path)
     result = tpath.iter_segments(trans.get_affine(),
                                  clip=(0, 0, 100, 100),
