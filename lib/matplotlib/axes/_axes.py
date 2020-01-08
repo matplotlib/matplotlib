@@ -6351,7 +6351,7 @@ default: :rc:`scatter.edgecolors`
             supported by `numpy.histogram_bin_edges`: 'auto', 'fd', 'doane',
             'scott', 'stone', 'rice', 'sturges', or 'sqrt'.
 
-        range : tuple or None, optional
+        range : tuple or None, optional, default: None
             The lower and upper range of the bins. Lower and upper outliers
             are ignored. If not provided, *range* is ``(x.min(), x.max())``.
             Range has no effect if *bins* is a sequence.
@@ -6360,27 +6360,24 @@ default: :rc:`scatter.edgecolors`
             is based on the specified bin range instead of the
             range of x.
 
-            Default is ``None``
-
-        density : bool, optional
+        density : bool, optional, default: False
             If ``True``, the first element of the return tuple will
-            be the counts normalized to form a probability density, i.e.,
-            the area (or integral) under the histogram will sum to 1.
-            This is achieved by dividing the count by the number of
-            observations times the bin width and not dividing by the total
-            number of observations. If *stacked* is also ``True``, the sum of
-            the histograms is normalized to 1.
+            be the raw counts per bin normalized to form a probability density
+            so that the area under the histogram will integrate to 1, i.e.
+            ``np.sum(n * np.diff(bins)) == 1``.  (Computed by dividing the
+            raw counts ``n0`` by the total number of data points and
+            multiplying by the bin width: ``n = n0 / sum(n0) * np.diff(bins)``)
 
-            Default is ``False``.
+            If *stacked* is also ``True``, the sum of the histograms is
+            normalized to 1.
 
-        weights : (n, ) array-like or None, optional
+
+        weights : (n, ) array-like or None, optional, default: None
             An array of weights, of the same shape as *x*.  Each value in *x*
             only contributes its associated weight towards the bin count
             (instead of 1).  If *normed* or *density* is ``True``,
             the weights are normalized, so that the integral of the density
             over the range remains 1.
-
-            Default is ``None``.
 
             This parameter can be used to draw a histogram of data that has
             already been binned, e.g. using `numpy.histogram` (by treating each
@@ -6391,7 +6388,7 @@ default: :rc:`scatter.edgecolors`
 
             (or you may alternatively use `~.bar()`).
 
-        cumulative : bool or -1, optional
+        cumulative : bool or -1, optional, default: False
             If ``True``, then a histogram is computed where each bin gives the
             counts in that bin plus all bins for smaller values. The last bin
             gives the total number of datapoints.
@@ -6404,15 +6401,13 @@ default: :rc:`scatter.edgecolors`
             ``True``, then the histogram is normalized such that the first bin
             equals 1.
 
-            Default is ``False``
 
-        bottom : array-like, scalar, or None
+        bottom : array-like, scalar, or None, default: None
             Location of the bottom baseline of each bin.  If a scalar,
             the base line for each bin is shifted by the same amount.
             If an array, each bin is shifted independently and the length
             of bottom must match the number of bins.  If None, defaults to 0.
 
-            Default is ``None``
 
         histtype : {'bar', 'barstacked', 'step',  'stepfilled'}, optional
             The type of histogram to draw.
@@ -6426,54 +6421,46 @@ default: :rc:`scatter.edgecolors`
 
             Default is 'bar'
 
-        align : {'left', 'mid', 'right'}, optional
+        align : {'left', 'mid', 'right'}, optional, default 'mid'
             The horizontal alignment of the histogram bars.
 
             - 'left': bars are centered on the left bin edges.
             - 'mid': bars are centered between the bin edges.
             - 'right': bars are centered on the right bin edges.
 
-            Default is 'mid'
 
         orientation : {'horizontal', 'vertical'}, optional
             If 'horizontal', `~matplotlib.pyplot.barh` will be used for
             bar-type histograms and the *bottom* kwarg will be the left edges.
 
-        rwidth : scalar or None, optional
+        rwidth : scalar or None, optional, default: None
             The relative width of the bars as a fraction of the bin width.  If
             ``None``, automatically compute the width.
 
             Ignored if *histtype* is 'step' or 'stepfilled'.
 
-            Default is ``None``
 
-        log : bool, optional
+        log : bool, optional, default: False
             If ``True``, the histogram axis will be set to a log scale. If
             *log* is ``True`` and *x* is a 1D array, empty bins will be
             filtered out and only the non-empty ``(n, bins, patches)``
             will be returned.
 
-            Default is ``False``
-
-        color : color or array-like of colors or None, optional
+        color : color or array-like of colors or None, optional, default: None
             Color or sequence of colors, one per dataset.  Default (``None``)
             uses the standard line color sequence.
 
             Default is ``None``
 
-        label : str or None, optional
+        label : str or None, optional, default: None
             String, or sequence of strings to match multiple datasets.  Bar
             charts yield multiple patches per dataset, but only the first gets
             the label, so that the legend command will work as expected.
 
-            default is ``None``
-
-        stacked : bool, optional
+        stacked : bool, optional, default:False
             If ``True``, multiple data are stacked on top of each other If
             ``False`` multiple data are arranged side by side if histtype is
             'bar' or on top of each other if histtype is 'step'
-
-            Default is ``False``
 
         Returns
         -------
