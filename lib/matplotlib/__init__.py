@@ -616,17 +616,12 @@ _deprecated_map = {}
 # rcParams deprecated; some can manually be mapped to another key.
 # Values are tuples of (version, new_name_or_None).
 _deprecated_ignore_map = {
-    'pgf.debug': ('3.0', None),
 }
 
 # rcParams deprecated; can use None to suppress warnings; remain actually
 # listed in the rcParams (not included in _all_deprecated).
 # Values are tuples of (version,)
 _deprecated_remain_as_none = {
-    'text.latex.unicode': ('3.0',),
-    'savefig.frameon': ('3.1',),
-    'verbose.fileo': ('3.1',),
-    'verbose.level': ('3.1',),
 }
 
 

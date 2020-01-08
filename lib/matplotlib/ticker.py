@@ -284,15 +284,9 @@ class Formatter(TickHelper):
         helper method to perform such a replacement when it is enabled via
         :rc:`axes.unicode_minus`.
         """
-        # Additionally, we disable the replacement when using usetex without
-        # unicode support (this is deprecated, i.e., in a future version,
-        # unicode support will always be enabled).
-        if (rcParams['axes.unicode_minus']
-                and (rcParams['text.latex.unicode']
-                     or not rcParams['text.usetex'])):
-            return s.replace('-', '\N{MINUS SIGN}')
-        else:
-            return s
+        return (s.replace('-', '\N{MINUS SIGN}')
+                if rcParams['axes.unicode_minus']
+                else s)
 
     def _set_locator(self, locator):
         """Subclasses may want to override this to set a locator."""

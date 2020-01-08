@@ -2152,14 +2152,6 @@ default: 'top'
         """
 
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
-        if "frameon" in kwargs:
-            cbook.warn_deprecated("3.1", name="frameon", obj_type="kwarg",
-                                  alternative="facecolor")
-            frameon = kwargs.pop("frameon")
-            if frameon is None:
-                frameon = dict.__getitem__(rcParams, 'savefig.frameon')
-        else:
-            frameon = False  # Won't pass "if frameon:" below.
         if transparent is None:
             transparent = rcParams['savefig.transparent']
 
@@ -2177,14 +2169,7 @@ default: 'top'
             kwargs.setdefault('facecolor', rcParams['savefig.facecolor'])
             kwargs.setdefault('edgecolor', rcParams['savefig.edgecolor'])
 
-        if frameon:
-            original_frameon = self.patch.get_visible()
-            self.patch.set_visible(frameon)
-
         self.canvas.print_figure(fname, **kwargs)
-
-        if frameon:
-            self.patch.set_visible(original_frameon)
 
         if transparent:
             for ax, cc in zip(self.axes, original_axes_colors):

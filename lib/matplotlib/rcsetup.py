@@ -441,11 +441,6 @@ _validate_alignment = ValidateInStrings(
      'center_baseline'])
 
 
-_validate_verbose = ValidateInStrings(
-    'verbose',
-    ['silent', 'helpful', 'debug', 'debug-annoying'])
-
-
 def validate_whiskers(s):
     if s == 'range':
         cbook.warn_deprecated(
@@ -1013,10 +1008,6 @@ defaultParams = {
     'interactive':       [False, validate_bool],
     'timezone':          ['UTC', validate_string],
 
-    # the verbosity setting
-    'verbose.level': ['silent', _validate_verbose],
-    'verbose.fileo': ['sys.stdout', validate_string],
-
     # line props
     'lines.linewidth':       [1.5, validate_float],  # line width in points
     'lines.linestyle':       ['-', _validate_linestyle],  # solid line
@@ -1133,7 +1124,6 @@ defaultParams = {
     # text props
     'text.color':          ['black', validate_color],
     'text.usetex':         [False, validate_bool],
-    'text.latex.unicode':  [True, validate_bool],
     'text.latex.preamble': ['', _validate_tex_preamble],
     'text.latex.preview':  [False, validate_bool],
     'text.hinting':        ['auto', validate_hinting],
@@ -1364,7 +1354,6 @@ defaultParams = {
     'savefig.dpi':         ['figure', validate_dpi],  # DPI
     'savefig.facecolor':   ['white', validate_color],
     'savefig.edgecolor':   ['white', validate_color],
-    'savefig.frameon':     [True, validate_bool],
     'savefig.orientation': ['portrait', validate_orientation],
     'savefig.jpeg_quality': [95, validate_int],
     # value checked by backend at runtime
@@ -1394,7 +1383,6 @@ defaultParams = {
     'pdf.use14corefonts': [False, validate_bool],
     'pdf.fonttype':     [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
 
-    'pgf.debug':     [False, validate_bool],  # output debug information
     # choose latex application for creating pdf files (xelatex/lualatex)
     'pgf.texsystem': ['xelatex', validate_pgf_texsystem],
     # use matplotlib rc settings for font configuration

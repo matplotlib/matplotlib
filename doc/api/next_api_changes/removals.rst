@@ -115,3 +115,14 @@ Arguments
 - The parameter ``usetex`` of `.TextToPath.get_text_path` has been removed.
   Use ``ismath='TeX'`` instead.
 - The parameter ``block`` of ``show()`` is now keyword-only.
+- The parameter ``frameon`` of `.Figure.savefig` has been removed.  Use
+  ``facecolor="none"`` to get a transparent background.
+
+rcParams
+~~~~~~~~
+- The ``text.latex.unicode`` rcParam has been removed, with no replacement.
+  Matplotlib now always supports unicode in usetex.
+- The ``savefig.frameon`` rcParam has been removed.  Set
+  :rc:`savefig.facecolor` to "none" to get a transparent background.
+- The ``pgf.debug``, ``verbose.fileo`` and ``verbose.verbose.level`` rcParams,
+  which had no effect, have been removed.
