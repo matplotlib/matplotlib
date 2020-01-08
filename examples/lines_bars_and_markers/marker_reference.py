@@ -13,6 +13,9 @@ the ``marker`` parameter of plot commands:
   :doc:`/gallery/shapes_and_collections/marker_path`.
 
 For a list of all markers see also the `matplotlib.markers` documentation.
+
+For example usages see
+:doc:`/gallery/lines_bars_and_markers/scatter_star_poly`.
 """
 
 import matplotlib.pyplot as plt
