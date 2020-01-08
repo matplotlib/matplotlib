@@ -1,13 +1,13 @@
 """
 Axislines includes modified implementation of the Axes class. The
 biggest difference is that the artists responsible for drawing the axis spine,
-ticks, ticklabels and axis labels are separated out from mpl's Axis
+ticks, ticklabels and axis labels are separated out from Matplotlib's Axis
 class. Originally, this change was motivated to support curvilinear
 grid. Here are a few reasons that I came up with a new axes class:
 
 * "top" and "bottom" x-axis (or "left" and "right" y-axis) can have
   different ticks (tick locations and labels). This is not possible
-  with the current mpl, although some twin axes trick can help.
+  with the current Matplotlib, although some twin axes trick can help.
 
 * Curvilinear grid.
 
@@ -29,11 +29,10 @@ has following children artists which will draw ticks, labels, etc.
 * offsetText
 * label
 
-Note that these are separate artists from Axis class of the
-original mpl, thus most of tick-related command in the original mpl
-won't work, although some effort has made to work with. For example,
-color and markerwidth of the ax.axis["bottom"].major_ticks will follow
-those of Axes.xaxis unless explicitly specified.
+Note that these are separate artists from `matplotlib.axis.Axis`, thus most
+tick-related functions in Matplotlib won't work. For example, color and
+markerwidth of the ``ax.axis["bottom"].major_ticks`` will follow those of
+Axes.xaxis unless explicitly specified.
 
 In addition to AxisArtist, the Axes will have *gridlines* attribute,
 which obviously draws grid lines. The gridlines needs to be separated

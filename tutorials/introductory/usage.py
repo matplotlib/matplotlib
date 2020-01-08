@@ -588,7 +588,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #     plt.show()
 #
 # Now you see the plot, but your terminal command line is
-# unresponsive; the :func:`.pyplot.show()` command *blocks* the input
+# unresponsive; `.pyplot.show()` *blocks* the input
 # of additional commands until you manually kill the plot
 # window.
 #

@@ -17,21 +17,17 @@ at your terminal, followed by::
 
 at the ipython shell prompt.
 
-For the most part, direct use of the object-oriented library is
-encouraged when programming; pyplot is primarily for working
-interactively.  The
-exceptions are the pyplot commands :func:`~matplotlib.pyplot.figure`,
-:func:`~matplotlib.pyplot.subplot`,
-:func:`~matplotlib.pyplot.subplots`, and
-:func:`~pyplot.savefig`, which can greatly simplify scripting.
+For the most part, direct use of the object-oriented library is encouraged when
+programming; pyplot is primarily for working interactively.  The exceptions are
+the pyplot functions `.pyplot.figure`, `.pyplot.subplot`, `.pyplot.subplots`,
+and `.pyplot.savefig`, which can greatly simplify scripting.
 
 Modules include:
 
     :mod:`matplotlib.axes`
-        defines the :class:`~matplotlib.axes.Axes` class.  Most pyplot
-        commands are wrappers for :class:`~matplotlib.axes.Axes`
-        methods.  The axes module is the highest level of OO access to
-        the library.
+        defines the `~matplotlib.axes.Axes` class.  Most pyplot functions are
+        wrappers for `~matplotlib.axes.Axes` methods.  The axes module is the
+        highest level of OO access to the library.
 
     :mod:`matplotlib.figure`
         defines the :class:`~matplotlib.figure.Figure` class.
@@ -923,7 +919,7 @@ def rc(group, **kwargs):
     'aa'    'antialiased'
     =====   =================
 
-    Thus you could abbreviate the above rc command as::
+    Thus you could abbreviate the above call as::
 
           rc('lines', lw=2, c='r')
 

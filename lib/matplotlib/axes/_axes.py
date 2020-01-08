@@ -352,7 +352,7 @@ class Axes(_AxesBase):
 
         Notes
         -----
-        Not all kinds of artist are supported by the legend command. See
+        Some artists are not supported by this function.  See
         :doc:`/tutorials/intermediate/legend_guide` for details.
 
         Examples
@@ -927,13 +927,11 @@ class Axes(_AxesBase):
         """
         Add a horizontal span (rectangle) across the axis.
 
-        Draw a horizontal span (rectangle) from *ymin* to *ymax*.
-        With the default values of *xmin* = 0 and *xmax* = 1, this
-        always spans the xrange, regardless of the xlim settings, even
-        if you change them, e.g., with the :meth:`set_xlim` command.
-        That is, the horizontal extent is in axes coords: 0=left,
-        0.5=middle, 1.0=right but the *y* location is in data
-        coordinates.
+        The rectangle spans from *ymin* to *ymax* vertically, and, by default,
+        the whole x-axis horizontally.  The x-span can be set using *xmin*
+        (default: 0) and *xmax* (default: 1) which are in axis units; e.g.
+        ``xmin = 0.5`` always refers to the middle of the x-axis regardless of
+        the limits set by `~.Axes.set_xlim`.
 
         Parameters
         ----------
@@ -981,12 +979,11 @@ class Axes(_AxesBase):
         """
         Add a vertical span (rectangle) across the axes.
 
-        Draw a vertical span (rectangle) from *xmin* to *xmax*.  With
-        the default values of *ymin* = 0 and *ymax* = 1. This always
-        spans the yrange, regardless of the ylim settings, even if you
-        change them, e.g., with the :meth:`set_ylim` command.  That is,
-        the vertical extent is in axes coords: 0=bottom, 0.5=middle,
-        1.0=top but the x location is in data coordinates.
+        The rectangle spans from *xmin* to *xmax* horizontally, and, by
+        default, the whole y-axis vertically.  The y-span can be set using
+        *ymin* (default: 0) and *ymax* (default: 1) which are in axis units;
+        e.g. ``ymin = 0.5`` always refers to the middle of the y-axis
+        regardless of the limits set by `~.Axes.set_ylim`.
 
         Parameters
         ----------
@@ -1535,7 +1532,7 @@ class Axes(_AxesBase):
             >>> plot([1, 2, 3], [1, 2, 3], 'go-', label='line 1', linewidth=2)
             >>> plot([1, 2, 3], [1, 4, 9], 'rs', label='line 2')
 
-            If you make multiple lines with one plot command, the kwargs
+            If you make multiple lines with one plot call, the kwargs
             apply to all those lines.
 
             Here is a list of available `.Line2D` properties:
@@ -3119,9 +3116,9 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         **kwargs
-            All other keyword arguments are passed on to the plot
-            command for the markers. For example, this code makes big red
-            squares with thick green edges::
+            All other keyword arguments are passed on to the `~.Axes.plot` call
+            drawing the markers. For example, this code makes big red squares
+            with thick green edges::
 
                 x, y, yerr = rand(3, 10)
                 errorbar(x, y, yerr, marker='s', mfc='red',
@@ -6446,7 +6443,7 @@ default: :rc:`scatter.edgecolors`
         label : str or None, default: None
             String, or sequence of strings to match multiple datasets.  Bar
             charts yield multiple patches per dataset, but only the first gets
-            the label, so that the legend command will work as expected.
+            the label, so that `~.Axes.legend` will work as expected.
 
         stacked : bool, default: False
             If ``True``, multiple data are stacked on top of each other If

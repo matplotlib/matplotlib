@@ -105,8 +105,8 @@ for ax in axs.flat:
 # Colorbars
 # =========
 #
-# If you create a colorbar with the :func:`~matplotlib.pyplot.colorbar`
-# command you need to make room for it.  ``constrained_layout`` does this
+# If you create a colorbar with `.Figure.colorbar`,
+# you need to make room for it.  ``constrained_layout`` does this
 # automatically.  Note that if you specify ``use_gridspec=True`` it will be
 # ignored because this option is made for improving the layout via
 # ``tight_layout``.
@@ -498,17 +498,16 @@ ax2 = fig.add_axes(bb_ax2)
 #
 #
 # Limitations
-# ========================
+# ===========
 #
 # Incompatible functions
 # ----------------------
 #
-# ``constrained_layout`` will not work on subplots
-# created via the `.pyplot.subplot` command.  The reason is that each of these
-# commands creates a separate `.GridSpec` instance and ``constrained_layout``
-# uses (nested) gridspecs to carry out the layout.  So the following fails
-# to yield a nice layout:
-
+# ``constrained_layout`` will not work on subplots created via
+# `.pyplot.subplot`.  The reason is that each call to `.pyplot.subplot` creates
+# a separate `.GridSpec` instance and ``constrained_layout`` uses (nested)
+# gridspecs to carry out the layout.  So the following fails to yield a nice
+# layout:
 
 fig = plt.figure()
 

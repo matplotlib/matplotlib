@@ -303,8 +303,8 @@ of the text by default.
 
    Annotate Simple02
 
-As in the text command, a box around the text can be drawn using
-the ``bbox`` argument.
+As with `~.Axes.text`, a box around the text can be drawn using the *bbox*
+argument.
 
 .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple03_001.png
    :target: ../../gallery/userdemo/annotate_simple03.html

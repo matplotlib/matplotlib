@@ -230,7 +230,7 @@ class AbstractMovieWriter(abc.ABC):
         Grab the image information from the figure and save as a movie frame.
 
         All keyword arguments in *savefig_kwargs* are passed on to the
-        `~.Figure.savefig` command that saves the figure.
+        `~.Figure.savefig` call that saves the figure.
         """
 
     @abc.abstractmethod
@@ -1020,8 +1020,7 @@ class Animation:
            between the frames from the different animations.
 
         savefig_kwargs : dict, optional
-           Is a dictionary containing keyword arguments to be passed
-           on to the `~.Figure.savefig` command which is called repeatedly to
+           Keyword arguments passed to each `~.Figure.savefig` call used to
            save the individual frames.
 
         progress_callback : function, optional
