@@ -295,7 +295,11 @@ class PathClipper : public EmbeddedQueue<3>
         : m_source(&source),
           m_do_clipping(do_clipping),
           m_cliprect(-1.0, -1.0, width + 1.0, height + 1.0),
+          m_lastX(0.0),
+          m_lastY(0.0),
           m_moveto(true),
+          m_initX(0.0),
+          m_initY(0.0),
           m_has_init(false)
     {
         // empty
@@ -305,7 +309,11 @@ class PathClipper : public EmbeddedQueue<3>
         : m_source(&source),
           m_do_clipping(do_clipping),
           m_cliprect(rect),
+          m_lastX(0.0),
+          m_lastY(0.0),
           m_moveto(true),
+          m_initX(0.0),
+          m_initY(0.0),
           m_has_init(false)
     {
         m_cliprect.x1 -= 1.0;
