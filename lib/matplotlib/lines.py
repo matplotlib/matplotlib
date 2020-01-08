@@ -444,9 +444,6 @@ class Line2D(Artist):
         if inside is not None:
             return inside, info
 
-        if not isinstance(self.pickradius, Number):
-            raise ValueError("pick radius should be a distance")
-
         # Make sure we have data to plot
         if self._invalidy or self._invalidx:
             self.recache()
@@ -495,7 +492,7 @@ class Line2D(Artist):
 
         See `.contains` for more details.
         """
-        return self.pickradius
+        return self._pickradius
 
     def set_pickradius(self, d):
         """Set the pick radius used for containment tests.
@@ -507,7 +504,11 @@ class Line2D(Artist):
         d : float
             Pick radius, in points.
         """
-        self.pickradius = d
+        if not isinstance(d, Number) or d < 0:
+            raise ValueError("pick radius should be a distance")
+        self._pickradius = d
+
+    pickradius = property(get_pickradius, set_pickradius)
 
     def get_fillstyle(self):
         """
