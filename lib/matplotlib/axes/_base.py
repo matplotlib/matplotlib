@@ -3397,7 +3397,7 @@ class _AxesBase(martist.Artist):
         -------
         ret : list
            List of `~matplotlib.text.Text` instances.
-        
+
         Notes
         -----
         The tick label strings are not populated until a ``draw``
@@ -3790,6 +3790,13 @@ class _AxesBase(martist.Artist):
         -------
         ret : list
            List of `~matplotlib.text.Text` instances.
+
+        Notes
+        -----
+        The tick label strings are not populated until a ``draw``
+        method has been called.
+
+        See also: `~.pyplot.draw` and `~.FigureCanvasBase.draw`.
         """
         return self.yaxis.get_ticklabels(minor=minor, which=which)
 
