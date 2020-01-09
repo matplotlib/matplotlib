@@ -1474,39 +1474,34 @@ class ArtistInspector:
 
 def getp(obj, property=None):
     """
-    Return the value of object's property.  *property* is an optional string
-    for the property you want to return
+    Return the value of an object's *property*, or print all of them.
 
-    Example usage::
+    Parameters
+    ----------
+    obj : `.Artist`
+        The queried artist; e.g., a `.Line2D`, a `.Text`, or an `~.axes.Axes`.
 
-        getp(obj)  # get all the object properties
-        getp(obj, 'linestyle')  # get the linestyle property
+    property : str or None, default: None
+        If the *property* is 'somename', this function returns
+        ``obj.get_somename()``.
 
-    *obj* is a `.Artist` instance, e.g., `~matplotlib.lines.Line2D` or an
-    instance of a `~matplotlib.axes.Axes` or `matplotlib.text.Text`.
-    If the *property* is 'somename', this function returns
+        If is is None (or unset), it *prints* all gettable properties from
+        *obj*.  Many properties have aliases for shorter typing, e.g. 'lw' is
+        an alias for 'linewidth'.  In the output, aliases and full property
+        names will be listed as:
 
-      obj.get_somename()
+          property or alias = value
 
-    :func:`getp` can be used to query all the gettable properties with
-    ``getp(obj)``. Many properties have aliases for shorter typing, e.g.
-    'lw' is an alias for 'linewidth'.  In the output, aliases and full
-    property names will be listed as:
+        e.g.:
 
-      property or alias = value
-
-    e.g.:
-
-      linewidth or lw = 2
+          linewidth or lw = 2
     """
     if property is None:
         insp = ArtistInspector(obj)
         ret = insp.pprint_getters()
         print('\n'.join(ret))
         return
-
-    func = getattr(obj, 'get_' + property)
-    return func()
+    return getattr(obj, 'get_' + property)()
 
 # alias
 get = getp
