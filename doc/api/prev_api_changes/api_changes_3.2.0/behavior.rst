@@ -133,7 +133,7 @@ properties, which are `range` objects indicating the whole span of rows and
 columns covered by the subplot.
 
 (Note that all methods and attributes mentioned here actually only exist on
-the ``Subplot`` subclass of `Axes`, which is used for grid-positioned Axes but
+the ``Subplot`` subclass of `~.axes.Axes`, which is used for grid-positioned Axes but
 not for Axes positioned directly in absolute coordinates.)
 
 The `.GridSpec` class gained the ``nrows`` and ``ncols`` properties as more

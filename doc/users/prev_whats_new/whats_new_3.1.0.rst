@@ -199,8 +199,8 @@ an existing Line3D.
 The `.Axes3D.voxels` method now takes a
 *shade* parameter that defaults to `True`. This shades faces based
 on their orientation, behaving just like the matching parameters to
-:meth:`~mpl_toolkits.mplot3d.Axes3D.trisurf` and
-:meth:`~mpl_toolkits.mplot3d.Axes3D.bar3d`.  The plot below shows how
+:meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf` and
+:meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.bar3d`.  The plot below shows how
 this affects the output.
 
 .. plot::

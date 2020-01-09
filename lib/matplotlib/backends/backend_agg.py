@@ -491,7 +491,7 @@ class FigureCanvasAgg(FigureCanvasBase):
                 https://www.w3.org/TR/2003/REC-PNG-20031110/#11keywords
 
         pil_kwargs : dict, optional
-            Keyword arguments passed to `PIL.Image.save`.
+            Keyword arguments passed to `PIL.Image.Image.save`.
 
             If the 'pnginfo' key is present, it completely overrides
             *metadata*, including the default 'Software' key.
@@ -556,8 +556,8 @@ class FigureCanvasAgg(FigureCanvasBase):
 
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to
-            `PIL.Image.save` when saving the figure.  These take precedence
-            over *quality*, *optimize* and *progressive*.
+            `PIL.Image.Image.save` when saving the figure.  These take
+            precedence over *quality*, *optimize* and *progressive*.
         """
         FigureCanvasAgg.draw(self)
         if dryrun:

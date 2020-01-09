@@ -738,7 +738,7 @@ class Artist:
         clipping box to the corresponding rectangle and set the clipping path
         to ``None``.
 
-        For technical reasons (support of ``setp``), a tuple
+        For technical reasons (support of `~.Artist.set`), a tuple
         (*path*, *transform*) is also accepted as a single positional
         parameter.
 
@@ -1478,7 +1478,7 @@ def getp(obj, property=None):
         The queried artist; e.g., a `.Line2D`, a `.Text`, or an `~.axes.Axes`.
 
     property : str or None, default: None
-        If the *property* is 'somename', this function returns
+        If *property* is 'somename', this function returns
         ``obj.get_somename()``.
 
         If is is None (or unset), it *prints* all gettable properties from

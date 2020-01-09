@@ -3925,7 +3925,7 @@ default: 'arc3'
             Ignored.
 
         patchA, patchB : `.Patch`, default: None
-            Head and tail patch respectively.
+            Head and tail patches, respectively.
 
         shrinkA, shrinkB : float, default: 2
             Shrinking factor of the tail and head of the arrow respectively.
@@ -4044,8 +4044,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        patchA : Patch
-            :class:`matplotlib.patch.Patch` instance.
+        patchA : `.patches.Patch`
         """
         self.patchA = patchA
         self.stale = True
@@ -4056,8 +4055,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        patchB : Patch
-            :class:`matplotlib.patch.Patch` instance.
+        patchB : `.patches.Patch`
         """
         self.patchB = patchB
         self.stale = True

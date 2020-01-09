@@ -102,8 +102,7 @@ defining property cycles. Adding cyclers together will be like you are
     axes.prop_cycle: cycler('color', 'rgb') + cycler('lw', [1, 2, 3])
 
 You can even multiply cyclers, which is like using `itertools.product`
-on two or more property cycles. Remember to use parentheses if writing
-a multi-line `prop_cycle` parameter.
+on two or more property cycles.
 
 .. figure:: ../../tutorials/intermediate/images/sphx_glr_color_cycle_001.png
    :target: ../../tutorials/intermediate/color_cycle.html
@@ -273,7 +272,7 @@ Adds keyboard modifiers for:
 Allow Artists to Display Pixel Data in Cursor
 `````````````````````````````````````````````
 
-Adds `get_pixel_data` and `format_pixel_data` methods to artists
+Adds `~.Artist.get_cursor_data` and `~.Artist.format_cursor_data` methods to artists
 which can be used to add zdata to the cursor display
 in the status bar.  Also adds an implementation for Images.
 
@@ -737,8 +736,8 @@ Prefixed pkg-config for building
 --------------------------------
 
 Handling of pkg-config has been fixed in so far as it is now possible to set it
-using the environment variable :envvar:`PKG_CONFIG`. This is important if your
-toolchain is prefixed. This is done in a simpilar way as setting :envvar:`CC`
-or :envvar:`CXX` before building. An example follows.
+using the environment variable ``PKG_CONFIG``. This is important if your
+toolchain is prefixed. This is done in a simpilar way as setting ``CC``
+or ``CXX`` before building. An example follows.
 
     export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config

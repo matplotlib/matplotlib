@@ -126,7 +126,7 @@ to create a 2D array from a 1D array.
 
 Formatter for new-style formatting strings
 ``````````````````````````````````````````
-Added `.FormatStrFormatterNewStyle` which does the same job as
+Added `.StrMethodFormatter` which does the same job as
 `.FormatStrFormatter`, but accepts new-style formatting strings
 instead of printf-style formatting strings
 

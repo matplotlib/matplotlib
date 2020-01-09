@@ -1102,7 +1102,7 @@ Minor ticks on a log axis are now labeled when the axis view limits
 span a range less than or equal to the interval between two major
 ticks.  See `~matplotlib.ticker.LogFormatter` for details. The
 minor tick labeling is turned off when using ``mpl.style.use('classic')``,
-but cannot be controlled independently via ``rcParams``.
+but cannot be controlled independently via `.rcParams`.
 
 .. plot::
 

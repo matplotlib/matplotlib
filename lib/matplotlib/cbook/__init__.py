@@ -1095,11 +1095,8 @@ def _combine_masks(*args):
 def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
                   autorange=False):
     r"""
-    Return a list of dictionaries of statistics used to draw a series
-    of box and whisker plots. The `Returns` section enumerates the
-    required keys of the dictionary. Users can skip this function and
-    pass a user-defined set of dictionaries to the new `~.Axes.bxp` method
-    instead of relying on Matplotlib to do the calculations.
+    Return a list of dictionaries of statistics used to draw a series of box
+    and whisker plots using `~.Axes.bxp`.
 
     Parameters
     ----------
@@ -1163,8 +1160,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     Notes
     -----
-    Non-bootstrapping approach to confidence interval uses Gaussian-
-    based asymptotic approximation:
+    Non-bootstrapping approach to confidence interval uses Gaussian-based
+    asymptotic approximation:
 
     .. math::
 
@@ -1173,7 +1170,6 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     General approach from:
     McGill, R., Tukey, J.W., and Larsen, W.A. (1978) "Variations of
     Boxplots", The American Statistician, 32:12-16.
-
     """
 
     def _bootstrap_median(data, N=5000):
