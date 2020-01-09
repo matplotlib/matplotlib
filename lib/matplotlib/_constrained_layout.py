@@ -254,10 +254,7 @@ def _make_ghost_gridspec_slots(fig, gs):
             # this gridspec slot doesn't have an axis so we
             # make a "ghost".
             ax = fig.add_subplot(gs[nn])
-            ax.set_frame_on(False)
-            ax.set_xticks([])
-            ax.set_yticks([])
-            ax.set_facecolor((1, 0, 0, 0))
+            ax.set_visible(False)
 
 
 def _make_layout_margins(ax, renderer, h_pad, w_pad):
