@@ -322,7 +322,7 @@ the parent axes, similarly to AnchoredArtist.
 
 Using :func:`mpl_toolkits.axes_grid1.inset_locator.inset_axes`, you
 can have inset axes whose size is either fixed, or a fixed proportion
-of the parent axes. For example,::
+of the parent axes::
 
     inset_axes = inset_axes(parent_axes,
                             width="30%", # width = 30% of parent_bbox
@@ -410,9 +410,7 @@ to adjust the axes positions of a set of images at drawing time.
 
 
 First, initialize the divider by specifying its grids, i.e.,
-horizontal and vertical.
-
-for example,::
+horizontal and vertical::
 
     rect = [0.2, 0.2, 0.6, 0.6]
     horiz = [h0, h1, h2, h3]

@@ -492,16 +492,16 @@ class CubicTriInterpolator(TriInterpolator):
         Parameters
         ----------
         x, y : array-like of dim 1 (shape (nx,))
-                  Coordinates of the points whose points barycentric
-                  coordinates are requested
+            Coordinates of the points whose points barycentric coordinates are
+            requested.
         tris_pts : array like of dim 3 (shape: (nx, 3, 2))
-                    Coordinates of the containing triangles apexes.
+            Coordinates of the containing triangles apexes.
 
         Returns
         -------
         alpha : array of dim 2 (shape (nx, 3))
-                 Barycentric coordinates of the points inside the containing
-                 triangles.
+            Barycentric coordinates of the points inside the containing
+            triangles.
         """
         ndim = tris_pts.ndim-2
 
@@ -532,19 +532,19 @@ class CubicTriInterpolator(TriInterpolator):
         Parameters
         ----------
         tris_pts : array like of dim 3 (shape: (nx, 3, 2))
-                    Coordinates of the containing triangles apexes.
+            Coordinates of the containing triangles apexes.
 
         Returns
         -------
         J : array of dim 3 (shape (nx, 2, 2))
-                 Barycentric coordinates of the points inside the containing
-                 triangles.
-                 J[itri,:,:] is the jacobian matrix at apex 0 of the triangle
-                 itri, so that the following (matrix) relationship holds:
-                    [dz/dksi] = [J] x [dz/dx]
-                    with x: global coordinates
-                    ksi: element parametric coordinates in triangle first apex
-                    local basis.
+            Barycentric coordinates of the points inside the containing
+            triangles.
+            J[itri, :, :] is the jacobian matrix at apex 0 of the triangle
+            itri, so that the following (matrix) relationship holds:
+               [dz/dksi] = [J] x [dz/dx]
+            with x: global coordinates
+                 ksi: element parametric coordinates in triangle first apex
+                 local basis.
         """
         a = np.array(tris_pts[:, 1, :] - tris_pts[:, 0, :])
         b = np.array(tris_pts[:, 2, :] - tris_pts[:, 0, :])
@@ -560,13 +560,13 @@ class CubicTriInterpolator(TriInterpolator):
         Parameters
         ----------
         tris_pts : array like of dim 3 (shape: (nx, 3, 2))
-                   Coordinates of the triangles apexes.
+            Coordinates of the triangles apexes.
 
         Returns
         -------
         ecc : array like of dim 2 (shape: (nx, 3))
-              The so-called eccentricity parameters [1] needed for
-              HCT triangular element.
+            The so-called eccentricity parameters [1] needed for HCT triangular
+            element.
         """
         a = np.expand_dims(tris_pts[:, 2, :] - tris_pts[:, 1, :], axis=2)
         b = np.expand_dims(tris_pts[:, 0, :] - tris_pts[:, 2, :], axis=2)
@@ -1008,8 +1008,8 @@ class _DOF_estimator:
     Abstract base class for classes used to perform estimation of a function
     first derivatives, and deduce the dofs for a CubicTriInterpolator using a
     reduced HCT element formulation.
-    Derived classes implement compute_df(self,**kwargs), returning
-    np.vstack([dfx,dfy]).T where : dfx, dfy are the estimation of the 2
+    Derived classes implement ``compute_df(self, **kwargs)``, returning
+    ``np.vstack([dfx, dfy]).T`` where ``dfx, dfy`` are the estimation of the 2
     gradient coordinates.
     """
     def __init__(self, interpolator, **kwargs):
@@ -1160,7 +1160,7 @@ class _DOF_estimator_geom(_DOF_estimator):
         dZ = np.vstack([dZ1, dZ2]).T
         df = np.empty_like(dZ)
 
-        # With np.einsum :  could be ej,eji -> ej
+        # With np.einsum: could be ej,eji -> ej
         df[:, 0] = dZ[:, 0]*dM_inv[:, 0, 0] + dZ[:, 1]*dM_inv[:, 1, 0]
         df[:, 1] = dZ[:, 0]*dM_inv[:, 0, 1] + dZ[:, 1]*dM_inv[:, 1, 1]
         return df
@@ -1585,8 +1585,9 @@ def _extract_submatrices(M, block_indices, block_size, axis):
     Extracts selected blocks of a matrices *M* depending on parameters
     *block_indices* and *block_size*.
 
-    Returns the array of extracted matrices *Mres* so that:
-        M_res[...,ir,:] = M[(block_indices*block_size+ir), :]
+    Returns the array of extracted matrices *Mres* so that ::
+
+        M_res[..., ir, :] = M[(block_indices*block_size+ir), :]
     """
     assert block_indices.ndim == 1
     assert axis in [0, 1]

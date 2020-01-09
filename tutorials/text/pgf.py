@@ -51,7 +51,7 @@ Rc parameters that control the behavior of the pgf backend:
      # $ % & ~ _ ^ \ { }
 
    Generally, these characters must be escaped correctly. For convenience,
-   some characters (_,^,%) are automatically escaped outside of math
+   some characters (_, ^, %) are automatically escaped outside of math
    environments.
 
 .. _pgf-rcfonts:

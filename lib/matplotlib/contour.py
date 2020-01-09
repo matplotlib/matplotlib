@@ -1661,7 +1661,7 @@ class QuadContourSet(ContourSet):
             `.imshow`: it gives the outer pixel boundaries. In this case, the
             position of Z[0, 0] is the center of the pixel, not a corner. If
             *origin* is *None*, then (*x0*, *y0*) is the position of Z[0, 0],
-            and (*x1*, *y1*) is the position of Z[-1,-1].
+            and (*x1*, *y1*) is the position of Z[-1, -1].
 
             This argument is ignored if *X* and *Y* are specified in the call
             to contour.

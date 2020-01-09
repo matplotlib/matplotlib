@@ -127,7 +127,7 @@ plt.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Matplotlib plot.
 #
 # For example, to convert a `pandas.DataFrame` ::
 #
-#   a = pandas.DataFrame(np.random.rand(4,5), columns = list('abcde'))
+#   a = pandas.DataFrame(np.random.rand(4, 5), columns = list('abcde'))
 #   a_asarray = a.values
 #
 # and to convert a `numpy.matrix` ::

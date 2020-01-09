@@ -53,7 +53,7 @@ zi = interpolator(Xi, Yi)
 # Note that scipy.interpolate provides means to interpolate data on a grid
 # as well. The following would be an alternative to the four lines above:
 #from scipy.interpolate import griddata
-#zi = griddata((x, y), z, (xi[None,:], yi[:,None]), method='linear')
+#zi = griddata((x, y), z, (xi[None, :], yi[:, None]), method='linear')
 
 ax1.contour(xi, yi, zi, levels=14, linewidths=0.5, colors='k')
 cntr1 = ax1.contourf(xi, yi, zi, levels=14, cmap="RdBu_r")

@@ -402,8 +402,8 @@ def _align_spines(fig, gs):
             # different sizes if they occupy different amounts
             # of the gridspec:  i.e.
             # gs = gridspec.GridSpec(3, 1)
-            # ax1 = gs[0,:]
-            # ax2 = gs[1:,:]
+            # ax1 = gs[0, :]
+            # ax2 = gs[1:, :]
             # then drows0 = 1, and drowsC = 2, and ax2
             # should be at least twice as large as ax1.
             # But it can be more than twice as large because

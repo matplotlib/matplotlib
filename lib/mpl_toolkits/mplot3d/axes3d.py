@@ -2490,7 +2490,7 @@ pivot='tail', normalize=False, **kwargs)
             :class:`~matplotlib.collections.LineCollection`
         """
         def calc_arrows(UVW, angle=15):
-            # get unit direction vector perpendicular to (u,v,w)
+            # get unit direction vector perpendicular to (u, v, w)
             x = UVW[:, 0]
             y = UVW[:, 1]
             norm = np.linalg.norm(UVW[:, :2], axis=1)
