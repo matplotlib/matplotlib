@@ -179,7 +179,7 @@ install:
       echo 'wxPython is available' ||
       echo 'wxPython is not available'
 
-    pip install $PRE \
+    pip install --upgrade $PRE \
         $PYTEST \
         $PYTEST_COV \
         'pytest-faulthandler<1.6' \
