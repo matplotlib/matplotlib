@@ -49,7 +49,7 @@ class ContourLabeler:
     """Mixin to provide labelling capability to `.ContourSet`."""
 
     def clabel(self, levels=None, *,
-               fontsize=None, inline=True, inline_spacing=5, fmt='%1.3f',
+               fontsize=None, inline=True, inline_spacing=5, fmt=None,
                colors=None, use_clabeltext=False, manual=False,
                rightside_up=True, zorder=None):
         """
@@ -90,14 +90,17 @@ class ContourLabeler:
             This spacing will be exact for labels at locations where the
             contour is straight, less so for labels on curved contours.
 
-        fmt : str or dict, default: '%1.3f'
-            A format string for the label.
+        fmt : `.Formatter` or str or callable or dict, optional
+            How the levels are formatted:
 
-            Alternatively, this can be a dictionary matching contour levels
-            with arbitrary strings to use for each contour level (i.e.,
-            fmt[level]=string), or it can be any callable, such as a
-            `.Formatter` instance, that returns a string when called with a
-            numeric contour level.
+            - If a `.Formatter`, it is used to format all levels at once, using
+              its `.Formatter.format_ticks` method.
+            - If a str, it is interpreted as a %-style format string.
+            - If a callable, it is called with one level at a time and should
+              return the corresponding label.
+            - If a dict, it should directly map levels to labels.
+
+            The default is to use a standard `.ScalarFormatter`.
 
         manual : bool or iterable, default: False
             If ``True``, contour labels will be placed manually using
@@ -142,6 +145,9 @@ class ContourLabeler:
         # labels method (case of automatic label placement) or
         # `BlockingContourLabeler` (case of manual label placement).
 
+        if fmt is None:
+            fmt = ticker.ScalarFormatter(useOffset=False)
+            fmt.create_dummy_axis()
         self.labelFmt = fmt
         self._use_clabeltext = use_clabeltext
         # Detect if manual selection is desired and remove from argument list.
@@ -259,13 +265,14 @@ class ContourLabeler:
         """Get the text of the label."""
         if isinstance(lev, str):
             return lev
+        elif isinstance(fmt, dict):
+            return fmt.get(lev, '%1.3f')
+        elif callable(getattr(fmt, "format_ticks", None)):
+            return fmt.format_ticks([*self.labelLevelList, lev])[-1]
+        elif callable(fmt):
+            return fmt(lev)
         else:
-            if isinstance(fmt, dict):
-                return fmt.get(lev, '%1.3f')
-            elif callable(fmt):
-                return fmt(lev)
-            else:
-                return fmt % lev
+            return fmt % lev
 
     def locate_label(self, linecontour, labelwidth):
         """
