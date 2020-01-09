@@ -1243,23 +1243,11 @@ class Transform(TransformNode):
 
     def __add__(self, other):
         """
-        Composes two transforms together such that *self* is followed
-        by *other*.
+        Compose two transforms together so that *self* is followed by *other*.
         """
-        if isinstance(other, Transform):
-            return composite_transform_factory(self, other)
-        raise TypeError(
-            "Can not add Transform to object of type '%s'" % type(other))
-
-    def __radd__(self, other):
-        """
-        Composes two transforms together such that *self* is followed
-        by *other*.
-        """
-        if isinstance(other, Transform):
-            return composite_transform_factory(other, self)
-        raise TypeError(
-            "Can not add Transform to object of type '%s'" % type(other))
+        return (composite_transform_factory(self, other)
+                if isinstance(other, Transform) else
+                NotImplemented)
 
     # Equality is based on object identity for `Transform`s (so we don't
     # override `__eq__`), but some subclasses, such as TransformWrapper &
@@ -2285,9 +2273,9 @@ class CompositeGenericTransform(Transform):
         Create a new composite transform that is the result of
         applying transform *a* then transform *b*.
 
-        You will generally not call this constructor directly but use the
-        `composite_transform_factory` function instead, which can automatically
-        choose the best kind of composite transform instance to create.
+        You will generally not call this constructor directly but write ``a +
+        b`` instead, which will automatically choose the best kind of composite
+        transform instance to create.
         """
         if a.output_dims != b.input_dims:
             raise ValueError("The output dimension of 'a' must be equal to "
@@ -2401,13 +2389,11 @@ class CompositeAffine2D(Affine2DBase):
     def __init__(self, a, b, **kwargs):
         """
         Create a new composite transform that is the result of
-        applying transform *a* then transform *b*.
+        applying `Affine2DBase` *a* then `Affine2DBase` *b*.
 
-        Both *a* and *b* must be instances of :class:`Affine2DBase`.
-
-        You will generally not call this constructor directly but use the
-        `composite_transform_factory` function instead, which can automatically
-        choose the best kind of composite transform instance to create.
+        You will generally not call this constructor directly but write ``a +
+        b`` instead, which will automatically choose the best kind of composite
+        transform instance to create.
         """
         if not a.is_affine or not b.is_affine:
             raise ValueError("'a' and 'b' must be affine transforms")

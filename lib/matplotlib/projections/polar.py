@@ -820,9 +820,7 @@ class PolarAxes(Axes):
             .scale(self._default_theta_direction, 1.0)
         self._theta_offset = mtransforms.Affine2D() \
             .translate(self._default_theta_offset, 0.0)
-        self.transShift = mtransforms.composite_transform_factory(
-            self._direction,
-            self._theta_offset)
+        self.transShift = self._direction + self._theta_offset
         # A view limit shifted to the correct location after accounting for
         # orientation and offset.
         self._realViewLim = mtransforms.TransformedBbox(self.viewLim,
