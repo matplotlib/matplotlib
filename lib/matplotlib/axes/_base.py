@@ -3400,7 +3400,7 @@ class _AxesBase(martist.Artist):
         
         Notes
         -----
-        Please note that the tick label strings are not populated until a ``draw``
+        The tick label strings are not populated until a ``draw``
         method has been called.
 
         See also: `~.pyplot.draw` and `~.FigureCanvasBase.draw`.
