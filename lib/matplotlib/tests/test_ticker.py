@@ -10,6 +10,7 @@ from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
 import matplotlib
+from matplotlib import cbook
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 
@@ -457,7 +458,8 @@ class TestIndexFormatter:
                                           (2, 'label2'),
                                           (2.5, '')])
     def test_formatting(self, x, label):
-        formatter = mticker.IndexFormatter(['label0', 'label1', 'label2'])
+        with cbook._suppress_matplotlib_deprecation_warning():
+            formatter = mticker.IndexFormatter(['label0', 'label1', 'label2'])
         assert formatter(x) == label
 
 

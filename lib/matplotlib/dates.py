@@ -604,6 +604,7 @@ class DateFormatter(ticker.Formatter):
         self.tz = tz
 
 
+@cbook.deprecated("3.3")
 class IndexDateFormatter(ticker.Formatter):
     """Use with `.IndexLocator` to cycle format strings by index."""
 
