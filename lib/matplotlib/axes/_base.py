@@ -3403,7 +3403,7 @@ class _AxesBase(martist.Artist):
         Please note that the tick label strings are not populated until a ``draw``
         method has been called.
 
-        See also: `~pyplot.draw` and `~canvas.draw`.
+        See also: `~.pyplot.draw` and `~.FigureCanvasBase.draw`.
         """
         return self.xaxis.get_ticklabels(minor=minor, which=which)
 
