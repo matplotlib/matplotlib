@@ -87,9 +87,9 @@ class TexManager:
         'computer modern typewriter': ('cmtt', r'\usepackage{type1ec}')}
 
     _rc_cache = None
-    _rc_cache_keys = (
-        ('text.latex.preamble', 'text.latex.unicode', 'text.latex.preview',
-         'font.family') + tuple('font.' + n for n in font_families))
+    _rc_cache_keys = [
+        'text.latex.preamble', 'text.latex.preview', 'font.family',
+        *['font.' + n for n in font_families]]
 
     @cbook.deprecated("3.3", alternative="matplotlib.get_cachedir()")
     @property
@@ -184,10 +184,6 @@ class TexManager:
         return rcParams['text.latex.preamble']
 
     def _get_preamble(self):
-        unicode_preamble = "\n".join([
-            r"\usepackage[utf8]{inputenc}",
-            r"\DeclareUnicodeCharacter{2212}{\ensuremath{-}}",
-        ]) if rcParams["text.latex.unicode"] else ""
         return "\n".join([
             r"\documentclass{article}",
             # Pass-through \mathdefault, which is used in non-usetex mode to
@@ -195,7 +191,8 @@ class TexManager:
             # usetex mode.
             r"\newcommand{\mathdefault}[1]{#1}",
             self._font_preamble,
-            unicode_preamble,
+            r"\usepackage[utf8]{inputenc}",
+            r"\DeclareUnicodeCharacter{2212}{\ensuremath{-}}",
             self.get_custom_preamble(),
         ])
 
@@ -210,26 +207,17 @@ class TexManager:
         fontcmd = {'sans-serif': r'{\sffamily %s}',
                    'monospace': r'{\ttfamily %s}'}.get(self.font_family,
                                                        r'{\rmfamily %s}')
-        tex = fontcmd % tex
 
-        s = r"""
+        Path(texfile).write_text(
+            r"""
 %s
 \usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
 \pagestyle{empty}
 \begin{document}
 \fontsize{%f}{%f}%s
 \end{document}
-""" % (self._get_preamble(), fontsize, fontsize * 1.25, tex)
-        with open(texfile, 'wb') as fh:
-            if rcParams['text.latex.unicode']:
-                fh.write(s.encode('utf8'))
-            else:
-                try:
-                    fh.write(s.encode('ascii'))
-                except UnicodeEncodeError:
-                    _log.info("You are using unicode and latex, but have not "
-                              "enabled the 'text.latex.unicode' rcParam.")
-                    raise
+""" % (self._get_preamble(), fontsize, fontsize * 1.25, fontcmd % tex),
+            encoding='utf-8')
 
         return texfile
 
@@ -250,12 +238,12 @@ class TexManager:
         fontcmd = {'sans-serif': r'{\sffamily %s}',
                    'monospace': r'{\ttfamily %s}'}.get(self.font_family,
                                                        r'{\rmfamily %s}')
-        tex = fontcmd % tex
 
         # newbox, setbox, immediate, etc. are used to find the box
         # extent of the rendered text.
 
-        s = r"""
+        Path(texfile).write_text(
+            r"""
 %s
 \usepackage[active,showbox,tightpage]{preview}
 \usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
@@ -270,17 +258,8 @@ class TexManager:
 {\fontsize{%f}{%f}%s}
 \end{preview}
 \end{document}
-""" % (self._get_preamble(), fontsize, fontsize * 1.25, tex)
-        with open(texfile, 'wb') as fh:
-            if rcParams['text.latex.unicode']:
-                fh.write(s.encode('utf8'))
-            else:
-                try:
-                    fh.write(s.encode('ascii'))
-                except UnicodeEncodeError:
-                    _log.info("You are using unicode and latex, but have not "
-                              "enabled the 'text.latex.unicode' rcParam.")
-                    raise
+""" % (self._get_preamble(), fontsize, fontsize * 1.25, fontcmd % tex),
+            encoding='utf-8')
 
         return texfile
 
