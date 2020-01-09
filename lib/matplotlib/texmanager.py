@@ -53,16 +53,8 @@ class TexManager:
     Repeated calls to this constructor always return the same instance.
     """
 
-    cachedir = mpl.get_cachedir()
-    if cachedir is not None:
-        texcache = os.path.join(cachedir, 'tex.cache')
-        Path(texcache).mkdir(parents=True, exist_ok=True)
-    else:
-        # Should only happen in a restricted environment (such as Google App
-        # Engine). Deal with this gracefully by not creating a cache directory.
-        texcache = None
-
     # Caches.
+    texcache = os.path.join(mpl.get_cachedir(), 'tex.cache')
     rgba_arrayd = {}
     grey_arrayd = {}
 
@@ -99,6 +91,11 @@ class TexManager:
         ('text.latex.preamble', 'text.latex.unicode', 'text.latex.preview',
          'font.family') + tuple('font.' + n for n in font_families))
 
+    @cbook.deprecated("3.3", alternative="matplotlib.get_cachedir()")
+    @property
+    def cachedir(self):
+        return mpl.get_cachedir()
+
     @functools.lru_cache()  # Always return the same instance.
     def __new__(cls):
         self = object.__new__(cls)
@@ -106,16 +103,10 @@ class TexManager:
         return self
 
     def _reinit(self):
-        if self.texcache is None:
-            raise RuntimeError('Cannot create TexManager, as there is no '
-                               'cache directory available')
-
         Path(self.texcache).mkdir(parents=True, exist_ok=True)
         ff = rcParams['font.family']
         if len(ff) == 1 and ff[0].lower() in self.font_families:
             self.font_family = ff[0].lower()
-        elif isinstance(ff, str) and ff.lower() in self.font_families:
-            self.font_family = ff.lower()
         else:
             _log.info('font.family must be one of (%s) when text.usetex is '
                       'True. serif will be used by default.',

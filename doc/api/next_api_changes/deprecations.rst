@@ -131,3 +131,7 @@ This method is deprecated.  Use
 ``SymmetricalScale.SymmetricalTransform`` and
 ``SymmetricalScale.InvertedSymmetricalTransform`` are deprecated.  Directly
 access the transform classes from the :mod:`.scale` module.
+
+``TexManager.cachedir``
+~~~~~~~~~~~~~~~~~~~~~~~
+Use `matplotlib.get_cachedir()` instead.

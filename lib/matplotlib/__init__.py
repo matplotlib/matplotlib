@@ -488,19 +488,18 @@ def _get_config_or_cache_dir(xdg_base):
 @_logged_cached('CONFIGDIR=%s')
 def get_configdir():
     """
-    Return the string representing the configuration directory.
+    Return the string path of the the configuration directory.
 
     The directory is chosen as follows:
 
     1. If the MPLCONFIGDIR environment variable is supplied, choose that.
-    2a. On Linux, follow the XDG specification and look first in
-        `$XDG_CONFIG_HOME`, if defined, or `$HOME/.config`.
-    2b. On other platforms, choose `$HOME/.matplotlib`.
+    2. On Linux, follow the XDG specification and look first in
+       ``$XDG_CONFIG_HOME``, if defined, or ``$HOME/.config``.  On other
+       platforms, choose ``$HOME/.matplotlib``.
     3. If the chosen directory exists and is writable, use that as the
        configuration directory.
-    4. If possible, create a temporary directory, and use it as the
-       configuration directory.
-    5. A writable directory could not be found or created; return None.
+    4. Else, create a temporary directory, and use it as the configuration
+       directory.
     """
     return _get_config_or_cache_dir(_get_xdg_config_dir())
 
@@ -508,10 +507,10 @@ def get_configdir():
 @_logged_cached('CACHEDIR=%s')
 def get_cachedir():
     """
-    Return the location of the cache directory.
+    Return the string path of the cache directory.
 
     The procedure used to find the directory is the same as for
-    _get_config_dir, except using `$XDG_CACHE_HOME`/`~/.cache` instead.
+    _get_config_dir, except using ``$XDG_CACHE_HOME``/``$HOME/.cache`` instead.
     """
     return _get_config_or_cache_dir(_get_xdg_cache_dir())
 
