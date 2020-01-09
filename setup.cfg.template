@@ -18,18 +18,11 @@
 
 [gui_support]
 # Matplotlib supports multiple GUI toolkits, known as backends.
-# The Mac OSX backend requires the Cocoa headers included with XCode.
+# The MacOSX backend requires the Cocoa headers included with XCode.
 # You can select whether to build it by uncommenting the following line.
-# Acceptable values are:
+# It is never built on Linux or Windows, regardless of the config value.
 #
-#     True: build the extension. Exits with a warning if the
-#           required dependencies are not available
-#     False: do not build the extension
-#     auto: build if the required dependencies are available,
-#           otherwise skip silently. This is the default
-#           behavior
-#
-#macosx = auto
+#macosx = True
 
 [rc_options]
 # User-configurable options
