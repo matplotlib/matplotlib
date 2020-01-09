@@ -90,13 +90,13 @@ script = """
     function ShowTooltip(obj) {
         var cur = obj.id.split("_")[1];
         var tip = svgDocument.getElementById('mytooltip_' + cur);
-        tip.setAttribute('visibility',"visible")
+        tip.setAttribute('visibility', "visible")
         }
 
     function HideTooltip(obj) {
         var cur = obj.id.split("_")[1];
         var tip = svgDocument.getElementById('mytooltip_' + cur);
-        tip.setAttribute('visibility',"hidden")
+        tip.setAttribute('visibility', "hidden")
         }
 
     ]]>

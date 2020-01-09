@@ -42,7 +42,7 @@ axis_direction
 --------------
 
 `AxisArtist`, `AxisLabel`, `TickLabels` have an *axis_direction* attribute,
-which adjusts the location, angle, etc.,. The *axis_direction* must be one of
+which adjusts the location, angle, etc. The *axis_direction* must be one of
 "left", "right", "bottom", "top", and follows the Matplotlib convention for
 rectangular axis.
 

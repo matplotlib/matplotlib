@@ -58,7 +58,7 @@ class Triangulation:
             # orientation.
             self.triangles = np.array(triangles, dtype=np.int32, order='C')
             if self.triangles.ndim != 2 or self.triangles.shape[1] != 3:
-                raise ValueError('triangles must be a (?,3) array')
+                raise ValueError('triangles must be a (?, 3) array')
             if self.triangles.max() >= len(self.x):
                 raise ValueError('triangles max element is out of bounds')
             if self.triangles.min() < 0:
@@ -184,8 +184,8 @@ class Triangulation:
         For each triangle, the indices of the three triangles that
         share the same edges, or -1 if there is no such neighboring
         triangle.  ``neighbors[i, j]`` is the triangle that is the neighbor
-        to the edge from point index ``triangles[i,j]`` to point index
-        ``triangles[i,(j+1)%3]``.
+        to the edge from point index ``triangles[i, j]`` to point index
+        ``triangles[i, (j+1)%3]``.
         """
         if self._neighbors is None:
             self._neighbors = self.get_cpp_triangulation().get_neighbors()

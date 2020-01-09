@@ -155,8 +155,8 @@ plot_examples([viridis, newcmp])
 
 ##############################################################################
 # Of course we need not start from a named colormap, we just need to create
-# the Nx4 array to pass to `.ListedColormap`. Here we  create a
-# colormap that goes from brown (RGB: 90,40,40) to white (RGB: 255,255,255).
+# the Nx4 array to pass to `.ListedColormap`. Here we create a colormap that
+# goes from brown (RGB: 90, 40, 40) to white (RGB: 255, 255, 255).
 
 N = 256
 vals = np.ones((N, 4))

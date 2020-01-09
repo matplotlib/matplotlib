@@ -24,9 +24,9 @@ construct a :func:`matplotlib.colors.Normalize` instance, then call it:
 
    In [1]: import matplotlib as mpl
 
-   In [2]: norm = mpl.colors.Normalize(vmin=-1.,vmax=1.)
+   In [2]: norm = mpl.colors.Normalize(vmin=-1, vmax=1)
 
-   In [3]: norm(0.)
+   In [3]: norm(0)
    Out[3]: 0.5
 
 However, there are sometimes cases where it is useful to map data to
@@ -155,7 +155,7 @@ plt.show()
 #
 #   In [4]: norm = colors.BoundaryNorm(boundaries=bounds, ncolors=4)
 #
-#   In [5]: print(norm([-0.2,-0.15,-0.02, 0.3, 0.8, 0.99]))
+#   In [5]: print(norm([-0.2, -0.15, -0.02, 0.3, 0.8, 0.99]))
 #   [0 0 1 2 3 3]
 #
 # Note: Unlike the other norms, this norm returns values from 0 to *ncolors*-1.

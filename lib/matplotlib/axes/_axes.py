@@ -5970,7 +5970,7 @@ default: :rc:`scatter.edgecolors`
               quad (i, j), (i+1, j), (i, j+1), (i+1, j+1) is given by
               ``C[i, j]``.
             - 'gouraud': Each quad will be Gouraud shaded: The color of the
-              corners (i', j') are given by ``C[i',j']``. The color values of
+              corners (i', j') are given by ``C[i', j']``. The color values of
               the area in between is interpolated from the corner values.
               When Gouraud shading is used, *edgecolors* is ignored.
 
@@ -6309,7 +6309,7 @@ default: :rc:`scatter.edgecolors`
 
         Compute and draw the histogram of *x*.  The return value is a tuple
         (*n*, *bins*, *patches*) or ([*n0*, *n1*, ...], *bins*, [*patches0*,
-        *patches1*,...]) if the input contains multiple data.  See the
+        *patches1*, ...]) if the input contains multiple data.  See the
         documentation of the *weights* parameter to draw a histogram of
         already-binned data.
 

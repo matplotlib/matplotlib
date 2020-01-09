@@ -385,8 +385,8 @@ class TextPath(Path):
             from matplotlib.font_manager import FontProperties
 
             fp = FontProperties(family="Helvetica", style="italic")
-            path1 = TextPath((12,12), "ABC", size=12, prop=fp)
-            path2 = TextPath((0,0), r"$\frac{1}{2}$", size=12, usetex=True)
+            path1 = TextPath((12, 12), "ABC", size=12, prop=fp)
+            path2 = TextPath((0, 0), r"$\frac{1}{2}$", size=12, usetex=True)
 
         Also see :doc:`/gallery/text_labels_and_annotations/demo_text_path`.
         """
