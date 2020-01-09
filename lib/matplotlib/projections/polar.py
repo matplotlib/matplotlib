@@ -248,7 +248,7 @@ class ThetaTick(maxis.XTick):
     """
     A theta-axis tick.
 
-    This subclass of `XTick` provides angular ticks with some small
+    This subclass of `.XTick` provides angular ticks with some small
     modification to their re-positioning such that ticks are rotated based on
     tick location. This results in ticks that are correctly perpendicular to
     the arc spine.
@@ -341,7 +341,7 @@ class ThetaAxis(maxis.XAxis):
     """
     A theta Axis.
 
-    This overrides certain properties of an `XAxis` to provide special-casing
+    This overrides certain properties of an `.XAxis` to provide special-casing
     for an angular axis.
     """
     __name__ = 'thetaaxis'
@@ -493,11 +493,11 @@ class RadialTick(maxis.YTick):
     """
     A radial-axis tick.
 
-    This subclass of `YTick` provides radial ticks with some small modification
-    to their re-positioning such that ticks are rotated based on axes limits.
-    This results in ticks that are correctly perpendicular to the spine. Labels
-    are also rotated to be perpendicular to the spine, when 'auto' rotation is
-    enabled.
+    This subclass of `.YTick` provides radial ticks with some small
+    modification to their re-positioning such that ticks are rotated based on
+    axes limits.  This results in ticks that are correctly perpendicular to
+    the spine. Labels are also rotated to be perpendicular to the spine, when
+    'auto' rotation is enabled.
     """
 
     def __init__(self, *args, **kwargs):
@@ -644,7 +644,7 @@ class RadialAxis(maxis.YAxis):
     """
     A radial Axis.
 
-    This overrides certain properties of a `YAxis` to provide special-casing
+    This overrides certain properties of a `.YAxis` to provide special-casing
     for a radial axis.
     """
     __name__ = 'radialaxis'
@@ -1046,7 +1046,7 @@ class PolarAxes(Axes):
             May be one of "N", "NW", "W", "SW", "S", "SE", "E", or "NE".
 
         offset : float, optional
-            An offset in degrees to apply from the specified `loc`. **Note:**
+            An offset in degrees to apply from the specified *loc*. **Note:**
             this offset is *always* applied counter-clockwise regardless of
             the direction setting.
         """

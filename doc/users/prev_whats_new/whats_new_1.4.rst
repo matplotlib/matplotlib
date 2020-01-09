@@ -126,8 +126,8 @@ to create a 2D array from a 1D array.
 
 Formatter for new-style formatting strings
 ``````````````````````````````````````````
-Added `FormatStrFormatterNewStyle` which does the same job as
-`FormatStrFormatter`, but accepts new-style formatting strings
+Added `.FormatStrFormatterNewStyle` which does the same job as
+`.FormatStrFormatter`, but accepts new-style formatting strings
 instead of printf-style formatting strings
 
 Consistent grid sizes in streamplots
@@ -138,16 +138,16 @@ Consistent grid sizes in streamplots
 
 Get a list of all tick labels (major and minor)
 ```````````````````````````````````````````````
-Added the `kwarg` 'which' to `.Axes.get_xticklabels`,
+Added the kwarg 'which' to `.Axes.get_xticklabels`,
 `.Axes.get_yticklabels` and
 `.Axis.get_ticklabels`.  'which' can be 'major', 'minor', or
 'both' select which ticks to return, like
 :func:`~matplotlib.Axis.set_ticks_position`.  If 'which' is `None` then the old
-behaviour (controlled by the bool `minor`).
+behaviour (controlled by the bool *minor*).
 
 Separate horizontal/vertical axes padding support in ImageGrid
 ``````````````````````````````````````````````````````````````
-The `kwarg` 'axes_pad' to :class:`mpl_toolkits.axes_grid1.ImageGrid` can now
+The kwarg 'axes_pad' to :class:`mpl_toolkits.axes_grid1.ImageGrid` can now
 be a tuple if separate horizontal/vertical padding is needed.
 This is supposed to be very helpful when you have a labelled legend next to
 every subplot and you need to make some space for legend's labels.
@@ -217,8 +217,8 @@ show with an int, slice object, numpy fancy indexing, or float. Using a float
 shows markers at approximately equal display-coordinate-distances along the
 line.
 
-Added size related functions to specialized `Collections`
-`````````````````````````````````````````````````````````
+Added size related functions to specialized `.Collection`\s
+```````````````````````````````````````````````````````````
 
 Added the `get_size` and `set_size` functions to control the size of
 elements of specialized collections (

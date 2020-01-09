@@ -115,7 +115,7 @@ requires the installation of TeX-specific font packages, for example,
 and can not use TrueType fonts directly.  Unfortunately, despite the
 different semantics for font selection, the same set of font
 properties are used for each.  This is true of both the
-`FontProperties` class and the font-related `rcParams` (which
+`.FontProperties` class and the font-related `.rcParams` (which
 basically share the same code underneath).  Instead, we should define
 a core set of font selection parameters that will work across all text
 engines, and have engine-specific configuration to allow the user to
@@ -202,8 +202,10 @@ possible.
 
 Alternative font subsetting options include using the subsetting
 built-in to Cairo (not clear if it can be used without the rest of
-Cairo), or using `fontforge` (which is a heavy and not terribly
+Cairo), or using fontforge_ (which is a heavy and not terribly
 cross-platform dependency).
+
+.. _fontforge: https://fontforge.org
 
 **Freetype wrappers**
 
@@ -254,7 +256,7 @@ arbitrary text engine in another should be possible.
 The text mode is currently set by a global rcParam ("text.usetex") so
 it's either all on or all off.  We should continue to have a global
 rcParam to choose the text engine ("text.layout_engine"), but it
-should under the hood be an overridable property on the `Text` object,
+should under the hood be an overridable property on the `.Text` object,
 so the same figure can combine the results of multiple text layout
 engines if necessary.
 

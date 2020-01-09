@@ -1813,7 +1813,7 @@ class LightSource:
                   vert_exag=1, dx=1, dy=1, **kwargs):
         """
         Use this light source to adjust the colors of the *rgb* input array to
-        give the impression of a shaded relief map with the given `elevation`.
+        give the impression of a shaded relief map with the given *elevation*.
 
         Parameters
         ----------

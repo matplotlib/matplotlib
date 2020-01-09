@@ -251,7 +251,7 @@ The vertical alignment of text is now consistent across backends.  You
 may see small differences in text placement, particularly with rotated
 text.
 
-If you are using a custom backend, note that the `draw_text` renderer
+If you are using a custom backend, note that the `~.RendererBase.draw_text` renderer
 method is now passed the location of the baseline, not the location of
 the bottom of the text bounding box.
 
@@ -397,7 +397,7 @@ a warning will be displayed.
 
 Catch opening too many figures using pyplot
 ```````````````````````````````````````````
-Figures created through `pyplot.figure` are retained until they are
+Figures created through `.pyplot.figure` are retained until they are
 explicitly closed.  It is therefore common for new users of matplotlib
 to run out of memory when creating a large series of figures in a loop
 without closing them.

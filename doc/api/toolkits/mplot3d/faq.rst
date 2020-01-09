@@ -47,6 +47,6 @@ Historically, mplot3d has suffered from a hard-coding of parameters used
 to control visuals such as label spacing, tick length, and grid line width.
 Work is being done to eliminate this issue. For matplotlib v1.1.0, there is
 a semi-official manner to modify these parameters. See the note in the
-:ref:`toolkit_mplot3d-axisapi` section of the mplot3d API documentation for
+:mod:`.mplot3d.axis3d` section of the mplot3d API documentation for
 more information.
 

@@ -8,9 +8,9 @@ with ::
 
 and your program will (should!) run without error, though no output is
 produced.  This provides a starting point for backend writers; you can
-selectively implement drawing methods (`draw_path`, `draw_image`, etc.) and
-slowly see your figure come to life instead having to have a full blown
-implementation before getting any results.
+selectively implement drawing methods (`~.RendererTemplate.draw_path`,
+`~.RendererTemplate.draw_image`, etc.) and slowly see your figure come to life
+instead having to have a full blown implementation before getting any results.
 
 Copy this file to a directory outside of the Matplotlib source tree, somewhere
 where Python can import it (by adding the directory to your ``sys.path`` or by

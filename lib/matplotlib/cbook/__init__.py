@@ -461,7 +461,7 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
 
 @contextlib.contextmanager
 def open_file_cm(path_or_file, mode="r", encoding=None):
-    r"""Pass through file objects and context-manage `.PathLike`\s."""
+    r"""Pass through file objects and context-manage path-likes."""
     fh, opened = to_filehandle(path_or_file, mode, True, encoding)
     if opened:
         with fh:
@@ -1451,7 +1451,7 @@ def violin_stats(X, method, points=100, quantiles=None):
         - coords: A list of scalars containing the coordinates this particular
           kernel density estimate was evaluated at.
         - vals: A list of scalars containing the values of the kernel density
-          estimate at each of the coordinates given in `coords`.
+          estimate at each of the coordinates given in *coords*.
         - mean: The mean value for this column of data.
         - median: The median value for this column of data.
         - min: The minimum value for this column of data.

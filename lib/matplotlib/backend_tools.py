@@ -119,7 +119,7 @@ class ToolBase:
 
         Parameters
         ----------
-        figure : `Figure`
+        figure : `.Figure`
         """
         self._figure = figure
 
@@ -132,14 +132,13 @@ class ToolBase:
 
         Parameters
         ----------
-        event : `Event`
+        event : `.Event`
             The Canvas event that caused this tool to be called
         sender : object
             Object that requested the tool to be triggered
         data : object
             Extra data
         """
-
         pass
 
     @property
@@ -216,7 +215,7 @@ class ToolToggleBase(ToolBase):
         * Click on the toolbar tool button
         * Call to `matplotlib.backend_managers.ToolManager.trigger_tool`
         * Another `ToolToggleBase` derived tool is triggered
-          (from the same `ToolManager`)
+          (from the same `.ToolManager`)
         """
         pass
 
@@ -1111,12 +1110,12 @@ default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
 
 def add_tools_to_manager(toolmanager, tools=default_tools):
     """
-    Add multiple tools to `ToolManager`
+    Add multiple tools to a `.ToolManager`.
 
     Parameters
     ----------
-    toolmanager : ToolManager
-        `backend_managers.ToolManager` object that will get the tools added
+    toolmanager : `.backend_managers.ToolManager`
+        Manager to which the tools are added.
     tools : {str: class_like}, optional
         The tools to add in a {name: tool} dict, see `add_tool` for more
         info.

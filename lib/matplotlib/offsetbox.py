@@ -1706,7 +1706,7 @@ class DraggableBase:
         def finalize_offset(self):
             '''Called when the mouse is released.'''
 
-    In the current implementation of `DraggableLegend` and
+    In the current implementation of `.DraggableLegend` and
     `DraggableAnnotation`, `update_offset` places the artists in display
     coordinates, and `finalize_offset` recalculates their position in axes
     coordinate and set a relevant attribute.

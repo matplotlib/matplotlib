@@ -272,7 +272,7 @@ in TeX's math font. When using mathtext, the ``$`` signs around
 numbers will ensure unicode rendering (as implied by mathtext). This
 will make sure that the minus signs in the ticks are rendered as the
 unicode=minus (U+2212) when using mathtext (without relying on the
-`~.Fomatter.fix_minus` method).
+`~.Formatter.fix_minus` method).
 
 
 
@@ -338,9 +338,9 @@ MouseEvent button attribute is now an IntEnum
 The :attr:`button` attribute of `~.MouseEvent` instances can take the values
 None, 1 (left button), 2 (middle button), 3 (right button), "up" (scroll), and
 "down" (scroll).  For better legibility, the 1, 2, and 3 values are now
-represented using the `IntEnum` class `matplotlib.backend_bases.MouseButton`,
-with the values `MouseButton.LEFT` (``== 1``), `MouseButton.MIDDLE` (``== 2``),
-and `MouseButton.RIGHT` (``== 3``).
+represented using the `enum.IntEnum` class `matplotlib.backend_bases.MouseButton`,
+with the values `.MouseButton.LEFT` (``== 1``), `.MouseButton.MIDDLE` (``== 2``),
+and `.MouseButton.RIGHT` (``== 3``).
 
 
 Configuration, Install, and Development

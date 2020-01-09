@@ -670,7 +670,7 @@ class RendererBase:
         """
         Switch to the raster renderer.
 
-        Used by `MixedModeRenderer`.
+        Used by `.MixedModeRenderer`.
         """
 
     def stop_rasterizing(self):
@@ -678,7 +678,7 @@ class RendererBase:
         Switch back to the vector renderer and draw the contents of the raster
         renderer as an image on the vector renderer.
 
-        Used by `MixedModeRenderer`.
+        Used by `.MixedModeRenderer`.
         """
 
     def start_filter(self):
@@ -959,7 +959,7 @@ class GraphicsContextBase:
         return self._hatch
 
     def get_hatch_path(self, density=6.0):
-        """Return a `Path` for the current hatch."""
+        """Return a `.Path` for the current hatch."""
         hatch = self.get_hatch()
         if hatch is None:
             return None
@@ -3150,7 +3150,7 @@ class ToolContainerBase:
 
     Attributes
     ----------
-    toolmanager : `ToolManager`
+    toolmanager : `.ToolManager`
         The tools with which this `ToolContainer` wants to communicate.
     """
 
@@ -3181,7 +3181,7 @@ class ToolContainerBase:
         Parameters
         ----------
         tool : tool_like
-            The tool to add, see `ToolManager.get_tool`.
+            The tool to add, see `.ToolManager.get_tool`.
         group : str
             The name of the group to add this tool to.
         position : int, default: -1
@@ -3278,7 +3278,7 @@ class ToolContainerBase:
 
         This method must get implemented per backend.
 
-        Called when `ToolManager` emits a `tool_removed_event`.
+        Called when `.ToolManager` emits a `tool_removed_event`.
 
         Parameters
         ----------

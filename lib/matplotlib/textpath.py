@@ -113,7 +113,7 @@ class TextToPath:
 
         Examples
         --------
-        Create a list of vertices and codes from a text, and create a `Path`
+        Create a list of vertices and codes from a text, and create a `.Path`
         from those::
 
             from matplotlib.path import Path
