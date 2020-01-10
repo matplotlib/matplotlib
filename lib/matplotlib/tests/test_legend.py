@@ -671,3 +671,72 @@ def test_no_warn_big_data_when_loc_specified():
         ax.plot(np.arange(5000), label=idx)
     legend = ax.legend('best')
     fig.draw_artist(legend)  # Check that no warning is emitted.
+
+
+def test_plot_multiple_input_multiple_label():
+    # test ax.plot() with multidimensional input
+    # and multiple labels
+    x = [1, 2, 5]
+    y = [[2, 4, 3], [4, 7, 1], [3, 9, 2]]
+
+    label_arrays = [['one', 'two', 'three'],
+                   ('one', 'two', 'three'),
+                   np.array(['one', 'two', 'three'])]
+
+    for label in label_arrays:
+        fig, ax = plt.subplots()
+        ax.plot(x, y, label=label)
+        leg = ax.legend()
+
+        assert len(leg.get_texts()) == 3
+        assert leg.get_texts()[0].get_text() == 'one'
+        assert leg.get_texts()[1].get_text() == 'two'
+        assert leg.get_texts()[2].get_text() == 'three'
+
+
+def test_plot_multiple_input_single_label():
+    # test ax.plot() with multidimensional input
+    # and single label
+    x = [1, 2, 5]
+    y = [[2, 4, 3], [4, 7, 1], [3, 9, 2]]
+    labels = ['one', 1, int]
+
+    for label in labels:
+        fig, ax = plt.subplots()
+        ax.plot(x, y, label=label)
+        leg = ax.legend()
+
+        assert len(leg.get_texts()) == 3
+        assert leg.get_texts()[0].get_text() == str(label)
+        assert leg.get_texts()[1].get_text() == str(label)
+        assert leg.get_texts()[2].get_text() == str(label)
+
+
+def test_plot_single_input_multiple_label():
+    # test ax.plot() with 1D array like input
+    # and iterable label
+    x = [1, 2, 5]
+    y = [2, 4, 3]
+
+    label_arrays = [['one', 'two', 'three'],
+                   ('one', 'two', 'three'),
+                   np.array(['one', 'two', 'three'])]
+
+    for label in label_arrays:
+        fig, ax = plt.subplots()
+        ax.plot(x, y, label=label)
+        leg = ax.legend()
+
+        assert len(leg.get_texts()) == 1
+        assert leg.get_texts()[0].get_text() == str(label)
+
+
+def test_plot_multiple_label_incorrect_length_exception():
+    # check that exception is raised for
+    # iterable label with incorrect length
+    with pytest.raises(Exception):
+        x = [1, 2, 5]
+        y = [[2, 4, 3], [4, 7, 1], [3, 9, 2]]
+        label = ['one', 'two']
+        fig, ax = plt.subplots()
+        ax.plot(x, y, label=label)
