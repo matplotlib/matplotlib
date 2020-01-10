@@ -70,7 +70,7 @@ class PointBrowser:
         ax2.cla()
         ax2.plot(X[dataind])
 
-        ax2.text(0.05, 0.9, 'mu=%1.3f\nsigma=%1.3f' % (xs[dataind], ys[dataind]),
+        ax2.text(0.05, 0.9, f'mu={xs[dataind]:1.3f}\nsigma={ys[dataind]:1.3f}',
                  transform=ax2.transAxes, va='top')
         ax2.set_ylim(-0.5, 1.5)
         self.selected.set_visible(True)

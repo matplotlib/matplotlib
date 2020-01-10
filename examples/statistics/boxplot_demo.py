@@ -117,11 +117,12 @@ plt.setp(bp['fliers'], color='red', marker='+')
 ax1.yaxis.grid(True, linestyle='-', which='major', color='lightgrey',
                alpha=0.5)
 
-# Hide these grid behind plot objects
-ax1.set_axisbelow(True)
-ax1.set_title('Comparison of IID Bootstrap Resampling Across Five Distributions')
-ax1.set_xlabel('Distribution')
-ax1.set_ylabel('Value')
+ax1.set(
+    axisbelow=True,  # Hide the grid behind plot objects
+    title='Comparison of IID Bootstrap Resampling Across Five Distributions',
+    xlabel='Distribution',
+    ylabel='Value',
+)
 
 # Now fill the boxes with desired colors
 box_colors = ['darkkhaki', 'royalblue']

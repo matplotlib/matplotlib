@@ -47,16 +47,26 @@ plt.show()
 ###############################################################################
 # The following path codes are recognized
 #
-# ============== =================================  ====================================================================================================================
-# Code           Vertices                           Description
-# ============== =================================  ====================================================================================================================
-# ``STOP``       1 (ignored)                        A marker for the end of the entire path (currently not required and ignored)
-# ``MOVETO``     1                                  Pick up the pen and move to the given vertex.
-# ``LINETO``     1                                  Draw a line from the current position to the given vertex.
-# ``CURVE3``     2 (1 control point, 1 endpoint)    Draw a quadratic Bézier curve from the current position, with the given control point, to the given end point.
-# ``CURVE4``     3 (2 control points, 1 endpoint)   Draw a cubic Bézier curve from the current position, with the given control points, to the given end point.
-# ``CLOSEPOLY``  1 (point itself is ignored)        Draw a line segment to the start point of the current polyline.
-# ============== =================================  ====================================================================================================================
+# ============= ======================== ======================================
+# Code          Vertices                 Description
+# ============= ======================== ======================================
+# ``STOP``      1 (ignored)              A marker for the end of the entire
+#                                        path (currently not required and
+#                                        ignored).
+# ``MOVETO``    1                        Pick up the pen and move to the given
+#                                        vertex.
+# ``LINETO``    1                        Draw a line from the current position
+#                                        to the given vertex.
+# ``CURVE3``    2:                       Draw a quadratic Bézier curve from the
+#               1 control point,         current position, with the given
+#               1 end point              control point, to the given end point.
+# ``CURVE4``    3:                       Draw a cubic Bézier curve from the
+#               2 control points,        current position, with the given
+#               1 end point              control points, to the given end
+#                                        point.
+# ``CLOSEPOLY`` 1 (the point is ignored) Draw a line segment to the start point
+#                                        of the current polyline.
+# ============= ======================== ======================================
 #
 #
 # .. path-curves:

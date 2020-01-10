@@ -24,8 +24,9 @@ Thanks to matplotlib and wx teams for creating such great software!
 import matplotlib
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as NavigationToolbar
+from matplotlib.backends.backend_wxagg import (
+    FigureCanvasWxAgg as FigureCanvas,
+    NavigationToolbar2WxAgg as NavigationToolbar)
 from matplotlib.figure import Figure
 import numpy as np
 

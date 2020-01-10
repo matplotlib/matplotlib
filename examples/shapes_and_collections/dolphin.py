@@ -38,11 +38,11 @@ im.set_clip_path(circle)
 plt.plot(x, y, 'o', color=(0.9, 0.9, 1.0), alpha=0.8)
 
 # Dolphin from OpenClipart library by Andy Fitzsimon
-#       <cc:License rdf:about="http://web.resource.org/cc/PublicDomain">
-#         <cc:permits rdf:resource="http://web.resource.org/cc/Reproduction"/>
-#         <cc:permits rdf:resource="http://web.resource.org/cc/Distribution"/>
-#         <cc:permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"/>
-#       </cc:License>
+#   <cc:License rdf:about="http://web.resource.org/cc/PublicDomain">
+#     <cc:permits rdf:resource="http://web.resource.org/cc/Reproduction"/>
+#     <cc:permits rdf:resource="http://web.resource.org/cc/Distribution"/>
+#     <cc:permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"/>
+#   </cc:License>
 
 dolphin = """
 M -0.59739425,160.18173 C -0.62740401,160.18885 -0.57867129,160.11183

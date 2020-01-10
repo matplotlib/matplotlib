@@ -13,7 +13,8 @@ import numpy as np
 # prepare some coordinates
 x, y, z = np.indices((8, 8, 8))
 
-# draw cuboids in the top left and bottom right corners, and a link between them
+# draw cuboids in the top left and bottom right corners, and a link between
+# them
 cube1 = (x < 3) & (y < 3) & (z < 3)
 cube2 = (x >= 5) & (y >= 5) & (z >= 5)
 link = abs(x - y) + abs(y - z) + abs(z - x) <= 2

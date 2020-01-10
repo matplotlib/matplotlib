@@ -168,8 +168,8 @@ plt.tight_layout()
 # Use with GridSpec
 # =================
 #
-# GridSpec has its own :func:`~matplotlib.gridspec.GridSpec.tight_layout` method
-# (the pyplot api :func:`~matplotlib.pyplot.tight_layout` also works).
+# GridSpec has its own `.GridSpec.tight_layout` method (the pyplot api
+# `.pyplot.tight_layout` also works).
 
 import matplotlib.gridspec as gridspec
 
@@ -186,9 +186,9 @@ example_plot(ax2)
 gs1.tight_layout(fig)
 
 ###############################################################################
-# You may provide an optional *rect* parameter, which specifies the bounding box
-# that the subplots will be fit inside. The coordinates must be in normalized
-# figure coordinates and the default is (0, 0, 1, 1).
+# You may provide an optional *rect* parameter, which specifies the bounding
+# box that the subplots will be fit inside. The coordinates must be in
+# normalized figure coordinates and the default is (0, 0, 1, 1).
 
 fig = plt.figure()
 
@@ -236,13 +236,13 @@ gs2.update(top=top, bottom=bottom)
 plt.show()
 
 ###############################################################################
-# While this should be mostly good enough, adjusting top and bottom
-# may require adjustment of hspace also.  To update hspace & vspace, we
-# call :func:`~matplotlib.gridspec.GridSpec.tight_layout` again with updated
-# rect argument. Note that the rect argument specifies the area including the
-# ticklabels, etc.  Thus, we will increase the bottom (which is 0 for the normal
-# case) by the difference between the *bottom* from above and the bottom of each
-# gridspec. Same thing for the top.
+# While this should be mostly good enough, adjusting top and bottom may
+# require adjustment of hspace also.  To update hspace & vspace, we call
+# `.GridSpec.tight_layout` again with updated rect argument. Note that the
+# rect argument specifies the area including the ticklabels, etc.  Thus, we
+# will increase the bottom (which is 0 for the normal case) by the difference
+# between the *bottom* from above and the bottom of each gridspec. Same thing
+# for the top.
 
 fig = plt.gcf()
 

@@ -7,10 +7,10 @@ Tips for customizing the properties and default styles of Matplotlib.
 Using style sheets
 ------------------
 
-The ``style`` package adds support for easy-to-switch plotting "styles" with
-the same parameters as a
-:ref:`matplotlib rc <customizing-with-matplotlibrc-files>` file (which is read
-at startup to configure matplotlib).
+The :mod:`.style` package adds support for easy-to-switch plotting
+"styles" with the same parameters as a :ref:`matplotlib rc
+<customizing-with-matplotlibrc-files>` file (which is read at startup to
+configure Matplotlib).
 
 There are a number of pre-defined styles `provided by Matplotlib`_. For
 example, there's a pre-defined style called "ggplot", which emulates the
@@ -33,18 +33,18 @@ print(plt.style.available)
 # Defining your own style
 # -----------------------
 #
-# You can create custom styles and use them by calling ``style.use`` with the
-# path or URL to the style sheet. Additionally, if you add your
+# You can create custom styles and use them by calling `.style.use` with
+# the path or URL to the style sheet. Additionally, if you add your
 # ``<style-name>.mplstyle`` file to ``mpl_configdir/stylelib``, you can reuse
-# your custom style sheet with a call to ``style.use(<style-name>)``. By default
-# ``mpl_configdir`` should be ``~/.config/matplotlib``, but you can check where
-# yours is with ``matplotlib.get_configdir()``; you may need to create this
-# directory. You also can change the directory where matplotlib looks for
-# the stylelib/ folder by setting the MPLCONFIGDIR environment variable,
-# see :ref:`locating-matplotlib-config-dir`.
+# your custom style sheet with a call to ``style.use(<style-name>)``. By
+# default ``mpl_configdir`` should be ``~/.config/matplotlib``, but you can
+# check where yours is with `matplotlib.get_configdir()`; you may need to
+# create this directory. You also can change the directory where Matplotlib
+# looks for the stylelib/ folder by setting the :envvar:`MPLCONFIGDIR`
+# environment variable, see :ref:`locating-matplotlib-config-dir`.
 #
-# Note that a custom style sheet in ``mpl_configdir/stylelib`` will
-# override a style sheet defined by matplotlib if the styles have the same name.
+# Note that a custom style sheet in ``mpl_configdir/stylelib`` will override a
+# style sheet defined by Matplotlib if the styles have the same name.
 #
 # For example, you might want to create
 # ``mpl_configdir/stylelib/presentation.mplstyle`` with the following::
@@ -93,7 +93,7 @@ plt.show()
 ###############################################################################
 # .. _matplotlib-rcparams:
 #
-# matplotlib rcParams
+# Matplotlib rcParams
 # ===================
 #
 # .. _customizing-with-dynamic-rc-settings:
@@ -119,7 +119,7 @@ mpl.rc('lines', linewidth=4, color='g')
 plt.plot(data)
 
 ###############################################################################
-# `matplotlib.rcdefaults` will restore the standard matplotlib
+# `matplotlib.rcdefaults` will restore the standard Matplotlib
 # default settings.
 #
 # There is some degree of validation when setting the values of rcParams, see
@@ -140,7 +140,8 @@ plt.plot(data)
 # 1. :file:`matplotlibrc` in the current working directory, usually used for
 #    specific customizations that you do not want to apply elsewhere.
 #
-# 2. :file:`$MATPLOTLIBRC` if it is a file, else :file:`$MATPLOTLIBRC/matplotlibrc`.
+# 2. :file:`$MATPLOTLIBRC` if it is a file, else
+#    :file:`$MATPLOTLIBRC/matplotlibrc`.
 #
 # 3. It next looks in a user-specific place, depending on your platform:
 #
