@@ -6626,3 +6626,11 @@ def test_aspect_nonlinear_adjustable_datalim():
     ax.apply_aspect()
     assert ax.get_xlim() == pytest.approx([1*10**(1/2), 100/10**(1/2)])
     assert ax.get_ylim() == (1 / 101, 1 / 11)
+
+
+def test_invisible_axes():
+    # invisible axes should not respond to events...
+    fig, ax = plt.subplots()
+    assert fig.canvas.inaxes((200, 200)) is not None
+    ax.set_visible(False)
+    assert fig.canvas.inaxes((200, 200)) is None
