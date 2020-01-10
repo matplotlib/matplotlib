@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from collections.abc import Iterable
 from contextlib import ExitStack
 import functools
 import inspect
@@ -446,8 +447,22 @@ class _process_plot_var_args:
         ncx, ncy = x.shape[1], y.shape[1]
         if ncx > 1 and ncy > 1 and ncx != ncy:
             raise ValueError(f"x has {ncx} columns but y has {ncy} columns")
+
+        if ('label' in kwargs and isinstance(kwargs['label'], Iterable)
+                        and not isinstance(kwargs['label'], str)):
+            if len(kwargs['label']) != max(ncx, ncy):
+                raise ValueError(f"if label is iterable label and input data"
+                                 f" must have same length, but have lengths "
+                                 f"{len(kwargs['label'])} and "
+                                 f"{max(ncx, ncy)}")
+
+            result = (func(x[:, j % ncx], y[:, j % ncy], kw,
+                {**kwargs, 'label':kwargs['label'][j]})
+                     for j in range(max(ncx, ncy)))
+
         result = (func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
-                  for j in range(max(ncx, ncy)))
+                for j in range(max(ncx, ncy)))
+
         if return_kwargs:
             return list(result)
         else:
