@@ -1832,7 +1832,7 @@ class FigureCanvasBase:
 
     def inaxes(self, xy):
         """
-        Return the topmost `~.axes.Axes` containing the point *xy*.
+        Return the topmost visible `~.axes.Axes` containing the point *xy*.
 
         Parameters
         ----------
@@ -1842,11 +1842,10 @@ class FigureCanvasBase:
         Returns
         -------
         axes : `~matplotlib.axes.Axes` or None
-            The topmost axes containing the point, or None if no axes.
+            The topmost visible axes containing the point, or None if no axes.
         """
         axes_list = [a for a in self.figure.get_axes()
-                     if a.patch.contains_point(xy)]
-
+                     if a.patch.contains_point(xy) and a.get_visible()]
         if axes_list:
             axes = cbook._topmost_artist(axes_list)
         else:
