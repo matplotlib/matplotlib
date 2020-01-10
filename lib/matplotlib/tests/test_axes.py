@@ -5479,12 +5479,13 @@ def test_square_plot():
         ax.get_position(original=False).extents, (0.2125, 0.1, 0.8125, 0.9))
 
 
-def test_no_None():
-    fig, ax = plt.subplots()
+def test_bad_plot_args():
     with pytest.raises(ValueError):
         plt.plot(None)
     with pytest.raises(ValueError):
         plt.plot(None, None)
+    with pytest.raises(ValueError):
+        plt.plot(np.zeros((2, 2)), np.zeros((2, 3)))
 
 
 @pytest.mark.parametrize(
@@ -6225,11 +6226,6 @@ def test_empty_errorbar_legend():
     ax.errorbar([], [], xerr=[], label='empty y')
     ax.errorbar([], [], yerr=[], label='empty x')
     ax.legend()
-
-
-def test_plot_columns_cycle_deprecation():
-    with pytest.warns(MatplotlibDeprecationWarning):
-        plt.plot(np.zeros((2, 2)), np.zeros((2, 3)))
 
 
 @check_figures_equal(extensions=["png"])

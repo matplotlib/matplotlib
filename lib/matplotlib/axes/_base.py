@@ -356,9 +356,7 @@ class _process_plot_var_args:
 
         ncx, ncy = x.shape[1], y.shape[1]
         if ncx > 1 and ncy > 1 and ncx != ncy:
-            cbook.warn_deprecated(
-                "2.2", message="cycling among columns of inputs with "
-                "non-matching shapes is deprecated.")
+            raise ValueError(f"x has {ncx} columns but y has {ncy} columns")
         return [func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
                 for j in range(max(ncx, ncy))]
 

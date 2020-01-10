@@ -62,3 +62,11 @@ property.  This now raises a TypeError.
 `.FileMovieWriter` now defaults to writing temporary frames in a temporary
 directory, which is always cleared at exit.  In order to keep the individual
 frames saved on the filesystem, pass an explicit *frame_prefix*.
+
+`.Axes.plot` no longer accepts *x* and *y* being both 2D and with different numbers of columns
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, calling `.Axes.plot` e.g. with *x* of shape ``(n, 3)`` and *y* of
+shape ``(n, 2)`` would plot the first column of *x* against the first column
+of *y*, the second column of *x* against the second column of *y*, **and** the
+first column of *x* against the third column of *y*.  This now raises an error
+instead.
