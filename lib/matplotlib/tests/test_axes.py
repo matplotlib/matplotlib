@@ -6898,3 +6898,11 @@ def test_pi_get_negative_values():
     fig, ax = plt.subplots()
     with pytest.raises(ValueError):
         ax.pie([5, 5, -3], explode=[0, .1, .2])
+
+
+def test_invisible_axes():
+    # invisible axes should not respond to events...
+    fig, ax = plt.subplots()
+    assert fig.canvas.inaxes((200, 200)) is not None
+    ax.set_visible(False)
+    assert fig.canvas.inaxes((200, 200)) is None
