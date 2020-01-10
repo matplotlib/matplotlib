@@ -680,8 +680,8 @@ def test_plot_multiple_input_multiple_label():
     y = [[2, 4, 3], [4, 7, 1], [3, 9, 2]]
 
     label_arrays = [['one', 'two', 'three'],
-                   ('one', 'two', 'three'),
-                   np.array(['one', 'two', 'three'])]
+                    ('one', 'two', 'three'),
+                    np.array(['one', 'two', 'three'])]
 
     for label in label_arrays:
         fig, ax = plt.subplots()
@@ -719,8 +719,8 @@ def test_plot_single_input_multiple_label():
     y = [2, 4, 3]
 
     label_arrays = [['one', 'two', 'three'],
-                   ('one', 'two', 'three'),
-                   np.array(['one', 'two', 'three'])]
+                    ('one', 'two', 'three'),
+                    np.array(['one', 'two', 'three'])]
 
     for label in label_arrays:
         fig, ax = plt.subplots()
