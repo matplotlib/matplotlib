@@ -1209,6 +1209,7 @@ class Colorbar(ColorbarBase):
                 _add_disjoint_kwargs(kwargs, alpha=mappable.get_alpha())
             ColorbarBase.__init__(self, ax, **kwargs)
 
+    @cbook.deprecated("3.3", alternative="update_normal")
     def on_mappable_changed(self, mappable):
         """
         Update this colorbar to match the mappable's properties.
@@ -1249,9 +1250,8 @@ class Colorbar(ColorbarBase):
         """
         Update solid patches, lines, etc.
 
-        Unlike `.update_bruteforce`, this does not clear the axes.  This is
-        meant to be called when the norm of the image or contour plot to which
-        this colorbar belongs changes.
+        This is meant to be called when the norm of the image or contour plot
+        to which this colorbar belongs changes.
 
         If the norm on the mappable is different than before, this resets the
         locator and formatter for the axis, so if these have been customized,
@@ -1274,6 +1274,7 @@ class Colorbar(ColorbarBase):
                 self.add_lines(CS)
         self.stale = True
 
+    @cbook.deprecated("3.3", alternative="update_normal")
     def update_bruteforce(self, mappable):
         """
         Destroy and rebuild the colorbar.  This is
@@ -1684,7 +1685,7 @@ def colorbar_factory(cax, mappable, **kwargs):
     else:
         cb = Colorbar(cax, mappable, **kwargs)
 
-    cid = mappable.callbacksSM.connect('changed', cb.on_mappable_changed)
+    cid = mappable.callbacksSM.connect('changed', cb.update_normal)
     mappable.colorbar = cb
     mappable.colorbar_cid = cid
 
