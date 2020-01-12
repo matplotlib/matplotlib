@@ -578,8 +578,8 @@ class BboxBase(TransformNode):
         """
         Return a copy of the :class:`Bbox`, shrunk so that it is as
         large as it can be while having the desired aspect ratio,
-        *box_aspect*.  If the box coordinates are relative---that
-        is, fractions of a larger box such as a figure---then the
+        *box_aspect*.  If the box coordinates are relative (i.e.
+        fractions of a larger box such as a figure) then the
         physical aspect ratio of that figure is specified with
         *fig_aspect*, so that *box_aspect* can also be given as a
         ratio of the absolute dimensions, not the relative dimensions.
