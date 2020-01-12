@@ -293,6 +293,7 @@ class Formatter(TickHelper):
         pass
 
 
+@cbook.deprecated("3.3")
 class IndexFormatter(Formatter):
     """
     Format the position x to the nearest i-th label where ``i = int(x + 0.5)``.
@@ -322,13 +323,10 @@ class IndexFormatter(Formatter):
 
 
 class NullFormatter(Formatter):
-    """
-    Always return the empty string.
-    """
+    """Always return the empty string."""
+
     def __call__(self, x, pos=None):
-        """
-        Returns an empty string for all inputs.
-        """
+        # docstring inherited
         return ''
 
 
@@ -428,6 +426,7 @@ class StrMethodFormatter(Formatter):
         return self.fmt.format(x=x, pos=pos)
 
 
+@cbook.deprecated("3.3")
 class OldScalarFormatter(Formatter):
     """
     Tick location is a plain old number.
@@ -2867,6 +2866,7 @@ class AutoMinorLocator(Locator):
                                   '%s type.' % type(self))
 
 
+@cbook.deprecated("3.3")
 class OldAutoLocator(Locator):
     """
     On autoscale this class picks the best MultipleLocator to set the

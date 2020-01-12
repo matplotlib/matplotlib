@@ -150,3 +150,12 @@ and containment checks) via `.Line2D.set_picker` is deprecated.  Use
 The ``on_mappable_changed`` and ``update_bruteforce`` methods of
 `~matplotlib.colorbar.Colorbar` are deprecated; both can be replaced by calls
 to `~matplotlib.colorbar.Colorbar.update_normal`.
+
+``OldScalarFormatter``, ``IndexFormatter`` and ``DateIndexFormatter``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These formatters are deprecated.  Their functionality can be implemented using
+e.g. `.FuncFormatter`.
+
+``OldAutoLocator``
+~~~~~~~~~~~~~~~~~~
+This ticker is deprecated.
