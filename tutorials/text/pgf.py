@@ -5,13 +5,13 @@ Typesetting With XeLaTeX/LuaLaTeX
 
 How to typeset text with the ``pgf`` backend in Matplotlib.
 
-Using the ``pgf`` backend, matplotlib can export figures as pgf drawing commands
-that can be processed with pdflatex, xelatex or lualatex. XeLaTeX and LuaLaTeX
-have full unicode support and can use any font that is installed in the operating
-system, making use of advanced typographic features of OpenType, AAT and
-Graphite. Pgf pictures created by ``plt.savefig('figure.pgf')`` can be
-embedded as raw commands in LaTeX documents. Figures can also be directly
-compiled and saved to PDF with ``plt.savefig('figure.pdf')`` by either
+Using the ``pgf`` backend, matplotlib can export figures as pgf drawing
+commands that can be processed with pdflatex, xelatex or lualatex. XeLaTeX and
+LuaLaTeX have full unicode support and can use any font that is installed in
+the operating system, making use of advanced typographic features of OpenType,
+AAT and Graphite. Pgf pictures created by ``plt.savefig('figure.pgf')``
+can be embedded as raw commands in LaTeX documents. Figures can also be
+directly compiled and saved to PDF with ``plt.savefig('figure.pdf')`` by either
 switching to the backend
 
 .. code-block:: python
@@ -26,7 +26,8 @@ or registering it for handling pdf output
     matplotlib.backend_bases.register_backend('pdf', FigureCanvasPgf)
 
 The second method allows you to keep using regular interactive backends and to
-save xelatex, lualatex or pdflatex compiled PDF files from the graphical user interface.
+save xelatex, lualatex or pdflatex compiled PDF files from the graphical user
+interface.
 
 Matplotlib's pgf support requires a recent LaTeX_ installation that includes
 the TikZ/PGF packages (such as TeXLive_), preferably with XeLaTeX or LuaLaTeX
@@ -84,11 +85,12 @@ Font specification
 The fonts used for obtaining the size of text elements or when compiling
 figures to PDF are usually defined in the matplotlib rc parameters. You can
 also use the LaTeX default Computer Modern fonts by clearing the lists for
-``font.serif``, ``font.sans-serif`` or ``font.monospace``. Please note that
-the glyph coverage of these fonts is very limited. If you want to keep the
-Computer Modern font face but require extended unicode support, consider
-installing the `Computer Modern Unicode <https://sourceforge.net/projects/cm-unicode/>`_
-fonts *CMU Serif*, *CMU Sans Serif*, etc.
+``font.serif``, ``font.sans-serif`` or ``font.monospace``. Please note that the
+glyph coverage of these fonts is very limited. If you want to keep the Computer
+Modern font face but require extended unicode support, consider installing the
+`Computer Modern Unicode`__ fonts *CMU Serif*, *CMU Sans Serif*, etc.
+
+__ https://sourceforge.net/projects/cm-unicode/
 
 When saving to ``.pgf``, the font configuration matplotlib used for the
 layout of the figure is included in the header of the text file.
@@ -170,8 +172,9 @@ Troubleshooting
   these fonts by their name, which is why you might have to specify
   ``\setmathfont{xits-math.otf}`` instead of ``\setmathfont{XITS Math}`` or
   alternatively make the fonts available to your OS. See this
-  `tex.stackexchange.com question <http://tex.stackexchange.com/questions/43642>`_
-  for more details.
+  `tex.stackexchange.com question`__ for more details.
+
+  __ http://tex.stackexchange.com/questions/43642
 
 * If the font configuration used by matplotlib differs from the font setting
   in yout LaTeX document, the alignment of text elements in imported figures
@@ -185,8 +188,8 @@ Troubleshooting
   the amount of memory available to generate the ``.pdf`` image as discussed on
   `tex.stackexchange.com <http://tex.stackexchange.com/questions/7953>`_.
   Another way would be to "rasterize" parts of the graph causing problems
-  using either the ``rasterized=True`` keyword, or ``.set_rasterized(True)`` as per
-  :doc:`this example </gallery/misc/rasterization_demo>`.
+  using either the ``rasterized=True`` keyword, or ``.set_rasterized(True)`` as
+  per :doc:`this example </gallery/misc/rasterization_demo>`.
 
 * If you still need help, please see :ref:`reporting-problems`
 

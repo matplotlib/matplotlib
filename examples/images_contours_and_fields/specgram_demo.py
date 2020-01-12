@@ -33,7 +33,7 @@ Pxx, freqs, bins, im = ax2.specgram(x, NFFT=NFFT, Fs=Fs, noverlap=900)
 # - Pxx: the periodogram
 # - freqs: the frequency vector
 # - bins: the centers of the time bins
-# - im: the matplotlib.image.AxesImage instance representing the data in the plot
+# - im: the .image.AxesImage instance representing the data in the plot
 plt.show()
 
 #############################################################################
