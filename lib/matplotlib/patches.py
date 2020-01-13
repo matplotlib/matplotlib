@@ -1502,9 +1502,9 @@ class Arc(Ellipse):
 
     - The arc cannot be filled.
 
-    - The arc must be used in an `~.axes.Axes` instance---it can not be
-      added directly to a `.Figure`---because it is optimized to only render
-      the segments that are inside the axes bounding box with high resolution.
+    - The arc must be used in an `~.axes.Axes` instance. It can not be added
+      directly to a `.Figure` because it is optimized to only render the
+      segments that are inside the axes bounding box with high resolution.
     """
     def __str__(self):
         pars = (self.center[0], self.center[1], self.width,
