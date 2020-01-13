@@ -609,7 +609,7 @@ class Line2D(Artist):
         Parameters
         ----------
         p : float or callable[[Artist, Event], Tuple[bool, dict]]
-            If a float, it is used as the pick radius in poits.
+            If a float, it is used as the pick radius in points.
         """
         if callable(p):
             self._contains = p
@@ -851,7 +851,7 @@ class Line2D(Artist):
                     self.recache()
                     self._transform_path(subslice)
                     tpath, affine = (self._get_transformed_path()
-                                     .get_transformed_points_and_affine())
+                                    .get_transformed_points_and_affine())
             else:
                 tpath, affine = (self._get_transformed_path()
                                  .get_transformed_points_and_affine())
