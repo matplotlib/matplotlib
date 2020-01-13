@@ -190,13 +190,26 @@ parents[-1].link|e }}" />
 {%- else %}
 <a href="{{ pathto('index') }}">
     <div style="float: left; position: absolute; width: 496px; bottom: 0; padding-bottom: 24px"><span style="float: right; color: #789; background: white">Version {{ version|e }}</span></div>
-    <img src="{{pathto("_static/logo2.png", 1) }}" height="125px" border="0" alt="matplotlib"/></a>
+    <img src="{{pathto("_static/logo2_compressed.svg", 1) }}" height="125px" border="0" alt="matplotlib"/></a>
 {%- endif %}
 
 <!-- The "Fork me on github" ribbon -->
 <div id="forkongithub"><a href="https://github.com/matplotlib/matplotlib">Fork me on GitHub</a></div>
 </div>
-
+    <nav class="main-nav">
+        <ul>
+            <li><a href="{{ pathto('users/installing') }}">Installation</a></li>
+            <li><a href="{{ pathto('contents') }}">Documentation</a></li>
+            <li><a href="{{ pathto('gallery/index') }}">Examples</a></li>
+            <li><a href="{{ pathto('tutorials/index') }}">Tutorials</a></li>
+            <li><a href="{{ pathto('devel/index') }}">Contributing</a></li>
+            <li class="nav-right">
+                <form class="search" action="{{ pathto('search') }}" method="get">
+                <input type="text" name="q" aria-labelledby="searchlabel" placeholder="Search"/>
+                </form>
+            </li>
+        </ul>
+     </nav>
 {% endblock %}
 
 {%- block relbar2 %}
@@ -229,20 +242,7 @@ parents[-1].link|e }}" />
       <div class="clearer"></div>
     </div>
 
-    <nav class="main-nav">
-        <ul>
-            <li><a href="{{ pathto('users/installing') }}">Installation</a></li>
-            <li><a href="{{ pathto('contents') }}">Documentation</a></li>
-            <li><a href="{{ pathto('gallery/index') }}">Examples</a></li>
-            <li><a href="{{ pathto('tutorials/index') }}">Tutorials</a></li>
-            <li><a href="{{ pathto('devel/index') }}">Contributing</a></li>
-            <li class="nav-right">
-                <form class="search" action="{{ pathto('search') }}" method="get">
-                <input type="text" name="q" aria-labelledby="searchlabel" placeholder="Search"/>
-                </form>
-            </li>
-        </ul>
-     </nav>
+
 {%- endblock %}
 
 {%- block footer %}
