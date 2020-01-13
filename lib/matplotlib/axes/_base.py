@@ -2826,44 +2826,47 @@ class _AxesBase(martist.Artist):
     def ticklabel_format(self, *, axis='both', style='', scilimits=None,
                          useOffset=None, useLocale=None, useMathText=None):
         r"""
-        Change the `~matplotlib.ticker.ScalarFormatter` used by
-        default for linear axes.
+        Configure the `.ScalarFormatter` used by default for linear axes.
 
-        Optional keyword arguments:
+        If a parameter is not set, the corresponding property of the formatter
+        is left unchanged.
 
-          ==============   =========================================
-          Keyword          Description
-          ==============   =========================================
-          *axis*           {'x', 'y', 'both'}
-          *style*          {'sci' (or 'scientific'), 'plain'}
-                           plain turns off scientific notation
-          *scilimits*      (m, n), pair of integers; if *style*
-                           is 'sci', scientific notation will
-                           be used for numbers outside the range
-                           10\ :sup:`m` to 10\ :sup:`n`.
-                           Use (0, 0) to include all numbers.
-                           Use (m, m) where m != 0 to fix the order
-                           of magnitude to 10\ :sup:`m`.
-          *useOffset*      bool or float
-                           If True, the offset will be calculated as
-                           needed; if False, no offset will be used;
-                           if a numeric offset is specified, it will
-                           be used.
-          *useLocale*      If True, format the number according to
-                           the current locale.  This affects things
-                           such as the character used for the
-                           decimal separator.  If False, use
-                           C-style (English) formatting.  The
-                           default setting is controlled by the
-                           axes.formatter.use_locale rcparam.
-          *useMathText*    If True, render the offset and scientific
-                           notation in mathtext
-          ==============   =========================================
+        Parameters
+        ----------
+        axis : {'x', 'y', 'both'}, default: 'both'
+            The axes to configure.  Only major ticks are affected.
 
-        Only the major ticks are affected.
-        If the method is called when the `~matplotlib.ticker.ScalarFormatter`
-        is not the `~matplotlib.ticker.Formatter` being used, an
-        `AttributeError` will be raised.
+        style : {'sci', 'scientific', 'plain'}
+            Whether to use scientific notation.
+            The formatter default is to use scientific notation.
+
+        scilimits : pair of ints (m, n)
+            Scientific notation is used only for numbers outside the range
+            10\ :sup:`m` to 10\ :sup:`n` (and only if the formatter is
+            configured to use scientific notation at all).  Use (0, 0) to
+            include all numbers.  Use (m, m) where m != 0 to fix the order of
+            magnitude to 10\ :sup:`m`.
+            The formatter default is :rc:`axes.formatter.limits`.
+
+        useOffset : bool or float
+            If True, the offset is calculated as needed.
+            If False, no offset is used.
+            If a numeric value, it sets the offset.
+            The formatter default is :rc:`axes.formatter.useoffset`.
+
+        useLocale : bool
+            Whether to format the number using the current locale or using the
+            C (English) locale.  This affects e.g. the decimal separator.  The
+            formatter default is :rc:`axes.formatter.use_locale`.
+
+        useMathText : bool
+            Render the offset and scientific notation in mathtext.
+            The formatter default is :rc:`axes.formatter.use_mathtext`.
+
+        Raises
+        ------
+        AttributeError
+            If the current formatter is not a `.ScalarFormatter`.
         """
         style = style.lower()
         axis = axis.lower()
