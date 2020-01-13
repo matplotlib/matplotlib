@@ -140,3 +140,5 @@ mathtext
 ~~~~~~~~
 - The ``\stackrel`` command (which behaved differently from its LaTeX version)
   has been removed.  Use ``\genfrac`` instead.
+- The ``\mathcircled`` command has been removed.  Directly use Unicode
+  characters, such as ``'\N{CIRCLED LATIN CAPITAL LETTER A}``, instead.
