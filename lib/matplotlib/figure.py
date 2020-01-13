@@ -2009,24 +2009,9 @@ default: 'top'
             allnums = plt.get_fignums()
             num = max(allnums) + 1 if allnums else 1
             mgr = plt._backend_mod.new_figure_manager_given_figure(num, self)
-
-            # XXX The following is a copy and paste from pyplot. Consider
-            # factoring to pylab_helpers
-
-            if self.get_label():
-                mgr.set_window_title(self.get_label())
-
-            # make this figure current on button press event
-            def make_active(event):
-                pylab_helpers.Gcf.set_active(mgr)
-
-            mgr._cidgcf = mgr.canvas.mpl_connect('button_press_event',
-                                                 make_active)
-
-            pylab_helpers.Gcf.set_active(mgr)
-            self.number = num
-
+            pylab_helpers.Gcf._set_new_active_manager(mgr)
             plt.draw_if_interactive()
+
         self.stale = True
 
     def add_axobserver(self, func):

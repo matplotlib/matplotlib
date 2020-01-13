@@ -520,28 +520,17 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
                                         frameon=frameon,
                                         FigureClass=FigureClass,
                                         **kwargs)
-
-        if figLabel:
-            figManager.set_window_title(figLabel)
-            figManager.canvas.figure.set_label(figLabel)
-
-        # make this figure current on button press event
-        def make_active(event):
-            _pylab_helpers.Gcf.set_active(figManager)
-
-        cid = figManager.canvas.mpl_connect('button_press_event', make_active)
-        figManager._cidgcf = cid
-
-        _pylab_helpers.Gcf.set_active(figManager)
         fig = figManager.canvas.figure
-        fig.number = num
+        if figLabel:
+            fig.set_label(figLabel)
+
+        _pylab_helpers.Gcf._set_new_active_manager(figManager)
 
         # make sure backends (inline) that we don't ship that expect this
         # to be called in plotting commands to make the figure call show
         # still work.  There is probably a better way to do this in the
         # FigureManager base class.
-        if matplotlib.is_interactive():
-            draw_if_interactive()
+        draw_if_interactive()
 
         if _INSTALL_FIG_OBSERVER:
             fig.stale_callback = _auto_draw_if_interactive
