@@ -3170,16 +3170,6 @@ class Parser:
         return self._genfrac('', '', thickness,
                              self._math_style_dict['displaystyle'], num, den)
 
-    @cbook.deprecated("3.1", obj_type="mathtext command",
-                      alternative=r"\genfrac")
-    def stackrel(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 2
-        num, den = toks[0]
-
-        return self._genfrac('', '', 0.0,
-                             self._math_style_dict['textstyle'], num, den)
-
     def binom(self, s, loc, toks):
         assert len(toks) == 1
         assert len(toks[0]) == 2
