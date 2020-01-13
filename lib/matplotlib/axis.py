@@ -1183,21 +1183,41 @@ class Axis(martist.Artist):
         """Return the depth of the axis used by the picker."""
         return self.pickradius
 
-    def get_majorticklabels(self):
-        """Return a list of Text instances for the major ticklabels."""
+    def get_majorticklabels(self, *, include_hidden=False):
+        """
+        Return a list of `.Text` instances for the major ticklabels.
+
+        Parameters
+        ----------
+        include_hidden : bool, default: False
+            Whether to include instances that were hidden using
+            `~.Artist.set_visible`.
+        """
         ticks = self.get_major_ticks()
-        labels1 = [tick.label1 for tick in ticks if tick.label1.get_visible()]
-        labels2 = [tick.label2 for tick in ticks if tick.label2.get_visible()]
+        labels1 = [tick.label1 for tick in ticks
+                   if include_hidden or tick.label1.get_visible()]
+        labels2 = [tick.label2 for tick in ticks
+                   if include_hidden or tick.label2.get_visible()]
         return cbook.silent_list('Text major ticklabel', labels1 + labels2)
 
-    def get_minorticklabels(self):
-        """Return a list of Text instances for the minor ticklabels."""
+    def get_minorticklabels(self, *, include_hidden=False):
+        """
+        Return a list of `.Text` instances for the minor ticklabels.
+
+        Parameters
+        ----------
+        include_hidden : bool, default: False
+            Whether to include labels that were hidden using
+            `~.Artist.set_visible`.
+        """
         ticks = self.get_minor_ticks()
-        labels1 = [tick.label1 for tick in ticks if tick.label1.get_visible()]
-        labels2 = [tick.label2 for tick in ticks if tick.label2.get_visible()]
+        labels1 = [tick.label1 for tick in ticks
+                   if include_hidden or tick.label1.get_visible()]
+        labels2 = [tick.label2 for tick in ticks
+                   if include_hidden or tick.label2.get_visible()]
         return cbook.silent_list('Text minor ticklabel', labels1 + labels2)
 
-    def get_ticklabels(self, minor=False, which=None):
+    def get_ticklabels(self, minor=False, which=None, *, include_hidden=False):
         """
         Get the tick labels as a list of `~matplotlib.text.Text` instances.
 
@@ -1207,29 +1227,33 @@ class Axis(martist.Artist):
            If True return the minor ticklabels,
            else return the major ticklabels
 
-        which : None, ('minor', 'major', 'both')
-           Overrides *minor*.
+        which : {'minor', 'major', 'both'}, optional
+           Which kind of ticklabels to return. If set, this overrides *minor*.
 
-           Selects which ticklabels to return
+        include_hidden : bool, default: False
+            Whether to include labels that were hidden using
+            `~.Artist.set_visible`.
 
         Returns
         -------
         ret : list
-           List of `~matplotlib.text.Text` instances.
+            List of `~matplotlib.text.Text` instances.
         """
 
         if which is not None:
             if which == 'minor':
-                return self.get_minorticklabels()
+                return self.get_minorticklabels(include_hidden=include_hidden)
             elif which == 'major':
-                return self.get_majorticklabels()
+                return self.get_majorticklabels(include_hidden=include_hidden)
             elif which == 'both':
-                return self.get_majorticklabels() + self.get_minorticklabels()
+                return (
+                    self.get_majorticklabels(include_hidden=include_hidden) +
+                    self.get_minorticklabels(include_hidden=include_hidden))
             else:
                 cbook._check_in_list(['major', 'minor', 'both'], which=which)
         if minor:
-            return self.get_minorticklabels()
-        return self.get_majorticklabels()
+            return self.get_minorticklabels(include_hidden=include_hidden)
+        return self.get_majorticklabels(include_hidden=include_hidden)
 
     def get_majorticklines(self):
         """Return the major tick lines as a list of Line2D instances."""
