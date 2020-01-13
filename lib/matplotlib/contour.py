@@ -1297,24 +1297,34 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     def find_nearest_contour(self, x, y, indices=None, pixel=True):
         """
-        Finds contour that is closest to a point.  Defaults to
-        measuring distance in pixels (screen space - useful for manual
-        contour labeling), but this can be controlled via a keyword
-        argument.
+        Find the point in the contour plot that is closest to ``(x, y)``.
 
-        Returns a tuple containing the contour, segment, index of
-        segment, x & y of segment point and distance to minimum point.
+        Parameters
+        ----------
+        x, y: float
+            The reference point.
+        indices : list of int or None, default: None
+            Indices of contour levels to consider.  If None (the default), all
+            levels are considered.
+        pixel : bool, default: True
+            If *True*, measure distance in pixel (screen) space, which is
+            useful for manual contour labeling; else, measure distance in axes
+            space.
 
-        Optional keyword arguments:
-
-          *indices*:
-            Indexes of contour levels to consider when looking for
-            nearest point.  Defaults to using all levels.
-
-          *pixel*:
-            If *True*, measure distance in pixel space, if not, measure
-            distance in axes space.  Defaults to *True*.
-
+        Returns
+        -------
+        contour : `.Collection`
+            The contour that is closest to ``(x, y)``.
+        segment : int
+            The index of the `.Path` in *contour* that is closest to
+            ``(x, y)``.
+        index : int
+            The index of the path segment in *segment* that is closest to
+            ``(x, y)``.
+        xmin, ymin : float
+            The point in the contour plot that is closest to ``(x, y)``.
+        d : float
+            The distance from ``(xmin, ymin)`` to ``(x, y)``.
         """
 
         # This function uses a method that is probably quite
