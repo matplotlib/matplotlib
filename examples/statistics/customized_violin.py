@@ -60,12 +60,12 @@ quartile1, medians, quartile3 = np.percentile(data, [25, 50, 75], axis=1)
 whiskers = np.array([
     adjacent_values(sorted_array, q1, q3)
     for sorted_array, q1, q3 in zip(data, quartile1, quartile3)])
-whiskersMin, whiskersMax = whiskers[:, 0], whiskers[:, 1]
+whiskers_min, whiskers_max = whiskers[:, 0], whiskers[:, 1]
 
 inds = np.arange(1, len(medians) + 1)
 ax2.scatter(inds, medians, marker='o', color='white', s=30, zorder=3)
 ax2.vlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=5)
-ax2.vlines(inds, whiskersMin, whiskersMax, color='k', linestyle='-', lw=1)
+ax2.vlines(inds, whiskers_min, whiskers_max, color='k', linestyle='-', lw=1)
 
 # set style for the axes
 labels = ['A', 'B', 'C', 'D']
