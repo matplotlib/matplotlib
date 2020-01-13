@@ -1682,6 +1682,9 @@ def sanitize_sequence(data):
             else data)
 
 
+@_delete_parameter("3.3", "required")
+@_delete_parameter("3.3", "forbidden")
+@_delete_parameter("3.3", "allowed")
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
                      allowed=None):
     """
@@ -1713,16 +1716,16 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         mapping.
 
     required : list of str, optional
-        A list of keys that must be in *kws*.
+        A list of keys that must be in *kws*.  This parameter is deprecated.
 
     forbidden : list of str, optional
-        A list of keys which may not be in *kw*.
+        A list of keys which may not be in *kw*.  This parameter is deprecated.
 
     allowed : list of str, optional
         A list of allowed fields.  If this not None, then raise if
         *kw* contains any keys not in the union of *required*
         and *allowed*.  To allow only the required fields pass in
-        an empty tuple ``allowed=()``.
+        an empty tuple ``allowed=()``.  This parameter is deprecated.
 
     Raises
     ------
