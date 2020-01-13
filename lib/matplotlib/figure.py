@@ -2026,7 +2026,7 @@ default: 'top'
 
         # re-initialise some of the unstored state information
         self._axobservers = []
-        self.canvas = None
+        FigureCanvasBase(self)  # Set self.canvas.
         self._layoutbox = None
 
         if restore_to_pylab:
