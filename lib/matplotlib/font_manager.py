@@ -23,7 +23,6 @@ Future versions may implement the Level 2 or 2.1 specifications.
 #   - setWeights function needs improvement
 #   - 'light' is an invalid weight value, remove it.
 
-from enum import IntEnum
 from functools import lru_cache
 import json
 import logging
@@ -37,8 +36,6 @@ try:
     from threading import Timer
 except ImportError:
     from dummy_threading import Timer
-
-import numpy as np
 
 import matplotlib as mpl
 from matplotlib import afm, cbook, ft2font, rcParams
@@ -90,61 +87,33 @@ weight_dict = {
     'extra bold': 800,
     'black':      900,
 }
-
-
-class _Weight(IntEnum):
-    Thin = 0
-    Extralight = Ultralight = 40
-    Light = 50
-    Demilight = Semilight = 55
-    Book = 75
-    Regular = Normal = 80
-    Medium = 100
-    Demibold = Semibold = 180
-    Bold = 200
-    Extrabold = Ultrabold = 205
-    Black = Heavy = 210
-    Extrablack = Ultrablack = 215
-
-    @classmethod
-    def from_opentype(cls, ot_weight):
-        fc_weights = [0, 40, 50, 55, 75, 80, 100, 180, 200, 205, 210, 215]
-        ot_weights = [
-            100, 200, 300, 350, 380, 400, 500, 600, 700, 800, 900, 1000]
-        weight = int(np.interp(ot_weight, ot_weights, fc_weights) + .5)
-        try:
-            return _Weight(weight)
-        except ValueError:
-            return weight
-
-
 _weight_regexes = [
-    ("thin", _Weight.Thin),
-    ("extralight", _Weight.Extralight),
-    ("ultralight", _Weight.Ultralight),
-    ("demilight", _Weight.Demilight),
-    ("semilight", _Weight.Semilight),
-    ("light", _Weight.Light),
-    ("book", _Weight.Book),
-    ("regular", _Weight.Regular),
-    ("normal", _Weight.Normal),
-    ("medium", _Weight.Medium),
-    ("demibold", _Weight.Demibold),
-    ("demi", _Weight.Demibold),
-    ("semibold", _Weight.Semibold),
-    ("extrabold", _Weight.Extrabold),
-    ("superbold", _Weight.Extrabold),
-    ("ultrabold", _Weight.Ultrabold),
-    ("bold", _Weight.Bold),
-    ("ultrablack", _Weight.Ultrablack),
-    ("superblack", _Weight.Extrablack),
-    ("extrablack", _Weight.Extrablack),
-    (r"\bultra", _Weight.Ultrabold),
-    ("black", _Weight.Black),
-    ("heavy", _Weight.Heavy),
+    # From fontconfig's FcFreeTypeQueryFaceInternal; not the same as
+    # weight_dict!
+    ("thin", 100),
+    ("extralight", 200),
+    ("ultralight", 200),
+    ("demilight", 350),
+    ("semilight", 350),
+    ("light", 300),  # Needs to come *after* demi/semilight!
+    ("book", 380),
+    ("regular", 400),
+    ("normal", 400),
+    ("medium", 500),
+    ("demibold", 600),
+    ("demi", 600),
+    ("semibold", 600),
+    ("extrabold", 800),
+    ("superbold", 800),
+    ("ultrabold", 800),
+    ("bold", 700),  # Needs to come *after* extra/super/ultrabold!
+    ("ultrablack", 1000),
+    ("superblack", 1000),
+    ("extrablack", 1000),
+    (r"\bultra", 1000),
+    ("black", 900),  # Needs to come *after* ultra/super/extrablack!
+    ("heavy", 900),
 ]
-
-
 font_family_aliases = {
     'serif',
     'sans-serif',
@@ -467,11 +436,11 @@ def ttfFontProperty(font):
     ]
     styles = [*filter(None, styles)] or [font.style_name]
 
-    def get_weight():
+    def get_weight():  # From fontconfig's FcFreeTypeQueryFaceInternal.
         # OS/2 table weight.
         os2 = font.get_sfnt_table("OS/2")
         if os2 and os2["version"] != 0xffff:
-            return _Weight.from_opentype(os2["usWeightClass"])
+            return os2["usWeightClass"]
         # PostScript font info weight.
         try:
             ps_font_info_weight = (
@@ -489,8 +458,8 @@ def ttfFontProperty(font):
                 if re.search(regex, style, re.I):
                     return weight
         if font.style_flags & ft2font.BOLD:
-            return _Weight.BOLD
-        return _Weight.REGULAR
+            return 700  # "bold"
+        return 500  # "medium", not "regular"!
 
     weight = int(get_weight())
 
