@@ -662,7 +662,7 @@ def validate_sketch(s):
     return result
 
 
-@cbook.deprecated("3.1")
+@cbook.deprecated("3.2")
 class ValidateInterval:
     """
     Value must be in interval
