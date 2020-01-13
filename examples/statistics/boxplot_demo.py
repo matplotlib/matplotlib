@@ -8,8 +8,8 @@ Visualizing boxplots with matplotlib.
 The following examples show off how to visualize boxplots with
 Matplotlib. There are many options to control their appearance and
 the statistics that they use to summarize the data.
-
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Polygon
@@ -130,23 +130,23 @@ num_boxes = len(data)
 medians = np.empty(num_boxes)
 for i in range(num_boxes):
     box = bp['boxes'][i]
-    boxX = []
-    boxY = []
+    box_x = []
+    box_y = []
     for j in range(5):
-        boxX.append(box.get_xdata()[j])
-        boxY.append(box.get_ydata()[j])
-    box_coords = np.column_stack([boxX, boxY])
+        box_x.append(box.get_xdata()[j])
+        box_y.append(box.get_ydata()[j])
+    box_coords = np.column_stack([box_x, box_y])
     # Alternate between Dark Khaki and Royal Blue
     ax1.add_patch(Polygon(box_coords, facecolor=box_colors[i % 2]))
     # Now draw the median lines back over what we just filled in
     med = bp['medians'][i]
-    medianX = []
-    medianY = []
+    median_x = []
+    median_y = []
     for j in range(2):
-        medianX.append(med.get_xdata()[j])
-        medianY.append(med.get_ydata()[j])
-        ax1.plot(medianX, medianY, 'k')
-    medians[i] = medianY[0]
+        median_x.append(med.get_xdata()[j])
+        median_y.append(med.get_ydata()[j])
+        ax1.plot(median_x, median_y, 'k')
+    medians[i] = median_y[0]
     # Finally, overplot the sample averages, with horizontal alignment
     # in the center of each box
     ax1.plot(np.average(med.get_xdata()), np.average(data[i]),
@@ -193,22 +193,20 @@ plt.show()
 # We can then use the boxplot along with this function to show these intervals.
 
 
-def fakeBootStrapper(n):
+def fake_bootstrapper(n):
     """
     This is just a placeholder for the user's method of
     bootstrapping the median and its confidence intervals.
 
-    Returns an arbitrary median and confidence intervals
-    packed into a tuple
+    Returns an arbitrary median and confidence interval packed into a tuple.
     """
     if n == 1:
         med = 0.1
-        CI = (-0.25, 0.25)
+        ci = (-0.25, 0.25)
     else:
         med = 0.2
-        CI = (-0.35, 0.50)
-
-    return med, CI
+        ci = (-0.35, 0.50)
+    return med, ci
 
 inc = 0.1
 e1 = np.random.normal(0, 1, size=500)
@@ -217,10 +215,10 @@ e3 = np.random.normal(0, 1 + inc, size=500)
 e4 = np.random.normal(0, 1 + 2*inc, size=500)
 
 treatments = [e1, e2, e3, e4]
-med1, CI1 = fakeBootStrapper(1)
-med2, CI2 = fakeBootStrapper(2)
+med1, ci1 = fake_bootstrapper(1)
+med2, ci2 = fake_bootstrapper(2)
 medians = [None, None, med1, med2]
-conf_intervals = [None, None, CI1, CI2]
+conf_intervals = [None, None, ci1, ci2]
 
 fig, ax = plt.subplots()
 pos = np.array(range(len(treatments))) + 1
