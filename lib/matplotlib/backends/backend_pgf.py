@@ -433,6 +433,7 @@ class RendererPgf(RendererBase):
                 self.__dict__["draw_image"] = lambda *args, **kwargs: None
 
     @cbook.deprecated("3.2")
+    @property
     def latexManager(self):
         return self._latexManager
 
