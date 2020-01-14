@@ -570,13 +570,13 @@ def test_concise_formatter_formats():
 
 
 def test_concise_formatter_zformats():
-    zero_formats = ['', '%Y', '%b', '%b-%d', '%H:%M', '%H:%M']
+    zero_formats = ['', "'%y", '%B', '%m-%d', '%S', '.%f']
 
     def _create_auto_date_locator(date1, date2):
         fig, ax = plt.subplots()
 
         locator = mdates.AutoDateLocator(interval_multiples=True)
-        formatter = mdates.ConciseDateFormatter(locator, zero_formats)
+        formatter = mdates.ConciseDateFormatter(locator, zero_formats=zero_formats)
         ax.yaxis.set_major_locator(locator)
         ax.yaxis.set_major_formatter(formatter)
         ax.set_ylim(date1, date2)
