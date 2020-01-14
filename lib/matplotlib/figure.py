@@ -2280,6 +2280,10 @@ class Figure(FigureBase):
         super().__init__()
 
         self.callbacks = cbook.CallbackRegistry()
+        # Callbacks traditionally associated with the canvas (and exposed with
+        # a proxy property), but that actually need to be on the figure for
+        # pickling.
+        self._canvas_callbacks = cbook.CallbackRegistry()
 
         if figsize is None:
             figsize = mpl.rcParams['figure.figsize']

@@ -1718,8 +1718,6 @@ class FigureCanvasBase:
         figure.set_canvas(self)
         self.figure = figure
         self.manager = None
-        # a dictionary from event name to a dictionary that maps cid->func
-        self.callbacks = cbook.CallbackRegistry()
         self.widgetlock = widgets.LockDraw()
         self._button = None  # the button pressed
         self._key = None  # the key pressed
@@ -1729,6 +1727,10 @@ class FigureCanvasBase:
         self.mouse_grabber = None  # the axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_idle_drawing = False
+
+    @property
+    def callbacks(self):
+        return self.figure._canvas_callbacks
 
     @classmethod
     @functools.lru_cache()
