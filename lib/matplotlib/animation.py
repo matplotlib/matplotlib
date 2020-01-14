@@ -1391,19 +1391,17 @@ class TimedAnimation(Animation):
         Whether blitting is used to optimize drawing.
     """
 
-    def __init__(self, fig, interval=200, repeat_delay=None, repeat=True,
+    def __init__(self, fig, interval=200, repeat_delay=0, repeat=True,
                  event_source=None, *args, **kwargs):
-        # Store the timing information
         self._interval = interval
-        self._repeat_delay = repeat_delay
+        # Undocumented support for repeat_delay = None as backcompat.
+        self._repeat_delay = repeat_delay if repeat_delay is not None else 0
         self.repeat = repeat
-
         # If we're not given an event source, create a new timer. This permits
         # sharing timers between animation objects for syncing animations.
         if event_source is None:
             event_source = fig.canvas.new_timer()
             event_source.interval = self._interval
-
         Animation.__init__(self, fig, event_source=event_source,
                            *args, **kwargs)
 
@@ -1419,13 +1417,10 @@ class TimedAnimation(Animation):
         if not still_going and self.repeat:
             self._init_draw()
             self.frame_seq = self.new_frame_seq()
-            if self._repeat_delay:
-                self.event_source.remove_callback(self._step)
-                self.event_source.add_callback(self._loop_delay)
-                self.event_source.interval = self._repeat_delay
-                return True
-            else:
-                return Animation._step(self, *args)
+            self.event_source.remove_callback(self._step)
+            self.event_source.add_callback(self._loop_delay)
+            self.event_source.interval = self._repeat_delay
+            return True
         else:
             return still_going
 
