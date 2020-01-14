@@ -94,14 +94,6 @@ class AxesWidget(Widget):
     """
     Widget connected to a single `~matplotlib.axes.Axes`.
 
-    To guarantee that the widget remains responsive and not garbage-collected,
-    a reference to the object should be maintained by the user.
-
-    This is necessary because the callback registry
-    maintains only weak-refs to the functions, which are member
-    functions of the widget.  If there are no references to the widget
-    object it may be garbage collected which will disconnect the callbacks.
-
     Attributes
     ----------
     ax : `~matplotlib.axes.Axes`
@@ -121,9 +113,11 @@ class AxesWidget(Widget):
         Connect callback with an event.
 
         This should be used in lieu of `figure.canvas.mpl_connect` since this
-        function stores callback ids for later clean up.
+        function stores callback ids for later clean up, and sets up a wrapper
+        callback to prevent the original callback and thus the widget from
+        being garbage collected.
         """
-        cid = self.canvas.mpl_connect(event, callback)
+        cid = self.canvas.mpl_connect(event, lambda event: callback(event))
         self.cids.append(cid)
 
     def disconnect_events(self):
@@ -136,7 +130,6 @@ class Button(AxesWidget):
     """
     A GUI neutral button.
 
-    For the button to remain responsive you must keep a reference to it.
     Call `.on_clicked` to connect to the button.
 
     Attributes
@@ -247,9 +240,8 @@ class Slider(AxesWidget):
     """
     A slider representing a floating point range.
 
-    Create a slider from *valmin* to *valmax* in axes *ax*. For the slider to
-    remain responsive you must maintain a reference to it. Call
-    :meth:`on_changed` to connect to the slider event.
+    Create a slider from *valmin* to *valmax* in axes *ax*.
+    Call :meth:`on_changed` to connect to the slider event.
 
     Attributes
     ----------
@@ -505,9 +497,6 @@ class CheckButtons(AxesWidget):
     r"""
     A GUI neutral set of check buttons.
 
-    For the check buttons to remain responsive you must keep a
-    reference to this object.
-
     Connect to the CheckButtons with the `.on_clicked` method.
 
     Attributes
@@ -659,8 +648,6 @@ class CheckButtons(AxesWidget):
 class TextBox(AxesWidget):
     """
     A GUI neutral text input box.
-
-    For the text box to remain responsive you must keep a reference to it.
 
     Call `.on_text_change` to be updated whenever the text changes.
 
@@ -968,9 +955,6 @@ class RadioButtons(AxesWidget):
     """
     A GUI neutral radio button.
 
-    For the buttons to remain responsive you must keep a reference to this
-    object.
-
     Connect to the RadioButtons with the `.on_clicked` method.
 
     Attributes
@@ -1236,8 +1220,6 @@ class Cursor(AxesWidget):
     """
     A crosshair cursor that spans the axes and moves with mouse cursor.
 
-    For the cursor to remain responsive you must keep a reference to it.
-
     Parameters
     ----------
     ax : `matplotlib.axes.Axes`
@@ -1331,8 +1313,6 @@ class MultiCursor(Widget):
     Provide a vertical (default) and/or horizontal line cursor shared between
     multiple axes.
 
-    For the cursor to remain responsive you must keep a reference to it.
-
     Example usage::
 
         from matplotlib.widgets import MultiCursor
@@ -1386,9 +1366,11 @@ class MultiCursor(Widget):
 
     def connect(self):
         """connect events"""
-        self._cidmotion = self.canvas.mpl_connect('motion_notify_event',
-                                                  self.onmove)
-        self._ciddraw = self.canvas.mpl_connect('draw_event', self.clear)
+        # Wrapper lambdas prevent GC.
+        self._cidmotion = self.canvas.mpl_connect(
+            'motion_notify_event', lambda event: self.onmove(event))
+        self._ciddraw = self.canvas.mpl_connect(
+            'draw_event', lambda event: self.clear(event))
 
     def disconnect(self):
         """disconnect events"""
@@ -1655,8 +1637,6 @@ class SpanSelector(_SelectorWidget):
     """
     Visually select a min/max range on a single axis and call a function with
     those values.
-
-    To guarantee that the selector remains responsive, keep a reference to it.
 
     In order to turn off the SpanSelector, set ``span_selector.active`` to
     False.  To turn it back on, set it to True.
@@ -1931,8 +1911,6 @@ class ToolHandles:
 class RectangleSelector(_SelectorWidget):
     """
     Select a rectangular region of an axes.
-
-    For the cursor to remain responsive you must keep a reference to it.
 
     Example usage::
 
@@ -2357,8 +2335,6 @@ class EllipseSelector(RectangleSelector):
     """
     Select an elliptical region of an axes.
 
-    For the cursor to remain responsive you must keep a reference to it.
-
     Example usage::
 
         import numpy as np
@@ -2426,8 +2402,6 @@ class EllipseSelector(RectangleSelector):
 class LassoSelector(_SelectorWidget):
     """
     Selection curve of an arbitrary shape.
-
-    For the selector to remain responsive you must keep a reference to it.
 
     The selected path can be used in conjunction with `~.Path.contains_point`
     to select data points from an image.
@@ -2508,8 +2482,6 @@ class PolygonSelector(_SelectorWidget):
     polygon has already been completed). Hold the *shift* key and click and
     drag anywhere in the axes to move all vertices. Press the *esc* key to
     start a new polygon.
-
-    For the selector to remain responsive you must keep a reference to it.
 
     Parameters
     ----------

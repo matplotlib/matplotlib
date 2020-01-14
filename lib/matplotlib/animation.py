@@ -929,14 +929,17 @@ class Animation:
         self.frame_seq = self.new_frame_seq()
         self.event_source = event_source
 
+        # Wrapper lambdas prevent GC.
+
         # Instead of starting the event source now, we connect to the figure's
         # draw_event, so that we only start once the figure has been drawn.
-        self._first_draw_id = fig.canvas.mpl_connect('draw_event', self._start)
+        self._first_draw_id = fig.canvas.mpl_connect(
+            'draw_event', lambda event: self._start(event))
 
         # Connect to the figure's close_event so that we don't continue to
         # fire events and try to draw to a deleted figure.
-        self._close_id = self._fig.canvas.mpl_connect('close_event',
-                                                      self._stop)
+        self._close_id = self._fig.canvas.mpl_connect(
+            'close_event', lambda event: self._stop(event))
         if self._blit:
             self._setup_blit()
 

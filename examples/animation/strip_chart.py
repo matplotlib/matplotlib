@@ -56,7 +56,6 @@ fig, ax = plt.subplots()
 scope = Scope(ax)
 
 # pass a generator in "emitter" to produce data for the update func
-ani = animation.FuncAnimation(fig, scope.update, emitter, interval=10,
-                              blit=True)
+animation.FuncAnimation(fig, scope.update, emitter, interval=10, blit=True)
 
 plt.show()

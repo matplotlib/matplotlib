@@ -94,6 +94,6 @@ def animate(i):
     return line, time_text
 
 
-ani = animation.FuncAnimation(fig, animate, range(1, len(y)),
-                              interval=dt*1000, blit=True, init_func=init)
+animation.FuncAnimation(fig, animate, range(1, len(y)),
+                        interval=dt*1000, blit=True, init_func=init)
 plt.show()

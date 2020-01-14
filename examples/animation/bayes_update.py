@@ -62,6 +62,6 @@ np.random.seed(19680801)
 
 fig, ax = plt.subplots()
 ud = UpdateDist(ax, prob=0.7)
-anim = FuncAnimation(fig, ud, frames=np.arange(100), init_func=ud.init,
-                     interval=100, blit=True)
+FuncAnimation(fig, ud, frames=np.arange(100), init_func=ud.init,
+              interval=100, blit=True)
 plt.show()
