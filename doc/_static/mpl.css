@@ -1218,3 +1218,38 @@ hr.box-sep {
         flex: 0 0 90%;
     }
 }
+
+/* bullet boxes on main page */
+div.bullet-box-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 1em 0;
+}
+
+div.bullet-box {
+    flex-grow: 1;
+    width: 28%;
+    margin: 0.4em;
+    padding: 0 1em;
+    background: #eff9ff;
+}
+
+div.bullet-box p:first-of-type {
+    font-size: 1.4em;
+    text-align: center;
+}
+
+div.bullet-box ul {
+    padding-left: 1.2em;
+}
+
+div.bullet-box li {
+    padding-left: 0.3em;
+    margin-bottom: 0.3em;
+}
+
+@media only screen and (max-width: 930px){
+    div.bullet-box {
+        flex: 0 0 90%;
+    }
+}
