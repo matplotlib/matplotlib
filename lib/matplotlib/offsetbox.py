@@ -1056,7 +1056,7 @@ class AnchoredOffsetbox(OffsetBox):
             - 'center'
 
             For backward compatibility, numeric values are accepted as well.
-             See the parameter *loc* of `.Legend` for details.
+            See the parameter *loc* of `.Legend` for details.
 
         pad : float, default: 0.4
             Padding around the child as fraction of the fontsize.
@@ -1082,7 +1082,6 @@ class AnchoredOffsetbox(OffsetBox):
 
         **kwargs
             All other parameters are passed on to `.OffsetBox`.
-
 
         Notes
         -----
