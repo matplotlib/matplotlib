@@ -296,7 +296,8 @@ API changes
 Changes to the public API must follow a standard deprecation procedure to
 prevent unexpected breaking of code that uses Matplotlib.
 
-- Deprecations must be announced via an entry in `doc/api/next_api_changes`.
+- Deprecations must be announced via an entry in
+  :file:`doc/api/next_api_changes`.
 - Deprecations are targeted at the next point-release (i.e. 3.x.0).
 - The deprecated API should, to the maximum extent possible, remain fully
   functional during the deprecation period. In cases where this is not

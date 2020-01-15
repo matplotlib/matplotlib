@@ -316,7 +316,7 @@ FreeType or libpng are not in the compiler or linker's default path, set the
 standard environment variables ``CFLAGS``/``LDFLAGS`` on Linux or OSX, or
 ``CL``/``LINK`` on Windows, to indicate the relevant paths.
 
-See details in `Installing`.
+See details in :doc:`/users/installing`.
 
 Setting artist properties twice or more in the same call
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -796,7 +796,7 @@ Changes in parameter names
   as a keyword argument. The common usage pattern as a positional argument
   ``matplotlib.use('Qt5Agg')`` is not affected.
 - The *normed* parameter to `.Axes.hist2d` has been renamed to *density*.
-- The *s* parameter to `.Annotation` (and indirectly `Axes.annotation`) has
+- The *s* parameter to `.Annotation` (and indirectly `.Axes.annotate`) has
   been renamed to *text*.
 - The *tolerence* parameter to
   `bezier.find_bezier_t_intersecting_with_closedpath`,

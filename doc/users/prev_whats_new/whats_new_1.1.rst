@@ -207,8 +207,8 @@ Other improvements
 * *clabel* for :meth:`~matplotlib.pyplot.contour` now accepts a callable.
   Thanks to Daniel Hyams for the original patch.
 
-* Jae-Joon Lee added the :class:`~mpl_toolkits.axes_grid1.axes_divider.HBox`
-  and :class:`~mpl_toolkits.axes_grid1.axes_divider.VBox` classes.
+* Jae-Joon Lee added the `~mpl_toolkits.axes_grid1.axes_divider.HBoxDivider`
+  and `~mpl_toolkits.axes_grid1.axes_divider.VBoxDivider` classes.
 
 * Christoph Gohlke reduced memory usage in :meth:`~matplotlib.pyplot.imshow`.
 

@@ -144,7 +144,7 @@ now raise ``TypeError`` because ``**kwargs`` has been removed.
   unhandled positional arguments.  If two or more arguments are passed
   (ie X, Y, [linefmt], ...) and Y cannot be cast to an array, an error
   will be raised instead of treating X as Y and Y as linefmt.
-- :meth:`mpl_toolkits.axes_grid1.axes_divider.SubPlotDivider` raises
+- `mpl_toolkits.axes_grid1.axes_divider.SubplotDivider` raises
   ``TypeError`` instead of ``Exception`` when passed unknown kwargs.
 
 
@@ -400,10 +400,10 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``patches.Polygon.xy``
 - ``texmanager.dvipng_hack_alpha``
 - ``text.Annotation.arrow``
-- `.Legend.draggable()`, in favor of `.Legend.set_draggable()`
+- ``Legend.draggable()``, in favor of `.Legend.set_draggable()`
    (``Legend.draggable`` may be reintroduced as a property in future releases)
 - ``textpath.TextToPath.tex_font_map``
-- :class:`matplotlib.cbook.deprecation.mplDeprecation` will be removed
+- ``matplotlib.cbook.deprecation.mplDeprecation`` will be removed
   in future versions. It is just an alias for
   :class:`matplotlib.cbook.deprecation.MatplotlibDeprecationWarning`.
   Please use the

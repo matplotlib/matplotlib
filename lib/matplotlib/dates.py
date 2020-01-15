@@ -584,7 +584,7 @@ class DateFormatter(ticker.Formatter):
         ----------
         fmt : str
             `~datetime.datetime.strftime` format string
-        tz : `tzinfo`, default: :rc:`timezone`
+        tz : `datetime.tzinfo`, default: :rc:`timezone`
             Ticks timezone.
         """
         if tz is None:
@@ -1041,7 +1041,9 @@ class DateLocator(ticker.Locator):
 
     def __init__(self, tz=None):
         """
-        *tz* is a :class:`tzinfo` instance.
+        Parameters
+        ----------
+        tz : `datetime.tzinfo`
         """
         if tz is None:
             tz = _get_rc_timezone()
@@ -1260,7 +1262,7 @@ class AutoDateLocator(DateLocator):
         """
         Parameters
         ----------
-        tz : `tzinfo`
+        tz : `datetime.tzinfo`
             Ticks timezone.
         minticks : int
             The minimum number of ticks desired; controls whether ticks occur

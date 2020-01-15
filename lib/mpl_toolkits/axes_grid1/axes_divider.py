@@ -25,7 +25,7 @@ class Divider:
     divides the given rectangular area into several
     sub-rectangles. You initialize the divider by setting the
     horizontal and vertical lists of sizes
-    (:mod:`mpl_toolkits.axes_grid.axes_size`) that the division will
+    (:mod:`mpl_toolkits.axes_grid1.axes_size`) that the division will
     be based on. You then use the new_locator method to create a
     callable object that can be used as the axes_locator of the
     axes.
@@ -39,9 +39,9 @@ class Divider:
         fig : Figure
         pos : tuple of 4 floats
             position of the rectangle that will be divided
-        horizontal : list of :mod:`~mpl_toolkits.axes_grid.axes_size`
+        horizontal : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`
             sizes for horizontal division
-        vertical : list of :mod:`~mpl_toolkits.axes_grid.axes_size`
+        vertical : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`
             sizes for vertical division
         aspect : bool
             if True, the overall rectangular area is reduced
@@ -147,7 +147,7 @@ class Divider:
         """
         Parameters
         ----------
-        h : list of :mod:`~mpl_toolkits.axes_grid.axes_size`
+        h : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`
             sizes for horizontal division
         """
         self._horizontal = h
@@ -160,7 +160,7 @@ class Divider:
         """
         Parameters
         ----------
-        v : list of :mod:`~mpl_toolkits.axes_grid.axes_size`
+        v : list of :mod:`~mpl_toolkits.axes_grid1.axes_size`
             sizes for vertical division
         """
         self._vertical = v
@@ -245,9 +245,7 @@ class Divider:
 
     def new_locator(self, nx, ny, nx1=None, ny1=None):
         """
-        Returns a new locator
-        (:class:`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
-        specified cell.
+        Returns a new `AxesLocator` for specified cell.
 
         Parameters
         ----------
@@ -441,11 +439,11 @@ class AxesDivider(Divider):
 
         Parameters
         ----------
-        size : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or str
+        size : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
             A width of the axes. If float or string is given, *from_any*
             function is used to create the size, with *ref_size* set to AxesX
             instance of the current axes.
-        pad : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or str
+        pad : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
             Pad between the axes. It takes same argument as *size*.
         pack_start : bool
             If False, the new axes is appended at the end
@@ -490,11 +488,11 @@ class AxesDivider(Divider):
 
         Parameters
         ----------
-        size : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or str
+        size : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
             A height of the axes. If float or string is given, *from_any*
             function is used to create the size, with *ref_size* set to AxesX
             instance of the current axes.
-        pad : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or str
+        pad : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
             Pad between the axes. It takes same argument as *size*.
         pack_start : bool
             If False, the new axes is appended at the end

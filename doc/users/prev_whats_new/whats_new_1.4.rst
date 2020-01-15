@@ -147,7 +147,7 @@ behaviour (controlled by the bool *minor*).
 
 Separate horizontal/vertical axes padding support in ImageGrid
 ``````````````````````````````````````````````````````````````
-The kwarg 'axes_pad' to :class:`mpl_toolkits.axes_grid1.ImageGrid` can now
+The kwarg 'axes_pad' to :class:`mpl_toolkits.axes_grid1.axes_grid.ImageGrid` can now
 be a tuple if separate horizontal/vertical padding is needed.
 This is supposed to be very helpful when you have a labelled legend next to
 every subplot and you need to make some space for legend's labels.

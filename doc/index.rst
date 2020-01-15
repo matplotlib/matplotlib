@@ -41,7 +41,7 @@ scatterplots, etc., with just a few lines of code.  For examples, see the
 :doc:`sample plots <tutorials/introductory/sample_plots>` and :doc:`thumbnail
 gallery <gallery/index>`.
 
-For simple plotting the `pyplot` module provides a MATLAB-like interface,
+For simple plotting the :mod:`.pyplot` module provides a MATLAB-like interface,
 particularly when combined with IPython.  For the power user, you have full
 control of line styles, font properties, axes properties, etc, via an object
 oriented interface or via a set of functions familiar to MATLAB users.

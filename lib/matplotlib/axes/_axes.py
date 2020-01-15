@@ -1664,7 +1664,7 @@ class Axes(_AxesBase):
             The plot format string. For details, see the corresponding
             parameter in `.plot`.
 
-        tz : timezone string or `tzinfo`, default: :rc:`timezone`
+        tz : timezone string or `datetime.tzinfo`, default: :rc:`timezone`
             The time zone to use in labeling dates.
 
         xdate : bool, default: True

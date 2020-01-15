@@ -872,9 +872,6 @@ class Axes3D(Axes):
         """
         Sets up z-axis ticks and labels that treat the z data as dates.
 
-        *tz* is a timezone string or :class:`tzinfo` instance.
-        Defaults to rc value.
-
         .. note::
             This function is merely provided for completeness.
             Axes3D objects do not officially support dates for ticks,
@@ -882,6 +879,10 @@ class Axes3D(Axes):
 
         .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
+
+        Parameters
+        ----------
+        tz : `datetime.tzinfo`, default: :rc:`timezone`
         """
         self.zaxis.axis_date(tz)
 
@@ -1191,7 +1192,7 @@ class Axes3D(Axes):
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
         """
-        Set zlabel.  See doc for :meth:`set_ylabel` for description.
+        Set zlabel.  See doc for `.set_ylabel` for description.
         """
         if labelpad is not None:
             self.zaxis.labelpad = labelpad

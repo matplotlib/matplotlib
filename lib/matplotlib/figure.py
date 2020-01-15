@@ -694,7 +694,7 @@ default: 'top'
         fontproperties : None or dict, optional
             A dict of font properties. If *fontproperties* is given the
             default values for font size and weight are taken from the
-            `FontProperties` defaults. :rc:`figure.titlesize` and
+            `.FontProperties` defaults. :rc:`figure.titlesize` and
             :rc:`figure.titleweight` are ignored in this case.
 
         **kwargs
