@@ -274,6 +274,12 @@ class Formatter(TickHelper):
         return ''
 
     def set_locs(self, locs):
+        """
+        Set the locations of the ticks.
+
+        This method is called before computing the tick labels because some
+        formatters need to know all tick locations to do so.
+        """
         self.locs = locs
 
     @staticmethod
@@ -496,14 +502,13 @@ class ScalarFormatter(Formatter):
     """
     Format tick values as a number.
 
-    Tick value is interpreted as a plain old number. If
-    ``useOffset==True`` and the data range is much smaller than the data
+    If ``useOffset == True`` and the data range is much smaller than the data
     average, then an offset will be determined such that the tick labels
-    are meaningful. Scientific notation is used for ``data < 10^-n`` or
-    ``data >= 10^m``, where ``n`` and ``m`` are the power limits set
-    using ``set_powerlimits((n, m))``. The defaults for these are
-    controlled by the ``axes.formatter.limits`` rc parameter.
+    are meaningful.  Scientific notation is used for ``data < 10^-n`` or
+    ``data >= 10^m``, where ``n`` and ``m`` are the power limits set using
+    ``set_powerlimits((n, m))``, defaulting to :rc:`axes.formatter.limits`.
     """
+
     def __init__(self, useOffset=None, useMathText=None, useLocale=None):
         # useOffset allows plotting small data ranges with large offsets: for
         # example: [1+1e-9, 1+2e-9, 1+3e-9] useMathText will render the offset
@@ -618,9 +623,7 @@ class ScalarFormatter(Formatter):
                 "%-12g" % value))
 
     def format_data(self, value):
-        """
-        Return a formatted string representation of a number.
-        """
+        # docstring inherited
         if self._useLocale:
             s = locale.format_string('%1.10e', (value,))
         else:
@@ -657,9 +660,7 @@ class ScalarFormatter(Formatter):
         return self.fix_minus(s)
 
     def set_locs(self, locs):
-        """
-        Set the locations of the ticks.
-        """
+        # docstring inherited
         self.locs = locs
         if len(self.locs) > 0:
             if self._useOffset:
