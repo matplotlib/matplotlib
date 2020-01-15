@@ -1492,9 +1492,9 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         format, see the documentation of the respective backends for more
         information.
     pil_kwargs : dict, optional
-        Keyword arguments passed to `PIL.Image.save`.  If the 'pnginfo' key is
-        present, it completely overrides *metadata*, including the default
-        'Software' key.
+        Keyword arguments passed to `PIL.Image.Image.save`.  If the 'pnginfo'
+        key is present, it completely overrides *metadata*, including the
+        default 'Software' key.
     """
     from matplotlib.figure import Figure
     if isinstance(fname, os.PathLike):

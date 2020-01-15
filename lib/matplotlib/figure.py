@@ -2144,8 +2144,8 @@ default: 'top'
             - 'eps' and 'ps' with PS backend: Only 'Creator' is supported.
 
         pil_kwargs : dict, optional
-            Additional keyword arguments that are passed to `PIL.Image.save`
-            when saving the figure.
+            Additional keyword arguments that are passed to
+            `PIL.Image.Image.save` when saving the figure.
         """
 
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])

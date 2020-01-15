@@ -143,7 +143,7 @@ bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
     placement of the legend.
 
     Bbox coordinates are interpreted in the coordinate system given by
-    `bbox_transform`, with the default transform
+    *bbox_transform*, with the default transform
     Axes or Figure coordinates, depending on which ``legend`` is called.
 
     If a 4-tuple or `.BboxBase` is given, then it specifies the bbox
@@ -219,11 +219,11 @@ edgecolor : "inherit" or color, default: :rc:`legend.edgecolor`
 
 mode : {"expand", None}
     If *mode* is set to ``"expand"`` the legend will be horizontally
-    expanded to fill the axes area (or `bbox_to_anchor` if defines
+    expanded to fill the axes area (or *bbox_to_anchor* if defines
     the legend's size).
 
 bbox_transform : None or :class:`matplotlib.transforms.Transform`
-    The transform for the bounding box (`bbox_to_anchor`). For a value
+    The transform for the bounding box (*bbox_to_anchor*). For a value
     of ``None`` (default) the Axes'
     :data:`~matplotlib.axes.Axes.transAxes` transform will be used.
 

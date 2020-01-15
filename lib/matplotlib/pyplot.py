@@ -1741,8 +1741,8 @@ def colormaps():
 
     ColorBrewer Qualitative:
 
-    (For plotting nominal data, :class:`ListedColormap` is used,
-    not :class:`LinearSegmentedColormap`.  Different sets of colors are
+    (For plotting nominal data, `.ListedColormap` is used,
+    not `.LinearSegmentedColormap`.  Different sets of colors are
     recommended for different numbers of categories.)
 
     * Accent

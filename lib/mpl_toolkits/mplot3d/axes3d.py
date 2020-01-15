@@ -2667,13 +2667,13 @@ pivot='tail', normalize=False, **kwargs)
 
         **kwargs
             Additional keyword arguments to pass onto
-            :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+            `~mpl_toolkits.mplot3d.art3d.Poly3DCollection`.
 
         Returns
         -------
         faces : dict
             A dictionary indexed by coordinate, where ``faces[i, j, k]`` is a
-            `Poly3DCollection` of the faces drawn for the voxel
+            `.Poly3DCollection` of the faces drawn for the voxel
             ``filled[i, j, k]``. If no faces were drawn for a given voxel,
             either because it was not asked to be drawn, or it is fully
             occluded, then ``(i, j, k) not in faces``.

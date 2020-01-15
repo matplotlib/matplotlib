@@ -209,12 +209,6 @@
     "FigureCanvasQTAgg": [
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:215"
     ],
-    "LinearSegmentedColormap": [
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.colormaps:98"
-    ],
-    "ListedColormap": [
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.colormaps:98"
-    ],
     "Patch3DCollection": [
       "doc/api/toolkits/mplot3d.rst:92:<autosummary>:1"
     ],
@@ -340,11 +334,6 @@
       "lib/matplotlib/image.py:docstring of matplotlib.image.AxesImage:1",
       "lib/matplotlib/image.py:docstring of matplotlib.image.BboxImage:1",
       "lib/matplotlib/image.py:docstring of matplotlib.image.FigureImage:1"
-    ],
-    "matplotlib.patch.Patch": [
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.FancyArrowPatch.set_patchA:8",
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.FancyArrowPatch.set_patchB:8",
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.FancyArrowPatch:95"
     ],
     "matplotlib.patches.LArrow": [
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.RArrow:1"
@@ -532,12 +521,6 @@
     "matplotlib.axis.Tick.label1On": [
       "doc/users/prev_whats_new/whats_new_2.1.0.rst:409"
     ],
-    "matplotlib.get_cachedir": [
-      "doc/faq/troubleshooting_faq.rst:52"
-    ],
-    "matplotlib.get_configdir": [
-      "doc/faq/troubleshooting_faq.rst:40"
-    ],
     "matplotlib.test": [
       "doc/devel/testing.rst:84"
     ],
@@ -609,7 +592,7 @@
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.Affine2DBase:13"
     ],
     "matplotlib.dates.DateFormatter.__call__": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:498"
+      "doc/users/prev_whats_new/whats_new_1.5.rst:497"
     ],
     "matplotlib.dates.MicrosecondLocator.__call__": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:122"
@@ -629,12 +612,6 @@
     ],
     "mpl_toolkits.axes_grid1.axes_divider.SubPlotDivider": [
       "doc/api/prev_api_changes/api_changes_3.0.0.rst:147"
-    ],
-    "mpl_toolkits.mplot3d.Axes3D.bar3d": [
-      "doc/users/prev_whats_new/whats_new_3.1.0.rst:199"
-    ],
-    "mpl_toolkits.mplot3d.Axes3D.trisurf": [
-      "doc/users/prev_whats_new/whats_new_3.1.0.rst:199"
     ],
     "option_scale_image": [
       "lib/matplotlib/backends/backend_cairo.py:docstring of matplotlib.backends.backend_cairo.RendererCairo.draw_image:22",
@@ -706,9 +683,6 @@
     "./gallery/index.html": [
       "doc/devel/contributing.rst:540"
     ],
-    "Artist.setp": [
-      "doc/users/prev_whats_new/whats_new_2.1.0.rst:377"
-    ],
     "Artist.sticky_edges": [
       "doc/api/axes_api.rst:357:<autosummary>:1",
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.use_sticky_edges:2"
@@ -724,9 +698,6 @@
       "lib/matplotlib/offsetbox.py:docstring of matplotlib.offsetbox.HPacker:44",
       "lib/matplotlib/offsetbox.py:docstring of matplotlib.offsetbox.PackerBase:23",
       "lib/matplotlib/offsetbox.py:docstring of matplotlib.offsetbox.VPacker:44"
-    ],
-    "Axes": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:135"
     ],
     "Axes..set_inverted": [
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:247"
@@ -819,9 +790,6 @@
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.suptitle:40",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.suptitle:40"
     ],
-    "FormatStrFormatterNewStyle": [
-      "doc/users/prev_whats_new/whats_new_1.4.rst:129"
-    ],
     "Formatter.__call__": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:1123",
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:1129"
@@ -891,18 +859,6 @@
     "NavigationToolbar2QT.adj_window": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:969"
     ],
-    "PIL.Image.save": [
-      "lib/matplotlib/backends/backend_agg.py:docstring of matplotlib.backends.backend_agg.FigureCanvasAgg.print_jpeg:29",
-      "lib/matplotlib/backends/backend_agg.py:docstring of matplotlib.backends.backend_agg.FigureCanvasAgg.print_jpg:29",
-      "lib/matplotlib/backends/backend_agg.py:docstring of matplotlib.backends.backend_agg.FigureCanvasAgg.print_png:42",
-      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.savefig:114",
-      "lib/matplotlib/image.py:docstring of matplotlib.image.imsave:47",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.imsave:47",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.savefig:114"
-    ],
-    "Poly3DCollection": [
-      "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.voxels:58"
-    ],
     "PolyCollection.get_offset": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.hexbin:71",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hexbin:71"
@@ -918,9 +874,6 @@
     ],
     "Quiver.pivot": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:44"
-    ],
-    "Returns": [
-      "lib/matplotlib/cbook/__init__.py:docstring of matplotlib.cbook.boxplot_stats:2"
     ],
     "Size.from_any": [
       "lib/mpl_toolkits/axes_grid1/axes_grid.py:docstring of mpl_toolkits.axes_grid1.axes_grid.ImageGrid:73",
@@ -955,12 +908,12 @@
       "doc/devel/MEP/MEP22.rst:96"
     ],
     "ToolContainer": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:616",
+      "doc/users/prev_whats_new/whats_new_1.5.rst:615",
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ToolContainerBase.remove_toolitem:2",
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ToolContainerBase:20"
     ],
     "ToolContainers": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:616"
+      "doc/users/prev_whats_new/whats_new_1.5.rst:615"
     ],
     "Toolbar": [
       "doc/devel/MEP/MEP22.rst:177",
@@ -969,12 +922,12 @@
       "doc/devel/MEP/MEP23.rst:46"
     ],
     "Toolbars": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:616"
+      "doc/users/prev_whats_new/whats_new_1.5.rst:615"
     ],
     "Tools": [
       "doc/devel/MEP/MEP22.rst:40",
       "doc/devel/MEP/MEP22.rst:56",
-      "doc/users/prev_whats_new/whats_new_1.5.rst:609"
+      "doc/users/prev_whats_new/whats_new_1.5.rst:608"
     ],
     "_read": [
       "lib/matplotlib/dviread.py:docstring of matplotlib.dviread.Vf:20"
@@ -1067,25 +1020,6 @@
     ],
     "barstacked": [
       "doc/users/prev_whats_new/whats_new_1.2.rst:177"
-    ],
-    "bbox_to_anchor": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.legend:208",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.legend:213",
-      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.legend:172",
-      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.legend:177",
-      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:167",
-      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:172",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:172",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:177",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:208",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:213"
-    ],
-    "bbox_transform": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.legend:133",
-      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.legend:97",
-      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:92",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:97",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:133"
     ],
     "bezier.check_if_parallel": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:801"
@@ -1193,9 +1127,6 @@
     "font.*": [
       "doc/users/prev_whats_new/whats_new_1.3.rst:302"
     ],
-    "format_pixel_data": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:276"
-    ],
     "gaussian_kde": [
       "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.GaussianKDE:32"
     ],
@@ -1210,9 +1141,6 @@
       "lib/matplotlib/offsetbox.py:docstring of matplotlib.offsetbox.AnnotationBbox.contains:29",
       "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.QuiverKey.contains:29",
       "lib/matplotlib/table.py:docstring of matplotlib.table.Table.contains:29"
-    ],
-    "get_pixel_data": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:276"
     ],
     "get_ps": [
       "doc/devel/MEP/MEP14.rst:376"
@@ -1732,9 +1660,6 @@
     "print_xyz": [
       "lib/matplotlib/backends/backend_template.py:docstring of matplotlib.backends.backend_template:22"
     ],
-    "prop_cycle": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:104"
-    ],
     "pylab": [
       "doc/api/index.rst:63",
       "doc/devel/MEP/MEP12.rst:13"
@@ -1834,7 +1759,7 @@
       "doc/api/prev_api_changes/api_changes_1.4.x.rst:152"
     ],
     "to_html5_video": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:729"
+      "doc/users/prev_whats_new/whats_new_1.5.rst:728"
     ],
     "toggled": [
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.AxisScaleBase.disable:4",
@@ -1851,10 +1776,10 @@
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ToolContainerBase.remove_toolitem:6"
     ],
     "toolbar": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:616"
+      "doc/users/prev_whats_new/whats_new_1.5.rst:615"
     ],
     "trigger": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:616",
+      "doc/users/prev_whats_new/whats_new_1.5.rst:615",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolFullScreen.disable:4",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolFullScreen.enable:4"
     ],
@@ -1887,17 +1812,6 @@
     ],
     "yaxis_inverted": [
       "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.get_ylim3d:24"
-    ]
-  },
-  "std:envvar": {
-    "CC": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:739"
-    ],
-    "CXX": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:739"
-    ],
-    "PKG_CONFIG": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:739"
     ]
   }
 }
