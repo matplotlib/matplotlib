@@ -205,12 +205,12 @@ class AbstractMovieWriter(abc.ABC):
         Parameters
         ----------
         fig : `~matplotlib.figure.Figure`
-            The figure object that contains the information for frames
+            The figure object that contains the information for frames.
         outfile : str
-            The filename of the resulting movie file
-        dpi : int, optional
+            The filename of the resulting movie file.
+        dpi : int, optional, default: ``fig.dpi``
             The DPI (or resolution) for the file.  This controls the size
-            in pixels of the resulting movie file. Default is ``fig.dpi``.
+            in pixels of the resulting movie file.
         """
         self.outfile = outfile
         self.fig = fig
@@ -338,19 +338,7 @@ class MovieWriter(AbstractMovieWriter):
         return w, h
 
     def setup(self, fig, outfile, dpi=None):
-        """
-        Perform setup for writing the movie file.
-
-        Parameters
-        ----------
-        fig : `~matplotlib.figure.Figure`
-            The figure object that contains the information for frames
-        outfile : str
-            The filename of the resulting movie file
-        dpi : int, optional
-            The DPI (or resolution) for the file.  This controls the size
-            in pixels of the resulting movie file. Default is fig.dpi.
-        """
+        # docstring inherited
         super().setup(fig, outfile, dpi=dpi)
         self._w, self._h = self._adjust_frame_size()
         # Run here so that grab_frame() can write the data to a pipe. This
@@ -896,25 +884,23 @@ class Animation:
     Parameters
     ----------
     fig : `~matplotlib.figure.Figure`
-       The figure object that is used to get draw, resize, and any
-       other needed events.
+        The figure object used to get needed events, such as draw or resize.
 
     event_source : object, optional
-       A class that can run a callback when desired events
-       are generated, as well as be stopped and started.
+        A class that can run a callback when desired events
+        are generated, as well as be stopped and started.
 
-       Examples include timers (see :class:`TimedAnimation`) and file
-       system notifications.
+        Examples include timers (see `TimedAnimation`) and file
+        system notifications.
 
-    blit : bool, optional
-       controls whether blitting is used to optimize drawing.  Defaults
-       to ``False``.
+    blit : bool, default: False
+        Whether blitting is used to optimize drawing.
 
     See Also
     --------
     FuncAnimation,  ArtistAnimation
-
     """
+
     def __init__(self, fig, event_source=None, blit=False):
         self._fig = fig
         # Disables blitting for backends that don't support it.  This
@@ -1393,25 +1379,18 @@ class TimedAnimation(Animation):
     Parameters
     ----------
     fig : `~matplotlib.figure.Figure`
-       The figure object that is used to get draw, resize, and any
-       other needed events.
-
-    interval : number, optional
-       Delay between frames in milliseconds.  Defaults to 200.
-
-    repeat_delay : number, optional
-        If the animation in repeated, adds a delay in milliseconds
-        before repeating the animation.  Defaults to ``None``.
-
-    repeat : bool, optional
-        Controls whether the animation should repeat when the sequence
-        of frames is completed.  Defaults to ``True``.
-
-    blit : bool, optional
-        Controls whether blitting is used to optimize drawing.  Defaults
-        to ``False``.
-
+        The figure object used to get needed events, such as draw or resize.
+    interval : int, default: 200
+        Delay between frames in milliseconds.
+    repeat_delay : int, default: 0
+        The delay in milliseconds between consecutive animation runs, if
+        *repeat* is True.
+    repeat : bool, default: True
+        Whether the animation repeats when the sequence of frames is completed.
+    blit : bool, default: False
+        Whether blitting is used to optimize drawing.
     """
+
     def __init__(self, fig, interval=200, repeat_delay=None, repeat=True,
                  event_source=None, *args, **kwargs):
         # Store the timing information
@@ -1452,7 +1431,7 @@ class TimedAnimation(Animation):
 
     def _stop(self, *args):
         # If we stop in the middle of a loop delay (which is relatively likely
-        # given the potential pause here, remove the loop_delay callback as
+        # given the potential pause here), remove the loop_delay callback as
         # well.
         self.event_source.remove_callback(self._loop_delay)
         Animation._stop(self)
@@ -1475,30 +1454,21 @@ class ArtistAnimation(TimedAnimation):
     Parameters
     ----------
     fig : `~matplotlib.figure.Figure`
-       The figure object that is used to get draw, resize, and any
-       other needed events.
-
+        The figure object used to get needed events, such as draw or resize.
     artists : list
-        Each list entry a collection of artists that represent what
-        needs to be enabled on each frame. These will be disabled for
-        other frames.
-
-    interval : number, optional
-       Delay between frames in milliseconds.  Defaults to 200.
-
-    repeat_delay : number, optional
-        If the animation in repeated, adds a delay in milliseconds
-        before repeating the animation.  Defaults to ``None``.
-
-    repeat : bool, optional
-        Controls whether the animation should repeat when the sequence
-        of frames is completed. Defaults to ``True``.
-
-    blit : bool, optional
-        Controls whether blitting is used to optimize drawing.  Defaults
-        to ``False``.
-
+        Each list entry is a collection of artists that are made visible on
+        the corresponding frame.  Other artists are made invisible.
+    interval : int, default: 200
+        Delay between frames in milliseconds.
+    repeat_delay : int, default: 0
+        The delay in milliseconds between consecutive animation runs, if
+        *repeat* is True.
+    repeat : bool, default: True
+        Whether the animation repeats when the sequence of frames is completed.
+    blit : bool, default: False
+        Whether blitting is used to optimize drawing.
     """
+
     def __init__(self, fig, artists, *args, **kwargs):
         # Internal list of artists drawn in the most recent frame.
         self._drawn_artists = []
@@ -1550,23 +1520,22 @@ class FuncAnimation(TimedAnimation):
     Parameters
     ----------
     fig : `~matplotlib.figure.Figure`
-       The figure object that is used to get draw, resize, and any
-       other needed events.
+        The figure object used to get needed events, such as draw or resize.
 
     func : callable
-       The function to call at each frame.  The first argument will
-       be the next value in *frames*.   Any additional positional
-       arguments can be supplied via the *fargs* parameter.
+        The function to call at each frame.  The first argument will
+        be the next value in *frames*.   Any additional positional
+        arguments can be supplied via the *fargs* parameter.
 
-       The required signature is::
+        The required signature is::
 
-          def func(frame, *fargs) -> iterable_of_artists
+            def func(frame, *fargs) -> iterable_of_artists
 
-       If ``blit == True``, *func* must return an iterable of all artists
-       that were modified or created. This information is used by the blitting
-       algorithm to determine which parts of the figure have to be updated.
-       The return value is unused if ``blit == False`` and may be omitted in
-       that case.
+        If ``blit == True``, *func* must return an iterable of all artists
+        that were modified or created. This information is used by the blitting
+        algorithm to determine which parts of the figure have to be updated.
+        The return value is unused if ``blit == False`` and may be omitted in
+        that case.
 
     frames : iterable, int, generator function, or None, optional
         Source of data to pass *func* and each frame of the animation
@@ -1586,47 +1555,44 @@ class FuncAnimation(TimedAnimation):
         to the user-supplied *func* and thus can be of any type.
 
     init_func : callable, optional
-       A function used to draw a clear frame. If not given, the
-       results of drawing from the first item in the frames sequence
-       will be used. This function will be called once before the
-       first frame.
+        A function used to draw a clear frame. If not given, the results of
+        drawing from the first item in the frames sequence will be used. This
+        function will be called once before the first frame.
 
-       The required signature is::
+        The required signature is::
 
-          def init_func() -> iterable_of_artists
+            def init_func() -> iterable_of_artists
 
-       If ``blit == True``, *init_func* must return an iterable of artists
-       to be re-drawn. This information is used by the blitting
-       algorithm to determine which parts of the figure have to be updated.
-       The return value is unused if ``blit == False`` and may be omitted in
-       that case.
+        If ``blit == True``, *init_func* must return an iterable of artists
+        to be re-drawn. This information is used by the blitting algorithm to
+        determine which parts of the figure have to be updated.  The return
+        value is unused if ``blit == False`` and may be omitted in that case.
 
     fargs : tuple or None, optional
-       Additional arguments to pass to each call to *func*.
+        Additional arguments to pass to each call to *func*.
 
     save_count : int, optional
-       The number of values from *frames* to cache.
+        The number of values from *frames* to cache.
 
-    interval : number, optional
-       Delay between frames in milliseconds.  Defaults to 200.
+    interval : int, default: 200
+        Delay between frames in milliseconds.
 
-    repeat_delay : number, optional
-       If the animation in repeated, adds a delay in milliseconds
-       before repeating the animation.  Defaults to *None*.
+    repeat_delay : int, default: 0
+        The delay in milliseconds between consecutive animation runs, if
+        *repeat* is True.
 
-    repeat : bool, optional
-       Controls whether the animation should repeat when the sequence
-       of frames is completed.  Defaults to *True*.
+    repeat : bool, default: True
+        Whether the animation repeats when the sequence of frames is completed.
 
-    blit : bool, optional
-       Controls whether blitting is used to optimize drawing. Note: when using
-       blitting any animated artists will be drawn according to their zorder.
-       However, they will be drawn on top of any previous artists, regardless
-       of their zorder.  Defaults to *False*.
+    blit : bool, default: False
+        Whether blitting is used to optimize drawing.  Note: when using
+        blitting, any animated artists will be drawn according to their zorder;
+        however, they will be drawn on top of any previous artists, regardless
+        of their zorder.
 
-    cache_frame_data : bool, optional
-       Controls whether frame data is cached. Defaults to *True*.
-       Disabling cache might be helpful when frames contain large objects.
+    cache_frame_data : bool, default: True
+        Whether frame data is cached.  Disabling cache might be helpful when
+        frames contain large objects.
     """
 
     def __init__(self, fig, func, frames=None, init_func=None, fargs=None,
