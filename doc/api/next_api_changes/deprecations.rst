@@ -169,3 +169,7 @@ The ``TTFPATH`` and ``AFMPATH`` environment variables
 Support for the (undocumented) ``TTFPATH`` and ``AFMPATH`` environment
 variables is deprecated.  Additional fonts may be registered using
 ``matplotlib.font_manager.fontManager.addfont()``.
+
+``matplotlib.compat``
+~~~~~~~~~~~~~~~~~~~~~
+This module is deprecated.
