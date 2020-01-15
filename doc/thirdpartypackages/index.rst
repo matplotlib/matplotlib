@@ -284,6 +284,16 @@ existing table. See the `blume github repository
 
 .. image:: /_static/blume_table_example.png
 
+
+DNA Features Viewer
+===================
+
+`DNA Features Viewer <https://github.com/Edinburgh-Genome-Foundry/DnaFeaturesViewer>`_
+provides methods to plot annotated DNA sequence maps (possibly along other Matplotlib
+plots) for Bioinformatics and Synthetic Biology applications.
+
+.. image:: /_static/dna_features_viewer_screenshot.png
+
 GUI applications
 ****************
 
