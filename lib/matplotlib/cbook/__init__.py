@@ -1283,7 +1283,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
             stats['whishi'] = hival
 
         # get low extreme
-        if loval <= np.min(x)::
+        if loval <= np.min(x):
             stats['whislo'] = np.min(x)
         else:
             stats['whislo'] = loval
