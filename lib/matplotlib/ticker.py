@@ -21,10 +21,7 @@ For example::
 will have tick of 0-9 with an offset of +2e3. If this is not desired
 turn off the use of the offset on the default formatter::
 
-   ax.get_xaxis().get_major_formatter().set_useOffset(False)
-
-Set :rc:`axes.formatter.useoffset` to turn it off
-globally, or set a different formatter.
+   ax.get_xaxis().get_major_formatter().set_scientific(False)
 
 Tick locating
 -------------
