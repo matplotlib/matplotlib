@@ -7,9 +7,8 @@ Create a custom scale, by implementing the scaling use for latitude data in a
 Mercator Projection.
 
 Unless you are making special use of the `~.Transform` class, you probably
-don't need to use this verbose method, and instead can use
-`~.matplotlib.scale.FuncScale` and the ``'function'`` option of
-`~.matplotlib.axes.Axes.set_xscale` and `~.matplotlib.axes.Axes.set_yscale`.
+don't need to use this verbose method, and instead can use `~.scale.FuncScale`
+and the ``'function'`` option of `~.Axes.set_xscale` and `~.Axes.set_yscale`.
 See the last example in :doc:`/gallery/scales/scales`.
 """
 
@@ -17,18 +16,13 @@ import numpy as np
 from numpy import ma
 from matplotlib import scale as mscale
 from matplotlib import transforms as mtransforms
-from matplotlib.ticker import Formatter, FixedLocator
-from matplotlib import rcParams
-
-
-# BUG: this example fails with any other setting of axisbelow
-rcParams['axes.axisbelow'] = False
+from matplotlib.ticker import FixedLocator, FuncFormatter
 
 
 class MercatorLatitudeScale(mscale.ScaleBase):
     """
     Scales data in range -pi/2 to pi/2 (-90 to 90 degrees) using
-    the system used to scale latitudes in a Mercator projection.
+    the system used to scale latitudes in a Mercator__ projection.
 
     The scale function:
       ln(tan(y) + sec(y))
@@ -40,8 +34,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
     there is user-defined threshold, above and below which nothing
     will be plotted.  This defaults to +/- 85 degrees.
 
-    source:
-    http://en.wikipedia.org/wiki/Mercator_projection
+    __ http://en.wikipedia.org/wiki/Mercator_projection
     """
 
     # The scale class must have a member ``name`` that defines the string used
@@ -77,21 +70,16 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         scale.  This is only required if the scale requires custom
         locators and formatters.  Writing custom locators and
         formatters is rather outside the scope of this example, but
-        there are many helpful examples in ``ticker.py``.
+        there are many helpful examples in :mod:`.ticker`.
 
-        In our case, the Mercator example uses a fixed locator from
-        -90 to 90 degrees and a custom formatter class to put convert
-        the radians to degrees and put a degree symbol after the
-        value::
+        In our case, the Mercator example uses a fixed locator from -90 to 90
+        degrees and a custom formatter to convert the radians to degrees and
+        put a degree symbol after the value.
         """
-        class DegreeFormatter(Formatter):
-            def __call__(self, x, pos=None):
-                return "%d\N{DEGREE SIGN}" % np.degrees(x)
-
-        axis.set_major_locator(FixedLocator(
-            np.radians(np.arange(-90, 90, 10))))
-        axis.set_major_formatter(DegreeFormatter())
-        axis.set_minor_formatter(DegreeFormatter())
+        fmt = FuncFormatter(
+            lambda x, pos=None: f"{np.degrees(x):.0f}\N{DEGREE SIGN}")
+        axis.set(major_locator=FixedLocator(np.radians(range(-90, 90, 10))),
+                 major_formatter=fmt, minor_formatter=fmt)
 
     def limit_range_for_scale(self, vmin, vmax, minpos):
         """
@@ -122,25 +110,24 @@ class MercatorLatitudeScale(mscale.ScaleBase):
 
         def transform_non_affine(self, a):
             """
-            This transform takes an Nx1 ``numpy`` array and returns a
-            transformed copy.  Since the range of the Mercator scale
-            is limited by the user-specified threshold, the input
-            array must be masked to contain only valid values.
-            ``matplotlib`` will handle masked arrays and remove the
-            out-of-range data from the plot.  Importantly, the
-            ``transform`` method *must* return an array that is the
-            same shape as the input array, since these values need to
-            remain synchronized with values in the other dimension.
+            This transform takes a numpy array and returns a transformed copy.
+            Since the range of the Mercator scale is limited by the
+            user-specified threshold, the input array must be masked to
+            contain only valid values.  Matplotlib will handle masked arrays
+            and remove the out-of-range data from the plot.  However, the
+            returned array *must* have the same shape as the input array, since
+            these values need to remain synchronized with values in the other
+            dimension.
             """
             masked = ma.masked_where((a < -self.thresh) | (a > self.thresh), a)
             if masked.mask.any():
-                return ma.log(np.abs(ma.tan(masked) + 1.0 / ma.cos(masked)))
+                return ma.log(np.abs(ma.tan(masked) + 1 / ma.cos(masked)))
             else:
-                return np.log(np.abs(np.tan(a) + 1.0 / np.cos(a)))
+                return np.log(np.abs(np.tan(a) + 1 / np.cos(a)))
 
         def inverted(self):
             """
-            Override this method so matplotlib knows how to get the
+            Override this method so Matplotlib knows how to get the
             inverse transform for this transform.
             """
             return MercatorLatitudeScale.InvertedMercatorLatitudeTransform(
@@ -161,7 +148,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
 
 
 # Now that the Scale class has been defined, it must be registered so
-# that ``matplotlib`` can find it.
+# that Matplotlib can find it.
 mscale.register_scale(MercatorLatitudeScale)
 
 
@@ -176,7 +163,7 @@ if __name__ == '__main__':
 
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
-    plt.title('Mercator: Projection of the Oppressor')
+    plt.title('Mercator projection')
     plt.grid(True)
 
     plt.show()
