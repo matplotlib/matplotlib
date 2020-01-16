@@ -1110,7 +1110,7 @@ class TimerBase(object):
             if provided.
         """
         if interval is not None:
-            self._set_interval(interval)
+            self.interval = interval
         self._timer_start()
 
     def stop(self):
