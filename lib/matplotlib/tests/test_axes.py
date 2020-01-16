@@ -559,53 +559,19 @@ def test_single_date():
     plt.plot(time1, data1, 'o', color='r')
 
 
-@image_comparison(['shaped_data'])
-def test_shaped_data():
-    xdata = np.array([[0.53295185, 0.23052951, 0.19057629, 0.66724975,
-                       0.96577916, 0.73136095, 0.60823287, 0.01792100,
-                       0.29744742, 0.27164665],
-                      [0.27980120, 0.25814229, 0.02818193, 0.12966456,
-                       0.57446277, 0.58167607, 0.71028245, 0.69112737,
-                       0.89923072, 0.99072476],
-                      [0.81218578, 0.80464528, 0.76071809, 0.85616314,
-                       0.12757994, 0.94324936, 0.73078663, 0.09658102,
-                       0.60703967, 0.77664978],
-                      [0.28332265, 0.81479711, 0.86985333, 0.43797066,
-                       0.32540082, 0.43819229, 0.92230363, 0.49414252,
-                       0.68168256, 0.05922372],
-                      [0.10721335, 0.93904142, 0.79163075, 0.73232848,
-                       0.90283839, 0.68408046, 0.25502302, 0.95976614,
-                       0.59214115, 0.13663711],
-                      [0.28087456, 0.33127607, 0.15530412, 0.76558121,
-                       0.83389773, 0.03735974, 0.98717738, 0.71432229,
-                       0.54881366, 0.86893953],
-                      [0.77995937, 0.99555600, 0.29688434, 0.15646162,
-                       0.05184800, 0.37161935, 0.12998491, 0.09377296,
-                       0.36882507, 0.36583435],
-                      [0.37851836, 0.05315792, 0.63144617, 0.25003433,
-                       0.69586032, 0.11393988, 0.92362096, 0.88045438,
-                       0.93530252, 0.68275072],
-                      [0.86486596, 0.83236675, 0.82960664, 0.57796630,
-                       0.25724233, 0.84841095, 0.90862812, 0.64414887,
-                       0.35652720, 0.71026066],
-                      [0.01383268, 0.34060930, 0.76084285, 0.70800694,
-                       0.87634056, 0.08213693, 0.54655021, 0.98123181,
-                       0.44080053, 0.86815815]])
+@check_figures_equal(extensions=["png"])
+def test_shaped_data(fig_test, fig_ref):
+    row = np.arange(10).reshape((1, -1))
+    col = np.arange(0, 100, 10).reshape((-1, 1))
 
-    y1 = np.arange(10).reshape((1, -1))
-    y2 = np.arange(10).reshape((-1, 1))
+    axs = fig_test.subplots(2)
+    axs[0].plot(row)  # Actually plots nothing (columns are single points).
+    axs[1].plot(col)  # Same as plotting 1d.
 
-    plt.subplot(411)
-    plt.plot(y1)
-    plt.subplot(412)
-    plt.plot(y2)
-
-    plt.subplot(413)
-    with pytest.raises(ValueError):
-        plt.plot((y1, y2))
-
-    plt.subplot(414)
-    plt.plot(xdata[:, 1], xdata[1, :], 'o')
+    axs = fig_ref.subplots(2)
+    # xlim from the implicit "x=0", ylim from the row datalim.
+    axs[0].set(xlim=(-.06, .06), ylim=(0, 9))
+    axs[1].plot(col.ravel())
 
 
 def test_structured_data():
@@ -616,18 +582,6 @@ def test_structured_data():
     axs = plt.figure().subplots(2)
     axs[0].plot("ones", "twos", data=pts)
     axs[1].plot("ones", "twos", "r", data=pts)
-
-
-@image_comparison(['const_xy'])
-def test_const_xy():
-    plt.subplot(311)
-    plt.plot(np.arange(10), np.ones(10))
-
-    plt.subplot(312)
-    plt.plot(np.ones(10), np.arange(10))
-
-    plt.subplot(313)
-    plt.plot(np.ones(10), np.ones(10), 'o')
 
 
 def test_polar_twice():
@@ -5486,6 +5440,8 @@ def test_bad_plot_args():
         plt.plot(None, None)
     with pytest.raises(ValueError):
         plt.plot(np.zeros((2, 2)), np.zeros((2, 3)))
+    with pytest.raises(ValueError):
+        plt.plot((np.arange(5).reshape((1, -1)), np.arange(5).reshape(-1, 1)))
 
 
 @pytest.mark.parametrize(
