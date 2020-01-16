@@ -139,7 +139,7 @@ page instead of the gallery examples.
 
 **Note:** When moving an existing example, you should search for
 references to that example.  For example, the API documentation for
-`axes.py` and `pyplot.py` may use these examples to generate
+:file:`axes.py` and :file:`pyplot.py` may use these examples to generate
 plots. Use your favorite search tool (e.g., grep, ack, `grin
 <https://pypi.python.org/pypi/grin>`_, `pss
 <https://pypi.python.org/pypi/pss>`_) to search the matplotlib

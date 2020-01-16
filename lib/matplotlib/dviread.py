@@ -748,7 +748,7 @@ class Tfm:
             self.depth[char] = _fix2comp(depths[byte1 & 0xf])
 
 
-PsFont = namedtuple('Font', 'texname psname effects encoding filename')
+PsFont = namedtuple('PsFont', 'texname psname effects encoding filename')
 
 
 class PsfontsMap:

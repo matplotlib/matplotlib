@@ -278,10 +278,10 @@ the :mod:`~matplotlib.markers` module and
 :doc:`marker reference </gallery/lines_bars_and_markers/marker_reference>`
 examples.
 
-*rcount* and *ccount* for `plot_surface()`
-------------------------------------------
+*rcount* and *ccount* for `~.axes3d.Axes3D.plot_surface`
+--------------------------------------------------------
 
-As of v2.0, mplot3d's :func:`~mpl_toolkits.mplot3d.axes3d.plot_surface` now
+As of v2.0, mplot3d's `~.axes3d.Axes3D.plot_surface` now
 accepts *rcount* and *ccount* arguments for controlling the sampling of the
 input data for plotting. These arguments specify the maximum number of
 evenly spaced samples to take from the input data. These arguments are

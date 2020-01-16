@@ -65,16 +65,16 @@
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89"
     ],
     "matplotlib.axes.Axes.lines": [
-      "doc/tutorials/intermediate/artists.rst:400",
+      "doc/tutorials/intermediate/artists.rst:406",
       "doc/tutorials/intermediate/artists.rst:90"
     ],
     "matplotlib.axes.Axes.patch": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89",
       "doc/tutorials/intermediate/artists.rst:172",
-      "doc/tutorials/intermediate/artists.rst:384"
+      "doc/tutorials/intermediate/artists.rst:390"
     ],
     "matplotlib.axes.Axes.patches": [
-      "doc/tutorials/intermediate/artists.rst:423"
+      "doc/tutorials/intermediate/artists.rst:429"
     ],
     "matplotlib.axes.Axes.transAxes": [
       "lib/mpl_toolkits/axes_grid1/anchored_artists.py:docstring of mpl_toolkits.axes_grid1.anchored_artists.AnchoredDirectionArrows:8"
@@ -88,13 +88,13 @@
       "doc/api/prev_api_changes/api_changes_0.99.x.rst:23"
     ],
     "matplotlib.axes.Axes.xaxis": [
-      "doc/tutorials/intermediate/artists.rst:522"
+      "doc/tutorials/intermediate/artists.rst:528"
     ],
     "matplotlib.axes.Axes.yaxis": [
-      "doc/tutorials/intermediate/artists.rst:522"
+      "doc/tutorials/intermediate/artists.rst:528"
     ],
     "matplotlib.axis.Axis.label": [
-      "doc/tutorials/intermediate/artists.rst:569"
+      "doc/tutorials/intermediate/artists.rst:575"
     ],
     "matplotlib.cm.ScalarMappable._A": [
       "lib/matplotlib/collections.py:docstring of matplotlib.collections.LineCollection:100",
@@ -112,10 +112,10 @@
     "matplotlib.figure.Figure.patch": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89",
       "doc/tutorials/intermediate/artists.rst:172",
-      "doc/tutorials/intermediate/artists.rst:285"
+      "doc/tutorials/intermediate/artists.rst:287"
     ],
     "matplotlib.figure.Figure.transFigure": [
-      "doc/tutorials/intermediate/artists.rst:334"
+      "doc/tutorials/intermediate/artists.rst:337"
     ],
     "max": [
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.Bbox.p1:4"
@@ -291,9 +291,6 @@
     "matplotlib.cbook.deprecation.MatplotlibDeprecationWarning": [
       "doc/api/prev_api_changes/api_changes_3.0.0.rst:406"
     ],
-    "matplotlib.cbook.deprecation.mplDeprecation": [
-      "doc/api/prev_api_changes/api_changes_3.0.0.rst:406"
-    ],
     "matplotlib.cm.Wistia": [
       "doc/users/prev_whats_new/whats_new_1.4.rst:21"
     ],
@@ -316,9 +313,6 @@
     ],
     "matplotlib.dates.strpdate2num": [
       "doc/api/dates_api.rst:11"
-    ],
-    "matplotlib.dviread.Font": [
-      "<unknown>:1"
     ],
     "matplotlib.figure._AxesStack": [
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.AxesStack:1"
@@ -419,18 +413,6 @@
       "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.RectangleSelector:1",
       "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.SpanSelector:1"
     ],
-    "mpl_toolkits.axes_grid.axes_divider.AxesLocator": [
-      "lib/mpl_toolkits/axes_grid1/axes_divider.py:docstring of mpl_toolkits.axes_grid1.axes_divider.Divider.new_locator:2"
-    ],
-    "mpl_toolkits.axes_grid1.ImageGrid": [
-      "doc/users/prev_whats_new/whats_new_1.4.rst:150"
-    ],
-    "mpl_toolkits.axes_grid1.axes_divider.HBox": [
-      "doc/users/prev_whats_new/whats_new_1.1.rst:210"
-    ],
-    "mpl_toolkits.axes_grid1.axes_divider.VBox": [
-      "doc/users/prev_whats_new/whats_new_1.1.rst:210"
-    ],
     "mpl_toolkits.axes_grid1.axes_size._Base": [
       "lib/mpl_toolkits/axes_grid1/axes_size.py:docstring of mpl_toolkits.axes_grid1.axes_size.Add:1",
       "lib/mpl_toolkits/axes_grid1/axes_size.py:docstring of mpl_toolkits.axes_grid1.axes_size.AddList:1",
@@ -490,11 +472,6 @@
     "numpy.uint8": [
       "<unknown>:1"
     ],
-    "tzinfo": [
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates.DateLocator:24",
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates.RRuleLocator:2",
-      "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.zaxis_date:4"
-    ],
     "unittest.case.TestCase": [
       "lib/matplotlib/testing/decorators.py:docstring of matplotlib.testing.decorators.CleanupTestCase:1"
     ]
@@ -510,7 +487,7 @@
   },
   "py:func": {
     "log.debug": [
-      "doc/devel/contributing.rst:428"
+      "doc/devel/contributing.rst:429"
     ],
     "matplotlib.Axis.set_ticks_position": [
       "doc/users/prev_whats_new/whats_new_1.4.rst:141"
@@ -526,9 +503,6 @@
     ],
     "matplotlib.testing.conftest.mpl_test_settings": [
       "doc/devel/testing.rst:111"
-    ],
-    "mpl_toolkits.mplot3d.axes3d.plot_surface": [
-      "doc/users/prev_whats_new/whats_new_2.0.0.rst:284"
     ]
   },
   "py:meth": {
@@ -597,9 +571,6 @@
     "matplotlib.dates.MicrosecondLocator.__call__": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:122"
     ],
-    "matplotlib.figure.savefig": [
-      "lib/matplotlib/testing/decorators.py:docstring of matplotlib.testing.decorators.image_comparison:10"
-    ],
     "matplotlib.lines.Line2D.pick": [
       "doc/users/event_handling.rst:480"
     ],
@@ -607,11 +578,8 @@
       "doc/users/event_handling.rst:164"
     ],
     "matplotlib.text.Text.__init__": [
-      "doc/devel/contributing.rst:378",
-      "doc/devel/contributing.rst:386"
-    ],
-    "mpl_toolkits.axes_grid1.axes_divider.SubPlotDivider": [
-      "doc/api/prev_api_changes/api_changes_3.0.0.rst:147"
+      "doc/devel/contributing.rst:379",
+      "doc/devel/contributing.rst:387"
     ],
     "option_scale_image": [
       "lib/matplotlib/backends/backend_cairo.py:docstring of matplotlib.backends.backend_cairo.RendererCairo.draw_image:22",
@@ -621,9 +589,6 @@
     ],
     "set_label": [
       "lib/mpl_toolkits/axes_grid1/colorbar.py:docstring of mpl_toolkits.axes_grid1.colorbar.ColorbarBase:31"
-    ],
-    "set_ylabel": [
-      "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.set_zlabel:2"
     ]
   },
   "py:mod": {
@@ -666,22 +631,11 @@
     ],
     "matplotlib.tests.test_basic": [
       "doc/devel/testing.rst:98"
-    ],
-    "mpl_toolkits.axes_grid.axes_size": [
-      "lib/mpl_toolkits/axes_grid1/axes_divider.py:docstring of mpl_toolkits.axes_grid1.axes_divider.AxesDivider.new_horizontal:10",
-      "lib/mpl_toolkits/axes_grid1/axes_divider.py:docstring of mpl_toolkits.axes_grid1.axes_divider.AxesDivider.new_horizontal:13",
-      "lib/mpl_toolkits/axes_grid1/axes_divider.py:docstring of mpl_toolkits.axes_grid1.axes_divider.AxesDivider.new_vertical:10",
-      "lib/mpl_toolkits/axes_grid1/axes_divider.py:docstring of mpl_toolkits.axes_grid1.axes_divider.AxesDivider.new_vertical:13",
-      "lib/mpl_toolkits/axes_grid1/axes_divider.py:docstring of mpl_toolkits.axes_grid1.axes_divider.Divider.set_horizontal:21",
-      "lib/mpl_toolkits/axes_grid1/axes_divider.py:docstring of mpl_toolkits.axes_grid1.axes_divider.Divider.set_vertical:21",
-      "lib/mpl_toolkits/axes_grid1/axes_divider.py:docstring of mpl_toolkits.axes_grid1.axes_divider.Divider:2",
-      "lib/mpl_toolkits/axes_grid1/axes_divider.py:docstring of mpl_toolkits.axes_grid1.axes_divider.Divider:41",
-      "lib/mpl_toolkits/axes_grid1/axes_divider.py:docstring of mpl_toolkits.axes_grid1.axes_divider.Divider:44"
     ]
   },
   "py:obj": {
     "./gallery/index.html": [
-      "doc/devel/contributing.rst:540"
+      "doc/devel/contributing.rst:541"
     ],
     "Artist.sticky_edges": [
       "doc/api/axes_api.rst:357:<autosummary>:1",
@@ -701,9 +655,6 @@
     ],
     "Axes..set_inverted": [
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:247"
-    ],
-    "Axes.annotation": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:799"
     ],
     "Axes.dataLim": [
       "doc/api/axes_api.rst:297:<autosummary>:1",
@@ -746,12 +697,6 @@
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:241",
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:243"
     ],
-    "Axis.set_major_locator": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:19"
-    ],
-    "Axis.set_minor_locator": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:19"
-    ],
     "Axis.set_tick_params": [
       "doc/users/prev_whats_new/whats_new_2.1.0.rst:394"
     ],
@@ -786,10 +731,6 @@
       "doc/devel/MEP/MEP23.rst:85",
       "doc/devel/MEP/MEP23.rst:87"
     ],
-    "FontProperties": [
-      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.suptitle:40",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.suptitle:40"
-    ],
     "Formatter.__call__": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:1123",
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:1129"
@@ -804,9 +745,6 @@
     "GraphicsContext": [
       "doc/devel/MEP/MEP26.rst:68"
     ],
-    "GridFinder": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:91"
-    ],
     "Image": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.gci:4"
     ],
@@ -816,21 +754,15 @@
     "ImageComparisonTest": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:710"
     ],
-    "Installing": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:319"
-    ],
     "Legend": [
       "doc/api/axes_api.rst:316:<autosummary>:1",
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.get_legend:2"
-    ],
-    "Legend.draggable()": [
-      "doc/api/prev_api_changes/api_changes_3.0.0.rst:403"
     ],
     "LinearSegmentedColormaps": [
       "lib/matplotlib/colors.py:docstring of matplotlib.colors.makeMappingArray:64"
     ],
     "MatplotlibDeprecationWarning": [
-      "doc/devel/contributing.rst:305"
+      "doc/devel/contributing.rst:306"
     ],
     "MicrosecondLocator.__call__": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:119"
@@ -945,9 +877,6 @@
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.add_tools_to_container:11",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.add_tools_to_manager:11"
     ],
-    "autodoc_docstring_signature": [
-      "doc/devel/MEP/MEP10.rst:87"
-    ],
     "autoscale_view": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.autoscale:19",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.plot:121"
@@ -969,9 +898,6 @@
     "axes.prop_cycle": [
       "doc/users/prev_whats_new/whats_new_3.0.rst:111"
     ],
-    "axes.py": [
-      "doc/devel/MEP/MEP12.rst:140"
-    ],
     "axes3d.Axes3D.xaxis": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:941"
     ],
@@ -980,10 +906,6 @@
     ],
     "axes3d.Axes3D.zaxis": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:941"
-    ],
-    "axes_class": [
-      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.inset_axes:147",
-      "lib/mpl_toolkits/axes_grid1/inset_locator.py:docstring of mpl_toolkits.axes_grid1.inset_locator.zoomed_inset_axes:139"
     ],
     "axes_grid1": [
       "doc/index.rst:184"
@@ -1051,32 +973,26 @@
       "doc/devel/MEP/MEP23.rst:40"
     ],
     "cbook._warn_external": [
-      "doc/devel/contributing.rst:471",
-      "doc/devel/contributing.rst:486",
-      "doc/devel/contributing.rst:495",
-      "doc/devel/contributing.rst:520"
+      "doc/devel/contributing.rst:472",
+      "doc/devel/contributing.rst:487",
+      "doc/devel/contributing.rst:496",
+      "doc/devel/contributing.rst:521"
     ],
     "cbook.deprecated": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:1081",
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:774"
     ],
-    "cbook.normalize_kwargs": [
-      "doc/users/prev_whats_new/whats_new_3.2.0.rst:26"
-    ],
     "cbook.warn_deprecated": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:774"
     ],
     "cbook.warn_deprecated()": [
-      "doc/devel/contributing.rst:308"
+      "doc/devel/contributing.rst:309"
     ],
     "collections.LineCollection.get_segements()": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:288"
     ],
     "colorbar.ColorbarBase.outline": [
       "doc/api/prev_api_changes/api_changes_1.4.x.rst:83"
-    ],
-    "context": [
-      "lib/matplotlib/sphinxext/plot_directive.py:docstring of matplotlib.sphinxext.plot_directive:117"
     ],
     "converter": [
       "lib/matplotlib/testing/compare.py:docstring of matplotlib.testing.compare.compare_images:4"
@@ -1086,15 +1002,6 @@
     ],
     "dates.strpdate2num": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:926"
-    ],
-    "doc/api/next_api_changes": [
-      "doc/devel/contributing.rst:299"
-    ],
-    "draw": [
-      "doc/devel/MEP/MEP26.rst:68"
-    ],
-    "errorevery": [
-      "doc/users/prev_whats_new/whats_new_3.2.0.rst:96"
     ],
     "extend": [
       "lib/matplotlib/colors.py:docstring of matplotlib.colors.from_levels_and_colors:13"
@@ -1111,9 +1018,6 @@
       "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:87",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:92",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:128"
-    ],
-    "figure.canvas.mpl_connect": [
-      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.AxesWidget.connect_event:4"
     ],
     "floating_axes.FloatingSubplot": [
       "doc/gallery/axisartist/demo_floating_axes.rst:20"
@@ -1209,8 +1113,8 @@
       "doc/gallery/misc/ftface_props.rst:14"
     ],
     "logging.WARNING": [
-      "doc/devel/contributing.rst:446",
-      "doc/devel/contributing.rst:483"
+      "doc/devel/contributing.rst:447",
+      "doc/devel/contributing.rst:484"
     ],
     "ls_mapper": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:11"
@@ -1634,9 +1538,6 @@
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.hexbin:125",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hexbin:125"
     ],
-    "numpy.round": [
-      "doc/api/prev_api_changes/api_changes_2.0.0.rst:33"
-    ],
     "onselect": [
       "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.PolygonSelector:19"
     ],
@@ -1650,25 +1551,12 @@
     "plot_include_source": [
       "lib/matplotlib/sphinxext/plot_directive.py:docstring of matplotlib.sphinxext.plot_directive:51"
     ],
-    "plot_surface()": [
-      "doc/users/prev_whats_new/whats_new_2.0.0.rst:281"
-    ],
-    "plt.errorbar()": [
-      "doc/users/prev_whats_new/whats_new_3.2.0.rst:92",
-      "doc/users/prev_whats_new/whats_new_3.2.0.rst:96"
-    ],
     "print_xyz": [
       "lib/matplotlib/backends/backend_template.py:docstring of matplotlib.backends.backend_template:22"
     ],
     "pylab": [
       "doc/api/index.rst:63",
       "doc/devel/MEP/MEP12.rst:13"
-    ],
-    "pyplot": [
-      "doc/index.rst:44"
-    ],
-    "pyplot.py": [
-      "doc/devel/MEP/MEP12.rst:140"
     ],
     "pyplot.set_loglevel": [
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:377"
@@ -1783,14 +1671,6 @@
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolFullScreen.disable:4",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolFullScreen.enable:4"
     ],
-    "tzinfo": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.plot_date:20",
-      "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.xaxis_date:21",
-      "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.yaxis_date:21",
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates.AutoDateLocator:55",
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates.DateFormatter:45",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.plot_date:20"
-    ],
     "units.AxisInfo": [
       "lib/matplotlib/units.py:docstring of matplotlib.units.ConversionInterface.axisinfo:2",
       "lib/matplotlib/units.py:docstring of matplotlib.units.DecimalConverter.axisinfo:2"
@@ -1802,7 +1682,7 @@
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.set_constrained_layout:5"
     ],
     "warn": [
-      "doc/devel/contributing.rst:495"
+      "doc/devel/contributing.rst:496"
     ],
     "whats_new.rst": [
       "doc/users/next_whats_new/README.rst:6"

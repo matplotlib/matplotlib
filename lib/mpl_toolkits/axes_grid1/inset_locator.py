@@ -484,7 +484,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
 
     Returns
     -------
-    inset_axes : `axes_class`
+    inset_axes : *axes_class*
         Inset axes object created.
     """
 
@@ -602,7 +602,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
 
     Returns
     -------
-    inset_axes : `axes_class`
+    inset_axes : *axes_class*
         Inset axes object created.
     """
 

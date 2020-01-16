@@ -85,7 +85,7 @@ reason, many matplotlib methods include something like::
         """
 
 This can't be parsed by Sphinx, and is rather verbose in raw text.  As
-of Sphinx 1.1, if the `autodoc_docstring_signature` config value is
+of Sphinx 1.1, if the ``autodoc_docstring_signature`` config value is
 set to True, Sphinx will extract a replacement signature from the
 first line of the docstring, allowing this::
 

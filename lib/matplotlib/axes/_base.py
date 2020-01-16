@@ -3846,7 +3846,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        tz : str or `tzinfo`, default: :rc:`timezone`
+        tz : str or `datetime.tzinfo`, default: :rc:`timezone`
             Timezone.
         """
         # should be enough to inform the unit conversion interface
@@ -3859,7 +3859,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        tz : str or `tzinfo`, default: :rc:`timezone`
+        tz : str or `datetime.tzinfo`, default: :rc:`timezone`
             Timezone.
         """
         self.yaxis.axis_date(tz)
