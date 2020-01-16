@@ -44,9 +44,9 @@ def test_date_numpyx():
                                  [datetime.datetime(2017, 1, 1, 2, 1, 1),
                                   datetime.datetime(2017, 1, 1, 3, 1, 1)]]])
 @pytest.mark.parametrize('dtype', ['datetime64[s]',
-                                    'datetime64[us]',
-                                    'datetime64[ms]',
-                                    'datetime64[ns]'])
+                                   'datetime64[us]',
+                                   'datetime64[ms]',
+                                   'datetime64[ns]'])
 def test_date_date2num_numpy(t0, dtype):
     time = mdates.date2num(t0)
     tnp = np.array(t0, dtype=dtype)
@@ -55,9 +55,9 @@ def test_date_date2num_numpy(t0, dtype):
 
 
 @pytest.mark.parametrize('dtype', ['datetime64[s]',
-                                    'datetime64[us]',
-                                    'datetime64[ms]',
-                                    'datetime64[ns]'])
+                                   'datetime64[us]',
+                                   'datetime64[ms]',
+                                   'datetime64[ns]'])
 def test_date2num_NaT(dtype):
     t0 = datetime.datetime(2017, 1, 1, 0, 1, 1)
     tmpl = [mdates.date2num(t0), np.nan]
@@ -470,9 +470,7 @@ def test_concise_formatter():
         ax.yaxis.set_major_formatter(formatter)
         ax.set_ylim(date1, date2)
         fig.canvas.draw()
-        sts = []
-        for st in ax.get_yticklabels():
-            sts += [st.get_text()]
+        sts = [st.get_text() for st in ax.get_yticklabels()]
         return sts
 
     d1 = datetime.datetime(1997, 1, 1)
@@ -481,7 +479,7 @@ def test_concise_formatter():
                 ],
                [datetime.timedelta(weeks=52),
                 ['1997', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
-                'Sep', 'Oct', 'Nov', 'Dec']
+                 'Sep', 'Oct', 'Nov', 'Dec']
                 ],
                [datetime.timedelta(days=141),
                 ['Jan', '22', 'Feb', '22', 'Mar', '22', 'Apr', '22',
@@ -511,6 +509,113 @@ def test_concise_formatter():
         assert strings == expected
 
 
+def test_concise_formatter_formats():
+    formats = ['%Y', '%m/%Y', 'day: %d',
+               '%H hr %M min', '%H hr %M min', '%S.%f sec']
+
+    def _create_auto_date_locator(date1, date2):
+        fig, ax = plt.subplots()
+
+        locator = mdates.AutoDateLocator(interval_multiples=True)
+        formatter = mdates.ConciseDateFormatter(locator, formats=formats)
+        ax.yaxis.set_major_locator(locator)
+        ax.yaxis.set_major_formatter(formatter)
+        ax.set_ylim(date1, date2)
+        fig.canvas.draw()
+        sts = [st.get_text() for st in ax.get_yticklabels()]
+        return sts
+
+    d1 = datetime.datetime(1997, 1, 1)
+    results = (
+        [datetime.timedelta(weeks=52 * 200), [str(t) for t in range(1980,
+         2201, 20)]],
+        [datetime.timedelta(weeks=52), [
+            '1997', '02/1997', '03/1997', '04/1997', '05/1997', '06/1997',
+            '07/1997', '08/1997', '09/1997', '10/1997', '11/1997', '12/1997',
+            ]],
+        [datetime.timedelta(days=141), [
+            '01/1997', 'day: 22', '02/1997', 'day: 22', '03/1997', 'day: 22',
+            '04/1997', 'day: 22', '05/1997', 'day: 22',
+            ]],
+        [datetime.timedelta(days=40), [
+            '01/1997', 'day: 05', 'day: 09', 'day: 13', 'day: 17', 'day: 21',
+            'day: 25', 'day: 29', '02/1997', 'day: 05', 'day: 09',
+            ]],
+        [datetime.timedelta(hours=40), [
+            'day: 01', '04 hr 00 min', '08 hr 00 min', '12 hr 00 min',
+            '16 hr 00 min', '20 hr 00 min', 'day: 02', '04 hr 00 min',
+            '08 hr 00 min', '12 hr 00 min', '16 hr 00 min',
+            ]],
+        [datetime.timedelta(minutes=20), ['00 hr 00 min', '00 hr 05 min',
+         '00 hr 10 min', '00 hr 15 min', '00 hr 20 min']],
+        [datetime.timedelta(seconds=40), [
+            '00 hr 00 min', '05.000000 sec', '10.000000 sec',
+            '15.000000 sec', '20.000000 sec', '25.000000 sec',
+            '30.000000 sec', '35.000000 sec', '40.000000 sec',
+            ]],
+        [datetime.timedelta(seconds=2), [
+            '59.500000 sec', '00 hr 00 min', '00.500000 sec', '01.000000 sec',
+            '01.500000 sec', '02.000000 sec', '02.500000 sec',
+            ]],
+        )
+    for t_delta, expected in results:
+        d2 = d1 + t_delta
+        strings = _create_auto_date_locator(d1, d2)
+        assert strings == expected
+
+
+def test_concise_formatter_zformats():
+    zero_formats = ['', "'%y", '%B', '%m-%d', '%S', '%S.%f']
+
+    def _create_auto_date_locator(date1, date2):
+        fig, ax = plt.subplots()
+
+        locator = mdates.AutoDateLocator(interval_multiples=True)
+        formatter = mdates.ConciseDateFormatter(
+            locator, zero_formats=zero_formats)
+        ax.yaxis.set_major_locator(locator)
+        ax.yaxis.set_major_formatter(formatter)
+        ax.set_ylim(date1, date2)
+        fig.canvas.draw()
+        sts = [st.get_text() for st in ax.get_yticklabels()]
+        return sts
+
+    d1 = datetime.datetime(1997, 1, 1)
+    results = ([datetime.timedelta(weeks=52 * 200),
+                [str(t) for t in range(1980, 2201, 20)]
+                ],
+               [datetime.timedelta(weeks=52),
+                ["'97", 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                ],
+               [datetime.timedelta(days=141),
+                ['January', '22', 'February', '22', 'March',
+                    '22', 'April', '22', 'May', '22']
+                ],
+               [datetime.timedelta(days=40),
+                ['January', '05', '09', '13', '17', '21',
+                    '25', '29', 'February', '05', '09']
+                ],
+               [datetime.timedelta(hours=40),
+                ['01-01', '04:00', '08:00', '12:00', '16:00', '20:00',
+                    '01-02', '04:00', '08:00', '12:00', '16:00']
+                ],
+               [datetime.timedelta(minutes=20),
+                ['00', '00:05', '00:10', '00:15', '00:20']
+                ],
+               [datetime.timedelta(seconds=40),
+                ['00', '05', '10', '15', '20', '25', '30', '35', '40']
+                ],
+               [datetime.timedelta(seconds=2),
+                ['59.5', '00.0', '00.5', '01.0', '01.5', '02.0', '02.5']
+                ],
+               )
+    for t_delta, expected in results:
+        d2 = d1 + t_delta
+        strings = _create_auto_date_locator(d1, d2)
+        assert strings == expected
+
+
 def test_concise_formatter_tz():
     def _create_auto_date_locator(date1, date2, tz):
         fig, ax = plt.subplots()
@@ -521,9 +626,7 @@ def test_concise_formatter_tz():
         ax.yaxis.set_major_formatter(formatter)
         ax.set_ylim(date1, date2)
         fig.canvas.draw()
-        sts = []
-        for st in ax.get_yticklabels():
-            sts += [st.get_text()]
+        sts = [st.get_text() for st in ax.get_yticklabels()]
         return sts, ax.yaxis.get_offset_text().get_text()
 
     d1 = datetime.datetime(1997, 1, 1).replace(tzinfo=datetime.timezone.utc)
@@ -671,6 +774,7 @@ def test_date2num_dst():
         datetime-like object that applies timezone normalization after
         subtraction.
         """
+
         def __sub__(self, other):
             r = super().__sub__(other)
             tzinfo = getattr(r, 'tzinfo', None)
@@ -773,7 +877,7 @@ def test_yearlocator_pytz():
 
     tz = pytz.timezone('America/New_York')
     x = [tz.localize(datetime.datetime(2010, 1, 1))
-            + datetime.timedelta(i) for i in range(2000)]
+         + datetime.timedelta(i) for i in range(2000)]
     locator = mdates.AutoDateLocator(interval_multiples=True, tz=tz)
     locator.create_dummy_axis()
     locator.set_view_interval(mdates.date2num(x[0])-1.0,
