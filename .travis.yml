@@ -80,6 +80,8 @@ matrix:
         - EXTRAREQS='-r requirements/testing/travis36.txt'
     - python: 3.7
     - python: 3.8
+    - python: 3.8
+      os: linux-ppc64le
     - python: "nightly"
       env:
         - PRE=--pre
