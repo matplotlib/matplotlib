@@ -10,7 +10,6 @@ import numpy as np
 from matplotlib import rcParams
 import matplotlib.artist as martist
 import matplotlib.cbook as cbook
-import matplotlib.font_manager as font_manager
 import matplotlib.lines as mlines
 import matplotlib.scale as mscale
 import matplotlib.text as mtext
@@ -164,14 +163,10 @@ class Tick(martist.Artist):
             GRIDLINE_INTERPOLATION_STEPS
         self.label1 = mtext.Text(
             np.nan, np.nan,
-            fontproperties=font_manager.FontProperties(size=labelsize),
-            color=labelcolor, visible=label1On,
-        )
+            fontsize=labelsize, color=labelcolor, visible=label1On)
         self.label2 = mtext.Text(
             np.nan, np.nan,
-            fontproperties=font_manager.FontProperties(size=labelsize),
-            color=labelcolor, visible=label2On,
-        )
+            fontsize=labelsize, color=labelcolor, visible=label2On)
         for meth, attr in [("_get_tick1line", "tick1line"),
                            ("_get_tick2line", "tick2line"),
                            ("_get_gridline", "gridline"),
@@ -694,9 +689,8 @@ class Axis(martist.Artist):
 
         self.label = mtext.Text(
             np.nan, np.nan,
-            fontproperties=font_manager.FontProperties(
-                size=rcParams['axes.labelsize'],
-                weight=rcParams['axes.labelweight']),
+            fontsize=rcParams['axes.labelsize'],
+            fontweight=rcParams['axes.labelweight'],
             color=rcParams['axes.labelcolor'],
         )
         self._set_artist_props(self.label)
@@ -1848,8 +1842,7 @@ class XAxis(Axis):
             verticalalignment='top', horizontalalignment='right',
             transform=mtransforms.blended_transform_factory(
                 self.axes.transAxes, mtransforms.IdentityTransform()),
-            fontproperties=font_manager.FontProperties(
-                size=rcParams['xtick.labelsize']),
+            fontsize=rcParams['xtick.labelsize'],
             color=rcParams['xtick.color'],
         )
         self.offset_text_position = 'bottom'
@@ -2142,8 +2135,7 @@ class YAxis(Axis):
             verticalalignment='baseline', horizontalalignment='left',
             transform=mtransforms.blended_transform_factory(
                 self.axes.transAxes, mtransforms.IdentityTransform()),
-            fontproperties=font_manager.FontProperties(
-                size=rcParams['ytick.labelsize']),
+            fontsize=rcParams['ytick.labelsize'],
             color=rcParams['ytick.color'],
         )
         self.offset_text_position = 'left'
