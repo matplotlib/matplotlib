@@ -126,7 +126,7 @@ before_install:
       export PATH=/usr/lib/ccache:$PATH
     else
       set -e
-      ci/silence brew update
+      brew update
       brew uninstall numpy gdal postgis
       brew unlink python@2
       brew upgrade python
