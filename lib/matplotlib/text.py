@@ -105,7 +105,7 @@ def _get_textbox(text, renderer):
 @cbook._define_aliases({
     "color": ["c"],
     "fontfamily": ["family"],
-    "fontproperties": ["font_properties"],
+    "fontproperties": ["font", "font_properties"],
     "horizontalalignment": ["ha"],
     "multialignment": ["ma"],
     "fontname": ["name"],
@@ -1221,11 +1221,12 @@ class Text(Artist):
 
         Parameters
         ----------
-        fp : `.font_manager.FontProperties`
+        fp : `.font_manager.FontProperties` or `str` or `pathlib.Path`
+            If a `str`, it is interpreted as a fontconfig pattern parsed by
+            `.FontProperties`.  If a `pathlib.Path`, it is interpreted as the
+            absolute path to a font file.
         """
-        if isinstance(fp, str):
-            fp = FontProperties(fp)
-        self._fontproperties = fp.copy()
+        self._fontproperties = FontProperties._from_any(fp).copy()
         self.stale = True
 
     def set_usetex(self, usetex):

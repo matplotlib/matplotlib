@@ -598,8 +598,10 @@ class FontProperties:
 
       sans-serif, normal, normal, normal, normal, scalable.
 
-    Alternatively, a font may be specified using an absolute path to a
-    .ttf file, by using the *fname* kwarg.
+    Alternatively, a font may be specified using the absolute path to a font
+    file, by using the *fname* kwarg.  However, in this case, it is typically
+    simpler to just pass the path (as a `pathlib.Path`, not a `str`) to the
+    *font* kwarg of the `.Text` object.
 
     The preferred usage of font sizes is to use the relative values,
     e.g.,  'large', instead of absolute font sizes, e.g., 12.  This
@@ -656,6 +658,17 @@ class FontProperties:
         self.set_stretch(stretch)
         self.set_file(fname)
         self.set_size(size)
+
+    @classmethod
+    def _from_any(cls, arg):
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, os.PathLike):
+            return cls(fname=arg)
+        elif isinstance(arg, str):
+            return cls(arg)
+        else:
+            return cls(**arg)
 
     def __hash__(self):
         l = (tuple(self.get_family()),
@@ -1230,8 +1243,7 @@ class FontManager:
     def _findfont_cached(self, prop, fontext, directory, fallback_to_default,
                          rebuild_if_missing, rc_params):
 
-        if not isinstance(prop, FontProperties):
-            prop = FontProperties(prop)
+        prop = FontProperties._from_any(prop)
 
         fname = prop.get_file()
         if fname is not None:

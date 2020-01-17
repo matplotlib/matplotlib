@@ -400,6 +400,8 @@ class TextPath(Path):
 
         if prop is None:
             prop = FontProperties()
+        else:
+            prop = FontProperties._from_any(prop)
         if size is None:
             size = prop.get_size_in_points()
 
