@@ -857,19 +857,19 @@ inline bool segments_intersect(const double &x1,
                        (fmin(x3, x4) <= fmin(x1, x2) && fmin(x1, x2) <= fmax(x3, x4));
             }
         }
-       
+
         return false;
     }
 
-    double n1 = ((x4 - x3) * (y1 - y3)) - ((y4 - y3) * (x1 - x3));
-    double n2 = ((x2 - x1) * (y1 - y3)) - ((y2 - y1) * (x1 - x3));
+    const double n1 = ((x4 - x3) * (y1 - y3)) - ((y4 - y3) * (x1 - x3));
+    const double n2 = ((x2 - x1) * (y1 - y3)) - ((y2 - y1) * (x1 - x3));
 
-    double u1 = n1 / den;
-    double u2 = n2 / den;
+    const double u1 = n1 / den;
+    const double u2 = n2 / den;
 
-    return ((u1 > 0.0 || isclose(u1, 0.0, rtol, atol)) && 
-            (u1 < 1.0 || isclose(u1, 1.0, rtol, atol)) && 
-            (u2 > 0.0 || isclose(u2, 0.0, rtol, atol)) && 
+    return ((u1 > 0.0 || isclose(u1, 0.0, rtol, atol)) &&
+            (u1 < 1.0 || isclose(u1, 1.0, rtol, atol)) &&
+            (u2 > 0.0 || isclose(u2, 0.0, rtol, atol)) &&
             (u2 < 1.0 || isclose(u2, 1.0, rtol, atol)));
 }
 
