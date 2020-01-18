@@ -887,9 +887,18 @@ bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
 
     c1.vertex(&x11, &y11);
     while (c1.vertex(&x12, &y12) != agg::path_cmd_stop) {
+        // if the segment in path 1 is 0 length, skip to next vertex
+        if ((x11 == x12) && (y11 == y12)) {
+            continue;
+        }
         c2.rewind(0);
         c2.vertex(&x21, &y21);
+
         while (c2.vertex(&x22, &y22) != agg::path_cmd_stop) {
+            // if the segment in path 2 is 0 length, skip to next vertex
+            if ((x21 == x22) && (y21 == y22)) {
+                continue;
+            }
             if (segments_intersect(x11, y11, x12, y12, x21, y21, x22, y22)) {
                 return true;
             }
