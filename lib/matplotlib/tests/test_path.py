@@ -352,3 +352,46 @@ def test_full_arc(offset):
     maxs = np.max(path.vertices, axis=0)
     np.testing.assert_allclose(mins, -1)
     np.testing.assert_allclose(maxs, 1)
+
+
+def test_disjoint_zero_length_segment():
+    this_path = Path(
+        np.array([
+            [824.85064295, 2056.26489203],
+            [861.69033931, 2041.00539016],
+            [868.57864109, 2057.63522175],
+            [831.73894473, 2072.89472361],
+            [824.85064295, 2056.26489203]]),
+        np.array([1, 2, 2, 2, 79], dtype=Path.code_type))
+
+    outline_path = Path(
+        np.array([
+            [859.91051028, 2165.38461538],
+            [859.06772495, 2149.30331334],
+            [859.06772495, 2181.46591743],
+            [859.91051028, 2165.38461538],
+            [859.91051028, 2165.38461538]]),
+        np.array([1, 2, 2, 2, 2],
+                 dtype=Path.code_type))
+
+    assert not outline_path.intersects_path(this_path)
+    assert not this_path.intersects_path(outline_path)
+
+
+def test_intersect_zero_length_segment():
+    this_path = Path(
+        np.array([
+            [0, 0],
+            [1, 1],
+        ]))
+
+    outline_path = Path(
+        np.array([
+            [1, 0],
+            [.5, .5],
+            [.5, .5],
+            [0, 1],
+        ]))
+
+    assert outline_path.intersects_path(this_path)
+    assert this_path.intersects_path(outline_path)
