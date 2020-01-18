@@ -834,6 +834,13 @@ inline bool segments_intersect(const double &x1,
     // it looks the atol value matters here bacause of round-off errors
     const double rtol = 1e-10;
     const double atol = 1e-13;
+
+    // if either segment is 0 length, they do not intersect
+
+    if ((x1 == x2 && y1 == y2) || (x3 == x3 && y3 == y4)) {
+        return false;
+    }
+
     // determinant
     double den = ((y4 - y3) * (x2 - x1)) - ((x4 - x3) * (y2 - y1));
 
