@@ -836,8 +836,12 @@ inline bool segments_intersect(const double &x1,
     const double atol = 1e-13;
 
     // if either segment is 0 length, they do not intersect
+    // length-squared of each segment
+    const double lensq_A = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+    const double lenqs_B = (x3 - x4) * (x3 - x4) + (y3 - y4) * (y3 - y4);
 
-    if ((x1 == x2 && y1 == y2) || (x3 == x3 && y3 == y4)) {
+    // one of the segments is 0 length
+    if (isclose(lensq_A, 0, rtol, atol) || isclose(lenqs_B, 0, rtol, atol)) {
         return false;
     }
 
