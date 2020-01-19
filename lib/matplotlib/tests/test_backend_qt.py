@@ -10,47 +10,9 @@ from matplotlib._pylab_helpers import Gcf
 import pytest
 
 
-@pytest.fixture(autouse=True)
-def mpl_test_settings(qt_core, mpl_test_settings):
-    """
-    Ensure qt_core fixture is *first* fixture.
-
-    We override the `mpl_test_settings` fixture and depend on the `qt_core`
-    fixture first. It is very important that it is first, because it skips
-    tests when Qt is not available, and if not, then the main
-    `mpl_test_settings` fixture will try to switch backends before the skip can
-    be triggered.
-    """
-
-
 @pytest.fixture
 def qt_core(request):
     backend, = request.node.get_closest_marker('backend').args
-    if backend == 'Qt4Agg':
-        if any(k in sys.modules for k in ('PyQt5', 'PySide2')):
-            pytest.skip('Qt5 binding already imported')
-        try:
-            import PyQt4
-        # RuntimeError if PyQt5 already imported.
-        except (ImportError, RuntimeError):
-            try:
-                import PySide
-            except ImportError:
-                pytest.skip("Failed to import a Qt4 binding.")
-    elif backend == 'Qt5Agg':
-        if any(k in sys.modules for k in ('PyQt4', 'PySide')):
-            pytest.skip('Qt4 binding already imported')
-        try:
-            import PyQt5
-        # RuntimeError if PyQt4 already imported.
-        except (ImportError, RuntimeError):
-            try:
-                import PySide2
-            except ImportError:
-                pytest.skip("Failed to import a Qt5 binding.")
-    else:
-        raise ValueError('Backend marker has unknown value: ' + backend)
-
     qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
     QtCore = qt_compat.QtCore
 
