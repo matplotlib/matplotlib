@@ -98,22 +98,7 @@ matrix:
       sudo: true
     - python: "nightly"
       env: PRE=--pre
-    - os: osx
-      osx_image: xcode7.3
-      language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
-      env:
-        - MOCK=mock
-        - PILLOW='pillow!=5.1.0'
-      only: master
-      cache:
-        # As for now travis caches only "$HOME/.cache/pip"
-        # https://docs.travis-ci.com/user/caching/#pip-cache
-        pip: false
-        directories:
-          - $HOME/Library/Caches/pip
-          # `cache` does not support `env`-like `global` so copy-paste from top
-          - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
-          - $HOME/.cache/matplotlib
+
   allow_failures:
     - python: "nightly"
 
