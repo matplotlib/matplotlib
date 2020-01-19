@@ -96,11 +96,6 @@ matrix:
       env: DELETE_FONT_CACHE=1 PANDAS='pandas<0.21.0' PYTEST_PEP8=pytest-pep8 RUN_PEP8=--pep8
     - python: 3.7
       sudo: true
-    - python: "nightly"
-      env: PRE=--pre
-
-  allow_failures:
-    - python: "nightly"
 
 before_install:
   - |
