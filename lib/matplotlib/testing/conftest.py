@@ -46,7 +46,7 @@ def mpl_test_settings(request):
             prev_backend = matplotlib.get_backend()
 
             # special case Qt backend importing to avoid conflicts
-            if backend == 'Qt4Agg':
+            if backend.lower().startswith('qt4'):
                 if any(k in sys.modules for k in ('PyQt5', 'PySide2')):
                     pytest.skip('Qt5 binding already imported')
                 try:
@@ -57,7 +57,7 @@ def mpl_test_settings(request):
                         import PySide
                     except ImportError:
                         pytest.skip("Failed to import a Qt4 binding.")
-            elif backend == 'Qt5Agg':
+            elif backend.lower().startswith('qt5'):
                 if any(k in sys.modules for k in ('PyQt4', 'PySide')):
                     pytest.skip('Qt4 binding already imported')
                 try:
