@@ -7541,11 +7541,6 @@ default: :rc:`scatter.edgecolors`
             pass 'present'. In this case any value present in the array
             will be plotted, even if it is identically zero.
 
-        origin : {'upper', 'lower'}, default: :rc:`image.origin`
-            Place the [0, 0] index of the array in the upper left or lower left
-            corner of the axes. The convention 'upper' is typically used for
-            matrices and images.
-
         aspect : {'equal', 'auto', None} or float, default: 'equal'
             The aspect ratio of the axes.  This parameter is particularly
             relevant for images since it determines whether data pixels are
@@ -7559,6 +7554,11 @@ default: :rc:`scatter.edgecolors`
               that the data fit in the axes. In general, this will result in
               non-square pixels.
             - *None*: Use :rc:`image.aspect`.
+
+        origin : {'upper', 'lower'}, default: :rc:`image.origin`
+            Place the [0, 0] index of the array in the upper left or lower left
+            corner of the axes. The convention 'upper' is typically used for
+            matrices and images.
 
         Returns
         -------
@@ -7585,6 +7585,7 @@ default: :rc:`scatter.edgecolors`
         """
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'
+        cbook._check_in_list(["upper", "lower"], origin=origin)
         if marker is None and markersize is None:
             Z = np.asarray(Z)
             mask = np.abs(Z) > precision
@@ -7618,23 +7619,27 @@ default: :rc:`scatter.edgecolors`
             if 'linestyle' in kwargs:
                 raise TypeError(
                     "spy() got an unexpected keyword argument 'linestyle'")
-            marks = mlines.Line2D(x, y, linestyle='None',
-                         marker=marker, markersize=markersize, **kwargs)
-            self.add_line(marks)
+            ret = mlines.Line2D(
+                x, y, linestyle='None', marker=marker, markersize=markersize,
+                **kwargs)
+            self.add_line(ret)
             nr, nc = Z.shape
             self.set_xlim(-0.5, nc - 0.5)
-            self.set_ylim(nr - 0.5, -0.5)
+            if origin == "upper":
+                self.set_ylim(nr - 0.5, -0.5)
+            else:
+                self.set_ylim(-0.5, nr - 0.5)
             self.set_aspect(aspect)
-            ret = marks
         self.title.set_y(1.05)
-        self.xaxis.tick_top()
+        if origin == "upper":
+            self.xaxis.tick_top()
+        else:
+            self.xaxis.tick_bottom()
         self.xaxis.set_ticks_position('both')
-        self.xaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
-                                                 steps=[1, 2, 5, 10],
-                                                 integer=True))
-        self.yaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
-                                                 steps=[1, 2, 5, 10],
-                                                 integer=True))
+        self.xaxis.set_major_locator(
+            mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True))
+        self.yaxis.set_major_locator(
+            mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True))
         return ret
 
     def matshow(self, Z, **kwargs):
