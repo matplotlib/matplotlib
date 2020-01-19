@@ -971,7 +971,7 @@ def rcdefaults():
     --------
     rc_file_defaults
         Restore the rc params from the rc file originally loaded by Matplotlib.
-    matplotlib.style.use :
+    matplotlib.style.use
         Use a specific style file.  Call ``style.use('default')`` to restore
         the default style.
     """
@@ -1124,11 +1124,6 @@ def use(backend, *, force=True):
         # Nothing to do if the requested backend is already set
         pass
     else:
-        # Update both rcParams and rcDefaults so restoring the defaults later
-        # with rcdefaults won't change the backend.  This is a bit of overkill
-        # as 'backend' is already in style.core.STYLE_BLACKLIST, but better to
-        # be safe.
-        rcParams['backend'] = rcParamsDefault['backend'] = name
         try:
             from matplotlib import pyplot as plt
             plt.switch_backend(name)
