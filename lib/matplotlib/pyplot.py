@@ -229,6 +229,9 @@ def switch_backend(newbackend):
                 "framework, as {!r} is currently running".format(
                     newbackend, required_framework, current_framework))
 
+    # Update both rcParams and rcDefaults so restoring the defaults later with
+    # rcdefaults won't change the backend.  A bit of overkill as 'backend' is
+    # already in style.core.STYLE_BLACKLIST, but better to be safe.
     rcParams['backend'] = rcParamsDefault['backend'] = newbackend
 
     global _backend_mod, new_figure_manager, draw_if_interactive, _show
