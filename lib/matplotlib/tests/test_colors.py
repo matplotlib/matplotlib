@@ -395,9 +395,7 @@ def test_TwoSlopeNorm_premature_scaling():
 
 
 def test_SymLogNorm():
-    """
-    Test SymLogNorm behavior
-    """
+    # Test SymLogNorm behavior
     norm = mcolors.SymLogNorm(3, vmax=5, linscale=1.2)
     vals = np.array([-30, -1, 2, 6], dtype=float)
     normed_vals = norm(vals)
@@ -411,6 +409,14 @@ def test_SymLogNorm():
     norm = mcolors.SymLogNorm(3, vmin=-30, vmax=5, linscale=1.2)
     normed_vals = norm(vals)
     assert_array_almost_equal(normed_vals, expected)
+
+
+@pytest.mark.parametrize('val,normed',
+                         ([10, 1], [1, 0.75], [0, 0.5], [-1, 0.25], [-10, 0]))
+def test_symlognorm_vals(val, normed):
+    norm = mcolors.SymLogNorm(linthresh=1, vmin=-10, vmax=10, linscale=1)
+    assert_array_almost_equal(norm(val), normed)
+    assert_array_almost_equal(norm.inverse(norm(val)), val)
 
 
 def test_SymLogNorm_colorbar():

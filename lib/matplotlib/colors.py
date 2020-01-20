@@ -1231,9 +1231,10 @@ class SymLogNorm(Normalize):
         """
         Normalize.__init__(self, vmin, vmax, clip)
         self.linthresh = float(linthresh)
-        self._linscale_adj = (linscale / (1.0 - np.e ** -1))
-        if vmin is not None and vmax is not None:
-            self._transform_vmin_vmax()
+        # Number of decades in the log region
+        ndec = np.log10(vmax / linthresh)
+        # Size of the linear region from 0 to linthresh in the transformed space
+        self.linear_size = 1 / (1 + linscale / ndec)
 
     def __call__(self, value, clip=None):
         if clip is None:
@@ -1254,56 +1255,51 @@ class SymLogNorm(Normalize):
                                      mask=mask)
             # in-place equivalent of above can be much faster
             resdat = self._transform(result.data)
-            resdat -= self._lower
-            resdat /= (self._upper - self._lower)
 
         if is_scalar:
             result = result[0]
         return result
 
     def _transform(self, a):
-        """Inplace transformation."""
+        """In-place mapping from *a* to [0, 1]"""
         with np.errstate(invalid="ignore"):
-            masked = np.abs(a) > self.linthresh
-        sign = np.sign(a[masked])
-        log = (self._linscale_adj + np.log(np.abs(a[masked]) / self.linthresh))
-        log *= sign * self.linthresh
-        a[masked] = log
-        a[~masked] *= self._linscale_adj
+            logregion = np.abs(a) > self.linthresh
+
+        # Transform log value
+        sign = np.sign(a[logregion])
+        log = (1 - self.linear_size) * np.log10(np.abs(a[logregion])) + self.linear_size
+        a[logregion] = log * sign
+
+        # Transform linear values
+        a[~logregion] *= self.linear_size / self.linthresh
+
+        # Transform from [-1, 1] to [0, 1]
+        a += 1
+        a /= 2
         return a
 
     def _inv_transform(self, a):
         """Inverse inplace Transformation."""
-        masked = np.abs(a) > (self.linthresh * self._linscale_adj)
-        sign = np.sign(a[masked])
-        exp = np.exp(sign * a[masked] / self.linthresh - self._linscale_adj)
-        exp *= sign * self.linthresh
-        a[masked] = exp
-        a[~masked] /= self._linscale_adj
-        return a
+        # Transform from [0, 1] to [-1, 1]
+        a *= 2
+        a -= 1
 
-    def _transform_vmin_vmax(self):
-        """Calculates vmin and vmax in the transformed system."""
-        vmin, vmax = self.vmin, self.vmax
-        arr = np.array([vmax, vmin]).astype(float)
-        self._upper, self._lower = self._transform(arr)
+        # Transform back log values
+        logregion = np.abs(a) > self.linear_size
+        sign = np.sign(a[logregion])
+        exp = 10**((np.abs(a[logregion]) - self.linear_size) /
+                   (1 - self.linear_size))
+        a[logregion] = exp * sign
+
+        # Transform back linear values
+        a[~logregion] /= self.linear_size / self.linthresh
+        return a
 
     def inverse(self, value):
         if not self.scaled():
             raise ValueError("Not invertible until scaled")
         val = np.ma.asarray(value)
-        val = val * (self._upper - self._lower) + self._lower
         return self._inv_transform(val)
-
-    def autoscale(self, A):
-        # docstring inherited.
-        super().autoscale(A)
-        self._transform_vmin_vmax()
-
-    def autoscale_None(self, A):
-        # docstring inherited.
-        super().autoscale_None(A)
-        self._transform_vmin_vmax()
 
 
 class PowerNorm(Normalize):
