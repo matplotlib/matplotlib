@@ -29,12 +29,11 @@ in the ParaView python shell ::
 
 from PyQt5 import QtWidgets, QtCore
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import (
-    FigureCanvas, NavigationToolbar2QT)
+from matplotlib.backends.backend_qt5agg import FigureCanvas, NavigationToolbar2QT
 
 
-def get_main_window(target_name='pqClientMainWindow'):
-    '''Find the main window
+def get_main_window(target_name="pqClientMainWindow"):
+    """Find the main window
 
     This assumes that the object name on the main window (where we
     will be able to add a dock widget) has the object name
@@ -48,20 +47,27 @@ def get_main_window(target_name='pqClientMainWindow'):
     -------
     QtWidgets.QMainWindow
 
-    '''
+    """
     app = QtWidgets.QApplication.instance()
     if app is None:
-        raise RuntimeError("No running QApplication found. "
-                           "May not be running inside of ParaView")
+        raise RuntimeError(
+            "No running QApplication found. " "May not be running inside of ParaView"
+        )
 
-    return next(iter(
-        w for w in app.topLevelWidgets()
-        if (isinstance(w, QtWidgets.QMainWindow)
-            and w.objectName() == 'pqClientMainWindow')))
+    return next(
+        iter(
+            w
+            for w in app.topLevelWidgets()
+            if (
+                isinstance(w, QtWidgets.QMainWindow)
+                and w.objectName() == "pqClientMainWindow"
+            )
+        )
+    )
 
 
 def make_dock_figure():
-    '''Create and inject a Figure into the UI
+    """Create and inject a Figure into the UI
 
     The user is responsible for the Figure and widget life-cycle.
 
@@ -70,13 +76,13 @@ def make_dock_figure():
     f : Figure
     mpl_dock : QtWidgets.QDockWidget
 
-    '''
+    """
     # create the Figure
     f = Figure()
     f.stale_callback = lambda obj, val: obj.canvas.draw_idle()
 
     # set up the Qt widgets we need to inject into the UI
-    mpl_dock = QtWidgets.QDockWidget('Matplotlib')
+    mpl_dock = QtWidgets.QDockWidget("Matplotlib")
     layout = QtWidgets.QVBoxLayout()
     qw = QtWidgets.QWidget()
     qw.setLayout(layout)

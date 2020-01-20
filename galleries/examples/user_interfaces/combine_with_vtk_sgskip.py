@@ -15,15 +15,14 @@ TODO:
 """
 
 
-from __future__ import print_function
-
 import sys
 
 import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
-    NavigationToolbar2QT as NavigationToolbar)
+    NavigationToolbar2QT as NavigationToolbar,
+)
 
 from PyQt5 import QtWidgets, QtCore
 
@@ -79,7 +78,7 @@ class AppForm(QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.data = np.ones((21, 10, 10))
         for j in range(len(self.data)):
-            self.data[j] *= (j - 10)
+            self.data[j] *= j - 10
 
         self.create_main_frame()
 
