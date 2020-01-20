@@ -217,22 +217,20 @@ class Axes(_AxesBase):
         """
         if labelpad is not None:
             self.xaxis.labelpad = labelpad
-        _protected_kw = ['x', 'horizontalalignment', 'ha']
-        if any([k in kwargs for k in _protected_kw]):
+        protected_kw = ['x', 'horizontalalignment', 'ha']
+        if {*kwargs} & {*protected_kw}:
             if loc is not None:
-                raise TypeError('Specifying *loc* is disallowed when any of '
-                                'its corresponding low level kwargs {} '
-                                'are supplied as well.'.format(_protected_kw))
+                raise TypeError(f"Specifying 'loc' is disallowed when any of "
+                                f"its corresponding low level kwargs "
+                                f"({protected_kw}) are supplied as well")
             loc = 'center'
         else:
             loc = loc if loc is not None else rcParams['xaxis.labellocation']
         cbook._check_in_list(('left', 'center', 'right'), loc=loc)
-        if loc == 'right':
-            kwargs['x'] = 1.
-            kwargs['horizontalalignment'] = 'right'
-        elif loc == 'left':
-            kwargs['x'] = 0.
-            kwargs['horizontalalignment'] = 'left'
+        if loc == 'left':
+            kwargs.update(x=0, horizontalalignment='left')
+        elif loc == 'right':
+            kwargs.update(x=1, horizontalalignment='right')
         return self.xaxis.set_label_text(xlabel, fontdict, **kwargs)
 
     def get_ylabel(self):
@@ -272,22 +270,20 @@ class Axes(_AxesBase):
         """
         if labelpad is not None:
             self.yaxis.labelpad = labelpad
-        _protected_kw = ['y', 'horizontalalignment', 'ha']
-        if any([k in kwargs for k in _protected_kw]):
+        protected_kw = ['y', 'horizontalalignment', 'ha']
+        if {*kwargs} & {*protected_kw}:
             if loc is not None:
-                raise TypeError('Specifying *loc* is disallowed when any of '
-                                'its corresponding low level kwargs {} '
-                                'are supplied as well.'.format(_protected_kw))
+                raise TypeError(f"Specifying 'loc' is disallowed when any of "
+                                f"its corresponding low level kwargs "
+                                f"({protected_kw}) are supplied as well")
             loc = 'center'
         else:
             loc = loc if loc is not None else rcParams['yaxis.labellocation']
         cbook._check_in_list(('bottom', 'center', 'top'), loc=loc)
-        if loc == 'top':
-            kwargs['y'] = 1.
-            kwargs['horizontalalignment'] = 'right'
-        elif loc == 'bottom':
-            kwargs['y'] = 0.
-            kwargs['horizontalalignment'] = 'left'
+        if loc == 'bottom':
+            kwargs.update(y=0, horizontalalignment='left')
+        elif loc == 'top':
+            kwargs.update(y=1, horizontalalignment='right')
         return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
 
     def get_legend_handles_labels(self, legend_handler_map=None):
