@@ -299,3 +299,11 @@ package, and Axes methods that take a ``norm`` parameter.
 
 If extra kwargs are passed to `.LogScale`, `TypeError` will now be
 raised instead of `ValueError`.
+
+mplot3d auto-registration
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`mpl_toolkits.mplot3d` is always registered by default now. It is no
+longer necessary to import mplot3d to create 3d axes with ::
+
+  ax = fig.add_subplot(111, projection="3d")
