@@ -42,6 +42,59 @@ def test_get_labels():
     assert ax.get_ylabel() == 'y label'
 
 
+@check_figures_equal()
+def test_label_loc_vertical(fig_test, fig_ref):
+    ax = fig_test.subplots()
+    sc = ax.scatter([1, 2], [1, 2], c=[1, 2])
+    ax.set_ylabel('Y Label', loc='top')
+    ax.set_xlabel('X Label', loc='right')
+    cbar = fig_test.colorbar(sc)
+    cbar.set_label("Z Label", loc='top')
+
+    ax = fig_ref.subplots()
+    sc = ax.scatter([1, 2], [1, 2], c=[1, 2])
+    ax.set_ylabel('Y Label', y=1, ha='right')
+    ax.set_xlabel('X Label', x=1, ha='right')
+    cbar = fig_ref.colorbar(sc)
+    cbar.set_label("Z Label", y=1, ha='right')
+
+
+@check_figures_equal()
+def test_label_loc_horizontal(fig_test, fig_ref):
+    ax = fig_test.subplots()
+    sc = ax.scatter([1, 2], [1, 2], c=[1, 2])
+    ax.set_ylabel('Y Label', loc='bottom')
+    ax.set_xlabel('X Label', loc='left')
+    cbar = fig_test.colorbar(sc, orientation='horizontal')
+    cbar.set_label("Z Label", loc='left')
+
+    ax = fig_ref.subplots()
+    sc = ax.scatter([1, 2], [1, 2], c=[1, 2])
+    ax.set_ylabel('Y Label', y=0, ha='left')
+    ax.set_xlabel('X Label', x=0, ha='left')
+    cbar = fig_ref.colorbar(sc, orientation='horizontal')
+    cbar.set_label("Z Label", x=0, ha='left')
+
+
+@check_figures_equal()
+def test_label_loc_rc(fig_test, fig_ref):
+    with matplotlib.rc_context({"xaxis.labellocation": "right",
+                                "yaxis.labellocation": "top"}):
+        ax = fig_test.subplots()
+        sc = ax.scatter([1, 2], [1, 2], c=[1, 2])
+        ax.set_ylabel('Y Label')
+        ax.set_xlabel('X Label')
+        cbar = fig_test.colorbar(sc, orientation='horizontal')
+        cbar.set_label("Z Label")
+
+    ax = fig_ref.subplots()
+    sc = ax.scatter([1, 2], [1, 2], c=[1, 2])
+    ax.set_ylabel('Y Label', y=1, ha='right')
+    ax.set_xlabel('X Label', x=1, ha='right')
+    cbar = fig_ref.colorbar(sc, orientation='horizontal')
+    cbar.set_label("Z Label", x=1, ha='right')
+
+
 @image_comparison(['acorr.png'], style='mpl20')
 def test_acorr():
     # Remove this line when this test image is regenerated.

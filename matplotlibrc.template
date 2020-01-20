@@ -415,6 +415,12 @@
 #polaraxes.grid : True  ## display grid on polar axes
 #axes3d.grid    : True  ## display grid on 3d axes
 
+## ***************************************************************************
+## * AXIS                                                      *
+## ***************************************************************************
+#xaxis.labellocation : center  ## alignment of the xaxis label: {left, right, center}
+#yaxis.labellocation : center  ## alignment of the yaxis label: {bottom, top, center}
+
 
 ## ***************************************************************************
 ## * DATES                                                                   *

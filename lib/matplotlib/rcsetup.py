@@ -993,7 +993,13 @@ def validate_webagg_address(s):
     raise ValueError("'webagg.address' is not a valid IP address")
 
 
-validate_axes_titlelocation = ValidateInStrings('axes.titlelocation', ['left', 'center', 'right'])
+validate_axes_titlelocation = ValidateInStrings('axes.titlelocation',
+                                                ['left', 'center', 'right'])
+_validate_xaxis_labellocation = ValidateInStrings('xaxis.labellocation',
+                                                  ['left', 'center', 'right'])
+_validate_yaxis_labellocation = ValidateInStrings('yaxis.labellocation',
+                                                  ['bottom', 'center', 'top'])
+
 
 # a map from key -> value, converter
 defaultParams = {
@@ -1158,6 +1164,10 @@ defaultParams = {
 
     # errorbar props
     'errorbar.capsize':      [0, validate_float],
+
+    # axis props
+    'xaxis.labellocation':    ['center', _validate_xaxis_labellocation],  # alignment of x axis title
+    'yaxis.labellocation':    ['center', _validate_yaxis_labellocation],  # alignment of y axis title
 
     # axes props
     'axes.axisbelow':        ['line', validate_axisbelow],
