@@ -87,7 +87,7 @@ matrix:
         - PYTEST_COV=pytest-cov==2.3.1
         - PYTEST_RERUNFAILURES='pytest-rerunfailures<6'  # 6 needs pytest >=3.8
         - PYTEST_TIMEOUT=pytest-timeout==1.2.1  # Newer pytest-timeouts don't support pytest <3.4.
-        - SPHINX=sphinx==1.3
+        - SPHINX=sphinx==1.3.3
     - python: 3.4
       env:
         - PYTHON_ARGS=-OO
@@ -96,10 +96,8 @@ matrix:
       env: DELETE_FONT_CACHE=1 PANDAS='pandas<0.21.0' PYTEST_PEP8=pytest-pep8 RUN_PEP8=--pep8
     - python: 3.7
       sudo: true
-    - python: "nightly"
-      env: PRE=--pre
+    - python: 3.8
     - os: osx
-      osx_image: xcode7.3
       language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
       env:
         - MOCK=mock
@@ -114,8 +112,7 @@ matrix:
           # `cache` does not support `env`-like `global` so copy-paste from top
           - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
           - $HOME/.cache/matplotlib
-  allow_failures:
-    - python: "nightly"
+
 
 before_install:
   - |
@@ -125,13 +122,20 @@ before_install:
       export PATH=$PATH:/tmp/λ
       export PATH=/usr/lib/ccache:$PATH
     else
+      set -e
       brew update
-      brew tap homebrew/gui
-      # brew install python libpng ffmpeg imagemagick mplayer ccache
+      brew uninstall numpy gdal postgis
+      brew unlink python@2
+      brew upgrade python
+      brew install ffmpeg imagemagick mplayer ccache
+      hash -r
+      which python
+      python --version
+      set +e
       # We could install ghostscript and inkscape here to test svg and pdf
       # but this makes the test time really long.
       # brew install ghostscript inkscape
-      export PATH=/usr/local/opt/ccache/libexec:$PATH
+      export PATH=/usr/local/opt/python/libexec/bin:/usr/local/opt/ccache/libexec:$PATH
     fi
 
 install:
@@ -159,6 +163,8 @@ install:
         $PYPARSING \
         $DATEUTIL \
         $SPHINX
+  - |
+    # Install optional dependencies from PyPI.
     # GUI toolkits are pip-installable only for some versions of Python so
     # don't fail if we can't install them.  Make it easier to check whether the
     # install was successful by trying to import the toolkit (sometimes, the
