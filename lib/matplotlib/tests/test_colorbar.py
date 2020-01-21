@@ -581,3 +581,18 @@ def test_colorbar_int(clim):
     im = ax.imshow([[*map(np.int16, clim)]])
     fig.colorbar(im)
     assert (im.norm.vmin, im.norm.vmax) == clim
+
+
+@image_comparison(
+    baseline_images=['colorbar_norms'], extensions=['png'])
+def test_cbar_norms():
+    # Test colormaps with different norms
+    norms = [mcolors.Normalize(vmin=-1, vmax=2),
+             mcolors.BoundaryNorm(boundaries=[-1, 0, 1], ncolors=4),
+             mcolors.LogNorm(vmin=1, vmax=1e4),
+             mcolors.PowerNorm(gamma=0.2, vmin=0.1, vmax=0.6),
+             mcolors.SymLogNorm(1, vmin=-10, vmax=10),
+             mcolors.TwoSlopeNorm(1, vmin=0, vmax=2)]
+    fig, axs = plt.subplots(ncols=len(norms), constrained_layout=True)
+    for ax, norm in zip(axs, norms):
+        fig.colorbar(cm.ScalarMappable(norm=norm, cmap='viridis'), cax=ax, extend='both')
