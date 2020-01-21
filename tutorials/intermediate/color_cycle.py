@@ -13,7 +13,7 @@ properties for multi-line plots.
 
 This example demonstrates two different APIs:
 
-1. Setting the default rc parameter specifying the property cycle.
+1. Setting the rc parameter specifying the default property cycle.
    This affects all subsequent axes (but not axes already created).
 2. Setting the property cycle for a single pair of axes.
 

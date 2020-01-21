@@ -873,7 +873,7 @@ if rcParams['axes.formatter.use_locale']:
 
 def rc(group, **kwargs):
     """
-    Set the current rc params.  *group* is the grouping for the rc, e.g.,
+    Set the current `.rcParams`.  *group* is the grouping for the rc, e.g.,
     for ``lines.linewidth`` the group is ``lines``, for
     ``axes.facecolor``, the group is ``axes``, and so on.  Group may
     also be a list or tuple of group names, e.g., (*xtick*, *ytick*).
@@ -881,7 +881,7 @@ def rc(group, **kwargs):
 
       rc('lines', linewidth=2, color='r')
 
-    sets the current rc params and is equivalent to::
+    sets the current `.rcParams` and is equivalent to::
 
       rcParams['lines.linewidth'] = 2
       rcParams['lines.color'] = 'r'
@@ -915,7 +915,7 @@ def rc(group, **kwargs):
 
     This enables you to easily switch between several configurations.  Use
     ``matplotlib.style.use('default')`` or :func:`~matplotlib.rcdefaults` to
-    restore the default rc params after changes.
+    restore the default `.rcParams` after changes.
 
     Notes
     -----
@@ -949,15 +949,16 @@ def rc(group, **kwargs):
 
 def rcdefaults():
     """
-    Restore the rc params from Matplotlib's internal default style.
+    Restore the `.rcParams` from Matplotlib's internal default style.
 
-    Style-blacklisted rc params (defined in
+    Style-blacklisted `.rcParams` (defined in
     `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
 
     See Also
     --------
     rc_file_defaults
-        Restore the rc params from the rc file originally loaded by Matplotlib.
+        Restore the `.rcParams` from the rc file originally loaded by
+        Matplotlib.
     matplotlib.style.use
         Use a specific style file.  Call ``style.use('default')`` to restore
         the default style.
@@ -973,9 +974,9 @@ def rcdefaults():
 
 def rc_file_defaults():
     """
-    Restore the rc params from the original rc file loaded by Matplotlib.
+    Restore the `.rcParams` from the original rc file loaded by Matplotlib.
 
-    Style-blacklisted rc params (defined in
+    Style-blacklisted `.rcParams` (defined in
     `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
     """
     # Deprecation warnings were already handled when creating rcParamsOrig, no
@@ -988,9 +989,9 @@ def rc_file_defaults():
 
 def rc_file(fname, *, use_default_template=True):
     """
-    Update rc params from file.
+    Update `.rcParams` from file.
 
-    Style-blacklisted rc params (defined in
+    Style-blacklisted `.rcParams` (defined in
     `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
 
     Parameters

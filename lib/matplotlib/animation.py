@@ -1031,10 +1031,8 @@ class Animation:
         construct a `.MovieWriter` instance and can only be passed if
         *writer* is a string.  If they are passed as non-*None* and *writer*
         is a `.MovieWriter`, a `RuntimeError` will be raised.
-
         """
-        # If the writer is None, use the rc param to find the name of the one
-        # to use
+
         if writer is None:
             writer = mpl.rcParams['animation.writer']
         elif (not isinstance(writer, str) and
@@ -1263,8 +1261,8 @@ class Animation:
         Convert the animation to an HTML5 ``<video>`` tag.
 
         This saves the animation as an h264 video, encoded in base64
-        directly into the HTML5 video tag. This respects the rc parameters
-        for the writer as well as the bitrate. This also makes use of the
+        directly into the HTML5 video tag. This respects :rc:`animation.writer`
+        and :rc:`animation.bitrate`. This also makes use of the
         ``interval`` to control the speed, and uses the ``repeat``
         parameter to decide whether to loop.
 

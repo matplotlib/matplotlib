@@ -109,7 +109,7 @@ begin with ``"test_"`` and then within those files for functions beginning with
 ``"test"`` or classes beginning with ``"Test"``.
 
 Some tests have internal side effects that need to be cleaned up after their
-execution (such as created figures or modified rc params). The pytest fixture
+execution (such as created figures or modified `.rcParams`). The pytest fixture
 :func:`~matplotlib.testing.conftest.mpl_test_settings` will automatically clean
 these up; there is no need to do anything further.
 
