@@ -2113,10 +2113,9 @@ default: 'top'
             transparency of these patches will be restored to their
             original values upon exit of this function.
 
-        bbox_inches : str or `~matplotlib.transforms.Bbox`, optional
-            Bbox in inches. Only the given portion of the figure is
-            saved. If 'tight', try to figure out the tight bbox of
-            the figure. If None, use savefig.bbox
+        bbox_inches : str or `.Bbox`, default: :rc:`savefig.bbox`
+            Bounding box in inches: only the given portion of the figure is
+            saved.  If 'tight', try to figure out the tight bbox of the figure.
 
         pad_inches : scalar, optional
             Amount of padding around the figure when bbox_inches is
