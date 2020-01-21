@@ -1974,11 +1974,8 @@ class FigureCanvasBase:
 
         Parameters
         ----------
-        filename
-            can also be a file object on image backends
-
-        orientation : {'landscape', 'portrait'}, default: 'portrait'
-            only currently applies to PostScript printing.
+        filename : str or path-like or file-like
+            The file where the figure is saved.
 
         dpi : float, default: :rc:`savefig.dpi`
             The dots per inch to save the figure in.
@@ -1989,16 +1986,17 @@ class FigureCanvasBase:
         edgecolor : color, default: :rc:`savefig.edgecolor`
             The edgecolor of the figure.
 
+        orientation : {'landscape', 'portrait'}, default: 'portrait'
+            Only currently applies to PostScript printing.
+
         format : str, optional
             Force a specific file format. If not given, the format is inferred
             from the *filename* extension, and if that fails from
             :rc:`savefig.format`.
 
-        bbox_inches : 'tight' or `~matplotlib.transforms.Bbox`, \
-default: :rc:`savefig.bbox`
-            Bbox in inches. Only the given portion of the figure is
-            saved. If 'tight', try to figure out the tight bbox of
-            the figure.
+        bbox_inches : 'tight' or `.Bbox`, default: :rc:`savefig.bbox`
+            Bounding box in inches: only the given portion of the figure is
+            saved.  If 'tight', try to figure out the tight bbox of the figure.
 
         pad_inches : float, default: :rc:`savefig.pad_inches`
             Amount of padding around the figure when *bbox_inches* is 'tight'.
