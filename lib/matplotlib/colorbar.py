@@ -1119,11 +1119,11 @@ class ColorbarBase:
         else:
             y = self._proportional_y()
         xmid = np.array([0.5])
-        try:
+        if self._use_auto_colorbar_locator():
             y = norm.inverse(y)
             x = norm.inverse(x)
             xmid = norm.inverse(xmid)
-        except ValueError:
+        else:
             # occurs for norms that don't have an inverse, in
             # which case manually scale:
             dv = self.vmax - self.vmin
