@@ -17,14 +17,6 @@ regardless of whether `matplotlib.pyplot` has been imported. If the user
 tries to switch from an already-started interactive backend to a different
 interactive backend, an `ImportError` will be raised.
 
-mplot3d auto-registration
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-`mpl_toolkits.mplot3d` is always registered by default now. It is no
-longer necessary to import mplot3d to create 3d axes with ::
-
-  ax = fig.add_subplot(111, projection="3d")
-
 Invalid points in PathCollections
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PathCollections created with `~.Axes.scatter` now keep track of invalid points.
