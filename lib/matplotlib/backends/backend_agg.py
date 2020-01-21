@@ -1,24 +1,26 @@
 """
-An agg http://antigrain.com/ backend
+An agg_ backend.
 
-Features that are implemented
+.. _agg: http://antigrain.com/
 
- * capstyles and join styles
- * dashes
- * linewidth
- * lines, rectangles, ellipses
- * clipping to a rectangle
- * output to RGBA and Pillow-supported image formats
- * alpha blending
- * DPI scaling properly - everything scales properly (dashes, linewidths, etc)
- * draw polygon
- * freetype2 w/ ft2font
+Features that are implemented:
+
+* capstyles and join styles
+* dashes
+* linewidth
+* lines, rectangles, ellipses
+* clipping to a rectangle
+* output to RGBA and Pillow-supported image formats
+* alpha blending
+* DPI scaling properly - everything scales properly (dashes, linewidths, etc)
+* draw polygon
+* freetype2 w/ ft2font
 
 TODO:
 
-  * integrate screen dpi w/ ppi and text
-
+* integrate screen dpi w/ ppi and text
 """
+
 try:
     import threading
 except ImportError:
@@ -151,9 +153,7 @@ class RendererAgg(RendererBase):
                                     "'agg.path.chunksize' rcparam)")
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
-        """
-        Draw the math text using matplotlib.mathtext
-        """
+        """Draw mathtext using :mod:`matplotlib.mathtext`."""
         ox, oy, width, height, descent, font_image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
 
@@ -358,16 +358,7 @@ class RendererAgg(RendererBase):
 
 
 class FigureCanvasAgg(FigureCanvasBase):
-    """
-    The canvas the figure renders into.  Calls the draw and print fig
-    methods, creates the renderers, etc...
-
-    Attributes
-    ----------
-    figure : `matplotlib.figure.Figure`
-        A high-level Figure instance
-
-    """
+    # docstring inherited
 
     def copy_from_bbox(self, bbox):
         renderer = self.get_renderer()
@@ -378,9 +369,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         return renderer.restore_region(region, bbox, xy)
 
     def draw(self):
-        """
-        Draw the figure using the renderer.
-        """
+        # docstring inherited
         self.renderer = self.get_renderer(cleared=True)
         # Acquire a lock on the shared font cache.
         with RendererAgg.lock, \
@@ -404,38 +393,29 @@ class FigureCanvasAgg(FigureCanvasBase):
         return self.renderer
 
     def tostring_rgb(self):
-        """Get the image as an RGB byte string.
+        """
+        Get the image as RGB `bytes`.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
-
-        Returns
-        -------
-        bytes
         """
         return self.renderer.tostring_rgb()
 
     def tostring_argb(self):
-        """Get the image as an ARGB byte string.
+        """
+        Get the image as ARGB `bytes`.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
-
-        Returns
-        -------
-        bytes
         """
         return self.renderer.tostring_argb()
 
     def buffer_rgba(self):
-        """Get the image as a memoryview to the renderer's buffer.
+        """
+        Get the image as a `memoryview` to the renderer's buffer.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
-
-        Returns
-        -------
-        memoryview
         """
         return self.renderer.buffer_rgba()
 
