@@ -21,7 +21,8 @@ from matplotlib import __version__ as _mpl_version
 
 import matplotlib.artist as martist
 from matplotlib.artist import Artist, allow_rasterization
-from matplotlib.backend_bases import FigureCanvasBase, NonGuiException
+from matplotlib.backend_bases import (
+    FigureCanvasBase, NonGuiException, MouseButton)
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
 import matplotlib.image as mimage
@@ -2233,8 +2234,10 @@ default: 'top'
                 ax.set_position(ax.figbox)
         self.stale = True
 
-    def ginput(self, n=1, timeout=30, show_clicks=True, mouse_add=1,
-               mouse_pop=3, mouse_stop=2):
+    def ginput(self, n=1, timeout=30, show_clicks=True,
+               mouse_add=MouseButton.LEFT,
+               mouse_pop=MouseButton.RIGHT,
+               mouse_stop=MouseButton.MIDDLE):
         """
         Blocking call to interact with a figure.
 
@@ -2248,13 +2251,7 @@ default: 'top'
         - Stop the interaction and return the points added so far.
 
         The actions are assigned to mouse buttons via the arguments
-        *mouse_add*, *mouse_pop* and *mouse_stop*. Mouse buttons are defined
-        by the numbers:
-
-        - 1: left mouse button
-        - 2: middle mouse button
-        - 3: right mouse button
-        - None: no mouse button
+        *mouse_add*, *mouse_pop* and *mouse_stop*.
 
         Parameters
         ----------
@@ -2266,11 +2263,11 @@ default: 'top'
             will never timeout.
         show_clicks : bool, default: True
             If True, show a red cross at the location of each click.
-        mouse_add : {1, 2, 3, None}, default: 1 (left click)
+        mouse_add : `.MouseButton` or None, default: `.MouseButton.LEFT`
             Mouse button used to add points.
-        mouse_pop : {1, 2, 3, None}, default: 3 (right click)
+        mouse_pop : `.MouseButton` or None, default: `.MouseButton.RIGHT`
             Mouse button used to remove the most recently added point.
-        mouse_stop : {1, 2, 3, None}, default: 2 (middle click)
+        mouse_stop : `.MouseButton` or None, default: `.MouseButton.MIDDLE`
             Mouse button used to stop input.
 
         Returns

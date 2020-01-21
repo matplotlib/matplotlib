@@ -13,6 +13,7 @@ this file.
 # runtime with the proper signatures, a static pyplot.py is simpler for static
 # analysis tools to parse.
 
+from enum import Enum
 import inspect
 from inspect import Parameter
 from pathlib import Path
@@ -84,6 +85,9 @@ class value_formatter:
             self._repr = "np.mean"
         elif value is cbook.deprecation._deprecated_parameter:
             self._repr = "cbook.deprecation._deprecated_parameter"
+        elif isinstance(value, Enum):
+            # Enum str is Class.Name whereas their repr is <Class.Name: value>.
+            self._repr = str(value)
         else:
             self._repr = repr(value)
 
