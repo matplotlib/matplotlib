@@ -953,7 +953,7 @@ class Legend(Artist):
 
         Returns
         -------
-        `.BboxBase` : containing the bounding box in figure pixel co-ordinates.
+        `.BboxBase` : containing the bounding box in figure pixel coordinates.
         """
         return self._legend_box.get_window_extent(renderer)
 
