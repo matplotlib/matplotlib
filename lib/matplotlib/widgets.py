@@ -2008,11 +2008,6 @@ class RectangleSelector(_SelectorWidget):
         *button* is the `.MouseButton` or list of `.MouseButton`\s used for
         rectangle selection.  Default is *None*, which means any button.
 
-        Note, typically:
-         1 = left mouse button
-         2 = center mouse button (scroll wheel)
-         3 = right mouse button
-
         *interactive* will draw a set of handles and allow you interact
         with the widget after it is drawn.
 
