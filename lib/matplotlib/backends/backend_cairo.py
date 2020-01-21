@@ -23,7 +23,7 @@ except ImportError:
             "cairo backend requires that pycairo>=1.11.0 or cairocffi"
             "is installed") from err
 
-from .. import cbook
+from .. import cbook, font_manager
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
@@ -70,33 +70,60 @@ def _append_path(ctx, path, transform, clip=None):
             ctx.curve_to(*points)
 
 
+def _cairo_font_args_from_font_prop(prop):
+    """
+    Convert a `.FontProperties` or a `.FontEntry` to arguments that can be
+    passed to `.Context.select_font_face`.
+    """
+    def attr(field):
+        try:
+            return getattr(prop, f"get_{field}")()
+        except AttributeError:
+            return getattr(prop, field)
+
+    name = attr("name")
+    slant = getattr(cairo, f"FONT_SLANT_{attr('style').upper()}")
+    weight = attr("weight")
+    weight = (cairo.FONT_WEIGHT_NORMAL
+              if font_manager.weight_dict.get(weight, weight) < 550
+              else cairo.FONT_WEIGHT_BOLD)
+    return name, slant, weight
+
+
 class RendererCairo(RendererBase):
-    fontweights = {
-        100:          cairo.FONT_WEIGHT_NORMAL,
-        200:          cairo.FONT_WEIGHT_NORMAL,
-        300:          cairo.FONT_WEIGHT_NORMAL,
-        400:          cairo.FONT_WEIGHT_NORMAL,
-        500:          cairo.FONT_WEIGHT_NORMAL,
-        600:          cairo.FONT_WEIGHT_BOLD,
-        700:          cairo.FONT_WEIGHT_BOLD,
-        800:          cairo.FONT_WEIGHT_BOLD,
-        900:          cairo.FONT_WEIGHT_BOLD,
-        'ultralight': cairo.FONT_WEIGHT_NORMAL,
-        'light':      cairo.FONT_WEIGHT_NORMAL,
-        'normal':     cairo.FONT_WEIGHT_NORMAL,
-        'medium':     cairo.FONT_WEIGHT_NORMAL,
-        'regular':    cairo.FONT_WEIGHT_NORMAL,
-        'semibold':   cairo.FONT_WEIGHT_BOLD,
-        'bold':       cairo.FONT_WEIGHT_BOLD,
-        'heavy':      cairo.FONT_WEIGHT_BOLD,
-        'ultrabold':  cairo.FONT_WEIGHT_BOLD,
-        'black':      cairo.FONT_WEIGHT_BOLD,
-    }
-    fontangles = {
-        'italic':  cairo.FONT_SLANT_ITALIC,
-        'normal':  cairo.FONT_SLANT_NORMAL,
-        'oblique': cairo.FONT_SLANT_OBLIQUE,
-    }
+    @cbook.deprecated("3.3")
+    @property
+    def fontweights(self):
+        return {
+            100:          cairo.FONT_WEIGHT_NORMAL,
+            200:          cairo.FONT_WEIGHT_NORMAL,
+            300:          cairo.FONT_WEIGHT_NORMAL,
+            400:          cairo.FONT_WEIGHT_NORMAL,
+            500:          cairo.FONT_WEIGHT_NORMAL,
+            600:          cairo.FONT_WEIGHT_BOLD,
+            700:          cairo.FONT_WEIGHT_BOLD,
+            800:          cairo.FONT_WEIGHT_BOLD,
+            900:          cairo.FONT_WEIGHT_BOLD,
+            'ultralight': cairo.FONT_WEIGHT_NORMAL,
+            'light':      cairo.FONT_WEIGHT_NORMAL,
+            'normal':     cairo.FONT_WEIGHT_NORMAL,
+            'medium':     cairo.FONT_WEIGHT_NORMAL,
+            'regular':    cairo.FONT_WEIGHT_NORMAL,
+            'semibold':   cairo.FONT_WEIGHT_BOLD,
+            'bold':       cairo.FONT_WEIGHT_BOLD,
+            'heavy':      cairo.FONT_WEIGHT_BOLD,
+            'ultrabold':  cairo.FONT_WEIGHT_BOLD,
+            'black':      cairo.FONT_WEIGHT_BOLD,
+        }
+
+    @cbook.deprecated("3.3")
+    @property
+    def fontangles(self):
+        return {
+            'italic':  cairo.FONT_SLANT_ITALIC,
+            'normal':  cairo.FONT_SLANT_NORMAL,
+            'oblique': cairo.FONT_SLANT_OBLIQUE,
+        }
 
     def __init__(self, dpi):
         self.dpi = dpi
@@ -215,17 +242,12 @@ class RendererCairo(RendererBase):
             ctx = gc.ctx
             ctx.new_path()
             ctx.move_to(x, y)
-            ctx.select_font_face(prop.get_name(),
-                                 self.fontangles[prop.get_style()],
-                                 self.fontweights[prop.get_weight()])
 
-            size = prop.get_size_in_points() * self.dpi / 72.0
-
+            ctx.select_font_face(*_cairo_font_args_from_font_prop(prop))
             ctx.save()
+            ctx.set_font_size(prop.get_size_in_points() * self.dpi / 72)
             if angle:
                 ctx.rotate(np.deg2rad(-angle))
-            ctx.set_font_size(size)
-
             ctx.show_text(s)
             ctx.restore()
 
@@ -243,13 +265,9 @@ class RendererCairo(RendererBase):
             ctx.new_path()
             ctx.move_to(ox, oy)
 
-            fontProp = ttfFontProperty(font)
-            ctx.select_font_face(fontProp.name,
-                                 self.fontangles[fontProp.style],
-                                 self.fontweights[fontProp.weight])
-
-            size = fontsize * self.dpi / 72.0
-            ctx.set_font_size(size)
+            ctx.select_font_face(
+                *_cairo_font_args_from_font_prop(ttfFontProperty(font)))
+            ctx.set_font_size(fontsize * self.dpi / 72)
             ctx.show_text(s)
 
         for ox, oy, w, h in rects:
@@ -273,19 +291,14 @@ class RendererCairo(RendererBase):
             return width, height, descent
 
         ctx = self.text_ctx
-        ctx.save()
-        ctx.select_font_face(prop.get_name(),
-                             self.fontangles[prop.get_style()],
-                             self.fontweights[prop.get_weight()])
-
-        # Cairo (says it) uses 1/96 inch user space units, ref: cairo_gstate.c
-        # but if /96.0 is used the font is too small
-        size = prop.get_size_in_points() * self.dpi / 72
-
         # problem - scale remembers last setting and font can become
         # enormous causing program to crash
         # save/restore prevents the problem
-        ctx.set_font_size(size)
+        ctx.save()
+        ctx.select_font_face(*_cairo_font_args_from_font_prop(prop))
+        # Cairo (says it) uses 1/96 inch user space units, ref: cairo_gstate.c
+        # but if /96.0 is used the font is too small
+        ctx.set_font_size(prop.get_size_in_points() * self.dpi / 72)
 
         y_bearing, w, h = ctx.text_extents(s)[1:4]
         ctx.restore()
