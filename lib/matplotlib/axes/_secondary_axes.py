@@ -117,7 +117,7 @@ class SecondaryAxis(_AxesBase):
     def set_location(self, location):
         """
         Set the vertical or horizontal location of the axes in
-        parent-normalized co-ordinates.
+        parent-normalized coordinates.
 
         Parameters
         ----------
@@ -152,7 +152,7 @@ class SecondaryAxis(_AxesBase):
 
         # this locator lets the axes move in the parent axes coordinates.
         # so it never needs to know where the parent is explicitly in
-        # figure co-ordinates.
+        # figure coordinates.
         # it gets called in `ax.apply_aspect() (of all places)
         self.set_axes_locator(secondary_locator)
 

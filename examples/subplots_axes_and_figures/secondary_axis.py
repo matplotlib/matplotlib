@@ -83,7 +83,7 @@ ydata = np.random.randn(len(xdata))
 ax.plot(xdata, ydata, label='Plotted data')
 
 xold = np.arange(0, 11, 0.2)
-# fake data set relating x co-ordinate to another data-derived co-ordinate.
+# fake data set relating x coordinate to another data-derived coordinate.
 # xnew must be monotonic, so we sort...
 xnew = np.sort(10 * np.exp(-xold / 4) + np.random.randn(len(xold)) / 3)
 

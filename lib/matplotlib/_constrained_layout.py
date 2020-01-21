@@ -274,7 +274,7 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
 
     # this can go wrong:
     if not (np.isfinite(bbox.width) and np.isfinite(bbox.height)):
-        # just abort, this is likely a bad set of co-ordinates that
+        # just abort, this is likely a bad set of coordinates that
         # is transitory...
         return
     # use stored h_pad if it exists

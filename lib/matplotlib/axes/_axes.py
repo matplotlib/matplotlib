@@ -492,7 +492,7 @@ class Axes(_AxesBase):
             chosen so as to not overlap with the indicator box.
 
         transform : `.Transform`
-            Transform for the rectangle co-ordinates. Defaults to
+            Transform for the rectangle coordinates. Defaults to
             `ax.transAxes`, i.e. the units of *rect* are in axes-relative
             coordinates.
 

@@ -422,7 +422,7 @@ class Table(Artist):
 
     def _get_grid_bbox(self, renderer):
         """
-        Get a bbox, in axes co-ordinates for the cells.
+        Get a bbox, in axes coordinates for the cells.
 
         Only include those in the range (0, 0) to (maxRow, maxCol).
         """

@@ -200,7 +200,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         transOffset = self.get_offset_transform()
         if (not self._offsetsNone and
             not transOffset.contains_branch(transData)):
-            # if there are offsets but in some co-ords other than data,
+            # if there are offsets but in some coords other than data,
             # then don't use them for autoscaling.
             return transforms.Bbox.null()
         offsets = self._offsets
