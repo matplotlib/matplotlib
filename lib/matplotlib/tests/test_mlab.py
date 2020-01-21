@@ -1,9 +1,6 @@
-import tempfile
-
 from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal, assert_array_almost_equal_nulp)
 import numpy as np
-import datetime as datetime
 import pytest
 
 import matplotlib.mlab as mlab
@@ -138,52 +135,6 @@ class TestStride:
         # introduced
         y_strided = _stride_repeat(y, n=33.815)
         assert_array_equal(y_strided, 0.3)
-
-
-@pytest.fixture
-def tempcsv():
-    with tempfile.TemporaryFile(suffix='csv', mode="w+", newline='') as fd:
-        yield fd
-
-
-def test_csv2rec_names_with_comments(tempcsv):
-    tempcsv.write('# comment\n1,2,3\n4,5,6\n')
-    tempcsv.seek(0)
-    array = mlab._csv2rec(tempcsv, names='a,b,c')
-    assert len(array) == 2
-    assert len(array.dtype) == 3
-
-
-@pytest.mark.parametrize('input, kwargs', [
-    ('01/11/14\n'
-     '03/05/76 12:00:01 AM\n'
-     '07/09/83 5:17:34 PM\n'
-     '06/20/2054 2:31:45 PM\n'
-     '10/31/00 11:50:23 AM\n',
-     {}),
-    ('11/01/14\n'
-     '05/03/76 12:00:01 AM\n'
-     '09/07/83 5:17:34 PM\n'
-     '20/06/2054 2:31:45 PM\n'
-     '31/10/00 11:50:23 AM\n',
-     {'dayfirst': True}),
-    ('14/01/11\n'
-     '76/03/05 12:00:01 AM\n'
-     '83/07/09 5:17:34 PM\n'
-     '2054/06/20 2:31:45 PM\n'
-     '00/10/31 11:50:23 AM\n',
-     {'yearfirst': True}),
-], ids=['usdate', 'dayfirst', 'yearfirst'])
-def test_csv2rec_dates(tempcsv, input, kwargs):
-    tempcsv.write(input)
-    expected = [datetime.datetime(2014, 1, 11, 0, 0),
-                datetime.datetime(1976, 3, 5, 0, 0, 1),
-                datetime.datetime(1983, 7, 9, 17, 17, 34),
-                datetime.datetime(2054, 6, 20, 14, 31, 45),
-                datetime.datetime(2000, 10, 31, 11, 50, 23)]
-    tempcsv.seek(0)
-    array = mlab._csv2rec(tempcsv, names='a', **kwargs)
-    assert_array_equal(array['a'].tolist(), expected)
 
 
 def _apply_window(*args, **kwargs):
