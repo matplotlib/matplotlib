@@ -221,7 +221,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
     interpolation and cmap default to their rc settings
 
     cmap is a colors.Colormap instance
-    norm is a colors.Normalize instance to map luminance to 0-1
+    norm is a colors.Norm instance to map luminance to 0-1
 
     extent is data axes (left, right, bottom, top) for making image plots
     registered with data plots.  Default is to label the pixel
@@ -827,7 +827,7 @@ class AxesImage(_ImageBase):
     cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
         The Colormap instance or registered colormap name used to map scalar
         data to colors.
-    norm : `~matplotlib.colors.Normalize`
+    norm : `~matplotlib.colors.Norm`
         Maps luminance to 0-1.
     interpolation : str, default: :rc:`image.interpolation`
         Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
@@ -1148,7 +1148,7 @@ class PcolorImage(AxesImage):
         cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             The Colormap instance or registered colormap name used to map
             scalar data to colors.
-        norm : `~matplotlib.colors.Normalize`
+        norm : `~matplotlib.colors.Norm`
             Maps luminance to 0-1.
         **kwargs : `.Artist` properties
         """
@@ -1285,7 +1285,7 @@ class FigureImage(_ImageBase):
                  ):
         """
         cmap is a colors.Colormap instance
-        norm is a colors.Normalize instance to map luminance to 0-1
+        norm is a colors.Norm instance to map luminance to 0-1
 
         kwargs are an optional list of Artist keyword args
         """
@@ -1346,7 +1346,7 @@ class BboxImage(_ImageBase):
                  ):
         """
         cmap is a colors.Colormap instance
-        norm is a colors.Normalize instance to map luminance to 0-1
+        norm is a colors.Norm instance to map luminance to 0-1
 
         kwargs are an optional list of Artist keyword args
         """

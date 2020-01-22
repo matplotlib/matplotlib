@@ -48,8 +48,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     cmap : `~matplotlib.colors.Colormap`
         Colormap used to plot streamlines and arrows. This is only used if
         *color* is an array.
-    norm : `~matplotlib.colors.Normalize`
-        Normalize object used to scale luminance data to 0, 1. If ``None``,
+    norm : `~matplotlib.colors.Norm`
+        Norm object used to scale luminance data to 0, 1. If ``None``,
         stretch (min, max) to (0, 1). This is only used if *color* is an array.
     arrowsize : float
         Scaling factor for the arrow size.
@@ -174,7 +174,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     if use_multicolor_lines:
         if norm is None:
-            norm = mcolors.Normalize(color.min(), color.max())
+            norm = mcolors.LinearNorm(color.min(), color.max())
         if cmap is None:
             cmap = cm.get_cmap(matplotlib.rcParams['image.cmap'])
         else:

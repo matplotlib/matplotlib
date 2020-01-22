@@ -181,8 +181,8 @@ def tricontour(ax, *args, **kwargs):
         *None*. If *cmap* is *None* and *colors* is *None*, a
         default Colormap is used.
 
-        *norm*: [ *None* | Normalize ]
-        A :class:`matplotlib.colors.Normalize` instance for
+        *norm*: [ *None* | Norm ]
+        A :class:`matplotlib.colors.Norm` instance for
         scaling data values to colors. If *norm* is *None* and
         *colors* is *None*, the default linear scaling is used.
 

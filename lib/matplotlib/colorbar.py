@@ -337,7 +337,7 @@ class ColorbarBase:
     None, then the colormap will be displayed on a 0-1 scale. To show the
     under- and over-value colors, specify the *norm* as::
 
-        norm=colors.Normalize(clip=False)
+        norm=colors.LinearNorm(clip=False)
 
     To show the colors versus index instead of on the 0-1 scale,
     use::
@@ -362,7 +362,7 @@ class ColorbarBase:
         The `~.axes.Axes` instance in which the colorbar is drawn.
     cmap : `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
         The colormap to use.
-    norm : `~matplotlib.colors.Normalize`
+    norm : `~matplotlib.colors.Norm`
 
     alpha : float
         The colorbar transparency between 0 (transparent) and 1 (opaque).
@@ -427,7 +427,7 @@ class ColorbarBase:
         if cmap is None:
             cmap = cm.get_cmap()
         if norm is None:
-            norm = colors.Normalize()
+            norm = colors.LinearNorm()
         self.alpha = alpha
         self.cmap = cmap
         self.norm = norm
@@ -585,7 +585,7 @@ class ColorbarBase:
         one.  (check is used twice so factored out here...)
         """
         contouring = self.boundaries is not None and self.spacing == 'uniform'
-        return (type(self.norm) in [colors.Normalize, colors.LogNorm]
+        return (type(self.norm) in [colors.LinearNorm, colors.LogNorm]
                 and not contouring)
 
     def _reset_locator_formatter_scale(self):
@@ -1094,7 +1094,7 @@ class ColorbarBase:
         if self.extend in ('both', 'max'):
             y[-1] = 1. + extendlength[1]
         yi = y[self._inside]
-        norm = colors.Normalize(yi[0], yi[-1])
+        norm = colors.LinearNorm(yi[0], yi[-1])
         y[self._inside] = np.ma.filled(norm(yi), np.nan)
         return y
 

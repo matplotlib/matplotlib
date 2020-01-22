@@ -4326,10 +4326,10 @@ class Axes(_AxesBase):
             A `.Colormap` instance or registered colormap name. *cmap* is only
             used if *c* is an array of floats.
 
-        norm : `~matplotlib.colors.Normalize`, default: None
-            A `.Normalize` instance is used to scale luminance data to 0, 1.
+        norm : `~matplotlib.colors.Norm`, default: None
+            A `.Norm` instance is used to scale luminance data to 0, 1.
             *norm* is only used if *c* is an array of floats. If *None*, use
-            the default `.colors.Normalize`.
+            the default `.colors.Norm`.
 
         vmin, vmax : scalar, default: None
             *vmin* and *vmax* are used in conjunction with *norm* to normalize
@@ -4553,14 +4553,14 @@ default: :rc:`scatter.edgecolors`
             The Colormap instance or registered colormap name used to map
             the bin values to colors.
 
-        norm : `~matplotlib.colors.Normalize`, optional
-            The Normalize instance scales the bin values to the canonical
+        norm : `~matplotlib.colors.Norm`, optional
+            The Norm instance scales the bin values to the canonical
             colormap range [0, 1] for mapping to colors. By default, the data
             range is mapped to the colorbar range using linear scaling.
 
         vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `~.Normalize` instance (defaults to
+            automatically chosen by the `~.Norm` instance (defaults to
             the respective min/max values of the bins in case of the default
             linear scaling).
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
@@ -5459,8 +5459,8 @@ default: :rc:`scatter.edgecolors`
             The Colormap instance or registered colormap name used to map
             scalar data to colors. This parameter is ignored for RGB(A) data.
 
-        norm : `~matplotlib.colors.Normalize`, optional
-            The `.Normalize` instance used to scale scalar data to the [0, 1]
+        norm : `~matplotlib.colors.Norm`, optional
+            The `.Norm` instance used to scale scalar data to the [0, 1]
             range before mapping to colors using *cmap*. By default, a linear
             scaling mapping the lowest value to 0 and the highest to 1 is used.
             This parameter is ignored for RGB(A) data.
@@ -5746,14 +5746,14 @@ default: :rc:`scatter.edgecolors`
             A Colormap instance or registered colormap name. The colormap
             maps the *C* values to colors.
 
-        norm : `~matplotlib.colors.Normalize`, optional
-            The Normalize instance scales the data values to the canonical
+        norm : `~matplotlib.colors.Norm`, optional
+            The Norm instance scales the data values to the canonical
             colormap range [0, 1] for mapping to colors. By default, the data
             range is mapped to the colorbar range using linear scaling.
 
         vmin, vmax : scalar, default: None
             The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `~.Normalize` instance (defaults to
+            automatically chosen by the `~.Norm` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
@@ -5977,14 +5977,14 @@ default: :rc:`scatter.edgecolors`
             A Colormap instance or registered colormap name. The colormap
             maps the *C* values to colors.
 
-        norm : `~matplotlib.colors.Normalize`, optional
-            The Normalize instance scales the data values to the canonical
+        norm : `~matplotlib.colors.Norm`, optional
+            The Norm instance scales the data values to the canonical
             colormap range [0, 1] for mapping to colors. By default, the data
             range is mapped to the colorbar range using linear scaling.
 
         vmin, vmax : scalar, default: None
             The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `~.Normalize` instance (defaults to
+            automatically chosen by the `~.Norm` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
@@ -6211,14 +6211,14 @@ default: :rc:`scatter.edgecolors`
             A Colormap instance or registered colormap name. The colormap
             maps the *C* values to colors.
 
-        norm : `~matplotlib.colors.Normalize`, optional
-            The Normalize instance scales the data values to the canonical
+        norm : `~matplotlib.colors.Norm`, optional
+            The Norm instance scales the data values to the canonical
             colormap range [0, 1] for mapping to colors. By default, the data
             range is mapped to the colorbar range using linear scaling.
 
         vmin, vmax : scalar, default: None
             The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `~.Normalize` instance (defaults to
+            automatically chosen by the `~.Norm` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
@@ -6871,13 +6871,13 @@ default: :rc:`scatter.edgecolors`
         cmap : Colormap or str, optional
             A `.colors.Colormap` instance.  If not set, use rc settings.
 
-        norm : Normalize, optional
-            A `.colors.Normalize` instance is used to
+        norm : Norm, optional
+            A `.colors.Norm` instance is used to
             scale luminance data to ``[0, 1]``. If not set, defaults to
-            `.colors.Normalize()`.
+            `.colors.Norm()`.
 
         vmin/vmax : None or scalar, optional
-            Arguments passed to the `~.colors.Normalize` instance.
+            Arguments passed to the `~.colors.Norm` instance.
 
         alpha : ``0 <= scalar <= 1`` or ``None``, optional
             The alpha blending value.

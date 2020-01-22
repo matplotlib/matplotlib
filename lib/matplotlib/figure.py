@@ -780,8 +780,8 @@ default: 'top'
         alpha : None or float
             The alpha blending value.
 
-        norm : `matplotlib.colors.Normalize`
-            A :class:`.Normalize` instance to map the luminance to the
+        norm : `matplotlib.colors.Norm`
+            A :class:`.Norm` instance to map the luminance to the
             interval [0, 1].
 
         cmap : str or `matplotlib.colors.Colormap`, default: :rc:`image.cmap`

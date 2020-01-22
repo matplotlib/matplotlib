@@ -10,7 +10,7 @@ a colormap.
 
 Mapping data onto colors using a colormap typically involves two steps:
 a data array is first mapped onto the range 0-1 using a subclass of
-:class:`Normalize`, then this number is mapped to a color using
+:class:`Norm`, then this number is mapped to a color using
 a subclass of :class:`Colormap`.  Two are provided here:
 :class:`LinearSegmentedColormap`, which uses piecewise-linear interpolation
 to define colormaps, and :class:`ListedColormap`, which makes a colormap
@@ -64,7 +64,7 @@ Matplotlib recognizes the following formats to specify a color:
 .. _palettable: https://jiffyclub.github.io/palettable/
 .. _xkcd color survey: https://xkcd.com/color/rgb/
 """
-
+import abc
 from collections.abc import Sized
 import functools
 import itertools
@@ -499,7 +499,7 @@ class Colormap:
     Typically Colormap instances are used to convert data values (floats) from
     the interval ``[0, 1]`` to the RGBA color that the respective Colormap
     represents. For scaling of data into the ``[0, 1]`` interval see
-    :class:`matplotlib.colors.Normalize`. It is worth noting that
+    :class:`matplotlib.colors.Norm`. It is worth noting that
     :class:`matplotlib.cm.ScalarMappable` subclasses make heavy use of this
     ``data->normalize->map-to-color`` processing chain.
 
@@ -920,11 +920,12 @@ class ListedColormap(Colormap):
         return ListedColormap(colors_r, name=name, N=self.N)
 
 
-class Normalize:
+class Norm(abc.ABC):
     """
-    A class which, when called, can normalize data into
-    the ``[0.0, 1.0]`` interval.
+    Base class for normalization.
 
+    As a minimum, Norm classes must define ``__call__`` and ``inverse``,
+    with the signatures given below.
     """
     def __init__(self, vmin=None, vmax=None, clip=False):
         """
@@ -947,6 +948,21 @@ class Normalize:
         self.vmin = _sanitize_extrema(vmin)
         self.vmax = _sanitize_extrema(vmax)
         self.clip = clip
+
+    @abc.abstractmethod
+    def __call__(self, value, clip=None):
+        """
+        Normalize *value* into the range ``[0, 1]``.
+        """
+
+    @abc.abstractmethod
+    def inverse(self, value):
+        """
+        Given a value between ``[0, 1]``, return the inverse of the norm.
+        The following should be true::
+
+            norm.inverse(norm(value)) == value
+        """
 
     @staticmethod
     def process_value(value):
@@ -979,6 +995,31 @@ class Normalize:
         result = np.ma.array(data, mask=mask, dtype=dtype, copy=True)
         return result, is_scalar
 
+    def autoscale(self, A):
+        """Set *vmin*, *vmax* to min, max of *A*."""
+        A = np.asanyarray(A)
+        self.vmin = A.min()
+        self.vmax = A.max()
+
+    def autoscale_None(self, A):
+        """Autoscale only None-valued vmin or vmax."""
+        A = np.asanyarray(A)
+        if self.vmin is None and A.size:
+            self.vmin = A.min()
+        if self.vmax is None and A.size:
+            self.vmax = A.max()
+
+    def scaled(self):
+        """Return whether vmin and vmax are set."""
+        return self.vmin is not None and self.vmax is not None
+
+
+class LinearNorm(Norm):
+    """
+    A class which, when called, can normalize data into
+    the ``[0.0, 1.0]`` interval.
+
+    """
     def __call__(self, value, clip=None):
         """
         Normalize *value* data in the ``[vmin, vmax]`` interval into
@@ -1026,26 +1067,14 @@ class Normalize:
         else:
             return vmin + value * (vmax - vmin)
 
-    def autoscale(self, A):
-        """Set *vmin*, *vmax* to min, max of *A*."""
-        A = np.asanyarray(A)
-        self.vmin = A.min()
-        self.vmax = A.max()
 
-    def autoscale_None(self, A):
-        """Autoscale only None-valued vmin or vmax."""
-        A = np.asanyarray(A)
-        if self.vmin is None and A.size:
-            self.vmin = A.min()
-        if self.vmax is None and A.size:
-            self.vmax = A.max()
-
-    def scaled(self):
-        """Return whether vmin and vmax are set."""
-        return self.vmin is not None and self.vmax is not None
+class Normalize(LinearNorm):
+    def __init__(self, vmin=None, vmax=None, clip=False):
+        super().__init__(vmin, vmax, clip)
+        cbook.warn_deprecated(since='3.3', alternative='matplotlib.colors.LinearNorm')
 
 
-class TwoSlopeNorm(Normalize):
+class TwoSlopeNorm(LinearNorm):
     def __init__(self, vcenter, vmin=None, vmax=None):
         """
         Normalize data with a set center.
@@ -1120,7 +1149,7 @@ class DivergingNorm(TwoSlopeNorm):
     ...
 
 
-class LogNorm(Normalize):
+class LogNorm(Norm):
     """Normalize a given value to the 0-1 range on a log scale."""
 
     def _check_vmin_vmax(self):
@@ -1184,7 +1213,7 @@ class LogNorm(Normalize):
         super().autoscale_None(np.ma.masked_less_equal(A, 0, copy=False))
 
 
-class SymLogNorm(Normalize):
+class SymLogNorm(Norm):
     """
     The symmetrical logarithmic scale is logarithmic in both the
     positive and negative directions from the origin.
@@ -1210,7 +1239,7 @@ class SymLogNorm(Normalize):
         halves of the linear range will be equal to one decade in
         the logarithmic range. Defaults to 1.
         """
-        Normalize.__init__(self, vmin, vmax, clip)
+        Norm.__init__(self, vmin, vmax, clip)
         self.linthresh = float(linthresh)
         self._linscale_adj = (linscale / (1.0 - np.e ** -1))
         if vmin is not None and vmax is not None:
@@ -1287,13 +1316,13 @@ class SymLogNorm(Normalize):
         self._transform_vmin_vmax()
 
 
-class PowerNorm(Normalize):
+class PowerNorm(Norm):
     """
     Linearly map a given value to the 0-1 range and then apply
     a power-law normalization over that range.
     """
     def __init__(self, gamma, vmin=None, vmax=None, clip=False):
-        Normalize.__init__(self, vmin, vmax, clip)
+        Norm.__init__(self, vmin, vmax, clip)
         self.gamma = gamma
 
     def __call__(self, value, clip=None):
@@ -1338,11 +1367,11 @@ class PowerNorm(Normalize):
             return pow(value, 1. / gamma) * (vmax - vmin) + vmin
 
 
-class BoundaryNorm(Normalize):
+class BoundaryNorm(Norm):
     """
     Generate a colormap index based on discrete intervals.
 
-    Unlike `Normalize` or `LogNorm`, `BoundaryNorm` maps values to integers
+    Unlike `LinearNorm` or `LogNorm`, `BoundaryNorm` maps values to integers
     instead of to the interval 0-1.
 
     Mapping to the 0-1 interval could have been done via piece-wise linear
@@ -1422,9 +1451,9 @@ class BoundaryNorm(Normalize):
         raise ValueError("BoundaryNorm is not invertible")
 
 
-class NoNorm(Normalize):
+class NoNorm(Norm):
     """
-    Dummy replacement for `Normalize`, for the case where we want to use
+    Dummy replacement for `LinearNorm`, for the case where we want to use
     indices directly in a `~matplotlib.cm.ScalarMappable`.
     """
     def __call__(self, value, clip=None):
@@ -1749,7 +1778,7 @@ class LightSource:
             a `~matplotlib.colors.Colormap` instance.  For example, rather than
             passing in ``cmap='gist_earth'``, use
             ``cmap=plt.get_cmap('gist_earth')`` instead.
-        norm : `~matplotlib.colors.Normalize` instance, optional
+        norm : `~matplotlib.colors.Norm` instance, optional
             The normalization used to scale values before colormapping. If
             None, the input will be linearly scaled between its min and max.
         blend_mode : {'hsv', 'overlay', 'soft'} or callable, optional
@@ -1799,7 +1828,7 @@ class LightSource:
         if vmax is None:
             vmax = data.max()
         if norm is None:
-            norm = Normalize(vmin=vmin, vmax=vmax)
+            norm = LinearNorm(vmin=vmin, vmax=vmax)
 
         rgb0 = cmap(norm(data))
         rgb1 = self.shade_rgb(rgb0, elevation=data, blend_mode=blend_mode,
@@ -2014,7 +2043,7 @@ def from_levels_and_colors(levels, colors, extend='neither'):
 
     Returns
     -------
-    cmap : `~matplotlib.colors.Normalize`
+    cmap : `~matplotlib.colors.Norm`
     norm : `~matplotlib.colors.Colormap`
     """
     slice_map = {

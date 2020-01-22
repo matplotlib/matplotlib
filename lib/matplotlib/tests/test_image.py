@@ -681,7 +681,7 @@ def test_nonuniformimage_setcmap():
 def test_nonuniformimage_setnorm():
     ax = plt.gca()
     im = NonUniformImage(ax)
-    im.set_norm(plt.Normalize())
+    im.set_norm(plt.LinearNorm())
 
 
 def test_jpeg_2d():
@@ -892,7 +892,7 @@ def test_mask_image_over_under():
     fig, (ax1, ax2) = plt.subplots(1, 2)
     im = ax1.imshow(Zm, interpolation='bilinear',
                     cmap=palette,
-                    norm=colors.Normalize(vmin=-1.0, vmax=1.0, clip=False),
+                    norm=colors.LinearNorm(vmin=-1.0, vmax=1.0, clip=False),
                     origin='lower', extent=[-3, 3, -3, 3])
     ax1.set_title('Green=low, Red=high, Blue=bad')
     fig.colorbar(im, extend='both', orientation='horizontal',
@@ -951,7 +951,7 @@ def test_imshow_masked_interpolation():
     cm.set_bad('k')
 
     N = 20
-    n = colors.Normalize(vmin=0, vmax=N*N-1)
+    n = colors.LinearNorm(vmin=0, vmax=N*N-1)
 
     data = np.arange(N*N, dtype=float).reshape(N, N)
 
@@ -1037,7 +1037,7 @@ def test_imshow_bignumbers_real():
 
 @pytest.mark.parametrize(
     "make_norm",
-    [colors.Normalize,
+    [colors.LinearNorm,
      colors.LogNorm,
      lambda: colors.SymLogNorm(1),
      lambda: colors.PowerNorm(1)])
@@ -1148,6 +1148,6 @@ def test_image_array_alpha(fig_test, fig_ref):
     ax.imshow(zz, alpha=alpha, cmap=cmap, interpolation='nearest')
 
     ax = fig_ref.add_subplot(111)
-    rgba = cmap(colors.Normalize()(zz))
+    rgba = cmap(colors.LinearNorm()(zz))
     rgba[..., -1] = alpha
     ax.imshow(rgba, interpolation='nearest')

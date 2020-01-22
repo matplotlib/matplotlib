@@ -232,7 +232,7 @@ def test_lognorm_invalid(vmin, vmax):
 def test_LogNorm():
     """
     LogNorm ignored clip, now it has the same
-    behavior as Normalize, e.g., values > vmax are bigger than 1
+    behavior as LinearNorm, e.g., values > vmax are bigger than 1
     without clip, with clip they are 1.
     """
     ln = mcolors.LogNorm(clip=True, vmax=5)
@@ -242,7 +242,7 @@ def test_LogNorm():
 def test_PowerNorm():
     a = np.array([0, 0.5, 1, 1.5], dtype=float)
     pnorm = mcolors.PowerNorm(1)
-    norm = mcolors.Normalize()
+    norm = mcolors.LinearNorm()
     assert_array_almost_equal(norm(a), pnorm(a))
 
     a = np.array([-0.5, 0, 2, 4, 8], dtype=float)
@@ -279,8 +279,8 @@ def test_PowerNorm_translation_invariance():
     assert_array_almost_equal(pnorm(a - 2), expected)
 
 
-def test_Normalize():
-    norm = mcolors.Normalize()
+def test_LinearNorm():
+    norm = mcolors.LinearNorm()
     vals = np.arange(-10, 10, 1, dtype=float)
     _inverse_tester(norm, vals)
     _scalar_tester(norm, vals)
@@ -289,17 +289,17 @@ def test_Normalize():
     # Handle integer input correctly (don't overflow when computing max-min,
     # i.e. 127-(-128) here).
     vals = np.array([-128, 127], dtype=np.int8)
-    norm = mcolors.Normalize(vals.min(), vals.max())
+    norm = mcolors.LinearNorm(vals.min(), vals.max())
     assert_array_equal(np.asarray(norm(vals)), [0, 1])
 
     # Don't lose precision on longdoubles (float128 on Linux):
     # for array inputs...
     vals = np.array([1.2345678901, 9.8765432109], dtype=np.longdouble)
-    norm = mcolors.Normalize(vals.min(), vals.max())
+    norm = mcolors.LinearNorm(vals.min(), vals.max())
     assert_array_equal(np.asarray(norm(vals)), [0, 1])
     # and for scalar ones.
     eps = np.finfo(np.longdouble).resolution
-    norm = plt.Normalize(1, 1 + 100 * eps)
+    norm = plt.LinearNorm(1, 1 + 100 * eps)
     # This returns exactly 0.5 when longdouble is extended precision (80-bit),
     # but only a value close to it when it is quadruple precision (128-bit).
     assert 0 < norm(1 + 50 * eps) < 1
@@ -904,9 +904,9 @@ def test_ndarray_subclass_norm(recwarn):
     data = np.arange(-10, 10, 1, dtype=float).reshape((10, 2))
     mydata = data.view(MyArray)
 
-    for norm in [mcolors.Normalize(), mcolors.LogNorm(),
+    for norm in [mcolors.LinearNorm(), mcolors.LogNorm(),
                  mcolors.SymLogNorm(3, vmax=5, linscale=1),
-                 mcolors.Normalize(vmin=mydata.min(), vmax=mydata.max()),
+                 mcolors.LinearNorm(vmin=mydata.min(), vmax=mydata.max()),
                  mcolors.SymLogNorm(3, vmin=mydata.min(), vmax=mydata.max()),
                  mcolors.PowerNorm(1)]:
         assert_array_equal(norm(mydata), norm(data))

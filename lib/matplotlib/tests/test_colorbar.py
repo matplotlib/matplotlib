@@ -7,7 +7,7 @@ import matplotlib.colors as mcolors
 from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib.colors import (BoundaryNorm, LogNorm, PowerNorm, Normalize,
+from matplotlib.colors import (BoundaryNorm, LogNorm, PowerNorm, LinearNorm,
                                TwoSlopeNorm)
 from matplotlib.colorbar import ColorbarBase, _ColorbarLogLocator
 from matplotlib.ticker import FixedLocator
@@ -499,7 +499,7 @@ def test_colorbar_scale_reset():
 
     pcm.set_norm(LogNorm(vmin=1, vmax=100))
     assert cbar.ax.yaxis.get_scale() == 'log'
-    pcm.set_norm(Normalize(vmin=-20, vmax=20))
+    pcm.set_norm(LinearNorm(vmin=-20, vmax=20))
     assert cbar.ax.yaxis.get_scale() == 'linear'
 
 
@@ -545,7 +545,7 @@ def test_extend_colorbar_customnorm():
 
 def test_mappable_no_alpha():
     fig, ax = plt.subplots()
-    sm = cm.ScalarMappable(norm=mcolors.Normalize(), cmap='viridis')
+    sm = cm.ScalarMappable(norm=mcolors.LinearNorm(), cmap='viridis')
     fig.colorbar(sm)
     sm.set_cmap('plasma')
     plt.draw()

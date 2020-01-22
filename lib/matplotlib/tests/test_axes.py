@@ -1018,7 +1018,7 @@ def test_imshow_norm_vminvmax(fig_test, fig_ref):
     with pytest.warns(MatplotlibDeprecationWarning,
                       match="Passing parameters norm and vmin/vmax "
                             "simultaneously is deprecated."):
-        ax.imshow(a, norm=mcolors.Normalize(-10, 10), vmin=0, vmax=5)
+        ax.imshow(a, norm=mcolors.LinearNorm(-10, 10), vmin=0, vmax=5)
 
 
 @image_comparison(['polycollection_joinstyle'], remove_text=True)
@@ -2000,7 +2000,7 @@ class TestScatter:
         with pytest.warns(MatplotlibDeprecationWarning,
                           match="Passing parameters norm and vmin/vmax "
                                 "simultaneously is deprecated."):
-            ax.scatter(x, x, c=x, norm=mcolors.Normalize(-10, 10),
+            ax.scatter(x, x, c=x, norm=mcolors.LinearNorm(-10, 10),
                        vmin=0, vmax=5)
 
     @check_figures_equal(extensions=["png"])

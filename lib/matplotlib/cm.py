@@ -159,10 +159,10 @@ class ScalarMappable:
 
         Parameters
         ----------
-        norm : `matplotlib.colors.Normalize` (or subclass thereof)
+        norm : `matplotlib.colors.Norm` (or subclass thereof)
             The normalizing object which scales data, typically into the
             interval ``[0, 1]``.
-            If *None*, *norm* defaults to a *colors.Normalize* object which
+            If *None*, *norm* defaults to a *colors.LinearNorm* object which
             initializes its scaling based on the first data processed.
         cmap : str or `~matplotlib.colors.Colormap`
             The colormap used to map normalized data values to RGBA colors.
@@ -173,7 +173,7 @@ class ScalarMappable:
         if cmap is None:
             cmap = get_cmap()
         if norm is None:
-            norm = colors.Normalize()
+            norm = colors.LinearNorm()
 
         self._A = None
         #: The Normalization instance of this ScalarMappable.
@@ -351,7 +351,7 @@ class ScalarMappable:
 
         Parameters
         ----------
-        norm : `.Normalize`
+        norm : `.Norm`
 
         Notes
         -----
@@ -360,9 +360,9 @@ class ScalarMappable:
         on the colorbar to default.
 
         """
-        cbook._check_isinstance((colors.Normalize, None), norm=norm)
+        cbook._check_isinstance((colors.Norm, None), norm=norm)
         if norm is None:
-            norm = colors.Normalize()
+            norm = colors.LinearNorm()
         self.norm = norm
         self.changed()
 

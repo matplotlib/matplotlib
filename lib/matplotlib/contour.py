@@ -1645,14 +1645,14 @@ class QuadContourSet(ContourSet):
 
             If both *colors* and *cmap* are given, an error is raised.
 
-        norm : `~matplotlib.colors.Normalize`, optional
-            If a colormap is used, the `.Normalize` instance scales the level
+        norm : `~matplotlib.colors.Norm`, optional
+            If a colormap is used, the `.Norm` instance scales the level
             values to the canonical colormap range [0, 1] for mapping to
             colors. If not given, the default linear scaling is used.
 
         vmin, vmax : float, optional
             If not *None*, either or both of these values will be supplied to
-            the `.Normalize` instance, overriding the default color scaling
+            the `.Norm` instance, overriding the default color scaling
             based on *levels*.
 
         origin : {*None*, 'upper', 'lower', 'image'}, optional

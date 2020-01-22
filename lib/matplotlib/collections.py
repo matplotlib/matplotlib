@@ -1306,8 +1306,8 @@ class LineCollection(Collection):
             where ``onoffseq`` is an even length tuple of on and off ink
             in points.
 
-        norm : Normalize, optional
-            `~.colors.Normalize` instance.
+        norm : Norm, optional
+            `~.colors.Norm` instance.
 
         cmap : str or Colormap, optional
             Colormap name or `~.colors.Colormap` instance.
