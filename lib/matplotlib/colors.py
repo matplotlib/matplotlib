@@ -922,27 +922,32 @@ class ListedColormap(Colormap):
 
 class Normalize:
     """
-    A class which, when called, can normalize data into
-    the ``[0.0, 1.0]`` interval.
-
+    A class which, when called, linearly normalizes data into the
+    ``[0.0, 1.0]`` interval.
     """
     def __init__(self, vmin=None, vmax=None, clip=False):
         """
-        If *vmin* or *vmax* is not given, they are initialized from the
+        Parameters
+        ----------
+        vmin : scalar
+        vmax : scalar
+        clip : bool
+            If ``True`` values falling outside the range ``[vmin, vmax]``,
+            are mapped to 0 or 1, whichever is closer, and masked values are
+            set to 1. If ``False`` masked values remain masked.
+
+        Notes
+        -----
+        If neither *vmin* or *vmax* are given, they are initialized from the
         minimum and maximum value respectively of the first input
-        processed.  That is, *__call__(A)* calls *autoscale_None(A)*.
-        If *clip* is *True* and the given value falls outside the range,
-        the returned value will be 0 or 1, whichever is closer.
-        Returns 0 if ::
+        processed.  That is, ``__call__(A)`` calls ``autoscale_None(A)``.
+        Returns 0 if::
 
             vmin==vmax
 
-        Works with scalars or arrays, including masked arrays.  If
-        *clip* is *True*, masked values are set to 1; otherwise they
-        remain masked.  Clipping silently defeats the purpose of setting
-        the over, under, and masked colors in the colormap, so it is
-        likely to lead to surprises; therefore the default is
-        *clip* = *False*.
+        Clipping silently defeats the purpose of setting the over, under, and
+        masked colors in a colormap, so it is likely to lead to surprises;
+        therefore the default is ``clip=False``.
         """
         self.vmin = _sanitize_extrema(vmin)
         self.vmax = _sanitize_extrema(vmax)
@@ -955,15 +960,19 @@ class Normalize:
 
         *value* can be a scalar or sequence.
 
-        Returns *result*, *is_scalar*, where *result* is a
-        masked array matching *value*.  Float dtypes are preserved;
-        integer types with two bytes or smaller are converted to
-        np.float32, and larger types are converted to np.float64.
-        Preserving float32 when possible, and using in-place operations,
-        can greatly improve speed for large arrays.
+        Returns
+        -------
+        result : masked array
+            Masked array with the same shape as *value*.
+        is_scalar : bool
+            ``True`` if *value* is a scalar.
 
-        Experimental; we may want to add an option to force the
-        use of float32.
+        Notes
+        -----
+        Float dtypes are preserved; integer types with two bytes or smaller are
+        converted to np.float32, and larger types are converted to np.float64.
+        Preserving float32 when possible, and using in-place operations,
+        greatly improves speed for large arrays.
         """
         is_scalar = not np.iterable(value)
         if is_scalar:
@@ -981,11 +990,21 @@ class Normalize:
 
     def __call__(self, value, clip=None):
         """
-        Normalize *value* data in the ``[vmin, vmax]`` interval into
-        the ``[0.0, 1.0]`` interval and return it.  *clip* defaults
-        to ``self.clip`` (which defaults to *False*).  If not already
-        initialized, *vmin* and *vmax* are initialized using
-        ``autoscale_None(value)``.
+        Normalize *value* data in the ``[vmin, vmax]`` interval into the
+        ``[0.0, 1.0]`` interval and return it.
+
+        Parameters
+        ----------
+        value
+            Data to normalize.
+        clip : bool
+            If ``None``, defaults to ``self.clip`` (which defaults to
+            ``False``).
+
+        Notes
+        -----
+        If not already initialized, ``self.vmin`` and ``self.vmax`` are
+        initialized using ``self.autoscale_None(value)``.
         """
         if clip is None:
             clip = self.clip
@@ -1016,7 +1035,7 @@ class Normalize:
 
     def inverse(self, value):
         if not self.scaled():
-            raise ValueError("Not invertible until scaled")
+            raise ValueError("Not invertible until both vmin and vmax are set")
         (vmin,), _ = self.process_value(self.vmin)
         (vmax,), _ = self.process_value(self.vmax)
 
@@ -1033,7 +1052,7 @@ class Normalize:
         self.vmax = A.max()
 
     def autoscale_None(self, A):
-        """Autoscale only None-valued vmin or vmax."""
+        """If vmin or vmax are not set, use the min/max of *A* to set them."""
         A = np.asanyarray(A)
         if self.vmin is None and A.size:
             self.vmin = A.min()
@@ -1194,7 +1213,7 @@ class SymLogNorm(Normalize):
     *linthresh* allows the user to specify the size of this range
     (-*linthresh*, *linthresh*).
     """
-    def __init__(self,  linthresh, linscale=1.0,
+    def __init__(self, linthresh, linscale=1.0,
                  vmin=None, vmax=None, clip=False):
         """
         Parameters
