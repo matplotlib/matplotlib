@@ -115,7 +115,7 @@ intersphinx_mapping = {
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
     'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
     'pytest': ('https://pytest.org/en/stable', None),
-    'scipy': ('https://scipy.github.io/devdocs', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
 }
 
 
