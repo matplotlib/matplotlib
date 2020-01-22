@@ -914,29 +914,28 @@ class Normalize:
     A class which, when called, linearly normalizes data into the
     ``[0.0, 1.0]`` interval.
     """
+
     def __init__(self, vmin=None, vmax=None, clip=False):
         """
         Parameters
         ----------
-        vmin : float
-        vmax : float
-        clip : bool
+        vmin, vmax : float or None
+            If *vmin* and/or *vmax* is not given, they are initialized from the
+            minimum and maximum value, respectively, of the first input
+            processed; i.e., ``__call__(A)`` calls ``autoscale_None(A)``.
+
+        clip : bool, default: False
             If ``True`` values falling outside the range ``[vmin, vmax]``,
             are mapped to 0 or 1, whichever is closer, and masked values are
-            set to 1. If ``False`` masked values remain masked.
+            set to 1.  If ``False`` masked values remain masked.
+
+            Clipping silently defeats the purpose of setting the over, under,
+            and masked colors in a colormap, so it is likely to lead to
+            surprises; therefore the default is ``clip=False``.
 
         Notes
         -----
-        If neither *vmin* or *vmax* are given, they are initialized from the
-        minimum and maximum value respectively of the first input
-        processed.  That is, ``__call__(A)`` calls ``autoscale_None(A)``.
-        Returns 0 if::
-
-            vmin==vmax
-
-        Clipping silently defeats the purpose of setting the over, under, and
-        masked colors in a colormap, so it is likely to lead to surprises;
-        therefore the default is ``clip=False``.
+        Returns 0 if ``vmin == vmax``.
         """
         self.vmin = _sanitize_extrema(vmin)
         self.vmax = _sanitize_extrema(vmax)
@@ -954,7 +953,7 @@ class Normalize:
         result : masked array
             Masked array with the same shape as *value*.
         is_scalar : bool
-            ``True`` if *value* is a scalar.
+            Whether *value* is a scalar.
 
         Notes
         -----
