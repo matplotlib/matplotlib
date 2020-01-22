@@ -1831,9 +1831,8 @@ default: 'top'
 
         fontdict : dict, optional
             A dictionary to override the default text properties. If not given,
-            the defaults are determined by your rc parameters. Properties
-            passed as *kwargs* override the corresponding ones given in
-            *fontdict*.
+            the defaults are determined by `.rcParams`. Properties passed as
+            *kwargs* override the corresponding ones given in *fontdict*.
 
         Other Parameters
         ----------------

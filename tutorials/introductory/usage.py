@@ -732,7 +732,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # -----------------------------------
 #
 # If you are using the Agg backend (see :ref:`what-is-a-backend`),
-# then you can make use of the ``agg.path.chunksize`` rc parameter.
+# then you can make use of :rc:`agg.path.chunksize`
 # This allows you to specify a chunk size, and any lines with
 # greater than that many vertices will be split into multiple
 # lines, each of which has no more than ``agg.path.chunksize``

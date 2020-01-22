@@ -4,7 +4,7 @@ Customize Rc
 ============
 
 I'm not trying to make a good looking figure here, but just to show
-some examples of customizing rc params on the fly
+some examples of customizing `.rcParams` on the fly.
 
 If you like to work interactively, and need to create different sets
 of defaults for figures (e.g., one set of defaults for publication, one
@@ -25,8 +25,8 @@ Then as you are working interactively, you just need to do::
     >>> plot([1, 2, 3])
     >>> savefig('myfig')
     >>> rcdefaults()  # restore the defaults
-
 """
+
 import matplotlib.pyplot as plt
 
 plt.subplot(311)

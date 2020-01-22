@@ -706,7 +706,7 @@ class Axes(_AxesBase):
 
         fontdict : dict, default: None
             A dictionary to override the default text properties. If fontdict
-            is None, the defaults are determined by your rc parameters.
+            is None, the defaults are determined by `.rcParams`.
 
         Returns
         -------
