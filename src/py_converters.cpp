@@ -27,7 +27,7 @@ static int convert_string_enum(PyObject *obj, const char *name, const char **nam
         Py_INCREF(obj);
         bytesobj = obj;
     } else {
-        PyErr_Format(PyExc_TypeError, "%s must be bytes or unicode", name);
+        PyErr_Format(PyExc_TypeError, "%s must be str or bytes", name);
         return 0;
     }
 

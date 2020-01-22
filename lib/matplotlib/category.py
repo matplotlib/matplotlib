@@ -196,16 +196,14 @@ class UnitData:
 
         Parameters
         ----------
-        data : iterable
-            sequence of string values
+        data : iterable of str or bytes
 
         Raises
         ------
         TypeError
-              If the value in data is not a string, unicode, bytes type
+            If elements in *data* are neither str nor bytes.
         """
         data = np.atleast_1d(np.array(data, dtype=object))
-
         # check if convertible to number:
         convertible = True
         for val in OrderedDict.fromkeys(data):
