@@ -874,16 +874,6 @@ class Legend(Artist):
 
         return [vertices, bboxes, lines, offsets]
 
-    def draw_frame(self, b):
-        """
-        Set whether to draw a frame around the legend box.
-
-        Parameters
-        ----------
-        b : bool
-        """
-        self.set_frame_on(b)
-
     def get_children(self):
         """Return the list of child artists."""
         children = []
@@ -971,6 +961,8 @@ class Legend(Artist):
         """
         self._drawFrame = b
         self.stale = True
+
+    draw_frame = set_frame_on  # Backcompat alias.
 
     def get_bbox_to_anchor(self):
         """Return the bbox that the legend will be anchored to."""
