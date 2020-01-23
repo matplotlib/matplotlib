@@ -4323,14 +4323,15 @@ class Axes(_AxesBase):
             used if *c* is an array of floats.
 
         norm : `~matplotlib.colors.Normalize`, default: None
-            A `.Normalize` instance is used to scale luminance data to 0, 1.
-            *norm* is only used if *c* is an array of floats. If *None*, use
-            the default `.colors.Normalize`.
+            If *c* is an array of floats, *norm* is used to scale the color
+            data, *c*, in the range 0 to 1, in order to map into the colormap
+            *cmap*.
+            If *None*, use the default `.colors.Normalize`.
 
         vmin, vmax : scalar, default: None
-            *vmin* and *vmax* are used in conjunction with *norm* to normalize
-            luminance data. If None, the respective min and max of the color
-            array is used.
+            *vmin* and *vmax* are used in conjunction with the default norm to
+            map the color array *c* to the colormap *cmap*. If None, the
+            respective min and max of the color array is used.
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
         alpha : scalar, default: None
