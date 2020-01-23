@@ -2240,6 +2240,17 @@ def test_log_scales_invalid():
         ax.set_ylim(-1, 10)
 
 
+def test_polar_no_data():
+    plt.subplot(projection="polar")
+    ax = plt.gca()
+    assert ax.get_rmin() == 0 and ax.get_rmax() == 1
+    plt.close("all")
+    # Used to behave differently (by triggering an autoscale with no data).
+    plt.polar()
+    ax = plt.gca()
+    assert ax.get_rmin() == 0 and ax.get_rmax() == 1
+
+
 @image_comparison(['stackplot_test_image', 'stackplot_test_image'])
 def test_stackplot():
     fig = plt.figure()

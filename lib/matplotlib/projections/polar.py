@@ -385,6 +385,7 @@ class RadialLocator(mticker.Locator):
     :class:`~matplotlib.ticker.Locator` (which may be different
     depending on the scale of the *r*-axis.
     """
+
     def __init__(self, base, axes=None):
         self.base = base
         self._axes = axes
@@ -415,6 +416,11 @@ class RadialLocator(mticker.Locator):
     def refresh(self):
         # docstring inherited
         return self.base.refresh()
+
+    def nonsingular(self, vmin, vmax):
+        # docstring inherited
+        return ((0, 1) if (vmin, vmax) == (-np.inf, np.inf)  # Init. limits.
+                else self.base.nonsingular(vmin, vmax))
 
     def view_limits(self, vmin, vmax):
         vmin, vmax = self.base.view_limits(vmin, vmax)
