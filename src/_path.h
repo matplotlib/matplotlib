@@ -814,8 +814,13 @@ int count_bboxes_overlapping_bbox(agg::rect_d &a, BBoxArray &bboxes)
 }
 
 
-inline bool isclose(double a, double b, double rtol, double atol)
+inline bool isclose(double a, double b)
 {
+    // relative and absolute tolerance values are chosen empirically
+    // it looks the atol value matters here bacause of round-off errors
+    const double rtol = 1e-10;
+    const double atol = 1e-13;
+
     // as per python's math.isclose
     return fabs(a-b) <= fmax(rtol * fmax(fabs(a), fabs(b)), atol);
 }
@@ -830,14 +835,10 @@ inline bool segments_intersect(const double &x1,
                                const double &x4,
                                const double &y4)
 {
-    // relative and absolute tolerance values are chosen empirically
-    // it looks the atol value matters here bacause of round-off errors
-    const double rtol = 1e-10;
-    const double atol = 1e-13;
     // determinant
     double den = ((y4 - y3) * (x2 - x1)) - ((x4 - x3) * (y2 - y1));
 
-    if (isclose(den, 0.0, rtol, atol)) {  // collinear segments
+    if (isclose(den, 0.0)) {  // collinear segments
         if (x1 == x2 && x2 == x3) { // segments have infinite slope (vertical lines)
                                     // and lie on the same line
             return (fmin(y1, y2) <= fmin(y3, y4) && fmin(y3, y4) <= fmax(y1, y2)) ||
@@ -845,25 +846,25 @@ inline bool segments_intersect(const double &x1,
         }
         else {
             double intercept = (y1*x2 - y2*x1)*(x4 - x3) - (y3*x4 - y4*x3)*(x1 - x2);
-            if (isclose(intercept, 0.0, rtol, atol)) { // segments lie on the same line
+            if (isclose(intercept, 0.0)) { // segments lie on the same line
                 return (fmin(x1, x2) <= fmin(x3, x4) && fmin(x3, x4) <= fmax(x1, x2)) ||
                        (fmin(x3, x4) <= fmin(x1, x2) && fmin(x1, x2) <= fmax(x3, x4));
             }
         }
-       
+
         return false;
     }
 
-    double n1 = ((x4 - x3) * (y1 - y3)) - ((y4 - y3) * (x1 - x3));
-    double n2 = ((x2 - x1) * (y1 - y3)) - ((y2 - y1) * (x1 - x3));
+    const double n1 = ((x4 - x3) * (y1 - y3)) - ((y4 - y3) * (x1 - x3));
+    const double n2 = ((x2 - x1) * (y1 - y3)) - ((y2 - y1) * (x1 - x3));
 
-    double u1 = n1 / den;
-    double u2 = n2 / den;
+    const double u1 = n1 / den;
+    const double u2 = n2 / den;
 
-    return ((u1 > 0.0 || isclose(u1, 0.0, rtol, atol)) && 
-            (u1 < 1.0 || isclose(u1, 1.0, rtol, atol)) && 
-            (u2 > 0.0 || isclose(u2, 0.0, rtol, atol)) && 
-            (u2 < 1.0 || isclose(u2, 1.0, rtol, atol)));
+    return ((u1 > 0.0 || isclose(u1, 0.0)) &&
+            (u1 < 1.0 || isclose(u1, 1.0)) &&
+            (u2 > 0.0 || isclose(u2, 0.0)) &&
+            (u2 < 1.0 || isclose(u2, 1.0)));
 }
 
 template <class PathIterator1, class PathIterator2>
@@ -887,9 +888,18 @@ bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
 
     c1.vertex(&x11, &y11);
     while (c1.vertex(&x12, &y12) != agg::path_cmd_stop) {
+        // if the segment in path 1 is (almost) 0 length, skip to next vertex
+        if ((isclose((x11 - x12) * (x11 - x12) + (y11 - y12) * (y11 - y12), 0))){
+            continue;
+        }
         c2.rewind(0);
         c2.vertex(&x21, &y21);
+
         while (c2.vertex(&x22, &y22) != agg::path_cmd_stop) {
+            // if the segment in path 2 is (almost) 0 length, skip to next vertex
+            if ((isclose((x21 - x22) * (x21 - x22) + (y21 - y22) * (y21 - y22), 0))){
+                continue;
+            }
             if (segments_intersect(x11, y11, x12, y12, x21, y21, x22, y22)) {
                 return true;
             }
