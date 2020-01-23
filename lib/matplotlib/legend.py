@@ -824,55 +824,34 @@ class Legend(Artist):
 
     def _auto_legend_data(self):
         """
-        Returns list of vertices and extents covered by the plot.
+        Return display coordinates for hit testing for "best" positioning.
 
-        Returns a two long list.
-
-        First element is a list of (x, y) vertices (in
-        display-coordinates) covered by all the lines and line
-        collections, in the legend's handles.
-
-        Second element is a list of bounding boxes for all the patches in
-        the legend's handles.
+        Returns
+        -------
+        vertices
+            List of (x, y) vertices of all lines.
+        bboxes
+            List of bounding boxes of all patches.
+        lines
+            List of `.Path` corresponding to each line.
+        offsets
+            List of (x, y) offsets of all collection.
         """
-        # should always hold because function is only called internally
-        assert self.isaxes
-
+        assert self.isaxes  # always holds, as this is only called internally
         ax = self.parent
-        bboxes = []
-        lines = []
+        lines = [line.get_transform().transform_path(line.get_path())
+                 for line in ax.lines]
+        vertices = np.concatenate([l.vertices for l in lines]) if lines else []
+        bboxes = [patch.get_bbox().transformed(patch.get_data_transform())
+                  if isinstance(patch, Rectangle) else
+                  patch.get_path().get_extents(patch.get_transform())
+                  for patch in ax.patches]
         offsets = []
-
-        for handle in ax.lines:
-            assert isinstance(handle, Line2D)
-            path = handle.get_path()
-            trans = handle.get_transform()
-            tpath = trans.transform_path(path)
-            lines.append(tpath)
-
-        for handle in ax.patches:
-            assert isinstance(handle, Patch)
-
-            if isinstance(handle, Rectangle):
-                transform = handle.get_data_transform()
-                bboxes.append(handle.get_bbox().transformed(transform))
-            else:
-                transform = handle.get_transform()
-                bboxes.append(handle.get_path().get_extents(transform))
-
         for handle in ax.collections:
-            transform, transOffset, hoffsets, paths = handle._prepare_points()
-
-            if len(hoffsets):
-                for offset in transOffset.transform(hoffsets):
-                    offsets.append(offset)
-
-        try:
-            vertices = np.concatenate([l.vertices for l in lines])
-        except ValueError:
-            vertices = np.array([])
-
-        return [vertices, bboxes, lines, offsets]
+            _, transOffset, hoffsets, _ = handle._prepare_points()
+            for offset in transOffset.transform(hoffsets):
+                offsets.append(offset)
+        return vertices, bboxes, lines, offsets
 
     def get_children(self):
         """Return the list of child artists."""
@@ -1048,8 +1027,7 @@ class Legend(Artist):
         *consider* is a list of ``(x, y)`` pairs to consider as a potential
         lower-left corner of the legend. All are display coords.
         """
-        # should always hold because function is only called internally
-        assert self.isaxes
+        assert self.isaxes  # always holds, as this is only called internally
 
         start_time = time.perf_counter()
 
@@ -1066,9 +1044,8 @@ class Legend(Artist):
         for idx, (l, b) in enumerate(consider):
             legendBox = Bbox.from_bounds(l, b, width, height)
             badness = 0
-            # XXX TODO: If markers are present, it would be good to
-            # take them into account when checking vertex overlaps in
-            # the next line.
+            # XXX TODO: If markers are present, it would be good to take them
+            # into account when checking vertex overlaps in the next line.
             badness = (legendBox.count_contains(verts)
                        + legendBox.count_contains(offsets)
                        + legendBox.count_overlaps(bboxes)
