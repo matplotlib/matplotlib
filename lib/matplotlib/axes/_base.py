@@ -4363,7 +4363,6 @@ class _AxesBase(martist.Artist):
         matplotlib.axes.Axes.get_window_extent
         matplotlib.axis.Axis.get_tightbbox
         matplotlib.spines.Spine.get_window_extent
-
         """
 
         bb = []
@@ -4388,18 +4387,13 @@ class _AxesBase(martist.Artist):
                 bb.append(bb_yaxis)
 
         self._update_title_position(renderer)
+
         axbbox = self.get_window_extent(renderer)
         bb.append(axbbox)
 
-        self._update_title_position(renderer)
-        if self.title.get_visible():
-            bb.append(self.title.get_window_extent(renderer))
-        if self._left_title.get_visible():
-            bb.append(self._left_title.get_window_extent(renderer))
-        if self._right_title.get_visible():
-            bb.append(self._right_title.get_window_extent(renderer))
-
-        bb.append(self.get_window_extent(renderer))
+        for title in [self.title, self._left_title, self._right_title]:
+            if title.get_visible():
+                bb.append(title.get_window_extent(renderer))
 
         bbox_artists = bbox_extra_artists
         if bbox_artists is None:
@@ -4422,10 +4416,9 @@ class _AxesBase(martist.Artist):
                     and 0 < bbox.width < np.inf
                     and 0 < bbox.height < np.inf):
                 bb.append(bbox)
-        _bbox = mtransforms.Bbox.union(
-            [b for b in bb if b.width != 0 or b.height != 0])
 
-        return _bbox
+        return mtransforms.Bbox.union(
+            [b for b in bb if b.width != 0 or b.height != 0])
 
     def _make_twin_axes(self, *args, **kwargs):
         """Make a twinx axes of self. This is used for twinx and twiny."""
