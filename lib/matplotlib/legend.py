@@ -448,7 +448,8 @@ class TextWithLegend(Text):
 
     def _get_layout_with_legend(self, renderer):
         if self.legend is None:
-            return *Text._get_layout(self, renderer, 0), 0
+            bbox, info, descent = Text._get_layout(self, renderer, 0)
+            return bbox, info, descent, 0
         legend_extent = self.legend.get_extent(renderer)
         legend_width, legend_height, _, _ = legend_extent
         padding = self.legend_config.handletextpad * self.get_size()
