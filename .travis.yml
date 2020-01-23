@@ -36,8 +36,8 @@ addons:
       - libgeos-dev
       - libgirepository1.0-dev
       - lmodern
-      - otf-freefont
-      - pgf
+      - fonts-freefont-otf
+      - texlive-pictures
       - pkg-config
       - qtbase5-dev
       - texlive-fonts-recommended
