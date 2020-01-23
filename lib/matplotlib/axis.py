@@ -11,6 +11,7 @@ from matplotlib import rcParams
 import matplotlib.artist as martist
 import matplotlib.cbook as cbook
 import matplotlib.font_manager as font_manager
+import matplotlib.legend as mlegend
 import matplotlib.lines as mlines
 import matplotlib.scale as mscale
 import matplotlib.text as mtext
@@ -691,7 +692,7 @@ class Axis(martist.Artist):
         self._autolabelpos = True
         self._smart_bounds = False  # Deprecated in 3.2
 
-        self.label = mtext.Text(
+        self.label = mlegend.TextWithLegend(
             np.nan, np.nan,
             fontproperties=font_manager.FontProperties(
                 size=rcParams['axes.labelsize'],

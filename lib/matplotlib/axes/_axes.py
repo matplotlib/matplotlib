@@ -223,7 +223,7 @@ class Axes(_AxesBase):
         handle: `.Artist`
             An artist (e.g. lines, patches) to be shown as legend.
 
-        **kwargs: `.BasicLegend` properties
+        **kwargs: `.LegendConfig` properties
             Additional properties to control legend appearance.
         """
         label = self.xaxis.get_label()
@@ -272,7 +272,7 @@ class Axes(_AxesBase):
         handle: `.Artist`
             An artist (e.g. lines, patches) to be shown as legend.
 
-        **kwargs: `.BasicLegend` properties
+        **kwargs: `.LegendConfig` properties
             Additional properties to control legend appearance.
 
         Examples

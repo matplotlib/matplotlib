@@ -36,6 +36,7 @@ from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
 from matplotlib.collections import (LineCollection, RegularPolyCollection,
                                     CircleCollection, PathCollection,
                                     PolyCollection)
+from matplotlib.text import Text
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 from matplotlib.transforms import BboxTransformTo, BboxTransformFrom
 
@@ -228,7 +229,7 @@ columnspacing : float, default: :rc:`legend.columnspacing`
     The spacing between columns, in font-size units.
 """)
 
-docstring.interpd.update(_basic_legend_kw_doc="""
+docstring.interpd.update(_legend_config_kw_doc="""
 numpoints : int, default: :rc:`legend.numpoints`
     The number of marker points in the legend when creating a legend
     entry for a `.Line2D` (line).
@@ -259,16 +260,17 @@ handletextpad : float, default: :rc:`legend.handletextpad`
 handler_map : dict or None
     The custom dictionary mapping instances or types to a legend
     handler. This `handler_map` updates the default handler map
-    found at :func:`matplotlib.legend.BasicLegend.get_legend_handler_map`.
+    found at :func:`matplotlib.legend.LegendConfig.get_legend_handler_map`.
 """)
 
 
-class BasicLegend(object):
+class LegendConfig(object):
     """
     Shared elements of regular legends and axis-label legends.
     """
     @docstring.dedent_interpd
     def __init__(self,
+                 parent,
                  numpoints=None,    # the number of points in the legend line
                  markerscale=None,  # the relative size of legend markers
                                     # vs. original
@@ -286,9 +288,10 @@ class BasicLegend(object):
         """
         Parameters
         ----------
-        %(_basic_legend_kw_doc)s
+        %(_legend_config_kw_doc)s
         """
 
+        self.parent = parent
         #: A dictionary with the extra handler mappings for this Legend
         #: instance.
         self._custom_handler_map = handler_map
@@ -425,56 +428,99 @@ class BasicLegend(object):
             "#creating-artists-specifically-for-adding-to-the-legend-"
             "aka-proxy-artists".format(handle))
 
+    def _set_artist_props(self, a):
+        self.parent._set_artist_props(a)
 
-class AxisLabelLegend(BasicLegend):
+
+class TextWithLegend(Text):
     """
-    Place a legend next to the axis labels.
+    Place a legend symbol next to a text.
     """
-    def __init__(self, text, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
-        Parameters
-        ----------
-        text: `.Text`
-            The text object this legend belongs to.
+        Valid keyword arguments are:
 
-        **kwargs: `.BasicLegend` properties
-            Additional properties controlling legend appearance.
-
+        %(Text)s
         """
-        BasicLegend.__init__(self, **kwargs)
-        self.text = text
-        self.figure = text.figure
+        Text.__init__(self, *args, **kwargs)
+        self.legend_config = None
+        self.legend = None
 
-    def init_legend(self, handle, rotate):
+    def _get_layout_with_legend(self, renderer):
+        if self.legend is None:
+            return *Text._get_layout(self, renderer, 0), 0
+        legend_extent = self.legend.get_extent(renderer)
+        legend_width, legend_height, _, _ = legend_extent
+        padding = self.legend_config.handletextpad * self.get_size()
+        rotation = self.get_rotation()
+        if rotation == 0:
+            line_indent = legend_width + padding
+            bbox, info, descent = Text._get_layout(self, renderer, line_indent)
+            line, (w, h, d), x, y = info[0]
+            legend_offset = (
+                x - line_indent,
+                y + (h-d - legend_height) / 2
+            )
+        elif rotation == 90:
+            line_indent = legend_height + padding
+            bbox, info, descent = Text._get_layout(self, renderer, line_indent)
+            line, (w, h, d), x, y = info[0]
+            legend_offset = (
+                x - (h-d + legend_width) / 2,
+                y - line_indent
+            )
+        return bbox, info, descent, legend_offset
+
+    def _get_layout(self, renderer, firstline_indent=0):
+        bbox, info, descent, _ = self._get_layout_with_legend(renderer)
+        return bbox, info, descent
+
+    def draw(self, renderer):
+        Text.draw(self, renderer)
+        if self.legend is not None:
+            bbox, info, _, offset = self._get_layout_with_legend(renderer)
+            x, y = offset
+            trans = self.get_transform()
+            posx, posy = self.get_unitless_position()
+            posx, posy = trans.transform((posx, posy))
+            self.legend.set_offset((x + posx, y + posy))
+            self.legend.draw(renderer)
+
+    def set_legend_handle(self, handle, **kwargs):
         """Initialize DrawingArea and legend artist"""
-        fontsize = self.text.get_fontsize()
-        descent, height = self._approx_box_height(fontsize)
+        rotation = self.get_rotation()
+        if rotation not in [0, 90]:
+            cbook._warn_external("Legend symbols are only supported "
+                "for non-rotated texts and texts rotated by 90°.")
+            return
+        rotate = rotation == 90
+        config = LegendConfig(self.figure, **kwargs)
+        self.legend_config = config
+        fontsize = self.get_fontsize()
+        descent, height = config._approx_box_height(fontsize)
 
-        legend_handler_map = self.get_legend_handler_map()
-        handler = self.get_legend_handler(legend_handler_map, handle)
+        legend_handler_map = config.get_legend_handler_map()
+        handler = config.get_legend_handler(legend_handler_map, handle)
         if handler is None:
-            self._warn_unsupported_artist(handle)
-            return None
+            config._warn_unsupported_artist(handle)
+            self.legend_config = None
+            self.legend = None
+            return
         if rotate:
-            box_width, box_height = height, self.handlelength * fontsize
+            box_width, box_height = height, config.handlelength * fontsize
             xdescent, ydescent = descent, 0
         else:
-            box_width, box_height = self.handlelength * fontsize, height
+            box_width, box_height = config.handlelength * fontsize, height
             xdescent, ydescent = 0, descent
 
-        self.box = DrawingArea(width=box_width, height=box_height,
-                               xdescent=xdescent, ydescent=ydescent)
+        self.legend = DrawingArea(width=box_width, height=box_height,
+                                  xdescent=xdescent, ydescent=ydescent)
         # Create the artist for the legend which represents the
         # original artist/handle.
-        handler.legend_artist(self, handle, fontsize, self.box, rotate)
-        return self
-
-    def _set_artist_props(self, a):
-        a.set_figure(self.text.figure)
-        a.axes = self.text.axes
+        handler.legend_artist(config, handle, fontsize, self.legend, rotate)
 
 
-class Legend(Artist, BasicLegend):
+class Legend(Artist, LegendConfig):
     """
     Place a legend on the axes at location loc.
 
@@ -548,7 +594,7 @@ class Legend(Artist, BasicLegend):
         ----------------
         %(_legend_kw_doc)s
 
-        %(_basic_legend_kw_doc)s
+        %(_legend_config_kw_doc)s
 
         Notes
         -----
@@ -566,7 +612,7 @@ class Legend(Artist, BasicLegend):
         from matplotlib.figure import Figure
 
         Artist.__init__(self)
-        BasicLegend.__init__(self, **kwargs)
+        LegendConfig.__init__(self, parent, **kwargs)
 
         if prop is None:
             if fontsize is not None:
