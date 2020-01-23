@@ -885,13 +885,8 @@ class Legend(Artist):
         self.set_frame_on(b)
 
     def get_children(self):
-        """Return the list of child artists."""
-        children = []
-        if self._legend_box:
-            children.append(self._legend_box)
-        children.append(self.get_frame())
-
-        return children
+        # docstring inherited
+        return [self._legend_box, self.get_frame()]
 
     def get_frame(self):
         """Return the `~.patches.Rectangle` used to frame the legend."""
