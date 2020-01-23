@@ -273,81 +273,78 @@ def test_path_deepcopy():
     copy.deepcopy(path2)
 
 
-def test_path_intersect_path():
+@pytest.mark.parametrize('phi', np.concatenate([
+    np.array([0, 15, 30, 45, 60, 75, 90, 105, 120, 135]) + delta
+    for delta in [-1, 0, 1]]))
+def test_path_intersect_path(phi):
     # test for the range of intersection angles
-    base_angles = np.array([0, 15, 30, 45, 60, 75, 90, 105, 120, 135])
-    angles = np.concatenate([base_angles, base_angles + 1, base_angles - 1])
     eps_array = [1e-5, 1e-8, 1e-10, 1e-12]
 
-    for phi in angles:
+    transform = transforms.Affine2D().rotate(np.deg2rad(phi))
 
-        transform = transforms.Affine2D().rotate(np.deg2rad(phi))
+    # a and b intersect at angle phi
+    a = Path([(-2, 0), (2, 0)])
+    b = transform.transform_path(a)
+    assert a.intersects_path(b) and b.intersects_path(a)
 
-        # a and b intersect at angle phi
-        a = Path([(-2, 0), (2, 0)])
-        b = transform.transform_path(a)
-        assert a.intersects_path(b) and b.intersects_path(a)
+    # a and b touch at angle phi at (0, 0)
+    a = Path([(0, 0), (2, 0)])
+    b = transform.transform_path(a)
+    assert a.intersects_path(b) and b.intersects_path(a)
 
-        # a and b touch at angle phi at (0, 0)
-        a = Path([(0, 0), (2, 0)])
-        b = transform.transform_path(a)
-        assert a.intersects_path(b) and b.intersects_path(a)
+    # a and b are orthogonal and intersect at (0, 3)
+    a = transform.transform_path(Path([(0, 1), (0, 3)]))
+    b = transform.transform_path(Path([(1, 3), (0, 3)]))
+    assert a.intersects_path(b) and b.intersects_path(a)
 
-        # a and b are orthogonal and intersect at (0, 3)
-        a = transform.transform_path(Path([(0, 1), (0, 3)]))
-        b = transform.transform_path(Path([(1, 3), (0, 3)]))
-        assert a.intersects_path(b) and b.intersects_path(a)
+    # a and b are collinear and intersect at (0, 3)
+    a = transform.transform_path(Path([(0, 1), (0, 3)]))
+    b = transform.transform_path(Path([(0, 5), (0, 3)]))
+    assert a.intersects_path(b) and b.intersects_path(a)
 
-        # a and b are collinear and intersect at (0, 3)
-        a = transform.transform_path(Path([(0, 1), (0, 3)]))
-        b = transform.transform_path(Path([(0, 5), (0, 3)]))
-        assert a.intersects_path(b) and b.intersects_path(a)
+    # self-intersect
+    assert a.intersects_path(a)
 
-        # self-intersect
-        assert a.intersects_path(a)
+    # a contains b
+    a = transform.transform_path(Path([(0, 0), (5, 5)]))
+    b = transform.transform_path(Path([(1, 1), (3, 3)]))
+    assert a.intersects_path(b) and b.intersects_path(a)
 
-        # a contains b
-        a = transform.transform_path(Path([(0, 0), (5, 5)]))
-        b = transform.transform_path(Path([(1, 1), (3, 3)]))
-        assert a.intersects_path(b) and b.intersects_path(a)
+    # a and b are collinear but do not intersect
+    a = transform.transform_path(Path([(0, 1), (0, 5)]))
+    b = transform.transform_path(Path([(3, 0), (3, 3)]))
+    assert not a.intersects_path(b) and not b.intersects_path(a)
 
-        # a and b are collinear but do not intersect
+    # a and b are on the same line but do not intersect
+    a = transform.transform_path(Path([(0, 1), (0, 5)]))
+    b = transform.transform_path(Path([(0, 6), (0, 7)]))
+    assert not a.intersects_path(b) and not b.intersects_path(a)
+
+    # Note: 1e-13 is the absolute tolerance error used for
+    # `isclose` function from src/_path.h
+
+    # a and b are parallel but do not touch
+    for eps in eps_array:
         a = transform.transform_path(Path([(0, 1), (0, 5)]))
-        b = transform.transform_path(Path([(3, 0), (3, 3)]))
+        b = transform.transform_path(Path([(0 + eps, 1), (0 + eps, 5)]))
         assert not a.intersects_path(b) and not b.intersects_path(a)
 
-        # a and b are on the same line but do not intersect
+    # a and b are on the same line but do not intersect (really close)
+    for eps in eps_array:
         a = transform.transform_path(Path([(0, 1), (0, 5)]))
-        b = transform.transform_path(Path([(0, 6), (0, 7)]))
+        b = transform.transform_path(Path([(0, 5 + eps), (0, 7)]))
         assert not a.intersects_path(b) and not b.intersects_path(a)
 
-        # Note: 1e-13 is the absolute tolerance error used for
-        # `isclose` function from src/_path.h
-
-        # a and b are parallel but do not touch
-        for eps in eps_array:
-            a = transform.transform_path(Path([(0, 1), (0, 5)]))
-            b = transform.transform_path(Path([(0 + eps, 1), (0 + eps, 5)]))
-            assert not a.intersects_path(b) and not b.intersects_path(a)
-
-        # a and b are on the same line but do not intersect (really close)
-        for eps in eps_array:
-            a = transform.transform_path(Path([(0, 1), (0, 5)]))
-            b = transform.transform_path(Path([(0, 5 + eps), (0, 7)]))
-            assert not a.intersects_path(b) and not b.intersects_path(a)
-
-        # a and b are on the same line and intersect (really close)
-        for eps in eps_array:
-            a = transform.transform_path(Path([(0, 1), (0, 5)]))
-            b = transform.transform_path(Path([(0, 5 - eps), (0, 7)]))
-            assert a.intersects_path(b) and b.intersects_path(a)
-
-        # b is the same as a but with an extra point
+    # a and b are on the same line and intersect (really close)
+    for eps in eps_array:
         a = transform.transform_path(Path([(0, 1), (0, 5)]))
-        b = transform.transform_path(Path([(0, 1), (0, 2), (0, 5)]))
+        b = transform.transform_path(Path([(0, 5 - eps), (0, 7)]))
         assert a.intersects_path(b) and b.intersects_path(a)
 
-    return
+    # b is the same as a but with an extra point
+    a = transform.transform_path(Path([(0, 1), (0, 5)]))
+    b = transform.transform_path(Path([(0, 1), (0, 2), (0, 5)]))
+    assert a.intersects_path(b) and b.intersects_path(a)
 
 
 @pytest.mark.parametrize('offset', range(-720, 361, 45))
@@ -360,3 +357,46 @@ def test_full_arc(offset):
     maxs = np.max(path.vertices, axis=0)
     np.testing.assert_allclose(mins, -1)
     assert np.allclose(maxs, 1)
+
+
+def test_disjoint_zero_length_segment():
+    this_path = Path(
+        np.array([
+            [824.85064295, 2056.26489203],
+            [861.69033931, 2041.00539016],
+            [868.57864109, 2057.63522175],
+            [831.73894473, 2072.89472361],
+            [824.85064295, 2056.26489203]]),
+        np.array([1, 2, 2, 2, 79], dtype=Path.code_type))
+
+    outline_path = Path(
+        np.array([
+            [859.91051028, 2165.38461538],
+            [859.06772495, 2149.30331334],
+            [859.06772495, 2181.46591743],
+            [859.91051028, 2165.38461538],
+            [859.91051028, 2165.38461538]]),
+        np.array([1, 2, 2, 2, 2],
+                 dtype=Path.code_type))
+
+    assert not outline_path.intersects_path(this_path)
+    assert not this_path.intersects_path(outline_path)
+
+
+def test_intersect_zero_length_segment():
+    this_path = Path(
+        np.array([
+            [0, 0],
+            [1, 1],
+        ]))
+
+    outline_path = Path(
+        np.array([
+            [1, 0],
+            [.5, .5],
+            [.5, .5],
+            [0, 1],
+        ]))
+
+    assert outline_path.intersects_path(this_path)
+    assert this_path.intersects_path(outline_path)
