@@ -610,16 +610,6 @@ class Legend(Artist):
         renderer.close_group('legend')
         self.stale = False
 
-    def _approx_text_height(self, renderer=None):
-        """
-        Return the approximate height of the text. This is used to place
-        the legend handle.
-        """
-        if renderer is None:
-            return self._fontsize
-        else:
-            return renderer.points_to_pixels(self._fontsize)
-
     # _default_handler_map defines the default mapping between plot
     # elements and the legend handlers.
 
@@ -731,9 +721,9 @@ class Legend(Artist):
 
         # The approximate height and descent of text. These values are
         # only used for plotting the legend handle.
-        descent = 0.35 * self._approx_text_height() * (self.handleheight - 0.7)
+        descent = 0.35 * fontsize * (self.handleheight - 0.7)
         # 0.35 and 0.7 are just heuristic numbers and may need to be improved.
-        height = self._approx_text_height() * self.handleheight - descent
+        height = fontsize * self.handleheight - descent
         # each handle needs to be drawn inside a box of (x, y, w, h) =
         # (0, -descent, width, height).  And their coordinates should
         # be given in the display coordinates.
