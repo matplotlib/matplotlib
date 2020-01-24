@@ -828,8 +828,6 @@ class Legend(Artist):
 
         Returns
         -------
-        vertices
-            List of (x, y) vertices of all lines.
         bboxes
             List of bounding boxes of all patches.
         lines
@@ -841,7 +839,6 @@ class Legend(Artist):
         ax = self.parent
         lines = [line.get_transform().transform_path(line.get_path())
                  for line in ax.lines]
-        vertices = np.concatenate([l.vertices for l in lines]) if lines else []
         bboxes = [patch.get_bbox().transformed(patch.get_data_transform())
                   if isinstance(patch, Rectangle) else
                   patch.get_path().get_extents(patch.get_transform())
@@ -851,7 +848,7 @@ class Legend(Artist):
             _, transOffset, hoffsets, _ = handle._prepare_points()
             for offset in transOffset.transform(hoffsets):
                 offsets.append(offset)
-        return vertices, bboxes, lines, offsets
+        return bboxes, lines, offsets
 
     def get_children(self):
         """Return the list of child artists."""
@@ -1031,7 +1028,7 @@ class Legend(Artist):
 
         start_time = time.perf_counter()
 
-        verts, bboxes, lines, offsets = self._auto_legend_data()
+        bboxes, lines, offsets = self._auto_legend_data()
 
         bbox = Bbox.from_bounds(0, 0, width, height)
         if consider is None:
@@ -1046,7 +1043,8 @@ class Legend(Artist):
             badness = 0
             # XXX TODO: If markers are present, it would be good to take them
             # into account when checking vertex overlaps in the next line.
-            badness = (legendBox.count_contains(verts)
+            badness = (sum(legendBox.count_contains(line.vertices)
+                           for line in lines)
                        + legendBox.count_contains(offsets)
                        + legendBox.count_overlaps(bboxes)
                        + sum(line.intersects_bbox(legendBox, filled=False)
