@@ -44,7 +44,6 @@ In Matplotlib, the location of axes (including subplots) are specified in
 normalized figure coordinates. It can happen that your axis labels or
 titles (or sometimes even ticklabels) go outside the figure area, and are thus
 clipped.
-
 """
 
 # sphinx_gallery_thumbnail_number = 18
@@ -58,19 +57,20 @@ import numpy as np
 
 plt.rcParams['savefig.facecolor'] = "0.8"
 plt.rcParams['figure.figsize'] = 4.5, 4.
+plt.rcParams['figure.max_open_warning'] = 50
 
 
-def example_plot(ax, fontsize=12, nodec=False):
+def example_plot(ax, fontsize=12, hide_labels=False):
     ax.plot([1, 2])
 
     ax.locator_params(nbins=3)
-    if not nodec:
+    if hide_labels:
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+    else:
         ax.set_xlabel('x-label', fontsize=fontsize)
         ax.set_ylabel('y-label', fontsize=fontsize)
         ax.set_title('Title', fontsize=fontsize)
-    else:
-        ax.set_xticklabels('')
-        ax.set_yticklabels('')
 
 
 fig, ax = plt.subplots(constrained_layout=False)
@@ -266,17 +266,13 @@ fig.savefig('CL02.png', bbox_inches='tight', dpi=100)
 
 fig, axs = plt.subplots(2, 2, constrained_layout=True)
 for ax in axs.flat:
-    example_plot(ax, nodec=True)
-    ax.set_xticklabels('')
-    ax.set_yticklabels('')
+    example_plot(ax, hide_labels=True)
 fig.set_constrained_layout_pads(w_pad=4./72., h_pad=4./72.,
         hspace=0., wspace=0.)
 
 fig, axs = plt.subplots(2, 2, constrained_layout=True)
 for ax in axs.flat:
-    example_plot(ax, nodec=True)
-    ax.set_xticklabels('')
-    ax.set_yticklabels('')
+    example_plot(ax, hide_labels=True)
 fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
         hspace=0., wspace=0.)
 
@@ -289,9 +285,7 @@ fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
 
 fig, axs = plt.subplots(2, 2, constrained_layout=True)
 for ax in axs.flat:
-    example_plot(ax, nodec=True)
-    ax.set_xticklabels('')
-    ax.set_yticklabels('')
+    example_plot(ax, hide_labels=True)
 fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
         hspace=0.2, wspace=0.2)
 
