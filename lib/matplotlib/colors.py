@@ -1587,6 +1587,90 @@ def hsv_to_rgb(hsv):
     return rgb.reshape(in_shape)
 
 
+def hsl_to_rgb(hsl):
+    """
+    Convert hsl values to rgb.
+
+    Parameters
+    ----------
+    hsl : (..., 3) array-like
+       All values assumed to be in range [0, 1]
+
+    Returns
+    -------
+    rgb : (..., 3) ndarray
+       Colors converted to RGB values in range [0, 1]
+    """
+    hsl = np.asarray(hsl)
+
+    # check length of the last dimension, should be _some_ sort of rgb
+    if hsl.shape[-1] != 3:
+        raise ValueError("Last dimension of input array must be 3; "
+                         "shape {shp} was found.".format(shp=hsl.shape))
+
+    in_shape = hsl.shape
+    hsl = np.array(
+        hsl, copy=False,
+        dtype=np.promote_types(hsl.dtype, np.float32),  # Don't work on ints.
+        ndmin=2,  # In case input was 1D.
+    )
+
+    h = hsl[..., 0]
+    s = hsl[..., 1]
+    l = hsl[..., 2]
+   
+    m1 = np.empty_like(h)
+    m2 = np.empty_like(h)
+    
+    ones = np.ones_like(h) 
+    
+    idx = l <= 0.5
+    m2[idx] = l[idx] * (1.0 * ones[idx] + s[idx])
+    
+    idx = l > 0.5
+    m2[idx] = l[idx] + s[idx] - (l[idx] * s[idx])
+    
+    m1 = 2.0 * l - m2
+
+    r = np.copy(m1)
+    g = np.copy(m1)
+    b = np.copy(m1)
+    
+    hue_r = (h + 1.0/3.0) % 1.0
+    hue_g = h % 1.0
+    hue_b = (h - 1.0/3.0) % 1.0
+    
+    idx = hue_r < 2.0/3.0
+    r[idx] = m1[idx] + (m2[idx] - m1[idx]) * (2.0/3.0*ones[idx] - hue_r[idx]) * 6.0
+    idx = hue_g < 2.0/3.0
+    g[idx] = m1[idx] + (m2[idx] - m1[idx]) * (2.0/3.0*ones[idx] - hue_g[idx]) * 6.0
+    idx = hue_b < 2.0/3.0
+    b[idx] = m1[idx] + (m2[idx] - m1[idx]) * (2.0/3.0*ones[idx] - hue_b[idx]) * 6.0
+    
+    idx = hue_r < 1.0/2.0
+    r[idx] = m2[idx]
+    idx = hue_g < 1.0/2.0
+    g[idx] = m2[idx]
+    idx = hue_b < 1.0/2.0
+    b[idx] = m2[idx]
+    
+    idx = hue_r < 1.0/6.0
+    r[idx] = m1[idx] + (m2[idx] - m1[idx]) * hue_r[idx] * 6.0
+    idx = hue_g < 1.0/6.0
+    g[idx] = m1[idx] + (m2[idx] - m1[idx]) * hue_g[idx] * 6.0
+    idx = hue_b < 1.0/6.0
+    b[idx] = m1[idx] + (m2[idx] - m1[idx]) * hue_b[idx] * 6.0
+    
+    idx = s == 0.0
+    r[idx] = ones[idx]
+    g[idx] = ones[idx]
+    b[idx] = ones[idx]
+    
+    rgb = np.stack([r, g, b], axis=-1)
+
+    return rgb.reshape(in_shape)
+
+
 def _vector_magnitude(arr):
     # things that don't work here:
     #  * np.linalg.norm: drops mask from ma.array
