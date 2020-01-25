@@ -3159,11 +3159,8 @@ class ArrowStyle(_Style):
 
             if aspect_ratio is not None:
                 # Squeeze the given height by the aspect_ratio
-
-                vertices, codes = path.vertices[:], path.codes[:]
-                # Squeeze the height
-                vertices[:, 1] = vertices[:, 1] / aspect_ratio
-                path_shrunk = Path(vertices, codes)
+                vertices = path.vertices / [1, aspect_ratio]
+                path_shrunk = Path(vertices, path.codes)
                 # call transmute method with squeezed height.
                 path_mutated, fillable = self.transmute(path_shrunk,
                                                         linewidth,

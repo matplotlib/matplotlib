@@ -2578,7 +2578,7 @@ class PolygonSelector(_SelectorWidget):
                 self._active_handle_idx = h_idx
         # Save the vertex positions at the time of the press event (needed to
         # support the 'move_all' state modifier).
-        self._xs_at_press, self._ys_at_press = self._xs[:], self._ys[:]
+        self._xs_at_press, self._ys_at_press = self._xs.copy(), self._ys.copy()
 
     def _release(self, event):
         """Button release event handler"""

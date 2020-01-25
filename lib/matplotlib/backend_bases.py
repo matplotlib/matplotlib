@@ -258,6 +258,9 @@ class RendererBase:
 
         Parameters
         ----------
+        gc : `.GraphicsContextBase`
+            The graphics context.
+
         points : array-like, shape=(3, 2)
             Array of (x, y) points for the triangle.
 
@@ -1059,7 +1062,7 @@ class TimerBase:
         if callbacks is None:
             self.callbacks = []
         else:
-            self.callbacks = callbacks[:]  # Create a copy
+            self.callbacks = callbacks.copy()
 
         if interval is None:
             self._interval = 1000
