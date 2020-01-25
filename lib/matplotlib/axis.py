@@ -1914,7 +1914,7 @@ def _make_getset_interval(method_name, lim_name, attr_name):
 
 class XAxis(Axis):
     __name__ = 'xaxis'
-    axis_name = 'x'
+    axis_name = 'x'  #: Read-only name identifying the axis.
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred in the x axis.
@@ -2199,7 +2199,7 @@ class XAxis(Axis):
 
 class YAxis(Axis):
     __name__ = 'yaxis'
-    axis_name = 'y'
+    axis_name = 'y'  #: Read-only name identifying the axis.
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred in the y axis.
