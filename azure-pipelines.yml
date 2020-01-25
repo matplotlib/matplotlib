@@ -62,8 +62,8 @@ steps:
         libgeos-dev \
         libgirepository-1.0.1 \
         lmodern \
-        otf-freefont \
-        pgf \
+        fonts-freefont-otf \
+        texlive-pictures \
         texlive-fonts-recommended \
         texlive-latex-base \
         texlive-latex-extra \
