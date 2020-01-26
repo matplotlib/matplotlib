@@ -752,7 +752,7 @@
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:119"
     ],
     "MovieWriter.saving": [
-      "doc/api/animation_api.rst:213"
+      "doc/api/animation_api.rst:221"
     ],
     "MovieWriterBase": [
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.AVConvBase:4",
@@ -971,6 +971,9 @@
     ],
     "cbook.warn_deprecated()": [
       "doc/devel/contributing.rst:309"
+    ],
+    "cleanup": [
+      "lib/matplotlib/animation.py:docstring of matplotlib.animation.HTMLWriter.setup:19"
     ],
     "collections.LineCollection.get_segements()": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:280"
@@ -1316,9 +1319,26 @@
     "matplotlib.animation.FuncAnimation.to_jshtml": [
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.FuncAnimation.new_frame_seq:1:<autosummary>:1"
     ],
-    "matplotlib.animation.HTMLWriter": [
-      "doc/users/prev_whats_new/whats_new_2.1.0.rst:40",
-      "doc/users/prev_whats_new/whats_new_2.1.0.rst:51"
+    "matplotlib.animation.HTMLWriter.args_key": [
+      "lib/matplotlib/animation.py:docstring of matplotlib.animation.HTMLWriter.finish:1:<autosummary>:1"
+    ],
+    "matplotlib.animation.HTMLWriter.bin_path": [
+      "doc/api/_as_gen/matplotlib.animation.HTMLWriter.rst:28:<autosummary>:1"
+    ],
+    "matplotlib.animation.HTMLWriter.cleanup": [
+      "doc/api/_as_gen/matplotlib.animation.HTMLWriter.rst:28:<autosummary>:1"
+    ],
+    "matplotlib.animation.HTMLWriter.exec_key": [
+      "lib/matplotlib/animation.py:docstring of matplotlib.animation.HTMLWriter.finish:1:<autosummary>:1"
+    ],
+    "matplotlib.animation.HTMLWriter.frame_format": [
+      "lib/matplotlib/animation.py:docstring of matplotlib.animation.HTMLWriter.finish:1:<autosummary>:1"
+    ],
+    "matplotlib.animation.HTMLWriter.frame_size": [
+      "lib/matplotlib/animation.py:docstring of matplotlib.animation.HTMLWriter.finish:1:<autosummary>:1"
+    ],
+    "matplotlib.animation.HTMLWriter.saving": [
+      "doc/api/_as_gen/matplotlib.animation.HTMLWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.ImageMagickFileWriter.args_key": [
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.ImageMagickFileWriter.supported_formats:1:<autosummary>:1"

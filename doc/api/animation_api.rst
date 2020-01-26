@@ -168,6 +168,14 @@ all data in memory.
 
    PillowWriter
 
+The HTML writer generates JavaScript-based animations.
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   HTMLWriter
+
 The pipe-based writers stream the captured frames over a pipe to an external
 process.  The pipe-based variants tend to be more performant, but may not work
 on all systems.
