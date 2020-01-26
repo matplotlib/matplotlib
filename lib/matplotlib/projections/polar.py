@@ -352,7 +352,7 @@ class ThetaAxis(maxis.XAxis):
     for an angular axis.
     """
     __name__ = 'thetaaxis'
-    axis_name = 'theta'
+    axis_name = 'theta'  #: Read-only name identifying the axis.
 
     def _get_tick(self, major):
         if major:
@@ -665,7 +665,7 @@ class RadialAxis(maxis.YAxis):
     for a radial axis.
     """
     __name__ = 'radialaxis'
-    axis_name = 'radius'
+    axis_name = 'radius'  #: Read-only name identifying the axis.
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
