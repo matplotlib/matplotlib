@@ -224,8 +224,8 @@ class Grid:
 
         for i in range(self.ngrids):
             col, row = self._get_col_row(i)
-            locator = self._divider.new_locator(nx=h_ax_pos[col],
-                                ny=v_ax_pos[self._nrows - 1 - row])
+            locator = self._divider.new_locator(
+                nx=h_ax_pos[col], ny=v_ax_pos[self._nrows - 1 - row])
             self.axes_all[i].set_axes_locator(locator)
 
         self._divider.set_horizontal(h)

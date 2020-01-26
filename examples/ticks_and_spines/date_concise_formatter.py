@@ -165,9 +165,8 @@ offset_formats = ['',
                   '%d %b %Y',
                   '%d %b %Y %H:%M', ]
 
-converter = mdates.ConciseDateConverter(formats=formats,
-                                 zero_formats=zero_formats,
-                                 offset_formats=offset_formats)
+converter = mdates.ConciseDateConverter(
+    formats=formats, zero_formats=zero_formats, offset_formats=offset_formats)
 
 munits.registry[np.datetime64] = converter
 munits.registry[datetime.date] = converter

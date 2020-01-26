@@ -679,8 +679,8 @@ class Line2D(Artist):
             if nanmask.any():
                 self._x_filled = self._x.copy()
                 indices = np.arange(len(x))
-                self._x_filled[nanmask] = np.interp(indices[nanmask],
-                        indices[~nanmask], self._x[~nanmask])
+                self._x_filled[nanmask] = np.interp(
+                    indices[nanmask], indices[~nanmask], self._x[~nanmask])
             else:
                 self._x_filled = self._x
 
@@ -824,7 +824,7 @@ class Line2D(Artist):
                     self.recache()
                     self._transform_path(subslice)
                     tpath, affine = (self._get_transformed_path()
-                                    .get_transformed_points_and_affine())
+                                     .get_transformed_points_and_affine())
             else:
                 tpath, affine = (self._get_transformed_path()
                                  .get_transformed_points_and_affine())

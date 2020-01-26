@@ -153,28 +153,28 @@ def test_multiline2():
     horal = 'left'
     for nn, st in enumerate(sts):
         tt = ax.text(0.2 * nn + 0.1, 0.5, st, horizontalalignment=horal,
-            verticalalignment='bottom')
+                     verticalalignment='bottom')
         draw_box(ax, tt)
     ax.text(1.2, 0.5, 'Bottom align', color='C2')
 
     ax.axhline(1.3, color='C2', linewidth=0.3)
     for nn, st in enumerate(sts):
         tt = ax.text(0.2 * nn + 0.1, 1.3, st, horizontalalignment=horal,
-            verticalalignment='top')
+                     verticalalignment='top')
         draw_box(ax, tt)
     ax.text(1.2, 1.3, 'Top align', color='C2')
 
     ax.axhline(1.8, color='C2', linewidth=0.3)
     for nn, st in enumerate(sts):
         tt = ax.text(0.2 * nn + 0.1, 1.8, st, horizontalalignment=horal,
-            verticalalignment='baseline')
+                     verticalalignment='baseline')
         draw_box(ax, tt)
     ax.text(1.2, 1.8, 'Baseline align', color='C2')
 
     ax.axhline(0.1, color='C2', linewidth=0.3)
     for nn, st in enumerate(sts):
         tt = ax.text(0.2 * nn + 0.1, 0.1, st, horizontalalignment=horal,
-            verticalalignment='bottom', rotation=20)
+                     verticalalignment='bottom', rotation=20)
         draw_box(ax, tt)
     ax.text(1.2, 0.1, 'Bot align, rot20', color='C2')
 

@@ -47,7 +47,7 @@ seed_points = np.array([[-2, -1, 0, 1, 2, -1], [-2, -1,  0, 1, 2, 2]])
 
 ax3 = fig.add_subplot(gs[1, 1])
 strm = ax3.streamplot(X, Y, U, V, color=U, linewidth=2,
-                     cmap='autumn', start_points=seed_points.T)
+                      cmap='autumn', start_points=seed_points.T)
 fig.colorbar(strm.lines)
 ax3.set_title('Controlling Starting Points')
 

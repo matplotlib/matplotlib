@@ -210,15 +210,15 @@ fig, ax = plt.subplots()
 colors_undersea = plt.cm.terrain(np.linspace(0, 0.17, 256))
 colors_land = plt.cm.terrain(np.linspace(0.25, 1, 256))
 all_colors = np.vstack((colors_undersea, colors_land))
-terrain_map = colors.LinearSegmentedColormap.from_list('terrain_map',
-    all_colors)
+terrain_map = colors.LinearSegmentedColormap.from_list(
+    'terrain_map', all_colors)
 
 # make the norm:  Note the center is offset so that the land has more
 # dynamic range:
 divnorm = colors.TwoSlopeNorm(vmin=-500., vcenter=0, vmax=4000)
 
-pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
-    cmap=terrain_map,)
+pcm = ax.pcolormesh(
+    longitude, latitude, topo, rasterized=True, norm=divnorm, cmap=terrain_map)
 # Simple geographic plot, set aspect ratio beecause distance between lines of
 # longitude depends on latitude.
 ax.set_aspect(1 / np.cos(np.deg2rad(49)))
@@ -248,8 +248,8 @@ class MidpointNormalize(colors.Normalize):
 fig, ax = plt.subplots()
 midnorm = MidpointNormalize(vmin=-500., vcenter=0, vmax=4000)
 
-pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=midnorm,
-    cmap=terrain_map)
+pcm = ax.pcolormesh(
+    longitude, latitude, topo, rasterized=True, norm=midnorm, cmap=terrain_map)
 ax.set_aspect(1 / np.cos(np.deg2rad(49)))
 fig.colorbar(pcm, shrink=0.6, extend='both')
 plt.show()

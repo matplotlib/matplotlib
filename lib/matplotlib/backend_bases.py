@@ -1520,8 +1520,8 @@ def _is_non_interactive_terminal_ipython(ip):
     interactive), we do.
     """
     return (hasattr(ip, 'parent')
-        and (ip.parent is not None)
-        and getattr(ip.parent, 'interact', None) is False)
+            and (ip.parent is not None)
+            and getattr(ip.parent, 'interact', None) is False)
 
 
 class FigureCanvasBase:
@@ -2061,8 +2061,8 @@ class FigureCanvasBase:
                             print_method, dpi=dpi, orientation=orientation))
                     self.figure.draw(renderer)
                     bbox_artists = kwargs.pop("bbox_extra_artists", None)
-                    bbox_inches = self.figure.get_tightbbox(renderer,
-                            bbox_extra_artists=bbox_artists)
+                    bbox_inches = self.figure.get_tightbbox(
+                        renderer, bbox_extra_artists=bbox_artists)
                     pad = kwargs.pop("pad_inches", None)
                     if pad is None:
                         pad = rcParams['savefig.pad_inches']

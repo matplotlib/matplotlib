@@ -197,16 +197,16 @@ def test_patch_custom_linestyle():
     cut_star2 = mpath.Path(verts + 1, codes)
 
     ax = plt.axes()
-    patch = mpatches.PathPatch(cut_star1,
-                   linewidth=5, linestyle=(0.0, (5.0, 7.0, 10.0, 7.0)),
-                   facecolor=(1, 0, 0),
-                   edgecolor=(0, 0, 1))
+    patch = mpatches.PathPatch(
+        cut_star1,
+        linewidth=5, linestyle=(0, (5, 7, 10, 7)),
+        facecolor=(1, 0, 0), edgecolor=(0, 0, 1))
     ax.add_patch(patch)
 
-    col = mcollections.PathCollection([cut_star2],
-                  linewidth=5, linestyles=[(0.0, (5.0, 7.0, 10.0, 7.0))],
-                  facecolor=(1, 0, 0),
-                  edgecolor=(0, 0, 1))
+    col = mcollections.PathCollection(
+        [cut_star2],
+        linewidth=5, linestyles=[(0, (5, 7, 10, 7))],
+        facecolor=(1, 0, 0), edgecolor=(0, 0, 1))
     ax.add_collection(col)
 
     ax.set_xlim([-1, 2])

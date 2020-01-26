@@ -267,14 +267,12 @@ fig.savefig('CL02.png', bbox_inches='tight', dpi=100)
 fig, axs = plt.subplots(2, 2, constrained_layout=True)
 for ax in axs.flat:
     example_plot(ax, hide_labels=True)
-fig.set_constrained_layout_pads(w_pad=4./72., h_pad=4./72.,
-        hspace=0., wspace=0.)
+fig.set_constrained_layout_pads(w_pad=4/72, h_pad=4/72, hspace=0, wspace=0)
 
 fig, axs = plt.subplots(2, 2, constrained_layout=True)
 for ax in axs.flat:
     example_plot(ax, hide_labels=True)
-fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
-        hspace=0., wspace=0.)
+fig.set_constrained_layout_pads(w_pad=2/72, h_pad=2/72, hspace=0, wspace=0)
 
 ##########################################
 # Spacing between subplots is set by ``wspace`` and ``hspace``. There are
@@ -286,8 +284,7 @@ fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
 fig, axs = plt.subplots(2, 2, constrained_layout=True)
 for ax in axs.flat:
     example_plot(ax, hide_labels=True)
-fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
-        hspace=0.2, wspace=0.2)
+fig.set_constrained_layout_pads(w_pad=2/72, h_pad=2/72, hspace=0.2, wspace=0.2)
 
 
 ##########################################
@@ -307,8 +304,7 @@ for ax in axs.flat:
     fig.colorbar(pc, ax=ax, shrink=0.6, pad=0)
     ax.set_xticklabels('')
     ax.set_yticklabels('')
-fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
-        hspace=0.2, wspace=0.2)
+fig.set_constrained_layout_pads(w_pad=2/72, h_pad=2/72, hspace=0.2, wspace=0.2)
 
 ##########################################
 # In the above example, the colorbar will not ever be closer than 2 pts to
@@ -321,8 +317,7 @@ for ax in axs.flat:
     fig.colorbar(im, ax=ax, shrink=0.6, pad=0.05)
     ax.set_xticklabels('')
     ax.set_yticklabels('')
-fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
-        hspace=0.2, wspace=0.2)
+fig.set_constrained_layout_pads(w_pad=2/72, h_pad=2/72, hspace=0.2, wspace=0.2)
 
 ##########################################
 # rcParams
@@ -782,8 +777,7 @@ plot_children(fig, fig._layoutbox, printit=False)
 
 fig = plt.figure(constrained_layout=True)
 gs = gridspec.GridSpec(3, 2, figure=fig,
-    height_ratios=[1., 0.5, 1.5],
-    width_ratios=[1.2, 0.8])
+                       height_ratios=[1., 0.5, 1.5], width_ratios=[1.2, 0.8])
 ax = fig.add_subplot(gs[:2, 0])
 im = ax.pcolormesh(arr, **pc_kwargs)
 ax = fig.add_subplot(gs[2, 0])

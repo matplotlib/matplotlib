@@ -2527,8 +2527,8 @@ pivot='tail', normalize=False, **kwargs)
             # construct the rotation matrices
             Rpos = np.array(
                 [[c + (x_p ** 2) * (1 - c), x_p * y_p * (1 - c), y_p * s],
-                [y_p * x_p * (1 - c), c + (y_p ** 2) * (1 - c), -x_p * s],
-                [-y_p * s, x_p * s, np.full_like(x_p, c)]])
+                 [y_p * x_p * (1 - c), c + (y_p ** 2) * (1 - c), -x_p * s],
+                 [-y_p * s, x_p * s, np.full_like(x_p, c)]])
             Rpos = Rpos.transpose(2, 0, 1)
 
             # opposite rotation negates all the sin terms

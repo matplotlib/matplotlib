@@ -2284,9 +2284,9 @@ class BoxStyle(_Style):
             else:
                 tooth_size = self.tooth_size * mutation_size
 
-            tooth_size2 = tooth_size / 2.
-            width, height = (width + 2. * pad - tooth_size,
-                            height + 2. * pad - tooth_size)
+            tooth_size2 = tooth_size / 2
+            width = width + 2 * pad - tooth_size
+            height = height + 2 * pad - tooth_size
 
             # the sizes of the vertical and horizontal sawtooth are
             # separately adjusted to fit the given box size.

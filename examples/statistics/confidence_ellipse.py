@@ -70,11 +70,8 @@ def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
     # two-dimensionl dataset.
     ell_radius_x = np.sqrt(1 + pearson)
     ell_radius_y = np.sqrt(1 - pearson)
-    ellipse = Ellipse((0, 0),
-        width=ell_radius_x * 2,
-        height=ell_radius_y * 2,
-        facecolor=facecolor,
-        **kwargs)
+    ellipse = Ellipse((0, 0), width=ell_radius_x * 2, height=ell_radius_y * 2,
+                      facecolor=facecolor, **kwargs)
 
     # Calculating the stdandard deviation of x from
     # the squareroot of the variance and multiplying
@@ -176,11 +173,11 @@ x, y = get_correlated_dataset(500, dependency_nstd, mu, scale)
 ax_nstd.scatter(x, y, s=0.5)
 
 confidence_ellipse(x, y, ax_nstd, n_std=1,
-    label=r'$1\sigma$', edgecolor='firebrick')
+                   label=r'$1\sigma$', edgecolor='firebrick')
 confidence_ellipse(x, y, ax_nstd, n_std=2,
-    label=r'$2\sigma$', edgecolor='fuchsia', linestyle='--')
+                   label=r'$2\sigma$', edgecolor='fuchsia', linestyle='--')
 confidence_ellipse(x, y, ax_nstd, n_std=3,
-    label=r'$3\sigma$', edgecolor='blue', linestyle=':')
+                   label=r'$3\sigma$', edgecolor='blue', linestyle=':')
 
 ax_nstd.scatter(mu[0], mu[1], c='red', s=3)
 ax_nstd.set_title('Different standard deviations')
@@ -209,7 +206,7 @@ x, y = get_correlated_dataset(500, dependency_kwargs, mu, scale)
 # Plot the ellipse with zorder=0 in order to demonstrate
 # its transparency (caused by the use of alpha).
 confidence_ellipse(x, y, ax_kwargs,
-    alpha=0.5, facecolor='pink', edgecolor='purple', zorder=0)
+                   alpha=0.5, facecolor='pink', edgecolor='purple', zorder=0)
 
 ax_kwargs.scatter(x, y, s=0.5)
 ax_kwargs.scatter(mu[0], mu[1], c='red', s=3)

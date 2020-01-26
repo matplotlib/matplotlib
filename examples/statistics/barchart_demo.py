@@ -139,10 +139,11 @@ def plot_student_results(student, scores, cohort_size):
 
         # Center the text vertically in the bar
         yloc = rect.get_y() + rect.get_height() / 2
-        label = ax1.annotate(rank_str, xy=(width, yloc), xytext=(xloc, 0),
-                            textcoords="offset points",
-                            ha=align, va='center',
-                            color=clr, weight='bold', clip_on=True)
+        label = ax1.annotate(
+            rank_str, xy=(width, yloc), xytext=(xloc, 0),
+            textcoords="offset points",
+            horizontalalignment=align, verticalalignment='center',
+            color=clr, weight='bold', clip_on=True)
         rect_labels.append(label)
 
     # make the interactive mouse over give the bar title

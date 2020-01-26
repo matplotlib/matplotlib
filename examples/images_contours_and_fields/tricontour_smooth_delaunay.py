@@ -119,8 +119,8 @@ cmap = cm.get_cmap(name='Blues', lut=None)
 
 fig, ax = plt.subplots()
 ax.set_aspect('equal')
-ax.set_title("Filtering a Delaunay mesh\n" +
-          "(application to high-resolution tricontouring)")
+ax.set_title("Filtering a Delaunay mesh\n"
+             "(application to high-resolution tricontouring)")
 
 # 1) plot of the refined (computed) data contours:
 ax.tricontour(tri_refi, z_test_refi, levels=levels, cmap=cmap,
