@@ -1756,7 +1756,7 @@ class _AxesBase(martist.Artist):
         return (*self.get_xlim(), *self.get_ylim())
 
     def get_legend(self):
-        """Return the `Legend` instance, or None if no legend is defined."""
+        """Return the `.Legend` instance, or None if no legend is defined."""
         return self.legend_
 
     def get_images(self):

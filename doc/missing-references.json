@@ -285,12 +285,6 @@
     "matplotlib.backends.backend_webagg_core.NavigationToolbar2WebAgg": [
       "lib/matplotlib/backends/backend_nbagg.py:docstring of matplotlib.backends.backend_nbagg.NavigationIPy:1"
     ],
-    "matplotlib.cbook.MatplotlibDeprecationWarning": [
-      "doc/api/prev_api_changes/api_changes_3.0.0.rst:406"
-    ],
-    "matplotlib.cbook.deprecation.MatplotlibDeprecationWarning": [
-      "doc/api/prev_api_changes/api_changes_3.0.0.rst:406"
-    ],
     "matplotlib.cm.Wistia": [
       "doc/users/prev_whats_new/whats_new_1.4.rst:21"
     ],
@@ -626,7 +620,7 @@
       "doc/api/prev_api_changes/api_changes_0.91.0.rst:34"
     ],
     "matplotlib.pylab": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:624",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:616",
       "doc/users/history.rst:63"
     ],
     "matplotlib.tests.test_basic": [
@@ -666,12 +660,12 @@
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.update_datalim_bounds:2"
     ],
     "Axes.fmt_xdata": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:405",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:408"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:397",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:400"
     ],
     "Axes.fmt_ydata": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:405",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:408"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:397",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:400"
     ],
     "Axes.transData": [
       "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:89",
@@ -684,14 +678,14 @@
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.add_child_axes:2"
     ],
     "Axis._update_ticks": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1074"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1066"
     ],
     "Axis.get_inverted": [
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:241",
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:243"
     ],
     "Axis.remove_overlaping_locs": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:79"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:71"
     ],
     "Axis.set_inverted": [
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:241",
@@ -732,8 +726,8 @@
       "doc/devel/MEP/MEP23.rst:87"
     ],
     "Formatter.__call__": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1123",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1129"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1115",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1121"
     ],
     "GaussianKDE": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.violinplot:46",
@@ -752,17 +746,7 @@
       "lib/matplotlib/testing/decorators.py:docstring of matplotlib.testing.decorators.image_comparison:2"
     ],
     "ImageComparisonTest": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:710"
-    ],
-    "Legend": [
-      "doc/api/axes_api.rst:316:<autosummary>:1",
-      "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.get_legend:2"
-    ],
-    "LinearSegmentedColormaps": [
-      "lib/matplotlib/colors.py:docstring of matplotlib.colors.makeMappingArray:64"
-    ],
-    "MatplotlibDeprecationWarning": [
-      "doc/devel/contributing.rst:306"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:702"
     ],
     "MicrosecondLocator.__call__": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:119"
@@ -789,7 +773,7 @@
       "doc/devel/MEP/MEP23.rst:93"
     ],
     "NavigationToolbar2QT.adj_window": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:969"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:961"
     ],
     "PolyCollection.get_offset": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.hexbin:71",
@@ -899,19 +883,19 @@
       "doc/users/prev_whats_new/whats_new_3.0.rst:111"
     ],
     "axes3d.Axes3D.xaxis": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:941"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:933"
     ],
     "axes3d.Axes3D.yaxis": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:941"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:933"
     ],
     "axes3d.Axes3D.zaxis": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:941"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:933"
     ],
     "axes_grid1": [
       "doc/index.rst:184"
     ],
     "axis.Axis.get_ticks_position": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:829"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:821"
     ],
     "axisartist": [
       "doc/index.rst:184"
@@ -920,44 +904,44 @@
       "lib/matplotlib/backends/backend_template.py:docstring of matplotlib.backends.backend_template.RendererTemplate:4"
     ],
     "backend_bases.Timer.add_callback": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:267"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:259"
     ],
     "backend_bases.Timer.remove_callback": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:247"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:239"
     ],
     "backend_bases.ToolContainerBase": [
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.add_tools_to_container:8"
     ],
     "backend_gtk3.FileChooserDialog": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:966"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:958"
     ],
     "backend_gtk3.NavigationToolbar2GTK3.get_filechooser": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:967"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:959"
     ],
     "backend_gtk3.SaveFigureGTK3.get_filechooser": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:968"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:960"
     ],
     "backend_wx.IDLE_DELAY": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:970"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:962"
     ],
     "barstacked": [
       "doc/users/prev_whats_new/whats_new_1.2.rst:177"
     ],
     "bezier.check_if_parallel": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:801"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:793"
     ],
     "bezier.find_bezier_t_intersecting_with_closedpath": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:801"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:793"
     ],
     "bezier.find_r_to_boundary_of_closedpath": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1026",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:801"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1018",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:793"
     ],
     "bezier.split_bezier_intersecting_with_closedpath": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:801"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:793"
     ],
     "bezier.split_path_inout": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:801"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:793"
     ],
     "blocking_input.BlockingInput.__call__": [
       "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:293"
@@ -979,17 +963,17 @@
       "doc/devel/contributing.rst:521"
     ],
     "cbook.deprecated": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1081",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:774"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1073",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:766"
     ],
     "cbook.warn_deprecated": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:774"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:766"
     ],
     "cbook.warn_deprecated()": [
       "doc/devel/contributing.rst:309"
     ],
     "collections.LineCollection.get_segements()": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:288"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:280"
     ],
     "colorbar.ColorbarBase.outline": [
       "doc/api/prev_api_changes/api_changes_1.4.x.rst:83"
@@ -998,13 +982,10 @@
       "lib/matplotlib/testing/compare.py:docstring of matplotlib.testing.compare.compare_images:4"
     ],
     "dates.bytespdate2num": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:927"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:919"
     ],
     "dates.strpdate2num": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:926"
-    ],
-    "extend": [
-      "lib/matplotlib/colors.py:docstring of matplotlib.colors.from_levels_and_colors:13"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:918"
     ],
     "fc-list": [
       "lib/matplotlib/font_manager.py:docstring of matplotlib.font_manager.get_fontconfig_fonts:2"
@@ -1101,7 +1082,7 @@
       "doc/users/prev_whats_new/whats_new_2.0.0.rst:123"
     ],
     "legend.Legend.set_draggable()": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:507"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:499"
     ],
     "levels": [
       "doc/api/prev_api_changes/api_changes_3.0.0.rst:197"
@@ -1446,16 +1427,13 @@
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:8"
     ],
     "matplotlib.colorbar.ColorbarBase.set_clim": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:298"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:290"
     ],
     "matplotlib.colorbar.ColorbarBase.set_cmap": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:298"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:290"
     ],
     "matplotlib.colorbar.ColorbarBase.set_norm": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:298"
-    ],
-    "matplotlib.colors.same_color": [
-      "doc/users/prev_whats_new/whats_new_2.2.rst:218"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:290"
     ],
     "matplotlib.contour.TriContourSet": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.tricontour:57",
@@ -1473,10 +1451,10 @@
       "doc/devel/documenting_mpl.rst:671"
     ],
     "matplotlib.pylab": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:626"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:618"
     ],
     "matplotlib.pyplot.get_scale_docs()": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:861"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:853"
     ],
     "matplotlib.sphinxext.mathmpl": [
       "doc/users/prev_whats_new/whats_new_3.0.rst:225"
@@ -1492,10 +1470,10 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.rcdefaults:4"
     ],
     "matplotlib.testing.compare.calculate_rms": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:779"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:771"
     ],
     "matplotlib.testing.conftest.mpl_test_settings": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:949"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:941"
     ],
     "move_canvas": [
       "doc/devel/MEP/MEP23.rst:65"
@@ -1577,8 +1555,8 @@
       "lib/matplotlib/dates.py:docstring of matplotlib.dates:105"
     ],
     "scipy.stats.norm.pdf": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:573",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:659"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:565",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:651"
     ],
     "self.codes": [
       "lib/matplotlib/path.py:docstring of matplotlib.path.Path.codes:2"
@@ -1631,10 +1609,7 @@
       "doc/devel/MEP/MEP10.rst:170"
     ],
     "streamplot.Grid": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:487"
-    ],
-    "strftime": [
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates.ConciseDateFormatter:18"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:479"
     ],
     "style.available": [
       "lib/matplotlib/style/__init__.py:docstring of matplotlib.style.context:12",

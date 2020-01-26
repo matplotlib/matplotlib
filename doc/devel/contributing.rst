@@ -304,7 +304,7 @@ prevent unexpected breaking of code that uses Matplotlib.
   possible, the deprecation must never make a given piece of code do something
   different than it was before; at least an exception should be raised.
 - If possible, usage of an deprecated API should emit a
-  `MatplotlibDeprecationWarning`. There are a number of helper tools for this:
+  `.MatplotlibDeprecationWarning`. There are a number of helper tools for this:
 
   - Use `.cbook.warn_deprecated()` for general deprecation warnings.
   - Use the decorator ``@cbook.deprecated`` to deprecate classes, functions,
