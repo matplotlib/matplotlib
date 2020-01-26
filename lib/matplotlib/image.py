@@ -246,6 +246,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self._mouseover = True
         if origin is None:
             origin = rcParams['image.origin']
+        cbook._check_in_list(["upper", "lower"], origin=origin)
         self.origin = origin
         self.set_filternorm(filternorm)
         self.set_filterrad(filterrad)
