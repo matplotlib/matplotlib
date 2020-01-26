@@ -17,8 +17,8 @@ class MatplotlibDeprecationWarning(UserWarning):
     """
 
 
+# mplDeprecation is deprecated. Use MatplotlibDeprecationWarning instead.
 mplDeprecation = MatplotlibDeprecationWarning
-"""mplDeprecation is deprecated. Use MatplotlibDeprecationWarning instead."""
 
 
 def _generate_deprecation_warning(
@@ -57,7 +57,7 @@ def warn_deprecated(
         since, *, message='', name='', alternative='', pending=False,
         obj_type='', addendum='', removal=''):
     """
-    Used to display deprecation in a standard way.
+    Display a standardized deprecation.
 
     Parameters
     ----------
@@ -65,12 +65,10 @@ def warn_deprecated(
         The release at which this API became deprecated.
 
     message : str, optional
-        Override the default deprecation message.  The format
-        specifier `%(name)s` may be used for the name of the function,
-        and `%(alternative)s` may be used in the deprecation message
-        to insert the name of an alternative to the deprecated
-        function.  `%(obj_type)s` may be used to insert a friendly name
-        for the type of object being deprecated.
+        Override the default deprecation message.  The ``%(since)s``,
+        ``%(name)s``, ``%(alternative)s``, ``%(obj_type)s``, ``%(addendum)s``,
+        and ``%(removal)s`` format specifiers will be replaced by the values
+        of the respective arguments passed to this function.
 
     name : str, optional
         The name of the deprecated object.
@@ -127,11 +125,10 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
         The release at which this API became deprecated.
 
     message : str, optional
-        Override the default deprecation message.  The format
-        specifier `%(name)s` may be used for the name of the object,
-        and `%(alternative)s` may be used in the deprecation message
-        to insert the name of an alternative to the deprecated
-        object.
+        Override the default deprecation message.  The ``%(since)s``,
+        ``%(name)s``, ``%(alternative)s``, ``%(obj_type)s``, ``%(addendum)s``,
+        and ``%(removal)s`` format specifiers will be replaced by the values
+        of the respective arguments passed to this function.
 
     name : str, optional
         The name used in the deprecation message; if not provided, the name

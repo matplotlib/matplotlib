@@ -441,7 +441,7 @@ def _create_lookup_table(N, data, gamma=1.0):
 
     Notes
     -----
-    This function is internally used for `.LinearSegmentedColormaps`.
+    This function is internally used for `.LinearSegmentedColormap`.
     """
 
     if callable(data):
@@ -2024,9 +2024,9 @@ def from_levels_and_colors(levels, colors, extend='neither'):
         The quantization levels used to construct the :class:`BoundaryNorm`.
         Value ``v`` is quantized to level ``i`` if ``lev[i] <= v < lev[i+1]``.
     colors : sequence of colors
-        The fill color to use for each level. If `extend` is "neither" there
-        must be ``n_level - 1`` colors. For an `extend` of "min" or "max" add
-        one extra color, and for an `extend` of "both" add two colors.
+        The fill color to use for each level. If *extend* is "neither" there
+        must be ``n_level - 1`` colors. For an *extend* of "min" or "max" add
+        one extra color, and for an *extend* of "both" add two colors.
     extend : {'neither', 'min', 'max', 'both'}, optional
         The behaviour when a value falls out of range of the given levels.
         See :func:`~matplotlib.pyplot.contourf` for details.

@@ -407,7 +407,7 @@ The following classes, methods, functions, and attributes are deprecated:
   in future versions. It is just an alias for
   :class:`matplotlib.cbook.deprecation.MatplotlibDeprecationWarning`.
   Please use the
-  :class:`~matplotlib.cbook.MatplotlibDeprecationWarning` directly if
+  ``matplotlib.cbook.MatplotlibDeprecationWarning`` directly if
   neccessary.
 - The ``matplotlib.cbook.Bunch`` class has been deprecated. Instead, use
   `types.SimpleNamespace` from the standard library which provides the same

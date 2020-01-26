@@ -647,7 +647,7 @@ class ConciseDateFormatter(ticker.Formatter):
     formats : list of 6 strings, optional
         Format strings for 6 levels of tick labelling: mostly years,
         months, days, hours, minutes, and seconds.  Strings use
-        the same format codes as `strftime`.  Default is
+        the same format codes as `~datetime.datetime.strftime`.  Default is
         ``['%Y', '%b', '%d', '%H:%M', '%H:%M', '%S.%f']``
 
     zero_formats : list of 6 strings, optional
