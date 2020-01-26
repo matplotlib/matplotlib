@@ -290,6 +290,22 @@ def test_circular_contour_warning():
     assert len(record) == 0
 
 
+@pytest.mark.parametrize("use_clabeltext", [True, False])
+def test_clabel_zorder(use_clabeltext):
+    x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
+    z = np.max(np.dstack([abs(x), abs(y)]), 2)
+
+    fig, (ax1, ax2) = plt.subplots(ncols=2)
+    cs1 = ax1.contour(x, y, z)
+    cs2 = ax2.contourf(x, y, z)
+    clabels1 = cs1.clabel(zorder=1234, use_clabeltext=use_clabeltext)
+    clabels2 = cs2.clabel(zorder=12345, use_clabeltext=use_clabeltext)
+    for clabel in clabels1:
+        assert clabel.get_zorder() == 1234
+    for clabel in clabels2:
+        assert clabel.get_zorder() == 12345
+
+
 @image_comparison(['contour_log_extension.png'],
                   remove_text=True, style='mpl20')
 def test_contourf_log_extension():

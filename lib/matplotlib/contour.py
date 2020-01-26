@@ -51,7 +51,7 @@ class ContourLabeler:
     def clabel(self, levels=None, *,
                fontsize=None, inline=True, inline_spacing=5, fmt='%1.3f',
                colors=None, use_clabeltext=False, manual=False,
-               rightside_up=True):
+               rightside_up=True, zorder=None):
         """
         Label a contour plot.
 
@@ -124,6 +124,11 @@ class ContourLabeler:
             of texts during the drawing time, therefore this can be used if
             aspect of the axes changes.
 
+        zorder : float or None, optional
+            zorder of the contour labels.
+
+            If not specified, the default zorder of `.Text` class is used.
+
         Returns
         -------
         labels
@@ -144,6 +149,7 @@ class ContourLabeler:
         # Detect if manual selection is desired and remove from argument list.
         self.labelManual = manual
         self.rightside_up = rightside_up
+        self._zorder = zorder
 
         if levels is None:
             levels = self.levels
@@ -397,7 +403,7 @@ class ContourLabeler:
         dx, dy = self.ax.transData.inverted().transform((x, y))
         t = text.Text(dx, dy, rotation=rotation,
                       horizontalalignment='center',
-                      verticalalignment='center')
+                      verticalalignment='center', zorder=self._zorder)
         return t
 
     def _get_label_clabeltext(self, x, y, rotation):
@@ -411,7 +417,7 @@ class ContourLabeler:
                                                   np.array([[x, y]]))
         t = ClabelText(dx, dy, rotation=drotation[0],
                        horizontalalignment='center',
-                       verticalalignment='center')
+                       verticalalignment='center', zorder=self._zorder)
 
         return t
 
