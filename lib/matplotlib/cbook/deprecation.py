@@ -115,9 +115,9 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
     Decorator to mark a function, a class, or a property as deprecated.
 
     When deprecating a classmethod, a staticmethod, or a property, the
-    ``@deprecated`` decorator should go *under* the ``@classmethod``, etc.
-    decorator (i.e., `deprecated` should directly decorate the underlying
-    callable).
+    ``@deprecated`` decorator should go *under* ``@classmethod`` and
+    ``@staticmethod`` (i.e., `deprecated` should directly decorate the
+    underlying callable), but *over* ``@property``.
 
     Parameters
     ----------
