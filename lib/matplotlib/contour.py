@@ -159,7 +159,6 @@ class ContourLabeler:
         else:
             self._clabel_zorder = zorder
 
-
         if levels is None:
             levels = self.levels
             indices = list(range(len(self.cvalues)))
