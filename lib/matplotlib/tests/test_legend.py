@@ -192,26 +192,32 @@ def test_hatching():
 
     fig, ax = plt.subplots()
 
-    # Patches
+    # ------------------------------ Patches --------------------------------
+    # label = 'Patch\ndefault color\nfilled'
     patch = plt.Rectangle((0, 0), 0.3, 0.3, hatch='xx',
-                          label='Patch\ndefault color\nfilled')
+                          label=' ')
     ax.add_patch(patch)
+    # label = 'Patch\nexplicit color\nfilled'
     patch = plt.Rectangle((0.33, 0), 0.3, 0.3, hatch='||', edgecolor='C1',
-                          label='Patch\nexplicit color\nfilled')
+                          label=' ')
     ax.add_patch(patch)
+    # label = 'Patch\ndefault color\nunfilled'
     patch = plt.Rectangle((0, 0.4), 0.3, 0.3, hatch='xx', fill=False,
-                          label='Patch\ndefault color\nunfilled')
+                          label=' ')
     ax.add_patch(patch)
+    # label = 'Patch\nexplicit color\nunfilled'
     patch = plt.Rectangle((0.33, 0.4), 0.3, 0.3, hatch='||', fill=False,
                           edgecolor='C1',
-                          label='Patch\nexplicit color\nunfilled')
+                          label=' ')
     ax.add_patch(patch)
 
-    # Paths
+    # ------------------------------ Paths -----------------------------------
+    # label = 'Path\ndefault color'
     ax.fill_between([0, .15, .3], [.8, .8, .8], [.9, 1.0, .9],
-                    hatch='+', label='Path\ndefault color')
+                    hatch='+', label=' ')
+    # label = 'Path\nexplicit color'
     ax.fill_between([.33, .48, .63], [.8, .8, .8], [.9, 1.0, .9],
-                    hatch='+', edgecolor='C2', label='Path\nexplicit color')
+                    hatch='+', edgecolor='C2', label=' ')
 
     ax.set_xlim(-0.01, 1.1)
     ax.set_ylim(-0.01, 1.1)
