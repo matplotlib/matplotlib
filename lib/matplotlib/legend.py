@@ -483,44 +483,30 @@ class Legend(Artist):
         if edgecolor == 'inherit':
             edgecolor = mpl.rcParams["axes.edgecolor"]
 
-        self.legendPatch = FancyBboxPatch(
-            xy=(0.0, 0.0), width=1., height=1.,
-            facecolor=facecolor,
-            edgecolor=edgecolor,
-            mutation_scale=self._fontsize,
-            snap=True
-            )
-
-        # The width and height of the legendPatch will be set (in the
-        # draw()) to the length that includes the padding. Thus we set
-        # pad=0 here.
         if fancybox is None:
             fancybox = mpl.rcParams["legend.fancybox"]
 
-        if fancybox:
-            self.legendPatch.set_boxstyle("round", pad=0,
-                                          rounding_size=0.2)
-        else:
-            self.legendPatch.set_boxstyle("square", pad=0)
-
+        self.legendPatch = FancyBboxPatch(
+            xy=(0, 0), width=1, height=1,
+            facecolor=facecolor, edgecolor=edgecolor,
+            # If shadow is used, default to alpha=1 (#8943).
+            alpha=(framealpha if framealpha is not None
+                   else 1 if shadow
+                   else mpl.rcParams["legend.framealpha"]),
+            # The width and height of the legendPatch will be set (in draw())
+            # to the length that includes the padding. Thus we set pad=0 here.
+            boxstyle=("round,pad=0,rounding_size=0.2" if fancybox
+                      else "square,pad=0"),
+            mutation_scale=self._fontsize,
+            snap=True,
+        )
         self._set_artist_props(self.legendPatch)
 
-        self._drawFrame = frameon
-        if frameon is None:
-            self._drawFrame = mpl.rcParams["legend.frameon"]
+        self._drawFrame = (frameon if frameon is not None
+                           else mpl.rcParams["legend.frameon"])
 
         # init with null renderer
         self._init_legend_box(handles, labels, markerfirst)
-
-        # If shadow is activated use framealpha if not
-        # explicitly passed. See Issue 8943
-        if framealpha is None:
-            if shadow:
-                self.get_frame().set_alpha(1)
-            else:
-                self.get_frame().set_alpha(mpl.rcParams["legend.framealpha"])
-        else:
-            self.get_frame().set_alpha(framealpha)
 
         tmp = self._loc_used_default
         self._set_loc(loc)
