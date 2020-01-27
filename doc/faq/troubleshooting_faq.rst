@@ -162,7 +162,7 @@ mode::
     git clean -xdf
     git pull
     python -mpip install -v . > build.out
-    python examples/pylab_examples/simple_plot.py --verbose-debug > run.out
+    python -c "from pylab import *; set_loglevel('debug'); plot(); show()" > run.out
 
 and post :file:`build.out` and :file:`run.out` to the `matplotlib-devel
 <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_
