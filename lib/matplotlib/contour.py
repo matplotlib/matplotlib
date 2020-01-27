@@ -51,7 +51,7 @@ class ContourLabeler:
     def clabel(self, levels=None, *,
                fontsize=None, inline=True, inline_spacing=5, fmt='%1.3f',
                colors=None, use_clabeltext=False, manual=False,
-               rightside_up=True):
+               rightside_up=True, zorder=None):
         """
         Label a contour plot.
 
@@ -124,6 +124,12 @@ class ContourLabeler:
             of texts during the drawing time, therefore this can be used if
             aspect of the axes changes.
 
+        zorder : float or None, optional
+            zorder of the contour labels.
+
+            If not specified, the zorder of contour labels is set to
+            (2 + zorder of contours).
+
         Returns
         -------
         labels
@@ -144,6 +150,10 @@ class ContourLabeler:
         # Detect if manual selection is desired and remove from argument list.
         self.labelManual = manual
         self.rightside_up = rightside_up
+        if zorder is None:
+            self._clabel_zorder = 2+self._contour_zorder
+        else:
+            self._clabel_zorder = zorder
 
         if levels is None:
             levels = self.levels
@@ -397,7 +407,7 @@ class ContourLabeler:
         dx, dy = self.ax.transData.inverted().transform((x, y))
         t = text.Text(dx, dy, rotation=rotation,
                       horizontalalignment='center',
-                      verticalalignment='center')
+                      verticalalignment='center', zorder=self._clabel_zorder)
         return t
 
     def _get_label_clabeltext(self, x, y, rotation):
@@ -411,7 +421,7 @@ class ContourLabeler:
                                                   np.array([[x, y]]))
         t = ClabelText(dx, dy, rotation=drotation[0],
                        horizontalalignment='center',
-                       verticalalignment='center')
+                       verticalalignment='center', zorder=self._clabel_zorder)
 
         return t
 
@@ -869,7 +879,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 self.allkinds = [None] * len(self.allsegs)
 
             # Default zorder taken from Collection
-            zorder = kwargs.pop('zorder', 1)
+            self._contour_zorder = kwargs.pop('zorder', 1)
             for level, level_upper, segs, kinds in \
                     zip(lowers, uppers, self.allsegs, self.allkinds):
                 paths = self._make_paths(segs, kinds)
@@ -880,7 +890,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     edgecolors='none',
                     alpha=self.alpha,
                     transform=self.get_transform(),
-                    zorder=zorder)
+                    zorder=self._contour_zorder)
                 self.ax.add_collection(col, autolim=False)
                 self.collections.append(col)
         else:
@@ -891,7 +901,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             if aa is not None:
                 aa = (self.antialiased,)
             # Default zorder taken from LineCollection
-            zorder = kwargs.pop('zorder', 2)
+            self._contour_zorder = kwargs.pop('zorder', 2)
             for level, width, lstyle, segs in \
                     zip(self.levels, tlinewidths, tlinestyles, self.allsegs):
                 col = mcoll.LineCollection(
@@ -901,7 +911,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     linestyles=[lstyle],
                     alpha=self.alpha,
                     transform=self.get_transform(),
-                    zorder=zorder)
+                    zorder=self._contour_zorder)
                 col.set_label('_nolegend_')
                 self.ax.add_collection(col, autolim=False)
                 self.collections.append(col)
