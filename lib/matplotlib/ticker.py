@@ -2500,6 +2500,27 @@ class LogLocator(Locator):
 class SymmetricalLogLocator(Locator):
     """
     Determine the tick locations for symmetric log axes
+    
+    Parameters
+    ----------
+    transform : None or SymmetricalLogTransform object, default = None
+        Initialised with a `base`, `linthresh` and `linscale`
+        If `transform` is None,  then both `base` and `linthresh`
+        must be specified (`linscale` is ignored here).
+    
+    base : None or float, default = None
+        The base of the log scaling
+        Places a major tick every base**i, where i is an integer
+    
+    linthresh : None or float, default = None
+        linear range threshold
+        Defines the range (-x, x), within which the plot is linear.
+        This avoids having the plot go to infinity around zero.
+    
+    subs : None or str or sequence of float, default = None
+        Gives the multiples of integer powers of the base at which to
+        place ticks. (see LogLocator for more details)
+    
     """
 
     def __init__(self, transform=None, subs=None, linthresh=None, base=None):
@@ -2518,7 +2539,7 @@ class SymmetricalLogLocator(Locator):
         else:
             self._subs = subs
         self.numticks = 15
-
+        
     def set_params(self, subs=None, numticks=None):
         """Set parameters within this locator."""
         if numticks is not None:
