@@ -1367,11 +1367,22 @@ def _check_1d(x):
         return np.atleast_1d(x)
     else:
         try:
-            ndim = x[:, None].ndim
             # work around https://github.com/pandas-dev/pandas/issues/27775
             # which mean the shape is not as expected. That this ever worked
             # was an unintentional quirk of pandas the above line will raise
             # an exception in the future.
+            # This warns in pandas >= 1.0 via
+            # https://github.com/pandas-dev/pandas/pull/30588
+            with warnings.catch_warnings(record=True) as w:
+                warnings.filterwarnings("always",
+                                        category=DeprecationWarning,
+                                        module='pandas[.*]')
+
+                ndim = x[:, None].ndim
+                # we have definitely hit a pandas index or series object
+                # cast to a numpy array.
+                if len(w) != 0:
+                    return np.asanyarray(x)
             if ndim < 2:
                 return np.atleast_1d(x)
             return x

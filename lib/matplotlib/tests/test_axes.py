@@ -1695,6 +1695,14 @@ def test_bar_pandas_indexed(pd):
     ax.bar(df.x, 1., width=df.width)
 
 
+def test_pandas_smoke(pd):
+    # This should not raise any warnings
+    x = pd.Series([], dtype="float64")
+    plt.plot(x, x)
+    plt.plot(x.index, x)
+    plt.plot(x)
+
+
 @image_comparison(['hist_log'], remove_text=True)
 def test_hist_log():
     data0 = np.linspace(0, 1, 200)**3
