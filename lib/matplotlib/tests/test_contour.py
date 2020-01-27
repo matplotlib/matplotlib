@@ -305,16 +305,14 @@ def test_clabel_zorder(use_clabeltext, contour_zorder, clabel_zorder):
                                 use_clabeltext=use_clabeltext)
 
     if clabel_zorder is None:
-        expected_clabel_zorder = 1+contour_zorder
-        expected_filled_clabel_zorder = 2+contour_zorder
+        expected_clabel_zorder = 2+contour_zorder
     else:
         expected_clabel_zorder = clabel_zorder
-        expected_filled_clabel_zorder = clabel_zorder
 
     for clabel in clabels1:
         assert clabel.get_zorder() == expected_clabel_zorder
     for clabel in clabels2:
-        assert clabel.get_zorder() == expected_filled_clabel_zorder
+        assert clabel.get_zorder() == expected_clabel_zorder
 
 
 @image_comparison(['contour_log_extension.png'],

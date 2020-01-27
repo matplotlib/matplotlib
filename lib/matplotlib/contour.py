@@ -127,9 +127,8 @@ class ContourLabeler:
         zorder : float or None, optional
             zorder of the contour labels.
 
-            If not specified, the zorder of contour labels is set to either
-            (2 + zorder of contours) or (1 + zorder of contours) depending on
-            whether the contours are filled or not filled.
+            If not specified, the zorder of contour labels is set to
+            (2 + zorder of contours).
 
         Returns
         -------
@@ -152,10 +151,7 @@ class ContourLabeler:
         self.labelManual = manual
         self.rightside_up = rightside_up
         if zorder is None:
-            if self.filled:
-                self._clabel_zorder = 2+self._contour_zorder
-            else:
-                self._clabel_zorder = 1+self._contour_zorder
+            self._clabel_zorder = 2+self._contour_zorder
         else:
             self._clabel_zorder = zorder
 
