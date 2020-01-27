@@ -6014,18 +6014,19 @@ def test_axisbelow():
         ax.set_axisbelow(setting)
 
 
-@image_comparison(['titletwiny.png'], style='mpl20')
 def test_titletwiny():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
-    # Test that title is put above xlabel if xlabel at top
-    fig, ax = plt.subplots()
-    fig.subplots_adjust(top=0.8)
+    plt.style.use('mpl20')
+    fig, ax = plt.subplots(dpi=72)
     ax2 = ax.twiny()
-    ax.set_xlabel('Xlabel')
-    ax2.set_xlabel('Xlabel2')
-    ax.set_title('Title')
+    xlabel2 = ax2.set_xlabel('Xlabel2')
+    title = ax.set_title('Title')
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    # ------- Test that title is put above Xlabel2 (Xlabel2 at top) ----------
+    bbox_y0_title = title.get_window_extent(renderer).y0  # bottom of title
+    bbox_y1_xlabel2 = xlabel2.get_window_extent(renderer).y1  # top of xlabel2
+    y_diff = bbox_y0_title - bbox_y1_xlabel2
+    assert np.isclose(y_diff, 3)
 
 
 def test_titlesetpos():
