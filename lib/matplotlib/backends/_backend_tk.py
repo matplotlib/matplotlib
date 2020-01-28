@@ -475,9 +475,9 @@ class FigureManagerTk(FigureManagerBase):
                 self.window.deiconify()
             else:
                 self.canvas.draw_idle()
-            # Raise the new window.
-            self.canvas.manager.window.attributes('-topmost', 1)
-            self.canvas.manager.window.attributes('-topmost', 0)
+            if matplotlib.rcParams['figure.raise_window']:
+                self.canvas.manager.window.attributes('-topmost', 1)
+                self.canvas.manager.window.attributes('-topmost', 0)
             self._shown = True
 
     def destroy(self, *args):

@@ -1339,6 +1339,7 @@ defaultParams = {
     'figure.frameon':    [True, validate_bool],
     'figure.autolayout': [False, validate_bool],
     'figure.max_open_warning': [20, validate_int],
+    'figure.raise_window': [True, validate_bool],
 
     'figure.subplot.left': [0.125, _range_validators["0 <= x <= 1"]],
     'figure.subplot.right': [0.9, _range_validators["0 <= x <= 1"]],
