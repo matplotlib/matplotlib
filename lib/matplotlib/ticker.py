@@ -504,7 +504,7 @@ class ScalarFormatter(Formatter):
 
     If ``useOffset == True`` and the data range is much smaller than the data
     average, then an offset will be determined such that the tick labels
-    are meaningful.  Scientific notation is used for ``data < 10^-n`` or
+    are meaningful.  Scientific notation is used for ``data < 10^n`` or
     ``data >= 10^m``, where ``n`` and ``m`` are the power limits set using
     ``set_powerlimits((n, m))``, defaulting to :rc:`axes.formatter.limits`.
     """
