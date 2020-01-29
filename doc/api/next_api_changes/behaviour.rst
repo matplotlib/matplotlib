@@ -70,3 +70,6 @@ shape ``(n, 2)`` would plot the first column of *x* against the first column
 of *y*, the second column of *x* against the second column of *y*, **and** the
 first column of *x* against the third column of *y*.  This now raises an error
 instead.
+
+`.Text.update_from` now copies usetex state from the source Text 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
