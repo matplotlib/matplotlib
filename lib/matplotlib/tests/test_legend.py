@@ -732,9 +732,9 @@ def test_plot_single_input_multiple_label():
 
 
 def test_plot_multiple_label_incorrect_length_exception():
-    # check that exception is raised for
-    # iterable label with incorrect length
-    with pytest.raises(Exception):
+    # check that excepton is raised if multiple labels
+    # are given, but number of on labels != number of lines
+    with pytest.raises(ValueError):
         x = [1, 2, 5]
         y = [[2, 4, 3], [4, 7, 1], [3, 9, 2]]
         label = ['one', 'two']
