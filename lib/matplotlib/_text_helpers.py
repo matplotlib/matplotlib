@@ -1,5 +1,5 @@
 """
-Text layouting utilities.
+Low-level text helper utilities.
 """
 
 import dataclasses

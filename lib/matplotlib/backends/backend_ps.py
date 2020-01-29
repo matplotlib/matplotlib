@@ -18,8 +18,7 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, _path
-from matplotlib import _text_layout
+from matplotlib import _api, cbook, _path, _text_helpers
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
@@ -613,7 +612,7 @@ grestore
             font.set_text(s, 0, flags=LOAD_NO_HINTING)
             self._character_tracker.track(font, s)
             xs_names = [(item.x, font.get_glyph_name(item.glyph_idx))
-                        for item in _text_layout.layout(s, font)]
+                        for item in _text_helpers.layout(s, font)]
 
         self.set_color(*gc.get_rgb())
         ps_name = (font.postscript_name
