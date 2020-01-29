@@ -172,15 +172,21 @@ FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0, unsigned long x1,
 static FT_UInt ft_get_char_index_or_warn(FT_Face face, FT_ULong charcode)
 {
     FT_UInt glyph_index = FT_Get_Char_Index(face, charcode);
-    if (!glyph_index) {
-        PyErr_WarnFormat(NULL, 1, "Glyph %lu missing from current font.", charcode);
-        // Apparently PyErr_WarnFormat returns 0 even if the exception propagates
-        // due to running with -Werror, so check the error flag directly instead.
-        if (PyErr_Occurred()) {
-            throw py::exception();
-        }
+    if (glyph_index) {
+        return glyph_index;
     }
-    return glyph_index;
+    PyObject *text_helpers = NULL, *tmp = NULL;
+    if (!(text_helpers = PyImport_ImportModule("matplotlib._text_helpers")) ||
+        !(tmp = PyObject_CallMethod(text_helpers, "warn_on_missing_glyph", "k", charcode))) {
+        goto exit;
+    }
+exit:
+    Py_XDECREF(text_helpers);
+    Py_XDECREF(tmp);
+    if (PyErr_Occurred()) {
+        throw py::exception();
+    }
+    return 0;
 }
 
 
