@@ -585,8 +585,7 @@ class ColorbarBase:
         one.  (check is used twice so factored out here...)
         """
         contouring = self.boundaries is not None and self.spacing == 'uniform'
-        return (type(self.norm) in [colors.Normalize, colors.LogNorm]
-                and not contouring)
+        return (type(self.norm) in [colors.Normalize, colors.LogNorm])
 
     def _reset_locator_formatter_scale(self):
         """
