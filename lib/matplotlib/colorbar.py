@@ -584,8 +584,9 @@ class ColorbarBase:
         Return if we should use an adjustable tick locator or a fixed
         one.  (check is used twice so factored out here...)
         """
-        # contouring = self.boundaries is not None and self.spacing == 'uniform'
-        return (type(self.norm) in [colors.Normalize, colors.LogNorm])
+        contouring = self.boundaries is not None and self.spacing == 'uniform'
+        return (type(self.norm) in [colors.Normalize, colors.LogNorm] and
+                not contouring)
 
     def _reset_locator_formatter_scale(self):
         """
@@ -1118,13 +1119,12 @@ class ColorbarBase:
         else:
             y = self._proportional_y()
         xmid = np.array([0.5])
-        if self._use_auto_colorbar_locator():
+        if type(self.norm) in [colors.Normalize, colors.LogNorm]:
             y = norm.inverse(y)
             x = norm.inverse(x)
             xmid = norm.inverse(xmid)
         else:
-            # occurs for norms that don't have an inverse, in
-            # which case manually scale:
+            # manually scale...
             dv = self.vmax - self.vmin
             x = x * dv + self.vmin
             y = y * dv + self.vmin
