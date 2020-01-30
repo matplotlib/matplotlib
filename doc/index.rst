@@ -2,14 +2,11 @@
 
 .. title:: Matplotlib: Python plotting
 
-Matplotlib is a Python 2D plotting library which produces publication quality
-figures in a variety of hardcopy formats and interactive environments across
-platforms.  Matplotlib can be used in Python scripts, the Python and IPython_
-shells, the Jupyter_ notebook, web application servers, and four graphical user
-interface toolkits.
+Matplotlib: Visualization with Python
+-------------------------------------
 
-.. _IPython: http://ipython.org
-.. _Jupyter: http://jupyter.org
+Matplotlib is a comprehensive library for creating static, animated,
+and interactive visualizations in Python.
 
 .. raw:: html
 
@@ -35,31 +32,47 @@ interface toolkits.
    </div>
    <span class="clear_screenshots"></span>
 
-Matplotlib tries to make easy things easy and hard things possible.  You
-can generate plots, histograms, power spectra, bar charts, errorcharts,
-scatterplots, etc., with just a few lines of code.  For examples, see the
-:doc:`sample plots <tutorials/introductory/sample_plots>` and :doc:`thumbnail
-gallery <gallery/index>`.
+Matplotlib makes easy things easy and hard things possible.
 
-For simple plotting the `pyplot` module provides a MATLAB-like interface,
-particularly when combined with IPython.  For the power user, you have full
-control of line styles, font properties, axes properties, etc, via an object
-oriented interface or via a set of functions familiar to MATLAB users.
+.. container:: bullet-box-container
+
+   .. container:: bullet-box
+
+      Create
+
+      - Develop `publication quality plots`_ with just with just a few lines of code
+      - Use `interactive figures`_ that can zoom, pan, update...
+
+      .. _publication quality plots: https://matplotlib.org/gallery/index.html
+      .. _interactive figures: https://matplotlib.org/gallery/index.html#event-handling
+
+   .. container:: bullet-box
+
+      Customize
+
+      - `Take full control`_ of line styles, font properties, axes properties...
+      - `Export and embed`_ to a number of file formats and interactive environments
+
+      .. _Take full control: https://matplotlib.org/tutorials/index.html#tutorials
+      .. _Export and embed: https://matplotlib.org/api/index_backend_api.html
+
+   .. container:: bullet-box
+
+      Extend
+
+      - Explore tailored functionality provided by
+        :doc:`third party packages <thirdpartypackages/index>`
+      - Learn more about matplotlib through the many
+        :doc:`external learning resources <resources/index>`
 
 Documentation
--------------
+~~~~~~~~~~~~~
 
 To get started, read the :doc:`User's Guide <users/index>`.
 
 Trying to learn how to do a particular kind of plot?  Check out the
 :doc:`examples gallery <gallery/index>` or the :doc:`list of plotting commands
 <api/pyplot_summary>`.
-
-Other learning resources
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-There are many :doc:`external learning resources <resources/index>` available
-including printed material, videos and tutorials.
 
 Join our community!
 ~~~~~~~~~~~~~~~~~~~
