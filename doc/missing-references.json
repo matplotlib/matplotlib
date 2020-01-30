@@ -23,6 +23,10 @@
     "button": [
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:338"
     ],
+    "cbar_axes": [
+      "lib/mpl_toolkits/axes_grid1/axes_grid.py:docstring of mpl_toolkits.axes_grid1.axes_grid.ImageGrid:48",
+      "lib/mpl_toolkits/axisartist/axes_grid.py:docstring of mpl_toolkits.axisartist.axes_grid.ImageGrid:48"
+    ],
     "dividers": [
       "lib/mpl_toolkits/axes_grid1/colorbar.py:docstring of mpl_toolkits.axes_grid1.colorbar.ColorbarBase:29"
     ],
@@ -792,8 +796,8 @@
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:44"
     ],
     "Size.from_any": [
-      "lib/mpl_toolkits/axes_grid1/axes_grid.py:docstring of mpl_toolkits.axes_grid1.axes_grid.ImageGrid:73",
-      "lib/mpl_toolkits/axisartist/axes_grid.py:docstring of mpl_toolkits.axisartist.axes_grid.ImageGrid:48"
+      "lib/mpl_toolkits/axes_grid1/axes_grid.py:docstring of mpl_toolkits.axes_grid1.axes_grid.ImageGrid:60",
+      "lib/mpl_toolkits/axisartist/axes_grid.py:docstring of mpl_toolkits.axisartist.axes_grid.ImageGrid:60"
     ],
     "Style": [
       "doc/devel/MEP/MEP26.rst:68"
@@ -892,13 +896,13 @@
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:933"
     ],
     "axes_grid1": [
-      "doc/index.rst:184"
+      "doc/index.rst:154"
     ],
     "axis.Axis.get_ticks_position": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:821"
     ],
     "axisartist": [
-      "doc/index.rst:184"
+      "doc/index.rst:154"
     ],
     "backend_bases.RendererBase": [
       "lib/matplotlib/backends/backend_template.py:docstring of matplotlib.backends.backend_template.RendererTemplate:4"
@@ -1506,7 +1510,7 @@
       "lib/mpl_toolkits/axisartist/axis_artist.py:docstring of mpl_toolkits.axisartist.axis_artist:26"
     ],
     "mplot3d": [
-      "doc/index.rst:184"
+      "doc/index.rst:154"
     ],
     "new_figure_manager": [
       "doc/devel/MEP/MEP23.rst:75"
