@@ -254,7 +254,7 @@ def prepare_missing_references_handler(app):
 
     sphinx_logger = logging.getLogger('sphinx')
     missing_reference_filter = MissingReferenceFilter(app)
-    for handler in sphinx_logger.handlers[:]:
+    for handler in sphinx_logger.handlers:
         if (isinstance(handler, sphinx_logging.WarningStreamHandler)
                 and missing_reference_filter not in handler.filters):
 

@@ -650,6 +650,8 @@ class RendererSVG(RendererBase):
         self._path_collection_id += 1
 
     def draw_gouraud_triangle(self, gc, points, colors, trans):
+        # docstring inherited
+
         # This uses a method described here:
         #
         #   http://www.svgopen.org/2005/papers/Converting3DFaceToSVG/index.html
@@ -685,9 +687,9 @@ class RendererSVG(RendererBase):
                        ' \n1 1 1 1 0 \n0 0 0 0 1 ')
             writer.end('filter')
 
-        avg_color = np.sum(colors[:, :], axis=0) / 3.0
-        # Just skip fully-transparent triangles
-        if avg_color[-1] == 0.0:
+        avg_color = np.average(colors, axis=0)
+        if avg_color[-1] == 0:
+            # Skip fully-transparent triangles
             return
 
         trans_and_flip = self._make_flip_transform(trans)
@@ -698,7 +700,7 @@ class RendererSVG(RendererBase):
             x1, y1 = tpoints[i]
             x2, y2 = tpoints[(i + 1) % 3]
             x3, y3 = tpoints[(i + 2) % 3]
-            c = colors[i][:]
+            rgba_color = colors[i]
 
             if x2 == x3:
                 xb = x2
@@ -723,12 +725,13 @@ class RendererSVG(RendererBase):
             writer.element(
                 'stop',
                 offset='1',
-                style=generate_css({'stop-color': rgb2hex(avg_color),
-                                    'stop-opacity': short_float_fmt(c[-1])}))
+                style=generate_css({
+                    'stop-color': rgb2hex(avg_color),
+                    'stop-opacity': short_float_fmt(rgba_color[-1])}))
             writer.element(
                 'stop',
                 offset='0',
-                style=generate_css({'stop-color': rgb2hex(c),
+                style=generate_css({'stop-color': rgb2hex(rgba_color),
                                     'stop-opacity': "0"}))
 
             writer.end('linearGradient')

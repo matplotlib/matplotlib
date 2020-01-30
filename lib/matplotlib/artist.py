@@ -1065,8 +1065,8 @@ class Artist:
         self._label = other._label
         self._sketch = other._sketch
         self._path_effects = other._path_effects
-        self.sticky_edges.x[:] = other.sticky_edges.x[:]
-        self.sticky_edges.y[:] = other.sticky_edges.y[:]
+        self.sticky_edges.x[:] = other.sticky_edges.x.copy()
+        self.sticky_edges.y[:] = other.sticky_edges.y.copy()
         self.pchanged()
         self.stale = True
 
