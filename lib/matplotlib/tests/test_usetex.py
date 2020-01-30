@@ -1,5 +1,7 @@
-import pytest
 import platform
+
+import numpy as np
+import pytest
 
 import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -43,3 +45,21 @@ def test_mathdefault():
     # problems when later switching usetex on.
     mpl.rcParams['text.usetex'] = True
     fig.canvas.draw()
+
+
+def test_minus_no_descent():
+    # Test special-casing of minus descent in DviFont._height_depth_of, by
+    # checking that overdrawing a 1 and a -1 results in an overall height
+    # equivalent to drawing either of them separately.
+    mpl.style.use("mpl20")
+    heights = {}
+    fig = plt.figure()
+    for vals in [(1,), (-1,), (-1, 1)]:
+        fig.clf()
+        for x in vals:
+            fig.text(.5, .5, f"${x}$", usetex=True)
+        fig.canvas.draw()
+        # The following counts the number of non-fully-blank pixel rows.
+        heights[vals] = ((np.array(fig.canvas.buffer_rgba())[..., 0] != 255)
+                         .any(axis=1).sum())
+    assert len({*heights.values()}) == 1
