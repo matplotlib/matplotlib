@@ -1341,9 +1341,10 @@ def _check_1d(x):
             # This code should correctly identify and coerce to a
             # numpy array all pandas versions.
             with warnings.catch_warnings(record=True) as w:
-                warnings.filterwarnings("always",
-                                        category=DeprecationWarning,
-                                        module='pandas[.*]')
+                warnings.filterwarnings(
+                    "always",
+                    category=DeprecationWarning,
+                    message='Support for multi-dimensional indexing')
 
                 ndim = x[:, None].ndim
                 # we have definitely hit a pandas index or series object
