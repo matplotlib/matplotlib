@@ -194,26 +194,8 @@ Yellowbrick
 .. image:: /_static/yellowbrick.png
     :height: 400px
 
-
-Interactivity
-*************
-
-gif
-===
-`gif <https://github.com/maxhumber/gif/>`_ is an ultra lightweight API to make animated gifs.
-
-.. image:: /_static/gif_attachment_example.png
-
-mplcursors
-==========
-`mplcursors <https://mplcursors.readthedocs.io>`_ provides interactive data
-cursors for Matplotlib.
-
-MplDataCursor
-=============
-`MplDataCursor <https://github.com/joferkington/mpldatacursor>`_ is a toolkit
-written by Joe Kington to provide interactive "data cursors" (clickable
-annotation boxes) for Matplotlib.
+Animations
+**********
 
 animatplot
 ==========
@@ -225,6 +207,37 @@ animated plots almost as easy as static ones.
 
 For an animated version of the above picture and more examples, see the
 `animatplot gallery. <https://animatplot.readthedocs.io/en/stable/gallery.html>`_
+
+gif
+===
+`gif <https://github.com/maxhumber/gif/>`_ is an ultra lightweight animated gif API.
+
+.. image:: /_static/gif_attachment_example.png
+
+numpngw
+=======
+
+`numpngw <https://pypi.org/project/numpngw/>`_  provides functions for writing
+NumPy arrays to PNG and animated PNG files.  It also includes the class
+``AnimatedPNGWriter`` that can be used to save a Matplotlib animation as an
+animated PNG file.  See the example on the PyPI page or at the ``numpngw``
+`github repository <https://github.com/WarrenWeckesser/numpngw>`_.
+
+.. image:: /_static/numpngw_animated_example.png
+
+Interactivity
+*************
+
+mplcursors
+==========
+`mplcursors <https://mplcursors.readthedocs.io>`_ provides interactive data
+cursors for Matplotlib.
+
+MplDataCursor
+=============
+`MplDataCursor <https://github.com/joferkington/mpldatacursor>`_ is a toolkit
+written by Joe Kington to provide interactive "data cursors" (clickable
+annotation boxes) for Matplotlib.
 
 Rendering backends
 ******************
@@ -268,17 +281,6 @@ border, and logo.
 
 .. image:: /_static/mpl_template_example.png
     :height: 330px
-
-numpngw
-=======
-
-`numpngw <https://pypi.org/project/numpngw/>`_  provides functions for writing
-NumPy arrays to PNG and animated PNG files.  It also includes the class
-``AnimatedPNGWriter`` that can be used to save a Matplotlib animation as an
-animated PNG file.  See the example on the PyPI page or at the ``numpngw``
-`github repository <https://github.com/WarrenWeckesser/numpngw>`_.
-
-.. image:: /_static/numpngw_animated_example.png
 
 blume
 =====
