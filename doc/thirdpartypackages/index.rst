@@ -198,6 +198,12 @@ Yellowbrick
 Interactivity
 *************
 
+gif
+===
+`gif <https://github.com/maxhumber/gif/>`_ is an ultra lightweight API to make animated gifs.
+
+.. image:: /_static/gif_attachment_example.png
+
 mplcursors
 ==========
 `mplcursors <https://mplcursors.readthedocs.io>`_ provides interactive data
