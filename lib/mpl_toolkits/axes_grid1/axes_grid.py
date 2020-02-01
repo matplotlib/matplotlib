@@ -82,12 +82,13 @@ class CbarAxes(CbarAxesBase, Axes):
 
 class Grid:
     """
-    A class that creates a grid of Axes. In matplotlib, the axes
-    location (and size) is specified in the normalized figure
-    coordinates. This may not be ideal for images that needs to be
-    displayed with a given aspect ratio.  For example, displaying
-    images of a same size with some fixed padding between them cannot
-    be easily done in matplotlib. AxesGrid is used in such case.
+    A grid of Axes.
+
+    In Matplotlib, the axes location (and size) is specified in normalized
+    figure coordinates. This may not be ideal for images that needs to be
+    displayed with a given aspect ratio; for example, it is difficult to
+    display multiple images of a same size with some fixed padding between
+    them.  AxesGrid can be used in such case.
     """
 
     _defaultAxesClass = Axes
@@ -115,14 +116,25 @@ class Grid:
         rect : (float, float, float, float) or int
             The axes position, as a ``(left, bottom, width, height)`` tuple or
             as a three-digit subplot position code (e.g., "121").
+        nrows_ncols : (int, int)
+            Number of rows and columns in the grid.
+        ngrids : int or None, default: None
+            If not None, only the first *ngrids* axes in the grid are created.
         direction : {"row", "column"}, default: "row"
+            Whether axes are created in row-major ("row by row") or
+            column-major order ("column by column").
         axes_pad : float or (float, float), default: 0.02
             Padding or (horizontal padding, vertical padding) between axes, in
             inches.
         add_all : bool, default: True
+            Whether to add the axes to the figure using `.Figure.add_axes`.
         share_all : bool, default: False
+            Whether all axes share their x- and y-axis.  Overrides *share_x*
+            and *share_y*.
         share_x : bool, default: True
+            Whether all axes of a column share their x-axis.
         share_y : bool, default: True
+            Whether all axes of a row share their y-axis.
         label_mode : {"L", "1", "all"}, default: "L"
             Determines which axes will get tick labels:
 
@@ -133,6 +145,8 @@ class Grid:
 
         axes_class : subclass of `matplotlib.axes.Axes`, default: None
         aspect : bool, default: False
+            Whether the axes aspect ratio follows the aspect ratio of the data
+            limits.
         """
         self._nrows, self._ncols = nrows_ncols
 
@@ -332,14 +346,7 @@ class Grid:
 
 
 class ImageGrid(Grid):
-    """
-    A class that creates a grid of Axes. In matplotlib, the axes
-    location (and size) is specified in the normalized figure
-    coordinates. This may not be ideal for images that needs to be
-    displayed with a given aspect ratio.  For example, displaying
-    images of a same size with some fixed padding between them cannot
-    be easily done in matplotlib. ImageGrid is used in such case.
-    """
+    # docstring inherited
 
     _defaultCbarAxesClass = CbarAxes
 
@@ -368,13 +375,24 @@ class ImageGrid(Grid):
         rect : (float, float, float, float) or int
             The axes position, as a ``(left, bottom, width, height)`` tuple or
             as a three-digit subplot position code (e.g., "121").
+        nrows_ncols : (int, int)
+            Number of rows and columns in the grid.
+        ngrids : int or None, default: None
+            If not None, only the first *ngrids* axes in the grid are created.
         direction : {"row", "column"}, default: "row"
-        axes_pad : float or (float, float), default: 0.02
+            Whether axes are created in row-major ("row by row") or
+            column-major order ("column by column").  This also affects the
+            order in which axes are accessed using indexing (``grid[index]``).
+        axes_pad : float or (float, float), default: 0.02in
             Padding or (horizontal padding, vertical padding) between axes, in
             inches.
         add_all : bool, default: True
+            Whether to add the axes to the figure using `.Figure.add_axes`.
         share_all : bool, default: False
+            Whether all axes share their x- and y-axis.
         aspect : bool, default: True
+            Whether the axes aspect ratio follows the aspect ratio of the data
+            limits.
         label_mode : {"L", "1", "all"}, default: "L"
             Determines which axes will get tick labels:
 
@@ -383,10 +401,16 @@ class ImageGrid(Grid):
             - "1": Only the bottom left axes is labelled.
             - "all": all axes are labelled.
 
-        cbar_mode : {"each", "single", "edge", None }, default: None
+        cbar_mode : {"each", "single", "edge", None}, default: None
+            Whether to create a colorbar for "each" axes, a "single" colorbar
+            for the entire grid, colorbars only for axes on the "edge"
+            determined by *cbar_location*, or no colorbars.  The colorbars are
+            stored in the :attr:`cbar_axes` attribute.
         cbar_location : {"left", "right", "bottom", "top"}, default: "right"
         cbar_pad : float, default: None
+            Padding between the image axes and the colorbar axes.
         cbar_size : size specification (see `.Size.from_any`), default: "5%"
+            Colorbar size.
         cbar_set_cax : bool, default: True
             If True, each axes in the grid has a *cax* attribute that is bound
             to associated *cbar_axes*.
