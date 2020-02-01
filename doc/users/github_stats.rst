@@ -3,114 +3,118 @@
 GitHub Stats
 ============
 
-GitHub stats for 2018/08/10 - 2019/02/22 (tag: v2.2.3)
+GitHub stats for 2018/03/05 - 2020/02/01 (tag: v2.2.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 16 issues and merged 47 pull requests.
-The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/v2.2.4>`__
+We closed 12 issues and merged 46 pull requests.
+The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/v2.2.5>`__
 
-The following 21 authors contributed 122 commits.
+The following 28 authors contributed 508 commits.
 
 * Abhinuv Nitin Pitale
-* Andrew Nelson
+* Andras Deak
 * Antony Lee
-* Ayappan P
+* Ashley Whetter
+* Ben Root
+* Bingyao Liu
+* Brigitta Sipocz
 * Bruno Pagani
-* Chris Zimmerman
 * David Stansby
-* Elizabeth Seiver
 * Elliott Sales de Andrade
-* Eric Wieser
-* ImportanceOfBeingErnest
+* Eric Firing
+* hannah
+* Importance of Being Ernest
+* Jens Hedegaard Nielsen
+* Jeroen Demeyer
+* jjcaballero
 * Jody Klymak
-* Kyle Sunden
-* Mark Harfouche
+* Jouni K. Seppänen
 * MeeseeksMachine
+* Michele Mastropietro
+* MinRK
 * Nelle Varoquaux
-* Nick Papior
+* Nikita Kniazev
+* Paul Hobson
+* Paul Ivanov
 * Ryan May
-* simon-kraeusel
 * Thomas A Caswell
 * Tim Hoffmann
 
 GitHub issues and pull requests:
 
-Pull Requests (47):
+Pull Requests (46):
 
-* :ghpull:`13462`: Merge pull request #13455 from tacaswell/fix_freetype_download_logic
-* :ghpull:`13455`: BLD: only try to get freetype src if src does not exist
-* :ghpull:`13445`: Manual backport of #11246
-* :ghpull:`11246`: Download jquery during build.
-* :ghpull:`13420`: Doc backports
-* :ghpull:`13415`: Backport PR #13405 on branch v2.2.x (Fix imshow()ing PIL-opened images.)
-* :ghpull:`13405`: Fix imshow()ing PIL-opened images.
-* :ghpull:`12811`: Backport PR #12809 on branch v2.2.x (Fix TypeError when calculating tick_values)
-* :ghpull:`13181`: Backport PRs #12154, #12294, #12297, #12316, #13159 & #13205 to fix multiple tests issues
-* :ghpull:`12407`: Fix extension building on Xcode 10
-* :ghpull:`12879`: Pin pytest to <3.8 (for 2.2.x)
-* :ghpull:`12809`: Fix TypeError when calculating tick_values
-* :ghpull:`12618`: Backport PR #12548 on branch v2.2.x (undef _XOPEN_SOURCE breaks the build in AIX)
-* :ghpull:`12548`: undef _XOPEN_SOURCE breaks the build in AIX
-* :ghpull:`12573`: BUG: mplot3d: Don't crash if azim or elev are non-integral
-* :ghpull:`12508`: Backport PR #12478 on branch v2.2.x (MAINT: numpy deprecates asscalar in 1.16)
-* :ghpull:`12478`: MAINT: numpy deprecates asscalar in 1.16
-* :ghpull:`12366`: TST: Update test images for new Ghostscript.
-* :ghpull:`12346`: Backport PR #12261: FIX:  parasite axis2 demo
-* :ghpull:`12343`: Backport PR #12321 on branch v2.2.x (maint: setupext.py for freetype had a Catch case for missing ft2build.h)
-* :ghpull:`12321`: maint: setupext.py for freetype had a Catch case for missing ft2build.h
-* :ghpull:`12316`: Fix some warnings from Travis
-* :ghpull:`12261`: FIX:  parasite axis2 demo
-* :ghpull:`12154`: Avoid triggering deprecation warnings with pytest 3.8.
-* :ghpull:`12148`: BLD: pragmatic fix for building basic_unit example on py37
-* :ghpull:`12125`: Backport PR #12117 on branch v2.2.x (Fix Agg extent calculations for empty draws)
-* :ghpull:`12127`: Fix circleCI on 2.2.x
-* :ghpull:`12117`: Fix Agg extent calculations for empty draws
-* :ghpull:`12101`: Backport PR #12091 on branch v2.2.x (Respect QT_API even when the backend is not Qt{4,5}{Agg,Cairo}.)
-* :ghpull:`12102`: Backport PR #12091 on branch v3.0.x (Respect QT_API even when the backend is not Qt{4,5}{Agg,Cairo}.)
-* :ghpull:`12091`: Respect QT_API even when the backend is not Qt{4,5}{Agg,Cairo}.
-* :ghpull:`12097`: Backport PR #12092: Update backend_qt5agg to fix PySide2 mem issues
-* :ghpull:`12092`: Update backend_qt5agg to fix PySide2 mem issues
-* :ghpull:`12082`: Backport PR #12012 on branch v2.2.x (FIX: fallback text renderer to fig._cachedRenderer, if none found)
-* :ghpull:`12012`: FIX: fallback text renderer to fig._cachedRenderer, if none found
-* :ghpull:`11957`: FIX: fix importing backend with non-ascii characters
-* :ghpull:`11990`: Backport PR #11988 on branch v2.2.x
-* :ghpull:`11988`: Updated typo in fill_between docstring
-* :ghpull:`11977`: Backport PR #11973 on branch v2.2.x
-* :ghpull:`11973`: TST: Fix duplicate file usage when running in parallel.
-* :ghpull:`11900`: Allow args to pass through _allow_super_init
-* :ghpull:`11841`: Backport PR #11762 on branch v2.2.x
-* :ghpull:`11762`: fix minor grid overlapping
-* :ghpull:`11808`: updates error message to run pytest instead of tests.py standalone
-* :ghpull:`11786`: Fix collections import warnings for Python 3.7
+* :ghpull:`16382`: Backport PR #16379 on branch v3.1.x (FIX: catch on message content, not module)
+* :ghpull:`16381`: Backport PR #16379 on branch v2.2.x (FIX: catch on message content, not module)
+* :ghpull:`16383`: Backport PR #16379 on branch v3.2.x (FIX: catch on message content, not module)
+* :ghpull:`16379`: FIX: catch on message content, not module
+* :ghpull:`16361`: Backport PR #16347: FIX: catch warnings from pandas in cbook._check_1d
+* :ghpull:`16347`: FIX: catch warnings from pandas in cbook._check_1d
+* :ghpull:`16358`: Pin docutils
+* :ghpull:`16355`: typo in ``ticker.ScalarFormatter`` doc
+* :ghpull:`16255`: Move version info to sidebar
+* :ghpull:`16137`: Backport PR #16112 on branch v2.2.x (CI: Fail when failed to install dependencies)
+* :ghpull:`16257`: Backport donation links to 2.2.x
+* :ghpull:`16256`: Update Python 2 EOL message on 2.2.x
+* :ghpull:`16121`: Backport PR #16065 on branch v2.2.x (Nicer formatting of community aspects on front page)
+* :ghpull:`16143`: Unblock CI on v2.2.x branch
+* :ghpull:`16139`: Backport PR #11495 on branch v2.2.x (Update the documentation guidelines)
+* :ghpull:`15663`: Backport PR #15649 on branch v2.2.x (Fix searchindex.js loading when ajax fails (because e.g. CORS in embedded iframes))
+* :ghpull:`14501`: Backport PR #14451 on branch v2.2.x (FIX: return points rather than path to fix regression)
+* :ghpull:`15472`: Backport PR #15460 on branch v2.2.x (Fix incorrect value check in axes_grid.)
+* :ghpull:`15460`: Fix incorrect value check in axes_grid.
+* :ghpull:`15448`: V22x py38 compat
+* :ghpull:`15442`: Backport PR #15439 on branch v2.2.x (DOC: mention discourse main page)
+* :ghpull:`14788`: for non-html output, let sphinx pick the best format (cherry-pick cha…
+* :ghpull:`15423`: Backport PR #15422 on branch v2.2.x (FIX: typo in attribute lookup)
+* :ghpull:`15422`: FIX: typo in attribute lookup
+* :ghpull:`14863`: Backport PR #14830 on branch v2.2.x (FIX: restore special casing of shift-enter in notebook)
+* :ghpull:`15208`: Backport PR #15206: FIX: be more forgiving about expecting internal s…
+* :ghpull:`14582`: Backport to 2.2.x removal of mpl_examples and setup.py cleanup
+* :ghpull:`15191`: Merge pull request #11786 from timhoffm/collections-abc
+* :ghpull:`15206`: FIX: be more forgiving about expecting internal state in draw_idle
+* :ghpull:`15016`: Backport PR #15007 on branch v2.2.x (FIX: support pandas 0.25)
+* :ghpull:`15007`: FIX: support pandas 0.25
+* :ghpull:`14964`: Backport Python 3 fixes on branch v2.2.x
+* :ghpull:`14986`: Merge pull request #14915 from AWhetter/fix_14585
+* :ghpull:`14915`: Don't redownload jquery when installing from an sdist
+* :ghpull:`14909`: Backport PR #14901 on branch v2.2.x (Fix GH14900: numpy 1.17.0 breaks test_colors.)
+* :ghpull:`14901`: Fix GH14900: numpy 1.17.0 breaks test_colors.
+* :ghpull:`14846`: Fix circleCI build on 2.2.x
+* :ghpull:`14830`: FIX: restore special casing of shift-enter in notebook
+* :ghpull:`14779`: Backport PR #14775: DOC: Fix CircleCI builds
+* :ghpull:`14587`: 2.2.x: install jquery_ui
+* :ghpull:`14590`: Try to fix 2.2.x travis building
+* :ghpull:`14451`: FIX: return points rather than path to fix regression
+* :ghpull:`14433`: Backport PR #14425 on branch v2.2.x (Lic restore license paint)
+* :ghpull:`14425`: Lic restore license paint
+* :ghpull:`13583`: Backport of #11917
 * :ghpull:`11724`: Fix cairo's image inversion and alpha misapplication.
-* :ghpull:`11733`: MAINT: use collections.abc for 3.7
 
-Issues (16):
+Issues (12):
 
-* :ghissue:`11199`: Open CVE on vendored jquery
-* :ghissue:`12766`: Incorrect license info in setup.py
-* :ghissue:`13258`: backport to 2.x fixes for sphinx 1.8?
-* :ghissue:`12140`: plt.imshow() error on PIL-opened tiff images
-* :ghissue:`12119`: pypi wheels for 2.2.3 claim to require numpy 1.7, but really require numpy 1.10
-* :ghissue:`13344`: Figure instances show shared content when redrawn with pycairo
-* :ghissue:`13182`: Tests errors related to 'MarkDecorator'
-* :ghissue:`13192`: Use of np.asscalar in Matplotlib v2.2.3
-* :ghissue:`13031`: Seemingly irrelevant exception about sequence multplication happening when linestyle used
-* :ghissue:`12535`: AIX Support - Do not undef _XOPEN_SOURCE
-* :ghissue:`11955`: UnicodeDecodeError on importing pyplot in python2
-* :ghissue:`12208`: parasite axis2 demo now crashes with log x-axis
-* :ghissue:`11758`: Extra Grid Line On Plot (PyPlot)
-* :ghissue:`12003`: Plotting empty lists with rasterized=True causes crash on saving to pdf
-* :ghissue:`12089`: PySide2 memory leak during canvas paintEvent
-* :ghissue:`10874`: RuntimeError: Cannot get window extent w/o renderer
+* :ghissue:`16295`: pyplot.plot using pandas series raises DeprecationWarning with pandas=1.0.0rc0
+* :ghissue:`15155`: Pip install can't find freetype and png despite them being installed
+* :ghissue:`11326`: matplotlib 2.2.2 debian ppc64: tests errors
+* :ghissue:`15726`: dateutil 2.8.1 raises TypeError instead of ValueError
+* :ghissue:`14524`: Got 'Could not convert glyph to bitmap' error when run matplotlib fig.savefig() in parallel (mp.Pool)
+* :ghissue:`14580`: del os.link in setup.py is breaking Python 3.8 builds
+* :ghissue:`15205`: FigureCanvas constructor crashes if interactive mode is switched on
+* :ghissue:`14992`: IndexError: tuple index out of range with pandas 0.25.
+* :ghissue:`14585`: Installing matplotlib from sources downloads jquery-ui anyway
+* :ghissue:`14900`: Numpy 1.17.0 breaks test_colors
+* :ghissue:`12762`: significance of the number 14 in calls to ``contour`` and ``tricontour``?
+* :ghissue:`13456`: Contour "level" keyword arg
 
-Previous Github Stats
+
+Previous GitHub Stats
 ---------------------
 
 
 .. toctree::
     :maxdepth: 1
     :glob:
+    :reversed:
 
     prev_whats_new/github_stats_*
