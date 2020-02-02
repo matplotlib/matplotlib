@@ -1334,10 +1334,10 @@ def get_font(filename, hinting_factor=None):
 
 def _rebuild():
     global fontManager
+    _log.info("Generating new fontManager, this may take some time...")
     fontManager = FontManager()
     with cbook._lock_path(_fmcache):
         json_dump(fontManager, _fmcache)
-    _log.info("generated new fontManager")
 
 
 try:
