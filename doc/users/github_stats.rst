@@ -512,7 +512,7 @@ Pull Requests (795):
 * :ghpull:`15067`: Fix cross-references in API changes < 1.0
 * :ghpull:`15061`: Fix cross-references in tutorials and FAQ
 * :ghpull:`15060`: Fix cross-references in examples.
-* :ghpull:`14957`: Documentation for using ConnectionPatch across Axes with constrained_…
+* :ghpull:`14957`: Documentation for using ConnectionPatch across Axes with constrained
 * :ghpull:`15053`: Make citation bit of README less wordy
 * :ghpull:`15044`: numpydoc set_size_inches docstring
 * :ghpull:`15050`: Clarify unnecessary special handling for colons in paths.
