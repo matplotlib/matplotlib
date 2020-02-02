@@ -226,7 +226,7 @@ Pull Requests (795):
 * :ghpull:`16079`: Fix restuctured text formatting
 * :ghpull:`16080`: Cleanup docstrings in backend_bases.py
 * :ghpull:`16061`: Fix deprecation message for axes_grid1.colorbar.
-* :ghpull:`16006`: Ignore pos in StrCategoryFormatter.__call__ to display correct label in the preview window 
+* :ghpull:`16006`: Ignore pos in StrCategoryFormatter.__call__ to display correct label in the preview window
 * :ghpull:`16056`: Backport PR #15864 on branch v3.2.x ([Add the info of 'sviewgui' in thirdparty package])
 * :ghpull:`15864`: Add 'sviewgui' to list of thirdparty packages
 * :ghpull:`16055`: Backport PR #16037 on branch v3.2.x (Doc: use empty ScalarMappable for colorbars with no associated image.)
@@ -442,7 +442,7 @@ Pull Requests (795):
 * :ghpull:`13510`: Change Locator MAXTICKS checking to emitting a log at WARNING level.
 * :ghpull:`15184`: Mark missing_references extension as parallel read safe
 * :ghpull:`15150`: Autodetect whether pgf can use \includegraphics[interpolate].
-* :ghpull:`15163`: 3.2.0 API changes page 
+* :ghpull:`15163`: 3.2.0 API changes page
 * :ghpull:`15176`: What's new for 3.2.0
 * :ghpull:`11947`: Ensure streamplot Euler step is always called when going out of bounds.
 * :ghpull:`13702`: Deduplicate methods shared between Container and Artist.
@@ -666,7 +666,7 @@ Pull Requests (795):
 * :ghpull:`14763`: Deprecate math_symbol_table function directive
 * :ghpull:`14762`: Decrease uses of get_canvas_width_height.
 * :ghpull:`14748`: Cleanup demo_text_path.
-* :ghpull:`14740`: Remove sudo tag in travis 
+* :ghpull:`14740`: Remove sudo tag in travis
 * :ghpull:`14737`: Cleanup twin axes docstrings.
 * :ghpull:`14729`: Small simplifications.
 * :ghpull:`14726`: Trivial simplification to Axis3d._get_coord_info.
@@ -961,7 +961,7 @@ Pull Requests (795):
 * :ghpull:`13620`: Improve watermark example
 * :ghpull:`13589`: Kill Axes._connected.
 * :ghpull:`13428`: free cart pendulum animation example
-* :ghpull:`10487`: fixed transparency bug 
+* :ghpull:`10487`: fixed transparency bug
 * :ghpull:`13551`: Fix IndexError for pyplot.legend() when plotting empty bar chart with label
 * :ghpull:`13524`: Cleanup docs for GraphicsContextBase.{get,set}_dashes.
 * :ghpull:`13556`: Cleanup warnings handling in tests.
@@ -982,7 +982,7 @@ Issues (116):
 * :ghissue:`6015`: scatterplot axis autoscale fails for small data values
 * :ghissue:`15806`: 3.2.0 may break some Cartopy tests
 * :ghissue:`15852`: Lasso selector does not show in Jupyter notebook
-* :ghissue:`15820`: Show incomplete tick labels when using mixed chinese and english characters 
+* :ghissue:`15820`: Show incomplete tick labels when using mixed chinese and english characters
 * :ghissue:`15770`: DOCS 2D Line label option ``_nolegend_`` is not documented
 * :ghissue:`15611`: BUG: Qt5Agg window size regression
 * :ghissue:`7130`: Incorrect autoscaling of polar plot limits after scatter
@@ -1104,5 +1104,3 @@ Previous GitHub Stats
     :reversed:
 
     prev_whats_new/github_stats_*
-
-
