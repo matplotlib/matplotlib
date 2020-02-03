@@ -1214,7 +1214,7 @@ class SymLogNorm(Normalize):
     (-*linthresh*, *linthresh*).
     """
     def __init__(self, linthresh, linscale=1.0,
-                 vmin=None, vmax=None, clip=False):
+                 vmin=None, vmax=None, clip=False, base=10):
         """
         Parameters
         ----------
@@ -1228,13 +1228,23 @@ class SymLogNorm(Normalize):
             example, when *linscale* == 1.0 (the default), the space used for
             the positive and negative halves of the linear range will be equal
             to one decade in the logarithmic range.
+        base : float
+            The base...
         """
         Normalize.__init__(self, vmin, vmax, clip)
         self.linthresh = float(linthresh)
-        # Number of decades in the log region
-        ndec = np.log10(vmax / linthresh)
+        self.base = float(base)
+        self.linscale = float(linscale)
+
+    @property
+    def _linear_size(self):
         # Size of the linear region from 0 to linthresh in the transformed space
-        self.linear_size = 1 / (1 + linscale / ndec)
+        ndec = self._logbase(self.vmax / self.linthresh)
+        return 1 / (1 + self.linscale / ndec)
+
+    def _logbase(self, val):
+        'Take the log of val in the base `self.base`'
+        return np.log(val) / np.log(self.base)
 
     def __call__(self, value, clip=None):
         if clip is None:
@@ -1267,11 +1277,11 @@ class SymLogNorm(Normalize):
 
         # Transform log value
         sign = np.sign(a[logregion])
-        log = (1 - self.linear_size) * np.log10(np.abs(a[logregion])) + self.linear_size
+        log = (1 - self._linear_size) * self._logbase(np.abs(a[logregion])) + self._linear_size
         a[logregion] = log * sign
 
         # Transform linear values
-        a[~logregion] *= self.linear_size / self.linthresh
+        a[~logregion] *= self._linear_size / self.linthresh
 
         # Transform from [-1, 1] to [0, 1]
         a += 1
@@ -1285,14 +1295,14 @@ class SymLogNorm(Normalize):
         a -= 1
 
         # Transform back log values
-        logregion = np.abs(a) > self.linear_size
+        logregion = np.abs(a) > self._linear_size
         sign = np.sign(a[logregion])
-        exp = 10**((np.abs(a[logregion]) - self.linear_size) /
-                   (1 - self.linear_size))
+        exp = self.base**((np.abs(a[logregion]) - self._linear_size) /
+                          (1 - self._linear_size))
         a[logregion] = exp * sign
 
         # Transform back linear values
-        a[~logregion] /= self.linear_size / self.linthresh
+        a[~logregion] /= self._linear_size / self.linthresh
         return a
 
     def inverse(self, value):
