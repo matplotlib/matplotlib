@@ -1215,7 +1215,7 @@ class SymLogNorm(Normalize):
     """
     def __init__(self, linthresh, linscale=1.0,
                  vmin=None, vmax=None, clip=False, base=10):
-        """
+        r"""
         Parameters
         ----------
         linthresh : float
@@ -1228,8 +1228,15 @@ class SymLogNorm(Normalize):
             example, when *linscale* == 1.0 (the default), the space used for
             the positive and negative halves of the linear range will be equal
             to one decade in the logarithmic range.
-        base : float
-            The base...
+        base : float, default: 10
+            The base in which the number of decades in the log range is
+            calculated. For example, if ``base=2``, ``linthresh=2`` and
+            ``vmax=6``, the number of decades is :math:`\log_{2} (6 - 2) = 4`.
+
+        Notes
+        -----
+        Currently SymLogNorm only works with ``vmin == -vmax``, such that an
+        input of 0 always maps to half-way in the scale.
         """
         if vmin is not None and vmax is not None and vmin != -vmax:
             raise ValueError('SymLogNorm only works for vmin = -vmax '
@@ -1281,7 +1288,8 @@ class SymLogNorm(Normalize):
 
         # Transform log value
         sign = np.sign(a[logregion])
-        log = (1 - self._linear_size) * self._logbase(np.abs(a[logregion])) + self._linear_size
+        log = ((1 - self._linear_size) * self._logbase(np.abs(a[logregion])) +
+               self._linear_size)
         a[logregion] = log * sign
 
         # Transform linear values
