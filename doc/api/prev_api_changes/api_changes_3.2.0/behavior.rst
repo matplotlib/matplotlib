@@ -2,9 +2,19 @@
 Behavior changes
 ----------------
 
+Fixed calculations in `.SymLogNorm`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The symmetrical log normalizer was previously returning erroneous values, so has
+be re-written to give the correct behaviour. Aside from returning different
+values:
+
+- The base in which the number of decades in the log range is calculated can
+  now be specified by the ``base`` keyword argument, which defaults to 10.
+- The behaviour when passing both ``vmin`` and ``vmax`` which were not negative
+  of each other is ill-defined, so this has been disallowed.
+
 Reduced default value of :rc:`axes.formatter.limits`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 Changed the default value of :rc:`axes.formatter.limits` from -7, 7 to
 -5, 6 for better readability.
 
