@@ -933,7 +933,7 @@ def test_ndarray_subclass_norm(recwarn):
     for norm in [mcolors.Normalize(), mcolors.LogNorm(),
                  mcolors.SymLogNorm(3, vmax=5, linscale=1),
                  mcolors.Normalize(vmin=mydata.min(), vmax=mydata.max()),
-                 mcolors.SymLogNorm(3, vmin=mydata.min(), vmax=mydata.max()),
+                 mcolors.SymLogNorm(3, vmin=-10, vmax=10),
                  mcolors.PowerNorm(1)]:
         assert_array_equal(norm(mydata), norm(data))
         fig, ax = plt.subplots()
