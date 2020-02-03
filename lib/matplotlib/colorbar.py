@@ -452,6 +452,7 @@ class ColorbarBase:
         self.locator = None
         self.formatter = None
         self._manual_tick_data_values = None
+        self._scale = None  # linear, log10 for now.  Hopefully more?
 
         if ticklocation == 'auto':
             ticklocation = 'bottom' if orientation == 'horizontal' else 'right'
@@ -602,9 +603,16 @@ class ColorbarBase:
             self.ax.set_xscale('log')
             self.ax.set_yscale('log')
             self.minorticks_on()
+            self._scale = 'log'
         else:
             self.ax.set_xscale('linear')
             self.ax.set_yscale('linear')
+            if (isintance(self.norm, colors.Normalize) and
+                not issubclass(type(self.norm), colors.Normalize):
+                self._scale = 'linear'
+            else:
+                self._scale = 'manual'
+
 
     def update_ticks(self):
         """
@@ -1119,12 +1127,13 @@ class ColorbarBase:
         else:
             y = self._proportional_y()
         xmid = np.array([0.5])
-        if type(self.norm) in [colors.Normalize, colors.LogNorm]:
+        if not self._scale == 'manual'
             y = norm.inverse(y)
             x = norm.inverse(x)
             xmid = norm.inverse(xmid)
         else:
-            # manually scale...
+            # if a norm doesn't have a named scale, or
+            # we are not using a norm
             dv = self.vmax - self.vmin
             x = x * dv + self.vmin
             y = y * dv + self.vmin
