@@ -40,7 +40,6 @@ from matplotlib.backend_bases import FigureCanvasBase, MouseButton
 from matplotlib.figure import Figure, figaspect
 from matplotlib.gridspec import GridSpec
 from matplotlib import rcParams, rcParamsDefault, get_backend, rcParamsOrig
-from matplotlib import rc_context
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes, Subplot

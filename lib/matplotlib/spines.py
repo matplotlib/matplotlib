@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib
 from matplotlib import cbook, docstring, rcParams
 from matplotlib.artist import allow_rasterization
-import matplotlib.cbook as cbook
 import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
