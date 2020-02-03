@@ -1231,6 +1231,9 @@ class SymLogNorm(Normalize):
         base : float
             The base...
         """
+        if vmin is not None and vmax is not None and vmin != -vmax:
+            raise ValueError('SymLogNorm only works for vmin = -vmax '
+                             f'(got vmin={vmin}, vmax={vmax})')
         Normalize.__init__(self, vmin, vmax, clip)
         self.linthresh = float(linthresh)
         self.base = float(base)
@@ -1238,7 +1241,8 @@ class SymLogNorm(Normalize):
 
     @property
     def _linear_size(self):
-        # Size of the linear region from 0 to linthresh in the transformed space
+        'Return the size of the linear portion in transformed space'
+        # Number of decades in the logarithmic range
         ndec = self._logbase(self.vmax / self.linthresh)
         return 1 / (1 + self.linscale / ndec)
 
