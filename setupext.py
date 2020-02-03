@@ -561,9 +561,22 @@ class FreeType(SetupPackage):
  </PropertyGroup>
 </Project>
 """)
+            # It is not a trivial task to determine PlatformToolset to plug it
+            # into msbuild command, and Directory.Build.props will not override
+            # the value in the project file.
+            # The DefaultPlatformToolset is from Microsoft.Cpp.Default.props
+            with open(base_path / vc / "freetype.vcxproj", 'r+b') as f:
+                toolset_repl = b'PlatformToolset>$(DefaultPlatformToolset)<'
+                vcxproj = f.read().replace(b'PlatformToolset>v100<',
+                                           toolset_repl)
+                assert toolset_repl in vcxproj, (
+                   'Upgrading Freetype might break this')
+                f.seek(0)
+                f.truncate()
+                f.write(vcxproj)
+
             cc = ccompiler.new_compiler()
-            cc.initialize()  # Get devenv & msbuild in the %PATH% of cc.spawn.
-            cc.spawn(["devenv", str(sln_path), "/upgrade"])
+            cc.initialize()  # Get msbuild in the %PATH% of cc.spawn.
             cc.spawn(["msbuild", str(sln_path),
                       "/t:Clean;Build",
                       f"/p:Configuration=Release;Platform={msbuild_platform}"])
