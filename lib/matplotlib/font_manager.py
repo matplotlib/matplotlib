@@ -1,11 +1,11 @@
 """
 A module for finding, managing, and using fonts across platforms.
 
-This module provides a single :class:`FontManager` instance that can
-be shared across backends and platforms.  The :func:`findfont`
+This module provides a single `FontManager` instance that can
+be shared across backends and platforms.  The `findfont`
 function returns the best TrueType (TTF) font file in the local or
-system font path that matches the specified :class:`FontProperties`
-instance.  The :class:`FontManager` also handles Adobe Font Metrics
+system font path that matches the specified `FontProperties`
+instance.  The `FontManager` also handles Adobe Font Metrics
 (AFM) font files for use by the PostScript backend.
 
 The design is based on the `W3C Cascading Style Sheet, Level 1 (CSS1)
@@ -569,29 +569,29 @@ class FontProperties:
     <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_ font
     specification.  The six properties are:
 
-      - family: A list of font names in decreasing order of priority.
-        The items may include a generic font family name, either
-        'serif', 'sans-serif', 'cursive', 'fantasy', or 'monospace'.
-        In that case, the actual font to be used will be looked up
-        from the associated rcParam.
+    - family: A list of font names in decreasing order of priority.
+      The items may include a generic font family name, either
+      'serif', 'sans-serif', 'cursive', 'fantasy', or 'monospace'.
+      In that case, the actual font to be used will be looked up
+      from the associated rcParam.
 
-      - style: Either 'normal', 'italic' or 'oblique'.
+    - style: Either 'normal', 'italic' or 'oblique'.
 
-      - variant: Either 'normal' or 'small-caps'.
+    - variant: Either 'normal' or 'small-caps'.
 
-      - stretch: A numeric value in the range 0-1000 or one of
-        'ultra-condensed', 'extra-condensed', 'condensed',
-        'semi-condensed', 'normal', 'semi-expanded', 'expanded',
-        'extra-expanded' or 'ultra-expanded'
+    - stretch: A numeric value in the range 0-1000 or one of
+      'ultra-condensed', 'extra-condensed', 'condensed',
+      'semi-condensed', 'normal', 'semi-expanded', 'expanded',
+      'extra-expanded' or 'ultra-expanded'.
 
-      - weight: A numeric value in the range 0-1000 or one of
-        'ultralight', 'light', 'normal', 'regular', 'book', 'medium',
-        'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy',
-        'extra bold', 'black'
+    - weight: A numeric value in the range 0-1000 or one of
+      'ultralight', 'light', 'normal', 'regular', 'book', 'medium',
+      'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy',
+      'extra bold', 'black'.
 
-      - size: Either an relative value of 'xx-small', 'x-small',
-        'small', 'medium', 'large', 'x-large', 'xx-large' or an
-        absolute font size, e.g., 12
+    - size: Either an relative value of 'xx-small', 'x-small',
+      'small', 'medium', 'large', 'x-large', 'xx-large' or an
+      absolute font size, e.g., 12.
 
     The default font property for TrueType fonts (as specified in the
     default rcParams) is ::
