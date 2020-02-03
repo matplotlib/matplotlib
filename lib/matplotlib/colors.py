@@ -1231,7 +1231,7 @@ class SymLogNorm(Normalize):
         base : float, default: 10
             The base in which the number of decades in the log range is
             calculated. For example, if ``base=2``, ``linthresh=2`` and
-            ``vmax=6``, the number of decades is :math:`\log_{2} (6 - 2) = 2`.
+            ``vmax=8``, the number of decades is :math:`\log_{2} (8 / 2) = 2`.
 
         Notes
         -----

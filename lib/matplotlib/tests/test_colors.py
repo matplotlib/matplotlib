@@ -430,6 +430,14 @@ def test_symlognorm_vals():
     assert_array_almost_equal(norm(vals), normed_vals)
     assert_array_almost_equal(norm.inverse(norm(vals)), vals)
 
+    # Now check a different base to base 10
+    vals = [-8, 4, -2, 0, 2, 4, 8]
+    norm = mcolors.SymLogNorm(linthresh=2, vmax=8, linscale=1, base=2)
+    normed_vals = norm(vals)
+    expected = [0, 1/8, 2/8, 3/8, 0.5, 5/8, 6/8, 7/8, 1]
+    assert_array_almost_equal(norm(vals), normed_vals)
+    assert_array_almost_equal(norm.inverse(norm(vals)), vals)
+
 
 def test_SymLogNorm_colorbar():
     """
