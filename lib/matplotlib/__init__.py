@@ -345,7 +345,7 @@ def _get_executable_info(name):
             if min_ver is not None and version < min_ver:
                 raise ExecutableNotFoundError(
                     f"You have {args[0]} version {version} but the minimum "
-                    f"version supported by Matplotlib is {min_ver}.")
+                    f"version supported by Matplotlib is {min_ver}")
             return _ExecInfo(args[0], version)
         else:
             raise ExecutableNotFoundError(
@@ -366,7 +366,12 @@ def _get_executable_info(name):
         message = "Failed to find a Ghostscript installation"
         raise ExecutableNotFoundError(message)
     elif name == "inkscape":
-        return impl(["inkscape", "-V"], "^Inkscape ([^ ]*)")
+        info = impl(["inkscape", "-V"], "^Inkscape ([^ ]*)")
+        if info and info.version >= "1.0":
+            raise ExecutableNotFoundError(
+                f"You have Inkscape version {info.version} but Matplotlib "
+                f"only supports Inkscape<1.0")
+        return info
     elif name == "magick":
         path = None
         if sys.platform == "win32":
@@ -403,7 +408,7 @@ def _get_executable_info(name):
                          or "0.9" <= info.version <= "1.0"):
             raise ExecutableNotFoundError(
                 f"You have pdftops version {info.version} but the minimum "
-                f"version supported by Matplotlib is 3.0.")
+                f"version supported by Matplotlib is 3.0")
         return info
     else:
         raise ValueError("Unknown executable: {!r}".format(name))
