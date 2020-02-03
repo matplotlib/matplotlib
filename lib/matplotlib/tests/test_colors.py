@@ -396,27 +396,39 @@ def test_TwoSlopeNorm_premature_scaling():
 
 def test_SymLogNorm():
     # Test SymLogNorm behavior
-    norm = mcolors.SymLogNorm(3, vmax=5, linscale=1.2)
+    norm = mcolors.SymLogNorm(linthresh=3, vmax=5, linscale=1.2, base=np.e)
     vals = np.array([-30, -1, 2, 6], dtype=float)
     normed_vals = norm(vals)
-    expected = [0., 0.53980074, 0.826991, 1.02758204]
+    expected = [-0.842119, 0.450236, 0.599528, 1.277676]
     assert_array_almost_equal(normed_vals, expected)
     _inverse_tester(norm, vals)
     _scalar_tester(norm, vals)
     _mask_tester(norm, vals)
 
-    # Ensure that specifying vmin returns the same result as above
-    norm = mcolors.SymLogNorm(3, vmin=-30, vmax=5, linscale=1.2)
-    normed_vals = norm(vals)
-    assert_array_almost_equal(normed_vals, expected)
 
+def test_symlognorm_vals():
+    vals = [-10, -1, 0, 1, 10]
 
-@pytest.mark.parametrize('val,normed',
-                         ([10, 1], [1, 0.75], [0, 0.5], [-1, 0.25], [-10, 0]))
-def test_symlognorm_vals(val, normed):
     norm = mcolors.SymLogNorm(linthresh=1, vmin=-10, vmax=10, linscale=1)
-    assert_array_almost_equal(norm(val), normed)
-    assert_array_almost_equal(norm.inverse(norm(val)), val)
+    normed_vals = norm(vals)
+    expected = [0, 0.25, 0.5, 0.75, 1]
+    assert_array_almost_equal(norm(vals), normed_vals)
+    assert_array_almost_equal(norm.inverse(norm(vals)), vals)
+
+    # If we increase linscale to 2, the space for the linear range [0, 1]
+    # should be twice as large as the space for the logarithmic range [1, 10]
+    norm = mcolors.SymLogNorm(linthresh=1, vmin=-10, vmax=10, linscale=2)
+    normed_vals = norm(vals)
+    expected = [0, 1/6, 0.5, 5/6, 1]
+    assert_array_almost_equal(norm(vals), normed_vals)
+    assert_array_almost_equal(norm.inverse(norm(vals)), vals)
+
+    # Similarly, going the other way means the linear range should shrink
+    norm = mcolors.SymLogNorm(linthresh=1, vmin=-10, vmax=10, linscale=0.5)
+    normed_vals = norm(vals)
+    expected = [0, 2/6, 0.5, 4/6, 1]
+    assert_array_almost_equal(norm(vals), normed_vals)
+    assert_array_almost_equal(norm.inverse(norm(vals)), vals)
 
 
 def test_SymLogNorm_colorbar():
