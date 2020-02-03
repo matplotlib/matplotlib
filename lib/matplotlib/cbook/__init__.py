@@ -624,7 +624,7 @@ class Stack:
 
     def __call__(self):
         """Return the current element, or None."""
-        if not len(self._elements):
+        if not self._elements:
             return self._default
         else:
             return self._elements[self._pos]
@@ -662,7 +662,7 @@ class Stack:
 
         The first element is returned.
         """
-        if not len(self._elements):
+        if not self._elements:
             return
         self.push(self._elements[0])
         return self()
@@ -678,33 +678,43 @@ class Stack:
 
     def bubble(self, o):
         """
-        Raise *o* to the top of the stack.  *o* must be present in the stack.
+        Raise all references of *o* to the top of the stack, and return it.
 
-        *o* is returned.
+        Raises
+        ------
+        ValueError
+            If *o* is not in the stack.
         """
         if o not in self._elements:
-            raise ValueError('Unknown element o')
-        old = self._elements[:]
+            raise ValueError('Given element not contained in the stack')
+        old_elements = self._elements.copy()
         self.clear()
-        bubbles = []
-        for thiso in old:
-            if thiso == o:
-                bubbles.append(thiso)
+        top_elements = []
+        for elem in old_elements:
+            if elem == o:
+                top_elements.append(elem)
             else:
-                self.push(thiso)
-        for _ in bubbles:
+                self.push(elem)
+        for _ in top_elements:
             self.push(o)
         return o
 
     def remove(self, o):
-        """Remove *o* from the stack."""
+        """
+        Remove *o* from the stack.
+
+        Raises
+        ------
+        ValueError
+            If *o* is not in the stack.
+        """
         if o not in self._elements:
-            raise ValueError('Unknown element o')
-        old = self._elements[:]
+            raise ValueError('Given element not contained in the stack')
+        old_elements = self._elements.copy()
         self.clear()
-        for thiso in old:
-            if thiso != o:
-                self.push(thiso)
+        for elem in old_elements:
+            if elem != o:
+                self.push(elem)
 
 
 def report_memory(i=0):  # argument may go away
