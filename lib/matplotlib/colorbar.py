@@ -452,6 +452,7 @@ class ColorbarBase:
         self.locator = None
         self.formatter = None
         self._manual_tick_data_values = None
+        self.__scale = None  # linear, log10 for now.  Hopefully more?
 
         if ticklocation == 'auto':
             ticklocation = 'bottom' if orientation == 'horizontal' else 'right'
@@ -585,8 +586,8 @@ class ColorbarBase:
         one.  (check is used twice so factored out here...)
         """
         contouring = self.boundaries is not None and self.spacing == 'uniform'
-        return (type(self.norm) in [colors.Normalize, colors.LogNorm]
-                and not contouring)
+        return (type(self.norm) in [colors.Normalize, colors.LogNorm] and
+                not contouring)
 
     def _reset_locator_formatter_scale(self):
         """
@@ -602,9 +603,14 @@ class ColorbarBase:
             self.ax.set_xscale('log')
             self.ax.set_yscale('log')
             self.minorticks_on()
+            self.__scale = 'log'
         else:
             self.ax.set_xscale('linear')
             self.ax.set_yscale('linear')
+            if type(self.norm) is colors.Normalize:
+                self.__scale = 'linear'
+            else:
+                self.__scale = 'manual'
 
     def update_ticks(self):
         """
@@ -1119,13 +1125,13 @@ class ColorbarBase:
         else:
             y = self._proportional_y()
         xmid = np.array([0.5])
-        try:
+        if self.__scale != 'manual':
             y = norm.inverse(y)
             x = norm.inverse(x)
             xmid = norm.inverse(xmid)
-        except ValueError:
-            # occurs for norms that don't have an inverse, in
-            # which case manually scale:
+        else:
+            # if a norm doesn't have a named scale, or
+            # we are not using a norm
             dv = self.vmax - self.vmin
             x = x * dv + self.vmin
             y = y * dv + self.vmin
