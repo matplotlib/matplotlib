@@ -1465,8 +1465,8 @@ class Ellipse(Patch):
         Return the width of the ellipse
         '''
         return self._width
-	
-	width = property(get_width, set_width)
+    
+    width = property(get_width, set_width)
     
     def set_height(self, height):
         '''
@@ -1484,8 +1484,8 @@ class Ellipse(Patch):
         Return the height of the ellipse
         '''
         return self._height
-		
-	height = property(get_height, set_height)
+        
+    height = property(get_height, set_height)
 
 class Circle(Ellipse):
     """
