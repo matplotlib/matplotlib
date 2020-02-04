@@ -609,6 +609,8 @@ _deprecated_ignore_map = {
 # listed in the rcParams (not included in _all_deprecated).
 # Values are tuples of (version,)
 _deprecated_remain_as_none = {
+    'animation.avconv_path': ('3.3',),
+    'animation.avconv_args': ('3.3',),
 }
 
 
