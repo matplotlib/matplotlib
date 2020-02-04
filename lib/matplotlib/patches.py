@@ -1396,7 +1396,7 @@ class Ellipse(Patch):
         Patch.__init__(self, **kwargs)
 
         self._center = xy
-        self.width, self.height = width, height
+        self._width, self._height = width, height
         self.angle = angle
         self._path = Path.unit_circle()
         # Note: This cannot be calculated until this is added to an Axes
@@ -1413,8 +1413,8 @@ class Ellipse(Patch):
         """
         center = (self.convert_xunits(self._center[0]),
                   self.convert_yunits(self._center[1]))
-        width = self.convert_xunits(self.width)
-        height = self.convert_yunits(self.height)
+        width = self.convert_xunits(self._width)
+        height = self.convert_yunits(self._height)
         self._patch_transform = transforms.Affine2D() \
             .scale(width * 0.5, height * 0.5) \
             .rotate_deg(self.angle) \
@@ -1457,14 +1457,16 @@ class Ellipse(Patch):
         ----------
         width : float
         '''
-        self.width = width
+        self._width = width
         self.stale = True
         
     def get_width(self):
         '''
         Return the width of the ellipse
         '''
-        return self.width
+        return self._width
+	
+	width = property(get_width, set_width)
     
     def set_height(self, height):
         '''
@@ -1474,14 +1476,16 @@ class Ellipse(Patch):
         ----------
         height : float
         '''
-        self.height = height
+        self._height = height
         self.stale = True
     
     def get_height(self):
         '''
         Return the height of the ellipse
         '''
-        return self.height
+        return self._height
+		
+	height = property(get_height, set_height)
 
 class Circle(Ellipse):
     """
