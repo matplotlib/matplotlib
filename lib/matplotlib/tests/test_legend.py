@@ -3,6 +3,7 @@ import platform
 from unittest import mock
 
 import numpy as np
+from numpy.testing import assert_allclose
 import pytest
 
 from matplotlib.testing.decorators import image_comparison
@@ -185,11 +186,8 @@ def test_legend_expand():
         ax.legend(loc='lower left', mode=mode, ncol=2)
 
 
-@image_comparison(['hatching'], remove_text=True, style='default')
 def test_hatching():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
+    plt.style.use('default')
     fig, ax = plt.subplots()
 
     # Patches
@@ -215,7 +213,39 @@ def test_hatching():
 
     ax.set_xlim(-0.01, 1.1)
     ax.set_ylim(-0.01, 1.1)
-    ax.legend(handlelength=4, handleheight=4)
+    leg = ax.legend(handlelength=4, handleheight=4)
+    legend_patches = leg.get_patches()
+    legend_text = leg.get_texts()
+
+    expected = [dict(label='Patch\ndefault color\nfilled',
+                     ec='none', fc='C0', hatch='xx', filled=True),
+                dict(label='Patch\nexplicit color\nfilled',
+                     ec='C1', fc='C0', hatch='||', filled=True),
+                dict(label='Patch\ndefault color\nunfilled',
+                     ec='k', fc='C0', hatch='xx', filled=False),
+                dict(label='Patch\nexplicit color\nunfilled',
+                     ec='C1', fc='C0', hatch='||', filled=False),
+                dict(label='Path\ndefault color',
+                     ec='none', fc='C0', hatch='+', filled=True),
+                dict(label='Path\nexplicit color',
+                     ec='C2', fc='C1', hatch='+', filled=True)]
+    for ind, (leg_text, patch) in enumerate(zip(legend_text, legend_patches)):
+        # Check the the legend label text
+        assert leg_text.get_text() == expected[ind]['label']
+
+        # Check the the edge color of the patch
+        expected_ec = mpl.colors.to_rgba(expected[ind]['ec'])
+        assert_allclose(expected_ec, patch.get_edgecolor())
+
+        # Check the the face color of the patch
+        # (need to pass alpha = 1 if 'filled', alpha = 0 if not 'filled')
+        expected_fc = mpl.colors.to_rgba(expected[ind]['fc'],
+                                         alpha=int(expected[ind]['filled']))
+        assert_allclose(expected_fc, patch.get_facecolor())
+
+        # Check the type of hatch and if the it is filled
+        assert expected[ind]['hatch'] == patch.get_hatch()
+        assert expected[ind]['filled'] == patch.get_fill()
 
 
 def test_legend_remove():
