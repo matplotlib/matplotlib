@@ -168,8 +168,10 @@ import itertools
 import logging
 import locale
 import math
+
 import numpy as np
-from matplotlib import rcParams
+
+import matplotlib as mpl
 from matplotlib import cbook
 from matplotlib import transforms as mtransforms
 
@@ -291,7 +293,7 @@ class Formatter(TickHelper):
         :rc:`axes.unicode_minus`.
         """
         return (s.replace('-', '\N{MINUS SIGN}')
-                if rcParams['axes.unicode_minus']
+                if mpl.rcParams['axes.unicode_minus']
                 else s)
 
     def _set_locator(self, locator):
@@ -515,19 +517,20 @@ class ScalarFormatter(Formatter):
         # and scientific notation in mathtext
 
         if useOffset is None:
-            useOffset = rcParams['axes.formatter.useoffset']
-        self._offset_threshold = rcParams['axes.formatter.offset_threshold']
+            useOffset = mpl.rcParams['axes.formatter.useoffset']
+        self._offset_threshold = \
+            mpl.rcParams['axes.formatter.offset_threshold']
         self.set_useOffset(useOffset)
-        self._usetex = rcParams['text.usetex']
+        self._usetex = mpl.rcParams['text.usetex']
         if useMathText is None:
-            useMathText = rcParams['axes.formatter.use_mathtext']
+            useMathText = mpl.rcParams['axes.formatter.use_mathtext']
         self.set_useMathText(useMathText)
         self.orderOfMagnitude = 0
         self.format = ''
         self._scientific = True
-        self._powerlimits = rcParams['axes.formatter.limits']
+        self._powerlimits = mpl.rcParams['axes.formatter.limits']
         if useLocale is None:
-            useLocale = rcParams['axes.formatter.use_locale']
+            useLocale = mpl.rcParams['axes.formatter.use_locale']
         self._useLocale = useLocale
 
     def get_useOffset(self):
@@ -548,7 +551,7 @@ class ScalarFormatter(Formatter):
 
     def set_useLocale(self, val):
         if val is None:
-            self._useLocale = rcParams['axes.formatter.use_locale']
+            self._useLocale = mpl.rcParams['axes.formatter.use_locale']
         else:
             self._useLocale = val
 
@@ -559,7 +562,7 @@ class ScalarFormatter(Formatter):
 
     def set_useMathText(self, val):
         if val is None:
-            self._useMathText = rcParams['axes.formatter.use_mathtext']
+            self._useMathText = mpl.rcParams['axes.formatter.use_mathtext']
         else:
             self._useMathText = val
 
@@ -882,7 +885,7 @@ class LogFormatter(Formatter):
         self._base = float(base)
         self.labelOnlyBase = labelOnlyBase
         if minor_thresholds is None:
-            if rcParams['_internal.classic_mode']:
+            if mpl.rcParams['_internal.classic_mode']:
                 minor_thresholds = (0, 0)
             else:
                 minor_thresholds = (1, 0.4)
@@ -1075,8 +1078,8 @@ class LogFormatterMathtext(LogFormatter):
 
         The position *pos* is ignored.
         """
-        usetex = rcParams['text.usetex']
-        min_exp = rcParams['axes.formatter.min_exponent']
+        usetex = mpl.rcParams['text.usetex']
+        min_exp = mpl.rcParams['axes.formatter.min_exponent']
 
         if x == 0:  # Symlog
             return r'$\mathdefault{0}$'
@@ -1400,7 +1403,7 @@ class EngFormatter(Formatter):
 
     def set_usetex(self, val):
         if val is None:
-            self._usetex = rcParams['text.usetex']
+            self._usetex = mpl.rcParams['text.usetex']
         else:
             self._usetex = val
 
@@ -1411,7 +1414,7 @@ class EngFormatter(Formatter):
 
     def set_useMathText(self, val):
         if val is None:
-            self._useMathText = rcParams['axes.formatter.use_mathtext']
+            self._useMathText = mpl.rcParams['axes.formatter.use_mathtext']
         else:
             self._useMathText = val
 
@@ -1580,7 +1583,7 @@ class PercentFormatter(Formatter):
         symbol = self._symbol
         if not symbol:
             symbol = ''
-        elif rcParams['text.usetex'] and not self._is_latex:
+        elif mpl.rcParams['text.usetex'] and not self._is_latex:
             # Source: http://www.personal.ceu.hu/tex/specchar.htm
             # Backslash must be first for this to work correctly since
             # it keeps getting added in
@@ -1876,7 +1879,7 @@ class LinearLocator(Locator):
             vmin -= 1
             vmax += 1
 
-        if rcParams['axes.autolimit_mode'] == 'round_numbers':
+        if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
             exponent, remainder = divmod(
                 math.log10(vmax - vmin), math.log10(max(self.numticks - 1, 1)))
             exponent -= (remainder < .5)
@@ -1919,7 +1922,7 @@ class MultipleLocator(Locator):
         Set the view limits to the nearest multiples of base that
         contain the data.
         """
-        if rcParams['axes.autolimit_mode'] == 'round_numbers':
+        if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
             vmin = self._edge.le(dmin) * self._edge.step
             vmax = self._edge.ge(dmax) * self._edge.step
             if vmin == vmax:
@@ -2145,7 +2148,7 @@ class MaxNLocator(Locator):
         istep = np.nonzero(steps >= raw_step)[0][0]
 
         # Classic round_numbers mode may require a larger step.
-        if rcParams['axes.autolimit_mode'] == 'round_numbers':
+        if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
             for istep in range(istep, len(steps)):
                 step = steps[istep]
                 best_vmin = (_vmin // step) * step
@@ -2205,7 +2208,7 @@ class MaxNLocator(Locator):
         dmin, dmax = mtransforms.nonsingular(
             dmin, dmax, expander=1e-12, tiny=1e-13)
 
-        if rcParams['axes.autolimit_mode'] == 'round_numbers':
+        if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
             return self._raw_ticks(dmin, dmax)[[0, -1]]
         else:
             return dmin, dmax
@@ -2317,7 +2320,7 @@ class LogLocator(Locator):
 
         """
         if numticks is None:
-            if rcParams['_internal.classic_mode']:
+            if mpl.rcParams['_internal.classic_mode']:
                 numticks = 15
             else:
                 numticks = 'auto'
@@ -2420,7 +2423,7 @@ class LogLocator(Locator):
 
         # Get decades between major ticks.
         stride = (max(math.ceil(numdec / (numticks - 1)), 1)
-                  if rcParams['_internal.classic_mode'] else
+                  if mpl.rcParams['_internal.classic_mode'] else
                   (numdec + 1) // numticks + 1)
 
         # Does subs include anything other than 1?  Essentially a hack to know
@@ -2469,7 +2472,7 @@ class LogLocator(Locator):
             vmax = math.ceil(math.log(vmax) / math.log(b))
             vmin = b ** (vmax - self.numdecs)
 
-        if rcParams['axes.autolimit_mode'] == 'round_numbers':
+        if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
             vmin = _decade_less_equal(vmin, self._base)
             vmax = _decade_greater_equal(vmax, self._base)
 
@@ -2627,7 +2630,7 @@ class SymmetricalLogLocator(Locator):
         if vmax < vmin:
             vmin, vmax = vmax, vmin
 
-        if rcParams['axes.autolimit_mode'] == 'round_numbers':
+        if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
             vmin = _decade_less_equal(vmin, b)
             vmax = _decade_greater_equal(vmax, b)
             if vmin == vmax:
@@ -2797,7 +2800,7 @@ class AutoLocator(MaxNLocator):
         To know the values of the non-public parameters, please have a
         look to the defaults of `~matplotlib.ticker.MaxNLocator`.
         """
-        if rcParams['_internal.classic_mode']:
+        if mpl.rcParams['_internal.classic_mode']:
             nbins = 9
             steps = [1, 2, 5, 10]
         else:

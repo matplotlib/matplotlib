@@ -215,6 +215,11 @@ rules before submitting a pull request:
      import matplotlib.cbook as cbook
      import matplotlib.patches as mpatches
 
+  In general, Matplotlib modules should **not** import `.rcParams` using ``from
+  matplotlib import rcParams``, but rather access it as ``mpl.rcParams``.  This
+  is because some modules are imported very early, before the `.rcParams`
+  singleton is constructed.
+
 * If your change is a major new feature, add an entry to the ``What's new``
   section by adding a new file in ``doc/users/next_whats_new`` (see
   :file:`doc/users/next_whats_new/README.rst` for more information).

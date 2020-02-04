@@ -13,7 +13,8 @@ import textwrap
 import numpy as np
 from numpy import ma
 
-from matplotlib import cbook, docstring, rcParams
+import matplotlib as mpl
+from matplotlib import cbook, docstring
 from matplotlib.ticker import (
     NullFormatter, ScalarFormatter, LogFormatterSciNotation, LogitFormatter,
     NullLocator, LogLocator, AutoLocator, AutoMinorLocator,
@@ -108,8 +109,8 @@ class LinearScale(ScaleBase):
         axis.set_major_formatter(ScalarFormatter())
         axis.set_minor_formatter(NullFormatter())
         # update the minor locator for x and y axis based on rcParams
-        if (axis.axis_name == 'x' and rcParams['xtick.minor.visible']
-            or axis.axis_name == 'y' and rcParams['ytick.minor.visible']):
+        if (axis.axis_name == 'x' and mpl.rcParams['xtick.minor.visible']
+            or axis.axis_name == 'y' and mpl.rcParams['ytick.minor.visible']):
             axis.set_minor_locator(AutoMinorLocator())
         else:
             axis.set_minor_locator(NullLocator())
@@ -193,8 +194,8 @@ class FuncScale(ScaleBase):
         axis.set_major_formatter(ScalarFormatter())
         axis.set_minor_formatter(NullFormatter())
         # update the minor locator for x and y axis based on rcParams
-        if (axis.axis_name == 'x' and rcParams['xtick.minor.visible']
-            or axis.axis_name == 'y' and rcParams['ytick.minor.visible']):
+        if (axis.axis_name == 'x' and mpl.rcParams['xtick.minor.visible']
+            or axis.axis_name == 'y' and mpl.rcParams['ytick.minor.visible']):
             axis.set_minor_locator(AutoMinorLocator())
         else:
             axis.set_minor_locator(NullLocator())
