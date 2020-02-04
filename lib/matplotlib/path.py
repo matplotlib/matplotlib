@@ -14,7 +14,8 @@ from weakref import WeakValueDictionary
 
 import numpy as np
 
-from . import _path, cbook, rcParams
+import matplotlib as mpl
+from . import _path, cbook
 from .cbook import _to_unmasked_float_array, simple_linear_interpolation
 
 
@@ -181,15 +182,15 @@ class Path:
             pth._interpolation_steps = internals_from._interpolation_steps
         else:
             pth._should_simplify = True
-            pth._simplify_threshold = rcParams['path.simplify_threshold']
+            pth._simplify_threshold = mpl.rcParams['path.simplify_threshold']
             pth._interpolation_steps = 1
         return pth
 
     def _update_values(self):
-        self._simplify_threshold = rcParams['path.simplify_threshold']
+        self._simplify_threshold = mpl.rcParams['path.simplify_threshold']
         self._should_simplify = (
             self._simplify_threshold > 0 and
-            rcParams['path.simplify'] and
+            mpl.rcParams['path.simplify'] and
             len(self._vertices) >= 128 and
             (self._codes is None or np.all(self._codes <= Path.LINETO))
         )
