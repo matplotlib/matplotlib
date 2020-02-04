@@ -46,7 +46,7 @@ Running the tests is simple. Make sure you have pytest installed and run::
 
 in the root directory of the repository.
 
-pytest can be configured via a lot of `commandline parameters`_. Some
+pytest can be configured via a lot of `command-line parameters`_. Some
 particularly useful ones are:
 
 =============================  ===========
@@ -76,11 +76,6 @@ running the tests in parallel::
 
   pytest --verbose -n 5
 
-Depending on your version of Python and pytest-xdist, you may need to set
-``PYTHONHASHSEED`` to a fixed value when running in parallel::
-
-  PYTHONHASHSEED=0 pytest --verbose -n 5
-
 An alternative implementation that does not look at command line arguments
 and works from within Python is to run the tests from the Matplotlib library
 function :func:`matplotlib.test`::
@@ -89,7 +84,7 @@ function :func:`matplotlib.test`::
   matplotlib.test()
 
 
-.. _commandline parameters: http://doc.pytest.org/en/latest/usage.html
+.. _command-line parameters: http://doc.pytest.org/en/latest/usage.html
 
 
 Writing a simple test
