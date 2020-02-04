@@ -1766,24 +1766,25 @@ class Axes(_AxesBase):
         both the x-axis and the y-axis to log scaling. All of the concepts and
         parameters of plot can be used here as well.
 
-        The additional parameters *basex/y*, *subsx/y* and *nonposx/y* control
-        the x/y-axis properties. They are just forwarded to `.Axes.set_xscale`
-        and `.Axes.set_yscale`.
+        The additional parameters *base*, *subs* and *nonpos* control the
+        x/y-axis properties. They are just forwarded to `.Axes.set_xscale` and
+        `.Axes.set_yscale`. To use different properties on the x-axis and the
+        y-axis, use e.g.
+        ``ax.set_xscale("log", base=10); ax.set_yscale("log", base=2)``.
 
         Parameters
         ----------
-        basex, basey : float, default: 10
-            Base of the x/y logarithm.
+        base : float, default: 10
+            Base of the logarithm.
 
-        subsx, subsy : sequence, optional
-            The location of the minor x/y ticks. If *None*, reasonable
-            locations are automatically chosen depending on the number of
-            decades in the plot.
-            See `.Axes.set_xscale` / `.Axes.set_yscale` for details.
+        subs : sequence, optional
+            The location of the minor ticks. If *None*, reasonable locations
+            are automatically chosen depending on the number of decades in the
+            plot. See `.Axes.set_xscale`/`.Axes.set_yscale` for details.
 
-        nonposx, nonposy : {'mask', 'clip'}, default: 'mask'
-            Non-positive values in x or y can be masked as invalid, or clipped
-            to a very small positive number.
+        nonpos : {'mask', 'clip'}, default: 'mask'
+            Non-positive values can be masked as invalid, or clipped to a very
+            small positive number.
 
         Returns
         -------
@@ -1795,13 +1796,14 @@ class Axes(_AxesBase):
         **kwargs
             All parameters supported by `.plot`.
         """
-        dx = {k[:-1]: kwargs.pop(k) for k in ['basex', 'subsx', 'nonposx']
-              if k in kwargs}
+        dx = {k: v for k, v in kwargs.items()
+              if k in ['base', 'subs', 'nonpos', 'basex', 'subsx', 'nonposx']}
         self.set_xscale('log', **dx)
-        dy = {k[:-1]: kwargs.pop(k) for k in ['basey', 'subsy', 'nonposy']
-              if k in kwargs}
+        dy = {k: v for k, v in kwargs.items()
+              if k in ['base', 'subs', 'nonpos', 'basey', 'subsy', 'nonposy']}
         self.set_yscale('log', **dy)
-        return self.plot(*args, **kwargs)
+        return self.plot(
+            *args, **{k: v for k, v in kwargs.items() if k not in {*dx, *dy}})
 
     # @_preprocess_data() # let 'plot' do the unpacking..
     @docstring.dedent_interpd
@@ -1818,20 +1820,20 @@ class Axes(_AxesBase):
         the x-axis to log scaling. All of the concepts and parameters of plot
         can be used here as well.
 
-        The additional parameters *basex*, *subsx* and *nonposx* control the
+        The additional parameters *base*, *subs*, and *nonpos* control the
         x-axis properties. They are just forwarded to `.Axes.set_xscale`.
 
         Parameters
         ----------
-        basex : float, default: 10
+        base : float, default: 10
             Base of the x logarithm.
 
-        subsx : array-like, optional
+        subs : array-like, optional
             The location of the minor xticks. If *None*, reasonable locations
             are automatically chosen depending on the number of decades in the
             plot. See `.Axes.set_xscale` for details.
 
-        nonposx : {'mask', 'clip'}, default: 'mask'
+        nonpos : {'mask', 'clip'}, default: 'mask'
             Non-positive values in x can be masked as invalid, or clipped to a
             very small positive number.
 
@@ -1845,10 +1847,11 @@ class Axes(_AxesBase):
         **kwargs
             All parameters supported by `.plot`.
         """
-        d = {k[:-1]: kwargs.pop(k) for k in ['basex', 'subsx', 'nonposx']
-             if k in kwargs}
+        d = {k: v for k, v in kwargs.items()
+             if k in ['base', 'subs', 'nonpos', 'basex', 'subsx', 'nonposx']}
         self.set_xscale('log', **d)
-        return self.plot(*args, **kwargs)
+        return self.plot(
+            *args, **{k: v for k, v in kwargs.items() if k not in d})
 
     # @_preprocess_data() # let 'plot' do the unpacking..
     @docstring.dedent_interpd
@@ -1865,20 +1868,20 @@ class Axes(_AxesBase):
         the y-axis to log scaling. All of the concepts and parameters of plot
         can be used here as well.
 
-        The additional parameters *basey*, *subsy* and *nonposy* control the
+        The additional parameters *base*, *subs*, and *nonpos* control the
         y-axis properties. They are just forwarded to `.Axes.set_yscale`.
 
         Parameters
         ----------
-        basey : float, default: 10
+        base : float, default: 10
             Base of the y logarithm.
 
-        subsy : array-like, optional
+        subs : array-like, optional
             The location of the minor yticks. If *None*, reasonable locations
             are automatically chosen depending on the number of decades in the
             plot. See `.Axes.set_yscale` for details.
 
-        nonposy : {'mask', 'clip'}, default: 'mask'
+        nonpos : {'mask', 'clip'}, default: 'mask'
             Non-positive values in y can be masked as invalid, or clipped to a
             very small positive number.
 
@@ -1892,10 +1895,11 @@ class Axes(_AxesBase):
         **kwargs
             All parameters supported by `.plot`.
         """
-        d = {k[:-1]: kwargs.pop(k) for k in ['basey', 'subsy', 'nonposy']
-             if k in kwargs}
+        d = {k: v for k, v in kwargs.items()
+             if k in ['base', 'subs', 'nonpos', 'basey', 'subsy', 'nonposy']}
         self.set_yscale('log', **d)
-        return self.plot(*args, **kwargs)
+        return self.plot(
+            *args, **{k: v for k, v in kwargs.items() if k not in d})
 
     @_preprocess_data(replace_names=["x"], label_namer="x")
     def acorr(self, x, **kwargs):

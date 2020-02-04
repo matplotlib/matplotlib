@@ -1,16 +1,19 @@
 from collections import namedtuple
-from itertools import product
-import io
-import platform
-
 import datetime
+from decimal import Decimal
+import io
+from itertools import product
+import platform
+try:
+    from contextlib import nullcontext
+except ImportError:
+    from contextlib import ExitStack as nullcontext  # Py3.6.
 
 import dateutil.tz as dutz
 
 import numpy as np
 from numpy import ma
 from cycler import cycler
-from decimal import Decimal
 import pytest
 
 import matplotlib
@@ -5666,21 +5669,38 @@ def test_loglog():
     ax.tick_params(length=15, width=2, which='minor')
 
 
+@pytest.mark.parametrize("new_api", [False, True])
 @image_comparison(["test_loglog_nonpos.png"], remove_text=True, style='mpl20')
-def test_loglog_nonpos():
-    fig, ax = plt.subplots(3, 3)
+def test_loglog_nonpos(new_api):
+    fig, axs = plt.subplots(3, 3)
     x = np.arange(1, 11)
     y = x**3
     y[7] = -3.
     x[4] = -10
-    for nn, mcx in enumerate(['mask', 'clip', '']):
-        for mm, mcy in enumerate(['mask', 'clip', '']):
+    for (i, j), ax in np.ndenumerate(axs):
+        mcx = ['mask', 'clip', ''][j]
+        mcy = ['mask', 'clip', ''][i]
+        if new_api:
+            if mcx == mcy:
+                if mcx:
+                    ax.loglog(x, y**3, lw=2, nonpos=mcx)
+                else:
+                    ax.loglog(x, y**3, lw=2)
+            else:
+                ax.loglog(x, y**3, lw=2)
+                if mcx:
+                    ax.set_xscale("log", nonpos=mcx)
+                if mcy:
+                    ax.set_yscale("log", nonpos=mcy)
+        else:
             kws = {}
             if mcx:
                 kws['nonposx'] = mcx
             if mcy:
                 kws['nonposy'] = mcy
-            ax[mm, nn].loglog(x, y**3, lw=2, **kws)
+            with (pytest.warns(MatplotlibDeprecationWarning) if kws
+                  else nullcontext()):
+                ax.loglog(x, y**3, lw=2, **kws)
 
 
 @pytest.mark.style('default')
