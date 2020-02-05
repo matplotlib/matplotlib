@@ -275,6 +275,9 @@ class Dvi:
             maxy = max(maxy, y + e)
             maxy_pure = max(maxy_pure, y)
 
+        if not self.text and not self.boxes:  # Avoid infs/nans from inf+/-inf.
+            return Page(text=[], boxes=[], width=0, height=0, descent=0)
+
         if self.dpi is None:
             # special case for ease of debugging: output raw dvi coordinates
             return Page(text=self.text, boxes=self.boxes,

@@ -33,6 +33,12 @@ def test_usetex():
 
 
 @check_figures_equal()
+def test_empty(fig_test, fig_ref):
+    mpl.rcParams['text.usetex'] = True
+    fig_test.text(.5, .5, "% a comment")
+
+
+@check_figures_equal()
 def test_unicode_minus(fig_test, fig_ref):
     mpl.rcParams['text.usetex'] = True
     fig_test.text(.5, .5, "$-$")
