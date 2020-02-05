@@ -2,6 +2,11 @@ Removals
 --------
 The following deprecated APIs have been removed:
 
+Modules
+~~~~~~~
+- ``backends.qt_editor.formlayout`` (use the formlayout module available on
+  PyPI instead).
+
 Classes and methods
 ~~~~~~~~~~~~~~~~~~~
 - ``backend_bases.RendererBase.strip_math()``
@@ -126,3 +131,7 @@ rcParams
   :rc:`savefig.facecolor` to "none" to get a transparent background.
 - The ``pgf.debug``, ``verbose.fileo`` and ``verbose.verbose.level`` rcParams,
   which had no effect, have been removed.
+
+Environment variables
+~~~~~~~~~~~~~~~~~~~~~
+- ``MATPLOTLIBDATA`` (no replacement).

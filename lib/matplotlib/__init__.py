@@ -510,15 +510,6 @@ def get_cachedir():
 def _get_data_path():
     """Return the path to matplotlib data."""
 
-    if 'MATPLOTLIBDATA' in os.environ:
-        path = os.environ['MATPLOTLIBDATA']
-        if not os.path.isdir(path):
-            raise RuntimeError('Path in environment MATPLOTLIBDATA not a '
-                               'directory')
-        cbook.warn_deprecated(
-            "3.1", name="MATPLOTLIBDATA", obj_type="environment variable")
-        return path
-
     path = Path(__file__).with_name("mpl-data")
     if path.is_dir():
         return str(path)
