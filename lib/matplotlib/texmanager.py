@@ -214,7 +214,8 @@ class TexManager:
 \usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
 \pagestyle{empty}
 \begin{document}
-\fontsize{%f}{%f}%s
+%% The empty hbox ensures that a page is printed even for empty inputs.
+\fontsize{%f}{%f}\hbox{}%s
 \end{document}
 """ % (self._get_preamble(), fontsize, fontsize * 1.25, fontcmd % tex),
             encoding='utf-8')
