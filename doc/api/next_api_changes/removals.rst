@@ -117,6 +117,9 @@ Arguments
 - The parameter ``block`` of ``show()`` is now keyword-only.
 - The parameter ``frameon`` of `.Figure.savefig` has been removed.  Use
   ``facecolor="none"`` to get a transparent background.
+- Passing a ``wx.EvtHandler`` as the first argument to ``backend_wx.TimerWx``
+  is not supported anymore; the signature of ``TimerWx`` is now consistent with
+  `.TimerBase`.
 
 rcParams
 ~~~~~~~~

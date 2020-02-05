@@ -55,6 +55,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
     """
 
     required_interactive_framework = "macosx"
+    _timer_cls = TimerMac
 
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
@@ -98,10 +99,6 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
                                     forward=False)
         FigureCanvasBase.resize_event(self)
         self.draw_idle()
-
-    def new_timer(self, *args, **kwargs):
-        # docstring inherited
-        return TimerMac(*args, **kwargs)
 
 
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
