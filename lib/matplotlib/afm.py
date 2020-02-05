@@ -407,7 +407,7 @@ class AFM:
         for c in s:
             if c == '\n':
                 continue
-            name = uni2type1.get(ord(c), 'question')
+            name = uni2type1.get(ord(c), f"uni{ord(c):04X}")
             try:
                 wx, _, bbox = self._metrics_by_name[name]
             except KeyError:
