@@ -1443,49 +1443,50 @@ class Ellipse(Patch):
 
     def get_center(self):
         """
-        Return the center of the ellipse
+        Return the center of the ellipse.
         """
         return self._center
 
     center = property(get_center, set_center)
 
     def set_width(self, width):
-        '''
-        Set the width of the ellipse
-        
+        """
+        Set the width of the ellipse.
+
         Parameters
         ----------
         width : float
-        '''
+        """
         self._width = width
         self.stale = True
-        
+
     def get_width(self):
-        '''
-        Return the width of the ellipse
-        '''
+        """
+        Return the width of the ellipse.
+        """
         return self._width
-    
+
     width = property(get_width, set_width)
-    
+
     def set_height(self, height):
-        '''
-        Set the height of the ellipse
-        
+        """
+        Set the height of the ellipse.
+
         Parameters
         ----------
         height : float
-        '''
+        """
         self._height = height
         self.stale = True
-    
+
     def get_height(self):
-        '''
-        Return the height of the ellipse
-        '''
+        """
+        Return the height of the ellipse.
+        """
         return self._height
-        
+
     height = property(get_height, set_height)
+
 
 class Circle(Ellipse):
     """
