@@ -1397,7 +1397,7 @@ class Ellipse(Patch):
 
         self._center = xy
         self._width, self._height = width, height
-        self.angle = angle
+        self._angle = angle
         self._path = Path.unit_circle()
         # Note: This cannot be calculated until this is added to an Axes
         self._patch_transform = transforms.IdentityTransform()
@@ -1486,6 +1486,25 @@ class Ellipse(Patch):
         return self._height
 
     height = property(get_height, set_height)
+
+    def set_angle(self, angle):
+        """
+        Set the angle of the ellipse.
+
+        Parameters
+        ----------
+        angle : float
+        """
+        self._angle = angle
+        self.stale = True
+
+    def get_angle(self):
+        """
+        Return the angle of the ellipse.
+        """
+        return self._angle
+
+    angle = property(get_angle, set_angle)
 
 
 class Circle(Ellipse):
