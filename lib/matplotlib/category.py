@@ -10,7 +10,6 @@ strings to integers and provides a tick locator, a tick formatter, and the
 `.UnitData` class that creates and stores the string-to-integer mapping.
 """
 
-from collections import OrderedDict
 import dateutil.parser
 import itertools
 import logging
@@ -170,7 +169,7 @@ class UnitData:
         data : iterable
             sequence of string values
         """
-        self._mapping = OrderedDict()
+        self._mapping = {}
         self._counter = itertools.count()
         if data is not None:
             self.update(data)
@@ -206,8 +205,7 @@ class UnitData:
         data = np.atleast_1d(np.array(data, dtype=object))
         # check if convertible to number:
         convertible = True
-        for val in OrderedDict.fromkeys(data):
-            # OrderedDict just iterates over unique values in data.
+        for val in dict.fromkeys(data):  # iterate over unique values in data.
             cbook._check_isinstance((str, bytes), value=val)
             if convertible:
                 # this will only be called so long as convertible is True.

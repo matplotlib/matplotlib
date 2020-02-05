@@ -521,11 +521,11 @@ class PdfFile:
         self._soft_mask_seq = (Name(f'SM{i}') for i in itertools.count(1))
         self._soft_mask_groups = []
         # reproducible writeHatches needs an ordered dict:
-        self.hatchPatterns = collections.OrderedDict()
+        self.hatchPatterns = {}
         self._hatch_pattern_seq = (Name(f'H{i}') for i in itertools.count(1))
         self.gouraudTriangles = []
 
-        self._images = collections.OrderedDict()   # reproducible writeImages
+        self._images = {}   # reproducible writeImages
         self._image_seq = (Name(f'I{i}') for i in itertools.count(1))
 
         self.markers = collections.OrderedDict()   # reproducible writeMarkers
