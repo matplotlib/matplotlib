@@ -108,7 +108,7 @@ artifacts:
 
 on_finish:
   - pip install codecov
-  - codecov -e PYTHON_VERSION PLATFORM -y ci/codecov.yml
+  - codecov -e PYTHON_VERSION PLATFORM
 
 on_failure:
   # Generate a html for visual tests
