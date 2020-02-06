@@ -101,6 +101,10 @@ steps:
       [[ "$PYTHON_VERSION" = 'Pre' ]]
   displayName: 'pytest'
 
+- script: |
+    bash <(curl -s https://codecov.io/bash)  -f "!*.gcov" -X gcov -y ci/codecov.yml
+  displayName: 'Upload to codecov.io'
+
 - task: PublishTestResults@2
   inputs:
     testResultsFiles: '**/test-results.xml'
