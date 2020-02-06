@@ -1991,7 +1991,7 @@ class _Edge_integer:
 
 class MaxNLocator(Locator):
     """
-    Select no more than N intervals at nice locations.
+    Select no more than N+1 intervals (i.e. N+2 ticks) at nice locations.
     """
     default_params = dict(nbins=10,
                           steps=None,

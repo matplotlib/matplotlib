@@ -1612,8 +1612,9 @@ class QuadContourSet(ContourSet):
         levels : int or array-like, optional
             Determines the number and positions of the contour lines / regions.
 
-            If an int *n*, use *n* data intervals; i.e. draw *n+1* contour
-            lines. The level heights are automatically chosen.
+            If an int *n*, use at most *n+2* data intervals;
+            i.e. draw at most *n+1* contour lines.
+            The level heights are automatically chosen.
 
             If array-like, draw contour lines at the specified levels.
             The values must be in increasing order.
