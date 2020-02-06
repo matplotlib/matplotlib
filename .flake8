@@ -101,7 +101,7 @@ per-file-ignores =
 
     examples/animation/frame_grabbing_sgskip.py: E402
     examples/axes_grid1/inset_locator_demo.py: E402
-    examples/axes_grid1/scatter_hist_locatable_axes.py: E401, E402
+    examples/axes_grid1/scatter_hist_locatable_axes.py: E402
     examples/axisartist/demo_curvelinear_grid.py: E402
     examples/color/color_by_yvalue.py: E402
     examples/color/color_cycle_default.py: E402
@@ -178,32 +178,31 @@ per-file-ignores =
     examples/pie_and_polar_charts/polar_legend.py: E402
     examples/pie_and_polar_charts/polar_scatter.py: E402
     examples/pyplots/align_ylabels.py: E402
-    examples/pyplots/annotate_transform.py: E228, E251, E402
+    examples/pyplots/annotate_transform.py: E251, E402
     examples/pyplots/annotation_basic.py: E402
-    examples/pyplots/annotation_polar.py: E231, E402
-    examples/pyplots/auto_subplots_adjust.py: E231, E302, E402
+    examples/pyplots/annotation_polar.py: E402
+    examples/pyplots/auto_subplots_adjust.py: E302, E402
     examples/pyplots/axline.py: E402
-    examples/pyplots/boxplot_demo_pyplot.py: E231, E402
-    examples/pyplots/compound_path_demo.py: E231
+    examples/pyplots/boxplot_demo_pyplot.py: E402
     examples/pyplots/dollar_ticks.py: E402
     examples/pyplots/fig_axes_customize_simple.py: E402
     examples/pyplots/fig_axes_labels_simple.py: E402
     examples/pyplots/fig_x.py: E402
-    examples/pyplots/pyplot_formatstr.py: E231, E402
-    examples/pyplots/pyplot_mathtext.py: E231, E402
+    examples/pyplots/pyplot_formatstr.py: E402
+    examples/pyplots/pyplot_mathtext.py: E402
     examples/pyplots/pyplot_scales.py: E402
-    examples/pyplots/pyplot_simple.py: E231, E402
+    examples/pyplots/pyplot_simple.py: E402
     examples/pyplots/pyplot_text.py: E402
     examples/pyplots/pyplot_three.py: E402
     examples/pyplots/pyplot_two_subplots.py: E402
-    examples/pyplots/text_commands.py: E231, E402
-    examples/pyplots/text_layout.py: E231, E402
+    examples/pyplots/text_commands.py: E402
+    examples/pyplots/text_layout.py: E402
     examples/pyplots/whats_new_1_subplot3d.py: E402
-    examples/pyplots/whats_new_98_4_fill_between.py: E225, E402
-    examples/pyplots/whats_new_98_4_legend.py: E228, E402
+    examples/pyplots/whats_new_98_4_fill_between.py: E402
+    examples/pyplots/whats_new_98_4_legend.py: E402
     examples/pyplots/whats_new_99_axes_grid.py: E402
     examples/pyplots/whats_new_99_mplot3d.py: E402
-    examples/pyplots/whats_new_99_spines.py: E231, E402
+    examples/pyplots/whats_new_99_spines.py: E402
     examples/scales/power_norm.py: E402
     examples/scales/scales.py: E402
     examples/shapes_and_collections/artist_reference.py: E402

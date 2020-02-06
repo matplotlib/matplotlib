@@ -19,7 +19,7 @@ ax.set_xlabel('xlabel')
 ax.set_ylabel('ylabel')
 
 ax.text(3, 8, 'boxed italics text in data coords', style='italic',
-        bbox={'facecolor':'red', 'alpha':0.5, 'pad':10})
+        bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
 
 ax.text(2, 6, r'an equation: $E=mc^2$', fontsize=15)
 
