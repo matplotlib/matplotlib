@@ -968,7 +968,7 @@ class LogFormatter(Formatter):
             # Add labels between bases at log-spaced coefficients;
             # include base powers in case the locations include
             # "major" and "minor" points, as in colorbar.
-            c = np.logspace(0, 1, int(b)//2 + 1, base=b)
+            c = np.geomspace(1, b, int(b)//2 + 1)
             self._sublabels = set(np.round(c))
             # For base 10, this yields (1, 2, 3, 4, 6, 10).
         else:

@@ -634,7 +634,7 @@ class ColorbarBase(cm.ScalarMappable):
         """
         vmin, vmax = self._get_colorbar_limits()
         if isinstance(self.norm, colors.LogNorm):
-            y = np.logspace(np.log10(vmin), np.log10(vmax), N)
+            y = np.geomspace(vmin, vmax, N)
         else:
             y = np.linspace(vmin, vmax, N)
         return y
