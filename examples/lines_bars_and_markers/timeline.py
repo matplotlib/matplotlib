@@ -81,10 +81,11 @@ plt.setp(markerline, mec="k", mfc="w", zorder=3)
 markerline.set_ydata(np.zeros(len(dates)))
 
 # annotate lines
-vert = np.array(['top', 'bottom'])[(levels > 0).astype(int)]
-for d, l, r, va in zip(dates, levels, names, vert):
-    ax.annotate(r, xy=(d, l), xytext=(-3, np.sign(l)*3),
-                textcoords="offset points", va=va, ha="right")
+for d, l, r in zip(dates, levels, names):
+    ax.annotate(r, xy=(d, l),
+                xytext=(-3, np.sign(l)*3), textcoords="offset points",
+                horizontalalignment="right",
+                verticalalignment="bottom" if l > 0 else "top")
 
 # format xaxis with 4 month intervals
 ax.get_xaxis().set_major_locator(mdates.MonthLocator(interval=4))

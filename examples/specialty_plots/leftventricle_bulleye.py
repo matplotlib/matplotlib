@@ -46,7 +46,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
         seg_bold = []
 
     linewidth = 2
-    data = np.array(data).ravel()
+    data = np.ravel(data)
 
     if cmap is None:
         cmap = plt.cm.viridis
@@ -129,7 +129,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
 
 
 # Create the fake data
-data = np.array(range(17)) + 1
+data = np.arange(17) + 1
 
 
 # Make a figure and axes with dimensions as desired.

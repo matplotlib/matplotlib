@@ -28,7 +28,7 @@ axs[0, 1].scatter(x, y, s=80, c=z, marker=r'$\alpha$')
 axs[0, 1].set_title(r"marker=r'\$\alpha\$'")
 
 # marker from path
-verts = np.array([[-1, -1], [1, -1], [1, 1], [-1, -1]])
+verts = [[-1, -1], [1, -1], [1, 1], [-1, -1]]
 axs[0, 2].scatter(x, y, s=80, c=z, marker=verts)
 axs[0, 2].set_title("marker=verts")
 
