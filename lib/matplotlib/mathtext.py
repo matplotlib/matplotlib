@@ -2354,7 +2354,7 @@ class Parser:
         p.simple           = Forward()
         p.simple_group     = Forward()
         p.single_symbol    = Forward()
-        p.snowflake        = Forward()
+        p.accentprefixed   = Forward()
         p.space            = Forward()
         p.sqrt             = Forward()
         p.stackrel         = Forward()
@@ -2391,7 +2391,7 @@ class Parser:
         p.single_symbol <<= Regex(
             r"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
             unicode_range)
-        p.snowflake     <<= Suppress(p.bslash) + oneOf(self._snowflake)
+        p.accentprefixed <<= Suppress(p.bslash) + oneOf(self._accentprefixed)
         p.symbol_name   <<= (
             Combine(p.bslash + oneOf(list(tex2uni)))
             + FollowedBy(Regex("[^A-Za-z]").leaveWhitespace() | StringEnd())
@@ -2494,8 +2494,8 @@ class Parser:
         )
 
         p.placeable     <<= (
-            p.snowflake  # Must be before accent so named symbols that are
-                         # prefixed with an accent name work
+            p.accentprefixed  # Must be before accent so named symbols that are
+                              # prefixed with an accent name work
             | p.accent   # Must be before symbol as all accents are symbols
             | p.symbol   # Must be third to catch all named symbols and single
                          # chars not in a group
@@ -2742,7 +2742,7 @@ class Parser:
                                do_kern = True)]
         return [char]
 
-    snowflake = symbol
+    accentprefixed = symbol
 
     def unknown_symbol(self, s, loc, toks):
         c = toks[0]
@@ -2816,9 +2816,10 @@ class Parser:
     _wide_accents = set(r"widehat widetilde widebar".split())
 
     # make a lambda and call it to get the namespace right
-    _snowflake = (lambda am: [p for p in tex2uni if
-                              any(p.startswith(a) and a != p for a in am)])(
-                                  set(_accent_map))
+    _accentprefixed = (lambda am: [
+        p for p in tex2uni
+        if any(p.startswith(a) and a != p for a in am)
+    ])(set(_accent_map))
 
     def accent(self, s, loc, toks):
         assert len(toks) == 1
