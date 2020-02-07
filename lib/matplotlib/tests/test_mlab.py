@@ -144,9 +144,7 @@ def _apply_window(*args, **kwargs):
 
 class TestWindow:
     def setup(self):
-        np.random.seed(0)
         n = 1000
-
         self.sig_rand = np.random.standard_normal(n) + 100.
         self.sig_ones = np.ones(n)
 
@@ -396,7 +394,6 @@ class TestWindow:
 
 class TestDetrend:
     def setup(self):
-        np.random.seed(0)
         n = 1000
         x = np.linspace(0., 100, n)
 
@@ -1529,17 +1526,12 @@ class TestGaussianKDE:
         np.testing.assert_array_almost_equal(y_expected, y2, decimal=7)
 
     def test_kde_bandwidth_method(self):
-
-        np.random.seed(8765678)
         n_basesample = 50
         xn = np.random.randn(n_basesample)
 
-        # Default
-        gkde = mlab.GaussianKDE(xn)
-        # Supply a callable
-        gkde2 = mlab.GaussianKDE(xn, 'scott')
-        # Supply a scalar
-        gkde3 = mlab.GaussianKDE(xn, bw_method=gkde.factor)
+        gkde = mlab.GaussianKDE(xn)  # Default
+        gkde2 = mlab.GaussianKDE(xn, 'scott')  # Supply a callable
+        gkde3 = mlab.GaussianKDE(xn, bw_method=gkde.factor)  # Supply a scalar
 
         xs = np.linspace(-7, 7, 51)
         kdepdf = gkde.evaluate(xs)
@@ -1592,8 +1584,7 @@ class TestGaussianKDECustom:
             mlab.GaussianKDE([], bw_method=5)
 
     def test_scalar_covariance_dataset(self):
-        """Test a scalar's cov factor."""
-        np.random.seed(8765678)
+        """Use a dataset and test a scalar's cov factor."""
         n_basesample = 50
         multidim_data = [np.random.randn(n_basesample) for i in range(5)]
 
@@ -1601,8 +1592,7 @@ class TestGaussianKDECustom:
         assert kde.covariance_factor() == 0.5
 
     def test_callable_covariance_dataset(self):
-        """Test the callable's cov factor for a multi-dimensional array."""
-        np.random.seed(8765678)
+        """Use a nD array as dataset and test the callable's cov factor."""
         n_basesample = 50
         multidim_data = [np.random.randn(n_basesample) for i in range(5)]
 
@@ -1613,7 +1603,6 @@ class TestGaussianKDECustom:
 
     def test_callable_singledim_dataset(self):
         """Test the callable's cov factor for a single-dimensional array."""
-        np.random.seed(8765678)
         n_basesample = 50
         multidim_data = np.random.randn(n_basesample)
 
@@ -1623,7 +1612,6 @@ class TestGaussianKDECustom:
 
     def test_wrong_bw_method(self):
         """Test the error message that should be called when bw is invalid."""
-        np.random.seed(8765678)
         n_basesample = 50
         data = np.random.randn(n_basesample)
         with pytest.raises(ValueError):
@@ -1651,7 +1639,6 @@ class TestGaussianKDEEvaluate:
         Invert the dimensions; i.e., for a dataset of dimension 1 [3, 2, 4],
         the points should have a dimension of 3 [[3], [2], [4]].
         """
-        np.random.seed(8765678)
         n_basesample = 50
         multidim_data = np.random.randn(n_basesample)
         kde = mlab.GaussianKDE(multidim_data)

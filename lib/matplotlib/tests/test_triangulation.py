@@ -60,13 +60,11 @@ def test_delaunay_duplicate_points():
     duplicate_of = 3
 
     np.random.seed(23)
-    x = np.random.random(npoints)
-    y = np.random.random(npoints)
-    x[duplicate] = x[duplicate_of]
-    y[duplicate] = y[duplicate_of]
+    xy = np.random.random((npoints, 2))
+    xy[duplicate] = xy[duplicate_of]
 
     # Create delaunay triangulation.
-    triang = mtri.Triangulation(x, y)
+    triang = mtri.Triangulation(*xy.T)
 
     # Duplicate points should be ignored, so the index of the duplicate points
     # should not appear in any triangle.

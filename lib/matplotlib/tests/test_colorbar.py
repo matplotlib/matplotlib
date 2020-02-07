@@ -273,7 +273,6 @@ def test_colorbar_ticks():
 
 def test_colorbar_minorticks_on_off():
     # test for github issue #11510 and PR #11584
-    np.random.seed(seed=12345)
     data = np.random.randn(20, 20)
     with rc_context({'_internal.classic_mode': False}):
         fig, ax = plt.subplots()
@@ -534,13 +533,11 @@ def test_colorbar_scale_reset():
 
 
 def test_colorbar_get_ticks_2():
-    with rc_context({'_internal.classic_mode': False}):
-
-        fig, ax = plt.subplots()
-        np.random.seed(19680801)
-        pc = ax.pcolormesh(np.random.rand(30, 30))
-        cb = fig.colorbar(pc)
-        np.testing.assert_allclose(cb.get_ticks(), [0.2, 0.4, 0.6, 0.8])
+    plt.rcParams["_internal.classic_mode"] = False
+    fig, ax = plt.subplots()
+    pc = ax.pcolormesh([[.05, .95]])
+    cb = fig.colorbar(pc)
+    np.testing.assert_allclose(cb.get_ticks(), [0.2, 0.4, 0.6, 0.8])
 
 
 def test_colorbar_inverted_ticks():

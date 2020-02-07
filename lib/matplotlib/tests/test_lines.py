@@ -67,9 +67,7 @@ def test_invisible_Line_rendering():
 def test_set_line_coll_dash():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    np.random.seed(0)
-    # Testing setting linestyles for line collections.
-    # This should not produce an error.
+    # Setting linestyles for line collections should not error.
     ax.contour(np.random.randn(20, 30), linestyles=[(0, (3, 3))])
 
 

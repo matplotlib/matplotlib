@@ -125,7 +125,6 @@ def test_image_python_io():
 @check_figures_equal(extensions=['png'])
 def test_imshow_antialiased(fig_test, fig_ref,
                             img_size, fig_size, interpolation):
-    np.random.seed(19680801)
     dpi = plt.rcParams["savefig.dpi"]
     A = np.random.rand(int(dpi * img_size), int(dpi * img_size))
     for fig in [fig_test, fig_ref]:
@@ -141,7 +140,6 @@ def test_imshow_antialiased(fig_test, fig_ref,
 @check_figures_equal(extensions=['png'])
 def test_imshow_zoom(fig_test, fig_ref):
     # should be less than 3 upsample, so should be nearest...
-    np.random.seed(19680801)
     dpi = plt.rcParams["savefig.dpi"]
     A = np.random.rand(int(dpi * 3), int(dpi * 3))
     for fig in [fig_test, fig_ref]:
@@ -194,7 +192,7 @@ def test_imsave(fmt):
     # So we do the traditional case (dpi == 1), and the new case (dpi
     # == 100) and read the resulting PNG files back in and make sure
     # the data is 100% identical.
-    np.random.seed(1)
+
     # The height of 1856 pixels was selected because going through creating an
     # actual dpi=100 figure to save the image to a Pillow-provided format would
     # cause a rounding error resulting in a final image of shape 1855.
@@ -227,7 +225,6 @@ def test_imsave_color_alpha():
     # Test that imsave accept arrays with ndim=3 where the third dimension is
     # color and alpha without raising any exceptions, and that the data is
     # acceptably preserved through a save/read roundtrip.
-    np.random.seed(1)
 
     for origin in ['lower', 'upper']:
         data = np.random.rand(16, 16, 4)
@@ -699,7 +696,6 @@ def test_minimized_rasterized():
     # are the same size.
     from xml.etree import ElementTree
 
-    np.random.seed(0)
     data = np.random.rand(10, 10)
 
     fig, ax = plt.subplots(1, 2)

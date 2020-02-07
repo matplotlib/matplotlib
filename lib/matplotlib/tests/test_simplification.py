@@ -147,7 +147,6 @@ def test_antiparallel_simplification():
 @pytest.mark.parametrize('offset', [0, .5])
 def test_angled_antiparallel(angle, offset):
     scale = 5
-    np.random.seed(19680801)
     # get 15 random offsets
     # TODO: guarantee offset > 0 results in some offsets < 0
     vert_offsets = (np.random.rand(15) - offset) * scale
@@ -184,8 +183,7 @@ def test_angled_antiparallel(angle, offset):
     p = Path(np.vstack([x, y]).T)
     p2 = p.cleaned(simplify=True)
 
-    assert_array_almost_equal(p_expected.vertices,
-                              p2.vertices)
+    assert_array_almost_equal(p_expected.vertices, p2.vertices)
     assert_array_equal(p_expected.codes, p2.codes)
 
 
