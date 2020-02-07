@@ -111,7 +111,7 @@ steps:
       ;;
     win32)
       choco install codecov
-      codecov.exe  -f "!*.gcov" -X gcov -y ci/codecov.yml
+      codecov.exe  -f "!*.gcov"
       ;;
     *)
       exit 1
