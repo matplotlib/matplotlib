@@ -107,7 +107,7 @@ steps:
       bash <(curl -s https://codecov.io/bash)  -f "!*.gcov" -X gcov -y ci/codecov.yml
       ;;
     darwin)
-      bash <(curl -s https://codecov.io/bash)
+      bash <(curl -s https://codecov.io/bash) -f "!*.gcov"
       ;;
     win32)
       choco install codecov
