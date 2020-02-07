@@ -106,7 +106,7 @@ axs[0, 0].set_box_aspect(1/3)
 axs[1, 0].set_box_aspect(1)
 axs[1, 1].set_box_aspect(3/1)
 
-x, y = np.random.randn(2, 400) * np.array([[.5], [180]])
+x, y = np.random.randn(2, 400) * [[.5], [180]]
 axs[1, 0].scatter(x, y)
 axs[0, 0].hist(x)
 axs[1, 1].hist(y, orientation="horizontal")

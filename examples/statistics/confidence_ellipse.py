@@ -128,12 +128,12 @@ def get_correlated_dataset(n, dependency, mu, scale):
 np.random.seed(0)
 
 PARAMETERS = {
-    'Positive correlation': np.array([[0.85, 0.35],
-                                      [0.15, -0.65]]),
-    'Negative correlation': np.array([[0.9, -0.4],
-                                      [0.1, -0.6]]),
-    'Weak correlation': np.array([[1, 0],
-                                  [0, 1]]),
+    'Positive correlation': [[0.85, 0.35],
+                             [0.15, -0.65]],
+    'Negative correlation': [[0.9, -0.4],
+                             [0.1, -0.6]],
+    'Weak correlation': [[1, 0],
+                         [0, 1]],
 }
 
 mu = 2, 4
@@ -164,10 +164,8 @@ plt.show()
 
 fig, ax_nstd = plt.subplots(figsize=(6, 6))
 
-dependency_nstd = np.array([
-    [0.8, 0.75],
-    [-0.2, 0.35]
-])
+dependency_nstd = [[0.8, 0.75],
+                   [-0.2, 0.35]]
 mu = 0, 0
 scale = 8, 5
 
@@ -199,10 +197,8 @@ plt.show()
 # to have the ellipse rendered in different ways.
 
 fig, ax_kwargs = plt.subplots(figsize=(6, 6))
-dependency_kwargs = np.array([
-    [-0.8, 0.5],
-    [-0.2, 0.5]
-])
+dependency_kwargs = [[-0.8, 0.5],
+                     [-0.2, 0.5]]
 mu = 2, -3
 scale = 6, 5
 
