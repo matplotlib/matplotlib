@@ -55,15 +55,8 @@ Further reading:
 The pylab API (disapproved)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. warning::
-   Since heavily importing into the global namespace may result in unexpected
-   behavior, the use of pylab is strongly discouraged. Use `matplotlib.pyplot`
-   instead.
-
-`pylab` is a module that includes `matplotlib.pyplot`, `numpy`
-and some additional functions within a single namespace. Its original purpose
-was to mimic a MATLAB-like way of working by importing all functions into the
-global namespace. This is considered bad style nowadays.
+.. automodule:: pylab
+   :no-members:
 
 Modules
 -------
