@@ -485,7 +485,7 @@
   },
   "py:func": {
     "log.debug": [
-      "doc/devel/contributing.rst:429"
+      "doc/devel/contributing.rst:434"
     ],
     "matplotlib.Axis.set_ticks_position": [
       "doc/users/prev_whats_new/whats_new_1.4.rst:141"
@@ -576,8 +576,8 @@
       "doc/users/event_handling.rst:164"
     ],
     "matplotlib.text.Text.__init__": [
-      "doc/devel/contributing.rst:379",
-      "doc/devel/contributing.rst:387"
+      "doc/devel/contributing.rst:384",
+      "doc/devel/contributing.rst:392"
     ],
     "option_scale_image": [
       "lib/matplotlib/backends/backend_cairo.py:docstring of matplotlib.backends.backend_cairo.RendererCairo.draw_image:22",
@@ -623,17 +623,13 @@
     "matplotlib.ft2font": [
       "doc/api/prev_api_changes/api_changes_0.91.0.rst:34"
     ],
-    "matplotlib.pylab": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:616",
-      "doc/users/history.rst:63"
-    ],
     "matplotlib.tests.test_basic": [
       "doc/devel/testing.rst:98"
     ]
   },
   "py:obj": {
     "./gallery/index.html": [
-      "doc/devel/contributing.rst:541"
+      "doc/devel/contributing.rst:546"
     ],
     "Artist.sticky_edges": [
       "doc/api/axes_api.rst:357:<autosummary>:1",
@@ -961,10 +957,10 @@
       "doc/devel/MEP/MEP23.rst:40"
     ],
     "cbook._warn_external": [
-      "doc/devel/contributing.rst:472",
-      "doc/devel/contributing.rst:487",
-      "doc/devel/contributing.rst:496",
-      "doc/devel/contributing.rst:521"
+      "doc/devel/contributing.rst:477",
+      "doc/devel/contributing.rst:492",
+      "doc/devel/contributing.rst:501",
+      "doc/devel/contributing.rst:526"
     ],
     "cbook.deprecated": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:1073",
@@ -974,7 +970,7 @@
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:766"
     ],
     "cbook.warn_deprecated()": [
-      "doc/devel/contributing.rst:309"
+      "doc/devel/contributing.rst:314"
     ],
     "cleanup": [
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.HTMLWriter.setup:19"
@@ -1101,8 +1097,8 @@
       "doc/gallery/misc/ftface_props.rst:14"
     ],
     "logging.WARNING": [
-      "doc/devel/contributing.rst:447",
-      "doc/devel/contributing.rst:484"
+      "doc/devel/contributing.rst:452",
+      "doc/devel/contributing.rst:489"
     ],
     "ls_mapper": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:11"
@@ -1474,9 +1470,6 @@
     "matplotlib.patches.Patch.__init__": [
       "doc/devel/documenting_mpl.rst:671"
     ],
-    "matplotlib.pylab": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:618"
-    ],
     "matplotlib.pyplot.get_scale_docs()": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:853"
     ],
@@ -1555,10 +1548,6 @@
     ],
     "print_xyz": [
       "lib/matplotlib/backends/backend_template.py:docstring of matplotlib.backends.backend_template:22"
-    ],
-    "pylab": [
-      "doc/api/index.rst:63",
-      "doc/devel/MEP/MEP12.rst:13"
     ],
     "pyplot.set_loglevel": [
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:377"
@@ -1681,7 +1670,7 @@
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.set_constrained_layout:5"
     ],
     "warn": [
-      "doc/devel/contributing.rst:496"
+      "doc/devel/contributing.rst:501"
     ],
     "whats_new.rst": [
       "doc/users/next_whats_new/README.rst:6"

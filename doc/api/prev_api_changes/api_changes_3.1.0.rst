@@ -613,11 +613,11 @@ in Matplotlib 2.2 has been removed. See below for a list:
   ``mlab.FormatFormatStr``, ``mlab.FormatString``, ``mlab.FormatObj``
 - ``mlab.donothing_callback``
 
-:mod:`matplotlib.pylab` removals
---------------------------------
+`pylab` removals
+----------------
 Lots of code inside the :mod:`matplotlib.mlab` module which was deprecated
 in Matplotlib 2.2 has been removed. This means the following functions are
-no longer available in the `matplotlib.pylab` module:
+no longer available in the `pylab` module:
 
 - ``amap``
 - ``base_repr``

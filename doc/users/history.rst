@@ -62,7 +62,7 @@ without affecting user code.
 
 The Matplotlib code is conceptually divided into three parts: the
 *pylab interface* is the set of functions provided by
-:mod:`matplotlib.pylab` which allow the user to create plots with code
+:mod:`pylab` which allow the user to create plots with code
 quite similar to MATLAB figure generating code
 (:doc:`/tutorials/introductory/pyplot`).  The *Matplotlib frontend* or *Matplotlib
 API* is the set of classes that do the heavy lifting, creating and
