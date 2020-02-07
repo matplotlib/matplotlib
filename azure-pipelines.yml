@@ -101,8 +101,22 @@ steps:
       [[ "$PYTHON_VERSION" = 'Pre' ]]
   displayName: 'pytest'
 
-- script: |
-    bash <(curl -s https://codecov.io/bash)  -f "!*.gcov" -X gcov -y ci/codecov.yml
+- bash: |
+    case "$(python -c 'import sys; print(sys.platform)')" in
+    linux)
+      bash <(curl -s https://codecov.io/bash)  -f "!*.gcov" -X gcov -y ci/codecov.yml
+      ;;
+    darwin)
+      bash <(curl -s https://codecov.io/bash)
+      ;;
+    win32)
+      choco install codecov
+      codecov.exe  -f "!*.gcov" -X gcov -y ci/codecov.yml
+      ;;
+    *)
+      exit 1
+      ;;
+    esac
   displayName: 'Upload to codecov.io'
 
 - task: PublishTestResults@2
