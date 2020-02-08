@@ -107,8 +107,6 @@ def test_multiple_keys():
 @image_comparison(['rgba_alpha.png'], remove_text=True,
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_alpha_rgba():
-    import matplotlib.pyplot as plt
-
     fig, ax = plt.subplots(1, 1)
     ax.plot(range(10), lw=5)
     leg = plt.legend(['Longlabel that will go away'], loc='center')
@@ -118,8 +116,6 @@ def test_alpha_rgba():
 @image_comparison(['rcparam_alpha.png'], remove_text=True,
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_alpha_rcparam():
-    import matplotlib.pyplot as plt
-
     fig, ax = plt.subplots(1, 1)
     ax.plot(range(10), lw=5)
     with mpl.rc_context(rc={'legend.framealpha': .75}):

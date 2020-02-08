@@ -10,6 +10,7 @@ from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
 import matplotlib
+import matplotlib as mpl
 from matplotlib import cbook
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
@@ -1287,20 +1288,17 @@ def test_minorticks_rc():
                           (None, 6),  # this tests the default
                           (False, 9)))
 def test_remove_overlap(remove_overlapping_locs, expected_num):
-    import numpy as np
-    import matplotlib.dates as mdates
-
     t = np.arange("2018-11-03", "2018-11-06", dtype="datetime64")
     x = np.ones(len(t))
 
     fig, ax = plt.subplots()
     ax.plot(t, x)
 
-    ax.xaxis.set_major_locator(mdates.DayLocator())
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('\n%a'))
+    ax.xaxis.set_major_locator(mpl.dates.DayLocator())
+    ax.xaxis.set_major_formatter(mpl.dates.DateFormatter('\n%a'))
 
-    ax.xaxis.set_minor_locator(mdates.HourLocator((0, 6, 12, 18)))
-    ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H:%M'))
+    ax.xaxis.set_minor_locator(mpl.dates.HourLocator((0, 6, 12, 18)))
+    ax.xaxis.set_minor_formatter(mpl.dates.DateFormatter('%H:%M'))
     # force there to be extra ticks
     ax.xaxis.get_minor_ticks(15)
     if remove_overlapping_locs is not None:

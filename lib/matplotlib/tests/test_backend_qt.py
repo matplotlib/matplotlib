@@ -1,4 +1,5 @@
 import copy
+import signal
 import sys
 from unittest import mock
 
@@ -54,7 +55,6 @@ def test_fig_signals(qt_core):
     plt.figure()
 
     # Access signals
-    import signal
     event_loop_signal = None
 
     # Callback to fire during event loop: save SIGINT handler, then exit
@@ -259,7 +259,6 @@ def test_double_resize():
 
 @pytest.mark.backend("Qt5Agg")
 def test_canvas_reinit():
-    import matplotlib.pyplot as plt
     from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 
     called = False

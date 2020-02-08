@@ -7,6 +7,7 @@ from numpy.testing import assert_almost_equal
 import pytest
 
 import matplotlib
+import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
@@ -194,12 +195,9 @@ def test_antialiasing():
 
 
 def test_afm_kerning():
-    from matplotlib.afm import AFM
-    from matplotlib.font_manager import findfont
-
-    fn = findfont("Helvetica", fontext="afm")
+    fn = mpl.font_manager.findfont("Helvetica", fontext="afm")
     with open(fn, 'rb') as fh:
-        afm = AFM(fh)
+        afm = mpl.afm.AFM(fh)
     assert afm.string_width_height('VAVAVAVAVAVA') == (7174.0, 718)
 
 
@@ -324,39 +322,33 @@ def test_set_position():
 
 
 def test_get_rotation_string():
-    from matplotlib import text
-    assert text.get_rotation('horizontal') == 0.
-    assert text.get_rotation('vertical') == 90.
-    assert text.get_rotation('15.') == 15.
+    assert mpl.text.get_rotation('horizontal') == 0.
+    assert mpl.text.get_rotation('vertical') == 90.
+    assert mpl.text.get_rotation('15.') == 15.
 
 
 def test_get_rotation_float():
-    from matplotlib import text
     for i in [15., 16.70, 77.4]:
-        assert text.get_rotation(i) == i
+        assert mpl.text.get_rotation(i) == i
 
 
 def test_get_rotation_int():
-    from matplotlib import text
     for i in [67, 16, 41]:
-        assert text.get_rotation(i) == float(i)
+        assert mpl.text.get_rotation(i) == float(i)
 
 
 def test_get_rotation_raises():
-    from matplotlib import text
     with pytest.raises(ValueError):
-        text.get_rotation('hozirontal')
+        mpl.text.get_rotation('hozirontal')
 
 
 def test_get_rotation_none():
-    from matplotlib import text
-    assert text.get_rotation(None) == 0.0
+    assert mpl.text.get_rotation(None) == 0.0
 
 
 def test_get_rotation_mod360():
-    from matplotlib import text
     for i, j in zip([360., 377., 720+177.2], [0., 17., 177.2]):
-        assert_almost_equal(text.get_rotation(i), j)
+        assert_almost_equal(mpl.text.get_rotation(i), j)
 
 
 @pytest.mark.parametrize("ha", ["center", "right", "left"])
@@ -468,10 +460,8 @@ def test_agg_text_clip():
 
 
 def test_text_size_binding():
-    from matplotlib.font_manager import FontProperties
-
     matplotlib.rcParams['font.size'] = 10
-    fp = FontProperties(size='large')
+    fp = mpl.font_manager.FontProperties(size='large')
     sz1 = fp.get_size_in_points()
     matplotlib.rcParams['font.size'] = 100
 
