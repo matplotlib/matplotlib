@@ -108,7 +108,7 @@ sections described above. "Clean-up" should involve:
   <https://pypi.python.org/pypi/flake8>`_, or a similar checker, is
   highly recommended)
 * Commented-out code should be removed.
-* Replace uses of ``pylab`` interface with ``pyplot`` (+ ``numpy``,
+* Replace uses of `pylab` interface with `.pyplot` (+ `numpy`,
   etc.). See `c25ef1e
   <https://github.com/tonysyu/matplotlib/commit/c25ef1e02b3a0ecb279492409dac0de9b3d2c0e2>`_
 * Remove shebang line, e.g.:
@@ -134,7 +134,7 @@ sections described above. "Clean-up" should involve:
   and `1458aa8
   <https://github.com/tonysyu/matplotlib/commit/1458aa87c5eae9dd99e141956a6adf7a0f3c6707>`_
 
-Use of ``pylab`` should be demonstrated/discussed on a dedicated help
+Use of `pylab` should be demonstrated/discussed on a dedicated help
 page instead of the gallery examples.
 
 **Note:** When moving an existing example, you should search for
