@@ -95,18 +95,23 @@ def test_label_loc_rc(fig_test, fig_ref):
     cbar.set_label("Z Label", x=1, ha='right')
 
 
-@image_comparison(['acorr.png'], style='mpl20')
-def test_acorr():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
+@check_figures_equal(extensions=["png"])
+def test_acorr(fig_test, fig_ref):
     np.random.seed(19680801)
-    n = 512
-    x = np.random.normal(0, 1, n).cumsum()
+    Nx = 512
+    x = np.random.normal(0, 1, Nx).cumsum()
+    maxlags = Nx-1
 
-    fig, ax = plt.subplots()
-    ax.acorr(x, maxlags=n - 1, label='acorr')
-    ax.legend()
+    fig_test, ax_test = plt.subplots()
+    ax_test.acorr(x, maxlags=maxlags)
+
+    fig_ref, ax_ref = plt.subplots()
+    # Normalized autocorrelation
+    norm_auto_corr = np.correlate(x, x, mode="full")/np.dot(x, x)
+    lags = np.arange(-maxlags, maxlags+1)
+    norm_auto_corr = norm_auto_corr[Nx-1-maxlags:Nx+maxlags]
+    ax_ref.vlines(lags, [0], norm_auto_corr)
+    ax_ref.axhline(y=0, xmin=0, xmax=1)
 
 
 @check_figures_equal(extensions=["png"])
