@@ -1159,8 +1159,8 @@ def test_pcolorargs_5205():
 
     plt.pcolor(Z)
     plt.pcolor(list(Z))
-    plt.pcolor(x, y, Z)
-    plt.pcolor(X, Y, list(Z))
+    plt.pcolor(x, y, Z[:-1, :-1])
+    plt.pcolor(X, Y, list(Z[:-1, :-1]))
 
 
 @image_comparison(['pcolormesh'], remove_text=True)
@@ -1179,8 +1179,8 @@ def test_pcolormesh():
     Zm = ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
 
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
-    ax1.pcolormesh(Qx, Qz, Z, lw=0.5, edgecolors='k')
-    ax2.pcolormesh(Qx, Qz, Z, lw=2, edgecolors=['b', 'w'])
+    ax1.pcolormesh(Qx, Qz, Z[:-1, :-1], lw=0.5, edgecolors='k')
+    ax2.pcolormesh(Qx, Qz, Z[:-1, :-1], lw=2, edgecolors=['b', 'w'])
     ax3.pcolormesh(Qx, Qz, Z, shading="gouraud")
 
 
@@ -1208,10 +1208,11 @@ def test_pcolormesh_alpha():
             (0, -1.5), 1.5, 3, facecolor=[.7, .1, .1, .5], zorder=0
         ))
     # ax1, ax2: constant alpha
-    ax1.pcolormesh(Qx, Qy, Z, cmap=vir, alpha=0.4, shading='flat', zorder=1)
+    ax1.pcolormesh(Qx, Qy, Z[:-1, :-1], cmap=vir, alpha=0.4,
+                   shading='flat', zorder=1)
     ax2.pcolormesh(Qx, Qy, Z, cmap=vir, alpha=0.4, shading='gouraud', zorder=1)
     # ax3, ax4: alpha from colormap
-    ax3.pcolormesh(Qx, Qy, Z, cmap=cmap, shading='flat', zorder=1)
+    ax3.pcolormesh(Qx, Qy, Z[:-1, :-1], cmap=cmap, shading='flat', zorder=1)
     ax4.pcolormesh(Qx, Qy, Z, cmap=cmap, shading='gouraud', zorder=1)
 
 
@@ -1226,13 +1227,13 @@ def test_pcolormesh_datetime_axis():
     z1, z2 = np.meshgrid(np.arange(20), np.arange(20))
     z = z1 * z2
     plt.subplot(221)
-    plt.pcolormesh(x[:-1], y[:-1], z)
+    plt.pcolormesh(x[:-1], y[:-1], z[:-1, :-1])
     plt.subplot(222)
     plt.pcolormesh(x, y, z)
     x = np.repeat(x[np.newaxis], 21, axis=0)
     y = np.repeat(y[:, np.newaxis], 21, axis=1)
     plt.subplot(223)
-    plt.pcolormesh(x[:-1, :-1], y[:-1, :-1], z)
+    plt.pcolormesh(x[:-1, :-1], y[:-1, :-1], z[:-1, :-1])
     plt.subplot(224)
     plt.pcolormesh(x, y, z)
     for ax in fig.get_axes():
@@ -1252,13 +1253,13 @@ def test_pcolor_datetime_axis():
     z1, z2 = np.meshgrid(np.arange(20), np.arange(20))
     z = z1 * z2
     plt.subplot(221)
-    plt.pcolor(x[:-1], y[:-1], z)
+    plt.pcolor(x[:-1], y[:-1], z[:-1, :-1])
     plt.subplot(222)
     plt.pcolor(x, y, z)
     x = np.repeat(x[np.newaxis], 21, axis=0)
     y = np.repeat(y[:, np.newaxis], 21, axis=1)
     plt.subplot(223)
-    plt.pcolor(x[:-1, :-1], y[:-1, :-1], z)
+    plt.pcolor(x[:-1, :-1], y[:-1, :-1], z[:-1, :-1])
     plt.subplot(224)
     plt.pcolor(x, y, z)
     for ax in fig.get_axes():
@@ -1290,6 +1291,56 @@ def test_pcolorargs():
         x = np.ma.array(x, mask=(x < 0))
     with pytest.raises(ValueError):
         ax.pcolormesh(x, y, Z[:-1, :-1])
+
+
+@check_figures_equal(extensions=["png"])
+def test_pcolornearest(fig_test, fig_ref):
+    ax = fig_test.subplots()
+    x = np.arange(0, 10)
+    y = np.arange(0, 3)
+    np.random.seed(19680801)
+    Z = np.random.randn(2, 9)
+    ax.pcolormesh(x, y, Z, shading='flat')
+
+    ax = fig_ref.subplots()
+    # specify the centers
+    x2 = x[:-1] + np.diff(x) / 2
+    y2 = y[:-1] + np.diff(y) / 2
+    ax.pcolormesh(x2, y2, Z, shading='nearest')
+
+
+@check_figures_equal(extensions=["png"])
+def test_pcolordropdata(fig_test, fig_ref):
+    ax = fig_test.subplots()
+    x = np.arange(0, 10)
+    y = np.arange(0, 4)
+    np.random.seed(19680801)
+    Z = np.random.randn(3, 9)
+    # fake dropping the data
+    ax.pcolormesh(x[:-1], y[:-1], Z[:-1, :-1], shading='flat')
+
+    ax = fig_ref.subplots()
+    # test dropping the data...
+    x2 = x[:-1]
+    y2 = y[:-1]
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ax.pcolormesh(x2, y2, Z, shading='flat')
+
+
+@check_figures_equal(extensions=["png"])
+def test_pcolorauto(fig_test, fig_ref):
+    ax = fig_test.subplots()
+    x = np.arange(0, 10)
+    y = np.arange(0, 4)
+    np.random.seed(19680801)
+    Z = np.random.randn(3, 9)
+    ax.pcolormesh(x, y, Z, shading='auto')
+
+    ax = fig_ref.subplots()
+    # specify the centers
+    x2 = x[:-1] + np.diff(x) / 2
+    y2 = y[:-1] + np.diff(y) / 2
+    ax.pcolormesh(x2, y2, Z, shading='auto')
 
 
 @image_comparison(['canonical'])
@@ -5805,7 +5856,7 @@ def test_broken_barh_timedelta():
 def test_pandas_pcolormesh(pd):
     time = pd.date_range('2000-01-01', periods=10)
     depth = np.arange(20)
-    data = np.random.rand(20, 10)
+    data = np.random.rand(19, 9)
 
     fig, ax = plt.subplots()
     ax.pcolormesh(time, depth, data)
@@ -6292,7 +6343,7 @@ def test_inset():
     z = np.sin(x) ** 10 + np.cos(10 + y * x) * np.cos(x)
 
     fig, ax = plt.subplots()
-    ax.pcolormesh(x, y, z)
+    ax.pcolormesh(x, y, z[:-1, :-1])
     ax.set_aspect(1.)
     ax.apply_aspect()
     # we need to apply_aspect to make the drawing below work.
@@ -6318,7 +6369,7 @@ def test_zoom_inset():
     z = np.sin(x)**10 + np.cos(10 + y*x) * np.cos(x)
 
     fig, ax = plt.subplots()
-    ax.pcolormesh(x, y, z)
+    ax.pcolormesh(x, y, z[:-1, :-1])
     ax.set_aspect(1.)
     ax.apply_aspect()
     # we need to apply_aspect to make the drawing below work.
@@ -6326,7 +6377,7 @@ def test_zoom_inset():
     # Make the inset_axes...  Position axes coordinates...
     axin1 = ax.inset_axes([0.7, 0.7, 0.35, 0.35])
     # redraw the data in the inset axes...
-    axin1.pcolormesh(x, y, z)
+    axin1.pcolormesh(x, y, z[:-1, :-1])
     axin1.set_xlim([1.5, 2.15])
     axin1.set_ylim([2, 2.5])
     axin1.set_aspect(ax.get_aspect())

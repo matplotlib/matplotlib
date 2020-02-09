@@ -49,6 +49,8 @@ def _colorbar_extension_shape(spacing):
         # Get the appropriate norm and use it to get colorbar boundaries.
         norm = norms[extension_type]
         boundaries = values = norm.boundaries
+        # note that the last value was silently dropped pre 3.3:
+        values = values[:-1]
         # Create a subplot.
         cax = fig.add_subplot(4, 1, i + 1)
         # Generate the colorbar.
@@ -79,6 +81,7 @@ def _colorbar_extension_length(spacing):
         # Get the appropriate norm and use it to get colorbar boundaries.
         norm = norms[extension_type]
         boundaries = values = norm.boundaries
+        values = values[:-1]
         for j, extendfrac in enumerate((None, 'auto', 0.1)):
             # Create a subplot.
             cax = fig.add_subplot(12, 1, i*3 + j + 1)
@@ -333,6 +336,7 @@ def test_colorbar_autoticks():
         y = np.arange(-4.0, 3.001)
         X, Y = np.meshgrid(x, y)
         Z = X * Y
+        Z = Z[:-1, :-1]
         pcm = ax[0].pcolormesh(X, Y, Z)
         cbar = fig.colorbar(pcm, ax=ax[0], extend='both',
                             orientation='vertical')
@@ -354,6 +358,7 @@ def test_colorbar_autotickslog():
         y = np.arange(-4.0, 3.001)
         X, Y = np.meshgrid(x, y)
         Z = X * Y
+        Z = Z[:-1, :-1]
         pcm = ax[0].pcolormesh(X, Y, 10**Z, norm=LogNorm())
         cbar = fig.colorbar(pcm, ax=ax[0], extend='both',
                             orientation='vertical')

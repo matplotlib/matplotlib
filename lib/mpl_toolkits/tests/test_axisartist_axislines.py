@@ -83,7 +83,10 @@ def test_ParasiteAxesAuxTrans():
 
         ax2 = ParasiteAxesAuxTrans(ax1, IdentityTransform())
         ax1.parasites.append(ax2)
-        getattr(ax2, name)(xx, yy, data)
+        if name.startswith('pcolor'):
+            getattr(ax2, name)(xx, yy, data[:-1, :-1])
+        else:
+            getattr(ax2, name)(xx, yy, data)
         ax1.set_xlim((0, 5))
         ax1.set_ylim((0, 5))
 

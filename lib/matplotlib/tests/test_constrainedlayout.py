@@ -24,9 +24,8 @@ def example_pcolor(ax, fontsize=12):
     y, x = np.mgrid[slice(-3, 3 + dy, dy),
                     slice(-3, 3 + dx, dx)]
     z = (1 - x / 2. + x ** 5 + y ** 3) * np.exp(-x ** 2 - y ** 2)
-    pcm = ax.pcolormesh(x, y, z, cmap='RdBu_r', vmin=-1., vmax=1.,
+    pcm = ax.pcolormesh(x, y, z[:-1, :-1], cmap='RdBu_r', vmin=-1., vmax=1.,
                         rasterized=True)
-    # ax.locator_params(nbins=3)
     ax.set_xlabel('x-label', fontsize=fontsize)
     ax.set_ylabel('y-label', fontsize=fontsize)
     ax.set_title('Title', fontsize=fontsize)
@@ -319,7 +318,7 @@ def test_constrained_layout20():
 
     fig = plt.figure()
     ax = fig.add_axes([0, 0, 1, 1])
-    mesh = ax.pcolormesh(gx, gx, img)
+    mesh = ax.pcolormesh(gx, gx, img[:-1, :-1])
     fig.colorbar(mesh)
 
 

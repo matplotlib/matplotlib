@@ -5625,24 +5625,23 @@ default: :rc:`scatter.edgecolors`
         return im
 
     @staticmethod
-    def _pcolorargs(funcname, *args, allmatch=False):
-        # If allmatch is True, then the incoming X, Y, C must have matching
-        # dimensions, taking into account that X and Y can be 1-D rather than
-        # 2-D.  This perfect match is required for Gouraud shading.  For flat
-        # shading, X and Y specify boundaries, so we need one more boundary
-        # than color in each direction.  For convenience, and consistent with
-        # Matlab, we discard the last row and/or column of C if necessary to
-        # meet this condition.  This is done if allmatch is False.
+    def _pcolorargs(funcname, *args, shading='flat'):
+        # - create X and Y if not present;
+        # - reshape X and Y as needed if they are 1-D;
+        # - check for proper sizes based on `shading` kwarg;
+        # - reset shading if shading='auto' to flat or nearest
+        #   depending on size;
 
         if len(args) == 1:
             C = np.asanyarray(args[0])
             nrows, ncols = C.shape
-            if allmatch:
+            if shading in ['gouraud', 'nearest']:
                 X, Y = np.meshgrid(np.arange(ncols), np.arange(nrows))
             else:
                 X, Y = np.meshgrid(np.arange(ncols + 1), np.arange(nrows + 1))
+                shading = 'flat'
             C = cbook.safe_masked_invalid(C)
-            return X, Y, C
+            return X, Y, C, shading
 
         if len(args) == 3:
             # Check x and y for bad data...
@@ -5677,24 +5676,63 @@ default: :rc:`scatter.edgecolors`
             raise TypeError(
                 'Incompatible X, Y inputs to %s; see help(%s)' % (
                 funcname, funcname))
-        if allmatch:
-            if (Nx, Ny) != (ncols, nrows):
-                raise TypeError('Dimensions of C %s are incompatible with'
-                                ' X (%d) and/or Y (%d); see help(%s)' % (
-                                    C.shape, Nx, Ny, funcname))
-        else:
+
+        if shading == 'auto':
+            if ncols == Nx and nrows == Ny:
+                shading = 'nearest'
+            else:
+                shading = 'flat'
+
+        if shading == 'flat':
             if not (ncols in (Nx, Nx - 1) and nrows in (Ny, Ny - 1)):
                 raise TypeError('Dimensions of C %s are incompatible with'
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
+            if (ncols == Nx or nrows == Ny):
+                cbook.warn_deprecated("3.3",
+                    message="shading='flat' when X and Y have the same "
+                            "dimensions as C is deprecated since %(since)s.  "
+                            "Either specify the corners of the quadrilaterals "
+                            "with X and Y, or pass shading='auto', 'nearest' "
+                            "or 'gouraud', or set rcParams['pcolor.shading']")
             C = C[:Ny - 1, :Nx - 1]
+        else:    # ['nearest', 'gouraud']:
+            if (Nx, Ny) != (ncols, nrows):
+                raise TypeError('Dimensions of C %s are incompatible with'
+                                ' X (%d) and/or Y (%d); see help(%s)' % (
+                                    C.shape, Nx, Ny, funcname))
+            if shading in ['nearest', 'auto']:
+                # grid is specified at the center, so define corners
+                # at the midpoints between the grid centers and then use the
+                # flat algorithm.
+                def _interp_grid(X):
+                    # helper for below
+                    if np.shape(X)[1] > 1:
+                        dX = np.diff(X, axis=1)/2.
+                        X = np.hstack((X[:, [0]] - dX[:, [0]],
+                                       X[:, :-1] + dX,
+                                       X[:, [-1]] + dX[:, [-1]]))
+                    else:
+                        # This is just degenerate, but we can't reliably guess
+                        # a dX if there is just one value.
+                        X = np.hstack((X, X))
+                    return X
+
+                if ncols == Nx:
+                    X = _interp_grid(X)
+                    Y = _interp_grid(Y)
+                if nrows == Ny:
+                    X = _interp_grid(X.T).T
+                    Y = _interp_grid(Y.T).T
+                shading = 'flat'
+
         C = cbook.safe_masked_invalid(C)
-        return X, Y, C
+        return X, Y, C, shading
 
     @_preprocess_data()
     @docstring.dedent_interpd
-    def pcolor(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
-               vmax=None, **kwargs):
+    def pcolor(self, *args, shading=None, alpha=None, norm=None, cmap=None,
+               vmin=None, vmax=None, **kwargs):
         r"""
         Create a pseudocolor plot with a non-regular rectangular grid.
 
@@ -5708,7 +5746,9 @@ default: :rc:`scatter.edgecolors`
 
             ``pcolor()`` can be very slow for large arrays. In most
             cases you should use the similar but much faster
-            `~.Axes.pcolormesh` instead. See there for a discussion of the
+            `~.Axes.pcolormesh` instead. See
+            :ref:`Differences between pcolor() and pcolormesh()
+            <differences-pcolor-pcolormesh>` for a discussion of the
             differences.
 
         Parameters
@@ -5717,27 +5757,50 @@ default: :rc:`scatter.edgecolors`
             A scalar 2-D array. The values will be color-mapped.
 
         X, Y : array-like, optional
-            The coordinates of the quadrilateral corners. The quadrilateral
-            for ``C[i, j]`` has corners at::
+            The coordinates of the corners of quadrilaterals of a pcolormesh::
 
-                (X[i+1, j], Y[i+1, j])           (X[i+1, j+1], Y[i+1, j+1])
-                                      +---------+
-                                      | C[i, j] |
-                                      +---------+
-                    (X[i, j], Y[i, j])           (X[i, j+1], Y[i, j+1])
+                (X[i+1, j], Y[i+1, j])       (X[i+1, j+1], Y[i+1, j+1])
+                                      +-----+
+                                      |     |
+                                      +-----+
+                    (X[i, j], Y[i, j])       (X[i, j+1], Y[i, j+1])
 
-            Note that the column index corresponds to the
-            x-coordinate, and the row index corresponds to y. For
-            details, see the :ref:`Notes <axes-pcolor-grid-orientation>`
-            section below.
+            Note that the column index corresponds to the x-coordinate, and
+            the row index corresponds to y. For details, see the
+            :ref:`Notes <axes-pcolormesh-grid-orientation>` section below.
 
-            The dimensions of *X* and *Y* should be one greater than those of
-            *C*. Alternatively, *X*, *Y* and *C* may have equal dimensions, in
-            which case the last row and column of *C* will be ignored.
+            If ``shading='flat'`` the dimensions of *X* and *Y* should be one
+            greater than those of *C*, and the quadrilateral is colored due
+            to the value at ``C[i, j]``.  If *X*, *Y* and *C* have equal
+            dimensions, a warning will be raised and the last row and column
+            of *C* will be ignored.
+
+            If ``shading='nearest'``, the dimensions of *X* and *Y* should be
+            the same as those of *C* (if not, a ValueError will be raised). The
+            color ``C[i, j]`` will be centered on ``(X[i, j], Y[i, j])``.
 
             If *X* and/or *Y* are 1-D arrays or column vectors they will be
             expanded as needed into the appropriate 2-D arrays, making a
             rectangular grid.
+
+        shading : {'flat', 'nearest', 'auto'}, optional
+            The fill style for the quadrilateral; defaults to 'flat' or
+            ':rc:`pcolor.shading`. Possible values:
+
+            - 'flat': A solid color is used for each quad. The color of the
+              quad (i, j), (i+1, j), (i, j+1), (i+1, j+1) is given by
+              ``C[i, j]``. The dimensions of *X* and *Y* should be
+              one greater than those of *C*; if they are the same as *C*,
+              then a deprecation warning is raised, and the last row
+              and column of *C* are dropped.
+            - 'nearest': Each grid point will have a color centered on it,
+              extending halfway between the adjacent grid centers.  The
+              dimensions of *X* and *Y* must be the same as *C*.
+            - 'auto': Choose 'flat' if dimensions of *X* and *Y* are one
+              larger than *C*.  Choose 'nearest' if dimensions are the same.
+
+            See :doc:`/gallery/images_contours_and_fields/pcolormesh_grids`
+            for more description.
 
         cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             A Colormap instance or registered colormap name. The colormap
@@ -5818,18 +5881,12 @@ default: :rc:`scatter.edgecolors`
         The grid orientation follows the standard matrix convention: An array
         *C* with shape (nrows, ncolumns) is plotted with the column number as
         *X* and the row number as *Y*.
-
-        **Handling of pcolor() end-cases**
-
-        ``pcolor()`` displays all columns of *C* if *X* and *Y* are not
-        specified, or if *X* and *Y* have one more column than *C*.
-        If *X* and *Y* have the same number of columns as *C* then the last
-        column of *C* is dropped. Similarly for the rows.
-
-        Note: This behavior is different from MATLAB's ``pcolor()``, which
-        always discards the last row and column of *C*.
         """
-        X, Y, C = self._pcolorargs('pcolor', *args, allmatch=False)
+
+        if shading is None:
+            shading = rcParams['pcolor.shading']
+        shading = shading.lower()
+        X, Y, C, shading = self._pcolorargs('pcolor', *args, shading=shading)
         Ny, Nx = X.shape
 
         # unit conversion allows e.g. datetime objects as axis values
@@ -5925,19 +5982,19 @@ default: :rc:`scatter.edgecolors`
     @_preprocess_data()
     @docstring.dedent_interpd
     def pcolormesh(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
-                   vmax=None, shading='flat', antialiased=False, **kwargs):
+                   vmax=None, shading=None, antialiased=False, **kwargs):
         """
         Create a pseudocolor plot with a non-regular rectangular grid.
 
         Call signature::
 
-            pcolor([X, Y,] C, **kwargs)
+            pcolormesh([X, Y,] C, **kwargs)
 
         *X* and *Y* can be used to specify the corners of the quadrilaterals.
 
-        .. note::
+        .. hint::
 
-           `~.Axes.pcolormesh` is similar to `~.Axes.pcolor`. It's much faster
+           `~.Axes.pcolormesh` is similar to `~.Axes.pcolor`. It is much faster
            and preferred in most cases. For a detailed discussion on the
            differences see :ref:`Differences between pcolor() and pcolormesh()
            <differences-pcolor-pcolormesh>`.
@@ -5948,23 +6005,29 @@ default: :rc:`scatter.edgecolors`
             A scalar 2-D array. The values will be color-mapped.
 
         X, Y : array-like, optional
-            The coordinates of the quadrilateral corners. The quadrilateral
-            for ``C[i, j]`` has corners at::
+            The coordinates of the corners of quadrilaterals of a pcolormesh::
 
-                (X[i+1, j], Y[i+1, j])           (X[i+1, j+1], Y[i+1, j+1])
-                                      +---------+
-                                      | C[i, j] |
-                                      +---------+
-                    (X[i, j], Y[i, j])           (X[i, j+1], Y[i, j+1])
+                (X[i+1, j], Y[i+1, j])       (X[i+1, j+1], Y[i+1, j+1])
+                                      +-----+
+                                      |     |
+                                      +-----+
+                    (X[i, j], Y[i, j])       (X[i, j+1], Y[i, j+1])
 
-            Note that the column index corresponds to the
-            x-coordinate, and the row index corresponds to y. For
-            details, see the :ref:`Notes <axes-pcolormesh-grid-orientation>`
-            section below.
+            Note that the column index corresponds to the x-coordinate, and
+            the row index corresponds to y. For details, see the
+            :ref:`Notes <axes-pcolormesh-grid-orientation>` section below.
 
-            The dimensions of *X* and *Y* should be one greater than those of
-            *C*. Alternatively, *X*, *Y* and *C* may have equal dimensions, in
-            which case the last row and column of *C* will be ignored.
+            If ``shading='flat'`` the dimensions of *X* and *Y* should be one
+            greater than those of *C*, and the quadrilateral is colored due
+            to the value at ``C[i, j]``.  If *X*, *Y* and *C* have equal
+            dimensions, a warning will be raised and the last row and column
+            of *C* will be ignored.
+
+            If ``shading='nearest'`` or ``'gouraud'``, the dimensions of *X*
+            and *Y* should be the same as those of *C* (if not, a ValueError
+            will be raised).  For ``'nearest'`` the color ``C[i, j]`` is
+            centered on ``(X[i, j], Y[i, j])``.  For ``'gouraud'``, a smooth
+            interpolation is caried out between the quadrilateral corners.
 
             If *X* and/or *Y* are 1-D arrays or column vectors they will be
             expanded as needed into the appropriate 2-D arrays, making a
@@ -6000,16 +6063,29 @@ default: :rc:`scatter.edgecolors`
         alpha : scalar, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-        shading : {'flat', 'gouraud'}, optional
-            The fill style, Possible values:
+        shading : {'flat', 'nearest', 'gouraud', 'auto'}, optional
+            The fill style for the quadrilateral; defaults to
+            'flat' or ':rc:`pcolor.shading`. Possible values:
 
             - 'flat': A solid color is used for each quad. The color of the
               quad (i, j), (i+1, j), (i, j+1), (i+1, j+1) is given by
-              ``C[i, j]``.
+              ``C[i, j]``. The dimensions of *X* and *Y* should be
+              one greater than those of *C*; if they are the same as *C*,
+              then a deprecation warning is raised, and the last row
+              and column of *C* are dropped.
+            - 'nearest': Each grid point will have a color centered on it,
+              extending halfway between the adjacent grid centers.  The
+              dimensions of *X* and *Y* must be the same as *C*.
             - 'gouraud': Each quad will be Gouraud shaded: The color of the
               corners (i', j') are given by ``C[i', j']``. The color values of
               the area in between is interpolated from the corner values.
-              When Gouraud shading is used, *edgecolors* is ignored.
+              The dimensions of *X* and *Y* must be the same as *C*. When
+              Gouraud shading is used, *edgecolors* is ignored.
+            - 'auto': Choose 'flat' if diemnsions of *X* and *Y* are one
+              larger than *C*.  Choose 'nearest' if dimensions are the same.
+
+            See :doc:`/gallery/images_contours_and_fields/pcolormesh_grids`
+            for more description.
 
         snap : bool, default: False
             Whether to snap the mesh to pixel boundaries.
@@ -6080,12 +6156,13 @@ default: :rc:`scatter.edgecolors`
         `~.Axes.pcolormesh`, which is not available with `~.Axes.pcolor`.
 
         """
+        if shading is None:
+            shading = rcParams['pcolor.shading']
         shading = shading.lower()
         kwargs.setdefault('edgecolors', 'None')
 
-        allmatch = (shading == 'gouraud')
-
-        X, Y, C = self._pcolorargs('pcolormesh', *args, allmatch=allmatch)
+        X, Y, C, shading = self._pcolorargs('pcolormesh', *args,
+                                            shading=shading)
         Ny, Nx = X.shape
         X = X.ravel()
         Y = Y.ravel()
