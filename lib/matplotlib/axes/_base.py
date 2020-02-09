@@ -2436,14 +2436,25 @@ class _AxesBase(martist.Artist):
         if tight is not None:
             self._tight = bool(tight)
 
-        if self.use_sticky_edges and (
-                (self._xmargin and scalex and self._autoscaleXon) or
-                (self._ymargin and scaley and self._autoscaleYon)):
-            stickies = [artist.sticky_edges for artist in self.get_children()]
-        else:  # Small optimization.
-            stickies = []
-        x_stickies = np.sort([x for sticky in stickies for x in sticky.x])
-        y_stickies = np.sort([y for sticky in stickies for y in sticky.y])
+        x_stickies = y_stickies = np.array([])
+        if self.use_sticky_edges:
+            # Only iterate over axes and artists if needed.  The check for
+            # ``hasattr(ax, "lines")`` is necessary because this can be called
+            # very early in the axes init process (e.g., for twin axes) when
+            # these attributes don't even exist yet, in which case
+            # `get_children` would raise an AttributeError.
+            if self._xmargin and scalex and self._autoscaleXon:
+                x_stickies = np.sort(np.concatenate([
+                    artist.sticky_edges.x
+                    for ax in self._shared_x_axes.get_siblings(self)
+                    if hasattr(ax, "lines")
+                    for artist in ax.get_children()]))
+            if self._ymargin and scaley and self._autoscaleYon:
+                y_stickies = np.sort(np.concatenate([
+                    artist.sticky_edges.y
+                    for ax in self._shared_y_axes.get_siblings(self)
+                    if hasattr(ax, "lines")
+                    for artist in ax.get_children()]))
         if self.get_xscale().lower() == 'log':
             x_stickies = x_stickies[x_stickies > 0]
         if self.get_yscale().lower() == 'log':
