@@ -1,7 +1,8 @@
 from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
-from matplotlib.scale import (Log10Transform, InvertedLog10Transform,
-                              SymmetricalLogTransform)
+from matplotlib.scale import (
+    LogTransform, Log10Transform, InvertedLog10Transform,
+    SymmetricalLogTransform)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 import numpy as np
@@ -88,7 +89,7 @@ def test_log_scatter():
 
 def test_logscale_subs():
     fig, ax = plt.subplots()
-    ax.set_yscale('log', subsy=np.array([2, 3, 4]))
+    ax.set_yscale('log', subs=np.array([2, 3, 4]))
     # force draw
     fig.canvas.draw()
 
@@ -108,16 +109,14 @@ def test_logscale_mask():
 def test_extra_kwargs_raise_or_warn():
     fig, ax = plt.subplots()
 
-    # with pytest.raises(TypeError):
     with pytest.warns(MatplotlibDeprecationWarning):
-        ax.set_yscale('linear', nonpos='mask')
+        ax.set_yscale('linear', foo='mask')
 
     with pytest.raises(TypeError):
-        ax.set_yscale('log', nonpos='mask')
+        ax.set_yscale('log', foo='mask')
 
-    # with pytest.raises(TypeError):
     with pytest.warns(MatplotlibDeprecationWarning):
-        ax.set_yscale('symlog', nonpos='mask')
+        ax.set_yscale('symlog', foo='mask')
 
 
 def test_logscale_invert_transform():
@@ -134,11 +133,8 @@ def test_logscale_invert_transform():
 def test_logscale_transform_repr():
     fig, ax = plt.subplots()
     ax.set_yscale('log')
-    repr(ax.transData)  # check that repr of log transform succeeds
-
-    # check that repr of log transform succeeds
-    with pytest.warns(MatplotlibDeprecationWarning):
-        repr(Log10Transform(nonpos='clip'))
+    repr(ax.transData)
+    repr(LogTransform(10, nonpositive='clip'))
 
 
 @image_comparison(['logscale_nonpos_values.png'],
@@ -150,7 +146,7 @@ def test_logscale_nonpos_values():
     ax1.hist(xs, range=(-5, 5), bins=10)
     ax1.set_yscale('log')
     ax2.hist(xs, range=(-5, 5), bins=10)
-    ax2.set_yscale('log', nonposy='mask')
+    ax2.set_yscale('log', nonpositive='mask')
 
     xdata = np.arange(0, 10, 0.01)
     ydata = np.exp(-xdata)

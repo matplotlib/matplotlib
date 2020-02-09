@@ -27,7 +27,7 @@ plt.ylabel('symlogy')
 plt.subplot(313)
 plt.plot(x, np.sin(x / 3.0))
 plt.xscale('symlog')
-plt.yscale('symlog', linthreshy=0.015)
+plt.yscale('symlog', linthresh=0.015)
 plt.grid(True)
 plt.ylabel('symlog both')
 

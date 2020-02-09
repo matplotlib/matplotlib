@@ -184,3 +184,18 @@ Debian 8 (2015, EOL 06/2020) and Ubuntu 14.04 (EOL 04/2019) were the
 last versions of Debian and Ubuntu to ship avconv.  It remains possible
 to force the use of avconv by using the ffmpeg-based writers with
 :rc:`animation.ffmpeg_path` set to "avconv".
+
+log/symlog scale base, ticks, and nonpos specification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`~.Axes.semilogx`, `~.Axes.semilogy`, `~.Axes.loglog`, `.LogScale`, and
+`.SymmetricalLogScale` used to take keyword arguments that depends on the axis
+orientation ("basex" vs "basey", "subsx" vs "subsy", "nonposx" vs "nonposy");
+these parameter names are now deprecated in favor of "base", "subs",
+"nonpositive".  This deprecation also affects e.g. ``ax.set_yscale("log",
+basey=...)`` which must now be spelled ``ax.set_yscale("log", base=...)``.
+
+The change from "nonpos" to "nonpositive" also affects `~.scale.LogTransform`,
+`~.scale.InvertedLogTransform`, `~.scale.SymmetricalLogTransform`, etc.
+
+To use *different* bases for the x-axis and y-axis of a `~.Axes.loglog` plot,
+use e.g. ``ax.set_xscale("log", base=10); ax.set_yscale("log", base=2)``.
