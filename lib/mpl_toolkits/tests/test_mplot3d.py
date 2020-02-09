@@ -809,13 +809,11 @@ class TestVoxels:
             ax.voxels(x, y, z, filled=filled, **kw)
 
         # duplicate argument
-        with pytest.raises(TypeError) as exc:
+        with pytest.raises(TypeError, match='voxels'):
             ax.voxels(x, y, z, filled, filled=filled)
-        exc.match(".*voxels.*")
         # missing arguments
-        with pytest.raises(TypeError) as exc:
+        with pytest.raises(TypeError, match='voxels'):
             ax.voxels(x, y)
-        exc.match(".*voxels.*")
         # x, y, z are positional only - this passes them on as attributes of
         # Poly3DCollection
         with pytest.raises(AttributeError):
