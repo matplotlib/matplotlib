@@ -421,7 +421,6 @@ class ColorbarBase:
             ticklocation=ticklocation)
         cbook._check_in_list(
             ['uniform', 'proportional'], spacing=spacing)
-
         self.ax = ax
         self._patch_ax()
         if cmap is None:
@@ -803,7 +802,7 @@ class ColorbarBase:
                   alpha=self.alpha,
                   edgecolors='None')
         _log.debug('Setting pcolormesh')
-        col = self.ax.pcolormesh(*args, **kw)
+        col = self.ax.pcolormesh(*args, **kw, shading='flat')
         # self.add_observer(col) # We should observe, not be observed...
 
         if self.solids is not None:
