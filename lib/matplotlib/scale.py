@@ -314,7 +314,7 @@ class LogTransform(Transform):
         return InvertedLogTransform(self.base)
 
 
-class InvertedLogTransform(InvertedLogTransformBase):
+class InvertedLogTransform(Transform):
     input_dims = output_dims = 1
 
     def __init__(self, base):
