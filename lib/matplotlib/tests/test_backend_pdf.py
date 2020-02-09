@@ -2,7 +2,7 @@ import io
 import os
 from pathlib import Path
 import sys
-import tempfile
+from tempfile import NamedTemporaryFile
 
 import numpy as np
 import pytest
@@ -74,8 +74,6 @@ def test_multipage_properfinalize():
 
 
 def test_multipage_keep_empty():
-    from matplotlib.backends.backend_pdf import PdfPages
-    from tempfile import NamedTemporaryFile
     # test empty pdf files
     # test that an empty pdf is left behind with keep_empty=True (default)
     with NamedTemporaryFile(delete=False) as tmp:
@@ -168,7 +166,7 @@ def test_missing_psfont(monkeypatch):
     rcParams['text.usetex'] = True
     fig, ax = plt.subplots()
     ax.text(0.5, 0.5, 'hello')
-    with tempfile.TemporaryFile() as tmpfile, pytest.raises(ValueError):
+    with NamedTemporaryFile() as tmpfile, pytest.raises(ValueError):
         fig.savefig(tmpfile, format='pdf')
 
 

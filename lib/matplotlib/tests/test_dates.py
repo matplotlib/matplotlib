@@ -299,14 +299,8 @@ def test_empty_date_with_year_formatter():
     # update: I am no longer believe this is a bug, as I commented on
     # the tracker.  The question is now: what to do with this test
 
-    import matplotlib.dates as dates
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
-    yearFmt = dates.DateFormatter('%Y')
-    ax.xaxis.set_major_formatter(yearFmt)
-
+    fig, ax = plt.subplots()
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
     with pytest.raises(ValueError):
         fig.canvas.draw()
 

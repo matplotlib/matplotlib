@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 import matplotlib
+import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
 from matplotlib import mathtext
@@ -195,10 +196,8 @@ def test_mathfont_rendering(baseline_images, fontset, index, test, recwarn):
 
 
 def test_fontinfo():
-    import matplotlib.font_manager as font_manager
-    import matplotlib.ft2font as ft2font
-    fontpath = font_manager.findfont("DejaVu Sans")
-    font = ft2font.FT2Font(fontpath)
+    fontpath = mpl.font_manager.findfont("DejaVu Sans")
+    font = mpl.ft2font.FT2Font(fontpath)
     table = font.get_sfnt_table("head")
     assert table['version'] == (1, 0)
 

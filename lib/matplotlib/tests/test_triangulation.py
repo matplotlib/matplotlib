@@ -4,6 +4,7 @@ from numpy.testing import (
 import numpy.ma.testutils as matest
 import pytest
 
+import matplotlib as mpl
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
@@ -951,8 +952,7 @@ def meshgrid_triangles(n):
 
 def test_triplot_return():
     # Check that triplot returns the artists it adds
-    from matplotlib.figure import Figure
-    ax = Figure().add_axes([0.1, 0.1, 0.7, 0.7])
+    ax = plt.figure().add_subplot()
     triang = mtri.Triangulation(
         [0.0, 1.0, 0.0, 1.0], [0.0, 0.0, 1.0, 1.0],
         triangles=[[0, 1, 3], [3, 2, 0]])
@@ -1031,39 +1031,38 @@ def test_tricontourf_decreasing_levels():
 
 def test_internal_cpp_api():
     # Following github issue 8197.
-    import matplotlib._tri as _tri
 
     # C++ Triangulation.
     with pytest.raises(TypeError) as excinfo:
-        triang = _tri.Triangulation()
+        mpl._tri.Triangulation()
     excinfo.match(r'function takes exactly 7 arguments \(0 given\)')
 
     with pytest.raises(ValueError) as excinfo:
-        triang = _tri.Triangulation([], [1], [[]], None, None, None, False)
+        mpl._tri.Triangulation([], [1], [[]], None, None, None, False)
     excinfo.match(r'x and y must be 1D arrays of the same length')
 
     x = [0, 1, 1]
     y = [0, 0, 1]
     with pytest.raises(ValueError) as excinfo:
-        triang = _tri.Triangulation(x, y, [[0, 1]], None, None, None, False)
+        mpl._tri.Triangulation(x, y, [[0, 1]], None, None, None, False)
     excinfo.match(r'triangles must be a 2D array of shape \(\?,3\)')
 
     tris = [[0, 1, 2]]
     with pytest.raises(ValueError) as excinfo:
-        triang = _tri.Triangulation(x, y, tris, [0, 1], None, None, False)
+        mpl._tri.Triangulation(x, y, tris, [0, 1], None, None, False)
     excinfo.match(r'mask must be a 1D array with the same length as the ' +
                   r'triangles array')
 
     with pytest.raises(ValueError) as excinfo:
-        triang = _tri.Triangulation(x, y, tris, None, [[1]], None, False)
+        mpl._tri.Triangulation(x, y, tris, None, [[1]], None, False)
     excinfo.match(r'edges must be a 2D array with shape \(\?,2\)')
 
     with pytest.raises(ValueError) as excinfo:
-        triang = _tri.Triangulation(x, y, tris, None, None, [[-1]], False)
+        mpl._tri.Triangulation(x, y, tris, None, None, [[-1]], False)
     excinfo.match(r'neighbors must be a 2D array with the same shape as the ' +
                   r'triangles array')
 
-    triang = _tri.Triangulation(x, y, tris, None, None, None, False)
+    triang = mpl._tri.Triangulation(x, y, tris, None, None, None, False)
 
     with pytest.raises(ValueError) as excinfo:
         triang.calculate_plane_coefficients([])
@@ -1077,16 +1076,16 @@ def test_internal_cpp_api():
 
     # C++ TriContourGenerator.
     with pytest.raises(TypeError) as excinfo:
-        tcg = _tri.TriContourGenerator()
+        tcg = mpl._tri.TriContourGenerator()
     excinfo.match(r'function takes exactly 2 arguments \(0 given\)')
 
     with pytest.raises(ValueError) as excinfo:
-        tcg = _tri.TriContourGenerator(triang, [1])
+        tcg = mpl._tri.TriContourGenerator(triang, [1])
     excinfo.match(r'z must be a 1D array with the same length as the x and ' +
                   r'y arrays')
 
     z = [0, 1, 2]
-    tcg = _tri.TriContourGenerator(triang, z)
+    tcg = mpl._tri.TriContourGenerator(triang, z)
 
     with pytest.raises(ValueError) as excinfo:
         tcg.create_filled_contour(1, 0)
@@ -1094,10 +1093,10 @@ def test_internal_cpp_api():
 
     # C++ TrapezoidMapTriFinder.
     with pytest.raises(TypeError) as excinfo:
-        trifinder = _tri.TrapezoidMapTriFinder()
+        trifinder = mpl._tri.TrapezoidMapTriFinder()
     excinfo.match(r'function takes exactly 1 argument \(0 given\)')
 
-    trifinder = _tri.TrapezoidMapTriFinder(triang)
+    trifinder = mpl._tri.TrapezoidMapTriFinder(triang)
 
     with pytest.raises(ValueError) as excinfo:
         trifinder.find_many([0], [0, 1])

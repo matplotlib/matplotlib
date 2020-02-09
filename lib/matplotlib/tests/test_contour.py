@@ -2,9 +2,10 @@ import datetime
 import re
 
 import numpy as np
+from numpy.testing import assert_array_almost_equal
+import matplotlib as mpl
 from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot as plt
-from numpy.testing import assert_array_almost_equal
 from matplotlib.colors import LogNorm
 import pytest
 
@@ -264,15 +265,13 @@ def test_contourf_symmetric_locator():
      'If mask is set it must be a 2D array with the same dimensions as x.'),
 ])
 def test_internal_cpp_api(args, cls, message):  # Github issue 8197.
-    import matplotlib._contour as _contour
     with pytest.raises(cls, match=re.escape(message)):
-        _contour.QuadContourGenerator(*args)
+        mpl._contour.QuadContourGenerator(*args)
 
 
 def test_internal_cpp_api_2():
-    import matplotlib._contour as _contour
     arr = [[0, 1], [2, 3]]
-    qcg = _contour.QuadContourGenerator(arr, arr, arr, None, True, 0)
+    qcg = mpl._contour.QuadContourGenerator(arr, arr, arr, None, True, 0)
     with pytest.raises(
             ValueError, match=r'filled contour levels must be increasing'):
         qcg.create_filled_contour(1, 0)

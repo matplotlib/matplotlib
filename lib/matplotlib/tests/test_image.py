@@ -444,8 +444,6 @@ def test_image_clip():
 
 @image_comparison(['image_cliprect'], style='mpl20')
 def test_image_cliprect():
-    import matplotlib.patches as patches
-
     fig, ax = plt.subplots()
     d = [[1, 2], [3, 4]]
 
@@ -504,14 +502,12 @@ def test_no_interpolation_origin():
 
 @image_comparison(['image_shift'], remove_text=True, extensions=['pdf', 'svg'])
 def test_image_shift():
-    from matplotlib.colors import LogNorm
-
     imgData = [[1 / x + 1 / y for x in range(1, 100)] for y in range(1, 100)]
     tMin = 734717.945208
     tMax = 734717.946366
 
     fig, ax = plt.subplots()
-    ax.imshow(imgData, norm=LogNorm(), interpolation='none',
+    ax.imshow(imgData, norm=colors.LogNorm(), interpolation='none',
               extent=(tMin, tMax, 1, 100))
     ax.set_aspect('auto')
 

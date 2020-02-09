@@ -5,7 +5,7 @@ import platform
 
 import datetime
 
-import dateutil.tz as dutz
+import dateutil.tz
 
 import numpy as np
 from numpy import ma
@@ -498,8 +498,7 @@ def test_polar_coord_annotations():
     # native coordinate system ('data') is cartesian, so you need to
     # specify the xycoords and textcoords as 'polar' if you want to
     # use (theta, radius)
-    from matplotlib.patches import Ellipse
-    el = Ellipse((0, 0), 10, 20, facecolor='r', alpha=0.5)
+    el = mpatches.Ellipse((0, 0), 10, 20, facecolor='r', alpha=0.5)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, aspect='equal')
@@ -548,12 +547,11 @@ def test_polar_alignment():
 
 @image_comparison(['fill_units.png'], savefig_kwarg={'dpi': 60})
 def test_fill_units():
-    from datetime import datetime
     import matplotlib.testing.jpl_units as units
     units.register()
 
     # generate some data
-    t = units.Epoch("ET", dt=datetime(2009, 4, 27))
+    t = units.Epoch("ET", dt=datetime.datetime(2009, 4, 27))
     value = 10.0 * units.deg
     day = units.Duration("ET", 24.0 * 60.0 * 60.0)
 
@@ -854,13 +852,12 @@ def test_aitoff_proj():
 
 @image_comparison(['axvspan_epoch'])
 def test_axvspan_epoch():
-    from datetime import datetime
     import matplotlib.testing.jpl_units as units
     units.register()
 
     # generate some data
-    t0 = units.Epoch("ET", dt=datetime(2009, 1, 20))
-    tf = units.Epoch("ET", dt=datetime(2009, 1, 21))
+    t0 = units.Epoch("ET", dt=datetime.datetime(2009, 1, 20))
+    tf = units.Epoch("ET", dt=datetime.datetime(2009, 1, 21))
     dt = units.Duration("ET", units.day.convert("sec"))
 
     ax = plt.gca()
@@ -870,13 +867,12 @@ def test_axvspan_epoch():
 
 @image_comparison(['axhspan_epoch'])
 def test_axhspan_epoch():
-    from datetime import datetime
     import matplotlib.testing.jpl_units as units
     units.register()
 
     # generate some data
-    t0 = units.Epoch("ET", dt=datetime(2009, 1, 20))
-    tf = units.Epoch("ET", dt=datetime(2009, 1, 21))
+    t0 = units.Epoch("ET", dt=datetime.datetime(2009, 1, 20))
+    tf = units.Epoch("ET", dt=datetime.datetime(2009, 1, 21))
     dt = units.Duration("ET", units.day.convert("sec"))
 
     ax = plt.gca()
@@ -1013,11 +1009,10 @@ def test_imshow_clip():
 
     c = ax.contour(r, [N/4])
     x = c.collections[0]
-    clipPath = x.get_paths()[0]
-    clipTransform = x.get_transform()
+    clip_path = x.get_paths()[0]
+    clip_transform = x.get_transform()
 
-    from matplotlib.transforms import TransformedPath
-    clip_path = TransformedPath(clipPath, clipTransform)
+    clip_path = mtransforms.TransformedPath(clip_path, clip_transform)
 
     # Plot the image clipped by the contour
     ax.imshow(r, clip_path=clip_path)
@@ -1039,12 +1034,9 @@ def test_imshow_norm_vminvmax(fig_test, fig_ref):
 @image_comparison(['polycollection_joinstyle'], remove_text=True)
 def test_polycollection_joinstyle():
     # Bug #2890979 reported by Matthew West
-
-    from matplotlib import collections as mcoll
-
     fig, ax = plt.subplots()
     verts = np.array([[1, 1], [1, 2], [2, 2], [2, 1]])
-    c = mcoll.PolyCollection([verts], linewidths=40)
+    c = mpl.collections.PolyCollection([verts], linewidths=40)
     ax.add_collection(c)
     ax.set_xbound(0, 3)
     ax.set_ybound(0, 3)
@@ -1308,7 +1300,6 @@ def test_canonical():
 
 @image_comparison(['arc_angles.png'], remove_text=True, style='default')
 def test_arc_angles():
-    from matplotlib import patches
     # Ellipse parameters
     w = 2
     h = 1
@@ -1320,8 +1311,8 @@ def test_arc_angles():
         theta2 = i * 360 / 9
         theta1 = theta2 - 45
 
-        ax.add_patch(patches.Ellipse(centre, w, h, alpha=0.3))
-        ax.add_patch(patches.Arc(centre, w, h, theta1=theta1, theta2=theta2))
+        ax.add_patch(mpatches.Ellipse(centre, w, h, alpha=0.3))
+        ax.add_patch(mpatches.Arc(centre, w, h, theta1=theta1, theta2=theta2))
         # Straight lines intersecting start and end of arc
         ax.plot([scale * np.cos(np.deg2rad(theta1)) + centre[0],
                  centre[0],
@@ -1343,7 +1334,6 @@ def test_arc_angles():
 
 @image_comparison(['arc_ellipse'], remove_text=True)
 def test_arc_ellipse():
-    from matplotlib import patches
     xcenter, ycenter = 0.38, 0.52
     width, height = 1e-1, 3e-1
     angle = -30
@@ -1366,15 +1356,15 @@ def test_arc_ellipse():
     ax.fill(x, y, alpha=0.2, facecolor='yellow', edgecolor='yellow',
             linewidth=1, zorder=1)
 
-    e1 = patches.Arc((xcenter, ycenter), width, height,
-                     angle=angle, linewidth=2, fill=False, zorder=2)
+    e1 = mpatches.Arc((xcenter, ycenter), width, height,
+                      angle=angle, linewidth=2, fill=False, zorder=2)
 
     ax.add_patch(e1)
 
     ax = fig.add_subplot(212, aspect='equal')
     ax.fill(x, y, alpha=0.2, facecolor='green', edgecolor='green', zorder=1)
-    e2 = patches.Arc((xcenter, ycenter), width, height,
-                     angle=angle, linewidth=2, fill=False, zorder=2)
+    e2 = mpatches.Arc((xcenter, ycenter), width, height,
+                      angle=angle, linewidth=2, fill=False, zorder=2)
 
     ax.add_patch(e2)
 
@@ -2093,10 +2083,7 @@ class TestScatter:
         def get_next_color():
             return 'blue'  # currently unused
 
-        from matplotlib.axes import Axes
-
         xsize = 4
-
         # Additional checking of *c* (introduced in #11383).
         REGEXP = {
             "shape": "^'c' argument has [0-9]+ elements",  # shape mismatch
@@ -2104,12 +2091,12 @@ class TestScatter:
             }
 
         if re_key is None:
-            Axes._parse_scatter_color_args(
+            mpl.axes.Axes._parse_scatter_color_args(
                 c=c_case, edgecolors="black", kwargs={}, xsize=xsize,
                 get_next_color_func=get_next_color)
         else:
             with pytest.raises(ValueError, match=REGEXP[re_key]):
-                Axes._parse_scatter_color_args(
+                mpl.axes.Axes._parse_scatter_color_args(
                     c=c_case, edgecolors="black", kwargs={}, xsize=xsize,
                     get_next_color_func=get_next_color)
 
@@ -2137,8 +2124,7 @@ def test_parse_scatter_color_args(params, expected_result):
     def get_next_color():
         return 'blue'  # currently unused
 
-    from matplotlib.axes import Axes
-    c, colors, _edgecolors = Axes._parse_scatter_color_args(
+    c, colors, _edgecolors = mpl.axes.Axes._parse_scatter_color_args(
         *params, get_next_color_func=get_next_color)
     assert c == expected_result.c
     assert_allclose(colors, expected_result.colors)
@@ -2164,19 +2150,17 @@ def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
     def get_next_color():
         return 'blue'  # currently unused
 
-    from matplotlib.axes import Axes
     c = kwargs.pop('c', None)
     edgecolors = kwargs.pop('edgecolors', None)
     _, _, result_edgecolors = \
-        Axes._parse_scatter_color_args(c, edgecolors, kwargs, xsize=2,
-                                       get_next_color_func=get_next_color)
+        mpl.axes.Axes._parse_scatter_color_args(
+            c, edgecolors, kwargs, xsize=2, get_next_color_func=get_next_color)
     assert result_edgecolors == expected_edgecolors
 
 
 def test_as_mpl_axes_api():
     # tests the _as_mpl_axes api
     from matplotlib.projections.polar import PolarAxes
-    import matplotlib.axes as maxes
 
     class Polar:
         def __init__(self):
@@ -2200,7 +2184,7 @@ def test_as_mpl_axes_api():
 
     # testing axes creation with gca
     ax = plt.gca(projection=prj)
-    assert type(ax) == maxes._subplots.subplot_class_factory(PolarAxes)
+    assert type(ax) == mpl.axes._subplots.subplot_class_factory(PolarAxes)
     ax_via_gca = plt.gca(projection=prj)
     assert ax_via_gca is ax
     # try getting the axes given a different polar projection
@@ -2221,7 +2205,7 @@ def test_as_mpl_axes_api():
 
     # testing axes creation with subplot
     ax = plt.subplot(121, projection=prj)
-    assert type(ax) == maxes._subplots.subplot_class_factory(PolarAxes)
+    assert type(ax) == mpl.axes._subplots.subplot_class_factory(PolarAxes)
     plt.close()
 
 
@@ -3324,14 +3308,10 @@ def test_stem_args():
 
 def test_stem_dates():
     fig, ax = plt.subplots(1, 1)
-    from dateutil import parser
-    x = parser.parse("2013-9-28 11:00:00")
-    y = 100
-
-    x1 = parser.parse("2013-9-28 12:00:00")
-    y1 = 200
-
-    ax.stem([x, x1], [y, y1], "*-", use_line_collection=True)
+    xs = [dateutil.parser.parse("2013-9-28 11:00:00"),
+          dateutil.parser.parse("2013-9-28 12:00:00")]
+    ys = [100, 200]
+    ax.stem(xs, ys, "*-", use_line_collection=True)
 
 
 @image_comparison(['hist_stacked_stepfilled_alpha'])
@@ -3977,22 +3957,19 @@ def test_step_linestyle():
 
 @image_comparison(['mixed_collection'], remove_text=True)
 def test_mixed_collection():
-    from matplotlib import patches
-    from matplotlib import collections
-
     # First illustrate basic pyplot interface, using defaults where possible.
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
 
-    c = patches.Circle((8, 8), radius=4, facecolor='none', edgecolor='green')
+    c = mpatches.Circle((8, 8), radius=4, facecolor='none', edgecolor='green')
 
     # PDF can optimize this one
-    p1 = collections.PatchCollection([c], match_original=True)
+    p1 = mpl.collections.PatchCollection([c], match_original=True)
     p1.set_offsets([[0, 0], [24, 24]])
     p1.set_linewidths([1, 5])
 
     # PDF can't optimize this one, because the alpha of the edge changes
-    p2 = collections.PatchCollection([c], match_original=True)
+    p2 = mpl.collections.PatchCollection([c], match_original=True)
     p2.set_offsets([[48, 0], [-32, -16]])
     p2.set_linewidths([1, 5])
     p2.set_edgecolors([[0, 0, 0.1, 1.0], [0, 0, 0.1, 0.5]])
@@ -5960,7 +5937,7 @@ def test_bar_uint8():
 def test_date_timezone_x():
     # Tests issue 5575
     time_index = [datetime.datetime(2016, 2, 22, hour=x,
-                                    tzinfo=dutz.gettz('Canada/Eastern'))
+                                    tzinfo=dateutil.tz.gettz('Canada/Eastern'))
                   for x in range(3)]
 
     # Same Timezone
@@ -5977,7 +5954,7 @@ def test_date_timezone_x():
 def test_date_timezone_y():
     # Tests issue 5575
     time_index = [datetime.datetime(2016, 2, 22, hour=x,
-                                    tzinfo=dutz.gettz('Canada/Eastern'))
+                                    tzinfo=dateutil.tz.gettz('Canada/Eastern'))
                   for x in range(3)]
 
     # Same Timezone
@@ -6416,9 +6393,6 @@ def test_spines_properbbox_after_zoom():
 
 
 def test_cartopy_backcompat():
-    import matplotlib
-    import matplotlib.axes
-    import matplotlib.axes._subplots
 
     class Dummy(matplotlib.axes.Axes):
         ...
