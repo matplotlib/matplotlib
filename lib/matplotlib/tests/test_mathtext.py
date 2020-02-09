@@ -93,7 +93,7 @@ math_tests = [
     r'$\operatorname{cos} x$',  # github issue #553
     r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}P\left(i,j\right)$',
     r"$\left\Vert a \right\Vert \left\vert b \right\vert \left| a \right| \left\| b\right\| \Vert a \Vert \vert b \vert$",
-    r'$\mathring{A}  \stackrel{\circ}{A}  \AA$',
+    r'$\mathring{A}  \AA$',
     r'$M \, M \thinspace M \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$',
     r'$\Cup$ $\Cap$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$',
     r'$\dotplus$ $\doteq$ $\doteqdot$ $\ddots$',

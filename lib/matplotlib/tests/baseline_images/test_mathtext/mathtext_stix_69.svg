@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.org/) -->
+<!-- Created with matplotlib (https://matplotlib.org/) -->
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -18,8 +18,29 @@ z
 " style="fill:#ffffff;"/>
   </g>
   <g id="text_1">
-   <!-- $\mathring{A}  \stackrel{\circ}{A}  \AA$ -->
+   <!-- $\mathring{A}  \AA$ -->
    <defs>
+    <path d="M 23.203125 38.703125 
+Q 31 30.796875 31 25.1875 
+Q 31 19.59375 27.046875 15.640625 
+Q 23.09375 11.703125 17.5 11.703125 
+Q 11.796875 11.703125 7.890625 15.640625 
+Q 4 19.59375 4 25.40625 
+Q 4 31 7.953125 34.84375 
+Q 11.90625 38.703125 17.703125 38.703125 
+Q 23.203125 38.703125 31 30.796875 
+z
+M 20.40625 18.296875 
+Q 24.40625 22.296875 24.40625 25.1875 
+Q 24.40625 28.09375 22.40625 30.09375 
+Q 20.40625 32.09375 17.703125 32.09375 
+Q 14.59375 32.09375 12.59375 30.140625 
+Q 10.59375 28.203125 10.59375 25.40625 
+Q 10.59375 22.296875 12.546875 20.296875 
+Q 14.5 18.296875 17.5 18.296875 
+Q 20.40625 18.296875 24.40625 22.296875 
+z
+" id="STIXGeneral-Regular-8728"/>
     <path d="M 56.40625 0 
 L 31.90625 0 
 L 31.90625 1.59375 
@@ -46,26 +67,7 @@ M 36.90625 26.203125
 L 32.40625 52.5 
 L 17.5 26.203125 
 z
-" id="STIXGeneral-Italic-41"/>
-    <path d="M 23.203125 38.703125 
-Q 31 30.796875 31 25.1875 
-Q 31 19.59375 27.046875 15.640625 
-Q 23.09375 11.703125 17.5 11.703125 
-Q 11.796875 11.703125 7.890625 15.640625 
-Q 4 19.59375 4 25.40625 
-Q 4 31 7.953125 34.84375 
-Q 11.90625 38.703125 17.703125 38.703125 
-Q 23.203125 38.703125 31 30.796875 
-M 20.40625 18.296875 
-Q 24.40625 22.296875 24.40625 25.1875 
-Q 24.40625 28.09375 22.40625 30.09375 
-Q 20.40625 32.09375 17.703125 32.09375 
-Q 14.59375 32.09375 12.59375 30.140625 
-Q 10.59375 28.203125 10.59375 25.40625 
-Q 10.59375 22.296875 12.546875 20.296875 
-Q 14.5 18.296875 17.5 18.296875 
-Q 20.40625 18.296875 24.40625 22.296875 
-" id="STIXGeneral-Regular-2218"/>
+" id="STIXGeneral-Italic-65"/>
     <path d="M 56.40625 0 
 L 31.90625 0 
 L 31.90625 1.59375 
@@ -101,6 +103,7 @@ Q 30.5 81.59375 30.5 85.796875
 Q 30.5 89.796875 33.453125 92.75 
 Q 36.40625 95.703125 40.40625 95.703125 
 Q 44.59375 95.703125 50.5 89.796875 
+z
 M 43.296875 79.203125 
 Q 47.09375 82.90625 47.09375 85.703125 
 Q 47.09375 88.5 45.140625 90.390625 
@@ -110,14 +113,13 @@ Q 33.90625 88.40625 33.90625 85.796875
 Q 33.90625 83 35.75 81.09375 
 Q 37.59375 79.203125 40.40625 79.203125 
 Q 43.296875 79.203125 47.09375 82.90625 
-" id="STIXGeneral-Italic-c5"/>
+z
+" id="STIXGeneral-Italic-197"/>
    </defs>
-   <g transform="translate(178.320000 30.300000)scale(0.120000 -0.120000)">
-    <use transform="translate(29.306248 73.859375)scale(0.490000)" xlink:href="#STIXGeneral-Regular-2218"/>
-    <use transform="translate(0.000000 0.296875)" xlink:href="#STIXGeneral-Italic-41"/>
-    <use transform="translate(70.099991 31.843750)scale(0.700000)" xlink:href="#STIXGeneral-Regular-2218"/>
-    <use transform="translate(61.099991 -39.914062)scale(0.700000)" xlink:href="#STIXGeneral-Italic-41"/>
-    <use transform="translate(116.369984 0.296875)" xlink:href="#STIXGeneral-Italic-c5"/>
+   <g transform="translate(181.62 30.31125)scale(0.12 -0.12)">
+    <use transform="translate(29.306248 73.859375)scale(0.49)" xlink:href="#STIXGeneral-Regular-8728"/>
+    <use transform="translate(0 0.296875)" xlink:href="#STIXGeneral-Italic-65"/>
+    <use transform="translate(61.099991 0.296875)" xlink:href="#STIXGeneral-Italic-197"/>
    </g>
   </g>
  </g>

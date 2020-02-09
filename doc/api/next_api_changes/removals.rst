@@ -135,3 +135,8 @@ rcParams
 Environment variables
 ~~~~~~~~~~~~~~~~~~~~~
 - ``MATPLOTLIBDATA`` (no replacement).
+
+mathtext
+~~~~~~~~
+- The ``\stackrel`` command (which behaved differently from its LaTeX version)
+  has been removed.  Use ``\genfrac`` instead.
