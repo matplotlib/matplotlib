@@ -279,16 +279,17 @@ class InvertedNaturalLogTransform(InvertedLogTransformBase):
 class LogTransform(Transform):
     input_dims = output_dims = 1
 
-    def __init__(self, base, nonpos='clip'):
+    @cbook._rename_parameter("3.3", "nonpos", "nonpositive")
+    def __init__(self, base, nonpositive='clip'):
         Transform.__init__(self)
         if base <= 0 or base == 1:
             raise ValueError('The log base cannot be <= 0 or == 1')
         self.base = base
         self._clip = cbook._check_getitem(
-            {"clip": True, "mask": False}, nonpos=nonpos)
+            {"clip": True, "mask": False}, nonpositive=nonpositive)
 
     def __str__(self):
-        return "{}(base={}, nonpos={!r})".format(
+        return "{}(base={}, nonpositive={!r})".format(
             type(self).__name__, self.base, "clip" if self._clip else "mask")
 
     def transform_non_affine(self, a):
@@ -367,7 +368,7 @@ class LogScale(ScaleBase):
             The axis for the scale.
         base : float, default: 10
             The base of the logarithm.
-        nonpos : {'clip', 'mask'}, default: 'clip'
+        nonpositive : {'clip', 'mask'}, default: 'clip'
             Determines the behavior for non-positive values. They can either
             be masked as invalid, or clipped to a very small positive number.
         subs : sequence of int, default: None
@@ -376,18 +377,18 @@ class LogScale(ScaleBase):
             logarithmically spaced minor ticks between each major tick.
         """
         # After the deprecation, the whole (outer) __init__ can be replaced by
-        # def __init__(self, axis, *, base=10, subs=None, nonpos="clip"): ...
+        # def __init__(self, axis, *, base=10, subs=None, nonpositive="clip")
         # The following is to emit the right warnings depending on the axis
         # used, as the *old* kwarg names depended on the axis.
         axis_name = getattr(axis, "axis_name", "x")
         @cbook._rename_parameter("3.3", f"base{axis_name}", "base")
         @cbook._rename_parameter("3.3", f"subs{axis_name}", "subs")
-        @cbook._rename_parameter("3.3", f"nonpos{axis_name}", "nonpos")
-        def __init__(*, base=10, subs=None, nonpos="clip"):
-            return base, subs, nonpos
+        @cbook._rename_parameter("3.3", f"nonpos{axis_name}", "nonpositive")
+        def __init__(*, base=10, subs=None, nonpositive="clip"):
+            return base, subs, nonpositive
 
-        base, subs, nonpos = __init__(**kwargs)
-        self._transform = LogTransform(base, nonpos)
+        base, subs, nonpositive = __init__(**kwargs)
+        self._transform = LogTransform(base, nonpositive)
         self.subs = subs
 
     base = property(lambda self: self._transform.base)
@@ -598,11 +599,12 @@ class SymmetricalLogScale(ScaleBase):
 class LogitTransform(Transform):
     input_dims = output_dims = 1
 
-    def __init__(self, nonpos='mask'):
+    @cbook._rename_parameter("3.3", "nonpos", "nonpositive")
+    def __init__(self, nonpositive='mask'):
         Transform.__init__(self)
-        cbook._check_in_list(['mask', 'clip'], nonpos=nonpos)
-        self._nonpos = nonpos
-        self._clip = {"clip": True, "mask": False}[nonpos]
+        cbook._check_in_list(['mask', 'clip'], nonpositive=nonpositive)
+        self._nonpositive = nonpositive
+        self._clip = {"clip": True, "mask": False}[nonpositive]
 
     def transform_non_affine(self, a):
         """logit transform (base 10), masked or clipped"""
@@ -614,28 +616,29 @@ class LogitTransform(Transform):
         return out
 
     def inverted(self):
-        return LogisticTransform(self._nonpos)
+        return LogisticTransform(self._nonpositive)
 
     def __str__(self):
-        return "{}({!r})".format(type(self).__name__, self._nonpos)
+        return "{}({!r})".format(type(self).__name__, self._nonpositive)
 
 
 class LogisticTransform(Transform):
     input_dims = output_dims = 1
 
-    def __init__(self, nonpos='mask'):
+    @cbook._rename_parameter("3.3", "nonpos", "nonpositive")
+    def __init__(self, nonpositive='mask'):
         Transform.__init__(self)
-        self._nonpos = nonpos
+        self._nonpositive = nonpositive
 
     def transform_non_affine(self, a):
         """logistic transform (base 10)"""
         return 1.0 / (1 + 10**(-a))
 
     def inverted(self):
-        return LogitTransform(self._nonpos)
+        return LogitTransform(self._nonpositive)
 
     def __str__(self):
-        return "{}({!r})".format(type(self).__name__, self._nonpos)
+        return "{}({!r})".format(type(self).__name__, self._nonpositive)
 
 
 class LogitScale(ScaleBase):
@@ -647,20 +650,15 @@ class LogitScale(ScaleBase):
     """
     name = 'logit'
 
-    def __init__(
-        self,
-        axis,
-        nonpos='mask',
-        *,
-        one_half=r"\frac{1}{2}",
-        use_overline=False,
-    ):
+    @cbook._rename_parameter("3.3", "nonpos", "nonpositive")
+    def __init__(self, axis, nonpositive='mask', *,
+                 one_half=r"\frac{1}{2}", use_overline=False):
         r"""
         Parameters
         ----------
         axis : `matplotlib.axis.Axis`
             Currently unused.
-        nonpos : {'mask', 'clip'}
+        nonpositive : {'mask', 'clip'}
             Determines the behavior for values beyond the open interval ]0, 1[.
             They can either be masked as invalid, or clipped to a number very
             close to 0 or 1.
@@ -670,7 +668,7 @@ class LogitScale(ScaleBase):
         one_half : str, default: r"\frac{1}{2}"
             The string used for ticks formatter to represent 1/2.
         """
-        self._transform = LogitTransform(nonpos)
+        self._transform = LogitTransform(nonpositive)
         self._use_overline = use_overline
         self._one_half = one_half
 

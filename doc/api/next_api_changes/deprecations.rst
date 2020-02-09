@@ -189,10 +189,13 @@ log/symlog scale base, ticks, and nonpos specification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 `~.Axes.semilogx`, `~.Axes.semilogy`, `~.Axes.loglog`, `.LogScale`, and
 `.SymmetricalLogScale` used to take keyword arguments that depends on the axis
-orientation ("basex" vs "basey", "nonposx" vs "nonposy"); these parameter names
-are now deprecated in favor of "base", "nonpos", etc.  This deprecation also
-affects e.g. ``ax.set_yscale("log", basey=...)`` which must now be spelled
-``ax.set_yscale("log", base=...)``.
+orientation ("basex" vs "basey", "subsx" vs "subsy", "nonposx" vs "nonposy");
+these parameter names are now deprecated in favor of "base", "subs",
+"nonpositive".  This deprecation also affects e.g. ``ax.set_yscale("log",
+basey=...)`` which must now be spelled ``ax.set_yscale("log", base=...)``.
+
+The change from "nonpos" to "nonpositive" also affects `~.scale.LogTransform`,
+`~.scale.InvertedLogTransform`, `~.scale.SymmetricalLogTransform`, etc.
 
 To use *different* bases for the x-axis and y-axis of a `~.Axes.loglog` plot,
 use e.g. ``ax.set_xscale("log", base=10); ax.set_yscale("log", base=2)``.

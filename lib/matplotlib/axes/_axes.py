@@ -1766,7 +1766,7 @@ class Axes(_AxesBase):
         both the x-axis and the y-axis to log scaling. All of the concepts and
         parameters of plot can be used here as well.
 
-        The additional parameters *base*, *subs* and *nonpos* control the
+        The additional parameters *base*, *subs* and *nonpositive* control the
         x/y-axis properties. They are just forwarded to `.Axes.set_xscale` and
         `.Axes.set_yscale`. To use different properties on the x-axis and the
         y-axis, use e.g.
@@ -1782,7 +1782,7 @@ class Axes(_AxesBase):
             are automatically chosen depending on the number of decades in the
             plot. See `.Axes.set_xscale`/`.Axes.set_yscale` for details.
 
-        nonpos : {'mask', 'clip'}, default: 'mask'
+        nonpositive : {'mask', 'clip'}, default: 'mask'
             Non-positive values can be masked as invalid, or clipped to a very
             small positive number.
 
@@ -1797,10 +1797,12 @@ class Axes(_AxesBase):
             All parameters supported by `.plot`.
         """
         dx = {k: v for k, v in kwargs.items()
-              if k in ['base', 'subs', 'nonpos', 'basex', 'subsx', 'nonposx']}
+              if k in ['base', 'subs', 'nonpositive',
+                       'basex', 'subsx', 'nonposx']}
         self.set_xscale('log', **dx)
         dy = {k: v for k, v in kwargs.items()
-              if k in ['base', 'subs', 'nonpos', 'basey', 'subsy', 'nonposy']}
+              if k in ['base', 'subs', 'nonpositive',
+                       'basey', 'subsy', 'nonposy']}
         self.set_yscale('log', **dy)
         return self.plot(
             *args, **{k: v for k, v in kwargs.items() if k not in {*dx, *dy}})
@@ -1820,7 +1822,7 @@ class Axes(_AxesBase):
         the x-axis to log scaling. All of the concepts and parameters of plot
         can be used here as well.
 
-        The additional parameters *base*, *subs*, and *nonpos* control the
+        The additional parameters *base*, *subs*, and *nonpositive* control the
         x-axis properties. They are just forwarded to `.Axes.set_xscale`.
 
         Parameters
@@ -1833,7 +1835,7 @@ class Axes(_AxesBase):
             are automatically chosen depending on the number of decades in the
             plot. See `.Axes.set_xscale` for details.
 
-        nonpos : {'mask', 'clip'}, default: 'mask'
+        nonpositive : {'mask', 'clip'}, default: 'mask'
             Non-positive values in x can be masked as invalid, or clipped to a
             very small positive number.
 
@@ -1848,7 +1850,8 @@ class Axes(_AxesBase):
             All parameters supported by `.plot`.
         """
         d = {k: v for k, v in kwargs.items()
-             if k in ['base', 'subs', 'nonpos', 'basex', 'subsx', 'nonposx']}
+             if k in ['base', 'subs', 'nonpositive',
+                      'basex', 'subsx', 'nonposx']}
         self.set_xscale('log', **d)
         return self.plot(
             *args, **{k: v for k, v in kwargs.items() if k not in d})
@@ -1868,7 +1871,7 @@ class Axes(_AxesBase):
         the y-axis to log scaling. All of the concepts and parameters of plot
         can be used here as well.
 
-        The additional parameters *base*, *subs*, and *nonpos* control the
+        The additional parameters *base*, *subs*, and *nonpositive* control the
         y-axis properties. They are just forwarded to `.Axes.set_yscale`.
 
         Parameters
@@ -1881,7 +1884,7 @@ class Axes(_AxesBase):
             are automatically chosen depending on the number of decades in the
             plot. See `.Axes.set_yscale` for details.
 
-        nonpos : {'mask', 'clip'}, default: 'mask'
+        nonpositive : {'mask', 'clip'}, default: 'mask'
             Non-positive values in y can be masked as invalid, or clipped to a
             very small positive number.
 
@@ -1896,7 +1899,8 @@ class Axes(_AxesBase):
             All parameters supported by `.plot`.
         """
         d = {k: v for k, v in kwargs.items()
-             if k in ['base', 'subs', 'nonpos', 'basey', 'subsy', 'nonposy']}
+             if k in ['base', 'subs', 'nonpositive',
+                      'basey', 'subsy', 'nonposy']}
         self.set_yscale('log', **d)
         return self.plot(
             *args, **{k: v for k, v in kwargs.items() if k not in d})
@@ -2340,11 +2344,11 @@ class Axes(_AxesBase):
         if orientation == 'vertical':
             self._process_unit_info(xdata=x, ydata=height, kwargs=kwargs)
             if log:
-                self.set_yscale('log', nonpos='clip')
+                self.set_yscale('log', nonpositive='clip')
         elif orientation == 'horizontal':
             self._process_unit_info(xdata=width, ydata=y, kwargs=kwargs)
             if log:
-                self.set_xscale('log', nonpos='clip')
+                self.set_xscale('log', nonpositive='clip')
 
         # lets do some conversions now since some types cannot be
         # subtracted uniformly
@@ -6712,9 +6716,9 @@ default: :rc:`scatter.edgecolors`
 
             if log:
                 if orientation == 'horizontal':
-                    self.set_xscale('log', nonpos='clip')
+                    self.set_xscale('log', nonpositive='clip')
                 else:  # orientation == 'vertical'
-                    self.set_yscale('log', nonpos='clip')
+                    self.set_yscale('log', nonpositive='clip')
 
             if align == 'left':
                 x -= 0.5*(bins[1]-bins[0])

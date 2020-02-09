@@ -5683,15 +5683,15 @@ def test_loglog_nonpos(new_api):
         if new_api:
             if mcx == mcy:
                 if mcx:
-                    ax.loglog(x, y**3, lw=2, nonpos=mcx)
+                    ax.loglog(x, y**3, lw=2, nonpositive=mcx)
                 else:
                     ax.loglog(x, y**3, lw=2)
             else:
                 ax.loglog(x, y**3, lw=2)
                 if mcx:
-                    ax.set_xscale("log", nonpos=mcx)
+                    ax.set_xscale("log", nonpositive=mcx)
                 if mcy:
-                    ax.set_yscale("log", nonpos=mcy)
+                    ax.set_yscale("log", nonpositive=mcy)
         else:
             kws = {}
             if mcx:

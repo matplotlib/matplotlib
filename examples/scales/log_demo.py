@@ -36,8 +36,8 @@ ax3.grid()
 x = 10.0**np.linspace(0.0, 2.0, 20)
 y = x**2.0
 
-ax4.set_xscale("log", nonpos='clip')
-ax4.set_yscale("log", nonpos='clip')
+ax4.set_xscale("log", nonpositive='clip')
+ax4.set_yscale("log", nonpositive='clip')
 ax4.set(title='Errorbars go negative')
 ax4.errorbar(x, y, xerr=0.1 * x, yerr=5.0 + 0.75 * y)
 # ylim must be set after errorbar to allow errorbar to autoscale limits
