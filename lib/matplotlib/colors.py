@@ -140,18 +140,7 @@ def is_color_like(c):
 
 
 def same_color(c1, c2):
-    """
-    Compare two colors to see if they are the same.
-
-    Parameters
-    ----------
-    c1, c2 : Matplotlib colors
-
-    Returns
-    -------
-    bool
-        ``True`` if *c1* and *c2* are the same color, otherwise ``False``.
-    """
+    """Return whether the colors *c1* and *c2* are the same."""
     return (to_rgba_array(c1) == to_rgba_array(c2)).all()
 
 
@@ -192,7 +181,8 @@ def to_rgba(c, alpha=None):
 
 
 def _to_rgba_no_colorcycle(c, alpha=None):
-    """Convert *c* to an RGBA color, with no support for color-cycle syntax.
+    """
+    Convert *c* to an RGBA color, with no support for color-cycle syntax.
 
     If *alpha* is not ``None``, it forces the alpha value, except if *c* is
     ``"none"`` (case-insensitive), which always maps to ``(0, 0, 0, 0)``.
@@ -281,7 +271,8 @@ def _to_rgba_no_colorcycle(c, alpha=None):
 
 
 def to_rgba_array(c, alpha=None):
-    """Convert *c* to a (n, 4) array of RGBA colors.
+    """
+    Convert *c* to a (n, 4) array of RGBA colors.
 
     If *alpha* is not ``None``, it forces the alpha value.  If *c* is
     ``"none"`` (case-insensitive) or an empty list, an empty array is returned.
@@ -388,7 +379,8 @@ colorConverter = ColorConverter()
 
 
 def _create_lookup_table(N, data, gamma=1.0):
-    r"""Create an *N* -element 1-d lookup table.
+    r"""
+    Create an *N* -element 1-d lookup table.
 
     This assumes a mapping :math:`f : [0, 1] \rightarrow [0, 1]`. The returned
     data is an array of N values :math:`y = f(x)` where x is sampled from
@@ -602,8 +594,6 @@ class Colormap:
         return rgba
 
     def __copy__(self):
-        """Create new object with the same class, update attributes
-        """
         cls = self.__class__
         cmapobject = cls.__new__(cls)
         cmapobject.__dict__.update(self.__dict__)
@@ -612,8 +602,7 @@ class Colormap:
         return cmapobject
 
     def set_bad(self, color='k', alpha=None):
-        """Set color to be used for masked values.
-        """
+        """Set the color for masked values."""
         self._rgba_bad = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
@@ -656,16 +645,14 @@ class Colormap:
                 np.all(self._lut[:, 0] == self._lut[:, 2]))
 
     def _resample(self, lutsize):
-        """
-        Return a new color map with *lutsize* entries.
-        """
+        """Return a new color map with *lutsize* entries."""
         raise NotImplementedError()
 
     def reversed(self, name=None):
         """
-        Make a reversed instance of the Colormap.
+        Return a reversed instance of the Colormap.
 
-        .. note:: Function not implemented for base class.
+        .. note:: This function is not implemented for base class.
 
         Parameters
         ----------
@@ -758,23 +745,29 @@ class LinearSegmentedColormap(Colormap):
         self._set_extremes()
 
     def set_gamma(self, gamma):
-        """
-        Set a new gamma value and regenerate color map.
-        """
+        """Set a new gamma value and regenerate color map."""
         self._gamma = gamma
         self._init()
 
     @staticmethod
     def from_list(name, colors, N=256, gamma=1.0):
         """
-        Make a linear segmented colormap with *name* from a sequence
-        of *colors* which evenly transitions from colors[0] at val=0
-        to colors[-1] at val=1.  *N* is the number of rgb quantization
-        levels.
-        Alternatively, a list of (value, color) tuples can be given
-        to divide the range unevenly.
-        """
+        Create a `LinearSegmentedColormap` from a list of colors.
 
+        Parameters
+        ----------
+        name : str
+            The name of the colormap.
+        colors : array-like of colors or array-like of (value, color)
+            If only colors are given, they are equidistantly mapped from the
+            range :math:`[0, 1]`; i.e. 0 maps to ``colors[0]`` and 1 maps to
+            ``colors[-1]``.
+            If (value, color) pairs are given, the mapping is from *value*
+            to *color*. This can be used to divide the range unevenly.
+        N : int
+            The number of rgb quantization levels.
+        gamma : float
+        """
         if not np.iterable(colors):
             raise ValueError('colors must be iterable')
 
@@ -796,9 +789,7 @@ class LinearSegmentedColormap(Colormap):
         return LinearSegmentedColormap(name, cdict, N, gamma)
 
     def _resample(self, lutsize):
-        """
-        Return a new color map with *lutsize* entries.
-        """
+        """Return a new color map with *lutsize* entries."""
         return LinearSegmentedColormap(self.name, self._segmentdata, lutsize)
 
     # Helper ensuring picklability of the reversed cmap.
@@ -808,7 +799,7 @@ class LinearSegmentedColormap(Colormap):
 
     def reversed(self, name=None):
         """
-        Make a reversed instance of the Colormap.
+        Return a reversed instance of the Colormap.
 
         Parameters
         ----------
@@ -892,15 +883,13 @@ class ListedColormap(Colormap):
         self._set_extremes()
 
     def _resample(self, lutsize):
-        """
-        Return a new color map with *lutsize* entries.
-        """
+        """Return a new color map with *lutsize* entries."""
         colors = self(np.linspace(0, 1, lutsize))
         return ListedColormap(colors, name=self.name)
 
     def reversed(self, name=None):
         """
-        Make a reversed instance of the Colormap.
+        Return a reversed instance of the Colormap.
 
         Parameters
         ----------
@@ -929,8 +918,8 @@ class Normalize:
         """
         Parameters
         ----------
-        vmin : scalar
-        vmax : scalar
+        vmin : float
+        vmax : float
         clip : bool
             If ``True`` values falling outside the range ``[vmin, vmax]``,
             are mapped to 0 or 1, whichever is closer, and masked values are
