@@ -1101,12 +1101,10 @@ class AnchoredOffsetbox(OffsetBox):
 
         if prop is None:
             self.prop = FontProperties(size=rcParams["legend.fontsize"])
-        elif isinstance(prop, dict):
-            self.prop = FontProperties(**prop)
-            if "size" not in prop:
-                self.prop.set_size(rcParams["legend.fontsize"])
         else:
-            self.prop = prop
+            self.prop = FontProperties._from_any(prop)
+            if isinstance(prop, dict) and "size" not in prop:
+                self.prop.set_size(rcParams["legend.fontsize"])
 
         self.patch = FancyBboxPatch(
             xy=(0.0, 0.0), width=1., height=1.,

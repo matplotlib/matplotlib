@@ -364,12 +364,10 @@ class Legend(Artist):
                 self.prop = FontProperties(size=fontsize)
             else:
                 self.prop = FontProperties(size=rcParams["legend.fontsize"])
-        elif isinstance(prop, dict):
-            self.prop = FontProperties(**prop)
-            if "size" not in prop:
-                self.prop.set_size(rcParams["legend.fontsize"])
         else:
-            self.prop = prop
+            self.prop = FontProperties._from_any(prop)
+            if isinstance(prop, dict) and "size" not in prop:
+                self.prop.set_size(rcParams["legend.fontsize"])
 
         self._fontsize = self.prop.get_size_in_points()
 
@@ -876,8 +874,6 @@ class Legend(Artist):
             self._legend_title_box.set_visible(False)
 
         if prop is not None:
-            if isinstance(prop, dict):
-                prop = FontProperties(**prop)
             self._legend_title_box._text.set_fontproperties(prop)
 
         self.stale = True
