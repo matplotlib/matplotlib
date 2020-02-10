@@ -475,12 +475,6 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # See `jupyter-matplotlib <https://github.com/matplotlib/jupyter-matplotlib>`__
 # for more details.
 #
-# GTK and Cairo
-# ^^^^^^^^^^^^^
-#
-# ``GTK3`` backends (*both* ``GTK3Agg`` and ``GTK3Cairo``) depend on Cairo
-# (pycairo>=1.11.0 or cairocffi).
-#
 # .. _QT_API-usage:
 #
 # How do I select PyQt4 or PySide?
