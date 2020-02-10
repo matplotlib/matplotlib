@@ -378,7 +378,6 @@ def test_colorbar_get_ticks():
     data = np.arange(1200).reshape(30, 40)
     levels = [0, 200, 400, 600, 800, 1000, 1200]
 
-    plt.subplot()
     plt.contourf(data, levels=levels)
 
     # testing getter for user set ticks
