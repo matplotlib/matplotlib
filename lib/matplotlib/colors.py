@@ -1202,8 +1202,8 @@ class SymLogNorm(Normalize):
     *linthresh* allows the user to specify the size of this range
     (-*linthresh*, *linthresh*).
     """
-    def __init__(self, linthresh, linscale=1.0,
-                 vmin=None, vmax=None, clip=False):
+    def __init__(self, linthresh, linscale=1.0, vmin=None, vmax=None,
+                 clip=False, base=None):
         """
         Parameters
         ----------
@@ -1213,14 +1213,29 @@ class SymLogNorm(Normalize):
         linscale : float, default: 1
             This allows the linear range (-*linthresh* to *linthresh*) to be
             stretched relative to the logarithmic range. Its value is the
-            number of decades to use for each half of the linear range. For
-            example, when *linscale* == 1.0 (the default), the space used for
-            the positive and negative halves of the linear range will be equal
-            to one decade in the logarithmic range.
+            number of powers of *base* (decades for base 10) to use for each
+            half of the linear range. For example, when *linscale* == 1.0
+            (the default), the space used for the positive and negative halves
+            of the linear range will be equal to a decade in the logarithmic
+            range if ``base=10``.
+        base : float, default: None
+            For v3.2 the default is the old value of ``np.e``, but that is
+            deprecated for v3.3 when base will default to 10.  During the
+            transition, specify the *base* kwarg to avoid a deprecation
+            warning.
         """
         Normalize.__init__(self, vmin, vmax, clip)
+        if base is None:
+            self._base = np.e
+            cbook.warn_deprecated("3.3", message="default base will change "
+                "from np.e to 10.  To suppress this warning specify the base "
+                "kwarg.")
+        else:
+            self._base = base
+        self._log_base = np.log(self._base)
+
         self.linthresh = float(linthresh)
-        self._linscale_adj = (linscale / (1.0 - np.e ** -1))
+        self._linscale_adj = (linscale / (1.0 - self._base ** -1))
         if vmin is not None and vmax is not None:
             self._transform_vmin_vmax()
 
@@ -1255,7 +1270,8 @@ class SymLogNorm(Normalize):
         with np.errstate(invalid="ignore"):
             masked = np.abs(a) > self.linthresh
         sign = np.sign(a[masked])
-        log = (self._linscale_adj + np.log(np.abs(a[masked]) / self.linthresh))
+        log = (self._linscale_adj +
+               np.log(np.abs(a[masked]) / self.linthresh) / self._log_base)
         log *= sign * self.linthresh
         a[masked] = log
         a[~masked] *= self._linscale_adj
@@ -1265,7 +1281,8 @@ class SymLogNorm(Normalize):
         """Inverse inplace Transformation."""
         masked = np.abs(a) > (self.linthresh * self._linscale_adj)
         sign = np.sign(a[masked])
-        exp = np.exp(sign * a[masked] / self.linthresh - self._linscale_adj)
+        exp = np.power(self._base,
+                       sign * a[masked] / self.linthresh - self._linscale_adj)
         exp *= sign * self.linthresh
         a[masked] = exp
         a[~masked] /= self._linscale_adj
