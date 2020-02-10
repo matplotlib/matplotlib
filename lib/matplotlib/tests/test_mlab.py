@@ -1214,90 +1214,48 @@ class TestSpectral:
             del fstimst[-1]
             spect[maxind-5:maxind+5] = 0
 
-    @pytest.mark.parametrize(  # Modes that require `x is y`.
-        'mode', ['complex', 'magnitude', 'angle', 'phase'])
-    def test_spectral_helper_mode_requires_x_is_y(self, mode):
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y+1, mode=mode)
-
-    def test_spectral_helper_raises_unknown_mode(self):
-        # test that unknown value for mode cannot be used
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, mode='spam')
-
-    def test_spectral_helper_raises_unknown_sides(self):
-        # test that unknown value for sides cannot be used
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y, sides='eggs')
-
-    def test_spectral_helper_raises_noverlap_gt_NFFT(self):
-        # test that noverlap cannot be larger than NFFT
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y, NFFT=10, noverlap=20)
-
-    def test_spectral_helper_raises_noverlap_eq_NFFT(self):
-        # test that noverlap cannot be equal to NFFT
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, NFFT=10, noverlap=10)
-
-    def test_spectral_helper_raises_winlen_ne_NFFT(self):
-        # test that the window length cannot be different from NFFT
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y, NFFT=10,
-                                  window=np.ones(9))
+    def test_spectral_helper_raises(self):
+        # We don't use parametrize here to handle ``y = self.y``.
+        for kwargs in [  # Various error conditions:
+            {"y": self.y+1, "mode": "complex"},  # Modes requiring ``x is y``.
+            {"y": self.y+1, "mode": "magnitude"},
+            {"y": self.y+1, "mode": "angle"},
+            {"y": self.y+1, "mode": "phase"},
+            {"mode": "spam"},  # Bad mode.
+            {"y": self.y, "sides": "eggs"},  # Bad sides.
+            {"NFFT": 10, "noverlap": 20},  # noverlap > NFFT.
+            {"y": self.y, "NFFT": 10, "noverlap": 20},  # noverlap == NFFT.
+            {"y": self.y, "NFFT": 10,
+             "window": np.ones(9)},  # len(win) != NFFT.
+        ]:
+            with pytest.raises(ValueError):
+                mlab._spectral_helper(x=self.y, **kwargs)
 
     @pytest.mark.parametrize('mode', ['default', 'psd'])
     def test_single_spectrum_helper_unsupported_modes(self, mode):
         with pytest.raises(ValueError):
             mlab._single_spectrum_helper(x=self.y, mode=mode)
 
-    def test_spectral_helper_psd(self):
-        freqs = self.freqs_density
-        spec, fsp, t = mlab._spectral_helper(x=self.y, y=self.y,
-                                             NFFT=self.NFFT_density,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_density,
-                                             pad_to=self.pad_to_density,
-                                             sides=self.sides,
-                                             mode='psd')
+    @pytest.mark.parametrize("mode, case", [
+        ("psd", "density"),
+        ("magnitude", "specgram"),
+        ("magnitude", "spectrum"),
+    ])
+    def test_spectral_helper_psd(self, mode, case):
+        freqs = getattr(self, f"freqs_{case}")
+        spec, fsp, t = mlab._spectral_helper(
+            x=self.y, y=self.y,
+            NFFT=getattr(self, f"NFFT_{case}"),
+            Fs=self.Fs,
+            noverlap=getattr(self, f"nover_{case}"),
+            pad_to=getattr(self, f"pad_to_{case}"),
+            sides=self.sides,
+            mode=mode)
 
         assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_density, atol=1e-06)
-
+        assert_allclose(t, getattr(self, f"t_{case}"), atol=1e-06)
         assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-
-    def test_spectral_helper_magnitude_specgram(self):
-        freqs = self.freqs_specgram
-        spec, fsp, t = mlab._spectral_helper(x=self.y, y=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='magnitude')
-
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_specgram, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-
-    def test_spectral_helper_magnitude_magnitude_spectrum(self):
-        freqs = self.freqs_spectrum
-        spec, fsp, t = mlab._spectral_helper(x=self.y, y=self.y,
-                                             NFFT=self.NFFT_spectrum,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_spectrum,
-                                             pad_to=self.pad_to_spectrum,
-                                             sides=self.sides,
-                                             mode='magnitude')
-
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_spectrum, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == 1
+        assert spec.shape[1] == getattr(self, f"t_{case}").shape[0]
 
     def test_csd(self):
         freqs = self.freqs_density
@@ -1508,42 +1466,17 @@ class TestSpectral:
                         spec_n/self.Fs*win.sum()**2,
                         atol=1e-08)
 
-    def test_complex_spectrum(self):
+    @pytest.mark.parametrize(
+        "kind", ["complex", "magnitude", "angle", "phase"])
+    def test_spectrum(self, kind):
         freqs = self.freqs_spectrum
-        spec, fsp = mlab.complex_spectrum(x=self.y,
-                                          Fs=self.Fs,
-                                          sides=self.sides,
-                                          pad_to=self.pad_to_spectrum)
+        spec, fsp = getattr(mlab, f"{kind}_spectrum")(
+            x=self.y,
+            Fs=self.Fs, sides=self.sides, pad_to=self.pad_to_spectrum)
         assert_allclose(fsp, freqs, atol=1e-06)
         assert spec.shape == freqs.shape
-
-    def test_magnitude_spectrum(self):
-        freqs = self.freqs_spectrum
-        spec, fsp = mlab.magnitude_spectrum(x=self.y,
-                                            Fs=self.Fs,
-                                            sides=self.sides,
-                                            pad_to=self.pad_to_spectrum)
-        assert spec.shape == freqs.shape
-        self.check_maxfreq(spec, fsp, self.fstims)
-        self.check_freqs(spec, freqs, fsp, self.fstims)
-
-    def test_angle_spectrum(self):
-        freqs = self.freqs_spectrum
-        spec, fsp = mlab.angle_spectrum(x=self.y,
-                                        Fs=self.Fs,
-                                        sides=self.sides,
-                                        pad_to=self.pad_to_spectrum)
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert spec.shape == freqs.shape
-
-    def test_phase_spectrum(self):
-        freqs = self.freqs_spectrum
-        spec, fsp = mlab.phase_spectrum(x=self.y,
-                                        Fs=self.Fs,
-                                        sides=self.sides,
-                                        pad_to=self.pad_to_spectrum)
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert spec.shape == freqs.shape
+        if kind == "magnitude":
+            self.check_maxfreq(spec, fsp, self.fstims)
 
     @pytest.mark.parametrize(
         'kwargs',
@@ -1598,7 +1531,8 @@ class TestSpectral:
         assert_array_almost_equal_nulp(Pxx, Pxy)
         assert_array_equal(freqsxx, freqsxy)
 
-    def test_specgram_auto_default_equal(self):
+    @pytest.mark.parametrize("mode", ["default", "psd"])
+    def test_specgram_auto_default_psd_equal(self, mode):
         """
         Test that mlab.specgram without mode and with mode 'default' and 'psd'
         are all the same.
@@ -1615,34 +1549,18 @@ class TestSpectral:
                                              noverlap=self.nover_specgram,
                                              pad_to=self.pad_to_specgram,
                                              sides=self.sides,
-                                             mode='default')
+                                             mode=mode)
         assert_array_equal(speca, specb)
         assert_array_equal(freqspeca, freqspecb)
         assert_array_equal(ta, tb)
 
-    def test_specgram_auto_psd_equal(self):
-        """
-        Test that mlab.specgram without mode and with mode 'default' and 'psd'
-        are all the same.
-        """
-        speca, freqspeca, ta = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides)
-        specc, freqspecc, tc = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='psd')
-        assert_array_equal(speca, specc)
-        assert_array_equal(freqspeca, freqspecc)
-        assert_array_equal(ta, tc)
-
-    def test_specgram_complex_mag_equivalent(self):
+    @pytest.mark.parametrize(
+        "mode, conv", [
+            ("magnitude", np.abs),
+            ("angle", np.angle),
+            ("phase", lambda x: np.unwrap(np.angle(x), axis=0))
+        ])
+    def test_specgram_complex_equivalent(self, mode, conv):
         specc, freqspecc, tc = mlab.specgram(x=self.y,
                                              NFFT=self.NFFT_specgram,
                                              Fs=self.Fs,
@@ -1656,73 +1574,11 @@ class TestSpectral:
                                              noverlap=self.nover_specgram,
                                              pad_to=self.pad_to_specgram,
                                              sides=self.sides,
-                                             mode='magnitude')
+                                             mode=mode)
 
         assert_array_equal(freqspecc, freqspecm)
         assert_array_equal(tc, tm)
-        assert_allclose(np.abs(specc), specm, atol=1e-06)
-
-    def test_specgram_complex_angle_equivalent(self):
-        specc, freqspecc, tc = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='complex')
-        speca, freqspeca, ta = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='angle')
-
-        assert_array_equal(freqspecc, freqspeca)
-        assert_array_equal(tc, ta)
-        assert_allclose(np.angle(specc), speca, atol=1e-06)
-
-    def test_specgram_complex_phase_equivalent(self):
-        specc, freqspecc, tc = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='complex')
-        specp, freqspecp, tp = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='phase')
-
-        assert_array_equal(freqspecc, freqspecp)
-        assert_array_equal(tc, tp)
-        assert_allclose(np.unwrap(np.angle(specc), axis=0), specp,
-                        atol=1e-06)
-
-    def test_specgram_angle_phase_equivalent(self):
-        speca, freqspeca, ta = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='angle')
-        specp, freqspecp, tp = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='phase')
-
-        assert_array_equal(freqspeca, freqspecp)
-        assert_array_equal(ta, tp)
-        assert_allclose(np.unwrap(speca, axis=0), specp,
-                        atol=1e-06)
+        assert_allclose(conv(specc), specm, atol=1e-06)
 
     def test_psd_windowarray_equal(self):
         win = mlab.window_hanning(np.ones(self.NFFT_density_real))
