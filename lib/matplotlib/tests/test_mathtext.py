@@ -254,9 +254,8 @@ def test_fontinfo():
 def test_mathtext_exceptions(math, msg):
     parser = mathtext.MathTextParser('agg')
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError, match=re.escape(msg)):
         parser.parse(math)
-    excinfo.match(re.escape(msg))
 
 
 def test_single_minus_sign():

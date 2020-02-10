@@ -44,9 +44,8 @@ def test_PsfontsMap(monkeypatch):
     entry = fontmap[b'TeXfont9']
     assert entry.filename == b'/absolute/font9.pfb'
     # Missing font
-    with pytest.raises(KeyError) as exc:
+    with pytest.raises(KeyError, match='no-such-font'):
         fontmap[b'no-such-font']
-    assert 'no-such-font' in str(exc.value)
 
 
 @pytest.mark.skipif(shutil.which("kpsewhich") is None,
