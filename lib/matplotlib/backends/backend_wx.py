@@ -86,11 +86,6 @@ class TimerWx(TimerBase):
     """
 
     def __init__(self, *args, **kwargs):
-        if args and isinstance(args[0], wx.EvtHandler):
-            cbook.warn_deprecated(
-                "3.0", message="Passing a wx.EvtHandler as first argument to "
-                "the TimerWx constructor is deprecated since %(since)s.")
-            args = args[1:]
         TimerBase.__init__(self, *args, **kwargs)
         self._timer = wx.Timer()
         self._timer.Notify = self._on_timer
@@ -468,6 +463,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
     """
 
     required_interactive_framework = "wx"
+    _timer_cls = TimerWx
 
     keyvald = {
         wx.WXK_CONTROL: 'control',
@@ -597,10 +593,6 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         # until later. The platform will send the event when it thinks it is
         # a good time (usually as soon as there are no other events pending).
         self.Refresh(eraseBackground=False)
-
-    def new_timer(self, *args, **kwargs):
-        # docstring inherited
-        return TimerWx(*args, **kwargs)
 
     def flush_events(self):
         # docstring inherited

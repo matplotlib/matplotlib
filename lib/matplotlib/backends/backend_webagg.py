@@ -48,14 +48,12 @@ webagg_server_thread = ServerThread()
 
 
 class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
+    _timer_cls = TimerTornado
+
     def show(self):
         # show the figure window
         global show  # placates pyflakes: created by @_Backend.export below
         show()
-
-    def new_timer(self, *args, **kwargs):
-        # docstring inherited
-        return TimerTornado(*args, **kwargs)
 
 
 class WebAggApplication(tornado.web.Application):

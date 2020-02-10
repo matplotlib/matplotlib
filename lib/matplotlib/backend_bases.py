@@ -1057,6 +1057,7 @@ class TimerBase:
         timer events. This list can be manipulated directly, or the
         functions `add_callback` and `remove_callback` can be used.
     """
+
     def __init__(self, interval=None, callbacks=None):
         #Initialize empty callbacks list and setup default settings if necssary
         if callbacks is None:
@@ -2222,15 +2223,19 @@ class FigureCanvasBase:
         """
         return self.callbacks.disconnect(cid)
 
-    def new_timer(self, *args, **kwargs):
+    # Internal subclasses can override _timer_cls instead of new_timer, though
+    # this is not a public API for third-party subclasses.
+    _timer_cls = TimerBase
+
+    def new_timer(self, interval=None, callbacks=None):
         """
         Create a new backend-specific subclass of `.Timer`.
 
         This is useful for getting periodic events through the backend's native
         event loop.  Implemented only for backends with GUIs.
 
-        Other Parameters
-        ----------------
+        Parameters
+        ----------
         interval : int
             Timer interval in milliseconds.
 
@@ -2243,9 +2248,9 @@ class FigureCanvasBase:
 
         Examples
         --------
-        >>> timer = fig.canvas.new_timer(callbacks=[(f1, (1, ), {'a': 3}),])
+        >>> timer = fig.canvas.new_timer(callbacks=[(f1, (1,), {'a': 3})])
         """
-        return TimerBase(*args, **kwargs)
+        return self._timer_cls(interval=interval, callbacks=callbacks)
 
     def flush_events(self):
         """

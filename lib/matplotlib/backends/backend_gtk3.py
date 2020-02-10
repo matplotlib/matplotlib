@@ -98,6 +98,7 @@ class TimerGTK3(TimerBase):
 
 class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
     required_interactive_framework = "gtk3"
+    _timer_cls = TimerGTK3
 
     keyvald = {65507: 'control',
                65505: 'shift',
@@ -304,10 +305,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
                 self._idle_draw_id = 0
             return False
         self._idle_draw_id = GLib.idle_add(idle_draw)
-
-    def new_timer(self, *args, **kwargs):
-        # docstring inherited
-        return TimerGTK3(*args, **kwargs)
 
     def flush_events(self):
         # docstring inherited

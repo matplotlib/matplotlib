@@ -1401,8 +1401,7 @@ class TimedAnimation(Animation):
         # If we're not given an event source, create a new timer. This permits
         # sharing timers between animation objects for syncing animations.
         if event_source is None:
-            event_source = fig.canvas.new_timer()
-            event_source.interval = self._interval
+            event_source = fig.canvas.new_timer(interval=self._interval)
         Animation.__init__(self, fig, event_source=event_source,
                            *args, **kwargs)
 

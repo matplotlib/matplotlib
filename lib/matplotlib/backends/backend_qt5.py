@@ -215,6 +215,7 @@ class TimerQT(TimerBase):
 
 class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     required_interactive_framework = "qt5"
+    _timer_cls = TimerQT
 
     # map Qt button codes to MouseEvent's ones:
     buttond = {QtCore.Qt.LeftButton: MouseButton.LEFT,
@@ -433,10 +434,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
         mods.reverse()
         return '+'.join(mods + [key])
-
-    def new_timer(self, *args, **kwargs):
-        # docstring inherited
-        return TimerQT(*args, **kwargs)
 
     def flush_events(self):
         # docstring inherited
