@@ -120,15 +120,19 @@ lowergreek = ("\\alpha \\beta \\gamma \\delta \\epsilon \\zeta \\eta \\theta \\i
               "\\phi \\chi \\psi")
 all = [digits, uppercase, lowercase, uppergreek, lowergreek]
 
+# Use stubs to reserve space if tests are removed
+# stub should be of the form (None, N) where is the number of
+# strings that used to be tested
+# Add new tests at the end.
 font_test_specs = [
     ([], all),
     (['mathrm'], all),
     (['mathbf'], all),
     (['mathit'], all),
     (['mathtt'], [digits, uppercase, lowercase]),
-    (['mathcircled'], [digits, uppercase, lowercase]),
-    (['mathrm', 'mathcircled'], [digits, uppercase, lowercase]),
-    (['mathbf', 'mathcircled'], [digits, uppercase, lowercase]),
+    (None, 3),
+    (None, 3),
+    (None, 3),
     (['mathbb'], [digits, uppercase, lowercase,
                   r'\Gamma \Pi \Sigma \gamma \pi']),
     (['mathrm', 'mathbb'], [digits, uppercase, lowercase,
@@ -146,16 +150,21 @@ font_test_specs = [
 
 font_tests = []
 for fonts, chars in font_test_specs:
-    wrapper = ''.join([
-        ' '.join(fonts),
-        ' $',
-        *(r'\%s{' % font for font in fonts),
-        '%s',
-        *('}' for font in fonts),
-        '$',
-    ])
-    for set in chars:
-        font_tests.append(wrapper % set)
+    if fonts is None:
+        font_tests.extend([None] * chars)
+    else:
+        wrapper = ''.join([
+            ' '.join(fonts),
+            ' $',
+            *(r'\%s{' % font for font in fonts),
+            '%s',
+            *('}' for font in fonts),
+            '$',
+        ])
+        for set in chars:
+            font_tests.append(wrapper % set)
+
+font_tests = list(filter(lambda x: x[1] is not None, enumerate(font_tests)))
 
 
 @pytest.fixture
@@ -163,10 +172,7 @@ def baseline_images(request, fontset, index):
     return ['%s_%s_%02d' % (request.param, fontset, index)]
 
 
-# In the following two tests, use recwarn to suppress warnings regarding the
-# deprecation of \stackrel and \mathcircled.
-
-
+# recwarn suppresses warnings regarding the deprecation of \stackrel.
 @pytest.mark.parametrize('index, test', enumerate(math_tests),
                          ids=[str(index) for index in range(len(math_tests))])
 @pytest.mark.parametrize('fontset',
@@ -181,14 +187,14 @@ def test_mathtext_rendering(baseline_images, fontset, index, test, recwarn):
              horizontalalignment='center', verticalalignment='center')
 
 
-@pytest.mark.parametrize('index, test', enumerate(font_tests),
-                         ids=[str(index) for index in range(len(font_tests))])
+@pytest.mark.parametrize('index, test', font_tests,
+                         ids=[str(index) for index, _ in font_tests])
 @pytest.mark.parametrize('fontset',
                          ['cm', 'stix', 'stixsans', 'dejavusans',
                           'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
 @image_comparison(baseline_images=None, extensions=['png'])
-def test_mathfont_rendering(baseline_images, fontset, index, test, recwarn):
+def test_mathfont_rendering(baseline_images, fontset, index, test):
     matplotlib.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, test,

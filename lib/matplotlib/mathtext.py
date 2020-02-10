@@ -2299,8 +2299,7 @@ class Parser:
 
     _dropsub_symbols = set(r'''\int \oint'''.split())
 
-    _fontnames = set(
-        "rm cal it tt sf bf default bb frak circled scr regular".split())
+    _fontnames = set("rm cal it tt sf bf default bb frak scr regular".split())
 
     _function_names = set("""
       arccos csc ker min arcsin deg lg Pr arctan det lim sec arg dim
@@ -2618,11 +2617,6 @@ class Parser:
 
         @font.setter
         def font(self, name):
-            if name == "circled":
-                cbook.warn_deprecated(
-                    "3.1", name="\\mathcircled", obj_type="mathtext command",
-                    alternative="unicode characters (e.g. '\\N{CIRCLED LATIN "
-                    "CAPITAL LETTER A}' or '\\u24b6')")
             if name in ('rm', 'it', 'bf'):
                 self.font_class = name
             self._font = name
