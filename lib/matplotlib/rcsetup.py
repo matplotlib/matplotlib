@@ -1052,7 +1052,7 @@ defaultParams = {
     'hatch.linewidth': [1.0, validate_float],
 
     ## Histogram properties
-    'hist.bins': [10, validate_hist_bins],
+    'hist.bins': ['np_default', validate_hist_bins],
 
     ## Boxplot properties
     'boxplot.notch': [False, validate_bool],
