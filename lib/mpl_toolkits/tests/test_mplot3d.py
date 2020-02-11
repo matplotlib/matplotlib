@@ -209,8 +209,9 @@ def test_scatter3d():
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter(np.arange(10), np.arange(10), np.arange(10),
                c='r', marker='o')
-    ax.scatter(np.arange(10, 20), np.arange(10, 20), np.arange(10, 20),
-               c='b', marker='^')
+    x = y = z = np.arange(10, 20)
+    ax.scatter(x, y, z, c='b', marker='^')
+    z[-1] = 0  # Check that scatter() copies the data.
 
 
 @image_comparison(['scatter3d_color.png'], remove_text=True)
