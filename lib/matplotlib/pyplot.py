@@ -26,6 +26,10 @@ from numbers import Number
 import re
 import sys
 import time
+try:
+    import threading
+except ImportError:
+    import dummy_threading as threading
 
 from cycler import cycler
 import matplotlib
@@ -175,6 +179,11 @@ def findobj(o=None, match=None, include_self=True):
     return o.findobj(match, include_self=include_self)
 
 
+def _get_required_interactive_framework(backend_mod):
+    return getattr(
+        backend_mod.FigureCanvas, "required_interactive_framework", None)
+
+
 def switch_backend(newbackend):
     """
     Close all open figures and set the Matplotlib backend.
@@ -188,6 +197,8 @@ def switch_backend(newbackend):
     newbackend : str
         The name of the backend to use.
     """
+    global _backend_mod
+
     close("all")
 
     if newbackend is rcsetup._auto_backend_sentinel:
@@ -210,15 +221,17 @@ def switch_backend(newbackend):
             rcParamsOrig["backend"] = "agg"
             return
 
-    backend_name = cbook._backend_module_name(newbackend)
-    backend_mod = importlib.import_module(backend_name)
-    Backend = type(
-        "Backend", (matplotlib.backend_bases._Backend,), vars(backend_mod))
-    _log.debug("Loaded backend %s version %s.",
-               newbackend, Backend.backend_version)
+    # Backends are implemented as modules, but "inherit" default method
+    # implementations from backend_bases._Backend.  This is achieved by
+    # creating a "class" that inherits from backend_bases._Backend and whose
+    # body is filled with the module's globals.
 
-    required_framework = getattr(
-        Backend.FigureCanvas, "required_interactive_framework", None)
+    backend_name = cbook._backend_module_name(newbackend)
+
+    class backend_mod(matplotlib.backend_bases._Backend):
+        locals().update(vars(importlib.import_module(backend_name)))
+
+    required_framework = _get_required_interactive_framework(backend_mod)
     if required_framework is not None:
         current_framework = cbook._get_running_interactive_framework()
         if (current_framework and required_framework
@@ -228,23 +241,42 @@ def switch_backend(newbackend):
                 "framework, as {!r} is currently running".format(
                     newbackend, required_framework, current_framework))
 
-    # Update both rcParams and rcDefaults so restoring the defaults later with
-    # rcdefaults won't change the backend.  A bit of overkill as 'backend' is
-    # already in style.core.STYLE_BLACKLIST, but better to be safe.
-    rcParams['backend'] = rcParamsDefault['backend'] = newbackend
+    _log.debug("Loaded backend %s version %s.",
+               newbackend, backend_mod.backend_version)
 
-    global _backend_mod, new_figure_manager, draw_if_interactive, _show
+    rcParams['backend'] = rcParamsDefault['backend'] = newbackend
     _backend_mod = backend_mod
-    new_figure_manager = Backend.new_figure_manager
-    draw_if_interactive = Backend.draw_if_interactive
-    _show = Backend.show
+    for func_name in ["new_figure_manager", "draw_if_interactive", "show"]:
+        globals()[func_name].__signature__ = inspect.signature(
+            getattr(backend_mod, func_name))
 
     # Need to keep a global reference to the backend for compatibility reasons.
     # See https://github.com/matplotlib/matplotlib/issues/6092
     matplotlib.backends.backend = newbackend
 
 
-def show(*args, **kw):
+def _warn_if_gui_out_of_main_thread():
+    if (_get_required_interactive_framework(_backend_mod)
+            and threading.current_thread() is not threading.main_thread()):
+        cbook._warn_external(
+            "Starting a Matplotlib GUI outside of the main thread will likely "
+            "fail.")
+
+
+# This function's signature is rewritten upon backend-load by switch_backend.
+def new_figure_manager(*args, **kwargs):
+    """Create a new figure manager instance."""
+    _warn_if_gui_out_of_main_thread()
+    return _backend_mod.new_figure_manager(*args, **kwargs)
+
+
+# This function's signature is rewritten upon backend-load by switch_backend.
+def draw_if_interactive(*args, **kwargs):
+    return _backend_mod.draw_if_interactive(*args, **kwargs)
+
+
+# This function's signature is rewritten upon backend-load by switch_backend.
+def show(*args, **kwargs):
     """
     Display all figures.
 
@@ -263,8 +295,8 @@ def show(*args, **kw):
         This is experimental, and may be set to ``True`` or ``False`` to
         override the blocking behavior described above.
     """
-    global _show
-    return _show(*args, **kw)
+    _warn_if_gui_out_of_main_thread()
+    return _backend_mod.show(*args, **kwargs)
 
 
 def isinteractive():
