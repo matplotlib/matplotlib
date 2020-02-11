@@ -214,7 +214,7 @@ if __name__ == '__main__':
             template_lines = fd.read().splitlines(True)
         backend_line_idx, = [  # Also asserts that there is a single such line.
             idx for idx, line in enumerate(template_lines)
-            if line.startswith('#backend ')]
+            if line.startswith('#backend:')]
         if setupext.options['backend']:
             template_lines[backend_line_idx] = (
                 'backend: {}'.format(setupext.options['backend']))
