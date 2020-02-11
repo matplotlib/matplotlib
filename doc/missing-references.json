@@ -497,10 +497,10 @@
       "doc/users/prev_whats_new/whats_new_2.1.0.rst:409"
     ],
     "matplotlib.test": [
-      "doc/devel/testing.rst:84"
+      "doc/devel/testing.rst:79"
     ],
     "matplotlib.testing.conftest.mpl_test_settings": [
-      "doc/devel/testing.rst:111"
+      "doc/devel/testing.rst:106"
     ]
   },
   "py:meth": {
@@ -624,7 +624,7 @@
       "doc/api/prev_api_changes/api_changes_0.91.0.rst:34"
     ],
     "matplotlib.tests.test_basic": [
-      "doc/devel/testing.rst:98"
+      "doc/devel/testing.rst:93"
     ]
   },
   "py:obj": {
@@ -816,8 +816,7 @@
     ],
     "Timer": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.FigureCanvasBase.new_timer:2",
-      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.TimerBase:14",
-      "lib/matplotlib/backends/backend_nbagg.py:docstring of matplotlib.backends.backend_nbagg.FigureCanvasNbAgg.new_timer:2"
+      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.TimerBase:14"
     ],
     "Tool": [
       "doc/devel/MEP/MEP22.rst:60",
@@ -1137,7 +1136,7 @@
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.AVConvBase.isAvailable:1:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvFileWriter.args_key": [
-      "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:38:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:39:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvFileWriter.bin_path": [
       "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:28:<autosummary>:1"
@@ -1145,17 +1144,20 @@
     "matplotlib.animation.AVConvFileWriter.cleanup": [
       "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:28:<autosummary>:1"
     ],
+    "matplotlib.animation.AVConvFileWriter.clear_temp": [
+      "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:39:<autosummary>:1"
+    ],
     "matplotlib.animation.AVConvFileWriter.exec_key": [
-      "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:38:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:39:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvFileWriter.finish": [
       "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvFileWriter.frame_format": [
-      "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:38:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:39:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvFileWriter.frame_size": [
-      "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:38:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:39:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvFileWriter.grab_frame": [
       "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:28:<autosummary>:1"
@@ -1164,7 +1166,7 @@
       "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvFileWriter.output_args": [
-      "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:38:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:39:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvFileWriter.saving": [
       "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:28:<autosummary>:1"
@@ -1173,7 +1175,7 @@
       "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:28:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvFileWriter.supported_formats": [
-      "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:38:<autosummary>:1"
+      "doc/api/_as_gen/matplotlib.animation.AVConvFileWriter.rst:39:<autosummary>:1"
     ],
     "matplotlib.animation.AVConvWriter.args_key": [
       "doc/api/_as_gen/matplotlib.animation.AVConvWriter.rst:36:<autosummary>:1"
@@ -1231,6 +1233,9 @@
     ],
     "matplotlib.animation.FFMpegFileWriter.cleanup": [
       "doc/api/_as_gen/matplotlib.animation.FFMpegFileWriter.rst:28:<autosummary>:1"
+    ],
+    "matplotlib.animation.FFMpegFileWriter.clear_temp": [
+      "lib/matplotlib/animation.py:docstring of matplotlib.animation.FFMpegFileWriter.supported_formats:1:<autosummary>:1"
     ],
     "matplotlib.animation.FFMpegFileWriter.exec_key": [
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.FFMpegFileWriter.supported_formats:1:<autosummary>:1"
@@ -1328,6 +1333,9 @@
     "matplotlib.animation.HTMLWriter.cleanup": [
       "doc/api/_as_gen/matplotlib.animation.HTMLWriter.rst:28:<autosummary>:1"
     ],
+    "matplotlib.animation.HTMLWriter.clear_temp": [
+      "lib/matplotlib/animation.py:docstring of matplotlib.animation.HTMLWriter.finish:1:<autosummary>:1"
+    ],
     "matplotlib.animation.HTMLWriter.exec_key": [
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.HTMLWriter.finish:1:<autosummary>:1"
     ],
@@ -1348,6 +1356,9 @@
     ],
     "matplotlib.animation.ImageMagickFileWriter.cleanup": [
       "doc/api/_as_gen/matplotlib.animation.ImageMagickFileWriter.rst:28:<autosummary>:1"
+    ],
+    "matplotlib.animation.ImageMagickFileWriter.clear_temp": [
+      "lib/matplotlib/animation.py:docstring of matplotlib.animation.ImageMagickFileWriter.supported_formats:1:<autosummary>:1"
     ],
     "matplotlib.animation.ImageMagickFileWriter.delay": [
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.ImageMagickFileWriter.supported_formats:1:<autosummary>:1"

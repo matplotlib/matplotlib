@@ -427,6 +427,7 @@ class FileMovieWriter(MovieWriter):
         MovieWriter.__init__(self, *args, **kwargs)
         self.frame_format = mpl.rcParams['animation.frame_format']
 
+    @cbook._delete_parameter("3.3", "clear_temp")
     def setup(self, fig, outfile, dpi=None, frame_prefix=None,
               clear_temp=True):
         """
@@ -464,10 +465,19 @@ class FileMovieWriter(MovieWriter):
         else:
             self._tmpdir = None
             self.temp_prefix = frame_prefix
-        self.clear_temp = clear_temp
+        self._clear_temp = clear_temp
         self._frame_counter = 0  # used for generating sequential file names
         self._temp_paths = list()
         self.fname_format_str = '%s%%07d.%s'
+
+    @cbook.deprecated("3.3")
+    @property
+    def clear_temp(self):
+        return self._clear_temp
+
+    @clear_temp.setter
+    def clear_temp(self, value):
+        self._clear_temp = value
 
     @property
     def frame_format(self):
@@ -526,7 +536,7 @@ class FileMovieWriter(MovieWriter):
             _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
             self._tmpdir.cleanup()
         else:
-            if self.clear_temp:
+            if self._clear_temp:
                 _log.debug('MovieWriter: clearing temporary paths=%s',
                            self._temp_paths)
                 for path in self._temp_paths:
@@ -824,7 +834,8 @@ class HTMLWriter(FileMovieWriter):
         else:
             frame_prefix = None
 
-        super().setup(fig, outfile, dpi, frame_prefix, clear_temp=False)
+        super().setup(fig, outfile, dpi, frame_prefix)
+        self._clear_temp = False
 
     def grab_frame(self, **savefig_kwargs):
         if self.embed_frames:
