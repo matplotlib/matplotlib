@@ -115,102 +115,44 @@ def test_image_python_io():
     plt.imread(buffer)
 
 
+@pytest.mark.parametrize(
+    "img_size, fig_size, interpolation",
+    [(5, 2, "hanning"),  # data larger than figure.
+     (5, 5, "nearest"),  # exact resample.
+     (5, 10, "nearest"),  # double sample.
+     (3, 2.9, "hanning"),  # <3 upsample.
+     (3, 9.1, "nearest"),  # >3 upsample.
+     ])
 @check_figures_equal(extensions=['png'])
-def test_imshow_subsample(fig_test, fig_ref):
-    # data is bigger than figure, so subsampling with hanning
+def test_imshow_antialiased(fig_test, fig_ref,
+                            img_size, fig_size, interpolation):
     np.random.seed(19680801)
-    dpi = 100
-    A = np.random.rand(int(dpi * 5), int(dpi * 5))
+    dpi = plt.rcParams["savefig.dpi"]
+    A = np.random.rand(int(dpi * img_size), int(dpi * img_size))
     for fig in [fig_test, fig_ref]:
-        fig.set_size_inches(2, 2)
-
+        fig.set_size_inches(fig_size, fig_size)
     axs = fig_test.subplots()
     axs.set_position([0, 0, 1, 1])
     axs.imshow(A, interpolation='antialiased')
     axs = fig_ref.subplots()
     axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='hanning')
-
-
-@check_figures_equal(extensions=['png'])
-def test_imshow_samesample(fig_test, fig_ref):
-    # exact resample, so should be same as nearest....
-    np.random.seed(19680801)
-    dpi = 100
-    A = np.random.rand(int(dpi * 5), int(dpi * 5))
-    for fig in [fig_test, fig_ref]:
-        fig.set_size_inches(5, 5)
-    axs = fig_test.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='antialiased')
-    axs = fig_ref.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='nearest')
-
-
-@check_figures_equal(extensions=['png'])
-def test_imshow_doublesample(fig_test, fig_ref):
-    # should be exactly a double sample, so should use nearest neighbour
-    # which is the same as "none"
-    np.random.seed(19680801)
-    dpi = 100
-    A = np.random.rand(int(dpi * 5), int(dpi * 5))
-    for fig in [fig_test, fig_ref]:
-        fig.set_size_inches(10, 10)
-    axs = fig_test.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='antialiased')
-    axs = fig_ref.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='nearest')
-
-
-@check_figures_equal(extensions=['png'])
-def test_imshow_upsample(fig_test, fig_ref):
-    # should be less than 3 upsample, so should be nearest...
-    np.random.seed(19680801)
-    dpi = 100
-    A = np.random.rand(int(dpi * 3), int(dpi * 3))
-    for fig in [fig_test, fig_ref]:
-        fig.set_size_inches(2.9, 2.9)
-    axs = fig_test.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='antialiased')
-    axs = fig_ref.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='hanning')
-
-
-@check_figures_equal(extensions=['png'])
-def test_imshow_upsample3(fig_test, fig_ref):
-    # should be greater than 3 upsample, so should be nearest...
-    np.random.seed(19680801)
-    dpi = 100
-    A = np.random.rand(int(dpi * 3), int(dpi * 3))
-    for fig in [fig_test, fig_ref]:
-        fig.set_size_inches(9.1, 9.1)
-    axs = fig_test.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='antialiased')
-    axs = fig_ref.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='nearest')
+    axs.imshow(A, interpolation=interpolation)
 
 
 @check_figures_equal(extensions=['png'])
 def test_imshow_zoom(fig_test, fig_ref):
     # should be less than 3 upsample, so should be nearest...
     np.random.seed(19680801)
-    dpi = 100
+    dpi = plt.rcParams["savefig.dpi"]
     A = np.random.rand(int(dpi * 3), int(dpi * 3))
     for fig in [fig_test, fig_ref]:
         fig.set_size_inches(2.9, 2.9)
     axs = fig_test.subplots()
-    axs.imshow(A, interpolation='nearest')
+    axs.imshow(A, interpolation='antialiased')
     axs.set_xlim([10, 20])
     axs.set_ylim([10, 20])
     axs = fig_ref.subplots()
-    axs.imshow(A, interpolation='antialiased')
+    axs.imshow(A, interpolation='nearest')
     axs.set_xlim([10, 20])
     axs.set_ylim([10, 20])
 
