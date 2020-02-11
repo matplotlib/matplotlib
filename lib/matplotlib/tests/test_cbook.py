@@ -574,6 +574,28 @@ def test_safe_first_element_pandas_series(pd):
     assert actual == 0
 
 
+def test_delete_parameter():
+    @cbook._delete_parameter("3.0", "foo")
+    def func1(foo=None):
+        pass
+
+    @cbook._delete_parameter("3.0", "foo")
+    def func2(**kwargs):
+        pass
+
+    for func in [func1, func2]:
+        func()  # No warning.
+        with pytest.warns(MatplotlibDeprecationWarning):
+            func(foo="bar")
+
+    def pyplot_wrapper(foo=cbook.deprecation._deprecated_parameter):
+        func1(foo)
+
+    pyplot_wrapper()  # No warning.
+    with pytest.warns(MatplotlibDeprecationWarning):
+        func(foo="bar")
+
+
 def test_make_keyword_only():
     @cbook._make_keyword_only("3.0", "arg")
     def func(pre, arg, post=None):
