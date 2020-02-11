@@ -163,7 +163,6 @@ __all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
            'rrule', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU',
            'YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY',
            'HOURLY', 'MINUTELY', 'SECONDLY', 'MICROSECONDLY', 'relativedelta',
-           'seconds', 'minutes', 'hours', 'weeks',
            'DateConverter', 'ConciseDateConverter')
 
 
@@ -1837,38 +1836,6 @@ def date_ticker_factory(span, tz=None, numticks=5):
 
     formatter = DateFormatter(fmt, tz=tz)
     return locator, formatter
-
-
-@cbook.deprecated("3.1")
-def seconds(s):
-    """
-    Return seconds as days.
-    """
-    return s / SEC_PER_DAY
-
-
-@cbook.deprecated("3.1")
-def minutes(m):
-    """
-    Return minutes as days.
-    """
-    return m / MINUTES_PER_DAY
-
-
-@cbook.deprecated("3.1")
-def hours(h):
-    """
-    Return hours as days.
-    """
-    return h / HOURS_PER_DAY
-
-
-@cbook.deprecated("3.1")
-def weeks(w):
-    """
-    Return weeks as days.
-    """
-    return w * DAYS_PER_WEEK
 
 
 class DateConverter(units.ConversionInterface):

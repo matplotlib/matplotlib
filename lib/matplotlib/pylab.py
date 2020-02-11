@@ -29,8 +29,8 @@ from matplotlib.dates import (
 ## We are still importing too many things from mlab; more cleanup is needed.
 
 from matplotlib.mlab import (
-    demean, detrend, detrend_linear, detrend_mean, detrend_none,
-    window_hanning, window_none)
+    detrend, detrend_linear, detrend_mean, detrend_none, window_hanning,
+    window_none)
 
 from matplotlib import cbook, mlab, pyplot as plt
 from matplotlib.pyplot import *
