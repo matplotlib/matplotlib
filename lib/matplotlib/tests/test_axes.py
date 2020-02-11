@@ -5641,7 +5641,7 @@ def test_shared_aspect_error():
                            "Unrecognized string 'foo' to axis; try 'on' or "
                            "'off'"),
                           (TypeError, ([1, 2], ), {},
-                           "the first argument to axis*"),
+                           "The first argument to axis*"),
                           (TypeError, tuple(), {'foo': None},
                            r"axis\(\) got an unexpected keyword argument "
                            "'foo'"),
