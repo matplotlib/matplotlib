@@ -2735,7 +2735,7 @@ def stackplot(
 @docstring.copy(Axes.stem)
 def stem(
         *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
-        label=None, use_line_collection=False, data=None):
+        label=None, use_line_collection=True, data=None):
     return gca().stem(
         *args, linefmt=linefmt, markerfmt=markerfmt, basefmt=basefmt,
         bottom=bottom, label=label,

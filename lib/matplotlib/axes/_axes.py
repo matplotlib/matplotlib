@@ -2652,7 +2652,7 @@ class Axes(_AxesBase):
 
     @_preprocess_data()
     def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
-             label=None, use_line_collection=False):
+             label=None, use_line_collection=True):
         """
         Create a stem plot.
 
@@ -2709,12 +2709,12 @@ class Axes(_AxesBase):
         label : str, default: None
             The label to use for the stems in legends.
 
-        use_line_collection : bool, default: False
+        use_line_collection : bool, default: True
             If ``True``, store and plot the stem lines as a
-            `~.collections.LineCollection` instead of individual lines. This
-            significantly increases performance, and will become the default
-            option in Matplotlib 3.3. If ``False``, defaults to the old
-            behavior of using a list of `.Line2D` objects.
+            `~.collections.LineCollection` instead of individual lines, which
+            significantly increases performance.  If ``False``, defaults to the
+            old behavior of using a list of `.Line2D` objects.  This parameter
+            may be deprecated in the future.
 
         Returns
         -------
@@ -2802,12 +2802,6 @@ class Axes(_AxesBase):
             self.add_collection(stemlines)
         # Old behaviour is to plot each of the lines individually
         else:
-            cbook._warn_external(
-                'In Matplotlib 3.3 individual lines on a stem plot will be '
-                'added as a LineCollection instead of individual lines. '
-                'This significantly improves the performance of a stem plot. '
-                'To remove this warning and switch to the new behaviour, '
-                'set the "use_line_collection" keyword argument to True.')
             stemlines = []
             for xi, yi in zip(x, y):
                 l, = self.plot([xi, xi], [bottom, yi],
