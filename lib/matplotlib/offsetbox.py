@@ -1694,11 +1694,7 @@ class DraggableBase:
             the point where the mouse drag started.
             '''
 
-    Optionally, you may override the following methods::
-
-        def artist_picker(self, artist, evt):
-            '''The picker method that will be used.'''
-            return self.ref_artist.contains(evt)
+    Optionally, you may override the following method::
 
         def finalize_offset(self):
             '''Called when the mouse is released.'''
@@ -1719,7 +1715,18 @@ class DraggableBase:
         c2 = self.canvas.mpl_connect('pick_event', self.on_pick)
         c3 = self.canvas.mpl_connect('button_release_event', self.on_release)
 
-        ref_artist.set_picker(self.artist_picker)
+        if not ref_artist.pickable():
+            ref_artist.set_picker(True)
+        with cbook._suppress_matplotlib_deprecation_warning():
+            if self.artist_picker != DraggableBase.artist_picker.__get__(self):
+                overridden_picker = self.artist_picker
+            else:
+                overridden_picker = None
+        if overridden_picker is not None:
+            cbook.warn_deprecated(
+                "3.3", name="artist_picker", obj_type="method",
+                addendum="Directly set the artist's picker if desired.")
+            ref_artist.set_picker(overridden_picker)
         self.cids = [c2, c3]
 
     def on_motion(self, evt):
@@ -1786,6 +1793,7 @@ class DraggableBase:
         else:
             self.canvas.mpl_disconnect(c1)
 
+    @cbook.deprecated("3.3", alternative="self.ref_artist.contains")
     def artist_picker(self, artist, evt):
         return self.ref_artist.contains(evt)
 
