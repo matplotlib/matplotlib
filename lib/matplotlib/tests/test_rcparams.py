@@ -326,6 +326,7 @@ def generate_validator_testcases(valid):
          'success': (('auto', 'auto'),
                      ('fd', 'fd'),
                      ('10', 10),
+                     ('np_default', 'np_default'),
                      ('1, 2, 3', [1, 2, 3]),
                      ([1, 2, 3], [1, 2, 3]),
                      (np.arange(15), np.arange(15))

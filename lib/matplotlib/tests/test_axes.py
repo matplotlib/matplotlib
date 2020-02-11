@@ -6187,6 +6187,20 @@ def test_hist_auto_bins():
     assert bins[-1] >= 6
 
 
+
+def test_hist_np_default_bins():
+
+    with plt.rc_context({'hist.bins': 'np_default'}):
+        _, edges, _ = plt.hist([[1, 2, 3], [3, 4, 5, 6]])
+        # this encodes that numpy's default is bins=10 -> 11 edges
+        assert len(edges) == 11
+
+    _, bins, _ = plt.hist([[1, 2, 3], [3, 4, 5, 6]], bins='np_default')
+    # this encodes that numpy's default is bins=10  -> 11 edges
+    len(edges) == 11
+
+
+
 def test_hist_nan_data():
     fig, (ax1, ax2) = plt.subplots(2)
 

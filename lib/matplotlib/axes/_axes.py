@@ -6608,6 +6608,8 @@ default: :rc:`scatter.edgecolors`
 
         if bins is None:
             bins = rcParams['hist.bins']
+        if isinstance(bins, str) and bins == 'np_default':
+            bins = None
 
         # Validate string inputs here to avoid cluttering subsequent code.
         cbook._check_in_list(['bar', 'barstacked', 'step', 'stepfilled'],
@@ -6633,7 +6635,7 @@ default: :rc:`scatter.edgecolors`
         if bin_range is not None:
             bin_range = self.convert_xunits(bin_range)
 
-        if not cbook.is_scalar_or_string(bins):
+        if bins is not None and not cbook.is_scalar_or_string(bins):
             bins = self.convert_xunits(bins)
 
         # We need to do to 'weights' what was done to 'x'
@@ -6687,8 +6689,12 @@ default: :rc:`scatter.edgecolors`
                 _w = np.concatenate(w)
             else:
                 _w = None
-            bins = np.histogram_bin_edges(
-                np.concatenate(x), bins, bin_range, _w)
+            nbe_kwargs = {'range': bin_range,
+                          'weights': _w}
+            if bins is not None:
+                nbe_kwargs['bins'] = bins
+            bins = np.histogram_bin_edges(np.concatenate(x),
+                                          **nbe_kwargs)
         else:
             hist_kwargs['range'] = bin_range
 
@@ -6702,7 +6708,11 @@ default: :rc:`scatter.edgecolors`
         for i in range(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
-            m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
+            h_kwargs = {'weights': w[i], **hist_kwargs}
+            # This awkward way of calling
+            if bins is not None:
+                h_kwargs['bins'] = bins
+            m, bins = np.histogram(x[i], **h_kwargs)
             tops.append(m)
         tops = np.array(tops, float)  # causes problems later if it's an int
         if stacked:

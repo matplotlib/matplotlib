@@ -951,7 +951,7 @@ def validate_cycler(s):
 
 
 def validate_hist_bins(s):
-    valid_strs = ["auto", "sturges", "fd", "doane", "scott", "rice", "sqrt"]
+    valid_strs = ["auto", "sturges", "fd", "doane", "scott", "rice", "sqrt", "np_default"]
     if isinstance(s, str) and s in valid_strs:
         return s
     try:
@@ -962,7 +962,7 @@ def validate_hist_bins(s):
         return validate_floatlist(s)
     except ValueError:
         pass
-    raise ValueError("'hist.bins' must be one of {}, an int or"
+    raise ValueError("'hist.bins' must be one of {}, None, an int or"
                      " a sequence of floats".format(valid_strs))
 
 
@@ -1052,7 +1052,7 @@ defaultParams = {
     'hatch.linewidth': [1.0, validate_float],
 
     ## Histogram properties
-    'hist.bins': [10, validate_hist_bins],
+    'hist.bins': ['np_default', validate_hist_bins],
 
     ## Boxplot properties
     'boxplot.notch': [False, validate_bool],
