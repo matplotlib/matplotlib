@@ -68,7 +68,7 @@ def plot_colortable(colors, title, sort_colors=True, emptycols=0):
 
         ax.add_patch(
             Rectangle(xy=(swatch_start_x, y-9), width=swatch_width,
-                      height=18, fill=True, facecolor=colors[name])
+                      height=18, facecolor=colors[name])
         )
 
     return fig
