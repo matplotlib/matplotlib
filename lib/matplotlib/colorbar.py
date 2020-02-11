@@ -517,8 +517,12 @@ class ColorbarBase:
 
         if self.orientation == 'vertical':
             long_axis, short_axis = ax.yaxis, ax.xaxis
+            if mpl.rcParams['ytick.minor.visible']:
+                self.minorticks_on()
         else:
             long_axis, short_axis = ax.xaxis, ax.yaxis
+            if mpl.rcParams['xtick.minor.visible']:
+                self.minorticks_on()
 
         long_axis.set_label_position(self.ticklocation)
         long_axis.set_ticks_position(self.ticklocation)
