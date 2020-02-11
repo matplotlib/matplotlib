@@ -167,21 +167,14 @@ class ScalarMappable:
         cmap : str or `~matplotlib.colors.Colormap`
             The colormap used to map normalized data values to RGBA colors.
         """
-
-        self.callbacksSM = cbook.CallbackRegistry()
-
-        if cmap is None:
-            cmap = get_cmap()
-        if norm is None:
-            norm = colors.Normalize()
-
         self._A = None
-        #: The Normalization instance of this ScalarMappable.
-        self.norm = norm
-        #: The Colormap instance of this ScalarMappable.
-        self.cmap = get_cmap(cmap)
+        self.norm = None  # So that the setter knows we're initializing.
+        self.set_norm(norm)  # The Normalize instance of this ScalarMappable.
+        self.cmap = None  # So that the setter knows we're initializing.
+        self.set_cmap(cmap)  # The Colormap instance of this ScalarMappable.
         #: The last colorbar associated with this ScalarMappable. May be None.
         self.colorbar = None
+        self.callbacksSM = cbook.CallbackRegistry()
         self.update_dict = {'array': False}
 
     def _scale_norm(self, norm, vmin, vmax):
@@ -336,35 +329,39 @@ class ScalarMappable:
 
     def set_cmap(self, cmap):
         """
-        set the colormap for luminance data
+        Set the colormap for luminance data.
 
         Parameters
         ----------
-        cmap : colormap or registered colormap name
+        cmap : `.Colormap` or str or None
         """
+        in_init = self.cmap is None
         cmap = get_cmap(cmap)
         self.cmap = cmap
-        self.changed()
+        if not in_init:
+            self.changed()  # Things are not set up properly yet.
 
     def set_norm(self, norm):
-        """Set the normalization instance.
+        """
+        Set the normalization instance.
 
         Parameters
         ----------
-        norm : `.Normalize`
+        norm : `.Normalize` or None
 
         Notes
         -----
         If there are any colorbars using the mappable for this norm, setting
         the norm of the mappable will reset the norm, locator, and formatters
         on the colorbar to default.
-
         """
         cbook._check_isinstance((colors.Normalize, None), norm=norm)
+        in_init = self.norm is None
         if norm is None:
             norm = colors.Normalize()
         self.norm = norm
-        self.changed()
+        if not in_init:
+            self.changed()  # Things are not set up properly yet.
 
     def autoscale(self):
         """
