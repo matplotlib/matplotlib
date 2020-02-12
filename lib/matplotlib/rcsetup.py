@@ -422,17 +422,8 @@ def validate_font_properties(s):
 validate_fontset = ValidateInStrings(
     'fontset',
     ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom'])
-
-
-def validate_mathtext_default(s):
-    if s == "circled":
-        cbook.warn_deprecated(
-            "3.1", message="Support for setting the mathtext.default rcParam "
-            "to 'circled' is deprecated since %(since)s and will be removed "
-            "%(removal)s.")
-    return ValidateInStrings(
-        'default',
-        "rm cal it tt sf bf default bb frak circled scr regular".split())(s)
+validate_mathtext_default = ValidateInStrings(
+    'default', "rm cal it tt sf bf default bb frak scr regular".split())
 
 
 _validate_alignment = ValidateInStrings(

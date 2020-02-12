@@ -80,6 +80,8 @@ Classes and methods
 - ``dates.minutes()`` (no replacement)
 - ``dates.hours()`` (no replacement)
 - ``dates.weeks()`` (no replacement)
+- ``dates.strpdate2num`` and ``dates.bytespdate2num`` (use `time.strptime` or
+  `dateutil.parser.parse` or `.dates.datestr2num` instead)
 
 - ``font_manager.OSXInstalledFonts()`` (no replacement)
 
@@ -150,6 +152,7 @@ rcParams
   :rc:`savefig.facecolor` to "none" to get a transparent background.
 - The ``pgf.debug``, ``verbose.fileo`` and ``verbose.verbose.level`` rcParams,
   which had no effect, have been removed.
+- Support for setting :rc:`mathtext.default` to "circled" has been removed.
 
 Environment variables
 ~~~~~~~~~~~~~~~~~~~~~
