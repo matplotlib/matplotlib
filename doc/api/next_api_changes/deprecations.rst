@@ -211,3 +211,14 @@ The *clear_temp* parameter and attribute of `.FileMovieWriter` is
 deprecated.  In the future, files placed in a temporary directory (using
 ``frame_prefix=None``, the default) will be cleared; files placed elsewhere
 will not.
+
+Deprecated rcParams validators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The following validators, defined in `.rcsetup`, are deprecated:
+``validate_fontset``, ``validate_mathtext_default``, ``validate_alignment``,
+``validate_svg_fontset``, ``validate_pgf_texsystem``,
+``validate_movie_frame_fmt``, ``validate_axis_locator``,
+``validate_movie_html_fmt``, ``validate_grid_axis``,
+``validate_axes_titlelocation``.  To test whether an rcParam value would
+be acceptable, one can test e.g. ``rc = RcParams(); rc[k] = v`` raises an
+exception.
