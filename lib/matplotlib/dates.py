@@ -137,7 +137,6 @@ import functools
 import logging
 import math
 import re
-import time
 
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
@@ -306,67 +305,6 @@ def _from_ordinalf(x, tz=None):
 
 # a version of _from_ordinalf that can operate on numpy arrays
 _from_ordinalf_np_vectorized = np.vectorize(_from_ordinalf, otypes="O")
-
-
-@cbook.deprecated(
-    "3.1", alternative="time.strptime or dateutil.parser.parse or datestr2num")
-class strpdate2num:
-    """
-    Use this class to parse date strings to matplotlib datenums when
-    you know the date format string of the date you are parsing.
-    """
-    def __init__(self, fmt):
-        """
-        Parameters
-        ----------
-        fmt : any valid strptime format
-        """
-        self.fmt = fmt
-
-    def __call__(self, s):
-        """
-        Parameters
-        ----------
-        s : str
-
-        Returns
-        -------
-        date2num float
-        """
-        return date2num(datetime.datetime(*time.strptime(s, self.fmt)[:6]))
-
-
-@cbook.deprecated(
-    "3.1", alternative="time.strptime or dateutil.parser.parse or datestr2num")
-class bytespdate2num(strpdate2num):
-    """
-    Use this class to parse date strings to matplotlib datenums when
-    you know the date format string of the date you are parsing.  See
-    :doc:`/gallery/misc/load_converter.py`.
-    """
-    def __init__(self, fmt, encoding='utf-8'):
-        """
-        Parameters
-        ----------
-        fmt : any valid strptime format
-        encoding : str
-            Encoding to use on byte input.
-        """
-        super().__init__(fmt)
-        self.encoding = encoding
-
-    def __call__(self, b):
-        """
-        Parameters
-        ----------
-        b : bytes
-
-        Returns
-        -------
-        date2num float
-        """
-        s = b.decode(self.encoding)
-        return super().__call__(s)
 
 
 # a version of dateutil.parser.parse that can operate on numpy arrays

@@ -915,8 +915,8 @@ Date related functions
 - ``dates.minutes()``
 - ``dates.hours()``
 - ``dates.weeks()``
-- `.dates.strpdate2num`
-- `.dates.bytespdate2num`
+- ``dates.strpdate2num``
+- ``dates.bytespdate2num``
 
 These are brittle in the presence of locale changes.  Use standard datetime
 parsers such as `time.strptime` or `dateutil.parser.parse`, and additionally
