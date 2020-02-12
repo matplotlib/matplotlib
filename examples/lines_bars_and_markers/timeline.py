@@ -72,8 +72,7 @@ fig, ax = plt.subplots(figsize=(8.8, 4), constrained_layout=True)
 ax.set(title="Matplotlib release dates")
 
 markerline, stemline, baseline = ax.stem(dates, levels,
-                                         linefmt="C3-", basefmt="k-",
-                                         use_line_collection=True)
+                                         linefmt="C3-", basefmt="k-")
 
 plt.setp(markerline, mec="k", mfc="w", zorder=3)
 

@@ -3341,26 +3341,9 @@ def test_stem(use_line_collection):
                   label=' ', use_line_collection=use_line_collection)
 
     fig, ax = plt.subplots()
-    if use_line_collection:
-        ax.stem(*args, **kwargs)
-    else:
-        with pytest.warns(UserWarning):
-            ax.stem(*args, **kwargs)
+    ax.stem(*args, **kwargs)
 
     ax.legend()
-
-
-@check_figures_equal(extensions=['png'])
-def test_stem_params(fig_test, fig_ref):
-    x = np.linspace(0, 3.14, 37)
-    y = np.sin(x)
-
-    ax = fig_test.subplots()
-    ax.stem(x, y, linefmt='grey', use_line_collection=True)
-
-    ax = fig_ref.subplots()
-    with pytest.warns(UserWarning):
-        ax.stem(x, y, linefmt='grey')
 
 
 def test_stem_args():
@@ -3371,10 +3354,10 @@ def test_stem_args():
     y = list(range(10))
 
     # Test the call signatures
-    ax.stem(y, use_line_collection=True)
-    ax.stem(x, y, use_line_collection=True)
-    ax.stem(x, y, 'r--', use_line_collection=True)
-    ax.stem(x, y, 'r--', basefmt='b--', use_line_collection=True)
+    ax.stem(y)
+    ax.stem(x, y)
+    ax.stem(x, y, 'r--')
+    ax.stem(x, y, 'r--', basefmt='b--')
 
 
 def test_stem_dates():
@@ -3382,7 +3365,7 @@ def test_stem_dates():
     xs = [dateutil.parser.parse("2013-9-28 11:00:00"),
           dateutil.parser.parse("2013-9-28 12:00:00")]
     ys = [100, 200]
-    ax.stem(xs, ys, "*-", use_line_collection=True)
+    ax.stem(xs, ys, "*-")
 
 
 @image_comparison(['hist_stacked_stepfilled_alpha'])

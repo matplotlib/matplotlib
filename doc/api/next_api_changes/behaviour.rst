@@ -71,5 +71,10 @@ of *y*, the second column of *x* against the second column of *y*, **and** the
 first column of *x* against the third column of *y*.  This now raises an error
 instead.
 
-`.Text.update_from` now copies usetex state from the source Text 
+`.Text.update_from` now copies usetex state from the source Text
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`~.Axes.stem` now defaults to ``use_line_collection=True``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This creates the stem plot as a `.LineCollection` rather than individual
+`.Line2D` objects, greatly improving performance.
