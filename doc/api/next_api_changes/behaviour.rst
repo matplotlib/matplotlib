@@ -101,3 +101,8 @@ deprecation warning.
 Previously setting the *ecolor* would turn off automatic color cycling for the plot, leading to the 
 the lines and markers defaulting to whatever the first color in the color cycle was in the case of 
 multiple plot calls. 
+
+`.rcsetup.validate_color_for_prop_cycle` now always raises TypeError for bytes input
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It previously raised `TypeError`, **except** when the input was of the form
+``b"C[number]"`` in which case it raised a ValueError.

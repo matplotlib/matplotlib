@@ -322,18 +322,9 @@ def validate_color_or_auto(s):
 
 
 def validate_color_for_prop_cycle(s):
-    # Special-case the N-th color cycle syntax, this obviously can not
-    # go in the color cycle.
-    if isinstance(s, bytes):
-        match = re.match(b'^C[0-9]$', s)
-        if match is not None:
-            raise ValueError('Can not put cycle reference ({cn!r}) in '
-                             'prop_cycler'.format(cn=s))
-    elif isinstance(s, str):
-        match = re.match('^C[0-9]$', s)
-        if match is not None:
-            raise ValueError('Can not put cycle reference ({cn!r}) in '
-                             'prop_cycler'.format(cn=s))
+    # N-th color cycle syntax can't go into the color cycle.
+    if isinstance(s, str) and re.match("^C[0-9]$", s):
+        raise ValueError(f"Cannot put cycle reference ({s!r}) in prop_cycler")
     return validate_color(s)
 
 
