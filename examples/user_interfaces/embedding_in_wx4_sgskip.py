@@ -28,7 +28,7 @@ class MyNavigationToolbar(NavigationToolbar):
                             'Activate custom control')
         self.Bind(wx.EVT_TOOL, self._on_custom, id=tool.GetId())
 
-    def _on_custom(self, evt):
+    def _on_custom(self, event):
         # add some text to the axes in a random location in axes coords with a
         # random color
         ax = self.canvas.figure.axes[0]
@@ -36,7 +36,7 @@ class MyNavigationToolbar(NavigationToolbar):
         rgb = np.random.rand(3)  # generate a random color
         ax.text(x, y, 'You clicked me', transform=ax.transAxes, color=rgb)
         self.canvas.draw()
-        evt.Skip()
+        event.Skip()
 
 
 class CanvasFrame(wx.Frame):

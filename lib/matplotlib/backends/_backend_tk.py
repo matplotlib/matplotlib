@@ -230,8 +230,8 @@ class FigureCanvasTk(FigureCanvasBase):
 
         # Can't get destroy events by binding to _tkcanvas. Therefore, bind
         # to the window and filter.
-        def filter_destroy(evt):
-            if evt.widget is self._tkcanvas:
+        def filter_destroy(event):
+            if event.widget is self._tkcanvas:
                 self._master.update_idletasks()
                 self.close_event()
         root.bind("<Destroy>", filter_destroy, "+")

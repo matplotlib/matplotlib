@@ -1261,7 +1261,7 @@ class Animation:
         self._resize_id = self._fig.canvas.mpl_connect('draw_event',
                                                        self._end_redraw)
 
-    def _end_redraw(self, evt):
+    def _end_redraw(self, event):
         # Now that the redraw has happened, do the post draw flushing and
         # blit handling. Then re-enable all of the original events.
         self._post_draw(None, False)

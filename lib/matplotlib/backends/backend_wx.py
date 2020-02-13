@@ -680,7 +680,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         if self._isDrawn:
             self.draw()
 
-    def _onPaint(self, evt):
+    def _onPaint(self, event):
         """Called when wxPaintEvt is generated."""
         _log.debug("%s - _onPaint()", type(self))
         drawDC = wx.PaintDC(self)
@@ -690,7 +690,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             self.gui_repaint(drawDC=drawDC)
         drawDC.Destroy()
 
-    def _onSize(self, evt):
+    def _onSize(self, event):
         """
         Called when wxEventSize is generated.
 
@@ -734,41 +734,41 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         self.Refresh(eraseBackground=False)
         FigureCanvasBase.resize_event(self)
 
-    def _get_key(self, evt):
+    def _get_key(self, event):
 
-        keyval = evt.KeyCode
+        keyval = event.KeyCode
         if keyval in self.keyvald:
             key = self.keyvald[keyval]
         elif keyval < 256:
             key = chr(keyval)
             # wx always returns an uppercase, so make it lowercase if the shift
             # key is not depressed (NOTE: this will not handle Caps Lock)
-            if not evt.ShiftDown():
+            if not event.ShiftDown():
                 key = key.lower()
         else:
             key = None
 
         for meth, prefix in (
-                [evt.AltDown, 'alt'],
-                [evt.ControlDown, 'ctrl'], ):
+                [event.AltDown, 'alt'],
+                [event.ControlDown, 'ctrl'], ):
             if meth():
                 key = '{0}+{1}'.format(prefix, key)
 
         return key
 
-    def _onKeyDown(self, evt):
+    def _onKeyDown(self, event):
         """Capture key press."""
-        key = self._get_key(evt)
-        FigureCanvasBase.key_press_event(self, key, guiEvent=evt)
+        key = self._get_key(event)
+        FigureCanvasBase.key_press_event(self, key, guiEvent=event)
         if self:
-            evt.Skip()
+            event.Skip()
 
-    def _onKeyUp(self, evt):
+    def _onKeyUp(self, event):
         """Release key."""
-        key = self._get_key(evt)
-        FigureCanvasBase.key_release_event(self, key, guiEvent=evt)
+        key = self._get_key(event)
+        FigureCanvasBase.key_release_event(self, key, guiEvent=event)
         if self:
-            evt.Skip()
+            event.Skip()
 
     def _set_capture(self, capture=True):
         """Control wx mouse capture."""
@@ -777,39 +777,40 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         if capture:
             self.CaptureMouse()
 
-    def _onCaptureLost(self, evt):
+    def _onCaptureLost(self, event):
         """Capture changed or lost"""
         self._set_capture(False)
 
-    def _onMouseButton(self, evt):
+    def _onMouseButton(self, event):
         """Start measuring on an axis."""
-        evt.Skip()
-        self._set_capture(evt.ButtonDown() or evt.ButtonDClick())
-        x = evt.X
-        y = self.figure.bbox.height - evt.Y
+        event.Skip()
+        self._set_capture(event.ButtonDown() or event.ButtonDClick())
+        x = event.X
+        y = self.figure.bbox.height - event.Y
         button_map = {
             wx.MOUSE_BTN_LEFT: MouseButton.LEFT,
             wx.MOUSE_BTN_MIDDLE: MouseButton.MIDDLE,
             wx.MOUSE_BTN_RIGHT: MouseButton.RIGHT,
         }
-        button = evt.GetButton()
+        button = event.GetButton()
         button = button_map.get(button, button)
-        if evt.ButtonDown():
-            self.button_press_event(x, y, button, guiEvent=evt)
-        elif evt.ButtonDClick():
-            self.button_press_event(x, y, button, dblclick=True, guiEvent=evt)
-        elif evt.ButtonUp():
-            self.button_release_event(x, y, button, guiEvent=evt)
+        if event.ButtonDown():
+            self.button_press_event(x, y, button, guiEvent=event)
+        elif event.ButtonDClick():
+            self.button_press_event(x, y, button, dblclick=True,
+                                    guiEvent=event)
+        elif event.ButtonUp():
+            self.button_release_event(x, y, button, guiEvent=event)
 
-    def _onMouseWheel(self, evt):
+    def _onMouseWheel(self, event):
         """Translate mouse wheel events into matplotlib events"""
         # Determine mouse location
-        x = evt.GetX()
-        y = self.figure.bbox.height - evt.GetY()
+        x = event.GetX()
+        y = self.figure.bbox.height - event.GetY()
         # Convert delta/rotation/rate into a floating point step size
-        step = evt.LinesPerAction * evt.WheelRotation / evt.WheelDelta
+        step = event.LinesPerAction * event.WheelRotation / event.WheelDelta
         # Done handling event
-        evt.Skip()
+        event.Skip()
         # Mac gives two events for every wheel event; skip every second one.
         if wx.Platform == '__WXMAC__':
             if not hasattr(self, '_skipwheelevent'):
@@ -819,26 +820,26 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
                 return  # Return without processing event
             else:
                 self._skipwheelevent = True
-        FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=evt)
+        FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
 
-    def _onMotion(self, evt):
+    def _onMotion(self, event):
         """Start measuring on an axis."""
-        x = evt.GetX()
-        y = self.figure.bbox.height - evt.GetY()
-        evt.Skip()
-        FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=evt)
+        x = event.GetX()
+        y = self.figure.bbox.height - event.GetY()
+        event.Skip()
+        FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
 
-    def _onLeave(self, evt):
+    def _onLeave(self, event):
         """Mouse has left the window."""
-        evt.Skip()
-        FigureCanvasBase.leave_notify_event(self, guiEvent=evt)
+        event.Skip()
+        FigureCanvasBase.leave_notify_event(self, guiEvent=event)
 
-    def _onEnter(self, evt):
+    def _onEnter(self, event):
         """Mouse has entered the window."""
-        x = evt.GetX()
-        y = self.figure.bbox.height - evt.GetY()
-        evt.Skip()
-        FigureCanvasBase.enter_notify_event(self, guiEvent=evt, xy=(x, y))
+        x = event.GetX()
+        y = self.figure.bbox.height - event.GetY()
+        event.Skip()
+        FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
 
 
 class FigureCanvasWx(_FigureCanvasWxBase):
@@ -1016,7 +1017,7 @@ class FigureFrameWx(wx.Frame):
         _log.debug("%s - get_figure_manager()", type(self))
         return self.figmgr
 
-    def _onClose(self, evt):
+    def _onClose(self, event):
         _log.debug("%s - onClose()", type(self))
         self.canvas.close_event()
         self.canvas.stop_event_loop()
@@ -1587,10 +1588,10 @@ class _HelpDialog(wx.Dialog):
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         OK.Bind(wx.EVT_BUTTON, self.OnClose)
 
-    def OnClose(self, evt):
+    def OnClose(self, event):
         _HelpDialog._instance = None  # remove global reference
         self.DestroyLater()
-        evt.Skip()
+        event.Skip()
 
     @classmethod
     def show(cls, parent, help_entries):
