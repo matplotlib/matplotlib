@@ -96,11 +96,11 @@ Z = Z1 + 50 * Z2
 
 fig, (ax0, ax1) = plt.subplots(2, 1)
 
-c = ax0.pcolor(X, Y, Z,
+c = ax0.pcolor(X, Y, Z, shading='auto',
                norm=LogNorm(vmin=Z.min(), vmax=Z.max()), cmap='PuBu_r')
 fig.colorbar(c, ax=ax0)
 
-c = ax1.pcolor(X, Y, Z, cmap='PuBu_r')
+c = ax1.pcolor(X, Y, Z, cmap='PuBu_r', shading='auto')
 fig.colorbar(c, ax=ax1)
 
 plt.show()
