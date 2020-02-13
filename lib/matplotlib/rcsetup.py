@@ -269,7 +269,8 @@ def validate_backend(s):
 
 
 validate_toolbar = ValidateInStrings(
-    'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True)
+    'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True,
+    _deprecated_since="3.3")
 
 
 def _make_nseq_validator(cls, n=None, allow_none=False):
@@ -478,7 +479,7 @@ validate_ps_papersize = ValidateInStrings(
     ['auto', 'letter', 'legal', 'ledger',
      'a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10',
      'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9', 'b10',
-     ], ignorecase=True)
+     ], ignorecase=True, _deprecated_since="3.3")
 
 
 def validate_ps_distiller(s):
@@ -639,7 +640,7 @@ validate_legend_loc = ValidateInStrings(
      'center right',
      'lower center',
      'upper center',
-     'center'], ignorecase=True)
+     'center'], ignorecase=True, _deprecated_since="3.3")
 
 validate_svg_fonttype = ValidateInStrings(
     'svg.fonttype', ['none', 'path'], _deprecated_since="3.3")
@@ -985,9 +986,21 @@ validate_axes_titlelocation = ValidateInStrings(
     'axes.titlelocation', ['left', 'center', 'right'], _deprecated_since="3.3")
 
 
+class _ignorecase(list):
+    """A marker class indicating that a list-of-str is case-insensitive."""
+
+
+def _convert_validator_spec(key, conv):
+    if isinstance(conv, list):
+        ignorecase = isinstance(conv, _ignorecase)
+        return ValidateInStrings(key, conv, ignorecase=ignorecase)
+    else:
+        return conv
+
+
 # A map of key -> [value, converter].
-# Converters given as lists are converted to ValidateInStrings immediately
-# below.
+# Converters given as lists or _ignorecase are converted to ValidateInStrings
+# immediately below.
 defaultParams = {
     'backend':           [_auto_backend_sentinel, validate_backend],
     'backend_fallback':  [True, validate_bool],
@@ -995,7 +1008,7 @@ defaultParams = {
     'webagg.address':    ['127.0.0.1', validate_webagg_address],
     'webagg.open_in_browser': [True, validate_bool],
     'webagg.port_retries': [50, validate_int],
-    'toolbar':           ['toolbar2', validate_toolbar],
+    'toolbar':           ['toolbar2', _ignorecase(['none', 'toolbar2', 'toolmanager'])],
     'datapath':          [None, validate_any],  # see _get_data_path_cached
     'interactive':       [False, validate_bool],
     'timezone':          ['UTC', validate_string],
@@ -1232,7 +1245,13 @@ defaultParams = {
 
     #legend properties
     'legend.fancybox': [True, validate_bool],
-    'legend.loc': ['best', validate_legend_loc],
+    'legend.loc': ['best',
+                   _ignorecase(['best',
+                                'upper right', 'upper left',
+                                'lower left', 'lower right', 'right',
+                                'center left', 'center right',
+                                'lower center', 'upper center',
+                                'center'])],
     # the number of points in the legend line
     'legend.numpoints': [1, validate_int],
     # the number of points in the legend line for scatter
@@ -1370,7 +1389,9 @@ defaultParams = {
     'tk.window_focus':  [False, validate_bool],
 
     # Set the papersize/type
-    'ps.papersize':     ['letter', validate_ps_papersize],
+    'ps.papersize':     ['letter',
+                         _ignorecase(['auto', 'letter', 'legal', 'ledger',
+                                      *[f'{ab}{i}' for ab in 'ab' for i in range(11)]])],
     'ps.useafm':        [False, validate_bool],
     # use ghostscript or xpdf to distill ps output
     'ps.usedistiller':  [False, validate_ps_distiller],
@@ -1460,7 +1481,5 @@ defaultParams = {
     # altogether.  For that use `matplotlib.style.use('classic')`.
     '_internal.classic_mode': [False, validate_bool]
 }
-defaultParams = {
-    k: [default,
-        ValidateInStrings(k, conv) if isinstance(conv, list) else conv]
-    for k, (default, conv) in defaultParams.items()}
+defaultParams = {k: [default, _convert_validator_spec(k, conv)]
+                 for k, (default, conv) in defaultParams.items()}
