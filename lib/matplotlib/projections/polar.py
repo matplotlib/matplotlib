@@ -1010,12 +1010,13 @@ class PolarAxes(Axes):
         """
         Set the minimum and maximum theta values.
 
-        Parameters
-        ----------
-        thetamin : float
-            Minimum value in degrees.
-        thetamax : float
-            Maximum value in degrees.
+        Can take the following signatures:
+
+        - ``set_thetalim(minval, maxval)``: Set the limits in radians.
+        - ``set_thetalim(thetamin=minval, thetamax=maxval)``: Set the limits
+          in degrees.
+
+        where minval and maxval are the minimum and maximum limits.
         """
         if 'thetamin' in kwargs:
             kwargs['xmin'] = np.deg2rad(kwargs.pop('thetamin'))
