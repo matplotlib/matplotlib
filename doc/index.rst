@@ -40,7 +40,7 @@ Matplotlib makes easy things easy and hard things possible.
 
       Create
 
-      - Develop `publication quality plots`_ with just with just a few lines of code
+      - Develop `publication quality plots`_ with just a few lines of code
       - Use `interactive figures`_ that can zoom, pan, update...
 
       .. _publication quality plots: https://matplotlib.org/gallery/index.html
@@ -62,7 +62,7 @@ Matplotlib makes easy things easy and hard things possible.
 
       - Explore tailored functionality provided by
         :doc:`third party packages <thirdpartypackages/index>`
-      - Learn more about matplotlib through the many
+      - Learn more about Matplotlib through the many
         :doc:`external learning resources <resources/index>`
 
 Documentation
@@ -80,7 +80,7 @@ Join our community!
 Matplotlib is a welcoming, inclusive project, and we follow the `Python
 Software Foundation Code of Conduct <coc_>`_ in everything we do.
 
-.. _coc: http://www.python.org/psf/codeofconduct/
+.. _coc: https://www.python.org/psf/conduct/
 
 
 .. raw:: html
@@ -100,7 +100,7 @@ Software Foundation Code of Conduct <coc_>`_ in everything we do.
       </div>
       <div class="box-item">
         <img src="_static/fa/stack-overflow-brands.svg" alt="Stackoverflow">
-        <p>Check out the Matplotlib tag on <a href="http://stackoverflow.com/questions/tagged/matplotlib">stackoverflow</a>.</p>
+        <p>Check out the Matplotlib tag on <a href="https://stackoverflow.com/questions/tagged/matplotlib">stackoverflow</a>.</p>
       </div>
       <div class="box-item">
         <img src="_static/fa/gitter-brands.svg" alt="Gitter">
@@ -152,7 +152,7 @@ Toolkits
 ========
 
 Matplotlib ships with several add-on :doc:`toolkits <api/toolkits/index>`,
-including 3d plotting with `mplot3d`, axes helpers in `axes_grid1` and axis
+including 3D plotting with `mplot3d`, axes helpers in `axes_grid1` and axis
 helpers in `axisartist`.
 
 Third party packages
@@ -160,14 +160,14 @@ Third party packages
 
 A large number of :doc:`third party packages <thirdpartypackages/index>`
 extend and build on Matplotlib functionality, including several higher-level
-plotting interfaces (seaborn_, holoviews_, ggplot_, ...), and two projection
-and mapping toolkits (basemap_ and cartopy_).
+plotting interfaces (seaborn_, HoloViews_, ggplot_, ...), and two projection
+and mapping toolkits (Basemap_ and Cartopy_).
 
 .. _seaborn: https://seaborn.pydata.org
-.. _holoviews: http://holoviews.org
+.. _HoloViews: https://holoviews.org
 .. _ggplot: http://ggplot.yhathq.com
-.. _basemap: https://matplotlib.org/basemap
-.. _cartopy: https://scitools.org.uk/cartopy/docs/latest
+.. _Basemap: https://matplotlib.org/basemap
+.. _Cartopy: https://scitools.org.uk/cartopy/docs/latest
 
 Citing Matplotlib
 =================
@@ -204,7 +204,7 @@ law. As with any donation, you should consult with your tax adviser
 about your particular tax situation.
 
 Please consider `donating to the Matplotlib project <donating_>`_ through
-the Numfocus organization or to the `John Hunter Technology Fellowship
+the NumFOCUS organization or to the `John Hunter Technology Fellowship
 <jdh-fellowship_>`_.
 
 .. _donating: https://numfocus.org/donate-to-matplotlib
@@ -214,7 +214,7 @@ the Numfocus organization or to the `John Hunter Technology Fellowship
 The :doc:`Matplotlib license <users/license>` is based on the `Python Software
 Foundation (PSF) license <psf-license_>`_.
 
-.. _psf-license: http://www.python.org/psf/license
+.. _psf-license: https://www.python.org/psf/license
 
 There is an active developer community and a long list of people who have made
 significant :doc:`contributions <users/credits>`.
