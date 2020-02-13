@@ -175,25 +175,10 @@ def _allow_super_init(__init__):
 
 
 class TimerQT(TimerBase):
-    """
-    Subclass of `.TimerBase` that uses Qt timer events.
-
-    Attributes
-    ----------
-    interval : int, default: 1000ms
-        The time between timer events in milliseconds.
-    single_shot : bool, default: False
-        Whether this timer should operate as single shot (run once and then
-        stop).
-    callbacks : list
-        Stores list of (func, args) tuples that will be called upon timer
-        events. This list can be manipulated directly, or the functions
-        `add_callback` and `remove_callback` can be used.
-    """
+    """Subclass of `.TimerBase` using QTimer events."""
 
     def __init__(self, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
-
         # Create a new timer and connect the timeout() signal to the
         # _on_timer method.
         self._timer = QtCore.QTimer()

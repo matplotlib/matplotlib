@@ -1044,34 +1044,24 @@ class TimerBase:
 
     - ``_on_timer``: The internal function that any timer object should call,
       which will handle the task of running all callbacks that have been set.
-
-    Attributes
-    ----------
-    interval : int, default: 1000ms
-        The time between timer events in milliseconds.
-    single_shot : bool, default: False
-        Whether this timer should operate as single shot (run once and then
-        stop).
-    callbacks : List[Tuple[callable, Tuple, Dict]]
-        Stores list of (func, args, kwargs) tuples that will be called upon
-        timer events. This list can be manipulated directly, or the
-        functions `add_callback` and `remove_callback` can be used.
     """
 
     def __init__(self, interval=None, callbacks=None):
-        #Initialize empty callbacks list and setup default settings if necssary
-        if callbacks is None:
-            self.callbacks = []
-        else:
-            self.callbacks = callbacks.copy()
-
-        if interval is None:
-            self._interval = 1000
-        else:
-            self._interval = interval
-
+        """
+        Parameters
+        ----------
+        interval : int, default: 1000ms
+            The time between timer events in milliseconds.  Will be stored as
+            ``timer.interval``.
+        callbacks : List[Tuple[callable, Tuple, Dict]]
+            List of (func, args, kwargs) tuples that will be called upon
+            timer events.  This list is accessible as ``timer.callbacks`` and
+            can be manipulated directly, or the functions `add_callback` and
+            `remove_callback` can be used.
+        """
+        self.callbacks = [] if callbacks is None else callbacks.copy()
+        self._interval = 1000 if interval is None else interval
         self._single = False
-
         # Default attribute for holding the GUI-specific timer object
         self._timer = None
 
@@ -1105,6 +1095,7 @@ class TimerBase:
 
     @property
     def interval(self):
+        """The time between timer events, in milliseconds."""
         return self._interval
 
     @interval.setter
@@ -1117,6 +1108,7 @@ class TimerBase:
 
     @property
     def single_shot(self):
+        """Whether this timer should stop after a single run."""
         return self._single
 
     @single_shot.setter
