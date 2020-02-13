@@ -80,7 +80,7 @@ Join our community!
 Matplotlib is a welcoming, inclusive project, and we follow the `Python
 Software Foundation Code of Conduct <coc_>`_ in everything we do.
 
-.. _coc: http://www.python.org/psf/codeofconduct/
+.. _coc: https://www.python.org/psf/conduct/
 
 
 .. raw:: html
@@ -100,7 +100,7 @@ Software Foundation Code of Conduct <coc_>`_ in everything we do.
       </div>
       <div class="box-item">
         <img src="_static/fa/stack-overflow-brands.svg" alt="Stackoverflow">
-        <p>Check out the Matplotlib tag on <a href="http://stackoverflow.com/questions/tagged/matplotlib">stackoverflow</a>.</p>
+        <p>Check out the Matplotlib tag on <a href="https://stackoverflow.com/questions/tagged/matplotlib">stackoverflow</a>.</p>
       </div>
       <div class="box-item">
         <img src="_static/fa/gitter-brands.svg" alt="Gitter">
@@ -164,7 +164,7 @@ plotting interfaces (seaborn_, HoloViews_, ggplot_, ...), and two projection
 and mapping toolkits (Basemap_ and Cartopy_).
 
 .. _seaborn: https://seaborn.pydata.org
-.. _HoloViews: http://holoviews.org
+.. _HoloViews: https://holoviews.org
 .. _ggplot: http://ggplot.yhathq.com
 .. _Basemap: https://matplotlib.org/basemap
 .. _Cartopy: https://scitools.org.uk/cartopy/docs/latest
@@ -214,7 +214,7 @@ the NumFOCUS organization or to the `John Hunter Technology Fellowship
 The :doc:`Matplotlib license <users/license>` is based on the `Python Software
 Foundation (PSF) license <psf-license_>`_.
 
-.. _psf-license: http://www.python.org/psf/license
+.. _psf-license: https://www.python.org/psf/license
 
 There is an active developer community and a long list of people who have made
 significant :doc:`contributions <users/credits>`.
