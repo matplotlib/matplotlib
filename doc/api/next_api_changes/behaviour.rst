@@ -78,3 +78,10 @@ instead.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This creates the stem plot as a `.LineCollection` rather than individual
 `.Line2D` objects, greatly improving performance.
+
+rcParams color validator is now stricter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, rcParams entries whose values were color-like accepted "spurious"
+extra letters or characters in the "middle" of the string, e.g. ``"(0, 1a, '0.5')"``
+would be interpreted as ``(0, 1, 0.5)``.  These extra characters (including the
+internal quotes) now cause a ValueError to be raised.

@@ -326,13 +326,9 @@ def validate_color_for_prop_cycle(s):
 
 def validate_color(s):
     """Return a valid color arg."""
-    try:
+    if isinstance(s, str):
         if s.lower() == 'none':
             return 'none'
-    except AttributeError:
-        pass
-
-    if isinstance(s, str):
         if len(s) == 6 or len(s) == 8:
             stmp = '#' + s
             if is_color_like(stmp):
@@ -341,25 +337,16 @@ def validate_color(s):
     if is_color_like(s):
         return s
 
-    # If it is still valid, it must be a tuple.
-    colorarg = s
-    msg = ''
-    if s.find(',') >= 0:
-        # get rid of grouping symbols
-        stmp = ''.join([c for c in s if c.isdigit() or c == '.' or c == ','])
-        vals = stmp.split(',')
-        if len(vals) not in [3, 4]:
-            msg = '\nColor tuples must be of length 3 or 4'
-        else:
-            try:
-                colorarg = [float(val) for val in vals]
-            except ValueError:
-                msg = '\nCould not convert all entries to floats'
+    # If it is still valid, it must be a tuple (as a string from matplotlibrc).
+    try:
+        color = ast.literal_eval(s)
+    except (SyntaxError, ValueError):
+        pass
+    else:
+        if is_color_like(color):
+            return color
 
-    if not msg and is_color_like(colorarg):
-        return colorarg
-
-    raise ValueError('%s does not look like a color arg%s' % (s, msg))
+    raise ValueError(f'{s!r} does not look like a color arg')
 
 
 validate_colorlist = _listify_validator(
