@@ -1027,11 +1027,12 @@ class RendererSVG(RendererBase):
             font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
 
             attrib = {}
+            style['font-family'] = str(font.family_name)
+            style['font-weight'] = str(prop.get_weight()).lower()
+            style['font-stretch'] = str(prop.get_stretch()).lower()
+            style['font-style'] = prop.get_style().lower()
             # Must add "px" to workaround a Firefox bug
             style['font-size'] = short_float_fmt(prop.get_size()) + 'px'
-            style['font-family'] = str(font.family_name)
-            style['font-style'] = prop.get_style().lower()
-            style['font-weight'] = str(prop.get_weight()).lower()
             attrib['style'] = generate_css(style)
 
             if mtext and (angle == 0 or mtext.get_rotation_mode() == "anchor"):
