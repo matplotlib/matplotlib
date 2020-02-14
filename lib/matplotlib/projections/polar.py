@@ -21,9 +21,7 @@ class PolarTransform(mtransforms.Transform):
     perform the ultimate affine transformation into the correct
     position.
     """
-    input_dims = 2
-    output_dims = 2
-    is_separable = False
+    input_dims = output_dims = 2
 
     def __init__(self, axis=None, use_rmin=True,
                  _apply_theta_transforms=True):
@@ -113,9 +111,7 @@ class InvertedPolarTransform(mtransforms.Transform):
     The inverse of the polar transform, mapping Cartesian
     coordinate space *x* and *y* back to *theta* and *r*.
     """
-    input_dims = 2
-    output_dims = 2
-    is_separable = False
+    input_dims = output_dims = 2
 
     def __init__(self, axis=None, use_rmin=True,
                  _apply_theta_transforms=True):

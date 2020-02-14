@@ -374,12 +374,8 @@ class HammerAxes(GeoAxes):
     name = 'custom_hammer'
 
     class HammerTransform(Transform):
-        """
-        The base Hammer transform.
-        """
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
+        """The base Hammer transform."""
+        input_dims = output_dims = 2
 
         def __init__(self, resolution):
             """
@@ -412,9 +408,7 @@ class HammerAxes(GeoAxes):
             return HammerAxes.InvertedHammerTransform(self._resolution)
 
     class InvertedHammerTransform(Transform):
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
+        input_dims = output_dims = 2
 
         def __init__(self, resolution):
             Transform.__init__(self)

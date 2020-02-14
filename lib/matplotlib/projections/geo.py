@@ -228,9 +228,7 @@ class GeoAxes(Axes):
 
 class _GeoTransform(Transform):
     # Factoring out some common functionality.
-    input_dims = 2
-    output_dims = 2
-    is_separable = False
+    input_dims = output_dims = 2
 
     def __init__(self, resolution):
         """

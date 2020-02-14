@@ -20,9 +20,7 @@ from mpl_toolkits.axisartist.grid_helper_curvelinear import \
                   tol={'aarch64': 0.034}.get(platform.machine(), 0.03))
 def test_custom_transform():
     class MyTransform(Transform):
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
+        input_dims = output_dims = 2
 
         def __init__(self, resolution):
             """
@@ -48,9 +46,7 @@ def test_custom_transform():
             return MyTransformInv(self._resolution)
 
     class MyTransformInv(Transform):
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
+        input_dims = output_dims = 2
 
         def __init__(self, resolution):
             Transform.__init__(self)
