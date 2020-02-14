@@ -33,7 +33,8 @@ themselves.
 # `np.minimum` instead of the builtin `min`, and likewise for `max`.  This is
 # done so that `nan`s are propagated, instead of being silently dropped.
 
-import re
+import functools
+import textwrap
 import weakref
 
 import numpy as np
@@ -47,8 +48,32 @@ from .path import Path
 DEBUG = False
 
 
-def _indent_str(obj):  # textwrap.indent(str(obj), 4) on Py3.
-    return re.sub("(^|\n)", r"\1    ", str(obj))
+def _make_str_method(*args, **kwargs):
+    """
+    Generate a ``__str__`` method for a `.Transform` subclass.
+
+    After ::
+
+        class T:
+            __str__ = _make_str_method("attr", key="other")
+
+    ``str(T(...))`` will be
+
+    .. code-block:: text
+
+        {type(T).__name__}(
+            {self.attr},
+            key={self.other})
+    """
+    indent = functools.partial(textwrap.indent, prefix=" " * 4)
+    def strrepr(x): return repr(x) if isinstance(x, str) else str(x)
+    return lambda self: (
+        type(self).__name__ + "("
+        + ",".join([*(indent("\n" + strrepr(getattr(self, arg)))
+                      for arg in args),
+                    *(indent("\n" + k + "=" + strrepr(getattr(self, arg)))
+                      for k, arg in kwargs.items())])
+        + ")")
 
 
 class TransformNode:
@@ -1001,13 +1026,7 @@ class TransformedBbox(BboxBase):
         self.set_children(bbox, transform)
         self._points = None
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._bbox),
-                        _indent_str(self._transform)))
+    __str__ = _make_str_method("_bbox", "_transform")
 
     def get_points(self):
         # docstring inherited
@@ -1086,13 +1105,7 @@ class LockableBbox(BboxBase):
         mask = [val is None for val in fp]
         self._locked_points = np.ma.array(fp, float, mask=mask).reshape((2, 2))
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._bbox),
-                        _indent_str(self._locked_points)))
+    __str__ = _make_str_method("_bbox", "_locked_points")
 
     def get_points(self):
         # docstring inherited
@@ -1625,11 +1638,7 @@ class TransformWrapper(Transform):
     def __eq__(self, other):
         return self._child.__eq__(other)
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._child)))
+    __str__ = _make_str_method("_child")
 
     def frozen(self):
         # docstring inherited
@@ -1831,11 +1840,7 @@ class Affine2D(Affine2DBase):
         self._mtx = matrix
         self._invalid = 0
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._mtx)))
+    __str__ = _make_str_method("_mtx")
 
     @staticmethod
     def from_values(a, b, c, d, e, f):
@@ -2032,9 +2037,7 @@ class IdentityTransform(Affine2DBase):
         # docstring inherited
         return self
 
-    def __str__(self):
-        return ("{}()"
-                .format(type(self).__name__))
+    __str__ = _make_str_method()
 
     def get_matrix(self):
         # docstring inherited
@@ -2088,13 +2091,7 @@ class _BlendedMixin:
         return (self._x.contains_branch(transform),
                 self._y.contains_branch(transform))
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._x),
-                        _indent_str(self._y)))
+    __str__ = _make_str_method("_x", "_y")
 
 
 class BlendedGenericTransform(_BlendedMixin, Transform):
@@ -2333,13 +2330,7 @@ class CompositeGenericTransform(Transform):
     has_inverse = property(
         lambda self: self._a.has_inverse and self._b.has_inverse)
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._a),
-                        _indent_str(self._b)))
+    __str__ = _make_str_method("_a", "_b")
 
     def transform_affine(self, points):
         # docstring inherited
@@ -2419,13 +2410,7 @@ class CompositeAffine2D(Affine2DBase):
         for left, right in self._b._iter_break_from_left_to_right():
             yield self._a + left, right
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._a),
-                        _indent_str(self._b)))
+    __str__ = _make_str_method("_a", "_b")
 
     def get_matrix(self):
         # docstring inherited
@@ -2486,13 +2471,7 @@ class BboxTransform(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._boxin),
-                        _indent_str(self._boxout)))
+    __str__ = _make_str_method("_boxin", "_boxout")
 
     def get_matrix(self):
         # docstring inherited
@@ -2534,11 +2513,7 @@ class BboxTransformTo(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._boxout)))
+    __str__ = _make_str_method("_boxout")
 
     def get_matrix(self):
         # docstring inherited
@@ -2592,11 +2567,7 @@ class BboxTransformFrom(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._boxin)))
+    __str__ = _make_str_method("_boxin")
 
     def get_matrix(self):
         # docstring inherited
@@ -2628,11 +2599,7 @@ class ScaledTranslation(Affine2DBase):
         self._mtx = None
         self._inverted = None
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._t)))
+    __str__ = _make_str_method("_t")
 
     def get_matrix(self):
         # docstring inherited
