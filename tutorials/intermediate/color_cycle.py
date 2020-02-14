@@ -67,12 +67,11 @@ fig.subplots_adjust(hspace=0.3)
 plt.show()
 
 ###############################################################################
-# Setting ``prop_cycle`` in the ``matplotlibrc`` file or style files
-# ------------------------------------------------------------------
+# Setting ``prop_cycle`` in the :file:`matplotlibrc` file or style files
+# ----------------------------------------------------------------------
 #
-# Remember, if you want to set a custom cycler in your
-# ``.matplotlibrc`` file or a style file (``style.mplstyle``), you can set the
-# ``axes.prop_cycle`` property:
+# Remember, a custom cycler can be set in your :file:`matplotlibrc`
+# file or a style file (:file:`style.mplstyle`) under ``axes.prop_cycle``:
 #
 # .. code-block:: python
 #

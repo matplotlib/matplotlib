@@ -329,11 +329,11 @@ lower-left corner and (1, 1) means top-right.
 Placing Artist at the anchored location of the Axes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are classes of artists that can be placed at an anchored location
-in the Axes. A common example is the legend.  This type of artist can
-be created by using the OffsetBox class. A few predefined classes are
-available in ``mpl_toolkits.axes_grid1.anchored_artists`` others in
-``matplotlib.offsetbox`` ::
+There are classes of artists that can be placed at an anchored
+location in the Axes.  A common example is the legend.  This type
+of artist can be created by using the `.OffsetBox` class. A few
+predefined classes are available in :mod:`matplotlib.offsetbox` and in
+:mod:`mpl_toolkits.axes_grid1.anchored_artists`. ::
 
     from matplotlib.offsetbox import AnchoredText
     at = AnchoredText("Figure 1a",

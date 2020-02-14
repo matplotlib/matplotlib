@@ -26,9 +26,9 @@ Matplotlib recognizes the following formats to specify a color:
   'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan'}``
   (case-insensitive);
 * a "CN" color spec, i.e. ``'C'`` followed by a number, which is an index into
-  the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``); the
-  indexing is intended to occur at rendering time, and defaults to black if the
-  cycle does not include color.
+  the default property cycle (:rc:`axes.prop_cycle`); the indexing is intended
+  to occur at rendering time, and defaults to black if the cycle does not
+  include color.
 
 .. _xkcd color survey: https://xkcd.com/color/rgb/
 
@@ -81,7 +81,7 @@ demo('seaborn')
 
 ###############################################################################
 # will use the first color for the title and then plot using the second
-# and third colors of each style's ``mpl.rcParams['axes.prop_cycle']``.
+# and third colors of each style's :rc:`axes.prop_cycle`.
 #
 #
 # .. _xkcd-colors:

@@ -95,7 +95,7 @@ abbreviated style string in ``plot``, however the new default colors
 are only specified via hex values.  To access these colors outside of
 the property cycling the notation for colors ``'CN'``, where ``N``
 takes values 0-9, was added to
-denote the first 10 colors in ``mpl.rcParams['axes.prop_cycle']`` See
+denote the first 10 colors in :rc:`axes.prop_cycle`. See
 :doc:`/tutorials/colors/colors` for more details.
 
 To restore the old color cycle use
@@ -1130,7 +1130,7 @@ but cannot be controlled independently via `.rcParams`.
 ``ScalarFormatter`` tick label formatting with offsets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-With the default of ``rcParams['axes.formatter.useoffset'] = True``,
+With the default :rc:`axes.formatter.useoffset`,
 an offset will be used when it will save 4 or more digits.  This can
 be controlled with the new :rc:`axes.formatter.offset_threshold`.
 To restore the previous behavior of using an offset to save 2 or more
