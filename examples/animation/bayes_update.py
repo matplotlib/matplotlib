@@ -41,6 +41,10 @@ class UpdateDist:
     def __call__(self, i):
         # This way the plot can continuously run and we just keep
         # watching new realizations of the process
+        if i == 0:
+            self.success = 0
+            self.line.set_data([], [])
+            return self.line,
 
         # Choose success based on exceed a threshold with a uniform pick
         if np.random.rand(1,) < self.prob:
