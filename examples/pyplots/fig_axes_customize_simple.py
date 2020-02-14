@@ -9,7 +9,7 @@ Customize the background, labels and ticks of a simple plot.
 import matplotlib.pyplot as plt
 
 ###############################################################################
-# ``plt.figure`` creates a ```matplotlib.figure.Figure`` instance
+# `.pyplot.figure` creates a `matplotlib.figure.Figure` instance.
 
 fig = plt.figure()
 rect = fig.patch  # a rectangle instance

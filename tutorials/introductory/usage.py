@@ -290,7 +290,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 # There are three ways to configure your backend:
 #
-# 1. The :rc:`backend` parameter in your ``matplotlibrc`` file
+# 1. The :rc:`backend` parameter in your :file:`matplotlibrc` file
 # 2. The :envvar:`MPLBACKEND` environment variable
 # 3. The function :func:`matplotlib.use`
 #
@@ -298,7 +298,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 # If multiple of these are configurations are present, the last one from the
 # list takes precedence; e.g. calling :func:`matplotlib.use()` will override
-# the setting in your ``matplotlibrc``.
+# the setting in your :file:`matplotlibrc`.
 #
 # If no backend is explicitly set, Matplotlib automatically detects a usable
 # backend based on what is available on your system and on whether a GUI event
@@ -308,7 +308,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 # Here is a detailed description of the configuration methods:
 #
-# #. Setting :rc:`backend` in your ``matplotlibrc`` file::
+# #. Setting :rc:`backend` in your :file:`matplotlibrc` file::
 #
 #        backend : qt5agg   # use pyqt5 with antigrain (agg) rendering
 #
@@ -332,10 +332,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #         > python simple_plot.py
 #
 #    Setting this environment variable will override the ``backend`` parameter
-#    in *any* ``matplotlibrc``, even if there is a ``matplotlibrc`` in your
-#    current working directory. Therefore, setting :envvar:`MPLBACKEND`
-#    globally, e.g. in your ``.bashrc`` or ``.profile``, is discouraged as it
-#    might lead to counter-intuitive behavior.
+#    in *any* :file:`matplotlibrc`, even if there is a :file:`matplotlibrc` in
+#    your current working directory. Therefore, setting :envvar:`MPLBACKEND`
+#    globally, e.g. in your :file:`.bashrc` or :file:`.profile`, is discouraged
+#    as it might lead to counter-intuitive behavior.
 #
 # #. If your script depends on a specific backend you can use the function
 #    :func:`matplotlib.use`::
@@ -646,18 +646,15 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Line segment simplification
 # ---------------------------
 #
-# For plots that have line segments (e.g. typical line plots,
-# outlines of polygons, etc.), rendering performance can be
-# controlled by the ``path.simplify`` and
-# ``path.simplify_threshold`` parameters in your
-# ``matplotlibrc`` file (see
-# :doc:`/tutorials/introductory/customizing` for
-# more information about the ``matplotlibrc`` file).
-# The ``path.simplify`` parameter is a boolean indicating whether
-# or not line segments are simplified at all. The
-# ``path.simplify_threshold`` parameter controls how much line
-# segments are simplified; higher thresholds result in quicker
-# rendering.
+# For plots that have line segments (e.g. typical line plots, outlines
+# of polygons, etc.), rendering performance can be controlled by
+# :rc:`path.simplify` and :rc:`path.simplify_threshold`, which
+# can be defined e.g. in the :file:`matplotlibrc` file (see
+# :doc:`/tutorials/introductory/customizing` for more information about
+# the :file:`matplotlibrc` file). :rc:`path.simplify` is a boolean
+# indicating whether or not line segments are simplified at all.
+# :rc:`path.simplify_threshold` controls how much line segments are simplified;
+# higher thresholds result in quicker rendering.
 #
 # The following script will first display the data without any
 # simplification, and then display the same data with simplification.
@@ -683,7 +680,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 # Matplotlib currently defaults to a conservative simplification
 # threshold of ``1/9``. If you want to change your default settings
-# to use a different value, you can change your ``matplotlibrc``
+# to use a different value, you can change your :file:`matplotlibrc`
 # file.  Alternatively, you could create a new style for
 # interactive plotting (with maximal simplification) and another
 # style for publication quality plotting (with minimal

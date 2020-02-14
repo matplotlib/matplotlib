@@ -58,7 +58,7 @@ plt.tight_layout()
 # Note that :func:`matplotlib.pyplot.tight_layout` will only adjust the
 # subplot params when it is called.  In order to perform this adjustment each
 # time the figure is redrawn, you can call ``fig.set_tight_layout(True)``, or,
-# equivalently, set the ``figure.autolayout`` rcParam to ``True``.
+# equivalently, set :rc:`figure.autolayout` to ``True``.
 #
 # When you have multiple subplots, often you see labels of different
 # axes overlapping each other.
