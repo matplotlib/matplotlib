@@ -24,8 +24,8 @@ import numpy as np
 # ------------
 #
 # The grid specification with the least assumptions is ``shading='flat'``
-# and if the grid is one larger than the data in each dimesion, i.e. has shape
-# *(M+1, N+1)*.  In that case *X* and *Y* sepcify the corners of quadrilaterals
+# and if the grid is one larger than the data in each dimension, i.e. has shape
+# *(M+1, N+1)*.  In that case *X* and *Y* specify the corners of quadrilaterals
 # that are colored with the values in *Z*. Here we specify the edges of the
 # *(3, 5)* quadrilaterals with *X* and *Y* that  are *(4, 6)*.
 
@@ -71,8 +71,8 @@ _annotate(ax, x, y, "shading='flat': X, Y, C same shape")
 # --------------------------------
 #
 # Usually, dropping a row and column of data is not what the user means when
-# the make *X*, *Y* and *Z* all the same shape.  For this case, Matplotlib
-# allows ``shading='nearest'`` and centers the colored qudrilaterals on the
+# they make *X*, *Y* and *Z* all the same shape.  For this case, Matplotlib
+# allows ``shading='nearest'`` and centers the colored quadrilaterals on the
 # grid points.
 #
 # If a grid that is not the correct shape is passed with ``shading='nearest'``
@@ -86,9 +86,9 @@ _annotate(ax, x, y, "shading='nearest'")
 # Auto Shading
 # ------------
 #
-# Its possible that the user would like the code to automatically choose
-# which to use, in which case ``shading='auto'`` will decide whether to
-# use 'flat' or 'nearest' shading based on the shapes of *X*, *Y* and *Z*.
+# It's possible that the user would like the code to automatically choose which
+# to use, in this case ``shading='auto'`` will decide whether to use 'flat' or
+# 'nearest' shading based on the shapes of *X*, *Y* and *Z*.
 
 fig, axs = plt.subplots(2, 1, constrained_layout=True)
 ax = axs[0]
@@ -108,9 +108,8 @@ _annotate(ax, x, y, "shading='auto'; X, Y one larger than Z (flat)")
 # ---------------
 #
 # `Gouraud shading <https://en.wikipedia.org/wiki/Gouraud_shading>`_ can also
-# be specified, where the colour in the quadrilaterals is linearly
-# interpolated between the grid points.  The shapes of *X*, *Y*, *Z* must
-# be the same.
+# be specified, where the color in the quadrilaterals is linearly interpolated
+# between the grid points.  The shapes of *X*, *Y*, *Z* must be the same.
 
 fig, ax = plt.subplots(constrained_layout=True)
 x = np.arange(ncols)

@@ -25,7 +25,7 @@ def line_select_callback(eclick, erelease):
     x1, y1 = eclick.xdata, eclick.ydata
     x2, y2 = erelease.xdata, erelease.ydata
     print(f"({x1:3.2f}, {y1:3.2f}) --> ({x2:3.2f}, {y2:3.2f})")
-    print(" The button you used were: {eclick.button} {erelease.button}")
+    print(f" The buttons you used were: {eclick.button} {erelease.button}")
 
 
 def toggle_selector(event):

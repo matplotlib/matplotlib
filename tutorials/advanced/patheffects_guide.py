@@ -12,11 +12,11 @@ multiple draw stage to any Artist which can be rendered via a `.path.Path`.
 
 Artists which can have a path effect applied to them include `.patches.Patch`,
 `.lines.Line2D`, `.collections.Collection` and even `.text.Text`. Each artist's
-path effects can be controlled via the `.Artist.set_path_effects` method ,
+path effects can be controlled via the `.Artist.set_path_effects` method,
 which takes an iterable of `AbstractPathEffect` instances.
 
-The simplest path effect is the `Normal` effect, which simply
-draws the artist without any effect:
+The simplest path effect is the `Normal` effect, which simply draws the artist
+without any effect:
 """
 
 import matplotlib.pyplot as plt
@@ -31,7 +31,7 @@ plt.show()
 
 ###############################################################################
 # Whilst the plot doesn't look any different to what you would expect without
-# any path effects, the drawing of the text now been changed to use the
+# any path effects, the drawing of the text has now been changed to use the
 # path effects framework, opening up the possibilities for more interesting
 # examples.
 #
