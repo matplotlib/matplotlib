@@ -80,22 +80,8 @@ def blit(photoimage, aggimage, offsets, bbox=None):
 
 
 class TimerTk(TimerBase):
-    """
-    Subclass of :class:`backend_bases.TimerBase` that uses Tk's timer events.
+    """Subclass of `backend_bases.TimerBase` using Tk timer events."""
 
-    Attributes
-    ----------
-    interval : int, default: 1000ms
-        The time between timer events in milliseconds.
-    single_shot : bool, default: False
-        Whether this timer should operate as single shot (run once and then
-        stop).
-    callbacks : list
-        Stores list of (func, args) tuples that will be called upon timer
-        events. This list can be manipulated directly, or the functions
-        `add_callback` and `remove_callback` can be used.
-
-    """
     def __init__(self, parent, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
         self.parent = parent

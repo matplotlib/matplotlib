@@ -51,21 +51,7 @@ except TypeError as exc:
 
 
 class TimerGTK3(TimerBase):
-    """
-    Subclass of `.TimerBase` using GTK3 for timer events.
-
-    Attributes
-    ----------
-    interval : int, default: 1000ms
-        The time between timer events in milliseconds.
-    single_shot : bool, default: False
-        Whether this timer should operate as single shot (run once and then
-        stop).
-    callbacks : list
-        Stores list of (func, args) tuples that will be called upon timer
-        events. This list can be manipulated directly, or the functions
-        `add_callback` and `remove_callback` can be used.
-    """
+    """Subclass of `.TimerBase` using GTK3 timer events."""
 
     def _timer_start(self):
         # Need to stop it, otherwise we potentially leak a timer id that will
