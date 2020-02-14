@@ -120,9 +120,9 @@ Software Foundation Code of Conduct <coc_>`_ in everything we do.
       </div>
       <div class="box-item">
         <img src="_static/fa/hashtag-solid.svg" alt="Social media">
-        <p>Tweet us at <a href="https://twitter.com/matplotlib">Twitter</a>!
-        or see cool plots on <a href="https://www.instagram.com/matplotart/">Instagram</a>!
-        Check out our <a href="https://matplotlib.org/matplotblog/">blog</a>!</p>
+        <p>Tweet us at <a href="https://twitter.com/matplotlib">Twitter</a>!</p>
+        <p>See cool plots on <a href="https://www.instagram.com/matplotart/">Instagram</a>!</p>
+        <p>Check out our wonderful <a href="https://matplotlib.org/matplotblog/">Blog</a>!</p>
       </div>
     </div>
     <hr class='box-sep'>
