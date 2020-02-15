@@ -720,8 +720,8 @@ class BboxBase(TransformNode):
         """Return a `Bbox` that contains all of the given *bboxes*."""
         if not len(bboxes):
             raise ValueError("'bboxes' cannot be empty")
-        # needed for 1.14.4 < numpy_version < 1.15
-        # can remove once we are at numpy >= 1.15
+        # needed for 1.14.4 < numpy_version < 1.16
+        # can remove once we are at numpy >= 1.16
         with np.errstate(invalid='ignore'):
             x0 = np.min([bbox.xmin for bbox in bboxes])
             x1 = np.max([bbox.xmax for bbox in bboxes])
