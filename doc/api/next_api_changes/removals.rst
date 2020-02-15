@@ -39,6 +39,11 @@ Classes and methods
 - ``backend_qt5.NavigationToolbar2QT.buttons`` property (no replacement)
 - ``backend_qt5.NavigationToolbar2QT.adj_window`` property (no replacement)
 
+- ``docstring.Appender`` (no replacement)
+- ``docstring.dedent()`` (use `inspect.getdoc` instead)
+- ``docstring.copy_dedent()``
+  (use ``docstring.copy()`` and `inspect.getdoc` instead)
+
 - ``matplotlib.checkdep_dvipng`` (no replacement)
 - ``matplotlib.checkdep_ghostscript`` (no replacement)
 - ``matplotlib.checkdep_pdftops`` (no replacement)
@@ -58,6 +63,21 @@ Classes and methods
   (use the class ``PlotDirective`` instead)
 - ``sphinxext.mathmpl.math_directive()``
   (use the class ``MathDirective`` instead)
+
+- ``scale.LogTransformBase`` (use ``scale.LogTransform`` instead)
+- ``scale.InvertedLogTransformBase`` (use ``scale.InvertedLogTransform`` instead)
+- ``scale.Log10Transform`` (use ``scale.LogTransform`` instead)
+- ``scale.InvertedLog10Transform`` (use ``scale.InvertedLogTransform`` instead)
+- ``scale.Log2Transform`` (use ``scale.LogTransform`` instead)
+- ``scale.InvertedLog2Transform`` (use ``scale.InvertedLogTransform`` instead)
+- ``scale.NaturalLogTransform`` (use ``scale.LogTransform`` instead)
+- ``scale.InvertedNaturalLogTransform`` (use ``scale.InvertedLogTransform`` instead)
+
+- ``ticker.OldScalarFormatter.pprint_val()`` (no replacement)
+- ``ticker.ScalarFormatter.pprint_val()`` (no replacement)
+- ``ticker.LogFormatter.pprint_val()`` (no replacement)
+- ``ticker.decade_down()`` (no replacement)
+- ``ticker.decade_up()`` (no replacement)
 
 - ``Artist.aname`` property (no replacement)
 - ``Axis.iter_ticks`` (no replacement)
