@@ -3463,8 +3463,8 @@ class Axes(_AxesBase):
         """
         Make a box and whisker plot.
 
-        Make a box and whisker plot for each column of ``x`` or each
-        vector in sequence ``x``.  The box extends from the lower to
+        Make a box and whisker plot for each column of *x* or each
+        vector in sequence *x*.  The box extends from the lower to
         upper quartile values of the data, with a line at the median.
         The whiskers extend from the box to show the range of the
         data.  Flier points are those past the end of the whiskers.
@@ -3475,11 +3475,10 @@ class Axes(_AxesBase):
             The input data.
 
         notch : bool, default: False
-            If `True`, will produce a notched box plot. Otherwise, a
-            rectangular boxplot is produced. The notches represent the
-            confidence interval (CI) around the median. See the entry
-            for the ``bootstrap`` parameter for information regarding
-            how the locations of the notches are computed.
+            Whether to draw a noteched box plot (`True`), or a rectangular box
+            plot (`False`).  The notches represent the confidence interval (CI)
+            around the median.  The documentation for *bootstrap* describes how
+            the locations of the notches are computed.
 
             .. note::
 
@@ -3491,10 +3490,9 @@ class Axes(_AxesBase):
                 visualization packages.
 
         sym : str, optional
-            The default symbol for flier points. Enter an empty string
-            ('') if you don't want to show fliers. If `None`, then the
-            fliers default to 'b+'  If you want more control use the
-            flierprops kwarg.
+            The default symbol for flier points.  An empty string ('') hides
+            the fliers.  If `None`, then the fliers default to 'b+'.  More
+            control is provided by the *flierprops* parameter.
 
         vert : bool, default: True
             If `True`, draws vertical boxes.
@@ -3523,7 +3521,7 @@ class Axes(_AxesBase):
 
         bootstrap : int, optional
             Specifies whether to bootstrap the confidence intervals
-            around the median for notched boxplots. If ``bootstrap`` is
+            around the median for notched boxplots. If *bootstrap* is
             None, no bootstrapping is performed, and notches are
             calculated using a Gaussian-based asymptotic approximation
             (see McGill, R., Tukey, J.W., and Larsen, W.A., 1978, and
@@ -3533,20 +3531,17 @@ class Axes(_AxesBase):
             recommended.
 
         usermedians : array-like, optional
-            An array or sequence whose first dimension (or length) is
-            compatible with ``x``. This overrides the medians computed
-            by matplotlib for each element of ``usermedians`` that is not
-            `None`. When an element of ``usermedians`` is None, the median
-            will be computed by matplotlib as normal.
+            A 1D array-like of length ``len(x)``.  Each entry that is not
+            `None` forces the value of the median for the corresponding
+            dataset.  For entries that are `None`, the medians are computed
+            by Matplotlib as normal.
 
         conf_intervals : array-like, optional
-            Array or sequence whose first dimension (or length) is
-            compatible with ``x`` and whose second dimension is 2. When
-            the an element of ``conf_intervals`` is not None, the
-            notch locations computed by matplotlib are overridden
-            (provided ``notch`` is `True`). When an element of
-            ``conf_intervals`` is `None`, the notches are computed by the
-            method specified by the other kwargs (e.g., ``bootstrap``).
+            A 2D array-like of shape ``(len(x), 2)``.  Each entry that is not
+            None forces the location of the corresponding notch (which is
+            only drawn if *notch* is `True`).  For entries that are `None`,
+            the notches are computed by the method specified by the other
+            parameters (e.g., *bootstrap*).
 
         positions : array-like, optional
             Sets the positions of the boxes. The ticks and limits are
@@ -3563,8 +3558,7 @@ class Axes(_AxesBase):
             boxes and drawn with Patch artists.
 
         labels : sequence, optional
-            Labels for each dataset. Length must be compatible with
-            dimensions of ``x``.
+            Labels for each dataset (one per dataset).
 
         manage_ticks : bool, default: True
             If True, the tick locations and labels will be adjusted to match
@@ -3572,15 +3566,14 @@ class Axes(_AxesBase):
 
         autorange : bool, default: False
             When `True` and the data are distributed such that the 25th and
-            75th percentiles are equal, ``whis`` is set to (0, 100) such
+            75th percentiles are equal, *whis* is set to (0, 100) such
             that the whisker ends are at the minimum and maximum of the data.
 
         meanline : bool, default: False
-            If `True` (and ``showmeans`` is `True`), will try to render
-            the mean as a line spanning the full width of the box
-            according to ``meanprops`` (see below). Not recommended if
-            ``shownotches`` is also True. Otherwise, means will be shown
-            as points.
+            If `True` (and *showmeans* is `True`), will try to render the
+            mean as a line spanning the full width of the box according to
+            *meanprops* (see below).  Not recommended if *shownotches* is also
+            True.  Otherwise, means will be shown as points.
 
         zorder : scalar, default: None
             Sets the zorder of the boxplot.
@@ -3712,7 +3705,8 @@ class Axes(_AxesBase):
         if usermedians is not None:
             if (len(np.ravel(usermedians)) != len(bxpstats) or
                     np.shape(usermedians)[0] != len(bxpstats)):
-                raise ValueError('usermedians length not compatible with x')
+                raise ValueError(
+                    "'usermedians' and 'x' have different lengths")
             else:
                 # reassign medians as necessary
                 for stats, med in zip(bxpstats, usermedians):
@@ -3721,8 +3715,8 @@ class Axes(_AxesBase):
 
         if conf_intervals is not None:
             if np.shape(conf_intervals)[0] != len(bxpstats):
-                err_mess = 'conf_intervals length not compatible with x'
-                raise ValueError(err_mess)
+                raise ValueError(
+                    "'conf_intervals' and 'x' have different lengths")
             else:
                 for stats, ci in zip(bxpstats, conf_intervals):
                     if ci is not None:
