@@ -139,6 +139,14 @@ _freetype_hashes = {
         '33a28fabac471891d0523033e99c0005b95e5618dc8ffa7fa47f9dadcacb1c9b',
     '2.8.1':
         '876711d064a6a1bd74beb18dd37f219af26100f72daaebd2d86cb493d7cd7ec6',
+    '2.9':
+        'bf380e4d7c4f3b5b1c1a7b2bf3abb967bda5e9ab480d0df656e0e08c5019c5e6',
+    '2.9.1':
+        'ec391504e55498adceb30baceebd147a6e963f636eb617424bcfc47a169898ce',
+    '2.10.0':
+        '955e17244e9b38adb0c98df66abb50467312e6bb70eac07e49ce6bd1a20e809a',
+    '2.10.1':
+        '3a60d391fd579440561bf0e7f31af2222bc610ad6ce4d9d7bd2165bca8669110',
 }
 # This is the version of FreeType to use when building a local
 # version.  It must match the value in
