@@ -213,7 +213,7 @@ class Axes(_AxesBase):
 
         See also
         --------
-        text : for information on how override and the optional arguments work
+        text : Documents the properties supported by `.Text`.
         """
         if labelpad is not None:
             self.xaxis.labelpad = labelpad
@@ -266,7 +266,7 @@ class Axes(_AxesBase):
 
         See also
         --------
-        text : for information on how override and the optional arguments work
+        text : Documents the properties supported by `.Text`.
         """
         if labelpad is not None:
             self.yaxis.labelpad = labelpad
@@ -689,6 +689,7 @@ class Axes(_AxesBase):
             raise ValueError('secondary_yaxis location must be either '
                              'a float or "left"/"right"')
 
+    @docstring.dedent_interpd
     def text(self, x, y, s, fontdict=None, **kwargs):
         """
         Add text to the axes.
@@ -718,6 +719,8 @@ class Axes(_AxesBase):
         ----------------
         **kwargs : `~matplotlib.text.Text` properties.
             Other miscellaneous text parameters.
+
+            %(Text)s
 
         Examples
         --------
