@@ -1107,8 +1107,8 @@ class TestSpectral:
             {"y": self.y+1, "mode": "phase"},
             {"mode": "spam"},  # Bad mode.
             {"y": self.y, "sides": "eggs"},  # Bad sides.
-            {"NFFT": 10, "noverlap": 20},  # noverlap > NFFT.
-            {"y": self.y, "NFFT": 10, "noverlap": 20},  # noverlap == NFFT.
+            {"y": self.y, "NFFT": 10, "noverlap": 20},  # noverlap > NFFT.
+            {"NFFT": 10, "noverlap": 10},  # noverlap == NFFT.
             {"y": self.y, "NFFT": 10,
              "window": np.ones(9)},  # len(win) != NFFT.
         ]:
@@ -1361,6 +1361,7 @@ class TestSpectral:
         assert spec.shape == freqs.shape
         if kind == "magnitude":
             self.check_maxfreq(spec, fsp, self.fstims)
+            self.check_freqs(spec, freqs, fsp, self.fstims)
 
     @pytest.mark.parametrize(
         'kwargs',

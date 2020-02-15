@@ -172,7 +172,6 @@ def baseline_images(request, fontset, index):
     return ['%s_%s_%02d' % (request.param, fontset, index)]
 
 
-# recwarn suppresses warnings regarding the deprecation of \stackrel.
 @pytest.mark.parametrize('index, test', enumerate(math_tests),
                          ids=[str(index) for index in range(len(math_tests))])
 @pytest.mark.parametrize('fontset',
@@ -180,7 +179,7 @@ def baseline_images(request, fontset, index):
                           'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathtext'], indirect=True)
 @image_comparison(baseline_images=None)
-def test_mathtext_rendering(baseline_images, fontset, index, test, recwarn):
+def test_mathtext_rendering(baseline_images, fontset, index, test):
     matplotlib.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, test,
