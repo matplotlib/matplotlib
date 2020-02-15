@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import Collection, LineCollection, EventCollection
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
 def generate_EventCollection_plot():
@@ -612,3 +612,25 @@ def test_EventCollection_nosort():
     arr = np.array([3, 2, 1, 10])
     coll = EventCollection(arr)
     np.testing.assert_array_equal(arr, np.array([3, 2, 1, 10]))
+
+
+@check_figures_equal()
+def test_collection_offset(fig_test, fig_ref):
+    polygon = np.array([[-1, -1], [-1, 1], [1, 1], [1, -1]]) * 0.1
+    offsets = np.array([2, 2])
+
+    # Add the collection off the edge of the axes, so if offsets is applied
+    # correctly it is not within the axes bounds
+    ax = fig_test.subplots()
+    # edgecolors and linewidths must be set to trigger the right code path
+    collection = mcollections.PolyCollection(
+        [polygon],
+        edgecolors='face',
+        linewidths=[1],
+        offsets=offsets,
+        transOffset=mtransforms.IdentityTransform(),
+        offset_position="data")
+    ax.add_collection(collection)
+
+    # Create an empty figure
+    ax = fig_ref.subplots()
