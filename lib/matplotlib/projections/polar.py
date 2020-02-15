@@ -1016,15 +1016,19 @@ class PolarAxes(Axes):
         return spines
 
     def set_thetamax(self, thetamax):
+        """Set the maximum theta limit in degrees."""
         self.viewLim.x1 = np.deg2rad(thetamax)
 
     def get_thetamax(self):
+        """Return the maximum theta limit in degrees."""
         return np.rad2deg(self.viewLim.xmax)
 
     def set_thetamin(self, thetamin):
+        """Set the minimum theta limit in degrees."""
         self.viewLim.x0 = np.deg2rad(thetamin)
 
     def get_thetamin(self):
+        """Get the minimum theta limit in degrees."""
         return np.rad2deg(self.viewLim.xmin)
 
     def set_thetalim(self, *args, **kwargs):
