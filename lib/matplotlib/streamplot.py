@@ -235,8 +235,9 @@ class StreamplotSet:
     def __init__(self, lines, arrows, **kwargs):
         if kwargs:
             cbook.warn_deprecated(
-                "3.3", "Passing arbitrary keyword arguments to StreamplotSet "
-                       "is deprecated.")
+                "3.3",
+                message="Passing arbitrary keyword arguments to StreamplotSet "
+                        "is deprecated.")
         self.lines = lines
         self.arrows = arrows
 
