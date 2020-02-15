@@ -339,7 +339,7 @@ plt.show()
 # ================ ============================================================
 # axes             A list of Axes instances (includes Subplot)
 # patch            The Rectangle background
-# images           A list of FigureImages patches -
+# images           A list of FigureImage patches -
 #                  useful for raw pixel display
 # legends          A list of Figure Legend instances
 #                  (different from Axes.legends)

@@ -168,7 +168,7 @@ class SnappingCursor:
     A cross hair cursor that snaps to the data point of a line, which is
     closest to the *x* position of the cursor.
 
-    For simplicity, this assumes that *x* values of the data is sorted.
+    For simplicity, this assumes that *x* values of the data are sorted.
     """
     def __init__(self, ax, line):
         self.ax = ax

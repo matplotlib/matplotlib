@@ -204,7 +204,7 @@ class Axes(_AxesBase):
 
         loc : {'left', 'center', 'right'}, default: :rc:`xaxis.labellocation`
             The label position. This is a high-level alternative for passing
-            parameters *x* and *horizonatalalignment*.
+            parameters *x* and *horizontalalignment*.
 
         Other Parameters
         ----------------
@@ -213,7 +213,7 @@ class Axes(_AxesBase):
 
         See also
         --------
-        text : for information on how override and the optional args work
+        text : for information on how override and the optional arguments work
         """
         if labelpad is not None:
             self.xaxis.labelpad = labelpad
@@ -221,8 +221,9 @@ class Axes(_AxesBase):
         if {*kwargs} & {*protected_kw}:
             if loc is not None:
                 raise TypeError(f"Specifying 'loc' is disallowed when any of "
-                                f"its corresponding low level kwargs "
-                                f"({protected_kw}) are supplied as well")
+                                f"its corresponding low level keyword "
+                                f"arguments ({protected_kw}) are also "
+                                f"supplied")
             loc = 'center'
         else:
             loc = loc if loc is not None else rcParams['xaxis.labellocation']
@@ -256,7 +257,7 @@ class Axes(_AxesBase):
 
         loc : {'bottom', 'center', 'top'}, default: :rc:`yaxis.labellocation`
             The label position. This is a high-level alternative for passing
-            parameters *y* and *horizonatalalignment*.
+            parameters *y* and *horizontalalignment*.
 
         Other Parameters
         ----------------
@@ -265,8 +266,7 @@ class Axes(_AxesBase):
 
         See also
         --------
-        text : for information on how override and the optional args work
-
+        text : for information on how override and the optional arguments work
         """
         if labelpad is not None:
             self.yaxis.labelpad = labelpad
@@ -274,8 +274,9 @@ class Axes(_AxesBase):
         if {*kwargs} & {*protected_kw}:
             if loc is not None:
                 raise TypeError(f"Specifying 'loc' is disallowed when any of "
-                                f"its corresponding low level kwargs "
-                                f"({protected_kw}) are supplied as well")
+                                f"its corresponding low level keyword "
+                                f"arguments ({protected_kw}) are also "
+                                f"supplied")
             loc = 'center'
         else:
             loc = loc if loc is not None else rcParams['yaxis.labellocation']
@@ -5780,7 +5781,7 @@ default: :rc:`scatter.edgecolors`
 
         shading : {'flat', 'nearest', 'auto'}, optional
             The fill style for the quadrilateral; defaults to 'flat' or
-            ':rc:`pcolor.shading`. Possible values:
+            :rc:`pcolor.shading`. Possible values:
 
             - 'flat': A solid color is used for each quad. The color of the
               quad (i, j), (i+1, j), (i, j+1), (i+1, j+1) is given by
@@ -6060,7 +6061,7 @@ default: :rc:`scatter.edgecolors`
 
         shading : {'flat', 'nearest', 'gouraud', 'auto'}, optional
             The fill style for the quadrilateral; defaults to
-            'flat' or ':rc:`pcolor.shading`. Possible values:
+            'flat' or :rc:`pcolor.shading`. Possible values:
 
             - 'flat': A solid color is used for each quad. The color of the
               quad (i, j), (i+1, j), (i, j+1), (i+1, j+1) is given by
@@ -6076,7 +6077,7 @@ default: :rc:`scatter.edgecolors`
               the area in between is interpolated from the corner values.
               The dimensions of *X* and *Y* must be the same as *C*. When
               Gouraud shading is used, *edgecolors* is ignored.
-            - 'auto': Choose 'flat' if diemnsions of *X* and *Y* are one
+            - 'auto': Choose 'flat' if dimensions of *X* and *Y* are one
               larger than *C*.  Choose 'nearest' if dimensions are the same.
 
             See :doc:`/gallery/images_contours_and_fields/pcolormesh_grids`

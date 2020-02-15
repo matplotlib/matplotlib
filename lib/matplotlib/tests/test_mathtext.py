@@ -121,8 +121,8 @@ lowergreek = ("\\alpha \\beta \\gamma \\delta \\epsilon \\zeta \\eta \\theta \\i
 all = [digits, uppercase, lowercase, uppergreek, lowergreek]
 
 # Use stubs to reserve space if tests are removed
-# stub should be of the form (None, N) where is the number of
-# strings that used to be tested
+# stub should be of the form (None, N) where N is the number of strings that
+# used to be tested
 # Add new tests at the end.
 font_test_specs = [
     ([], all),

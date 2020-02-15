@@ -754,9 +754,9 @@ class ColorbarBase:
         _protected_kw = [_pos_xy, 'horizontalalignment', 'ha']
         if any([k in kwargs for k in _protected_kw]):
             if loc is not None:
-                raise TypeError('Specifying *loc* is disallowed when any of '
-                               'its corresponding low level kwargs {} '
-                               'are supplied as well.'.format(_protected_kw))
+                raise TypeError(f'Specifying *loc* is disallowed when any of '
+                                f'its corresponding low level keyword '
+                                f'arguments {_protected_kw} are also supplied')
             loc = 'center'
         else:
             if loc is None:
