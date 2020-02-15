@@ -316,7 +316,7 @@ class SecondaryAxis(_AxesBase):
 
         See also
         --------
-        text : for information on how override and the optional args work
+        text : Documents the properties supported by `.Text`.
         """
         if labelpad is not None:
             self.xaxis.labelpad = labelpad
@@ -341,7 +341,7 @@ class SecondaryAxis(_AxesBase):
 
         See also
         --------
-        text : for information on how override and the optional args work
+        text : Documents the properties supported by `.Text`.
         """
         if labelpad is not None:
             self.yaxis.labelpad = labelpad
