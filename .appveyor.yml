@@ -26,7 +26,7 @@ environment:
     - PYTHON_VERSION: "3.6"
       CONDA_INSTALL_LOCN: "C:\\Miniconda36-x64"
       TEST_ALL: "no"
-      EXTRAREQS: "-r requirements/testing/travis36.txt"
+      EXTRAREQS: "-r requirements/testing/travis_extra.txt"
     - PYTHON_VERSION: "3.7"
       CONDA_INSTALL_LOCN: "C:\\Miniconda37-x64"
       TEST_ALL: "no"
