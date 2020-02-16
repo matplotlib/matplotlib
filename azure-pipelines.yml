@@ -110,7 +110,7 @@ steps:
       bash <(curl -s https://codecov.io/bash) -f "!*.gcov"
       ;;
     win32)
-      choco install codecov
+      pip install codecov
       codecov.exe  -f "!*.gcov"
       ;;
     *)
