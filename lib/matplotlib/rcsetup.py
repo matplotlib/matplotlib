@@ -50,10 +50,12 @@ all_backends = interactive_bk + non_interactive_bk
 
 
 class ValidateInStrings:
-    def __init__(self, key, valid, ignorecase=False):
+    def __init__(self, key, valid, ignorecase=False, *,
+                 _deprecated_since=None):
         """*valid* is a list of legal strings."""
         self.key = key
         self.ignorecase = ignorecase
+        self._deprecated_since = _deprecated_since
 
         def func(s):
             if ignorecase:
@@ -63,6 +65,10 @@ class ValidateInStrings:
         self.valid = {func(k): k for k in valid}
 
     def __call__(self, s):
+        if self._deprecated_since:
+            name, = (k for k, v in globals().items() if v is self)
+            cbook.warn_deprecated(
+                self._deprecated_since, name=name, obj_type="function")
         if self.ignorecase:
             s = s.lower()
         if s in self.valid:
@@ -352,7 +358,7 @@ def validate_color(s):
 validate_colorlist = _listify_validator(
     validate_color, allow_stringlist=True, doc='return a list of colorspecs')
 validate_orientation = ValidateInStrings(
-    'orientation', ['landscape', 'portrait'])
+    'orientation', ['landscape', 'portrait'], _deprecated_since="3.3")
 
 
 def validate_aspect(s):
@@ -408,15 +414,15 @@ def validate_font_properties(s):
 
 validate_fontset = ValidateInStrings(
     'fontset',
-    ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom'])
+    ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom'],
+    _deprecated_since="3.3")
 validate_mathtext_default = ValidateInStrings(
-    'default', "rm cal it tt sf bf default bb frak scr regular".split())
-
-
+    'default', "rm cal it tt sf bf default bb frak scr regular".split(),
+    _deprecated_since="3.3")
 _validate_alignment = ValidateInStrings(
     'alignment',
-    ['center', 'top', 'bottom', 'baseline',
-     'center_baseline'])
+    ['center', 'top', 'bottom', 'baseline', 'center_baseline'],
+    _deprecated_since="3.3")
 
 
 def validate_whiskers(s):
@@ -635,7 +641,8 @@ validate_legend_loc = ValidateInStrings(
      'upper center',
      'center'], ignorecase=True)
 
-validate_svg_fonttype = ValidateInStrings('svg.fonttype', ['none', 'path'])
+validate_svg_fonttype = ValidateInStrings(
+    'svg.fonttype', ['none', 'path'], _deprecated_since="3.3")
 
 
 def validate_hinting(s):
@@ -650,8 +657,9 @@ def validate_hinting(s):
     raise ValueError("hinting should be 'auto', 'native', 'either' or 'none'")
 
 
-validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
-                                           ['xelatex', 'lualatex', 'pdflatex'])
+validate_pgf_texsystem = ValidateInStrings(
+    'pgf.texsystem', ['xelatex', 'lualatex', 'pdflatex'],
+    _deprecated_since="3.3")
 
 
 def validate_movie_writer(s):
@@ -665,12 +673,13 @@ def validate_movie_writer(s):
 
 
 validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
-    ['png', 'jpeg', 'tiff', 'raw', 'rgba'])
+    ['png', 'jpeg', 'tiff', 'raw', 'rgba'], _deprecated_since="3.3")
 
-validate_axis_locator = ValidateInStrings('major', ['minor', 'both', 'major'])
+validate_axis_locator = ValidateInStrings(
+    'major', ['minor', 'both', 'major'], _deprecated_since="3.3")
 
 validate_movie_html_fmt = ValidateInStrings('animation.html',
-    ['html5', 'jshtml', 'none'])
+    ['html5', 'jshtml', 'none'], _deprecated_since="3.3")
 
 
 def validate_bbox(s):
@@ -723,7 +732,8 @@ _range_validators = {  # Slightly nicer (internal) API.
 }
 
 
-validate_grid_axis = ValidateInStrings('axes.grid.axis', ['x', 'y', 'both'])
+validate_grid_axis = ValidateInStrings(
+    'axes.grid.axis', ['x', 'y', 'both'], _deprecated_since="3.3")
 
 
 def validate_hatch(s):
@@ -971,15 +981,13 @@ def validate_webagg_address(s):
     raise ValueError("'webagg.address' is not a valid IP address")
 
 
-validate_axes_titlelocation = ValidateInStrings('axes.titlelocation',
-                                                ['left', 'center', 'right'])
-_validate_xaxis_labellocation = ValidateInStrings('xaxis.labellocation',
-                                                  ['left', 'center', 'right'])
-_validate_yaxis_labellocation = ValidateInStrings('yaxis.labellocation',
-                                                  ['bottom', 'center', 'top'])
+validate_axes_titlelocation = ValidateInStrings(
+    'axes.titlelocation', ['left', 'center', 'right'], _deprecated_since="3.3")
 
 
-# a map from key -> value, converter
+# A map of key -> [value, converter].
+# Converters given as lists are converted to ValidateInStrings immediately
+# below.
 defaultParams = {
     'backend':           [_auto_backend_sentinel, validate_backend],
     'backend_fallback':  [True, validate_bool],
@@ -1124,16 +1132,19 @@ defaultParams = {
     'mathtext.it':             ['sans:italic', validate_font_properties],
     'mathtext.bf':             ['sans:bold', validate_font_properties],
     'mathtext.sf':             ['sans', validate_font_properties],
-    'mathtext.fontset':        ['dejavusans', validate_fontset],
-    'mathtext.default':        ['it', validate_mathtext_default],
+    'mathtext.fontset':        [
+        'dejavusans',
+        ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom']],
+    'mathtext.default':        [
+        'it',
+        ['rm', 'cal', 'it', 'tt', 'sf', 'bf', 'default', 'bb', 'frak', 'scr', 'regular']],
     'mathtext.fallback_to_cm': [True, validate_bool],
 
     'image.aspect':        ['equal', validate_aspect],  # equal, auto, a number
     'image.interpolation': ['antialiased', validate_string],
     'image.cmap':          ['viridis', validate_string],  # gray, jet, etc.
     'image.lut':           [256, validate_int],  # lookup table
-    'image.origin':        ['upper',
-                            ValidateInStrings('image.origin', ['upper', 'lower'])],
+    'image.origin':        ['upper', ['upper', 'lower']],
     'image.resample':      [True, validate_bool],
     # Specify whether vector graphics backends will combine all images on a
     # set of axes into a single composite image
@@ -1147,8 +1158,8 @@ defaultParams = {
     'errorbar.capsize':      [0, validate_float],
 
     # axis props
-    'xaxis.labellocation':    ['center', _validate_xaxis_labellocation],  # alignment of x axis title
-    'yaxis.labellocation':    ['center', _validate_yaxis_labellocation],  # alignment of y axis title
+    'xaxis.labellocation':    ['center', ['left', 'center', 'right']],  # alignment of x axis title
+    'yaxis.labellocation':    ['center', ['bottom', 'center', 'top']],  # alignment of y axis title
 
     # axes props
     'axes.axisbelow':        ['line', validate_axisbelow],
@@ -1163,16 +1174,14 @@ defaultParams = {
 
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
-    'axes.titlelocation':    ['center', validate_axes_titlelocation],  # alignment of axes title
+    'axes.titlelocation':    ['center', ['left', 'center', 'right']],  # alignment of axes title
     'axes.titleweight':      ['normal', validate_fontweight],  # font weight of axes title
     'axes.titlecolor':       ['auto', validate_color_or_auto],  # font color of axes title
     'axes.titlepad':         [6.0, validate_float],  # pad from axes top to title in points
     'axes.grid':             [False, validate_bool],   # display grid or not
-    'axes.grid.which':       ['major', validate_axis_locator],  # set whether the gid are by
-                                                                # default draw on 'major'
-                                                                # 'minor' or 'both' kind of
-                                                                # axis locator
-    'axes.grid.axis':        ['both', validate_grid_axis],  # grid type:
+    'axes.grid.which':       ['major', ['minor', 'both', 'major']],  # set whether the grid is drawn on
+                                                                     # 'major' 'minor' or 'both' ticks
+    'axes.grid.axis':        ['both', ['x', 'y', 'both']],  # grid type:
                                                             # 'x', 'y', or 'both'
     'axes.labelsize':        ['medium', validate_fontsize],  # fontsize of the
                                                              # x any y labels
@@ -1201,9 +1210,7 @@ defaultParams = {
         validate_cycler],
     # If 'data', axes limits are set close to the data.
     # If 'round_numbers' axes limits are set to the nearest round numbers.
-    'axes.autolimit_mode': [
-        'data',
-        ValidateInStrings('autolimit_mode', ['data', 'round_numbers'])],
+    'axes.autolimit_mode': ['data', ['data', 'round_numbers']],
     'axes.xmargin': [0.05, _range_validators["0 <= x <= 1"]],
     'axes.ymargin': [0.05, _range_validators["0 <= x <= 1"]],
 
@@ -1278,7 +1285,8 @@ defaultParams = {
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
     'xtick.direction':   ['out', validate_string],            # direction of xticks
-    'xtick.alignment': ["center", _validate_alignment],
+    'xtick.alignment':   ['center',
+                          ['center', 'top', 'bottom', 'baseline', 'center_baseline']],
 
     'ytick.left':        [True, validate_bool],  # draw ticks on the left side
     'ytick.right':       [False, validate_bool],  # draw ticks on the right side
@@ -1300,7 +1308,8 @@ defaultParams = {
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
     'ytick.direction':   ['out', validate_string],            # direction of yticks
-    'ytick.alignment': ["center_baseline", _validate_alignment],
+    'ytick.alignment':   ['center_baseline',
+                          ['center', 'top', 'bottom', 'baseline', 'center_baseline']],
 
     'grid.color':        ['#b0b0b0', validate_color],  # grid color
     'grid.linestyle':    ['-', _validate_linestyle],  # solid
@@ -1346,7 +1355,7 @@ defaultParams = {
     'savefig.dpi':         ['figure', validate_dpi],  # DPI
     'savefig.facecolor':   ['white', validate_color],
     'savefig.edgecolor':   ['white', validate_color],
-    'savefig.orientation': ['portrait', validate_orientation],
+    'savefig.orientation': ['portrait', ['landscape', 'portrait']],
     'savefig.jpeg_quality': [95, validate_int],
     # value checked by backend at runtime
     'savefig.format':     ['png', _update_savefig_format],
@@ -1376,7 +1385,7 @@ defaultParams = {
     'pdf.fonttype':     [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
 
     # choose latex application for creating pdf files (xelatex/lualatex)
-    'pgf.texsystem': ['xelatex', validate_pgf_texsystem],
+    'pgf.texsystem': ['xelatex', ['xelatex', 'lualatex', 'pdflatex']],
     # use matplotlib rc settings for font configuration
     'pgf.rcfonts':   [True, validate_bool],
     # provide a custom preamble for the latex process
@@ -1385,7 +1394,7 @@ defaultParams = {
     # write raster image data directly into the svg file
     'svg.image_inline':     [True, validate_bool],
     # True to save all characters as paths in the SVG
-    'svg.fonttype':         ['path', validate_svg_fonttype],
+    'svg.fonttype':         ['path', ['none', 'path']],
     'svg.hashsalt':         [None, validate_string_or_None],
 
     # set this when you want to generate hardcopy docstring
@@ -1419,7 +1428,7 @@ defaultParams = {
     'keymap.copy':         [['ctrl+c', 'cmd+c'], validate_stringlist],
 
     # Animation settings
-    'animation.html':         ['none', validate_movie_html_fmt],
+    'animation.html':         ['none', ['html5', 'jshtml', 'none']],
     # Limit, in MB, of size of base64 encoded animation in HTML
     # (i.e. IPython notebook)
     'animation.embed_limit':  [20, validate_float],
@@ -1427,7 +1436,7 @@ defaultParams = {
     'animation.codec':        ['h264', validate_string],
     'animation.bitrate':      [-1, validate_int],
     # Controls image format when frames are written to disk
-    'animation.frame_format': ['png', validate_movie_frame_fmt],
+    'animation.frame_format': ['png', ['png', 'jpeg', 'tiff', 'raw', 'rgba']],
     # Additional arguments for HTML writer
     'animation.html_args':    [[], validate_stringlist],
     # Path to ffmpeg binary. If just binary name, subprocess uses $PATH.
@@ -1451,3 +1460,7 @@ defaultParams = {
     # altogether.  For that use `matplotlib.style.use('classic')`.
     '_internal.classic_mode': [False, validate_bool]
 }
+defaultParams = {
+    k: [default,
+        ValidateInStrings(k, conv) if isinstance(conv, list) else conv]
+    for k, (default, conv) in defaultParams.items()}
