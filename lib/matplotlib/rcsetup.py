@@ -24,7 +24,6 @@ import re
 
 import numpy as np
 
-import matplotlib as mpl
 from matplotlib import animation, cbook
 from matplotlib.cbook import ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
@@ -486,24 +485,8 @@ def validate_ps_distiller(s):
         s = s.lower()
     if s in ('none', None, 'false', False):
         return None
-    elif s in ('ghostscript', 'xpdf'):
-        try:
-            mpl._get_executable_info("gs")
-        except mpl.ExecutableNotFoundError:
-            _log.warning("Setting rcParams['ps.usedistiller'] requires "
-                         "ghostscript.")
-            return None
-        if s == "xpdf":
-            try:
-                mpl._get_executable_info("pdftops")
-            except mpl.ExecutableNotFoundError:
-                _log.warning("Setting rcParams['ps.usedistiller'] to 'xpdf' "
-                             "requires xpdf.")
-                return None
-        return s
     else:
-        raise ValueError('matplotlibrc ps.usedistiller must either be none, '
-                         'ghostscript or xpdf')
+        return ValidateInStrings('ps.usedistiller', ['ghostscript', 'xpdf'])(s)
 
 
 # A validator dedicated to the named line styles, based on the items in
