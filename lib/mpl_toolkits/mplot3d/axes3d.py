@@ -24,7 +24,6 @@ import matplotlib.colors as mcolors
 import matplotlib.docstring as docstring
 import matplotlib.scale as mscale
 from matplotlib.axes import Axes, rcParams
-from matplotlib.colors import Normalize, LightSource
 from matplotlib.transforms import Bbox
 from matplotlib.tri.triangulation import Triangulation
 
@@ -1650,7 +1649,7 @@ class Axes3D(Axes):
         """
         if lightsource is None:
             # chosen for backwards-compatibility
-            lightsource = LightSource(azdeg=225, altdeg=19.4712)
+            lightsource = mcolors.LightSource(azdeg=225, altdeg=19.4712)
 
         with np.errstate(invalid="ignore"):
             shade = ((normals / np.linalg.norm(normals, axis=1, keepdims=True))
@@ -1659,8 +1658,8 @@ class Axes3D(Axes):
 
         if mask.any():
             # convert dot product to allowed shading fractions
-            in_norm = Normalize(-1, 1)
-            out_norm = Normalize(0.3, 1).inverse
+            in_norm = mcolors.Normalize(-1, 1)
+            out_norm = mcolors.Normalize(0.3, 1).inverse
 
             def norm(x):
                 return out_norm(in_norm(x))

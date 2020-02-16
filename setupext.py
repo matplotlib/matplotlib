@@ -16,7 +16,6 @@ import sys
 import tarfile
 import textwrap
 import urllib.request
-from urllib.request import Request
 import versioneer
 
 _log = logging.getLogger(__name__)
@@ -99,7 +98,7 @@ def download_or_cache(url, sha):
     # default User-Agent, but not (for example) wget; so I don't feel too
     # bad passing in an empty User-Agent.
     with urllib.request.urlopen(
-            Request(url, headers={"User-Agent": ""})) as req:
+            urllib.request.Request(url, headers={"User-Agent": ""})) as req:
         file_contents = BytesIO(req.read())
         file_contents.seek(0)
 

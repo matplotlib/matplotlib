@@ -24,7 +24,6 @@ import traceback
 import types
 import warnings
 import weakref
-from weakref import WeakMethod
 
 import numpy as np
 
@@ -180,7 +179,7 @@ class CallbackRegistry:
         """
         self._func_cid_map.setdefault(s, {})
         try:
-            proxy = WeakMethod(func, self._remove_proxy)
+            proxy = weakref.WeakMethod(func, self._remove_proxy)
         except TypeError:
             proxy = _StrongRef(func)
         if proxy in self._func_cid_map[s]:
