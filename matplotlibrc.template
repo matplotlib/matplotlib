@@ -316,18 +316,19 @@
                          # This only affects the Agg backend.
 
 ## The following settings allow you to select the fonts in math mode.
-## They map from a TeX font name to a fontconfig font pattern.
-## These settings are only used if mathtext.fontset is 'custom'.
-## Note that this "custom" mode is unsupported and may go away in the future.
-#mathtext.cal: cursive
-#mathtext.rm:  sans
-#mathtext.tt:  monospace
-#mathtext.it:  sans:italic
-#mathtext.bf:  sans:bold
-#mathtext.sf:  sans
 #mathtext.fontset: dejavusans  # Should be 'dejavusans' (default),
                                # 'dejavuserif', 'cm' (Computer Modern), 'stix',
-                               # 'stixsans' or 'custom'
+                               # 'stixsans' or 'custom' (unsupported, may go
+                               # away in the future)
+## "mathtext.fontset: custom" is defined by the mathtext.bf, .cal, .it, ...
+## settings which map a TeX font name to a fontconfig font pattern.  (These
+## settings are not used for other font sets.)
+#mathtext.bf:  sans:bold
+#mathtext.cal: cursive
+#mathtext.it:  sans:italic
+#mathtext.rm:  sans
+#mathtext.sf:  sans
+#mathtext.tt:  monospace
 #mathtext.fallback_to_cm: True  # When True, use symbols from the Computer Modern
                                 # fonts when a symbol can not be found in one of
                                 # the custom math fonts.
