@@ -18,7 +18,7 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook, _path, __version__, rcParams
+from matplotlib import cbook, _path
 from matplotlib import _text_layout
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -148,7 +148,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         # and them scale them before embedding them.
         super().__init__(width, height)
         self._pswriter = pswriter
-        if rcParams['text.usetex']:
+        if mpl.rcParams['text.usetex']:
             self.textcnt = 0
             self.psfrag = []
         self.imagedpi = imagedpi
@@ -227,7 +227,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             self.linedash = (offset, seq)
 
     def set_font(self, fontname, fontsize, store=True):
-        if rcParams['ps.useafm']:
+        if mpl.rcParams['ps.useafm']:
             return
         if (fontname, fontsize) != (self.fontname, self.fontsize):
             out = ("/%s findfont\n"
@@ -243,7 +243,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         if hatch in self._hatches:
             return self._hatches[hatch]
         name = 'H%d' % len(self._hatches)
-        linewidth = rcParams['hatch.linewidth']
+        linewidth = mpl.rcParams['hatch.linewidth']
         pageheight = self.height * 72
         self._pswriter.write(f"""\
   << /PatternType 1
@@ -472,12 +472,12 @@ translate
         color = '%1.3f,%1.3f,%1.3f' % gc.get_rgb()[:3]
         fontcmd = {'sans-serif': r'{\sffamily %s}',
                    'monospace': r'{\ttfamily %s}'}.get(
-                       rcParams['font.family'][0], r'{\rmfamily %s}')
+                       mpl.rcParams['font.family'][0], r'{\rmfamily %s}')
         s = fontcmd % s
         tex = r'\color[rgb]{%s} %s' % (color, s)
 
         corr = 0  # w/2*(fontsize-10)/10
-        if rcParams['text.latex.preview']:
+        if mpl.rcParams['text.latex.preview']:
             # use baseline alignment!
             pos = _nums_to_str(x-corr, y)
             self.psfrag.append(
@@ -517,7 +517,7 @@ grestore
         elif ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
-        elif rcParams['ps.useafm']:
+        elif mpl.rcParams['ps.useafm']:
             self.set_color(*gc.get_rgb())
 
             font = self._get_font_afm(prop)
@@ -769,7 +769,7 @@ class FigureCanvasPS(FigureCanvasBase):
                   orientation='portrait',
                   **kwargs):
         if papertype is None:
-            papertype = rcParams['ps.papersize']
+            papertype = mpl.rcParams['ps.papersize']
         papertype = papertype.lower()
         cbook._check_in_list(['auto', *papersize], papertype=papertype)
 
@@ -779,7 +779,7 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_dpi(72)  # Override the dpi kwarg
 
         printer = (self._print_figure_tex
-                   if rcParams['text.usetex'] else
+                   if mpl.rcParams['text.usetex'] else
                    self._print_figure)
         printer(outfile, format, dpi, facecolor, edgecolor,
                 orientation, papertype, **kwargs)
@@ -824,7 +824,7 @@ class FigureCanvasPS(FigureCanvasBase):
         paper_width, paper_height = orientation.swap_if_landscape(
             papersize[papertype])
 
-        if rcParams['ps.usedistiller']:
+        if mpl.rcParams['ps.usedistiller']:
             # distillers improperly clip eps files if pagesize is too small
             if width > paper_width or height > paper_height:
                 papertype = _get_papertype(
@@ -881,8 +881,8 @@ class FigureCanvasPS(FigureCanvasBase):
         if metadata is not None and 'Creator' in metadata:
             creator_str = metadata['Creator']
         else:
-            creator_str = "matplotlib version " + __version__ + \
-                ", http://matplotlib.org/"
+            creator_str = \
+                f"matplotlib version {mpl.__version__}, http://matplotlib.org/"
 
         def print_figure_impl(fh):
             # write the PostScript headers
@@ -912,7 +912,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
             Ndict = len(psDefs)
             print("%%BeginProlog", file=fh)
-            if not rcParams['ps.useafm']:
+            if not mpl.rcParams['ps.useafm']:
                 Ndict += len(ps_renderer._character_tracker.used)
             print("/mpldict %d dict def" % Ndict, file=fh)
             print("mpldict begin", file=fh)
@@ -920,14 +920,14 @@ class FigureCanvasPS(FigureCanvasBase):
                 d = d.strip()
                 for l in d.split('\n'):
                     print(l.strip(), file=fh)
-            if not rcParams['ps.useafm']:
+            if not mpl.rcParams['ps.useafm']:
                 for font_path, chars \
                         in ps_renderer._character_tracker.used.items():
                     if not chars:
                         continue
                     font = get_font(font_path)
                     glyph_ids = [font.get_char_index(c) for c in chars]
-                    fonttype = rcParams['ps.fonttype']
+                    fonttype = mpl.rcParams['ps.fonttype']
                     # Can't use more than 255 chars from a single Type 3 font.
                     if len(glyph_ids) > 255:
                         fonttype = 42
@@ -973,16 +973,16 @@ class FigureCanvasPS(FigureCanvasBase):
                 print("%%EOF", file=fh)
             fh.flush()
 
-        if rcParams['ps.usedistiller']:
+        if mpl.rcParams['ps.usedistiller']:
             # We are going to use an external program to process the output.
             # Write to a temporary file.
             with TemporaryDirectory() as tmpdir:
                 tmpfile = os.path.join(tmpdir, "tmp.ps")
                 with open(tmpfile, 'w', encoding='latin-1') as fh:
                     print_figure_impl(fh)
-                if rcParams['ps.usedistiller'] == 'ghostscript':
+                if mpl.rcParams['ps.usedistiller'] == 'ghostscript':
                     gs_distill(tmpfile, is_eps, ptype=papertype, bbox=bbox)
-                elif rcParams['ps.usedistiller'] == 'xpdf':
+                elif mpl.rcParams['ps.usedistiller'] == 'xpdf':
                     xpdf_distill(tmpfile, is_eps, ptype=papertype, bbox=bbox)
                 _move_path_to_path_or_stream(tmpfile, outfile)
 
@@ -1072,8 +1072,8 @@ class FigureCanvasPS(FigureCanvasBase):
         if metadata is not None and 'Creator' in metadata:
             creator_str = metadata['Creator']
         else:
-            creator_str = "matplotlib version " + __version__ + \
-                ", http://matplotlib.org/"
+            creator_str = \
+                f"matplotlib version {mpl.__version__}, http://matplotlib.org/"
 
         # write to a temp file, we'll move it to outfile when done
 
@@ -1139,11 +1139,11 @@ showpage
                                              paper_height,
                                              orientation.name)
 
-            if (rcParams['ps.usedistiller'] == 'ghostscript'
-                    or rcParams['text.usetex']):
+            if (mpl.rcParams['ps.usedistiller'] == 'ghostscript'
+                    or mpl.rcParams['text.usetex']):
                 gs_distill(tmpfile, is_eps, ptype=papertype, bbox=bbox,
                            rotated=psfrag_rotated)
-            elif rcParams['ps.usedistiller'] == 'xpdf':
+            elif mpl.rcParams['ps.usedistiller'] == 'xpdf':
                 xpdf_distill(tmpfile, is_eps, ptype=papertype, bbox=bbox,
                              rotated=psfrag_rotated)
 
@@ -1161,7 +1161,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     """
     with mpl.rc_context({
             "text.latex.preamble":
-            rcParams["text.latex.preamble"] +
+            mpl.rcParams["text.latex.preamble"] +
             r"\usepackage{psfrag,color}"
             r"\usepackage[dvips]{graphicx}"
             r"\PassOptionsToPackage{dvips}{geometry}"}):
@@ -1211,7 +1211,7 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
         paper_option = "-sPAPERSIZE=%s" % ptype
 
     psfile = tmpfile + '.ps'
-    dpi = rcParams['ps.distiller.res']
+    dpi = mpl.rcParams['ps.distiller.res']
 
     cbook._check_and_log_subprocess(
         [mpl._get_executable_info("gs").executable,

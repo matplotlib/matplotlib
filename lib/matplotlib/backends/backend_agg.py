@@ -35,7 +35,8 @@ import numpy as np
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
-from matplotlib import cbook, rcParams, __version__
+import matplotlib as mpl
+from matplotlib import cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.font_manager import findfont, get_font
@@ -59,7 +60,7 @@ def get_hinting_flag():
         'auto': LOAD_FORCE_AUTOHINT,
         'none': LOAD_NO_HINTING
         }
-    return mapping[rcParams['text.hinting']]
+    return mapping[mpl.rcParams['text.hinting']]
 
 
 class RendererAgg(RendererBase):
@@ -122,7 +123,7 @@ class RendererAgg(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
-        nmax = rcParams['agg.path.chunksize']  # here at least for testing
+        nmax = mpl.rcParams['agg.path.chunksize']  # here at least for testing
         npts = path.vertices.shape[0]
 
         if (npts > nmax > 100 and path.should_simplify and
@@ -177,7 +178,8 @@ class RendererAgg(RendererBase):
         # We pass '0' for angle here, since it will be rotated (in raster
         # space) in the following call to draw_text_image).
         font.set_text(s, 0, flags=flags)
-        font.draw_glyphs_to_bitmap(antialiased=rcParams['text.antialiased'])
+        font.draw_glyphs_to_bitmap(
+            antialiased=mpl.rcParams['text.antialiased'])
         d = font.get_descent() / 64.0
         # The descent needs to be adjusted for the angle.
         xo, yo = font.get_bitmap_offset()
@@ -483,7 +485,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             pil_kwargs = {}
         metadata = {
             "Software":
-                f"matplotlib version{__version__}, http://matplotlib.org/",
+                f"matplotlib version{mpl.__version__}, http://matplotlib.org/",
             **metadata,
         }
         FigureCanvasAgg.draw(self)
@@ -552,7 +554,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         for k in ["quality", "optimize", "progressive"]:
             if k in kwargs:
                 pil_kwargs.setdefault(k, kwargs[k])
-        pil_kwargs.setdefault("quality", rcParams["savefig.jpeg_quality"])
+        pil_kwargs.setdefault("quality", mpl.rcParams["savefig.jpeg_quality"])
         pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
         return background.save(
             filename_or_obj, format='jpeg', **pil_kwargs)

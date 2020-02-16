@@ -1,5 +1,5 @@
-import matplotlib
-from matplotlib import cbook, rcParams
+import matplotlib as mpl
+from matplotlib import cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backends import _macosx
 from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -94,14 +94,14 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         FigureManagerBase.__init__(self, canvas, num)
         title = "Figure %d" % num
         _macosx.FigureManager.__init__(self, canvas, title)
-        if rcParams['toolbar'] == 'toolbar2':
+        if mpl.rcParams['toolbar'] == 'toolbar2':
             self.toolbar = NavigationToolbar2Mac(canvas)
         else:
             self.toolbar = None
         if self.toolbar is not None:
             self.toolbar.update()
 
-        if matplotlib.is_interactive():
+        if mpl.is_interactive():
             self.show()
             self.canvas.draw_idle()
 

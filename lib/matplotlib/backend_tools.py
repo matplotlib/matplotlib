@@ -20,7 +20,7 @@ from weakref import WeakKeyDictionary
 
 import numpy as np
 
-from matplotlib import rcParams
+import matplotlib as mpl
 from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
 
@@ -394,7 +394,7 @@ class ToolQuit(ToolBase):
     """Tool to call the figure manager destroy method"""
 
     description = 'Quit the figure'
-    default_keymap = rcParams['keymap.quit']
+    default_keymap = mpl.rcParams['keymap.quit']
 
     def trigger(self, sender, event, data=None):
         Gcf.destroy_fig(self.figure)
@@ -404,7 +404,7 @@ class ToolQuitAll(ToolBase):
     """Tool to call the figure manager destroy method"""
 
     description = 'Quit all figures'
-    default_keymap = rcParams['keymap.quit_all']
+    default_keymap = mpl.rcParams['keymap.quit_all']
 
     def trigger(self, sender, event, data=None):
         Gcf.destroy_all()
@@ -414,7 +414,7 @@ class ToolEnableAllNavigation(ToolBase):
     """Tool to enable all axes for toolmanager interaction"""
 
     description = 'Enable all axes toolmanager'
-    default_keymap = rcParams['keymap.all_axes']
+    default_keymap = mpl.rcParams['keymap.all_axes']
 
     def trigger(self, sender, event, data=None):
         if event.inaxes is None:
@@ -482,7 +482,7 @@ class ToolGrid(_ToolGridBase):
     """Tool to toggle the major grids of the figure"""
 
     description = 'Toggle major grids'
-    default_keymap = rcParams['keymap.grid']
+    default_keymap = mpl.rcParams['keymap.grid']
 
     def _get_next_grid_states(self, ax):
         if None in map(self._get_uniform_grid_state,
@@ -503,7 +503,7 @@ class ToolMinorGrid(_ToolGridBase):
     """Tool to toggle the major and minor grids of the figure"""
 
     description = 'Toggle major and minor grids'
-    default_keymap = rcParams['keymap.grid_minor']
+    default_keymap = mpl.rcParams['keymap.grid_minor']
 
     def _get_next_grid_states(self, ax):
         if None in map(self._get_uniform_grid_state,
@@ -523,7 +523,7 @@ class ToolFullScreen(ToolToggleBase):
     """Tool to toggle full screen"""
 
     description = 'Toggle fullscreen mode'
-    default_keymap = rcParams['keymap.fullscreen']
+    default_keymap = mpl.rcParams['keymap.fullscreen']
 
     def enable(self, event):
         self.figure.canvas.manager.full_screen_toggle()
@@ -553,7 +553,7 @@ class ToolYScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the Y axis"""
 
     description = 'Toggle scale Y axis'
-    default_keymap = rcParams['keymap.yscale']
+    default_keymap = mpl.rcParams['keymap.yscale']
 
     def set_scale(self, ax, scale):
         ax.set_yscale(scale)
@@ -563,7 +563,7 @@ class ToolXScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the X axis"""
 
     description = 'Toggle scale X axis'
-    default_keymap = rcParams['keymap.xscale']
+    default_keymap = mpl.rcParams['keymap.xscale']
 
     def set_scale(self, ax, scale):
         ax.set_xscale(scale)
@@ -738,7 +738,7 @@ class ToolHome(ViewsPositionsBase):
 
     description = 'Reset original view'
     image = 'home'
-    default_keymap = rcParams['keymap.home']
+    default_keymap = mpl.rcParams['keymap.home']
     _on_trigger = 'home'
 
 
@@ -747,7 +747,7 @@ class ToolBack(ViewsPositionsBase):
 
     description = 'Back to previous view'
     image = 'back'
-    default_keymap = rcParams['keymap.back']
+    default_keymap = mpl.rcParams['keymap.back']
     _on_trigger = 'back'
 
 
@@ -756,7 +756,7 @@ class ToolForward(ViewsPositionsBase):
 
     description = 'Forward to next view'
     image = 'forward'
-    default_keymap = rcParams['keymap.forward']
+    default_keymap = mpl.rcParams['keymap.forward']
     _on_trigger = 'forward'
 
 
@@ -772,7 +772,7 @@ class SaveFigureBase(ToolBase):
 
     description = 'Save the figure'
     image = 'filesave'
-    default_keymap = rcParams['keymap.save']
+    default_keymap = mpl.rcParams['keymap.save']
 
 
 class ZoomPanBase(ToolToggleBase):
@@ -844,7 +844,7 @@ class ToolZoom(ZoomPanBase):
 
     description = 'Zoom to rectangle'
     image = 'zoom_to_rect'
-    default_keymap = rcParams['keymap.zoom']
+    default_keymap = mpl.rcParams['keymap.zoom']
     cursor = cursors.SELECT_REGION
     radio_group = 'default'
 
@@ -968,7 +968,7 @@ class ToolZoom(ZoomPanBase):
 class ToolPan(ZoomPanBase):
     """Pan axes with left mouse, zoom with right"""
 
-    default_keymap = rcParams['keymap.pan']
+    default_keymap = mpl.rcParams['keymap.pan']
     description = 'Pan axes with left mouse, zoom with right'
     image = 'move'
     cursor = cursors.MOVE
@@ -1033,7 +1033,7 @@ class ToolPan(ZoomPanBase):
 
 class ToolHelpBase(ToolBase):
     description = 'Print tool list, shortcuts and description'
-    default_keymap = rcParams['keymap.help']
+    default_keymap = mpl.rcParams['keymap.help']
     image = 'help.png'
 
     @staticmethod
@@ -1073,7 +1073,7 @@ class ToolCopyToClipboardBase(ToolBase):
     """Tool to copy the figure to the clipboard"""
 
     description = 'Copy the canvas figure to clipboard'
-    default_keymap = rcParams['keymap.copy']
+    default_keymap = mpl.rcParams['keymap.copy']
 
     def trigger(self, *args, **kwargs):
         message = "Copy tool is not available"

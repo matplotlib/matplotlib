@@ -10,8 +10,8 @@ import tkinter.messagebox
 
 import numpy as np
 
-import matplotlib
-from matplotlib import backend_tools, cbook, rcParams
+import matplotlib as mpl
+from matplotlib import backend_tools, cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
@@ -34,7 +34,7 @@ else:
         try:
             yield
         finally:
-            if rcParams['tk.window_focus']:
+            if mpl.rcParams['tk.window_focus']:
                 Win32_SetForegroundWindow(foreground)
 
 
@@ -430,16 +430,16 @@ class FigureManagerTk(FigureManagerBase):
         self._shown = False
 
     def _get_toolbar(self):
-        if matplotlib.rcParams['toolbar'] == 'toolbar2':
+        if mpl.rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2Tk(self.canvas, self.window)
-        elif matplotlib.rcParams['toolbar'] == 'toolmanager':
+        elif mpl.rcParams['toolbar'] == 'toolmanager':
             toolbar = ToolbarTk(self.toolmanager, self.window)
         else:
             toolbar = None
         return toolbar
 
     def _get_toolmanager(self):
-        if rcParams['toolbar'] == 'toolmanager':
+        if mpl.rcParams['toolbar'] == 'toolmanager':
             toolmanager = ToolManager(self.canvas.figure)
         else:
             toolmanager = None
@@ -461,7 +461,7 @@ class FigureManagerTk(FigureManagerBase):
                 self.window.deiconify()
             else:
                 self.canvas.draw_idle()
-            if matplotlib.rcParams['figure.raise_window']:
+            if mpl.rcParams['figure.raise_window']:
                 self.canvas.manager.window.attributes('-topmost', 1)
                 self.canvas.manager.window.attributes('-topmost', 0)
             self._shown = True
@@ -602,7 +602,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         # work - JDH!
         #defaultextension = self.canvas.get_default_filetype()
         defaultextension = ''
-        initialdir = os.path.expanduser(rcParams['savefig.directory'])
+        initialdir = os.path.expanduser(mpl.rcParams['savefig.directory'])
         initialfile = self.canvas.get_default_filename()
         fname = tkinter.filedialog.asksaveasfilename(
             master=self.canvas.get_tk_widget().master,
@@ -617,7 +617,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             return
         # Save dir for next time, unless empty str (i.e., use cwd).
         if initialdir != "":
-            rcParams['savefig.directory'] = (
+            mpl.rcParams['savefig.directory'] = (
                 os.path.dirname(str(fname)))
         try:
             # This method will handle the delegation to the correct type
@@ -877,7 +877,7 @@ class _BackendTk(_Backend):
 
             canvas = cls.FigureCanvas(figure, master=window)
             manager = cls.FigureManager(canvas, num, window)
-            if matplotlib.is_interactive():
+            if mpl.is_interactive():
                 manager.show()
                 canvas.draw_idle()
             return manager

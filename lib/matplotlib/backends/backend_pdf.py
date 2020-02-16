@@ -22,7 +22,8 @@ import zlib
 import numpy as np
 from PIL import Image
 
-from matplotlib import _text_layout, cbook, __version__, rcParams
+import matplotlib as mpl
+from matplotlib import _text_layout, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -376,8 +377,9 @@ class Stream:
                                'DecodeParms': png})
 
         self.pdfFile.recordXref(self.id)
-        if rcParams['pdf.compression'] and not png:
-            self.compressobj = zlib.compressobj(rcParams['pdf.compression'])
+        if mpl.rcParams['pdf.compression'] and not png:
+            self.compressobj = zlib.compressobj(
+                mpl.rcParams['pdf.compression'])
         if self.len is None:
             self.file = BytesIO()
         else:
@@ -389,7 +391,7 @@ class Stream:
         write(b"%d 0 obj\n" % self.id)
         dict = self.extra
         dict['Length'] = self.len
-        if rcParams['pdf.compression']:
+        if mpl.rcParams['pdf.compression']:
             dict['Filter'] = Name('FlateDecode')
 
         write(pdfRepr(dict))
@@ -499,8 +501,8 @@ class PdfFile:
             source_date = datetime.today()
 
         self.infoDict = {
-            'Creator': 'matplotlib %s, http://matplotlib.org' % __version__,
-            'Producer': 'matplotlib pdf backend %s' % __version__,
+            'Creator': f'matplotlib {mpl.__version__}, http://matplotlib.org',
+            'Producer': f'matplotlib pdf backend {mpl.__version__}',
             'CreationDate': source_date
         }
         if metadata is not None:
@@ -665,7 +667,7 @@ class PdfFile:
 
         if isinstance(fontprop, str):
             filename = fontprop
-        elif rcParams['pdf.use14corefonts']:
+        elif mpl.rcParams['pdf.use14corefonts']:
             filename = findfont(
                 fontprop, fontext='afm', directory=RendererPdf._afm_font_dir)
         else:
@@ -899,7 +901,7 @@ end"""
         """Embed the TTF font from the named file into the document."""
 
         font = get_font(filename)
-        fonttype = rcParams['pdf.fonttype']
+        fonttype = mpl.rcParams['pdf.fonttype']
 
         def cvt(length, upe=font.units_per_EM, nearest=True):
             """Convert font coordinates to PDF glyph coordinates."""
@@ -1323,7 +1325,7 @@ end"""
                             0, 0, sidelen, sidelen, Op.rectangle,
                             Op.fill)
 
-            self.output(rcParams['hatch.linewidth'], Op.setlinewidth)
+            self.output(mpl.rcParams['hatch.linewidth'], Op.setlinewidth)
 
             self.output(*self.pathOperations(
                 Path.hatch(path),
@@ -1474,7 +1476,7 @@ end"""
                'BitsPerComponent': 8}
         if smask:
             obj['SMask'] = smask
-        if rcParams['pdf.compression']:
+        if mpl.rcParams['pdf.compression']:
             png = {'Predictor': 10, 'Colors': colors, 'Columns': width}
         else:
             png = None
@@ -1930,7 +1932,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # When using Type 3 fonts, we can't use character codes higher
         # than 255, so we use the "Do" command to render those
         # instead.
-        global_fonttype = rcParams['pdf.fonttype']
+        global_fonttype = mpl.rcParams['pdf.fonttype']
 
         # Set up a global transformation matrix for the whole math expression
         a = math.radians(angle)
@@ -2083,13 +2085,13 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
         fontsize = prop.get_size_in_points()
 
-        if rcParams['pdf.use14corefonts']:
+        if mpl.rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
             fonttype = 1
         else:
             font = self._get_font_ttf(prop)
             self.file._character_tracker.track(font, s)
-            fonttype = rcParams['pdf.fonttype']
+            fonttype = mpl.rcParams['pdf.fonttype']
             # We can't subset all OpenType fonts, so switch to Type 42
             # in that case.
             if is_opentype_cff_font(font.fname):
@@ -2248,7 +2250,7 @@ class GraphicsContextPdf(GraphicsContextBase):
                     name, Op.setcolor_nonstroke]
 
     def rgb_cmd(self, rgb):
-        if rcParams['pdf.inheritcolor']:
+        if mpl.rcParams['pdf.inheritcolor']:
             return []
         if rgb[0] == rgb[1] == rgb[2]:
             return [rgb[0], Op.setgray_stroke]
@@ -2256,7 +2258,7 @@ class GraphicsContextPdf(GraphicsContextBase):
             return [*rgb[:3], Op.setrgb_stroke]
 
     def fillcolor_cmd(self, rgb):
-        if rgb is None or rcParams['pdf.inheritcolor']:
+        if rgb is None or mpl.rcParams['pdf.inheritcolor']:
             return []
         elif rgb[0] == rgb[1] == rgb[2]:
             return [rgb[0], Op.setgray_nonstroke]

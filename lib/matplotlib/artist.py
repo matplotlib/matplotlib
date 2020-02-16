@@ -8,8 +8,8 @@ import warnings
 
 import numpy as np
 
-import matplotlib
-from . import cbook, docstring, rcParams
+import matplotlib as mpl
+from . import cbook, docstring
 from .path import Path
 from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
@@ -99,8 +99,8 @@ class Artist:
         self._url = None
         self._gid = None
         self._snap = None
-        self._sketch = rcParams['path.sketch']
-        self._path_effects = rcParams['path.effects']
+        self._sketch = mpl.rcParams['path.sketch']
+        self._path_effects = mpl.rcParams['path.effects']
         self._sticky_edges = _XYPair([], [])
         self._in_layout = True
 
@@ -588,7 +588,7 @@ class Artist:
 
         See `.set_snap` for details.
         """
-        if rcParams['path.snap']:
+        if mpl.rcParams['path.snap']:
             return self._snap
         else:
             return False
@@ -1602,7 +1602,7 @@ def kwdoc(artist):
     """
     ai = ArtistInspector(artist)
     return ('\n'.join(ai.pprint_setters_rest(leadingspace=4))
-            if matplotlib.rcParams['docstring.hardcopy'] else
+            if mpl.rcParams['docstring.hardcopy'] else
             'Properties:\n' + '\n'.join(ai.pprint_setters(leadingspace=4)))
 
 
