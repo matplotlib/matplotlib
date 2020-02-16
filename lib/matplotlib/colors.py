@@ -1203,7 +1203,7 @@ class SymLogNorm(Normalize):
     (-*linthresh*, *linthresh*).
     """
     def __init__(self, linthresh, linscale=1.0, vmin=None, vmax=None,
-                 clip=False, base=None):
+                 clip=False, *, base=None):
         """
         Parameters
         ----------
