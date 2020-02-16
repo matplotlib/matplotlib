@@ -27,7 +27,7 @@ import matplotlib.image as mimage
 
 from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
 from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
-from matplotlib.gridspec import GridSpec
+from matplotlib.gridspec import GridSpec, SubplotSpec
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
 from matplotlib.text import Text
@@ -1254,19 +1254,19 @@ default: 'top'
 
         Parameters
         ----------
-        *args, default: (1, 1, 1)
-            Either a 3-digit integer or three separate integers
-            describing the position of the subplot. If the three
-            integers are *nrows*, *ncols*, and *index* in order, the
-            subplot will take the *index* position on a grid with *nrows*
-            rows and *ncols* columns. *index* starts at 1 in the upper left
-            corner and increases to the right.
+        *args, int or (int, int, int) or `SubplotSpec`, default: (1, 1, 1)
+            The position of the subplot described by one of
 
-            *pos* is a three digit integer, where the first digit is the
-            number of rows, the second the number of columns, and the third
-            the index of the subplot. i.e. fig.add_subplot(235) is the same as
-            fig.add_subplot(2, 3, 5). Note that all integers must be less than
-            10 for this form to work.
+            - Three integers (*nrows*, *ncols*, *index*). The subplot will
+              take the *index* position on a grid with *nrows* rows and
+              *ncols* columns. *index* starts at 1 in the upper left corner
+              and increases to the right.
+            - A 3-digit integer. The digits are interpreted as if given
+              separately as three single-digit integers, i.e.
+              ``fig.add_subplot(235)`` is the same as
+              ``fig.add_subplot(2, 3, 5)``. Note that this can only be used
+              if there are no more than 9 subplots.
+            - A `.SubplotSpec`.
 
             In rare circumstances, `.add_subplot` may be called with a single
             argument, a subplot axes instance already created in the
@@ -1346,27 +1346,43 @@ default: 'top'
             ax1.remove()  # delete ax1 from the figure
             fig.add_subplot(ax1)  # add ax1 back to the figure
         """
-        if not len(args):
-            args = (1, 1, 1)
-
-        if len(args) == 1 and isinstance(args[0], Integral):
-            if not 100 <= args[0] <= 999:
-                raise ValueError("Integer subplot specification must be a "
-                                 "three-digit number, not {}".format(args[0]))
-            args = tuple(map(int, str(args[0])))
-
         if 'figure' in kwargs:
             # Axes itself allows for a 'figure' kwarg, but since we want to
             # bind the created Axes to self, it is not allowed here.
             raise TypeError(
                 "add_subplot() got an unexpected keyword argument 'figure'")
 
-        if isinstance(args[0], SubplotBase):
+        nargs = len(args)
+        if nargs == 0:
+            args = (1, 1, 1)
+        elif nargs == 1:
+            if isinstance(args[0], Integral):
+                if not 100 <= args[0] <= 999:
+                    raise ValueError(f"Integer subplot specification must be "
+                                     f"a three-digit number, not {args[0]}")
+                args = tuple(map(int, str(args[0])))
+            elif isinstance(args[0], (SubplotBase, SubplotSpec)):
+                pass  # no further validation or normalization needed
+            else:
+                raise TypeError('Positional arguments are not a valid '
+                                'position specification.')
+        elif nargs == 3:
+            for arg in args:
+                if not isinstance(arg, Integral):
+                    cbook.warn_deprecated(
+                        "3.3",
+                        message="Passing non-integers as three-element "
+                                "position specification is deprecated.")
+            args = tuple(map(int, args))
+        else:
+            raise TypeError(f'add_subplot() takes 1 or 3 positional arguments '
+                            f'but {nargs} were given')
 
+        if isinstance(args[0], SubplotBase):
             ax = args[0]
             if ax.get_figure() is not self:
-                raise ValueError(
-                    "The Subplot must have been created in the present figure")
+                raise ValueError("The Subplot must have been created in "
+                                 "the present figure")
             # make a key for the subplot (which includes the axes object id
             # in the hash)
             key = self._make_key(*args, **kwargs)

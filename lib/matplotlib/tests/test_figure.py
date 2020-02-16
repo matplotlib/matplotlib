@@ -4,7 +4,7 @@ import platform
 import warnings
 
 import matplotlib as mpl
-from matplotlib import rcParams
+from matplotlib import cbook, rcParams
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
@@ -172,14 +172,34 @@ def test_gca():
 
 def test_add_subplot_invalid():
     fig = plt.figure()
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Number of columns must be > 0'):
         fig.add_subplot(2, 0, 1)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Number of rows must be > 0'):
         fig.add_subplot(0, 2, 1)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='num must be 1 <= num <= 4'):
         fig.add_subplot(2, 2, 0)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='num must be 1 <= num <= 4'):
         fig.add_subplot(2, 2, 5)
+
+    with pytest.raises(ValueError, match='must be a three-digit number'):
+        fig.add_subplot(42)
+    with pytest.raises(ValueError, match='must be a three-digit number'):
+        fig.add_subplot(1000)
+
+    with pytest.raises(TypeError, match='takes 1 or 3 positional arguments '
+                                        'but 2 were given'):
+        fig.add_subplot(2, 2)
+    with pytest.raises(TypeError, match='takes 1 or 3 positional arguments '
+                                        'but 4 were given'):
+        fig.add_subplot(1, 2, 3, 4)
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match='Passing non-integers as three-element position '
+                            'specification is deprecated'):
+        fig.add_subplot('2', 2, 1)
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match='Passing non-integers as three-element position '
+                            'specification is deprecated'):
+        fig.add_subplot(2.0, 2, 1)
 
 
 @image_comparison(['figure_suptitle'])
