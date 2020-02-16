@@ -864,9 +864,8 @@ class Rectangle(Patch):
 
 
 class RegularPolygon(Patch):
-    """
-    A regular polygon patch.
-    """
+    """A regular polygon patch."""
+
     def __str__(self):
         s = "RegularPolygon((%g, %g), %d, radius=%g, orientation=%g)"
         return s % (self._xy[0], self._xy[1], self._numVertices, self._radius,
@@ -955,9 +954,8 @@ class RegularPolygon(Patch):
 
 
 class PathPatch(Patch):
-    """
-    A general polycurve path patch.
-    """
+    """A general polycurve path patch."""
+
     _edge_default = True
 
     def __str__(self):
@@ -984,9 +982,8 @@ class PathPatch(Patch):
 
 
 class Polygon(Patch):
-    """
-    A general polygon patch.
-    """
+    """A general polygon patch."""
+
     def __str__(self):
         s = "Polygon%d((%g, %g) ...)"
         return s % (len(self._path.vertices), *tuple(self._path.vertices[0]))
@@ -1081,9 +1078,8 @@ class Polygon(Patch):
 
 
 class Wedge(Patch):
-    """
-    Wedge shaped patch.
-    """
+    """Wedge shaped patch."""
+
     def __str__(self):
         pars = (self.center[0], self.center[1], self.r,
                 self.theta1, self.theta2, self.width)
@@ -1172,9 +1168,8 @@ class Wedge(Patch):
 
 # COVERAGE NOTE: Not used internally or from examples
 class Arrow(Patch):
-    """
-    An arrow patch.
-    """
+    """An arrow patch."""
+
     def __str__(self):
         return "Arrow()"
 
@@ -1335,9 +1330,8 @@ docstring.interpd.update(
 
 
 class CirclePolygon(RegularPolygon):
-    """
-    A polygon-approximation of a circle patch.
-    """
+    """A polygon-approximation of a circle patch."""
+
     def __str__(self):
         s = "CirclePolygon((%g, %g), radius=%g, resolution=%d)"
         return s % (self._xy[0], self._xy[1], self._radius, self._numVertices)
@@ -1364,9 +1358,8 @@ class CirclePolygon(RegularPolygon):
 
 
 class Ellipse(Patch):
-    """
-    A scale-free ellipse.
-    """
+    """A scale-free ellipse."""
+
     def __str__(self):
         pars = (self._center[0], self._center[1],
                 self.width, self.height, self.angle)
@@ -1421,9 +1414,7 @@ class Ellipse(Patch):
             .translate(*center)
 
     def get_path(self):
-        """
-        Return the path of the ellipse
-        """
+        """Return the path of the ellipse."""
         return self._path
 
     def get_patch_transform(self):
@@ -1442,9 +1433,7 @@ class Ellipse(Patch):
         self.stale = True
 
     def get_center(self):
-        """
-        Return the center of the ellipse.
-        """
+        """Return the center of the ellipse."""
         return self._center
 
     center = property(get_center, set_center)
@@ -1480,9 +1469,7 @@ class Ellipse(Patch):
         self.stale = True
 
     def get_height(self):
-        """
-        Return the height of the ellipse.
-        """
+        """Return the height of the ellipse."""
         return self._height
 
     height = property(get_height, set_height)
@@ -1499,18 +1486,15 @@ class Ellipse(Patch):
         self.stale = True
 
     def get_angle(self):
-        """
-        Return the angle of the ellipse.
-        """
+        """Return the angle of the ellipse."""
         return self._angle
 
     angle = property(get_angle, set_angle)
 
 
 class Circle(Ellipse):
-    """
-    A circle patch.
-    """
+    """A circle patch."""
+
     def __str__(self):
         pars = self.center[0], self.center[1], self.radius
         fmt = "Circle(xy=(%g, %g), radius=%g)"
@@ -1533,7 +1517,7 @@ class Circle(Ellipse):
 
     def set_radius(self, radius):
         """
-        Set the radius of the circle
+        Set the radius of the circle.
 
         Parameters
         ----------
@@ -1543,9 +1527,7 @@ class Circle(Ellipse):
         self.stale = True
 
     def get_radius(self):
-        """
-        Return the radius of the circle
-        """
+        """Return the radius of the circle."""
         return self.width / 2.
 
     radius = property(get_radius, set_radius)
@@ -1876,24 +1858,17 @@ class _Style:
 
     @classmethod
     def get_styles(cls):
-        """
-        A class method which returns a dictionary of available styles.
-        """
+        """Return a dictionary of available styles."""
         return cls._style_list
 
     @classmethod
     def pprint_styles(cls):
-        """
-        A class method which returns a string of the available styles.
-        """
+        """Return the available styles as pretty-printed string."""
         return _pprint_styles(cls._style_list)
 
     @classmethod
     def register(cls, name, style):
-        """
-        Register a new style.
-        """
-
+        """Register a new style."""
         if not issubclass(style, cls._Base):
             raise ValueError("%s must be a subclass of %s" % (style,
                                                               cls._Base))
@@ -3367,18 +3342,14 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list, name="-")
     class Curve(_Curve):
-        """
-        A simple curve without any arrow head.
-        """
+        """A simple curve without any arrow head."""
 
         def __init__(self):
             super().__init__(beginarrow=False, endarrow=False)
 
     @_register_style(_style_list, name="<-")
     class CurveA(_Curve):
-        """
-        An arrow with a head at its begin point.
-        """
+        """An arrow with a head at its begin point."""
 
         def __init__(self, head_length=.4, head_width=.2):
             """
@@ -3395,9 +3366,7 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list, name="->")
     class CurveB(_Curve):
-        """
-        An arrow with a head at its end point.
-        """
+        """An arrow with a head at its end point."""
 
         def __init__(self, head_length=.4, head_width=.2):
             """
@@ -3414,9 +3383,7 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list, name="<->")
     class CurveAB(_Curve):
-        """
-        An arrow with heads both at the begin and the end point.
-        """
+        """An arrow with heads both at the begin and the end point."""
 
         def __init__(self, head_length=.4, head_width=.2):
             """
@@ -3433,9 +3400,7 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list, name="<|-")
     class CurveFilledA(_Curve):
-        """
-        An arrow with filled triangle head at the begin.
-        """
+        """An arrow with filled triangle head at the begin."""
 
         def __init__(self, head_length=.4, head_width=.2):
             """
@@ -3453,9 +3418,7 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list, name="-|>")
     class CurveFilledB(_Curve):
-        """
-        An arrow with filled triangle head at the end.
-        """
+        """An arrow with filled triangle head at the end."""
 
         def __init__(self, head_length=.4, head_width=.2):
             """
@@ -3473,9 +3436,7 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list, name="<|-|>")
     class CurveFilledAB(_Curve):
-        """
-        An arrow with filled triangle heads at both ends.
-        """
+        """An arrow with filled triangle heads at both ends."""
 
         def __init__(self, head_length=.4, head_width=.2):
             """
@@ -3570,9 +3531,7 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list, name="]-[")
     class BracketAB(_Bracket):
-        """
-        An arrow with a bracket(]) at both ends.
-        """
+        """An arrow with outward square brackets at both ends."""
 
         def __init__(self,
                      widthA=1., lengthA=0.2, angleA=None,
@@ -3604,9 +3563,7 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list, name="]-")
     class BracketA(_Bracket):
-        """
-        An arrow with a bracket(])  at its end.
-        """
+        """An arrow with an outward square bracket at its start."""
 
         def __init__(self, widthA=1., lengthA=0.2, angleA=None):
             """
@@ -3626,9 +3583,7 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list, name="-[")
     class BracketB(_Bracket):
-        """
-        An arrow with a bracket([)  at its end.
-        """
+        """An arrow with an outward square bracket at its end."""
 
         def __init__(self, widthB=1., lengthB=0.2, angleB=None):
             """
@@ -3648,9 +3603,7 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list, name="|-|")
     class BarAB(_Bracket):
-        """
-        An arrow with a bar(|) at both ends.
-        """
+        """An arrow with vertical bars ``|`` at both ends."""
 
         def __init__(self,
                      widthA=1., angleA=None,
@@ -3676,9 +3629,7 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list)
     class Simple(_Base):
-        """
-        A simple arrow. Only works with a quadratic Bezier curve.
-        """
+        """A simple arrow. Only works with a quadratic Bezier curve."""
 
         def __init__(self, head_length=.5, head_width=.5, tail_width=.2):
             """
@@ -3758,9 +3709,7 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list)
     class Fancy(_Base):
-        """
-        A fancy arrow. Only works with a quadratic Bezier curve.
-        """
+        """A fancy arrow. Only works with a quadratic Bezier curve."""
 
         def __init__(self, head_length=.4, head_width=.4, tail_width=.4):
             """
@@ -4178,9 +4127,7 @@ default: 'arc3'
         self.stale = True
 
     def get_arrowstyle(self):
-        """
-        Return the arrowstyle object.
-        """
+        """Return the arrowstyle object."""
         return self._arrow_transmuter
 
     def set_mutation_scale(self, scale):
@@ -4216,9 +4163,7 @@ default: 'arc3'
         self.stale = True
 
     def get_mutation_aspect(self):
-        """
-        Return the aspect ratio of the bbox mutation.
-        """
+        """Return the aspect ratio of the bbox mutation."""
         return self._mutation_aspect
 
     def get_path(self):
@@ -4233,10 +4178,7 @@ default: 'arc3'
         return self.get_transform().inverted().transform_path(_path)
 
     def get_path_in_displaycoord(self):
-        """
-        Return the mutated path of the arrow in display coordinates.
-        """
-
+        """Return the mutated path of the arrow in display coordinates."""
         dpi_cor = self.get_dpi_cor()
 
         if self._posA_posB is not None:

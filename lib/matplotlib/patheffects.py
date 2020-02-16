@@ -16,8 +16,8 @@ class AbstractPathEffect:
 
     Subclasses should override the ``draw_path`` method to add effect
     functionality.
-
     """
+
     def __init__(self, offset=(0., 0.)):
         """
         Parameters
@@ -76,8 +76,8 @@ class PathEffectRenderer(RendererBase):
         Not all methods have been overridden on this RendererBase subclass.
         It may be necessary to add further methods to extend the PathEffects
         capabilities further.
-
     """
+
     def __init__(self, path_effects, renderer):
         """
         Parameters
@@ -164,6 +164,7 @@ class Normal(AbstractPathEffect):
 
 class Stroke(AbstractPathEffect):
     """A line based PathEffect which re-draws a stroke."""
+
     def __init__(self, offset=(0, 0), **kwargs):
         """
         The path will be stroked with its gc updated with the given
@@ -174,9 +175,7 @@ class Stroke(AbstractPathEffect):
         self._gc = kwargs
 
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):
-        """
-        Draw the path with updated gc.
-        """
+        """Draw the path with updated gc."""
         gc0 = renderer.new_gc()  # Don't modify gc, but a copy!
         gc0.copy_properties(gc)
         gc0 = self._update_gc(gc0, self._gc)
@@ -189,8 +188,8 @@ class withStroke(Stroke):
     """
     Adds a simple :class:`Stroke` and then draws the
     original Artist to avoid needing to call :class:`Normal`.
-
     """
+
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):
         Stroke.draw_path(self, renderer, gc, tpath, affine, rgbFace)
         renderer.draw_path(gc, tpath, affine, rgbFace)
@@ -198,6 +197,7 @@ class withStroke(Stroke):
 
 class SimplePatchShadow(AbstractPathEffect):
     """A simple shadow via a filled patch."""
+
     def __init__(self, offset=(2, -2),
                  shadow_rgbFace=None, alpha=None,
                  rho=0.3, **kwargs):
@@ -265,8 +265,8 @@ class withSimplePatchShadow(SimplePatchShadow):
     """
     Adds a simple :class:`SimplePatchShadow` and then draws the
     original Artist to avoid needing to call :class:`Normal`.
-
     """
+
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):
         SimplePatchShadow.draw_path(self, renderer, gc, tpath, affine, rgbFace)
         renderer.draw_path(gc, tpath, affine, rgbFace)
@@ -274,6 +274,7 @@ class withSimplePatchShadow(SimplePatchShadow):
 
 class SimpleLineShadow(AbstractPathEffect):
     """A simple shadow via a line."""
+
     def __init__(self, offset=(2, -2),
                  shadow_color='k', alpha=0.3, rho=0.3, **kwargs):
         """
@@ -330,10 +331,10 @@ class SimpleLineShadow(AbstractPathEffect):
 
 class PathPatchEffect(AbstractPathEffect):
     """
-    Draws a :class:`~matplotlib.patches.PathPatch` instance whose Path
-    comes from the original PathEffect artist.
-
+    Draws a `.PathPatch` instance whose Path comes from the original
+    PathEffect artist.
     """
+
     def __init__(self, offset=(0, 0), **kwargs):
         """
         Parameters
