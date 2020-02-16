@@ -86,9 +86,10 @@ extra letters or characters in the "middle" of the string, e.g. ``"(0, 1a, '0.5'
 would be interpreted as ``(0, 1, 0.5)``.  These extra characters (including the
 internal quotes) now cause a ValueError to be raised.
 
-`.SymLogNorm` now has a *base* kwarg.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Previously, `.SymLogNorm` had not *base* kwarg, and defaulted to ``base=np.e``
+`.SymLogNorm` now has a *base* parameter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, `.SymLogNorm` had no *base* kwarg, and defaulted to ``base=np.e``
 whereas the documentation said it was ``base=10``.  In preparation to make
 the default 10, calling `.SymLogNorm` without the new *base* kwarg emits a
 deprecation warning.
