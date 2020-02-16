@@ -223,3 +223,12 @@ The following validators, defined in `.rcsetup`, are deprecated:
 ``validate_ps_papersize``, ``validate_legend_log``.  To test whether an rcParam
 value would be acceptable, one can test e.g. ``rc = RcParams(); rc[k] = v``
 raises an exception.
+
+Toggling axes navigation from the keyboard using "a" and digit keys
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Axes navigation can still be toggled programmatically using
+`.Axes.set_navigate`.
+
+The following related APIs are also deprecated:
+``backend_tools.ToolEnableAllNavigation``,
+``backend_tools.ToolEnableNavigation``, and ``rcParams["keymap.all_axes"]``.

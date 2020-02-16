@@ -467,7 +467,6 @@ keymap.quit : ctrl+w, cmd+w         # close the current figure
 keymap.grid : g                     # switching on/off a grid in current axes
 keymap.yscale : l                   # toggle scaling of y-axes ('log'/'linear')
 keymap.xscale : k, L                # toggle scaling of x-axes ('log'/'linear')
-keymap.all_axes : a                 # enable all axes
 
 ###ANIMATION settings
 animation.writer : ffmpeg         # MovieWriter 'backend' to use
