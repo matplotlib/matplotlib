@@ -111,7 +111,7 @@ steps:
       ;;
     win32)
       pip install codecov
-      codecov.exe  -f "!*.gcov"
+      python -O -m codecov  -f "!*.gcov"
       ;;
     *)
       exit 1
