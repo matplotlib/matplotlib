@@ -145,45 +145,6 @@
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.IdentityTransform.transform_affine:21",
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.IdentityTransform.transform_non_affine:20"
     ],
-    "transforms.Bbox.bounds": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:91"
-    ],
-    "transforms.Bbox.intervalx": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:99"
-    ],
-    "transforms.Bbox.intervaly": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:102"
-    ],
-    "transforms.Bbox.x0": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:105"
-    ],
-    "transforms.Bbox.x1": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:113"
-    ],
-    "transforms.Bbox.y0": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:109"
-    ],
-    "transforms.Bbox.y1": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:117"
-    ],
-    "transforms.BboxBase.height": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:96"
-    ],
-    "transforms.BboxBase.width": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:93"
-    ],
-    "transforms.BboxBase.xmax": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:113"
-    ],
-    "transforms.BboxBase.xmin": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:105"
-    ],
-    "transforms.BboxBase.ymax": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:117"
-    ],
-    "transforms.BboxBase.ymin": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:109"
-    ],
     "triangulation": [
       "lib/matplotlib/tri/trirefine.py:docstring of matplotlib.tri.UniformTriRefiner.refine_triangulation:2"
     ],
@@ -269,6 +230,12 @@
     "matplotlib.backend_bases._Backend": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ShowBase:1"
     ],
+    "matplotlib.backend_tools._ToolEnableAllNavigation": [
+      "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolEnableAllNavigation:1"
+    ],
+    "matplotlib.backend_tools._ToolEnableNavigation": [
+      "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolEnableNavigation:1"
+    ],
     "matplotlib.backend_tools._ToolGridBase": [
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolGrid:1",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolMinorGrid:1"
@@ -303,13 +270,7 @@
     "matplotlib.contours.ContourSet": [
       "lib/mpl_toolkits/axes_grid1/colorbar.py:docstring of mpl_toolkits.axes_grid1.colorbar.colorbar:92"
     ],
-    "matplotlib.dates.bytespdate2num": [
-      "doc/api/dates_api.rst:11"
-    ],
     "matplotlib.dates.rrulewrapper": [
-      "doc/api/dates_api.rst:11"
-    ],
-    "matplotlib.dates.strpdate2num": [
       "doc/api/dates_api.rst:11"
     ],
     "matplotlib.figure._AxesStack": [
@@ -891,13 +852,13 @@
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:933"
     ],
     "axes_grid1": [
-      "doc/index.rst:154"
+      "doc/index.rst:157"
     ],
     "axis.Axis.get_ticks_position": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:821"
     ],
     "axisartist": [
-      "doc/index.rst:154"
+      "doc/index.rst:157"
     ],
     "backend_bases.RendererBase": [
       "lib/matplotlib/backends/backend_template.py:docstring of matplotlib.backends.backend_template.RendererTemplate:4"
@@ -982,12 +943,6 @@
     ],
     "converter": [
       "lib/matplotlib/testing/compare.py:docstring of matplotlib.testing.compare.compare_images:4"
-    ],
-    "dates.bytespdate2num": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:919"
-    ],
-    "dates.strpdate2num": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:918"
     ],
     "fc-list": [
       "lib/matplotlib/font_manager.py:docstring of matplotlib.font_manager.get_fontconfig_fonts:2"
@@ -1514,7 +1469,7 @@
       "lib/mpl_toolkits/axisartist/axis_artist.py:docstring of mpl_toolkits.axisartist.axis_artist:26"
     ],
     "mplot3d": [
-      "doc/index.rst:154"
+      "doc/index.rst:157"
     ],
     "new_figure_manager": [
       "doc/devel/MEP/MEP23.rst:75"
