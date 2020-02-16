@@ -71,25 +71,23 @@ def test_quiver_arg_sizes():
         plt.quiver(X2, X2, X2, X2, X3)
 
 
-def test_no_warnings(recwarn):
+def test_no_warnings():
     fig, ax = plt.subplots()
     X, Y = np.meshgrid(np.arange(15), np.arange(10))
     U = V = np.ones_like(X)
     phi = (np.random.rand(15, 10) - .5) * 150
     ax.quiver(X, Y, U, V, angles=phi)
-    fig.canvas.draw()
-    assert len(recwarn) == 0
+    fig.canvas.draw()  # Check that no warning is emitted.
 
 
-def test_zero_headlength(recwarn):
+def test_zero_headlength():
     # Based on report by Doug McNeil:
     # http://matplotlib.1069221.n5.nabble.com/quiver-warnings-td28107.html
     fig, ax = plt.subplots()
     X, Y = np.meshgrid(np.arange(10), np.arange(10))
     U, V = np.cos(X), np.sin(Y)
     ax.quiver(U, V, headlength=0, headaxislength=0)
-    fig.canvas.draw()
-    assert len(recwarn) == 0
+    fig.canvas.draw()  # Check that no warning is emitted.
 
 
 @image_comparison(['quiver_animated_test_image.png'])

@@ -4723,13 +4723,12 @@ def test_length_one_hist():
     ax.hist([1])
 
 
-def test_pathological_hexbin(recwarn):
+def test_pathological_hexbin():
     # issue #2863
     mylist = [10] * 100
     fig, ax = plt.subplots(1, 1)
     ax.hexbin(mylist, mylist)
-    fig.savefig(io.BytesIO())
-    assert len(recwarn) == 0
+    fig.savefig(io.BytesIO())  # Check that no warning is emitted.
 
 
 def test_color_None():

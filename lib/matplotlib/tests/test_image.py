@@ -975,9 +975,8 @@ def test_imshow_masked_interpolation():
         ax.axis('off')
 
 
-def test_imshow_no_warn_invalid(recwarn):
-    plt.imshow([[1, 2], [3, np.nan]])
-    assert len(recwarn) == 0
+def test_imshow_no_warn_invalid():
+    plt.imshow([[1, 2], [3, np.nan]])  # Check that no warning is emitted.
 
 
 @pytest.mark.parametrize(

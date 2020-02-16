@@ -279,14 +279,11 @@ def test_internal_cpp_api_2():
 
 def test_circular_contour_warning():
     # Check that almost circular contours don't throw a warning
-    with pytest.warns(None) as record:
-        x, y = np.meshgrid(np.linspace(-2, 2, 4), np.linspace(-2, 2, 4))
-        r = np.hypot(x, y)
-
-        plt.figure()
-        cs = plt.contour(x, y, r)
-        plt.clabel(cs)
-    assert len(record) == 0
+    x, y = np.meshgrid(np.linspace(-2, 2, 4), np.linspace(-2, 2, 4))
+    r = np.hypot(x, y)
+    plt.figure()
+    cs = plt.contour(x, y, r)
+    plt.clabel(cs)
 
 
 @pytest.mark.parametrize("use_clabeltext, contour_zorder, clabel_zorder",

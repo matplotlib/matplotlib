@@ -219,10 +219,9 @@ def test_default_edges():
     ax4.add_patch(pp1)
 
 
-def test_properties(recwarn):
+def test_properties():
     ln = mlines.Line2D([], [])
-    ln.properties()
-    assert len(recwarn) == 0
+    ln.properties()  # Check that no warning is emitted.
 
 
 def test_setp():

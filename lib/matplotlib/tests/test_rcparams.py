@@ -506,11 +506,9 @@ def test_if_rctemplate_would_be_valid(tmpdir):
     fname = str(d.join('testrcvalid.temp'))
     with open(fname, "w") as f:
         f.writelines(newlines)
-    with pytest.warns(None) as record:
-        mpl.rc_params_from_file(fname,
-                                fail_on_error=True,
-                                use_default_template=False)
-        assert len(record) == 0
+    mpl.rc_params_from_file(fname,
+                            fail_on_error=True,  # Test also fails on warning.
+                            use_default_template=False)
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
