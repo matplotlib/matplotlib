@@ -12,4 +12,3 @@ pytest-timeout
 pytest-xdist
 python-dateutil
 tornado
-tox
