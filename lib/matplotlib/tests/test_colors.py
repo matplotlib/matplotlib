@@ -904,7 +904,7 @@ def test_tableau_order():
     assert list(mcolors.TABLEAU_COLORS.values()) == dflt_cycle
 
 
-def test_ndarray_subclass_norm(recwarn):
+def test_ndarray_subclass_norm():
     # Emulate an ndarray subclass that handles units
     # which objects when adding or subtracting with other
     # arrays. See #6622 and #8696
@@ -927,9 +927,7 @@ def test_ndarray_subclass_norm(recwarn):
         assert_array_equal(norm(mydata), norm(data))
         fig, ax = plt.subplots()
         ax.imshow(mydata, norm=norm)
-        fig.canvas.draw()
-        assert len(recwarn) == 0
-        recwarn.clear()
+        fig.canvas.draw()  # Check that no warning is emitted.
 
 
 def test_same_color():

@@ -335,10 +335,10 @@ def test_normalize_kwargs_fail(inp, kwargs_to_norm):
 
 @pytest.mark.parametrize('inp, expected, kwargs_to_norm',
                          pass_mapping)
-def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm, recwarn):
+def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
     with cbook._suppress_matplotlib_deprecation_warning():
+        # No other warning should be emitted.
         assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
-    assert len(recwarn) == 0
 
 
 def test_warn_external_frame_embedded_python():
@@ -574,13 +574,12 @@ def test_safe_first_element_pandas_series(pd):
     assert actual == 0
 
 
-def test_make_keyword_only(recwarn):
+def test_make_keyword_only():
     @cbook._make_keyword_only("3.0", "arg")
     def func(pre, arg, post=None):
         pass
 
-    func(1, arg=2)
-    assert len(recwarn) == 0
+    func(1, arg=2)  # Check that no warning is emitted.
 
     with pytest.warns(MatplotlibDeprecationWarning):
         func(1, 2)

@@ -570,6 +570,4 @@ def test_no_warn_big_data_when_loc_specified():
     for idx in range(1000):
         ax.plot(np.arange(5000), label=idx)
     legend = ax.legend('best')
-    with pytest.warns(None) as records:
-        fig.draw_artist(legend)
-    assert len(records) == 0
+    fig.draw_artist(legend)  # Check that no warning is emitted.
