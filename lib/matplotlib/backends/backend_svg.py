@@ -11,7 +11,8 @@ import uuid
 import numpy as np
 from PIL import Image
 
-from matplotlib import cbook, __version__, rcParams
+import matplotlib as mpl
+from matplotlib import cbook
 from matplotlib.backend_bases import (
      _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
@@ -25,7 +26,7 @@ from matplotlib.transforms import Affine2D, Affine2DBase
 
 _log = logging.getLogger(__name__)
 
-backend_version = __version__
+backend_version = mpl.__version__
 
 # ----------------------------------------------------------------------
 # SimpleXMLWriter class
@@ -323,7 +324,7 @@ class RendererSVG(RendererBase):
         writer.end('defs')
 
     def _make_id(self, type, content):
-        salt = rcParams['svg.hashsalt']
+        salt = mpl.rcParams['svg.hashsalt']
         if salt is None:
             salt = str(uuid.uuid4())
         m = hashlib.md5()
@@ -396,7 +397,7 @@ class RendererSVG(RendererBase):
                 style=generate_css({
                     'fill': rgb2hex(stroke),
                     'stroke': rgb2hex(stroke),
-                    'stroke-width': str(rcParams['hatch.linewidth']),
+                    'stroke-width': str(mpl.rcParams['hatch.linewidth']),
                     'stroke-linecap': 'butt',
                     'stroke-linejoin': 'miter'
                     })
@@ -513,7 +514,7 @@ class RendererSVG(RendererBase):
 
     def option_image_nocomposite(self):
         # docstring inherited
-        return not rcParams['image.composite_image']
+        return not mpl.rcParams['image.composite_image']
 
     def _convert_path(self, path, transform=None, clip=None, simplify=None,
                       sketch=None):
@@ -823,7 +824,7 @@ class RendererSVG(RendererBase):
         url = gc.get_url()
         if url is not None:
             self.writer.start('a', attrib={'xlink:href': url})
-        if rcParams['svg.image_inline']:
+        if mpl.rcParams['svg.image_inline']:
             buf = BytesIO()
             Image.fromarray(im).save(buf, format="png")
             oid = oid or self._make_id('image', buf.getvalue())
@@ -1154,7 +1155,7 @@ class RendererSVG(RendererBase):
         if gc.get_url() is not None:
             self.writer.start('a', {'xlink:href': gc.get_url()})
 
-        if rcParams['svg.fonttype'] == 'path':
+        if mpl.rcParams['svg.fonttype'] == 'path':
             self._draw_text_as_path(gc, x, y, s, prop, angle, ismath, mtext)
         else:
             self._draw_text_as_text(gc, x, y, s, prop, angle, ismath, mtext)

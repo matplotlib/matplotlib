@@ -13,13 +13,13 @@ import pathlib
 import sys
 import weakref
 
-import matplotlib
+import matplotlib as mpl
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     MouseButton, NavigationToolbar2, RendererBase, StatusbarBase, TimerBase,
     ToolContainerBase, cursors)
 
-from matplotlib import cbook, rcParams, backend_tools
+from matplotlib import cbook, backend_tools
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.figure import Figure
@@ -886,7 +886,7 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         # and set the quality.
         if filetype == wx.BITMAP_TYPE_JPEG:
             jpeg_quality = kwargs.get('quality',
-                                      rcParams['savefig.jpeg_quality'])
+                                      mpl.rcParams['savefig.jpeg_quality'])
             image = self.bitmap.ConvertToImage()
             image.SetOption(wx.IMAGE_OPTION_QUALITY, str(jpeg_quality))
 
@@ -981,16 +981,16 @@ class FigureFrameWx(wx.Frame):
         return self.GetStatusBar()
 
     def _get_toolbar(self):
-        if rcParams['toolbar'] == 'toolbar2':
+        if mpl.rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2Wx(self.canvas)
-        elif matplotlib.rcParams['toolbar'] == 'toolmanager':
+        elif mpl.rcParams['toolbar'] == 'toolmanager':
             toolbar = ToolbarWx(self.toolmanager, self)
         else:
             toolbar = None
         return toolbar
 
     def _get_toolmanager(self):
-        if matplotlib.rcParams['toolbar'] == 'toolmanager':
+        if mpl.rcParams['toolbar'] == 'toolmanager':
             toolmanager = ToolManager(self.canvas.figure)
         else:
             toolmanager = None
@@ -1061,7 +1061,7 @@ class FigureManagerWx(FigureManagerBase):
     def show(self):
         self.frame.Show()
         self.canvas.draw()
-        if matplotlib.rcParams['figure.raise_window']:
+        if mpl.rcParams['figure.raise_window']:
             self.frame.Raise()
 
     def destroy(self, *args):
@@ -1193,7 +1193,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         default_file = self.canvas.get_default_filename()
         dlg = wx.FileDialog(
             self.canvas.GetParent(), "Save to file",
-            rcParams["savefig.directory"], default_file, filetypes,
+            mpl.rcParams["savefig.directory"], default_file, filetypes,
             wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         dlg.SetFilterIndex(filter_index)
         if dlg.ShowModal() == wx.ID_OK:
@@ -1209,8 +1209,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                              ext, fmt, ext)
                 fmt = ext
             # Save dir for next time, unless empty str (which means use cwd).
-            if rcParams["savefig.directory"]:
-                rcParams["savefig.directory"] = str(path.parent)
+            if mpl.rcParams["savefig.directory"]:
+                mpl.rcParams["savefig.directory"] = str(path.parent)
             try:
                 self.canvas.figure.savefig(str(path), format=fmt)
             except Exception as e:
@@ -1641,7 +1641,7 @@ class _BackendWx(_Backend):
     def new_figure_manager_given_figure(cls, num, figure):
         frame = cls._frame_class(num, figure)
         figmgr = frame.get_figure_manager()
-        if matplotlib.is_interactive():
+        if mpl.is_interactive():
             figmgr.frame.Show()
             figure.canvas.draw_idle()
         return figmgr

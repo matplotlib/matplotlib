@@ -32,7 +32,8 @@ import tornado.web
 import tornado.ioloop
 import tornado.websocket
 
-from matplotlib import cbook, rcParams
+import matplotlib as mpl
+from matplotlib import cbook
 from matplotlib.backend_bases import _Backend
 from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
@@ -217,11 +218,12 @@ class WebAggApplication(tornado.web.Application):
                 yield port + random.randint(-2 * n, 2 * n)
 
         if address is None:
-            cls.address = rcParams['webagg.address']
+            cls.address = mpl.rcParams['webagg.address']
         else:
             cls.address = address
-        cls.port = rcParams['webagg.port']
-        for port in random_ports(cls.port, rcParams['webagg.port_retries']):
+        cls.port = mpl.rcParams['webagg.port']
+        for port in random_ports(cls.port,
+                                 mpl.rcParams['webagg.port_retries']):
             try:
                 app.listen(port, cls.address)
             except socket.error as e:
@@ -313,7 +315,7 @@ class _BackendWebAgg(_Backend):
             port=WebAggApplication.port,
             prefix=WebAggApplication.url_prefix)
 
-        if rcParams['webagg.open_in_browser']:
+        if mpl.rcParams['webagg.open_in_browser']:
             import webbrowser
             if not webbrowser.open(url):
                 print("To view figure, visit {0}".format(url))
