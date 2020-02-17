@@ -32,6 +32,12 @@ When making a PR, pay attention to:
   feedback from the developers. You may mark these as
   `draft pull requests <https://help.github.com/en/articles/about-pull-requests#draft-pull-requests>`_
   on GitHub.
+* When updating your PR, instead of adding new commits to fix something, please
+  consider amending your initial commit(s) to keep the history clean.
+  You can achieve this using::
+
+      git commit --amend --no-edit
+      git push [your-remote-repo] [your-branch] --force-with-lease
 
 See also :ref:`contributing` for how to make a PR.
 
