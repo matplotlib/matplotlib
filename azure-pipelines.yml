@@ -72,6 +72,7 @@ steps:
         libgirepository-1.0.1 \
         lmodern \
         fonts-freefont-otf \
+        poppler-utils \
         texlive-pictures \
         texlive-fonts-recommended \
         texlive-latex-base \
