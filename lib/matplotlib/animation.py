@@ -1615,8 +1615,10 @@ class FuncAnimation(TimedAnimation):
     fargs : tuple or None, optional
        Additional arguments to pass to each call to *func*.
 
-    save_count : int, optional
-       The number of values from *frames* to cache.
+    save_count : int, default: 100
+        Fallback for the number of values from *frames* to cache. This is
+        only used if the number of frames cannot be inferred from *frames*,
+        i.e. when it's an iterator without length or a generator.
 
     interval : number, optional
        Delay between frames in milliseconds.  Defaults to 200.
