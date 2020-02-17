@@ -102,21 +102,7 @@ steps:
   displayName: 'pytest'
 
 - bash: |
-    case "$(python -c 'import sys; print(sys.platform)')" in
-    linux)
-      bash <(curl -s https://codecov.io/bash)  -f "!*.gcov" -X gcov -y ci/codecov.yml
-      ;;
-    darwin)
-      bash <(curl -s https://codecov.io/bash) -f "!*.gcov"
-      ;;
-    win32)
-      pip install codecov
-      python -O -m codecov  -f "!*.gcov"
-      ;;
-    *)
-      exit 1
-      ;;
-    esac
+    bash <(curl -s https://codecov.io/bash)  -f "!*.gcov" -X gcov -y ci/codecov.yml
   displayName: 'Upload to codecov.io'
 
 - task: PublishTestResults@2
