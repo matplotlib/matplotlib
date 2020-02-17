@@ -8,6 +8,7 @@ Animated 3D random walk
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from mpl_toolkits.mplot3d import Axes3D
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
