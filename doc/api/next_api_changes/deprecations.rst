@@ -219,6 +219,7 @@ The following validators, defined in `.rcsetup`, are deprecated:
 ``validate_svg_fontset``, ``validate_pgf_texsystem``,
 ``validate_movie_frame_fmt``, ``validate_axis_locator``,
 ``validate_movie_html_fmt``, ``validate_grid_axis``,
-``validate_axes_titlelocation``.  To test whether an rcParam value would
-be acceptable, one can test e.g. ``rc = RcParams(); rc[k] = v`` raises an
-exception.
+``validate_axes_titlelocation``, ``validate_toolbar``,
+``validate_ps_papersize``, ``validate_legend_log``.  To test whether an rcParam
+value would be acceptable, one can test e.g. ``rc = RcParams(); rc[k] = v``
+raises an exception.
