@@ -94,7 +94,6 @@ from matplotlib import cbook, rcParams
 import matplotlib.artist as martist
 import matplotlib.text as mtext
 
-from matplotlib.artist import Artist
 from matplotlib.collections import LineCollection
 from matplotlib.lines import Line2D
 from matplotlib.patches import PathPatch
@@ -158,7 +157,7 @@ class BezierPath(Line2D):
 
 class AttributeCopier:
     @cbook.deprecated("3.2")
-    def __init__(self, ref_artist, klass=Artist):
+    def __init__(self, ref_artist, klass=martist.Artist):
         self._klass = klass
         self._ref_artist = ref_artist
         super().__init__()
