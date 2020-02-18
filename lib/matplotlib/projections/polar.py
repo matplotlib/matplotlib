@@ -975,15 +975,19 @@ class PolarAxes(Axes):
         return np.rad2deg(self.viewLim.xmin)
 
     def set_thetalim(self, *args, **kwargs):
-        """
+        r"""
         Set the minimum and maximum theta values.
 
-        Parameters
-        ----------
-        thetamin : float
-            Minimum value in degrees.
-        thetamax : float
-            Maximum value in degrees.
+        Can take the following signatures:
+
+        - ``set_thetalim(minval, maxval)``: Set the limits in radians.
+        - ``set_thetalim(thetamin=minval, thetamax=maxval)``: Set the limits
+          in degrees.
+
+        where minval and maxval are the minimum and maximum limits. Values are
+        wrapped in to the range :math:`[0, 2\pi]` (in radians), so for example
+        it is possible to do ``set_thetalim(-np.pi / 2, np.pi / 2)`` to have
+        an axes symmetric around 0.
         """
         if 'thetamin' in kwargs:
             kwargs['xmin'] = np.deg2rad(kwargs.pop('thetamin'))
