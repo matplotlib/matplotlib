@@ -1,15 +1,11 @@
-"""
-Contains a classes for generating hatch patterns.
-"""
+"""Contains classes for generating hatch patterns."""
 
 import numpy as np
 from matplotlib.path import Path
 
 
 class HatchPatternBase:
-    """
-    The base class for a hatch pattern.
-    """
+    """The base class for a hatch pattern."""
     pass
 
 
