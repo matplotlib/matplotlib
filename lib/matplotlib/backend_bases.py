@@ -2321,7 +2321,7 @@ def key_press_handler(event, canvas, toolbar=None):
     grid_minor_keys = rcParams['keymap.grid_minor']
     toggle_yscale_keys = rcParams['keymap.yscale']
     toggle_xscale_keys = rcParams['keymap.xscale']
-    all_keys = rcParams['keymap.all_axes']
+    all_keys = dict.__getitem__(rcParams, 'keymap.all_axes')
 
     # toggle fullscreen mode ('f', 'ctrl + f')
     if event.key in fullscreen_keys:
@@ -2443,6 +2443,10 @@ def key_press_handler(event, canvas, toolbar=None):
         for a in canvas.figure.get_axes():
             if (event.x is not None and event.y is not None
                     and a.in_axes(event)):  # FIXME: Why only these?
+                cbook.warn_deprecated(
+                    "3.3", message="Toggling axes navigation from the "
+                    "keyboard is deprecated since %(since)s and will be "
+                    "removed %(removal)s.")
                 a.set_navigate(True)
     # enable navigation only for axes with this index (if such an axes exist,
     # otherwise do nothing)
@@ -2452,6 +2456,10 @@ def key_press_handler(event, canvas, toolbar=None):
             for i, a in enumerate(canvas.figure.get_axes()):
                 if (event.x is not None and event.y is not None
                         and a.in_axes(event)):  # FIXME: Why only these?
+                    cbook.warn_deprecated(
+                        "3.3", message="Toggling axes navigation from the "
+                        "keyboard is deprecated since %(since)s and will be "
+                        "removed %(removal)s.")
                     a.set_navigate(i == n)
 
 
