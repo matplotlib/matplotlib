@@ -1271,17 +1271,29 @@ class Axes(_AxesBase):
             The offset of the center of the lines from the origin, in the
             direction orthogonal to *orientation*.
 
+            If a sequence, then must match the dimension of *positions*
+            in the direction of *orientation*.
+
         linelengths : scalar or sequence of scalars, default: 1
             The total height of the lines (i.e. the lines stretches from
             ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
+
+            If a sequence, then *positions* must be 2D and the length
+            must match the first dimension of *positions*.
 
         linewidths : scalar, scalar sequence or None, default: None
             The line width(s) of the event lines, in points. If it is None,
             defaults to its rcParams setting.
 
+            If a sequence, then *positions* must be 2D and the length
+            must match the first dimension of *positions*.
+
         colors : color, sequence of colors or None, default: None
             The color(s) of the event lines. If it is None, defaults to its
             rcParams setting.
+
+            If a sequence, then *positions* must be 2D and the length
+            must match the first dimension of *positions*.
 
         linestyles : str or tuple or a sequence of such values, optional
             Default is 'solid'. Valid strings are ['solid', 'dashed',
@@ -1292,6 +1304,10 @@ class Axes(_AxesBase):
 
             where *onoffseq* is an even length tuple of on and off ink
             in points.
+
+            If a sequence, then *positions* must be 2D and the length
+            must match the first dimension of *positions*.
+
 
         **kwargs : optional
             Other keyword arguments are line collection properties.  See
