@@ -1232,7 +1232,7 @@ class SymLogNorm(Normalize):
             In v3.3 the default value will change to 10 to be consistent with
             `.SymLogNorm`.
 
-            To suppress the warning pass base as a kwarg.
+            To suppress the warning pass *base* as a keyword argument.
 
         """
         Normalize.__init__(self, vmin, vmax, clip)
@@ -1240,7 +1240,7 @@ class SymLogNorm(Normalize):
             self._base = np.e
             cbook.warn_deprecated("3.3", message="default base may change "
                 "from np.e to 10.  To suppress this warning specify the base "
-                "kwarg.")
+                "keyword argument.")
         else:
             self._base = base
         self._log_base = np.log(self._base)
