@@ -311,7 +311,7 @@ longer necessary to import mplot3d to create 3d axes with ::
 `.SymLogNorm` now has a *base* parameter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Previously, `.SymLogNorm` had no *base* kwarg and the base was
+Previously, `.SymLogNorm` had no *base* keyword argument and the base was
 hard-coded to ``base=np.e``. This was inconsistent with the default
 behavior of `.SymLogScale` (which defaults to ``base=10``) and the use
 of the word "decade" in the documentation.
