@@ -449,19 +449,23 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
            **kwargs
            ):
     """
-    Create a new figure.
+    Create a new figure, or activate an existing figure.
 
     Parameters
     ----------
     num : int or str, optional
-        If not provided, a new figure will be created, and the figure number
-        will be incremented. The figure objects holds this number in a `number`
-        attribute.
-        If num is provided, and a figure with this id already exists, make
-        it active, and returns a reference to it. If this figure does not
-        exists, create it and returns it.
-        If num is a string, the window title will be set to this figure's
-        *num*.
+        A unique identifier for the figure.
+
+        If a figure with that identifier already exists, this figure is made
+        active and returned. An integer refers to the ``Figure.number``
+        attribute, a string refers to the figure label.
+
+        If there is no figure with the identifier or *num* is not given, a new
+        figure is created, made active and returned.  If *num* is an int, it
+        will be used for the ``Figure.number`` attribute, otherwise, an
+        auto-generated integer value is used (starting at 1 and incremented
+        for each new figure). If *num* is a string, the figure label and the
+        window title is set to this value.
 
     figsize : (float, float), default: :rc:`figure.figsize`
         Width, height in inches.
