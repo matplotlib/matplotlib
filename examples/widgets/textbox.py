@@ -3,15 +3,14 @@
 Textbox
 =======
 
-Allowing text input with the Textbox widget.
+The Textbox widget lets users interactively provide text input, including
+formulas. In this example, the plot is updated using the `.on_submit` method.
+This method triggers the execution of the `submit` function when the user
+presses enter in the textbox or leaves the textbox. 
 
-You can use the Textbox widget to let users interactively provide any text 
-that needs to be displayed, including formulas. You can use a submit button to 
-create plots with the given input.
-
-Note to not get confused with 
-:doc:`/tutorials/text/annotations` and 
-:doc:`/gallery/recipes/placing_text_boxes`, both of which are static elements.
+Note:  The `Textbox` widget is different from the following static elements:
+:doc:`/tutorials/text/annotations` and
+:doc:`/gallery/recipes/placing_text_boxes`.
 """
 
 import numpy as np
@@ -22,13 +21,17 @@ plt.subplots_adjust(bottom=0.2)
 t = np.arange(-2.0, 2.0, 0.001)
 s = t ** 2
 initial_text = "t ** 2"
-l, = plt.plot(t, s, lw=2)
+l, = plt.plot(t, s, lw=2)  # make a plot for the math expression "t ** 2"
 
 
-def submit(text):
-    # user can enter a new math expression that uses "t" as its independent 
-    # variable. The plot refreshes on entering. Example: try "t ** 3"
-    ydata = eval(text)  
+def submit(expression):
+    """
+    Update the plotted function to the new math *expression*.
+
+    *expession* is a string using "t" as its independent variable, e.g.
+    "t ** 3".
+    """
+    ydata = eval(expression)
     l.set_ydata(ydata)
     ax.set_ylim(np.min(ydata), np.max(ydata))
     plt.draw()
