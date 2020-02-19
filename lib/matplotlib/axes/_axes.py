@@ -1271,7 +1271,7 @@ class Axes(_AxesBase):
             The offset of the center of the lines from the origin, in the
             direction orthogonal to *orientation*.
 
-            If a sequence, then must match the dimension of *positions*
+            A sequence must match the dimension of *positions*
             in the direction of *orientation*.
 
         linelengths : scalar or sequence of scalars, default: 1
