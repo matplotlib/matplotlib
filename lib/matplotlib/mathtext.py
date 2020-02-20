@@ -7,7 +7,7 @@ document is primarily concerned with implementation details.
 
 The module uses pyparsing_ to parse the TeX expression.
 
-.. _pyparsing: http://pyparsing.wikispaces.com/
+.. _pyparsing: https://pypi.org/project/pyparsing/
 
 The Bakoma distribution of the TeX Computer Modern fonts, and STIX
 fonts are supported.  There is experimental support for using
