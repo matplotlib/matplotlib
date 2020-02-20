@@ -77,9 +77,12 @@ matrix:
       env:
         - PINNEDVERS='-c requirements/testing/travis36minver.txt'
         - DELETE_FONT_CACHE=1
-        - EXTRAREQS='-r requirements/testing/travis36.txt'
     - python: 3.7
+      env:
+        - EXTRAREQS='-r requirements/testing/travis_extra.txt'
     - python: 3.8
+      env:
+        - EXTRAREQS='-r requirements/testing/travis_extra.txt'
     - python: "nightly"
       env:
         - PRE=--pre

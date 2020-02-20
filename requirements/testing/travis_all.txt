@@ -1,10 +1,6 @@
 # pip requirements for all the travis builds
 
 coverage
-cycler
-numpy
-pillow
-pyparsing
 pytest!=4.6.0
 pytest-cov
 pytest-rerunfailures
@@ -12,4 +8,3 @@ pytest-timeout
 pytest-xdist
 python-dateutil
 tornado
-tox
