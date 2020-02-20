@@ -5,11 +5,11 @@ Textbox
 
 The Textbox widget lets users interactively provide text input, including
 formulas. In this example, the plot is updated using the `.on_submit` method.
-This method triggers the execution of the `submit` function when the user
-presses enter in the textbox or leaves the textbox. 
+This method triggers the execution of the *submit* function when the
+user presses enter in the textbox or leaves the textbox.
 
-Note:  The `Textbox` widget is different from the following static elements:
-:doc:`/tutorials/text/annotations` and
+Note:  The `matplotlib.widgets.TextBox` widget is different from the following
+static elements: :doc:`/tutorials/text/annotations` and
 :doc:`/gallery/recipes/placing_text_boxes`.
 """
 
