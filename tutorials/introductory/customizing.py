@@ -107,15 +107,24 @@ plt.show()
 # the matplotlib package. rcParams can be modified directly, for example:
 
 mpl.rcParams['lines.linewidth'] = 2
-mpl.rcParams['lines.color'] = 'r'
+mpl.rcParams['lines.linestyle'] = '--'
 plt.plot(data)
+
+###############################################################################
+# Note, that in order to change the usual `plot` color you have to change the 
+# `prop_cycle` property of `axes`:
+
+from cycler import cycler
+
+mpl.rcParams['axes.prop_cycle'] = cycler(color=['r', 'g', 'b', 'y'])
+plt.plot(data) # first color is red
 
 ###############################################################################
 # Matplotlib also provides a couple of convenience functions for modifying rc
 # settings. `matplotlib.rc` can be used to modify multiple
 # settings in a single group at once, using keyword arguments:
 
-mpl.rc('lines', linewidth=4, color='g')
+mpl.rc('lines', linewidth=4, linestyle='-.')
 plt.plot(data)
 
 ###############################################################################
