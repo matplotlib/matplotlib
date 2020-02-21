@@ -307,3 +307,15 @@ mplot3d auto-registration
 longer necessary to import mplot3d to create 3d axes with ::
 
   ax = fig.add_subplot(111, projection="3d")
+
+`.SymLogNorm` now has a *base* parameter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, `.SymLogNorm` had no *base* keyword argument and the base was
+hard-coded to ``base=np.e``. This was inconsistent with the default
+behavior of `.SymLogScale` (which defaults to ``base=10``) and the use
+of the word "decade" in the documentation.
+
+In preparation for changing the default base to 10, calling
+`.SymLogNorm` without the new *base* kwarg emits a deprecation
+warning.
