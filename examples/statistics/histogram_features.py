@@ -1,12 +1,12 @@
 """
-=========================================================
-Demo of the histogram (hist) function with a few features
-=========================================================
+==============================================
+Some features of the histogram (hist) function
+==============================================
 
 In addition to the basic histogram, this demo shows a few optional features:
 
 * Setting the number of data bins.
-* The ``normed`` flag, which normalizes bin heights so that the integral of
+* The *density* parameter, which normalizes bin heights so that the integral of
   the histogram is 1. The resulting histogram is an approximation of the
   probability density function.
 * Setting the face color of the bars.
