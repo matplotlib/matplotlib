@@ -57,17 +57,7 @@ def {name}{signature}:
     return gcf().{called_name}{call}
 """
 
-# Used for colormap functions
-CMAP_TEMPLATE = AUTOGEN_MSG + '''
-def {name}():
-    """
-    Set the colormap to "{name}".
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
-    set_cmap("{name}")
-'''
+CMAP_TEMPLATE = "def {name}(): set_cmap({name!r})\n"  # Colormap functions.
 
 
 class value_formatter:
@@ -310,6 +300,8 @@ def boilerplate_gen():
         yield generate_function(name, f'Axes.{called_name}', template,
                                 sci_command=cmappable.get(name))
 
+    yield AUTOGEN_MSG
+    yield '\n'
     cmaps = (
         'autumn',
         'bone',
@@ -335,7 +327,7 @@ def boilerplate_gen():
     for name in cmaps:
         yield CMAP_TEMPLATE.format(name=name)
 
-    yield '\n'
+    yield '\n\n'
     yield '_setup_pyplot_info_docstrings()'
 
 
