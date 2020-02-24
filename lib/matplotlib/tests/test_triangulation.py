@@ -89,12 +89,12 @@ def test_delaunay_points_in_line():
 
 
 @pytest.mark.parametrize('x, y', [
-    # Triangulation should raise a ValueError if passed less than 3 points.
+    # Triangulation should raise a ValueError if passed fewer than 3 points.
     ([], []),
     ([1], [5]),
     ([1, 2], [5, 6]),
     # Triangulation should also raise a ValueError if passed duplicate points
-    # such that there are less than 3 unique points.
+    # such that there are fewer than 3 unique points.
     ([1, 2, 1], [5, 6, 5]),
     ([1, 2, 2], [5, 6, 6]),
     ([1, 1, 1, 2, 1, 2], [5, 5, 5, 6, 5, 6]),

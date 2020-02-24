@@ -1,19 +1,19 @@
-/*<html><pre>  -<a                             href="qh-mem.htm"
+/*<html><pre>  -<a                             href="qh-mem_r.htm"
   >-------------------------------</a><a name="TOP">-</a>
 
-   mem.h
+   mem_r.h
      prototypes for memory management functions
 
-   see qh-mem.htm, mem.c and qset.h
+   see qh-mem_r.htm, mem_r.c and qset_r.h
 
    for error handling, writes message and calls
-     qh_errexit(qhmem_ERRmem, NULL, NULL) if insufficient memory
+     qh_errexit(qhT *qh, qhmem_ERRmem, NULL, NULL) if insufficient memory
        and
-     qh_errexit(qhmem_ERRqhull, NULL, NULL) otherwise
+     qh_errexit(qhT *qh, qhmem_ERRqhull, NULL, NULL) otherwise
 
-   Copyright (c) 1993-2015 The Geometry Center.
-   $Id: //main/2015/qhull/src/libqhull/mem.h#2 $$Change: 2062 $
-   $DateTime: 2016/01/17 13:13:18 $$Author: bbarber $
+   Copyright (c) 1993-2019 The Geometry Center.
+   $Id: //main/2019/qhull/src/libqhull_r/mem_r.h#5 $$Change: 2698 $
+   $DateTime: 2019/06/24 14:52:34 $$Author: bbarber $
 */
 
 #ifndef qhDEFmem
@@ -21,22 +21,32 @@
 
 #include <stdio.h>
 
-/*-<a                             href="qh-mem.htm#TOC"
+#ifndef DEFsetT
+#define DEFsetT 1
+typedef struct setT setT;          /* defined in qset_r.h */
+#endif
+
+#ifndef DEFqhT
+#define DEFqhT 1
+typedef struct qhT qhT;          /* defined in libqhull_r.h */
+#endif
+
+/*-<a                             href="qh-mem_r.htm#TOC"
   >-------------------------------</a><a name="NOmem">-</a>
 
   qh_NOmem
     turn off quick-fit memory allocation
 
   notes:
-    mem.c implements Quickfit memory allocation for about 20% time
+    mem_r.c implements Quickfit memory allocation for about 20% time
     savings.  If it fails on your machine, try to locate the
     problem, and send the answer to qhull@qhull.org.  If this can
     not be done, define qh_NOmem to use malloc/free instead.
 
-   #define qh_NOmem
+    #define qh_NOmem
 */
 
-/*-<a                             href="qh-mem.htm#TOC"
+/*-<a                             href="qh-mem_r.htm#TOC"
 >-------------------------------</a><a name="TRACEshort">-</a>
 
 qh_TRACEshort
@@ -47,7 +57,7 @@ Trace short and quick memory allocations at T5
 
 /*-------------------------------------------
     to avoid bus errors, memory allocation must consider alignment requirements.
-    malloc() automatically takes care of alignment.   Since mem.c manages
+    malloc() automatically takes care of alignment.   Since mem_r.c manages
     its own memory, we need to explicitly specify alignment in
     qh_meminitbuffers().
 
@@ -56,23 +66,23 @@ Trace short and quick memory allocations at T5
     of machines (e.g., DEC Alpha) with large pointers.  If gcc is available,
     use __alignof__(double) or fmax_(__alignof__(float), __alignof__(void *)).
 
-   see <a href="user.h#MEMalign">qh_MEMalign</a> in user.h for qhull's alignment
+   see <a href="user_r.h#MEMalign">qh_MEMalign</a> in user_r.h for qhull's alignment
 */
 
-#define qhmem_ERRmem 4    /* matches qh_ERRmem in libqhull.h */
-#define qhmem_ERRqhull 5  /* matches qh_ERRqhull in libqhull.h */
+#define qhmem_ERRmem 4    /* matches qh_ERRmem in libqhull_r.h */
+#define qhmem_ERRqhull 5  /* matches qh_ERRqhull in libqhull_r.h */
 
-/*-<a                             href="qh-mem.htm#TOC"
+/*-<a                             href="qh-mem_r.htm#TOC"
   >--------------------------------</a><a name="ptr_intT">-</a>
 
   ptr_intT
     for casting a void * to an integer-type that holds a pointer
-    Used for integer expressions (e.g., computing qh_gethash() in poly.c)
+    Used for integer expressions (e.g., computing qh_gethash() in poly_r.c)
 
   notes:
     WARN64 -- these notes indicate 64-bit issues
     On 64-bit machines, a pointer may be larger than an 'int'.
-    qh_meminit()/mem.c checks that 'ptr_intT' holds a 'void*'
+    qh_meminit()/mem_r.c checks that 'ptr_intT' holds a 'void*'
     ptr_intT is typically a signed value, but not necessarily so
     size_t is typically unsigned, but should match the parameter type
     Qhull uses int instead of size_t except for system calls such as malloc, qsort, qh_malloc, etc.
@@ -80,21 +90,21 @@ Trace short and quick memory allocations at T5
 */
 #if (defined(__MINGW64__)) && defined(_WIN64)
 typedef long long ptr_intT;
-#elif (_MSC_VER) && defined(_WIN64)
+#elif defined(_MSC_VER) && defined(_WIN64)
 typedef long long ptr_intT;
 #else
 typedef long ptr_intT;
 #endif
 
-/*-<a                             href="qh-mem.htm#TOC"
+/*-<a                             href="qh-mem_r.htm#TOC"
   >--------------------------------</a><a name="qhmemT">-</a>
 
   qhmemT
-    global memory structure for mem.c
+    global memory structure for mem_r.c
 
  notes:
    users should ignore qhmem except for writing extensions
-   qhmem is allocated in mem.c
+   qhmem is allocated in mem_r.c
 
    qhmem could be swapable like qh and qhstat, but then
    multiple qh's and qhmem's would need to keep in synch.
@@ -102,17 +112,10 @@ typedef long ptr_intT;
    as memory operations are atomic, there is no problem with
    multiple qh structures being active at the same time.
    If you need separate address spaces, you can swap the
-   contents of qhmem.
+   contents of qh->qhmem.
 */
 typedef struct qhmemT qhmemT;
-extern qhmemT qhmem;
 
-#ifndef DEFsetT
-#define DEFsetT 1
-typedef struct setT setT;          /* defined in qset.h */
-#endif
-
-/* Update qhmem in mem.c if add or remove fields */
 struct qhmemT {               /* global memory management variables */
   int      BUFsize;           /* size of memory allocation buffer */
   int      BUFinit;           /* initial size of memory allocation buffer */
@@ -149,74 +152,84 @@ struct qhmemT {               /* global memory management variables */
 
 /*==================== -macros ====================*/
 
-/*-<a                             href="qh-mem.htm#TOC"
+/*-<a                             href="qh-mem_r.htm#TOC"
   >--------------------------------</a><a name="memalloc_">-</a>
 
-  qh_memalloc_(insize, freelistp, object, type)
+  qh_memalloc_(qh, insize, freelistp, object, type)
     returns object of size bytes
-        assumes size<=qhmem.LASTsize and void **freelistp is a temp
+        assumes size<=qh->qhmem.LASTsize and void **freelistp is a temp
 */
 
 #if defined qh_NOmem
-#define qh_memalloc_(insize, freelistp, object, type) {\
-  object= (type*)qh_memalloc(insize); }
+#define qh_memalloc_(qh, insize, freelistp, object, type) {\
+  (void)freelistp; /* Avoid warnings */ \
+  object= (type *)qh_memalloc(qh, insize); }
 #elif defined qh_TRACEshort
-#define qh_memalloc_(insize, freelistp, object, type) {\
-    freelistp= NULL; /* Avoid warnings */ \
-    object= (type*)qh_memalloc(insize); }
+#define qh_memalloc_(qh, insize, freelistp, object, type) {\
+  (void)freelistp; /* Avoid warnings */ \
+  object= (type *)qh_memalloc(qh, insize); }
 #else /* !qh_NOmem */
 
-#define qh_memalloc_(insize, freelistp, object, type) {\
-  freelistp= qhmem.freelists + qhmem.indextable[insize];\
-  if ((object= (type*)*freelistp)) {\
-    qhmem.totshort += qhmem.sizetable[qhmem.indextable[insize]]; \
-    qhmem.totfree -= qhmem.sizetable[qhmem.indextable[insize]]; \
-    qhmem.cntquick++;  \
+#define qh_memalloc_(qh, insize, freelistp, object, type) {\
+  freelistp= qh->qhmem.freelists + qh->qhmem.indextable[insize];\
+  if ((object= (type *)*freelistp)) {\
+    qh->qhmem.totshort += qh->qhmem.sizetable[qh->qhmem.indextable[insize]]; \
+    qh->qhmem.totfree -= qh->qhmem.sizetable[qh->qhmem.indextable[insize]]; \
+    qh->qhmem.cntquick++;  \
     *freelistp= *((void **)*freelistp);\
-  }else object= (type*)qh_memalloc(insize);}
+  }else object= (type *)qh_memalloc(qh, insize);}
 #endif
 
-/*-<a                             href="qh-mem.htm#TOC"
+/*-<a                             href="qh-mem_r.htm#TOC"
   >--------------------------------</a><a name="memfree_">-</a>
 
-  qh_memfree_(object, insize, freelistp)
+  qh_memfree_(qh, object, insize, freelistp)
     free up an object
 
   notes:
     object may be NULL
-    assumes size<=qhmem.LASTsize and void **freelistp is a temp
+    assumes size<=qh->qhmem.LASTsize and void **freelistp is a temp
 */
 #if defined qh_NOmem
-#define qh_memfree_(object, insize, freelistp) {\
-  qh_memfree(object, insize); }
+#define qh_memfree_(qh, object, insize, freelistp) {\
+  (void)freelistp; /* Avoid warnings */ \
+  qh_memfree(qh, object, insize); }
 #elif defined qh_TRACEshort
-#define qh_memfree_(object, insize, freelistp) {\
-    freelistp= NULL; /* Avoid warnings */ \
-    qh_memfree(object, insize); }
+#define qh_memfree_(qh, object, insize, freelistp) {\
+  (void)freelistp; /* Avoid warnings */ \
+  qh_memfree(qh, object, insize); }
 #else /* !qh_NOmem */
 
-#define qh_memfree_(object, insize, freelistp) {\
+#define qh_memfree_(qh, object, insize, freelistp) {\
   if (object) { \
-    qhmem.freeshort++;\
-    freelistp= qhmem.freelists + qhmem.indextable[insize];\
-    qhmem.totshort -= qhmem.sizetable[qhmem.indextable[insize]]; \
-    qhmem.totfree += qhmem.sizetable[qhmem.indextable[insize]]; \
+    qh->qhmem.freeshort++;\
+    freelistp= qh->qhmem.freelists + qh->qhmem.indextable[insize];\
+    qh->qhmem.totshort -= qh->qhmem.sizetable[qh->qhmem.indextable[insize]]; \
+    qh->qhmem.totfree += qh->qhmem.sizetable[qh->qhmem.indextable[insize]]; \
     *((void **)object)= *freelistp;\
     *freelistp= object;}}
 #endif
 
 /*=============== prototypes in alphabetical order ============*/
 
-void *qh_memalloc(int insize);
-void qh_memcheck(void);
-void qh_memfree(void *object, int insize);
-void qh_memfreeshort(int *curlong, int *totlong);
-void qh_meminit(FILE *ferr);
-void qh_meminitbuffers(int tracelevel, int alignment, int numsizes,
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void *qh_memalloc(qhT *qh, int insize);
+void qh_memcheck(qhT *qh);
+void qh_memfree(qhT *qh, void *object, int insize);
+void qh_memfreeshort(qhT *qh, int *curlong, int *totlong);
+void qh_meminit(qhT *qh, FILE *ferr);
+void qh_meminitbuffers(qhT *qh, int tracelevel, int alignment, int numsizes,
                         int bufsize, int bufinit);
-void qh_memsetup(void);
-void qh_memsize(int size);
-void qh_memstatistics(FILE *fp);
-void qh_memtotal(int *totlong, int *curlong, int *totshort, int *curshort, int *maxlong, int *totbuffer);
+void qh_memsetup(qhT *qh);
+void qh_memsize(qhT *qh, int size);
+void qh_memstatistics(qhT *qh, FILE *fp);
+void qh_memtotal(qhT *qh, int *totlong, int *curlong, int *totshort, int *curshort, int *maxlong, int *totbuffer);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* qhDEFmem */

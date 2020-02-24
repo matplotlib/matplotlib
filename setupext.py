@@ -620,7 +620,7 @@ class Qhull(SetupPackage):
             ext.libraries.append('qhull')
         else:
             ext.include_dirs.insert(0, 'extern')
-            ext.sources.extend(sorted(glob.glob('extern/libqhull/*.c')))
+            ext.sources.extend(sorted(glob.glob('extern/libqhull_r/*.c')))
             if sysconfig.get_config_var('LIBM') == '-lm':
                 ext.libraries.extend('m')
 
