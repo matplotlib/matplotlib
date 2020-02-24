@@ -131,16 +131,20 @@ class Path:
         vertices = _to_unmasked_float_array(vertices)
         if vertices.ndim != 2 or vertices.shape[1] != 2:
             raise ValueError(
-                "'vertices' must be a 2D list or array with shape Nx2")
+                "'vertices' must be a 2D list or array with shape (N, 2). "
+                f"Your input has shape {vertices.shape}.")
 
         if codes is not None:
             codes = np.asarray(codes, self.code_type)
             if codes.ndim != 1 or len(codes) != len(vertices):
                 raise ValueError("'codes' must be a 1D list or array with the "
-                                 "same length of 'vertices'")
+                                 "same length of 'vertices'. "
+                                 f"Your vertices have shape {vertices.shape} "
+                                 f"but your codes have shape {codes.shape}")
             if len(codes) and codes[0] != self.MOVETO:
                 raise ValueError("The first element of 'code' must be equal "
-                                 "to 'MOVETO' ({})".format(self.MOVETO))
+                                 f"to 'MOVETO' ({self.MOVETO}).  "
+                                 f"Your first code if {codes[0]}")
         elif closed and len(vertices):
             codes = np.empty(len(vertices), dtype=self.code_type)
             codes[0] = self.MOVETO
