@@ -14,6 +14,7 @@ User's Guide
 
     installing.rst
     ../tutorials/index.rst
+    cheatsheets/index.rst
     interactive.rst
     whats_new.rst
     history.rst
