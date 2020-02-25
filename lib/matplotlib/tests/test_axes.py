@@ -2178,7 +2178,8 @@ def _params(c=None, xsize=2, **kwargs):
 _result = namedtuple('_result', 'c, colors')
 
 
-@pytest.mark.parametrize('params, expected_result',
+@pytest.mark.parametrize(
+    'params, expected_result',
     [(_params(),
       _result(c='b', colors=np.array([[0, 0, 1, 1]]))),
      (_params(c='r'),
@@ -2204,7 +2205,8 @@ del _params
 del _result
 
 
-@pytest.mark.parametrize('kwargs, expected_edgecolors',
+@pytest.mark.parametrize(
+    'kwargs, expected_edgecolors',
     [(dict(), None),
      (dict(c='b'), None),
      (dict(edgecolors='r'), 'r'),
@@ -5735,8 +5737,8 @@ def test_zoom_inset():
     assert(np.all(rec.get_bbox().get_points() == xx))
     xx = np.array([[0.6325, 0.692308],
                    [0.8425, 0.907692]])
-    np.testing.assert_allclose(axin1.get_position().get_points(),
-            xx, rtol=1e-4)
+    np.testing.assert_allclose(
+        axin1.get_position().get_points(), xx, rtol=1e-4)
 
 
 @pytest.mark.parametrize('x_inverted', [False, True])
@@ -5839,8 +5841,8 @@ def test_annotate_across_transforms():
     axins.xaxis.set_visible(False)
     axins.yaxis.set_visible(False)
     ax.annotate("", xy=(x[150], y[150]), xycoords=ax.transData,
-            xytext=(1, 0), textcoords=axins.transAxes,
-            arrowprops=dict(arrowstyle="->"))
+                xytext=(1, 0), textcoords=axins.transAxes,
+                arrowprops=dict(arrowstyle="->"))
 
 
 def test_deprecated_uppercase_colors():
@@ -5930,33 +5932,36 @@ def color_boxes(fig, axs):
     for nn, axx in enumerate([axs.xaxis, axs.yaxis]):
         bb = axx.get_tightbbox(renderer)
         if bb:
-            axisr = plt.Rectangle((bb.x0, bb.y0), width=bb.width,
-                     height=bb.height, linewidth=0.7, edgecolor='y',
-                    facecolor="none", transform=None, zorder=3)
+            axisr = plt.Rectangle(
+                (bb.x0, bb.y0), width=bb.width, height=bb.height,
+                linewidth=0.7, edgecolor='y', facecolor="none", transform=None,
+                zorder=3)
             fig.add_artist(axisr)
         bbaxis += [bb]
 
     bbspines = []
     for nn, a in enumerate(['bottom', 'top', 'left', 'right']):
         bb = axs.spines[a].get_window_extent(renderer)
-        spiner = plt.Rectangle((bb.x0, bb.y0), width=bb.width,
-                              height=bb.height, linewidth=0.7,
-                              edgecolor="green", facecolor="none",
-                              transform=None, zorder=3)
+        spiner = plt.Rectangle(
+            (bb.x0, bb.y0), width=bb.width, height=bb.height,
+            linewidth=0.7, edgecolor="green", facecolor="none", transform=None,
+            zorder=3)
         fig.add_artist(spiner)
         bbspines += [bb]
 
     bb = axs.get_window_extent()
-    rect2 = plt.Rectangle((bb.x0, bb.y0), width=bb.width, height=bb.height,
-                         linewidth=1.5, edgecolor="magenta",
-                         facecolor="none", transform=None, zorder=2)
+    rect2 = plt.Rectangle(
+        (bb.x0, bb.y0), width=bb.width, height=bb.height,
+        linewidth=1.5, edgecolor="magenta", facecolor="none", transform=None,
+        zorder=2)
     fig.add_artist(rect2)
     bbax = bb
 
     bb2 = axs.get_tightbbox(renderer)
-    rect2 = plt.Rectangle((bb2.x0, bb2.y0), width=bb2.width,
-                         height=bb2.height, linewidth=3, edgecolor="red",
-                         facecolor="none", transform=None, zorder=1)
+    rect2 = plt.Rectangle(
+        (bb2.x0, bb2.y0), width=bb2.width, height=bb2.height,
+        linewidth=3, edgecolor="red", facecolor="none", transform=None,
+        zorder=1)
     fig.add_artist(rect2)
     bbtb = bb2
     return bbaxis, bbspines, bbax, bbtb
@@ -6079,8 +6084,8 @@ def test_tickdirs():
             bbaxis, bbspines, bbax, bbtb = color_boxes(fig, ax)
             for nn, num in enumerate([0, 2]):
                 targetbb = mtransforms.Bbox.from_bounds(*targets[dnum][nn])
-                assert_allclose(bbspines[num].bounds, targetbb.bounds,
-                               atol=1e-2)
+                assert_allclose(
+                    bbspines[num].bounds, targetbb.bounds, atol=1e-2)
 
 
 def test_minor_accountedfor():
@@ -6095,8 +6100,8 @@ def test_minor_accountedfor():
                    [138.8889, 119.9999, 11.1111, 960.0]]
         for n in range(2):
             targetbb = mtransforms.Bbox.from_bounds(*targets[n])
-            assert_allclose(bbspines[n * 2].bounds, targetbb.bounds,
-                           atol=1e-2)
+            assert_allclose(
+                bbspines[n * 2].bounds, targetbb.bounds, atol=1e-2)
 
         fig, ax = plt.subplots(dpi=200, figsize=(6, 6))
         fig.canvas.draw()
@@ -6110,16 +6115,16 @@ def test_minor_accountedfor():
 
         for n in range(2):
             targetbb = mtransforms.Bbox.from_bounds(*targets[n])
-            assert_allclose(bbspines[n * 2].bounds, targetbb.bounds,
-                           atol=1e-2)
+            assert_allclose(
+                bbspines[n * 2].bounds, targetbb.bounds, atol=1e-2)
 
 
 def test_get_tightbbox_polar():
     fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
     fig.canvas.draw()
     bb = ax.get_tightbbox(fig.canvas.get_renderer())
-    assert_allclose(bb.extents,
-        [107.7778,  29.2778, 539.7847, 450.7222], rtol=1e-03)
+    assert_allclose(
+        bb.extents, [107.7778,  29.2778, 539.7847, 450.7222], rtol=1e-03)
 
 
 @check_figures_equal(extensions=["png"])
@@ -6293,7 +6298,7 @@ def test_bbox_aspect_axes_init():
     # Test that box_aspect can be given to axes init and produces
     # all equal square axes.
     fig, axs = plt.subplots(2, 3, subplot_kw=dict(box_aspect=1),
-                        constrained_layout=True)
+                            constrained_layout=True)
     fig.canvas.draw()
     renderer = fig.canvas.get_renderer()
     sizes = []

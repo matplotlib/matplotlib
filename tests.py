@@ -30,7 +30,7 @@ if __name__ == '__main__':
     # Python 3.6 deprecate invalid character-pairs \A, \* ... in non
     # raw-strings and other things. Let's not re-introduce them
     warnings.filterwarnings('error', '.*invalid escape sequence.*',
-        category=DeprecationWarning)
+                            category=DeprecationWarning)
     warnings.filterwarnings(
         'default',
         r'.*inspect.getargspec\(\) is deprecated.*',

@@ -194,8 +194,8 @@ def validate_dpi(s):
     try:
         return float(s)
     except ValueError:
-        raise ValueError('"%s" is not string "figure" or'
-            ' could not convert "%s" to float' % (s, s))
+        raise ValueError(f'{s!r} is not string "figure" and '
+                         f'could not convert {s!r} to float')
 
 
 def _make_type_validator(cls, *, allow_none=False):
@@ -673,14 +673,13 @@ def validate_movie_writer(s):
                          f"{sorted(animation.writers._registered)}")
 
 
-validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
-    ['png', 'jpeg', 'tiff', 'raw', 'rgba'], _deprecated_since="3.3")
-
+validate_movie_frame_fmt = ValidateInStrings(
+    'animation.frame_format', ['png', 'jpeg', 'tiff', 'raw', 'rgba'],
+    _deprecated_since="3.3")
 validate_axis_locator = ValidateInStrings(
     'major', ['minor', 'both', 'major'], _deprecated_since="3.3")
-
-validate_movie_html_fmt = ValidateInStrings('animation.html',
-    ['html5', 'jshtml', 'none'], _deprecated_since="3.3")
+validate_movie_html_fmt = ValidateInStrings(
+    'animation.html', ['html5', 'jshtml', 'none'], _deprecated_since="3.3")
 
 
 def validate_bbox(s):

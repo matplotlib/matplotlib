@@ -2347,8 +2347,8 @@ default: 'top'
                 # some axes don't take the bbox_extra_artists kwarg so we
                 # need this conditional....
                 try:
-                    bbox = ax.get_tightbbox(renderer,
-                            bbox_extra_artists=bbox_extra_artists)
+                    bbox = ax.get_tightbbox(
+                        renderer, bbox_extra_artists=bbox_extra_artists)
                 except TypeError:
                     bbox = ax.get_tightbbox(renderer)
                 bb.append(bbox)
@@ -2368,9 +2368,8 @@ default: 'top'
     def init_layoutbox(self):
         """Initialize the layoutbox for use in constrained_layout."""
         if self._layoutbox is None:
-            self._layoutbox = layoutbox.LayoutBox(parent=None,
-                                     name='figlb',
-                                     artist=self)
+            self._layoutbox = layoutbox.LayoutBox(
+                parent=None, name='figlb', artist=self)
             self._layoutbox.constrain_geometry(0., 0., 1., 1.)
 
     def execute_constrained_layout(self, renderer=None):

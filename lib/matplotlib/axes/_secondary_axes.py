@@ -100,19 +100,13 @@ class SecondaryAxis(_AxesBase):
             either 'top' or 'bottom' for orientation='x' or
             'left' or 'right' for orientation='y' axis.
         """
-        if align in self._locstrings:
-            if align == self._locstrings[1]:
-                # need to change the orientation.
-                self._locstrings = self._locstrings[::-1]
-            elif align != self._locstrings[0]:
-                raise ValueError('"{}" is not a valid axis orientation, '
-                                 'not changing the orientation;'
-                                 'choose "{}" or "{}""'.format(align,
-                                 self._locstrings[0], self._locstrings[1]))
-            self.spines[self._locstrings[0]].set_visible(True)
-            self.spines[self._locstrings[1]].set_visible(False)
-            self._axis.set_ticks_position(align)
-            self._axis.set_label_position(align)
+        cbook._check_in_list(self._locstrings, align=align)
+        if align == self._locstrings[1]:  # Need to change the orientation.
+            self._locstrings = self._locstrings[::-1]
+        self.spines[self._locstrings[0]].set_visible(True)
+        self.spines[self._locstrings[1]].set_visible(False)
+        self._axis.set_ticks_position(align)
+        self._axis.set_label_position(align)
 
     def set_location(self, location):
         """
@@ -136,9 +130,9 @@ class SecondaryAxis(_AxesBase):
             elif location in ['bottom', 'left']:
                 self._pos = 0.
             else:
-                raise ValueError("location must be '{}', '{}', or a "
-                                 "float, not '{}'".format(location,
-                                 self._locstrings[0], self._locstrings[1]))
+                raise ValueError(
+                    f"location must be {self._locstrings[0]!r}, "
+                    f"{self._locstrings[1]!r}, or a float, not {location!r}")
         else:
             self._pos = location
         self._loc = location

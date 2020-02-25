@@ -295,12 +295,10 @@ class Axes(_AxesBase):
 
           h, l = ax.get_legend_handles_labels()
           ax.legend(h, l)
-
         """
-
         # pass through to legend.
-        handles, labels = mlegend._get_legend_handles_labels([self],
-                legend_handler_map)
+        handles, labels = mlegend._get_legend_handles_labels(
+            [self], legend_handler_map)
         return handles, labels
 
     @docstring.dedent_interpd
@@ -461,9 +459,8 @@ class Axes(_AxesBase):
         inset_locator = _make_inset_locator(bounds, transform, self)
         bb = inset_locator(None, None)
 
-        inset_ax = Axes(self.figure, bb.bounds, zorder=zorder,
-                label=label, **kwargs)
-
+        inset_ax = Axes(self.figure, bb.bounds, zorder=zorder, label=label,
+                        **kwargs)
         # this locator lets the axes move if in data coordinates.
         # it gets called in `ax.apply_aspect() (of all places)
         inset_ax.set_axes_locator(inset_locator)
@@ -473,8 +470,8 @@ class Axes(_AxesBase):
         return inset_ax
 
     def indicate_inset(self, bounds, inset_ax=None, *, transform=None,
-            facecolor='none', edgecolor='0.5', alpha=0.5,
-            zorder=4.99, **kwargs):
+                       facecolor='none', edgecolor='0.5', alpha=0.5,
+                       zorder=4.99, **kwargs):
         """
         Add an inset indicator to the axes.  This is a rectangle on the plot
         at the position indicated by *bounds* that optionally has lines that
@@ -5698,12 +5695,12 @@ default: :rc:`scatter.edgecolors`
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
             if (ncols == Nx or nrows == Ny):
-                cbook.warn_deprecated("3.3",
-                    message="shading='flat' when X and Y have the same "
-                            "dimensions as C is deprecated since %(since)s.  "
-                            "Either specify the corners of the quadrilaterals "
-                            "with X and Y, or pass shading='auto', 'nearest' "
-                            "or 'gouraud', or set rcParams['pcolor.shading']")
+                cbook.warn_deprecated(
+                    "3.3", message="shading='flat' when X and Y have the same "
+                    "dimensions as C is deprecated since %(since)s.  Either "
+                    "specify the corners of the quadrilaterals with X and Y, "
+                    "or pass shading='auto', 'nearest' or 'gouraud', or set "
+                    "rcParams['pcolor.shading']")
             C = C[:Ny - 1, :Nx - 1]
         else:    # ['nearest', 'gouraud']:
             if (Nx, Ny) != (ncols, nrows):
@@ -7813,12 +7810,10 @@ default: :rc:`scatter.edgecolors`
         self.title.set_y(1.05)
         self.xaxis.tick_top()
         self.xaxis.set_ticks_position('both')
-        self.xaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
-                                                 steps=[1, 2, 5, 10],
-                                                 integer=True))
-        self.yaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
-                                                 steps=[1, 2, 5, 10],
-                                                 integer=True))
+        self.xaxis.set_major_locator(
+            mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True))
+        self.yaxis.set_major_locator(
+            mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True))
         return im
 
     @_preprocess_data(replace_names=["dataset"])

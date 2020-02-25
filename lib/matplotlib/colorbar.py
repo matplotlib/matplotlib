@@ -315,7 +315,7 @@ class _ColorbarLogLocator(ticker.LogLocator):
         ticks = super().tick_values(vmin, vmax)
         rtol = (np.log10(vmax) - np.log10(vmin)) * 1e-10
         ticks = ticks[(np.log10(ticks) >= np.log10(vmin) - rtol) &
-              (np.log10(ticks) <= np.log10(vmax) + rtol)]
+                      (np.log10(ticks) <= np.log10(vmax) + rtol)]
         return ticks
 
 

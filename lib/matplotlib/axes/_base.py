@@ -2570,8 +2570,8 @@ class _AxesBase(martist.Artist):
                 x, y = title.get_position()
                 if not np.isclose(y, 1.0):
                     self._autotitlepos = False
-                    _log.debug('not adjusting title pos because a title was'
-                             ' already placed manually: %f', y)
+                    _log.debug('not adjusting title pos because a title was '
+                               'already placed manually: %f', y)
                     return
             self._autotitlepos = True
 
@@ -4416,8 +4416,8 @@ class _AxesBase(martist.Artist):
             # this artist because this can be expensive:
             clip_extent = a._get_clipping_extent_bbox()
             if clip_extent is not None:
-                clip_extent = mtransforms.Bbox.intersection(clip_extent,
-                    axbbox)
+                clip_extent = mtransforms.Bbox.intersection(
+                    clip_extent, axbbox)
                 if np.all(clip_extent.extents == axbbox.extents):
                     # clip extent is inside the axes bbox so don't check
                     # this artist

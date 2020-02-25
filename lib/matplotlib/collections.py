@@ -922,7 +922,7 @@ class PathCollection(_CollectionWithSizes):
         return self._paths
 
     def legend_elements(self, prop="colors", num="auto",
-                     fmt=None, func=lambda x: x, **kwargs):
+                        fmt=None, func=lambda x: x, **kwargs):
         """
         Creates legend handles and labels for a PathCollection. This is useful
         for obtaining a legend for a :meth:`~.Axes.scatter` plot. E.g.::

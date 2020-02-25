@@ -1226,9 +1226,9 @@ class SymLogNorm(Normalize):
         Normalize.__init__(self, vmin, vmax, clip)
         if base is None:
             self._base = np.e
-            cbook.warn_deprecated("3.3", message="default base will change "
-                "from np.e to 10.  To suppress this warning specify the base "
-                "kwarg.")
+            cbook.warn_deprecated(
+                "3.3", message="default base will change from np.e to 10.  To "
+                "suppress this warning specify the base kwarg.")
         else:
             self._base = base
         self._log_base = np.log(self._base)

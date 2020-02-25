@@ -195,10 +195,9 @@ def test_constrained_layout11():
 def test_constrained_layout11rat():
     """Test for multiple nested gridspecs with width_ratios"""
     fig = plt.figure(constrained_layout=True, figsize=(10, 3))
-    gs0 = gridspec.GridSpec(1, 2, figure=fig, width_ratios=[6., 1.])
+    gs0 = gridspec.GridSpec(1, 2, figure=fig, width_ratios=[6, 1])
     gsl = gridspec.GridSpecFromSubplotSpec(1, 2, gs0[0])
-    gsl0 = gridspec.GridSpecFromSubplotSpec(2, 2, gsl[1],
-            height_ratios=[2., 1.])
+    gsl0 = gridspec.GridSpecFromSubplotSpec(2, 2, gsl[1], height_ratios=[2, 1])
     ax = fig.add_subplot(gs0[1])
     example_plot(ax, fontsize=9)
     axs = []
@@ -397,5 +396,5 @@ def test_hidden_axes():
     fig.canvas.draw()
     extents1 = np.copy(axs[0, 0].get_position().extents)
 
-    np.testing.assert_allclose(extents1,
-        [0.045552, 0.548288, 0.47319, 0.982638], rtol=1e-5)
+    np.testing.assert_allclose(
+        extents1, [0.045552, 0.548288, 0.47319, 0.982638], rtol=1e-5)
