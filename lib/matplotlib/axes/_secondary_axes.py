@@ -62,7 +62,7 @@ class SecondaryAxis(_AxesBase):
             self._axis = self.yaxis
             self._locstrings = ['right', 'left']
             self._otherstrings = ['top', 'bottom']
-        self._parentscale = self._axis.get_scale()
+        self._parentscale = None
         # this gets positioned w/o constrained_layout so exclude:
         self._layoutbox = None
         self._poslayoutbox = None
@@ -189,21 +189,6 @@ class SecondaryAxis(_AxesBase):
             If a transform is supplied, then the transform must have an
             inverse.
         """
-
-        if self._orientation == 'x':
-            set_scale = self.set_xscale
-            parent_scale = self._parent.get_xscale()
-        else:
-            set_scale = self.set_yscale
-            parent_scale = self._parent.get_yscale()
-        # we need to use a modified scale so the scale can receive the
-        # transform.  Only types supported are linear and log10 for now.
-        # Probably possible to add other transforms as a todo...
-        if parent_scale == 'log':
-            defscale = 'functionlog'
-        else:
-            defscale = 'function'
-
         if (isinstance(functions, tuple) and len(functions) == 2 and
             callable(functions[0]) and callable(functions[1])):
             # make an arbitrary convert from a two-tuple of functions
@@ -216,8 +201,7 @@ class SecondaryAxis(_AxesBase):
                              'must be a two-tuple of callable functions '
                              'with the first function being the transform '
                              'and the second being the inverse')
-        # need to invert the roles here for the ticks to line up.
-        set_scale(defscale, functions=self._functions[::-1])
+        self._set_scale()
 
     def draw(self, renderer=None, inframe=False):
         """
@@ -246,8 +230,6 @@ class SecondaryAxis(_AxesBase):
             set_scale = self.set_yscale
         if pscale == self._parentscale:
             return
-        else:
-            self._parentscale = pscale
 
         if pscale == 'log':
             defscale = 'functionlog'
@@ -264,6 +246,9 @@ class SecondaryAxis(_AxesBase):
         # axsecond.set_ticks, we want to keep those.
         if self._ticks_set:
             self._axis.set_major_locator(mticker.FixedLocator(ticks))
+
+        # If the parent scale doesn't change, we can skip this next time.
+        self._parentscale = pscale
 
     def _set_lims(self):
         """
