@@ -1573,7 +1573,6 @@ class Annotation(Text, _AnnotationBase):
     def __str__(self):
         return "Annotation(%g, %g, %r)" % (self.xy[0], self.xy[1], self._text)
 
-    @cbook._rename_parameter("3.1", "s", "text")
     def __init__(self, text, xy,
                  xytext=None,
                  xycoords='data',

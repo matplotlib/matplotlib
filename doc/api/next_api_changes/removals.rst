@@ -163,6 +163,12 @@ Arguments
 - Passing a ``wx.EvtHandler`` as the first argument to ``backend_wx.TimerWx``
   is not supported anymore; the signature of ``TimerWx`` is now consistent with
   `.TimerBase`.
+- The ``manage_xticks`` parameter of `~.Axes.boxplot` and `~.Axes.bxp` has been
+  renamed to ``manage_ticks``.
+- The ``normed`` parameter of `~.Axes.hist2d` has been renamed to ``density``.
+- The ``s`` parameter of `.Annotation` has been renamed to ``text``.
+- For all functions in `.bezier` that supported a ``tolerence`` parameter, this
+  parameter has been renamed to ``tolerance``.
 
 rcParams
 ~~~~~~~~

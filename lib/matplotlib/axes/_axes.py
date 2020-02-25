@@ -3466,7 +3466,6 @@ class Axes(_AxesBase):
 
         return errorbar_container  # (l0, caplines, barcols)
 
-    @cbook._rename_parameter("3.1", "manage_xticks", "manage_ticks")
     @_preprocess_data()
     def boxplot(self, x, notch=None, sym=None, vert=None, whis=None,
                 positions=None, widths=None, patch_artist=None,
@@ -3756,7 +3755,6 @@ class Axes(_AxesBase):
                            manage_ticks=manage_ticks, zorder=zorder)
         return artists
 
-    @cbook._rename_parameter("3.1", "manage_xticks", "manage_ticks")
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
             patch_artist=False, shownotches=False, showmeans=False,
             showcaps=True, showbox=True, showfliers=True,
@@ -6886,7 +6884,6 @@ default: :rc:`scatter.edgecolors`
             return tops, bins, cbook.silent_list('Lists of Patches', patches)
 
     @_preprocess_data(replace_names=["x", "y", "weights"])
-    @cbook._rename_parameter("3.1", "normed", "density")
     def hist2d(self, x, y, bins=10, range=None, density=False, weights=None,
                cmin=None, cmax=None, **kwargs):
         """
