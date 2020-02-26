@@ -1,0 +1,4 @@
+``axes_grid1.axes_grid.CbarAxes`` and ``axes_grid1.axisartist.CbarAxes``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These classes are deprecated (they are now dynamically generated based on the
+owning axes class).
