@@ -6476,22 +6476,22 @@ default: :rc:`scatter.edgecolors`
             range of x.
 
         density : bool, default: False
-            If ``True``, the first element of the return tuple will
-            be the raw counts per bin normalized to form a probability density
-            so that the area under the histogram will integrate to 1, i.e.
-            ``np.sum(n * np.diff(bins)) == 1``.  (Computed by dividing the
-            raw counts ``n0`` by the total number of data points and
-            multiplying by the bin width: ``n = n0 / sum(n0) * np.diff(bins)``)
+            If ``True``, draw and return a probability density: each bin
+            will display the bin's raw count divided by the total number of
+            counts *and the bin width*
+            (``density = counts / (sum(counts) * np.diff(bins))``),
+            so that the area under the histogram integrates to 1
+            (``np.sum(density * np.diff(bins)) == 1``).
 
             If *stacked* is also ``True``, the sum of the histograms is
             normalized to 1.
 
         weights : (n,) array-like or None, default: None
-            An array of weights, of the same shape as *x*.  Each value in *x*
-            only contributes its associated weight towards the bin count
-            (instead of 1).  If *normed* or *density* is ``True``,
-            the weights are normalized, so that the integral of the density
-            over the range remains 1.
+            An array of weights, of the same shape as *x*.  Each value in
+            *x* only contributes its associated weight towards the bin count
+            (instead of 1).  If *density* is ``True``, the weights are
+            normalized, so that the integral of the density over the range
+            remains 1.
 
             This parameter can be used to draw a histogram of data that has
             already been binned, e.g. using `numpy.histogram` (by treating each
@@ -6916,8 +6916,8 @@ default: :rc:`scatter.edgecolors`
             considered outliers and not tallied in the histogram.
 
         density : bool, default: False
-            Normalize histogram.  *normed* is a deprecated synonym for this
-            parameter.
+            Normalize histogram.  See the documentation for the *density*
+            parameter of `~.Axes.hist` for more details.
 
         weights : array-like, shape (n, ), optional
             An array of values w_i weighing each sample (x_i, y_i).
@@ -6976,7 +6976,7 @@ default: :rc:`scatter.edgecolors`
         """
 
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
-                                           normed=density, weights=weights)
+                                           density=density, weights=weights)
 
         if cmin is not None:
             h[h < cmin] = None
