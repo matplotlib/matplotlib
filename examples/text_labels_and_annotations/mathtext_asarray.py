@@ -8,8 +8,6 @@ Make images from LaTeX strings.
 
 import matplotlib.mathtext as mathtext
 import matplotlib.pyplot as plt
-import matplotlib
-matplotlib.rc('image', origin='upper')
 
 parser = mathtext.MathTextParser("Bitmap")
 parser.to_png('test2.png',
