@@ -112,7 +112,7 @@ plt.plot(data)
 
 ###############################################################################
 # Note, that in order to change the usual `plot` color you have to change the 
-# `prop_cycle` property of `axes`:
+# *prop_cycle* property of *axes*:
 
 from cycler import cycler
 
