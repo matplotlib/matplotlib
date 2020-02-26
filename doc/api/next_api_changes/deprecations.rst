@@ -317,3 +317,12 @@ Axis and Locator ``pan`` and ``zoom``
 The unused ``pan`` and ``zoom`` methods of `~.axis.Axis` and `~.ticker.Locator`
 are deprecated.  Panning and zooming are now implemented using the
 ``start_pan``, ``drag_pan``, and ``end_pan`` methods of `~.axes.Axes`.
+
+Passing None to various Axes subclass factories
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Support for passing ``None`` as base class to `.axes.subplot_class_factory`,
+``axes_grid1.parasite_axes.host_axes_class_factory``,
+``axes_grid1.parasite_axes.host_subplot_class_factory``,
+``axes_grid1.parasite_axes.parasite_axes_class_factory``, and
+``axes_grid1.parasite_axes.parasite_axes_auxtrans_class_factory`` is deprecated.
+Explicitly pass the correct base ``Axes`` class instead.
