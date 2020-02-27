@@ -21,7 +21,6 @@ This was derived from embedding_in_wx and dynamic_image_wxagg.
 Thanks to matplotlib and wx teams for creating such great software!
 """
 
-import matplotlib
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
 from matplotlib.backends.backend_wxagg import (
@@ -34,9 +33,6 @@ import wx
 import wx.xrc as xrc
 
 ERR_TOL = 1e-5  # floating point slop for peak-detection
-
-
-matplotlib.rc('image', origin='lower')
 
 
 class PlotPanel(wx.Panel):
@@ -64,7 +60,7 @@ class PlotPanel(wx.Panel):
         y = np.arange(100.0) * 2 * np.pi / 50.0
         self.x, self.y = np.meshgrid(x, y)
         z = np.sin(self.x) + np.cos(self.y)
-        self.im = ax.imshow(z, cmap=cm.RdBu)
+        self.im = ax.imshow(z, cmap=cm.RdBu, origin='lower')
 
         zmax = np.max(z) - ERR_TOL
         ymax_i, xmax_i = np.nonzero(z >= zmax)
