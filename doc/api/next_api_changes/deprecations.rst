@@ -232,3 +232,7 @@ Axes navigation can still be toggled programmatically using
 The following related APIs are also deprecated:
 ``backend_tools.ToolEnableAllNavigation``,
 ``backend_tools.ToolEnableNavigation``, and ``rcParams["keymap.all_axes"]``.
+
+``matplotlib.test(recursionlimit=...)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *recursionlimit* parameter of ``matplotlib.test`` is deprecated.
