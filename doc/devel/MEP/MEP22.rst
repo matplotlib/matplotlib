@@ -180,8 +180,8 @@ Methods for **Backend implementation**
 Backward compatibility
 ======================
 
-For backward compatibility added a 'navigation' key to
-`rcsetup.validate_toolbar`, that is used for Navigation classes
+For backward compatibility added 'navigation' to the list of values
+supported by :rc:`toolbar`, that is used for Navigation classes
 instantiation instead of the NavigationToolbar classes
 
 With this parameter, it makes it transparent to anyone using the
