@@ -2197,24 +2197,20 @@ def _check_shape(_shape, **kwargs):
     for k, v in kwargs.items():
         data_shape = v.shape
 
-        if not (
-            len(data_shape) == len(target_shape)
-            and all(
-                (t == s if t is not None else True)
+        if len(target_shape) != len(data_shape) or any(
+                t not in [s, None]
                 for t, s in zip(target_shape, data_shape)
-            )
         ):
-            def format_dims(target_shape):
-                dim_labels = iter(itertools.chain(
-                    'MNLIJKLH',
-                    (f"D{i}" for i in itertools.count())))
-                text_shape = tuple(n if n is not None else next(dim_labels)
-                                   for n in target_shape)
-                return '(' + ", ".join(str(_) for _ in text_shape) + ')'
+            dim_labels = iter(itertools.chain(
+                'MNLIJKLH',
+                (f"D{i}" for i in itertools.count())))
+            text_shape = ", ".join(str(_) for _ in
+                                   (n if n is not None else next(dim_labels)
+                                    for n in target_shape))
 
             raise ValueError(
                 f"{k!r} must be {len(target_shape)}D "
-                f"with shape {format_dims(target_shape)}. "
+                f"with shape ({text_shape}). "
                 f"Your input has shape {v.shape}."
             )
 
