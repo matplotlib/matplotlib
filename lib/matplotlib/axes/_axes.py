@@ -6916,7 +6916,6 @@ default: :rc:`scatter.edgecolors`
             return tops, bins, cbook.silent_list('Lists of Patches', patches)
 
     @_preprocess_data(replace_names=["x", "y", "weights"])
-    @cbook._rename_parameter("3.1", "normed", "density")
     @docstring.dedent_interpd
     def hist2d(self, x, y, bins=10, range=None, density=False, weights=None,
                cmin=None, cmax=None, **kwargs):
