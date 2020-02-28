@@ -12,16 +12,16 @@ strategy:
       vmImage: 'ubuntu-16.04'
       python.version: '3.7'
     Linux_py38:
-      vmImage: 'ubuntu-16.04'
+      vmImage: 'ubuntu-18.04'
       python.version: '3.8'
     macOS_py36:
-      vmImage: 'xcode9-macOS10.13'
+      vmImage: 'macOS-10.14'
       python.version: '3.6'
     macOS_py37:
-      vmImage: 'xcode9-macOS10.13'
+      vmImage: 'macOS-10.15'
       python.version: '3.7'
     macOS_py38:
-      vmImage: 'xcode9-macOS10.13'
+      vmImage: 'macOS-latest'
       python.version: '3.8'
     Windows_py36:
       vmImage: 'vs2017-win2016'
@@ -30,7 +30,7 @@ strategy:
       vmImage: 'vs2017-win2016'
       python.version: '3.7'
     Windows_py38:
-      vmImage: 'vs2017-win2016'
+      vmImage: 'windows-latest'
       python.version: '3.8'
     Windows_pyPre:
       vmImage: 'vs2017-win2016'
