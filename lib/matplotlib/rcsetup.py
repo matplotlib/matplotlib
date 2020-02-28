@@ -171,8 +171,8 @@ def _validate_tex_preamble(s):
             return '\n'.join(s)
         else:
             raise TypeError
-    except TypeError:
-        raise ValueError('Could not convert "%s" to string' % s)
+    except TypeError as e:
+        raise ValueError('Could not convert "%s" to string' % s) from e
 
 
 def validate_axisbelow(s):
@@ -193,9 +193,9 @@ def validate_dpi(s):
         return s
     try:
         return float(s)
-    except ValueError:
+    except ValueError as e:
         raise ValueError(f'{s!r} is not string "figure" and '
-                         f'could not convert {s!r} to float')
+                         f'could not convert {s!r} to float') from e
 
 
 def _make_type_validator(cls, *, allow_none=False):
@@ -210,8 +210,8 @@ def _make_type_validator(cls, *, allow_none=False):
             return None
         try:
             return cls(s)
-        except ValueError:
-            raise ValueError(f'Could not convert {s!r} to {cls.__name__}')
+        except ValueError as e:
+            raise ValueError(f'Could not convert {s!r} to {cls.__name__}') from e
 
     validator.__name__ = f"validate_{cls.__name__}"
     if allow_none:
@@ -245,9 +245,9 @@ def validate_fonttype(s):
     except ValueError:
         try:
             return fonttypes[s.lower()]
-        except KeyError:
+        except KeyError as e:
             raise ValueError(
-                'Supported Postscript/PDF font types are %s' % list(fonttypes))
+                'Supported Postscript/PDF font types are %s' % list(fonttypes)) from e
     else:
         if fonttype not in fonttypes.values():
             raise ValueError(
@@ -291,9 +291,9 @@ def _make_nseq_validator(cls, n=None, allow_none=False):
         try:
             return [cls(val) if not allow_none or val is not None else val
                     for val in s]
-        except ValueError:
+        except ValueError as e:
             raise ValueError(
-                f'Could not convert all entries to {cls.__name__}s')
+                f'Could not convert all entries to {cls.__name__}s') from e
 
     return validator
 
@@ -367,8 +367,8 @@ def validate_aspect(s):
         return s
     try:
         return float(s)
-    except ValueError:
-        raise ValueError('not a valid aspect specification')
+    except ValueError as e:
+        raise ValueError('not a valid aspect specification') from e
 
 
 def validate_fontsize_None(s):
@@ -387,9 +387,9 @@ def validate_fontsize(s):
         return s
     try:
         return float(s)
-    except ValueError:
+    except ValueError as e:
         raise ValueError("%s is not a valid font size. Valid font sizes "
-                         "are %s." % (s, ", ".join(fontsizes)))
+                         "are %s." % (s, ", ".join(fontsizes))) from e
 
 
 validate_fontsizelist = _listify_validator(validate_fontsize)
@@ -404,8 +404,8 @@ def validate_fontweight(s):
         return s
     try:
         return int(s)
-    except (ValueError, TypeError):
-        raise ValueError(f'{s} is not a valid font weight.')
+    except (ValueError, TypeError) as e:
+        raise ValueError(f'{s} is not a valid font weight.') from e
 
 
 def validate_font_properties(s):
@@ -441,9 +441,9 @@ def validate_whiskers(s):
             try:
                 v = float(s)
                 return v
-            except ValueError:
+            except ValueError as e:
                 raise ValueError("Not a valid whisker value ['range', float, "
-                                 "(float, float)]")
+                                 "(float, float)]") from e
 
 
 @cbook.deprecated("3.2")
@@ -897,7 +897,7 @@ def validate_cycler(s):
             s = eval(s, {'cycler': cycler, '__builtins__': {}})
         except BaseException as e:
             raise ValueError("'%s' is not a valid cycler construction: %s" %
-                             (s, e))
+                             (s, e)) from e
     # Should make sure what comes from the above eval()
     # is a Cycler object.
     if isinstance(s, Cycler):
@@ -975,8 +975,8 @@ def validate_webagg_address(s):
         import socket
         try:
             socket.inet_aton(s)
-        except socket.error:
-            raise ValueError("'webagg.address' is not a valid IP address")
+        except socket.error as e:
+            raise ValueError("'webagg.address' is not a valid IP address") from e
         return s
     raise ValueError("'webagg.address' is not a valid IP address")
 
