@@ -39,11 +39,14 @@ if __name__ == '__main__':
     from matplotlib import test
 
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('--recursionlimit', type=int, default=0,
+    parser.add_argument('--recursionlimit', type=int, default=None,
                         help='Specify recursionlimit for test run')
     args, extra_args = parser.parse_known_args()
 
     print('Python byte-compilation optimization level:', sys.flags.optimize)
 
-    retcode = test(argv=extra_args, recursionlimit=args.recursionlimit)
+    if args.recursionlimit is not None:  # Will trigger deprecation.
+        retcode = test(argv=extra_args, recursionlimit=args.recursionlimit)
+    else:
+        retcode = test(argv=extra_args)
     sys.exit(retcode)
