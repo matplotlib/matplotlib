@@ -129,10 +129,7 @@ class Path:
             and codes as read-only arrays.
         """
         vertices = _to_unmasked_float_array(vertices)
-        if vertices.ndim != 2 or vertices.shape[1] != 2:
-            raise ValueError(
-                "'vertices' must be a 2D list or array with shape (N, 2). "
-                f"Your input has shape {vertices.shape}.")
+        cbook._check_shape((None, 2), vertices=vertices)
 
         if codes is not None:
             codes = np.asarray(codes, self.code_type)
