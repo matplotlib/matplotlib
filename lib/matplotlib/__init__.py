@@ -955,7 +955,7 @@ def rcdefaults():
 
     See Also
     --------
-    rc_file_defaults
+    matplotlib.rc_file_defaults
         Restore the `.rcParams` from the rc file originally loaded by
         Matplotlib.
     matplotlib.style.use

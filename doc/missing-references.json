@@ -1481,9 +1481,6 @@
     "next_whats_new": [
       "doc/users/next_whats_new/README.rst:6"
     ],
-    "number": [
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figure:8"
-    ],
     "numpy.datetime64": [
       "doc/api/prev_api_changes/api_changes_2.1.0.rst:95",
       "doc/faq/howto_faq.rst:18",
@@ -1517,15 +1514,6 @@
     ],
     "pyplot.set_loglevel": [
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:377"
-    ],
-    "quiverkey": [
-      "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Quiver:247"
-    ],
-    "rc_file_defaults": [
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.rcdefaults:18"
-    ],
-    "rcsetup.validate_toolbar": [
-      "doc/devel/MEP/MEP22.rst:183"
     ],
     "remove_canvas": [
       "doc/devel/MEP/MEP23.rst:63"

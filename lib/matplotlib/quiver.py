@@ -188,7 +188,7 @@ Other Parameters
 
 See Also
 --------
-quiverkey : Add a key to a quiver plot.
+.Axes.quiverkey : Add a key to a quiver plot.
 """ % docstring.interpd.params
 
 
