@@ -307,3 +307,7 @@ The *quality*, *optimize*, and *progressive* keyword arguments to
 
 Such options should now be directly passed to Pillow using
 ``savefig(..., pil_kwargs={"quality": ..., "optimize": ..., "progressive": ...})``.
+
+``dviread.Encoding``
+~~~~~~~~~~~~~~~~~~~~
+This class was (mostly) broken and is deprecated.

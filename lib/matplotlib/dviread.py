@@ -919,6 +919,7 @@ class PsfontsMap:
                 encoding=encoding, filename=filename)
 
 
+@cbook.deprecated("3.3")
 class Encoding:
     r"""
     Parses a \*.enc file referenced from a psfonts.map style file.
