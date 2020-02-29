@@ -31,17 +31,9 @@ def make_test_filename(fname, purpose):
 
 
 def get_cache_dir():
-    cachedir = mpl.get_cachedir()
-    if cachedir is None:
-        raise RuntimeError('Could not find a suitable configuration directory')
-    cache_dir = os.path.join(cachedir, 'test_cache')
-    try:
-        Path(cache_dir).mkdir(parents=True, exist_ok=True)
-    except IOError:
-        return None
-    if not os.access(cache_dir, os.W_OK):
-        return None
-    return cache_dir
+    cache_dir = Path(mpl.get_cachedir(), 'test_cache')
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    return str(cache_dir)
 
 
 def get_file_hash(path, block_size=2 ** 20):
@@ -53,10 +45,10 @@ def get_file_hash(path, block_size=2 ** 20):
                 break
             md5.update(data)
 
-    if path.endswith('.pdf'):
+    if Path(path).suffix == '.pdf':
         md5.update(str(mpl._get_executable_info("gs").version)
                    .encode('utf-8'))
-    elif path.endswith('.svg'):
+    elif Path(path).suffix == '.svg':
         md5.update(str(mpl._get_executable_info("inkscape").version)
                    .encode('utf-8'))
 
@@ -263,37 +255,32 @@ def convert(filename, cache):
     hash of the exact contents of the input file.  There is no limit on the
     size of the cache, so it may need to be manually cleared periodically.
     """
-    base, extension = os.fspath(filename).rsplit('.', 1)
-    if extension not in converter:
+    path = Path(filename)
+    if not path.exists():
+        raise IOError(f"{path} does not exist")
+    if path.suffix[1:] not in converter:
         import pytest
-        pytest.skip(f"Don't know how to convert {extension} files to png")
-    newname = base + '_' + extension + '.png'
-    if not os.path.exists(filename):
-        raise IOError("'%s' does not exist" % filename)
+        pytest.skip(f"Don't know how to convert {path.suffix} files to png")
+    newpath = path.parent / f"{path.stem}_{path.suffix}.png"
 
     # Only convert the file if the destination doesn't already exist or
     # is out of date.
-    if (not os.path.exists(newname) or
-            os.stat(newname).st_mtime < os.stat(filename).st_mtime):
-        if cache:
-            cache_dir = get_cache_dir()
-        else:
-            cache_dir = None
+    if not newpath.exists() or newpath.stat().st_mtime < path.stat().st_mtime:
+        cache_dir = Path(get_cache_dir()) if cache else None
 
         if cache_dir is not None:
-            hash_value = get_file_hash(filename)
-            new_ext = os.path.splitext(newname)[1]
-            cached_file = os.path.join(cache_dir, hash_value + new_ext)
-            if os.path.exists(cached_file):
-                shutil.copyfile(cached_file, newname)
-                return newname
+            hash_value = get_file_hash(path)
+            cached_path = cache_dir / (hash_value + newpath.suffix)
+            if cached_path.exists():
+                shutil.copyfile(cached_path, newpath)
+                return str(newpath)
 
-        converter[extension](filename, newname)
+        converter[path.suffix[1:]](path, newpath)
 
         if cache_dir is not None:
-            shutil.copyfile(newname, cached_file)
+            shutil.copyfile(newpath, cached_path)
 
-    return newname
+    return str(newpath)
 
 
 def crop_to_same(actual_path, actual_image, expected_path, expected_image):
