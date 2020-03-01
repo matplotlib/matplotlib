@@ -1561,24 +1561,17 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
                 if replace_names is None or k in replace_names:
                     bound.arguments[k] = _replacer(data, v)
 
-        bound.apply_defaults()
-        del bound.arguments["data"]
+        new_args = bound.args
+        new_kwargs = bound.kwargs
 
         if needs_label:
             all_kwargs = {**bound.arguments, **bound.kwargs}
             # label_namer will be in all_kwargs as we asserted above that
             # `label_namer is None or label_namer in arg_names`.
-            label = _label_from_arg(all_kwargs[label_namer], auto_label)
-            if "label" in arg_names:
-                bound.arguments["label"] = label
-                try:
-                    bound.arguments.move_to_end(varkwargs_name)
-                except KeyError:
-                    pass
-            else:
-                bound.arguments.setdefault(varkwargs_name, {})["label"] = label
+            new_kwargs["label"] = _label_from_arg(
+                all_kwargs[label_namer], auto_label)
 
-        return func(*bound.args, **bound.kwargs)
+        return func(*new_args, **new_kwargs)
 
     inner.__doc__ = _add_data_doc(inner.__doc__, replace_names)
     inner.__signature__ = new_sig
