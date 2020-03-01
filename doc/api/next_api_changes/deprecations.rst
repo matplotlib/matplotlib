@@ -224,6 +224,12 @@ The following validators, defined in `.rcsetup`, are deprecated:
 value would be acceptable, one can test e.g. ``rc = RcParams(); rc[k] = v``
 raises an exception.
 
+Stricter rcParam validation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:rc:`axes.axisbelow` currently normalizes all strings starting with "line"
+(case-insensitive) to the option "line".  This is deprecated; in a future
+version only the exact string "line" (case-sensitive) will be supported.
+
 Toggling axes navigation from the keyboard using "a" and digit keys
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Axes navigation can still be toggled programmatically using
