@@ -3215,8 +3215,7 @@ class Axes(_AxesBase):
             # Remove alpha=0 color that _process_plot_format returns
             fmt_style_kwargs.pop('color')
 
-        if ('color' in kwargs or 'color' in fmt_style_kwargs or
-                ecolor is not None):
+        if ('color' in kwargs or 'color' in fmt_style_kwargs):
             base_style = {}
             if 'color' in kwargs:
                 base_style['color'] = kwargs.pop('color')
