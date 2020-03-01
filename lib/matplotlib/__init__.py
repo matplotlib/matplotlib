@@ -1382,9 +1382,6 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
             return func(ax, *map(sanitize_sequence, args), **kwargs)
 
         bound = new_sig.bind(ax, *args, **kwargs)
-        needs_label = (label_namer
-                       and "label" not in bound.arguments
-                       and "label" not in bound.kwargs)
         auto_label = (bound.arguments.get(label_namer)
                       or bound.kwargs.get(label_namer))
 
@@ -1403,12 +1400,10 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
         new_args = bound.args
         new_kwargs = bound.kwargs
 
-        if needs_label:
-            all_kwargs = {**bound.arguments, **bound.kwargs}
-            # label_namer will be in all_kwargs as we asserted above that
-            # `label_namer is None or label_namer in arg_names`.
+        args_and_kwargs = {**bound.arguments, **bound.kwargs}
+        if label_namer and "label" not in args_and_kwargs:
             new_kwargs["label"] = _label_from_arg(
-                all_kwargs[label_namer], auto_label)
+                args_and_kwargs.get(label_namer), auto_label)
 
         return func(*new_args, **new_kwargs)
 
