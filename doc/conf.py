@@ -369,6 +369,7 @@ html4_writer = True
 
 inheritance_node_attrs = dict(fontsize=16)
 
+graphviz_dot = shutil.which('dot')
 graphviz_output_format = 'svg'
 
 
