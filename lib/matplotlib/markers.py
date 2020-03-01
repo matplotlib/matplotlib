@@ -198,9 +198,6 @@ class MarkerStyle:
     fillstyles = ('full', 'left', 'right', 'bottom', 'top', 'none')
     _half_fillstyles = ('left', 'right', 'bottom', 'top')
 
-    # TODO: Is this ever used as a non-constant?
-    _point_size_reduction = 0.5
-
     def __init__(self, marker=None, fillstyle=None):
         """
         Attributes
@@ -408,7 +405,8 @@ class MarkerStyle:
         self._snap_threshold = None
 
     def _set_point(self):
-        self._set_circle(reduction=self._point_size_reduction)
+        # a "point" is defined to a circle with half the requested markersize
+        self._set_circle(reduction=0.5)
 
     _triangle_path = Path(
         [[0.0, 1.0], [-1.0, -1.0], [1.0, -1.0], [0.0, 1.0]],
