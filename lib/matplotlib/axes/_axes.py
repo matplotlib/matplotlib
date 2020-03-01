@@ -3226,7 +3226,6 @@ class Axes(_AxesBase):
         base_style.update(fmt_style_kwargs)
         if 'color' not in base_style:
             base_style['color'] = 'C0'
-            color = 'C0'
         if ecolor is None:
             ecolor = base_style['color']
         # make sure all the args are iterable; use lists not arrays to

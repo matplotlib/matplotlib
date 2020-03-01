@@ -95,7 +95,7 @@ the default 10, calling `.SymLogNorm` without the new *base* kwarg emits a
 deprecation warning.
 
 
-`~Axes.errorbar` now color cycles when only errorbar color is set
+`~.Axes.errorbar` now color cycles when only errorbar color is set
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Previously setting the *ecolor* would turn off automatic color cycling for the plot, leading to the 
