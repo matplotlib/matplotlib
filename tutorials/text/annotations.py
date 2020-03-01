@@ -590,17 +590,6 @@ Here is a complete example.
 
    Custom Boxstyle01
 
-However, it is recommended that you derive from the
-matplotlib.patches.BoxStyle._Base as demonstrated below.
-
-.. figure:: ../../gallery/userdemo/images/sphx_glr_custom_boxstyle02_001.png
-   :target: ../../gallery/userdemo/custom_boxstyle02.html
-   :align: center
-   :scale: 50
-
-   Custom Boxstyle02
-
-
 Similarly, you can define a custom ConnectionStyle and a custom ArrowStyle.
 See the source code of ``lib/matplotlib/patches.py`` and check
 how each style class is defined.
