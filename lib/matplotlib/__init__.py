@@ -1405,10 +1405,8 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
 
         if needs_label:
             all_kwargs = {**bound.arguments, **bound.kwargs}
-            # label_namer will be in all_kwargs as we asserted above that
-            # `label_namer is None or label_namer in arg_names`.
             new_kwargs["label"] = _label_from_arg(
-                all_kwargs[label_namer], auto_label)
+                all_kwargs.get(label_namer), auto_label)
 
         return func(*new_args, **new_kwargs)
 
