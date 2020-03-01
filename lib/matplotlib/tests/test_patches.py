@@ -319,16 +319,15 @@ def test_patch_str():
     assert str(p) == "FancyBboxPatch((1, 2), width=3, height=4)"
 
     # Further nice __str__ which cannot be `eval`uated:
-    path_data = [([1, 2], mpath.Path.MOVETO), ([2, 2], mpath.Path.LINETO),
-                 ([1, 2], mpath.Path.CLOSEPOLY)]
-    p = mpatches.PathPatch(mpath.Path(*zip(*path_data)))
+    path = mpath.Path([(1, 2), (2, 2), (1, 2)], closed=True)
+    p = mpatches.PathPatch(path)
     assert str(p) == "PathPatch3((1, 2) ...)"
 
     data = [[1, 2], [2, 2], [1, 2]]
     p = mpatches.Polygon(data)
     assert str(p) == "Polygon3((1, 2) ...)"
 
-    p = mpatches.FancyArrowPatch(path=mpath.Path(*zip(*path_data)))
+    p = mpatches.FancyArrowPatch(path=path)
     assert str(p)[:27] == "FancyArrowPatch(Path(array("
 
     p = mpatches.FancyArrowPatch((1, 2), (3, 4))

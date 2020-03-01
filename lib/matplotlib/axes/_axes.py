@@ -3957,17 +3957,11 @@ class Axes(_AxesBase):
         if meanprops is None or removed_prop not in meanprops:
             final_meanprops[removed_prop] = ''
 
-        def to_vc(xs, ys):
-            # convert arguments to verts and codes, append (0, 0) (ignored).
-            verts = np.append(np.column_stack([xs, ys]), [(0, 0)], 0)
-            codes = ([mpath.Path.MOVETO]
-                     + [mpath.Path.LINETO] * (len(verts) - 2)
-                     + [mpath.Path.CLOSEPOLY])
-            return verts, codes
-
         def patch_list(xs, ys, **kwargs):
-            verts, codes = to_vc(xs, ys)
-            path = mpath.Path(verts, codes)
+            path = mpath.Path(
+                # Last vertex will have a CLOSEPOLY code and thus be ignored.
+                np.append(np.column_stack([xs, ys]), [(0, 0)], 0),
+                closed=True)
             patch = mpatches.PathPatch(path, **kwargs)
             self.add_artist(patch)
             return [patch]

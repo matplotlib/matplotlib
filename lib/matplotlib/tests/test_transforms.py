@@ -189,11 +189,8 @@ def test_affine_inverted_invalidated():
 
 def test_clipping_of_log():
     # issue 804
-    M, L, C = Path.MOVETO, Path.LINETO, Path.CLOSEPOLY
-    points = [(0.2, -99), (0.4, -99), (0.4, 20), (0.2, 20), (0.2, -99)]
-    codes = [M, L, L, L, C]
-    path = Path(points, codes)
-
+    path = Path([(0.2, -99), (0.4, -99), (0.4, 20), (0.2, 20), (0.2, -99)],
+                closed=True)
     # something like this happens in plotting logarithmic histograms
     trans = mtransforms.BlendedGenericTransform(
         mtransforms.Affine2D(), scale.LogTransform(10, 'clip'))
@@ -201,9 +198,8 @@ def test_clipping_of_log():
     result = tpath.iter_segments(trans.get_affine(),
                                  clip=(0, 0, 100, 100),
                                  simplify=False)
-
     tpoints, tcodes = zip(*result)
-    assert_allclose(tcodes, [M, L, L, L, C])
+    assert_allclose(tcodes, path.codes)
 
 
 class NonAffineForTest(mtransforms.Transform):
@@ -627,8 +623,7 @@ def test_invalid_arguments():
 
 def test_transformed_path():
     points = [(0, 0), (1, 0), (1, 1), (0, 1)]
-    codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
-    path = Path(points, codes)
+    path = Path(points, closed=True)
 
     trans = mtransforms.Affine2D()
     trans_path = mtransforms.TransformedPath(path, trans)
