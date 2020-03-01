@@ -346,10 +346,10 @@ class Tick(martist.Artist):
 
     def _apply_params(self, **kw):
         for name, target in [("gridOn", self.gridline),
-                               ("tick1On", self.tick1line),
-                               ("tick2On", self.tick2line),
-                               ("label1On", self.label1),
-                               ("label2On", self.label2)]:
+                             ("tick1On", self.tick1line),
+                             ("tick2On", self.tick2line),
+                             ("label1On", self.label1),
+                             ("label2On", self.label2)]:
             if name in kw:
                 target.set_visible(kw.pop(name))
         if any(k in kw for k in ['size', 'width', 'pad', 'tickdir']):

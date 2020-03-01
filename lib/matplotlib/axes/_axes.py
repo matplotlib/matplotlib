@@ -115,8 +115,7 @@ class Axes(_AxesBase):
         title = cbook._check_getitem(titles, loc=loc.lower())
         return title.get_text()
 
-    def set_title(self, label, fontdict=None, loc=None, pad=None,
-                    **kwargs):
+    def set_title(self, label, fontdict=None, loc=None, pad=None, **kwargs):
         """
         Set a title for the axes.
 
@@ -1418,8 +1417,8 @@ class Axes(_AxesBase):
 
         colls = []
         for position, lineoffset, linelength, linewidth, color, linestyle in \
-            zip(positions, lineoffsets, linelengths, linewidths,
-                           colors, linestyles):
+                zip(positions, lineoffsets, linelengths, linewidths,
+                    colors, linestyles):
             coll = mcoll.EventCollection(position,
                                          orientation=orientation,
                                          lineoffset=lineoffset,
@@ -8102,7 +8101,7 @@ default: :rc:`scatter.edgecolors`
                     ppmaxs = np.concatenate((ppmaxs, [cmax] * np.size(q)))
             # Start rendering
             artists['cquantiles'] = perp_lines(quantiles, ppmins, ppmaxs,
-                                                 colors=edgecolor)
+                                               colors=edgecolor)
 
         return artists
 

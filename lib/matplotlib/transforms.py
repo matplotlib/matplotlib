@@ -135,10 +135,9 @@ class TransformNode:
         # turn the normal dictionary back into a dictionary with weak values
         # The extra lambda is to provide a callback to remove dead
         # weakrefs from the dictionary when garbage collection is done.
-        self._parents = {k: weakref.ref(v, lambda ref, sid=k,
-                                                  target=self._parents:
-                                                        target.pop(sid))
-                         for k, v in self._parents.items() if v is not None}
+        self._parents = {
+            k: weakref.ref(v, lambda _, pop=self._parents.pop, k=k: pop(k))
+            for k, v in self._parents.items() if v is not None}
 
     def __copy__(self, *args):
         raise NotImplementedError(
@@ -197,8 +196,8 @@ class TransformNode:
             # Use weak references so this dictionary won't keep obsolete nodes
             # alive; the callback deletes the dictionary entry. This is a
             # performance improvement over using WeakValueDictionary.
-            ref = weakref.ref(self, lambda ref, sid=id(self),
-                                        target=child._parents: target.pop(sid))
+            ref = weakref.ref(
+                self, lambda _, pop=child._parents.pop, k=id(self): pop(k))
             child._parents[id(self)] = ref
 
     if DEBUG:
@@ -2522,7 +2521,7 @@ class BboxTransformTo(Affine2DBase):
             self._mtx = np.array([[outw,  0.0, outl],
                                   [ 0.0, outh, outb],
                                   [ 0.0,  0.0,  1.0]],
-                                  float)
+                                 float)
             self._inverted = None
             self._invalid = 0
         return self._mtx

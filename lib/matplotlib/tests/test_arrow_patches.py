@@ -42,10 +42,10 @@ def test_boxarrow():
 
     for i, stylename in enumerate(sorted(styles)):
         fig.text(0.5, ((n - i) * spacing - 0.5)/figheight, stylename,
-                  ha="center",
-                  size=fontsize,
-                  transform=fig.transFigure,
-                  bbox=dict(boxstyle=stylename, fc="w", ec="k"))
+                 ha="center",
+                 size=fontsize,
+                 transform=fig.transFigure,
+                 bbox=dict(boxstyle=stylename, fc="w", ec="k"))
 
 
 def __prepare_fancyarrow_dpi_cor_test():

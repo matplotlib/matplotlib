@@ -375,14 +375,14 @@ class ExtremeFinderCycle(ExtremeFinderSimple):
         lat_min, lat_max = np.nanmin(lat), np.nanmax(lat)
 
         lon_min, lon_max, lat_min, lat_max = \
-                 self._adjust_extremes(lon_min, lon_max, lat_min, lat_max)
+            self._adjust_extremes(lon_min, lon_max, lat_min, lat_max)
 
         return lon_min, lon_max, lat_min, lat_max
 
     def _adjust_extremes(self, lon_min, lon_max, lat_min, lat_max):
 
         lon_min, lon_max, lat_min, lat_max = \
-                 self._add_pad(lon_min, lon_max, lat_min, lat_max)
+            self._add_pad(lon_min, lon_max, lat_min, lat_max)
 
         # check cycle
         if self.lon_cycle:

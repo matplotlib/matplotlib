@@ -110,8 +110,9 @@ def test_constrained_layout6():
 
 def test_constrained_layout7():
     """Test for proper warning if fig not set in GridSpec"""
-    with pytest.warns(UserWarning, match='Calling figure.constrained_layout, '
-                            'but figure not setup to do constrained layout'):
+    with pytest.warns(
+        UserWarning, match=('Calling figure.constrained_layout, but figure '
+                            'not setup to do constrained layout')):
         fig = plt.figure(constrained_layout=True)
         gs = gridspec.GridSpec(1, 2)
         gsl = gridspec.GridSpecFromSubplotSpec(2, 2, gs[0])

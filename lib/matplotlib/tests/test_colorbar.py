@@ -282,27 +282,22 @@ def test_colorbar_minorticks_on_off():
         im = ax.pcolormesh(data, vmin=-2.3, vmax=3.3)
 
         cbar = fig.colorbar(im, extend='both')
-        cbar.minorticks_on()
-        correct_minorticklocs = np.array([-2.2, -1.8, -1.6, -1.4, -1.2, -0.8,
-                                          -0.6, -0.4, -0.2, 0.2, 0.4, 0.6,
-                                           0.8, 1.2, 1.4, 1.6, 1.8, 2.2, 2.4,
-                                           2.6, 2.8, 3.2])
         # testing after minorticks_on()
-        np.testing.assert_almost_equal(cbar.ax.yaxis.get_minorticklocs(),
-                                       correct_minorticklocs)
-        cbar.minorticks_off()
+        cbar.minorticks_on()
+        np.testing.assert_almost_equal(
+            cbar.ax.yaxis.get_minorticklocs(),
+            [-2.2, -1.8, -1.6, -1.4, -1.2, -0.8, -0.6, -0.4, -0.2,
+             0.2, 0.4, 0.6, 0.8, 1.2, 1.4, 1.6, 1.8, 2.2, 2.4, 2.6, 2.8, 3.2])
         # testing after minorticks_off()
-        np.testing.assert_almost_equal(cbar.ax.yaxis.get_minorticklocs(),
-                                       np.array([]))
+        cbar.minorticks_off()
+        np.testing.assert_almost_equal(cbar.ax.yaxis.get_minorticklocs(), [])
 
         im.set_clim(vmin=-1.2, vmax=1.2)
         cbar.minorticks_on()
-        correct_minorticklocs = np.array([-1.2, -1.1, -0.9, -0.8, -0.7, -0.6,
-                                          -0.4, -0.3, -0.2, -0.1,  0.1, 0.2,
-                                           0.3,  0.4,  0.6,  0.7,  0.8,  0.9,
-                                           1.1,  1.2])
-        np.testing.assert_almost_equal(cbar.ax.yaxis.get_minorticklocs(),
-                                       correct_minorticklocs)
+        np.testing.assert_almost_equal(
+            cbar.ax.yaxis.get_minorticklocs(),
+            [-1.2, -1.1, -0.9, -0.8, -0.7, -0.6, -0.4, -0.3, -0.2, -0.1,
+             0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.1, 1.2])
 
     # tests for github issue #13257 and PR #13265
     data = np.random.uniform(low=1, high=10, size=(20, 20))

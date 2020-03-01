@@ -42,7 +42,6 @@ from the axis as some gridlines can never pass any axis.
 import numpy as np
 
 from matplotlib import cbook, rcParams
-import matplotlib.artist as martist
 import matplotlib.axes as maxes
 from matplotlib.path import Path
 from mpl_toolkits.axes_grid1 import mpl_axes
@@ -537,23 +536,16 @@ class Axes(maxes.Axes):
         # their are some discrepancy between the behavior of grid in
         # axes_grid and the original mpl's grid, because axes_grid
         # explicitly set the visibility of the gridlines.
-
         super().grid(b, which=which, axis=axis, **kwargs)
         if not self._axisline_on:
             return
-
         if b is None:
             b = (self.axes.xaxis._gridOnMinor
-                    or self.axes.xaxis._gridOnMajor
-                    or self.axes.yaxis._gridOnMinor
-                    or self.axes.yaxis._gridOnMajor)
-
-        self.gridlines.set_which(which)
-        self.gridlines.set_axis(axis)
-        self.gridlines.set_visible(b)
-
-        if len(kwargs):
-            martist.setp(self.gridlines, **kwargs)
+                 or self.axes.xaxis._gridOnMajor
+                 or self.axes.yaxis._gridOnMinor
+                 or self.axes.yaxis._gridOnMajor)
+        self.gridlines.set(which=which, axis=axis, visible=b)
+        self.gridlines.set(**kwargs)
 
     def get_children(self):
         if self._axisline_on:
