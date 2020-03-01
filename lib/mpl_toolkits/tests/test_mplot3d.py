@@ -371,33 +371,23 @@ def test_mixedsamplesraises():
         ax.plot_surface(X, Y, Z, cstride=50, rcount=10)
 
 
-@mpl3d_image_comparison(['quiver3d.png'])
+@mpl3d_image_comparison(
+    ['quiver3d.png', 'quiver3d_pivot_middle.png', 'quiver3d_pivot_tail.png'])
 def test_quiver3d():
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-
     x, y, z = np.ogrid[-1:0.8:10j, -1:0.8:10j, -1:0.6:3j]
-
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
-    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
-            np.sin(np.pi * z))
+    w = (2/3)**0.5 * np.cos(np.pi * x) * np.cos(np.pi * y) * np.sin(np.pi * z)
+    for pivot in ['tip', 'middle', 'tail']:
+        ax = plt.figure().add_subplot(projection='3d')
+        ax.quiver(x, y, z, u, v, w, length=0.1, pivot=pivot, normalize=True)
 
-    ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
-
-@mpl3d_image_comparison(['quiver3d_empty.png'])
-def test_quiver3d_empty():
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-
-    x, y, z = np.ogrid[-1:0.8:0j, -1:0.8:0j, -1:0.6:0j]
-
-    u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
-    v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
-    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
-            np.sin(np.pi * z))
-
+@check_figures_equal(extensions=["png"])
+def test_quiver3d_empty(fig_test, fig_ref):
+    fig_ref.add_subplot(projection='3d')
+    x = y = z = u = v = w = []
+    ax = fig_test.add_subplot(projection='3d')
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
 
@@ -412,42 +402,11 @@ def test_quiver3d_masked():
 
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
-    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
-            np.sin(np.pi * z))
+    w = (2/3)**0.5 * np.cos(np.pi * x) * np.cos(np.pi * y) * np.sin(np.pi * z)
     u = np.ma.masked_where((-0.4 < x) & (x < 0.1), u, copy=False)
     v = np.ma.masked_where((0.1 < y) & (y < 0.7), v, copy=False)
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
-
-
-@mpl3d_image_comparison(['quiver3d_pivot_middle.png'])
-def test_quiver3d_pivot_middle():
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-
-    x, y, z = np.ogrid[-1:0.8:10j, -1:0.8:10j, -1:0.6:3j]
-
-    u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
-    v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
-    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
-            np.sin(np.pi * z))
-
-    ax.quiver(x, y, z, u, v, w, length=0.1, pivot='middle', normalize=True)
-
-
-@mpl3d_image_comparison(['quiver3d_pivot_tail.png'])
-def test_quiver3d_pivot_tail():
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-
-    x, y, z = np.ogrid[-1:0.8:10j, -1:0.8:10j, -1:0.6:3j]
-
-    u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
-    v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
-    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
-            np.sin(np.pi * z))
-
-    ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tail', normalize=True)
 
 
 @mpl3d_image_comparison(['poly3dcollection_closed.png'])
