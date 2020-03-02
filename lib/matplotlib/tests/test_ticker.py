@@ -450,7 +450,7 @@ class TestSymmetricalLogLocator:
 
 class TestIndexFormatter:
     @pytest.mark.parametrize('x, label', [(-2, ''),
-                                          (-1, 'label0'),
+                                          (-1, ''),
                                           (0, 'label0'),
                                           (0.5, 'label1'),
                                           (1, 'label1'),
