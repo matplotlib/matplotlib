@@ -1945,7 +1945,8 @@ class _Edge_integer:
 
 class MaxNLocator(Locator):
     """
-    Select no more than N intervals at nice locations.
+    Find nice tick locations with no more than N being within the view limits.
+    Locations beyond the limits are added to support autoscaling.
     """
     default_params = dict(nbins=10,
                           steps=None,

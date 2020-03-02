@@ -1612,8 +1612,10 @@ class QuadContourSet(ContourSet):
         levels : int or array-like, optional
             Determines the number and positions of the contour lines / regions.
 
-            If an int *n*, use *n* data intervals; i.e. draw *n+1* contour
-            lines. The level heights are automatically chosen.
+            If an int *n*, use an algorithm
+            (see `~matplotlib.ticker.MaxNLocator`) that tries to provide
+            no more than *n+1* "nice" contour levels between vmin and vmax.
+            The level heights are automatically chosen.
 
             If array-like, draw contour lines at the specified levels.
             The values must be in increasing order.
