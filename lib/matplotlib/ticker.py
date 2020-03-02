@@ -323,7 +323,7 @@ class IndexFormatter(Formatter):
         The position is ignored and the value is rounded to the nearest
         integer, which is used to look up the label.
         """
-        i = int(x + 0.5)
+        i = int(round(x))
         if i < 0 or i >= self.n:
             return ''
         else:
