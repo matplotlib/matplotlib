@@ -284,3 +284,7 @@ is deprecated, set the offset to 0 instead.
 ``RendererCairo.fontweights``, ``RendererCairo.fontangles``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ... are deprecated.
+
+``autofmt_xdate(which=None)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is deprecated, use its more explicit synonym, ``which="major"``, instead.

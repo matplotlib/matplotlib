@@ -574,7 +574,8 @@ class Figure(Artist):
 
         return w_pad, h_pad, wspace, hspace
 
-    def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right', which=None):
+    def autofmt_xdate(
+            self, bottom=0.2, rotation=30, ha='right', which='major'):
         """
         Date ticklabels often overlap, so it is useful to rotate them
         and right align them.  Also, a common use case is a number of
@@ -586,18 +587,19 @@ class Figure(Artist):
         Parameters
         ----------
         bottom : scalar
-            The bottom of the subplots for :meth:`subplots_adjust`.
-
+            The bottom of the subplots for `subplots_adjust`.
         rotation : angle in degrees
             The rotation of the xtick labels.
-
         ha : str
             The horizontal alignment of the xticklabels.
-
-        which : {None, 'major', 'minor', 'both'}
-            Selects which ticklabels to rotate. Default is None which works
-            the same as major.
+        which : {'major', 'minor', 'both'}, default: 'major'
+            Selects which ticklabels to rotate.
         """
+        if which is None:
+            cbook.warn_deprecated(
+                "3.3", message="Support for passing which=None to mean "
+                "which='major' is deprecated since %(since)s and will be "
+                "removed %(removal)s.")
         allsubplots = all(hasattr(ax, 'is_last_row') for ax in self.axes)
         if len(self.axes) == 1:
             for label in self.axes[0].get_xticklabels(which=which):
