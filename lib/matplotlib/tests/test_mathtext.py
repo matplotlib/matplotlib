@@ -1,4 +1,5 @@
 import io
+import os
 import re
 
 import numpy as np
@@ -283,3 +284,48 @@ def test_single_minus_sign():
 def test_spaces(fig_test, fig_ref):
     fig_test.subplots().set_title(r"$1\,2\>3\ 4$")
     fig_ref.subplots().set_title(r"$1\/2\:3~4$")
+
+
+def test_mathtext_fallback_valid():
+    for fallback in ['cm', 'stix', 'stixsans', 'None']:
+        mpl.rcParams['mathtext.fallback'] = fallback
+
+
+@pytest.mark.xfail
+def test_mathtext_fallback_invalid():
+    for fallback in ['abc', '']:
+        mpl.rcParams['mathtext.fallback'] = fallback
+
+
+@pytest.mark.xfail
+def test_mathtext_fallback_to_cm_invalid():
+    for fallback in [True, False]:
+        mpl.rcParams['mathtext.fallback_to_cm'] = fallback
+
+
+@pytest.mark.parametrize(
+    "fallback,fontlist",
+    [("cm", ['DejaVu Sans', 'mpltest', 'STIXGeneral', 'cmr10', 'STIXGeneral']),
+     ("stix", ['DejaVu Sans', 'mpltest', 'STIXGeneral'])])
+def test_mathtext_fallback(fallback, fontlist):
+    mpl.font_manager.fontManager.addfont(
+        os.path.join((os.path.dirname(os.path.realpath(__file__))), 'mpltest.ttf'))
+    mpl.rcParams["svg.fonttype"] = 'none'
+    mpl.rcParams['mathtext.fontset'] = 'custom'
+    mpl.rcParams['mathtext.rm'] = 'mpltest'
+    mpl.rcParams['mathtext.it'] = 'mpltest:italic'
+    mpl.rcParams['mathtext.bf'] = 'mpltest:bold'
+    mpl.rcParams['mathtext.fallback'] = fallback
+
+    test_str = r'a$A\AA\breve\gimel$'
+
+    buff = io.BytesIO()
+    fig, ax = plt.subplots()
+    fig.text(.5, .5, test_str, fontsize=40, ha='center')
+    fig.savefig(buff, format="svg")
+    char_fonts = [
+        line.split("font-family:")[-1].split(";")[0]
+        for line in str(buff.getvalue()).split(r"\n") if "tspan" in line
+    ]
+    assert char_fonts == fontlist
+    mpl.font_manager.fontManager.ttflist = mpl.font_manager.fontManager.ttflist[:-1]

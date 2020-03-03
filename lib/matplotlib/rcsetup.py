@@ -419,6 +419,37 @@ def validate_font_properties(s):
     return s
 
 
+def _validate_mathtext_fallback_to_cm(b):
+    """
+    Temporary validate for fallback_to_cm, while deprecated
+
+    """
+    if isinstance(b, str):
+        b = b.lower()
+    if b is None or b == 'none':
+        return None
+    else:
+        cbook.warn_deprecated(
+            "3.3", message="Support for setting the 'mathtext.fallback_to_cm' rcParam "
+            "is deprecated since %(since)s and will be removed "
+            "%(removal)s; use 'mathtext.fallback : 'cm' instead.")
+        return validate_bool_maybe_none(b)
+
+
+def _validate_mathtext_fallback(s):
+    _fallback_fonts = ['cm', 'stix', 'stixsans']
+    if isinstance(s, str):
+        s = s.lower()
+    if s is None or s == 'none':
+        return None
+    elif s.lower() in _fallback_fonts:
+        return s
+    else:
+        raise ValueError(f"{s} is not a valid fallback font name. Valid fallback "
+                         f"font names are {','.join(_fallback_fonts)}. Passing "
+                         f"'None' will turn fallback off.")
+
+
 validate_fontset = ValidateInStrings(
     'fontset',
     ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom'],
@@ -1156,7 +1187,8 @@ defaultParams = {
     'mathtext.default':        [
         'it',
         ['rm', 'cal', 'it', 'tt', 'sf', 'bf', 'default', 'bb', 'frak', 'scr', 'regular']],
-    'mathtext.fallback_to_cm': [True, validate_bool],
+    'mathtext.fallback_to_cm': [None, _validate_mathtext_fallback_to_cm],
+    'mathtext.fallback':       ['cm', _validate_mathtext_fallback],
 
     'image.aspect':        ['equal', validate_aspect],  # equal, auto, a number
     'image.interpolation': ['antialiased', validate_string],
