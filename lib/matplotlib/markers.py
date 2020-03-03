@@ -1124,7 +1124,6 @@ class MarkerStyle:
             self._transform.rotate_deg(rotate)
             self._alt_transform.rotate_deg(rotate_alt)
 
-
     def get_centered_bbox(self, markerwidth, markeredgewidth=0):
         """Get size of bbox if marker is centered at origin.
 
@@ -1154,7 +1153,7 @@ class MarkerStyle:
         # if the marker is of size zero, the stroke's width doesn't matter,
         # there is no stroke so the bbox is trivial
         if np.isclose(markerwidth, 0):
-            return Bbox([[0,0],[0,0]])
+            return Bbox([[0, 0], [0, 0]])
         unit_path = self._transform.transform_path(self._path)
         unit_bbox = unit_path.get_extents()
         scale = Affine2D().scale(markerwidth)
@@ -1169,5 +1168,3 @@ class MarkerStyle:
         top += _get_padding_due_to_angle(markeredgewidth, angles.top,
                                          self._joinstyle, self._capstyle)
         return Bbox.from_extents(left, bottom, right, top)
-
-
