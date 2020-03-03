@@ -1125,7 +1125,7 @@ class MarkerStyle:
             self._alt_transform.rotate_deg(rotate_alt)
 
 
-    def get_centered_bbox(markerwidth=0, markeredgewidth=0):
+    def get_centered_bbox(self, markerwidth=0, markeredgewidth=0):
         """Get size of bbox if marker is centered at origin.
 
         For markers with no edge, this is just the same bbox as that of the
