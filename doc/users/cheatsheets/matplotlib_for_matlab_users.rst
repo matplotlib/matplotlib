@@ -7,15 +7,8 @@ WIP: Matplotlib for Matlab users
 Introduction
 ============
 
-If it is not obvious enough from its name, the Matplotlib was originally
-developped as a migration and improvement of the namesake MATLAB® plotting
-utilies in Python. Throughout its :doc:`/users/history`, lots
-of effort was made to  strike a resembling interface to MATLAB®. After more
-than a decade of development, Matplotlib has become a major part of the Python
-ecosystem. It grows far beyond its original purpose of a MATLAB®
-plotting emulater. This page is intended to be a reference for new matplotlib
-users who are coming from MATLAB®. It collects common mistakes and useful
-wisdoms to help the transition.
+This page is intended to be a reference for new matplotlib users who are coming
+from MATLAB®.
 
 .. raw:: html
 
