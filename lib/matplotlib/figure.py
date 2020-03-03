@@ -1,13 +1,11 @@
 """
-The figure module provides the top-level
-:class:`~matplotlib.artist.Artist`, the :class:`Figure`, which
-contains all the plot elements.  The following classes are defined
+`matplotlib.figure` implements the following classes:
 
-:class:`SubplotParams`
-    control the default spacing of the subplots
+`Figure`
+    Top level `~matplotlib.artist.Artist`, which holds all plot elements.
 
-:class:`Figure`
-    Top level container for all plot elements.
+`SubplotParams`
+    Control the default spacing between subplots.
 """
 
 import logging
@@ -47,20 +45,18 @@ def _stale_figure_callback(self, val):
 
 class _AxesStack(cbook.Stack):
     """
-    Specialization of the `.Stack` to handle all tracking of
-    `~matplotlib.axes.Axes` in a `.Figure`.
+    Specialization of `.Stack`, to handle all tracking of `~.axes.Axes` in a
+    `.Figure`.
+
     This stack stores ``key, (ind, axes)`` pairs, where:
 
-    * **key** should be a hash of the args and kwargs
-      used in generating the Axes.
-    * **ind** is a serial number for tracking the order
-      in which axes were added.
+    * **key** is a hash of the args and kwargs used in generating the Axes.
+    * **ind** is a serial index tracking the order in which axes were added.
 
-    The AxesStack is a callable, where ``ax_stack()`` returns
-    the current axes. Alternatively the :meth:`current_key_axes` will
-    return the current key and associated axes.
-
+    AxesStack is a callable; calling it returns the current axes.
+    The `current_key_axes` method returns the current key and associated axes.
     """
+
     def __init__(self):
         super().__init__()
         self._ind = 0
@@ -284,7 +280,7 @@ class Figure(Artist):
         frameon : bool, default: :rc:`figure.frameon`
             If ``False``, suppress drawing the figure background patch.
 
-        subplotpars : :class:`SubplotParams`
+        subplotpars : `SubplotParams`
             Subplot parameters. If not given, the default subplot
             parameters :rc:`figure.subplot.*` are used.
 
@@ -384,10 +380,9 @@ class Figure(Artist):
         """
         If using a GUI backend with pyplot, display the figure window.
 
-        If the figure was not created using
-        :func:`~matplotlib.pyplot.figure`, it will lack a
-        :class:`~matplotlib.backend_bases.FigureManagerBase`, and
-        will raise an AttributeError.
+        If the figure was not created using `~.pyplot.figure`, it will lack
+        a `~.backend_bases.FigureManagerBase`, and this method will raise an
+        AttributeError.
 
         .. warning::
             This does not manage an GUI event loop. Consequently, the figure
@@ -403,7 +398,7 @@ class Figure(Artist):
 
         Parameters
         ----------
-        warn : bool
+        warn : bool, default: True
             If ``True`` and we are not running headless (i.e. on Linux with an
             unset DISPLAY), issue warning when called on a non-GUI backend.
         """
@@ -699,7 +694,7 @@ default: 'top'
             :rc:`figure.titleweight` are ignored in this case.
 
         **kwargs
-            Additional kwargs are :class:`matplotlib.text.Text` properties.
+            Additional kwargs are `matplotlib.text.Text` properties.
 
         Examples
         --------
@@ -782,7 +777,7 @@ default: 'top'
             The alpha blending value.
 
         norm : `matplotlib.colors.Normalize`
-            A :class:`.Normalize` instance to map the luminance to the
+            A `.Normalize` instance to map the luminance to the
             interval [0, 1].
 
         cmap : str or `matplotlib.colors.Colormap`, default: :rc:`image.cmap`
@@ -801,7 +796,7 @@ default: 'top'
 
         Returns
         -------
-        :class:`matplotlib.image.FigureImage`
+        `matplotlib.image.FigureImage`
 
         Other Parameters
         ----------------
@@ -1019,11 +1014,11 @@ default: 'top'
 
     def add_artist(self, artist, clip=False):
         """
-        Add any :class:`~matplotlib.artist.Artist` to the figure.
+        Add an `.Artist` to the figure.
 
-        Usually artists are added to axes objects using
-        :meth:`matplotlib.axes.Axes.add_artist`, but use this method in the
-        rare cases that adding directly to the figure is necessary.
+        Usually artists are added to axes objects using `.Axes.add_artist`;
+        this method can be used in the rare cases where one needs to add
+        artists directly to the figure instead.
 
         Parameters
         ----------
@@ -1451,9 +1446,8 @@ default: 'top'
               up being 1x1.
 
         subplot_kw : dict, optional
-            Dict with keywords passed to the
-            :meth:`~matplotlib.figure.Figure.add_subplot` call used to create
-            each subplot.
+            Dict with keywords passed to the `.Figure.add_subplot` call used to
+            create each subplot.
 
         gridspec_kw : dict, optional
             Dict with keywords passed to the
@@ -1667,9 +1661,7 @@ default: 'top'
         self.stale = True
 
     def clear(self, keep_observers=False):
-        """
-        Clear the figure -- synonym for :meth:`clf`.
-        """
+        """Clear the figure -- synonym for `clf`."""
         self.clf(keep_observers=keep_observers)
 
     @allow_rasterization
@@ -1727,8 +1719,9 @@ default: 'top'
 
     def draw_artist(self, a):
         """
-        Draw :class:`matplotlib.artist.Artist` instance *a* only.
-        This is available only after the figure is drawn.
+        Draw `.Artist` instance *a* only.
+
+        This can only be called after the figure has been drawn.
         """
         if self._cachedRenderer is None:
             raise AttributeError("draw_artist can only be used after an "
@@ -2206,9 +2199,8 @@ default: 'top'
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
                         wspace=None, hspace=None):
         """
-        Update the :class:`SubplotParams` with *kwargs* (defaulting to rc when
-        *None*) and update the subplot locations.
-
+        Update the `SubplotParams` with *kwargs* (defaulting to rc when
+        *None*), and update the subplot locations.
         """
         if self.get_constrained_layout():
             self.set_constrained_layout(False)
