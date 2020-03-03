@@ -1589,9 +1589,7 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
         panchor = kw.pop('panchor', (1.0, 0.5))
 
         # for shrinking
-        wh_ratios = [(1-anchor[1])*(1-shrink),
-                     shrink, 
-                     anchor[1]*(1-shrink)]
+        wh_ratios = [(1-anchor[1])*(1-shrink), shrink, anchor[1]*(1-shrink)]
 
         gs = parent.get_subplotspec().subgridspec(
             1, 2, wspace=wh_space, width_ratios=[1-fraction-pad, fraction])
@@ -1603,9 +1601,7 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
         panchor = kw.pop('panchor', (0.5, 0.0))
 
         # for shrinking
-        wh_ratios = [(1-anchor[0])*(1-shrink),
-                     shrink, 
-                     anchor[0]*(1-shrink)]
+        wh_ratios = [(1-anchor[0])*(1-shrink), shrink, anchor[0]*(1-shrink)]
 
         gs = parent.get_subplotspec().subgridspec(
             2, 1, hspace=wh_space, height_ratios=[fraction, 1-fraction-pad])
