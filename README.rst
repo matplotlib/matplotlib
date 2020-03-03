@@ -42,33 +42,32 @@
 
 .. image:: doc/_static/logo2.png
 
-Matplotlib is a comprehensive library for creating static, animated, and interactive visualizations in Python. 
+Matplotlib is a comprehensive library for creating static, animated, and interactive visualizations in Python.
 
-Check out our `home page <http://matplotlib.org/>`_ for more information. 
+Check out our `home page <http://matplotlib.org/>`_ for more information.
 
 .. image:: doc/_static/readme_preview.png
 
 Matplotlib produces publication-quality figures in a variety of hardcopy formats
-and interactive environments across platforms. Matplotlib can be used in Python scripts, 
+and interactive environments across platforms. Matplotlib can be used in Python scripts,
 the Python and IPython shell, web application servers, and various
 graphical user interface toolkits.
 
-**Note:** The master branch is Python 3 only.  Python 2 support has been dropped.
 
 Install
 =======
 
 For installation instructions and requirements, see `INSTALL.rst <INSTALL.rst>`_  or the
-`install <http://matplotlib.org/users/installing.html>`_ documentation. 
+`install <http://matplotlib.org/users/installing.html>`_ documentation.
 
 Test
 ====
 
 After installation, launch the test suite::
 
-  python -mpytest
+  python -m pytest
 
-Read the `testing guide <https://matplotlib.org/devel/testing.html>`_ for more information and alternatives.  
+Read the `testing guide <https://matplotlib.org/devel/testing.html>`_ for more information and alternatives.
 
 Contribute
 ==========
