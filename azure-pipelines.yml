@@ -53,6 +53,7 @@ steps:
   condition: and(succeeded(), eq(variables['python.version'], 'Pre'))
 
 - bash: |
+    set -e
     case "$(python -c 'import sys; print(sys.platform)')" in
     linux)
       sudo apt-get update
