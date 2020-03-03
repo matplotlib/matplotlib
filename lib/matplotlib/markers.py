@@ -170,7 +170,7 @@ BoxSides = namedtuple('BoxSides', 'top bottom left right')
 
 # some angles are heavily repeated throughout various markers
 _tri_side_angle = np.arctan(2)
-_tri_tip_angle = np.arctan(1/2)
+_tri_tip_angle = 2*np.arctan(1/2)
 # half the edge length of the smaller pentagon over the difference between the
 # larger pentagon's circumcribing radius and the smaller pentagon's inscribed
 # radius
@@ -296,7 +296,7 @@ def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
 
     """
     if path_end_angle is None or width == 0:
-        return 0
+        return np.nan
     phi, theta = path_end_angle.incidence_angle, path_end_angle.corner_angle
     # if there's no corner (i.e. the path just ends, as in the "sides" of the
     # carets or in the non-fillable markers, we can compute how far the outside
@@ -315,6 +315,10 @@ def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
         if capstyle != 'butt':
             raise NotImplementedError("Only capstyle='butt' currently needed")
         pad = (width/2) * np.cos(phi)
+    # the two "same as straight line" cases are NaN limits in the miter formula
+    elif np.isclose(theta, 0) and np.isclose(phi, 0) \
+    or np.isclose(theta, np.pi) and np.isclose(phi, np.pi/2):
+        pad = width/2
     # to calculate the offset for _joinstyle == 'miter', imagine aligning the
     # corner so that on line comes in along the negative x-axis, and another
     # from above, makes an angle $\theta$ with the negative x-axis.  the tip of
@@ -359,13 +363,8 @@ def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
     # it....except those with "no corner", in which case we can treat them the
     # same as squares...
     elif joinstyle == 'round':
-        # the two "same as straight line" cases
-        if np.isclose(theta, 0) and np.isclose(phi, 0) \
-        or np.isclose(theta, np.pi) and np.isclose(phi, np.pi/2):
-            pad = width/2
-        else:
-            raise NotImplementedError("Only 'miter' and 'bevel' joinstyles "
-                                      "needed for now")
+        raise NotImplementedError("Only 'miter' and 'bevel' joinstyles needed "
+                                  "for now")
     else:
         raise ValueError(f"Unknown joinstyle: {joinstyle}")
     return pad
