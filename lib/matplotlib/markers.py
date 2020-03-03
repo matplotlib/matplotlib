@@ -128,12 +128,13 @@ Examples showing the use of markers:
 """
 
 from collections.abc import Sized
+from collections import namedtuple
 
 import numpy as np
 
 from . import cbook, rcParams
 from .path import Path
-from .transforms import IdentityTransform, Affine2D
+from .transforms import IdentityTransform, Affine2D, Bbox
 
 # special-purpose marker identifiers:
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
@@ -141,6 +142,266 @@ from .transforms import IdentityTransform, Affine2D
  CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE) = range(12)
 
 _empty_path = Path(np.empty((0, 2)))
+
+# hold info to track how marker size scales with increased "edge" thickness
+PathEndAngle = namedtuple('PathEndAngle', 'incidence_angle corner_angle')
+r"""Used to have a universal way to account for how much the bounding box of a
+shape will grow as we increase its `markeredgewidth`.
+
+Attributes
+----------
+    `incidence_angle` : float
+        the angle that the corner bisector makes with the box edge (where
+        top/bottom box edges are horizontal, left/right box edges are
+        vertical).
+    `corner_angle` : float
+        the internal angle of the corner, where np.pi is a straight line, and 0
+        is retracing exactly the way you came. None can be used to signify that
+        the line ends there (i.e. no corner).
+
+Notes
+-----
+$\pi$ and 0 are equivalent for `corner_angle`. Both $\theta$ and $\pi - \theta$
+are equivalent for `incidence_angle` by symmetry."""
+
+BoxSides = namedtuple('BoxSides', 'top bottom left right')
+"""Easily keep track of same parameter for each of four sides."""
+
+# some angles are heavily repeated throughout various markers
+_tri_side_angle = np.arctan(2)
+_tri_tip_angle = np.arctan(1/2)
+# half the edge length of the smaller pentagon over the difference between the
+# larger pentagon's circumcribing radius and the smaller pentagon's inscribed
+# radius
+_star_tip_angle = 2*np.arctan((1/4)*np.sqrt((5 - np.sqrt(5))/2),
+                              1 - np.sqrt((3 + np.sqrt(5))/32))
+# reusable corner types
+_flat_side = PathEndAngle(0, 0)
+_normal_line = PathEndAngle(np.pi/2, None)
+_normal_right_angle = PathEndAngle(np.pi/2, np.pi/2)
+_triangle_side_corner = PathEndAngle(np.pi/2 - tri_side_angle/2, tri_side_angle)
+_triangle_tip = PathEndAngle(np.pi/2, tri_tip_angle)
+# and some entire box side behaviors are repeated among markers
+_effective_square = BoxSides(_flat_side, _flat_side, _flat_side, _flat_side)
+_effective_diamond = BoxSides(_normal_right_angle, _normal_right_angle,
+                              _normal_right_angle, _normal_right_angle)
+
+# precomputed information required for marker_bbox (besides _joinstyle)
+_edge_angles = {
+    '.': _effective_square,
+    ',': _effective_square,
+    'o': _effective_square,
+    # hit two corners and tip bisects one side of unit square
+    'v': BoxSides(_flat_side, _triangle_tip, _triangle_side_corner, _triangle_side_corner),
+    '^': BoxSides(_triangle_tip, _flat_side, _triangle_side_corner, _triangle_side_corner),
+    '<': BoxSides(_triangle_side_corner, _triangle_side_corner, _triangle_tip, _flat_side),
+    '>': BoxSides(_triangle_side_corner, _triangle_side_corner, _flat_side, _triangle_tip),
+    # angle bisectors of an equilateral triangle. lines of length 1/2
+    '1': BoxSides(PathEndAngle(np.pi/6, None), PathEndAngle(np.pi/2, None),
+                  PathEndAngle(np.pi/3, None), PathEndAngle(np.pi/3, None)),
+    '2': BoxSides(PathEndAngle(np.pi/2, None), PathEndAngle(np.pi/6, None),
+                  PathEndAngle(np.pi/3, None), PathEndAngle(np.pi/3, None)),
+    '3': BoxSides(PathEndAngle(np.pi/3, None), PathEndAngle(np.pi/3, None),
+                  PathEndAngle(np.pi/2, None), PathEndAngle(np.pi/6, None)),
+    '4': BoxSides(PathEndAngle(np.pi/3, None), PathEndAngle(np.pi/3, None),
+                  PathEndAngle(np.pi/6, None), PathEndAngle(np.pi/2, None)),
+    # regular polygons, circumscribed in circle of radius 1.
+    '8': _effective_square,
+    's': _effective_square,
+    'p': BoxSides(PathEndAngle(np.pi/2, 3*np.pi/5), _flat_side,
+                  PathEndAngle(2*np.pi/5, 3*np.pi/5),
+                  PathEndAngle(2*np.pi/5, 3*np.pi/5)),
+    # tips are corners of regular pentagon circuscribed in circle of radius 1.
+    # so incidence angles are same as pentagon
+    # interior points are corners of another regular pentagon, whose
+    # circumscribing circle has radius 0.5, so all tip angles are same
+    '*': BoxSides(PathEndAngle(np.pi/2, _star_tip_angle),
+                  PathEndAngle(3*np.pi/10, _star_tip_angle),
+                  PathEndAngle(2*np.pi/5, _star_tip_angle),
+                  PathEndAngle(2*np.pi/5, _star_tip_angle)),
+    'h': BoxSides(PathEndAngle(np.pi/2, 2*np.pi/3),
+                  PathEndAngle(np.pi/2, 2*np.pi/3),
+                  _flat_side, _flat_side),
+    'H': BoxSides(_flat_side, _flat_side,
+                  PathEndAngle(np.pi/2, 2*np.pi/3),
+                  PathEndAngle(np.pi/2, 2*np.pi/3)),
+    '+': BoxSides(_normal_line, _normal_line, _normal_line, _normal_line),
+    'x': BoxSides(PathEndAngle(np.pi/4, None), PathEndAngle(np.pi/4, None),
+                  PathEndAngle(np.pi/4, None), PathEndAngle(np.pi/4, None)),
+    # unit square rotated pi/2
+    'D': _effective_diamond,
+    # D scaled by 0.6 in horizontal direction
+    'd': BoxSides(PathEndAngle(np.pi/2, 2*np.arctan(3/5)),
+                  PathEndAngle(np.pi/2, 2*np.arctan(3/5)),
+                  PathEndAngle(np.pi/2, 2*np.arctan(5/3)),
+                  PathEndAngle(np.pi/2, 2*np.arctan(5/3))),
+    '|': BoxSides(_normal_line, _normal_line, _flat_side, _flat_side),
+    '_': BoxSides(_flat_side, _flat_side, _normal_line, _normal_line),
+    'P': _effective_square,
+    'X': _effective_diamond,
+    TICKLEFT: BoxSides(_normal_line, _normal_line, _flat_side, _flat_side),
+    TICKRIGHT: BoxSides(_normal_line, _normal_line, _flat_side, _flat_side),
+    TICKUP: BoxSides(_flat_side, _flat_side, _normal_line, _normal_line),
+    TICKDOWN: BoxSides(_flat_side, _flat_side, _normal_line, _normal_line),
+    # carets same size as "triangles" but missing the edge opposite their "tip"
+    CARETLEFT: BoxSides(PathEndAngle(np.pi/2 - tri_side_angle/2, None),
+                        PathEndAngle(np.pi/2 - tri_side_angle/2, None),
+                        _triangle_tip, PathEndAngle(tri_side_angle, None)),
+    CARETRIGHT: BoxSides(PathEndAngle(np.pi/2 - tri_side_angle/2, None),
+                         PathEndAngle(np.pi/2 - tri_side_angle/2, None),
+                         PathEndAngle(tri_side_angle, None), _triangle_tip),
+    CARETUP: BoxSides(_triangle_tip, PathEndAngle(tri_side_angle, None),
+                      PathEndAngle(np.pi/2 - tri_side_angle/2, None),
+                      PathEndAngle(np.pi/2 - tri_side_angle/2, None)),
+    CARETDOWN: BoxSides(PathEndAngle(tri_side_angle, None), _triangle_tip,
+                      PathEndAngle(np.pi/2 - tri_side_angle/2, None),
+                      PathEndAngle(np.pi/2 - tri_side_angle/2, None)),
+    CARETLEFTBASE: BoxSides(PathEndAngle(np.pi/2 - tri_side_angle/2, None),
+                        PathEndAngle(np.pi/2 - tri_side_angle/2, None),
+                        _triangle_tip, PathEndAngle(tri_side_angle, None)),
+    CARETRIGHTBASE: BoxSides(PathEndAngle(np.pi/2 - tri_side_angle/2, None),
+                         PathEndAngle(np.pi/2 - tri_side_angle/2, None),
+                         PathEndAngle(tri_side_angle, None), _triangle_tip),
+    CARETUPBASE: BoxSides(_triangle_tip, PathEndAngle(tri_side_angle, None),
+                      PathEndAngle(np.pi/2 - tri_side_angle/2, None),
+                      PathEndAngle(np.pi/2 - tri_side_angle/2, None)),
+    CARETDOWNBASE: BoxSides(PathEndAngle(tri_side_angle, None), _triangle_tip,
+                      PathEndAngle(np.pi/2 - tri_side_angle/2, None),
+                      PathEndAngle(np.pi/2 - tri_side_angle/2, None)),
+}
+
+def marker_bbox(marker=None, markerwidth=0, markeredgewidth=0):
+    """For a given marker style and size parameters, compute the actual extents
+    of the marker.
+
+    For markers with no edge, this is just the same bbox as that of the
+    transformed marker path, but how much extra extent is added by an edge is a
+    function of the angle of the path at its own (the path's own) boundary.
+
+    Parameters
+    ----------
+    marker : matplotlib.markers.MarkerStyle
+        The marker type, or object that can be used to construct the marker
+        type.
+
+    markerwidth : float, optional, default: None
+        "Size" of the marker, in pixels.
+
+    markeredgewidth : float, optional, default: None
+        Width, in pixels, of the stroke used to create the marker's edge.
+
+    Returns
+    -------
+
+    bbox : matplotlib.transforms.Bbox
+        The extents of the marker including its edge (in pixels) if it were
+        centered at (0,0).
+
+    Notes
+    -----
+    """
+    if type(marker) != MarkerStyle:
+        marker = MarkerStyle(marker)
+    marker_symbol = marker.get_marker()
+    joinstyle = marker.get_joinstyle()
+    capstyle = marker.get_capstyle()
+    unit_bbox = marker.get_path().get_extents()
+    scale = mpl.transforms.Affine2D().scale(markerwidth)
+    [[left, bottom], [right, top]] = scale.transform(unit_bbox)
+    left -= _get_padding_due_to_angle(markeredgewidth,
+            _edge_angles[marker_symbol].left, joinstyle, capstyle)
+    bottom -= _get_padding_due_to_angle(markeredgewidth,
+            _edge_angles[marker_symbol].bottom, joinstyle, capstyle)
+    right += _get_padding_due_to_angle(markeredgewidth,
+            _edge_angles[marker_symbol].right, joinstyle, capstyle)
+    top -= _get_padding_due_to_angle(markeredgewidth,
+            _edge_angles[marker_symbol].top, joinstyle, capstyle)
+    return Bbox.from_extents(left, bottom, right, top)
+
+def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
+                              capstyle='butt'):
+    """How much does adding a stroke with `width` overflow the naive bbox at a
+    corner described by `path_end_angle`?
+
+    Parameters
+    ----------
+    width : float
+        `markeredgewidth` used to draw the stroke that we're computing the
+        overflow of
+    path_end_angle : PathEndAngle
+        precomputed property of a corner that allows us to compute the overflow
+
+    Returns
+    -------
+    pad : float
+        amount of overflow
+
+    """
+    phi, theta = path_end_angle.incidence_angle, path_end_angle.corner_angle
+    # if there's no corner (i.e. the path just ends, as in the "sides" of the
+    # carets or in the non-fillable markers, we can compute how far the outside
+    # edge of the markeredge stroke extends outside of the bounding box of its
+    # path using the law of sines: $\sin(\phi)/(w/2) = \sin(\pi/2 - \phi)/l$
+    # for $w$ the `markeredgewidth`, $\phi$ the incidence angle of the line,
+    # then $l$ is the length along the outer edge of the stroke that extends
+    # beyond the bouding box. We can translate this to a distance perpendicular
+    # to the bounding box E(w, \phi) = l \sin(\phi)$, for $l$ as above.
+    if theta is None:
+        # also note that in this case, we shouldn't check _joinstyle because
+        # it's going to be "round" by default but not actually be in use. what
+        # we care about is _capstyle, which is currently always its default
+        # "butt" for all markers. if we find otherwise, we should change this
+        # code to check for the "projecting" and "round" cases
+        if capstyle != 'butt':
+            raise NotImplementedError("Only capstyle='butt' currently needed")
+        pad = (w/2) * np.cos(phi)
+    # to calculate the offset for _joinstyle == 'miter', imagine aligning the
+    # corner so that on line comes in along the negative x-axis, and another
+    # from above, makes an angle $\theta$ with the negative x-axis.
+    # the tip of the new corner created by the markeredge stroke will be at the
+    # point where the two outer edge of the markeredge stroke intersect.
+    # in the orientation described above, the outer edge of the stroke aligned
+    # with the x axis will obviously have equation $y = -w/2$ where $w$ is the
+    # markeredgewidth. WLOG, the stroke coming in from above at an angle
+    # $\theta$ from the negative x-axis will have equation
+    # $-(\tan(\theta) x + \frac{w}{2\cos(\theta)}$.
+    # the intersection of these two lines is at $y = w/2$, and we can solve for
+    # $x = \cot(\theta) (\frac{w}{2} + \frac{w}{2\cos(\theta)})$.
+    # this puts the "edge" tip a distance $M = (w/2)\sqrt{\csc^2(\theta/2) + 1}$
+    # from the tip of the corner itself, on the line defined by the bisector of
+    # the corner angle. So the extra padding required is $M\sin(\phi)$, where
+    # $\phi$ is the incidence angle of the corner's bisector
+    elif joinstyle == 'miter':
+        pad = (w/2)*np.sin(phi)*np.sqrt(np.csc(theta/2)**2 + 1)
+    # to calculate the offset for _joinstyle = "bevel", we can start with the
+    # analogous "miter" corner. the rules for how the "bevel" is
+    # created in SVG is that the outer edges of the stroke continue up until
+    # the stroke hits the corner point (similar to _capstyle='butt'). A line is
+    # then drawn joining these two outer points and the interior is filled. in
+    # other words, it is the same as a "miter" corner, but with some amount of
+    # the tip removed (an isoceles triangle with base given by the distance
+    # described above). This base length (the bevel "size") is given by the law
+    # of sines $b = (w/2)\frac{\sin(\pi - \theta)}{\sin(\theta/2)}$.
+    # We can then subtract the height of the isoceles rectangle with this base
+    # height and tip angle $\theta$ from our result $M$ above to get how far
+    # the midpoint of the bevel extends beyond the outside....
+
+    # but that's not what we're interested in.
+    # a beveled edge is exactly the convex hull of its two composite lines with
+    # capstyle='butt'. So we just compute the individual lines' incidence
+    # angles and take the maximum of the two padding values
+    elif joinstyle == 'bevel':
+        phi1 = phi + theta/2
+        phi2 = phi - theta/2
+        pad = (w/2) * max(np.cos(phi1), np.cos(phi2))
+    # finally, _joinstyle = "round" is just _joinstyle = "bevel" but with
+    # a hemispherical cap. we could calculate this but for now no markers use
+    # it....
+    elif joinstyle == 'round':
+        raise NotImplementedError("Only 'miter' and 'bevel' joinstyles needed for now")
+    else:
+        raise ValueError(f"Unknown joinstyle: {joinstyle}")
+    return pad
 
 
 class MarkerStyle:
