@@ -239,10 +239,10 @@ _edge_angles = {
     '_': BoxSides(_flat_side, _flat_side, _normal_line, _normal_line),
     'P': _effective_square,
     'X': _effective_diamond,
-    TICKLEFT: BoxSides(_normal_line, _normal_line, _flat_side, _flat_side),
-    TICKRIGHT: BoxSides(_normal_line, _normal_line, _flat_side, _flat_side),
-    TICKUP: BoxSides(_flat_side, _flat_side, _normal_line, _normal_line),
-    TICKDOWN: BoxSides(_flat_side, _flat_side, _normal_line, _normal_line),
+    TICKLEFT: BoxSides(_flat_side, _flat_side, _normal_line, _normal_line),
+    TICKRIGHT: BoxSides(_flat_side, _flat_side, _normal_line, _normal_line),
+    TICKUP: BoxSides(_normal_line, _normal_line, _flat_side, _flat_side),
+    TICKDOWN: BoxSides(_normal_line, _normal_line, _flat_side, _flat_side),
     # carets same size as "triangles" but missing the edge opposite their "tip"
     CARETLEFT: BoxSides(PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
                         PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
@@ -377,7 +377,7 @@ def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
     # the corner angle. So the extra padding required is $M\sin(\phi)$, where
     # $\phi$ is the incidence angle of the corner's bisector
     elif joinstyle == 'miter':
-        pad = (width/2)*np.sin(phi)*np.sqrt(np.sin(theta/2)**-2 + 1)
+        pad = (width/2)*np.sin(phi)*np.sqrt(np.power(np.sin(theta/2), -2) + 1)
     # to calculate the offset for _joinstyle = "bevel", we can start with the
     # analogous "miter" corner. the rules for how the "bevel" is
     # created in SVG is that the outer edges of the stroke continue up until
