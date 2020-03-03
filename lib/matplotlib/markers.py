@@ -143,7 +143,8 @@ from .transforms import IdentityTransform, Affine2D, Bbox
 
 _empty_path = Path(np.empty((0, 2)))
 
-# hold info to track how marker size scales with increased "edge" thickness
+# we store some geometrical information about each marker to track how its
+# size scales with increased "edge" thickness
 PathEndAngle = namedtuple('PathEndAngle', 'incidence_angle corner_angle')
 r"""Used to have a universal way to account for how much the bounding box of a
 shape will grow as we increase its `markeredgewidth`.
@@ -277,8 +278,8 @@ _edge_angles = {
 
 def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
                               capstyle='butt'):
-    """How much does adding a stroke with `width` overflow the naive bbox at a
-    corner described by `path_end_angle`?
+    """Computes how much a stroke of *width* overflows the naive bbox at a
+    corner described by *path_end_angle*.
 
     Parameters
     ----------
@@ -1125,7 +1126,7 @@ class MarkerStyle:
             self._alt_transform.rotate_deg(rotate_alt)
 
 
-    def get_centered_bbox(self, markerwidth=0, markeredgewidth=0):
+    def get_centered_bbox(self, markerwidth, markeredgewidth=0):
         """Get size of bbox if marker is centered at origin.
 
         For markers with no edge, this is just the same bbox as that of the
@@ -1135,10 +1136,10 @@ class MarkerStyle:
 
         Parameters
         ----------
-        markerwidth : float, optional, default: None
+        markerwidth : float
             "Size" of the marker, in pixels.
 
-        markeredgewidth : float, optional, default: None
+        markeredgewidth : float, optional, default: 0
             Width, in pixels, of the stroke used to create the marker's edge.
 
         Returns
@@ -1151,13 +1152,15 @@ class MarkerStyle:
         Notes
         -----
         """
-        if type(marker) != MarkerStyle:
-            marker = MarkerStyle(marker)
+        # if the marker is of size zero, the stroke's width doesn't matter,
+        # there is no stroke so the bbox is trivial
+        if np.isclose(markerwidth, 0):
+            return Bbox([[0,0],[0,0]])
         unit_path = self._transform.transform_path(self._path)
         unit_bbox = unit_path.get_extents()
         scale = Affine2D().scale(markerwidth)
         [[left, bottom], [right, top]] = scale.transform(unit_bbox)
-        angles = _edge_angles[marker._marker]
+        angles = _edge_angles[self._marker]
         left -= _get_padding_due_to_angle(markeredgewidth, angles.left,
                                           self._joinstyle, self._capstyle)
         bottom -= _get_padding_due_to_angle(markeredgewidth, angles.bottom,
