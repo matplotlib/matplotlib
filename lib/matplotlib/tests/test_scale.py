@@ -27,7 +27,7 @@ def test_log_scales(fig_test, fig_ref):
 def test_symlog_mask_nan():
     # Use a transform round-trip to verify that the forward and inverse
     # transforms work, and that they respect nans and/or masking.
-    slt = SymmetricalLogTransform(10, 2, 1)
+    slt = SymmetricalLogTransform(10, 2)
     slti = slt.inverted()
 
     x = np.arange(-1.5, 5, 0.5)

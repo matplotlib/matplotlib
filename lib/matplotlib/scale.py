@@ -372,60 +372,39 @@ class FuncScaleLog(LogScale):
 class SymmetricalLogTransform(Transform):
     input_dims = output_dims = 1
 
-    def __init__(self, base, linthresh, linscale):
+    def __init__(self, base, linthresh):
         Transform.__init__(self)
         if base <= 1.0:
             raise ValueError("'base' must be larger than 1")
         if linthresh <= 0.0:
             raise ValueError("'linthresh' must be positive")
-        if linscale <= 0.0:
-            raise ValueError("'linscale' must be positive")
         self.base = base
         self.linthresh = linthresh
-        self.linscale = linscale
-        self._linscale_adj = (linscale / (1.0 - self.base ** -1))
         self._log_base = np.log(base)
 
     def transform_non_affine(self, a):
-        abs_a = np.abs(a)
-        with np.errstate(divide="ignore", invalid="ignore"):
-            out = np.sign(a) * self.linthresh * (
-                self._linscale_adj +
-                np.log(abs_a / self.linthresh) / self._log_base)
-            inside = abs_a <= self.linthresh
-        out[inside] = a[inside] * self._linscale_adj
-        return out
+        return np.arcsinh(a / 2 / self.linthresh) / self._log_base
 
     def inverted(self):
-        return InvertedSymmetricalLogTransform(self.base, self.linthresh,
-                                               self.linscale)
+        return InvertedSymmetricalLogTransform(self.base, self.linthresh)
 
 
 class InvertedSymmetricalLogTransform(Transform):
     input_dims = output_dims = 1
 
-    def __init__(self, base, linthresh, linscale):
+    def __init__(self, base, linthresh):
         Transform.__init__(self)
-        symlog = SymmetricalLogTransform(base, linthresh, linscale)
+        symlog = SymmetricalLogTransform(base, linthresh)
         self.base = base
         self.linthresh = linthresh
         self.invlinthresh = symlog.transform(linthresh)
-        self.linscale = linscale
-        self._linscale_adj = (linscale / (1.0 - self.base ** -1))
+        self._log_base = np.log(base)
 
     def transform_non_affine(self, a):
-        abs_a = np.abs(a)
-        with np.errstate(divide="ignore", invalid="ignore"):
-            out = np.sign(a) * self.linthresh * (
-                np.power(self.base,
-                         abs_a / self.linthresh - self._linscale_adj))
-            inside = abs_a <= self.invlinthresh
-        out[inside] = a[inside] / self._linscale_adj
-        return out
+        return np.sinh(a * self._log_base) * 2 * self.linthresh
 
     def inverted(self):
-        return SymmetricalLogTransform(self.base,
-                                       self.linthresh, self.linscale)
+        return SymmetricalLogTransform(self.base, self.linthresh)
 
 
 class SymmetricalLogScale(ScaleBase):
@@ -434,31 +413,29 @@ class SymmetricalLogScale(ScaleBase):
     positive and negative directions from the origin.
 
     Since the values close to zero tend toward infinity, there is a
-    need to have a range around zero that is linear.  The parameter
-    *linthresh* allows the user to specify the size of this range
-    (-*linthresh*, *linthresh*).
+    need to have a range around zero that is approximately linear.
+    The parameter *linthresh* allows the user to specify where the transition
+    from log scaling to linear scaling should take place with the linear scale
+    being the region (-*linthresh*, *linthresh*).
+
+    The mathematical transform is defined to be the hyperbolic arcsin
+    `f(x) = arcsinh(x/2) = ln(x/2 + sqrt(x/2 + 1))` which has a well-defined
+    inverse and is valid over the entire real number line.
 
     Parameters
     ----------
     base : float, default: 10
         The base of the logarithm.
 
-    linthresh : float, default: 2
-        Defines the range ``(-x, x)``, within which the plot is linear.
+    linthresh : float, default: 1
+        Defines the range ``(-x, x)``, within which the plot is
+        approximately linear.
         This avoids having the plot go to infinity around zero.
 
     subs : sequence of int
         Where to place the subticks between each major tick.
         For example, in a log10 scale: ``[2, 3, 4, 5, 6, 7, 8, 9]`` will place
         8 logarithmically spaced minor ticks between each major tick.
-
-    linscale : float, optional
-        This allows the linear range ``(-linthresh, linthresh)`` to be
-        stretched relative to the logarithmic range. Its value is the number of
-        decades to use for each half of the linear range. For example, when
-        *linscale* == 1.0 (the default), the space used for the positive and
-        negative halves of the linear range will be equal to one decade in
-        the logarithmic range.
     """
     name = 'symlog'
 
@@ -479,8 +456,7 @@ class SymmetricalLogScale(ScaleBase):
         @cbook._rename_parameter("3.3", f"base{axis_name}", "base")
         @cbook._rename_parameter("3.3", f"linthresh{axis_name}", "linthresh")
         @cbook._rename_parameter("3.3", f"subs{axis_name}", "subs")
-        @cbook._rename_parameter("3.3", f"linscale{axis_name}", "linscale")
-        def __init__(*, base=10, linthresh=2, subs=None, linscale=1, **kwargs):
+        def __init__(*, base=10, linthresh=1, subs=None, **kwargs):
             if kwargs:
                 warn_deprecated(
                     "3.2.0",
@@ -489,15 +465,14 @@ class SymmetricalLogScale(ScaleBase):
                         f"argument {next(iter(kwargs))!r}; in the future, "
                         f"this will raise a TypeError")
                 )
-            return base, linthresh, subs, linscale
+            return base, linthresh, subs
 
-        base, linthresh, subs, linscale = __init__(**kwargs)
-        self._transform = SymmetricalLogTransform(base, linthresh, linscale)
+        base, linthresh, subs = __init__(**kwargs)
+        self._transform = SymmetricalLogTransform(base, linthresh)
         self.subs = subs
 
     base = property(lambda self: self._transform.base)
     linthresh = property(lambda self: self._transform.linthresh)
-    linscale = property(lambda self: self._transform.linscale)
 
     def set_default_locators_and_formatters(self, axis):
         # docstring inherited
