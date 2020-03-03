@@ -265,10 +265,15 @@ def boilerplate_gen():
         # pyplot name : real name
         'sci:_sci',
         'title:set_title',
+        'set_title',
         'xlabel:set_xlabel',
+        'set_xlabel',
         'ylabel:set_ylabel',
+        'set_ylabel',
         'xscale:set_xscale',
+        'set_xscale',
         'yscale:set_yscale',
+        'set_yscale'
     )
 
     cmappable = {
