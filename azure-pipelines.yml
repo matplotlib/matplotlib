@@ -52,6 +52,10 @@ steps:
     prerelease: true
   condition: and(succeeded(), eq(variables['python.version'], 'Pre'))
 
+- task: NuGetToolInstaller@0
+  displayName: 'Use latest available Nuget'
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
+
 - bash: |
     set -e
     case "$(python -c 'import sys; print(sys.platform)')" in
