@@ -1644,6 +1644,7 @@ class Locator(TickHelper):
         """Autoscale the view limits."""
         return self.view_limits(*self.axis.get_view_interval())
 
+    @cbook.deprecated("3.3")
     def pan(self, numsteps):
         """Pan numticks (can be positive or negative)"""
         ticks = self()
@@ -1661,6 +1662,7 @@ class Locator(TickHelper):
         vmax += step
         self.axis.set_view_interval(vmin, vmax, ignore=True)
 
+    @cbook.deprecated("3.3")
     def zoom(self, direction):
         """Zoom in/out on axis; if direction is >0 zoom in, else zoom out."""
 

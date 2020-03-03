@@ -1708,10 +1708,12 @@ class Axis(martist.Artist):
         """
         raise NotImplementedError('Derived must override')
 
+    @cbook.deprecated("3.3")
     def pan(self, numsteps):
         """Pan by *numsteps* (can be positive or negative)."""
         self.major.locator.pan(numsteps)
 
+    @cbook.deprecated("3.3")
     def zoom(self, direction):
         """Zoom in/out on axis; if *direction* is >0 zoom in, else zoom out."""
         self.major.locator.zoom(direction)

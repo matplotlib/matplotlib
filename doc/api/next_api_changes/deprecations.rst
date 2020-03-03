@@ -311,3 +311,9 @@ Such options should now be directly passed to Pillow using
 ``dviread.Encoding``
 ~~~~~~~~~~~~~~~~~~~~
 This class was (mostly) broken and is deprecated.
+
+Axis and Locator ``pan`` and ``zoom``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The unused ``pan`` and ``zoom`` methods of `~.axis.Axis` and `~.ticker.Locator`
+are deprecated.  Panning and zooming are now implemented using the
+``start_pan``, ``drag_pan``, and ``end_pan`` methods of `~.axes.Axes`.
