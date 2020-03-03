@@ -154,9 +154,10 @@ mathtext.bf  : serif:bold
 mathtext.sf  : sans\-serif
 mathtext.fontset : cm # Should be 'cm' (Computer Modern), 'stix',
                       # 'stixsans' or 'custom'
-mathtext.fallback_to_cm : True  # When True, use symbols from the Computer Modern
-                                # fonts when a symbol can not be found in one of
-                                # the custom math fonts.
+mathtext.fallback: cm  # Select fallback font from ['cm' (Computer Modern), 'stix'
+                       # 'stixsans'] when a symbol can not be found in one of the 
+                       # custom math fonts. Select 'None' to not perform fallback
+                       # and replace the missing character by a dummy.
 
 mathtext.default : it # The default font to use for math.
                       # Can be any of the LaTeX font names, including

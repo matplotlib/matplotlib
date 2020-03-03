@@ -769,10 +769,17 @@ class UnicodeFonts(TruetypeFonts):
 
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
-        if rcParams['mathtext.fallback_to_cm']:
-            self.cm_fallback = BakomaFonts(*args, **kwargs)
-        else:
-            self.cm_fallback = None
+        fallback_rc = rcParams['mathtext.fallback']
+        if rcParams['mathtext.fallback_to_cm'] is not None:
+            fallback_rc = ('cm' if rcParams['mathtext.fallback_to_cm']
+                           else None)
+
+        font_class = {'stix': StixFonts,
+                      'stixsans': StixSansFonts,
+                      'cm': BakomaFonts
+                      }.get(fallback_rc)
+        self.cm_fallback = font_class(*args, **kwargs) if font_class else None
+
         TruetypeFonts.__init__(self, *args, **kwargs)
         self.fontmap = {}
         for texfont in "cal rm tt it bf sf".split():
@@ -782,6 +789,21 @@ class UnicodeFonts(TruetypeFonts):
         prop = FontProperties('cmex10')
         font = findfont(prop)
         self.fontmap['ex'] = font
+
+        # include STIX sized alternatives for glyphs if fallback is STIX
+        if isinstance(self.cm_fallback, StixFonts):
+            stixsizedaltfonts = {
+                 0: 'STIXGeneral',
+                 1: 'STIXSizeOneSym',
+                 2: 'STIXSizeTwoSym',
+                 3: 'STIXSizeThreeSym',
+                 4: 'STIXSizeFourSym',
+                 5: 'STIXSizeFiveSym'}
+
+            for size, name in stixsizedaltfonts.items():
+                fullpath = findfont(name)
+                self.fontmap[size] = fullpath
+                self.fontmap[name] = fullpath
 
     _slanted_symbols = set(r"\int \oint".split())
 
@@ -830,16 +852,19 @@ class UnicodeFonts(TruetypeFonts):
 
         if not found_symbol:
             if self.cm_fallback:
-                if isinstance(self.cm_fallback, BakomaFonts):
-                    _log.warning(
-                        "Substituting with a symbol from Computer Modern.")
-                if (fontname in ('it', 'regular') and
-                        isinstance(self.cm_fallback, StixFonts)):
-                    return self.cm_fallback._get_glyph(
-                            'rm', font_class, sym, fontsize)
-                else:
-                    return self.cm_fallback._get_glyph(
-                        fontname, font_class, sym, fontsize)
+                if (fontname in ('it', 'regular')
+                        and isinstance(self.cm_fallback, StixFonts)):
+                    fontname = 'rm'
+
+                g = self.cm_fallback._get_glyph(fontname, font_class,
+                                                sym, fontsize)
+                fname = g[0].family_name
+                if fname in list(BakomaFonts._fontmap.values()):
+                    fname = "Computer Modern"
+                _log.warning("Substituting symbol {} "
+                             "from {}".format(sym, fname))
+                return g
+
             else:
                 if (fontname in ('it', 'regular')
                         and isinstance(self, StixFonts)):
