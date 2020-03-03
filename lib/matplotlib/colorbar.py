@@ -1569,10 +1569,6 @@ def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
 
     x1 = 1 - fraction
 
-    # for shrinking
-    pad_s = (1 - shrink) * 0.5
-    wh_ratios = [pad_s, shrink, pad_s]
-
     # we need to none the tree of layoutboxes because
     # constrained_layout can't remove and replace the tree
     # hierarchy w/o a seg fault.
@@ -1582,6 +1578,14 @@ def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
     if orientation == 'vertical':
         pad = kw.pop('pad', 0.05)
         wh_space = 2 * pad / (1 - pad)
+        anchor = kw.pop('anchor', (0.0, 0.5))
+        panchor = kw.pop('panchor', (1.0, 0.5))
+
+        # for shrinking
+        wh_ratios = [(1-anchor[1])*(1-shrink),
+                     shrink, 
+                     anchor[1]*(1-shrink)]
+
         gs = gs_from_subplotspec(1, 2,
                                  subplot_spec=parent.get_subplotspec(),
                                  wspace=wh_space,
@@ -1590,11 +1594,17 @@ def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
                                   subplot_spec=gs[1],
                                   hspace=0.,
                                   height_ratios=wh_ratios)
-        anchor = (0.0, 0.5)
-        panchor = (1.0, 0.5)
     else:
         pad = kw.pop('pad', 0.15)
         wh_space = 2 * pad / (1 - pad)
+        anchor = kw.pop('anchor', (0.5, 1.0))
+        panchor = kw.pop('panchor', (0.5, 0.0))
+
+        # for shrinking
+        wh_ratios = [(1-anchor[0])*(1-shrink),
+                     shrink, 
+                     anchor[0]*(1-shrink)]
+
         gs = gs_from_subplotspec(2, 1,
                                  subplot_spec=parent.get_subplotspec(),
                                  hspace=wh_space,
@@ -1604,8 +1614,6 @@ def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
                                   wspace=0.,
                                   width_ratios=wh_ratios)
         aspect = 1 / aspect
-        anchor = (0.5, 1.0)
-        panchor = (0.5, 0.0)
 
     parent.set_subplotspec(gs[0])
     parent.update_params()
