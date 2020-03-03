@@ -173,14 +173,14 @@ _tri_tip_angle = np.arctan(1/2)
 # half the edge length of the smaller pentagon over the difference between the
 # larger pentagon's circumcribing radius and the smaller pentagon's inscribed
 # radius
-_star_tip_angle = 2*np.arctan((1/4)*np.sqrt((5 - np.sqrt(5))/2),
-                              1 - np.sqrt((3 + np.sqrt(5))/32))
+_star_tip_angle = 2*np.arctan2((1/4)*np.sqrt((5 - np.sqrt(5))/2),
+                               1 - np.sqrt((3 + np.sqrt(5))/32))
 # reusable corner types
 _flat_side = PathEndAngle(0, 0)
 _normal_line = PathEndAngle(np.pi/2, None)
 _normal_right_angle = PathEndAngle(np.pi/2, np.pi/2)
-_triangle_side_corner = PathEndAngle(np.pi/2 - tri_side_angle/2, tri_side_angle)
-_triangle_tip = PathEndAngle(np.pi/2, tri_tip_angle)
+_triangle_side_corner = PathEndAngle(np.pi/2 - _tri_side_angle/2, _tri_side_angle)
+_triangle_tip = PathEndAngle(np.pi/2, _tri_tip_angle)
 # and some entire box side behaviors are repeated among markers
 _effective_square = BoxSides(_flat_side, _flat_side, _flat_side, _flat_side)
 _effective_diamond = BoxSides(_normal_right_angle, _normal_right_angle,
@@ -244,30 +244,34 @@ _edge_angles = {
     TICKUP: BoxSides(_flat_side, _flat_side, _normal_line, _normal_line),
     TICKDOWN: BoxSides(_flat_side, _flat_side, _normal_line, _normal_line),
     # carets same size as "triangles" but missing the edge opposite their "tip"
-    CARETLEFT: BoxSides(PathEndAngle(np.pi/2 - tri_side_angle/2, None),
-                        PathEndAngle(np.pi/2 - tri_side_angle/2, None),
-                        _triangle_tip, PathEndAngle(tri_side_angle, None)),
-    CARETRIGHT: BoxSides(PathEndAngle(np.pi/2 - tri_side_angle/2, None),
-                         PathEndAngle(np.pi/2 - tri_side_angle/2, None),
-                         PathEndAngle(tri_side_angle, None), _triangle_tip),
-    CARETUP: BoxSides(_triangle_tip, PathEndAngle(tri_side_angle, None),
-                      PathEndAngle(np.pi/2 - tri_side_angle/2, None),
-                      PathEndAngle(np.pi/2 - tri_side_angle/2, None)),
-    CARETDOWN: BoxSides(PathEndAngle(tri_side_angle, None), _triangle_tip,
-                      PathEndAngle(np.pi/2 - tri_side_angle/2, None),
-                      PathEndAngle(np.pi/2 - tri_side_angle/2, None)),
-    CARETLEFTBASE: BoxSides(PathEndAngle(np.pi/2 - tri_side_angle/2, None),
-                        PathEndAngle(np.pi/2 - tri_side_angle/2, None),
-                        _triangle_tip, PathEndAngle(tri_side_angle, None)),
-    CARETRIGHTBASE: BoxSides(PathEndAngle(np.pi/2 - tri_side_angle/2, None),
-                         PathEndAngle(np.pi/2 - tri_side_angle/2, None),
-                         PathEndAngle(tri_side_angle, None), _triangle_tip),
-    CARETUPBASE: BoxSides(_triangle_tip, PathEndAngle(tri_side_angle, None),
-                      PathEndAngle(np.pi/2 - tri_side_angle/2, None),
-                      PathEndAngle(np.pi/2 - tri_side_angle/2, None)),
-    CARETDOWNBASE: BoxSides(PathEndAngle(tri_side_angle, None), _triangle_tip,
-                      PathEndAngle(np.pi/2 - tri_side_angle/2, None),
-                      PathEndAngle(np.pi/2 - tri_side_angle/2, None)),
+    CARETLEFT: BoxSides(PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
+                        PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
+                        _triangle_tip, PathEndAngle(_tri_side_angle, None)),
+    CARETRIGHT: BoxSides(PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
+                         PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
+                         PathEndAngle(_tri_side_angle, None), _triangle_tip),
+    CARETUP: BoxSides(_triangle_tip, PathEndAngle(_tri_side_angle, None),
+                      PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
+                      PathEndAngle(np.pi/2 - _tri_side_angle/2, None)),
+    CARETDOWN: BoxSides(PathEndAngle(_tri_side_angle, None), _triangle_tip,
+                      PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
+                      PathEndAngle(np.pi/2 - _tri_side_angle/2, None)),
+    CARETLEFTBASE: BoxSides(PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
+                        PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
+                        _triangle_tip, PathEndAngle(_tri_side_angle, None)),
+    CARETRIGHTBASE: BoxSides(PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
+                         PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
+                         PathEndAngle(_tri_side_angle, None), _triangle_tip),
+    CARETUPBASE: BoxSides(_triangle_tip, PathEndAngle(_tri_side_angle, None),
+                      PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
+                      PathEndAngle(np.pi/2 - _tri_side_angle/2, None)),
+    CARETDOWNBASE: BoxSides(PathEndAngle(_tri_side_angle, None), _triangle_tip,
+                      PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
+                      PathEndAngle(np.pi/2 - _tri_side_angle/2, None)),
+    '': BoxSides(None, None, None, None),
+    ' ': BoxSides(None, None, None, None),
+    'None': BoxSides(None, None, None, None),
+    None: BoxSides(None, None, None, None),
 }
 
 def marker_bbox(marker=None, markerwidth=0, markeredgewidth=0):
@@ -305,17 +309,16 @@ def marker_bbox(marker=None, markerwidth=0, markeredgewidth=0):
     marker_symbol = marker.get_marker()
     joinstyle = marker.get_joinstyle()
     capstyle = marker.get_capstyle()
-    unit_bbox = marker.get_path().get_extents()
-    scale = mpl.transforms.Affine2D().scale(markerwidth)
+    unit_path = marker.get_transform().transform_path(marker.get_path())
+    unit_bbox = unit_path.get_extents()
+    scale = Affine2D().scale(markerwidth)
     [[left, bottom], [right, top]] = scale.transform(unit_bbox)
-    left -= _get_padding_due_to_angle(markeredgewidth,
-            _edge_angles[marker_symbol].left, joinstyle, capstyle)
-    bottom -= _get_padding_due_to_angle(markeredgewidth,
-            _edge_angles[marker_symbol].bottom, joinstyle, capstyle)
-    right += _get_padding_due_to_angle(markeredgewidth,
-            _edge_angles[marker_symbol].right, joinstyle, capstyle)
-    top -= _get_padding_due_to_angle(markeredgewidth,
-            _edge_angles[marker_symbol].top, joinstyle, capstyle)
+    angles = _edge_angles[marker_symbol]
+    ew = markeredgewidth
+    left -= _get_padding_due_to_angle(ew, angles.left, joinstyle, capstyle)
+    bottom -= _get_padding_due_to_angle(ew, angles.bottom, joinstyle, capstyle)
+    right += _get_padding_due_to_angle(ew, angles.right, joinstyle, capstyle)
+    top += _get_padding_due_to_angle(ew, angles.top, joinstyle, capstyle)
     return Bbox.from_extents(left, bottom, right, top)
 
 def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
@@ -337,6 +340,8 @@ def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
         amount of overflow
 
     """
+    if path_end_angle is None or width == 0:
+        return 0
     phi, theta = path_end_angle.incidence_angle, path_end_angle.corner_angle
     # if there's no corner (i.e. the path just ends, as in the "sides" of the
     # carets or in the non-fillable markers, we can compute how far the outside
@@ -354,7 +359,7 @@ def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
         # code to check for the "projecting" and "round" cases
         if capstyle != 'butt':
             raise NotImplementedError("Only capstyle='butt' currently needed")
-        pad = (w/2) * np.cos(phi)
+        pad = (width/2) * np.cos(phi)
     # to calculate the offset for _joinstyle == 'miter', imagine aligning the
     # corner so that on line comes in along the negative x-axis, and another
     # from above, makes an angle $\theta$ with the negative x-axis.
@@ -372,7 +377,7 @@ def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
     # the corner angle. So the extra padding required is $M\sin(\phi)$, where
     # $\phi$ is the incidence angle of the corner's bisector
     elif joinstyle == 'miter':
-        pad = (w/2)*np.sin(phi)*np.sqrt(np.csc(theta/2)**2 + 1)
+        pad = (width/2)*np.sin(phi)*np.sqrt(np.sin(theta/2)**-2 + 1)
     # to calculate the offset for _joinstyle = "bevel", we can start with the
     # analogous "miter" corner. the rules for how the "bevel" is
     # created in SVG is that the outer edges of the stroke continue up until
@@ -393,12 +398,18 @@ def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
     elif joinstyle == 'bevel':
         phi1 = phi + theta/2
         phi2 = phi - theta/2
-        pad = (w/2) * max(np.cos(phi1), np.cos(phi2))
+        pad = (width/2) * max(np.cos(phi1), np.cos(phi2))
     # finally, _joinstyle = "round" is just _joinstyle = "bevel" but with
     # a hemispherical cap. we could calculate this but for now no markers use
-    # it....
+    # it....except those with "no corner", in which case we can treat them the
+    # same as squares...
     elif joinstyle == 'round':
-        raise NotImplementedError("Only 'miter' and 'bevel' joinstyles needed for now")
+        # the two "same as straight line" cases
+        if np.isclose(theta, 0) and np.isclose(phi, 0) \
+        or np.isclose(theta, np.pi) and np.isclose(phi, np.pi/2):
+            pad = width/2
+        else:
+            raise NotImplementedError("Only 'miter' and 'bevel' joinstyles needed for now")
     else:
         raise ValueError(f"Unknown joinstyle: {joinstyle}")
     return pad
