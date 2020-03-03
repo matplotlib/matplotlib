@@ -25,61 +25,39 @@
 .. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
 .. _NUMFocus: http://www.numfocus.org
 
+
 .. |GitTutorial| image:: https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?
 .. _GitTutorial: https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project
 
-##########
-Matplotlib
-##########
+.. image:: doc/_static/logo2.png
 
-Matplotlib is a Python 2D plotting library which produces publication-quality
-figures in a variety of hardcopy formats and interactive environments across
-platforms. Matplotlib can be used in Python scripts, the Python and IPython
-shell (à la MATLAB or Mathematica), web application servers, and various
+
+Matplotlib is a comprehensive library for creating static, animated, and interactive visualizations in Python.
+
+Check out our `home page <http://matplotlib.org/>`_ for more information.
+
+.. image:: doc/_static/readme_preview.png
+
+Matplotlib produces publication-quality figures in a variety of hardcopy formats
+and interactive environments across platforms. Matplotlib can be used in Python scripts,
+the Python and IPython shell, web application servers, and various
 graphical user interface toolkits.
 
-NOTE: The current master branch is now Python 3 only.  Python 2 support is
-being dropped.
-
-`Home page <http://matplotlib.org/>`_
 
 Install
 =======
 
-For installation instructions and requirements, see the INSTALL.rst file or the
-`install <http://matplotlib.org/users/installing.html>`_ documentation. If you
-think you may want to contribute to matplotlib, check out the `guide to
-working with the source code
-<http://matplotlib.org/devel/gitwash/index.html>`_.
+For installation instructions and requirements, see `INSTALL.rst <INSTALL.rst>`_  or the
+`install <http://matplotlib.org/users/installing.html>`_ documentation.
 
 Test
 ====
 
-After installation, you can launch the test suite::
+After installation, launch the test suite::
 
-  pytest
+  python -m pytest
 
-Or from the Python interpreter::
-
-  import matplotlib
-  matplotlib.test()
-
-Consider reading http://matplotlib.org/devel/coding_guide.html#testing for more
-information. Note that the test suite requires pytest. Please install with pip
-or your package manager of choice.
-
-Contact
-=======
-matplotlib's communication channels include active mailing lists:
-
-* `Users <https://mail.python.org/mailman/listinfo/matplotlib-users>`_ mailing list: matplotlib-users@python.org
-* `Announcement  <https://mail.python.org/mailman/listinfo/matplotlib-announce>`_ mailing list: matplotlib-announce@python.org
-* `Development <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_ mailing list: matplotlib-devel@python.org
-
-The first is a good starting point for general questions and discussions.
-
-Gitter_ is for coordinating development and asking questions directly related
-to contributing to matplotlib.
+Read the `testing guide <https://matplotlib.org/devel/testing.html>`_ for more information and alternatives.
 
 Contribute
 ==========
@@ -91,10 +69,24 @@ You want to tell us about it – best of all!
 
 Start at the `contributing guide <http://matplotlib.org/devdocs/devel/contributing.html>`_!
 
-Developer notes are now at `Developer Discussions <https://github.com/orgs/matplotlib/teams/developers/discussions>`_ (Note: For technical reasons, this is currently only accessible for matplotlib developers.)
+Contact
+=======
+
+`Discourse <https://discourse.matplotlib.org/>`_ is the discussion forum for general questions and discussions and our recommended starting point.
+
+Our active mailing lists (which are mirrored on Discourse) are:
+
+* `Users <https://mail.python.org/mailman/listinfo/matplotlib-users>`_ mailing list: matplotlib-users@python.org
+* `Announcement  <https://mail.python.org/mailman/listinfo/matplotlib-announce>`_ mailing list: matplotlib-announce@python.org
+* `Development <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_ mailing list: matplotlib-devel@python.org
+
+Gitter_ is for coordinating development and asking questions directly related
+to contributing to matplotlib.
+
 
 Citing Matplotlib
 =================
 If Matplotlib contributes to a project that leads to publication, please
 acknowledge this by citing Matplotlib.
+
 `A ready-made citation entry <https://matplotlib.org/citing.html>`_ is available.

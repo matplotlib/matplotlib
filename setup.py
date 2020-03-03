@@ -77,6 +77,7 @@ mpl_packages = [
 classifiers = [
     'Development Status :: 5 - Production/Stable',
     'Intended Audience :: Science/Research',
+    'Intended Audience :: Education',
     'License :: OSI Approved :: Python Software Foundation License',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
@@ -222,6 +223,10 @@ if __name__ == '__main__':
         with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
             fd.write(''.join(template_lines))
 
+        # Use Readme as long description
+        with open('README.rst') as fd:
+            long_description = fd.read()
+
     # Finally, pass this all along to distutils to do the heavy lifting.
     setup(
         name="matplotlib",
@@ -232,16 +237,14 @@ if __name__ == '__main__':
         url="https://matplotlib.org",
         download_url="https://matplotlib.org/users/installing.html",
         project_urls={
+            'Documentation': 'https://matplotlib.org',
+            'Source Code': 'https://github.com/matplotlib/matplotlib',
             'Bug Tracker': 'https://github.com/matplotlib/matplotlib/issues',
-            'Documentation': 'https://matplotlib.org/contents.html',
-            'Source Code': 'https://github.com/matplotlib/matplotlib'
+            'Forum': 'https://discourse.matplotlib.org/',
+            'Donate': 'https://numfocus.org/donate-to-matplotlib'
         },
-        long_description="""
-        Matplotlib strives to produce publication quality 2D graphics
-        for interactive graphing, scientific publishing, user interface
-        development and web application servers targeting multiple user
-        interfaces and hardcopy output formats.
-        """,
+        long_description=long_description,
+        long_description_content_type="text/x-rst",
         license="PSF",
         platforms="any",
         package_dir={"": "lib"},
