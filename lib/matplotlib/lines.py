@@ -14,7 +14,7 @@ from . import artist, cbook, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
 from .cbook import (
     _to_unmasked_float_array, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
-from .markers import MarkerStyle, marker_bbox
+from .markers import MarkerStyle
 from .path import Path
 from .transforms import (
     Affine2D, Bbox, BboxTransformFrom, BboxTransformTo, TransformedPath)
@@ -617,8 +617,8 @@ class Line2D(Artist):
                                  ignore=True)
         # correct for marker size, if any
         if self._marker:
-            m_bbox = marker_bbox(self._marker, self._markersize,
-                               self._markeredgewidth)
+            m_bbox = self._marker.get_centered_bbox(
+                    self._markersize, self._markeredgewidth)
             # add correct padding to each side of bbox
             bbox = Bbox(bbox.get_points() + m_bbox.get_points())
         return bbox

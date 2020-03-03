@@ -275,54 +275,6 @@ _edge_angles = {
 }
 
 
-def marker_bbox(marker=None, markerwidth=0, markeredgewidth=0):
-    """For a given marker style and size parameters, compute the actual extents
-    of the marker.
-
-    For markers with no edge, this is just the same bbox as that of the
-    transformed marker path, but how much extra extent is added by an edge is a
-    function of the angle of the path at its own (the path's own) boundary.
-
-    Parameters
-    ----------
-    marker : matplotlib.markers.MarkerStyle
-        The marker type, or object that can be used to construct the marker
-        type.
-
-    markerwidth : float, optional, default: None
-        "Size" of the marker, in pixels.
-
-    markeredgewidth : float, optional, default: None
-        Width, in pixels, of the stroke used to create the marker's edge.
-
-    Returns
-    -------
-
-    bbox : matplotlib.transforms.Bbox
-        The extents of the marker including its edge (in pixels) if it were
-        centered at (0,0).
-
-    Notes
-    -----
-    """
-    if type(marker) != MarkerStyle:
-        marker = MarkerStyle(marker)
-    marker_symbol = marker.get_marker()
-    joinstyle = marker.get_joinstyle()
-    capstyle = marker.get_capstyle()
-    unit_path = marker.get_transform().transform_path(marker.get_path())
-    unit_bbox = unit_path.get_extents()
-    scale = Affine2D().scale(markerwidth)
-    [[left, bottom], [right, top]] = scale.transform(unit_bbox)
-    angles = _edge_angles[marker_symbol]
-    ew = markeredgewidth
-    left -= _get_padding_due_to_angle(ew, angles.left, joinstyle, capstyle)
-    bottom -= _get_padding_due_to_angle(ew, angles.bottom, joinstyle, capstyle)
-    right += _get_padding_due_to_angle(ew, angles.right, joinstyle, capstyle)
-    top += _get_padding_due_to_angle(ew, angles.top, joinstyle, capstyle)
-    return Bbox.from_extents(left, bottom, right, top)
-
-
 def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
                               capstyle='butt'):
     """How much does adding a stroke with `width` overflow the naive bbox at a
@@ -1171,3 +1123,49 @@ class MarkerStyle:
             self._alt_transform = Affine2D().translate(-0.5, -0.5)
             self._transform.rotate_deg(rotate)
             self._alt_transform.rotate_deg(rotate_alt)
+
+
+    def get_centered_bbox(markerwidth=0, markeredgewidth=0):
+        """Get size of bbox if marker is centered at origin.
+
+        For markers with no edge, this is just the same bbox as that of the
+        transformed marker path, but how much extra extent is added by an edge
+        is a function of the angle of the path at its own (the path's own)
+        boundary.
+
+        Parameters
+        ----------
+        markerwidth : float, optional, default: None
+            "Size" of the marker, in pixels.
+
+        markeredgewidth : float, optional, default: None
+            Width, in pixels, of the stroke used to create the marker's edge.
+
+        Returns
+        -------
+
+        bbox : matplotlib.transforms.Bbox
+            The extents of the marker including its edge (in pixels) if it were
+            centered at (0,0).
+
+        Notes
+        -----
+        """
+        if type(marker) != MarkerStyle:
+            marker = MarkerStyle(marker)
+        unit_path = self._transform.transform_path(self._path)
+        unit_bbox = unit_path.get_extents()
+        scale = Affine2D().scale(markerwidth)
+        [[left, bottom], [right, top]] = scale.transform(unit_bbox)
+        angles = _edge_angles[marker._marker]
+        left -= _get_padding_due_to_angle(markeredgewidth, angles.left,
+                                          self._joinstyle, self._capstyle)
+        bottom -= _get_padding_due_to_angle(markeredgewidth, angles.bottom,
+                                            self._joinstyle, self._capstyle)
+        right += _get_padding_due_to_angle(markeredgewidth, angles.right,
+                                           self._joinstyle, self._capstyle)
+        top += _get_padding_due_to_angle(markeredgewidth, angles.top,
+                                         self._joinstyle, self._capstyle)
+        return Bbox.from_extents(left, bottom, right, top)
+
+
