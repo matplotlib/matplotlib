@@ -4317,7 +4317,7 @@ class ConnectionPatch(FancyArrowPatch):
         'figure fraction'  0, 0 is lower left of figure and 1, 1 is upper right
         'axes points'      points from lower left corner of axes
         'axes pixels'      pixels from lower left corner of axes
-        'axes fraction'    0, 1 is lower left of axes and 1, 1 is upper right
+        'axes fraction'    0, 0 is lower left of axes and 1, 1 is upper right
         'data'             use the coordinate system of the object being
                            annotated (default)
         'offset points'    offset (in points) from the *xy* value
