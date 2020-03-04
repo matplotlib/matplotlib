@@ -1125,7 +1125,7 @@ class MarkerStyle:
             self._transform.rotate_deg(rotate)
             self._alt_transform.rotate_deg(rotate_alt)
 
-    def get_centered_bbox(self, markerwidth, markeredgewidth=0):
+    def get_bbox(self, markerwidth, markeredgewidth=0):
         """Get size of bbox if marker is centered at origin.
 
         For markers with no edge, this is just the same bbox as that of the
@@ -1136,16 +1136,16 @@ class MarkerStyle:
         Parameters
         ----------
         markerwidth : float
-            "Size" of the marker, in pixels.
+            "Size" of the marker, in points.
 
         markeredgewidth : float, optional, default: 0
-            Width, in pixels, of the stroke used to create the marker's edge.
+            Width, in points, of the stroke used to create the marker's edge.
 
         Returns
         -------
 
         bbox : matplotlib.transforms.Bbox
-            The extents of the marker including its edge (in pixels) if it were
+            The extents of the marker including its edge (in points) if it were
             centered at (0,0).
 
         Notes

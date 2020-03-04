@@ -617,10 +617,12 @@ class Line2D(Artist):
                                  ignore=True)
         # correct for marker size, if any
         if self._marker:
-            m_bbox = self._marker.get_centered_bbox(
+            m_bbox = self._marker.get_bbox(
                     self._markersize, self._markeredgewidth)
+            # markers use units of pts, not pixels
+            box_points_px = m_bbox.get_points() / 72.0 * self.figure.dpi
             # add correct padding to each side of bbox
-            bbox = Bbox(bbox.get_points() + m_bbox.get_points())
+            bbox = Bbox(bbox.get_points() + box_points_px)
         return bbox
 
     @Artist.axes.setter

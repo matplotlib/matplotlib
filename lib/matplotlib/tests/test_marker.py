@@ -29,10 +29,11 @@ def test_marker_path():
     # Checking this doesn't fail.
     marker_style.set_marker(path)
 
+
 def _draw_marker_outlined(marker, markeredgewidth=0, markersize=100):
     # keep marker vaguely inside the figure by scaling
     fig_d = 4*(markeredgewidth + markersize)/100
-    fig, ax = plt.subplots(figsize=(fig_d,fig_d))
+    fig, ax = plt.subplots(figsize=(fig_d, fig_d))
     ax.axis('off')
     # and fix limits so pix size doesn't change later
     ax_lim = 2
@@ -43,9 +44,10 @@ def _draw_marker_outlined(marker, markeredgewidth=0, markersize=100):
                     clip_on=False, markeredgewidth=markeredgewidth,
                     markeredgecolor='k')
     # now get theoretical bbox from markers interface
-    origin_px = ax.transData.transform((0,0))
-    m_bbox = markers.MarkerStyle(marker).get_centered_bbox(markersize, markeredgewidth)
-    m_bottom_left, m_top_right = m_bbox.get_points()
+    origin_px = ax.transData.transform((0, 0))
+    m_bbox = markers.MarkerStyle(marker).get_bbox(markersize, markeredgewidth)
+    # convert from pt to pixel, and rename
+    m_bottom_left, m_top_right = m_bbox.get_points() / 72.0 * fig.dpi
     top_right_px = origin_px + m_top_right
     bottom_left_px = origin_px + m_bottom_left
     right, top = ax.transData.inverted().transform(top_right_px)
