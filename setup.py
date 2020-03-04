@@ -75,6 +75,7 @@ mpl_packages = [
 
 classifiers = [
     'Development Status :: 5 - Production/Stable',
+    'Framework :: Matplotlib',
     'Intended Audience :: Science/Research',
     'Intended Audience :: Education',
     'License :: OSI Approved :: Python Software Foundation License',
