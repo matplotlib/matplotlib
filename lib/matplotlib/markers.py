@@ -175,9 +175,10 @@ _caret_side_angle = np.arctan(3/2)
 _caret_tip_angle = 2*np.arctan(2/3)
 # half the edge length of the smaller pentagon over the difference between the
 # larger pentagon's circumcribing radius and the smaller pentagon's inscribed
-# radius
-_star_tip_angle = 2*np.arctan2((1/4)*np.sqrt((5 - np.sqrt(5))/2),
-                               1 - np.sqrt((3 + np.sqrt(5))/32))
+# radius #TODO this formula has typo somewhere....
+# _star_tip_angle = 2*np.arctan2((1/4)*np.sqrt((5 - np.sqrt(5))/2),
+#                                1 - np.sqrt((3 + np.sqrt(5))/32))
+_star_tip_angle = 0.6283185056636065
 # reusable corner types
 _flat_side = PathEndAngle(0, 0)
 _normal_line = PathEndAngle(np.pi/2, None)
@@ -254,10 +255,13 @@ _edge_angles = {
     CARETRIGHT: BoxSides(_caret_side, _caret_side, _caret_bottom, _caret_tip),
     CARETUP: BoxSides(_caret_tip, _caret_bottom, _caret_side, _caret_side),
     CARETDOWN: BoxSides(_caret_bottom, _caret_tip, _caret_side, _caret_side),
-    CARETLEFTBASE: BoxSides(_caret_side, _caret_side, _caret_tip, _caret_bottom),
-    CARETRIGHTBASE: BoxSides(_caret_side, _caret_side, _caret_bottom, _caret_tip),
+    CARETLEFTBASE: BoxSides(_caret_side, _caret_side, _caret_tip,
+                            _caret_bottom),
+    CARETRIGHTBASE: BoxSides(_caret_side, _caret_side, _caret_bottom,
+                             _caret_tip),
     CARETUPBASE: BoxSides(_caret_tip, _caret_bottom, _caret_side, _caret_side),
-    CARETDOWNBASE: BoxSides(_caret_bottom, _caret_tip, _caret_side, _caret_side),
+    CARETDOWNBASE: BoxSides(_caret_bottom, _caret_tip, _caret_side,
+                            _caret_side),
     '': BoxSides(None, None, None, None),
     ' ': BoxSides(None, None, None, None),
     'None': BoxSides(None, None, None, None),
