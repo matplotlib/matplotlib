@@ -171,6 +171,8 @@ BoxSides = namedtuple('BoxSides', 'top bottom left right')
 # some angles are heavily repeated throughout various markers
 _tri_side_angle = np.arctan(2)
 _tri_tip_angle = 2*np.arctan(1/2)
+_caret_side_angle = np.arctan(3/2)
+_caret_tip_angle = 2*np.arctan(2/3)
 # half the edge length of the smaller pentagon over the difference between the
 # larger pentagon's circumcribing radius and the smaller pentagon's inscribed
 # radius
@@ -180,8 +182,11 @@ _star_tip_angle = 2*np.arctan2((1/4)*np.sqrt((5 - np.sqrt(5))/2),
 _flat_side = PathEndAngle(0, 0)
 _normal_line = PathEndAngle(np.pi/2, None)
 _normal_right_angle = PathEndAngle(np.pi/2, np.pi/2)
-_tri_side_corner = PathEndAngle(np.pi/2 - _tri_side_angle/2, _tri_side_angle)
+_tri_side = PathEndAngle(np.pi/2 - _tri_side_angle/2, _tri_side_angle)
 _tri_tip = PathEndAngle(np.pi/2, _tri_tip_angle)
+_caret_bottom = PathEndAngle(_caret_side_angle, None)
+_caret_side = PathEndAngle(np.pi/2 - _caret_side_angle, None)
+_caret_tip = PathEndAngle(np.pi/2, _caret_tip_angle)
 # and some entire box side behaviors are repeated among markers
 _effective_square = BoxSides(_flat_side, _flat_side, _flat_side, _flat_side)
 _effective_diamond = BoxSides(_normal_right_angle, _normal_right_angle,
@@ -193,10 +198,10 @@ _edge_angles = {
     ',': _effective_square,
     'o': _effective_square,
     # hit two corners and tip bisects one side of unit square
-    'v': BoxSides(_flat_side, _tri_tip, _tri_side_corner, _tri_side_corner),
-    '^': BoxSides(_tri_tip, _flat_side, _tri_side_corner, _tri_side_corner),
-    '<': BoxSides(_tri_side_corner, _tri_side_corner, _tri_tip, _flat_side),
-    '>': BoxSides(_tri_side_corner, _tri_side_corner, _flat_side, _tri_tip),
+    'v': BoxSides(_flat_side, _tri_tip, _tri_side, _tri_side),
+    '^': BoxSides(_tri_tip, _flat_side, _tri_side, _tri_side),
+    '<': BoxSides(_tri_side, _tri_side, _tri_tip, _flat_side),
+    '>': BoxSides(_tri_side, _tri_side, _flat_side, _tri_tip),
     # angle bisectors of an equilateral triangle. lines of length 1/2
     '1': BoxSides(PathEndAngle(np.pi/6, None), PathEndAngle(np.pi/2, None),
                   PathEndAngle(np.pi/3, None), PathEndAngle(np.pi/3, None)),
@@ -244,31 +249,15 @@ _edge_angles = {
     TICKRIGHT: BoxSides(_flat_side, _flat_side, _normal_line, _normal_line),
     TICKUP: BoxSides(_normal_line, _normal_line, _flat_side, _flat_side),
     TICKDOWN: BoxSides(_normal_line, _normal_line, _flat_side, _flat_side),
-    # carets same size as "triangles" but missing the edge opposite their "tip"
-    CARETLEFT: BoxSides(PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
-                        PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
-                        _tri_tip, PathEndAngle(_tri_side_angle, None)),
-    CARETRIGHT: BoxSides(PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
-                         PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
-                         PathEndAngle(_tri_side_angle, None), _tri_tip),
-    CARETUP: BoxSides(_tri_tip, PathEndAngle(_tri_side_angle, None),
-                      PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
-                      PathEndAngle(np.pi/2 - _tri_side_angle/2, None)),
-    CARETDOWN: BoxSides(PathEndAngle(_tri_side_angle, None), _tri_tip,
-                        PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
-                        PathEndAngle(np.pi/2 - _tri_side_angle/2, None)),
-    CARETLEFTBASE: BoxSides(PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
-                            PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
-                            _tri_tip, PathEndAngle(_tri_side_angle, None)),
-    CARETRIGHTBASE: BoxSides(PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
-                             PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
-                             PathEndAngle(_tri_side_angle, None), _tri_tip),
-    CARETUPBASE: BoxSides(_tri_tip, PathEndAngle(_tri_side_angle, None),
-                          PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
-                          PathEndAngle(np.pi/2 - _tri_side_angle/2, None)),
-    CARETDOWNBASE: BoxSides(PathEndAngle(_tri_side_angle, None), _tri_tip,
-                            PathEndAngle(np.pi/2 - _tri_side_angle/2, None),
-                            PathEndAngle(np.pi/2 - _tri_side_angle/2, None)),
+    # carets missing the edge opposite their "tip", different size than tri's
+    CARETLEFT: BoxSides(_caret_side, _caret_side, _caret_tip, _caret_bottom),
+    CARETRIGHT: BoxSides(_caret_side, _caret_side, _caret_bottom, _caret_tip),
+    CARETUP: BoxSides(_caret_tip, _caret_bottom, _caret_side, _caret_side),
+    CARETDOWN: BoxSides(_caret_bottom, _caret_tip, _caret_side, _caret_side),
+    CARETLEFTBASE: BoxSides(_caret_side, _caret_side, _caret_tip, _caret_bottom),
+    CARETRIGHTBASE: BoxSides(_caret_side, _caret_side, _caret_bottom, _caret_tip),
+    CARETUPBASE: BoxSides(_caret_tip, _caret_bottom, _caret_side, _caret_side),
+    CARETDOWNBASE: BoxSides(_caret_bottom, _caret_tip, _caret_side, _caret_side),
     '': BoxSides(None, None, None, None),
     ' ': BoxSides(None, None, None, None),
     'None': BoxSides(None, None, None, None),
