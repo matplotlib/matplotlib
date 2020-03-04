@@ -499,15 +499,15 @@ more control, it supports a few other options.
 Using ConnectionPatch
 ~~~~~~~~~~~~~~~~~~~~~
 
-The ConnectionPatch is like an annotation without text. While the annotate
-function is recommended in most situations, the ConnectionPatch is useful when
-you want to connect points in different axes. ::
+ConnectionPatch is like an annotation without text. While `~.Axes.annotate`
+is sufficient in most situations, ConnectionPatch is useful when you want to
+connect points in different axes. ::
 
   from matplotlib.patches import ConnectionPatch
   xy = (0.2, 0.2)
   con = ConnectionPatch(xyA=xy, coordsA=ax1.transData,
                         xyB=xy, coordsB=ax2.transData)
-  ax2.add_artist(con)
+  fig.add_artist(con)
 
 The above code connects point *xy* in the data coordinates of ``ax1`` to
 point *xy* in the data coordinates of ``ax2``. Here is a simple example.
@@ -519,9 +519,10 @@ point *xy* in the data coordinates of ``ax2``. Here is a simple example.
 
    Connect Simple01
 
-While the ConnectionPatch instance can be added to any axes, you may want to
-add it to the axes that is drawn last, to prevent it from being covered by
-other axes.
+Here, we added the ConnectionPatch to the *figure* (with `~.Figure.add_artist`)
+rather than to either axes: this ensures that it is drawn on top of both axes,
+and is also necessary if using :doc:`constrained_layout
+</tutorials/intermediate/constrainedlayout_guide>` for positioning the axes.
 
 Advanced Topics
 ---------------
