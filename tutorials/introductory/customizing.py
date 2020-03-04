@@ -35,7 +35,7 @@ print(plt.style.available)
 # -----------------------
 #
 # You can create custom styles and use them by calling `.style.use` with
-# the path or URL to the style sheet. 
+# the path or URL to the style sheet.
 #
 # For example, you might want to create
 # ``../images/presentation.mplstyle`` with the following::
@@ -53,19 +53,19 @@ print(plt.style.available)
 #    >>> import matplotlib.pyplot as plt
 #    >>> plt.style.use('../images/presentation.mplstyle')
 #
-# Alternatively, you can load your custom style sheet with a call to 
-# ``style.use(<style-name>)`` by placing your ``<style-name>.mplstyle`` file 
-# into ``mpl_configdir/stylelib``.  By default ``mpl_configdir`` should be 
-# ``~/.config/matplotlib``, but you can check where yours is with 
+# Alternatively, you can load your custom style sheet with a call to
+# ``style.use(<style-name>)`` by placing your ``<style-name>.mplstyle`` file
+# into ``mpl_configdir/stylelib``.  By default ``mpl_configdir`` should be
+# ``~/.config/matplotlib``, but you can check where yours is with
 # `matplotlib.get_configdir()`; you may need to create this directory. You also
-#  can change the directory where Matplotlib looks for the stylelib/ folder by 
-# setting the :envvar:`MPLCONFIGDIR` environment variable, see 
+#  can change the directory where Matplotlib looks for the stylelib/ folder by
+# setting the :envvar:`MPLCONFIGDIR` environment variable, see
 # :ref:`locating-matplotlib-config-dir`.
 #
 # Note that a custom style sheet in ``mpl_configdir/stylelib`` will override a
 # style sheet defined by Matplotlib if the styles have the same name.
 #
-# Once your ``<style-name>.mplstyle`` file is in the appropriate 
+# Once your ``<style-name>.mplstyle`` file is in the appropriate
 # ``mpl_configdir`` you can specify your style with::
 #
 #    >>> import matplotlib.pyplot as plt
@@ -151,7 +151,7 @@ plt.plot(data)
 # control the defaults of almost every property in Matplotlib: figure size and
 # DPI, line width, color and style, axes, axis and grid properties, text and
 # font properties and so on. When a URL or path is not specified with a call to
-# `style.use('<path>/<style-name>.mplstyle')`, Matplotlib looks for 
+# ``style.use('<path>/<style-name>.mplstyle')``, Matplotlib looks for
 # :file:`matplotlibrc` in four locations, in the following order:
 #
 # 1. :file:`matplotlibrc` in the current working directory, usually used for
