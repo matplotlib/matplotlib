@@ -295,9 +295,15 @@ def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
         amount of overflow
 
     """
-    if path_end_angle is None or width == 0:
+    if path_end_angle is None or width < 0:
         return np.nan
     phi, theta = path_end_angle.incidence_angle, path_end_angle.corner_angle
+    if theta is not None and (theta < 0 or theta > np.pi) \
+            or phi < 0 or phi > np.pi:
+        raise ValueError("Corner angles should be in [0, pi].")
+    if phi > np.pi/2:
+        # equivalent by symmetry, but keeps math simpler
+        phi = np.pi - phi
     # if there's no corner (i.e. the path just ends, as in the "sides" of the
     # carets or in the non-fillable markers, we can compute how far the outside
     # edge of the markeredge stroke extends outside of the bounding box of its
@@ -331,12 +337,14 @@ def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
     # $$-(\tan(\theta) x + \frac{w}{2\cos(\theta)}.$$
     # the intersection of these two lines is at $y = w/2$, and we can solve for
     # $x = \cot(\theta) (\frac{w}{2} + \frac{w}{2\cos(\theta)})$.
-    # this puts the "edge" tip a distance $M = (w/2)\sqrt{\csc^2(\theta/2)+1}$
+    # this puts the "edge" tip a distance $M = (w/2)\csc(\theta/2)$
     # from the tip of the corner itself, on the line defined by the bisector of
     # the corner angle. So the extra padding required is $M\sin(\phi)$, where
-    # $\phi$ is the incidence angle of the corner's bisector
+    # $\phi$ is the incidence angle of the corner's bisector. Notice that in
+    # the obvious limit ($\phi = \theta/2$) where the corner is flush with the
+    # bbox, this correctly simplifies to just $w/2$.
     elif joinstyle == 'miter':
-        pad = (width/2)*np.sin(phi)*np.sqrt(np.power(np.sin(theta/2), -2) + 1)
+        pad = (width/2)*np.sin(phi)/np.sin(theta/2)
     # to calculate the offset for _joinstyle = "bevel", we can start with the
     # analogous "miter" corner. the rules for how the "bevel" is
     # created in SVG is that the outer edges of the stroke continue up until
@@ -357,7 +365,7 @@ def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
     elif joinstyle == 'bevel':
         phi1 = phi + theta/2
         phi2 = phi - theta/2
-        pad = (width/2) * max(np.cos(phi1), np.cos(phi2))
+        pad = (width/2) * max(np.abs(np.cos(phi1)), np.abs(np.cos(phi2)))
     # finally, _joinstyle = "round" is just _joinstyle = "bevel" but with
     # a hemispherical cap. we could calculate this but for now no markers use
     # it....except those with "no corner", in which case we can treat them the
