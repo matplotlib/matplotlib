@@ -1790,35 +1790,6 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
     r.draw(renderer)
 
 
-def _pprint_styles(_styles):
-    """
-    A helper function for the _Style class.  Given the dictionary of
-    {stylename: styleclass}, return a formatted string listing all the
-    styles. Used to update the documentation.
-    """
-    table = [('Class', 'Name', 'Attrs'),
-             *[(cls.__name__,
-                # adding backquotes since - and | have special meaning in reST
-                f'``{name}``',
-                # [1:-1] drops the surrounding parentheses.
-                str(inspect.signature(cls))[1:-1] or 'None')
-               for name, cls in sorted(_styles.items())]]
-    # Convert to rst table.
-    col_len = [max(len(cell) for cell in column) for column in zip(*table)]
-    table_formatstr = '  '.join('=' * cl for cl in col_len)
-    rst_table = '\n'.join([
-        '',
-        table_formatstr,
-        '  '.join(cell.ljust(cl) for cell, cl in zip(table[0], col_len)),
-        table_formatstr,
-        *['  '.join(cell.ljust(cl) for cell, cl in zip(row, col_len))
-          for row in table[1:]],
-        table_formatstr,
-        '',
-    ])
-    return textwrap.indent(rst_table, prefix=' ' * 2)
-
-
 def _simpleprint_styles(_styles):
     """
     A helper function for the _Style class.  Given the dictionary of
@@ -1864,7 +1835,27 @@ class _Style:
     @classmethod
     def pprint_styles(cls):
         """Return the available styles as pretty-printed string."""
-        return _pprint_styles(cls._style_list)
+        table = [('Class', 'Name', 'Attrs'),
+                 *[(cls.__name__,
+                    # Add backquotes, as - and | have special meaning in reST.
+                    f'``{name}``',
+                    # [1:-1] drops the surrounding parentheses.
+                    str(inspect.signature(cls))[1:-1] or 'None')
+                   for name, cls in sorted(cls._style_list.items())]]
+        # Convert to rst table.
+        col_len = [max(len(cell) for cell in column) for column in zip(*table)]
+        table_formatstr = '  '.join('=' * cl for cl in col_len)
+        rst_table = '\n'.join([
+            '',
+            table_formatstr,
+            '  '.join(cell.ljust(cl) for cell, cl in zip(table[0], col_len)),
+            table_formatstr,
+            *['  '.join(cell.ljust(cl) for cell, cl in zip(row, col_len))
+              for row in table[1:]],
+            table_formatstr,
+            '',
+        ])
+        return textwrap.indent(rst_table, prefix=' ' * 2)
 
     @classmethod
     def register(cls, name, style):
@@ -1900,7 +1891,7 @@ class BoxStyle(_Style):
 
            BoxStyle("Round, pad=0.2")
 
-    Following boxstyle classes are defined.
+    The following boxstyle classes are defined.
 
     %(AvailableBoxstyles)s
 
@@ -2380,278 +2371,6 @@ class BoxStyle(_Style):
                      [Path.CLOSEPOLY])
             return Path(saw_vertices, codes)
 
-    if __doc__:  # __doc__ could be None if -OO optimization is enabled
-        __doc__ = inspect.cleandoc(__doc__) % {
-            "AvailableBoxstyles": _pprint_styles(_style_list)}
-
-docstring.interpd.update(
-    AvailableBoxstyles=_pprint_styles(BoxStyle._style_list),
-    ListBoxstyles=_simpleprint_styles(BoxStyle._style_list))
-
-
-class FancyBboxPatch(Patch):
-    """
-    A fancy box around a rectangle with lower left at *xy* = (*x*, *y*)
-    with specified width and height.
-
-    `.FancyBboxPatch` is similar to `.Rectangle`, but it draws a fancy box
-    around the rectangle. The transformation of the rectangle box to the
-    fancy box is delegated to the style classes defined in `.BoxStyle`.
-    """
-
-    _edge_default = True
-
-    def __str__(self):
-        s = self.__class__.__name__ + "((%g, %g), width=%g, height=%g)"
-        return s % (self._x, self._y, self._width, self._height)
-
-    @docstring.dedent_interpd
-    def __init__(self, xy, width, height,
-                 boxstyle="round",
-                 bbox_transmuter=None,
-                 mutation_scale=1.,
-                 mutation_aspect=None,
-                 **kwargs):
-        """
-        Parameters
-        ----------
-        xy : float, float
-          The lower left corner of the box.
-
-        width : float
-            The width of the box.
-
-        height : float
-            The height of the box.
-
-        boxstyle : str or `matplotlib.patches.BoxStyle`
-            The style of the fancy box. This can either be a `.BoxStyle`
-            instance or a string of the style name and optionally comma
-            seprarated attributes (e.g. "Round, pad=0.2"). This string is
-            passed to `.BoxStyle` to construct a `.BoxStyle` object. See
-            there for a full documentation.
-
-            The following box styles are available:
-
-            %(AvailableBoxstyles)s
-
-        mutation_scale : float, default: 1
-            Scaling factor applied to the attributes of the box style
-            (e.g. pad or rounding_size).
-
-        mutation_aspect : float, optional
-            The height of the rectangle will be squeezed by this value before
-            the mutation and the mutated box will be stretched by the inverse
-            of it. For example, this allows different horizontal and vertical
-            padding.
-
-        Other Parameters
-        ----------------
-        **kwargs : `.Patch` properties
-
-        %(Patch)s
-        """
-
-        Patch.__init__(self, **kwargs)
-
-        self._x = xy[0]
-        self._y = xy[1]
-        self._width = width
-        self._height = height
-
-        if boxstyle == "custom":
-            if bbox_transmuter is None:
-                raise ValueError("bbox_transmuter argument is needed with "
-                                 "custom boxstyle")
-            self._bbox_transmuter = bbox_transmuter
-        else:
-            self.set_boxstyle(boxstyle)
-
-        self._mutation_scale = mutation_scale
-        self._mutation_aspect = mutation_aspect
-
-        self.stale = True
-
-    @docstring.dedent_interpd
-    def set_boxstyle(self, boxstyle=None, **kwargs):
-        """
-        Set the box style.
-
-        Most box styles can be further configured using attributes.
-        Attributes from the previous box style are not reused.
-
-        Without argument (or with ``boxstyle=None``), the available box styles
-        are returned as a human-readable string.
-
-        Parameters
-        ----------
-        boxstyle : str
-            The name of the box style. Optionally, followed by a comma and a
-            comma-separated list of attributes. The attributes may
-            alternatively be passed separately as keyword arguments.
-
-            The following box styles are available:
-
-            %(AvailableBoxstyles)s
-
-            .. ACCEPTS: %(ListBoxstyles)s
-
-        **kwargs
-            Additional attributes for the box style. See the table above for
-            supported parameters.
-
-        Examples
-        --------
-        ::
-
-            set_boxstyle("round,pad=0.2")
-            set_boxstyle("round", pad=0.2)
-
-        """
-        if boxstyle is None:
-            return BoxStyle.pprint_styles()
-
-        if isinstance(boxstyle, BoxStyle._Base) or callable(boxstyle):
-            self._bbox_transmuter = boxstyle
-        else:
-            self._bbox_transmuter = BoxStyle(boxstyle, **kwargs)
-        self.stale = True
-
-    def set_mutation_scale(self, scale):
-        """
-        Set the mutation scale.
-
-        Parameters
-        ----------
-        scale : float
-        """
-        self._mutation_scale = scale
-        self.stale = True
-
-    def get_mutation_scale(self):
-        """Return the mutation scale."""
-        return self._mutation_scale
-
-    def set_mutation_aspect(self, aspect):
-        """
-        Set the aspect ratio of the bbox mutation.
-
-        Parameters
-        ----------
-        aspect : float
-        """
-        self._mutation_aspect = aspect
-        self.stale = True
-
-    def get_mutation_aspect(self):
-        """Return the aspect ratio of the bbox mutation."""
-        return self._mutation_aspect
-
-    def get_boxstyle(self):
-        """Return the boxstyle object."""
-        return self._bbox_transmuter
-
-    def get_path(self):
-        """Return the mutated path of the rectangle."""
-        _path = self.get_boxstyle()(self._x, self._y,
-                                    self._width, self._height,
-                                    self.get_mutation_scale(),
-                                    self.get_mutation_aspect())
-        return _path
-
-    # Following methods are borrowed from the Rectangle class.
-
-    def get_x(self):
-        """Return the left coord of the rectangle."""
-        return self._x
-
-    def get_y(self):
-        """Return the bottom coord of the rectangle."""
-        return self._y
-
-    def get_width(self):
-        """Return the width of the rectangle."""
-        return self._width
-
-    def get_height(self):
-        """Return the height of the rectangle."""
-        return self._height
-
-    def set_x(self, x):
-        """
-        Set the left coord of the rectangle.
-
-        Parameters
-        ----------
-        x : float
-        """
-        self._x = x
-        self.stale = True
-
-    def set_y(self, y):
-        """
-        Set the bottom coord of the rectangle.
-
-        Parameters
-        ----------
-        y : float
-        """
-        self._y = y
-        self.stale = True
-
-    def set_width(self, w):
-        """
-        Set the rectangle width.
-
-        Parameters
-        ----------
-        w : float
-        """
-        self._width = w
-        self.stale = True
-
-    def set_height(self, h):
-        """
-        Set the rectangle height.
-
-        Parameters
-        ----------
-        h : float
-        """
-        self._height = h
-        self.stale = True
-
-    def set_bounds(self, *args):
-        """
-        Set the bounds of the rectangle.
-
-        Call signatures::
-
-            set_bounds(left, bottom, width, height)
-            set_bounds((left, bottom, width, height))
-
-        Parameters
-        ----------
-        left, bottom : float
-            The coordinates of the bottom left corner of the rectangle.
-        width, height : float
-            The width/height of the rectangle.
-        """
-        if len(args) == 1:
-            l, b, w, h = args[0]
-        else:
-            l, b, w, h = args
-        self._x = l
-        self._y = b
-        self._width = w
-        self._height = h
-        self.stale = True
-
-    def get_bbox(self):
-        """Return the `.Bbox`."""
-        return transforms.Bbox.from_bounds(self._x, self._y,
-                                           self._width, self._height)
-
 
 class ConnectionStyle(_Style):
     """
@@ -3078,10 +2797,6 @@ class ConnectionStyle(_Style):
                      Path.LINETO]
 
             return Path(vertices, codes)
-
-    if __doc__:
-        __doc__ = inspect.cleandoc(__doc__) % {
-            "AvailableConnectorstyles": _pprint_styles(_style_list)}
 
 
 def _point_along_a_line(x0, y0, x1, y1, d):
@@ -3839,15 +3554,280 @@ class ArrowStyle(_Style):
 
             return path, True
 
-    if __doc__:
-        __doc__ = inspect.cleandoc(__doc__) % {
-            "AvailableArrowstyles": _pprint_styles(_style_list)}
-
 
 docstring.interpd.update(
-    AvailableArrowstyles=_pprint_styles(ArrowStyle._style_list),
-    AvailableConnectorstyles=_pprint_styles(ConnectionStyle._style_list),
+    AvailableBoxstyles=BoxStyle.pprint_styles(),
+    ListBoxstyles=_simpleprint_styles(BoxStyle._style_list),
+    AvailableArrowstyles=ArrowStyle.pprint_styles(),
+    AvailableConnectorstyles=ConnectionStyle.pprint_styles(),
 )
+docstring.dedent_interpd(BoxStyle)
+docstring.dedent_interpd(ArrowStyle)
+docstring.dedent_interpd(ConnectionStyle)
+
+
+class FancyBboxPatch(Patch):
+    """
+    A fancy box around a rectangle with lower left at *xy* = (*x*, *y*)
+    with specified width and height.
+
+    `.FancyBboxPatch` is similar to `.Rectangle`, but it draws a fancy box
+    around the rectangle. The transformation of the rectangle box to the
+    fancy box is delegated to the style classes defined in `.BoxStyle`.
+    """
+
+    _edge_default = True
+
+    def __str__(self):
+        s = self.__class__.__name__ + "((%g, %g), width=%g, height=%g)"
+        return s % (self._x, self._y, self._width, self._height)
+
+    @docstring.dedent_interpd
+    def __init__(self, xy, width, height,
+                 boxstyle="round",
+                 bbox_transmuter=None,
+                 mutation_scale=1.,
+                 mutation_aspect=None,
+                 **kwargs):
+        """
+        Parameters
+        ----------
+        xy : float, float
+          The lower left corner of the box.
+
+        width : float
+            The width of the box.
+
+        height : float
+            The height of the box.
+
+        boxstyle : str or `matplotlib.patches.BoxStyle`
+            The style of the fancy box. This can either be a `.BoxStyle`
+            instance or a string of the style name and optionally comma
+            seprarated attributes (e.g. "Round, pad=0.2"). This string is
+            passed to `.BoxStyle` to construct a `.BoxStyle` object. See
+            there for a full documentation.
+
+            The following box styles are available:
+
+            %(AvailableBoxstyles)s
+
+        mutation_scale : float, default: 1
+            Scaling factor applied to the attributes of the box style
+            (e.g. pad or rounding_size).
+
+        mutation_aspect : float, optional
+            The height of the rectangle will be squeezed by this value before
+            the mutation and the mutated box will be stretched by the inverse
+            of it. For example, this allows different horizontal and vertical
+            padding.
+
+        Other Parameters
+        ----------------
+        **kwargs : `.Patch` properties
+
+        %(Patch)s
+        """
+
+        Patch.__init__(self, **kwargs)
+
+        self._x = xy[0]
+        self._y = xy[1]
+        self._width = width
+        self._height = height
+
+        if boxstyle == "custom":
+            if bbox_transmuter is None:
+                raise ValueError("bbox_transmuter argument is needed with "
+                                 "custom boxstyle")
+            self._bbox_transmuter = bbox_transmuter
+        else:
+            self.set_boxstyle(boxstyle)
+
+        self._mutation_scale = mutation_scale
+        self._mutation_aspect = mutation_aspect
+
+        self.stale = True
+
+    @docstring.dedent_interpd
+    def set_boxstyle(self, boxstyle=None, **kwargs):
+        """
+        Set the box style.
+
+        Most box styles can be further configured using attributes.
+        Attributes from the previous box style are not reused.
+
+        Without argument (or with ``boxstyle=None``), the available box styles
+        are returned as a human-readable string.
+
+        Parameters
+        ----------
+        boxstyle : str
+            The name of the box style. Optionally, followed by a comma and a
+            comma-separated list of attributes. The attributes may
+            alternatively be passed separately as keyword arguments.
+
+            The following box styles are available:
+
+            %(AvailableBoxstyles)s
+
+            .. ACCEPTS: %(ListBoxstyles)s
+
+        **kwargs
+            Additional attributes for the box style. See the table above for
+            supported parameters.
+
+        Examples
+        --------
+        ::
+
+            set_boxstyle("round,pad=0.2")
+            set_boxstyle("round", pad=0.2)
+
+        """
+        if boxstyle is None:
+            return BoxStyle.pprint_styles()
+
+        if isinstance(boxstyle, BoxStyle._Base) or callable(boxstyle):
+            self._bbox_transmuter = boxstyle
+        else:
+            self._bbox_transmuter = BoxStyle(boxstyle, **kwargs)
+        self.stale = True
+
+    def set_mutation_scale(self, scale):
+        """
+        Set the mutation scale.
+
+        Parameters
+        ----------
+        scale : float
+        """
+        self._mutation_scale = scale
+        self.stale = True
+
+    def get_mutation_scale(self):
+        """Return the mutation scale."""
+        return self._mutation_scale
+
+    def set_mutation_aspect(self, aspect):
+        """
+        Set the aspect ratio of the bbox mutation.
+
+        Parameters
+        ----------
+        aspect : float
+        """
+        self._mutation_aspect = aspect
+        self.stale = True
+
+    def get_mutation_aspect(self):
+        """Return the aspect ratio of the bbox mutation."""
+        return self._mutation_aspect
+
+    def get_boxstyle(self):
+        """Return the boxstyle object."""
+        return self._bbox_transmuter
+
+    def get_path(self):
+        """Return the mutated path of the rectangle."""
+        _path = self.get_boxstyle()(self._x, self._y,
+                                    self._width, self._height,
+                                    self.get_mutation_scale(),
+                                    self.get_mutation_aspect())
+        return _path
+
+    # Following methods are borrowed from the Rectangle class.
+
+    def get_x(self):
+        """Return the left coord of the rectangle."""
+        return self._x
+
+    def get_y(self):
+        """Return the bottom coord of the rectangle."""
+        return self._y
+
+    def get_width(self):
+        """Return the width of the rectangle."""
+        return self._width
+
+    def get_height(self):
+        """Return the height of the rectangle."""
+        return self._height
+
+    def set_x(self, x):
+        """
+        Set the left coord of the rectangle.
+
+        Parameters
+        ----------
+        x : float
+        """
+        self._x = x
+        self.stale = True
+
+    def set_y(self, y):
+        """
+        Set the bottom coord of the rectangle.
+
+        Parameters
+        ----------
+        y : float
+        """
+        self._y = y
+        self.stale = True
+
+    def set_width(self, w):
+        """
+        Set the rectangle width.
+
+        Parameters
+        ----------
+        w : float
+        """
+        self._width = w
+        self.stale = True
+
+    def set_height(self, h):
+        """
+        Set the rectangle height.
+
+        Parameters
+        ----------
+        h : float
+        """
+        self._height = h
+        self.stale = True
+
+    def set_bounds(self, *args):
+        """
+        Set the bounds of the rectangle.
+
+        Call signatures::
+
+            set_bounds(left, bottom, width, height)
+            set_bounds((left, bottom, width, height))
+
+        Parameters
+        ----------
+        left, bottom : float
+            The coordinates of the bottom left corner of the rectangle.
+        width, height : float
+            The width/height of the rectangle.
+        """
+        if len(args) == 1:
+            l, b, w, h = args[0]
+        else:
+            l, b, w, h = args
+        self._x = l
+        self._y = b
+        self._width = w
+        self._height = h
+        self.stale = True
+
+    def get_bbox(self):
+        """Return the `.Bbox`."""
+        return transforms.Bbox.from_bounds(self._x, self._y,
+                                           self._width, self._height)
 
 
 class FancyArrowPatch(Patch):
