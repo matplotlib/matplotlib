@@ -1444,6 +1444,17 @@ class Axes3D(Axes):
            the input data is larger, it will be downsampled (by slicing) to
            these numbers of points.
 
+        .. note::
+
+           To maximize rendering speed consider setting *rstride* and *cstride*
+           to divisors of the number of rows minus 1 and columns minus 1
+           respectively. For example, given 51 rows rstride can be any of the
+           divisors of 50.
+
+           Similarly, a setting of *rstride* and *cstride* equal to 1 (or
+           *rcount* and *ccount* equal the number of rows and columns) can use
+           the optimized path.
+
         Parameters
         ----------
         X, Y, Z : 2d arrays
@@ -1547,25 +1558,33 @@ class Axes3D(Axes):
                         "semantic or raise an error in matplotlib 3.3. "
                         "Please use shade=False instead.")
 
-        # evenly spaced, and including both endpoints
-        row_inds = list(range(0, rows-1, rstride)) + [rows-1]
-        col_inds = list(range(0, cols-1, cstride)) + [cols-1]
-
         colset = []  # the sampled facecolor
-        polys = []
-        for rs, rs_next in zip(row_inds[:-1], row_inds[1:]):
-            for cs, cs_next in zip(col_inds[:-1], col_inds[1:]):
-                ps = [
-                    # +1 ensures we share edges between polygons
-                    cbook._array_perimeter(a[rs:rs_next+1, cs:cs_next+1])
-                    for a in (X, Y, Z)
-                ]
-                # ps = np.stack(ps, axis=-1)
-                ps = np.array(ps).T
-                polys.append(ps)
+        if (rows - 1) % rstride == 0 and \
+           (cols - 1) % cstride == 0 and \
+           fcolors is None:
+            polys = np.stack(
+                [cbook._array_patch_perimeters(a, rstride, cstride)
+                 for a in (X, Y, Z)],
+                axis=-1)
+        else:
+            # evenly spaced, and including both endpoints
+            row_inds = list(range(0, rows-1, rstride)) + [rows-1]
+            col_inds = list(range(0, cols-1, cstride)) + [cols-1]
 
-                if fcolors is not None:
-                    colset.append(fcolors[rs][cs])
+            polys = []
+            for rs, rs_next in zip(row_inds[:-1], row_inds[1:]):
+                for cs, cs_next in zip(col_inds[:-1], col_inds[1:]):
+                    ps = [
+                        # +1 ensures we share edges between polygons
+                        cbook._array_perimeter(a[rs:rs_next+1, cs:cs_next+1])
+                        for a in (X, Y, Z)
+                    ]
+                    # ps = np.stack(ps, axis=-1)
+                    ps = np.array(ps).T
+                    polys.append(ps)
+
+                    if fcolors is not None:
+                        colset.append(fcolors[rs][cs])
 
         # note that the striding causes some polygons to have more coordinates
         # than others
@@ -1578,8 +1597,11 @@ class Axes3D(Axes):
             polyc.set_facecolors(colset)
             polyc.set_edgecolors(colset)
         elif cmap:
-            # doesn't vectorize because polys is jagged
-            avg_z = np.array([ps[:, 2].mean() for ps in polys])
+            # can't always vectorize, because polys might be jagged
+            if isinstance(polys, np.ndarray):
+                avg_z = polys[..., 2].mean(axis=-1)
+            else:
+                avg_z = np.array([ps[:, 2].mean() for ps in polys])
             polyc.set_array(avg_z)
             if vmin is not None or vmax is not None:
                 polyc.set_clim(vmin, vmax)
