@@ -7,10 +7,13 @@ import timeit
 
 from cycler import cycler
 import numpy as np
+from numpy.testing import assert_array_equal
 import pytest
 
 import matplotlib
 import matplotlib.lines as mlines
+from matplotlib.markers import MarkerStyle
+from matplotlib.path import Path
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
@@ -194,3 +197,23 @@ def test_nan_is_sorted():
 def test_step_markers(fig_test, fig_ref):
     fig_test.subplots().step([0, 1], "-o")
     fig_ref.subplots().plot([0, 0, 1], [0, 1, 1], "-o", markevery=[0, 2])
+
+
+def test_marker_as_markerstyle():
+    fig, ax = plt.subplots()
+    line, = ax.plot([2, 4, 3], marker=MarkerStyle("D"))
+    fig.canvas.draw()
+    assert line.get_marker() == "D"
+
+    # continue with smoke tests:
+    line.set_marker("s")
+    fig.canvas.draw()
+    line.set_marker(MarkerStyle("o"))
+    fig.canvas.draw()
+    # test Path roundtrip
+    triangle1 = Path([[-1., -1.], [1., -1.], [0., 2.], [0., 0.]], closed=True)
+    line2, = ax.plot([1, 3, 2], marker=MarkerStyle(triangle1), ms=22)
+    line3, = ax.plot([0, 2, 1], marker=triangle1, ms=22)
+
+    assert_array_equal(line2.get_marker().vertices, triangle1.vertices)
+    assert_array_equal(line3.get_marker().vertices, triangle1.vertices)
