@@ -1,7 +1,7 @@
 # Circle CI configuration file
 # https://circleci.com/docs/
 
-version: 2
+version: 2.1
 
 
 ###########################################
