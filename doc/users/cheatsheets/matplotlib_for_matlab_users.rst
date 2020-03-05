@@ -16,14 +16,44 @@ from MATLAB®.
    table.docutils td { border: solid 1px #ccc; }
    </style>
 
+
 First Things First
 ====================
-WIP:
+.. |image_matlab| image:: ./images/matlab_first_plot.png
+    :width: 300 pt
+    :height: 225 pt
 
-Insert two code blocks: one being the "hello world" plot from matplotlib and
-the other one from MATLAB®. It'll be nice to show code and figures side
-by side in a two-column table. But I'm not sure how easy it is to acheive it
-using RST.
+.. |image_matploblib| image:: ./images/matplotlib_first_plot.png
+    :width: 300 pt
+    :height: 225 pt
+
+.. list-table::
+   :header-rows: 1
+
+   * - MATLAB
+     - Matplotlib
+
+   * - ::
+
+        x = [1, 2, 3, 4];
+        y = [5, 6, 7, 8];
+
+        plot(x, y);
+        ylabel("some numbers");
+
+     - ::
+
+        import matplotlib.pyplot as plt
+
+        x = [1, 2, 3, 4]
+        y = [5, 6, 7, 8]
+
+        plt.plot(x, y)
+        plt.ylabel('some numbers')
+        plt.show()
+
+   * - |image_matlab|
+     - |image_matploblib|
 
 
 Table of Rough MATLAB-Matplotlib Equivalents
@@ -32,17 +62,21 @@ Table of Rough MATLAB-Matplotlib Equivalents
    :header-rows: 1
 
    * - MATLAB
-     - NumPy
+     - Matplotlib
      - Notes
 
    * - ``ylim([-2 2])``
-     - ``set_ylim(-2, 2)``
+     - ``plt.set_ylim(-2, 2)``
      - Set y-limit
 
    * - ``figure('position', [0, 0, 500, 200])``
      - ``plt.figure(figsize=(6,3))``
      - Create a figure with specific size. MATLAB: left bottom width height;
        Matplotlib: width height
+
+   * - ``ylabel("some text")``
+     - ``plt.ylabel("some text")``
+     - Set y-label
 
 
 Some Key Differences
@@ -51,14 +85,15 @@ Some Key Differences
    :header-rows: 1
 
    * - MATLAB
-     - NumPy
+     - Matplotlib
    * - placeholder
      - placeholder
 
+
 Credits
 ================
-This guide is inpired by its counterpart in Scipy/Numpy:
-https://docs.scipy.org/doc/numpy/user/numpy-for-matlab-users.html, which is
-another an excellent read for users coming from MATLAB®.
+This guide is inpired by its counterpart in `Scipy/Numpy\
+<https://docs.scipy.org/doc/numpy/user/numpy-for-matlab-users.html>`_, which
+is another an excellent read for users coming from MATLAB®.
 
 MATLAB® is registered trademarks of The MathWorks.
