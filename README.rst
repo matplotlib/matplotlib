@@ -40,13 +40,13 @@
 .. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
 .. _NUMFocus: https://www.numfocus.org
 
-.. image:: doc/_static/logo2.png
+.. image:: https://matplotlib.org/_static/logo2.svg
 
 Matplotlib is a comprehensive library for creating static, animated, and interactive visualizations in Python.
 
 Check out our `home page <https://matplotlib.org/>`_ for more information.
 
-.. image:: doc/_static/readme_preview.png
+.. image:: https://matplotlib.org/_static/readme_preview.png
 
 Matplotlib produces publication-quality figures in a variety of hardcopy formats
 and interactive environments across platforms. Matplotlib can be used in Python scripts,
