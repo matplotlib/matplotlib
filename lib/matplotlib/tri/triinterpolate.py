@@ -191,9 +191,9 @@ class TriInterpolator:
             # Find the return index associated with the key.
             try:
                 return_index = {'z': 0, 'dzdx': 1, 'dzdy': 2}[return_key]
-            except KeyError:
+            except KeyError as err:
                 raise ValueError("return_keys items shall take values in"
-                                 " {'z', 'dzdx', 'dzdy'}")
+                                 " {'z', 'dzdx', 'dzdy'}") from err
 
             # Sets the scale factor for f & df components
             scale = [1., 1./self._unit_x, 1./self._unit_y][return_index]

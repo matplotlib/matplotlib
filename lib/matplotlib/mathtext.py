@@ -73,10 +73,10 @@ def get_unicode_index(symbol, math=True):
         pass
     try:  # Is symbol a TeX symbol (i.e. \alpha)
         return tex2uni[symbol.strip("\\")]
-    except KeyError:
+    except KeyError as err:
         raise ValueError(
             "'{}' is not a valid Unicode character or TeX/Type1 symbol"
-            .format(symbol))
+            .format(symbol)) from err
 
 
 class MathtextBackend:
@@ -2582,7 +2582,7 @@ class Parser:
             raise ValueError("\n".join(["",
                                         err.line,
                                         " " * (err.column - 1) + "^",
-                                        str(err)]))
+                                        str(err)])) from err
         self._state_stack = None
         self._em_width_cache = {}
         self._expression.resetCache()
@@ -2697,8 +2697,9 @@ class Parser:
         c = toks[0]
         try:
             char = Char(c, self.get_state())
-        except ValueError:
-            raise ParseFatalException(s, loc, "Unknown symbol: %s" % c)
+        except ValueError as err:
+            raise ParseFatalException(s, loc,
+                                      "Unknown symbol: %s" % c) from err
 
         if c in self._spaced_symbols:
             # iterate until we find previous character, needed for cases

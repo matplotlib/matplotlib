@@ -53,7 +53,7 @@ def get_rotation(rotation):
     """
     try:
         return float(rotation) % 360
-    except (ValueError, TypeError):
+    except (ValueError, TypeError) as err:
         if cbook._str_equal(rotation, 'horizontal') or rotation is None:
             return 0.
         elif cbook._str_equal(rotation, 'vertical'):
@@ -61,7 +61,7 @@ def get_rotation(rotation):
         else:
             raise ValueError("rotation is {!r}; expected either 'horizontal', "
                              "'vertical', numeric value, or None"
-                             .format(rotation))
+                             .format(rotation)) from err
 
 
 def _get_textbox(text, renderer):

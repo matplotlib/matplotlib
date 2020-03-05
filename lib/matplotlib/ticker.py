@@ -2848,8 +2848,9 @@ class OldAutoLocator(Locator):
 
             try:
                 ld = math.log10(d)
-            except OverflowError:
-                raise RuntimeError('AutoLocator illegal data interval range')
+            except OverflowError as err:
+                raise RuntimeError('AutoLocator illegal data interval '
+                                   'range') from err
 
             fld = math.floor(ld)
             base = 10 ** fld
