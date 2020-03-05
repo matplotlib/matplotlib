@@ -230,8 +230,9 @@ bbox_transform : None or :class:`matplotlib.transforms.Transform`
 title : str or None
     The legend's title. Default is no title (``None``).
 
-title_fontsize: str or None
-    The fontsize of the legend's title.  Default is the default fontsize.
+title_fontsize: int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
+'x-large', 'xx-large'}, default: :rc:`legend.title_fontsize`
+    The font size of the legend's title.
 
 borderpad : float, default: :rc:`legend.borderpad`
     The fractional whitespace inside the legend border, in font-size units.
@@ -314,7 +315,7 @@ class Legend(Artist):
                                  # box, none use rc
                  shadow=None,
                  title=None,  # set a title for the legend
-                 title_fontsize=None,  # set to ax.fontsize if None
+                 title_fontsize=None,  # the font size for the title
                  framealpha=None,  # set frame alpha
                  edgecolor=None,  # frame patch edgecolor
                  facecolor=None,  # frame patch facecolor
