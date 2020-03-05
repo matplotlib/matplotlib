@@ -598,16 +598,33 @@ class Poly3DCollection(PolyCollection):
         self.stale = True
 
     def get_vector(self, segments3d):
-        """Optimize points for projection."""
-        if len(segments3d):
-            xs, ys, zs = np.row_stack(segments3d).T
-        else:  # row_stack can't stack zero arrays.
-            xs, ys, zs = [], [], []
-        ones = np.ones(len(xs))
-        self._vec = np.array([xs, ys, zs, ones])
+        """
+        Optimize points for projection.
 
-        indices = [0, *np.cumsum([len(segment) for segment in segments3d])]
-        self._segslices = [*map(slice, indices[:-1], indices[1:])]
+        Parameters
+        ----------
+        segments3d : NumPy array or list of NumPy arrays
+            List of vertices of the boundary of every segment. If all paths are
+            of equal length and this argument is a NumPy arrray, then it should
+            be of shape (num_faces, num_vertices, 3).
+        """
+        if isinstance(segments3d, np.ndarray):
+            if segments3d.ndim != 3 or segments3d.shape[-1] != 3:
+                raise ValueError("segments3d must be a MxNx3 array, but got " +
+                                 "shape {}".format(segments3d.shape))
+            self._segments = segments3d
+        else:
+            num_faces = len(segments3d)
+            num_verts = np.fromiter(map(len, segments3d), dtype=np.intp)
+            max_verts = num_verts.max(initial=0)
+            padded = np.empty((num_faces, max_verts, 3))
+            for i, face in enumerate(segments3d):
+                padded[i, :len(face)] = face
+            mask = np.arange(max_verts) >= num_verts[:, None]
+            mask = mask[..., None]  # add a component axis
+            # ma.array does not broadcast the mask for us
+            mask = np.broadcast_to(mask, padded.shape)
+            self._segments = np.ma.array(padded, mask=mask)
 
     def set_verts(self, verts, closed=True):
         """Set 3D vertices."""
@@ -649,37 +666,45 @@ class Poly3DCollection(PolyCollection):
             self.update_scalarmappable()
             self._facecolors3d = self._facecolors
 
-        txs, tys, tzs = proj3d._proj_transform_vec(self._vec, renderer.M)
-        xyzlist = [(txs[sl], tys[sl], tzs[sl]) for sl in self._segslices]
+        psegments = proj3d._proj_transform_vectors(self._segments, renderer.M)
+        is_masked = isinstance(psegments, np.ma.MaskedArray)
+        num_faces = len(psegments)
 
         # This extra fuss is to re-order face / edge colors
         cface = self._facecolors3d
         cedge = self._edgecolors3d
-        if len(cface) != len(xyzlist):
-            cface = cface.repeat(len(xyzlist), axis=0)
-        if len(cedge) != len(xyzlist):
+        if len(cface) != num_faces:
+            cface = cface.repeat(num_faces, axis=0)
+        if len(cedge) != num_faces:
             if len(cedge) == 0:
                 cedge = cface
             else:
-                cedge = cedge.repeat(len(xyzlist), axis=0)
+                cedge = cedge.repeat(num_faces, axis=0)
 
-        # sort by depth (furthest drawn first)
-        z_segments_2d = sorted(
-            ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
-             for idx, ((xs, ys, zs), fc, ec)
-             in enumerate(zip(xyzlist, cface, cedge))),
-            key=lambda x: x[0], reverse=True)
+        face_z = self._zsortfunc(psegments[..., 2], axis=-1)
+        if is_masked:
+            # NOTE: Unpacking .data is safe here, because every face has to
+            #       contain a valid vertex.
+            face_z = face_z.data
+        face_order = np.argsort(face_z, axis=-1)[::-1]
 
-        segments_2d = [s for z, s, fc, ec, idx in z_segments_2d]
+        segments_2d = psegments[face_order, :, :2]
         if self._codes3d is not None:
-            codes = [self._codes3d[idx] for z, s, fc, ec, idx in z_segments_2d]
+            if is_masked:
+                # NOTE: We cannot assert the same on segments_2d, as it is a
+                #       result of advanced indexing, so its mask is a newly
+                #       allocated tensor. However, both of those asserts are
+                #       equivalent.
+                assert psegments.mask.strides[-1] == 0
+                segments_2d = [s.compressed().reshape(-1, 2) for s in segments_2d]
+            codes = [self._codes3d[idx] for idx in face_order]
             PolyCollection.set_verts_and_codes(self, segments_2d, codes)
         else:
             PolyCollection.set_verts(self, segments_2d, self._closed)
 
-        self._facecolors2d = [fc for z, s, fc, ec, idx in z_segments_2d]
+        self._facecolors2d = cface[face_order]
         if len(self._edgecolors3d) == len(cface):
-            self._edgecolors2d = [ec for z, s, fc, ec, idx in z_segments_2d]
+            self._edgecolors2d = cedge[face_order]
         else:
             self._edgecolors2d = self._edgecolors3d
 
@@ -688,11 +713,11 @@ class Poly3DCollection(PolyCollection):
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
             ztrans = proj3d._proj_transform_vec(zvec, renderer.M)
             return ztrans[2][0]
-        elif tzs.size > 0:
+        elif psegments.size > 0:
             # FIXME: Some results still don't look quite right.
             #        In particular, examine contourf3d_demo2.py
             #        with az = -54 and elev = -45.
-            return np.min(tzs)
+            return np.min(psegments[..., 2])
         else:
             return np.nan
 
