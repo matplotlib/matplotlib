@@ -12,7 +12,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
 import matplotlib.transforms as mtransforms
-from matplotlib.collections import Collection, LineCollection, EventCollection
+from matplotlib.collections import (Collection, LineCollection,
+                                    EventCollection, PolyCollection)
 from matplotlib.testing.decorators import image_comparison
 
 
@@ -612,3 +613,13 @@ def test_EventCollection_nosort():
     arr = np.array([3, 2, 1, 10])
     coll = EventCollection(arr)
     np.testing.assert_array_equal(arr, np.array([3, 2, 1, 10]))
+
+
+def test_collection_set_verts_array():
+    verts = np.arange(80, dtype=np.double).reshape(10, 4, 2)
+    col_arr = PolyCollection(verts)
+    col_list = PolyCollection(list(verts))
+    assert len(col_arr._paths) == len(col_list._paths)
+    for ap, lp in zip(col_arr._paths, col_list._paths):
+        assert np.array_equal(ap._vertices, lp._vertices)
+        assert np.array_equal(ap._codes, lp._codes)
