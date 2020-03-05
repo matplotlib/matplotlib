@@ -224,7 +224,7 @@ if __name__ == '__main__':
             fd.write(''.join(template_lines))
 
         # Use Readme as long description
-        with open('README.rst') as fd:
+        with open('README.rst', encoding='utf-8') as fd:
             long_description = fd.read()
 
     # Finally, pass this all along to distutils to do the heavy lifting.
