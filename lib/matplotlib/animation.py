@@ -290,22 +290,19 @@ class MovieWriter(AbstractMovieWriter):
         """
         Parameters
         ----------
-        fps : int
-            Framerate for movie.
-        codec : str or None, optional
-            The codec to use. If ``None`` (the default) :rc:`animation.codec`
-            is used.
-        bitrate : int or None, optional
-            The bitrate for the saved movie file, which is one way to control
-            the output file size and quality. The default value is ``None``,
-            which uses :rc:`animation.bitrate`.  A value of -1 implies that
-            the bitrate should be determined automatically by the underlying
-            utility.
+        fps : int, default: 5
+            Movie frame rate (per second).
+        codec : str or None, default: :rc:`animation.codec`
+            The codec to use.
+        bitrate : int, default: :rc:`animation.bitrate`
+            The bitrate of the movie, in kilobits per second.  Higher values
+            means higher quality movies, but increase the file size.  A value
+            of -1 lets the underlying movie encoder select the bitrate.
         extra_args : list of str or None, optional
-            A list of extra string arguments to be passed to the underlying
-            movie utility. The default is ``None``, which passes the additional
-            arguments in :rc:`animation.extra_args`.
-        metadata : Dict[str, str] or None
+            Extra command-line arguments passed to the underlying movie
+            encoder.  The default, None, means to use
+            :rc:`animation.[name-of-encoder]_args` for the builtin writers.
+        metadata : Dict[str, str], default: {}
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
@@ -378,7 +375,7 @@ class MovieWriter(AbstractMovieWriter):
         return self._proc.stdin
 
     def _args(self):
-        """Assemble list of utility-specific command-line arguments."""
+        """Assemble list of encoder-specific command-line arguments."""
         return NotImplementedError("args needs to be implemented by subclass.")
 
     def cleanup(self):
@@ -411,9 +408,7 @@ class MovieWriter(AbstractMovieWriter):
 
     @classmethod
     def isAvailable(cls):
-        """
-        Check to see if a MovieWriter subclass is actually available.
-        """
+        """Return whether a MovieWriter subclass is actually available."""
         return shutil.which(cls.bin_path()) is not None
 
 
@@ -978,50 +973,47 @@ class Animation:
         filename : str
             The output filename, e.g., :file:`mymovie.mp4`.
 
-        writer : :class:`MovieWriter` or str, optional
+        writer : `MovieWriter` or str, default: :rc:`animation.writer`
             A `MovieWriter` instance to use or a key that identifies a
-            class to use, such as 'ffmpeg'. If ``None``, defaults to
-            :rc:`animation.writer` = 'ffmpeg'.
+            class to use, such as 'ffmpeg'.
 
-        fps : number, optional
-           Frames per second in the movie. Defaults to ``None``, which will use
-           the animation's specified interval to set the frames per second.
+        fps : int, optional
+            Movie frame rate (per second).  If not set, the frame rate from the
+            animation's frame interval.
 
-        dpi : number, optional
-           Controls the dots per inch for the movie frames.  This combined with
-           the figure's size in inches controls the size of the movie.  If
-           ``None``, defaults to :rc:`savefig.dpi`.
+        dpi : int, default: :rc:`savefig.dpi`
+            Controls the dots per inch for the movie frames.  Together with
+            the figure's size in inches, this controls the size of the movie.
 
-        codec : str, optional
-           The video codec to be used. Not all codecs are supported
-           by a given :class:`MovieWriter`. If ``None``, default to
-           :rc:`animation.codec` = 'h264'.
+        codec : str, optional, default: :rc:`animation.codec`.
+            The video codec to use.  Not all codecs are supported by a given
+            `MovieWriter`.
 
-        bitrate : number, optional
-           Specifies the number of bits used per second in the compressed
-           movie, in kilobits per second. A higher number means a higher
-           quality movie, but at the cost of increased file size. If ``None``,
-           defaults to :rc:`animation.bitrate` = -1.
+        bitrate : int, default: :rc:`animation.bitrate`
+            The bitrate of the movie, in kilobits per second.  Higher values
+            means higher quality movies, but increase the file size.  A value
+            of -1 lets the underlying movie encoder select the bitrate.
 
-        extra_args : list, optional
-           List of extra string arguments to be passed to the underlying movie
-           utility. If ``None``, defaults to :rc:`animation.extra_args`.
+        extra_args : list of str or None, optional
+            Extra command-line arguments passed to the underlying movie
+            encoder.  The default, None, means to use
+            :rc:`animation.[name-of-encoder]_args` for the builtin writers.
 
-        metadata : Dict[str, str], optional
-           Dictionary of keys and values for metadata to include in
-           the output file. Some keys that may be of use include:
-           title, artist, genre, subject, copyright, srcform, comment.
+        metadata : Dict[str, str], default {}
+            Dictionary of keys and values for metadata to include in
+            the output file. Some keys that may be of use include:
+            title, artist, genre, subject, copyright, srcform, comment.
 
-        extra_anim : list, optional
-           Additional `Animation` objects that should be included
-           in the saved movie file. These need to be from the same
-           `matplotlib.figure.Figure` instance. Also, animation frames will
-           just be simply combined, so there should be a 1:1 correspondence
-           between the frames from the different animations.
+        extra_anim : list, default: []
+            Additional `Animation` objects that should be included
+            in the saved movie file. These need to be from the same
+            `matplotlib.figure.Figure` instance. Also, animation frames will
+            just be simply combined, so there should be a 1:1 correspondence
+            between the frames from the different animations.
 
-        savefig_kwargs : dict, optional
-           Keyword arguments passed to each `~.Figure.savefig` call used to
-           save the individual frames.
+        savefig_kwargs : dict, default: {}
+            Keyword arguments passed to each `~.Figure.savefig` call used to
+            save the individual frames.
 
         progress_callback : function, optional
             A callback function that will be called for every frame to notify
