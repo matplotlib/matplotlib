@@ -180,6 +180,7 @@ per-file-ignores =
     examples/misc/svg_filter_line.py: E402
     examples/misc/svg_filter_pie.py: E402
     examples/misc/table_demo.py: E201
+    examples/mplot3d/surface3d.py: E402
     examples/pie_and_polar_charts/bar_of_pie.py: E402
     examples/pie_and_polar_charts/nested_pie.py: E402
     examples/pie_and_polar_charts/pie_and_donut_labels.py: E402
@@ -232,6 +233,8 @@ per-file-ignores =
     examples/shapes_and_collections/path_patch.py: E402
     examples/shapes_and_collections/quad_bezier.py: E402
     examples/shapes_and_collections/scatter.py: E402
+    examples/showcase/anatomy.py: E402
+    examples/showcase/bachelors_degrees_by_gender.py: E402
     examples/showcase/firefox.py: E501
     examples/specialty_plots/anscombe.py: E402
     examples/specialty_plots/radar_chart.py: E402
@@ -251,6 +254,7 @@ per-file-ignores =
     examples/subplots_axes_and_figures/two_scales.py: E402
     examples/subplots_axes_and_figures/zoom_inset_axes.py: E402
     examples/tests/backend_driver_sgskip.py: E402
+    examples/text_labels_and_annotations/date_index_formatter.py: E402
     examples/text_labels_and_annotations/demo_text_rotation_mode.py: E402
     examples/text_labels_and_annotations/custom_legends.py: E402
     examples/text_labels_and_annotations/fancyarrow_demo.py: E402
@@ -261,7 +265,11 @@ per-file-ignores =
     examples/text_labels_and_annotations/mathtext_asarray.py: E402
     examples/text_labels_and_annotations/tex_demo.py: E402
     examples/text_labels_and_annotations/watermark_text.py: E402
+    examples/ticks_and_spines/custom_ticker1.py: E402
     examples/ticks_and_spines/date_concise_formatter.py: E402
+    examples/ticks_and_spines/major_minor_demo.py: E402
+    examples/ticks_and_spines/tick-formatters.py: E402
+    examples/ticks_and_spines/tick_labels_from_values.py: E402
     examples/user_interfaces/canvasagg.py: E402
     examples/user_interfaces/embedding_in_gtk3_panzoom_sgskip.py: E402
     examples/user_interfaces/embedding_in_gtk3_sgskip.py: E402

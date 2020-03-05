@@ -12,7 +12,7 @@ z axis tick labels.
 
 import matplotlib.pyplot as plt
 from matplotlib import cm
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
+from matplotlib.ticker import LinearLocator
 import numpy as np
 
 fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
@@ -31,9 +31,28 @@ surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm,
 # Customize the z axis.
 ax.set_zlim(-1.01, 1.01)
 ax.zaxis.set_major_locator(LinearLocator(10))
-ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+# A StrMethodFormatter is used automatically
+ax.zaxis.set_major_formatter('{x:.02f}')
 
 # Add a color bar which maps values to colors.
 fig.colorbar(surf, shrink=0.5, aspect=5)
 
 plt.show()
+
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.pyplot.subplots
+matplotlib.axis.Axis.set_major_formatter
+matplotlib.axis.Axis.set_major_locator
+matplotlib.ticker.LinearLocator
+matplotlib.ticker.StrMethodFormatter

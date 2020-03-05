@@ -51,8 +51,9 @@ ax.set_ylim(-0.25, 90)
 # Set a fixed location and format for ticks.
 ax.set_xticks(range(1970, 2011, 10))
 ax.set_yticks(range(0, 91, 10))
-ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
-ax.yaxis.set_major_formatter(plt.FuncFormatter('{:.0f}%'.format))
+# Use automatic StrMethodFormatter creation
+ax.xaxis.set_major_formatter('{x:.0f}')
+ax.yaxis.set_major_formatter('{x:.0f}%')
 
 # Provide tick lines across the plot to help your viewers trace along
 # the axis ticks. Make sure that the lines are light and small so they
@@ -113,3 +114,22 @@ fig.suptitle("Percentage of Bachelor's degrees conferred to women in "
 # Just change the file extension in this call.
 # fig.savefig('percent-bachelors-degrees-women-usa.png', bbox_inches='tight')
 plt.show()
+
+#############################################################################
+#
+# ------------
+#
+# References
+# """"""""""
+#
+# The use of the following functions, methods, classes and modules is shown
+# in this example:
+
+import matplotlib
+matplotlib.pyplot.subplots
+matplotlib.axes.Axes.text
+matplotlib.axis.Axis.set_major_formatter
+matplotlib.axis.XAxis.tick_bottom
+matplotlib.axis.YAxis.tick_left
+matplotlib.artist.Artist.set_visible
+matplotlib.ticker.StrMethodFormatter
