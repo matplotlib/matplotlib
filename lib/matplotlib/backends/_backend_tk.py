@@ -3,10 +3,10 @@ import logging
 import math
 import os.path
 import sys
-import tkinter as tk
-from tkinter.simpledialog import SimpleDialog
-import tkinter.filedialog
-import tkinter.messagebox
+import Tkinter as tk
+from Tkinter.simpledialog import SimpleDialog
+import Tkinter.filedialog
+import Tkinter.messagebox
 
 import numpy as np
 
@@ -604,7 +604,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         defaultextension = ''
         initialdir = os.path.expanduser(mpl.rcParams['savefig.directory'])
         initialfile = self.canvas.get_default_filename()
-        fname = tkinter.filedialog.asksaveasfilename(
+        fname = Tkinter.filedialog.asksaveasfilename(
             master=self.canvas.get_tk_widget().master,
             title='Save the figure',
             filetypes=tk_filetypes,
@@ -623,7 +623,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             # This method will handle the delegation to the correct type
             self.canvas.figure.savefig(fname)
         except Exception as e:
-            tkinter.messagebox.showerror("Error saving file", str(e))
+            Tkinter.messagebox.showerror("Error saving file", str(e))
 
     def update(self):
         self._axes = self.canvas.figure.axes

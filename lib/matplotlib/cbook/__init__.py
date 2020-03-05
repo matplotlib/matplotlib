@@ -60,7 +60,7 @@ def _get_running_interactive_framework():
     wx = sys.modules.get("wx")
     if wx and wx.GetApp():
         return "wx"
-    tkinter = sys.modules.get("tkinter")
+    tkinter = sys.modules.get("Tkinter")
     if tkinter:
         for frame in sys._current_frames().values():
             while frame:

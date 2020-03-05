@@ -5,7 +5,7 @@ Embedding in Tk
 
 """
 
-import tkinter
+import Tkinter
 
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
@@ -16,7 +16,7 @@ from matplotlib.figure import Figure
 import numpy as np
 
 
-root = tkinter.Tk()
+root = Tkinter.Tk()
 root.wm_title("Embedding in Tk")
 
 fig = Figure(figsize=(5, 4), dpi=100)
@@ -38,14 +38,14 @@ def on_key_press(event):
 
 canvas.mpl_connect("key_press_event", on_key_press)
 
-button = tkinter.Button(master=root, text="Quit", command=root.quit)
+button = Tkinter.Button(master=root, text="Quit", command=root.quit)
 
 # Packing order is important. Widgets are processed sequentially and if there
 # is no space left, because the window is too small, they are not displayed.
 # The canvas is rather flexible in its size, so we pack it last which makes
 # sure the UI controls are displayed as long as possible.
-button.pack(side=tkinter.BOTTOM)
-toolbar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
-canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
+button.pack(side=Tkinter.BOTTOM)
+toolbar.pack(side=Tkinter.BOTTOM, fill=Tkinter.X)
+canvas.get_tk_widget().pack(side=Tkinter.TOP, fill=Tkinter.BOTH, expand=1)
 
-tkinter.mainloop()
+Tkinter.mainloop()

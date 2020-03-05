@@ -25,7 +25,7 @@ def _get_testable_interactive_backends():
             (["PyQt5", "cairocffi"], "qt5cairo"),
             (["PySide2"], "qt5agg"),
             (["PySide2", "cairocffi"], "qt5cairo"),
-            (["tkinter"], "tkagg"),
+            (["Tkinter"], "tkagg"),
             (["wx"], "wx"),
             (["wx"], "wxagg"),
     ]:

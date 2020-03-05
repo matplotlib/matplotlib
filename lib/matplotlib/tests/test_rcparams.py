@@ -525,7 +525,7 @@ def test_backend_fallback_headless(tmpdir):
 @pytest.mark.skipif(sys.platform == "linux" and not os.environ.get("DISPLAY"),
                     reason="headless")
 def test_backend_fallback_headful(tmpdir):
-    pytest.importorskip("tkinter")
+    pytest.importorskip("Tkinter")
     env = {**os.environ, "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
     backend = subprocess.check_output(
         [sys.executable, "-c",
