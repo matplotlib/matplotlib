@@ -1428,7 +1428,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
                  xybox=None,
                  xycoords='data',
                  boxcoords=None,
-                 frameon=True, pad=0.4,  # BboxPatch
+                 frameon=True, pad=0.4,  # FancyBboxPatch boxstyle.
                  annotation_clip=None,
                  box_alignment=(0.5, 0.5),
                  bboxprops=None,
