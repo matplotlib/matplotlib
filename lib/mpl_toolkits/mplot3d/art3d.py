@@ -578,13 +578,28 @@ class Poly3DCollection(PolyCollection):
     def get_vector(self, segments3d):
         """Optimize points for projection."""
         if len(segments3d):
-            xs, ys, zs = np.row_stack(segments3d).T
+            # row_stack would split and re-concatenate all rows, and so it's
+            # much faster to reshape if the data is already in the right format
+            if isinstance(segments3d, np.ndarray):
+                segments3d_t = segments3d.reshape(-1, segments3d.shape[-1]).T
+            else:
+                segments3d_t = np.row_stack(segments3d).T
+            ones = np.broadcast_to(np.ones((1,), dtype=segments3d_t.dtype),
+                                   shape=(1, segments3d_t.shape[-1],))
+            self._vec = np.concatenate((segments3d_t, ones), axis=0)
         else:  # row_stack can't stack zero arrays.
-            xs, ys, zs = [], [], []
-        ones = np.ones(len(xs))
-        self._vec = np.array([xs, ys, zs, ones])
+            self._vec = np.ndarray(shape=(0, 4))
 
-        indices = [0, *np.cumsum([len(segment) for segment in segments3d])]
+        # range is much faster than np.cumsum with a list argument, so we
+        # use it whenever the faces have a constant number of vertices.
+        if isinstance(segments3d, np.ndarray):
+            face_vertices = segments3d.shape[1]
+            segment_ends = range(face_vertices,
+                                 face_vertices * len(segments3d) + 1,
+                                 face_vertices)
+        else:
+            segment_ends = np.cumsum([len(segment) for segment in segments3d])
+        indices = [0, *segment_ends]
         self._segslices = [*map(slice, indices[:-1], indices[1:])]
 
     def set_verts(self, verts, closed=True):
