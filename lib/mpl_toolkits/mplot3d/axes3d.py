@@ -1559,12 +1559,12 @@ class Axes3D(Axes):
         cpadding = cstride - crem if crem != 0 else 0
 
         def pad_for_patches(a):
+            if cpadding == 0 and rpadding == 0:
+                return a
             result = np.empty_like(a, shape=(rows + rpadding, cols + cpadding))
             result[:rows, :cols] = a
-            if cpadding:
-                result[:rows, -cpadding:] = a[:, -1:]
-            if rpadding:
-                result[-rpadding:, :cols] = a[-1:, :]
+            result[:rows, cols:] = a[:, -1:]
+            result[rows:, :cols] = a[-1:, :]
             result[rows:, cols:] = a[-1, -1]
             return result
 
