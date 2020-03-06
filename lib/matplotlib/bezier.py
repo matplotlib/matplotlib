@@ -429,23 +429,23 @@ def get_parallels(bezier2, width):
     # find cm_left which is the intersecting point of a line through
     # c1_left with angle t1 and a line through c2_left with angle
     # t2. Same with cm_right.
-    if parallel_test != 0:
-        # a special case for a straight line, i.e., angle between two
-        # lines are smaller than some (arbitrary) value.
+    try:
+        cmx_left, cmy_left = get_intersection(c1x_left, c1y_left, cos_t1,
+                                              sin_t1, c2x_left, c2y_left,
+                                              cos_t2, sin_t2)
+        cmx_right, cmy_right = get_intersection(c1x_right, c1y_right, cos_t1,
+                                                sin_t1, c2x_right, c2y_right,
+                                                cos_t2, sin_t2)
+    except ValueError:
+        # Special case straight lines, i.e., angle between two lines is
+        # less than the threshold used by get_intersection (we don't use
+        # check_if_parallel as the threshold is not the same).
         cmx_left, cmy_left = (
             0.5 * (c1x_left + c2x_left), 0.5 * (c1y_left + c2y_left)
         )
         cmx_right, cmy_right = (
             0.5 * (c1x_right + c2x_right), 0.5 * (c1y_right + c2y_right)
         )
-    else:
-        cmx_left, cmy_left = get_intersection(c1x_left, c1y_left, cos_t1,
-                                              sin_t1, c2x_left, c2y_left,
-                                              cos_t2, sin_t2)
-
-        cmx_right, cmy_right = get_intersection(c1x_right, c1y_right, cos_t1,
-                                                sin_t1, c2x_right, c2y_right,
-                                                cos_t2, sin_t2)
 
     # the parallel Bezier lines are created with control points of
     # [c1_left, cm_left, c2_left] and [c1_right, cm_right, c2_right]
