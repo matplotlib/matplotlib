@@ -8,6 +8,7 @@ import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 import pytest
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
 import matplotlib.transforms as mtransforms
@@ -591,9 +592,8 @@ def test_pathcollection_legend_elements():
     assert_array_almost_equal(actsizes, labeledsizes)
     l4 = ax.legend(h, l, loc=3)
 
-    import matplotlib.ticker as mticker
-    loc = mticker.MaxNLocator(nbins=9, min_n_ticks=9-1,
-                              steps=[1, 2, 2.5, 3, 5, 6, 8, 10])
+    loc = mpl.ticker.MaxNLocator(nbins=9, min_n_ticks=9-1,
+                                 steps=[1, 2, 2.5, 3, 5, 6, 8, 10])
     h5, lab5 = sc.legend_elements(num=loc)
     assert len(h2) == len(h5)
 

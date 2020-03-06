@@ -61,15 +61,15 @@ This new default may be overridden in either of three ways:
 3. Manually specify a list of artists in the new kwarg ``bbox_extra_artists``.
 
 
-`Text.set_text` with string argument ``None`` sets string to empty
-------------------------------------------------------------------
+`.Text.set_text` with string argument ``None`` sets string to empty
+-------------------------------------------------------------------
 
-`Text.set_text` when passed a string value of ``None`` would set the
+`.Text.set_text` when passed a string value of ``None`` would set the
 string to ``"None"``, so subsequent calls to `.Text.get_text` would return
 the ambiguous ``"None"`` string.
 
 This change sets text objects passed ``None`` to have empty strings, so that
-`Text.get_text` returns an empty string.
+`.Text.get_text` returns an empty string.
 
 
 
@@ -144,7 +144,7 @@ now raise ``TypeError`` because ``**kwargs`` has been removed.
   unhandled positional arguments.  If two or more arguments are passed
   (ie X, Y, [linefmt], ...) and Y cannot be cast to an array, an error
   will be raised instead of treating X as Y and Y as linefmt.
-- :meth:`mpl_toolkits.axes_grid1.axes_divider.SubPlotDivider` raises
+- `mpl_toolkits.axes_grid1.axes_divider.SubplotDivider` raises
   ``TypeError`` instead of ``Exception`` when passed unknown kwargs.
 
 
@@ -160,7 +160,7 @@ filter that existed before the test started using ``warnings.catch_warnings``.
 Non-interactive FigureManager classes are now aliases of FigureManagerBase
 --------------------------------------------------------------------------
 
-The `FigureManagerPdf`, `FigureManagerPS`, and `FigureManagerSVG` classes,
+The ``FigureManagerPdf``, ``FigureManagerPS``, and ``FigureManagerSVG`` classes,
 which were previously empty subclasses of `.FigureManagerBase` (i.e., not
 adding or overriding any attribute or method), are now direct aliases for
 `.FigureManagerBase`.
@@ -213,7 +213,7 @@ Streamplot last row and column fixed
 ------------------------------------
 
 A bug was fixed where the last row and column of data in
-`~.Axes.axes.streamplot` were being dropped.
+`~.Axes.streamplot` were being dropped.
 
 
 Changed default `.AutoDateLocator` kwarg *interval_multiples* to ``True``
@@ -303,11 +303,11 @@ being incorrectly modified by these functions.
 
 
 
-`CallbackRegistry` now stores callbacks using stdlib's `.WeakMethod`\s
-----------------------------------------------------------------------
+`.CallbackRegistry` now stores callbacks using stdlib's `weakref.WeakMethod`\s
+------------------------------------------------------------------------------
 
 In particular, this implies that ``CallbackRegistry.callbacks[signal]`` is now
-a mapping of callback ids to `.WeakMethod`\s (i.e., they need to be first called
+a mapping of callback ids to `weakref.WeakMethod`\s (i.e., they need to be first called
 with no arguments to retrieve the method itself).
 
 
@@ -400,14 +400,14 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``patches.Polygon.xy``
 - ``texmanager.dvipng_hack_alpha``
 - ``text.Annotation.arrow``
-- `.Legend.draggable()`, in favor of `.Legend.set_draggable()`
+- ``Legend.draggable()``, in favor of `.Legend.set_draggable()`
    (``Legend.draggable`` may be reintroduced as a property in future releases)
 - ``textpath.TextToPath.tex_font_map``
-- :class:`matplotlib.cbook.deprecation.mplDeprecation` will be removed
+- ``matplotlib.cbook.deprecation.mplDeprecation`` will be removed
   in future versions. It is just an alias for
   :class:`matplotlib.cbook.deprecation.MatplotlibDeprecationWarning`.
   Please use the
-  :class:`~matplotlib.cbook.MatplotlibDeprecationWarning` directly if
+  ``matplotlib.cbook.MatplotlibDeprecationWarning`` directly if
   neccessary.
 - The ``matplotlib.cbook.Bunch`` class has been deprecated. Instead, use
   `types.SimpleNamespace` from the standard library which provides the same
@@ -447,7 +447,7 @@ marker styles
 Deprecation of ``LocatableAxes`` in toolkits
 ````````````````````````````````````````````
 
-The ``LocatableAxes`` classes in toolkits have been deprecated. The base `Axes`
+The ``LocatableAxes`` classes in toolkits have been deprecated. The base `~.axes.Axes`
 classes provide the same functionality to all subclasses, thus these mixins are
 no longer necessary. Related functions have also been deprecated. Specifically:
 

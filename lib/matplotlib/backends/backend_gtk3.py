@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 import sys
 
-import matplotlib
-from matplotlib import backend_tools, cbook, rcParams
+import matplotlib as mpl
+from matplotlib import backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
@@ -51,21 +51,7 @@ except TypeError as exc:
 
 
 class TimerGTK3(TimerBase):
-    """
-    Subclass of `.TimerBase` using GTK3 for timer events.
-
-    Attributes
-    ----------
-    interval : int, default: 1000ms
-        The time between timer events in milliseconds.
-    single_shot : bool, default: False
-        Whether this timer should operate as single shot (run once and then
-        stop).
-    callbacks : list
-        Stores list of (func, args) tuples that will be called upon timer
-        events. This list can be manipulated directly, or the functions
-        `add_callback` and `remove_callback` can be used.
-    """
+    """Subclass of `.TimerBase` using GTK3 timer events."""
 
     def _timer_start(self):
         # Need to stop it, otherwise we potentially leak a timer id that will
@@ -98,6 +84,7 @@ class TimerGTK3(TimerBase):
 
 class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
     required_interactive_framework = "gtk3"
+    _timer_cls = TimerGTK3
 
     keyvald = {65507: 'control',
                65505: 'shift',
@@ -305,10 +292,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
             return False
         self._idle_draw_id = GLib.idle_add(idle_draw)
 
-    def new_timer(self, *args, **kwargs):
-        # docstring inherited
-        return TimerGTK3(*args, **kwargs)
-
     def flush_events(self):
         # docstring inherited
         Gdk.threads_enter()
@@ -388,7 +371,7 @@ class FigureManagerGTK3(FigureManagerBase):
             Gcf.destroy(num)
         self.window.connect("destroy", destroy)
         self.window.connect("delete_event", destroy)
-        if matplotlib.is_interactive():
+        if mpl.is_interactive():
             self.window.show()
             self.canvas.draw_idle()
 
@@ -401,15 +384,16 @@ class FigureManagerGTK3(FigureManagerBase):
         if self.toolbar:
             self.toolbar.destroy()
 
-        if (Gcf.get_num_fig_managers() == 0 and
-                not matplotlib.is_interactive() and
+        if (Gcf.get_num_fig_managers() == 0 and not mpl.is_interactive() and
                 Gtk.main_level() >= 1):
             Gtk.main_quit()
 
     def show(self):
         # show the figure window
         self.window.show()
-        self.window.present()
+        self.canvas.draw()
+        if mpl.rcParams['figure.raise_window']:
+            self.window.present()
 
     def full_screen_toggle(self):
         self._full_screen_flag = not self._full_screen_flag
@@ -422,9 +406,9 @@ class FigureManagerGTK3(FigureManagerBase):
     def _get_toolbar(self):
         # must be inited after the window, drawingArea and figure
         # attrs are set
-        if rcParams['toolbar'] == 'toolbar2':
+        if mpl.rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2GTK3(self.canvas, self.window)
-        elif rcParams['toolbar'] == 'toolmanager':
+        elif mpl.rcParams['toolbar'] == 'toolmanager':
             toolbar = ToolbarGTK3(self.toolmanager)
         else:
             toolbar = None
@@ -432,7 +416,7 @@ class FigureManagerGTK3(FigureManagerBase):
 
     def _get_toolmanager(self):
         # must be initialised after toolbar has been set
-        if rcParams['toolbar'] == 'toolmanager':
+        if mpl.rcParams['toolbar'] == 'toolmanager':
             toolmanager = ToolManager(self.canvas.figure)
         else:
             toolmanager = None
@@ -562,7 +546,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             dialog.set_current_name(
                 str(Path(dialog.get_current_name()).with_suffix("." + fmt)))
 
-        dialog.set_current_folder(rcParams["savefig.directory"])
+        dialog.set_current_folder(mpl.rcParams["savefig.directory"])
         dialog.set_current_name(self.canvas.get_default_filename())
         dialog.set_do_overwrite_confirmation(True)
 
@@ -574,8 +558,8 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         if response == Gtk.ResponseType.CANCEL:
             return
         # Save dir for next time, unless empty str (which means use cwd).
-        if rcParams['savefig.directory']:
-            rcParams['savefig.directory'] = os.path.dirname(fname)
+        if mpl.rcParams['savefig.directory']:
+            mpl.rcParams['savefig.directory'] = os.path.dirname(fname)
         try:
             self.canvas.figure.savefig(fname, format=fmt)
         except Exception as e:

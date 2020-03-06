@@ -9,7 +9,8 @@ import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
-import matplotlib
+import matplotlib as mpl
+from matplotlib import cbook
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 
@@ -68,7 +69,7 @@ class TestMultipleLocator:
         """
         Test basic behavior of view limits.
         """
-        with matplotlib.rc_context({'axes.autolimit_mode': 'data'}):
+        with mpl.rc_context({'axes.autolimit_mode': 'data'}):
             loc = mticker.MultipleLocator(base=3.147)
             assert_almost_equal(loc.view_limits(-5, 5), (-5, 5))
 
@@ -77,7 +78,7 @@ class TestMultipleLocator:
         Test that everything works properly with 'round_numbers' for auto
         limit.
         """
-        with matplotlib.rc_context({'axes.autolimit_mode': 'round_numbers'}):
+        with mpl.rc_context({'axes.autolimit_mode': 'round_numbers'}):
             loc = mticker.MultipleLocator(base=3.147)
             assert_almost_equal(loc.view_limits(-4, 4), (-6.294, 6.294))
 
@@ -128,7 +129,7 @@ class TestAutoMinorLocator:
     # This test is meant to verify the parameterization for
     # test_number_of_minor_ticks
     def test_using_all_default_major_steps(self):
-        with matplotlib.rc_context({'_internal.classic_mode': False}):
+        with mpl.rc_context({'_internal.classic_mode': False}):
             majorsteps = [x[0] for x in self.majorstep_minordivisions]
             np.testing.assert_allclose(majorsteps,
                                        mticker.AutoLocator()._steps)
@@ -457,7 +458,8 @@ class TestIndexFormatter:
                                           (2, 'label2'),
                                           (2.5, '')])
     def test_formatting(self, x, label):
-        formatter = mticker.IndexFormatter(['label0', 'label1', 'label2'])
+        with cbook._suppress_matplotlib_deprecation_warning():
+            formatter = mticker.IndexFormatter(['label0', 'label1', 'label2'])
         assert formatter(x) == label
 
 
@@ -513,7 +515,7 @@ class TestScalarFormatter:
     @pytest.mark.parametrize('unicode_minus, result',
                              [(True, "\N{MINUS SIGN}1"), (False, "-1")])
     def test_unicode_minus(self, unicode_minus, result):
-        matplotlib.rcParams['axes.unicode_minus'] = unicode_minus
+        mpl.rcParams['axes.unicode_minus'] = unicode_minus
         assert (
             plt.gca().xaxis.get_major_formatter().format_data_short(-1).strip()
             == result)
@@ -537,7 +539,7 @@ class TestScalarFormatter:
 
     @pytest.mark.parametrize('use_offset', use_offset_data)
     def test_use_offset(self, use_offset):
-        with matplotlib.rc_context({'axes.formatter.useoffset': use_offset}):
+        with mpl.rc_context({'axes.formatter.useoffset': use_offset}):
             tmp_form = mticker.ScalarFormatter()
             assert use_offset == tmp_form.get_useOffset()
 
@@ -615,8 +617,7 @@ class TestLogFormatterMathtext:
 
     @pytest.mark.parametrize('min_exponent, value, expected', test_data)
     def test_min_exponent(self, min_exponent, value, expected):
-        with matplotlib.rc_context({'axes.formatter.min_exponent':
-                                    min_exponent}):
+        with mpl.rc_context({'axes.formatter.min_exponent': min_exponent}):
             assert self.fmt(value) == expected
 
 
@@ -645,7 +646,7 @@ class TestLogFormatterSciNotation:
     def test_basic(self, base, value, expected):
         formatter = mticker.LogFormatterSciNotation(base=base)
         formatter.sublabel = {1, 2, 5, 1.2}
-        with matplotlib.rc_context({'text.usetex': False}):
+        with mpl.rc_context({'text.usetex': False}):
             assert formatter(value) == expected
 
 
@@ -1228,38 +1229,38 @@ class TestPercentFormatter:
     def test_basic(self, xmax, decimals, symbol,
                    x, display_range, expected):
         formatter = mticker.PercentFormatter(xmax, decimals, symbol)
-        with matplotlib.rc_context(rc={'text.usetex': False}):
+        with mpl.rc_context(rc={'text.usetex': False}):
             assert formatter.format_pct(x, display_range) == expected
 
     @pytest.mark.parametrize('is_latex, usetex, expected', latex_data)
     def test_latex(self, is_latex, usetex, expected):
         fmt = mticker.PercentFormatter(symbol='\\{t}%', is_latex=is_latex)
-        with matplotlib.rc_context(rc={'text.usetex': usetex}):
+        with mpl.rc_context(rc={'text.usetex': usetex}):
             assert fmt.format_pct(50, 100) == expected
 
 
 def test_majformatter_type():
     fig, ax = plt.subplots()
     with pytest.raises(TypeError):
-        ax.xaxis.set_major_formatter(matplotlib.ticker.LogLocator())
+        ax.xaxis.set_major_formatter(mticker.LogLocator())
 
 
 def test_minformatter_type():
     fig, ax = plt.subplots()
     with pytest.raises(TypeError):
-        ax.xaxis.set_minor_formatter(matplotlib.ticker.LogLocator())
+        ax.xaxis.set_minor_formatter(mticker.LogLocator())
 
 
 def test_majlocator_type():
     fig, ax = plt.subplots()
     with pytest.raises(TypeError):
-        ax.xaxis.set_major_locator(matplotlib.ticker.LogFormatter())
+        ax.xaxis.set_major_locator(mticker.LogFormatter())
 
 
 def test_minlocator_type():
     fig, ax = plt.subplots()
     with pytest.raises(TypeError):
-        ax.xaxis.set_minor_locator(matplotlib.ticker.LogFormatter())
+        ax.xaxis.set_minor_locator(mticker.LogFormatter())
 
 
 def test_minorticks_rc():
@@ -1285,20 +1286,17 @@ def test_minorticks_rc():
                           (None, 6),  # this tests the default
                           (False, 9)))
 def test_remove_overlap(remove_overlapping_locs, expected_num):
-    import numpy as np
-    import matplotlib.dates as mdates
-
     t = np.arange("2018-11-03", "2018-11-06", dtype="datetime64")
     x = np.ones(len(t))
 
     fig, ax = plt.subplots()
     ax.plot(t, x)
 
-    ax.xaxis.set_major_locator(mdates.DayLocator())
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('\n%a'))
+    ax.xaxis.set_major_locator(mpl.dates.DayLocator())
+    ax.xaxis.set_major_formatter(mpl.dates.DateFormatter('\n%a'))
 
-    ax.xaxis.set_minor_locator(mdates.HourLocator((0, 6, 12, 18)))
-    ax.xaxis.set_minor_formatter(mdates.DateFormatter('%H:%M'))
+    ax.xaxis.set_minor_locator(mpl.dates.HourLocator((0, 6, 12, 18)))
+    ax.xaxis.set_minor_formatter(mpl.dates.DateFormatter('%H:%M'))
     # force there to be extra ticks
     ax.xaxis.get_minor_ticks(15)
     if remove_overlapping_locs is not None:

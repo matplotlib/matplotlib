@@ -14,7 +14,8 @@ from weakref import WeakValueDictionary
 
 import numpy as np
 
-from . import _path, cbook, rcParams
+import matplotlib as mpl
+from . import _path, cbook
 from .cbook import _to_unmasked_float_array, simple_linear_interpolation
 
 
@@ -181,15 +182,15 @@ class Path:
             pth._interpolation_steps = internals_from._interpolation_steps
         else:
             pth._should_simplify = True
-            pth._simplify_threshold = rcParams['path.simplify_threshold']
+            pth._simplify_threshold = mpl.rcParams['path.simplify_threshold']
             pth._interpolation_steps = 1
         return pth
 
     def _update_values(self):
-        self._simplify_threshold = rcParams['path.simplify_threshold']
+        self._simplify_threshold = mpl.rcParams['path.simplify_threshold']
         self._should_simplify = (
             self._simplify_threshold > 0 and
-            rcParams['path.simplify'] and
+            mpl.rcParams['path.simplify'] and
             len(self._vertices) >= 128 and
             (self._codes is None or np.all(self._codes <= Path.LINETO))
         )
@@ -561,8 +562,8 @@ class Path:
 
         The bounding box is always considered filled.
         """
-        return _path.path_intersects_rectangle(self,
-            bbox.x0, bbox.y0, bbox.x1, bbox.y1, filled)
+        return _path.path_intersects_rectangle(
+            self, bbox.x0, bbox.y0, bbox.x1, bbox.y1, filled)
 
     def interpolated(self, steps):
         """
@@ -990,23 +991,3 @@ def get_path_collection_extents(
     return Bbox.from_extents(*_path.get_path_collection_extents(
         master_transform, paths, np.atleast_3d(transforms),
         offsets, offset_transform))
-
-
-@cbook.deprecated("3.1", alternative="get_paths_collection_extents")
-def get_paths_extents(paths, transforms=[]):
-    """
-    Given a sequence of :class:`Path` objects and optional
-    :class:`~matplotlib.transforms.Transform` objects, returns the
-    bounding box that encapsulates all of them.
-
-    *paths* is a sequence of :class:`Path` instances.
-
-    *transforms* is an optional sequence of
-    :class:`~matplotlib.transforms.Affine2D` instances to apply to
-    each path.
-    """
-    from .transforms import Bbox, Affine2D
-    if len(paths) == 0:
-        raise ValueError("No paths provided")
-    return Bbox.from_extents(*_path.get_path_collection_extents(
-        Affine2D(), paths, transforms, [], Affine2D()))

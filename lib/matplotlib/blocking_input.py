@@ -16,7 +16,7 @@ windows:
 
 `BlockingContourLabeler`
     Creates a callable object to retrieve mouse clicks in a blocking way that
-    will then be used to place labels on a `ContourSet`.  Used by
+    will then be used to place labels on a `.ContourSet`.  Used by
     `~.Axes.clabel`.
 """
 
@@ -24,6 +24,7 @@ import logging
 from numbers import Integral
 
 from matplotlib import cbook
+from matplotlib.backend_bases import MouseButton
 import matplotlib.lines as mlines
 
 _log = logging.getLogger(__name__)
@@ -103,15 +104,18 @@ class BlockingMouseInput(BlockingInput):
     Callable for retrieving mouse clicks in a blocking way.
 
     This class will also retrieve keypresses and map them to mouse clicks:
-    delete and backspace are like mouse button 3, enter is like mouse button 2
-    and all others are like mouse button 1.
+    delete and backspace are a right click, enter is like a middle click,
+    and all others are like a left click.
     """
 
-    button_add = 1
-    button_pop = 3
-    button_stop = 2
+    button_add = MouseButton.LEFT
+    button_pop = MouseButton.RIGHT
+    button_stop = MouseButton.MIDDLE
 
-    def __init__(self, fig, mouse_add=1, mouse_pop=3, mouse_stop=2):
+    def __init__(self, fig,
+                 mouse_add=MouseButton.LEFT,
+                 mouse_pop=MouseButton.RIGHT,
+                 mouse_stop=MouseButton.MIDDLE):
         BlockingInput.__init__(self, fig=fig,
                                eventslist=('button_press_event',
                                            'key_press_event'))

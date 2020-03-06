@@ -1,5 +1,5 @@
 r"""
-:mod:`~matplotlib.mathtext` is a module for parsing a subset of the
+`~matplotlib.mathtext` is a module for parsing a subset of the
 TeX math syntax and drawing them to a matplotlib backend.
 
 For a tutorial of its usage see :doc:`/tutorials/text/mathtext`.  This
@@ -7,7 +7,7 @@ document is primarily concerned with implementation details.
 
 The module uses pyparsing_ to parse the TeX expression.
 
-.. _pyparsing: http://pyparsing.wikispaces.com/
+.. _pyparsing: https://pypi.org/project/pyparsing/
 
 The Bakoma distribution of the TeX Computer Modern fonts, and STIX
 fonts are supported.  There is experimental support for using
@@ -81,19 +81,19 @@ def get_unicode_index(symbol, math=True):
 
 class MathtextBackend:
     """
-    The base class for the mathtext backend-specific code.  The
-    purpose of :class:`MathtextBackend` subclasses is to interface
-    between mathtext and a specific matplotlib graphics backend.
+    The base class for the mathtext backend-specific code.  `MathtextBackend`
+    subclasses interface between mathtext and specific Matplotlib graphics
+    backends.
 
     Subclasses need to override the following:
 
-      - :meth:`render_glyph`
-      - :meth:`render_rect_filled`
-      - :meth:`get_results`
+    - :meth:`render_glyph`
+    - :meth:`render_rect_filled`
+    - :meth:`get_results`
 
     And optionally, if you need to use a FreeType hinting style:
 
-      - :meth:`get_hinting_type`
+    - :meth:`get_hinting_type`
     """
     def __init__(self):
         self.width = 0
@@ -769,10 +769,17 @@ class UnicodeFonts(TruetypeFonts):
 
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
-        if rcParams['mathtext.fallback_to_cm']:
-            self.cm_fallback = BakomaFonts(*args, **kwargs)
-        else:
-            self.cm_fallback = None
+        fallback_rc = rcParams['mathtext.fallback']
+        if rcParams['mathtext.fallback_to_cm'] is not None:
+            fallback_rc = ('cm' if rcParams['mathtext.fallback_to_cm']
+                           else None)
+
+        font_class = {'stix': StixFonts,
+                      'stixsans': StixSansFonts,
+                      'cm': BakomaFonts
+                      }.get(fallback_rc)
+        self.cm_fallback = font_class(*args, **kwargs) if font_class else None
+
         TruetypeFonts.__init__(self, *args, **kwargs)
         self.fontmap = {}
         for texfont in "cal rm tt it bf sf".split():
@@ -782,6 +789,21 @@ class UnicodeFonts(TruetypeFonts):
         prop = FontProperties('cmex10')
         font = findfont(prop)
         self.fontmap['ex'] = font
+
+        # include STIX sized alternatives for glyphs if fallback is STIX
+        if isinstance(self.cm_fallback, StixFonts):
+            stixsizedaltfonts = {
+                 0: 'STIXGeneral',
+                 1: 'STIXSizeOneSym',
+                 2: 'STIXSizeTwoSym',
+                 3: 'STIXSizeThreeSym',
+                 4: 'STIXSizeFourSym',
+                 5: 'STIXSizeFiveSym'}
+
+            for size, name in stixsizedaltfonts.items():
+                fullpath = findfont(name)
+                self.fontmap[size] = fullpath
+                self.fontmap[name] = fullpath
 
     _slanted_symbols = set(r"\int \oint".split())
 
@@ -830,16 +852,19 @@ class UnicodeFonts(TruetypeFonts):
 
         if not found_symbol:
             if self.cm_fallback:
-                if isinstance(self.cm_fallback, BakomaFonts):
-                    _log.warning(
-                        "Substituting with a symbol from Computer Modern.")
-                if (fontname in ('it', 'regular') and
-                        isinstance(self.cm_fallback, StixFonts)):
-                    return self.cm_fallback._get_glyph(
-                            'rm', font_class, sym, fontsize)
-                else:
-                    return self.cm_fallback._get_glyph(
-                        fontname, font_class, sym, fontsize)
+                if (fontname in ('it', 'regular')
+                        and isinstance(self.cm_fallback, StixFonts)):
+                    fontname = 'rm'
+
+                g = self.cm_fallback._get_glyph(fontname, font_class,
+                                                sym, fontsize)
+                fname = g[0].family_name
+                if fname in list(BakomaFonts._fontmap.values()):
+                    fname = "Computer Modern"
+                _log.warning("Substituting symbol {} "
+                             "from {}".format(sym, fname))
+                return g
+
             else:
                 if (fontname in ('it', 'regular')
                         and isinstance(self, StixFonts)):
@@ -1350,9 +1375,8 @@ class MathTextWarning(Warning):
 
 
 class Node:
-    """
-    A node in the TeX box model
-    """
+    """A node in the TeX box model."""
+
     def __init__(self):
         self.size = 0
 
@@ -1381,9 +1405,8 @@ class Node:
 
 
 class Box(Node):
-    """
-    Represents any node with a physical location.
-    """
+    """A node with a physical location."""
+
     def __init__(self, width, height, depth):
         Node.__init__(self)
         self.width  = width
@@ -1408,32 +1431,32 @@ class Box(Node):
 
 
 class Vbox(Box):
-    """
-    A box with only height (zero width).
-    """
+    """A box with only height (zero width)."""
+
     def __init__(self, height, depth):
         Box.__init__(self, 0., height, depth)
 
 
 class Hbox(Box):
-    """
-    A box with only width (zero height and depth).
-    """
+    """A box with only width (zero height and depth)."""
+
     def __init__(self, width):
         Box.__init__(self, width, 0., 0.)
 
 
 class Char(Node):
     """
-    Represents a single character.  Unlike TeX, the font information
-    and metrics are stored with each :class:`Char` to make it easier
-    to lookup the font metrics when needed.  Note that TeX boxes have
-    a width, height, and depth, unlike Type1 and Truetype which use a
-    full bounding box and an advance in the x-direction.  The metrics
-    must be converted to the TeX way, and the advance (if different
-    from width) must be converted into a :class:`Kern` node when the
-    :class:`Char` is added to its parent :class:`Hlist`.
+    A single character.
+
+    Unlike TeX, the font information and metrics are stored with each `Char`
+    to make it easier to lookup the font metrics when needed.  Note that TeX
+    boxes have a width, height, and depth, unlike Type1 and TrueType which use
+    a full bounding box and an advance in the x-direction.  The metrics must
+    be converted to the TeX model, and the advance (if different from width)
+    must be converted into a `Kern` node when the `Char` is added to its parent
+    `Hlist`.
     """
+
     def __init__(self, c, state, math=True):
         Node.__init__(self)
         self.c = c
@@ -1466,9 +1489,10 @@ class Char(Node):
 
     def get_kerning(self, next):
         """
-        Return the amount of kerning between this and the given
-        character.  Called when characters are strung together into
-        :class:`Hlist` to create :class:`Kern` nodes.
+        Return the amount of kerning between this and the given character.
+
+        This method is called when characters are strung together into `Hlist`
+        to create `Kern` nodes.
         """
         advance = self._metrics.advance - self.width
         kern = 0.
@@ -1534,9 +1558,8 @@ class Accent(Char):
 
 
 class List(Box):
-    """
-    A list of nodes (either horizontal or vertical).
-    """
+    """A list of nodes (either horizontal or vertical)."""
+
     def __init__(self, elements):
         Box.__init__(self, 0., 0., 0.)
         self.shift_amount = 0.   # An arbitrary offset
@@ -1596,9 +1619,8 @@ class List(Box):
 
 
 class Hlist(List):
-    """
-    A horizontal list of boxes.
-    """
+    """A horizontal list of boxes."""
+
     def __init__(self, elements, w=0., m='additional', do_kern=True):
         List.__init__(self, elements)
         if do_kern:
@@ -1607,11 +1629,11 @@ class Hlist(List):
 
     def kern(self):
         """
-        Insert :class:`Kern` nodes between :class:`Char` nodes to set
-        kerning.  The :class:`Char` nodes themselves determine the
-        amount of kerning they need (in :meth:`~Char.get_kerning`),
-        and this function just creates the linked list in the correct
-        way.
+        Insert `Kern` nodes between `Char` nodes to set kerning.
+
+        The `Char` nodes themselves determine the amount of kerning they need
+        (in `~Char.get_kerning`), and this function just creates the correct
+        linked list.
         """
         new_children = []
         num_children = len(self.children)
@@ -1646,22 +1668,23 @@ class Hlist(List):
 
     def hpack(self, w=0., m='additional'):
         r"""
-        The main duty of :meth:`hpack` is to compute the dimensions of
-        the resulting boxes, and to adjust the glue if one of those
-        dimensions is pre-specified.  The computed sizes normally
-        enclose all of the material inside the new box; but some items
-        may stick out if negative glue is used, if the box is
-        overfull, or if a ``\vbox`` includes other boxes that have
-        been shifted left.
+        Compute the dimensions of the resulting boxes, and adjust the glue if
+        one of those dimensions is pre-specified.  The computed sizes normally
+        enclose all of the material inside the new box; but some items may
+        stick out if negative glue is used, if the box is overfull, or if a
+        ``\vbox`` includes other boxes that have been shifted left.
 
-          - *w*: specifies a width
+        Parameters
+        ----------
+        w : float, default: 0
+            A width.
+        m : {'exactly', 'additional'}, default: 'additional'
+            Whether to produce a box whose width is 'exactly' *w*; or a box
+            with the natural width of the contents, plus *w* ('additional').
 
-          - *m*: is either 'exactly' or 'additional'.
-
-        Thus, ``hpack(w, 'exactly')`` produces a box whose width is
-        exactly *w*, while ``hpack(w, 'additional')`` yields a box
-        whose width is the natural width plus *w*.  The default values
-        produce a box with the natural width.
+        Notes
+        -----
+        The defaults produce a box with the natural width of the contents.
         """
         # I don't know why these get reset in TeX.  Shift_amount is pretty
         # much useless if we do.
@@ -1709,27 +1732,30 @@ class Hlist(List):
 
 
 class Vlist(List):
-    """
-    A vertical list of boxes.
-    """
+    """A vertical list of boxes."""
+
     def __init__(self, elements, h=0., m='additional'):
         List.__init__(self, elements)
         self.vpack()
 
     def vpack(self, h=0., m='additional', l=np.inf):
         """
-        The main duty of :meth:`vpack` is to compute the dimensions of
-        the resulting boxes, and to adjust the glue if one of those
-        dimensions is pre-specified.
+        Compute the dimensions of the resulting boxes, and to adjust the glue
+        if one of those dimensions is pre-specified.
 
-          - *h*: specifies a height
-          - *m*: is either 'exactly' or 'additional'.
-          - *l*: a maximum height
+        Parameters
+        ----------
+        h : float, default: 0
+            A height.
+        m : {'exactly', 'additional'}, default: 'additional'
+            Whether to produce a box whose height is 'exactly' *w*; or a box
+            with the natural height of the contents, plus *w* ('additional').
+        l : float, default: np.inf
+            The maximum height.
 
-        Thus, ``vpack(h, 'exactly')`` produces a box whose height is
-        exactly *h*, while ``vpack(h, 'additional')`` yields a box
-        whose height is the natural height plus *h*.  The default
-        values produce a box with the natural width.
+        Notes
+        -----
+        The defaults produce a box with the natural height of the contents.
         """
         # I don't know why these get reset in TeX.  Shift_amount is pretty
         # much useless if we do.
@@ -1786,14 +1812,15 @@ class Vlist(List):
 
 class Rule(Box):
     """
-    A :class:`Rule` node stands for a solid black rectangle; it has
-    *width*, *depth*, and *height* fields just as in an
-    :class:`Hlist`. However, if any of these dimensions is inf, the
-    actual value will be determined by running the rule up to the
-    boundary of the innermost enclosing box. This is called a "running
-    dimension." The width is never running in an :class:`Hlist`; the
-    height and depth are never running in a :class:`Vlist`.
+    A solid black rectangle.
+
+    It has *width*, *depth*, and *height* fields just as in an `Hlist`.
+    However, if any of these dimensions is inf, the actual value will be
+    determined by running the rule up to the boundary of the innermost
+    enclosing box.  This is called a "running dimension".  The width is never
+    running in an `Hlist`; the height and depth are never running in a `Vlist`.
     """
+
     def __init__(self, width, height, depth, state):
         Box.__init__(self, width, height, depth)
         self.font_output = state.font_output
@@ -1803,9 +1830,8 @@ class Rule(Box):
 
 
 class Hrule(Rule):
-    """
-    Convenience class to create a horizontal rule.
-    """
+    """Convenience class to create a horizontal rule."""
+
     def __init__(self, state, thickness=None):
         if thickness is None:
             thickness = state.font_output.get_underline_thickness(
@@ -1815,53 +1841,68 @@ class Hrule(Rule):
 
 
 class Vrule(Rule):
-    """
-    Convenience class to create a vertical rule.
-    """
+    """Convenience class to create a vertical rule."""
+
     def __init__(self, state):
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
         Rule.__init__(self, thickness, np.inf, np.inf, state)
 
 
+_GlueSpec = namedtuple(
+    "_GlueSpec", "width stretch stretch_order shrink shrink_order")
+_GlueSpec._named = {
+    'fil':         _GlueSpec(0., 1., 1, 0., 0),
+    'fill':        _GlueSpec(0., 1., 2, 0., 0),
+    'filll':       _GlueSpec(0., 1., 3, 0., 0),
+    'neg_fil':     _GlueSpec(0., 0., 0, 1., 1),
+    'neg_fill':    _GlueSpec(0., 0., 0, 1., 2),
+    'neg_filll':   _GlueSpec(0., 0., 0, 1., 3),
+    'empty':       _GlueSpec(0., 0., 0, 0., 0),
+    'ss':          _GlueSpec(0., 1., 1, -1., 1),
+}
+
+
 class Glue(Node):
     """
     Most of the information in this object is stored in the underlying
-    :class:`GlueSpec` class, which is shared between multiple glue objects.
+    ``_GlueSpec`` class, which is shared between multiple glue objects.
     (This is a memory optimization which probably doesn't matter anymore, but
     it's easier to stick to what TeX does.)
     """
+
+    @cbook.deprecated("3.3")
+    @property
+    def glue_subtype(self):
+        return "normal"
+
+    @cbook._delete_parameter("3.3", "copy")
     def __init__(self, glue_type, copy=False):
         Node.__init__(self)
-        self.glue_subtype   = 'normal'
         if isinstance(glue_type, str):
-            glue_spec = GlueSpec.factory(glue_type)
-        elif isinstance(glue_type, GlueSpec):
+            glue_spec = _GlueSpec._named[glue_type]
+        elif isinstance(glue_type, _GlueSpec):
             glue_spec = glue_type
         else:
             raise ValueError("glue_type must be a glue spec name or instance")
-        if copy:
-            glue_spec = glue_spec.copy()
-        self.glue_spec      = glue_spec
+        self.glue_spec = glue_spec
 
     def shrink(self):
         Node.shrink(self)
         if self.size < NUM_SIZE_LEVELS:
-            if self.glue_spec.width != 0.:
-                self.glue_spec = self.glue_spec.copy()
-                self.glue_spec.width *= SHRINK_FACTOR
+            g = self.glue_spec
+            self.glue_spec = g._replace(width=g.width * SHRINK_FACTOR)
 
     def grow(self):
         Node.grow(self)
-        if self.glue_spec.width != 0.:
-            self.glue_spec = self.glue_spec.copy()
-            self.glue_spec.width *= GROW_FACTOR
+        g = self.glue_spec
+        self.glue_spec = g._replace(width=g.width * GROW_FACTOR)
 
 
+@cbook.deprecated("3.3")
 class GlueSpec:
-    """
-    See :class:`Glue`.
-    """
+    """See `Glue`."""
+
     def __init__(self, width=0., stretch=0., stretch_order=0,
                  shrink=0., shrink_order=0):
         self.width         = width
@@ -1883,16 +1924,9 @@ class GlueSpec:
         return cls._types[glue_type]
 
 
-GlueSpec._types = {
-    'fil':         GlueSpec(0., 1., 1, 0., 0),
-    'fill':        GlueSpec(0., 1., 2, 0., 0),
-    'filll':       GlueSpec(0., 1., 3, 0., 0),
-    'neg_fil':     GlueSpec(0., 0., 0, 1., 1),
-    'neg_fill':    GlueSpec(0., 0., 0, 1., 2),
-    'neg_filll':   GlueSpec(0., 0., 0, 1., 3),
-    'empty':       GlueSpec(0., 0., 0, 0., 0),
-    'ss':          GlueSpec(0., 1., 1, -1., 1)
-}
+with cbook._suppress_matplotlib_deprecation_warning():
+    GlueSpec._types = {k: GlueSpec(**v._asdict())
+                       for k, v in _GlueSpec._named.items()}
 
 
 # Some convenient ways to get common kinds of glue
@@ -1935,9 +1969,10 @@ class SsGlue(Glue):
 
 class HCentered(Hlist):
     """
-    A convenience class to create an :class:`Hlist` whose contents are
+    A convenience class to create an `Hlist` whose contents are
     centered within its enclosing box.
     """
+
     def __init__(self, elements):
         Hlist.__init__(self, [SsGlue()] + elements + [SsGlue()],
                        do_kern=False)
@@ -1945,16 +1980,17 @@ class HCentered(Hlist):
 
 class VCentered(Hlist):
     """
-    A convenience class to create a :class:`Vlist` whose contents are
+    A convenience class to create a `Vlist` whose contents are
     centered within its enclosing box.
     """
+
     def __init__(self, elements):
         Vlist.__init__(self, [SsGlue()] + elements + [SsGlue()])
 
 
 class Kern(Node):
     """
-    A :class:`Kern` node has a width field to specify a (normally
+    A `Kern` node has a width field to specify a (normally
     negative) amount of spacing. This spacing correction appears in
     horizontal lists between letters like A and V when the font
     designer said that it looks better to move them closer together or
@@ -1962,6 +1998,7 @@ class Kern(Node):
     when its *width* denotes additional spacing in the vertical
     direction.
     """
+
     height = 0
     depth = 0
 
@@ -1984,12 +2021,12 @@ class Kern(Node):
 
 class SubSuperCluster(Hlist):
     """
-    :class:`SubSuperCluster` is a sort of hack to get around that fact
-    that this code do a two-pass parse like TeX.  This lets us store
-    enough information in the hlist itself, namely the nucleus, sub-
-    and super-script, such that if another script follows that needs
-    to be attached, it can be reconfigured on the fly.
+    A hack to get around that fact that this code does a two-pass parse like
+    TeX.  This lets us store enough information in the hlist itself, namely the
+    nucleus, sub- and super-script, such that if another script follows that
+    needs to be attached, it can be reconfigured on the fly.
     """
+
     def __init__(self):
         self.nucleus = None
         self.sub = None
@@ -1999,12 +2036,13 @@ class SubSuperCluster(Hlist):
 
 class AutoHeightChar(Hlist):
     """
-    :class:`AutoHeightChar` will create a character as close to the
-    given height and depth as possible.  When using a font with
-    multiple height versions of some characters (such as the BaKoMa
-    fonts), the correct glyph will be selected, otherwise this will
+    A character as close to the given height and depth as possible.
+
+    When using a font with multiple height versions of some characters (such as
+    the BaKoMa fonts), the correct glyph will be selected, otherwise this will
     always just return a scaled version of the glyph.
     """
+
     def __init__(self, c, height, depth, state, always=False, factor=None):
         alternatives = state.font_output.get_sized_alternatives_for_symbol(
             state.font, c)
@@ -2037,12 +2075,13 @@ class AutoHeightChar(Hlist):
 
 class AutoWidthChar(Hlist):
     """
-    :class:`AutoWidthChar` will create a character as close to the
-    given width as possible.  When using a font with multiple width
-    versions of some characters (such as the BaKoMa fonts), the
-    correct glyph will be selected, otherwise this will always just
-    return a scaled version of the glyph.
+    A character as close to the given width as possible.
+
+    When using a font with multiple width versions of some characters (such as
+    the BaKoMa fonts), the correct glyph will be selected, otherwise this will
+    always just return a scaled version of the glyph.
     """
+
     def __init__(self, c, width, state, always=False, char_class=Char):
         alternatives = state.font_output.get_sized_alternatives_for_symbol(
             state.font, c)
@@ -2064,14 +2103,15 @@ class AutoWidthChar(Hlist):
 
 class Ship:
     """
-    Once the boxes have been set up, this sends them to output.  Since
-    boxes can be inside of boxes inside of boxes, the main work of
-    :class:`Ship` is done by two mutually recursive routines,
-    :meth:`hlist_out` and :meth:`vlist_out`, which traverse the
-    :class:`Hlist` nodes and :class:`Vlist` nodes inside of horizontal
-    and vertical boxes.  The global variables used in TeX to store
-    state as it processes have become member variables here.
+    Ship boxes to output once they have been set up, this sends them to output.
+
+    Since boxes can be inside of boxes inside of boxes, the main work of `Ship`
+    is done by two mutually recursive routines, `hlist_out` and `vlist_out`,
+    which traverse the `Hlist` nodes and `Vlist` nodes inside of horizontal
+    and vertical boxes.  The global variables used in TeX to store state as it
+    processes have become member variables here.
     """
+
     def __call__(self, ox, oy, box):
         self.max_push    = 0  # Deepest nesting of push commands so far
         self.cur_s       = 0
@@ -2220,9 +2260,7 @@ ship = Ship()
 
 
 def Error(msg):
-    """
-    Helper class to raise parser errors.
-    """
+    """Helper class to raise parser errors."""
     def raise_error(s, loc, toks):
         raise ParseFatalException(s, loc, msg)
 
@@ -2237,8 +2275,7 @@ class Parser:
     actually parses full strings *containing* math expressions, in
     that raw text may also appear outside of pairs of ``$``.
 
-    The grammar is based directly on that in TeX, though it cuts a few
-    corners.
+    The grammar is based directly on that in TeX, though it cuts a few corners.
     """
 
     _math_style_dict = dict(displaystyle=0, textstyle=1,
@@ -2299,8 +2336,7 @@ class Parser:
 
     _dropsub_symbols = set(r'''\int \oint'''.split())
 
-    _fontnames = set(
-        "rm cal it tt sf bf default bb frak circled scr regular".split())
+    _fontnames = set("rm cal it tt sf bf default bb frak scr regular".split())
 
     _function_names = set("""
       arccos csc ker min arcsin deg lg Pr arctan det lim sec arg dim
@@ -2354,7 +2390,7 @@ class Parser:
         p.simple           = Forward()
         p.simple_group     = Forward()
         p.single_symbol    = Forward()
-        p.snowflake        = Forward()
+        p.accentprefixed   = Forward()
         p.space            = Forward()
         p.sqrt             = Forward()
         p.stackrel         = Forward()
@@ -2391,7 +2427,7 @@ class Parser:
         p.single_symbol <<= Regex(
             r"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
             unicode_range)
-        p.snowflake     <<= Suppress(p.bslash) + oneOf(self._snowflake)
+        p.accentprefixed <<= Suppress(p.bslash) + oneOf(self._accentprefixed)
         p.symbol_name   <<= (
             Combine(p.bslash + oneOf(list(tex2uni)))
             + FollowedBy(Regex("[^A-Za-z]").leaveWhitespace() | StringEnd())
@@ -2494,8 +2530,8 @@ class Parser:
         )
 
         p.placeable     <<= (
-            p.snowflake  # Must be before accent so named symbols that are
-                         # prefixed with an accent name work
+            p.accentprefixed  # Must be before accent so named symbols that are
+                              # prefixed with an accent name work
             | p.accent   # Must be before symbol as all accents are symbols
             | p.symbol   # Must be third to catch all named symbols and single
                          # chars not in a group
@@ -2569,7 +2605,7 @@ class Parser:
         Parse expression *s* using the given *fonts_object* for
         output, at the given *fontsize* and *dpi*.
 
-        Returns the parse tree of :class:`Node` instances.
+        Returns the parse tree of `Node` instances.
         """
         self._state_stack = [
             self.State(fonts_object, 'default', 'rm', fontsize, dpi)]
@@ -2618,32 +2654,20 @@ class Parser:
 
         @font.setter
         def font(self, name):
-            if name == "circled":
-                cbook.warn_deprecated(
-                    "3.1", name="\\mathcircled", obj_type="mathtext command",
-                    alternative="unicode characters (e.g. '\\N{CIRCLED LATIN "
-                    "CAPITAL LETTER A}' or '\\u24b6')")
             if name in ('rm', 'it', 'bf'):
                 self.font_class = name
             self._font = name
 
     def get_state(self):
-        """
-        Get the current :class:`State` of the parser.
-        """
+        """Get the current `State` of the parser."""
         return self._state_stack[-1]
 
     def pop_state(self):
-        """
-        Pop a :class:`State` off of the stack.
-        """
+        """Pop a `State` off of the stack."""
         self._state_stack.pop()
 
     def push_state(self):
-        """
-        Push a new :class:`State` onto the stack which is just a copy
-        of the current state.
-        """
+        """Push a new `State` onto the stack, copying the current state."""
         self._state_stack.append(self.get_state().copy())
 
     def main(self, s, loc, toks):
@@ -2742,7 +2766,7 @@ class Parser:
                                do_kern = True)]
         return [char]
 
-    snowflake = symbol
+    accentprefixed = symbol
 
     def unknown_symbol(self, s, loc, toks):
         c = toks[0]
@@ -2816,9 +2840,10 @@ class Parser:
     _wide_accents = set(r"widehat widetilde widebar".split())
 
     # make a lambda and call it to get the namespace right
-    _snowflake = (lambda am: [p for p in tex2uni if
-                              any(p.startswith(a) and a != p for a in am)])(
-                                  set(_accent_map))
+    _accentprefixed = (lambda am: [
+        p for p in tex2uni
+        if any(p.startswith(a) and a != p for a in am)
+    ])(set(_accent_map))
 
     def accent(self, s, loc, toks):
         assert len(toks) == 1
@@ -3169,16 +3194,6 @@ class Parser:
         return self._genfrac('', '', thickness,
                              self._math_style_dict['displaystyle'], num, den)
 
-    @cbook.deprecated("3.1", obj_type="mathtext command",
-                      alternative=r"\genfrac")
-    def stackrel(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 2
-        num, den = toks[0]
-
-        return self._genfrac('', '', 0.0,
-                             self._math_style_dict['textstyle'], num, den)
-
     def binom(self, s, loc, toks):
         assert len(toks) == 1
         assert len(toks[0]) == 2
@@ -3311,9 +3326,7 @@ class MathTextParser:
     }
 
     def __init__(self, output):
-        """
-        Create a MathTextParser for the given backend *output*.
-        """
+        """Create a MathTextParser for the given backend *output*."""
         self._output = output.lower()
 
     def parse(self, s, dpi=72, prop=None):
@@ -3322,7 +3335,7 @@ class MathTextParser:
         provided, it is a `.FontProperties` object specifying the "default"
         font to use in the math expression, used for all non-math text.
 
-        The results are cached, so multiple calls to :meth:`parse`
+        The results are cached, so multiple calls to `parse`
         with the same expression should be fast.
         """
         # lru_cache can't decorate parse() directly because the ps.useafm and
@@ -3461,25 +3474,20 @@ def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None):
     Given a math expression, renders it in a closely-clipped bounding
     box to an image file.
 
-    *s*
-       A math expression.  The math portion should be enclosed in
-       dollar signs.
-
-    *filename_or_obj*
-       A filepath or writable file-like object to write the image data
-       to.
-
-    *prop*
-       If provided, a FontProperties() object describing the size and
-       style of the text.
-
-    *dpi*
-       Override the output dpi, otherwise use the default associated
-       with the output format.
-
-    *format*
-       The output format, e.g., 'svg', 'pdf', 'ps' or 'png'.  If not
-       provided, will be deduced from the filename.
+    Parameters
+    ----------
+    s : str
+        A math expression.  The math portion must be enclosed in dollar signs.
+    filename_or_obj : str or path-like or file-like
+        Where to write the image data.
+    prop : `.FontProperties`, optional
+        The size and style of the text.
+    dpi : scalar, optional
+        The output dpi.  If not set, the dpi is determined as for
+        `.Figure.savefig`.
+    format : str
+        The output format, e.g., 'svg', 'pdf', 'ps' or 'png'.  If not set, the
+        format is determined as for `.Figure.savefig`.
     """
     from matplotlib import figure
     # backend_agg supports all of the core output formats

@@ -107,8 +107,6 @@ def test_multiple_keys():
 @image_comparison(['rgba_alpha.png'], remove_text=True,
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_alpha_rgba():
-    import matplotlib.pyplot as plt
-
     fig, ax = plt.subplots(1, 1)
     ax.plot(range(10), lw=5)
     leg = plt.legend(['Longlabel that will go away'], loc='center')
@@ -118,8 +116,6 @@ def test_alpha_rgba():
 @image_comparison(['rcparam_alpha.png'], remove_text=True,
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_alpha_rcparam():
-    import matplotlib.pyplot as plt
-
     fig, ax = plt.subplots(1, 1)
     ax.plot(range(10), lw=5)
     with mpl.rc_context(rc={'legend.framealpha': .75}):
@@ -342,10 +338,9 @@ class TestLegendFigureFunction:
         lines = axs[0].plot(range(10))
         lines2 = axs[1].plot(np.arange(10) * 2.)
         with mock.patch('matplotlib.legend.Legend') as Legend:
-            fig.legend(loc='right', labels=('a', 'b'),
-                    handles=(lines, lines2))
-        Legend.assert_called_with(fig, (lines, lines2), ('a', 'b'),
-                loc='right')
+            fig.legend(loc='right', labels=('a', 'b'), handles=(lines, lines2))
+        Legend.assert_called_with(
+            fig, (lines, lines2), ('a', 'b'), loc='right')
 
     def test_warn_args_kwargs(self):
         fig, axs = plt.subplots(1, 2)
@@ -574,6 +569,4 @@ def test_no_warn_big_data_when_loc_specified():
     for idx in range(1000):
         ax.plot(np.arange(5000), label=idx)
     legend = ax.legend('best')
-    with pytest.warns(None) as records:
-        fig.draw_artist(legend)
-    assert len(records) == 0
+    fig.draw_artist(legend)  # Check that no warning is emitted.

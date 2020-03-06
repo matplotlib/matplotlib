@@ -1,0 +1,7 @@
+# Extra pip requirements for the travis python 3.7+ builds
+
+ipykernel
+nbconvert[execute]
+nbformat!=5.0.0,!=5.0.1
+pandas!=0.25.0
+pytz

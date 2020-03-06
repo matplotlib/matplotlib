@@ -62,3 +62,42 @@ property.  This now raises a TypeError.
 `.FileMovieWriter` now defaults to writing temporary frames in a temporary
 directory, which is always cleared at exit.  In order to keep the individual
 frames saved on the filesystem, pass an explicit *frame_prefix*.
+
+`.Axes.plot` no longer accepts *x* and *y* being both 2D and with different numbers of columns
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, calling `.Axes.plot` e.g. with *x* of shape ``(n, 3)`` and *y* of
+shape ``(n, 2)`` would plot the first column of *x* against the first column
+of *y*, the second column of *x* against the second column of *y*, **and** the
+first column of *x* against the third column of *y*.  This now raises an error
+instead.
+
+`.Text.update_from` now copies usetex state from the source Text
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`~.Axes.stem` now defaults to ``use_line_collection=True``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This creates the stem plot as a `.LineCollection` rather than individual
+`.Line2D` objects, greatly improving performance.
+
+rcParams color validator is now stricter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, rcParams entries whose values were color-like accepted "spurious"
+extra letters or characters in the "middle" of the string, e.g. ``"(0, 1a, '0.5')"``
+would be interpreted as ``(0, 1, 0.5)``.  These extra characters (including the
+internal quotes) now cause a ValueError to be raised.
+
+`.SymLogNorm` now has a *base* parameter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, `.SymLogNorm` had no *base* kwarg, and defaulted to ``base=np.e``
+whereas the documentation said it was ``base=10``.  In preparation to make
+the default 10, calling `.SymLogNorm` without the new *base* kwarg emits a
+deprecation warning.
+
+
+`~.Axes.errorbar` now color cycles when only errorbar color is set
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously setting the *ecolor* would turn off automatic color cycling for the plot, leading to the 
+the lines and markers defaulting to whatever the first color in the color cycle was in the case of 
+multiple plot calls. 

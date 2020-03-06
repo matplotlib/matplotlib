@@ -258,6 +258,9 @@ class RendererBase:
 
         Parameters
         ----------
+        gc : `.GraphicsContextBase`
+            The graphics context.
+
         points : array-like, shape=(3, 2)
             Array of (x, y) points for the triangle.
 
@@ -670,7 +673,7 @@ class RendererBase:
         """
         Switch to the raster renderer.
 
-        Used by `MixedModeRenderer`.
+        Used by `.MixedModeRenderer`.
         """
 
     def stop_rasterizing(self):
@@ -678,7 +681,7 @@ class RendererBase:
         Switch back to the vector renderer and draw the contents of the raster
         renderer as an image on the vector renderer.
 
-        Used by `MixedModeRenderer`.
+        Used by `.MixedModeRenderer`.
         """
 
     def start_filter(self):
@@ -959,7 +962,7 @@ class GraphicsContextBase:
         return self._hatch
 
     def get_hatch_path(self, density=6.0):
-        """Return a `Path` for the current hatch."""
+        """Return a `.Path` for the current hatch."""
         hatch = self.get_hatch()
         if hatch is None:
             return None
@@ -1041,33 +1044,24 @@ class TimerBase:
 
     - ``_on_timer``: The internal function that any timer object should call,
       which will handle the task of running all callbacks that have been set.
-
-    Attributes
-    ----------
-    interval : int, default: 1000ms
-        The time between timer events in milliseconds.
-    single_shot : bool, default: False
-        Whether this timer should operate as single shot (run once and then
-        stop).
-    callbacks : List[Tuple[callable, Tuple, Dict]]
-        Stores list of (func, args, kwargs) tuples that will be called upon
-        timer events. This list can be manipulated directly, or the
-        functions `add_callback` and `remove_callback` can be used.
     """
+
     def __init__(self, interval=None, callbacks=None):
-        #Initialize empty callbacks list and setup default settings if necssary
-        if callbacks is None:
-            self.callbacks = []
-        else:
-            self.callbacks = callbacks[:]  # Create a copy
-
-        if interval is None:
-            self._interval = 1000
-        else:
-            self._interval = interval
-
+        """
+        Parameters
+        ----------
+        interval : int, default: 1000ms
+            The time between timer events in milliseconds.  Will be stored as
+            ``timer.interval``.
+        callbacks : List[Tuple[callable, Tuple, Dict]]
+            List of (func, args, kwargs) tuples that will be called upon
+            timer events.  This list is accessible as ``timer.callbacks`` and
+            can be manipulated directly, or the functions `add_callback` and
+            `remove_callback` can be used.
+        """
+        self.callbacks = [] if callbacks is None else callbacks.copy()
+        self._interval = 1000 if interval is None else interval
         self._single = False
-
         # Default attribute for holding the GUI-specific timer object
         self._timer = None
 
@@ -1086,7 +1080,7 @@ class TimerBase:
             if provided.
         """
         if interval is not None:
-            self._set_interval(interval)
+            self.interval = interval
         self._timer_start()
 
     def stop(self):
@@ -1101,6 +1095,7 @@ class TimerBase:
 
     @property
     def interval(self):
+        """The time between timer events, in milliseconds."""
         return self._interval
 
     @interval.setter
@@ -1113,6 +1108,7 @@ class TimerBase:
 
     @property
     def single_shot(self):
+        """Whether this timer should stop after a single run."""
         return self._single
 
     @single_shot.setter
@@ -1524,8 +1520,8 @@ def _is_non_interactive_terminal_ipython(ip):
     interactive), we do.
     """
     return (hasattr(ip, 'parent')
-        and (ip.parent is not None)
-        and getattr(ip.parent, 'interact', None) is False)
+            and (ip.parent is not None)
+            and getattr(ip.parent, 'interact', None) is False)
 
 
 class FigureCanvasBase:
@@ -1617,8 +1613,10 @@ class FigureCanvasBase:
     @contextmanager
     def _idle_draw_cntx(self):
         self._is_idle_drawing = True
-        yield
-        self._is_idle_drawing = False
+        try:
+            yield
+        finally:
+            self._is_idle_drawing = False
 
     def is_saving(self):
         """
@@ -1832,7 +1830,7 @@ class FigureCanvasBase:
 
     def inaxes(self, xy):
         """
-        Return the topmost `~.axes.Axes` containing the point *xy*.
+        Return the topmost visible `~.axes.Axes` containing the point *xy*.
 
         Parameters
         ----------
@@ -1842,11 +1840,10 @@ class FigureCanvasBase:
         Returns
         -------
         axes : `~matplotlib.axes.Axes` or None
-            The topmost axes containing the point, or None if no axes.
+            The topmost visible axes containing the point, or None if no axes.
         """
         axes_list = [a for a in self.figure.get_axes()
-                     if a.patch.contains_point(xy)]
-
+                     if a.patch.contains_point(xy) and a.get_visible()]
         if axes_list:
             axes = cbook._topmost_artist(axes_list)
         else:
@@ -1975,11 +1972,8 @@ class FigureCanvasBase:
 
         Parameters
         ----------
-        filename
-            can also be a file object on image backends
-
-        orientation : {'landscape', 'portrait'}, default: 'portrait'
-            only currently applies to PostScript printing.
+        filename : str or path-like or file-like
+            The file where the figure is saved.
 
         dpi : float, default: :rc:`savefig.dpi`
             The dots per inch to save the figure in.
@@ -1990,16 +1984,17 @@ class FigureCanvasBase:
         edgecolor : color, default: :rc:`savefig.edgecolor`
             The edgecolor of the figure.
 
+        orientation : {'landscape', 'portrait'}, default: 'portrait'
+            Only currently applies to PostScript printing.
+
         format : str, optional
             Force a specific file format. If not given, the format is inferred
             from the *filename* extension, and if that fails from
             :rc:`savefig.format`.
 
-        bbox_inches : 'tight' or `~matplotlib.transforms.Bbox`, \
-default: :rc:`savefig.bbox`
-            Bbox in inches. Only the given portion of the figure is
-            saved. If 'tight', try to figure out the tight bbox of
-            the figure.
+        bbox_inches : 'tight' or `.Bbox`, default: :rc:`savefig.bbox`
+            Bounding box in inches: only the given portion of the figure is
+            saved.  If 'tight', try to figure out the tight bbox of the figure.
 
         pad_inches : float, default: :rc:`savefig.pad_inches`
             Amount of padding around the figure when *bbox_inches* is 'tight'.
@@ -2066,8 +2061,8 @@ default: :rc:`savefig.bbox`
                             print_method, dpi=dpi, orientation=orientation))
                     self.figure.draw(renderer)
                     bbox_artists = kwargs.pop("bbox_extra_artists", None)
-                    bbox_inches = self.figure.get_tightbbox(renderer,
-                            bbox_extra_artists=bbox_artists)
+                    bbox_inches = self.figure.get_tightbbox(
+                        renderer, bbox_extra_artists=bbox_artists)
                     pad = kwargs.pop("pad_inches", None)
                     if pad is None:
                         pad = rcParams['savefig.pad_inches']
@@ -2220,15 +2215,19 @@ default: :rc:`savefig.bbox`
         """
         return self.callbacks.disconnect(cid)
 
-    def new_timer(self, *args, **kwargs):
+    # Internal subclasses can override _timer_cls instead of new_timer, though
+    # this is not a public API for third-party subclasses.
+    _timer_cls = TimerBase
+
+    def new_timer(self, interval=None, callbacks=None):
         """
         Create a new backend-specific subclass of `.Timer`.
 
         This is useful for getting periodic events through the backend's native
         event loop.  Implemented only for backends with GUIs.
 
-        Other Parameters
-        ----------------
+        Parameters
+        ----------
         interval : int
             Timer interval in milliseconds.
 
@@ -2241,9 +2240,9 @@ default: :rc:`savefig.bbox`
 
         Examples
         --------
-        >>> timer = fig.canvas.new_timer(callbacks=[(f1, (1, ), {'a': 3}),])
+        >>> timer = fig.canvas.new_timer(callbacks=[(f1, (1,), {'a': 3})])
         """
-        return TimerBase(*args, **kwargs)
+        return self._timer_cls(interval=interval, callbacks=callbacks)
 
     def flush_events(self):
         """
@@ -2322,7 +2321,7 @@ def key_press_handler(event, canvas, toolbar=None):
     grid_minor_keys = rcParams['keymap.grid_minor']
     toggle_yscale_keys = rcParams['keymap.yscale']
     toggle_xscale_keys = rcParams['keymap.xscale']
-    all_keys = rcParams['keymap.all_axes']
+    all_keys = dict.__getitem__(rcParams, 'keymap.all_axes')
 
     # toggle fullscreen mode ('f', 'ctrl + f')
     if event.key in fullscreen_keys:
@@ -2444,6 +2443,10 @@ def key_press_handler(event, canvas, toolbar=None):
         for a in canvas.figure.get_axes():
             if (event.x is not None and event.y is not None
                     and a.in_axes(event)):  # FIXME: Why only these?
+                cbook.warn_deprecated(
+                    "3.3", message="Toggling axes navigation from the "
+                    "keyboard is deprecated since %(since)s and will be "
+                    "removed %(removal)s.")
                 a.set_navigate(True)
     # enable navigation only for axes with this index (if such an axes exist,
     # otherwise do nothing)
@@ -2453,6 +2456,10 @@ def key_press_handler(event, canvas, toolbar=None):
             for i, a in enumerate(canvas.figure.get_axes()):
                 if (event.x is not None and event.y is not None
                         and a.in_axes(event)):  # FIXME: Why only these?
+                    cbook.warn_deprecated(
+                        "3.3", message="Toggling axes navigation from the "
+                        "keyboard is deprecated since %(since)s and will be "
+                        "removed %(removal)s.")
                     a.set_navigate(i == n)
 
 
@@ -3150,7 +3157,7 @@ class ToolContainerBase:
 
     Attributes
     ----------
-    toolmanager : `ToolManager`
+    toolmanager : `.ToolManager`
         The tools with which this `ToolContainer` wants to communicate.
     """
 
@@ -3181,7 +3188,7 @@ class ToolContainerBase:
         Parameters
         ----------
         tool : tool_like
-            The tool to add, see `ToolManager.get_tool`.
+            The tool to add, see `.ToolManager.get_tool`.
         group : str
             The name of the group to add this tool to.
         position : int, default: -1
@@ -3278,7 +3285,7 @@ class ToolContainerBase:
 
         This method must get implemented per backend.
 
-        Called when `ToolManager` emits a `tool_removed_event`.
+        Called when `.ToolManager` emits a `tool_removed_event`.
 
         Parameters
         ----------

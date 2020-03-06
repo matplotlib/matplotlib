@@ -99,14 +99,14 @@ plt.show()
 # figure.
 
 fig5, axs = plt.subplots(2, 2, sharex="col", sharey="row",
-                        gridspec_kw=dict(height_ratios=[1, 3],
-                                         width_ratios=[3, 1]))
+                         gridspec_kw=dict(height_ratios=[1, 3],
+                                          width_ratios=[3, 1]))
 axs[0, 1].set_visible(False)
 axs[0, 0].set_box_aspect(1/3)
 axs[1, 0].set_box_aspect(1)
 axs[1, 1].set_box_aspect(3/1)
 
-x, y = np.random.randn(2, 400) * np.array([[.5], [180]])
+x, y = np.random.randn(2, 400) * [[.5], [180]]
 axs[1, 0].scatter(x, y)
 axs[0, 0].hist(x)
 axs[1, 1].hist(y, orientation="horizontal")
@@ -138,7 +138,7 @@ plt.show()
 # following creates a 2 by 3 subplot grid with all square axes.
 
 fig7, axs = plt.subplots(2, 3, subplot_kw=dict(box_aspect=1),
-                        sharex=True, sharey=True, constrained_layout=True)
+                         sharex=True, sharey=True, constrained_layout=True)
 
 for i, ax in enumerate(axs.flat):
     ax.scatter(i % 3, -((i // 3) - 0.5)*200, c=[plt.cm.hsv(i / 6)], s=300)

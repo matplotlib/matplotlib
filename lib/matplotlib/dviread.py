@@ -211,9 +211,7 @@ class Dvi:
         return None
 
     def __enter__(self):
-        """
-        Context manager enter method, does nothing.
-        """
+        """Context manager enter method, does nothing."""
         return self
 
     def __exit__(self, etype, evalue, etrace):
@@ -242,9 +240,7 @@ class Dvi:
             yield self._output()
 
     def close(self):
-        """
-        Close the underlying file if it is open.
-        """
+        """Close the underlying file if it is open."""
         if not self.file.closed:
             self.file.close()
 
@@ -566,6 +562,12 @@ class DviFont:
                 result.append(0)
             else:
                 result.append(_mul2012(value, self._scale))
+        # cmsy10 glyph 0 ("minus") has a nonzero descent so that TeX aligns
+        # equations properly (https://tex.stackexchange.com/questions/526103/),
+        # but we actually care about the rasterization depth to align the
+        # dvipng-generated images.
+        if self.texname == b"cmsy10" and char == 0:
+            result[-1] = 0
         return result
 
 
@@ -748,7 +750,7 @@ class Tfm:
             self.depth[char] = _fix2comp(depths[byte1 & 0xf])
 
 
-PsFont = namedtuple('Font', 'texname psname effects encoding filename')
+PsFont = namedtuple('PsFont', 'texname psname effects encoding filename')
 
 
 class PsfontsMap:

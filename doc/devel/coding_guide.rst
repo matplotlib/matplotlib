@@ -32,6 +32,12 @@ When making a PR, pay attention to:
   feedback from the developers. You may mark these as
   `draft pull requests <https://help.github.com/en/articles/about-pull-requests#draft-pull-requests>`_
   on GitHub.
+* When updating your PR, instead of adding new commits to fix something, please
+  consider amending your initial commit(s) to keep the history clean.
+  You can achieve this using::
+
+      git commit --amend --no-edit
+      git push [your-remote-repo] [your-branch] --force-with-lease
 
 See also :ref:`contributing` for how to make a PR.
 
@@ -164,8 +170,10 @@ Automated tests
 
   - Whenever a pull request is created or updated, Travis and Appveyor
     automatically runs the test suite on all versions of Python
-    supported by Matplotlib.  The `tox` support in Matplotlib may be
+    supported by Matplotlib.  The tox_ support in Matplotlib may be
     useful for testing locally.
+
+  .. _tox: https://tox.readthedocs.io/
 
 * Do not self merge, except for 'small' patches to un-break the CI or
   when another reviewer explicitly allows it (ex, "Approve modulo CI
@@ -316,4 +324,4 @@ and then continue the cherry pick::
   git cherry-pick --continue
 
 Use your discretion to push directly to upstream or to open a PR; be
-sure to push or PR against the `v2.2.x` upstream branch, not `master`!
+sure to push or PR against the ``v2.2.x`` upstream branch, not ``master``!

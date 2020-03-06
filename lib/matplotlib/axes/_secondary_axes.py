@@ -62,7 +62,7 @@ class SecondaryAxis(_AxesBase):
             self._axis = self.yaxis
             self._locstrings = ['right', 'left']
             self._otherstrings = ['top', 'bottom']
-        self._parentscale = self._axis.get_scale()
+        self._parentscale = None
         # this gets positioned w/o constrained_layout so exclude:
         self._layoutbox = None
         self._poslayoutbox = None
@@ -100,24 +100,18 @@ class SecondaryAxis(_AxesBase):
             either 'top' or 'bottom' for orientation='x' or
             'left' or 'right' for orientation='y' axis.
         """
-        if align in self._locstrings:
-            if align == self._locstrings[1]:
-                # need to change the orientation.
-                self._locstrings = self._locstrings[::-1]
-            elif align != self._locstrings[0]:
-                raise ValueError('"{}" is not a valid axis orientation, '
-                                 'not changing the orientation;'
-                                 'choose "{}" or "{}""'.format(align,
-                                 self._locstrings[0], self._locstrings[1]))
-            self.spines[self._locstrings[0]].set_visible(True)
-            self.spines[self._locstrings[1]].set_visible(False)
-            self._axis.set_ticks_position(align)
-            self._axis.set_label_position(align)
+        cbook._check_in_list(self._locstrings, align=align)
+        if align == self._locstrings[1]:  # Need to change the orientation.
+            self._locstrings = self._locstrings[::-1]
+        self.spines[self._locstrings[0]].set_visible(True)
+        self.spines[self._locstrings[1]].set_visible(False)
+        self._axis.set_ticks_position(align)
+        self._axis.set_label_position(align)
 
     def set_location(self, location):
         """
         Set the vertical or horizontal location of the axes in
-        parent-normalized co-ordinates.
+        parent-normalized coordinates.
 
         Parameters
         ----------
@@ -136,9 +130,9 @@ class SecondaryAxis(_AxesBase):
             elif location in ['bottom', 'left']:
                 self._pos = 0.
             else:
-                raise ValueError("location must be '{}', '{}', or a "
-                                 "float, not '{}'".format(location,
-                                 self._locstrings[0], self._locstrings[1]))
+                raise ValueError(
+                    f"location must be {self._locstrings[0]!r}, "
+                    f"{self._locstrings[1]!r}, or a float, not {location!r}")
         else:
             self._pos = location
         self._loc = location
@@ -152,7 +146,7 @@ class SecondaryAxis(_AxesBase):
 
         # this locator lets the axes move in the parent axes coordinates.
         # so it never needs to know where the parent is explicitly in
-        # figure co-ordinates.
+        # figure coordinates.
         # it gets called in `ax.apply_aspect() (of all places)
         self.set_axes_locator(secondary_locator)
 
@@ -195,21 +189,6 @@ class SecondaryAxis(_AxesBase):
             If a transform is supplied, then the transform must have an
             inverse.
         """
-
-        if self._orientation == 'x':
-            set_scale = self.set_xscale
-            parent_scale = self._parent.get_xscale()
-        else:
-            set_scale = self.set_yscale
-            parent_scale = self._parent.get_yscale()
-        # we need to use a modified scale so the scale can receive the
-        # transform.  Only types supported are linear and log10 for now.
-        # Probably possible to add other transforms as a todo...
-        if parent_scale == 'log':
-            defscale = 'functionlog'
-        else:
-            defscale = 'function'
-
         if (isinstance(functions, tuple) and len(functions) == 2 and
             callable(functions[0]) and callable(functions[1])):
             # make an arbitrary convert from a two-tuple of functions
@@ -222,8 +201,7 @@ class SecondaryAxis(_AxesBase):
                              'must be a two-tuple of callable functions '
                              'with the first function being the transform '
                              'and the second being the inverse')
-        # need to invert the roles here for the ticks to line up.
-        set_scale(defscale, functions=self._functions[::-1])
+        self._set_scale()
 
     def draw(self, renderer=None, inframe=False):
         """
@@ -252,8 +230,6 @@ class SecondaryAxis(_AxesBase):
             set_scale = self.set_yscale
         if pscale == self._parentscale:
             return
-        else:
-            self._parentscale = pscale
 
         if pscale == 'log':
             defscale = 'functionlog'
@@ -270,6 +246,9 @@ class SecondaryAxis(_AxesBase):
         # axsecond.set_ticks, we want to keep those.
         if self._ticks_set:
             self._axis.set_major_locator(mticker.FixedLocator(ticks))
+
+        # If the parent scale doesn't change, we can skip this next time.
+        self._parentscale = pscale
 
     def _set_lims(self):
         """
@@ -316,7 +295,7 @@ class SecondaryAxis(_AxesBase):
 
         See also
         --------
-        text : for information on how override and the optional args work
+        text : Documents the properties supported by `.Text`.
         """
         if labelpad is not None:
             self.xaxis.labelpad = labelpad
@@ -341,7 +320,7 @@ class SecondaryAxis(_AxesBase):
 
         See also
         --------
-        text : for information on how override and the optional args work
+        text : Documents the properties supported by `.Text`.
         """
         if labelpad is not None:
             self.yaxis.labelpad = labelpad

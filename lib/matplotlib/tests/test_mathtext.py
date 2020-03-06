@@ -1,10 +1,12 @@
 import io
+import os
 import re
 
 import numpy as np
 import pytest
 
 import matplotlib
+import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
 from matplotlib import mathtext
@@ -93,7 +95,7 @@ math_tests = [
     r'$\operatorname{cos} x$',  # github issue #553
     r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}P\left(i,j\right)$',
     r"$\left\Vert a \right\Vert \left\vert b \right\vert \left| a \right| \left\| b\right\| \Vert a \Vert \vert b \vert$",
-    r'$\mathring{A}  \stackrel{\circ}{A}  \AA$',
+    r'$\mathring{A}  \AA$',
     r'$M \, M \thinspace M \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$',
     r'$\Cup$ $\Cap$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$',
     r'$\dotplus$ $\doteq$ $\doteqdot$ $\ddots$',
@@ -101,7 +103,7 @@ math_tests = [
     r'${xyz}^k{x}_{k}{x}^{p}{y}^{p-2} {d}_{i}^{j}{b}_{j}{c}_{k}{d} {x}^{j}_{i}{E}^{0}{E}^0_u$',
     r'${\int}_x^x x\oint_x^x x\int_{X}^{X}x\int_x x \int^x x \int_{x} x\int^{x}{\int}_{x} x{\int}^{x}_{x}x$',
     r'testing$^{123}$',
-    ' '.join('$\\' + p + '$' for p in sorted(mathtext.Parser._snowflake)),
+    ' '.join('$\\' + p + '$' for p in sorted(mathtext.Parser._accentprefixed)),
     r'$6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$',
     r'$\overline{\omega}^x \frac{1}{2}_0^x$',  # github issue #5444
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
@@ -119,15 +121,19 @@ lowergreek = ("\\alpha \\beta \\gamma \\delta \\epsilon \\zeta \\eta \\theta \\i
               "\\phi \\chi \\psi")
 all = [digits, uppercase, lowercase, uppergreek, lowergreek]
 
+# Use stubs to reserve space if tests are removed
+# stub should be of the form (None, N) where N is the number of strings that
+# used to be tested
+# Add new tests at the end.
 font_test_specs = [
     ([], all),
     (['mathrm'], all),
     (['mathbf'], all),
     (['mathit'], all),
     (['mathtt'], [digits, uppercase, lowercase]),
-    (['mathcircled'], [digits, uppercase, lowercase]),
-    (['mathrm', 'mathcircled'], [digits, uppercase, lowercase]),
-    (['mathbf', 'mathcircled'], [digits, uppercase, lowercase]),
+    (None, 3),
+    (None, 3),
+    (None, 3),
     (['mathbb'], [digits, uppercase, lowercase,
                   r'\Gamma \Pi \Sigma \gamma \pi']),
     (['mathrm', 'mathbb'], [digits, uppercase, lowercase,
@@ -145,25 +151,26 @@ font_test_specs = [
 
 font_tests = []
 for fonts, chars in font_test_specs:
-    wrapper = ''.join([
-        ' '.join(fonts),
-        ' $',
-        *(r'\%s{' % font for font in fonts),
-        '%s',
-        *('}' for font in fonts),
-        '$',
-    ])
-    for set in chars:
-        font_tests.append(wrapper % set)
+    if fonts is None:
+        font_tests.extend([None] * chars)
+    else:
+        wrapper = ''.join([
+            ' '.join(fonts),
+            ' $',
+            *(r'\%s{' % font for font in fonts),
+            '%s',
+            *('}' for font in fonts),
+            '$',
+        ])
+        for set in chars:
+            font_tests.append(wrapper % set)
+
+font_tests = list(filter(lambda x: x[1] is not None, enumerate(font_tests)))
 
 
 @pytest.fixture
 def baseline_images(request, fontset, index):
     return ['%s_%s_%02d' % (request.param, fontset, index)]
-
-
-# In the following two tests, use recwarn to suppress warnings regarding the
-# deprecation of \stackrel and \mathcircled.
 
 
 @pytest.mark.parametrize('index, test', enumerate(math_tests),
@@ -173,21 +180,21 @@ def baseline_images(request, fontset, index):
                           'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathtext'], indirect=True)
 @image_comparison(baseline_images=None)
-def test_mathtext_rendering(baseline_images, fontset, index, test, recwarn):
+def test_mathtext_rendering(baseline_images, fontset, index, test):
     matplotlib.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, test,
              horizontalalignment='center', verticalalignment='center')
 
 
-@pytest.mark.parametrize('index, test', enumerate(font_tests),
-                         ids=[str(index) for index in range(len(font_tests))])
+@pytest.mark.parametrize('index, test', font_tests,
+                         ids=[str(index) for index, _ in font_tests])
 @pytest.mark.parametrize('fontset',
                          ['cm', 'stix', 'stixsans', 'dejavusans',
                           'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
 @image_comparison(baseline_images=None, extensions=['png'])
-def test_mathfont_rendering(baseline_images, fontset, index, test, recwarn):
+def test_mathfont_rendering(baseline_images, fontset, index, test):
     matplotlib.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, test,
@@ -195,10 +202,8 @@ def test_mathfont_rendering(baseline_images, fontset, index, test, recwarn):
 
 
 def test_fontinfo():
-    import matplotlib.font_manager as font_manager
-    import matplotlib.ft2font as ft2font
-    fontpath = font_manager.findfont("DejaVu Sans")
-    font = ft2font.FT2Font(fontpath)
+    fontpath = mpl.font_manager.findfont("DejaVu Sans")
+    font = mpl.ft2font.FT2Font(fontpath)
     table = font.get_sfnt_table("head")
     assert table['version'] == (1, 0)
 
@@ -255,9 +260,8 @@ def test_fontinfo():
 def test_mathtext_exceptions(math, msg):
     parser = mathtext.MathTextParser('agg')
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError, match=re.escape(msg)):
         parser.parse(math)
-    excinfo.match(re.escape(msg))
 
 
 def test_single_minus_sign():
@@ -280,3 +284,48 @@ def test_single_minus_sign():
 def test_spaces(fig_test, fig_ref):
     fig_test.subplots().set_title(r"$1\,2\>3\ 4$")
     fig_ref.subplots().set_title(r"$1\/2\:3~4$")
+
+
+def test_mathtext_fallback_valid():
+    for fallback in ['cm', 'stix', 'stixsans', 'None']:
+        mpl.rcParams['mathtext.fallback'] = fallback
+
+
+@pytest.mark.xfail
+def test_mathtext_fallback_invalid():
+    for fallback in ['abc', '']:
+        mpl.rcParams['mathtext.fallback'] = fallback
+
+
+@pytest.mark.xfail
+def test_mathtext_fallback_to_cm_invalid():
+    for fallback in [True, False]:
+        mpl.rcParams['mathtext.fallback_to_cm'] = fallback
+
+
+@pytest.mark.parametrize(
+    "fallback,fontlist",
+    [("cm", ['DejaVu Sans', 'mpltest', 'STIXGeneral', 'cmr10', 'STIXGeneral']),
+     ("stix", ['DejaVu Sans', 'mpltest', 'STIXGeneral'])])
+def test_mathtext_fallback(fallback, fontlist):
+    mpl.font_manager.fontManager.addfont(
+        os.path.join((os.path.dirname(os.path.realpath(__file__))), 'mpltest.ttf'))
+    mpl.rcParams["svg.fonttype"] = 'none'
+    mpl.rcParams['mathtext.fontset'] = 'custom'
+    mpl.rcParams['mathtext.rm'] = 'mpltest'
+    mpl.rcParams['mathtext.it'] = 'mpltest:italic'
+    mpl.rcParams['mathtext.bf'] = 'mpltest:bold'
+    mpl.rcParams['mathtext.fallback'] = fallback
+
+    test_str = r'a$A\AA\breve\gimel$'
+
+    buff = io.BytesIO()
+    fig, ax = plt.subplots()
+    fig.text(.5, .5, test_str, fontsize=40, ha='center')
+    fig.savefig(buff, format="svg")
+    char_fonts = [
+        line.split("font-family:")[-1].split(";")[0]
+        for line in str(buff.getvalue()).split(r"\n") if "tspan" in line
+    ]
+    assert char_fonts == fontlist
+    mpl.font_manager.fontManager.ttflist = mpl.font_manager.fontManager.ttflist[:-1]

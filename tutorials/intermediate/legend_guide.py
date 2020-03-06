@@ -12,13 +12,14 @@ This legend guide is an extension of the documentation available at
 contents of that documentation before proceeding with this guide.
 
 
-This guide makes use of some common terms, which are documented here for clarity:
+This guide makes use of some common terms, which are documented here for
+clarity:
 
 .. glossary::
 
     legend entry
-        A legend is made up of one or more legend entries. An entry is made up of
-        exactly one key and one label.
+        A legend is made up of one or more legend entries. An entry is made up
+        of exactly one key and one label.
 
     legend key
         The colored/patterned marker to the left of each legend label.
@@ -180,9 +181,9 @@ plt.show()
 # custom handlers for our own type of legend key.
 #
 # The simplest example of using custom handlers is to instantiate one of the
-# existing :class:`~matplotlib.legend_handler.HandlerBase` subclasses. For the
-# sake of simplicity, let's choose :class:`matplotlib.legend_handler.HandlerLine2D`
-# which accepts a ``numpoints`` argument (note numpoints is a keyword
+# existing `.legend_handler.HandlerBase` subclasses. For the
+# sake of simplicity, let's choose `.legend_handler.HandlerLine2D`
+# which accepts a *numpoints* argument (numpoints is also a keyword
 # on the :func:`legend` function for convenience). We can then pass the mapping
 # of instance to Handler as a keyword to legend.
 
@@ -196,14 +197,13 @@ plt.legend(handler_map={line1: HandlerLine2D(numpoints=4)})
 ###############################################################################
 # As you can see, "Line 1" now has 4 marker points, where "Line 2" has 2 (the
 # default). Try the above code, only change the map's key from ``line1`` to
-# ``type(line1)``. Notice how now both :class:`~matplotlib.lines.Line2D` instances
-# get 4 markers.
+# ``type(line1)``. Notice how now both `~.Line2D` instances get 4 markers.
 #
 # Along with handlers for complex plot types such as errorbars, stem plots
 # and histograms, the default ``handler_map`` has a special ``tuple`` handler
-# (:class:`~matplotlib.legend_handler.HandlerTuple`) which simply plots
-# the handles on top of one another for each item in the given tuple. The
-# following example demonstrates combining two legend keys on top of one another:
+# (`.legend_handler.HandlerTuple`) which simply plots the handles on top of one
+# another for each item in the given tuple. The following example demonstrates
+# combining two legend keys on top of one another:
 
 from numpy.random import randn
 
@@ -216,7 +216,7 @@ white_cross, = plt.plot(z[:5], "w+", markeredgewidth=3, markersize=15)
 plt.legend([red_dot, (red_dot, white_cross)], ["Attr A", "Attr A+B"])
 
 ###############################################################################
-# The :class:`~matplotlib.legend_handler.HandlerTuple` class can also be used to
+# The `.legend_handler.HandlerTuple` class can also be used to
 # assign several legend keys to the same entry:
 
 from matplotlib.legend_handler import HandlerLine2D, HandlerTuple
@@ -231,11 +231,11 @@ l = plt.legend([(p1, p2)], ['Two keys'], numpoints=1,
 # Implementing a custom legend handler
 # ------------------------------------
 #
-# A custom handler can be implemented to turn any handle into a legend key (handles
-# don't necessarily need to be matplotlib artists).
-# The handler must implement a "legend_artist" method which returns a
-# single artist for the legend to use. Signature details about the "legend_artist"
-# are documented at :meth:`~matplotlib.legend_handler.HandlerBase.legend_artist`.
+# A custom handler can be implemented to turn any handle into a legend key
+# (handles don't necessarily need to be matplotlib artists).  The handler must
+# implement a ``legend_artist`` method which returns a single artist for the
+# legend to use. The required signature for ``legend_artist`` is documented at
+# `~.legend_handler.HandlerBase.legend_artist`.
 
 import matplotlib.patches as mpatches
 
@@ -259,9 +259,9 @@ plt.legend([AnyObject()], ['My first handler'],
            handler_map={AnyObject: AnyObjectHandler()})
 
 ###############################################################################
-# Alternatively, had we wanted to globally accept ``AnyObject`` instances without
-# needing to manually set the ``handler_map`` keyword all the time, we could have
-# registered the new handler with::
+# Alternatively, had we wanted to globally accept ``AnyObject`` instances
+# without needing to manually set the *handler_map* keyword all the time, we
+# could have registered the new handler with::
 #
 #     from matplotlib.legend import Legend
 #     Legend.update_default_handler_map({AnyObject: AnyObjectHandler()})

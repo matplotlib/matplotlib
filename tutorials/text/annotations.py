@@ -118,25 +118,20 @@ Let's start with a simple example.
 
    Annotate Text Arrow
 
+`~.Axes.text` takes a *bbox* keyword argument, which draws a box around the
+text::
 
-The :func:`~matplotlib.pyplot.text` function in the pyplot module (or
-`~.axes.Axes.text` method of the Axes class) takes *bbox* keyword argument, and
-when given, a box around the text is drawn. ::
-
-    bbox_props = dict(boxstyle="rarrow,pad=0.3", fc="cyan", ec="b", lw=2)
-    t = ax.text(0, 0, "Direction", ha="center", va="center", rotation=45,
-                size=15,
-                bbox=bbox_props)
-
+    t = ax.text(
+        0, 0, "Direction", ha="center", va="center", rotation=45, size=15,
+        bbox=dict(boxstyle="rarrow,pad=0.3", fc="cyan", ec="b", lw=2))
 
 The patch object associated with the text can be accessed by::
 
     bb = t.get_bbox_patch()
 
-The return value is an instance of FancyBboxPatch and the patch
-properties like facecolor, edgewidth, etc. can be accessed and
-modified as usual. To change the shape of the box, use the
-`~.FancyBboxPatch.set_boxstyle` method. ::
+The return value is a `.FancyBboxPatch`; patch properties
+(facecolor, edgewidth, etc.) can be accessed and modified as usual.
+`.FancyBboxPatch.set_boxstyle` sets the box shape::
 
   bb.set_boxstyle("rarrow", pad=0.6)
 
@@ -164,20 +159,16 @@ keyword arguments. Currently, following box styles are implemented.
 
    Fancybox Demo
 
-
 Note that the attribute arguments can be specified within the style
 name with separating comma (this form can be used as "boxstyle" value
 of bbox argument when initializing the text instance) ::
 
    bb.set_boxstyle("rarrow,pad=0.6")
 
-
 Annotating with Arrow
 ~~~~~~~~~~~~~~~~~~~~~
 
-The :func:`~matplotlib.pyplot.annotate` function in the pyplot module
-(or `~.axes.Axes.annotate` method of the Axes class) is used to draw an arrow
-connecting two points on the plot. ::
+`~.Axes.annotate` draws an arrow connecting two points in an axes::
 
     ax.annotate("Annotation",
                 xy=(x1, y1), xycoords='data',
@@ -188,9 +179,9 @@ This annotates a point at *xy* in the given coordinate (*xycoords*)
 with the text at *xytext* given in *textcoords*. Often, the
 annotated point is specified in the *data* coordinate and the annotating
 text in *offset points*.
-See :func:`~matplotlib.pyplot.annotate` for available coordinate systems.
+See `~.Axes.annotate` for available coordinate systems.
 
-An arrow connecting two points (*xy* & *xytext*) can be optionally drawn by
+An arrow connecting *xy* to *xytext* can be optionally drawn by
 specifying the *arrowprops* argument. To draw only an arrow, use
 empty string as the first argument. ::
 
@@ -208,20 +199,15 @@ empty string as the first argument. ::
 
    Annotate Simple01
 
-The arrow drawing takes a few steps.
+The arrow is drawn as follows:
 
-1. a connecting path between two points are created. This is
-   controlled by ``connectionstyle`` key value.
-
-2. If patch object is given (*patchA* & *patchB*), the path is clipped to
-   avoid the patch.
-
-3. The path is further shrunk by given amount of pixels (*shrinkA*
-   & *shrinkB*)
-
-4. The path is transmuted to arrow patch, which is controlled by the
-   ``arrowstyle`` key value.
-
+1. A path connecting the two points is created, as specified by the
+   *connectionstyle* parameter.
+2. The path is clipped to avoid patches *patchA* and *patchB*, if these are
+   set.
+3. The path is further shrunk by *shrinkA* and *shrinkB* (in pixels).
+4. The path is transmuted to an arrow patch, as specified by the *arrowstyle*
+   parameter.
 
 .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_explain_001.png
    :target: ../../gallery/userdemo/annotate_explain.html
@@ -250,7 +236,7 @@ points). As will be discussed below, some arrow style options can only
 be used when the connecting path is a quadratic spline.
 
 The behavior of each connection style is (limitedly) demonstrated in the
-example below. (Warning : The behavior of the ``bar`` style is currently not
+example below. (Warning: The behavior of the ``bar`` style is currently not
 well defined, it may be changed in the future).
 
 .. figure:: ../../gallery/userdemo/images/sphx_glr_connectionstyle_demo_001.png
@@ -303,8 +289,8 @@ of the text by default.
 
    Annotate Simple02
 
-As in the text command, a box around the text can be drawn using
-the ``bbox`` argument.
+As with `~.Axes.text`, a box around the text can be drawn using the *bbox*
+argument.
 
 .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple03_001.png
    :target: ../../gallery/userdemo/annotate_simple03.html
@@ -329,11 +315,11 @@ lower-left corner and (1, 1) means top-right.
 Placing Artist at the anchored location of the Axes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are classes of artists that can be placed at an anchored location
-in the Axes. A common example is the legend.  This type of artist can
-be created by using the OffsetBox class. A few predefined classes are
-available in ``mpl_toolkits.axes_grid1.anchored_artists`` others in
-``matplotlib.offsetbox`` ::
+There are classes of artists that can be placed at an anchored
+location in the Axes.  A common example is the legend.  This type
+of artist can be created by using the `.OffsetBox` class. A few
+predefined classes are available in :mod:`matplotlib.offsetbox` and in
+:mod:`mpl_toolkits.axes_grid1.anchored_artists`. ::
 
     from matplotlib.offsetbox import AnchoredText
     at = AnchoredText("Figure 1a",
@@ -429,102 +415,99 @@ The Annotation in matplotlib supports several types of coordinates as
 described in :ref:`annotations-tutorial`. For an advanced user who wants
 more control, it supports a few other options.
 
- 1. :class:`~matplotlib.transforms.Transform` instance. For example, ::
+1. A `.Transform` instance.  For example, ::
 
-      ax.annotate("Test", xy=(0.5, 0.5), xycoords=ax.transAxes)
+     ax.annotate("Test", xy=(0.5, 0.5), xycoords=ax.transAxes)
 
-    is identical to ::
+   is identical to ::
 
-      ax.annotate("Test", xy=(0.5, 0.5), xycoords="axes fraction")
+     ax.annotate("Test", xy=(0.5, 0.5), xycoords="axes fraction")
 
-    With this, you can annotate a point in other axes. ::
+   This allows annotating a point in another axes::
 
-      ax1, ax2 = subplot(121), subplot(122)
-      ax2.annotate("Test", xy=(0.5, 0.5), xycoords=ax1.transData,
-                   xytext=(0.5, 0.5), textcoords=ax2.transData,
-                   arrowprops=dict(arrowstyle="->"))
+     ax1, ax2 = subplot(121), subplot(122)
+     ax2.annotate("Test", xy=(0.5, 0.5), xycoords=ax1.transData,
+                  xytext=(0.5, 0.5), textcoords=ax2.transData,
+                  arrowprops=dict(arrowstyle="->"))
 
- 2. :class:`~matplotlib.artist.Artist` instance. The *xy* value (or
-    *xytext*) is interpreted as a fractional coordinate of the bbox
-    (return value of *get_window_extent*) of the artist. ::
+2. An `.Artist` instance. The *xy* value (or *xytext*) is interpreted as a
+   fractional coordinate of the bbox (return value of *get_window_extent*) of
+   the artist::
 
-      an1 = ax.annotate("Test 1", xy=(0.5, 0.5), xycoords="data",
-                        va="center", ha="center",
-                        bbox=dict(boxstyle="round", fc="w"))
-      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,  # (1, 0.5) of the an1's bbox
-                        xytext=(30, 0), textcoords="offset points",
-                        va="center", ha="left",
-                        bbox=dict(boxstyle="round", fc="w"),
-                        arrowprops=dict(arrowstyle="->"))
+     an1 = ax.annotate("Test 1", xy=(0.5, 0.5), xycoords="data",
+                       va="center", ha="center",
+                       bbox=dict(boxstyle="round", fc="w"))
+     an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,  # (1, 0.5) of the an1's bbox
+                       xytext=(30, 0), textcoords="offset points",
+                       va="center", ha="left",
+                       bbox=dict(boxstyle="round", fc="w"),
+                       arrowprops=dict(arrowstyle="->"))
 
-    .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord01_001.png
-       :target: ../../gallery/userdemo/annotate_simple_coord01.html
-       :align: center
-       :scale: 50
+   .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord01_001.png
+      :target: ../../gallery/userdemo/annotate_simple_coord01.html
+      :align: center
+      :scale: 50
 
-       Annotation with Simple Coordinates
+      Annotation with Simple Coordinates
 
-    Note that it is your responsibility that the extent of the
-    coordinate artist (*an1* in above example) is determined before *an2*
-    gets drawn. In most cases, it means that *an2* needs to be drawn
-    later than *an1*.
+   Note that you must ensure that the extent of the coordinate artist (*an1* in
+   above example) is determined before *an2* gets drawn. Usually, this means
+   that *an2* needs to be drawn after *an1*.
 
+3. A callable object that takes the renderer instance as single argument, and
+   returns either a `.Transform` or a `.BboxBase`.  The return value is then
+   handled as in (1), for transforms, or in (2), for bboxes.  For example, ::
 
- 3. A callable object that returns an instance of either
-    :class:`~matplotlib.transforms.BboxBase` or
-    :class:`~matplotlib.transforms.Transform`. If a transform is
-    returned, it is the same as 1 and if a bbox is returned, it is the same
-    as 2.  The callable object should take a single argument of the
-    renderer instance. For example, the following two commands give
-    identical results ::
+     an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,
+                       xytext=(30, 0), textcoords="offset points")
 
-      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,
-                        xytext=(30, 0), textcoords="offset points")
-      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1.get_window_extent,
-                        xytext=(30, 0), textcoords="offset points")
+   is identical to::
 
+     an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1.get_window_extent,
+                       xytext=(30, 0), textcoords="offset points")
 
- 4. A tuple of two coordinate specifications. The first item is for the
-    x-coordinate and the second is for the y-coordinate. For example, ::
+4. A pair of coordinate specifications -- the first for the x-coordinate, and
+   the second is for the y-coordinate; e.g. ::
 
-      annotate("Test", xy=(0.5, 1), xycoords=("data", "axes fraction"))
+     annotate("Test", xy=(0.5, 1), xycoords=("data", "axes fraction"))
 
-    0.5 is in data coordinates, and 1 is in normalized axes coordinates.
-    You may use an artist or transform as with a tuple. For example,
+   Here, 0.5 is in data coordinates, and 1 is in normalized axes coordinates.
+   Each of the coordinate specifications can also be an artist or a transform.
+   For example,
 
-    .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord02_001.png
-       :target: ../../gallery/userdemo/annotate_simple_coord02.html
-       :align: center
-       :scale: 50
+   .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord02_001.png
+      :target: ../../gallery/userdemo/annotate_simple_coord02.html
+      :align: center
+      :scale: 50
 
-       Annotation with Simple Coordinates 2
+      Annotation with Simple Coordinates 2
 
- 5. Sometimes, you want your annotation with some "offset points", not from the
-    annotated point but from some other point.
-    :class:`~matplotlib.text.OffsetFrom` is a helper class for such cases.
+5. Sometimes, you want your annotation with some "offset points", not from the
+   annotated point but from some other point.  `.text.OffsetFrom` is a helper
+   for such cases.
 
-    .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord03_001.png
-       :target: ../../gallery/userdemo/annotate_simple_coord03.html
-       :align: center
-       :scale: 50
+   .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord03_001.png
+      :target: ../../gallery/userdemo/annotate_simple_coord03.html
+      :align: center
+      :scale: 50
 
-       Annotation with Simple Coordinates 3
+      Annotation with Simple Coordinates 3
 
-    You may take a look at this example
-    :doc:`/gallery/text_labels_and_annotations/annotation_demo`.
+   You may take a look at this example
+   :doc:`/gallery/text_labels_and_annotations/annotation_demo`.
 
 Using ConnectionPatch
 ~~~~~~~~~~~~~~~~~~~~~
 
-The ConnectionPatch is like an annotation without text. While the annotate
-function is recommended in most situations, the ConnectionPatch is useful when
-you want to connect points in different axes. ::
+ConnectionPatch is like an annotation without text. While `~.Axes.annotate`
+is sufficient in most situations, ConnectionPatch is useful when you want to
+connect points in different axes. ::
 
   from matplotlib.patches import ConnectionPatch
   xy = (0.2, 0.2)
-  con = ConnectionPatch(xyA=xy, xyB=xy, coordsA="data", coordsB="data",
-                        axesA=ax1, axesB=ax2)
-  ax2.add_artist(con)
+  con = ConnectionPatch(xyA=xy, coordsA=ax1.transData,
+                        xyB=xy, coordsB=ax2.transData)
+  fig.add_artist(con)
 
 The above code connects point *xy* in the data coordinates of ``ax1`` to
 point *xy* in the data coordinates of ``ax2``. Here is a simple example.
@@ -536,11 +519,10 @@ point *xy* in the data coordinates of ``ax2``. Here is a simple example.
 
    Connect Simple01
 
-
-While the ConnectionPatch instance can be added to any axes, you may want to add
-it to the axes that is latest in drawing order to prevent overlap by other
-axes.
-
+Here, we added the ConnectionPatch to the *figure* (with `~.Figure.add_artist`)
+rather than to either axes: this ensures that it is drawn on top of both axes,
+and is also necessary if using :doc:`constrained_layout
+</tutorials/intermediate/constrainedlayout_guide>` for positioning the axes.
 
 Advanced Topics
 ---------------
@@ -548,11 +530,9 @@ Advanced Topics
 Zoom effect between Axes
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-``mpl_toolkits.axes_grid1.inset_locator`` defines some patch classes useful
-for interconnecting two axes. Understanding the code requires some
-knowledge of how mpl's transform works. But, utilizing it will be
-straight forward.
-
+``mpl_toolkits.axes_grid1.inset_locator`` defines some patch classes useful for
+interconnecting two axes. Understanding the code requires some knowledge of
+Matplotlib's transform system.
 
 .. figure:: ../../gallery/subplots_axes_and_figures/images/sphx_glr_axes_zoom_effect_001.png
    :target: ../../gallery/subplots_axes_and_figures/axes_zoom_effect.html
@@ -560,7 +540,6 @@ straight forward.
    :scale: 50
 
    Axes Zoom Effect
-
 
 Define Custom BoxStyle
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -589,17 +568,6 @@ Here is a complete example.
    :scale: 50
 
    Custom Boxstyle01
-
-However, it is recommended that you derive from the
-matplotlib.patches.BoxStyle._Base as demonstrated below.
-
-.. figure:: ../../gallery/userdemo/images/sphx_glr_custom_boxstyle02_001.png
-   :target: ../../gallery/userdemo/custom_boxstyle02.html
-   :align: center
-   :scale: 50
-
-   Custom Boxstyle02
-
 
 Similarly, you can define a custom ConnectionStyle and a custom ArrowStyle.
 See the source code of ``lib/matplotlib/patches.py`` and check

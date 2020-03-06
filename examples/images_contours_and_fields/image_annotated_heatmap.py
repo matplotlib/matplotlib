@@ -271,7 +271,7 @@ data = np.random.randn(6, 6)
 y = ["Prod. {}".format(i) for i in range(10, 70, 10)]
 x = ["Cycle {}".format(i) for i in range(1, 7)]
 
-qrates = np.array(list("ABCDEFG"))
+qrates = list("ABCDEFG")
 norm = matplotlib.colors.BoundaryNorm(np.linspace(-3.5, 3.5, 8), 7)
 fmt = matplotlib.ticker.FuncFormatter(lambda x, pos: qrates[::-1][norm(x)])
 

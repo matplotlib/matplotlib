@@ -132,13 +132,6 @@ WRITER_OUTPUT += [
 # matplotlib.testing.image_comparison
 @pytest.mark.parametrize('writer, output', WRITER_OUTPUT)
 def test_save_animation_smoketest(tmpdir, writer, output):
-    try:
-        # for ImageMagick the rcparams must be patched to account for
-        # 'convert' being a built in MS tool, not the imagemagick
-        # tool.
-        writer._init_from_registry()
-    except AttributeError:
-        pass
     if not animation.writers.is_available(writer):
         pytest.skip("writer '%s' not available on this system" % writer)
     fig, ax = plt.subplots()
@@ -182,8 +175,7 @@ def test_movie_writer_registry():
     assert len(animation.writers._registered) > 0
     mpl.rcParams['animation.ffmpeg_path'] = "not_available_ever_xxxx"
     assert not animation.writers.is_available("ffmpeg")
-    # something which is guaranteed to be available in path
-    # and exits immediately
+    # something guaranteed to be available in path and exits immediately
     bin = "true" if sys.platform != 'win32' else "where"
     mpl.rcParams['animation.ffmpeg_path'] = bin
     assert animation.writers.is_available("ffmpeg")

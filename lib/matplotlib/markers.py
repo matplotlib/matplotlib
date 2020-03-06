@@ -84,6 +84,7 @@ Examples showing the use of markers:
 
 * :doc:`/gallery/lines_bars_and_markers/marker_reference`
 * :doc:`/gallery/shapes_and_collections/marker_path`
+* :doc:`/gallery/lines_bars_and_markers/scatter_star_poly`
 
 
 .. |m00| image:: /_static/markers/m00.png

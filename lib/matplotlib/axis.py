@@ -7,10 +7,9 @@ import logging
 
 import numpy as np
 
-from matplotlib import rcParams
+import matplotlib as mpl
 import matplotlib.artist as martist
 import matplotlib.cbook as cbook
-import matplotlib.font_manager as font_manager
 import matplotlib.lines as mlines
 import matplotlib.scale as mscale
 import matplotlib.text as mtext
@@ -85,11 +84,12 @@ class Tick(martist.Artist):
         martist.Artist.__init__(self)
 
         if gridOn is None:
-            if major and (rcParams['axes.grid.which'] in ('both', 'major')):
-                gridOn = rcParams['axes.grid']
-            elif (not major) and (rcParams['axes.grid.which']
+            if major and (mpl.rcParams['axes.grid.which']
+                          in ('both', 'major')):
+                gridOn = mpl.rcParams['axes.grid']
+            elif (not major) and (mpl.rcParams['axes.grid.which']
                                   in ('both', 'minor')):
-                gridOn = rcParams['axes.grid']
+                gridOn = mpl.rcParams['axes.grid']
             else:
                 gridOn = False
 
@@ -103,25 +103,25 @@ class Tick(martist.Artist):
         major_minor = "major" if major else "minor"
 
         if size is None:
-            size = rcParams[f"{name}.{major_minor}.size"]
+            size = mpl.rcParams[f"{name}.{major_minor}.size"]
         self._size = size
 
         if width is None:
-            width = rcParams[f"{name}.{major_minor}.width"]
+            width = mpl.rcParams[f"{name}.{major_minor}.width"]
         self._width = width
 
         if color is None:
-            color = rcParams[f"{name}.color"]
+            color = mpl.rcParams[f"{name}.color"]
 
         if pad is None:
-            pad = rcParams[f"{name}.{major_minor}.pad"]
+            pad = mpl.rcParams[f"{name}.{major_minor}.pad"]
         self._base_pad = pad
 
         if labelcolor is None:
-            labelcolor = rcParams[f"{name}.color"]
+            labelcolor = mpl.rcParams[f"{name}.color"]
 
         if labelsize is None:
-            labelsize = rcParams[f"{name}.labelsize"]
+            labelsize = mpl.rcParams[f"{name}.labelsize"]
 
         self._set_labelrotation(labelrotation)
 
@@ -133,13 +133,13 @@ class Tick(martist.Artist):
         self._zorder = zorder
 
         if grid_color is None:
-            grid_color = rcParams["grid.color"]
+            grid_color = mpl.rcParams["grid.color"]
         if grid_linestyle is None:
-            grid_linestyle = rcParams["grid.linestyle"]
+            grid_linestyle = mpl.rcParams["grid.linestyle"]
         if grid_linewidth is None:
-            grid_linewidth = rcParams["grid.linewidth"]
+            grid_linewidth = mpl.rcParams["grid.linewidth"]
         if grid_alpha is None:
-            grid_alpha = rcParams["grid.alpha"]
+            grid_alpha = mpl.rcParams["grid.alpha"]
         grid_kw = {k[5:]: v for k, v in kw.items()}
 
         self.apply_tickdir(tickdir)
@@ -164,14 +164,10 @@ class Tick(martist.Artist):
             GRIDLINE_INTERPOLATION_STEPS
         self.label1 = mtext.Text(
             np.nan, np.nan,
-            fontproperties=font_manager.FontProperties(size=labelsize),
-            color=labelcolor, visible=label1On,
-        )
+            fontsize=labelsize, color=labelcolor, visible=label1On)
         self.label2 = mtext.Text(
             np.nan, np.nan,
-            fontproperties=font_manager.FontProperties(size=labelsize),
-            color=labelcolor, visible=label2On,
-        )
+            fontsize=labelsize, color=labelcolor, visible=label2On)
         for meth, attr in [("_get_tick1line", "tick1line"),
                            ("_get_tick2line", "tick2line"),
                            ("_get_gridline", "gridline"),
@@ -458,7 +454,7 @@ class XTick(Tick):
 
     def apply_tickdir(self, tickdir):
         if tickdir is None:
-            tickdir = rcParams['%s.direction' % self.__name__.lower()]
+            tickdir = mpl.rcParams['%s.direction' % self.__name__.lower()]
         self._tickdir = tickdir
 
         if self._tickdir == 'in':
@@ -529,7 +525,7 @@ class YTick(Tick):
 
     def apply_tickdir(self, tickdir):
         if tickdir is None:
-            tickdir = rcParams['%s.direction' % self.__name__.lower()]
+            tickdir = mpl.rcParams['%s.direction' % self.__name__.lower()]
         self._tickdir = tickdir
 
         if self._tickdir == 'in':
@@ -694,16 +690,15 @@ class Axis(martist.Artist):
 
         self.label = mtext.Text(
             np.nan, np.nan,
-            fontproperties=font_manager.FontProperties(
-                size=rcParams['axes.labelsize'],
-                weight=rcParams['axes.labelweight']),
-            color=rcParams['axes.labelcolor'],
+            fontsize=mpl.rcParams['axes.labelsize'],
+            fontweight=mpl.rcParams['axes.labelweight'],
+            color=mpl.rcParams['axes.labelcolor'],
         )
         self._set_artist_props(self.label)
         self.offsetText = mtext.Text(np.nan, np.nan)
         self._set_artist_props(self.offsetText)
 
-        self.labelpad = rcParams['axes.labelpad']
+        self.labelpad = mpl.rcParams['axes.labelpad']
 
         self.pickradius = pickradius
 
@@ -784,10 +779,12 @@ class Axis(martist.Artist):
         self.callbacks = cbook.CallbackRegistry()
 
         # whether the grids are on
-        self._gridOnMajor = (rcParams['axes.grid'] and
-                             rcParams['axes.grid.which'] in ('both', 'major'))
-        self._gridOnMinor = (rcParams['axes.grid'] and
-                             rcParams['axes.grid.which'] in ('both', 'minor'))
+        self._gridOnMajor = (
+                mpl.rcParams['axes.grid'] and
+                mpl.rcParams['axes.grid.which'] in ('both', 'major'))
+        self._gridOnMinor = (
+                mpl.rcParams['axes.grid'] and
+                mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
 
         self.reset_ticks()
 
@@ -1619,7 +1616,7 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        ticklabels : sequence of str or of `Text`\s
+        ticklabels : sequence of str or of `.Text`\s
             List of texts for tick labels; must include values for non-visible
             labels.
         minor : bool
@@ -1629,7 +1626,7 @@ class Axis(martist.Artist):
 
         Returns
         -------
-        labels : list of `Text`\s
+        labels : list of `.Text`\s
             For each tick, includes ``tick.label1`` if it is visible, then
             ``tick.label2`` if it is visible, in that order.
         """
@@ -1830,7 +1827,7 @@ def _make_getset_interval(method_name, lim_name, attr_name):
 
 class XAxis(Axis):
     __name__ = 'xaxis'
-    axis_name = 'x'
+    axis_name = 'x'  #: Read-only name identifying the axis.
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1848,9 +1845,8 @@ class XAxis(Axis):
             verticalalignment='top', horizontalalignment='right',
             transform=mtransforms.blended_transform_factory(
                 self.axes.transAxes, mtransforms.IdentityTransform()),
-            fontproperties=font_manager.FontProperties(
-                size=rcParams['xtick.labelsize']),
-            color=rcParams['xtick.color'],
+            fontsize=mpl.rcParams['xtick.labelsize'],
+            color=mpl.rcParams['xtick.color'],
         )
         self.offset_text_position = 'bottom'
 
@@ -2122,7 +2118,7 @@ class XAxis(Axis):
 
 class YAxis(Axis):
     __name__ = 'yaxis'
-    axis_name = 'y'
+    axis_name = 'y'  #: Read-only name identifying the axis.
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2142,9 +2138,8 @@ class YAxis(Axis):
             verticalalignment='baseline', horizontalalignment='left',
             transform=mtransforms.blended_transform_factory(
                 self.axes.transAxes, mtransforms.IdentityTransform()),
-            fontproperties=font_manager.FontProperties(
-                size=rcParams['ytick.labelsize']),
-            color=rcParams['ytick.color'],
+            fontsize=mpl.rcParams['ytick.labelsize'],
+            color=mpl.rcParams['ytick.color'],
         )
         self.offset_text_position = 'left'
 

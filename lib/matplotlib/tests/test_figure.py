@@ -3,6 +3,7 @@ from pathlib import Path
 import platform
 import warnings
 
+import matplotlib as mpl
 from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
@@ -17,7 +18,6 @@ import pytest
 @image_comparison(['figure_align_labels'],
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_align_labels():
-    # Check the figure.align_labels() command
     fig = plt.figure(tight_layout=True)
     gs = gridspec.GridSpec(3, 3)
 
@@ -190,9 +190,8 @@ def test_suptitle():
 
 
 def test_suptitle_fontproperties():
-    from matplotlib.font_manager import FontProperties
     fig, ax = plt.subplots()
-    fps = FontProperties(size='large', weight='bold')
+    fps = mpl.font_manager.FontProperties(size='large', weight='bold')
     txt = fig.suptitle('fontprops title', fontproperties=fps)
     assert txt.get_fontsize() == fps.get_size_in_points()
     assert txt.get_weight() == fps.get_weight()
@@ -205,17 +204,12 @@ def test_suptitle_fontproperties():
                   savefig_kwarg={'facecolor': (0, 1, 0.4),
                                  'edgecolor': 'none'})
 def test_alpha():
-    # We want an image which has a background color and an
-    # alpha of 0.4.
+    # We want an image which has a background color and an alpha of 0.4.
     fig = plt.figure(figsize=[2, 1])
     fig.set_facecolor((0, 1, 0.4))
     fig.patch.set_alpha(0.4)
-
-    import matplotlib.patches as mpatches
-    fig.patches.append(mpatches.CirclePolygon([20, 20],
-                                              radius=15,
-                                              alpha=0.6,
-                                              facecolor='red'))
+    fig.patches.append(mpl.patches.CirclePolygon(
+        [20, 20], radius=15, alpha=0.6, facecolor='red'))
 
 
 def test_too_many_figures():

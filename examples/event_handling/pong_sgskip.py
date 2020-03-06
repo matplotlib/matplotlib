@@ -44,8 +44,7 @@ def start_anim(event):
 
 
 start_anim.cid = canvas.mpl_connect('draw_event', start_anim)
-start_anim.timer = animation.canvas.new_timer()
-start_anim.timer.interval = 1
+start_anim.timer = animation.canvas.new_timer(interval=1)
 
 tstart = time.time()
 

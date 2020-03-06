@@ -250,15 +250,18 @@ day), generate the tarball ::
   git clean -xfd
   python setup.py sdist
 
-and copy all of the wheels into :file:`dist` directory.  You should use
-``twine`` to upload all of the files to pypi ::
+and copy all of the wheels into :file:`dist` directory.  First, check
+that the dist files are OK ::
+
+  twine check dist/*
+
+and then use ``twine`` to upload all of the files to pypi ::
 
    twine upload -s dist/matplotlib*tar.gz
    twine upload dist/*whl
 
 Congratulations, you have now done the second scariest part!
 
-Additionally, for a final release, upload all of the files to sourceforge.
 
 .. _release_docs:
 
@@ -272,8 +275,7 @@ build the docs from the ``ver-doc`` branch.  An easy way to arrange this is::
   pip install -r requirements/doc/doc-requirements.txt
   git checkout v2.0.0-doc
   git clean -xfd
-  cd doc
-  make O=-n$(nproc) html latexpdf
+  make -Cdoc O=-j$(nproc) html latexpdf LATEXMKOPTS="-silent -f"
 
 which will build both the html and pdf version of the documentation.
 

@@ -120,7 +120,7 @@ class AxesWidget(Widget):
         """
         Connect callback with an event.
 
-        This should be used in lieu of `figure.canvas.mpl_connect` since this
+        This should be used in lieu of ``figure.canvas.mpl_connect`` since this
         function stores callback ids for later clean up.
         """
         cid = self.canvas.mpl_connect(event, callback)
@@ -2008,11 +2008,6 @@ class RectangleSelector(_SelectorWidget):
         *button* is the `.MouseButton` or list of `.MouseButton`\s used for
         rectangle selection.  Default is *None*, which means any button.
 
-        Note, typically:
-         1 = left mouse button
-         2 = center mouse button (scroll wheel)
-         3 = right mouse button
-
         *interactive* will draw a set of handles and allow you interact
         with the widget after it is drawn.
 
@@ -2583,7 +2578,7 @@ class PolygonSelector(_SelectorWidget):
                 self._active_handle_idx = h_idx
         # Save the vertex positions at the time of the press event (needed to
         # support the 'move_all' state modifier).
-        self._xs_at_press, self._ys_at_press = self._xs[:], self._ys[:]
+        self._xs_at_press, self._ys_at_press = self._xs.copy(), self._ys.copy()
 
     def _release(self, event):
         """Button release event handler"""
@@ -2722,7 +2717,7 @@ class Lasso(AxesWidget):
     xy : (float, float)
         Coordinates of the start of the lasso.
     callback : callable
-        Whenever the lasso is released, the `callback` function is called and
+        Whenever the lasso is released, the *callback* function is called and
         passed the vertices of the selected path.
     """
 

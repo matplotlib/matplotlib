@@ -215,6 +215,11 @@ rules before submitting a pull request:
      import matplotlib.cbook as cbook
      import matplotlib.patches as mpatches
 
+  In general, Matplotlib modules should **not** import `.rcParams` using ``from
+  matplotlib import rcParams``, but rather access it as ``mpl.rcParams``.  This
+  is because some modules are imported very early, before the `.rcParams`
+  singleton is constructed.
+
 * If your change is a major new feature, add an entry to the ``What's new``
   section by adding a new file in ``doc/users/next_whats_new`` (see
   :file:`doc/users/next_whats_new/README.rst` for more information).
@@ -296,14 +301,15 @@ API changes
 Changes to the public API must follow a standard deprecation procedure to
 prevent unexpected breaking of code that uses Matplotlib.
 
-- Deprecations must be announced via an entry in `doc/api/next_api_changes`.
+- Deprecations must be announced via an entry in
+  :file:`doc/api/next_api_changes`.
 - Deprecations are targeted at the next point-release (i.e. 3.x.0).
 - The deprecated API should, to the maximum extent possible, remain fully
   functional during the deprecation period. In cases where this is not
   possible, the deprecation must never make a given piece of code do something
   different than it was before; at least an exception should be raised.
 - If possible, usage of an deprecated API should emit a
-  `MatplotlibDeprecationWarning`. There are a number of helper tools for this:
+  `.MatplotlibDeprecationWarning`. There are a number of helper tools for this:
 
   - Use `.cbook.warn_deprecated()` for general deprecation warnings.
   - Use the decorator ``@cbook.deprecated`` to deprecate classes, functions,
@@ -444,7 +450,7 @@ To include `logging` in your module, at the top of the module, you need to
 will log to a logger named ``matplotlib.yourmodulename``.
 
 If an end-user of Matplotlib sets up `logging` to display at levels
-more verbose than `logger.WARNING` in their code with the Matplotlib-provided
+more verbose than `logging.WARNING` in their code with the Matplotlib-provided
 helper::
 
   plt.set_loglevel("debug")

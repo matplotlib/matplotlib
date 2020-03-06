@@ -5,10 +5,9 @@
 
 Controlling properties of text and its layout with Matplotlib.
 
-The :class:`matplotlib.text.Text` instances have a variety of
-properties which can be configured via keyword arguments to the text
-commands (e.g., :func:`~matplotlib.pyplot.title`,
-:func:`~matplotlib.pyplot.xlabel` and :func:`~matplotlib.pyplot.text`).
+`matplotlib.text.Text` instances have a variety of properties which can be
+configured via keyword arguments to `~.Axes.set_title`, `~.Axes.set_xlabel`,
+`~.Axes.text`, etc.
 
 ==========================  ======================================================================================================================
 Property                    Value Type

@@ -141,6 +141,8 @@ def test_svgnone_with_data_coordinates():
         buf = fd.read().decode()
 
     assert expected in buf
+    for prop in ["family", "weight", "stretch", "style", "size"]:
+        assert f"font-{prop}:" in buf
 
 
 def test_gid():

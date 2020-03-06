@@ -1249,16 +1249,3 @@ Issues (161):
 * :ghissue:`11587`: Missing filled contours when using contourf
 * :ghissue:`11716`: errorbar pickling fails when specifying y error bars
 * :ghissue:`11557`: Hoping add a drawing function 'patch'  in matplotlib
-
-
-
-Previous Github Stats
----------------------
-
-
-.. toctree::
-    :maxdepth: 1
-    :glob:
-    :reversed:
-
-    github_stats_*

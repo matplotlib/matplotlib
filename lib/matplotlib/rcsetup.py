@@ -50,10 +50,12 @@ all_backends = interactive_bk + non_interactive_bk
 
 
 class ValidateInStrings:
-    def __init__(self, key, valid, ignorecase=False):
+    def __init__(self, key, valid, ignorecase=False, *,
+                 _deprecated_since=None):
         """*valid* is a list of legal strings."""
         self.key = key
         self.ignorecase = ignorecase
+        self._deprecated_since = _deprecated_since
 
         def func(s):
             if ignorecase:
@@ -63,6 +65,10 @@ class ValidateInStrings:
         self.valid = {func(k): k for k in valid}
 
     def __call__(self, s):
+        if self._deprecated_since:
+            name, = (k for k, v in globals().items() if v is self)
+            cbook.warn_deprecated(
+                self._deprecated_since, name=name, obj_type="function")
         if self.ignorecase:
             s = s.lower()
         if s in self.valid:
@@ -150,7 +156,7 @@ def validate_bool_maybe_none(b):
 
 def _validate_tex_preamble(s):
     message = (
-        f"Support for setting the 'text.latex.unicode' and 'pdf.preamble' "
+        f"Support for setting the 'text.latex.preamble' and 'pgf.preamble' "
         f"rcParams to {s!r} is deprecated since %(since)s and will be "
         f"removed %(removal)s; please set them to plain (possibly empty) "
         f"strings instead.")
@@ -165,8 +171,8 @@ def _validate_tex_preamble(s):
             return '\n'.join(s)
         else:
             raise TypeError
-    except TypeError:
-        raise ValueError('Could not convert "%s" to string' % s)
+    except TypeError as e:
+        raise ValueError('Could not convert "%s" to string' % s) from e
 
 
 def validate_axisbelow(s):
@@ -174,8 +180,14 @@ def validate_axisbelow(s):
         return validate_bool(s)
     except ValueError:
         if isinstance(s, str):
-            s = s.lower()
-            if s.startswith('line'):
+            if s == 'line':
+                return 'line'
+            if s.lower().startswith('line'):
+                cbook.warn_deprecated(
+                    "3.3", message=f"Support for setting axes.axisbelow to "
+                    f"{s!r} to mean 'line' is deprecated since %(since)s and "
+                    f"will be removed in %(removal)s; set it to 'line' "
+                    "instead.")
                 return 'line'
     raise ValueError('%s cannot be interpreted as'
                      ' True, False, or "line"' % s)
@@ -187,9 +199,9 @@ def validate_dpi(s):
         return s
     try:
         return float(s)
-    except ValueError:
-        raise ValueError('"%s" is not string "figure" or'
-            ' could not convert "%s" to float' % (s, s))
+    except ValueError as e:
+        raise ValueError(f'{s!r} is not string "figure" and '
+                         f'could not convert {s!r} to float') from e
 
 
 def _make_type_validator(cls, *, allow_none=False):
@@ -204,8 +216,8 @@ def _make_type_validator(cls, *, allow_none=False):
             return None
         try:
             return cls(s)
-        except ValueError:
-            raise ValueError(f'Could not convert {s!r} to {cls.__name__}')
+        except ValueError as e:
+            raise ValueError(f'Could not convert {s!r} to {cls.__name__}') from e
 
     validator.__name__ = f"validate_{cls.__name__}"
     if allow_none:
@@ -239,9 +251,9 @@ def validate_fonttype(s):
     except ValueError:
         try:
             return fonttypes[s.lower()]
-        except KeyError:
+        except KeyError as e:
             raise ValueError(
-                'Supported Postscript/PDF font types are %s' % list(fonttypes))
+                'Supported Postscript/PDF font types are %s' % list(fonttypes)) from e
     else:
         if fonttype not in fonttypes.values():
             raise ValueError(
@@ -263,7 +275,8 @@ def validate_backend(s):
 
 
 validate_toolbar = ValidateInStrings(
-    'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True)
+    'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True,
+    _deprecated_since="3.3")
 
 
 def _make_nseq_validator(cls, n=None, allow_none=False):
@@ -284,9 +297,9 @@ def _make_nseq_validator(cls, n=None, allow_none=False):
         try:
             return [cls(val) if not allow_none or val is not None else val
                     for val in s]
-        except ValueError:
+        except ValueError as e:
             raise ValueError(
-                f'Could not convert all entries to {cls.__name__}s')
+                f'Could not convert all entries to {cls.__name__}s') from e
 
     return validator
 
@@ -326,13 +339,9 @@ def validate_color_for_prop_cycle(s):
 
 def validate_color(s):
     """Return a valid color arg."""
-    try:
+    if isinstance(s, str):
         if s.lower() == 'none':
             return 'none'
-    except AttributeError:
-        pass
-
-    if isinstance(s, str):
         if len(s) == 6 or len(s) == 8:
             stmp = '#' + s
             if is_color_like(stmp):
@@ -341,31 +350,22 @@ def validate_color(s):
     if is_color_like(s):
         return s
 
-    # If it is still valid, it must be a tuple.
-    colorarg = s
-    msg = ''
-    if s.find(',') >= 0:
-        # get rid of grouping symbols
-        stmp = ''.join([c for c in s if c.isdigit() or c == '.' or c == ','])
-        vals = stmp.split(',')
-        if len(vals) not in [3, 4]:
-            msg = '\nColor tuples must be of length 3 or 4'
-        else:
-            try:
-                colorarg = [float(val) for val in vals]
-            except ValueError:
-                msg = '\nCould not convert all entries to floats'
+    # If it is still valid, it must be a tuple (as a string from matplotlibrc).
+    try:
+        color = ast.literal_eval(s)
+    except (SyntaxError, ValueError):
+        pass
+    else:
+        if is_color_like(color):
+            return color
 
-    if not msg and is_color_like(colorarg):
-        return colorarg
-
-    raise ValueError('%s does not look like a color arg%s' % (s, msg))
+    raise ValueError(f'{s!r} does not look like a color arg')
 
 
 validate_colorlist = _listify_validator(
     validate_color, allow_stringlist=True, doc='return a list of colorspecs')
 validate_orientation = ValidateInStrings(
-    'orientation', ['landscape', 'portrait'])
+    'orientation', ['landscape', 'portrait'], _deprecated_since="3.3")
 
 
 def validate_aspect(s):
@@ -373,8 +373,8 @@ def validate_aspect(s):
         return s
     try:
         return float(s)
-    except ValueError:
-        raise ValueError('not a valid aspect specification')
+    except ValueError as e:
+        raise ValueError('not a valid aspect specification') from e
 
 
 def validate_fontsize_None(s):
@@ -393,9 +393,9 @@ def validate_fontsize(s):
         return s
     try:
         return float(s)
-    except ValueError:
+    except ValueError as e:
         raise ValueError("%s is not a valid font size. Valid font sizes "
-                         "are %s." % (s, ", ".join(fontsizes)))
+                         "are %s." % (s, ", ".join(fontsizes))) from e
 
 
 validate_fontsizelist = _listify_validator(validate_fontsize)
@@ -410,8 +410,8 @@ def validate_fontweight(s):
         return s
     try:
         return int(s)
-    except (ValueError, TypeError):
-        raise ValueError(f'{s} is not a valid font weight.')
+    except (ValueError, TypeError) as e:
+        raise ValueError(f'{s} is not a valid font weight.') from e
 
 
 def validate_font_properties(s):
@@ -419,31 +419,48 @@ def validate_font_properties(s):
     return s
 
 
+def _validate_mathtext_fallback_to_cm(b):
+    """
+    Temporary validate for fallback_to_cm, while deprecated
+
+    """
+    if isinstance(b, str):
+        b = b.lower()
+    if b is None or b == 'none':
+        return None
+    else:
+        cbook.warn_deprecated(
+            "3.3", message="Support for setting the 'mathtext.fallback_to_cm' rcParam "
+            "is deprecated since %(since)s and will be removed "
+            "%(removal)s; use 'mathtext.fallback : 'cm' instead.")
+        return validate_bool_maybe_none(b)
+
+
+def _validate_mathtext_fallback(s):
+    _fallback_fonts = ['cm', 'stix', 'stixsans']
+    if isinstance(s, str):
+        s = s.lower()
+    if s is None or s == 'none':
+        return None
+    elif s.lower() in _fallback_fonts:
+        return s
+    else:
+        raise ValueError(f"{s} is not a valid fallback font name. Valid fallback "
+                         f"font names are {','.join(_fallback_fonts)}. Passing "
+                         f"'None' will turn fallback off.")
+
+
 validate_fontset = ValidateInStrings(
     'fontset',
-    ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom'])
-
-
-def validate_mathtext_default(s):
-    if s == "circled":
-        cbook.warn_deprecated(
-            "3.1", message="Support for setting the mathtext.default rcParam "
-            "to 'circled' is deprecated since %(since)s and will be removed "
-            "%(removal)s.")
-    return ValidateInStrings(
-        'default',
-        "rm cal it tt sf bf default bb frak circled scr regular".split())(s)
-
-
+    ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom'],
+    _deprecated_since="3.3")
+validate_mathtext_default = ValidateInStrings(
+    'default', "rm cal it tt sf bf default bb frak scr regular".split(),
+    _deprecated_since="3.3")
 _validate_alignment = ValidateInStrings(
     'alignment',
-    ['center', 'top', 'bottom', 'baseline',
-     'center_baseline'])
-
-
-_validate_verbose = ValidateInStrings(
-    'verbose',
-    ['silent', 'helpful', 'debug', 'debug-annoying'])
+    ['center', 'top', 'bottom', 'baseline', 'center_baseline'],
+    _deprecated_since="3.3")
 
 
 def validate_whiskers(s):
@@ -461,9 +478,9 @@ def validate_whiskers(s):
             try:
                 v = float(s)
                 return v
-            except ValueError:
+            except ValueError as e:
                 raise ValueError("Not a valid whisker value ['range', float, "
-                                 "(float, float)]")
+                                 "(float, float)]") from e
 
 
 @cbook.deprecated("3.2")
@@ -499,7 +516,7 @@ validate_ps_papersize = ValidateInStrings(
     ['auto', 'letter', 'legal', 'ledger',
      'a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10',
      'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9', 'b10',
-     ], ignorecase=True)
+     ], ignorecase=True, _deprecated_since="3.3")
 
 
 def validate_ps_distiller(s):
@@ -660,9 +677,10 @@ validate_legend_loc = ValidateInStrings(
      'center right',
      'lower center',
      'upper center',
-     'center'], ignorecase=True)
+     'center'], ignorecase=True, _deprecated_since="3.3")
 
-validate_svg_fonttype = ValidateInStrings('svg.fonttype', ['none', 'path'])
+validate_svg_fonttype = ValidateInStrings(
+    'svg.fonttype', ['none', 'path'], _deprecated_since="3.3")
 
 
 def validate_hinting(s):
@@ -677,8 +695,9 @@ def validate_hinting(s):
     raise ValueError("hinting should be 'auto', 'native', 'either' or 'none'")
 
 
-validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
-                                           ['xelatex', 'lualatex', 'pdflatex'])
+validate_pgf_texsystem = ValidateInStrings(
+    'pgf.texsystem', ['xelatex', 'lualatex', 'pdflatex'],
+    _deprecated_since="3.3")
 
 
 def validate_movie_writer(s):
@@ -691,13 +710,13 @@ def validate_movie_writer(s):
                          f"{sorted(animation.writers._registered)}")
 
 
-validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
-    ['png', 'jpeg', 'tiff', 'raw', 'rgba'])
-
-validate_axis_locator = ValidateInStrings('major', ['minor', 'both', 'major'])
-
-validate_movie_html_fmt = ValidateInStrings('animation.html',
-    ['html5', 'jshtml', 'none'])
+validate_movie_frame_fmt = ValidateInStrings(
+    'animation.frame_format', ['png', 'jpeg', 'tiff', 'raw', 'rgba'],
+    _deprecated_since="3.3")
+validate_axis_locator = ValidateInStrings(
+    'major', ['minor', 'both', 'major'], _deprecated_since="3.3")
+validate_movie_html_fmt = ValidateInStrings(
+    'animation.html', ['html5', 'jshtml', 'none'], _deprecated_since="3.3")
 
 
 def validate_bbox(s):
@@ -750,7 +769,8 @@ _range_validators = {  # Slightly nicer (internal) API.
 }
 
 
-validate_grid_axis = ValidateInStrings('axes.grid.axis', ['x', 'y', 'both'])
+validate_grid_axis = ValidateInStrings(
+    'axes.grid.axis', ['x', 'y', 'both'], _deprecated_since="3.3")
 
 
 def validate_hatch(s):
@@ -914,7 +934,7 @@ def validate_cycler(s):
             s = eval(s, {'cycler': cycler, '__builtins__': {}})
         except BaseException as e:
             raise ValueError("'%s' is not a valid cycler construction: %s" %
-                             (s, e))
+                             (s, e)) from e
     # Should make sure what comes from the above eval()
     # is a Cycler object.
     if isinstance(s, Cycler):
@@ -992,15 +1012,31 @@ def validate_webagg_address(s):
         import socket
         try:
             socket.inet_aton(s)
-        except socket.error:
-            raise ValueError("'webagg.address' is not a valid IP address")
+        except socket.error as e:
+            raise ValueError("'webagg.address' is not a valid IP address") from e
         return s
     raise ValueError("'webagg.address' is not a valid IP address")
 
 
-validate_axes_titlelocation = ValidateInStrings('axes.titlelocation', ['left', 'center', 'right'])
+validate_axes_titlelocation = ValidateInStrings(
+    'axes.titlelocation', ['left', 'center', 'right'], _deprecated_since="3.3")
 
-# a map from key -> value, converter
+
+class _ignorecase(list):
+    """A marker class indicating that a list-of-str is case-insensitive."""
+
+
+def _convert_validator_spec(key, conv):
+    if isinstance(conv, list):
+        ignorecase = isinstance(conv, _ignorecase)
+        return ValidateInStrings(key, conv, ignorecase=ignorecase)
+    else:
+        return conv
+
+
+# A map of key -> [value, converter].
+# Converters given as lists or _ignorecase are converted to ValidateInStrings
+# immediately below.
 defaultParams = {
     'backend':           [_auto_backend_sentinel, validate_backend],
     'backend_fallback':  [True, validate_bool],
@@ -1008,14 +1044,10 @@ defaultParams = {
     'webagg.address':    ['127.0.0.1', validate_webagg_address],
     'webagg.open_in_browser': [True, validate_bool],
     'webagg.port_retries': [50, validate_int],
-    'toolbar':           ['toolbar2', validate_toolbar],
+    'toolbar':           ['toolbar2', _ignorecase(['none', 'toolbar2', 'toolmanager'])],
     'datapath':          [None, validate_any],  # see _get_data_path_cached
     'interactive':       [False, validate_bool],
     'timezone':          ['UTC', validate_string],
-
-    # the verbosity setting
-    'verbose.level': ['silent', _validate_verbose],
-    'verbose.fileo': ['sys.stdout', validate_string],
 
     # line props
     'lines.linewidth':       [1.5, validate_float],  # line width in points
@@ -1039,6 +1071,9 @@ defaultParams = {
 
     # marker props
     'markers.fillstyle': ['full', validate_fillstyle],
+
+    ## pcolor(mesh) props:
+    'pcolor.shading': ['flat', validate_string],  # auto,flat,nearest,gouraud
 
     ## patch props
     'patch.linewidth':   [1.0, validate_float],     # line width in points
@@ -1133,7 +1168,6 @@ defaultParams = {
     # text props
     'text.color':          ['black', validate_color],
     'text.usetex':         [False, validate_bool],
-    'text.latex.unicode':  [True, validate_bool],
     'text.latex.preamble': ['', _validate_tex_preamble],
     'text.latex.preview':  [False, validate_bool],
     'text.hinting':        ['auto', validate_hinting],
@@ -1147,16 +1181,20 @@ defaultParams = {
     'mathtext.it':             ['sans:italic', validate_font_properties],
     'mathtext.bf':             ['sans:bold', validate_font_properties],
     'mathtext.sf':             ['sans', validate_font_properties],
-    'mathtext.fontset':        ['dejavusans', validate_fontset],
-    'mathtext.default':        ['it', validate_mathtext_default],
-    'mathtext.fallback_to_cm': [True, validate_bool],
+    'mathtext.fontset':        [
+        'dejavusans',
+        ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom']],
+    'mathtext.default':        [
+        'it',
+        ['rm', 'cal', 'it', 'tt', 'sf', 'bf', 'default', 'bb', 'frak', 'scr', 'regular']],
+    'mathtext.fallback_to_cm': [None, _validate_mathtext_fallback_to_cm],
+    'mathtext.fallback':       ['cm', _validate_mathtext_fallback],
 
     'image.aspect':        ['equal', validate_aspect],  # equal, auto, a number
     'image.interpolation': ['antialiased', validate_string],
     'image.cmap':          ['viridis', validate_string],  # gray, jet, etc.
     'image.lut':           [256, validate_int],  # lookup table
-    'image.origin':        ['upper',
-                            ValidateInStrings('image.origin', ['upper', 'lower'])],
+    'image.origin':        ['upper', ['upper', 'lower']],
     'image.resample':      [True, validate_bool],
     # Specify whether vector graphics backends will combine all images on a
     # set of axes into a single composite image
@@ -1168,6 +1206,10 @@ defaultParams = {
 
     # errorbar props
     'errorbar.capsize':      [0, validate_float],
+
+    # axis props
+    'xaxis.labellocation':    ['center', ['left', 'center', 'right']],  # alignment of x axis title
+    'yaxis.labellocation':    ['center', ['bottom', 'center', 'top']],  # alignment of y axis title
 
     # axes props
     'axes.axisbelow':        ['line', validate_axisbelow],
@@ -1182,16 +1224,14 @@ defaultParams = {
 
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
-    'axes.titlelocation':    ['center', validate_axes_titlelocation],  # alignment of axes title
+    'axes.titlelocation':    ['center', ['left', 'center', 'right']],  # alignment of axes title
     'axes.titleweight':      ['normal', validate_fontweight],  # font weight of axes title
     'axes.titlecolor':       ['auto', validate_color_or_auto],  # font color of axes title
     'axes.titlepad':         [6.0, validate_float],  # pad from axes top to title in points
     'axes.grid':             [False, validate_bool],   # display grid or not
-    'axes.grid.which':       ['major', validate_axis_locator],  # set whether the gid are by
-                                                                # default draw on 'major'
-                                                                # 'minor' or 'both' kind of
-                                                                # axis locator
-    'axes.grid.axis':        ['both', validate_grid_axis],  # grid type:
+    'axes.grid.which':       ['major', ['minor', 'both', 'major']],  # set whether the grid is drawn on
+                                                                     # 'major' 'minor' or 'both' ticks
+    'axes.grid.axis':        ['both', ['x', 'y', 'both']],  # grid type:
                                                             # 'x', 'y', or 'both'
     'axes.labelsize':        ['medium', validate_fontsize],  # fontsize of the
                                                              # x any y labels
@@ -1220,9 +1260,7 @@ defaultParams = {
         validate_cycler],
     # If 'data', axes limits are set close to the data.
     # If 'round_numbers' axes limits are set to the nearest round numbers.
-    'axes.autolimit_mode': [
-        'data',
-        ValidateInStrings('autolimit_mode', ['data', 'round_numbers'])],
+    'axes.autolimit_mode': ['data', ['data', 'round_numbers']],
     'axes.xmargin': [0.05, _range_validators["0 <= x <= 1"]],
     'axes.ymargin': [0.05, _range_validators["0 <= x <= 1"]],
 
@@ -1244,7 +1282,13 @@ defaultParams = {
 
     #legend properties
     'legend.fancybox': [True, validate_bool],
-    'legend.loc': ['best', validate_legend_loc],
+    'legend.loc': ['best',
+                   _ignorecase(['best',
+                                'upper right', 'upper left',
+                                'lower left', 'lower right', 'right',
+                                'center left', 'center right',
+                                'lower center', 'upper center',
+                                'center'])],
     # the number of points in the legend line
     'legend.numpoints': [1, validate_int],
     # the number of points in the legend line for scatter
@@ -1297,7 +1341,8 @@ defaultParams = {
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
     'xtick.direction':   ['out', validate_string],            # direction of xticks
-    'xtick.alignment': ["center", _validate_alignment],
+    'xtick.alignment':   ['center',
+                          ['center', 'top', 'bottom', 'baseline', 'center_baseline']],
 
     'ytick.left':        [True, validate_bool],  # draw ticks on the left side
     'ytick.right':       [False, validate_bool],  # draw ticks on the right side
@@ -1319,7 +1364,8 @@ defaultParams = {
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
     'ytick.direction':   ['out', validate_string],            # direction of yticks
-    'ytick.alignment': ["center_baseline", _validate_alignment],
+    'ytick.alignment':   ['center_baseline',
+                          ['center', 'top', 'bottom', 'baseline', 'center_baseline']],
 
     'grid.color':        ['#b0b0b0', validate_color],  # grid color
     'grid.linestyle':    ['-', _validate_linestyle],  # solid
@@ -1339,6 +1385,7 @@ defaultParams = {
     'figure.frameon':    [True, validate_bool],
     'figure.autolayout': [False, validate_bool],
     'figure.max_open_warning': [20, validate_int],
+    'figure.raise_window': [True, validate_bool],
 
     'figure.subplot.left': [0.125, _range_validators["0 <= x <= 1"]],
     'figure.subplot.right': [0.9, _range_validators["0 <= x <= 1"]],
@@ -1364,8 +1411,7 @@ defaultParams = {
     'savefig.dpi':         ['figure', validate_dpi],  # DPI
     'savefig.facecolor':   ['white', validate_color],
     'savefig.edgecolor':   ['white', validate_color],
-    'savefig.frameon':     [True, validate_bool],
-    'savefig.orientation': ['portrait', validate_orientation],
+    'savefig.orientation': ['portrait', ['landscape', 'portrait']],
     'savefig.jpeg_quality': [95, validate_int],
     # value checked by backend at runtime
     'savefig.format':     ['png', _update_savefig_format],
@@ -1380,7 +1426,9 @@ defaultParams = {
     'tk.window_focus':  [False, validate_bool],
 
     # Set the papersize/type
-    'ps.papersize':     ['letter', validate_ps_papersize],
+    'ps.papersize':     ['letter',
+                         _ignorecase(['auto', 'letter', 'legal', 'ledger',
+                                      *[f'{ab}{i}' for ab in 'ab' for i in range(11)]])],
     'ps.useafm':        [False, validate_bool],
     # use ghostscript or xpdf to distill ps output
     'ps.usedistiller':  [False, validate_ps_distiller],
@@ -1394,9 +1442,8 @@ defaultParams = {
     'pdf.use14corefonts': [False, validate_bool],
     'pdf.fonttype':     [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
 
-    'pgf.debug':     [False, validate_bool],  # output debug information
     # choose latex application for creating pdf files (xelatex/lualatex)
-    'pgf.texsystem': ['xelatex', validate_pgf_texsystem],
+    'pgf.texsystem': ['xelatex', ['xelatex', 'lualatex', 'pdflatex']],
     # use matplotlib rc settings for font configuration
     'pgf.rcfonts':   [True, validate_bool],
     # provide a custom preamble for the latex process
@@ -1405,7 +1452,7 @@ defaultParams = {
     # write raster image data directly into the svg file
     'svg.image_inline':     [True, validate_bool],
     # True to save all characters as paths in the SVG
-    'svg.fonttype':         ['path', validate_svg_fonttype],
+    'svg.fonttype':         ['path', ['none', 'path']],
     'svg.hashsalt':         [None, validate_string_or_None],
 
     # set this when you want to generate hardcopy docstring
@@ -1439,7 +1486,7 @@ defaultParams = {
     'keymap.copy':         [['ctrl+c', 'cmd+c'], validate_stringlist],
 
     # Animation settings
-    'animation.html':         ['none', validate_movie_html_fmt],
+    'animation.html':         ['none', ['html5', 'jshtml', 'none']],
     # Limit, in MB, of size of base64 encoded animation in HTML
     # (i.e. IPython notebook)
     'animation.embed_limit':  [20, validate_float],
@@ -1447,7 +1494,7 @@ defaultParams = {
     'animation.codec':        ['h264', validate_string],
     'animation.bitrate':      [-1, validate_int],
     # Controls image format when frames are written to disk
-    'animation.frame_format': ['png', validate_movie_frame_fmt],
+    'animation.frame_format': ['png', ['png', 'jpeg', 'tiff', 'raw', 'rgba']],
     # Additional arguments for HTML writer
     'animation.html_args':    [[], validate_stringlist],
     # Path to ffmpeg binary. If just binary name, subprocess uses $PATH.
@@ -1471,3 +1518,5 @@ defaultParams = {
     # altogether.  For that use `matplotlib.style.use('classic')`.
     '_internal.classic_mode': [False, validate_bool]
 }
+defaultParams = {k: [default, _convert_validator_spec(k, conv)]
+                 for k, (default, conv) in defaultParams.items()}

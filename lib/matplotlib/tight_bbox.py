@@ -1,5 +1,5 @@
 """
-This module is to support *bbox_inches* option in savefig command.
+This module is to support the *bbox_inches* parameter in `.Figure.savefig`.
 """
 
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D

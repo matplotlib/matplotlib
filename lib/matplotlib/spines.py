@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib
 from matplotlib import cbook, docstring, rcParams
 from matplotlib.artist import allow_rasterization
-import matplotlib.cbook as cbook
 import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
@@ -18,7 +17,7 @@ class Spine(mpatches.Patch):
     positions. See function:`~matplotlib.spines.Spine.set_position`
     for more information.
 
-    The default position is ``('outward',0)``.
+    The default position is ``('outward', 0)``.
 
     Spines are subclasses of class:`~matplotlib.patches.Patch`, and
     inherit much of their behavior.
@@ -379,28 +378,23 @@ class Spine(mpatches.Patch):
         return ret
 
     def set_position(self, position):
-        """Set the position of the spine.
+        """
+        Set the position of the spine.
 
         Spine position is specified by a 2 tuple of (position type,
         amount). The position types are:
 
-        * 'outward' : place the spine out from the data area by the
-          specified number of points. (Negative values specify placing the
-          spine inward.)
-
-        * 'axes' : place the spine at the specified Axes coordinate (from
-          0.0-1.0).
-
-        * 'data' : place the spine at the specified data coordinate.
+        * 'outward': place the spine out from the data area by the specified
+          number of points. (Negative values place the spine inwards.)
+        * 'axes': place the spine at the specified Axes coordinate (0 to 1).
+        * 'data': place the spine at the specified data coordinate.
 
         Additionally, shorthand notations define a special positions:
 
-        * 'center' -> ('axes',0.5)
+        * 'center' -> ('axes', 0.5)
         * 'zero' -> ('data', 0.0)
-
         """
-        if position in ('center', 'zero'):
-            # special positions
+        if position in ('center', 'zero'):  # special positions
             pass
         else:
             if len(position) != 2:
@@ -409,9 +403,7 @@ class Spine(mpatches.Patch):
                 raise ValueError("position[0] should be one of 'outward', "
                                  "'axes', or 'data' ")
         self._position = position
-
         self.set_transform(self.get_spine_transform())
-
         if self.axis is not None:
             self.axis.reset_ticks()
         self.stale = True
@@ -568,8 +560,8 @@ class Spine(mpatches.Patch):
         Notes
         -----
         This method does not modify the facecolor (which defaults to "none"),
-        unlike the `Patch.set_color` method defined in the parent class.  Use
-        `Patch.set_facecolor` to set the facecolor.
+        unlike the `.Patch.set_color` method defined in the parent class.  Use
+        `.Patch.set_facecolor` to set the facecolor.
         """
         self.set_edgecolor(c)
         self.stale = True

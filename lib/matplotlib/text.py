@@ -105,7 +105,7 @@ def _get_textbox(text, renderer):
 @cbook._define_aliases({
     "color": ["c"],
     "fontfamily": ["family"],
-    "fontproperties": ["font_properties"],
+    "fontproperties": ["font", "font_properties"],
     "horizontalalignment": ["ha"],
     "multialignment": ["ma"],
     "fontname": ["name"],
@@ -153,19 +153,17 @@ class Text(Artist):
             color = rcParams['text.color']
         if fontproperties is None:
             fontproperties = FontProperties()
-        elif isinstance(fontproperties, str):
-            fontproperties = FontProperties(fontproperties)
 
         self._text = ''
         self.set_text(text)
         self.set_color(color)
+        self.set_fontproperties(fontproperties)
         self.set_usetex(usetex)
         self.set_wrap(wrap)
         self.set_verticalalignment(verticalalignment)
         self.set_horizontalalignment(horizontalalignment)
         self._multialignment = multialignment
         self._rotation = rotation
-        self._fontproperties = fontproperties
         self._bbox_patch = None  # a FancyBboxPatch instance
         self._renderer = None
         if linespacing is None:
@@ -264,6 +262,7 @@ class Text(Artist):
         self._verticalalignment = other._verticalalignment
         self._horizontalalignment = other._horizontalalignment
         self._fontproperties = other._fontproperties.copy()
+        self._usetex = other._usetex
         self._rotation = other._rotation
         self._picker = other._picker
         self._linespacing = other._linespacing
@@ -1222,11 +1221,12 @@ class Text(Artist):
 
         Parameters
         ----------
-        fp : `.font_manager.FontProperties`
+        fp : `.font_manager.FontProperties` or `str` or `pathlib.Path`
+            If a `str`, it is interpreted as a fontconfig pattern parsed by
+            `.FontProperties`.  If a `pathlib.Path`, it is interpreted as the
+            absolute path to a font file.
         """
-        if isinstance(fp, str):
-            fp = FontProperties(fp)
-        self._fontproperties = fp.copy()
+        self._fontproperties = FontProperties._from_any(fp).copy()
         self.stale = True
 
     def set_usetex(self, usetex):
@@ -1573,7 +1573,6 @@ class Annotation(Text, _AnnotationBase):
     def __str__(self):
         return "Annotation(%g, %g, %r)" % (self.xy[0], self.xy[1], self._text)
 
-    @cbook._rename_parameter("3.1", "s", "text")
     def __init__(self, text, xy,
                  xytext=None,
                  xycoords='data',

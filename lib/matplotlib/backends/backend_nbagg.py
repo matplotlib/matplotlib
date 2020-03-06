@@ -142,9 +142,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
 
 class FigureCanvasNbAgg(FigureCanvasWebAggCore):
-    def new_timer(self, *args, **kwargs):
-        # docstring inherited
-        return TimerTornado(*args, **kwargs)
+    _timer_cls = TimerTornado
 
 
 class CommSocket:

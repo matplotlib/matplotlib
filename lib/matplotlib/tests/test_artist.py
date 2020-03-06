@@ -87,8 +87,8 @@ def test_collection_transform_of_none():
     # providing an IdentityTransform puts the ellipse in device coordinates
     e = mpatches.Ellipse(xy_pix, width=100, height=100)
     c = mcollections.PatchCollection([e],
-                                 transform=mtransforms.IdentityTransform(),
-                                 alpha=0.5)
+                                     transform=mtransforms.IdentityTransform(),
+                                     alpha=0.5)
     ax.add_collection(c)
     assert isinstance(c._transOffset, mtransforms.IdentityTransform)
 
@@ -219,10 +219,9 @@ def test_default_edges():
     ax4.add_patch(pp1)
 
 
-def test_properties(recwarn):
+def test_properties():
     ln = mlines.Line2D([], [])
-    ln.properties()
-    assert len(recwarn) == 0
+    ln.properties()  # Check that no warning is emitted.
 
 
 def test_setp():

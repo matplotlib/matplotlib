@@ -13,6 +13,7 @@ this file.
 # runtime with the proper signatures, a static pyplot.py is simpler for static
 # analysis tools to parse.
 
+from enum import Enum
 import inspect
 from inspect import Parameter
 from pathlib import Path
@@ -84,6 +85,9 @@ class value_formatter:
             self._repr = "np.mean"
         elif value is cbook.deprecation._deprecated_parameter:
             self._repr = "cbook.deprecation._deprecated_parameter"
+        elif isinstance(value, Enum):
+            # Enum str is Class.Name whereas their repr is <Class.Name: value>.
+            self._repr = str(value)
         else:
             self._repr = repr(value)
 
@@ -142,6 +146,9 @@ def generate_function(name, called_fullname, template, **kwargs):
            # Only pass the data kwarg if it is actually set, to avoid forcing
            # third-party subclasses to support it.
            '**({{"data": data}} if data is not None else {{}})'
+           # Avoid linebreaks in the middle of the expression, by using \0 as a
+           # placeholder that will be substituted after wrapping.
+           .replace(' ', '\0')
            if param.name == "data" else
            '{0}={0}'
            if param.kind in [
@@ -156,7 +163,7 @@ def generate_function(name, called_fullname, template, **kwargs):
        for param in params) + ')'
     MAX_CALL_PREFIX = 18  # len('    __ret = gca().')
     if MAX_CALL_PREFIX + max(len(name), len(called_name)) + len(call) >= 80:
-        call = '(\n' + text_wrapper.fill(call[1:])
+        call = '(\n' + text_wrapper.fill(call[1:]).replace('\0', ' ')
     # Bail out in case of name collision.
     for reserved in ('gca', 'gci', 'gcf', '__ret'):
         if reserved in params:

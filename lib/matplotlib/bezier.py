@@ -97,7 +97,6 @@ def split_de_casteljau(beta, t):
     return left_beta, right_beta
 
 
-@cbook._rename_parameter("3.1", "tolerence", "tolerance")
 def find_bezier_t_intersecting_with_closedpath(
         bezier_point_at_t, inside_closedpath, t0=0., t1=1., tolerance=0.01):
     """
@@ -191,7 +190,6 @@ class BezierSegment:
             self._px @ (((1 - t) ** self._orders)[::-1] * t ** self._orders))
 
 
-@cbook._rename_parameter("3.1", "tolerence", "tolerance")
 def split_bezier_intersecting_with_closedpath(
         bezier, inside_closedpath, tolerance=0.01):
     """
@@ -227,7 +225,6 @@ def split_bezier_intersecting_with_closedpath(
 # matplotlib specific
 
 
-@cbook._rename_parameter("3.1", "tolerence", "tolerance")
 def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
     """
     Divide a path into two segments at the point where ``inside(x, y)`` becomes
@@ -318,7 +315,6 @@ def get_cos_sin(x0, y0, x1, y1):
     return dx / d, dy / d
 
 
-@cbook._rename_parameter("3.1", "tolerence", "tolerance")
 def check_if_parallel(dx1, dy1, dx2, dy2, tolerance=1.e-5):
     """
     Check if two lines are parallel.
@@ -393,23 +389,23 @@ def get_parallels(bezier2, width):
     # find cm_left which is the intersecting point of a line through
     # c1_left with angle t1 and a line through c2_left with angle
     # t2. Same with cm_right.
-    if parallel_test != 0:
-        # a special case for a straight line, i.e., angle between two
-        # lines are smaller than some (arbitrary) value.
+    try:
+        cmx_left, cmy_left = get_intersection(c1x_left, c1y_left, cos_t1,
+                                              sin_t1, c2x_left, c2y_left,
+                                              cos_t2, sin_t2)
+        cmx_right, cmy_right = get_intersection(c1x_right, c1y_right, cos_t1,
+                                                sin_t1, c2x_right, c2y_right,
+                                                cos_t2, sin_t2)
+    except ValueError:
+        # Special case straight lines, i.e., angle between two lines is
+        # less than the threshold used by get_intersection (we don't use
+        # check_if_parallel as the threshold is not the same).
         cmx_left, cmy_left = (
             0.5 * (c1x_left + c2x_left), 0.5 * (c1y_left + c2y_left)
         )
         cmx_right, cmy_right = (
             0.5 * (c1x_right + c2x_right), 0.5 * (c1y_right + c2y_right)
         )
-    else:
-        cmx_left, cmy_left = get_intersection(c1x_left, c1y_left, cos_t1,
-                                              sin_t1, c2x_left, c2y_left,
-                                              cos_t2, sin_t2)
-
-        cmx_right, cmy_right = get_intersection(c1x_right, c1y_right, cos_t1,
-                                                sin_t1, c2x_right, c2y_right,
-                                                cos_t2, sin_t2)
 
     # the parallel Bezier lines are created with control points of
     # [c1_left, cm_left, c2_left] and [c1_right, cm_right, c2_right]
@@ -486,9 +482,9 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
 
 def make_path_regular(p):
     """
-    If the :attr:`codes` attribute of `Path` *p* is None, return a copy of *p*
-    with the :attr:`codes` set to (MOVETO, LINETO, LINETO, ..., LINETO);
-    otherwise return *p* itself.
+    If the ``codes`` attribute of `.Path` *p* is None, return a copy of *p*
+    with ``codes`` set to (MOVETO, LINETO, LINETO, ..., LINETO); otherwise
+    return *p* itself.
     """
     c = p.codes
     if c is None:

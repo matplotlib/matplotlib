@@ -8,8 +8,8 @@ import warnings
 
 import numpy as np
 
-import matplotlib
-from . import cbook, docstring, rcParams
+import matplotlib as mpl
+from . import cbook, docstring
 from .path import Path
 from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
@@ -99,8 +99,8 @@ class Artist:
         self._url = None
         self._gid = None
         self._snap = None
-        self._sketch = rcParams['path.sketch']
-        self._path_effects = rcParams['path.effects']
+        self._sketch = mpl.rcParams['path.sketch']
+        self._path_effects = mpl.rcParams['path.effects']
         self._sticky_edges = _XYPair([], [])
         self._in_layout = True
 
@@ -261,7 +261,7 @@ class Artist:
 
     def get_tightbbox(self, renderer):
         """
-        Like `Artist.get_window_extent`, but includes any clipping.
+        Like `.Artist.get_window_extent`, but includes any clipping.
 
         Parameters
         ----------
@@ -272,7 +272,7 @@ class Artist:
         Returns
         -------
         bbox : `.Bbox`
-            The enclosing bounding box (in figure pixel co-ordinates).
+            The enclosing bounding box (in figure pixel coordinates).
         """
         bbox = self.get_window_extent(renderer)
         if self.get_clip_on():
@@ -516,7 +516,7 @@ class Artist:
 
         Parameters
         ----------
-        picker : None or bool or float or callable
+        picker : None or bool or callable
             This can be one of the following:
 
             - *None*: Picking is disabled for this artist (default).
@@ -524,14 +524,6 @@ class Artist:
             - A boolean: If *True* then picking will be enabled and the
               artist will fire a pick event if the mouse event is over
               the artist.
-
-            - A float: If picker is a number it is interpreted as an
-              epsilon tolerance in points and the artist will fire
-              off an event if it's data is within epsilon of the mouse
-              event.  For some artists like lines and patch collections,
-              the artist may provide additional data to the pick event
-              that is generated, e.g., the indices of the data within
-              epsilon of the pick event
 
             - A function: If picker is callable, it is a user supplied
               function which determines whether the artist is hit by the
@@ -543,6 +535,10 @@ class Artist:
               artist, return *hit=True* and props is a dictionary of
               properties you want added to the PickEvent attributes.
 
+            - *deprecated*: For `.Line2D` only, *picker* can also be a float
+              that sets the tolerance for checking whether an event occurred
+              "on" the line; this is deprecated.  Use `.Line2D.set_pickradius`
+              instead.
         """
         self._picker = picker
 
@@ -592,7 +588,7 @@ class Artist:
 
         See `.set_snap` for details.
         """
-        if rcParams['path.snap']:
+        if mpl.rcParams['path.snap']:
             return self._snap
         else:
             return False
@@ -742,7 +738,7 @@ class Artist:
         clipping box to the corresponding rectangle and set the clipping path
         to ``None``.
 
-        For technical reasons (support of ``setp``), a tuple
+        For technical reasons (support of `~.Artist.set`), a tuple
         (*path*, *transform*) is also accepted as a single positional
         parameter.
 
@@ -1069,8 +1065,8 @@ class Artist:
         self._label = other._label
         self._sketch = other._sketch
         self._path_effects = other._path_effects
-        self.sticky_edges.x[:] = other.sticky_edges.x[:]
-        self.sticky_edges.y[:] = other.sticky_edges.y[:]
+        self.sticky_edges.x[:] = other.sticky_edges.x.copy()
+        self.sticky_edges.y[:] = other.sticky_edges.y.copy()
         self.pchanged()
         self.stale = True
 
@@ -1474,40 +1470,34 @@ class ArtistInspector:
 
 def getp(obj, property=None):
     """
-    Return the value of object's property.  *property* is an optional string
-    for the property you want to return
+    Return the value of an object's *property*, or print all of them.
 
-    Example usage::
+    Parameters
+    ----------
+    obj : `.Artist`
+        The queried artist; e.g., a `.Line2D`, a `.Text`, or an `~.axes.Axes`.
 
-        getp(obj)  # get all the object properties
-        getp(obj, 'linestyle')  # get the linestyle property
+    property : str or None, default: None
+        If *property* is 'somename', this function returns
+        ``obj.get_somename()``.
 
-    *obj* is a :class:`Artist` instance, e.g.,
-    :class:`~matplotlib.lines.Line2D` or an instance of a
-    :class:`~matplotlib.axes.Axes` or :class:`matplotlib.text.Text`.
-    If the *property* is 'somename', this function returns
+        If is is None (or unset), it *prints* all gettable properties from
+        *obj*.  Many properties have aliases for shorter typing, e.g. 'lw' is
+        an alias for 'linewidth'.  In the output, aliases and full property
+        names will be listed as:
 
-      obj.get_somename()
+          property or alias = value
 
-    :func:`getp` can be used to query all the gettable properties with
-    ``getp(obj)``. Many properties have aliases for shorter typing, e.g.
-    'lw' is an alias for 'linewidth'.  In the output, aliases and full
-    property names will be listed as:
+        e.g.:
 
-      property or alias = value
-
-    e.g.:
-
-      linewidth or lw = 2
+          linewidth or lw = 2
     """
     if property is None:
         insp = ArtistInspector(obj)
         ret = insp.pprint_getters()
         print('\n'.join(ret))
         return
-
-    func = getattr(obj, 'get_' + property)
-    return func()
+    return getattr(obj, 'get_' + property)()
 
 # alias
 get = getp
@@ -1612,7 +1602,7 @@ def kwdoc(artist):
     """
     ai = ArtistInspector(artist)
     return ('\n'.join(ai.pprint_setters_rest(leadingspace=4))
-            if matplotlib.rcParams['docstring.hardcopy'] else
+            if mpl.rcParams['docstring.hardcopy'] else
             'Properties:\n' + '\n'.join(ai.pprint_setters(leadingspace=4)))
 
 

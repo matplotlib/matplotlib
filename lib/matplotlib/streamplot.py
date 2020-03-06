@@ -235,8 +235,9 @@ class StreamplotSet:
     def __init__(self, lines, arrows, **kwargs):
         if kwargs:
             cbook.warn_deprecated(
-                "3.3", "Passing arbitrary keyword arguments to StreamplotSet "
-                       "is deprecated.")
+                "3.3",
+                message="Passing arbitrary keyword arguments to StreamplotSet "
+                        "is deprecated.")
         self.lines = lines
         self.arrows = arrows
 
@@ -380,8 +381,8 @@ class StreamMask:
 
         self._current_xy = None
 
-    def __getitem__(self, *args):
-        return self._mask.__getitem__(*args)
+    def __getitem__(self, args):
+        return self._mask[args]
 
     def _start_trajectory(self, xm, ym):
         """Start recording streamline trajectory"""
@@ -391,7 +392,7 @@ class StreamMask:
     def _undo_trajectory(self):
         """Remove current trajectory from mask"""
         for t in self._traj:
-            self._mask.__setitem__(t, 0)
+            self._mask[t] = 0
 
     def _update_trajectory(self, xm, ym):
         """Update current trajectory position in mask.

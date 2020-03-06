@@ -1,24 +1,26 @@
 """
-An agg http://antigrain.com/ backend
+An agg_ backend.
 
-Features that are implemented
+.. _agg: http://antigrain.com/
 
- * capstyles and join styles
- * dashes
- * linewidth
- * lines, rectangles, ellipses
- * clipping to a rectangle
- * output to RGBA and Pillow-supported image formats
- * alpha blending
- * DPI scaling properly - everything scales properly (dashes, linewidths, etc)
- * draw polygon
- * freetype2 w/ ft2font
+Features that are implemented:
+
+* capstyles and join styles
+* dashes
+* linewidth
+* lines, rectangles, ellipses
+* clipping to a rectangle
+* output to RGBA and Pillow-supported image formats
+* alpha blending
+* DPI scaling properly - everything scales properly (dashes, linewidths, etc)
+* draw polygon
+* freetype2 w/ ft2font
 
 TODO:
 
-  * integrate screen dpi w/ ppi and text
-
+* integrate screen dpi w/ ppi and text
 """
+
 try:
     import threading
 except ImportError:
@@ -33,7 +35,8 @@ import numpy as np
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
-from matplotlib import cbook, rcParams, __version__
+import matplotlib as mpl
+from matplotlib import cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.font_manager import findfont, get_font
@@ -57,7 +60,7 @@ def get_hinting_flag():
         'auto': LOAD_FORCE_AUTOHINT,
         'none': LOAD_NO_HINTING
         }
-    return mapping[rcParams['text.hinting']]
+    return mapping[mpl.rcParams['text.hinting']]
 
 
 class RendererAgg(RendererBase):
@@ -120,7 +123,7 @@ class RendererAgg(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
-        nmax = rcParams['agg.path.chunksize']  # here at least for testing
+        nmax = mpl.rcParams['agg.path.chunksize']  # here at least for testing
         npts = path.vertices.shape[0]
 
         if (npts > nmax > 100 and path.should_simplify and
@@ -151,9 +154,7 @@ class RendererAgg(RendererBase):
                                     "'agg.path.chunksize' rcparam)")
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
-        """
-        Draw the math text using matplotlib.mathtext
-        """
+        """Draw mathtext using :mod:`matplotlib.mathtext`."""
         ox, oy, width, height, descent, font_image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
 
@@ -177,7 +178,8 @@ class RendererAgg(RendererBase):
         # We pass '0' for angle here, since it will be rotated (in raster
         # space) in the following call to draw_text_image).
         font.set_text(s, 0, flags=flags)
-        font.draw_glyphs_to_bitmap(antialiased=rcParams['text.antialiased'])
+        font.draw_glyphs_to_bitmap(
+            antialiased=mpl.rcParams['text.antialiased'])
         d = font.get_descent() / 64.0
         # The descent needs to be adjusted for the angle.
         xo, yo = font.get_bitmap_offset()
@@ -358,16 +360,7 @@ class RendererAgg(RendererBase):
 
 
 class FigureCanvasAgg(FigureCanvasBase):
-    """
-    The canvas the figure renders into.  Calls the draw and print fig
-    methods, creates the renderers, etc...
-
-    Attributes
-    ----------
-    figure : `matplotlib.figure.Figure`
-        A high-level Figure instance
-
-    """
+    # docstring inherited
 
     def copy_from_bbox(self, bbox):
         renderer = self.get_renderer()
@@ -378,9 +371,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         return renderer.restore_region(region, bbox, xy)
 
     def draw(self):
-        """
-        Draw the figure using the renderer.
-        """
+        # docstring inherited
         self.renderer = self.get_renderer(cleared=True)
         # Acquire a lock on the shared font cache.
         with RendererAgg.lock, \
@@ -404,38 +395,29 @@ class FigureCanvasAgg(FigureCanvasBase):
         return self.renderer
 
     def tostring_rgb(self):
-        """Get the image as an RGB byte string.
+        """
+        Get the image as RGB `bytes`.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
-
-        Returns
-        -------
-        bytes
         """
         return self.renderer.tostring_rgb()
 
     def tostring_argb(self):
-        """Get the image as an ARGB byte string.
+        """
+        Get the image as ARGB `bytes`.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
-
-        Returns
-        -------
-        bytes
         """
         return self.renderer.tostring_argb()
 
     def buffer_rgba(self):
-        """Get the image as a memoryview to the renderer's buffer.
+        """
+        Get the image as a `memoryview` to the renderer's buffer.
 
         `draw` must be called at least once before this function will work and
         to update the renderer for any subsequent changes to the Figure.
-
-        Returns
-        -------
-        memoryview
         """
         return self.renderer.buffer_rgba()
 
@@ -491,7 +473,7 @@ class FigureCanvasAgg(FigureCanvasBase):
                 https://www.w3.org/TR/2003/REC-PNG-20031110/#11keywords
 
         pil_kwargs : dict, optional
-            Keyword arguments passed to `PIL.Image.save`.
+            Keyword arguments passed to `PIL.Image.Image.save`.
 
             If the 'pnginfo' key is present, it completely overrides
             *metadata*, including the default 'Software' key.
@@ -503,7 +485,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             pil_kwargs = {}
         metadata = {
             "Software":
-                f"matplotlib version{__version__}, http://matplotlib.org/",
+                f"matplotlib version{mpl.__version__}, http://matplotlib.org/",
             **metadata,
         }
         FigureCanvasAgg.draw(self)
@@ -556,8 +538,8 @@ class FigureCanvasAgg(FigureCanvasBase):
 
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to
-            `PIL.Image.save` when saving the figure.  These take precedence
-            over *quality*, *optimize* and *progressive*.
+            `PIL.Image.Image.save` when saving the figure.  These take
+            precedence over *quality*, *optimize* and *progressive*.
         """
         FigureCanvasAgg.draw(self)
         if dryrun:
@@ -572,7 +554,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         for k in ["quality", "optimize", "progressive"]:
             if k in kwargs:
                 pil_kwargs.setdefault(k, kwargs[k])
-        pil_kwargs.setdefault("quality", rcParams["savefig.jpeg_quality"])
+        pil_kwargs.setdefault("quality", mpl.rcParams["savefig.jpeg_quality"])
         pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
         return background.save(
             filename_or_obj, format='jpeg', **pil_kwargs)

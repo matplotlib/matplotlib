@@ -47,8 +47,8 @@ class MissingReferenceFilter(logging.Filter):
             self.app.env.missing_references_warnings = defaultdict(set)
 
         record_missing_reference(self.app,
-            self.app.env.missing_references_warnings,
-            record.location)
+                                 self.app.env.missing_references_warnings,
+                                 record.location)
 
     def filter(self, record):
         self._record_reference(record)
@@ -157,13 +157,14 @@ def _warn_unused_missing_references(app):
         return
 
     # This is a dictionary of {(domain_type, target): locations}
-    references_ignored = getattr(app.env,
-        'missing_references_ignored_references', {})
+    references_ignored = getattr(
+        app.env, 'missing_references_ignored_references', {})
     references_events = getattr(app.env, 'missing_references_events', {})
 
     # Warn about any reference which is no longer missing.
     for (domain_type, target), locations in references_ignored.items():
-        missing_reference_locations = [_truncate_location(location)
+        missing_reference_locations = [
+            _truncate_location(location)
             for location in references_events.get((domain_type, target), [])]
 
         # For each ignored reference location, ensure a missing reference
@@ -176,9 +177,9 @@ def _warn_unused_missing_references(app):
                        f" from {app.config.missing_references_filename}."
                         "It is no longer a missing reference in the docs.")
                 logger.warning(msg,
-                    location=ignored_reference_location,
-                    type='ref',
-                    subtype=domain_type)
+                               location=ignored_reference_location,
+                               type='ref',
+                               subtype=domain_type)
 
 
 def save_missing_references_handler(app, exc):
@@ -254,7 +255,7 @@ def prepare_missing_references_handler(app):
 
     sphinx_logger = logging.getLogger('sphinx')
     missing_reference_filter = MissingReferenceFilter(app)
-    for handler in sphinx_logger.handlers[:]:
+    for handler in sphinx_logger.handlers:
         if (isinstance(handler, sphinx_logging.WarningStreamHandler)
                 and missing_reference_filter not in handler.filters):
 

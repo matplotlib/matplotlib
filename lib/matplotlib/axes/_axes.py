@@ -7,12 +7,12 @@ from numbers import Number
 import numpy as np
 from numpy import ma
 
-import matplotlib.category as _  # <-registers a category unit converter
+import matplotlib.category  # Register category unit converter as side-effect.
 import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
-import matplotlib.dates as _  # <-registers a date unit converter
+import matplotlib.dates  # Register date unit converter as side-effect.
 import matplotlib.docstring as docstring
 import matplotlib.image as mimage
 import matplotlib.legend as mlegend
@@ -188,7 +188,8 @@ class Axes(_AxesBase):
         label = self.xaxis.get_label()
         return label.get_text()
 
-    def set_xlabel(self, xlabel, fontdict=None, labelpad=None, **kwargs):
+    def set_xlabel(self, xlabel, fontdict=None, labelpad=None, *,
+                   loc=None, **kwargs):
         """
         Set the label for the x-axis.
 
@@ -201,6 +202,10 @@ class Axes(_AxesBase):
             Spacing in points from the axes bounding box including ticks
             and tick labels.
 
+        loc : {'left', 'center', 'right'}, default: :rc:`xaxis.labellocation`
+            The label position. This is a high-level alternative for passing
+            parameters *x* and *horizontalalignment*.
+
         Other Parameters
         ----------------
         **kwargs : `.Text` properties
@@ -208,10 +213,25 @@ class Axes(_AxesBase):
 
         See also
         --------
-        text : for information on how override and the optional args work
+        text : Documents the properties supported by `.Text`.
         """
         if labelpad is not None:
             self.xaxis.labelpad = labelpad
+        protected_kw = ['x', 'horizontalalignment', 'ha']
+        if {*kwargs} & {*protected_kw}:
+            if loc is not None:
+                raise TypeError(f"Specifying 'loc' is disallowed when any of "
+                                f"its corresponding low level keyword "
+                                f"arguments ({protected_kw}) are also "
+                                f"supplied")
+            loc = 'center'
+        else:
+            loc = loc if loc is not None else rcParams['xaxis.labellocation']
+        cbook._check_in_list(('left', 'center', 'right'), loc=loc)
+        if loc == 'left':
+            kwargs.update(x=0, horizontalalignment='left')
+        elif loc == 'right':
+            kwargs.update(x=1, horizontalalignment='right')
         return self.xaxis.set_label_text(xlabel, fontdict, **kwargs)
 
     def get_ylabel(self):
@@ -221,7 +241,8 @@ class Axes(_AxesBase):
         label = self.yaxis.get_label()
         return label.get_text()
 
-    def set_ylabel(self, ylabel, fontdict=None, labelpad=None, **kwargs):
+    def set_ylabel(self, ylabel, fontdict=None, labelpad=None, *,
+                   loc=None, **kwargs):
         """
         Set the label for the y-axis.
 
@@ -234,6 +255,10 @@ class Axes(_AxesBase):
             Spacing in points from the axes bounding box including ticks
             and tick labels.
 
+        loc : {'bottom', 'center', 'top'}, default: :rc:`yaxis.labellocation`
+            The label position. This is a high-level alternative for passing
+            parameters *y* and *horizontalalignment*.
+
         Other Parameters
         ----------------
         **kwargs : `.Text` properties
@@ -241,11 +266,25 @@ class Axes(_AxesBase):
 
         See also
         --------
-        text : for information on how override and the optional args work
-
+        text : Documents the properties supported by `.Text`.
         """
         if labelpad is not None:
             self.yaxis.labelpad = labelpad
+        protected_kw = ['y', 'horizontalalignment', 'ha']
+        if {*kwargs} & {*protected_kw}:
+            if loc is not None:
+                raise TypeError(f"Specifying 'loc' is disallowed when any of "
+                                f"its corresponding low level keyword "
+                                f"arguments ({protected_kw}) are also "
+                                f"supplied")
+            loc = 'center'
+        else:
+            loc = loc if loc is not None else rcParams['yaxis.labellocation']
+        cbook._check_in_list(('bottom', 'center', 'top'), loc=loc)
+        if loc == 'bottom':
+            kwargs.update(y=0, horizontalalignment='left')
+        elif loc == 'top':
+            kwargs.update(y=1, horizontalalignment='right')
         return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
 
     def get_legend_handles_labels(self, legend_handler_map=None):
@@ -256,12 +295,10 @@ class Axes(_AxesBase):
 
           h, l = ax.get_legend_handles_labels()
           ax.legend(h, l)
-
         """
-
         # pass through to legend.
-        handles, labels = mlegend._get_legend_handles_labels([self],
-                legend_handler_map)
+        handles, labels = mlegend._get_legend_handles_labels(
+            [self], legend_handler_map)
         return handles, labels
 
     @docstring.dedent_interpd
@@ -352,7 +389,7 @@ class Axes(_AxesBase):
 
         Notes
         -----
-        Not all kinds of artist are supported by the legend command. See
+        Some artists are not supported by this function.  See
         :doc:`/tutorials/intermediate/legend_guide` for details.
 
         Examples
@@ -422,9 +459,8 @@ class Axes(_AxesBase):
         inset_locator = _make_inset_locator(bounds, transform, self)
         bb = inset_locator(None, None)
 
-        inset_ax = Axes(self.figure, bb.bounds, zorder=zorder,
-                label=label, **kwargs)
-
+        inset_ax = Axes(self.figure, bb.bounds, zorder=zorder, label=label,
+                        **kwargs)
         # this locator lets the axes move if in data coordinates.
         # it gets called in `ax.apply_aspect() (of all places)
         inset_ax.set_axes_locator(inset_locator)
@@ -434,8 +470,8 @@ class Axes(_AxesBase):
         return inset_ax
 
     def indicate_inset(self, bounds, inset_ax=None, *, transform=None,
-            facecolor='none', edgecolor='0.5', alpha=0.5,
-            zorder=4.99, **kwargs):
+                       facecolor='none', edgecolor='0.5', alpha=0.5,
+                       zorder=4.99, **kwargs):
         """
         Add an inset indicator to the axes.  This is a rectangle on the plot
         at the position indicated by *bounds* that optionally has lines that
@@ -458,7 +494,7 @@ class Axes(_AxesBase):
             chosen so as to not overlap with the indicator box.
 
         transform : `.Transform`
-            Transform for the rectangle co-ordinates. Defaults to
+            Transform for the rectangle coordinates. Defaults to
             `ax.transAxes`, i.e. the units of *rect* are in axes-relative
             coordinates.
 
@@ -566,10 +602,10 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        rectangle_patch : `.Patches.Rectangle`
+        rectangle_patch : `.patches.Rectangle`
              Rectangle artist.
 
-        connector_lines : 4-tuple of `.Patches.ConnectionPatch`
+        connector_lines : 4-tuple of `.patches.ConnectionPatch`
             Each of four connector lines coming from the rectangle drawn on
             this axis, in the order lower left, upper left, lower right,
             upper right.
@@ -650,6 +686,7 @@ class Axes(_AxesBase):
             raise ValueError('secondary_yaxis location must be either '
                              'a float or "left"/"right"')
 
+    @docstring.dedent_interpd
     def text(self, x, y, s, fontdict=None, **kwargs):
         """
         Add text to the axes.
@@ -668,7 +705,7 @@ class Axes(_AxesBase):
 
         fontdict : dict, default: None
             A dictionary to override the default text properties. If fontdict
-            is None, the defaults are determined by your rc parameters.
+            is None, the defaults are determined by `.rcParams`.
 
         Returns
         -------
@@ -679,6 +716,8 @@ class Axes(_AxesBase):
         ----------------
         **kwargs : `~matplotlib.text.Text` properties.
             Other miscellaneous text parameters.
+
+            %(Text)s
 
         Examples
         --------
@@ -927,13 +966,11 @@ class Axes(_AxesBase):
         """
         Add a horizontal span (rectangle) across the axis.
 
-        Draw a horizontal span (rectangle) from *ymin* to *ymax*.
-        With the default values of *xmin* = 0 and *xmax* = 1, this
-        always spans the xrange, regardless of the xlim settings, even
-        if you change them, e.g., with the :meth:`set_xlim` command.
-        That is, the horizontal extent is in axes coords: 0=left,
-        0.5=middle, 1.0=right but the *y* location is in data
-        coordinates.
+        The rectangle spans from *ymin* to *ymax* vertically, and, by default,
+        the whole x-axis horizontally.  The x-span can be set using *xmin*
+        (default: 0) and *xmax* (default: 1) which are in axis units; e.g.
+        ``xmin = 0.5`` always refers to the middle of the x-axis regardless of
+        the limits set by `~.Axes.set_xlim`.
 
         Parameters
         ----------
@@ -981,12 +1018,11 @@ class Axes(_AxesBase):
         """
         Add a vertical span (rectangle) across the axes.
 
-        Draw a vertical span (rectangle) from *xmin* to *xmax*.  With
-        the default values of *ymin* = 0 and *ymax* = 1. This always
-        spans the yrange, regardless of the ylim settings, even if you
-        change them, e.g., with the :meth:`set_ylim` command.  That is,
-        the vertical extent is in axes coords: 0=bottom, 0.5=middle,
-        1.0=top but the x location is in data coordinates.
+        The rectangle spans from *xmin* to *xmax* horizontally, and, by
+        default, the whole y-axis vertically.  The y-span can be set using
+        *ymin* (default: 0) and *ymax* (default: 1) which are in axis units;
+        e.g. ``ymin = 0.5`` always refers to the middle of the y-axis
+        regardless of the limits set by `~.Axes.set_ylim`.
 
         Parameters
         ----------
@@ -1232,17 +1268,29 @@ class Axes(_AxesBase):
             The offset of the center of the lines from the origin, in the
             direction orthogonal to *orientation*.
 
+            A sequence must match the dimension of *positions*
+            in the direction of *orientation*.
+
         linelengths : scalar or sequence of scalars, default: 1
             The total height of the lines (i.e. the lines stretches from
             ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
+
+            If a sequence, then *positions* must be 2D and the length
+            must match the first dimension of *positions*.
 
         linewidths : scalar, scalar sequence or None, default: None
             The line width(s) of the event lines, in points. If it is None,
             defaults to its rcParams setting.
 
+            If a sequence, then *positions* must be 2D and the length
+            must match the first dimension of *positions*.
+
         colors : color, sequence of colors or None, default: None
             The color(s) of the event lines. If it is None, defaults to its
             rcParams setting.
+
+            If a sequence, then *positions* must be 2D and the length
+            must match the first dimension of *positions*.
 
         linestyles : str or tuple or a sequence of such values, optional
             Default is 'solid'. Valid strings are ['solid', 'dashed',
@@ -1253,6 +1301,10 @@ class Axes(_AxesBase):
 
             where *onoffseq* is an even length tuple of on and off ink
             in points.
+
+            If a sequence, then *positions* must be 2D and the length
+            must match the first dimension of *positions*.
+
 
         **kwargs : optional
             Other keyword arguments are line collection properties.  See
@@ -1524,8 +1576,8 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         scalex, scaley : bool, default: True
-            These parameters determined if the view limits are adapted to
-            the data limits. The values are passed on to `autoscale_view`.
+            These parameters determine if the view limits are adapted to the
+            data limits. The values are passed on to `autoscale_view`.
 
         **kwargs : `.Line2D` properties, optional
             *kwargs* are used to specify properties like a line label (for
@@ -1535,7 +1587,7 @@ class Axes(_AxesBase):
             >>> plot([1, 2, 3], [1, 2, 3], 'go-', label='line 1', linewidth=2)
             >>> plot([1, 2, 3], [1, 4, 9], 'rs', label='line 2')
 
-            If you make multiple lines with one plot command, the kwargs
+            If you make multiple lines with one plot call, the kwargs
             apply to all those lines.
 
             Here is a list of available `.Line2D` properties:
@@ -1667,7 +1719,7 @@ class Axes(_AxesBase):
             The plot format string. For details, see the corresponding
             parameter in `.plot`.
 
-        tz : timezone string or `tzinfo`, default: :rc:`timezone`
+        tz : timezone string or `datetime.tzinfo`, default: :rc:`timezone`
             The time zone to use in labeling dates.
 
         xdate : bool, default: True
@@ -1731,24 +1783,25 @@ class Axes(_AxesBase):
         both the x-axis and the y-axis to log scaling. All of the concepts and
         parameters of plot can be used here as well.
 
-        The additional parameters *basex/y*, *subsx/y* and *nonposx/y* control
-        the x/y-axis properties. They are just forwarded to `.Axes.set_xscale`
-        and `.Axes.set_yscale`.
+        The additional parameters *base*, *subs* and *nonpositive* control the
+        x/y-axis properties. They are just forwarded to `.Axes.set_xscale` and
+        `.Axes.set_yscale`. To use different properties on the x-axis and the
+        y-axis, use e.g.
+        ``ax.set_xscale("log", base=10); ax.set_yscale("log", base=2)``.
 
         Parameters
         ----------
-        basex, basey : float, default: 10
-            Base of the x/y logarithm.
+        base : float, default: 10
+            Base of the logarithm.
 
-        subsx, subsy : sequence, optional
-            The location of the minor x/y ticks. If *None*, reasonable
-            locations are automatically chosen depending on the number of
-            decades in the plot.
-            See `.Axes.set_xscale` / `.Axes.set_yscale` for details.
+        subs : sequence, optional
+            The location of the minor ticks. If *None*, reasonable locations
+            are automatically chosen depending on the number of decades in the
+            plot. See `.Axes.set_xscale`/`.Axes.set_yscale` for details.
 
-        nonposx, nonposy : {'mask', 'clip'}, default: 'mask'
-            Non-positive values in x or y can be masked as invalid, or clipped
-            to a very small positive number.
+        nonpositive : {'mask', 'clip'}, default: 'mask'
+            Non-positive values can be masked as invalid, or clipped to a very
+            small positive number.
 
         Returns
         -------
@@ -1760,16 +1813,16 @@ class Axes(_AxesBase):
         **kwargs
             All parameters supported by `.plot`.
         """
-        dx = {k: kwargs.pop(k) for k in ['basex', 'subsx', 'nonposx']
-              if k in kwargs}
-        dy = {k: kwargs.pop(k) for k in ['basey', 'subsy', 'nonposy']
-              if k in kwargs}
-
+        dx = {k: v for k, v in kwargs.items()
+              if k in ['base', 'subs', 'nonpositive',
+                       'basex', 'subsx', 'nonposx']}
         self.set_xscale('log', **dx)
+        dy = {k: v for k, v in kwargs.items()
+              if k in ['base', 'subs', 'nonpositive',
+                       'basey', 'subsy', 'nonposy']}
         self.set_yscale('log', **dy)
-
-        l = self.plot(*args, **kwargs)
-        return l
+        return self.plot(
+            *args, **{k: v for k, v in kwargs.items() if k not in {*dx, *dy}})
 
     # @_preprocess_data() # let 'plot' do the unpacking..
     @docstring.dedent_interpd
@@ -1786,20 +1839,20 @@ class Axes(_AxesBase):
         the x-axis to log scaling. All of the concepts and parameters of plot
         can be used here as well.
 
-        The additional parameters *basex*, *subsx* and *nonposx* control the
+        The additional parameters *base*, *subs*, and *nonpositive* control the
         x-axis properties. They are just forwarded to `.Axes.set_xscale`.
 
         Parameters
         ----------
-        basex : float, default: 10
+        base : float, default: 10
             Base of the x logarithm.
 
-        subsx : array-like, optional
+        subs : array-like, optional
             The location of the minor xticks. If *None*, reasonable locations
             are automatically chosen depending on the number of decades in the
             plot. See `.Axes.set_xscale` for details.
 
-        nonposx : {'mask', 'clip'}, default: 'mask'
+        nonpositive : {'mask', 'clip'}, default: 'mask'
             Non-positive values in x can be masked as invalid, or clipped to a
             very small positive number.
 
@@ -1813,12 +1866,12 @@ class Axes(_AxesBase):
         **kwargs
             All parameters supported by `.plot`.
         """
-        d = {k: kwargs.pop(k) for k in ['basex', 'subsx', 'nonposx']
-             if k in kwargs}
-
+        d = {k: v for k, v in kwargs.items()
+             if k in ['base', 'subs', 'nonpositive',
+                      'basex', 'subsx', 'nonposx']}
         self.set_xscale('log', **d)
-        l = self.plot(*args, **kwargs)
-        return l
+        return self.plot(
+            *args, **{k: v for k, v in kwargs.items() if k not in d})
 
     # @_preprocess_data() # let 'plot' do the unpacking..
     @docstring.dedent_interpd
@@ -1835,20 +1888,20 @@ class Axes(_AxesBase):
         the y-axis to log scaling. All of the concepts and parameters of plot
         can be used here as well.
 
-        The additional parameters *basey*, *subsy* and *nonposy* control the
+        The additional parameters *base*, *subs*, and *nonpositive* control the
         y-axis properties. They are just forwarded to `.Axes.set_yscale`.
 
         Parameters
         ----------
-        basey : float, default: 10
+        base : float, default: 10
             Base of the y logarithm.
 
-        subsy : array-like, optional
+        subs : array-like, optional
             The location of the minor yticks. If *None*, reasonable locations
             are automatically chosen depending on the number of decades in the
             plot. See `.Axes.set_yscale` for details.
 
-        nonposy : {'mask', 'clip'}, default: 'mask'
+        nonpositive : {'mask', 'clip'}, default: 'mask'
             Non-positive values in y can be masked as invalid, or clipped to a
             very small positive number.
 
@@ -1862,12 +1915,12 @@ class Axes(_AxesBase):
         **kwargs
             All parameters supported by `.plot`.
         """
-        d = {k: kwargs.pop(k) for k in ['basey', 'subsy', 'nonposy']
-             if k in kwargs}
+        d = {k: v for k, v in kwargs.items()
+             if k in ['base', 'subs', 'nonpositive',
+                      'basey', 'subsy', 'nonposy']}
         self.set_yscale('log', **d)
-        l = self.plot(*args, **kwargs)
-
-        return l
+        return self.plot(
+            *args, **{k: v for k, v in kwargs.items() if k not in d})
 
     @_preprocess_data(replace_names=["x"], label_namer="x")
     def acorr(self, x, **kwargs):
@@ -2324,11 +2377,11 @@ class Axes(_AxesBase):
         if orientation == 'vertical':
             self._process_unit_info(xdata=x, ydata=height, kwargs=kwargs)
             if log:
-                self.set_yscale('log', nonposy='clip')
+                self.set_yscale('log', nonpositive='clip')
         elif orientation == 'horizontal':
             self._process_unit_info(xdata=width, ydata=y, kwargs=kwargs)
             if log:
-                self.set_xscale('log', nonposx='clip')
+                self.set_xscale('log', nonpositive='clip')
 
         # lets do some conversions now since some types cannot be
         # subtracted uniformly
@@ -2632,7 +2685,7 @@ class Axes(_AxesBase):
 
     @_preprocess_data()
     def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
-             label=None, use_line_collection=False):
+             label=None, use_line_collection=True):
         """
         Create a stem plot.
 
@@ -2689,12 +2742,12 @@ class Axes(_AxesBase):
         label : str, default: None
             The label to use for the stems in legends.
 
-        use_line_collection : bool, default: False
+        use_line_collection : bool, default: True
             If ``True``, store and plot the stem lines as a
-            `~.collections.LineCollection` instead of individual lines. This
-            significantly increases performance, and will become the default
-            option in Matplotlib 3.3. If ``False``, defaults to the old
-            behavior of using a list of `.Line2D` objects.
+            `~.collections.LineCollection` instead of individual lines, which
+            significantly increases performance.  If ``False``, defaults to the
+            old behavior of using a list of `.Line2D` objects.  This parameter
+            may be deprecated in the future.
 
         Returns
         -------
@@ -2782,12 +2835,6 @@ class Axes(_AxesBase):
             self.add_collection(stemlines)
         # Old behaviour is to plot each of the lines individually
         else:
-            cbook._warn_external(
-                'In Matplotlib 3.3 individual lines on a stem plot will be '
-                'added as a LineCollection instead of individual lines. '
-                'This significantly improves the performance of a stem plot. '
-                'To remove this warning and switch to the new behaviour, '
-                'set the "use_line_collection" keyword argument to True.')
             stemlines = []
             for xi, yi in zip(x, y):
                 l, = self.plot([xi, xi], [bottom, yi],
@@ -3110,8 +3157,8 @@ class Axes(_AxesBase):
             These arguments can be used to indicate that a value gives only
             upper/lower limits. In that case a caret symbol is used to
             indicate this. *lims*-arguments may be of the same type as *xerr*
-            and *yerr*.  To use limits with inverted axes, :meth:`set_xlim`
-            or :meth:`set_ylim` must be called before :meth:`errorbar`.
+            and *yerr*.  To use limits with inverted axes, `~.Axes.set_xlim`
+            or `~.Axes.set_ylim` must be called before :meth:`errorbar`.
 
         errorevery : int or (int, int), default: 1
             draws error bars on a subset of the data. *errorevery* =N draws
@@ -3135,9 +3182,9 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         **kwargs
-            All other keyword arguments are passed on to the plot
-            command for the markers. For example, this code makes big red
-            squares with thick green edges::
+            All other keyword arguments are passed on to the `~.Axes.plot` call
+            drawing the markers. For example, this code makes big red squares
+            with thick green edges::
 
                 x, y, yerr = rand(3, 10)
                 errorbar(x, y, yerr, marker='s', mfc='red',
@@ -3184,8 +3231,7 @@ class Axes(_AxesBase):
             # Remove alpha=0 color that _process_plot_format returns
             fmt_style_kwargs.pop('color')
 
-        if ('color' in kwargs or 'color' in fmt_style_kwargs or
-                ecolor is not None):
+        if ('color' in kwargs or 'color' in fmt_style_kwargs):
             base_style = {}
             if 'color' in kwargs:
                 base_style['color'] = kwargs.pop('color')
@@ -3435,7 +3481,6 @@ class Axes(_AxesBase):
 
         return errorbar_container  # (l0, caplines, barcols)
 
-    @cbook._rename_parameter("3.1", "manage_xticks", "manage_ticks")
     @_preprocess_data()
     def boxplot(self, x, notch=None, sym=None, vert=None, whis=None,
                 positions=None, widths=None, patch_artist=None,
@@ -3448,8 +3493,8 @@ class Axes(_AxesBase):
         """
         Make a box and whisker plot.
 
-        Make a box and whisker plot for each column of ``x`` or each
-        vector in sequence ``x``.  The box extends from the lower to
+        Make a box and whisker plot for each column of *x* or each
+        vector in sequence *x*.  The box extends from the lower to
         upper quartile values of the data, with a line at the median.
         The whiskers extend from the box to show the range of the
         data.  Flier points are those past the end of the whiskers.
@@ -3460,11 +3505,10 @@ class Axes(_AxesBase):
             The input data.
 
         notch : bool, default: False
-            If `True`, will produce a notched box plot. Otherwise, a
-            rectangular boxplot is produced. The notches represent the
-            confidence interval (CI) around the median. See the entry
-            for the ``bootstrap`` parameter for information regarding
-            how the locations of the notches are computed.
+            Whether to draw a noteched box plot (`True`), or a rectangular box
+            plot (`False`).  The notches represent the confidence interval (CI)
+            around the median.  The documentation for *bootstrap* describes how
+            the locations of the notches are computed.
 
             .. note::
 
@@ -3476,10 +3520,9 @@ class Axes(_AxesBase):
                 visualization packages.
 
         sym : str, optional
-            The default symbol for flier points. Enter an empty string
-            ('') if you don't want to show fliers. If `None`, then the
-            fliers default to 'b+'  If you want more control use the
-            flierprops kwarg.
+            The default symbol for flier points.  An empty string ('') hides
+            the fliers.  If `None`, then the fliers default to 'b+'.  More
+            control is provided by the *flierprops* parameter.
 
         vert : bool, default: True
             If `True`, draws vertical boxes.
@@ -3508,7 +3551,7 @@ class Axes(_AxesBase):
 
         bootstrap : int, optional
             Specifies whether to bootstrap the confidence intervals
-            around the median for notched boxplots. If ``bootstrap`` is
+            around the median for notched boxplots. If *bootstrap* is
             None, no bootstrapping is performed, and notches are
             calculated using a Gaussian-based asymptotic approximation
             (see McGill, R., Tukey, J.W., and Larsen, W.A., 1978, and
@@ -3518,20 +3561,17 @@ class Axes(_AxesBase):
             recommended.
 
         usermedians : array-like, optional
-            An array or sequence whose first dimension (or length) is
-            compatible with ``x``. This overrides the medians computed
-            by matplotlib for each element of ``usermedians`` that is not
-            `None`. When an element of ``usermedians`` is None, the median
-            will be computed by matplotlib as normal.
+            A 1D array-like of length ``len(x)``.  Each entry that is not
+            `None` forces the value of the median for the corresponding
+            dataset.  For entries that are `None`, the medians are computed
+            by Matplotlib as normal.
 
         conf_intervals : array-like, optional
-            Array or sequence whose first dimension (or length) is
-            compatible with ``x`` and whose second dimension is 2. When
-            the an element of ``conf_intervals`` is not None, the
-            notch locations computed by matplotlib are overridden
-            (provided ``notch`` is `True`). When an element of
-            ``conf_intervals`` is `None`, the notches are computed by the
-            method specified by the other kwargs (e.g., ``bootstrap``).
+            A 2D array-like of shape ``(len(x), 2)``.  Each entry that is not
+            None forces the location of the corresponding notch (which is
+            only drawn if *notch* is `True`).  For entries that are `None`,
+            the notches are computed by the method specified by the other
+            parameters (e.g., *bootstrap*).
 
         positions : array-like, optional
             Sets the positions of the boxes. The ticks and limits are
@@ -3548,8 +3588,7 @@ class Axes(_AxesBase):
             boxes and drawn with Patch artists.
 
         labels : sequence, optional
-            Labels for each dataset. Length must be compatible with
-            dimensions of ``x``.
+            Labels for each dataset (one per dataset).
 
         manage_ticks : bool, default: True
             If True, the tick locations and labels will be adjusted to match
@@ -3557,15 +3596,14 @@ class Axes(_AxesBase):
 
         autorange : bool, default: False
             When `True` and the data are distributed such that the 25th and
-            75th percentiles are equal, ``whis`` is set to (0, 100) such
+            75th percentiles are equal, *whis* is set to (0, 100) such
             that the whisker ends are at the minimum and maximum of the data.
 
         meanline : bool, default: False
-            If `True` (and ``showmeans`` is `True`), will try to render
-            the mean as a line spanning the full width of the box
-            according to ``meanprops`` (see below). Not recommended if
-            ``shownotches`` is also True. Otherwise, means will be shown
-            as points.
+            If `True` (and *showmeans* is `True`), will try to render the
+            mean as a line spanning the full width of the box according to
+            *meanprops* (see below).  Not recommended if *shownotches* is also
+            True.  Otherwise, means will be shown as points.
 
         zorder : scalar, default: None
             Sets the zorder of the boxplot.
@@ -3697,7 +3735,8 @@ class Axes(_AxesBase):
         if usermedians is not None:
             if (len(np.ravel(usermedians)) != len(bxpstats) or
                     np.shape(usermedians)[0] != len(bxpstats)):
-                raise ValueError('usermedians length not compatible with x')
+                raise ValueError(
+                    "'usermedians' and 'x' have different lengths")
             else:
                 # reassign medians as necessary
                 for stats, med in zip(bxpstats, usermedians):
@@ -3706,8 +3745,8 @@ class Axes(_AxesBase):
 
         if conf_intervals is not None:
             if np.shape(conf_intervals)[0] != len(bxpstats):
-                err_mess = 'conf_intervals length not compatible with x'
-                raise ValueError(err_mess)
+                raise ValueError(
+                    "'conf_intervals' and 'x' have different lengths")
             else:
                 for stats, ci in zip(bxpstats, conf_intervals):
                     if ci is not None:
@@ -3731,7 +3770,6 @@ class Axes(_AxesBase):
                            manage_ticks=manage_ticks, zorder=zorder)
         return artists
 
-    @cbook._rename_parameter("3.1", "manage_xticks", "manage_ticks")
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
             patch_artist=False, shownotches=False, showmeans=False,
             showcaps=True, showbox=True, showfliers=True,
@@ -3900,8 +3938,7 @@ class Axes(_AxesBase):
             if not use_marker:
                 d['marker'] = ''
             if explicit is not None:
-                d.update(
-                    cbook.normalize_kwargs(explicit, mlines.Line2D._alias_map))
+                d.update(cbook.normalize_kwargs(explicit, mlines.Line2D))
             return d
 
         # box properties
@@ -3916,8 +3953,7 @@ class Axes(_AxesBase):
             )
             if boxprops is not None:
                 final_boxprops.update(
-                    cbook.normalize_kwargs(
-                        boxprops, mpatches.PathPatch._alias_map))
+                    cbook.normalize_kwargs(boxprops, mpatches.PathPatch))
         else:
             final_boxprops = line_props_with_rcdefaults('boxprops', boxprops,
                                                         use_marker=False)
@@ -4306,14 +4342,15 @@ class Axes(_AxesBase):
             used if *c* is an array of floats.
 
         norm : `~matplotlib.colors.Normalize`, default: None
-            A `.Normalize` instance is used to scale luminance data to 0, 1.
-            *norm* is only used if *c* is an array of floats. If *None*, use
-            the default `.colors.Normalize`.
+            If *c* is an array of floats, *norm* is used to scale the color
+            data, *c*, in the range 0 to 1, in order to map into the colormap
+            *cmap*.
+            If *None*, use the default `.colors.Normalize`.
 
         vmin, vmax : scalar, default: None
-            *vmin* and *vmax* are used in conjunction with *norm* to normalize
-            luminance data. If None, the respective min and max of the color
-            array is used.
+            *vmin* and *vmax* are used in conjunction with the default norm to
+            map the color array *c* to the colormap *cmap*. If None, the
+            respective min and max of the color array is used.
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
 
         alpha : scalar, default: None
@@ -5374,7 +5411,7 @@ default: :rc:`scatter.edgecolors`
             scalar data to colors. This parameter is ignored for RGB(A) data.
 
         norm : `~matplotlib.colors.Normalize`, optional
-            The `Normalize` instance used to scale scalar data to the [0, 1]
+            The `.Normalize` instance used to scale scalar data to the [0, 1]
             range before mapping to colors using *cmap*. By default, a linear
             scaling mapping the lowest value to 0 and the highest to 1 is used.
             This parameter is ignored for RGB(A) data.
@@ -5542,24 +5579,23 @@ default: :rc:`scatter.edgecolors`
         return im
 
     @staticmethod
-    def _pcolorargs(funcname, *args, allmatch=False):
-        # If allmatch is True, then the incoming X, Y, C must have matching
-        # dimensions, taking into account that X and Y can be 1-D rather than
-        # 2-D.  This perfect match is required for Gouraud shading.  For flat
-        # shading, X and Y specify boundaries, so we need one more boundary
-        # than color in each direction.  For convenience, and consistent with
-        # Matlab, we discard the last row and/or column of C if necessary to
-        # meet this condition.  This is done if allmatch is False.
+    def _pcolorargs(funcname, *args, shading='flat'):
+        # - create X and Y if not present;
+        # - reshape X and Y as needed if they are 1-D;
+        # - check for proper sizes based on `shading` kwarg;
+        # - reset shading if shading='auto' to flat or nearest
+        #   depending on size;
 
         if len(args) == 1:
             C = np.asanyarray(args[0])
             nrows, ncols = C.shape
-            if allmatch:
+            if shading in ['gouraud', 'nearest']:
                 X, Y = np.meshgrid(np.arange(ncols), np.arange(nrows))
             else:
                 X, Y = np.meshgrid(np.arange(ncols + 1), np.arange(nrows + 1))
+                shading = 'flat'
             C = cbook.safe_masked_invalid(C)
-            return X, Y, C
+            return X, Y, C, shading
 
         if len(args) == 3:
             # Check x and y for bad data...
@@ -5594,24 +5630,63 @@ default: :rc:`scatter.edgecolors`
             raise TypeError(
                 'Incompatible X, Y inputs to %s; see help(%s)' % (
                 funcname, funcname))
-        if allmatch:
-            if (Nx, Ny) != (ncols, nrows):
-                raise TypeError('Dimensions of C %s are incompatible with'
-                                ' X (%d) and/or Y (%d); see help(%s)' % (
-                                    C.shape, Nx, Ny, funcname))
-        else:
+
+        if shading == 'auto':
+            if ncols == Nx and nrows == Ny:
+                shading = 'nearest'
+            else:
+                shading = 'flat'
+
+        if shading == 'flat':
             if not (ncols in (Nx, Nx - 1) and nrows in (Ny, Ny - 1)):
                 raise TypeError('Dimensions of C %s are incompatible with'
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
+            if (ncols == Nx or nrows == Ny):
+                cbook.warn_deprecated(
+                    "3.3", message="shading='flat' when X and Y have the same "
+                    "dimensions as C is deprecated since %(since)s.  Either "
+                    "specify the corners of the quadrilaterals with X and Y, "
+                    "or pass shading='auto', 'nearest' or 'gouraud', or set "
+                    "rcParams['pcolor.shading']")
             C = C[:Ny - 1, :Nx - 1]
+        else:    # ['nearest', 'gouraud']:
+            if (Nx, Ny) != (ncols, nrows):
+                raise TypeError('Dimensions of C %s are incompatible with'
+                                ' X (%d) and/or Y (%d); see help(%s)' % (
+                                    C.shape, Nx, Ny, funcname))
+            if shading in ['nearest', 'auto']:
+                # grid is specified at the center, so define corners
+                # at the midpoints between the grid centers and then use the
+                # flat algorithm.
+                def _interp_grid(X):
+                    # helper for below
+                    if np.shape(X)[1] > 1:
+                        dX = np.diff(X, axis=1)/2.
+                        X = np.hstack((X[:, [0]] - dX[:, [0]],
+                                       X[:, :-1] + dX,
+                                       X[:, [-1]] + dX[:, [-1]]))
+                    else:
+                        # This is just degenerate, but we can't reliably guess
+                        # a dX if there is just one value.
+                        X = np.hstack((X, X))
+                    return X
+
+                if ncols == Nx:
+                    X = _interp_grid(X)
+                    Y = _interp_grid(Y)
+                if nrows == Ny:
+                    X = _interp_grid(X.T).T
+                    Y = _interp_grid(Y.T).T
+                shading = 'flat'
+
         C = cbook.safe_masked_invalid(C)
-        return X, Y, C
+        return X, Y, C, shading
 
     @_preprocess_data()
     @docstring.dedent_interpd
-    def pcolor(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
-               vmax=None, **kwargs):
+    def pcolor(self, *args, shading=None, alpha=None, norm=None, cmap=None,
+               vmin=None, vmax=None, **kwargs):
         r"""
         Create a pseudocolor plot with a non-regular rectangular grid.
 
@@ -5625,7 +5700,9 @@ default: :rc:`scatter.edgecolors`
 
             ``pcolor()`` can be very slow for large arrays. In most
             cases you should use the similar but much faster
-            `~.Axes.pcolormesh` instead. See there for a discussion of the
+            `~.Axes.pcolormesh` instead. See
+            :ref:`Differences between pcolor() and pcolormesh()
+            <differences-pcolor-pcolormesh>` for a discussion of the
             differences.
 
         Parameters
@@ -5634,27 +5711,50 @@ default: :rc:`scatter.edgecolors`
             A scalar 2-D array. The values will be color-mapped.
 
         X, Y : array-like, optional
-            The coordinates of the quadrilateral corners. The quadrilateral
-            for ``C[i, j]`` has corners at::
+            The coordinates of the corners of quadrilaterals of a pcolormesh::
 
-                (X[i+1, j], Y[i+1, j])           (X[i+1, j+1], Y[i+1, j+1])
-                                      +---------+
-                                      | C[i, j] |
-                                      +---------+
-                    (X[i, j], Y[i, j])           (X[i, j+1], Y[i, j+1])
+                (X[i+1, j], Y[i+1, j])       (X[i+1, j+1], Y[i+1, j+1])
+                                      +-----+
+                                      |     |
+                                      +-----+
+                    (X[i, j], Y[i, j])       (X[i, j+1], Y[i, j+1])
 
-            Note that the column index corresponds to the
-            x-coordinate, and the row index corresponds to y. For
-            details, see the :ref:`Notes <axes-pcolor-grid-orientation>`
-            section below.
+            Note that the column index corresponds to the x-coordinate, and
+            the row index corresponds to y. For details, see the
+            :ref:`Notes <axes-pcolormesh-grid-orientation>` section below.
 
-            The dimensions of *X* and *Y* should be one greater than those of
-            *C*. Alternatively, *X*, *Y* and *C* may have equal dimensions, in
-            which case the last row and column of *C* will be ignored.
+            If ``shading='flat'`` the dimensions of *X* and *Y* should be one
+            greater than those of *C*, and the quadrilateral is colored due
+            to the value at ``C[i, j]``.  If *X*, *Y* and *C* have equal
+            dimensions, a warning will be raised and the last row and column
+            of *C* will be ignored.
+
+            If ``shading='nearest'``, the dimensions of *X* and *Y* should be
+            the same as those of *C* (if not, a ValueError will be raised). The
+            color ``C[i, j]`` will be centered on ``(X[i, j], Y[i, j])``.
 
             If *X* and/or *Y* are 1-D arrays or column vectors they will be
             expanded as needed into the appropriate 2-D arrays, making a
             rectangular grid.
+
+        shading : {'flat', 'nearest', 'auto'}, optional
+            The fill style for the quadrilateral; defaults to 'flat' or
+            :rc:`pcolor.shading`. Possible values:
+
+            - 'flat': A solid color is used for each quad. The color of the
+              quad (i, j), (i+1, j), (i, j+1), (i+1, j+1) is given by
+              ``C[i, j]``. The dimensions of *X* and *Y* should be
+              one greater than those of *C*; if they are the same as *C*,
+              then a deprecation warning is raised, and the last row
+              and column of *C* are dropped.
+            - 'nearest': Each grid point will have a color centered on it,
+              extending halfway between the adjacent grid centers.  The
+              dimensions of *X* and *Y* must be the same as *C*.
+            - 'auto': Choose 'flat' if dimensions of *X* and *Y* are one
+              larger than *C*.  Choose 'nearest' if dimensions are the same.
+
+            See :doc:`/gallery/images_contours_and_fields/pcolormesh_grids`
+            for more description.
 
         cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             A Colormap instance or registered colormap name. The colormap
@@ -5735,18 +5835,12 @@ default: :rc:`scatter.edgecolors`
         The grid orientation follows the standard matrix convention: An array
         *C* with shape (nrows, ncolumns) is plotted with the column number as
         *X* and the row number as *Y*.
-
-        **Handling of pcolor() end-cases**
-
-        ``pcolor()`` displays all columns of *C* if *X* and *Y* are not
-        specified, or if *X* and *Y* have one more column than *C*.
-        If *X* and *Y* have the same number of columns as *C* then the last
-        column of *C* is dropped. Similarly for the rows.
-
-        Note: This behavior is different from MATLAB's ``pcolor()``, which
-        always discards the last row and column of *C*.
         """
-        X, Y, C = self._pcolorargs('pcolor', *args, allmatch=False)
+
+        if shading is None:
+            shading = rcParams['pcolor.shading']
+        shading = shading.lower()
+        X, Y, C, shading = self._pcolorargs('pcolor', *args, shading=shading)
         Ny, Nx = X.shape
 
         # unit conversion allows e.g. datetime objects as axis values
@@ -5842,19 +5936,19 @@ default: :rc:`scatter.edgecolors`
     @_preprocess_data()
     @docstring.dedent_interpd
     def pcolormesh(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
-                   vmax=None, shading='flat', antialiased=False, **kwargs):
+                   vmax=None, shading=None, antialiased=False, **kwargs):
         """
         Create a pseudocolor plot with a non-regular rectangular grid.
 
         Call signature::
 
-            pcolor([X, Y,] C, **kwargs)
+            pcolormesh([X, Y,] C, **kwargs)
 
         *X* and *Y* can be used to specify the corners of the quadrilaterals.
 
-        .. note::
+        .. hint::
 
-           `~.Axes.pcolormesh` is similar to `~.Axes.pcolor`. It's much faster
+           `~.Axes.pcolormesh` is similar to `~.Axes.pcolor`. It is much faster
            and preferred in most cases. For a detailed discussion on the
            differences see :ref:`Differences between pcolor() and pcolormesh()
            <differences-pcolor-pcolormesh>`.
@@ -5865,23 +5959,29 @@ default: :rc:`scatter.edgecolors`
             A scalar 2-D array. The values will be color-mapped.
 
         X, Y : array-like, optional
-            The coordinates of the quadrilateral corners. The quadrilateral
-            for ``C[i, j]`` has corners at::
+            The coordinates of the corners of quadrilaterals of a pcolormesh::
 
-                (X[i+1, j], Y[i+1, j])           (X[i+1, j+1], Y[i+1, j+1])
-                                      +---------+
-                                      | C[i, j] |
-                                      +---------+
-                    (X[i, j], Y[i, j])           (X[i, j+1], Y[i, j+1])
+                (X[i+1, j], Y[i+1, j])       (X[i+1, j+1], Y[i+1, j+1])
+                                      +-----+
+                                      |     |
+                                      +-----+
+                    (X[i, j], Y[i, j])       (X[i, j+1], Y[i, j+1])
 
-            Note that the column index corresponds to the
-            x-coordinate, and the row index corresponds to y. For
-            details, see the :ref:`Notes <axes-pcolormesh-grid-orientation>`
-            section below.
+            Note that the column index corresponds to the x-coordinate, and
+            the row index corresponds to y. For details, see the
+            :ref:`Notes <axes-pcolormesh-grid-orientation>` section below.
 
-            The dimensions of *X* and *Y* should be one greater than those of
-            *C*. Alternatively, *X*, *Y* and *C* may have equal dimensions, in
-            which case the last row and column of *C* will be ignored.
+            If ``shading='flat'`` the dimensions of *X* and *Y* should be one
+            greater than those of *C*, and the quadrilateral is colored due
+            to the value at ``C[i, j]``.  If *X*, *Y* and *C* have equal
+            dimensions, a warning will be raised and the last row and column
+            of *C* will be ignored.
+
+            If ``shading='nearest'`` or ``'gouraud'``, the dimensions of *X*
+            and *Y* should be the same as those of *C* (if not, a ValueError
+            will be raised).  For ``'nearest'`` the color ``C[i, j]`` is
+            centered on ``(X[i, j], Y[i, j])``.  For ``'gouraud'``, a smooth
+            interpolation is caried out between the quadrilateral corners.
 
             If *X* and/or *Y* are 1-D arrays or column vectors they will be
             expanded as needed into the appropriate 2-D arrays, making a
@@ -5917,16 +6017,29 @@ default: :rc:`scatter.edgecolors`
         alpha : scalar, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-        shading : {'flat', 'gouraud'}, optional
-            The fill style, Possible values:
+        shading : {'flat', 'nearest', 'gouraud', 'auto'}, optional
+            The fill style for the quadrilateral; defaults to
+            'flat' or :rc:`pcolor.shading`. Possible values:
 
             - 'flat': A solid color is used for each quad. The color of the
               quad (i, j), (i+1, j), (i, j+1), (i+1, j+1) is given by
-              ``C[i, j]``.
+              ``C[i, j]``. The dimensions of *X* and *Y* should be
+              one greater than those of *C*; if they are the same as *C*,
+              then a deprecation warning is raised, and the last row
+              and column of *C* are dropped.
+            - 'nearest': Each grid point will have a color centered on it,
+              extending halfway between the adjacent grid centers.  The
+              dimensions of *X* and *Y* must be the same as *C*.
             - 'gouraud': Each quad will be Gouraud shaded: The color of the
-              corners (i', j') are given by ``C[i',j']``. The color values of
+              corners (i', j') are given by ``C[i', j']``. The color values of
               the area in between is interpolated from the corner values.
-              When Gouraud shading is used, *edgecolors* is ignored.
+              The dimensions of *X* and *Y* must be the same as *C*. When
+              Gouraud shading is used, *edgecolors* is ignored.
+            - 'auto': Choose 'flat' if dimensions of *X* and *Y* are one
+              larger than *C*.  Choose 'nearest' if dimensions are the same.
+
+            See :doc:`/gallery/images_contours_and_fields/pcolormesh_grids`
+            for more description.
 
         snap : bool, default: False
             Whether to snap the mesh to pixel boundaries.
@@ -5997,12 +6110,13 @@ default: :rc:`scatter.edgecolors`
         `~.Axes.pcolormesh`, which is not available with `~.Axes.pcolor`.
 
         """
+        if shading is None:
+            shading = rcParams['pcolor.shading']
         shading = shading.lower()
         kwargs.setdefault('edgecolors', 'None')
 
-        allmatch = (shading == 'gouraud')
-
-        X, Y, C = self._pcolorargs('pcolormesh', *args, allmatch=allmatch)
+        X, Y, C, shading = self._pcolorargs('pcolormesh', *args,
+                                            shading=shading)
         Ny, Nx = X.shape
         X = X.ravel()
         Y = Y.ravel()
@@ -6263,7 +6377,7 @@ default: :rc:`scatter.edgecolors`
 
         Compute and draw the histogram of *x*.  The return value is a tuple
         (*n*, *bins*, *patches*) or ([*n0*, *n1*, ...], *bins*, [*patches0*,
-        *patches1*,...]) if the input contains multiple data.  See the
+        *patches1*, ...]) if the input contains multiple data.  See the
         documentation of the *weights* parameter to draw a histogram of
         already-binned data.
 
@@ -6302,7 +6416,7 @@ default: :rc:`scatter.edgecolors`
             supported by `numpy.histogram_bin_edges`: 'auto', 'fd', 'doane',
             'scott', 'stone', 'rice', 'sturges', or 'sqrt'.
 
-        range : tuple or None, optional
+        range : tuple or None, default: None
             The lower and upper range of the bins. Lower and upper outliers
             are ignored. If not provided, *range* is ``(x.min(), x.max())``.
             Range has no effect if *bins* is a sequence.
@@ -6311,27 +6425,23 @@ default: :rc:`scatter.edgecolors`
             is based on the specified bin range instead of the
             range of x.
 
-            Default is ``None``
+        density : bool, default: False
+            If ``True``, draw and return a probability density: each bin
+            will display the bin's raw count divided by the total number of
+            counts *and the bin width*
+            (``density = counts / (sum(counts) * np.diff(bins))``),
+            so that the area under the histogram integrates to 1
+            (``np.sum(density * np.diff(bins)) == 1``).
 
-        density : bool, optional
-            If ``True``, the first element of the return tuple will
-            be the counts normalized to form a probability density, i.e.,
-            the area (or integral) under the histogram will sum to 1.
-            This is achieved by dividing the count by the number of
-            observations times the bin width and not dividing by the total
-            number of observations. If *stacked* is also ``True``, the sum of
-            the histograms is normalized to 1.
+            If *stacked* is also ``True``, the sum of the histograms is
+            normalized to 1.
 
-            Default is ``False``.
-
-        weights : (n, ) array-like or None, optional
-            An array of weights, of the same shape as *x*.  Each value in *x*
-            only contributes its associated weight towards the bin count
-            (instead of 1).  If *normed* or *density* is ``True``,
-            the weights are normalized, so that the integral of the density
-            over the range remains 1.
-
-            Default is ``None``.
+        weights : (n,) array-like or None, default: None
+            An array of weights, of the same shape as *x*.  Each value in
+            *x* only contributes its associated weight towards the bin count
+            (instead of 1).  If *density* is ``True``, the weights are
+            normalized, so that the integral of the density over the range
+            remains 1.
 
             This parameter can be used to draw a histogram of data that has
             already been binned, e.g. using `numpy.histogram` (by treating each
@@ -6342,7 +6452,7 @@ default: :rc:`scatter.edgecolors`
 
             (or you may alternatively use `~.bar()`).
 
-        cumulative : bool or -1, optional
+        cumulative : bool or -1, default: False
             If ``True``, then a histogram is computed where each bin gives the
             counts in that bin plus all bins for smaller values. The last bin
             gives the total number of datapoints.
@@ -6355,17 +6465,14 @@ default: :rc:`scatter.edgecolors`
             ``True``, then the histogram is normalized such that the first bin
             equals 1.
 
-            Default is ``False``
+        bottom : array-like, scalar, or None, default: None
+            Location of the bottom of each bin, ie. bins are drawn from
+            ``bottom`` to ``bottom + hist(x, bins)`` If a scalar, the bottom
+            of each bin is shifted by the same amount. If an array, each bin
+            is shifted independently and the length of bottom must match the
+            number of bins. If None, defaults to 0.
 
-        bottom : array-like, scalar, or None
-            Location of the bottom baseline of each bin.  If a scalar,
-            the base line for each bin is shifted by the same amount.
-            If an array, each bin is shifted independently and the length
-            of bottom must match the number of bins.  If None, defaults to 0.
-
-            Default is ``None``
-
-        histtype : {'bar', 'barstacked', 'step',  'stepfilled'}, optional
+        histtype : {'bar', 'barstacked', 'step', 'stepfilled'}, default: 'bar'
             The type of histogram to draw.
 
             - 'bar' is a traditional bar-type histogram.  If multiple data
@@ -6375,56 +6482,42 @@ default: :rc:`scatter.edgecolors`
             - 'step' generates a lineplot that is by default unfilled.
             - 'stepfilled' generates a lineplot that is by default filled.
 
-            Default is 'bar'
-
-        align : {'left', 'mid', 'right'}, optional
+        align : {'left', 'mid', 'right'}, default: 'mid'
             The horizontal alignment of the histogram bars.
 
             - 'left': bars are centered on the left bin edges.
             - 'mid': bars are centered between the bin edges.
             - 'right': bars are centered on the right bin edges.
 
-            Default is 'mid'
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
+            If 'horizontal', `~.Axes.barh` will be used for bar-type histograms
+            and the *bottom* kwarg will be the left edges.
 
-        orientation : {'horizontal', 'vertical'}, optional
-            If 'horizontal', `~matplotlib.pyplot.barh` will be used for
-            bar-type histograms and the *bottom* kwarg will be the left edges.
-
-        rwidth : scalar or None, optional
+        rwidth : scalar or None, default: None
             The relative width of the bars as a fraction of the bin width.  If
             ``None``, automatically compute the width.
 
             Ignored if *histtype* is 'step' or 'stepfilled'.
 
-            Default is ``None``
-
-        log : bool, optional
+        log : bool, default: False
             If ``True``, the histogram axis will be set to a log scale. If
             *log* is ``True`` and *x* is a 1D array, empty bins will be
             filtered out and only the non-empty ``(n, bins, patches)``
             will be returned.
 
-            Default is ``False``
-
-        color : color or array-like of colors or None, optional
+        color : color or array-like of colors or None, default: None
             Color or sequence of colors, one per dataset.  Default (``None``)
             uses the standard line color sequence.
 
-            Default is ``None``
-
-        label : str or None, optional
+        label : str or None, default: None
             String, or sequence of strings to match multiple datasets.  Bar
             charts yield multiple patches per dataset, but only the first gets
-            the label, so that the legend command will work as expected.
+            the label, so that `~.Axes.legend` will work as expected.
 
-            default is ``None``
-
-        stacked : bool, optional
+        stacked : bool, default: False
             If ``True``, multiple data are stacked on top of each other If
             ``False`` multiple data are arranged side by side if histtype is
             'bar' or on top of each other if histtype is 'step'
-
-            Default is ``False``
 
         Returns
         -------
@@ -6654,9 +6747,9 @@ default: :rc:`scatter.edgecolors`
 
             if log:
                 if orientation == 'horizontal':
-                    self.set_xscale('log', nonposx='clip')
+                    self.set_xscale('log', nonpositive='clip')
                 else:  # orientation == 'vertical'
-                    self.set_yscale('log', nonposy='clip')
+                    self.set_yscale('log', nonpositive='clip')
 
             if align == 'left':
                 x -= 0.5*(bins[1]-bins[0])
@@ -6741,7 +6834,6 @@ default: :rc:`scatter.edgecolors`
             return tops, bins, cbook.silent_list('Lists of Patches', patches)
 
     @_preprocess_data(replace_names=["x", "y", "weights"])
-    @cbook._rename_parameter("3.1", "normed", "density")
     def hist2d(self, x, y, bins=10, range=None, density=False, weights=None,
                cmin=None, cmax=None, **kwargs):
         """
@@ -6774,8 +6866,8 @@ default: :rc:`scatter.edgecolors`
             considered outliers and not tallied in the histogram.
 
         density : bool, default: False
-            Normalize histogram.  *normed* is a deprecated synonym for this
-            parameter.
+            Normalize histogram.  See the documentation for the *density*
+            parameter of `~.Axes.hist` for more details.
 
         weights : array-like, shape (n, ), optional
             An array of values w_i weighing each sample (x_i, y_i).
@@ -6834,7 +6926,7 @@ default: :rc:`scatter.edgecolors`
         """
 
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
-                                           normed=density, weights=weights)
+                                           density=density, weights=weights)
 
         if cmin is not None:
             h[h < cmin] = None
@@ -7519,11 +7611,6 @@ default: :rc:`scatter.edgecolors`
             pass 'present'. In this case any value present in the array
             will be plotted, even if it is identically zero.
 
-        origin : {'upper', 'lower'}, default: :rc:`image.origin`
-            Place the [0, 0] index of the array in the upper left or lower left
-            corner of the axes. The convention 'upper' is typically used for
-            matrices and images.
-
         aspect : {'equal', 'auto', None} or float, default: 'equal'
             The aspect ratio of the axes.  This parameter is particularly
             relevant for images since it determines whether data pixels are
@@ -7537,6 +7624,11 @@ default: :rc:`scatter.edgecolors`
               that the data fit in the axes. In general, this will result in
               non-square pixels.
             - *None*: Use :rc:`image.aspect`.
+
+        origin : {'upper', 'lower'}, default: :rc:`image.origin`
+            Place the [0, 0] index of the array in the upper left or lower left
+            corner of the axes. The convention 'upper' is typically used for
+            matrices and images.
 
         Returns
         -------
@@ -7563,6 +7655,7 @@ default: :rc:`scatter.edgecolors`
         """
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'
+        cbook._check_in_list(["upper", "lower"], origin=origin)
         if marker is None and markersize is None:
             Z = np.asarray(Z)
             mask = np.abs(Z) > precision
@@ -7596,23 +7689,27 @@ default: :rc:`scatter.edgecolors`
             if 'linestyle' in kwargs:
                 raise TypeError(
                     "spy() got an unexpected keyword argument 'linestyle'")
-            marks = mlines.Line2D(x, y, linestyle='None',
-                         marker=marker, markersize=markersize, **kwargs)
-            self.add_line(marks)
+            ret = mlines.Line2D(
+                x, y, linestyle='None', marker=marker, markersize=markersize,
+                **kwargs)
+            self.add_line(ret)
             nr, nc = Z.shape
             self.set_xlim(-0.5, nc - 0.5)
-            self.set_ylim(nr - 0.5, -0.5)
+            if origin == "upper":
+                self.set_ylim(nr - 0.5, -0.5)
+            else:
+                self.set_ylim(-0.5, nr - 0.5)
             self.set_aspect(aspect)
-            ret = marks
         self.title.set_y(1.05)
-        self.xaxis.tick_top()
+        if origin == "upper":
+            self.xaxis.tick_top()
+        else:
+            self.xaxis.tick_bottom()
         self.xaxis.set_ticks_position('both')
-        self.xaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
-                                                 steps=[1, 2, 5, 10],
-                                                 integer=True))
-        self.yaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
-                                                 steps=[1, 2, 5, 10],
-                                                 integer=True))
+        self.xaxis.set_major_locator(
+            mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True))
+        self.yaxis.set_major_locator(
+            mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True))
         return ret
 
     def matshow(self, Z, **kwargs):
@@ -7660,12 +7757,10 @@ default: :rc:`scatter.edgecolors`
         self.title.set_y(1.05)
         self.xaxis.tick_top()
         self.xaxis.set_ticks_position('both')
-        self.xaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
-                                                 steps=[1, 2, 5, 10],
-                                                 integer=True))
-        self.yaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
-                                                 steps=[1, 2, 5, 10],
-                                                 integer=True))
+        self.xaxis.set_major_locator(
+            mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True))
+        self.yaxis.set_major_locator(
+            mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True))
         return im
 
     @_preprocess_data(replace_names=["dataset"])

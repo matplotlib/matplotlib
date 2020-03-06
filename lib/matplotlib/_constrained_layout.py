@@ -77,7 +77,7 @@ def _axes_all_finite_sized(fig):
 
 ######################################################
 def do_constrained_layout(fig, renderer, h_pad, w_pad,
-        hspace=None, wspace=None):
+                          hspace=None, wspace=None):
     """
     Do the constrained_layout.  Called at draw time in
      ``figure.constrained_layout()``
@@ -254,10 +254,7 @@ def _make_ghost_gridspec_slots(fig, gs):
             # this gridspec slot doesn't have an axis so we
             # make a "ghost".
             ax = fig.add_subplot(gs[nn])
-            ax.set_frame_on(False)
-            ax.set_xticks([])
-            ax.set_yticks([])
-            ax.set_facecolor((1, 0, 0, 0))
+            ax.set_visible(False)
 
 
 def _make_layout_margins(ax, renderer, h_pad, w_pad):
@@ -277,7 +274,7 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
 
     # this can go wrong:
     if not (np.isfinite(bbox.width) and np.isfinite(bbox.height)):
-        # just abort, this is likely a bad set of co-ordinates that
+        # just abort, this is likely a bad set of coordinates that
         # is transitory...
         return
     # use stored h_pad if it exists
@@ -402,8 +399,8 @@ def _align_spines(fig, gs):
             # different sizes if they occupy different amounts
             # of the gridspec:  i.e.
             # gs = gridspec.GridSpec(3, 1)
-            # ax1 = gs[0,:]
-            # ax2 = gs[1:,:]
+            # ax1 = gs[0, :]
+            # ax2 = gs[1:, :]
             # then drows0 = 1, and drowsC = 2, and ax2
             # should be at least twice as large as ax1.
             # But it can be more than twice as large because
@@ -423,7 +420,7 @@ def _align_spines(fig, gs):
                         axc._poslayoutbox.height * height0 / heightC)
                 alignheight = True
             elif _in_same_column(colnum0min, colnum0max,
-                    colnumCmin, colnumCmax):
+                                 colnumCmin, colnumCmax):
                 if height0 > heightC:
                     ax._poslayoutbox.constrain_height_min(
                         axc._poslayoutbox.height * height0 / heightC)
@@ -444,7 +441,7 @@ def _align_spines(fig, gs):
                         axc._poslayoutbox.width * width0 / widthC)
                 alignwidth = True
             elif _in_same_row(rownum0min, rownum0max,
-                    rownumCmin, rownumCmax):
+                              rownumCmin, rownumCmax):
                 if width0 > widthC:
                     ax._poslayoutbox.constrain_width_min(
                             axc._poslayoutbox.width * width0 / widthC)
@@ -485,10 +482,10 @@ def _arrange_subplotspecs(gs, hspace=0, wspace=0):
             thepad = wspace / ncols
             if colNum0max < colNumCmin:
                 layoutbox.hstack([ss0._layoutbox, ssc._layoutbox],
-                        padding=thepad)
+                                 padding=thepad)
             if colNumCmax < colNum0min:
                 layoutbox.hstack([ssc._layoutbox, ss0._layoutbox],
-                        padding=thepad)
+                                 padding=thepad)
 
             ####
             # vertical alignment
@@ -624,7 +621,7 @@ def layoutcolorbargridspec(parents, cax, shrink, aspect, location, pad=0.05):
             else:
                 order = [lb, ax._layoutbox]
             layoutbox.hstack(order, padding=pad * gslb.width,
-                         strength='strong')
+                             strength='strong')
         # constrain the height and center...
         # This isn't quite right.  We'd like the colorbar
         # pos to line up w/ the axes poss, not the size of the
@@ -684,7 +681,7 @@ def layoutcolorbargridspec(parents, cax, shrink, aspect, location, pad=0.05):
             else:
                 order = [lb, ax._layoutbox]
             layoutbox.vstack(order, padding=pad * gslb.width,
-                         strength='strong')
+                             strength='strong')
 
         # Vertical Layout: need to check all the axes in this gridspec
         for ch in gslb.children:

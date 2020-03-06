@@ -115,8 +115,8 @@ The plot directive has the following configuration options:
         be applied before each plot.
 
     plot_apply_rcparams
-        By default, rcParams are applied when `context` option is not used in
-        a plot directive.  This configuration option overrides this behavior
+        By default, rcParams are applied when ``:context:`` option is not used
+        in a plot directive.  This configuration option overrides this behavior
         and applies rcParams before each plot.
 
     plot_working_directory

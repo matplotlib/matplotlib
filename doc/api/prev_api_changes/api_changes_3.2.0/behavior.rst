@@ -62,12 +62,12 @@ Matplotlib used to recompute autoscaled limits after every plotting
 rendering the canvas, or when the user queries the Axes limits.  This is a
 major performance improvement for plots with a large number of artists.
 
-In particular, this means that artists added manually with `Axes.add_line`,
-`Axes.add_patch`, etc. will be taken into account by the autoscale, even
-without an explicit call to `Axes.autoscale_view`.
+In particular, this means that artists added manually with `.Axes.add_line`,
+`.Axes.add_patch`, etc. will be taken into account by the autoscale, even
+without an explicit call to `.Axes.autoscale_view`.
 
 In some cases, this can result in different limits being reported.  If this is
-an issue, consider triggering a draw with `fig.canvas.draw`.
+an issue, consider triggering a draw with ``fig.canvas.draw()``.
 
 Autoscaling has also changed for artists that are based on the `.Collection`
 class.  Previously, the method that calculates the automatic limits
@@ -133,7 +133,7 @@ properties, which are `range` objects indicating the whole span of rows and
 columns covered by the subplot.
 
 (Note that all methods and attributes mentioned here actually only exist on
-the ``Subplot`` subclass of `Axes`, which is used for grid-positioned Axes but
+the ``Subplot`` subclass of `~.axes.Axes`, which is used for grid-positioned Axes but
 not for Axes positioned directly in absolute coordinates.)
 
 The `.GridSpec` class gained the ``nrows`` and ``ncols`` properties as more
@@ -230,7 +230,7 @@ performance penalty.  Anti-aliasing can be improved with other filters.
 
 rcParams
 ~~~~~~~~
-When using `RendererSVG` with ``rcParams["svg.image_inline"] ==
+When using `.RendererSVG` with ``rcParams["svg.image_inline"] ==
 True``, externally written images now use a single counter even if the
 ``renderer.basename`` attribute is overwritten, rather than a counter per
 basename.
@@ -299,3 +299,11 @@ package, and Axes methods that take a ``norm`` parameter.
 
 If extra kwargs are passed to `.LogScale`, `TypeError` will now be
 raised instead of `ValueError`.
+
+mplot3d auto-registration
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`mpl_toolkits.mplot3d` is always registered by default now. It is no
+longer necessary to import mplot3d to create 3d axes with ::
+
+  ax = fig.add_subplot(111, projection="3d")

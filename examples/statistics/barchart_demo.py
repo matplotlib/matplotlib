@@ -95,7 +95,7 @@ def plot_student_results(student, scores, cohort_size):
     # Set the right-hand Y-axis ticks and labels
     ax2 = ax1.twinx()
 
-    scoreLabels = [format_score(scores[k].score, k) for k in test_names]
+    score_labels = [format_score(scores[k].score, k) for k in test_names]
 
     # set the tick locations
     ax2.set_yticks(pos)
@@ -104,7 +104,7 @@ def plot_student_results(student, scores, cohort_size):
     ax2.set_ylim(ax1.get_ylim())
 
     # set the tick labels
-    ax2.set_yticklabels(scoreLabels)
+    ax2.set_yticklabels(score_labels)
 
     ax2.set_ylabel('Test Scores')
 
@@ -122,7 +122,7 @@ def plot_student_results(student, scores, cohort_size):
         # converting width to int type
         width = int(rect.get_width())
 
-        rankStr = attach_ordinal(width)
+        rank_str = attach_ordinal(width)
         # The bars aren't wide enough to print the ranking inside
         if width < 40:
             # Shift the text to the right side of the right edge
@@ -139,10 +139,11 @@ def plot_student_results(student, scores, cohort_size):
 
         # Center the text vertically in the bar
         yloc = rect.get_y() + rect.get_height() / 2
-        label = ax1.annotate(rankStr, xy=(width, yloc), xytext=(xloc, 0),
-                            textcoords="offset points",
-                            ha=align, va='center',
-                            color=clr, weight='bold', clip_on=True)
+        label = ax1.annotate(
+            rank_str, xy=(width, yloc), xytext=(xloc, 0),
+            textcoords="offset points",
+            horizontalalignment=align, verticalalignment='center',
+            color=clr, weight='bold', clip_on=True)
         rect_labels.append(label)
 
     # make the interactive mouse over give the bar title

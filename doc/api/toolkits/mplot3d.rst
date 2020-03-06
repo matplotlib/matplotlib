@@ -11,10 +11,8 @@ mplot3d API
    :no-members:
    :no-undoc-members:
 
-
+.. module:: mpl_toolkits.mplot3d.axes3d
 .. currentmodule:: mpl_toolkits.mplot3d
-
-.. _toolkit_mplot3d-axesapi:
 
 :mod:`~mpl_toolkits.mplot3d.axes3d`
 ===================================
@@ -32,7 +30,8 @@ mplot3d API
    axes3d.Axes3D
 
 
-.. _toolkit_mplot3d-axisapi:
+.. module:: mpl_toolkits.mplot3d.axis3d
+.. currentmodule:: mpl_toolkits.mplot3d
 
 :mod:`~mpl_toolkits.mplot3d.axis3d`
 ===================================
@@ -53,7 +52,8 @@ mplot3d API
    axis3d.Axis
 
 
-.. _toolkit_mplot3d-artapi:
+.. module:: mpl_toolkits.mplot3d.art3d
+.. currentmodule:: mpl_toolkits.mplot3d
 
 :mod:`~mpl_toolkits.mplot3d.art3d`
 ==================================
@@ -90,7 +90,8 @@ Art3D Utility Functions
    art3d.rotate_axes
    art3d.text_2d_to_3d
 
-.. _toolkit_mplot3d-projapi:
+.. module:: mpl_toolkits.mplot3d.proj3d
+.. currentmodule:: mpl_toolkits.mplot3d
 
 :mod:`~mpl_toolkits.mplot3d.proj3d`
 ===================================

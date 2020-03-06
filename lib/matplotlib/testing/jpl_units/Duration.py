@@ -132,28 +132,6 @@ class Duration:
         """
         return Duration(self._frame, self._seconds * float(lhs))
 
-    def __div__(self, rhs):
-        """Divide a Duration by a value.
-
-        = INPUT VARIABLES
-        - rhs     The scalar to divide by.
-
-        = RETURN VALUE
-        - Returns the scaled Duration.
-        """
-        return Duration(self._frame, self._seconds / rhs)
-
-    def __rdiv__(self, rhs):
-        """Divide a Duration by a value.
-
-        = INPUT VARIABLES
-        - rhs     The scalar to divide by.
-
-        = RETURN VALUE
-        - Returns the scaled Duration.
-        """
-        return Duration(self._frame, rhs / self._seconds)
-
     def __str__(self):
         """Print the Duration."""
         return "%g %s" % (self._seconds, self._frame)

@@ -188,7 +188,7 @@ Other Parameters
 
 See Also
 --------
-quiverkey : Add a key to a quiver plot.
+.Axes.quiverkey : Add a key to a quiver plot.
 """ % docstring.interpd.params
 
 
@@ -282,10 +282,10 @@ class QuiverKey(martist.Artist):
         _fp = self.fontproperties
         # boxprops = dict(facecolor='red')
         self.text = mtext.Text(
-                        text=label,  # bbox=boxprops,
-                        horizontalalignment=self.halign[self.labelpos],
-                        verticalalignment=self.valign[self.labelpos],
-                        fontproperties=font_manager.FontProperties(**_fp))
+            text=label,  # bbox=boxprops,
+            horizontalalignment=self.halign[self.labelpos],
+            verticalalignment=self.valign[self.labelpos],
+            fontproperties=font_manager.FontProperties._from_any(_fp))
 
         if self.labelcolor is not None:
             self.text.set_color(self.labelcolor)

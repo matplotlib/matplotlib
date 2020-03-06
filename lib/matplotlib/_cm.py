@@ -1198,7 +1198,7 @@ _coolwarm_data = {
 # See `A Color Map for Effective Black-and-White Rendering of Color-Scale
 # Images' by Carey Rappaport
 # http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m
-_CMRmap_data = {'red':     ((0.000, 0.00, 0.00),
+_CMRmap_data = {'red':    ((0.000, 0.00, 0.00),
                            (0.125, 0.15, 0.15),
                            (0.250, 0.30, 0.30),
                            (0.375, 0.60, 0.60),

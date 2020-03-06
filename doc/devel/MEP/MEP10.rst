@@ -85,7 +85,7 @@ reason, many matplotlib methods include something like::
         """
 
 This can't be parsed by Sphinx, and is rather verbose in raw text.  As
-of Sphinx 1.1, if the `autodoc_docstring_signature` config value is
+of Sphinx 1.1, if the ``autodoc_docstring_signature`` config value is
 set to True, Sphinx will extract a replacement signature from the
 first line of the docstring, allowing this::
 
@@ -119,7 +119,7 @@ autosummary extension
 
 The Sphinx autosummary extension should be used to generate summary
 tables, that link to separate pages of documentation.  Some classes
-that have many methods (e.g. `Axes.axes`) should be documented with
+that have many methods (e.g. `~.axes.Axes`) should be documented with
 one method per page, whereas smaller classes should have all of their
 methods together.
 

@@ -70,7 +70,7 @@ def composite_images(images, renderer, magnification=1.0):
 
     renderer : `.RendererBase`
 
-    magnification : float
+    magnification : float, default: 1
         The additional magnification to apply for the renderer in use.
 
     Returns
@@ -246,6 +246,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self._mouseover = True
         if origin is None:
             origin = rcParams['image.origin']
+        cbook._check_in_list(["upper", "lower"], origin=origin)
         self.origin = origin
         self.set_filternorm(filternorm)
         self.set_filterrad(filterrad)
@@ -303,8 +304,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def changed(self):
         """
-        Call this whenever the mappable is changed so observers can
-        update state
+        Call this whenever the mappable is changed so observers can update.
         """
         self._imcache = None
         self._rgbacache = None
@@ -627,9 +627,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self.stale = False
 
     def contains(self, mouseevent):
-        """
-        Test whether the mouse event occurred within the image.
-        """
+        """Test whether the mouse event occurred within the image."""
         inside, info = self._default_contains(mouseevent)
         if inside is not None:
             return inside, info
@@ -659,7 +657,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         return inside, {}
 
     def write_png(self, fname):
-        """Write the image to png file with fname"""
+        """Write the image to png file *fname*."""
         im = self.to_rgba(self._A[::-1] if self.origin == 'lower' else self._A,
                           bytes=True, norm=True)
         PIL.Image.fromarray(im).save(fname, format="png")
@@ -733,7 +731,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',
         'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos',
         or 'none'.
-
         """
         return self._interpolation
 
@@ -741,7 +738,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Set the interpolation method the image uses when resizing.
 
-        if None, use a value from rc setting. If 'none', the image is
+        If None, use :rc:`image.interpolation`. If 'none', the image is
         shown as is without interpolating. 'none' is only supported in
         agg, ps and pdf backends and will fall back to 'nearest' mode
         for other backends.
@@ -750,8 +747,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         ----------
         s : {'antialiased', 'nearest', 'bilinear', 'bicubic', 'spline16',
 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', \
-'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', 'none'}
-
+'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', 'none'} or None
         """
         if s is None:
             s = rcParams['image.interpolation']
@@ -775,7 +771,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         Parameters
         ----------
         v : bool or None
-            If None, use :rc:`image.resample` = True.
+            If None, use :rc:`image.resample`.
         """
         if v is None:
             v = rcParams['image.resample']
@@ -862,7 +858,6 @@ class AxesImage(_ImageBase):
         When True, use a full resampling method. When False, only resample when
         the output image is larger than the input image.
     **kwargs : `.Artist` properties
-
     """
     def __str__(self):
         return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
@@ -911,9 +906,7 @@ class AxesImage(_ImageBase):
             magnification, unsampled=unsampled)
 
     def _check_unsampled_image(self, renderer):
-        """
-        Return whether the image would be better drawn unsampled.
-        """
+        """Return whether the image would be better drawn unsampled."""
         return (self.get_interpolation() == "none"
                 and renderer.option_scale_image())
 
@@ -999,7 +992,7 @@ class NonUniformImage(AxesImage):
         """
         Parameters
         ----------
-        interpolation : {'nearest', 'bilinear'}
+        interpolation : {'nearest', 'bilinear'}, default: 'nearest'
 
         **kwargs
             All other keyword arguments are identical to those of `.AxesImage`.
@@ -1091,8 +1084,8 @@ class NonUniformImage(AxesImage):
         """
         Parameters
         ----------
-        s : str, None
-            Either 'nearest', 'bilinear', or ``None``.
+        s : {'nearest', 'bilinear'} or None
+            If None, use :rc:`image.interpolation`.
         """
         if s is not None and s not in ('nearest', 'bilinear'):
             raise NotImplementedError('Only nearest neighbor and '
@@ -1137,12 +1130,28 @@ class PcolorImage(AxesImage):
                  **kwargs
                  ):
         """
-        cmap defaults to its rc setting
+        Parameters
+        ----------
+        ax : `~.axes.Axes`
+            The axes the image will belong to.
+        x, y : 1D array-like, optional
+            Monotonic arrays of length N+1 and M+1, respectively, specifying
+            rectangle boundaries.  If not given, will default to
+            ``range(N + 1)`` and ``range(M + 1)``, respectively.
+        A : array-like
+            The data to be color-coded. The interpretation depends on the
+            shape:
 
-        cmap is a colors.Colormap instance
-        norm is a colors.Normalize instance to map luminance to 0-1
+            - (M, N) ndarray or masked array: values to be colormapped
+            - (M, N, 3): RGB array
+            - (M, N, 4): RGBA array
 
-        Additional kwargs are matplotlib.artist properties
+        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+            The Colormap instance or registered colormap name used to map
+            scalar data to colors.
+        norm : `~matplotlib.colors.Normalize`
+            Maps luminance to 0-1.
+        **kwargs : `.Artist` properties
         """
         super().__init__(ax, norm=norm, cmap=cmap)
         self.update(kwargs)
@@ -1192,13 +1201,17 @@ class PcolorImage(AxesImage):
 
         Parameters
         ----------
-        x, y : 1D array-likes or None
-            Monotonic arrays of shapes (N + 1,) and (M + 1,), respectively,
-            specifying rectangle boundaries.  If None, will default to
+        x, y : 1D array-like, optional
+            Monotonic arrays of length N+1 and M+1, respectively, specifying
+            rectangle boundaries.  If not given, will default to
             ``range(N + 1)`` and ``range(M + 1)``, respectively.
         A : array-like
-            (M, N) ndarray or masked array of values to be colormapped, or
-            (M, N, 3) RGB array, or (M, N, 4) RGBA array.
+            The data to be color-coded. The interpretation depends on the
+            shape:
+
+            - (M, N) ndarray or masked array: values to be colormapped
+            - (M, N, 3): RGB array
+            - (M, N, 4): RGBA array
         """
         A = cbook.safe_masked_invalid(A, copy=True)
         if x is None:
@@ -1473,17 +1486,15 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         values that map to the colormap color limits. If either *vmin*
         or *vmax* is None, that limit is determined from the *arr*
         min/max value.
-    cmap : str or `~matplotlib.colors.Colormap`, optional
+    cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
         A Colormap instance or registered colormap name. The colormap
         maps scalar data to colors. It is ignored for RGB(A) data.
-        Defaults to :rc:`image.cmap` ('viridis').
     format : str, optional
         The file format, e.g. 'png', 'pdf', 'svg', ...  The behavior when this
         is unset is documented under *fname*.
-    origin : {'upper', 'lower'}, optional
+    origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Indicates whether the ``(0, 0)`` index of the array is in the upper
-        left or lower left corner of the axes.  Defaults to :rc:`image.origin`
-        ('upper').
+        left or lower left corner of the axes.
     dpi : int
         The DPI to store in the metadata of the file.  This does not affect the
         resolution of the output image.
@@ -1492,9 +1503,9 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         format, see the documentation of the respective backends for more
         information.
     pil_kwargs : dict, optional
-        Keyword arguments passed to `PIL.Image.save`.  If the 'pnginfo' key is
-        present, it completely overrides *metadata*, including the default
-        'Software' key.
+        Keyword arguments passed to `PIL.Image.Image.save`.  If the 'pnginfo'
+        key is present, it completely overrides *metadata*, including the
+        default 'Software' key.
     """
     from matplotlib.figure import Figure
     if isinstance(fname, os.PathLike):
@@ -1547,7 +1558,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
 
 
 def pil_to_array(pilImage):
-    """Load a `PIL image`_ and return it as a numpy int array.
+    """
+    Load a `PIL image`_ and return it as a numpy int array.
 
     .. _PIL image: https://pillow.readthedocs.io/en/latest/reference/Image.html
 
@@ -1629,19 +1641,19 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
     thumbfile : str or file-like
         The thumbnail filename.
 
-    scale : float, optional
+    scale : float, default: 0.1
         The scale factor for the thumbnail.
 
-    interpolation : str, optional
+    interpolation : str, default: 'bilinear'
         The interpolation scheme used in the resampling. See the
         *interpolation* parameter of `~.Axes.imshow` for possible values.
 
-    preview : bool, optional
+    preview : bool, default: False
         If True, the default backend (presumably a user interface
         backend) will be used which will cause a figure to be raised if
         `~matplotlib.pyplot.show` is called.  If it is False, the figure is
-        created using `FigureCanvasBase` and the drawing backend is selected
-        as `~matplotlib.figure.savefig` would normally do.
+        created using `.FigureCanvasBase` and the drawing backend is selected
+        as `.Figure.savefig` would normally do.
 
     Returns
     -------

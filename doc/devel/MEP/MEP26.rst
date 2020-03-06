@@ -68,7 +68,7 @@ Implementation
 It will be easiest to allow a '3rd party' to modify/set the style of
 an artist if the 'style' is created as a separate class and store
 against the artist as a property.  The `.GraphicsContext` class already
-provides a the basis of a `Style` class and an artists `draw` method can
+provides a the basis of a `Style` class and an artist's `~.Artist.draw` method can
 be refactored to use the `Style` class rather than setting up it's own
 `.GraphicsContext` and transferring it's style-related properties to
 it.  A minimal example of how this could be implemented is shown here:

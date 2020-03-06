@@ -5,28 +5,29 @@ Typesetting With XeLaTeX/LuaLaTeX
 
 How to typeset text with the ``pgf`` backend in Matplotlib.
 
-Using the ``pgf`` backend, matplotlib can export figures as pgf drawing commands
-that can be processed with pdflatex, xelatex or lualatex. XeLaTeX and LuaLaTeX
-have full unicode support and can use any font that is installed in the operating
-system, making use of advanced typographic features of OpenType, AAT and
-Graphite. Pgf pictures created by ``plt.savefig('figure.pgf')`` can be
-embedded as raw commands in LaTeX documents. Figures can also be directly
-compiled and saved to PDF with ``plt.savefig('figure.pdf')`` by either
-switching to the backend
-
-.. code-block:: python
+Using the ``pgf`` backend, Matplotlib can export figures as pgf drawing
+commands that can be processed with pdflatex, xelatex or lualatex. XeLaTeX and
+LuaLaTeX have full Unicode support and can use any font that is installed in
+the operating system, making use of advanced typographic features of OpenType,
+AAT and Graphite. Pgf pictures created by ``plt.savefig('figure.pgf')``
+can be embedded as raw commands in LaTeX documents. Figures can also be
+directly compiled and saved to PDF with ``plt.savefig('figure.pdf')`` by
+switching the backend ::
 
     matplotlib.use('pgf')
 
-or registering it for handling pdf output
+or by explicitly requesting the use of the ``pgf`` backend ::
 
-.. code-block:: python
+    plt.savefig('figure.pdf', backend='pgf')
+
+or by registering it for handling pdf output ::
 
     from matplotlib.backends.backend_pgf import FigureCanvasPgf
     matplotlib.backend_bases.register_backend('pdf', FigureCanvasPgf)
 
-The second method allows you to keep using regular interactive backends and to
-save xelatex, lualatex or pdflatex compiled PDF files from the graphical user interface.
+The last method allows you to keep using regular interactive backends and to
+save xelatex, lualatex or pdflatex compiled PDF files from the graphical user
+interface.
 
 Matplotlib's pgf support requires a recent LaTeX_ installation that includes
 the TikZ/PGF packages (such as TeXLive_), preferably with XeLaTeX or LuaLaTeX
@@ -34,7 +35,7 @@ installed. If either pdftocairo or ghostscript is present on your system,
 figures can optionally be saved to PNG images as well. The executables
 for all applications must be located on your :envvar:`PATH`.
 
-Rc parameters that control the behavior of the pgf backend:
+`.rcParams` that control the behavior of the pgf backend:
 
     =================  =====================================================
     Parameter          Documentation
@@ -51,7 +52,7 @@ Rc parameters that control the behavior of the pgf backend:
      # $ % & ~ _ ^ \ { }
 
    Generally, these characters must be escaped correctly. For convenience,
-   some characters (_,^,%) are automatically escaped outside of math
+   some characters (_, ^, %) are automatically escaped outside of math
    environments.
 
 .. _pgf-rcfonts:
@@ -60,7 +61,8 @@ Rc parameters that control the behavior of the pgf backend:
 Multi-Page PDF Files
 ====================
 
-The pgf backend also supports multipage pdf files using ``PdfPages``
+The pgf backend also supports multipage pdf files using
+`~.backend_pgf.PdfPages`
 
 .. code-block:: python
 
@@ -82,15 +84,16 @@ Font specification
 ==================
 
 The fonts used for obtaining the size of text elements or when compiling
-figures to PDF are usually defined in the matplotlib rc parameters. You can
-also use the LaTeX default Computer Modern fonts by clearing the lists for
-``font.serif``, ``font.sans-serif`` or ``font.monospace``. Please note that
-the glyph coverage of these fonts is very limited. If you want to keep the
-Computer Modern font face but require extended unicode support, consider
-installing the `Computer Modern Unicode <https://sourceforge.net/projects/cm-unicode/>`_
-fonts *CMU Serif*, *CMU Sans Serif*, etc.
+figures to PDF are usually defined in the `.rcParams`. You can also use the
+LaTeX default Computer Modern fonts by clearing the lists for :rc:`font.serif`,
+:rc:`font.sans-serif` or :rc:`font.monospace`. Please note that the glyph
+coverage of these fonts is very limited. If you want to keep the Computer
+Modern font face but require extended Unicode support, consider installing the
+`Computer Modern Unicode`__ fonts *CMU Serif*, *CMU Sans Serif*, etc.
 
-When saving to ``.pgf``, the font configuration matplotlib used for the
+__ https://sourceforge.net/projects/cm-unicode/
+
+When saving to ``.pgf``, the font configuration Matplotlib used for the
 layout of the figure is included in the header of the text file.
 
 .. literalinclude:: ../../gallery/userdemo/pgf_fonts.py
@@ -103,10 +106,10 @@ Custom preamble
 ===============
 
 Full customization is possible by adding your own commands to the preamble.
-Use the ``pgf.preamble`` parameter if you want to configure the math fonts,
+Use :rc:`pgf.preamble` if you want to configure the math fonts,
 using ``unicode-math`` for example, or for loading additional packages. Also,
 if you want to do the font configuration yourself instead of using the fonts
-specified in the rc parameters, make sure to disable ``pgf.rcfonts``.
+specified in the rc parameters, make sure to disable :rc:`pgf.rcfonts`.
 
 .. only:: html
 
@@ -124,10 +127,10 @@ specified in the rc parameters, make sure to disable ``pgf.rcfonts``.
 Choosing the TeX system
 =======================
 
-The TeX system to be used by matplotlib is chosen by the ``pgf.texsystem``
-parameter. Possible values are ``'xelatex'`` (default), ``'lualatex'`` and
-``'pdflatex'``. Please note that when selecting pdflatex the fonts and
-unicode handling must be configured in the preamble.
+The TeX system to be used by Matplotlib is chosen by :rc:`pgf.texsystem`.
+Possible values are ``'xelatex'`` (default), ``'lualatex'`` and ``'pdflatex'``.
+Please note that when selecting pdflatex, the fonts and Unicode handling must
+be configured in the preamble.
 
 .. literalinclude:: ../../gallery/userdemo/pgf_texsystem.py
    :end-before: plt.savefig
@@ -160,7 +163,7 @@ Troubleshooting
   that your LaTeX syntax is valid and that you are using raw strings
   if necessary to avoid unintended escape sequences.
 
-* The ``pgf.preamble`` rc setting provides lots of flexibility, and lots of
+* :rc:`pgf.preamble` provides lots of flexibility, and lots of
   ways to cause problems. When experiencing problems, try to minimalize or
   disable the custom preamble.
 
@@ -170,13 +173,14 @@ Troubleshooting
   these fonts by their name, which is why you might have to specify
   ``\setmathfont{xits-math.otf}`` instead of ``\setmathfont{XITS Math}`` or
   alternatively make the fonts available to your OS. See this
-  `tex.stackexchange.com question <http://tex.stackexchange.com/questions/43642>`_
-  for more details.
+  `tex.stackexchange.com question`__ for more details.
 
-* If the font configuration used by matplotlib differs from the font setting
+  __ http://tex.stackexchange.com/questions/43642
+
+* If the font configuration used by Matplotlib differs from the font setting
   in yout LaTeX document, the alignment of text elements in imported figures
   may be off. Check the header of your ``.pgf`` file if you are unsure about
-  the fonts matplotlib used for the layout.
+  the fonts Matplotlib used for the layout.
 
 * Vector images and hence ``.pgf`` files can become bloated if there are a lot
   of objects in the graph. This can be the case for image processing or very
@@ -185,8 +189,8 @@ Troubleshooting
   the amount of memory available to generate the ``.pdf`` image as discussed on
   `tex.stackexchange.com <http://tex.stackexchange.com/questions/7953>`_.
   Another way would be to "rasterize" parts of the graph causing problems
-  using either the ``rasterized=True`` keyword, or ``.set_rasterized(True)`` as per
-  :doc:`this example </gallery/misc/rasterization_demo>`.
+  using either the ``rasterized=True`` keyword, or ``.set_rasterized(True)`` as
+  per :doc:`this example </gallery/misc/rasterization_demo>`.
 
 * If you still need help, please see :ref:`reporting-problems`
 

@@ -3,13 +3,13 @@ r"""
 PathPatch object
 ================
 
-This example shows how to create `~.path.Path` and `~.patches.PathPatch` objects through
-Matplotlib's API.
+This example shows how to create `~.path.Path` and `~.patches.PathPatch`
+objects through Matplotlib's API.
 """
+
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
-
 
 fig, ax = plt.subplots()
 

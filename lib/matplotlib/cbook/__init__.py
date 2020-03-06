@@ -24,7 +24,6 @@ import traceback
 import types
 import warnings
 import weakref
-from weakref import WeakMethod
 
 import numpy as np
 
@@ -180,7 +179,7 @@ class CallbackRegistry:
         """
         self._func_cid_map.setdefault(s, {})
         try:
-            proxy = WeakMethod(func, self._remove_proxy)
+            proxy = weakref.WeakMethod(func, self._remove_proxy)
         except TypeError:
             proxy = _StrongRef(func)
         if proxy in self._func_cid_map[s]:
@@ -461,7 +460,7 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
 
 @contextlib.contextmanager
 def open_file_cm(path_or_file, mode="r", encoding=None):
-    r"""Pass through file objects and context-manage `.PathLike`\s."""
+    r"""Pass through file objects and context-manage path-likes."""
     fh, opened = to_filehandle(path_or_file, mode, True, encoding)
     if opened:
         with fh:
@@ -624,7 +623,7 @@ class Stack:
 
     def __call__(self):
         """Return the current element, or None."""
-        if not len(self._elements):
+        if not self._elements:
             return self._default
         else:
             return self._elements[self._pos]
@@ -662,7 +661,7 @@ class Stack:
 
         The first element is returned.
         """
-        if not len(self._elements):
+        if not self._elements:
             return
         self.push(self._elements[0])
         return self()
@@ -678,33 +677,43 @@ class Stack:
 
     def bubble(self, o):
         """
-        Raise *o* to the top of the stack.  *o* must be present in the stack.
+        Raise all references of *o* to the top of the stack, and return it.
 
-        *o* is returned.
+        Raises
+        ------
+        ValueError
+            If *o* is not in the stack.
         """
         if o not in self._elements:
-            raise ValueError('Unknown element o')
-        old = self._elements[:]
+            raise ValueError('Given element not contained in the stack')
+        old_elements = self._elements.copy()
         self.clear()
-        bubbles = []
-        for thiso in old:
-            if thiso == o:
-                bubbles.append(thiso)
+        top_elements = []
+        for elem in old_elements:
+            if elem == o:
+                top_elements.append(elem)
             else:
-                self.push(thiso)
-        for _ in bubbles:
+                self.push(elem)
+        for _ in top_elements:
             self.push(o)
         return o
 
     def remove(self, o):
-        """Remove *o* from the stack."""
+        """
+        Remove *o* from the stack.
+
+        Raises
+        ------
+        ValueError
+            If *o* is not in the stack.
+        """
         if o not in self._elements:
-            raise ValueError('Unknown element o')
-        old = self._elements[:]
+            raise ValueError('Given element not contained in the stack')
+        old_elements = self._elements.copy()
         self.clear()
-        for thiso in old:
-            if thiso != o:
-                self.push(thiso)
+        for elem in old_elements:
+            if elem != o:
+                self.push(elem)
 
 
 def report_memory(i=0):  # argument may go away
@@ -1095,11 +1104,8 @@ def _combine_masks(*args):
 def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
                   autorange=False):
     r"""
-    Return a list of dictionaries of statistics used to draw a series
-    of box and whisker plots. The `Returns` section enumerates the
-    required keys of the dictionary. Users can skip this function and
-    pass a user-defined set of dictionaries to the new `~.Axes.bxp` method
-    instead of relying on Matplotlib to do the calculations.
+    Return a list of dictionaries of statistics used to draw a series of box
+    and whisker plots using `~.Axes.bxp`.
 
     Parameters
     ----------
@@ -1163,8 +1169,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     Notes
     -----
-    Non-bootstrapping approach to confidence interval uses Gaussian-
-    based asymptotic approximation:
+    Non-bootstrapping approach to confidence interval uses Gaussian-based
+    asymptotic approximation:
 
     .. math::
 
@@ -1173,7 +1179,6 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     General approach from:
     McGill, R., Tukey, J.W., and Larsen, W.A. (1978) "Variations of
     Boxplots", The American Statistician, 32:12-16.
-
     """
 
     def _bootstrap_median(data, N=5000):
@@ -1371,11 +1376,34 @@ def _check_1d(x):
         return np.atleast_1d(x)
     else:
         try:
-            ndim = x[:, None].ndim
-            # work around https://github.com/pandas-dev/pandas/issues/27775
-            # which mean the shape is not as expected. That this ever worked
-            # was an unintentional quirk of pandas the above line will raise
-            # an exception in the future.
+            # work around
+            # https://github.com/pandas-dev/pandas/issues/27775 which
+            # means the shape of multi-dimensional slicing is not as
+            # expected.  That this ever worked was an unintentional
+            # quirk of pandas and will raise an exception in the
+            # future.  This slicing warns in pandas >= 1.0rc0 via
+            # https://github.com/pandas-dev/pandas/pull/30588
+            #
+            # < 1.0rc0 : x[:, None].ndim == 1, no warning, custom type
+            # >= 1.0rc1 : x[:, None].ndim == 2, warns, numpy array
+            # future : x[:, None] -> raises
+            #
+            # This code should correctly identify and coerce to a
+            # numpy array all pandas versions.
+            with warnings.catch_warnings(record=True) as w:
+                warnings.filterwarnings(
+                    "always",
+                    category=DeprecationWarning,
+                    message='Support for multi-dimensional indexing')
+
+                ndim = x[:, None].ndim
+                # we have definitely hit a pandas index or series object
+                # cast to a numpy array.
+                if len(w) > 0:
+                    return np.asanyarray(x)
+            # We have likely hit a pandas object, or at least
+            # something where 2D slicing does not result in a 2D
+            # object.
             if ndim < 2:
                 return np.atleast_1d(x)
             return x
@@ -1451,7 +1479,7 @@ def violin_stats(X, method, points=100, quantiles=None):
         - coords: A list of scalars containing the coordinates this particular
           kernel density estimate was evaluated at.
         - vals: A list of scalars containing the values of the kernel density
-          estimate at each of the coordinates given in `coords`.
+          estimate at each of the coordinates given in *coords*.
         - mean: The mean value for this column of data.
         - median: The median value for this column of data.
         - min: The minimum value for this column of data.
@@ -1934,6 +1962,9 @@ def sanitize_sequence(data):
             else data)
 
 
+@_delete_parameter("3.3", "required")
+@_delete_parameter("3.3", "forbidden")
+@_delete_parameter("3.3", "allowed")
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
                      allowed=None):
     """
@@ -1965,16 +1996,16 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         mapping.
 
     required : list of str, optional
-        A list of keys that must be in *kws*.
+        A list of keys that must be in *kws*.  This parameter is deprecated.
 
     forbidden : list of str, optional
-        A list of keys which may not be in *kw*.
+        A list of keys which may not be in *kw*.  This parameter is deprecated.
 
     allowed : list of str, optional
         A list of allowed fields.  If this not None, then raise if
         *kw* contains any keys not in the union of *required*
         and *allowed*.  To allow only the required fields pass in
-        an empty tuple ``allowed=()``.
+        an empty tuple ``allowed=()``.  This parameter is deprecated.
 
     Raises
     ------

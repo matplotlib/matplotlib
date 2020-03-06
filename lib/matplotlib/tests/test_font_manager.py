@@ -95,28 +95,24 @@ def test_hinting_factor(factor):
                                rtol=0.1)
 
 
-@pytest.mark.skipif(sys.platform != "win32",
-                    reason="Need Windows font to test against")
 def test_utf16m_sfnt():
-    segoe_ui_semibold = None
-    for f in fontManager.ttflist:
+    try:
         # seguisbi = Microsoft Segoe UI Semibold
-        if f.fname[-12:] == "seguisbi.ttf":
-            segoe_ui_semibold = f
-            break
+        entry = next(entry for entry in fontManager.ttflist
+                     if Path(entry.fname).name == "seguisbi.ttf")
+    except StopIteration:
+        pytest.skip("Couldn't find font to test against.")
     else:
-        pytest.xfail(reason="Couldn't find font to test against.")
-
-    # Check that we successfully read the "semibold" from the font's
-    # sfnt table and set its weight accordingly
-    assert segoe_ui_semibold.weight == "semibold"
+        # Check that we successfully read "semibold" from the font's sfnt table
+        # and set its weight accordingly.
+        assert entry.weight == "semibold"
 
 
-@pytest.mark.xfail(not (os.environ.get("TRAVIS") and sys.platform == "linux"),
-                   reason="Font may be missing.")
 def test_find_ttc():
     fp = FontProperties(family=["WenQuanYi Zen Hei"])
     if Path(findfont(fp)).name != "wqy-zenhei.ttc":
+        if not os.environ.get("TRAVIS") or sys.platform != "linux":
+            pytest.skip("Font may be missing")
         # Travis appears to fail to pick up the ttc file sometimes.  Try to
         # rebuild the cache and try again.
         fm._rebuild()
@@ -197,4 +193,5 @@ def _model_handler(_):
 def test_fork():
     _model_handler(0)  # Make sure the font cache is filled.
     ctx = multiprocessing.get_context("fork")
-    ctx.Pool(processes=2).map(_model_handler, range(2))
+    with ctx.Pool(processes=2) as pool:
+        pool.map(_model_handler, range(2))

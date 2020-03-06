@@ -11,7 +11,8 @@ import uuid
 import numpy as np
 from PIL import Image
 
-from matplotlib import cbook, __version__, rcParams
+import matplotlib as mpl
+from matplotlib import cbook
 from matplotlib.backend_bases import (
      _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
@@ -25,7 +26,7 @@ from matplotlib.transforms import Affine2D, Affine2DBase
 
 _log = logging.getLogger(__name__)
 
-backend_version = __version__
+backend_version = mpl.__version__
 
 # ----------------------------------------------------------------------
 # SimpleXMLWriter class
@@ -323,7 +324,7 @@ class RendererSVG(RendererBase):
         writer.end('defs')
 
     def _make_id(self, type, content):
-        salt = rcParams['svg.hashsalt']
+        salt = mpl.rcParams['svg.hashsalt']
         if salt is None:
             salt = str(uuid.uuid4())
         m = hashlib.md5()
@@ -396,7 +397,7 @@ class RendererSVG(RendererBase):
                 style=generate_css({
                     'fill': rgb2hex(stroke),
                     'stroke': rgb2hex(stroke),
-                    'stroke-width': str(rcParams['hatch.linewidth']),
+                    'stroke-width': str(mpl.rcParams['hatch.linewidth']),
                     'stroke-linecap': 'butt',
                     'stroke-linejoin': 'miter'
                     })
@@ -513,7 +514,7 @@ class RendererSVG(RendererBase):
 
     def option_image_nocomposite(self):
         # docstring inherited
-        return not rcParams['image.composite_image']
+        return not mpl.rcParams['image.composite_image']
 
     def _convert_path(self, path, transform=None, clip=None, simplify=None,
                       sketch=None):
@@ -650,6 +651,8 @@ class RendererSVG(RendererBase):
         self._path_collection_id += 1
 
     def draw_gouraud_triangle(self, gc, points, colors, trans):
+        # docstring inherited
+
         # This uses a method described here:
         #
         #   http://www.svgopen.org/2005/papers/Converting3DFaceToSVG/index.html
@@ -685,9 +688,9 @@ class RendererSVG(RendererBase):
                        ' \n1 1 1 1 0 \n0 0 0 0 1 ')
             writer.end('filter')
 
-        avg_color = np.sum(colors[:, :], axis=0) / 3.0
-        # Just skip fully-transparent triangles
-        if avg_color[-1] == 0.0:
+        avg_color = np.average(colors, axis=0)
+        if avg_color[-1] == 0:
+            # Skip fully-transparent triangles
             return
 
         trans_and_flip = self._make_flip_transform(trans)
@@ -698,7 +701,7 @@ class RendererSVG(RendererBase):
             x1, y1 = tpoints[i]
             x2, y2 = tpoints[(i + 1) % 3]
             x3, y3 = tpoints[(i + 2) % 3]
-            c = colors[i][:]
+            rgba_color = colors[i]
 
             if x2 == x3:
                 xb = x2
@@ -723,12 +726,13 @@ class RendererSVG(RendererBase):
             writer.element(
                 'stop',
                 offset='1',
-                style=generate_css({'stop-color': rgb2hex(avg_color),
-                                    'stop-opacity': short_float_fmt(c[-1])}))
+                style=generate_css({
+                    'stop-color': rgb2hex(avg_color),
+                    'stop-opacity': short_float_fmt(rgba_color[-1])}))
             writer.element(
                 'stop',
                 offset='0',
-                style=generate_css({'stop-color': rgb2hex(c),
+                style=generate_css({'stop-color': rgb2hex(rgba_color),
                                     'stop-opacity': "0"}))
 
             writer.end('linearGradient')
@@ -820,7 +824,7 @@ class RendererSVG(RendererBase):
         url = gc.get_url()
         if url is not None:
             self.writer.start('a', attrib={'xlink:href': url})
-        if rcParams['svg.image_inline']:
+        if mpl.rcParams['svg.image_inline']:
             buf = BytesIO()
             Image.fromarray(im).save(buf, format="png")
             oid = oid or self._make_id('image', buf.getvalue())
@@ -1024,11 +1028,12 @@ class RendererSVG(RendererBase):
             font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
 
             attrib = {}
+            style['font-family'] = str(font.family_name)
+            style['font-weight'] = str(prop.get_weight()).lower()
+            style['font-stretch'] = str(prop.get_stretch()).lower()
+            style['font-style'] = prop.get_style().lower()
             # Must add "px" to workaround a Firefox bug
             style['font-size'] = short_float_fmt(prop.get_size()) + 'px'
-            style['font-family'] = str(font.family_name)
-            style['font-style'] = prop.get_style().lower()
-            style['font-weight'] = str(prop.get_weight()).lower()
             attrib['style'] = generate_css(style)
 
             if mtext and (angle == 0 or mtext.get_rotation_mode() == "anchor"):
@@ -1150,7 +1155,7 @@ class RendererSVG(RendererBase):
         if gc.get_url() is not None:
             self.writer.start('a', {'xlink:href': gc.get_url()})
 
-        if rcParams['svg.fonttype'] == 'path':
+        if mpl.rcParams['svg.fonttype'] == 'path':
             self._draw_text_as_path(gc, x, y, s, prop, angle, ismath, mtext)
         else:
             self._draw_text_as_text(gc, x, y, s, prop, angle, ismath, mtext)

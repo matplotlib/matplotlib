@@ -1,7 +1,6 @@
 import itertools
 import pickle
 from weakref import ref
-import warnings
 from unittest.mock import patch, Mock
 
 from datetime import datetime
@@ -329,17 +328,17 @@ pass_mapping = (
 
 @pytest.mark.parametrize('inp, kwargs_to_norm', fail_mapping)
 def test_normalize_kwargs_fail(inp, kwargs_to_norm):
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError), \
+         cbook._suppress_matplotlib_deprecation_warning():
         cbook.normalize_kwargs(inp, **kwargs_to_norm)
 
 
 @pytest.mark.parametrize('inp, expected, kwargs_to_norm',
                          pass_mapping)
 def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
+    with cbook._suppress_matplotlib_deprecation_warning():
+        # No other warning should be emitted.
         assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
-        assert len(w) == 0
 
 
 def test_warn_external_frame_embedded_python():
@@ -575,13 +574,12 @@ def test_safe_first_element_pandas_series(pd):
     assert actual == 0
 
 
-def test_make_keyword_only(recwarn):
+def test_make_keyword_only():
     @cbook._make_keyword_only("3.0", "arg")
     def func(pre, arg, post=None):
         pass
 
-    func(1, arg=2)
-    assert len(recwarn) == 0
+    func(1, arg=2)  # Check that no warning is emitted.
 
     with pytest.warns(MatplotlibDeprecationWarning):
         func(1, 2)

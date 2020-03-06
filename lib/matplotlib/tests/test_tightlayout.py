@@ -4,6 +4,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 import pytest
 
+import matplotlib as mpl
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredOffsetbox, DrawingArea
@@ -83,9 +84,7 @@ def test_tight_layout6():
         warnings.simplefilter("ignore", UserWarning)
         fig = plt.figure()
 
-        import matplotlib.gridspec as gridspec
-
-        gs1 = gridspec.GridSpec(2, 1)
+        gs1 = mpl.gridspec.GridSpec(2, 1)
         ax1 = fig.add_subplot(gs1[0])
         ax2 = fig.add_subplot(gs1[1])
 
@@ -94,7 +93,7 @@ def test_tight_layout6():
 
         gs1.tight_layout(fig, rect=[0, 0, 0.5, 1])
 
-        gs2 = gridspec.GridSpec(3, 1)
+        gs2 = mpl.gridspec.GridSpec(3, 1)
 
         for ss in gs2:
             ax = fig.add_subplot(ss)

@@ -137,7 +137,6 @@ import functools
 import logging
 import math
 import re
-import time
 
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
@@ -163,7 +162,6 @@ __all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
            'rrule', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU',
            'YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY',
            'HOURLY', 'MINUTELY', 'SECONDLY', 'MICROSECONDLY', 'relativedelta',
-           'seconds', 'minutes', 'hours', 'weeks',
            'DateConverter', 'ConciseDateConverter')
 
 
@@ -309,74 +307,13 @@ def _from_ordinalf(x, tz=None):
 _from_ordinalf_np_vectorized = np.vectorize(_from_ordinalf, otypes="O")
 
 
-@cbook.deprecated(
-    "3.1", alternative="time.strptime or dateutil.parser.parse or datestr2num")
-class strpdate2num:
-    """
-    Use this class to parse date strings to matplotlib datenums when
-    you know the date format string of the date you are parsing.
-    """
-    def __init__(self, fmt):
-        """
-        Parameters
-        ----------
-        fmt : any valid strptime format
-        """
-        self.fmt = fmt
-
-    def __call__(self, s):
-        """
-        Parameters
-        ----------
-        s : str
-
-        Returns
-        -------
-        date2num float
-        """
-        return date2num(datetime.datetime(*time.strptime(s, self.fmt)[:6]))
-
-
-@cbook.deprecated(
-    "3.1", alternative="time.strptime or dateutil.parser.parse or datestr2num")
-class bytespdate2num(strpdate2num):
-    """
-    Use this class to parse date strings to matplotlib datenums when
-    you know the date format string of the date you are parsing.  See
-    :doc:`/gallery/misc/load_converter.py`.
-    """
-    def __init__(self, fmt, encoding='utf-8'):
-        """
-        Parameters
-        ----------
-        fmt : any valid strptime format
-        encoding : str
-            Encoding to use on byte input.
-        """
-        super().__init__(fmt)
-        self.encoding = encoding
-
-    def __call__(self, b):
-        """
-        Parameters
-        ----------
-        b : bytes
-
-        Returns
-        -------
-        date2num float
-        """
-        s = b.decode(self.encoding)
-        return super().__call__(s)
-
-
 # a version of dateutil.parser.parse that can operate on numpy arrays
 _dateutil_parser_parse_np_vectorized = np.vectorize(dateutil.parser.parse)
 
 
 def datestr2num(d, default=None):
     """
-    Convert a date string to a datenum using :func:`dateutil.parser.parse`.
+    Convert a date string to a datenum using `dateutil.parser.parse`.
 
     Parameters
     ----------
@@ -488,7 +425,7 @@ def num2date(x, tz=None):
     `~datetime.datetime` or sequence of `~datetime.datetime`
         Dates are returned in timezone *tz*.
 
-        If *x* is a sequence, a sequence of :class:`datetime` objects will
+        If *x* is a sequence, a sequence of `~datetime.datetime` objects will
         be returned.
 
     Notes
@@ -584,7 +521,7 @@ class DateFormatter(ticker.Formatter):
         ----------
         fmt : str
             `~datetime.datetime.strftime` format string
-        tz : `tzinfo`, default: :rc:`timezone`
+        tz : `datetime.tzinfo`, default: :rc:`timezone`
             Ticks timezone.
         """
         if tz is None:
@@ -604,6 +541,7 @@ class DateFormatter(ticker.Formatter):
         self.tz = tz
 
 
+@cbook.deprecated("3.3")
 class IndexDateFormatter(ticker.Formatter):
     """Use with `.IndexLocator` to cycle format strings by index."""
 
@@ -646,7 +584,7 @@ class ConciseDateFormatter(ticker.Formatter):
     formats : list of 6 strings, optional
         Format strings for 6 levels of tick labelling: mostly years,
         months, days, hours, minutes, and seconds.  Strings use
-        the same format codes as `strftime`.  Default is
+        the same format codes as `~datetime.datetime.strftime`.  Default is
         ``['%Y', '%b', '%d', '%H:%M', '%H:%M', '%S.%f']``
 
     zero_formats : list of 6 strings, optional
@@ -1040,7 +978,9 @@ class DateLocator(ticker.Locator):
 
     def __init__(self, tz=None):
         """
-        *tz* is a :class:`tzinfo` instance.
+        Parameters
+        ----------
+        tz : `datetime.tzinfo`
         """
         if tz is None:
             tz = _get_rc_timezone()
@@ -1259,7 +1199,7 @@ class AutoDateLocator(DateLocator):
         """
         Parameters
         ----------
-        tz : `tzinfo`
+        tz : `datetime.tzinfo`
             Ticks timezone.
         minticks : int
             The minimum number of ticks desired; controls whether ticks occur
@@ -1834,38 +1774,6 @@ def date_ticker_factory(span, tz=None, numticks=5):
 
     formatter = DateFormatter(fmt, tz=tz)
     return locator, formatter
-
-
-@cbook.deprecated("3.1")
-def seconds(s):
-    """
-    Return seconds as days.
-    """
-    return s / SEC_PER_DAY
-
-
-@cbook.deprecated("3.1")
-def minutes(m):
-    """
-    Return minutes as days.
-    """
-    return m / MINUTES_PER_DAY
-
-
-@cbook.deprecated("3.1")
-def hours(h):
-    """
-    Return hours as days.
-    """
-    return h / HOURS_PER_DAY
-
-
-@cbook.deprecated("3.1")
-def weeks(w):
-    """
-    Return weeks as days.
-    """
-    return w * DAYS_PER_WEEK
 
 
 class DateConverter(units.ConversionInterface):

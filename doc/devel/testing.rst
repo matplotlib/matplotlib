@@ -27,7 +27,7 @@ The following software is required to run the tests:
 
 - pytest_ (>=3.6)
 - Ghostscript_ (>= 9.0, to render PDF files)
-- Inkscape_ (to render SVG files)
+- Inkscape_ (<1.0, to render SVG files)
 
 Optionally you can install:
 
@@ -46,7 +46,7 @@ Running the tests is simple. Make sure you have pytest installed and run::
 
 in the root directory of the repository.
 
-`pytest` can be configured via a lot of `commandline parameters`_. Some
+pytest can be configured via a lot of `command-line parameters`_. Some
 particularly useful ones are:
 
 =============================  ===========
@@ -76,11 +76,6 @@ running the tests in parallel::
 
   pytest --verbose -n 5
 
-Depending on your version of Python and pytest-xdist, you may need to set
-``PYTHONHASHSEED`` to a fixed value when running in parallel::
-
-  PYTHONHASHSEED=0 pytest --verbose -n 5
-
 An alternative implementation that does not look at command line arguments
 and works from within Python is to run the tests from the Matplotlib library
 function :func:`matplotlib.test`::
@@ -89,7 +84,7 @@ function :func:`matplotlib.test`::
   matplotlib.test()
 
 
-.. _commandline parameters: http://doc.pytest.org/en/latest/usage.html
+.. _command-line parameters: http://doc.pytest.org/en/latest/usage.html
 
 
 Writing a simple test
@@ -109,7 +104,7 @@ begin with ``"test_"`` and then within those files for functions beginning with
 ``"test"`` or classes beginning with ``"Test"``.
 
 Some tests have internal side effects that need to be cleaned up after their
-execution (such as created figures or modified rc params). The pytest fixture
+execution (such as created figures or modified `.rcParams`). The pytest fixture
 :func:`~matplotlib.testing.conftest.mpl_test_settings` will automatically clean
 these up; there is no need to do anything further.
 
@@ -160,7 +155,7 @@ the tests, they should now pass.
 Baseline images take a lot of space in the Matplotlib repository.
 An alternative approach for image comparison tests is to use the
 `~matplotlib.testing.decorators.check_figures_equal` decorator, which should be
-used to decorate a function taking two `Figure` parameters and draws the same
+used to decorate a function taking two `.Figure` parameters and draws the same
 images on the figures using two different methods (the tested method and the
 baseline method).  The decorator will arrange for setting up the figures and
 then collect the drawn results and compare them.

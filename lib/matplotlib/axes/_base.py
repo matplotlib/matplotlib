@@ -116,8 +116,7 @@ def _process_plot_format(fmt):
 
 class _process_plot_var_args:
     """
-    Process variable length arguments to the plot command, so that
-    plot commands like the following are supported::
+    Process variable length arguments to `~.Axes.plot`, to support ::
 
       plot(t, s)
       plot(t1, s1, t2, s2)
@@ -358,9 +357,7 @@ class _process_plot_var_args:
 
         ncx, ncy = x.shape[1], y.shape[1]
         if ncx > 1 and ncy > 1 and ncx != ncy:
-            cbook.warn_deprecated(
-                "2.2", message="cycling among columns of inputs with "
-                "non-matching shapes is deprecated.")
+            raise ValueError(f"x has {ncx} columns but y has {ncy} columns")
         return [func(x[:, j % ncx], y[:, j % ncy], kw, kwargs)
                 for j in range(max(ncx, ncy))]
 
@@ -1503,9 +1500,9 @@ class _AxesBase(martist.Artist):
         """
         Adjust the Axes for a specified data aspect ratio.
 
-        Depending on `.get_adjustable` this will modify either the Axes box
-        (position) or the view limits. In the former case, `.get_anchor`
-        will affect the position.
+        Depending on `.get_adjustable` this will modify either the
+        Axes box (position) or the view limits. In the former case,
+        `~matplotlib.axes.Axes.get_anchor` will affect the position.
 
         Notes
         -----
@@ -1760,7 +1757,7 @@ class _AxesBase(martist.Artist):
         return (*self.get_xlim(), *self.get_ylim())
 
     def get_legend(self):
-        """Return the `Legend` instance, or None if no legend is defined."""
+        """Return the `.Legend` instance, or None if no legend is defined."""
         return self.legend_
 
     def get_images(self):
@@ -2440,14 +2437,25 @@ class _AxesBase(martist.Artist):
         if tight is not None:
             self._tight = bool(tight)
 
-        if self.use_sticky_edges and (
-                (self._xmargin and scalex and self._autoscaleXon) or
-                (self._ymargin and scaley and self._autoscaleYon)):
-            stickies = [artist.sticky_edges for artist in self.get_children()]
-        else:  # Small optimization.
-            stickies = []
-        x_stickies = np.sort([x for sticky in stickies for x in sticky.x])
-        y_stickies = np.sort([y for sticky in stickies for y in sticky.y])
+        x_stickies = y_stickies = np.array([])
+        if self.use_sticky_edges:
+            # Only iterate over axes and artists if needed.  The check for
+            # ``hasattr(ax, "lines")`` is necessary because this can be called
+            # very early in the axes init process (e.g., for twin axes) when
+            # these attributes don't even exist yet, in which case
+            # `get_children` would raise an AttributeError.
+            if self._xmargin and scalex and self._autoscaleXon:
+                x_stickies = np.sort(np.concatenate([
+                    artist.sticky_edges.x
+                    for ax in self._shared_x_axes.get_siblings(self)
+                    if hasattr(ax, "lines")
+                    for artist in ax.get_children()]))
+            if self._ymargin and scaley and self._autoscaleYon:
+                y_stickies = np.sort(np.concatenate([
+                    artist.sticky_edges.y
+                    for ax in self._shared_y_axes.get_siblings(self)
+                    if hasattr(ax, "lines")
+                    for artist in ax.get_children()]))
         if self.get_xscale().lower() == 'log':
             x_stickies = x_stickies[x_stickies > 0]
         if self.get_yscale().lower() == 'log':
@@ -2563,8 +2571,8 @@ class _AxesBase(martist.Artist):
                 x, y = title.get_position()
                 if not np.isclose(y, 1.0):
                     self._autotitlepos = False
-                    _log.debug('not adjusting title pos because a title was'
-                             ' already placed manually: %f', y)
+                    _log.debug('not adjusting title pos because a title was '
+                               'already placed manually: %f', y)
                     return
             self._autotitlepos = True
 
@@ -2830,44 +2838,47 @@ class _AxesBase(martist.Artist):
     def ticklabel_format(self, *, axis='both', style='', scilimits=None,
                          useOffset=None, useLocale=None, useMathText=None):
         r"""
-        Change the `~matplotlib.ticker.ScalarFormatter` used by
-        default for linear axes.
+        Configure the `.ScalarFormatter` used by default for linear axes.
 
-        Optional keyword arguments:
+        If a parameter is not set, the corresponding property of the formatter
+        is left unchanged.
 
-          ==============   =========================================
-          Keyword          Description
-          ==============   =========================================
-          *axis*           {'x', 'y', 'both'}
-          *style*          {'sci' (or 'scientific'), 'plain'}
-                           plain turns off scientific notation
-          *scilimits*      (m, n), pair of integers; if *style*
-                           is 'sci', scientific notation will
-                           be used for numbers outside the range
-                           10\ :sup:`m` to 10\ :sup:`n`.
-                           Use (0, 0) to include all numbers.
-                           Use (m, m) where m != 0 to fix the order
-                           of magnitude to 10\ :sup:`m`.
-          *useOffset*      bool or float
-                           If True, the offset will be calculated as
-                           needed; if False, no offset will be used;
-                           if a numeric offset is specified, it will
-                           be used.
-          *useLocale*      If True, format the number according to
-                           the current locale.  This affects things
-                           such as the character used for the
-                           decimal separator.  If False, use
-                           C-style (English) formatting.  The
-                           default setting is controlled by the
-                           axes.formatter.use_locale rcparam.
-          *useMathText*    If True, render the offset and scientific
-                           notation in mathtext
-          ==============   =========================================
+        Parameters
+        ----------
+        axis : {'x', 'y', 'both'}, default: 'both'
+            The axes to configure.  Only major ticks are affected.
 
-        Only the major ticks are affected.
-        If the method is called when the `~matplotlib.ticker.ScalarFormatter`
-        is not the `~matplotlib.ticker.Formatter` being used, an
-        `AttributeError` will be raised.
+        style : {'sci', 'scientific', 'plain'}
+            Whether to use scientific notation.
+            The formatter default is to use scientific notation.
+
+        scilimits : pair of ints (m, n)
+            Scientific notation is used only for numbers outside the range
+            10\ :sup:`m` to 10\ :sup:`n` (and only if the formatter is
+            configured to use scientific notation at all).  Use (0, 0) to
+            include all numbers.  Use (m, m) where m != 0 to fix the order of
+            magnitude to 10\ :sup:`m`.
+            The formatter default is :rc:`axes.formatter.limits`.
+
+        useOffset : bool or float
+            If True, the offset is calculated as needed.
+            If False, no offset is used.
+            If a numeric value, it sets the offset.
+            The formatter default is :rc:`axes.formatter.useoffset`.
+
+        useLocale : bool
+            Whether to format the number using the current locale or using the
+            C (English) locale.  This affects e.g. the decimal separator.  The
+            formatter default is :rc:`axes.formatter.use_locale`.
+
+        useMathText : bool
+            Render the offset and scientific notation in mathtext.
+            The formatter default is :rc:`axes.formatter.use_mathtext`.
+
+        Raises
+        ------
+        AttributeError
+            If the current formatter is not a `.ScalarFormatter`.
         """
         style = style.lower()
         axis = axis.lower()
@@ -3398,6 +3409,13 @@ class _AxesBase(martist.Artist):
         -------
         ret : list
            List of `~matplotlib.text.Text` instances.
+
+        Notes
+        -----
+        The tick label strings are not populated until a ``draw``
+        method has been called.
+
+        See also: `~.pyplot.draw` and `~.FigureCanvasBase.draw`.
         """
         return self.xaxis.get_ticklabels(minor=minor, which=which)
 
@@ -3784,6 +3802,13 @@ class _AxesBase(martist.Artist):
         -------
         ret : list
            List of `~matplotlib.text.Text` instances.
+
+        Notes
+        -----
+        The tick label strings are not populated until a ``draw``
+        method has been called.
+
+        See also: `~.pyplot.draw` and `~.FigureCanvasBase.draw`.
         """
         return self.yaxis.get_ticklabels(minor=minor, which=which)
 
@@ -3833,7 +3858,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        tz : str or `tzinfo`, default: :rc:`timezone`
+        tz : str or `datetime.tzinfo`, default: :rc:`timezone`
             Timezone.
         """
         # should be enough to inform the unit conversion interface
@@ -3846,7 +3871,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        tz : str or `tzinfo`, default: :rc:`timezone`
+        tz : str or `datetime.tzinfo`, default: :rc:`timezone`
             Timezone.
         """
         self.yaxis.axis_date(tz)
@@ -4350,7 +4375,6 @@ class _AxesBase(martist.Artist):
         matplotlib.axes.Axes.get_window_extent
         matplotlib.axis.Axis.get_tightbbox
         matplotlib.spines.Spine.get_window_extent
-
         """
 
         bb = []
@@ -4375,18 +4399,13 @@ class _AxesBase(martist.Artist):
                 bb.append(bb_yaxis)
 
         self._update_title_position(renderer)
+
         axbbox = self.get_window_extent(renderer)
         bb.append(axbbox)
 
-        self._update_title_position(renderer)
-        if self.title.get_visible():
-            bb.append(self.title.get_window_extent(renderer))
-        if self._left_title.get_visible():
-            bb.append(self._left_title.get_window_extent(renderer))
-        if self._right_title.get_visible():
-            bb.append(self._right_title.get_window_extent(renderer))
-
-        bb.append(self.get_window_extent(renderer))
+        for title in [self.title, self._left_title, self._right_title]:
+            if title.get_visible():
+                bb.append(title.get_window_extent(renderer))
 
         bbox_artists = bbox_extra_artists
         if bbox_artists is None:
@@ -4398,8 +4417,8 @@ class _AxesBase(martist.Artist):
             # this artist because this can be expensive:
             clip_extent = a._get_clipping_extent_bbox()
             if clip_extent is not None:
-                clip_extent = mtransforms.Bbox.intersection(clip_extent,
-                    axbbox)
+                clip_extent = mtransforms.Bbox.intersection(
+                    clip_extent, axbbox)
                 if np.all(clip_extent.extents == axbbox.extents):
                     # clip extent is inside the axes bbox so don't check
                     # this artist
@@ -4409,10 +4428,9 @@ class _AxesBase(martist.Artist):
                     and 0 < bbox.width < np.inf
                     and 0 < bbox.height < np.inf):
                 bb.append(bbox)
-        _bbox = mtransforms.Bbox.union(
-            [b for b in bb if b.width != 0 or b.height != 0])
 
-        return _bbox
+        return mtransforms.Bbox.union(
+            [b for b in bb if b.width != 0 or b.height != 0])
 
     def _make_twin_axes(self, *args, **kwargs):
         """Make a twinx axes of self. This is used for twinx and twiny."""

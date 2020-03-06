@@ -287,8 +287,8 @@ def generate_validator_testcases(valid):
          'success': (('--|', '--|'), ('\\oO', '\\oO'),
                      ('/+*/.x', '/+*/.x'), ('', '')),
          'fail': (('--_', ValueError),
-                 (8, ValueError),
-                 ('X', ValueError)),
+                  (8, ValueError),
+                  ('X', ValueError)),
          },
         {'validator': validate_colorlist,
          'success': (('r,g,b', ['r', 'g', 'b']),
@@ -310,16 +310,16 @@ def generate_validator_testcases(valid):
                      ('AABBCC00', '#AABBCC00'),  # RGBA hex code
                      ('tab:blue', 'tab:blue'),  # named color
                      ('C12', 'C12'),  # color from cycle
-                     ('(0, 1, 0)', [0.0, 1.0, 0.0]),  # RGB tuple
+                     ('(0, 1, 0)', (0.0, 1.0, 0.0)),  # RGB tuple
                      ((0, 1, 0), (0, 1, 0)),  # non-string version
-                     ('(0, 1, 0, 1)', [0.0, 1.0, 0.0, 1.0]),  # RGBA tuple
+                     ('(0, 1, 0, 1)', (0.0, 1.0, 0.0, 1.0)),  # RGBA tuple
                      ((0, 1, 0, 1), (0, 1, 0, 1)),  # non-string version
-                     ('(0, 1, "0.5")', [0.0, 1.0, 0.5]),  # unusual but valid
                      ),
          'fail': (('tab:veryblue', ValueError),  # invalid name
                   ('(0, 1)', ValueError),  # tuple with length < 3
                   ('(0, 1, 0, 1, 0)', ValueError),  # tuple with length > 4
                   ('(0, 1, none)', ValueError),  # cannot cast none to float
+                  ('(0, 1, "0.5")', ValueError),  # last one not a float
                   ),
          },
         {'validator': validate_hist_bins,
@@ -506,11 +506,9 @@ def test_if_rctemplate_would_be_valid(tmpdir):
     fname = str(d.join('testrcvalid.temp'))
     with open(fname, "w") as f:
         f.writelines(newlines)
-    with pytest.warns(None) as record:
-        mpl.rc_params_from_file(fname,
-                                fail_on_error=True,
-                                use_default_template=False)
-        assert len(record) == 0
+    mpl.rc_params_from_file(fname,
+                            fail_on_error=True,  # Test also fails on warning.
+                            use_default_template=False)
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")

@@ -5,11 +5,11 @@ Simple Axisartist1
 
 """
 import matplotlib.pyplot as plt
-import mpl_toolkits.axisartist as AA
+from mpl_toolkits import axisartist
 
 fig = plt.figure()
 fig.subplots_adjust(right=0.85)
-ax = AA.Subplot(fig, 1, 1, 1)
+ax = axisartist.Subplot(fig, 1, 1, 1)
 fig.add_subplot(ax)
 
 # make some axis invisible

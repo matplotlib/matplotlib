@@ -316,12 +316,12 @@ A legend entry can now contain more than one legend key. The extended
    Multiple Legend Keys
 
 
-New parameter `clear` for :func:`~matplotlib.pyplot.figure`
+New parameter *clear* for :func:`~matplotlib.pyplot.figure`
 -----------------------------------------------------------
 
 When the pyplot's function :func:`~matplotlib.pyplot.figure` is called
 with a ``num`` parameter, a new window is only created if no existing
-window with the same value exists. A new bool parameter `clear` was
+window with the same value exists. A new bool parameter *clear* was
 added for explicitly clearing its existing contents. This is particularly
 useful when utilized in interactive sessions. Since
 :func:`~matplotlib.pyplot.subplots` also accepts keyword arguments
@@ -374,11 +374,11 @@ instance of the Colormap. This implements a way for any Colormap to be
 reversed.
 
 
-`Artist.setp` (and `pyplot.setp`) accept a ``file`` argument
+`.artist.setp` (and `.pyplot.setp`) accept a *file* argument
 ------------------------------------------------------------
 
 The argument is keyword-only. It allows an output file other than
-`sys.stdout` to be specified. It works exactly like the ``file`` argument
+`sys.stdout` to be specified. It works exactly like the *file* argument
 to `print`.
 
 
@@ -406,7 +406,7 @@ keyword.
 Ticklabels are turned off instead of being invisible
 ----------------------------------------------------
 
-Internally, the `Tick`'s :func:`~matplotlib.axis.Tick.label1On` attribute
+Internally, the `.Tick`'s :func:`~matplotlib.axis.Tick.label1On` attribute
 is now used to hide tick labels instead of setting the visibility on the tick
 label objects.
 This improves overall performance and fixes some issues.
@@ -578,7 +578,10 @@ The validation is case-insensitive.  The following are now valid:
 pytest
 ------
 
-The automated tests have been switched from `nose` to `pytest`.
+The automated tests have been switched from nose_ to pytest_.
+
+.. _nose: https://nose.readthedocs.io/
+.. _pytest: https://pytest.org
 
 Performance
 +++++++++++

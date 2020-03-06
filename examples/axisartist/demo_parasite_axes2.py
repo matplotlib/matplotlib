@@ -23,10 +23,10 @@ An alternative approach using the usual matplotlib subplots is shown in
 the :doc:`/gallery/ticks_and_spines/multiple_yaxis_with_spines` example.
 """
 from mpl_toolkits.axes_grid1 import host_subplot
-import mpl_toolkits.axisartist as AA
+from mpl_toolkits import axisartist
 import matplotlib.pyplot as plt
 
-host = host_subplot(111, axes_class=AA.Axes)
+host = host_subplot(111, axes_class=axisartist.Axes)
 plt.subplots_adjust(right=0.75)
 
 par1 = host.twinx()

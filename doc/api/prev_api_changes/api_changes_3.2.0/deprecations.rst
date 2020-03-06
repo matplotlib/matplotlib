@@ -17,9 +17,9 @@ the resulting data.
 axes and axis
 ~~~~~~~~~~~~~
 Setting ``Axis.major.locator``, ``Axis.minor.locator``, ``Axis.major.formatter``
-or ``Axis.minor.formatter`` to an object that is not a subclass of `Locator` or
-`Formatter` (respectively) is deprecated.  Note that these attributes should
-usually be set using `Axis.set_major_locator`, `Axis.set_minor_locator`, etc.
+or ``Axis.minor.formatter`` to an object that is not a subclass of `.Locator` or
+`.Formatter` (respectively) is deprecated.  Note that these attributes should
+usually be set using `.Axis.set_major_locator`, `.Axis.set_minor_locator`, etc.
 which already raise an exception when an object of the wrong class is passed.
 
 Passing more than one positional argument or unsupported keyword arguments to
@@ -89,9 +89,9 @@ Axes3D
 axisartist
 ~~~~~~~~~~
 ``mpl_toolkits.axisartist.grid_finder.GridFinderBase`` is deprecated (its
-only use is to be inherited by the `GridFinder` class which just provides
+only use is to be inherited by the `.GridFinder` class which just provides
 more defaults in the constructor and directly sets the transforms, so
-``GridFinderBase``'s methods were just moved to `GridFinder`).
+``GridFinderBase``'s methods were just moved to `.GridFinder`).
 
 ``axisartist.axis_artist.BezierPath`` is deprecated (use `.patches.PathPatch`
 to draw arbitrary Paths).
@@ -113,8 +113,8 @@ Deprecation of the constructor means that classes inheriting from
 
 Locators
 ~~~~~~~~
-The unused `Locator.autoscale()` method is deprecated (pass the axis limits to
-`Locator.view_limits()` instead).
+The unused `.Locator.autoscale` method is deprecated (pass the axis limits to
+`.Locator.view_limits` instead).
 
 Animation
 ~~~~~~~~~
@@ -232,7 +232,7 @@ deprecated. Use an explicit list instead.
 Scales
 ~~~~~~
 Passing unsupported keyword arguments to `.ScaleBase` and its subclasses
-`.LinearScale`, and `.SymLogScale` is deprecated and will raise a `TypeError` in 3.3.
+`.LinearScale`, and `.SymmetricalLogScale` is deprecated and will raise a `TypeError` in 3.3.
 
 If extra kwargs are passed to `.LogScale`, `TypeError` will now be
 raised instead of `ValueError`.

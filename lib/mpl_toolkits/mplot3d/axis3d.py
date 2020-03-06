@@ -43,11 +43,11 @@ class Axis(maxis.XAxis):
     # Some properties for the axes
     _AXINFO = {
         'x': {'i': 0, 'tickdir': 1, 'juggled': (1, 0, 2),
-            'color': (0.95, 0.95, 0.95, 0.5)},
+              'color': (0.95, 0.95, 0.95, 0.5)},
         'y': {'i': 1, 'tickdir': 0, 'juggled': (0, 1, 2),
-            'color': (0.90, 0.90, 0.90, 0.5)},
+              'color': (0.90, 0.90, 0.90, 0.5)},
         'z': {'i': 2, 'tickdir': 0, 'juggled': (0, 2, 1),
-            'color': (0.925, 0.925, 0.925, 0.5)},
+              'color': (0.925, 0.925, 0.925, 0.5)},
     }
 
     def __init__(self, adir, v_intervalx, d_intervalx, axes, *args,
@@ -395,7 +395,7 @@ class Axis(maxis.XAxis):
     def v_interval(self):
         return self.get_view_interval()
 
-    @d_interval.setter
+    @v_interval.setter
     def v_interval(self, minmax):
         self.set_view_interval(*minmax)
 

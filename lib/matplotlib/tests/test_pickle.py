@@ -10,6 +10,7 @@ from matplotlib.testing.decorators import image_comparison
 from matplotlib.dates import rrulewrapper
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
+import matplotlib.figure as mfigure
 
 
 def test_simple():
@@ -109,9 +110,7 @@ def test_complete():
 def test_no_pyplot():
     # tests pickle-ability of a figure not created with pyplot
     from matplotlib.backends.backend_pdf import FigureCanvasPdf
-    from matplotlib.figure import Figure
-
-    fig = Figure()
+    fig = mfigure.Figure()
     _ = FigureCanvasPdf(fig)
     ax = fig.add_subplot(1, 1, 1)
     ax.plot([1, 2, 3], [1, 2, 3])
@@ -194,3 +193,13 @@ def test_shared():
 @pytest.mark.parametrize("cmap", cm.cmap_d.values())
 def test_cmap(cmap):
     pickle.dumps(cmap)
+
+
+def test_unpickle_canvas():
+    fig = mfigure.Figure()
+    assert fig.canvas is not None
+    out = BytesIO()
+    pickle.dump(fig, out)
+    out.seek(0)
+    fig2 = pickle.load(out)
+    assert fig2.canvas is not None

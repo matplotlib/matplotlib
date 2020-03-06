@@ -27,8 +27,7 @@ import numpy as np
 np.random.seed(19680801)
 
 N = 10
-data = [np.logspace(0, 1, 100) + np.random.randn(100) + ii for ii in range(N)]
-data = np.array(data).T
+data = (np.geomspace(1, 10, 100) + np.random.randn(N, 100)).T
 cmap = plt.cm.coolwarm
 rcParams['axes.prop_cycle'] = cycler(color=cmap(np.linspace(0, 1, N)))
 

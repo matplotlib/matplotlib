@@ -1,5 +1,5 @@
-import matplotlib
-from matplotlib import cbook, rcParams
+import matplotlib as mpl
+from matplotlib import cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backends import _macosx
 from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -19,22 +19,7 @@ from matplotlib.widgets import SubplotTool
 
 
 class TimerMac(_macosx.Timer, TimerBase):
-    """
-    Subclass of `.TimerBase` that uses CoreFoundation run loops for timer
-    events.
-
-    Attributes
-    ----------
-    interval : int, default: 1000ms
-        The time between timer events in milliseconds.
-    single_shot : bool, default: False
-        Whether this timer should operate as single shot (run once and then
-        stop).
-    callbacks : list
-        Stores list of (func, args) tuples that will be called upon timer
-        events. This list can be manipulated directly, or the functions
-        `add_callback` and `remove_callback` can be used.
-    """
+    """Subclass of `.TimerBase` using CFRunLoop timer events."""
     # completely implemented at the C-level (in _macosx.Timer)
 
 
@@ -55,6 +40,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
     """
 
     required_interactive_framework = "macosx"
+    _timer_cls = TimerMac
 
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
@@ -99,10 +85,6 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         FigureCanvasBase.resize_event(self)
         self.draw_idle()
 
-    def new_timer(self, *args, **kwargs):
-        # docstring inherited
-        return TimerMac(*args, **kwargs)
-
 
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     """
@@ -112,14 +94,14 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         FigureManagerBase.__init__(self, canvas, num)
         title = "Figure %d" % num
         _macosx.FigureManager.__init__(self, canvas, title)
-        if rcParams['toolbar'] == 'toolbar2':
+        if mpl.rcParams['toolbar'] == 'toolbar2':
             self.toolbar = NavigationToolbar2Mac(canvas)
         else:
             self.toolbar = None
         if self.toolbar is not None:
             self.toolbar.update()
 
-        if matplotlib.is_interactive():
+        if mpl.is_interactive():
             self.show()
             self.canvas.draw_idle()
 

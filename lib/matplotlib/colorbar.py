@@ -152,13 +152,13 @@ but the first are also method signatures for the `~.Figure.colorbar` method::
 Parameters
 ----------
 mappable
-    The `matplotlib.cm.ScalarMappable` (i.e., `~matplotlib.image.Image`,
+    The `matplotlib.cm.ScalarMappable` (i.e., `~matplotlib.image.AxesImage`,
     `~matplotlib.contour.ContourSet`, etc.) described by this colorbar.
     This argument is mandatory for the `.Figure.colorbar` method but optional
     for the `.pyplot.colorbar` function, which sets the default to the current
     image.
 
-    Note that one can create a `ScalarMappable` "on-the-fly" to generate
+    Note that one can create a `.ScalarMappable` "on-the-fly" to generate
     colorbars not attached to a previously drawn artist, e.g. ::
 
         fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
@@ -315,7 +315,7 @@ class _ColorbarLogLocator(ticker.LogLocator):
         ticks = super().tick_values(vmin, vmax)
         rtol = (np.log10(vmax) - np.log10(vmin)) * 1e-10
         ticks = ticks[(np.log10(ticks) >= np.log10(vmin) - rtol) &
-              (np.log10(ticks) <= np.log10(vmax) + rtol)]
+                      (np.log10(ticks) <= np.log10(vmax) + rtol)]
         return ticks
 
 
@@ -421,7 +421,6 @@ class ColorbarBase:
             ticklocation=ticklocation)
         cbook._check_in_list(
             ['uniform', 'proportional'], spacing=spacing)
-
         self.ax = ax
         self._patch_ax()
         if cmap is None:
@@ -452,6 +451,7 @@ class ColorbarBase:
         self.locator = None
         self.formatter = None
         self._manual_tick_data_values = None
+        self.__scale = None  # linear, log10 for now.  Hopefully more?
 
         if ticklocation == 'auto':
             ticklocation = 'bottom' if orientation == 'horizontal' else 'right'
@@ -517,8 +517,12 @@ class ColorbarBase:
 
         if self.orientation == 'vertical':
             long_axis, short_axis = ax.yaxis, ax.xaxis
+            if mpl.rcParams['ytick.minor.visible']:
+                self.minorticks_on()
         else:
             long_axis, short_axis = ax.xaxis, ax.yaxis
+            if mpl.rcParams['xtick.minor.visible']:
+                self.minorticks_on()
 
         long_axis.set_label_position(self.ticklocation)
         long_axis.set_ticks_position(self.ticklocation)
@@ -585,8 +589,8 @@ class ColorbarBase:
         one.  (check is used twice so factored out here...)
         """
         contouring = self.boundaries is not None and self.spacing == 'uniform'
-        return (type(self.norm) in [colors.Normalize, colors.LogNorm]
-                and not contouring)
+        return (type(self.norm) in [colors.Normalize, colors.LogNorm] and
+                not contouring)
 
     def _reset_locator_formatter_scale(self):
         """
@@ -602,9 +606,14 @@ class ColorbarBase:
             self.ax.set_xscale('log')
             self.ax.set_yscale('log')
             self.minorticks_on()
+            self.__scale = 'log'
         else:
             self.ax.set_xscale('linear')
             self.ax.set_yscale('linear')
+            if type(self.norm) is colors.Normalize:
+                self.__scale = 'linear'
+            else:
+                self.__scale = 'manual'
 
     def update_ticks(self):
         """
@@ -739,10 +748,31 @@ class ColorbarBase:
             self.ax.set_xlabel(self._label, **self._labelkw)
         self.stale = True
 
-    def set_label(self, label, **kw):
+    def set_label(self, label, *, loc=None, **kwargs):
         """Add a label to the long axis of the colorbar."""
+        _pos_xy = 'y' if self.orientation == 'vertical' else 'x'
+        _protected_kw = [_pos_xy, 'horizontalalignment', 'ha']
+        if any([k in kwargs for k in _protected_kw]):
+            if loc is not None:
+                raise TypeError(f'Specifying *loc* is disallowed when any of '
+                                f'its corresponding low level keyword '
+                                f'arguments {_protected_kw} are also supplied')
+            loc = 'center'
+        else:
+            if loc is None:
+                loc = mpl.rcParams['%saxis.labellocation' % _pos_xy]
+        if self.orientation == 'vertical':
+            cbook._check_in_list(('bottom', 'center', 'top'), loc=loc)
+        else:
+            cbook._check_in_list(('left', 'center', 'right'), loc=loc)
+        if loc in ['right', 'top']:
+            kwargs[_pos_xy] = 1.
+            kwargs['horizontalalignment'] = 'right'
+        elif loc in ['left', 'bottom']:
+            kwargs[_pos_xy] = 0.
+            kwargs['horizontalalignment'] = 'left'
         self._label = label
-        self._labelkw = kw
+        self._labelkw = kwargs
         self._set_label()
 
     def _outline(self, X, Y):
@@ -782,7 +812,7 @@ class ColorbarBase:
                   alpha=self.alpha,
                   edgecolors='None')
         _log.debug('Setting pcolormesh')
-        col = self.ax.pcolormesh(*args, **kw)
+        col = self.ax.pcolormesh(*args, **kw, shading='flat')
         # self.add_observer(col) # We should observe, not be observed...
 
         if self.solids is not None:
@@ -1098,13 +1128,13 @@ class ColorbarBase:
         else:
             y = self._proportional_y()
         xmid = np.array([0.5])
-        try:
+        if self.__scale != 'manual':
             y = norm.inverse(y)
             x = norm.inverse(x)
             xmid = norm.inverse(xmid)
-        except ValueError:
-            # occurs for norms that don't have an inverse, in
-            # which case manually scale:
+        else:
+            # if a norm doesn't have a named scale, or
+            # we are not using a norm
             dv = self.vmax - self.vmin
             x = x * dv + self.vmin
             y = y * dv + self.vmin
@@ -1209,6 +1239,7 @@ class Colorbar(ColorbarBase):
                 _add_disjoint_kwargs(kwargs, alpha=mappable.get_alpha())
             ColorbarBase.__init__(self, ax, **kwargs)
 
+    @cbook.deprecated("3.3", alternative="update_normal")
     def on_mappable_changed(self, mappable):
         """
         Update this colorbar to match the mappable's properties.
@@ -1249,9 +1280,8 @@ class Colorbar(ColorbarBase):
         """
         Update solid patches, lines, etc.
 
-        Unlike `.update_bruteforce`, this does not clear the axes.  This is
-        meant to be called when the norm of the image or contour plot to which
-        this colorbar belongs changes.
+        This is meant to be called when the norm of the image or contour plot
+        to which this colorbar belongs changes.
 
         If the norm on the mappable is different than before, this resets the
         locator and formatter for the axis, so if these have been customized,
@@ -1274,6 +1304,7 @@ class Colorbar(ColorbarBase):
                 self.add_lines(CS)
         self.stale = True
 
+    @cbook.deprecated("3.3", alternative="update_normal")
     def update_bruteforce(self, mappable):
         """
         Destroy and rebuild the colorbar.  This is
@@ -1684,7 +1715,7 @@ def colorbar_factory(cax, mappable, **kwargs):
     else:
         cb = Colorbar(cax, mappable, **kwargs)
 
-    cid = mappable.callbacksSM.connect('changed', cb.on_mappable_changed)
+    cid = mappable.callbacksSM.connect('changed', cb.update_normal)
     mappable.colorbar = cb
     mappable.colorbar_cid = cid
 

@@ -200,7 +200,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         transOffset = self.get_offset_transform()
         if (not self._offsetsNone and
             not transOffset.contains_branch(transData)):
-            # if there are offsets but in some co-ords other than data,
+            # if there are offsets but in some coords other than data,
             # then don't use them for autoscaling.
             return transforms.Bbox.null()
         offsets = self._offsets
@@ -922,7 +922,7 @@ class PathCollection(_CollectionWithSizes):
         return self._paths
 
     def legend_elements(self, prop="colors", num="auto",
-                     fmt=None, func=lambda x: x, **kwargs):
+                        fmt=None, func=lambda x: x, **kwargs):
         """
         Creates legend handles and labels for a PathCollection. This is useful
         for obtaining a legend for a :meth:`~.Axes.scatter` plot. E.g.::
@@ -1992,7 +1992,7 @@ class QuadMesh(Collection):
         """
         Converts a given mesh into a sequence of triangles, each point
         with its own color.  This is useful for experiments using
-        `draw_gouraud_triangle`.
+        `~.RendererBase.draw_gouraud_triangle`.
         """
         if isinstance(coordinates, np.ma.MaskedArray):
             p = coordinates.data

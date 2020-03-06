@@ -24,8 +24,7 @@ import numpy as np
 # First, the default formatter.
 
 base = datetime.datetime(2005, 2, 1)
-dates = np.array([base + datetime.timedelta(hours=(2 * i))
-                  for i in range(732)])
+dates = [base + datetime.timedelta(hours=(2 * i)) for i in range(732)]
 N = len(dates)
 np.random.seed(19680801)
 y = np.cumsum(np.random.randn(N))
@@ -166,9 +165,8 @@ offset_formats = ['',
                   '%d %b %Y',
                   '%d %b %Y %H:%M', ]
 
-converter = mdates.ConciseDateConverter(formats=formats,
-                                 zero_formats=zero_formats,
-                                 offset_formats=offset_formats)
+converter = mdates.ConciseDateConverter(
+    formats=formats, zero_formats=zero_formats, offset_formats=offset_formats)
 
 munits.registry[np.datetime64] = converter
 munits.registry[datetime.date] = converter

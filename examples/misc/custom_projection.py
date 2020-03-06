@@ -40,10 +40,7 @@ class GeoAxes(Axes):
 
         def __call__(self, x, pos=None):
             degrees = round(np.rad2deg(x) / self._round_to) * self._round_to
-            if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
-                return r"$%0.0f^\circ$" % degrees
-            else:
-                return "%0.0f\N{DEGREE SIGN}" % degrees
+            return f"{degrees:0.0f}\N{DEGREE SIGN}"
 
     RESOLUTION = 75
 
@@ -260,9 +257,8 @@ class GeoAxes(Axes):
     # set_xlim and set_ylim to ignore any input.  This also applies to
     # interactive panning and zooming in the GUI interfaces.
     def set_xlim(self, *args, **kwargs):
-        raise TypeError("It is not possible to change axes limits "
-                        "for geographic projections. Please consider "
-                        "using Basemap or Cartopy.")
+        raise TypeError("Changing axes limits of a geographic projection is "
+                        "not supported.  Please consider using Cartopy.")
 
     set_ylim = set_xlim
 
@@ -378,12 +374,8 @@ class HammerAxes(GeoAxes):
     name = 'custom_hammer'
 
     class HammerTransform(Transform):
-        """
-        The base Hammer transform.
-        """
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
+        """The base Hammer transform."""
+        input_dims = output_dims = 2
 
         def __init__(self, resolution):
             """
@@ -416,9 +408,7 @@ class HammerAxes(GeoAxes):
             return HammerAxes.InvertedHammerTransform(self._resolution)
 
     class InvertedHammerTransform(Transform):
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
+        input_dims = output_dims = 2
 
         def __init__(self, resolution):
             Transform.__init__(self)

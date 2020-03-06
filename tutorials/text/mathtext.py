@@ -296,8 +296,9 @@ yet-to-be-written font chapter).
 The fonts used should have a Unicode mapping in order to find any
 non-Latin characters, such as Greek.  If you want to use a math symbol
 that is not contained in your custom fonts, you can set
-:rc:`mathtext.fallback_to_cm` to ``True`` which will cause the mathtext system
-to use characters from the default Computer Modern fonts whenever a particular
+:rc:`mathtext.fallback` to either ``'cm'``, ``'stix'`` or ``'stixsans'``
+which will cause the mathtext system to use
+characters from an alternative font whenever a particular
 character can not be found in the custom font.
 
 Note that the math glyphs specified in Unicode have evolved over time, and many

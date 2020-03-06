@@ -1,4 +1,4 @@
-from .. import axes, docstring, cbook
+from .. import axes, docstring
 from .geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
 from .polar import PolarAxes
 from mpl_toolkits.mplot3d import Axes3D
@@ -54,11 +54,6 @@ def get_projection_class(projection=None):
         return projection_registry.get_projection_class(projection)
     except KeyError:
         raise ValueError("Unknown projection %r" % projection)
-
-
-@cbook.deprecated("3.1")
-def process_projection_requirements(figure, *args, **kwargs):
-    return figure._process_projection_requirements(*args, **kwargs)
 
 
 get_projection_names = projection_registry.get_projection_names

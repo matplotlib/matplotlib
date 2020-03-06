@@ -113,7 +113,7 @@ class TextToPath:
 
         Examples
         --------
-        Create a list of vertices and codes from a text, and create a `Path`
+        Create a list of vertices and codes from a text, and create a `.Path`
         from those::
 
             from matplotlib.path import Path
@@ -385,8 +385,8 @@ class TextPath(Path):
             from matplotlib.font_manager import FontProperties
 
             fp = FontProperties(family="Helvetica", style="italic")
-            path1 = TextPath((12,12), "ABC", size=12, prop=fp)
-            path2 = TextPath((0,0), r"$\frac{1}{2}$", size=12, usetex=True)
+            path1 = TextPath((12, 12), "ABC", size=12, prop=fp)
+            path2 = TextPath((0, 0), r"$\frac{1}{2}$", size=12, usetex=True)
 
         Also see :doc:`/gallery/text_labels_and_annotations/demo_text_path`.
         """
@@ -400,6 +400,8 @@ class TextPath(Path):
 
         if prop is None:
             prop = FontProperties()
+        else:
+            prop = FontProperties._from_any(prop)
         if size is None:
             size = prop.get_size_in_points()
 

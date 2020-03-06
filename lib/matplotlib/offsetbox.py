@@ -33,7 +33,6 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.image import BboxImage
 from matplotlib.patches import (
     FancyBboxPatch, FancyArrowPatch, bbox_artist as mbbox_artist)
-from matplotlib.text import _AnnotationBase
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 
 
@@ -1056,7 +1055,7 @@ class AnchoredOffsetbox(OffsetBox):
             - 'center'
 
             For backward compatibility, numeric values are accepted as well.
-             See the parameter *loc* of `.Legend` for details.
+            See the parameter *loc* of `.Legend` for details.
 
         pad : float, default: 0.4
             Padding around the child as fraction of the fontsize.
@@ -1083,7 +1082,6 @@ class AnchoredOffsetbox(OffsetBox):
         **kwargs
             All other parameters are passed on to `.OffsetBox`.
 
-
         Notes
         -----
         See `.Legend` for a detailed description of the anchoring mechanism.
@@ -1102,12 +1100,10 @@ class AnchoredOffsetbox(OffsetBox):
 
         if prop is None:
             self.prop = FontProperties(size=rcParams["legend.fontsize"])
-        elif isinstance(prop, dict):
-            self.prop = FontProperties(**prop)
-            if "size" not in prop:
-                self.prop.set_size(rcParams["legend.fontsize"])
         else:
-            self.prop = prop
+            self.prop = FontProperties._from_any(prop)
+            if isinstance(prop, dict) and "size" not in prop:
+                self.prop.set_size(rcParams["legend.fontsize"])
 
         self.patch = FancyBboxPatch(
             xy=(0.0, 0.0), width=1., height=1.,
@@ -1413,7 +1409,7 @@ class OffsetImage(OffsetBox):
         self.stale = False
 
 
-class AnnotationBbox(martist.Artist, _AnnotationBase):
+class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
     """
     Container for an `OffsetBox` referring to a specific position *xy*.
 
@@ -1432,7 +1428,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
                  xybox=None,
                  xycoords='data',
                  boxcoords=None,
-                 frameon=True, pad=0.4,  # BboxPatch
+                 frameon=True, pad=0.4,  # FancyBboxPatch boxstyle.
                  annotation_clip=None,
                  box_alignment=(0.5, 0.5),
                  bboxprops=None,
@@ -1478,10 +1474,10 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         """
 
         martist.Artist.__init__(self, **kwargs)
-        _AnnotationBase.__init__(self,
-                                 xy,
-                                 xycoords=xycoords,
-                                 annotation_clip=annotation_clip)
+        mtext._AnnotationBase.__init__(self,
+                                       xy,
+                                       xycoords=xycoords,
+                                       annotation_clip=annotation_clip)
 
         self.offsetbox = offsetbox
 
@@ -1697,16 +1693,12 @@ class DraggableBase:
             the point where the mouse drag started.
             '''
 
-    Optionally, you may override the following methods::
-
-        def artist_picker(self, artist, evt):
-            '''The picker method that will be used.'''
-            return self.ref_artist.contains(evt)
+    Optionally, you may override the following method::
 
         def finalize_offset(self):
             '''Called when the mouse is released.'''
 
-    In the current implementation of `DraggableLegend` and
+    In the current implementation of `.DraggableLegend` and
     `DraggableAnnotation`, `update_offset` places the artists in display
     coordinates, and `finalize_offset` recalculates their position in axes
     coordinate and set a relevant attribute.
@@ -1722,7 +1714,18 @@ class DraggableBase:
         c2 = self.canvas.mpl_connect('pick_event', self.on_pick)
         c3 = self.canvas.mpl_connect('button_release_event', self.on_release)
 
-        ref_artist.set_picker(self.artist_picker)
+        if not ref_artist.pickable():
+            ref_artist.set_picker(True)
+        with cbook._suppress_matplotlib_deprecation_warning():
+            if self.artist_picker != DraggableBase.artist_picker.__get__(self):
+                overridden_picker = self.artist_picker
+            else:
+                overridden_picker = None
+        if overridden_picker is not None:
+            cbook.warn_deprecated(
+                "3.3", name="artist_picker", obj_type="method",
+                addendum="Directly set the artist's picker if desired.")
+            ref_artist.set_picker(overridden_picker)
         self.cids = [c2, c3]
 
     def on_motion(self, evt):
@@ -1789,6 +1792,7 @@ class DraggableBase:
         else:
             self.canvas.mpl_disconnect(c1)
 
+    @cbook.deprecated("3.3", alternative="self.ref_artist.contains")
     def artist_picker(self, artist, evt):
         return self.ref_artist.contains(evt)
 

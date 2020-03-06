@@ -70,7 +70,8 @@ if __name__ == '__main__':
 # References
 # """"""""""
 #
-# The use of the following functions, methods and classes is shown in this example:
+# The use of the following functions, methods and classes is shown in this
+# example:
 
 import matplotlib
 matplotlib.colors.LightSource

@@ -10,8 +10,8 @@ import tkinter.messagebox
 
 import numpy as np
 
-import matplotlib
-from matplotlib import backend_tools, cbook, rcParams
+import matplotlib as mpl
+from matplotlib import backend_tools, cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
@@ -34,7 +34,7 @@ else:
         try:
             yield
         finally:
-            if rcParams['tk.window_focus']:
+            if mpl.rcParams['tk.window_focus']:
                 Win32_SetForegroundWindow(foreground)
 
 
@@ -80,22 +80,8 @@ def blit(photoimage, aggimage, offsets, bbox=None):
 
 
 class TimerTk(TimerBase):
-    """
-    Subclass of :class:`backend_bases.TimerBase` that uses Tk's timer events.
+    """Subclass of `backend_bases.TimerBase` using Tk timer events."""
 
-    Attributes
-    ----------
-    interval : int, default: 1000ms
-        The time between timer events in milliseconds.
-    single_shot : bool, default: False
-        Whether this timer should operate as single shot (run once and then
-        stop).
-    callbacks : list
-        Stores list of (func, args) tuples that will be called upon timer
-        events. This list can be manipulated directly, or the functions
-        `add_callback` and `remove_callback` can be used.
-
-    """
     def __init__(self, parent, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
         self.parent = parent
@@ -230,8 +216,8 @@ class FigureCanvasTk(FigureCanvasBase):
 
         # Can't get destroy events by binding to _tkcanvas. Therefore, bind
         # to the window and filter.
-        def filter_destroy(evt):
-            if evt.widget is self._tkcanvas:
+        def filter_destroy(event):
+            if event.widget is self._tkcanvas:
                 self._master.update_idletasks()
                 self.close_event()
         root.bind("<Destroy>", filter_destroy, "+")
@@ -444,16 +430,16 @@ class FigureManagerTk(FigureManagerBase):
         self._shown = False
 
     def _get_toolbar(self):
-        if matplotlib.rcParams['toolbar'] == 'toolbar2':
+        if mpl.rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2Tk(self.canvas, self.window)
-        elif matplotlib.rcParams['toolbar'] == 'toolmanager':
+        elif mpl.rcParams['toolbar'] == 'toolmanager':
             toolbar = ToolbarTk(self.toolmanager, self.window)
         else:
             toolbar = None
         return toolbar
 
     def _get_toolmanager(self):
-        if rcParams['toolbar'] == 'toolmanager':
+        if mpl.rcParams['toolbar'] == 'toolmanager':
             toolmanager = ToolManager(self.canvas.figure)
         else:
             toolmanager = None
@@ -475,9 +461,9 @@ class FigureManagerTk(FigureManagerBase):
                 self.window.deiconify()
             else:
                 self.canvas.draw_idle()
-            # Raise the new window.
-            self.canvas.manager.window.attributes('-topmost', 1)
-            self.canvas.manager.window.attributes('-topmost', 0)
+            if mpl.rcParams['figure.raise_window']:
+                self.canvas.manager.window.attributes('-topmost', 1)
+                self.canvas.manager.window.attributes('-topmost', 0)
             self._shown = True
 
     def destroy(self, *args):
@@ -616,7 +602,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         # work - JDH!
         #defaultextension = self.canvas.get_default_filetype()
         defaultextension = ''
-        initialdir = os.path.expanduser(rcParams['savefig.directory'])
+        initialdir = os.path.expanduser(mpl.rcParams['savefig.directory'])
         initialfile = self.canvas.get_default_filename()
         fname = tkinter.filedialog.asksaveasfilename(
             master=self.canvas.get_tk_widget().master,
@@ -631,7 +617,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             return
         # Save dir for next time, unless empty str (i.e., use cwd).
         if initialdir != "":
-            rcParams['savefig.directory'] = (
+            mpl.rcParams['savefig.directory'] = (
                 os.path.dirname(str(fname)))
         try:
             # This method will handle the delegation to the correct type
@@ -891,7 +877,7 @@ class _BackendTk(_Backend):
 
             canvas = cls.FigureCanvas(figure, master=window)
             manager = cls.FigureManager(canvas, num, window)
-            if matplotlib.is_interactive():
+            if mpl.is_interactive():
                 manager.show()
                 canvas.draw_idle()
             return manager

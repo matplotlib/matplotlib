@@ -15,7 +15,7 @@ import weakref
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import cbook, font_manager as fm, __version__, rcParams
+from matplotlib import cbook, font_manager as fm
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
@@ -35,12 +35,12 @@ _log = logging.getLogger(__name__)
 def get_fontspec():
     """Build fontspec preamble from rc."""
     latex_fontspec = []
-    texcommand = rcParams["pgf.texsystem"]
+    texcommand = mpl.rcParams["pgf.texsystem"]
 
     if texcommand != "pdflatex":
         latex_fontspec.append("\\usepackage{fontspec}")
 
-    if texcommand != "pdflatex" and rcParams["pgf.rcfonts"]:
+    if texcommand != "pdflatex" and mpl.rcParams["pgf.rcfonts"]:
         families = ["serif", "sans\\-serif", "monospace"]
         commands = ["setmainfont", "setsansfont", "setmonofont"]
         for family, command in zip(families, commands):
@@ -55,7 +55,7 @@ def get_fontspec():
 
 def get_preamble():
     """Get LaTeX preamble from rc."""
-    return rcParams["pgf.preamble"]
+    return mpl.rcParams["pgf.preamble"]
 
 ###############################################################################
 
@@ -131,7 +131,7 @@ def _font_properties_str(prop):
     if family in families:
         commands.append(families[family])
     elif (any(font.name == family for font in fm.fontManager.ttflist)
-          and rcParams["pgf.texsystem"] != "pdflatex"):
+          and mpl.rcParams["pgf.texsystem"] != "pdflatex"):
         commands.append(r"\setmainfont{%s}\rmfamily" % family)
     else:
         pass  # print warning?
@@ -186,7 +186,7 @@ class LatexManager:
     """
     The LatexManager opens an instance of the LaTeX application for
     determining the metrics of text elements. The LaTeX environment can be
-    modified by setting fonts and/or a custom preamble in the rc parameters.
+    modified by setting fonts and/or a custom preamble in `.rcParams`.
     """
     _unclean_instances = weakref.WeakSet()
 
@@ -201,7 +201,7 @@ class LatexManager:
             r"\documentclass{minimal}",
             # Include TeX program name as a comment for cache invalidation.
             # TeX does not allow this to be the first line.
-            r"% !TeX program = {}".format(rcParams["pgf.texsystem"]),
+            rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
             # Test whether \includegraphics supports interpolate option.
             r"\usepackage{graphicx}",
             latex_preamble,
@@ -265,7 +265,7 @@ class LatexManager:
         LatexManager._unclean_instances.add(self)
 
         # test the LaTeX setup to ensure a clean startup of the subprocess
-        self.texcommand = rcParams["pgf.texsystem"]
+        self.texcommand = mpl.rcParams["pgf.texsystem"]
         self.latex_header = LatexManager._build_latex_header()
         latex_end = "\n\\makeatletter\n\\@@end\n"
         try:
@@ -275,8 +275,9 @@ class LatexManager:
                 encoding="utf-8", cwd=self.tmpdir)
         except FileNotFoundError:
             raise RuntimeError(
-                "Latex command not found. Install %r or change "
-                "pgf.texsystem to the desired command." % self.texcommand)
+                f"{self.texcommand} not found.  Install it or change "
+                f"rcParams['pgf.texsystem'] to an available TeX "
+                f"implementation.")
         except OSError:
             raise RuntimeError("Error starting process %r" % self.texcommand)
         test_input = self.latex_header + latex_end
@@ -419,6 +420,7 @@ class RendererPgf(RendererBase):
                         "consider using the pgf-to-pdf option")
 
     @cbook.deprecated("3.2")
+    @property
     def latexManager(self):
         return self._latexManager
 
@@ -634,7 +636,7 @@ class RendererPgf(RendererBase):
 
     def option_image_nocomposite(self):
         # docstring inherited
-        return not rcParams['image.composite_image']
+        return not mpl.rcParams['image.composite_image']
 
     def draw_image(self, gc, x, y, im, transform=None):
         # docstring inherited
@@ -856,7 +858,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 
     def print_pgf(self, fname_or_fh, *args, **kwargs):
         """
-        Output pgf commands for drawing the figure so it can be included and
+        Output pgf macros for drawing the figure so it can be included and
         rendered in latex documents.
         """
         if kwargs.get("dryrun", False):
@@ -895,7 +897,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 \\end{document}""" % (w, h, latex_preamble, latex_fontspec)
             pathlib.Path(fname_tex).write_text(latexcode, encoding="utf-8")
 
-            texcommand = rcParams["pgf.texsystem"]
+            texcommand = mpl.rcParams["pgf.texsystem"]
             cbook._check_and_log_subprocess(
                 [texcommand, "-interaction=nonstopmode", "-halt-on-error",
                  "figure.tex"], _log, cwd=tmpdir)
@@ -1034,8 +1036,8 @@ class PdfPages:
             'producer', 'trapped'
         }
         infoDict = {
-            'creator': 'matplotlib %s, https://matplotlib.org' % __version__,
-            'producer': 'matplotlib pgf backend %s' % __version__,
+            'creator': f'matplotlib {mpl.__version__}, https://matplotlib.org',
+            'producer': f'matplotlib pgf backend {mpl.__version__}',
         }
         metadata = {k.lower(): v for k, v in self.metadata.items()}
         infoDict.update(metadata)
@@ -1100,7 +1102,7 @@ class PdfPages:
             open(self._outputfile, 'wb').close()
 
     def _run_latex(self):
-        texcommand = rcParams["pgf.texsystem"]
+        texcommand = mpl.rcParams["pgf.texsystem"]
         cbook._check_and_log_subprocess(
             [texcommand, "-interaction=nonstopmode", "-halt-on-error",
              os.path.basename(self._fname_tex)],

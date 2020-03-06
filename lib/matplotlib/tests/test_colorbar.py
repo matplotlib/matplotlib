@@ -49,6 +49,8 @@ def _colorbar_extension_shape(spacing):
         # Get the appropriate norm and use it to get colorbar boundaries.
         norm = norms[extension_type]
         boundaries = values = norm.boundaries
+        # note that the last value was silently dropped pre 3.3:
+        values = values[:-1]
         # Create a subplot.
         cax = fig.add_subplot(4, 1, i + 1)
         # Generate the colorbar.
@@ -79,6 +81,7 @@ def _colorbar_extension_length(spacing):
         # Get the appropriate norm and use it to get colorbar boundaries.
         norm = norms[extension_type]
         boundaries = values = norm.boundaries
+        values = values[:-1]
         for j, extendfrac in enumerate((None, 'auto', 0.1)):
             # Create a subplot.
             cax = fig.add_subplot(12, 1, i*3 + j + 1)
@@ -324,6 +327,34 @@ def test_colorbar_minorticks_on_off():
     np.testing.assert_equal(cbar.ax.yaxis.get_minorticklocs(), [])
 
 
+def test_cbar_minorticks_for_rc_xyminortickvisible():
+    """
+    issue gh-16468.
+
+    Making sure that minor ticks on the colorbar are turned on
+    (internally) using the cbar.minorticks_on() method when
+    rcParams['xtick.minor.visible'] = True (for horizontal cbar)
+    rcParams['ytick.minor.visible'] = True (for vertical cbar).
+    Using cbar.minorticks_on() ensures that the minor ticks
+    don't overflow into the extend regions of the colorbar.
+    """
+
+    plt.rcParams['ytick.minor.visible'] = True
+    plt.rcParams['xtick.minor.visible'] = True
+
+    vmin, vmax = 0.4, 2.6
+    fig, ax = plt.subplots()
+    im = ax.pcolormesh([[1, 2]], vmin=vmin, vmax=vmax)
+
+    cbar = fig.colorbar(im, extend='both', orientation='vertical')
+    assert cbar.ax.yaxis.get_minorticklocs()[0] >= vmin
+    assert cbar.ax.yaxis.get_minorticklocs()[-1] <= vmax
+
+    cbar = fig.colorbar(im, extend='both', orientation='horizontal')
+    assert cbar.ax.xaxis.get_minorticklocs()[0] >= vmin
+    assert cbar.ax.xaxis.get_minorticklocs()[-1] <= vmax
+
+
 def test_colorbar_autoticks():
     # Test new autotick modes. Needs to be classic because
     # non-classic doesn't go this route.
@@ -333,17 +364,18 @@ def test_colorbar_autoticks():
         y = np.arange(-4.0, 3.001)
         X, Y = np.meshgrid(x, y)
         Z = X * Y
+        Z = Z[:-1, :-1]
         pcm = ax[0].pcolormesh(X, Y, Z)
         cbar = fig.colorbar(pcm, ax=ax[0], extend='both',
                             orientation='vertical')
 
         pcm = ax[1].pcolormesh(X, Y, Z)
         cbar2 = fig.colorbar(pcm, ax=ax[1], extend='both',
-                            orientation='vertical', shrink=0.4)
+                             orientation='vertical', shrink=0.4)
         np.testing.assert_almost_equal(cbar.ax.yaxis.get_ticklocs(),
-                np.arange(-10, 11., 5.))
+                                       np.arange(-10, 11, 5))
         np.testing.assert_almost_equal(cbar2.ax.yaxis.get_ticklocs(),
-                np.arange(-10, 11., 10.))
+                                       np.arange(-10, 11, 10))
 
 
 def test_colorbar_autotickslog():
@@ -354,17 +386,18 @@ def test_colorbar_autotickslog():
         y = np.arange(-4.0, 3.001)
         X, Y = np.meshgrid(x, y)
         Z = X * Y
+        Z = Z[:-1, :-1]
         pcm = ax[0].pcolormesh(X, Y, 10**Z, norm=LogNorm())
         cbar = fig.colorbar(pcm, ax=ax[0], extend='both',
                             orientation='vertical')
 
         pcm = ax[1].pcolormesh(X, Y, 10**Z, norm=LogNorm())
         cbar2 = fig.colorbar(pcm, ax=ax[1], extend='both',
-                            orientation='vertical', shrink=0.4)
+                             orientation='vertical', shrink=0.4)
         np.testing.assert_almost_equal(cbar.ax.yaxis.get_ticklocs(),
-                10**np.arange(-12, 12.2, 4.))
+                                       10**np.arange(-12., 12.2, 4.))
         np.testing.assert_almost_equal(cbar2.ax.yaxis.get_ticklocs(),
-                10**np.arange(-12, 13., 12.))
+                                       10**np.arange(-12., 13., 12.))
 
 
 def test_colorbar_get_ticks():
@@ -373,7 +406,6 @@ def test_colorbar_get_ticks():
     data = np.arange(1200).reshape(30, 40)
     levels = [0, 200, 400, 600, 800, 1000, 1200]
 
-    plt.subplot()
     plt.contourf(data, levels=levels)
 
     # testing getter for user set ticks
@@ -570,3 +602,14 @@ def test_colorbar_label():
 
     cbar3 = fig.colorbar(im, orientation='horizontal', label='horizontal cbar')
     assert cbar3.ax.get_xlabel() == 'horizontal cbar'
+
+
+@pytest.mark.parametrize("clim", [(-20000, 20000), (-32768, 0)])
+def test_colorbar_int(clim):
+    # Check that we cast to float early enough to not
+    # overflow ``int16(20000) - int16(-20000)`` or
+    # run into ``abs(int16(-32768)) == -32768``.
+    fig, ax = plt.subplots()
+    im = ax.imshow([[*map(np.int16, clim)]])
+    fig.colorbar(im)
+    assert (im.norm.vmin, im.norm.vmax) == clim

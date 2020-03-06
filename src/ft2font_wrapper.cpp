@@ -717,7 +717,7 @@ static PyObject *PyFT2Font_set_text(PyFT2Font *self, PyObject *args, PyObject *k
             codepoints[i] = bytestr[i];
         }
     } else {
-        PyErr_SetString(PyExc_TypeError, "String must be unicode or bytes");
+        PyErr_SetString(PyExc_TypeError, "String must be str or bytes");
         return NULL;
     }
 
@@ -975,44 +975,24 @@ const char *PyFT2Font_get_charmap__doc__ =
 static PyObject *PyFT2Font_get_charmap(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     PyObject *charmap;
-
-    charmap = PyDict_New();
-    if (charmap == NULL) {
+    if (!(charmap = PyDict_New())) {
         return NULL;
     }
-
     FT_UInt index;
     FT_ULong code = FT_Get_First_Char(self->x->get_face(), &index);
     while (index != 0) {
-        PyObject *key;
-        PyObject *val;
-
-        key = PyLong_FromLong(code);
-        if (key == NULL) {
+        PyObject *key = NULL, *val = NULL;
+        bool error = (!(key = PyLong_FromLong(code))
+                      || !(val = PyLong_FromLong(index))
+                      || (PyDict_SetItem(charmap, key, val) == -1));
+        Py_XDECREF(key);
+        Py_XDECREF(val);
+        if (error) {
             Py_DECREF(charmap);
             return NULL;
         }
-
-        val = PyLong_FromLong(index);
-        if (val == NULL) {
-            Py_DECREF(key);
-            Py_DECREF(charmap);
-            return NULL;
-        }
-
-        if (PyDict_SetItem(charmap, key, val)) {
-            Py_DECREF(key);
-            Py_DECREF(val);
-            Py_DECREF(charmap);
-            return NULL;
-        }
-
-        Py_DECREF(key);
-        Py_DECREF(val);
-
         code = FT_Get_Next_Char(self->x->get_face(), code, &index);
     }
-
     return charmap;
 }
 

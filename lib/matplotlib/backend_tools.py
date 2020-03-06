@@ -20,7 +20,7 @@ from weakref import WeakKeyDictionary
 
 import numpy as np
 
-from matplotlib import rcParams
+import matplotlib as mpl
 from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
 
@@ -38,44 +38,44 @@ _views_positions = 'viewpos'
 
 class ToolBase:
     """
-    Base tool class
+    Base tool class.
 
     A base tool, only implements `trigger` method or not method at all.
-    The tool is instantiated by `matplotlib.backend_managers.ToolManager`
+    The tool is instantiated by `matplotlib.backend_managers.ToolManager`.
 
     Attributes
     ----------
     toolmanager : `matplotlib.backend_managers.ToolManager`
-        ToolManager that controls this Tool
+        ToolManager that controls this Tool.
     figure : `FigureCanvas`
-        Figure instance that is affected by this Tool
+        Figure instance that is affected by this Tool.
     name : str
         Used as **Id** of the tool, has to be unique among tools of the same
-        ToolManager
+        ToolManager.
     """
 
     default_keymap = None
     """
-    Keymap to associate with this tool
+    Keymap to associate with this tool.
 
     **String**: List of comma separated keys that will be used to call this
-    tool when the keypress event of ``self.figure.canvas`` is emitted
+    tool when the keypress event of ``self.figure.canvas`` is emitted.
     """
 
     description = None
     """
-    Description of the Tool
+    Description of the Tool.
 
     **String**: If the Tool is included in the Toolbar this text is used
-    as a Tooltip
+    as a Tooltip.
     """
 
     image = None
     """
-    Filename of the image
+    Filename of the image.
 
     **String**: Filename of the image to use in the toolbar. If None, the
-    *name* is used as a label in the toolbar button
+    *name* is used as a label in the toolbar button.
     """
 
     def __init__(self, toolmanager, name):
@@ -115,82 +115,81 @@ class ToolBase:
 
     def set_figure(self, figure):
         """
-        Assign a figure to the tool
+        Assign a figure to the tool.
 
         Parameters
         ----------
-        figure : `Figure`
+        figure : `.Figure`
         """
         self._figure = figure
 
     def trigger(self, sender, event, data=None):
         """
-        Called when this tool gets used
+        Called when this tool gets used.
 
         This method is called by
-        `matplotlib.backend_managers.ToolManager.trigger_tool`
+        `matplotlib.backend_managers.ToolManager.trigger_tool`.
 
         Parameters
         ----------
-        event : `Event`
-            The Canvas event that caused this tool to be called
+        event : `.Event`
+            The canvas event that caused this tool to be called.
         sender : object
-            Object that requested the tool to be triggered
+            Object that requested the tool to be triggered.
         data : object
-            Extra data
+            Extra data.
         """
-
         pass
 
     @property
     def name(self):
-        """Tool Id"""
+        """Tool Id."""
         return self._name
 
     def destroy(self):
         """
-        Destroy the tool
+        Destroy the tool.
 
         This method is called when the tool is removed by
-        `matplotlib.backend_managers.ToolManager.remove_tool`
+        `matplotlib.backend_managers.ToolManager.remove_tool`.
         """
         pass
 
 
 class ToolToggleBase(ToolBase):
     """
-    Toggleable tool
+    Toggleable tool.
 
-    Every time it is triggered, it switches between enable and disable
+    Every time it is triggered, it switches between enable and disable.
 
     Parameters
     ----------
     ``*args``
-        Variable length argument to be used by the Tool
+        Variable length argument to be used by the Tool.
     ``**kwargs``
         `toggled` if present and True, sets the initial state of the Tool
         Arbitrary keyword arguments to be consumed by the Tool
     """
 
     radio_group = None
-    """Attribute to group 'radio' like tools (mutually exclusive)
+    """Attribute to group 'radio' like tools (mutually exclusive).
 
     **String** that identifies the group or **None** if not belonging to a
-    group
+    group.
     """
 
     cursor = None
-    """Cursor to use when the tool is active"""
+    """Cursor to use when the tool is active."""
 
     default_toggled = False
-    """Default of toggled state"""
+    """Default of toggled state."""
 
     def __init__(self, *args, **kwargs):
         self._toggled = kwargs.pop('toggled', self.default_toggled)
         ToolBase.__init__(self, *args, **kwargs)
 
     def trigger(self, sender, event, data=None):
-        """Calls `enable` or `disable` based on `toggled` value"""
+        """Calls `enable` or `disable` based on `toggled` value."""
         if self._toggled:
             self.disable(event)
         else:
@@ -199,30 +198,30 @@ class ToolToggleBase(ToolBase):
 
     def enable(self, event=None):
         """
-        Enable the toggle tool
+        Enable the toggle tool.
 
-        `trigger` calls this method when `toggled` is False
+        `trigger` calls this method when `toggled` is False.
         """
         pass
 
     def disable(self, event=None):
         """
-        Disable the toggle tool
+        Disable the toggle tool.
 
         `trigger` call this method when `toggled` is True.
 
-        This can happen in different circumstances
+        This can happen in different circumstances.
 
-        * Click on the toolbar tool button
-        * Call to `matplotlib.backend_managers.ToolManager.trigger_tool`
+        * Click on the toolbar tool button.
+        * Call to `matplotlib.backend_managers.ToolManager.trigger_tool`.
         * Another `ToolToggleBase` derived tool is triggered
-          (from the same `ToolManager`)
+          (from the same `.ToolManager`).
         """
         pass
 
     @property
     def toggled(self):
-        """State of the toggled tool"""
+        """State of the toggled tool."""
 
         return self._toggled
 
@@ -247,10 +246,10 @@ class ToolToggleBase(ToolBase):
 
 class SetCursorBase(ToolBase):
     """
-    Change to the current cursor while inaxes
+    Change to the current cursor while inaxes.
 
     This tool, keeps track of all `ToolToggleBase` derived tools, and calls
-    set_cursor when a tool gets triggered
+    `set_cursor` when a tool gets triggered.
     """
     def __init__(self, *args, **kwargs):
         ToolBase.__init__(self, *args, **kwargs)
@@ -309,18 +308,18 @@ class SetCursorBase(ToolBase):
 
     def set_cursor(self, cursor):
         """
-        Set the cursor
+        Set the cursor.
 
-        This method has to be implemented per backend
+        This method has to be implemented per backend.
         """
         raise NotImplementedError
 
 
 class ToolCursorPosition(ToolBase):
     """
-    Send message with the current pointer position
+    Send message with the current pointer position.
 
-    This tool runs in the background reporting the position of the cursor
+    This tool runs in the background reporting the position of the cursor.
     """
     def __init__(self, *args, **kwargs):
         self._idDrag = None
@@ -335,7 +334,7 @@ class ToolCursorPosition(ToolBase):
                 'motion_notify_event', self.send_message)
 
     def send_message(self, event):
-        """Call `matplotlib.backend_managers.ToolManager.message_event`"""
+        """Call `matplotlib.backend_managers.ToolManager.message_event`."""
         if self.toolmanager.messagelock.locked():
             return
 
@@ -364,9 +363,9 @@ class ToolCursorPosition(ToolBase):
 
 
 class RubberbandBase(ToolBase):
-    """Draw and remove rubberband"""
+    """Draw and remove a rubberband."""
     def trigger(self, sender, event, data):
-        """Call `draw_rubberband` or `remove_rubberband` based on data"""
+        """Call `draw_rubberband` or `remove_rubberband` based on data."""
         if not self.figure.canvas.widgetlock.available(sender):
             return
         if data is not None:
@@ -376,73 +375,69 @@ class RubberbandBase(ToolBase):
 
     def draw_rubberband(self, *data):
         """
-        Draw rubberband
+        Draw rubberband.
 
-        This method must get implemented per backend
+        This method must get implemented per backend.
         """
         raise NotImplementedError
 
     def remove_rubberband(self):
         """
-        Remove rubberband
+        Remove rubberband.
 
-        This method should get implemented per backend
+        This method should get implemented per backend.
         """
         pass
 
 
 class ToolQuit(ToolBase):
-    """Tool to call the figure manager destroy method"""
+    """Tool to call the figure manager destroy method."""
 
     description = 'Quit the figure'
-    default_keymap = rcParams['keymap.quit']
+    default_keymap = mpl.rcParams['keymap.quit']
 
     def trigger(self, sender, event, data=None):
         Gcf.destroy_fig(self.figure)
 
 
 class ToolQuitAll(ToolBase):
-    """Tool to call the figure manager destroy method"""
+    """Tool to call the figure manager destroy method."""
 
     description = 'Quit all figures'
-    default_keymap = rcParams['keymap.quit_all']
+    default_keymap = mpl.rcParams['keymap.quit_all']
 
     def trigger(self, sender, event, data=None):
         Gcf.destroy_all()
 
 
-class ToolEnableAllNavigation(ToolBase):
-    """Tool to enable all axes for toolmanager interaction"""
+class _ToolEnableAllNavigation(ToolBase):
+    """Tool to enable all axes for toolmanager interaction."""
 
     description = 'Enable all axes toolmanager'
-    default_keymap = rcParams['keymap.all_axes']
+    default_keymap = mpl.rcParams['keymap.all_axes']
 
     def trigger(self, sender, event, data=None):
-        if event.inaxes is None:
-            return
-
-        for a in self.figure.get_axes():
-            if (event.x is not None and event.y is not None
-                    and a.in_axes(event)):
-                a.set_navigate(True)
+        mpl.backend_bases.key_press_handler(event, self.figure.canvas, None)
 
 
-class ToolEnableNavigation(ToolBase):
-    """Tool to enable a specific axes for toolmanager interaction"""
+@cbook.deprecated("3.3")
+class ToolEnableAllNavigation(_ToolEnableAllNavigation):
+    pass
+
+
+class _ToolEnableNavigation(ToolBase):
+    """Tool to enable a specific axes for toolmanager interaction."""
 
     description = 'Enable one axes toolmanager'
     default_keymap = (1, 2, 3, 4, 5, 6, 7, 8, 9)
 
     def trigger(self, sender, event, data=None):
-        if event.inaxes is None:
-            return
+        mpl.backend_bases.key_press_handler(event, self.figure.canvas, None)
 
-        n = int(event.key) - 1
-        if n < len(self.figure.get_axes()):
-            for i, a in enumerate(self.figure.get_axes()):
-                if (event.x is not None and event.y is not None
-                        and a.in_axes(event)):
-                    a.set_navigate(i == n)
+
+@cbook.deprecated("3.3")
+class ToolEnableNavigation(_ToolEnableNavigation):
+    pass
 
 
 class _ToolGridBase(ToolBase):
@@ -480,10 +475,10 @@ class _ToolGridBase(ToolBase):
 
 
 class ToolGrid(_ToolGridBase):
-    """Tool to toggle the major grids of the figure"""
+    """Tool to toggle the major grids of the figure."""
 
     description = 'Toggle major grids'
-    default_keymap = rcParams['keymap.grid']
+    default_keymap = mpl.rcParams['keymap.grid']
 
     def _get_next_grid_states(self, ax):
         if None in map(self._get_uniform_grid_state,
@@ -501,10 +496,10 @@ class ToolGrid(_ToolGridBase):
 
 
 class ToolMinorGrid(_ToolGridBase):
-    """Tool to toggle the major and minor grids of the figure"""
+    """Tool to toggle the major and minor grids of the figure."""
 
     description = 'Toggle major and minor grids'
-    default_keymap = rcParams['keymap.grid_minor']
+    default_keymap = mpl.rcParams['keymap.grid_minor']
 
     def _get_next_grid_states(self, ax):
         if None in map(self._get_uniform_grid_state,
@@ -521,10 +516,10 @@ class ToolMinorGrid(_ToolGridBase):
 
 
 class ToolFullScreen(ToolToggleBase):
-    """Tool to toggle full screen"""
+    """Tool to toggle full screen."""
 
     description = 'Toggle fullscreen mode'
-    default_keymap = rcParams['keymap.fullscreen']
+    default_keymap = mpl.rcParams['keymap.fullscreen']
 
     def enable(self, event):
         self.figure.canvas.manager.full_screen_toggle()
@@ -534,7 +529,7 @@ class ToolFullScreen(ToolToggleBase):
 
 
 class AxisScaleBase(ToolToggleBase):
-    """Base Tool to toggle between linear and logarithmic"""
+    """Base Tool to toggle between linear and logarithmic."""
 
     def trigger(self, sender, event, data=None):
         if event.inaxes is None:
@@ -551,20 +546,20 @@ class AxisScaleBase(ToolToggleBase):
 
 
 class ToolYScale(AxisScaleBase):
-    """Tool to toggle between linear and logarithmic scales on the Y axis"""
+    """Tool to toggle between linear and logarithmic scales on the Y axis."""
 
     description = 'Toggle scale Y axis'
-    default_keymap = rcParams['keymap.yscale']
+    default_keymap = mpl.rcParams['keymap.yscale']
 
     def set_scale(self, ax, scale):
         ax.set_yscale(scale)
 
 
 class ToolXScale(AxisScaleBase):
-    """Tool to toggle between linear and logarithmic scales on the X axis"""
+    """Tool to toggle between linear and logarithmic scales on the X axis."""
 
     description = 'Toggle scale X axis'
-    default_keymap = rcParams['keymap.xscale']
+    default_keymap = mpl.rcParams['keymap.xscale']
 
     def set_scale(self, ax, scale):
         ax.set_xscale(scale)
@@ -572,7 +567,7 @@ class ToolXScale(AxisScaleBase):
 
 class ToolViewsPositions(ToolBase):
     """
-    Auxiliary Tool to handle changes in views and positions
+    Auxiliary Tool to handle changes in views and positions.
 
     Runs in the background and should get used by all the tools that
     need to access the figure's history of views and positions, e.g.
@@ -591,7 +586,7 @@ class ToolViewsPositions(ToolBase):
         ToolBase.__init__(self, *args, **kwargs)
 
     def add_figure(self, figure):
-        """Add the current figure to the stack of views and positions"""
+        """Add the current figure to the stack of views and positions."""
 
         if figure not in self.views:
             self.views[figure] = cbook.Stack()
@@ -603,7 +598,7 @@ class ToolViewsPositions(ToolBase):
             figure.add_axobserver(lambda fig: self.update_home_views(fig))
 
     def clear(self, figure):
-        """Reset the axes stack"""
+        """Reset the axes stack."""
         if figure in self.views:
             self.views[figure].clear()
             self.positions[figure].clear()
@@ -643,7 +638,7 @@ class ToolViewsPositions(ToolBase):
 
     def push_current(self, figure=None):
         """
-        Push the current view limits and position onto their respective stacks
+        Push the current view limits and position onto their respective stacks.
         """
         if not figure:
             figure = self.figure
@@ -657,17 +652,17 @@ class ToolViewsPositions(ToolBase):
 
     def _axes_pos(self, ax):
         """
-        Return the original and modified positions for the specified axes
+        Return the original and modified positions for the specified axes.
 
         Parameters
         ----------
-        ax : (matplotlib.axes.AxesSubplot)
-        The axes to get the positions for
+        ax : matplotlib.axes.Axes
+            The `.Axes` to get the positions for.
 
         Returns
         -------
-        limits : (tuple)
-        A tuple of the original and modified positions
+        original_position, modified_position
+            A tuple of the original and modified positions.
         """
 
         return (ax.get_position(True).frozen(),
@@ -686,7 +681,7 @@ class ToolViewsPositions(ToolBase):
                 self.home_views[figure][a] = a._get_view()
 
     def refresh_locators(self):
-        """Redraw the canvases, update the locators"""
+        """Redraw the canvases, update the locators."""
         for a in self.figure.get_axes():
             xaxis = getattr(a, 'xaxis', None)
             yaxis = getattr(a, 'yaxis', None)
@@ -707,23 +702,23 @@ class ToolViewsPositions(ToolBase):
         self.figure.canvas.draw_idle()
 
     def home(self):
-        """Recall the first view and position from the stack"""
+        """Recall the first view and position from the stack."""
         self.views[self.figure].home()
         self.positions[self.figure].home()
 
     def back(self):
-        """Back one step in the stack of views and positions"""
+        """Back one step in the stack of views and positions."""
         self.views[self.figure].back()
         self.positions[self.figure].back()
 
     def forward(self):
-        """Forward one step in the stack of views and positions"""
+        """Forward one step in the stack of views and positions."""
         self.views[self.figure].forward()
         self.positions[self.figure].forward()
 
 
 class ViewsPositionsBase(ToolBase):
-    """Base class for `ToolHome`, `ToolBack` and `ToolForward`"""
+    """Base class for `ToolHome`, `ToolBack` and `ToolForward`."""
 
     _on_trigger = None
 
@@ -735,49 +730,49 @@ class ViewsPositionsBase(ToolBase):
 
 
 class ToolHome(ViewsPositionsBase):
-    """Restore the original view lim"""
+    """Restore the original view limits."""
 
     description = 'Reset original view'
     image = 'home'
-    default_keymap = rcParams['keymap.home']
+    default_keymap = mpl.rcParams['keymap.home']
     _on_trigger = 'home'
 
 
 class ToolBack(ViewsPositionsBase):
-    """Move back up the view lim stack"""
+    """Move back up the view limits stack."""
 
     description = 'Back to previous view'
     image = 'back'
-    default_keymap = rcParams['keymap.back']
+    default_keymap = mpl.rcParams['keymap.back']
     _on_trigger = 'back'
 
 
 class ToolForward(ViewsPositionsBase):
-    """Move forward in the view lim stack"""
+    """Move forward in the view lim stack."""
 
     description = 'Forward to next view'
     image = 'forward'
-    default_keymap = rcParams['keymap.forward']
+    default_keymap = mpl.rcParams['keymap.forward']
     _on_trigger = 'forward'
 
 
 class ConfigureSubplotsBase(ToolBase):
-    """Base tool for the configuration of subplots"""
+    """Base tool for the configuration of subplots."""
 
     description = 'Configure subplots'
     image = 'subplots'
 
 
 class SaveFigureBase(ToolBase):
-    """Base tool for figure saving"""
+    """Base tool for figure saving."""
 
     description = 'Save the figure'
     image = 'filesave'
-    default_keymap = rcParams['keymap.save']
+    default_keymap = mpl.rcParams['keymap.save']
 
 
 class ZoomPanBase(ToolToggleBase):
-    """Base class for `ToolZoom` and `ToolPan`"""
+    """Base class for `ToolZoom` and `ToolPan`."""
     def __init__(self, *args):
         ToolToggleBase.__init__(self, *args)
         self._button_pressed = None
@@ -790,7 +785,7 @@ class ZoomPanBase(ToolToggleBase):
         self.lastscroll = time.time()-self.scrollthresh
 
     def enable(self, event):
-        """Connect press/release events and lock the canvas"""
+        """Connect press/release events and lock the canvas."""
         self.figure.canvas.widgetlock(self)
         self._idPress = self.figure.canvas.mpl_connect(
             'button_press_event', self._press)
@@ -800,7 +795,7 @@ class ZoomPanBase(ToolToggleBase):
             'scroll_event', self.scroll_zoom)
 
     def disable(self, event):
-        """Release the canvas and disconnect press/release events"""
+        """Release the canvas and disconnect press/release events."""
         self._cancel_action()
         self.figure.canvas.widgetlock.release(self)
         self.figure.canvas.mpl_disconnect(self._idPress)
@@ -841,11 +836,11 @@ class ZoomPanBase(ToolToggleBase):
 
 
 class ToolZoom(ZoomPanBase):
-    """Zoom to rectangle"""
+    """A Tool for zooming using a rectangle selector."""
 
     description = 'Zoom to rectangle'
     image = 'zoom_to_rect'
-    default_keymap = rcParams['keymap.zoom']
+    default_keymap = mpl.rcParams['keymap.zoom']
     cursor = cursors.SELECT_REGION
     radio_group = 'default'
 
@@ -967,9 +962,9 @@ class ToolZoom(ZoomPanBase):
 
 
 class ToolPan(ZoomPanBase):
-    """Pan axes with left mouse, zoom with right"""
+    """Pan axes with left mouse, zoom with right."""
 
-    default_keymap = rcParams['keymap.pan']
+    default_keymap = mpl.rcParams['keymap.pan']
     description = 'Pan axes with left mouse, zoom with right'
     image = 'move'
     cursor = cursors.MOVE
@@ -1034,7 +1029,7 @@ class ToolPan(ZoomPanBase):
 
 class ToolHelpBase(ToolBase):
     description = 'Print tool list, shortcuts and description'
-    default_keymap = rcParams['keymap.help']
+    default_keymap = mpl.rcParams['keymap.help']
     image = 'help.png'
 
     @staticmethod
@@ -1071,10 +1066,10 @@ class ToolHelpBase(ToolBase):
 
 
 class ToolCopyToClipboardBase(ToolBase):
-    """Tool to copy the figure to the clipboard"""
+    """Tool to copy the figure to the clipboard."""
 
     description = 'Copy the canvas figure to clipboard'
-    default_keymap = rcParams['keymap.copy']
+    default_keymap = mpl.rcParams['keymap.copy']
 
     def trigger(self, *args, **kwargs):
         message = "Copy tool is not available"
@@ -1090,8 +1085,8 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'fullscreen': ToolFullScreen,
                  'quit': ToolQuit,
                  'quit_all': ToolQuitAll,
-                 'allnav': ToolEnableAllNavigation,
-                 'nav': ToolEnableNavigation,
+                 'allnav': _ToolEnableAllNavigation,
+                 'nav': _ToolEnableNavigation,
                  'xscale': ToolXScale,
                  'yscale': ToolYScale,
                  'position': ToolCursorPosition,
@@ -1111,12 +1106,12 @@ default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
 
 def add_tools_to_manager(toolmanager, tools=default_tools):
     """
-    Add multiple tools to `ToolManager`
+    Add multiple tools to a `.ToolManager`.
 
     Parameters
     ----------
-    toolmanager : ToolManager
-        `backend_managers.ToolManager` object that will get the tools added
+    toolmanager : `.backend_managers.ToolManager`
+        Manager to which the tools are added.
     tools : {str: class_like}, optional
         The tools to add in a {name: tool} dict, see `add_tool` for more
         info.
@@ -1133,11 +1128,10 @@ def add_tools_to_container(container, tools=default_toolbar_tools):
     Parameters
     ----------
     container : Container
-        `backend_bases.ToolContainerBase` object that will get the tools added
+        `backend_bases.ToolContainerBase` object that will get the tools added.
     tools : list, optional
-        List in the form
-        [[group1, [tool1, tool2 ...]], [group2, [...]]]
-        Where the tools given by tool1, and tool2 will display in group1.
+        List in the form ``[[group1, [tool1, tool2 ...]], [group2, [...]]]``
+        where the tools ``[tool1, tool2, ...]`` will display in group1.
         See `add_tool` for details.
     """
 

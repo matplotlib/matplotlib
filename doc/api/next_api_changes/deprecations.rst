@@ -124,3 +124,126 @@ The following parameters do not have any effect and are deprecated:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This method is deprecated.  Use
 ``ax.dataLim.set(Bbox.union([ax.dataLim, bounds]))`` instead.
+
+``{,Symmetrical}LogScale.{,Inverted}LogTransform``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``LogScale.LogTransform``, ``LogScale.InvertedLogTransform``,
+``SymmetricalScale.SymmetricalTransform`` and
+``SymmetricalScale.InvertedSymmetricalTransform`` are deprecated.  Directly
+access the transform classes from the :mod:`.scale` module.
+
+``TexManager.cachedir``
+~~~~~~~~~~~~~~~~~~~~~~~
+Use `matplotlib.get_cachedir()` instead.
+
+Setting `.Line2D`\'s pickradius via `.Line2D.set_picker`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Setting a `.Line2D`\'s pickradius (i.e. the tolerance for pick events
+and containment checks) via `.Line2D.set_picker` is deprecated.  Use
+`.Line2D.set_pickradius` instead.
+
+`.Line2D.set_picker` no longer sets the artist's custom-contain() check.  Use
+``Line2D.set_contains`` instead.
+
+`~matplotlib.colorbar.Colorbar` methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``on_mappable_changed`` and ``update_bruteforce`` methods of
+`~matplotlib.colorbar.Colorbar` are deprecated; both can be replaced by calls
+to `~matplotlib.colorbar.Colorbar.update_normal`.
+
+``OldScalarFormatter``, ``IndexFormatter`` and ``DateIndexFormatter``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These formatters are deprecated.  Their functionality can be implemented using
+e.g. `.FuncFormatter`.
+
+``OldAutoLocator``
+~~~~~~~~~~~~~~~~~~
+This ticker is deprecated.
+
+*required*, *forbidden* and *allowed* parameters of `.cbook.normalize_kwargs`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These parameters are deprecated.
+
+The ``TTFPATH`` and ``AFMPATH`` environment variables
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Support for the (undocumented) ``TTFPATH`` and ``AFMPATH`` environment
+variables is deprecated.  Additional fonts may be registered using
+``matplotlib.font_manager.fontManager.addfont()``.
+
+``matplotlib.compat``
+~~~~~~~~~~~~~~~~~~~~~
+This module is deprecated.
+
+AVConv animation writer deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``AVConvBase``, ``AVConvWriter`` and ``AVConvFileWriter`` classes, and the
+associated ``animation.avconv_path`` and ``animation.avconv_args`` rcParams are
+deprecated.
+
+Debian 8 (2015, EOL 06/2020) and Ubuntu 14.04 (EOL 04/2019) were the
+last versions of Debian and Ubuntu to ship avconv.  It remains possible
+to force the use of avconv by using the ffmpeg-based writers with
+:rc:`animation.ffmpeg_path` set to "avconv".
+
+log/symlog scale base, ticks, and nonpos specification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`~.Axes.semilogx`, `~.Axes.semilogy`, `~.Axes.loglog`, `.LogScale`, and
+`.SymmetricalLogScale` used to take keyword arguments that depends on the axis
+orientation ("basex" vs "basey", "subsx" vs "subsy", "nonposx" vs "nonposy");
+these parameter names are now deprecated in favor of "base", "subs",
+"nonpositive".  This deprecation also affects e.g. ``ax.set_yscale("log",
+basey=...)`` which must now be spelled ``ax.set_yscale("log", base=...)``.
+
+The change from "nonpos" to "nonpositive" also affects `~.scale.LogTransform`,
+`~.scale.InvertedLogTransform`, `~.scale.SymmetricalLogTransform`, etc.
+
+To use *different* bases for the x-axis and y-axis of a `~.Axes.loglog` plot,
+use e.g. ``ax.set_xscale("log", base=10); ax.set_yscale("log", base=2)``.
+
+``DraggableBase.artist_picker``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This method is deprecated.  If you previously reimplemented it in a subclass,
+set the artist's picker instead with `.Artist.set_picker`.
+
+*clear_temp* parameter and attribute of `.FileMovieWriter`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *clear_temp* parameter and attribute of `.FileMovieWriter` is
+deprecated.  In the future, files placed in a temporary directory (using
+``frame_prefix=None``, the default) will be cleared; files placed elsewhere
+will not.
+
+Deprecated rcParams validators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The following validators, defined in `.rcsetup`, are deprecated:
+``validate_fontset``, ``validate_mathtext_default``, ``validate_alignment``,
+``validate_svg_fontset``, ``validate_pgf_texsystem``,
+``validate_movie_frame_fmt``, ``validate_axis_locator``,
+``validate_movie_html_fmt``, ``validate_grid_axis``,
+``validate_axes_titlelocation``, ``validate_toolbar``,
+``validate_ps_papersize``, ``validate_legend_log``.  To test whether an rcParam
+value would be acceptable, one can test e.g. ``rc = RcParams(); rc[k] = v``
+raises an exception.
+
+Stricter rcParam validation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:rc:`axes.axisbelow` currently normalizes all strings starting with "line"
+(case-insensitive) to the option "line".  This is deprecated; in a future
+version only the exact string "line" (case-sensitive) will be supported.
+
+Toggling axes navigation from the keyboard using "a" and digit keys
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Axes navigation can still be toggled programmatically using
+`.Axes.set_navigate`.
+
+The following related APIs are also deprecated:
+``backend_tools.ToolEnableAllNavigation``,
+``backend_tools.ToolEnableNavigation``, and ``rcParams["keymap.all_axes"]``.
+
+``matplotlib.test(recursionlimit=...)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *recursionlimit* parameter of ``matplotlib.test`` is deprecated.
+
+mathtext glues
+~~~~~~~~~~~~~~
+The *copy* parameter of ``mathtext.Glue`` is deprecated (the underlying glue
+spec is now immutable).  ``mathtext.GlueSpec`` is deprecated.

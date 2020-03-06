@@ -1,11 +1,11 @@
 """
 A module for finding, managing, and using fonts across platforms.
 
-This module provides a single :class:`FontManager` instance that can
-be shared across backends and platforms.  The :func:`findfont`
+This module provides a single `FontManager` instance that can
+be shared across backends and platforms.  The `findfont`
 function returns the best TrueType (TTF) font file in the local or
-system font path that matches the specified :class:`FontProperties`
-instance.  The :class:`FontManager` also handles Adobe Font Metrics
+system font path that matches the specified `FontProperties`
+instance.  The `FontManager` also handles Adobe Font Metrics
 (AFM) font files for use by the PostScript backend.
 
 The design is based on the `W3C Cascading Style Sheet, Level 1 (CSS1)
@@ -251,16 +251,6 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
 
     # Keep only paths with matching file extension.
     return [str(path) for path in items if path.suffix.lower() in fontext]
-
-
-@cbook.deprecated("3.1")
-def OSXInstalledFonts(directories=None, fontext='ttf'):
-    """Get list of font files on OS X."""
-    if directories is None:
-        directories = OSXFontDirectories
-    return [path
-            for directory in directories
-            for path in list_fonts(directory, get_fontext_synonyms(fontext))]
 
 
 @lru_cache()
@@ -569,37 +559,39 @@ class FontProperties:
     <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_ font
     specification.  The six properties are:
 
-      - family: A list of font names in decreasing order of priority.
-        The items may include a generic font family name, either
-        'serif', 'sans-serif', 'cursive', 'fantasy', or 'monospace'.
-        In that case, the actual font to be used will be looked up
-        from the associated rcParam.
+    - family: A list of font names in decreasing order of priority.
+      The items may include a generic font family name, either
+      'serif', 'sans-serif', 'cursive', 'fantasy', or 'monospace'.
+      In that case, the actual font to be used will be looked up
+      from the associated rcParam.
 
-      - style: Either 'normal', 'italic' or 'oblique'.
+    - style: Either 'normal', 'italic' or 'oblique'.
 
-      - variant: Either 'normal' or 'small-caps'.
+    - variant: Either 'normal' or 'small-caps'.
 
-      - stretch: A numeric value in the range 0-1000 or one of
-        'ultra-condensed', 'extra-condensed', 'condensed',
-        'semi-condensed', 'normal', 'semi-expanded', 'expanded',
-        'extra-expanded' or 'ultra-expanded'
+    - stretch: A numeric value in the range 0-1000 or one of
+      'ultra-condensed', 'extra-condensed', 'condensed',
+      'semi-condensed', 'normal', 'semi-expanded', 'expanded',
+      'extra-expanded' or 'ultra-expanded'.
 
-      - weight: A numeric value in the range 0-1000 or one of
-        'ultralight', 'light', 'normal', 'regular', 'book', 'medium',
-        'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy',
-        'extra bold', 'black'
+    - weight: A numeric value in the range 0-1000 or one of
+      'ultralight', 'light', 'normal', 'regular', 'book', 'medium',
+      'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy',
+      'extra bold', 'black'.
 
-      - size: Either an relative value of 'xx-small', 'x-small',
-        'small', 'medium', 'large', 'x-large', 'xx-large' or an
-        absolute font size, e.g., 12
+    - size: Either an relative value of 'xx-small', 'x-small',
+      'small', 'medium', 'large', 'x-large', 'xx-large' or an
+      absolute font size, e.g., 12.
 
     The default font property for TrueType fonts (as specified in the
     default rcParams) is ::
 
       sans-serif, normal, normal, normal, normal, scalable.
 
-    Alternatively, a font may be specified using an absolute path to a
-    .ttf file, by using the *fname* kwarg.
+    Alternatively, a font may be specified using the absolute path to a font
+    file, by using the *fname* kwarg.  However, in this case, it is typically
+    simpler to just pass the path (as a `pathlib.Path`, not a `str`) to the
+    *font* kwarg of the `.Text` object.
 
     The preferred usage of font sizes is to use the relative values,
     e.g.,  'large', instead of absolute font sizes, e.g., 12.  This
@@ -657,8 +649,16 @@ class FontProperties:
         self.set_file(fname)
         self.set_size(size)
 
-    def _parse_fontconfig_pattern(self, pattern):
-        return parse_fontconfig_pattern(pattern)
+    @classmethod
+    def _from_any(cls, arg):
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, os.PathLike):
+            return cls(fname=arg)
+        elif isinstance(arg, str):
+            return cls(arg)
+        else:
+            return cls(**arg)
 
     def __hash__(self):
         l = (tuple(self.get_family()),
@@ -850,7 +850,7 @@ class FontProperties:
         This support does not depend on fontconfig; we are merely borrowing its
         pattern syntax for use here.
         """
-        for key, val in self._parse_fontconfig_pattern(pattern).items():
+        for key, val in parse_fontconfig_pattern(pattern).items():
             if type(val) == list:
                 getattr(self, "set_" + key)(val[0])
             else:
@@ -974,6 +974,9 @@ class FontManager:
                     paths.extend(ttfpath.split(':'))
                 else:
                     paths.append(ttfpath)
+                cbook.warn_deprecated(
+                    "3.3", name=pathname, obj_type="environment variable",
+                    alternative="FontManager.addfont()")
         _log.debug('font search path %s', str(paths))
         #  Load TrueType fonts and create font dictionary.
 
@@ -1230,8 +1233,7 @@ class FontManager:
     def _findfont_cached(self, prop, fontext, directory, fallback_to_default,
                          rebuild_if_missing, rc_params):
 
-        if not isinstance(prop, FontProperties):
-            prop = FontProperties(prop)
+        prop = FontProperties._from_any(prop)
 
         fname = prop.get_file()
         if fname is not None:
@@ -1334,10 +1336,10 @@ def get_font(filename, hinting_factor=None):
 
 def _rebuild():
     global fontManager
+    _log.info("Generating new fontManager, this may take some time...")
     fontManager = FontManager()
     with cbook._lock_path(_fmcache):
         json_dump(fontManager, _fmcache)
-    _log.info("generated new fontManager")
 
 
 try:

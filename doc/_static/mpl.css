@@ -8,7 +8,7 @@
     font-family: 'CarlogoRegular';
     font-style: normal;
     src:    local('Carlito'),
-            url('fonts/carlogo-regular.woff2') format('woff2'), 
+            url('fonts/carlogo-regular.woff2') format('woff2'),
             url('fonts/carlogo-regular.woff') format('woff'),
             url('fonts/carlogo-regular.ttf') format('truetype')
 }
@@ -17,7 +17,7 @@
     font-family: 'CarlogoBold';
     font-style: bold;
     src:    local('Carlito Bold'),
-            url('fonts/carlogo-bold.woff2') format('woff2'), 
+            url('fonts/carlogo-bold.woff2') format('woff2'),
             url('fonts/carlogo-bold.woff') format('woff'),
             url('fonts/carlogo-bold.ttf') format('truetype')
 }
@@ -1133,15 +1133,16 @@ div.viewcode-block:target {
 
 }
 
-.sidebar-announcement {
+.sidebar-announcement,
+.sidebar-versions {
     border: 1px solid #11557C;
     background: #eff9ff;
-    padding: 2px;
+    padding: 0.2em 0.5em;
     margin-top: 1em;
 }
 
 .sidebar-announcement p {
-    margin: 0.4em 0.4em 0.6em 0.4em;
+    margin: 0.4em 0 0.6em 0;
 }
 
 /* new main nav */
@@ -1150,14 +1151,14 @@ nav.main-nav{
     font-family: 'CarlogoRegular', 'Carlito', sans-serif;
     font-size: 16px;
   }
-  
+
   nav.main-nav ul{
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: row;
   }
-  
+
   nav.main-nav li{
     margin: 8px 15px;
     list-style-type: none;
@@ -1166,7 +1167,7 @@ nav.main-nav{
   nav.main-nav a{
     color: white;
   }
-  
+
   nav.main-nav a:hover{
     text-decoration: underline;
   }
@@ -1215,6 +1216,41 @@ hr.box-sep {
 
 @media only screen and (max-width: 930px){
     div.box-item {
+        flex: 0 0 90%;
+    }
+}
+
+/* bullet boxes on main page */
+div.bullet-box-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 1em 0;
+}
+
+div.bullet-box {
+    flex-grow: 1;
+    width: 28%;
+    margin: 0.4em;
+    padding: 0 1em;
+    background: #eff9ff;
+}
+
+div.bullet-box p:first-of-type {
+    font-size: 1.4em;
+    text-align: center;
+}
+
+div.bullet-box ul {
+    padding-left: 1.2em;
+}
+
+div.bullet-box li {
+    padding-left: 0.3em;
+    margin-bottom: 0.3em;
+}
+
+@media only screen and (max-width: 930px){
+    div.bullet-box {
         flex: 0 0 90%;
     }
 }

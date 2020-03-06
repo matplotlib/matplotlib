@@ -75,7 +75,9 @@ mpl_packages = [
 
 classifiers = [
     'Development Status :: 5 - Production/Stable',
+    'Framework :: Matplotlib',
     'Intended Audience :: Science/Research',
+    'Intended Audience :: Education',
     'License :: OSI Approved :: Python Software Foundation License',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
@@ -214,12 +216,16 @@ if __name__ == '__main__':
             template_lines = fd.read().splitlines(True)
         backend_line_idx, = [  # Also asserts that there is a single such line.
             idx for idx, line in enumerate(template_lines)
-            if line.startswith('#backend ')]
+            if line.startswith('#backend:')]
         if setupext.options['backend']:
             template_lines[backend_line_idx] = (
                 'backend: {}'.format(setupext.options['backend']))
         with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
             fd.write(''.join(template_lines))
+
+        # Use Readme as long description
+        with open('README.rst') as fd:
+            long_description = fd.read()
 
     # Finally, pass this all along to distutils to do the heavy lifting.
     setup(
@@ -231,16 +237,14 @@ if __name__ == '__main__':
         url="https://matplotlib.org",
         download_url="https://matplotlib.org/users/installing.html",
         project_urls={
+            'Documentation': 'https://matplotlib.org',
+            'Source Code': 'https://github.com/matplotlib/matplotlib',
             'Bug Tracker': 'https://github.com/matplotlib/matplotlib/issues',
-            'Documentation': 'https://matplotlib.org/contents.html',
-            'Source Code': 'https://github.com/matplotlib/matplotlib'
+            'Forum': 'https://discourse.matplotlib.org/',
+            'Donate': 'https://numfocus.org/donate-to-matplotlib'
         },
-        long_description="""
-        Matplotlib strives to produce publication quality 2D graphics
-        for interactive graphing, scientific publishing, user interface
-        development and web application servers targeting multiple user
-        interfaces and hardcopy output formats.
-        """,
+        long_description=long_description,
+        long_description_content_type="text/x-rst",
         license="PSF",
         platforms="any",
         package_dir={"": "lib"},
@@ -262,7 +266,7 @@ if __name__ == '__main__':
             "kiwisolver>=1.0.1",
             "numpy>=1.15",
             "pillow>=6.2.0",
-            "pyparsing>=2.0.1,!=2.0.4,!=2.1.2,!=2.1.6",
+            "pyparsing>=2.0.3,!=2.0.4,!=2.1.2,!=2.1.6",
             "python-dateutil>=2.1",
         ],
 

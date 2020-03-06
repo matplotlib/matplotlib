@@ -1,9 +1,6 @@
-import tempfile
-
 from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal, assert_array_almost_equal_nulp)
 import numpy as np
-import datetime as datetime
 import pytest
 
 import matplotlib.mlab as mlab
@@ -138,52 +135,6 @@ class TestStride:
         # introduced
         y_strided = _stride_repeat(y, n=33.815)
         assert_array_equal(y_strided, 0.3)
-
-
-@pytest.fixture
-def tempcsv():
-    with tempfile.TemporaryFile(suffix='csv', mode="w+", newline='') as fd:
-        yield fd
-
-
-def test_csv2rec_names_with_comments(tempcsv):
-    tempcsv.write('# comment\n1,2,3\n4,5,6\n')
-    tempcsv.seek(0)
-    array = mlab._csv2rec(tempcsv, names='a,b,c')
-    assert len(array) == 2
-    assert len(array.dtype) == 3
-
-
-@pytest.mark.parametrize('input, kwargs', [
-    ('01/11/14\n'
-     '03/05/76 12:00:01 AM\n'
-     '07/09/83 5:17:34 PM\n'
-     '06/20/2054 2:31:45 PM\n'
-     '10/31/00 11:50:23 AM\n',
-     {}),
-    ('11/01/14\n'
-     '05/03/76 12:00:01 AM\n'
-     '09/07/83 5:17:34 PM\n'
-     '20/06/2054 2:31:45 PM\n'
-     '31/10/00 11:50:23 AM\n',
-     {'dayfirst': True}),
-    ('14/01/11\n'
-     '76/03/05 12:00:01 AM\n'
-     '83/07/09 5:17:34 PM\n'
-     '2054/06/20 2:31:45 PM\n'
-     '00/10/31 11:50:23 AM\n',
-     {'yearfirst': True}),
-], ids=['usdate', 'dayfirst', 'yearfirst'])
-def test_csv2rec_dates(tempcsv, input, kwargs):
-    tempcsv.write(input)
-    expected = [datetime.datetime(2014, 1, 11, 0, 0),
-                datetime.datetime(1976, 3, 5, 0, 0, 1),
-                datetime.datetime(1983, 7, 9, 17, 17, 34),
-                datetime.datetime(2054, 6, 20, 14, 31, 45),
-                datetime.datetime(2000, 10, 31, 11, 50, 23)]
-    tempcsv.seek(0)
-    array = mlab._csv2rec(tempcsv, names='a', **kwargs)
-    assert_array_equal(array['a'].tolist(), expected)
 
 
 def _apply_window(*args, **kwargs):
@@ -624,34 +575,6 @@ class TestDetrend:
         res = mlab.detrend_mean(input.tolist(), axis=0)
         assert_allclose(res, targ, atol=1e-08)
 
-    def test_demean_0D_off(self):
-        input = 5.5
-        targ = 0.
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input, axis=None)
-        assert_almost_equal(res, targ)
-
-    def test_demean_1D_base_slope_off(self):
-        input = self.sig_base + self.sig_slope + self.sig_off
-        targ = self.sig_base + self.sig_slope_mean
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_demean_1D_base_slope_off_axis0(self):
-        input = self.sig_base + self.sig_slope + self.sig_off
-        targ = self.sig_base + self.sig_slope_mean
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input, axis=0)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_demean_1D_base_slope_off_list(self):
-        input = self.sig_base + self.sig_slope + self.sig_off
-        targ = self.sig_base + self.sig_slope_mean
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input.tolist())
-        assert_allclose(res, targ, atol=1e-08)
-
     def test_detrend_mean_2D_default(self):
         arri = [self.sig_off,
                 self.sig_base + self.sig_off]
@@ -805,82 +728,6 @@ class TestDetrend:
         assert_allclose(res, targ,
                         atol=1e-08)
 
-    def test_demean_2D_default(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt).T
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_demean_2D_none(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input, axis=None)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_demean_2D_axis0(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt).T
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input, axis=0)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_demean_2D_axis1(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input, axis=1)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_demean_2D_axism1(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input, axis=-1)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
     def test_detrend_bad_key_str_ValueError(self):
         input = self.sig_slope[np.newaxis]
         with pytest.raises(ValueError):
@@ -911,12 +758,6 @@ class TestDetrend:
         with pytest.raises(ValueError):
             mlab.detrend(input, axis=1)
 
-    def test_demean_1D_d1_ValueError(self):
-        input = self.sig_slope
-        with pytest.raises(ValueError), \
-             pytest.warns(MatplotlibDeprecationWarning):
-            mlab.demean(input, axis=1)
-
     def test_detrend_mean_2D_d2_ValueError(self):
         input = self.sig_slope[np.newaxis]
         with pytest.raises(ValueError):
@@ -926,12 +767,6 @@ class TestDetrend:
         input = self.sig_slope[np.newaxis]
         with pytest.raises(ValueError):
             mlab.detrend(input, axis=2)
-
-    def test_demean_2D_d2_ValueError(self):
-        input = self.sig_slope[np.newaxis]
-        with pytest.raises(ValueError), \
-             pytest.warns(MatplotlibDeprecationWarning):
-            mlab.demean(input, axis=2)
 
     def test_detrend_linear_0D_zeros(self):
         input = 0.
@@ -1263,90 +1098,48 @@ class TestSpectral:
             del fstimst[-1]
             spect[maxind-5:maxind+5] = 0
 
-    @pytest.mark.parametrize(  # Modes that require `x is y`.
-        'mode', ['complex', 'magnitude', 'angle', 'phase'])
-    def test_spectral_helper_mode_requires_x_is_y(self, mode):
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y+1, mode=mode)
-
-    def test_spectral_helper_raises_unknown_mode(self):
-        # test that unknown value for mode cannot be used
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, mode='spam')
-
-    def test_spectral_helper_raises_unknown_sides(self):
-        # test that unknown value for sides cannot be used
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y, sides='eggs')
-
-    def test_spectral_helper_raises_noverlap_gt_NFFT(self):
-        # test that noverlap cannot be larger than NFFT
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y, NFFT=10, noverlap=20)
-
-    def test_spectral_helper_raises_noverlap_eq_NFFT(self):
-        # test that noverlap cannot be equal to NFFT
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, NFFT=10, noverlap=10)
-
-    def test_spectral_helper_raises_winlen_ne_NFFT(self):
-        # test that the window length cannot be different from NFFT
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y, NFFT=10,
-                                  window=np.ones(9))
+    def test_spectral_helper_raises(self):
+        # We don't use parametrize here to handle ``y = self.y``.
+        for kwargs in [  # Various error conditions:
+            {"y": self.y+1, "mode": "complex"},  # Modes requiring ``x is y``.
+            {"y": self.y+1, "mode": "magnitude"},
+            {"y": self.y+1, "mode": "angle"},
+            {"y": self.y+1, "mode": "phase"},
+            {"mode": "spam"},  # Bad mode.
+            {"y": self.y, "sides": "eggs"},  # Bad sides.
+            {"y": self.y, "NFFT": 10, "noverlap": 20},  # noverlap > NFFT.
+            {"NFFT": 10, "noverlap": 10},  # noverlap == NFFT.
+            {"y": self.y, "NFFT": 10,
+             "window": np.ones(9)},  # len(win) != NFFT.
+        ]:
+            with pytest.raises(ValueError):
+                mlab._spectral_helper(x=self.y, **kwargs)
 
     @pytest.mark.parametrize('mode', ['default', 'psd'])
     def test_single_spectrum_helper_unsupported_modes(self, mode):
         with pytest.raises(ValueError):
             mlab._single_spectrum_helper(x=self.y, mode=mode)
 
-    def test_spectral_helper_psd(self):
-        freqs = self.freqs_density
-        spec, fsp, t = mlab._spectral_helper(x=self.y, y=self.y,
-                                             NFFT=self.NFFT_density,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_density,
-                                             pad_to=self.pad_to_density,
-                                             sides=self.sides,
-                                             mode='psd')
+    @pytest.mark.parametrize("mode, case", [
+        ("psd", "density"),
+        ("magnitude", "specgram"),
+        ("magnitude", "spectrum"),
+    ])
+    def test_spectral_helper_psd(self, mode, case):
+        freqs = getattr(self, f"freqs_{case}")
+        spec, fsp, t = mlab._spectral_helper(
+            x=self.y, y=self.y,
+            NFFT=getattr(self, f"NFFT_{case}"),
+            Fs=self.Fs,
+            noverlap=getattr(self, f"nover_{case}"),
+            pad_to=getattr(self, f"pad_to_{case}"),
+            sides=self.sides,
+            mode=mode)
 
         assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_density, atol=1e-06)
-
+        assert_allclose(t, getattr(self, f"t_{case}"), atol=1e-06)
         assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-
-    def test_spectral_helper_magnitude_specgram(self):
-        freqs = self.freqs_specgram
-        spec, fsp, t = mlab._spectral_helper(x=self.y, y=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='magnitude')
-
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_specgram, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-
-    def test_spectral_helper_magnitude_magnitude_spectrum(self):
-        freqs = self.freqs_spectrum
-        spec, fsp, t = mlab._spectral_helper(x=self.y, y=self.y,
-                                             NFFT=self.NFFT_spectrum,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_spectrum,
-                                             pad_to=self.pad_to_spectrum,
-                                             sides=self.sides,
-                                             mode='magnitude')
-
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_spectrum, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == 1
+        assert spec.shape[1] == getattr(self, f"t_{case}").shape[0]
 
     def test_csd(self):
         freqs = self.freqs_density
@@ -1557,42 +1350,18 @@ class TestSpectral:
                         spec_n/self.Fs*win.sum()**2,
                         atol=1e-08)
 
-    def test_complex_spectrum(self):
+    @pytest.mark.parametrize(
+        "kind", ["complex", "magnitude", "angle", "phase"])
+    def test_spectrum(self, kind):
         freqs = self.freqs_spectrum
-        spec, fsp = mlab.complex_spectrum(x=self.y,
-                                          Fs=self.Fs,
-                                          sides=self.sides,
-                                          pad_to=self.pad_to_spectrum)
+        spec, fsp = getattr(mlab, f"{kind}_spectrum")(
+            x=self.y,
+            Fs=self.Fs, sides=self.sides, pad_to=self.pad_to_spectrum)
         assert_allclose(fsp, freqs, atol=1e-06)
         assert spec.shape == freqs.shape
-
-    def test_magnitude_spectrum(self):
-        freqs = self.freqs_spectrum
-        spec, fsp = mlab.magnitude_spectrum(x=self.y,
-                                            Fs=self.Fs,
-                                            sides=self.sides,
-                                            pad_to=self.pad_to_spectrum)
-        assert spec.shape == freqs.shape
-        self.check_maxfreq(spec, fsp, self.fstims)
-        self.check_freqs(spec, freqs, fsp, self.fstims)
-
-    def test_angle_spectrum(self):
-        freqs = self.freqs_spectrum
-        spec, fsp = mlab.angle_spectrum(x=self.y,
-                                        Fs=self.Fs,
-                                        sides=self.sides,
-                                        pad_to=self.pad_to_spectrum)
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert spec.shape == freqs.shape
-
-    def test_phase_spectrum(self):
-        freqs = self.freqs_spectrum
-        spec, fsp = mlab.phase_spectrum(x=self.y,
-                                        Fs=self.Fs,
-                                        sides=self.sides,
-                                        pad_to=self.pad_to_spectrum)
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert spec.shape == freqs.shape
+        if kind == "magnitude":
+            self.check_maxfreq(spec, fsp, self.fstims)
+            self.check_freqs(spec, freqs, fsp, self.fstims)
 
     @pytest.mark.parametrize(
         'kwargs',
@@ -1647,7 +1416,8 @@ class TestSpectral:
         assert_array_almost_equal_nulp(Pxx, Pxy)
         assert_array_equal(freqsxx, freqsxy)
 
-    def test_specgram_auto_default_equal(self):
+    @pytest.mark.parametrize("mode", ["default", "psd"])
+    def test_specgram_auto_default_psd_equal(self, mode):
         """
         Test that mlab.specgram without mode and with mode 'default' and 'psd'
         are all the same.
@@ -1664,34 +1434,18 @@ class TestSpectral:
                                              noverlap=self.nover_specgram,
                                              pad_to=self.pad_to_specgram,
                                              sides=self.sides,
-                                             mode='default')
+                                             mode=mode)
         assert_array_equal(speca, specb)
         assert_array_equal(freqspeca, freqspecb)
         assert_array_equal(ta, tb)
 
-    def test_specgram_auto_psd_equal(self):
-        """
-        Test that mlab.specgram without mode and with mode 'default' and 'psd'
-        are all the same.
-        """
-        speca, freqspeca, ta = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides)
-        specc, freqspecc, tc = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='psd')
-        assert_array_equal(speca, specc)
-        assert_array_equal(freqspeca, freqspecc)
-        assert_array_equal(ta, tc)
-
-    def test_specgram_complex_mag_equivalent(self):
+    @pytest.mark.parametrize(
+        "mode, conv", [
+            ("magnitude", np.abs),
+            ("angle", np.angle),
+            ("phase", lambda x: np.unwrap(np.angle(x), axis=0))
+        ])
+    def test_specgram_complex_equivalent(self, mode, conv):
         specc, freqspecc, tc = mlab.specgram(x=self.y,
                                              NFFT=self.NFFT_specgram,
                                              Fs=self.Fs,
@@ -1705,73 +1459,11 @@ class TestSpectral:
                                              noverlap=self.nover_specgram,
                                              pad_to=self.pad_to_specgram,
                                              sides=self.sides,
-                                             mode='magnitude')
+                                             mode=mode)
 
         assert_array_equal(freqspecc, freqspecm)
         assert_array_equal(tc, tm)
-        assert_allclose(np.abs(specc), specm, atol=1e-06)
-
-    def test_specgram_complex_angle_equivalent(self):
-        specc, freqspecc, tc = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='complex')
-        speca, freqspeca, ta = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='angle')
-
-        assert_array_equal(freqspecc, freqspeca)
-        assert_array_equal(tc, ta)
-        assert_allclose(np.angle(specc), speca, atol=1e-06)
-
-    def test_specgram_complex_phase_equivalent(self):
-        specc, freqspecc, tc = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='complex')
-        specp, freqspecp, tp = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='phase')
-
-        assert_array_equal(freqspecc, freqspecp)
-        assert_array_equal(tc, tp)
-        assert_allclose(np.unwrap(np.angle(specc), axis=0), specp,
-                        atol=1e-06)
-
-    def test_specgram_angle_phase_equivalent(self):
-        speca, freqspeca, ta = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='angle')
-        specp, freqspecp, tp = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='phase')
-
-        assert_array_equal(freqspeca, freqspecp)
-        assert_array_equal(ta, tp)
-        assert_allclose(np.unwrap(speca, axis=0), specp,
-                        atol=1e-06)
+        assert_allclose(conv(specc), specm, atol=1e-06)
 
     def test_psd_windowarray_equal(self):
         win = mlab.window_hanning(np.ones(self.NFFT_density_real))

@@ -175,25 +175,10 @@ def _allow_super_init(__init__):
 
 
 class TimerQT(TimerBase):
-    """
-    Subclass of `.TimerBase` that uses Qt timer events.
-
-    Attributes
-    ----------
-    interval : int, default: 1000ms
-        The time between timer events in milliseconds.
-    single_shot : bool, default: False
-        Whether this timer should operate as single shot (run once and then
-        stop).
-    callbacks : list
-        Stores list of (func, args) tuples that will be called upon timer
-        events. This list can be manipulated directly, or the functions
-        `add_callback` and `remove_callback` can be used.
-    """
+    """Subclass of `.TimerBase` using QTimer events."""
 
     def __init__(self, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
-
         # Create a new timer and connect the timeout() signal to the
         # _on_timer method.
         self._timer = QtCore.QTimer()
@@ -215,6 +200,7 @@ class TimerQT(TimerBase):
 
 class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     required_interactive_framework = "qt5"
+    _timer_cls = TimerQT
 
     # map Qt button codes to MouseEvent's ones:
     buttond = {QtCore.Qt.LeftButton: MouseButton.LEFT,
@@ -434,10 +420,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         mods.reverse()
         return '+'.join(mods + [key])
 
-    def new_timer(self, *args, **kwargs):
-        # docstring inherited
-        return TimerQT(*args, **kwargs)
-
     def flush_events(self):
         # docstring inherited
         qApp.processEvents()
@@ -481,16 +463,17 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             QtCore.QTimer.singleShot(0, self._draw_idle)
 
     def _draw_idle(self):
-        if not self._draw_pending:
-            return
-        self._draw_pending = False
-        if self.height() < 0 or self.width() < 0:
-            return
-        try:
-            self.draw()
-        except Exception:
-            # Uncaught exceptions are fatal for PyQt5, so catch them instead.
-            traceback.print_exc()
+        with self._idle_draw_cntx():
+            if not self._draw_pending:
+                return
+            self._draw_pending = False
+            if self.height() < 0 or self.width() < 0:
+                return
+            try:
+                self.draw()
+            except Exception:
+                # Uncaught exceptions are fatal for PyQt5, so catch them.
+                traceback.print_exc()
 
     def drawRectangle(self, rect):
         # Draw the zoom rectangle to the QPainter.  _draw_rect_callback needs
@@ -636,8 +619,9 @@ class FigureManagerQT(FigureManagerBase):
 
     def show(self):
         self.window.show()
-        self.window.activateWindow()
-        self.window.raise_()
+        if matplotlib.rcParams['figure.raise_window']:
+            self.window.activateWindow()
+            self.window.raise_()
 
     def destroy(self, *args):
         # check for qApp first, as PySide deletes it in its atexit handler
@@ -1034,9 +1018,12 @@ class _BackendQT5(_Backend):
     def mainloop():
         old_signal = signal.getsignal(signal.SIGINT)
         # allow SIGINT exceptions to close the plot window.
-        signal.signal(signal.SIGINT, signal.SIG_DFL)
+        is_python_signal_handler = old_signal is not None
+        if is_python_signal_handler:
+            signal.signal(signal.SIGINT, signal.SIG_DFL)
         try:
             qApp.exec_()
         finally:
             # reset the SIGINT exception handler
-            signal.signal(signal.SIGINT, old_signal)
+            if is_python_signal_handler:
+                signal.signal(signal.SIGINT, old_signal)

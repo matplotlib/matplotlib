@@ -280,18 +280,13 @@ x = np.random.randn(1000)
 ax.hist(x, 30)
 ax.set_title(r'$\sigma=1 \/ \dots \/ \sigma=2$', fontsize=16)
 
-# the x coords of this transformation are data, and the
-# y coord are axes
+# the x coords of this transformation are data, and the y coord are axes
 trans = transforms.blended_transform_factory(
     ax.transData, ax.transAxes)
-
 # highlight the 1..2 stddev region with a span.
-# We want x to be in data coordinates and y to
-# span from 0..1 in axes coords
-rect = mpatches.Rectangle((1, 0), width=1, height=1,
-                         transform=trans, color='yellow',
-                         alpha=0.5)
-
+# We want x to be in data coordinates and y to span from 0..1 in axes coords.
+rect = mpatches.Rectangle((1, 0), width=1, height=1, transform=trans,
+                          color='yellow', alpha=0.5)
 ax.add_patch(rect)
 
 plt.show()
@@ -547,7 +542,7 @@ plt.show()
 # ``transProjection`` handles the projection from the space,
 # e.g., latitude and longitude for map data, or radius and theta for polar
 # data, to a separable Cartesian coordinate system.  There are several
-# projection examples in the ``matplotlib.projections`` package, and the
+# projection examples in the :mod:`matplotlib.projections` package, and the
 # best way to learn more is to open the source for those packages and
 # see how to make your own, since Matplotlib supports extensible axes
 # and projections.  Michael Droettboom has provided a nice tutorial

@@ -24,7 +24,6 @@ import matplotlib.colors as mcolors
 import matplotlib.docstring as docstring
 import matplotlib.scale as mscale
 from matplotlib.axes import Axes, rcParams
-from matplotlib.colors import Normalize, LightSource
 from matplotlib.transforms import Bbox
 from matplotlib.tri.triangulation import Triangulation
 
@@ -254,6 +253,20 @@ class Axes3D(Axes):
                  (tc[6], tc[7]),
                  (tc[7], tc[4])]
         return edges
+
+    def apply_aspect(self, position=None):
+        if position is None:
+            position = self.get_position(original=True)
+
+        # in the superclass, we would go through and actually deal with axis
+        # scales and box/datalim. Those are all irrelevant - all we need to do
+        # is make sure our coordinate system is square.
+        figW, figH = self.get_figure().get_size_inches()
+        fig_aspect = figH / figW
+        box_aspect = 1
+        pb = position.frozen()
+        pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
+        self.set_position(pb1.anchored(self.get_anchor(), pb), 'active')
 
     @artist.allow_rasterization
     def draw(self, renderer):
@@ -872,9 +885,6 @@ class Axes3D(Axes):
         """
         Sets up z-axis ticks and labels that treat the z data as dates.
 
-        *tz* is a timezone string or :class:`tzinfo` instance.
-        Defaults to rc value.
-
         .. note::
             This function is merely provided for completeness.
             Axes3D objects do not officially support dates for ticks,
@@ -882,6 +892,10 @@ class Axes3D(Axes):
 
         .. versionadded:: 1.1.0
             This function was added, but not tested. Please report any bugs.
+
+        Parameters
+        ----------
+        tz : `datetime.tzinfo`, default: :rc:`timezone`
         """
         self.zaxis.axis_date(tz)
 
@@ -949,6 +963,9 @@ class Axes3D(Axes):
 
         dist is the distance of the eye viewing point from the object point.
         """
+        # chosen for similarity with the initial view before gh-8896
+        pb_aspect = np.array([4, 4, 3]) / 3.5
+
         relev, razim = np.pi * self.elev/180, np.pi * self.azim/180
 
         xmin, xmax = self.get_xlim3d()
@@ -958,10 +975,10 @@ class Axes3D(Axes):
         # transform to uniform world coordinates 0-1, 0-1, 0-1
         worldM = proj3d.world_transformation(xmin, xmax,
                                              ymin, ymax,
-                                             zmin, zmax)
+                                             zmin, zmax, pb_aspect=pb_aspect)
 
         # look into the middle of the new coordinates
-        R = np.array([0.5, 0.5, 0.5])
+        R = pb_aspect / 2
 
         xp = R[0] + np.cos(razim) * np.cos(relev) * self.dist
         yp = R[1] + np.sin(razim) * np.cos(relev) * self.dist
@@ -1191,7 +1208,7 @@ class Axes3D(Axes):
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
         """
-        Set zlabel.  See doc for :meth:`set_ylabel` for description.
+        Set zlabel.  See doc for `.set_ylabel` for description.
         """
         if labelpad is not None:
             self.zaxis.labelpad = labelpad
@@ -1359,7 +1376,7 @@ class Axes3D(Axes):
     def text(self, x, y, z, s, zdir=None, **kwargs):
         """
         Add text to the plot. kwargs will be passed on to Axes.text,
-        except for the `zdir` keyword, which sets the direction to be
+        except for the *zdir* keyword, which sets the direction to be
         used as the z direction.
         """
         text = super().text(x, y, s, **kwargs)
@@ -1467,7 +1484,7 @@ class Axes3D(Axes):
             *cmap* is specified.
 
         lightsource : `~matplotlib.colors.LightSource`
-            The lightsource to use when `shade` is True.
+            The lightsource to use when *shade* is True.
 
         **kwargs
             Other arguments are forwarded to `.Poly3DCollection`.
@@ -1632,7 +1649,7 @@ class Axes3D(Axes):
         """
         if lightsource is None:
             # chosen for backwards-compatibility
-            lightsource = LightSource(azdeg=225, altdeg=19.4712)
+            lightsource = mcolors.LightSource(azdeg=225, altdeg=19.4712)
 
         with np.errstate(invalid="ignore"):
             shade = ((normals / np.linalg.norm(normals, axis=1, keepdims=True))
@@ -1641,8 +1658,8 @@ class Axes3D(Axes):
 
         if mask.any():
             # convert dot product to allowed shading fractions
-            in_norm = Normalize(-1, 1)
-            out_norm = Normalize(0.3, 1).inverse
+            in_norm = mcolors.Normalize(-1, 1)
+            out_norm = mcolors.Normalize(0.3, 1).inverse
 
             def norm(x):
                 return out_norm(in_norm(x))
@@ -2211,12 +2228,17 @@ class Axes3D(Axes):
         """
 
         had_data = self.has_data()
+        zs_orig = zs
 
         xs, ys, zs = np.broadcast_arrays(
             *[np.ravel(np.ma.filled(t, np.nan)) for t in [xs, ys, zs]])
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
         xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
+
+        # For xs and ys, 2D scatter() will do the copying.
+        if np.may_share_memory(zs_orig, zs):  # Avoid unnecessary copies.
+            zs = zs.copy()
 
         patches = super().scatter(xs, ys, s=s, c=c, *args, **kwargs)
         art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
@@ -2490,7 +2512,7 @@ pivot='tail', normalize=False, **kwargs)
             :class:`~matplotlib.collections.LineCollection`
         """
         def calc_arrows(UVW, angle=15):
-            # get unit direction vector perpendicular to (u,v,w)
+            # get unit direction vector perpendicular to (u, v, w)
             x = UVW[:, 0]
             y = UVW[:, 1]
             norm = np.linalg.norm(UVW[:, :2], axis=1)
@@ -2505,8 +2527,8 @@ pivot='tail', normalize=False, **kwargs)
             # construct the rotation matrices
             Rpos = np.array(
                 [[c + (x_p ** 2) * (1 - c), x_p * y_p * (1 - c), y_p * s],
-                [y_p * x_p * (1 - c), c + (y_p ** 2) * (1 - c), -x_p * s],
-                [-y_p * s, x_p * s, np.full_like(x_p, c)]])
+                 [y_p * x_p * (1 - c), c + (y_p ** 2) * (1 - c), -x_p * s],
+                 [-y_p * s, x_p * s, np.full_like(x_p, c)]])
             Rpos = Rpos.transpose(2, 0, 1)
 
             # opposite rotation negates all the sin terms
@@ -2667,13 +2689,13 @@ pivot='tail', normalize=False, **kwargs)
 
         **kwargs
             Additional keyword arguments to pass onto
-            :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+            `~mpl_toolkits.mplot3d.art3d.Poly3DCollection`.
 
         Returns
         -------
         faces : dict
             A dictionary indexed by coordinate, where ``faces[i, j, k]`` is a
-            `Poly3DCollection` of the faces drawn for the voxel
+            `.Poly3DCollection` of the faces drawn for the voxel
             ``filled[i, j, k]``. If no faces were drawn for a given voxel,
             either because it was not asked to be drawn, or it is fully
             occluded, then ``(i, j, k) not in faces``.

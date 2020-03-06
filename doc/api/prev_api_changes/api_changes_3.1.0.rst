@@ -17,14 +17,6 @@ regardless of whether `matplotlib.pyplot` has been imported. If the user
 tries to switch from an already-started interactive backend to a different
 interactive backend, an `ImportError` will be raised.
 
-mplot3d auto-registration
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-`mpl_toolkits.mplot3d` is always registered by default now. It is no
-longer necessary to import mplot3d to create 3d axes with ::
-
-  ax = fig.add_subplot(111, projection="3d")
-
 Invalid points in PathCollections
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PathCollections created with `~.Axes.scatter` now keep track of invalid points.
@@ -270,10 +262,10 @@ allows using it as a decorator.
 
 The new API is modelled after `atexit.register` / `atexit.unregister`.
 
-`~.collections.StemContainer` performance increase
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`~.container.StemContainer` performance increase
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`~.collections.StemContainer` objects can now store a
+`~.container.StemContainer` objects can now store a
 `~.collections.LineCollection` object instead of a list of
 `~.lines.Line2D` objects for stem lines plotted using
 `~.Axes.stem`. This gives a very large performance boost to displaying
@@ -316,7 +308,7 @@ FreeType or libpng are not in the compiler or linker's default path, set the
 standard environment variables ``CFLAGS``/``LDFLAGS`` on Linux or OSX, or
 ``CL``/``LINK`` on Windows, to indicate the relevant paths.
 
-See details in `Installing`.
+See details in :doc:`/users/installing`.
 
 Setting artist properties twice or more in the same call
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -621,11 +613,11 @@ in Matplotlib 2.2 has been removed. See below for a list:
   ``mlab.FormatFormatStr``, ``mlab.FormatString``, ``mlab.FormatObj``
 - ``mlab.donothing_callback``
 
-:mod:`matplotlib.pylab` removals
---------------------------------
+`pylab` removals
+----------------
 Lots of code inside the :mod:`matplotlib.mlab` module which was deprecated
 in Matplotlib 2.2 has been removed. This means the following functions are
-no longer available in the `matplotlib.pylab` module:
+no longer available in the `pylab` module:
 
 - ``amap``
 - ``base_repr``
@@ -795,8 +787,8 @@ Changes in parameter names
   This will only affect cases where that parameter has been set
   as a keyword argument. The common usage pattern as a positional argument
   ``matplotlib.use('Qt5Agg')`` is not affected.
-- The *normed* parameter to `Axes.hist2d` has been renamed to *density*.
-- The *s* parameter to `.Annotation` (and indirectly `Axes.annotation`) has
+- The *normed* parameter to `.Axes.hist2d` has been renamed to *density*.
+- The *s* parameter to `.Annotation` (and indirectly `.Axes.annotate`) has
   been renamed to *text*.
 - The *tolerence* parameter to
   `bezier.find_bezier_t_intersecting_with_closedpath`,
@@ -923,8 +915,8 @@ Date related functions
 - ``dates.minutes()``
 - ``dates.hours()``
 - ``dates.weeks()``
-- `.dates.strpdate2num`
-- `.dates.bytespdate2num`
+- ``dates.strpdate2num``
+- ``dates.bytespdate2num``
 
 These are brittle in the presence of locale changes.  Use standard datetime
 parsers such as `time.strptime` or `dateutil.parser.parse`, and additionally
@@ -952,9 +944,9 @@ picked up by the `matplotlib.testing.conftest.mpl_test_settings` fixture.
 Quiver
 ~~~~~~
 
-- ``.color`` attribute of `Quiver` objects
+- ``.color`` attribute of `.Quiver` objects
 
-Instead, use (as for any `Collection`) the ``get_facecolor`` method.
+Instead, use (as for any `.Collection`) the ``get_facecolor`` method.
 Note that setting to the ``.color`` attribute did not update the quiver artist,
 whereas calling ``set_facecolor`` does.
 
@@ -999,7 +991,7 @@ Transforms / scales
 - ``InvertedNaturalLogTransform``
 
 These classes defined in :mod:`matplotlib.scale` are deprecated.
-As a replacement, use the general `LogTransform` and `InvertedLogTransform`
+As a replacement, use the general `~.scale.LogTransform` and `~.scale.InvertedLogTransform`
 classes, whose constructors take a *base* argument.
 
 Locators / Formatters
@@ -1086,8 +1078,8 @@ The following API elements have bee un-deprecated:
 New features
 ------------
 
-`Text` now has a ``c`` alias for the ``color`` property
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`.Text` now has a ``c`` alias for the ``color`` property
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 For consistency with `.Line2D`, the `~.text.Text` class has gained the ``c``
 alias for the ``color`` property. For example, one can now write ::
 

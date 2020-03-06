@@ -32,7 +32,7 @@ vals = np.array([[60., 32.], [37., 40.], [29., 10.]])
 
 cmap = plt.get_cmap("tab20c")
 outer_colors = cmap(np.arange(3)*4)
-inner_colors = cmap(np.array([1, 2, 5, 6, 9, 10]))
+inner_colors = cmap([1, 2, 5, 6, 9, 10])
 
 ax.pie(vals.sum(axis=1), radius=1, colors=outer_colors,
        wedgeprops=dict(width=size, edgecolor='w'))
@@ -63,7 +63,7 @@ valsleft = np.cumsum(np.append(0, valsnorm.flatten()[:-1])).reshape(vals.shape)
 
 cmap = plt.get_cmap("tab20c")
 outer_colors = cmap(np.arange(3)*4)
-inner_colors = cmap(np.array([1, 2, 5, 6, 9, 10]))
+inner_colors = cmap([1, 2, 5, 6, 9, 10])
 
 ax.bar(x=valsleft[:, 0],
        width=valsnorm.sum(axis=1), bottom=1-size, height=size,

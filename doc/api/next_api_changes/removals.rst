@@ -2,6 +2,11 @@ Removals
 --------
 The following deprecated APIs have been removed:
 
+Modules
+~~~~~~~
+- ``backends.qt_editor.formlayout`` (use the formlayout module available on
+  PyPI instead).
+
 Classes and methods
 ~~~~~~~~~~~~~~~~~~~
 - ``backend_bases.RendererBase.strip_math()``
@@ -34,6 +39,11 @@ Classes and methods
 - ``backend_qt5.NavigationToolbar2QT.buttons`` property (no replacement)
 - ``backend_qt5.NavigationToolbar2QT.adj_window`` property (no replacement)
 
+- ``docstring.Appender`` (no replacement)
+- ``docstring.dedent()`` (use `inspect.getdoc` instead)
+- ``docstring.copy_dedent()``
+  (use ``docstring.copy()`` and `inspect.getdoc` instead)
+
 - ``matplotlib.checkdep_dvipng`` (no replacement)
 - ``matplotlib.checkdep_ghostscript`` (no replacement)
 - ``matplotlib.checkdep_pdftops`` (no replacement)
@@ -51,6 +61,23 @@ Classes and methods
 
 - ``sphinxext.plot_directive.plot_directive()``
   (use the class ``PlotDirective`` instead)
+- ``sphinxext.mathmpl.math_directive()``
+  (use the class ``MathDirective`` instead)
+
+- ``scale.LogTransformBase`` (use ``scale.LogTransform`` instead)
+- ``scale.InvertedLogTransformBase`` (use ``scale.InvertedLogTransform`` instead)
+- ``scale.Log10Transform`` (use ``scale.LogTransform`` instead)
+- ``scale.InvertedLog10Transform`` (use ``scale.InvertedLogTransform`` instead)
+- ``scale.Log2Transform`` (use ``scale.LogTransform`` instead)
+- ``scale.InvertedLog2Transform`` (use ``scale.InvertedLogTransform`` instead)
+- ``scale.NaturalLogTransform`` (use ``scale.LogTransform`` instead)
+- ``scale.InvertedNaturalLogTransform`` (use ``scale.InvertedLogTransform`` instead)
+
+- ``ticker.OldScalarFormatter.pprint_val()`` (no replacement)
+- ``ticker.ScalarFormatter.pprint_val()`` (no replacement)
+- ``ticker.LogFormatter.pprint_val()`` (no replacement)
+- ``ticker.decade_down()`` (no replacement)
+- ``ticker.decade_up()`` (no replacement)
 
 - ``Artist.aname`` property (no replacement)
 - ``Axis.iter_ticks`` (no replacement)
@@ -68,6 +95,22 @@ Classes and methods
 - ``colorbar.ColorbarBase.get_clim`` (use ``ScalarMappable.get_clim`` instead)
 - ``colorbar.ColorbarBase.set_clim`` (use ``ScalarMappable.set_clim`` instead)
 - ``colorbar.ColorbarBase.set_norm`` (use ``ScalarMappable.set_norm`` instead)
+
+- ``dates.seconds()`` (no replacement)
+- ``dates.minutes()`` (no replacement)
+- ``dates.hours()`` (no replacement)
+- ``dates.weeks()`` (no replacement)
+- ``dates.strpdate2num`` and ``dates.bytespdate2num`` (use `time.strptime` or
+  `dateutil.parser.parse` or `.dates.datestr2num` instead)
+
+- ``font_manager.OSXInstalledFonts()`` (no replacement)
+
+- ``mlab.demean()`` (use ``mlab.detrend_mean()`` instead)
+
+- ``projections.process_projection_requirements()`` (no replacement)
+
+- ``path.get_paths_extents()``
+  (use ``path.get_path_collection_extents()`` instead)
 
 - ``text.TextWithDash`` (use ``text.Annotation`` instead)
 
@@ -115,3 +158,35 @@ Arguments
 - The parameter ``usetex`` of `.TextToPath.get_text_path` has been removed.
   Use ``ismath='TeX'`` instead.
 - The parameter ``block`` of ``show()`` is now keyword-only.
+- The parameter ``frameon`` of `.Figure.savefig` has been removed.  Use
+  ``facecolor="none"`` to get a transparent background.
+- Passing a ``wx.EvtHandler`` as the first argument to ``backend_wx.TimerWx``
+  is not supported anymore; the signature of ``TimerWx`` is now consistent with
+  `.TimerBase`.
+- The ``manage_xticks`` parameter of `~.Axes.boxplot` and `~.Axes.bxp` has been
+  renamed to ``manage_ticks``.
+- The ``normed`` parameter of `~.Axes.hist2d` has been renamed to ``density``.
+- The ``s`` parameter of `.Annotation` has been renamed to ``text``.
+- For all functions in `.bezier` that supported a ``tolerence`` parameter, this
+  parameter has been renamed to ``tolerance``.
+
+rcParams
+~~~~~~~~
+- The ``text.latex.unicode`` rcParam has been removed, with no replacement.
+  Matplotlib now always supports unicode in usetex.
+- The ``savefig.frameon`` rcParam has been removed.  Set
+  :rc:`savefig.facecolor` to "none" to get a transparent background.
+- The ``pgf.debug``, ``verbose.fileo`` and ``verbose.verbose.level`` rcParams,
+  which had no effect, have been removed.
+- Support for setting :rc:`mathtext.default` to "circled" has been removed.
+
+Environment variables
+~~~~~~~~~~~~~~~~~~~~~
+- ``MATPLOTLIBDATA`` (no replacement).
+
+mathtext
+~~~~~~~~
+- The ``\stackrel`` command (which behaved differently from its LaTeX version)
+  has been removed.  Use ``\genfrac`` instead.
+- The ``\mathcircled`` command has been removed.  Directly use Unicode
+  characters, such as ``'\N{CIRCLED LATIN CAPITAL LETTER A}'``, instead.

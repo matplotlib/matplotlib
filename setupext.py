@@ -16,7 +16,6 @@ import sys
 import tarfile
 import textwrap
 import urllib.request
-from urllib.request import Request
 import versioneer
 
 _log = logging.getLogger(__name__)
@@ -99,7 +98,7 @@ def download_or_cache(url, sha):
     # default User-Agent, but not (for example) wget; so I don't feel too
     # bad passing in an empty User-Agent.
     with urllib.request.urlopen(
-            Request(url, headers={"User-Agent": ""})) as req:
+            urllib.request.Request(url, headers={"User-Agent": ""})) as req:
         file_contents = BytesIO(req.read())
         file_contents.seek(0)
 
@@ -139,6 +138,14 @@ _freetype_hashes = {
         '33a28fabac471891d0523033e99c0005b95e5618dc8ffa7fa47f9dadcacb1c9b',
     '2.8.1':
         '876711d064a6a1bd74beb18dd37f219af26100f72daaebd2d86cb493d7cd7ec6',
+    '2.9':
+        'bf380e4d7c4f3b5b1c1a7b2bf3abb967bda5e9ab480d0df656e0e08c5019c5e6',
+    '2.9.1':
+        'ec391504e55498adceb30baceebd147a6e963f636eb617424bcfc47a169898ce',
+    '2.10.0':
+        '955e17244e9b38adb0c98df66abb50467312e6bb70eac07e49ce6bd1a20e809a',
+    '2.10.1':
+        '3a60d391fd579440561bf0e7f31af2222bc610ad6ce4d9d7bd2165bca8669110',
 }
 # This is the version of FreeType to use when building a local
 # version.  It must match the value in
@@ -561,9 +568,22 @@ class FreeType(SetupPackage):
  </PropertyGroup>
 </Project>
 """)
+            # It is not a trivial task to determine PlatformToolset to plug it
+            # into msbuild command, and Directory.Build.props will not override
+            # the value in the project file.
+            # The DefaultPlatformToolset is from Microsoft.Cpp.Default.props
+            with open(base_path / vc / "freetype.vcxproj", 'r+b') as f:
+                toolset_repl = b'PlatformToolset>$(DefaultPlatformToolset)<'
+                vcxproj = f.read().replace(b'PlatformToolset>v100<',
+                                           toolset_repl)
+                assert toolset_repl in vcxproj, (
+                   'Upgrading Freetype might break this')
+                f.seek(0)
+                f.truncate()
+                f.write(vcxproj)
+
             cc = ccompiler.new_compiler()
-            cc.initialize()  # Get devenv & msbuild in the %PATH% of cc.spawn.
-            cc.spawn(["devenv", str(sln_path), "/upgrade"])
+            cc.initialize()  # Get msbuild in the %PATH% of cc.spawn.
             cc.spawn(["msbuild", str(sln_path),
                       "/t:Clean;Build",
                       f"/p:Configuration=Release;Platform={msbuild_platform}"])

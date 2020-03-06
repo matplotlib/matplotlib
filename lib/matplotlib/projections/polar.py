@@ -21,9 +21,7 @@ class PolarTransform(mtransforms.Transform):
     perform the ultimate affine transformation into the correct
     position.
     """
-    input_dims = 2
-    output_dims = 2
-    is_separable = False
+    input_dims = output_dims = 2
 
     def __init__(self, axis=None, use_rmin=True,
                  _apply_theta_transforms=True):
@@ -32,15 +30,10 @@ class PolarTransform(mtransforms.Transform):
         self._use_rmin = use_rmin
         self._apply_theta_transforms = _apply_theta_transforms
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                "    use_rmin={},\n"
-                "    _apply_theta_transforms={})"
-                .format(type(self).__name__,
-                        mtransforms._indent_str(self._axis),
-                        self._use_rmin,
-                        self._apply_theta_transforms))
+    __str__ = mtransforms._make_str_method(
+        "_axis",
+        use_rmin="_use_rmin",
+        _apply_theta_transforms="_apply_theta_transforms")
 
     def transform_non_affine(self, tr):
         # docstring inherited
@@ -86,13 +79,7 @@ class PolarAffine(mtransforms.Affine2DBase):
         self.set_children(scale_transform, limits)
         self._mtx = None
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        mtransforms._indent_str(self._scale_transform),
-                        mtransforms._indent_str(self._limits)))
+    __str__ = mtransforms._make_str_method("_scale_transform", "_limits")
 
     def get_matrix(self):
         # docstring inherited
@@ -113,9 +100,7 @@ class InvertedPolarTransform(mtransforms.Transform):
     The inverse of the polar transform, mapping Cartesian
     coordinate space *x* and *y* back to *theta* and *r*.
     """
-    input_dims = 2
-    output_dims = 2
-    is_separable = False
+    input_dims = output_dims = 2
 
     def __init__(self, axis=None, use_rmin=True,
                  _apply_theta_transforms=True):
@@ -124,15 +109,10 @@ class InvertedPolarTransform(mtransforms.Transform):
         self._use_rmin = use_rmin
         self._apply_theta_transforms = _apply_theta_transforms
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                "    use_rmin={},\n"
-                "    _apply_theta_transforms={})"
-                .format(type(self).__name__,
-                        mtransforms._indent_str(self._axis),
-                        self._use_rmin,
-                        self._apply_theta_transforms))
+    __str__ = mtransforms._make_str_method(
+        "_axis",
+        use_rmin="_use_rmin",
+        _apply_theta_transforms="_apply_theta_transforms")
 
     def transform_non_affine(self, xy):
         # docstring inherited
@@ -165,18 +145,12 @@ class ThetaFormatter(mticker.Formatter):
         vmin, vmax = self.axis.get_view_interval()
         d = np.rad2deg(abs(vmax - vmin))
         digits = max(-int(np.log10(d) - 1.5), 0)
-
-        if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
-            format_str = r"${value:0.{digits:d}f}^\circ$"
-            return format_str.format(value=np.rad2deg(x), digits=digits)
-        else:
-            # we use unicode, rather than mathtext with \circ, so
-            # that it will work correctly with any arbitrary font
-            # (assuming it has a degree sign), whereas $5\circ$
-            # will only work correctly with one of the supported
-            # math fonts (Computer Modern and STIX)
-            format_str = "{value:0.{digits:d}f}\N{DEGREE SIGN}"
-            return format_str.format(value=np.rad2deg(x), digits=digits)
+        # Use unicode rather than mathtext with \circ, so that it will work
+        # correctly with any arbitrary font (assuming it has a degree sign),
+        # whereas $5\circ$ will only work correctly with one of the supported
+        # math fonts (Computer Modern and STIX).
+        return ("{value:0.{digits:d}f}\N{DEGREE SIGN}"
+                .format(value=np.rad2deg(x), digits=digits))
 
 
 class _AxisWrapper:
@@ -248,7 +222,7 @@ class ThetaTick(maxis.XTick):
     """
     A theta-axis tick.
 
-    This subclass of `XTick` provides angular ticks with some small
+    This subclass of `.XTick` provides angular ticks with some small
     modification to their re-positioning such that ticks are rotated based on
     tick location. This results in ticks that are correctly perpendicular to
     the arc spine.
@@ -341,11 +315,11 @@ class ThetaAxis(maxis.XAxis):
     """
     A theta Axis.
 
-    This overrides certain properties of an `XAxis` to provide special-casing
+    This overrides certain properties of an `.XAxis` to provide special-casing
     for an angular axis.
     """
     __name__ = 'thetaaxis'
-    axis_name = 'theta'
+    axis_name = 'theta'  #: Read-only name identifying the axis.
 
     def _get_tick(self, major):
         if major:
@@ -391,6 +365,7 @@ class RadialLocator(mticker.Locator):
     :class:`~matplotlib.ticker.Locator` (which may be different
     depending on the scale of the *r*-axis.
     """
+
     def __init__(self, base, axes=None):
         self.base = base
         self._axes = axes
@@ -421,6 +396,11 @@ class RadialLocator(mticker.Locator):
     def refresh(self):
         # docstring inherited
         return self.base.refresh()
+
+    def nonsingular(self, vmin, vmax):
+        # docstring inherited
+        return ((0, 1) if (vmin, vmax) == (-np.inf, np.inf)  # Init. limits.
+                else self.base.nonsingular(vmin, vmax))
 
     def view_limits(self, vmin, vmax):
         vmin, vmax = self.base.view_limits(vmin, vmax)
@@ -454,15 +434,7 @@ class _ThetaShift(mtransforms.ScaledTranslation):
         self.mode = mode
         self.pad = pad
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        mtransforms._indent_str(self.axes),
-                        mtransforms._indent_str(self.pad),
-                        mtransforms._indent_str(repr(self.mode))))
+    __str__ = mtransforms._make_str_method("axes", "pad", "mode")
 
     def get_matrix(self):
         if self._invalid:
@@ -493,11 +465,11 @@ class RadialTick(maxis.YTick):
     """
     A radial-axis tick.
 
-    This subclass of `YTick` provides radial ticks with some small modification
-    to their re-positioning such that ticks are rotated based on axes limits.
-    This results in ticks that are correctly perpendicular to the spine. Labels
-    are also rotated to be perpendicular to the spine, when 'auto' rotation is
-    enabled.
+    This subclass of `.YTick` provides radial ticks with some small
+    modification to their re-positioning such that ticks are rotated based on
+    axes limits.  This results in ticks that are correctly perpendicular to
+    the spine. Labels are also rotated to be perpendicular to the spine, when
+    'auto' rotation is enabled.
     """
 
     def __init__(self, *args, **kwargs):
@@ -644,11 +616,11 @@ class RadialAxis(maxis.YAxis):
     """
     A radial Axis.
 
-    This overrides certain properties of a `YAxis` to provide special-casing
+    This overrides certain properties of a `.YAxis` to provide special-casing
     for a radial axis.
     """
     __name__ = 'radialaxis'
-    axis_name = 'radius'
+    axis_name = 'radius'  #: Read-only name identifying the axis.
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -714,15 +686,7 @@ class _WedgeBbox(mtransforms.Bbox):
         self._originLim = originLim
         self.set_children(viewLim, originLim)
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        mtransforms._indent_str(self._center),
-                        mtransforms._indent_str(self._viewLim),
-                        mtransforms._indent_str(self._originLim)))
+    __str__ = mtransforms._make_str_method("_center", "_viewLim", "_originLim")
 
     def get_points(self):
         # docstring inherited
@@ -820,9 +784,7 @@ class PolarAxes(Axes):
             .scale(self._default_theta_direction, 1.0)
         self._theta_offset = mtransforms.Affine2D() \
             .translate(self._default_theta_offset, 0.0)
-        self.transShift = mtransforms.composite_transform_factory(
-            self._direction,
-            self._theta_offset)
+        self.transShift = self._direction + self._theta_offset
         # A view limit shifted to the correct location after accounting for
         # orientation and offset.
         self._realViewLim = mtransforms.TransformedBbox(self.viewLim,
@@ -997,27 +959,35 @@ class PolarAxes(Axes):
         return spines
 
     def set_thetamax(self, thetamax):
+        """Set the maximum theta limit in degrees."""
         self.viewLim.x1 = np.deg2rad(thetamax)
 
     def get_thetamax(self):
+        """Return the maximum theta limit in degrees."""
         return np.rad2deg(self.viewLim.xmax)
 
     def set_thetamin(self, thetamin):
+        """Set the minimum theta limit in degrees."""
         self.viewLim.x0 = np.deg2rad(thetamin)
 
     def get_thetamin(self):
+        """Get the minimum theta limit in degrees."""
         return np.rad2deg(self.viewLim.xmin)
 
     def set_thetalim(self, *args, **kwargs):
-        """
+        r"""
         Set the minimum and maximum theta values.
 
-        Parameters
-        ----------
-        thetamin : float
-            Minimum value in degrees.
-        thetamax : float
-            Maximum value in degrees.
+        Can take the following signatures:
+
+        - ``set_thetalim(minval, maxval)``: Set the limits in radians.
+        - ``set_thetalim(thetamin=minval, thetamax=maxval)``: Set the limits
+          in degrees.
+
+        where minval and maxval are the minimum and maximum limits. Values are
+        wrapped in to the range :math:`[0, 2\pi]` (in radians), so for example
+        it is possible to do ``set_thetalim(-np.pi / 2, np.pi / 2)`` to have
+        an axes symmetric around 0.
         """
         if 'thetamin' in kwargs:
             kwargs['xmin'] = np.deg2rad(kwargs.pop('thetamin'))
@@ -1048,7 +1018,7 @@ class PolarAxes(Axes):
             May be one of "N", "NW", "W", "SW", "S", "SE", "E", or "NE".
 
         offset : float, optional
-            An offset in degrees to apply from the specified `loc`. **Note:**
+            An offset in degrees to apply from the specified *loc*. **Note:**
             this offset is *always* applied counter-clockwise regardless of
             the direction setting.
         """

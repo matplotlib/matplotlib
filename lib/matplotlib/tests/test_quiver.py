@@ -42,10 +42,12 @@ def test_quiver_key_memory_leak():
 
 def test_quiver_number_of_args():
     X = [1, 2]
-    with pytest.raises(TypeError,
+    with pytest.raises(
+            TypeError,
             match='takes 2-5 positional arguments but 1 were given'):
         plt.quiver(X)
-    with pytest.raises(TypeError,
+    with pytest.raises(
+            TypeError,
             match='takes 2-5 positional arguments but 6 were given'):
         plt.quiver(X, X, X, X, X, X)
 
@@ -53,43 +55,41 @@ def test_quiver_number_of_args():
 def test_quiver_arg_sizes():
     X2 = [1, 2]
     X3 = [1, 2, 3]
-    with pytest.raises(ValueError,
-            match=('X and Y must be the same size, but '
-                   'X.size is 2 and Y.size is 3.')):
+    with pytest.raises(
+            ValueError, match=('X and Y must be the same size, but '
+                               'X.size is 2 and Y.size is 3.')):
         plt.quiver(X2, X3, X2, X2)
-    with pytest.raises(ValueError,
-            match=('Argument U has a size 3 which does not match 2,'
-                   ' the number of arrow positions')):
+    with pytest.raises(
+            ValueError, match=('Argument U has a size 3 which does not match '
+                               '2, the number of arrow positions')):
         plt.quiver(X2, X2, X3, X2)
-    with pytest.raises(ValueError,
-            match=('Argument V has a size 3 which does not match 2,'
-                   ' the number of arrow positions')):
+    with pytest.raises(
+            ValueError, match=('Argument V has a size 3 which does not match '
+                               '2, the number of arrow positions')):
         plt.quiver(X2, X2, X2, X3)
-    with pytest.raises(ValueError,
-            match=('Argument C has a size 3 which does not match 2,'
-                   ' the number of arrow positions')):
+    with pytest.raises(
+            ValueError, match=('Argument C has a size 3 which does not match '
+                               '2, the number of arrow positions')):
         plt.quiver(X2, X2, X2, X2, X3)
 
 
-def test_no_warnings(recwarn):
+def test_no_warnings():
     fig, ax = plt.subplots()
     X, Y = np.meshgrid(np.arange(15), np.arange(10))
     U = V = np.ones_like(X)
     phi = (np.random.rand(15, 10) - .5) * 150
     ax.quiver(X, Y, U, V, angles=phi)
-    fig.canvas.draw()
-    assert len(recwarn) == 0
+    fig.canvas.draw()  # Check that no warning is emitted.
 
 
-def test_zero_headlength(recwarn):
+def test_zero_headlength():
     # Based on report by Doug McNeil:
     # http://matplotlib.1069221.n5.nabble.com/quiver-warnings-td28107.html
     fig, ax = plt.subplots()
     X, Y = np.meshgrid(np.arange(10), np.arange(10))
     U, V = np.cos(X), np.sin(Y)
     ax.quiver(U, V, headlength=0, headaxislength=0)
-    fig.canvas.draw()
-    assert len(recwarn) == 0
+    fig.canvas.draw()  # Check that no warning is emitted.
 
 
 @image_comparison(['quiver_animated_test_image.png'])

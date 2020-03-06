@@ -401,8 +401,6 @@ class Line2D(Artist):
         self.update(kwargs)
         self.pickradius = pickradius
         self.ind_offset = 0
-        if isinstance(self._picker, Number):
-            self.pickradius = self._picker
 
         self._xorig = np.asarray([])
         self._yorig = np.asarray([])
@@ -420,12 +418,12 @@ class Line2D(Artist):
 
     def contains(self, mouseevent):
         """
-        Test whether the mouse event occurred on the line.  The pick
-        radius determines the precision of the location test (usually
-        within five points of the value).  Use
-        :meth:`~matplotlib.lines.Line2D.get_pickradius` or
-        :meth:`~matplotlib.lines.Line2D.set_pickradius` to view or
-        modify it.
+        Test whether *mouseevent* occurred on the line.
+
+        An event is deemed to have occurred "on" the line if it is less
+        than ``self.pickradius`` (default: 5 points) away from it.  Use
+        `~.Line2D.get_pickradius` or `~.Line2D.set_pickradius` to get or set
+        the pick radius.
 
         Parameters
         ----------
@@ -445,9 +443,6 @@ class Line2D(Artist):
         inside, info = self._default_contains(mouseevent)
         if inside is not None:
             return inside, info
-
-        if not isinstance(self.pickradius, Number):
-            raise ValueError("pick radius should be a distance")
 
         # Make sure we have data to plot
         if self._invalidy or self._invalidx:
@@ -497,7 +492,7 @@ class Line2D(Artist):
 
         See `.contains` for more details.
         """
-        return self.pickradius
+        return self._pickradius
 
     def set_pickradius(self, d):
         """Set the pick radius used for containment tests.
@@ -509,7 +504,11 @@ class Line2D(Artist):
         d : float
             Pick radius, in points.
         """
-        self.pickradius = d
+        if not isinstance(d, Number) or d < 0:
+            raise ValueError("pick radius should be a distance")
+        self._pickradius = d
+
+    pickradius = property(get_pickradius, set_pickradius)
 
     def get_fillstyle(self):
         """
@@ -604,16 +603,12 @@ class Line2D(Artist):
         return self._markevery
 
     def set_picker(self, p):
-        """Sets the event picker details for the line.
-
-        Parameters
-        ----------
-        p : float or callable[[Artist, Event], Tuple[bool, dict]]
-            If a float, it is used as the pick radius in points.
-        """
-        if callable(p):
-            self._contains = p
-        else:
+        # docstring inherited
+        if isinstance(p, Number) and not isinstance(p, bool):
+            # After deprecation, the whole method can be deleted and inherited.
+            cbook.warn_deprecated(
+                "3.3", message="Setting the line's pick radius via set_picker "
+                "is deprecated; use set_pickradius instead.")
             self.pickradius = p
         self._picker = p
 
@@ -692,8 +687,8 @@ class Line2D(Artist):
             if nanmask.any():
                 self._x_filled = self._x.copy()
                 indices = np.arange(len(x))
-                self._x_filled[nanmask] = np.interp(indices[nanmask],
-                        indices[~nanmask], self._x[~nanmask])
+                self._x_filled[nanmask] = np.interp(
+                    indices[nanmask], indices[~nanmask], self._x[~nanmask])
             else:
                 self._x_filled = self._x
 
@@ -851,7 +846,7 @@ class Line2D(Artist):
                     self.recache()
                     self._transform_path(subslice)
                     tpath, affine = (self._get_transformed_path()
-                                    .get_transformed_points_and_affine())
+                                     .get_transformed_points_and_affine())
             else:
                 tpath, affine = (self._get_transformed_path()
                                  .get_transformed_points_and_affine())
