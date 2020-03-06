@@ -1609,7 +1609,7 @@ def pts_to_prestep(x, *args):
 
 
 def _get_fillbetween_polys(x, y1, y2, where, step=None,
-                          interpolate=False, dir='x'):
+                           interpolate=False, dir='x'):
     """
     A helper function for fill_between and fill_betweenx.
     Converts x, y1, y2 or y, x1, x2 arrays into vertices to fill
@@ -1636,7 +1636,7 @@ def _get_fillbetween_polys(x, y1, y2, where, step=None,
         See `~.axes.Axes.fill_between`
 
     dir : {'x', 'y}, optional, default: 'x'
-        Return vertex collection for `~.axes.Axes.fill_between` or 
+        Return vertex collection for `~.axes.Axes.fill_between` or
         `~.axes.Axes.fill_betweenx`
 
     Returns
