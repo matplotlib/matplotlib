@@ -53,13 +53,14 @@ print(plt.style.available)
 #    >>> import matplotlib.pyplot as plt
 #    >>> plt.style.use('./images/presentation.mplstyle')
 #
-# Alternatively, you can load your custom style sheet with a call to
-# ``style.use(<style-name>)`` by placing your ``<style-name>.mplstyle`` file
-# into ``mpl_configdir/stylelib``.  By default ``mpl_configdir`` should be
+# Alternatively, you can make your style known to Matplotlib by placing
+# your ``<style-name>.mplstyle`` file into ``mpl_configdir/stylelib``.  You
+# can then load your custom style sheet with a call to
+# ``style.use(<style-name>)``.  By default ``mpl_configdir`` should be
 # ``~/.config/matplotlib``, but you can check where yours is with
-# `matplotlib.get_configdir()`; you may need to create this directory. You also
-#  can change the directory where Matplotlib looks for the stylelib/ folder by
-# setting the :envvar:`MPLCONFIGDIR` environment variable, see
+# `matplotlib.get_configdir()`; you may need to create this directory. You
+# also can change the directory where Matplotlib looks for the stylelib/
+# folder by setting the :envvar:`MPLCONFIGDIR` environment variable, see
 # :ref:`locating-matplotlib-config-dir`.
 #
 # Note that a custom style sheet in ``mpl_configdir/stylelib`` will override a
@@ -69,7 +70,7 @@ print(plt.style.available)
 # ``mpl_configdir`` you can specify your style with::
 #
 #    >>> import matplotlib.pyplot as plt
-#    >>> plt.style.use('<style-name>')
+#    >>> plt.style.use(<style-name>)
 #
 #
 # Composing styles
