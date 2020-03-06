@@ -1580,7 +1580,7 @@ def pts_to_prestep(x, *args):
     return steps
 
 
-def get_fillbetween_polys(x, y1, y2, where, step=None,
+def _get_fillbetween_polys(x, y1, y2, where, step=None,
                           interpolate=False, dir='x'):
     """
     A helper function for fill_between and fill_betweenx.
