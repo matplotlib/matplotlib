@@ -48,7 +48,7 @@ def figure_edit(axes, parent=None):
                ('Label', axes.get_ylabel()),
                ('Scale', [axes.get_yscale(), 'linear', 'log', 'logit']),
                sep,
-               ('(Re-)Generate automatic legend', False),
+               ('(Re-)Generate automatic legend', True),
                ]
 
     # Save the unit data
