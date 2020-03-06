@@ -38,7 +38,7 @@ print(plt.style.available)
 # the path or URL to the style sheet.
 #
 # For example, you might want to create
-# ``../images/presentation.mplstyle`` with the following::
+# ``./images/presentation.mplstyle`` with the following::
 #
 #    axes.titlesize : 24
 #    axes.labelsize : 20
