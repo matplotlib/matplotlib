@@ -1125,7 +1125,7 @@ class MarkerStyle:
             self._transform.rotate_deg(rotate)
             self._alt_transform.rotate_deg(rotate_alt)
 
-    def get_bbox(self, markerwidth, markeredgewidth=0):
+    def get_bbox(self, markersize, markeredgewidth=0):
         """Get size of bbox if marker is centered at origin.
 
         For markers with no edge, this is just the same bbox as that of the
@@ -1135,7 +1135,7 @@ class MarkerStyle:
 
         Parameters
         ----------
-        markerwidth : float
+        markersize : float
             "Size" of the marker, in points.
 
         markeredgewidth : float, optional, default: 0
@@ -1143,21 +1143,18 @@ class MarkerStyle:
 
         Returns
         -------
-
         bbox : matplotlib.transforms.Bbox
             The extents of the marker including its edge (in points) if it were
             centered at (0,0).
 
-        Notes
-        -----
         """
         # if the marker is of size zero, the stroke's width doesn't matter,
         # there is no stroke so the bbox is trivial
-        if np.isclose(markerwidth, 0):
+        if np.isclose(markersize, 0):
             return Bbox([[0, 0], [0, 0]])
         unit_path = self._transform.transform_path(self._path)
         unit_bbox = unit_path.get_extents()
-        scale = Affine2D().scale(markerwidth)
+        scale = Affine2D().scale(markersize)
         [[left, bottom], [right, top]] = scale.transform(unit_bbox)
         angles = _edge_angles[self._marker]
         left -= _get_padding_due_to_angle(markeredgewidth, angles.left,
