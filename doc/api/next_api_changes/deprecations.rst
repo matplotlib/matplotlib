@@ -242,3 +242,8 @@ The following related APIs are also deprecated:
 ``matplotlib.test(recursionlimit=...)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The *recursionlimit* parameter of ``matplotlib.test`` is deprecated.
+
+mathtext glues
+~~~~~~~~~~~~~~
+The *copy* parameter of ``mathtext.Glue`` is deprecated (the underlying glue
+spec is now immutable).  ``mathtext.GlueSpec`` is deprecated.
