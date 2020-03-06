@@ -127,8 +127,8 @@ class _GSConverter(_Converter):
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             try:
                 self._read_until(b"\nGS")
-            except _ConverterError:
-                raise OSError("Failed to start Ghostscript")
+            except _ConverterError as err:
+                raise OSError("Failed to start Ghostscript") from err
 
         def encode_and_escape(name):
             return (os.fsencode(name)
@@ -181,8 +181,9 @@ class _SVGConverter(_Converter):
             self._proc.stderr = stderr
             try:
                 self._read_until(b"\n>")
-            except _ConverterError:
-                raise OSError("Failed to start Inkscape in interactive mode")
+            except _ConverterError as err:
+                raise OSError("Failed to start Inkscape in interactive "
+                              "mode") from err
 
         # Inkscape uses glib's `g_shell_parse_argv`, which has a consistent
         # behavior across platforms, so we can just use `shlex.quote`.
@@ -199,14 +200,14 @@ class _SVGConverter(_Converter):
         self._proc.stdin.flush()
         try:
             self._read_until(b"\n>")
-        except _ConverterError:
+        except _ConverterError as err:
             # Inkscape's output is not localized but gtk's is, so the output
             # stream probably has a mixed encoding.  Using the filesystem
             # encoding should at least get the filenames right...
             self._stderr.seek(0)
             raise ImageComparisonFailure(
                 self._stderr.read().decode(
-                    sys.getfilesystemencoding(), "replace"))
+                    sys.getfilesystemencoding(), "replace")) from err
 
 
 def _update_converter():

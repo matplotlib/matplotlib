@@ -155,9 +155,9 @@ def uninstall_repl_displayhook():
         ip = get_ipython()
         try:
             ip.events.unregister('post_execute', _IP_REGISTERED)
-        except AttributeError:
+        except AttributeError as err:
             raise NotImplementedError("Can not unregister events "
-                                      "in IPython < 2.0")
+                                      "in IPython < 2.0") from err
         _IP_REGISTERED = None
 
     if _INSTALL_FIG_OBSERVER:

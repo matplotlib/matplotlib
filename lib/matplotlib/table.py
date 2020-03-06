@@ -358,8 +358,9 @@ class Table(Artist):
         cbook._check_isinstance(CustomCell, cell=cell)
         try:
             row, col = position[0], position[1]
-        except Exception:
-            raise KeyError('Only tuples length 2 are accepted as coordinates')
+        except Exception as err:
+            raise KeyError('Only tuples length 2 are accepted as '
+                           'coordinates') from err
         cell.set_figure(self.figure)
         cell.set_transform(self.get_transform())
         cell.set_clip_on(False)

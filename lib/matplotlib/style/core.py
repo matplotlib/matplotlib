@@ -114,11 +114,11 @@ def use(style):
             try:
                 rc = rc_params_from_file(style, use_default_template=False)
                 _apply_style(rc)
-            except IOError:
+            except IOError as err:
                 raise IOError(
                     "{!r} not found in the style library and input is not a "
                     "valid URL or path; see `style.available` for list of "
-                    "available styles".format(style))
+                    "available styles".format(style)) from err
 
 
 @contextlib.contextmanager
