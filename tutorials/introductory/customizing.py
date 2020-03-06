@@ -51,7 +51,7 @@ print(plt.style.available)
 # good in a presentation, you can just add::
 #
 #    >>> import matplotlib.pyplot as plt
-#    >>> plt.style.use('../images/presentation.mplstyle')
+#    >>> plt.style.use('./images/presentation.mplstyle')
 #
 # Alternatively, you can load your custom style sheet with a call to
 # ``style.use(<style-name>)`` by placing your ``<style-name>.mplstyle`` file
