@@ -16,7 +16,7 @@ The source code for the plot may be included in one of three ways:
 
      .. plot:: path/to/plot.py
 
-        This is the caption for the plot
+        The plot's caption.
 
    Additionally, one may specify the name of a function to call (with
    no arguments) immediately after importing the module::
@@ -36,6 +36,7 @@ The source code for the plot may be included in one of three ways:
 3. Using **doctest** syntax::
 
      .. plot::
+
         A plotting example:
         >>> import matplotlib.pyplot as plt
         >>> plt.plot([1, 2, 3], [4, 5, 6])
@@ -221,10 +222,7 @@ def mark_plot_labels(app, document):
 
 
 class PlotDirective(Directive):
-    """Implementation of the ``.. plot::`` directive.
-
-    See the module docstring for details.
-    """
+    """The ``.. plot::`` directive, as documented in the module's docstring."""
 
     has_content = True
     required_arguments = 0
