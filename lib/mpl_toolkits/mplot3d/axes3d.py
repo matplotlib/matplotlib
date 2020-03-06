@@ -1533,7 +1533,7 @@ class Axes3D(Axes):
             cstride = int(max(np.ceil(cols / ccount), 1))
 
         if 'facecolors' in kwargs:
-            fcolors = kwargs.pop('facecolors')
+            fcolors = np.asarray(kwargs.pop('facecolors'))
         else:
             color = kwargs.pop('color', None)
             if color is None:
@@ -1551,33 +1551,31 @@ class Axes3D(Axes):
                         "semantic or raise an error in matplotlib 3.3. "
                         "Please use shade=False instead.")
 
-        colset = []  # the sampled facecolor
-        if (rows - 1) % rstride == 0 and \
-           (cols - 1) % cstride == 0 and \
-           fcolors is None:
-            polys = np.stack(
-                [cbook._array_patch_perimeters(a, rstride, cstride)
-                 for a in (X, Y, Z)],
-                axis=-1)
-        else:
-            # evenly spaced, and including both endpoints
-            row_inds = list(range(0, rows-1, rstride)) + [rows-1]
-            col_inds = list(range(0, cols-1, cstride)) + [cols-1]
+        # Calculate the minimal amount of padding that will allow us to extract
+        # vectorized patches.
+        rrem = (rows - 1) % rstride
+        rpadding = rstride - rrem if rrem != 0 else 0
+        crem = (cols - 1) % cstride
+        cpadding = cstride - crem if crem != 0 else 0
 
-            polys = []
-            for rs, rs_next in zip(row_inds[:-1], row_inds[1:]):
-                for cs, cs_next in zip(col_inds[:-1], col_inds[1:]):
-                    ps = [
-                        # +1 ensures we share edges between polygons
-                        cbook._array_perimeter(a[rs:rs_next+1, cs:cs_next+1])
-                        for a in (X, Y, Z)
-                    ]
-                    # ps = np.stack(ps, axis=-1)
-                    ps = np.array(ps).T
-                    polys.append(ps)
+        def pad_for_patches(a):
+            result = np.empty_like(a, shape=(rows + rpadding, cols + cpadding))
+            result[:rows, :cols] = a
+            if cpadding:
+                result[:rows, -cpadding:] = a[:, -1:]
+            if rpadding:
+                result[-rpadding:, :cols] = a[-1:, :]
+            result[rows:, cols:] = a[-1, -1]
+            return result
 
-                    if fcolors is not None:
-                        colset.append(fcolors[rs][cs])
+        polys = np.stack(
+            [cbook._array_patch_perimeters(pad_for_patches(a),
+                                           rstride, cstride)
+                for a in (X, Y, Z)],
+            axis=-1)
+        if fcolors is not None:
+            colset = fcolors[np.ix_(np.arange(0, rows-1, rstride),
+                                    np.arange(0, cols-1, cstride))]
 
         # note that the striding causes some polygons to have more coordinates
         # than others
