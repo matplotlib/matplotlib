@@ -381,7 +381,7 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
             fig_test.subplots().plot([1, 3, 5])
             fig_ref.subplots().plot([0, 1, 2], [1, 3, 5])
     """
-    POSITIONAL_OR_KEYWORD = inspect.Parameter.POSITIONAL_OR_KEYWORD
+    KEYWORD_ONLY = inspect.Parameter.KEYWORD_ONLY
     def decorator(func):
         import pytest
 
@@ -410,9 +410,10 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
             parameters=([param
                          for param in sig.parameters.values()
                          if param.name not in {"fig_test", "fig_ref"}]
-                        + [inspect.Parameter("ext", POSITIONAL_OR_KEYWORD),
-                           inspect.Parameter("request", POSITIONAL_OR_KEYWORD),
-                          ])
+                        + [
+                            inspect.Parameter("ext", KEYWORD_ONLY),
+                            inspect.Parameter("request", KEYWORD_ONLY),
+                        ])
         )
         wrapper.__signature__ = new_sig
 
