@@ -5162,64 +5162,8 @@ default: :rc:`scatter.edgecolors`
         _get_masks = list(map(np.ma.getmask, [y1, y2]))
         where = where & ~functools.reduce(np.logical_or, _get_masks)
 
-        polys = []
-        for ind0, ind1 in cbook.contiguous_regions(where):
-            if step == 'between':
-                xslice = x[ind0:ind1+1]
-            else:
-                xslice = x[ind0:ind1]
-            y1slice = y1[ind0:ind1]
-            y2slice = y2[ind0:ind1]
-            if step is not None:
-                step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
-                xslice, y1slice, y2slice = step_func(xslice, y1slice, y2slice)
-
-            if not len(xslice):
-                continue
-
-            N = len(xslice)
-            X = np.zeros((2 * N + 2, 2), float)
-
-            if interpolate:
-                def get_interp_point(ind):
-                    im1 = max(ind - 1, 0)
-                    x_values = x[im1:ind + 1]
-                    diff_values = y1[im1:ind + 1] - y2[im1:ind + 1]
-                    y1_values = y1[im1:ind + 1]
-
-                    if len(diff_values) == 2:
-                        if np.ma.is_masked(diff_values[1]):
-                            return x[im1], y1[im1]
-                        elif np.ma.is_masked(diff_values[0]):
-                            return x[ind], y1[ind]
-
-                    diff_order = diff_values.argsort()
-                    diff_root_x = np.interp(
-                        0, diff_values[diff_order], x_values[diff_order])
-                    x_order = x_values.argsort()
-                    diff_root_y = np.interp(diff_root_x, x_values[x_order],
-                                            y1_values[x_order])
-                    return diff_root_x, diff_root_y
-
-                start = get_interp_point(ind0)
-                end = get_interp_point(ind1)
-            else:
-                # the purpose of the next two lines is for when y2 is a
-                # scalar like 0 and we want the fill to go all the way
-                # down to 0 even if none of the y1 sample points do
-                start = xslice[0], y2slice[0]
-                end = xslice[-1], y2slice[-1]
-
-            X[0] = start
-            X[N + 1] = end
-
-            X[1:N + 1, 0] = xslice
-            X[1:N + 1, 1] = y1slice
-            X[N + 2:, 0] = xslice[::-1]
-            X[N + 2:, 1] = y2slice[::-1]
-
-            polys.append(X)
-
+        polys = cbook._get_fillbetween_polys(x, y1, y2, where, step=step,
+                                             interpolate=interpolate, dir='y')
         collection = mcoll.PolyCollection(polys, **kwargs)
 
         # now update the datalim and autoscale
@@ -5373,63 +5317,8 @@ default: :rc:`scatter.edgecolors`
         _get_masks = list(map(np.ma.getmask, [x1, x2]))
         where = where & ~functools.reduce(np.logical_or, _get_masks)
 
-        polys = []
-        for ind0, ind1 in cbook.contiguous_regions(where):
-            if step == 'between':
-                yslice = y[ind0:ind1+1]
-            else:
-                yslice = y[ind0:ind1]
-            x1slice = x1[ind0:ind1]
-            x2slice = x2[ind0:ind1]
-            if step is not None:
-                step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
-                yslice, x1slice, x2slice = step_func(yslice, x1slice, x2slice)
-
-            if not len(yslice):
-                continue
-
-            N = len(yslice)
-            Y = np.zeros((2 * N + 2, 2), float)
-            if interpolate:
-                def get_interp_point(ind):
-                    im1 = max(ind - 1, 0)
-                    y_values = y[im1:ind + 1]
-                    diff_values = x1[im1:ind + 1] - x2[im1:ind + 1]
-                    x1_values = x1[im1:ind + 1]
-
-                    if len(diff_values) == 2:
-                        if np.ma.is_masked(diff_values[1]):
-                            return x1[im1], y[im1]
-                        elif np.ma.is_masked(diff_values[0]):
-                            return x1[ind], y[ind]
-
-                    diff_order = diff_values.argsort()
-                    diff_root_y = np.interp(
-                        0, diff_values[diff_order], y_values[diff_order])
-                    y_order = y_values.argsort()
-                    diff_root_x = np.interp(diff_root_y, y_values[y_order],
-                                            x1_values[y_order])
-                    return diff_root_x, diff_root_y
-
-                start = get_interp_point(ind0)
-                end = get_interp_point(ind1)
-            else:
-                # the purpose of the next two lines is for when x2 is a
-                # scalar like 0 and we want the fill to go all the way
-                # down to 0 even if none of the x1 sample points do
-                start = x2slice[0], yslice[0]
-                end = x2slice[-1], yslice[-1]
-
-            Y[0] = start
-            Y[N + 1] = end
-
-            Y[1:N + 1, 0] = x1slice
-            Y[1:N + 1, 1] = yslice
-            Y[N + 2:, 0] = x2slice[::-1]
-            Y[N + 2:, 1] = yslice[::-1]
-
-            polys.append(Y)
-
+        polys = cbook._get_fillbetween_polys(y, x1, x2, where, step=step,
+                                             interpolate=interpolate, dir='x')
         collection = mcoll.PolyCollection(polys, **kwargs)
 
         # now update the datalim and autoscale

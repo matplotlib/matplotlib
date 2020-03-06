@@ -1580,6 +1580,105 @@ def pts_to_prestep(x, *args):
     return steps
 
 
+def get_fillbetween_polys(x, y1, y2, where, step=None,
+                          interpolate=False, dir='x'):
+    """
+    A helper function for fill_between and fill_betweenx.
+    Converts x, y1, y2 or y, x1, x2 arrays into vertices to fill
+    polycollection.
+
+    Parameters
+    ----------
+    x (y): array
+        Base array for fill_between (x-like)
+
+    y1 (x1): array
+        Upper edge boundary for fill_between plot (y1-like)
+
+    y2 (x2): array
+        Lower edge boundary for fill_between plot (y2-like)
+
+    where: array
+        Bool array. See `~.axes.Axes.fill_between`
+
+    step : {'pre', 'post', 'mid', 'between'}, optional
+        See `~.axes.Axes.fill_between`
+
+    interpolate : bool, default: False
+        See `~.axes.Axes.fill_between`
+
+    dir : {'x', 'y}, optional, default: 'x'
+        Return vertex collection for `~.axes.Axes.fill_between` or 
+        `~.axes.Axes.fill_betweenx`
+
+    Returns
+    -------
+    out : array
+        ``Nx2`` array of verstices
+    """
+    polys = []
+    for ind0, ind1 in contiguous_regions(where):
+        if step == 'between':
+            xslice = x[ind0:ind1+1]
+        else:
+            xslice = x[ind0:ind1]
+        y1slice = y1[ind0:ind1]
+        y2slice = y2[ind0:ind1]
+        if step is not None:
+            step_func = STEP_LOOKUP_MAP["steps-" + step]
+            xslice, y1slice, y2slice = step_func(xslice, y1slice, y2slice)
+
+        if not len(xslice):
+            continue
+
+        N = len(xslice)
+        X = np.zeros((2 * N + 2, 2), float)
+
+        if interpolate:
+            def get_interp_point(ind):
+                im1 = max(ind - 1, 0)
+                x_values = x[im1:ind + 1]
+                diff_values = y1[im1:ind + 1] - y2[im1:ind + 1]
+                y1_values = y1[im1:ind + 1]
+
+                if len(diff_values) == 2:
+                    if np.ma.is_masked(diff_values[1]):
+                        return x[im1], y1[im1]
+                    elif np.ma.is_masked(diff_values[0]):
+                        return x[ind], y1[ind]
+
+                diff_order = diff_values.argsort()
+                diff_root_x = np.interp(
+                    0, diff_values[diff_order], x_values[diff_order])
+                x_order = x_values.argsort()
+                diff_root_y = np.interp(diff_root_x, x_values[x_order],
+                                        y1_values[x_order])
+                return diff_root_x, diff_root_y
+
+            start = get_interp_point(ind0)
+            end = get_interp_point(ind1)
+        else:
+            # the purpose of the next two lines is for when y2 is a
+            # scalar like 0 and we want the fill to go all the way
+            # down to 0 even if none of the y1 sample points do
+            start = xslice[0], y2slice[0]
+            end = xslice[-1], y2slice[-1]
+
+        X[0] = start
+        X[N + 1] = end
+
+        X[1:N + 1, 0] = xslice
+        X[1:N + 1, 1] = y1slice
+        X[N + 2:, 0] = xslice[::-1]
+        X[N + 2:, 1] = y2slice[::-1]
+
+        if dir == 'y':
+            polys.append(X)
+        elif dir == 'x':
+            polys.append(X.T[::-1].T)
+    return polys
+
+
 def pts_to_betweenstep(x, *args):
     """
     Convert continuous line to between-steps.
