@@ -616,7 +616,7 @@ class Line2D(Artist):
         bbox = Bbox([[0, 0], [0, 0]])
         trans_data_to_xy = self.get_transform().transform
         padded_xy = np.column_stack(
-            cbook.pad_arrays(*self.get_xydata())).astype(float)
+            cbook._pad_arrays(*self.get_xydata())).astype(float)
         bbox.update_from_data_xy(trans_data_to_xy(padded_xy), ignore=True)
         # correct for marker size, if any
         if self._marker:

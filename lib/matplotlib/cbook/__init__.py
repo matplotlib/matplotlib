@@ -1533,7 +1533,7 @@ def violin_stats(X, method, points=100, quantiles=None):
     return vpstats
 
 
-def pad_arrays(*v, padval=np.nan):
+def _pad_arrays(*v, padval=np.nan):
     """
     Pad list of arrays of varying lengths to the same size with specified
     value. Useful for padding asymetrical arrays
@@ -1554,7 +1554,7 @@ def pad_arrays(*v, padval=np.nan):
 
     Examples
     --------
-    >>> a, b, c = pad_arrays(np.array([1,2,3,4]), np.array([1,2,3]),
+    >>> a, b, c = _pad_arrays(np.array([1,2,3,4]), np.array([1,2,3]),
                              np.array([1]))
     >>> a
     np.array([1, 2, 3, 4])
