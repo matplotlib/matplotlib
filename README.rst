@@ -73,9 +73,9 @@ Contribute
 ==========
 You've discovered a bug or something else you want to change - excellent!
 
-You've worked out a way to fix it – even better!
+You've worked out a way to fix it - even better!
 
-You want to tell us about it – best of all!
+You want to tell us about it - best of all!
 
 Start at the `contributing guide <http://matplotlib.org/devdocs/devel/contributing.html>`_!
 
