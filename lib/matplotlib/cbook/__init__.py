@@ -1707,7 +1707,7 @@ def _get_fillbetween_polys(x, y1, y2, where, step=None,
     return polys
 
 
-def pts_to_betweenstep(x, *args):
+def _pts_to_betweenstep(x, *args):
     """
     Convert continuous line to between-steps.
 
@@ -1763,7 +1763,7 @@ def pts_to_betweenstep(x, *args):
     return steps
 
 
-def pts_to_betweenstep_edges(x, *args):
+def _pts_to_betweenstep_edges(x, *args):
     """
     Convert continuous line to between-steps, adding edges
 
@@ -1794,7 +1794,7 @@ def pts_to_betweenstep_edges(x, *args):
         # Fall back to steps-post (e.g. legend drawing)
         return pts_to_poststep(x, *args)
 
-    steps = pts_to_betweenstep(x, *args)
+    steps = _pts_to_betweenstep(x, *args)
     # Extra steps to plot edges where values are missing (Nan).
     nan_cols = np.nonzero(np.isnan(np.sum(steps, axis=0)))[0]
     nan_cols[1::2] = nan_cols[1::2]+1
@@ -1900,8 +1900,8 @@ STEP_LOOKUP_MAP = {'default': lambda x, y: (x, y),
                    'steps-pre': pts_to_prestep,
                    'steps-post': pts_to_poststep,
                    'steps-mid': pts_to_midstep,
-                   'steps-between': pts_to_betweenstep,
-                   'steps-edges': pts_to_betweenstep_edges}
+                   'steps-between': _pts_to_betweenstep,
+                   'steps-edges': _pts_to_betweenstep_edges}
 
 
 def index_of(y):
