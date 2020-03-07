@@ -315,11 +315,11 @@ def to_rgba_array(c, alpha=None):
         # This is deprecated and will be removed in the future.
         try:
             result = np.array([to_rgba(cc, alpha) for cc in c])
-        except ValueError:
+        except ValueError as err:
             raise ValueError(
                 "'%s' is neither a valid single color nor a color sequence "
                 "consisting of single character color specifiers such as "
-                "'rgb'. Note also that the latter is deprecated." % c)
+                "'rgb'. Note also that the latter is deprecated." % c) from err
         else:
             cbook.warn_deprecated("3.2", message="Using a string of single "
                                   "character colors as a color sequence is "
@@ -443,8 +443,8 @@ def _create_lookup_table(N, data, gamma=1.0):
 
     try:
         adata = np.array(data)
-    except Exception:
-        raise TypeError("data must be convertible to an array")
+    except Exception as err:
+        raise TypeError("data must be convertible to an array") from err
     shape = adata.shape
     if len(shape) != 2 or shape[1] != 3:
         raise ValueError("data must be nx3 format")
@@ -1894,9 +1894,9 @@ class LightSource:
         else:
             try:
                 blend = blend_mode(rgb, intensity, **kwargs)
-            except TypeError:
+            except TypeError as err:
                 raise ValueError('"blend_mode" must be callable or one of {}'
-                                 .format(lookup.keys))
+                                 .format(lookup.keys)) from err
 
         # Only apply result where hillshade intensity isn't masked
         if hasattr(intensity, 'mask'):

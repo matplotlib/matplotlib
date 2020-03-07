@@ -1023,9 +1023,9 @@ class FigureCanvasPS(FigureCanvasBase):
         else:
             try:
                 title = os.fspath(outfile)
-            except TypeError:
+            except TypeError as err:
                 raise ValueError(
-                    "outfile must be a path or a file-like object")
+                    "outfile must be a path or a file-like object") from err
 
         self.figure.dpi = 72  # ignore the dpi kwarg
         width, height = self.figure.get_size_inches()

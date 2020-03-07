@@ -56,10 +56,11 @@ elif rcParams["backend"] in ["Qt4Agg", "Qt4Cairo"]:
 else:
     try:
         QT_API = _ETS[QT_API_ENV]
-    except KeyError:
+    except KeyError as err:
         raise RuntimeError(
             "The environment variable QT_API has the unrecognized value {!r};"
-            "valid values are 'pyqt5', 'pyside2', 'pyqt', and 'pyside'")
+            "valid values are 'pyqt5', 'pyside2', 'pyqt', and "
+            "'pyside'") from err
 
 
 def _setup_pyqt5():

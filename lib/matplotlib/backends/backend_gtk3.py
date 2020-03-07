@@ -16,8 +16,8 @@ from matplotlib.widgets import SubplotTool
 
 try:
     import gi
-except ImportError:
-    raise ImportError("The GTK3 backends require PyGObject")
+except ImportError as err:
+    raise ImportError("The GTK3 backends require PyGObject") from err
 
 try:
     # :raises ValueError: If module/version is already loaded, already
@@ -47,7 +47,7 @@ try:
 except TypeError as exc:
     # Happens when running headless.  Convert to ImportError to cooperate with
     # backend switching.
-    raise ImportError(exc)
+    raise ImportError(exc) from exc
 
 
 class TimerGTK3(TimerBase):

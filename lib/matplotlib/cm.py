@@ -100,8 +100,9 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     if name is None:
         try:
             name = cmap.name
-        except AttributeError:
-            raise ValueError("Arguments must include a name or a Colormap")
+        except AttributeError as err:
+            raise ValueError("Arguments must include a name or a "
+                             "Colormap") from err
     if isinstance(cmap, colors.Colormap):
         cmap_d[name] = cmap
         return

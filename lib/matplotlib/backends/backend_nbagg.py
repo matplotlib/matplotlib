@@ -164,9 +164,10 @@ class CommSocket:
         display(HTML("<div id=%r></div>" % self.uuid))
         try:
             self.comm = Comm('matplotlib', data={'id': self.uuid})
-        except AttributeError:
+        except AttributeError as err:
             raise RuntimeError('Unable to create an IPython notebook Comm '
-                               'instance. Are you in the IPython notebook?')
+                               'instance. Are you in the IPython '
+                               'notebook?') from err
         self.comm.on_msg(self.on_message)
 
         manager = self.manager

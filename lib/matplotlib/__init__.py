@@ -656,10 +656,10 @@ class RcParams(MutableMapping, dict):
             except ValueError as ve:
                 raise ValueError(f"Key {key}: {ve}") from None
             dict.__setitem__(self, key, cval)
-        except KeyError:
+        except KeyError as err:
             raise KeyError(
                 f"{key} is not a valid rc parameter (see rcParams.keys() for "
-                f"a list of valid parameters)")
+                f"a list of valid parameters)") from err
 
     def __getitem__(self, key):
         if key in _deprecated_map:
@@ -942,9 +942,9 @@ def rc(group, **kwargs):
             key = '%s.%s' % (g, name)
             try:
                 rcParams[key] = v
-            except KeyError:
+            except KeyError as err:
                 raise KeyError(('Unrecognized key "%s" for group "%s" and '
-                                'name "%s"') % (key, g, name))
+                                'name "%s"') % (key, g, name)) from err
 
 
 def rcdefaults():

@@ -16,8 +16,8 @@ import mimetypes
 
 try:
     import tornado
-except ImportError:
-    raise RuntimeError("This example requires tornado.")
+except ImportError as err:
+    raise RuntimeError("This example requires tornado.") from err
 import tornado.web
 import tornado.httpserver
 import tornado.ioloop

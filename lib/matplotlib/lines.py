@@ -188,10 +188,10 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
         # fancy indexing
         try:
             return Path(verts[markevery], _slice_or_none(codes, markevery))
-        except (ValueError, IndexError):
+        except (ValueError, IndexError) as err:
             raise ValueError(
                 f"markevery={markevery!r} is iterable but not a valid numpy "
-                f"fancy index")
+                f"fancy index") from err
     else:
         raise ValueError(f"markevery={markevery!r} is not a recognized value")
 

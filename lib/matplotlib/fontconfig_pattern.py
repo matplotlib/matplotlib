@@ -127,7 +127,7 @@ class FontconfigPatternParser:
             self._parser.parseString(pattern)
         except self.ParseException as e:
             raise ValueError(
-                "Could not parse font string: '%s'\n%s" % (pattern, e))
+                "Could not parse font string: '%s'\n%s" % (pattern, e)) from e
 
         self._properties = None
 

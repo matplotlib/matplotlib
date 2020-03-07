@@ -1587,8 +1587,8 @@ def pil_to_array(pilImage):
     else:  # try to convert to an rgba image
         try:
             pilImage = pilImage.convert('RGBA')
-        except ValueError:
-            raise RuntimeError('Unknown image mode')
+        except ValueError as err:
+            raise RuntimeError('Unknown image mode') from err
         return np.asarray(pilImage)  # return MxNx4 RGBA array
 
 

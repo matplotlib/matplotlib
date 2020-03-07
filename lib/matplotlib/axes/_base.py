@@ -1732,10 +1732,10 @@ class _AxesBase(martist.Artist):
                 limits = args[0]
                 try:
                     xmin, xmax, ymin, ymax = limits
-                except (TypeError, ValueError):
+                except (TypeError, ValueError) as err:
                     raise TypeError('the first argument to axis() must be an '
                                     'interable of the form '
-                                    '[xmin, xmax, ymin, ymax]')
+                                    '[xmin, xmax, ymin, ymax]') from err
             else:
                 xmin = kwargs.pop('xmin', None)
                 xmax = kwargs.pop('xmax', None)
@@ -2885,8 +2885,9 @@ class _AxesBase(martist.Artist):
             try:
                 m, n = scilimits
                 m + n + 1  # check that both are numbers
-            except (ValueError, TypeError):
-                raise ValueError("scilimits must be a sequence of 2 integers")
+            except (ValueError, TypeError) as err:
+                raise ValueError("scilimits must be a sequence of 2 integers"
+                                 ) from err
         STYLES = {'sci': True, 'scientific': True, 'plain': False, '': None}
         is_sci_style = cbook._check_getitem(STYLES, style=style)
         axis_map = {**{k: [v] for k, v in self._get_axis_map().items()},
@@ -2904,9 +2905,9 @@ class _AxesBase(martist.Artist):
                     axis.major.formatter.set_useLocale(useLocale)
                 if useMathText is not None:
                     axis.major.formatter.set_useMathText(useMathText)
-        except AttributeError:
+        except AttributeError as err:
             raise AttributeError(
-                "This method only works with the ScalarFormatter")
+                "This method only works with the ScalarFormatter") from err
 
     def locator_params(self, axis='both', tight=None, **kwargs):
         """
