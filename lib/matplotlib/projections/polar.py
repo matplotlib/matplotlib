@@ -989,10 +989,23 @@ class PolarAxes(Axes):
         it is possible to do ``set_thetalim(-np.pi / 2, np.pi / 2)`` to have
         an axes symmetric around 0.
         """
+        thetamin = 0
+        thetamax = 0
         if 'thetamin' in kwargs:
-            kwargs['xmin'] = np.deg2rad(kwargs.pop('thetamin'))
+            thetamin = np.deg2rad(kwargs.pop('thetamin'))
+            kwargs['xmin'] = thetamin
         if 'thetamax' in kwargs:
-            kwargs['xmax'] = np.deg2rad(kwargs.pop('thetamax'))
+            thetamax = np.deg2rad(kwargs.pop('thetamax'))
+            kwargs['xmax'] = thetamax
+        
+        if args.__len__() == 2:
+            if args[0] is not None and args[1] is not None:
+                if(abs(args[1] - args[0]) > 2 * np.pi):
+                    raise TypeError('Cannot pass angle range > 2 pi')
+        
+        if 'xmin' in kwargs and 'xmax' in kwargs:
+            if(abs(thetamax - thetamin) > 2 * np.pi):
+                raise TypeError('Cannot pass angle range > 2 pi')
         return tuple(np.rad2deg(self.set_xlim(*args, **kwargs)))
 
     def set_theta_offset(self, offset):
