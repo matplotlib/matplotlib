@@ -653,3 +653,12 @@ def test_buffer_size(fig_test, fig_ref):
     ax = fig_ref.add_subplot()
     ax.set_yticks([0, 1])
     ax.set_yticklabels(["€", ""])
+
+
+def test_fontproperties_kwarg_precedence():
+    """Test that kwargs take precedence over fontproperties defaults."""
+    plt.figure()
+    text1 = plt.xlabel("value", fontproperties='Times New Roman', size=40.0)
+    text2 = plt.ylabel("counts", size=40.0, fontproperties='Times New Roman')
+    assert text1.get_size() == 40.0
+    assert text2.get_size() == 40.0
