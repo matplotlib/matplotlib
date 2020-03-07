@@ -34,7 +34,6 @@ from matplotlib.axes._base import _AxesBase, _process_plot_format
 from matplotlib.axes._secondary_axes import SecondaryAxis
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 
-
 _log = logging.getLogger(__name__)
 
 
@@ -1979,6 +1978,11 @@ class Axes(_AxesBase):
             The marker for plotting the data points.
             Only used if *usevlines* is ``False``.
 
+        **kwargs
+            Additional parameters are passed to `.Axes.vlines` and
+            `.Axes.axhline` if *usevlines* is ``True``; otherwise they are
+            passed to `.Axes.plot`.
+
         Notes
         -----
         The cross correlation is performed with `numpy.correlate` with
@@ -2047,6 +2051,11 @@ class Axes(_AxesBase):
         marker : str, default: 'o'
             The marker for plotting the data points.
             Only used if *usevlines* is ``False``.
+
+        **kwargs
+            Additional parameters are passed to `.Axes.vlines` and
+            `.Axes.axhline` if *usevlines* is ``True``; otherwise they are
+            passed to `.Axes.plot`.
 
         Notes
         -----
@@ -6315,6 +6324,12 @@ default: :rc:`scatter.edgecolors`
             - `.PcolorImage` for a non-regular rectangular grid.
             - `.QuadMesh` for a non-rectangular grid.
 
+        Other Parameters
+        ----------------
+        **kwargs
+            Supported additional parameters depend on the type of grid.
+            See return types of *image* for further description.
+
         Notes
         -----
         .. [notes section required to get data note injection right]
@@ -6410,9 +6425,25 @@ default: :rc:`scatter.edgecolors`
         return contours
     contourf.__doc__ = mcontour.QuadContourSet._contour_doc
 
-    def clabel(self, CS, *args, **kwargs):
-        return CS.clabel(*args, **kwargs)
-    clabel.__doc__ = mcontour.ContourSet.clabel.__doc__
+    def clabel(self, CS, levels=None, **kwargs):
+        """
+        Label a contour plot.
+
+        Adds labels to line contours in given `.ContourSet`.
+
+        Parameters
+        ----------
+        CS : `~.ContourSet` instance
+            Line contours to label.
+
+        levels : array-like, optional
+            A list of level values, that should be labeled. The list must be
+            a subset of ``CS.levels``. If not given, all levels are labeled.
+
+        **kwargs
+            All other parameters are documented in `~.ContourLabeler.clabel`.
+        """
+        return CS.clabel(levels, **kwargs)
 
     #### Data analysis
 
@@ -6590,7 +6621,8 @@ default: :rc:`scatter.edgecolors`
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.patches.Patch` properties
+        **kwargs
+            `~matplotlib.patches.Patch` properties
 
         See also
         --------
@@ -6883,6 +6915,7 @@ default: :rc:`scatter.edgecolors`
             return tops, bins, cbook.silent_list('Lists of Patches', patches)
 
     @_preprocess_data(replace_names=["x", "y", "weights"])
+    @docstring.dedent_interpd
     def hist2d(self, x, y, bins=10, range=None, density=False, weights=None,
                cmin=None, cmax=None, **kwargs):
         """
@@ -6958,6 +6991,11 @@ default: :rc:`scatter.edgecolors`
 
         alpha : ``0 <= scalar <= 1`` or ``None``, optional
             The alpha blending value.
+
+        **kwargs
+            Additional parameters are passed along to the
+            `~.Axes.pcolormesh` method and `~matplotlib.collections.QuadMesh`
+            constructor.
 
         See also
         --------
