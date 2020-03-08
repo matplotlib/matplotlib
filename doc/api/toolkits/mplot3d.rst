@@ -5,7 +5,7 @@ mplot3d API
 ***********
 
 .. contents::
-      :backlinks: none
+   :backlinks: none
 
 .. automodule:: mpl_toolkits.mplot3d
    :no-members:
@@ -70,15 +70,6 @@ mplot3d API
    art3d.PathPatch3D
    art3d.Poly3DCollection
    art3d.Text3D
-
-
-Art3D Utility Functions
-=======================
-
-.. autosummary::
-   :toctree: ../_as_gen
-   :template: autosummary.rst
-
    art3d.get_dir_vector
    art3d.juggle_axes
    art3d.line_2d_to_3d

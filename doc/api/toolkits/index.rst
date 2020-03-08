@@ -26,8 +26,6 @@ information.
    :align: center
    :scale: 50
 
-   Contourf3d 2
-
 .. toctree::
     :maxdepth: 2
 
