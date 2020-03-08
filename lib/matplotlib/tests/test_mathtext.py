@@ -280,3 +280,14 @@ def test_single_minus_sign():
 def test_spaces(fig_test, fig_ref):
     fig_test.subplots().set_title(r"$1\,2\>3\ 4$")
     fig_ref.subplots().set_title(r"$1\/2\:3~4$")
+
+
+def test_math_to_image(tmpdir):
+    mathtext.math_to_image('$x^2$', str(tmpdir.join('example.png')))
+    mathtext.math_to_image('$x^2$', io.BytesIO())
+
+
+def test_mathtext_to_png(tmpdir):
+    mt = mathtext.MathTextParser('bitmap')
+    mt.to_png(str(tmpdir.join('example.png')), '$x^2$')
+    mt.to_png(io.BytesIO(), '$x^2$')

@@ -3433,7 +3433,7 @@ class MathTextParser:
         from matplotlib import _png
         rgba, depth = self.to_rgba(
             texstr, color=color, dpi=dpi, fontsize=fontsize)
-        with open(filename, "wb") as file:
+        with cbook.open_file_cm(filename, "wb") as file:
             _png.write_png(rgba, file)
         return depth
 
