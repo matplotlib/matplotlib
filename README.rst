@@ -38,15 +38,15 @@
 .. _Downloads: https://pepy.tech/project/matplotlib/month
 
 .. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
-.. _NUMFocus: http://www.numfocus.org
+.. _NUMFocus: https://www.numfocus.org
 
-.. image:: doc/_static/logo2.png
+.. image:: https://matplotlib.org/_static/logo2.svg
 
 Matplotlib is a comprehensive library for creating static, animated, and interactive visualizations in Python.
 
-Check out our `home page <http://matplotlib.org/>`_ for more information.
+Check out our `home page <https://matplotlib.org/>`_ for more information.
 
-.. image:: doc/_static/readme_preview.png
+.. image:: https://matplotlib.org/_static/readme_preview.png
 
 Matplotlib produces publication-quality figures in a variety of hardcopy formats
 and interactive environments across platforms. Matplotlib can be used in Python scripts,
@@ -58,7 +58,7 @@ Install
 =======
 
 For installation instructions and requirements, see `INSTALL.rst <INSTALL.rst>`_  or the
-`install <http://matplotlib.org/users/installing.html>`_ documentation.
+`install <https://matplotlib.org/users/installing.html>`_ documentation.
 
 Test
 ====
@@ -77,7 +77,7 @@ You've worked out a way to fix it – even better!
 
 You want to tell us about it – best of all!
 
-Start at the `contributing guide <http://matplotlib.org/devdocs/devel/contributing.html>`_!
+Start at the `contributing guide <https://matplotlib.org/devdocs/devel/contributing.html>`_!
 
 Contact
 =======

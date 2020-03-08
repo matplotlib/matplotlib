@@ -223,9 +223,9 @@ if __name__ == '__main__':
         with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
             fd.write(''.join(template_lines))
 
-        # Use Readme as long description
-        with open('README.rst') as fd:
-            long_description = fd.read()
+    # Use Readme as long description
+    with open('README.rst', encoding='utf-8') as fd:
+        long_description = fd.read()
 
     # Finally, pass this all along to distutils to do the heavy lifting.
     setup(
