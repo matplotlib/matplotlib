@@ -987,7 +987,8 @@ class PolarAxes(Axes):
         where minval and maxval are the minimum and maximum limits. Values are
         wrapped in to the range :math:`[0, 2\pi]` (in radians), so for example
         it is possible to do ``set_thetalim(-np.pi / 2, np.pi / 2)`` to have
-        an axes symmetric around 0.
+        an axes symmetric around 0. If not within range :math:`[0, 2\pi]` a
+        ValueError is raised.
         """
         thetamin = 0
         thetamax = 0
