@@ -997,12 +997,12 @@ class PolarAxes(Axes):
         if 'thetamax' in kwargs:
             thetamax = np.deg2rad(kwargs.pop('thetamax'))
             kwargs['xmax'] = thetamax
-        
+
         if args.__len__() == 2:
             if args[0] is not None and args[1] is not None:
                 if(abs(args[1] - args[0]) > 2 * np.pi):
                     raise ValueError('Cannot pass angle range > 2 pi')
-        
+
         if 'xmin' in kwargs and 'xmax' in kwargs:
             if(abs(thetamax - thetamin) > 2 * np.pi):
                 raise ValueError('Cannot pass angle range > 2 pi')
