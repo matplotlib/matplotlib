@@ -343,9 +343,9 @@ def build_pyplot():
     pyplot_orig = pyplot_path.read_text().splitlines(keepends=True)
     try:
         pyplot_orig = pyplot_orig[:pyplot_orig.index(PYPLOT_MAGIC_HEADER) + 1]
-    except IndexError:
+    except IndexError as err:
         raise ValueError('The pyplot.py file *must* have the exact line: %s'
-                         % PYPLOT_MAGIC_HEADER)
+                         % PYPLOT_MAGIC_HEADER) from err
 
     with pyplot_path.open('w') as pyplot:
         pyplot.writelines(pyplot_orig)

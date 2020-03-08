@@ -73,10 +73,10 @@ def get_unicode_index(symbol, math=True):
         pass
     try:  # Is symbol a TeX symbol (i.e. \alpha)
         return tex2uni[symbol.strip("\\")]
-    except KeyError:
+    except KeyError as err:
         raise ValueError(
             "'{}' is not a valid Unicode character or TeX/Type1 symbol"
-            .format(symbol))
+            .format(symbol)) from err
 
 
 class MathtextBackend:
@@ -1849,41 +1849,57 @@ class Vrule(Rule):
         Rule.__init__(self, thickness, np.inf, np.inf, state)
 
 
+_GlueSpec = namedtuple(
+    "_GlueSpec", "width stretch stretch_order shrink shrink_order")
+_GlueSpec._named = {
+    'fil':         _GlueSpec(0., 1., 1, 0., 0),
+    'fill':        _GlueSpec(0., 1., 2, 0., 0),
+    'filll':       _GlueSpec(0., 1., 3, 0., 0),
+    'neg_fil':     _GlueSpec(0., 0., 0, 1., 1),
+    'neg_fill':    _GlueSpec(0., 0., 0, 1., 2),
+    'neg_filll':   _GlueSpec(0., 0., 0, 1., 3),
+    'empty':       _GlueSpec(0., 0., 0, 0., 0),
+    'ss':          _GlueSpec(0., 1., 1, -1., 1),
+}
+
+
 class Glue(Node):
     """
     Most of the information in this object is stored in the underlying
-    `GlueSpec` class, which is shared between multiple glue objects.
+    ``_GlueSpec`` class, which is shared between multiple glue objects.
     (This is a memory optimization which probably doesn't matter anymore, but
     it's easier to stick to what TeX does.)
     """
 
+    @cbook.deprecated("3.3")
+    @property
+    def glue_subtype(self):
+        return "normal"
+
+    @cbook._delete_parameter("3.3", "copy")
     def __init__(self, glue_type, copy=False):
         Node.__init__(self)
-        self.glue_subtype   = 'normal'
         if isinstance(glue_type, str):
-            glue_spec = GlueSpec.factory(glue_type)
-        elif isinstance(glue_type, GlueSpec):
+            glue_spec = _GlueSpec._named[glue_type]
+        elif isinstance(glue_type, _GlueSpec):
             glue_spec = glue_type
         else:
             raise ValueError("glue_type must be a glue spec name or instance")
-        if copy:
-            glue_spec = glue_spec.copy()
-        self.glue_spec      = glue_spec
+        self.glue_spec = glue_spec
 
     def shrink(self):
         Node.shrink(self)
         if self.size < NUM_SIZE_LEVELS:
-            if self.glue_spec.width != 0.:
-                self.glue_spec = self.glue_spec.copy()
-                self.glue_spec.width *= SHRINK_FACTOR
+            g = self.glue_spec
+            self.glue_spec = g._replace(width=g.width * SHRINK_FACTOR)
 
     def grow(self):
         Node.grow(self)
-        if self.glue_spec.width != 0.:
-            self.glue_spec = self.glue_spec.copy()
-            self.glue_spec.width *= GROW_FACTOR
+        g = self.glue_spec
+        self.glue_spec = g._replace(width=g.width * GROW_FACTOR)
 
 
+@cbook.deprecated("3.3")
 class GlueSpec:
     """See `Glue`."""
 
@@ -1908,16 +1924,9 @@ class GlueSpec:
         return cls._types[glue_type]
 
 
-GlueSpec._types = {
-    'fil':         GlueSpec(0., 1., 1, 0., 0),
-    'fill':        GlueSpec(0., 1., 2, 0., 0),
-    'filll':       GlueSpec(0., 1., 3, 0., 0),
-    'neg_fil':     GlueSpec(0., 0., 0, 1., 1),
-    'neg_fill':    GlueSpec(0., 0., 0, 1., 2),
-    'neg_filll':   GlueSpec(0., 0., 0, 1., 3),
-    'empty':       GlueSpec(0., 0., 0, 0., 0),
-    'ss':          GlueSpec(0., 1., 1, -1., 1)
-}
+with cbook._suppress_matplotlib_deprecation_warning():
+    GlueSpec._types = {k: GlueSpec(**v._asdict())
+                       for k, v in _GlueSpec._named.items()}
 
 
 # Some convenient ways to get common kinds of glue
@@ -2607,7 +2616,7 @@ class Parser:
             raise ValueError("\n".join(["",
                                         err.line,
                                         " " * (err.column - 1) + "^",
-                                        str(err)]))
+                                        str(err)])) from err
         self._state_stack = None
         self._em_width_cache = {}
         self._expression.resetCache()
@@ -2722,8 +2731,9 @@ class Parser:
         c = toks[0]
         try:
             char = Char(c, self.get_state())
-        except ValueError:
-            raise ParseFatalException(s, loc, "Unknown symbol: %s" % c)
+        except ValueError as err:
+            raise ParseFatalException(s, loc,
+                                      "Unknown symbol: %s" % c) from err
 
         if c in self._spaced_symbols:
             # iterate until we find previous character, needed for cases

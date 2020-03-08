@@ -4,20 +4,20 @@ drawing legends associated with axes and/or figures.
 
 .. important::
 
-    It is unlikely that you would ever create a Legend instance
-    manually.  Most users would normally create a legend via the
-    :meth:`~matplotlib.axes.Axes.legend` function. For more details on legends
-    there is also a :doc:`legend guide </tutorials/intermediate/legend_guide>`.
+    It is unlikely that you would ever create a Legend instance manually.
+    Most users would normally create a legend via the `~.Axes.legend`
+    function. For more details on legends there is also a :doc:`legend guide
+    </tutorials/intermediate/legend_guide>`.
 
-The Legend class can be considered as a container of legend handles and
-legend texts. Creation of corresponding legend handles from the plot elements
-in the axes or figures (e.g., lines, patches, etc.) are specified by the
-handler map, which defines the mapping between the plot elements and the
-legend handlers to be used (the default legend handlers are defined in the
-:mod:`~matplotlib.legend_handler` module).  Note that not all kinds of
-artist are supported by the legend yet by default but it is possible to
-extend the legend handler's capabilities to support arbitrary objects. See
-the :doc:`legend guide </tutorials/intermediate/legend_guide>` for more
+The `Legend` class is a container of legend handles and legend texts.
+
+The legend handler map specifies how to create legend handles from artists
+(lines, patches, etc.) in the axes or figures. Default legend handlers are
+defined in the :mod:`~matplotlib.legend_handler` module. While not all artist
+types are covered by the default legend handlers, custom legend handlers can be
+defined to support arbitrary objects.
+
+See the :doc:`legend guide </tutorials/intermediate/legend_guide>` for more
 information.
 """
 
@@ -26,7 +26,7 @@ import time
 
 import numpy as np
 
-from matplotlib import rcParams
+import matplotlib as mpl
 from matplotlib import cbook, docstring
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list
@@ -162,7 +162,7 @@ bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
 ncol : int, default: 1
     The number of columns that the legend has.
 
-prop : None or :class:`matplotlib.font_manager.FontProperties` or dict
+prop : None or `matplotlib.font_manager.FontProperties` or dict
     The font properties of the legend. If None (default), the current
     :data:`matplotlib.rcParams` will be used.
 
@@ -222,7 +222,7 @@ mode : {"expand", None}
     expanded to fill the axes area (or *bbox_to_anchor* if defines
     the legend's size).
 
-bbox_transform : None or :class:`matplotlib.transforms.Transform`
+bbox_transform : None or `matplotlib.transforms.Transform`
     The transform for the bounding box (*bbox_to_anchor*). For a value
     of ``None`` (default) the Axes'
     :data:`~matplotlib.axes.Axes.transAxes` transform will be used.
@@ -254,8 +254,8 @@ columnspacing : float, default: :rc:`legend.columnspacing`
 
 handler_map : dict or None
     The custom dictionary mapping instances or types to a legend
-    handler. This `handler_map` updates the default handler map
-    found at :func:`matplotlib.legend.Legend.get_legend_handler_map`.
+    handler. This *handler_map* updates the default handler map
+    found at `matplotlib.legend.Legend.get_legend_handler_map`.
 """)
 
 
@@ -348,7 +348,7 @@ class Legend(Artist):
         Users can specify any arbitrary location for the legend using the
         *bbox_to_anchor* keyword argument. *bbox_to_anchor* can be a
         `.BboxBase` (or derived therefrom) or a tuple of 2 or 4 floats.
-        See :meth:`set_bbox_to_anchor` for more detail.
+        See `set_bbox_to_anchor` for more detail.
 
         The legend location can be specified by setting *loc* with a tuple of
         2 floats, which is interpreted as the lower-left corner of the legend
@@ -364,11 +364,12 @@ class Legend(Artist):
             if fontsize is not None:
                 self.prop = FontProperties(size=fontsize)
             else:
-                self.prop = FontProperties(size=rcParams["legend.fontsize"])
+                self.prop = FontProperties(
+                    size=mpl.rcParams["legend.fontsize"])
         else:
             self.prop = FontProperties._from_any(prop)
             if isinstance(prop, dict) and "size" not in prop:
-                self.prop.set_size(rcParams["legend.fontsize"])
+                self.prop.set_size(mpl.rcParams["legend.fontsize"])
 
         self._fontsize = self.prop.get_size_in_points()
 
@@ -386,7 +387,7 @@ class Legend(Artist):
                      'labelspacing', 'handlelength', 'handletextpad',
                      'borderaxespad']:
             if locals_view[name] is None:
-                value = rcParams["legend." + name]
+                value = mpl.rcParams["legend." + name]
             else:
                 value = locals_view[name]
             setattr(self, name, value)
@@ -438,7 +439,7 @@ class Legend(Artist):
 
         self._loc_used_default = loc is None
         if loc is None:
-            loc = rcParams["legend.loc"]
+            loc = mpl.rcParams["legend.loc"]
             if not self.isaxes and loc in [0, 'best']:
                 loc = 'upper right'
         if isinstance(loc, str):
@@ -473,14 +474,14 @@ class Legend(Artist):
         # and size of the box will be updated during the drawing time.
 
         if facecolor is None:
-            facecolor = rcParams["legend.facecolor"]
+            facecolor = mpl.rcParams["legend.facecolor"]
         if facecolor == 'inherit':
-            facecolor = rcParams["axes.facecolor"]
+            facecolor = mpl.rcParams["axes.facecolor"]
 
         if edgecolor is None:
-            edgecolor = rcParams["legend.edgecolor"]
+            edgecolor = mpl.rcParams["legend.edgecolor"]
         if edgecolor == 'inherit':
-            edgecolor = rcParams["axes.edgecolor"]
+            edgecolor = mpl.rcParams["axes.edgecolor"]
 
         self.legendPatch = FancyBboxPatch(
             xy=(0.0, 0.0), width=1., height=1.,
@@ -494,7 +495,7 @@ class Legend(Artist):
         # draw()) to the length that includes the padding. Thus we set
         # pad=0 here.
         if fancybox is None:
-            fancybox = rcParams["legend.fancybox"]
+            fancybox = mpl.rcParams["legend.fancybox"]
 
         if fancybox:
             self.legendPatch.set_boxstyle("round", pad=0,
@@ -506,7 +507,7 @@ class Legend(Artist):
 
         self._drawFrame = frameon
         if frameon is None:
-            self._drawFrame = rcParams["legend.frameon"]
+            self._drawFrame = mpl.rcParams["legend.frameon"]
 
         # init with null renderer
         self._init_legend_box(handles, labels, markerfirst)
@@ -517,7 +518,7 @@ class Legend(Artist):
             if shadow:
                 self.get_frame().set_alpha(1)
             else:
-                self.get_frame().set_alpha(rcParams["legend.framealpha"])
+                self.get_frame().set_alpha(mpl.rcParams["legend.framealpha"])
         else:
             self.get_frame().set_alpha(framealpha)
 
@@ -527,7 +528,7 @@ class Legend(Artist):
 
         # figure out title fontsize:
         if title_fontsize is None:
-            title_fontsize = rcParams['legend.title_fontsize']
+            title_fontsize = mpl.rcParams['legend.title_fontsize']
         tprop = FontProperties(size=title_fontsize)
         self.set_title(title, prop=tprop)
         self._draggable = None

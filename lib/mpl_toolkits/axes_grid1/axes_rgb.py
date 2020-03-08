@@ -114,12 +114,12 @@ class RGBAxesBase:
         """
         try:
             axes_class = kwargs.pop("axes_class", self._defaultAxesClass)
-        except AttributeError:
+        except AttributeError as err:
             raise AttributeError(
                 'A subclass of RGBAxesBase must have a _defaultAxesClass '
                 'attribute. If you are not sure which axes class to use, '
                 'consider using mpl_toolkits.axes_grid1.mpl_axes.Axes.'
-            )
+            ) from err
 
         ax = axes_class(*args, **kwargs)
 

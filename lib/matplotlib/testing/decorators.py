@@ -192,10 +192,11 @@ class _ImageComparisonBase:
                 os.symlink(orig_expected_path, expected_fname)
             except OSError:  # On Windows, symlink *may* be unavailable.
                 shutil.copyfile(orig_expected_path, expected_fname)
-        except OSError:
+        except OSError as err:
             raise ImageComparisonFailure(
                 f"Missing baseline image {expected_fname} because the "
-                f"following file cannot be accessed: {orig_expected_path}")
+                f"following file cannot be accessed: "
+                f"{orig_expected_path}") from err
         return expected_fname
 
     def compare(self, idx, baseline, extension):

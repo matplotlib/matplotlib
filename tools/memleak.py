@@ -6,8 +6,8 @@ import tracemalloc
 
 try:
     import psutil
-except ImportError:
-    raise ImportError("This script requires psutil")
+except ImportError as err:
+    raise ImportError("This script requires psutil") from err
 
 import numpy as np
 

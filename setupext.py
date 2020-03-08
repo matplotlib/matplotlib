@@ -35,19 +35,10 @@ def _get_xdg_cache_dir():
     return pathlib.Path(cache_dir, 'matplotlib')
 
 
-def get_fd_hash(fd):
-    """
-    Compute the sha256 hash of the bytes in a file-like
-    """
-    BLOCKSIZE = 1 << 16
+def _get_hash(data):
+    """Compute the sha256 hash of *data*."""
     hasher = hashlib.sha256()
-    old_pos = fd.tell()
-    fd.seek(0)
-    buf = fd.read(BLOCKSIZE)
-    while buf:
-        hasher.update(buf)
-        buf = fd.read(BLOCKSIZE)
-    fd.seek(old_pos)
+    hasher.update(data)
     return hasher.hexdigest()
 
 
@@ -58,10 +49,9 @@ def download_or_cache(url, sha):
     Parameters
     ----------
     url : str
-        The url to download
-
+        The url to download.
     sha : str
-        The sha256 of the file
+        The sha256 of the file.
 
     Returns
     -------
@@ -70,52 +60,37 @@ def download_or_cache(url, sha):
     """
     cache_dir = _get_xdg_cache_dir()
 
-    def get_from_cache(local_fn):
-        if cache_dir is None:
-            raise Exception("no cache dir")
-        buf = BytesIO((cache_dir / local_fn).read_bytes())
-        if get_fd_hash(buf) != sha:
-            return None
-        buf.seek(0)
-        return buf
-
-    def write_cache(local_fn, data):
-        if cache_dir is None:
-            raise Exception("no cache dir")
-        cache_dir.mkdir(parents=True, exist_ok=True)
-        old_pos = data.tell()
-        data.seek(0)
-        with open(cache_dir / local_fn, "xb") as fout:
-            fout.write(data.read())
-        data.seek(old_pos)
-
-    try:
-        return get_from_cache(sha)
-    except Exception:
-        pass
+    if cache_dir is not None:  # Try to read from cache.
+        try:
+            data = (cache_dir / sha).read_bytes()
+        except IOError:
+            pass
+        else:
+            if _get_hash(data) == sha:
+                return BytesIO(data)
 
     # jQueryUI's website blocks direct downloads from urllib.request's
     # default User-Agent, but not (for example) wget; so I don't feel too
     # bad passing in an empty User-Agent.
     with urllib.request.urlopen(
             urllib.request.Request(url, headers={"User-Agent": ""})) as req:
-        file_contents = BytesIO(req.read())
-        file_contents.seek(0)
+        data = req.read()
 
-    file_sha = get_fd_hash(file_contents)
-
+    file_sha = _get_hash(data)
     if file_sha != sha:
         raise Exception(
             f"The download file does not match the expected sha.  {url} was "
             f"expected to have {sha} but it had {file_sha}")
 
-    try:
-        write_cache(sha, file_contents)
-    except Exception:
-        pass
+    if cache_dir is not None:  # Try to cache the downloaded file.
+        try:
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            with open(cache_dir / sha, "xb") as fout:
+                fout.write(data)
+        except IOError:
+            pass
 
-    file_contents.seek(0)
-    return file_contents
+    return BytesIO(data)
 
 
 # SHA256 hashes of the FreeType tarballs
@@ -181,16 +156,6 @@ def print_status(package, status):
     print_raw(textwrap.fill(str(status), width=80,
                             initial_indent=initial_indent,
                             subsequent_indent=indent))
-
-
-def get_buffer_hash(fd):
-    BLOCKSIZE = 1 << 16
-    hasher = hashlib.sha256()
-    buf = fd.read(BLOCKSIZE)
-    while buf:
-        hasher.update(buf)
-        buf = fd.read(BLOCKSIZE)
-    return hasher.hexdigest()
 
 
 @functools.lru_cache(1)  # We only need to compute this once.
@@ -506,18 +471,13 @@ class FreeType(SetupPackage):
         if not src_path.exists():
             os.makedirs('build', exist_ok=True)
 
-            url_fmts = [
-                ('https://downloads.sourceforge.net/project/freetype'
-                 '/freetype2/{version}/{tarball}'),
-                ('https://download.savannah.gnu.org/releases/freetype'
-                 '/{tarball}')
-            ]
             tarball = f'freetype-{LOCAL_FREETYPE_VERSION}.tar.gz'
-
             target_urls = [
-                url_fmt.format(version=LOCAL_FREETYPE_VERSION,
-                               tarball=tarball)
-                for url_fmt in url_fmts]
+                (f'https://downloads.sourceforge.net/project/freetype'
+                 f'/freetype2/{LOCAL_FREETYPE_VERSION}/{tarball}'),
+                (f'https://download.savannah.gnu.org/releases/freetype'
+                 f'/{tarball}')
+            ]
 
             for tarball_url in target_urls:
                 try:
@@ -533,10 +493,7 @@ class FreeType(SetupPackage):
                     f"top-level of the source repository.")
 
             print(f"Extracting {tarball}")
-            # just to be sure
-            tar_contents.seek(0)
-            with tarfile.open(tarball, mode="r:gz",
-                              fileobj=tar_contents) as tgz:
+            with tarfile.open(fileobj=tar_contents, mode="r:gz") as tgz:
                 tgz.extractall("build")
 
         print(f"Building freetype in {src_path}")
