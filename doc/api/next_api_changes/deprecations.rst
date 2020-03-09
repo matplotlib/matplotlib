@@ -259,3 +259,8 @@ Not passing the *renderer* parameter to `.Axes.draw` is deprecated.  Use
 These changes make the signature of the ``draw`` (``artist.draw(renderer)``)
 method consistent across all artists; thus, additional parameters to
 `.Artist.draw` are deprecated.
+
+``DraggableBase.on_motion_blit``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This method is deprecated.  `.DraggableBase.on_motion` now handles both the
+blitting and the non-blitting cases.
