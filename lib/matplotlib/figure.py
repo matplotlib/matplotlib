@@ -1617,8 +1617,7 @@ default: 'top'
             return None
 
         self._axstack.remove(ax)
-        for func in self._axobservers:
-            func(self)
+        self._axobservers.process("_axes_change_event", self)
         self.stale = True
 
         last_ax = _break_share_link(ax, ax._shared_y_axes)
@@ -1654,7 +1653,7 @@ default: 'top'
         self.images = []
         self.legends = []
         if not keep_observers:
-            self._axobservers = []
+            self._axobservers = cbook.CallbackRegistry()
         self._suptitle = None
         if self.get_constrained_layout():
             layoutbox.nonetree(self._layoutbox)
@@ -1910,10 +1909,9 @@ default: 'top'
         return self.add_subplot(1, 1, 1, **kwargs)
 
     def sca(self, a):
-        """Set the current axes to be a and return a."""
+        """Set the current axes to be *a* and return *a*."""
         self._axstack.bubble(a)
-        for func in self._axobservers:
-            func(self)
+        self._axobservers.process("_axes_change_event", self)
         return a
 
     def _gci(self):
@@ -1953,12 +1951,10 @@ default: 'top'
     def __getstate__(self):
         state = super().__getstate__()
 
-        # the axobservers cannot currently be pickled.
-        # Additionally, the canvas cannot currently be pickled, but this has
-        # the benefit of meaning that a figure can be detached from one canvas,
-        # and re-attached to another.
-        for attr_to_pop in ('_axobservers', 'show',
-                            'canvas', '_cachedRenderer'):
+        # The canvas cannot currently be pickled, but this has the benefit
+        # of meaning that a figure can be detached from one canvas, and
+        # re-attached to another.
+        for attr_to_pop in ('canvas', '_cachedRenderer'):
             state.pop(attr_to_pop, None)
 
         # add version information to the state
@@ -1991,7 +1987,6 @@ default: 'top'
         self.__dict__ = state
 
         # re-initialise some of the unstored state information
-        self._axobservers = []
         FigureCanvasBase(self)  # Set self.canvas.
         self._layoutbox = None
 
@@ -2024,7 +2019,9 @@ default: 'top'
 
     def add_axobserver(self, func):
         """Whenever the axes state change, ``func(self)`` will be called."""
-        self._axobservers.append(func)
+        # Connect a wrapper lambda and not func itself, to avoid it being
+        # weakref-collected.
+        self._axobservers.connect("_axes_change_event", lambda arg: func(arg))
 
     def savefig(self, fname, *, transparent=None, **kwargs):
         """
