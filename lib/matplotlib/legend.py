@@ -840,7 +840,7 @@ class Legend(Artist):
             for offset in transOffset.transform(hoffsets):
                 offsets.append(offset)
 
-        texts = [text._get_xy_display()
+        texts = [text.get_window_extent()
                 for text in ax.texts]
 
         return bboxes, lines, offsets, texts
@@ -1035,7 +1035,7 @@ class Legend(Artist):
                            for line in lines)
                        + legendBox.count_contains(offsets)
                        + legendBox.count_overlaps(bboxes)
-                       + legendBox.count_contains(texts)
+                       + legendBox.count_overlaps(texts)
                        + sum(line.intersects_bbox(legendBox, filled=False)
                              for line in lines))
             if badness == 0:
