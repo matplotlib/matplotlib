@@ -570,3 +570,38 @@ def test_no_warn_big_data_when_loc_specified():
         ax.plot(np.arange(5000), label=idx)
     legend = ax.legend('best')
     fig.draw_artist(legend)  # Check that no warning is emitted.
+
+
+def test_overlap_no_texts():
+    # test there is no error without text
+    fig, ax = plt.subplots()
+    fig.canvas.draw()
+    legend = ax.legend()
+    fig.draw_artist(legend)
+
+
+def test_overlap_one_text():
+    # test legend doesn't overlap with one text
+    fig, ax = plt.subplots()
+    fig.canvas.draw()
+    ax.text(1, 0, "Text")
+    legend = ax.legend()
+    fig.draw_artist(legend)
+    texts = [text.get_window_extent()
+             for text in ax.texts]
+
+    assert legend.get_window_extent().count_overlaps(texts) == 0
+
+
+def test_overlap_two_texts():
+    # test legend doesn't overlap with two texts
+    fig, ax = plt.subplots()
+    fig.canvas.draw()
+    ax.text(1, 0, "Text")
+    ax.text(0, 1, "Text")
+    legend = ax.legend()
+    fig.draw_artist(legend)
+    texts = [text.get_window_extent()
+             for text in ax.texts]
+
+    assert legend.get_window_extent().count_overlaps(texts) == 0

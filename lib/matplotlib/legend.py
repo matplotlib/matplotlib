@@ -840,7 +840,7 @@ class Legend(Artist):
                 offsets.append(offset)
 
         texts = [text.get_window_extent()
-                    for text in ax.texts]
+                 for text in ax.texts]
 
         return bboxes, lines, offsets, texts
 
@@ -1031,12 +1031,12 @@ class Legend(Artist):
             # XXX TODO: If markers are present, it would be good to take them
             # into account when checking vertex overlaps in the next line.
             badness = (sum(legendBox.count_contains(line.vertices)
-                           for line in lines)
-                       + legendBox.count_contains(offsets)
-                       + legendBox.count_overlaps(bboxes)
-                       + legendBox.count_overlaps(texts)
-                       + sum(line.intersects_bbox(legendBox, filled=False)
-                             for line in lines))
+                           for line in lines) +
+                       legendBox.count_contains(offsets) +
+                       legendBox.count_overlaps(bboxes) +
+                       legendBox.count_overlaps(texts) +
+                       sum(line.intersects_bbox(legendBox, filled=False)
+                           for line in lines))
             if badness == 0:
                 return l, b
             # Include the index to favor lower codes in case of a tie.
