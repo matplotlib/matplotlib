@@ -168,7 +168,9 @@ def test_pathclip():
 @needs_xelatex
 @pytest.mark.backend('pgf')
 @image_comparison(['pgf_mixedmode.pdf'], style='default',
-                  tol={'aarch64': 1.086}.get(platform.machine(), 0.0))
+                  tol={'aarch64': 1.086, 'x86_64': 1.086}.get(
+                      platform.machine(), 0.0
+                      ))
 def test_mixedmode():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}

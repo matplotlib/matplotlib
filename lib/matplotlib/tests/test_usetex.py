@@ -14,7 +14,9 @@ if not mpl.checkdep_usetex(True):
 
 @image_comparison(baseline_images=['test_usetex'],
                   extensions=['pdf', 'png'],
-                  tol={'aarch64': 2.868}.get(platform.machine(), 0.3))
+                  tol={'aarch64': 2.868, 'x86_64': 2.868}.get(
+                      platform.machine(), 0.3
+                      ))
 def test_usetex():
     mpl.rcParams['text.usetex'] = True
     fig = plt.figure()
