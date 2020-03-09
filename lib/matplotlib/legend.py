@@ -824,6 +824,8 @@ class Legend(Artist):
             List of `.Path` corresponding to each line.
         offsets
             List of (x, y) offsets of all collection.
+        texts
+            List of the axes bounding boxes of all texts.
         """
         assert self.isaxes  # always holds, as this is only called internally
         ax = self.parent
