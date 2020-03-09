@@ -38,7 +38,6 @@ from matplotlib.collections import (LineCollection, RegularPolyCollection,
                                     PolyCollection)
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 from matplotlib.transforms import BboxTransformTo, BboxTransformFrom
-from matplotlib.text import Text
 
 from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea
 from matplotlib.offsetbox import DraggableOffsetBox
