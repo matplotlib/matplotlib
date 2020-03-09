@@ -840,7 +840,7 @@ class Legend(Artist):
                 offsets.append(offset)
 
         texts = [text.get_window_extent()
-                for text in ax.texts]
+                    for text in ax.texts]
 
         return bboxes, lines, offsets, texts
 
