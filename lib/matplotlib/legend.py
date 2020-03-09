@@ -950,8 +950,9 @@ class Legend(Artist):
         else:
             try:
                 l = len(bbox)
-            except TypeError:
-                raise ValueError("Invalid argument for bbox : %s" % str(bbox))
+            except TypeError as err:
+                raise ValueError("Invalid argument for bbox : %s" %
+                                 str(bbox)) from err
 
             if l == 2:
                 bbox = [bbox[0], bbox[1], 0, 0]

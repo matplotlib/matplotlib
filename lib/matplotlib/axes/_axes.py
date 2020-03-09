@@ -4210,11 +4210,11 @@ class Axes(_AxesBase):
         if kwcolor is not None:
             try:
                 mcolors.to_rgba_array(kwcolor)
-            except ValueError:
+            except ValueError as err:
                 raise ValueError(
                     "'color' kwarg must be an color or sequence of color "
                     "specs.  For a sequence of values to be color-mapped, use "
-                    "the 'c' argument instead.")
+                    "the 'c' argument instead.") from err
             if edgecolors is None:
                 edgecolors = kwcolor
             if facecolors is None:
@@ -4264,14 +4264,14 @@ class Axes(_AxesBase):
         if not c_is_mapped:
             try:  # Is 'c' acceptable as PathCollection facecolors?
                 colors = mcolors.to_rgba_array(c)
-            except (TypeError, ValueError):
+            except (TypeError, ValueError) as err:
                 if not valid_shape:
-                    raise invalid_shape_exception(c.size, xsize)
+                    raise invalid_shape_exception(c.size, xsize) from err
                 # Both the mapping *and* the RGBA conversion failed: pretty
                 # severe failure => one may appreciate a verbose feedback.
                 raise ValueError(
                     f"'c' argument must be a color, a sequence of colors, or "
-                    f"a sequence of numbers, not {c}")
+                    f"a sequence of numbers, not {c}") from err
             else:
                 if len(colors) not in (0, 1, xsize):
                     # NB: remember that a single color is also acceptable.

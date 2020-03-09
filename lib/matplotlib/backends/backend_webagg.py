@@ -25,8 +25,8 @@ import threading
 
 try:
     import tornado
-except ImportError:
-    raise RuntimeError("The WebAgg backend requires Tornado.")
+except ImportError as err:
+    raise RuntimeError("The WebAgg backend requires Tornado.") from err
 
 import tornado.web
 import tornado.ioloop

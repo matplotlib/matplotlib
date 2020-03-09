@@ -1038,9 +1038,9 @@ class ColorbarBase:
                 # be encountered. This is an error.
                 if np.isnan(extendlength).any():
                     raise ValueError()
-            except (TypeError, ValueError):
+            except (TypeError, ValueError) as err:
                 # Raise an error on encountering an invalid value for frac.
-                raise ValueError('invalid value for extendfrac')
+                raise ValueError('invalid value for extendfrac') from err
         return extendlength
 
     def _uniform_y(self, N):

@@ -143,15 +143,16 @@ class RendererAgg(RendererBase):
                 p = Path(v, c)
                 try:
                     self._renderer.draw_path(gc, p, transform, rgbFace)
-                except OverflowError:
-                    raise OverflowError("Exceeded cell block limit (set "
-                                        "'agg.path.chunksize' rcparam)")
+                except OverflowError as err:
+                    raise OverflowError(
+                        "Exceeded cell block limit (set 'agg.path.chunksize' "
+                        "rcparam)") from err
         else:
             try:
                 self._renderer.draw_path(gc, path, transform, rgbFace)
-            except OverflowError:
+            except OverflowError as err:
                 raise OverflowError("Exceeded cell block limit (set "
-                                    "'agg.path.chunksize' rcparam)")
+                                    "'agg.path.chunksize' rcparam)") from err
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw mathtext using :mod:`matplotlib.mathtext`."""

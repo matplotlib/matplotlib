@@ -273,13 +273,14 @@ class LatexManager:
                 [self.texcommand, "-halt-on-error"],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 encoding="utf-8", cwd=self.tmpdir)
-        except FileNotFoundError:
+        except FileNotFoundError as err:
             raise RuntimeError(
                 f"{self.texcommand} not found.  Install it or change "
                 f"rcParams['pgf.texsystem'] to an available TeX "
-                f"implementation.")
-        except OSError:
-            raise RuntimeError("Error starting process %r" % self.texcommand)
+                f"implementation.") from err
+        except OSError as err:
+            raise RuntimeError("Error starting process %r" %
+                               self.texcommand) from err
         test_input = self.latex_header + latex_end
         stdout, stderr = latex.communicate(test_input)
         if latex.returncode != 0:
@@ -342,7 +343,7 @@ class LatexManager:
             self._expect_prompt()
         except LatexError as e:
             raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
-                             .format(text, e.latex_output))
+                             .format(text, e.latex_output)) from e
 
         # typeout width, height and text offset of the last textbox
         self._stdin_writeln(r"\typeout{\the\wd0,\the\ht0,\the\dp0}")
@@ -351,14 +352,14 @@ class LatexManager:
             answer = self._expect_prompt()
         except LatexError as e:
             raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
-                             .format(text, e.latex_output))
+                             .format(text, e.latex_output)) from e
 
         # parse metrics from the answer string
         try:
             width, height, offset = answer.splitlines()[0].split(",")
-        except Exception:
+        except Exception as err:
             raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
-                             .format(text, answer))
+                             .format(text, answer)) from err
         w, h, o = float(width[:-2]), float(height[:-2]), float(offset[:-2])
 
         # the height returned from LaTeX goes from base to top.

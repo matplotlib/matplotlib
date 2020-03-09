@@ -806,9 +806,9 @@ class FontProperties:
             stretch = int(stretch)
             if stretch < 0 or stretch > 1000:
                 raise ValueError()
-        except ValueError:
+        except ValueError as err:
             if stretch not in stretch_dict:
-                raise ValueError("stretch is invalid")
+                raise ValueError("stretch is invalid") from err
         self._stretch = stretch
 
     def set_size(self, size):
@@ -824,10 +824,10 @@ class FontProperties:
         except ValueError:
             try:
                 scale = font_scalings[size]
-            except KeyError:
+            except KeyError as err:
                 raise ValueError(
                     "Size is invalid. Valid font size are "
-                    + ", ".join(map(str, font_scalings)))
+                    + ", ".join(map(str, font_scalings))) from err
             else:
                 size = scale * FontManager.get_default_size()
         if size < 1.0:

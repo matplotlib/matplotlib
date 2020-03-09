@@ -18,10 +18,10 @@ try:
 except ImportError:
     try:
         import cairocffi as cairo
-    except ImportError:
+    except ImportError as err:
         raise ImportError(
             "cairo backend requires that pycairo>=1.11.0 or cairocffi"
-            "is installed")
+            "is installed") from err
 
 from .. import cbook
 from matplotlib.backend_bases import (

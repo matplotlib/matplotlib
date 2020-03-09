@@ -581,9 +581,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 except ValueError:
                     dashes = [mlines._get_dash_pattern(x) for x in ls]
 
-        except ValueError:
-            raise ValueError(
-                'Do not know how to convert {!r} to dashes'.format(ls))
+        except ValueError as err:
+            raise ValueError('Do not know how to convert {!r} to '
+                             'dashes'.format(ls)) from err
 
         # get the list of raw 'unscaled' dash patterns
         self._us_linestyles = dashes

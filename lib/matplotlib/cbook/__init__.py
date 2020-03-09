@@ -710,11 +710,11 @@ def report_memory(i=0):  # argument may go away
     def call(command, os_name):
         try:
             return subprocess.check_output(command)
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as err:
             raise NotImplementedError(
                 "report_memory works on %s only if "
                 "the '%s' program is found" % (os_name, command[0])
-            )
+            ) from err
 
     pid = os.getpid()
     if sys.platform == 'sunos5':

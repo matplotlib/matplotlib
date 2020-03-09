@@ -224,8 +224,8 @@ class GridSpecBase:
         if isinstance(key, tuple):
             try:
                 k1, k2 = key
-            except ValueError:
-                raise ValueError("Unrecognized subplot spec")
+            except ValueError as err:
+                raise ValueError("Unrecognized subplot spec") from err
             num1, num2 = np.ravel_multi_index(
                 [_normalize(k1, nrows, 0), _normalize(k2, ncols, 1)],
                 (nrows, ncols))
@@ -543,9 +543,9 @@ class SubplotSpec:
                 try:
                     s = str(int(arg))
                     rows, cols, num = map(int, s)
-                except ValueError:
+                except ValueError as err:
                     raise ValueError("Single argument to subplot must be a "
-                                     "3-digit integer")
+                                     "3-digit integer") from err
                 # num - 1 for converting from MATLAB to python indexing
                 return GridSpec(rows, cols, figure=figure)[num - 1]
         elif len(args) == 3:
