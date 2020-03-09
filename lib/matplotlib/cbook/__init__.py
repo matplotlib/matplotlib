@@ -150,9 +150,8 @@ class CallbackRegistry:
     """
 
     # We maintain two mappings:
-    #   callbacks: signal -> {cid -> callback}
-    #   _func_cid_map: signal -> {callback -> cid}
-    # (actually, callbacks are weakrefs to the actual callbacks).
+    #   callbacks: signal -> {cid -> weakref-to-callback}
+    #   _func_cid_map: signal -> {weakref-to-callback -> cid}
 
     def __init__(self, exception_handler=_exception_printer):
         self.exception_handler = exception_handler
@@ -160,19 +159,9 @@ class CallbackRegistry:
         self._cid_gen = itertools.count()
         self._func_cid_map = {}
 
-    # In general, callbacks may not be pickled; thus, we simply recreate an
-    # empty dictionary at unpickling.  In order to ensure that `__setstate__`
-    # (which just defers to `__init__`) is called, `__getstate__` must
-    # return a truthy value (for pickle protocol>=3, i.e. Py3, the
-    # *actual* behavior is that `__setstate__` will be called as long as
-    # `__getstate__` does not return `None`, but this is undocumented -- see
-    # http://bugs.python.org/issue12290).
-
     def __getstate__(self):
-        return {'exception_handler': self.exception_handler}
-
-    def __setstate__(self, state):
-        self.__init__(**state)
+        # In general, callbacks may not be pickled, so we just drop them.
+        return {**vars(self), "callbacks": {}, "_func_cid_map": {}}
 
     def connect(self, s, func):
         """Register *func* to be called when signal *s* is generated.
