@@ -838,7 +838,10 @@ class Legend(Artist):
             _, transOffset, hoffsets, _ = handle._prepare_points()
             for offset in transOffset.transform(hoffsets):
                 offsets.append(offset)
-        return bboxes, lines, offsets
+
+        texts = [text.get_bbox_patch())
+                for text in ax.texts]
+        return bboxes, lines, offsets, texts
 
     def get_children(self):
         # docstring inherited
@@ -1011,7 +1014,7 @@ class Legend(Artist):
 
         start_time = time.perf_counter()
 
-        bboxes, lines, offsets = self._auto_legend_data()
+        bboxes, lines, offsets, texts = self._auto_legend_data()
 
         bbox = Bbox.from_bounds(0, 0, width, height)
         if consider is None:
@@ -1030,6 +1033,7 @@ class Legend(Artist):
                            for line in lines)
                        + legendBox.count_contains(offsets)
                        + legendBox.count_overlaps(bboxes)
+                       + legendBox.count_overlaps(texts)
                        + sum(line.intersects_bbox(legendBox, filled=False)
                              for line in lines))
             if badness == 0:
