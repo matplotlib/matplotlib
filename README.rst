@@ -25,6 +25,9 @@
 .. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
 .. _NUMFocus: https://www.numfocus.org
 
+.. |GitTutorial| image:: https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?
+.. _GitTutorial: https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project
+
 .. image:: https://matplotlib.org/_static/logo2.svg
 
 
