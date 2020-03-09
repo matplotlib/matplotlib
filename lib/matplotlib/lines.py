@@ -620,8 +620,9 @@ class Line2D(Artist):
             m_bbox = self._marker.get_bbox(
                     self._markersize, self._markeredgewidth)
             # markers use units of pts, not pixels
-            box_points_px = m_bbox.get_points() / 72.0 * self.figure.dpi
-            # add correct padding to each side of bbox
+            box_points_px = renderer.points_to_pixels(m_bbox.get_points())
+            # add correct padding to each side of bbox (note: get_points means
+            # the four points of the bbox, not units of "pt".
             bbox = Bbox(bbox.get_points() + box_points_px)
         return bbox
 
