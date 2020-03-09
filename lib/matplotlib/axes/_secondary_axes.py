@@ -203,7 +203,9 @@ class SecondaryAxis(_AxesBase):
                              'and the second being the inverse')
         self._set_scale()
 
-    def draw(self, renderer=None, inframe=False):
+    # Should be changed to draw(self, renderer) once the deprecation of
+    # renderer=None and of inframe expires.
+    def draw(self, *args, **kwargs):
         """
         Draw the secondary axes.
 
@@ -215,7 +217,7 @@ class SecondaryAxis(_AxesBase):
         self._set_lims()
         # this sets the scale in case the parent has set its scale.
         self._set_scale()
-        super().draw(renderer=renderer, inframe=inframe)
+        super().draw(*args, **kwargs)
 
     def _set_scale(self):
         """

@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from contextlib import ExitStack
 import itertools
 import logging
 import math
@@ -2618,9 +2619,16 @@ class _AxesBase(martist.Artist):
 
     # Drawing
     @martist.allow_rasterization
+    @cbook._delete_parameter(
+        "3.3", "inframe", alternative="Axes.redraw_in_frame()")
     def draw(self, renderer=None, inframe=False):
         # docstring inherited
         if renderer is None:
+            cbook.warn_deprecated(
+                "3.3", message="Support for not passing the 'renderer' "
+                "parameter to Axes.draw() is deprecated since %(since)s and "
+                "will be removed %(removal)s.  Use axes.draw_artist(axes) "
+                "instead.")
             renderer = self.figure._cachedRenderer
         if renderer is None:
             raise RuntimeError('No renderer defined')
@@ -2701,7 +2709,7 @@ class _AxesBase(martist.Artist):
         """
         This method can only be used after an initial draw which
         caches the renderer.  It is used to efficiently update Axes
-        data (axis ticks, labels, etc are not updated)
+        data (axis ticks, labels, etc are not updated).
         """
         if self.figure._cachedRenderer is None:
             raise AttributeError("draw_artist can only be used after an "
@@ -2712,12 +2720,17 @@ class _AxesBase(martist.Artist):
         """
         This method can only be used after an initial draw which
         caches the renderer.  It is used to efficiently update Axes
-        data (axis ticks, labels, etc are not updated)
+        data (axis ticks, labels, etc are not updated).
         """
         if self.figure._cachedRenderer is None:
             raise AttributeError("redraw_in_frame can only be used after an "
                                  "initial draw which caches the renderer")
-        self.draw(self.figure._cachedRenderer, inframe=True)
+        with ExitStack() as stack:
+            for artist in [*self._get_axis_list(),
+                           self.title, self._left_title, self._right_title]:
+                stack.push(artist.set_visible, artist.get_visible())
+                artist.set_visible(False)
+            self.draw(self.figure._cachedRenderer)
 
     def get_renderer_cache(self):
         return self.figure._cachedRenderer
