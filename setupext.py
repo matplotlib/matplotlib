@@ -228,30 +228,30 @@ def pkg_config_setup_extension(
     ext.libraries.extend(default_libraries)
 
 
-class CheckFailed(Exception):
+class Skipped(Exception):
     """
-    Exception thrown when a `SetupPackage.check` method fails.
+    Exception thrown by `SetupPackage.check` to indicate that a package should
+    be skipped.
     """
-    pass
 
 
 class SetupPackage:
-    optional = False
 
     def check(self):
         """
-        Checks whether the build dependencies are met.  Should raise a
-        `CheckFailed` exception if the dependency could not be met, otherwise
-        return a string indicating a version number or some other message
-        indicating what was found.
+        If the package should be installed, return an informative string, or
+        None if no information should be displayed at all.
+
+        If the package should be skipped, raise a `Skipped` exception.
+
+        If a missing build dependency is fatal, call `sys.exit`.
         """
-        pass
 
     def get_package_data(self):
         """
         Get a package data dictionary to add to the configuration.
-        These are merged into to the `package_data` list passed to
-        `distutils.setup`.
+        These are merged into to the *package_data* list passed to
+        `setuptools.setup`.
         """
         return {}
 
@@ -259,7 +259,7 @@ class SetupPackage:
         """
         Get a list of C extensions (`distutils.core.Extension`
         objects) to add to the configuration.  These are added to the
-        `extensions` list passed to `distutils.setup`.
+        *extensions* list passed to `setuptools.setup`.
         """
         return None
 
@@ -269,29 +269,11 @@ class SetupPackage:
         third-party library, before building an extension, it should
         override this method.
         """
-        pass
 
 
 class OptionalPackage(SetupPackage):
-    optional = True
     config_category = "packages"
-    default_config = "auto"
-
-    @classmethod
-    def get_config(cls):
-        """
-        Look at `setup.cfg` and return one of ["auto", True, False] indicating
-        if the package is at default state ("auto"), forced by the user (case
-        insensitively defined as 1, true, yes, on for True) or opted-out (case
-        insensitively defined as 0, false, no, off for False).
-        """
-        conf = cls.default_config
-        if config.has_option(cls.config_category, cls.name):
-            try:
-                conf = config.getboolean(cls.config_category, cls.name)
-            except ValueError:
-                conf = config.get(cls.config_category, cls.name)
-        return conf
+    default_config = True
 
     def check(self):
         """
@@ -299,13 +281,11 @@ class OptionalPackage(SetupPackage):
 
         May be overridden by subclasses for additional checks.
         """
-        conf = self.get_config()  # Check configuration file
-        if conf in [True, 'auto']:  # Default "auto", or install forced by user
-            if conf is True:  # Set non-optional if user sets `True` in config
-                self.optional = False
+        if config.getboolean(self.config_category, self.name,
+                             fallback=self.default_config):
             return "installing"
         else:  # Configuration opt-out by user
-            raise CheckFailed("skipping due to configuration")
+            raise Skipped("skipping due to configuration")
 
 
 class Platform(SetupPackage):
@@ -722,7 +702,7 @@ class BackendMacOSX(OptionalPackage):
 
     def check(self):
         if sys.platform != 'darwin':
-            raise CheckFailed("Mac OS-X only")
+            raise Skipped("Mac OS-X only")
         return super().check()
 
     def get_extension(self):
