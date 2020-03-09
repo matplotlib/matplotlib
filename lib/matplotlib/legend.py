@@ -38,6 +38,7 @@ from matplotlib.collections import (LineCollection, RegularPolyCollection,
                                     PolyCollection)
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 from matplotlib.transforms import BboxTransformTo, BboxTransformFrom
+from matplotlib.text import Text
 
 from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea
 from matplotlib.offsetbox import DraggableOffsetBox
@@ -839,8 +840,9 @@ class Legend(Artist):
             for offset in transOffset.transform(hoffsets):
                 offsets.append(offset)
 
-        texts = [text.get_bbox_patch())
+        texts = [text._get_xy_display()
                 for text in ax.texts]
+
         return bboxes, lines, offsets, texts
 
     def get_children(self):
@@ -1033,7 +1035,7 @@ class Legend(Artist):
                            for line in lines)
                        + legendBox.count_contains(offsets)
                        + legendBox.count_overlaps(bboxes)
-                       + legendBox.count_overlaps(texts)
+                       + legendBox.count_contains(texts)
                        + sum(line.intersects_bbox(legendBox, filled=False)
                              for line in lines))
             if badness == 0:
