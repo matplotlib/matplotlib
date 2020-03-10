@@ -764,10 +764,30 @@ class FigureCanvasPS(FigureCanvasBase):
     def print_eps(self, outfile, *args, **kwargs):
         return self._print_ps(outfile, 'eps', *args, **kwargs)
 
-    def _print_ps(self, outfile, format, *args,
-                  papertype=None, dpi=72, facecolor='w', edgecolor='w',
-                  orientation='portrait',
-                  **kwargs):
+    def _print_ps(
+            self, outfile, format, *args,
+            dpi=72, metadata=None, papertype=None, orientation='portrait',
+            **kwargs):
+
+        self.figure.set_dpi(72)  # Override the dpi kwarg
+
+        dsc_comments = {}
+        if isinstance(outfile, (str, os.PathLike)):
+            dsc_comments["Title"] = \
+                os.fspath(outfile).encode("ascii", "replace").decode("ascii")
+        dsc_comments["Creator"] = (metadata or {}).get(
+            "Creator",
+            f"matplotlib version {mpl.__version__}, http://matplotlib.org/")
+        # See https://reproducible-builds.org/specs/source-date-epoch/
+        source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
+        dsc_comments["CreationDate"] = (
+            datetime.datetime.utcfromtimestamp(
+                int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
+            if source_date_epoch
+            else time.ctime())
+        dsc_comments = "\n".join(
+            f"%%{k}: {v}" for k, v in dsc_comments.items())
+
         if papertype is None:
             papertype = mpl.rcParams['ps.papersize']
         papertype = papertype.lower()
@@ -776,42 +796,29 @@ class FigureCanvasPS(FigureCanvasBase):
         orientation = cbook._check_getitem(
             _Orientation, orientation=orientation.lower())
 
-        self.figure.set_dpi(72)  # Override the dpi kwarg
-
         printer = (self._print_figure_tex
                    if mpl.rcParams['text.usetex'] else
                    self._print_figure)
-        printer(outfile, format, dpi, facecolor, edgecolor,
-                orientation, papertype, **kwargs)
+        printer(outfile, format, dpi=dpi, dsc_comments=dsc_comments,
+                orientation=orientation, papertype=papertype, **kwargs)
 
     @cbook._delete_parameter("3.2", "dryrun")
     def _print_figure(
-            self, outfile, format, dpi, facecolor, edgecolor,
-            orientation, papertype, *,
-            metadata=None, dryrun=False, bbox_inches_restore=None, **kwargs):
+            self, outfile, format, *,
+            dpi, dsc_comments, orientation, papertype,
+            dryrun=False, bbox_inches_restore=None, **kwargs):
         """
-        Render the figure to hardcopy.  Set the figure patch face and
-        edge colors.  This is useful because some of the GUIs have a
-        gray figure face color background and you'll probably want to
-        override this on hardcopy
+        Render the figure to a filesystem path or a file-like object.
 
-        If outfile is a string, it is interpreted as a file name.
-        If the extension matches .ep* write encapsulated postscript,
-        otherwise write a stand-alone PostScript file.
-
-        If outfile is a file object, a stand-alone PostScript file is
-        written into this file object.
-
-        metadata must be a dictionary. Currently, only the value for
-        the key 'Creator' is used.
+        Parameters are as for `.print_figure`, except that *dsc_comments* is a
+        all string containing Document Structuring Convention comments,
+        generated from the *metadata* parameter to `.print_figure`.
         """
         is_eps = format == 'eps'
         if isinstance(outfile, (str, os.PathLike)):
-            outfile = title = os.fspath(outfile)
-            title = title.encode("ascii", "replace").decode("ascii")
+            outfile = os.fspath(outfile)
             passed_in_file_object = False
         elif is_writable_file_like(outfile):
-            title = None
             passed_in_file_object = True
         else:
             raise ValueError("outfile must be a path or a file-like object")
@@ -848,12 +855,6 @@ class FigureCanvasPS(FigureCanvasBase):
             rotation = 90
         bbox = (llx, lly, urx, ury)
 
-        # generate PostScript code for the figure and store it in a string
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
-
         if dryrun:
             class NullWriter:
                 def write(self, *args, **kwargs):
@@ -874,16 +875,6 @@ class FigureCanvasPS(FigureCanvasBase):
         if dryrun:  # return immediately if dryrun (tightbbox=True)
             return
 
-        self.figure.set_facecolor(origfacecolor)
-        self.figure.set_edgecolor(origedgecolor)
-
-        # check for custom metadata
-        if metadata is not None and 'Creator' in metadata:
-            creator_str = metadata['Creator']
-        else:
-            creator_str = \
-                f"matplotlib version {mpl.__version__}, http://matplotlib.org/"
-
         def print_figure_impl(fh):
             # write the PostScript headers
             if is_eps:
@@ -893,18 +884,7 @@ class FigureCanvasPS(FigureCanvasBase):
                       f"%%DocumentPaperSizes: {papertype}\n"
                       f"%%Pages: 1\n",
                       end="", file=fh)
-            if title:
-                print("%%Title: " + title, file=fh)
-            # get source date from SOURCE_DATE_EPOCH, if set
-            # See https://reproducible-builds.org/specs/source-date-epoch/
-            source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
-            if source_date_epoch:
-                source_date = datetime.datetime.utcfromtimestamp(
-                    int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
-            else:
-                source_date = time.ctime()
-            print(f"%%Creator: {creator_str}\n"
-                  f"%%CreationDate: {source_date}\n"
+            print(f"{dsc_comments}\n"
                   f"%%Orientation: {orientation.name}\n"
                   f"%%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}\n"
                   f"%%EndComments\n",
@@ -1005,28 +985,18 @@ class FigureCanvasPS(FigureCanvasBase):
 
     @cbook._delete_parameter("3.2", "dryrun")
     def _print_figure_tex(
-            self, outfile, format, dpi, facecolor, edgecolor,
-            orientation, papertype, *,
-            metadata=None, dryrun=False, bbox_inches_restore=None, **kwargs):
+            self, outfile, format, *,
+            dpi, dsc_comments, orientation, papertype,
+            dryrun=False, bbox_inches_restore=None, **kwargs):
         """
-        If text.usetex is True in rc, a temporary pair of tex/eps files
+        If :rc:`text.usetex` is True, a temporary pair of tex/eps files
         are created to allow tex to manage the text layout via the PSFrags
         package. These files are processed to yield the final ps or eps file.
 
-        metadata must be a dictionary. Currently, only the value for
-        the key 'Creator' is used.
+        The rest of the behavior is as for `._print_figure`.
         """
         is_eps = format == 'eps'
-        if is_writable_file_like(outfile):
-            title = None
-        else:
-            try:
-                title = os.fspath(outfile)
-            except TypeError as err:
-                raise ValueError(
-                    "outfile must be a path or a file-like object") from err
 
-        self.figure.dpi = 72  # ignore the dpi kwarg
         width, height = self.figure.get_size_inches()
         xo = 0
         yo = 0
@@ -1037,12 +1007,6 @@ class FigureCanvasPS(FigureCanvasBase):
         urx = llx + w
         ury = lly + h
         bbox = (llx, lly, urx, ury)
-
-        # generate PostScript code for the figure and store it in a string
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
 
         if dryrun:
             class NullWriter:
@@ -1064,35 +1028,13 @@ class FigureCanvasPS(FigureCanvasBase):
         if dryrun:  # return immediately if dryrun (tightbbox=True)
             return
 
-        self.figure.set_facecolor(origfacecolor)
-        self.figure.set_edgecolor(origedgecolor)
-
-        # check for custom metadata
-        if metadata is not None and 'Creator' in metadata:
-            creator_str = metadata['Creator']
-        else:
-            creator_str = \
-                f"matplotlib version {mpl.__version__}, http://matplotlib.org/"
-
         # write to a temp file, we'll move it to outfile when done
-
         with TemporaryDirectory() as tmpdir:
             tmpfile = os.path.join(tmpdir, "tmp.ps")
-            # get source date from SOURCE_DATE_EPOCH, if set
-            # See https://reproducible-builds.org/specs/source-date-epoch/
-            source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
-            if source_date_epoch:
-                source_date = datetime.datetime.utcfromtimestamp(
-                    int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
-            else:
-                source_date = time.ctime()
             pathlib.Path(tmpfile).write_text(
                 f"""\
 %!PS-Adobe-3.0 EPSF-3.0
-{f'''%%Title: {title}
-''' if title else ""}\
-%%Creator: {creator_str}
-%%CreationDate: {source_date}
+{dsc_comments}
 %%BoundingBox: {bbox[0]} {bbox[1]} {bbox[2]} {bbox[3]}
 %%EndComments
 %%BeginProlog
@@ -1121,12 +1063,9 @@ showpage
                 paper_width, paper_height = orientation.swap_if_landscape(
                     self.figure.get_size_inches())
             else:
-                temp_papertype = _get_papertype(width, height)
                 if papertype == 'auto':
-                    papertype = temp_papertype
-                    paper_width, paper_height = papersize[temp_papertype]
-                else:
-                    paper_width, paper_height = papersize[papertype]
+                    papertype = _get_papertype(width, height)
+                paper_width, paper_height = papersize[papertype]
 
             texmanager = ps_renderer.get_texmanager()
             font_preamble = texmanager.get_font_preamble()
