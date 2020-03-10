@@ -7649,6 +7649,8 @@ default: :rc:`scatter.edgecolors`
         Z = np.flipud(Z)
 
         if xextent is None:
+            if Fs is None:
+                Fs = freqs[-1] * 2  # default set in mlab._spectral_helper()
             # padding is needed for first and last segment:
             pad_xextent = (NFFT-noverlap) / Fs / 2
             xextent = np.min(t) - pad_xextent, np.max(t) + pad_xextent
