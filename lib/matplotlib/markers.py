@@ -128,7 +128,6 @@ Examples showing the use of markers:
 """
 
 from collections.abc import Sized
-from collections import namedtuple
 
 import numpy as np
 
@@ -143,6 +142,7 @@ from .bezier import BezierSegment, iter_corners
  CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE) = range(12)
 
 _empty_path = Path(np.empty((0, 2)))
+
 
 def _get_padding_due_to_angle(width, phi, theta, joinstyle='miter',
                               capstyle='butt'):
@@ -181,13 +181,13 @@ def _get_padding_due_to_angle(width, phi, theta, joinstyle='miter',
     # how much the "cap" extends past the endpoint of the path
     if theta is None:
         # for "butt" caps we can compute how far the
-        # outside edge of the markeredge stroke extends outside of the bounding box
-        # of its path using the law of sines: $\sin(\phi)/(w/2) = \sin(\pi/2 -
-        # \phi)/l$ for $w$ the `markeredgewidth`, $\phi$ the incidence angle of the
-        # line, then $l$ is the length along the outer edge of the stroke that
-        # extends beyond the bouding box. We can translate this to a distance
-        # perpendicular to the bounding box E(w, \phi) = l \sin(\phi)$, for $l$ as
-        # above.
+        # outside edge of the markeredge stroke extends outside of the bounding
+        # box of its path using the law of sines: $\sin(\phi)/(w/2) =
+        # \sin(\pi/2 - \phi)/l$ for $w$ the `markeredgewidth`, $\phi$ the
+        # incidence angle of the line, then $l$ is the length along the outer
+        # edge of the stroke that extends beyond the bouding box. We can
+        # translate this to a distance perpendicular to the bounding box E(w,
+        # \phi) = l \sin(\phi)$, for $l$ as above.
         if capstyle == 'butt':
             pad = (width/2) * np.cos(phi)
         # "round" caps are hemispherical, so regardless of angle
@@ -224,7 +224,8 @@ def _get_padding_due_to_angle(width, phi, theta, joinstyle='miter',
         pad = (width/2)*np.sin(phi)/np.sin(theta/2)
         # # matplotlib currently doesn't set the miterlimit...
         # if pad/width > miterlimit:
-        #     pad = _get_padding_due_to_angle(width, phi, theta, 'bevel', capstyle)
+        #     pad = _get_padding_due_to_angle(width, phi, theta, 'bevel',
+        #                                     capstyle)
     # to calculate the offset for _joinstyle = "bevel", we can start with the
     # analogous "miter" corner. the rules for how the "bevel" is
     # created in SVG is that the outer edges of the stroke continue up until
@@ -251,7 +252,7 @@ def _get_padding_due_to_angle(width, phi, theta, joinstyle='miter',
     # it....except those with "no corner", in which case we can treat them the
     # same as squares...
     elif joinstyle == 'round':
-        return width/2 # hemispherical cap, so always same padding
+        return width/2  # hemispherical cap, so always same padding
     else:
         raise ValueError(f"Unknown joinstyle: {joinstyle}")
     return pad
@@ -1039,7 +1040,11 @@ class MarkerStyle:
         path location + width/2 extends the bbox at each interior extrema.
         Then, for each join and cap, we check if that join extends the bbox.
         """
-        xmin = 0; ymin = 1; xmax = 2; ymax = 3; maxi = 2
+        xmin = 0
+        ymin = 1
+        xmax = 2
+        ymax = 3
+        maxi = 2
         if np.isclose(markersize, 0):
             return Bbox([[0, 0], [0, 0]])
         unit_path = self._transform.transform_path(self._path)
@@ -1064,16 +1069,16 @@ class MarkerStyle:
             # extents...
             if np.cos(corner.incidence_angle) > 0:
                 incidence_angle = corner.incidence_angle + np.pi/2
-                x +=  _get_padding_due_to_angle(markeredgewidth,
+                x += _get_padding_due_to_angle(markeredgewidth,
                         incidence_angle, corner.corner_angle,
                         joinstyle=self._joinstyle, capstyle=self._capstyle)
                 if x > unit_extents[xmax]:
                     unit_extents[xmax] = x
             else:
-                if corner.incidence_angle < 0: # [-pi, -pi/2]
-                    incidence_angle = 2*np.pi + corner.incidence_angle - np.pi/2
+                if corner.incidence_angle < 0:  # [-pi, -pi/2]
+                    incidence_angle = 3*np.pi/2 + corner.incidence_angle
                 else:
-                    incidence_angle = corner.incidence_angle - pi/2
+                    incidence_angle = corner.incidence_angle - np.pi/2
                 x -= _get_padding_due_to_angle(markeredgewidth,
                         incidence_angle, corner.corner_angle,
                         joinstyle=self._joinstyle, capstyle=self._capstyle)

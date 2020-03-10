@@ -427,14 +427,15 @@ class Path:
         kwargs get forwarded to :method:`Path.iter_segments`.
         """
         first_vertex = None
+        prev_vertex = None
         for vertices, code in self.iter_segments(**kwargs):
             if first_vertex is None:
                 if code != Path.MOVETO:
                     raise ValueError("Malformed path, must start with MOVETO.")
-            if code == Path.MOVETO: # a point is like "CURVE1"
+            if code == Path.MOVETO:  # a point is like "CURVE1"
                 first_vertex = vertices
                 yield np.array([first_vertex]), code
-            elif code == Path.LINETO: # "CURVE2"
+            elif code == Path.LINETO:  # "CURVE2"
                 yield np.array([prev_vertex, vertices]), code
             elif code == Path.CURVE3:
                 yield np.array([prev_vertex, vertices[:2], vertices[2:]]), code
@@ -444,7 +445,6 @@ class Path:
             elif code == Path.CLOSEPOLY:
                 yield np.array([prev_vertex, first_vertex]), code
             prev_vertex = vertices[-2:]
-
 
     @cbook._delete_parameter("3.3", "quantize")
     def cleaned(self, transform=None, remove_nans=False, clip=None,

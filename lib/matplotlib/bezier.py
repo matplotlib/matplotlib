@@ -207,9 +207,9 @@ class BezierSegment:
 
     @property
     def interior_extrema(self):
-        if self.n <= 2: # a line's extrema are always its tips
+        if self.n <= 2:  # a line's extrema are always its tips
             return np.array([]), np.array([])
-        elif self.n == 3: # quadratic curve
+        elif self.n == 3:  # quadratic curve
             # the bezier curve in standard form is
             # cp[0] * (1 - t)^2 + cp[1] * 2t(1-t) + cp[2] * t^2
             # can be re-written as
@@ -223,25 +223,26 @@ class BezierSegment:
             dims = np.arange(self.d)[mask]
             in_range = (0 <= zeros) & (zeros <= 1)
             return dims[in_range], zeros[in_range]
-        elif self.n == 4: # cubic curve
+        elif self.n == 4:  # cubic curve
+            P = self.cpoints
             # derivative of cubic bezier curve has coefficients
-            a = 3*(points[3] - 3*points[2] + 3*points[1] - points[0])
-            b = 6*(points[2] - 2*points[1] + points[0])
-            c = 3*(points[1] - points[0])
-            under_sqrt = b**2 - 4*a*c
+            a = 3*(P[3] - 3*P[2] + 3*P[1] - P[0])
+            b = 6*(P[2] - 2*P[1] + P[0])
+            c = 3*(P[1] - P[0])
+            discriminant = b**2 - 4*a*c
             dims = []
             zeros = []
-            for i in range(d):
-                if under_sqrt[i] < 0:
+            for i in range(self.d):
+                if discriminant[i] < 0:
                     continue
-                roots = [(-b + np.sqrt(under_sqrt))/2/a,
-                        (-b - np.sqrt(under_sqrt))/2/a]
+                roots = [(-b + np.sqrt(discriminant))/2/a,
+                         (-b - np.sqrt(discriminant))/2/a]
                 for root in roots:
                     if 0 <= root <= 1:
                         dims.append(i)
                         zeros.append(root)
             return np.asarray(dims), np.asarray(zeros)
-        else: # self.n > 4:
+        else:  # self.n > 4:
             raise NotImplementedError("Zero finding only implemented up to "
                                       "cubic curves.")
 
@@ -435,6 +436,7 @@ def iter_corners(path, **kwargs):
     first_vertex = None
     prev_tan_angle = None
     prev_vertex = None
+    is_capped = False
     for bcurve, code in path.iter_curves(**kwargs):
         bcurve = BezierSegment(bcurve)
         if code == Path.MOVETO:
@@ -453,19 +455,22 @@ def iter_corners(path, **kwargs):
         if code == Path.CLOSEPOLY:
             is_capped = False
             if prev_tan_angle is None:
-                raise ValueError("Misformed path, cannot close poly with single vertex!")
+                raise ValueError("Misformed path, cannot close poly with "
+                                 "single vertex!")
             tan_in = prev_vertex - first_vertex
-            # often CLOSEPOLY is used when the curve has already reached it's initial point
-            # in order to prevent there from being a stray straight line segment
-            # if it's used this way, then we more or less ignore the current bcurve
+            # often CLOSEPOLY is used when the curve has already reached it's
+            # initial point in order to prevent there from being a stray
+            # straight line segment if it's used this way, then we more or less
+            # ignore the current bcurve
             if np.isclose(np.linalg.norm(tan_in), 0):
                 incident_angle, corner_angle = _incidence_corner_from_angles(
                         prev_tan_angle, first_tan_angle)
                 yield CornerInfo(prev_vertex, incident_angle, corner_angle)
                 continue
             # otherwise, we have to calculate both the corner from the
-            # previous line segment to the current straight line, and from the current straight
-            # line to the original starting line. The former is taken care of by the
+            # previous line segment to the current straight line, and from the
+            # current straight line to the original starting line. The former
+            # is taken care of by the
             # non-special-case code below. the latter looks like:
             tan_out = bcurve.tan_out
             angle_end = np.arctan2(tan_out[1], tan_out[0])
@@ -490,6 +495,7 @@ def iter_corners(path, **kwargs):
             yield CornerInfo(cap_vertex, cap_angle, None)
 
 # quadratic Bezier lines
+
 
 def get_cos_sin(x0, y0, x1, y1):
     dx, dy = x1 - x0, y1 - y0

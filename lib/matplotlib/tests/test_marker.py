@@ -4,6 +4,7 @@ from matplotlib import markers
 from matplotlib.path import Path
 from matplotlib.testing.decorators import image_comparison
 
+from collections import namedtuple
 import pytest
 
 
@@ -193,7 +194,7 @@ _edge_angles = {
     None: BoxSides(None, None, None, None),
 }
 
-def _get_bbox_path_end_angle(, markersize, markeredgewidth=0):
+def _get_bbox_path_end_angle(marker, markersize, markeredgewidth=0):
     """Get size of bbox if marker is centered at origin.
 
     For markers with no edge, this is just the same bbox as that of the
@@ -220,17 +221,17 @@ def _get_bbox_path_end_angle(, markersize, markeredgewidth=0):
     # there is no stroke so the bbox is trivial
     if np.isclose(markersize, 0):
         return Bbox([[0, 0], [0, 0]])
-    unit_path = self._transform.transform_path(self._path)
+    unit_path = marker._transform.transform_path(marker._path)
     unit_bbox = unit_path.get_extents()
     scale = Affine2D().scale(markersize)
     [[left, bottom], [right, top]] = scale.transform(unit_bbox)
-    angles = _edge_angles[self._marker]
+    angles = _edge_angles[marker._marker]
     left -= _get_padding_due_to_angle(markeredgewidth, angles.left,
-                                        self._joinstyle, self._capstyle)
+                                        marker._joinstyle, marker._capstyle)
     bottom -= _get_padding_due_to_angle(markeredgewidth, angles.bottom,
-                                        self._joinstyle, self._capstyle)
+                                        marker._joinstyle, marker._capstyle)
     right += _get_padding_due_to_angle(markeredgewidth, angles.right,
-                                        self._joinstyle, self._capstyle)
+                                        marker._joinstyle, marker._capstyle)
     top += _get_padding_due_to_angle(markeredgewidth, angles.top,
-                                        self._joinstyle, self._capstyle)
+                                        marker._joinstyle, marker._capstyle)
     return Bbox.from_extents(left, bottom, right, top)
