@@ -177,17 +177,72 @@ class BezierSegment:
     """
 
     def __init__(self, control_points):
-        n = len(control_points)
-        self._orders = np.arange(n)
-        coeff = [math.factorial(n - 1)
-                 // (math.factorial(i) * math.factorial(n - 1 - i))
-                 for i in range(n)]
-        self._px = np.asarray(control_points).T * coeff
+        self.cpoints = np.asarray(control_points)
+        self.n, self.d = self.cpoints.shape
+        self._orders = np.arange(self.n)
+        coeff = [math.factorial(self.n - 1)
+                 // (math.factorial(i) * math.factorial(self.n - 1 - i))
+                 for i in range(self.n)]
+        self._px = self.cpoints.T * coeff
 
     def point_at_t(self, t):
         """Return the point on the Bezier curve for parameter *t*."""
         return tuple(
             self._px @ (((1 - t) ** self._orders)[::-1] * t ** self._orders))
+
+    @property
+    def tan_in(self):
+        if self.n < 2:
+            raise ValueError("Need at least two control points to get tangent "
+                             "vector!")
+        return self.cpoints[1] - self.cpoints[0]
+
+    @property
+    def tan_out(self):
+        if self.n < 2:
+            raise ValueError("Need at least two control points to get tangent "
+                             "vector!")
+        return self.cpoints[-1] - self.cpoints[-2]
+
+    @property
+    def interior_extrema(self):
+        if self.n <= 2: # a line's extrema are always its tips
+            return np.array([]), np.array([])
+        elif self.n == 3: # quadratic curve
+            # the bezier curve in standard form is
+            # cp[0] * (1 - t)^2 + cp[1] * 2t(1-t) + cp[2] * t^2
+            # can be re-written as
+            # cp[0] + 2 (cp[1] - cp[0]) t + (cp[2] - 2 cp[1] + cp[0]) t^2
+            # which has simple derivative
+            # 2*(cp[2] - 2*cp[1] + cp[0]) t + 2*(cp[1] - cp[0])
+            num = 2*(self.cpoints[2] - 2*self.cpoints[1] + self.cpoints[0])
+            denom = self.cpoints[1] - self.cpoints[0]
+            mask = ~np.isclose(denom, 0)
+            zeros = num[mask]/denom[mask]
+            dims = np.arange(self.d)[mask]
+            in_range = (0 <= zeros) & (zeros <= 1)
+            return dims[in_range], zeros[in_range]
+        elif self.n == 4: # cubic curve
+            # derivative of cubic bezier curve has coefficients
+            a = 3*(points[3] - 3*points[2] + 3*points[1] - points[0])
+            b = 6*(points[2] - 2*points[1] + points[0])
+            c = 3*(points[1] - points[0])
+            under_sqrt = b**2 - 4*a*c
+            dims = []
+            zeros = []
+            for i in range(d):
+                if under_sqrt[i] < 0:
+                    continue
+                roots = [(-b + np.sqrt(under_sqrt))/2/a,
+                        (-b - np.sqrt(under_sqrt))/2/a]
+                for root in roots:
+                    if 0 <= root <= 1:
+                        dims.append(i)
+                        zeros.append(root)
+            return np.asarray(dims), np.asarray(zeros)
+        else: # self.n > 4:
+            raise NotImplementedError("Zero finding only implemented up to "
+                                      "cubic curves.")
 
 
 def split_bezier_intersecting_with_closedpath(
