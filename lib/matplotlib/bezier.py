@@ -435,7 +435,7 @@ def iter_corners(path, **kwargs):
     first_vertex = None
     prev_tan_angle = None
     prev_vertex = None
-    for bcurve, code in test_path.iter_curves(**kwargs):
+    for bcurve, code in path.iter_curves(**kwargs):
         bcurve = BezierSegment(bcurve)
         if code == Path.MOVETO:
             # deal with capping ends of previous polyline, if it exists

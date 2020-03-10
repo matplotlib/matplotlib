@@ -1047,7 +1047,10 @@ class MarkerStyle:
         unit_extents = unit_path.get_extents().extents
         for curve, code in unit_path.iter_curves(**kwargs):
             curve = BezierSegment(curve)
-            for dim, zero in zip(curve.interior_extrema):
+            dims, zeros = curve.interior_extrema
+            if len(zeros) == 0:
+                continue
+            for dim, zero in zip(dims, zeros):
                 potential_extrema = curve.point_at_t(zero)[dim]
                 if potential_extrema < unit_extents[dim]:
                     unit_extents[dim] = potential_extrema
@@ -1061,33 +1064,33 @@ class MarkerStyle:
             # extents...
             if np.cos(corner.incidence_angle) > 0:
                 incidence_angle = corner.incidence_angle + np.pi/2
-                x +=  _get_padding_due_to_angle(width, incidence_angle,
-                        corner.corner_angle, joinstyle=self._joinstyle,
-                        capstyle=self._capstyle)
+                x +=  _get_padding_due_to_angle(markeredgewidth,
+                        incidence_angle, corner.corner_angle,
+                        joinstyle=self._joinstyle, capstyle=self._capstyle)
                 if x > unit_extents[xmax]:
                     unit_extents[xmax] = x
             else:
                 if corner.incidence_angle < 0: # [-pi, -pi/2]
-                    incidence_angle = 2*np.pi + corner.incidence_angle - pi/2
+                    incidence_angle = 2*np.pi + corner.incidence_angle - np.pi/2
                 else:
                     incidence_angle = corner.incidence_angle - pi/2
-                x -= _get_padding_due_to_angle(width, incidence_angle,
-                        corner.corner_angle, joinstyle=self._joinstyle,
-                        capstyle=self._capstyle)
+                x -= _get_padding_due_to_angle(markeredgewidth,
+                        incidence_angle, corner.corner_angle,
+                        joinstyle=self._joinstyle, capstyle=self._capstyle)
                 if x < unit_extents[xmin]:
                     unit_extents[xmin] = x
             if np.sin(corner.incidence_angle) > 0:
                 incidence_angle = corner.incidence_angle
-                y += _get_padding_due_to_angle(width, incidence_angle,
-                        corner.corner_angle, joinstyle=self._joinstyle,
-                        capstyle=self._capstyle)
+                y += _get_padding_due_to_angle(markeredgewidth,
+                        incidence_angle, corner.corner_angle,
+                        joinstyle=self._joinstyle, capstyle=self._capstyle)
                 if y > unit_extents[ymax]:
                     unit_extents[ymax] = y
             else:
                 incidence_angle = corner.incidence_angle + np.pi
-                y -= _get_padding_due_to_angle(width, incidence_angle,
-                        corner.corner_angle, joinstyle=self._joinstyle,
-                        capstyle=self._capstyle)
+                y -= _get_padding_due_to_angle(markeredgewidth,
+                        incidence_angle, corner.corner_angle,
+                        joinstyle=self._joinstyle, capstyle=self._capstyle)
                 if y < unit_extents[ymin]:
                     unit_extents[ymin] = y
         scale = Affine2D().scale(markersize)
