@@ -411,7 +411,7 @@ class TexManager:
             return width, height + depth, depth
 
         else:
-            # use dviread. It sometimes returns a wrong descent.
+            # use dviread.
             dvifile = self.make_dvi(tex, fontsize)
             with dviread.Dvi(dvifile, 72 * dpi_fraction) as dvi:
                 page, = dvi
