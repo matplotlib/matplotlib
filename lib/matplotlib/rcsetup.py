@@ -579,12 +579,18 @@ def _validate_linestyle(ls):
             and _is_iterable_not_string_like(ls[1])
             and len(ls[1]) % 2 == 0
             and all(isinstance(elem, Number) for elem in ls[1])):
+        if ls[0] is None:
+            cbook.warn_deprecated(
+                "3.3", message="Passing the dash offset as None is deprecated "
+                "since %(since)s and support for it will be removed "
+                "%(removal)s; pass it as zero instead.")
+            ls = (0, ls[1])
         return ls
     # For backcompat: (on, off, on, off, ...); the offset is implicitly None.
     if (_is_iterable_not_string_like(ls)
             and len(ls) % 2 == 0
             and all(isinstance(elem, Number) for elem in ls)):
-        return (None, ls)
+        return (0, ls)
     raise ValueError(f"linestyle {ls!r} is not a valid on-off ink sequence.")
 
 

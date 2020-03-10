@@ -237,6 +237,14 @@ int convert_dashes(PyObject *dashobj, void *dashesp)
         if (PyErr_Occurred()) {
             return 0;
         }
+    } else {
+        if (PyErr_WarnEx(PyExc_FutureWarning,
+                         "Passing the dash offset as None is deprecated since "
+                         "Matplotlib 3.3 and will be removed in Matplotlib 3.5; "
+                         "pass it as zero instead.",
+                         1)) {
+            return 0;
+        }
     }
 
     if (dashes_seq == Py_None) {

@@ -264,3 +264,12 @@ method consistent across all artists; thus, additional parameters to
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This method is deprecated.  `.DraggableBase.on_motion` now handles both the
 blitting and the non-blitting cases.
+
+Passing the dash offset as None
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Fine control of dash patterns can be achieved by passing an ``(offset,
+(on-length, off-length, on-length, off-length, ...))`` pair as the linestyle
+property of `.Line2D` and `.LineCollection`.  Previously, certain APIs would
+accept ``offset = None`` as a synonym for ``offset = 0``, but this was never
+universally implemented, e.g. for vector output.  Support for ``offset = None``
+is deprecated, set the offset to 0 instead.
