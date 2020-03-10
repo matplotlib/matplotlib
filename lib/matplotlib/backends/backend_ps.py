@@ -916,10 +916,7 @@ class FigureCanvasPS(FigureCanvasBase):
                 Ndict += len(ps_renderer._character_tracker.used)
             print("/mpldict %d dict def" % Ndict, file=fh)
             print("mpldict begin", file=fh)
-            for d in psDefs:
-                d = d.strip()
-                for l in d.split('\n'):
-                    print(l.strip(), file=fh)
+            print("\n".join(psDefs), file=fh)
             if not mpl.rcParams['ps.useafm']:
                 for font_path, chars \
                         in ps_renderer._character_tracker.used.items():

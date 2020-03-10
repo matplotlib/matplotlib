@@ -718,13 +718,10 @@ def validate_sketch(s):
         s = s.lower()
     if s == 'none' or s is None:
         return None
-    if isinstance(s, str):
-        result = tuple([float(v.strip()) for v in s.split(',')])
-    elif isinstance(s, (list, tuple)):
-        result = tuple([float(v) for v in s])
-    if len(result) != 3:
-        raise ValueError("path.sketch must be a tuple (scale, length, randomness)")
-    return result
+    try:
+        return tuple(validate_nseq_float(3)(s))
+    except ValueError:
+        raise ValueError("Expected a (scale, length, randomness) triplet")
 
 
 def _validate_greaterequal0_lessthan1(s):

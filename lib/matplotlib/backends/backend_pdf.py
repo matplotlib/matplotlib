@@ -538,8 +538,7 @@ class PdfFile:
         self.pageAnnotations = []  # A list of annotations for the current page
 
         # The PDF spec recommends to include every procset
-        procsets = [Name(x)
-                    for x in "PDF Text ImageB ImageC ImageI".split()]
+        procsets = [Name(x) for x in "PDF Text ImageB ImageC ImageI".split()]
 
         # Write resource dictionary.
         # Possibly TODO: more general ExtGState (graphics state dictionaries)

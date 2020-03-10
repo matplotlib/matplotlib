@@ -139,9 +139,7 @@ def _truncate_location(location):
     This allows for easy comparison even when line numbers chagne
     (as they do regularily).
     """
-    if ":" in location:
-        return location.split(":", 1)[0]
-    return location
+    return location.split(":", 1)[0]
 
 
 def _warn_unused_missing_references(app):
