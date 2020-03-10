@@ -2,7 +2,6 @@ import configparser
 from distutils import ccompiler, sysconfig
 from distutils.core import Extension
 import functools
-import glob
 import hashlib
 from io import BytesIO
 import logging
@@ -136,6 +135,8 @@ _freetype_hashes = {
 # embedded windows build script (grep for "REMINDER" in this file)
 LOCAL_FREETYPE_VERSION = '2.6.1'
 LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
+
+LOCAL_QHULL_VERSION = '2015.2'
 
 
 # matplotlib build options, which can be altered using setup.cfg
@@ -514,8 +515,9 @@ def add_qhull_flags(ext):
     if options.get("system_qhull"):
         ext.libraries.append("qhull")
     else:
-        ext.include_dirs.insert(0, "extern")
-        ext.sources.extend(sorted(glob.glob("extern/libqhull/*.c")))
+        qhull_path = Path(f'extern/qhull-{LOCAL_QHULL_VERSION}/src')
+        ext.include_dirs.insert(0, str(qhull_path))
+        ext.sources.extend(map(str, sorted(qhull_path.glob('libqhull/*.c'))))
         if sysconfig.get_config_var("LIBM") == "-lm":
             ext.libraries.extend("m")
 

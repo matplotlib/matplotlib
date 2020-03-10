@@ -28,6 +28,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import tarfile
 
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext as BuildExtCommand
@@ -47,7 +48,8 @@ from distutils.errors import CompileError
 from distutils.dist import Distribution
 
 import setupext
-from setupext import print_raw, print_status
+from setupext import (
+    download_or_cache, print_raw, print_status, LOCAL_QHULL_VERSION)
 
 # Get the version from versioneer
 import versioneer
@@ -85,8 +87,24 @@ class NoopTestCommand(TestCommand):
               "'python setup.py test'. Please run 'pytest'.")
 
 
+def _download_qhull_to(dest):
+    url = "http://www.qhull.org/download/qhull-2015-src-7.2.0.tgz"
+    sha = "78b010925c3b577adc3d58278787d7df08f7c8fb02c3490e375eab91bb58a436"
+    if (dest / f"qhull-{LOCAL_QHULL_VERSION}").exists():
+        return
+    dest.mkdir(parents=True, exist_ok=True)
+    try:
+        buf = download_or_cache(url, sha)
+    except Exception:
+        raise IOError(f"Failed to download qhull.  Please download {url} and "
+                      f"extract it to {dest}.")
+    with tarfile.open(fileobj=buf, mode="r:gz") as tf:
+        tf.extractall(dest)
+
+
 class BuildExtraLibraries(BuildExtCommand):
     def finalize_options(self):
+        _download_qhull_to(Path("extern"))
         self.distribution.ext_modules[:] = [
             ext
             for package in good_packages
