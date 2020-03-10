@@ -530,7 +530,7 @@ grestore
             last_name = None
             lines = []
             for c in s:
-                name = uni2type1.get(ord(c), 'question')
+                name = uni2type1.get(ord(c), f"uni{ord(c):04X}")
                 try:
                     width = font.get_width_from_char_name(name)
                 except KeyError:
