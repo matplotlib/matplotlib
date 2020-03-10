@@ -278,3 +278,7 @@ property of `.Line2D` and `.LineCollection`.  Previously, certain APIs would
 accept ``offset = None`` as a synonym for ``offset = 0``, but this was never
 universally implemented, e.g. for vector output.  Support for ``offset = None``
 is deprecated, set the offset to 0 instead.
+
+``RendererCairo.fontweights``, ``RendererCairo.fontangles``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated.
