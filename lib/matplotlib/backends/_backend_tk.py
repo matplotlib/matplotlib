@@ -75,6 +75,10 @@ def blit(photoimage, aggimage, offsets, bbox=None):
     else:
         photoimage.blank()
         bboxptr = (0, width, 0, height)
+    try:
+        photoimage.tk.call(photoimage, "get", 0, 0)
+    except tk.TclError:
+        raise RuntimeError(f"{photoimage} has been deleted") from None
     _tkagg.blit(
         photoimage.tk.interpaddr(), str(photoimage), dataptr, offsets, bboxptr)
 
