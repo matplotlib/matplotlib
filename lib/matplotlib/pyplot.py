@@ -1032,7 +1032,7 @@ def subplot(*args, **kwargs):
 
 
 def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
-             subplot_kw=None, gridspec_kw=None, **fig_kw):
+             subplot_kw=None, gridspec_kw=None, **kwargs):
     """
     Create a figure and a set of subplots.
 
@@ -1082,9 +1082,11 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         Dict with keywords passed to the `~matplotlib.gridspec.GridSpec`
         constructor used to create the grid the subplots are placed on.
 
-    **fig_kw
-        All additional keyword arguments are passed to the
-        `.pyplot.figure` call.
+    **kwargs
+        Keyword arguements that are "projections", "polar", or "label"
+        are passed to the `~matplotlib.figure.Figure.add_subplot` call used
+        to create each subplot. All additional keyword arguments are
+        passed to the `.pyplot.figure` call.
 
     Returns
     -------
@@ -1132,7 +1134,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         ax2.scatter(x, y)
 
         # Create four polar axes and access them through the returned array
-        fig, axs = plt.subplots(2, 2, subplot_kw=dict(polar=True))
+        fig, axs = plt.subplots(2, 2, polar=True)
         axs[0, 0].plot(x, y)
         axs[1, 1].scatter(x, y)
 
@@ -1161,7 +1163,17 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     .Figure.add_subplot
 
     """
-    fig = figure(**fig_kw)
+    if subplot_kw is None:
+        subplot_kw = {}
+    for arg in ["projection", "polar", "label"]:
+        if arg in kwargs:
+            if arg in subplot_kw:
+                raise TypeError("subplots() got multiple values for "
+                                 "keyword argument '{}'".format(arg))
+            subplot_kw[arg] = kwargs[arg]
+            kwargs.pop(arg)
+
+    fig = figure(**kwargs)
     axs = fig.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey,
                        squeeze=squeeze, subplot_kw=subplot_kw,
                        gridspec_kw=gridspec_kw)

@@ -173,3 +173,8 @@ def test_dont_mutate_kwargs():
                            gridspec_kw=gridspec_kw)
     assert subplot_kw == {'sharex': 'all'}
     assert gridspec_kw == {'width_ratios': [1, 2]}
+
+
+def test_combine_subplot_kw_fig_kw():
+    fig1, axs1 = plt.subplots(2, 2, polar=True)
+    assert type(axs1[0][0]).__name__ == "PolarAxesSubplot"
