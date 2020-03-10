@@ -201,7 +201,8 @@ class MarkerStyle:
     # TODO: Is this ever used as a non-constant?
     _point_size_reduction = 0.5
 
-    def __init__(self, marker=None, fillstyle=None):
+    def __init__(self, marker=None, fillstyle=None, *,
+                 normalization="classic"):
         """
         Attributes
         ----------
@@ -213,12 +214,23 @@ class MarkerStyle:
 
         Parameters
         ----------
-        marker : str or array-like, optional, default: None
+        marker : str, array-like, `~.path.Path`, or `~.markers.MarkerStyle`, \
+        default: None
             See the descriptions of possible markers in the module docstring.
 
         fillstyle : str, optional, default: 'full'
             'full', 'left", 'right', 'bottom', 'top', 'none'
+
+        normalization : str, {'classic', 'none'}, optional, default: "classic"
+            The normalization of the marker size. Only applies to custom paths
+            that are provided as array of vertices or `~.path.Path`.
+            Can take two values:
+            *'classic'*, being the default, makes sure the marker path is
+            normalized to fit within a unit-square by affine scaling.
+            *'none'*, in which case no scaling is performed on the marker path.
         """
+        cbook._check_in_list(["classic", "none"], normalization=normalization)
+        self._normalize = normalization
         self._marker_function = None
         self.set_fillstyle(fillstyle)
         self.set_marker(marker)
@@ -303,6 +315,13 @@ class MarkerStyle:
     def get_transform(self):
         return self._transform.frozen()
 
+    def set_transform(self, transform):
+        """
+        Sets the transform of the marker. This is the transform by which the
+        marker path is transformed.
+        """
+        self._transform = transform
+
     def get_alt_path(self):
         return self._alt_path
 
@@ -316,8 +335,9 @@ class MarkerStyle:
         self._filled = False
 
     def _set_custom_marker(self, path):
-        rescale = np.max(np.abs(path.vertices))  # max of x's and y's.
-        self._transform = Affine2D().scale(0.5 / rescale)
+        if self._normalize == "classic":
+            rescale = np.max(np.abs(path.vertices))  # max of x's and y's.
+            self._transform = Affine2D().scale(0.5 / rescale)
         self._path = path
 
     def _set_path_marker(self):
@@ -350,8 +370,6 @@ class MarkerStyle:
     def _set_mathtext_path(self):
         """
         Draws mathtext markers '$...$' using TextPath object.
-
-        Submitted by tcb
         """
         from matplotlib.text import TextPath
 

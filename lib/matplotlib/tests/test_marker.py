@@ -2,8 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import markers
 from matplotlib.path import Path
-from matplotlib.testing.decorators import check_figures_equal
+from matplotlib.transforms import Affine2D
 
+from matplotlib.testing.decorators import check_figures_equal
 import pytest
 
 
@@ -133,3 +134,24 @@ def test_asterisk_marker(fig_test, fig_ref, request):
 
     ax_test.set(xlim=(-0.5, 1.5), ylim=(-0.5, 1.5))
     ax_ref.set(xlim=(-0.5, 1.5), ylim=(-0.5, 1.5))
+
+
+@check_figures_equal(extensions=["png"])
+def test_marker_normalization(fig_test, fig_ref):
+    plt.style.use("mpl20")
+
+    ax = fig_ref.subplots()
+    ax.margins(0.3)
+    ax.scatter([0, 1], [0, 0], s=400, marker="s", c="C2")
+
+    ax = fig_test.subplots()
+    ax.margins(0.3)
+    # test normalize
+    p = Path([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]], closed=True)
+    p1 = p.transformed(Affine2D().translate(-.5, -.5).scale(20))
+    m1 = markers.MarkerStyle(p1, normalization="none")
+    ax.scatter([0], [0], s=1, marker=m1, c="C2")
+    # test transform
+    m2 = markers.MarkerStyle("s")
+    m2.set_transform(m2.get_transform() + Affine2D().scale(20))
+    ax.scatter([1], [0], s=1, marker=m2, c="C2")
