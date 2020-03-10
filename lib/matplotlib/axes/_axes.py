@@ -1122,15 +1122,17 @@ class Axes(_AxesBase):
         if not np.iterable(xmax):
             xmax = [xmax]
 
-        y, xmin, xmax = cbook.delete_masked_points(y, xmin, xmax)
-
+        # Create and combine masked_arrays from input
+        y, xmin, xmax = cbook._combine_masks(y, xmin, xmax)
         y = np.ravel(y)
-        xmin = np.resize(xmin, y.shape)
-        xmax = np.resize(xmax, y.shape)
+        xmin = np.ma.resize(xmin, y.shape)
+        xmax = np.ma.resize(xmax, y.shape)
 
-        verts = [((thisxmin, thisy), (thisxmax, thisy))
-                 for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
-        lines = mcoll.LineCollection(verts, colors=colors,
+        masked_verts = [np.ma.array([y_xmin, y_xmax])
+                        for y_xmin, y_xmax in
+                        zip(np.ma.array([xmin, y]).T,
+                            np.ma.array([xmax, y]).T)]
+        lines = mcoll.LineCollection(masked_verts, colors=colors,
                                      linestyles=linestyles, label=label)
         self.add_collection(lines, autolim=False)
         lines.update(kwargs)
@@ -1200,15 +1202,17 @@ class Axes(_AxesBase):
         if not np.iterable(ymax):
             ymax = [ymax]
 
-        x, ymin, ymax = cbook.delete_masked_points(x, ymin, ymax)
-
+        # Create and combine masked_arrays from input
+        x, ymin, ymax = cbook._combine_masks(x, ymin, ymax)
         x = np.ravel(x)
-        ymin = np.resize(ymin, x.shape)
-        ymax = np.resize(ymax, x.shape)
+        ymin = np.ma.resize(ymin, x.shape)
+        ymax = np.ma.resize(ymax, x.shape)
 
-        verts = [((thisx, thisymin), (thisx, thisymax))
-                 for thisx, thisymin, thisymax in zip(x, ymin, ymax)]
-        lines = mcoll.LineCollection(verts, colors=colors,
+        masked_verts = [np.ma.array([xymin, xymax])
+                        for xymin, xymax in
+                        zip(np.ma.array([x, ymin]).T,
+                            np.ma.array([x, ymax]).T)]
+        lines = mcoll.LineCollection(masked_verts, colors=colors,
                                      linestyles=linestyles, label=label)
         self.add_collection(lines, autolim=False)
         lines.update(kwargs)
