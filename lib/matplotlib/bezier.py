@@ -359,6 +359,135 @@ def inside_circle(cx, cy, r):
     return _f
 
 
+CornerInfo = namedtuple('CornerInfo', 'apex incidence_angle corner_angle')
+r"""Used to have a universal way to account for how much the bounding box of a
+shape will grow as we increase its `markeredgewidth`.
+
+Attributes
+----------
+    `apex` : float
+        the vertex that marks the "tip" of the corner
+    `incidence_angle` : float
+        the angle that the corner bisector makes with the box edge (where
+        top/bottom box edges are horizontal, left/right box edges are
+        vertical).
+    `corner_angle` : float
+        the internal angle of the corner, where np.pi is a straight line, and 0
+        is retracing exactly the way you came. None can be used to signify that
+        the line ends there (i.e. no corner).
+
+Notes
+-----
+$\pi$ and 0 are equivalent for `corner_angle`. Both $\theta$ and $\pi - \theta$
+are equivalent for `incidence_angle` by symmetry."""
+
+
+def _incidence_corner_from_angles(angle_1, angle_2):
+    """Gets CornerInfo from direction of lines making up corner.
+
+    This function expects angle_1 and angle_2 (in radians) to be
+    the orientation of lines 1 and 2 (arbitrarily chosen to point
+    towards the corner where they meet) relative to the coordinate
+    system.
+
+    Helper function for iter_corners.
+
+    Returns
+    -------
+    incidence_angle : float in [0, 2*pi]
+        as described in CornerInfo docs
+    corner_angle : float in [0, pi]
+        as described in CornerInfo docs
+    """
+    # get "interior" angle between tangents to joined curves' tips
+    corner_angle = np.abs(angle_1 - angle_2)
+    if corner_angle > np.pi:
+        corner_angle = 2*np.pi - corner_angle
+    # since [-pi, pi], we need to sort to avoid modulo
+    smaller_angle = min(angle_1, angle_2)
+    larger_angle = max(angle_1, angle_2)
+    if np.isclose(smaller_angle + corner_angle, larger_angle):
+        incident_angle = smaller_angle + corner_angle/2
+    else:
+        incident_angle = smaller_angle - corner_angle/2
+    return incident_angle, corner_angle
+
+
+def iter_corners(path, **kwargs):
+    """Iterate over a mpl.path.Path object and return information about every
+    cap and corner.
+
+    Parameters
+    ----------
+    path : mpl.path.Path
+        the path to extract corners from
+    kwargs : Dict[str, object]
+        passed onto Path.iter_curves
+
+    Yields
+    ------
+    corner : CornerInfo
+        Measure of the corner's position, orientation, and angle. Useful in
+        order to determine how the corner affects the bbox of the curve.
+    """
+    first_tan_angle = None
+    first_vertex = None
+    prev_tan_angle = None
+    prev_vertex = None
+    for bcurve, code in test_path.iter_curves(**kwargs):
+        bcurve = BezierSegment(bcurve)
+        if code == Path.MOVETO:
+            # deal with capping ends of previous polyline, if it exists
+            if prev_tan_angle is not None and is_capped:
+                for cap_angle, cap_vertex in [(first_tan_angle, first_vertex),
+                                              (prev_tan_angle, prev_vertex)]:
+                    yield CornerInfo(cap_vertex, cap_angle, None)
+            first_tan_angle = None
+            prev_tan_angle = None
+            first_vertex = bcurve.cpoints[0]
+            prev_vertex = first_vertex
+            # lines will end in a cap by default unless a CLOSEPOLY is observed
+            is_capped = True
+            continue
+        if code == Path.CLOSEPOLY:
+            is_capped = False
+            if prev_tan_angle is None:
+                raise ValueError("Misformed path, cannot close poly with single vertex!")
+            tan_in = prev_vertex - first_vertex
+            # often CLOSEPOLY is used when the curve has already reached it's initial point
+            # in order to prevent there from being a stray straight line segment
+            # if it's used this way, then we more or less ignore the current bcurve
+            if np.isclose(np.linalg.norm(tan_in), 0):
+                incident_angle, corner_angle = _incidence_corner_from_angles(
+                        prev_tan_angle, first_tan_angle)
+                yield CornerInfo(prev_vertex, incident_angle, corner_angle)
+                continue
+            # otherwise, we have to calculate both the corner from the
+            # previous line segment to the current straight line, and from the current straight
+            # line to the original starting line. The former is taken care of by the
+            # non-special-case code below. the latter looks like:
+            tan_out = bcurve.tan_out
+            angle_end = np.arctan2(tan_out[1], tan_out[0])
+            incident_angle, corner_angle = _incidence_corner_from_angles(
+                    angle_end, first_tan_angle)
+            yield CornerInfo(first_vertex, incident_angle, corner_angle)
+        # finally, usual case is when two curves meet at an angle
+        tan_in = -bcurve.tan_in
+        angle_in = np.arctan2(tan_in[1], tan_in[0])
+        if first_tan_angle is None:
+            first_tan_angle = angle_in
+        if prev_tan_angle is not None:
+            incident_angle, corner_angle = _incidence_corner_from_angles(
+                    angle_in, prev_tan_angle)
+            yield CornerInfo(prev_vertex, incident_angle, corner_angle)
+        tan_out = bcurve.tan_out
+        prev_tan_angle = np.arctan2(tan_out[1], tan_out[0])
+        prev_vertex = bcurve.cpoints[-1]
+    if prev_tan_angle is not None and is_capped:
+        for cap_angle, cap_vertex in [(first_tan_angle, first_vertex),
+                                      (prev_tan_angle, prev_vertex)]:
+            yield CornerInfo(cap_vertex, cap_angle, None)
+
 # quadratic Bezier lines
 
 def get_cos_sin(x0, y0, x1, y1):
