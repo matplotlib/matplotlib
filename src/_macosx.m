@@ -1256,6 +1256,8 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     rect.size.height = 0;
     rect.origin.x += height;
     NSTextView* messagebox = [[NSTextView alloc] initWithFrame: rect];
+    messagebox.textContainer.maximumNumberOfLines = 2;
+    messagebox.textContainer.lineBreakMode = NSLineBreakByTruncatingTail;
     [messagebox setFont: font];
     [messagebox setDrawsBackground: NO];
     [messagebox setSelectable: NO];
@@ -1305,9 +1307,9 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
         [messagebox setString: text];
         
         // Adjust width with the window size
-        NSRect window_rect = [messagebox.superview frame];
+        NSRect rectWindow = [messagebox.superview frame];
         NSRect rect = [messagebox frame];
-        rect.size.width = window_rect.size.width - rect.origin.x;
+        rect.size.width = rectWindow.size.width - rect.origin.x;
         [messagebox setFrame: rect];
         
         // Adjust height with the content size
