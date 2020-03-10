@@ -125,9 +125,8 @@ def test_Bug_2543():
         # real test is that this does not raise
         assert validate_bool_maybe_none(None) is None
         assert validate_bool_maybe_none("none") is None
-
-    with pytest.raises(ValueError):
-        validate_bool_maybe_none("blah")
+        with pytest.raises(ValueError):
+            validate_bool_maybe_none("blah")
     with pytest.raises(ValueError):
         validate_bool(None)
     with pytest.raises(ValueError):

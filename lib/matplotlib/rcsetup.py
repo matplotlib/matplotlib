@@ -139,6 +139,7 @@ def validate_bool(b):
         raise ValueError('Could not convert "%s" to bool' % b)
 
 
+@cbook.deprecated("3.3")
 def validate_bool_maybe_none(b):
     """Convert b to ``bool`` or raise, passing through *None*."""
     if isinstance(b, str):
@@ -663,7 +664,13 @@ validate_svg_fonttype = ValidateInStrings(
     'svg.fonttype', ['none', 'path'], _deprecated_since="3.3")
 
 
+@cbook.deprecated("3.3")
 def validate_hinting(s):
+    return _validate_hinting(s)
+
+
+# Replace by plain list in _prop_validators after deprecation period.
+def _validate_hinting(s):
     if s in (True, False):
         cbook.warn_deprecated(
             "3.2", message="Support for setting the text.hinting rcParam to "
@@ -680,6 +687,7 @@ validate_pgf_texsystem = ValidateInStrings(
     _deprecated_since="3.3")
 
 
+@cbook.deprecated("3.3")
 def validate_movie_writer(s):
     # writers.list() would only list actually available writers, but
     # FFMpeg.isAvailable is slow and not worth paying for at every import.
@@ -1147,7 +1155,7 @@ defaultParams = {
     'text.usetex':         [False, validate_bool],
     'text.latex.preamble': ['', _validate_tex_preamble],
     'text.latex.preview':  [False, validate_bool],
-    'text.hinting':        ['auto', validate_hinting],
+    'text.hinting':        ['auto', _validate_hinting],
     'text.hinting_factor': [8, validate_int],
     'text.kerning_factor': [0, validate_int],
     'text.antialiased':    [True, validate_bool],
@@ -1467,7 +1475,7 @@ defaultParams = {
     # Limit, in MB, of size of base64 encoded animation in HTML
     # (i.e. IPython notebook)
     'animation.embed_limit':  [20, validate_float],
-    'animation.writer':       ['ffmpeg', validate_movie_writer],
+    'animation.writer':       ['ffmpeg', validate_string],
     'animation.codec':        ['h264', validate_string],
     'animation.bitrate':      [-1, validate_int],
     # Controls image format when frames are written to disk
