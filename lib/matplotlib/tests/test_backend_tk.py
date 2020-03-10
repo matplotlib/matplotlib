@@ -31,7 +31,6 @@ def test_blit():
 def test_blit_error_on_closed_figure():
     # render figure with TkAgg backend and then close
     fig, axes = plt.subplots()
-    axes.imshow(np.zeros((1000, 1000, 3), dtype=np.uint8))
     fig.canvas.draw()
     plt.close(fig.number)
     # assert runtime error is thrown from the blit function after figure is closed
