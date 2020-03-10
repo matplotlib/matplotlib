@@ -135,6 +135,7 @@ import numpy as np
 from . import cbook, rcParams
 from .path import Path
 from .transforms import IdentityTransform, Affine2D, Bbox
+from .bezier import BezierSegment, iter_corners
 
 # special-purpose marker identifiers:
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
@@ -143,154 +144,32 @@ from .transforms import IdentityTransform, Affine2D, Bbox
 
 _empty_path = Path(np.empty((0, 2)))
 
-# we store some geometrical information about each marker to track how its
-# size scales with increased "edge" thickness
-PathEndAngle = namedtuple('PathEndAngle', 'incidence_angle corner_angle')
-r"""Used to have a universal way to account for how much the bounding box of a
-shape will grow as we increase its `markeredgewidth`.
-
-Attributes
-----------
-    `incidence_angle` : float
-        the angle that the corner bisector makes with the box edge (where
-        top/bottom box edges are horizontal, left/right box edges are
-        vertical).
-    `corner_angle` : float
-        the internal angle of the corner, where np.pi is a straight line, and 0
-        is retracing exactly the way you came. None can be used to signify that
-        the line ends there (i.e. no corner).
-
-Notes
------
-$\pi$ and 0 are equivalent for `corner_angle`. Both $\theta$ and $\pi - \theta$
-are equivalent for `incidence_angle` by symmetry."""
-
-BoxSides = namedtuple('BoxSides', 'top bottom left right')
-"""Easily keep track of same parameter for each of four sides."""
-
-# some angles are heavily repeated throughout various markers
-_tri_side_angle = np.arctan(2)
-_tri_tip_angle = 2*np.arctan(1/2)
-_caret_side_angle = np.arctan(3/2)
-_caret_tip_angle = 2*np.arctan(2/3)
-# half the edge length of the smaller pentagon over the difference between the
-# larger pentagon's circumcribing radius and the smaller pentagon's inscribed
-# radius #TODO this formula has typo somewhere....
-# _star_tip_angle = 2*np.arctan2((1/4)*np.sqrt((5 - np.sqrt(5))/2),
-#                                1 - np.sqrt((3 + np.sqrt(5))/32))
-_star_tip_angle = 0.6283185056636065
-# reusable corner types
-_flat_side = PathEndAngle(0, 0)
-_normal_line = PathEndAngle(np.pi/2, None)
-_normal_right_angle = PathEndAngle(np.pi/2, np.pi/2)
-_tri_side = PathEndAngle(np.pi/2 - _tri_side_angle/2, _tri_side_angle)
-_tri_tip = PathEndAngle(np.pi/2, _tri_tip_angle)
-_caret_bottom = PathEndAngle(_caret_side_angle, None)
-_caret_side = PathEndAngle(np.pi/2 - _caret_side_angle, None)
-_caret_tip = PathEndAngle(np.pi/2, _caret_tip_angle)
-# and some entire box side behaviors are repeated among markers
-_effective_square = BoxSides(_flat_side, _flat_side, _flat_side, _flat_side)
-_effective_diamond = BoxSides(_normal_right_angle, _normal_right_angle,
-                              _normal_right_angle, _normal_right_angle)
-
-# precomputed information required for marker_bbox (besides _joinstyle)
-_edge_angles = {
-    '.': _effective_square,
-    ',': _effective_square,
-    'o': _effective_square,
-    # hit two corners and tip bisects one side of unit square
-    'v': BoxSides(_flat_side, _tri_tip, _tri_side, _tri_side),
-    '^': BoxSides(_tri_tip, _flat_side, _tri_side, _tri_side),
-    '<': BoxSides(_tri_side, _tri_side, _tri_tip, _flat_side),
-    '>': BoxSides(_tri_side, _tri_side, _flat_side, _tri_tip),
-    # angle bisectors of an equilateral triangle. lines of length 1/2
-    '1': BoxSides(PathEndAngle(np.pi/6, None), PathEndAngle(np.pi/2, None),
-                  PathEndAngle(np.pi/3, None), PathEndAngle(np.pi/3, None)),
-    '2': BoxSides(PathEndAngle(np.pi/2, None), PathEndAngle(np.pi/6, None),
-                  PathEndAngle(np.pi/3, None), PathEndAngle(np.pi/3, None)),
-    '3': BoxSides(PathEndAngle(np.pi/3, None), PathEndAngle(np.pi/3, None),
-                  PathEndAngle(np.pi/2, None), PathEndAngle(np.pi/6, None)),
-    '4': BoxSides(PathEndAngle(np.pi/3, None), PathEndAngle(np.pi/3, None),
-                  PathEndAngle(np.pi/6, None), PathEndAngle(np.pi/2, None)),
-    # regular polygons, circumscribed in circle of radius 1.
-    '8': _effective_square,
-    's': _effective_square,
-    'p': BoxSides(PathEndAngle(np.pi/2, 3*np.pi/5), _flat_side,
-                  PathEndAngle(2*np.pi/5, 3*np.pi/5),
-                  PathEndAngle(2*np.pi/5, 3*np.pi/5)),
-    # tips are corners of regular pentagon circuscribed in circle of radius 1.
-    # so incidence angles are same as pentagon
-    # interior points are corners of another regular pentagon, whose
-    # circumscribing circle has radius 0.5, so all tip angles are same
-    '*': BoxSides(PathEndAngle(np.pi/2, _star_tip_angle),
-                  PathEndAngle(3*np.pi/10, _star_tip_angle),
-                  PathEndAngle(2*np.pi/5, _star_tip_angle),
-                  PathEndAngle(2*np.pi/5, _star_tip_angle)),
-    'h': BoxSides(PathEndAngle(np.pi/2, 2*np.pi/3),
-                  PathEndAngle(np.pi/2, 2*np.pi/3),
-                  _flat_side, _flat_side),
-    'H': BoxSides(_flat_side, _flat_side,
-                  PathEndAngle(np.pi/2, 2*np.pi/3),
-                  PathEndAngle(np.pi/2, 2*np.pi/3)),
-    '+': BoxSides(_normal_line, _normal_line, _normal_line, _normal_line),
-    'x': BoxSides(PathEndAngle(np.pi/4, None), PathEndAngle(np.pi/4, None),
-                  PathEndAngle(np.pi/4, None), PathEndAngle(np.pi/4, None)),
-    # unit square rotated pi/2
-    'D': _effective_diamond,
-    # D scaled by 0.6 in horizontal direction
-    'd': BoxSides(PathEndAngle(np.pi/2, 2*np.arctan(3/5)),
-                  PathEndAngle(np.pi/2, 2*np.arctan(3/5)),
-                  PathEndAngle(np.pi/2, 2*np.arctan(5/3)),
-                  PathEndAngle(np.pi/2, 2*np.arctan(5/3))),
-    '|': BoxSides(_normal_line, _normal_line, _flat_side, _flat_side),
-    '_': BoxSides(_flat_side, _flat_side, _normal_line, _normal_line),
-    'P': _effective_square,
-    'X': _effective_diamond,
-    TICKLEFT: BoxSides(_flat_side, _flat_side, _normal_line, _normal_line),
-    TICKRIGHT: BoxSides(_flat_side, _flat_side, _normal_line, _normal_line),
-    TICKUP: BoxSides(_normal_line, _normal_line, _flat_side, _flat_side),
-    TICKDOWN: BoxSides(_normal_line, _normal_line, _flat_side, _flat_side),
-    # carets missing the edge opposite their "tip", different size than tri's
-    CARETLEFT: BoxSides(_caret_side, _caret_side, _caret_tip, _caret_bottom),
-    CARETRIGHT: BoxSides(_caret_side, _caret_side, _caret_bottom, _caret_tip),
-    CARETUP: BoxSides(_caret_tip, _caret_bottom, _caret_side, _caret_side),
-    CARETDOWN: BoxSides(_caret_bottom, _caret_tip, _caret_side, _caret_side),
-    CARETLEFTBASE: BoxSides(_caret_side, _caret_side, _caret_tip,
-                            _caret_bottom),
-    CARETRIGHTBASE: BoxSides(_caret_side, _caret_side, _caret_bottom,
-                             _caret_tip),
-    CARETUPBASE: BoxSides(_caret_tip, _caret_bottom, _caret_side, _caret_side),
-    CARETDOWNBASE: BoxSides(_caret_bottom, _caret_tip, _caret_side,
-                            _caret_side),
-    '': BoxSides(None, None, None, None),
-    ' ': BoxSides(None, None, None, None),
-    'None': BoxSides(None, None, None, None),
-    None: BoxSides(None, None, None, None),
-}
-
-
-def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
+def _get_padding_due_to_angle(width, phi, theta, joinstyle='miter',
                               capstyle='butt'):
     """Computes how much a stroke of *width* overflows the naive bbox at a
-    corner described by *path_end_angle*.
+    corner described by *corner_info*.
 
     Parameters
     ----------
     width : float
         `markeredgewidth` used to draw the stroke that we're computing the
-        overflow of
-    path_end_angle : PathEndAngle
-        precomputed property of a corner that allows us to compute the overflow
+        overflow for
+    phi : float
+        incidence angle of bisector of corner relative to side of bounding box
+        we're calculating the padding for
+    theta : float or None
+        angle swept out by the two lines that form the corner. if None, the
+        padding due to a "cap" is used instead of a corner
+    joinstyle : 'miter' (default), 'round', or 'bevel'
+        how the corner is to be drawn
+    capstyle : 'butt', 'round', 'projecting'
+
 
     Returns
     -------
     pad : float
         amount of overflow
-
     """
-    if path_end_angle is None or width < 0:
-        return np.nan
-    phi, theta = path_end_angle.incidence_angle, path_end_angle.corner_angle
     if theta is not None and (theta < 0 or theta > np.pi) \
             or phi < 0 or phi > np.pi:
         raise ValueError("Corner angles should be in [0, pi].")
@@ -298,22 +177,27 @@ def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
         # equivalent by symmetry, but keeps math simpler
         phi = np.pi - phi
     # if there's no corner (i.e. the path just ends, as in the "sides" of the
-    # carets or in the non-fillable markers, we can compute how far the outside
-    # edge of the markeredge stroke extends outside of the bounding box of its
-    # path using the law of sines: $\sin(\phi)/(w/2) = \sin(\pi/2 - \phi)/l$
-    # for $w$ the `markeredgewidth`, $\phi$ the incidence angle of the line,
-    # then $l$ is the length along the outer edge of the stroke that extends
-    # beyond the bouding box. We can translate this to a distance perpendicular
-    # to the bounding box E(w, \phi) = l \sin(\phi)$, for $l$ as above.
+    # caret marker (and other non-fillable markers), we still need to compute
+    # how much the "cap" extends past the endpoint of the path
     if theta is None:
-        # also note that in this case, we shouldn't check _joinstyle because
-        # it's going to be "round" by default but not actually be in use. what
-        # we care about is _capstyle, which is currently always its default
-        # "butt" for all markers. if we find otherwise, we should change this
-        # code to check for the "projecting" and "round" cases
-        if capstyle != 'butt':
-            raise NotImplementedError("Only capstyle='butt' currently needed")
-        pad = (width/2) * np.cos(phi)
+        # for "butt" caps we can compute how far the
+        # outside edge of the markeredge stroke extends outside of the bounding box
+        # of its path using the law of sines: $\sin(\phi)/(w/2) = \sin(\pi/2 -
+        # \phi)/l$ for $w$ the `markeredgewidth`, $\phi$ the incidence angle of the
+        # line, then $l$ is the length along the outer edge of the stroke that
+        # extends beyond the bouding box. We can translate this to a distance
+        # perpendicular to the bounding box E(w, \phi) = l \sin(\phi)$, for $l$ as
+        # above.
+        if capstyle == 'butt':
+            pad = (width/2) * np.cos(phi)
+        # "round" caps are hemispherical, so regardless of angle
+        elif capstyle == 'round':
+            pad = width/2
+        # finally, projecting caps are just bevel caps with an extra
+        # width/2 distance along the direction of the line, so "butt" plus some
+        # extra
+        elif capstyle == 'projecting':
+            pad = (width/2) * np.cos(phi) + (width/2)*np.sin(phi)
     # the two "same as straight line" cases are NaN limits in the miter formula
     elif np.isclose(theta, 0) and np.isclose(phi, 0) \
     or np.isclose(theta, np.pi) and np.isclose(phi, np.pi/2):
@@ -338,6 +222,9 @@ def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
     # bbox, this correctly simplifies to just $w/2$.
     elif joinstyle == 'miter':
         pad = (width/2)*np.sin(phi)/np.sin(theta/2)
+        # # matplotlib currently doesn't set the miterlimit...
+        # if pad/width > miterlimit:
+        #     pad = _get_padding_due_to_angle(width, phi, theta, 'bevel', capstyle)
     # to calculate the offset for _joinstyle = "bevel", we can start with the
     # analogous "miter" corner. the rules for how the "bevel" is
     # created in SVG is that the outer edges of the stroke continue up until
@@ -364,8 +251,7 @@ def _get_padding_due_to_angle(width, path_end_angle, joinstyle='miter',
     # it....except those with "no corner", in which case we can treat them the
     # same as squares...
     elif joinstyle == 'round':
-        raise NotImplementedError("Only 'miter' and 'bevel' joinstyles needed "
-                                  "for now")
+        return width/2 # hemispherical cap, so always same padding
     else:
         raise ValueError(f"Unknown joinstyle: {joinstyle}")
     return pad
@@ -1125,13 +1011,8 @@ class MarkerStyle:
             self._transform.rotate_deg(rotate)
             self._alt_transform.rotate_deg(rotate_alt)
 
-    def get_bbox(self, markersize, markeredgewidth=0):
-        """Get size of bbox if marker is centered at origin.
-
-        For markers with no edge, this is just the same bbox as that of the
-        transformed marker path, but how much extra extent is added by an edge
-        is a function of the angle of the path at its own (the path's own)
-        boundary.
+    def get_stroked_bbox(self, markersize, markeredgewidth=0, **kwargs):
+        """Get size of bbox of marker directly from its path.
 
         Parameters
         ----------
@@ -1147,22 +1028,67 @@ class MarkerStyle:
             The extents of the marker including its edge (in points) if it were
             centered at (0,0).
 
+        Note
+        ----
+        The approach used is simply to notice that the bbox with no marker edge
+        must be defined by a corner (control point of the linear parts of path)
+        or a an extremal point on one of the curved parts of the path.
+
+        For a nonzero marker edge width, because the interior extrema will by
+        definition be parallel to the bounding box, we need only check if the
+        path location + width/2 extends the bbox at each interior extrema.
+        Then, for each join and cap, we check if that join extends the bbox.
         """
-        # if the marker is of size zero, the stroke's width doesn't matter,
-        # there is no stroke so the bbox is trivial
+        xmin = 0; ymin = 1; xmax = 2; ymax = 3; maxi = 2
         if np.isclose(markersize, 0):
             return Bbox([[0, 0], [0, 0]])
         unit_path = self._transform.transform_path(self._path)
-        unit_bbox = unit_path.get_extents()
+        # get_extents returns a bbox, so Bbox.extents
+        unit_extents = unit_path.get_extents().extents
+        for curve, code in unit_path.iter_curves(**kwargs):
+            curve = BezierSegment(curve)
+            for dim, zero in zip(curve.interior_extrema):
+                potential_extrema = curve.point_at_t(zero)[dim]
+                if potential_extrema < unit_extents[dim]:
+                    unit_extents[dim] = potential_extrema
+                if potential_extrema > unit_extents[maxi+dim]:
+                    unit_extents[maxi+dim] = potential_extrema
+        for corner in iter_corners(unit_path, **kwargs):
+            x, y = corner.apex
+            # now for each of up/down/left/right, convert the absolute
+            # incidence angle into the incidence angle relative to that
+            # respective side of the bbox, and see if the corner expands the
+            # extents...
+            if np.cos(corner.incidence_angle) > 0:
+                incidence_angle = corner.incidence_angle + np.pi/2
+                x +=  _get_padding_due_to_angle(width, incidence_angle,
+                        corner.corner_angle, joinstyle=self._joinstyle,
+                        capstyle=self._capstyle)
+                if x > unit_extents[xmax]:
+                    unit_extents[xmax] = x
+            else:
+                if corner.incidence_angle < 0: # [-pi, -pi/2]
+                    incidence_angle = 2*np.pi + corner.incidence_angle - pi/2
+                else:
+                    incidence_angle = corner.incidence_angle - pi/2
+                x -= _get_padding_due_to_angle(width, incidence_angle,
+                        corner.corner_angle, joinstyle=self._joinstyle,
+                        capstyle=self._capstyle)
+                if x < unit_extents[xmin]:
+                    unit_extents[xmin] = x
+            if np.sin(corner.incidence_angle) > 0:
+                incidence_angle = corner.incidence_angle
+                y += _get_padding_due_to_angle(width, incidence_angle,
+                        corner.corner_angle, joinstyle=self._joinstyle,
+                        capstyle=self._capstyle)
+                if y > unit_extents[ymax]:
+                    unit_extents[ymax] = y
+            else:
+                incidence_angle = corner.incidence_angle + np.pi
+                y -= _get_padding_due_to_angle(width, incidence_angle,
+                        corner.corner_angle, joinstyle=self._joinstyle,
+                        capstyle=self._capstyle)
+                if y < unit_extents[ymin]:
+                    unit_extents[ymin] = y
         scale = Affine2D().scale(markersize)
-        [[left, bottom], [right, top]] = scale.transform(unit_bbox)
-        angles = _edge_angles[self._marker]
-        left -= _get_padding_due_to_angle(markeredgewidth, angles.left,
-                                          self._joinstyle, self._capstyle)
-        bottom -= _get_padding_due_to_angle(markeredgewidth, angles.bottom,
-                                            self._joinstyle, self._capstyle)
-        right += _get_padding_due_to_angle(markeredgewidth, angles.right,
-                                           self._joinstyle, self._capstyle)
-        top += _get_padding_due_to_angle(markeredgewidth, angles.top,
-                                         self._joinstyle, self._capstyle)
-        return Bbox.from_extents(left, bottom, right, top)
+        return Bbox(scale.transform(Bbox.from_extents(unit_extents)))

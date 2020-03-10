@@ -3,6 +3,7 @@ A module providing some utility functions regarding Bezier path manipulation.
 """
 
 import math
+from collections import namedtuple
 
 import numpy as np
 
