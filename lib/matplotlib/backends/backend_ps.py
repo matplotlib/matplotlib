@@ -981,9 +981,11 @@ class FigureCanvasPS(FigureCanvasBase):
                 with open(tmpfile, 'w', encoding='latin-1') as fh:
                     print_figure_impl(fh)
                 if mpl.rcParams['ps.usedistiller'] == 'ghostscript':
-                    gs_distill(tmpfile, is_eps, ptype=papertype, bbox=bbox)
+                    _try_distill(gs_distill,
+                                 tmpfile, is_eps, ptype=papertype, bbox=bbox)
                 elif mpl.rcParams['ps.usedistiller'] == 'xpdf':
-                    xpdf_distill(tmpfile, is_eps, ptype=papertype, bbox=bbox)
+                    _try_distill(xpdf_distill,
+                                 tmpfile, is_eps, ptype=papertype, bbox=bbox)
                 _move_path_to_path_or_stream(tmpfile, outfile)
 
         else:
@@ -1141,10 +1143,12 @@ showpage
 
             if (mpl.rcParams['ps.usedistiller'] == 'ghostscript'
                     or mpl.rcParams['text.usetex']):
-                gs_distill(tmpfile, is_eps, ptype=papertype, bbox=bbox,
-                           rotated=psfrag_rotated)
+                _try_distill(gs_distill,
+                             tmpfile, is_eps, ptype=papertype, bbox=bbox,
+                             rotated=psfrag_rotated)
             elif mpl.rcParams['ps.usedistiller'] == 'xpdf':
-                xpdf_distill(tmpfile, is_eps, ptype=papertype, bbox=bbox,
+                _try_distill(xpdf_distill,
+                             tmpfile, is_eps, ptype=papertype, bbox=bbox,
                              rotated=psfrag_rotated)
 
             _move_path_to_path_or_stream(tmpfile, outfile)
@@ -1198,6 +1202,13 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     return psfrag_rotated
 
 
+def _try_distill(func, *args, **kwargs):
+    try:
+        func(*args, **kwargs)
+    except mpl.ExecutableNotFoundError as exc:
+        _log.warning("%s.  Distillation step skipped.", exc)
+
+
 def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     """
     Use ghostscript's pswrite or epswrite device to distill a file.
@@ -1239,6 +1250,9 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     operators. This distiller is preferred, generating high-level postscript
     output that treats text as text.
     """
+    mpl._get_executable_info("gs")  # Effectively checks for ps2pdf.
+    mpl._get_executable_info("pdftops")
+
     pdffile = tmpfile + '.pdf'
     psfile = tmpfile + '.ps'
 
