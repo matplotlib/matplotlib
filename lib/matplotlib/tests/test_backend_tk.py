@@ -27,13 +27,14 @@ def test_blit():
                       (0, 1, 2, 3),
                       bad_boxes)
 
+
 @pytest.mark.backend('TkAgg', skip_on_importerror=True)
 def test_blit_error_on_closed_figure():
     # render figure with TkAgg backend and then close
     fig, axes = plt.subplots()
     fig.canvas.draw()
     plt.close(fig.number)
-    # assert runtime error is thrown from the blit function after figure is closed
+    # assert runtime error is thrown after figure is closed
     with pytest.raises(RuntimeError) as seg_info:
         fig.canvas.blit(axes.bbox)
     assert f"{fig.canvas._tkphoto} has been deleted" in str(seg_info.value)
