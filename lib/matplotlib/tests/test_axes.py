@@ -1756,7 +1756,7 @@ def test_bar_pandas(pd):
 def test_bar_pandas_indexed(pd):
     # Smoke test for indexed pandas
     df = pd.DataFrame({"x": [1., 2., 3.], "width": [.2, .4, .6]},
-                       index=[1, 2, 3])
+                      index=[1, 2, 3])
     fig, ax = plt.subplots()
     ax.bar(df.x, 1., width=df.width)
 
@@ -5456,8 +5456,8 @@ def test_title_xticks_top():
 def test_title_xticks_top_both():
     # Test that title moves if xticks on top of axes.
     fig, ax = plt.subplots()
-    ax.tick_params(axis="x", bottom=True, top=True,
-                             labelbottom=True, labeltop=True)
+    ax.tick_params(axis="x",
+                   bottom=True, top=True, labelbottom=True, labeltop=True)
     ax.set_title('xlabel top')
     fig.canvas.draw()
     assert ax.title.get_position()[1] > 1.04

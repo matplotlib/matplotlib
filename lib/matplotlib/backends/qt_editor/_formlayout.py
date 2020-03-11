@@ -566,4 +566,4 @@ if __name__ == "__main__":
     print("result:", fedit(((datagroup, "Title 1", "Tab 1 comment"),
                             (datalist, "Title 2", "Tab 2 comment"),
                             (datalist, "Title 3", "Tab 3 comment")),
-                            "Global title"))
+                           "Global title"))

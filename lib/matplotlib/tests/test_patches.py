@@ -391,7 +391,7 @@ def test_connection_patch():
     coordsA = "axes fraction"
     coordsB = ax2.get_yaxis_transform()
     con = mpatches.ConnectionPatch(xyA=xyA, xyB=xyB, coordsA=coordsA,
-                                    coordsB=coordsB, arrowstyle="-")
+                                   coordsB=coordsB, arrowstyle="-")
     ax2.add_artist(con)
 
 

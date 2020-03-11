@@ -902,7 +902,7 @@ class PolarAxes(Axes):
         if thetamin > thetamax:
             thetamin, thetamax = thetamax, thetamin
         rmin, rmax = ((self._realViewLim.intervaly - self.get_rorigin()) *
-                        self.get_rsign())
+                      self.get_rsign())
         if isinstance(self.patch, mpatches.Wedge):
             # Backwards-compatibility: Any subclassed Axes might override the
             # patch to not be the Wedge that PolarAxes uses.

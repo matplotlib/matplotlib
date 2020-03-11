@@ -39,8 +39,7 @@ class SecondaryAxis(_AxesBase):
     General class to hold a Secondary_X/Yaxis.
     """
 
-    def __init__(self, parent, orientation,
-                  location, functions, **kwargs):
+    def __init__(self, parent, orientation, location, functions, **kwargs):
         """
         See `.secondary_xaxis` and `.secondary_yaxis` for the doc string.
         While there is no need for this to be private, it should really be

@@ -571,7 +571,7 @@ def test_bbox_image_inverted():
 
     bbox_im = BboxImage(TransformedBbox(Bbox([[0.1, 0.2], [0.3, 0.25]]),
                                         ax.figure.transFigure),
-                                        interpolation='nearest')
+                        interpolation='nearest')
     bbox_im.set_data(image)
     bbox_im.set_clip_on(False)
     ax.add_artist(bbox_im)

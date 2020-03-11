@@ -1014,7 +1014,7 @@ def subplot(*args, **kwargs):
     # Check for nrows and ncols, which are not valid subplot args:
     if 'nrows' in kwargs or 'ncols' in kwargs:
         raise TypeError("subplot() got an unexpected keyword argument 'ncols' "
-                         "and/or 'nrows'.  Did you intend to call subplots()?")
+                        "and/or 'nrows'.  Did you intend to call subplots()?")
 
     fig = gcf()
     ax = fig.add_subplot(*args, **kwargs)

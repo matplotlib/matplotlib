@@ -2748,7 +2748,7 @@ class Parser:
                 return [Hlist([self._make_space(0.2),
                                char,
                                self._make_space(0.2)],
-                               do_kern = True)]
+                              do_kern=True)]
         elif c in self._punctuation_symbols:
 
             # Do not space commas between brackets
@@ -2762,9 +2762,7 @@ class Parser:
             if c == '.' and s[loc - 1].isdigit() and s[loc + 1].isdigit():
                 return [char]
             else:
-                return [Hlist([char,
-                               self._make_space(0.2)],
-                               do_kern = True)]
+                return [Hlist([char, self._make_space(0.2)], do_kern=True)]
         return [char]
 
     accentprefixed = symbol

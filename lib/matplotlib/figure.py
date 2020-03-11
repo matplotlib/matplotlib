@@ -253,10 +253,9 @@ class Figure(Artist):
                  edgecolor=None,
                  linewidth=0.0,
                  frameon=None,
-                 subplotpars=None,  # default to rc
-                 tight_layout=None,  # default to rc figure.autolayout
-                 constrained_layout=None,  # default to rc
-                                          #figure.constrained_layout.use
+                 subplotpars=None,  # rc figure.subplot.*
+                 tight_layout=None,  # rc figure.autolayout
+                 constrained_layout=None,  # rc figure.constrained_layout.use
                  ):
         """
         Parameters
