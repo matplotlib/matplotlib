@@ -2781,9 +2781,9 @@ class AutoMinorLocator(Locator):
 
         if self.ndivs is None:
             if Locator.axis.__name__ == 'xaxis':
-                self.ndivs = rcParams['xtick.minor.ndivs']
+                self.ndivs = mpl.rcParams['xtick.minor.ndivs']
             else:
-                self.ndivs = rcParams['ytick.minor.ndivs']
+                self.ndivs = mpl.rcParams['ytick.minor.ndivs']
 
         if self.ndivs == 'auto':
 
