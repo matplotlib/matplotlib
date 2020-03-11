@@ -2,6 +2,10 @@ from datetime import datetime
 from pathlib import Path
 import platform
 import warnings
+try:
+    from contextlib import nullcontext
+except ImportError:
+    from contextlib import ExitStack as nullcontext  # Py3.6
 
 import matplotlib as mpl
 from matplotlib import rcParams
@@ -318,7 +322,9 @@ def test_autofmt_xdate(which):
             'FixedFormatter should only be used together with FixedLocator')
         ax.xaxis.set_minor_formatter(FixedFormatter(minors))
 
-    fig.autofmt_xdate(0.2, angle, 'right', which)
+    with (pytest.warns(mpl.MatplotlibDeprecationWarning) if which is None else
+          nullcontext()):
+        fig.autofmt_xdate(0.2, angle, 'right', which)
 
     if which in ('both', 'major', None):
         for label in fig.axes[0].get_xticklabels(False, 'major'):
