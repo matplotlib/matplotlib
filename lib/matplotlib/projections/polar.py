@@ -203,6 +203,7 @@ class ThetaLocator(mticker.Locator):
     def autoscale(self):
         return self.base.autoscale()
 
+    @cbook.deprecated("3.3")
     def pan(self, numsteps):
         return self.base.pan(numsteps)
 
@@ -214,6 +215,7 @@ class ThetaLocator(mticker.Locator):
         vmin, vmax = np.rad2deg((vmin, vmax))
         return np.deg2rad(self.base.view_limits(vmin, vmax))
 
+    @cbook.deprecated("3.3")
     def zoom(self, direction):
         return self.base.zoom(direction)
 
@@ -387,9 +389,11 @@ class RadialLocator(mticker.Locator):
     def autoscale(self):
         return self.base.autoscale()
 
+    @cbook.deprecated("3.3")
     def pan(self, numsteps):
         return self.base.pan(numsteps)
 
+    @cbook.deprecated("3.3")
     def zoom(self, direction):
         return self.base.zoom(direction)
 
