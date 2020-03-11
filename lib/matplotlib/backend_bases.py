@@ -1394,13 +1394,15 @@ class MouseEvent(LocationEvent):
         (*x*, *y*) in figure coords ((0, 0) = bottom left)
         button pressed None, 1, 2, 3, 'up', 'down'
         """
-        LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
         if button in MouseButton.__members__.values():
             button = MouseButton(button)
         self.button = button
         self.key = key
         self.step = step
         self.dblclick = dblclick
+
+        LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
+
 
     def __str__(self):
         return (f"{self.name}: "
