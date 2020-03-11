@@ -194,6 +194,70 @@ class TestAutoMinorLocator:
 
         assert_almost_equal(ax.yaxis.get_ticklocs(minor=True), ref)
 
+    def test_ndivs_rcParams_auto(self):
+        # when no parameter is given rcParams should be used
+        # auto
+        mpl.rc_context(rc={'xtick.minor.ndivs': 'auto'})
+        mpl.rc_context(rc={'ytick.minor.ndivs': 'auto'})
+        fig, ax = plt.subplots()
+        ax.set_xlim(0, 1.39)
+        ax.set_ylim(0, 1.39)
+        ax.xaxis.set_minor_locator(mticker.AutoMinorLocator())
+        ax.yaxis.set_minor_locator(mticker.AutoMinorLocator())
+
+        test_value = np.array([0.05, 0.1, 0.15, 0.25, 0.3, 0.35, 0.45,
+                               0.5, 0.55, 0.65, 0.7, 0.75, 0.85, 0.9,
+                               0.95, 1.05, 1.1, 1.15, 1.25, 1.3, 1.35])
+        assert_almost_equal(ax.xaxis.get_ticklocs(minor=True), test_value)
+        assert_almost_equal(ax.yaxis.get_ticklocs(minor=True), test_value)
+
+    def test_ndivs_rcParams_int(self):
+        # when no parameter is given rcParams should be used
+        # non-neg int
+        mpl.rc_context(rc={'xtick.minor.ndivs': 2})
+        mpl.rc_context(rc={'ytick.minor.ndivs': 2})
+        fig, ax = plt.subplots()
+        ax.set_xlim(0, 4)
+        ax.xaxis.set_major_locator(mticker.MultipleLocator(1))
+        ax.xaxis.set_minor_locator(mticker.AutoMinorLocator())
+
+        ax.set_ylim(0, 4)
+        ax.yaxis.set_major_locator(mticker.MultipleLocator(1))
+        ax.yaxis.set_minor_locator(mticker.AutoMinorLocator())
+
+        test_value = np.array([0.5, 1.5, 2.5, 3.5])
+        assert_almost_equal(ax.xaxis.get_ticklocs(minor=True), test_value)
+        assert_almost_equal(ax.yaxis.get_ticklocs(minor=True), test_value)
+
+    def test_ndivs_auto(self):
+        # when auto is given set ndivs to either 4 or 5
+        fig, ax = plt.subplots()
+        ax.set_xlim(0, 1.39)
+        ax.set_ylim(0, 1.39)
+        ax.xaxis.set_minor_locator(mticker.AutoMinorLocator('auto'))
+        ax.yaxis.set_minor_locator(mticker.AutoMinorLocator('auto'))
+
+        test_value = np.array([0.05, 0.1, 0.15, 0.25, 0.3, 0.35, 0.45,
+                               0.5, 0.55, 0.65, 0.7, 0.75, 0.85, 0.9,
+                               0.95, 1.05, 1.1, 1.15, 1.25, 1.3, 1.35])
+        assert_almost_equal(ax.xaxis.get_ticklocs(minor=True), test_value)
+        assert_almost_equal(ax.yaxis.get_ticklocs(minor=True), test_value)
+
+    def test_ndivs_int(self):
+        # when an integer is given, use that integer
+        fig, ax = plt.subplots()
+        ax.set_xlim(0, 4)
+        ax.xaxis.set_major_locator(mticker.MultipleLocator(1))
+        ax.xaxis.set_minor_locator(mticker.AutoMinorLocator(2))
+
+        ax.set_ylim(0, 4)
+        ax.yaxis.set_major_locator(mticker.MultipleLocator(1))
+        ax.yaxis.set_minor_locator(mticker.AutoMinorLocator(2))
+
+        test_value = np.array([0.5, 1.5, 2.5, 3.5])
+        assert_almost_equal(ax.xaxis.get_ticklocs(minor=True), test_value)
+        assert_almost_equal(ax.yaxis.get_ticklocs(minor=True), test_value)
+
 
 class TestLogLocator:
     def test_basic(self):
