@@ -2064,7 +2064,6 @@ default: :rc:`savefig.bbox`
                         self.figure,
                         functools.partial(
                             print_method, dpi=dpi, orientation=orientation))
-                    self.figure.draw(renderer)
                     bbox_artists = kwargs.pop("bbox_extra_artists", None)
                     bbox_inches = self.figure.get_tightbbox(renderer,
                             bbox_extra_artists=bbox_artists)
