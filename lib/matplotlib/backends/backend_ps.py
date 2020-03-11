@@ -851,7 +851,6 @@ class FigureCanvasPS(FigureCanvasBase):
         printer(outfile, format, dpi, facecolor, edgecolor,
                 orientation, papertype, **kwargs)
 
-    @cbook._delete_parameter("3.2", "dryrun")
     def _print_figure(
             self, outfile, format, dpi, facecolor, edgecolor,
             orientation, papertype, *,
