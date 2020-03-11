@@ -791,6 +791,20 @@ def validate_hatch(s):
 validate_hatchlist = _listify_validator(validate_hatch)
 validate_dashlist = _listify_validator(validate_nseq_float(allow_none=True))
 
+def validate_minor_tick_ndivs(n):
+    """
+    Validate the given ndiv parameter for minor ticks.
+    ndiv can be either the string 'auto' or a non-negative integer.
+    """
+    if isinstance(n, int):
+        if (0 <= n):
+            return n
+        else:
+            raise RuntimeError(f'Value must be >=0; got {n}')
+    elif (n == 'auto'):
+        return n
+    else:
+        raise ValueError("Value must be a non-negative int or 'auto'")
 
 _prop_validators = {
         'color': _listify_validator(validate_color_for_prop_cycle,
@@ -1337,6 +1351,7 @@ defaultParams = {
     'xtick.minor.bottom':    [True, validate_bool],    # draw x axis bottom minor ticks
     'xtick.major.top':   [True, validate_bool],  # draw x axis top major ticks
     'xtick.major.bottom':    [True, validate_bool],    # draw x axis bottom major ticks
+    'xtick.minor.ndivs': ['auto', validate_minor_tick_ndivs], # default number of minor ticks to display between each pair of major ticks
 
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
@@ -1360,6 +1375,7 @@ defaultParams = {
     'ytick.minor.right':    [True, validate_bool],    # draw y axis right minor ticks
     'ytick.major.left':   [True, validate_bool],  # draw y axis left major ticks
     'ytick.major.right':    [True, validate_bool],    # draw y axis right major ticks
+    'ytick.minor.ndivs': ['auto', validate_minor_tick_ndivs], # default number of minor ticks to display between each pair of major ticks
 
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
