@@ -763,12 +763,11 @@ class PdfFile:
 
         # Encoding (if needed)
         if fontinfo.encodingfile is not None:
-            enc = dviread.Encoding(fontinfo.encodingfile)
-            differencesArray = [Name(ch) for ch in enc]
-            differencesArray = [0] + differencesArray
-            fontdict['Encoding'] = \
-                {'Type': Name('Encoding'),
-                 'Differences': differencesArray}
+            fontdict['Encoding'] = {
+                'Type': Name('Encoding'),
+                'Differences': [
+                    0, *map(Name, dviread._parse_enc(fontinfo.encodingfile))],
+            }
 
         # If no file is specified, stop short
         if fontinfo.fontfile is None:
