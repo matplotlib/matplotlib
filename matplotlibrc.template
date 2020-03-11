@@ -460,6 +460,7 @@
 #xtick.minor.top:     True    # draw x axis top minor ticks
 #xtick.minor.bottom:  True    # draw x axis bottom minor ticks
 #xtick.alignment:     center  # alignment of xticks
+#xtick.minor.ndivs:   auto    # default number of minor ticks to display between each pair of major ticks
 
 #ytick.left:          True    # draw ticks on the left side
 #ytick.right:         False   # draw ticks on the right side
@@ -480,6 +481,7 @@
 #ytick.minor.left:    True    # draw y axis left minor ticks
 #ytick.minor.right:   True    # draw y axis right minor ticks
 #ytick.alignment:     center_baseline  # alignment of yticks
+#ytick.minor.ndivs:   auto    # default number of minor ticks to display between each pair of major ticks
 
 
 ## ***************************************************************************
