@@ -992,6 +992,7 @@ def validate_animation_writer_path(p):
     return p
 
 
+@cbook.deprecated("3.3")
 def validate_webagg_address(s):
     if s is not None:
         import socket
@@ -1026,7 +1027,7 @@ defaultParams = {
     'backend':           [_auto_backend_sentinel, validate_backend],
     'backend_fallback':  [True, validate_bool],
     'webagg.port':       [8988, validate_int],
-    'webagg.address':    ['127.0.0.1', validate_webagg_address],
+    'webagg.address':    ['127.0.0.1', validate_string],
     'webagg.open_in_browser': [True, validate_bool],
     'webagg.port_retries': [50, validate_int],
     'toolbar':           ['toolbar2', _ignorecase(['none', 'toolbar2', 'toolmanager'])],
