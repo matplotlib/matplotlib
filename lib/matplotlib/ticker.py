@@ -2757,7 +2757,8 @@ class AutoMinorLocator(Locator):
         major ticks; e.g., n=2 will place a single minor tick midway
         between major ticks.
 
-        If *n* is omitted or None, it will be set to 5 or 4.
+        If *n* is omitted or None, the value stored in rcParams will be used.
+        If *n* is 'auto', it will be set to 5 or 4.
         """
         self.ndivs = n
 
@@ -2779,6 +2780,12 @@ class AutoMinorLocator(Locator):
             return []
 
         if self.ndivs is None:
+            if Locator.axis.__name__ == 'xaxis':
+                self.ndivs = rcParams['xtick.minor.ndivs']
+            else:
+                self.ndivs = rcParams['ytick.minor.ndivs']
+
+        if self.ndivs == 'auto':
 
             majorstep_no_exponent = 10 ** (np.log10(majorstep) % 1)
 
