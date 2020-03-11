@@ -420,7 +420,6 @@ savefig.bbox        : standard # 'tight' or 'standard'.
                                # e.g. setting animation.writer to ffmpeg will not work,
                                # use ffmpeg_file instead
 savefig.pad_inches  : 0.1      # Padding to be used when bbox is set to 'tight'
-savefig.jpeg_quality: 95       # when a jpeg is saved, the default quality parameter.
 savefig.transparent : False    # setting that controls whether figures are saved with a
                                # transparent background by default
 savefig.orientation : portrait

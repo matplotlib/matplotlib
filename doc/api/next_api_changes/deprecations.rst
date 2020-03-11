@@ -225,7 +225,6 @@ The following validators, defined in `.rcsetup`, are deprecated:
 ``validate_movie_frame_fmt``, ``validate_axis_locator``,
 ``validate_movie_html_fmt``, ``validate_grid_axis``,
 ``validate_axes_titlelocation``, ``validate_toolbar``,
-<<<<<<< HEAD
 ``validate_ps_papersize``, ``validate_legend_loc``,
 ``validate_bool_maybe_none``, ``validate_hinting``,
 ``validate_movie_writers``.
@@ -299,3 +298,12 @@ is deprecated, set the offset to 0 instead.
 ``autofmt_xdate(which=None)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This is deprecated, use its more explicit synonym, ``which="major"``, instead.
+
+JPEG options
+~~~~~~~~~~~~
+The *quality*, *optimize*, and *progressive* keyword arguments to
+`~.Figure.savefig`, which were only used when saving to JPEG, are deprecated.
+:rc:`savefig.jpeg_quality` is likewise deprecated.
+
+Such options should now be directly passed to Pillow using
+``savefig(..., pil_kwargs={"quality": ..., "optimize": ..., "progressive": ...})``.

@@ -2065,16 +2065,22 @@ default: 'top'
             the JPEG compression algorithm, and results in large files
             with hardly any gain in image quality.
 
+            This parameter is deprecated.
+
         optimize : bool, default: False
             Applicable only if *format* is 'jpg' or 'jpeg', ignored otherwise.
 
             Whether the encoder should make an extra pass over the image
             in order to select optimal encoder settings.
 
+            This parameter is deprecated.
+
         progressive : bool, default: False
             Applicable only if *format* is 'jpg' or 'jpeg', ignored otherwise.
 
             Whether the image should be stored as a progressive JPEG file.
+
+            This parameter is deprecated.
 
         facecolor : color, default: :rc:`savefig.facecolor`
             The facecolor of the figure.
