@@ -13,7 +13,7 @@ import urllib.parse
 import numpy as np
 import PIL.PngImagePlugin
 
-from matplotlib import rcParams
+import matplotlib as mpl
 import matplotlib.artist as martist
 from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
@@ -58,7 +58,7 @@ interpolations_names = set(_interpd_)
 def composite_images(images, renderer, magnification=1.0):
     """
     Composite a number of RGBA images into one.  The images are
-    composited in the order in which they appear in the `images` list.
+    composited in the order in which they appear in the *images* list.
 
     Parameters
     ----------
@@ -75,13 +75,11 @@ def composite_images(images, renderer, magnification=1.0):
 
     Returns
     -------
-    tuple : image, offset_x, offset_y
-        Returns the tuple:
-
-        - image: A numpy array of the same type as the input images.
-
-        - offset_x, offset_y: The offset of the image (left, bottom)
-          in the output figure.
+    image : uint8 3d array
+        The composited RGBA image.
+    offset_x, offset_y : float
+        The (left, bottom) offset where the composited image should be placed
+        in the output figure.
     """
     if len(images) == 0:
         return np.empty((0, 0, 4), dtype=np.uint8), 0, 0
@@ -119,7 +117,7 @@ def _draw_list_compositing_images(
     Draw a sorted list of artists, compositing images into a single
     image where possible.
 
-    For internal matplotlib use only: It is here to reduce duplication
+    For internal Matplotlib use only: It is here to reduce duplication
     between `Figure.draw` and `Axes.draw`, but otherwise should not be
     generally useful.
     """
@@ -245,7 +243,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         cm.ScalarMappable.__init__(self, norm, cmap)
         self._mouseover = True
         if origin is None:
-            origin = rcParams['image.origin']
+            origin = mpl.rcParams['image.origin']
         cbook._check_in_list(["upper", "lower"], origin=origin)
         self.origin = origin
         self.set_filternorm(filternorm)
@@ -745,12 +743,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        s : {'antialiased', 'nearest', 'bilinear', 'bicubic', 'spline16',
+        s : {'antialiased', 'nearest', 'bilinear', 'bicubic', 'spline16', \
 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', \
 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', 'none'} or None
         """
         if s is None:
-            s = rcParams['image.interpolation']
+            s = mpl.rcParams['image.interpolation']
         s = s.lower()
         cbook._check_in_list(_interpd_, interpolation=s)
         self._interpolation = s
@@ -774,7 +772,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             If None, use :rc:`image.resample`.
         """
         if v is None:
-            v = rcParams['image.resample']
+            v = mpl.rcParams['image.resample']
         self._resample = v
         self.stale = True
 
@@ -1512,7 +1510,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         fname = os.fspath(fname)
     if format is None:
         format = (Path(fname).suffix[1:] if isinstance(fname, str)
-                  else rcParams["savefig.format"]).lower()
+                  else mpl.rcParams["savefig.format"]).lower()
     if format in ["pdf", "ps", "eps", "svg"]:
         # Vector formats that are not handled by PIL.
         if pil_kwargs is not None:
@@ -1529,7 +1527,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         sm = cm.ScalarMappable(cmap=cmap)
         sm.set_clim(vmin, vmax)
         if origin is None:
-            origin = rcParams["image.origin"]
+            origin = mpl.rcParams["image.origin"]
         if origin == "lower":
             arr = arr[::-1]
         rgba = sm.to_rgba(arr, bytes=True)
@@ -1548,7 +1546,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             format = "jpeg"  # Pillow doesn't recognize "jpg".
             color = tuple(
                 int(x * 255)
-                for x in mcolors.to_rgb(rcParams["savefig.facecolor"]))
+                for x in mcolors.to_rgb(mpl.rcParams["savefig.facecolor"]))
             background = PIL.Image.new("RGB", pil_shape, color)
             background.paste(image, image)
             image = background
