@@ -423,7 +423,7 @@ class Path:
         np.array of size (N, 2), where N is the number of control points in the
         segment, and d=2 is the dimension of the Path.
 
-        kwargs get forwarded to :method:`Path.iter_segments`.
+        kwargs get forwarded to `Path.iter_segments`.
         """
         first_vertex = None
         prev_vertex = None
@@ -1353,21 +1353,22 @@ def _get_padding_due_to_angle(width, phi, theta, joinstyle='miter',
 
 
 CornerInfo = namedtuple('CornerInfo', 'apex incidence_angle corner_angle')
-r"""Used to have a universal way to account for how much the bounding box of a
+CornerInfo.__doc__ = r"""
+Used to have a universal way to account for how much the bounding box of a
 shape will grow as we increase its *markeredgewidth*.
 
 Attributes
 ----------
-    `apex` : float
-        the vertex that marks the "tip" of the corner
-    `incidence_angle` : float
-        the angle that the corner bisector makes with the box edge (where
-        top/bottom box edges are horizontal, left/right box edges are
-        vertical).
-    `corner_angle` : float
-        the internal angle of the corner, where np.pi is a straight line, and 0
-        is retracing exactly the way you came. None can be used to signify that
-        the line ends there (i.e. no corner).
+apex : float
+    the vertex that marks the "tip" of the corner
+incidence_angle : float
+    the angle that the corner bisector makes with the box edge (where
+    top/bottom box edges are horizontal, left/right box edges are
+    vertical).
+corner_angle : float
+    the internal angle of the corner, where np.pi is a straight line, and 0
+    is retracing exactly the way you came. None can be used to signify that
+    the line ends there (i.e. no corner).
 
 Notes
 -----
