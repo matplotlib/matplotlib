@@ -2044,12 +2044,16 @@ default: 'top'
             possibly some backend-dependent object such as
             `matplotlib.backends.backend_pdf.PdfPages`.
 
-            If *format* is not set, then the output format is inferred from
-            the extension of *fname*, if any, and from :rc:`savefig.format`
-            otherwise.  If *format* is set, it determines the output format.
+            If *format* is set, it determines the output format, and the file
+            is saved as *fname*.  Note that *fname* is used verbatim, and there
+            is no attempt to make the extension, if any, of *fname* match
+            *format*, and no extension is appended.
 
-            Hence, if *fname* is not a path or has no extension, remember to
-            specify *format* to ensure that the correct backend is used.
+            If *format* is not set, then the format is inferred from the
+            extension of *fname*, if there is one.  If *format* is not
+            set and *fname* has no extension, then the file is saved with
+            :rc:`savefig.format` and the appropriate extension is appended to
+            *fname*.
 
         Other Parameters
         ----------------
