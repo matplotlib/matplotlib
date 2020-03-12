@@ -1387,7 +1387,7 @@ def _incidence_corner_from_angles(angle_1, angle_2):
 
     Returns
     -------
-    incidence_angle : float in [0, 2*pi]
+    incidence_angle : float in [-pi, pi]
         as described in CornerInfo docs
     corner_angle : float in [0, pi]
         as described in CornerInfo docs
@@ -1407,6 +1407,9 @@ def _incidence_corner_from_angles(angle_1, angle_2):
         incidence_angle = smaller_angle + corner_angle/2
     else:
         incidence_angle = smaller_angle - corner_angle/2
+        # stay in [-pi, pi]
+        if incidence_angle < -np.pi:
+            incidence_angle = 2*np.pi + incidence_angle
     return incidence_angle, corner_angle
 
 
@@ -1452,3 +1455,19 @@ def _pad_extents_with_corner(extents, corner, markeredgewidth, joinstyle,
                 joinstyle=joinstyle, capstyle=capstyle)
         if y < extents[ymin]:
             extents[ymin] = y
+    # also catch extra extent due to caps growing sideways
+    if corner.corner_angle is None:
+        for perp_dir in [np.pi/2, 3*np.pi/2]:
+            x, y = corner.apex
+            if corner.corner_angle is None:
+                cap_perp = corner.incidence_angle + perp_dir
+                x += (markeredgewidth/2) * np.cos(cap_perp)
+                if x < extents[xmin]:
+                    extents[xmin] = x
+                if x > extents[xmax]:
+                    extents[xmax] = x
+                y += (markeredgewidth/2) * np.sin(cap_perp)
+                if y < extents[ymin]:
+                    extents[ymin] = y
+                if y > extents[ymax]:
+                    extents[ymax] = y
