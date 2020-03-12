@@ -12,7 +12,7 @@ from . import artist, cbook, colors, docstring, lines as mlines, transforms
 from .bezier import (
     NonIntersectingPathException, get_cos_sin, get_intersection, get_parallels,
     inside_circle, make_wedged_bezier2,
-    split_bezier_intersecting_with_closedpath, split_path_inout)
+    split_bezier_intersecting_with_closedpath)
 from .path import Path
 
 
@@ -2723,7 +2723,7 @@ class ConnectionStyle(_Style):
                     return patchA.contains(xy_event)[0]
 
                 try:
-                    left, right = split_path_inout(path, insideA)
+                    left, right = path.split_path_inout(insideA)
                 except ValueError:
                     right = path
 
@@ -2735,7 +2735,7 @@ class ConnectionStyle(_Style):
                     return patchB.contains(xy_event)[0]
 
                 try:
-                    left, right = split_path_inout(path, insideB)
+                    left, right = path.split_path_inout(insideB)
                 except ValueError:
                     left = path
 
@@ -2750,13 +2750,13 @@ class ConnectionStyle(_Style):
             if shrinkA:
                 insideA = inside_circle(*path.vertices[0], shrinkA)
                 try:
-                    left, path = split_path_inout(path, insideA)
+                    left, path = path.split_path_inout(insideA)
                 except ValueError:
                     pass
             if shrinkB:
                 insideB = inside_circle(*path.vertices[-1], shrinkB)
                 try:
-                    path, right = split_path_inout(path, insideB)
+                    path, right = path.split_path_inout(insideB)
                 except ValueError:
                     pass
             return path
