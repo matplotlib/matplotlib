@@ -1983,17 +1983,13 @@ class BoxStyle(_Style):
 
         def transmute(self, x0, y0, width, height, mutation_size):
             pad = mutation_size * self.pad
-
             # width and height with padding added.
-            width, height = width + 2*pad, height + 2*pad
-
+            width, height = width + 2 * pad, height + 2 * pad
             # boundary of the padded box
-            x0, y0 = x0 - pad, y0 - pad,
+            x0, y0 = x0 - pad, y0 - pad
             x1, y1 = x0 + width, y0 + height
-
-            vertices = [(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)]
-            codes = [Path.MOVETO] + [Path.LINETO] * 3 + [Path.CLOSEPOLY]
-            return Path(vertices, codes)
+            return Path([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)],
+                        closed=True)
 
     @_register_style(_style_list)
     class Circle(_Base):
@@ -2012,9 +2008,8 @@ class BoxStyle(_Style):
         def transmute(self, x0, y0, width, height, mutation_size):
             pad = mutation_size * self.pad
             width, height = width + 2 * pad, height + 2 * pad
-
             # boundary of the padded box
-            x0, y0 = x0 - pad, y0 - pad,
+            x0, y0 = x0 - pad, y0 - pad
             return Path.circle((x0 + width / 2, y0 + height / 2),
                                max(width, height) / 2)
 
@@ -2035,31 +2030,21 @@ class BoxStyle(_Style):
         def transmute(self, x0, y0, width, height, mutation_size):
             # padding
             pad = mutation_size * self.pad
-
             # width and height with padding added.
-            width, height = width + 2. * pad, height + 2. * pad
-
+            width, height = width + 2 * pad, height + 2 * pad
             # boundary of the padded box
             x0, y0 = x0 - pad, y0 - pad,
             x1, y1 = x0 + width, y0 + height
 
-            dx = (y1 - y0) / 2.
-            dxx = dx * .5
-            # adjust x0.  1.4 <- sqrt(2)
-            x0 = x0 + pad / 1.4
+            dx = (y1 - y0) / 2
+            dxx = dx / 2
+            x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
 
-            cp = [(x0 + dxx, y0), (x1, y0), (x1, y1), (x0 + dxx, y1),
-                  (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
-                  (x0 + dxx, y0 - dxx),  # arrow
-                  (x0 + dxx, y0), (x0 + dxx, y0)]
-
-            com = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
-                   Path.LINETO, Path.LINETO, Path.LINETO,
-                   Path.LINETO, Path.CLOSEPOLY]
-
-            path = Path(cp, com)
-
-            return path
+            return Path([(x0 + dxx, y0), (x1, y0), (x1, y1), (x0 + dxx, y1),
+                         (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
+                         (x0 + dxx, y0 - dxx),  # arrow
+                         (x0 + dxx, y0), (x0 + dxx, y0)],
+                        closed=True)
 
     @_register_style(_style_list)
     class RArrow(LArrow):
@@ -2098,42 +2083,27 @@ class BoxStyle(_Style):
             super().__init__()
 
         def transmute(self, x0, y0, width, height, mutation_size):
-
             # padding
             pad = mutation_size * self.pad
-
             # width and height with padding added.
             # The width is padded by the arrows, so we don't need to pad it.
-            height = height + 2. * pad
-
+            height = height + 2 * pad
             # boundary of the padded box
             x0, y0 = x0 - pad, y0 - pad
             x1, y1 = x0 + width, y0 + height
 
             dx = (y1 - y0) / 2
-            dxx = dx * .5
-            # adjust x0.  1.4 <- sqrt(2)
-            x0 = x0 + pad / 1.4
+            dxx = dx / 2
+            x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
 
-            cp = [(x0 + dxx, y0), (x1, y0),  # bot-segment
-                  (x1, y0 - dxx), (x1 + dx + dxx, y0 + dx),
-                  (x1, y1 + dxx),  # right-arrow
-                  (x1, y1), (x0 + dxx, y1),  # top-segment
-                  (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
-                  (x0 + dxx, y0 - dxx),  # left-arrow
-                  (x0 + dxx, y0), (x0 + dxx, y0)]  # close-poly
-
-            com = [Path.MOVETO, Path.LINETO,
-                   Path.LINETO, Path.LINETO,
-                   Path.LINETO,
-                   Path.LINETO, Path.LINETO,
-                   Path.LINETO, Path.LINETO,
-                   Path.LINETO,
-                   Path.LINETO, Path.CLOSEPOLY]
-
-            path = Path(cp, com)
-
-            return path
+            return Path([(x0 + dxx, y0), (x1, y0),  # bot-segment
+                         (x1, y0 - dxx), (x1 + dx + dxx, y0 + dx),
+                         (x1, y1 + dxx),  # right-arrow
+                         (x1, y1), (x0 + dxx, y1),  # top-segment
+                         (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
+                         (x0 + dxx, y0 - dxx),  # left-arrow
+                         (x0 + dxx, y0), (x0 + dxx, y0)],  # close-poly
+                        closed=True)
 
     @_register_style(_style_list)
     class Round(_Base):
@@ -2163,7 +2133,7 @@ class BoxStyle(_Style):
             else:
                 dr = pad
 
-            width, height = width + 2. * pad, height + 2. * pad
+            width, height = width + 2 * pad, height + 2 * pad
 
             x0, y0 = x0 - pad, y0 - pad,
             x1, y1 = x0 + width, y0 + height
@@ -2224,8 +2194,8 @@ class BoxStyle(_Style):
             else:
                 dr = pad / 2.
 
-            width, height = (width + 2. * pad - 2 * dr,
-                             height + 2. * pad - 2 * dr)
+            width = width + 2 * pad - 2 * dr
+            height = height + 2 * pad - 2 * dr
 
             x0, y0 = x0 - pad + dr, y0 - pad + dr,
             x1, y1 = x0 + width, y0 + height

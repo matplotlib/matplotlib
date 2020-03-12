@@ -45,7 +45,7 @@ nrects = len(left)
 #   in the ``verts`` array to keep the codes aligned with the vertices.
 nverts = nrects * (1 + 3 + 1)
 verts = np.zeros((nverts, 2))
-codes = np.ones(nverts, int) * path.Path.LINETO
+codes = np.full(nverts, path.Path.LINETO)
 codes[0::5] = path.Path.MOVETO
 codes[4::5] = path.Path.CLOSEPOLY
 verts[0::5, 0] = left

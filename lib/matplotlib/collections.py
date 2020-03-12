@@ -1098,15 +1098,10 @@ class PolyCollection(_CollectionWithSizes):
             for xy in verts:
                 if len(xy):
                     if isinstance(xy, np.ma.MaskedArray):
-                        xy = np.ma.concatenate([xy, xy[0:1]])
+                        xy = np.ma.concatenate([xy, xy[:1]])
                     else:
-                        xy = np.asarray(xy)
-                        xy = np.concatenate([xy, xy[0:1]])
-                    codes = np.empty(xy.shape[0], dtype=mpath.Path.code_type)
-                    codes[:] = mpath.Path.LINETO
-                    codes[0] = mpath.Path.MOVETO
-                    codes[-1] = mpath.Path.CLOSEPOLY
-                    self._paths.append(mpath.Path(xy, codes))
+                        xy = np.concatenate([xy, xy[:1]])
+                    self._paths.append(mpath.Path(xy, closed=True))
                 else:
                     self._paths.append(mpath.Path(xy))
         else:

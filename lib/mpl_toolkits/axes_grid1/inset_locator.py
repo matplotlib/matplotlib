@@ -164,19 +164,8 @@ class BboxPatch(Patch):
     def get_path(self):
         # docstring inherited
         x0, y0, x1, y1 = self.bbox.extents
-        verts = [(x0, y0),
-                 (x1, y0),
-                 (x1, y1),
-                 (x0, y1),
-                 (x0, y0),
-                 (0, 0)]
-        codes = [Path.MOVETO,
-                 Path.LINETO,
-                 Path.LINETO,
-                 Path.LINETO,
-                 Path.LINETO,
-                 Path.CLOSEPOLY]
-        return Path(verts, codes)
+        return Path([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)],
+                    closed=True)
 
 
 class BboxConnector(Patch):
@@ -246,25 +235,14 @@ class BboxConnector(Patch):
             corner of *bbox2*.
         """
         if isinstance(bbox1, Rectangle):
-            transform = bbox1.get_transform()
-            bbox1 = Bbox.from_bounds(0, 0, 1, 1)
-            bbox1 = TransformedBbox(bbox1, transform)
-
+            bbox1 = TransformedBbox(Bbox.unit(), bbox1.get_transform())
         if isinstance(bbox2, Rectangle):
-            transform = bbox2.get_transform()
-            bbox2 = Bbox.from_bounds(0, 0, 1, 1)
-            bbox2 = TransformedBbox(bbox2, transform)
-
+            bbox2 = TransformedBbox(Bbox.unit(), bbox2.get_transform())
         if loc2 is None:
             loc2 = loc1
-
         x1, y1 = BboxConnector.get_bbox_edge_pos(bbox1, loc1)
         x2, y2 = BboxConnector.get_bbox_edge_pos(bbox2, loc2)
-
-        verts = [[x1, y1], [x2, y2]]
-        codes = [Path.MOVETO, Path.LINETO]
-
-        return Path(verts, codes)
+        return Path([[x1, y1], [x2, y2]])
 
     @docstring.dedent_interpd
     def __init__(self, bbox1, bbox2, loc1, loc2=None, **kwargs):

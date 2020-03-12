@@ -120,7 +120,9 @@ class Path:
             intended for public use.
         closed : bool, optional
             If *codes* is None and closed is True, vertices will be treated as
-            line segments of a closed polygon.
+            line segments of a closed polygon.  Note that the last vertex will
+            then be ignored (as the corresponding code will be set to
+            CLOSEPOLY).
         readonly : bool, optional
             Makes the path behave in an immutable way and sets the vertices
             and codes as read-only arrays.
@@ -635,12 +637,8 @@ class Path:
         Return a `Path` instance of the unit rectangle from (0, 0) to (1, 1).
         """
         if cls._unit_rectangle is None:
-            cls._unit_rectangle = \
-                cls([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0],
-                     [0.0, 0.0]],
-                    [cls.MOVETO, cls.LINETO, cls.LINETO, cls.LINETO,
-                     cls.CLOSEPOLY],
-                    readonly=True)
+            cls._unit_rectangle = cls([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]],
+                                      closed=True, readonly=True)
         return cls._unit_rectangle
 
     _unit_regular_polygons = WeakValueDictionary()
@@ -661,11 +659,7 @@ class Path:
                      # "points-up".
                      + np.pi / 2)
             verts = np.column_stack((np.cos(theta), np.sin(theta)))
-            codes = np.empty(numVertices + 1)
-            codes[0] = cls.MOVETO
-            codes[1:-1] = cls.LINETO
-            codes[-1] = cls.CLOSEPOLY
-            path = cls(verts, codes, readonly=True)
+            path = cls(verts, closed=True, readonly=True)
             if numVertices <= 16:
                 cls._unit_regular_polygons[numVertices] = path
         return path
@@ -691,11 +685,7 @@ class Path:
             r = np.ones(ns2 + 1)
             r[1::2] = innerCircle
             verts = (r * np.vstack((np.cos(theta), np.sin(theta)))).T
-            codes = np.empty(ns2 + 1)
-            codes[0] = cls.MOVETO
-            codes[1:-1] = cls.LINETO
-            codes[-1] = cls.CLOSEPOLY
-            path = cls(verts, codes, readonly=True)
+            path = cls(verts, closed=True, readonly=True)
             if numVertices <= 16:
                 cls._unit_regular_stars[(numVertices, innerCircle)] = path
         return path
