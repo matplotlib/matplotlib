@@ -6528,18 +6528,16 @@ default: :rc:`scatter.edgecolors`
 
         for xi, wi in zip(x, w):
             if wi is not None and len(wi) != len(xi):
-                raise ValueError(
-                    'weights should have the same shape as x')
+                raise ValueError('weights should have the same shape as x')
 
         if color is None:
             color = [self._get_lines.get_next_color() for i in range(nx)]
         else:
             color = mcolors.to_rgba_array(color)
             if len(color) != nx:
-                error_message = (
-                    "color kwarg must have one color per data set. %d data "
-                    "sets and %d colors were provided" % (nx, len(color)))
-                raise ValueError(error_message)
+                raise ValueError(f"The 'color' keyword argument must have one "
+                                 f"color per dataset, but {nx} datasets and "
+                                 f"{len(color)} colors were provided")
 
         hist_kwargs = dict()
 
@@ -6555,9 +6553,7 @@ default: :rc:`scatter.edgecolors`
                     # np.minnan returns nan for all nan input
                     xmin = min(xmin, np.nanmin(xi))
                     xmax = max(xmax, np.nanmax(xi))
-            # make sure we have seen at least one non-nan and finite
-            # value before we reset the bin range
-            if not np.isnan([xmin, xmax]).any() and not (xmin > xmax):
+            if xmin <= xmax:  # Only happens if we have seen a finite value.
                 bin_range = (xmin, xmax)
 
         # If bins are not specified either explicitly or via range,
@@ -6667,9 +6663,9 @@ default: :rc:`scatter.edgecolors`
             x[2*len(bins)-1:] = x[1:2*len(bins)-1][::-1]
 
             if bottom is None:
-                bottom = np.zeros(len(bins) - 1)
+                bottom = 0
 
-            y[1:2*len(bins)-1:2], y[2:2*len(bins):2] = bottom, bottom
+            y[1:2*len(bins)-1:2] = y[2:2*len(bins):2] = bottom
             y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
 
             if log:
@@ -6693,8 +6689,7 @@ default: :rc:`scatter.edgecolors`
                     # top of the previous polygon becomes the bottom
                     y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
                 # set the top of this polygon
-                y[1:2*len(bins)-1:2], y[2:2*len(bins):2] = (m + bottom,
-                                                            m + bottom)
+                y[1:2*len(bins)-1:2] = y[2:2*len(bins):2] = m + bottom
 
                 # The starting point of the polygon has not yet been
                 # updated. So far only the endpoint was adjusted. This
@@ -6735,22 +6730,15 @@ default: :rc:`scatter.edgecolors`
         self.set_autoscaley_on(_saved_autoscaley)
         self._request_autoscale_view()
 
-        if label is None:
-            labels = [None]
-        elif isinstance(label, str):
-            labels = [label]
-        elif not np.iterable(label):
-            labels = [str(label)]
-        else:
-            labels = [str(lab) for lab in label]
-
+        # If None, make all labels None (via zip_longest below); otherwise,
+        # cast each element to str, but keep a single str as it.
+        labels = [] if label is None else np.atleast_1d(np.asarray(label, str))
         for patch, lbl in itertools.zip_longest(patches, labels):
             if patch:
                 p = patch[0]
                 p.update(kwargs)
                 if lbl is not None:
                     p.set_label(lbl)
-
                 for p in patch[1:]:
                     p.update(kwargs)
                     p.set_label('_nolegend_')
