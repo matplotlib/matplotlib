@@ -470,7 +470,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     figsize : (float, float), default: :rc:`figure.figsize`
         Width, height in inches.
 
-    dpi : int, default: :rc:`figure.dpi`
+    dpi : float, default: :rc:`figure.dpi`
         The resolution of the figure in dots-per-inch.
 
     facecolor : color, default: :rc:`figure.facecolor`

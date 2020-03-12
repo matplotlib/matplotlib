@@ -1495,9 +1495,10 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Indicates whether the ``(0, 0)`` index of the array is in the upper
         left or lower left corner of the axes.
-    dpi : int
+    dpi : float
         The DPI to store in the metadata of the file.  This does not affect the
-        resolution of the output image.
+        resolution of the output image.  Depending on file format, this may be
+        rounded to the nearest integer.
     metadata : dict, optional
         Metadata in the image file.  The supported keys depend on the output
         format, see the documentation of the respective backends for more
