@@ -4173,7 +4173,7 @@ default: 'arc3'
         """
         _path, fillable = self.get_path_in_displaycoord()
         if np.iterable(fillable):
-            _path = Path.make_compound_path(_path)
+            _path = Path.make_compound_path(*_path)
         return self.get_transform().inverted().transform_path(_path)
 
     def get_path_in_displaycoord(self):
