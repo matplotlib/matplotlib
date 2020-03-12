@@ -1354,7 +1354,7 @@ def _get_padding_due_to_angle(width, phi, theta, joinstyle='miter',
 
 CornerInfo = namedtuple('CornerInfo', 'apex incidence_angle corner_angle')
 r"""Used to have a universal way to account for how much the bounding box of a
-shape will grow as we increase its `markeredgewidth`.
+shape will grow as we increase its *markeredgewidth*.
 
 Attributes
 ----------
@@ -1372,7 +1372,8 @@ Attributes
 Notes
 -----
 $\pi$ and 0 are equivalent for `corner_angle`. Both $\theta$ and $\pi - \theta$
-are equivalent for `incidence_angle` by symmetry."""
+are equivalent for `incidence_angle` by symmetry.
+"""
 
 
 def _incidence_corner_from_angles(angle_1, angle_2):
