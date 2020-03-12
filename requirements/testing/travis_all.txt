@@ -1,7 +1,7 @@
 # pip requirements for all the travis builds
 
 coverage
-pytest!=4.6.0
+pytest!=4.6.0,!=5.4.0
 pytest-cov
 pytest-rerunfailures
 pytest-timeout
