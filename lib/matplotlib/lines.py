@@ -617,7 +617,7 @@ class Line2D(Artist):
                                  ignore=True)
         # correct for marker size, if any
         if self._marker:
-            m_bbox = self._marker.get_stroked_bbox(
+            m_bbox = self._marker.get_bbox(
                     self._markersize, self._markeredgewidth)
             # markers use units of pts, not pixels
             box_points_px = renderer.points_to_pixels(m_bbox.get_points())

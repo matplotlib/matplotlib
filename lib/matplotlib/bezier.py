@@ -233,8 +233,8 @@ class BezierSegment:
             for i in range(self.d):
                 if discriminant[i] < 0:
                     continue
-                roots = [(-b + np.sqrt(discriminant))/2/a,
-                         (-b - np.sqrt(discriminant))/2/a]
+                roots = [(-b[i] + np.sqrt(discriminant[i]))/2/a[i],
+                         (-b[i] - np.sqrt(discriminant[i]))/2/a[i]]
                 for root in roots:
                     if 0 <= root <= 1:
                         dims.append(i)

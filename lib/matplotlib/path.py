@@ -21,60 +21,6 @@ from .cbook import _to_unmasked_float_array, simple_linear_interpolation
 from .bezier import BezierSegment, split_bezier_intersecting_with_closedpath
 
 
-CornerInfo = namedtuple('CornerInfo', 'apex incidence_angle corner_angle')
-r"""Used to have a universal way to account for how much the bounding box of a
-shape will grow as we increase its `markeredgewidth`.
-
-Attributes
-----------
-    `apex` : float
-        the vertex that marks the "tip" of the corner
-    `incidence_angle` : float
-        the angle that the corner bisector makes with the box edge (where
-        top/bottom box edges are horizontal, left/right box edges are
-        vertical).
-    `corner_angle` : float
-        the internal angle of the corner, where np.pi is a straight line, and 0
-        is retracing exactly the way you came. None can be used to signify that
-        the line ends there (i.e. no corner).
-
-Notes
------
-$\pi$ and 0 are equivalent for `corner_angle`. Both $\theta$ and $\pi - \theta$
-are equivalent for `incidence_angle` by symmetry."""
-
-
-def _incidence_corner_from_angles(angle_1, angle_2):
-    """Gets CornerInfo from direction of lines making up corner.
-
-    This function expects angle_1 and angle_2 (in radians) to be
-    the orientation of lines 1 and 2 (arbitrarily chosen to point
-    towards the corner where they meet) relative to the coordinate
-    system.
-
-    Helper function for Path.iter_corners.
-
-    Returns
-    -------
-    incidence_angle : float in [0, 2*pi]
-        as described in CornerInfo docs
-    corner_angle : float in [0, pi]
-        as described in CornerInfo docs
-    """
-    # get "interior" angle between tangents to joined curves' tips
-    corner_angle = np.abs(angle_1 - angle_2)
-    if corner_angle > np.pi:
-        corner_angle = 2*np.pi - corner_angle
-    # since [-pi, pi], we need to sort to avoid modulo
-    smaller_angle = min(angle_1, angle_2)
-    larger_angle = max(angle_1, angle_2)
-    if np.isclose(smaller_angle + corner_angle, larger_angle):
-        incident_angle = smaller_angle + corner_angle/2
-    else:
-        incident_angle = smaller_angle - corner_angle/2
-    return incident_angle, corner_angle
-
-
 class Path:
     """
     A series of possibly disconnected, possibly closed, line and curve
@@ -549,9 +495,9 @@ class Path:
                 # if it's used this way, then we more or less ignore the
                 # current bcurve.
                 if np.isclose(np.linalg.norm(tan_in), 0):
-                    incident_a, corner_a = _incidence_corner_from_angles(
+                    incidence_a, corner_a = _incidence_corner_from_angles(
                             prev_tan_angle, first_tan_angle)
-                    yield CornerInfo(prev_vertex, incident_a, corner_a)
+                    yield CornerInfo(prev_vertex, incidence_a, corner_a)
                     continue
                 # otherwise, we have to calculate both the corner from the
                 # previous line segment to the current straight line, and from
@@ -560,18 +506,18 @@ class Path:
                 # the latter looks like:
                 tan_out = bcurve.tan_out
                 angle_end = np.arctan2(tan_out[1], tan_out[0])
-                incident_a, corner_a = _incidence_corner_from_angles(
+                incidence_a, corner_a = _incidence_corner_from_angles(
                         angle_end, first_tan_angle)
-                yield CornerInfo(first_vertex, incident_a, corner_a)
+                yield CornerInfo(first_vertex, incidence_a, corner_a)
             # finally, usual case is when two curves meet at an angle
             tan_in = -bcurve.tan_in
             angle_in = np.arctan2(tan_in[1], tan_in[0])
             if first_tan_angle is None:
                 first_tan_angle = angle_in
             if prev_tan_angle is not None:
-                incident_a, corner_a = _incidence_corner_from_angles(
+                incidence_a, corner_a = _incidence_corner_from_angles(
                         angle_in, prev_tan_angle)
-                yield CornerInfo(prev_vertex, incident_a, corner_a)
+                yield CornerInfo(prev_vertex, incidence_a, corner_a)
             tan_out = bcurve.tan_out
             prev_tan_angle = np.arctan2(tan_out[1], tan_out[0])
             prev_vertex = bcurve.cpoints[-1]
@@ -718,6 +664,66 @@ class Path:
                 path = self.transformed(transform)
                 transform = None
         return Bbox(_path.get_path_extents(path, transform))
+
+    def get_stroked_extents(self, markeredgewidth=0, joinstyle='round',
+                            capstyle='butt', **kwargs):
+        """Get size of bbox of marker directly from its path.
+
+        Parameters
+        ----------
+        markersize : float
+            "Size" of the marker, in points.
+
+        markeredgewidth : float, optional, default: 0
+            Width, in points, of the stroke used to create the marker's edge.
+
+        kwargs : Dict[str, object]
+            forwarded to iter_curves and iter_corners
+
+        Returns
+        -------
+        bbox : (4,) float, array_like
+            The extents of the path including an edge of width markeredgewidth.
+
+        Note
+        ----
+        The approach used is simply to notice that the bbox with no marker edge
+        must be defined by a corner (control point of the linear parts of path)
+        or a an extremal point on one of the curved parts of the path.
+
+        For a nonzero marker edge width, because the interior extrema will by
+        definition be parallel to the bounding box, we need only check if the
+        path location + width/2 extends the bbox at each interior extrema.
+        Then, for each join and cap, we check if that join extends the bbox.
+        """
+        maxi = 2  # [xmin, ymin, *xmax, ymax]
+        # get_extents returns a bbox, so Bbox.extents
+        extents = self.get_extents().extents
+        for curve, code in self.iter_curves(**kwargs):
+            curve = BezierSegment(curve)
+            dims, zeros = curve.interior_extrema
+            if len(zeros) == 0:
+                continue
+            for dim, zero in zip(dims, zeros):
+                potential_extrema = curve.point_at_t(zero)[dim]
+                if potential_extrema < extents[dim]:
+                    extents[dim] = potential_extrema
+                if potential_extrema > extents[maxi+dim]:
+                    extents[maxi+dim] = potential_extrema
+        for corner in self.iter_corners(**kwargs):
+            _pad_extents_with_corner(extents, corner, markeredgewidth,
+                                     joinstyle, capstyle)
+            # account for corner_angle = pi ambiguity
+            corner_a = corner.corner_angle
+            if corner_a is not None and np.isclose(corner.corner_angle, np.pi):
+                # rotate by pi, this is the "same" corner, but padding in
+                # opposite direction
+                x = np.cos(corner.incidence_angle)
+                y = np.sin(corner.incidence_angle)
+                sym_corner = CornerInfo(corner.apex, np.arctan2(-y, -x), np.pi)
+                _pad_extents_with_corner(extents, sym_corner, markeredgewidth,
+                                         joinstyle, capstyle)
+        return extents
 
     def intersects_path(self, other, filled=True):
         """
@@ -1230,3 +1236,219 @@ def get_path_collection_extents(
     return Bbox.from_extents(*_path.get_path_collection_extents(
         master_transform, paths, np.atleast_3d(transforms),
         offsets, offset_transform))
+
+
+def _get_padding_due_to_angle(width, phi, theta, joinstyle='miter',
+                              capstyle='butt'):
+    """Computes how much a stroke of *width* overflows the naive bbox at a
+    corner described by *corner_info*.
+
+    Parameters
+    ----------
+    width : float
+        `markeredgewidth` used to draw the stroke that we're computing the
+        overflow for
+    phi : float
+        incidence angle of bisector of corner relative to side of bounding box
+        we're calculating the padding for
+    theta : float or None
+        angle swept out by the two lines that form the corner. if None, the
+        padding due to a "cap" is used instead of a corner
+    joinstyle : 'miter' (default), 'round', or 'bevel'
+        how the corner is to be drawn
+    capstyle : 'butt', 'round', 'projecting'
+
+
+    Returns
+    -------
+    pad : float
+        amount of overflow
+    """
+    if theta is not None and (theta < 0 or theta > np.pi) \
+            or phi < 0 or phi > np.pi:
+        raise ValueError("Corner angles should be in [0, pi].")
+    if phi > np.pi/2:
+        # equivalent by symmetry, but keeps math simpler
+        phi = np.pi - phi
+    # if there's no corner (i.e. the path just ends, as in the "sides" of the
+    # caret marker (and other non-fillable markers), we still need to compute
+    # how much the "cap" extends past the endpoint of the path
+    if theta is None:
+        # for "butt" caps we can compute how far the
+        # outside edge of the markeredge stroke extends outside of the bounding
+        # box of its path using the law of sines: $\sin(\phi)/(w/2) =
+        # \sin(\pi/2 - \phi)/l$ for $w$ the `markeredgewidth`, $\phi$ the
+        # incidence angle of the line, then $l$ is the length along the outer
+        # edge of the stroke that extends beyond the bouding box. We can
+        # translate this to a distance perpendicular to the bounding box E(w,
+        # \phi) = l \sin(\phi)$, for $l$ as above.
+        if capstyle == 'butt':
+            pad = (width/2) * np.cos(phi)
+        # "round" caps are hemispherical, so regardless of angle
+        elif capstyle == 'round':
+            pad = width/2
+        # finally, projecting caps are just bevel caps with an extra
+        # width/2 distance along the direction of the line, so "butt" plus some
+        # extra
+        elif capstyle == 'projecting':
+            pad = (width/2) * np.cos(phi) + (width/2)*np.sin(phi)
+    # the two "same as straight line" cases are NaN limits in the miter formula
+    elif np.isclose(theta, 0) and np.isclose(phi, 0) \
+    or np.isclose(theta, np.pi) and np.isclose(phi, np.pi/2):
+        pad = width/2
+    # to calculate the offset for _joinstyle == 'miter', imagine aligning the
+    # corner so that on line comes in along the negative x-axis, and another
+    # from above, makes an angle $\theta$ with the negative x-axis.  the tip of
+    # the new corner created by the markeredge stroke will be at the point
+    # where the two outer edge of the markeredge stroke intersect.  in the
+    # orientation described above, the outer edge of the stroke aligned with
+    # the x axis will obviously have equation $y = -w/2$ where $w$ is the
+    # markeredgewidth. WLOG, the stroke coming in from above at an angle
+    # $\theta$ from the negative x-axis will have equation
+    # $$-(\tan(\theta) x + \frac{w}{2\cos(\theta)}.$$
+    # the intersection of these two lines is at $y = w/2$, and we can solve for
+    # $x = \cot(\theta) (\frac{w}{2} + \frac{w}{2\cos(\theta)})$.
+    # this puts the "edge" tip a distance $M = (w/2)\csc(\theta/2)$
+    # from the tip of the corner itself, on the line defined by the bisector of
+    # the corner angle. So the extra padding required is $M\sin(\phi)$, where
+    # $\phi$ is the incidence angle of the corner's bisector. Notice that in
+    # the obvious limit ($\phi = \theta/2$) where the corner is flush with the
+    # bbox, this correctly simplifies to just $w/2$.
+    elif joinstyle == 'miter':
+        pad = (width/2)*np.sin(phi)/np.sin(theta/2)
+        # # matplotlib currently doesn't set the miterlimit...
+        # if pad/width > miterlimit:
+        #     pad = _get_padding_due_to_angle(width, phi, theta, 'bevel',
+        #                                     capstyle)
+    # to calculate the offset for _joinstyle = "bevel", we can start with the
+    # analogous "miter" corner. the rules for how the "bevel" is
+    # created in SVG is that the outer edges of the stroke continue up until
+    # the stroke hits the corner point (similar to _capstyle='butt'). A line is
+    # then drawn joining these two outer points and the interior is filled. in
+    # other words, it is the same as a "miter" corner, but with some amount of
+    # the tip removed (an isoceles triangle with base given by the distance
+    # described above). This base length (the bevel "size") is given by the law
+    # of sines $b = (w/2)\frac{\sin(\pi - \theta)}{\sin(\theta/2)}$.
+    # We can then subtract the height of the isoceles rectangle with this base
+    # height and tip angle $\theta$ from our result $M$ above to get how far
+    # the midpoint of the bevel extends beyond the outside....
+
+    # but that's not what we're interested in.
+    # a beveled edge is exactly the convex hull of its two composite lines with
+    # capstyle='butt'. So we just compute the individual lines' incidence
+    # angles and take the maximum of the two padding values
+    elif joinstyle == 'bevel':
+        phi1 = phi + theta/2
+        phi2 = phi - theta/2
+        pad = (width/2) * max(np.abs(np.cos(phi1)), np.abs(np.cos(phi2)))
+    # finally, _joinstyle = "round" is just _joinstyle = "bevel" but with
+    # a hemispherical cap. we could calculate this but for now no markers use
+    # it....except those with "no corner", in which case we can treat them the
+    # same as squares...
+    elif joinstyle == 'round':
+        return width/2  # hemispherical cap, so always same padding
+    else:
+        raise ValueError(f"Unknown joinstyle: {joinstyle}")
+    return pad
+
+
+CornerInfo = namedtuple('CornerInfo', 'apex incidence_angle corner_angle')
+r"""Used to have a universal way to account for how much the bounding box of a
+shape will grow as we increase its `markeredgewidth`.
+
+Attributes
+----------
+    `apex` : float
+        the vertex that marks the "tip" of the corner
+    `incidence_angle` : float
+        the angle that the corner bisector makes with the box edge (where
+        top/bottom box edges are horizontal, left/right box edges are
+        vertical).
+    `corner_angle` : float
+        the internal angle of the corner, where np.pi is a straight line, and 0
+        is retracing exactly the way you came. None can be used to signify that
+        the line ends there (i.e. no corner).
+
+Notes
+-----
+$\pi$ and 0 are equivalent for `corner_angle`. Both $\theta$ and $\pi - \theta$
+are equivalent for `incidence_angle` by symmetry."""
+
+
+def _incidence_corner_from_angles(angle_1, angle_2):
+    """Gets CornerInfo from direction of lines making up corner.
+
+    This function expects angle_1 and angle_2 (in radians) to be
+    the orientation of lines 1 and 2 (arbitrarily chosen to point
+    towards the corner where they meet) relative to the coordinate
+    system.
+
+    Helper function for Path.iter_corners.
+
+    Returns
+    -------
+    incidence_angle : float in [0, 2*pi]
+        as described in CornerInfo docs
+    corner_angle : float in [0, pi]
+        as described in CornerInfo docs
+
+    Notes
+    -----
+    Is necessarily ambiguous if corner_angle is pi.
+    """
+    # get "interior" angle between tangents to joined curves' tips
+    corner_angle = np.abs(angle_1 - angle_2)
+    if corner_angle > np.pi:
+        corner_angle = 2*np.pi - corner_angle
+    # since [-pi, pi], we need to sort to avoid modulo
+    smaller_angle = min(angle_1, angle_2)
+    larger_angle = max(angle_1, angle_2)
+    if np.isclose(smaller_angle + corner_angle, larger_angle):
+        incidence_angle = smaller_angle + corner_angle/2
+    else:
+        incidence_angle = smaller_angle - corner_angle/2
+    return incidence_angle, corner_angle
+
+
+def _pad_extents_with_corner(extents, corner, markeredgewidth, joinstyle,
+                             capstyle):
+    xmin = 0
+    ymin = 1
+    xmax = 2
+    ymax = 3
+    # now for each of up/down/left/right, convert the absolute
+    # incidence angle into the incidence angle relative to that
+    # respective side of the bbox, and see if the corner expands the
+    # extents...
+    x, y = corner.apex
+    if np.cos(corner.incidence_angle) > 0:
+        incidence_angle = corner.incidence_angle + np.pi/2
+        x += _get_padding_due_to_angle(
+                markeredgewidth, incidence_angle, corner.corner_angle,
+                joinstyle=joinstyle, capstyle=capstyle)
+        if x > extents[xmax]:
+            extents[xmax] = x
+    else:
+        if corner.incidence_angle < 0:  # [-pi, -pi/2]
+            incidence_angle = 3*np.pi/2 + corner.incidence_angle
+        else:
+            incidence_angle = corner.incidence_angle - np.pi/2
+        x -= _get_padding_due_to_angle(
+                markeredgewidth, incidence_angle, corner.corner_angle,
+                joinstyle=joinstyle, capstyle=capstyle)
+        if x < extents[xmin]:
+            extents[xmin] = x
+    if np.sin(corner.incidence_angle) > 0:
+        incidence_angle = corner.incidence_angle
+        y += _get_padding_due_to_angle(
+                markeredgewidth, incidence_angle, corner.corner_angle,
+                joinstyle=joinstyle, capstyle=capstyle)
+        if y > extents[ymax]:
+            extents[ymax] = y
+    else:
+        incidence_angle = corner.incidence_angle + np.pi
+        y -= _get_padding_due_to_angle(
+                markeredgewidth, incidence_angle, corner.corner_angle,
+                joinstyle=joinstyle, capstyle=capstyle)
+        if y < extents[ymin]:
+            extents[ymin] = y
