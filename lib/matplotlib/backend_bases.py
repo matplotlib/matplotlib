@@ -2877,19 +2877,14 @@ class NavigationToolbar2:
 
     def press_pan(self, event):
         """Callback for mouse button press in pan/zoom mode."""
-
-        if event.button == 1:
-            self._button_pressed = 1
-        elif event.button == 3:
-            self._button_pressed = 3
+        if event.button in [1, 3]:
+            self._button_pressed = event.button
         else:
             self._button_pressed = None
             return
-
         if self._nav_stack() is None:
             # set the home button to this view
             self.push_current()
-
         x, y = event.x, event.y
         self._xypress = []
         for i, a in enumerate(self.canvas.figure.get_axes()):
@@ -2900,7 +2895,6 @@ class NavigationToolbar2:
                 self.canvas.mpl_disconnect(self._idDrag)
                 self._idDrag = self.canvas.mpl_connect('motion_notify_event',
                                                        self.drag_pan)
-
         self.press(event)
 
     def press_zoom(self, event):
@@ -2917,10 +2911,8 @@ class NavigationToolbar2:
             self._ids_zoom = []
             return
 
-        if event.button == 1:
-            self._button_pressed = 1
-        elif event.button == 3:
-            self._button_pressed = 3
+        if event.button in [1, 3]:
+            self._button_pressed = event.button
         else:
             self._button_pressed = None
             return
