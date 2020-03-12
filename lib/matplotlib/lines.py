@@ -1197,7 +1197,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        marker : marker style
+        marker : marker style string, `~.path.Path` or `~.markers.MarkerStyle`
             See `~matplotlib.markers` for full description of possible
             arguments.
         """
