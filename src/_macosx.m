@@ -931,8 +931,9 @@ static PyTypeObject FigureManagerType = {
 typedef struct {
     PyObject_HEAD
     NSPopUpButton* menu;
-    NSText* messagebox;
+    NSTextView* messagebox;
     NavigationToolbar2Handler* handler;
+    int height;
 } NavigationToolbar2;
 
 @implementation NavigationToolbar2Handler
@@ -1139,7 +1140,9 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     const float gap = 2;
     const int height = 36;
     const int imagesize = 24;
-
+    
+    self->height = height;
+    
     const char* basedir;
 
     obj = PyObject_GetAttrString((PyObject*)self, "canvas");
@@ -1252,7 +1255,9 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     rect.size.width = 300;
     rect.size.height = 0;
     rect.origin.x += height;
-    NSText* messagebox = [[NSText alloc] initWithFrame: rect];
+    NSTextView* messagebox = [[NSTextView alloc] initWithFrame: rect];
+    messagebox.textContainer.maximumNumberOfLines = 2;
+    messagebox.textContainer.lineBreakMode = NSLineBreakByTruncatingTail;
     [messagebox setFont: font];
     [messagebox setDrawsBackground: NO];
     [messagebox setSelectable: NO];
@@ -1294,12 +1299,26 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
 
     if(!PyArg_ParseTuple(args, "y", &message)) return NULL;
 
-    NSText* messagebox = self->messagebox;
+    NSTextView* messagebox = self->messagebox;
 
     if (messagebox)
     {   NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
         NSString* text = [NSString stringWithUTF8String: message];
         [messagebox setString: text];
+        
+        // Adjust width with the window size
+        NSRect rectWindow = [messagebox.superview frame];
+        NSRect rect = [messagebox frame];
+        rect.size.width = rectWindow.size.width - rect.origin.x;
+        [messagebox setFrame: rect];
+        
+        // Adjust height with the content size
+        [messagebox.layoutManager ensureLayoutForTextContainer: messagebox.textContainer];
+        NSRect contentSize = [messagebox.layoutManager usedRectForTextContainer: messagebox.textContainer];
+        rect = [messagebox frame];
+        rect.origin.y = 0.5 * (self->height - contentSize.size.height);
+        [messagebox setFrame: rect];
+        
         [pool release];
     }
 
