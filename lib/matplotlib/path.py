@@ -11,12 +11,68 @@ visualisation.
 
 from functools import lru_cache
 from weakref import WeakValueDictionary
+from collections import namedtuple
 
 import numpy as np
 
 import matplotlib as mpl
 from . import _path, cbook
 from .cbook import _to_unmasked_float_array, simple_linear_interpolation
+from .bezier import BezierSegment, split_bezier_intersecting_with_closedpath
+
+
+CornerInfo = namedtuple('CornerInfo', 'apex incidence_angle corner_angle')
+r"""Used to have a universal way to account for how much the bounding box of a
+shape will grow as we increase its `markeredgewidth`.
+
+Attributes
+----------
+    `apex` : float
+        the vertex that marks the "tip" of the corner
+    `incidence_angle` : float
+        the angle that the corner bisector makes with the box edge (where
+        top/bottom box edges are horizontal, left/right box edges are
+        vertical).
+    `corner_angle` : float
+        the internal angle of the corner, where np.pi is a straight line, and 0
+        is retracing exactly the way you came. None can be used to signify that
+        the line ends there (i.e. no corner).
+
+Notes
+-----
+$\pi$ and 0 are equivalent for `corner_angle`. Both $\theta$ and $\pi - \theta$
+are equivalent for `incidence_angle` by symmetry."""
+
+
+def _incidence_corner_from_angles(angle_1, angle_2):
+    """Gets CornerInfo from direction of lines making up corner.
+
+    This function expects angle_1 and angle_2 (in radians) to be
+    the orientation of lines 1 and 2 (arbitrarily chosen to point
+    towards the corner where they meet) relative to the coordinate
+    system.
+
+    Helper function for Path.iter_corners.
+
+    Returns
+    -------
+    incidence_angle : float in [0, 2*pi]
+        as described in CornerInfo docs
+    corner_angle : float in [0, pi]
+        as described in CornerInfo docs
+    """
+    # get "interior" angle between tangents to joined curves' tips
+    corner_angle = np.abs(angle_1 - angle_2)
+    if corner_angle > np.pi:
+        corner_angle = 2*np.pi - corner_angle
+    # since [-pi, pi], we need to sort to avoid modulo
+    smaller_angle = min(angle_1, angle_2)
+    larger_angle = max(angle_1, angle_2)
+    if np.isclose(smaller_angle + corner_angle, larger_angle):
+        incident_angle = smaller_angle + corner_angle/2
+    else:
+        incident_angle = smaller_angle - corner_angle/2
+    return incident_angle, corner_angle
 
 
 class Path:
@@ -337,11 +393,8 @@ class Path:
         codes = np.empty(total_length, dtype=cls.code_type)
         i = 0
         for path in args:
-            if path.codes is None:
-                codes[i] = cls.MOVETO
-                codes[i + 1:i + len(path.vertices)] = cls.LINETO
-            else:
-                codes[i:i + len(path.codes)] = path.codes
+            path = path.make_path_regular()
+            codes[i:i + len(path.codes)] = path.codes
             i += len(path.vertices)
 
         return cls(vertices, codes)
@@ -446,6 +499,87 @@ class Path:
                 yield np.array([prev_vertex, first_vertex]), code
             prev_vertex = vertices[-2:]
 
+    def iter_corners(self, **kwargs):
+        """Iterate over a mpl.path.Path object and return information about every
+        cap and corner.
+
+        Parameters
+        ----------
+        path : mpl.path.Path
+            the path to extract corners from
+        kwargs : Dict[str, object]
+            passed onto Path.iter_curves
+
+        Yields
+        ------
+        corner : CornerInfo
+            Measure of the corner's position, orientation, and angle. Useful in
+            order to determine how the corner affects the bbox of the curve.
+        """
+        first_tan_angle = None
+        first_vertex = None
+        prev_tan_angle = None
+        prev_vertex = None
+        is_capped = False
+        for bcurve, code in self.iter_curves(**kwargs):
+            bcurve = BezierSegment(bcurve)
+            if code == Path.MOVETO:
+                # deal with capping ends of previous polyline, if it exists
+                if prev_tan_angle is not None and is_capped:
+                    cap_angles = [first_tan_angle, prev_tan_angle]
+                    cap_vertices = [first_vertex, prev_vertex]
+                    for cap_angle, cap_vertex in zip(cap_angles, cap_vertices):
+                        yield CornerInfo(cap_vertex, cap_angle, None)
+                first_tan_angle = None
+                prev_tan_angle = None
+                first_vertex = bcurve.cpoints[0]
+                prev_vertex = first_vertex
+                # lines end in a cap by default unless a CLOSEPOLY is observed
+                is_capped = True
+                continue
+            if code == Path.CLOSEPOLY:
+                is_capped = False
+                if prev_tan_angle is None:
+                    raise ValueError("Misformed path, cannot close poly with "
+                                     "single vertex!")
+                tan_in = prev_vertex - first_vertex
+                # often CLOSEPOLY is used when the curve has already reached
+                # it's initial point in order to prevent there from being a
+                # stray straight line segment.
+                # if it's used this way, then we more or less ignore the
+                # current bcurve.
+                if np.isclose(np.linalg.norm(tan_in), 0):
+                    incident_a, corner_a = _incidence_corner_from_angles(
+                            prev_tan_angle, first_tan_angle)
+                    yield CornerInfo(prev_vertex, incident_a, corner_a)
+                    continue
+                # otherwise, we have to calculate both the corner from the
+                # previous line segment to the current straight line, and from
+                # the current straight line to the original starting line. The
+                # former is taken care of by the non-special-case code below.
+                # the latter looks like:
+                tan_out = bcurve.tan_out
+                angle_end = np.arctan2(tan_out[1], tan_out[0])
+                incident_a, corner_a = _incidence_corner_from_angles(
+                        angle_end, first_tan_angle)
+                yield CornerInfo(first_vertex, incident_a, corner_a)
+            # finally, usual case is when two curves meet at an angle
+            tan_in = -bcurve.tan_in
+            angle_in = np.arctan2(tan_in[1], tan_in[0])
+            if first_tan_angle is None:
+                first_tan_angle = angle_in
+            if prev_tan_angle is not None:
+                incident_a, corner_a = _incidence_corner_from_angles(
+                        angle_in, prev_tan_angle)
+                yield CornerInfo(prev_vertex, incident_a, corner_a)
+            tan_out = bcurve.tan_out
+            prev_tan_angle = np.arctan2(tan_out[1], tan_out[0])
+            prev_vertex = bcurve.cpoints[-1]
+        if prev_tan_angle is not None and is_capped:
+            for cap_angle, cap_vertex in [(first_tan_angle, first_vertex),
+                                          (prev_tan_angle, prev_vertex)]:
+                yield CornerInfo(cap_vertex, cap_angle, None)
+
     @cbook._delete_parameter("3.3", "quantize")
     def cleaned(self, transform=None, remove_nans=False, clip=None,
                 quantize=False, simplify=False, curves=False,
@@ -478,6 +612,20 @@ class Path:
         """
         return Path(transform.transform(self.vertices), self.codes,
                     self._interpolation_steps)
+
+    def make_path_regular(self):
+        """
+        If the ``codes`` attribute of `.Path` *p* is None, return a copy of *p*
+        with ``codes`` set to (MOVETO, LINETO, LINETO, ..., LINETO); otherwise
+        return *p* itself.
+        """
+        c = self.codes
+        if c is None:
+            c = np.full(len(self.vertices), Path.LINETO, dtype=Path.code_type)
+            c[0] = Path.MOVETO
+            return Path(self.vertices, c)
+        else:
+            return self
 
     def contains_point(self, point, transform=None, radius=0.0):
         """
@@ -611,6 +759,67 @@ class Path:
         else:
             new_codes = None
         return Path(vertices, new_codes)
+
+    def split_path_inout(self, inside, tolerance=0.01, reorder_inout=False):
+        """
+        Divide a path into two segments at the point where ``inside(x, y)``
+        becomes False.
+        """
+        path_iter = self.iter_segments()
+
+        ctl_points, command = next(path_iter)
+        begin_inside = inside(ctl_points[-2:])  # true if begin point is inside
+
+        ctl_points_old = ctl_points
+
+        concat = np.concatenate
+
+        iold = 0
+        i = 1
+
+        for ctl_points, command in path_iter:
+            iold = i
+            i += len(ctl_points) // 2
+            if inside(ctl_points[-2:]) != begin_inside:
+                bezier_path = concat([ctl_points_old[-2:], ctl_points])
+                break
+            ctl_points_old = ctl_points
+        else:
+            raise ValueError("The path does not intersect with the patch")
+
+        bp = bezier_path.reshape((-1, 2))
+        left, right = split_bezier_intersecting_with_closedpath(
+            bp, inside, tolerance)
+        if len(left) == 2:
+            codes_left = [Path.LINETO]
+            codes_right = [Path.MOVETO, Path.LINETO]
+        elif len(left) == 3:
+            codes_left = [Path.CURVE3, Path.CURVE3]
+            codes_right = [Path.MOVETO, Path.CURVE3, Path.CURVE3]
+        elif len(left) == 4:
+            codes_left = [Path.CURVE4, Path.CURVE4, Path.CURVE4]
+            codes_right = [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4]
+        else:
+            raise AssertionError("This should never be reached")
+
+        verts_left = left[1:]
+        verts_right = right[:]
+
+        if self.codes is None:
+            path_in = Path(concat([self.vertices[:i], verts_left]))
+            path_out = Path(concat([verts_right, self.vertices[i:]]))
+
+        else:
+            path_in = Path(concat([self.vertices[:iold], verts_left]),
+                           concat([self.codes[:iold], codes_left]))
+
+            path_out = Path(concat([verts_right, self.vertices[i:]]),
+                            concat([codes_right, self.codes[i:]]))
+
+        if reorder_inout and not begin_inside:
+            path_in, path_out = path_out, path_in
+
+        return path_in, path_out
 
     def to_polygons(self, transform=None, width=0, height=0, closed_only=True):
         """

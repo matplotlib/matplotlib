@@ -134,7 +134,7 @@ import numpy as np
 from . import cbook, rcParams
 from .path import Path
 from .transforms import IdentityTransform, Affine2D, Bbox
-from .bezier import BezierSegment, iter_corners
+from .bezier import BezierSegment
 
 # special-purpose marker identifiers:
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
@@ -1023,6 +1023,9 @@ class MarkerStyle:
         markeredgewidth : float, optional, default: 0
             Width, in points, of the stroke used to create the marker's edge.
 
+        kwargs : Dict[str, object]
+            forwarded to iter_curves and iter_corners
+
         Returns
         -------
         bbox : matplotlib.transforms.Bbox
@@ -1061,7 +1064,7 @@ class MarkerStyle:
                     unit_extents[dim] = potential_extrema
                 if potential_extrema > unit_extents[maxi+dim]:
                     unit_extents[maxi+dim] = potential_extrema
-        for corner in iter_corners(unit_path, **kwargs):
+        for corner in unit_path.iter_corners(**kwargs):
             x, y = corner.apex
             # now for each of up/down/left/right, convert the absolute
             # incidence angle into the incidence angle relative to that
@@ -1069,8 +1072,8 @@ class MarkerStyle:
             # extents...
             if np.cos(corner.incidence_angle) > 0:
                 incidence_angle = corner.incidence_angle + np.pi/2
-                x += _get_padding_due_to_angle(markeredgewidth,
-                        incidence_angle, corner.corner_angle,
+                x += _get_padding_due_to_angle(
+                        markeredgewidth, incidence_angle, corner.corner_angle,
                         joinstyle=self._joinstyle, capstyle=self._capstyle)
                 if x > unit_extents[xmax]:
                     unit_extents[xmax] = x
@@ -1079,22 +1082,22 @@ class MarkerStyle:
                     incidence_angle = 3*np.pi/2 + corner.incidence_angle
                 else:
                     incidence_angle = corner.incidence_angle - np.pi/2
-                x -= _get_padding_due_to_angle(markeredgewidth,
-                        incidence_angle, corner.corner_angle,
+                x -= _get_padding_due_to_angle(
+                        markeredgewidth, incidence_angle, corner.corner_angle,
                         joinstyle=self._joinstyle, capstyle=self._capstyle)
                 if x < unit_extents[xmin]:
                     unit_extents[xmin] = x
             if np.sin(corner.incidence_angle) > 0:
                 incidence_angle = corner.incidence_angle
-                y += _get_padding_due_to_angle(markeredgewidth,
-                        incidence_angle, corner.corner_angle,
+                y += _get_padding_due_to_angle(
+                        markeredgewidth, incidence_angle, corner.corner_angle,
                         joinstyle=self._joinstyle, capstyle=self._capstyle)
                 if y > unit_extents[ymax]:
                     unit_extents[ymax] = y
             else:
                 incidence_angle = corner.incidence_angle + np.pi
-                y -= _get_padding_due_to_angle(markeredgewidth,
-                        incidence_angle, corner.corner_angle,
+                y -= _get_padding_due_to_angle(
+                        markeredgewidth, incidence_angle, corner.corner_angle,
                         joinstyle=self._joinstyle, capstyle=self._capstyle)
                 if y < unit_extents[ymin]:
                     unit_extents[ymin] = y

@@ -10,10 +10,9 @@ import numpy as np
 import matplotlib as mpl
 from . import artist, cbook, colors, docstring, lines as mlines, transforms
 from .bezier import (
-    NonIntersectingPathException, concatenate_paths, get_cos_sin,
-    get_intersection, get_parallels, inside_circle, make_path_regular,
-    make_wedged_bezier2, split_bezier_intersecting_with_closedpath,
-    split_path_inout)
+    NonIntersectingPathException, get_cos_sin, get_intersection, get_parallels,
+    inside_circle, make_wedged_bezier2,
+    split_bezier_intersecting_with_closedpath, split_path_inout)
 from .path import Path
 
 
@@ -3187,7 +3186,7 @@ class ArrowStyle(_Style):
             and takes care of the aspect ratio.
             """
 
-            path = make_path_regular(path)
+            path = path.make_path_regular()
 
             if aspect_ratio is not None:
                 # Squeeze the given height by the aspect_ratio
@@ -4174,7 +4173,7 @@ default: 'arc3'
         """
         _path, fillable = self.get_path_in_displaycoord()
         if np.iterable(fillable):
-            _path = concatenate_paths(_path)
+            _path = Path.make_compound_path(_path)
         return self.get_transform().inverted().transform_path(_path)
 
     def get_path_in_displaycoord(self):
