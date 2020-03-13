@@ -3992,72 +3992,57 @@ def test_hlines():
     ax5.set_ylim(0, 15)
 
 
-def generate_hlines_with_colors_inputs():
-    colors = cycler('colors', [['red', 'green', 'blue', 'purple', 'orange']])
-    base_y = cycler(
-        'y', [[1, 2, 3, np.nan, 5], np.ma.masked_equal([1, 2, 3, 4, 5], 4)])
-    base_max = cycler('xmax', [np.ones(5)])
-    base_min = cycler('xmin', [0])
-    base_line_width = cycler('linewidth', [5])
-    original = base_y * base_min * base_max * colors * base_line_width
+def generate_lines_with_colors_inputs():
+    colors = ['red', 'green', 'blue', 'purple', 'orange']
+    xy_nan = [1, 2, 3, np.nan, 5]
+    xy_mask = np.ma.masked_equal([1, 2, 3, 4, 5], 4)
+    lines_nan = [{'base_xy': xy_nan,
+                    'base_max': np.ones(5),
+                    'base_min': [0],
+                    'linewidth': 5,
+                    'colors': colors}]
+    lines_mask = [{'base_xy': xy_mask,
+                    'base_max': np.ones(5),
+                    'base_min': [0],
+                    'linewidth': 5,
+                    'colors': colors}]
 
-    expect = {
-        'y': [1, 2, 3, 5],
-        'xmin': 0, 'xmax': [1, 2, 3, 5],
-        'colors': ['red', 'green', 'blue', 'orange']}
-
-    result = []
-
-    for i in original:
-        result.append({'original': i, 'expect': expect})
-
-    return result
+    return [*lines_nan, *lines_mask]
 
 
-@pytest.mark.parametrize('kwargs', generate_hlines_with_colors_inputs())
-@check_figures_equal(extensions=["png"])
-def test_hlines_with_colors(fig_test, fig_ref, kwargs):
-    fig_test, ax0 = plt.subplots()
-    test = kwargs.pop('original')
-    ax0.hlines(**test)
-
-    fig_ref, ax1 = plt.subplots()
-    ref = kwargs.pop('expect')
-    ax1.hlines(**ref)
-
-
-def generate_vlines_with_colors_inputs():
-    colors = cycler('colors', [['red', 'green', 'blue', 'purple', 'orange']])
-    base_x = cycler(
-        'x', [[1, 2, 3, np.nan, 5], np.ma.masked_equal([1, 2, 3, 4, 5], 4)])
-    base_max = cycler('ymax', [np.ones(5)])
-    base_min = cycler('ymin', [0])
-    base_line_width = cycler('linewidth', [5])
-    original = base_x * base_min * base_max * colors * base_line_width
-
-    expect = {
-        'x': [1, 2, 3, 5],
-        'ymin': 0,
-        'ymax': [1, 2, 3, 5],
-        'colors': ['red', 'green', 'blue', 'orange']}
-
-    result = []
-    for i in original:
-        result.append({'original': i, 'expect': expect})
-
-    return result
-
-
-@pytest.mark.parametrize('kwargs', generate_vlines_with_colors_inputs())
+@pytest.mark.parametrize('kwargs', generate_lines_with_colors_inputs())
 @check_figures_equal(extensions=["png"])
 def test_vlines_with_colors(fig_test, fig_ref, kwargs):
-    fig_test, ax0 = plt.subplots()
-    test = kwargs.pop('original')
-    ax0.vlines(**test)
+    kwargs['x'] = kwargs.pop('base_xy')
+    kwargs['ymin'] = kwargs.pop('base_min')
+    kwargs['ymax'] = kwargs.pop('base_max')
+    fig_test.subplots().vlines(**kwargs)
 
-    fig_ref, ax1 = plt.subplots()
-    ref = kwargs.pop('expect')
-    ax1.vlines(**ref)
+    expect = {
+    'x': [1, 2, 3, 5],
+    'ymin': [0],
+    'ymax': np.ones(4),
+    'colors': ['red', 'green', 'blue', 'orange'],
+    'linewidth': 5}
+    fig_ref.subplots().vlines(**expect)
+
+
+@pytest.mark.parametrize('kwargs', generate_lines_with_colors_inputs())
+@check_figures_equal(extensions=["png"])
+def test_hlines_with_colors(fig_test, fig_ref, kwargs):
+    kwargs['y'] = kwargs.pop('base_xy')
+    kwargs['xmin'] = kwargs.pop('base_min')
+    kwargs['xmax'] = kwargs.pop('base_max')
+    fig_test.subplots().hlines(**kwargs)
+
+    expect = {
+    'y': [1, 2, 3, 5],
+    'xmin': [0],
+    'xmax': np.ones(4),
+    'colors': ['red', 'green', 'blue', 'orange'],
+    'linewidth': 5}
+
+    fig_ref.subplots().hlines(**expect)
 
 
 @image_comparison(['step_linestyle', 'step_linestyle'], remove_text=True)
