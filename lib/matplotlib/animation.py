@@ -208,7 +208,7 @@ class AbstractMovieWriter(abc.ABC):
             The figure object that contains the information for frames.
         outfile : str
             The filename of the resulting movie file.
-        dpi : int, optional, default: ``fig.dpi``
+        dpi : float, optional, default: ``fig.dpi``
             The DPI (or resolution) for the file.  This controls the size
             in pixels of the resulting movie file.
         """
@@ -434,10 +434,10 @@ class FileMovieWriter(MovieWriter):
             The figure to grab the rendered frames from.
         outfile : str
             The filename of the resulting movie file.
-        dpi : number, optional
+        dpi : float, optional
             The dpi of the output file. This, with the figure size,
             controls the size in pixels of the resulting movie file.
-            Default is fig.dpi.
+            Default is ``fig.dpi``.
         frame_prefix : str, optional
             The filename prefix to use for temporary files.  If None (the
             default), files are written to a temporary directory which is
@@ -981,7 +981,7 @@ class Animation:
             Movie frame rate (per second).  If not set, the frame rate from the
             animation's frame interval.
 
-        dpi : int, default: :rc:`savefig.dpi`
+        dpi : float, default: :rc:`savefig.dpi`
             Controls the dots per inch for the movie frames.  Together with
             the figure's size in inches, this controls the size of the movie.
 

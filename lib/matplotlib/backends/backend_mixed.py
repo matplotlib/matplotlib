@@ -27,7 +27,7 @@ class MixedModeRenderer:
         height : scalar
             The height of the canvas in logical units
 
-        dpi : scalar
+        dpi : float
             The dpi of the canvas
 
         vector_renderer : `matplotlib.backend_bases.RendererBase`

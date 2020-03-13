@@ -498,9 +498,9 @@ effect.
 .. code-block:: rst
 
    Prefer:
-       dpi : int, default: :rc:`figure.dpi`
+       dpi : float, default: :rc:`figure.dpi`
    over:
-       dpi : int, default: None
+       dpi : float, default: None
 
    Prefer:
        textprops : dict, optional
