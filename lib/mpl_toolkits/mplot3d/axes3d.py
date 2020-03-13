@@ -1437,17 +1437,6 @@ class Axes3D(Axes):
            the input data is larger, it will be downsampled (by slicing) to
            these numbers of points.
 
-        .. note::
-
-           To maximize rendering speed consider setting *rstride* and *cstride*
-           to divisors of the number of rows minus 1 and columns minus 1
-           respectively. For example, given 51 rows rstride can be any of the
-           divisors of 50.
-
-           Similarly, a setting of *rstride* and *cstride* equal to 1 (or
-           *rcount* and *ccount* equal the number of rows and columns) can use
-           the optimized path.
-
         Parameters
         ----------
         X, Y, Z : 2d arrays
