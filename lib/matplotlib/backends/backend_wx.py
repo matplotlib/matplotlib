@@ -1017,7 +1017,7 @@ class FigureFrameWx(wx.Frame):
 
     def Destroy(self, *args, **kwargs):
         try:
-            self.canvas.mpl_disconnect(self.toolbar._idDrag)
+            self.canvas.mpl_disconnect(self.toolbar._id_drag)
             # Rationale for line above: see issue 2941338.
         except AttributeError:
             pass  # classic toolbar lacks the attribute

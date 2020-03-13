@@ -2685,7 +2685,7 @@ class NavigationToolbar2:
         # This cursor will be set after the initial draw.
         self._lastCursor = cursors.POINTER
         self._init_toolbar()
-        self._idDrag = self.canvas.mpl_connect(
+        self._id_drag = self.canvas.mpl_connect(
             'motion_notify_event', self.mouse_move)
         self._id_zoom = None
 
@@ -2890,9 +2890,9 @@ class NavigationToolbar2:
                     a.get_navigate() and a.can_pan()):
                 a.start_pan(x, y, event.button)
                 self._xypress.append((a, i))
-                self.canvas.mpl_disconnect(self._idDrag)
-                self._idDrag = self.canvas.mpl_connect('motion_notify_event',
-                                                       self.drag_pan)
+                self.canvas.mpl_disconnect(self._id_drag)
+                self._id_drag = self.canvas.mpl_connect(
+                    'motion_notify_event', self.drag_pan)
         self.press(event)
 
     def press_zoom(self, event):
@@ -2949,8 +2949,8 @@ class NavigationToolbar2:
 
         if self._button_pressed is None:
             return
-        self.canvas.mpl_disconnect(self._idDrag)
-        self._idDrag = self.canvas.mpl_connect(
+        self.canvas.mpl_disconnect(self._id_drag)
+        self._id_drag = self.canvas.mpl_connect(
             'motion_notify_event', self.mouse_move)
         for a, ind in self._xypress:
             a.end_pan()
