@@ -307,19 +307,15 @@ yaxis of each axes are shared. ::
     from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
 
     fig = plt.figure()
-    ax = RGBAxes(fig, [0.1, 0.1, 0.8, 0.8])
-
-    r, g, b = get_rgb() # r, g, b are 2-d images
-    ax.imshow_rgb(r, g, b,
-                  origin="lower", interpolation="nearest")
+    ax = RGBAxes(fig, [0.1, 0.1, 0.8, 0.8], pad=0.0)
+    r, g, b = get_rgb()  # r, g, b are 2D images.
+    ax.imshow_rgb(r, g, b)
 
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_rgb_001.png
-   :target: ../../gallery/axes_grid1/simple_rgb.html
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_demo_axes_rgb_001.png
+   :target: ../../gallery/axes_grid1/demo_axes_rgb.html
    :align: center
    :scale: 50
-
-   Simple Rgb
 
 
 AxesDivider
