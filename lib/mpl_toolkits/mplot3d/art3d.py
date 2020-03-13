@@ -580,17 +580,39 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
 class Poly3DCollection(PolyCollection):
     """
     A collection of 3D polygons.
+
+    .. note::
+        **Filling of 3D polygons**
+
+        There is no simple definition of the enclosed surface of a 3D polygon
+        unless the polygon is planar.
+
+        In practice, Matplotlib performs the filling on the 2D projection of
+        the polygon. This gives a correct filling appearance only for planar
+        polygons. For all other polygons, you'll find orientations in which
+        the edges of the polygon intersect in the projection. This will lead
+        to an incorrect visualization of the 3D area.
+
+        If you need filled areas, it is recommended to create them via
+        `~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf`, which creates a
+        triangulation and thus generates consistent surfaces.
     """
 
     def __init__(self, verts, *args, zsort='average', **kwargs):
         """
-        Create a Poly3DCollection.
+        Parameters
+        ----------
+        verts : list of array-like Nx3
+            Each element describes a polygon as a sequnce of ``N_i`` points
+            ``(x, y, z)``.
+        zsort : {'average', 'min', 'max'}, default: 'average'
+            The calculation method for the z-order.
+            See `~.Poly3DCollection.set_zsort` for details.
+        *args, **kwargs
+            All other parameters are forwarded to `.PolyCollection`.
 
-        *verts* should contain 3D coordinates.
-
-        Keyword arguments:
-        zsort, see set_zsort for options.
-
+        Notes
+        -----
         Note that this class does a bit of magic with the _facecolors
         and _edgecolors properties.
         """
