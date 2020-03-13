@@ -333,3 +333,8 @@ In :mod:`mpl_toolkits.axes_grid1.axes_rgb`, ``imshow_rgb`` is deprecated (use
 ``ax.imshow(np.dstack([r, g, b]))`` instead); ``RGBAxesBase`` is deprecated
 (use ``RGBAxes`` instead); ``RGBAxes.add_RGB_to_figure`` is deprecated (it was
 an internal helper).
+
+``Substitution.from_params``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This method is deprecated.  If needed, directly assign to the ``params``
+attribute of the Substitution object.
