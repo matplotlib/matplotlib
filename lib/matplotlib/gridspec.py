@@ -566,7 +566,8 @@ class SubplotSpec:
                 # num - 1 for converting from MATLAB to python indexing
                 return GridSpec(rows, cols, figure=figure)[int(num) - 1]
         else:
-            raise ValueError(f"Illegal argument(s) to subplot: {args}")
+            raise TypeError(f"subplot() takes 1 or 3 positional arguments but "
+                            f"{len(args)} were given")
 
     # num2 is a property only to handle the case where it is None and someone
     # mutates num1.

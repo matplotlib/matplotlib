@@ -5519,8 +5519,8 @@ default: :rc:`scatter.edgecolors`
                     Y = Y.data
             nrows, ncols = C.shape
         else:
-            raise TypeError(
-                'Illegal arguments to %s; see help(%s)' % (funcname, funcname))
+            raise TypeError(f'{funcname}() takes 1 or 3 positional arguments '
+                            f'but {len(args)} were given')
 
         Nx = X.shape[-1]
         Ny = Y.shape[0]
