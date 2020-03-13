@@ -4190,17 +4190,16 @@ class _AxesBase(martist.Artist):
         """
         Called when a pan operation has started.
 
-        *x*, *y* are the mouse coordinates in display coords.
-        button is the mouse button number:
+        Parameters
+        ----------
+        x, y : float
+            The mouse coordinates in display coords.
+        button : `.MouseButton`
+            The pressed mouse button.
 
-        * 1: LEFT
-        * 2: MIDDLE
-        * 3: RIGHT
-
-        .. note::
-
-            Intended to be overridden by new projection types.
-
+        Notes
+        -----
+        This is intended to be overridden by new projection types.
         """
         self._pan_start = types.SimpleNamespace(
             lim=self.viewLim.frozen(),
@@ -4212,13 +4211,11 @@ class _AxesBase(martist.Artist):
 
     def end_pan(self):
         """
-        Called when a pan operation completes (when the mouse button
-        is up.)
+        Called when a pan operation completes (when the mouse button is up.)
 
-        .. note::
-
-            Intended to be overridden by new projection types.
-
+        Notes
+        -----
+        This is intended to be overridden by new projection types.
         """
         del self._pan_start
 
@@ -4226,20 +4223,18 @@ class _AxesBase(martist.Artist):
         """
         Called when the mouse moves during a pan operation.
 
-        *button* is the mouse button number:
+        Parameters
+        ----------
+        button : `.MouseButton`
+            The pressed mouse button.
+        key : str or None
+            The pressed key, if any.
+        x, y : float
+            The mouse coordinates in display coords.
 
-        * 1: LEFT
-        * 2: MIDDLE
-        * 3: RIGHT
-
-        *key* is a "shift" key
-
-        *x*, *y* are the mouse coordinates in display coords.
-
-        .. note::
-
-            Intended to be overridden by new projection types.
-
+        Notes
+        -----
+        This is intended to be overridden by new projection types.
         """
         def format_deltas(key, dx, dy):
             if key == 'control':
