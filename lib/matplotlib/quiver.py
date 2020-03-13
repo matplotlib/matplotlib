@@ -600,7 +600,7 @@ class Quiver(mcollections.PolyCollection):
         if C is not None:
             C = ma.masked_invalid(C, copy=True).ravel()
         for name, var in zip(('U', 'V', 'C'), (U, V, C)):
-            if var is not None and var.size != self.N:
+            if not (var is None or var.size == self.N or var.size == 1):
                 raise ValueError(f'Argument {name} has a size {var.size}'
                                  f' which does not match {self.N},'
                                  ' the number of arrow positions')
