@@ -52,7 +52,12 @@ steps:
     prerelease: true
   condition: and(succeeded(), eq(variables['python.version'], 'Pre'))
 
+- task: NuGetToolInstaller@0
+  displayName: 'Use latest available Nuget'
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
+
 - bash: |
+    set -e
     case "$(python -c 'import sys; print(sys.platform)')" in
     linux)
       sudo apt-get update
@@ -83,10 +88,10 @@ steps:
     win32)
       nuget install libpng-msvc14-x64 -ExcludeVersion -OutputDirectory "$(build.BinariesDirectory)"
       nuget install zlib-msvc14-x64 -ExcludeVersion -OutputDirectory "$(build.BinariesDirectory)"
-      echo ##vso[task.prependpath]$(build.BinariesDirectory)\libpng-msvc14-x64\build\native\bin_release
-      echo ##vso[task.prependpath]$(build.BinariesDirectory)\zlib-msvc14-x64\build\native\bin_release
-      echo ##vso[task.setvariable variable=CL]/I$(build.BinariesDirectory)\libpng-msvc14-x64\build\native\include /I$(build.BinariesDirectory)\zlib-msvc14-x64\build\native\include
-      echo ##vso[task.setvariable variable=LINK]/LIBPATH:$(build.BinariesDirectory)\libpng-msvc14-x64\build\native\lib_release /LIBPATH:$(build.BinariesDirectory)\zlib-msvc14-x64\build\native\lib_release
+      echo "##vso[task.prependpath]$(build.BinariesDirectory)\libpng-msvc14-x64\build\native\bin_release"
+      echo "##vso[task.prependpath]$(build.BinariesDirectory)\zlib-msvc14-x64\build\native\bin_release"
+      echo "##vso[task.setvariable variable=CL]/I$(build.BinariesDirectory)\libpng-msvc14-x64\build\native\include /I$(build.BinariesDirectory)\zlib-msvc14-x64\build\native\include"
+      echo "##vso[task.setvariable variable=LINK]/LIBPATH:$(build.BinariesDirectory)\libpng-msvc14-x64\build\native\lib_release /LIBPATH:$(build.BinariesDirectory)\zlib-msvc14-x64\build\native\lib_release"
       ;;
     *)
       exit 1
