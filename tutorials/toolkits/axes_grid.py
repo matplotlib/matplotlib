@@ -399,8 +399,8 @@ this example, it will return [0:2, 1].
 
 See the example,
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axes_divider2_001.png
-   :target: ../../gallery/axes_grid1/simple_axes_divider2.html
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axes_divider1_002.png
+   :target: ../../gallery/axes_grid1/simple_axes_divider1.html
    :align: center
    :scale: 50
 
