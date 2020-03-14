@@ -386,6 +386,7 @@ def _get_image_inclusion_command():
 
 class RendererPgf(RendererBase):
 
+    @cbook._delete_parameter("3.3", "dummy")
     def __init__(self, figure, fh, dummy=False):
         """
         Creates a new PGF renderer that translates any drawing instruction
@@ -412,13 +413,6 @@ class RendererPgf(RendererBase):
             for m in RendererPgf.__dict__:
                 if m.startswith("draw_"):
                     self.__dict__[m] = lambda *args, **kwargs: None
-        else:
-            # if fh does not belong to a filename, deactivate draw_image
-            if not hasattr(fh, 'name') or not os.path.exists(fh.name):
-                self.__dict__["draw_image"] = \
-                    lambda *args, **kwargs: cbook._warn_external(
-                        "streamed pgf-code does not support raster graphics, "
-                        "consider using the pgf-to-pdf option")
 
     @cbook.deprecated("3.2")
     @property
@@ -646,6 +640,11 @@ class RendererPgf(RendererBase):
         if w == 0 or h == 0:
             return
 
+        if not os.path.exists(getattr(self.fh, "name", "")):
+            cbook._warn_external(
+                "streamed pgf-code does not support raster graphics, consider "
+                "using the pgf-to-pdf option.")
+
         # save the images to png files
         path = pathlib.Path(self.fh.name)
         fname_img = "%s-img%d.png" % (path.stem, self.image_counter)
@@ -756,15 +755,10 @@ class RendererPgf(RendererBase):
         # docstring inherited
         return points * mpl_pt_to_in * self.dpi
 
-    def new_gc(self):
-        # docstring inherited
-        return GraphicsContextPgf()
 
-
+@cbook.deprecated("3.3", alternative="GraphicsContextBase")
 class GraphicsContextPgf(GraphicsContextBase):
     pass
-
-########################################################################
 
 
 class TmpDirCleaner:
@@ -949,7 +943,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             self._print_png_to_fh(file, *args, **kwargs)
 
     def get_renderer(self):
-        return RendererPgf(self.figure, None, dummy=True)
+        return RendererPgf(self.figure, None)
 
 
 class FigureManagerPgf(FigureManagerBase):
