@@ -2697,11 +2697,9 @@ class NavigationToolbar2:
         # This cursor will be set after the initial draw.
         self._lastCursor = cursors.POINTER
         self._init_toolbar()
-        self._idDrag = self.canvas.mpl_connect(
+        self._id_drag = self.canvas.mpl_connect(
             'motion_notify_event', self.mouse_move)
-
-        self._ids_zoom = []
-        self._zoom_mode = None
+        self._id_zoom = None
 
         self._button_pressed = None  # determined by button pressed at start
 
@@ -2904,23 +2902,22 @@ class NavigationToolbar2:
                     a.get_navigate() and a.can_pan()):
                 a.start_pan(x, y, event.button)
                 self._xypress.append((a, i))
-                self.canvas.mpl_disconnect(self._idDrag)
-                self._idDrag = self.canvas.mpl_connect('motion_notify_event',
-                                                       self.drag_pan)
+                self.canvas.mpl_disconnect(self._id_drag)
+                self._id_drag = self.canvas.mpl_connect(
+                    'motion_notify_event', self.drag_pan)
         self.press(event)
 
     def press_zoom(self, event):
         """Callback for mouse button press in zoom to rect mode."""
         # If we're already in the middle of a zoom, pressing another
         # button works to "cancel"
-        if self._ids_zoom:
-            for zoom_id in self._ids_zoom:
-                self.canvas.mpl_disconnect(zoom_id)
+        if self._id_zoom is not None:
+            self.canvas.mpl_disconnect(self._id_zoom)
             self.release(event)
             self.draw()
             self._xypress = None
             self._button_pressed = None
-            self._ids_zoom = []
+            self._id_zoom = None
             return
 
         if event.button in [1, 3]:
@@ -2935,29 +2932,15 @@ class NavigationToolbar2:
 
         x, y = event.x, event.y
         self._xypress = []
-        for i, a in enumerate(self.canvas.figure.get_axes()):
+        for a in self.canvas.figure.get_axes():
             if (x is not None and y is not None and a.in_axes(event) and
                     a.get_navigate() and a.can_zoom()):
-                self._xypress.append((x, y, a, i, a._get_view()))
+                self._xypress.append((x, y, a))
 
-        id1 = self.canvas.mpl_connect('motion_notify_event', self.drag_zoom)
-        id2 = self.canvas.mpl_connect('key_press_event',
-                                      self._switch_on_zoom_mode)
-        id3 = self.canvas.mpl_connect('key_release_event',
-                                      self._switch_off_zoom_mode)
-
-        self._ids_zoom = id1, id2, id3
-        self._zoom_mode = event.key
+        self._id_zoom = self.canvas.mpl_connect(
+            'motion_notify_event', self.drag_zoom)
 
         self.press(event)
-
-    def _switch_on_zoom_mode(self, event):
-        self._zoom_mode = event.key
-        self.mouse_move(event)
-
-    def _switch_off_zoom_mode(self, event):
-        self._zoom_mode = None
-        self.mouse_move(event)
 
     def push_current(self):
         """Push the current view limits and position onto the stack."""
@@ -2978,8 +2961,8 @@ class NavigationToolbar2:
 
         if self._button_pressed is None:
             return
-        self.canvas.mpl_disconnect(self._idDrag)
-        self._idDrag = self.canvas.mpl_connect(
+        self.canvas.mpl_disconnect(self._id_drag)
+        self._id_drag = self.canvas.mpl_connect(
             'motion_notify_event', self.mouse_move)
         for a, ind in self._xypress:
             a.end_pan()
@@ -3003,20 +2986,20 @@ class NavigationToolbar2:
         """Callback for dragging in zoom mode."""
         if self._xypress:
             x, y = event.x, event.y
-            lastx, lasty, a, ind, view = self._xypress[0]
+            lastx, lasty, a = self._xypress[0]
             (x1, y1), (x2, y2) = np.clip(
                 [[lastx, lasty], [x, y]], a.bbox.min, a.bbox.max)
-            if self._zoom_mode == "x":
+            if event.key == "x":
                 y1, y2 = a.bbox.intervaly
-            elif self._zoom_mode == "y":
+            elif event.key == "y":
                 x1, x2 = a.bbox.intervalx
             self.draw_rubberband(event, x1, y1, x2, y2)
 
     def release_zoom(self, event):
         """Callback for mouse button release in zoom to rect mode."""
-        for zoom_id in self._ids_zoom:
-            self.canvas.mpl_disconnect(zoom_id)
-        self._ids_zoom = []
+        if self._id_zoom is not None:
+            self.canvas.mpl_disconnect(self._id_zoom)
+        self._id_zoom = None
 
         self.remove_rubberband()
 
@@ -3025,14 +3008,13 @@ class NavigationToolbar2:
 
         last_a = []
 
-        for cur_xypress in self._xypress:
+        for lastx, lasty, a in self._xypress:
             x, y = event.x, event.y
-            lastx, lasty, a, ind, view = cur_xypress
             # ignore singular clicks - 5 pixels is a threshold
             # allows the user to "cancel" a zoom action
             # by zooming by less than 5 pixels
-            if ((abs(x - lastx) < 5 and self._zoom_mode != "y") or
-                    (abs(y - lasty) < 5 and self._zoom_mode != "x")):
+            if ((abs(x - lastx) < 5 and event.key != "y") or
+                    (abs(y - lasty) < 5 and event.key != "x")):
                 self._xypress = None
                 self.release(event)
                 self.draw()
@@ -3056,13 +3038,11 @@ class NavigationToolbar2:
                 continue
 
             a._set_view_from_bbox((lastx, lasty, x, y), direction,
-                                  self._zoom_mode, twinx, twiny)
+                                  event.key, twinx, twiny)
 
         self.draw()
         self._xypress = None
         self._button_pressed = None
-
-        self._zoom_mode = None
 
         self.push_current()
         self.release(event)

@@ -253,7 +253,7 @@ class SetCursorBase(ToolBase):
     """
     def __init__(self, *args, **kwargs):
         ToolBase.__init__(self, *args, **kwargs)
-        self._idDrag = None
+        self._id_drag = None
         self._cursor = None
         self._default_cursor = cursors.POINTER
         self._last_cursor = self._default_cursor
@@ -265,11 +265,11 @@ class SetCursorBase(ToolBase):
             self._add_tool(tool)
 
     def set_figure(self, figure):
-        if self._idDrag:
-            self.canvas.mpl_disconnect(self._idDrag)
+        if self._id_drag:
+            self.canvas.mpl_disconnect(self._id_drag)
         ToolBase.set_figure(self, figure)
         if figure:
-            self._idDrag = self.canvas.mpl_connect(
+            self._id_drag = self.canvas.mpl_connect(
                 'motion_notify_event', self._set_cursor_cbk)
 
     def _tool_trigger_cbk(self, event):
@@ -322,15 +322,15 @@ class ToolCursorPosition(ToolBase):
     This tool runs in the background reporting the position of the cursor.
     """
     def __init__(self, *args, **kwargs):
-        self._idDrag = None
+        self._id_drag = None
         ToolBase.__init__(self, *args, **kwargs)
 
     def set_figure(self, figure):
-        if self._idDrag:
-            self.canvas.mpl_disconnect(self._idDrag)
+        if self._id_drag:
+            self.canvas.mpl_disconnect(self._id_drag)
         ToolBase.set_figure(self, figure)
         if figure:
-            self._idDrag = self.canvas.mpl_connect(
+            self._id_drag = self.canvas.mpl_connect(
                 'motion_notify_event', self.send_message)
 
     def send_message(self, event):
@@ -972,12 +972,12 @@ class ToolPan(ZoomPanBase):
 
     def __init__(self, *args):
         ZoomPanBase.__init__(self, *args)
-        self._idDrag = None
+        self._id_drag = None
 
     def _cancel_action(self):
         self._button_pressed = None
         self._xypress = []
-        self.figure.canvas.mpl_disconnect(self._idDrag)
+        self.figure.canvas.mpl_disconnect(self._id_drag)
         self.toolmanager.messagelock.release(self)
         self.toolmanager.get_tool(_views_positions).refresh_locators()
 
@@ -999,7 +999,7 @@ class ToolPan(ZoomPanBase):
                 a.start_pan(x, y, event.button)
                 self._xypress.append((a, i))
                 self.toolmanager.messagelock(self)
-                self._idDrag = self.figure.canvas.mpl_connect(
+                self._id_drag = self.figure.canvas.mpl_connect(
                     'motion_notify_event', self._mouse_move)
 
     def _release(self, event):
@@ -1007,7 +1007,7 @@ class ToolPan(ZoomPanBase):
             self._cancel_action()
             return
 
-        self.figure.canvas.mpl_disconnect(self._idDrag)
+        self.figure.canvas.mpl_disconnect(self._id_drag)
         self.toolmanager.messagelock.release(self)
 
         for a, _ind in self._xypress:
