@@ -282,3 +282,11 @@ def test_tex_restart_after_error():
     fig = plt.figure()  # start from scratch
     fig.suptitle(r"this is ok")
     fig.savefig(BytesIO(), format="pgf")
+
+
+@needs_xelatex
+def test_bbox_inches_tight(tmpdir):
+    fig, ax = plt.subplots()
+    ax.imshow([[0, 1], [2, 3]])
+    fig.savefig(os.path.join(tmpdir, "test.pdf"), backend="pgf",
+                bbox_inches="tight")
