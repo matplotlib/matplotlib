@@ -1,9 +1,9 @@
 """
-======================
-Demo Axes Hbox Divider
-======================
+===================
+`.HBoxDivider` demo
+===================
 
-Hbox Divider to arrange subplots.
+Using an `.HBoxDivider` to arrange subplots.
 """
 
 import numpy as np
@@ -31,22 +31,13 @@ if __name__ == "__main__":
     ax1.imshow(arr1)
     ax2.imshow(arr2)
 
-    pad = 0.5  # inches.
-    divider = HBoxDivider(
-        fig, 111,  # Position of combined axes.
-        horizontal=[Size.AxesX(ax1), Size.Fixed(pad), Size.AxesX(ax2)],
-        vertical=[Size.AxesY(ax1), Size.Scaled(1), Size.AxesY(ax2)])
-    ax1.set_axes_locator(divider.new_locator(0))
-    ax2.set_axes_locator(divider.new_locator(2))
+    make_heights_equal(fig, 111, ax1, ax2, pad=0.5)
 
-    # annotate
-    ax3 = plt.axes([0.5, 0.5, 0.001, 0.001], frameon=False)
-    ax3.xaxis.set_visible(False)
-    ax3.yaxis.set_visible(False)
-    ax3.annotate("Location of two axes are adjusted\n"
-                 "so that they have equal heights\n"
-                 "while maintaining their aspect ratios", (0.5, 0.5),
-                 xycoords="axes fraction", va="center", ha="center",
-                 bbox=dict(boxstyle="round, pad=1", fc="w"))
+    fig.text(.5, .5,
+             "Both axes' location are adjusted\n"
+             "so that they have equal heights\n"
+             "while maintaining their aspect ratios",
+             va="center", ha="center",
+             bbox=dict(boxstyle="round, pad=1", facecolor="w"))
 
     plt.show()
