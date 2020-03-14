@@ -881,27 +881,37 @@ class RendererSVG(RendererBase):
         if clipid is not None:
             self.writer.end('g')
 
+    def _update_glyph_map_defs(self, glyph_map_new):
+        """
+        Emit definitions for not-yet-defined glyphs, and record them as having
+        been defined.
+        """
+        writer = self.writer
+        if glyph_map_new:
+            writer.start('defs')
+            for char_id, (vertices, codes) in glyph_map_new.items():
+                char_id = self._adjust_char_id(char_id)
+                path_data = self._convert_path(
+                    Path(vertices, codes), simplify=False)
+                writer.element('path', id=char_id, d=path_data)
+            writer.end('defs')
+            self._glyph_map.update(glyph_map_new)
+
     def _adjust_char_id(self, char_id):
         return char_id.replace("%20", "_")
 
     def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath, mtext=None):
         """
-        draw the text by converting them to paths using textpath module.
+        Draw the text by converting them to paths using the textpath module.
 
         Parameters
         ----------
-        prop : `matplotlib.font_manager.FontProperties`
-          font property
-
         s : str
           text to be converted
-
-        usetex : bool
-          If True, use matplotlib usetex mode.
-
+        prop : `matplotlib.font_manager.FontProperties`
+          font property
         ismath : bool
           If True, use mathtext parser. If "TeX", use *usetex* mode.
-
         """
         writer = self.writer
 
@@ -916,47 +926,34 @@ class RendererSVG(RendererBase):
         style = {}
         if color != '#000000':
             style['fill'] = color
-
         alpha = gc.get_alpha() if gc.get_forced_alpha() else gc.get_rgb()[3]
         if alpha != 1:
             style['opacity'] = short_float_fmt(alpha)
+        font_scale = fontsize / text2path.FONT_SCALE
+        attrib = {
+            'style': generate_css(style),
+            'transform': generate_transform([
+                ('translate', (x, y)),
+                ('rotate', (-angle,)),
+                ('scale', (font_scale, -font_scale))]),
+        }
+        writer.start('g', attrib=attrib)
 
         if not ismath:
             font = text2path._get_font(prop)
             _glyphs = text2path.get_glyphs_with_font(
                 font, s, glyph_map=glyph_map, return_new_glyphs_only=True)
             glyph_info, glyph_map_new, rects = _glyphs
+            self._update_glyph_map_defs(glyph_map_new)
 
-            if glyph_map_new:
-                writer.start('defs')
-                for char_id, glyph_path in glyph_map_new.items():
-                    path = Path(*glyph_path)
-                    path_data = self._convert_path(path, simplify=False)
-                    writer.element('path', id=char_id, d=path_data)
-                writer.end('defs')
-
-                glyph_map.update(glyph_map_new)
-
-            attrib = {}
-            attrib['style'] = generate_css(style)
-            font_scale = fontsize / text2path.FONT_SCALE
-            attrib['transform'] = generate_transform([
-                ('translate', (x, y)),
-                ('rotate', (-angle,)),
-                ('scale', (font_scale, -font_scale))])
-
-            writer.start('g', attrib=attrib)
             for glyph_id, xposition, yposition, scale in glyph_info:
                 attrib = {'xlink:href': '#%s' % glyph_id}
                 if xposition != 0.0:
                     attrib['x'] = short_float_fmt(xposition)
                 if yposition != 0.0:
                     attrib['y'] = short_float_fmt(yposition)
-                writer.element(
-                    'use',
-                    attrib=attrib)
+                writer.element('use', attrib=attrib)
 
-            writer.end('g')
         else:
             if ismath == "TeX":
                 _glyphs = text2path.get_glyphs_tex(
@@ -964,38 +961,11 @@ class RendererSVG(RendererBase):
             else:
                 _glyphs = text2path.get_glyphs_mathtext(
                     prop, s, glyph_map=glyph_map, return_new_glyphs_only=True)
-
             glyph_info, glyph_map_new, rects = _glyphs
+            self._update_glyph_map_defs(glyph_map_new)
 
-            # We store the character glyphs w/o flipping.  Instead, the
-            # coordinate will be flipped when these characters are used.
-            if glyph_map_new:
-                writer.start('defs')
-                for char_id, glyph_path in glyph_map_new.items():
-                    char_id = self._adjust_char_id(char_id)
-                    # Some characters are blank
-                    if not len(glyph_path[0]):
-                        path_data = ""
-                    else:
-                        path = Path(*glyph_path)
-                        path_data = self._convert_path(path, simplify=False)
-                    writer.element('path', id=char_id, d=path_data)
-                writer.end('defs')
-
-                glyph_map.update(glyph_map_new)
-
-            attrib = {}
-            font_scale = fontsize / text2path.FONT_SCALE
-            attrib['style'] = generate_css(style)
-            attrib['transform'] = generate_transform([
-                ('translate', (x, y)),
-                ('rotate', (-angle,)),
-                ('scale', (font_scale, -font_scale))])
-
-            writer.start('g', attrib=attrib)
             for char_id, xposition, yposition, scale in glyph_info:
                 char_id = self._adjust_char_id(char_id)
-
                 writer.element(
                     'use',
                     transform=generate_transform([
@@ -1009,7 +979,7 @@ class RendererSVG(RendererBase):
                 path_data = self._convert_path(path, simplify=False)
                 writer.element('path', d=path_data)
 
-            writer.end('g')
+        writer.end('g')
 
     def _draw_text_as_text(self, gc, x, y, s, prop, angle, ismath, mtext=None):
         writer = self.writer
