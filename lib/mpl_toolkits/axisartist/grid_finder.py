@@ -238,6 +238,7 @@ class MaxNLocator(mticker.MaxNLocator):
         locs = mticker.MaxNLocator.__call__(self)
         return np.array(locs), len(locs), self._factor
 
+    @cbook.deprecated("3.3")
     def set_factor(self, f):
         self._factor = _deprecate_factor_none(f)
 
@@ -252,6 +253,7 @@ class FixedLocator:
         locs = np.array([l for l in self._locs if v1 <= l <= v2])
         return locs, len(locs), self._factor
 
+    @cbook.deprecated("3.3")
     def set_factor(self, f):
         self._factor = _deprecate_factor_none(f)
 
@@ -263,11 +265,8 @@ class FormatterPrettyPrint:
         self._fmt = mticker.ScalarFormatter(
             useMathText=useMathText, useOffset=False)
         self._fmt.create_dummy_axis()
-        self._ignore_factor = True
 
     def __call__(self, direction, factor, values):
-        if not self._ignore_factor:
-            values = [v / _deprecate_factor_none(factor) for v in values]
         return self._fmt.format_ticks(values)
 
 
