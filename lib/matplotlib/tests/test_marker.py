@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from matplotlib import markers
 from matplotlib.path import Path
 from matplotlib.testing.decorators import check_figures_equal
@@ -84,6 +85,17 @@ def test_poly_marker(fig_test, fig_ref):
 
     ax_test.set(xlim=(-0.5, 5.5), ylim=(-0.5, 5.5))
     ax_ref.set(xlim=(-0.5, 5.5), ylim=(-0.5, 5.5))
+
+
+def test_star_marker():
+    # We don't really have a strict equivalent to this marker, so we'll just do
+    # a smoke test.
+    size = 20**2
+
+    fig, ax = plt.subplots()
+    ax.scatter([0], [0], marker=(5, 1), s=size)
+    ax.scatter([1], [1], marker=(5, 1, 0), s=size)
+    ax.set(xlim=(-0.5, 0.5), ylim=(-0.5, 1.5))
 
 
 # The asterisk marker is really a star with 0-size inner circle, so the ends
