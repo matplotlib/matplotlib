@@ -444,9 +444,19 @@ class ColorbarBase:
         self.extendfrac = extendfrac
         self.extendrect = extendrect
         self.solids = None
-        self.lines = list()
-        self.outline = None
-        self.patch = None
+        self.lines = []
+
+        self.outline = mpatches.Polygon(
+            np.empty((0, 2)),
+            edgecolor=mpl.rcParams['axes.edgecolor'], facecolor='none',
+            linewidth=mpl.rcParams['axes.linewidth'], closed=True, zorder=2)
+        ax.add_artist(self.outline)
+        self.outline.set(clip_box=None, clip_path=None)
+        self.patch = mpatches.Polygon(
+            np.empty((0, 2)),
+            color=mpl.rcParams['axes.facecolor'], linewidth=0.01, zorder=-1)
+        ax.add_artist(self.patch)
+
         self.dividers = None
         self.locator = None
         self.formatter = None
@@ -719,26 +729,8 @@ class ColorbarBase:
         ax.update_datalim(xy)
         ax.set_xlim(*ax.dataLim.intervalx)
         ax.set_ylim(*ax.dataLim.intervaly)
-        if self.outline is not None:
-            self.outline.remove()
-        self.outline = mpatches.Polygon(
-            xy, edgecolor=mpl.rcParams['axes.edgecolor'],
-            facecolor='none',
-            linewidth=mpl.rcParams['axes.linewidth'],
-            closed=True,
-            zorder=2)
-        ax.add_artist(self.outline)
-        self.outline.set_clip_box(None)
-        self.outline.set_clip_path(None)
-        c = mpl.rcParams['axes.facecolor']
-        if self.patch is not None:
-            self.patch.remove()
-        self.patch = mpatches.Polygon(xy, edgecolor=c,
-                                      facecolor=c,
-                                      linewidth=0.01,
-                                      zorder=-1)
-        ax.add_artist(self.patch)
-
+        self.outline.set_xy(xy)
+        self.patch.set_xy(xy)
         self.update_ticks()
 
     def _set_label(self):
@@ -1322,10 +1314,18 @@ class Colorbar(ColorbarBase):
         self.formatter = None
 
         # clearing the axes will delete outline, patch, solids, and lines:
-        self.outline = None
-        self.patch = None
+        self.outline = mpatches.Polygon(
+            np.empty((0, 2)),
+            edgecolor=mpl.rcParams['axes.edgecolor'], facecolor='none',
+            linewidth=mpl.rcParams['axes.linewidth'], closed=True, zorder=2)
+        self.ax.add_artist(self.outline)
+        self.outline.set(clip_box=None, clip_path=None)
+        self.patch = mpatches.Polygon(
+            np.empty((0, 2)),
+            color=mpl.rcParams['axes.facecolor'], linewidth=0.01, zorder=-1)
+        self.ax.add_artist(self.patch)
         self.solids = None
-        self.lines = list()
+        self.lines = []
         self.dividers = None
         self.update_normal(mappable)
         self.draw_all()

@@ -522,12 +522,15 @@ def test_colorbar_scale_reset():
     fig, ax = plt.subplots()
     pcm = ax.pcolormesh(z, cmap='RdBu_r', rasterized=True)
     cbar = fig.colorbar(pcm, ax=ax)
+    cbar.outline.set_edgecolor('red')
     assert cbar.ax.yaxis.get_scale() == 'linear'
 
     pcm.set_norm(LogNorm(vmin=1, vmax=100))
     assert cbar.ax.yaxis.get_scale() == 'log'
     pcm.set_norm(Normalize(vmin=-20, vmax=20))
     assert cbar.ax.yaxis.get_scale() == 'linear'
+
+    assert cbar.outline.get_edgecolor() == mcolors.to_rgba('red')
 
 
 def test_colorbar_get_ticks_2():
