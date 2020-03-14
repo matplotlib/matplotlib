@@ -222,7 +222,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         _create_qApp()
         super().__init__(figure=figure)
 
-        self.figure = figure
         # We don't want to scale up the figure DPI more than once.
         # Note, we don't handle a signal for changing DPI yet.
         figure._original_dpi = figure.dpi

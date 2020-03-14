@@ -512,12 +512,11 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
     def __init__(self, parent, id, figure):
         """
-        Initialise a FigureWx instance.
+        Initialize a FigureWx instance.
 
-        - Initialise the FigureCanvasBase and wxPanel parents.
-        - Set event handlers for:
-          EVT_SIZE  (Resize event)
-          EVT_PAINT (Paint event)
+        - Initialize the FigureCanvasBase and wxPanel parents.
+        - Set event handlers for resize, paint, and keyboard and mouse
+          interaction.
         """
 
         FigureCanvasBase.__init__(self, figure)

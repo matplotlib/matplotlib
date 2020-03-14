@@ -200,8 +200,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
 
     # If the file type is not in the base set of filetypes,
     # you should add it to the class-scope filetypes dictionary as follows:
-    filetypes = FigureCanvasBase.filetypes.copy()
-    filetypes['foo'] = 'My magic Foo format'
+    filetypes = {**FigureCanvasBase.filetypes, 'foo': 'My magic Foo format'}
 
     def print_foo(self, filename, *args, **kwargs):
         """

@@ -748,10 +748,6 @@ class _Orientation(Enum):
 
 class FigureCanvasPS(FigureCanvasBase):
     fixed_dpi = 72
-
-    def draw(self):
-        pass
-
     filetypes = {'ps': 'Postscript',
                  'eps': 'Encapsulated Postscript'}
 
