@@ -1,7 +1,9 @@
 """
-Defines classes for path effects. The path effects are supported in
-:class:`~matplotlib.text.Text`, :class:`~matplotlib.lines.Line2D`
-and :class:`~matplotlib.patches.Patch`.
+Defines classes for path effects. The path effects are supported in `~.Text`,
+`~.Line2D` and `~.Patch`.
+
+.. seealso::
+   :doc:`/tutorials/advanced/patheffects_guide`
 """
 
 from matplotlib.backend_bases import RendererBase
@@ -159,7 +161,35 @@ class Normal(AbstractPathEffect):
     The Normal PathEffect's sole purpose is to draw the original artist with
     no special path effect.
     """
-    pass
+
+
+def _subclass_with_normal(effect_class):
+    """
+    Create a PathEffect class combining *effect_class* and a normal draw.
+    """
+
+    class withEffect(effect_class):
+        def draw_path(self, renderer, gc, tpath, affine, rgbFace):
+            super().draw_path(renderer, gc, tpath, affine, rgbFace)
+            renderer.draw_path(gc, tpath, affine, rgbFace)
+
+    withEffect.__name__ = f"with{effect_class.__name__}"
+    withEffect.__doc__ = f"""
+    A shortcut PathEffect for applying `.{effect_class.__name__}` and then
+    drawing the original Artist.
+
+    With this class you can use ::
+
+        artist.set_path_effects([path_effects.with{effect_class.__name__}()])
+
+    as a shortcut for ::
+
+        artist.set_path_effects([path_effects.{effect_class.__name__}(),
+                                 path_effects.Normal()])
+    """
+    # Docstring inheritance doesn't work for locally-defined subclasses.
+    withEffect.draw_path.__doc__ = effect_class.draw_path.__doc__
+    return withEffect
 
 
 class Stroke(AbstractPathEffect):
@@ -184,15 +214,7 @@ class Stroke(AbstractPathEffect):
         gc0.restore()
 
 
-class withStroke(Stroke):
-    """
-    Adds a simple :class:`Stroke` and then draws the
-    original Artist to avoid needing to call :class:`Normal`.
-    """
-
-    def draw_path(self, renderer, gc, tpath, affine, rgbFace):
-        Stroke.draw_path(self, renderer, gc, tpath, affine, rgbFace)
-        renderer.draw_path(gc, tpath, affine, rgbFace)
+withStroke = _subclass_with_normal(effect_class=Stroke)
 
 
 class SimplePatchShadow(AbstractPathEffect):
@@ -261,15 +283,7 @@ class SimplePatchShadow(AbstractPathEffect):
         gc0.restore()
 
 
-class withSimplePatchShadow(SimplePatchShadow):
-    """
-    Adds a simple :class:`SimplePatchShadow` and then draws the
-    original Artist to avoid needing to call :class:`Normal`.
-    """
-
-    def draw_path(self, renderer, gc, tpath, affine, rgbFace):
-        SimplePatchShadow.draw_path(self, renderer, gc, tpath, affine, rgbFace)
-        renderer.draw_path(gc, tpath, affine, rgbFace)
+withSimplePatchShadow = _subclass_with_normal(effect_class=SimplePatchShadow)
 
 
 class SimpleLineShadow(AbstractPathEffect):
