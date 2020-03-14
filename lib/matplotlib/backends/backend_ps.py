@@ -1321,7 +1321,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
         ["ps2pdf",
          "-dAutoFilterColorImages#false",
          "-dAutoFilterGrayImages#false",
-         "-dAutoRotatePages#false",
+         "-sAutoRotatePages#None",
          "-sGrayImageFilter#FlateEncode",
          "-sColorImageFilter#FlateEncode",
          "-dEPSCrop" if eps else "-sPAPERSIZE#%s" % ptype,
