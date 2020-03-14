@@ -395,6 +395,11 @@ class Legend(Artist):
         # trim handles and labels if illegal label...
         _lab, _hand = [], []
         for label, handle in zip(labels, handles):
+            if not isinstance(label, str):
+                cbook.warn_deprecated(
+                   "3.3",
+                   message="Passing non-string objects as legend "
+                           "labels is deprecated.")
             if isinstance(label, str) and label.startswith('_'):
                 cbook._warn_external('The handle {!r} has a label of {!r} '
                                      'which cannot be automatically added to'

@@ -5,6 +5,7 @@ from unittest import mock
 import numpy as np
 import pytest
 
+from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -233,6 +234,15 @@ class TestLegendFunction:
         with mock.patch('matplotlib.legend.Legend') as Legend:
             plt.legend(lines, ['hello world'])
         Legend.assert_called_with(plt.gca(), lines, ['hello world'])
+
+    def test_legend_handles_only(self):
+        lines = plt.plot(range(10))
+        with pytest.warns(MatplotlibDeprecationWarning,
+                          match="Passing non-string objects as legend labels "
+                                "is deprecated"):
+            # a single arg is interpreted as labels
+            # it's a common error to just pass handles
+            plt.legend(lines)
 
     def test_legend_no_args(self):
         lines = plt.plot(range(10), label='hello world')

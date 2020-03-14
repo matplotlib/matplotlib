@@ -333,6 +333,10 @@ Support for passing ``None`` as base class to `.axes.subplot_class_factory`,
 ``axes_grid1.parasite_axes.parasite_axes_auxtrans_class_factory`` is deprecated.
 Explicitly pass the correct base ``Axes`` class instead.
 
+Legend labels must be strings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing non-string objects as legend labels is deprecated.
+
 ``axes_rgb``
 ~~~~~~~~~~~~
 In :mod:`mpl_toolkits.axes_grid1.axes_rgb`, ``imshow_rgb`` is deprecated (use
