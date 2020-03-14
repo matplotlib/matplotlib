@@ -247,6 +247,12 @@ Stricter rcParam validation
 (case-insensitive) to the option "line".  This is deprecated; in a future
 version only the exact string "line" (case-sensitive) will be supported.
 
+``add_subplot()`` validates its inputs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In particular, for ``add_subplot(rows, cols, index)``, all parameters must
+be integral. Previously strings and floats were accepted and converted to
+int. This will now emit a deprecation warning.
+
 Toggling axes navigation from the keyboard using "a" and digit keys
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Axes navigation can still be toggled programmatically using
