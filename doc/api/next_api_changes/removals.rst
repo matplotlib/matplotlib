@@ -73,6 +73,14 @@ Classes and methods
 - ``scale.NaturalLogTransform`` (use ``scale.LogTransform`` instead)
 - ``scale.InvertedNaturalLogTransform`` (use ``scale.InvertedLogTransform`` instead)
 
+- ``spines.Spine.is_frame_like()`` (no replacement)
+
+- ``text.Text.is_math_text()`` (use ``cbook.is_math_text()`` instead)
+- ``text.TextWithDash()`` (use ``text.Annotation`` instead)
+- ``textpath.TextPath.is_math_text()`` (use ``cbook.is_math_text()`` instead)
+- ``textpath.TextPath.text_get_vertices_codes()``
+  (use ``textpath.text_to_path.get_text_path()`` instead)
+
 - ``ticker.OldScalarFormatter.pprint_val()`` (no replacement)
 - ``ticker.ScalarFormatter.pprint_val()`` (no replacement)
 - ``ticker.LogFormatter.pprint_val()`` (no replacement)
@@ -112,8 +120,6 @@ Classes and methods
 - ``path.get_paths_extents()``
   (use ``path.get_path_collection_extents()`` instead)
 
-- ``text.TextWithDash`` (use ``text.Annotation`` instead)
-
 - ``mplot3d.proj3d.line2d()`` (no replacement)
 - ``mplot3d.proj3d.line2d_dist()`` (no replacement)
 - ``mplot3d.proj3d.line2d_seg_dist()`` (no replacement)
@@ -141,6 +147,8 @@ Classes and methods
   (use ``axis_grid1.mpl_axes.SimpleChainedObjects`` instead)
 - ``axisartist.axislines.Axes.AxisDict``
   (use ``axis_grid1.mpl_axes.Axes.AxisDict`` instead)
+
+- ``widgets.SpanSelector.buttonDown`` property (no replacement)
 
 Arguments
 ~~~~~~~~~

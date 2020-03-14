@@ -1821,11 +1821,6 @@ class SpanSelector(_SelectorWidget):
         self.pressv = None
         return False
 
-    @cbook.deprecated("3.1")
-    @property
-    def buttonDown(self):
-        return False
-
     def _onmove(self, event):
         """on motion notify event"""
         if self.pressv is None:
