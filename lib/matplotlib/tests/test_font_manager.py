@@ -160,10 +160,11 @@ def test_user_fonts_linux(tmpdir, monkeypatch):
 
 @pytest.mark.skipif(sys.platform != 'win32', reason='Windows only')
 def test_user_fonts_win32():
-    if not os.environ.get('APPVEYOR', False):
-        pytest.xfail("This test does only work on appveyor since user fonts "
-                     "are Windows specific and the developer's font directory "
-                     "should remain unchanged.")
+    if not (os.environ.get('APPVEYOR', False) or
+            os.environ.get('TF_BUILD', False)):
+        pytest.xfail("This test should only run on CI (appveyor or azure) "
+                     "as the developer's font directory should remain "
+                     "unchanged.")
 
     font_test_file = 'mpltest.ttf'
 
