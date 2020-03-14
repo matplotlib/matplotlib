@@ -228,8 +228,7 @@ class BboxBase(TransformNode):
             if isinstance(points, np.ma.MaskedArray):
                 cbook._warn_external("Bbox bounds are a masked array.")
             points = np.asarray(points)
-            if (points[1, 0] - points[0, 0] == 0 or
-                points[1, 1] - points[0, 1] == 0):
+            if any((points[1, :] - points[0, :]) == 0):
                 cbook._warn_external("Singular Bbox.")
 
     def frozen(self):
@@ -2170,8 +2169,8 @@ def blended_transform_factory(x_transform, y_transform):
     A faster version of the blended transform is returned for the case
     where both child transforms are affine.
     """
-    if (isinstance(x_transform, Affine2DBase)
-        and isinstance(y_transform, Affine2DBase)):
+    if (isinstance(x_transform, Affine2DBase) and
+            isinstance(y_transform, Affine2DBase)):
         return BlendedAffine2D(x_transform, y_transform)
     return BlendedGenericTransform(x_transform, y_transform)
 
@@ -2565,7 +2564,7 @@ class TransformedPath(TransformNode):
         # only recompute if the invalidation includes the non_affine part of
         # the transform
         if (self._invalid & self.INVALID_NON_AFFINE == self.INVALID_NON_AFFINE
-            or self._transformed_path is None):
+                or self._transformed_path is None):
             self._transformed_path = \
                 self._transform.transform_path_non_affine(self._path)
             self._transformed_points = \

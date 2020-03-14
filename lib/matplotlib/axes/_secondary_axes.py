@@ -189,7 +189,7 @@ class SecondaryAxis(_AxesBase):
             inverse.
         """
         if (isinstance(functions, tuple) and len(functions) == 2 and
-            callable(functions[0]) and callable(functions[1])):
+                callable(functions[0]) and callable(functions[1])):
             # make an arbitrary convert from a two-tuple of functions
             # forward and inverse.
             self._functions = functions
