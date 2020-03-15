@@ -7,11 +7,11 @@ from types import SimpleNamespace
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.transforms import Affine2D
 from matplotlib import docstring
-from matplotlib import rcParams
 
 _log = logging.getLogger(__name__)
 
@@ -718,7 +718,7 @@ class Sankey:
             vertices = translate(rotate(vertices))
             kwds = dict(s=patchlabel, ha='center', va='center')
             text = self.ax.text(*offset, **kwds)
-        if rcParams['_internal.classic_mode']:
+        if mpl.rcParams['_internal.classic_mode']:
             fc = kwargs.pop('fc', kwargs.pop('facecolor', '#bfd1d4'))
             lw = kwargs.pop('lw', kwargs.pop('linewidth', 0.5))
         else:

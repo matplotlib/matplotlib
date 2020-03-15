@@ -5,7 +5,6 @@ from unittest import mock
 
 import matplotlib
 from matplotlib import pyplot as plt
-from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 
 import pytest
@@ -246,8 +245,8 @@ def test_double_resize():
 
     w, h = 3, 2
     fig.set_size_inches(w, h)
-    assert fig.canvas.width() == w * rcParams['figure.dpi']
-    assert fig.canvas.height() == h * rcParams['figure.dpi']
+    assert fig.canvas.width() == w * matplotlib.rcParams['figure.dpi']
+    assert fig.canvas.height() == h * matplotlib.rcParams['figure.dpi']
 
     old_width = window.width()
     old_height = window.height()
