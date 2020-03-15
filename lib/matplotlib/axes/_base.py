@@ -10,7 +10,7 @@ import types
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook, rcParams
+from matplotlib import cbook
 from matplotlib.cbook import _OrderedSet, _check_1d, index_of
 from matplotlib import docstring
 import matplotlib.colors as mcolors
@@ -106,7 +106,7 @@ def _process_plot_format(fmt):
                 'Unrecognized character %c in format string' % c)
 
     if linestyle is None and marker is None:
-        linestyle = rcParams['lines.linestyle']
+        linestyle = mpl.rcParams['lines.linestyle']
     if linestyle is None:
         linestyle = 'None'
     if marker is None:
@@ -142,7 +142,7 @@ class _process_plot_var_args:
     def set_prop_cycle(self, *args, **kwargs):
         # Can't do `args == (None,)` as that crashes cycler.
         if not (args or kwargs) or (len(args) == 1 and args[0] is None):
-            prop_cycler = rcParams['axes.prop_cycle']
+            prop_cycler = mpl.rcParams['axes.prop_cycle']
         else:
             prop_cycler = cycler(*args, **kwargs)
 
@@ -453,10 +453,10 @@ class _AxesBase(martist.Artist):
         # this call may differ for non-sep axes, e.g., polar
         self._init_axis()
         if facecolor is None:
-            facecolor = rcParams['axes.facecolor']
+            facecolor = mpl.rcParams['axes.facecolor']
         self._facecolor = facecolor
         self._frameon = frameon
-        self.set_axisbelow(rcParams['axes.axisbelow'])
+        self.set_axisbelow(mpl.rcParams['axes.axisbelow'])
 
         self._rasterization_zorder = None
         self.cla()
@@ -483,6 +483,7 @@ class _AxesBase(martist.Artist):
             self._ycid = self.yaxis.callbacks.connect(
                 'units finalize', lambda: self._on_units_changed(scaley=True))
 
+        rcParams = mpl.rcParams
         self.tick_params(
             top=rcParams['xtick.top'] and rcParams['xtick.minor.top'],
             bottom=rcParams['xtick.bottom'] and rcParams['xtick.minor.bottom'],
@@ -697,7 +698,7 @@ class _AxesBase(martist.Artist):
         class, and is meant to be overridden by new kinds of projections that
         may need to place axis elements in different locations.
         """
-        labels_align = rcParams["xtick.alignment"]
+        labels_align = mpl.rcParams["xtick.alignment"]
         return (self.get_xaxis_transform(which='tick1') +
                 mtransforms.ScaledTranslation(0, -1 * pad_points / 72,
                                               self.figure.dpi_scale_trans),
@@ -723,7 +724,7 @@ class _AxesBase(martist.Artist):
         class, and is meant to be overridden by new kinds of projections that
         may need to place axis elements in different locations.
         """
-        labels_align = rcParams["xtick.alignment"]
+        labels_align = mpl.rcParams["xtick.alignment"]
         return (self.get_xaxis_transform(which='tick2') +
                 mtransforms.ScaledTranslation(0, pad_points / 72,
                                               self.figure.dpi_scale_trans),
@@ -773,7 +774,7 @@ class _AxesBase(martist.Artist):
         class, and is meant to be overridden by new kinds of projections that
         may need to place axis elements in different locations.
         """
-        labels_align = rcParams["ytick.alignment"]
+        labels_align = mpl.rcParams["ytick.alignment"]
         return (self.get_yaxis_transform(which='tick1') +
                 mtransforms.ScaledTranslation(-1 * pad_points / 72, 0,
                                               self.figure.dpi_scale_trans),
@@ -799,7 +800,7 @@ class _AxesBase(martist.Artist):
         class, and is meant to be overridden by new kinds of projections that
         may need to place axis elements in different locations.
         """
-        labels_align = rcParams["ytick.alignment"]
+        labels_align = mpl.rcParams["ytick.alignment"]
         return (self.get_yaxis_transform(which='tick2') +
                 mtransforms.ScaledTranslation(pad_points / 72, 0,
                                               self.figure.dpi_scale_trans),
@@ -1005,18 +1006,18 @@ class _AxesBase(martist.Artist):
             except TypeError:
                 pass
         # update the minor locator for x and y axis based on rcParams
-        if rcParams['xtick.minor.visible']:
+        if mpl.rcParams['xtick.minor.visible']:
             self.xaxis.set_minor_locator(mticker.AutoMinorLocator())
 
-        if rcParams['ytick.minor.visible']:
+        if mpl.rcParams['ytick.minor.visible']:
             self.yaxis.set_minor_locator(mticker.AutoMinorLocator())
 
         if self._sharex is None:
             self._autoscaleXon = True
         if self._sharey is None:
             self._autoscaleYon = True
-        self._xmargin = rcParams['axes.xmargin']
-        self._ymargin = rcParams['axes.ymargin']
+        self._xmargin = mpl.rcParams['axes.xmargin']
+        self._ymargin = mpl.rcParams['axes.ymargin']
         self._tight = None
         self._use_sticky_edges = True
         self._update_transScale()  # needed?
@@ -1024,7 +1025,7 @@ class _AxesBase(martist.Artist):
         self._get_lines = _process_plot_var_args(self)
         self._get_patches_for_fill = _process_plot_var_args(self, 'fill')
 
-        self._gridOn = rcParams['axes.grid']
+        self._gridOn = mpl.rcParams['axes.grid']
         self.lines = []
         self.patches = []
         self.texts = []
@@ -1039,11 +1040,11 @@ class _AxesBase(martist.Artist):
         self.containers = []
 
         self.grid(False)  # Disable grid on init to use rcParameter
-        self.grid(self._gridOn, which=rcParams['axes.grid.which'],
-                  axis=rcParams['axes.grid.axis'])
+        self.grid(self._gridOn, which=mpl.rcParams['axes.grid.which'],
+                  axis=mpl.rcParams['axes.grid.axis'])
         props = font_manager.FontProperties(
-            size=rcParams['axes.titlesize'],
-            weight=rcParams['axes.titleweight'])
+            size=mpl.rcParams['axes.titlesize'],
+            weight=mpl.rcParams['axes.titleweight'])
 
         self.title = mtext.Text(
             x=0.5, y=1.0, text='',
@@ -1062,7 +1063,7 @@ class _AxesBase(martist.Artist):
             verticalalignment='baseline',
             horizontalalignment='right',
             )
-        title_offset_points = rcParams['axes.titlepad']
+        title_offset_points = mpl.rcParams['axes.titlepad']
         # refactor this out so it can be called in ax.set_title if
         # pad argument used...
         self._set_title_offset_trans(title_offset_points)
@@ -1121,7 +1122,7 @@ class _AxesBase(martist.Artist):
 
     def _set_title_offset_trans(self, title_offset_points):
         """
-        Set the offset for the title either from rcParams['axes.titlepad']
+        Set the offset for the title either from :rc:`axes.titlepad`
         or from set_title kwarg ``pad``.
         """
         self.titleOffsetTrans = mtransforms.ScaledTranslation(

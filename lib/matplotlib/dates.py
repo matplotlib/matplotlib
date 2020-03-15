@@ -147,7 +147,6 @@ import dateutil.tz
 import numpy as np
 
 import matplotlib
-from matplotlib import rcParams
 import matplotlib.units as units
 import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
@@ -828,6 +827,7 @@ class AutoDateFormatter(ticker.Formatter):
         self._tz = tz
         self.defaultfmt = defaultfmt
         self._formatter = DateFormatter(self.defaultfmt, tz)
+        rcParams = matplotlib.rcParams
         self.scaled = {
             DAYS_PER_YEAR: rcParams['date.autoformatter.year'],
             DAYS_PER_MONTH: rcParams['date.autoformatter.month'],

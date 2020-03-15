@@ -13,7 +13,7 @@ from numbers import Integral
 
 import numpy as np
 
-from matplotlib import rcParams
+import matplotlib as mpl
 from matplotlib import docstring, projections
 from matplotlib import __version__ as _mpl_version
 
@@ -187,7 +187,7 @@ class SubplotParams:
         """
         self.validate = True
         for key in ["left", "bottom", "right", "top", "wspace", "hspace"]:
-            setattr(self, key, rcParams[f"figure.subplot.{key}"])
+            setattr(self, key, mpl.rcParams[f"figure.subplot.{key}"])
         self.update(left, bottom, right, top, wspace, hspace)
 
     def update(self, left=None, bottom=None, right=None, top=None,
@@ -307,15 +307,15 @@ class Figure(Artist):
         self.callbacks = cbook.CallbackRegistry()
 
         if figsize is None:
-            figsize = rcParams['figure.figsize']
+            figsize = mpl.rcParams['figure.figsize']
         if dpi is None:
-            dpi = rcParams['figure.dpi']
+            dpi = mpl.rcParams['figure.dpi']
         if facecolor is None:
-            facecolor = rcParams['figure.facecolor']
+            facecolor = mpl.rcParams['figure.facecolor']
         if edgecolor is None:
-            edgecolor = rcParams['figure.edgecolor']
+            edgecolor = mpl.rcParams['figure.edgecolor']
         if frameon is None:
-            frameon = rcParams['figure.frameon']
+            frameon = mpl.rcParams['figure.frameon']
 
         if not np.isfinite(figsize).all() or (np.array(figsize) <= 0).any():
             raise ValueError('figure size must be positive finite not '
@@ -467,7 +467,7 @@ class Figure(Artist):
             default paddings.
         """
         if tight is None:
-            tight = rcParams['figure.autolayout']
+            tight = mpl.rcParams['figure.autolayout']
         self._tight = bool(tight)
         self._tight_parameters = tight if isinstance(tight, dict) else {}
         self.stale = True
@@ -483,7 +483,7 @@ class Figure(Artist):
     def set_constrained_layout(self, constrained):
         """
         Set whether ``constrained_layout`` is used upon drawing. If None,
-        the rcParams['figure.constrained_layout.use'] value will be used.
+        :rc:`figure.constrained_layout.use` value will be used.
 
         When providing a dict containing the keys `w_pad`, `h_pad`
         the default ``constrained_layout`` paddings will be
@@ -502,7 +502,7 @@ class Figure(Artist):
         self._constrained_layout_pads['wspace'] = None
         self._constrained_layout_pads['hspace'] = None
         if constrained is None:
-            constrained = rcParams['figure.constrained_layout.use']
+            constrained = mpl.rcParams['figure.constrained_layout.use']
         self._constrained = bool(constrained)
         if isinstance(constrained, dict):
             self.set_constrained_layout_pads(**constrained)
@@ -544,7 +544,7 @@ class Figure(Artist):
                 self._constrained_layout_pads[td] = kwargs[td]
             else:
                 self._constrained_layout_pads[td] = (
-                    rcParams['figure.constrained_layout.' + td])
+                    mpl.rcParams['figure.constrained_layout.' + td])
 
     def get_constrained_layout_pads(self, relative=False):
         """
@@ -713,9 +713,9 @@ default: 'top'
 
         if 'fontproperties' not in kwargs:
             if 'fontsize' not in kwargs and 'size' not in kwargs:
-                kwargs['size'] = rcParams['figure.titlesize']
+                kwargs['size'] = mpl.rcParams['figure.titlesize']
             if 'fontweight' not in kwargs and 'weight' not in kwargs:
-                kwargs['weight'] = rcParams['figure.titleweight']
+                kwargs['weight'] = mpl.rcParams['figure.titleweight']
 
         sup = self.text(x, y, t, **kwargs)
         if self._suptitle is not None:
@@ -1840,7 +1840,7 @@ default: 'top'
 
         fontdict : dict, optional
             A dictionary to override the default text properties. If not given,
-            the defaults are determined by `.rcParams`. Properties passed as
+            the defaults are determined by :rc:`font.*`. Properties passed as
             *kwargs* override the corresponding ones given in *fontdict*.
 
         Other Parameters
@@ -2164,9 +2164,9 @@ default: 'top'
             `PIL.Image.Image.save` when saving the figure.
         """
 
-        kwargs.setdefault('dpi', rcParams['savefig.dpi'])
+        kwargs.setdefault('dpi', mpl.rcParams['savefig.dpi'])
         if transparent is None:
-            transparent = rcParams['savefig.transparent']
+            transparent = mpl.rcParams['savefig.transparent']
 
         if transparent:
             kwargs.setdefault('facecolor', 'none')
@@ -2179,8 +2179,8 @@ default: 'top'
                 patch.set_facecolor('none')
                 patch.set_edgecolor('none')
         else:
-            kwargs.setdefault('facecolor', rcParams['savefig.facecolor'])
-            kwargs.setdefault('edgecolor', rcParams['savefig.edgecolor'])
+            kwargs.setdefault('facecolor', mpl.rcParams['savefig.facecolor'])
+            kwargs.setdefault('edgecolor', mpl.rcParams['savefig.edgecolor'])
 
         self.canvas.print_figure(fname, **kwargs)
 
@@ -2734,7 +2734,7 @@ def figaspect(arg):
         arr_ratio = arg
 
     # Height of user figure defaults
-    fig_height = rcParams['figure.figsize'][1]
+    fig_height = mpl.rcParams['figure.figsize'][1]
 
     # New size for the figure, keeping the aspect ratio of the caller
     newsize = np.array((fig_height / arr_ratio, fig_height))
