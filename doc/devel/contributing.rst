@@ -127,6 +127,8 @@ You can then run the tests to check your work environment is set up properly::
 Contributing code
 =================
 
+.. _how-to-contribute:
+
 How to contribute
 -----------------
 
@@ -175,7 +177,7 @@ want to consider sending an email to the mailing list for more visibility.
   * `Git documentation <https://git-scm.com/documentation>`_
   * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
   * `Introduction to GitHub  <https://lab.github.com/githubtraining/introduction-to-github>`_
-  * :ref:`development-workflow`.
+  * :ref:`development-workflow`
   * :ref:`using-git`
 
 Contributing pull requests
@@ -284,8 +286,10 @@ Code is not the only way to contribute to Matplotlib. For instance,
 documentation is also a very important part of the project and often doesn't
 get as much attention as it deserves. If you find a typo in the documentation,
 or have made improvements, do not hesitate to send an email to the mailing
-list or submit a GitHub pull request. Full documentation can be found under
-the :file:`doc/`, :file:`tutorials/`, and :file:`examples/` directories.
+list or submit a GitHub pull request as outlined in :ref:`how-to-contribute`.
+
+Full documentation can be found under the :file:`doc/`, :file:`tutorials/`,
+and :file:`examples/` directories.
 
 .. seealso::
   * :ref:`documenting-matplotlib`
@@ -298,8 +302,8 @@ Other ways to contribute
 
 It also helps us if you spread the word: reference the project from your blog
 and articles or link to it from your website!  If Matplotlib contributes to a
-project that leads to a scientific publication, please follow these guidelines
-for citation :doc:`/citing`.
+project that leads to a scientific publication, please follow the
+:doc:`/citing` guidelines.
 
 .. _coding_guidelines:
 

@@ -41,9 +41,10 @@ documentation built into their comments.
 
 .. note::
 
-  Don't directly edit the ``.rst`` files in :file:`doc/gallery` and
-  :file:`doc/tutorials` as they are regenerated when the documentation are
-  built.
+  Don't directly edit the ``.rst`` files in :file:`doc/gallery`, 
+  :file:`doc/tutorials`, and :file:`doc/api` (excepting
+  :file:`doc/api/api_changes/`).  Sphinx_ regenerates files in these
+  directories when building documentation.
 
 Installing dependencies
 -----------------------
@@ -58,14 +59,14 @@ requirements that are needed to build the documentation. They are listed in
 
 .. note::
 
+  * You should set up a clean virtual environment with no existing Matplotlib
+    installation if you plan to build the documentation.
   * You'll need a minimal working LaTeX distribution to build the
     documentation.
   * The LaTeX pacakges cm-super and dvipng are also required to build the
     documentation.
   * `Graphviz <http://www.graphviz.org/download>`_ is not a Python package,
     and needs to be installed separately.
-  * You should set up a clean `virtual environment`_ if you plan to build the
-    documentation.  
 
 Building the docs
 -----------------
