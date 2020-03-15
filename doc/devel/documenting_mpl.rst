@@ -50,23 +50,35 @@ Installing dependencies
 -----------------------
 
 The documentation for Matplotlib is generated from reStructuredText (ReST_)
-using the Sphinx_ documentation generation tool. There are several extra
-requirements that are needed to build the documentation. They are listed in
-:file:`doc-requirements.txt`, which is shown below:
+using the Sphinx_ documentation generation tool. To build the documentation
+you will need to (1) set up an appropriate Python environment and (2)
+separately install LaTeX and Graphviz.
+
+To (1) set up an appropriate Python environment for building the
+documentation, you should:
+
+*  create a clean virtual environment with no existing Matplotlib
+   installation
+*  install the Python packages required for Matplotlib
+*  install the additional Python packages required to build the documentation
+
+There are several extra python packages that are needed to build the
+documentation. They are listed in :file:`doc-requirements.txt`, which is
+shown below:
 
 .. include:: ../../requirements/doc/doc-requirements.txt
    :literal:
 
+To (2) set up LaTeX and Graphviz dependencies you should:
+
+*  install a minimal working LaTeX distribution
+*  install the LaTeX packages cm-super and dvipng
+*  install `Graphviz <http://www.graphviz.org/download>`_
+
 .. note::
 
-  * You should set up a clean virtual environment with no existing Matplotlib
-    installation if you plan to build the documentation.
-  * You'll need a minimal working LaTeX distribution to build the
-    documentation.
-  * The LaTeX pacakges cm-super and dvipng are also required to build the
-    documentation.
-  * `Graphviz <http://www.graphviz.org/download>`_ is not a Python package,
-    and needs to be installed separately.
+  The documentation will not build without LaTeX and Graphviz.  These are not
+  Python packages and must be installed separately.
 
 Building the docs
 -----------------

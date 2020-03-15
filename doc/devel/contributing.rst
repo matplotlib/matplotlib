@@ -286,7 +286,8 @@ Code is not the only way to contribute to Matplotlib. For instance,
 documentation is also a very important part of the project and often doesn't
 get as much attention as it deserves. If you find a typo in the documentation,
 or have made improvements, do not hesitate to send an email to the mailing
-list or submit a GitHub pull request as outlined in :ref:`how-to-contribute`.
+list or submit a GitHub pull request.  To make a pull request, refer to the
+guidelines outlined in :ref:`how-to-contribute`.
 
 Full documentation can be found under the :file:`doc/`, :file:`tutorials/`,
 and :file:`examples/` directories.
