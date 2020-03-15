@@ -8,6 +8,7 @@ import shutil
 import sys
 import unittest
 import warnings
+import string
 
 import matplotlib as mpl
 import matplotlib.style
@@ -381,6 +382,7 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
             fig_test.subplots().plot([1, 3, 5])
             fig_ref.subplots().plot([0, 1, 2], [1, 3, 5])
     """
+    ALLOWED_CHARS = set(string.digits + string.ascii_letters + '_-[]()')
     KEYWORD_ONLY = inspect.Parameter.KEYWORD_ONLY
     def decorator(func):
         import pytest
@@ -389,13 +391,14 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
 
         @pytest.mark.parametrize("ext", extensions)
         def wrapper(*args, ext, request, **kwargs):
-            fn = request.node.name
+            file_name = "".join(c for c in request.node.name
+                                if c in ALLOWED_CHARS)
             try:
                 fig_test = plt.figure("test")
                 fig_ref = plt.figure("reference")
                 func(*args, fig_test=fig_test, fig_ref=fig_ref, **kwargs)
-                test_image_path = result_dir / (fn + "." + ext)
-                ref_image_path = result_dir / (fn + "-expected." + ext)
+                test_image_path = result_dir / (file_name + "." + ext)
+                ref_image_path = result_dir / (file_name + "-expected." + ext)
                 fig_test.savefig(test_image_path)
                 fig_ref.savefig(ref_image_path)
                 _raise_on_image_difference(
