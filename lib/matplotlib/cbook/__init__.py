@@ -352,26 +352,6 @@ def strip_math(s):
     return s
 
 
-@deprecated('3.1', alternative='np.iterable')
-def iterable(obj):
-    """return true if *obj* is iterable"""
-    try:
-        iter(obj)
-    except TypeError:
-        return False
-    return True
-
-
-@deprecated("3.1", alternative="isinstance(..., collections.abc.Hashable)")
-def is_hashable(obj):
-    """Returns true if *obj* can be hashed"""
-    try:
-        hash(obj)
-    except TypeError:
-        return False
-    return True
-
-
 def is_writable_file_like(obj):
     """Return whether *obj* looks like a file object with a *write* method."""
     return callable(getattr(obj, 'write', None))
@@ -535,47 +515,6 @@ _find_dedent_regex = re.compile(r"(?:(?:\n\r?)|^)( *)\S")
 _dedent_regex = {}
 
 
-@deprecated("3.1", alternative="inspect.cleandoc")
-def dedent(s):
-    """
-    Remove excess indentation from docstring *s*.
-
-    Discards any leading blank lines, then removes up to n whitespace
-    characters from each line, where n is the number of leading
-    whitespace characters in the first line. It differs from
-    textwrap.dedent in its deletion of leading blank lines and its use
-    of the first non-blank line to determine the indentation.
-
-    It is also faster in most cases.
-    """
-    # This implementation has a somewhat obtuse use of regular
-    # expressions.  However, this function accounted for almost 30% of
-    # matplotlib startup time, so it is worthy of optimization at all
-    # costs.
-
-    if not s:      # includes case of s is None
-        return ''
-
-    match = _find_dedent_regex.match(s)
-    if match is None:
-        return s
-
-    # This is the number of spaces to remove from the left-hand side.
-    nshift = match.end(1) - match.start(1)
-    if nshift == 0:
-        return s
-
-    # Get a regex that will remove *up to* nshift spaces from the
-    # beginning of each line.  If it isn't in the cache, generate it.
-    unindent = _dedent_regex.get(nshift, None)
-    if unindent is None:
-        unindent = re.compile("\n\r? {0,%d}" % nshift)
-        _dedent_regex[nshift] = unindent
-
-    result = unindent.sub("\n", s).strip()
-    return result
-
-
 class maxdict(dict):
     """
     A dictionary with a maximum size.
@@ -733,19 +672,6 @@ def report_memory(i=0):  # argument may go away
         raise NotImplementedError(
             "We don't have a memory monitor for %s" % sys.platform)
     return mem
-
-
-_safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
-
-
-@deprecated("3.1")
-def safezip(*args):
-    """make sure *args* are equal len before zipping"""
-    Nx = len(args[0])
-    for i, arg in enumerate(args[1:]):
-        if len(arg) != Nx:
-            raise ValueError(_safezip_msg % (Nx, i + 1, len(arg)))
-    return list(zip(*args))
 
 
 def safe_masked_invalid(x, copy=False):
@@ -1817,14 +1743,6 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
                     keys=fail_keys, req=required, allow=allowed))
 
     return ret
-
-
-@deprecated("3.1")
-def get_label(y, default_name):
-    try:
-        return y.name
-    except AttributeError:
-        return default_name
 
 
 @contextlib.contextmanager

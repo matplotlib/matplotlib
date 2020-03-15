@@ -186,27 +186,6 @@ class Tick(martist.Artist):
 
         self.update_position(loc)
 
-    for _old_name, _new_name in [
-            ("gridOn", "gridline"),
-            ("tick1On", "tick1line"),
-            ("tick2On", "tick2line"),
-            ("label1On", "label1"),
-            ("label2On", "label2")]:
-        locals()[_old_name] = property(
-            cbook.deprecated(
-                "3.1",
-                name=_old_name,
-                alternative="Tick.{}.get_visible".format(_new_name))(
-                    lambda self, _new_name=_new_name:
-                        getattr(self, _new_name).get_visible()),
-            cbook.deprecated(
-                "3.1",
-                name=_old_name,
-                alternative="Tick.{}.set_visible".format(_new_name))(
-                    lambda self, value, _new_name=_new_name:
-                        getattr(self, _new_name).set_visible(value)))
-    del _old_name, _new_name
-
     @property
     @cbook.deprecated("3.1", alternative="Tick.label1", pending=True)
     def label(self):
@@ -1605,7 +1584,7 @@ class Axis(martist.Artist):
         """
         self.pickradius = pickradius
 
-    def set_ticklabels(self, ticklabels, *args, minor=False, **kwargs):
+    def set_ticklabels(self, ticklabels, *, minor=False, **kwargs):
         r"""
         Set the text values of the tick labels.
 
@@ -1630,11 +1609,6 @@ class Axis(martist.Artist):
             For each tick, includes ``tick.label1`` if it is visible, then
             ``tick.label2`` if it is visible, in that order.
         """
-        if args:
-            cbook.warn_deprecated(
-                "3.1", message="Additional positional arguments to "
-                "set_ticklabels are ignored, and deprecated since Matplotlib "
-                "3.1; passing them will raise a TypeError in Matplotlib 3.3.")
         ticklabels = [t.get_text() if hasattr(t, 'get_text') else t
                       for t in ticklabels]
         if minor:

@@ -1657,7 +1657,6 @@ class _AxesBase(martist.Artist):
             'tight'  Set limits just large enough to show all data, then
                      disable further autoscaling.
             'auto'   Automatic scaling (fill plot box with data).
-            'normal' Same as 'auto'; deprecated.
             'image'  'scaled' with axis limits equal to data limits.
             'square' Square plot; similar to 'scaled', but initially forcing
                      ``xmax-xmin == ymax-ymin``.
@@ -1689,12 +1688,7 @@ class _AxesBase(martist.Artist):
                 self.set_axis_on()
             elif s == 'off':
                 self.set_axis_off()
-            elif s in ('equal', 'tight', 'scaled', 'normal',
-                       'auto', 'image', 'square'):
-                if s == 'normal':
-                    cbook.warn_deprecated(
-                        "3.1", message="Passing 'normal' to axis() is "
-                        "deprecated since %(since)s; use 'auto' instead.")
+            elif s in ('equal', 'tight', 'scaled', 'auto', 'image', 'square'):
                 self.set_autoscale_on(True)
                 self.set_aspect('auto')
                 self.autoscale_view(tight=False)
@@ -1752,9 +1746,8 @@ class _AxesBase(martist.Artist):
             self.set_xlim(xmin, xmax, emit=emit, auto=xauto)
             self.set_ylim(ymin, ymax, emit=emit, auto=yauto)
         if kwargs:
-            cbook.warn_deprecated(
-                "3.1", message="Passing unsupported keyword arguments to "
-                "axis() will raise a TypeError %(removal)s.")
+            raise TypeError(f"axis() got an unexpected keyword argument "
+                            f"'{next(iter(kwargs))}'")
         return (*self.get_xlim(), *self.get_ylim())
 
     def get_legend(self):

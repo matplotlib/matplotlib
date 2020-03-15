@@ -105,8 +105,7 @@ import warnings
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from . import cbook, rcsetup
-from matplotlib.cbook import (
-    MatplotlibDeprecationWarning, dedent, get_label, sanitize_sequence)
+from matplotlib.cbook import MatplotlibDeprecationWarning, sanitize_sequence
 from matplotlib.cbook import mplDeprecation  # deprecated
 from matplotlib.rcsetup import defaultParams, validate_backend, cycler
 
