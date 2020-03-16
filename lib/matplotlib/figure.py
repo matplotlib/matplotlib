@@ -376,6 +376,15 @@ class Figure(Artist):
             from matplotlib.backends import backend_webagg
             return backend_webagg.ipython_inline_display(self)
 
+        if mpl.rcParams['backend'] == 'module://ipykernel.pylab.backend_inline':
+            from io import BytesIO
+            from base64 import b64encode
+            png_bytes = BytesIO()
+            self.canvas.print_figure(png_bytes, format='png')
+            s = png_bytes.getvalue()
+            s1 = b64encode(s).decode()
+            return f'<img src="data:image/png;base64, {s1}"/>'
+
     def show(self, warn=True):
         """
         If using a GUI backend with pyplot, display the figure window.
