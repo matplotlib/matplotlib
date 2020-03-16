@@ -370,20 +370,7 @@ class Figure(Artist):
     # use it, for some reason.
 
     def _repr_html_(self):
-        # We can't use "isinstance" here, because then we'd end up importing
-        # webagg unconditionally.
-        if 'WebAgg' in type(self.canvas).__name__:
-            from matplotlib.backends import backend_webagg
-            return backend_webagg.ipython_inline_display(self)
-
-        if mpl.rcParams['backend'] == 'module://ipykernel.pylab.backend_inline':
-            from io import BytesIO
-            from base64 import b64encode
-            png_bytes = BytesIO()
-            self.canvas.print_figure(png_bytes, format='png')
-            s = png_bytes.getvalue()
-            s1 = b64encode(s).decode()
-            return f'<img src="data:image/png;base64, {s1}"/>'
+        return self.canvas._repr_html_()
 
     def show(self, warn=True):
         """

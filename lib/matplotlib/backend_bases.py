@@ -1701,6 +1701,43 @@ class FigureCanvasBase:
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_idle_drawing = False
 
+    def _repr_html_(self):
+        from base64 import b64encode
+
+        fmt = self.get_default_filetype()
+        dpi = self.figure.dpi
+        if fmt == 'retina':
+            dpi = dpi * 2
+            fmt = 'png'
+
+        kw = {
+            "format":fmt,
+            "facecolor":self.figure.get_facecolor(),
+            "edgecolor":self.figure.get_edgecolor(),
+            "dpi":self.figure.dpi,
+            "bbox_inches":self.figure.bbox_inches,
+        }
+
+        bytes_io = io.BytesIO()
+        self.print_figure(bytes_io, **kw)
+        raw_bytes = bytes_io.getvalue()
+
+        mimetype_dict = {'png': 'image/png', 'svg': 'image/svg+xml', 
+                         'jpg': 'image/jpeg', 'pdf': 'application/pdf'}
+        if fmt not in mimetype_dict:
+            fmt = 'png'
+        mimetype = mimetype_dict[fmt]
+        
+        if fmt == 'svg':
+            return raw_bytes.decode()
+        elif fmt == 'pdf':
+            data = b64encode(raw_bytes).decode()
+            w, h = self.figure.get_size_inches()
+            return f'<embed height="{h * dpi}" width="{w * dpi}" src="data:application/pdf;base64, {data}">'
+        else:
+            data = b64encode(raw_bytes).decode()
+        return f'<img src="data:{mimetype};base64, {data}" />'
+
     @classmethod
     @functools.lru_cache()
     def _fix_ipython_backend2gui(cls):
