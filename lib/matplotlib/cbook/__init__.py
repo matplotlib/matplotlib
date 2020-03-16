@@ -16,6 +16,7 @@ import operator
 import os
 from pathlib import Path
 import re
+import gc
 import shlex
 import subprocess
 import sys
@@ -2343,3 +2344,17 @@ def _backend_module_name(name):
     """
     return (name[9:] if name.startswith("module://")
             else "matplotlib.backends.backend_{}".format(name.lower()))
+
+
+def _without_gc(f):
+    """A decorator to disable garbage collection in the decorated function."""
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        was_enabled = gc.isenabled()
+        gc.disable()
+        try:
+            return f(*args, **kwargs)
+        finally:
+            if was_enabled:
+                gc.enable()
+    return wrapper
