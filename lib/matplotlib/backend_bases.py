@@ -1714,7 +1714,7 @@ class FigureCanvasBase:
             "format":fmt,
             "facecolor":self.figure.get_facecolor(),
             "edgecolor":self.figure.get_edgecolor(),
-            "dpi":self.figure.dpi,
+            "dpi":dpi,
             "bbox_inches":self.figure.bbox_inches,
         }
 
