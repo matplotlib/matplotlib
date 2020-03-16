@@ -19,9 +19,9 @@ General file structure
 ----------------------
 
 All documentation is built from the :file:`doc/`, :file:`tutorials/`, and
-:file:`examples/` directories.  The :file:`doc/` directory contains both
-reStructuredText (ReST_; ``.rst``) files that contain pages in the
-documentation and configuration files for Sphinx_.
+:file:`examples/` directories.  The :file:`doc/` directory contains configuration files for Sphinx
+and  reStructuredText (ReST_; ``.rst``) files that are rendered to documentation pages. 
+
 
 The main entry point is :file:`doc/index.rst`, which pulls in the
 :file:`index.rst` file for the users guide (:file:`doc/users`), developers
