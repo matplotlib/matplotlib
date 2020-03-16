@@ -347,6 +347,7 @@ class MarkerStyle:
             self._joinstyle = 'bevel'
         else:
             raise ValueError(f"Unexpected tuple marker: {marker}")
+        self._transform = Affine2D().scale(0.5).rotate_deg(rotation)
 
     def _set_mathtext_path(self):
         """
