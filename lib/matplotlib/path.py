@@ -330,13 +330,8 @@ class Path:
         if not args:
             return Path(np.empty([0, 2], dtype=np.float32))
 
-        lengths = [len(x) for x in args]
-        total_length = sum(lengths)
-
-        vertices = np.vstack([x.vertices for x in args])
-        vertices.reshape((total_length, 2))
-
-        codes = np.empty(total_length, dtype=cls.code_type)
+        vertices = np.concatenate([x.vertices for x in args])
+        codes = np.empty(len(vertices), dtype=cls.code_type)
         i = 0
         for path in args:
             if path.codes is None:
