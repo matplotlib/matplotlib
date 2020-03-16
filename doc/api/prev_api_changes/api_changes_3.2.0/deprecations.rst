@@ -294,4 +294,6 @@ are deprecated.
 The ``datapath`` rcParam
 ~~~~~~~~~~~~~~~~~~~~~~~~
 Use `.get_data_path` instead.  (The rcParam is deprecated because it cannot be
-meaningfully set by an end user.)  This was deprecated only in 3.2.1.
+meaningfully set by an end user.)  The rcParam had no effect from 3.2.0, but
+was deprecated only in 3.2.1.  In 3.2.1+ if ``'datapath'`` is set in a
+``matplotlibrc`` file it will be respected, but this behavior well be removed in 3.3.
