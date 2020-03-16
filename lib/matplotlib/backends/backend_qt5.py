@@ -479,10 +479,15 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # to be called at the end of paintEvent.
         if rect is not None:
             def _draw_rect_callback(painter):
-                pen = QtGui.QPen(QtCore.Qt.black, 1 / self._dpi_ratio,
-                                 QtCore.Qt.DotLine)
+                scaled_rect = [pt / self._dpi_ratio for pt in rect]
+                pen = QtGui.QPen(QtCore.Qt.black, 1 / self._dpi_ratio)
+                pen.setDashPattern([3, 3])
                 painter.setPen(pen)
-                painter.drawRect(*(pt / self._dpi_ratio for pt in rect))
+                painter.drawRect(*scaled_rect)
+                pen.setDashOffset(3)
+                pen.setColor(QtCore.Qt.white)
+                painter.setPen(pen)
+                painter.drawRect(*scaled_rect)
         else:
             def _draw_rect_callback(painter):
                 return
