@@ -41,21 +41,19 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     Keyword arguments and default values:
 
-        * *edgecolors*: None
-        * *facecolors*: None
-        * *linewidths*: None
-        * *capstyle*:   None
-        * *joinstyle*:  None
-        * *antialiaseds*: None
-        * *offsets*: None
-        * *transOffset*: transforms.IdentityTransform()
-        * *offset_position*: 'screen' (default) or 'data'
-        * *norm*: None (optional for
-          :class:`matplotlib.cm.ScalarMappable`)
-        * *cmap*: None (optional for
-          :class:`matplotlib.cm.ScalarMappable`)
-        * *hatch*: None
-        * *zorder*: 1
+    - *edgecolors*: None
+    - *facecolors*: None
+    - *linewidths*: None
+    - *capstyle*:   None
+    - *joinstyle*:  None
+    - *antialiaseds*: None
+    - *offsets*: None
+    - *transOffset*: transforms.IdentityTransform()
+    - *offset_position*: 'screen' (default) or 'data'
+    - *norm*: None (optional for `matplotlib.cm.ScalarMappable`)
+    - *cmap*: None (optional for `matplotlib.cm.ScalarMappable`)
+    - *hatch*: None
+    - *zorder*: 1
 
     *offsets* and *transOffset* are used to translate the patch after
     rendering (default no offsets).  If offset_position is 'screen'
@@ -64,22 +62,22 @@ class Collection(artist.Artist, cm.ScalarMappable):
     offset_position is 'data', the offset is applied before the master
     transform, i.e., the offsets are in data coordinates.
 
-    If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds*
-    are None, they default to their :data:`matplotlib.rcParams` patch
-    setting, in sequence form.
+    If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds* are
+    None, they default to their `.rcParams` patch setting, in sequence form.
 
-    The use of :class:`~matplotlib.cm.ScalarMappable` is optional.  If
-    the :class:`~matplotlib.cm.ScalarMappable` matrix _A is not None
-    (i.e., a call to set_array has been made), at draw time a call to
-    scalar mappable will be made to set the face colors.
+    The use of `~matplotlib.cm.ScalarMappable` functionality is optional.  If
+    the `~matplotlib.cm.ScalarMappable` matrix ``_A`` has been set (via a call
+    to `~.ScalarMappable.set_array`), at draw time a call to scalar mappable
+    will be made to set the face colors.
     """
+
     _offsets = np.zeros((0, 2))
     _transOffset = transforms.IdentityTransform()
     #: Either a list of 3x3 arrays or an Nx3x3 array of transforms, suitable
     #: for the `all_transforms` argument to
-    #: :meth:`~matplotlib.backend_bases.RendererBase.draw_path_collection`;
+    #: `~matplotlib.backend_bases.RendererBase.draw_path_collection`;
     #: each 3x3 array is used to initialize an
-    #: :class:`~matplotlib.transforms.Affine2D` object.
+    #: `~matplotlib.transforms.Affine2D` object.
     #: Each kind of collection defines this based on its arguments.
     _transforms = np.empty((0, 3, 3))
 
@@ -827,23 +825,20 @@ class Collection(artist.Artist, cm.ScalarMappable):
 docstring.interpd.update(Collection="""\
     Valid Collection keyword arguments:
 
-        * *edgecolors*: None
-        * *facecolors*: None
-        * *linewidths*: None
-        * *antialiaseds*: None
-        * *offsets*: None
-        * *transOffset*: transforms.IdentityTransform()
-        * *norm*: None (optional for
-          :class:`matplotlib.cm.ScalarMappable`)
-        * *cmap*: None (optional for
-          :class:`matplotlib.cm.ScalarMappable`)
+    - *edgecolors*: None
+    - *facecolors*: None
+    - *linewidths*: None
+    - *antialiaseds*: None
+    - *offsets*: None
+    - *transOffset*: transforms.IdentityTransform()
+    - *norm*: None (optional for `matplotlib.cm.ScalarMappable`)
+    - *cmap*: None (optional for `matplotlib.cm.ScalarMappable`)
 
     *offsets* and *transOffset* are used to translate the patch after
     rendering (default no offsets)
 
-    If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds*
-    are None, they default to their :data:`matplotlib.rcParams` patch
-    setting, in sequence form.
+    If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds* are
+    None, they default to their `.rcParams` patch setting, in sequence form.
 """)
 
 
@@ -897,14 +892,13 @@ class _CollectionWithSizes(Collection):
 
 class PathCollection(_CollectionWithSizes):
     """
-    This is the most basic :class:`Collection` subclass.
-    A :class:`PathCollection` is e.g. created by a :meth:`~.Axes.scatter` plot.
+    The most basic `Collection` subclass, created e.g. by `~.Axes.scatter`.
     """
+
     @docstring.dedent_interpd
     def __init__(self, paths, sizes=None, **kwargs):
         """
-        *paths* is a sequence of :class:`matplotlib.path.Path`
-        instances.
+        *paths* is a sequence of `matplotlib.path.Path` instances.
 
         %(Collection)s
         """
@@ -925,7 +919,7 @@ class PathCollection(_CollectionWithSizes):
                         fmt=None, func=lambda x: x, **kwargs):
         """
         Creates legend handles and labels for a PathCollection. This is useful
-        for obtaining a legend for a :meth:`~.Axes.scatter` plot. E.g.::
+        for obtaining a legend for a `~.Axes.scatter` plot. E.g.::
 
             scatter = plt.scatter([1, 2, 3],  [4, 5, 6],  c=[7, 2, 3])
             plt.legend(*scatter.legend_elements())
@@ -953,13 +947,13 @@ class PathCollection(_CollectionWithSizes):
             a valid input for a `~.StrMethodFormatter`. If None (the default),
             use a `~.ScalarFormatter`.
         func : function, default *lambda x: x*
-            Function to calculate the labels. Often the size (or color)
-            argument to :meth:`~.Axes.scatter` will have been pre-processed
-            by the user using a function *s = f(x)* to make the markers
-            visible; e.g. *size = np.log10(x)*. Providing the inverse of this
+            Function to calculate the labels.  Often the size (or color)
+            argument to `~.Axes.scatter` will have been pre-processed by the
+            user using a function ``s = f(x)`` to make the markers visible;
+            e.g. ``size = np.log10(x)``.  Providing the inverse of this
             function here allows that pre-processing to be inverted, so that
-            the legend labels have the correct values;
-            e.g. *func = np.exp(x, 10)*.
+            the legend labels have the correct values; e.g. ``func = lambda
+            x: 10**x``.
         kwargs : further parameters
             Allowed keyword arguments are *color* and *size*. E.g. it may be
             useful to set the color of the markers if *prop="sizes"* is used;
@@ -1320,8 +1314,9 @@ class LineCollection(Collection):
 
         Notes
         -----
-        If *linewidths*, *colors*, or *antialiaseds* is None, they
-        default to their rcParams setting, in sequence form.
+        If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds* are
+        None, they default to their `.rcParams` patch setting, in sequence
+        form.
 
         If *offsets* and *transOffset* are not None, then
         *offsets* are transformed by *transOffset* and applied after
@@ -1336,11 +1331,10 @@ class LineCollection(Collection):
         and this value will be added cumulatively to each successive
         segment, so as to produce a set of successively offset curves.
 
-        The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
-        If the :class:`~matplotlib.cm.ScalarMappable` array
-        :attr:`~matplotlib.cm.ScalarMappable._A` is not None (i.e., a call to
-        :meth:`~matplotlib.cm.ScalarMappable.set_array` has been made), at
-        draw time a call to scalar mappable will be made to set the colors.
+        The use of `~matplotlib.cm.ScalarMappable` functionality is optional.
+        If the `~matplotlib.cm.ScalarMappable` matrix ``_A`` has been set (via
+        a call to `~.ScalarMappable.set_array`), at draw time a call to scalar
+        mappable will be made to set the face colors.
         """
         if colors is None:
             colors = mpl.rcParams['lines.color']
@@ -1711,12 +1705,11 @@ class EllipseCollection(Collection):
         units : {'points', 'inches', 'dots', 'width', 'height', 'x', 'y', 'xy'}
 
             The units in which majors and minors are given; 'width' and
-            'height' refer to the dimensions of the axes, while 'x'
-            and 'y' refer to the *offsets* data units. 'xy' differs
-            from all others in that the angle as plotted varies with
-            the aspect ratio, and equals the specified angle only when
-            the aspect ratio is unity.  Hence it behaves the same as
-            the :class:`~matplotlib.patches.Ellipse` with
+            'height' refer to the dimensions of the axes, while 'x' and 'y'
+            refer to the *offsets* data units. 'xy' differs from all others in
+            that the angle as plotted varies with the aspect ratio, and equals
+            the specified angle only when the aspect ratio is unity.  Hence
+            it behaves the same as the `~matplotlib.patches.Ellipse` with
             ``axes.transData`` as its transform.
 
         Other Parameters
@@ -1806,14 +1799,14 @@ class PatchCollection(Collection):
             providing the standard collection arguments, facecolor,
             edgecolor, linewidths, norm or cmap.
 
-        If any of *edgecolors*, *facecolors*, *linewidths*,
-        *antialiaseds* are None, they default to their
-        :data:`matplotlib.rcParams` patch setting, in sequence form.
+        If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds* are
+        None, they default to their `.rcParams` patch setting, in sequence
+        form.
 
-        The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
-        If the :class:`~matplotlib.cm.ScalarMappable` matrix _A is not
-        None (i.e., a call to set_array has been made), at draw time a
-        call to scalar mappable will be made to set the face colors.
+        The use of `~matplotlib.cm.ScalarMappable` functionality is optional.
+        If the `~matplotlib.cm.ScalarMappable` matrix ``_A`` has been set (via
+        a call to `~.ScalarMappable.set_array`), at draw time a call to scalar
+        mappable will be made to set the face colors.
         """
 
         if match_original:
@@ -1906,11 +1899,11 @@ class QuadMesh(Collection):
     """
     Class for the efficient drawing of a quadrilateral mesh.
 
-    A quadrilateral mesh consists of a grid of vertices. The
-    dimensions of this array are (*meshWidth* + 1, *meshHeight* +
-    1). Each vertex in the mesh has a different set of "mesh
-    coordinates" representing its position in the topology of the
-    mesh. For any values (*m*, *n*) such that 0 <= *m* <= *meshWidth*
+    A quadrilateral mesh consists of a grid of vertices.
+    The dimensions of this array are (*meshWidth* + 1, *meshHeight* + 1).
+    Each vertex in the mesh has a different set of "mesh coordinates"
+    representing its position in the topology of the mesh.
+    For any values (*m*, *n*) such that 0 <= *m* <= *meshWidth*
     and 0 <= *n* <= *meshHeight*, the vertices at mesh coordinates
     (*m*, *n*), (*m*, *n* + 1), (*m* + 1, *n* + 1), and (*m* + 1, *n*)
     form one of the quadrilaterals in the mesh. There are thus
@@ -1923,13 +1916,11 @@ class QuadMesh(Collection):
     function that maps from a data point to its corresponding color,
     use the :meth:`set_cmap` method.  Each of these arrays is indexed in
     row-major order by the mesh coordinates of the vertex (or the mesh
-    coordinates of the lower left vertex, in the case of the
-    colors).
+    coordinates of the lower left vertex, in the case of the colors).
 
-    For example, the first entry in *coordinates* is the
-    coordinates of the vertex at mesh coordinates (0, 0), then the one
-    at (0, 1), then at (0, 2) .. (0, meshWidth), (1, 0), (1, 1), and
-    so on.
+    For example, the first entry in *coordinates* is the coordinates of the
+    vertex at mesh coordinates (0, 0), then the one at (0, 1), then at (0, 2)
+    .. (0, meshWidth), (1, 0), (1, 1), and so on.
 
     *shading* may be 'flat', or 'gouraud'
     """
