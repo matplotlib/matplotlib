@@ -7,14 +7,17 @@ GitHub stats for 2020/03/03 - 2020/03/17 (tag: v3.2.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 11 issues and merged 44 pull requests.
+We closed 12 issues and merged 54 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/49?closed=1>`__
+and `on GitHub <https://github.com/matplotlib/matplotlib/milestone/51?closed=1>`__
 
-The following 11 authors contributed 89 commits.
+The following 13 authors contributed 158 commits.
 
+* Amy Roberts
 * Antony Lee
 * Elliott Sales de Andrade
 * hannah
+* Hugo van Kemenade
 * Jody Klymak
 * Kyle Sunden
 * MarcoGorelli
@@ -26,7 +29,7 @@ The following 11 authors contributed 89 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (44):
+Pull Requests (54):
 
 * :ghpull:`15199`: MNT/TST: generalize check_figures_equal to work with pytest.marks
 * :ghpull:`15685`: Avoid a RuntimeError at animation shutdown with PySide2.
@@ -35,10 +38,13 @@ Pull Requests (44):
 * :ghpull:`16648`: Document filling of Poly3DCollection
 * :ghpull:`16649`: Fix typo in docs
 * :ghpull:`16650`: Backport PR #16649 on branch v3.2.x (Fix typo in docs)
+* :ghpull:`16651`: Docs: Change Python 2 note to past tense
+* :ghpull:`16654`: Backport PR #16651 on branch v3.2.0-doc (Docs: Change Python 2 note to past tense)
 * :ghpull:`16656`: Make test_imagegrid_cbar_mode_edge less flaky.
 * :ghpull:`16661`: added Framework :: Matplotlib  to setup
 * :ghpull:`16665`: Backport PR #16661 on branch v3.2.x (added Framework :: Matplotlib  to setup)
 * :ghpull:`16671`: Fix some readme bits
+* :ghpull:`16672`: Update CircleCI and add direct artifact link
 * :ghpull:`16682`: Avoid floating point rounding causing bezier.get_parallels to fail
 * :ghpull:`16690`: Backport PR #16682 on branch v3.2.x (Avoid floating point rounding causing bezier.get_parallels to fail)
 * :ghpull:`16693`: TST: use pytest name in naming files for check_figures_equal
@@ -61,19 +67,26 @@ Pull Requests (44):
 * :ghpull:`16760`: Backport PR #16735 on branch v3.2.x (Make test_stem less flaky.)
 * :ghpull:`16761`: Backport PR #16745 on branch v3.2.x (Allow numbers to set uvc for all arrows in quiver.set_UVC, fixes #16743)
 * :ghpull:`16763`: Backport PR #16648 on branch v3.2.x (Document filling of Poly3DCollection)
+* :ghpull:`16764`: Backport PR #16672 on branch v3.2.0-doc
 * :ghpull:`16765`: Backport PR #16736 on branch v3.2.x (xpdf: Set AutoRotatePages to None, not false.)
 * :ghpull:`16766`: Backport PR #16734 on branch v3.2.x (Disable draw_foo methods on renderer used to estimate tight extents.)
 * :ghpull:`16767`: Backport PR #15685 on branch v3.2.x (Avoid a RuntimeError at animation shutdown with PySide2.)
 * :ghpull:`16768`: Backport PR #16725 on branch v3.2.x (TST/CI: also try to run test_user_fonts_win32 on azure)
 * :ghpull:`16770`: Fix tuple markers
+* :ghpull:`16779`: Documentation: make instructions for documentation contributions easier to find, add to requirements for building docs
 * :ghpull:`16784`: Update CircleCI URL for downloading humor-sans.ttf.
 * :ghpull:`16790`: Backport PR #16784 on branch v3.2.x (Update CircleCI URL for downloading humor-sans.ttf.)
 * :ghpull:`16791`: Backport PR #16770 on branch v3.2.x (Fix tuple markers)
+* :ghpull:`16794`: DOC: Don't mention drawstyle in ``set_linestyle`` docs.
 * :ghpull:`16795`: Backport PR #15199 on branch v3.2.x (MNT/TST: generalize check_figures_equal to work with pytest.marks)
 * :ghpull:`16797`: Backport #15589 and #16693, fixes for check_figures_equal
+* :ghpull:`16799`: Backport PR #16794 on branch v3.2.0-doc (DOC: Don't mention drawstyle in ``set_linestyle`` docs.)
 * :ghpull:`16800`: Fix check_figures_equal for tests that use its fixtures.
+* :ghpull:`16803`: Fix some doc issues
+* :ghpull:`16806`: Backport PR #16803 on branch v3.2.0-doc (Fix some doc issues)
+* :ghpull:`16809`: Backport PR #16779 on branch v3.2.0-doc (Documentation: make instructions for documentation contributions easier to find, add to requirements for building docs)
 
-Issues (11):
+Issues (12):
 
 * :ghissue:`12820`: [Annotations] ValueError: lines do not intersect when computing tight bounding box containing arrow with filled paths
 * :ghissue:`16538`: xpdf distiller seems broken
@@ -86,6 +99,7 @@ Issues (11):
 * :ghissue:`16731`: PGF backend + savefig.bbox results in I/O error in 3.2
 * :ghissue:`16739`: a length check fails (_axes.py @ 4386): new to 3.2.0; not present in 3.1.3
 * :ghissue:`16743`: Breaking change in 3.2: quiver.set_UVC does not support single numbers any more
+* :ghissue:`16801`: Doc: figure for colormaps off
 
 
 Previous GitHub Stats
