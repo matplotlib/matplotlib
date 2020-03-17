@@ -1978,7 +1978,7 @@ class HCentered(Hlist):
                        do_kern=False)
 
 
-class VCentered(Hlist):
+class VCentered(Vlist):
     """
     A convenience class to create a `Vlist` whose contents are
     centered within its enclosing box.
