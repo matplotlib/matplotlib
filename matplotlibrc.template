@@ -103,10 +103,6 @@
 #toolbar     : toolbar2  ## {None, toolbar2}
 #timezone    : UTC       ## a pytz timezone string, e.g., US/Central or Europe/Paris
 
-## Where your matplotlib data lives if you installed to a non-default
-## location.  This is where the matplotlib fonts, bitmaps, etc reside
-#datapath : /home/jdhunter/mpldata
-
 
 ## ***************************************************************************
 ## * LINES                                                                   *

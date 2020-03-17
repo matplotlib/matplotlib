@@ -132,6 +132,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import warnings
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
@@ -269,10 +270,10 @@ def _logged_cached(fmt, func=None):
     ret = None
 
     @functools.wraps(func)
-    def wrapper():
+    def wrapper(**kwargs):
         nonlocal called, ret
         if not called:
-            ret = func()
+            ret = func(**kwargs)
             called = True
             _log.debug(fmt, ret)
         return ret
@@ -619,9 +620,31 @@ def get_cachedir():
     return _get_config_or_cache_dir(_get_xdg_cache_dir())
 
 
-def _get_data_path():
-    """Return the path to matplotlib data."""
+@_logged_cached('matplotlib data path: %s')
+def get_data_path(*, _from_rc=None):
+    """Return the path to Matplotlib data."""
+    if _from_rc is not None:
+        cbook.warn_deprecated(
+            "3.2",
+            message=("Setting the datapath via matplotlibrc is "
+            "deprecated %(since)s and will be removed in %(removal)s. "
+            ""),
+            removal='3.3')
+        path = Path(_from_rc)
+        if path.is_dir():
+            defaultParams['datapath'][0] = str(path)
+            return str(path)
+        else:
+            warnings.warn(f"You passed datapath: {_from_rc!r} in your "
+                          f"matplotribrc file ({matplotlib_fname()}). "
+                          "However this path does not exist, falling back "
+                          "to standard paths.")
 
+    return _get_data_path()
+
+
+@_logged_cached('(private) matplotlib data path: %s')
+def _get_data_path():
     if 'MATPLOTLIBDATA' in os.environ:
         path = os.environ['MATPLOTLIBDATA']
         if not os.path.isdir(path):
@@ -633,6 +656,7 @@ def _get_data_path():
 
     path = Path(__file__).with_name("mpl-data")
     if path.is_dir():
+        defaultParams['datapath'][0] = str(path)
         return str(path)
 
     cbook.warn_deprecated(
@@ -655,16 +679,10 @@ def _get_data_path():
 
     for path in get_candidate_paths():
         if path.is_dir():
+            defaultParams['datapath'][0] = str(path)
             return str(path)
 
     raise RuntimeError('Could not find the matplotlib data files')
-
-
-@_logged_cached('matplotlib data path: %s')
-def get_data_path():
-    if defaultParams['datapath'][0] is None:
-        defaultParams['datapath'][0] = _get_data_path()
-    return defaultParams['datapath'][0]
 
 
 @cbook.deprecated("3.1")
@@ -708,7 +726,7 @@ def matplotlib_fname():
             yield matplotlibrc
             yield os.path.join(matplotlibrc, 'matplotlibrc')
         yield os.path.join(get_configdir(), 'matplotlibrc')
-        yield os.path.join(get_data_path(), 'matplotlibrc')
+        yield os.path.join(_get_data_path(), 'matplotlibrc')
 
     for fname in gen_candidates():
         if os.path.exists(fname) and not os.path.isdir(fname):
@@ -736,6 +754,7 @@ _deprecated_remain_as_none = {
     'savefig.frameon': ('3.1',),
     'verbose.fileo': ('3.1',),
     'verbose.level': ('3.1',),
+    'datapath': ('3.2.1',),
 }
 
 
@@ -973,8 +992,11 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
                            if key not in _all_deprecated])
     config.update(config_from_file)
 
-    if config['datapath'] is None:
-        config['datapath'] = get_data_path()
+    with cbook._suppress_matplotlib_deprecation_warning():
+        if config['datapath'] is None:
+            config['datapath'] = _get_data_path()
+        else:
+            config['datapath'] = get_data_path(_from_rc=config['datapath'])
 
     if "".join(config['text.latex.preamble']):
         _log.info("""

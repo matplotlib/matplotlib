@@ -43,6 +43,8 @@ Default values and styling
 
 .. autofunction:: matplotlib_fname
 
+.. autofunction:: get_data_path
+
 Logging
 =======
 
