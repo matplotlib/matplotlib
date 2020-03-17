@@ -1702,41 +1702,71 @@ class FigureCanvasBase:
         self._is_idle_drawing = False
 
     def _repr_html_(self):
-        from base64 import b64encode
+        if not self.figure.axes and not self.figure.lines:
+            return
 
-        fmt = self.get_default_filetype()
         dpi = self.figure.dpi
-        if fmt == 'retina':
-            dpi = dpi * 2
-            fmt = 'png'
+        is_retina = False
+
+        import IPython
+        ip = IPython.get_ipython()
+        ib_list = [c for c in ip.configurables 
+                    if 'InlineBackend' in type(c).__name__]
+
+        # having an 'inline' backend doesn't mean '%matplotlib inline' has been run
+        # Running %matplotlib inline runs pylabtools.configure_inline_support
+        # which appends the InlineBackend to the list of configurables
+        if get_backend() == 'module://ipykernel.pylab.backend_inline' and ib_list:
+            ib = ib_list[0]
+            bbox_inches = ib.print_figure_kwargs['bbox_inches']
+            fmt = next(iter(ib.figure_formats))
+            if fmt == 'retina':
+                is_retina = True
+                dpi = dpi * 2
+                fmt = self.get_default_filetype()
+        else:
+            bbox_inches = 'tight' # how to let user choose self.figure.bbox_inches?
+            fmt = self.get_default_filetype()
+
+        if fmt not in {'png', 'svg', 'jpg', 'pdf'}:
+            fmt = 'png' 
 
         kw = {
             "format":fmt,
             "facecolor":self.figure.get_facecolor(),
             "edgecolor":self.figure.get_edgecolor(),
             "dpi":dpi,
-            "bbox_inches":self.figure.bbox_inches,
+            "bbox_inches":bbox_inches,
         }
 
         bytes_io = io.BytesIO()
         self.print_figure(bytes_io, **kw)
         raw_bytes = bytes_io.getvalue()
 
-        mimetype_dict = {'png': 'image/png', 'svg': 'image/svg+xml', 
-                         'jpg': 'image/jpeg', 'pdf': 'application/pdf'}
-        if fmt not in mimetype_dict:
-            fmt = 'png'
-        mimetype = mimetype_dict[fmt]
+        from IPython.core.display import _pngxy, _jpegxy
         
         if fmt == 'svg':
             return raw_bytes.decode()
+        elif fmt == 'png':
+            w, h = _pngxy(raw_bytes)
+        elif fmt == 'jpg':
+            w, h = _jpegxy(raw_bytes)
         elif fmt == 'pdf':
-            data = b64encode(raw_bytes).decode()
             w, h = self.figure.get_size_inches()
-            return f'<embed height="{h * dpi}" width="{w * dpi}" src="data:application/pdf;base64, {data}">'
-        else:
-            data = b64encode(raw_bytes).decode()
-        return f'<img src="data:{mimetype};base64, {data}" />'
+            w, h = w * dpi, h * dpi
+
+        if is_retina:
+            w, h = w // 2, h // 2
+
+        from base64 import b64encode
+        data = b64encode(raw_bytes).decode()
+
+        if fmt == 'png':
+            return f'<img width="{w}" height="{h}"  src="data:image/png;base64, {data}" />'
+        elif fmt == 'pdf':
+            return f'<embed width="{w}" height="{h}" src="data:application/pdf;base64, {data}">'
+        elif fmt == 'jpg':
+            return f'<img width="{w}" height="{h}" src="data:image/jpeg;base64, {data}" />'
 
     @classmethod
     @functools.lru_cache()
