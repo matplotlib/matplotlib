@@ -1165,9 +1165,6 @@ class Line2D(Artist):
               ``'None'`` or ``' '`` or ``''``   draw nothing
               ===============================   =================
 
-              Optionally, the string may be preceded by a drawstyle, e.g.
-              ``'steps--'``. See :meth:`set_drawstyle` for details.
-
             - Alternatively a dash tuple of the following form can be
               provided::
 

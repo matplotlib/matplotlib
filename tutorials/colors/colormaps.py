@@ -225,7 +225,7 @@ for cmap_category, cmap_list in cmaps.items():
 plt.show()
 
 ###############################################################################
-# Lightness of matplotlib colormaps
+# Lightness of Matplotlib colormaps
 # =================================
 #
 # Here we examine the lightness values of the matplotlib colormaps.
@@ -308,10 +308,9 @@ for cmap_category, cmap_list in cmaps.items():
         formatter = mpl.ticker.FixedFormatter(cmap_list[i*dsub:(i+1)*dsub])
         ax.xaxis.set_major_formatter(formatter)
         ax.xaxis.set_tick_params(rotation=50)
+        ax.set_ylabel('Lightness $L^*$', fontsize=12)
 
     ax.set_xlabel(cmap_category + ' colormaps', fontsize=14)
-    fig.text(0.0, 0.55, 'Lightness $L^*$', fontsize=12,
-             transform=fig.transFigure, rotation=90)
 
     fig.tight_layout(h_pad=0.0, pad=1.5)
     plt.show()
