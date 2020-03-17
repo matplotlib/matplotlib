@@ -3,10 +3,18 @@ A module providing some utility functions regarding Bezier path manipulation.
 """
 
 import math
+import warnings
 
 import numpy as np
 
 import matplotlib.cbook as cbook
+
+# same algorithm as 3.8's math.comb
+@np.vectorize
+def _comb(n, k):
+    k = min(k, n - k)
+    i = np.arange(1, k + 1)
+    return np.prod((n + 1 - i)/i).astype(int)
 
 
 class NonIntersectingPathException(ValueError):
@@ -177,26 +185,113 @@ def find_bezier_t_intersecting_with_closedpath(
 
 class BezierSegment:
     """
-    A D-dimensional Bezier segment.
+    A d-dimensional Bezier segment.
 
     Parameters
     ----------
-    control_points : (N, D) array
+    control_points : (N, d) array
         Location of the *N* control points.
     """
 
     def __init__(self, control_points):
-        n = len(control_points)
-        self._orders = np.arange(n)
-        coeff = [math.factorial(n - 1)
-                 // (math.factorial(i) * math.factorial(n - 1 - i))
-                 for i in range(n)]
-        self._px = np.asarray(control_points).T * coeff
+        self._cpoints = np.asarray(control_points)
+        self._N, self._d = self._cpoints.shape
+        self._orders = np.arange(self._N)
+        coeff = [math.factorial(self._N - 1)
+                 // (math.factorial(i) * math.factorial(self._N - 1 - i))
+                 for i in range(self._N)]
+        self._px = self._cpoints.T * coeff
+
+    def __call__(self, t):
+        return self.point_at_t(t)
 
     def point_at_t(self, t):
         """Return the point on the Bezier curve for parameter *t*."""
         return tuple(
             self._px @ (((1 - t) ** self._orders)[::-1] * t ** self._orders))
+
+    @property
+    def control_points(self):
+        """The control points of the curve."""
+        return self._cpoints
+
+    @property
+    def dimension(self):
+        """The dimension of the curve."""
+        return self._d
+
+    @property
+    def degree(self):
+        """The number of control points in the curve."""
+        return self._N - 1
+
+    @property
+    def polynomial_coefficients(self):
+        r"""The polynomial coefficients of the Bezier curve.
+
+        Returns
+        -------
+        coefs : float, (n+1, d) array_like
+            Coefficients after expanding in polynomial basis, where :math:`n`
+            is the degree of the bezier curve and :math:`d` its dimension.
+            These are the numbers (:math:`C_j`) such that the curve can be
+            written :math:`\sum_{j=0}^n C_j t^j`.
+
+        Notes
+        -----
+        The coefficients are calculated as
+
+        .. math::
+
+            {n \choose j} \sum_{i=0}^j (-1)^{i+j} {j \choose i} P_i
+
+        where :math:`P_i` are the control points of the curve.
+        """
+        n = self.degree
+        # matplotlib uses n <= 4. overflow plausible starting around n = 15.
+        if n > 10:
+            warnings.warn("Polynomial coefficients formula unstable for high "
+                          "order Bezier curves!", RuntimeWarning)
+        d = self.dimension
+        P = self.control_points
+        coefs = np.zeros((n+1, d))
+        for j in range(n+1):
+            i = np.arange(j+1)
+            prefactor = np.power(-1, i + j) * _comb(j, i)
+            prefactor = np.tile(prefactor, (d, 1)).T
+            coefs[j] = _comb(n, j) * np.sum(prefactor*P[i], axis=0)
+        return coefs
+
+    @property
+    def axis_aligned_extrema(self):
+        """
+        Return the location along the curve's interior where its partial
+        derivative is zero, along with the dimension along which it is zero for
+        each such instance.
+
+        Returns
+        -------
+        dims : int, array_like
+            dimension :math:`i` along which the corresponding zero occurs
+        dzeros : float, array_like
+            of same size as dims. the :math:`t` such that :math:`d/dx_i B(t) =
+            0`
+        """
+        n = self.degree
+        Cj = self.polynomial_coefficients
+        dCj = np.atleast_2d(np.arange(1, n+1)).T * Cj[1:]
+        if len(dCj) == 0:
+            return np.array([]), np.array([])
+        dims = []
+        roots = []
+        for i, pi in enumerate(dCj.T):
+            r = np.roots(pi[::-1])
+            roots.append(r)
+            dims.append(i*np.ones_like(r))
+        roots = np.concatenate(roots)
+        dims = np.concatenate(dims)
+        in_range = np.isreal(roots) & (roots >= 0) & (roots <= 1)
+        return dims[in_range], np.real(roots)[in_range]
 
 
 def split_bezier_intersecting_with_closedpath(

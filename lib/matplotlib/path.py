@@ -17,7 +17,18 @@ import numpy as np
 import matplotlib as mpl
 from . import _path, cbook
 from .cbook import _to_unmasked_float_array, simple_linear_interpolation
-from .bezier import split_bezier_intersecting_with_closedpath
+from .bezier import BezierSegment, split_bezier_intersecting_with_closedpath
+
+
+def _update_extents(extents, point):
+    dim = len(point)
+    for i, xi in enumerate(point):
+        if xi < extents[i]:
+            extents[i] = xi
+        # elif here would fail to correctly update from "null" extents of
+        # np.array([np.inf, np.inf, -np.inf, -np.inf])
+        if extents[i+dim] < xi:
+            extents[i+dim] = xi
 
 
 class Path:
@@ -421,6 +432,53 @@ class Path:
                     curr_vertices = np.append(curr_vertices, next(vertices))
             yield curr_vertices, code
 
+    def iter_bezier(self, **kwargs):
+        """
+        Iterate over each bezier curve (lines included) in a Path.
+
+        Parameters
+        ----------
+        kwargs : Dict[str, object]
+            Forwareded to iter_segments.
+
+        Yields
+        ------
+        B : matplotlib.bezier.BezierSegment
+            The bezier curves that make up the current path. Note in particular
+            that freestanding points are bezier curves of order 0, and lines
+            are bezier curves of order 1 (with two control points).
+        code : Path.code_type
+            The code describing what kind of curve is being returned.
+            Path.MOVETO, Path.LINETO, Path.CURVE3, Path.CURVE4 correspond to
+            bezier curves with 1, 2, 3, and 4 control points (respectively).
+            Path.CLOSEPOLY is a Path.LINETO with the control points correctly
+            chosen based on the start/end points of the current stroke.
+        """
+        first_vert = None
+        prev_vert = None
+        for vertices, code in self.iter_segments(**kwargs):
+            if first_vert is None:
+                if code != Path.MOVETO:
+                    raise ValueError("Malformed path, must start with MOVETO.")
+            if code == Path.MOVETO:  # a point is like "CURVE1"
+                first_vert = vertices
+                yield BezierSegment(np.array([first_vert])), code
+            elif code == Path.LINETO:  # "CURVE2"
+                yield BezierSegment(np.array([prev_vert, vertices])), code
+            elif code == Path.CURVE3:
+                yield BezierSegment(np.array([prev_vert, vertices[:2],
+                                    vertices[2:]])), code
+            elif code == Path.CURVE4:
+                yield BezierSegment(np.array([prev_vert, vertices[:2],
+                                    vertices[2:4], vertices[4:]])), code
+            elif code == Path.CLOSEPOLY:
+                yield BezierSegment(np.array([prev_vert, first_vert])), code
+            elif code == Path.STOP:
+                return
+            else:
+                raise ValueError("Invalid Path.code_type: " + str(code))
+            prev_vert = vertices[-2:]
+
     @cbook._delete_parameter("3.3", "quantize")
     def cleaned(self, transform=None, remove_nans=False, clip=None,
                 quantize=False, simplify=False, curves=False,
@@ -545,6 +603,35 @@ class Path:
                 path = self.transformed(transform)
                 transform = None
         return Bbox(_path.get_path_extents(path, transform))
+
+    def get_exact_extents(self, **kwargs):
+        """Get size of Bbox of curve (instead of Bbox of control points).
+
+        Parameters
+        ----------
+        kwargs : Dict[str, object]
+            Forwarded to self.iter_bezier.
+
+        Returns
+        -------
+        extents : (4,) float, array_like
+            The extents of the path (xmin, ymin, xmax, ymax).
+        """
+        maxi = 2  # [xmin, ymin, *xmax, ymax]
+        # return value for empty paths to match _path.h
+        extents = np.array([np.inf, np.inf, -np.inf, -np.inf])
+        for curve, code in self.iter_bezier(**kwargs):
+            # start and endpoints can be extrema of the curve
+            _update_extents(extents, curve(0))  # start point
+            _update_extents(extents, curve(1))  # end point
+            # interior extrema where d/ds B(s) == 0
+            _, dzeros = curve.axis_aligned_extrema
+            if len(dzeros) == 0:
+                continue
+            for zero in dzeros:
+                potential_extrema = curve.point_at_t(zero)
+                _update_extents(extents, potential_extrema)
+        return extents
 
     def intersects_path(self, other, filled=True):
         """

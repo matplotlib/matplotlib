@@ -49,6 +49,12 @@ def test_contains_points_negative_radius():
     np.testing.assert_equal(result, [True, False, False])
 
 
+def test_exact_extents_cubic():
+    hard_curve = Path([[0, 0], [1, 0], [1, 1], [0, 1]],
+                      [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4])
+    np.testing.assert_equal(hard_curve.get_exact_extents(), [0., 0., 0.75, 1.])
+
+
 def test_point_in_path_nan():
     box = np.array([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]])
     p = Path(box)
