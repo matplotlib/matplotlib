@@ -10,10 +10,26 @@ import numpy as np
 import matplotlib as mpl
 from . import artist, cbook, colors, docstring, lines as mlines, transforms
 from .bezier import (
-    NonIntersectingPathException, get_cos_sin, get_intersection,
-    get_parallels, inside_circle, make_wedged_bezier2,
-    split_bezier_intersecting_with_closedpath, split_path_inout)
+    NonIntersectingPathException, get_cos_sin, get_intersection, get_parallels,
+    make_wedged_bezier2, split_bezier_intersecting_with_closedpath)
 from .path import Path
+
+
+def _inside_circle(cx, cy, r):
+    """
+    Return a function that checks whether a point is in a circle with center
+    (*cx*, *cy*) and radius *r*.
+
+    The returned function has the signature::
+
+        f(xy: Tuple[float, float]) -> bool
+    """
+    r2 = r ** 2
+
+    def _f(xy):
+        x, y = xy
+        return (x - cx) ** 2 + (y - cy) ** 2 < r2
+    return _f
 
 
 @cbook._define_aliases({
@@ -2414,7 +2430,7 @@ class ConnectionStyle(_Style):
                     return patchA.contains(xy_event)[0]
 
                 try:
-                    left, right = split_path_inout(path, insideA)
+                    left, right = path.split_path_inout(insideA)
                 except ValueError:
                     right = path
 
@@ -2426,7 +2442,7 @@ class ConnectionStyle(_Style):
                     return patchB.contains(xy_event)[0]
 
                 try:
-                    left, right = split_path_inout(path, insideB)
+                    left, right = path.split_path_inout(insideB)
                 except ValueError:
                     left = path
 
@@ -2439,15 +2455,15 @@ class ConnectionStyle(_Style):
             Shrink the path by fixed size (in points) with shrinkA and shrinkB.
             """
             if shrinkA:
-                insideA = inside_circle(*path.vertices[0], shrinkA)
+                insideA = _inside_circle(*path.vertices[0], shrinkA)
                 try:
-                    left, path = split_path_inout(path, insideA)
+                    left, path = path.split_path_inout(insideA)
                 except ValueError:
                     pass
             if shrinkB:
-                insideB = inside_circle(*path.vertices[-1], shrinkB)
+                insideB = _inside_circle(*path.vertices[-1], shrinkB)
                 try:
-                    path, right = split_path_inout(path, insideB)
+                    path, right = path.split_path_inout(insideB)
                 except ValueError:
                     pass
             return path
@@ -2872,7 +2888,6 @@ class ArrowStyle(_Style):
             The __call__ method is a thin wrapper around the transmute method
             and takes care of the aspect ratio.
             """
-
             if aspect_ratio is not None:
                 # Squeeze the given height by the aspect_ratio
                 vertices = path.vertices / [1, aspect_ratio]
@@ -3337,7 +3352,7 @@ class ArrowStyle(_Style):
 
             # divide the path into a head and a tail
             head_length = self.head_length * mutation_size
-            in_f = inside_circle(x2, y2, head_length)
+            in_f = _inside_circle(x2, y2, head_length)
             arrow_path = [(x0, y0), (x1, y1), (x2, y2)]
 
             try:
@@ -3420,7 +3435,7 @@ class ArrowStyle(_Style):
             arrow_path = [(x0, y0), (x1, y1), (x2, y2)]
 
             # path for head
-            in_f = inside_circle(x2, y2, head_length)
+            in_f = _inside_circle(x2, y2, head_length)
             try:
                 path_out, path_in = split_bezier_intersecting_with_closedpath(
                     arrow_path, in_f, tolerance=0.01)
@@ -3435,7 +3450,7 @@ class ArrowStyle(_Style):
                 path_head = path_in
 
             # path for head
-            in_f = inside_circle(x2, y2, head_length * .8)
+            in_f = _inside_circle(x2, y2, head_length * .8)
             path_out, path_in = split_bezier_intersecting_with_closedpath(
                 arrow_path, in_f, tolerance=0.01)
             path_tail = path_out
@@ -3453,7 +3468,7 @@ class ArrowStyle(_Style):
                                                         w1=1., wm=0.6, w2=0.3)
 
             # path for head
-            in_f = inside_circle(x0, y0, tail_width * .3)
+            in_f = _inside_circle(x0, y0, tail_width * .3)
             path_in, path_out = split_bezier_intersecting_with_closedpath(
                 arrow_path, in_f, tolerance=0.01)
             tail_start = path_in[-1]

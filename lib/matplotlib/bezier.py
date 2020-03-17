@@ -7,11 +7,11 @@ import math
 import numpy as np
 
 import matplotlib.cbook as cbook
-from matplotlib.path import Path
 
 
 class NonIntersectingPathException(ValueError):
     pass
+
 
 # some functions
 
@@ -66,6 +66,15 @@ def get_normal_points(cx, cy, cos_t, sin_t, length):
     x2, y2 = length * cos_t2 + cx, length * sin_t2 + cy
 
     return x1, y1, x2, y2
+
+
+@cbook.deprecated("3.3", alternative="Path.split_path_inout()")
+def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
+    """
+    Divide a path into two segments at the point where ``inside(x, y)``
+    becomes False.
+    """
+    return path.split_path_inout(inside, tolerance, reorder_inout)
 
 
 # BEZIER routines
@@ -222,69 +231,7 @@ def split_bezier_intersecting_with_closedpath(
     return _left, _right
 
 
-# matplotlib specific
-
-
-def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
-    """
-    Divide a path into two segments at the point where ``inside(x, y)`` becomes
-    False.
-    """
-    path_iter = path.iter_segments()
-
-    ctl_points, command = next(path_iter)
-    begin_inside = inside(ctl_points[-2:])  # true if begin point is inside
-
-    ctl_points_old = ctl_points
-
-    iold = 0
-    i = 1
-
-    for ctl_points, command in path_iter:
-        iold = i
-        i += len(ctl_points) // 2
-        if inside(ctl_points[-2:]) != begin_inside:
-            bezier_path = np.concatenate([ctl_points_old[-2:], ctl_points])
-            break
-        ctl_points_old = ctl_points
-    else:
-        raise ValueError("The path does not intersect with the patch")
-
-    bp = bezier_path.reshape((-1, 2))
-    left, right = split_bezier_intersecting_with_closedpath(
-        bp, inside, tolerance)
-    if len(left) == 2:
-        codes_left = [Path.LINETO]
-        codes_right = [Path.MOVETO, Path.LINETO]
-    elif len(left) == 3:
-        codes_left = [Path.CURVE3, Path.CURVE3]
-        codes_right = [Path.MOVETO, Path.CURVE3, Path.CURVE3]
-    elif len(left) == 4:
-        codes_left = [Path.CURVE4, Path.CURVE4, Path.CURVE4]
-        codes_right = [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4]
-    else:
-        raise AssertionError("This should never be reached")
-
-    verts_left = left[1:]
-    verts_right = right[:]
-
-    if path.codes is None:
-        path_in = Path(np.concatenate([path.vertices[:i], verts_left]))
-        path_out = Path(np.concatenate([verts_right, path.vertices[i:]]))
-
-    else:
-        path_in = Path(np.concatenate([path.vertices[:iold], verts_left]),
-                       np.concatenate([path.codes[:iold], codes_left]))
-
-        path_out = Path(np.concatenate([verts_right, path.vertices[i:]]),
-                        np.concatenate([codes_right, path.codes[i:]]))
-
-    if reorder_inout and not begin_inside:
-        path_in, path_out = path_out, path_in
-
-    return path_in, path_out
-
-
+@cbook.deprecated("3.3")
 def inside_circle(cx, cy, r):
     """
     Return a function that checks whether a point is in a circle with center
@@ -294,15 +241,12 @@ def inside_circle(cx, cy, r):
 
         f(xy: Tuple[float, float]) -> bool
     """
-    r2 = r ** 2
-
-    def _f(xy):
-        x, y = xy
-        return (x - cx) ** 2 + (y - cy) ** 2 < r2
-    return _f
+    from .patches import _inside_circle
+    return _inside_circle(cx, cy, r)
 
 
 # quadratic Bezier lines
+
 
 def get_cos_sin(x0, y0, x1, y1):
     dx, dy = x1 - x0, y1 - y0
@@ -486,6 +430,7 @@ def make_path_regular(p):
     with ``codes`` set to (MOVETO, LINETO, LINETO, ..., LINETO); otherwise
     return *p* itself.
     """
+    from .path import Path
     c = p.codes
     if c is None:
         c = np.full(len(p.vertices), Path.LINETO, dtype=Path.code_type)
@@ -498,6 +443,5 @@ def make_path_regular(p):
 @cbook.deprecated("3.3", alternative="Path.make_compound_path()")
 def concatenate_paths(paths):
     """Concatenate a list of paths into a single path."""
-    vertices = np.concatenate([p.vertices for p in paths])
-    codes = np.concatenate([make_path_regular(p).codes for p in paths])
-    return Path(vertices, codes)
+    from .path import Path
+    return Path.make_compound_path(*paths)

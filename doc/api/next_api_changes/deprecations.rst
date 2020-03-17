@@ -374,13 +374,13 @@ also be accessible as ``toolbar.parent()``.
 
 Path helpers in :mod:`.bezier`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``bezier.make_path_regular`` is deprecated.  Use ``Path.cleaned()`` (or
-``Path.cleaned(curves=True)``, etc.) instead (but note that these methods add a
-``STOP`` code at the end of the path).
-
-``bezier.concatenate_paths`` is deprecated.  Use ``Path.make_compound_path()``
-instead.
+- ``bezier.make_path_regular`` is deprecated.  Use ``Path.cleaned()`` (or
+  ``Path.cleaned(curves=True)``, etc.) instead (but note that these methods add
+  a ``STOP`` code at the end of the path).
+- ``bezier.concatenate_paths`` is deprecated.  Use ``Path.make_compound_path()``
+  instead.
+- ``bezier.split_path_inout`` (use ``Path.split_path_inout`` instead)
+- ``bezier.inside_circle()`` (no replacement)
 
 ``animation.html_args`` rcParam
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

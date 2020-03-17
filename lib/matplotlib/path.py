@@ -17,6 +17,7 @@ import numpy as np
 import matplotlib as mpl
 from . import _path, cbook
 from .cbook import _to_unmasked_float_array, simple_linear_interpolation
+from .bezier import split_bezier_intersecting_with_closedpath
 
 
 class Path:
@@ -585,6 +586,65 @@ class Path:
             new_codes = None
         return Path(vertices, new_codes)
 
+    def split_path_inout(self, inside, tolerance=0.01, reorder_inout=False):
+        """
+        Divide a path into two segments at the point where ``inside(x, y)``
+        becomes False.
+        """
+        path_iter = self.iter_segments()
+
+        ctl_points, command = next(path_iter)
+        begin_inside = inside(ctl_points[-2:])  # true if begin point is inside
+
+        ctl_points_old = ctl_points
+
+        iold = 0
+        i = 1
+
+        for ctl_points, command in path_iter:
+            iold = i
+            i += len(ctl_points) // 2
+            if inside(ctl_points[-2:]) != begin_inside:
+                bezier_path = np.concatenate([ctl_points_old[-2:], ctl_points])
+                break
+            ctl_points_old = ctl_points
+        else:
+            raise ValueError("The path does not intersect with the patch")
+
+        bp = bezier_path.reshape((-1, 2))
+        left, right = split_bezier_intersecting_with_closedpath(
+            bp, inside, tolerance)
+        if len(left) == 2:
+            codes_left = [Path.LINETO]
+            codes_right = [Path.MOVETO, Path.LINETO]
+        elif len(left) == 3:
+            codes_left = [Path.CURVE3, Path.CURVE3]
+            codes_right = [Path.MOVETO, Path.CURVE3, Path.CURVE3]
+        elif len(left) == 4:
+            codes_left = [Path.CURVE4, Path.CURVE4, Path.CURVE4]
+            codes_right = [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4]
+        else:
+            raise AssertionError("This should never be reached")
+
+        verts_left = left[1:]
+        verts_right = right[:]
+
+        if self.codes is None:
+            path_in = Path(np.concatenate([self.vertices[:i], verts_left]))
+            path_out = Path(np.concatenate([verts_right, self.vertices[i:]]))
+
+        else:
+            path_in = Path(np.concatenate([self.vertices[:iold], verts_left]),
+                           np.concatenate([self.codes[:iold], codes_left]))
+
+            path_out = Path(np.concatenate([verts_right, self.vertices[i:]]),
+                            np.concatenate([codes_right, self.codes[i:]]))
+
+        if reorder_inout and not begin_inside:
+            path_in, path_out = path_out, path_in
+
+        return path_in, path_out
+
     def to_polygons(self, transform=None, width=0, height=0, closed_only=True):
         """
         Convert this path to a list of polygons or polylines.  Each
@@ -647,7 +707,8 @@ class Path:
     def unit_regular_polygon(cls, numVertices):
         """
         Return a :class:`Path` instance for a unit regular polygon with the
-        given *numVertices* and radius of 1.0, centered at (0, 0).
+        given *numVertices* such that the circumscribing circle has radius 1.0,
+        centered at (0, 0).
         """
         if numVertices <= 16:
             path = cls._unit_regular_polygons.get(numVertices)
