@@ -389,9 +389,17 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
         import pytest
 
         _, result_dir = _image_directories(func)
+        old_sig = inspect.signature(func)
 
         @pytest.mark.parametrize("ext", extensions)
-        def wrapper(*args, ext, request, **kwargs):
+        def wrapper(*args, **kwargs):
+            ext = kwargs['ext']
+            if 'ext' not in old_sig.parameters:
+                kwargs.pop('ext')
+            request = kwargs['request']
+            if 'request' not in old_sig.parameters:
+                kwargs.pop('request')
+
             file_name = "".join(c for c in request.node.name
                                 if c in ALLOWED_CHARS)
             try:
@@ -409,16 +417,16 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
                 plt.close(fig_test)
                 plt.close(fig_ref)
 
-        sig = inspect.signature(func)
-        new_sig = sig.replace(
-            parameters=([param
-                         for param in sig.parameters.values()
-                         if param.name not in {"fig_test", "fig_ref"}]
-                        + [
-                            inspect.Parameter("ext", KEYWORD_ONLY),
-                            inspect.Parameter("request", KEYWORD_ONLY),
-                        ])
-        )
+        parameters = [
+            param
+            for param in old_sig.parameters.values()
+            if param.name not in {"fig_test", "fig_ref"}
+        ]
+        if 'ext' not in old_sig.parameters:
+            parameters += [inspect.Parameter("ext", KEYWORD_ONLY)]
+        if 'request' not in old_sig.parameters:
+            parameters += [inspect.Parameter("request", KEYWORD_ONLY)]
+        new_sig = old_sig.replace(parameters=parameters)
         wrapper.__signature__ = new_sig
 
         # reach a bit into pytest internals to hoist the marks from
