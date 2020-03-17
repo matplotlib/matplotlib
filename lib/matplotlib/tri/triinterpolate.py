@@ -479,9 +479,7 @@ class CubicTriInterpolator(TriInterpolator):
         elif kind == 'min_E':
             TE = _DOF_estimator_min_E(self)
         else:
-            raise ValueError("CubicTriInterpolator *kind* proposed: {0}; "
-                             "should be one of: "
-                             "'user', 'geom', 'min_E'".format(kind))
+            cbook._check_in_list(['user', 'geom', 'min_E'], kind=kind)
         return TE.compute_dof_from_df()
 
     @staticmethod
