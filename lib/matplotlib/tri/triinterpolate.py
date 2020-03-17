@@ -398,7 +398,7 @@ class CubicTriInterpolator(TriInterpolator):
         #    (used) node numbering.
         tri_analyzer = TriAnalyzer(self._triangulation)
         (compressed_triangles, compressed_x, compressed_y, tri_renum,
-         node_renum) = tri_analyzer._get_compressed_triangulation(True, True)
+         node_renum) = tri_analyzer._get_compressed_triangulation()
         self._triangles = compressed_triangles
         self._tri_renum = tri_renum
         # Taking into account the node renumbering in self._z:
