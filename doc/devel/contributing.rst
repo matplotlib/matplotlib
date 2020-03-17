@@ -174,6 +174,8 @@ environment is set up properly::
 Contributing code
 =================
 
+.. _how-to-contribute:
+
 How to contribute
 -----------------
 
@@ -222,7 +224,7 @@ want to consider sending an email to the mailing list for more visibility.
   * `Git documentation <https://git-scm.com/documentation>`_
   * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
   * `Introduction to GitHub  <https://lab.github.com/githubtraining/introduction-to-github>`_
-  * :ref:`development-workflow`.
+  * :ref:`development-workflow`
   * :ref:`using-git`
 
 Contributing pull requests
@@ -316,21 +318,35 @@ This helps the contributor become familiar with the contribution
 workflow, and for the core devs to become acquainted with the contributor;
 besides which, we frequently underestimate how easy an issue is to solve!
 
-.. _other_ways_to_contribute:
 
-Other ways to contribute
-=========================
+.. _contributing_documentation:
 
+Contributing documentation
+==========================
 
 Code is not the only way to contribute to Matplotlib. For instance,
 documentation is also a very important part of the project and often doesn't
 get as much attention as it deserves. If you find a typo in the documentation,
 or have made improvements, do not hesitate to send an email to the mailing
-list or submit a GitHub pull request. Full documentation can be found under
-the doc/ directory.
+list or submit a GitHub pull request.  To make a pull request, refer to the
+guidelines outlined in :ref:`how-to-contribute`.
+
+Full documentation can be found under the :file:`doc/`, :file:`tutorials/`,
+and :file:`examples/` directories.
+
+.. seealso::
+  * :ref:`documenting-matplotlib`
+
+
+.. _other_ways_to_contribute:
+
+Other ways to contribute
+=========================
 
 It also helps us if you spread the word: reference the project from your blog
-and articles or link to it from your website!
+and articles or link to it from your website!  If Matplotlib contributes to a
+project that leads to a scientific publication, please follow the
+:doc:`/citing` guidelines.
 
 .. _coding_guidelines:
 
