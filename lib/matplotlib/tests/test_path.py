@@ -49,6 +49,37 @@ def test_contains_points_negative_radius():
     np.testing.assert_equal(result, [True, False, False])
 
 
+_test_paths = [
+    # interior extrema determine extents and degenerate derivative
+    Path([[0, 0], [1, 0], [1, 1], [0, 1]],
+           [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4]),
+    # a quadratic curve
+    Path([[0, 0], [0, 1], [1, 0]], [Path.MOVETO, Path.CURVE3, Path.CURVE3]),
+    # a linear curve, degenerate vertically
+    Path([[0, 1], [1, 1]], [Path.MOVETO, Path.LINETO]),
+    # a point
+    Path([[1, 2]], [Path.MOVETO]),
+]
+
+
+_test_path_extents = [(0., 0., 0.75, 1.), (0., 0., 1., 0.5), (0., 1., 1., 1.),
+                      (1., 2., 1., 2.)]
+
+
+@pytest.mark.parametrize('path, extents', zip(_test_paths, _test_path_extents))
+def test_exact_extents(path, extents):
+    # notice that if we just looked at the control points to get the bounding
+    # box of each curve, we would get the wrong answers. For example, for
+    # hard_curve = Path([[0, 0], [1, 0], [1, 1], [0, 1]],
+    #                   [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4])
+    # we would get that the extents area (0, 0, 1, 1). This code takes into
+    # account the curved part of the path, which does not typically extend all
+    # the way out to the control points.
+    # Note that counterintuitively, path.get_extents() returns a Bbox, so we
+    # have to get that Bbox's `.extents`.
+    assert np.all(path.get_extents().extents == extents)
+
+
 def test_point_in_path_nan():
     box = np.array([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]])
     p = Path(box)
