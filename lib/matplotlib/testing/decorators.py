@@ -5,6 +5,7 @@ import inspect
 import os
 from pathlib import Path
 import shutil
+import string
 import sys
 import unittest
 import warnings
@@ -17,7 +18,7 @@ from matplotlib import cbook
 from matplotlib import ft2font
 from matplotlib import pyplot as plt
 from matplotlib import ticker
-from . import is_called_from_pytest
+
 from .compare import comparable_formats, compare_images, make_test_filename
 from .exceptions import ImageComparisonFailure
 
@@ -381,34 +382,50 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
             fig_test.subplots().plot([1, 3, 5])
             fig_ref.subplots().plot([0, 1, 2], [1, 3, 5])
     """
-    POSITIONAL_OR_KEYWORD = inspect.Parameter.POSITIONAL_OR_KEYWORD
+    ALLOWED_CHARS = set(string.digits + string.ascii_letters + '_-[]()')
+    KEYWORD_ONLY = inspect.Parameter.KEYWORD_ONLY
     def decorator(func):
         import pytest
 
         _, result_dir = _image_directories(func)
+        old_sig = inspect.signature(func)
 
         @pytest.mark.parametrize("ext", extensions)
-        def wrapper(*args, ext, **kwargs):
-            fig_test = plt.figure("test")
-            fig_ref = plt.figure("reference")
-            func(*args, fig_test=fig_test, fig_ref=fig_ref, **kwargs)
-            test_image_path = result_dir / (func.__name__ + "." + ext)
-            ref_image_path = result_dir / (
-                func.__name__ + "-expected." + ext
-            )
-            fig_test.savefig(test_image_path)
-            fig_ref.savefig(ref_image_path)
-            _raise_on_image_difference(
-                ref_image_path, test_image_path, tol=tol
-            )
+        def wrapper(*args, **kwargs):
+            ext = kwargs['ext']
+            if 'ext' not in old_sig.parameters:
+                kwargs.pop('ext')
+            request = kwargs['request']
+            if 'request' not in old_sig.parameters:
+                kwargs.pop('request')
 
-        sig = inspect.signature(func)
-        new_sig = sig.replace(
-            parameters=([param
-                         for param in sig.parameters.values()
-                         if param.name not in {"fig_test", "fig_ref"}]
-                        + [inspect.Parameter("ext", POSITIONAL_OR_KEYWORD)])
-        )
+            file_name = "".join(c for c in request.node.name
+                                if c in ALLOWED_CHARS)
+            try:
+                fig_test = plt.figure("test")
+                fig_ref = plt.figure("reference")
+                func(*args, fig_test=fig_test, fig_ref=fig_ref, **kwargs)
+                test_image_path = result_dir / (file_name + "." + ext)
+                ref_image_path = result_dir / (file_name + "-expected." + ext)
+                fig_test.savefig(test_image_path)
+                fig_ref.savefig(ref_image_path)
+                _raise_on_image_difference(
+                    ref_image_path, test_image_path, tol=tol
+                )
+            finally:
+                plt.close(fig_test)
+                plt.close(fig_ref)
+
+        parameters = [
+            param
+            for param in old_sig.parameters.values()
+            if param.name not in {"fig_test", "fig_ref"}
+        ]
+        if 'ext' not in old_sig.parameters:
+            parameters += [inspect.Parameter("ext", KEYWORD_ONLY)]
+        if 'request' not in old_sig.parameters:
+            parameters += [inspect.Parameter("request", KEYWORD_ONLY)]
+        new_sig = old_sig.replace(parameters=parameters)
         wrapper.__signature__ = new_sig
 
         # reach a bit into pytest internals to hoist the marks from
