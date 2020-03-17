@@ -1932,36 +1932,43 @@ with cbook._suppress_matplotlib_deprecation_warning():
 # Some convenient ways to get common kinds of glue
 
 
+@cbook.deprecated("3.3", alternative="Glue('fil')")
 class Fil(Glue):
     def __init__(self):
         Glue.__init__(self, 'fil')
 
 
+@cbook.deprecated("3.3", alternative="Glue('fill')")
 class Fill(Glue):
     def __init__(self):
         Glue.__init__(self, 'fill')
 
 
+@cbook.deprecated("3.3", alternative="Glue('filll')")
 class Filll(Glue):
     def __init__(self):
         Glue.__init__(self, 'filll')
 
 
+@cbook.deprecated("3.3", alternative="Glue('neg_fil')")
 class NegFil(Glue):
     def __init__(self):
         Glue.__init__(self, 'neg_fil')
 
 
+@cbook.deprecated("3.3", alternative="Glue('neg_fill')")
 class NegFill(Glue):
     def __init__(self):
         Glue.__init__(self, 'neg_fill')
 
 
+@cbook.deprecated("3.3", alternative="Glue('neg_filll')")
 class NegFilll(Glue):
     def __init__(self):
         Glue.__init__(self, 'neg_filll')
 
 
+@cbook.deprecated("3.3", alternative="Glue('ss')")
 class SsGlue(Glue):
     def __init__(self):
         Glue.__init__(self, 'ss')
@@ -1974,8 +1981,7 @@ class HCentered(Hlist):
     """
 
     def __init__(self, elements):
-        Hlist.__init__(self, [SsGlue()] + elements + [SsGlue()],
-                       do_kern=False)
+        super().__init__([Glue('ss'), *elements, Glue('ss')], do_kern=False)
 
 
 class VCentered(Hlist):
@@ -1985,7 +1991,7 @@ class VCentered(Hlist):
     """
 
     def __init__(self, elements):
-        Vlist.__init__(self, [SsGlue()] + elements + [SsGlue()])
+        super().__init__([Glue('ss'), *elements, Glue('ss')])
 
 
 class Kern(Node):
@@ -3216,12 +3222,8 @@ class Parser:
         depth = check.depth + check.shift_amount
 
         # Put a little extra space to the left and right of the body
-        padded_body = Hlist([Hbox(thickness * 2.0),
-                             body,
-                             Hbox(thickness * 2.0)])
-        rightside = Vlist([Hrule(state),
-                           Fill(),
-                           padded_body])
+        padded_body = Hlist([Hbox(2 * thickness), body, Hbox(2 * thickness)])
+        rightside = Vlist([Hrule(state), Glue('fill'), padded_body])
         # Stretch the glue between the hrule and the body
         rightside.vpack(height + (state.fontsize * state.dpi) / (100.0 * 12.0),
                         'exactly', depth)
@@ -3259,9 +3261,7 @@ class Parser:
         depth = body.depth + body.shift_amount
 
         # Place overline above body
-        rightside = Vlist([Hrule(state),
-                           Fill(),
-                           Hlist([body])])
+        rightside = Vlist([Hrule(state), Glue('fill'), Hlist([body])])
 
         # Stretch the glue between the hrule and the body
         rightside.vpack(height + (state.fontsize * state.dpi) / (100.0 * 12.0),
