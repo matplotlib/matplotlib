@@ -274,7 +274,7 @@ class Legend(Artist):
              'lower left':   3,
              'southwest':    3,
              'lower right':  4,
-             'southwest':    4,
+             'southeast':    4,
              'right':        5,
              'center left':  6,
              'west':         6,
