@@ -1007,7 +1007,7 @@ class FigureFrameWx(wx.Frame):
         _log.debug("%s - onClose()", type(self))
         self.canvas.close_event()
         self.canvas.stop_event_loop()
-        Gcf.destroy(self.num)
+        Gcf.destroy(self)
         # self.Destroy()
 
     def GetToolBar(self):
