@@ -232,10 +232,11 @@ deprecated. Use an explicit list instead.
 
 Scales
 ~~~~~~
-Passing unsupported keyword arguments to `.ScaleBase` and its subclasses
-`.LinearScale`, and `.SymLogScale` is deprecated and will raise a `TypeError` in 3.3.
+Passing unsupported keyword arguments to `.ScaleBase`, and its subclasses
+`.LinearScale` and `.SymmetricalLogScale`, is deprecated and will raise a
+`TypeError` in 3.3.
 
-If extra kwargs are passed to `.LogScale`, `TypeError` will now be
+If extra keyword arguments are passed to `.LogScale`, `TypeError` will now be
 raised instead of `ValueError`.
 
 Testing

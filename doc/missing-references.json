@@ -933,9 +933,6 @@
     "Locator.view_limits()": [
       "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:113"
     ],
-    "SymLogScale": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:224"
-    ],
     "GraphicsContextBase": [
       "lib/matplotlib/backends/backend_agg.py:docstring of matplotlib.backends.backend_agg.RendererAgg.draw_text:8",
       "lib/matplotlib/backends/backend_cairo.py:docstring of matplotlib.backends.backend_cairo.RendererCairo.draw_image:8",
