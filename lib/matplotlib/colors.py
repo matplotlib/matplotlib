@@ -1209,19 +1209,27 @@ class SymLogNorm(Normalize):
         linthresh : float
             The range within which the plot is linear (to avoid having the plot
             go to infinity around zero).
+
         linscale : float, default: 1
-            This allows the linear range (-*linthresh* to *linthresh*) to be
-            stretched relative to the logarithmic range. Its value is the
-            number of powers of *base* (decades for base 10) to use for each
-            half of the linear range. For example, when *linscale* == 1.0
-            (the default), the space used for the positive and negative halves
-            of the linear range will be equal to a decade in the logarithmic
-            range if ``base=10``.
+            This allows the linear range (-*linthresh* to *linthresh*)
+            to be stretched relative to the logarithmic range. Its
+            value is the number of powers of *base* to use for each
+            half of the linear range.
+
+            For example, when *linscale* == 1.0 (the default) and
+            ``base=10``, then space used for the positive and negative
+            halves of the linear range will be equal to a decade in
+            the logarithmic.
+
         base : float, default: None
-            For v3.2 the default is the old value of ``np.e``, but that is
-            deprecated for v3.3 when base will default to 10.  During the
-            transition, specify the *base* kwarg to avoid a deprecation
-            warning.
+            If not given, defaults to ``np.e`` (consistent with prior
+            behavior) and warns.
+
+            In v3.3 the default value will change to 10 to be consistent with
+            `.SymLogNorm`.
+
+            To suppress the warning pass *base* as a keyword argument.
+
         """
         Normalize.__init__(self, vmin, vmax, clip)
         if base is None:

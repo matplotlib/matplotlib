@@ -5,10 +5,10 @@ import inspect
 import os
 from pathlib import Path
 import shutil
+import string
 import sys
 import unittest
 import warnings
-import string
 
 import matplotlib as mpl
 import matplotlib.style
