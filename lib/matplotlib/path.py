@@ -325,12 +325,13 @@ class Path:
 
     @classmethod
     def make_compound_path(cls, *args):
-        """Make a compound path from a list of Path objects."""
+        """
+        Make a compound path from a list of Path objects. Blindly removes all
+        Path.STOP control points.
+        """
         # Handle an empty list in args (i.e. no args).
         if not args:
             return Path(np.empty([0, 2], dtype=np.float32))
-
-        # concatenate paths
         vertices = np.concatenate([x.vertices for x in args])
         codes = np.empty(len(vertices), dtype=cls.code_type)
         i = 0
@@ -341,16 +342,10 @@ class Path:
             else:
                 codes[i:i + len(path.codes)] = path.codes
             i += len(path.vertices)
-
-        # remove internal STOP's, replace kinal stop if present
-        last_vert = None
-        if codes.size > 0 and codes[-1] == cls.STOP:
-            last_vert = vertices[-1]
-        vertices = vertices[codes != cls.STOP, :]
-        codes = codes[codes != cls.STOP]
-        if last_vert is not None:
-            vertices = np.append(vertices, [last_vert], axis=0)
-            codes = np.append(codes, cls.STOP)
+        # remove STOP's, since internal STOPs are a bug
+        not_stop_mask = codes != cls.STOP
+        vertices = vertices[not_stop_mask, :]
+        codes = codes[not_stop_mask]
 
         return cls(vertices, codes)
 
