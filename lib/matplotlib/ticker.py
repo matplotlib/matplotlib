@@ -834,8 +834,8 @@ class LogFormatter(Formatter):
 
     To label all minor ticks when the view limits span up to 1.5
     decades, use ``minor_thresholds=(1.5, 1.5)``.
-
     """
+
     def __init__(self, base=10.0, labelOnlyBase=False,
                  minor_thresholds=None,
                  linthresh=None):
@@ -857,7 +857,6 @@ class LogFormatter(Formatter):
 
         .. warning::
            Should always match the base used for :class:`LogLocator`
-
         """
         self._base = base
 
@@ -869,7 +868,6 @@ class LogFormatter(Formatter):
         ----------
         labelOnlyBase : bool
             If True, label ticks only at integer powers of base.
-
         """
         self.labelOnlyBase = labelOnlyBase
 
@@ -878,7 +876,6 @@ class LogFormatter(Formatter):
         Use axis view limits to control which ticks are labeled.
 
         The *locs* parameter is ignored in the present algorithm.
-
         """
         if np.isinf(self.minor_thresholds[0]):
             self._sublabels = None
@@ -943,9 +940,7 @@ class LogFormatter(Formatter):
         return s
 
     def __call__(self, x, pos=None):
-        """
-        Return the format for tick val *x*.
-        """
+        # docstring inherited
         if x == 0.0:  # Symlog
             return '0'
 
@@ -968,11 +963,8 @@ class LogFormatter(Formatter):
         return s
 
     def format_data(self, value):
-        b = self.labelOnlyBase
-        self.labelOnlyBase = False
-        value = cbook.strip_math(self.__call__(value))
-        self.labelOnlyBase = b
-        return value
+        with cbook._setattr_cm(self, labelOnlyBase=False):
+            return cbook.strip_math(self.__call__(value))
 
     def format_data_short(self, value):
         # docstring inherited
@@ -1027,11 +1019,7 @@ class LogFormatterMathtext(LogFormatter):
         return r'$\mathdefault{%s%s^{%.2f}}$' % (sign_string, base, fx)
 
     def __call__(self, x, pos=None):
-        """
-        Return the format for tick value *x*.
-
-        The position *pos* is ignored.
-        """
+        # docstring inherited
         usetex = mpl.rcParams['text.usetex']
         min_exp = mpl.rcParams['axes.formatter.min_exponent']
 
@@ -1271,11 +1259,8 @@ class LogitFormatter(Formatter):
         return r"$\mathdefault{%s}$" % s
 
     def format_data_short(self, value):
-        """
-        Return a short formatted string representation of a number.
-        """
-        # thresholds choosen for use scienfic notation if and only if exponent
-        # is less or equal than -2.
+        # docstring inherited
+        # Thresholds chosen to use scientific notation iff exponent <= -2.
         if value < 0.1:
             return "{:e}".format(value)
         if value < 0.9:
