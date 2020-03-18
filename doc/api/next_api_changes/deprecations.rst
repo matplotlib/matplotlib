@@ -364,3 +364,9 @@ and ``funchspace`` methods of `.widgets.SubplotTool` are deprecated.
 The ``axleft``, ``axright``, ``axbottom``, ``axtop``, ``axwspace``, and
 ``axhspace`` attributes of `.widgets.SubplotTool` are deprecated.  Access the
 ``ax`` attribute of the corresponding slider, if needed.
+
+mathtext ``Glue`` helper classes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``Fil``, ``Fill``, ``Filll``, ``NegFil``, ``NegFill``, ``NegFilll``, and
+``SsGlue`` classes in the :mod:`matplotlib.mathtext` module are deprecated.
+As an alternative, directly construct glue instances with ``Glue("fil")``, etc.
