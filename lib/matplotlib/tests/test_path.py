@@ -147,6 +147,13 @@ def test_make_compound_path_empty():
     assert r.vertices.shape == (0, 2)
 
 
+def test_make_compound_path_stops():
+    zero = [0, 0]
+    paths = 3*[Path([zero, zero], [Path.MOVETO, Path.STOP])]
+    compound_path = Path.make_compound_path(*paths)
+    assert np.sum(compound_path.codes == Path.STOP) == 1
+
+
 @image_comparison(['xkcd.png'], remove_text=True)
 def test_xkcd():
     np.random.seed(0)
