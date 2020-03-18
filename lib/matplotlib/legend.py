@@ -97,11 +97,13 @@ loc : str or pair of floats, default: :rc:`legend.loc` ('best' for axes, \
     The location of the legend.
 
     The strings
-    ``'upper left', 'upper right', 'lower left', 'lower right'``
+    ``'upper left', 'upper right', 'lower left', 'lower right',
+    'northwest', 'northeast', 'southwest', 'southeast'``
     place the legend at the corresponding corner of the axes/figure.
 
     The strings
-    ``'upper center', 'lower center', 'center left', 'center right'``
+    ``'upper center', 'lower center', 'center left', 'center right',
+    'north', 'south', 'west', 'east'``
     place the legend at the center of the corresponding edge of the
     axes/figure.
 
@@ -120,21 +122,21 @@ loc : str or pair of floats, default: :rc:`legend.loc` ('best' for axes, \
     be spelled ``'right'``, and each "string" locations can also be given as a
     numeric value:
 
-        ===============   =============
-        Location String   Location Code
-        ===============   =============
-        'best'            0
-        'upper right'     1
-        'upper left'      2
-        'lower left'      3
-        'lower right'     4
-        'right'           5
-        'center left'     6
-        'center right'    7
-        'lower center'    8
-        'upper center'    9
-        'center'          10
-        ===============   =============
+        ==========================   =============
+        Location String              Location Code
+        ==========================   =============
+        'best'                       0
+        'upper right', 'northeast'   1
+        'upper left', 'northwest'    2
+        'lower left', 'southwest'    3
+        'lower right', 'southeast'   4
+        'right'                      5
+        'center left', 'west'        6
+        'center right', 'east'       7
+        'lower center', 'south'      8
+        'upper center', 'north'      9
+        'center'                     10
+        ==========================   =============
 
 bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
     Box that is used to position the legend in conjunction with *loc*.
@@ -266,14 +268,22 @@ class Legend(Artist):
     """
     codes = {'best':         0,  # only implemented for axes legends
              'upper right':  1,
+             'northeast':    1,
              'upper left':   2,
+             'northwest':    2,
              'lower left':   3,
+             'southwest':    3,
              'lower right':  4,
+             'southwest':    4,
              'right':        5,
              'center left':  6,
+             'west':         6,
              'center right': 7,
+             'east':         7,
              'lower center': 8,
+             'south':        8,
              'upper center': 9,
+             'north':        9,
              'center':       10,
              }
 
