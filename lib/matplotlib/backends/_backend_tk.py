@@ -583,16 +583,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         s.pack(side=tk.LEFT, padx=5)
         return s
 
-    def configure_subplots(self):
-        toolfig = Figure(figsize=(6, 3))
-        window = tk.Toplevel()
-        canvas = type(self.canvas)(toolfig, master=window)
-        toolfig.subplots_adjust(top=0.9)
-        canvas.tool = SubplotTool(self.canvas.figure, toolfig)
-        canvas.draw()
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-        window.grab_set()
-
     def save_figure(self, *args):
         filetypes = self.canvas.get_supported_filetypes().copy()
         default_filetype = self.canvas.get_default_filetype()

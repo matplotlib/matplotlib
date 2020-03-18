@@ -3245,6 +3245,11 @@ class NavigationToolbar2:
             ax._set_position(pos_active, 'active')
         self.canvas.draw_idle()
 
+    def configure_subplots(self, *args):
+        from matplotlib import pyplot as plt
+        tool = plt.subplot_tool(self.canvas.figure)
+        tool.figure.canvas.manager.show()
+
     def save_figure(self, *args):
         """Save the current figure."""
         raise NotImplementedError
