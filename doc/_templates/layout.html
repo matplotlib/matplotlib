@@ -5,6 +5,7 @@
         <li><a href="{{ pathto('contents') }}">contents</a> &raquo;</li>
 {%- endblock %}
 
+
 {%- block relbar1 %}{{ relbar() }}{% endblock %}
 {%- block relbar2 %}{% endblock %}
 
@@ -27,7 +28,25 @@
         Try searching for the released version of this page instead?
     </a>
 </div>
+
 {%- endif %}
+
+
+<div id="annc-banner">
+  <p>Matplotlib is partcipating in GSOC 2020!
+  <a href="https://discourse.matplotlib.org/t/gsoc-due-march-31-18-00utc/20975"> See discourse for details.
+  </a>
+  Apply by March 31, 2020.</p>
+</div>
+
+<div id="annc-banner">
+  <p>John Hunter Excellence in Plotting Contest 2020
+  <a href="https://jhepc.github.io/about.html"> submissions are open!
+  </a>
+  Entries are due June 1, 2020.</p>
+</div>
+
+
 <div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px; position: relative;">
     {%- if builder in ('htmlhelp', 'devhelp', 'latex') %}
     <a href="{{ pathto('index') }}">
