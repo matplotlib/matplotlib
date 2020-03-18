@@ -7,11 +7,11 @@ GitHub stats for 2020/03/03 - 2020/03/17 (tag: v3.2.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 12 issues and merged 54 pull requests.
+We closed 11 issues and merged 52 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/49?closed=1>`__
 and `on GitHub <https://github.com/matplotlib/matplotlib/milestone/51?closed=1>`__
 
-The following 13 authors contributed 158 commits.
+The following 12 authors contributed 154 commits.
 
 * Amy Roberts
 * Antony Lee
@@ -23,13 +23,12 @@ The following 13 authors contributed 158 commits.
 * MarcoGorelli
 * Maximilian Nöthe
 * Sandro Tosi
-* terrycojones
 * Thomas A Caswell
 * Tim Hoffmann
 
 GitHub issues and pull requests:
 
-Pull Requests (54):
+Pull Requests (52):
 
 * :ghpull:`15199`: MNT/TST: generalize check_figures_equal to work with pytest.marks
 * :ghpull:`15685`: Avoid a RuntimeError at animation shutdown with PySide2.
@@ -49,13 +48,11 @@ Pull Requests (54):
 * :ghpull:`16690`: Backport PR #16682 on branch v3.2.x (Avoid floating point rounding causing bezier.get_parallels to fail)
 * :ghpull:`16693`: TST: use pytest name in naming files for check_figures_equal
 * :ghpull:`16695`: Restart pgf's latex instance after bad latex inputs.
-* :ghpull:`16703`: Use ASCII hyphen in README.rst to prevent setup.py from raising UnicodeDecodeError when reading that file to set long_description
 * :ghpull:`16705`: Backport PR #16656 on branch v3.2.x (Make test_imagegrid_cbar_mode_edge less flaky.)
 * :ghpull:`16708`: Backport PR #16671: Fix some readme bits
 * :ghpull:`16709`: Fix saving PNGs to file objects in some places
 * :ghpull:`16722`: Deprecate rcParams["datapath"] in favor of mpl.get_data_path().
 * :ghpull:`16725`: TST/CI: also try to run test_user_fonts_win32 on azure
-* :ghpull:`16732`: Fix pgf+bbox_inches=tight combo
 * :ghpull:`16734`: Disable draw_foo methods on renderer used to estimate tight extents.
 * :ghpull:`16735`: Make test_stem less flaky.
 * :ghpull:`16736`: xpdf: Set AutoRotatePages to None, not false.
@@ -86,7 +83,7 @@ Pull Requests (54):
 * :ghpull:`16806`: Backport PR #16803 on branch v3.2.0-doc (Fix some doc issues)
 * :ghpull:`16809`: Backport PR #16779 on branch v3.2.0-doc (Documentation: make instructions for documentation contributions easier to find, add to requirements for building docs)
 
-Issues (12):
+Issues (11):
 
 * :ghissue:`12820`: [Annotations] ValueError: lines do not intersect when computing tight bounding box containing arrow with filled paths
 * :ghissue:`16538`: xpdf distiller seems broken
@@ -97,7 +94,6 @@ Issues (12):
 * :ghissue:`16704`: 3.2.0: ``setup.py clean`` fails with ``NameError: name 'long_description' is not defined``
 * :ghissue:`16721`: nbAgg backend does not allow saving figures as png
 * :ghissue:`16731`: PGF backend + savefig.bbox results in I/O error in 3.2
-* :ghissue:`16739`: a length check fails (_axes.py @ 4386): new to 3.2.0; not present in 3.1.3
 * :ghissue:`16743`: Breaking change in 3.2: quiver.set_UVC does not support single numbers any more
 * :ghissue:`16801`: Doc: figure for colormaps off
 
