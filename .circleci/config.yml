@@ -27,33 +27,21 @@ apt-run:  &apt-install
       graphviz \
       libgeos-dev \
       fonts-crosextra-carlito \
-      fonts-freefont-otf
+      fonts-freefont-otf \
+      fonts-humor-sans
 
 fonts-run:  &fonts-install
   name: Install custom fonts
-  # We manually install Humor-Sans using the package from Ubuntu 14.10.
-  # Unfortunately humor sans is not available in the Ubuntu version used by
-  # CircleCI but we can manually install the deb from a later version since
-  # it is basically just a .ttf file.
   command: |
     mkdir -p ~/.local/share/fonts
     wget -nc https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O ~/.local/share/fonts/Felipa-Regular.ttf || true
-    if [ ! -f ~/.local/share/fonts/Humor-Sans.ttf ]; then
-      wget http://http.us.debian.org/debian/pool/main/f/fonts-humor-sans/fonts-humor-sans_1.0-3_all.deb
-      mkdir tmp
-      dpkg -x fonts-humor-sans_1.0-3_all.deb tmp
-      cp tmp/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf ~/.local/share/fonts
-      rm -rf tmp
-    else
-      echo "Not downloading Humor-Sans; file already exists."
-    fi
     fc-cache -f -v
   save_cache:
-    key: fonts-1
+    key: fonts-2
     paths:
       - ~/.local/share/fonts/
   restore_cache:
-    key: fonts-1
+    key: fonts-2
 
 pip-run:  &pip-install
   # Upgrade pip and setuptools and wheel to get as clean an install as possible
