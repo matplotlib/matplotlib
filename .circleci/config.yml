@@ -11,8 +11,8 @@ version: 2.1
 apt-run:  &apt-install
   name: Install apt packages
   command: |
-    sudo apt-get -qq update
-    sudo apt-get install -y \
+    sudo apt -qq update
+    sudo apt install -y \
       inkscape \
       ffmpeg \
       dvipng \
