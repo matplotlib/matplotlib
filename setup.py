@@ -3,24 +3,8 @@ The matplotlib build options can be modified with a setup.cfg file. See
 setup.cfg.template for more information.
 """
 
-# NOTE: This file must remain Python 2 compatible for the foreseeable future,
-# to ensure that we error out properly for people with outdated setuptools
-# and/or pip.
-import sys
-
-min_version = (3, 6)
-
-if sys.version_info < min_version:
-    error = """
-Beginning with Matplotlib 3.1, Python {0} or above is required.
-
-This may be due to an out of date pip.
-
-Make sure you have pip >= 9.0.1.
-""".format('.'.join(str(n) for n in min_version)),
-    sys.exit(error)
-
 from pathlib import Path
+import sys
 import shutil
 from zipfile import ZipFile
 
@@ -256,7 +240,7 @@ if __name__ == '__main__':
         package_data=package_data,
         classifiers=classifiers,
 
-        python_requires='>={}'.format('.'.join(str(n) for n in min_version)),
+        python_requires=">=3.6",
         setup_requires=[
             "numpy>=1.15",
         ],
