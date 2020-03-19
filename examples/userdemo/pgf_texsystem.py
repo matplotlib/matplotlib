@@ -8,11 +8,11 @@ Pgf Texsystem
 import matplotlib.pyplot as plt
 plt.rcParams.update({
     "pgf.texsystem": "pdflatex",
-    "pgf.preamble": [
+    "pgf.preamble": "\n".join([
          r"\usepackage[utf8x]{inputenc}",
          r"\usepackage[T1]{fontenc}",
          r"\usepackage{cmbright}",
-         ]
+    ]),
 })
 
 plt.figure(figsize=(4.5, 2.5))

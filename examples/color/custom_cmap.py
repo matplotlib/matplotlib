@@ -155,7 +155,7 @@ cdict4 = {**cdict3,
 
 
 ###############################################################################
-# Now we will use this example to illustrate 3 ways of
+# Now we will use this example to illustrate 2 ways of
 # handling custom colormaps.
 # First, the most direct and explicit:
 
@@ -170,12 +170,8 @@ blue_red1 = LinearSegmentedColormap('BlueRed1', cdict1)
 blue_red2 = LinearSegmentedColormap('BlueRed2', cdict2)
 plt.register_cmap(cmap=blue_red2)
 
-###############################################################################
-# Third, for LinearSegmentedColormap only,
-# leave everything to register_cmap:
-
-plt.register_cmap(name='BlueRed3', data=cdict3)  # optional lut kwarg
-plt.register_cmap(name='BlueRedAlpha', data=cdict4)
+plt.register_cmap(cmap=LinearSegmentedColormap('BlueRed3', cdict3))
+plt.register_cmap(cmap=LinearSegmentedColormap('BlueRedAlpha', cdict4))
 
 ###############################################################################
 # Make the figure:
