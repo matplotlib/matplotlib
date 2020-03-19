@@ -93,7 +93,7 @@ def _setup_pyqt4():
 
     def _setup_pyqt4_internal(api):
         global QtCore, QtGui, QtWidgets, \
-            __version__, is_pyqt5, _getSaveFileName
+            __version__, is_pyqt5, _isdeleted, _getSaveFileName
         # List of incompatible APIs:
         # http://pyqt.sourceforge.net/Docs/PyQt4/incompatible_apis.html
         _sip_apis = ["QDate", "QDateTime", "QString", "QTextStream", "QTime",
