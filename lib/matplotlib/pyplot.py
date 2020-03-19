@@ -690,7 +690,7 @@ def close(fig=None):
         if figManager is None:
             return
         else:
-            _pylab_helpers.Gcf.destroy(figManager.num)
+            _pylab_helpers.Gcf.destroy(figManager)
     elif fig == 'all':
         _pylab_helpers.Gcf.destroy_all()
     elif isinstance(fig, int):

@@ -231,7 +231,7 @@ class _BackendNbAgg(_Backend):
         if is_interactive():
             manager.show()
             figure.canvas.draw_idle()
-        canvas.mpl_connect('close_event', lambda event: Gcf.destroy(num))
+        canvas.mpl_connect('close_event', lambda event: Gcf.destroy(manager))
         return manager
 
     @staticmethod

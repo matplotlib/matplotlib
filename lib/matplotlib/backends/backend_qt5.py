@@ -590,7 +590,7 @@ class FigureManagerQT(FigureManagerBase):
             return
         self.window._destroying = True
         try:
-            Gcf.destroy(self.num)
+            Gcf.destroy(self)
         except AttributeError:
             pass
             # It seems that when the python session is killed,
