@@ -25,7 +25,6 @@ apt-run:  &apt-install
       texlive-pictures \
       texlive-xetex \
       graphviz \
-      libgeos-dev \
       fonts-crosextra-carlito \
       fonts-freefont-otf \
       fonts-humor-sans

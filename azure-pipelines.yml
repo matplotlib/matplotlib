@@ -69,7 +69,6 @@ steps:
         graphviz \
         inkscape \
         libcairo2 \
-        libgeos-dev \
         libgirepository-1.0.1 \
         lmodern \
         fonts-freefont-otf \
