@@ -306,18 +306,15 @@ class QuiverKey(martist.Artist):
             if not self.Q._initialized:
                 self.Q._init()
             self._set_transform()
-            _pivot = self.Q.pivot
-            self.Q.pivot = self.pivot[self.labelpos]
-            # Hack: save and restore the Umask
-            _mask = self.Q.Umask
-            self.Q.Umask = ma.nomask
-            u = self.U * np.cos(np.radians(self.angle))
-            v = self.U * np.sin(np.radians(self.angle))
-            angle = self.Q.angles if isinstance(self.Q.angles, str) else 'uv'
-            self.verts = self.Q._make_verts(
-                np.array([u]), np.array([v]), angle)
-            self.Q.Umask = _mask
-            self.Q.pivot = _pivot
+            with cbook._setattr_cm(self.Q, pivot=self.pivot[self.labelpos],
+                                   # Hack: save and restore the Umask
+                                   Umask=ma.nomask):
+                u = self.U * np.cos(np.radians(self.angle))
+                v = self.U * np.sin(np.radians(self.angle))
+                angle = (self.Q.angles if isinstance(self.Q.angles, str)
+                         else 'uv')
+                self.verts = self.Q._make_verts(
+                    np.array([u]), np.array([v]), angle)
             kw = self.Q.polykw
             kw.update(self.kw)
             self.vector = mcollections.PolyCollection(
