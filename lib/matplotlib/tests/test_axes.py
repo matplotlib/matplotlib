@@ -3992,57 +3992,22 @@ def test_hlines():
     ax5.set_ylim(0, 15)
 
 
-def generate_lines_with_colors_inputs():
-    colors = ['red', 'green', 'blue', 'purple', 'orange']
-    xy_nan = [1, 2, 3, np.nan, 5]
-    xy_mask = np.ma.masked_equal([1, 2, 3, 4, 5], 4)
-    lines_nan = [{'base_xy': xy_nan,
-                    'base_max': np.ones(5),
-                    'base_min': [0],
-                    'linewidth': 5,
-                    'colors': colors}]
-    lines_mask = [{'base_xy': xy_mask,
-                    'base_max': np.ones(5),
-                    'base_min': [0],
-                    'linewidth': 5,
-                    'colors': colors}]
-
-    return [*lines_nan, *lines_mask]
-
-
-@pytest.mark.parametrize('kwargs', generate_lines_with_colors_inputs())
+@pytest.mark.parametrize('data', [[1, 2, 3, np.nan, 5],
+                                  np.ma.masked_equal([1, 2, 3, 4, 5], 4)])
 @check_figures_equal(extensions=["png"])
-def test_vlines_with_colors(fig_test, fig_ref, kwargs):
-    kwargs['x'] = kwargs.pop('base_xy')
-    kwargs['ymin'] = kwargs.pop('base_min')
-    kwargs['ymax'] = kwargs.pop('base_max')
-    fig_test.subplots().vlines(**kwargs)
+def test_lines_with_colors(fig_test, fig_ref, data):
+    test_colors = ['red', 'green', 'blue', 'purple', 'orange']
+    fig_test.add_subplot(2, 1, 1).vlines(data, 0, 1,
+                                         colors=test_colors, linewidth=5)
+    fig_test.add_subplot(2, 1, 2).hlines(data, 0, 1,
+                                         colors=test_colors, linewidth=5)
 
-    expect = {
-    'x': [1, 2, 3, 5],
-    'ymin': [0],
-    'ymax': np.ones(4),
-    'colors': ['red', 'green', 'blue', 'orange'],
-    'linewidth': 5}
-    fig_ref.subplots().vlines(**expect)
-
-
-@pytest.mark.parametrize('kwargs', generate_lines_with_colors_inputs())
-@check_figures_equal(extensions=["png"])
-def test_hlines_with_colors(fig_test, fig_ref, kwargs):
-    kwargs['y'] = kwargs.pop('base_xy')
-    kwargs['xmin'] = kwargs.pop('base_min')
-    kwargs['xmax'] = kwargs.pop('base_max')
-    fig_test.subplots().hlines(**kwargs)
-
-    expect = {
-    'y': [1, 2, 3, 5],
-    'xmin': [0],
-    'xmax': np.ones(4),
-    'colors': ['red', 'green', 'blue', 'orange'],
-    'linewidth': 5}
-
-    fig_ref.subplots().hlines(**expect)
+    expect_xy = [1, 2, 3, 5]
+    expect_color = ['red', 'green', 'blue', 'orange']
+    fig_ref.add_subplot(2, 1, 1).vlines(expect_xy, 0, 1,
+                                        colors=expect_color, linewidth=5)
+    fig_ref.add_subplot(2, 1, 2).hlines(expect_xy, 0, 1,
+                                        colors=expect_color, linewidth=5)
 
 
 @image_comparison(['step_linestyle', 'step_linestyle'], remove_text=True)
