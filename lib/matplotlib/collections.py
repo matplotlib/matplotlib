@@ -350,7 +350,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # (https://github.com/matplotlib/matplotlib/issues/16496)
         # This should be fixed eventually, but for now don't use the optimized
         # code path if some of the offsets are non-zero
-        if not np.all(offsets == 0) and self._offset_position == 'data':
+        if np.any(offsets != 0) and self._offset_position == 'data':
             do_single_path_optimization = False
 
         if self._joinstyle:
