@@ -25,7 +25,7 @@ All Releases
 Testing
 -------
 
-We use `travis-ci <https://travis-ci.org/matplotlib/matplotlib>`__ for
+We use `Travis CI <https://travis-ci.org/matplotlib/matplotlib>`__ for
 continuous integration.  When preparing for a release, the final
 tagged commit should be tested locally before it is uploaded::
 

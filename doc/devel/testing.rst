@@ -194,7 +194,7 @@ are in ``test_mathtext.py``.
 Using Travis CI
 ---------------
 
-`Travis CI <https://travis-ci.org/>`_ is a hosted CI system "in the
+`Travis CI <https://travis-ci.com/>`_ is a hosted CI system "in the
 cloud".
 
 Travis is configured to receive notifications of new commits to GitHub
@@ -206,7 +206,7 @@ project.
 Travis CI is already enabled for the `main Matplotlib GitHub
 repository <https://github.com/matplotlib/matplotlib/>`_ -- for
 example, see `its Travis page
-<https://travis-ci.org/matplotlib/matplotlib>`_.
+<https://travis-ci.com/matplotlib/matplotlib>`_.
 
 If you want to enable Travis CI for your personal Matplotlib GitHub
 repo, simply enable the repo to use Travis CI in either the Travis CI
