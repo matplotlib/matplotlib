@@ -789,6 +789,14 @@ def axes(arg=None, **kwargs):
     label : str
         A label for the returned axes.
 
+    Returns
+    -------
+    axes : `~.axes.Axes` (or a subclass of `~.axes.Axes`)
+        The returned axes class depends on the projection used. It is
+        `~.axes.Axes` if rectilinear projection are used and
+        `.projections.polar.PolarAxes` if polar projection
+        are used.
+
     Other Parameters
     ----------------
     **kwargs
@@ -800,14 +808,6 @@ def axes(arg=None, **kwargs):
         class.
 
         %(Axes)s
-
-    Returns
-    -------
-    axes : `~.axes.Axes` (or a subclass of `~.axes.Axes`)
-        The returned axes class depends on the projection used. It is
-        `~.axes.Axes` if rectilinear projection are used and
-        `.projections.polar.PolarAxes` if polar projection
-        are used.
 
     Notes
     -----
@@ -914,17 +914,6 @@ def subplot(*args, **kwargs):
     label : str
         A label for the returned axes.
 
-    Other Parameters
-    ----------------
-    **kwargs
-        This method also takes the keyword arguments for the returned axes
-        base class; except for the *figure* argument. The keyword arguments
-        for the rectilinear base class `~.axes.Axes` can be found in
-        the following table but there might also be other keyword
-        arguments if another projection is used.
-
-        %(Axes)s
-
     Returns
     -------
     axes : an `.axes.SubplotBase` subclass of `~.axes.Axes` (or a subclass \
@@ -935,6 +924,17 @@ def subplot(*args, **kwargs):
         are used and `.projections.polar.PolarAxes` if polar projection
         are used. The returned axes is then a subplot subclass of the
         base class.
+
+    Other Parameters
+    ----------------
+    **kwargs
+        This method also takes the keyword arguments for the returned axes
+        base class; except for the *figure* argument. The keyword arguments
+        for the rectilinear base class `~.axes.Axes` can be found in
+        the following table but there might also be other keyword
+        arguments if another projection is used.
+
+        %(Axes)s
 
     Notes
     -----

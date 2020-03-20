@@ -377,13 +377,13 @@ class Axes(_AxesBase):
             is shown in the legend and the automatic mechanism described above
             is not sufficient.
 
-        Other Parameters
-        ----------------
-        %(_legend_kw_doc)s
-
         Returns
         -------
         legend : `~matplotlib.legend.Legend`
+
+        Other Parameters
+        ----------------
+        %(_legend_kw_doc)s
 
         Notes
         -----
@@ -1572,6 +1572,11 @@ class Axes(_AxesBase):
                 You may suppress the warning by adding an empty format string
                 ``plot('n', 'o', '', data=obj)``.
 
+        Returns
+        -------
+        lines
+            A list of `.Line2D` objects representing the plotted data.
+
         Other Parameters
         ----------------
         scalex, scaley : bool, default: True
@@ -1592,11 +1597,6 @@ class Axes(_AxesBase):
             Here is a list of available `.Line2D` properties:
 
             %(_Line2D_docstr)s
-
-        Returns
-        -------
-        lines
-            A list of `.Line2D` objects representing the plotted data.
 
         See Also
         --------
@@ -2623,6 +2623,10 @@ class Axes(_AxesBase):
         yrange : (*ymin*, *yheight*)
             The y-position and extend for all the rectangles.
 
+        Returns
+        -------
+        collection : `~.collections.BrokenBarHCollection`
+
         Other Parameters
         ----------------
         **kwargs : `.BrokenBarHCollection` properties
@@ -2641,10 +2645,6 @@ class Axes(_AxesBase):
             Supported keywords:
 
             %(BrokenBarHCollection)s
-
-        Returns
-        -------
-        collection : `~.collections.BrokenBarHCollection`
         """
         # process the unit information
         if len(xranges):
@@ -3601,29 +3601,6 @@ class Axes(_AxesBase):
         zorder : scalar, default: None
             Sets the zorder of the boxplot.
 
-        Other Parameters
-        ----------------
-        showcaps : bool, default: True
-            Show the caps on the ends of whiskers.
-        showbox : bool, default: True
-            Show the central box.
-        showfliers : bool, default: True
-            Show the outliers beyond the caps.
-        showmeans : bool, default: False
-            Show the arithmetic means.
-        capprops : dict, default: None
-            The style of the caps.
-        boxprops : dict, default: None
-            The style of the box.
-        whiskerprops : dict, default: None
-            The style of the whiskers.
-        flierprops : dict, default: None
-            The style of the fliers.
-        medianprops : dict, default: None
-            The style of the median.
-        meanprops : dict, default: None
-            The style of the mean.
-
         Returns
         -------
         result : dict
@@ -3647,6 +3624,29 @@ class Axes(_AxesBase):
             the whiskers (fliers).
 
           - ``means``: points or lines representing the means.
+
+        Other Parameters
+        ----------------
+        showcaps : bool, default: True
+            Show the caps on the ends of whiskers.
+        showbox : bool, default: True
+            Show the central box.
+        showfliers : bool, default: True
+            Show the outliers beyond the caps.
+        showmeans : bool, default: False
+            Show the arithmetic means.
+        capprops : dict, default: None
+            The style of the caps.
+        boxprops : dict, default: None
+            The style of the box.
+        whiskerprops : dict, default: None
+            The style of the whiskers.
+        flierprops : dict, default: None
+            The style of the fliers.
+        medianprops : dict, default: None
+            The style of the median.
+        meanprops : dict, default: None
+            The style of the mean.
 
         """
 
@@ -4550,6 +4550,20 @@ default: :rc:`scatter.edgecolors`
 
             Order of scalars is (left, right, bottom, top).
 
+        Returns
+        -------
+        polycollection : `~matplotlib.collections.PolyCollection`
+            A `.PolyCollection` defining the hexagonal bins.
+
+            - `.PolyCollection.get_offset` contains a Mx2 array containing
+              the x, y positions of the M hexagon centers.
+            - `.PolyCollection.get_array` contains the values of the M
+              hexagons.
+
+            If *marginals* is *True*, horizontal
+            bar and vertical bar (both PolyCollections) will be attached
+            to the return collection as attributes *hbar* and *vbar*.
+
         Other Parameters
         ----------------
         cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
@@ -4599,20 +4613,6 @@ default: :rc:`scatter.edgecolors`
             All other keyword arguments are passed on to `.PolyCollection`:
 
             %(PolyCollection)s
-
-        Returns
-        -------
-        polycollection : `~matplotlib.collections.PolyCollection`
-            A `.PolyCollection` defining the hexagonal bins.
-
-            - `.PolyCollection.get_offset` contains a Mx2 array containing
-              the x, y positions of the M hexagon centers.
-            - `.PolyCollection.get_array` contains the values of the M
-              hexagons.
-
-            If *marginals* is *True*, horizontal
-            bar and vertical bar (both PolyCollections) will be attached
-            to the return collection as attributes *hbar* and *vbar*.
 
         """
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
@@ -5119,6 +5119,11 @@ default: :rc:`scatter.edgecolors`
               value ``y[i]``.
             - 'mid': Steps occur half-way between the *x* positions.
 
+        Returns
+        -------
+        `.PolyCollection`
+            A `.PolyCollection` containing the plotted polygons.
+
         Other Parameters
         ----------------
         **kwargs
@@ -5126,11 +5131,6 @@ default: :rc:`scatter.edgecolors`
             They control the `.Polygon` properties:
 
             %(PolyCollection)s
-
-        Returns
-        -------
-        `.PolyCollection`
-            A `.PolyCollection` containing the plotted polygons.
 
         See Also
         --------

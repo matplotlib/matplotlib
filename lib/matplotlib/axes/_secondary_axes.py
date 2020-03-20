@@ -374,14 +374,13 @@ functions : 2-tuple of func, or Transform with an inverse
     See :doc:`/gallery/subplots_axes_and_figures/secondary_axis`
     for examples of making these conversions.
 
+Returns
+-------
+ax : axes._secondary_axes.SecondaryAxis
 
 Other Parameters
 ----------------
 **kwargs : `~matplotlib.axes.Axes` properties.
     Other miscellaneous axes parameters.
-
-Returns
--------
-ax : axes._secondary_axes.SecondaryAxis
 '''
 docstring.interpd.update(_secax_docstring=_secax_docstring)

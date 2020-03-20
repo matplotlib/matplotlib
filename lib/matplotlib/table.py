@@ -726,17 +726,17 @@ def table(ax,
         The cell edges to be drawn with a line. See also
         `~.CustomCell.visible_edges`.
 
+    Returns
+    -------
+    table : `~matplotlib.table.Table`
+        The created table.
+
     Other Parameters
     ----------------
     **kwargs
         `.Table` properties.
 
     %(Table)s
-
-    Returns
-    -------
-    table : `~matplotlib.table.Table`
-        The created table.
     """
 
     if cellColours is None and cellText is None:

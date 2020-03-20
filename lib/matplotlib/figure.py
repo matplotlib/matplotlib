@@ -1142,6 +1142,14 @@ default: 'top'
         label : str
             A label for the returned axes.
 
+        Returns
+        -------
+        axes : `~.axes.Axes` (or a subclass of `~.axes.Axes`)
+            The returned axes class depends on the projection used. It is
+            `~.axes.Axes` if rectilinear projection are used and
+            `.projections.polar.PolarAxes` if polar projection
+            are used.
+
         Other Parameters
         ----------------
         **kwargs
@@ -1153,14 +1161,6 @@ default: 'top'
             class.
 
             %(Axes)s
-
-        Returns
-        -------
-        axes : `~.axes.Axes` (or a subclass of `~.axes.Axes`)
-            The returned axes class depends on the projection used. It is
-            `~.axes.Axes` if rectilinear projection are used and
-            `.projections.polar.PolarAxes` if polar projection
-            are used.
 
         Notes
         -----
@@ -1290,6 +1290,16 @@ default: 'top'
         label : str
             A label for the returned axes.
 
+        Returns
+        -------
+        axes : `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+
+            The axes of the subplot. The returned axes base class depends on
+            the projection used. It is `~.axes.Axes` if rectilinear projection
+            are used and `.projections.polar.PolarAxes` if polar projection
+            are used. The returned axes is then a subplot subclass of the
+            base class.
+
         Other Parameters
         ----------------
         **kwargs
@@ -1300,16 +1310,6 @@ default: 'top'
             arguments if another projection is used.
 
             %(Axes)s
-
-        Returns
-        -------
-        axes : `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
-
-            The axes of the subplot. The returned axes base class depends on
-            the projection used. It is `~.axes.Axes` if rectilinear projection
-            are used and `.projections.polar.PolarAxes` if polar projection
-            are used. The returned axes is then a subplot subclass of the
-            base class.
 
         Notes
         -----
@@ -1788,13 +1788,13 @@ default: 'top'
             is shown in the legend and the automatic mechanism described above
             is not sufficient.
 
-        Other Parameters
-        ----------------
-        %(_legend_kw_doc)s
-
         Returns
         -------
         `~matplotlib.legend.Legend`
+
+        Other Parameters
+        ----------------
+        %(_legend_kw_doc)s
 
         Notes
         -----
@@ -1843,16 +1843,16 @@ default: 'top'
             the defaults are determined by :rc:`font.*`. Properties passed as
             *kwargs* override the corresponding ones given in *fontdict*.
 
+        Returns
+        -------
+        text : `~.text.Text`
+
         Other Parameters
         ----------------
         **kwargs : `~matplotlib.text.Text` properties
             Other miscellaneous text parameters.
 
             %(Text)s
-
-        Returns
-        -------
-        text : `~.text.Text`
 
         See Also
         --------

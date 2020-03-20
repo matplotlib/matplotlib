@@ -3465,7 +3465,7 @@ class _AxesBase(martist.Artist):
             The labels.
 
         Other Parameters
-        -----------------
+        ----------------
         **kwargs : `~.text.Text` properties.
         """
         if fontdict is not None:
