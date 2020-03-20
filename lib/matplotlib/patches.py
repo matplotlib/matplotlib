@@ -10,10 +10,9 @@ import numpy as np
 import matplotlib as mpl
 from . import artist, cbook, colors, docstring, lines as mlines, transforms
 from .bezier import (
-    NonIntersectingPathException, concatenate_paths, get_cos_sin,
-    get_intersection, get_parallels, inside_circle, make_path_regular,
-    make_wedged_bezier2, split_bezier_intersecting_with_closedpath,
-    split_path_inout)
+    NonIntersectingPathException, get_cos_sin, get_intersection,
+    get_parallels, inside_circle, make_wedged_bezier2,
+    split_bezier_intersecting_with_closedpath, split_path_inout)
 from .path import Path
 
 
@@ -2873,8 +2872,6 @@ class ArrowStyle(_Style):
             and takes care of the aspect ratio.
             """
 
-            path = make_path_regular(path)
-
             if aspect_ratio is not None:
                 # Squeeze the given height by the aspect_ratio
                 vertices = path.vertices / [1, aspect_ratio]
@@ -2886,10 +2883,9 @@ class ArrowStyle(_Style):
                 if np.iterable(fillable):
                     path_list = []
                     for p in zip(path_mutated):
-                        v, c = p.vertices, p.codes
                         # Restore the height
-                        v[:, 1] = v[:, 1] * aspect_ratio
-                        path_list.append(Path(v, c))
+                        path_list.append(
+                            Path(p.vertices * [1, aspect_ratio], p.codes))
                     return path_list, fillable
                 else:
                     return path_mutated, fillable
@@ -4125,7 +4121,7 @@ default: 'arc3'
         """
         _path, fillable = self.get_path_in_displaycoord()
         if np.iterable(fillable):
-            _path = concatenate_paths(_path)
+            _path = Path.make_compound_path(*_path)
         return self.get_transform().inverted().transform_path(_path)
 
     def get_path_in_displaycoord(self):

@@ -376,3 +376,13 @@ NavigationToolbar2QT.parent
 This attribute is deprecated.  In order to access the parent window, use
 ``toolbar.canvas.parent()``.  Once the deprecation period is elapsed, it will
 also be accessible as ``toolbar.parent()``.
+
+Path helpers in :mod:`.bezier`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``bezier.make_path_regular`` is deprecated.  Use ``Path.cleaned()`` (or
+``Path.cleaned(curves=True)``, etc.) instead (but note that these methods add a
+``STOP`` code at the end of the path).
+
+``bezier.concatenate_paths`` is deprecated.  Use ``Path.make_compound_path()``
+instead.
