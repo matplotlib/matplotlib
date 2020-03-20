@@ -1175,6 +1175,13 @@ class _AxesBase(martist.Artist):
             Finite-length iterable of the property values. These values
             are validated and will raise a ValueError if invalid.
 
+        See Also
+        --------
+        matplotlib.rcsetup.cycler
+            Convenience function for creating validated cyclers for properties.
+        cycler.cycler
+            The original function for creating unvalidated cyclers.
+
         Examples
         --------
         Setting the property cycle for a single property:
@@ -1186,13 +1193,6 @@ class _AxesBase(martist.Artist):
 
         >>> ax.set_prop_cycle(color=['red', 'green', 'blue'],
         ...                   marker=['o', '+', 'x'])
-
-        See Also
-        --------
-        matplotlib.rcsetup.cycler
-            Convenience function for creating validated cyclers for properties.
-        cycler.cycler
-            The original function for creating unvalidated cyclers.
 
         """
         if args and kwargs:

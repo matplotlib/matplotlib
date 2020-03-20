@@ -863,6 +863,12 @@ class Axes(_AxesBase):
 
             %(_Line2D_docstr)s
 
+        See Also
+        --------
+        vlines : Add vertical lines in data coordinates.
+        axvspan : Add a vertical span (rectangle) across the axis.
+        axline : Add a line with an abritrary slope.
+
         Examples
         --------
         * draw a thick red vline at *x* = 0 that spans the yrange::
@@ -877,12 +883,6 @@ class Axes(_AxesBase):
           the yrange::
 
             >>> axvline(x=.5, ymin=0.25, ymax=0.75)
-
-        See also
-        --------
-        vlines : Add vertical lines in data coordinates.
-        axvspan : Add a vertical span (rectangle) across the axis.
-        axline : Add a line with an abritrary slope.
         """
 
         if "transform" in kwargs:
@@ -929,16 +929,16 @@ class Axes(_AxesBase):
 
             %(_Line2D_docstr)s
 
+        See Also
+        --------
+        axhline : for horizontal lines
+        axvline : for vertical lines
+
         Examples
         --------
         Draw a thick red line passing through (0, 0) and (1, 1)::
 
             >>> axline((0, 0), (1, 1), linewidth=4, color='r')
-
-        See Also
-        --------
-        axhline : for horizontal lines
-        axvline : for vertical lines
         """
 
         if "transform" in kwargs:

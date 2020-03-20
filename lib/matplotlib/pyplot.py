@@ -1112,6 +1112,14 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         because for the latter it's not clear if it refers to a single
         `~.axes.Axes` instance or a collection of these.
 
+    See Also
+    --------
+    .pyplot.figure
+    .pyplot.subplot
+    .pyplot.axes
+    .Figure.subplots
+    .Figure.add_subplot
+
     Examples
     --------
     ::
@@ -1151,14 +1159,6 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         # Create figure number 10 with a single subplot
         # and clears it if it already exists.
         fig, ax = plt.subplots(num=10, clear=True)
-
-    See Also
-    --------
-    .pyplot.figure
-    .pyplot.subplot
-    .pyplot.axes
-    .Figure.subplots
-    .Figure.add_subplot
 
     """
     fig = figure(**fig_kw)
@@ -1570,6 +1570,13 @@ def rgrids(*args, **kwargs):
     **kwargs
         *kwargs* are optional `~.Text` properties for the labels.
 
+    See Also
+    --------
+    .pyplot.thetagrids
+    .projections.polar.PolarAxes.set_rgrids
+    .Axis.get_gridlines
+    .Axis.get_ticklabels
+
     Examples
     --------
     ::
@@ -1579,13 +1586,6 @@ def rgrids(*args, **kwargs):
 
       # set the locations and labels of the radial gridlines
       lines, labels = rgrids( (0.25, 0.5, 1.0), ('Tom', 'Dick', 'Harry' ))
-
-    See Also
-    --------
-    .pyplot.thetagrids
-    .projections.polar.PolarAxes.set_rgrids
-    .Axis.get_gridlines
-    .Axis.get_ticklabels
     """
     ax = gca()
     if not isinstance(ax, PolarAxes):
@@ -1634,6 +1634,13 @@ def thetagrids(*args, **kwargs):
     **kwargs
         *kwargs* are optional `~.Text` properties for the labels.
 
+    See Also
+    --------
+    .pyplot.rgrids
+    .projections.polar.PolarAxes.set_thetagrids
+    .Axis.get_gridlines
+    .Axis.get_ticklabels
+
     Examples
     --------
     ::
@@ -1643,13 +1650,6 @@ def thetagrids(*args, **kwargs):
 
       # set the locations and labels of the angular gridlines
       lines, labels = thetagrids(range(45, 360, 90), ('NE', 'NW', 'SW', 'SE'))
-
-    See Also
-    --------
-    .pyplot.rgrids
-    .projections.polar.PolarAxes.set_thetagrids
-    .Axis.get_gridlines
-    .Axis.get_ticklabels
     """
     ax = gca()
     if not isinstance(ax, PolarAxes):

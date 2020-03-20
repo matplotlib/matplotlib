@@ -1479,6 +1479,12 @@ default: 'top'
             dimensions of the resulting array can be controlled with the
             squeeze keyword, see above.
 
+        See Also
+        --------
+        .pyplot.subplots
+        .Figure.add_subplot
+        .pyplot.subplot
+
         Examples
         --------
         ::
@@ -1517,12 +1523,6 @@ default: 'top'
 
             # Note that this is the same as
             fig.subplots(2, 2, sharex=True, sharey=True)
-
-        See Also
-        --------
-        .pyplot.subplots
-        .Figure.add_subplot
-        .pyplot.subplot
         """
 
         if isinstance(sharex, bool):
