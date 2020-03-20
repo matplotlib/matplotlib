@@ -1125,13 +1125,15 @@ class Axes(_AxesBase):
         # Create and combine masked_arrays from input
         y, xmin, xmax = cbook._combine_masks(y, xmin, xmax)
         y = np.ravel(y)
-        xmin = np.ma.resize(xmin, y.shape)
-        xmax = np.ma.resize(xmax, y.shape)
+        xmin = np.ravel(xmin)
+        xmax = np.ravel(xmax)
 
-        masked_verts = [np.ma.array([y_xmin, y_xmax])
-                        for y_xmin, y_xmax in
-                        zip(np.ma.array([xmin, y]).T,
-                            np.ma.array([xmax, y]).T)]
+        masked_verts = np.ma.empty((len(y), 2, 2))
+        masked_verts[:, 0, 1] = y
+        masked_verts[:, 1, 1] = y
+        masked_verts[:, 0, 0] = xmin
+        masked_verts[:, 1, 0] = xmax
+
         lines = mcoll.LineCollection(masked_verts, colors=colors,
                                      linestyles=linestyles, label=label)
         self.add_collection(lines, autolim=False)
@@ -1205,13 +1207,15 @@ class Axes(_AxesBase):
         # Create and combine masked_arrays from input
         x, ymin, ymax = cbook._combine_masks(x, ymin, ymax)
         x = np.ravel(x)
-        ymin = np.ma.resize(ymin, x.shape)
-        ymax = np.ma.resize(ymax, x.shape)
+        ymin = np.ravel(ymin)
+        ymax = np.ravel(ymax)
 
-        masked_verts = [np.ma.array([xymin, xymax])
-                        for xymin, xymax in
-                        zip(np.ma.array([x, ymin]).T,
-                            np.ma.array([x, ymax]).T)]
+        masked_verts = np.ma.empty((len(x), 2, 2))
+        masked_verts[:, 0, 0] = x
+        masked_verts[:, 1, 0] = x
+        masked_verts[:, 0, 1] = ymin
+        masked_verts[:, 1, 1] = ymax
+
         lines = mcoll.LineCollection(masked_verts, colors=colors,
                                      linestyles=linestyles, label=label)
         self.add_collection(lines, autolim=False)
