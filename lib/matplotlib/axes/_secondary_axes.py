@@ -294,7 +294,7 @@ class SecondaryAxis(_AxesBase):
         **kwargs : `.Text` properties
             `.Text` properties control the appearance of the label.
 
-        See also
+        See Also
         --------
         text : Documents the properties supported by `.Text`.
         """
@@ -319,7 +319,7 @@ class SecondaryAxis(_AxesBase):
         **kwargs : `.Text` properties
             `.Text` properties control the appearance of the label.
 
-        See also
+        See Also
         --------
         text : Documents the properties supported by `.Text`.
         """

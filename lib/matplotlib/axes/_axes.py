@@ -209,7 +209,7 @@ class Axes(_AxesBase):
         **kwargs : `.Text` properties
             `.Text` properties control the appearance of the label.
 
-        See also
+        See Also
         --------
         text : Documents the properties supported by `.Text`.
         """
@@ -262,7 +262,7 @@ class Axes(_AxesBase):
         **kwargs : `.Text` properties
             `.Text` properties control the appearance of the label.
 
-        See also
+        See Also
         --------
         text : Documents the properties supported by `.Text`.
         """
@@ -794,7 +794,7 @@ class Axes(_AxesBase):
 
             %(_Line2D_docstr)s
 
-        See also
+        See Also
         --------
         hlines : Add horizontal lines in data coordinates.
         axhspan : Add a horizontal span (rectangle) across the axis.
@@ -1103,7 +1103,7 @@ class Axes(_AxesBase):
         ----------------
         **kwargs :  `~matplotlib.collections.LineCollection` properties.
 
-        See also
+        See Also
         --------
         vlines : vertical lines
         axhline: horizontal line across the axes
@@ -1181,7 +1181,7 @@ class Axes(_AxesBase):
         ----------------
         **kwargs : `~matplotlib.collections.LineCollection` properties.
 
-        See also
+        See Also
         --------
         hlines : horizontal lines
         axvline: vertical line across the axes
@@ -2309,7 +2309,7 @@ class Axes(_AxesBase):
             *This is for internal use only.* Please use `barh` for
             horizontal bar plots. Default: 'vertical'.
 
-        See also
+        See Also
         --------
         barh: Plot a horizontal bar plot.
 
@@ -2578,7 +2578,7 @@ class Axes(_AxesBase):
         log : bool, default: False
             If ``True``, set the x-axis to be log scale.
 
-        See also
+        See Also
         --------
         bar: Plot a vertical bar plot.
 
@@ -5440,7 +5440,7 @@ default: :rc:`scatter.edgecolors`
             These parameters are passed on to the constructor of the
             `.AxesImage` artist.
 
-        See also
+        See Also
         --------
         matshow : Plot a matrix or an array as an image.
 
@@ -6471,7 +6471,7 @@ default: :rc:`scatter.edgecolors`
         **kwargs
             `~matplotlib.patches.Patch` properties
 
-        See also
+        See Also
         --------
         hist2d : 2D histograms
 
@@ -6832,7 +6832,7 @@ default: :rc:`scatter.edgecolors`
             `~.Axes.pcolormesh` method and `~matplotlib.collections.QuadMesh`
             constructor.
 
-        See also
+        See Also
         --------
         hist : 1D histogram plotting
 

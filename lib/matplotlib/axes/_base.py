@@ -1673,7 +1673,7 @@ class _AxesBase(martist.Artist):
         xmin, xmax, ymin, ymax : float
             The axis limits.
 
-        See also
+        See Also
         --------
         matplotlib.axes.Axes.set_xlim
         matplotlib.axes.Axes.set_ylim
