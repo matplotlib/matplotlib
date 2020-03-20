@@ -35,7 +35,7 @@ class TriAnalyzer:
 
         Returns
         -------
-        k : (float, float)
+        (float, float)
             Scaling factors (kx, ky) so that the triangulation
             ``[triangulation.x * kx, triangulation.y * ky]``
             fits exactly inside a unit square.
@@ -70,7 +70,7 @@ class TriAnalyzer:
 
         Returns
         -------
-        circle_ratios : masked array
+        masked array
             Ratio of the incircle radius over the circumcircle radius, for
             each 'rescaled' triangle of the encapsulated triangulation.
             Values corresponding to masked triangles are masked out.
@@ -144,7 +144,7 @@ class TriAnalyzer:
 
         Returns
         -------
-        new_mask : bool array-like
+        bool array-like
             Mask to apply to encapsulated triangulation.
             All the initially masked triangles remain masked in the
             *new_mask*.
@@ -273,7 +273,7 @@ class TriAnalyzer:
 
         Returns
         -------
-        renum : int array
+        int array
             array so that (`valid_array` being a compressed array
             based on a `masked_array` with mask *mask*):
 

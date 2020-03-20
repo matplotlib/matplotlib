@@ -985,7 +985,7 @@ def _parse_enc(path):
 
     Returns
     -------
-    encoding : list
+    list
         The nth entry of the list is the PostScript glyph name of the nth
         glyph.
     """

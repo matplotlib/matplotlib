@@ -855,7 +855,7 @@ class _CollectionWithSizes(Collection):
 
         Returns
         -------
-        sizes : array
+        array
             The 'area' of each element.
         """
         return self._sizes
@@ -1398,7 +1398,7 @@ class LineCollection(Collection):
         """
         Returns
         -------
-        segments : list
+        list
             List of segments in the LineCollection. Each list item contains an
             array of vertices.
         """

@@ -274,7 +274,7 @@ class Artist:
 
         Returns
         -------
-        bbox : `.Bbox`
+        `.Bbox`
             The enclosing bounding box (in figure pixel coordinates).
         """
         bbox = self.get_window_extent(renderer)
@@ -305,7 +305,7 @@ class Artist:
 
         Returns
         -------
-        oid : int
+        int
             The observer id associated with the callback. This id can be
             used for removing the callback with `.remove_callback` later.
 
@@ -629,7 +629,7 @@ class Artist:
 
         Returns
         -------
-        sketch_params : tuple or None
+        tuple or None
 
             A 3-tuple with the following elements:
 
@@ -1109,7 +1109,7 @@ class Artist:
 
         Returns
         -------
-        artists : list of `.Artist`
+        list of `.Artist`
 
         """
         if match is None:  # always return True
@@ -1599,7 +1599,7 @@ def kwdoc(artist):
 
     Returns
     -------
-    string
+    str
         The settable properties of *artist*, as plain text if
         :rc:`docstring.hardcopy` is False and as a rst table (intended for
         use in Sphinx) if it is True.

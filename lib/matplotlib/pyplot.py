@@ -490,7 +490,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
     Returns
     -------
-    figure : `~matplotlib.figure.Figure`
+    `~matplotlib.figure.Figure`
         The `.Figure` instance returned will also be passed to
         new_figure_manager in the backends, which allows to hook custom
         `.Figure` classes into the pyplot interface. Additional kwargs will be
@@ -654,7 +654,7 @@ def get_current_fig_manager():
 
     Returns
     -------
-    manager : `.FigureManagerBase` or backend-dependent subclass thereof
+    `.FigureManagerBase` or backend-dependent subclass thereof
     """
     return gcf().canvas.manager
 
@@ -791,7 +791,7 @@ def axes(arg=None, **kwargs):
 
     Returns
     -------
-    axes : `~.axes.Axes` (or a subclass of `~.axes.Axes`)
+    `~.axes.Axes` (or a subclass of `~.axes.Axes`)
         The returned axes class depends on the projection used. It is
         `~.axes.Axes` if rectilinear projection are used and
         `.projections.polar.PolarAxes` if polar projection
@@ -916,8 +916,8 @@ def subplot(*args, **kwargs):
 
     Returns
     -------
-    axes : an `.axes.SubplotBase` subclass of `~.axes.Axes` (or a subclass \
-    of `~.axes.Axes`)
+    an `.axes.SubplotBase` subclass of `~.axes.Axes` (or a subclass of \
+`~.axes.Axes`)
 
         The axes of the subplot. The returned axes base class depends on
         the projection used. It is `~.axes.Axes` if rectilinear projection
@@ -1562,8 +1562,11 @@ def rgrids(*args, **kwargs):
 
     Returns
     -------
-    lines, labels : list of `.lines.Line2D`, list of `.text.Text`
-        *lines* are the radial gridlines and *labels* are the tick labels.
+    lines : list of `.lines.Line2D`
+        The radial gridlines.
+
+    labels : list of `.text.Text`
+        The tick labels.
 
     Other Parameters
     ----------------
@@ -1626,8 +1629,11 @@ def thetagrids(*args, **kwargs):
 
     Returns
     -------
-    lines, labels : list of `.lines.Line2D`, list of `.text.Text`
-        *lines* are the theta gridlines and *labels* are the tick labels.
+    lines : list of `.lines.Line2D`
+        The theta gridlines.
+
+    labels : list of `.text.Text`
+        The tick labels.
 
     Other Parameters
     ----------------
@@ -2080,7 +2086,7 @@ def matshow(A, fignum=None, **kwargs):
 
     Returns
     -------
-    image : `~matplotlib.image.AxesImage`
+    `~matplotlib.image.AxesImage`
 
     Other Parameters
     ----------------

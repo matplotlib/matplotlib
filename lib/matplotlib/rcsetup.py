@@ -618,7 +618,7 @@ def validate_markevery(s):
 
     Returns
     -------
-    s : None, int, float, slice, length-2 tuple of ints,
+    None, int, float, slice, length-2 tuple of ints,
         length-2 tuple of floats, list of ints
 
     """
@@ -847,7 +847,7 @@ def cycler(*args, **kwargs):
 
     Returns
     -------
-    cycler : Cycler
+    Cycler
         A new :class:`~cycler.Cycler` for the given properties.
 
     Examples

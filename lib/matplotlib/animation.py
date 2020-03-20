@@ -140,7 +140,7 @@ class MovieWriterRegistry:
 
         Returns
         -------
-        available : bool
+        bool
         """
         try:
             cls = self._registered[name]
@@ -1281,7 +1281,7 @@ class Animation:
 
         Returns
         -------
-        video_tag : str
+        str
             An HTML5 video tag with the animation embedded as base64 encoded
             h264 video.
             If the *embed_limit* is exceeded, this returns the string

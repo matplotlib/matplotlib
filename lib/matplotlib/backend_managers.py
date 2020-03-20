@@ -424,7 +424,7 @@ class ToolManager:
 
         Returns
         -------
-        tool : `.ToolBase` or None
+        `.ToolBase` or None
             The tool or None if no tool with the given name exists.
         """
         if isinstance(name, tools.ToolBase) and name.name in self._tools:

@@ -473,7 +473,7 @@ class Slider(AxesWidget):
 
         Returns
         -------
-        cid : int
+        int
             Connection id (which can be used to disconnect *func*)
         """
         cid = self.cnt

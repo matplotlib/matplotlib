@@ -3440,7 +3440,7 @@ class MathTextParser:
 
         Returns
         -------
-        depth : int
+        int
             Offset of the baseline from the bottom of the image, in pixels.
         """
         rgba, depth = self.to_rgba(
@@ -3459,7 +3459,7 @@ class MathTextParser:
 
         Returns
         -------
-        depth : int
+        int
             Offset of the baseline from the bottom of the image, in pixels.
         """
         assert self._output == "bitmap"

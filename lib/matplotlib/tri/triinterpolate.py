@@ -72,7 +72,7 @@ class TriInterpolator:
 
         Returns
         -------
-        z : np.ma.array
+        np.ma.array
             Masked array of the same shape as *x* and *y*; values corresponding
             to (*x*, *y*) points outside of the triangulation are masked out.
 
@@ -149,7 +149,7 @@ class TriInterpolator:
 
         Returns
         -------
-        ret : list of arrays
+        list of arrays
             Each array-like contains the expected interpolated values in the
             order defined by *return_keys* parameter.
         """
@@ -223,7 +223,7 @@ class TriInterpolator:
 
         Returns
         -------
-        ret : 1-d array
+        1-d array
             Returned array of the same size as *tri_index*
         """
         raise NotImplementedError("TriInterpolator subclasses" +
@@ -464,7 +464,7 @@ class CubicTriInterpolator(TriInterpolator):
 
         Returns
         -------
-        dof : array-like, shape (npts, 2)
+        array-like, shape (npts, 2)
               Estimation of the gradient at triangulation nodes (stored as
               degree of freedoms of reduced-HCT triangle elements).
         """
@@ -497,7 +497,7 @@ class CubicTriInterpolator(TriInterpolator):
 
         Returns
         -------
-        alpha : array of dim 2 (shape (nx, 3))
+        array of dim 2 (shape (nx, 3))
             Barycentric coordinates of the points inside the containing
             triangles.
         """
@@ -534,7 +534,7 @@ class CubicTriInterpolator(TriInterpolator):
 
         Returns
         -------
-        J : array of dim 3 (shape (nx, 2, 2))
+        array of dim 3 (shape (nx, 2, 2))
             Barycentric coordinates of the points inside the containing
             triangles.
             J[itri, :, :] is the jacobian matrix at apex 0 of the triangle
@@ -562,7 +562,7 @@ class CubicTriInterpolator(TriInterpolator):
 
         Returns
         -------
-        ecc : array like of dim 2 (shape: (nx, 3))
+        array like of dim 2 (shape: (nx, 3))
             The so-called eccentricity parameters [1] needed for HCT triangular
             element.
         """

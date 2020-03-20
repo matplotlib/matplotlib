@@ -286,7 +286,7 @@ def _parse_composites(fh):
 
     Returns
     -------
-    composites : dict
+    dict
         A dict mapping composite character names to a parts list. The parts
         list is a list of `.CompositePart` entries describing the parts of
         the composite.

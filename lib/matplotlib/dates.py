@@ -477,7 +477,7 @@ def drange(dstart, dend, delta):
 
     Returns
     -------
-    drange : `numpy.array`
+    `numpy.array`
         A list floats representing Matplotlib dates.
 
     """

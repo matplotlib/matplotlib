@@ -890,7 +890,7 @@ default: 'top'
 
         Returns
         -------
-        size : ndarray
+        ndarray
            The size (width, height) of the figure in inches.
 
         See Also
@@ -1032,7 +1032,8 @@ default: 'top'
 
         Returns
         -------
-        artist : The added `~matplotlib.artist.Artist`
+        `~matplotlib.artist.Artist`
+            The added artist.
         """
         artist.set_figure(self)
         self.artists.append(artist)
@@ -1144,7 +1145,7 @@ default: 'top'
 
         Returns
         -------
-        axes : `~.axes.Axes` (or a subclass of `~.axes.Axes`)
+        `~.axes.Axes` (or a subclass of `~.axes.Axes`)
             The returned axes class depends on the projection used. It is
             `~.axes.Axes` if rectilinear projection are used and
             `.projections.polar.PolarAxes` if polar projection
@@ -1292,7 +1293,7 @@ default: 'top'
 
         Returns
         -------
-        axes : `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+        `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
 
             The axes of the subplot. The returned axes base class depends on
             the projection used. It is `~.axes.Axes` if rectilinear projection
@@ -1473,11 +1474,11 @@ default: 'top'
 
         Returns
         -------
-        ax : `~.axes.Axes` or array of Axes
-            *ax* can be either a single `~matplotlib.axes.Axes` object or
-            an array of Axes objects if more than one subplot was created. The
-            dimensions of the resulting array can be controlled with the
-            squeeze keyword, see above.
+        `~.axes.Axes` or array of Axes
+            Either a single `~matplotlib.axes.Axes` object or an array of Axes
+            objects if more than one subplot was created. The dimensions of the
+            resulting array can be controlled with the *squeeze* keyword, see
+            above.
 
         See Also
         --------
@@ -1845,7 +1846,7 @@ default: 'top'
 
         Returns
         -------
-        text : `~.text.Text`
+        `~.text.Text`
 
         Other Parameters
         ----------------
@@ -2286,7 +2287,7 @@ default: 'top'
 
         Returns
         -------
-        points : list of tuples
+        list of tuples
             A list of the clicked (x, y) coordinates.
 
         Notes
@@ -2343,7 +2344,7 @@ default: 'top'
 
         Returns
         -------
-        bbox : `.BboxBase`
+        `.BboxBase`
             containing the bounding box (in figure inches).
         """
 
@@ -2641,7 +2642,7 @@ default: 'top'
 
         Returns
         -------
-        gridspec : `.GridSpec`
+        `.GridSpec`
 
         Other Parameters
         ----------------

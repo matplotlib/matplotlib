@@ -415,7 +415,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        axes : `~.axes.Axes`
+        `~.axes.Axes`
             The new `~.axes.Axes` object.
         """
 
@@ -829,7 +829,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        pos : `.Bbox`
+        `.Bbox`
 
         """
         if original:
@@ -2759,7 +2759,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        axisbelow : bool or 'line'
+        bool or 'line'
 
         See Also
         --------
@@ -3388,7 +3388,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        labels : list
+        list
             List of `~matplotlib.text.Text` instances
         """
         return self.xaxis.get_majorticklabels()
@@ -3399,7 +3399,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        labels : list
+        list
             List of `~matplotlib.text.Text` instances
         """
         return self.xaxis.get_minorticklabels()
@@ -3421,7 +3421,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        ret : list
+        list
            List of `~matplotlib.text.Text` instances.
 
         Notes
@@ -3461,7 +3461,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        labels : list of `~.Text`
+        list of `~.Text`
             The labels.
 
         Other Parameters
@@ -3781,7 +3781,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        labels : list
+        list
             List of `~matplotlib.text.Text` instances
         """
         return self.yaxis.get_majorticklabels()
@@ -3792,7 +3792,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        labels : list
+        list
             List of `~matplotlib.text.Text` instances
         """
         return self.yaxis.get_minorticklabels()
@@ -3814,7 +3814,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        ret : list
+        list
            List of `~matplotlib.text.Text` instances.
 
         Notes
@@ -4376,8 +4376,8 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        bbox : `.BboxBase`
-            bounding box in figure pixel coordinates.
+        `.BboxBase`
+            Bounding box in figure pixel coordinates.
 
         See Also
         --------
@@ -4464,7 +4464,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        ax_twin : Axes
+        Axes
             The newly created Axes instance
 
         Notes
@@ -4494,7 +4494,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        ax_twin : Axes
+        Axes
             The newly created Axes instance
 
         Notes

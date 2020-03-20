@@ -1309,6 +1309,7 @@ def _add_data_doc(docstring, replace_names):
 
     Returns
     -------
+    str
         The augmented docstring.
     """
     if (docstring is None

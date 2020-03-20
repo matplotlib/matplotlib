@@ -104,7 +104,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        title : str
+        str
             The title text string.
 
         """
@@ -145,7 +145,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        text : `.Text`
+        `.Text`
             The matplotlib text instance representing the title
 
         Other Parameters
@@ -379,7 +379,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        legend : `~matplotlib.legend.Legend`
+        `~matplotlib.legend.Legend`
 
         Other Parameters
         ----------------
@@ -708,7 +708,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        text : `.Text`
+        `.Text`
             The created `.Text` instance.
 
         Other Parameters
@@ -784,7 +784,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        line : `~matplotlib.lines.Line2D`
+        `~matplotlib.lines.Line2D`
 
         Other Parameters
         ----------------
@@ -853,7 +853,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        line : `~matplotlib.lines.Line2D`
+        `~matplotlib.lines.Line2D`
 
         Other Parameters
         ----------------
@@ -984,7 +984,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        rectangle : `~matplotlib.patches.Polygon`
+        `~matplotlib.patches.Polygon`
             Horizontal span (rectangle) from (xmin, ymin) to (xmax, ymax).
 
         Other Parameters
@@ -1036,7 +1036,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        rectangle : `~matplotlib.patches.Polygon`
+        `~matplotlib.patches.Polygon`
             Vertical span (rectangle) from (xmin, ymin) to (xmax, ymax).
 
         Other Parameters
@@ -1097,7 +1097,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lines : `~matplotlib.collections.LineCollection`
+        `~matplotlib.collections.LineCollection`
 
         Other Parameters
         ----------------
@@ -1175,7 +1175,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lines : `~matplotlib.collections.LineCollection`
+        `~matplotlib.collections.LineCollection`
 
         Other Parameters
         ----------------
@@ -1311,7 +1311,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        list : list of `.EventCollection`
+        list of `.EventCollection`
             The `.EventCollection` that were added.
 
         Notes
@@ -1574,8 +1574,8 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lines
-            A list of `.Line2D` objects representing the plotted data.
+        list of `.Line2D`
+            A list of lines representing the plotted data.
 
         Other Parameters
         ----------------
@@ -2257,7 +2257,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        container : `.BarContainer`
+        `.BarContainer`
             Container with all the bars and optionally errorbars.
 
         Other Parameters
@@ -2530,7 +2530,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        container : `.BarContainer`
+        `.BarContainer`
             Container with all the bars and optionally errorbars.
 
         Other Parameters
@@ -2625,7 +2625,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        collection : `~.collections.BrokenBarHCollection`
+        `~.collections.BrokenBarHCollection`
 
         Other Parameters
         ----------------
@@ -2744,7 +2744,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        container : `.StemContainer`
+        `.StemContainer`
             The container may be treated like a tuple
             (*markerline*, *stemlines*, *baseline*)
 
@@ -3164,7 +3164,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        container : `.ErrorbarContainer`
+        `.ErrorbarContainer`
             The container contains:
 
             - plotline: `.Line2D` instance of x, y plot markers and/or line.
@@ -3603,7 +3603,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        result : dict
+        dict
           A dictionary mapping each component of the boxplot to a list
           of the `.Line2D` instances created. That dictionary has the
           following keys (assuming vertical boxplots):
@@ -3879,7 +3879,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        result : dict
+        dict
           A dictionary mapping each component of the boxplot to a list
           of the `.Line2D` instances created. That dictionary has the
           following keys (assuming vertical boxplots):
@@ -4364,7 +4364,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        paths : `~matplotlib.collections.PathCollection`
+        `~matplotlib.collections.PathCollection`
 
         Other Parameters
         ----------------
@@ -4552,7 +4552,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        polycollection : `~matplotlib.collections.PolyCollection`
+        `~matplotlib.collections.PolyCollection`
             A `.PolyCollection` defining the hexagonal bins.
 
             - `.PolyCollection.get_offset` contains a Mx2 array containing
@@ -4929,7 +4929,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        arrow : `.FancyArrow`
+        `.FancyArrow`
             The created `.FancyArrow` object.
 
         Notes
@@ -5432,7 +5432,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        image : `~matplotlib.image.AxesImage`
+        `~matplotlib.image.AxesImage`
 
         Other Parameters
         ----------------
@@ -5698,7 +5698,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        collection : `matplotlib.collections.Collection`
+        `matplotlib.collections.Collection`
 
         Other Parameters
         ----------------
@@ -5951,7 +5951,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        mesh : `matplotlib.collections.QuadMesh`
+        `matplotlib.collections.QuadMesh`
 
         Other Parameters
         ----------------
@@ -6164,7 +6164,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        image : `.AxesImage` or `.PcolorImage` or `.QuadMesh`
+        `.AxesImage` or `.PcolorImage` or `.QuadMesh`
             The return type depends on the type of grid:
 
             - `.AxesImage` for a regular rectangular grid.
@@ -7554,7 +7554,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        ret : `~matplotlib.image.AxesImage` or `.Line2D`
+        `~matplotlib.image.AxesImage` or `.Line2D`
             The return type depends on the plotting style (see above).
 
         Other Parameters
@@ -7648,7 +7648,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        image : `~matplotlib.image.AxesImage`
+        `~matplotlib.image.AxesImage`
 
         Other Parameters
         ----------------
@@ -7742,7 +7742,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        result : dict
+        dict
           A dictionary mapping each component of the violinplot to a
           list of the corresponding collection instances created. The
           dictionary has the following keys:
@@ -7842,7 +7842,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        result : dict
+        dict
           A dictionary mapping each component of the violinplot to a
           list of the corresponding collection instances created. The
           dictionary has the following keys:

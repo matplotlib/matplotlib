@@ -342,7 +342,7 @@ class Table(Artist):
 
         Returns
         -------
-        cell : `.CustomCell`
+        `.CustomCell`
             The created cell.
 
         """
@@ -728,7 +728,7 @@ def table(ax,
 
     Returns
     -------
-    table : `~matplotlib.table.Table`
+    `~matplotlib.table.Table`
         The created table.
 
     Other Parameters

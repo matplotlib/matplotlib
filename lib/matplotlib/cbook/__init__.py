@@ -303,7 +303,7 @@ def local_over_kwdict(local_var, kwargs, *keys):
 
     Returns
     -------
-    out : any object
+    any object
         Either local_var or one of kwargs[key] for key in keys.
 
     Raises
@@ -1137,7 +1137,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     Returns
     -------
-    bxpstats : list of dict
+    list of dict
         A list of dictionaries containing the results for each column
         of data. Keys of each dictionary are the following:
 
@@ -1461,7 +1461,7 @@ def violin_stats(X, method, points=100, quantiles=None):
 
     Returns
     -------
-    vpstats : list of dict
+    list of dict
         A list of dictionaries containing the results for each column of data.
         The dictionaries contain at least the following:
 
@@ -1540,7 +1540,7 @@ def pts_to_prestep(x, *args):
 
     Returns
     -------
-    out : array
+    array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
         length ``N``, each of these arrays will be length ``2N + 1``. For
@@ -1578,7 +1578,7 @@ def pts_to_poststep(x, *args):
 
     Returns
     -------
-    out : array
+    array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
         length ``N``, each of these arrays will be length ``2N + 1``. For
@@ -1615,7 +1615,7 @@ def pts_to_midstep(x, *args):
 
     Returns
     -------
-    out : array
+    array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
         length ``N``, each of these arrays will be length ``2N``.
@@ -1963,7 +1963,7 @@ def _array_perimeter(arr):
 
     Returns
     -------
-    perimeter : ndarray, shape (2*(M - 1) + 2*(N - 1),)
+    ndarray, shape (2*(M - 1) + 2*(N - 1),)
         The elements on the perimeter of the array::
 
            [arr[0, 0], ..., arr[0, -1], ..., arr[-1, -1], ..., arr[-1, 0], ...]
@@ -2010,7 +2010,7 @@ def _unfold(arr, axis, size, step):
 
     Returns
     -------
-    windows : ndarray, shape (N_1, ..., 1 + (N_axis-size)/step, ..., N_k, size)
+    ndarray, shape (N_1, ..., 1 + (N_axis-size)/step, ..., N_k, size)
 
     Examples
     --------
@@ -2062,7 +2062,7 @@ def _array_patch_perimeters(x, rstride, cstride):
 
     Returns
     -------
-    patches : ndarray, shape (N/rstride * M/cstride, 2 * (rstride + cstride))
+    ndarray, shape (N/rstride * M/cstride, 2 * (rstride + cstride))
     """
     assert rstride > 0 and cstride > 0
     assert (x.shape[0] - 1) % rstride == 0

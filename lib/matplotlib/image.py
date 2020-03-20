@@ -1421,7 +1421,7 @@ def imread(fname, format=None):
 
     Returns
     -------
-    imagedata : :class:`numpy.array`
+    `numpy.array`
         The image data. The returned array has shape
 
         - (M, N) for grayscale images.
@@ -1656,7 +1656,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
 
     Returns
     -------
-    figure : `~.figure.Figure`
+    `~.figure.Figure`
         The figure instance containing the thumbnail.
     """
 

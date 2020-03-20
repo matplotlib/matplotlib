@@ -1197,7 +1197,7 @@ class FontManager:
 
         Returns
         -------
-        fontfile : str
+        str
             The filename of the best matching font.
 
         Notes
