@@ -1204,7 +1204,7 @@ default: 'top'
             cbook.warn_deprecated(
                 "3.3",
                 message="Calling add_axes() without argument is "
-                "deprecated. You may want to use add_suplot() "
+                "deprecated. You may want to use add_subplot() "
                 "instead.")
             return
 
