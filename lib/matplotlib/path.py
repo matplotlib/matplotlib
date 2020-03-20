@@ -625,6 +625,57 @@ class Path:
         return _path.path_intersects_rectangle(
             self, bbox.x0, bbox.y0, bbox.x1, bbox.y1, filled)
 
+    def signed_area(self):
+        """
+        Get signed area of the filled path.
+
+        Area of a filled region is treated as positive if the path encloses it
+        in a counter-clockwise direction, but negative if the path encloses it
+        moving clockwise.
+
+        All sub paths are treated as if they had been closed. That is, if there
+        is a MOVETO without a preceding CLOSEPOLY, one is added.
+
+        If the path is made up of multiple components that overlap, the
+        overlapping area is multiply counted.
+
+        Returns
+        -------
+        float
+            The signed area enclosed by the path.
+
+        Examples
+        --------
+        A symmetric figure eight, (where one loop is clockwise and
+        the other counterclockwise) would have a total *signed_area* of zero,
+        since the two loops would cancel each other out.
+
+        Notes
+        -----
+        If the Path is not self-intersecting and has no overlapping components,
+        then the absolute value of the signed area is equal to the actual
+        filled area when the Path is drawn (e.g. as a PathPatch).
+        """
+        area = 0
+        prev_point = None
+        prev_code = None
+        start_point = None
+        for B, code in self.iter_bezier():
+            if code == Path.MOVETO:
+                if prev_code is not None and prev_code is not Path.CLOSEPOLY:
+                    Bclose = BezierSegment(np.array([prev_point, start_point]))
+                    area += Bclose.arc_area
+                start_point = B.control_points[0]
+            area += B.arc_area
+            prev_point = B.control_points[-1]
+            prev_code = code
+        # add final implied CLOSEPOLY, if necessary
+        if start_point is not None \
+                and not np.all(np.isclose(start_point, prev_point)):
+            B = BezierSegment(np.array([prev_point, start_point]))
+            area += B.arc_area
+        return area
+
     def interpolated(self, steps):
         """
         Return a new path resampled to length N x steps.
