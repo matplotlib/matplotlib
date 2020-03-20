@@ -59,8 +59,8 @@ steps:
     set -e
     case "$(python -c 'import sys; print(sys.platform)')" in
     linux)
-      sudo apt-get update
-      sudo apt-get install \
+      sudo apt update
+      sudo apt install \
         cm-super \
         dvipng \
         ffmpeg \
@@ -69,7 +69,6 @@ steps:
         graphviz \
         inkscape \
         libcairo2 \
-        libgeos-dev \
         libgirepository-1.0.1 \
         lmodern \
         fonts-freefont-otf \
