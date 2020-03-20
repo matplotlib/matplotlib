@@ -143,6 +143,11 @@ from .transforms import IdentityTransform, Affine2D
 _empty_path = Path(np.empty((0, 2)))
 
 
+normalization_options = ["none", "classic", "bbox", "bbox-width", "bbox-area",
+                         "area"]
+centering_options = ["none", "classic", "bbox", "mass"]
+
+
 class MarkerStyle:
 
     markers = {
@@ -202,7 +207,7 @@ class MarkerStyle:
     _point_size_reduction = 0.5
 
     def __init__(self, marker=None, fillstyle=None, *,
-                 normalization="classic"):
+                 normalization="classic", centering="classic"):
         """
         Attributes
         ----------
@@ -221,16 +226,30 @@ class MarkerStyle:
         fillstyle : str, optional, default: 'full'
             'full', 'left", 'right', 'bottom', 'top', 'none'
 
-        normalization : str, {'classic', 'none'}, optional, default: "classic"
-            The normalization of the marker size. Only applies to custom paths
-            that are provided as array of vertices or `~.path.Path`.
-            Can take two values:
-            *'classic'*, being the default, makes sure the marker path is
-            normalized to fit within a unit-square by affine scaling.
+        normalization : str, optional, default: "classic"
+            The normalization of the marker size. Can take several values:
+            *'classic'*, being the default, makes sure custom marker paths are
+            normalized to fit within a unit-square by affine scaling (but
+            leaves built-in markers as-is).
+            *'bbox-width'*, ensure marker path fits in the unit square.
+            *'area'*, rescale so the marker path has unit "signed_area".
+            *'bbox-area'*, rescale so that the marker path's bbox has unit
+            area.
             *'none'*, in which case no scaling is performed on the marker path.
+
+        centering : str, optional, default: "classic"
+            The centering of the marker. Can take several values:
+            *'none'*, being the default, does not translate the marker path.
+            The origin in path coordinates is the marker center in this case.
+            *'bbox'*, translates the marker path so that its bbox's center is
+            at the origin.
+            *'center-of-mass'*, translates the marker path so that its center
+            of mass it as the origin. See Path.center_of_mass for details.
         """
         cbook._check_in_list(["classic", "none"], normalization=normalization)
+        cbook._check_in_list(["centering", "none"], centering=centering)
         self._normalize = normalization
+        self._center = centering
         self._marker_function = None
         self.set_fillstyle(fillstyle)
         self.set_marker(marker)
@@ -319,6 +338,13 @@ class MarkerStyle:
         """
         Sets the transform of the marker. This is the transform by which the
         marker path is transformed.
+
+        In order to change the marker relative to its current state, make sure
+        to compose with the current transform. Remember that the transform on
+        the left of the addition side is applied first. For example:
+
+            >>> spin = mpl.transforms.Affine2D().rotate_deg(90)
+            >>> marker.set_transform(marker.get_transform() + spin)
         """
         self._transform = transform
 
