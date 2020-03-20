@@ -654,6 +654,41 @@ class Path:
         return _path.path_intersects_rectangle(
             self, bbox.x0, bbox.y0, bbox.x1, bbox.y1, filled)
 
+    def signed_area(self, **kwargs):
+        """
+        Get signed area filled by path.
+
+        All sub paths are treated as if they had been closed. That is, if there
+        is a MOVETO without a preceding CLOSEPOLY, one is added.
+
+        Signed area means that if a path is self-intersecting, the drawing rule
+        "even-odd" is used and only the filled area is counted.
+
+        Returns
+        -------
+        area : float
+            The (signed) enclosed area of the path.
+        """
+        area = 0
+        prev_point = None
+        prev_code = None
+        start_point = None
+        for B, code in self.iter_bezier(**kwargs):
+            if code == Path.MOVETO:
+                if prev_code is not None and prev_code is not Path.CLOSEPOLY:
+                    Bclose = BezierSegment(np.array([prev_point, start_point]))
+                    area += Bclose.arc_area()
+                start_point = B.control_points[0]
+            area += B.arc_area()
+            prev_point = B.control_points[-1]
+            prev_code = code
+        # add final implied CLOSEPOLY, if necessary
+        if start_point is not None \
+                and not np.all(np.isclose(start_point, prev_point)):
+            B = BezierSegment(np.array([prev_point, start_point]))
+            area += B.arc_area()
+        return area
+
     def interpolated(self, steps):
         """
         Return a new path resampled to length N x steps.

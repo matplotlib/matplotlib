@@ -200,15 +200,114 @@ class BezierSegment:
         coeff = [math.factorial(self._N - 1)
                  // (math.factorial(i) * math.factorial(self._N - 1 - i))
                  for i in range(self._N)]
-        self._px = self._cpoints.T * coeff
+        self._px = (self._cpoints.T * coeff).T
 
     def __call__(self, t):
-        return self.point_at_t(t)
+        t = np.array(t)
+        orders_shape = (1,)*t.ndim + self._orders.shape
+        t_shape = t.shape + (1,)  # self._orders.ndim == 1
+        orders = np.reshape(self._orders, orders_shape)
+        rev_orders = np.reshape(self._orders[::-1], orders_shape)
+        t = np.reshape(t, t_shape)
+        return ((1 - t)**rev_orders * t**orders) @ self._px
 
     def point_at_t(self, t):
         """Return the point on the Bezier curve for parameter *t*."""
-        return tuple(
-            self._px @ (((1 - t) ** self._orders)[::-1] * t ** self._orders))
+        return tuple(self(t))
+
+    def arc_area(self):
+        r"""
+        (Signed) area swept out by ray from origin to curve.
+
+        Notes
+        -----
+        A simple, analytical formula is possible for arbitrary bezier curves.
+
+        Given a bezier curve B(t), in order to calculate the area of the arc
+        swept out by the ray from the origin to the curve, we simply need to
+        compute :math:`\frac{1}{2}\int_0^1 B(t) \cdot n(t) dt`, where
+        :math:`n(t) = u^{(1)}(t) \hat{x}_0 - u{(0)}(t) \hat{x}_1` is the normal
+        vector oriented away from the origin and :math:`u^{(i)}(t) =
+        \frac{d}{dt} B^{(i)}(t)` is the :math:`i`th component of the curve's
+        tangent vector.  (This formula can be found by applying the divergence
+        theorem to :math:`F(x,y) = [x, y]/2`, and calculates the *signed* area
+        for a counter-clockwise curve, by the right hand rule).
+
+        The control points of the curve are just its coefficients in a
+        Bernstein expansion, so if we let :math:`P_i = [P^{(0)}_i, P^{(1)}_i]`
+        be the :math:`i`'th control point, then
+
+        .. math::
+
+            \frac{1}{2}\int_0^1 B(t) \cdot n(t) dt
+                   &= \frac{1}{2}\int_0^1 B^{(0)}(t) \frac{d}{dt} B^{(1)}(t)
+                                        - B^{(1)}(t) \frac{d}{dt} B^{(0)}(t)
+                                        dt \\
+                   &= \frac{1}{2}\int_0^1
+                        \left( \sum_{j=0}^n P_j^{(0)} b_{j,n} \right)
+                        \left( n \sum_{k=0}^{n-1} (P_{k+1}^{(1)} -
+                               P_{k}^{(1)}) b_{j,n} \right)
+                      \\
+                      &\hspace{1em} - \left( \sum_{j=0}^n P_j^{(1)} b_{j,n}
+                        \right) \left( n \sum_{k=0}^{n-1} (P_{k+1}^{(0)}
+                                     - P_{k}^{(0)}) b_{j,n} \right)
+                      dt,
+
+        where :math:`b_{\nu, n}(t) = {n \choose \nu} t^\nu {(1 - t)}^{n-\nu}`
+        is the :math:`\nu`'th Bernstein polynomial of degree :math:`n`.
+
+        Grouping :math:`t^l(1-t)^m` terms together for each :math:`l`,
+        :math:`m`, we get that the integrand becomes
+
+        .. math::
+
+            \sum_{j=0}^n \sum_{k=0}^{n-1}
+                {n \choose j} {{n - 1} \choose k}
+                &\left[P_j^{(0)} (P_{k+1}^{(1)} - P_{k}^{(1)})
+                    - P_j^{(1)} (P_{k+1}^{(0)} - P_{k}^{(0)})\right] \\
+                &\hspace{1em}\times{}t^{j + k} {(1 - t)}^{2n - 1 - j - k}
+
+        or just
+
+        .. math::
+
+            \sum_{j=0}^n \sum_{k=0}^{n-1}
+                \frac{{n \choose j} {{n - 1} \choose k}}
+                        {{{2n - 1} \choose {j+k}}}
+                [P_j^{(0)} (P_{k+1}^{(1)} - P_{k}^{(1)})
+                    - P_j^{(1)} (P_{k+1}^{(0)} - P_{k}^{(0)})]
+                b_{j+k,2n-1}(t).
+
+        Interchanging sum and integral, and using the fact that :math:`\int_0^1
+        b_{\nu, n}(t) dt = \frac{1}{n + 1}`, we conclude that the
+        original integral  can
+        simply be written as
+
+        .. math::
+
+            \frac{1}{2}&\int_0^1 B(t) \cdot n(t) dt
+            \\
+            &= \frac{1}{4}\sum_{j=0}^n \sum_{k=0}^{n-1}
+              \frac{{n \choose j} {{n - 1} \choose k}}
+                    {{{2n - 1} \choose {j+k}}}
+              [P_j^{(0)} (P_{k+1}^{(1)} - P_{k}^{(1)})
+             - P_j^{(1)} (P_{k+1}^{(0)} - P_{k}^{(0)})]
+        """
+        n = self.degree
+        area = 0
+        P = self.control_points
+        dP = np.diff(P, axis=0)
+        for j in range(n + 1):
+            for k in range(n):
+                area += _comb(n, j)*_comb(n-1, k)/_comb(2*n - 1, j + k) \
+                        * (P[j, 0]*dP[k, 1] - P[j, 1]*dP[k, 0])
+        return (1/4)*area
+
+    @classmethod
+    def differentiate(cls, B):
+        """Return the derivative of a BezierSegment, itself a BezierSegment"""
+        dcontrol_points = B.degree*np.diff(B.control_points, axis=0)
+        return cls(dcontrol_points)
 
     @property
     def control_points(self):
@@ -279,6 +378,7 @@ class BezierSegment:
         """
         n = self.degree
         Cj = self.polynomial_coefficients
+        # much faster than .differentiate(self).polynomial_coefficients
         dCj = np.atleast_2d(np.arange(1, n+1)).T * Cj[1:]
         if len(dCj) == 0:
             return np.array([]), np.array([])

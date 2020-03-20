@@ -55,6 +55,22 @@ def test_exact_extents_cubic():
     np.testing.assert_equal(hard_curve.get_exact_extents(), [0., 0., 0.75, 1.])
 
 
+def test_signed_area_unit_circle():
+    circ = Path.unit_circle()
+    # not quite pi...since it's not quite a circle!
+    assert(np.isclose(circ.signed_area(), 3.1415935732517166))
+    # now counter-clockwise
+    rverts = circ.vertices[-2::-1]
+    rverts = np.append(rverts, np.atleast_2d(circ.vertices[0]), axis=0)
+    rcirc = Path(rverts, circ.codes)
+    assert(np.isclose(rcirc.signed_area(), -3.1415935732517166))
+
+
+def test_signed_area_unit_rectangle():
+    rect = Path.unit_rectangle()
+    assert(np.isclose(rect.signed_area(), 1))
+
+
 def test_point_in_path_nan():
     box = np.array([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]])
     p = Path(box)
