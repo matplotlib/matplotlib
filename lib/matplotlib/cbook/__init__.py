@@ -1959,12 +1959,12 @@ def _define_aliases(alias_d, cls=None):
 
 def _array_perimeter(arr):
     """
-    Get the elements on the perimeter of ``arr``,
+    Get the elements on the perimeter of *arr*.
 
     Parameters
     ----------
     arr : ndarray, shape (M, N)
-        The input array
+        The input array.
 
     Returns
     -------
