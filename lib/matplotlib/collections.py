@@ -16,7 +16,6 @@ import numpy as np
 import matplotlib as mpl
 from . import (_path, artist, cbook, cm, colors as mcolors, docstring,
                lines as mlines, path as mpath, transforms)
-from .rcsetup import validate_joinstyle, validate_capstyle
 import warnings
 
 
@@ -600,7 +599,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         cs : {'butt', 'round', 'projecting'}
             The capstyle
         """
-        validate_capstyle(cs)
+        mpl.rcsetup.validate_capstyle(cs)
         self._capstyle = cs
 
     def get_capstyle(self):
@@ -615,7 +614,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         js : {'miter', 'round', 'bevel'}
             The joinstyle
         """
-        validate_joinstyle(js)
+        mpl.rcsetup.validate_joinstyle(js)
         self._joinstyle = js
 
     def get_joinstyle(self):

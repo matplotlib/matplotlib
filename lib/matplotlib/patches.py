@@ -14,7 +14,6 @@ from .bezier import (
     get_parallels, inside_circle, make_wedged_bezier2,
     split_bezier_intersecting_with_closedpath, split_path_inout)
 from .path import Path
-from .rcsetup import validate_joinstyle, validate_capstyle
 
 
 @cbook._define_aliases({
@@ -462,7 +461,7 @@ class Patch(artist.Artist):
         ----------
         s : {'butt', 'round', 'projecting'}
         """
-        validate_capstyle(s)
+        mpl.rcsetup.validate_capstyle(s)
         self._capstyle = s
         self.stale = True
 
@@ -477,7 +476,7 @@ class Patch(artist.Artist):
         ----------
         s : {'miter', 'round', 'bevel'}
         """
-        validate_joinstyle(s)
+        mpl.rcsetup.validate_joinstyle(s)
         self._joinstyle = s
         self.stale = True
 
