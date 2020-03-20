@@ -255,8 +255,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
 
 @lru_cache()
 def _call_fc_list():
-    """Cache and list the font filenames known to `fc-list`.
-    """
+    """Cache and list the font filenames known to `fc-list`."""
     # Delay the warning by 5s.
     timer = Timer(5, lambda: _log.warning(
         'Matplotlib is building the font cache using fc-list. '

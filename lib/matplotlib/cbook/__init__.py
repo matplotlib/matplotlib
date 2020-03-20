@@ -101,7 +101,8 @@ class _StrongRef:
 
 
 class CallbackRegistry:
-    """Handle registering and disconnecting for a set of signals and callbacks:
+    """
+    Handle registering and disconnecting for a set of signals and callbacks:
 
         >>> def oneat(x):
         ...    print('eat', x)
@@ -1869,7 +1870,8 @@ other Matplotlib process is running, remove this file and try again.""".format(
 def _topmost_artist(
         artists,
         _cached_max=functools.partial(max, key=operator.attrgetter("zorder"))):
-    """Get the topmost artist of a list.
+    """
+    Get the topmost artist of a list.
 
     In case of a tie, return the *last* of the tied artists, as it will be
     drawn on top of the others. `max` returns the first maximum in case of
@@ -1879,7 +1881,8 @@ def _topmost_artist(
 
 
 def _str_equal(obj, s):
-    """Return whether *obj* is a string equal to string *s*.
+    """
+    Return whether *obj* is a string equal to string *s*.
 
     This helper solely exists to handle the case where *obj* is a numpy array,
     because in such cases, a naive ``obj == s`` would yield an array, which
@@ -1889,7 +1892,8 @@ def _str_equal(obj, s):
 
 
 def _str_lower_equal(obj, s):
-    """Return whether *obj* is a string equal, when lowercased, to string *s*.
+    """
+    Return whether *obj* is a string equal, when lowercased, to string *s*.
 
     This helper solely exists to handle the case where *obj* is a numpy array,
     because in such cases, a naive ``obj == s`` would yield an array, which
@@ -1899,7 +1903,8 @@ def _str_lower_equal(obj, s):
 
 
 def _define_aliases(alias_d, cls=None):
-    """Class decorator for defining property aliases.
+    """
+    Class decorator for defining property aliases.
 
     Use as ::
 
@@ -2094,7 +2099,8 @@ def _array_patch_perimeters(x, rstride, cstride):
 
 @contextlib.contextmanager
 def _setattr_cm(obj, **kwargs):
-    """Temporarily set some attributes; restore original state at context exit.
+    """
+    Temporarily set some attributes; restore original state at context exit.
     """
     sentinel = object()
     origs = [(attr, getattr(obj, attr, sentinel)) for attr in kwargs]
