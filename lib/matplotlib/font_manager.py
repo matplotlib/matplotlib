@@ -907,15 +907,15 @@ def json_dump(data, filename):
     """
     Dump `FontManager` *data* as JSON to the file named *filename*.
 
+    See Also
+    --------
+    json_load
+
     Notes
     -----
     File paths that are children of the Matplotlib data path (typically, fonts
     shipped with Matplotlib) are stored relative to that data path (to remain
     valid across virtualenvs).
-
-    See Also
-    --------
-    json_load
     """
     with open(filename, 'w') as fh:
         try:
