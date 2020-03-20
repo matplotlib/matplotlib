@@ -1,4 +1,5 @@
 import functools
+import importlib
 import os
 import re
 import signal
@@ -108,7 +109,9 @@ def _create_qApp():
             # check for DISPLAY env variable on X11 build of Qt
             if is_pyqt5():
                 try:
-                    from PyQt5 import QtX11Extras
+                    importlib.import_module(
+                        # i.e. PyQt5.QtX11Extras or PySide2.QtX11Extras.
+                        f"{QtWidgets.__package__}.QtX11Extras")
                     is_x11_build = True
                 except ImportError:
                     is_x11_build = False
