@@ -107,9 +107,12 @@ class TextToPath:
 
         Returns
         -------
-        verts, codes : tuple of lists
-            *verts*  is a list of numpy arrays containing the x and y
-            coordinates of the vertices. *codes* is a list of path codes.
+        verts : list
+            A list of numpy arrays containing the x and y coordinates of the
+            vertices.
+
+        codes : list
+            A list of path codes.
 
         Examples
         --------

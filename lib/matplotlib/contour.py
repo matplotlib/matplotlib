@@ -1622,7 +1622,7 @@ class QuadContourSet(ContourSet):
 
         Returns
         -------
-        c : `~.contour.QuadContourSet`
+        `~.contour.QuadContourSet`
 
         Other Parameters
         ----------------

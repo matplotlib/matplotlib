@@ -490,7 +490,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
     Returns
     -------
-    figure : `~matplotlib.figure.Figure`
+    `~matplotlib.figure.Figure`
         The `.Figure` instance returned will also be passed to
         new_figure_manager in the backends, which allows to hook custom
         `.Figure` classes into the pyplot interface. Additional kwargs will be
@@ -654,7 +654,7 @@ def get_current_fig_manager():
 
     Returns
     -------
-    manager : `.FigureManagerBase` or backend-dependent subclass thereof
+    `.FigureManagerBase` or backend-dependent subclass thereof
     """
     return gcf().canvas.manager
 
@@ -789,6 +789,14 @@ def axes(arg=None, **kwargs):
     label : str
         A label for the returned axes.
 
+    Returns
+    -------
+    `~.axes.Axes` (or a subclass of `~.axes.Axes`)
+        The returned axes class depends on the projection used. It is
+        `~.axes.Axes` if rectilinear projection are used and
+        `.projections.polar.PolarAxes` if polar projection
+        are used.
+
     Other Parameters
     ----------------
     **kwargs
@@ -800,14 +808,6 @@ def axes(arg=None, **kwargs):
         class.
 
         %(Axes)s
-
-    Returns
-    -------
-    axes : `~.axes.Axes` (or a subclass of `~.axes.Axes`)
-        The returned axes class depends on the projection used. It is
-        `~.axes.Axes` if rectilinear projection are used and
-        `.projections.polar.PolarAxes` if polar projection
-        are used.
 
     Notes
     -----
@@ -914,6 +914,17 @@ def subplot(*args, **kwargs):
     label : str
         A label for the returned axes.
 
+    Returns
+    -------
+    an `.axes.SubplotBase` subclass of `~.axes.Axes` (or a subclass of \
+`~.axes.Axes`)
+
+        The axes of the subplot. The returned axes base class depends on
+        the projection used. It is `~.axes.Axes` if rectilinear projection
+        are used and `.projections.polar.PolarAxes` if polar projection
+        are used. The returned axes is then a subplot subclass of the
+        base class.
+
     Other Parameters
     ----------------
     **kwargs
@@ -924,17 +935,6 @@ def subplot(*args, **kwargs):
         arguments if another projection is used.
 
         %(Axes)s
-
-    Returns
-    -------
-    axes : an `.axes.SubplotBase` subclass of `~.axes.Axes` (or a subclass \
-    of `~.axes.Axes`)
-
-        The axes of the subplot. The returned axes base class depends on
-        the projection used. It is `~.axes.Axes` if rectilinear projection
-        are used and `.projections.polar.PolarAxes` if polar projection
-        are used. The returned axes is then a subplot subclass of the
-        base class.
 
     Notes
     -----
@@ -1112,6 +1112,14 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         because for the latter it's not clear if it refers to a single
         `~.axes.Axes` instance or a collection of these.
 
+    See Also
+    --------
+    .pyplot.figure
+    .pyplot.subplot
+    .pyplot.axes
+    .Figure.subplots
+    .Figure.add_subplot
+
     Examples
     --------
     ::
@@ -1151,14 +1159,6 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         # Create figure number 10 with a single subplot
         # and clears it if it already exists.
         fig, ax = plt.subplots(num=10, clear=True)
-
-    See Also
-    --------
-    .pyplot.figure
-    .pyplot.subplot
-    .pyplot.axes
-    .Figure.subplots
-    .Figure.add_subplot
 
     """
     fig = figure(**fig_kw)
@@ -1562,13 +1562,23 @@ def rgrids(*args, **kwargs):
 
     Returns
     -------
-    lines, labels : list of `.lines.Line2D`, list of `.text.Text`
-        *lines* are the radial gridlines and *labels* are the tick labels.
+    lines : list of `.lines.Line2D`
+        The radial gridlines.
+
+    labels : list of `.text.Text`
+        The tick labels.
 
     Other Parameters
     ----------------
     **kwargs
         *kwargs* are optional `~.Text` properties for the labels.
+
+    See Also
+    --------
+    .pyplot.thetagrids
+    .projections.polar.PolarAxes.set_rgrids
+    .Axis.get_gridlines
+    .Axis.get_ticklabels
 
     Examples
     --------
@@ -1579,13 +1589,6 @@ def rgrids(*args, **kwargs):
 
       # set the locations and labels of the radial gridlines
       lines, labels = rgrids( (0.25, 0.5, 1.0), ('Tom', 'Dick', 'Harry' ))
-
-    See Also
-    --------
-    .pyplot.thetagrids
-    .projections.polar.PolarAxes.set_rgrids
-    .Axis.get_gridlines
-    .Axis.get_ticklabels
     """
     ax = gca()
     if not isinstance(ax, PolarAxes):
@@ -1626,13 +1629,23 @@ def thetagrids(*args, **kwargs):
 
     Returns
     -------
-    lines, labels : list of `.lines.Line2D`, list of `.text.Text`
-        *lines* are the theta gridlines and *labels* are the tick labels.
+    lines : list of `.lines.Line2D`
+        The theta gridlines.
+
+    labels : list of `.text.Text`
+        The tick labels.
 
     Other Parameters
     ----------------
     **kwargs
         *kwargs* are optional `~.Text` properties for the labels.
+
+    See Also
+    --------
+    .pyplot.rgrids
+    .projections.polar.PolarAxes.set_thetagrids
+    .Axis.get_gridlines
+    .Axis.get_ticklabels
 
     Examples
     --------
@@ -1643,13 +1656,6 @@ def thetagrids(*args, **kwargs):
 
       # set the locations and labels of the angular gridlines
       lines, labels = thetagrids(range(45, 360, 90), ('NE', 'NW', 'SW', 'SE'))
-
-    See Also
-    --------
-    .pyplot.rgrids
-    .projections.polar.PolarAxes.set_thetagrids
-    .Axis.get_gridlines
-    .Axis.get_ticklabels
     """
     ax = gca()
     if not isinstance(ax, PolarAxes):
@@ -2080,7 +2086,7 @@ def matshow(A, fignum=None, **kwargs):
 
     Returns
     -------
-    image : `~matplotlib.image.AxesImage`
+    `~matplotlib.image.AxesImage`
 
     Other Parameters
     ----------------

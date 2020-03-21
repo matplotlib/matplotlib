@@ -1298,8 +1298,11 @@ class PolarAxes(Axes):
 
         Returns
         -------
-        lines, labels : list of `.lines.Line2D`, list of `.text.Text`
-            *lines* are the theta gridlines and *labels* are the tick labels.
+        lines : list of `.lines.Line2D`
+            The theta gridlines.
+
+        labels : list of `.text.Text`
+            The tick labels.
 
         Other Parameters
         ----------------
@@ -1348,8 +1351,11 @@ class PolarAxes(Axes):
 
         Returns
         -------
-        lines, labels : list of `.lines.Line2D`, list of `.text.Text`
-            *lines* are the radial gridlines and *labels* are the tick labels.
+        lines : list of `.lines.Line2D`
+            The radial gridlines.
+
+        labels : list of `.text.Text`
+            The tick labels.
 
         Other Parameters
         ----------------

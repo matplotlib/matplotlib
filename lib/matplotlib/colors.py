@@ -427,7 +427,7 @@ def _create_lookup_table(N, data, gamma=1.0):
 
     Returns
     -------
-    lut : array
+    array
         The lookup table where ``lut[x * (N-1)]`` gives the closest value
         for values of x between 0 and 1.
 
@@ -1478,7 +1478,7 @@ def rgb_to_hsv(arr):
 
     Returns
     -------
-    hsv : (..., 3) ndarray
+    (..., 3) ndarray
        Colors converted to hsv values in range [0, 1]
     """
     arr = np.asarray(arr)
@@ -1529,7 +1529,7 @@ def hsv_to_rgb(hsv):
 
     Returns
     -------
-    rgb : (..., 3) ndarray
+    (..., 3) ndarray
        Colors converted to RGB values in range [0, 1]
     """
     hsv = np.asarray(hsv)
@@ -1697,7 +1697,7 @@ class LightSource:
 
         Returns
         -------
-        intensity : ndarray
+        ndarray
             A 2d array of illumination values between 0-1, where 0 is
             completely in shadow and 1 is completely illuminated.
         """
@@ -1740,7 +1740,7 @@ class LightSource:
 
         Returns
         -------
-        intensity : ndarray
+        ndarray
             A 2d array of illumination values between 0-1, where 0 is
             completely in shadow and 1 is completely illuminated.
         """
@@ -1823,7 +1823,7 @@ class LightSource:
 
         Returns
         -------
-        rgba : ndarray
+        ndarray
             An MxNx4 array of floats ranging between 0-1.
         """
         if vmin is None:
@@ -1884,7 +1884,7 @@ class LightSource:
 
         Returns
         -------
-        shaded_rgb : ndarray
+        ndarray
             An (m, n, 3) array of floats ranging between 0-1.
         """
         # Calculate the "hillshade" intensity.
@@ -1950,7 +1950,7 @@ class LightSource:
 
         Returns
         -------
-        rgb : ndarray
+        ndarray
             An MxNx3 RGB array representing the combined images.
         """
         # Backward compatibility...
@@ -2000,7 +2000,7 @@ class LightSource:
 
         Returns
         -------
-        rgb : ndarray
+        ndarray
             An MxNx3 RGB array representing the combined images.
         """
         return 2 * intensity * rgb + (1 - 2 * intensity) * rgb**2
@@ -2018,7 +2018,7 @@ class LightSource:
 
         Returns
         -------
-        rgb : ndarray
+        ndarray
             An MxNx3 RGB array representing the combined images.
         """
         low = 2 * intensity * rgb

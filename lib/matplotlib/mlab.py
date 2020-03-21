@@ -1076,7 +1076,7 @@ class GaussianKDE:
 
         Returns
         -------
-        values : (# of points,)-array
+        (# of points,)-array
             The values at each point.
 
         Raises

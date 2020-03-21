@@ -986,7 +986,7 @@ class GraphicsContextBase:
 
         Returns
         -------
-        sketch_params : tuple or `None`
+        tuple or `None`
 
             A 3-tuple with the following elements:
 
@@ -1850,7 +1850,7 @@ class FigureCanvasBase:
 
         Returns
         -------
-        axes : `~matplotlib.axes.Axes` or None
+        `~matplotlib.axes.Axes` or None
             The topmost visible axes containing the point, or None if no axes.
         """
         axes_list = [a for a in self.figure.get_axes()

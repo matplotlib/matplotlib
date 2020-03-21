@@ -1431,7 +1431,7 @@ class Transform(TransformNode):
 
         Returns
         -------
-        values : array
+        array
             The output values as NumPy array of length :attr:`input_dims` or
             shape (N x :attr:`output_dims`), depending on the input.
         """
@@ -1456,7 +1456,7 @@ class Transform(TransformNode):
 
         Returns
         -------
-        values : array
+        array
             The output values as NumPy array of length :attr:`input_dims` or
             shape (N x :attr:`output_dims`), depending on the input.
         """
@@ -1558,7 +1558,7 @@ class Transform(TransformNode):
 
         Returns
         -------
-        transformed_angles : (N,) array
+        (N,) array
         """
         # Must be 2D
         if self.input_dims != 2 or self.output_dims != 2:
@@ -2861,7 +2861,7 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
 
     Returns
     -------
-    trans : `Transform` subclass
+    `Transform` subclass
         Transform with applied offset.
     """
     if units == 'dots':

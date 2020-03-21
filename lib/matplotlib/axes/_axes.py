@@ -104,7 +104,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        title : str
+        str
             The title text string.
 
         """
@@ -145,7 +145,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        text : `.Text`
+        `.Text`
             The matplotlib text instance representing the title
 
         Other Parameters
@@ -209,7 +209,7 @@ class Axes(_AxesBase):
         **kwargs : `.Text` properties
             `.Text` properties control the appearance of the label.
 
-        See also
+        See Also
         --------
         text : Documents the properties supported by `.Text`.
         """
@@ -262,7 +262,7 @@ class Axes(_AxesBase):
         **kwargs : `.Text` properties
             `.Text` properties control the appearance of the label.
 
-        See also
+        See Also
         --------
         text : Documents the properties supported by `.Text`.
         """
@@ -377,13 +377,13 @@ class Axes(_AxesBase):
             is shown in the legend and the automatic mechanism described above
             is not sufficient.
 
+        Returns
+        -------
+        `~matplotlib.legend.Legend`
+
         Other Parameters
         ----------------
         %(_legend_kw_doc)s
-
-        Returns
-        -------
-        legend : `~matplotlib.legend.Legend`
 
         Notes
         -----
@@ -708,7 +708,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        text : `.Text`
+        `.Text`
             The created `.Text` instance.
 
         Other Parameters
@@ -784,7 +784,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        line : `~matplotlib.lines.Line2D`
+        `~matplotlib.lines.Line2D`
 
         Other Parameters
         ----------------
@@ -794,7 +794,7 @@ class Axes(_AxesBase):
 
             %(_Line2D_docstr)s
 
-        See also
+        See Also
         --------
         hlines : Add horizontal lines in data coordinates.
         axhspan : Add a horizontal span (rectangle) across the axis.
@@ -853,7 +853,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        line : `~matplotlib.lines.Line2D`
+        `~matplotlib.lines.Line2D`
 
         Other Parameters
         ----------------
@@ -862,6 +862,12 @@ class Axes(_AxesBase):
             exception of 'transform':
 
             %(_Line2D_docstr)s
+
+        See Also
+        --------
+        vlines : Add vertical lines in data coordinates.
+        axvspan : Add a vertical span (rectangle) across the axis.
+        axline : Add a line with an abritrary slope.
 
         Examples
         --------
@@ -877,12 +883,6 @@ class Axes(_AxesBase):
           the yrange::
 
             >>> axvline(x=.5, ymin=0.25, ymax=0.75)
-
-        See also
-        --------
-        vlines : Add vertical lines in data coordinates.
-        axvspan : Add a vertical span (rectangle) across the axis.
-        axline : Add a line with an abritrary slope.
         """
 
         if "transform" in kwargs:
@@ -929,16 +929,16 @@ class Axes(_AxesBase):
 
             %(_Line2D_docstr)s
 
+        See Also
+        --------
+        axhline : for horizontal lines
+        axvline : for vertical lines
+
         Examples
         --------
         Draw a thick red line passing through (0, 0) and (1, 1)::
 
             >>> axline((0, 0), (1, 1), linewidth=4, color='r')
-
-        See Also
-        --------
-        axhline : for horizontal lines
-        axvline : for vertical lines
         """
 
         if "transform" in kwargs:
@@ -984,7 +984,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        rectangle : `~matplotlib.patches.Polygon`
+        `~matplotlib.patches.Polygon`
             Horizontal span (rectangle) from (xmin, ymin) to (xmax, ymax).
 
         Other Parameters
@@ -1036,7 +1036,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        rectangle : `~matplotlib.patches.Polygon`
+        `~matplotlib.patches.Polygon`
             Vertical span (rectangle) from (xmin, ymin) to (xmax, ymax).
 
         Other Parameters
@@ -1097,13 +1097,13 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lines : `~matplotlib.collections.LineCollection`
+        `~matplotlib.collections.LineCollection`
 
         Other Parameters
         ----------------
         **kwargs :  `~matplotlib.collections.LineCollection` properties.
 
-        See also
+        See Also
         --------
         vlines : vertical lines
         axhline: horizontal line across the axes
@@ -1175,13 +1175,13 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        lines : `~matplotlib.collections.LineCollection`
+        `~matplotlib.collections.LineCollection`
 
         Other Parameters
         ----------------
         **kwargs : `~matplotlib.collections.LineCollection` properties.
 
-        See also
+        See Also
         --------
         hlines : horizontal lines
         axvline: vertical line across the axes
@@ -1311,7 +1311,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        list : list of `.EventCollection`
+        list of `.EventCollection`
             The `.EventCollection` that were added.
 
         Notes
@@ -1572,6 +1572,11 @@ class Axes(_AxesBase):
                 You may suppress the warning by adding an empty format string
                 ``plot('n', 'o', '', data=obj)``.
 
+        Returns
+        -------
+        list of `.Line2D`
+            A list of lines representing the plotted data.
+
         Other Parameters
         ----------------
         scalex, scaley : bool, default: True
@@ -1592,11 +1597,6 @@ class Axes(_AxesBase):
             Here is a list of available `.Line2D` properties:
 
             %(_Line2D_docstr)s
-
-        Returns
-        -------
-        lines
-            A list of `.Line2D` objects representing the plotted data.
 
         See Also
         --------
@@ -2257,7 +2257,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        container : `.BarContainer`
+        `.BarContainer`
             Container with all the bars and optionally errorbars.
 
         Other Parameters
@@ -2309,7 +2309,7 @@ class Axes(_AxesBase):
             *This is for internal use only.* Please use `barh` for
             horizontal bar plots. Default: 'vertical'.
 
-        See also
+        See Also
         --------
         barh: Plot a horizontal bar plot.
 
@@ -2530,7 +2530,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        container : `.BarContainer`
+        `.BarContainer`
             Container with all the bars and optionally errorbars.
 
         Other Parameters
@@ -2578,7 +2578,7 @@ class Axes(_AxesBase):
         log : bool, default: False
             If ``True``, set the x-axis to be log scale.
 
-        See also
+        See Also
         --------
         bar: Plot a vertical bar plot.
 
@@ -2623,6 +2623,10 @@ class Axes(_AxesBase):
         yrange : (*ymin*, *yheight*)
             The y-position and extend for all the rectangles.
 
+        Returns
+        -------
+        `~.collections.BrokenBarHCollection`
+
         Other Parameters
         ----------------
         **kwargs : `.BrokenBarHCollection` properties
@@ -2641,10 +2645,6 @@ class Axes(_AxesBase):
             Supported keywords:
 
             %(BrokenBarHCollection)s
-
-        Returns
-        -------
-        collection : `~.collections.BrokenBarHCollection`
         """
         # process the unit information
         if len(xranges):
@@ -2744,7 +2744,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        container : `.StemContainer`
+        `.StemContainer`
             The container may be treated like a tuple
             (*markerline*, *stemlines*, *baseline*)
 
@@ -3164,7 +3164,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        container : `.ErrorbarContainer`
+        `.ErrorbarContainer`
             The container contains:
 
             - plotline: `.Line2D` instance of x, y plot markers and/or line.
@@ -3601,6 +3601,30 @@ class Axes(_AxesBase):
         zorder : scalar, default: None
             Sets the zorder of the boxplot.
 
+        Returns
+        -------
+        dict
+          A dictionary mapping each component of the boxplot to a list
+          of the `.Line2D` instances created. That dictionary has the
+          following keys (assuming vertical boxplots):
+
+          - ``boxes``: the main body of the boxplot showing the
+            quartiles and the median's confidence intervals if
+            enabled.
+
+          - ``medians``: horizontal lines at the median of each box.
+
+          - ``whiskers``: the vertical lines extending to the most
+            extreme, non-outlier data points.
+
+          - ``caps``: the horizontal lines at the ends of the
+            whiskers.
+
+          - ``fliers``: points representing data that extend beyond
+            the whiskers (fliers).
+
+          - ``means``: points or lines representing the means.
+
         Other Parameters
         ----------------
         showcaps : bool, default: True
@@ -3623,30 +3647,6 @@ class Axes(_AxesBase):
             The style of the median.
         meanprops : dict, default: None
             The style of the mean.
-
-        Returns
-        -------
-        result : dict
-          A dictionary mapping each component of the boxplot to a list
-          of the `.Line2D` instances created. That dictionary has the
-          following keys (assuming vertical boxplots):
-
-          - ``boxes``: the main body of the boxplot showing the
-            quartiles and the median's confidence intervals if
-            enabled.
-
-          - ``medians``: horizontal lines at the median of each box.
-
-          - ``whiskers``: the vertical lines extending to the most
-            extreme, non-outlier data points.
-
-          - ``caps``: the horizontal lines at the ends of the
-            whiskers.
-
-          - ``fliers``: points representing data that extend beyond
-            the whiskers (fliers).
-
-          - ``means``: points or lines representing the means.
 
         """
 
@@ -3879,7 +3879,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        result : dict
+        dict
           A dictionary mapping each component of the boxplot to a list
           of the `.Line2D` instances created. That dictionary has the
           following keys (assuming vertical boxplots):
@@ -4364,7 +4364,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        paths : `~matplotlib.collections.PathCollection`
+        `~matplotlib.collections.PathCollection`
 
         Other Parameters
         ----------------
@@ -4550,6 +4550,20 @@ default: :rc:`scatter.edgecolors`
 
             Order of scalars is (left, right, bottom, top).
 
+        Returns
+        -------
+        `~matplotlib.collections.PolyCollection`
+            A `.PolyCollection` defining the hexagonal bins.
+
+            - `.PolyCollection.get_offset` contains a Mx2 array containing
+              the x, y positions of the M hexagon centers.
+            - `.PolyCollection.get_array` contains the values of the M
+              hexagons.
+
+            If *marginals* is *True*, horizontal
+            bar and vertical bar (both PolyCollections) will be attached
+            to the return collection as attributes *hbar* and *vbar*.
+
         Other Parameters
         ----------------
         cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
@@ -4599,20 +4613,6 @@ default: :rc:`scatter.edgecolors`
             All other keyword arguments are passed on to `.PolyCollection`:
 
             %(PolyCollection)s
-
-        Returns
-        -------
-        polycollection : `~matplotlib.collections.PolyCollection`
-            A `.PolyCollection` defining the hexagonal bins.
-
-            - `.PolyCollection.get_offset` contains a Mx2 array containing
-              the x, y positions of the M hexagon centers.
-            - `.PolyCollection.get_array` contains the values of the M
-              hexagons.
-
-            If *marginals* is *True*, horizontal
-            bar and vertical bar (both PolyCollections) will be attached
-            to the return collection as attributes *hbar* and *vbar*.
 
         """
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
@@ -4929,7 +4929,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        arrow : `.FancyArrow`
+        `.FancyArrow`
             The created `.FancyArrow` object.
 
         Notes
@@ -5119,6 +5119,11 @@ default: :rc:`scatter.edgecolors`
               value ``y[i]``.
             - 'mid': Steps occur half-way between the *x* positions.
 
+        Returns
+        -------
+        `.PolyCollection`
+            A `.PolyCollection` containing the plotted polygons.
+
         Other Parameters
         ----------------
         **kwargs
@@ -5126,11 +5131,6 @@ default: :rc:`scatter.edgecolors`
             They control the `.Polygon` properties:
 
             %(PolyCollection)s
-
-        Returns
-        -------
-        `.PolyCollection`
-            A `.PolyCollection` containing the plotted polygons.
 
         See Also
         --------
@@ -5432,7 +5432,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        image : `~matplotlib.image.AxesImage`
+        `~matplotlib.image.AxesImage`
 
         Other Parameters
         ----------------
@@ -5440,7 +5440,7 @@ default: :rc:`scatter.edgecolors`
             These parameters are passed on to the constructor of the
             `.AxesImage` artist.
 
-        See also
+        See Also
         --------
         matshow : Plot a matrix or an array as an image.
 
@@ -5698,7 +5698,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        collection : `matplotlib.collections.Collection`
+        `matplotlib.collections.Collection`
 
         Other Parameters
         ----------------
@@ -5951,7 +5951,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        mesh : `matplotlib.collections.QuadMesh`
+        `matplotlib.collections.QuadMesh`
 
         Other Parameters
         ----------------
@@ -6164,7 +6164,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        image : `.AxesImage` or `.PcolorImage` or `.QuadMesh`
+        `.AxesImage` or `.PcolorImage` or `.QuadMesh`
             The return type depends on the type of grid:
 
             - `.AxesImage` for a regular rectangular grid.
@@ -6471,7 +6471,7 @@ default: :rc:`scatter.edgecolors`
         **kwargs
             `~matplotlib.patches.Patch` properties
 
-        See also
+        See Also
         --------
         hist2d : 2D histograms
 
@@ -6832,7 +6832,7 @@ default: :rc:`scatter.edgecolors`
             `~.Axes.pcolormesh` method and `~matplotlib.collections.QuadMesh`
             constructor.
 
-        See also
+        See Also
         --------
         hist : 1D histogram plotting
 
@@ -7554,7 +7554,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        ret : `~matplotlib.image.AxesImage` or `.Line2D`
+        `~matplotlib.image.AxesImage` or `.Line2D`
             The return type depends on the plotting style (see above).
 
         Other Parameters
@@ -7648,7 +7648,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        image : `~matplotlib.image.AxesImage`
+        `~matplotlib.image.AxesImage`
 
         Other Parameters
         ----------------
@@ -7742,7 +7742,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        result : dict
+        dict
           A dictionary mapping each component of the violinplot to a
           list of the corresponding collection instances created. The
           dictionary has the following keys:
@@ -7842,7 +7842,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        result : dict
+        dict
           A dictionary mapping each component of the violinplot to a
           list of the corresponding collection instances created. The
           dictionary has the following keys:

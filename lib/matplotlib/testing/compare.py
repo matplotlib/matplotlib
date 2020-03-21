@@ -240,7 +240,7 @@ def comparable_formats():
 
     Returns
     -------
-    supported_formats : list of str
+    list of str
         E.g. ``['png', 'pdf', 'svg', 'eps']``.
 
     """
@@ -335,7 +335,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
 
     Returns
     -------
-    comparison_result : None or dict or str
+    None or dict or str
         Return *None* if the images are equal within the given tolerance.
 
         If the images differ, the return value depends on  *in_decorator*.

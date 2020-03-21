@@ -1296,7 +1296,8 @@ _DATA_DOC_APPENDIX = """
 
 
 def _add_data_doc(docstring, replace_names):
-    """Add documentation for a *data* field to the given docstring.
+    """
+    Add documentation for a *data* field to the given docstring.
 
     Parameters
     ----------
@@ -1309,6 +1310,7 @@ def _add_data_doc(docstring, replace_names):
 
     Returns
     -------
+    str
         The augmented docstring.
     """
     if (docstring is None

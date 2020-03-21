@@ -692,7 +692,7 @@ class SubplotSpec:
 
         Returns
         -------
-        gridspec : `.GridSpecFromSubplotSpec`
+        `.GridSpecFromSubplotSpec`
 
         Other Parameters
         ----------------

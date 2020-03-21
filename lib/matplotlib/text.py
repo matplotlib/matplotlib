@@ -1308,7 +1308,7 @@ class OffsetFrom:
 
         Returns
         -------
-        transform : `Transform`
+        `Transform`
             Maps (x, y) in pixel or point units to screen units
             relative to the given artist.
         """
@@ -1705,7 +1705,7 @@ class Annotation(Text, _AnnotationBase):
 
         Returns
         -------
-        annotation : `.Annotation`
+        `.Annotation`
 
         See Also
         --------

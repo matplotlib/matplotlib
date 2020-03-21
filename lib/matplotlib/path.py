@@ -962,7 +962,7 @@ def get_path_collection_extents(
     master_transform : `~.Transform`
         Global transformation applied to all paths.
     paths : list of `Path`
-    transform : list of `~.Affine2D`
+    transforms : list of `~.Affine2D`
     offsets : (N, 2) array-like
     offset_transform : `~.Affine2D`
         Transform applied to the offsets before offsetting the path.

@@ -1009,7 +1009,7 @@ class Polygon(Patch):
 
         Returns
         -------
-        path : Path
+        Path
            The `~.path.Path` object for the polygon.
         """
         return self._path
@@ -1020,7 +1020,7 @@ class Polygon(Patch):
 
         Returns
         -------
-        closed : bool
+        bool
             If the path is closed
         """
         return self._closed
@@ -1046,7 +1046,7 @@ class Polygon(Patch):
 
         Returns
         -------
-        vertices : (N, 2) numpy array
+        (N, 2) numpy array
             The coordinates of the vertices.
         """
         return self._path.vertices
@@ -1949,7 +1949,7 @@ class BoxStyle(_Style):
 
             Returns
             -------
-            path : `~matplotlib.path.Path`
+            `~matplotlib.path.Path`
             """
             # The __call__ method is a thin wrapper around the transmute method
             # and takes care of the aspect.
@@ -3968,7 +3968,7 @@ default: 'arc3'
 
         Returns
         -------
-        dpi_cor : scalar
+        scalar
         """
         return self._dpi_cor
 
@@ -4094,7 +4094,7 @@ default: 'arc3'
 
         Returns
         -------
-        scale : scalar
+        scalar
         """
         return self._mutation_scale
 

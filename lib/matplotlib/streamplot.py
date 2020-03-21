@@ -71,7 +71,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     Returns
     -------
-    stream_container : StreamplotSet
+    StreamplotSet
         Container object with attributes
 
         - ``lines``: `.LineCollection` of streamlines

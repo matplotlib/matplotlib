@@ -890,7 +890,7 @@ default: 'top'
 
         Returns
         -------
-        size : ndarray
+        ndarray
            The size (width, height) of the figure in inches.
 
         See Also
@@ -1032,7 +1032,8 @@ default: 'top'
 
         Returns
         -------
-        artist : The added `~matplotlib.artist.Artist`
+        `~matplotlib.artist.Artist`
+            The added artist.
         """
         artist.set_figure(self)
         self.artists.append(artist)
@@ -1142,6 +1143,14 @@ default: 'top'
         label : str
             A label for the returned axes.
 
+        Returns
+        -------
+        `~.axes.Axes` (or a subclass of `~.axes.Axes`)
+            The returned axes class depends on the projection used. It is
+            `~.axes.Axes` if rectilinear projection are used and
+            `.projections.polar.PolarAxes` if polar projection
+            are used.
+
         Other Parameters
         ----------------
         **kwargs
@@ -1153,14 +1162,6 @@ default: 'top'
             class.
 
             %(Axes)s
-
-        Returns
-        -------
-        axes : `~.axes.Axes` (or a subclass of `~.axes.Axes`)
-            The returned axes class depends on the projection used. It is
-            `~.axes.Axes` if rectilinear projection are used and
-            `.projections.polar.PolarAxes` if polar projection
-            are used.
 
         Notes
         -----
@@ -1290,6 +1291,16 @@ default: 'top'
         label : str
             A label for the returned axes.
 
+        Returns
+        -------
+        `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+
+            The axes of the subplot. The returned axes base class depends on
+            the projection used. It is `~.axes.Axes` if rectilinear projection
+            are used and `.projections.polar.PolarAxes` if polar projection
+            are used. The returned axes is then a subplot subclass of the
+            base class.
+
         Other Parameters
         ----------------
         **kwargs
@@ -1300,16 +1311,6 @@ default: 'top'
             arguments if another projection is used.
 
             %(Axes)s
-
-        Returns
-        -------
-        axes : `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
-
-            The axes of the subplot. The returned axes base class depends on
-            the projection used. It is `~.axes.Axes` if rectilinear projection
-            are used and `.projections.polar.PolarAxes` if polar projection
-            are used. The returned axes is then a subplot subclass of the
-            base class.
 
         Notes
         -----
@@ -1473,11 +1474,17 @@ default: 'top'
 
         Returns
         -------
-        ax : `~.axes.Axes` or array of Axes
-            *ax* can be either a single `~matplotlib.axes.Axes` object or
-            an array of Axes objects if more than one subplot was created. The
-            dimensions of the resulting array can be controlled with the
-            squeeze keyword, see above.
+        `~.axes.Axes` or array of Axes
+            Either a single `~matplotlib.axes.Axes` object or an array of Axes
+            objects if more than one subplot was created. The dimensions of the
+            resulting array can be controlled with the *squeeze* keyword, see
+            above.
+
+        See Also
+        --------
+        .pyplot.subplots
+        .Figure.add_subplot
+        .pyplot.subplot
 
         Examples
         --------
@@ -1517,12 +1524,6 @@ default: 'top'
 
             # Note that this is the same as
             fig.subplots(2, 2, sharex=True, sharey=True)
-
-        See Also
-        --------
-        .pyplot.subplots
-        .Figure.add_subplot
-        .pyplot.subplot
         """
 
         if isinstance(sharex, bool):
@@ -1788,13 +1789,13 @@ default: 'top'
             is shown in the legend and the automatic mechanism described above
             is not sufficient.
 
-        Other Parameters
-        ----------------
-        %(_legend_kw_doc)s
-
         Returns
         -------
         `~matplotlib.legend.Legend`
+
+        Other Parameters
+        ----------------
+        %(_legend_kw_doc)s
 
         Notes
         -----
@@ -1843,16 +1844,16 @@ default: 'top'
             the defaults are determined by :rc:`font.*`. Properties passed as
             *kwargs* override the corresponding ones given in *fontdict*.
 
+        Returns
+        -------
+        `~.text.Text`
+
         Other Parameters
         ----------------
         **kwargs : `~matplotlib.text.Text` properties
             Other miscellaneous text parameters.
 
             %(Text)s
-
-        Returns
-        -------
-        text : `~.text.Text`
 
         See Also
         --------
@@ -2286,7 +2287,7 @@ default: 'top'
 
         Returns
         -------
-        points : list of tuples
+        list of tuples
             A list of the clicked (x, y) coordinates.
 
         Notes
@@ -2343,7 +2344,7 @@ default: 'top'
 
         Returns
         -------
-        bbox : `.BboxBase`
+        `.BboxBase`
             containing the bounding box (in figure inches).
         """
 
@@ -2641,7 +2642,7 @@ default: 'top'
 
         Returns
         -------
-        gridspec : `.GridSpec`
+        `.GridSpec`
 
         Other Parameters
         ----------------

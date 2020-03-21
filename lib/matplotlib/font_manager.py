@@ -255,8 +255,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
 
 @lru_cache()
 def _call_fc_list():
-    """Cache and list the font filenames known to `fc-list`.
-    """
+    """Cache and list the font filenames known to `fc-list`."""
     # Delay the warning by 5s.
     timer = Timer(5, lambda: _log.warning(
         'Matplotlib is building the font cache using fc-list. '
@@ -908,15 +907,15 @@ def json_dump(data, filename):
     """
     Dump `FontManager` *data* as JSON to the file named *filename*.
 
+    See Also
+    --------
+    json_load
+
     Notes
     -----
     File paths that are children of the Matplotlib data path (typically, fonts
     shipped with Matplotlib) are stored relative to that data path (to remain
     valid across virtualenvs).
-
-    See Also
-    --------
-    json_load
     """
     with open(filename, 'w') as fh:
         try:
@@ -1197,7 +1196,7 @@ class FontManager:
 
         Returns
         -------
-        fontfile : str
+        str
             The filename of the best matching font.
 
         Notes

@@ -415,7 +415,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        axes : `~.axes.Axes`
+        `~.axes.Axes`
             The new `~.axes.Axes` object.
         """
 
@@ -829,7 +829,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        pos : `.Bbox`
+        `.Bbox`
 
         """
         if original:
@@ -1175,6 +1175,13 @@ class _AxesBase(martist.Artist):
             Finite-length iterable of the property values. These values
             are validated and will raise a ValueError if invalid.
 
+        See Also
+        --------
+        matplotlib.rcsetup.cycler
+            Convenience function for creating validated cyclers for properties.
+        cycler.cycler
+            The original function for creating unvalidated cyclers.
+
         Examples
         --------
         Setting the property cycle for a single property:
@@ -1186,13 +1193,6 @@ class _AxesBase(martist.Artist):
 
         >>> ax.set_prop_cycle(color=['red', 'green', 'blue'],
         ...                   marker=['o', '+', 'x'])
-
-        See Also
-        --------
-        matplotlib.rcsetup.cycler
-            Convenience function for creating validated cyclers for properties.
-        cycler.cycler
-            The original function for creating unvalidated cyclers.
 
         """
         if args and kwargs:
@@ -1673,7 +1673,7 @@ class _AxesBase(martist.Artist):
         xmin, xmax, ymin, ymax : float
             The axis limits.
 
-        See also
+        See Also
         --------
         matplotlib.axes.Axes.set_xlim
         matplotlib.axes.Axes.set_ylim
@@ -2759,7 +2759,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        axisbelow : bool or 'line'
+        bool or 'line'
 
         See Also
         --------
@@ -3388,7 +3388,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        labels : list
+        list
             List of `~matplotlib.text.Text` instances
         """
         return self.xaxis.get_majorticklabels()
@@ -3399,7 +3399,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        labels : list
+        list
             List of `~matplotlib.text.Text` instances
         """
         return self.xaxis.get_minorticklabels()
@@ -3421,7 +3421,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        ret : list
+        list
            List of `~matplotlib.text.Text` instances.
 
         Notes
@@ -3461,11 +3461,11 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        labels : list of `~.Text`
+        list of `~.Text`
             The labels.
 
         Other Parameters
-        -----------------
+        ----------------
         **kwargs : `~.text.Text` properties.
         """
         if fontdict is not None:
@@ -3781,7 +3781,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        labels : list
+        list
             List of `~matplotlib.text.Text` instances
         """
         return self.yaxis.get_majorticklabels()
@@ -3792,7 +3792,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        labels : list
+        list
             List of `~matplotlib.text.Text` instances
         """
         return self.yaxis.get_minorticklabels()
@@ -3814,7 +3814,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        ret : list
+        list
            List of `~matplotlib.text.Text` instances.
 
         Notes
@@ -4376,8 +4376,8 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        bbox : `.BboxBase`
-            bounding box in figure pixel coordinates.
+        `.BboxBase`
+            Bounding box in figure pixel coordinates.
 
         See Also
         --------
@@ -4464,7 +4464,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        ax_twin : Axes
+        Axes
             The newly created Axes instance
 
         Notes
@@ -4494,7 +4494,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        ax_twin : Axes
+        Axes
             The newly created Axes instance
 
         Notes

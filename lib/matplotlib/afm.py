@@ -286,13 +286,13 @@ def _parse_composites(fh):
 
     Returns
     -------
-    composites : dict
+    dict
         A dict mapping composite character names to a parts list. The parts
         list is a list of `.CompositePart` entries describing the parts of
         the composite.
 
-    Example
-    -------
+    Examples
+    --------
     A composite definition line::
 
       CC Aacute 2 ; PCC A 0 0 ; PCC acute 160 170 ;

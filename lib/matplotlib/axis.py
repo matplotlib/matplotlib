@@ -1211,7 +1211,7 @@ class Axis(martist.Artist):
 
         Returns
         -------
-        ret : list
+        list
            List of `~matplotlib.text.Text` instances.
         """
 
@@ -1626,7 +1626,7 @@ class Axis(martist.Artist):
 
         Returns
         -------
-        labels : list of `.Text`\s
+        list of `.Text`\s
             For each tick, includes ``tick.label1`` if it is visible, then
             ``tick.label2`` if it is visible, in that order.
         """
