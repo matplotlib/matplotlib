@@ -461,8 +461,7 @@ class Patch(artist.Artist):
         ----------
         s : {'butt', 'round', 'projecting'}
         """
-        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
-        cbook._check_in_list(self.validCap, capstyle=s)
+        mpl.rcsetup.validate_capstyle(s)
         self._capstyle = s
         self.stale = True
 
@@ -477,8 +476,7 @@ class Patch(artist.Artist):
         ----------
         s : {'miter', 'round', 'bevel'}
         """
-        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
-        cbook._check_in_list(self.validJoin, joinstyle=s)
+        mpl.rcsetup.validate_joinstyle(s)
         self._joinstyle = s
         self.stale = True
 

@@ -599,7 +599,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         cs : {'butt', 'round', 'projecting'}
             The capstyle
         """
-        cbook._check_in_list(('butt', 'round', 'projecting'), capstyle=cs)
+        mpl.rcsetup.validate_capstyle(cs)
         self._capstyle = cs
 
     def get_capstyle(self):
@@ -614,7 +614,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         js : {'miter', 'round', 'bevel'}
             The joinstyle
         """
-        cbook._check_in_list(('miter', 'round', 'bevel'), joinstyle=js)
+        mpl.rcsetup.validate_joinstyle(js)
         self._joinstyle = js
 
     def get_joinstyle(self):

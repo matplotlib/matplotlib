@@ -1352,8 +1352,7 @@ class Line2D(Artist):
         s : {'miter', 'round', 'bevel'}
             For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
-        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
-        cbook._check_in_list(self.validJoin, s=s)
+        mpl.rcsetup.validate_joinstyle(s)
         if self._dashjoinstyle != s:
             self.stale = True
         self._dashjoinstyle = s
@@ -1367,8 +1366,7 @@ class Line2D(Artist):
         s : {'miter', 'round', 'bevel'}
             For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
-        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
-        cbook._check_in_list(self.validJoin, s=s)
+        mpl.rcsetup.validate_joinstyle(s)
         if self._solidjoinstyle != s:
             self.stale = True
         self._solidjoinstyle = s
@@ -1398,8 +1396,7 @@ class Line2D(Artist):
         s : {'butt', 'round', 'projecting'}
             For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
-        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
-        cbook._check_in_list(self.validCap, s=s)
+        mpl.rcsetup.validate_capstyle(s)
         if self._dashcapstyle != s:
             self.stale = True
         self._dashcapstyle = s
@@ -1413,8 +1410,7 @@ class Line2D(Artist):
         s : {'butt', 'round', 'projecting'}
             For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
         """
-        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
-        cbook._check_in_list(self.validCap, s=s)
+        mpl.rcsetup.validate_capstyle(s)
         if self._solidcapstyle != s:
             self.stale = True
         self._solidcapstyle = s
