@@ -234,6 +234,13 @@ class TestLegendFunction:
             plt.legend(lines, ['hello world'])
         Legend.assert_called_with(plt.gca(), lines, ['hello world'])
 
+    def test_legend_handles_only(self):
+        lines = plt.plot(range(10))
+        with pytest.raises(TypeError, match='but found an Artist'):
+            # a single arg is interpreted as labels
+            # it's a common error to just pass handles
+            plt.legend(lines)
+
     def test_legend_no_args(self):
         lines = plt.plot(range(10), label='hello world')
         with mock.patch('matplotlib.legend.Legend') as Legend:

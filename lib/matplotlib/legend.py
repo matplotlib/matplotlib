@@ -1162,6 +1162,10 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     # One argument. User defined labels - automatic handle detection.
     elif len(args) == 1:
         labels, = args
+        if any(isinstance(l, Artist) for l in labels):
+            raise TypeError("A single argument passed to legend() must be a "
+                            "list of labels, but found an Artist in there.")
+
         # Get as many handles as there are labels.
         handles = [handle for handle, label
                    in zip(_get_legend_handles(axs, handlers), labels)]
