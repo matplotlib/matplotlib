@@ -312,6 +312,74 @@ class BezierSegment:
         return curr_est
 
     @property
+    def arc_center_of_mass(self):
+        r"""
+        Center of mass of the (even-odd-rendered) area swept out by the ray
+        from the origin to the path.
+
+        Summing this vector for each segment along a closed path will produce
+        that area's center of mass.
+
+        Returns
+        -------
+        r_cm : (2,) np.array<float>
+            the "arc's center of mass"
+
+        Notes
+        -----
+        A simple analytical form can be derived for general Bezier curves.
+        Suppose the curve was closed, so :math:`B(0) = B(1)`. Call the area
+        enclosed by :math:`B(t)` :math:`B_\text{int}`. The center of mass of
+        :math:`B_\text{int}` is defined by the expected value of the position
+        vector :math:`\vec{r}`
+
+        .. math::
+
+            \vec{R}_\text{cm} = \int_{B_\text{int}} \vec{r} \left( \frac{1}{
+            \int_{B_\text{int}}} d\vec{r} \right) d\vec{r}
+
+        where :math:`(1/\text{Area}(B_\text{int})` can be interpreted as a
+        probability density.
+
+        In order to compute this integral, we choose two functions
+        :math:`F_0(x,y) = [x^2/2, 0]` and :math:`F_1(x,y) = [0, y^2/2]` such
+        that :math:`[\div \cdot F_0, \div \cdot F_1] = \vec{r}`. Then, applying
+        the divergence integral (componentwise), we get that
+
+        .. math::
+            \vec{R}_\text{cm} &= \oint_{B(t)} F \cdot \vec{n} dt \\
+            &= \int_0^1 \left[ \begin{array}{1}
+                B^{(0)}(t) \frac{dB^{(1)}(t)}{dt}  \\
+              - B^{(1)}(t) \frac{dB^{(0)}(t)}{dt}  \end{array} \right] dt
+
+        After expanding in Berstein polynomials and moving the integral inside
+        all the sums, we get that
+
+        .. math::
+            \vec{R}_\text{cm} = \frac{1}{6} \sum_{i,j=0}^n\sum_{k=0}^{n-1}
+                \frac{{n \choose i}{n \choose j}{{n-1} \choose k}}
+                     {{3n - 1} \choose {i + j + k}}
+                \left(\begin{array}{1}
+                    P^{(0)}_i P^{(0)}_j (P^{(1)}_{k+1} - P^{(1)}_k)
+                  - P^{(1)}_i P^{(1)}_j (P^{(0)}_{k+1} - P^{(0)}_k)
+                \right) \end{array}
+
+        where :math:`P_i = [P^{(0)}_i, P^{(1)}_i]` is the :math:`i`'th control
+        point of the curve and :math:`n` is the degree of the curve.
+        """
+        n = self.degree
+        r_cm = np.zeros(2)
+        P = self.control_points
+        dP = np.diff(P, axis=0)
+        Pn = np.array([[1, -1]])*dP[:, ::-1]  # n = [y, -x]
+        for i in range(n + 1):
+            for j in range(n + 1):
+                for k in range(n):
+                    r_cm += _comb(n, i) * _comb(n, j) * _comb(n - 1, k) \
+                            * P[i]*P[j]*Pn[k] / _comb(3*n - 1, i + j + k)
+        return r_cm/6
+
+    @property
     def arc_area(self):
         r"""
         Signed area swept out by ray from origin to curve.
@@ -412,6 +480,16 @@ class BezierSegment:
             * (np.multiply.outer(P[j, 0], dP[k, 1]) -
                np.multiply.outer(P[j, 1], dP[k, 0]))
         )
+
+    @property
+    def center_of_mass(self):
+        """Return the center of mass of the curve (not the filled curve!)
+
+        Notes
+        -----
+        Computed as the mean of the control points.
+        """
+        return np.mean(self._cpoints, axis=0)
 
     @classmethod
     def differentiate(cls, B):

@@ -13,6 +13,11 @@ integrate = pytest.importorskip('scipy.integrate')
 _test_curves = [list(tc.path.iter_bezier())[-1][0] for tc in _test_curves]
 
 
+def _integral_center_of_mass(B):
+    return np.array([integrate.quad(lambda t: B(t)[0], 0, 1)[0],
+                     integrate.quad(lambda t: B(t)[1], 0, 1)[0]])
+
+
 def _integral_arc_length(B):
     dB = B.differentiate(B)
     def integrand(t):
@@ -28,6 +33,27 @@ def _integral_arc_area(B):
     return integrate.quad(integrand, 0, 1)[0]
 
 
+def _integral_arc_com(B):
+    dB = B.differentiate(B)
+    def integrand(t):
+        dr = dB(t).T
+        n = np.array([dr[1], -dr[0]])
+        return B(t).T**2 * n / 2
+    def integrand_x(t):
+        return integrand(t)[0]
+    def integrand_y(t):
+        return integrand(t)[1]
+    return np.array([
+        integrate.quad(integrand_x, 0, 1)[0],
+        integrate.quad(integrand_y, 0, 1)[0]
+    ])
+
+
+def _integral_com(B):
+    return np.array([integrate.quad(lambda t: B(t)[0], 0, 1)[0],
+                     integrate.quad(lambda t: B(t)[1], 0, 1)[0]])
+
+
 @pytest.mark.parametrize("B", _test_curves)
 def test_area_formula(B):
     assert np.isclose(_integral_arc_area(B), B.arc_area)
@@ -38,3 +64,13 @@ def test_length_iteration(B):
     assert np.isclose(_integral_arc_length(B),
                       B.arc_length(rtol=1e-5, atol=1e-8),
                       rtol=1e-5, atol=1e-8)
+
+
+@pytest.mark.parametrize("B", _test_curves)
+def test_center_of_mass_1d(B):
+    assert np.all(np.isclose(B.center_of_mass, _integral_center_of_mass(B)))
+
+
+@pytest.mark.parametrize("B", _test_curves)
+def test_center_of_mass_2d(B):
+    assert np.all(np.isclose(B.arc_center_of_mass, _integral_arc_com(B)))

@@ -697,6 +697,143 @@ class Path:
             area += B.arc_area
         return area
 
+    def center_of_mass(self, dimension=None, **kwargs):
+        r"""
+        Center of mass of the path, assuming constant density.
+
+        The center of mass is defined to be the expected value of a vector
+        located uniformly within either the filled area of the path
+        (:code:`dimension=2`) or the along path's edge (:code:`dimension=1`) or
+        along isolated points of the path (:code:`dimension=0`).  Notice in
+        particular that for this definition, if the filled area is used, then
+        any 0- or 1-dimensional components of the path will not contribute to
+        the center of mass. Similarly, for if *dimension* is 1, then isolated
+        points in the path (i.e.  "0-dimensional" strokes made up of only
+        :code:`Path.MOVETO`'s) will not contribute to the center of mass.
+
+        For the 2d case, the center of mass is computed using the same
+        filling strategy as `signed_area`. So, if a path is self-intersecting,
+        the drawing rule "even-odd" is used and only the filled area is
+        counted, and all sub paths are treated as if they had been closed. That
+        is, if there is a MOVETO without a preceding CLOSEPOLY, one is added.
+
+        For the 1d measure, the curve is averaged as-is (the implied CLOSEPOLY
+        is not added).
+
+        For the 0d measure, any non-isolated points are ignored.
+
+        Parameters
+        ----------
+        dimension : 2, 1, or 0 (optional)
+            Whether to compute the center of mass by taking the expected value
+            of a position uniformly distributed within the filled path
+            (2D-measure), the path's edge (1D-measure), or between the
+            discrete, isolated points of the path (0D-measure), respectively.
+            By default, the intended dimension of the path is inferred by
+            checking first if `Path.signed_area` is non-zero (implying a
+            *dimension* of 2), then if the `Path.length` is non-zero (implying
+            a *dimension* of 1), and finally falling back to the counting
+            measure (*dimension* of 0).
+        kwargs : Dict[str, object]
+            Passed thru to `Path.cleaned` via `Path.iter_bezier`.
+
+        Returns
+        -------
+        r_cm : (2,) np.array<float>
+            The center of mass of the path.
+
+        Raises
+        ------
+        ValueError
+            An empty path has no well-defined center of mass.
+
+            In addition, if a specific *dimension* is requested and that
+            dimension is not well-defined, an error is raised. This can happen
+            if::
+
+                1) 2D expected value was requested but the path has zero area
+                2) 1D expected value was requested but the path has only
+                `Path.MOVETO` directives
+                3) 0D expected value was requested but the path has NO
+                subsequent `Path.MOVETO` directives.
+
+            This error cannot be raised if the function is allowed to infer
+            what *dimension* to use.
+        """
+        area = None
+        cleaned = self.cleaned(**kwargs)
+        move_codes = cleaned.codes == Path.MOVETO
+        if len(cleaned.codes) == 0:
+            raise ValueError("An empty path has no center of mass.")
+        if dimension is None:
+            dimension = 2
+            area = cleaned.signed_area()
+            if not np.isclose(area, 0):
+                dimension -= 1
+            if np.all(move_codes):
+                dimension = 0
+        if dimension == 2:
+            # area computation can be expensive, make sure we don't repeat it
+            if area is None:
+                area = cleaned.signed_area()
+            if np.isclose(area, 0):
+                raise ValueError("2d expected value over empty area is "
+                                 "ill-defined.")
+            return cleaned._2d_center_of_mass(area)
+        if dimension == 1:
+            if np.all(move_codes):
+                raise ValueError("1d expected value over empty arc-length is "
+                                 "ill-defined.")
+            return cleaned._1d_center_of_mass()
+        if dimension == 0:
+            adjacent_moves = (move_codes[1:] + move_codes[:-1]) == 2
+            if len(move_codes) > 1 and not np.any(adjacent_moves):
+                raise ValueError("0d expected value with no isolated points "
+                                 "is ill-defined.")
+            return cleaned._0d_center_of_mass()
+
+    def _2d_center_of_mass(self, normalization=None):
+        #TODO: refactor this and signed_area (and maybe others, with
+        # close= parameter)?
+        if normalization is None:
+            normalization = self.signed_area()
+        r_cm = np.zeros(2)
+        prev_point = None
+        prev_code = None
+        start_point = None
+        for B, code in self.iter_bezier():
+            if code == Path.MOVETO:
+                if prev_code is not None and prev_code is not Path.CLOSEPOLY:
+                    Bclose = BezierSegment(np.array([prev_point, start_point]))
+                    r_cm += Bclose.arc_center_of_mass
+                start_point = B.control_points[0]
+            r_cm += B.arc_center_of_mass
+            prev_point = B.control_points[-1]
+            prev_code = code
+        # add final implied CLOSEPOLY, if necessary
+        if start_point is not None \
+                and not np.all(np.isclose(start_point, prev_point)):
+            Bclose = BezierSegment(np.array([prev_point, start_point]))
+            r_cm += Bclose.arc_center_of_mass
+        return r_cm / normalization
+
+    def _1d_center_of_mass(self):
+        r_cm = np.zeros(2)
+        Bs = list(self.iter_bezier())
+        arc_lengths = np.array([B.arc_length() for B in Bs])
+        r_cms = np.array([B.center_of_mass for B in Bs])
+        total_length = np.sum(arc_lengths)
+        return np.sum(r_cms*arc_lengths)/total_length
+
+    def _0d_center_of_mass(self):
+        move_verts = self.codes
+        isolated_verts = move_verts.copy()
+        if len(move_verts) > 1:
+            isolated_verts[:-1] = (move_verts[:-1] + move_verts[1:]) == 2
+            isolated_verts[-1] = move_verts[-1]
+        num_verts = np.sum(isolated_verts)
+        return np.sum(self.vertices[isolated_verts], axis=0)/num_verts
+
     def interpolated(self, steps):
         """
         Return a new path resampled to length N x steps.
