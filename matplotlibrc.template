@@ -708,7 +708,7 @@
 #keymap.save: s, ctrl+s         # saving current figure
 #keymap.help: f1                # display help about active tools
 #keymap.quit: ctrl+w, cmd+w, q  # close the current figure
-#keymap.quit_all: W, cmd+W, Q   # close all figures
+#keymap.quit_all: W, cmd+W, Q   # close all figures (only when using toolmanager)
 #keymap.grid: g                 # switching on/off major grids in current axes
 #keymap.grid_minor: G           # switching on/off minor grids in current axes
 #keymap.yscale: l               # toggle scaling of y-axes ('log'/'linear')
