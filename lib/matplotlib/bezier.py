@@ -481,7 +481,7 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
 
 
 @cbook.deprecated(
-    "3.2", alternative="Path.cleaned() and remove the final STOP if needed")
+    "3.3", alternative="Path.cleaned() and remove the final STOP if needed")
 def make_path_regular(p):
     """
     If the ``codes`` attribute of `.Path` *p* is None, return a copy of *p*
@@ -497,7 +497,7 @@ def make_path_regular(p):
         return p
 
 
-@cbook.deprecated("3.2", alternative="Path.make_compound_path()")
+@cbook.deprecated("3.3", alternative="Path.make_compound_path()")
 def concatenate_paths(paths):
     """Concatenate a list of paths into a single path."""
     vertices = np.concatenate([p.vertices for p in paths])
