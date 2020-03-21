@@ -1462,7 +1462,7 @@ defaultParams = {
     'keymap.zoom':         [['o'], validate_stringlist],
     'keymap.save':         [['s', 'ctrl+s'], validate_stringlist],
     'keymap.quit':         [['ctrl+w', 'cmd+w', 'q'], validate_stringlist],
-    'keymap.quit_all':     [['W', 'cmd+W', 'Q'], validate_stringlist],
+    'keymap.quit_all':     [[], validate_stringlist],  # proposed values: 'W', 'cmd+W', 'Q'
     'keymap.grid':         [['g'], validate_stringlist],
     'keymap.grid_minor':   [['G'], validate_stringlist],
     'keymap.yscale':       [['l'], validate_stringlist],

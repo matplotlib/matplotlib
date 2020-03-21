@@ -2329,6 +2329,7 @@ def key_press_handler(event, canvas, toolbar=None):
     zoom_keys = rcParams['keymap.zoom']
     save_keys = rcParams['keymap.save']
     quit_keys = rcParams['keymap.quit']
+    quit_all_keys = rcParams['keymap.quit']
     grid_keys = rcParams['keymap.grid']
     grid_minor_keys = rcParams['keymap.grid_minor']
     toggle_yscale_keys = rcParams['keymap.yscale']
@@ -2345,6 +2346,8 @@ def key_press_handler(event, canvas, toolbar=None):
     # quit the figure (default key 'ctrl+w')
     if event.key in quit_keys:
         Gcf.destroy_fig(canvas.figure)
+    if event.key in quit_all_keys:
+        Gcf.destroy_all()
 
     if toolbar is not None:
         # home or reset mnemonic  (default key 'h', 'home' and 'r')
