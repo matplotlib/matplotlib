@@ -1,0 +1,34 @@
+on: 
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+jobs:
+  trigger_wheel_builds:
+    runs-on: ubuntu-latest
+    name: Trigger macOS and manylinux wheel builds
+    if: github.repository == 'matplotlib/matplotlib'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: MacPython/matplotlib-wheels
+          ssh-key: ${{ secrets.WHEEL_DEPLOY_KEY }}
+          fetch-depth: 0
+      - name: Prepare build commit
+        id: commit
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          BRANCH="$(echo ${TAG} | sed 's/^v\([0-9]\+\.[0-9]\+\)\.[0-9]\+.*$/build-\1.x/')"
+          echo "${BRANCH}"
+          echo "##[set-output name=branch;]${BRANCH}"
+          git branch ${BRANCH} master || true
+          git checkout ${BRANCH}
+          sed -i -e "s/\(- BUILD_COMMIT=\).\+/\1${TAG}/g" .travis.yml
+          git add .travis.yml
+          git config --global user.name 'Matplotlib Actions Bot'
+          git config --global user.email 'matplotlib@users.noreply.github.com'
+          git commit -m "REL: $TAG"
+      - name: Push to matplotlib-wheels
+        run: |
+          git push origin ${{ steps.commit.outputs.branch }}
