@@ -55,20 +55,9 @@ mpl_packages = [
     setupext.Matplotlib(),
     setupext.Python(),
     setupext.Platform(),
-    setupext.LibAgg(),
     setupext.FreeType(),
-    setupext.FT2Font(),
-    setupext.Qhull(),
-    setupext.Image(),
-    setupext.TTConv(),
-    setupext.Path(),
-    setupext.Contour(),
-    setupext.QhullWrap(),
-    setupext.Tri(),
     setupext.SampleData(),
     setupext.Tests(),
-    setupext.BackendAgg(),
-    setupext.BackendTkAgg(),
     setupext.BackendMacOSX(),
     ]
 
@@ -81,8 +70,11 @@ class NoopTestCommand(TestCommand):
 
 class BuildExtraLibraries(BuildExtCommand):
     def finalize_options(self):
-        self.distribution.ext_modules[:] = filter(
-            None, (package.get_extension() for package in good_packages))
+        self.distribution.ext_modules[:] = [
+            ext
+            for package in good_packages
+            for ext in package.get_extensions()
+        ]
         super().finalize_options()
 
     def build_extensions(self):
