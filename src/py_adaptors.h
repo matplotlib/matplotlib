@@ -9,6 +9,7 @@
  */
 
 #include <Python.h>
+#include <cstdint>
 
 #include "numpy/arrayobject.h"
 
@@ -137,6 +138,20 @@ class PathIterator
     {
     }
 
+    inline PathIterator(const StridedMemory2D<double>& vertices,
+                        const StridedMemory1D<uint8_t>& codes,
+                        unsigned total_vertices,
+                        bool should_simplify,
+                        double simplify_threshold)
+        : m_vertices(vertices),
+          m_codes(codes),
+          m_iterator(0),
+          m_total_vertices(total_vertices),
+          m_should_simplify(should_simplify),
+          m_simplify_threshold(simplify_threshold)
+    {
+    }
+
     inline PathIterator(PyObject *vertices,
                         PyObject *codes,
                         bool should_simplify,
@@ -260,28 +275,34 @@ class PathIterator
 
 class PathGenerator
 {
-    PyObject *m_paths;
     Py_ssize_t m_npaths;
+    bool m_is_optimized;
+
+    // Used for optimized path collections
+    StridedMemory3D<double> m_vertices;
+    StridedMemory2D<uint8_t> m_codes;
+    unsigned m_path_length;
+    bool m_should_simplify;
+    double m_simplify_threshold;
+
+    // Used for general sequences
+    PyObject *m_paths;
 
   public:
     typedef PathIterator path_iterator;
 
-    PathGenerator(PyObject *obj) : m_paths(NULL), m_npaths(0)
-    {
-        if (!set(obj)) {
-            throw py::exception();
-        }
-    }
-
-    ~PathGenerator()
-    {
-        Py_XDECREF(m_paths);
-    }
-
-    int set(PyObject *obj)
+    PathGenerator(PyObject *obj)
+        : m_npaths(0),
+          m_is_optimized(false),
+          m_vertices(),
+          m_codes(),
+          m_path_length(0),
+          m_should_simplify(false),
+          m_simplify_threshold(0),
+          m_paths(NULL)
     {
         if (!PySequence_Check(obj)) {
-            return 0;
+            throw py::exception();
         }
 
         m_paths = obj;
@@ -289,7 +310,44 @@ class PathGenerator
 
         m_npaths = PySequence_Size(m_paths);
 
-        return 1;
+        PyObject *is_uniform_obj = PyObject_GetAttrString(obj, "_is_uniform_path_collection");
+        PyErr_Clear(); // The attribute might not be there.
+        m_is_optimized = is_uniform_obj == Py_True;
+        Py_XDECREF(is_uniform_obj);
+        if (m_is_optimized) {
+            PyArrayObject *vertices_obj = (PyArrayObject*)PyObject_GetAttrString(obj, "_vertices");
+            PyArrayObject *codes_obj = (PyArrayObject*)PyObject_GetAttrString(obj, "_codes");
+            PyObject *should_simplify_obj = PyObject_GetAttrString(obj, "should_simplify");
+            PyObject *simplify_threshold_obj = PyObject_GetAttrString(obj, "simplify_threshold");
+            if (vertices_obj == NULL || codes_obj == NULL ||
+                should_simplify_obj == NULL || simplify_threshold_obj == NULL) {
+                PyErr_SetString(PyExc_ValueError, "Expected a uniform path collection");
+                goto end;
+            }
+            if (!PyArray_Check(vertices_obj) || !PyArray_Check(codes_obj)) {
+                PyErr_SetString(PyExc_ValueError, "Vertices and codes should be NumPy arrays");
+                goto end;
+            }
+            m_vertices = StridedMemory3D<double>(vertices_obj);
+            m_codes = StridedMemory2D<uint8_t>(codes_obj);
+            m_path_length = PyArray_DIM(vertices_obj, 1);
+            m_should_simplify = should_simplify_obj == Py_True;
+            m_simplify_threshold = PyFloat_AsDouble(simplify_threshold_obj);
+end:
+            Py_XDECREF(vertices_obj);
+            Py_XDECREF(codes_obj);
+            Py_XDECREF(should_simplify_obj);
+            Py_XDECREF(simplify_threshold_obj);
+            // Check that PyFloat_AsDouble succeeded
+            if (PyErr_Occurred()) {
+                throw py::exception();
+            }
+        }
+    }
+
+    ~PathGenerator()
+    {
+        Py_XDECREF(m_paths);
     }
 
     Py_ssize_t num_paths() const
@@ -304,10 +362,13 @@ class PathGenerator
 
     path_iterator operator()(size_t i)
     {
-        path_iterator path;
-        PyObject *item;
+        if (m_is_optimized) {
+            return path_iterator(m_vertices[i], m_codes[i], m_path_length,
+                                 m_should_simplify, m_simplify_threshold);
+        }
 
-        item = PySequence_GetItem(m_paths, i % m_npaths);
+        path_iterator path;
+        PyObject *item = PySequence_GetItem(m_paths, i % m_npaths);
         if (item == NULL) {
             throw py::exception();
         }
@@ -319,6 +380,7 @@ class PathGenerator
         return path;
     }
 };
+
 }
 
 #endif
