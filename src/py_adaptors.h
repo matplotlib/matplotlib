@@ -9,7 +9,7 @@
  */
 
 #include <Python.h>
-#include <cstdint>
+#include <stdint.h>
 
 #include "numpy/arrayobject.h"
 
@@ -35,7 +35,7 @@ protected:
 
 public:
     StridedMemoryBase()
-        : m_data(nullptr), m_strides(nullptr)
+        : m_data(NULL), m_strides(NULL)
     {
     }
 
@@ -50,12 +50,12 @@ public:
     }
 
     operator bool() const {
-        return m_data != nullptr;
+        return m_data != NULL;
     }
 
     void reset() {
-        m_data = nullptr;
-        m_strides = nullptr;
+        m_data = NULL;
+        m_strides = NULL;
     }
 
     T* data() {
