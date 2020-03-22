@@ -78,19 +78,19 @@ class SubplotBase:
         self.set_position(self.figbox)
 
     def get_subplotspec(self):
-        """get the SubplotSpec instance associated with the subplot"""
+        """Return the SubplotSpec instance associated with the subplot."""
         return self._subplotspec
 
     def set_subplotspec(self, subplotspec):
-        """set the SubplotSpec instance associated with the subplot"""
+        """Set the SubplotSpec instance associated with the subplot."""
         self._subplotspec = subplotspec
 
     def get_gridspec(self):
-        """get the GridSpec instance associated with the subplot"""
+        """Return the GridSpec instance associated with the subplot."""
         return self._subplotspec.get_gridspec()
 
     def update_params(self):
-        """update the subplot position from fig.subplotpars"""
+        """Update the subplot position from ``self.figure.subplotpars``."""
         self.figbox, _, _, self.numRows, self.numCols = \
             self.get_subplotspec().get_position(self.figure,
                                                 return_all=True)

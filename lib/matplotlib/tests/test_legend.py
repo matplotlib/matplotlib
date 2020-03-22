@@ -356,7 +356,7 @@ class TestLegendFigureFunction:
 
 @image_comparison(['legend_stackplot.png'])
 def test_legend_stackplot():
-    """test legend for PolyCollection using stackplot"""
+    """Test legend for PolyCollection using stackplot."""
     # related to #1341, #1943, and PR #3303
     fig = plt.figure()
     ax = fig.add_subplot(111)

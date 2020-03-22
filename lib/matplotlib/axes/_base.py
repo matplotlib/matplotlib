@@ -867,10 +867,10 @@ class _AxesBase(martist.Artist):
 
     def _set_position(self, pos, which='both'):
         """
-        private version of set_position.  Call this internally
-        to get the same functionality of `get_position`, but not
-        to take the axis out of the constrained_layout
-        hierarchy.
+        Private version of set_position.
+
+        Call this internally to get the same functionality of `get_position`,
+        but not to take the axis out of the constrained_layout hierarchy.
         """
         if not isinstance(pos, mtransforms.BboxBase):
             pos = mtransforms.Bbox.from_bounds(*pos)
@@ -910,7 +910,7 @@ class _AxesBase(martist.Artist):
         return self._axes_locator
 
     def _set_artist_props(self, a):
-        """set the boilerplate props for artists added to axes"""
+        """Set the boilerplate props for artists added to axes."""
         a.set_figure(self.figure)
         if not a.is_transform_set():
             a.set_transform(self.transData)
@@ -1762,11 +1762,11 @@ class _AxesBase(martist.Artist):
         return self.legend_
 
     def get_images(self):
-        """return a list of Axes images contained by the Axes"""
+        r"""Return a list of `.AxesImage`\s contained by the Axes."""
         return cbook.silent_list('AxesImage', self.images)
 
     def get_lines(self):
-        """Return a list of lines contained by the Axes"""
+        """Return a list of lines contained by the Axes."""
         return cbook.silent_list('Line2D', self.lines)
 
     def get_xaxis(self):
@@ -1989,7 +1989,7 @@ class _AxesBase(martist.Artist):
         return p
 
     def _update_patch_limits(self, patch):
-        """update the data limits for patch *p*"""
+        """Update the data limits for the given patch."""
         # hist can add zero height Rectangles, which is useful to keep
         # the bins, counts and patches lined up, but it throws off log
         # scaling.  We'll ignore rects with zero height or width in

@@ -1700,7 +1700,7 @@ def test_barh_tick_label():
 
 
 def test_bar_timedelta():
-    """smoketest that bar can handle width and height in delta units"""
+    """Smoketest that bar can handle width and height in delta units."""
     fig, ax = plt.subplots()
     ax.bar(datetime.datetime(2018, 1, 1), 1.,
            width=datetime.timedelta(hours=3))

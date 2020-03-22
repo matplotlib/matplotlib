@@ -1073,7 +1073,7 @@ def test_image_cursor_formatting():
 
 @check_figures_equal()
 def test_image_array_alpha(fig_test, fig_ref):
-    """per-pixel alpha channel test"""
+    """Per-pixel alpha channel test."""
     x = np.linspace(0, 1)
     xx, yy = np.meshgrid(x, x)
 
