@@ -1129,10 +1129,10 @@ class Axes(_AxesBase):
         xmax = np.ravel(xmax)
 
         masked_verts = np.ma.empty((len(y), 2, 2))
-        masked_verts[:, 0, 1] = y
-        masked_verts[:, 1, 1] = y
         masked_verts[:, 0, 0] = xmin
+        masked_verts[:, 0, 1] = y
         masked_verts[:, 1, 0] = xmax
+        masked_verts[:, 1, 1] = y
 
         lines = mcoll.LineCollection(masked_verts, colors=colors,
                                      linestyles=linestyles, label=label)
@@ -1212,8 +1212,8 @@ class Axes(_AxesBase):
 
         masked_verts = np.ma.empty((len(x), 2, 2))
         masked_verts[:, 0, 0] = x
-        masked_verts[:, 1, 0] = x
         masked_verts[:, 0, 1] = ymin
+        masked_verts[:, 1, 0] = x
         masked_verts[:, 1, 1] = ymax
 
         lines = mcoll.LineCollection(masked_verts, colors=colors,
