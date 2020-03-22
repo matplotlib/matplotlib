@@ -363,21 +363,18 @@ latex_elements['fontenc'] = r'''
 # "Writing mathematical expressions"
 latex_elements['fontpkg'] = r"""
 \setmainfont{XITS}[
-  Extension      = .otf,
   UprightFont    = *-Regular,
   ItalicFont     = *-Italic,
   BoldFont       = *-Bold,
   BoldItalicFont = *-BoldItalic,
 ]
 \setsansfont{FreeSans}[
-  Extension      = .otf,
   UprightFont    = *,
   ItalicFont     = *Oblique,
   BoldFont       = *Bold,
   BoldItalicFont = *BoldOblique,
 ]
 \setmonofont{FreeMono}[
-  Extension      = .otf,
   UprightFont    = *,
   ItalicFont     = *Oblique,
   BoldFont       = *Bold,
