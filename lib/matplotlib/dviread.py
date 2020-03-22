@@ -73,12 +73,12 @@ def _arg_raw(dvi, delta):
     return delta
 
 
-def _arg(bytes, signed, dvi, _):
+def _arg(nbytes, signed, dvi, _):
     """
-    Read *bytes* bytes, returning the bytes interpreted as a signed integer
+    Read *nbytes* bytes, returning the bytes interpreted as a signed integer
     if *signed* is true, unsigned otherwise.
     """
-    return dvi._arg(bytes, signed)
+    return dvi._arg(nbytes, signed)
 
 
 def _arg_slen(dvi, delta):
@@ -315,12 +315,12 @@ class Dvi:
         Read and return an integer argument *nbytes* long.
         Signedness is determined by the *signed* keyword.
         """
-        str = self.file.read(nbytes)
-        value = str[0]
+        buf = self.file.read(nbytes)
+        value = buf[0]
         if signed and value >= 0x80:
             value = value - 0x100
-        for i in range(1, nbytes):
-            value = 0x100*value + str[i]
+        for b in buf[1:]:
+            value = 0x100*value + b
         return value
 
     @_dispatch(min=0, max=127, state=_dvistate.inpage)
