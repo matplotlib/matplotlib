@@ -4,6 +4,7 @@ A module providing some utility functions regarding Bézier path manipulation.
 
 import math
 import warnings
+from collections import deque
 
 import numpy as np
 
@@ -219,6 +220,93 @@ class BezierSegment:
         Evaluate the curve at a single point, returning a tuple of *d* floats.
         """
         return tuple(self(t))
+
+    def split_at_t(self, t):
+        """
+        Split into two Bezier curves using de casteljau's algorithm.
+
+        Parameters
+        ----------
+        t : float
+            Point in [0,1] at which to split into two curves
+
+        Returns
+        -------
+        B1, B2 : BezierSegment
+            The two sub-curves.
+        """
+        new_cpoints = split_de_casteljau(self._cpoints, t)
+        return BezierSegment(new_cpoints[0]), BezierSegment(new_cpoints[1])
+
+    def control_net_length(self):
+        """Sum of lengths between control points"""
+        L = 0
+        N, d = self._cpoints.shape
+        for i in range(N - 1):
+            L += np.linalg.norm(self._cpoints[i+1] - self._cpoints[i])
+        return L
+
+    def arc_length(self, rtol=1e-4, atol=1e-6):
+        """
+        Estimate the length using iterative refinement.
+
+        Our estimate is just the average between the length of the chord and
+        the length of the control net.
+
+        Since the chord length and control net give lower and upper bounds
+        (respectively) on the length, this maximum possible error is tested
+        against an absolute tolerance threshold at each subdivision.
+
+        However, sometimes this estimator converges much faster than this error
+        estimate would suggest. Therefore, the relative change in the length
+        estimate between subdivisions is compared to a relative error tolerance
+        after each set of subdivisions.
+
+        Parameters
+        ----------
+        rtol : float, default 1e-4
+            If :code:`abs(est[i+1] - est[i]) <= rtol * est[i+1]`, we return
+            :code:`est[i+1]`.
+        atol : float, default 1e-6
+            If the distance between chord length and control length at any
+            point falls below this number, iteration is terminated.
+        """
+        chord = np.linalg.norm(self._cpoints[-1] - self._cpoints[0])
+        net = self.control_net_length()
+        max_err = (net - chord)/2
+        curr_est = chord + max_err
+        # early exit so we don't try to "split" paths of zero length
+        if max_err < atol:
+            return curr_est
+
+        prev_est = np.inf
+        curves = deque([self])
+        errs = deque([max_err])
+        lengths = deque([curr_est])
+        while np.abs(curr_est - prev_est) > rtol * curr_est:
+            # subdivide the *whole* curve before checking relative convergence
+            # again
+            prev_est = curr_est
+            num_curves = len(curves)
+            for i in range(num_curves):
+                curve = curves.popleft()
+                new_curves = curve.split_at_t(0.5)
+                max_err -= errs.popleft()
+                curr_est -= lengths.popleft()
+                for ncurve in new_curves:
+                    chord = np.linalg.norm(
+                            ncurve._cpoints[-1] - ncurve._cpoints[0])
+                    net = ncurve.control_net_length()
+                    nerr = (net - chord)/2
+                    nlength = chord + nerr
+                    max_err += nerr
+                    curr_est += nlength
+                    curves.append(ncurve)
+                    errs.append(nerr)
+                    lengths.append(nlength)
+                if max_err < atol:
+                    return curr_est
+        return curr_est
 
     @property
     def arc_area(self):
