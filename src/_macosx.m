@@ -254,6 +254,21 @@ static void gil_call_method(PyObject* obj, const char* name)
     PyGILState_Release(gstate);
 }
 
+#define PROCESS_EVENT(cls_name, fmt, ...) \
+{ \
+    PyGILState_STATE gstate = PyGILState_Ensure(); \
+    PyObject* module = NULL, * event = NULL, * result = NULL; \
+    if (!(module = PyImport_ImportModule("matplotlib.backend_bases")) \
+        || !(event = PyObject_CallMethod(module, cls_name, fmt, __VA_ARGS__)) \
+        || !(result = PyObject_CallMethod(event, "_process", ""))) { \
+        PyErr_Print(); \
+    } \
+    Py_XDECREF(module); \
+    Py_XDECREF(event); \
+    Py_XDECREF(result); \
+    PyGILState_Release(gstate); \
+}
+
 static bool backend_inited = false;
 
 static void lazy_init(void) {
@@ -1337,16 +1352,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
 - (void)windowWillClose:(NSNotification*)notification
 {
-    PyGILState_STATE gstate;
-    PyObject* result;
-
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(canvas, "close_event", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
+    PROCESS_EVENT("CloseEvent", "sO", "close_event", canvas);
 }
 
 - (BOOL)windowShouldClose:(NSNotification*)notification
@@ -1372,38 +1378,22 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
 - (void)mouseEntered:(NSEvent *)event
 {
-    PyGILState_STATE gstate;
-    PyObject* result;
-
     int x, y;
     NSPoint location = [event locationInWindow];
     location = [self convertPoint: location fromView: nil];
     x = location.x * device_scale;
     y = location.y * device_scale;
-
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(canvas, "enter_notify_event", "O(ii)",
-            Py_None, x, y);
-
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
+    PROCESS_EVENT("LocationEvent", "sOii", "figure_enter_event", canvas, x, y);
 }
 
 - (void)mouseExited:(NSEvent *)event
 {
-    PyGILState_STATE gstate;
-    PyObject* result;
-
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(canvas, "leave_notify_event", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
+    int x, y;
+    NSPoint location = [event locationInWindow];
+    location = [self convertPoint: location fromView: nil];
+    x = location.x * device_scale;
+    y = location.y * device_scale;
+    PROCESS_EVENT("LocationEvent", "sOii", "figure_leave_event", canvas, x, y);
 }
 
 - (void)mouseDown:(NSEvent *)event
@@ -1411,8 +1401,6 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     int x, y;
     int num;
     int dblclick = 0;
-    PyObject* result;
-    PyGILState_STATE gstate;
     NSPoint location = [event locationInWindow];
     location = [self convertPoint: location fromView: nil];
     x = location.x * device_scale;
@@ -1441,22 +1429,14 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     if ([event clickCount] == 2) {
       dblclick = 1;
     }
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(canvas, "button_press_event", "iiii", x, y, num, dblclick);
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-
-    PyGILState_Release(gstate);
+    PROCESS_EVENT("MouseEvent", "sOiiiOii", "button_press_event", canvas,
+                  x, y, num, Py_None /* key */, 0 /* step */, dblclick);
 }
 
 - (void)mouseUp:(NSEvent *)event
 {
     int num;
     int x, y;
-    PyObject* result;
-    PyGILState_STATE gstate;
     NSPoint location = [event locationInWindow];
     location = [self convertPoint: location fromView: nil];
     x = location.x * device_scale;
@@ -1471,14 +1451,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
          case NSEventTypeRightMouseUp: num = 3; break;
          default: return; /* Unknown mouse event */
     }
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(canvas, "button_release_event", "iii", x, y, num);
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-
-    PyGILState_Release(gstate);
+    PROCESS_EVENT("MouseEvent", "sOiii", "button_release_event", canvas,
+                  x, y, num);
 }
 
 - (void)mouseMoved:(NSEvent *)event
@@ -1488,14 +1462,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     location = [self convertPoint: location fromView: nil];
     x = location.x * device_scale;
     y = location.y * device_scale;
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    PyObject* result = PyObject_CallMethod(canvas, "motion_notify_event", "ii", x, y);
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-
-    PyGILState_Release(gstate);
+    PROCESS_EVENT("MouseEvent", "sOii", "motion_notify_event", canvas, x, y);
 }
 
 - (void)mouseDragged:(NSEvent *)event
@@ -1505,14 +1472,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     location = [self convertPoint: location fromView: nil];
     x = location.x * device_scale;
     y = location.y * device_scale;
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    PyObject* result = PyObject_CallMethod(canvas, "motion_notify_event", "ii", x, y);
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-
-    PyGILState_Release(gstate);
+    PROCESS_EVENT("MouseEvent", "sOii", "motion_notify_event", canvas, x, y);
 }
 
 - (void)rightMouseDown:(NSEvent *)event { [self mouseDown: event]; }
@@ -1623,38 +1583,30 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
 - (void)keyDown:(NSEvent*)event
 {
-    PyObject* result;
     const char* s = [self convertKeyEvent: event];
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    if (!s) {
-        result = PyObject_CallMethod(canvas, "key_press_event", "O", Py_None);
+    NSPoint location = [[self window] mouseLocationOutsideOfEventStream];
+    location = [self convertPoint: location fromView: nil];
+    int x = location.x * device_scale,
+        y = location.y * device_scale;
+    if (s) {
+        PROCESS_EVENT("KeyEvent", "sOsii", "key_press_event", canvas, s, x, y);
     } else {
-        result = PyObject_CallMethod(canvas, "key_press_event", "s", s);
+        PROCESS_EVENT("KeyEvent", "sOOii", "key_press_event", canvas, Py_None, x, y);
     }
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-
-    PyGILState_Release(gstate);
 }
 
 - (void)keyUp:(NSEvent*)event
 {
-    PyObject* result;
     const char* s = [self convertKeyEvent: event];
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    if (!s) {
-        result = PyObject_CallMethod(canvas, "key_release_event", "O", Py_None);
+    NSPoint location = [[self window] mouseLocationOutsideOfEventStream];
+    location = [self convertPoint: location fromView: nil];
+    int x = location.x * device_scale,
+        y = location.y * device_scale;
+    if (s) {
+        PROCESS_EVENT("KeyEvent", "sOsii", "key_release_event", canvas, s, x, y);
     } else {
-        result = PyObject_CallMethod(canvas, "key_release_event", "s", s);
+        PROCESS_EVENT("KeyEvent", "sOOii", "key_release_event", canvas, Py_None, x, y);
     }
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-
-    PyGILState_Release(gstate);
 }
 
 - (void)scrollWheel:(NSEvent*)event
@@ -1668,16 +1620,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     NSPoint point = [self convertPoint: location fromView: nil];
     int x = (int)round(point.x * device_scale);
     int y = (int)round(point.y * device_scale - 1);
-
-    PyObject* result;
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(canvas, "scroll_event", "iii", x, y, step);
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-
-    PyGILState_Release(gstate);
+    PROCESS_EVENT("MouseEvent", "sOiiOOi", "scroll_event", canvas,
+                  x, y, Py_None /* button */, Py_None /* key */, step);
 }
 
 - (BOOL)acceptsFirstResponder

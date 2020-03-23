@@ -498,6 +498,7 @@ class Artist:
         --------
         set_picker, get_picker, pickable
         """
+        from .backend_bases import PickEvent  # Circular import.
         # Pick self
         if self.pickable():
             picker = self.get_picker()
@@ -506,7 +507,8 @@ class Artist:
             else:
                 inside, prop = self.contains(mouseevent)
             if inside:
-                self.figure.canvas.pick_event(mouseevent, self, **prop)
+                PickEvent("pick_event", self.figure.canvas,
+                          mouseevent, self, **prop)._process()
 
         # Pick children
         for a in self.get_children():

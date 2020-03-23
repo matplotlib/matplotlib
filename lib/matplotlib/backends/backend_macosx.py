@@ -7,7 +7,7 @@ from . import _macosx
 from .backend_agg import FigureCanvasAgg
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase)
+    ResizeEvent, TimerBase)
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
@@ -28,10 +28,8 @@ class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
     # and we can just as well lift the FCBase base up one level, keeping it *at
     # the end* to have the right method resolution order.
 
-    # Events such as button presses, mouse movements, and key presses
-    # are handled in the C code and the base class methods
-    # button_press_event, button_release_event, motion_notify_event,
-    # key_press_event, and key_release_event are called from there.
+    # Events such as button presses, mouse movements, and key presses are
+    # handled in C and events (MouseEvent, etc.) are triggered from there.
 
     required_interactive_framework = "macosx"
     _timer_cls = TimerMac
@@ -100,7 +98,7 @@ class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
         width /= scale
         height /= scale
         self.figure.set_size_inches(width, height, forward=False)
-        FigureCanvasBase.resize_event(self)
+        ResizeEvent("resize_event", self)._process()
         self.draw_idle()
 
 

@@ -27,7 +27,7 @@ from matplotlib import _blocking_input, _docstring, projections
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
-    FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
+    DrawEvent, FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
 import matplotlib._api as _api
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
@@ -2979,7 +2979,7 @@ class Figure(FigureBase):
         finally:
             self.stale = False
 
-        self.canvas.draw_event(renderer)
+        DrawEvent("draw_event", self.canvas, renderer)._process()
 
     def draw_without_rendering(self):
         """

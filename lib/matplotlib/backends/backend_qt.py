@@ -9,7 +9,8 @@ from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, cursors, ToolContainerBase, MouseButton)
+    TimerBase, cursors, ToolContainerBase, MouseButton,
+    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from . import qt_compat
 from .qt_compat import (
@@ -246,18 +247,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         # docstring inherited
         self.setCursor(_api.check_getitem(cursord, cursor=cursor))
 
-    def enterEvent(self, event):
-        x, y = self.mouseEventCoords(self._get_position(event))
-        FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
-
-    def leaveEvent(self, event):
-        QtWidgets.QApplication.restoreOverrideCursor()
-        FigureCanvasBase.leave_notify_event(self, guiEvent=event)
-
-    _get_position = operator.methodcaller(
-        "position" if QT_API in ["PyQt6", "PySide6"] else "pos")
-
-    def mouseEventCoords(self, pos):
+    def mouseEventCoords(self, pos=None):
         """
         Calculate mouse coordinates in physical pixels.
 
@@ -267,39 +257,56 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
 
         Also, the origin is different and needs to be corrected.
         """
+        if pos is None:
+            pos = self.mapFromGlobal(QtGui.QCursor.pos())
+        elif hasattr(pos, "position"):  # qt6 QtGui.QEvent
+            pos = pos.position()
+        elif hasattr(pos, "pos"):  # qt5 QtCore.QEvent
+            pos = pos.pos()
+        # (otherwise, it's already a QPoint)
         x = pos.x()
         # flip y so y=0 is bottom of canvas
         y = self.figure.bbox.height / self.device_pixel_ratio - pos.y()
         return x * self.device_pixel_ratio, y * self.device_pixel_ratio
 
+    def enterEvent(self, event):
+        LocationEvent("figure_enter_event", self,
+                      *self.mouseEventCoords(event),
+                      guiEvent=event)._process()
+
+    def leaveEvent(self, event):
+        QtWidgets.QApplication.restoreOverrideCursor()
+        LocationEvent("figure_leave_event", self,
+                      *self.mouseEventCoords(),
+                      guiEvent=event)._process()
+
     def mousePressEvent(self, event):
-        x, y = self.mouseEventCoords(self._get_position(event))
         button = self.buttond.get(event.button())
         if button is not None:
-            FigureCanvasBase.button_press_event(self, x, y, button,
-                                                guiEvent=event)
+            MouseEvent("button_press_event", self,
+                       *self.mouseEventCoords(event), button,
+                       guiEvent=event)._process()
 
     def mouseDoubleClickEvent(self, event):
-        x, y = self.mouseEventCoords(self._get_position(event))
         button = self.buttond.get(event.button())
         if button is not None:
-            FigureCanvasBase.button_press_event(self, x, y,
-                                                button, dblclick=True,
-                                                guiEvent=event)
+            MouseEvent("button_press_event", self,
+                       *self.mouseEventCoords(event), button, dblclick=True,
+                       guiEvent=event)._process()
 
     def mouseMoveEvent(self, event):
-        x, y = self.mouseEventCoords(self._get_position(event))
-        FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
+        MouseEvent("motion_notify_event", self,
+                   *self.mouseEventCoords(event),
+                   guiEvent=event)._process()
 
     def mouseReleaseEvent(self, event):
-        x, y = self.mouseEventCoords(self._get_position(event))
         button = self.buttond.get(event.button())
         if button is not None:
-            FigureCanvasBase.button_release_event(self, x, y, button,
-                                                  guiEvent=event)
+            MouseEvent("button_release_event", self,
+                       *self.mouseEventCoords(event), button,
+                       guiEvent=event)._process()
 
     def wheelEvent(self, event):
-        x, y = self.mouseEventCoords(self._get_position(event))
         # from QWheelEvent::pixelDelta doc: pixelDelta is sometimes not
         # provided (`isNull()`) and is unreliable on X11 ("xcb").
         if (event.pixelDelta().isNull()
@@ -308,18 +315,23 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         else:
             steps = event.pixelDelta().y()
         if steps:
-            FigureCanvasBase.scroll_event(
-                self, x, y, steps, guiEvent=event)
+            MouseEvent("scroll_event", self,
+                       *self.mouseEventCoords(event), step=steps,
+                       guiEvent=event)._process()
 
     def keyPressEvent(self, event):
         key = self._get_key(event)
         if key is not None:
-            FigureCanvasBase.key_press_event(self, key, guiEvent=event)
+            KeyEvent("key_press_event", self,
+                     key, *self.mouseEventCoords(),
+                     guiEvent=event)._process()
 
     def keyReleaseEvent(self, event):
         key = self._get_key(event)
         if key is not None:
-            FigureCanvasBase.key_release_event(self, key, guiEvent=event)
+            KeyEvent("key_release_event", self,
+                     key, *self.mouseEventCoords(),
+                     guiEvent=event)._process()
 
     def resizeEvent(self, event):
         frame = sys._getframe()
@@ -328,7 +340,6 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             return
         w = event.size().width() * self.device_pixel_ratio
         h = event.size().height() * self.device_pixel_ratio
-
         dpival = self.figure.dpi
         winch = w / dpival
         hinch = h / dpival
@@ -336,7 +347,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         # pass back into Qt to let it finish
         QtWidgets.QWidget.resizeEvent(self, event)
         # emit our resize events
-        FigureCanvasBase.resize_event(self)
+        ResizeEvent("resize_event", self)._process()
 
     def sizeHint(self):
         w, h = self.get_width_height()
@@ -503,7 +514,9 @@ class FigureManagerQT(FigureManagerBase):
     def __init__(self, canvas, num):
         self.window = MainWindow()
         super().__init__(canvas, num)
-        self.window.closing.connect(canvas.close_event)
+        self.window.closing.connect(
+            # The lambda prevents the event from being immediately gc'd.
+            lambda: CloseEvent("close_event", self.canvas)._process())
         self.window.closing.connect(self._widgetclosed)
 
         if sys.platform != "darwin":

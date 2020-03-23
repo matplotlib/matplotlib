@@ -1,0 +1,11 @@
+Event handlers
+~~~~~~~~~~~~~~
+The ``draw_event``, ``resize_event``, ``close_event``, ``key_press_event``,
+``key_release_event``, ``pick_event``, ``scroll_event``,
+``button_press_event``, ``button_release_event``, ``motion_notify_event``,
+``enter_notify_event`` and ``leave_notify_event`` methods of `.FigureCanvasBase`
+are deprecated.  They had inconsistent signatures across backends, and made it
+difficult to improve event metadata.
+
+In order to trigger an event on a canvas, directly construct an `.Event` object
+of the correct class and call ``canvas.callbacks.process(event.name, event)``.
