@@ -12,7 +12,7 @@ import math
 import numpy as np
 
 from matplotlib import (
-    artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
+    artist, colors as mcolors, lines, text as mtext, path as mpath)
 from matplotlib.collections import (
     LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
@@ -584,15 +584,8 @@ class Poly3DCollection(PolyCollection):
         ----------
         zsort : {'average', 'min', 'max'}
             The function applied on the z-coordinates of the vertices in the
-            viewer's coordinate system, to determine the z-order.  *True* is
-            deprecated and equivalent to 'average'.
+            viewer's coordinate system, to determine the z-order.
         """
-        if zsort is True:
-            cbook.warn_deprecated(
-                "3.1", message="Passing True to mean 'average' for set_zsort "
-                "is deprecated and support will be removed in Matplotlib 3.3; "
-                "pass 'average' instead.")
-            zsort = 'average'
         self._zsortfunc = self._zsort_functions[zsort]
         self._sort_zpos = None
         self.stale = True

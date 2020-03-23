@@ -7,8 +7,8 @@ Modules
 - ``backends.qt_editor.formlayout`` (use the formlayout module available on
   PyPI instead).
 
-Classes and methods
-~~~~~~~~~~~~~~~~~~~
+Classes, methods and attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - ``backend_bases.RendererBase.strip_math()``
   (use ``cbook.strip_math()`` instead)
 
@@ -38,6 +38,13 @@ Classes and methods
 
 - ``backend_qt5.NavigationToolbar2QT.buttons`` property (no replacement)
 - ``backend_qt5.NavigationToolbar2QT.adj_window`` property (no replacement)
+
+- ``cbook.dedent()`` (use `inspect.cleandoc` instead)
+- ``cbook.get_label()`` (no replacement)
+- ``cbook.is_hashable()`` (use ``isinstance(..., collections.abc.Hashable)``
+  instead)
+- ``cbook.iterable()`` (use ``numpy.iterable()`` instead)
+- ``cbook.safezip()`` (no replacement)
 
 - ``docstring.Appender`` (no replacement)
 - ``docstring.dedent()`` (use `inspect.getdoc` instead)
@@ -86,6 +93,10 @@ Classes and methods
 - ``ticker.LogFormatter.pprint_val()`` (no replacement)
 - ``ticker.decade_down()`` (no replacement)
 - ``ticker.decade_up()`` (no replacement)
+- ``Tick`` properties ``gridOn``, ``tick1On``, ``tick2On``, ``label1On``,
+  ``label2On`` (use ``set_visible()`` / ``get_visible()`` on ``Tick.gridline``,
+  ``Tick.tick1line``, ``Tick.tick2line``, ``Tick.label1``,  ``Tick.label2``
+  instead)
 
 - ``Artist.aname`` property (no replacement)
 - ``Axis.iter_ticks`` (no replacement)
@@ -177,6 +188,13 @@ Arguments
 - The ``s`` parameter of `.Annotation` has been renamed to ``text``.
 - For all functions in `.bezier` that supported a ``tolerence`` parameter, this
   parameter has been renamed to ``tolerance``.
+- ``axis("normal")`` is not supported anymore. Use the equivalent
+  ``axis("auto")`` instead.
+- ``axis()`` does not accept arbitrary keyword arguments anymore.
+- ``Axis.set_ticklabels()`` does not accept arbitrary positional arguments
+  other than ``ticklabels``.
+- ``mpl_toolkits.mplot3d.art3d.Poly3DCollection.set_zsort`` does not accept
+  the value ``True`` anymore. Pass the equivalent value 'average' instead.
 
 rcParams
 ~~~~~~~~

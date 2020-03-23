@@ -860,11 +860,11 @@ future version.
 - ``backend_ps.PsBackendHelper``
 - ``backend_ps.ps_backend_helper``,
 
-- `.cbook.iterable`
-- `.cbook.get_label`
-- `.cbook.safezip`
+- ``cbook.iterable``
+- ``cbook.get_label``
+- ``cbook.safezip``
   Manually check the lengths of the inputs instead, or rely on NumPy to do it.
-- `.cbook.is_hashable`
+- ``cbook.is_hashable``
   Use ``isinstance(..., collections.abc.Hashable)`` instead.
 
 - The ``.backend_bases.RendererBase.strip_math``.  Use
