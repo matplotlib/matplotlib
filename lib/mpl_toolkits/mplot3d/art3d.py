@@ -673,7 +673,10 @@ class Poly3DCollection(PolyCollection):
         needs_masking = self._invalid_vertices is not False
         num_faces = len(self._faces)
 
-        pfaces = proj3d._proj_transform_vectors(self._faces, renderer.M)
+        # Some faces might contain masked vertices, so we want to ignore any
+        # errors that those might cause
+        with np.errstate(invalid='ignore', divide='ignore'):
+            pfaces = proj3d._proj_transform_vectors(self._faces, renderer.M)
         pzs = pfaces[..., 2]
         if needs_masking:
             pzs = np.ma.MaskedArray(pzs, mask=self._invalid_vertices)
