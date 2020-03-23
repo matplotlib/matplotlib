@@ -1559,7 +1559,6 @@ class FigureCanvasBase:
         'scroll_event',
         'motion_notify_event',
         'pick_event',
-        'idle_event',
         'figure_enter_event',
         'figure_leave_event',
         'axes_enter_event',
