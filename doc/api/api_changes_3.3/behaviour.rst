@@ -98,7 +98,7 @@ deprecation warning.
 `~.Axes.errorbar` now color cycles when only errorbar color is set
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Previously setting the *ecolor* would turn off automatic color cycling for the plot, leading to the
+Previously setting the *ecolor* would turn off automatic color cycling for the plot, leading to
 the lines and markers defaulting to whatever the first color in the color cycle was in the case of
 multiple plot calls.
 
@@ -171,3 +171,15 @@ The default method used to format `.Slider` values has been changed to use a
 values are displayed with an appropriate number of significant digits even if
 they are much smaller or much bigger than 1.  To restore the old behavior,
 explicitly pass a "%1.2f" as the *valfmt* parameter to `.Slider`.
+
+:rc:`axes.titlepad` and *pad* argument of `~.Axes.set_title` now default to ``None``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Since 3.0, Axes titles are automatically repositioned, primarily to avoid
+xlabels or xticks at the top of the axes.  The user could turn this
+off using the optional *y* argument to `~.Axes.set_title`).  However, that
+made it impossible to manually set the *pad* argument (without also setting the
+*y* argument).  Now *pad* defaults to ``None`` and the
+rcParam :rc:`axes.titlepad` defaults to ``None``, which will
+allow automatic title placement.  However, if these are set to a float, then
+the automatic placement of the title is turned off.

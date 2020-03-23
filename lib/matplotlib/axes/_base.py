@@ -1139,11 +1139,9 @@ class _AxesBase(martist.Artist):
             verticalalignment='baseline',
             horizontalalignment='right',
             )
-        title_offset_points = mpl.rcParams['axes.titlepad']
-        # refactor this out so it can be called in ax.set_title if
-        # pad argument used...
-        self._set_title_offset_trans(title_offset_points)
-        # determine if the title position has been set manually:
+        # this needs to be called in case cla is not called on
+        # axes later...
+        self._set_title_offset_trans(mpl.rcParams['axes.titlepad'])
         self._autotitlepos = None
 
         for _title in (self.title, self._left_title, self._right_title):
@@ -1200,6 +1198,9 @@ class _AxesBase(martist.Artist):
         Set the offset for the title either from :rc:`axes.titlepad`
         or from set_title kwarg ``pad``.
         """
+        if title_offset_points is None:
+            # dummy default in case cla hasn't been called.
+            title_offset_points = 0
         self.titleOffsetTrans = mtransforms.ScaledTranslation(
                 0.0, title_offset_points / 72,
                 self.figure.dpi_scale_trans)

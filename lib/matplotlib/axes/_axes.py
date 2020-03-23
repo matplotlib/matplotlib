@@ -169,8 +169,14 @@ class Axes(_AxesBase):
         titlecolor = rcParams['axes.titlecolor']
         if not cbook._str_lower_equal(titlecolor, 'auto'):
             default["color"] = titlecolor
+
         if pad is None:
             pad = rcParams['axes.titlepad']
+        if pad is not None:
+            self._autotitlepos = False
+        else:
+            pad = 6  # default.
+
         self._set_title_offset_trans(float(pad))
         title.set_text(label)
         title.update(default)

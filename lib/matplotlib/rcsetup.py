@@ -1219,7 +1219,7 @@ defaultParams = {
     'axes.titlelocation':    ['center', ['left', 'center', 'right']],  # alignment of axes title
     'axes.titleweight':      ['normal', validate_fontweight],  # font weight of axes title
     'axes.titlecolor':       ['auto', validate_color_or_auto],  # font color of axes title
-    'axes.titlepad':         [6.0, validate_float],  # pad from axes top to title in points
+    'axes.titlepad':         [None, validate_float_or_None],  # pad from axes top to title in points; None means allow auto position of title
     'axes.grid':             [False, validate_bool],   # display grid or not
     'axes.grid.which':       ['major', ['minor', 'both', 'major']],  # set whether the grid is drawn on
                                                                      # 'major' 'minor' or 'both' ticks
