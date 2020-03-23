@@ -28,7 +28,6 @@ To enable tex rendering of all text in your matplotlib figure, set
 :rc:`text.usetex` to True.
 """
 
-import copy
 import functools
 import glob
 import hashlib
@@ -58,10 +57,6 @@ class TexManager:
     rgba_arrayd = {}
     grey_arrayd = {}
 
-    serif = ('cmr', '')
-    sans_serif = ('cmss', '')
-    monospace = ('cmtt', '')
-    cursive = ('pzc', r'\usepackage{chancery}')
     font_family = 'serif'
     font_families = ('serif', 'sans-serif', 'cursive', 'monospace')
 
@@ -86,11 +81,6 @@ class TexManager:
         'computer modern sans serif': ('cmss', r'\usepackage{type1ec}'),
         'computer modern typewriter': ('cmtt', r'\usepackage{type1ec}')}
 
-    _rc_cache = None
-    _rc_cache_keys = [
-        'text.latex.preamble', 'text.latex.preview', 'font.family',
-        *['font.' + n for n in font_families]]
-
     @cbook.deprecated("3.3", alternative="matplotlib.get_cachedir()")
     @property
     def cachedir(self):
@@ -98,12 +88,32 @@ class TexManager:
 
     @functools.lru_cache()  # Always return the same instance.
     def __new__(cls):
-        self = object.__new__(cls)
-        self._reinit()
-        return self
+        Path(cls.texcache).mkdir(parents=True, exist_ok=True)
+        return object.__new__(cls)
 
-    def _reinit(self):
-        Path(self.texcache).mkdir(parents=True, exist_ok=True)
+    _fonts = {}  # Only for deprecation period.
+
+    @cbook.deprecated("3.3")
+    @property
+    def serif(self):
+        return self._fonts.get("serif", ('cmr', ''))
+
+    @cbook.deprecated("3.3")
+    @property
+    def sans_serif(self):
+        return self._fonts.get("sans-serif", ('cmss', ''))
+
+    @cbook.deprecated("3.3")
+    @property
+    def cursive(self):
+        return self._fonts.get("cursive", ('pzc', r'\usepackage{chancery}'))
+
+    @cbook.deprecated("3.3")
+    @property
+    def monospace(self):
+        return self._fonts.get("monospace", ('cmtt', ''))
+
+    def get_font_config(self):
         ff = rcParams['font.family']
         if len(ff) == 1 and ff[0].lower() in self.font_families:
             self.font_family = ff[0].lower()
@@ -115,11 +125,9 @@ class TexManager:
 
         fontconfig = [self.font_family]
         for font_family in self.font_families:
-            font_family_attr = font_family.replace('-', '_')
             for font in rcParams['font.' + font_family]:
                 if font.lower() in self.font_info:
-                    setattr(self, font_family_attr,
-                            self.font_info[font.lower()])
+                    self._fonts[font_family] = self.font_info[font.lower()]
                     _log.debug('family: %s, font: %s, info: %s',
                                font_family, font, self.font_info[font.lower()])
                     break
@@ -129,22 +137,25 @@ class TexManager:
             else:
                 _log.info('No LaTeX-compatible font found for the %s font '
                           'family in rcParams. Using default.', font_family)
-                setattr(self, font_family_attr, self.font_info[font_family])
-            fontconfig.append(getattr(self, font_family_attr)[0])
-        # Add a hash of the latex preamble to self._fontconfig so that the
+                self._fonts[font_family] = self.font_info[font_family]
+            fontconfig.append(self._fonts[font_family][0])
+        # Add a hash of the latex preamble to fontconfig so that the
         # correct png is selected for strings rendered with same font and dpi
         # even if the latex preamble changes within the session
         preamble_bytes = self.get_custom_preamble().encode('utf-8')
         fontconfig.append(hashlib.md5(preamble_bytes).hexdigest())
-        self._fontconfig = ''.join(fontconfig)
 
         # The following packages and commands need to be included in the latex
         # file's preamble:
-        cmd = [self.serif[1], self.sans_serif[1], self.monospace[1]]
+        cmd = [self._fonts['serif'][1],
+               self._fonts['sans-serif'][1],
+               self._fonts['monospace'][1]]
         if self.font_family == 'cursive':
-            cmd.append(self.cursive[1])
+            cmd.append(self._fonts['cursive'][1])
         self._font_preamble = '\n'.join(
-            [r'\usepackage{type1cm}'] + cmd + [r'\usepackage{textcomp}'])
+            [r'\usepackage{type1cm}', *cmd, r'\usepackage{textcomp}'])
+
+        return ''.join(fontconfig)
 
     def get_basefile(self, tex, fontsize, dpi=None):
         """
@@ -154,24 +165,6 @@ class TexManager:
                      self.get_custom_preamble(), str(dpi or '')])
         return os.path.join(
             self.texcache, hashlib.md5(s.encode('utf-8')).hexdigest())
-
-    def get_font_config(self):
-        """Reinitializes self if relevant rcParams on have changed."""
-        if self._rc_cache is None:
-            self._rc_cache = dict.fromkeys(self._rc_cache_keys)
-        changed = [par for par in self._rc_cache_keys
-                   if rcParams[par] != self._rc_cache[par]]
-        if changed:
-            _log.debug('following keys changed: %s', changed)
-            for k in changed:
-                _log.debug('%-20s: %-10s -> %-10s',
-                           k, self._rc_cache[k], rcParams[k])
-                # deepcopy may not be necessary, but feels more future-proof
-                self._rc_cache[k] = copy.deepcopy(rcParams[k])
-            _log.debug('RE-INIT\nold fontconfig: %s', self._fontconfig)
-            self._reinit()
-        _log.debug('fontconfig: %s', self._fontconfig)
-        return self._fontconfig
 
     def get_font_preamble(self):
         """
