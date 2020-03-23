@@ -625,6 +625,27 @@ class Path:
         return _path.path_intersects_rectangle(
             self, bbox.x0, bbox.y0, bbox.x1, bbox.y1, filled)
 
+    def length(self, rtol=None, atol=None, **kwargs):
+        r"""Get length of Path.
+
+        Equivalent to (but not computed as)
+
+        .. math::
+
+            \sum_{j=1}^N \int_0^1 ||B'_j(t)|| dt
+
+        where the sum is over the :math:`N` Bezier curves that comprise the
+        Path. Notice that this measure of length will assign zero weight to all
+        isolated points on the Path.
+
+        Returns
+        -------
+        length : float
+            The path length.
+        """
+        return np.sum([B.arc_length(rtol, atol)
+                       for B, code in self.iter_bezier(**kwargs)])
+
     def signed_area(self):
         """
         Get signed area of the filled path.

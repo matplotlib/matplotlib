@@ -49,21 +49,24 @@ def test_contains_points_negative_radius():
     np.testing.assert_equal(result, [True, False, False])
 
 
-_ExampleCurve = namedtuple('ExampleCurve', ['path', 'extents', 'area'])
+_ExampleCurve = namedtuple('ExampleCurve',
+                           ['path', 'extents', 'area', 'length'])
 _test_curves = [
     # interior extrema determine extents and degenerate derivative
     _ExampleCurve(Path([[0, 0], [1, 0], [1, 1], [0, 1]],
                        [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4]),
-                  extents=(0., 0., 0.75, 1.), area=0.6),
+                  extents=(0., 0., 0.75, 1.), area=0.6, length=2.0),
     # a quadratic curve, clockwise
     _ExampleCurve(Path([[0, 0], [0, 1], [1, 0]], [Path.MOVETO, Path.CURVE3,
-                  Path.CURVE3]), extents=(0., 0., 1., 0.5), area=-1/3),
+                  Path.CURVE3]), extents=(0., 0., 1., 0.5), area=-1/3,
+                  length=(1/25)*(10 + 15*np.sqrt(2) + np.sqrt(5) \
+                  * (np.arcsinh(2) + np.arcsinh(3)))),
     # a linear curve, degenerate vertically
     _ExampleCurve(Path([[0, 1], [1, 1]], [Path.MOVETO, Path.LINETO]),
-                  extents=(0., 1., 1., 1.), area=0.),
+                  extents=(0., 1., 1., 1.), area=0., length=1.0),
     # a point
     _ExampleCurve(Path([[1, 2]], [Path.MOVETO]), extents=(1., 2., 1., 2.),
-                  area=0.),
+                  area=0., length=0.0),
 ]
 
 
@@ -103,6 +106,13 @@ def test_signed_area_unit_circle():
     # not quite pi, since it's not a "real" circle, just an approximation of a
     # circle made out of bezier curves
     assert np.isclose(circ.signed_area, 3.1415935732517166)
+
+
+@pytest.mark.parametrize('precomputed_curve', _test_curves)
+def test_length_curve(precomputed_curve):
+    path, length = precomputed_curve.path, precomputed_curve.length
+    assert np.isclose(path.length(rtol=1e-5, atol=1e-8), length, rtol=1e-5,
+                      atol=1e-8)
 
 
 def test_point_in_path_nan():

@@ -13,6 +13,13 @@ integrate = pytest.importorskip('scipy.integrate')
 _test_curves = [list(tc.path.iter_bezier())[-1][0] for tc in _test_curves]
 
 
+def _integral_arc_length(B):
+    dB = B.differentiate(B)
+    def integrand(t):
+        return np.linalg.norm(dB(t))
+    return integrate.quad(integrand, 0, 1)[0]
+
+
 def _integral_arc_area(B):
     """(Signed) area swept out by ray from origin to curve."""
     dB = B.differentiate(B)
@@ -24,3 +31,10 @@ def _integral_arc_area(B):
 @pytest.mark.parametrize("B", _test_curves)
 def test_area_formula(B):
     assert np.isclose(_integral_arc_area(B), B.arc_area)
+
+
+@pytest.mark.parametrize("B", _test_curves)
+def test_length_iteration(B):
+    assert np.isclose(_integral_arc_length(B),
+                      B.arc_length(rtol=1e-5, atol=1e-8),
+                      rtol=1e-5, atol=1e-8)
