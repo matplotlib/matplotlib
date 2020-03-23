@@ -33,20 +33,38 @@ keyword argument to `.Figure.add_subplot`::
 See the :ref:`toolkit_mplot3d-faq` for more information about the mplot3d
 toolkit.
 
-.. _plot3d:
+.. _plot3d_tutorial:
 
-Line plots
+How to draw Line plots 3D
 ====================
-.. automethod:: Axes3D.plot
 
-.. figure:: ../../gallery/mplot3d/images/sphx_glr_lines3d_001.png
-   :target: ../../gallery/mplot3d/lines3d.html
-   :align: center
-   :scale: 50
+If you want to draw a plot, try the following. Three-dimensional plots are
+similar to two-dimensional plots, but different parts exist.::
 
-   Lines3d
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D # Changed in version 3.2.0
+    import numpy as np 
 
-.. _scatter3d:
+    fig = plt.figure()
+    #fig = plt.figure(figsize=(10, 5))
+    ax = fig.add_subplot(111, projection='3d') # Axe3D object
+
+    sample_size = 50
+    x = np.cumsum(np.random.normal(0, 1, sample_size))
+    y = np.cumsum(np.random.normal(0, 1, sample_size))
+    z = np.cumsum(np.random.normal(0, 1, sample_size))
+    ax.plot(x, y, z, alpha=0.6)
+    plt.title("ax.plot")
+    plt.show()
+
+If you want to change figure size, you can change. ::
+
+    #fig = plt.figure()
+    fig = plt.figure(figsize=(10, 5))
+
+Use 
+
+.. _scatter3d_tutorial:
 
 Scatter plots
 =============
@@ -59,7 +77,7 @@ Scatter plots
 
    Scatter3d
 
-.. _wireframe:
+.. _wireframe_tutorial:
 
 Wireframe plots
 ===============
@@ -72,7 +90,7 @@ Wireframe plots
 
    Wire3d
 
-.. _surface:
+.. _surface_tutorial:
 
 Surface plots
 =============
@@ -89,7 +107,7 @@ Surface plots
 
    Surface3d 3
 
-.. _trisurface:
+.. _trisurface_tutorial:
 
 Tri-Surface plots
 =================
@@ -103,7 +121,7 @@ Tri-Surface plots
    Trisurf3d
 
 
-.. _contour3d:
+.. _contour3d_tutorial:
 
 Contour plots
 =============
@@ -120,7 +138,7 @@ Contour plots
 
    Contour3d 3
 
-.. _contourf3d:
+.. _contourf3d_tutorial:
 
 Filled contour plots
 ====================
@@ -139,7 +157,7 @@ Filled contour plots
    The feature demoed in the second contourf3d example was enabled as a
    result of a bugfix for version 1.1.0.
 
-.. _polygon3d:
+.. _polygon3d_tutorial:
 
 Polygon plots
 ====================
@@ -152,7 +170,7 @@ Polygon plots
 
    Polys3d
 
-.. _bar3d:
+.. _bar3d_tutorial:
 
 Bar plots
 ====================
@@ -165,7 +183,7 @@ Bar plots
 
    Bars3d
 
-.. _quiver3d:
+.. _quiver3d_tutorial:
 
 Quiver
 ====================
@@ -178,7 +196,7 @@ Quiver
 
    Quiver3d
 
-.. _2dcollections3d:
+.. _2dcollections3d_tutorial:
 
 2D plots in 3D
 ====================
@@ -189,7 +207,7 @@ Quiver
 
    2dcollections3d
 
-.. _text3d:
+.. _text3d_tutorial:
 
 Text
 ====================
@@ -202,7 +220,7 @@ Text
 
    Text3d
 
-.. _3dsubplots:
+.. _3dsubplots_tutorial:
 
 Subplotting
 ====================
