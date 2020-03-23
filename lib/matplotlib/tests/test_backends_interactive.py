@@ -35,6 +35,11 @@ def _get_testable_interactive_backends():
         if reason:
             backend = pytest.param(
                 backend, marks=pytest.mark.skip(reason=reason))
+        elif backend == 'wxagg' and sys.platform == 'darwin':
+            # ignore on OSX because that's currently broken (github #16849)
+            backend = pytest.param(
+                backend,
+                marks=pytest.mark.xfail(reason='github #16849'))
         backends.append(backend)
     return backends
 
