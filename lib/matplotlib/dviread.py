@@ -69,45 +69,55 @@ Box = namedtuple('Box', 'x y height width')
 # argument bytes in this delta.
 
 def _arg_raw(dvi, delta):
-    """Return *delta* without reading anything more from the dvi file"""
+    """Return *delta* without reading anything more from the dvi file."""
     return delta
 
 
 def _arg(bytes, signed, dvi, _):
-    """Read *bytes* bytes, returning the bytes interpreted as a
-    signed integer if *signed* is true, unsigned otherwise."""
+    """
+    Read *bytes* bytes, returning the bytes interpreted as a signed integer
+    if *signed* is true, unsigned otherwise.
+    """
     return dvi._arg(bytes, signed)
 
 
 def _arg_slen(dvi, delta):
-    """Signed, length *delta*
+    """
+    Signed, length *delta*
 
-    Read *delta* bytes, returning None if *delta* is zero, and
-    the bytes interpreted as a signed integer otherwise."""
+    Read *delta* bytes, returning None if *delta* is zero, and the bytes
+    interpreted as a signed integer otherwise.
+    """
     if delta == 0:
         return None
     return dvi._arg(delta, True)
 
 
 def _arg_slen1(dvi, delta):
-    """Signed, length *delta*+1
+    """
+    Signed, length *delta*+1
 
-    Read *delta*+1 bytes, returning the bytes interpreted as signed."""
+    Read *delta*+1 bytes, returning the bytes interpreted as signed.
+    """
     return dvi._arg(delta+1, True)
 
 
 def _arg_ulen1(dvi, delta):
-    """Unsigned length *delta*+1
+    """
+    Unsigned length *delta*+1
 
-    Read *delta*+1 bytes, returning the bytes interpreted as unsigned."""
+    Read *delta*+1 bytes, returning the bytes interpreted as unsigned.
+    """
     return dvi._arg(delta+1, False)
 
 
 def _arg_olen1(dvi, delta):
-    """Optionally signed, length *delta*+1
+    """
+    Optionally signed, length *delta*+1
 
     Read *delta*+1 bytes, returning the bytes interpreted as
-    unsigned integer for 0<=*delta*<3 and signed if *delta*==3."""
+    unsigned integer for 0<=*delta*<3 and signed if *delta*==3.
+    """
     return dvi._arg(delta + 1, delta == 3)
 
 
@@ -122,7 +132,8 @@ _arg_mapping = dict(raw=_arg_raw,
 
 
 def _dispatch(table, min, max=None, state=None, args=('raw',)):
-    """Decorator for dispatch by opcode. Sets the values in *table*
+    """
+    Decorator for dispatch by opcode. Sets the values in *table*
     from *min* to *max* to this method, adds a check that the Dvi state
     matches *state* if not None, reads arguments from the file according
     to *args*.

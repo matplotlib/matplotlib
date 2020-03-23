@@ -95,9 +95,12 @@ _log = logging.getLogger(__name__)
 
 
 def fill(strings, linelen=75):
-    """Make one string from sequence of strings, with whitespace
-    in between. The whitespace is chosen to form lines of at most
-    linelen characters, if possible."""
+    """
+    Make one string from sequence of strings, with whitespace in between.
+
+    The whitespace is chosen to form lines of at most *linelen* characters,
+    if possible.
+    """
     currpos = 0
     lasti = 0
     result = []
@@ -295,8 +298,7 @@ class Operator:
 
 
 class Verbatim:
-    """Store verbatim PDF command content for later inclusion in the
-    stream."""
+    """Store verbatim PDF command content for later inclusion in the stream."""
     def __init__(self, x):
         self._x = x
 
@@ -322,9 +324,16 @@ Op = types.SimpleNamespace(**{name: Operator(value)
 
 
 def _paint_path(fill, stroke):
-    """Return the PDF operator to paint a path in the following way:
-    fill:   fill the path with the fill color
-    stroke: stroke the outline of the path with the line color"""
+    """
+    Return the PDF operator to paint a path.
+
+    Parameters
+    ----------
+    fill: bool
+        Fill the path with the fill color.
+    stroke: bool
+        Stroke the outline of the path with the line color.
+    """
     if stroke:
         if fill:
             return Op.fill_stroke
@@ -339,7 +348,8 @@ Op.paint_path = _paint_path
 
 
 class Stream:
-    """PDF stream object.
+    """
+    PDF stream object.
 
     This has no pdfRepr method. Instead, call begin(), then output the
     contents of the stream by calling write(), and finally call end().

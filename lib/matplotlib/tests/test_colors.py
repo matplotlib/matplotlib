@@ -592,8 +592,10 @@ def test_light_source_topo_surface():
 
 
 def test_light_source_shading_default():
-    """Array comparison test for the default "hsv" blend mode. Ensure the
-    default result doesn't change without warning."""
+    """
+    Array comparison test for the default "hsv" blend mode. Ensure the
+    default result doesn't change without warning.
+    """
     y, x = np.mgrid[-1.2:1.2:8j, -1.2:1.2:8j]
     z = 10 * np.cos(x**2 + y**2)
 
@@ -647,8 +649,10 @@ def test_light_source_shading_default():
 # additional elements being masked when calculating the gradient thus
 # the output is different with earlier numpy versions.
 def test_light_source_masked_shading():
-    """Array comparison test for a surface with a masked portion. Ensures that
-    we don't wind up with "fringes" of odd colors around masked regions."""
+    """
+    Array comparison test for a surface with a masked portion. Ensures that
+    we don't wind up with "fringes" of odd colors around masked regions.
+    """
     y, x = np.mgrid[-1.2:1.2:8j, -1.2:1.2:8j]
     z = 10 * np.cos(x**2 + y**2)
 
@@ -701,8 +705,10 @@ def test_light_source_masked_shading():
 
 
 def test_light_source_hillshading():
-    """Compare the current hillshading method against one that should be
-    mathematically equivalent. Illuminates a cone from a range of angles."""
+    """
+    Compare the current hillshading method against one that should be
+    mathematically equivalent. Illuminates a cone from a range of angles.
+    """
 
     def alternative_hillshade(azimuth, elev, z):
         illum = _sph2cart(*_azimuth2math(azimuth, elev))
@@ -730,20 +736,25 @@ def test_light_source_hillshading():
 
 
 def test_light_source_planar_hillshading():
-    """Ensure that the illumination intensity is correct for planar
-    surfaces."""
+    """
+    Ensure that the illumination intensity is correct for planar surfaces.
+    """
 
     def plane(azimuth, elevation, x, y):
-        """Create a plane whose normal vector is at the given azimuth and
-        elevation."""
+        """
+        Create a plane whose normal vector is at the given azimuth and
+        elevation.
+        """
         theta, phi = _azimuth2math(azimuth, elevation)
         a, b, c = _sph2cart(theta, phi)
         z = -(a*x + b*y) / c
         return z
 
     def angled_plane(azimuth, elevation, angle, x, y):
-        """Create a plane whose normal vector is at an angle from the given
-        azimuth and elevation."""
+        """
+        Create a plane whose normal vector is at an angle from the given
+        azimuth and elevation.
+        """
         elevation = elevation + angle
         if elevation > 90:
             azimuth = (azimuth + 180) % 360
@@ -775,8 +786,10 @@ def _sph2cart(theta, phi):
 
 
 def _azimuth2math(azimuth, elevation):
-    """Converts from clockwise-from-north and up-from-horizontal to
-    mathematical conventions."""
+    """
+    Convert from clockwise-from-north and up-from-horizontal to mathematical
+    conventions.
+    """
     theta = np.radians((90 - azimuth) % 360)
     phi = np.radians(90 - elevation)
     return theta, phi
@@ -795,8 +808,10 @@ def test_pandas_iterable(pd):
 
 @pytest.mark.parametrize('name', sorted(cm.cmap_d))
 def test_colormap_reversing(name):
-    """Check the generated _lut data of a colormap and corresponding
-    reversed colormap if they are almost the same."""
+    """
+    Check the generated _lut data of a colormap and corresponding reversed
+    colormap if they are almost the same.
+    """
     cmap = plt.get_cmap(name)
     cmap_r = cmap.reversed()
     if not cmap_r._isinit:
