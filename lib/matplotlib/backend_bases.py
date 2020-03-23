@@ -1718,8 +1718,8 @@ class FigureCanvasBase:
         scroll wheel event.  (*x*, *y*) are the canvas coords ((0, 0) is lower
         left).  button and key are as defined in `MouseEvent`.
 
-        This method will callall functions connected to the 'scroll_event' with
-        a `MouseEvent` instance.
+        This method will call all functions connected to the 'scroll_event'
+        with a `MouseEvent` instance.
         """
         if step >= 0:
             self._button = 'up'
@@ -1738,7 +1738,7 @@ class FigureCanvasBase:
         button press.  (*x*, *y*) are the canvas coords ((0, 0) is lower left).
         button and key are as defined in `MouseEvent`.
 
-        This method will callall functions connected to the
+        This method will call all functions connected to the
         'button_press_event' with a `MouseEvent` instance.
         """
         self._button = button
