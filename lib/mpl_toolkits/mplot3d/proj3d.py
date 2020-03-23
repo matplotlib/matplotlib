@@ -149,7 +149,7 @@ def _proj_transform_vectors(vecs, M):
 
     Parameters
     ----------
-    vecs : ... x 3 np.ndarray or np.ma.MaskedArray
+    vecs : ... x 3 np.ndarray
         Input vectors
 
     M : 4 x 4 np.ndarray
