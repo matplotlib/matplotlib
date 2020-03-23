@@ -66,6 +66,12 @@ def test_signed_area_unit_circle():
     assert(np.isclose(rcirc.signed_area(), -3.1415935732517166))
 
 
+def test_length_unit_circl():
+    circ = Path.unit_circle()
+    # not quite 2*pi...since it's not quite a circle!
+    assert(np.isclose(circ.length(), 6.283186229058933))
+
+
 def test_signed_area_unit_rectangle():
     rect = Path.unit_rectangle()
     assert(np.isclose(rect.signed_area(), 1))
