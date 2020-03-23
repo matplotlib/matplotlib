@@ -145,7 +145,7 @@ transform = proj_transform
 
 
 def _proj_transform_vectors(vecs, M):
-    """Vector version of ``project_transform`` able to handle MaskedArrays.
+    """Vectorized version of ``_proj_transform_vec``.
 
     Parameters
     ----------
@@ -158,18 +158,12 @@ def _proj_transform_vectors(vecs, M):
     vecs_shape = vecs.shape
     vecs = vecs.reshape(-1, 3).T
 
-    is_masked = isinstance(vecs, np.ma.MaskedArray)
-    if is_masked:
-        mask = vecs.mask
-
     vecs_pad = np.empty((vecs.shape[0] + 1,) + vecs.shape[1:])
     vecs_pad[:-1] = vecs
     vecs_pad[-1] = 1
     product = np.dot(M, vecs_pad)
     tvecs = product[:3] / product[3]
 
-    if is_masked:
-        tvecs = np.ma.array(tvecs, mask=mask)
     return tvecs.T.reshape(vecs_shape)
 
 

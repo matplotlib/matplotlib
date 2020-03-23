@@ -612,19 +612,23 @@ class Poly3DCollection(PolyCollection):
             if segments3d.ndim != 3 or segments3d.shape[-1] != 3:
                 raise ValueError("segments3d must be a MxNx3 array, but got " +
                                  "shape {}".format(segments3d.shape))
-            self._segments = segments3d
+            if isinstance(segments3d, np.ma.MaskedArray):
+                self._faces = segments3d.data
+                self._invalid_vertices = segments3d.mask.any(axis=-1)
+            else:
+                self._faces = segments3d
+                self._invalid_vertices = False
         else:
             num_faces = len(segments3d)
             num_verts = np.fromiter(map(len, segments3d), dtype=np.intp)
             max_verts = num_verts.max(initial=0)
-            padded = np.empty((num_faces, max_verts, 3))
+            segments = np.empty((num_faces, max_verts, 3))
             for i, face in enumerate(segments3d):
-                padded[i, :len(face)] = face
-            mask = np.arange(max_verts) >= num_verts[:, None]
-            mask = mask[..., None]  # add a component axis
-            # ma.array does not broadcast the mask for us
-            mask = np.broadcast_to(mask, padded.shape)
-            self._segments = np.ma.array(padded, mask=mask)
+                segments[i, :len(face)] = face
+            self._faces = segments
+            self._invalid_vertices = np.arange(max_verts) >= num_verts[:, None]
+        assert self._invalid_vertices is False or \
+            self._invalid_vertices.shape == self._faces.shape[:-1]
 
     def set_verts(self, verts, closed=True):
         """Set 3D vertices."""
@@ -666,9 +670,13 @@ class Poly3DCollection(PolyCollection):
             self.update_scalarmappable()
             self._facecolors3d = self._facecolors
 
-        psegments = proj3d._proj_transform_vectors(self._segments, renderer.M)
-        is_masked = isinstance(psegments, np.ma.MaskedArray)
-        num_faces = len(psegments)
+        needs_masking = self._invalid_vertices is not False
+        num_faces = len(self._faces)
+
+        pfaces = proj3d._proj_transform_vectors(self._faces, renderer.M)
+        pzs = pfaces[..., 2]
+        if needs_masking:
+            pzs = np.ma.MaskedArray(pzs, mask=self._invalid_vertices)
 
         # This extra fuss is to re-order face / edge colors
         cface = self._facecolors3d
@@ -681,26 +689,27 @@ class Poly3DCollection(PolyCollection):
             else:
                 cedge = cedge.repeat(num_faces, axis=0)
 
-        face_z = self._zsortfunc(psegments[..., 2], axis=-1)
-        if is_masked:
-            # NOTE: Unpacking .data is safe here, because every face has to
-            #       contain a valid vertex.
+        face_z = self._zsortfunc(pzs, axis=-1)
+        if needs_masking:
             face_z = face_z.data
         face_order = np.argsort(face_z, axis=-1)[::-1]
 
-        segments_2d = psegments[face_order, :, :2]
+        faces_2d = pfaces[face_order, :, :2]
         if self._codes3d is not None:
-            if is_masked:
-                # NOTE: We cannot assert the same on segments_2d, as it is a
-                #       result of advanced indexing, so its mask is a newly
-                #       allocated tensor. However, both of those asserts are
-                #       equivalent.
-                assert psegments.mask.strides[-1] == 0
-                segments_2d = [s.compressed().reshape(-1, 2) for s in segments_2d]
+            if needs_masking:
+                segment_mask = ~self._invalid_vertices[face_order, :]
+                faces_2d = [face[mask, :] for face, mask
+                               in zip(faces_2d, segment_mask)]
             codes = [self._codes3d[idx] for idx in face_order]
-            PolyCollection.set_verts_and_codes(self, segments_2d, codes)
+            PolyCollection.set_verts_and_codes(self, faces_2d, codes)
         else:
-            PolyCollection.set_verts(self, segments_2d, self._closed)
+            if needs_masking:
+                invalid_vertices_2d = np.broadcast_to(
+                    self._invalid_vertices[face_order, :, None],
+                    faces_2d.shape)
+                faces_2d = np.ma.MaskedArray(
+                        faces_2d, mask=invalid_vertices_2d)
+            PolyCollection.set_verts(self, faces_2d, self._closed)
 
         self._facecolors2d = cface[face_order]
         if len(self._edgecolors3d) == len(cface):
@@ -713,11 +722,11 @@ class Poly3DCollection(PolyCollection):
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
             ztrans = proj3d._proj_transform_vec(zvec, renderer.M)
             return ztrans[2][0]
-        elif psegments.size > 0:
+        elif pzs.size > 0:
             # FIXME: Some results still don't look quite right.
             #        In particular, examine contourf3d_demo2.py
             #        with az = -54 and elev = -45.
-            return np.min(psegments[..., 2])
+            return np.min(pzs)
         else:
             return np.nan
 
