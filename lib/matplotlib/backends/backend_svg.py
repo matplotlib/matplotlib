@@ -391,16 +391,19 @@ class RendererSVG(RendererBase):
                 x="0", y="0", width=str(HATCH_SIZE+1),
                 height=str(HATCH_SIZE+1),
                 fill=fill)
-            writer.element(
-                'path',
-                d=path_data,
-                style=generate_css({
+            hatch_style = {
                     'fill': rgb2hex(stroke),
                     'stroke': rgb2hex(stroke),
                     'stroke-width': str(mpl.rcParams['hatch.linewidth']),
                     'stroke-linecap': 'butt',
                     'stroke-linejoin': 'miter'
-                    })
+                    }
+            if stroke[3] < 1.:
+                hatch_style['stroke-opacity'] = str(stroke[3])
+            writer.element(
+                'path',
+                d=path_data,
+                style=generate_css(hatch_style)
                 )
             writer.end('pattern')
         writer.end('defs')
