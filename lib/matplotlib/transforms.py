@@ -1685,8 +1685,7 @@ class TransformWrapper(Transform):
 
 class AffineBase(Transform):
     """
-    The base class of all affine transformations of any number of
-    dimensions.
+    The base class of all affine transformations of any number of dimensions.
     """
     is_affine = True
 
@@ -1699,7 +1698,7 @@ class AffineBase(Transform):
         return self.get_matrix()
 
     def __eq__(self, other):
-        if getattr(other, "is_affine", False):
+        if getattr(other, "is_affine", False) and hasattr(other, "get_matrix"):
             return np.all(self.get_matrix() == other.get_matrix())
         return NotImplemented
 
