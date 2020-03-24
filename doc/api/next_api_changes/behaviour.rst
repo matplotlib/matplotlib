@@ -122,3 +122,10 @@ This behavior is consistent with other figure saving methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This is consistent with other signature mismatch errors.  Previously a
 ValueError was raised.
+
+Shortcut for closing all figures
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Shortcuts for closing all figures now also work for the classic toolbar.
+There is no default shortcut any more because unintentionally closing all figures by a key press
+might happen too easily. You can configure the shortcut yourself
+using :rc:`keymap.quit_all`.

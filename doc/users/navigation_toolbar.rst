@@ -94,7 +94,7 @@ Zoom-to-rect                       **o**
 Save                               **ctrl** + **s**
 Toggle fullscreen                  **f** or **ctrl** + **f**
 Close plot                         **ctrl** + **w**
-Close all plots                    **shift** + **w**
+Close all plots                    *unassigned*
 Constrain pan/zoom to x axis       hold **x** when panning/zooming with mouse
 Constrain pan/zoom to y axis       hold **y** when panning/zooming with mouse
 Preserve aspect ratio              hold **CONTROL** when panning/zooming with mouse
