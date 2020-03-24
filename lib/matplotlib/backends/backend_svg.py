@@ -398,7 +398,7 @@ class RendererSVG(RendererBase):
                     'stroke-linecap': 'butt',
                     'stroke-linejoin': 'miter'
                     }
-            if stroke[3] < 1.:
+            if stroke[3] < 1:
                 hatch_style['stroke-opacity'] = str(stroke[3])
             writer.element(
                 'path',
