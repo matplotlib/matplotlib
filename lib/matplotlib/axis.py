@@ -432,8 +432,10 @@ class XTick(Tick):
         return self.axes.get_xaxis_text2_transform(self._pad)
 
     def apply_tickdir(self, tickdir):
+        """Set tick direction. Valid values are 'in', 'out', 'inout'."""
         if tickdir is None:
             tickdir = mpl.rcParams['%s.direction' % self.__name__.lower()]
+        cbook._check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
         self._tickdir = tickdir
 
         if self._tickdir == 'in':
