@@ -2164,8 +2164,7 @@ class TestScatter:
                     get_next_color_func=get_next_color)
 
 
-def _params(c=None, xsize=2, **kwargs):
-    edgecolors = kwargs.pop('edgecolors', None)
+def _params(c=None, xsize=2, *, edgecolors=None, **kwargs):
     return (c, edgecolors, kwargs if kwargs is not None else {}, xsize)
 _result = namedtuple('_result', 'c, colors')
 

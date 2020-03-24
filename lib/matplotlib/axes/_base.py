@@ -150,7 +150,7 @@ class _process_plot_var_args:
         # This should make a copy
         self._prop_keys = prop_cycler.keys
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, data=None, **kwargs):
         self.axes._process_unit_info(kwargs=kwargs)
 
         for pos_only in "xy":
@@ -161,9 +161,7 @@ class _process_plot_var_args:
         if not args:
             return
 
-        # Process the 'data' kwarg.
-        data = kwargs.pop("data", None)
-        if data is not None:
+        if data is not None:  # Process the 'data' kwarg.
             replaced = [mpl._replacer(data, arg) for arg in args]
             if len(args) == 1:
                 label_namer_idx = 0
@@ -446,7 +444,7 @@ class _AxesBase(martist.Artist):
         self.set_label(label)
         self.set_figure(fig)
         self.set_box_aspect(box_aspect)
-        self.set_axes_locator(kwargs.get("axes_locator", None))
+        self._axes_locator = None  # Optionally set via update(kwargs).
 
         self.spines = self._gen_axes_spines()
 

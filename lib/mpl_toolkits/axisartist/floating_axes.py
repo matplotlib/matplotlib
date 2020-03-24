@@ -320,17 +320,7 @@ class FloatingAxesBase:
         self.adjust_axes_lim()
 
     def _gen_axes_patch(self):
-        """
-        Returns the patch used to draw the background of the axes.  It
-        is also used as the clipping path for any data elements on the
-        axes.
-
-        In the standard axes, this is a rectangle, but in other
-        projections it may not be.
-
-        .. note::
-            Intended to be overridden by new projection types.
-        """
+        # docstring inherited
         grid_helper = self.get_grid_helper()
         t = grid_helper.get_boundary()
         return mpatches.Polygon(t)
