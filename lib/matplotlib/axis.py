@@ -99,6 +99,7 @@ class Tick(martist.Artist):
         name = self.__name__.lower()
 
         self._loc = loc
+        self._major = major
 
         major_minor = "major" if major else "minor"
 

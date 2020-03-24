@@ -59,33 +59,48 @@ class Axis(maxis.XAxis):
         # Do not depend on this existing in future releases!
         self._axinfo = self._AXINFO[adir].copy()
         if rcParams['_internal.classic_mode']:
-            self._axinfo.update(
-                {'label': {'va': 'center',
-                           'ha': 'center'},
-                 'tick': {'inward_factor': 0.2,
-                          'outward_factor': 0.1,
-                          'linewidth': rcParams['lines.linewidth']},
-                 'axisline': {'linewidth': 0.75,
-                              'color': (0, 0, 0, 1)},
-                 'grid': {'color': (0.9, 0.9, 0.9, 1),
-                          'linewidth': 1.0,
-                          'linestyle': '-'},
-                 })
+            self._axinfo.update({
+                'label': {'va': 'center', 'ha': 'center'},
+                'tick': {
+                    'inward_factor': 0.2,
+                    'outward_factor': 0.1,
+                    'linewidth': {
+                        True: rcParams['lines.linewidth'],  # major
+                        False: rcParams['lines.linewidth'],  # minor
+                    }
+                },
+                'axisline': {'linewidth': 0.75, 'color': (0, 0, 0, 1)},
+                'grid': {
+                    'color': (0.9, 0.9, 0.9, 1),
+                    'linewidth': 1.0,
+                    'linestyle': '-',
+                },
+            })
         else:
-            self._axinfo.update(
-                {'label': {'va': 'center',
-                           'ha': 'center'},
-                 'tick': {'inward_factor': 0.2,
-                          'outward_factor': 0.1,
-                          'linewidth': rcParams.get(
-                              adir + 'tick.major.width',
-                              rcParams['xtick.major.width'])},
-                 'axisline': {'linewidth': rcParams['axes.linewidth'],
-                              'color': rcParams['axes.edgecolor']},
-                 'grid': {'color': rcParams['grid.color'],
-                          'linewidth': rcParams['grid.linewidth'],
-                          'linestyle': rcParams['grid.linestyle']},
-                 })
+            self._axinfo.update({
+                'label': {'va': 'center', 'ha': 'center'},
+                'tick': {
+                    'inward_factor': 0.2,
+                    'outward_factor': 0.1,
+                    'linewidth': {
+                        True: (  # major
+                            rcParams['xtick.major.width'] if adir in 'xz' else
+                            rcParams['ytick.major.width']),
+                        False: (  # minor
+                            rcParams['xtick.minor.width'] if adir in 'xz' else
+                            rcParams['ytick.minor.width']),
+                    }
+                },
+                'axisline': {
+                    'linewidth': rcParams['axes.linewidth'],
+                    'color': rcParams['axes.edgecolor'],
+                },
+                'grid': {
+                    'color': rcParams['grid.color'],
+                    'linewidth': rcParams['grid.linewidth'],
+                    'linestyle': rcParams['grid.linestyle'],
+                },
+            })
 
         maxis.XAxis.__init__(self, axes, *args, **kwargs)
 
@@ -120,11 +135,17 @@ class Axis(maxis.XAxis):
     def get_major_ticks(self, numticks=None):
         ticks = maxis.XAxis.get_major_ticks(self, numticks)
         for t in ticks:
-            t.tick1line.set_transform(self.axes.transData)
-            t.tick2line.set_transform(self.axes.transData)
-            t.gridline.set_transform(self.axes.transData)
-            t.label1.set_transform(self.axes.transData)
-            t.label2.set_transform(self.axes.transData)
+            for obj in [
+                    t.tick1line, t.tick2line, t.gridline, t.label1, t.label2]:
+                obj.set_transform(self.axes.transData)
+        return ticks
+
+    def get_minor_ticks(self, numticks=None):
+        ticks = maxis.XAxis.get_minor_ticks(self, numticks)
+        for t in ticks:
+            for obj in [
+                    t.tick1line, t.tick2line, t.gridline, t.label1, t.label2]:
+                obj.set_transform(self.axes.transData)
         return ticks
 
     def set_pane_pos(self, xys):
@@ -370,7 +391,8 @@ class Axis(maxis.XAxis):
             lx, ly, lz = proj3d.proj_transform(*pos, renderer.M)
 
             tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
-            tick.tick1line.set_linewidth(info['tick']['linewidth'])
+            tick.tick1line.set_linewidth(
+                info['tick']['linewidth'][tick._major])
             tick.draw(renderer)
 
         renderer.close_group('axis3d')
