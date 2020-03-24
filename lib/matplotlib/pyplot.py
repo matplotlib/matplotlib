@@ -408,12 +408,11 @@ def setp(obj, *args, **kwargs):
 
 def xkcd(scale=1, length=100, randomness=2):
     """
-    Turn on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.
-    This will only have effect on things drawn after this function is
-    called.
+    Turn on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.  This will
+    only have effect on things drawn after this function is called.
 
     For best results, the "Humor Sans" font should be installed: it is
-    not included with matplotlib.
+    not included with Matplotlib.
 
     Parameters
     ----------
@@ -440,29 +439,46 @@ def xkcd(scale=1, length=100, randomness=2):
         # This figure will be in regular style
         fig2 = plt.figure()
     """
-    if rcParams['text.usetex']:
-        raise RuntimeError(
-            "xkcd mode is not compatible with text.usetex = True")
+    return _xkcd(scale, length, randomness)
 
-    from matplotlib import patheffects
-    return rc_context({
-        'font.family': ['xkcd', 'xkcd Script', 'Humor Sans', 'Comic Neue',
-                        'Comic Sans MS'],
-        'font.size': 14.0,
-        'path.sketch': (scale, length, randomness),
-        'path.effects': [patheffects.withStroke(linewidth=4, foreground="w")],
-        'axes.linewidth': 1.5,
-        'lines.linewidth': 2.0,
-        'figure.facecolor': 'white',
-        'grid.linewidth': 0.0,
-        'axes.grid': False,
-        'axes.unicode_minus': False,
-        'axes.edgecolor': 'black',
-        'xtick.major.size': 8,
-        'xtick.major.width': 3,
-        'ytick.major.size': 8,
-        'ytick.major.width': 3,
-    })
+
+class _xkcd:
+    # This cannot be implemented in terms of rc_context() because this needs to
+    # work as a non-contextmanager too.
+
+    def __init__(self, scale, length, randomness):
+        self._orig = rcParams.copy()
+
+        if rcParams['text.usetex']:
+            raise RuntimeError(
+                "xkcd mode is not compatible with text.usetex = True")
+
+        from matplotlib import patheffects
+        rcParams.update({
+            'font.family': ['xkcd', 'xkcd Script', 'Humor Sans', 'Comic Neue',
+                            'Comic Sans MS'],
+            'font.size': 14.0,
+            'path.sketch': (scale, length, randomness),
+            'path.effects': [
+                patheffects.withStroke(linewidth=4, foreground="w")],
+            'axes.linewidth': 1.5,
+            'lines.linewidth': 2.0,
+            'figure.facecolor': 'white',
+            'grid.linewidth': 0.0,
+            'axes.grid': False,
+            'axes.unicode_minus': False,
+            'axes.edgecolor': 'black',
+            'xtick.major.size': 8,
+            'xtick.major.width': 3,
+            'ytick.major.size': 8,
+            'ytick.major.width': 3,
+        })
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        dict.update(rcParams, self._orig)
 
 
 ## Figures ##
