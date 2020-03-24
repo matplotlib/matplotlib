@@ -133,3 +133,8 @@ using :rc:`keymap.quit_all`.
 Autoscale for arrow
 ~~~~~~~~~~~~~~~~~~~
 Calling ax.arrow() will now autoscale the axes.
+
+``set_tick_params(label1On=False)`` now also makes the offset text (if any) invisible
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... because the offset text can rarely be interpreted without tick labels
+anyways.

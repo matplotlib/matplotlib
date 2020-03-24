@@ -5497,6 +5497,16 @@ def test_offset_label_color():
     assert ax.yaxis.get_offset_text().get_color() == 'red'
 
 
+def test_offset_text_visible():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot([1.01e9, 1.02e9, 1.03e9])
+    ax.yaxis.set_tick_params(label1On=False, label2On=True)
+    assert ax.yaxis.get_offset_text().get_visible()
+    ax.yaxis.set_tick_params(label2On=False)
+    assert not ax.yaxis.get_offset_text().get_visible()
+
+
 def test_large_offset():
     fig, ax = plt.subplots()
     ax.plot((1 + np.array([0, 1.e-12])) * 1.e27)
