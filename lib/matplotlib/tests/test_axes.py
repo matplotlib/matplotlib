@@ -468,6 +468,13 @@ def test_arrow_empty():
     ax.arrow(0, 0, 0, 0, head_length=0)
 
 
+def test_arrow_in_view():
+    _, ax = plt.subplots()
+    ax.arrow(1, 1, 1, 1)
+    assert ax.get_xlim() == (0.8, 2.2)
+    assert ax.get_ylim() == (0.8, 2.2)
+
+
 def test_annotate_default_arrow():
     # Check that we can make an annotation arrow with only default properties.
     fig, ax = plt.subplots()

@@ -129,3 +129,7 @@ Shortcuts for closing all figures now also work for the classic toolbar.
 There is no default shortcut any more because unintentionally closing all figures by a key press
 might happen too easily. You can configure the shortcut yourself
 using :rc:`keymap.quit_all`.
+
+Autoscale for arrow
+~~~~~~~~~~~~~~~~~~~
+Calling ax.arrow() will now autoscale the axes.
