@@ -2816,33 +2816,25 @@ class OldAutoLocator(Locator):
     """
     On autoscale this class picks the best MultipleLocator to set the
     view limits and the tick locs.
-
     """
-    def __init__(self):
-        self._locator = LinearLocator()
 
     def __call__(self):
-        """Return the locations of the ticks."""
-        self.refresh()
-        return self.raise_if_exceeds(self._locator())
+        # docstring inherited
+        vmin, vmax = self.axis.get_view_interval()
+        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
+        d = abs(vmax - vmin)
+        locator = self.get_locator(d)
+        return self.raise_if_exceeds(locator())
 
     def tick_values(self, vmin, vmax):
         raise NotImplementedError('Cannot get tick locations for a '
                                   '%s type.' % type(self))
 
-    def refresh(self):
-        # docstring inherited
-        vmin, vmax = self.axis.get_view_interval()
-        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
-        d = abs(vmax - vmin)
-        self._locator = self.get_locator(d)
-
     def view_limits(self, vmin, vmax):
-        """Try to choose the view limits intelligently."""
-
+        # docstring inherited
         d = abs(vmax - vmin)
-        self._locator = self.get_locator(d)
-        return self._locator.view_limits(vmin, vmax)
+        locator = self.get_locator(d)
+        return locator.view_limits(vmin, vmax)
 
     def get_locator(self, d):
         """Pick the best locator based on a distance *d*."""
