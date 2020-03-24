@@ -396,7 +396,7 @@ class Artist:
                 return inside, info
             # subclass-specific implementation follows
 
-        The *canvas* kwarg is provided for the implementation of
+        The *figure* kwarg is provided for the implementation of
         `.Figure.contains`.
         """
         if callable(self._contains):
@@ -1317,8 +1317,10 @@ class ArtistInspector:
 
     def get_setters(self):
         """
-        Get the attribute strings with setters for object.  e.g., for a line,
-        return ``['markerfacecolor', 'linewidth', ....]``.
+        Get the attribute strings with setters for object.
+
+        For example, for a line, return ``['markerfacecolor', 'linewidth',
+        ....]``.
         """
         setters = []
         for name in dir(self.o):
@@ -1353,7 +1355,7 @@ class ArtistInspector:
     def aliased_name_rest(self, s, target):
         """
         Return 'PROPNAME or alias' if *s* has an alias, else return 'PROPNAME',
-        formatted for ReST.
+        formatted for reST.
 
         e.g., for the line markerfacecolor property, which has an
         alias, return 'markerfacecolor or mfc' and for the transform
@@ -1388,7 +1390,7 @@ class ArtistInspector:
 
     def pprint_setters_rest(self, prop=None, leadingspace=4):
         """
-        If *prop* is *None*, return a list of ReST-formatted strings of all
+        If *prop* is *None*, return a list of reST-formatted strings of all
         settable properties and their valid values.
 
         If *prop* is not *None*, it is a valid property name and that
