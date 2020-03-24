@@ -4,6 +4,7 @@ from decimal import Decimal
 import io
 from itertools import product
 import platform
+from types import SimpleNamespace
 try:
     from contextlib import nullcontext
 except ImportError:
@@ -925,17 +926,12 @@ def test_hexbin_empty():
 
 def test_hexbin_pickable():
     # From #1973: Test that picking a hexbin collection works
-    class FauxMouseEvent:
-        def __init__(self, x, y):
-            self.x = x
-            self.y = y
-
     fig, ax = plt.subplots()
     data = (np.arange(200) / 200).reshape((2, 100))
     x, y = data
     hb = ax.hexbin(x, y, extent=[.1, .3, .6, .7], picker=-1)
-
-    assert hb.contains(FauxMouseEvent(400, 300))[0]
+    mouse_event = SimpleNamespace(x=400, y=300)
+    assert hb.contains(mouse_event)[0]
 
 
 @image_comparison(['hexbin_log.png'], style='mpl20')
