@@ -37,6 +37,7 @@ from PIL.PngImagePlugin import PngInfo
 
 import matplotlib as mpl
 from matplotlib import cbook
+from matplotlib import colors as mcolors
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.font_manager import findfont, get_font
