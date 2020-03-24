@@ -7,7 +7,7 @@ import hashlib
 from io import BytesIO
 import logging
 import os
-import pathlib
+from pathlib import Path
 import platform
 import shlex
 import shutil
@@ -32,7 +32,7 @@ def _get_xdg_cache_dir():
         cache_dir = os.path.expanduser('~/.cache')
         if cache_dir.startswith('~/'):  # Expansion failed.
             return None
-    return pathlib.Path(cache_dir, 'matplotlib')
+    return Path(cache_dir, 'matplotlib')
 
 
 def _get_hash(data):
@@ -219,10 +219,9 @@ def pkg_config_setup_extension(
         conda_env_path = (os.getenv('CONDA_PREFIX')  # conda >= 4.1
                           or os.getenv('CONDA_DEFAULT_ENV'))  # conda < 4.1
         if conda_env_path and os.path.isdir(conda_env_path):
-            ext.include_dirs.append(os.fspath(
-                pathlib.Path(conda_env_path, "Library/include")))
-            ext.library_dirs.append(os.fspath(
-                pathlib.Path(conda_env_path, "Library/lib")))
+            conda_env_path = Path(conda_env_path)
+            ext.include_dirs.append(str(conda_env_path / "Library/include"))
+            ext.library_dirs.append(str(conda_env_path / "Library/lib"))
 
     # Default linked libs.
     ext.libraries.extend(default_libraries)
@@ -304,7 +303,7 @@ class Python(SetupPackage):
 
 def _pkg_data_helper(pkg, subdir):
     """Glob "lib/$pkg/$subdir/**/*", returning paths relative to "lib/$pkg"."""
-    base = pathlib.Path("lib", pkg)
+    base = Path("lib", pkg)
     return [str(path.relative_to(base)) for path in (base / subdir).rglob("*")]
 
 
@@ -527,8 +526,7 @@ class FreeType(SetupPackage):
                 default_libraries=['freetype'])
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
         else:
-            src_path = pathlib.Path(
-                'build', f'freetype-{LOCAL_FREETYPE_VERSION}')
+            src_path = Path('build', f'freetype-{LOCAL_FREETYPE_VERSION}')
             # Statically link to the locally-built freetype.
             # This is certainly broken on Windows.
             ext.include_dirs.insert(0, str(src_path / 'include'))
@@ -545,7 +543,7 @@ class FreeType(SetupPackage):
         if options.get('system_freetype'):
             return
 
-        src_path = pathlib.Path('build', f'freetype-{LOCAL_FREETYPE_VERSION}')
+        src_path = Path('build', f'freetype-{LOCAL_FREETYPE_VERSION}')
 
         # We've already built freetype
         if sys.platform == 'win32':
@@ -595,13 +593,11 @@ class FreeType(SetupPackage):
                  "--with-png=no", "--with-harfbuzz=no"],
                 env=env, cwd=src_path)
             subprocess.check_call(["make"], env=env, cwd=src_path)
-        else:
-            # compilation on windows
-            shutil.rmtree(str(pathlib.Path(src_path, "objs")),
-                          ignore_errors=True)
+        else:  # compilation on windows
+            shutil.rmtree(src_path / "objs", ignore_errors=True)
             msbuild_platform = (
                 'x64' if platform.architecture()[0] == '64bit' else 'Win32')
-            base_path = pathlib.Path("build/freetype-2.6.1/builds/windows")
+            base_path = Path("build/freetype-2.6.1/builds/windows")
             vc = 'vc2010'
             sln_path = (
                 base_path / vc / "freetype.sln"
