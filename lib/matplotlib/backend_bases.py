@@ -1369,6 +1369,12 @@ class MouseEvent(LocationEvent):
         The key pressed when the mouse event triggered, e.g. 'shift'.
         See `KeyEvent`.
 
+        .. warning::
+           This key is currently obtained from the last 'key_press_event' or
+           'key_release_event' that occurred within the canvas.  Thus, if the
+           last change of keyboard state occurred while the canvas did not have
+           focus, this attribute will be wrong.
+
     step : int
         The number of scroll steps (positive for 'up', negative for 'down').
         This applies only to 'scroll_event' and defaults to 0 otherwise.
