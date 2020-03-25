@@ -391,3 +391,7 @@ attribute are deprecated.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This method is deprecated.  Use the ``GridSpec.nrows``, ``GridSpec.ncols``,
 ``SubplotSpec.rowspan``, and ``SubplotSpec.colspan`` properties instead.
+
+Qt4-based backends
+~~~~~~~~~~~~~~~~~~
+The qt4agg and qt4cairo backends are deprecated.
