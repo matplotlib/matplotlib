@@ -7815,7 +7815,7 @@ default: :rc:`scatter.edgecolors`
     @_preprocess_data(replace_names=["dataset"])
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
-                   quantiles=None, points=100, bw_method=None):
+                   quantiles=None, points=100, bw_method=None, showquartiles=False):
         """
         Make a violin plot.
 
@@ -7866,6 +7866,9 @@ default: :rc:`scatter.edgecolors`
           scalar, this will be used directly as `kde.factor`.  If a
           callable, it should take a `GaussianKDE` instance as its only
           parameter and return a scalar. If None (default), 'scott' is used.
+        
+        showmedians : bool, default: False
+          If `True`, will toggle rendering of the quartiles.
 
         Returns
         -------
@@ -7896,6 +7899,10 @@ default: :rc:`scatter.edgecolors`
             to identify the quantile values of each of the violin's
             distribution.
 
+          - ``cquartiles``: A `~.collections.LineCollection` instance created
+            to identify the quartile values of each of the violin's
+            distribution.
+
         """
 
         def _kde_method(X, coords):
@@ -7909,10 +7916,10 @@ default: :rc:`scatter.edgecolors`
                                      quantiles=quantiles)
         return self.violin(vpstats, positions=positions, vert=vert,
                            widths=widths, showmeans=showmeans,
-                           showextrema=showextrema, showmedians=showmedians)
+                           showextrema=showextrema, showmedians=showmedians, showquartiles=showquartiles)
 
     def violin(self, vpstats, positions=None, vert=True, widths=0.5,
-               showmeans=False, showextrema=True, showmedians=False):
+               showmeans=False, showextrema=True, showmedians=False, showquartiles=False):
         """Drawing function for violin plots.
 
         Draw a violin plot for each column of *vpstats*. Each filled area
@@ -7967,6 +7974,9 @@ default: :rc:`scatter.edgecolors`
         showmedians : bool, default: False
           If true, will toggle rendering of the medians.
 
+        showquartiles : bool, default: False
+          If true, will toggle rendering of the quartiles.
+
         Returns
         -------
         result : dict
@@ -7996,6 +8006,10 @@ default: :rc:`scatter.edgecolors`
             to identify the quantiles values of each of the violin's
             distribution.
 
+          - ``cquartiles``: A `~.collections.LineCollection` instance created
+            to identify the quartiles values of each of the violin's
+            distribution.
+
         """
 
         # Statistical quantities to be plotted on the violins
@@ -8004,6 +8018,7 @@ default: :rc:`scatter.edgecolors`
         maxes = []
         medians = []
         quantiles = np.asarray([])
+        quartiles = np.asarray([])
 
         # Collections to be returned
         artists = {}
@@ -8060,10 +8075,15 @@ default: :rc:`scatter.edgecolors`
             mins.append(stats['min'])
             maxes.append(stats['max'])
             medians.append(stats['median'])
-            q = stats.get('quantiles')
-            if q is not None:
+            quants = stats.get('quantiles')
+            if quants is not None:
                 # If exist key quantiles, assume it's a list of floats
-                quantiles = np.concatenate((quantiles, q))
+                quantiles = np.concatenate((quantiles, quants))
+            quarts = stats.get('quartiles')
+            if quarts is not None:
+                # list of floats
+                quartiles = np.concatenate((quartiles, quarts))
+            
         artists['bodies'] = bodies
 
         # Render means
@@ -8102,6 +8122,27 @@ default: :rc:`scatter.edgecolors`
             # Start rendering
             artists['cquantiles'] = perp_lines(quantiles, ppmins, ppmaxs,
                                                  colors=edgecolor)
+
+        # Render quartiles
+        if showquartiles:
+            # Recalculate ranges for statistics lines for quartiles. Similar to quantiles rendering.
+
+            # ppmins represent the left end of quartiles lines
+            ppmins = np.asarray([])
+            # pmaxes are the right end of quartiles lines
+            ppmaxs = np.asarray([])
+
+            for stats, cmin, cmax in zip(vpstats, pmins, pmaxes):
+                q = stats.get('quartiles')
+                
+                ppmins = np.concatenate((ppmins, [cmin] * np.size(q)))
+                ppmaxs = np.concatenate((ppmaxs, [cmax] * np.size(q)))
+
+            # Start rendering
+            artists['cquartiles'] = perp_lines(quartiles,
+                                             ppmins,
+                                             ppmaxs,
+                                             colors=edgecolor)
 
         return artists
 
