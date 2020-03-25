@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from contextlib import ExitStack
+import functools
 import itertools
 import logging
 import math
@@ -27,6 +28,37 @@ import matplotlib.image as mimage
 from matplotlib.rcsetup import cycler, validate_axisbelow
 
 _log = logging.getLogger(__name__)
+
+
+def _axis_method_wrapper(attr_name, method_name):
+    """
+    Helper to generate Axes methods wrapping Axis methods.
+
+    After ::
+
+        get_foo = _axis_method_wrapper("xaxis", "get_bar")
+
+    ``get_foo`` is a method that forwards it arguments to the ``get_bar``
+    method of the ``xaxis`` attribute, and gets its signature and docstring
+    from ``Axis.get_bar``.
+    """
+
+    method = getattr(maxis.Axis, method_name)
+    get_method = attrgetter(f"{attr_name}.{method_name}")
+
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        return get_method(self)(*args, **kwargs)
+
+    if wrapper.__doc__:
+        assert "this Axis" in wrapper.__doc__, \
+            (f"The docstring of wrapped Axis methods must contain "
+             f"'this Axis' as a substring, but this is not the case for "
+             f"{method_name}")
+        wrapper.__doc__ = wrapper.__doc__.replace(
+            "this Axis", f"the {attr_name}", 1)
+
+    return wrapper
 
 
 def _process_plot_format(fmt):
@@ -1761,25 +1793,14 @@ class _AxesBase(martist.Artist):
         """Return the XAxis instance."""
         return self.xaxis
 
-    def get_xgridlines(self):
-        """Get the x grid lines as a list of `.Line2D` instances."""
-        return self.xaxis.get_gridlines()
-
-    def get_xticklines(self):
-        """Get the x tick lines as a list of `.Line2D` instances."""
-        return self.xaxis.get_ticklines()
-
     def get_yaxis(self):
         """Return the YAxis instance."""
         return self.yaxis
 
-    def get_ygridlines(self):
-        """Get the y grid lines as a list of `.Line2D` instances."""
-        return self.yaxis.get_gridlines()
-
-    def get_yticklines(self):
-        """Get the y tick lines as a list of `.Line2D` instances."""
-        return self.yaxis.get_ticklines()
+    get_xgridlines = _axis_method_wrapper("xaxis", "get_gridlines")
+    get_xticklines = _axis_method_wrapper("xaxis", "get_ticklines")
+    get_ygridlines = _axis_method_wrapper("yaxis", "get_gridlines")
+    get_yticklines = _axis_method_wrapper("yaxis", "get_ticklines")
 
     # Adding and tracking artists
 
@@ -3065,19 +3086,7 @@ class _AxesBase(martist.Artist):
         """
         self.xaxis.set_inverted(not self.xaxis.get_inverted())
 
-    def xaxis_inverted(self):
-        """
-        Return whether the x-axis is inverted.
-
-        The axis is inverted if the left value is larger than the right value.
-
-        See Also
-        --------
-        invert_xaxis
-        get_xlim, set_xlim
-        get_xbound, set_xbound
-        """
-        return self.xaxis.get_inverted()
+    xaxis_inverted = _axis_method_wrapper("xaxis", "get_inverted")
 
     def get_xbound(self):
         """
@@ -3301,15 +3310,7 @@ class _AxesBase(martist.Artist):
         self.stale = True
         return left, right
 
-    def get_xscale(self):
-        """
-        Return the x-axis scale as string.
-
-        See Also
-        --------
-        set_xscale
-        """
-        return self.xaxis.get_scale()
+    get_xscale = _axis_method_wrapper("xaxis", "get_scale")
 
     def set_xscale(self, value, **kwargs):
         """
@@ -3350,77 +3351,11 @@ class _AxesBase(martist.Artist):
             # nonsingular() before it possibly gets swapped out by the user.
             self.autoscale_view(scaley=False)
 
-    @cbook._make_keyword_only("3.2", "minor")
-    def get_xticks(self, minor=False):
-        """Return the x ticks as a list of locations"""
-        return self.xaxis.get_ticklocs(minor=minor)
-
-    @cbook._make_keyword_only("3.2", "minor")
-    def set_xticks(self, ticks, minor=False):
-        """
-        Set the x ticks with list of *ticks*
-
-        Parameters
-        ----------
-        ticks : list
-            List of x-axis tick locations.
-        minor : bool, default: False
-            If ``False`` sets major ticks, if ``True`` sets minor ticks.
-        """
-        ret = self.xaxis.set_ticks(ticks, minor=minor)
-        self.stale = True
-        return ret
-
-    def get_xmajorticklabels(self):
-        """
-        Get the major x tick labels.
-
-        Returns
-        -------
-        list
-            List of `~matplotlib.text.Text` instances
-        """
-        return self.xaxis.get_majorticklabels()
-
-    def get_xminorticklabels(self):
-        """
-        Get the minor x tick labels.
-
-        Returns
-        -------
-        list
-            List of `~matplotlib.text.Text` instances
-        """
-        return self.xaxis.get_minorticklabels()
-
-    def get_xticklabels(self, minor=False, which=None):
-        """
-        Get the x tick labels as a list of `~matplotlib.text.Text` instances.
-
-        Parameters
-        ----------
-        minor : bool, optional
-           If True return the minor ticklabels,
-           else return the major ticklabels.
-
-        which : None, ('minor', 'major', 'both')
-           Overrides *minor*.
-
-           Selects which ticklabels to return
-
-        Returns
-        -------
-        list
-           List of `~matplotlib.text.Text` instances.
-
-        Notes
-        -----
-        The tick label strings are not populated until a ``draw``
-        method has been called.
-
-        See also: `~.pyplot.draw` and `~.FigureCanvasBase.draw`.
-        """
-        return self.xaxis.get_ticklabels(minor=minor, which=which)
+    get_xticks = _axis_method_wrapper("xaxis", "get_ticklocs")
+    set_xticks = _axis_method_wrapper("xaxis", "set_ticks")
+    get_xmajorticklabels = _axis_method_wrapper("xaxis", "get_majorticklabels")
+    get_xminorticklabels = _axis_method_wrapper("xaxis", "get_minorticklabels")
+    get_xticklabels = _axis_method_wrapper("xaxis", "get_ticklabels")
 
     @cbook._make_keyword_only("3.3", "fontdict")
     def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
@@ -3477,19 +3412,7 @@ class _AxesBase(martist.Artist):
         """
         self.yaxis.set_inverted(not self.yaxis.get_inverted())
 
-    def yaxis_inverted(self):
-        """
-        Return whether the y-axis is inverted.
-
-        The axis is inverted if the bottom value is larger than the top value.
-
-        See Also
-        --------
-        invert_yaxis
-        get_ylim, set_ylim
-        get_ybound, set_ybound
-        """
-        return self.yaxis.get_inverted()
+    yaxis_inverted = _axis_method_wrapper("yaxis", "get_inverted")
 
     def get_ybound(self):
         """
@@ -3696,15 +3619,7 @@ class _AxesBase(martist.Artist):
         self.stale = True
         return bottom, top
 
-    def get_yscale(self):
-        """
-        Return the y-axis scale as string.
-
-        See Also
-        --------
-        set_yscale
-        """
-        return self.yaxis.get_scale()
+    get_yscale = _axis_method_wrapper("yaxis", "get_scale")
 
     def set_yscale(self, value, **kwargs):
         """
@@ -3745,76 +3660,11 @@ class _AxesBase(martist.Artist):
             # nonsingular() before it possibly gets swapped out by the user.
             self.autoscale_view(scalex=False)
 
-    @cbook._make_keyword_only("3.2", "minor")
-    def get_yticks(self, minor=False):
-        """Return the y ticks as a list of locations"""
-        return self.yaxis.get_ticklocs(minor=minor)
-
-    @cbook._make_keyword_only("3.2", "minor")
-    def set_yticks(self, ticks, minor=False):
-        """
-        Set the y ticks with list of *ticks*
-
-        Parameters
-        ----------
-        ticks : list
-            List of y-axis tick locations
-        minor : bool, default: False
-            If ``False`` sets major ticks, if ``True`` sets minor ticks.
-        """
-        ret = self.yaxis.set_ticks(ticks, minor=minor)
-        return ret
-
-    def get_ymajorticklabels(self):
-        """
-        Get the major y tick labels.
-
-        Returns
-        -------
-        list
-            List of `~matplotlib.text.Text` instances
-        """
-        return self.yaxis.get_majorticklabels()
-
-    def get_yminorticklabels(self):
-        """
-        Get the minor y tick labels.
-
-        Returns
-        -------
-        list
-            List of `~matplotlib.text.Text` instances
-        """
-        return self.yaxis.get_minorticklabels()
-
-    def get_yticklabels(self, minor=False, which=None):
-        """
-        Get the y tick labels as a list of `~matplotlib.text.Text` instances.
-
-        Parameters
-        ----------
-        minor : bool
-           If True return the minor ticklabels,
-           else return the major ticklabels
-
-        which : None, ('minor', 'major', 'both')
-           Overrides *minor*.
-
-           Selects which ticklabels to return
-
-        Returns
-        -------
-        list
-           List of `~matplotlib.text.Text` instances.
-
-        Notes
-        -----
-        The tick label strings are not populated until a ``draw``
-        method has been called.
-
-        See also: `~.pyplot.draw` and `~.FigureCanvasBase.draw`.
-        """
-        return self.yaxis.get_ticklabels(minor=minor, which=which)
+    get_yticks = _axis_method_wrapper("yaxis", "get_ticklocs")
+    set_yticks = _axis_method_wrapper("yaxis", "set_ticks")
+    get_ymajorticklabels = _axis_method_wrapper("yaxis", "get_majorticklabels")
+    get_yminorticklabels = _axis_method_wrapper("yaxis", "get_minorticklabels")
+    get_yticklabels = _axis_method_wrapper("yaxis", "get_ticklabels")
 
     @cbook._make_keyword_only("3.3", "fontdict")
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):

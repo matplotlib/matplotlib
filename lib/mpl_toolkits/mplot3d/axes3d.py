@@ -24,6 +24,7 @@ import matplotlib.colors as mcolors
 import matplotlib.docstring as docstring
 import matplotlib.scale as mscale
 from matplotlib.axes import Axes, rcParams
+from matplotlib.axes._base import _axis_method_wrapper
 from matplotlib.transforms import Bbox
 from matplotlib.tri.triangulation import Triangulation
 
@@ -201,6 +202,9 @@ class Axes3D(Axes):
     def get_zaxis(self):
         """Return the ``ZAxis`` (`~.axis3d.Axis`) instance."""
         return self.zaxis
+
+    get_zgridlines = _axis_method_wrapper("zaxis", "get_gridlines")
+    get_zticklines = _axis_method_wrapper("zaxis", "get_ticklines")
 
     @cbook.deprecated("3.1", alternative="xaxis", pending=True)
     @property
@@ -814,40 +818,11 @@ class Axes3D(Axes):
         """.format,
         ["x", "y", "z"])
 
-    def set_zticks(self, *args, **kwargs):
-        """
-        Set z-axis tick locations.
-        See :meth:`matplotlib.axes.Axes.set_yticks` for more details.
-
-        .. versionadded:: 1.1.0
-        """
-        return self.zaxis.set_ticks(*args, **kwargs)
-
-    @cbook._make_keyword_only("3.2", "minor")
-    def get_zticks(self, minor=False):
-        """
-        Return the z ticks as a list of locations
-        See :meth:`matplotlib.axes.Axes.get_yticks` for more details.
-
-        .. versionadded:: 1.1.0
-        """
-        return self.zaxis.get_ticklocs(minor=minor)
-
-    def get_zmajorticklabels(self):
-        """
-        Get the ztick labels as a list of Text instances
-
-        .. versionadded:: 1.1.0
-        """
-        return self.zaxis.get_majorticklabels()
-
-    def get_zminorticklabels(self):
-        """
-        Get the ztick labels as a list of Text instances
-
-        .. versionadded:: 1.1.0
-        """
-        return self.zaxis.get_minorticklabels()
+    get_zticks = _axis_method_wrapper("zaxis", "get_ticklocs")
+    set_zticks = _axis_method_wrapper("zaxis", "set_ticks")
+    get_zmajorticklabels = _axis_method_wrapper("zaxis", "get_majorticklabels")
+    get_zminorticklabels = _axis_method_wrapper("zaxis", "get_minorticklabels")
+    get_zticklabels = _axis_method_wrapper("zaxis", "get_ticklabels")
 
     def set_zticklabels(self, *args, **kwargs):
         """
@@ -857,15 +832,6 @@ class Axes3D(Axes):
         .. versionadded:: 1.1.0
         """
         return self.zaxis.set_ticklabels(*args, **kwargs)
-
-    def get_zticklabels(self, minor=False):
-        """
-        Get ztick labels as a list of Text instances.
-        See :meth:`matplotlib.axes.Axes.get_yticklabels` for more details.
-
-        .. versionadded:: 1.1.0
-        """
-        return self.zaxis.get_ticklabels(minor=minor)
 
     def zaxis_date(self, tz=None):
         """
@@ -884,16 +850,6 @@ class Axes3D(Axes):
         tz : `datetime.tzinfo`, default: :rc:`timezone`
         """
         self.zaxis.axis_date(tz)
-
-    def get_zticklines(self):
-        """
-        Get ztick lines as a list of Line2D instances.
-        Note that this function is provided merely for completeness.
-        These lines are re-calculated as the display changes.
-
-        .. versionadded:: 1.1.0
-        """
-        return self.zaxis.get_ticklines()
 
     def clabel(self, *args, **kwargs):
         """
