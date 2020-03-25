@@ -8129,7 +8129,7 @@ default: :rc:`scatter.edgecolors`
 
             # ppmins represent the left end of quartiles lines
             ppmins = np.asarray([])
-            # pmaxes are the right end of quartiles lines
+            # ppmaxs are the right end of quartiles lines
             ppmaxs = np.asarray([])
 
             for stats, cmin, cmax in zip(vpstats, pmins, pmaxes):
