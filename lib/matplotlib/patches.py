@@ -1020,30 +1020,16 @@ class Polygon(Patch):
         self.set_xy(xy)
 
     def get_path(self):
-        """
-        Get the path of the polygon
-
-        Returns
-        -------
-        Path
-           The `~.path.Path` object for the polygon.
-        """
+        """Get the `.Path` of the polygon."""
         return self._path
 
     def get_closed(self):
-        """
-        Returns if the polygon is closed
-
-        Returns
-        -------
-        bool
-            If the path is closed
-        """
+        """Return whether the polygon is closed."""
         return self._closed
 
     def set_closed(self, closed):
         """
-        Set if the polygon is closed
+        Set whether the polygon is closed.
 
         Parameters
         ----------

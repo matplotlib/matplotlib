@@ -115,7 +115,7 @@ def tricontour(ax, *args, **kwargs):
 
         tricontour(triangulation, ...)
 
-    where *triangulation* is a `matplotlib.tri.Triangulation` object, or ::
+    where *triangulation* is a `.Triangulation` object, or ::
 
         tricontour(x, y, ...)
         tricontour(x, y, triangles, ...)

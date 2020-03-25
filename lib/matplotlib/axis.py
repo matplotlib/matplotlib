@@ -1961,8 +1961,8 @@ class XAxis(Axis):
 
     def get_text_heights(self, renderer):
         """
-        Returns the amount of space one should reserve for text
-        above and below the axes.  Returns a tuple (above, below)
+        Return how much space should be reserved for text above and below the
+        axes, as a pair of floats.
         """
         bbox, bbox2 = self.get_ticklabel_extents(renderer)
         # MGDTODO: Need a better way to get the pad
@@ -1983,16 +1983,16 @@ class XAxis(Axis):
 
     def set_ticks_position(self, position):
         """
-        Set the ticks position (top, bottom, both, default or none)
-        both sets the ticks to appear on both positions, but does not
-        change the tick labels.  'default' resets the tick positions to
-        the default: ticks on both positions, labels at bottom.  'none'
-        can be used if you don't want any ticks. 'none' and 'both'
-        affect only the ticks, not the labels.
+        Set the ticks position.
 
         Parameters
         ----------
         position : {'top', 'bottom', 'both', 'default', 'none'}
+            'both' sets the ticks to appear on both positions, but does not
+            change the tick labels.  'default' resets the tick positions to
+            the default: ticks on both positions, labels at bottom.  'none'
+            can be used if you don't want any ticks. 'none' and 'both'
+            affect only the ticks, not the labels.
         """
         cbook._check_in_list(['top', 'bottom', 'both', 'default', 'none'],
                              position=position)
@@ -2123,10 +2123,7 @@ class YAxis(Axis):
         self.offset_text_position = 'left'
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occurred in the y axis.
-
-        Returns *True* | *False*
-        """
+        # docstring inherited
         inside, info = self._default_contains(mouseevent)
         if inside is not None:
             return inside, info
@@ -2271,16 +2268,16 @@ class YAxis(Axis):
 
     def set_ticks_position(self, position):
         """
-        Set the ticks position (left, right, both, default or none)
-        'both' sets the ticks to appear on both positions, but does not
-        change the tick labels.  'default' resets the tick positions to
-        the default: ticks on both positions, labels at left.  'none'
-        can be used if you don't want any ticks. 'none' and 'both'
-        affect only the ticks, not the labels.
+        Set the ticks position.
 
         Parameters
         ----------
         position : {'left', 'right', 'both', 'default', 'none'}
+            'both' sets the ticks to appear on both positions, but does not
+            change the tick labels.  'default' resets the tick positions to
+            the default: ticks on both positions, labels at left.  'none'
+            can be used if you don't want any ticks. 'none' and 'both'
+            affect only the ticks, not the labels.
         """
         cbook._check_in_list(['left', 'right', 'both', 'default', 'none'],
                              position=position)

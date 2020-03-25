@@ -586,7 +586,7 @@ class Artist:
 
     def get_snap(self):
         """
-        Returns the snap setting.
+        Return the snap setting.
 
         See `.set_snap` for details.
         """
@@ -625,7 +625,7 @@ class Artist:
 
     def get_sketch_params(self):
         """
-        Returns the sketch parameters for the artist.
+        Return the sketch parameters for the artist.
 
         Returns
         -------

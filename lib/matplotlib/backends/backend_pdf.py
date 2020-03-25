@@ -2484,9 +2484,7 @@ class PdfPages:
             figure.canvas = orig_canvas
 
     def get_pagecount(self):
-        """
-        Returns the current number of pages in the multipage pdf file.
-        """
+        """Return the current number of pages in the multipage pdf file."""
         return len(self._file.pageList)
 
     def attach_note(self, text, positionRect=[-100, -100, 0, 0]):
