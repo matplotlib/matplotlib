@@ -386,3 +386,8 @@ instead.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The unused ``animation.html_args`` rcParam and ``animation.HTMLWriter.args_key``
 attribute are deprecated.
+
+``SubplotSpec.get_rows_columns``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This method is deprecated.  Use the ``GridSpec.nrows``, ``GridSpec.ncols``,
+``SubplotSpec.rowspan``, and ``SubplotSpec.colspan`` properties instead.
