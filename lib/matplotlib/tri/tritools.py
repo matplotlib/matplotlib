@@ -12,8 +12,8 @@ class TriAnalyzer:
     """
     Define basic tools for triangular mesh analysis and improvement.
 
-    A TriAnalyzer encapsulates a `~matplotlib.tri.Triangulation` object and
-    provides basic tools for mesh analysis and mesh improvement.
+    A TriAnalyzer encapsulates a `.Triangulation` object and provides basic
+    tools for mesh analysis and mesh improvement.
 
     Attributes
     ----------
@@ -24,6 +24,7 @@ class TriAnalyzer:
     triangulation : `~matplotlib.tri.Triangulation`
         The encapsulated triangulation to analyze.
     """
+
     def __init__(self, triangulation):
         cbook._check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
@@ -39,7 +40,6 @@ class TriAnalyzer:
             Scaling factors (kx, ky) so that the triangulation
             ``[triangulation.x * kx, triangulation.y * ky]``
             fits exactly inside a unit square.
-
         """
         compressed_triangles = self._triangulation.get_masked_triangles()
         node_used = (np.bincount(np.ravel(compressed_triangles),
@@ -123,7 +123,7 @@ class TriAnalyzer:
         triangulation from its border-located flat triangles
         (according to their :meth:`circle_ratios`).
         This mask is meant to be subsequently applied to the triangulation
-        using :func:`matplotlib.tri.Triangulation.set_mask`.
+        using `.Triangulation.set_mask`.
         *new_mask* is an extension of the initial triangulation mask
         in the sense that an initially masked triangle will remain masked.
 

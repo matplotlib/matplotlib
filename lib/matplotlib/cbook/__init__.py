@@ -1261,7 +1261,7 @@ def contiguous_regions(mask):
 
 def is_math_text(s):
     """
-    Returns whether the string *s* contains math expressions.
+    Return whether the string *s* contains math expressions.
 
     This is done by checking whether *s* contains an even number of
     non-escaped dollar signs.
@@ -1354,10 +1354,11 @@ def _reshape_2D(X, name):
 
 def violin_stats(X, method, points=100, quantiles=None):
     """
-    Returns a list of dictionaries of data which can be used to draw a series
+    Return a list of dictionaries of data which can be used to draw a series
     of violin plots.
 
-    See the Returns section below to view the required keys of the dictionary.
+    See the ``Returns`` section below to view the required keys of the
+    dictionary.
 
     Users can skip this function and pass a user-defined set of dictionaries
     with the same keys to `~.axes.Axes.violinplot` instead of using Matplotlib

@@ -1807,16 +1807,14 @@ class Axes3D(Axes):
 
           plot_trisurf(triangulation, ...)
 
-        where triangulation is a :class:`~matplotlib.tri.Triangulation`
-        object, or::
+        where triangulation is a `~matplotlib.tri.Triangulation` object, or::
 
           plot_trisurf(X, Y, ...)
           plot_trisurf(X, Y, triangles, ...)
           plot_trisurf(X, Y, triangles=triangles, ...)
 
         in which case a Triangulation object will be created.  See
-        :class:`~matplotlib.tri.Triangulation` for a explanation of
-        these possibilities.
+        `.Triangulation` for a explanation of these possibilities.
 
         The remaining arguments are::
 

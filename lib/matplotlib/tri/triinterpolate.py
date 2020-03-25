@@ -247,7 +247,7 @@ class LinearTriInterpolator(TriInterpolator):
         Array of values, defined at grid points, to interpolate between.
     trifinder : `~matplotlib.tri.TriFinder`, optional
           If this is not specified, the Triangulation's default TriFinder will
-          be used by calling `matplotlib.tri.Triangulation.get_trifinder`.
+          be used by calling `.Triangulation.get_trifinder`.
 
     Methods
     -------
@@ -312,17 +312,17 @@ class CubicTriInterpolator(TriInterpolator):
         Choice of the smoothing algorithm, in order to compute
         the interpolant derivatives (defaults to 'min_E'):
 
-            - if 'min_E': (default) The derivatives at each node is computed
-              to minimize a bending energy.
-            - if 'geom': The derivatives at each node is computed as a
-              weighted average of relevant triangle normals. To be used for
-              speed optimization (large grids).
-            - if 'user': The user provides the argument *dz*, no computation
-              is hence needed.
+        - if 'min_E': (default) The derivatives at each node is computed
+          to minimize a bending energy.
+        - if 'geom': The derivatives at each node is computed as a
+          weighted average of relevant triangle normals. To be used for
+          speed optimization (large grids).
+        - if 'user': The user provides the argument *dz*, no computation
+          is hence needed.
 
     trifinder : `~matplotlib.tri.TriFinder`, optional
         If not specified, the Triangulation's default TriFinder will
-        be used by calling `matplotlib.tri.Triangulation.get_trifinder`.
+        be used by calling `.Triangulation.get_trifinder`.
     dz : tuple of array-likes (dzdx, dzdy), optional
         Used only if  *kind* ='user'. In this case *dz* must be provided as
         (dzdx, dzdy) where dzdx, dzdy are arrays of the same shape as *z* and
@@ -335,9 +335,8 @@ class CubicTriInterpolator(TriInterpolator):
 
     Notes
     -----
-    This note is a bit technical and details the way a
-    :class:`~matplotlib.tri.CubicTriInterpolator` computes a cubic
-    interpolation.
+    This note is a bit technical and details how the cubic interpolation is
+    computed.
 
     The interpolation is based on a Clough-Tocher subdivision scheme of
     the *triangulation* mesh (to make it clearer, each triangle of the

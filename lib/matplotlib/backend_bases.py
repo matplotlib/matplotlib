@@ -826,7 +826,7 @@ class GraphicsContextBase:
 
     def get_snap(self):
         """
-        Returns the snap setting, which can be:
+        Return the snap setting, which can be:
 
         * True: snap vertices to the nearest pixel center
         * False: leave vertices as-is

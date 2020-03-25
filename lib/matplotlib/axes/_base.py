@@ -1253,10 +1253,9 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         matplotlib.axes.Axes.set_adjustable
-            defining the parameter to adjust in order to meet the required
-            aspect.
+            Set how the Axes adjusts to achieve the required aspect ratio.
         matplotlib.axes.Axes.set_anchor
-            defining the position in case of extra space.
+            Set the position in case of extra space.
         """
         if cbook._str_equal(aspect, 'equal'):
             aspect = 1
@@ -1286,22 +1285,21 @@ class _AxesBase(martist.Artist):
 
     def get_adjustable(self):
         """
-        Returns the adjustable parameter, *{'box', 'datalim'}* that defines
-        which parameter the Axes will change to achieve a given aspect.
+        Return whether the Axes will adjust its physical dimension ('box') or
+        its data limits ('datalim') to achieve the desired aspect ratio.
 
         See Also
         --------
         matplotlib.axes.Axes.set_adjustable
-            defining the parameter to adjust in order to meet the required
-            aspect.
+            Set how the Axes adjusts to achieve the required aspect ratio.
         matplotlib.axes.Axes.set_aspect
-            for a description of aspect handling.
+            For a description of aspect handling.
         """
         return self._adjustable
 
     def set_adjustable(self, adjustable, share=False):
         """
-        Define which parameter the Axes will change to achieve a given aspect.
+        Set how the Axes adjusts to achieve the required aspect ratio.
 
         Parameters
         ----------
@@ -1315,7 +1313,7 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         matplotlib.axes.Axes.set_aspect
-            for a description of aspect handling.
+            For a description of aspect handling.
 
         Notes
         -----
@@ -1512,12 +1510,11 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         matplotlib.axes.Axes.set_aspect
-            for a description of aspect ratio handling.
+            For a description of aspect ratio handling.
         matplotlib.axes.Axes.set_adjustable
-            defining the parameter to adjust in order to meet the required
-            aspect.
+            Set how the Axes adjusts to achieve the required aspect ratio.
         matplotlib.axes.Axes.set_anchor
-            defining the position in case of extra space.
+            Set the position in case of extra space.
         """
         if position is None:
             position = self.get_position(original=True)
@@ -1787,7 +1784,8 @@ class _AxesBase(martist.Artist):
     # Adding and tracking artists
 
     def _sci(self, im):
-        """Set the current image.
+        """
+        Set the current image.
 
         This image will be the target of colormap functions like
         `~.pyplot.viridis`, and other functions such as `~.pyplot.clim`.  The

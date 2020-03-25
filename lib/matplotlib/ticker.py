@@ -259,7 +259,7 @@ class Formatter(TickHelper):
 
     def format_data(self, value):
         """
-        Returns the full string representation of the value with the
+        Return the full string representation of the value with the
         position unspecified.
         """
         return self.__call__(value)
@@ -345,19 +345,16 @@ class FixedFormatter(Formatter):
     .. note::
         `.FixedFormatter` should only be used together with `.FixedLocator`.
         Otherwise, the labels may end up in unexpected positions.
-
     """
+
     def __init__(self, seq):
-        """
-        Set the sequence of strings that will be used for labels.
-        """
+        """Set the sequence *seq* of strings that will be used for labels."""
         self.seq = seq
         self.offset_string = ''
 
     def __call__(self, x, pos=None):
         """
-        Returns the label that matches the position regardless of the
-        value.
+        Return the label that matches the position, regardless of the value.
 
         For positions ``pos < len(seq)``, return ``seq[i]`` regardless of
         *x*. Otherwise return empty string. ``seq`` is the sequence of

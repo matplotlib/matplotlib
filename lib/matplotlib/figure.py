@@ -886,7 +886,7 @@ default: 'top'
 
     def get_size_inches(self):
         """
-        Returns the current size of the figure in inches.
+        Return the current size of the figure in inches.
 
         Returns
         -------
