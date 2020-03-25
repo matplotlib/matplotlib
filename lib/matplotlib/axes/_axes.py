@@ -8018,7 +8018,7 @@ default: :rc:`scatter.edgecolors`
         maxes = []
         medians = []
         quantiles = np.asarray([])
-        quartiles = np.asarray([])
+        quartiles = []
 
         # Collections to be returned
         artists = {}
@@ -8079,20 +8079,7 @@ default: :rc:`scatter.edgecolors`
             if quants is not None:
                 # If exist key quantiles, assume it's a list of floats
                 quantiles = np.concatenate((quantiles, quants))
-            firstquarts = stats.get('firstquartile')
-            if firstquarts is not None:
-                # list of floats
-                quartiles = np.concatenate((quartiles, firstquarts))
-
-            secondquarts = stats.get('secondquartile')
-            if secondquarts is not None:
-                # list of floats
-                quartiles = np.concatenate((quartiles, secondquarts))
-
-            thirdquarts = stats.get('thirdquartile')
-            if thirdquarts is not None:
-                # list of floats
-                quartiles = np.concatenate((quartiles, thirdquarts))
+            quartiles.append([stats.get('firstquartile'), stats.get('secondquartile'), stats.get('thirdquartile')])
             
         artists['bodies'] = bodies
 
@@ -8135,23 +8122,9 @@ default: :rc:`scatter.edgecolors`
 
         # Render quartiles
         if showquartiles:
-            # Recalculate ranges for statistics lines for quartiles. Similar to quantiles rendering.
-
-            # ppmins represent the left end of quartiles lines
-            ppmins = np.asarray([])
-            # ppmaxs are the right end of quartiles lines
-            ppmaxs = np.asarray([])
-
-            for stats, cmin, cmax in zip(vpstats, pmins, pmaxes):
-                q = stats.get('firstquartile')
-                
-                ppmins = np.concatenate((ppmins, [cmin] * np.size(q)))
-                ppmaxs = np.concatenate((ppmaxs, [cmax] * np.size(q)))
-
-            # Start rendering
             artists['cquartiles'] = perp_lines(quartiles,
-                                             ppmins,
-                                             ppmaxs,
+                                             pmins,
+                                             pmaxes,
                                              colors=edgecolor)
 
             # for stats, cmin, cmax in zip(vpstats, pmins, pmaxes):

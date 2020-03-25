@@ -1530,11 +1530,9 @@ def violin_stats(X, method, points=100, quantiles=None):
         stats['min'] = min_val
         stats['max'] = max_val
         stats['quantiles'] = np.atleast_1d(quantile_val)
-        stats['firstquartile'] = np.atleast_1d(first_quartile)
-        stats['secondquartile'] = np.atleast_1d(second_quartile)
-        stats['thirdquartile'] = np.atleast_1d(third_quartile)
-
-
+        stats['firstquartile'] = first_quartile
+        stats['secondquartile'] = second_quartile
+        stats['thirdquartile'] = third_quartile
 
         # Append to output
         vpstats.append(stats)
