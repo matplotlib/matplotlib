@@ -4959,7 +4959,8 @@ default: :rc:`scatter.edgecolors`
         dy = self.convert_yunits(dy)
 
         a = mpatches.FancyArrow(x, y, dx, dy, **kwargs)
-        self.add_artist(a)
+        self.add_patch(a)
+        self._request_autoscale_view()
         return a
 
     @docstring.copy(mquiver.QuiverKey.__init__)
