@@ -28,6 +28,7 @@ from itertools import cycle
 
 import numpy as np
 
+from matplotlib import cbook
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 import matplotlib.collections as mcoll
@@ -607,18 +608,14 @@ class HandlerStem(HandlerNpointsYoffsets):
         if using_linecoll:
             # change the function used by update_prop() from the default
             # to one that handles LineCollection
-            orig_update_func = self._update_prop_func
-            self._update_prop_func = self._copy_collection_props
-
-            for line in leg_stemlines:
-                self.update_prop(line, stemlines, legend)
+            with cbook._setattr_cm(
+                    self, _update_prop_func=self._copy_collection_props):
+                for line in leg_stemlines:
+                    self.update_prop(line, stemlines, legend)
 
         else:
             for lm, m in zip(leg_stemlines, stemlines):
                 self.update_prop(lm, m, legend)
-
-        if using_linecoll:
-            self._update_prop_func = orig_update_func
 
         leg_baseline = Line2D([np.min(xdata), np.max(xdata)],
                               [bottom, bottom])

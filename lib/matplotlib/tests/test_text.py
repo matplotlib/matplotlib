@@ -321,6 +321,22 @@ def test_set_position():
         assert a + shift_val == b
 
 
+@pytest.mark.parametrize('text', ['', 'O'], ids=['empty', 'non-empty'])
+def test_non_default_dpi(text):
+    fig, ax = plt.subplots()
+
+    t1 = ax.text(0.5, 0.5, text, ha='left', va='bottom')
+    fig.canvas.draw()
+    dpi = fig.dpi
+
+    bbox1 = t1.get_window_extent()
+    bbox2 = t1.get_window_extent(dpi=dpi * 10)
+    np.testing.assert_allclose(bbox2.get_points(), bbox1.get_points() * 10,
+                               rtol=5e-2)
+    # Text.get_window_extent should not permanently change dpi.
+    assert fig.dpi == dpi
+
+
 def test_get_rotation_string():
     assert mpl.text.get_rotation('horizontal') == 0.
     assert mpl.text.get_rotation('vertical') == 90.

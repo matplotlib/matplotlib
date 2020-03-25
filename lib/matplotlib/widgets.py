@@ -1151,10 +1151,8 @@ class SubplotTool(Widget):
 
         # During reset there can be a temporary invalid state depending on the
         # order of the reset so we turn off validation for the resetting
-        validate = toolfig.subplotpars.validate
-        toolfig.subplotpars.validate = False
-        self.buttonreset.on_clicked(self._on_reset)
-        toolfig.subplotpars.validate = validate
+        with cbook._setattr_cm(toolfig.subplotpars, validate=False):
+            self.buttonreset.on_clicked(self._on_reset)
 
     def _on_slider_changed(self, _):
         self.targetfig.subplots_adjust(
