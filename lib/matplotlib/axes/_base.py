@@ -3422,6 +3422,7 @@ class _AxesBase(martist.Artist):
         """
         return self.xaxis.get_ticklabels(minor=minor, which=which)
 
+    @cbook._make_keyword_only("3.3", "fontdict")
     def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
         Set the x-tick labels with list of string labels.
@@ -3815,6 +3816,7 @@ class _AxesBase(martist.Artist):
         """
         return self.yaxis.get_ticklabels(minor=minor, which=which)
 
+    @cbook._make_keyword_only("3.3", "fontdict")
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
         Set the y-tick labels with list of string labels.
