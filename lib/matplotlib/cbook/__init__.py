@@ -10,13 +10,13 @@ import collections
 import collections.abc
 import contextlib
 import functools
+import gc
 import gzip
 import itertools
 import operator
 import os
 from pathlib import Path
 import re
-import gc
 import shlex
 import subprocess
 import sys

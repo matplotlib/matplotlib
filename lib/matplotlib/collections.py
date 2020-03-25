@@ -1100,7 +1100,7 @@ class PolyCollection(_CollectionWithSizes):
         # Fast path for arrays
         if isinstance(verts, np.ndarray) and len(verts):
             verts_pad = (np.concatenate((verts, verts[:, :1]), axis=1)
-                           .astype(mpath.Path.verts_type))
+                           .astype(mpath.Path.vert_type))
             # Creating the codes once is much faster than having Path do it
             # separately each time by passing closed=True.
             example_path = mpath.Path(verts_pad[0], closed=True)

@@ -79,7 +79,7 @@ class Path:
                  '_interpolation_steps', '__weakref__')
 
     code_type = np.uint8
-    verts_type = float
+    vert_type = float
 
     # Path codes
     STOP = code_type(0)         # 1 vertex
@@ -164,8 +164,7 @@ class Path:
             self._readonly = False
 
     @classmethod
-    def _fast_from_codes_and_verts(cls, verts, codes, internals_from=None,
-                                   unmask_verts=True):
+    def _fast_from_codes_and_verts(cls, verts, codes, internals_from=None):
         """
         Creates a Path instance without the expense of calling the constructor.
 
@@ -178,17 +177,9 @@ class Path:
             ``should_simplify``, ``simplify_threshold``, and
             ``interpolation_steps`` will be copied.  Note that ``readonly`` is
             never copied, and always set to ``False`` by this constructor.
-        unmask_verts : bool
-            If False, vertices should be an unmasked NumPy array with dtype
-            set to Path.verts_type.
         """
         pth = cls.__new__(cls)
-        # NOTE: _to_unmasked_float_array has non-trivial overhead in tight
-        #       loops, so we allow skipping it if the caller wants to
-        if unmask_verts:
-            pth._vertices = _to_unmasked_float_array(verts)
-        else:
-            pth._vertices = verts
+        pth._vertices = verts
         pth._codes = codes
         pth._readonly = False
         if internals_from is not None:
