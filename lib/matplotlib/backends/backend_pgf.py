@@ -94,9 +94,15 @@ _replace_mathdefault = functools.partial(
 
 
 def common_texification(text):
-    """
+    r"""
     Do some necessary and/or useful substitutions for texts to be included in
     LaTeX documents.
+
+    This distinguishes text-mode and math-mode by replacing the math separator
+    ``$`` with ``\(\displaystyle %s\)``. Escaped math separators (``\$``)
+    are ignored.
+
+    The following characters are escaped in text segments: ``_^$%``
     """
     # Sometimes, matplotlib adds the unknown command \mathdefault.
     # Not using \mathnormal instead since this looks odd for the latex cm font.
