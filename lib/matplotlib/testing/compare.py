@@ -262,7 +262,7 @@ def convert(filename, cache):
     if path.suffix[1:] not in converter:
         import pytest
         pytest.skip(f"Don't know how to convert {path.suffix} files to png")
-    newpath = path.parent / f"{path.stem}_{path.suffix}.png"
+    newpath = path.parent / f"{path.stem}_{path.suffix[1:]}.png"
 
     # Only convert the file if the destination doesn't already exist or
     # is out of date.
