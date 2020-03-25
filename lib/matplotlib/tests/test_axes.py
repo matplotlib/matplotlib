@@ -435,6 +435,14 @@ def test_basic_annotate():
                 xytext=(3, 3), textcoords='offset points')
 
 
+def test_annotate_parameter_warn():
+    fig, ax = plt.subplots()
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match=r"The \'s\' parameter of annotate\(\) "
+                             "has been renamed \'text\'"):
+        ax.annotate(s='now named text', xy=(0, 1))
+
+
 @image_comparison(['arrow_simple.png'], remove_text=True)
 def test_arrow_simple():
     # Simple image test for ax.arrow

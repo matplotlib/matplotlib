@@ -753,7 +753,7 @@ class Axes(_AxesBase):
         self._add_text(t)
         return t
 
-    @cbook._rename_parameter("3.2", "s", "text")
+    @cbook._rename_parameter("3.3", "s", "text")
     @docstring.dedent_interpd
     def annotate(self, text, xy, *args, **kwargs):
         a = mtext.Annotation(text, xy, *args, **kwargs)
