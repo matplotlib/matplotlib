@@ -12,7 +12,7 @@ from matplotlib.backend_bases import (
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
 from matplotlib.backend_managers import ToolManager
 from matplotlib.figure import Figure
-from matplotlib.widgets import SubplotTool
+from matplotlib.widgets import SubplotTool, AxesTool
 
 try:
     import gi
@@ -437,6 +437,13 @@ class FigureManagerGTK3(FigureManagerBase):
 
 
 class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
+    toolitems = [*NavigationToolbar2.toolitems]
+    toolitems.insert(
+        # Add 'customize' action after 'subplots'
+        [name for name, *_ in toolitems].index("Subplots") + 1,
+        ("Customize", "Edit axis, curve and image parameters",
+         "qt4_editor_options", "edit_parameters"))
+
     def __init__(self, canvas, window):
         self.win = window
         GObject.GObject.__init__(self)
@@ -583,6 +590,33 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             # failure of the main plot, don't keep reporting
             pass
         window.set_title("Subplot Configuration Tool")
+        window.set_default_size(w, h)
+        vbox = Gtk.Box()
+        vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
+        window.add(vbox)
+        vbox.show()
+
+        canvas.show()
+        vbox.pack_start(canvas, True, True, 0)
+        window.show()
+
+    def edit_parameters(self, button):
+        toolfig = Figure(figsize=(4, 5))
+        canvas = type(self.canvas)(toolfig)
+        # Need to keep a reference to the tool.
+        _tool = AxesTool(self.canvas.figure, toolfig)
+
+        w = int(toolfig.bbox.width)
+        h = int(toolfig.bbox.height)
+
+        window = Gtk.Window()
+        try:
+            window.set_icon_from_file(window_icon)
+        except Exception:
+            # we presumably already logged a message on the
+            # failure of the main plot, don't keep reporting
+            pass
+        window.set_title("Figure options")
         window.set_default_size(w, h)
         vbox = Gtk.Box()
         vbox.set_property("orientation", Gtk.Orientation.VERTICAL)

@@ -1232,6 +1232,29 @@ class SubplotTool(Widget):
             self.targetfig.canvas.draw()
 
 
+class AxesTool(Widget):
+    def __init__(self, targetfig, toolfig):
+        self.targetfig = targetfig
+        axes = self.targetfig.get_axes()
+        if (len(axes) == 1):
+            self.ax, = axes
+
+        tleftax = toolfig.add_axes([0.3, 0.9, 0.2, 0.05])
+        self.tableft = Button(tleftax, 'Axes')
+
+        trightax = toolfig.add_axes([0.5, 0.9, 0.2, 0.05])
+        self.tabright = Button(trightax, 'Curves')
+
+        self.axtitle = toolfig.add_subplot(10, 1, 1)
+        self.title = TextBox(self.axtitle, 'Title')
+        self.title.on_text_change(self.functitle)
+
+    def functitle(self, val):
+        self.ax.set_title(val)
+        if self.drawon:
+            self.targetfig.canvas.draw()
+
+
 class Cursor(AxesWidget):
     """
     A crosshair cursor that spans the axes and moves with mouse cursor.
