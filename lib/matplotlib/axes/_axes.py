@@ -8079,10 +8079,20 @@ default: :rc:`scatter.edgecolors`
             if quants is not None:
                 # If exist key quantiles, assume it's a list of floats
                 quantiles = np.concatenate((quantiles, quants))
-            quarts = stats.get('quartiles')
-            if quarts is not None:
+            firstquarts = stats.get('firstquartile')
+            if firstquarts is not None:
                 # list of floats
-                quartiles = np.concatenate((quartiles, quarts))
+                quartiles = np.concatenate((quartiles, firstquarts))
+
+            secondquarts = stats.get('secondquartile')
+            if secondquarts is not None:
+                # list of floats
+                quartiles = np.concatenate((quartiles, secondquarts))
+
+            thirdquarts = stats.get('thirdquartile')
+            if thirdquarts is not None:
+                # list of floats
+                quartiles = np.concatenate((quartiles, thirdquarts))
             
         artists['bodies'] = bodies
 
@@ -8133,7 +8143,7 @@ default: :rc:`scatter.edgecolors`
             ppmaxs = np.asarray([])
 
             for stats, cmin, cmax in zip(vpstats, pmins, pmaxes):
-                q = stats.get('quartiles')
+                q = stats.get('firstquartile')
                 
                 ppmins = np.concatenate((ppmins, [cmin] * np.size(q)))
                 ppmaxs = np.concatenate((ppmaxs, [cmax] * np.size(q)))
@@ -8143,6 +8153,18 @@ default: :rc:`scatter.edgecolors`
                                              ppmins,
                                              ppmaxs,
                                              colors=edgecolor)
+
+            # for stats, cmin, cmax in zip(vpstats, pmins, pmaxes):
+            #     q = stats.get('secondquartile')
+                
+            #     ppmins = np.concatenate((ppmins, [cmin] * np.size(q)))
+            #     ppmaxs = np.concatenate((ppmaxs, [cmax] * np.size(q)))
+
+            # # Start rendering
+            # artists['cquartiles'] = perp_lines(quartiles,
+            #                                  ppmins,
+            #                                  ppmaxs,
+            #                                  colors=edgecolor)
 
         return artists
 
