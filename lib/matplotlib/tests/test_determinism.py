@@ -103,6 +103,7 @@ def test_determinism_check(objects, fmt, usetex):
             env={**os.environ, "SOURCE_DATE_EPOCH": "946684800"})
         for _ in range(3)
     ]
+    print(*[repr(p) for p in plots])
     for p in plots[1:]:
         if fmt == "ps" and usetex:
             if p != plots[0]:

@@ -17,7 +17,7 @@ environment:
     PYTHONFAULTHANDLER: 1
     PYTHONIOENCODING: UTF-8
     PYTEST_ARGS: -raR --numprocesses=auto --timeout=300 --durations=25
-                 --cov-report= --cov=lib --log-level=DEBUG
+                 --cov-report= --cov=lib --log-level=DEBUG -k 'mhi-pdf-False' lib\matplotlib\tests\test_determinism.py
 
   matrix:
     # In theory we could use a single CONDA_INSTALL_LOCN because we construct
@@ -41,7 +41,6 @@ cache:
 
 init:
   - echo %PYTHON_VERSION% %CONDA_INSTALL_LOCN%
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
   - set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
@@ -86,7 +85,29 @@ test_script:
   - python -c "import matplotlib as m; m.use('tkagg'); import matplotlib.pyplot as plt; print(plt.get_backend())"
   # tests
   - echo The following args are passed to pytest %PYTEST_ARGS%
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
+  - pytest %PYTEST_ARGS%
   - pytest %PYTEST_ARGS%
 
 after_test:
