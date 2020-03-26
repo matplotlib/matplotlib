@@ -138,3 +138,12 @@ Calling ax.arrow() will now autoscale the axes.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ... because the offset text can rarely be interpreted without tick labels
 anyways.
+
+`.Axes.annotate` and `.pyplot.annotate` parameter name changed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The parameter ``s`` to `.Axes.annotate` and  `.pyplot.annotate` is renamed to
+``text``, matching `.Annotation`.
+
+The old parameter name remains supported, but
+support for it will be dropped in a future Matplotlib release.
+
