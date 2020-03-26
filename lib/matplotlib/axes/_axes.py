@@ -8018,7 +8018,7 @@ default: :rc:`scatter.edgecolors`
         maxes = []
         medians = []
         quantiles = np.asarray([])
-        quartiles = []
+        quartiles = np.asarray([])
 
         # Collections to be returned
         artists = {}
@@ -8079,7 +8079,10 @@ default: :rc:`scatter.edgecolors`
             if quants is not None:
                 # If exist key quantiles, assume it's a list of floats
                 quantiles = np.concatenate((quantiles, quants))
-            quartiles.append([stats.get('firstquartile'), stats.get('secondquartile'), stats.get('thirdquartile')])
+            quarts = stats.get('quartiles')
+            if quarts is not None:
+                # If exist key quantiles, assume it's a list of floats
+                quartiles = np.concatenate((quartiles, quarts))
             
         artists['bodies'] = bodies
 
@@ -8121,23 +8124,23 @@ default: :rc:`scatter.edgecolors`
                                                  colors=edgecolor)
 
         # Render quartiles
-        if showquartiles:
-            artists['cquartiles'] = perp_lines(quartiles,
-                                             pmins,
-                                             pmaxes,
-                                             colors=edgecolor)
-
-            # for stats, cmin, cmax in zip(vpstats, pmins, pmaxes):
-            #     q = stats.get('secondquartile')
+        if showquartiles:            
+            # ppmins are the left end of quartiles lines
+            ppmins = np.asarray([])
+            # ppmaxs are the right end of quartiles lines
+            ppmaxs = np.asarray([])
+            for stats, cmin, cmax in zip(vpstats, pmins, pmaxes):
+                q = stats.get('quartiles')
                 
-            #     ppmins = np.concatenate((ppmins, [cmin] * np.size(q)))
-            #     ppmaxs = np.concatenate((ppmaxs, [cmax] * np.size(q)))
+                ppmins = np.concatenate((ppmins, [cmin] * np.size(q)))
+                ppmaxs = np.concatenate((ppmaxs, [cmax] * np.size(q)))
 
-            # # Start rendering
-            # artists['cquartiles'] = perp_lines(quartiles,
-            #                                  ppmins,
-            #                                  ppmaxs,
-            #                                  colors=edgecolor)
+            # Start rendering
+            artists['cquartiles'] = perp_lines(quartiles,
+                                             ppmins,
+                                             ppmaxs,
+                                             colors=edgecolor,
+                                             linestyles='dotted')
 
         return artists
 

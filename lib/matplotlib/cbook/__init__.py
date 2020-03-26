@@ -1515,9 +1515,7 @@ def violin_stats(X, method, points=100, quantiles=None):
         min_val = np.min(x)
         max_val = np.max(x)
         quantile_val = np.percentile(x, 100 * q)
-        first_quartile = np.percentile(x, 25)
-        second_quartile = np.percentile(x, 50)
-        third_quartile = np.percentile(x, 75)
+        quartiles = np.percentile(x, [25, 50, 75])
 
         # Evaluate the kernel density estimate
         coords = np.linspace(min_val, max_val, points)
@@ -1530,9 +1528,7 @@ def violin_stats(X, method, points=100, quantiles=None):
         stats['min'] = min_val
         stats['max'] = max_val
         stats['quantiles'] = np.atleast_1d(quantile_val)
-        stats['firstquartile'] = first_quartile
-        stats['secondquartile'] = second_quartile
-        stats['thirdquartile'] = third_quartile
+        stats['quartiles'] = quartiles
 
         # Append to output
         vpstats.append(stats)
