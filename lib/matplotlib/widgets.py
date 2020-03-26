@@ -649,7 +649,7 @@ class CheckButtons(AxesWidget):
         return cid
 
     def disconnect(self, cid):
-        """remove the observer with connection id *cid*"""
+        """Remove the observer with connection id *cid*."""
         try:
             del self.observers[cid]
         except KeyError:
@@ -1378,18 +1378,18 @@ class MultiCursor(Widget):
         self.connect()
 
     def connect(self):
-        """connect events"""
+        """Connect events."""
         self._cidmotion = self.canvas.mpl_connect('motion_notify_event',
                                                   self.onmove)
         self._ciddraw = self.canvas.mpl_connect('draw_event', self.clear)
 
     def disconnect(self):
-        """disconnect events"""
+        """Disconnect events."""
         self.canvas.mpl_disconnect(self._cidmotion)
         self.canvas.mpl_disconnect(self._ciddraw)
 
     def clear(self, event):
-        """clear the cursor"""
+        """Clear the cursor."""
         if self.ignore(event):
             return
         if self.useblit:
@@ -1469,7 +1469,7 @@ class _SelectorWidget(AxesWidget):
             self.update_background(None)
 
     def update_background(self, event):
-        """force an update of the background"""
+        """Force an update of the background."""
         # If you add a call to `ignore` here, you'll want to check edge case:
         # `release` can call a draw event even when `ignore` is True.
         if self.useblit:

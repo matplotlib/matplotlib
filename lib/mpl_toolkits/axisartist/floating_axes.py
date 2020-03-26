@@ -147,12 +147,7 @@ class ExtremeFinderFixed(ExtremeFinderSimple):
         self._extremes = extremes
 
     def __call__(self, transform_xy, x1, y1, x2, y2):
-        """
-        get extreme values.
-
-        x1, y1, x2, y2 in image coordinates (0-based)
-        nx, ny : number of division in each axis
-        """
+        # docstring inherited
         return self._extremes
 
 
@@ -175,7 +170,7 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
 
     def get_data_boundary(self, side):
         """
-        return v=0, nth=1
+        Return v=0, nth=1.
         """
         lon1, lon2, lat1, lat2 = self._extremes
         return dict(left=(lon1, 0),

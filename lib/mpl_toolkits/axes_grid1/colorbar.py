@@ -198,9 +198,7 @@ class CbarAxesLocator:
         self.orientation = orientation
 
     def get_original_position(self, axes, renderer):
-        """
-        get the original position of the axes.
-        """
+        """Return the original position of the axes."""
         if self._locator is None:
             bbox = axes.get_position(original=True)
         else:
@@ -209,7 +207,8 @@ class CbarAxesLocator:
 
     def get_end_vertices(self):
         """
-        return a tuple of two vertices for the colorbar extended ends.
+        Return a tuple of two vertices for the colorbar extended ends.
+
         The first vertices is for the minimum end, and the second is for
         the maximum end.
         """
@@ -246,24 +245,18 @@ class CbarAxesLocator:
         return bottom, top
 
     def get_path_patch(self):
-        """
-        get the path for axes patch
-        """
+        """Return the path for axes patch."""
         end1, end2 = self.get_end_vertices()
         verts = [] + end1 + end2 + end1[:1]
         return Path(verts)
 
     def get_path_ends(self):
-        """
-        get the paths for extended ends
-        """
+        """Return the paths for extended ends."""
         end1, end2 = self.get_end_vertices()
         return Path(end1), Path(end2)
 
     def __call__(self, axes, renderer):
-        """
-        Return the adjusted position of the axes
-        """
+        """Return the adjusted position of the axes."""
         bbox0 = self.get_original_position(axes, renderer)
         bbox = bbox0
 
@@ -490,9 +483,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.ax.add_artist(self.extension_patch2)
 
     def _set_label_text(self):
-        """
-        set label.
-        """
+        """Set the colorbar label."""
         self.cbar_axis.set_label_text(self._label, **self._labelkw)
 
     def set_label_text(self, label, **kw):
@@ -657,9 +648,7 @@ class ColorbarBase(cm.ScalarMappable):
         return X, Y
 
     def set_alpha(self, alpha):
-        """
-        set alpha value.
-        """
+        """Set the alpha value for transparency."""
         self.alpha = alpha
 
 

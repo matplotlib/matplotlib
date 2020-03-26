@@ -3327,8 +3327,8 @@ class Axes(_AxesBase):
 
         def xywhere(xs, ys, mask):
             """
-            return xs[mask], ys[mask] where mask is True but xs and
-            ys are not arrays
+            Return xs[mask], ys[mask] where mask is True but xs and
+            ys are not arrays.
             """
             assert len(xs) == len(ys)
             assert len(xs) == len(mask)

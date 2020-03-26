@@ -819,6 +819,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
 class AxesImage(_ImageBase):
     """
+    An image attached to an Axes.
+
     Parameters
     ----------
     ax : `~.axes.Axes`
@@ -1270,6 +1272,8 @@ class PcolorImage(AxesImage):
 
 
 class FigureImage(_ImageBase):
+    """An image attached to a figure."""
+
     zorder = 0
 
     _interpolation = 'nearest'

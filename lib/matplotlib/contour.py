@@ -1295,7 +1295,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         return tlinestyles
 
     def get_alpha(self):
-        """returns alpha to be applied to all ContourSet artists"""
+        """Return alpha to be applied to all ContourSet artists."""
         return self.alpha
 
     def set_alpha(self, alpha):

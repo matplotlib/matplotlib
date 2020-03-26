@@ -1630,15 +1630,11 @@ class EventCollection(LineCollection):
         self.switch_orientation()
 
     def get_linelength(self):
-        """
-        get the length of the lines used to mark each event
-        """
+        """Return the length of the lines used to mark each event."""
         return self._linelength
 
     def set_linelength(self, linelength):
-        """
-        set the length of the lines used to mark each event
-        """
+        """Set the length of the lines used to mark each event."""
         if linelength == self.get_linelength():
             return
         lineoffset = self.get_lineoffset()

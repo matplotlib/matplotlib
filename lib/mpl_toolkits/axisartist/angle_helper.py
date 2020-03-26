@@ -331,12 +331,7 @@ class ExtremeFinderCycle(ExtremeFinderSimple):
         self.lat_minmax = lat_minmax
 
     def __call__(self, transform_xy, x1, y1, x2, y2):
-        """
-        get extreme values.
-
-        x1, y1, x2, y2 in image coordinates (0-based)
-        nx, ny : number of divisions in each axis
-        """
+        # docstring inherited
         x_, y_ = np.linspace(x1, x2, self.nx), np.linspace(y1, y2, self.ny)
         x, y = np.meshgrid(x_, y_)
         lon, lat = transform_xy(np.ravel(x), np.ravel(y))
