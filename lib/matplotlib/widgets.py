@@ -1247,9 +1247,11 @@ class AxesTool(Widget):
 
         tleftax = toolfig.add_axes([0.3, 0.9, 0.2, 0.05])
         self.tableft = Button(tleftax, 'Axes')
+        self.tableft.on_clicked(self.functableft)
 
         trightax = toolfig.add_axes([0.5, 0.9, 0.2, 0.05])
         self.tabright = Button(trightax, 'Curves')
+        self.tabright.on_clicked(self.functabright)
 
         self.axtitle = toolfig.add_subplot(10, 1, 1)
         self.title = TextBox(self.axtitle, 'Title', initial=self.ax.get_title(), label_pad=0.05)
@@ -1284,6 +1286,21 @@ class AxesTool(Widget):
         self.axlabely = toolfig.add_subplot(10, 1, 9)
         self.textlabely = TextBox(self.axlabely, 'Label', initial=str(self.ax.get_ylabel()), label_pad=0.05)
         self.textlabely.on_submit(self.submitlabely)
+
+        self.axaxes = (self.axtitle, self.axleft, self.axright, self.axlabelx, self.axbottom, self.axtop, self.axlabely)
+        self.axcurves = ()
+
+    def functableft(self, val):
+        for ax in self.axcurves:
+            ax.set_visible(False)
+        for ax in self.axaxes:
+            ax.set_visible(True)
+
+    def functabright(self, val):
+        for ax in self.axaxes:
+            ax.set_visible(False)
+        for ax in self.axcurves:
+            ax.set_visible(True)
 
     def submittitle(self, val):
         self.ax.set_title(val)
