@@ -1008,7 +1008,8 @@ class FigureFrameWx(wx.Frame):
         self.canvas.close_event()
         self.canvas.stop_event_loop()
         Gcf.destroy(self)
-        # self.Destroy()
+        if self:
+            self.Destroy()
 
     def GetToolBar(self):
         """Override wxFrame::GetToolBar as we don't have managed toolbar"""
@@ -1066,7 +1067,7 @@ class FigureManagerWx(FigureManagerBase):
 
     def destroy(self, *args):
         _log.debug("%s - destroy()", type(self))
-        self.frame.Destroy()
+        self.frame.Close()
         wxapp = wx.GetApp()
         if wxapp:
             wxapp.Yield()
