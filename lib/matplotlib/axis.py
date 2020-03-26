@@ -824,7 +824,11 @@ class Axis(martist.Artist):
                 self._minor_tick_kw.update(kwtrans)
                 for tick in self.minorTicks:
                     tick._apply_params(**kwtrans)
-            # special-case label color to also apply to the offset text
+            # labelOn and labelcolor also apply to the offset text.
+            if 'label1On' in kwtrans or 'label2On' in kwtrans:
+                self.offsetText.set_visible(
+                    self._major_tick_kw.get('label1On', False)
+                    or self._major_tick_kw.get('label2On', False))
             if 'labelcolor' in kwtrans:
                 self.offsetText.set_color(kwtrans['labelcolor'])
 
