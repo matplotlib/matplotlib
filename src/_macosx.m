@@ -458,46 +458,6 @@ FigureCanvas_remove_rubberband(FigureCanvas* self)
     Py_RETURN_NONE;
 }
 
-static NSImage* _read_ppm_image(PyObject* obj)
-{
-    int width;
-    int height;
-    const char* data;
-    int n;
-    int i;
-    NSBitmapImageRep* bitmap;
-    unsigned char* bitmapdata;
-
-    if (!obj) return NULL;
-    if (!PyTuple_Check(obj)) return NULL;
-    if (!PyArg_ParseTuple(obj, "iit#", &width, &height, &data, &n)) return NULL;
-    if (width*height*3 != n) return NULL; /* RGB image uses 3 colors / pixel */
-
-    bitmap = [[NSBitmapImageRep alloc]
-                  initWithBitmapDataPlanes: NULL
-                                pixelsWide: width
-                                pixelsHigh: height
-                             bitsPerSample: 8
-                           samplesPerPixel: 3
-                                  hasAlpha: NO
-                                  isPlanar: NO
-                            colorSpaceName: NSDeviceRGBColorSpace
-                              bitmapFormat: 0
-                               bytesPerRow: width*3
-                               bitsPerPixel: 24];
-    if (!bitmap) return NULL;
-    bitmapdata = [bitmap bitmapData];
-    for (i = 0; i < n; i++) bitmapdata[i] = data[i];
-
-    NSSize size = NSMakeSize(width, height);
-    NSImage* image = [[NSImage alloc] initWithSize: size];
-    if (image) [image addRepresentation: bitmap];
-
-    [bitmap release];
-
-    return image;
-}
-
 static PyObject*
 FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keywords)
 {
