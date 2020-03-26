@@ -395,3 +395,6 @@ This method is deprecated.  Use the ``GridSpec.nrows``, ``GridSpec.ncols``,
 Qt4-based backends
 ~~~~~~~~~~~~~~~~~~
 The qt4agg and qt4cairo backends are deprecated.
+
+*fontdict* and *minor* parameters of `.Axes.set_xticklabels` and `.Axes.set_yticklabels` will become keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
