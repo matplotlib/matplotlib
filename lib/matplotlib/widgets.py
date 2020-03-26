@@ -846,21 +846,22 @@ class TextBox(AxesWidget):
     def begin_typing(self, x):
         self.capturekeystrokes = True
         # Check for toolmanager handling the keypress
-        if self.ax.figure.canvas.manager.key_press_handler_id is not None:
-            # disable command keys so that the user can type without
-            # command keys causing figure to be saved, etc
-            self._restore_keymap = ExitStack()
-            self._restore_keymap.enter_context(
-                mpl.rc_context(
-                    {k: [] for k in mpl.rcParams if k.startswith('keymap.')}))
-        else:
-            self.ax.figure.canvas.manager.toolmanager.keypresslock(self)
+        if self.ax.figure.canvas.manager is not None:
+            if self.ax.figure.canvas.manager.key_press_handler_id is not None:
+                # disable command keys so that the user can type without
+                # command keys causing figure to be saved, etc
+                self._restore_keymap = ExitStack()
+                self._restore_keymap.enter_context(
+                    mpl.rc_context(
+                        {k: [] for k in mpl.rcParams if k.startswith('keymap.')}))
+            else:
+                self.ax.figure.canvas.manager.toolmanager.keypresslock(self)
 
     def stop_typing(self):
         notifysubmit = False
         # Because _notify_submit_users might throw an error in the user's code,
         # we only want to call it once we've already done our cleanup.
-        if self.capturekeystrokes:
+        if self.capturekeystrokes and self.ax.figure.canvas.manager is not None:
             # Check for toolmanager handling the keypress
             if self.ax.figure.canvas.manager.key_press_handler_id is not None:
                 # since the user is no longer typing,
@@ -1235,9 +1236,14 @@ class SubplotTool(Widget):
 class AxesTool(Widget):
     def __init__(self, targetfig, toolfig):
         self.targetfig = targetfig
+        toolfig.subplots_adjust(left=0.2, right=0.85)
         axes = self.targetfig.get_axes()
+        # TODO: multiple axes stuff
         if (len(axes) == 1):
             self.ax, = axes
+
+        self.xmin, self.xmax = self.ax.get_xlim()
+        self.ymin, self.ymax = self.ax.get_ylim()
 
         tleftax = toolfig.add_axes([0.3, 0.9, 0.2, 0.05])
         self.tableft = Button(tleftax, 'Axes')
@@ -1246,11 +1252,79 @@ class AxesTool(Widget):
         self.tabright = Button(trightax, 'Curves')
 
         self.axtitle = toolfig.add_subplot(10, 1, 1)
-        self.title = TextBox(self.axtitle, 'Title')
-        self.title.on_text_change(self.functitle)
+        self.title = TextBox(self.axtitle, 'Title', initial=self.ax.get_title(), label_pad=0.05)
+        self.title.on_submit(self.submittitle)
 
-    def functitle(self, val):
+        self.axleft = toolfig.add_subplot(10, 1, 3)
+        self.axleft.set_title('X-Axis')
+        self.axleft.set_navigate(False)
+
+        self.textleft = TextBox(self.axleft, 'Left', initial=str(self.xmin), label_pad=0.05)
+        self.textleft.on_submit(self.submitleft)
+
+        self.axright = toolfig.add_subplot(10, 1, 4)
+        self.textright = TextBox(self.axright, 'Right', initial=str(self.xmax), label_pad=0.05)
+        self.textright.on_submit(self.submitright)
+
+        self.axlabelx = toolfig.add_subplot(10, 1, 5)
+        self.textlabelx = TextBox(self.axlabelx, 'Label', initial=str(self.ax.get_xlabel()), label_pad=0.05)
+        self.textlabelx.on_submit(self.submitlabelx)
+
+        self.axbottom = toolfig.add_subplot(10, 1, 7)
+        self.axbottom.set_title('Y-Axis')
+        self.axbottom.set_navigate(False)
+
+        self.textbottom = TextBox(self.axbottom, 'Bottom', initial=str(self.ymin), label_pad=0.05)
+        self.textbottom.on_submit(self.submitbottom)
+
+        self.axtop = toolfig.add_subplot(10, 1, 8)
+        self.texttop = TextBox(self.axtop, 'Top', initial=str(self.ymax), label_pad=0.05)
+        self.texttop.on_submit(self.submittop)
+
+        self.axlabely = toolfig.add_subplot(10, 1, 9)
+        self.textlabely = TextBox(self.axlabely, 'Label', initial=str(self.ax.get_ylabel()), label_pad=0.05)
+        self.textlabely.on_submit(self.submitlabely)
+
+    def submittitle(self, val):
         self.ax.set_title(val)
+        if self.drawon:
+            self.targetfig.canvas.draw()
+
+    def submitleft(self, val):
+        # TODO: check for valid input
+        self.xmin = float(val)
+        self.ax.set_xlim(self.xmin, self.xmax)
+        if self.drawon:
+            self.targetfig.canvas.draw()
+
+    def submitright(self, val):
+        # TODO: check for valid input
+        self.xmax = float(val)
+        self.ax.set_xlim(self.xmin, self.xmax)
+        if self.drawon:
+            self.targetfig.canvas.draw()
+
+    def submitlabelx(self, val):
+        self.ax.set_xlabel(val)
+        if self.drawon:
+            self.targetfig.canvas.draw()
+
+    def submitbottom(self, val):
+        # TODO: check for valid input
+        self.ymin = float(val)
+        self.ax.set_ylim(self.ymin, self.ymax)
+        if self.drawon:
+            self.targetfig.canvas.draw()
+
+    def submittop(self, val):
+        # TODO: check for valid input
+        self.ymax = float(val)
+        self.ax.set_ylim(self.ymin, self.ymax)
+        if self.drawon:
+            self.targetfig.canvas.draw()
+
+    def submitlabely(self, val):
+        self.ax.set_ylabel(val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
