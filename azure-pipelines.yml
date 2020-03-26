@@ -79,6 +79,34 @@ stages:
             displayName: 'Install dependencies with pip'
 
           - bash: |
+              # GUI toolkits are pip-installable only for some versions of Python so don't fail if we can't install
+              # them.  Make it easier to check whether the install was successful by trying to import the toolkit
+              # (sometimes, the install appears to be successful but shared libraries cannot be loaded at runtime, so
+              # an actual import is a better check).
+              python -m pip install --upgrade pycairo cairocffi>=0.8
+              python -m pip install --upgrade PyGObject &&
+                (
+                  python -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk' &&
+                  echo 'PyGObject 4 is available' || echo 'PyGObject 4 is not available'
+                ) && (
+                  python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
+                  echo 'PyGObject 3 is available' || echo 'PyGObject 3 is not available'
+                )
+              python -m pip install --upgrade pyqt5 &&
+                python -c 'import PyQt5.QtCore' &&
+                echo 'PyQt5 is available' ||
+                echo 'PyQt5 is not available'
+              python -m pip install --upgrade pyside2 &&
+                python -c 'import PySide2.QtCore' &&
+                echo 'PySide2 is available' ||
+                echo 'PySide2 is not available'
+              python -m pip install --upgrade --only-binary :all: wxPython &&
+                python -c 'import wx' &&
+                echo 'wxPython is available' ||
+                echo 'wxPython is not available'
+            displayName: 'Install GUI dependencies with pip'
+
+          - bash: |
               CONFIG='--config-settings=setup-args=--vsenv'
               CONFIG="$CONFIG --config-settings=setup-args=-Dcpp_link_args=-PROFILE"
               CONFIG="$CONFIG --config-settings=setup-args=-Dbuildtype=debug"
