@@ -23,10 +23,6 @@ environment:
     # In theory we could use a single CONDA_INSTALL_LOCN because we construct
     # the envs anyway. But using one for the right python version hopefully
     # making things faster due to package caching.
-    - PYTHON_VERSION: "3.6"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda36-x64"
-      TEST_ALL: "no"
-      EXTRAREQS: "-r requirements/testing/travis_extra.txt"
     - PYTHON_VERSION: "3.7"
       CONDA_INSTALL_LOCN: "C:\\Miniconda37-x64"
       TEST_ALL: "no"
@@ -45,6 +41,7 @@ cache:
 
 init:
   - echo %PYTHON_VERSION% %CONDA_INSTALL_LOCN%
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
   - set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
@@ -89,6 +86,7 @@ test_script:
   - python -c "import matplotlib as m; m.use('tkagg'); import matplotlib.pyplot as plt; print(plt.get_backend())"
   # tests
   - echo The following args are passed to pytest %PYTEST_ARGS%
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
   - pytest %PYTEST_ARGS%
 
 after_test:
