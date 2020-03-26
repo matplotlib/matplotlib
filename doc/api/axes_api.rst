@@ -424,7 +424,9 @@ Units
    :template: autosummary.rst
    :nosignatures:
 
+   Axes.convert_x_to_numeric
    Axes.convert_xunits
+   Axes.convert_y_to_numeric
    Axes.convert_yunits
    Axes.have_units
 

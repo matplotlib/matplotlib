@@ -89,27 +89,27 @@ class TestStrCategoryConverter:
 
     @pytest.mark.parametrize("vals", values, ids=ids)
     def test_convert(self, vals):
-        np.testing.assert_allclose(self.cc.convert(vals, self.ax.units,
-                                                   self.ax),
+        np.testing.assert_allclose(self.cc.to_numeric(
+                                        vals, self.ax.units, self.ax),
                                    range(len(vals)))
 
     @pytest.mark.parametrize("value", ["hi", "мир"], ids=["ascii", "unicode"])
     def test_convert_one_string(self, value):
-        assert self.cc.convert(value, self.unit, self.ax) == 0
+        assert self.cc.to_numeric(value, self.unit, self.ax) == 0
 
     def test_convert_one_number(self):
-        actual = self.cc.convert(0.0, self.unit, self.ax)
+        actual = self.cc.to_numeric(0.0, self.unit, self.ax)
         np.testing.assert_allclose(actual, np.array([0.]))
 
     def test_convert_float_array(self):
         data = np.array([1, 2, 3], dtype=float)
-        actual = self.cc.convert(data, self.unit, self.ax)
+        actual = self.cc.to_numeric(data, self.unit, self.ax)
         np.testing.assert_allclose(actual, np.array([1., 2., 3.]))
 
     @pytest.mark.parametrize("fvals", fvalues, ids=fids)
     def test_convert_fail(self, fvals):
         with pytest.raises(TypeError):
-            self.cc.convert(fvals, self.unit, self.ax)
+            self.cc.to_numeric(fvals, self.unit, self.ax)
 
     def test_axisinfo(self):
         axis = self.cc.axisinfo(self.unit, self.ax)

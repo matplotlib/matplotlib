@@ -28,8 +28,8 @@ class Foo:
 
 
 class FooConverter(units.ConversionInterface):
-    @staticmethod
-    def axisinfo(unit, axis):
+    @classmethod
+    def axisinfo(cls, unit, axis):
         """Return the Foo AxisInfo."""
         if unit == 1.0 or unit == 2.0:
             return units.AxisInfo(
@@ -41,14 +41,14 @@ class FooConverter(units.ConversionInterface):
         else:
             return None
 
-    @staticmethod
-    def convert(obj, unit, axis):
+    @classmethod
+    def to_numeric(cls, obj, unit, axis):
         """
         Convert *obj* using *unit*.
 
         If *obj* is a sequence, return the converted sequence.
         """
-        if units.ConversionInterface.is_numlike(obj):
+        if cls.is_numlike(obj):
             return obj
 
         if np.iterable(obj):
@@ -56,8 +56,8 @@ class FooConverter(units.ConversionInterface):
         else:
             return obj.value(unit)
 
-    @staticmethod
-    def default_units(x, axis):
+    @classmethod
+    def default_units(cls, x, axis):
         """Return the default unit for *x* or None."""
         if np.iterable(x):
             for thisx in x:

@@ -498,8 +498,8 @@ class Text(Artist):
 
             # don't use self.get_unitless_position here, which refers to text
             # position in Text:
-            posx = float(self.convert_xunits(self._x))
-            posy = float(self.convert_yunits(self._y))
+            posx = float(self.convert_x_to_numeric(self._x))
+            posy = float(self.convert_y_to_numeric(self._y))
 
             posx, posy = trans.transform((posx, posy))
 
@@ -690,8 +690,8 @@ class Text(Artist):
 
             # don't use textobj.get_position here, which refers to text
             # position in Text:
-            posx = float(textobj.convert_xunits(textobj._x))
-            posy = float(textobj.convert_yunits(textobj._y))
+            posx = float(textobj.convert_x_to_numeric(textobj._x))
+            posy = float(textobj.convert_y_to_numeric(textobj._y))
             posx, posy = trans.transform((posx, posy))
             if not np.isfinite(posx) or not np.isfinite(posy):
                 _log.warning("posx and posy should be finite values")
@@ -828,8 +828,8 @@ class Text(Artist):
         """Return the (x, y) unitless position of the text."""
         # This will get the position with all unit information stripped away.
         # This is here for convenience since it is done in several locations.
-        x = float(self.convert_xunits(self._x))
-        y = float(self.convert_yunits(self._y))
+        x = float(self.convert_x_to_numeric(self._x))
+        y = float(self.convert_y_to_numeric(self._y))
         return x, y
 
     def get_position(self):
@@ -1349,9 +1349,9 @@ class _AnnotationBase:
         else:
             s1, s2 = s, s
         if s1 == 'data':
-            x = float(self.convert_xunits(x))
+            x = float(self.convert_x_to_numeric(x))
         if s2 == 'data':
-            y = float(self.convert_yunits(y))
+            y = float(self.convert_y_to_numeric(y))
         return self._get_xy_transform(renderer, s).transform((x, y))
 
     def _get_xy_transform(self, renderer, s):

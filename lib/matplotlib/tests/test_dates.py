@@ -1,8 +1,4 @@
 import datetime
-try:
-    from contextlib import nullcontext
-except ImportError:
-    from contextlib import ExitStack as nullcontext  # Py 3.6.
 
 import dateutil.tz
 import dateutil.rrule
@@ -374,8 +370,8 @@ def test_auto_date_locator():
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
-        with (pytest.warns(UserWarning) if t_delta.microseconds
-              else nullcontext()):
+        with pytest.warns(
+                UserWarning, match='microsecond time intervals|attached axis'):
             assert list(map(str, mdates.num2date(locator()))) == expected
 
 
@@ -451,8 +447,8 @@ def test_auto_date_locator_intmult():
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
-        with (pytest.warns(UserWarning) if t_delta.microseconds
-              else nullcontext()):
+        with pytest.warns(
+                UserWarning, match='microsecond time intervals|attached axis'):
             assert list(map(str, mdates.num2date(locator()))) == expected
 
 
@@ -717,7 +713,8 @@ def test_auto_date_locator_intmult_tz():
     tz = dateutil.tz.gettz('Canada/Pacific')
     d1 = datetime.datetime(1997, 1, 1, tzinfo=tz)
     for t_delta, expected in results:
-        with rc_context({'_internal.classic_mode': False}):
+        with rc_context({'_internal.classic_mode': False}), pytest.warns(
+                UserWarning, match='attached axis'):
             d2 = d1 + t_delta
             locator = _create_auto_date_locator(d1, d2, tz)
             st = list(map(str, mdates.num2date(locator(), tz=tz)))
@@ -879,15 +876,23 @@ def test_yearlocator_pytz():
     locator.set_view_interval(mdates.date2num(x[0])-1.0,
                               mdates.date2num(x[-1])+1.0)
 
-    np.testing.assert_allclose([733408.208333, 733773.208333, 734138.208333,
-                                734503.208333, 734869.208333,
-                                735234.208333, 735599.208333], locator())
-    expected = ['2009-01-01 00:00:00-05:00',
-                '2010-01-01 00:00:00-05:00', '2011-01-01 00:00:00-05:00',
-                '2012-01-01 00:00:00-05:00', '2013-01-01 00:00:00-05:00',
-                '2014-01-01 00:00:00-05:00', '2015-01-01 00:00:00-05:00']
-    st = list(map(str, mdates.num2date(locator(), tz=tz)))
-    assert st == expected
+    with pytest.warns(UserWarning, match='attached axis'):
+        actual = locator()
+
+    np.testing.assert_allclose(
+        actual,
+        [733408.208333, 733773.208333, 734138.208333, 734503.208333,
+            734869.208333, 735234.208333, 735599.208333])
+
+    assert list(map(str, mdates.num2date(actual, tz=tz))) == [
+        '2009-01-01 00:00:00-05:00',
+        '2010-01-01 00:00:00-05:00',
+        '2011-01-01 00:00:00-05:00',
+        '2012-01-01 00:00:00-05:00',
+        '2013-01-01 00:00:00-05:00',
+        '2014-01-01 00:00:00-05:00',
+        '2015-01-01 00:00:00-05:00',
+    ]
 
 
 def test_DayLocator():

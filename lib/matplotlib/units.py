@@ -18,7 +18,7 @@ datetime objects::
     class DateConverter(units.ConversionInterface):
 
         @staticmethod
-        def convert(value, unit, axis):
+        def to_numeric(value, unit, axis):
             'Convert a datetime value to a scalar or array'
             return dates.date2num(value)
 
@@ -51,7 +51,7 @@ from numpy import ma
 from matplotlib import cbook
 
 
-class ConversionError(TypeError):
+class ConversionError(ValueError):
     pass
 
 
@@ -113,52 +113,69 @@ class ConversionInterface:
     sequences) and convert them to values Matplotlib can use.
     """
 
-    @staticmethod
-    def axisinfo(unit, axis):
+    @classmethod
+    def axisinfo(cls, unit, axis):
         """
         Return an `~units.AxisInfo` for the axis with the specified units.
         """
         return None
 
-    @staticmethod
-    def default_units(x, axis):
+    @classmethod
+    def default_units(cls, x, axis):
         """
         Return the default unit for *x* or ``None`` for the given axis.
         """
         return None
 
-    @staticmethod
-    def convert(obj, unit, axis):
+    @classmethod
+    def to_numeric(cls, obj, unit, axis):
         """
-        Convert *obj* using *unit* for the specified *axis*.
+        Convert *obj* using *unit* to a numeric value for the specified *axis*.
 
         If *obj* is a sequence, return the converted sequence.  The output must
         be a sequence of scalars that can be used by the numpy array layer.
         """
         return obj
 
-    @staticmethod
-    def is_numlike(x):
+    @classmethod
+    def from_numeric(cls, x, unit, axis):
+        """
+        Convert numeric *x* using *unit* for the specified *axis*.
+
+        If *x* is a sequence, return the converted sequence.
+        """
+        return x
+
+    @classmethod
+    def is_numlike(cls, x):
         """
         The Matplotlib datalim, autoscaling, locators etc work with scalars
         which are the units converted to floats given the current unit.  The
         converter may be passed these floats, or arrays of them, even when
         units are set.
         """
+        return cls.is_like(x, Number)
+
+    @classmethod
+    def is_like(cls, x, types):
+        """
+        A helper which checks if a value is either a container of the
+        specified types or of the specified types itself.
+        """
         if np.iterable(x):
             for thisx in x:
                 if thisx is ma.masked:
                     continue
-                return isinstance(thisx, Number)
+                return isinstance(thisx, types)
         else:
-            return isinstance(x, Number)
+            return isinstance(x, types)
 
 
 class DecimalConverter(ConversionInterface):
     """Converter for decimal.Decimal data to float."""
 
     @staticmethod
-    def convert(value, unit, axis):
+    def to_numeric(value, unit, axis):
         """
         Convert Decimals to floats.
 

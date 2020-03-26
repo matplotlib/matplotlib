@@ -262,7 +262,7 @@ class Formatter(TickHelper):
         Return the full string representation of the value with the
         position unspecified.
         """
-        return self.__call__(value)
+        return self(value)
 
     def format_data_short(self, value):
         """
@@ -961,7 +961,7 @@ class LogFormatter(Formatter):
 
     def format_data(self, value):
         with cbook._setattr_cm(self, labelOnlyBase=False):
-            return cbook.strip_math(self.__call__(value))
+            return cbook.strip_math(self(value))
 
     def format_data_short(self, value):
         # docstring inherited

@@ -1317,7 +1317,7 @@ class PolarAxes(Axes):
         """
 
         # Make sure we take into account unitized data
-        angles = self.convert_yunits(angles)
+        angles = self.convert_y_to_numeric(angles)
         angles = np.deg2rad(angles)
         self.set_xticks(angles)
         if labels is not None:
@@ -1369,7 +1369,7 @@ class PolarAxes(Axes):
         .Axis.get_ticklabels
         """
         # Make sure we take into account unitized data
-        radii = self.convert_xunits(radii)
+        radii = self.convert_x_to_numeric(radii)
         radii = np.asarray(radii)
 
         self.set_yticks(radii)

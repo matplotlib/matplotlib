@@ -144,7 +144,9 @@ Units
    :toctree: _as_gen
    :nosignatures:
 
+   Artist.convert_x_to_numeric
    Artist.convert_xunits
+   Artist.convert_y_to_numeric
    Artist.convert_yunits
    Artist.have_units
 

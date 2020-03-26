@@ -16,9 +16,10 @@ class EpochConverter(units.ConversionInterface):
     # julian date reference for "Jan 1, 0001" minus 1 day because
     # Matplotlib really wants "Jan 0, 0001"
     jdRef = 1721425.5 - 1
+    day_in_seconds = 86400.0
 
-    @staticmethod
-    def axisinfo(unit, axis):
+    @classmethod
+    def axisinfo(cls, unit, axis):
         """: Returns information on how to handle an axis that has Epoch data.
 
         = INPUT VARIABLES
@@ -35,8 +36,8 @@ class EpochConverter(units.ConversionInterface):
 
         return units.AxisInfo(majloc=majloc, majfmt=majfmt, label=unit)
 
-    @staticmethod
-    def float2epoch(value, unit):
+    @classmethod
+    def float2epoch(cls, value, unit):
         """: Convert a Matplotlib floating-point date into an Epoch of the
               specified units.
 
@@ -50,11 +51,11 @@ class EpochConverter(units.ConversionInterface):
         # Delay-load due to circular dependencies.
         import matplotlib.testing.jpl_units as U
 
-        secPastRef = value * 86400.0 * U.UnitDbl(1.0, 'sec')
-        return U.Epoch(unit, secPastRef, EpochConverter.jdRef)
+        secPastRef = value * cls.day_in_seconds * U.UnitDbl(1.0, 'sec')
+        return U.Epoch(unit, secPastRef, cls.jdRef)
 
-    @staticmethod
-    def epoch2float(value, unit):
+    @classmethod
+    def epoch2float(cls, value, unit):
         """: Convert an Epoch value to a float suitable for plotting as a
               python datetime object.
 
@@ -65,10 +66,10 @@ class EpochConverter(units.ConversionInterface):
         = RETURN VALUE
         - Returns the value parameter converted to floats.
         """
-        return value.julianDate(unit) - EpochConverter.jdRef
+        return value.julianDate(unit) - cls.jdRef
 
-    @staticmethod
-    def duration2float(value):
+    @classmethod
+    def duration2float(cls, value):
         """: Convert a Duration value to a float suitable for plotting as a
               python datetime object.
 
@@ -78,10 +79,10 @@ class EpochConverter(units.ConversionInterface):
         = RETURN VALUE
         - Returns the value parameter converted to floats.
         """
-        return value.seconds() / 86400.0
+        return value.seconds() / cls.day_in_seconds
 
-    @staticmethod
-    def convert(value, unit, axis):
+    @classmethod
+    def to_numeric(cls, value, unit, axis):
         """: Convert value using unit to a float.  If value is a sequence, return
         the converted sequence.
 
@@ -96,18 +97,22 @@ class EpochConverter(units.ConversionInterface):
         import matplotlib.testing.jpl_units as U
 
         if not cbook.is_scalar_or_string(value):
-            return [EpochConverter.convert(x, unit, axis) for x in value]
-        if units.ConversionInterface.is_numlike(value):
+            return [cls.to_numeric(x, unit, axis) for x in value]
+        if cls.is_numlike(value):
             return value
         if unit is None:
-            unit = EpochConverter.default_units(value, axis)
+            unit = cls.default_units(value, axis)
         if isinstance(value, U.Duration):
-            return EpochConverter.duration2float(value)
+            return cls.duration2float(value)
         else:
-            return EpochConverter.epoch2float(value, unit)
+            return cls.epoch2float(value, unit)
 
-    @staticmethod
-    def default_units(value, axis):
+    @classmethod
+    def from_numeric(cls, value, unit, axis):
+        return date_ticker.num2date(value, unit)
+
+    @classmethod
+    def default_units(cls, value, axis):
         """: Return the default unit for value, or None.
 
         = INPUT VARIABLES
@@ -119,4 +124,4 @@ class EpochConverter(units.ConversionInterface):
         if cbook.is_scalar_or_string(value):
             return value.frame()
         else:
-            return EpochConverter.default_units(value[0], axis)
+            return cls.default_units(value[0], axis)

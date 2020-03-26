@@ -1503,8 +1503,8 @@ class QuadContourSet(ContourSet):
         """
         x, y = args[:2]
         kwargs = self.ax._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
-        x = self.ax.convert_xunits(x)
-        y = self.ax.convert_yunits(y)
+        x = self.ax.convert_x_to_numeric(x)
+        y = self.ax.convert_y_to_numeric(y)
 
         x = np.asarray(x, dtype=np.float64)
         y = np.asarray(y, dtype=np.float64)

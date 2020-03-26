@@ -38,8 +38,8 @@ class UnitDblConverter(units.ConversionInterface):
        "time": 'sec',
        }
 
-    @staticmethod
-    def axisinfo(unit, axis):
+    @classmethod
+    def axisinfo(cls, unit, axis):
         """: Returns information on how to handle an axis that has Epoch data.
 
         = INPUT VARIABLES
@@ -69,8 +69,8 @@ class UnitDblConverter(units.ConversionInterface):
 
         return units.AxisInfo(majfmt=majfmt, label=label)
 
-    @staticmethod
-    def convert(value, unit, axis):
+    @classmethod
+    def to_numeric(cls, value, unit, axis):
         """: Convert value using unit to a float.  If value is a sequence, return
         the converted sequence.
 
@@ -82,23 +82,23 @@ class UnitDblConverter(units.ConversionInterface):
         - Returns the value parameter converted to floats.
         """
         if not cbook.is_scalar_or_string(value):
-            return [UnitDblConverter.convert(x, unit, axis) for x in value]
+            return [cls.to_numeric(x, unit, axis) for x in value]
         # If the incoming value behaves like a number,
         # then just return it because we don't know how to convert it
         # (or it is already converted)
-        if units.ConversionInterface.is_numlike(value):
+        if cls.is_numlike(value):
             return value
         # If no units were specified, then get the default units to use.
         if unit is None:
-            unit = UnitDblConverter.default_units(value, axis)
+            unit = cls.default_units(value, axis)
         # Convert the incoming UnitDbl value/values to float/floats
         if isinstance(axis.axes, polar.PolarAxes) and value.type() == "angle":
             # Guarantee that units are radians for polar plots.
             return value.convert("rad")
         return value.convert(unit)
 
-    @staticmethod
-    def default_units(value, axis):
+    @classmethod
+    def default_units(cls, value, axis):
         """: Return the default unit for value, or None.
 
         = INPUT VARIABLES
@@ -111,6 +111,6 @@ class UnitDblConverter(units.ConversionInterface):
         # Determine the default units based on the user preferences set for
         # default units when printing a UnitDbl.
         if cbook.is_scalar_or_string(value):
-            return UnitDblConverter.defaults[value.type()]
+            return cls.defaults[value.type()]
         else:
-            return UnitDblConverter.default_units(value[0], axis)
+            return cls.default_units(value[0], axis)

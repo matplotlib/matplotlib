@@ -255,8 +255,8 @@ class _process_plot_var_args:
 
     def _makefill(self, x, y, kw, kwargs):
         # Polygon doesn't directly support unitized inputs.
-        x = self.axes.convert_xunits(x)
-        y = self.axes.convert_yunits(y)
+        x = self.axes.convert_x_to_numeric(x)
+        y = self.axes.convert_y_to_numeric(y)
 
         kw = kw.copy()  # Don't modify the original kw.
         kwargs = kwargs.copy()
@@ -3247,8 +3247,10 @@ class _AxesBase(martist.Artist):
             right = xmax
 
         self._process_unit_info(xdata=(left, right))
-        left = self._validate_converted_limits(left, self.convert_xunits)
-        right = self._validate_converted_limits(right, self.convert_xunits)
+        left = self._validate_converted_limits(
+            left, self.convert_x_to_numeric)
+        right = self._validate_converted_limits(
+            right, self.convert_x_to_numeric)
 
         if left is None or right is None:
             # Axes init calls set_xlim(0, 1) before get_xlim() can be called,
@@ -3641,8 +3643,9 @@ class _AxesBase(martist.Artist):
             top = ymax
 
         self._process_unit_info(ydata=(bottom, top))
-        bottom = self._validate_converted_limits(bottom, self.convert_yunits)
-        top = self._validate_converted_limits(top, self.convert_yunits)
+        bottom = self._validate_converted_limits(
+            bottom, self.convert_y_to_numeric)
+        top = self._validate_converted_limits(top, self.convert_y_to_numeric)
 
         if bottom is None or top is None:
             # Axes init calls set_ylim(0, 1) before get_ylim() can be called,

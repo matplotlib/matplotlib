@@ -18,8 +18,8 @@ class StrConverter(units.ConversionInterface):
     - 'sorted-inverted' :  A combination of 'sorted' and 'inverted'
     """
 
-    @staticmethod
-    def axisinfo(unit, axis):
+    @classmethod
+    def axisinfo(cls, unit, axis):
         """: Returns information on how to handle an axis that has string data.
 
         = INPUT VARIABLES
@@ -34,8 +34,8 @@ class StrConverter(units.ConversionInterface):
 
         return None
 
-    @staticmethod
-    def convert(value, unit, axis):
+    @classmethod
+    def to_numeric(cls, value, unit, axis):
         """: Convert value using unit to a float.  If value is a sequence, return
         the converted sequence.
 
@@ -48,7 +48,7 @@ class StrConverter(units.ConversionInterface):
         - Returns the value parameter converted to floats.
         """
 
-        if units.ConversionInterface.is_numlike(value):
+        if cls.is_numlike(value):
             return value
 
         if value == []:
@@ -114,8 +114,8 @@ class StrConverter(units.ConversionInterface):
         ax.viewLim.ignore(-1)
         return result
 
-    @staticmethod
-    def default_units(value, axis):
+    @classmethod
+    def default_units(cls, value, axis):
         """: Return the default unit for value, or None.
 
         = INPUT VARIABLES

@@ -138,10 +138,10 @@ class Spine(mpatches.Patch):
         member variable.
         """
         assert self._patch_type in ('arc', 'circle')
-        center = (self.convert_xunits(self._center[0]),
-                  self.convert_yunits(self._center[1]))
-        width = self.convert_xunits(self._width)
-        height = self.convert_yunits(self._height)
+        center = (self.convert_x_to_numeric(self._center[0]),
+                  self.convert_y_to_numeric(self._center[1]))
+        width = self.convert_x_to_numeric(self._width)
+        height = self.convert_y_to_numeric(self._height)
         self._patch_transform = mtransforms.Affine2D() \
             .scale(width * 0.5, height * 0.5) \
             .translate(*center)

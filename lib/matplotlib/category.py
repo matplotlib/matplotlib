@@ -24,8 +24,8 @@ _log = logging.getLogger(__name__)
 
 
 class StrCategoryConverter(units.ConversionInterface):
-    @staticmethod
-    def convert(value, unit, axis):
+    @classmethod
+    def to_numeric(cls, value, unit, axis):
         """
         Convert strings in *value* to floats using mapping information stored
         in the *unit* object.
@@ -53,7 +53,7 @@ class StrCategoryConverter(units.ConversionInterface):
         # dtype = object preserves numerical pass throughs
         values = np.atleast_1d(np.array(value, dtype=object))
         # pass through sequence of non binary numbers
-        if all(units.ConversionInterface.is_numlike(v)
+        if all(cls.is_numlike(v)
                and not isinstance(v, (str, bytes))
                for v in values):
             return np.asarray(values, dtype=float)
@@ -61,8 +61,8 @@ class StrCategoryConverter(units.ConversionInterface):
         unit.update(values)
         return np.vectorize(unit._mapping.__getitem__, otypes=[float])(values)
 
-    @staticmethod
-    def axisinfo(unit, axis):
+    @classmethod
+    def axisinfo(cls, unit, axis):
         """
         Set the default axis ticks and labels.
 
@@ -86,8 +86,8 @@ class StrCategoryConverter(units.ConversionInterface):
         majfmt = StrCategoryFormatter(unit._mapping)
         return units.AxisInfo(majloc=majloc, majfmt=majfmt)
 
-    @staticmethod
-    def default_units(data, axis):
+    @classmethod
+    def default_units(cls, data, axis):
         """
         Set and update the `~matplotlib.axis.Axis` units.
 

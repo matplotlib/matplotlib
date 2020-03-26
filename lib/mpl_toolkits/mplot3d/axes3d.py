@@ -142,7 +142,7 @@ class Axes3D(Axes):
         self._axis3don = True
         self.stale = True
 
-    def convert_zunits(self, z):
+    def convert_z_to_numeric(self, z):
         """
         For artists in an axes, if the zaxis has units support,
         convert *z* using zaxis unit type
@@ -150,7 +150,11 @@ class Axes3D(Axes):
         .. versionadded:: 1.2.1
 
         """
-        return self.zaxis.convert_units(z)
+        return self.zaxis.convert_to_numeric(z)
+
+    @cbook.deprecated("3.3", pending=True, alternative="convert_z_to_numeric")
+    def convert_zunits(self, z):
+        return self.convert_z_to_numeric(z)
 
     def _process_unit_info(self, xdata=None, ydata=None, zdata=None,
                            kwargs=None):
@@ -606,8 +610,9 @@ class Axes3D(Axes):
             right = xmax
 
         self._process_unit_info(xdata=(left, right))
-        left = self._validate_converted_limits(left, self.convert_xunits)
-        right = self._validate_converted_limits(right, self.convert_xunits)
+        left = self._validate_converted_limits(left, self.convert_x_to_numeric)
+        right = self._validate_converted_limits(
+            right, self.convert_x_to_numeric)
 
         old_left, old_right = self.get_xlim()
         if left is None:
@@ -660,8 +665,9 @@ class Axes3D(Axes):
             top = ymax
 
         self._process_unit_info(ydata=(bottom, top))
-        bottom = self._validate_converted_limits(bottom, self.convert_yunits)
-        top = self._validate_converted_limits(top, self.convert_yunits)
+        bottom = self._validate_converted_limits(
+            bottom, self.convert_y_to_numeric)
+        top = self._validate_converted_limits(top, self.convert_y_to_numeric)
 
         old_bottom, old_top = self.get_ylim()
         if bottom is None:
@@ -715,8 +721,9 @@ class Axes3D(Axes):
             top = zmax
 
         self._process_unit_info(zdata=(bottom, top))
-        bottom = self._validate_converted_limits(bottom, self.convert_zunits)
-        top = self._validate_converted_limits(top, self.convert_zunits)
+        bottom = self._validate_converted_limits(
+            bottom, self.convert_z_to_numeric)
+        top = self._validate_converted_limits(top, self.convert_z_to_numeric)
 
         old_bottom, old_top = self.get_zlim()
         if bottom is None:

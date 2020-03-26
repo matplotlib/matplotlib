@@ -135,6 +135,7 @@ import functools
 import logging
 import math
 import re
+import warnings
 
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
@@ -414,7 +415,7 @@ def num2date(x, tz=None):
     x : float or sequence of floats
         Number of days (fraction part represents hours, minutes, seconds)
         since 0001-01-01 00:00:00 UTC, plus one.
-    tz : str, optional
+    tz : str or tzinfo, optional
         Timezone of *x* (defaults to :rc:`timezone`).
 
     Returns
@@ -459,7 +460,7 @@ def num2timedelta(x):
     return _ordinalf_to_timedelta_np_vectorized(x).tolist()
 
 
-def drange(dstart, dend, delta):
+def drange(dstart, dend, delta, numeric=True):
     """
     Return a sequence of equally spaced Matplotlib dates.
 
@@ -472,11 +473,13 @@ def drange(dstart, dend, delta):
         The date limits.
     delta : `datetime.timedelta`
         Spacing of the dates.
+    numeric : bool, default : True
+        Whether to return the dates as internal floats or date objects
 
     Returns
     -------
     `numpy.array`
-        A list floats representing Matplotlib dates.
+        A list of floats representing Matplotlib dates or datetime objects.
 
     """
     f1 = date2num(dstart)
@@ -496,7 +499,61 @@ def drange(dstart, dend, delta):
         num -= 1
 
     f2 = date2num(dinterval_end)  # new float-endpoint
-    return np.linspace(f1, f2, num + 1)
+    result = np.linspace(f1, f2, num + 1)
+    return result if numeric else num2date(result)
+
+
+def _convert_with_fallback_to_num2date(axis, data, unit):
+    if axis and not isinstance(axis, ticker._DummyAxis):
+        result = axis.convert_from_numeric(data, unit)
+        converter = axis.converter
+    else:
+        warnings.warn(
+            "Locator or Formatter does not have an attached axis to use.",
+            UserWarning, stacklevel=2)
+
+        # NOTE(honles): This may not be the right converter if the registry has
+        #               changed at some point between the converter being set
+        #               on the axis till now.
+        converter = units.registry.get_converter(datetime.datetime(2000, 1, 1))
+        if converter is not None:
+            try:
+                if not hasattr(converter, 'from_numeric'):
+                    cbook.warn_deprecated(
+                        since="3.3", pending=True,
+                        message=f"Converter {type(converter)} should "
+                        "subclass 'matplotlib.units.ConversionInterface' and "
+                        "may need to override 'from_numeric'.")
+                    result = data
+                else:
+                    # The converter may actually need the axis, but at least
+                    # we tried! (Use the existing dummy axis if possible)
+                    result = converter.from_numeric(
+                        data, unit, axis or ticker._DummyAxis())
+            except Exception as e:
+                raise units.ConversionError(
+                    f"Failed to convert value(s) from axis units: {data!r}"
+                ) from e
+        else:
+            result = data
+
+    if not units.ConversionInterface.is_numlike(result):
+        return result
+
+    if converter:
+        cbook.warn_deprecated(
+            since="3.3", pending=True,
+            message=f"Converter {type(converter)} should implement "
+            "'from_numeric' possibly calling 'matplotlib.dates.num2date'.")
+
+    try:
+        return num2date(result)
+    except Exception as e:
+        raise units.ConversionError(
+             'Illegal date found; this usually occurs because you have not '
+             'informed the axis that it is plotting dates, e.g., with '
+             'ax.xaxis_date()') from e
+
 
 ## date tickers and formatters ###
 
@@ -527,12 +584,8 @@ class DateFormatter(ticker.Formatter):
         self.tz = tz
 
     def __call__(self, x, pos=0):
-        if x == 0:
-            raise ValueError('DateFormatter found a value of x=0, which is '
-                             'an illegal date; this usually occurs because '
-                             'you have not informed the axis that it is '
-                             'plotting dates, e.g., with ax.xaxis_date()')
-        return num2date(x, self.tz).strftime(self.fmt)
+        return _convert_with_fallback_to_num2date(
+            self.axis, x, self.tz).strftime(self.fmt)
 
     def set_tzinfo(self, tz):
         self.tz = tz
@@ -558,7 +611,8 @@ class IndexDateFormatter(ticker.Formatter):
         ind = int(round(x))
         if ind >= len(self.t) or ind <= 0:
             return ''
-        return num2date(self.t[ind], self.tz).strftime(self.fmt)
+        return _convert_with_fallback_to_num2date(
+            self.axis, self.t[ind], self.tz).strftime(self.fmt)
 
 
 class ConciseDateFormatter(ticker.Formatter):
@@ -687,10 +741,13 @@ class ConciseDateFormatter(ticker.Formatter):
 
     def __call__(self, x, pos=None):
         formatter = DateFormatter(self.defaultfmt, self._tz)
+        formatter.set_axis(self.axis)
         return formatter(x, pos=pos)
 
     def format_ticks(self, values):
-        tickdatetime = [num2date(value, tz=self._tz) for value in values]
+        tickdatetime = [
+            _convert_with_fallback_to_num2date(self.axis, value, self._tz)
+            for value in values]
         tickdate = np.array([tdt.timetuple()[:6] for tdt in tickdatetime])
 
         # basic algorithm:
@@ -756,7 +813,8 @@ class ConciseDateFormatter(ticker.Formatter):
         return self.offset_string
 
     def format_data_short(self, value):
-        return num2date(value, tz=self._tz).strftime('%Y-%m-%d %H:%M:%S')
+        return _convert_with_fallback_to_num2date(
+            self.axis, value, self._tz).strftime('%Y-%m-%d %H:%M:%S')
 
 
 class AutoDateFormatter(ticker.Formatter):
@@ -824,7 +882,6 @@ class AutoDateFormatter(ticker.Formatter):
         self._locator = locator
         self._tz = tz
         self.defaultfmt = defaultfmt
-        self._formatter = DateFormatter(self.defaultfmt, tz)
         rcParams = matplotlib.rcParams
         self.scaled = {
             DAYS_PER_YEAR: rcParams['date.autoformatter.year'],
@@ -851,6 +908,7 @@ class AutoDateFormatter(ticker.Formatter):
 
         if isinstance(fmt, str):
             self._formatter = DateFormatter(fmt, self._tz)
+            self._formatter.set_axis(self.axis)
             result = self._formatter(x, pos)
         elif callable(fmt):
             result = fmt(x, pos)
@@ -994,31 +1052,15 @@ class DateLocator(ticker.Locator):
         """
         Convert axis data interval to datetime objects.
         """
-        dmin, dmax = self.axis.get_data_interval()
-        if dmin > dmax:
-            dmin, dmax = dmax, dmin
-        if dmin < 1:
-            raise ValueError('datalim minimum {} is less than 1 and '
-                             'is an invalid Matplotlib date value. This often '
-                             'happens if you pass a non-datetime '
-                             'value to an axis that has datetime units'
-                             .format(dmin))
-        return num2date(dmin, self.tz), num2date(dmax, self.tz)
+        return _convert_with_fallback_to_num2date(
+            self.axis, sorted(self.axis.get_data_interval()), self.tz)
 
     def viewlim_to_dt(self):
         """
         Converts the view interval to datetime objects.
         """
-        vmin, vmax = self.axis.get_view_interval()
-        if vmin > vmax:
-            vmin, vmax = vmax, vmin
-        if vmin < 1:
-            raise ValueError('view limit minimum {} is less than 1 and '
-                             'is an invalid Matplotlib date value. This '
-                             'often happens if you pass a non-datetime '
-                             'value to an axis that has datetime units'
-                             .format(vmin))
-        return num2date(vmin, self.tz), num2date(vmax, self.tz)
+        return _convert_with_fallback_to_num2date(
+            self.axis, sorted(self.axis.get_view_interval()), self.tz)
 
     def _get_unit(self):
         """
@@ -1253,7 +1295,13 @@ class AutoDateLocator(DateLocator):
 
     def __call__(self):
         # docstring inherited
-        dmin, dmax = self.viewlim_to_dt()
+
+        # if no data have been set, this will tank with a ValueError
+        try:
+            dmin, dmax = self.viewlim_to_dt()
+        except ValueError:
+            return []
+
         locator = self.get_locator(dmin, dmax)
         return locator()
 
@@ -1764,8 +1812,8 @@ class DateConverter(units.ConversionInterface):
     The 'unit' tag for such data is None or a tzinfo instance.
     """
 
-    @staticmethod
-    def axisinfo(unit, axis):
+    @classmethod
+    def axisinfo(cls, unit, axis):
         """
         Return the `~matplotlib.units.AxisInfo` for *unit*.
 
@@ -1782,8 +1830,8 @@ class DateConverter(units.ConversionInterface):
         return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
                               default_limits=(datemin, datemax))
 
-    @staticmethod
-    def convert(value, unit, axis):
+    @classmethod
+    def to_numeric(cls, value, unit, axis):
         """
         If *value* is not already a number or sequence of numbers, convert it
         with `date2num`.
@@ -1792,8 +1840,16 @@ class DateConverter(units.ConversionInterface):
         """
         return date2num(value)
 
-    @staticmethod
-    def default_units(x, axis):
+    @classmethod
+    def from_numeric(cls, value, unit, axis):
+        # do not double convert date objects
+        if cls.is_like(value, datetime.datetime):
+            return value
+
+        return num2date(value, unit)
+
+    @classmethod
+    def default_units(cls, x, axis):
         """
         Return the tzinfo instance of *x* or of its first element, or None
         """

@@ -657,12 +657,12 @@ class Line2D(Artist):
 
     def recache(self, always=False):
         if always or self._invalidx:
-            xconv = self.convert_xunits(self._xorig)
+            xconv = self.convert_x_to_numeric(self._xorig)
             x = _to_unmasked_float_array(xconv).ravel()
         else:
             x = self._x
         if always or self._invalidy:
-            yconv = self.convert_yunits(self._yorig)
+            yconv = self.convert_y_to_numeric(self._yorig)
             y = _to_unmasked_float_array(yconv).ravel()
         else:
             y = self._y

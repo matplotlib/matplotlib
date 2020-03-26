@@ -44,7 +44,7 @@ def quantity_converter():
     # mock so we can check methods called
     qc = munits.ConversionInterface()
 
-    def convert(value, unit, axis):
+    def to_numeric(value, unit, axis):
         if hasattr(value, 'units'):
             return value.to(unit).magnitude
         elif np.iterable(value):
@@ -65,7 +65,7 @@ def quantity_converter():
                     return v.units
             return None
 
-    qc.convert = MagicMock(side_effect=convert)
+    qc.to_numeric = MagicMock(side_effect=to_numeric)
     qc.axisinfo = MagicMock(side_effect=lambda u, a: munits.AxisInfo(label=u))
     qc.default_units = MagicMock(side_effect=default_units)
     return qc
@@ -94,7 +94,7 @@ def test_numpy_facade(quantity_converter):
     ax.yaxis.set_units('inches')
     ax.xaxis.set_units('seconds')
 
-    assert quantity_converter.convert.called
+    assert quantity_converter.to_numeric.called
     assert quantity_converter.axisinfo.called
     assert quantity_converter.default_units.called
 

@@ -164,7 +164,7 @@ class Artist:
         ax = self.axes
         return ax and any(axis.have_units() for axis in ax._get_axis_list())
 
-    def convert_xunits(self, x):
+    def convert_x_to_numeric(self, x):
         """
         Convert *x* using the unit type of the xaxis.
 
@@ -174,9 +174,13 @@ class Artist:
         ax = getattr(self, 'axes', None)
         if ax is None or ax.xaxis is None:
             return x
-        return ax.xaxis.convert_units(x)
+        return ax.xaxis.convert_to_numeric(x)
 
-    def convert_yunits(self, y):
+    @cbook.deprecated("3.3", pending=True, alternative="convert_x_to_numeric")
+    def convert_xunits(self, x):
+        return self.convert_x_to_numeric(x)
+
+    def convert_y_to_numeric(self, y):
         """
         Convert *y* using the unit type of the yaxis.
 
@@ -186,7 +190,11 @@ class Artist:
         ax = getattr(self, 'axes', None)
         if ax is None or ax.yaxis is None:
             return y
-        return ax.yaxis.convert_units(y)
+        return ax.yaxis.convert_to_numeric(y)
+
+    @cbook.deprecated("3.3", pending=True, alternative="convert_y_to_numeric")
+    def convert_yunits(self, y):
+        return self.convert_y_to_numeric(y)
 
     @property
     def axes(self):

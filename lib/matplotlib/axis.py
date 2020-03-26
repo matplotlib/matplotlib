@@ -1453,7 +1453,30 @@ class Axis(martist.Artist):
     def have_units(self):
         return self.converter is not None or self.units is not None
 
-    def convert_units(self, x):
+    def convert_from_numeric(self, x, units=None):
+        if units is None:
+            units = self.units
+
+        if self.converter is None:
+            raise munits.ConversionError(
+                f"Value {x!r} cannot be converted because no converter has "
+                "been registered yet.")
+
+        try:
+            if not hasattr(self.converter, 'from_numeric'):
+                cbook.warn_deprecated(
+                    since="3.3", pending=True,
+                    message=f"Converter {type(self.converter)} should "
+                    "subclass 'matplotlib.units.ConversionInterface' "
+                    "and may need to override 'from_numeric'.")
+                return x
+
+            return self.converter.from_numeric(x, units, self)
+        except Exception as e:
+            raise munits.ConversionError(
+                f"Failed to convert value(s) from axis units: {x!r}") from e
+
+    def convert_to_numeric(self, x):
         # If x is natively supported by Matplotlib, doesn't need converting
         if munits._is_natively_supported(x):
             return x
@@ -1463,12 +1486,45 @@ class Axis(martist.Artist):
 
         if self.converter is None:
             return x
+
+        if hasattr(self.converter, 'convert'):
+            if hasattr(self.converter, 'to_numeric'):
+                to_numeric = getattr(
+                    self.converter, '_resolved_collision_to_numeric', None)
+
+                if to_numeric is None:
+                    # if convert and to_numeric are both defined, only use
+                    # to_numeric if it has been overriden
+                    for klass in self.converter.__class__.__mro__:
+                        if (klass is not munits.ConversionInterface
+                                and 'to_numeric' in klass.__dict__):
+                            to_numeric = self.converter.to_numeric
+                            break
+
+                    self.converter._resolved_collision_to_numeric = (
+                        to_numeric or self.converter.convert)
+
+            if to_numeric is None:
+                cbook.warn_deprecated(
+                    since="3.3", pending=True, obj_type='function',
+                    message=f"Converter {type(self.converter)} should "
+                    "implement 'to_numeric' rather than 'converter', and may "
+                    "need to override 'from_numeric'.")
+
+                to_numeric = self.converter.convert
+        else:
+            to_numeric = self.converter.to_numeric
+
         try:
-            ret = self.converter.convert(x, self.units, self)
+            ret = to_numeric(x, self.units, self)
         except Exception as e:
             raise munits.ConversionError('Failed to convert value(s) to axis '
                                          f'units: {x!r}') from e
         return ret
+
+    @cbook.deprecated("3.3", pending=True, alternative="convert_to_numeric")
+    def convert_units(self, x):
+        return self.convert_to_numeric(x)
 
     def set_units(self, u):
         """
@@ -1652,7 +1708,7 @@ class Axis(martist.Artist):
         minor : bool
         """
         # XXX if the user changes units, the information will be lost here
-        ticks = self.convert_units(ticks)
+        ticks = self.convert_to_numeric(ticks)
         if len(ticks) > 1:
             xleft, xright = self.get_view_interval()
             if xright > xleft:
@@ -2078,8 +2134,8 @@ class XAxis(Axis):
                 info = self.converter.axisinfo(self.units, self)
                 if info.default_limits is not None:
                     valmin, valmax = info.default_limits
-                    xmin = self.converter.convert(valmin, self.units, self)
-                    xmax = self.converter.convert(valmax, self.units, self)
+                    xmin = self.converter.to_numeric(valmin, self.units, self)
+                    xmax = self.converter.to_numeric(valmax, self.units, self)
             if not dataMutated:
                 self.axes.dataLim.intervalx = xmin, xmax
             if not viewMutated:
@@ -2364,8 +2420,8 @@ class YAxis(Axis):
                 info = self.converter.axisinfo(self.units, self)
                 if info.default_limits is not None:
                     valmin, valmax = info.default_limits
-                    ymin = self.converter.convert(valmin, self.units, self)
-                    ymax = self.converter.convert(valmax, self.units, self)
+                    ymin = self.converter.to_numeric(valmin, self.units, self)
+                    ymax = self.converter.to_numeric(valmax, self.units, self)
             if not dataMutated:
                 self.axes.dataLim.intervaly = ymin, ymax
             if not viewMutated:

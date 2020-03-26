@@ -262,12 +262,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
             for path in self.get_paths():
                 vertices = path.vertices
                 xs, ys = vertices[:, 0], vertices[:, 1]
-                xs = self.convert_xunits(xs)
-                ys = self.convert_yunits(ys)
+                xs = self.convert_x_to_numeric(xs)
+                ys = self.convert_y_to_numeric(ys)
                 paths.append(mpath.Path(np.column_stack([xs, ys]), path.codes))
             if offsets.size:
-                xs = self.convert_xunits(offsets[:, 0])
-                ys = self.convert_yunits(offsets[:, 1])
+                xs = self.convert_x_to_numeric(offsets[:, 0])
+                ys = self.convert_y_to_numeric(offsets[:, 1])
                 offsets = np.column_stack([xs, ys])
 
         if not transform.is_affine:
@@ -2036,8 +2036,8 @@ class QuadMesh(Collection):
 
         if self.have_units():
             if len(self._offsets):
-                xs = self.convert_xunits(self._offsets[:, 0])
-                ys = self.convert_yunits(self._offsets[:, 1])
+                xs = self.convert_x_to_numeric(self._offsets[:, 0])
+                ys = self.convert_y_to_numeric(self._offsets[:, 1])
                 offsets = np.column_stack([xs, ys])
 
         self.update_scalarmappable()

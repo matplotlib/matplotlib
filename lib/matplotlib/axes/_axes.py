@@ -825,7 +825,7 @@ class Axes(_AxesBase):
         # We need to strip away the units for comparison with
         # non-unitized bounds
         self._process_unit_info(ydata=y, kwargs=kwargs)
-        yy = self.convert_yunits(y)
+        yy = self.convert_y_to_numeric(y)
         scaley = (yy < ymin) or (yy > ymax)
 
         trans = self.get_yaxis_transform(which='grid')
@@ -895,7 +895,7 @@ class Axes(_AxesBase):
         # We need to strip away the units for comparison with
         # non-unitized bounds
         self._process_unit_info(xdata=x, kwargs=kwargs)
-        xx = self.convert_xunits(x)
+        xx = self.convert_x_to_numeric(x)
         scalex = (xx < xmin) or (xx > xmax)
 
         trans = self.get_xaxis_transform(which='grid')
@@ -1004,8 +1004,8 @@ class Axes(_AxesBase):
         self._process_unit_info([xmin, xmax], [ymin, ymax], kwargs=kwargs)
 
         # first we need to strip away the units
-        xmin, xmax = self.convert_xunits([xmin, xmax])
-        ymin, ymax = self.convert_yunits([ymin, ymax])
+        xmin, xmax = self.convert_x_to_numeric([xmin, xmax])
+        ymin, ymax = self.convert_y_to_numeric([ymin, ymax])
 
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
         p = mpatches.Polygon(verts, **kwargs)
@@ -1064,8 +1064,8 @@ class Axes(_AxesBase):
         self._process_unit_info([xmin, xmax], [ymin, ymax], kwargs=kwargs)
 
         # first we need to strip away the units
-        xmin, xmax = self.convert_xunits([xmin, xmax])
-        ymin, ymax = self.convert_yunits([ymin, ymax])
+        xmin, xmax = self.convert_x_to_numeric([xmin, xmax])
+        ymin, ymax = self.convert_y_to_numeric([ymin, ymax])
 
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpatches.Polygon(verts, **kwargs)
@@ -1113,9 +1113,9 @@ class Axes(_AxesBase):
         # We do the conversion first since not all unitized data is uniform
         # process the unit information
         self._process_unit_info([xmin, xmax], y, kwargs=kwargs)
-        y = self.convert_yunits(y)
-        xmin = self.convert_xunits(xmin)
-        xmax = self.convert_xunits(xmax)
+        y = self.convert_y_to_numeric(y)
+        xmin = self.convert_x_to_numeric(xmin)
+        xmax = self.convert_x_to_numeric(xmax)
 
         if not np.iterable(y):
             y = [y]
@@ -1195,9 +1195,9 @@ class Axes(_AxesBase):
         self._process_unit_info(xdata=x, ydata=[ymin, ymax], kwargs=kwargs)
 
         # We do the conversion first since not all unitized data is uniform
-        x = self.convert_xunits(x)
-        ymin = self.convert_yunits(ymin)
-        ymax = self.convert_yunits(ymax)
+        x = self.convert_x_to_numeric(x)
+        ymin = self.convert_y_to_numeric(ymin)
+        ymax = self.convert_y_to_numeric(ymax)
 
         if not np.iterable(x):
             x = [x]
@@ -1339,9 +1339,9 @@ class Axes(_AxesBase):
                                 kwargs=kwargs)
 
         # We do the conversion first since not all unitized data is uniform
-        positions = self.convert_xunits(positions)
-        lineoffsets = self.convert_yunits(lineoffsets)
-        linelengths = self.convert_yunits(linelengths)
+        positions = self.convert_x_to_numeric(positions)
+        lineoffsets = self.convert_y_to_numeric(lineoffsets)
+        linelengths = self.convert_y_to_numeric(linelengths)
 
         if not np.iterable(positions):
             positions = [positions]
@@ -2389,16 +2389,16 @@ class Axes(_AxesBase):
         # subtracted uniformly
         if self.xaxis is not None:
             x0 = x
-            x = np.asarray(self.convert_xunits(x))
-            width = self._convert_dx(width, x0, x, self.convert_xunits)
+            x = np.asarray(self.convert_x_to_numeric(x))
+            width = self._convert_dx(width, x0, x, self.convert_x_to_numeric)
             if xerr is not None:
-                xerr = self._convert_dx(xerr, x0, x, self.convert_xunits)
+                xerr = self._convert_dx(xerr, x0, x, self.convert_x_to_numeric)
         if self.yaxis is not None:
             y0 = y
-            y = np.asarray(self.convert_yunits(y))
-            height = self._convert_dx(height, y0, y, self.convert_yunits)
+            y = np.asarray(self.convert_y_to_numeric(y))
+            height = self._convert_dx(height, y0, y, self.convert_y_to_numeric)
             if yerr is not None:
-                yerr = self._convert_dx(yerr, y0, y, self.convert_yunits)
+                yerr = self._convert_dx(yerr, y0, y, self.convert_y_to_numeric)
 
         x, height, width, y, linewidth = np.broadcast_arrays(
             # Make args iterable too.
@@ -2673,11 +2673,12 @@ class Axes(_AxesBase):
                 raise ValueError('each range in xrange must be a sequence '
                                  'with two elements (i.e. an Nx2 array)')
             # convert the absolute values, not the x and dx...
-            x_conv = np.asarray(self.convert_xunits(xr[0]))
-            x1 = self._convert_dx(xr[1], xr[0], x_conv, self.convert_xunits)
+            x_conv = np.asarray(self.convert_x_to_numeric(xr[0]))
+            x1 = self._convert_dx(
+                xr[1], xr[0], x_conv, self.convert_x_to_numeric)
             xranges_conv.append((x_conv, x1))
 
-        yrange_conv = self.convert_yunits(yrange)
+        yrange_conv = self.convert_y_to_numeric(yrange)
 
         col = mcoll.BrokenBarHCollection(xranges_conv, yrange_conv, **kwargs)
         self.add_collection(col, autolim=True)
@@ -2776,8 +2777,8 @@ class Axes(_AxesBase):
             x, y, *args = args
 
         self._process_unit_info(xdata=x, ydata=y)
-        x = self.convert_xunits(x)
-        y = self.convert_yunits(y)
+        x = self.convert_x_to_numeric(x)
+        y = self.convert_y_to_numeric(y)
 
         # defaults for formats
         if linefmt is None:
@@ -4112,7 +4113,7 @@ class Axes(_AxesBase):
             axis_name = "x" if vert else "y"
             interval = getattr(self.dataLim, f"interval{axis_name}")
             axis = getattr(self, f"{axis_name}axis")
-            positions = axis.convert_units(positions)
+            positions = axis.convert_to_numeric(positions)
             # The 0.5 additional padding ensures reasonable-looking boxes
             # even when drawing a single box.  We set the sticky edge to
             # prevent margins expansion, in order to match old behavior (back
@@ -4402,8 +4403,8 @@ default: :rc:`scatter.edgecolors`
         # Process **kwargs to handle aliases, conflicts with explicit kwargs:
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
-        x = self.convert_xunits(x)
-        y = self.convert_yunits(y)
+        x = self.convert_x_to_numeric(x)
+        y = self.convert_y_to_numeric(y)
 
         # np.ma.ravel yields an ndarray, not a masked array,
         # unless its argument is a masked array.
@@ -4954,10 +4955,10 @@ default: :rc:`scatter.edgecolors`
         """
         # Strip away units for the underlying patch since units
         # do not make sense to most patch-like code
-        x = self.convert_xunits(x)
-        y = self.convert_yunits(y)
-        dx = self.convert_xunits(dx)
-        dy = self.convert_yunits(dy)
+        x = self.convert_x_to_numeric(x)
+        y = self.convert_y_to_numeric(y)
+        dx = self.convert_x_to_numeric(dx)
+        dy = self.convert_y_to_numeric(dy)
 
         a = mpatches.FancyArrow(x, y, dx, dy, **kwargs)
         self.add_patch(a)
@@ -4975,8 +4976,8 @@ default: :rc:`scatter.edgecolors`
         if len(args) > 3:
             x, y = args[0:2]
             self._process_unit_info(xdata=x, ydata=y, kwargs=kw)
-            x = self.convert_xunits(x)
-            y = self.convert_yunits(y)
+            x = self.convert_x_to_numeric(x)
+            y = self.convert_y_to_numeric(y)
             return (x, y) + args[2:]
         return args
 
@@ -5168,11 +5169,12 @@ default: :rc:`scatter.edgecolors`
             **{f"{dep_dir}data": dep2})
 
         # Convert the arrays so we can work with them
-        ind = ma.masked_invalid(getattr(self, f"convert_{ind_dir}units")(ind))
+        ind = ma.masked_invalid(
+            getattr(self, f"convert_{ind_dir}_to_numeric")(ind))
         dep1 = ma.masked_invalid(
-            getattr(self, f"convert_{dep_dir}units")(dep1))
+            getattr(self, f"convert_{dep_dir}_to_numeric")(dep1))
         dep2 = ma.masked_invalid(
-            getattr(self, f"convert_{dep_dir}units")(dep2))
+            getattr(self, f"convert_{dep_dir}_to_numeric")(dep2))
 
         for name, array in [
                 (ind_dir, ind), (f"{dep_dir}1", dep1), (f"{dep_dir}2", dep2)]:
@@ -5760,8 +5762,8 @@ default: :rc:`scatter.edgecolors`
 
         # unit conversion allows e.g. datetime objects as axis values
         self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
-        X = self.convert_xunits(X)
-        Y = self.convert_yunits(Y)
+        X = self.convert_x_to_numeric(X)
+        Y = self.convert_y_to_numeric(Y)
 
         # convert to MA, if necessary.
         C = ma.asarray(C)
@@ -6037,8 +6039,8 @@ default: :rc:`scatter.edgecolors`
         Y = Y.ravel()
         # unit conversion allows e.g. datetime objects as axis values
         self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
-        X = self.convert_xunits(X)
-        Y = self.convert_yunits(Y)
+        X = self.convert_x_to_numeric(X)
+        Y = self.convert_y_to_numeric(Y)
 
         # convert to one dimensional arrays
         C = C.ravel()
@@ -6520,13 +6522,13 @@ default: :rc:`scatter.edgecolors`
         # Process unit information
         # Unit conversion is done individually on each dataset
         self._process_unit_info(xdata=x[0], kwargs=kwargs)
-        x = [self.convert_xunits(xi) for xi in x]
+        x = [self.convert_x_to_numeric(xi) for xi in x]
 
         if bin_range is not None:
-            bin_range = self.convert_xunits(bin_range)
+            bin_range = self.convert_x_to_numeric(bin_range)
 
         if not cbook.is_scalar_or_string(bins):
-            bins = self.convert_xunits(bins)
+            bins = self.convert_x_to_numeric(bins)
 
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:

@@ -159,6 +159,8 @@ Units
    :template: autosummary.rst
    :nosignatures:
 
+   Axis.convert_from_numeric
+   Axis.convert_to_numeric
    Axis.convert_units
    Axis.set_units
    Axis.get_units
@@ -330,6 +332,8 @@ XAxis
    XAxis.OFFSETTEXTPAD
    XAxis.axis_date
    XAxis.cla
+   XAxis.convert_from_numeric
+   XAxis.convert_to_numeric
    XAxis.convert_units
    XAxis.get_data_interval
    XAxis.get_gridlines
@@ -395,6 +399,8 @@ YAxis
    YAxis.OFFSETTEXTPAD
    YAxis.axis_date
    YAxis.cla
+   YAxis.convert_from_numeric
+   YAxis.convert_to_numeric
    YAxis.convert_units
    YAxis.get_data_interval
    YAxis.get_gridlines
@@ -464,7 +470,9 @@ Ticks
    Tick.add_callback
    Tick.axes
    Tick.contains
+   Tick.convert_x_to_numeric
    Tick.convert_xunits
+   Tick.convert_y_to_numeric
    Tick.convert_yunits
    Tick.draw
    Tick.findobj
@@ -529,7 +537,9 @@ Ticks
    XTick.add_callback
    XTick.axes
    XTick.contains
+   XTick.convert_x_to_numeric
    XTick.convert_xunits
+   XTick.convert_y_to_numeric
    XTick.convert_yunits
    XTick.draw
    XTick.findobj
@@ -594,7 +604,9 @@ Ticks
    YTick.add_callback
    YTick.axes
    YTick.contains
+   YTick.convert_x_to_numeric
    YTick.convert_xunits
+   YTick.convert_y_to_numeric
    YTick.convert_yunits
    YTick.draw
    YTick.findobj
@@ -669,7 +681,9 @@ Axis
    Axis.add_callback
    Axis.axes
    Axis.contains
+   Axis.convert_x_to_numeric
    Axis.convert_xunits
+   Axis.convert_y_to_numeric
    Axis.convert_yunits
    Axis.draw
    Axis.findobj
@@ -734,7 +748,9 @@ Axis
    XAxis.add_callback
    XAxis.axes
    XAxis.contains
+   XAxis.convert_x_to_numeric
    XAxis.convert_xunits
+   XAxis.convert_y_to_numeric
    XAxis.convert_yunits
    XAxis.draw
    XAxis.findobj
@@ -799,7 +815,9 @@ Axis
    YAxis.add_callback
    YAxis.axes
    YAxis.contains
+   YAxis.convert_x_to_numeric
    YAxis.convert_xunits
+   YAxis.convert_y_to_numeric
    YAxis.convert_yunits
    YAxis.draw
    YAxis.findobj
