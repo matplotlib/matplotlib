@@ -17,7 +17,7 @@ environment:
     PYTHONFAULTHANDLER: 1
     PYTHONIOENCODING: UTF-8
     PYTEST_ARGS: -raR --numprocesses=auto --timeout=300 --durations=25
-                 --cov-report= --cov=lib --log-level=DEBUG -k 'mhi-pdf-False'
+                 --cov-report= --cov=lib --log-level=DEBUG -k determinism
 
   matrix:
     # In theory we could use a single CONDA_INSTALL_LOCN because we construct
