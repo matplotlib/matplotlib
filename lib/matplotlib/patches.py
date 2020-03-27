@@ -10,10 +10,9 @@ import numpy as np
 import matplotlib as mpl
 from . import artist, cbook, colors, docstring, lines as mlines, transforms
 from .bezier import (
-    NonIntersectingPathException, concatenate_paths, get_cos_sin,
-    get_intersection, get_parallels, inside_circle, make_path_regular,
-    make_wedged_bezier2, split_bezier_intersecting_with_closedpath,
-    split_path_inout)
+    NonIntersectingPathException, get_cos_sin, get_intersection,
+    get_parallels, inside_circle, make_wedged_bezier2,
+    split_bezier_intersecting_with_closedpath, split_path_inout)
 from .path import Path
 
 
@@ -462,8 +461,7 @@ class Patch(artist.Artist):
         ----------
         s : {'butt', 'round', 'projecting'}
         """
-        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
-        cbook._check_in_list(self.validCap, capstyle=s)
+        mpl.rcsetup.validate_capstyle(s)
         self._capstyle = s
         self.stale = True
 
@@ -478,8 +476,7 @@ class Patch(artist.Artist):
         ----------
         s : {'miter', 'round', 'bevel'}
         """
-        s = mpl.rcsetup._deprecate_case_insensitive_join_cap(s)
-        cbook._check_in_list(self.validJoin, joinstyle=s)
+        mpl.rcsetup.validate_joinstyle(s)
         self._joinstyle = s
         self.stale = True
 
@@ -627,24 +624,42 @@ class Shadow(Patch):
     def __str__(self):
         return "Shadow(%s)" % (str(self.patch))
 
+    @cbook._delete_parameter("3.3", "props")
     @docstring.dedent_interpd
     def __init__(self, patch, ox, oy, props=None, **kwargs):
         """
-        Create a shadow of the given *patch* offset by *ox*, *oy*.
-        *props*, if not *None*, is a patch property update dictionary.
-        If *None*, the shadow will have have the same color as the face,
+        Create a shadow of the given *patch*.
+
+        By default, the shadow will have the same face color as the *patch*,
         but darkened.
 
-        Valid keyword arguments are:
+        Parameters
+        ----------
+        patch : `.Patch`
+            The patch to create the shadow for.
+        ox, oy : float
+            The shift of the shadow in data coordinates, scaled by a factor
+            of dpi/72.
+        props : dict
+            *deprecated (use kwargs instead)* Properties of the shadow patch.
+        **kwargs
+            Properties of the shadow patch. Supported keys are:
 
-        %(Patch)s
+            %(Patch)s
         """
         Patch.__init__(self)
         self.patch = patch
-        self.props = props
+        # Note: when removing props, we can directly pass kwargs to _update()
+        # and remove self._props
+        self._props = {**(props if props is not None else {}), **kwargs}
         self._ox, self._oy = ox, oy
         self._shadow_transform = transforms.Affine2D()
         self._update()
+
+    @cbook.deprecated("3.3")
+    @property
+    def props(self):
+        return self._props
 
     def _update(self):
         self.update_from(self.patch)
@@ -652,8 +667,8 @@ class Shadow(Patch):
         # Place the shadow patch directly behind the inherited patch.
         self.set_zorder(np.nextafter(self.patch.zorder, -np.inf))
 
-        if self.props is not None:
-            self.update(self.props)
+        if self._props:
+            self.update(self._props)
         else:
             color = .3 * np.asarray(colors.to_rgb(self.patch.get_facecolor()))
             self.set_facecolor(color)
@@ -1005,30 +1020,16 @@ class Polygon(Patch):
         self.set_xy(xy)
 
     def get_path(self):
-        """
-        Get the path of the polygon
-
-        Returns
-        -------
-        path : Path
-           The `~.path.Path` object for the polygon.
-        """
+        """Get the `.Path` of the polygon."""
         return self._path
 
     def get_closed(self):
-        """
-        Returns if the polygon is closed
-
-        Returns
-        -------
-        closed : bool
-            If the path is closed
-        """
+        """Return whether the polygon is closed."""
         return self._closed
 
     def set_closed(self, closed):
         """
-        Set if the polygon is closed
+        Set whether the polygon is closed.
 
         Parameters
         ----------
@@ -1047,7 +1048,7 @@ class Polygon(Patch):
 
         Returns
         -------
-        vertices : (N, 2) numpy array
+        (N, 2) numpy array
             The coordinates of the vertices.
         """
         return self._path.vertices
@@ -1950,7 +1951,7 @@ class BoxStyle(_Style):
 
             Returns
             -------
-            path : `~matplotlib.path.Path`
+            `~matplotlib.path.Path`
             """
             # The __call__ method is a thin wrapper around the transmute method
             # and takes care of the aspect.
@@ -2335,8 +2336,7 @@ class BoxStyle(_Style):
                                                        width, height,
                                                        mutation_size)
             # Add a trailing vertex to allow us to close the polygon correctly
-            saw_vertices = np.concatenate([np.array(saw_vertices),
-                                           [saw_vertices[0]]], axis=0)
+            saw_vertices = np.concatenate([saw_vertices, [saw_vertices[0]]])
             codes = ([Path.MOVETO] +
                      [Path.CURVE3, Path.CURVE3] * ((len(saw_vertices)-1)//2) +
                      [Path.CLOSEPOLY])
@@ -2873,8 +2873,6 @@ class ArrowStyle(_Style):
             and takes care of the aspect ratio.
             """
 
-            path = make_path_regular(path)
-
             if aspect_ratio is not None:
                 # Squeeze the given height by the aspect_ratio
                 vertices = path.vertices / [1, aspect_ratio]
@@ -2886,10 +2884,9 @@ class ArrowStyle(_Style):
                 if np.iterable(fillable):
                     path_list = []
                     for p in zip(path_mutated):
-                        v, c = p.vertices, p.codes
                         # Restore the height
-                        v[:, 1] = v[:, 1] * aspect_ratio
-                        path_list.append(Path(v, c))
+                        path_list.append(
+                            Path(p.vertices * [1, aspect_ratio], p.codes))
                     return path_list, fillable
                 else:
                     return path_mutated, fillable
@@ -3972,7 +3969,7 @@ default: 'arc3'
 
         Returns
         -------
-        dpi_cor : scalar
+        scalar
         """
         return self._dpi_cor
 
@@ -4098,7 +4095,7 @@ default: 'arc3'
 
         Returns
         -------
-        scale : scalar
+        scalar
         """
         return self._mutation_scale
 
@@ -4125,7 +4122,7 @@ default: 'arc3'
         """
         _path, fillable = self.get_path_in_displaycoord()
         if np.iterable(fillable):
-            _path = concatenate_paths(_path)
+            _path = Path.make_compound_path(*_path)
         return self.get_transform().inverted().transform_path(_path)
 
     def get_path_in_displaycoord(self):

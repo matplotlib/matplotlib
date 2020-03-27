@@ -514,7 +514,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def get_offset_position(self):
         """
-        Returns how offsets are applied for the collection.  If
+        Return how offsets are applied for the collection.  If
         *offset_position* is 'screen', the offset is applied after the
         master transform has been applied, that is, the offsets are in
         screen coordinates.  If offset_position is 'data', the offset
@@ -599,7 +599,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         cs : {'butt', 'round', 'projecting'}
             The capstyle
         """
-        cbook._check_in_list(('butt', 'round', 'projecting'), capstyle=cs)
+        mpl.rcsetup.validate_capstyle(cs)
         self._capstyle = cs
 
     def get_capstyle(self):
@@ -614,7 +614,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         js : {'miter', 'round', 'bevel'}
             The joinstyle
         """
-        cbook._check_in_list(('miter', 'round', 'bevel'), joinstyle=js)
+        mpl.rcsetup.validate_joinstyle(js)
         self._joinstyle = js
 
     def get_joinstyle(self):
@@ -850,12 +850,11 @@ class _CollectionWithSizes(Collection):
 
     def get_sizes(self):
         """
-        Returns the sizes of the elements in the collection.  The
-        value represents the 'area' of the element.
+        Return the sizes ('areas') of the elements in the collection.
 
         Returns
         -------
-        sizes : array
+        array
             The 'area' of each element.
         """
         return self._sizes
@@ -1398,7 +1397,7 @@ class LineCollection(Collection):
         """
         Returns
         -------
-        segments : list
+        list
             List of segments in the LineCollection. Each list item contains an
             array of vertices.
         """
@@ -1631,15 +1630,11 @@ class EventCollection(LineCollection):
         self.switch_orientation()
 
     def get_linelength(self):
-        """
-        get the length of the lines used to mark each event
-        """
+        """Return the length of the lines used to mark each event."""
         return self._linelength
 
     def set_linelength(self, linelength):
-        """
-        set the length of the lines used to mark each event
-        """
+        """Set the length of the lines used to mark each event."""
         if linelength == self.get_linelength():
             return
         lineoffset = self.get_lineoffset()

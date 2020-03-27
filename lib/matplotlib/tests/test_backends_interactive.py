@@ -40,6 +40,11 @@ def _get_testable_interactive_backends():
                 backend,
                 marks=pytest.mark.skip(
                     reason=f"Skipping {backend} because {reason}"))
+        elif backend == 'wxagg' and sys.platform == 'darwin':
+            # ignore on OSX because that's currently broken (github #16849)
+            backend = pytest.param(
+                backend,
+                marks=pytest.mark.xfail(reason='github #16849'))
         backends.append(backend)
     return backends
 
@@ -106,6 +111,7 @@ timer = fig.canvas.new_timer(1)
 timer.add_callback(FigureCanvasBase.key_press_event, fig.canvas, "q")
 # Trigger quitting upon draw.
 fig.canvas.mpl_connect("draw_event", lambda event: timer.start())
+fig.canvas.mpl_connect("close_event", print)
 
 plt.show()
 """
@@ -115,12 +121,14 @@ _test_timeout = 10  # Empirically, 1s is not enough on Travis.
 @pytest.mark.parametrize("backend", _get_testable_interactive_backends())
 @pytest.mark.flaky(reruns=3)
 def test_interactive_backend(backend):
-    proc = subprocess.run([sys.executable, "-c", _test_script],
-                          env={**os.environ, "MPLBACKEND": backend},
-                          timeout=_test_timeout)
+    proc = subprocess.run(
+        [sys.executable, "-c", _test_script],
+        env={**os.environ, "MPLBACKEND": backend}, timeout=_test_timeout,
+        stdout=subprocess.PIPE, universal_newlines=True)
     if proc.returncode:
         pytest.fail("The subprocess returned with non-zero exit status "
                     f"{proc.returncode}.")
+    assert proc.stdout.count("CloseEvent") == 1
 
 
 @pytest.mark.skipif('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI' in os.environ,

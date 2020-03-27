@@ -957,7 +957,7 @@ class AxisArtist(martist.Artist):
 
     def _get_tick_info(self, tick_iter):
         """
-        Returns a pair of:
+        Return a pair of:
 
         - list of locs and angles for ticks
         - list of locs, angles and labels for ticklabels.

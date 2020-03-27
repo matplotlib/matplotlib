@@ -753,8 +753,8 @@ class GraphicsContextBase:
 
     def get_alpha(self):
         """
-        Return the alpha value used for blending - not supported on
-        all backends.
+        Return the alpha value used for blending - not supported on all
+        backends.
         """
         return self._alpha
 
@@ -826,7 +826,7 @@ class GraphicsContextBase:
 
     def get_snap(self):
         """
-        Returns the snap setting, which can be:
+        Return the snap setting, which can be:
 
         * True: snap vertices to the nearest pixel center
         * False: leave vertices as-is
@@ -986,7 +986,7 @@ class GraphicsContextBase:
 
         Returns
         -------
-        sketch_params : tuple or `None`
+        tuple or `None`
 
             A 3-tuple with the following elements:
 
@@ -1369,6 +1369,12 @@ class MouseEvent(LocationEvent):
         The key pressed when the mouse event triggered, e.g. 'shift'.
         See `KeyEvent`.
 
+        .. warning::
+           This key is currently obtained from the last 'key_press_event' or
+           'key_release_event' that occurred within the canvas.  Thus, if the
+           last change of keyboard state occurred while the canvas did not have
+           focus, this attribute will be wrong.
+
     step : int
         The number of scroll steps (positive for 'up', negative for 'down').
         This applies only to 'scroll_event' and defaults to 0 otherwise.
@@ -1559,7 +1565,6 @@ class FigureCanvasBase:
         'scroll_event',
         'motion_notify_event',
         'pick_event',
-        'idle_event',
         'figure_enter_event',
         'figure_leave_event',
         'axes_enter_event',
@@ -1718,8 +1723,8 @@ class FigureCanvasBase:
         scroll wheel event.  (*x*, *y*) are the canvas coords ((0, 0) is lower
         left).  button and key are as defined in `MouseEvent`.
 
-        This method will callall functions connected to the 'scroll_event' with
-        a `MouseEvent` instance.
+        This method will call all functions connected to the 'scroll_event'
+        with a `MouseEvent` instance.
         """
         if step >= 0:
             self._button = 'up'
@@ -1738,7 +1743,7 @@ class FigureCanvasBase:
         button press.  (*x*, *y*) are the canvas coords ((0, 0) is lower left).
         button and key are as defined in `MouseEvent`.
 
-        This method will callall functions connected to the
+        This method will call all functions connected to the
         'button_press_event' with a `MouseEvent` instance.
         """
         self._button = button
@@ -1850,7 +1855,7 @@ class FigureCanvasBase:
 
         Returns
         -------
-        axes : `~matplotlib.axes.Axes` or None
+        `~matplotlib.axes.Axes` or None
             The topmost visible axes containing the point, or None if no axes.
         """
         axes_list = [a for a in self.figure.get_axes()
@@ -1972,9 +1977,11 @@ class FigureCanvasBase:
             "Format {!r} is not supported (supported formats: {})"
             .format(fmt, ", ".join(sorted(self.get_supported_filetypes()))))
 
-    def print_figure(self, filename, dpi=None, facecolor=None, edgecolor=None,
-                     orientation='portrait', format=None,
-                     *, bbox_inches=None, backend=None, **kwargs):
+    def print_figure(
+            self, filename, dpi=None, facecolor=None, edgecolor=None,
+            orientation='portrait', format=None, *,
+            bbox_inches=None, pad_inches=None, bbox_extra_artists=None,
+            backend=None, **kwargs):
         """
         Render the figure to hardcopy. Set the figure patch face and edge
         colors.  This is useful because some of the GUIs have a gray figure
@@ -2072,14 +2079,11 @@ class FigureCanvasBase:
                             print_method, dpi=dpi, orientation=orientation),
                         draw_disabled=True)
                     self.figure.draw(renderer)
-                    bbox_artists = kwargs.pop("bbox_extra_artists", None)
                     bbox_inches = self.figure.get_tightbbox(
-                        renderer, bbox_extra_artists=bbox_artists)
-                    pad = kwargs.pop("pad_inches", None)
-                    if pad is None:
-                        pad = rcParams['savefig.pad_inches']
-
-                    bbox_inches = bbox_inches.padded(pad)
+                        renderer, bbox_extra_artists=bbox_extra_artists)
+                    if pad_inches is None:
+                        pad_inches = rcParams['savefig.pad_inches']
+                    bbox_inches = bbox_inches.padded(pad_inches)
 
                 # call adjust_bbox to save only the given area
                 restore_bbox = tight_bbox.adjust_bbox(self.figure, bbox_inches,
@@ -2329,6 +2333,7 @@ def key_press_handler(event, canvas, toolbar=None):
     zoom_keys = rcParams['keymap.zoom']
     save_keys = rcParams['keymap.save']
     quit_keys = rcParams['keymap.quit']
+    quit_all_keys = rcParams['keymap.quit_all']
     grid_keys = rcParams['keymap.grid']
     grid_minor_keys = rcParams['keymap.grid_minor']
     toggle_yscale_keys = rcParams['keymap.yscale']
@@ -2345,6 +2350,8 @@ def key_press_handler(event, canvas, toolbar=None):
     # quit the figure (default key 'ctrl+w')
     if event.key in quit_keys:
         Gcf.destroy_fig(canvas.figure)
+    if event.key in quit_all_keys:
+        Gcf.destroy_all()
 
     if toolbar is not None:
         # home or reset mnemonic  (default key 'h', 'home' and 'r')

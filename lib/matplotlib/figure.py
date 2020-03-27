@@ -886,11 +886,11 @@ default: 'top'
 
     def get_size_inches(self):
         """
-        Returns the current size of the figure in inches.
+        Return the current size of the figure in inches.
 
         Returns
         -------
-        size : ndarray
+        ndarray
            The size (width, height) of the figure in inches.
 
         See Also
@@ -1032,7 +1032,8 @@ default: 'top'
 
         Returns
         -------
-        artist : The added `~matplotlib.artist.Artist`
+        `~matplotlib.artist.Artist`
+            The added artist.
         """
         artist.set_figure(self)
         self.artists.append(artist)
@@ -1142,6 +1143,14 @@ default: 'top'
         label : str
             A label for the returned axes.
 
+        Returns
+        -------
+        `~.axes.Axes` (or a subclass of `~.axes.Axes`)
+            The returned axes class depends on the projection used. It is
+            `~.axes.Axes` if rectilinear projection are used and
+            `.projections.polar.PolarAxes` if polar projection
+            are used.
+
         Other Parameters
         ----------------
         **kwargs
@@ -1153,14 +1162,6 @@ default: 'top'
             class.
 
             %(Axes)s
-
-        Returns
-        -------
-        axes : `~.axes.Axes` (or a subclass of `~.axes.Axes`)
-            The returned axes class depends on the projection used. It is
-            `~.axes.Axes` if rectilinear projection are used and
-            `.projections.polar.PolarAxes` if polar projection
-            are used.
 
         Notes
         -----
@@ -1204,7 +1205,7 @@ default: 'top'
             cbook.warn_deprecated(
                 "3.3",
                 message="Calling add_axes() without argument is "
-                "deprecated. You may want to use add_suplot() "
+                "deprecated. You may want to use add_subplot() "
                 "instead.")
             return
 
@@ -1290,6 +1291,16 @@ default: 'top'
         label : str
             A label for the returned axes.
 
+        Returns
+        -------
+        `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+
+            The axes of the subplot. The returned axes base class depends on
+            the projection used. It is `~.axes.Axes` if rectilinear projection
+            are used and `.projections.polar.PolarAxes` if polar projection
+            are used. The returned axes is then a subplot subclass of the
+            base class.
+
         Other Parameters
         ----------------
         **kwargs
@@ -1300,16 +1311,6 @@ default: 'top'
             arguments if another projection is used.
 
             %(Axes)s
-
-        Returns
-        -------
-        axes : `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
-
-            The axes of the subplot. The returned axes base class depends on
-            the projection used. It is `~.axes.Axes` if rectilinear projection
-            are used and `.projections.polar.PolarAxes` if polar projection
-            are used. The returned axes is then a subplot subclass of the
-            base class.
 
         Notes
         -----
@@ -1473,11 +1474,17 @@ default: 'top'
 
         Returns
         -------
-        ax : `~.axes.Axes` or array of Axes
-            *ax* can be either a single `~matplotlib.axes.Axes` object or
-            an array of Axes objects if more than one subplot was created. The
-            dimensions of the resulting array can be controlled with the
-            squeeze keyword, see above.
+        `~.axes.Axes` or array of Axes
+            Either a single `~matplotlib.axes.Axes` object or an array of Axes
+            objects if more than one subplot was created. The dimensions of the
+            resulting array can be controlled with the *squeeze* keyword, see
+            above.
+
+        See Also
+        --------
+        .pyplot.subplots
+        .Figure.add_subplot
+        .pyplot.subplot
 
         Examples
         --------
@@ -1517,12 +1524,6 @@ default: 'top'
 
             # Note that this is the same as
             fig.subplots(2, 2, sharex=True, sharey=True)
-
-        See Also
-        --------
-        .pyplot.subplots
-        .Figure.add_subplot
-        .pyplot.subplot
         """
 
         if isinstance(sharex, bool):
@@ -1788,13 +1789,13 @@ default: 'top'
             is shown in the legend and the automatic mechanism described above
             is not sufficient.
 
-        Other Parameters
-        ----------------
-        %(_legend_kw_doc)s
-
         Returns
         -------
         `~matplotlib.legend.Legend`
+
+        Other Parameters
+        ----------------
+        %(_legend_kw_doc)s
 
         Notes
         -----
@@ -1843,16 +1844,16 @@ default: 'top'
             the defaults are determined by :rc:`font.*`. Properties passed as
             *kwargs* override the corresponding ones given in *fontdict*.
 
+        Returns
+        -------
+        `~.text.Text`
+
         Other Parameters
         ----------------
         **kwargs : `~matplotlib.text.Text` properties
             Other miscellaneous text parameters.
 
             %(Text)s
-
-        Returns
-        -------
-        text : `~.text.Text`
 
         See Also
         --------
@@ -2014,24 +2015,9 @@ default: 'top'
             allnums = plt.get_fignums()
             num = max(allnums) + 1 if allnums else 1
             mgr = plt._backend_mod.new_figure_manager_given_figure(num, self)
-
-            # XXX The following is a copy and paste from pyplot. Consider
-            # factoring to pylab_helpers
-
-            if self.get_label():
-                mgr.set_window_title(self.get_label())
-
-            # make this figure current on button press event
-            def make_active(event):
-                pylab_helpers.Gcf.set_active(mgr)
-
-            mgr._cidgcf = mgr.canvas.mpl_connect('button_press_event',
-                                                 make_active)
-
-            pylab_helpers.Gcf.set_active(mgr)
-            self.number = num
-
+            pylab_helpers.Gcf._set_new_active_manager(mgr)
             plt.draw_if_interactive()
+
         self.stale = True
 
     def add_axobserver(self, func):
@@ -2286,7 +2272,7 @@ default: 'top'
 
         Returns
         -------
-        points : list of tuples
+        list of tuples
             A list of the clicked (x, y) coordinates.
 
         Notes
@@ -2343,7 +2329,7 @@ default: 'top'
 
         Returns
         -------
-        bbox : `.BboxBase`
+        `.BboxBase`
             containing the bounding box (in figure inches).
         """
 
@@ -2488,7 +2474,6 @@ default: 'top'
         See Also
         --------
         matplotlib.figure.Figure.align_ylabels
-
         matplotlib.figure.Figure.align_labels
 
         Notes
@@ -2506,31 +2491,24 @@ default: 'top'
             axs[0].set_xlabel('XLabel 0')
             axs[1].set_xlabel('XLabel 1')
             fig.align_xlabels()
-
         """
-
         if axs is None:
             axs = self.axes
-        axs = np.asarray(axs).ravel()
+        axs = np.ravel(axs)
         for ax in axs:
             _log.debug(' Working on: %s', ax.get_xlabel())
-            ss = ax.get_subplotspec()
-            nrows, ncols, row0, row1, col0, col1 = ss.get_rows_columns()
-            labpo = ax.xaxis.get_label_position()  # top or bottom
-
-            # loop through other axes, and search for label positions
-            # that are same as this one, and that share the appropriate
-            # row number.
-            #  Add to a grouper associated with each axes of sibblings.
+            rowspan = ax.get_subplotspec().rowspan
+            pos = ax.xaxis.get_label_position()  # top or bottom
+            # Search through other axes for label positions that are same as
+            # this one and that share the appropriate row number.
+            # Add to a grouper associated with each axes of siblings.
             # This list is inspected in `axis.draw` by
             # `axis._update_label_position`.
             for axc in axs:
-                if axc.xaxis.get_label_position() == labpo:
-                    ss = axc.get_subplotspec()
-                    nrows, ncols, rowc0, rowc1, colc, col1 = \
-                            ss.get_rows_columns()
-                    if (labpo == 'bottom' and rowc1 == row1 or
-                        labpo == 'top' and rowc0 == row0):
+                if axc.xaxis.get_label_position() == pos:
+                    rowspanc = axc.get_subplotspec().rowspan
+                    if (pos == 'top' and rowspan.start == rowspanc.start or
+                            pos == 'bottom' and rowspan.stop == rowspanc.stop):
                         # grouper for groups of xlabels to align
                         self._align_xlabel_grp.join(ax, axc)
 
@@ -2557,7 +2535,6 @@ default: 'top'
         See Also
         --------
         matplotlib.figure.Figure.align_xlabels
-
         matplotlib.figure.Figure.align_labels
 
         Notes
@@ -2574,33 +2551,26 @@ default: 'top'
             axs[0].set_ylabel('YLabel 0')
             axs[1].set_ylabel('YLabel 1')
             fig.align_ylabels()
-
         """
-
         if axs is None:
             axs = self.axes
-        axs = np.asarray(axs).ravel()
+        axs = np.ravel(axs)
         for ax in axs:
             _log.debug(' Working on: %s', ax.get_ylabel())
-            ss = ax.get_subplotspec()
-            nrows, ncols, row0, row1, col0, col1 = ss.get_rows_columns()
-            labpo = ax.yaxis.get_label_position()  # left or right
-            # loop through other axes, and search for label positions
-            # that are same as this one, and that share the appropriate
-            # column number.
-            # Add to a list associated with each axes of sibblings.
+            colspan = ax.get_subplotspec().colspan
+            pos = ax.yaxis.get_label_position()  # left or right
+            # Search through other axes for label positions that are same as
+            # this one and that share the appropriate column number.
+            # Add to a list associated with each axes of siblings.
             # This list is inspected in `axis.draw` by
             # `axis._update_label_position`.
             for axc in axs:
-                if axc != ax:
-                    if axc.yaxis.get_label_position() == labpo:
-                        ss = axc.get_subplotspec()
-                        nrows, ncols, row0, row1, colc0, colc1 = \
-                                ss.get_rows_columns()
-                        if (labpo == 'left' and colc0 == col0 or
-                            labpo == 'right' and colc1 == col1):
-                            # grouper for groups of ylabels to align
-                            self._align_ylabel_grp.join(ax, axc)
+                if axc.yaxis.get_label_position() == pos:
+                    colspanc = axc.get_subplotspec().colspan
+                    if (pos == 'left' and colspan.start == colspanc.start or
+                            pos == 'right' and colspan.stop == colspanc.stop):
+                        # grouper for groups of ylabels to align
+                        self._align_ylabel_grp.join(ax, axc)
 
     def align_labels(self, axs=None):
         """
@@ -2641,7 +2611,7 @@ default: 'top'
 
         Returns
         -------
-        gridspec : `.GridSpec`
+        `.GridSpec`
 
         Other Parameters
         ----------------

@@ -393,11 +393,6 @@ def _make_keyword_only(since, name, func=None):
     """
     Decorator indicating that passing parameter *name* (or any of the following
     ones) positionally to *func* is being deprecated.
-
-    Note that this decorator **cannot** be applied to a function that has a
-    pyplot-level wrapper, as the wrapper always pass all arguments by keyword.
-    If it is used, users will see spurious DeprecationWarnings every time they
-    call the pyplot wrapper.
     """
 
     if func is None:
@@ -419,8 +414,11 @@ def _make_keyword_only(since, name, func=None):
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        bound = signature.bind(*args, **kwargs)
-        if name in bound.arguments and name not in kwargs:
+        # Don't use signature.bind here, as it would fail when stacked with
+        # _rename_parameter and an "old" argument name is passed in
+        # (signature.bind would fail, but the actual call would succeed).
+        idx = [*func.__signature__.parameters].index(name)
+        if len(args) > idx:
             warn_deprecated(
                 since, message="Passing the %(name)s %(obj_type)s "
                 "positionally is deprecated since Matplotlib %(since)s; the "

@@ -456,7 +456,7 @@ class FigureManagerTk(FigureManagerBase):
             if not self._shown:
                 def destroy(*args):
                     self.window = None
-                    Gcf.destroy(self.num)
+                    Gcf.destroy(self)
                 self.canvas._tkcanvas.bind("<Destroy>", destroy)
                 self.window.deiconify()
             else:

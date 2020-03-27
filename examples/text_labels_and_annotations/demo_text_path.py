@@ -116,8 +116,8 @@ if __name__ == "__main__":
     text_patch = PathClippedImagePatch(text_path, arr, ec="none",
                                        transform=IdentityTransform())
 
-    shadow1 = Shadow(text_patch, 1, -1, props=dict(fc="none", ec="0.6", lw=3))
-    shadow2 = Shadow(text_patch, 1, -1, props=dict(fc="0.3", ec="none"))
+    shadow1 = Shadow(text_patch, 1, -1, fc="none", ec="0.6", lw=3)
+    shadow2 = Shadow(text_patch, 1, -1, fc="0.3", ec="none")
 
     # make offset box
     offsetbox = AuxTransformBox(IdentityTransform())

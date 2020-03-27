@@ -240,7 +240,7 @@ def comparable_formats():
 
     Returns
     -------
-    supported_formats : list of str
+    list of str
         E.g. ``['png', 'pdf', 'svg', 'eps']``.
 
     """
@@ -262,7 +262,7 @@ def convert(filename, cache):
     if path.suffix[1:] not in converter:
         import pytest
         pytest.skip(f"Don't know how to convert {path.suffix} files to png")
-    newpath = path.parent / f"{path.stem}_{path.suffix}.png"
+    newpath = path.parent / f"{path.stem}_{path.suffix[1:]}.png"
 
     # Only convert the file if the destination doesn't already exist or
     # is out of date.
@@ -335,7 +335,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
 
     Returns
     -------
-    comparison_result : None or dict or str
+    None or dict or str
         Return *None* if the images are equal within the given tolerance.
 
         If the images differ, the return value depends on  *in_decorator*.

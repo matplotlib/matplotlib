@@ -255,8 +255,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
 
 @lru_cache()
 def _call_fc_list():
-    """Cache and list the font filenames known to `fc-list`.
-    """
+    """Cache and list the font filenames known to `fc-list`."""
     # Delay the warning by 5s.
     timer = Timer(5, lambda: _log.warning(
         'Matplotlib is building the font cache using fc-list. '
@@ -908,15 +907,15 @@ def json_dump(data, filename):
     """
     Dump `FontManager` *data* as JSON to the file named *filename*.
 
+    See Also
+    --------
+    json_load
+
     Notes
     -----
     File paths that are children of the Matplotlib data path (typically, fonts
     shipped with Matplotlib) are stored relative to that data path (to remain
     valid across virtualenvs).
-
-    See Also
-    --------
-    json_load
     """
     with open(filename, 'w') as fh:
         try:
@@ -1046,7 +1045,7 @@ class FontManager:
     # 0.0 (perfect match) and 1.0 (terrible match)
     def score_family(self, families, family2):
         """
-        Returns a match score between the list of font families in
+        Return a match score between the list of font families in
         *families* and the font family name *family2*.
 
         An exact match at the head of the list returns 0.0.
@@ -1079,7 +1078,7 @@ class FontManager:
 
     def score_style(self, style1, style2):
         """
-        Returns a match score between *style1* and *style2*.
+        Return a match score between *style1* and *style2*.
 
         An exact match returns 0.0.
 
@@ -1096,7 +1095,7 @@ class FontManager:
 
     def score_variant(self, variant1, variant2):
         """
-        Returns a match score between *variant1* and *variant2*.
+        Return a match score between *variant1* and *variant2*.
 
         An exact match returns 0.0, otherwise 1.0.
         """
@@ -1107,7 +1106,7 @@ class FontManager:
 
     def score_stretch(self, stretch1, stretch2):
         """
-        Returns a match score between *stretch1* and *stretch2*.
+        Return a match score between *stretch1* and *stretch2*.
 
         The result is the absolute value of the difference between the
         CSS numeric values of *stretch1* and *stretch2*, normalized
@@ -1125,7 +1124,7 @@ class FontManager:
 
     def score_weight(self, weight1, weight2):
         """
-        Returns a match score between *weight1* and *weight2*.
+        Return a match score between *weight1* and *weight2*.
 
         The result is 0.0 if both weight1 and weight 2 are given as strings
         and have the same value.
@@ -1143,7 +1142,7 @@ class FontManager:
 
     def score_size(self, size1, size2):
         """
-        Returns a match score between *size1* and *size2*.
+        Return a match score between *size1* and *size2*.
 
         If *size2* (the size specified in the font file) is 'scalable', this
         function always returns 0.0, since any font size can be generated.
@@ -1197,7 +1196,7 @@ class FontManager:
 
         Returns
         -------
-        fontfile : str
+        str
             The filename of the best matching font.
 
         Notes

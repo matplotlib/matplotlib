@@ -43,7 +43,7 @@ class StrCategoryConverter(units.ConversionInterface):
 
         Returns
         -------
-        mapped_value : float or ndarray[float]
+        float or ndarray[float]
         """
         if unit is None:
             raise ValueError(
@@ -75,7 +75,7 @@ class StrCategoryConverter(units.ConversionInterface):
 
         Returns
         -------
-        axisinfo : `~matplotlib.units.AxisInfo`
+        `~matplotlib.units.AxisInfo`
             Information to support default tick labeling
 
         .. note: axis is not used
@@ -99,7 +99,7 @@ class StrCategoryConverter(units.ConversionInterface):
 
         Returns
         -------
-        class : `.UnitData`
+        `.UnitData`
             object storing string to integer mapping
         """
         # the conversion call stack is default_units -> axis_info -> convert

@@ -427,7 +427,7 @@ def _create_lookup_table(N, data, gamma=1.0):
 
     Returns
     -------
-    lut : array
+    array
         The lookup table where ``lut[x * (N-1)]`` gives the closest value
         for values of x between 0 and 1.
 
@@ -1209,19 +1209,27 @@ class SymLogNorm(Normalize):
         linthresh : float
             The range within which the plot is linear (to avoid having the plot
             go to infinity around zero).
+
         linscale : float, default: 1
-            This allows the linear range (-*linthresh* to *linthresh*) to be
-            stretched relative to the logarithmic range. Its value is the
-            number of powers of *base* (decades for base 10) to use for each
-            half of the linear range. For example, when *linscale* == 1.0
-            (the default), the space used for the positive and negative halves
-            of the linear range will be equal to a decade in the logarithmic
-            range if ``base=10``.
+            This allows the linear range (-*linthresh* to *linthresh*)
+            to be stretched relative to the logarithmic range. Its
+            value is the number of powers of *base* to use for each
+            half of the linear range.
+
+            For example, when *linscale* == 1.0 (the default) and
+            ``base=10``, then space used for the positive and negative
+            halves of the linear range will be equal to a decade in
+            the logarithmic.
+
         base : float, default: None
-            For v3.2 the default is the old value of ``np.e``, but that is
-            deprecated for v3.3 when base will default to 10.  During the
-            transition, specify the *base* kwarg to avoid a deprecation
-            warning.
+            If not given, defaults to ``np.e`` (consistent with prior
+            behavior) and warns.
+
+            In v3.3 the default value will change to 10 to be consistent with
+            `.SymLogNorm`.
+
+            To suppress the warning pass *base* as a keyword argument.
+
         """
         Normalize.__init__(self, vmin, vmax, clip)
         if base is None:
@@ -1470,7 +1478,7 @@ def rgb_to_hsv(arr):
 
     Returns
     -------
-    hsv : (..., 3) ndarray
+    (..., 3) ndarray
        Colors converted to hsv values in range [0, 1]
     """
     arr = np.asarray(arr)
@@ -1521,7 +1529,7 @@ def hsv_to_rgb(hsv):
 
     Returns
     -------
-    rgb : (..., 3) ndarray
+    (..., 3) ndarray
        Colors converted to RGB values in range [0, 1]
     """
     hsv = np.asarray(hsv)
@@ -1689,7 +1697,7 @@ class LightSource:
 
         Returns
         -------
-        intensity : ndarray
+        ndarray
             A 2d array of illumination values between 0-1, where 0 is
             completely in shadow and 1 is completely illuminated.
         """
@@ -1732,7 +1740,7 @@ class LightSource:
 
         Returns
         -------
-        intensity : ndarray
+        ndarray
             A 2d array of illumination values between 0-1, where 0 is
             completely in shadow and 1 is completely illuminated.
         """
@@ -1815,7 +1823,7 @@ class LightSource:
 
         Returns
         -------
-        rgba : ndarray
+        ndarray
             An MxNx4 array of floats ranging between 0-1.
         """
         if vmin is None:
@@ -1876,7 +1884,7 @@ class LightSource:
 
         Returns
         -------
-        shaded_rgb : ndarray
+        ndarray
             An (m, n, 3) array of floats ranging between 0-1.
         """
         # Calculate the "hillshade" intensity.
@@ -1942,7 +1950,7 @@ class LightSource:
 
         Returns
         -------
-        rgb : ndarray
+        ndarray
             An MxNx3 RGB array representing the combined images.
         """
         # Backward compatibility...
@@ -1992,7 +2000,7 @@ class LightSource:
 
         Returns
         -------
-        rgb : ndarray
+        ndarray
             An MxNx3 RGB array representing the combined images.
         """
         return 2 * intensity * rgb + (1 - 2 * intensity) * rgb**2
@@ -2010,7 +2018,7 @@ class LightSource:
 
         Returns
         -------
-        rgb : ndarray
+        ndarray
             An MxNx3 RGB array representing the combined images.
         """
         low = 2 * intensity * rgb

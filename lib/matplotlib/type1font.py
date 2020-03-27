@@ -325,7 +325,7 @@ class Type1Font:
 
         Returns
         -------
-        font : `Type1Font`
+        `Type1Font`
         """
         tokenizer = self._tokens(self.parts[0])
         transformed = self._transformer(tokenizer,

@@ -271,7 +271,7 @@ class Path:
 
     def __copy__(self):
         """
-        Returns a shallow copy of the `Path`, which will share the
+        Return a shallow copy of the `Path`, which will share the
         vertices and codes with the source `Path`.
         """
         import copy
@@ -281,7 +281,7 @@ class Path:
 
     def __deepcopy__(self, memo=None):
         """
-        Returns a deepcopy of the `Path`.  The `Path` will not be
+        Return a deepcopy of the `Path`.  The `Path` will not be
         readonly, even if the source `Path` is.
         """
         try:
@@ -325,11 +325,13 @@ class Path:
 
     @classmethod
     def make_compound_path(cls, *args):
-        """Make a compound path from a list of Path objects."""
+        """
+        Make a compound path from a list of Path objects. Blindly removes all
+        Path.STOP control points.
+        """
         # Handle an empty list in args (i.e. no args).
         if not args:
             return Path(np.empty([0, 2], dtype=np.float32))
-
         vertices = np.concatenate([x.vertices for x in args])
         codes = np.empty(len(vertices), dtype=cls.code_type)
         i = 0
@@ -340,6 +342,10 @@ class Path:
             else:
                 codes[i:i + len(path.codes)] = path.codes
             i += len(path.vertices)
+        # remove STOP's, since internal STOPs are a bug
+        not_stop_mask = codes != cls.STOP
+        vertices = vertices[not_stop_mask, :]
+        codes = codes[not_stop_mask]
 
         return cls(vertices, codes)
 
@@ -513,7 +519,7 @@ class Path:
 
     def contains_path(self, path, transform=None):
         """
-        Returns whether this (closed) path completely contains the given path.
+        Return whether this (closed) path completely contains the given path.
 
         If *transform* is not ``None``, the path will be transformed before
         performing the test.
@@ -524,7 +530,7 @@ class Path:
 
     def get_extents(self, transform=None):
         """
-        Returns the extents (*xmin*, *ymin*, *xmax*, *ymax*) of the path.
+        Return the extents (*xmin*, *ymin*, *xmax*, *ymax*) of the path.
 
         Unlike computing the extents on the *vertices* alone, this
         algorithm will take into account the curves and deal with
@@ -541,21 +547,19 @@ class Path:
 
     def intersects_path(self, other, filled=True):
         """
-        Returns *True* if this path intersects another given path.
+        Return whether if this path intersects another given path.
 
-        *filled*, when True, treats the paths as if they were filled.
-        That is, if one path completely encloses the other,
-        :meth:`intersects_path` will return True.
+        If *filled* is True, then this also returns True if one path completely
+        encloses the other (i.e., the paths are treated as filled).
         """
         return _path.path_intersects_path(self, other, filled)
 
     def intersects_bbox(self, bbox, filled=True):
         """
-        Returns whether this path intersects a given `~.transforms.Bbox`.
+        Return whether this path intersects a given `~.transforms.Bbox`.
 
-        *filled*, when True, treats the path as if it was filled.
-        That is, if the path completely encloses the bounding box,
-        :meth:`intersects_bbox` will return True.
+        If *filled* is True, then this also returns True if the path completely
+        encloses the `.Bbox` (i.e., the path is treated as filled).
 
         The bounding box is always considered filled.
         """
@@ -564,8 +568,9 @@ class Path:
 
     def interpolated(self, steps):
         """
-        Returns a new path resampled to length N x steps.  Does not
-        currently handle interpolating curves.
+        Return a new path resampled to length N x steps.
+
+        Codes other than LINETO are not handled correctly.
         """
         if steps == 1:
             return self
@@ -956,7 +961,7 @@ def get_path_collection_extents(
     master_transform : `~.Transform`
         Global transformation applied to all paths.
     paths : list of `Path`
-    transform : list of `~.Affine2D`
+    transforms : list of `~.Affine2D`
     offsets : (N, 2) array-like
     offset_transform : `~.Affine2D`
         Transform applied to the offsets before offsetting the path.

@@ -101,7 +101,8 @@ class _StrongRef:
 
 
 class CallbackRegistry:
-    """Handle registering and disconnecting for a set of signals and callbacks:
+    """
+    Handle registering and disconnecting for a set of signals and callbacks:
 
         >>> def oneat(x):
         ...    print('eat', x)
@@ -303,7 +304,7 @@ def local_over_kwdict(local_var, kwargs, *keys):
 
     Returns
     -------
-    out : any object
+    any object
         Either local_var or one of kwargs[key] for key in keys.
 
     Raises
@@ -350,26 +351,6 @@ def strip_math(s):
         ]:
             s = s.replace(tex, plain)
     return s
-
-
-@deprecated('3.1', alternative='np.iterable')
-def iterable(obj):
-    """return true if *obj* is iterable"""
-    try:
-        iter(obj)
-    except TypeError:
-        return False
-    return True
-
-
-@deprecated("3.1", alternative="isinstance(..., collections.abc.Hashable)")
-def is_hashable(obj):
-    """Returns true if *obj* can be hashed"""
-    try:
-        hash(obj)
-    except TypeError:
-        return False
-    return True
 
 
 def is_writable_file_like(obj):
@@ -474,7 +455,7 @@ def get_sample_data(fname, asfileobj=True):
 
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
-    path = Path(matplotlib._get_data_path(), 'sample_data', fname)
+    path = Path(matplotlib.get_data_path(), 'sample_data', fname)
     if asfileobj:
         suffix = path.suffix.lower()
         if suffix == '.gz':
@@ -533,47 +514,6 @@ def get_realpath_and_stat(path):
 _find_dedent_regex = re.compile(r"(?:(?:\n\r?)|^)( *)\S")
 # A cache to hold the regexs that actually remove the indent.
 _dedent_regex = {}
-
-
-@deprecated("3.1", alternative="inspect.cleandoc")
-def dedent(s):
-    """
-    Remove excess indentation from docstring *s*.
-
-    Discards any leading blank lines, then removes up to n whitespace
-    characters from each line, where n is the number of leading
-    whitespace characters in the first line. It differs from
-    textwrap.dedent in its deletion of leading blank lines and its use
-    of the first non-blank line to determine the indentation.
-
-    It is also faster in most cases.
-    """
-    # This implementation has a somewhat obtuse use of regular
-    # expressions.  However, this function accounted for almost 30% of
-    # matplotlib startup time, so it is worthy of optimization at all
-    # costs.
-
-    if not s:      # includes case of s is None
-        return ''
-
-    match = _find_dedent_regex.match(s)
-    if match is None:
-        return s
-
-    # This is the number of spaces to remove from the left-hand side.
-    nshift = match.end(1) - match.start(1)
-    if nshift == 0:
-        return s
-
-    # Get a regex that will remove *up to* nshift spaces from the
-    # beginning of each line.  If it isn't in the cache, generate it.
-    unindent = _dedent_regex.get(nshift, None)
-    if unindent is None:
-        unindent = re.compile("\n\r? {0,%d}" % nshift)
-        _dedent_regex[nshift] = unindent
-
-    result = unindent.sub("\n", s).strip()
-    return result
 
 
 class maxdict(dict):
@@ -733,19 +673,6 @@ def report_memory(i=0):  # argument may go away
         raise NotImplementedError(
             "We don't have a memory monitor for %s" % sys.platform)
     return mem
-
-
-_safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
-
-
-@deprecated("3.1")
-def safezip(*args):
-    """make sure *args* are equal len before zipping"""
-    Nx = len(args[0])
-    for i, arg in enumerate(args[1:]):
-        if len(arg) != Nx:
-            raise ValueError(_safezip_msg % (Nx, i + 1, len(arg)))
-    return list(zip(*args))
 
 
 def safe_masked_invalid(x, copy=False):
@@ -1137,7 +1064,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     Returns
     -------
-    bxpstats : list of dict
+    list of dict
         A list of dictionaries containing the results for each column
         of data. Keys of each dictionary are the following:
 
@@ -1334,7 +1261,7 @@ def contiguous_regions(mask):
 
 def is_math_text(s):
     """
-    Returns whether the string *s* contains math expressions.
+    Return whether the string *s* contains math expressions.
 
     This is done by checking whether *s* contains an even number of
     non-escaped dollar signs.
@@ -1427,10 +1354,11 @@ def _reshape_2D(X, name):
 
 def violin_stats(X, method, points=100, quantiles=None):
     """
-    Returns a list of dictionaries of data which can be used to draw a series
+    Return a list of dictionaries of data which can be used to draw a series
     of violin plots.
 
-    See the Returns section below to view the required keys of the dictionary.
+    See the ``Returns`` section below to view the required keys of the
+    dictionary.
 
     Users can skip this function and pass a user-defined set of dictionaries
     with the same keys to `~.axes.Axes.violinplot` instead of using Matplotlib
@@ -1461,7 +1389,7 @@ def violin_stats(X, method, points=100, quantiles=None):
 
     Returns
     -------
-    vpstats : list of dict
+    list of dict
         A list of dictionaries containing the results for each column of data.
         The dictionaries contain at least the following:
 
@@ -1540,7 +1468,7 @@ def pts_to_prestep(x, *args):
 
     Returns
     -------
-    out : array
+    array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
         length ``N``, each of these arrays will be length ``2N + 1``. For
@@ -1578,7 +1506,7 @@ def pts_to_poststep(x, *args):
 
     Returns
     -------
-    out : array
+    array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
         length ``N``, each of these arrays will be length ``2N + 1``. For
@@ -1615,7 +1543,7 @@ def pts_to_midstep(x, *args):
 
     Returns
     -------
-    out : array
+    array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
         length ``N``, each of these arrays will be length ``2N``.
@@ -1819,14 +1747,6 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
     return ret
 
 
-@deprecated("3.1")
-def get_label(y, default_name):
-    try:
-        return y.name
-    except AttributeError:
-        return default_name
-
-
 @contextlib.contextmanager
 def _lock_path(path):
     """
@@ -1869,7 +1789,8 @@ other Matplotlib process is running, remove this file and try again.""".format(
 def _topmost_artist(
         artists,
         _cached_max=functools.partial(max, key=operator.attrgetter("zorder"))):
-    """Get the topmost artist of a list.
+    """
+    Get the topmost artist of a list.
 
     In case of a tie, return the *last* of the tied artists, as it will be
     drawn on top of the others. `max` returns the first maximum in case of
@@ -1879,7 +1800,8 @@ def _topmost_artist(
 
 
 def _str_equal(obj, s):
-    """Return whether *obj* is a string equal to string *s*.
+    """
+    Return whether *obj* is a string equal to string *s*.
 
     This helper solely exists to handle the case where *obj* is a numpy array,
     because in such cases, a naive ``obj == s`` would yield an array, which
@@ -1889,7 +1811,8 @@ def _str_equal(obj, s):
 
 
 def _str_lower_equal(obj, s):
-    """Return whether *obj* is a string equal, when lowercased, to string *s*.
+    """
+    Return whether *obj* is a string equal, when lowercased, to string *s*.
 
     This helper solely exists to handle the case where *obj* is a numpy array,
     because in such cases, a naive ``obj == s`` would yield an array, which
@@ -1899,7 +1822,8 @@ def _str_lower_equal(obj, s):
 
 
 def _define_aliases(alias_d, cls=None):
-    """Class decorator for defining property aliases.
+    """
+    Class decorator for defining property aliases.
 
     Use as ::
 
@@ -1954,16 +1878,16 @@ def _define_aliases(alias_d, cls=None):
 
 def _array_perimeter(arr):
     """
-    Get the elements on the perimeter of ``arr``,
+    Get the elements on the perimeter of *arr*.
 
     Parameters
     ----------
     arr : ndarray, shape (M, N)
-        The input array
+        The input array.
 
     Returns
     -------
-    perimeter : ndarray, shape (2*(M - 1) + 2*(N - 1),)
+    ndarray, shape (2*(M - 1) + 2*(N - 1),)
         The elements on the perimeter of the array::
 
            [arr[0, 0], ..., arr[0, -1], ..., arr[-1, -1], ..., arr[-1, 0], ...]
@@ -2010,7 +1934,7 @@ def _unfold(arr, axis, size, step):
 
     Returns
     -------
-    windows : ndarray, shape (N_1, ..., 1 + (N_axis-size)/step, ..., N_k, size)
+    ndarray, shape (N_1, ..., 1 + (N_axis-size)/step, ..., N_k, size)
 
     Examples
     --------
@@ -2062,7 +1986,7 @@ def _array_patch_perimeters(x, rstride, cstride):
 
     Returns
     -------
-    patches : ndarray, shape (N/rstride * M/cstride, 2 * (rstride + cstride))
+    ndarray, shape (N/rstride * M/cstride, 2 * (rstride + cstride))
     """
     assert rstride > 0 and cstride > 0
     assert (x.shape[0] - 1) % rstride == 0
@@ -2094,7 +2018,8 @@ def _array_patch_perimeters(x, rstride, cstride):
 
 @contextlib.contextmanager
 def _setattr_cm(obj, **kwargs):
-    """Temporarily set some attributes; restore original state at context exit.
+    """
+    Temporarily set some attributes; restore original state at context exit.
     """
     sentinel = object()
     origs = [(attr, getattr(obj, attr, sentinel)) for attr in kwargs]

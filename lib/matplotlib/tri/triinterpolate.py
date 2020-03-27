@@ -72,7 +72,7 @@ class TriInterpolator:
 
         Returns
         -------
-        z : np.ma.array
+        np.ma.array
             Masked array of the same shape as *x* and *y*; values corresponding
             to (*x*, *y*) points outside of the triangulation are masked out.
 
@@ -149,7 +149,7 @@ class TriInterpolator:
 
         Returns
         -------
-        ret : list of arrays
+        list of arrays
             Each array-like contains the expected interpolated values in the
             order defined by *return_keys* parameter.
         """
@@ -223,7 +223,7 @@ class TriInterpolator:
 
         Returns
         -------
-        ret : 1-d array
+        1-d array
             Returned array of the same size as *tri_index*
         """
         raise NotImplementedError("TriInterpolator subclasses" +
@@ -247,7 +247,7 @@ class LinearTriInterpolator(TriInterpolator):
         Array of values, defined at grid points, to interpolate between.
     trifinder : `~matplotlib.tri.TriFinder`, optional
           If this is not specified, the Triangulation's default TriFinder will
-          be used by calling `matplotlib.tri.Triangulation.get_trifinder`.
+          be used by calling `.Triangulation.get_trifinder`.
 
     Methods
     -------
@@ -312,17 +312,17 @@ class CubicTriInterpolator(TriInterpolator):
         Choice of the smoothing algorithm, in order to compute
         the interpolant derivatives (defaults to 'min_E'):
 
-            - if 'min_E': (default) The derivatives at each node is computed
-              to minimize a bending energy.
-            - if 'geom': The derivatives at each node is computed as a
-              weighted average of relevant triangle normals. To be used for
-              speed optimization (large grids).
-            - if 'user': The user provides the argument *dz*, no computation
-              is hence needed.
+        - if 'min_E': (default) The derivatives at each node is computed
+          to minimize a bending energy.
+        - if 'geom': The derivatives at each node is computed as a
+          weighted average of relevant triangle normals. To be used for
+          speed optimization (large grids).
+        - if 'user': The user provides the argument *dz*, no computation
+          is hence needed.
 
     trifinder : `~matplotlib.tri.TriFinder`, optional
         If not specified, the Triangulation's default TriFinder will
-        be used by calling `matplotlib.tri.Triangulation.get_trifinder`.
+        be used by calling `.Triangulation.get_trifinder`.
     dz : tuple of array-likes (dzdx, dzdy), optional
         Used only if  *kind* ='user'. In this case *dz* must be provided as
         (dzdx, dzdy) where dzdx, dzdy are arrays of the same shape as *z* and
@@ -335,9 +335,8 @@ class CubicTriInterpolator(TriInterpolator):
 
     Notes
     -----
-    This note is a bit technical and details the way a
-    :class:`~matplotlib.tri.CubicTriInterpolator` computes a cubic
-    interpolation.
+    This note is a bit technical and details how the cubic interpolation is
+    computed.
 
     The interpolation is based on a Clough-Tocher subdivision scheme of
     the *triangulation* mesh (to make it clearer, each triangle of the
@@ -398,7 +397,7 @@ class CubicTriInterpolator(TriInterpolator):
         #    (used) node numbering.
         tri_analyzer = TriAnalyzer(self._triangulation)
         (compressed_triangles, compressed_x, compressed_y, tri_renum,
-         node_renum) = tri_analyzer._get_compressed_triangulation(True, True)
+         node_renum) = tri_analyzer._get_compressed_triangulation()
         self._triangles = compressed_triangles
         self._tri_renum = tri_renum
         # Taking into account the node renumbering in self._z:
@@ -464,7 +463,7 @@ class CubicTriInterpolator(TriInterpolator):
 
         Returns
         -------
-        dof : array-like, shape (npts, 2)
+        array-like, shape (npts, 2)
               Estimation of the gradient at triangulation nodes (stored as
               degree of freedoms of reduced-HCT triangle elements).
         """
@@ -497,7 +496,7 @@ class CubicTriInterpolator(TriInterpolator):
 
         Returns
         -------
-        alpha : array of dim 2 (shape (nx, 3))
+        array of dim 2 (shape (nx, 3))
             Barycentric coordinates of the points inside the containing
             triangles.
         """
@@ -534,7 +533,7 @@ class CubicTriInterpolator(TriInterpolator):
 
         Returns
         -------
-        J : array of dim 3 (shape (nx, 2, 2))
+        array of dim 3 (shape (nx, 2, 2))
             Barycentric coordinates of the points inside the containing
             triangles.
             J[itri, :, :] is the jacobian matrix at apex 0 of the triangle
@@ -562,7 +561,7 @@ class CubicTriInterpolator(TriInterpolator):
 
         Returns
         -------
-        ecc : array like of dim 2 (shape: (nx, 3))
+        array like of dim 2 (shape: (nx, 3))
             The so-called eccentricity parameters [1] needed for HCT triangular
             element.
         """

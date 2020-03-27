@@ -158,7 +158,7 @@ class AxisArtistHelper:
 
         def get_axislabel_pos_angle(self, axes):
             """
-            label reference position in transAxes.
+            Return the label reference position in transAxes.
 
             get_label_transform() returns a transform of (transAxes+offset)
             """
@@ -263,7 +263,7 @@ class AxisArtistHelperRectlinear:
 
         def get_axislabel_pos_angle(self, axes):
             """
-            label reference position in transAxes.
+            Return the label reference position in transAxes.
 
             get_label_transform() returns a transform of (transAxes+offset)
             """
@@ -418,7 +418,7 @@ class GridHelperRectlinear(GridHelperBase):
 
     def get_gridlines(self, which="major", axis="both"):
         """
-        return list of gridline coordinates in data coordinates.
+        Return list of gridline coordinates in data coordinates.
 
         *which* : "major" or "minor"
         *axis* : "both", "x" or "y"

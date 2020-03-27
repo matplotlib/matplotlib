@@ -477,7 +477,7 @@ def drange(dstart, dend, delta):
 
     Returns
     -------
-    drange : `numpy.array`
+    `numpy.array`
         A list floats representing Matplotlib dates.
 
     """
@@ -1220,7 +1220,6 @@ class AutoDateLocator(DateLocator):
             at 6 hour intervals.
         """
         DateLocator.__init__(self, tz)
-        self._locator = YearLocator(tz=tz)
         self._freq = YEARLY
         self._freqs = [YEARLY, MONTHLY, DAILY, HOURLY, MINUTELY,
                        SECONDLY, MICROSECONDLY]
@@ -1258,9 +1257,10 @@ class AutoDateLocator(DateLocator):
                           range(0, 24), range(0, 60), range(0, 60), None]
 
     def __call__(self):
-        """Return the locations of the ticks."""
-        self.refresh()
-        return self._locator()
+        # docstring inherited
+        dmin, dmax = self.viewlim_to_dt()
+        locator = self.get_locator(dmin, dmax)
+        return locator()
 
     def tick_values(self, vmin, vmax):
         return self.get_locator(vmin, vmax).tick_values(vmin, vmax)
@@ -1279,15 +1279,6 @@ class AutoDateLocator(DateLocator):
             vmax = vmax + DAYS_PER_YEAR * 2
         return vmin, vmax
 
-    def set_axis(self, axis):
-        DateLocator.set_axis(self, axis)
-        self._locator.set_axis(axis)
-
-    def refresh(self):
-        # docstring inherited
-        dmin, dmax = self.viewlim_to_dt()
-        self._locator = self.get_locator(dmin, dmax)
-
     def _get_unit(self):
         if self._freq in [MICROSECONDLY]:
             return 1. / MUSECONDS_PER_DAY
@@ -1298,8 +1289,7 @@ class AutoDateLocator(DateLocator):
     def autoscale(self):
         """Try to choose the view limits intelligently."""
         dmin, dmax = self.datalim_to_dt()
-        self._locator = self.get_locator(dmin, dmax)
-        return self._locator.autoscale()
+        return self.get_locator(dmin, dmax).autoscale()
 
     def get_locator(self, dmin, dmax):
         """Pick the best locator based on a distance."""

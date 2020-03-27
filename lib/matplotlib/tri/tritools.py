@@ -12,8 +12,8 @@ class TriAnalyzer:
     """
     Define basic tools for triangular mesh analysis and improvement.
 
-    A TriAnalyzer encapsulates a `~matplotlib.tri.Triangulation` object and
-    provides basic tools for mesh analysis and mesh improvement.
+    A TriAnalyzer encapsulates a `.Triangulation` object and provides basic
+    tools for mesh analysis and mesh improvement.
 
     Attributes
     ----------
@@ -24,6 +24,7 @@ class TriAnalyzer:
     triangulation : `~matplotlib.tri.Triangulation`
         The encapsulated triangulation to analyze.
     """
+
     def __init__(self, triangulation):
         cbook._check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
@@ -35,11 +36,10 @@ class TriAnalyzer:
 
         Returns
         -------
-        k : (float, float)
+        (float, float)
             Scaling factors (kx, ky) so that the triangulation
             ``[triangulation.x * kx, triangulation.y * ky]``
             fits exactly inside a unit square.
-
         """
         compressed_triangles = self._triangulation.get_masked_triangles()
         node_used = (np.bincount(np.ravel(compressed_triangles),
@@ -70,7 +70,7 @@ class TriAnalyzer:
 
         Returns
         -------
-        circle_ratios : masked array
+        masked array
             Ratio of the incircle radius over the circumcircle radius, for
             each 'rescaled' triangle of the encapsulated triangulation.
             Values corresponding to masked triangles are masked out.
@@ -123,7 +123,7 @@ class TriAnalyzer:
         triangulation from its border-located flat triangles
         (according to their :meth:`circle_ratios`).
         This mask is meant to be subsequently applied to the triangulation
-        using :func:`matplotlib.tri.Triangulation.set_mask`.
+        using `.Triangulation.set_mask`.
         *new_mask* is an extension of the initial triangulation mask
         in the sense that an initially masked triangle will remain masked.
 
@@ -144,7 +144,7 @@ class TriAnalyzer:
 
         Returns
         -------
-        new_mask : bool array-like
+        bool array-like
             Mask to apply to encapsulated triangulation.
             All the initially masked triangles remain masked in the
             *new_mask*.
@@ -190,25 +190,13 @@ class TriAnalyzer:
 
         return np.ma.filled(current_mask, True)
 
-    def _get_compressed_triangulation(self, return_tri_renum=False,
-                                      return_node_renum=False):
+    def _get_compressed_triangulation(self):
         """
         Compress (if masked) the encapsulated triangulation.
 
         Returns minimal-length triangles array (*compressed_triangles*) and
         coordinates arrays (*compressed_x*, *compressed_y*) that can still
         describe the unmasked triangles of the encapsulated triangulation.
-
-        Parameters
-        ----------
-        return_tri_renum : bool, default: False
-            Indicates whether a renumbering table to translate the triangle
-            numbers from the encapsulated triangulation numbering into the
-            new (compressed) renumbering will be returned.
-        return_node_renum : bool, default: False
-            Indicates whether a renumbering table to translate the nodes
-            numbers from the encapsulated triangulation numbering into the
-            new (compressed) renumbering will be returned.
 
         Returns
         -------
@@ -222,12 +210,11 @@ class TriAnalyzer:
             renumbering table to translate the triangle numbers from the
             encapsulated triangulation into the new (compressed) renumbering.
             -1 for masked triangles (deleted from *compressed_triangles*).
-            Returned only if *return_tri_renum* is True.
         node_renum : int array
             renumbering table to translate the point numbers from the
             encapsulated triangulation into the new (compressed) renumbering.
             -1 for unused points (i.e. those deleted from *compressed_x* and
-            *compressed_y*). Returned only if *return_node_renum* is True.
+            *compressed_y*).
 
         """
         # Valid triangles and renumbering
@@ -246,20 +233,8 @@ class TriAnalyzer:
         # Now renumbering the valid triangles nodes
         compressed_triangles = node_renum[compressed_triangles]
 
-        # 4 cases possible for return
-        if not return_tri_renum:
-            if not return_node_renum:
-                return compressed_triangles, compressed_x, compressed_y
-            else:
-                return (compressed_triangles, compressed_x, compressed_y,
-                        node_renum)
-        else:
-            if not return_node_renum:
-                return (compressed_triangles, compressed_x, compressed_y,
-                        tri_renum)
-            else:
-                return (compressed_triangles, compressed_x, compressed_y,
-                        tri_renum, node_renum)
+        return (compressed_triangles, compressed_x, compressed_y, tri_renum,
+                node_renum)
 
     @staticmethod
     def _total_to_compress_renum(mask, n=None):
@@ -273,7 +248,7 @@ class TriAnalyzer:
 
         Returns
         -------
-        renum : int array
+        int array
             array so that (`valid_array` being a compressed array
             based on a `masked_array` with mask *mask*):
 

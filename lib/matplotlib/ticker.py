@@ -259,7 +259,7 @@ class Formatter(TickHelper):
 
     def format_data(self, value):
         """
-        Returns the full string representation of the value with the
+        Return the full string representation of the value with the
         position unspecified.
         """
         return self.__call__(value)
@@ -345,19 +345,16 @@ class FixedFormatter(Formatter):
     .. note::
         `.FixedFormatter` should only be used together with `.FixedLocator`.
         Otherwise, the labels may end up in unexpected positions.
-
     """
+
     def __init__(self, seq):
-        """
-        Set the sequence of strings that will be used for labels.
-        """
+        """Set the sequence *seq* of strings that will be used for labels."""
         self.seq = seq
         self.offset_string = ''
 
     def __call__(self, x, pos=None):
         """
-        Returns the label that matches the position regardless of the
-        value.
+        Return the label that matches the position, regardless of the value.
 
         For positions ``pos < len(seq)``, return ``seq[i]`` regardless of
         *x*. Otherwise return empty string. ``seq`` is the sequence of
@@ -834,8 +831,8 @@ class LogFormatter(Formatter):
 
     To label all minor ticks when the view limits span up to 1.5
     decades, use ``minor_thresholds=(1.5, 1.5)``.
-
     """
+
     def __init__(self, base=10.0, labelOnlyBase=False,
                  minor_thresholds=None,
                  linthresh=None):
@@ -857,7 +854,6 @@ class LogFormatter(Formatter):
 
         .. warning::
            Should always match the base used for :class:`LogLocator`
-
         """
         self._base = base
 
@@ -869,7 +865,6 @@ class LogFormatter(Formatter):
         ----------
         labelOnlyBase : bool
             If True, label ticks only at integer powers of base.
-
         """
         self.labelOnlyBase = labelOnlyBase
 
@@ -878,7 +873,6 @@ class LogFormatter(Formatter):
         Use axis view limits to control which ticks are labeled.
 
         The *locs* parameter is ignored in the present algorithm.
-
         """
         if np.isinf(self.minor_thresholds[0]):
             self._sublabels = None
@@ -943,9 +937,7 @@ class LogFormatter(Formatter):
         return s
 
     def __call__(self, x, pos=None):
-        """
-        Return the format for tick val *x*.
-        """
+        # docstring inherited
         if x == 0.0:  # Symlog
             return '0'
 
@@ -968,11 +960,8 @@ class LogFormatter(Formatter):
         return s
 
     def format_data(self, value):
-        b = self.labelOnlyBase
-        self.labelOnlyBase = False
-        value = cbook.strip_math(self.__call__(value))
-        self.labelOnlyBase = b
-        return value
+        with cbook._setattr_cm(self, labelOnlyBase=False):
+            return cbook.strip_math(self.__call__(value))
 
     def format_data_short(self, value):
         # docstring inherited
@@ -1027,11 +1016,7 @@ class LogFormatterMathtext(LogFormatter):
         return r'$\mathdefault{%s%s^{%.2f}}$' % (sign_string, base, fx)
 
     def __call__(self, x, pos=None):
-        """
-        Return the format for tick value *x*.
-
-        The position *pos* is ignored.
-        """
+        # docstring inherited
         usetex = mpl.rcParams['text.usetex']
         min_exp = mpl.rcParams['axes.formatter.min_exponent']
 
@@ -1271,11 +1256,8 @@ class LogitFormatter(Formatter):
         return r"$\mathdefault{%s}$" % s
 
     def format_data_short(self, value):
-        """
-        Return a short formatted string representation of a number.
-        """
-        # thresholds choosen for use scienfic notation if and only if exponent
-        # is less or equal than -2.
+        # docstring inherited
+        # Thresholds chosen to use scientific notation iff exponent <= -2.
         if value < 0.1:
             return "{:e}".format(value)
         if value < 0.9:
@@ -2831,33 +2813,25 @@ class OldAutoLocator(Locator):
     """
     On autoscale this class picks the best MultipleLocator to set the
     view limits and the tick locs.
-
     """
-    def __init__(self):
-        self._locator = LinearLocator()
 
     def __call__(self):
-        """Return the locations of the ticks."""
-        self.refresh()
-        return self.raise_if_exceeds(self._locator())
+        # docstring inherited
+        vmin, vmax = self.axis.get_view_interval()
+        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
+        d = abs(vmax - vmin)
+        locator = self.get_locator(d)
+        return self.raise_if_exceeds(locator())
 
     def tick_values(self, vmin, vmax):
         raise NotImplementedError('Cannot get tick locations for a '
                                   '%s type.' % type(self))
 
-    def refresh(self):
-        # docstring inherited
-        vmin, vmax = self.axis.get_view_interval()
-        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
-        d = abs(vmax - vmin)
-        self._locator = self.get_locator(d)
-
     def view_limits(self, vmin, vmax):
-        """Try to choose the view limits intelligently."""
-
+        # docstring inherited
         d = abs(vmax - vmin)
-        self._locator = self.get_locator(d)
-        return self._locator.view_limits(vmin, vmax)
+        locator = self.get_locator(d)
+        return locator.view_limits(vmin, vmax)
 
     def get_locator(self, d):
         """Pick the best locator based on a distance *d*."""

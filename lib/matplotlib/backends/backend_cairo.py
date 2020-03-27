@@ -436,9 +436,8 @@ class FigureCanvasCairo(FigureCanvasBase):
     def print_svgz(self, fobj, *args, **kwargs):
         return self._save(fobj, 'svgz', *args, **kwargs)
 
-    def _save(self, fo, fmt, **kwargs):
+    def _save(self, fo, fmt, *, orientation='portrait', **kwargs):
         # save PDF/PS/SVG
-        orientation = kwargs.get('orientation', 'portrait')
 
         dpi = 72
         self.figure.dpi = dpi

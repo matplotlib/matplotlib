@@ -120,6 +120,11 @@ The following parameters do not have any effect and are deprecated:
 - parameter *s* of `.AnnotationBbox.get_fontsize()`
 - parameter *label* of `.Tick`
 
+Passing *props* to `.Shadow`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The parameter *props* of `.Shadow` is deprecated. Use keyword arguments
+instead.
+
 ``Axes.update_datalim_bounds``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This method is deprecated.  Use
@@ -227,19 +232,9 @@ The following validators, defined in `.rcsetup`, are deprecated:
 ``validate_axes_titlelocation``, ``validate_toolbar``,
 ``validate_ps_papersize``, ``validate_legend_loc``,
 ``validate_bool_maybe_none``, ``validate_hinting``,
-``validate_movie_writers``.
+``validate_movie_writers``, ``validate_webagg_address``.
 To test whether an rcParam value would be acceptable, one can test e.g. ``rc =
 RcParams(); rc[k] = v`` raises an exception.
-||||||| constructed merge base
-``validate_ps_papersize``, ``validate_legend_log``.  To test whether an rcParam
-value would be acceptable, one can test e.g. ``rc = RcParams(); rc[k] = v``
-raises an exception.
-=======
-``validate_ps_papersize``, ``validate_legend_loc``,
-``validate_webagg_address``.
-To test whether an rcParam value would be acceptable, one can test e.g. ``rc =
-RcParams(); rc[k] = v`` raises an exception.
->>>>>>> Deprecate validate_webagg_address.
 
 Stricter rcParam validation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -370,3 +365,36 @@ mathtext ``Glue`` helper classes
 The ``Fil``, ``Fill``, ``Filll``, ``NegFil``, ``NegFill``, ``NegFilll``, and
 ``SsGlue`` classes in the :mod:`matplotlib.mathtext` module are deprecated.
 As an alternative, directly construct glue instances with ``Glue("fil")``, etc.
+
+NavigationToolbar2QT.parent
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This attribute is deprecated.  In order to access the parent window, use
+``toolbar.canvas.parent()``.  Once the deprecation period is elapsed, it will
+also be accessible as ``toolbar.parent()``.
+
+Path helpers in :mod:`.bezier`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``bezier.make_path_regular`` is deprecated.  Use ``Path.cleaned()`` (or
+``Path.cleaned(curves=True)``, etc.) instead (but note that these methods add a
+``STOP`` code at the end of the path).
+
+``bezier.concatenate_paths`` is deprecated.  Use ``Path.make_compound_path()``
+instead.
+
+``animation.html_args`` rcParam
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The unused ``animation.html_args`` rcParam and ``animation.HTMLWriter.args_key``
+attribute are deprecated.
+
+``SubplotSpec.get_rows_columns``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This method is deprecated.  Use the ``GridSpec.nrows``, ``GridSpec.ncols``,
+``SubplotSpec.rowspan``, and ``SubplotSpec.colspan`` properties instead.
+
+Qt4-based backends
+~~~~~~~~~~~~~~~~~~
+The qt4agg and qt4cairo backends are deprecated.
+
+*fontdict* and *minor* parameters of `.Axes.set_xticklabels` and `.Axes.set_yticklabels` will become keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

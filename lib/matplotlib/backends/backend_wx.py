@@ -417,7 +417,7 @@ class GraphicsContextWx(GraphicsContextBase):
         self.unselect()
 
     def get_wxcolour(self, color):
-        """return a wx.Colour from RGB format"""
+        """Convert the given RGB(A) color to a wx.Colour."""
         _log.debug("%s - get_wx_color()", type(self))
         if len(color) == 3:
             r, g, b = color
@@ -1007,8 +1007,9 @@ class FigureFrameWx(wx.Frame):
         _log.debug("%s - onClose()", type(self))
         self.canvas.close_event()
         self.canvas.stop_event_loop()
-        Gcf.destroy(self.num)
-        # self.Destroy()
+        Gcf.destroy(self)
+        if self:
+            self.Destroy()
 
     def GetToolBar(self):
         """Override wxFrame::GetToolBar as we don't have managed toolbar"""
@@ -1066,7 +1067,7 @@ class FigureManagerWx(FigureManagerBase):
 
     def destroy(self, *args):
         _log.debug("%s - destroy()", type(self))
-        self.frame.Destroy()
+        self.frame.Close()
         wxapp = wx.GetApp()
         if wxapp:
             wxapp.Yield()
@@ -1407,7 +1408,7 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
 
 
 class StatusbarWx(StatusbarBase, wx.StatusBar):
-    """for use with ToolManager"""
+    """For use with ToolManager."""
     def __init__(self, parent, *args, **kwargs):
         StatusbarBase.__init__(self, *args, **kwargs)
         wx.StatusBar.__init__(self, parent, -1)

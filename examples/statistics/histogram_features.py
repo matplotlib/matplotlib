@@ -35,7 +35,7 @@ num_bins = 50
 fig, ax = plt.subplots()
 
 # the histogram of the data
-n, bins, patches = ax.hist(x, num_bins, density=1)
+n, bins, patches = ax.hist(x, num_bins, density=True)
 
 # add a 'best fit' line
 y = ((1 / (np.sqrt(2 * np.pi) * sigma)) *

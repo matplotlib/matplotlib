@@ -727,9 +727,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     def __init__(self, ax, *args,
                  levels=None, filled=False, linewidths=None, linestyles=None,
-                 alpha=None, origin=None, extent=None,
+                 hatches=(None,), alpha=None, origin=None, extent=None,
                  cmap=None, colors=None, norm=None, vmin=None, vmax=None,
-                 extend='neither', antialiased=None,
+                 extend='neither', antialiased=None, nchunk=0, locator=None,
+                 transform=None,
                  **kwargs):
         """
         Draw contour lines or filled regions, depending on
@@ -780,7 +781,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.filled = filled
         self.linewidths = linewidths
         self.linestyles = linestyles
-        self.hatches = kwargs.pop('hatches', [None])
+        self.hatches = hatches
         self.alpha = alpha
         self.origin = origin
         self.extent = extent
@@ -793,8 +794,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             # The default for line contours will be taken from the
             # LineCollection default, which uses :rc:`lines.antialiased`.
 
-        self.nchunk = kwargs.pop('nchunk', 0)
-        self.locator = kwargs.pop('locator', None)
+        self.nchunk = nchunk
+        self.locator = locator
         if (isinstance(norm, mcolors.LogNorm)
                 or isinstance(self.locator, ticker.LogLocator)):
             self.logscale = True
@@ -812,7 +813,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if self.origin == 'image':
             self.origin = mpl.rcParams['image.origin']
 
-        self._transform = kwargs.pop('transform', None)
+        self._transform = transform
 
         kwargs = self._process_args(*args, **kwargs)
         self._process_levels()
@@ -1294,7 +1295,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         return tlinestyles
 
     def get_alpha(self):
-        """returns alpha to be applied to all ContourSet artists"""
+        """Return alpha to be applied to all ContourSet artists."""
         return self.alpha
 
     def set_alpha(self, alpha):
@@ -1401,7 +1402,7 @@ class QuadContourSet(ContourSet):
         levels for filled contours. See :meth:`_process_colors` method.
     """
 
-    def _process_args(self, *args, **kwargs):
+    def _process_args(self, *args, corner_mask=None, **kwargs):
         """
         Process args and kwargs.
         """
@@ -1417,9 +1418,9 @@ class QuadContourSet(ContourSet):
         else:
             import matplotlib._contour as _contour
 
-            self._corner_mask = kwargs.pop('corner_mask', None)
-            if self._corner_mask is None:
-                self._corner_mask = mpl.rcParams['contour.corner_mask']
+            if corner_mask is None:
+                corner_mask = mpl.rcParams['contour.corner_mask']
+            self._corner_mask = corner_mask
 
             x, y, z = self._contour_args(args, kwargs)
 
@@ -1622,7 +1623,7 @@ class QuadContourSet(ContourSet):
 
         Returns
         -------
-        c : `~.contour.QuadContourSet`
+        `~.contour.QuadContourSet`
 
         Other Parameters
         ----------------

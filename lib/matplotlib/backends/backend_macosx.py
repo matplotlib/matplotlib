@@ -106,7 +106,7 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
             self.canvas.draw_idle()
 
     def close(self):
-        Gcf.destroy(self.num)
+        Gcf.destroy(self)
 
 
 class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):

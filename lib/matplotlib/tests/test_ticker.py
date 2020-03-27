@@ -358,9 +358,7 @@ class TestLogitLocator:
             else:
                 # subsample
                 _LogitHelper.assert_almost_equal(
-                    np.sort(np.concatenate((major_ticks, minor_ticks))),
-                    expected_ticks,
-                )
+                    sorted([*major_ticks, *minor_ticks]), expected_ticks)
 
     def test_minor_attr(self):
         loc = mticker.LogitLocator(nbins=100)

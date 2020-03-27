@@ -48,7 +48,7 @@ def issues2dict(issues):
     return idict
 
 def split_pulls(all_issues, project="matplotlib/matplotlib"):
-    """split a list of closed issues into non-PR Issues and Pull Requests"""
+    """Split a list of closed issues into non-PR Issues and Pull Requests."""
     pulls = []
     issues = []
     for i in all_issues:

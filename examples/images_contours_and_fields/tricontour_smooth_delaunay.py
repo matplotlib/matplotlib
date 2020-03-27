@@ -19,8 +19,7 @@ a data set is the following:
 1. Compute an extended mask with a `matplotlib.tri.TriAnalyzer`, which will
    exclude badly shaped (flat) triangles from the border of the
    triangulation. Apply the mask to the triangulation (using set_mask).
-2. Refine and interpolate the data using a
-   `matplotlib.tri.UniformTriRefiner`.
+2. Refine and interpolate the data using a `matplotlib.tri.UniformTriRefiner`.
 3. Plot the refined data with `~.axes.Axes.tricontour`.
 
 """

@@ -819,6 +819,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
 class AxesImage(_ImageBase):
     """
+    An image attached to an Axes.
+
     Parameters
     ----------
     ax : `~.axes.Axes`
@@ -1270,6 +1272,8 @@ class PcolorImage(AxesImage):
 
 
 class FigureImage(_ImageBase):
+    """An image attached to a figure."""
+
     zorder = 0
 
     _interpolation = 'nearest'
@@ -1421,7 +1425,7 @@ def imread(fname, format=None):
 
     Returns
     -------
-    imagedata : :class:`numpy.array`
+    `numpy.array`
         The image data. The returned array has shape
 
         - (M, N) for grayscale images.
@@ -1656,7 +1660,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
 
     Returns
     -------
-    figure : `~.figure.Figure`
+    `~.figure.Figure`
         The figure instance containing the thumbnail.
     """
 

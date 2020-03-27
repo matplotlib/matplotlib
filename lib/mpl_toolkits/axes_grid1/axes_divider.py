@@ -245,7 +245,7 @@ class Divider:
 
     def new_locator(self, nx, ny, nx1=None, ny1=None):
         """
-        Returns a new `AxesLocator` for specified cell.
+        Return a new `AxesLocator` for the specified cell.
 
         Parameters
         ----------

@@ -1703,7 +1703,7 @@ def colorbar_factory(cax, mappable, **kwargs):
 
     Returns
     -------
-    colorbar : `.Colorbar` or `.ColorbarPatch`
+    `.Colorbar` or `.ColorbarPatch`
         The created colorbar instance. `.ColorbarPatch` is only used if
         *mappable* is a `.ContourSet` with hatches.
     """

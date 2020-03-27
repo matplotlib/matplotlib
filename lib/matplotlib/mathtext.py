@@ -443,17 +443,16 @@ class Fonts:
 
         Returns an object with the following attributes:
 
-          - *advance*: The advance distance (in points) of the glyph.
+        - *advance*: The advance distance (in points) of the glyph.
 
-          - *height*: The height of the glyph in points.
+        - *height*: The height of the glyph in points.
 
-          - *width*: The width of the glyph in points.
+        - *width*: The width of the glyph in points.
 
-          - *xmin*, *xmax*, *ymin*, *ymax* - the ink rectangle of the glyph
+        - *xmin*, *xmax*, *ymin*, *ymax* - the ink rectangle of the glyph
 
-          - *iceberg* - the distance from the baseline to the top of
-            the glyph.  This corresponds to TeX's definition of
-            "height".
+        - *iceberg* - the distance from the baseline to the top of
+          the glyph.  This corresponds to TeX's definition of "height".
         """
         info = self._get_info(font, font_class, sym, fontsize, dpi, math)
         return info.metrics
@@ -3440,7 +3439,7 @@ class MathTextParser:
 
         Returns
         -------
-        depth : int
+        int
             Offset of the baseline from the bottom of the image, in pixels.
         """
         rgba, depth = self.to_rgba(
@@ -3459,7 +3458,7 @@ class MathTextParser:
 
         Returns
         -------
-        depth : int
+        int
             Offset of the baseline from the bottom of the image, in pixels.
         """
         assert self._output == "bitmap"

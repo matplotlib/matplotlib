@@ -55,35 +55,10 @@ mpl_packages = [
     setupext.Matplotlib(),
     setupext.Python(),
     setupext.Platform(),
-    setupext.LibAgg(),
     setupext.FreeType(),
-    setupext.FT2Font(),
-    setupext.Qhull(),
-    setupext.Image(),
-    setupext.TTConv(),
-    setupext.Path(),
-    setupext.Contour(),
-    setupext.QhullWrap(),
-    setupext.Tri(),
     setupext.SampleData(),
     setupext.Tests(),
-    setupext.BackendAgg(),
-    setupext.BackendTkAgg(),
     setupext.BackendMacOSX(),
-    ]
-
-
-classifiers = [
-    'Development Status :: 5 - Production/Stable',
-    'Framework :: Matplotlib',
-    'Intended Audience :: Science/Research',
-    'Intended Audience :: Education',
-    'License :: OSI Approved :: Python Software Foundation License',
-    'Programming Language :: Python',
-    'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.6',
-    'Programming Language :: Python :: 3.7',
-    'Topic :: Scientific/Engineering :: Visualization',
     ]
 
 
@@ -95,8 +70,11 @@ class NoopTestCommand(TestCommand):
 
 class BuildExtraLibraries(BuildExtCommand):
     def finalize_options(self):
-        self.distribution.ext_modules[:] = filter(
-            None, (package.get_extension() for package in good_packages))
+        self.distribution.ext_modules[:] = [
+            ext
+            for package in good_packages
+            for ext in package.get_extensions()
+        ]
         super().finalize_options()
 
     def build_extensions(self):
@@ -221,10 +199,6 @@ if __name__ == '__main__':
         with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
             fd.write(''.join(template_lines))
 
-    # Use Readme as long description
-    with open('README.rst', encoding='utf-8') as fd:
-        long_description = fd.read()
-
     # Finally, pass this all along to distutils to do the heavy lifting.
     setup(
         name="matplotlib",
@@ -241,10 +215,24 @@ if __name__ == '__main__':
             'Forum': 'https://discourse.matplotlib.org/',
             'Donate': 'https://numfocus.org/donate-to-matplotlib'
         },
-        long_description=long_description,
+        long_description=Path("README.rst").read_text(encoding="utf-8"),
         long_description_content_type="text/x-rst",
         license="PSF",
         platforms="any",
+        classifiers=[
+            'Development Status :: 5 - Production/Stable',
+            'Framework :: Matplotlib',
+            'Intended Audience :: Science/Research',
+            'Intended Audience :: Education',
+            'License :: OSI Approved :: Python Software Foundation License',
+            'Programming Language :: Python',
+            'Programming Language :: Python :: 3',
+            'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: 3.7',
+            'Programming Language :: Python :: 3.8',
+            'Topic :: Scientific/Engineering :: Visualization',
+        ],
+
         package_dir={"": "lib"},
         packages=find_packages("lib"),
         namespace_packages=["mpl_toolkits"],
@@ -253,7 +241,6 @@ if __name__ == '__main__':
         # real extensions that can depend on numpy for the build.
         ext_modules=[Extension("", [])],
         package_data=package_data,
-        classifiers=classifiers,
 
         python_requires='>={}'.format('.'.join(str(n) for n in min_version)),
         setup_requires=[

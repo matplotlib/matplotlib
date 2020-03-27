@@ -367,10 +367,9 @@ class FigureManagerGTK3(FigureManagerBase):
 
         self.window.set_default_size(w, h)
 
-        def destroy(*args):
-            Gcf.destroy(num)
-        self.window.connect("destroy", destroy)
-        self.window.connect("delete_event", destroy)
+        self._destroying = False
+        self.window.connect("destroy", lambda *args: Gcf.destroy(self))
+        self.window.connect("delete_event", lambda *args: Gcf.destroy(self))
         if mpl.is_interactive():
             self.window.show()
             self.canvas.draw_idle()
@@ -378,6 +377,13 @@ class FigureManagerGTK3(FigureManagerBase):
         self.canvas.grab_focus()
 
     def destroy(self, *args):
+        if self._destroying:
+            # Otherwise, this can be called twice when the user presses 'q',
+            # which calls Gcf.destroy(self), then this destroy(), then triggers
+            # Gcf.destroy(self) once again via
+            # `connect("destroy", lambda *args: Gcf.destroy(self))`.
+            return
+        self._destroying = True
         self.vbox.destroy()
         self.window.destroy()
         self.canvas.destroy()

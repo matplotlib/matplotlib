@@ -1,4 +1,5 @@
 import functools
+import importlib
 import os
 import re
 import signal
@@ -108,7 +109,9 @@ def _create_qApp():
             # check for DISPLAY env variable on X11 build of Qt
             if is_pyqt5():
                 try:
-                    from PyQt5 import QtX11Extras
+                    importlib.import_module(
+                        # i.e. PyQt5.QtX11Extras or PySide2.QtX11Extras.
+                        f"{QtWidgets.__package__}.QtX11Extras")
                     is_x11_build = True
                 except ImportError:
                     is_x11_build = False
@@ -590,7 +593,7 @@ class FigureManagerQT(FigureManagerBase):
             return
         self.window._destroying = True
         try:
-            Gcf.destroy(self.num)
+            Gcf.destroy(self)
         except AttributeError:
             pass
             # It seems that when the python session is killed,
@@ -660,13 +663,18 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     def __init__(self, canvas, parent, coordinates=True):
         """coordinates: should we show the coordinates on the right?"""
         self.canvas = canvas
-        self.parent = parent
+        self._parent = parent
         self.coordinates = coordinates
         self._actions = {}
         """A mapping of toolitem method names to their QActions"""
 
         QtWidgets.QToolBar.__init__(self, parent)
         NavigationToolbar2.__init__(self, canvas)
+
+    @cbook.deprecated("3.3", alternative="self.canvas.parent()")
+    @property
+    def parent(self):
+        return self._parent
 
     def _icon(self, name, color=None):
         if is_pyqt5():
@@ -718,7 +726,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         axes = self.canvas.figure.get_axes()
         if not axes:
             QtWidgets.QMessageBox.warning(
-                self.parent, "Error", "There are no axes to edit.")
+                self.canvas.parent(), "Error", "There are no axes to edit.")
             return
         elif len(axes) == 1:
             ax, = axes
@@ -735,7 +743,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 if titles[i] in duplicate_titles:
                     titles[i] += f" (id: {id(ax):#x})"  # Deduplicate titles.
             item, ok = QtWidgets.QInputDialog.getItem(
-                self.parent, 'Customize', 'Select axes:', titles, 0, False)
+                self.canvas.parent(),
+                'Customize', 'Select axes:', titles, 0, False)
             if not ok:
                 return
             ax = axes[titles.index(item)]

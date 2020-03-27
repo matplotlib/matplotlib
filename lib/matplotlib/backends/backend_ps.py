@@ -1214,7 +1214,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
 
 def get_bbox_header(lbrt, rotated=False):
     """
-    return a postscript header string for the given bbox lbrt=(l, b, r, t).
+    Return a postscript header string for the given bbox lbrt=(l, b, r, t).
     Optionally, return rotate command.
     """
 

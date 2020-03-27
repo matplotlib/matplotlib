@@ -71,6 +71,11 @@ def use(style):
     The style name of 'default' is reserved for reverting back to
     the default style settings.
 
+    .. note::
+
+       This updates the `.rcParams` with the settings from the style.
+       `.rcParams` not defined in the style are kept.
+
     Parameters
     ----------
     style : str, dict, Path or list
@@ -168,7 +173,7 @@ def iter_user_libraries():
 
 
 def update_user_library(library):
-    """Update style library with user-defined rc files"""
+    """Update style library with user-defined rc files."""
     for stylelib_path in iter_user_libraries():
         styles = read_style_directory(stylelib_path)
         update_nested_dict(library, styles)
@@ -216,11 +221,12 @@ def update_nested_dict(main_dict, new_dict):
 _base_library = load_base_library()
 
 library = None
+
 available = []
 
 
 def reload_library():
-    """Reload style library."""
+    """Reload the style library."""
     global library
     library = update_user_library(_base_library)
     available[:] = sorted(library.keys())

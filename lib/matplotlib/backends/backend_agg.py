@@ -37,6 +37,7 @@ from PIL.PngImagePlugin import PngInfo
 
 import matplotlib as mpl
 from matplotlib import cbook
+from matplotlib import colors as mcolors
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.font_manager import findfont, get_font
@@ -551,14 +552,15 @@ class FigureCanvasAgg(FigureCanvasBase):
             `PIL.Image.Image.save` when saving the figure.  These take
             precedence over *quality*, *optimize* and *progressive*.
         """
-        FigureCanvasAgg.draw(self)
+        # Remove transparency by alpha-blending on an assumed white background.
+        r, g, b, a = mcolors.to_rgba(self.figure.get_facecolor())
+        try:
+            self.figure.set_facecolor(a * np.array([r, g, b]) + 1 - a)
+            FigureCanvasAgg.draw(self)
+        finally:
+            self.figure.set_facecolor((r, g, b, a))
         if dryrun:
             return
-        # The image is "pasted" onto a white background image to safely
-        # handle any transparency
-        image = Image.fromarray(np.asarray(self.buffer_rgba()))
-        background = Image.new("RGB", image.size, "white")
-        background.paste(image, image)
         if pil_kwargs is None:
             pil_kwargs = {}
         for k in ["quality", "optimize", "progressive"]:
@@ -575,8 +577,9 @@ class FigureCanvasAgg(FigureCanvasBase):
                     "quality will be 75, matching the default of Pillow and "
                     "libjpeg.")
         pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
-        return background.save(
-            filename_or_obj, format='jpeg', **pil_kwargs)
+        # Drop alpha channel now.
+        return (Image.fromarray(np.asarray(self.buffer_rgba())[..., :3])
+                .save(filename_or_obj, format='jpeg', **pil_kwargs))
 
     print_jpeg = print_jpg
 

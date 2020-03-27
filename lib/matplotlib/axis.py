@@ -99,6 +99,7 @@ class Tick(martist.Artist):
         name = self.__name__.lower()
 
         self._loc = loc
+        self._major = major
 
         major_minor = "major" if major else "minor"
 
@@ -185,27 +186,6 @@ class Tick(martist.Artist):
             self._set_artist_props(artist)
 
         self.update_position(loc)
-
-    for _old_name, _new_name in [
-            ("gridOn", "gridline"),
-            ("tick1On", "tick1line"),
-            ("tick2On", "tick2line"),
-            ("label1On", "label1"),
-            ("label2On", "label2")]:
-        locals()[_old_name] = property(
-            cbook.deprecated(
-                "3.1",
-                name=_old_name,
-                alternative="Tick.{}.get_visible".format(_new_name))(
-                    lambda self, _new_name=_new_name:
-                        getattr(self, _new_name).get_visible()),
-            cbook.deprecated(
-                "3.1",
-                name=_old_name,
-                alternative="Tick.{}.set_visible".format(_new_name))(
-                    lambda self, value, _new_name=_new_name:
-                        getattr(self, _new_name).set_visible(value)))
-    del _old_name, _new_name
 
     @property
     @cbook.deprecated("3.1", alternative="Tick.label1", pending=True)
@@ -453,8 +433,10 @@ class XTick(Tick):
         return self.axes.get_xaxis_text2_transform(self._pad)
 
     def apply_tickdir(self, tickdir):
+        """Set tick direction. Valid values are 'in', 'out', 'inout'."""
         if tickdir is None:
             tickdir = mpl.rcParams['%s.direction' % self.__name__.lower()]
+        cbook._check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
         self._tickdir = tickdir
 
         if self._tickdir == 'in':
@@ -842,7 +824,11 @@ class Axis(martist.Artist):
                 self._minor_tick_kw.update(kwtrans)
                 for tick in self.minorTicks:
                     tick._apply_params(**kwtrans)
-            # special-case label color to also apply to the offset text
+            # labelOn and labelcolor also apply to the offset text.
+            if 'label1On' in kwtrans or 'label2On' in kwtrans:
+                self.offsetText.set_visible(
+                    self._major_tick_kw.get('label1On', False)
+                    or self._major_tick_kw.get('label2On', False))
             if 'labelcolor' in kwtrans:
                 self.offsetText.set_color(kwtrans['labelcolor'])
 
@@ -1211,7 +1197,7 @@ class Axis(martist.Artist):
 
         Returns
         -------
-        ret : list
+        list
            List of `~matplotlib.text.Text` instances.
         """
 
@@ -1605,7 +1591,7 @@ class Axis(martist.Artist):
         """
         self.pickradius = pickradius
 
-    def set_ticklabels(self, ticklabels, *args, minor=False, **kwargs):
+    def set_ticklabels(self, ticklabels, *, minor=False, **kwargs):
         r"""
         Set the text values of the tick labels.
 
@@ -1626,15 +1612,10 @@ class Axis(martist.Artist):
 
         Returns
         -------
-        labels : list of `.Text`\s
+        list of `.Text`\s
             For each tick, includes ``tick.label1`` if it is visible, then
             ``tick.label2`` if it is visible, in that order.
         """
-        if args:
-            cbook.warn_deprecated(
-                "3.1", message="Additional positional arguments to "
-                "set_ticklabels are ignored, and deprecated since Matplotlib "
-                "3.1; passing them will raise a TypeError in Matplotlib 3.3.")
         ticklabels = [t.get_text() if hasattr(t, 'get_text') else t
                       for t in ticklabels]
         if minor:
@@ -1984,8 +1965,8 @@ class XAxis(Axis):
 
     def get_text_heights(self, renderer):
         """
-        Returns the amount of space one should reserve for text
-        above and below the axes.  Returns a tuple (above, below)
+        Return how much space should be reserved for text above and below the
+        axes, as a pair of floats.
         """
         bbox, bbox2 = self.get_ticklabel_extents(renderer)
         # MGDTODO: Need a better way to get the pad
@@ -2006,16 +1987,16 @@ class XAxis(Axis):
 
     def set_ticks_position(self, position):
         """
-        Set the ticks position (top, bottom, both, default or none)
-        both sets the ticks to appear on both positions, but does not
-        change the tick labels.  'default' resets the tick positions to
-        the default: ticks on both positions, labels at bottom.  'none'
-        can be used if you don't want any ticks. 'none' and 'both'
-        affect only the ticks, not the labels.
+        Set the ticks position.
 
         Parameters
         ----------
         position : {'top', 'bottom', 'both', 'default', 'none'}
+            'both' sets the ticks to appear on both positions, but does not
+            change the tick labels.  'default' resets the tick positions to
+            the default: ticks on both positions, labels at bottom.  'none'
+            can be used if you don't want any ticks. 'none' and 'both'
+            affect only the ticks, not the labels.
         """
         cbook._check_in_list(['top', 'bottom', 'both', 'default', 'none'],
                              position=position)
@@ -2146,10 +2127,7 @@ class YAxis(Axis):
         self.offset_text_position = 'left'
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occurred in the y axis.
-
-        Returns *True* | *False*
-        """
+        # docstring inherited
         inside, info = self._default_contains(mouseevent)
         if inside is not None:
             return inside, info
@@ -2294,16 +2272,16 @@ class YAxis(Axis):
 
     def set_ticks_position(self, position):
         """
-        Set the ticks position (left, right, both, default or none)
-        'both' sets the ticks to appear on both positions, but does not
-        change the tick labels.  'default' resets the tick positions to
-        the default: ticks on both positions, labels at left.  'none'
-        can be used if you don't want any ticks. 'none' and 'both'
-        affect only the ticks, not the labels.
+        Set the ticks position.
 
         Parameters
         ----------
         position : {'left', 'right', 'both', 'default', 'none'}
+            'both' sets the ticks to appear on both positions, but does not
+            change the tick labels.  'default' resets the tick positions to
+            the default: ticks on both positions, labels at left.  'none'
+            can be used if you don't want any ticks. 'none' and 'both'
+            affect only the ticks, not the labels.
         """
         cbook._check_in_list(['left', 'right', 'both', 'default', 'none'],
                              position=position)

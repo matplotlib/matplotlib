@@ -142,8 +142,6 @@ developers for the heavy lifting.
 Bugfix marathon
 ----------------
 
-Eric Firing went on a bug fixing and closing marathon, closing over
-100 bugs on the `bug tracker
-<http://sourceforge.net/tracker/?group_id=80706&atid=560720>`__ with
-help from Jae-Joon Lee, Michael Droettboom, Christoph Gohlke and
-Michiel de Hoon.
+Eric Firing went on a bug fixing and closing marathon, closing over 100 bugs on
+the (now-closed) SourceForge bug tracker with help from Jae-Joon Lee, Michael
+Droettboom, Christoph Gohlke and Michiel de Hoon.

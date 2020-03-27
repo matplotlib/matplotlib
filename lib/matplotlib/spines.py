@@ -10,23 +10,19 @@ import matplotlib.path as mpath
 
 class Spine(mpatches.Patch):
     """
-    An axis spine -- the line noting the data area boundaries
+    An axis spine -- the line noting the data area boundaries.
 
     Spines are the lines connecting the axis tick marks and noting the
     boundaries of the data area. They can be placed at arbitrary
-    positions. See function:`~matplotlib.spines.Spine.set_position`
-    for more information.
+    positions. See `~.Spine.set_position` for more information.
 
     The default position is ``('outward', 0)``.
 
-    Spines are subclasses of class:`~matplotlib.patches.Patch`, and
-    inherit much of their behavior.
+    Spines are subclasses of `.Patch`, and inherit much of their behavior.
 
     Spines draw a line, a circle, or an arc depending if
-    function:`~matplotlib.spines.Spine.set_patch_line`,
-    function:`~matplotlib.spines.Spine.set_patch_circle`, or
-    function:`~matplotlib.spines.Spine.set_patch_arc` has been called.
-    Line-like is the default.
+    `~.Spine.set_patch_line`, `~.Spine.set_patch_circle`, or
+    `~.Spine.set_patch_arc` has been called. Line-like is the default.
 
     """
     def __str__(self):
@@ -223,7 +219,8 @@ class Spine(mpatches.Patch):
             self.set_position(self._position)
 
     def register_axis(self, axis):
-        """Register an axis.
+        """
+        Register an axis.
 
         An axis should be registered with its corresponding spine from
         the Axes instance. This allows the spine to clear any axis
@@ -239,28 +236,6 @@ class Spine(mpatches.Patch):
         self._position = None  # clear position
         if self.axis is not None:
             self.axis.cla()
-
-    @cbook.deprecated("3.1")
-    def is_frame_like(self):
-        """Return True if directly on axes frame.
-
-        This is useful for determining if a spine is the edge of an
-        old style MPL plot. If so, this function will return True.
-        """
-        self._ensure_position_is_set()
-        position = self._position
-        if isinstance(position, str):
-            if position == 'center':
-                position = ('axes', 0.5)
-            elif position == 'zero':
-                position = ('data', 0)
-        if len(position) != 2:
-            raise ValueError("position should be 2-tuple")
-        position_type, amount = position
-        if position_type == 'outward' and amount == 0:
-            return True
-        else:
-            return False
 
     def _adjust_location(self):
         """Automatically set spine bounds to the view interval."""
@@ -508,9 +483,7 @@ class Spine(mpatches.Patch):
 
     @classmethod
     def linear_spine(cls, axes, spine_type, **kwargs):
-        """
-        Returns a linear `Spine`.
-        """
+        """Create and return a linear `Spine`."""
         # all values of 0.999 get replaced upon call to set_bounds()
         if spine_type == 'left':
             path = mpath.Path([(0.0, 0.999), (0.0, 0.999)])
@@ -530,9 +503,7 @@ class Spine(mpatches.Patch):
     @classmethod
     def arc_spine(cls, axes, spine_type, center, radius, theta1, theta2,
                   **kwargs):
-        """
-        Returns an arc `Spine`.
-        """
+        """Create and return an arc `Spine`."""
         path = mpath.Path.arc(theta1, theta2)
         result = cls(axes, spine_type, path, **kwargs)
         result.set_patch_arc(center, radius, theta1, theta2)
@@ -540,9 +511,7 @@ class Spine(mpatches.Patch):
 
     @classmethod
     def circular_spine(cls, axes, center, radius, **kwargs):
-        """
-        Returns a circular `Spine`.
-        """
+        """Create and return a circular `Spine`."""
         path = mpath.Path.unit_circle()
         spine_type = 'circle'
         result = cls(axes, spine_type, path, **kwargs)

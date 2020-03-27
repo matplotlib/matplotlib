@@ -4,6 +4,7 @@ from decimal import Decimal
 import io
 from itertools import product
 import platform
+from types import SimpleNamespace
 try:
     from contextlib import nullcontext
 except ImportError:
@@ -434,6 +435,14 @@ def test_basic_annotate():
                 xytext=(3, 3), textcoords='offset points')
 
 
+def test_annotate_parameter_warn():
+    fig, ax = plt.subplots()
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match=r"The \'s\' parameter of annotate\(\) "
+                             "has been renamed \'text\'"):
+        ax.annotate(s='now named text', xy=(0, 1))
+
+
 @image_comparison(['arrow_simple.png'], remove_text=True)
 def test_arrow_simple():
     # Simple image test for ax.arrow
@@ -465,6 +474,13 @@ def test_arrow_empty():
     _, ax = plt.subplots()
     # Create an empty FancyArrow
     ax.arrow(0, 0, 0, 0, head_length=0)
+
+
+def test_arrow_in_view():
+    _, ax = plt.subplots()
+    ax.arrow(1, 1, 1, 1)
+    assert ax.get_xlim() == (0.8, 2.2)
+    assert ax.get_ylim() == (0.8, 2.2)
 
 
 def test_annotate_default_arrow():
@@ -925,17 +941,12 @@ def test_hexbin_empty():
 
 def test_hexbin_pickable():
     # From #1973: Test that picking a hexbin collection works
-    class FauxMouseEvent:
-        def __init__(self, x, y):
-            self.x = x
-            self.y = y
-
     fig, ax = plt.subplots()
     data = (np.arange(200) / 200).reshape((2, 100))
     x, y = data
     hb = ax.hexbin(x, y, extent=[.1, .3, .6, .7], picker=-1)
-
-    assert hb.contains(FauxMouseEvent(400, 300))[0]
+    mouse_event = SimpleNamespace(x=400, y=300)
+    assert hb.contains(mouse_event)[0]
 
 
 @image_comparison(['hexbin_log.png'], style='mpl20')
@@ -1700,7 +1711,7 @@ def test_barh_tick_label():
 
 
 def test_bar_timedelta():
-    """smoketest that bar can handle width and height in delta units"""
+    """Smoketest that bar can handle width and height in delta units."""
     fig, ax = plt.subplots()
     ax.bar(datetime.datetime(2018, 1, 1), 1.,
            width=datetime.timedelta(hours=3))
@@ -2168,8 +2179,7 @@ class TestScatter:
                     get_next_color_func=get_next_color)
 
 
-def _params(c=None, xsize=2, **kwargs):
-    edgecolors = kwargs.pop('edgecolors', None)
+def _params(c=None, xsize=2, *, edgecolors=None, **kwargs):
     return (c, edgecolors, kwargs if kwargs is not None else {}, xsize)
 _result = namedtuple('_result', 'c, colors')
 
@@ -3997,6 +4007,24 @@ def test_hlines():
     ax5.set_ylim(0, 15)
 
 
+@pytest.mark.parametrize('data', [[1, 2, 3, np.nan, 5],
+                                  np.ma.masked_equal([1, 2, 3, 4, 5], 4)])
+@check_figures_equal(extensions=["png"])
+def test_lines_with_colors(fig_test, fig_ref, data):
+    test_colors = ['red', 'green', 'blue', 'purple', 'orange']
+    fig_test.add_subplot(2, 1, 1).vlines(data, 0, 1,
+                                         colors=test_colors, linewidth=5)
+    fig_test.add_subplot(2, 1, 2).hlines(data, 0, 1,
+                                         colors=test_colors, linewidth=5)
+
+    expect_xy = [1, 2, 3, 5]
+    expect_color = ['red', 'green', 'blue', 'orange']
+    fig_ref.add_subplot(2, 1, 1).vlines(expect_xy, 0, 1,
+                                        colors=expect_color, linewidth=5)
+    fig_ref.add_subplot(2, 1, 2).hlines(expect_xy, 0, 1,
+                                        colors=expect_color, linewidth=5)
+
+
 @image_comparison(['step_linestyle', 'step_linestyle'], remove_text=True)
 def test_step_linestyle():
     x = y = np.arange(10)
@@ -5475,6 +5503,16 @@ def test_offset_label_color():
     ax.plot([1.01e9, 1.02e9, 1.03e9])
     ax.yaxis.set_tick_params(labelcolor='red')
     assert ax.yaxis.get_offset_text().get_color() == 'red'
+
+
+def test_offset_text_visible():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot([1.01e9, 1.02e9, 1.03e9])
+    ax.yaxis.set_tick_params(label1On=False, label2On=True)
+    assert ax.yaxis.get_offset_text().get_visible()
+    ax.yaxis.set_tick_params(label2On=False)
+    assert not ax.yaxis.get_offset_text().get_visible()
 
 
 def test_large_offset():

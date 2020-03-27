@@ -140,7 +140,7 @@ class MovieWriterRegistry:
 
         Returns
         -------
-        available : bool
+        bool
         """
         try:
             cls = self._registered[name]
@@ -361,12 +361,10 @@ class MovieWriter(AbstractMovieWriter):
     def grab_frame(self, **savefig_kwargs):
         # docstring inherited
         _log.debug('MovieWriter.grab_frame: Grabbing frame.')
-        # re-adjust the figure size in case it has been changed by the
-        # user.  We must ensure that every frame is the same size or
-        # the movie will not save correctly.
+        # Readjust the figure size in case it has been changed by the user.
+        # All frames must have the same size to save the movie correctly.
         self.fig.set_size_inches(self._w, self._h)
-        # Tell the figure to save its data to the sink, using the
-        # frame format and dpi.
+        # Save the figure data to the sink, using the frame format and dpi.
         self.fig.savefig(self._frame_sink(), format=self.frame_format,
                          dpi=self.dpi, **savefig_kwargs)
 
@@ -786,7 +784,11 @@ class HTMLWriter(FileMovieWriter):
     """Writer for JavaScript-based HTML movies."""
 
     supported_formats = ['png', 'jpeg', 'tiff', 'svg']
-    _args_key = 'animation.html_args'
+
+    @cbook.deprecated("3.3")
+    @property
+    def args_key(self):
+        return 'animation.html_args'
 
     @classmethod
     def isAvailable(cls):
@@ -795,20 +797,22 @@ class HTMLWriter(FileMovieWriter):
     def __init__(self, fps=30, codec=None, bitrate=None, extra_args=None,
                  metadata=None, embed_frames=False, default_mode='loop',
                  embed_limit=None):
+
+        if extra_args:
+            _log.warning("HTMLWriter ignores 'extra_args'")
+        extra_args = ()  # Don't lookup nonexistent rcParam[args_key].
         self.embed_frames = embed_frames
         self.default_mode = default_mode.lower()
+        cbook._check_in_list(['loop', 'once', 'reflect'],
+                             default_mode=self.default_mode)
 
         # Save embed limit, which is given in MB
         if embed_limit is None:
             self._bytes_limit = mpl.rcParams['animation.embed_limit']
         else:
             self._bytes_limit = embed_limit
-
         # Convert from MB to bytes
         self._bytes_limit *= 1024 * 1024
-
-        cbook._check_in_list(['loop', 'once', 'reflect'],
-                             default_mode=self.default_mode)
 
         super().__init__(fps, codec, bitrate, extra_args, metadata)
 
@@ -1113,10 +1117,12 @@ class Animation:
                       "frame size to vary, which is inappropriate for "
                       "animation.")
         # canvas._is_saving = True makes the draw_event animation-starting
-        # callback a no-op.
+        # callback a no-op; canvas.manager = None prevents resizing the GUI
+        # widget (both are likewise done in savefig()).
         with mpl.rc_context({'savefig.bbox': None}), \
              writer.saving(self._fig, filename, dpi), \
-             cbook._setattr_cm(self._fig.canvas, _is_saving=True):
+             cbook._setattr_cm(self._fig.canvas,
+                               _is_saving=True, manager=None):
             for anim in all_anim:
                 anim._init_draw()  # Clear the initial frame
             frame_number = 0
@@ -1281,7 +1287,7 @@ class Animation:
 
         Returns
         -------
-        video_tag : str
+        str
             An HTML5 video tag with the animation embedded as base64 encoded
             h264 video.
             If the *embed_limit* is exceeded, this returns the string

@@ -107,9 +107,12 @@ class TextToPath:
 
         Returns
         -------
-        verts, codes : tuple of lists
-            *verts*  is a list of numpy arrays containing the x and y
-            coordinates of the vertices. *codes* is a list of path codes.
+        verts : list
+            A list of numpy arrays containing the x and y coordinates of the
+            vertices.
+
+        codes : list
+            A list of path codes.
 
         Examples
         --------
@@ -453,36 +456,3 @@ class TextPath(Path):
                   .translate(*self._xy))
             self._cached_vertices = tr.transform(self._vertices)
             self._invalid = False
-
-    @cbook.deprecated("3.1")
-    def is_math_text(self, s):
-        """
-        Returns True if the given string *s* contains any mathtext.
-        """
-        # copied from Text.is_math_text -JJL
-
-        # Did we find an even number of non-escaped dollar signs?
-        # If so, treat is as math text.
-        dollar_count = s.count(r'$') - s.count(r'\$')
-        even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
-
-        if rcParams['text.usetex']:
-            return s, 'TeX'
-
-        if even_dollars:
-            return s, True
-        else:
-            return s.replace(r'\$', '$'), False
-
-    @cbook.deprecated("3.1", alternative="TextPath")
-    def text_get_vertices_codes(self, prop, s, usetex):
-        """
-        Convert string *s* to a (vertices, codes) pair using font property
-        *prop*.
-        """
-        # Mostly copied from backend_svg.py.
-        if usetex:
-            return text_to_path.get_text_path(prop, s, usetex=True)
-        else:
-            clean_line, ismath = self.is_math_text(s)
-            return text_to_path.get_text_path(prop, clean_line, ismath=ismath)

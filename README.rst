@@ -81,6 +81,7 @@ Start at the `contributing guide <https://matplotlib.org/devdocs/devel/contribut
 
 Contact
 =======
+
 `Discourse <https://discourse.matplotlib.org/>`_ is the discussion forum for general questions and discussions and our recommended starting point.
 
 Our active mailing lists (which are mirrored on Discourse) are:

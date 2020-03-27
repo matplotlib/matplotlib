@@ -9,6 +9,8 @@ The selection logic is as follows:
   it; i.e. if the Qt5Agg backend is requested but QT_API is set to "pyqt4",
   then actually use Qt5 with PyQt5 or PySide2 (whichever can be imported);
 - otherwise, use whatever the rcParams indicate.
+
+Support for PyQt4 is deprecated.
 """
 
 from distutils.version import LooseVersion
@@ -93,7 +95,7 @@ def _setup_pyqt4():
 
     def _setup_pyqt4_internal(api):
         global QtCore, QtGui, QtWidgets, \
-            __version__, is_pyqt5, _getSaveFileName
+            __version__, is_pyqt5, _isdeleted, _getSaveFileName
         # List of incompatible APIs:
         # http://pyqt.sourceforge.net/Docs/PyQt4/incompatible_apis.html
         _sip_apis = ["QDate", "QDateTime", "QString", "QTextStream", "QTime",
@@ -175,3 +177,6 @@ else:  # We should not get there.
 ETS = dict(pyqt=(QT_API_PYQTv2, 4), pyside=(QT_API_PYSIDE, 4),
            pyqt5=(QT_API_PYQT5, 5), pyside2=(QT_API_PYSIDE2, 5))
 QT_RC_MAJOR_VERSION = 5 if is_pyqt5() else 4
+
+if not is_pyqt5():
+    mpl.cbook.warn_deprecated("3.3", name="support for Qt4")

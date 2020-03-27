@@ -94,9 +94,15 @@ _replace_mathdefault = functools.partial(
 
 
 def common_texification(text):
-    """
+    r"""
     Do some necessary and/or useful substitutions for texts to be included in
     LaTeX documents.
+
+    This distinguishes text-mode and math-mode by replacing the math separator
+    ``$`` with ``\(\displaystyle %s\)``. Escaped math separators (``\$``)
+    are ignored.
+
+    The following characters are escaped in text segments: ``_^$%``
     """
     # Sometimes, matplotlib adds the unknown command \mathdefault.
     # Not using \mathnormal instead since this looks odd for the latex cm font.
@@ -152,7 +158,7 @@ def _font_properties_str(prop):
 
 
 def make_pdf_to_png_converter():
-    """Returns a function that converts a pdf file to a png file."""
+    """Return a function that converts a pdf file to a png file."""
     if shutil.which("pdftocairo"):
         def cairo_convert(pdffile, pngfile, dpi):
             cmd = ["pdftocairo", "-singlefile", "-png", "-r", "%d" % dpi,
@@ -1152,7 +1158,5 @@ class PdfPages:
             figure.canvas = orig_canvas
 
     def get_pagecount(self):
-        """
-        Returns the current number of pages in the multipage pdf file.
-        """
+        """Return the current number of pages in the multipage pdf file."""
         return self._n_figures

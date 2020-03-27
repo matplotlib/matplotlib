@@ -322,7 +322,7 @@ class ScalarMappable:
         """
         Returns
         -------
-        alpha : float
+        float
             Always returns 1.
         """
         # This method is intended to be overridden by Artist sub-classes

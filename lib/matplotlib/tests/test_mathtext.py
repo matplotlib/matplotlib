@@ -329,3 +329,14 @@ def test_mathtext_fallback(fallback, fontlist):
     ]
     assert char_fonts == fontlist
     mpl.font_manager.fontManager.ttflist = mpl.font_manager.fontManager.ttflist[:-1]
+
+
+def test_math_to_image(tmpdir):
+    mathtext.math_to_image('$x^2$', str(tmpdir.join('example.png')))
+    mathtext.math_to_image('$x^2$', io.BytesIO())
+
+
+def test_mathtext_to_png(tmpdir):
+    mt = mathtext.MathTextParser('bitmap')
+    mt.to_png(str(tmpdir.join('example.png')), '$x^2$')
+    mt.to_png(io.BytesIO(), '$x^2$')

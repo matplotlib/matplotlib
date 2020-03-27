@@ -24,7 +24,7 @@ all_func_ids = ['plot_func']
 
 
 def test_compiletime_checks():
-    """test decorator invocations -> no replacements"""
+    """Test decorator invocations -> no replacements."""
 
     def func(ax, x, y): pass
     def func_args(ax, x, y, *args): pass
@@ -58,7 +58,7 @@ def test_compiletime_checks():
 
 @pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
 def test_function_call_without_data(func):
-    """test without data -> no replacements"""
+    """Test without data -> no replacements."""
     assert (func(None, "x", "y") ==
             "x: ['x'], y: ['y'], ls: x, w: xyz, label: None")
     assert (func(None, x="x", y="y") ==
@@ -93,7 +93,7 @@ def test_function_call_with_dict_data(func):
 
 @pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
 def test_function_call_with_dict_data_not_in_data(func):
-    """test the case that one var is not in data -> half replaces, half kept"""
+    """Test the case that one var is not in data -> half replaces, half kept"""
     data = {"a": [1, 2], "w": "NOT"}
     assert (func(None, "a", "b", data=data) ==
             "x: [1, 2], y: ['b'], ls: x, w: xyz, label: b")
@@ -131,7 +131,7 @@ def test_function_call_with_pandas_data(func, pd):
 
 
 def test_function_call_replace_all():
-    """Test without a "replace_names" argument, all vars should be replaced"""
+    """Test without a "replace_names" argument, all vars should be replaced."""
     data = {"a": [1, 2], "b": [8, 9], "x": "xyz"}
 
     @_preprocess_data(label_namer="y")
@@ -157,7 +157,7 @@ def test_function_call_replace_all():
 
 
 def test_no_label_replacements():
-    """Test with "label_namer=None" -> no label replacement at all"""
+    """Test with "label_namer=None" -> no label replacement at all."""
 
     @_preprocess_data(replace_names=["x", "y"], label_namer=None)
     def func_no_label(ax, x, y, ls="x", label=None, w="xyz"):

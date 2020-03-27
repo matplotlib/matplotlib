@@ -150,7 +150,7 @@ class _process_plot_var_args:
         # This should make a copy
         self._prop_keys = prop_cycler.keys
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, data=None, **kwargs):
         self.axes._process_unit_info(kwargs=kwargs)
 
         for pos_only in "xy":
@@ -161,9 +161,7 @@ class _process_plot_var_args:
         if not args:
             return
 
-        # Process the 'data' kwarg.
-        data = kwargs.pop("data", None)
-        if data is not None:
+        if data is not None:  # Process the 'data' kwarg.
             replaced = [mpl._replacer(data, arg) for arg in args]
             if len(args) == 1:
                 label_namer_idx = 0
@@ -415,7 +413,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        axes : `~.axes.Axes`
+        `~.axes.Axes`
             The new `~.axes.Axes` object.
         """
 
@@ -446,7 +444,7 @@ class _AxesBase(martist.Artist):
         self.set_label(label)
         self.set_figure(fig)
         self.set_box_aspect(box_aspect)
-        self.set_axes_locator(kwargs.get("axes_locator", None))
+        self._axes_locator = None  # Optionally set via update(kwargs).
 
         self.spines = self._gen_axes_spines()
 
@@ -829,7 +827,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        pos : `.Bbox`
+        `.Bbox`
 
         """
         if original:
@@ -867,10 +865,10 @@ class _AxesBase(martist.Artist):
 
     def _set_position(self, pos, which='both'):
         """
-        private version of set_position.  Call this internally
-        to get the same functionality of `get_position`, but not
-        to take the axis out of the constrained_layout
-        hierarchy.
+        Private version of set_position.
+
+        Call this internally to get the same functionality of `get_position`,
+        but not to take the axis out of the constrained_layout hierarchy.
         """
         if not isinstance(pos, mtransforms.BboxBase):
             pos = mtransforms.Bbox.from_bounds(*pos)
@@ -910,7 +908,7 @@ class _AxesBase(martist.Artist):
         return self._axes_locator
 
     def _set_artist_props(self, a):
-        """set the boilerplate props for artists added to axes"""
+        """Set the boilerplate props for artists added to axes."""
         a.set_figure(self.figure)
         if not a.is_transform_set():
             a.set_transform(self.transData)
@@ -1175,6 +1173,13 @@ class _AxesBase(martist.Artist):
             Finite-length iterable of the property values. These values
             are validated and will raise a ValueError if invalid.
 
+        See Also
+        --------
+        matplotlib.rcsetup.cycler
+            Convenience function for creating validated cyclers for properties.
+        cycler.cycler
+            The original function for creating unvalidated cyclers.
+
         Examples
         --------
         Setting the property cycle for a single property:
@@ -1186,13 +1191,6 @@ class _AxesBase(martist.Artist):
 
         >>> ax.set_prop_cycle(color=['red', 'green', 'blue'],
         ...                   marker=['o', '+', 'x'])
-
-        See Also
-        --------
-        matplotlib.rcsetup.cycler
-            Convenience function for creating validated cyclers for properties.
-        cycler.cycler
-            The original function for creating unvalidated cyclers.
 
         """
         if args and kwargs:
@@ -1255,10 +1253,9 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         matplotlib.axes.Axes.set_adjustable
-            defining the parameter to adjust in order to meet the required
-            aspect.
+            Set how the Axes adjusts to achieve the required aspect ratio.
         matplotlib.axes.Axes.set_anchor
-            defining the position in case of extra space.
+            Set the position in case of extra space.
         """
         if cbook._str_equal(aspect, 'equal'):
             aspect = 1
@@ -1288,22 +1285,21 @@ class _AxesBase(martist.Artist):
 
     def get_adjustable(self):
         """
-        Returns the adjustable parameter, *{'box', 'datalim'}* that defines
-        which parameter the Axes will change to achieve a given aspect.
+        Return whether the Axes will adjust its physical dimension ('box') or
+        its data limits ('datalim') to achieve the desired aspect ratio.
 
         See Also
         --------
         matplotlib.axes.Axes.set_adjustable
-            defining the parameter to adjust in order to meet the required
-            aspect.
+            Set how the Axes adjusts to achieve the required aspect ratio.
         matplotlib.axes.Axes.set_aspect
-            for a description of aspect handling.
+            For a description of aspect handling.
         """
         return self._adjustable
 
     def set_adjustable(self, adjustable, share=False):
         """
-        Define which parameter the Axes will change to achieve a given aspect.
+        Set how the Axes adjusts to achieve the required aspect ratio.
 
         Parameters
         ----------
@@ -1317,7 +1313,7 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         matplotlib.axes.Axes.set_aspect
-            for a description of aspect handling.
+            For a description of aspect handling.
 
         Notes
         -----
@@ -1514,12 +1510,11 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         matplotlib.axes.Axes.set_aspect
-            for a description of aspect ratio handling.
+            For a description of aspect ratio handling.
         matplotlib.axes.Axes.set_adjustable
-            defining the parameter to adjust in order to meet the required
-            aspect.
+            Set how the Axes adjusts to achieve the required aspect ratio.
         matplotlib.axes.Axes.set_anchor
-            defining the position in case of extra space.
+            Set the position in case of extra space.
         """
         if position is None:
             position = self.get_position(original=True)
@@ -1657,7 +1652,6 @@ class _AxesBase(martist.Artist):
             'tight'  Set limits just large enough to show all data, then
                      disable further autoscaling.
             'auto'   Automatic scaling (fill plot box with data).
-            'normal' Same as 'auto'; deprecated.
             'image'  'scaled' with axis limits equal to data limits.
             'square' Square plot; similar to 'scaled', but initially forcing
                      ``xmax-xmin == ymax-ymin``.
@@ -1673,7 +1667,7 @@ class _AxesBase(martist.Artist):
         xmin, xmax, ymin, ymax : float
             The axis limits.
 
-        See also
+        See Also
         --------
         matplotlib.axes.Axes.set_xlim
         matplotlib.axes.Axes.set_ylim
@@ -1689,12 +1683,7 @@ class _AxesBase(martist.Artist):
                 self.set_axis_on()
             elif s == 'off':
                 self.set_axis_off()
-            elif s in ('equal', 'tight', 'scaled', 'normal',
-                       'auto', 'image', 'square'):
-                if s == 'normal':
-                    cbook.warn_deprecated(
-                        "3.1", message="Passing 'normal' to axis() is "
-                        "deprecated since %(since)s; use 'auto' instead.")
+            elif s in ('equal', 'tight', 'scaled', 'auto', 'image', 'square'):
                 self.set_autoscale_on(True)
                 self.set_aspect('auto')
                 self.autoscale_view(tight=False)
@@ -1752,9 +1741,8 @@ class _AxesBase(martist.Artist):
             self.set_xlim(xmin, xmax, emit=emit, auto=xauto)
             self.set_ylim(ymin, ymax, emit=emit, auto=yauto)
         if kwargs:
-            cbook.warn_deprecated(
-                "3.1", message="Passing unsupported keyword arguments to "
-                "axis() will raise a TypeError %(removal)s.")
+            raise TypeError(f"axis() got an unexpected keyword argument "
+                            f"'{next(iter(kwargs))}'")
         return (*self.get_xlim(), *self.get_ylim())
 
     def get_legend(self):
@@ -1762,11 +1750,11 @@ class _AxesBase(martist.Artist):
         return self.legend_
 
     def get_images(self):
-        """return a list of Axes images contained by the Axes"""
+        r"""Return a list of `.AxesImage`\s contained by the Axes."""
         return cbook.silent_list('AxesImage', self.images)
 
     def get_lines(self):
-        """Return a list of lines contained by the Axes"""
+        """Return a list of lines contained by the Axes."""
         return cbook.silent_list('Line2D', self.lines)
 
     def get_xaxis(self):
@@ -1796,7 +1784,8 @@ class _AxesBase(martist.Artist):
     # Adding and tracking artists
 
     def _sci(self, im):
-        """Set the current image.
+        """
+        Set the current image.
 
         This image will be the target of colormap functions like
         `~.pyplot.viridis`, and other functions such as `~.pyplot.clim`.  The
@@ -1989,7 +1978,7 @@ class _AxesBase(martist.Artist):
         return p
 
     def _update_patch_limits(self, patch):
-        """update the data limits for patch *p*"""
+        """Update the data limits for the given patch."""
         # hist can add zero height Rectangles, which is useful to keep
         # the bins, counts and patches lined up, but it throws off log
         # scaling.  We'll ignore rects with zero height or width in
@@ -2759,7 +2748,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        axisbelow : bool or 'line'
+        bool or 'line'
 
         See Also
         --------
@@ -3388,7 +3377,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        labels : list
+        list
             List of `~matplotlib.text.Text` instances
         """
         return self.xaxis.get_majorticklabels()
@@ -3399,7 +3388,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        labels : list
+        list
             List of `~matplotlib.text.Text` instances
         """
         return self.xaxis.get_minorticklabels()
@@ -3421,7 +3410,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        ret : list
+        list
            List of `~matplotlib.text.Text` instances.
 
         Notes
@@ -3433,6 +3422,7 @@ class _AxesBase(martist.Artist):
         """
         return self.xaxis.get_ticklabels(minor=minor, which=which)
 
+    @cbook._make_keyword_only("3.3", "fontdict")
     def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
         Set the x-tick labels with list of string labels.
@@ -3461,11 +3451,11 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        labels : list of `~.Text`
+        list of `~.Text`
             The labels.
 
         Other Parameters
-        -----------------
+        ----------------
         **kwargs : `~.text.Text` properties.
         """
         if fontdict is not None:
@@ -3781,7 +3771,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        labels : list
+        list
             List of `~matplotlib.text.Text` instances
         """
         return self.yaxis.get_majorticklabels()
@@ -3792,7 +3782,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        labels : list
+        list
             List of `~matplotlib.text.Text` instances
         """
         return self.yaxis.get_minorticklabels()
@@ -3814,7 +3804,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        ret : list
+        list
            List of `~matplotlib.text.Text` instances.
 
         Notes
@@ -3826,6 +3816,7 @@ class _AxesBase(martist.Artist):
         """
         return self.yaxis.get_ticklabels(minor=minor, which=which)
 
+    @cbook._make_keyword_only("3.3", "fontdict")
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
         Set the y-tick labels with list of string labels.
@@ -4376,8 +4367,8 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        bbox : `.BboxBase`
-            bounding box in figure pixel coordinates.
+        `.BboxBase`
+            Bounding box in figure pixel coordinates.
 
         See Also
         --------
@@ -4464,7 +4455,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        ax_twin : Axes
+        Axes
             The newly created Axes instance
 
         Notes
@@ -4494,7 +4485,7 @@ class _AxesBase(martist.Artist):
 
         Returns
         -------
-        ax_twin : Axes
+        Axes
             The newly created Axes instance
 
         Notes

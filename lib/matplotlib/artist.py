@@ -274,7 +274,7 @@ class Artist:
 
         Returns
         -------
-        bbox : `.Bbox`
+        `.Bbox`
             The enclosing bounding box (in figure pixel coordinates).
         """
         bbox = self.get_window_extent(renderer)
@@ -305,7 +305,7 @@ class Artist:
 
         Returns
         -------
-        oid : int
+        int
             The observer id associated with the callback. This id can be
             used for removing the callback with `.remove_callback` later.
 
@@ -586,7 +586,7 @@ class Artist:
 
     def get_snap(self):
         """
-        Returns the snap setting.
+        Return the snap setting.
 
         See `.set_snap` for details.
         """
@@ -625,11 +625,11 @@ class Artist:
 
     def get_sketch_params(self):
         """
-        Returns the sketch parameters for the artist.
+        Return the sketch parameters for the artist.
 
         Returns
         -------
-        sketch_params : tuple or None
+        tuple or None
 
             A 3-tuple with the following elements:
 
@@ -786,7 +786,7 @@ class Artist:
     def get_alpha(self):
         """
         Return the alpha value used for blending - not supported on all
-        backends
+        backends.
         """
         return self._alpha
 
@@ -1109,7 +1109,7 @@ class Artist:
 
         Returns
         -------
-        artists : list of `.Artist`
+        list of `.Artist`
 
         """
         if match is None:  # always return True
@@ -1507,7 +1507,7 @@ def getp(obj, property=None):
 get = getp
 
 
-def setp(obj, *args, **kwargs):
+def setp(obj, *args, file=None, **kwargs):
     """
     Set a property on an artist object.
 
@@ -1531,8 +1531,8 @@ def setp(obj, *args, **kwargs):
       >>> setp(line)
           ... long output listing omitted
 
-    You may specify another output file to `setp` if `sys.stdout` is not
-    acceptable for some reason using the *file* keyword-only argument::
+    By default `setp` prints to `sys.stdout`, but this can be modified using
+    the *file* keyword-only argument::
 
       >>> with fopen('output.log') as f:
       >>>     setp(line, file=f)
@@ -1567,16 +1567,11 @@ def setp(obj, *args, **kwargs):
 
     insp = ArtistInspector(objs[0])
 
-    # file has to be popped before checking if kwargs is empty
-    printArgs = {}
-    if 'file' in kwargs:
-        printArgs['file'] = kwargs.pop('file')
-
     if not kwargs and len(args) < 2:
         if args:
-            print(insp.pprint_setters(prop=args[0]), **printArgs)
+            print(insp.pprint_setters(prop=args[0]), file=file)
         else:
-            print('\n'.join(insp.pprint_setters()), **printArgs)
+            print('\n'.join(insp.pprint_setters()), file=file)
         return
 
     if len(args) % 2:
@@ -1599,7 +1594,7 @@ def kwdoc(artist):
 
     Returns
     -------
-    string
+    str
         The settable properties of *artist*, as plain text if
         :rc:`docstring.hardcopy` is False and as a rst table (intended for
         use in Sphinx) if it is True.

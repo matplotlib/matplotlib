@@ -891,12 +891,12 @@ class Text(Artist):
         #return _unit_box
         if not self.get_visible():
             return Bbox.unit()
-        if dpi is not None:
-            dpi_orig = self.figure.dpi
-            self.figure.dpi = dpi
+        if dpi is None:
+            dpi = self.figure.dpi
         if self.get_text() == '':
-            tx, ty = self._get_xy_display()
-            return Bbox.from_bounds(tx, ty, 0, 0)
+            with cbook._setattr_cm(self.figure, dpi=dpi):
+                tx, ty = self._get_xy_display()
+                return Bbox.from_bounds(tx, ty, 0, 0)
 
         if renderer is not None:
             self._renderer = renderer
@@ -905,13 +905,12 @@ class Text(Artist):
         if self._renderer is None:
             raise RuntimeError('Cannot get window extent w/o renderer')
 
-        bbox, info, descent = self._get_layout(self._renderer)
-        x, y = self.get_unitless_position()
-        x, y = self.get_transform().transform((x, y))
-        bbox = bbox.translated(x, y)
-        if dpi is not None:
-            self.figure.dpi = dpi_orig
-        return bbox
+        with cbook._setattr_cm(self.figure, dpi=dpi):
+            bbox, info, descent = self._get_layout(self._renderer)
+            x, y = self.get_unitless_position()
+            x, y = self.get_transform().transform((x, y))
+            bbox = bbox.translated(x, y)
+            return bbox
 
     def set_backgroundcolor(self, color):
         """
@@ -1174,30 +1173,6 @@ class Text(Artist):
             self._text = str(s)
             self.stale = True
 
-    @staticmethod
-    @cbook.deprecated("3.1")
-    def is_math_text(s, usetex=None):
-        """
-        Returns a cleaned string and a boolean flag.
-        The flag indicates if the given string *s* contains any mathtext,
-        determined by counting unescaped dollar signs. If no mathtext
-        is present, the cleaned string has its dollar signs unescaped.
-        If usetex is on, the flag always has the value "TeX".
-        """
-        # Did we find an even number of non-escaped dollar signs?
-        # If so, treat is as math text.
-        if usetex is None:
-            usetex = rcParams['text.usetex']
-        if usetex:
-            if s == ' ':
-                s = r'\ '
-            return s, 'TeX'
-
-        if cbook.is_math_text(s):
-            return s, True
-        else:
-            return s.replace(r'\$', '$'), False
-
     def _preprocess_math(self, s):
         """
         Return the string *s* after mathtext preprocessing, and the kind of
@@ -1332,7 +1307,7 @@ class OffsetFrom:
 
         Returns
         -------
-        transform : `Transform`
+        `Transform`
             Maps (x, y) in pixel or point units to screen units
             relative to the given artist.
         """
@@ -1729,7 +1704,7 @@ class Annotation(Text, _AnnotationBase):
 
         Returns
         -------
-        annotation : `.Annotation`
+        `.Annotation`
 
         See Also
         --------
@@ -1758,26 +1733,22 @@ class Annotation(Text, _AnnotationBase):
             xytext = self.xy
         x, y = xytext
 
-        Text.__init__(self, x, y, text, **kwargs)
-
         self.arrowprops = arrowprops
-
         if arrowprops is not None:
+            arrowprops = arrowprops.copy()
             if "arrowstyle" in arrowprops:
-                arrowprops = self.arrowprops.copy()
                 self._arrow_relpos = arrowprops.pop("relpos", (0.5, 0.5))
             else:
                 # modified YAArrow API to be used with FancyArrowPatch
-                shapekeys = ('width', 'headwidth', 'headlength',
-                             'shrink', 'frac')
-                arrowprops = dict()
-                for key, val in self.arrowprops.items():
-                    if key not in shapekeys:
-                        arrowprops[key] = val  # basic Patch properties
-            self.arrow_patch = FancyArrowPatch((0, 0), (1, 1),
-                                               **arrowprops)
+                for key in [
+                        'width', 'headwidth', 'headlength', 'shrink', 'frac']:
+                    arrowprops.pop(key, None)
+            self.arrow_patch = FancyArrowPatch((0, 0), (1, 1), **arrowprops)
         else:
             self.arrow_patch = None
+
+        # Must come last, as some kwargs may be propagated to arrow_patch.
+        Text.__init__(self, x, y, text, **kwargs)
 
     def contains(self, event):
         inside, info = self._default_contains(event)

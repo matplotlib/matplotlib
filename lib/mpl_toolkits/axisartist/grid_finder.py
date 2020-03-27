@@ -23,7 +23,7 @@ class ExtremeFinderSimple:
 
     def __call__(self, transform_xy, x1, y1, x2, y2):
         """
-        get extreme values.
+        Return extreme values.
 
         x1, y1, x2, y2 in image coordinates (0-based)
         nx, ny : number of division in each axis

@@ -122,3 +122,28 @@ This behavior is consistent with other figure saving methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This is consistent with other signature mismatch errors.  Previously a
 ValueError was raised.
+
+Shortcut for closing all figures
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Shortcuts for closing all figures now also work for the classic toolbar.
+There is no default shortcut any more because unintentionally closing all figures by a key press
+might happen too easily. You can configure the shortcut yourself
+using :rc:`keymap.quit_all`.
+
+Autoscale for arrow
+~~~~~~~~~~~~~~~~~~~
+Calling ax.arrow() will now autoscale the axes.
+
+``set_tick_params(label1On=False)`` now also makes the offset text (if any) invisible
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... because the offset text can rarely be interpreted without tick labels
+anyways.
+
+`.Axes.annotate` and `.pyplot.annotate` parameter name changed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The parameter ``s`` to `.Axes.annotate` and  `.pyplot.annotate` is renamed to
+``text``, matching `.Annotation`.
+
+The old parameter name remains supported, but
+support for it will be dropped in a future Matplotlib release.
+

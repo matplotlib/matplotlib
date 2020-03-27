@@ -473,7 +473,7 @@ class Slider(AxesWidget):
 
         Returns
         -------
-        cid : int
+        int
             Connection id (which can be used to disconnect *func*)
         """
         cid = self.cnt
@@ -649,7 +649,7 @@ class CheckButtons(AxesWidget):
         return cid
 
     def disconnect(self, cid):
-        """remove the observer with connection id *cid*"""
+        """Remove the observer with connection id *cid*."""
         try:
             del self.observers[cid]
         except KeyError:
@@ -1151,10 +1151,8 @@ class SubplotTool(Widget):
 
         # During reset there can be a temporary invalid state depending on the
         # order of the reset so we turn off validation for the resetting
-        validate = toolfig.subplotpars.validate
-        toolfig.subplotpars.validate = False
-        self.buttonreset.on_clicked(self._on_reset)
-        toolfig.subplotpars.validate = validate
+        with cbook._setattr_cm(toolfig.subplotpars, validate=False):
+            self.buttonreset.on_clicked(self._on_reset)
 
     def _on_slider_changed(self, _):
         self.targetfig.subplots_adjust(
@@ -1380,18 +1378,18 @@ class MultiCursor(Widget):
         self.connect()
 
     def connect(self):
-        """connect events"""
+        """Connect events."""
         self._cidmotion = self.canvas.mpl_connect('motion_notify_event',
                                                   self.onmove)
         self._ciddraw = self.canvas.mpl_connect('draw_event', self.clear)
 
     def disconnect(self):
-        """disconnect events"""
+        """Disconnect events."""
         self.canvas.mpl_disconnect(self._cidmotion)
         self.canvas.mpl_disconnect(self._ciddraw)
 
     def clear(self, event):
-        """clear the cursor"""
+        """Clear the cursor."""
         if self.ignore(event):
             return
         if self.useblit:
@@ -1471,7 +1469,7 @@ class _SelectorWidget(AxesWidget):
             self.update_background(None)
 
     def update_background(self, event):
-        """force an update of the background"""
+        """Force an update of the background."""
         # If you add a call to `ignore` here, you'll want to check edge case:
         # `release` can call a draw event even when `ignore` is True.
         if self.useblit:
@@ -1814,11 +1812,6 @@ class SpanSelector(_SelectorWidget):
             return
         self.onselect(vmin, vmax)
         self.pressv = None
-        return False
-
-    @cbook.deprecated("3.1")
-    @property
-    def buttonDown(self):
         return False
 
     def _onmove(self, event):

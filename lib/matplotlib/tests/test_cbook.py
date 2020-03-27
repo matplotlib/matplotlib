@@ -15,14 +15,6 @@ import matplotlib.colors as mcolors
 from matplotlib.cbook import MatplotlibDeprecationWarning, delete_masked_points
 
 
-def test_is_hashable():
-    with pytest.warns(MatplotlibDeprecationWarning):
-        s = 'string'
-        assert cbook.is_hashable(s)
-        lst = ['list', 'of', 'stings']
-        assert not cbook.is_hashable(lst)
-
-
 class Test_delete_masked_points:
     def test_bad_first_arg(self):
         with pytest.raises(ValueError):

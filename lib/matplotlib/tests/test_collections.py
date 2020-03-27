@@ -1,8 +1,6 @@
-"""
-Tests specific to the collections module.
-"""
 import io
 import platform
+from types import SimpleNamespace
 
 import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
@@ -430,8 +428,7 @@ def test_regularpolycollection_scale():
     fig, ax = plt.subplots()
 
     xy = [(0, 0)]
-    # Unit square has a half-diagonal of `1 / sqrt(2)`, so `pi * r**2`
-    # equals...
+    # Unit square has a half-diagonal of `1/sqrt(2)`, so `pi * r**2` equals...
     circle_areas = [np.pi / 2]
     squares = SquareCollection(sizes=circle_areas, offsets=xy,
                                transOffset=ax.transData)
@@ -443,14 +440,8 @@ def test_picking():
     fig, ax = plt.subplots()
     col = ax.scatter([0], [0], [1000], picker=True)
     fig.savefig(io.BytesIO(), dpi=fig.dpi)
-
-    class MouseEvent:
-        pass
-    event = MouseEvent()
-    event.x = 325
-    event.y = 240
-
-    found, indices = col.contains(event)
+    mouse_event = SimpleNamespace(x=325, y=240)
+    found, indices = col.contains(mouse_event)
     assert found
     assert_array_equal(indices['ind'], [0])
 
