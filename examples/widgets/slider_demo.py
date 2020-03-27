@@ -59,4 +59,6 @@ def colorfunc(label):
     fig.canvas.draw_idle()
 radio.on_clicked(colorfunc)
 
+colorfunc(radio.value_selected)  # Initialize plot with correct initial active value
+
 plt.show()
