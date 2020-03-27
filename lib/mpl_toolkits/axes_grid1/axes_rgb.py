@@ -5,6 +5,7 @@ from .axes_divider import make_axes_locatable, Size
 from .mpl_axes import Axes
 
 
+@cbook._delete_parameter("3.3", "add_all")
 def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True, **kwargs):
     """
     Parameters
@@ -89,6 +90,7 @@ class RGBAxes:
 
     _defaultAxesClass = Axes
 
+    @cbook._delete_parameter("3.3", "add_all")
     def __init__(self, *args, pad=0, add_all=True, **kwargs):
         """
         Parameters
@@ -96,7 +98,8 @@ class RGBAxes:
         pad : float, default: 0
             fraction of the axes height to put as padding.
         add_all : bool, default: True
-            Whether to add the {rgb, r, g, b} axes to the figure
+            Whether to add the {rgb, r, g, b} axes to the figure.
+            This parameter is deprecated.
         axes_class : matplotlib.axes.Axes
 
         *args
@@ -108,8 +111,10 @@ class RGBAxes:
         self.RGB = ax = axes_class(*args, **kwargs)
         if add_all:
             ax.get_figure().add_axes(ax)
+        else:
+            kwargs["add_all"] = add_all  # only show deprecation in that case
         self.R, self.G, self.B = make_rgb_axes(
-            ax, pad=pad, axes_class=axes_class, add_all=add_all, **kwargs)
+            ax, pad=pad, axes_class=axes_class, **kwargs)
         self._config_axes()
 
     def _config_axes(self, line_color='w', marker_edge_color='w'):
