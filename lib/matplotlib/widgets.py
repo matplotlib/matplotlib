@@ -500,6 +500,114 @@ class Slider(AxesWidget):
         if self.val != self.valinit:
             self.set_val(self.valinit)
 
+class Dropdown(AxesWidget):
+    def __init__(self, ax, options, init_index=0):
+        AxesWidget.__init__(self, ax)
+        ax.set_yticks([])
+        ax.set_xticks([])
+        ax.set_navigate(False)
+
+        self.DIST_FROM_LEFT = .05
+        self.x0, self.y0, self.width, self.height = ax.get_position().bounds
+
+        self.cnt = 0
+        self.select_observers = {}
+
+        self.expanded = False
+        self.spans = []
+        self.seps = []
+        self.textobjs = []
+        self.selectindex = init_index
+
+        self.ax = ax
+        self.options = options
+
+        text = self.ax.text(self.DIST_FROM_LEFT, 0.5,
+                            self.options[self.selectindex],
+                            verticalalignment='center',
+                            horizontalalignment='left',
+                            transform=self.ax.transAxes)
+        self.selecttext = text
+
+        self.connect_event('button_press_event', self._click)
+
+    def _click(self, event):
+        if (event.inaxes == self.ax):
+            if (self.expanded):
+                self._select(event.ydata)
+                self._close()
+                self._notify_select_observers()
+            else:
+                self._expand()
+        else:
+            if (self.expanded):
+                self._close()
+
+    def _expand(self):
+        newy0 = self.y0 - ((len(self.options) - 1) * self.height)
+        newheight = len(self.options) * self.height
+        boxheight = 1 / len(self.options)
+        self.ax.set_position([self.x0, newy0, self.width, newheight])
+        self.selecttext.remove()
+        self.spans.clear()
+        self.seps.clear()
+        self.textobjs.clear()
+
+        for i in range(len(self.options)):
+            top = i * boxheight
+            bottom = top + boxheight
+            span = self.ax.axvspan(0, 1, top, bottom, color='white')
+            sep = self.ax.axhline(bottom, 0, 1, color='black')
+            text = self.ax.text(self.DIST_FROM_LEFT, (top + bottom) / 2,
+                                self.options[-i - 1],
+                                verticalalignment='center',
+                                horizontalalignment='left',
+                                transform=self.ax.transAxes)
+            self.spans.insert(-i - 1, span)
+            self.seps.insert(-i - 1, sep)
+            self.textobjs.insert(-i - 1, text)
+
+        self.selecttext = self.textobjs[self.selectindex]
+        # TODO: set zorder better
+        self.ax.set_zorder(99999)
+        self.expanded = True
+
+    def _close(self):
+        for text in self.textobjs:
+            text.remove()
+        for sep in self.seps:
+            sep.remove()
+        for span in self.spans:
+            span.remove()
+
+        self.ax.set_position([self.x0, self.y0, self.width, self.height])
+        text = self.ax.text(self.DIST_FROM_LEFT, 0.5,
+                            self.options[self.selectindex],
+                            verticalalignment='center',
+                            horizontalalignment='left',
+                            transform=self.ax.transAxes)
+        self.selecttext = text
+        self.expanded = False
+
+    def _select(self, ydata):
+        boxheight = 1 / len(self.options)
+        for i in range(len(self.options)):
+            ymax = (i + 1) * boxheight
+            if (ydata < ymax):
+                self.selectindex = len(self.options) - i - 1
+                break
+
+    def _notify_select_observers(self):
+        if self.eventson:
+            for cid, func in self.select_observers.items():
+                func(self.selectindex)
+
+    def on_select(self, func):
+        cid = self.cnt
+        self.select_observers[cid] = func
+        self.cnt += 1
+        return cid
+
 
 class CheckButtons(AxesWidget):
     r"""
@@ -1252,6 +1360,13 @@ class AxesTool(Widget):
         trightax = toolfig.add_axes([0.5, 0.9, 0.2, 0.05])
         self.tabright = Button(trightax, 'Curves')
         self.tabright.on_clicked(self.functabright)
+
+        # DROPDOWN TEST
+        # self.axdd = toolfig.add_subplot(10, 1, 1)
+        # self.dd = Dropdown(self.axdd, ['hello', 'world', 'again', 'and', 'again'])
+        # def selecttest(val):
+        #     print(val)
+        # self.dd.on_select(selecttest)
 
         self.axtitle = toolfig.add_subplot(10, 1, 1)
         self.title = TextBox(self.axtitle, 'Title', initial=self.ax.get_title(), label_pad=0.05)
