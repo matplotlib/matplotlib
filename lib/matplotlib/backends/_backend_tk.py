@@ -460,7 +460,7 @@ class FigureManagerTk(FigureManagerBase):
         return toolmanager
 
     def resize(self, width, height):
-        self.canvas._tkcanvas.master.geometry("%dx%d" % (width, height))
+        self.canvas._tkcanvas.configure(width=width, height=height)
 
         if self.toolbar is not None:
             self.toolbar.configure(width=width)
