@@ -6,6 +6,10 @@ import contextlib
 import logging
 import math
 import weakref
+try:
+    from contextlib import nullcontext
+except ImportError:
+    from contextlib import ExitStack as nullcontext  # Py 3.6.
 
 import numpy as np
 
@@ -891,21 +895,26 @@ class Text(Artist):
         #return _unit_box
         if not self.get_visible():
             return Bbox.unit()
-        if dpi is None:
-            dpi = self.figure.dpi
-        if self.get_text() == '':
-            with cbook._setattr_cm(self.figure, dpi=dpi):
+        if dpi is not None:
+            dpi_context = cbook._setattr_cm(self.figure, dpi=dpi)
+        else:
+            # This should not be necessary, but causes subtle bugs with some
+            # backends.
+            # See https://github.com/matplotlib/matplotlib/issues/16926
+            dpi_context = nullcontext()
+
+        with dpi_context:
+            if self.get_text() == '':
                 tx, ty = self._get_xy_display()
                 return Bbox.from_bounds(tx, ty, 0, 0)
 
-        if renderer is not None:
-            self._renderer = renderer
-        if self._renderer is None:
-            self._renderer = self.figure._cachedRenderer
-        if self._renderer is None:
-            raise RuntimeError('Cannot get window extent w/o renderer')
+            if renderer is not None:
+                self._renderer = renderer
+            if self._renderer is None:
+                self._renderer = self.figure._cachedRenderer
+            if self._renderer is None:
+                raise RuntimeError('Cannot get window extent w/o renderer')
 
-        with cbook._setattr_cm(self.figure, dpi=dpi):
             bbox, info, descent = self._get_layout(self._renderer)
             x, y = self.get_unitless_position()
             x, y = self.get_transform().transform((x, y))
