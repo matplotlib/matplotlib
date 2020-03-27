@@ -13,7 +13,7 @@ import matplotlib as mpl
 
 
 # Minimal smoke-testing of the backends for which the dependencies are
-# PyPI-installable on Travis.  They are not available for all tested Python
+# PyPI-installable on CI.  They are not available for all tested Python
 # versions so we don't fail on missing backends.
 
 def _get_testable_interactive_backends():
@@ -28,19 +28,22 @@ def _get_testable_interactive_backends():
             (["tkinter"], "tkagg"),
             (["wx"], "wx"),
             (["wx"], "wxagg"),
+            (["matplotlib.backends._macosx"], "macosx"),
     ]:
         reason = None
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
-        if not os.environ.get("DISPLAY"):
+        if sys.platform == "linux" and not os.environ.get("DISPLAY"):
             reason = "$DISPLAY is unset"
         elif missing:
             reason = "{} cannot be imported".format(", ".join(missing))
+        elif backend == 'macosx' and os.environ.get('TF_BUILD'):
+            reason = "macosx backend fails on Azure"
         if reason:
             backend = pytest.param(
                 backend,
                 marks=pytest.mark.skip(
                     reason=f"Skipping {backend} because {reason}"))
-        elif backend == 'wxagg' and sys.platform == 'darwin':
+        elif backend.startswith('wx') and sys.platform == 'darwin':
             # ignore on OSX because that's currently broken (github #16849)
             backend = pytest.param(
                 backend,
@@ -131,7 +134,7 @@ def test_interactive_backend(backend):
     assert proc.stdout.count("CloseEvent") == 1
 
 
-@pytest.mark.skipif('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI' in os.environ,
+@pytest.mark.skipif('TF_BUILD' in os.environ,
                     reason="this test fails an azure for unknown reasons")
 @pytest.mark.skipif(os.name == "nt", reason="Cannot send SIGINT on Windows.")
 def test_webagg():
