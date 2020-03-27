@@ -1672,26 +1672,15 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
             goto exit;
         }
     }
-
-    renderer = PyObject_CallMethod(canvas, "_draw", "", NULL);
-    if (!renderer)
-    {
+    if (!(renderer = PyObject_CallMethod(canvas, "_draw", "", NULL))
+        || !(renderer_buffer = PyObject_GetAttrString(renderer, "_renderer"))) {
         PyErr_Print();
         goto exit;
     }
-
-    renderer_buffer = PyObject_GetAttrString(renderer, "_renderer");
-    if (!renderer_buffer) {
-        PyErr_Print();
-        goto exit;
-    }
-
     if (_copy_agg_buffer(cr, renderer_buffer)) {
         printf("copy_agg_buffer failed\n");
         goto exit;
     }
-
-
     if (!NSIsEmptyRect(rubberband)) {
         NSFrameRect(rubberband);
     }
@@ -2391,63 +2380,37 @@ Timer__timer_start(Timer* self, PyObject* args)
     CFRunLoopRef runloop;
     CFRunLoopTimerRef timer;
     CFRunLoopTimerContext context;
-    double milliseconds;
     CFAbsoluteTime firstFire;
     CFTimeInterval interval;
-    PyObject* attribute;
-    PyObject* failure;
+    PyObject* py_interval = NULL, * py_single = NULL, * py_on_timer = NULL;
+    int single;
     runloop = CFRunLoopGetCurrent();
     if (!runloop) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to obtain run loop");
         return NULL;
     }
-    attribute = PyObject_GetAttrString((PyObject*)self, "_interval");
-    if (attribute==NULL)
-    {
-        PyErr_SetString(PyExc_AttributeError, "Timer has no attribute '_interval'");
-        return NULL;
+    if (!(py_interval = PyObject_GetAttrString((PyObject*)self, "_interval"))
+        || ((interval = PyFloat_AsDouble(py_interval) / 1000.), PyErr_Occurred())
+        || !(py_single = PyObject_GetAttrString((PyObject*)self, "_single"))
+        || ((single = PyObject_IsTrue(py_single)) == -1)
+        || !(py_on_timer = PyObject_GetAttrString((PyObject*)self, "_on_timer"))) {
+        goto exit;
     }
-    milliseconds = PyFloat_AsDouble(attribute);
-    failure = PyErr_Occurred();
-    Py_DECREF(attribute);
-    if (failure) return NULL;
-    attribute = PyObject_GetAttrString((PyObject*)self, "_single");
-    if (attribute==NULL)
-    {
-        PyErr_SetString(PyExc_AttributeError, "Timer has no attribute '_single'");
-        return NULL;
-    }
-    // Need to tell when to first fire this timer, so get the current time
-    // and add an interval.
-    interval = milliseconds / 1000.0;
+    // (current time + interval) is time of first fire.
     firstFire = CFAbsoluteTimeGetCurrent() + interval;
-    switch (PyObject_IsTrue(attribute)) {
-        case 1:
-            interval = 0;
-            break;
-        case 0: // Set by default above
-            break;
-        case -1:
-        default:
-            PyErr_SetString(PyExc_ValueError, "Cannot interpret _single attribute as True of False");
-            return NULL;
+    if (single) {
+        interval = 0;
     }
-    Py_DECREF(attribute);
-    attribute = PyObject_GetAttrString((PyObject*)self, "_on_timer");
-    if (attribute==NULL)
-    {
-        PyErr_SetString(PyExc_AttributeError, "Timer has no attribute '_on_timer'");
-        return NULL;
-    }
-    if (!PyMethod_Check(attribute)) {
+    if (!PyMethod_Check(py_on_timer)) {
         PyErr_SetString(PyExc_RuntimeError, "_on_timer should be a Python method");
-        return NULL;
+        goto exit;
     }
+    Py_INCREF(py_on_timer);
     context.version = 0;
     context.retain = NULL;
     context.release = context_cleanup;
     context.copyDescription = NULL;
-    context.info = attribute;
+    context.info = py_on_timer;
     timer = CFRunLoopTimerCreate(kCFAllocatorDefault,
                                  firstFire,
                                  interval,
@@ -2456,9 +2419,8 @@ Timer__timer_start(Timer* self, PyObject* args)
                                  timer_callback,
                                  &context);
     if (!timer) {
-        Py_DECREF(attribute);
         PyErr_SetString(PyExc_RuntimeError, "Failed to create timer");
-        return NULL;
+        goto exit;
     }
     if (self->timer) {
         CFRunLoopTimerInvalidate(self->timer);
@@ -2469,7 +2431,15 @@ Timer__timer_start(Timer* self, PyObject* args)
      * the timer lost before we have a chance to decrease the reference count
      * of the attribute */
     self->timer = timer;
-    Py_RETURN_NONE;
+exit:
+    Py_XDECREF(py_interval);
+    Py_XDECREF(py_single);
+    Py_XDECREF(py_on_timer);
+    if (PyErr_Occurred()) {
+        return NULL;
+    } else {
+        Py_RETURN_NONE;
+    }
 }
 
 static PyObject*
