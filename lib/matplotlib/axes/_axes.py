@@ -8019,6 +8019,8 @@ default: :rc:`scatter.edgecolors`
         medians = []
         quantiles = np.asarray([])
         quartiles = np.asarray([])
+        lower_quartile_bounds = np.asarray([])
+        upper_quartile_bounds = np.asarray([])
 
         # Collections to be returned
         artists = {}
@@ -8083,7 +8085,13 @@ default: :rc:`scatter.edgecolors`
             if quarts is not None:
                 # If exist key quantiles, assume it's a list of floats
                 quartiles = np.concatenate((quartiles, quarts))
-            
+
+                # find coordinate closest to each quartile and determine bounds
+                for quart in quarts:
+                    coord_idx = np.abs(stats['coords'] - quart).argmin()
+                    lower_quartile_bounds = np.concatenate((lower_quartile_bounds, [(-vals + pos)[coord_idx]]))
+                    upper_quartile_bounds = np.concatenate((upper_quartile_bounds, [(vals + pos)[coord_idx]]))
+
         artists['bodies'] = bodies
 
         # Render means
@@ -8124,23 +8132,13 @@ default: :rc:`scatter.edgecolors`
                                                  colors=edgecolor)
 
         # Render quartiles
-        if showquartiles:            
-            # ppmins are the left end of quartiles lines
-            ppmins = np.asarray([])
-            # ppmaxs are the right end of quartiles lines
-            ppmaxs = np.asarray([])
-            for stats, cmin, cmax in zip(vpstats, pmins, pmaxes):
-                q = stats.get('quartiles')
-                
-                ppmins = np.concatenate((ppmins, [cmin] * np.size(q)))
-                ppmaxs = np.concatenate((ppmaxs, [cmax] * np.size(q)))
-
+        if showquartiles:
             # Start rendering
             artists['cquartiles'] = perp_lines(quartiles,
-                                             ppmins,
-                                             ppmaxs,
-                                             colors=edgecolor,
-                                             linestyles='dotted')
+                                               lower_quartile_bounds,
+                                               upper_quartile_bounds,
+                                               colors=edgecolor,
+                                               linestyles='dotted')
 
         return artists
 
