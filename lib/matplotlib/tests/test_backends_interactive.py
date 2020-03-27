@@ -1,5 +1,6 @@
 import importlib
 import importlib.util
+import json
 import os
 import signal
 import subprocess
@@ -60,6 +61,7 @@ def _get_testable_interactive_backends():
 _test_script = """\
 import importlib
 import importlib.util
+import json
 import sys
 from unittest import TestCase
 
@@ -70,6 +72,8 @@ rcParams.update({
     "webagg.open_in_browser": False,
     "webagg.port_retries": 1,
 })
+if len(sys.argv) >= 2:  # Second argument is json-encoded rcParams.
+    rcParams.update(json.loads(sys.argv[1]))
 backend = plt.rcParams["backend"].lower()
 assert_equal = TestCase().assertEqual
 assert_raises = TestCase().assertRaises
@@ -122,10 +126,14 @@ _test_timeout = 10  # Empirically, 1s is not enough on Travis.
 
 
 @pytest.mark.parametrize("backend", _get_testable_interactive_backends())
+@pytest.mark.parametrize("toolbar", ["toolbar2", "toolmanager"])
 @pytest.mark.flaky(reruns=3)
-def test_interactive_backend(backend):
+def test_interactive_backend(backend, toolbar):
+    if backend == "macosx" and toolbar == "toolmanager":
+        pytest.skip("toolmanager is not implemented for macosx.")
     proc = subprocess.run(
-        [sys.executable, "-c", _test_script],
+        [sys.executable, "-c", _test_script,
+         json.dumps({"toolbar": toolbar})],
         env={**os.environ, "MPLBACKEND": backend}, timeout=_test_timeout,
         stdout=subprocess.PIPE, universal_newlines=True)
     if proc.returncode:

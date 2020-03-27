@@ -992,7 +992,7 @@ class ToolPan(ZoomPanBase):
 class ToolHelpBase(ToolBase):
     description = 'Print tool list, shortcuts and description'
     default_keymap = mpl.rcParams['keymap.help']
-    image = 'help.png'
+    image = 'help'
 
     @staticmethod
     def format_shortcut(key_sequence):
