@@ -21,20 +21,12 @@ Plot `numpy.datetime64` values
 As of Matplotlib 2.2, `numpy.datetime64` objects are handled the same way
 as `datetime.datetime` objects.
 
-If you prefer the pandas converters and locators, you can register their
-converter with the `matplotlib.units` module::
+If you prefer the pandas converters and locators, you can register them.  This
+is done automatically when calling a pandas plot function and may be
+unnecessary when using pandas instead of Matplotlib directly. ::
 
-  from pandas.tseries import converter as pdtc
-  pdtc.register()
-
-If you only want to use the `pandas` converter for `numpy.datetime64` values ::
-
-  from pandas.tseries import converter as pdtc
-  import matplotlib.units as munits
-  import numpy as np
-
-  munits.registry[np.datetime64] = pdtc.DatetimeConverter()
-
+  from pandas.plotting import register_matplotlib_converters
+  register_matplotlib_converters()
 
 
 .. _howto-figure-empty:
