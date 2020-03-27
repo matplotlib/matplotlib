@@ -335,14 +335,7 @@ class Grid:
         return self._divider.get_locator()
 
     def get_vsize_hsize(self):
-
         return self._divider.get_vsize_hsize()
-#         from axes_size import AddList
-
-#         vsize = AddList(self._divider.get_vertical())
-#         hsize = AddList(self._divider.get_horizontal())
-
-#         return vsize, hsize
 
 
 class ImageGrid(Grid):
