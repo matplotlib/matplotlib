@@ -39,6 +39,11 @@ def test_resample():
     colorlist[:, 3] = 0.7
     lsc = mcolors.LinearSegmentedColormap.from_list('lsc', colorlist)
     lc = mcolors.ListedColormap(colorlist)
+    # Set some bad values for testing too
+    for cmap in [lsc, lc]:
+        cmap.set_under('r')
+        cmap.set_over('g')
+        cmap.set_bad('b')
     lsc3 = lsc._resample(3)
     lc3 = lc._resample(3)
     expected = np.array([[0.0, 0.2, 1.0, 0.7],
@@ -46,6 +51,13 @@ def test_resample():
                          [1.0, 0.2, 0.0, 0.7]], float)
     assert_array_almost_equal(lsc3([0, 0.5, 1]), expected)
     assert_array_almost_equal(lc3([0, 0.5, 1]), expected)
+    # Test over/under was copied properly
+    assert_array_almost_equal(lsc(np.inf), lsc3(np.inf))
+    assert_array_almost_equal(lsc(-np.inf), lsc3(-np.inf))
+    assert_array_almost_equal(lsc(np.nan), lsc3(np.nan))
+    assert_array_almost_equal(lc(np.inf), lc3(np.inf))
+    assert_array_almost_equal(lc(-np.inf), lc3(-np.inf))
+    assert_array_almost_equal(lc(np.nan), lc3(np.nan))
 
 
 def test_register_cmap():
@@ -818,6 +830,10 @@ def test_colormap_reversing(name):
         cmap._init()
         cmap_r._init()
     assert_array_almost_equal(cmap._lut[:-3], cmap_r._lut[-4::-1])
+    # Test the bad, over, under values too
+    assert_array_almost_equal(cmap(-np.inf), cmap_r(np.inf))
+    assert_array_almost_equal(cmap(np.inf), cmap_r(-np.inf))
+    assert_array_almost_equal(cmap(np.nan), cmap_r(np.nan))
 
 
 def test_cn():

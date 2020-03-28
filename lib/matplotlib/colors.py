@@ -790,7 +790,12 @@ class LinearSegmentedColormap(Colormap):
 
     def _resample(self, lutsize):
         """Return a new color map with *lutsize* entries."""
-        return LinearSegmentedColormap(self.name, self._segmentdata, lutsize)
+        new_cmap = LinearSegmentedColormap(self.name, self._segmentdata,
+                                           lutsize)
+        new_cmap._rgba_over = self._rgba_over
+        new_cmap._rgba_under = self._rgba_under
+        new_cmap._rgba_bad = self._rgba_bad
+        return new_cmap
 
     # Helper ensuring picklability of the reversed cmap.
     @staticmethod
@@ -821,7 +826,12 @@ class LinearSegmentedColormap(Colormap):
                         [(1.0 - x, y1, y0) for x, y0, y1 in reversed(data)])
                   for key, data in self._segmentdata.items()}
 
-        return LinearSegmentedColormap(name, data_r, self.N, self._gamma)
+        new_cmap = LinearSegmentedColormap(name, data_r, self.N, self._gamma)
+        # Reverse the over/under values too
+        new_cmap._rgba_over = self._rgba_under
+        new_cmap._rgba_under = self._rgba_over
+        new_cmap._rgba_bad = self._rgba_bad
+        return new_cmap
 
 
 class ListedColormap(Colormap):
@@ -885,7 +895,12 @@ class ListedColormap(Colormap):
     def _resample(self, lutsize):
         """Return a new color map with *lutsize* entries."""
         colors = self(np.linspace(0, 1, lutsize))
-        return ListedColormap(colors, name=self.name)
+        new_cmap = ListedColormap(colors, name=self.name)
+        # Keep the over/under values too
+        new_cmap._rgba_over = self._rgba_over
+        new_cmap._rgba_under = self._rgba_under
+        new_cmap._rgba_bad = self._rgba_bad
+        return new_cmap
 
     def reversed(self, name=None):
         """
@@ -906,7 +921,12 @@ class ListedColormap(Colormap):
             name = self.name + "_r"
 
         colors_r = list(reversed(self.colors))
-        return ListedColormap(colors_r, name=name, N=self.N)
+        new_cmap = ListedColormap(colors_r, name=name, N=self.N)
+        # Reverse the over/under values too
+        new_cmap._rgba_over = self._rgba_under
+        new_cmap._rgba_under = self._rgba_over
+        new_cmap._rgba_bad = self._rgba_bad
+        return new_cmap
 
 
 class Normalize:

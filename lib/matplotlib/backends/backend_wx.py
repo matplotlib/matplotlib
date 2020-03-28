@@ -56,9 +56,7 @@ IDLE_DELAY = 5  # Documented as deprecated as of Matplotlib 3.1.
 
 
 def error_msg_wx(msg, parent=None):
-    """
-    Signal an error condition -- in a GUI, popup a error dialog
-    """
+    """Signal an error condition with a popup error dialog."""
     dialog = wx.MessageDialog(parent=parent,
                               message=msg,
                               caption='Matplotlib backend_wx error',
@@ -240,7 +238,6 @@ class RendererWx(RendererBase):
             h = self.height
         rows, cols = im.shape[:2]
         bitmap = wx.Bitmap.FromBufferRGBA(cols, rows, im.tostring())
-        gc = self.get_gc()
         gc.select()
         gc.gfx_ctx.DrawBitmap(bitmap, int(l), int(self.height - b),
                               int(w), int(-h))
@@ -282,6 +279,7 @@ class RendererWx(RendererBase):
         self.gc.unselect()
         return self.gc
 
+    @cbook.deprecated("3.3", alternative=".gc")
     def get_gc(self):
         """
         Fetch the locally cached gc.
@@ -417,7 +415,7 @@ class GraphicsContextWx(GraphicsContextBase):
         self.unselect()
 
     def get_wxcolour(self, color):
-        """Convert the given RGB(A) color to a wx.Colour."""
+        """Convert a RGB(A) color to a wx.Colour."""
         _log.debug("%s - get_wx_color()", type(self))
         if len(color) == 3:
             r, g, b = color
@@ -914,14 +912,6 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         self.Refresh()
 
 
-########################################################################
-#
-# The following functions and classes are for pylab compatibility
-# mode (matplotlib.pylab) and implement figure managers, etc...
-#
-########################################################################
-
-
 class FigureFrameWx(wx.Frame):
     def __init__(self, num, fig):
         # On non-Windows platform, explicitly set the position - fix
@@ -1047,7 +1037,6 @@ class FigureManagerWx(FigureManagerBase):
         a FigureCanvasWx(wx.Panel) instance
     window : wxFrame
         a wxFrame instance - wxpython.org/Phoenix/docs/html/Frame.html
-
     """
 
     def __init__(self, canvas, num, frame):
@@ -1060,12 +1049,14 @@ class FigureManagerWx(FigureManagerBase):
         self.toolbar = frame.GetToolBar()
 
     def show(self):
+        # docstring inherited
         self.frame.Show()
         self.canvas.draw()
         if mpl.rcParams['figure.raise_window']:
             self.frame.Raise()
 
     def destroy(self, *args):
+        # docstring inherited
         _log.debug("%s - destroy()", type(self))
         self.frame.Close()
         wxapp = wx.GetApp()
@@ -1073,13 +1064,15 @@ class FigureManagerWx(FigureManagerBase):
             wxapp.Yield()
 
     def get_window_title(self):
+        # docstring inherited
         return self.window.GetTitle()
 
     def set_window_title(self, title):
+        # docstring inherited
         self.window.SetTitle(title)
 
     def resize(self, width, height):
-        """Set the canvas size in pixels."""
+        # docstring inherited
         self.canvas.SetInitialSize(wx.Size(width, height))
         self.window.GetSizer().Fit(self.window)
 
