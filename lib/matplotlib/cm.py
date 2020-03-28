@@ -15,6 +15,7 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
   normalization.
 """
 
+import copy
 import functools
 
 import numpy as np
@@ -70,7 +71,7 @@ def _gen_cmap_d():
 
 
 cmap_d = _gen_cmap_d()
-locals().update(cmap_d)
+locals().update(copy.deepcopy(cmap_d))
 
 
 # Continue with definitions ...
@@ -95,6 +96,9 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     and the resulting colormap is registered. Instead of this implicit
     colormap creation, create a `.LinearSegmentedColormap` and use the first
     case: ``register_cmap(cmap=LinearSegmentedColormap(name, data, lut))``.
+
+    If *name* is the same as a built-in colormap this will replace the
+    built-in Colormap of the same name.
     """
     cbook._check_isinstance((str, None), name=name)
     if name is None:
@@ -124,15 +128,16 @@ def get_cmap(name=None, lut=None):
     """
     Get a colormap instance, defaulting to rc values if *name* is None.
 
-    Colormaps added with :func:`register_cmap` take precedence over
-    built-in colormaps.
+    Colormaps added with :func:`register_cmap` with the same name as
+    built-in colormaps will replace them.
 
     Parameters
     ----------
     name : `matplotlib.colors.Colormap` or str or None, default: None
-        If a `.Colormap` instance, it will be returned.  Otherwise, the name of
-        a colormap known to Matplotlib, which will be resampled by *lut*.  The
-        default, None, means :rc:`image.cmap`.
+        If a `.Colormap` instance, a copy of it will be returned.
+        Otherwise, the name of a colormap known to Matplotlib, which will
+        be resampled by *lut*. A copy of the requested Colormap is always
+        returned. The default, None, means :rc:`image.cmap`.
     lut : int or None, default: None
         If *name* is not already a Colormap instance and *lut* is not None, the
         colormap will be resampled to have *lut* entries in the lookup table.
@@ -140,10 +145,10 @@ def get_cmap(name=None, lut=None):
     if name is None:
         name = mpl.rcParams['image.cmap']
     if isinstance(name, colors.Colormap):
-        return name
+        return copy.copy(name)
     cbook._check_in_list(sorted(cmap_d), name=name)
     if lut is None:
-        return cmap_d[name]
+        return copy.copy(cmap_d[name])
     else:
         return cmap_d[name]._resample(lut)
 

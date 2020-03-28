@@ -601,6 +601,18 @@ class Colormap:
             cmapobject._lut = np.copy(self._lut)
         return cmapobject
 
+    def __eq__(self, other):
+        if isinstance(other, Colormap):
+            # To compare lookup tables the Colormaps have to be initialized
+            if not self._isinit:
+                self._init()
+            if not other._isinit:
+                other._init()
+            if self._lut.shape != other._lut.shape:
+                return False
+            return np.all(self._lut == other._lut)
+        return False
+
     def set_bad(self, color='k', alpha=None):
         """Set the color for masked values."""
         self._rgba_bad = to_rgba(color, alpha)

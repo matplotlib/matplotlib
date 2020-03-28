@@ -98,9 +98,9 @@ deprecation warning.
 `~.Axes.errorbar` now color cycles when only errorbar color is set
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Previously setting the *ecolor* would turn off automatic color cycling for the plot, leading to the 
-the lines and markers defaulting to whatever the first color in the color cycle was in the case of 
-multiple plot calls. 
+Previously setting the *ecolor* would turn off automatic color cycling for the plot, leading to the
+the lines and markers defaulting to whatever the first color in the color cycle was in the case of
+multiple plot calls.
 
 `.rcsetup.validate_color_for_prop_cycle` now always raises TypeError for bytes input
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -146,4 +146,12 @@ The parameter ``s`` to `.Axes.annotate` and  `.pyplot.annotate` is renamed to
 
 The old parameter name remains supported, but
 support for it will be dropped in a future Matplotlib release.
+
+`pyplot.get_cmap()` now returns a copy of the colormap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, calling ``.pyplot.get_cmap()`` would return a pointer to
+the built-in Colormap. If you made modifications to that colormap, the
+changes would be propagated in the global state. This function now
+returns a copy of all registered colormaps to keep the built-in
+colormaps untouched.
 

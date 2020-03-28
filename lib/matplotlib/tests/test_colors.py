@@ -61,13 +61,25 @@ def test_resample():
 
 
 def test_register_cmap():
-    new_cm = copy.copy(plt.cm.viridis)
+    new_cm = plt.get_cmap('viridis')
     cm.register_cmap('viridis2', new_cm)
     assert plt.get_cmap('viridis2') == new_cm
 
     with pytest.raises(ValueError,
                        match='Arguments must include a name or a Colormap'):
         cm.register_cmap()
+
+
+def test_colormap_builtin_immutable():
+    new_cm = plt.get_cmap('viridis')
+    new_cm.set_over('b')
+    # Make sure that this didn't mess with the original viridis cmap
+    assert new_cm != plt.get_cmap('viridis')
+
+    # Also test that pyplot access doesn't mess the original up
+    new_cm = plt.cm.viridis
+    new_cm.set_over('b')
+    assert new_cm != plt.get_cmap('viridis')
 
 
 def test_colormap_copy():
