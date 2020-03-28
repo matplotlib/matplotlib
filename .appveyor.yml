@@ -90,6 +90,7 @@ test_script:
   # tests
   - echo The following args are passed to pytest %PYTEST_ARGS%
   - pytest %PYTEST_ARGS%
+  - git status
 
 after_test:
   # After the tests were a success, build wheels.
