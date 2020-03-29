@@ -1344,9 +1344,8 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
         self._toolitems = {}
         self._groups = {}
 
-    def add_toolitem(
-        self, name, group, position, image_file, description, toggle):
-
+    def add_toolitem(self, name, group, position, image_file, description,
+                     toggle):
         before, group = self._add_to_group(group, name, position)
         idx = self.GetToolPos(before.Id)
         if image_file:

@@ -5825,7 +5825,7 @@ default: :rc:`scatter.edgecolors`
         # Transform from native to data coordinates?
         t = collection._transform
         if (not isinstance(t, mtransforms.Transform) and
-            hasattr(t, '_as_mpl_transform')):
+                hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
 
         if t and any(t.contains_branch_seperately(self.transData)):
@@ -6057,7 +6057,7 @@ default: :rc:`scatter.edgecolors`
         # Transform from native to data coordinates?
         t = collection._transform
         if (not isinstance(t, mtransforms.Transform) and
-            hasattr(t, '_as_mpl_transform')):
+                hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
 
         if t and any(t.contains_branch_seperately(self.transData)):
@@ -6209,7 +6209,7 @@ default: :rc:`scatter.edgecolors`
                     dx = np.diff(x)
                     dy = np.diff(y)
                     if (np.ptp(dx) < 0.01 * abs(dx.mean()) and
-                        np.ptp(dy) < 0.01 * abs(dy.mean())):
+                            np.ptp(dy) < 0.01 * abs(dy.mean())):
                         style = "image"
                     else:
                         style = "pcolorimage"

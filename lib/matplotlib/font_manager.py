@@ -631,12 +631,8 @@ class FontProperties:
         if isinstance(family, str):
             # Treat family as a fontconfig pattern if it is the only
             # parameter provided.
-            if (style is None and
-                variant is None and
-                weight is None and
-                stretch is None and
-                size is None and
-                fname is None):
+            if (style is None and variant is None and weight is None and
+                    stretch is None and size is None and fname is None):
                 self.set_fontconfig_pattern(family)
                 return
 

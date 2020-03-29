@@ -487,8 +487,8 @@ def inset_axes(parent_axes, width, height, loc='upper right',
     if bbox_to_anchor is None:
         bbox_to_anchor = parent_axes.bbox
 
-    if isinstance(bbox_to_anchor, tuple) and \
-        (isinstance(width, str) or isinstance(height, str)):
+    if (isinstance(bbox_to_anchor, tuple) and
+            (isinstance(width, str) or isinstance(height, str))):
         if len(bbox_to_anchor) != 4:
             raise ValueError("Using relative units for width or height "
                              "requires to provide a 4-tuple or a "

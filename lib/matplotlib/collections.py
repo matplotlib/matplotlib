@@ -197,7 +197,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         transform = self.get_transform()
         transOffset = self.get_offset_transform()
         if (not self._offsetsNone and
-            not transOffset.contains_branch(transData)):
+                not transOffset.contains_branch(transData)):
             # if there are offsets but in some coords other than data,
             # then don't use them for autoscaling.
             return transforms.Bbox.null()
@@ -329,11 +329,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         edgecolors = self.get_edgecolor()
         do_single_path_optimization = False
         if (len(paths) == 1 and len(trans) <= 1 and
-            len(facecolors) == 1 and len(edgecolors) == 1 and
-            len(self._linewidths) == 1 and
-            all(ls[1] is None for ls in self._linestyles) and
-            len(self._antialiaseds) == 1 and len(self._urls) == 1 and
-            self.get_hatch() is None):
+                len(facecolors) == 1 and len(edgecolors) == 1 and
+                len(self._linewidths) == 1 and
+                all(ls[1] is None for ls in self._linestyles) and
+                len(self._antialiaseds) == 1 and len(self._urls) == 1 and
+                self.get_hatch() is None):
             if len(trans):
                 combined_transform = transforms.Affine2D(trans[0]) + transform
             else:
