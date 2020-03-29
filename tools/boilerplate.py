@@ -17,6 +17,7 @@ from enum import Enum
 import inspect
 from inspect import Parameter
 from pathlib import Path
+import sys
 import textwrap
 
 # This line imports the installed copy of matplotlib, and not the local copy.
@@ -337,9 +338,7 @@ def boilerplate_gen():
     yield '_setup_pyplot_info_docstrings()'
 
 
-def build_pyplot():
-    pyplot_path = Path(__file__).parent / "../lib/matplotlib/pyplot.py"
-
+def build_pyplot(pyplot_path):
     pyplot_orig = pyplot_path.read_text().splitlines(keepends=True)
     try:
         pyplot_orig = pyplot_orig[:pyplot_orig.index(PYPLOT_MAGIC_HEADER) + 1]
@@ -355,4 +354,8 @@ def build_pyplot():
 
 if __name__ == '__main__':
     # Write the matplotlib.pyplot file.
-    build_pyplot()
+    if len(sys.argv) > 1:
+        pyplot_path = Path(sys.argv[1])
+    else:
+        pyplot_path = Path(__file__).parent / "../lib/matplotlib/pyplot.py"
+    build_pyplot(pyplot_path)
