@@ -2,7 +2,6 @@
 Matplotlib provides sophisticated date plotting capabilities, standing on the
 shoulders of python :mod:`datetime` and the add-on module :mod:`dateutil`.
 
-
 .. _date-format:
 
 Matplotlib date format
@@ -62,8 +61,7 @@ easy to place ticks on any kinds of dates.  See examples below.
 Date tickers
 ------------
 
-Most of the date tickers can locate single or multiple values.  For
-example::
+Most of the date tickers can locate single or multiple values.  For example::
 
     # import constants for the days of the week
     from matplotlib.dates import MO, TU, WE, TH, FR, SA, SU
@@ -87,23 +85,23 @@ The rrule locator allows completely general date ticking::
 
 The available date tickers are:
 
-* `MicrosecondLocator`: locate microseconds
+* `MicrosecondLocator`: Locate microseconds.
 
-* `SecondLocator`: locate seconds
+* `SecondLocator`: Locate seconds.
 
-* `MinuteLocator`: locate minutes
+* `MinuteLocator`: Locate minutes.
 
-* `HourLocator`: locate hours
+* `HourLocator`: Locate hours.
 
-* `DayLocator`: locate specified days of the month
+* `DayLocator`: Locate specified days of the month.
 
-* `WeekdayLocator`: Locate days of the week, e.g., MO, TU
+* `WeekdayLocator`: Locate days of the week, e.g., MO, TU.
 
-* `MonthLocator`: locate months, e.g., 7 for july
+* `MonthLocator`: Locate months, e.g., 7 for July.
 
-* `YearLocator`: locate years that are multiples of base
+* `YearLocator`: Locate years that are multiples of base.
 
-* `RRuleLocator`: locate using a `matplotlib.dates.rrulewrapper`.
+* `RRuleLocator`: Locate using a `matplotlib.dates.rrulewrapper`.
   `.rrulewrapper` is a simple wrapper around dateutil_'s `dateutil.rrule` which
   allow almost arbitrary date tick specifications.  See :doc:`rrule example
   </gallery/ticks_and_spines/date_demo_rrule>`.
@@ -208,7 +206,7 @@ def _to_ordinalf(dt):
     """
     Convert :mod:`datetime` or :mod:`date` to the Gregorian date as UTC float
     days, preserving hours, minutes, seconds and microseconds.  Return value
-    is a :func:`float`.
+    is a `float`.
     """
     # Convert to UTC
     tzi = getattr(dt, 'tzinfo', None)
@@ -1093,10 +1091,7 @@ class RRuleLocator(DateLocator):
         return self.raise_if_exceeds(date2num(dates))
 
     def _get_unit(self):
-        """
-        Return how many days a unit of the locator is; used for
-        intelligent autoscaling.
-        """
+        # docstring inherited
         freq = self.rule._rrule._freq
         return self.get_unit_generic(freq)
 
@@ -1679,16 +1674,11 @@ class MicrosecondLocator(DateLocator):
         return ticks
 
     def _get_unit(self):
-        """
-        Return how many days a unit of the locator is; used for
-        intelligent autoscaling.
-        """
+        # docstring inherited
         return 1. / MUSECONDS_PER_DAY
 
     def _get_interval(self):
-        """
-        Return the number of units for each tick.
-        """
+        # docstring inherited
         return self._interval
 
 
