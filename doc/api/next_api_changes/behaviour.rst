@@ -147,9 +147,9 @@ The parameter ``s`` to `.Axes.annotate` and  `.pyplot.annotate` is renamed to
 The old parameter name remains supported, but
 support for it will be dropped in a future Matplotlib release.
 
-`pyplot.get_cmap()` now returns a copy of the colormap
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Previously, calling ``.pyplot.get_cmap()`` would return a pointer to
+``get_cmap()`` now returns a copy of the colormap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, calling ``get_cmap()`` would return
 the built-in Colormap. If you made modifications to that colormap, the
 changes would be propagated in the global state. This function now
 returns a copy of all registered colormaps to keep the built-in

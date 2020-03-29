@@ -70,6 +70,8 @@ def test_register_cmap():
         cm.register_cmap()
 
 
+@pytest.mark.skipif(matplotlib.__version__[0] < "4",
+                    reason="This test modifies the global state of colormaps.")
 def test_colormap_builtin_immutable():
     new_cm = plt.get_cmap('viridis')
     new_cm.set_over('b')
@@ -80,6 +82,22 @@ def test_colormap_builtin_immutable():
     new_cm = plt.cm.viridis
     new_cm.set_over('b')
     assert new_cm != plt.get_cmap('viridis')
+
+
+def test_colormap_builtin_immutable_warn():
+    new_cm = plt.get_cmap('viridis')
+    # Store the old value so we don't override the state later on.
+    orig_cmap = copy.copy(new_cm)
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match="The colormap requested has had the global"):
+        new_cm.set_under('k')
+        # This should warn now because we've modified the global state
+        # without registering it
+        plt.get_cmap('viridis')
+
+    # Test that re-registering the original cmap clears the warning
+    plt.register_cmap(cmap=orig_cmap)
+    plt.get_cmap('viridis')
 
 
 def test_colormap_copy():

@@ -71,8 +71,8 @@ def _gen_cmap_d():
 
 
 cmap_d = _gen_cmap_d()
-locals().update(copy.deepcopy(cmap_d))
-
+# locals().update(copy.deepcopy(cmap_d))
+locals().update(cmap_d)
 
 # Continue with definitions ...
 
@@ -109,6 +109,8 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
                              "Colormap") from err
     if isinstance(cmap, colors.Colormap):
         cmap_d[name] = cmap
+        # We are overriding the global state, so reinitialize this.
+        cmap._global_changed = False
         return
     if lut is not None or data is not None:
         cbook.warn_deprecated(
@@ -122,6 +124,7 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
         lut = mpl.rcParams['image.lut']
     cmap = colors.LinearSegmentedColormap(name, data, lut)
     cmap_d[name] = cmap
+    cmap._global_changed = False
 
 
 def get_cmap(name=None, lut=None):
@@ -134,10 +137,11 @@ def get_cmap(name=None, lut=None):
     Parameters
     ----------
     name : `matplotlib.colors.Colormap` or str or None, default: None
-        If a `.Colormap` instance, a copy of it will be returned.
+        If a `.Colormap` instance, it will be returned.
         Otherwise, the name of a colormap known to Matplotlib, which will
-        be resampled by *lut*. A copy of the requested Colormap is always
-        returned. The default, None, means :rc:`image.cmap`.
+        be resampled by *lut*. Currently, this returns the global colormap
+        instance which is deprecated. In Matplotlib 4, a copy of the requested
+        Colormap will be returned. The default, None, means :rc:`image.cmap`.
     lut : int or None, default: None
         If *name* is not already a Colormap instance and *lut* is not None, the
         colormap will be resampled to have *lut* entries in the lookup table.
@@ -145,10 +149,20 @@ def get_cmap(name=None, lut=None):
     if name is None:
         name = mpl.rcParams['image.cmap']
     if isinstance(name, colors.Colormap):
-        return copy.copy(name)
+        return name
     cbook._check_in_list(sorted(cmap_d), name=name)
     if lut is None:
-        return copy.copy(cmap_d[name])
+        if cmap_d[name]._global_changed:
+            cbook.warn_deprecated(
+                "3.3",
+                message="The colormap requested has had the global state "
+                        "changed without being registered. Accessing a "
+                        "colormap in this way has been deprecated. "
+                        "Please register the colormap using "
+                        "plt.register_cmap() before requesting "
+                        "the modified colormap.")
+        return cmap_d[name]
+        # return copy.copy(cmap_d[name])
     else:
         return cmap_d[name]._resample(lut)
 

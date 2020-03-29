@@ -515,6 +515,8 @@ class Colormap:
         self._i_over = self.N + 1
         self._i_bad = self.N + 2
         self._isinit = False
+        # This is to aid in deprecation transition for v3.3
+        self._global_changed = False
 
         #: When this colormap exists on a scalar mappable and colorbar_extend
         #: is not False, colorbar creation will pick up ``colorbar_extend`` as
@@ -599,6 +601,7 @@ class Colormap:
         cmapobject.__dict__.update(self.__dict__)
         if self._isinit:
             cmapobject._lut = np.copy(self._lut)
+        cmapobject._global_changed = False
         return cmapobject
 
     def __eq__(self, other):
@@ -618,6 +621,7 @@ class Colormap:
         self._rgba_bad = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
+        self._global_changed = True
 
     def set_under(self, color='k', alpha=None):
         """
@@ -626,6 +630,7 @@ class Colormap:
         self._rgba_under = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
+        self._global_changed = True
 
     def set_over(self, color='k', alpha=None):
         """
@@ -634,6 +639,7 @@ class Colormap:
         self._rgba_over = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
+        self._global_changed = True
 
     def _set_extremes(self):
         if self._rgba_under:
@@ -2110,6 +2116,7 @@ def from_levels_and_colors(levels, colors, extend='neither'):
         cmap.set_over('none')
 
     cmap.colorbar_extend = extend
+    cmap._global_changed = False
 
     norm = BoundaryNorm(levels, ncolors=n_data_colors)
     return cmap, norm
