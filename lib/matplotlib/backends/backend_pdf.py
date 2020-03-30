@@ -1406,7 +1406,7 @@ end"""
             streamarr['points'] = (flat_points - points_min) * factor
             streamarr['colors'] = flat_colors[:, :colordim] * 255.0
 
-            self.write(streamarr.tostring())
+            self.write(streamarr.tobytes())
             self.endStream()
         self.writeObject(self.gouraudObject, gouraudDict)
 
@@ -1497,7 +1497,7 @@ end"""
         if png:
             self._writePng(data)
         else:
-            self.currentstream.write(data.tostring())
+            self.currentstream.write(data.tobytes())
         self.endStream()
 
     def writeImages(self):
