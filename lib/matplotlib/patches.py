@@ -1072,8 +1072,6 @@ class Polygon(Patch):
         self._path = Path(xy, closed=self._closed)
         self.stale = True
 
-    _get_xy = get_xy
-    _set_xy = set_xy
     xy = property(get_xy, set_xy,
                   doc='The vertices of the path as (N, 2) numpy array.')
 
