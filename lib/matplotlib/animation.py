@@ -1090,7 +1090,7 @@ class Animation:
             if writers.is_available(writer):
                 writer = writers[writer](fps, **writer_kwargs)
             else:
-                alt_writer = next(writers, None)
+                alt_writer = next(iter(writers), None)
                 if alt_writer is None:
                     raise ValueError("Cannot save animation: no writers are "
                                      "available. Please install ffmpeg to "
