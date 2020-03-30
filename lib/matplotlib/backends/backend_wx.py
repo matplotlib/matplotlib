@@ -25,7 +25,7 @@ from matplotlib.backend_managers import ToolManager
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
-from matplotlib.widgets import SubplotTool
+from matplotlib.widgets import SubplotTool, AxesTool
 
 import wx
 
@@ -1120,6 +1120,13 @@ cursord = {
 
 
 class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
+    toolitems = [*NavigationToolbar2.toolitems]
+    toolitems.insert(
+        # Add 'customize' action after 'subplots'
+        [name for name, *_ in toolitems].index("Subplots") + 1,
+        ("Customize", "Edit axis, curve and image parameters",
+         "qt4_editor_options", "edit_parameters"))
+
     def __init__(self, canvas):
         wx.ToolBar.__init__(self, canvas.GetParent(), -1)
         NavigationToolbar2.__init__(self, canvas)
@@ -1185,6 +1192,26 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         frame.SetSizer(sizer)
         frame.Fit()
         SubplotTool(self.canvas.figure, toolfig)
+        frame.Show()
+
+    def edit_parameters(self, *args):
+        global FigureManager  # placates pyflakes: created by @_Backend.export
+        frame = wx.Frame(None, -1, "Figure options")
+        _set_frame_icon(frame)
+
+        toolfig = Figure((6, 3))
+        canvas = type(self.canvas)(frame, -1, toolfig)
+
+        # Create a figure manager to manage things
+        FigureManager(canvas, 1, frame)
+
+        # Now put all into a sizer
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        # This way of adding to sizer allows resizing
+        sizer.Add(canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
+        frame.SetSizer(sizer)
+        frame.Fit()
+        AxesTool(self.canvas.figure, toolfig)
         frame.Show()
 
     def save_figure(self, *args):
