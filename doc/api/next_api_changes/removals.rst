@@ -103,7 +103,7 @@ Classes, methods and attributes
 
 - ``image.BboxImage.interp_at_native`` property (no replacement)
 - ``lines.Line2D.verticalOffset`` property (no replacement)
-- ``bezier.find_r_to_boundary_of_closedpath()`` (no relacement)
+- ``bezier.find_r_to_boundary_of_closedpath()`` (no replacement)
 
 - ``quiver.Quiver.color()`` (use ``Quiver.get_facecolor()`` instead)
 - ``quiver.Quiver.keyvec`` property (no replacement)

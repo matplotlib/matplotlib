@@ -647,7 +647,8 @@ class Path:
     def unit_regular_polygon(cls, numVertices):
         """
         Return a :class:`Path` instance for a unit regular polygon with the
-        given *numVertices* and radius of 1.0, centered at (0, 0).
+        given *numVertices* such that the circumscribing circle has radius 1.0,
+        centered at (0, 0).
         """
         if numVertices <= 16:
             path = cls._unit_regular_polygons.get(numVertices)
