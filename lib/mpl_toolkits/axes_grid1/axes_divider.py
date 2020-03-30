@@ -68,12 +68,8 @@ class Divider:
         return [s.get_size(renderer) for s in self.get_vertical()]
 
     def get_vsize_hsize(self):
-
-        from .axes_size import AddList
-
-        vsize = AddList(self.get_vertical())
-        hsize = AddList(self.get_horizontal())
-
+        vsize = Size.AddList(self.get_vertical())
+        hsize = Size.AddList(self.get_horizontal())
         return vsize, hsize
 
     @staticmethod

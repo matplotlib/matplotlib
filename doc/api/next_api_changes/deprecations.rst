@@ -402,3 +402,10 @@ The qt4agg and qt4cairo backends are deprecated.
 ``RendererWx.get_gc``
 ~~~~~~~~~~~~~~~~~~~~~
 This method is deprecated.  Access the ``gc`` attribute directly instead.
+
+*add_all* parameter in ``axes_grid``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *add_all* parameter of `.axes_grid1.axes_grid.Grid`,
+`.axes_grid1.axes_grid.ImageGrid`, `.axes_grid1.axes_rgb.make_rgb_axes` and
+`.axes_grid1.axes_rgb.RGBAxes` is deprecated.  Axes are now always added to the
+parent figure, though they can be later removed with ``ax.remove()``.

@@ -93,6 +93,7 @@ class Grid:
 
     _defaultAxesClass = Axes
 
+    @cbook._delete_parameter("3.3", "add_all")
     def __init__(self, fig,
                  rect,
                  nrows_ncols,
@@ -128,6 +129,7 @@ class Grid:
             inches.
         add_all : bool, default: True
             Whether to add the axes to the figure using `.Figure.add_axes`.
+            This parameter is deprecated.
         share_all : bool, default: False
             Whether all axes share their x- and y-axis.  Overrides *share_x*
             and *share_y*.
@@ -335,14 +337,7 @@ class Grid:
         return self._divider.get_locator()
 
     def get_vsize_hsize(self):
-
         return self._divider.get_vsize_hsize()
-#         from axes_size import AddList
-
-#         vsize = AddList(self._divider.get_vertical())
-#         hsize = AddList(self._divider.get_horizontal())
-
-#         return vsize, hsize
 
 
 class ImageGrid(Grid):
@@ -350,6 +345,7 @@ class ImageGrid(Grid):
 
     _defaultCbarAxesClass = CbarAxes
 
+    @cbook._delete_parameter("3.3", "add_all")
     def __init__(self, fig,
                  rect,
                  nrows_ncols,
@@ -388,6 +384,7 @@ class ImageGrid(Grid):
             inches.
         add_all : bool, default: True
             Whether to add the axes to the figure using `.Figure.add_axes`.
+            This parameter is deprecated.
         share_all : bool, default: False
             Whether all axes share their x- and y-axis.
         aspect : bool, default: True
@@ -422,11 +419,18 @@ class ImageGrid(Grid):
         self._colorbar_size = cbar_size
         # The colorbar axes are created in _init_locators().
 
-        super().__init__(
-            fig, rect, nrows_ncols, ngrids,
-            direction=direction, axes_pad=axes_pad, add_all=add_all,
-            share_all=share_all, share_x=True, share_y=True, aspect=aspect,
-            label_mode=label_mode, axes_class=axes_class)
+        if add_all:
+            super().__init__(
+                fig, rect, nrows_ncols, ngrids,
+                direction=direction, axes_pad=axes_pad,
+                share_all=share_all, share_x=True, share_y=True, aspect=aspect,
+                label_mode=label_mode, axes_class=axes_class)
+        else:  # Only show deprecation in that case.
+            super().__init__(
+                fig, rect, nrows_ncols, ngrids,
+                direction=direction, axes_pad=axes_pad, add_all=add_all,
+                share_all=share_all, share_x=True, share_y=True, aspect=aspect,
+                label_mode=label_mode, axes_class=axes_class)
 
         if add_all:
             for ax in self.cbar_axes:
