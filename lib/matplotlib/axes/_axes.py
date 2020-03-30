@@ -7782,6 +7782,8 @@ default: :rc:`scatter.edgecolors`
         """
 
         def _kde_method(X, coords):
+            if hasattr(X, 'values'):  # support pandas.Series
+                X = X.values
             # fallback gracefully if the vector contains only one value
             if np.all(X[0] == X):
                 return (X[0] == coords).astype(float)
