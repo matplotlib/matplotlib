@@ -16,6 +16,7 @@ import logging
 import re
 import time
 from types import SimpleNamespace
+import uuid
 from weakref import WeakKeyDictionary
 
 import numpy as np
@@ -440,79 +441,34 @@ class ToolEnableNavigation(_ToolEnableNavigation):
     pass
 
 
-class _ToolGridBase(ToolBase):
-    """Common functionality between ToolGrid and ToolMinorGrid."""
-
-    _cycle = [(False, False), (True, False), (True, True), (False, True)]
-
-    def trigger(self, sender, event, data=None):
-        ax = event.inaxes
-        if ax is None:
-            return
-        try:
-            x_state, x_which, y_state, y_which = self._get_next_grid_states(ax)
-        except ValueError:
-            pass
-        else:
-            ax.grid(x_state, which=x_which, axis="x")
-            ax.grid(y_state, which=y_which, axis="y")
-            ax.figure.canvas.draw_idle()
-
-    @staticmethod
-    def _get_uniform_grid_state(ticks):
-        """
-        Check whether all grid lines are in the same visibility state.
-
-        Returns True/False if all grid lines are on or off, None if they are
-        not all in the same state.
-        """
-        if all(tick.gridline.get_visible() for tick in ticks):
-            return True
-        elif not any(tick.gridline.get_visible() for tick in ticks):
-            return False
-        else:
-            return None
-
-
-class ToolGrid(_ToolGridBase):
+class ToolGrid(ToolBase):
     """Tool to toggle the major grids of the figure."""
 
     description = 'Toggle major grids'
     default_keymap = mpl.rcParams['keymap.grid']
 
-    def _get_next_grid_states(self, ax):
-        if None in map(self._get_uniform_grid_state,
-                       [ax.xaxis.minorTicks, ax.yaxis.minorTicks]):
-            # Bail out if minor grids are not in a uniform state.
-            raise ValueError
-        x_state, y_state = map(self._get_uniform_grid_state,
-                               [ax.xaxis.majorTicks, ax.yaxis.majorTicks])
-        cycle = self._cycle
-        # Bail out (via ValueError) if major grids are not in a uniform state.
-        x_state, y_state = (
-            cycle[(cycle.index((x_state, y_state)) + 1) % len(cycle)])
-        return (x_state, "major" if x_state else "both",
-                y_state, "major" if y_state else "both")
+    def trigger(self, sender, event, data=None):
+        sentinel = str(uuid.uuid4())
+        # Trigger grid switching by temporarily setting :rc:`keymap.grid`
+        # to a unique key and sending an appropriate event.
+        with cbook._setattr_cm(event, key=sentinel), \
+             mpl.rc_context({'keymap.grid': sentinel}):
+            mpl.backend_bases.key_press_handler(event, self.figure.canvas)
 
 
-class ToolMinorGrid(_ToolGridBase):
+class ToolMinorGrid(ToolBase):
     """Tool to toggle the major and minor grids of the figure."""
 
     description = 'Toggle major and minor grids'
     default_keymap = mpl.rcParams['keymap.grid_minor']
 
-    def _get_next_grid_states(self, ax):
-        if None in map(self._get_uniform_grid_state,
-                       [ax.xaxis.majorTicks, ax.yaxis.majorTicks]):
-            # Bail out if major grids are not in a uniform state.
-            raise ValueError
-        x_state, y_state = map(self._get_uniform_grid_state,
-                               [ax.xaxis.minorTicks, ax.yaxis.minorTicks])
-        cycle = self._cycle
-        # Bail out (via ValueError) if minor grids are not in a uniform state.
-        x_state, y_state = (
-            cycle[(cycle.index((x_state, y_state)) + 1) % len(cycle)])
-        return x_state, "both", y_state, "both"
+    def trigger(self, sender, event, data=None):
+        sentinel = str(uuid.uuid4())
+        # Trigger grid switching by temporarily setting :rc:`keymap.grid_minor`
+        # to a unique key and sending an appropriate event.
+        with cbook._setattr_cm(event, key=sentinel), \
+             mpl.rc_context({'keymap.grid_minor': sentinel}):
+            mpl.backend_bases.key_press_handler(event, self.figure.canvas)
 
 
 class ToolFullScreen(ToolToggleBase):
