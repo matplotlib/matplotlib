@@ -12,12 +12,10 @@ is a 'minor version'.
 Matplotlib follows `NEP 29
 <https://numpy.org/neps/nep-0029-deprecation_policy.html>`__.
 
-
 Python and NumPy
 ================
 
 Matplotlib supports:
-
 
 - All minor versions of Python released 42 months prior to the
   project, and at minimum the two latest minor versions.
@@ -31,7 +29,6 @@ artifacts built for the release.
 
 Minimum Python and NumPy version support should be adjusted upward
 on every major and minor release, but never on a patch release.
-
 
 See also the :ref:`list-of-dependency-min-versions`.
 
@@ -67,12 +64,11 @@ dependencies released in the 12 months prior to our planned release.
 We will only bump these as needed or versions no longer support our
 minimum Python and numpy.
 
-
 System and C-dependencies
 =========================
 
 For system or C-dependencies (FreeType, GUI frameworks, LaTeX,
-gs, ffmpeg) support as old as practical.  These can be difficult to
+Ghostscript, FFmpeg) support as old as practical.  These can be difficult to
 install for end-users and we want to be usable on as many systems as
 possible.  We will bump these on a case-by-case basis.
 
@@ -82,14 +78,14 @@ List of dependency versions
 ===========================
 
 The following list shows the minimal versions of Python and NumPy dependencies
-for different versions of matplotlib. Follow the links for the full
+for different versions of Matplotlib. Follow the links for the full
 specification of the dependencies.
 
 ==========  ========  ======
 Matplotlib  Python    NumPy
 ==========  ========  ======
 3.3         3.6       1.15.0
-3.2         3.6       1.11.0
+`3.2`_      3.6       1.11.0
 `3.1`_      3.6       1.11.0
 `3.0`_      3.5       1.10.0
 `2.2`_      2.7, 3.4  1.7.1
@@ -103,6 +99,7 @@ Matplotlib  Python    NumPy
 1.0         2.4       1.1
 ==========  ========  ======
 
+.. _`3.2`: https://matplotlib.org/3.2.0/users/installing.html#dependencies
 .. _`3.1`: https://matplotlib.org/3.1.0/users/installing.html#dependencies
 .. _`3.0`: https://matplotlib.org/3.0.0/users/installing.html#dependencies
 .. _`2.2`: https://matplotlib.org/2.2.0/users/installing.html#dependencies
