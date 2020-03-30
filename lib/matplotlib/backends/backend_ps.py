@@ -632,7 +632,7 @@ grestore
         streamarr['flags'] = 0
         streamarr['points'] = (flat_points - points_min) * factor
         streamarr['colors'] = flat_colors[:, :3] * 255.0
-        stream = quote_ps_string(streamarr.tostring())
+        stream = quote_ps_string(streamarr.tobytes())
 
         self._pswriter.write(f"""\
 gsave
