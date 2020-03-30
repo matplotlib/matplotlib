@@ -392,7 +392,7 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
         _, result_dir = _image_directories(func)
         old_sig = inspect.signature(func)
 
-        if not all(k in old_sig.parameters for k in {"fig_test", "fig_ref"}):
+        if not {"fig_test", "fig_ref"}.issubset(old_sig.parameters):
             raise ValueError("The decorated function must have at least the "
                              "parameters 'fig_ref' and 'fig_test', but your "
                              f"function has the signature {old_sig}")
