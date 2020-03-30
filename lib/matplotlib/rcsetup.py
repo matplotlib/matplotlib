@@ -72,8 +72,14 @@ class ValidateInStrings:
             s = s.lower()
         if s in self.valid:
             return self.valid[s]
-        raise ValueError('Unrecognized %s string %r: valid strings are %s'
-                         % (self.key, s, list(self.valid.values())))
+        msg = (f"{s!r} is not a valid value for {self.key}; supported values "
+               f"are {[*self.valid.values()]}")
+        if (isinstance(s, str)
+                and (s.startswith('"') and s.endswith('"')
+                     or s.startswith("'") and s.endswith("'"))
+                and s[1:-1] in self.valid):
+            msg += "; remove quotes surrounding your string"
+        raise ValueError(msg)
 
 
 def _listify_validator(scalar_validator, allow_stringlist=False, *, doc=None):
