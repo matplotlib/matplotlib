@@ -8085,12 +8085,14 @@ default: :rc:`scatter.edgecolors`
             if quarts is not None:
                 # If exist key quantiles, assume it's a list of floats
                 quartiles = np.concatenate((quartiles, quarts))
+                # compute values around midpoint
+                lower_vals, upper_vals = -vals + pos, vals + pos
 
                 # find coordinate closest to each quartile and determine bounds
                 for quart in quarts:
                     coord_idx = np.abs(stats['coords'] - quart).argmin()
-                    lower_quartile_bounds = np.concatenate((lower_quartile_bounds, [(-vals + pos)[coord_idx]]))
-                    upper_quartile_bounds = np.concatenate((upper_quartile_bounds, [(vals + pos)[coord_idx]]))
+                    lower_quartile_bounds = np.concatenate((lower_quartile_bounds, [lower_vals[coord_idx]]))
+                    upper_quartile_bounds = np.concatenate((upper_quartile_bounds, [upper_vals[coord_idx]]))
 
         artists['bodies'] = bodies
 
