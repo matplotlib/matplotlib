@@ -1087,17 +1087,13 @@ class Animation:
         # If we have the name of a writer, instantiate an instance of the
         # registered class.
         if isinstance(writer, str):
-            if writers.is_available(writer):
-                writer = writers[writer](fps, **writer_kwargs)
-            else:
-                alt_writer = next(iter(writers), None)
-                if alt_writer is None:
-                    raise ValueError("Cannot save animation: no writers are "
-                                     "available. Please install ffmpeg to "
-                                     "save animations.")
-                _log.warning("MovieWriter %s unavailable; trying to use %s "
-                             "instead.", writer, alt_writer)
-                writer = alt_writer(fps, **writer_kwargs)
+            try:
+                writer_cls = writers[writer]
+            except RuntimeError:  # Raised if not available.
+                writer_cls = PillowWriter  # Always available.
+                _log.warning("MovieWriter %s unavailable; using Pillow "
+                             "instead.", writer)
+            writer = writer_cls(fps, **writer_kwargs)
         _log.info('Animation.save using %s', type(writer))
 
         if 'bbox_inches' in savefig_kwargs:
