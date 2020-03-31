@@ -359,9 +359,9 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
     """
     Decorator for test cases that generate and compare two figures.
 
-    The decorated function must take two arguments, *fig_test* and *fig_ref*,
-    and draw the test and reference images on them.  After the function
-    returns, the figures are saved and compared.
+    The decorated function must take two keyword arguments, *fig_test*
+    and *fig_ref*, and draw the test and reference images on them.
+    After the function returns, the figures are saved and compared.
 
     This decorator should be preferred over `image_comparison` when possible in
     order to keep the size of the test suite from ballooning.
@@ -382,6 +382,7 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
         def test_plot(fig_test, fig_ref):
             fig_test.subplots().plot([1, 3, 5])
             fig_ref.subplots().plot([0, 1, 2], [1, 3, 5])
+
     """
     ALLOWED_CHARS = set(string.digits + string.ascii_letters + '_-[]()')
     KEYWORD_ONLY = inspect.Parameter.KEYWORD_ONLY
@@ -390,6 +391,11 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
 
         _, result_dir = _image_directories(func)
         old_sig = inspect.signature(func)
+
+        if not {"fig_test", "fig_ref"}.issubset(old_sig.parameters):
+            raise ValueError("The decorated function must have at least the "
+                             "parameters 'fig_ref' and 'fig_test', but your "
+                             f"function has the signature {old_sig}")
 
         @pytest.mark.parametrize("ext", extensions)
         def wrapper(*args, **kwargs):
