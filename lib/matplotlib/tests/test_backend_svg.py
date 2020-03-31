@@ -207,3 +207,9 @@ def test_gid():
     for gid, obj in gdic.items():
         if include(gid, obj):
             assert gid in buf
+
+
+def test_savefig_tight():
+    # Check that the draw-disabled renderer correctly disables open/close_group
+    # as well.
+    plt.savefig(BytesIO(), format="svgz", bbox_inches="tight")
