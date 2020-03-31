@@ -204,7 +204,6 @@ static int wait_for_stdin(void)
 @interface View : NSView <NSWindowDelegate>
 {   PyObject* canvas;
     NSRect rubberband;
-    BOOL inside;
     NSTrackingRectTag tracking;
     @public double device_scale;
 }
@@ -338,7 +337,7 @@ FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
     NSRect rect = NSMakeRect(0.0, 0.0, width, height);
     self->view = [self->view initWithFrame: rect];
     self->view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
-    int opts = (NSTrackingMouseEnteredAndExited |
+    int opts = (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved |
                 NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect);
     [self->view addTrackingArea: [
         [NSTrackingArea alloc] initWithRect: rect
@@ -712,7 +711,6 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     [window setTitle: [NSString stringWithCString: title
                                          encoding: NSASCIIStringEncoding]];
 
-    [window setAcceptsMouseMovedEvents: YES];
     [window setDelegate: view];
     [window makeFirstResponder: view];
     [[window contentView] addSubview: view];
@@ -1572,7 +1570,6 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 {
     self = [super initWithFrame: rect];
     rubberband = NSZeroRect;
-    inside = false;
     device_scale = 1;
     return self;
 }
@@ -1759,8 +1756,6 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 {
     PyGILState_STATE gstate;
     PyObject* result;
-    NSWindow* window = [self window];
-    if ([window isKeyWindow]==false) return;
 
     int x, y;
     NSPoint location = [event locationInWindow];
@@ -1777,19 +1772,13 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     else
         PyErr_Print();
     PyGILState_Release(gstate);
-
-    [window setAcceptsMouseMovedEvents: YES];
-    inside = true;
 }
 
 - (void)mouseExited:(NSEvent *)event
 {
     PyGILState_STATE gstate;
     PyObject* result;
-    NSWindow* window = [self window];
-    if ([window isKeyWindow]==false) return;
 
-    if (inside==false) return;
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(canvas, "leave_notify_event", "");
     if(result)
@@ -1797,9 +1786,6 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     else
         PyErr_Print();
     PyGILState_Release(gstate);
-
-    [[self window] setAcceptsMouseMovedEvents: NO];
-    inside = false;
 }
 
 - (void)mouseDown:(NSEvent *)event
