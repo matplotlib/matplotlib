@@ -810,6 +810,22 @@ FigureManager_get_window_title(FigureManager* self)
     }
 }
 
+static PyObject*
+FigureManager_resize(FigureManager* self, PyObject *args, PyObject *kwds)
+{
+    int width, height;
+    if (!PyArg_ParseTuple(args, "ii", &width, &height)) {
+        return NULL;
+    }
+    Window* window = self->window;
+    if(window)
+    {
+        // 36 comes from hard-coded size of toolbar later in code
+        [window setContentSize: NSMakeSize(width, height + 36.)];
+    }
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef FigureManager_methods[] = {
     {"show",
      (PyCFunction)FigureManager_show,
@@ -830,6 +846,11 @@ static PyMethodDef FigureManager_methods[] = {
      (PyCFunction)FigureManager_get_window_title,
      METH_NOARGS,
      "Returns the title of the window associated with the figure manager."
+    },
+    {"resize",
+     (PyCFunction)FigureManager_resize,
+     METH_VARARGS,
+     "Resize the window (in pixels)."
     },
     {NULL}  /* Sentinel */
 };
