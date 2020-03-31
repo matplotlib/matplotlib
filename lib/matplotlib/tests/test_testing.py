@@ -15,3 +15,10 @@ def test_warn_to_fail():
 @pytest.mark.parametrize("b", [1])
 def test_parametrize_with_check_figure_equal(a, fig_ref, b, fig_test):
     assert a == b
+
+
+def test_wrap_failure():
+    with pytest.raises(ValueError, match="^The decorated function"):
+        @check_figures_equal()
+        def should_fail(test, ref):
+            pass
