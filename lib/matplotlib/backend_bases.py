@@ -3056,6 +3056,11 @@ class NavigationToolbar2:
     # inline call to self.canvas.draw_idle().
     def _draw(self):
         for a in self.canvas.figure.get_axes():
+            # TODO(henryhu123): Is this the right place do recompute the line
+            #                   labels?
+            if a.has_label_lines():
+                a.refresh_label_lines()
+
             xaxis = getattr(a, 'xaxis', None)
             yaxis = getattr(a, 'yaxis', None)
             locators = []
@@ -3086,6 +3091,8 @@ class NavigationToolbar2:
             # Restore both the original and modified positions
             ax._set_position(pos_orig, 'original')
             ax._set_position(pos_active, 'active')
+            if ax.has_label_lines():
+                ax.refresh_label_lines()
         self.canvas.draw_idle()
 
     def save_figure(self, *args):

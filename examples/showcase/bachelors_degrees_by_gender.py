@@ -75,30 +75,12 @@ majors = ['Health Professions', 'Public Administration', 'Education',
           'Math and Statistics', 'Architecture', 'Physical Sciences',
           'Computer Science', 'Engineering']
 
-y_offsets = {'Foreign Languages': 0.5, 'English': -0.5,
-             'Communications\nand Journalism': 0.75,
-             'Art and Performance': -0.25, 'Agriculture': 1.25,
-             'Social Sciences and History': 0.25, 'Business': -0.75,
-             'Math and Statistics': 0.75, 'Architecture': -0.75,
-             'Computer Science': 0.75, 'Engineering': -0.25}
-
 for column in majors:
     # Plot each line separately with its own color.
     column_rec_name = column.replace('\n', '_').replace(' ', '_')
-
+    column_label = column.replace('\n', ' ').replace(' ', ' ')
     line, = ax.plot('Year', column_rec_name, data=gender_degree_data,
-                    lw=2.5)
-
-    # Add a text label to the right end of every line. Most of the code below
-    # is adding specific offsets y position because some labels overlapped.
-    y_pos = gender_degree_data[column_rec_name][-1] - 0.5
-
-    if column in y_offsets:
-        y_pos += y_offsets[column]
-
-    # Again, make sure that all labels are large enough to be easily read
-    # by the viewer.
-    ax.text(2011.5, y_pos, column, fontsize=14, color=line.get_color())
+                    lw=2.5, label=column_label)
 
 # Make the title big enough so it spans the entire plot, but don't make it
 # so big that it requires two lines to show.
@@ -107,6 +89,9 @@ for column in majors:
 # axis labels; they are self-evident, in this plot's case.
 fig.suptitle("Percentage of Bachelor's degrees conferred to women in "
              "the U.S.A. by major (1970-2011)", fontsize=18, ha="center")
+
+# Call the the label lines feature to add appropriate labels for each line
+plt.label_lines()
 
 # Finally, save the figure as a PNG.
 # You can also save it as a PDF, JPEG, etc.

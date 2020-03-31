@@ -567,6 +567,7 @@ class _AxesBase(martist.Artist):
 
         self._layoutbox = None
         self._poslayoutbox = None
+        self._line_labels = None
 
     def __getstate__(self):
         # The renderer should be re-created by the figure, and then cached at

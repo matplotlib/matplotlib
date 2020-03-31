@@ -6117,3 +6117,79 @@ def test_invisible_axes():
     assert fig.canvas.inaxes((200, 200)) is not None
     ax.set_visible(False)
     assert fig.canvas.inaxes((200, 200)) is None
+
+
+@check_figures_equal(extensions=["png"])
+def test_polar_interpolation_steps_constant_r(fig_test, fig_ref):
+    # Check that an extra half-turn doesn't make any difference -- modulo
+    # antialiasing, which we disable here.
+    p1 = (fig_test.add_subplot(121, projection="polar")
+          .bar([0], [1], 3*np.pi, edgecolor="none"))
+    p2 = (fig_test.add_subplot(122, projection="polar")
+          .bar([0], [1], -3*np.pi, edgecolor="none"))
+    p3 = (fig_ref.add_subplot(121, projection="polar")
+          .bar([0], [1], 2*np.pi, edgecolor="none"))
+    p4 = (fig_ref.add_subplot(122, projection="polar")
+          .bar([0], [1], -2*np.pi, edgecolor="none"))
+    for p in [p1, p2, p3, p4]:
+        plt.setp(p, antialiased=False)
+
+
+@check_figures_equal(extensions=["png"])
+def test_polar_interpolation_steps_variable_r(fig_test, fig_ref):
+    l, = fig_test.add_subplot(projection="polar").plot([0, np.pi/2], [1, 2])
+    l.get_path()._interpolation_steps = 100
+    fig_ref.add_subplot(projection="polar").plot(
+        np.linspace(0, np.pi/2, 101), np.linspace(1, 2, 101))
+
+
+@image_comparison(['label_lines_default'], style="default")
+def label_lines_default():
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
+    plt.plot([0, 2], [-1, 1], label="y=x-1")
+    plt.plot([0, 2], [0, 2], label="y=x")
+    plt.plot([0, 2], [1, 3], label="y=x+1")
+    plt.plot([0, 2], [2, 4], label="y=x+2")
+    plt.xticks(range(0, 3))
+    ax.label_lines()
+
+
+@image_comparison(['label_lines_single_endpoint'], style="default")
+def label_lines_single_endpoint():
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
+    plt.plot([0, 2], [0, 2], label="Label 1")
+    plt.plot([0, 2], [1, 2], label="Label 2")
+    plt.plot([0, 2], [2, 2], label="Label 3")
+    plt.plot([0, 2], [3, 2], label="Label 4")
+    plt.plot([0, 2], [4, 2], label="Label 5")
+    plt.xticks(range(0, 3))
+    ax.label_lines()
+
+
+@image_comparison(['label_lines_different_x_endpoint'], style="default")
+def label_lines_different_x_endpoint():
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
+    plt.plot([0, 1], [2.5, 2.5], label="Label 8")
+    plt.plot([0, 1], [1.5, 1.5], label="Label 7")
+    plt.plot([1, 2], [4, 4], label="Label 5")
+    plt.plot([1, 2], [2, 2], label="Label 3")
+    plt.plot([0, 1], [4.5, 4.5], label="Label 10")
+    plt.plot([1, 2], [0, 0], label="Label 1")
+    plt.plot([1, 2], [1, 1], label="Label 2")
+    plt.plot([0, 1], [3.5, 3.5], label="Label 9")
+    plt.plot([1, 2], [3, 3], label="Label 4")
+    plt.plot([0, 1], [0.5, 0.5], label="Label 6")
+    plt.xticks(range(0, 3))
+    ax.label_lines()

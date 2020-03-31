@@ -227,6 +227,7 @@ def boilerplate_gen():
         'hist2d',
         'hlines',
         'imshow',
+        'label_lines',
         'legend',
         'locator_params',
         'loglog',

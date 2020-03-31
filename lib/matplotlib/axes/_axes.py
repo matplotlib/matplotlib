@@ -767,6 +767,179 @@ class Axes(_AxesBase):
         self._add_text(t)
         return t
 
+    def label_lines(self, *args, **kwargs):
+        """
+        Place labels at the end of lines on the chart.
+
+        Call signatures::
+
+            label_lines()
+            label_lines(labels)
+            label_lines(handles, labels)
+
+        The call signatures correspond to three different ways of how to use
+        this method.
+
+        The simplest way to use line_labels is without parameters. After the
+        lines are created with their labels, the user can call this function
+        which automatically applies the stored labels by the corresponding
+        lines. This would be most effectively used after the complete creation
+        of the line chart.
+
+        The second way to call this method is by specifying the first parameter
+        which is labels. In doing so you would be able to name the lines if
+        they lack names, or rename them as needed. This process occurs in the
+        order in which the lines were added to the chart.
+
+        The Final way to use this method is specifying both the handles and the
+        labels. In doing so you can specify names for select lines leaving the
+        rest blank. This would be useful when users would want to specify
+        select pieces of data to monitor when data clumps occur.
+
+        Parameters
+        ----------
+        handles : sequence of `.Artist`, optional
+            A list of Artists (lines) to be added to the line labels.
+            Use this together with *labels*, if you need full control on what
+            is shown in the line labels and the automatic mechanism described
+            above is not sufficient.
+
+            The length of handles and labels should be the same in this
+            case. If they are not, they are truncated to the smaller length.
+
+        labels : list of str, optional
+            A list of labels to show next to the artists.
+            Use this together with *handles*, if you need full control on what
+            is shown in the line labels and the automatic mechanism described
+            above is not sufficient.
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        Only line handles are supported by this method.
+
+        Examples
+        --------
+        .. plot:: gallery/text_labels_and_annotations/label_lines.py
+        """
+        handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
+                        [self],
+                        *args,
+                        **kwargs)
+        if len(extra_args):
+            raise TypeError(
+                'label_lines only accepts two nonkeyword arguments')
+
+        self._line_labels = []
+
+        def get_last_data_point(handle):
+            last_x = handle.get_xdata()[-1]
+            last_y = handle.get_ydata()[-1]
+            return last_x, last_y
+
+        xys = np.array([get_last_data_point(x) for x in handles])
+
+        data_maxx, data_maxy = np.max(xys, axis=0)
+        data_miny = np.min(xys, axis=0)[1]
+
+        fig_dpi_transform = self.figure.dpi_scale_trans.inverted()
+        fig_bbox = self.get_window_extent().transformed(fig_dpi_transform)
+        fig_width_px = fig_bbox.width * self.figure.dpi
+        fig_height_px = fig_bbox.height * self.figure.dpi
+
+        fig_minx, fig_maxx = self.get_xbound()
+        fig_miny, fig_maxy = self.get_ybound()
+        fig_width_pt = abs(fig_maxx - fig_minx)
+        fig_height_pt = abs(fig_maxy - fig_miny)
+
+        margin_left = 8 * (fig_width_pt / fig_width_px)
+        margin_vertical = 2 * (fig_height_pt / fig_height_px)
+
+        text_fontsize = 10
+        text_height = text_fontsize * (fig_height_pt / fig_height_px)
+
+        bucket_height = text_height + 2 * margin_vertical
+        buckets_total = 1 + int((fig_maxy - fig_miny - text_height) /
+                                bucket_height)
+        buckets_map = 0
+
+        def get_bucket_index(y):
+            return int((y - fig_miny) / bucket_height)
+
+        bucket_densities = [0] * buckets_total
+        for xy in xys:
+            data_x, data_y = xy
+            ideal_bucket = get_bucket_index(data_y)
+            if ideal_bucket >= 0 and ideal_bucket < buckets_total:
+                bucket_densities[ideal_bucket] += 1
+
+        def in_viewport(args):
+            xy = args[2]
+            x, y = xy
+            return fig_minx < x < fig_maxx and fig_miny < y < fig_maxy
+
+        def by_y(args):
+            xy = args[2]
+            x, y = xy
+            return y
+
+        bucket_offset = None
+        prev_ideal_bucket = -1
+        for handle, label, xy in sorted(filter(in_viewport,
+                                               zip(handles, labels, xys)),
+                                        key=by_y):
+            data_x, data_y = xy
+
+            ideal_bucket = get_bucket_index(data_y)
+            if (ideal_bucket != prev_ideal_bucket and
+                    ideal_bucket < len(bucket_densities)):
+                bucket_density = bucket_densities[ideal_bucket]
+                ideal_offset = bucket_density // 2
+                empty_buckets_below = 0
+                for i in range(ideal_bucket + 1,
+                               ideal_bucket - ideal_offset + 1,
+                               -1):
+                    if i == 0 or buckets_map & (1 << i) == 1:
+                        break
+                    empty_buckets_below += 1
+                bucket_offset = -min(ideal_offset, empty_buckets_below)
+            prev_ideal_bucket = ideal_bucket
+
+            bucket = ideal_bucket + bucket_offset
+            text_x, text_y = None, None
+
+            for index in range(buckets_total):
+                bucket_index = max(0, min(bucket + index, buckets_total))
+                bucket_mask = 1 << bucket_index
+                if buckets_map & bucket_mask == 0:
+                    buckets_map |= bucket_mask
+                    text_x = data_maxx + margin_left
+                    text_y = bucket_index * bucket_height + fig_miny
+                    break
+
+            if text_x is not None and text_y is not None:
+                text_color = handle.get_color()
+                y_axes = self.transLimits.transform((text_x, text_y))[1]
+                line_label = self.annotate(label, (data_maxx, data_y),
+                                           textcoords='axes fraction',
+                                           xytext=(1, y_axes),
+                                           fontsize=text_fontsize,
+                                           color=text_color,
+                                           annotation_clip=True)
+                self._line_labels.append(line_label)
+
+    def has_label_lines(self):
+        return self._line_labels is not None
+
+    def refresh_label_lines(self, *args, **kwargs):
+        for label in self._line_labels:
+            label.remove()
+        self._line_labels = None
+        self.label_lines(*args, **kwargs)
+
     @cbook._rename_parameter("3.3", "s", "text")
     @docstring.dedent_interpd
     def annotate(self, text, xy, *args, **kwargs):
