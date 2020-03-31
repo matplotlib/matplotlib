@@ -337,6 +337,7 @@ FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
 
     NSRect rect = NSMakeRect(0.0, 0.0, width, height);
     self->view = [self->view initWithFrame: rect];
+    self->view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     int opts = (NSTrackingMouseEnteredAndExited |
                 NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect);
     [self->view addTrackingArea: [
@@ -1707,8 +1708,6 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     size.height -= rect.origin.y;
     width = size.width;
     height = size.height;
-
-    [self setFrameSize: size];
 
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* result = PyObject_CallMethod(
