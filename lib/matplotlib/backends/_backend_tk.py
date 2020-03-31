@@ -448,9 +448,6 @@ class FigureManagerTk(FigureManagerBase):
     def resize(self, width, height):
         self.canvas._tkcanvas.configure(width=width, height=height)
 
-        if self.toolbar is not None:
-            self.toolbar.configure(width=width)
-
     def show(self):
         with _restore_foreground_window_at_end():
             if not self._shown:
