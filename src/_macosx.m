@@ -337,6 +337,13 @@ FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
 
     NSRect rect = NSMakeRect(0.0, 0.0, width, height);
     self->view = [self->view initWithFrame: rect];
+    int opts = (NSTrackingMouseEnteredAndExited |
+                NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect);
+    [self->view addTrackingArea: [
+        [NSTrackingArea alloc] initWithRect: rect
+                                    options: opts
+                                      owner: self->view
+                                   userInfo: nil]];
     [self->view setCanvas: (PyObject*)self];
     return 0;
 }
@@ -1565,7 +1572,6 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
     self = [super initWithFrame: rect];
     rubberband = NSZeroRect;
     inside = false;
-    tracking = 0;
     device_scale = 1;
     return self;
 }
@@ -1574,7 +1580,6 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 {
     FigureCanvas* fc = (FigureCanvas*)canvas;
     if (fc) fc->view = NULL;
-    [self removeTrackingRect: tracking];
     [super dealloc];
 }
 
@@ -1713,11 +1718,6 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     else
         PyErr_Print();
     PyGILState_Release(gstate);
-    if (tracking) [self removeTrackingRect: tracking];
-    tracking = [self addTrackingRect: [self bounds]
-                               owner: self
-                            userData: nil
-                        assumeInside: NO];
     [self setNeedsDisplay: YES];
 }
 
