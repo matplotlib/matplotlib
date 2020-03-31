@@ -150,3 +150,8 @@ support for it will be dropped in a future Matplotlib release.
 `.font_manager.json_dump` now locks the font manager dump file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ... to prevent multiple processes from writing to it at the same time.
+
+`.pyplot.rgrids` and `.pyplot.thetagrids` now act as setters also when called with only kwargs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, keyword arguments were silently ignored when no positional
+arguments were given.

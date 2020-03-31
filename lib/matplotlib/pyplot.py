@@ -1627,7 +1627,7 @@ def rgrids(*args, **kwargs):
     ax = gca()
     if not isinstance(ax, PolarAxes):
         raise RuntimeError('rgrids only defined for polar axes')
-    if len(args) == 0:
+    if not args and not kwargs:
         lines = ax.yaxis.get_gridlines()
         labels = ax.yaxis.get_ticklabels()
     else:
@@ -1694,7 +1694,7 @@ def thetagrids(*args, **kwargs):
     ax = gca()
     if not isinstance(ax, PolarAxes):
         raise RuntimeError('thetagrids only defined for polar axes')
-    if len(args) == 0:
+    if not args and not kwargs:
         lines = ax.xaxis.get_ticklines()
         labels = ax.xaxis.get_ticklabels()
     else:
