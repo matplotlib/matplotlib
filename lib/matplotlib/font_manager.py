@@ -912,8 +912,11 @@ def json_dump(data, filename):
     File paths that are children of the Matplotlib data path (typically, fonts
     shipped with Matplotlib) are stored relative to that data path (to remain
     valid across virtualenvs).
+
+    This function temporarily locks the output file to prevent multiple
+    processes from overwriting one another's output.
     """
-    with open(filename, 'w') as fh:
+    with cbook._lock_path(filename), open(filename, 'w') as fh:
         try:
             json.dump(data, fh, cls=_JSONEncoder, indent=2)
         except OSError as e:
@@ -1333,8 +1336,7 @@ def _rebuild():
     global fontManager
     _log.info("Generating new fontManager, this may take some time...")
     fontManager = FontManager()
-    with cbook._lock_path(_fmcache):
-        json_dump(fontManager, _fmcache)
+    json_dump(fontManager, _fmcache)
 
 
 try:
