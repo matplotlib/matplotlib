@@ -409,3 +409,9 @@ The *add_all* parameter of `.axes_grid1.axes_grid.Grid`,
 `.axes_grid1.axes_grid.ImageGrid`, `.axes_grid1.axes_rgb.make_rgb_axes` and
 `.axes_grid1.axes_rgb.RGBAxes` is deprecated.  Axes are now always added to the
 parent figure, though they can be later removed with ``ax.remove()``.
+
+``BboxBase.inverse_transformed``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``.BboxBase.inverse_transformed`` is deprecated (call `.BboxBase.transformed`
+on the `~.Transform.inverted()` transform instead).

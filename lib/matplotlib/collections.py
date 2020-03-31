@@ -227,7 +227,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 result = mpath.get_path_collection_extents(
                     transform.get_affine(), paths, self.get_transforms(),
                     offsets, transOffset.get_affine().frozen())
-                return result.inverse_transformed(transData)
+                return result.transformed(transData.inverted())
             if not self._offsetsNone:
                 # this is for collections that have their paths (shapes)
                 # in physical, axes-relative, or figure-relative units
