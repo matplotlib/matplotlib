@@ -7,11 +7,11 @@ import math
 import numpy as np
 
 import matplotlib.cbook as cbook
-from matplotlib.path import Path
 
 
 class NonIntersectingPathException(ValueError):
     pass
+
 
 # some functions
 
@@ -230,6 +230,7 @@ def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
     Divide a path into two segments at the point where ``inside(x, y)`` becomes
     False.
     """
+    from .path import Path
     path_iter = path.iter_segments()
 
     ctl_points, command = next(path_iter)
@@ -486,6 +487,7 @@ def make_path_regular(p):
     with ``codes`` set to (MOVETO, LINETO, LINETO, ..., LINETO); otherwise
     return *p* itself.
     """
+    from .path import Path
     c = p.codes
     if c is None:
         c = np.full(len(p.vertices), Path.LINETO, dtype=Path.code_type)
@@ -498,6 +500,5 @@ def make_path_regular(p):
 @cbook.deprecated("3.3", alternative="Path.make_compound_path()")
 def concatenate_paths(paths):
     """Concatenate a list of paths into a single path."""
-    vertices = np.concatenate([p.vertices for p in paths])
-    codes = np.concatenate([make_path_regular(p).codes for p in paths])
-    return Path(vertices, codes)
+    from .path import Path
+    return Path.make_compound_path(*paths)
