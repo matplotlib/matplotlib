@@ -271,4 +271,5 @@ def test_canvas_reinit():
     fig.stale_callback = crashing_callback
     # this should not raise
     canvas = FigureCanvasQTAgg(fig)
+    fig.stale = True
     assert called
