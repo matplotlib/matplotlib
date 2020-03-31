@@ -442,11 +442,12 @@ class Figure(Artist):
         forward : bool
             Passed on to `~.Figure.set_size_inches`
         """
-        self._dpi = dpi
-        self.dpi_scale_trans.clear().scale(dpi)
-        w, h = self.get_size_inches()
-        self.set_size_inches(w, h, forward=forward)
-        self.callbacks.process('dpi_changed', self)
+        if self._dpi != dpi:
+            self._dpi = dpi
+            self.dpi_scale_trans.clear().scale(dpi)
+            w, h = self.get_size_inches()
+            self.set_size_inches(w, h, forward=forward)
+            self.callbacks.process('dpi_changed', self)
 
     dpi = property(_get_dpi, _set_dpi, doc="The resolution in dots per inch.")
 
