@@ -152,13 +152,15 @@ def test_too_many_date_ticks(caplog):
             'Attempting to set identical left == right' in str(rec[0].message)
     ax.plot([], [])
     ax.xaxis.set_major_locator(mdates.DayLocator())
-    fig.canvas.draw()
+    v = ax.xaxis.get_major_locator()()
+    assert len(v) > 1000
     # The warning is emitted multiple times because the major locator is also
     # called both when placing the minor ticks (for overstriking detection) and
     # during tick label positioning.
     assert caplog.records and all(
         record.name == "matplotlib.ticker" and record.levelname == "WARNING"
         for record in caplog.records)
+    assert len(caplog.records) > 0
 
 
 @image_comparison(['RRuleLocator_bounds.png'])
