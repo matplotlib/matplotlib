@@ -13,7 +13,12 @@ import argparse
 
 
 if __name__ == '__main__':
-    from matplotlib import test
+    try:
+        from matplotlib import test
+    except ImportError:
+        print('matplotlib.test could not be imported.\n\n'
+              'Try a virtual env and `pip install -e .`')
+        sys.exit(-1)
 
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--recursionlimit', type=int, default=None,
