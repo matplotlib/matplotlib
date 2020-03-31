@@ -1173,46 +1173,36 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def pan(self, *args):
         self.ToggleTool(self.wx_ids['Zoom'], False)
         NavigationToolbar2.pan(self, *args)
+    
+    def _init_toolfig(self, title, size):
+        global FigureManager  # placates pyflakes: created by @_Backend.export
+        frame = wx.Frame(None, -1, title)
+        _set_frame_icon(frame)
+
+        toolfig = Figure(size)
+        canvas = type(self.canvas)(frame, -1, toolfig)
+
+        # Create a figure manager to manage things
+        FigureManager(canvas, 1, frame)
+
+        # Now put all into a sizer
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        # This way of adding to sizer allows resizing
+        sizer.Add(canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
+        frame.SetSizer(sizer)
+        frame.Fit()
+        frame.Show()
+        return toolfig
 
     def configure_subplots(self, *args):
-        global FigureManager  # placates pyflakes: created by @_Backend.export
-        frame = wx.Frame(None, -1, "Configure subplots")
-        _set_frame_icon(frame)
-
-        toolfig = Figure((6, 3))
-        canvas = type(self.canvas)(frame, -1, toolfig)
-
-        # Create a figure manager to manage things
-        FigureManager(canvas, 1, frame)
-
-        # Now put all into a sizer
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        # This way of adding to sizer allows resizing
-        sizer.Add(canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
-        frame.SetSizer(sizer)
-        frame.Fit()
+        # Creates and shows toolfig using helper function
+        toolfig = self._init_toolfig("Configure subplots", (6, 3))
         SubplotTool(self.canvas.figure, toolfig)
-        frame.Show()
 
     def edit_parameters(self, *args):
-        global FigureManager  # placates pyflakes: created by @_Backend.export
-        frame = wx.Frame(None, -1, "Figure options")
-        _set_frame_icon(frame)
-
-        toolfig = Figure((6, 3))
-        canvas = type(self.canvas)(frame, -1, toolfig)
-
-        # Create a figure manager to manage things
-        FigureManager(canvas, 1, frame)
-
-        # Now put all into a sizer
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        # This way of adding to sizer allows resizing
-        sizer.Add(canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
-        frame.SetSizer(sizer)
-        frame.Fit()
+        # Creates and shows toolfig using helper function
+        toolfig = self._init_toolfig("Figure options", (4, 5))
         AxesTool(self.canvas.figure, toolfig)
-        frame.Show()
 
     def save_figure(self, *args):
         # Fetch the required filename and file type.
