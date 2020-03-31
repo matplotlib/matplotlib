@@ -589,7 +589,8 @@ class FreeType(SetupPackage):
             env = {**env, "CFLAGS": "{} -fPIC".format(env.get("CFLAGS", ""))}
             subprocess.check_call(
                 ["./configure", "--with-zlib=no", "--with-bzip2=no",
-                 "--with-png=no", "--with-harfbuzz=no"],
+                 "--with-png=no", "--with-harfbuzz=no", "--enable-static",
+                 "--disable-shared"],
                 env=env, cwd=src_path)
             subprocess.check_call(["make"], env=env, cwd=src_path)
         else:  # compilation on windows
