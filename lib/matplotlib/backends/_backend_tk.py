@@ -18,7 +18,7 @@ from matplotlib.backend_bases import (
 from matplotlib.backend_managers import ToolManager
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
-from matplotlib.widgets import SubplotTool
+from matplotlib.widgets import SubplotTool, AxesTool
 from . import _tkagg
 
 try:
@@ -502,6 +502,13 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         If you want to use the toolbar with a different layout manager, use
         ``pack_toolbar=False``.
     """
+    toolitems = [*NavigationToolbar2.toolitems]
+    toolitems.insert(
+        # Add 'customize' action after 'subplots'
+        [name for name, *_ in toolitems].index("Subplots") + 1,
+        ("Customize", "Edit axis, curve and image parameters",
+         "qt4_editor_options", "edit_parameters"))
+
     def __init__(self, canvas, window, *, pack_toolbar=True):
         self.canvas = canvas
         # Avoid using self.window (prefer self.canvas.get_tk_widget().master),
@@ -573,7 +580,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
         self.message = tk.StringVar(master=self)
         self._message_label = tk.Label(master=self, textvariable=self.message)
-        self._message_label.pack(side=tk.RIGHT)
+        self._message_label.pack(side=tk.RIGHT)    
 
     def configure_subplots(self):
         toolfig = Figure(figsize=(6, 3))
@@ -581,6 +588,16 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         canvas = type(self.canvas)(toolfig, master=window)
         toolfig.subplots_adjust(top=0.9)
         canvas.tool = SubplotTool(self.canvas.figure, toolfig)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        window.grab_set()
+
+    def edit_parameters(self):
+        toolfig = Figure(figsize=(4, 5))
+        window = tk.Toplevel()
+        canvas = type(self.canvas)(toolfig, master=window)
+        toolfig.subplots_adjust(top=0.9)
+        canvas.tool = AxesTool(self.canvas.figure, toolfig)
         canvas.draw()
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
         window.grab_set()
