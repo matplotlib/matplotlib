@@ -1500,7 +1500,7 @@ def _get_renderer(figure, print_method, *, draw_disabled=False):
     Get the renderer that would be used to save a `~.Figure`, and cache it on
     the figure.
 
-    If *draw_disabled* is True, additionally replace draw_foo methods on
+    If *draw_disabled* is True, additionally replace drawing methods on
     *renderer* by no-ops.  This is used by the tight-bbox-saving renderer,
     which needs to walk through the artist tree to compute the tight-bbox, but
     for which the output file may be closed early.
@@ -1521,7 +1521,8 @@ def _get_renderer(figure, print_method, *, draw_disabled=False):
 
     if draw_disabled:
         for meth_name in dir(RendererBase):
-            if meth_name.startswith("draw_"):
+            if (meth_name.startswith("draw_")
+                    or meth_name in ["open_group", "close_group"]):
                 setattr(renderer, meth_name, lambda *args, **kwargs: None)
 
     return renderer
