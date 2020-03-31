@@ -2901,7 +2901,7 @@ class Axes(_AxesBase):
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=0, radius=1, counterclock=True,
             wedgeprops=None, textprops=None, center=(0, 0),
-            frame=False, rotatelabels=False):
+            frame=False, rotatelabels=False, *, normalize=None):
         """
         Plot a pie chart.
 
@@ -2941,6 +2941,17 @@ class Axes(_AxesBase):
 
         shadow : bool, default: False
             Draw a shadow beneath the pie.
+
+        normalize: None or bool, default: None
+            ``pie()`` used to draw a partial pie if ``sum(x) < 1``. This
+            behavior is deprecated and will change to always normalizing the
+            values to a full pie by default. If you want to draw a partial pie,
+            please pass ``normalize=False`` explicitly.
+            When *True*, always make a full pie by normalizing x so that
+            ``sum(x) == 1``. When *False*, make a partial pie.
+            When *None*, gives the current behavior and warns if
+            ``sum(x) < 1``. Please note that passing None to this parameter is
+            deprecated.
 
         labeldistance : float or None, default: 1.1
             The radial distance at which the pie labels are drawn.
@@ -3010,9 +3021,20 @@ class Axes(_AxesBase):
             raise ValueError("Wedge sizes 'x' must be non negative values")
 
         sx = x.sum()
-        if sx > 1:
-            x = x / sx
 
+        if normalize is None:
+            if sx < 1:
+                cbook.warn_deprecated(
+                    "3.1", message="normalize=None does not normalize if "
+                    "the sum is less than 1 "
+                    "but this behavior is deprecated "
+                    "since %(since)s. After the deprecation period "
+                    "the default value will be normalize=True. "
+                    "To prevent normalization pass normalize=False ")
+            else:
+                normalize = True
+        if normalize:
+            x = x / sx
         if labels is None:
             labels = [''] * len(x)
         if explode is None:
