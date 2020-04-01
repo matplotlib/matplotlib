@@ -914,7 +914,7 @@ class Axes3D(Axes):
         'elev' stores the elevation angle in the z plane (in degrees).
         'azim' stores the azimuth angle in the (x, y) plane (in degrees).
 
-        if elev or azim are None (default), then the initial value
+        if 'elev' or 'azim' are None (default), then the initial value
         is used which was specified in the :class:`Axes3D` constructor.
         """
 
@@ -947,10 +947,10 @@ class Axes3D(Axes):
         """
         Create the projection matrix from the current viewing position.
 
-        elev stores the elevation angle in the z plane
-        azim stores the azimuth angle in the (x, y) plane
+        'elev' stores the elevation angle in the z plane.
+        'azim' stores the azimuth angle in the (x, y) plane.
 
-        dist is the distance of the eye viewing point from the object point.
+        'dist' is the distance of the eye viewing point from the object point.
         """
         # chosen for similarity with the initial view before gh-8896
         pb_aspect = np.array([4, 4, 3]) / 3.5
