@@ -987,27 +987,31 @@ class PolarAxes(Axes):
         where minval and maxval are the minimum and maximum limits. Values are
         wrapped in to the range :math:`[0, 2\pi]` (in radians), so for example
         it is possible to do ``set_thetalim(-np.pi / 2, np.pi / 2)`` to have
-        an axes symmetric around 0. If not within range :math:`[0, 2\pi]` a
-        ValueError is raised.
+        an axes symmetric around 0. A ValueError is raised if the absolute
+        angle difference is larger than :math:2\pi.
         """
-        thetamin = 0
-        thetamax = 0
+        thetamin = None
+        thetamax = None
+        left = None
+        right = None
+
         if 'thetamin' in kwargs:
             thetamin = np.deg2rad(kwargs.pop('thetamin'))
-            kwargs['xmin'] = thetamin
         if 'thetamax' in kwargs:
             thetamax = np.deg2rad(kwargs.pop('thetamax'))
-            kwargs['xmax'] = thetamax
 
-        if args.__len__() == 2:
+        if len(args) == 2:
             if args[0] is not None and args[1] is not None:
-                if(abs(args[1] - args[0]) > 2 * np.pi):
+                left = args[0]
+                right = args[1]
+                if(abs(right - left) > 2 * np.pi):
                     raise ValueError('Cannot pass angle range > 2 pi')
 
-        if 'xmin' in kwargs and 'xmax' in kwargs:
+        if(thetamin is not None and thetamax is not None):
             if(abs(thetamax - thetamin) > 2 * np.pi):
                 raise ValueError('Cannot pass angle range > 2 pi')
-        return tuple(np.rad2deg(self.set_xlim(*args, **kwargs)))
+        return tuple(np.rad2deg(self.set_xlim(left=left, right=right,
+                                              xmin=thetamin, xmax=thetamax)))
 
     def set_theta_offset(self, offset):
         """
