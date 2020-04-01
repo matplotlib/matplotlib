@@ -2895,6 +2895,7 @@ def test_vert_violinplot_showmedians():
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
                   showmedians=1, showquartiles=0)
 
+
 @image_comparison(['violinplot_vert_showquartiles.png'])
 def test_vert_violinplot_showquartiles():
     ax = plt.axes()
