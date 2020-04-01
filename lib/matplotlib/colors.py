@@ -484,18 +484,15 @@ def makeMappingArray(N, data, gamma=1.0):
     return _create_lookup_table(N, data, gamma)
 
 
-def _deprecate_global_cmap(cmap):
-    if hasattr(cmap, '_global') and cmap._global:
+def _warn_if_global_cmap_modified(cmap):
+    if getattr(cmap, '_global', False):
         cbook.warn_deprecated(
             "3.3",
             message="You are modifying the state of a globally registered "
-                    "colormap. In future versions, you will not be able "
-                    "to modify a globally registered colormap directly. "
-                    "To eliminate this warning until then, you can make "
-                    "a copy of the requested colormap before modifying it. ",
-            alternative="To modify a colormap without overwriting the "
-                        "global state, you can make a copy of the colormap "
-                        f"first. cmap = copy.copy(mpl.cm.get_cmap({cmap.name})"
+                    "colormap. In future versions, you will not be able to "
+                    "modify a registered colormap in-place. To remove this "
+                    "warning, you can make a copy of the colormap first. "
+                    f"cmap = mpl.cm.get_cmap({cmap.name}).copy()"
         )
 
 
@@ -619,28 +616,28 @@ class Colormap:
 
     def set_bad(self, color='k', alpha=None):
         """Set the color for masked values."""
+        _warn_if_global_cmap_modified(self)
         self._rgba_bad = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
-        _deprecate_global_cmap(self)
 
     def set_under(self, color='k', alpha=None):
         """
         Set the color for low out-of-range values when ``norm.clip = False``.
         """
+        _warn_if_global_cmap_modified(self)
         self._rgba_under = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
-        _deprecate_global_cmap(self)
 
     def set_over(self, color='k', alpha=None):
         """
         Set the color for high out-of-range values when ``norm.clip = False``.
         """
+        _warn_if_global_cmap_modified(self)
         self._rgba_over = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
-        _deprecate_global_cmap(self)
 
     def _set_extremes(self):
         if self._rgba_under:

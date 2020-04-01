@@ -1948,7 +1948,7 @@ def colormaps():
       <https://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_
       by Carey Rappaport
     """
-    return sorted(cm.cmap_d)
+    return sorted(cm._cmap_registry)
 
 
 def _setup_pyplot_info_docstrings():
