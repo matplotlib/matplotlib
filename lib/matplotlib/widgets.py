@@ -501,11 +501,12 @@ class Slider(AxesWidget):
             self.set_val(self.valinit)
 
 class Dropdown(AxesWidget):
-    def __init__(self, ax, options, init_index=0):
+    def __init__(self, ax, options, init_index=0, color='.95', hovercolor='1'):
         AxesWidget.__init__(self, ax)
         ax.set_yticks([])
         ax.set_xticks([])
         ax.set_navigate(False)
+        ax.set_xlim((0, 1))
 
         self.DIST_FROM_LEFT = .05
         self.x0, self.y0, self.width, self.height = ax.get_position().bounds
@@ -513,25 +514,36 @@ class Dropdown(AxesWidget):
         self.cnt = 0
         self.select_observers = {}
 
+        self.ax = ax
+        self.options = options
+        self.color = color
+        self.hovercolor = hovercolor
+        self._lastcolor = color
+        self._lasthover = None
+
         self.expanded = False
         self.spans = []
         self.seps = []
         self.textobjs = []
-        self.selectindex = init_index
+        self.indexmap = list(range(len(options)))
+        self.indexmap.remove(init_index)
+        self.indexmap.insert(0, init_index)
 
-        self.ax = ax
-        self.options = options
+        self.ax.set_facecolor(self.color)
 
         text = self.ax.text(self.DIST_FROM_LEFT, 0.5,
-                            self.options[self.selectindex],
+                            self.options[self.indexmap[0]],
                             verticalalignment='center',
                             horizontalalignment='left',
                             transform=self.ax.transAxes)
-        self.selecttext = text
+        self.textobjs.insert(0, text)
 
         self.connect_event('button_press_event', self._click)
+        self.connect_event('motion_notify_event', self._motion)
 
     def _click(self, event):
+        if self.ignore(event):
+            return
         if (event.inaxes == self.ax):
             if (self.expanded):
                 self._select(event.ydata)
@@ -539,27 +551,40 @@ class Dropdown(AxesWidget):
                 self._notify_select_observers()
             else:
                 self._expand()
-        else:
-            if (self.expanded):
-                self._close()
+        elif (self.expanded):
+            self._close()
+
+    def _motion(self, event):
+        if self.ignore(event):
+            return
+        if not self.expanded:
+            if event.inaxes == self.ax:
+                c = self.hovercolor
+            else:
+                c = self.color
+            if c != self._lastcolor:
+                self.ax.set_facecolor(c)
+                self._lastcolor = c
+                if self.drawon:
+                    self.ax.figure.canvas.draw()
+        elif event.inaxes == self.ax:
+            self._hover(event.ydata)
 
     def _expand(self):
         newy0 = self.y0 - ((len(self.options) - 1) * self.height)
         newheight = len(self.options) * self.height
         boxheight = 1 / len(self.options)
         self.ax.set_position([self.x0, newy0, self.width, newheight])
-        self.selecttext.remove()
-        self.spans.clear()
-        self.seps.clear()
-        self.textobjs.clear()
+        self.textobjs[0].remove()
+        del self.textobjs[0]
 
         for i in range(len(self.options)):
             top = i * boxheight
             bottom = top + boxheight
-            span = self.ax.axvspan(0, 1, top, bottom, color='white')
-            sep = self.ax.axhline(bottom, 0, 1, color='black')
+            span = self.ax.axvspan(0, 1, top, bottom, color=self.color)
+            sep = self.ax.axhline(bottom, 0, 1, color='black', lw=0.8)
             text = self.ax.text(self.DIST_FROM_LEFT, (top + bottom) / 2,
-                                self.options[-i - 1],
+                                self.options[self.indexmap[-i - 1]],
                                 verticalalignment='center',
                                 horizontalalignment='left',
                                 transform=self.ax.transAxes)
@@ -567,7 +592,8 @@ class Dropdown(AxesWidget):
             self.seps.insert(-i - 1, sep)
             self.textobjs.insert(-i - 1, text)
 
-        self.selecttext = self.textobjs[self.selectindex]
+        self.spans[0].set_color(self.hovercolor)
+
         # TODO: set zorder better
         self.ax.set_zorder(99999)
         self.expanded = True
@@ -580,13 +606,17 @@ class Dropdown(AxesWidget):
         for span in self.spans:
             span.remove()
 
+        self.textobjs.clear()
+        self.seps.clear()
+        self.spans.clear()
+
         self.ax.set_position([self.x0, self.y0, self.width, self.height])
         text = self.ax.text(self.DIST_FROM_LEFT, 0.5,
-                            self.options[self.selectindex],
+                            self.options[self.indexmap[0]],
                             verticalalignment='center',
                             horizontalalignment='left',
                             transform=self.ax.transAxes)
-        self.selecttext = text
+        self.textobjs.insert(0, text)
         self.expanded = False
 
     def _select(self, ydata):
@@ -594,13 +624,31 @@ class Dropdown(AxesWidget):
         for i in range(len(self.options)):
             ymax = (i + 1) * boxheight
             if (ydata < ymax):
-                self.selectindex = len(self.options) - i - 1
+                selectindex = self.indexmap[-i - 1]
+                self.indexmap = list(range(len(self.options)))
+                self.indexmap.remove(selectindex)
+                self.indexmap.insert(0, selectindex)
                 break
+
+    def _hover(self, ydata):
+        boxheight = 1 / len(self.options)
+        hoverindex = -1
+        for i in range(len(self.spans)):
+            self.spans[i].set_color(self.color)
+        for i in range(len(self.options)):
+            ymax = (i + 1) * boxheight
+            if (ydata < ymax):
+                self.spans[-i - 1].set_color(self.hovercolor)
+                hoverindex = i
+                break
+        if hoverindex != self._lasthover and self.drawon:
+            self._lasthover = hoverindex
+            self.ax.figure.canvas.draw()
 
     def _notify_select_observers(self):
         if self.eventson:
             for cid, func in self.select_observers.items():
-                func(self.selectindex)
+                func(self.indexmap[0])
 
     def on_select(self, func):
         cid = self.cnt
@@ -1363,7 +1411,8 @@ class AxesTool(Widget):
 
         # DROPDOWN TEST
         # self.axdd = toolfig.add_subplot(10, 1, 1)
-        # self.dd = Dropdown(self.axdd, ['hello', 'world', 'again', 'and', 'again'])
+        # options = ['hello', 'world', 'again', 'and', 'again2']
+        # self.dd = Dropdown(self.axdd, options)
         # def selecttest(val):
         #     print(val)
         # self.dd.on_select(selecttest)
