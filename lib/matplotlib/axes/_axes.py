@@ -7617,6 +7617,8 @@ default: :rc:`scatter.edgecolors`
             Fc = 0  # same default as in mlab._spectral_helper()
         if noverlap is None:
             noverlap = 128  # same default as in mlab.specgram()
+        if Fs is None:
+            Fs = 2  # same default as in mlab._spectral_helper()
 
         if mode == 'complex':
             raise ValueError('Cannot plot a complex specgram')
@@ -7649,8 +7651,6 @@ default: :rc:`scatter.edgecolors`
         Z = np.flipud(Z)
 
         if xextent is None:
-            if Fs is None:
-                Fs = freqs[-1] * 2  # default set in mlab._spectral_helper()
             # padding is needed for first and last segment:
             pad_xextent = (NFFT-noverlap) / Fs / 2
             xextent = np.min(t) - pad_xextent, np.max(t) + pad_xextent
