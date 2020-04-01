@@ -35,7 +35,7 @@ all_data = [np.random.normal(0, std, 100) for std in range(6, 10)]
 # plot violin plot
 axs[0].violinplot(all_data,
                   showmeans=False,
-                  showmedians=True)
+                  showmedians=True, showquartiles=True)
 axs[0].set_title('Violin plot')
 
 # plot box plot

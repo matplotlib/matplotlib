@@ -49,7 +49,7 @@ ax1.violinplot(data)
 ax2.set_title('Customized violin plot')
 parts = ax2.violinplot(
         data, showmeans=False, showmedians=False,
-        showextrema=False)
+        showextrema=False, showquartiles=False)
 
 for pc in parts['bodies']:
     pc.set_facecolor('#D43F3A')

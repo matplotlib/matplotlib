@@ -7867,7 +7867,7 @@ default: :rc:`scatter.edgecolors`
           callable, it should take a `GaussianKDE` instance as its only
           parameter and return a scalar. If None (default), 'scott' is used.
         
-        showmedians : bool, default: False
+        showquartiles : bool, default: False
           If `True`, will toggle rendering of the quartiles.
 
         Returns
