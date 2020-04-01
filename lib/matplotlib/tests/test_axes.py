@@ -2856,14 +2856,14 @@ def test_vert_violinplot_baseline():
     data = [np.random.normal(size=100) for i in range(4)]
     ax = plt.axes()
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
-                  showmedians=0)
+                  showmedians=0, showquartiles=0)
 
     # Reuse testcase from above for a labeled data test
     data = {"d": data}
     fig, ax = plt.subplots()
     ax = plt.axes()
     ax.violinplot("d", positions=range(4), showmeans=0, showextrema=0,
-                  showmedians=0, data=data)
+                  showmedians=0, data=data, showquartiles=0)
 
 
 @image_comparison(['violinplot_vert_showmeans.png'])
@@ -2873,7 +2873,7 @@ def test_vert_violinplot_showmeans():
     np.random.seed(732050807)
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=1, showextrema=0,
-                  showmedians=0)
+                  showmedians=0, showquartiles=0)
 
 
 @image_comparison(['violinplot_vert_showextrema.png'])
@@ -2883,7 +2883,7 @@ def test_vert_violinplot_showextrema():
     np.random.seed(236067977)
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=1,
-                  showmedians=0)
+                  showmedians=0, showquartiles=0)
 
 
 @image_comparison(['violinplot_vert_showmedians.png'])
@@ -2893,7 +2893,16 @@ def test_vert_violinplot_showmedians():
     np.random.seed(645751311)
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
-                  showmedians=1)
+                  showmedians=1, showquartiles=0)
+
+@image_comparison(['violinplot_vert_showquartiles.png'])
+def test_vert_violinplot_showquartiles():
+    ax = plt.axes()
+    # First 9 digits of frac(sqrt(10))
+    np.random.seed(162277660)
+    data = [np.random.normal(size=100) for i in range(4)]
+    ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
+                  showmedians=0, showquartiles=1)
 
 
 @image_comparison(['violinplot_vert_showall.png'])
@@ -2935,7 +2944,7 @@ def test_horiz_violinplot_baseline():
     np.random.seed(358898943)
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
-                  showextrema=0, showmedians=0)
+                  showextrema=0, showmedians=0, showquartiles=0)
 
 
 @image_comparison(['violinplot_horiz_showmedians.png'])
@@ -2945,7 +2954,7 @@ def test_horiz_violinplot_showmedians():
     np.random.seed(795831523)
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
-                  showextrema=0, showmedians=1)
+                  showextrema=0, showmedians=1, showquartiles=0)
 
 
 @image_comparison(['violinplot_horiz_showmeans.png'])
@@ -2955,7 +2964,7 @@ def test_horiz_violinplot_showmeans():
     np.random.seed(385164807)
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=1,
-                  showextrema=0, showmedians=0)
+                  showextrema=0, showmedians=0, showquartiles=0)
 
 
 @image_comparison(['violinplot_horiz_showextrema.png'])
@@ -2965,7 +2974,17 @@ def test_horiz_violinplot_showextrema():
     np.random.seed(567764362)
     data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
-                  showextrema=1, showmedians=0)
+                  showextrema=1, showmedians=0, showquartiles=0)
+
+
+@image_comparison(['violinplot_horiz_showquartiles.png'])
+def test_horiz_violinplot_showquartiles():
+    ax = plt.axes()
+    # First 9 digits of frac(sqrt(34))
+    np.random.seed(830951894)
+    data = [np.random.normal(size=100) for i in range(4)]
+    ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
+                  showextrema=0, showmedians=0, showquartiles=1)
 
 
 @image_comparison(['violinplot_horiz_showall.png'])
