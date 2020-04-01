@@ -2914,7 +2914,7 @@ def test_vert_violinplot_showall():
     ax.violinplot(data, positions=range(4), showmeans=1, showextrema=1,
                   showmedians=1,
                   quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]],
-                  showquartiles=True)
+                  showquartiles=1)
 
 
 @image_comparison(['violinplot_vert_custompoints_10.png'])
@@ -2996,7 +2996,7 @@ def test_horiz_violinplot_showall():
     ax.violinplot(data, positions=range(4), vert=False, showmeans=1,
                   showextrema=1, showmedians=1,
                   quantiles=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.7], [0.4, 0.6]],
-                  showquartiles=True)
+                  showquartiles=1)
 
 
 @image_comparison(['violinplot_horiz_custompoints_10.png'])
