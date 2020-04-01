@@ -1,6 +1,6 @@
-==========
-Installing
-==========
+==================
+Installation Guide
+==================
 
 .. note::
 
@@ -44,10 +44,10 @@ distribution, download the :file:`*.tar.gz` file and look in the
 To run the test suite:
 
 * extract the :file:`lib/matplotlib/tests` or :file:`lib/mpl_toolkits/tests`
-  directories from the source distribution;
+  directories from the source distribution.
 * install test dependencies: `pytest <https://pypi.org/project/pytest>`_,
   MiKTeX, GhostScript, ffmpeg, avconv, ImageMagick, and `Inkscape
-  <https://inkscape.org/>`_;
+  <https://inkscape.org/>`_.
 * run ``python -mpytest``.
 
 Third-party distributions of Matplotlib
@@ -120,14 +120,14 @@ Optionally, you can also install a number of packages to enable better user
 interface toolkits. See :ref:`what-is-a-backend` for more details on the
 optional Matplotlib backends and the capabilities they provide.
 
-* Tk_ (>= 8.3, != 8.6.0 or 8.6.1): for the Tk-based backends;
-* PyQt4_ (>= 4.6) or PySide_ (>= 1.0.3) [#]_: for the Qt4-based backends;
-* PyQt5_ or PySide2_: for the Qt5-based backends;
-* PyGObject_: for the GTK3-based backends [#]_;
-* wxPython_ (>= 4) [#]_: for the wx-based backends;
+* Tk_ (>= 8.3, != 8.6.0 or 8.6.1): for the Tk-based backends.
+* PyQt4_ (>= 4.6) or PySide_ (>= 1.0.3) [#]_: for the Qt4-based backends.
+* PyQt5_ or PySide2_: for the Qt5-based backends.
+* PyGObject_: for the GTK3-based backends [#]_.
+* wxPython_ (>= 4) [#]_: for the wx-based backends.
 * pycairo_ (>= 1.11.0) or cairocffi_ (>= 0.8): for the GTK3 and/or cairo-based
-  backends;
-* Tornado_: for the WebAgg backend;
+  backends.
+* Tornado_: for the WebAgg backend.
 
 .. _Tk: https://docs.python.org/3/library/tk.html
 .. _PyQt4: https://pypi.org/project/PyQt4
@@ -149,11 +149,11 @@ optional Matplotlib backends and the capabilities they provide.
 For better support of animation output format and image file formats, LaTeX,
 etc., you can install the following:
 
-* `ffmpeg <https://www.ffmpeg.org/>`_: for saving movies;
+* `ffmpeg <https://www.ffmpeg.org/>`_: for saving movies.
 * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
-  animated gifs;
+  animated gifs.
 * `LaTeX <https://miktex.org/>`_ and `GhostScript (>=9.0)
-  <https://ghostscript.com/download/>`_ : for rendering text with LaTeX;
+  <https://ghostscript.com/download/>`_ : for rendering text with LaTeX.
 * `fontconfig <https://www.fontconfig.org>`_ (>= 2.7): for detection of system
   fonts on Linux.
 
