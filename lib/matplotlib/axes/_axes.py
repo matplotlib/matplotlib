@@ -7815,7 +7815,8 @@ default: :rc:`scatter.edgecolors`
     @_preprocess_data(replace_names=["dataset"])
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
-                   quantiles=None, points=100, bw_method=None, showquartiles=False):
+                   quantiles=None, points=100, bw_method=None,
+                   showquartiles=False):
         """
         Make a violin plot.
 
@@ -7866,7 +7867,7 @@ default: :rc:`scatter.edgecolors`
           scalar, this will be used directly as `kde.factor`.  If a
           callable, it should take a `GaussianKDE` instance as its only
           parameter and return a scalar. If None (default), 'scott' is used.
-        
+
         showquartiles : bool, default: False
           If `True`, will toggle rendering of the quartiles.
 
@@ -7916,10 +7917,12 @@ default: :rc:`scatter.edgecolors`
                                      quantiles=quantiles)
         return self.violin(vpstats, positions=positions, vert=vert,
                            widths=widths, showmeans=showmeans,
-                           showextrema=showextrema, showmedians=showmedians, showquartiles=showquartiles)
+                           showextrema=showextrema, showmedians=showmedians,
+                           showquartiles=showquartiles)
 
     def violin(self, vpstats, positions=None, vert=True, widths=0.5,
-               showmeans=False, showextrema=True, showmedians=False, showquartiles=False):
+               showmeans=False, showextrema=True, showmedians=False,
+               showquartiles=False):
         """Drawing function for violin plots.
 
         Draw a violin plot for each column of *vpstats*. Each filled area
@@ -8091,8 +8094,10 @@ default: :rc:`scatter.edgecolors`
                 # find coordinate closest to each quartile and determine bounds
                 for quart in quarts:
                     coord_idx = np.abs(stats['coords'] - quart).argmin()
-                    lower_quartile_bounds = np.concatenate((lower_quartile_bounds, [lower_vals[coord_idx]]))
-                    upper_quartile_bounds = np.concatenate((upper_quartile_bounds, [upper_vals[coord_idx]]))
+                    lower_quartile_bounds = np.concatenate(
+                        (lower_quartile_bounds, [lower_vals[coord_idx]]))
+                    upper_quartile_bounds = np.concatenate(
+                        (upper_quartile_bounds, [upper_vals[coord_idx]]))
 
         artists['bodies'] = bodies
 
