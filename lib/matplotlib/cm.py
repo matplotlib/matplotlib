@@ -65,12 +65,16 @@ def _gen_cmap_d():
     # Generate reversed cmaps.
     for cmap in list(cmap_d.values()):
         rmap = cmap.reversed()
+        cmap._global = True
+        rmap._global = True
         cmap_d[rmap.name] = rmap
     return cmap_d
 
 
-cmap_d = _gen_cmap_d()
-locals().update(cmap_d)
+_cmap_d = _gen_cmap_d()
+locals().update(_cmap_d)
+# This is no longer considered public API
+cmap_d = _cmap_d
 
 
 # Continue with definitions ...
@@ -104,7 +108,8 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
             raise ValueError("Arguments must include a name or a "
                              "Colormap") from err
     if isinstance(cmap, colors.Colormap):
-        cmap_d[name] = cmap
+        cmap._global = True
+        _cmap_d[name] = cmap
         return
     if lut is not None or data is not None:
         cbook.warn_deprecated(
@@ -117,7 +122,8 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     if lut is None:
         lut = mpl.rcParams['image.lut']
     cmap = colors.LinearSegmentedColormap(name, data, lut)
-    cmap_d[name] = cmap
+    cmap._global = True
+    _cmap_d[name] = cmap
 
 
 def get_cmap(name=None, lut=None):
@@ -130,9 +136,12 @@ def get_cmap(name=None, lut=None):
     Parameters
     ----------
     name : `matplotlib.colors.Colormap` or str or None, default: None
-        If a `.Colormap` instance, it will be returned.  Otherwise, the name of
-        a colormap known to Matplotlib, which will be resampled by *lut*.  The
-        default, None, means :rc:`image.cmap`.
+        If a `.Colormap` instance, it will be returned.
+        Otherwise, the name of a colormap known to Matplotlib, which will
+        be resampled by *lut*. Currently, this returns the global colormap
+        object, which is deprecated. In Matplotlib 3.5, you will no longer be
+        able to modify the global colormaps in-place.
+        The default, None, means :rc:`image.cmap`.
     lut : int or None, default: None
         If *name* is not already a Colormap instance and *lut* is not None, the
         colormap will be resampled to have *lut* entries in the lookup table.
@@ -141,11 +150,11 @@ def get_cmap(name=None, lut=None):
         name = mpl.rcParams['image.cmap']
     if isinstance(name, colors.Colormap):
         return name
-    cbook._check_in_list(sorted(cmap_d), name=name)
+    cbook._check_in_list(sorted(_cmap_d), name=name)
     if lut is None:
-        return cmap_d[name]
+        return _cmap_d[name]
     else:
-        return cmap_d[name]._resample(lut)
+        return _cmap_d[name]._resample(lut)
 
 
 class ScalarMappable:

@@ -484,6 +484,21 @@ def makeMappingArray(N, data, gamma=1.0):
     return _create_lookup_table(N, data, gamma)
 
 
+def _deprecate_global_cmap(cmap):
+    if hasattr(cmap, '_global') and cmap._global:
+        cbook.warn_deprecated(
+            "3.3",
+            message="You are modifying the state of a globally registered "
+                    "colormap. In future versions, you will not be able "
+                    "to modify a globally registered colormap directly. "
+                    "To eliminate this warning until then, you can make "
+                    "a copy of the requested colormap before modifying it. ",
+            alternative="To modify a colormap without overwriting the "
+                        "global state, you can make a copy of the colormap "
+                        f"first. cmap = copy.copy(mpl.cm.get_cmap({cmap.name})"
+        )
+
+
 class Colormap:
     """
     Baseclass for all scalar to RGBA mappings.
@@ -599,6 +614,7 @@ class Colormap:
         cmapobject.__dict__.update(self.__dict__)
         if self._isinit:
             cmapobject._lut = np.copy(self._lut)
+        cmapobject._global = False
         return cmapobject
 
     def set_bad(self, color='k', alpha=None):
@@ -606,6 +622,7 @@ class Colormap:
         self._rgba_bad = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
+        _deprecate_global_cmap(self)
 
     def set_under(self, color='k', alpha=None):
         """
@@ -614,6 +631,7 @@ class Colormap:
         self._rgba_under = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
+        _deprecate_global_cmap(self)
 
     def set_over(self, color='k', alpha=None):
         """
@@ -622,6 +640,7 @@ class Colormap:
         self._rgba_over = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
+        _deprecate_global_cmap(self)
 
     def _set_extremes(self):
         if self._rgba_under:

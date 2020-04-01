@@ -70,6 +70,62 @@ def test_register_cmap():
         cm.register_cmap()
 
 
+@pytest.mark.skipif(matplotlib.__version__ < "3.5",
+                    reason="This test modifies the global state of colormaps.")
+def test_colormap_global_unchanged_state():
+    new_cm = plt.get_cmap('viridis')
+    new_cm.set_over('b')
+    # Make sure that this didn't mess with the original viridis cmap
+    assert new_cm != plt.get_cmap('viridis')
+
+    # Also test that pyplot access doesn't mess the original up
+    new_cm = plt.cm.viridis
+    new_cm.set_over('b')
+    assert new_cm != plt.get_cmap('viridis')
+
+
+@pytest.mark.skipif(matplotlib.__version__ < "3.4",
+                    reason="This test modifies the global state of colormaps.")
+def test_colormap_global_get_warn():
+    new_cm = plt.get_cmap('viridis')
+    # Store the old value so we don't override the state later on.
+    orig_cmap = copy.copy(new_cm)
+    new_cm.set_under('k')
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match="You are modifying the state of a globally"):
+        # This should warn now because we've modified the global state
+        # without registering it
+        plt.get_cmap('viridis')
+
+    # Test that re-registering the original cmap clears the warning
+    plt.register_cmap(cmap=orig_cmap)
+    plt.get_cmap('viridis')
+
+
+def test_colormap_global_set_warn():
+    new_cm = plt.get_cmap('viridis')
+    # Store the old value so we don't override the state later on.
+    orig_cmap = copy.copy(new_cm)
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match="You are modifying the state of a globally"):
+        # This should warn now because we've modified the global state
+        new_cm.set_under('k')
+
+    # This shouldn't warn because it is a copy
+    copy.copy(new_cm).set_under('b')
+
+    # Test that registering and then modifying warns
+    plt.register_cmap(name='test_cm', cmap=copy.copy(orig_cmap))
+    new_cm = plt.get_cmap('test_cm')
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match="You are modifying the state of a globally"):
+        # This should warn now because we've modified the global state
+        new_cm.set_under('k')
+
+    # Re-register the original
+    plt.register_cmap(cmap=orig_cmap)
+
+
 def test_colormap_copy():
     cm = plt.cm.Reds
     cm_copy = copy.copy(cm)
