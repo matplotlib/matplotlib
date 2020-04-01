@@ -5300,9 +5300,17 @@ default: :rc:`scatter.edgecolors`
         Display data as an image; i.e. on a 2D regular raster.
 
         The input may either be actual RGB(A) data, or 2D scalar data, which
-        will be rendered as a pseudocolor image. Note: For actually displaying
-        a grayscale image set up the color mapping using the parameters
+        will be rendered as a pseudocolor image. For displaying a grayscale
+        image set up the color mapping using the parameters
         ``cmap='gray', vmin=0, vmax=255``.
+
+        The number of pixels used to render an image is set by the axes size
+        and the *dpi* of the figure. This can lead to aliasing artifacts when
+        the image is resampled because the displayed image size will usually
+        not match the size of *X* (see
+        :doc:`/gallery/images_contours_and_fields/image_antialiasing`).
+        The resampling can be controlled via the *interpolation* parameter
+        and/or :rc:`image.interpolation`.
 
         Parameters
         ----------
@@ -5433,7 +5441,7 @@ default: :rc:`scatter.edgecolors`
             The filter radius for filters that have a radius parameter, i.e.
             when interpolation is one of: 'sinc', 'lanczos' or 'blackman'.
 
-        resample : bool, optional
+        resample : bool, default: :rc:`image.resample`
             When *True*, use a full resampling method.  When *False*, only
             resample when the output image is larger than the input image.
 
