@@ -1360,24 +1360,6 @@ class OffsetImage(OffsetBox):
     def get_zoom(self):
         return self._zoom
 
-#     def set_axes(self, axes):
-#         self.image.set_axes(axes)
-#         martist.Artist.set_axes(self, axes)
-
-#     def set_offset(self, xy):
-#         """
-#         Set the offset of the container.
-#
-#         Parameters
-#         ----------
-#         xy : (float, float)
-#             The (x, y) coordinates of the offset in display units.
-#         """
-#         self._offset = xy
-
-#         self.offset_transform.clear()
-#         self.offset_transform.translate(xy[0], xy[1])
-
     def get_offset(self):
         """Return offset of the container."""
         return self._offset
