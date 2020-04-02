@@ -3931,12 +3931,36 @@ def test_axline(fig_test, fig_ref):
     ax.axline((0, 0), (1, 1))
     ax.axline((0, 0), (1, 0), color='C1')
     ax.axline((0, 0.5), (1, 0.5), color='C2')
+    # slopes
+    ax.axline((-0.7, -0.5), slope=0, color='C3')
+    ax.axline((1, -0.5), slope=-0.5, color='C4')
+    ax.axline((-0.5, 1), slope=float('inf'), color='C5')
 
     ax = fig_ref.subplots()
     ax.set(xlim=(-1, 1), ylim=(-1, 1))
     ax.plot([-1, 1], [-1, 1])
     ax.axhline(0, color='C1')
     ax.axhline(0.5, color='C2')
+    # slopes
+    ax.axhline(-0.5, color='C3')
+    ax.plot([-1, 1], [0.5, -0.5], color='C4')
+    ax.axvline(-0.5, color='C5')
+
+
+def test_axline_args():
+    """Exactly one of *xy2* and *slope* must be specified."""
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError):
+        ax.axline((0, 0))  # missing second parameter
+    with pytest.raises(TypeError):
+        ax.axline((0, 0), (1, 1), slope=1)  # redundant parameters
+    ax.set_xscale('log')
+    with pytest.raises(TypeError):
+        ax.axline((0, 0), slope=1)
+    ax.set_xscale('linear')
+    ax.set_yscale('log')
+    with pytest.raises(TypeError):
+        ax.axline((0, 0), slope=1)
 
 
 @image_comparison(['vlines_basic', 'vlines_with_nan', 'vlines_masked'],
