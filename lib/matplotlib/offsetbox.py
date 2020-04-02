@@ -1523,6 +1523,11 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         inside, info = self._default_contains(mouseevent)
         if inside is not None:
             return inside, info
+
+        xy_pixel = self._get_position_xy(None)
+        if not self._check_xy(None, xy_pixel):
+            return False, {}
+
         t, tinfo = self.offsetbox.contains(mouseevent)
         #if self.arrow_patch is not None:
         #    a, ainfo=self.arrow_patch.contains(event)
@@ -1641,7 +1646,6 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
             return
 
         xy_pixel = self._get_position_xy(renderer)
-
         if not self._check_xy(renderer, xy_pixel):
             return
 
