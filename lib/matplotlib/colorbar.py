@@ -375,7 +375,7 @@ class ColorbarBase:
 
     ticklocation : {'auto', 'left', 'right', 'top', 'bottom'}
 
-    extend : {'neiter', 'both', 'min', 'max'}
+    extend : {'neither', 'both', 'min', 'max'}
 
     spacing : {'uniform', 'proportional'}
 
