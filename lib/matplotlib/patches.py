@@ -720,7 +720,7 @@ class Rectangle(Patch):
         Parameters
         ----------
         xy : (float, float)
-            The bottom and left rectangle coordinates
+            The anchor coordinates
         width : float
             Rectangle width
         height : float
