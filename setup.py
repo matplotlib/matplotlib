@@ -25,6 +25,7 @@ Make sure you have pip >= 9.0.1.
 import os
 from pathlib import Path
 import shutil
+import subprocess
 from zipfile import ZipFile
 
 from setuptools import setup, find_packages, Extension
@@ -105,6 +106,9 @@ class BuildExtraLibraries(BuildExtCommand):
         cxxflags = []
         if 'CXXFLAGS' in os.environ:
             cxxflags.append(os.environ['CXXFLAGS'])
+        ldflags = []
+        if 'LDFLAGS' in os.environ:
+            ldflags.append(os.environ['LDFLAGS'])
 
         if has_flag(self.compiler, '-fvisibility=hidden'):
             for ext in self.extensions:
@@ -116,9 +120,37 @@ class BuildExtraLibraries(BuildExtCommand):
                     continue
                 ext.extra_compile_args.append('-fvisibility-inlines-hidden')
             cxxflags.append('-fvisibility-inlines-hidden')
+        ranlib = 'RANLIB' in env
+        if not ranlib and self.compiler.compiler_type == 'unix':
+            try:
+                result = subprocess.run(self.compiler.compiler +
+                                        ['--version'],
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.STDOUT,
+                                        universal_newlines=True)
+            except Exception as e:
+                pass
+            else:
+                version = result.stdout.lower()
+                if 'gcc' in version:
+                    ranlib = shutil.which('gcc-ranlib')
+                elif 'clang' in version:
+                    if sys.platform == 'darwin':
+                        ranlib = True
+                    else:
+                        ranlib = shutil.which('llvm-ranlib')
+        if ranlib and has_flag(self.compiler, '-flto'):
+            for ext in self.extensions:
+                ext.extra_compile_args.append('-flto')
+            cppflags.append('-flto')
+            ldflags.append('-flto')
+            # Needed so FreeType static library doesn't lose its LTO objects.
+            if isinstance(ranlib, str):
+                env['RANLIB'] = ranlib
 
         env['CPPFLAGS'] = ' '.join(cppflags)
         env['CXXFLAGS'] = ' '.join(cxxflags)
+        env['LDFLAGS'] = ' '.join(ldflags)
 
         return env
 
