@@ -1264,7 +1264,7 @@ class Axes(_AxesBase):
             row corresponds to a row or a column of lines (depending on the
             *orientation* parameter).
 
-        orientation : {'horizontal', 'vertical'}, optional
+        orientation : {'horizontal', 'vertical'}, default: 'horizontal'
             The direction of the event collections:
 
             - 'horizontal': the lines are arranged horizontally in rows,

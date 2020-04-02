@@ -415,3 +415,10 @@ parent figure, though they can be later removed with ``ax.remove()``.
 
 ``.BboxBase.inverse_transformed`` is deprecated (call `.BboxBase.transformed`
 on the `~.Transform.inverted()` transform instead).
+
+*orientation* of ``eventplot()`` and `.EventCollection`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Setting the *orientation* of an ``eventplot()`` or `.EventCollection` to "none"
+or None is deprecated; set it to "horizontal" instead.  Moreover, the two
+orientations ("horizontal" and "vertical") will become case-sensitive in the
+future.
