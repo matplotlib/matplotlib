@@ -176,7 +176,8 @@ def test_dont_mutate_kwargs():
 
 
 def test_subplot_theta_min_max_raise():
-    with pytest.raises(ValueError, match='The angle range must be<= 360 degrees'):
+    with pytest.raises(ValueError, match='The angle range ' +
+                                         'must be<= 360 degrees'):
         ax = plt.subplot(111, projection='polar')
         ax.set_thetalim(thetamin=800, thetamax=400)
 
