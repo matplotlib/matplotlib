@@ -4211,6 +4211,13 @@ def test_specgram_angle():
                                 scale="dB")
 
 
+def test_specgram_fs_none():
+    """Test axes.specgram when Fs is None, should not throw error."""
+    spec, freqs, t, im = plt.specgram(np.ones(300), Fs=None)
+    xmin, xmax, freq0, freq1 = im.get_extent()
+    assert xmin == 32 and xmax == 96
+
+
 @image_comparison(
     ["psd_freqs.png", "csd_freqs.png", "psd_noise.png", "csd_noise.png"],
     remove_text=True, tol=0.002)

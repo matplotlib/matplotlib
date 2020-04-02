@@ -7462,6 +7462,8 @@ default: :rc:`scatter.edgecolors`
             Fc = 0  # same default as in mlab._spectral_helper()
         if noverlap is None:
             noverlap = 128  # same default as in mlab.specgram()
+        if Fs is None:
+            Fs = 2  # same default as in mlab._spectral_helper()
 
         if mode == 'complex':
             raise ValueError('Cannot plot a complex specgram')
