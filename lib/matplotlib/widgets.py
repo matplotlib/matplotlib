@@ -501,7 +501,8 @@ class Slider(AxesWidget):
             self.set_val(self.valinit)
 
 class Dropdown(AxesWidget):
-    def __init__(self, ax, options, init_index=0, color='.95', hovercolor='1'):
+    def __init__(self, ax, options, label, init_index=0, label_pad=.01,
+                 color='.95', hovercolor='1'):
         AxesWidget.__init__(self, ax)
         ax.set_yticks([])
         ax.set_xticks([])
@@ -530,6 +531,11 @@ class Dropdown(AxesWidget):
         self.indexmap.insert(0, init_index)
 
         self.ax.set_facecolor(self.color)
+
+        self.label = ax.text(-label_pad, 0.5, label,
+                             verticalalignment='center',
+                             horizontalalignment='right',
+                             transform=ax.transAxes)
 
         text = self.ax.text(self.DIST_FROM_LEFT, 0.5,
                             self.options[self.indexmap[0]],
@@ -593,6 +599,9 @@ class Dropdown(AxesWidget):
             self.textobjs.insert(-i - 1, text)
 
         self.spans[0].set_color(self.hovercolor)
+        labelpos = self.label.get_position()
+        newlabely = (len(self.options) * boxheight) - (boxheight / 2)
+        self.label.set_position((labelpos[0], newlabely))
 
         # TODO: set zorder better
         self.ax.set_zorder(99999)
@@ -617,6 +626,9 @@ class Dropdown(AxesWidget):
                             horizontalalignment='left',
                             transform=self.ax.transAxes)
         self.textobjs.insert(0, text)
+
+        labelpos = self.label.get_position()
+        self.label.set_position((labelpos[0], 0.5))
         self.expanded = False
 
     def _select(self, ydata):
@@ -1412,7 +1424,7 @@ class AxesTool(Widget):
         # DROPDOWN TEST
         # self.axdd = toolfig.add_subplot(10, 1, 1)
         # options = ['hello', 'world', 'again', 'and', 'again2']
-        # self.dd = Dropdown(self.axdd, options)
+        # self.dd = Dropdown(self.axdd, options, 'Label')
         # def selecttest(val):
         #     print(val)
         # self.dd.on_select(selecttest)
