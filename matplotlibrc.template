@@ -442,10 +442,13 @@
 #date.autoformatter.minute:      %d %H:%M
 #date.autoformatter.second:      %H:%M:%S
 #date.autoformatter.microsecond: %M:%S.%f
-
 ## The reference date for Matplotlib's internal date representation
 ## See https://matplotlib.org/examples/ticks_and_spines/date_precision_and_epochs.py
 #date.epoch: 1970-01-01T00:00:00
+## 'auto', 'concise':
+#date.converter:                  auto
+## For auto converter whether to use interval_multiples:
+#date.interval_multiples:         True
 
 ## ***************************************************************************
 ## * TICKS                                                                   *
