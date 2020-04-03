@@ -221,7 +221,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # get_path_collection_extents handles nan but not masked arrays
 
         if len(paths) and len(offsets):
-            if transform.contains_branch(transData):
+            if any(transform.contains_branch_seperately(transData)):
                 # collections that are just in data units (like quiver)
                 # can properly have the axes limits set by their shape +
                 # offset.  LineCollections that have no offsets can
