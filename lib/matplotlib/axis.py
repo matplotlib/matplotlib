@@ -1320,7 +1320,13 @@ class Axis(martist.Artist):
         return self.minor.formatter
 
     def get_major_ticks(self, numticks=None):
-        """Get the tick instances; grow as necessary."""
+        """
+        Get the tick instances; grow as necessary.
+        
+        Returns
+        -------
+        list of `.Tick` objects 
+        """
         if numticks is None:
             numticks = len(self.get_majorticklocs())
 
