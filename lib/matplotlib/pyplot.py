@@ -56,7 +56,7 @@ from matplotlib.cm import get_cmap, register_cmap
 import numpy as np
 
 # We may not need the following imports here:
-from matplotlib.colors import Normalize
+from matplotlib.colors import Normalize, Colormap
 from matplotlib.lines import Line2D
 from matplotlib.text import Text, Annotation
 from matplotlib.patches import Polygon, Rectangle, Circle, Arrow
@@ -2069,11 +2069,17 @@ def set_cmap(cmap):
     matplotlib.cm.register_cmap
     matplotlib.cm.get_cmap
     """
-    cmap = cm.get_cmap(cmap)
+    cbook._check_isinstance((str, Colormap), cmap=cmap)
+    if isinstance(cmap, str):
+        name = cmap
+        cmap = cm.get_cmap(name)
+        rc('image',cmap=name)
+    elif isinstance(cmap, Colormap):
+        if not cmap.name in cm.cmap_d.keys():
+            cm.register_cmap(cmap.name, cmap)
+        rc('image', cmap=cmap.name)
 
-    rc('image', cmap=cmap.name)
     im = gci()
-
     if im is not None:
         im.set_cmap(cmap)
 
