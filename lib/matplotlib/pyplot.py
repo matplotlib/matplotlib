@@ -2072,11 +2072,11 @@ def set_cmap(cmap):
     cbook._check_isinstance((str, Colormap), cmap=cmap)
     if isinstance(cmap, str):
         name = cmap
-        cmap = cm.get_cmap(name)
-        rc('image',cmap=name)
+        cmap = get_cmap(name)
+        rc('image', cmap=name)
     elif isinstance(cmap, Colormap):
-        if not cmap.name in cm.cmap_d.keys():
-            cm.register_cmap(cmap.name, cmap)
+        if cmap.name not in cm.cmap_d.keys():
+            register_cmap(cmap.name, cmap)
         rc('image', cmap=cmap.name)
 
     im = gci()
