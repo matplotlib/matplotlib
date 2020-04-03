@@ -1486,8 +1486,8 @@ class KeyEvent(LocationEvent):
         cid = fig.canvas.mpl_connect('key_press_event', on_key)
     """
     def __init__(self, name, canvas, key, x=0, y=0, guiEvent=None):
-        LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
         self.key = key
+        LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
 
 
 def _get_renderer(figure, print_method):
