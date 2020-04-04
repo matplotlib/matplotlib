@@ -98,9 +98,9 @@ deprecation warning.
 `~.Axes.errorbar` now color cycles when only errorbar color is set
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Previously setting the *ecolor* would turn off automatic color cycling for the plot, leading to the 
-the lines and markers defaulting to whatever the first color in the color cycle was in the case of 
-multiple plot calls. 
+Previously setting the *ecolor* would turn off automatic color cycling for the plot, leading to the
+the lines and markers defaulting to whatever the first color in the color cycle was in the case of
+multiple plot calls.
 
 `.rcsetup.validate_color_for_prop_cycle` now always raises TypeError for bytes input
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -155,3 +155,9 @@ support for it will be dropped in a future Matplotlib release.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Previously, keyword arguments were silently ignored when no positional
 arguments were given.
+
+
+`get_xticklabels` and `get_yticklabels` now returns plain list
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, get_xticklabels and get_yticklabels returns silent_list.
+They now return normal list.
