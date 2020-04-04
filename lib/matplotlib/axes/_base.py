@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from contextlib import ExitStack
 import functools
+import inspect
 import itertools
 import logging
 import math
@@ -44,7 +45,8 @@ def _axis_method_wrapper(attr_name, method_name, *, doc_sub=None):
 
     The docstring of ``get_foo`` is built by replacing "this Axis" by "the
     {attr_name}" ("the xaxis", "the yaxis") in the wrapped method's docstring;
-    additional replacements can by given in *doc_sub*.
+    additional replacements can by given in *doc_sub*.  The docstring is also
+    dedented to simplify further manipulations.
     """
 
     method = getattr(maxis.Axis, method_name)
@@ -62,7 +64,7 @@ def _axis_method_wrapper(attr_name, method_name, *, doc_sub=None):
                 (f"The docstring of wrapped Axis method {method_name!r} must "
                  f"contain {k!r} as a substring.")
             doc = doc.replace(k, v)
-        wrapper.__doc__ = doc
+        wrapper.__doc__ = inspect.cleandoc(doc)
 
     return wrapper
 
@@ -3635,29 +3637,8 @@ class _AxesBase(martist.Artist):
         "yaxis", "_set_ticklabels",
         doc_sub={"Axis.set_ticks": "Axes.set_yticks"})
 
-    def xaxis_date(self, tz=None):
-        """
-        Sets up x-axis ticks and labels that treat the x data as dates.
-
-        Parameters
-        ----------
-        tz : str or `datetime.tzinfo`, default: :rc:`timezone`
-            Timezone.
-        """
-        # should be enough to inform the unit conversion interface
-        # dates are coming in
-        self.xaxis.axis_date(tz)
-
-    def yaxis_date(self, tz=None):
-        """
-        Sets up y-axis ticks and labels that treat the y data as dates.
-
-        Parameters
-        ----------
-        tz : str or `datetime.tzinfo`, default: :rc:`timezone`
-            Timezone.
-        """
-        self.yaxis.axis_date(tz)
+    xaxis_date = _axis_method_wrapper("xaxis", "axis_date")
+    yaxis_date = _axis_method_wrapper("yaxis", "axis_date")
 
     def format_xdata(self, x):
         """

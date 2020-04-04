@@ -13,6 +13,7 @@ Module containing Axes3D, an object which can plot 3D objects on a
 from collections import defaultdict
 from functools import reduce
 import math
+import textwrap
 
 import numpy as np
 
@@ -827,23 +828,15 @@ class Axes3D(Axes):
         "zaxis", "_set_ticklabels",
         doc_sub={"Axis.set_ticks": "Axes.set_zticks"})
 
-    def zaxis_date(self, tz=None):
-        """
-        Sets up z-axis ticks and labels that treat the z data as dates.
+    zaxis_date = _axis_method_wrapper("zaxis", "axis_date")
+    if zaxis_date.__doc__:
+        zaxis_date.__doc__ += textwrap.dedent("""
 
-        .. note::
-            This function is merely provided for completeness.
-            Axes3D objects do not officially support dates for ticks,
-            and so this may or may not work as expected.
-
-        .. versionadded:: 1.1.0
-            This function was added, but not tested. Please report any bugs.
-
-        Parameters
-        ----------
-        tz : `datetime.tzinfo`, default: :rc:`timezone`
-        """
-        self.zaxis.axis_date(tz)
+        Notes
+        -----
+        This function is merely provided for completeness, but 3d axes do not
+        support dates for ticks, and so this may not work as expected.
+        """)
 
     def clabel(self, *args, **kwargs):
         """

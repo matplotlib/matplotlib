@@ -1752,11 +1752,11 @@ class Axis(martist.Artist):
 
     def axis_date(self, tz=None):
         """
-        Sets up axis ticks and labels treating data along this axis as dates.
+        Sets up axis ticks and labels to treat data along this Axis as dates.
 
         Parameters
         ----------
-        tz : tzinfo or str or None
+        tz : str or `datetime.tzinfo`, default: :rc:`timezone`
             The timezone used to create date labels.
         """
         # By providing a sample datetime instance with the desired timezone,
