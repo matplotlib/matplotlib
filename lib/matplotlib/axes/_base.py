@@ -30,7 +30,7 @@ from matplotlib.rcsetup import cycler, validate_axisbelow
 _log = logging.getLogger(__name__)
 
 
-def _axis_method_wrapper(attr_name, method_name):
+def _axis_method_wrapper(attr_name, method_name, *, doc_sub=None):
     """
     Helper to generate Axes methods wrapping Axis methods.
 
@@ -41,6 +41,10 @@ def _axis_method_wrapper(attr_name, method_name):
     ``get_foo`` is a method that forwards it arguments to the ``get_bar``
     method of the ``xaxis`` attribute, and gets its signature and docstring
     from ``Axis.get_bar``.
+
+    The docstring of ``get_foo`` is built by replacing "this Axis" by "the
+    {attr_name}" ("the xaxis", "the yaxis") in the wrapped method's docstring;
+    additional replacements can by given in *doc_sub*.
     """
 
     method = getattr(maxis.Axis, method_name)
@@ -50,13 +54,15 @@ def _axis_method_wrapper(attr_name, method_name):
     def wrapper(self, *args, **kwargs):
         return get_method(self)(*args, **kwargs)
 
-    if wrapper.__doc__:
-        assert "this Axis" in wrapper.__doc__, \
-            (f"The docstring of wrapped Axis methods must contain "
-             f"'this Axis' as a substring, but this is not the case for "
-             f"{method_name}")
-        wrapper.__doc__ = wrapper.__doc__.replace(
-            "this Axis", f"the {attr_name}", 1)
+    doc = wrapper.__doc__
+    if doc:
+        doc_sub = {"this Axis": f"the {attr_name}", **(doc_sub or {})}
+        for k, v in doc_sub.items():
+            assert k in doc, \
+                (f"The docstring of wrapped Axis method {method_name!r} must "
+                 f"contain {k!r} as a substring.")
+            doc = doc.replace(k, v)
+        wrapper.__doc__ = doc
 
     return wrapper
 
@@ -3356,49 +3362,9 @@ class _AxesBase(martist.Artist):
     get_xmajorticklabels = _axis_method_wrapper("xaxis", "get_majorticklabels")
     get_xminorticklabels = _axis_method_wrapper("xaxis", "get_minorticklabels")
     get_xticklabels = _axis_method_wrapper("xaxis", "get_ticklabels")
-
-    @cbook._make_keyword_only("3.3", "fontdict")
-    def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
-        """
-        Set the x-tick labels with list of string labels.
-
-        .. warning::
-            This method should only be used after fixing the tick positions
-            using `~.axes.Axes.set_xticks`. Otherwise, the labels may end up
-            in unexpected positions.
-
-        Parameters
-        ----------
-        labels : list of str
-            The label texts.
-
-        fontdict : dict, optional
-            A dictionary controlling the appearance of the ticklabels.
-            The default *fontdict* is::
-
-               {'fontsize': rcParams['axes.titlesize'],
-                'fontweight': rcParams['axes.titleweight'],
-                'verticalalignment': 'baseline',
-                'horizontalalignment': loc}
-
-        minor : bool, default: False
-            Whether to set the minor ticklabels rather than the major ones.
-
-        Returns
-        -------
-        list of `~.Text`
-            The labels.
-
-        Other Parameters
-        ----------------
-        **kwargs : `~.text.Text` properties.
-        """
-        if fontdict is not None:
-            kwargs.update(fontdict)
-        ret = self.xaxis.set_ticklabels(labels,
-                                        minor=minor, **kwargs)
-        self.stale = True
-        return ret
+    set_xticklabels = _axis_method_wrapper(
+        "xaxis", "_set_ticklabels",
+        doc_sub={"Axis.set_ticks": "Axes.set_xticks"})
 
     def invert_yaxis(self):
         """
@@ -3665,47 +3631,9 @@ class _AxesBase(martist.Artist):
     get_ymajorticklabels = _axis_method_wrapper("yaxis", "get_majorticklabels")
     get_yminorticklabels = _axis_method_wrapper("yaxis", "get_minorticklabels")
     get_yticklabels = _axis_method_wrapper("yaxis", "get_ticklabels")
-
-    @cbook._make_keyword_only("3.3", "fontdict")
-    def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
-        """
-        Set the y-tick labels with list of string labels.
-
-        .. warning::
-            This method should only be used after fixing the tick positions
-            using `~.axes.Axes.set_yticks`. Otherwise, the labels may end up
-            in unexpected positions.
-
-        Parameters
-        ----------
-        labels : list of str
-            The label texts.
-
-        fontdict : dict, optional
-            A dictionary controlling the appearance of the ticklabels.
-            The default *fontdict* is::
-
-               {'fontsize': rcParams['axes.titlesize'],
-                'fontweight': rcParams['axes.titleweight'],
-                'verticalalignment': 'baseline',
-                'horizontalalignment': loc}
-
-        minor : bool, default: False
-            Whether to set the minor ticklabels rather than the major ones.
-
-        Returns
-        -------
-        labels
-            A list of `~.text.Text` instances.
-
-        Other Parameters
-        ----------------
-        **kwargs : `~.text.Text` properties.
-        """
-        if fontdict is not None:
-            kwargs.update(fontdict)
-        return self.yaxis.set_ticklabels(labels,
-                                         minor=minor, **kwargs)
+    set_yticklabels = _axis_method_wrapper(
+        "yaxis", "_set_ticklabels",
+        doc_sub={"Axis.set_ticks": "Axes.set_yticks"})
 
     def xaxis_date(self, tz=None):
         """

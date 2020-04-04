@@ -823,15 +823,9 @@ class Axes3D(Axes):
     get_zmajorticklabels = _axis_method_wrapper("zaxis", "get_majorticklabels")
     get_zminorticklabels = _axis_method_wrapper("zaxis", "get_minorticklabels")
     get_zticklabels = _axis_method_wrapper("zaxis", "get_ticklabels")
-
-    def set_zticklabels(self, *args, **kwargs):
-        """
-        Set z-axis tick labels.
-        See :meth:`matplotlib.axes.Axes.set_yticklabels` for more details.
-
-        .. versionadded:: 1.1.0
-        """
-        return self.zaxis.set_ticklabels(*args, **kwargs)
+    set_zticklabels = _axis_method_wrapper(
+        "zaxis", "_set_ticklabels",
+        doc_sub={"Axis.set_ticks": "Axes.set_zticks"})
 
     def zaxis_date(self, tz=None):
         """
