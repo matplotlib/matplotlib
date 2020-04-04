@@ -25,7 +25,7 @@ added to Matplotlib, see :ref:`whats-new`.
 
       When a release is made
 
-       - The files in 'next_api_changes/' should be moved to a new file in
+       - The files in 'recent_api_changes_3.3/' should be moved to a new file in
          'prev_api_changes/'.
        - The include directive below should be changed to point to the new file
          created in the previous step.
@@ -35,6 +35,6 @@ added to Matplotlib, see :ref:`whats-new`.
       :glob:
       :maxdepth: 1
 
-      next_api_changes/*
+      recent_api_changes_3.3/*
 
 .. include:: prev_api_changes/api_changes_3.2.0.rst
