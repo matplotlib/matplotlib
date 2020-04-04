@@ -112,8 +112,8 @@ For the "what's new",
 Similarly for the "API changes",
 
  1. copy the current api changes to a file is :file:`doc/api/prev_api_changes`
- 2. merge all of the files in :file:`doc/api/recent_api_changes_3.3/` into
-    :file:`doc//whats_new.rst`
+ 2. merge all of the files in the most recent :file:`doc/api/api_changes_X.Y`
+    into :file:`doc//whats_new.rst`
  3. comment out the next API changes at the top.
 
 In both cases step 3 will have to be un-done right after the release.

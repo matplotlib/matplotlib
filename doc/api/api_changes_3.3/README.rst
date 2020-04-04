@@ -3,8 +3,8 @@
 Adding API change notes
 =======================
 
-API change notes for future releases are collected in the directory
-:file:`recent_api_changes_3.3`. They are divided into four categories:
+API change notes for future releases are collected in the most recent directory
+:file:`api_changes_X.Y`. They are divided into four categories:
 
 - **Deprecations**: Announcements of future changes. Typically, these will
   raise a deprecation warning and users of this API should change their code
