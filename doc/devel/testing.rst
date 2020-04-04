@@ -131,7 +131,7 @@ Writing an image comparison test
 
 Writing an image-based test is only slightly more difficult than a simple
 test. The main consideration is that you must specify the "baseline", or
-expected, images in the `~matplotlib.testing.decorators.image_comparison`
+expected images in the `~matplotlib.testing.decorators.image_comparison`
 decorator. For example, this test generates a single image and automatically
 tests it::
 
