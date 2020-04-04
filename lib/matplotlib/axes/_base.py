@@ -1,6 +1,5 @@
 from collections import OrderedDict
 from contextlib import ExitStack
-import functools
 import inspect
 import itertools
 import logging
@@ -31,7 +30,7 @@ from matplotlib.rcsetup import cycler, validate_axisbelow
 _log = logging.getLogger(__name__)
 
 
-def _axis_method_wrapper(attr_name, method_name, *, doc_sub=None):
+class _axis_method_wrapper:
     """
     Helper to generate Axes methods wrapping Axis methods.
 
@@ -39,34 +38,51 @@ def _axis_method_wrapper(attr_name, method_name, *, doc_sub=None):
 
         get_foo = _axis_method_wrapper("xaxis", "get_bar")
 
-    ``get_foo`` is a method that forwards it arguments to the ``get_bar``
-    method of the ``xaxis`` attribute, and gets its signature and docstring
-    from ``Axis.get_bar``.
+    (in the body of a class) ``get_foo`` is a method that forwards it arguments
+    to the ``get_bar`` method of the ``xaxis`` attribute, and gets its
+    signature and docstring from ``Axis.get_bar``.
 
     The docstring of ``get_foo`` is built by replacing "this Axis" by "the
-    {attr_name}" ("the xaxis", "the yaxis") in the wrapped method's docstring;
-    additional replacements can by given in *doc_sub*.  The docstring is also
-    dedented to simplify further manipulations.
+    {attr_name}" (i.e., "the xaxis", "the yaxis") in the wrapped method's
+    docstring; additional replacements can by given in *doc_sub*.  The
+    docstring is also dedented to simplify further manipulations.
     """
 
-    method = getattr(maxis.Axis, method_name)
-    get_method = attrgetter(f"{attr_name}.{method_name}")
+    def __init__(self, attr_name, method_name, *, doc_sub=None):
+        self.attr_name = attr_name
+        self.method_name = method_name
+        self.doc_sub = doc_sub
 
-    @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
-        return get_method(self)(*args, **kwargs)
+    def __set_name__(self, owner, name):
+        # This is called at the end of the class body as
+        # ``self.__set_name__(cls, name_under_which_self_is_assigned)``; we
+        # rely on that to give the wrapper the correct __name__/__qualname__.
+        get_method = attrgetter(f"{self.attr_name}.{self.method_name}")
 
-    doc = wrapper.__doc__
-    if doc:
-        doc_sub = {"this Axis": f"the {attr_name}", **(doc_sub or {})}
-        for k, v in doc_sub.items():
-            assert k in doc, \
-                (f"The docstring of wrapped Axis method {method_name!r} must "
-                 f"contain {k!r} as a substring.")
-            doc = doc.replace(k, v)
-        wrapper.__doc__ = inspect.cleandoc(doc)
+        def wrapper(self, *args, **kwargs):
+            return get_method(self)(*args, **kwargs)
 
-    return wrapper
+        wrapper.__module__ = owner.__module__
+        wrapper.__name__ = name
+        wrapper.__qualname__ = f"{owner.__qualname__}.{name}"
+        # Manually copy the signature instead of using functools.wraps because
+        # displaying the Axis method source when asking for the Axes method
+        # source would be confusing.
+        wrapped_method = getattr(maxis.Axis, self.method_name)
+        wrapper.__signature__ = inspect.signature(wrapped_method)
+        doc = wrapped_method.__doc__
+        if doc:
+            doc_sub = {"this Axis": f"the {self.attr_name}",
+                       **(self.doc_sub or {})}
+            for k, v in doc_sub.items():
+                assert k in doc, \
+                    (f"The definition of {wrapper.__qualname__} expected that "
+                     f"the docstring of Axis.{self.method_name} contains "
+                     f"{k!r} as a substring.")
+                doc = doc.replace(k, v)
+            wrapper.__doc__ = inspect.cleandoc(doc)
+
+        setattr(owner, name, wrapper)
 
 
 def _process_plot_format(fmt):

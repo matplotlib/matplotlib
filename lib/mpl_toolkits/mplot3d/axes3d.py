@@ -826,7 +826,7 @@ class Axes3D(Axes):
     get_zticklabels = _axis_method_wrapper("zaxis", "get_ticklabels")
     set_zticklabels = _axis_method_wrapper(
         "zaxis", "_set_ticklabels",
-        doc_sub={"Axis.set_ticks": "Axes.set_zticks"})
+        doc_sub={"Axis.set_ticks": "Axes3D.set_zticks"})
 
     zaxis_date = _axis_method_wrapper("zaxis", "axis_date")
     if zaxis_date.__doc__:
