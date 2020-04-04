@@ -57,6 +57,8 @@ class Gcf:
             manager = num
             if cls.figs.get(manager.num) is manager:
                 cls.figs.pop(manager.num)
+            else:
+                return
         else:
             try:
                 manager = cls.figs.pop(num)
