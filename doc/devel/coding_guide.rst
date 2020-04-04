@@ -95,7 +95,7 @@ Documentation
   :file:`doc/users/whats_new.rst`.
 
 * If you change the API in a backward-incompatible way, please
-  document it in the relevant file in :file:`doc/api/api_changes_3.3`.
+  document it in the relevant file in :file:`doc/api/recent_api_changes_3.3`.
 
 .. _pr-labels:
 
@@ -145,7 +145,7 @@ Merging
   the PR.
 
   Ensure that all API changes are documented in the relevant file in
-  :file:`doc/api/api_changes_3.3` and significant new features have and
+  :file:`doc/api/recent_api_changes_3.3` and significant new features have and
   entry in :file:`doc/user/whats_new`.
 
   - If a PR already has a positive review, a core developer (e.g. the first

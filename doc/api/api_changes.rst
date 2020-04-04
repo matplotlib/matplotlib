@@ -21,7 +21,7 @@ added to Matplotlib, see :ref:`whats-new`.
    .. note::
 
       The list below is a table of contents of individual files from the
-      'api_changes_3.3' folder.
+      'recent_api_changes_3.3' folder.
 
       When a release is made
 
