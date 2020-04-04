@@ -31,32 +31,9 @@ class Cell(Rectangle):
     """
     A cell is a `.Rectangle` with some associated `.Text`.
 
-    .. note:
-        As a user, you'll most likely not creates cells yourself. Instead, you
-        should use either the `~matplotlib.table.table` factory function or
-        `.Table.add_cell`.
-
-    Parameters
-    ----------
-    xy : 2-tuple
-        The position of the bottom left corner of the cell.
-    width : float
-        The cell width.
-    height : float
-        The cell height.
-    edgecolor : color
-        The color of the cell border.
-    facecolor : color
-        The cell facecolor.
-    fill : bool
-        Whether the cell background is filled.
-    text : str
-        The cell text.
-    loc : {'left', 'center', 'right'}, default: 'right'
-        The alignment of the text within the cell.
-    fontproperties : dict
-        A dict defining the font properties of the text. Supported keys and
-        values are the keyword arguments accepted by `.FontProperties`.
+    As a user, you'll most likely not creates cells yourself. Instead, you
+    should use either the `~matplotlib.table.table` factory function or
+    `.Table.add_cell`.
     """
 
     PAD = 0.1
@@ -69,6 +46,29 @@ class Cell(Rectangle):
                  loc=None,
                  fontproperties=None
                  ):
+        """
+        Parameters
+        ----------
+        xy : 2-tuple
+            The position of the bottom left corner of the cell.
+        width : float
+            The cell width.
+        height : float
+            The cell height.
+        edgecolor : color
+            The color of the cell border.
+        facecolor : color
+            The cell facecolor.
+        fill : bool
+            Whether the cell background is filled.
+        text : str
+            The cell text.
+        loc : {'left', 'center', 'right'}, default: 'right'
+            The alignment of the text within the cell.
+        fontproperties : dict
+            A dict defining the font properties of the text. Supported keys and
+            values are the keyword arguments accepted by `.FontProperties`.
+        """
 
         # Call base
         Rectangle.__init__(self, xy, width=width, height=height, fill=fill,
