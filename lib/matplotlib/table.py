@@ -39,12 +39,21 @@ class Cell(Rectangle):
     PAD = 0.1
     """Padding between text and rectangle."""
 
+    _edges = 'BRTL'
+    _edge_aliases = {'open':         '',
+                     'closed':       _edges,  # default
+                     'horizontal':   'BT',
+                     'vertical':     'RL'
+                     }
+
     def __init__(self, xy, width, height,
                  edgecolor='k', facecolor='w',
                  fill=True,
                  text='',
                  loc=None,
-                 fontproperties=None
+                 fontproperties=None,
+                 *,
+                 visible_edges='closed',
                  ):
         """
         Parameters
@@ -68,12 +77,18 @@ class Cell(Rectangle):
         fontproperties : dict
             A dict defining the font properties of the text. Supported keys and
             values are the keyword arguments accepted by `.FontProperties`.
+        visible_edges : str, default: 'closed'
+            The cell edges to be drawn with a line: a substring of 'BRTL'
+            (bottom, right, top, left), or one of 'open' (no edges drawn),
+            'closed' (all edges drawn), 'horizontal' (bottom and top),
+            'vertical' (right and left).
         """
 
         # Call base
         Rectangle.__init__(self, xy, width=width, height=height, fill=fill,
                            edgecolor=edgecolor, facecolor=facecolor)
         self.set_clip_on(False)
+        self.visible_edges = visible_edges
 
         # Create text object
         if loc is None:
@@ -178,23 +193,6 @@ class Cell(Rectangle):
         self._text.update(kwargs)
         self.stale = True
 
-
-class CustomCell(Cell):
-    """
-    A `.Cell` subclass with configurable edge visibility.
-    """
-
-    _edges = 'BRTL'
-    _edge_aliases = {'open':         '',
-                     'closed':       _edges,  # default
-                     'horizontal':   'BT',
-                     'vertical':     'RL'
-                     }
-
-    def __init__(self, *args, visible_edges, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.visible_edges = visible_edges
-
     @property
     def visible_edges(self):
         """
@@ -237,6 +235,9 @@ class CustomCell(Cell):
             codes,
             readonly=True
             )
+
+
+CustomCell = Cell  # Backcompat. alias.
 
 
 class Table(Artist):
@@ -342,12 +343,12 @@ class Table(Artist):
 
         Returns
         -------
-        `.CustomCell`
+        `.Cell`
             The created cell.
 
         """
         xy = (0, 0)
-        cell = CustomCell(xy, visible_edges=self.edges, *args, **kwargs)
+        cell = Cell(xy, visible_edges=self.edges, *args, **kwargs)
         self[row, col] = cell
         return cell
 
@@ -355,7 +356,7 @@ class Table(Artist):
         """
         Set a custom cell in a given position.
         """
-        cbook._check_isinstance(CustomCell, cell=cell)
+        cbook._check_isinstance(Cell, cell=cell)
         try:
             row, col = position[0], position[1]
         except Exception as err:
@@ -374,7 +375,7 @@ class Table(Artist):
     @property
     def edges(self):
         """
-        The default value of `~.CustomCell.visible_edges` for newly added
+        The default value of `~.Cell.visible_edges` for newly added
         cells using `.add_cell`.
 
         Notes
@@ -724,7 +725,7 @@ def table(ax,
 
     edges : substring of 'BRTL' or {'open', 'closed', 'horizontal', 'vertical'}
         The cell edges to be drawn with a line. See also
-        `~.CustomCell.visible_edges`.
+        `~.Cell.visible_edges`.
 
     Returns
     -------
