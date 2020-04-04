@@ -1401,6 +1401,7 @@ class MouseEvent(LocationEvent):
         self.step = step
         self.dblclick = dblclick
 
+        # super-init deferred to the end: callback errors if called before
         LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
 
     def __str__(self):
@@ -1487,6 +1488,7 @@ class KeyEvent(LocationEvent):
     """
     def __init__(self, name, canvas, key, x=0, y=0, guiEvent=None):
         self.key = key
+        # super-init deferred to the end: callback errors if called before
         LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
 
 
