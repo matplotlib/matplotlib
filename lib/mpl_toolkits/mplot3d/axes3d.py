@@ -946,11 +946,7 @@ class Axes3D(Axes):
     def get_proj(self):
         """
         Create the projection matrix from the current viewing position.
-
-        'elev' stores the elevation angle in the z plane.
-        'azim' stores the azimuth angle in the (x, y) plane.
-
-        'dist' is the distance of the eye viewing point from the object point.
+        
         """
         # chosen for similarity with the initial view before gh-8896
         pb_aspect = np.array([4, 4, 3]) / 3.5
