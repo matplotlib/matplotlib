@@ -293,7 +293,7 @@ and Pandas (full list is in :file:`doc/conf.py`).  If external linking fails,
 you can check the full list of referenceable objects with the following
 commands::
 
-  python -m sphinx.ext.intersphinx 'https://docs.python.org/3/objects.in'
+  python -m sphinx.ext.intersphinx 'https://docs.python.org/3/objects.inv'
   python -m sphinx.ext.intersphinx 'https://docs.scipy.org/doc/numpy/objects.inv'
   python -m sphinx.ext.intersphinx 'https://docs.scipy.org/doc/scipy/reference/objects.inv'
   python -m sphinx.ext.intersphinx 'https://pandas.pydata.org/pandas-docs/stable/objects.inv'
