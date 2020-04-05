@@ -1320,7 +1320,7 @@ class Axis(martist.Artist):
         return self.minor.formatter
 
     def get_major_ticks(self, numticks=None):
-        """Get the tick instances; grow as necessary."""
+        r"""Return the list of major `.Tick`\s."""
         if numticks is None:
             numticks = len(self.get_majorticklocs())
 
@@ -1334,7 +1334,7 @@ class Axis(martist.Artist):
         return self.majorTicks[:numticks]
 
     def get_minor_ticks(self, numticks=None):
-        """Get the minor tick instances; grow as necessary."""
+        r"""Return the list of minor `.Tick`\s."""
         if numticks is None:
             numticks = len(self.get_minorticklocs())
 
