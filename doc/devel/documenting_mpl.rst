@@ -290,8 +290,8 @@ Other packages can also be linked via
 
 will return this link: `numpy.mean`.  This works for Python, Numpy, Scipy,
 and Pandas (full list is in :file:`doc/conf.py`). Sometimes it is tricky
-to get external Sphinx linking to work; to
-check that a something exists to link to the following shell command outputs
+to get external Sphinx linking to work and to
+check that something exists to a link. Following shell command outputs
 a list of all objects that can be referenced (in this case for Numpy)::
 
   python -m sphinx.ext.intersphinx 'https://docs.scipy.org/doc/numpy/objects.inv'
