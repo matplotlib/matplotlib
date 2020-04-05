@@ -1171,14 +1171,14 @@ class Axis(martist.Artist):
         ticks = self.get_major_ticks()
         labels1 = [tick.label1 for tick in ticks if tick.label1.get_visible()]
         labels2 = [tick.label2 for tick in ticks if tick.label2.get_visible()]
-        return list('Text major ticklabel', labels1 + labels2)
+        return list(labels1 + labels2)
 
     def get_minorticklabels(self):
         """Return a list of Text instances for the minor ticklabels."""
         ticks = self.get_minor_ticks()
         labels1 = [tick.label1 for tick in ticks if tick.label1.get_visible()]
         labels2 = [tick.label2 for tick in ticks if tick.label2.get_visible()]
-        return list('Text minor ticklabel', labels1 + labels2)
+        return list(labels1 + labels2)
 
     def get_ticklabels(self, minor=False, which=None):
         """
