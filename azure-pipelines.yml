@@ -120,3 +120,7 @@ steps:
     testResultsFiles: '**/test-results.xml'
     testRunTitle: 'Python $(python.version)'
   condition: succeededOrFailed()
+
+- publish: $(System.DefaultWorkingDirectory)/result_images
+  artifact: $(Agent.JobName)-result_images
+  condition: and(failed(), ne(variables['python.version'], 'Pre'))
