@@ -289,12 +289,14 @@ Other packages can also be linked via
   `numpy.mean`
 
 will return this link: `numpy.mean`.  This works for Python, Numpy, Scipy,
-and Pandas (full list is in :file:`doc/conf.py`). Sometimes it is tricky
-to get external Sphinx linking to work and to
-check that something exists to a link. Following shell command outputs
-a list of all objects that can be referenced (in this case for Numpy)::
+and Pandas (full list is in :file:`doc/conf.py`).  If external linking fails,
+you can check the full list of referenceable objects with the following
+commands::
 
+  python -m sphinx.ext.intersphinx 'https://docs.python.org/3/objects.in'
   python -m sphinx.ext.intersphinx 'https://docs.scipy.org/doc/numpy/objects.inv'
+  python -m sphinx.ext.intersphinx 'https://docs.scipy.org/doc/scipy/reference/objects.inv'
+  python -m sphinx.ext.intersphinx 'https://pandas.pydata.org/pandas-docs/stable/objects.inv'
 
 .. _rst-figures-and-includes:
 
