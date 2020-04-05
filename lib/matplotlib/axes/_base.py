@@ -3406,7 +3406,7 @@ class _AxesBase(martist.Artist):
         which : None, ('minor', 'major', 'both')
            Overrides *minor*.
 
-           Selects which ticklabels to return.
+           Selects which ticklabels to return
 
         Returns
         -------
