@@ -35,35 +35,6 @@ def _cleanup_cm():
         plt.close("all")
 
 
-class CleanupTestCase(unittest.TestCase):
-    """A wrapper for unittest.TestCase that includes cleanup operations."""
-    @classmethod
-    def setUpClass(cls):
-        cls._cm = _cleanup_cm().__enter__()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls._cm.__exit__(None, None, None)
-
-
-def cleanup(style=None):
-    """
-    A decorator to ensure that any global state is reset before
-    running a test.
-
-    Parameters
-    ----------
-    style : str, dict, or list, optional
-        The style(s) to apply.  Defaults to ``["classic",
-        "_classic_test_patch"]``.
-    """
-
-    # If cleanup is used without arguments, *style* will be a callable, and we
-    # pass it directly to the wrapper generator.  If cleanup if called with an
-    # argument, it is a string naming a style, and the function will be passed
-    # as an argument to what we return.  This is a confusing, but somewhat
-    # standard, pattern for writing a decorator with optional arguments.
-
     def make_cleanup(func):
         if inspect.isgeneratorfunction(func):
             @functools.wraps(func)
