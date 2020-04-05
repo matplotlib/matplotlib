@@ -154,10 +154,7 @@ class Axes3D(Axes):
 
     def _process_unit_info(self, xdata=None, ydata=None, zdata=None,
                            kwargs=None):
-        """
-        Look for unit *kwargs* and update the axis instances as necessary
-
-        """
+        """Update the axis instances based on unit *kwargs* if given."""
         super()._process_unit_info(xdata=xdata, ydata=ydata, kwargs=kwargs)
 
         if self.xaxis is None or self.yaxis is None or self.zaxis is None:
@@ -914,7 +911,7 @@ class Axes3D(Axes):
         'elev' stores the elevation angle in the z plane (in degrees).
         'azim' stores the azimuth angle in the (x, y) plane (in degrees).
 
-        if elev or azim are None (default), then the initial value
+        if 'elev' or 'azim' are None (default), then the initial value
         is used which was specified in the :class:`Axes3D` constructor.
         """
 
@@ -944,14 +941,7 @@ class Axes3D(Axes):
         }, proj_type=proj_type)
 
     def get_proj(self):
-        """
-        Create the projection matrix from the current viewing position.
-
-        elev stores the elevation angle in the z plane
-        azim stores the azimuth angle in the (x, y) plane
-
-        dist is the distance of the eye viewing point from the object point.
-        """
+        """Create the projection matrix from the current viewing position."""
         # chosen for similarity with the initial view before gh-8896
         pb_aspect = np.array([4, 4, 3]) / 3.5
 
