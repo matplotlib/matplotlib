@@ -154,7 +154,7 @@ class Axes3D(Axes):
 
     def _process_unit_info(self, xdata=None, ydata=None, zdata=None,
                            kwargs=None):
-        """Look for unit *kwargs* and update the axis instances as necessary."""
+        """Update the axis instances based on unit *kwargs* if given."""
         super()._process_unit_info(xdata=xdata, ydata=ydata, kwargs=kwargs)
 
         if self.xaxis is None or self.yaxis is None or self.zaxis is None:
