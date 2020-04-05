@@ -619,6 +619,8 @@ class Dropdown(AxesWidget):
 
         # TODO: set zorder better
         self.ax.set_zorder(99999)
+        if self.drawon:
+            self.ax.figure.canvas.draw()
         self.expanded = True
 
     def _close(self):
@@ -643,6 +645,8 @@ class Dropdown(AxesWidget):
 
         labelpos = self.label.get_position()
         self.label.set_position((labelpos[0], 0.5))
+        if self.drawon:
+            self.ax.figure.canvas.draw()
         self.expanded = False
 
     def _select(self, ydata):
@@ -1712,11 +1716,15 @@ class AxesTool(Widget):
         self.clearaxestab()
         self.clearcurvestab()
         self._setaxistab()
+        if self.tableft.drawon:
+            self.tableft.ax.figure.canvas.draw()
 
     def functabright(self, val):
         self.clearaxestab()
         self.clearcurvestab()
         self._setcurvestab()
+        if self.tabright.drawon:
+            self.tabright.ax.figure.canvas.draw()
 
     def submittitle(self, val):
         self.ax.set_title(val)
