@@ -157,7 +157,10 @@ Previously, keyword arguments were silently ignored when no positional
 arguments were given.
 
 
-`get_xticklabels` and `get_yticklabels` now returns plain list
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Previously, get_xticklabels and get_yticklabels returns silent_list.
-They now return normal list.
+`get_minorticklabels` and `get_majorticklabels` now returns plain list
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, get_minorticklabels and get_majorticklabels returns silent_list.
+They now return normal list. get_xminorticklabels, get_yminorticklabels,
+get_zminorticklabels, get_ticklabels, get_xmajorticklabels,
+get_ymajorticklabels and get_zmajorticklabels methods will be affected by this
+change. 
