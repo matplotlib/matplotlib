@@ -2268,8 +2268,8 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x : sequence of scalars
-            The x coordinates of the bars. See also *align* for the
+        x : sequence of labels
+            The x labels of the bars. See also *align* for the
             alignment of the bars to the coordinates.
 
         height : scalar or sequence of scalars
