@@ -103,7 +103,9 @@ if sphinx.version_info < (1, 8):
 else:
     autodoc_default_options = {'members': None, 'undoc-members': None}
 
-nitpicky = True
+# missing-references names matches sphinx>=3 behavior, so we can't be nitpicky
+# for older sphinxes.
+nitpicky = sphinx.version_info >= (3,)
 # change this to True to update the allowed failures
 missing_references_write_json = False
 missing_references_warn_unused_ignores = False
