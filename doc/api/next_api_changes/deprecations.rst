@@ -422,3 +422,9 @@ Setting the *orientation* of an ``eventplot()`` or `.EventCollection` to "none"
 or None is deprecated; set it to "horizontal" instead.  Moreover, the two
 orientations ("horizontal" and "vertical") will become case-sensitive in the
 future.
+
+`CleanupTestCase` and `cleanup` in decorators deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The class `matplotlib.testing.decorators.CleanupTestCase` and the decorator
+`matplotlib.testing.decorators.cleanup` are not used in the code base. We have
+an automatic cleanup via an auto-used fixture instead.
