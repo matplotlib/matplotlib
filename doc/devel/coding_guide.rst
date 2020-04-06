@@ -147,7 +147,7 @@ Merging
 
   Ensure that all API changes are documented in the relevant file in
   the most recent :file:`doc/api/api_changes_X.Y` and significant new features
-  have and entry in :file:`doc/user/whats_new`.
+  have an entry in :file:`doc/user/whats_new`.
 
   - If a PR already has a positive review, a core developer (e.g. the first
     reviewer, but not necessarily) may champion that PR for merging.  In order
