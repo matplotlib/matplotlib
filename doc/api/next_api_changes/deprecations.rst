@@ -422,3 +422,7 @@ Setting the *orientation* of an ``eventplot()`` or `.EventCollection` to "none"
 or None is deprecated; set it to "horizontal" instead.  Moreover, the two
 orientations ("horizontal" and "vertical") will become case-sensitive in the
 future.
+
+*minor* kwarg to `.Axis.get_ticklocs` will become keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing this argument positionally is deprecated.
