@@ -68,7 +68,7 @@ class ContourLabeler:
             Size in points or relative size e.g., 'smaller', 'x-large'.
             See `.Text.set_size` for accepted string values.
 
-        colors : color-spec, optional
+        colors : color or colors or None, default: None
             The label colors:
 
             - If *None*, the color of each label matches the color of
@@ -99,7 +99,7 @@ class ContourLabeler:
             `.Formatter` instance, that returns a string when called with a
             numeric contour level.
 
-        manual : bool or iterable, optional
+        manual : bool or iterable, default: False
             If ``True``, contour labels will be placed manually using
             mouse clicks. Click the first button near a contour to
             add a label, click the second button (or potentially both
@@ -124,11 +124,8 @@ class ContourLabeler:
             of texts during the drawing time, therefore this can be used if
             aspect of the axes changes.
 
-        zorder : float or None, optional
+        zorder : float or None, default: ``(2 + contour.get_zorder())``
             zorder of the contour labels.
-
-            If not specified, the zorder of contour labels is set to
-            (2 + zorder of contours).
 
         Returns
         -------
@@ -1017,8 +1014,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         Process *args* and *kwargs*; override in derived classes.
 
-        Must set self.levels, self.zmin and self.zmax, and update axes
-        limits.
+        Must set self.levels, self.zmin and self.zmax, and update axes limits.
         """
         self.levels = args[0]
         self.allsegs = args[1]
@@ -1613,10 +1609,9 @@ class QuadContourSet(ContourSet):
         levels : int or array-like, optional
             Determines the number and positions of the contour lines / regions.
 
-            If an int *n*, use an algorithm
-            (see `~matplotlib.ticker.MaxNLocator`) that tries to provide
-            no more than *n+1* "nice" contour levels between vmin and vmax.
-            The level heights are automatically chosen.
+            If an int *n*, use `~matplotlib.ticker.MaxNLocator`, which tries
+            to automatically choose no more than *n+1* "nice" contour levels
+            between *vmin* and *vmax*.
 
             If array-like, draw contour lines at the specified levels.
             The values must be in increasing order.
@@ -1668,7 +1663,7 @@ class QuadContourSet(ContourSet):
             the `.Normalize` instance, overriding the default color scaling
             based on *levels*.
 
-        origin : {*None*, 'upper', 'lower', 'image'}, optional
+        origin : {*None*, 'upper', 'lower', 'image'}, default: None
             Determines the orientation and exact position of *Z* by specifying
             the position of ``Z[0, 0]``.  This is only relevant, if *X*, *Y*
             are not given.

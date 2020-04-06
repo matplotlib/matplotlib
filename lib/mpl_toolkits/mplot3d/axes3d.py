@@ -13,6 +13,7 @@ Module containing Axes3D, an object which can plot 3D objects on a
 from collections import defaultdict
 from functools import reduce
 import math
+import textwrap
 
 import numpy as np
 
@@ -24,6 +25,7 @@ import matplotlib.colors as mcolors
 import matplotlib.docstring as docstring
 import matplotlib.scale as mscale
 from matplotlib.axes import Axes, rcParams
+from matplotlib.axes._base import _axis_method_wrapper
 from matplotlib.transforms import Bbox
 from matplotlib.tri.triangulation import Triangulation
 
@@ -154,10 +156,7 @@ class Axes3D(Axes):
 
     def _process_unit_info(self, xdata=None, ydata=None, zdata=None,
                            kwargs=None):
-        """
-        Look for unit *kwargs* and update the axis instances as necessary
-
-        """
+        """Update the axis instances based on unit *kwargs* if given."""
         super()._process_unit_info(xdata=xdata, ydata=ydata, kwargs=kwargs)
 
         if self.xaxis is None or self.yaxis is None or self.zaxis is None:
@@ -204,6 +203,9 @@ class Axes3D(Axes):
     def get_zaxis(self):
         """Return the ``ZAxis`` (`~.axis3d.Axis`) instance."""
         return self.zaxis
+
+    get_zgridlines = _axis_method_wrapper("zaxis", "get_gridlines")
+    get_zticklines = _axis_method_wrapper("zaxis", "get_ticklines")
 
     @cbook.deprecated("3.1", alternative="xaxis", pending=True)
     @property
@@ -817,86 +819,24 @@ class Axes3D(Axes):
         """.format,
         ["x", "y", "z"])
 
-    def set_zticks(self, *args, **kwargs):
-        """
-        Set z-axis tick locations.
-        See :meth:`matplotlib.axes.Axes.set_yticks` for more details.
+    get_zticks = _axis_method_wrapper("zaxis", "get_ticklocs")
+    set_zticks = _axis_method_wrapper("zaxis", "set_ticks")
+    get_zmajorticklabels = _axis_method_wrapper("zaxis", "get_majorticklabels")
+    get_zminorticklabels = _axis_method_wrapper("zaxis", "get_minorticklabels")
+    get_zticklabels = _axis_method_wrapper("zaxis", "get_ticklabels")
+    set_zticklabels = _axis_method_wrapper(
+        "zaxis", "_set_ticklabels",
+        doc_sub={"Axis.set_ticks": "Axes3D.set_zticks"})
 
-        .. versionadded:: 1.1.0
-        """
-        return self.zaxis.set_ticks(*args, **kwargs)
+    zaxis_date = _axis_method_wrapper("zaxis", "axis_date")
+    if zaxis_date.__doc__:
+        zaxis_date.__doc__ += textwrap.dedent("""
 
-    @cbook._make_keyword_only("3.2", "minor")
-    def get_zticks(self, minor=False):
-        """
-        Return the z ticks as a list of locations
-        See :meth:`matplotlib.axes.Axes.get_yticks` for more details.
-
-        .. versionadded:: 1.1.0
-        """
-        return self.zaxis.get_ticklocs(minor=minor)
-
-    def get_zmajorticklabels(self):
-        """
-        Get the ztick labels as a list of Text instances
-
-        .. versionadded:: 1.1.0
-        """
-        return self.zaxis.get_majorticklabels()
-
-    def get_zminorticklabels(self):
-        """
-        Get the ztick labels as a list of Text instances
-
-        .. versionadded:: 1.1.0
-        """
-        return self.zaxis.get_minorticklabels()
-
-    def set_zticklabels(self, *args, **kwargs):
-        """
-        Set z-axis tick labels.
-        See :meth:`matplotlib.axes.Axes.set_yticklabels` for more details.
-
-        .. versionadded:: 1.1.0
-        """
-        return self.zaxis.set_ticklabels(*args, **kwargs)
-
-    def get_zticklabels(self, minor=False):
-        """
-        Get ztick labels as a list of Text instances.
-        See :meth:`matplotlib.axes.Axes.get_yticklabels` for more details.
-
-        .. versionadded:: 1.1.0
-        """
-        return self.zaxis.get_ticklabels(minor=minor)
-
-    def zaxis_date(self, tz=None):
-        """
-        Sets up z-axis ticks and labels that treat the z data as dates.
-
-        .. note::
-            This function is merely provided for completeness.
-            Axes3D objects do not officially support dates for ticks,
-            and so this may or may not work as expected.
-
-        .. versionadded:: 1.1.0
-            This function was added, but not tested. Please report any bugs.
-
-        Parameters
-        ----------
-        tz : `datetime.tzinfo`, default: :rc:`timezone`
-        """
-        self.zaxis.axis_date(tz)
-
-    def get_zticklines(self):
-        """
-        Get ztick lines as a list of Line2D instances.
-        Note that this function is provided merely for completeness.
-        These lines are re-calculated as the display changes.
-
-        .. versionadded:: 1.1.0
-        """
-        return self.zaxis.get_ticklines()
+        Notes
+        -----
+        This function is merely provided for completeness, but 3d axes do not
+        support dates for ticks, and so this may not work as expected.
+        """)
 
     def clabel(self, *args, **kwargs):
         """
@@ -914,7 +854,7 @@ class Axes3D(Axes):
         'elev' stores the elevation angle in the z plane (in degrees).
         'azim' stores the azimuth angle in the (x, y) plane (in degrees).
 
-        if elev or azim are None (default), then the initial value
+        if 'elev' or 'azim' are None (default), then the initial value
         is used which was specified in the :class:`Axes3D` constructor.
         """
 
@@ -944,14 +884,7 @@ class Axes3D(Axes):
         }, proj_type=proj_type)
 
     def get_proj(self):
-        """
-        Create the projection matrix from the current viewing position.
-
-        elev stores the elevation angle in the z plane
-        azim stores the azimuth angle in the (x, y) plane
-
-        dist is the distance of the eye viewing point from the object point.
-        """
+        """Create the projection matrix from the current viewing position."""
         # chosen for similarity with the initial view before gh-8896
         pb_aspect = np.array([4, 4, 3]) / 3.5
 
