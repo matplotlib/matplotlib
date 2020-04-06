@@ -155,8 +155,8 @@ Toolkits
 ========
 
 Matplotlib ships with several add-on :doc:`toolkits <api/toolkits/index>`,
-including 3D plotting with `mplot3d`, axes helpers in `axes_grid1` and axis
-helpers in `axisartist`.
+including 3D plotting with `.mplot3d`, axes helpers in `.axes_grid1` and axis
+helpers in `.axisartist`.
 
 Third party packages
 ====================

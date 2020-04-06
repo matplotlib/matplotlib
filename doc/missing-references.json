@@ -818,14 +818,8 @@
     "axes3d.Axes3D.zaxis": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:933"
     ],
-    "axes_grid1": [
-      "doc/index.rst:157"
-    ],
     "axis.Axis.get_ticks_position": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:821"
-    ],
-    "axisartist": [
-      "doc/index.rst:157"
     ],
     "backend_bases.RendererBase": [
       "lib/matplotlib/backends/backend_template.py:docstring of matplotlib.backends.backend_template.RendererTemplate:4"
@@ -1416,9 +1410,6 @@
     "mpl_toolkits.axislines.Axes": [
       "lib/mpl_toolkits/axisartist/axis_artist.py:docstring of mpl_toolkits.axisartist.axis_artist:26"
     ],
-    "mplot3d": [
-      "doc/index.rst:157"
-    ],
     "new_figure_manager": [
       "doc/devel/MEP/MEP23.rst:75"
     ],
@@ -1498,12 +1489,6 @@
       "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.SimpleLineShadow:39",
       "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.SimplePatchShadow:38",
       "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.withSimplePatchShadow:47"
-    ],
-    "sharex": [
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplots:13"
-    ],
-    "sharey": [
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplots:13"
     ],
     "show": [
       "doc/devel/MEP/MEP23.rst:70"
