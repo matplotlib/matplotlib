@@ -21,7 +21,7 @@ added to Matplotlib, see :ref:`whats-new`.
    .. note::
 
       The list below is a table of contents of individual files from the
-      most recent 'api_changes_X.Y' folder.
+      most recent :file:`api_changes_X.Y` folder.
 
       When a release is made
 
@@ -33,6 +33,6 @@ added to Matplotlib, see :ref:`whats-new`.
       :glob:
       :maxdepth: 1
 
-      the most recent api_changes_X.Y/*
+      api_changes_3.3/*
 
 .. include:: prev_api_changes/api_changes_3.2.0.rst
