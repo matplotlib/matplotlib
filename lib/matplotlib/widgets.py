@@ -2502,21 +2502,18 @@ class PolygonSelector(_SelectorWidget):
         The parent axes for the widget.
     onselect : function
         When a polygon is completed or modified after completion,
-        the `onselect` function is called and passed a list of the vertices as
+        the *onselect* function is called and passed a list of the vertices as
         ``(xdata, ydata)`` tuples.
     useblit : bool, optional
-    lineprops : dict, optional
-        The line for the sides of the polygon is drawn with the properties
-        given by `lineprops`. The default is ``dict(color='k', linestyle='-',
-        linewidth=2, alpha=0.5)``.
-    markerprops : dict, optional
-        The markers for the vertices of the polygon are drawn with the
-        properties given by `markerprops`. The default is ``dict(marker='o',
-        markersize=7, mec='k', mfc='k', alpha=0.5)``.
-    vertex_select_radius : float, optional
-        A vertex is selected (to complete the polygon or to move a vertex)
-        if the mouse click is within `vertex_select_radius` pixels of the
-        vertex. The default radius is 15 pixels.
+    lineprops : dict, default: \
+``dict(color='k', linestyle='-', linewidth=2, alpha=0.5)``.
+        Artist properties for the line representing the edges of the polygon.
+    markerprops : dict, default: \
+``dict(marker='o', markersize=7, mec='k', mfc='k', alpha=0.5)``.
+        Artist properties for the markers drawn at the vertices of the polygon.
+    vertex_select_radius : float, default: 15px
+        A vertex is selected (to complete the polygon or to move a vertex) if
+        the mouse click is within *vertex_select_radius* pixels of the vertex.
 
     Examples
     --------

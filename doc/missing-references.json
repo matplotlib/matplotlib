@@ -890,9 +890,6 @@
     "cbook.warn_deprecated": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:766"
     ],
-    "cbook.warn_deprecated()": [
-      "doc/devel/contributing.rst:330"
-    ],
     "cleanup": [
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.HTMLWriter.setup:19"
     ],
@@ -989,9 +986,6 @@
     "levels": [
       "doc/api/prev_api_changes/api_changes_3.0.0.rst:197"
     ],
-    "lineprops": [
-      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.PolygonSelector:27"
-    ],
     "load_char": [
       "doc/gallery/misc/ftface_props.rst:16"
     ],
@@ -1011,9 +1005,6 @@
     ],
     "make_image": [
       "lib/matplotlib/image.py:docstring of matplotlib.image.composite_images:9"
-    ],
-    "markerprops": [
-      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.PolygonSelector:32"
     ],
     "markevery": [
       "doc/users/prev_whats_new/whats_new_1.4.rst:212",
@@ -1434,15 +1425,11 @@
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.hexbin:125",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hexbin:125"
     ],
-    "onselect": [
-      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.PolygonSelector:19"
-    ],
     "pillow.Image.save()": [
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:131",
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:135"
     ],
     "plot": [
-      "doc/tutorials/introductory/customizing.rst:195",
       "lib/matplotlib/sphinxext/plot_directive.py:docstring of matplotlib.sphinxext.plot_directive:4"
     ],
     "plot_include_source": [
@@ -1539,13 +1526,6 @@
       "doc/users/prev_whats_new/whats_new_1.5.rst:615",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolFullScreen.disable:4",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolFullScreen.enable:4"
-    ],
-    "units.AxisInfo": [
-      "lib/matplotlib/units.py:docstring of matplotlib.units.ConversionInterface.axisinfo:2",
-      "lib/matplotlib/units.py:docstring of matplotlib.units.DecimalConverter.axisinfo:2"
-    ],
-    "vertex_select_radius": [
-      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.PolygonSelector:37"
     ],
     "w_pad": [
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.set_constrained_layout:5"
