@@ -2670,7 +2670,8 @@ class NavigationToolbar2:
         ('Pan', 'Pan axes with left mouse, zoom with right', 'move', 'pan'),
         ('Zoom', 'Zoom to rectangle', 'zoom_to_rect', 'zoom'),
         ('Subplots', 'Configure subplots', 'subplots', 'configure_subplots'),
-        (None, None, None, None),
+        ("Customize", "Edit axis, curve and image parameters",
+            "editor_options", "edit_parameters"),
         ('Save', 'Save the figure', 'filesave', 'save_figure'),
       )
 

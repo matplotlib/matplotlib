@@ -502,12 +502,12 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         If you want to use the toolbar with a different layout manager, use
         ``pack_toolbar=False``.
     """
-    toolitems = [*NavigationToolbar2.toolitems]
-    toolitems.insert(
-        # Add 'customize' action after 'subplots'
-        [name for name, *_ in toolitems].index("Subplots") + 1,
-        ("Customize", "Edit axis, curve and image parameters",
-         "qt4_editor_options", "edit_parameters"))
+    # toolitems = [*NavigationToolbar2.toolitems]
+    # toolitems.insert(
+    #     # Add 'customize' action after 'subplots'
+    #     [name for name, *_ in toolitems].index("Subplots") + 1,
+    #     ("Customize", "Edit axis, curve and image parameters",
+    #      "qt4_editor_options", "edit_parameters"))
 
     def __init__(self, canvas, window, *, pack_toolbar=True):
         self.canvas = canvas

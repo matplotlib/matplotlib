@@ -253,7 +253,7 @@ def figure_edit(axes, parent=None):
     data = _formlayout.fedit(
         datalist, title="Figure options", parent=parent,
         icon=QtGui.QIcon(
-            str(cbook._get_data_path('images', 'qt4_editor_options.svg'))),
+            str(cbook._get_data_path('images', 'editor_options.svg'))),
         apply=apply_callback)
     if data is not None:
         apply_callback(data)

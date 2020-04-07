@@ -644,12 +644,12 @@ class FigureManagerQT(FigureManagerBase):
 class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     message = QtCore.Signal(str)
 
-    toolitems = [*NavigationToolbar2.toolitems]
-    toolitems.insert(
-        # Add 'customize' action after 'subplots'
-        [name for name, *_ in toolitems].index("Subplots") + 1,
-        ("Customize", "Edit axis, curve and image parameters",
-         "qt4_editor_options", "edit_parameters"))
+    # toolitems = [*NavigationToolbar2.toolitems]
+    # toolitems.insert(
+    #     # Add 'customize' action after 'subplots'
+    #     [name for name, *_ in toolitems].index("Subplots") + 1,
+    #     ("Customize", "Edit axis, curve and image parameters",
+    #      "qt4_editor_options", "edit_parameters"))
 
     def __init__(self, canvas, parent, coordinates=True):
         """coordinates: should we show the coordinates on the right?"""
