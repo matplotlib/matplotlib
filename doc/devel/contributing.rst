@@ -318,7 +318,7 @@ Changes to the public API must follow a standard deprecation procedure to
 prevent unexpected breaking of code that uses Matplotlib.
 
 - Deprecations must be announced via an entry in
-  :file:`doc/api/next_api_changes`.
+  the most recent :file:`doc/api/api_changes_X.Y`
 - Deprecations are targeted at the next point-release (i.e. 3.x.0).
 - The deprecated API should, to the maximum extent possible, remain fully
   functional during the deprecation period. In cases where this is not
@@ -327,7 +327,7 @@ prevent unexpected breaking of code that uses Matplotlib.
 - If possible, usage of an deprecated API should emit a
   `.MatplotlibDeprecationWarning`. There are a number of helper tools for this:
 
-  - Use `.cbook.warn_deprecated()` for general deprecation warnings.
+  - Use ``cbook.warn_deprecated()`` for general deprecation warnings.
   - Use the decorator ``@cbook.deprecated`` to deprecate classes, functions,
     methods, or properties.
   - To warn on changes of the function signature, use the decorators

@@ -428,3 +428,7 @@ future.
 The class `matplotlib.testing.decorators.CleanupTestCase` and the decorator
 `matplotlib.testing.decorators.cleanup` are not used in the code base. We have
 an automatic cleanup via an auto-used fixture instead.
+
+*minor* kwarg to `.Axis.get_ticklocs` will become keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing this argument positionally is deprecated.

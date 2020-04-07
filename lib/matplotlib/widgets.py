@@ -847,12 +847,14 @@ class TextBox(AxesWidget):
         self.capturekeystrokes = True
         # Check for toolmanager handling the keypress
         if self.ax.figure.canvas.manager.key_press_handler_id is not None:
-            # disable command keys so that the user can type without
-            # command keys causing figure to be saved, etc
+            # Disable command keys so that the user can type without
+            # command keys causing figure to be saved, etc.
             self._restore_keymap = ExitStack()
-            self._restore_keymap.enter_context(
-                mpl.rc_context(
-                    {k: [] for k in mpl.rcParams if k.startswith('keymap.')}))
+            # Avoid spurious warnings if keymaps are getting deprecated.
+            with cbook._suppress_matplotlib_deprecation_warning():
+                self._restore_keymap.enter_context(
+                    mpl.rc_context({k: [] for k in mpl.rcParams
+                                    if k.startswith('keymap.')}))
         else:
             self.ax.figure.canvas.manager.toolmanager.keypresslock(self)
 

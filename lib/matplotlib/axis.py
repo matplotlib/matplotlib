@@ -732,6 +732,7 @@ class Axis(martist.Artist):
         return self._scale.get_transform()
 
     def get_scale(self):
+        """Return this Axis' scale (as a str)."""
         return self._scale.name
 
     def _set_scale(self, value, **kwargs):
@@ -924,7 +925,7 @@ class Axis(martist.Artist):
 
     def get_inverted(self):
         """
-        Return whether the axis is oriented in the "inverse" direction.
+        Return whether this Axis is oriented in the "inverse" direction.
 
         The "normal" direction is increasing to the right for the x-axis and to
         the top for the y-axis; the "inverse" direction is increasing to the
@@ -935,7 +936,7 @@ class Axis(martist.Artist):
 
     def set_inverted(self, inverted):
         """
-        Set whether the axis is oriented in the "inverse" direction.
+        Set whether this Axis is oriented in the "inverse" direction.
 
         The "normal" direction is increasing to the right for the x-axis and to
         the top for the y-axis; the "inverse" direction is increasing to the
@@ -1149,7 +1150,7 @@ class Axis(martist.Artist):
         self.stale = False
 
     def get_gridlines(self):
-        """Return the grid lines as a list of Line2D instance."""
+        r"""Return this Axis' grid lines as a list of `.Line2D`\s."""
         ticks = self.get_major_ticks()
         return cbook.silent_list('Line2D gridline',
                                  [tick.gridline for tick in ticks])
@@ -1167,14 +1168,14 @@ class Axis(martist.Artist):
         return self.pickradius
 
     def get_majorticklabels(self):
-        """Return a list of Text instances for the major ticklabels."""
+        """Return this Axis' major tick labels, as a list of `~.text.Text`."""
         ticks = self.get_major_ticks()
         labels1 = [tick.label1 for tick in ticks if tick.label1.get_visible()]
         labels2 = [tick.label2 for tick in ticks if tick.label2.get_visible()]
         return cbook.silent_list('Text major ticklabel', labels1 + labels2)
 
     def get_minorticklabels(self):
-        """Return a list of Text instances for the minor ticklabels."""
+        """Return this Axis' minor tick labels, as a list of `~.text.Text`."""
         ticks = self.get_minor_ticks()
         labels1 = [tick.label1 for tick in ticks if tick.label1.get_visible()]
         labels2 = [tick.label2 for tick in ticks if tick.label2.get_visible()]
@@ -1182,13 +1183,12 @@ class Axis(martist.Artist):
 
     def get_ticklabels(self, minor=False, which=None):
         """
-        Get the tick labels as a list of `~matplotlib.text.Text` instances.
+        Get this Axis' tick labels.
 
         Parameters
         ----------
         minor : bool
-           If True return the minor ticklabels,
-           else return the major ticklabels
+           Whether to return the minor or the major ticklabels.
 
         which : None, ('minor', 'major', 'both')
            Overrides *minor*.
@@ -1197,10 +1197,15 @@ class Axis(martist.Artist):
 
         Returns
         -------
-        list
-           List of `~matplotlib.text.Text` instances.
-        """
+        list of `~matplotlib.text.Text`
 
+        Notes
+        -----
+        The tick label strings are not populated until a ``draw`` method has
+        been called.
+
+        See also: `~.pyplot.draw` and `~.FigureCanvasBase.draw`.
+        """
         if which is not None:
             if which == 'minor':
                 return self.get_minorticklabels()
@@ -1215,7 +1220,7 @@ class Axis(martist.Artist):
         return self.get_majorticklabels()
 
     def get_majorticklines(self):
-        """Return the major tick lines as a list of Line2D instances."""
+        r"""Return this Axis' major tick lines as a list of `.Line2D`\s."""
         lines = []
         ticks = self.get_major_ticks()
         for tick in ticks:
@@ -1224,7 +1229,7 @@ class Axis(martist.Artist):
         return cbook.silent_list('Line2D ticklines', lines)
 
     def get_minorticklines(self):
-        """Return the minor tick lines as a list of Line2D instances."""
+        r"""Return this Axis' minor tick lines as a list of `.Line2D`\s."""
         lines = []
         ticks = self.get_minor_ticks()
         for tick in ticks:
@@ -1233,17 +1238,17 @@ class Axis(martist.Artist):
         return cbook.silent_list('Line2D ticklines', lines)
 
     def get_ticklines(self, minor=False):
-        """Return the tick lines as a list of Line2D instances."""
+        r"""Return this Axis' tick lines as a list of `.Line2D`\s."""
         if minor:
             return self.get_minorticklines()
         return self.get_majorticklines()
 
     def get_majorticklocs(self):
-        """Get the array of major tick locations in data coordinates."""
+        """Return this Axis' major tick locations in data coordinates."""
         return self.major.locator()
 
     def get_minorticklocs(self):
-        """Get the array of minor tick locations in data coordinates."""
+        """Return this Axis' minor tick locations in data coordinates."""
         # Remove minor ticks duplicating major ticks.
         major_locs = self.major.locator()
         minor_locs = self.minor.locator()
@@ -1260,8 +1265,9 @@ class Axis(martist.Artist):
                 if ~np.isclose(tr_loc, tr_major_locs, atol=tol, rtol=0).any()]
         return minor_locs
 
+    @cbook._make_keyword_only("3.3", "minor")
     def get_ticklocs(self, minor=False):
-        """Get the array of tick locations in data coordinates."""
+        """Return this Axis' tick locations in data coordinates."""
         return self.get_minorticklocs() if minor else self.get_majorticklocs()
 
     def get_ticks_direction(self, minor=False):
@@ -1641,15 +1647,59 @@ class Axis(martist.Artist):
         self.stale = True
         return ret
 
-    @cbook._make_keyword_only("3.2", "minor")
-    def set_ticks(self, ticks, minor=False):
+    # Wrapper around set_ticklabels used to generate Axes.set_x/ytickabels; can
+    # go away once the API of Axes.set_x/yticklabels becomes consistent.
+    @cbook._make_keyword_only("3.3", "fontdict")
+    def _set_ticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        Set the locations of the tick marks from sequence ticks
+        Set this Axis' labels with list of string labels.
+
+        .. warning::
+            This method should only be used after fixing the tick positions
+            using `.Axis.set_ticks`. Otherwise, the labels may end up in
+            unexpected positions.
 
         Parameters
         ----------
-        ticks : sequence of floats
-        minor : bool
+        labels : list of str
+            The label texts.
+
+        fontdict : dict, optional
+            A dictionary controlling the appearance of the ticklabels.
+            The default *fontdict* is::
+
+               {'fontsize': rcParams['axes.titlesize'],
+                'fontweight': rcParams['axes.titleweight'],
+                'verticalalignment': 'baseline',
+                'horizontalalignment': loc}
+
+        minor : bool, default: False
+            Whether to set the minor ticklabels rather than the major ones.
+
+        Returns
+        -------
+        list of `~.Text`
+            The labels.
+
+        Other Parameters
+        ----------------
+        **kwargs : `~.text.Text` properties.
+        """
+        if fontdict is not None:
+            kwargs.update(fontdict)
+        return self.set_ticklabels(labels, minor=minor, **kwargs)
+
+    @cbook._make_keyword_only("3.2", "minor")
+    def set_ticks(self, ticks, minor=False):
+        """
+        Set this Axis' tick locations.
+
+        Parameters
+        ----------
+        ticks : list of floats
+            List of tick locations.
+        minor : bool, default: False
+            If ``False``, set the major ticks; if ``True``, the minor ticks.
         """
         # XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
@@ -1659,6 +1709,7 @@ class Axis(martist.Artist):
                 self.set_view_interval(min(ticks), max(ticks))
             else:
                 self.set_view_interval(max(ticks), min(ticks))
+        self.axes.stale = True
         if minor:
             self.set_minor_locator(mticker.FixedLocator(ticks))
             return self.get_minor_ticks(len(ticks))
@@ -1701,11 +1752,11 @@ class Axis(martist.Artist):
 
     def axis_date(self, tz=None):
         """
-        Sets up axis ticks and labels treating data along this axis as dates.
+        Sets up axis ticks and labels to treat data along this Axis as dates.
 
         Parameters
         ----------
-        tz : tzinfo or str or None
+        tz : str or `datetime.tzinfo`, default: :rc:`timezone`
             The timezone used to create date labels.
         """
         # By providing a sample datetime instance with the desired timezone,
