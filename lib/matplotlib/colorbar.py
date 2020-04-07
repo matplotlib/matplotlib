@@ -1599,7 +1599,7 @@ def make_axes_gridspec(parent, *, fraction=0.15, shrink=1.0, aspect=20, **kw):
         panchor = kw.pop('panchor', (0.5, 0.0))
 
         # for shrinking
-        wh_ratios = [(1-anchor[0])*(1-shrink), shrink, anchor[0]*(1-shrink)]
+        wh_ratios = [anchor[0]*(1-shrink), shrink, (1-anchor[0])*(1-shrink)]
 
         gs = gs_from_subplotspec(2, 1,
                                  subplot_spec=parent.get_subplotspec(),
