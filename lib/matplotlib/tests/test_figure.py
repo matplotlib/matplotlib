@@ -1,6 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 import platform
+from types import SimpleNamespace
 import warnings
 try:
     from contextlib import nullcontext
@@ -533,3 +534,17 @@ def test_removed_axis():
     fig, axs = plt.subplots(2, sharex=True)
     axs[0].remove()
     fig.canvas.draw()
+
+
+@pytest.mark.style('mpl20')
+def test_picking_does_not_stale():
+    fig, ax = plt.subplots()
+    col = ax.scatter([0], [0], [1000], picker=True)
+    fig.canvas.draw()
+    assert not fig.stale
+
+    mouse_event = SimpleNamespace(x=ax.bbox.x0 + ax.bbox.width / 2,
+                                  y=ax.bbox.y0 + ax.bbox.height / 2,
+                                  inaxes=ax, guiEvent=None)
+    fig.pick(mouse_event)
+    assert not fig.stale

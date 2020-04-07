@@ -1315,6 +1315,18 @@ class Axis(martist.Artist):
         """Return the default tick instance."""
         raise NotImplementedError('derived must override')
 
+    def _get_tick_label_size(self, axis_name):
+        """
+        Return the text size of tick labels for this Axis.
+
+        This is a convenience function to avoid having to create a `Tick` in
+        `.get_tick_space`, since it is expensive.
+        """
+        tick_kw = self._major_tick_kw
+        size = tick_kw.get('labelsize',
+                           mpl.rcParams[f'{axis_name}tick.labelsize'])
+        return mtext.FontProperties(size).get_size_in_points()
+
     def _copy_tick_props(self, src, dest):
         """Copy the properties from *src* tick to *dest* tick."""
         if src is None or dest is None:
@@ -2186,10 +2198,9 @@ class XAxis(Axis):
     def get_tick_space(self):
         ends = self.axes.transAxes.transform([[0, 0], [1, 0]])
         length = ((ends[1][0] - ends[0][0]) / self.axes.figure.dpi) * 72
-        tick = self._get_tick(True)
         # There is a heuristic here that the aspect ratio of tick text
         # is no more than 3:1
-        size = tick.label1.get_size() * 3
+        size = self._get_tick_label_size('x') * 3
         if size > 0:
             return int(np.floor(length / size))
         else:
@@ -2472,9 +2483,8 @@ class YAxis(Axis):
     def get_tick_space(self):
         ends = self.axes.transAxes.transform([[0, 0], [0, 1]])
         length = ((ends[1][1] - ends[0][1]) / self.axes.figure.dpi) * 72
-        tick = self._get_tick(True)
         # Having a spacing of at least 2 just looks good.
-        size = tick.label1.get_size() * 2.0
+        size = self._get_tick_label_size('y') * 2
         if size > 0:
             return int(np.floor(length / size))
         else:
