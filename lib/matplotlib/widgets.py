@@ -1673,7 +1673,7 @@ class AxesTool(Widget):
         self.crvdstyle.on_select(self.ondsselect)
 
         self.crvwidth = self.toolfig.add_subplot(13, 1, 6)
-        self.crvtextwidth = TextBox(self.crvwidth, 'Line Width', initial=str(self.currentcurve[3]), label_pad=0.05)
+        self.crvtextwidth = TextBox(self.crvwidth, 'Width', initial=str(self.currentcurve[3]), label_pad=0.05)
         self.crvtextwidth.on_submit(self.submitcrvwidth)
 
         self.crvcolor = self.toolfig.add_subplot(13, 1, 7)
@@ -1689,7 +1689,7 @@ class AxesTool(Widget):
         self.crvmstyle.on_select(self.onmsselect)
 
         self.markersize = self.toolfig.add_subplot(13, 1, 10)
-        self.crvmarkersize = TextBox(self.markersize, 'Marker Size', initial=str(self.currentcurve[6]), label_pad=0.05)
+        self.crvmarkersize = TextBox(self.markersize, 'Size', initial=str(self.currentcurve[6]), label_pad=0.05)
         self.crvmarkersize.on_submit(self.submitmarkersize)
 
         self.markerfc = self.toolfig.add_subplot(13, 1, 11)
@@ -1914,13 +1914,6 @@ class AxesTool(Widget):
         line.set_markeredgecolor(rgba_markerec)
         self.targetfig.canvas.draw()
         self.ax.legend([line])
-
-    def crvcancel(self, val):
-        pass
-
-    def crvconfirm(self, val):
-        self.crvapply(val)
-        self.crvcancel(val)
 
 class Cursor(AxesWidget):
     """
