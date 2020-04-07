@@ -1537,14 +1537,9 @@ class AxesTool(Widget):
         def prepare_data(d, init):
             if init not in d:
                 d = {**d, init: str(init)}
-            # Drop duplicate shorthands from dict (by overwriting them during
-            # the dict comprehension).
             name2short = {name: short for short, name in d.items()}
-            # Convert back to {shorthand: name}.
             short2name = {short: name for name, short in name2short.items()}
-            # Find the kept shorthand for the style specified by init.
             canonical_init = name2short[d[init]]
-            # Sort by representation and prepend the initial value.
             return ([canonical_init] +
                     sorted(short2name.items(),
                         key=lambda short_and_name: short_and_name[1]))
@@ -1604,7 +1599,7 @@ class AxesTool(Widget):
         self.crvdstyle.on_select(self.ondsselect)
 
         self.crvwidth = self.toolfig.add_subplot(13, 1, 6)
-        self.crvtextwidth = TextBox(self.crvwidth, 'Line Width', initial=str(self.currentcurve[3]), label_pad=0.05)
+        self.crvtextwidth = TextBox(self.crvwidth, 'Width', initial=str(self.currentcurve[3]), label_pad=0.05)
         self.crvtextwidth.on_submit(self.submitcrvwidth)
 
         self.crvcolor = self.toolfig.add_subplot(13, 1, 7)
@@ -1616,7 +1611,7 @@ class AxesTool(Widget):
         self.crvmstyle.on_select(self.onmsselect)
 
         self.markersize = self.toolfig.add_subplot(13, 1, 10)
-        self.crvmarkersize = TextBox(self.markersize, 'Marker Size', initial=str(self.currentcurve[6]), label_pad=0.05)
+        self.crvmarkersize = TextBox(self.markersize, 'Size', initial=str(self.currentcurve[6]), label_pad=0.05)
         self.crvmarkersize.on_submit(self.submitmarkersize)
 
         self.markerfc = self.toolfig.add_subplot(13, 1, 11)
@@ -1631,14 +1626,6 @@ class AxesTool(Widget):
         self.apply = Button(self.applycrv, 'Apply')
         self.apply.on_clicked(self.crvapply)
 
-        self.cancelcrv = self.toolfig.add_axes([0.495, 0.025, 0.2, 0.05])
-        self.cancel = Button(self.cancelcrv, 'Cancel')
-        self.cancel.on_clicked(self.crvcancel)
-
-        self.confirmcrv = self.toolfig.add_axes([0.75, 0.025, 0.2, 0.05])
-        self.confirm = Button(self.confirmcrv, 'Okay')
-        self.confirm.on_clicked(self.crvconfirm)
-
         self.axcurves = (
             self.curveselect,
             self.crvlabel,
@@ -1650,9 +1637,7 @@ class AxesTool(Widget):
             self.markersize,
             self.markerfc,
             self.markerec,
-            self.applycrv,
-            self.cancelcrv,
-            self.confirmcrv)
+            self.applycrv)
         self.axaxes = ()
 
     def cmp_hexcolor(self, color):
@@ -1719,9 +1704,7 @@ class AxesTool(Widget):
             self.markersize,
             self.markerfc,
             self.markerec,
-            self.applycrv,
-            self.cancelcrv,
-            self.confirmcrv)
+            self.applycrv)
         self.axaxes = ()
 
     def clearaxestab(self):
@@ -1849,13 +1832,6 @@ class AxesTool(Widget):
         line.set_markeredgecolor(rgba_markerec)
         self.targetfig.canvas.draw()
         self.ax.legend([line])
-
-    def crvcancel(self, val):
-        pass
-
-    def crvconfirm(self, val):
-        self.crvapply(val)
-        self.crvcancel(val)
 
 class Cursor(AxesWidget):
     """
