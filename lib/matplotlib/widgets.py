@@ -1862,23 +1862,32 @@ class AxesTool(Widget):
 
         # Initialize line object for applying changes
         line = self.linedict[self.currentcurve[0]]
-
+        
         # Starter Code: Set properties
         line.set_label(self.crvupdate[0])
-        print(line.get_label())
-
-
+        line.set_linestyle(self.crvupdate[1])
+        line.set_drawstyle(self.crvupdate[2])
+        line.set_linewidth(self.crvupdate[3])
+        line.set_color(self.crvupdate[4])
+        if self.crvupdate[5] is int:
+            line.set_marker(crvupdate[5])
+            line.set_markersize(crvupdate[6])
+            line.set_markerfacecolor(crvupdate[7])
+            line.set_markeredgecolor(crvupdate[8])
+        self.targetfig.canvas.draw()
         # End of function call: Somehow it is not displaying the changes. To see this, reopen figure options.
-        self.clearcurvestab() 
-        self._setcurvestab()
+        #self.clearcurvestab() 
+        #self._setcurvestab()
+
 
     def crvcancel(self, val):
         # TODO: Simply closes the Figure option toolbar
-        print(val)
+        #_pylab_helpers.Gcf.destroy_fig(self.targetfig)
 
     def crvconfirm(self, val):
         # TODO: Does crvapply without clearing tab and reinitializing curves tab then closes Figure option toolbar 
-        print(self.crvupdate)
+        self.crvapply(val)
+        self.crvcancel(val)
 
 class Cursor(AxesWidget):
     """
