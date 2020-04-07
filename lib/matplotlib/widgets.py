@@ -516,7 +516,7 @@ class Slider(AxesWidget):
 
 class Dropdown(AxesWidget):
     def __init__(self, ax, options, label, init_index=0, label_pad=.01,
-                 color='.95', hovercolor='1'):
+                 color='.95', hovercolor='1', max_height=0):
         AxesWidget.__init__(self, ax)
         ax.set_yticks([])
         ax.set_xticks([])
@@ -531,11 +531,16 @@ class Dropdown(AxesWidget):
 
         self.ax = ax
         self.options = options
+        self.max_height = max_height
+        self.numitems = (len(self.options)
+                         if max_height == 0 or len(self.options) < max_height
+                         else max_height)
         self.color = color
         self.hovercolor = hovercolor
         self._lastcolor = color
         self._lasthover = None
 
+        self.offset = 0
         self.expanded = False
         self.spans = []
         self.seps = []
@@ -560,6 +565,7 @@ class Dropdown(AxesWidget):
 
         self.connect_event('button_press_event', self._click)
         self.connect_event('motion_notify_event', self._motion)
+        self.connect_event('scroll_event', self._scroll)
 
     def _click(self, event):
         if self.ignore(event):
@@ -570,6 +576,7 @@ class Dropdown(AxesWidget):
                 self._close()
                 self._notify_select_observers()
             else:
+                self.offset = 0
                 self._expand()
         elif (self.expanded):
             self._close()
@@ -589,22 +596,53 @@ class Dropdown(AxesWidget):
                     self.ax.figure.canvas.draw()
         elif event.inaxes == self.ax:
             self._hover(event.ydata)
+    
+    def _scroll(self, event):
+        if self.ignore(event):
+            return
+        if self.expanded and event.inaxes == self.ax:
+            new_offset = self.offset - event.step
+            if (new_offset >= 0
+                and new_offset + self.numitems <= len(self.options)):
+                self.offset = new_offset
+                self._update()
+                self._expand()
+    
+    def _update(self):
+        for text in self.textobjs:
+            text.remove()
+        for sep in self.seps:
+            sep.remove()
+        for span in self.spans:
+            span.remove()
+
+        self.textobjs.clear()
+        self.seps.clear()
+        self.spans.clear()
+
+        text = self.ax.text(self.DIST_FROM_LEFT, 0.5,
+                            self.options[self.indexmap[0]],
+                            verticalalignment='center',
+                            horizontalalignment='left',
+                            transform=self.ax.transAxes)
+        self.textobjs.insert(0, text)
 
     def _expand(self):
-        newy0 = self.y0 - ((len(self.options) - 1) * self.height)
-        newheight = len(self.options) * self.height
-        boxheight = 1 / len(self.options)
+        newy0 = self.y0 - ((self.numitems - 1) * self.height)
+        newheight = self.numitems * self.height
+        boxheight = 1 / self.numitems
         self.ax.set_position([self.x0, newy0, self.width, newheight])
         self.textobjs[0].remove()
         del self.textobjs[0]
 
-        for i in range(len(self.options)):
+        for i in range(0, self.numitems):
+            index = i + len(self.options) - self.numitems - self.offset
             top = i * boxheight
             bottom = top + boxheight
             span = self.ax.axvspan(0, 1, top, bottom, color=self.color)
             sep = self.ax.axhline(bottom, 0, 1, color='black', lw=0.8)
             text = self.ax.text(self.DIST_FROM_LEFT, (top + bottom) / 2,
-                                self.options[self.indexmap[-i - 1]],
+                                self.options[self.indexmap[-index - 1]],
                                 verticalalignment='center',
                                 horizontalalignment='left',
                                 transform=self.ax.transAxes)
@@ -614,14 +652,13 @@ class Dropdown(AxesWidget):
 
         self.spans[0].set_color(self.hovercolor)
         labelpos = self.label.get_position()
-        newlabely = (len(self.options) * boxheight) - (boxheight / 2)
+        newlabely = (self.numitems * boxheight) - (boxheight / 2)
         self.label.set_position((labelpos[0], newlabely))
 
-        # TODO: set zorder better
-        self.ax.set_zorder(99999)
+        self.ax.set_zorder(float('inf'))
+        self.expanded = True
         if self.drawon:
             self.ax.figure.canvas.draw()
-        self.expanded = True
 
     def _close(self):
         for text in self.textobjs:
@@ -645,27 +682,28 @@ class Dropdown(AxesWidget):
 
         labelpos = self.label.get_position()
         self.label.set_position((labelpos[0], 0.5))
+        self.expanded = False
         if self.drawon:
             self.ax.figure.canvas.draw()
-        self.expanded = False
 
     def _select(self, ydata):
-        boxheight = 1 / len(self.options)
-        for i in range(len(self.options)):
+        boxheight = 1 / self.numitems
+        for i in range(self.numitems - 1):
+            index = i + len(self.options) - self.numitems - self.offset
             ymax = (i + 1) * boxheight
             if (ydata < ymax):
-                selectindex = self.indexmap[-i - 1]
+                selectindex = self.indexmap[-index - 1]
                 self.indexmap = list(range(len(self.options)))
                 self.indexmap.remove(selectindex)
                 self.indexmap.insert(0, selectindex)
                 break
 
     def _hover(self, ydata):
-        boxheight = 1 / len(self.options)
+        boxheight = 1 / self.numitems
         hoverindex = -1
         for i in range(len(self.spans)):
             self.spans[i].set_color(self.color)
-        for i in range(len(self.options)):
+        for i in range(self.numitems):
             ymax = (i + 1) * boxheight
             if (ydata < ymax):
                 self.spans[-i - 1].set_color(self.hovercolor)
@@ -1453,15 +1491,16 @@ class AxesTool(Widget):
 
         self._setaxistab()
         
-        # # DROPDOWN TEST
+        # DROPDOWN TEST
         # self.axdd = toolfig.add_subplot(10, 1, 1)
         # options = ['hello', 'world', 'again', 'and', 'again2']
-        # self.dd = Dropdown(self.axdd, options)
+        # self.dd = Dropdown(self.axdd, options, 'Label')
         # def selecttest(val):
-        #     print(val)
+        #     print(options[val])
         # self.dd.on_select(selecttest)
 
     def _setaxistab(self):
+        self.toolfig.subplots_adjust(left=0.2, right=0.85)
 
         self.axtitle = self.toolfig.add_subplot(10, 1, 1)
         self.title = TextBox(self.axtitle, 'Title', initial=self.ax.get_title(), label_pad=0.05)
@@ -1501,6 +1540,7 @@ class AxesTool(Widget):
         self.axcurves = ()
 
     def _setcurvestab(self):
+        self.toolfig.subplots_adjust(left=0.3, right=0.95)
 
         def prepare_data(d, init):
             if init not in d:
@@ -1556,7 +1596,7 @@ class AxesTool(Widget):
         self._crvupdate(currcurve)
 
         self.curveselect = self.toolfig.add_subplot(13, 1, 1)
-        self.crvselect = Dropdown(self.curveselect, self.curvelist, 'Select Curve')
+        self.crvselect = Dropdown(self.curveselect, self.curvelist, 'Select Curve', label_pad=0.05)
         self.crvselect.on_select(self.oncurveselect)
 
         self.crvlabel = self.toolfig.add_subplot(13, 1, 2)
@@ -1568,11 +1608,11 @@ class AxesTool(Widget):
         # self.crvlinetitle.set_navigate(False)
 
         self.linestyle = self.toolfig.add_subplot(13, 1, 4)
-        self.crvlstyle = Dropdown(self.linestyle, self.currentcurve[1], 'Line Style')
+        self.crvlstyle = Dropdown(self.linestyle, self.currentcurve[1], 'Line Style', label_pad=0.05)
         self.crvlstyle.on_select(self.onlsselect)
 
         self.drawstyle = self.toolfig.add_subplot(13, 1, 5)
-        self.crvdstyle = Dropdown(self.drawstyle, self.currentcurve[2], 'Draw Style')
+        self.crvdstyle = Dropdown(self.drawstyle, self.currentcurve[2], 'Draw Style', label_pad=0.05)
         self.crvdstyle.on_select(self.ondsselect)
 
         self.crvwidth = self.toolfig.add_subplot(13, 1, 6)
@@ -1588,7 +1628,7 @@ class AxesTool(Widget):
         # self.crvmarkertitle.set_navigate(False)
 
         self.markerstyle = self.toolfig.add_subplot(13, 1, 9)
-        self.crvmstyle = Dropdown(self.markerstyle, self.currentcurve[5], 'Marker Style')
+        self.crvmstyle = Dropdown(self.markerstyle, self.currentcurve[5], 'Marker Style', label_pad=0.05, max_height=6)
         self.crvmstyle.on_select(self.onmsselect)
 
         self.markersize = self.toolfig.add_subplot(13, 1, 10)
@@ -1596,11 +1636,11 @@ class AxesTool(Widget):
         self.crvmarkersize.on_submit(self.submitmarkersize)
 
         self.markerfc = self.toolfig.add_subplot(13, 1, 11)
-        self.crvmarkerfc = TextBox(self.markerfc, 'Face Color (RGBA)', initial=str(self.currentcurve[7]), label_pad=0.05)
+        self.crvmarkerfc = TextBox(self.markerfc, 'Face Color', initial=str(self.currentcurve[7]), label_pad=0.05)
         self.crvmarkerfc.on_submit(self.submitmarkerfc)
 
         self.markerec = self.toolfig.add_subplot(13, 1, 12)
-        self.crvmarkerec = TextBox(self.markerec, 'Edge Color (RGBA)', initial=str(self.currentcurve[8]), label_pad=0.05)
+        self.crvmarkerec = TextBox(self.markerec, 'Edge Color', initial=str(self.currentcurve[8]), label_pad=0.05)
         self.crvmarkerec.on_submit(self.submitmarkerec)
 
         self.applycrv = self.toolfig.add_axes([0.1, 0.025, 0.2, 0.05])
@@ -1675,15 +1715,15 @@ class AxesTool(Widget):
         self.currentcurve[5][0] = self.crvupdate[5]
         
         self.linestyle = self.toolfig.add_subplot(13, 1, 4)
-        self.crvlstyle = Dropdown(self.linestyle, self.currentcurve[1], 'Line Style')
+        self.crvlstyle = Dropdown(self.linestyle, self.currentcurve[1], 'Line Style', label_pad=0.05)
         self.crvlstyle.on_select(self.onlsselect)
 
         self.drawstyle = self.toolfig.add_subplot(13, 1, 5)
-        self.crvdstyle = Dropdown(self.drawstyle, self.currentcurve[2], 'Draw Style')
+        self.crvdstyle = Dropdown(self.drawstyle, self.currentcurve[2], 'Draw Style', label_pad=0.05)
         self.crvdstyle.on_select(self.ondsselect)
 
         self.markerstyle = self.toolfig.add_subplot(13, 1, 9)
-        self.crvmstyle = Dropdown(self.markerstyle, self.currentcurve[5], 'Marker Style')
+        self.crvmstyle = Dropdown(self.markerstyle, self.currentcurve[5], 'Marker Style', label_pad=0.05)
         self.crvmstyle.on_select(self.onmsselect)
 
         self.axcurves = (
