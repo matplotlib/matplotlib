@@ -414,12 +414,12 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hexbin:124"
     ],
     "np.histogram": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.hist:80",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hist:80"
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.hist:78",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hist:78"
     ],
     "Normalize": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.imshow:27",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.imshow:27"
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.imshow:32",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.imshow:32"
     ],
     "ax.transAxes": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.indicate_inset:19",
@@ -499,7 +499,8 @@
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.plot_date:21",
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.xaxis_date:21",
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes.Axes.yaxis_date:21",
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates.DateFormatter:44",
+      "lib/matplotlib/dates.py:docstring of matplotlib.dates.AutoDateLocator:55",
+      "lib/matplotlib/dates.py:docstring of matplotlib.dates.DateFormatter:45",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.plot_date:21"
     ],
     "P_{xx}": [
@@ -508,7 +509,8 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.psd:87"
     ],
     "functions=(lambda x: 2 / x, lambda x: 2 / x)": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.secondary_xaxis:17"
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.secondary_xaxis:17",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.secondary_yaxis:17"
     ],
     "tricontour(...)": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.tricontour:57",
@@ -552,7 +554,7 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.violinplot:46"
     ],
     "Text": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1089",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1081",
       "doc/devel/MEP/MEP14.rst:252",
       "doc/devel/MEP/MEP26.rst:141",
       "lib/matplotlib/axis.py:docstring of matplotlib.axis.Axis.set_ticklabels:33",
@@ -596,7 +598,7 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.colorbar:16"
     ],
     "ScalarMappable": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:298",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:290",
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.colorbar:26",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.colorbar:22"
     ],
@@ -650,12 +652,10 @@
     "every=5": [
       "lib/matplotlib/lines.py:docstring of matplotlib.lines.Line2D.set_markevery:4"
     ],
-    "BoxTransmuterBase": [
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.FancyBboxPatch:5"
-    ],
     "Axes": [
       "doc/api/_as_gen/matplotlib.pyplot.rst:173:<autosummary>:1",
       "doc/api/prev_api_changes/api_changes_3.0.0.rst:449",
+      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:135",
       "doc/users/prev_whats_new/whats_new_1.5.rst:514",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.delaxes:2",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.plotting:33"
@@ -854,7 +854,7 @@
     "MovieWriterRegistry": [
       "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:49",
       "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:51",
-      "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:118"
+      "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:122"
     ],
     "Axes.add_line": [
       "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:65"
@@ -875,40 +875,40 @@
       "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:96"
     ],
     "Axes.streamplot": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:139"
+      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:174"
     ],
     "matplotlib.color.is_colorlike()": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:169"
+      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:204"
     ],
     "imshow(A, interpolation='antialiased')": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:180"
+      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:215"
     ],
     "RendererSVG": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:198"
+      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:233"
     ],
     "figure": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:211"
+      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:246"
     ],
     "backend_bases.GraphicsContextBase.set_clip_path": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:254"
+      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:293"
     ],
     "blocking_input.BlockingInput.__call__": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:254"
+      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:293"
     ],
     "cm.register_cmap": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:254"
+      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:293"
     ],
     "dviread.DviFont": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:254"
+      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:293"
     ],
     "rcsetup.validate_hatch": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:254"
+      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:293"
     ],
     "rcsetup.validate_animation_writer_path": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:254"
+      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:293"
     ],
     "spines.Spine": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:254"
+      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:293"
     ],
     "Locator": [
       "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:20",
@@ -925,13 +925,13 @@
       "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:20"
     ],
     "GridFinder": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:88"
+      "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:92"
     ],
     "Locator.autoscale()": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:113"
+      "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:117"
     ],
     "Locator.view_limits()": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:113"
+      "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:117"
     ],
     "GraphicsContextBase": [
       "lib/matplotlib/backends/backend_agg.py:docstring of matplotlib.backends.backend_agg.RendererAgg.draw_text:8",
@@ -959,6 +959,11 @@
       "lib/matplotlib/backends/backend_template.py:docstring of matplotlib.backends.backend_template.RendererTemplate.new_gc:2",
       "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.PathEffectRenderer.draw_markers:16"
     ],
+    "Timer": [
+      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.FigureCanvasBase.new_timer:2",
+      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.TimerBase:14",
+      "lib/matplotlib/backends/backend_nbagg.py:docstring of matplotlib.backends.backend_nbagg.FigureCanvasNbAgg.new_timer:2"
+    ],
     "ginput": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.FigureCanvasBase.start_event_loop:4",
       "lib/matplotlib/blocking_input.py:docstring of matplotlib.blocking_input:13"
@@ -977,25 +982,6 @@
     "MixedModeRenderer": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.RendererBase.start_rasterizing:4",
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.RendererBase.stop_rasterizing:5"
-    ],
-    "_timer_start": [
-      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.TimerBase:9"
-    ],
-    "_timer_stop": [
-      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.TimerBase:12"
-    ],
-    "_timer_set_single_shot": [
-      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.TimerBase:17"
-    ],
-    "Timer": [
-      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.TimerBase:17"
-    ],
-    "_on_timer": [
-      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.TimerBase:17",
-      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.TimerBase:27"
-    ],
-    "_timer_set_interval": [
-      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.TimerBase:23"
     ],
     "*args, **kwargs": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.TimerBase.remove_callback:4"
@@ -1043,50 +1029,50 @@
     ],
     "{'Creator': 'My software', 'Author': 'Me',\n'Title': 'Awesome fig'}": [
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfFile:31",
-      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:52",
+      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:51",
       "lib/matplotlib/backends/backend_pgf.py:docstring of matplotlib.backends.backend_pgf.PdfPages:46"
     ],
     "'Title'": [
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfFile:36",
-      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:57",
+      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:56",
       "lib/matplotlib/backends/backend_pgf.py:docstring of matplotlib.backends.backend_pgf.PdfPages:51"
     ],
     "'Author'": [
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfFile:36",
-      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:57",
+      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:56",
       "lib/matplotlib/backends/backend_pgf.py:docstring of matplotlib.backends.backend_pgf.PdfPages:51"
     ],
     "'Subject'": [
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfFile:36",
-      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:57",
+      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:56",
       "lib/matplotlib/backends/backend_pgf.py:docstring of matplotlib.backends.backend_pgf.PdfPages:51"
     ],
     "'Keywords'": [
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfFile:36",
-      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:57",
+      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:56",
       "lib/matplotlib/backends/backend_pgf.py:docstring of matplotlib.backends.backend_pgf.PdfPages:51"
     ],
     "'Creator'": [
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfFile:36",
-      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:57",
+      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:56",
       "lib/matplotlib/backends/backend_pgf.py:docstring of matplotlib.backends.backend_pgf.PdfPages:51"
     ],
     "'Producer'": [
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfFile:36",
-      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:57",
+      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:56",
       "lib/matplotlib/backends/backend_pgf.py:docstring of matplotlib.backends.backend_pgf.PdfPages:51"
     ],
     "'CreationDate'": [
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfFile:36",
-      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:57"
+      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:56"
     ],
     "'ModDate'": [
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfFile:36",
-      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:57"
+      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:56"
     ],
     "'Trapped'": [
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfFile:36",
-      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:57",
+      "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.PdfPages:56",
       "lib/matplotlib/backends/backend_pgf.py:docstring of matplotlib.backends.backend_pgf.PdfPages:51"
     ],
     "draw_path": [
@@ -1191,12 +1177,6 @@
     "rrulewrapper": [
       "lib/matplotlib/dates.py:docstring of matplotlib.dates:105"
     ],
-    "strftime": [
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates.ConciseDateFormatter:18",
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates.DateFormatter:2",
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates.DateFormatter:28",
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates:129"
-    ],
     "numpy.datetime64": [
       "doc/api/prev_api_changes/api_changes_2.1.0.rst:95",
       "doc/faq/howto_faq.rst:18",
@@ -1206,6 +1186,9 @@
       "doc/tutorials/text/text_intro.rst:580",
       "doc/users/prev_whats_new/whats_new_2.2.rst:155",
       "lib/matplotlib/dates.py:docstring of matplotlib.dates.date2num:8"
+    ],
+    "strftime": [
+      "lib/matplotlib/dates.py:docstring of matplotlib.dates.ConciseDateFormatter:18"
     ],
     "_read": [
       "lib/matplotlib/dviread.py:docstring of matplotlib.dviread.Vf:25"
@@ -1352,7 +1335,7 @@
     ],
     "LogLocator": [
       "doc/api/prev_api_changes/api_changes_3.0.0.rst:207",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:59",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:51",
       "doc/api/prev_api_changes/api_changes_3.1.1.rst:14"
     ],
     "Axes.axes.streamplot": [
@@ -1432,235 +1415,235 @@
       "doc/api/prev_api_changes/api_changes_3.0.1.rst:21"
     ],
     "PathCollection.get_offsets": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:30"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:22"
     ],
     "PathCollection": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:30"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:22"
     ],
     "PathCollection.get_array": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:30"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:22"
     ],
     "AutoLocator": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:59"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:51"
     ],
     "Axis.remove_overlaping_locs": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:79"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:71"
     ],
     "TextPath": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:127"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:119"
     ],
     "backend_bases.Timer.remove_callback": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:247"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:239"
     ],
     "backend_bases.Timer.remove_callback(func, *args,\n**kwargs)": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:250"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:242"
     ],
     "backend_bases.Timer.add_callback(func, *args, **kwargs)": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:250"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:242"
     ],
     "backend_bases.Timer.add_callback": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:267"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:259"
     ],
     "collections.StemContainer": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:273",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:276"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:265",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:268"
     ],
     "Axes.stem": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:276"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:268"
     ],
     "collections.LineCollection.get_segements()": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:288"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:280"
     ],
     "matplotlib.colorbar.ColorbarBase.set_norm": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:298"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:290"
     ],
     "matplotlib.colorbar.ColorbarBase.set_cmap": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:298"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:290"
     ],
     "matplotlib.colorbar.ColorbarBase.set_clim": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:298"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:290"
     ],
     "Installing": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:319"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:311"
     ],
     "Axes.spy(..., origin='lower')": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:367"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:359"
     ],
     "str()": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:386"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:378"
     ],
     "Axes.fmt_xdata": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:405",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:408"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:397",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:400"
     ],
     "Axes.fmt_ydata": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:405",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:408"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:397",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:400"
     ],
     "Tick": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:414",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:406",
       "doc/users/prev_whats_new/whats_new_2.1.0.rst:409",
       "doc/users/prev_whats_new/whats_new_2.2.rst:244"
     ],
     "streamplot.Grid": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:487"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:479"
     ],
     "legend.Legend.set_draggable()": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:507"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:499"
     ],
     "scipy.stats.norm.pdf": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:573",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:659"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:565",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:651"
     ],
     "matplotlib.pylab": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:626"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:618"
     ],
     "ImageComparisonTest": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:710"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:702"
     ],
     "mathcircled": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:737"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:729"
     ],
     "cbook.deprecated": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1081",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:774"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1073",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:766"
     ],
     "cbook.warn_deprecated": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:774"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:766"
     ],
     "matplotlib.testing.compare.calculate_rms": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:779"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:771"
     ],
     "Axes.hist2d": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:798"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:790"
     ],
     "Annotation": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:799"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:791"
     ],
     "Axes.annotation": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:799"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:791"
     ],
     "bezier.find_bezier_t_intersecting_with_closedpath": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:801"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:793"
     ],
     "bezier.split_bezier_intersecting_with_closedpath": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:801"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:793"
     ],
     "bezier.find_r_to_boundary_of_closedpath": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1026",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:801"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1018",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:793"
     ],
     "bezier.split_path_inout": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:801"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:793"
     ],
     "bezier.check_if_parallel": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:801"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:793"
     ],
     "spine.Spine.is_frame_like": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:823"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:815"
     ],
     "axis.Axis.get_ticks_position": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:829"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:821"
     ],
     "mpl_toolkits.Axes.AxisDict": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:835"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:827"
     ],
     "checkdep_dvipng": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:840"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:832"
     ],
     "checkdep_ghostscript": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:841"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:833"
     ],
     "checkdep_pdftops": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:842"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:834"
     ],
     "checkdep_inkscape": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:843"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:835"
     ],
     "ticker.decade_up": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:846"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:838"
     ],
     "ticker.decade_down": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:847"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:839"
     ],
     "docstring.Appender": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:851"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:843"
     ],
     "docstring.dedent": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:852"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:844"
     ],
     "docstring.copy_dedent": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:853"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:845"
     ],
     "matplotlib.pyplot.get_scale_docs()": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:861"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:853"
     ],
     "dates.strpdate2num": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:926"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:918"
     ],
     "dates.bytespdate2num": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:927"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:919"
     ],
     "axes3d.Axes3D.xaxis": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:941"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:933"
     ],
     "axes3d.Axes3D.yaxis": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:941"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:933"
     ],
     "axes3d.Axes3D.zaxis": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:941"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:933"
     ],
     "pytest.mark.backend(...)": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:949"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:941"
     ],
     "matplotlib.testing.conftest.mpl_test_settings": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:949"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:941"
     ],
     "Quiver": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:955"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:947"
     ],
     "Collection": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:957",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:949",
       "doc/users/prev_whats_new/whats_new_1.5.rst:321",
       "doc/users/prev_whats_new/whats_new_2.2.rst:198",
       "doc/users/prev_whats_new/whats_new_2.2.rst:201"
     ],
     "backend_gtk3.FileChooserDialog": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:966"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:958"
     ],
     "backend_gtk3.NavigationToolbar2GTK3.get_filechooser": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:967"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:959"
     ],
     "backend_gtk3.SaveFigureGTK3.get_filechooser": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:968"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:960"
     ],
     "NavigationToolbar2QT.adj_window": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:969"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:961"
     ],
     "backend_wx.IDLE_DELAY": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:970"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:962"
     ],
     "LogTransform": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1001"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:993"
     ],
     "InvertedLogTransform": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1001"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:993"
     ],
     "NavigationToolbar2QT.buttons": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1041"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1033"
     ],
     "Axis.iter_ticks": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1072"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1064"
     ],
     "Axis._update_ticks": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1074"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1066"
     ],
     "Formatter.__call__": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1123",
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1129"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1115",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1121"
     ],
     "ticker..MaxNLocator": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1156"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1148"
     ],
     "Locator.nonsingular": [
       "doc/api/prev_api_changes/api_changes_3.1.1.rst:14"
@@ -1685,6 +1668,7 @@
       "lib/matplotlib/projections/polar.py:docstring of matplotlib.projections.polar.ThetaTick:4"
     ],
     "plot": [
+      "doc/tutorials/introductory/customizing.rst:184",
       "doc/users/prev_whats_new/changelog.rst:232",
       "lib/matplotlib/sphinxext/plot_directive.py:docstring of matplotlib.sphinxext.plot_directive:4"
     ],
@@ -1743,10 +1727,6 @@
     "pytest.mark.usefixtures": [
       "lib/matplotlib/testing/decorators.py:docstring of matplotlib.testing.decorators.image_comparison:13"
     ],
-    "Transform": [
-      "doc/users/prev_whats_new/whats_new_2.2.rst:357",
-      "doc/users/prev_whats_new/whats_new_2.2.rst:360"
-    ],
     "texmanager.TexManager": [
       "lib/matplotlib/textpath.py:docstring of matplotlib.textpath.TextToPath.get_texmanager:2"
     ],
@@ -1770,16 +1750,16 @@
       "lib/matplotlib/units.py:docstring of matplotlib.units.DecimalConverter.axisinfo:2"
     ],
     "active": [
-      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.AxesWidget:36"
+      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.AxesWidget:34"
     ],
     "figure.canvas.mpl_connect": [
       "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.AxesWidget.connect_event:4"
     ],
     "xy": [
-      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.Lasso:8"
+      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.Lasso:7"
     ],
     "callback": [
-      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.Lasso:20"
+      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.Lasso:19"
     ],
     "onselect": [
       "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.PolygonSelector:20"
@@ -1801,15 +1781,6 @@
     ],
     "valstep": [
       "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.Slider:70"
-    ],
-    "facecolor": [
-      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.Slider:85"
-    ],
-    "edgecolor": [
-      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.Slider:85"
-    ],
-    "alpha": [
-      "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.Slider:85"
     ],
     "span_selector.active=False": [
       "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.SpanSelector:7"
@@ -1866,7 +1837,7 @@
     "setup.py": [
       "doc/devel/MEP/MEP11.rst:64",
       "doc/devel/MEP/MEP11.rst:67",
-      "doc/devel/contributing.rst:387"
+      "doc/devel/contributing.rst:403"
     ],
     "import numpy": [
       "doc/devel/MEP/MEP11.rst:64"
@@ -2183,86 +2154,80 @@
     "text": [
       "doc/devel/MEP/MEP29.rst:28"
     ],
-    "Example": [
-      "doc/devel/coding_guide.rst:26"
-    ],
-    "examples": [
-      "doc/devel/coding_guide.rst:26"
-    ],
     "tox": [
-      "doc/devel/coding_guide.rst:81"
+      "doc/devel/coding_guide.rst:101"
     ],
     "git status": [
-      "doc/devel/coding_guide.rst:185"
+      "doc/devel/coding_guide.rst:207"
     ],
     "v2.2.x": [
-      "doc/devel/coding_guide.rst:194"
+      "doc/devel/coding_guide.rst:216"
     ],
     "master": [
-      "doc/devel/coding_guide.rst:194"
+      "doc/devel/coding_guide.rst:216"
     ],
     "doc/api/api_changes": [
-      "doc/devel/contributing.rst:269"
+      "doc/devel/contributing.rst:271"
     ],
     "doc/api/next_api_changes": [
-      "doc/devel/contributing.rst:346"
+      "doc/devel/contributing.rst:362"
     ],
     "MatplotlibDeprecationWarning": [
-      "doc/devel/contributing.rst:352"
+      "doc/devel/contributing.rst:368"
     ],
     "cbook.warn_deprecated()": [
-      "doc/devel/contributing.rst:355"
+      "doc/devel/contributing.rst:371"
     ],
     "package_data": [
-      "doc/devel/contributing.rst:387"
+      "doc/devel/contributing.rst:403"
     ],
     "FOO_wrap.cpp": [
-      "doc/devel/contributing.rst:399"
+      "doc/devel/contributing.rst:415"
     ],
     "FOO_wrapper.cpp": [
-      "doc/devel/contributing.rst:399"
+      "doc/devel/contributing.rst:415"
     ],
     "logger.WARNING": [
-      "doc/devel/contributing.rst:493"
+      "doc/devel/contributing.rst:509"
     ],
     "cbook._warn_external": [
-      "doc/devel/contributing.rst:518",
-      "doc/devel/contributing.rst:533",
-      "doc/devel/contributing.rst:542",
-      "doc/devel/contributing.rst:567"
+      "doc/devel/contributing.rst:534",
+      "doc/devel/contributing.rst:549",
+      "doc/devel/contributing.rst:558",
+      "doc/devel/contributing.rst:583"
     ],
     "logging.WARNING": [
-      "doc/devel/contributing.rst:530"
+      "doc/devel/contributing.rst:546"
     ],
     "warn": [
-      "doc/devel/contributing.rst:542"
+      "doc/devel/contributing.rst:558"
     ],
     "./gallery/index.html": [
-      "doc/devel/contributing.rst:587"
+      "doc/devel/contributing.rst:603"
     ],
     "lib/matplotlib/mpl-data/sample_data/": [
-      "doc/devel/contributing.rst:592"
+      "doc/devel/contributing.rst:608"
     ],
     ":doc:": [
-      "doc/devel/documenting_mpl.rst:161"
+      "doc/devel/documenting_mpl.rst:184"
     ],
     "pyplot.getp": [
-      "doc/devel/documenting_mpl.rst:520"
+      "doc/devel/documenting_mpl.rst:582"
     ],
     "matplotlib.docstring.dedent_interpd": [
-      "doc/devel/documenting_mpl.rst:588"
+      "doc/devel/documenting_mpl.rst:650"
     ],
     "matplotlib.patches.Patch.__init__": [
-      "doc/devel/documenting_mpl.rst:621"
+      "doc/devel/documenting_mpl.rst:683"
     ],
     "# docstring inherited": [
-      "doc/devel/documenting_mpl.rst:637"
+      "doc/devel/documenting_mpl.rst:699"
     ],
     ":plot:": [
-      "doc/devel/documenting_mpl.rst:657"
+      "doc/devel/documenting_mpl.rst:719"
     ],
     "###": [
-      "doc/devel/documenting_mpl.rst:744"
+      "doc/devel/documenting_mpl.rst:806"
     ],
     "pytest": [
       "doc/devel/testing.rst:50",
@@ -2278,19 +2243,16 @@
       "doc/gallery/misc/ftface_props.rst:14"
     ],
     "ConciseDateConverter": [
-      "doc/gallery/ticks_and_spines/date_concise_formatter.rst:215"
-    ],
-    "pyplot": [
-      "doc/index.rst:44"
+      "doc/gallery/ticks_and_spines/date_concise_formatter.rst:214"
     ],
     "mplot3d": [
-      "doc/index.rst:145"
+      "doc/index.rst:157"
     ],
     "axes_grid1": [
-      "doc/index.rst:145"
+      "doc/index.rst:157"
     ],
     "axisartist": [
-      "doc/index.rst:145"
+      "doc/index.rst:157"
     ],
     "'viridis'": [
       "doc/users/dflt_style_changes.rst:121"
@@ -2807,6 +2769,10 @@
     "examples/user_interfaces/toolmanager_sgskip.py": [
       "doc/users/prev_whats_new/whats_new_2.2.rst:317"
     ],
+    "Transform": [
+      "doc/users/prev_whats_new/whats_new_2.2.rst:357",
+      "doc/users/prev_whats_new/whats_new_2.2.rst:360"
+    ],
     "Figure_1-1.png": [
       "doc/users/prev_whats_new/whats_new_3.0.rst:85"
     ],
@@ -2905,10 +2871,6 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axvspan:4",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.errorbar:60"
     ],
-    "matplotlib.backend_bases.Event.mpl_disconnect": [
-      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.FigureCanvasBase.mpl_connect:33",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.connect:33"
-    ],
     "autoscale_view": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.margins:32"
     ],
@@ -2993,14 +2955,14 @@
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.Affine2DBase:13"
     ],
     "matplotlib.text.Text.__init__": [
-      "doc/devel/contributing.rst:425",
-      "doc/devel/contributing.rst:433"
+      "doc/devel/contributing.rst:441",
+      "doc/devel/contributing.rst:449"
     ],
     "matplotlib.patches.Rectangle.contains": [
-      "doc/users/event_handling.rst:163"
+      "doc/users/event_handling.rst:164"
     ],
     "matplotlib.lines.Line2D.pick": [
-      "doc/users/event_handling.rst:482"
+      "doc/users/event_handling.rst:483"
     ],
     "matplotlib.axes.boxplot": [
       "doc/users/prev_whats_new/whats_new_1.2.rst:126"
@@ -3038,8 +3000,8 @@
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.AxesStack:1"
     ],
     "matplotlib.contours.ContourSet": [
-      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.colorbar:141",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.colorbar:137",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.colorbar:142",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.colorbar:138",
       "lib/mpl_toolkits/axes_grid1/colorbar.py:docstring of mpl_toolkits.axes_grid1.colorbar.colorbar:92"
     ],
     "matplotlib.patches._Style": [
@@ -3053,13 +3015,13 @@
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle:38",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ConnectionStyle:38"
     ],
-    "matplotlib.patches._Bracket": [
+    "matplotlib.patches.ArrowStyle._Bracket": [
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ArrowStyle.BarAB:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ArrowStyle.BracketA:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ArrowStyle.BracketAB:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ArrowStyle.BracketB:1"
     ],
-    "matplotlib.patches._Curve": [
+    "matplotlib.patches.ArrowStyle._Curve": [
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ArrowStyle.Curve:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ArrowStyle.CurveA:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ArrowStyle.CurveAB:1",
@@ -3068,39 +3030,26 @@
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ArrowStyle.CurveFilledAB:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ArrowStyle.CurveFilledB:1"
     ],
-    "matplotlib.patches._Base": [
+    "matplotlib.patches.ArrowStyle._Base": [
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ArrowStyle.Fancy:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ArrowStyle.Simple:1",
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.ArrowStyle.Wedge:1",
+      "lib/matplotlib/patches.py:docstring of matplotlib.patches.ArrowStyle.Wedge:1"
+    ],
+    "matplotlib.patches.BoxStyle._Base": [
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Circle:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.DArrow:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.LArrow:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Round4:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Round:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Sawtooth:1",
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Square:1",
+      "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Square:1"
+    ],
+    "matplotlib.patches.ConnectionStyle._Base": [
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ConnectionStyle.Angle3:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ConnectionStyle.Angle:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ConnectionStyle.Arc3:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ConnectionStyle.Arc:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ConnectionStyle.Bar:1"
-    ],
-    "BboxTransmuter": [
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Circle.transmute:2",
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.DArrow.transmute:2",
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.LArrow.transmute:2",
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.RArrow.transmute:2",
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Round.transmute:2",
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Round4.transmute:2",
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Roundtooth.transmute:2",
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Sawtooth.transmute:2",
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Square.transmute:2"
-    ],
-    "matplotlib.patches.LArrow": [
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.RArrow:1"
-    ],
-    "matplotlib.patches.Sawtooth": [
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Roundtooth:1"
     ],
     "matplotlib.patch.Patch": [
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.FancyArrowPatch.set_patchA:8",
@@ -3155,41 +3104,24 @@
       "<unknown>:1",
       "doc/api/_as_gen/mpl_toolkits.axes_grid1.parasite_axes.rst:31:<autosummary>:1"
     ],
-    "mpl_toolkits.axisartist.axisline_style.SimpleArrow": [
-      "lib/mpl_toolkits/axisartist/axisline_style.py:docstring of mpl_toolkits.axisartist.axisline_style.AxislineStyle.FilledArrow:1"
-    ],
     "_FancyAxislineStyle.FilledArrow": [
       "<unknown>:1"
     ],
-    "mpl_toolkits.axisartist.axisline_style._Base": [
+    "mpl_toolkits.axisartist.axisline_style.AxislineStyle._Base": [
       "lib/mpl_toolkits/axisartist/axisline_style.py:docstring of mpl_toolkits.axisartist.axisline_style.AxislineStyle.SimpleArrow:1"
     ],
     "_FancyAxislineStyle.SimpleArrow": [
       "<unknown>:1"
     ],
-    "mpl_toolkits.axisartist.axislines._Base": [
+    "mpl_toolkits.axisartist.axislines.AxisArtistHelper._Base": [
       "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.AxisArtistHelper.Fixed:1",
       "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.AxisArtistHelper.Floating:1"
-    ],
-    "mpl_toolkits.axisartist.axislines.Fixed": [
-      "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.AxisArtistHelperRectlinear.Fixed:1",
-      "lib/mpl_toolkits/axisartist/grid_helper_curvelinear.py:docstring of mpl_toolkits.axisartist.grid_helper_curvelinear.FixedAxisArtistHelper:1"
-    ],
-    "mpl_toolkits.axisartist.axislines.Floating": [
-      "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.AxisArtistHelperRectlinear.Floating:1",
-      "lib/mpl_toolkits/axisartist/grid_helper_curvelinear.py:docstring of mpl_toolkits.axisartist.grid_helper_curvelinear.FloatingAxisArtistHelper:1"
     ],
     "mpl_toolkits.axisartist.floating_axes.Floating AxesHostAxes": [
       "<unknown>:1",
       "doc/api/_as_gen/mpl_toolkits.axisartist.floating_axes.rst:31:<autosummary>:1"
     ],
-    "Patch": [
-      "lib/matplotlib/spines.py:docstring of matplotlib.spines.Spine.draw:2",
-      "lib/matplotlib/table.py:docstring of matplotlib.table.Cell.draw:2",
-      "lib/mpl_toolkits/mplot3d/art3d.py:docstring of mpl_toolkits.mplot3d.art3d.Patch3D.get_facecolor:2"
-    ],
     "tzinfo": [
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates.AutoDateLocator:36",
       "lib/matplotlib/dates.py:docstring of matplotlib.dates.DateLocator:24",
       "lib/matplotlib/dates.py:docstring of matplotlib.dates.RRuleLocator:2",
       "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.zaxis_date:4"
@@ -3232,10 +3164,6 @@
     ],
     "matplotlib.projections.geo.MollweideAxes": [
       "doc/api/artist_api.rst:189"
-    ],
-    "backend_bases.Timer": [
-      "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.FigureCanvasBase.new_timer:2",
-      "lib/matplotlib/backends/backend_nbagg.py:docstring of matplotlib.backends.backend_nbagg.FigureCanvasNbAgg.new_timer:2"
     ],
     "Cursors": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.NavigationToolbar2.set_cursor:2"
@@ -3422,7 +3350,7 @@
       "doc/tutorials/intermediate/artists.rst:57"
     ],
     "matplotlib.patches.AxesImage": [
-      "doc/users/event_handling.rst:414"
+      "doc/users/event_handling.rst:415"
     ],
     "mpl_toolkits.axes_grid1.axes_divider.HBox": [
       "doc/users/prev_whats_new/whats_new_1.1.rst:210"
@@ -3508,45 +3436,6 @@
     ],
     "matplotlib.cm.ScalarMappable.callbacksSM": [
       "doc/api/prev_api_changes/api_changes_0.98.0.rst:10"
-    ],
-    "transforms.Bbox.bounds": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:91"
-    ],
-    "transforms.BboxBase.width": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:93"
-    ],
-    "transforms.BboxBase.height": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:96"
-    ],
-    "transforms.Bbox.intervalx": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:99"
-    ],
-    "transforms.Bbox.intervaly": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:102"
-    ],
-    "transforms.Bbox.x0": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:105"
-    ],
-    "transforms.BboxBase.xmin": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:105"
-    ],
-    "transforms.Bbox.y0": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:109"
-    ],
-    "transforms.BboxBase.ymin": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:109"
-    ],
-    "transforms.Bbox.x1": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:113"
-    ],
-    "transforms.BboxBase.xmax": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:113"
-    ],
-    "transforms.Bbox.y1": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:117"
-    ],
-    "transforms.BboxBase.ymax": [
-      "doc/api/prev_api_changes/api_changes_0.98.0.rst:117"
     ],
     "matplotlib.figure.Figure.patch": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89",
@@ -3674,9 +3563,6 @@
       "lib/matplotlib/dates.py:docstring of matplotlib.dates.datestr2num:2",
       "lib/matplotlib/dates.py:docstring of matplotlib.dates:28:<autosummary>:1"
     ],
-    "strftime": [
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates.IndexDateFormatter:23"
-    ],
     "matplotlib.pylab.plot": [
       "doc/devel/add_new_projection.rst:18"
     ],
@@ -3684,7 +3570,7 @@
       "doc/devel/add_new_projection.rst:18"
     ],
     "log.debug": [
-      "doc/devel/contributing.rst:475"
+      "doc/devel/contributing.rst:491"
     ],
     "matplotlib.test": [
       "doc/devel/testing.rst:85"
@@ -3816,11 +3702,11 @@
       "doc/api/prev_api_changes/api_changes_3.0.0.rst:355"
     ],
     "matplotlib.pylab": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:624",
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:616",
       "doc/users/history.rst:63"
     ],
     "matplotlib.scales": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:1001"
+      "doc/api/prev_api_changes/api_changes_3.1.0.rst:993"
     ],
     "mpl_toolkits.mplot3d.axes3d": [
       "doc/api/toolkits/mplot3d.rst:19"
