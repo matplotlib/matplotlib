@@ -1538,7 +1538,7 @@ class AxesTool(Widget):
         self.curvelist = []
 
         self._setaxistab()
-        
+
     def _setaxistab(self):
         """
         initiate axis tab to adjust the axis
@@ -1673,7 +1673,9 @@ class AxesTool(Widget):
         self.crvdstyle.on_select(self.ondsselect)
 
         self.crvwidth = self.toolfig.add_subplot(13, 1, 6)
-        self.crvtextwidth = TextBox(self.crvwidth, 'Width', initial=str(self.currentcurve[3]), label_pad=0.05)
+        self.crvtextwidth = TextBox(self.crvwidth, 'Width',
+                                        initial=str(self.currentcurve[3]),
+                                        label_pad=0.05)
         self.crvtextwidth.on_submit(self.submitcrvwidth)
 
         self.crvcolor = self.toolfig.add_subplot(13, 1, 7)
@@ -1689,7 +1691,9 @@ class AxesTool(Widget):
         self.crvmstyle.on_select(self.onmsselect)
 
         self.markersize = self.toolfig.add_subplot(13, 1, 10)
-        self.crvmarkersize = TextBox(self.markersize, 'Size', initial=str(self.currentcurve[6]), label_pad=0.05)
+        self.crvmarkersize = TextBox(self.markersize, 'Size',
+                                        initial=str(self.currentcurve[6]),
+                                        label_pad=0.05)
         self.crvmarkersize.on_submit(self.submitmarkersize)
 
         self.markerfc = self.toolfig.add_subplot(13, 1, 11)
@@ -1711,9 +1715,9 @@ class AxesTool(Widget):
         self.axcurves = (
             self.curveselect,
             self.crvlabel,
-            self.linestyle, 
-            self.drawstyle, 
-            self.crvwidth, 
+            self.linestyle,
+            self.drawstyle,
+            self.crvwidth,
             self.crvcolor,
             self.markerstyle,
             self.markersize,
@@ -1778,9 +1782,9 @@ class AxesTool(Widget):
         self.axcurves = (
             self.curveselect,
             self.crvlabel,
-            self.linestyle, 
-            self.drawstyle, 
-            self.crvwidth, 
+            self.linestyle,
+            self.drawstyle,
+            self.crvwidth,
             self.crvcolor,
             self.markerstyle,
             self.markersize,
@@ -1897,7 +1901,7 @@ class AxesTool(Widget):
 
     def crvapply(self, val):
         line = self.linedict[self.currentcurve[0]]
-        
+
         rgba_line = mcolors.to_rgba(self.crvupdate[4])
         rgba_markerfc = mcolors.to_rgba(self.crvupdate[7])
         rgba_markerec = mcolors.to_rgba(self.crvupdate[8])
@@ -1914,6 +1918,7 @@ class AxesTool(Widget):
         line.set_markeredgecolor(rgba_markerec)
         self.targetfig.canvas.draw()
         self.ax.legend([line])
+
 
 class Cursor(AxesWidget):
     """
