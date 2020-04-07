@@ -1462,9 +1462,7 @@ class AxesTool(Widget):
         self.toolfig = toolfig
         self.toolfig.subplots_adjust(left=0.2, right=0.85)
         axes = self.targetfig.get_axes()
-        # TODO: multiple axes stuff
-        if (len(axes) == 1):
-            self.ax, = axes
+        self.ax, = axes
 
         self.xmin, self.xmax = self.ax.get_xlim()
         self.ymin, self.ymax = self.ax.get_ylim()
@@ -1490,45 +1488,59 @@ class AxesTool(Widget):
         self.curvelist = []
 
         self._setaxistab()
-        
+
     def _setaxistab(self):
         self.toolfig.subplots_adjust(left=0.2, right=0.85)
 
         self.axtitle = self.toolfig.add_subplot(10, 1, 1)
-        self.title = TextBox(self.axtitle, 'Title', initial=self.ax.get_title(), label_pad=0.05)
+        self.title = TextBox(self.axtitle, 'Title',
+                                initial=self.ax.get_title(),
+                                label_pad=0.05)
         self.title.on_submit(self.submittitle)
 
         self.axleft = self.toolfig.add_subplot(10, 1, 3)
         self.axleft.set_title('X-Axis')
         self.axleft.set_navigate(False)
 
-        self.textleft = TextBox(self.axleft, 'Left', initial=str(self.xmin), label_pad=0.05)
+        self.textleft = TextBox(self.axleft, 'Left',
+                                    initial=str(self.xmin),
+                                    label_pad=0.05)
         self.textleft.on_submit(self.submitleft)
 
         self.axright = self.toolfig.add_subplot(10, 1, 4)
-        self.textright = TextBox(self.axright, 'Right', initial=str(self.xmax), label_pad=0.05)
+        self.textright = TextBox(self.axright, 'Right',
+                                    initial=str(self.xmax),
+                                    label_pad=0.05)
         self.textright.on_submit(self.submitright)
 
         self.axlabelx = self.toolfig.add_subplot(10, 1, 5)
-        self.textlabelx = TextBox(self.axlabelx, 'Label', initial=str(self.ax.get_xlabel()), label_pad=0.05)
+        self.textlabelx = TextBox(self.axlabelx, 'Label',
+                                    initial=str(self.ax.get_xlabel()),
+                                    label_pad=0.05)
         self.textlabelx.on_submit(self.submitlabelx)
 
         self.axbottom = self.toolfig.add_subplot(10, 1, 7)
         self.axbottom.set_title('Y-Axis')
         self.axbottom.set_navigate(False)
 
-        self.textbottom = TextBox(self.axbottom, 'Bottom', initial=str(self.ymin), label_pad=0.05)
+        self.textbottom = TextBox(self.axbottom, 'Bottom',
+                                    initial=str(self.ymin),
+                                    label_pad=0.05)
         self.textbottom.on_submit(self.submitbottom)
 
         self.axtop = self.toolfig.add_subplot(10, 1, 8)
-        self.texttop = TextBox(self.axtop, 'Top', initial=str(self.ymax), label_pad=0.05)
+        self.texttop = TextBox(self.axtop, 'Top', initial=str(self.ymax),
+                                label_pad=0.05)
         self.texttop.on_submit(self.submittop)
 
         self.axlabely = self.toolfig.add_subplot(10, 1, 9)
-        self.textlabely = TextBox(self.axlabely, 'Label', initial=str(self.ax.get_ylabel()), label_pad=0.05)
+        self.textlabely = TextBox(self.axlabely, 'Label',
+                                    initial=str(self.ax.get_ylabel()),
+                                    label_pad=0.05)
         self.textlabely.on_submit(self.submitlabely)
 
-        self.axaxes = (self.axtitle, self.axleft, self.axright, self.axlabelx, self.axbottom, self.axtop, self.axlabely)
+        self.axaxes = (self.axtitle, self.axleft, self.axright, self.axlabelx,
+                        self.axbottom, self.axtop, self.axlabely)
         self.axcurves = ()
 
     def _setcurvestab(self):
@@ -1542,7 +1554,7 @@ class AxesTool(Widget):
             canonical_init = name2short[d[init]]
             return ([canonical_init] +
                     sorted(short2name.items(),
-                        key=lambda short_and_name: short_and_name[1]))
+                            key=lambda short_and_name: short_and_name[1]))
 
         def cmp_key(label):
             match = re.match(r"(_line|_image)(\d+)", label)
@@ -1554,7 +1566,7 @@ class AxesTool(Widget):
         if self.curvelist == []:
             self.curvelist = list(self.linedict.keys())
 
-        currcurve = self.curvelist[0] 
+        currcurve = self.curvelist[0]
         curvelabels = sorted(self.linedict, key=cmp_key)
 
         for label in curvelabels:
@@ -1583,43 +1595,60 @@ class AxesTool(Widget):
         self._crvupdate(currcurve)
 
         self.curveselect = self.toolfig.add_subplot(13, 1, 1)
-        self.crvselect = Dropdown(self.curveselect, self.curvelist, 'Select Curve', label_pad=0.05)
+        self.crvselect = Dropdown(self.curveselect, self.curvelist,
+                                    'Select Curve', label_pad=0.05)
         self.crvselect.on_select(self.oncurveselect)
 
         self.crvlabel = self.toolfig.add_subplot(13, 1, 2)
-        self.crvtextlabel = TextBox(self.crvlabel, 'Label', initial=str(self.currentcurve[0]), label_pad=0.05)
+        self.crvtextlabel = TextBox(self.crvlabel, 'Label',
+                                        initial=str(self.currentcurve[0]),
+                                        label_pad=0.05)
         self.crvtextlabel.on_submit(self.submitcrvlabel)
 
         self.linestyle = self.toolfig.add_subplot(13, 1, 4)
-        self.crvlstyle = Dropdown(self.linestyle, self.currentcurve[1], 'Line Style', label_pad=0.05)
+        self.crvlstyle = Dropdown(self.linestyle, self.currentcurve[1],
+                                    'Line Style', label_pad=0.05)
         self.crvlstyle.on_select(self.onlsselect)
 
         self.drawstyle = self.toolfig.add_subplot(13, 1, 5)
-        self.crvdstyle = Dropdown(self.drawstyle, self.currentcurve[2], 'Draw Style', label_pad=0.05)
+        self.crvdstyle = Dropdown(self.drawstyle, self.currentcurve[2],
+                                    'Draw Style', label_pad=0.05)
         self.crvdstyle.on_select(self.ondsselect)
 
         self.crvwidth = self.toolfig.add_subplot(13, 1, 6)
-        self.crvtextwidth = TextBox(self.crvwidth, 'Width', initial=str(self.currentcurve[3]), label_pad=0.05)
+        self.crvtextwidth = TextBox(self.crvwidth, 'Width',
+                                        initial=str(self.currentcurve[3]),
+                                        label_pad=0.05)
         self.crvtextwidth.on_submit(self.submitcrvwidth)
 
         self.crvcolor = self.toolfig.add_subplot(13, 1, 7)
-        self.crvtextcolor = TextBox(self.crvcolor, 'Color (RGBA)', initial=str(self.currentcurve[4]), label_pad=0.05)
+        self.crvtextcolor = TextBox(self.crvcolor, 'Color (RGBA)',
+                                        initial=str(self.currentcurve[4]),
+                                        label_pad=0.05)
         self.crvtextcolor.on_submit(self.submitcrvcolor)
 
         self.markerstyle = self.toolfig.add_subplot(13, 1, 9)
-        self.crvmstyle = Dropdown(self.markerstyle, self.currentcurve[5], 'Marker Style', label_pad=0.05, max_height=6)
+        self.crvmstyle = Dropdown(self.markerstyle, self.currentcurve[5],
+                                    'Marker Style', label_pad=0.05,
+                                    max_height=6)
         self.crvmstyle.on_select(self.onmsselect)
 
         self.markersize = self.toolfig.add_subplot(13, 1, 10)
-        self.crvmarkersize = TextBox(self.markersize, 'Size', initial=str(self.currentcurve[6]), label_pad=0.05)
+        self.crvmarkersize = TextBox(self.markersize, 'Size',
+                                        initial=str(self.currentcurve[6]),
+                                        label_pad=0.05)
         self.crvmarkersize.on_submit(self.submitmarkersize)
 
         self.markerfc = self.toolfig.add_subplot(13, 1, 11)
-        self.crvmarkerfc = TextBox(self.markerfc, 'Face Color', initial=str(self.currentcurve[7]), label_pad=0.05)
+        self.crvmarkerfc = TextBox(self.markerfc, 'Face Color',
+                                    initial=str(self.currentcurve[7]),
+                                    label_pad=0.05)
         self.crvmarkerfc.on_submit(self.submitmarkerfc)
 
         self.markerec = self.toolfig.add_subplot(13, 1, 12)
-        self.crvmarkerec = TextBox(self.markerec, 'Edge Color', initial=str(self.currentcurve[8]), label_pad=0.05)
+        self.crvmarkerec = TextBox(self.markerec, 'Edge Color',
+                                    initial=str(self.currentcurve[8]),
+                                    label_pad=0.05)
         self.crvmarkerec.on_submit(self.submitmarkerec)
 
         self.applycrv = self.toolfig.add_axes([0.1, 0.025, 0.2, 0.05])
@@ -1629,9 +1658,9 @@ class AxesTool(Widget):
         self.axcurves = (
             self.curveselect,
             self.crvlabel,
-            self.linestyle, 
-            self.drawstyle, 
-            self.crvwidth, 
+            self.linestyle,
+            self.drawstyle,
+            self.crvwidth,
             self.crvcolor,
             self.markerstyle,
             self.markersize,
@@ -1641,30 +1670,28 @@ class AxesTool(Widget):
         self.axaxes = ()
 
     def cmp_hexcolor(self, color):
-            match = re.match(r"^#[0-9a-fA-F]{8}$", color)
-            if match:
-                return True
-            else:
-                return False
+        match = re.match(r"^#[0-9a-fA-F]{8}$", color)
+        if match:
+            return True
+        else:
+            return False
 
     def _crvupdate(self, val):
         self.currentcurve = self.curves[val]
-        self.crvupdate = [self.currentcurve[0],          # Label
-                          self.currentcurve[1][0],       # Line Style
-                          self.currentcurve[2][0],       # Draw Style
-                          self.currentcurve[3],          # Line Width
-                          self.currentcurve[4],          # Line Color
-                          self.currentcurve[5][0],       # Marker Style
-                          self.currentcurve[6],          # Marker Size
-                          self.currentcurve[7],          # Marker Face Color
-                          self.currentcurve[8]]          # Marker Edge Color
+        self.crvupdate = [self.currentcurve[0],
+                          self.currentcurve[1][0],
+                          self.currentcurve[2][0],
+                          self.currentcurve[3],
+                          self.currentcurve[4],
+                          self.currentcurve[5][0],
+                          self.currentcurve[6],
+                          self.currentcurve[7],
+                          self.currentcurve[8]]
 
     def oncurveselect(self, val):
 
-        # Curve to be updated
         self._crvupdate(self.curvelist[val])
 
-        # TextBox setting default values
         self.crvtextlabel.set_val(self.curves[self.curvelist[val]][0])
         self.crvtextwidth.set_val(self.curves[self.curvelist[val]][3])
         self.crvtextcolor.set_val(self.curves[self.curvelist[val]][4])
@@ -1672,7 +1699,6 @@ class AxesTool(Widget):
         self.crvmarkerfc.set_val(self.curves[self.curvelist[val]][7])
         self.crvmarkerec.set_val(self.curves[self.curvelist[val]][8])
 
-        # Dropdown menu setting default values
         self.linestyle.remove()
         self.drawstyle.remove()
         self.markerstyle.remove()
@@ -1680,25 +1706,28 @@ class AxesTool(Widget):
         self.currentcurve[1][0] = self.crvupdate[1]
         self.currentcurve[2][0] = self.crvupdate[2]
         self.currentcurve[5][0] = self.crvupdate[5]
-        
+
         self.linestyle = self.toolfig.add_subplot(13, 1, 4)
-        self.crvlstyle = Dropdown(self.linestyle, self.currentcurve[1], 'Line Style', label_pad=0.05)
+        self.crvlstyle = Dropdown(self.linestyle, self.currentcurve[1],
+                                    'Line Style', label_pad=0.05)
         self.crvlstyle.on_select(self.onlsselect)
 
         self.drawstyle = self.toolfig.add_subplot(13, 1, 5)
-        self.crvdstyle = Dropdown(self.drawstyle, self.currentcurve[2], 'Draw Style', label_pad=0.05)
+        self.crvdstyle = Dropdown(self.drawstyle, self.currentcurve[2],
+                                    'Draw Style', label_pad=0.05)
         self.crvdstyle.on_select(self.ondsselect)
 
         self.markerstyle = self.toolfig.add_subplot(13, 1, 9)
-        self.crvmstyle = Dropdown(self.markerstyle, self.currentcurve[5], 'Marker Style', label_pad=0.05)
+        self.crvmstyle = Dropdown(self.markerstyle, self.currentcurve[5],
+                                    'Marker Style', label_pad=0.05)
         self.crvmstyle.on_select(self.onmsselect)
 
         self.axcurves = (
             self.curveselect,
             self.crvlabel,
-            self.linestyle, 
-            self.drawstyle, 
-            self.crvwidth, 
+            self.linestyle,
+            self.drawstyle,
+            self.crvwidth,
             self.crvcolor,
             self.markerstyle,
             self.markersize,
@@ -1808,14 +1837,14 @@ class AxesTool(Widget):
     def submitmarkerfc(self, val):
         if self.cmp_hexcolor(val):
             self.crvupdate[7] = val
-    
+
     def submitmarkerec(self, val):
         if self.cmp_hexcolor(val):
             self.crvupdate[8] = val
 
     def crvapply(self, val):
         line = self.linedict[self.currentcurve[0]]
-        
+
         rgba_line = mcolors.to_rgba(self.crvupdate[4])
         rgba_markerfc = mcolors.to_rgba(self.crvupdate[7])
         rgba_markerec = mcolors.to_rgba(self.crvupdate[8])
@@ -1832,6 +1861,7 @@ class AxesTool(Widget):
         line.set_markeredgecolor(rgba_markerec)
         self.targetfig.canvas.draw()
         self.ax.legend([line])
+
 
 class Cursor(AxesWidget):
     """
