@@ -879,7 +879,7 @@ class Axis(martist.Artist):
                 raise ValueError(
                     "keyword %s is not recognized; valid keywords are %s"
                     % (key, kwkeys))
-            kwtrans.update(kw)
+        kwtrans.update(kw)
         return kwtrans
 
     def set_clip_path(self, clippath, transform=None):
