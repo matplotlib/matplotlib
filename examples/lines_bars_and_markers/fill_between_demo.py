@@ -14,8 +14,8 @@ import numpy as np
 #
 # Basic usage
 # -----------
-# The parameters *y1* and *y2* can be a scalar, indicating a horizontal
-# boundary a  the given y-values. If only *y1* is given, *y2* defaults to 0.
+# The parameters *y1* and *y2* can be scalars, indicating a horizontal
+# boundary at the given y-values. If only *y1* is given, *y2* defaults to 0.
 
 x = np.arange(0.0, 2, 0.01)
 y1 = np.sin(2 * np.pi * x)

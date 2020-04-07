@@ -27,7 +27,7 @@ import numpy as np
 # and if the grid is one larger than the data in each dimension, i.e. has shape
 # *(M+1, N+1)*.  In that case *X* and *Y* specify the corners of quadrilaterals
 # that are colored with the values in *Z*. Here we specify the edges of the
-# *(3, 5)* quadrilaterals with *X* and *Y* that  are *(4, 6)*.
+# *(3, 5)* quadrilaterals with *X* and *Y* that are *(4, 6)*.
 
 nrows = 3
 ncols = 5
