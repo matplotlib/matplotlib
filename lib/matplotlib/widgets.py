@@ -1848,6 +1848,7 @@ class AxesTool(Widget):
         line.set_markerfacecolor(rgba_markerfc)
         line.set_markeredgecolor(rgba_markerec)
         self.targetfig.canvas.draw()
+        self.ax.legend([line])
 
     def crvcancel(self, val):
         pass
