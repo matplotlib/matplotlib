@@ -94,7 +94,7 @@ for ax in axs.flat:
     ax.label_outer()
 
 ###############################################################################
-# You can  use tuple-unpacking also in 2D to assign all subplots to dedicated
+# You can use tuple-unpacking also in 2D to assign all subplots to dedicated
 # variables:
 
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
