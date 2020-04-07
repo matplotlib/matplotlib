@@ -705,8 +705,21 @@ class Shadow(Patch):
 
 class Rectangle(Patch):
     """
-    A rectangle with lower left at *xy* = (*x*, *y*) with
-    specified *width*, *height* and rotation *angle*.
+    A rectangle defined via an anchor point *xy* and its *width* and *height*.
+
+    The rectangle extends from ``xy[0]`` to ``xy[0] + width`` in x-direction
+    and from ``xy[1]`` to ``xy[1] + height`` in y-direction. ::
+
+      :                +------------------+
+      :                |                  |
+      :              height               |
+      :                |                  |
+      :               (xy)---- width -----+
+
+    One may picture *xy* as the bottom left corner, but which corner *xy* is
+    actually depends on the the direction of the axis and the sign of *width*
+    and *height*; e.g. *xy* would be the bottom right corner if the x-axis
+    was inverted or if *width* was negative.
     """
 
     def __str__(self):
@@ -720,22 +733,18 @@ class Rectangle(Patch):
         Parameters
         ----------
         xy : (float, float)
-            The rectangle extends from xy[0] to xy[0] + width in
-            x-direction and from xy[1] to xy[1] + height in y-direction.
+            The anchor point.
         width : float
-            Rectangle width
+            Rectangle width.
         height : float
-            Rectangle height
+            Rectangle height.
         angle : float, default: 0
             Rotation in degrees anti-clockwise about *xy*.
-        fill : bool, default: True
-            Whether to fill the rectangle.
 
-        Notes
-        -----
-        Valid keyword arguments are:
-
-        %(Patch)s
+        Other Parameters
+        ----------------
+        **kwargs : `.Patch` properties
+            %(Patch)s
         """
 
         Patch.__init__(self, **kwargs)
