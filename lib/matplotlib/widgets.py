@@ -1538,7 +1538,7 @@ class AxesTool(Widget):
         self.curvelist = []
 
         self._setaxistab()
-
+        
     def _setaxistab(self):
         """
         initiate axis tab to adjust the axis
@@ -1715,9 +1715,9 @@ class AxesTool(Widget):
         self.axcurves = (
             self.curveselect,
             self.crvlabel,
-            self.linestyle,
-            self.drawstyle,
-            self.crvwidth,
+            self.linestyle, 
+            self.drawstyle, 
+            self.crvwidth, 
             self.crvcolor,
             self.markerstyle,
             self.markersize,
@@ -1782,9 +1782,9 @@ class AxesTool(Widget):
         self.axcurves = (
             self.curveselect,
             self.crvlabel,
-            self.linestyle,
-            self.drawstyle,
-            self.crvwidth,
+            self.linestyle, 
+            self.drawstyle, 
+            self.crvwidth, 
             self.crvcolor,
             self.markerstyle,
             self.markersize,
@@ -1902,29 +1902,26 @@ class AxesTool(Widget):
     def crvapply(self, val):
         line = self.linedict[self.currentcurve[0]]
         
-        # Starter Code: Set properties
+        rgba_line = mcolors.to_rgba(self.crvupdate[4])
+        rgba_markerfc = mcolors.to_rgba(self.crvupdate[7])
+        rgba_markerec = mcolors.to_rgba(self.crvupdate[8])
+
         line.set_label(self.crvupdate[0])
         line.set_linestyle(self.crvupdate[1])
         line.set_drawstyle(self.crvupdate[2])
         line.set_linewidth(self.crvupdate[3])
-        line.set_color(self.crvupdate[4])
-        if type(self.crvupdate[5]) is int:
-            line.set_marker(self.crvupdate[5])
-            line.set_markersize(self.crvupdate[6])
-            line.set_markerfacecolor(self.crvupdate[7])
-            line.set_markeredgecolor(self.crvupdate[8])
-        self.targetfig.canvas.draw()
-        # End of function call: Somehow it is not displaying the changes. To see this, reopen figure options.
-        #self.clearcurvestab() 
-        #self._setcurvestab()
+        line.set_color(rgba_line)
 
+        line.set_marker(self.crvupdate[5])
+        line.set_markersize(self.crvupdate[6])
+        line.set_markerfacecolor(rgba_markerfc)
+        line.set_markeredgecolor(rgba_markerec)
+        self.targetfig.canvas.draw()
 
     def crvcancel(self, val):
-        # TODO: Simply closes the Figure option toolbar
-        #_pylab_helpers.Gcf.destroy_fig(self.targetfig)
+        pass
 
     def crvconfirm(self, val):
-        # TODO: Does crvapply without clearing tab and reinitializing curves tab then closes Figure option toolbar 
         self.crvapply(val)
         self.crvcancel(val)
 
