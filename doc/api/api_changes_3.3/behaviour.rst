@@ -162,5 +162,5 @@ arguments were given.
 Previously, `.Axis.get_minorticklabels` and `.Axis.get_majorticklabels` returns
 silent_list. Their return type is now changed to normal list.
 `.get_xminorticklabels`, `.get_yminorticklabels`, `.get_zminorticklabels`,
-`.get_ticklabels`, `.get_xmajorticklabels`, `.get_ymajorticklabels` and
+`.Axis.get_ticklabels`, `.get_xmajorticklabels`, `.get_ymajorticklabels` and
 `.get_zmajorticklabels` methods will be affected by this change.
