@@ -1491,14 +1491,6 @@ class AxesTool(Widget):
 
         self._setaxistab()
         
-        # DROPDOWN TEST
-        # self.axdd = toolfig.add_subplot(10, 1, 1)
-        # options = ['hello', 'world', 'again', 'and', 'again2']
-        # self.dd = Dropdown(self.axdd, options, 'Label')
-        # def selecttest(val):
-        #     print(options[val])
-        # self.dd.on_select(selecttest)
-
     def _setaxistab(self):
         self.toolfig.subplots_adjust(left=0.2, right=0.85)
 
@@ -1603,10 +1595,6 @@ class AxesTool(Widget):
         self.crvtextlabel = TextBox(self.crvlabel, 'Label', initial=str(self.currentcurve[0]), label_pad=0.05)
         self.crvtextlabel.on_submit(self.submitcrvlabel)
 
-        # self.crvlinetitle = self.toolfig.add_subplot(13, 1, 4)
-        # self.crvlinetitle.set_title('Line')
-        # self.crvlinetitle.set_navigate(False)
-
         self.linestyle = self.toolfig.add_subplot(13, 1, 4)
         self.crvlstyle = Dropdown(self.linestyle, self.currentcurve[1], 'Line Style', label_pad=0.05)
         self.crvlstyle.on_select(self.onlsselect)
@@ -1622,10 +1610,6 @@ class AxesTool(Widget):
         self.crvcolor = self.toolfig.add_subplot(13, 1, 7)
         self.crvtextcolor = TextBox(self.crvcolor, 'Color (RGBA)', initial=str(self.currentcurve[4]), label_pad=0.05)
         self.crvtextcolor.on_submit(self.submitcrvcolor)
-
-        # self.crvmarkertitle = self.toolfig.add_subplot(13, 1, 9)
-        # self.crvmarkertitle.set_title('Marker')
-        # self.crvmarkertitle.set_navigate(False)
 
         self.markerstyle = self.toolfig.add_subplot(13, 1, 9)
         self.crvmstyle = Dropdown(self.markerstyle, self.currentcurve[5], 'Marker Style', label_pad=0.05, max_height=6)
@@ -1658,12 +1642,10 @@ class AxesTool(Widget):
         self.axcurves = (
             self.curveselect,
             self.crvlabel,
-            # self.crvlinetitle,
             self.linestyle, 
             self.drawstyle, 
             self.crvwidth, 
-            self.crvcolor, 
-            # self.crvmarkertitle,
+            self.crvcolor,
             self.markerstyle,
             self.markersize,
             self.markerfc,
@@ -1729,12 +1711,10 @@ class AxesTool(Widget):
         self.axcurves = (
             self.curveselect,
             self.crvlabel,
-            # self.crvlinetitle,
             self.linestyle, 
             self.drawstyle, 
             self.crvwidth, 
-            self.crvcolor, 
-            # self.crvmarkertitle,
+            self.crvcolor,
             self.markerstyle,
             self.markersize,
             self.markerfc,
@@ -1851,41 +1831,28 @@ class AxesTool(Widget):
             self.crvupdate[8] = val
 
     def crvapply(self, val):
-        # TODO: This sets all properties of the curves and redraws the figure to visually on the graph, 
-        # lastly refreshes the curves tab
-        
-        # print(self.crvupdate)    # Changes to old curve data
-        # print(self.currentcurve) # Old curve data prior to updates 
-        # print(self.linedict)     # Holds all artists (Line2D) for setting properties
-
-        # See crvupdate function to check list of properties
-
-        # Initialize line object for applying changes
         line = self.linedict[self.currentcurve[0]]
         
-        # Starter Code: Set properties
+        rgba_line = mcolors.to_rgba(self.crvupdate[4])
+        rgba_markerfc = mcolors.to_rgba(self.crvupdate[7])
+        rgba_markerec = mcolors.to_rgba(self.crvupdate[8])
+
         line.set_label(self.crvupdate[0])
         line.set_linestyle(self.crvupdate[1])
         line.set_drawstyle(self.crvupdate[2])
         line.set_linewidth(self.crvupdate[3])
-        line.set_color(self.crvupdate[4])
-        if type(self.crvupdate[5]) is int:
-            line.set_marker(self.crvupdate[5])
-            line.set_markersize(self.crvupdate[6])
-            line.set_markerfacecolor(self.crvupdate[7])
-            line.set_markeredgecolor(self.crvupdate[8])
-        self.targetfig.canvas.draw()
-        # End of function call: Somehow it is not displaying the changes. To see this, reopen figure options.
-        #self.clearcurvestab() 
-        #self._setcurvestab()
+        line.set_color(rgba_line)
 
+        line.set_marker(self.crvupdate[5])
+        line.set_markersize(self.crvupdate[6])
+        line.set_markerfacecolor(rgba_markerfc)
+        line.set_markeredgecolor(rgba_markerec)
+        self.targetfig.canvas.draw()
 
     def crvcancel(self, val):
-        # TODO: Simply closes the Figure option toolbar
-        #_pylab_helpers.Gcf.destroy_fig(self.targetfig)
+        pass
 
     def crvconfirm(self, val):
-        # TODO: Does crvapply without clearing tab and reinitializing curves tab then closes Figure option toolbar 
         self.crvapply(val)
         self.crvcancel(val)
 
