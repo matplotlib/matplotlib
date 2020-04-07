@@ -12,7 +12,7 @@
   function init_figure{{ fig_id }}(e) {
     $('div.output').off('resize');
 
-    var output_div = $(e.target).find('div.output_subarea');
+    var output_div = e.target.querySelector('div.output_subarea');
     var websocket_type = mpl.get_websocket_type();
     var websocket = new websocket_type(
         "ws://" + window.location.hostname + ":{{ port }}{{ prefix}}/" +
