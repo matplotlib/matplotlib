@@ -1869,11 +1869,11 @@ class AxesTool(Widget):
         line.set_drawstyle(self.crvupdate[2])
         line.set_linewidth(self.crvupdate[3])
         line.set_color(self.crvupdate[4])
-        if self.crvupdate[5] is int:
-            line.set_marker(crvupdate[5])
-            line.set_markersize(crvupdate[6])
-            line.set_markerfacecolor(crvupdate[7])
-            line.set_markeredgecolor(crvupdate[8])
+        if type(self.crvupdate[5]) is int:
+            line.set_marker(self.crvupdate[5])
+            line.set_markersize(self.crvupdate[6])
+            line.set_markerfacecolor(self.crvupdate[7])
+            line.set_markeredgecolor(self.crvupdate[8])
         self.targetfig.canvas.draw()
         # End of function call: Somehow it is not displaying the changes. To see this, reopen figure options.
         #self.clearcurvestab() 
