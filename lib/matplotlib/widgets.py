@@ -1901,24 +1901,32 @@ class AxesTool(Widget):
 
     def crvapply(self, val):
         line = self.linedict[self.currentcurve[0]]
-
-        rgba_line = mcolors.to_rgba(self.crvupdate[4])
-        rgba_markerfc = mcolors.to_rgba(self.crvupdate[7])
-        rgba_markerec = mcolors.to_rgba(self.crvupdate[8])
-
+        
+        # Starter Code: Set properties
         line.set_label(self.crvupdate[0])
         line.set_linestyle(self.crvupdate[1])
         line.set_drawstyle(self.crvupdate[2])
         line.set_linewidth(self.crvupdate[3])
-        line.set_color(rgba_line)
-
-        line.set_marker(self.crvupdate[5])
-        line.set_markersize(self.crvupdate[6])
-        line.set_markerfacecolor(rgba_markerfc)
-        line.set_markeredgecolor(rgba_markerec)
+        line.set_color(self.crvupdate[4])
+        if self.crvupdate[5] is int:
+            line.set_marker(crvupdate[5])
+            line.set_markersize(crvupdate[6])
+            line.set_markerfacecolor(crvupdate[7])
+            line.set_markeredgecolor(crvupdate[8])
         self.targetfig.canvas.draw()
-        self.ax.legend([line])
+        # End of function call: Somehow it is not displaying the changes. To see this, reopen figure options.
+        #self.clearcurvestab() 
+        #self._setcurvestab()
 
+
+    def crvcancel(self, val):
+        # TODO: Simply closes the Figure option toolbar
+        #_pylab_helpers.Gcf.destroy_fig(self.targetfig)
+
+    def crvconfirm(self, val):
+        # TODO: Does crvapply without clearing tab and reinitializing curves tab then closes Figure option toolbar 
+        self.crvapply(val)
+        self.crvcancel(val)
 
 class Cursor(AxesWidget):
     """
