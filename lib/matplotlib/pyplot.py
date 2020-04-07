@@ -1079,7 +1079,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         Number of rows/columns of the subplot grid.
 
     sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
-        Controls sharing of properties among x (`sharex`) or y (`sharey`)
+        Controls sharing of properties among x (*sharex*) or y (*sharey*)
         axes:
 
         - True or 'all': x- or y-axis will be shared among all subplots.
