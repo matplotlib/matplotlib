@@ -426,3 +426,10 @@ future.
 *minor* kwarg to `.Axis.get_ticklocs` will become keyword-only
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Passing this argument positionally is deprecated.
+
+Case-insensitive properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Normalization of upper or mixed-case property names to lowercase in
+`.Artist.set` and `.Artist.update` is deprecated.  In the future, property
+names will be passed as is, allowing one to pass names such as *patchA* or
+*UVC*.
