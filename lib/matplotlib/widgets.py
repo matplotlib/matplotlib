@@ -629,7 +629,7 @@ class Dropdown(AxesWidget):
             if c != self._lastcolor:
                 self.ax.set_facecolor(c)
                 self._lastcolor = c
-                if self.drawon:
+                if self.ax.figure and self.drawon:
                     self.ax.figure.canvas.draw()
         elif event.inaxes == self.ax:
             self._hover(event.ydata)
