@@ -529,26 +529,6 @@ class Dropdown(AxesWidget):
 
     def __init__(self, ax, options, label, init_index=0, label_pad=.01,
                  color='.95', hovercolor='1', max_height=0):
-        """
-        Parameters
-        ----------
-        ax : Axes
-            The Axes to put the dropdown in.
-        label : str
-            Dropdown label.
-        options : list
-            The list of options will be displayed in dropdown menu.
-        inin_index : int, default: 0
-            The initial index of the option selected in options list.
-        label_pad : float, default: 0.01
-            The distance between the label and the right side of the Dropdown.
-        color : str, default: "0.95"
-            The color to display when menu is not selected.
-        hovercolor : str, default: "1"
-            The color to display when hovering.
-        max_height : int, default: 0
-            The max number of elements displayed per view in dropdown.
-        """
         if (init_index >= len(options)):
             raise ValueError("Argument init_index must be an index of options")
         if (max_height < 0):
