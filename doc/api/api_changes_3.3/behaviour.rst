@@ -155,3 +155,11 @@ support for it will be dropped in a future Matplotlib release.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Previously, keyword arguments were silently ignored when no positional
 arguments were given.
+
+Default slider formatter
+~~~~~~~~~~~~~~~~~~~~~~~~
+The default method used to format `.Slider` values has been changed to use a
+`.ScalarFormatter` adapted the slider values limits.  This should ensure that
+values are displayed with an appropriate number of significant digits even if
+they are much smaller or much bigger than 1.  To restore the old behavior,
+explicitly pass a "%1.2f" as the *valfmt* parameter to `.Slider`.
