@@ -52,13 +52,17 @@ class ParasiteAxesBase:
 @functools.lru_cache(None)
 def parasite_axes_class_factory(axes_class=None):
     if axes_class is None:
+        cbook.warn_deprecated(
+            "3.3", message="Support for passing None to "
+            "parasite_axes_class_factory is deprecated; explicitly pass the "
+            "default Axes class instead.")
         axes_class = Axes
 
     return type("%sParasite" % axes_class.__name__,
                 (ParasiteAxesBase, axes_class), {})
 
 
-ParasiteAxes = parasite_axes_class_factory()
+ParasiteAxes = parasite_axes_class_factory(Axes)
 
 
 class ParasiteAxesAuxTransBase:
@@ -175,6 +179,10 @@ class ParasiteAxesAuxTransBase:
 @functools.lru_cache(None)
 def parasite_axes_auxtrans_class_factory(axes_class=None):
     if axes_class is None:
+        cbook.warn_deprecated(
+            "3.3", message="Support for passing None to "
+            "parasite_axes_auxtrans_class_factory is deprecated; explicitly "
+            "pass the default ParasiteAxes class instead.")
         parasite_axes_class = ParasiteAxes
     elif not issubclass(axes_class, ParasiteAxesBase):
         parasite_axes_class = parasite_axes_class_factory(axes_class)
@@ -185,8 +193,7 @@ def parasite_axes_auxtrans_class_factory(axes_class=None):
                 {'name': 'parasite_axes'})
 
 
-ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(
-    axes_class=ParasiteAxes)
+ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(ParasiteAxes)
 
 
 class HostAxesBase:
@@ -194,7 +201,7 @@ class HostAxesBase:
         self.parasites = []
         super().__init__(*args, **kwargs)
 
-    def get_aux_axes(self, tr, viewlim_mode="equal", axes_class=None):
+    def get_aux_axes(self, tr, viewlim_mode="equal", axes_class=ParasiteAxes):
         parasite_axes_class = parasite_axes_auxtrans_class_factory(axes_class)
         ax2 = parasite_axes_class(self, tr, viewlim_mode)
         # note that ax2.transData == tr + ax1.transData
@@ -342,17 +349,21 @@ class HostAxesBase:
 
     def get_tightbbox(self, renderer, call_axes_locator=True,
                       bbox_extra_artists=None):
-        bbs = [ax.get_tightbbox(renderer, call_axes_locator=call_axes_locator)
-               for ax in self.parasites]
-        bbs.append(super().get_tightbbox(renderer,
-                call_axes_locator=call_axes_locator,
-                bbox_extra_artists=bbox_extra_artists))
+        bbs = [
+            *[ax.get_tightbbox(renderer, call_axes_locator=call_axes_locator)
+              for ax in self.parasites],
+            super().get_tightbbox(renderer,
+                                  call_axes_locator=call_axes_locator,
+                                  bbox_extra_artists=bbox_extra_artists)]
         return Bbox.union([b for b in bbs if b.width != 0 or b.height != 0])
 
 
 @functools.lru_cache(None)
 def host_axes_class_factory(axes_class=None):
     if axes_class is None:
+        cbook.warn_deprecated(
+            "3.3", message="Support for passing None to host_axes_class is "
+            "deprecated; explicitly pass the default Axes class instead.")
         axes_class = Axes
 
     def _get_base_axes(self):
@@ -364,16 +375,16 @@ def host_axes_class_factory(axes_class=None):
 
 
 def host_subplot_class_factory(axes_class):
-    host_axes_class = host_axes_class_factory(axes_class=axes_class)
+    host_axes_class = host_axes_class_factory(axes_class)
     subplot_host_class = subplot_class_factory(host_axes_class)
     return subplot_host_class
 
 
-HostAxes = host_axes_class_factory(axes_class=Axes)
+HostAxes = host_axes_class_factory(Axes)
 SubplotHost = subplot_class_factory(HostAxes)
 
 
-def host_axes(*args, axes_class=None, figure=None, **kwargs):
+def host_axes(*args, axes_class=Axes, figure=None, **kwargs):
     """
     Create axes that can act as a hosts to parasitic axes.
 
@@ -381,7 +392,7 @@ def host_axes(*args, axes_class=None, figure=None, **kwargs):
     ----------
     figure : `matplotlib.figure.Figure`
         Figure to which the axes will be added. Defaults to the current figure
-        `pyplot.gcf()`.
+        `.pyplot.gcf()`.
 
     *args, **kwargs
         Will be passed on to the underlying ``Axes`` object creation.
@@ -396,7 +407,7 @@ def host_axes(*args, axes_class=None, figure=None, **kwargs):
     return ax
 
 
-def host_subplot(*args, axes_class=None, figure=None, **kwargs):
+def host_subplot(*args, axes_class=Axes, figure=None, **kwargs):
     """
     Create a subplot that can act as a host to parasitic axes.
 
@@ -404,7 +415,7 @@ def host_subplot(*args, axes_class=None, figure=None, **kwargs):
     ----------
     figure : `matplotlib.figure.Figure`
         Figure to which the subplot will be added. Defaults to the current
-        figure `pyplot.gcf()`.
+        figure `.pyplot.gcf()`.
 
     *args, **kwargs
         Will be passed on to the underlying ``Axes`` object creation.

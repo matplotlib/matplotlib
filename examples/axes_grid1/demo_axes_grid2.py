@@ -46,9 +46,7 @@ extent = extent[0], extent[1]/3., extent[2], extent[3]
 # *** Demo 1: colorbar at each axes ***
 grid = ImageGrid(fig, 211,  # similar to subplot(211)
                  nrows_ncols=(1, 3),
-                 direction="row",
                  axes_pad=0.05,
-                 add_all=True,
                  label_mode="1",
                  share_all=True,
                  cbar_location="top",
@@ -58,8 +56,7 @@ grid = ImageGrid(fig, 211,  # similar to subplot(211)
                  )
 
 for i, (ax, z) in enumerate(zip(grid, ZS)):
-    im = ax.imshow(
-        z, origin="lower", extent=extent, interpolation="nearest")
+    im = ax.imshow(z, origin="lower", extent=extent)
     cb = ax.cax.colorbar(im)
     # Changing the colorbar ticks
     if i in [1, 2]:
@@ -82,9 +79,7 @@ grid[0].set_yticks([-2, 0, 2])
 # *** Demo 2: shared colorbar ***
 grid2 = ImageGrid(fig, 212,
                   nrows_ncols=(1, 3),
-                  direction="row",
                   axes_pad=0.05,
-                  add_all=True,
                   label_mode="1",
                   share_all=True,
                   cbar_location="right",
@@ -100,9 +95,7 @@ vmax, vmin = np.max(ZS), np.min(ZS)
 norm = matplotlib.colors.Normalize(vmax=vmax, vmin=vmin)
 
 for ax, z in zip(grid2, ZS):
-    im = ax.imshow(z, norm=norm,
-                   origin="lower", extent=extent,
-                   interpolation="nearest")
+    im = ax.imshow(z, norm=norm, origin="lower", extent=extent)
 
 # With cbar_mode="single", cax attribute of all axes are identical.
 ax.cax.colorbar(im)

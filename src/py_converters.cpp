@@ -27,7 +27,7 @@ static int convert_string_enum(PyObject *obj, const char *name, const char **nam
         Py_INCREF(obj);
         bytesobj = obj;
     } else {
-        PyErr_Format(PyExc_TypeError, "%s must be bytes or unicode", name);
+        PyErr_Format(PyExc_TypeError, "%s must be str or bytes", name);
         return 0;
     }
 
@@ -235,6 +235,14 @@ int convert_dashes(PyObject *dashobj, void *dashesp)
     if (dash_offset_obj != Py_None) {
         dash_offset = PyFloat_AsDouble(dash_offset_obj);
         if (PyErr_Occurred()) {
+            return 0;
+        }
+    } else {
+        if (PyErr_WarnEx(PyExc_FutureWarning,
+                         "Passing the dash offset as None is deprecated since "
+                         "Matplotlib 3.3 and will be removed in Matplotlib 3.5; "
+                         "pass it as zero instead.",
+                         1)) {
             return 0;
         }
     }

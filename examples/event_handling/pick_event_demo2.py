@@ -17,7 +17,7 @@ ys = np.std(X, axis=1)
 
 fig, ax = plt.subplots()
 ax.set_title('click on point to plot time series')
-line, = ax.plot(xs, ys, 'o', picker=5)  # 5 points tolerance
+line, = ax.plot(xs, ys, 'o', picker=True, pickradius=5)
 
 
 def onpick(event):

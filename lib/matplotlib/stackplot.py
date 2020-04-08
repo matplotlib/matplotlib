@@ -50,12 +50,11 @@ def stackplot(axes, x, *args,
         colour the stacked areas.
 
     **kwargs
-        All other keyword arguments are passed to `Axes.fill_between()`.
-
+        All other keyword arguments are passed to `.Axes.fill_between`.
 
     Returns
     -------
-    list : list of `.PolyCollection`
+    list of `.PolyCollection`
         A list of `.PolyCollection` instances, one for each element in the
         stacked area plot.
     """

@@ -2,9 +2,10 @@ import datetime
 import re
 
 import numpy as np
+from numpy.testing import assert_array_almost_equal
+import matplotlib as mpl
 from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot as plt
-from numpy.testing import assert_array_almost_equal
 from matplotlib.colors import LogNorm
 import pytest
 
@@ -264,15 +265,13 @@ def test_contourf_symmetric_locator():
      'If mask is set it must be a 2D array with the same dimensions as x.'),
 ])
 def test_internal_cpp_api(args, cls, message):  # Github issue 8197.
-    import matplotlib._contour as _contour
     with pytest.raises(cls, match=re.escape(message)):
-        _contour.QuadContourGenerator(*args)
+        mpl._contour.QuadContourGenerator(*args)
 
 
 def test_internal_cpp_api_2():
-    import matplotlib._contour as _contour
     arr = [[0, 1], [2, 3]]
-    qcg = _contour.QuadContourGenerator(arr, arr, arr, None, True, 0)
+    qcg = mpl._contour.QuadContourGenerator(arr, arr, arr, None, True, 0)
     with pytest.raises(
             ValueError, match=r'filled contour levels must be increasing'):
         qcg.create_filled_contour(1, 0)
@@ -280,14 +279,36 @@ def test_internal_cpp_api_2():
 
 def test_circular_contour_warning():
     # Check that almost circular contours don't throw a warning
-    with pytest.warns(None) as record:
-        x, y = np.meshgrid(np.linspace(-2, 2, 4), np.linspace(-2, 2, 4))
-        r = np.hypot(x, y)
+    x, y = np.meshgrid(np.linspace(-2, 2, 4), np.linspace(-2, 2, 4))
+    r = np.hypot(x, y)
+    plt.figure()
+    cs = plt.contour(x, y, r)
+    plt.clabel(cs)
 
-        plt.figure()
-        cs = plt.contour(x, y, r)
-        plt.clabel(cs)
-    assert len(record) == 0
+
+@pytest.mark.parametrize("use_clabeltext, contour_zorder, clabel_zorder",
+                         [(True, 123, 1234), (False, 123, 1234),
+                          (True, 123, None), (False, 123, None)])
+def test_clabel_zorder(use_clabeltext, contour_zorder, clabel_zorder):
+    x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
+    z = np.max(np.dstack([abs(x), abs(y)]), 2)
+
+    fig, (ax1, ax2) = plt.subplots(ncols=2)
+    cs = ax1.contour(x, y, z, zorder=contour_zorder)
+    cs_filled = ax2.contourf(x, y, z, zorder=contour_zorder)
+    clabels1 = cs.clabel(zorder=clabel_zorder, use_clabeltext=use_clabeltext)
+    clabels2 = cs_filled.clabel(zorder=clabel_zorder,
+                                use_clabeltext=use_clabeltext)
+
+    if clabel_zorder is None:
+        expected_clabel_zorder = 2+contour_zorder
+    else:
+        expected_clabel_zorder = clabel_zorder
+
+    for clabel in clabels1:
+        assert clabel.get_zorder() == expected_clabel_zorder
+    for clabel in clabels2:
+        assert clabel.get_zorder() == expected_clabel_zorder
 
 
 @image_comparison(['contour_log_extension.png'],
@@ -323,8 +344,8 @@ def test_contourf_log_extension():
     cb = plt.colorbar(c2, ax=ax2)
     assert cb.ax.get_ylim() == (1e-4, 1e6)
     cb = plt.colorbar(c3, ax=ax3)
-    assert_array_almost_equal(cb.ax.get_ylim(),
-        [3.162277660168379e-05, 3162277.660168383], 2)
+    assert_array_almost_equal(
+        cb.ax.get_ylim(), [3.162277660168379e-05, 3162277.660168383], 2)
 
 
 @image_comparison(['contour_addlines.png'],

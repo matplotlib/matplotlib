@@ -4,7 +4,7 @@ Streamplot
 ==========
 
 A stream plot, or streamline plot, is used to display 2D vector fields. This
-example shows a few features of the :meth:`~.axes.Axes.streamplot` function:
+example shows a few features of the `~.axes.Axes.streamplot` function:
 
 * Varying the color along a streamline.
 * Varying the density of streamlines.
@@ -47,7 +47,7 @@ seed_points = np.array([[-2, -1, 0, 1, 2, -1], [-2, -1,  0, 1, 2, 2]])
 
 ax3 = fig.add_subplot(gs[1, 1])
 strm = ax3.streamplot(X, Y, U, V, color=U, linewidth=2,
-                     cmap='autumn', start_points=seed_points.T)
+                      cmap='autumn', start_points=seed_points.T)
 fig.colorbar(strm.lines)
 ax3.set_title('Controlling Starting Points')
 
@@ -65,8 +65,7 @@ ax4 = fig.add_subplot(gs[2:, :])
 ax4.streamplot(X, Y, U, V, color='r')
 ax4.set_title('Streamplot with Masking')
 
-ax4.imshow(~mask, extent=(-w, w, -w, w), alpha=0.5,
-          interpolation='nearest', cmap='gray', aspect='auto')
+ax4.imshow(~mask, extent=(-w, w, -w, w), alpha=0.5, cmap='gray', aspect='auto')
 ax4.set_aspect('equal')
 
 plt.tight_layout()

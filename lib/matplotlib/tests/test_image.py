@@ -6,16 +6,14 @@ from pathlib import Path
 import platform
 import sys
 import urllib.request
-import warnings
 
 import numpy as np
 from numpy import ma
 from numpy.testing import assert_array_equal
+from PIL import Image
 
 from matplotlib import (
-    colors, image as mimage, patches, pyplot as plt, style,
-    rc_context, rcParams)
-from matplotlib.cbook import MatplotlibDeprecationWarning
+    colors, image as mimage, patches, pyplot as plt, style, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -26,7 +24,7 @@ import pytest
 
 @image_comparison(['image_interps'], style='mpl20')
 def test_image_interps():
-    'make the basic nearest, bilinear and bicubic interps'
+    """Make the basic nearest, bilinear and bicubic interps."""
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
 
@@ -50,7 +48,7 @@ def test_image_interps():
 
 @image_comparison(['interp_alpha.png'], remove_text=True)
 def test_alpha_interp():
-    'Test the interpolation of the alpha channel on RGBA images'
+    """Test the interpolation of the alpha channel on RGBA images"""
     fig, (axl, axr) = plt.subplots(1, 2)
     # full green image
     img = np.zeros((5, 5, 4))
@@ -64,7 +62,7 @@ def test_alpha_interp():
 @image_comparison(['interp_nearest_vs_none'],
                   extensions=['pdf', 'svg'], remove_text=True)
 def test_interp_nearest_vs_none():
-    'Test the effect of "nearest" and "none" interpolation'
+    """Test the effect of "nearest" and "none" interpolation"""
     # Setting dpi to something really small makes the difference very
     # visible. This works fine with pdf, since the dpi setting doesn't
     # affect anything but images, but the agg output becomes unusably
@@ -117,102 +115,44 @@ def test_image_python_io():
     plt.imread(buffer)
 
 
+@pytest.mark.parametrize(
+    "img_size, fig_size, interpolation",
+    [(5, 2, "hanning"),  # data larger than figure.
+     (5, 5, "nearest"),  # exact resample.
+     (5, 10, "nearest"),  # double sample.
+     (3, 2.9, "hanning"),  # <3 upsample.
+     (3, 9.1, "nearest"),  # >3 upsample.
+     ])
 @check_figures_equal(extensions=['png'])
-def test_imshow_subsample(fig_test, fig_ref):
-    # data is bigger than figure, so subsampling with hanning
+def test_imshow_antialiased(fig_test, fig_ref,
+                            img_size, fig_size, interpolation):
     np.random.seed(19680801)
-    dpi = 100
-    A = np.random.rand(int(dpi * 5), int(dpi * 5))
+    dpi = plt.rcParams["savefig.dpi"]
+    A = np.random.rand(int(dpi * img_size), int(dpi * img_size))
     for fig in [fig_test, fig_ref]:
-        fig.set_size_inches(2, 2)
-
+        fig.set_size_inches(fig_size, fig_size)
     axs = fig_test.subplots()
     axs.set_position([0, 0, 1, 1])
     axs.imshow(A, interpolation='antialiased')
     axs = fig_ref.subplots()
     axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='hanning')
-
-
-@check_figures_equal(extensions=['png'])
-def test_imshow_samesample(fig_test, fig_ref):
-    # exact resample, so should be same as nearest....
-    np.random.seed(19680801)
-    dpi = 100
-    A = np.random.rand(int(dpi * 5), int(dpi * 5))
-    for fig in [fig_test, fig_ref]:
-        fig.set_size_inches(5, 5)
-    axs = fig_test.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='antialiased')
-    axs = fig_ref.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='nearest')
-
-
-@check_figures_equal(extensions=['png'])
-def test_imshow_doublesample(fig_test, fig_ref):
-    # should be exactly a double sample, so should use nearest neighbour
-    # which is the same as "none"
-    np.random.seed(19680801)
-    dpi = 100
-    A = np.random.rand(int(dpi * 5), int(dpi * 5))
-    for fig in [fig_test, fig_ref]:
-        fig.set_size_inches(10, 10)
-    axs = fig_test.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='antialiased')
-    axs = fig_ref.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='nearest')
-
-
-@check_figures_equal(extensions=['png'])
-def test_imshow_upsample(fig_test, fig_ref):
-    # should be less than 3 upsample, so should be nearest...
-    np.random.seed(19680801)
-    dpi = 100
-    A = np.random.rand(int(dpi * 3), int(dpi * 3))
-    for fig in [fig_test, fig_ref]:
-        fig.set_size_inches(2.9, 2.9)
-    axs = fig_test.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='antialiased')
-    axs = fig_ref.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='hanning')
-
-
-@check_figures_equal(extensions=['png'])
-def test_imshow_upsample3(fig_test, fig_ref):
-    # should be greater than 3 upsample, so should be nearest...
-    np.random.seed(19680801)
-    dpi = 100
-    A = np.random.rand(int(dpi * 3), int(dpi * 3))
-    for fig in [fig_test, fig_ref]:
-        fig.set_size_inches(9.1, 9.1)
-    axs = fig_test.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='antialiased')
-    axs = fig_ref.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='nearest')
+    axs.imshow(A, interpolation=interpolation)
 
 
 @check_figures_equal(extensions=['png'])
 def test_imshow_zoom(fig_test, fig_ref):
     # should be less than 3 upsample, so should be nearest...
     np.random.seed(19680801)
-    dpi = 100
+    dpi = plt.rcParams["savefig.dpi"]
     A = np.random.rand(int(dpi * 3), int(dpi * 3))
     for fig in [fig_test, fig_ref]:
         fig.set_size_inches(2.9, 2.9)
     axs = fig_test.subplots()
-    axs.imshow(A, interpolation='nearest')
+    axs.imshow(A, interpolation='antialiased')
     axs.set_xlim([10, 20])
     axs.set_ylim([10, 20])
     axs = fig_ref.subplots()
-    axs.imshow(A, interpolation='antialiased')
+    axs.imshow(A, interpolation='nearest')
     axs.set_xlim([10, 20])
     axs.set_ylim([10, 20])
 
@@ -220,23 +160,17 @@ def test_imshow_zoom(fig_test, fig_ref):
 @check_figures_equal()
 def test_imshow_pil(fig_test, fig_ref):
     style.use("default")
-    PIL = pytest.importorskip("PIL")
-    # Pillow<=6.0 fails to open pathlib.Paths on Windows (pillow#3823), and
-    # Matplotlib's builtin png opener doesn't handle them either.
-    png_path = str(
-        Path(__file__).parent / "baseline_images/pngsuite/basn3p04.png")
-    tiff_path = str(
-        Path(__file__).parent / "baseline_images/test_image/uint16.tif")
+    png_path = Path(__file__).parent / "baseline_images/pngsuite/basn3p04.png"
+    tiff_path = Path(__file__).parent / "baseline_images/test_image/uint16.tif"
     axs = fig_test.subplots(2)
-    axs[0].imshow(PIL.Image.open(png_path))
-    axs[1].imshow(PIL.Image.open(tiff_path))
+    axs[0].imshow(Image.open(png_path))
+    axs[1].imshow(Image.open(tiff_path))
     axs = fig_ref.subplots(2)
     axs[0].imshow(plt.imread(png_path))
     axs[1].imshow(plt.imread(tiff_path))
 
 
 def test_imread_pil_uint16():
-    pytest.importorskip("PIL")
     img = plt.imread(os.path.join(os.path.dirname(__file__),
                      'baseline_images', 'test_image', 'uint16.tif'))
     assert img.dtype == np.uint16
@@ -244,7 +178,6 @@ def test_imread_pil_uint16():
 
 
 def test_imread_fspath():
-    pytest.importorskip("PIL")
     img = plt.imread(
         Path(__file__).parent / 'baseline_images/test_image/uint16.tif')
     assert img.dtype == np.uint16
@@ -253,8 +186,6 @@ def test_imread_fspath():
 
 @pytest.mark.parametrize("fmt", ["png", "jpg", "jpeg", "tiff"])
 def test_imsave(fmt):
-    if fmt in ["jpg", "jpeg", "tiff"]:
-        pytest.importorskip("PIL")
     has_alpha = fmt not in ["jpg", "jpeg"]
 
     # The goal here is that the user can specify an output logical DPI
@@ -319,7 +250,6 @@ def test_imsave_color_alpha():
 
 
 def test_imsave_pil_kwargs_png():
-    Image = pytest.importorskip("PIL.Image")
     from PIL.PngImagePlugin import PngInfo
     buf = io.BytesIO()
     pnginfo = PngInfo()
@@ -331,7 +261,6 @@ def test_imsave_pil_kwargs_png():
 
 
 def test_imsave_pil_kwargs_tiff():
-    Image = pytest.importorskip("PIL.Image")
     from PIL.TiffTags import TAGS_V2 as TAGS
     buf = io.BytesIO()
     pil_kwargs = {"description": "test image"}
@@ -457,8 +386,6 @@ def test_image_clip():
 
 @image_comparison(['image_cliprect'], style='mpl20')
 def test_image_cliprect():
-    import matplotlib.patches as patches
-
     fig, ax = plt.subplots()
     d = [[1, 2], [3, 4]]
 
@@ -478,6 +405,35 @@ def test_imshow():
     ax.set_ylim(0, 3)
 
 
+@check_figures_equal(extensions=['png'])
+def test_imshow_10_10_1(fig_test, fig_ref):
+    # 10x10x1 should be the same as 10x10
+    arr = np.arange(100).reshape((10, 10, 1))
+    ax = fig_ref.subplots()
+    ax.imshow(arr[:, :, 0], interpolation="bilinear", extent=(1, 2, 1, 2))
+    ax.set_xlim(0, 3)
+    ax.set_ylim(0, 3)
+
+    ax = fig_test.subplots()
+    ax.imshow(arr, interpolation="bilinear", extent=(1, 2, 1, 2))
+    ax.set_xlim(0, 3)
+    ax.set_ylim(0, 3)
+
+
+def test_imshow_10_10_2():
+    fig, ax = plt.subplots()
+    arr = np.arange(200).reshape((10, 10, 2))
+    with pytest.raises(TypeError):
+        ax.imshow(arr)
+
+
+def test_imshow_10_10_5():
+    fig, ax = plt.subplots()
+    arr = np.arange(500).reshape((10, 10, 5))
+    with pytest.raises(TypeError):
+        ax.imshow(arr)
+
+
 @image_comparison(['no_interpolation_origin'], remove_text=True)
 def test_no_interpolation_origin():
     fig, axs = plt.subplots(2)
@@ -488,21 +444,19 @@ def test_no_interpolation_origin():
 
 @image_comparison(['image_shift'], remove_text=True, extensions=['pdf', 'svg'])
 def test_image_shift():
-    from matplotlib.colors import LogNorm
-
     imgData = [[1 / x + 1 / y for x in range(1, 100)] for y in range(1, 100)]
     tMin = 734717.945208
     tMax = 734717.946366
 
     fig, ax = plt.subplots()
-    ax.imshow(imgData, norm=LogNorm(), interpolation='none',
+    ax.imshow(imgData, norm=colors.LogNorm(), interpolation='none',
               extent=(tMin, tMax, 1, 100))
     ax.set_aspect('auto')
 
 
 def test_image_edges():
-    f = plt.figure(figsize=[1, 1])
-    ax = f.add_axes([0, 0, 1, 1], frameon=False)
+    fig = plt.figure(figsize=[1, 1])
+    ax = fig.add_axes([0, 0, 1, 1], frameon=False)
 
     data = np.tile(np.arange(12), 15).reshape(20, 9)
 
@@ -517,7 +471,7 @@ def test_image_edges():
     ax.set_yticks([])
 
     buf = io.BytesIO()
-    f.savefig(buf, facecolor=(0, 1, 0))
+    fig.savefig(buf, facecolor=(0, 1, 0))
 
     buf.seek(0)
 
@@ -617,7 +571,7 @@ def test_bbox_image_inverted():
 
     bbox_im = BboxImage(TransformedBbox(Bbox([[0.1, 0.2], [0.3, 0.25]]),
                                         ax.figure.transFigure),
-                                        interpolation='nearest')
+                        interpolation='nearest')
     bbox_im.set_data(image)
     bbox_im.set_clip_on(False)
     ax.add_artist(bbox_im)
@@ -669,7 +623,6 @@ def test_nonuniformimage_setnorm():
 
 
 def test_jpeg_2d():
-    Image = pytest.importorskip('PIL.Image')
     # smoke test that mode-L pillow images work.
     imd = np.ones((10, 10), dtype='uint8')
     for i in range(10):
@@ -681,8 +634,6 @@ def test_jpeg_2d():
 
 
 def test_jpeg_alpha():
-    Image = pytest.importorskip('PIL.Image')
-
     plt.figure(figsize=(1, 1), dpi=300)
     # Create an image that is all black, with a gradient from 0-1 in
     # the alpha channel from left to right.
@@ -706,17 +657,6 @@ def test_jpeg_alpha():
     assert corner_pixel == (254, 0, 0)
 
 
-def test_nonuniformimage_setdata():
-    ax = plt.gca()
-    im = NonUniformImage(ax)
-    x = np.arange(3, dtype=float)
-    y = np.arange(4, dtype=float)
-    z = np.arange(12, dtype=float).reshape((4, 3))
-    im.set_data(x, y, z)
-    x[0] = y[0] = z[0, 0] = 9.9
-    assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
-
-
 def test_axesimage_setdata():
     ax = plt.gca()
     im = AxesImage(ax)
@@ -735,15 +675,20 @@ def test_figureimage_setdata():
     assert im._A[0, 0] == 0, 'value changed'
 
 
-def test_pcolorimage_setdata():
+@pytest.mark.parametrize(
+    "image_cls,x,y,a", [
+        (NonUniformImage,
+         np.arange(3.), np.arange(4.), np.arange(12.).reshape((4, 3))),
+        (PcolorImage,
+         np.arange(3.), np.arange(4.), np.arange(6.).reshape((3, 2))),
+    ])
+def test_setdata_xya(image_cls, x, y, a):
     ax = plt.gca()
-    im = PcolorImage(ax)
-    x = np.arange(3, dtype=float)
-    y = np.arange(4, dtype=float)
-    z = np.arange(6, dtype=float).reshape((3, 2))
-    im.set_data(x, y, z)
-    x[0] = y[0] = z[0, 0] = 9.9
+    im = image_cls(ax)
+    im.set_data(x, y, a)
+    x[0] = y[0] = a[0, 0] = 9.9
     assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
+    im.set_data(x, y, a.reshape((*a.shape, -1)))  # Just a smoketest.
 
 
 def test_minimized_rasterized():
@@ -940,7 +885,7 @@ def test_imshow_masked_interpolation():
     N = 20
     n = colors.Normalize(vmin=0, vmax=N*N-1)
 
-    data = np.arange(N*N, dtype='float').reshape(N, N)
+    data = np.arange(N*N, dtype=float).reshape(N, N)
 
     data[5, 5] = -1
     # This will cause crazy ringing for the higher-order
@@ -967,10 +912,7 @@ def test_imshow_masked_interpolation():
 
 
 def test_imshow_no_warn_invalid():
-    with warnings.catch_warnings(record=True) as warns:
-        warnings.simplefilter("always")
-        plt.imshow([[1, 2], [3, np.nan]])
-    assert len(warns) == 0
+    plt.imshow([[1, 2], [3, np.nan]])  # Check that no warning is emitted.
 
 
 @pytest.mark.parametrize(
@@ -1090,20 +1032,6 @@ def test_relim():
     assert ax.get_xlim() == ax.get_ylim() == (0, 1)
 
 
-def test_deprecation():
-    data = [[1, 2], [3, 4]]
-    ax = plt.figure().subplots()
-    for obj in [ax, plt]:
-        with pytest.warns(None) as record:
-            obj.imshow(data)
-            assert len(record) == 0
-        with pytest.warns(MatplotlibDeprecationWarning):
-            obj.imshow(data, shape=None)
-        with pytest.warns(MatplotlibDeprecationWarning):
-            # Enough arguments to pass "shape" positionally.
-            obj.imshow(data, *[None] * 10)
-
-
 def test_respects_bbox():
     fig, axs = plt.subplots(2)
     for ax in axs:
@@ -1139,7 +1067,7 @@ def test_image_cursor_formatting():
 
 @check_figures_equal()
 def test_image_array_alpha(fig_test, fig_ref):
-    '''per-pixel alpha channel test'''
+    """Per-pixel alpha channel test."""
     x = np.linspace(0, 1)
     xx, yy = np.meshgrid(x, x)
 

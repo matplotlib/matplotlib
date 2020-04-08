@@ -1,6 +1,7 @@
 #include "mplutils.h"
 #include "_image_resample.h"
 #include "_image.h"
+#include "numpy_cpp.h"
 #include "py_converters.h"
 
 
@@ -433,8 +434,6 @@ static PyMethodDef module_functions[] = {
     {NULL}
 };
 
-extern "C" {
-
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_image",
@@ -482,5 +481,3 @@ PyMODINIT_FUNC PyInit__image(void)
 
     return m;
 }
-
-} // extern "C"

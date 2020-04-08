@@ -53,10 +53,10 @@ except Exception:
     dates = [datetime.strptime(d, "%Y-%m-%d") for d in dates]
 
 ##############################################################################
-# Next, we'll create a `~.Axes.stem` plot with some variation in levels as to
-# distinguish even close-by events. In contrast to a usual stem plot, we will
-# shift the markers to the baseline for visual emphasis on the one-dimensional
-# nature of the time line.
+# Next, we'll create a stem plot with some variation in levels as to
+# distinguish even close-by events. We add markers on the baseline for visual
+# emphasis on the one-dimensional nature of the time line.
+#
 # For each event, we add a text label via `~.Axes.annotate`, which is offset
 # in units of points from the tip of the event line.
 #
@@ -71,20 +71,16 @@ levels = np.tile([-5, 5, -3, 3, -1, 1],
 fig, ax = plt.subplots(figsize=(8.8, 4), constrained_layout=True)
 ax.set(title="Matplotlib release dates")
 
-markerline, stemline, baseline = ax.stem(dates, levels,
-                                         linefmt="C3-", basefmt="k-",
-                                         use_line_collection=True)
-
-plt.setp(markerline, mec="k", mfc="w", zorder=3)
-
-# Shift the markers to the baseline by replacing the y-data by zeros.
-markerline.set_ydata(np.zeros(len(dates)))
+ax.vlines(dates, 0, levels, color="tab:red")  # The vertical stems.
+ax.plot(dates, np.zeros_like(dates), "-o",
+        color="k", markerfacecolor="w")  # Baseline and markers on it.
 
 # annotate lines
-vert = np.array(['top', 'bottom'])[(levels > 0).astype(int)]
-for d, l, r, va in zip(dates, levels, names, vert):
-    ax.annotate(r, xy=(d, l), xytext=(-3, np.sign(l)*3),
-                textcoords="offset points", va=va, ha="right")
+for d, l, r in zip(dates, levels, names):
+    ax.annotate(r, xy=(d, l),
+                xytext=(-3, np.sign(l)*3), textcoords="offset points",
+                horizontalalignment="right",
+                verticalalignment="bottom" if l > 0 else "top")
 
 # format xaxis with 4 month intervals
 ax.get_xaxis().set_major_locator(mdates.MonthLocator(interval=4))
@@ -111,8 +107,8 @@ plt.show()
 # in this example:
 
 import matplotlib
-matplotlib.axes.Axes.stem
 matplotlib.axes.Axes.annotate
+matplotlib.axes.Axes.vlines
 matplotlib.axis.Axis.set_major_locator
 matplotlib.axis.Axis.set_major_formatter
 matplotlib.dates.MonthLocator

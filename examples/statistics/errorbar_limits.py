@@ -58,8 +58,8 @@ yerr[[3, 6]] = 0.3
 # mock up some limits by modifying previous data
 xlolims = lolims
 xuplims = uplims
-lolims = np.zeros(x.shape)
-uplims = np.zeros(x.shape)
+lolims = np.zeros_like(x)
+uplims = np.zeros_like(x)
 lolims[[6]] = True  # only limited at this index
 uplims[[3]] = True  # only limited at this index
 

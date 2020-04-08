@@ -1,7 +1,6 @@
 import itertools
 import pickle
 from weakref import ref
-import warnings
 from unittest.mock import patch, Mock
 
 from datetime import datetime
@@ -14,14 +13,6 @@ import pytest
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
 from matplotlib.cbook import MatplotlibDeprecationWarning, delete_masked_points
-
-
-def test_is_hashable():
-    with pytest.warns(MatplotlibDeprecationWarning):
-        s = 'string'
-        assert cbook.is_hashable(s)
-        lst = ['list', 'of', 'stings']
-        assert not cbook.is_hashable(lst)
 
 
 class Test_delete_masked_points:
@@ -233,6 +224,18 @@ class Test_callback_registry:
                        "callbacks")
 
 
+def test_callbackregistry_default_exception_handler(monkeypatch):
+    cb = cbook.CallbackRegistry()
+    cb.connect("foo", lambda: None)
+    monkeypatch.setattr(
+        cbook, "_get_running_interactive_framework", lambda: None)
+    with pytest.raises(TypeError):
+        cb.process("foo", "argument mismatch")
+    monkeypatch.setattr(
+        cbook, "_get_running_interactive_framework", lambda: "not-none")
+    cb.process("foo", "argument mismatch")  # No error in that case.
+
+
 def raising_cb_reg(func):
     class TestException(Exception):
         pass
@@ -240,14 +243,13 @@ def raising_cb_reg(func):
     def raising_function():
         raise RuntimeError
 
+    def raising_function_VE():
+        raise ValueError
+
     def transformer(excp):
         if isinstance(excp, RuntimeError):
             raise TestException
         raise excp
-
-    # default behavior
-    cb = cbook.CallbackRegistry()
-    cb.connect('foo', raising_function)
 
     # old default
     cb_old = cbook.CallbackRegistry(exception_handler=None)
@@ -257,18 +259,21 @@ def raising_cb_reg(func):
     cb_filt = cbook.CallbackRegistry(exception_handler=transformer)
     cb_filt.connect('foo', raising_function)
 
+    # filter
+    cb_filt_pass = cbook.CallbackRegistry(exception_handler=transformer)
+    cb_filt_pass.connect('foo', raising_function_VE)
+
     return pytest.mark.parametrize('cb, excp',
-                                   [[cb, None],
-                                    [cb_old, RuntimeError],
-                                    [cb_filt, TestException]])(func)
+                                   [[cb_old, RuntimeError],
+                                    [cb_filt, TestException],
+                                    [cb_filt_pass, ValueError]])(func)
 
 
 @raising_cb_reg
-def test_callbackregistry_process_exception(cb, excp):
-    if excp is not None:
-        with pytest.raises(excp):
-            cb.process('foo')
-    else:
+def test_callbackregistry_custom_exception_handler(monkeypatch, cb, excp):
+    monkeypatch.setattr(
+        cbook, "_get_running_interactive_framework", lambda: None)
+    with pytest.raises(excp):
         cb.process('foo')
 
 
@@ -287,16 +292,12 @@ def test_sanitize_sequence():
 fail_mapping = (
     ({'a': 1}, {'forbidden': ('a')}),
     ({'a': 1}, {'required': ('b')}),
-    ({'a': 1, 'b': 2}, {'required': ('a'), 'allowed': ()})
-)
-
-warn_passing_mapping = (
-    ({'a': 1, 'b': 2}, {'a': 1}, {'alias_mapping': {'a': ['b']}}, 1),
-    ({'a': 1, 'b': 2}, {'a': 1},
-     {'alias_mapping': {'a': ['b']}, 'allowed': ('a',)}, 1),
-    ({'a': 1, 'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}, 1),
-    ({'a': 1, 'b': 2, 'c': 3}, {'a': 1, 'c': 3},
-     {'alias_mapping': {'a': ['b']}, 'required': ('a', )}, 1),
+    ({'a': 1, 'b': 2}, {'required': ('a'), 'allowed': ()}),
+    ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}}),
+    ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}, 'allowed': ('a',)}),
+    ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
+    ({'a': 1, 'b': 2, 'c': 3},
+     {'alias_mapping': {'a': ['b']}, 'required': ('a', )}),
 )
 
 pass_mapping = (
@@ -319,26 +320,17 @@ pass_mapping = (
 
 @pytest.mark.parametrize('inp, kwargs_to_norm', fail_mapping)
 def test_normalize_kwargs_fail(inp, kwargs_to_norm):
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError), \
+         cbook._suppress_matplotlib_deprecation_warning():
         cbook.normalize_kwargs(inp, **kwargs_to_norm)
-
-
-@pytest.mark.parametrize('inp, expected, kwargs_to_norm, warn_count',
-                         warn_passing_mapping)
-def test_normalize_kwargs_warn(inp, expected, kwargs_to_norm, warn_count):
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
-        assert len(w) == warn_count
 
 
 @pytest.mark.parametrize('inp, expected, kwargs_to_norm',
                          pass_mapping)
 def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
+    with cbook._suppress_matplotlib_deprecation_warning():
+        # No other warning should be emitted.
         assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
-        assert len(w) == 0
 
 
 def test_warn_external_frame_embedded_python():
@@ -355,9 +347,9 @@ def test_to_prestep():
 
     xs, y1s, y2s = cbook.pts_to_prestep(x, y1, y2)
 
-    x_target = np.asarray([0, 0, 1, 1, 2, 2, 3], dtype='float')
-    y1_target = np.asarray([0, 1, 1, 2, 2, 3, 3], dtype='float')
-    y2_target = np.asarray([3, 2, 2, 1, 1, 0, 0], dtype='float')
+    x_target = np.asarray([0, 0, 1, 1, 2, 2, 3], dtype=float)
+    y1_target = np.asarray([0, 1, 1, 2, 2, 3, 3], dtype=float)
+    y2_target = np.asarray([3, 2, 2, 1, 1, 0, 0], dtype=float)
 
     assert_array_equal(x_target, xs)
     assert_array_equal(y1_target, y1s)
@@ -380,9 +372,9 @@ def test_to_poststep():
 
     xs, y1s, y2s = cbook.pts_to_poststep(x, y1, y2)
 
-    x_target = np.asarray([0, 1, 1, 2, 2, 3, 3], dtype='float')
-    y1_target = np.asarray([0, 0, 1, 1, 2, 2, 3], dtype='float')
-    y2_target = np.asarray([3, 3, 2, 2, 1, 1, 0], dtype='float')
+    x_target = np.asarray([0, 1, 1, 2, 2, 3, 3], dtype=float)
+    y1_target = np.asarray([0, 0, 1, 1, 2, 2, 3], dtype=float)
+    y2_target = np.asarray([3, 3, 2, 2, 1, 1, 0], dtype=float)
 
     assert_array_equal(x_target, xs)
     assert_array_equal(y1_target, y1s)
@@ -405,9 +397,9 @@ def test_to_midstep():
 
     xs, y1s, y2s = cbook.pts_to_midstep(x, y1, y2)
 
-    x_target = np.asarray([0, .5, .5, 1.5, 1.5, 2.5, 2.5, 3], dtype='float')
-    y1_target = np.asarray([0, 0, 1, 1, 2, 2, 3, 3], dtype='float')
-    y2_target = np.asarray([3, 3, 2, 2, 1, 1, 0, 0], dtype='float')
+    x_target = np.asarray([0, .5, .5, 1.5, 1.5, 2.5, 2.5, 3], dtype=float)
+    y1_target = np.asarray([0, 0, 1, 1, 2, 2, 3, 3], dtype=float)
+    y2_target = np.asarray([3, 3, 2, 2, 1, 1, 0, 0], dtype=float)
 
     assert_array_equal(x_target, xs)
     assert_array_equal(y1_target, y1s)
@@ -574,13 +566,34 @@ def test_safe_first_element_pandas_series(pd):
     assert actual == 0
 
 
-def test_make_keyword_only(recwarn):
+def test_delete_parameter():
+    @cbook._delete_parameter("3.0", "foo")
+    def func1(foo=None):
+        pass
+
+    @cbook._delete_parameter("3.0", "foo")
+    def func2(**kwargs):
+        pass
+
+    for func in [func1, func2]:
+        func()  # No warning.
+        with pytest.warns(MatplotlibDeprecationWarning):
+            func(foo="bar")
+
+    def pyplot_wrapper(foo=cbook.deprecation._deprecated_parameter):
+        func1(foo)
+
+    pyplot_wrapper()  # No warning.
+    with pytest.warns(MatplotlibDeprecationWarning):
+        func(foo="bar")
+
+
+def test_make_keyword_only():
     @cbook._make_keyword_only("3.0", "arg")
     def func(pre, arg, post=None):
         pass
 
-    func(1, arg=2)
-    assert len(recwarn) == 0
+    func(1, arg=2)  # Check that no warning is emitted.
 
     with pytest.warns(MatplotlibDeprecationWarning):
         func(1, 2)
@@ -592,3 +605,31 @@ def test_warn_external(recwarn):
     cbook._warn_external("oops")
     assert len(recwarn) == 1
     assert recwarn[0].filename == __file__
+
+
+def test_array_patch_perimeters():
+    # This compares the old implementation as a reference for the
+    # vectorized one.
+    def check(x, rstride, cstride):
+        rows, cols = x.shape
+        row_inds = [*range(0, rows-1, rstride), rows-1]
+        col_inds = [*range(0, cols-1, cstride), cols-1]
+        polys = []
+        for rs, rs_next in zip(row_inds[:-1], row_inds[1:]):
+            for cs, cs_next in zip(col_inds[:-1], col_inds[1:]):
+                # +1 ensures we share edges between polygons
+                ps = cbook._array_perimeter(x[rs:rs_next+1, cs:cs_next+1]).T
+                polys.append(ps)
+        polys = np.asarray(polys)
+        assert np.array_equal(polys,
+                              cbook._array_patch_perimeters(
+                                  x, rstride=rstride, cstride=cstride))
+
+    def divisors(n):
+        return [i for i in range(1, n + 1) if n % i == 0]
+
+    for rows, cols in [(5, 5), (7, 14), (13, 9)]:
+        x = np.arange(rows * cols).reshape(rows, cols)
+        for rstride, cstride in itertools.product(divisors(rows - 1),
+                                                  divisors(cols - 1)):
+            check(x, rstride=rstride, cstride=cstride)

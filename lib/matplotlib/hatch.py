@@ -1,15 +1,11 @@
-"""
-Contains a classes for generating hatch patterns.
-"""
+"""Contains classes for generating hatch patterns."""
 
 import numpy as np
 from matplotlib.path import Path
 
 
 class HatchPatternBase:
-    """
-    The base class for a hatch pattern.
-    """
+    """The base class for a hatch pattern."""
     pass
 
 
@@ -49,8 +45,8 @@ class VerticalHatch(HatchPatternBase):
 
 class NorthEastHatch(HatchPatternBase):
     def __init__(self, hatch, density):
-        self.num_lines = int((hatch.count('/') + hatch.count('x') +
-                          hatch.count('X')) * density)
+        self.num_lines = int(
+            (hatch.count('/') + hatch.count('x') + hatch.count('X')) * density)
         if self.num_lines:
             self.num_vertices = (self.num_lines + 1) * 2
         else:
@@ -68,9 +64,9 @@ class NorthEastHatch(HatchPatternBase):
 
 class SouthEastHatch(HatchPatternBase):
     def __init__(self, hatch, density):
-        self.num_lines = int((hatch.count('\\') + hatch.count('x') +
-                          hatch.count('X')) * density)
-        self.num_vertices = (self.num_lines + 1) * 2
+        self.num_lines = int(
+            (hatch.count('\\') + hatch.count('x') + hatch.count('X'))
+            * density)
         if self.num_lines:
             self.num_vertices = (self.num_lines + 1) * 2
         else:
@@ -95,7 +91,7 @@ class Shapes(HatchPatternBase):
             self.num_vertices = 0
         else:
             self.num_shapes = ((self.num_rows // 2 + 1) * (self.num_rows + 1) +
-                               (self.num_rows // 2) * (self.num_rows))
+                               (self.num_rows // 2) * self.num_rows)
             self.num_vertices = (self.num_shapes *
                                  len(self.shape_vertices) *
                                  (1 if self.filled else 2))

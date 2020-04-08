@@ -21,8 +21,7 @@ Requirements
 ------------
 
 Install the latest version of Matplotlib as documented in
-:ref:`installing_for_devs` In particular, follow the instructions to use a
-local FreeType build.
+:ref:`installing_for_devs`.
 
 The following software is required to run the tests:
 
@@ -47,7 +46,7 @@ Running the tests is simple. Make sure you have pytest installed and run::
 
 in the root directory of the repository.
 
-`pytest` can be configured via a lot of `commandline parameters`_. Some
+pytest can be configured via a lot of `command-line parameters`_. Some
 particularly useful ones are:
 
 =============================  ===========
@@ -77,11 +76,6 @@ running the tests in parallel::
 
   pytest --verbose -n 5
 
-Depending on your version of Python and pytest-xdist, you may need to set
-``PYTHONHASHSEED`` to a fixed value when running in parallel::
-
-  PYTHONHASHSEED=0 pytest --verbose -n 5
-
 An alternative implementation that does not look at command line arguments
 and works from within Python is to run the tests from the Matplotlib library
 function :func:`matplotlib.test`::
@@ -90,7 +84,7 @@ function :func:`matplotlib.test`::
   matplotlib.test()
 
 
-.. _commandline parameters: http://doc.pytest.org/en/latest/usage.html
+.. _command-line parameters: http://doc.pytest.org/en/latest/usage.html
 
 
 Writing a simple test
@@ -110,7 +104,7 @@ begin with ``"test_"`` and then within those files for functions beginning with
 ``"test"`` or classes beginning with ``"Test"``.
 
 Some tests have internal side effects that need to be cleaned up after their
-execution (such as created figures or modified rc params). The pytest fixture
+execution (such as created figures or modified `.rcParams`). The pytest fixture
 :func:`~matplotlib.testing.conftest.mpl_test_settings` will automatically clean
 these up; there is no need to do anything further.
 
@@ -161,7 +155,7 @@ the tests, they should now pass.
 Baseline images take a lot of space in the Matplotlib repository.
 An alternative approach for image comparison tests is to use the
 `~matplotlib.testing.decorators.check_figures_equal` decorator, which should be
-used to decorate a function taking two `Figure` parameters and draws the same
+used to decorate a function taking two `.Figure` parameters and draws the same
 images on the figures using two different methods (the tested method and the
 baseline method).  The decorator will arrange for setting up the figures and
 then collect the drawn results and compare them.
@@ -200,7 +194,7 @@ are in ``test_mathtext.py``.
 Using Travis CI
 ---------------
 
-`Travis CI <https://travis-ci.org/>`_ is a hosted CI system "in the
+`Travis CI <https://travis-ci.com/>`_ is a hosted CI system "in the
 cloud".
 
 Travis is configured to receive notifications of new commits to GitHub
@@ -212,7 +206,7 @@ project.
 Travis CI is already enabled for the `main Matplotlib GitHub
 repository <https://github.com/matplotlib/matplotlib/>`_ -- for
 example, see `its Travis page
-<https://travis-ci.org/matplotlib/matplotlib>`_.
+<https://travis-ci.com/matplotlib/matplotlib>`_.
 
 If you want to enable Travis CI for your personal Matplotlib GitHub
 repo, simply enable the repo to use Travis CI in either the Travis CI

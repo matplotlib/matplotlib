@@ -7,11 +7,10 @@ This example generates the current matplotlib logo.
 """
 
 import numpy as np
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.font_manager
-from matplotlib.patches import Circle, Rectangle, PathPatch
+from matplotlib.patches import Rectangle, PathPatch
 from matplotlib.textpath import TextPath
 import matplotlib.transforms as mtrans
 

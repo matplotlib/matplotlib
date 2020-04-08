@@ -4,6 +4,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 import pytest
 
+import matplotlib as mpl
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredOffsetbox, DrawingArea
@@ -20,7 +21,7 @@ def example_plot(ax, fontsize=12):
 
 @image_comparison(['tight_layout1'])
 def test_tight_layout1():
-    'Test tight_layout for a single subplot'
+    """Test tight_layout for a single subplot."""
     fig, ax = plt.subplots()
     example_plot(ax, fontsize=24)
     plt.tight_layout()
@@ -28,7 +29,7 @@ def test_tight_layout1():
 
 @image_comparison(['tight_layout2'])
 def test_tight_layout2():
-    'Test tight_layout for multiple subplots'
+    """Test tight_layout for multiple subplots."""
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2)
     example_plot(ax1)
     example_plot(ax2)
@@ -39,7 +40,7 @@ def test_tight_layout2():
 
 @image_comparison(['tight_layout3'])
 def test_tight_layout3():
-    'Test tight_layout for multiple subplots'
+    """Test tight_layout for multiple subplots."""
     ax1 = plt.subplot(221)
     ax2 = plt.subplot(223)
     ax3 = plt.subplot(122)
@@ -51,7 +52,7 @@ def test_tight_layout3():
 
 @image_comparison(['tight_layout4'], freetype_version=('2.5.5', '2.6.1'))
 def test_tight_layout4():
-    'Test tight_layout for subplot2grid'
+    """Test tight_layout for subplot2grid."""
     ax1 = plt.subplot2grid((3, 3), (0, 0))
     ax2 = plt.subplot2grid((3, 3), (0, 1), colspan=2)
     ax3 = plt.subplot2grid((3, 3), (1, 0), colspan=2, rowspan=2)
@@ -65,7 +66,7 @@ def test_tight_layout4():
 
 @image_comparison(['tight_layout5'])
 def test_tight_layout5():
-    'Test tight_layout for image'
+    """Test tight_layout for image."""
     ax = plt.subplot(111)
     arr = np.arange(100).reshape((10, 10))
     ax.imshow(arr, interpolation="none")
@@ -74,7 +75,7 @@ def test_tight_layout5():
 
 @image_comparison(['tight_layout6'])
 def test_tight_layout6():
-    'Test tight_layout for gridspec'
+    """Test tight_layout for gridspec."""
 
     # This raises warnings since tight layout cannot
     # do this fully automatically. But the test is
@@ -83,9 +84,7 @@ def test_tight_layout6():
         warnings.simplefilter("ignore", UserWarning)
         fig = plt.figure()
 
-        import matplotlib.gridspec as gridspec
-
-        gs1 = gridspec.GridSpec(2, 1)
+        gs1 = mpl.gridspec.GridSpec(2, 1)
         ax1 = fig.add_subplot(gs1[0])
         ax2 = fig.add_subplot(gs1[1])
 
@@ -94,7 +93,7 @@ def test_tight_layout6():
 
         gs1.tight_layout(fig, rect=[0, 0, 0.5, 1])
 
-        gs2 = gridspec.GridSpec(3, 1)
+        gs2 = mpl.gridspec.GridSpec(3, 1)
 
         for ss in gs2:
             ax = fig.add_subplot(ss)
@@ -132,7 +131,7 @@ def test_tight_layout7():
 
 @image_comparison(['tight_layout8'])
 def test_tight_layout8():
-    'Test automatic use of tight_layout'
+    """Test automatic use of tight_layout."""
     fig = plt.figure()
     fig.set_tight_layout({'pad': .1})
     ax = fig.add_subplot(111)
@@ -149,7 +148,7 @@ def test_tight_layout9():
 
 
 def test_outward_ticks():
-    'Test automatic use of tight_layout'
+    """Test automatic use of tight_layout."""
     fig = plt.figure()
     ax = fig.add_subplot(221)
     ax.xaxis.set_tick_params(tickdir='out', length=16, width=3)
@@ -267,7 +266,7 @@ def test_verybig_decorators(label):
 
 
 def test_big_decorators_horizontal():
-    "Test that warning emitted when xlabel too big"
+    """Test that warning emitted when xlabel too big."""
     fig, axs = plt.subplots(1, 2, figsize=(3, 2))
     axs[0].set_xlabel('a' * 30)
     axs[1].set_xlabel('b' * 30)
@@ -276,7 +275,7 @@ def test_big_decorators_horizontal():
 
 
 def test_big_decorators_vertical():
-    "Test that warning emitted when xlabel too big"
+    """Test that warning emitted when xlabel too big."""
     fig, axs = plt.subplots(2, 1, figsize=(3, 2))
     axs[0].set_ylabel('a' * 20)
     axs[1].set_ylabel('b' * 20)

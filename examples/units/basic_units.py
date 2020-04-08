@@ -122,12 +122,8 @@ class TaggedValue(metaclass=TaggedValueMeta):
         try:
             subcls = type(f'TaggedValue_of_{value_class.__name__}',
                           (cls, value_class), {})
-            if subcls not in units.registry:
-                units.registry[subcls] = basicConverter
             return object.__new__(subcls)
         except TypeError:
-            if cls not in units.registry:
-                units.registry[cls] = basicConverter
             return object.__new__(cls)
 
     def __init__(self, value, unit):
@@ -378,6 +374,4 @@ def cos(x):
         return math.cos(x.convert_to(radians).get_value())
 
 
-basicConverter = BasicUnitConverter()
-units.registry[BasicUnit] = basicConverter
-units.registry[TaggedValue] = basicConverter
+units.registry[BasicUnit] = units.registry[TaggedValue] = BasicUnitConverter()

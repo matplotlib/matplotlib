@@ -176,6 +176,19 @@ Incremental navigation
    Axis.pan
    Axis.zoom
 
+XAxis Specific
+--------------
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   XAxis.axis_name
+   XAxis.get_text_heights
+   XAxis.get_ticks_position
+   XAxis.set_ticks_position
+   XAxis.tick_bottom
+   XAxis.tick_top
 
 YAxis Specific
 --------------
@@ -192,22 +205,6 @@ YAxis Specific
    YAxis.set_ticks_position
    YAxis.tick_left
    YAxis.tick_right
-
-
-XAxis Specific
---------------
-.. autosummary::
-   :toctree: _as_gen
-   :template: autosummary.rst
-   :nosignatures:
-
-   XAxis.axis_name
-   XAxis.get_text_heights
-   XAxis.get_ticks_position
-   XAxis.set_ticks_position
-   XAxis.tick_bottom
-   XAxis.tick_top
-
 
 Other
 -----
@@ -279,8 +276,8 @@ not used together may de-couple your tick labels from your data.
 Common and inherited methods
 ============================
 
-``XTick``
----------
+XTick
+-----
 
 .. autosummary::
    :toctree: _as_gen
@@ -322,81 +319,13 @@ YTick
    YTick.set_pad
    YTick.update_position
 
-YAxis
+XAxis
 -----
 
 .. autosummary::
    :toctree: _as_gen
    :template: autosummary.rst
    :nosignatures:
-
-
-
-   YAxis.OFFSETTEXTPAD
-   YAxis.axis_date
-   YAxis.cla
-   YAxis.convert_units
-   YAxis.get_data_interval
-   YAxis.get_gridlines
-   YAxis.get_label_position
-   YAxis.get_label_text
-   YAxis.get_major_formatter
-   YAxis.get_major_locator
-   YAxis.get_major_ticks
-   YAxis.get_majorticklabels
-   YAxis.get_majorticklines
-   YAxis.get_majorticklocs
-   YAxis.get_minor_formatter
-   YAxis.get_minor_locator
-   YAxis.get_minor_ticks
-   YAxis.get_minorticklabels
-   YAxis.get_minorticklines
-   YAxis.get_minorticklocs
-   YAxis.get_minpos
-   YAxis.get_offset_text
-   YAxis.get_pickradius
-   YAxis.get_scale
-   YAxis.get_smart_bounds
-   YAxis.get_tick_padding
-   YAxis.get_tick_space
-   YAxis.get_ticklabel_extents
-   YAxis.get_ticklabels
-   YAxis.get_ticklines
-   YAxis.get_ticklocs
-   YAxis.get_tightbbox
-   YAxis.get_units
-   YAxis.get_view_interval
-   YAxis.grid
-   YAxis.limit_range_for_scale
-   YAxis.pan
-   YAxis.reset_ticks
-   YAxis.set_data_interval
-   YAxis.set_default_intervals
-   YAxis.set_label_coords
-   YAxis.set_label_position
-   YAxis.set_label_text
-   YAxis.set_major_formatter
-   YAxis.set_major_locator
-   YAxis.set_minor_formatter
-   YAxis.set_minor_locator
-   YAxis.set_pickradius
-   YAxis.set_smart_bounds
-   YAxis.set_tick_params
-   YAxis.set_ticklabels
-   YAxis.set_ticks
-   YAxis.set_units
-   YAxis.set_view_interval
-   YAxis.update_units
-   YAxis.zoom
-
-XAxis
----------
-
-.. autosummary::
-   :toctree: _as_gen
-   :template: autosummary.rst
-   :nosignatures:
-
 
    XAxis.OFFSETTEXTPAD
    XAxis.axis_date
@@ -455,7 +384,70 @@ XAxis
    XAxis.update_units
    XAxis.zoom
 
+YAxis
+-----
 
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   YAxis.OFFSETTEXTPAD
+   YAxis.axis_date
+   YAxis.cla
+   YAxis.convert_units
+   YAxis.get_data_interval
+   YAxis.get_gridlines
+   YAxis.get_label_position
+   YAxis.get_label_text
+   YAxis.get_major_formatter
+   YAxis.get_major_locator
+   YAxis.get_major_ticks
+   YAxis.get_majorticklabels
+   YAxis.get_majorticklines
+   YAxis.get_majorticklocs
+   YAxis.get_minor_formatter
+   YAxis.get_minor_locator
+   YAxis.get_minor_ticks
+   YAxis.get_minorticklabels
+   YAxis.get_minorticklines
+   YAxis.get_minorticklocs
+   YAxis.get_minpos
+   YAxis.get_offset_text
+   YAxis.get_pickradius
+   YAxis.get_scale
+   YAxis.get_smart_bounds
+   YAxis.get_tick_padding
+   YAxis.get_tick_space
+   YAxis.get_ticklabel_extents
+   YAxis.get_ticklabels
+   YAxis.get_ticklines
+   YAxis.get_ticklocs
+   YAxis.get_tightbbox
+   YAxis.get_units
+   YAxis.get_view_interval
+   YAxis.grid
+   YAxis.limit_range_for_scale
+   YAxis.pan
+   YAxis.reset_ticks
+   YAxis.set_data_interval
+   YAxis.set_default_intervals
+   YAxis.set_label_coords
+   YAxis.set_label_position
+   YAxis.set_label_text
+   YAxis.set_major_formatter
+   YAxis.set_major_locator
+   YAxis.set_minor_formatter
+   YAxis.set_minor_locator
+   YAxis.set_pickradius
+   YAxis.set_smart_bounds
+   YAxis.set_tick_params
+   YAxis.set_ticklabels
+   YAxis.set_ticks
+   YAxis.set_units
+   YAxis.set_view_interval
+   YAxis.update_units
+   YAxis.zoom
 
 Inherited from artist
 ---------------------

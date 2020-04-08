@@ -1,4 +1,4 @@
-'''
+"""
 ======================
 Text annotations in 3D
 ======================
@@ -14,7 +14,7 @@ Functionality shown:
     - Using the text2D function to place text on a fixed position on the ax
       object.
 
-'''
+"""
 
 import matplotlib.pyplot as plt
 

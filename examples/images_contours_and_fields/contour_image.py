@@ -41,7 +41,7 @@ fig.subplots_adjust(hspace=0.3)
 axs = _axs.flatten()
 
 cset1 = axs[0].contourf(X, Y, Z, levels, norm=norm,
-                     cmap=cm.get_cmap(cmap, len(levels) - 1))
+                        cmap=cm.get_cmap(cmap, len(levels) - 1))
 # It is not necessary, but for the colormap, we need only the
 # number of levels minus 1.  To avoid discretization error, use
 # either this number or a large number such as the default (256).
@@ -84,7 +84,7 @@ axs[2].set_title("Image, origin 'lower'")
 # image pixel (each color block on the following subplot), so the
 # domain that is contoured does not extend beyond these pixel centers.
 im = axs[3].imshow(Z, interpolation='nearest', extent=extent,
-                cmap=cmap, norm=norm)
+                   cmap=cmap, norm=norm)
 axs[3].contour(Z, levels, colors='k', origin='image', extent=extent)
 ylim = axs[3].get_ylim()
 axs[3].set_ylim(ylim[::-1])

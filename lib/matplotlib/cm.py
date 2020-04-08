@@ -90,19 +90,29 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     instance.  The *name* is optional; if absent, the name will
     be the :attr:`~matplotlib.colors.Colormap.name` attribute of the *cmap*.
 
-    In the second case, the three arguments are passed to
+    The second case is deprecated. Here, the three arguments are passed to
     the :class:`~matplotlib.colors.LinearSegmentedColormap` initializer,
-    and the resulting colormap is registered.
+    and the resulting colormap is registered. Instead of this implicit
+    colormap creation, create a `.LinearSegmentedColormap` and use the first
+    case: ``register_cmap(cmap=LinearSegmentedColormap(name, data, lut))``.
     """
     cbook._check_isinstance((str, None), name=name)
     if name is None:
         try:
             name = cmap.name
-        except AttributeError:
-            raise ValueError("Arguments must include a name or a Colormap")
+        except AttributeError as err:
+            raise ValueError("Arguments must include a name or a "
+                             "Colormap") from err
     if isinstance(cmap, colors.Colormap):
         cmap_d[name] = cmap
         return
+    if lut is not None or data is not None:
+        cbook.warn_deprecated(
+            "3.3",
+            message="Passing raw data via parameters data and lut to "
+                    "register_cmap() is deprecated. Instead use: "
+                    "register_cmap("
+                    "cmap=LinearSegmentedColormap(name, data, lut))")
     # For the remainder, let exceptions propagate.
     if lut is None:
         lut = mpl.rcParams['image.lut']
@@ -120,7 +130,7 @@ def get_cmap(name=None, lut=None):
     Parameters
     ----------
     name : `matplotlib.colors.Colormap` or str or None, default: None
-        If a `Colormap` instance, it will be returned.  Otherwise, the name of
+        If a `.Colormap` instance, it will be returned.  Otherwise, the name of
         a colormap known to Matplotlib, which will be resampled by *lut*.  The
         default, None, means :rc:`image.cmap`.
     lut : int or None, default: None
@@ -150,30 +160,44 @@ class ScalarMappable:
 
         Parameters
         ----------
-        norm : :class:`matplotlib.colors.Normalize` instance
+        norm : `matplotlib.colors.Normalize` (or subclass thereof)
             The normalizing object which scales data, typically into the
             interval ``[0, 1]``.
             If *None*, *norm* defaults to a *colors.Normalize* object which
             initializes its scaling based on the first data processed.
-        cmap : str or :class:`~matplotlib.colors.Colormap` instance
+        cmap : str or `~matplotlib.colors.Colormap`
             The colormap used to map normalized data values to RGBA colors.
         """
-
-        self.callbacksSM = cbook.CallbackRegistry()
-
-        if cmap is None:
-            cmap = get_cmap()
-        if norm is None:
-            norm = colors.Normalize()
-
         self._A = None
-        #: The Normalization instance of this ScalarMappable.
-        self.norm = norm
-        #: The Colormap instance of this ScalarMappable.
-        self.cmap = get_cmap(cmap)
+        self.norm = None  # So that the setter knows we're initializing.
+        self.set_norm(norm)  # The Normalize instance of this ScalarMappable.
+        self.cmap = None  # So that the setter knows we're initializing.
+        self.set_cmap(cmap)  # The Colormap instance of this ScalarMappable.
         #: The last colorbar associated with this ScalarMappable. May be None.
         self.colorbar = None
+        self.callbacksSM = cbook.CallbackRegistry()
         self.update_dict = {'array': False}
+
+    def _scale_norm(self, norm, vmin, vmax):
+        """
+        Helper for initial scaling.
+
+        Used by public functions that create a ScalarMappable and support
+        parameters *vmin*, *vmax* and *norm*. This makes sure that a *norm*
+        will take precedence over *vmin*, *vmax*.
+
+        Note that this method does not set the norm.
+        """
+        if vmin is not None or vmax is not None:
+            self.set_clim(vmin, vmax)
+            if norm is not None:
+                cbook.warn_deprecated(
+                    "3.3",
+                    message="Passing parameters norm and vmin/vmax "
+                            "simultaneously is deprecated. Please pass "
+                            "vmin/vmax directly to the norm when creating it.")
+        else:
+            self.autoscale_None()
 
     def to_rgba(self, x, alpha=None, bytes=False, norm=True):
         """
@@ -220,7 +244,7 @@ class ScalarMappable:
                 elif x.shape[2] == 4:
                     xx = x
                 else:
-                    raise ValueError("third dimension must be 3 or 4")
+                    raise ValueError("Third dimension must be 3 or 4")
                 if xx.dtype.kind == 'f':
                     if norm and (xx.max() > 1 or xx.min() < 0):
                         raise ValueError("Floating point image RGB values "
@@ -256,15 +280,17 @@ class ScalarMappable:
         self.update_dict['array'] = True
 
     def get_array(self):
-        'Return the array'
+        """Return the data array."""
         return self._A
 
     def get_cmap(self):
-        'return the colormap'
+        """Return the `.Colormap` instance."""
         return self.cmap
 
     def get_clim(self):
-        'return the min, max of the color limits for image scaling'
+        """
+        Return the values (min, max) that are mapped to the colormap limits.
+        """
         return self.norm.vmin, self.norm.vmax
 
     def set_clim(self, vmin=None, vmax=None):
@@ -296,7 +322,7 @@ class ScalarMappable:
         """
         Returns
         -------
-        alpha : float
+        float
             Always returns 1.
         """
         # This method is intended to be overridden by Artist sub-classes
@@ -304,35 +330,39 @@ class ScalarMappable:
 
     def set_cmap(self, cmap):
         """
-        set the colormap for luminance data
+        Set the colormap for luminance data.
 
         Parameters
         ----------
-        cmap : colormap or registered colormap name
+        cmap : `.Colormap` or str or None
         """
+        in_init = self.cmap is None
         cmap = get_cmap(cmap)
         self.cmap = cmap
-        self.changed()
+        if not in_init:
+            self.changed()  # Things are not set up properly yet.
 
     def set_norm(self, norm):
-        """Set the normalization instance.
+        """
+        Set the normalization instance.
 
         Parameters
         ----------
-        norm : `.Normalize`
+        norm : `.Normalize` or None
 
         Notes
         -----
         If there are any colorbars using the mappable for this norm, setting
         the norm of the mappable will reset the norm, locator, and formatters
         on the colorbar to default.
-
         """
         cbook._check_isinstance((colors.Normalize, None), norm=norm)
+        in_init = self.norm is None
         if norm is None:
             norm = colors.Normalize()
         self.norm = norm
-        self.changed()
+        if not in_init:
+            self.changed()  # Things are not set up properly yet.
 
     def autoscale(self):
         """

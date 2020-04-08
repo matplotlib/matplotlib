@@ -1,25 +1,31 @@
 """
 ================
-Marker Reference
+Marker reference
 ================
 
-Reference for filled-, unfilled- and custom marker types with Matplotlib.
+Matplotlib supports multiple categories of markers which are selected using
+the ``marker`` parameter of plot commands:
 
-For a list of all markers see the `matplotlib.markers` documentation. Also
-refer to the :doc:`/gallery/lines_bars_and_markers/marker_fillstyle_reference`
-and :doc:`/gallery/shapes_and_collections/marker_path` examples.
+- `Unfilled markers`_
+- `Filled markers`_
+- `Markers created from TeX symbols`_
+- Custom markers can be created from paths. See
+  :doc:`/gallery/shapes_and_collections/marker_path`.
+
+For a list of all markers see also the `matplotlib.markers` documentation.
+
+For example usages see
+:doc:`/gallery/lines_bars_and_markers/scatter_star_poly`.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
 
-points = np.ones(3)  # Draw 3 points for each line
 text_style = dict(horizontalalignment='right', verticalalignment='center',
-                  fontsize=12, fontdict={'family': 'monospace'})
+                  fontsize=12, fontfamily='monospace')
 marker_style = dict(linestyle=':', color='0.8', markersize=10,
-                    mfc="C0", mec="C0")
+                    markerfacecolor="tab:blue", markeredgecolor="tab:blue")
 
 
 def format_axes(ax):
@@ -30,17 +36,16 @@ def format_axes(ax):
 
 def split_list(a_list):
     i_half = len(a_list) // 2
-    return (a_list[:i_half], a_list[i_half:])
+    return a_list[:i_half], a_list[i_half:]
 
 
 ###############################################################################
-# Filled and unfilled-marker types
-# ================================
-#
-# Plot all un-filled markers
+# Unfilled markers
+# ================
+# Unfilled markers are single-colored.
 
 fig, axs = plt.subplots(ncols=2)
-fig.suptitle('un-filled markers', fontsize=14)
+fig.suptitle('Un-filled markers', fontsize=14)
 
 # Filter out filled markers and marker settings that do nothing.
 unfilled_markers = [m for m, func in Line2D.markers.items()
@@ -49,29 +54,57 @@ unfilled_markers = [m for m, func in Line2D.markers.items()
 for ax, markers in zip(axs, split_list(unfilled_markers)):
     for y, marker in enumerate(markers):
         ax.text(-0.5, y, repr(marker), **text_style)
-        ax.plot(y * points, marker=marker, **marker_style)
+        ax.plot([y] * 3, marker=marker, **marker_style)
     format_axes(ax)
 
 plt.show()
 
 
 ###############################################################################
-# Plot all filled markers.
+# Filled markers
+# ==============
 
 fig, axs = plt.subplots(ncols=2)
+fig.suptitle('Filled markers', fontsize=14)
 for ax, markers in zip(axs, split_list(Line2D.filled_markers)):
     for y, marker in enumerate(markers):
         ax.text(-0.5, y, repr(marker), **text_style)
-        ax.plot(y * points, marker=marker, **marker_style)
+        ax.plot([y] * 3, marker=marker, **marker_style)
     format_axes(ax)
-fig.suptitle('filled markers', fontsize=14)
+
+plt.show()
+
+###############################################################################
+# .. _marker_fill_styles:
+#
+# Marker fill styles
+# ------------------
+# The edge color and fill color of filled markers can be specified separately.
+# Additionally, the ``fillstyle`` can be configured to be unfilled, fully
+# filled, or half-filled in various directions. The half-filled styles use
+# ``markerfacecoloralt`` as secondary fill color.
+
+fig, ax = plt.subplots()
+fig.suptitle('Marker fillstyle', fontsize=14)
+fig.subplots_adjust(left=0.4)
+
+filled_marker_style = dict(marker='o', linestyle=':', markersize=15,
+                           color='darkgrey',
+                           markerfacecolor='tab:blue',
+                           markerfacecoloralt='lightsteelblue',
+                           markeredgecolor='brown')
+
+for y, fill_style in enumerate(Line2D.fillStyles):
+    ax.text(-0.5, y, repr(fill_style), **text_style)
+    ax.plot([y] * 3, fillstyle=fill_style, **filled_marker_style)
+format_axes(ax)
 
 plt.show()
 
 
 ###############################################################################
-# Custom Markers with MathText
-# ============================
+# Markers created from TeX symbols
+# ================================
 #
 # Use :doc:`MathText </tutorials/text/mathtext>`, to use custom marker symbols,
 # like e.g. ``"$\u266B$"``. For an overview over the STIX font symbols refer
@@ -80,17 +113,16 @@ plt.show()
 
 
 fig, ax = plt.subplots()
+fig.suptitle('Mathtext markers', fontsize=14)
 fig.subplots_adjust(left=0.4)
 
-marker_style.update(mec="None", markersize=15)
+marker_style.update(markeredgecolor="None", markersize=15)
 markers = ["$1$", r"$\frac{1}{2}$", "$f$", "$\u266B$", r"$\mathcal{A}$"]
-
 
 for y, marker in enumerate(markers):
     # Escape dollars so that the text is written "as is", not as mathtext.
     ax.text(-0.5, y, repr(marker).replace("$", r"\$"), **text_style)
-    ax.plot(y * points, marker=marker, **marker_style)
+    ax.plot([y] * 3, marker=marker, **marker_style)
 format_axes(ax)
-fig.suptitle('mathtext markers', fontsize=14)
 
 plt.show()

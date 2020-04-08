@@ -87,8 +87,7 @@ horizontal axis at y=0 (in data coordinate). ::
 Or a fixed axis with some offset ::
 
     # make new (right-side) yaxis, but with some offset
-    ax.axis["right2"] = ax.new_fixed_axis(loc="right",
-                  offset=(20, 0))
+    ax.axis["right2"] = ax.new_fixed_axis(loc="right", offset=(20, 0))
 
 axisartist with ParasiteAxes
 ----------------------------
@@ -262,17 +261,18 @@ To turn all off but ticks on ::
 
 To turn all on but (axis) label off ::
 
-      ax.axis["bottom"].toggle(all=True, label=False))
+      ax.axis["bottom"].toggle(all=True, label=False)
 
 ax.axis's __getitem__ method can take multiple axis names. For
 example, to turn ticklabels of "top" and "right" axis on, ::
 
-      ax.axis["top","right"].toggle(ticklabels=True))
+      ax.axis["top", "right"].toggle(ticklabels=True)
 
-Note that 'ax.axis["top","right"]' returns a simple proxy object that translate above code to something like below. ::
+Note that ``ax.axis["top", "right"]`` returns a simple proxy object that
+translate above code to something like below. ::
 
-      for n in ["top","right"]:
-        ax.axis[n].toggle(ticklabels=True))
+      for n in ["top", "right"]:
+          ax.axis[n].toggle(ticklabels=True)
 
 So, any return values in the for loop are ignored. And you should not
 use it anything more than a simple method.
@@ -288,7 +288,7 @@ HowTo
 
 1. Changing tick locations and label.
 
-  Same as the original Matplotlib's axes.::
+  Same as the original Matplotlib's axes::
 
    ax.set_xticks([1, 2, 3])
 
@@ -301,22 +301,22 @@ HowTo
 
 3. To change the attributes of multiple axis::
 
-    ax.axis["left","bottom"].major_ticklabels.set_color("r")
+    ax.axis["left", "bottom"].major_ticklabels.set_color("r")
 
    or to change the attributes of all axis::
 
     ax.axis[:].major_ticklabels.set_color("r")
 
 4. To change the tick size (length), you need to use
-    axis.major_ticks.set_ticksize method. To change the direction of
-    the ticks (ticks are in opposite direction of ticklabels by
-    default), use axis.major_ticks.set_tick_out method.
+   axis.major_ticks.set_ticksize method. To change the direction of
+   the ticks (ticks are in opposite direction of ticklabels by
+   default), use axis.major_ticks.set_tick_out method.
 
-    To change the pad between ticks and ticklabels, use
-    axis.major_ticklabels.set_pad method.
+   To change the pad between ticks and ticklabels, use
+   axis.major_ticklabels.set_pad method.
 
-    To change the pad between ticklabels and axis label,
-    axis.label.set_pad method.
+   To change the pad between ticklabels and axis label,
+   axis.label.set_pad method.
 
 Rotation and Alignment of TickLabels
 ====================================
@@ -450,22 +450,29 @@ default direction). ::
 
 So, in summary,
 
- * AxisArtist's methods
-    * set_axis_direction : "left", "right", "bottom", or "top"
-    * set_ticklabel_direction : "+" or "-"
-    * set_axislabel_direction : "+" or "-"
-    * invert_ticklabel_direction
- * Ticks' methods (major_ticks and minor_ticks)
-    * set_tick_out : True or False
-    * set_ticksize : size in points
- * TickLabels' methods (major_ticklabels and minor_ticklabels)
-    * set_axis_direction : "left", "right", "bottom", or "top"
-    * set_rotation : angle with respect to the reference direction
-    * set_ha and set_va : see below
- * AxisLabels' methods (label)
-    * set_axis_direction : "left", "right", "bottom", or "top"
-    * set_rotation : angle with respect to the reference direction
-    * set_ha and set_va
+* AxisArtist's methods
+
+  - set_axis_direction: "left", "right", "bottom", or "top"
+  - set_ticklabel_direction: "+" or "-"
+  - set_axislabel_direction: "+" or "-"
+  - invert_ticklabel_direction
+
+* Ticks' methods (major_ticks and minor_ticks)
+
+  - set_tick_out: True or False
+  - set_ticksize: size in points
+
+* TickLabels' methods (major_ticklabels and minor_ticklabels)
+
+  - set_axis_direction: "left", "right", "bottom", or "top"
+  - set_rotation: angle with respect to the reference direction
+  - set_ha and set_va: see below
+
+* AxisLabels' methods (label)
+
+  - set_axis_direction: "left", "right", "bottom", or "top"
+  - set_rotation: angle with respect to the reference direction
+  - set_ha and set_va
 
 Adjusting ticklabels alignment
 ------------------------------
@@ -541,8 +548,8 @@ required. ::
     # system in degree
     tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
 
-    # extreme finder :  find a range of coordinate.
-    # 20, 20 : number of sampling points along x, y direction
+    # extreme finder: find a range of coordinate.
+    # 20, 20: number of sampling points along x, y direction
     # The first coordinate (longitude, but theta in polar)
     #   has a cycle of 360 degree.
     # The second coordinate (latitude, but radius in polar)  has a minimum of 0
@@ -615,8 +622,8 @@ The code need more refinement. Here is a incomplete list of issues and TODO's
 * No easy way to support a user customized tick location (for
   curvilinear grid). A new Locator class needs to be created.
 
-* FloatingAxis may have coordinate limits, e.g., a floating axis of x
-  = 0, but y only spans from 0 to 1.
+* FloatingAxis may have coordinate limits, e.g., a floating axis of x = 0,
+  but y only spans from 0 to 1.
 
 * The location of axislabel of FloatingAxis needs to be optionally
   given as a coordinate value. ex, a floating axis of x=0 with label at y=1

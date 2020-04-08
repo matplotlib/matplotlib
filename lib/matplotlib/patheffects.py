@@ -1,7 +1,9 @@
 """
-Defines classes for path effects. The path effects are supported in
-:class:`~matplotlib.text.Text`, :class:`~matplotlib.lines.Line2D`
-and :class:`~matplotlib.patches.Patch`.
+Defines classes for path effects. The path effects are supported in `~.Text`,
+`~.Line2D` and `~.Patch`.
+
+.. seealso::
+   :doc:`/tutorials/advanced/patheffects_guide`
 """
 
 from matplotlib.backend_bases import RendererBase
@@ -16,8 +18,8 @@ class AbstractPathEffect:
 
     Subclasses should override the ``draw_path`` method to add effect
     functionality.
-
     """
+
     def __init__(self, offset=(0., 0.)):
         """
         Parameters
@@ -76,15 +78,15 @@ class PathEffectRenderer(RendererBase):
         Not all methods have been overridden on this RendererBase subclass.
         It may be necessary to add further methods to extend the PathEffects
         capabilities further.
-
     """
+
     def __init__(self, path_effects, renderer):
         """
         Parameters
         ----------
         path_effects : iterable of :class:`AbstractPathEffect`
             The path effects which this renderer represents.
-        renderer : :class:`matplotlib.backend_bases.RendererBase` instance
+        renderer : `matplotlib.backend_bases.RendererBase` subclass
 
         """
         self._path_effects = path_effects
@@ -159,11 +161,40 @@ class Normal(AbstractPathEffect):
     The Normal PathEffect's sole purpose is to draw the original artist with
     no special path effect.
     """
-    pass
+
+
+def _subclass_with_normal(effect_class):
+    """
+    Create a PathEffect class combining *effect_class* and a normal draw.
+    """
+
+    class withEffect(effect_class):
+        def draw_path(self, renderer, gc, tpath, affine, rgbFace):
+            super().draw_path(renderer, gc, tpath, affine, rgbFace)
+            renderer.draw_path(gc, tpath, affine, rgbFace)
+
+    withEffect.__name__ = f"with{effect_class.__name__}"
+    withEffect.__doc__ = f"""
+    A shortcut PathEffect for applying `.{effect_class.__name__}` and then
+    drawing the original Artist.
+
+    With this class you can use ::
+
+        artist.set_path_effects([path_effects.with{effect_class.__name__}()])
+
+    as a shortcut for ::
+
+        artist.set_path_effects([path_effects.{effect_class.__name__}(),
+                                 path_effects.Normal()])
+    """
+    # Docstring inheritance doesn't work for locally-defined subclasses.
+    withEffect.draw_path.__doc__ = effect_class.draw_path.__doc__
+    return withEffect
 
 
 class Stroke(AbstractPathEffect):
     """A line based PathEffect which re-draws a stroke."""
+
     def __init__(self, offset=(0, 0), **kwargs):
         """
         The path will be stroked with its gc updated with the given
@@ -174,9 +205,7 @@ class Stroke(AbstractPathEffect):
         self._gc = kwargs
 
     def draw_path(self, renderer, gc, tpath, affine, rgbFace):
-        """
-        Draw the path with updated gc.
-        """
+        """Draw the path with updated gc."""
         gc0 = renderer.new_gc()  # Don't modify gc, but a copy!
         gc0.copy_properties(gc)
         gc0 = self._update_gc(gc0, self._gc)
@@ -185,19 +214,12 @@ class Stroke(AbstractPathEffect):
         gc0.restore()
 
 
-class withStroke(Stroke):
-    """
-    Adds a simple :class:`Stroke` and then draws the
-    original Artist to avoid needing to call :class:`Normal`.
-
-    """
-    def draw_path(self, renderer, gc, tpath, affine, rgbFace):
-        Stroke.draw_path(self, renderer, gc, tpath, affine, rgbFace)
-        renderer.draw_path(gc, tpath, affine, rgbFace)
+withStroke = _subclass_with_normal(effect_class=Stroke)
 
 
 class SimplePatchShadow(AbstractPathEffect):
     """A simple shadow via a filled patch."""
+
     def __init__(self, offset=(2, -2),
                  shadow_rgbFace=None, alpha=None,
                  rho=0.3, **kwargs):
@@ -208,13 +230,12 @@ class SimplePatchShadow(AbstractPathEffect):
             The offset of the shadow in points.
         shadow_rgbFace : color
             The shadow color.
-        alpha : float
+        alpha : float, default: 0.3
             The alpha transparency of the created shadow patch.
-            Default is 0.3.
             http://matplotlib.1069221.n5.nabble.com/path-effects-question-td27630.html
-        rho : float
+        rho : float, default: 0.3
             A scale factor to apply to the rgbFace color if `shadow_rgbFace`
-            is not specified. Default is 0.3.
+            is not specified.
         **kwargs
             Extra keywords are stored and passed through to
             :meth:`AbstractPathEffect._update_gc`.
@@ -262,19 +283,12 @@ class SimplePatchShadow(AbstractPathEffect):
         gc0.restore()
 
 
-class withSimplePatchShadow(SimplePatchShadow):
-    """
-    Adds a simple :class:`SimplePatchShadow` and then draws the
-    original Artist to avoid needing to call :class:`Normal`.
-
-    """
-    def draw_path(self, renderer, gc, tpath, affine, rgbFace):
-        SimplePatchShadow.draw_path(self, renderer, gc, tpath, affine, rgbFace)
-        renderer.draw_path(gc, tpath, affine, rgbFace)
+withSimplePatchShadow = _subclass_with_normal(effect_class=SimplePatchShadow)
 
 
 class SimpleLineShadow(AbstractPathEffect):
     """A simple shadow via a line."""
+
     def __init__(self, offset=(2, -2),
                  shadow_color='k', alpha=0.3, rho=0.3, **kwargs):
         """
@@ -282,16 +296,15 @@ class SimpleLineShadow(AbstractPathEffect):
         ----------
         offset : pair of floats
             The offset to apply to the path, in points.
-        shadow_color : color
-            The shadow color. Default is black.
+        shadow_color : color, default: 'black'
+            The shadow color.
             A value of ``None`` takes the original artist's color
             with a scale factor of *rho*.
-        alpha : float
+        alpha : float, default: 0.3
             The alpha transparency of the created shadow patch.
-            Default is 0.3.
-        rho : float
+        rho : float, default: 0.3
             A scale factor to apply to the rgbFace color if `shadow_rgbFace`
-            is ``None``. Default is 0.3.
+            is ``None``.
         **kwargs
             Extra keywords are stored and passed through to
             :meth:`AbstractPathEffect._update_gc`.
@@ -332,10 +345,10 @@ class SimpleLineShadow(AbstractPathEffect):
 
 class PathPatchEffect(AbstractPathEffect):
     """
-    Draws a :class:`~matplotlib.patches.PathPatch` instance whose Path
-    comes from the original PathEffect artist.
-
+    Draws a `.PathPatch` instance whose Path comes from the original
+    PathEffect artist.
     """
+
     def __init__(self, offset=(0, 0), **kwargs):
         """
         Parameters

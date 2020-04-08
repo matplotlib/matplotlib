@@ -7,14 +7,13 @@
 {% block body %}
   <h1 id="search-documentation">{{ _('Search') }}</h1>
   <p>
-    {% trans %}From here you can search these documents. Enter your
-    search words into the box below and click "search". Note that the
-    search function will automatically search for all of the
-    words. Pages containing less words won't appear in the result
-    list.{% endtrans %}  If you want to limit your search to working code examples,
-    include the keyword "codex" (mnemonic for <i>code example</i>) in your
-    search, e.g., "codex ellipse";
-    see <a href="{{ pathto('faq/howto_faq.html#search-examples') }}">search&nbsp;examples</a>.
+    {% trans %}Searching for multiple words only shows matches that contain
+    all words.{% endtrans %}
+  </p>
+  <p>
+    If you want to limit your search to working code examples, include the
+    keyword "codex" (mnemonic for <i>code example</i>) in your search, e.g.,
+    "codex ellipse".
   </p>
   <form action="" method="get">
     <input type="text" name="q" value="" />

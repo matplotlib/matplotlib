@@ -55,15 +55,8 @@ Further reading:
 The pylab API (disapproved)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. warning::
-   Since heavily importing into the global namespace may result in unexpected
-   behavior, the use of pylab is strongly discouraged. Use `matplotlib.pyplot`
-   instead.
-
-`pylab` is a module that includes `matplotlib.pyplot`, `numpy`
-and some additional functions within a single namespace. Its original purpose
-was to mimic a MATLAB-like way of working by importing all functions into the
-global namespace. This is considered bad style nowadays.
+.. automodule:: pylab
+   :no-members:
 
 Modules
 -------
@@ -83,6 +76,7 @@ Matplotlib consists of the following submodules:
    backend_managers_api.rst
    backend_tools_api.rst
    index_backend_api.rst
+   bezier_api.rst
    blocking_input_api.rst
    category_api.rst
    cbook_api.rst
@@ -121,6 +115,7 @@ Matplotlib consists of the following submodules:
    table_api.rst
    testing_api.rst
    text_api.rst
+   texmanager_api.rst
    textpath_api.rst
    ticker_api.rst
    tight_layout_api.rst
@@ -137,9 +132,13 @@ Toolkits
 Matplotlib. The following toolkits are included:
 
 .. toctree::
-   :maxdepth: 1
+   :hidden:
 
    toolkits/index.rst
+
+.. toctree::
+   :maxdepth: 1
+
    toolkits/mplot3d.rst
    toolkits/axes_grid1.rst
    toolkits/axisartist.rst

@@ -1,15 +1,13 @@
 import hashlib
-import os
-import sys
+from pathlib import Path
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 import sphinx
 
-from matplotlib import rcParams
+import matplotlib as mpl
 from matplotlib import cbook
 from matplotlib.mathtext import MathTextParser
-rcParams['mathtext.fontset'] = 'cm'
 mathtext_parser = MathTextParser("Bitmap")
 
 
@@ -19,7 +17,7 @@ class latex_math(nodes.General, nodes.Element):
 
 
 def fontset_choice(arg):
-    return directives.choice(arg, ['cm', 'stix', 'stixsans'])
+    return directives.choice(arg, MathTextParser._font_type_mapping)
 
 
 def math_role(role, rawtext, text, lineno, inliner,
@@ -31,16 +29,6 @@ def math_role(role, rawtext, text, lineno, inliner,
     node['fontset'] = options.get('fontset', 'cm')
     return [node], []
 math_role.options = {'fontset': fontset_choice}
-
-
-@cbook.deprecated("3.1", alternative="MathDirective")
-def math_directive(name, arguments, options, content, lineno,
-                   content_offset, block_text, state, state_machine):
-    latex = ''.join(content)
-    node = latex_math(block_text)
-    node['latex'] = latex
-    node['fontset'] = options.get('fontset', 'cm')
-    return [node]
 
 
 class MathDirective(Directive):
@@ -61,20 +49,16 @@ class MathDirective(Directive):
 # This uses mathtext to render the expression
 def latex2png(latex, filename, fontset='cm'):
     latex = "$%s$" % latex
-    orig_fontset = rcParams['mathtext.fontset']
-    rcParams['mathtext.fontset'] = fontset
-    if os.path.exists(filename):
-        depth = mathtext_parser.get_depth(latex, dpi=100)
-    else:
-        try:
-            depth = mathtext_parser.to_png(filename, latex, dpi=100)
-        except Exception:
-            cbook._warn_external("Could not render math expression %s" % latex,
-                                 Warning)
-            depth = 0
-    rcParams['mathtext.fontset'] = orig_fontset
-    sys.stdout.write("#")
-    sys.stdout.flush()
+    with mpl.rc_context({'mathtext.fontset': fontset}):
+        if Path(filename).exists():
+            depth = mathtext_parser.get_depth(latex, dpi=100)
+        else:
+            try:
+                depth = mathtext_parser.to_png(filename, latex, dpi=100)
+            except Exception:
+                cbook._warn_external(
+                    f"Could not render math expression {latex}")
+                depth = 0
     return depth
 
 
@@ -82,15 +66,15 @@ def latex2png(latex, filename, fontset='cm'):
 def latex2html(node, source):
     inline = isinstance(node.parent, nodes.TextElement)
     latex = node['latex']
-    name = 'math-%s' % hashlib.md5(latex.encode()).hexdigest()[-10:]
+    fontset = node['fontset']
+    name = 'math-{}'.format(
+        hashlib.md5((latex + fontset).encode()).hexdigest()[-10:])
 
-    destdir = os.path.join(setup.app.builder.outdir, '_images', 'mathmpl')
-    if not os.path.exists(destdir):
-        os.makedirs(destdir)
-    dest = os.path.join(destdir, '%s.png' % name)
-    path = '/'.join((setup.app.builder.imgpath, 'mathmpl'))
+    destdir = Path(setup.app.builder.outdir, '_images', 'mathmpl')
+    destdir.mkdir(parents=True, exist_ok=True)
+    dest = destdir / f'{name}.png'
 
-    depth = latex2png(latex, dest, node['fontset'])
+    depth = latex2png(latex, dest, fontset)
 
     if inline:
         cls = ''
@@ -101,7 +85,8 @@ def latex2html(node, source):
     else:
         style = ''
 
-    return '<img src="%s/%s.png" %s%s/>' % (path, name, cls, style)
+    return (f'<img src="{setup.app.builder.imgpath}/mathmpl/{name}.png"'
+            f' {cls}{style}/>')
 
 
 def setup(app):

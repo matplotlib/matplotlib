@@ -43,7 +43,7 @@ class StrCategoryConverter(units.ConversionInterface):
 
         Returns
         -------
-        mapped_value : float or ndarray[float]
+        float or ndarray[float]
         """
         if unit is None:
             raise ValueError(
@@ -75,7 +75,7 @@ class StrCategoryConverter(units.ConversionInterface):
 
         Returns
         -------
-        axisinfo : `~matplotlib.units.AxisInfo`
+        `~matplotlib.units.AxisInfo`
             Information to support default tick labeling
 
         .. note: axis is not used
@@ -99,7 +99,7 @@ class StrCategoryConverter(units.ConversionInterface):
 
         Returns
         -------
-        class : `.UnitData`
+        `.UnitData`
             object storing string to integer mapping
         """
         # the conversion call stack is default_units -> axis_info -> convert
@@ -116,14 +116,17 @@ class StrCategoryLocator(ticker.Locator):
         """
         Parameters
         -----------
-        units_mapping : Dict[str, int]
+        units_mapping : dict
+            Mapping of category names (str) to indices (int).
         """
         self._units = units_mapping
 
     def __call__(self):
+        # docstring inherited
         return list(self._units.values())
 
     def tick_values(self, vmin, vmax):
+        # docstring inherited
         return self()
 
 
@@ -133,19 +136,17 @@ class StrCategoryFormatter(ticker.Formatter):
         """
         Parameters
         ----------
-        units_mapping : Dict[Str, int]
+        units_mapping : dict
+            Mapping of category names (str) to indices (int).
         """
         self._units = units_mapping
 
     def __call__(self, x, pos=None):
-        """
-        Return the category label string for tick val *x*.
-
-        The position *pos* is ignored.
-        """
+        # docstring inherited
         return self.format_ticks([x])[0]
 
     def format_ticks(self, values):
+        # docstring inherited
         r_mapping = {v: self._text(k) for k, v in self._units.items()}
         return [r_mapping.get(round(val), '') for val in values]
 
@@ -195,16 +196,14 @@ class UnitData:
 
         Parameters
         ----------
-        data : iterable
-            sequence of string values
+        data : iterable of str or bytes
 
         Raises
         ------
         TypeError
-              If the value in data is not a string, unicode, bytes type
+            If elements in *data* are neither str nor bytes.
         """
         data = np.atleast_1d(np.array(data, dtype=object))
-
         # check if convertible to number:
         convertible = True
         for val in OrderedDict.fromkeys(data):

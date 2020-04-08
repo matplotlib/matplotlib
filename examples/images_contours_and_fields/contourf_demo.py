@@ -3,8 +3,9 @@
 Contourf Demo
 =============
 
-How to use the :meth:`.axes.Axes.contourf` method to create filled contour plots.
+How to use the `.axes.Axes.contourf` method to create filled contour plots.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -80,7 +81,7 @@ CS4 = ax2.contour(X, Y, Z, levels,
 ax2.set_title('Listed colors (3 masked regions)')
 ax2.clabel(CS4, fmt='%2.1f', colors='w', fontsize=14)
 
-# Notice that the colorbar command gets all the information it
+# Notice that the colorbar gets all the information it
 # needs from the ContourSet object, CS3.
 fig2.colorbar(CS3)
 

@@ -39,6 +39,11 @@ def test_resample():
     colorlist[:, 3] = 0.7
     lsc = mcolors.LinearSegmentedColormap.from_list('lsc', colorlist)
     lc = mcolors.ListedColormap(colorlist)
+    # Set some bad values for testing too
+    for cmap in [lsc, lc]:
+        cmap.set_under('r')
+        cmap.set_over('g')
+        cmap.set_bad('b')
     lsc3 = lsc._resample(3)
     lc3 = lc._resample(3)
     expected = np.array([[0.0, 0.2, 1.0, 0.7],
@@ -46,6 +51,23 @@ def test_resample():
                          [1.0, 0.2, 0.0, 0.7]], float)
     assert_array_almost_equal(lsc3([0, 0.5, 1]), expected)
     assert_array_almost_equal(lc3([0, 0.5, 1]), expected)
+    # Test over/under was copied properly
+    assert_array_almost_equal(lsc(np.inf), lsc3(np.inf))
+    assert_array_almost_equal(lsc(-np.inf), lsc3(-np.inf))
+    assert_array_almost_equal(lsc(np.nan), lsc3(np.nan))
+    assert_array_almost_equal(lc(np.inf), lc3(np.inf))
+    assert_array_almost_equal(lc(-np.inf), lc3(-np.inf))
+    assert_array_almost_equal(lc(np.nan), lc3(np.nan))
+
+
+def test_register_cmap():
+    new_cm = copy.copy(plt.cm.viridis)
+    cm.register_cmap('viridis2', new_cm)
+    assert plt.get_cmap('viridis2') == new_cm
+
+    with pytest.raises(ValueError,
+                       match='Arguments must include a name or a Colormap'):
+        cm.register_cmap()
 
 
 def test_colormap_copy():
@@ -544,10 +566,10 @@ def test_rgb_hsv_round_trip():
     for a_shape in [(500, 500, 3), (500, 3), (1, 3), (3,)]:
         np.random.seed(0)
         tt = np.random.random(a_shape)
-        assert_array_almost_equal(tt,
-            mcolors.hsv_to_rgb(mcolors.rgb_to_hsv(tt)))
-        assert_array_almost_equal(tt,
-            mcolors.rgb_to_hsv(mcolors.hsv_to_rgb(tt)))
+        assert_array_almost_equal(
+            tt, mcolors.hsv_to_rgb(mcolors.rgb_to_hsv(tt)))
+        assert_array_almost_equal(
+            tt, mcolors.rgb_to_hsv(mcolors.hsv_to_rgb(tt)))
 
 
 def test_autoscale_masked():
@@ -582,8 +604,10 @@ def test_light_source_topo_surface():
 
 
 def test_light_source_shading_default():
-    """Array comparison test for the default "hsv" blend mode. Ensure the
-    default result doesn't change without warning."""
+    """
+    Array comparison test for the default "hsv" blend mode. Ensure the
+    default result doesn't change without warning.
+    """
     y, x = np.mgrid[-1.2:1.2:8j, -1.2:1.2:8j]
     z = 10 * np.cos(x**2 + y**2)
 
@@ -637,8 +661,10 @@ def test_light_source_shading_default():
 # additional elements being masked when calculating the gradient thus
 # the output is different with earlier numpy versions.
 def test_light_source_masked_shading():
-    """Array comparison test for a surface with a masked portion. Ensures that
-    we don't wind up with "fringes" of odd colors around masked regions."""
+    """
+    Array comparison test for a surface with a masked portion. Ensures that
+    we don't wind up with "fringes" of odd colors around masked regions.
+    """
     y, x = np.mgrid[-1.2:1.2:8j, -1.2:1.2:8j]
     z = 10 * np.cos(x**2 + y**2)
 
@@ -691,8 +717,10 @@ def test_light_source_masked_shading():
 
 
 def test_light_source_hillshading():
-    """Compare the current hillshading method against one that should be
-    mathematically equivalent. Illuminates a cone from a range of angles."""
+    """
+    Compare the current hillshading method against one that should be
+    mathematically equivalent. Illuminates a cone from a range of angles.
+    """
 
     def alternative_hillshade(azimuth, elev, z):
         illum = _sph2cart(*_azimuth2math(azimuth, elev))
@@ -720,20 +748,25 @@ def test_light_source_hillshading():
 
 
 def test_light_source_planar_hillshading():
-    """Ensure that the illumination intensity is correct for planar
-    surfaces."""
+    """
+    Ensure that the illumination intensity is correct for planar surfaces.
+    """
 
     def plane(azimuth, elevation, x, y):
-        """Create a plane whose normal vector is at the given azimuth and
-        elevation."""
+        """
+        Create a plane whose normal vector is at the given azimuth and
+        elevation.
+        """
         theta, phi = _azimuth2math(azimuth, elevation)
         a, b, c = _sph2cart(theta, phi)
         z = -(a*x + b*y) / c
         return z
 
     def angled_plane(azimuth, elevation, angle, x, y):
-        """Create a plane whose normal vector is at an angle from the given
-        azimuth and elevation."""
+        """
+        Create a plane whose normal vector is at an angle from the given
+        azimuth and elevation.
+        """
         elevation = elevation + angle
         if elevation > 90:
             azimuth = (azimuth + 180) % 360
@@ -765,8 +798,10 @@ def _sph2cart(theta, phi):
 
 
 def _azimuth2math(azimuth, elevation):
-    """Converts from clockwise-from-north and up-from-horizontal to
-    mathematical conventions."""
+    """
+    Convert from clockwise-from-north and up-from-horizontal to mathematical
+    conventions.
+    """
     theta = np.radians((90 - azimuth) % 360)
     phi = np.radians(90 - elevation)
     return theta, phi
@@ -785,14 +820,20 @@ def test_pandas_iterable(pd):
 
 @pytest.mark.parametrize('name', sorted(cm.cmap_d))
 def test_colormap_reversing(name):
-    """Check the generated _lut data of a colormap and corresponding
-    reversed colormap if they are almost the same."""
+    """
+    Check the generated _lut data of a colormap and corresponding reversed
+    colormap if they are almost the same.
+    """
     cmap = plt.get_cmap(name)
     cmap_r = cmap.reversed()
     if not cmap_r._isinit:
         cmap._init()
         cmap_r._init()
     assert_array_almost_equal(cmap._lut[:-3], cmap_r._lut[-4::-1])
+    # Test the bad, over, under values too
+    assert_array_almost_equal(cmap(-np.inf), cmap_r(np.inf))
+    assert_array_almost_equal(cmap(np.inf), cmap_r(-np.inf))
+    assert_array_almost_equal(cmap(np.nan), cmap_r(np.nan))
 
 
 def test_cn():
@@ -894,7 +935,7 @@ def test_tableau_order():
     assert list(mcolors.TABLEAU_COLORS.values()) == dflt_cycle
 
 
-def test_ndarray_subclass_norm(recwarn):
+def test_ndarray_subclass_norm():
     # Emulate an ndarray subclass that handles units
     # which objects when adding or subtracting with other
     # arrays. See #6622 and #8696
@@ -917,9 +958,7 @@ def test_ndarray_subclass_norm(recwarn):
         assert_array_equal(norm(mydata), norm(data))
         fig, ax = plt.subplots()
         ax.imshow(mydata, norm=norm)
-        fig.canvas.draw()
-        assert len(recwarn) == 0
-        recwarn.clear()
+        fig.canvas.draw()  # Check that no warning is emitted.
 
 
 def test_same_color():

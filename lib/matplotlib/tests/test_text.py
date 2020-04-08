@@ -7,6 +7,7 @@ from numpy.testing import assert_almost_equal
 import pytest
 
 import matplotlib
+import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
@@ -142,38 +143,39 @@ def test_multiline2():
     renderer = fig.canvas.get_renderer()
 
     def draw_box(ax, tt):
-        bb = tt.get_window_extent(renderer)
-        bbt = bb.inverse_transformed(ax.transAxes)
         r = mpatches.Rectangle((0, 0), 1, 1, clip_on=False,
                                transform=ax.transAxes)
-        r.set_bounds(bbt.bounds)
+        r.set_bounds(
+            tt.get_window_extent(renderer)
+            .transformed(ax.transAxes.inverted())
+            .bounds)
         ax.add_patch(r)
 
     horal = 'left'
     for nn, st in enumerate(sts):
         tt = ax.text(0.2 * nn + 0.1, 0.5, st, horizontalalignment=horal,
-            verticalalignment='bottom')
+                     verticalalignment='bottom')
         draw_box(ax, tt)
     ax.text(1.2, 0.5, 'Bottom align', color='C2')
 
     ax.axhline(1.3, color='C2', linewidth=0.3)
     for nn, st in enumerate(sts):
         tt = ax.text(0.2 * nn + 0.1, 1.3, st, horizontalalignment=horal,
-            verticalalignment='top')
+                     verticalalignment='top')
         draw_box(ax, tt)
     ax.text(1.2, 1.3, 'Top align', color='C2')
 
     ax.axhline(1.8, color='C2', linewidth=0.3)
     for nn, st in enumerate(sts):
         tt = ax.text(0.2 * nn + 0.1, 1.8, st, horizontalalignment=horal,
-            verticalalignment='baseline')
+                     verticalalignment='baseline')
         draw_box(ax, tt)
     ax.text(1.2, 1.8, 'Baseline align', color='C2')
 
     ax.axhline(0.1, color='C2', linewidth=0.3)
     for nn, st in enumerate(sts):
         tt = ax.text(0.2 * nn + 0.1, 0.1, st, horizontalalignment=horal,
-            verticalalignment='bottom', rotation=20)
+                     verticalalignment='bottom', rotation=20)
         draw_box(ax, tt)
     ax.text(1.2, 0.1, 'Bot align, rot20', color='C2')
 
@@ -194,12 +196,9 @@ def test_antialiasing():
 
 
 def test_afm_kerning():
-    from matplotlib.afm import AFM
-    from matplotlib.font_manager import findfont
-
-    fn = findfont("Helvetica", fontext="afm")
+    fn = mpl.font_manager.findfont("Helvetica", fontext="afm")
     with open(fn, 'rb') as fh:
-        afm = AFM(fh)
+        afm = mpl.afm.AFM(fh)
     assert afm.string_width_height('VAVAVAVAVAVA') == (7174.0, 718)
 
 
@@ -323,40 +322,50 @@ def test_set_position():
         assert a + shift_val == b
 
 
+@pytest.mark.parametrize('text', ['', 'O'], ids=['empty', 'non-empty'])
+def test_non_default_dpi(text):
+    fig, ax = plt.subplots()
+
+    t1 = ax.text(0.5, 0.5, text, ha='left', va='bottom')
+    fig.canvas.draw()
+    dpi = fig.dpi
+
+    bbox1 = t1.get_window_extent()
+    bbox2 = t1.get_window_extent(dpi=dpi * 10)
+    np.testing.assert_allclose(bbox2.get_points(), bbox1.get_points() * 10,
+                               rtol=5e-2)
+    # Text.get_window_extent should not permanently change dpi.
+    assert fig.dpi == dpi
+
+
 def test_get_rotation_string():
-    from matplotlib import text
-    assert text.get_rotation('horizontal') == 0.
-    assert text.get_rotation('vertical') == 90.
-    assert text.get_rotation('15.') == 15.
+    assert mpl.text.get_rotation('horizontal') == 0.
+    assert mpl.text.get_rotation('vertical') == 90.
+    assert mpl.text.get_rotation('15.') == 15.
 
 
 def test_get_rotation_float():
-    from matplotlib import text
     for i in [15., 16.70, 77.4]:
-        assert text.get_rotation(i) == i
+        assert mpl.text.get_rotation(i) == i
 
 
 def test_get_rotation_int():
-    from matplotlib import text
     for i in [67, 16, 41]:
-        assert text.get_rotation(i) == float(i)
+        assert mpl.text.get_rotation(i) == float(i)
 
 
 def test_get_rotation_raises():
-    from matplotlib import text
     with pytest.raises(ValueError):
-        text.get_rotation('hozirontal')
+        mpl.text.get_rotation('hozirontal')
 
 
 def test_get_rotation_none():
-    from matplotlib import text
-    assert text.get_rotation(None) == 0.0
+    assert mpl.text.get_rotation(None) == 0.0
 
 
 def test_get_rotation_mod360():
-    from matplotlib import text
     for i, j in zip([360., 377., 720+177.2], [0., 17., 177.2]):
-        assert_almost_equal(text.get_rotation(i), j)
+        assert_almost_equal(mpl.text.get_rotation(i), j)
 
 
 @pytest.mark.parametrize("ha", ["center", "right", "left"])
@@ -468,10 +477,8 @@ def test_agg_text_clip():
 
 
 def test_text_size_binding():
-    from matplotlib.font_manager import FontProperties
-
     matplotlib.rcParams['font.size'] = 10
-    fp = FontProperties(size='large')
+    fp = mpl.font_manager.FontProperties(size='large')
     sz1 = fp.get_size_in_points()
     matplotlib.rcParams['font.size'] = 100
 
@@ -530,6 +537,21 @@ def test_hinting_factor_backends():
     # Backends should apply hinting_factor consistently (within 10%).
     np.testing.assert_allclose(t.get_window_extent().intervalx, expected,
                                rtol=0.1)
+
+
+@needs_usetex
+def test_usetex_is_copied():
+    # Indirectly tests that update_from (which is used to copy tick label
+    # properties) copies usetex state.
+    fig = plt.figure()
+    plt.rcParams["text.usetex"] = False
+    ax1 = fig.add_subplot(121)
+    plt.rcParams["text.usetex"] = True
+    ax2 = fig.add_subplot(122)
+    fig.canvas.draw()
+    for ax, usetex in [(ax1, False), (ax2, True)]:
+        for t in ax.xaxis.majorTicks:
+            assert t.label1.get_usetex() == usetex
 
 
 @needs_usetex
@@ -648,3 +670,12 @@ def test_buffer_size(fig_test, fig_ref):
     ax = fig_ref.add_subplot()
     ax.set_yticks([0, 1])
     ax.set_yticklabels(["€", ""])
+
+
+def test_fontproperties_kwarg_precedence():
+    """Test that kwargs take precedence over fontproperties defaults."""
+    plt.figure()
+    text1 = plt.xlabel("value", fontproperties='Times New Roman', size=40.0)
+    text2 = plt.ylabel("counts", size=40.0, fontproperties='Times New Roman')
+    assert text1.get_size() == 40.0
+    assert text2.get_size() == 40.0

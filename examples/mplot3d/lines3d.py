@@ -1,10 +1,10 @@
-'''
+"""
 ================
 Parametric Curve
 ================
 
 This example demonstrates plotting a parametric curve in 3D.
-'''
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt

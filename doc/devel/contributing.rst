@@ -53,28 +53,8 @@ Thank you for your help in keeping bug reports complete, targeted and descriptiv
 Retrieving and installing the latest version of the code
 ========================================================
 
-When developing Matplotlib, sources must be downloaded, built, and installed into
-a local environment on your machine.
-
-Follow the instructions detailed :ref:`here <install_from_source>` to set up your
-environment to build Matplotlib from source.
-
-.. warning::
-
-   When working on Matplotlib sources, having multiple versions installed by
-   different methods into the same environment may not always work as expected.
-
-To work on Matplotlib sources, it is strongly recommended to set up an alternative
-development environment, using the something like `virtual environments in python
-<http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_, or a
-`conda environment <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_.
-
-If you choose to use an already existing environment, and not a clean virtual or
-conda environment, uninstall the current version of Matplotlib in that environment
-using the same method used to install it.
-
-If working on Matplotlib documentation only, the above steps are *not* absolutely
-necessary.
+When developing Matplotlib, sources must be downloaded, built, and installed
+into a local environment on your machine.
 
 We use `Git <https://git-scm.com/>`_ for version control and
 `GitHub <https://github.com/>`_ for hosting our main repository.
@@ -88,38 +68,24 @@ and navigate to the :file:`matplotlib` directory. If you have the proper privile
 you can use ``git@`` instead of  ``https://``, which works through the ssh protocol
 and might be easier to use if you are using 2-factor authentication.
 
-
-Building Matplotlib for image comparison tests
-----------------------------------------------
-
-Matplotlib's test suite makes heavy use of image comparison tests,
-meaning the result of a plot is compared against a known good result.
-Unfortunately, different versions of FreeType produce differently
-formed characters, causing these image comparisons to fail.  To make
-them reproducible, Matplotlib can be built with a special local copy
-of FreeType.  This is recommended for all Matplotlib developers.
-
-Prior to compiling the C-extensions, copy :file:`setup.cfg.template` to
-:file:`setup.cfg` and edit it to contain::
-
-  [test]
-  local_freetype = True
-  tests = True
-
-or set the ``MPLLOCALFREETYPE`` environmental variable to any true
-value.  If you have previously built Matplotlib with a different
-version of Freetype, you will also need to remove the c/c++ build
-products.  Do this is to delete the ``build`` folder or ``git clean
--xfd``.  If you are going to be regularly working on Matplotlib,
-consider putting ::
-
-   export MPLLOCALFREETYPE=1
-
-in your shell start up files.
-
-
 Installing Matplotlib in developer mode
 ---------------------------------------
+
+It is strongly recommended to set up a clean `virtual environment`_.  Do not
+use on a preexisting environment!
+
+A new environment can be set up with ::
+
+   python3 -mvenv /path/to/devel/env
+
+and activated with one of the following::
+
+   source /path/to/devel/env/bin/activate  # Linux/macOS
+   /path/to/devel/env/Scripts/activate.bat  # Windows cmd.exe
+   /path/to/devel/env/Scripts/Activate.ps1  # Windows PowerShell
+
+Whenever you plan to work on Matplotlib, remember to activate the development
+environment in your shell!
 
 To install Matplotlib (and compile the C-extensions) run the following
 command from the top-level directory ::
@@ -134,28 +100,15 @@ reflected the next time you import the library.  If you change the
 C-extension source (which might happen if you change branches) you
 will need to run ::
 
-   python setup.py build
+   python setup.py build_ext --inplace
 
 or re-run ``python -mpip install -ve .``.
 
-Alternatively, if you do ::
+You can then run the tests to check your work environment is set up properly::
 
-   python -mpip install -v .
+   python -mpytest
 
-all of the files will be copied to the installation directory however,
-you will have to rerun this command every time the source is changed.
-Additionally you will need to copy :file:`setup.cfg.template` to
-:file:`setup.cfg` and edit it to contain ::
-
-  [test]
-  local_freetype = True
-  tests = True
-
-In either case you can then run the tests to check your work
-environment is set up properly::
-
-  pytest
-
+.. _virtual environment: https://docs.python.org/3/library/venv.html
 .. _pytest: http://doc.pytest.org/en/latest/
 .. _pep8: https://pep8.readthedocs.io/en/latest/
 .. _Ghostscript: https://www.ghostscript.com/
@@ -264,13 +217,18 @@ rules before submitting a pull request:
      import matplotlib.cbook as cbook
      import matplotlib.patches as mpatches
 
+  In general, Matplotlib modules should **not** import `.rcParams` using ``from
+  matplotlib import rcParams``, but rather access it as ``mpl.rcParams``.  This
+  is because some modules are imported very early, before the `.rcParams`
+  singleton is constructed.
+
 * If your change is a major new feature, add an entry to the ``What's new``
   section by adding a new file in ``doc/users/next_whats_new`` (see
   :file:`doc/users/next_whats_new/README.rst` for more information).
 
 * If you change the API in a backward-incompatible way, please document it in
-  `doc/api/api_changes`, by adding a new file describing your changes (see
-  :file:`doc/api/api_changes/README.rst` for more information)
+  :file:`doc/api/api_changes`, by adding to the relevant file
+  (see :file:`doc/api/api_changes.rst` for more information)
 
 * See below for additional points about :ref:`keyword-argument-processing`, if
   applicable for your pull request.
@@ -281,7 +239,7 @@ tools:
 * Code with a good unittest coverage (at least 70%, better 100%), check with::
 
    python -mpip install coverage
-   pytest --cov=matplotlib --showlocals -v
+   python -mpytest --cov=matplotlib --showlocals -v
 
 * No pyflakes warnings, check with::
 
@@ -359,16 +317,17 @@ API changes
 Changes to the public API must follow a standard deprecation procedure to
 prevent unexpected breaking of code that uses Matplotlib.
 
-- Deprecations must be announced via an entry in `doc/api/next_api_changes`.
+- Deprecations must be announced via an entry in
+  the most recent :file:`doc/api/api_changes_X.Y`
 - Deprecations are targeted at the next point-release (i.e. 3.x.0).
 - The deprecated API should, to the maximum extent possible, remain fully
   functional during the deprecation period. In cases where this is not
   possible, the deprecation must never make a given piece of code do something
   different than it was before; at least an exception should be raised.
 - If possible, usage of an deprecated API should emit a
-  `MatplotlibDeprecationWarning`. There are a number of helper tools for this:
+  `.MatplotlibDeprecationWarning`. There are a number of helper tools for this:
 
-  - Use `.cbook.warn_deprecated()` for general deprecation warnings.
+  - Use ``cbook.warn_deprecated()`` for general deprecation warnings.
   - Use the decorator ``@cbook.deprecated`` to deprecate classes, functions,
     methods, or properties.
   - To warn on changes of the function signature, use the decorators
@@ -402,7 +361,7 @@ New modules and files: installation
 
 * If you have added new files or directories, or reorganized existing
   ones, make sure the new files are included in the match patterns in
-  :file:`MANIFEST.in`, and/or in `package_data` in `setup.py`.
+  :file:`MANIFEST.in`, and/or in *package_data* in :file:`setup.py`.
 
 C/C++ extensions
 ----------------
@@ -413,8 +372,8 @@ C/C++ extensions
   address C++, but most of its admonitions still apply).
 
 * Python/C interface code should be kept separate from the core C/C++
-  code.  The interface code should be named `FOO_wrap.cpp` or
-  `FOO_wrapper.cpp`.
+  code.  The interface code should be named :file:`FOO_wrap.cpp` or
+  :file:`FOO_wrapper.cpp`.
 
 * Header file documentation (aka docstrings) should be in Numpydoc
   format.  We don't plan on using automated tools for these
@@ -507,7 +466,7 @@ To include `logging` in your module, at the top of the module, you need to
 will log to a logger named ``matplotlib.yourmodulename``.
 
 If an end-user of Matplotlib sets up `logging` to display at levels
-more verbose than `logger.WARNING` in their code with the Matplotlib-provided
+more verbose than `logging.WARNING` in their code with the Matplotlib-provided
 helper::
 
   plt.set_loglevel("debug")
@@ -607,7 +566,7 @@ when the website is built to show up in the `examples
 
 Any sample data that the example uses should be kept small and
 distributed with Matplotlib in the
-`lib/matplotlib/mpl-data/sample_data/` directory.  Then in your
+:file:`lib/matplotlib/mpl-data/sample_data/` directory.  Then in your
 example code you can load it into a file handle with::
 
     import matplotlib.cbook as cbook

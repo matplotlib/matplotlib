@@ -22,7 +22,7 @@ class IndexTracker:
         self.im = ax.imshow(self.X[:, :, self.ind])
         self.update()
 
-    def onscroll(self, event):
+    def on_scroll(self, event):
         print("%s %s" % (event.button, event.step))
         if event.button == 'up':
             self.ind = (self.ind + 1) % self.slices
@@ -43,5 +43,5 @@ X = np.random.rand(20, 20, 40)
 tracker = IndexTracker(ax, X)
 
 
-fig.canvas.mpl_connect('scroll_event', tracker.onscroll)
+fig.canvas.mpl_connect('scroll_event', tracker.on_scroll)
 plt.show()

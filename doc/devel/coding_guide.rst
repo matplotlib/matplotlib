@@ -1,20 +1,79 @@
-.. _reviewers-guide:
+.. _pr-guidelines:
 
-********************
-Reviewers guideline
-********************
+***********************
+Pull request guidelines
+***********************
 
-.. _pull-request-checklist:
+Pull requests (PRs) are the mechanism for contributing to Matplotlibs code and
+documentation.
 
-Pull request checklist
+Summary for PR authors
 ======================
 
-Branch selection
-----------------
+.. note::
 
-Generally, all pull requests (*PRs*) should target the master branch. Other
-branches are fed through automatic or manual backports. Directly targeting
-other branches is only rarely necessary for special maintenance work.
+   * We value contributions from people with all levels of experience. In
+     particular if this is your first PR not everything has to be perfect.
+     We'll guide you through the PR process.
+   * Nevertheless, try to follow the guidelines below as well as you can to
+     help make the PR process quick and smooth.
+   * Be patient with reviewers. We try our best to respond quickly, but we
+     have limited bandwidth. If there is no feedback within a couple of days,
+     please ping us by posting a comment to your PR.
+
+When making a PR, pay attention to:
+
+* :ref:`Target the master branch <pr-branch-selection>`.
+* Adhere to the :ref:`coding_guidelines`.
+* Update the :ref:`documentation <pr-documentation>` if necessary.
+* Aim at making the PR as "ready-to-go" as you can. This helps to speed up
+  the review process.
+* It is ok to open incomplete or work-in-progress PRs if you need help or
+  feedback from the developers. You may mark these as
+  `draft pull requests <https://help.github.com/en/articles/about-pull-requests#draft-pull-requests>`_
+  on GitHub.
+* When updating your PR, instead of adding new commits to fix something, please
+  consider amending your initial commit(s) to keep the history clean.
+  You can achieve this using::
+
+      git commit --amend --no-edit
+      git push [your-remote-repo] [your-branch] --force-with-lease
+
+See also :ref:`contributing` for how to make a PR.
+
+Summary for PR reviewers
+========================
+
+.. note::
+
+   * If you have commit rights, then you are trusted to use them.
+     **Please help review and merge PRs!**
+   * Be patient and `kind <https://youtu.be/tzFWz5fiVKU?t=49m30s>`__ with
+     contributors.
+
+Content topics:
+
+* Is the feature / bugfix reasonable?
+* Does the PR conform with the :ref:`coding_guidelines`?
+* Is the :ref:`documentation <pr-documentation>` (docstrings, examples,
+  what's new, API changes) updated?
+
+Organizational topics:
+
+* Make sure all :ref:`automated tests <pr-automated-tests>` pass.
+* The PR should :ref:`target the master branch <pr-branch-selection>`.
+* Tag with descriptive :ref:`labels <pr-labels>`.
+* Set the :ref:`milestone <pr-milestones>`.
+* Keep an eye on the :ref:`number of commits <pr-squashing>`.
+* Approve if all of the above topics handled.
+* :ref:`Merge  <pr-merging>` if a sufficient number of approvals is reached.
+
+.. _pr-guidelines-details:
+
+Detailed Guidelines
+===================
+
+.. _pr-documentation:
 
 Documentation
 -------------
@@ -36,26 +95,28 @@ Documentation
   :file:`doc/users/whats_new.rst`.
 
 * If you change the API in a backward-incompatible way, please
-  document it in :file:`doc/api/api_changes.rst`.
+  document it in the relevant file in most recent
+  :file:`doc/api/api_changes_X.Y`.
 
-PR Review guidelines
-====================
+.. _pr-labels:
 
-* Be patient and `kind <https://youtu.be/tzFWz5fiVKU?t=49m30s>`__ with
-  contributors.
-
-* If you have commit rights, then you are trusted to use them.  Please
-  help review and merge PRs!
+Labels
+------
 
 * If you have the rights to set labels, tag the PR with descriptive labels.
   See the `list of labels <https://github.com/matplotlib/matplotlib/labels>`__.
 
+.. _pr-milestones:
+
+Milestones
+----------
+
 * Set the milestone according to these rules:
 
-  * *New features and API changes* are milestoned for the next point-release
+  * *New features and API changes* are milestoned for the next minor release
     ``v3.X.0``.
 
-  * *Bugfixes and docstring changes* are milestoned for the next bugfix
+  * *Bugfixes and docstring changes* are milestoned for the next patch
     release ``v3.X.Y``
 
   * *Documentation changes* (all .rst files and examples) are milestoned
@@ -66,6 +127,11 @@ PR Review guidelines
   All of these PRs should target the master branch. The milestone tag triggers
   an :ref:`automatic backport <automated-backports>` for milestones which have
   a corresponding branch.
+
+.. _pr-merging:
+
+Merging
+-------
 
 * Documentation and examples may be merged by the first reviewer.  Use
   the threshold "is this better than it was?" as the review criteria.
@@ -79,9 +145,9 @@ PR Review guidelines
   approve the review and if you think no more review is needed, merge
   the PR.
 
-  Ensure that all API changes are documented in
-  :file:`doc/api/api_changes` and significant new features have and
-  entry in :file:`doc/user/whats_new`.
+  Ensure that all API changes are documented in the relevant file in
+  the most recent :file:`doc/api/api_changes_X.Y` and significant new features
+  have an entry in :file:`doc/user/whats_new`.
 
   - If a PR already has a positive review, a core developer (e.g. the first
     reviewer, but not necessarily) may champion that PR for merging.  In order
@@ -95,17 +161,29 @@ PR Review guidelines
     A core dev should only champion one PR at a time and we should try to keep
     the flow of championed PRs reasonable.
 
+.. _pr-automated-tests:
+
+Automated tests
+---------------
+
 * Make sure the Travis, Appveyor, CircleCI, and codecov tests are passing
   before merging.
 
   - Whenever a pull request is created or updated, Travis and Appveyor
     automatically runs the test suite on all versions of Python
-    supported by Matplotlib.  The `tox` support in Matplotlib may be
+    supported by Matplotlib.  The tox_ support in Matplotlib may be
     useful for testing locally.
+
+  .. _tox: https://tox.readthedocs.io/
 
 * Do not self merge, except for 'small' patches to un-break the CI or
   when another reviewer explicitly allows it (ex, "Approve modulo CI
   passing, may self merge when green").
+
+.. _pr-squashing:
+
+Number of commits and squashing
+-------------------------------
 
 * Squashing is case-by-case.  The balance is between burden on the
   contributor, keeping a relatively clean history, and keeping a
@@ -126,37 +204,68 @@ PR Review guidelines
   with the contributor first.
 
 
+.. _branches_and_backports:
+
 Branches and Backports
 ======================
 
-
+Current branches
+----------------
 The current active branches are
 
 *master*
-  This will be Matplotlib 3.0.  Supports Python 3.5+.
+  The current development version. Future minor releases (*v3.N.0*) will be
+  branched from this. Supports Python 3.6+.
+
+*v3.N.x*
+  Maintenance branch for Matplotlib 3.N. Future patch releases will be
+  branched from this.  Supports Python 3.6+.
+
+*v3.N.M-doc*
+  Documentation for the current release.  On a patch release, this will be
+  replaced by a properly named branch for the new release.
 
 *v2.2.x*
-  Maintenance branch for Matplotlib 2.2 LTS.  Supports Python 2.7, 3.4+
+  Maintenance branch for Matplotlib 2.2 LTS.  Supports Python 2.7, 3.4+.
 
 *v2.2.N-doc*
-  Documentation for the current release.  On a patch release, this will be replaced
-  by a properly named branch for the new release.
+  Documentation for the current release.  On a patch release, this will be
+  replaced by a properly named branch for the new release.
 
 
-We always will backport to 2.2.x
+.. _pr-branch-selection:
+
+Branch selection for pull requests
+----------------------------------
+
+Generally, all pull requests should target the master branch.
+
+Other branches are fed through :ref:`automatic <automated-backports>` or
+:ref:`manual <manual-backports>`. Directly
+targeting other branches is only rarely necessary for special maintenance
+work.
+
+.. backport_strategy:
+
+Backport strategy
+-----------------
+
+We will always backport to the patch release branch (*v3.N.x*):
 
 - critical bug fixes (segfault, failure to import, things that the
   user can not work around)
-- fixes for regressions against 2.0 or 2.1
+- fixes for regressions against the last two releases.
 
-Everything else (regressions against 1.x versions, bugs/api
+Everything else (regressions against older releases, bugs/api
 inconsistencies the user can work around in their code) are on a
 case-by-case basis, should be low-risk, and need someone to advocate
 for and shepherd through the backport.
 
-The only changes to be backported to 2.2.N-doc are changes to
-``doc``, ``examples``, or ``tutorials``.  Any changes to
-``lib`` or ``src`` should not be backported to this branch.
+The only changes to be backported to the documentation branch (*v3.N.M-doc*)
+are changes to :file:`doc`, :file:`examples`, or :file:`tutorials`.
+Any changes to :file:`lib` or :file:`src` including docstring-only changes
+should not be backported to this branch.
+
 
 .. _automated-backports:
 
@@ -177,6 +286,8 @@ TARGETBRANCH`` in the milestone description on it's own line.
 If the bot is not working as expected, please report issues to
 `Meeseeksdev <https://github.com/MeeseeksBox/MeeseeksDev>`__.
 
+
+.. _manual-backports:
 
 Manual backports
 ----------------
@@ -204,7 +315,7 @@ Assuming that you already have a local branch ``v2.2.x`` (if not, then
   git cherry-pick -m 1 TARGET_SHA
   # resolve conflicts and commit if required
 
-Files with conflicts can be listed by `git status`,
+Files with conflicts can be listed by ``git status``,
 and will have to be fixed by hand (search on ``>>>>>``).  Once
 the conflict is resolved, you will have to re-add the file(s) to the branch
 and then continue the cherry pick::
@@ -214,4 +325,4 @@ and then continue the cherry pick::
   git cherry-pick --continue
 
 Use your discretion to push directly to upstream or to open a PR; be
-sure to push or PR against the `v2.2.x` upstream branch, not `master`!
+sure to push or PR against the ``v2.2.x`` upstream branch, not ``master``!

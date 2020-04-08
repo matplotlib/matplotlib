@@ -2,7 +2,9 @@ import io
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
+from PIL import Image, TiffTags
 import pytest
+
 
 from matplotlib import (
     collections, path, pyplot as plt, transforms as mtransforms, rcParams)
@@ -99,7 +101,7 @@ def test_agg_filter():
         def get_pad(self, dpi):
             return 0
 
-        def process_image(padded_src, dpi):
+        def process_image(self, padded_src, dpi):
             raise NotImplementedError("Should be overridden by subclasses")
 
         def __call__(self, im, dpi):
@@ -217,7 +219,6 @@ def test_chunksize():
 
 @pytest.mark.backend('Agg')
 def test_jpeg_dpi():
-    Image = pytest.importorskip("PIL.Image")
     # Check that dpi is set correctly in jpg files.
     plt.plot([0, 1, 2], [0, 1, 0])
     buf = io.BytesIO()
@@ -227,7 +228,6 @@ def test_jpeg_dpi():
 
 
 def test_pil_kwargs_png():
-    Image = pytest.importorskip("PIL.Image")
     from PIL.PngImagePlugin import PngInfo
     buf = io.BytesIO()
     pnginfo = PngInfo()
@@ -238,11 +238,9 @@ def test_pil_kwargs_png():
 
 
 def test_pil_kwargs_tiff():
-    Image = pytest.importorskip("PIL.Image")
-    from PIL.TiffTags import TAGS_V2 as TAGS
     buf = io.BytesIO()
     pil_kwargs = {"description": "test image"}
     plt.figure().savefig(buf, format="tiff", pil_kwargs=pil_kwargs)
     im = Image.open(buf)
-    tags = {TAGS[k].name: v for k, v in im.tag_v2.items()}
+    tags = {TiffTags.TAGS_V2[k].name: v for k, v in im.tag_v2.items()}
     assert tags["ImageDescription"] == "test image"

@@ -99,7 +99,7 @@ class TriContourSet(ContourSet):
         self.zmin = float(z_check.min())
         if self.logscale and self.zmin <= 0:
             raise ValueError('Cannot %s log of negative values.' % fn)
-        self._contour_level_args(z, args[1:])
+        self._process_contour_level_args(args[1:])
         return (tri, z)
 
 
@@ -115,7 +115,7 @@ def tricontour(ax, *args, **kwargs):
 
         tricontour(triangulation, ...)
 
-    where *triangulation* is a `matplotlib.tri.Triangulation` object, or ::
+    where *triangulation* is a `.Triangulation` object, or ::
 
         tricontour(x, y, ...)
         tricontour(x, y, triangles, ...)
@@ -160,19 +160,18 @@ def tricontour(ax, *args, **kwargs):
     Use keyword args to control colors, linewidth, origin, cmap ... see
     below for more details.
 
-    `.tricontour(...)` returns a `~matplotlib.contour.TriContourSet` object.
+    `~.Axes.tricontour` returns a `~matplotlib.contour.TriContourSet` object.
 
     Optional keyword arguments:
 
-        *colors*: [ *None* | string | (mpl_colors) ]
+        *colors*: [ *None* | str | (mpl_colors) ]
         If *None*, the colormap specified by cmap will be used.
 
         If a string, like 'r' or 'red', all levels will be plotted in this
         color.
 
-        If a tuple of matplotlib color args (string, float, rgb, etc),
-        different levels will be plotted in different colors in the order
-        specified.
+        If a tuple of colors (string, float, rgb, etc), different levels will
+        be plotted in different colors in the order specified.
 
         *alpha*: float
         The alpha blending value
@@ -207,7 +206,7 @@ def tricontour(ax, *args, **kwargs):
         pixel boundaries. In this case, the position of Z[0, 0]
         is the center of the pixel, not a corner. If *origin* is
         *None*, then (*x0*, *y0*) is the position of Z[0, 0], and
-        (*x1*, *y1*) is the position of Z[-1,-1].
+        (*x1*, *y1*) is the position of Z[-1, -1].
 
         This keyword is not active if *X* and *Y* are specified in
         the call to contour.
@@ -234,7 +233,7 @@ def tricontour(ax, *args, **kwargs):
     tricontour-only keyword arguments:
 
         *linewidths*: [ *None* | number | tuple of numbers ]
-        If *linewidths* is *None*, defaults to rc:`lines.linewidth`.
+        If *linewidths* is *None*, defaults to :rc:`lines.linewidth`.
 
         If a number, all levels will be plotted with this linewidth.
 

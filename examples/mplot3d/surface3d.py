@@ -1,4 +1,4 @@
-'''
+"""
 ======================
 3D surface (color map)
 ======================
@@ -8,16 +8,14 @@ The surface is made opaque by using antialiased=False.
 
 Also demonstrates using the LinearLocator and custom formatting for the
 z axis tick labels.
-'''
+"""
 
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import numpy as np
 
-
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
 # Make data.
 X = np.arange(-5, 5, 0.25)

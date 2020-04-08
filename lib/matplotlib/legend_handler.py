@@ -28,6 +28,7 @@ from itertools import cycle
 
 import numpy as np
 
+from matplotlib import cbook
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 import matplotlib.collections as mcoll
@@ -94,14 +95,14 @@ class HandlerBase:
 
         Parameters
         ----------
-        legend : :class:`matplotlib.legend.Legend` instance
+        legend : `~matplotlib.legend.Legend`
             The legend for which these legend artists are being created.
         orig_handle : :class:`matplotlib.artist.Artist` or similar
             The object for which these legend artists are being created.
-        fontsize : float or int
+        fontsize : int
             The fontsize in pixels. The artists being created should
             be scaled according to the given fontsize.
-        handlebox : :class:`matplotlib.offsetbox.OffsetBox` instance
+        handlebox : `matplotlib.offsetbox.OffsetBox`
             The box which has been created to hold this legend entry's
             artists. Artists created in the `legend_artist` method must
             be added to this handlebox inside this method.
@@ -336,9 +337,8 @@ class HandlerLineCollection(HandlerLine2D):
 
 
 class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
-    """
-    Handler for `.RegularPolyCollections`.
-    """
+    r"""Handler for `.RegularPolyCollection`\s."""
+
     def __init__(self, yoffsets=None, sizes=None, **kw):
         HandlerNpointsYoffsets.__init__(self, yoffsets=yoffsets, **kw)
 
@@ -411,9 +411,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
 
 
 class HandlerPathCollection(HandlerRegularPolyCollection):
-    """
-    Handler for `.PathCollections`, which are used by `~.Axes.scatter`.
-    """
+    r"""Handler for `.PathCollection`\s, which are used by `~.Axes.scatter`."""
     def create_collection(self, orig_handle, sizes, offsets, transOffset):
         p = type(orig_handle)([orig_handle.get_paths()[0]],
                               sizes=sizes,
@@ -424,9 +422,7 @@ class HandlerPathCollection(HandlerRegularPolyCollection):
 
 
 class HandlerCircleCollection(HandlerRegularPolyCollection):
-    """
-    Handler for `.CircleCollections`.
-    """
+    r"""Handler for `.CircleCollection`\s."""
     def create_collection(self, orig_handle, sizes, offsets, transOffset):
         p = type(orig_handle)(sizes,
                               offsets=offsets,
@@ -436,9 +432,8 @@ class HandlerCircleCollection(HandlerRegularPolyCollection):
 
 
 class HandlerErrorbar(HandlerLine2D):
-    """
-    Handler for Errorbars.
-    """
+    """Handler for Errorbars."""
+
     def __init__(self, xerr_size=0.5, yerr_size=None,
                  marker_pad=0.3, numpoints=None, **kw):
 
@@ -553,8 +548,8 @@ class HandlerStem(HandlerNpointsYoffsets):
         """
         Parameters
         ----------
-        marker_pad : float
-            Padding between points in legend entry. Default is 0.3.
+        marker_pad : float, default: 0.3
+            Padding between points in legend entry.
 
         numpoints : int, optional
             Number of points to show in legend entry.
@@ -613,18 +608,14 @@ class HandlerStem(HandlerNpointsYoffsets):
         if using_linecoll:
             # change the function used by update_prop() from the default
             # to one that handles LineCollection
-            orig_update_func = self._update_prop_func
-            self._update_prop_func = self._copy_collection_props
-
-            for line in leg_stemlines:
-                self.update_prop(line, stemlines, legend)
+            with cbook._setattr_cm(
+                    self, _update_prop_func=self._copy_collection_props):
+                for line in leg_stemlines:
+                    self.update_prop(line, stemlines, legend)
 
         else:
             for lm, m in zip(leg_stemlines, stemlines):
                 self.update_prop(lm, m, legend)
-
-        if using_linecoll:
-            self._update_prop_func = orig_update_func
 
         leg_baseline = Line2D([np.min(xdata), np.max(xdata)],
                               [bottom, bottom])
@@ -652,17 +643,14 @@ class HandlerTuple(HandlerBase):
 
     Parameters
     ----------
-    ndivide : int, optional
+    ndivide : int, default: 1
         The number of sections to divide the legend area into. If None,
-        use the length of the input tuple. Default is 1.
-
-
-    pad : float, optional
-        If None, fall back to ``legend.borderpad`` as the default.
-        In units of fraction of font size. Default is None.
+        use the length of the input tuple.
+    pad : float, default: :rc:`legend.borderpad`
+        Padding in units of fraction of font size.
     """
-    def __init__(self, ndivide=1, pad=None, **kwargs):
 
+    def __init__(self, ndivide=1, pad=None, **kwargs):
         self._ndivide = ndivide
         self._pad = pad
         HandlerBase.__init__(self, **kwargs)

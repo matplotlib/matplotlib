@@ -1,5 +1,4 @@
 import io
-import os
 from pathlib import Path
 import re
 import tempfile
@@ -25,17 +24,16 @@ needs_usetex = pytest.mark.skipif(
 @pytest.mark.parametrize('orientation', ['portrait', 'landscape'])
 @pytest.mark.parametrize('format, use_log, rcParams', [
     ('ps', False, {}),
-    pytest.param('ps', False, {'ps.usedistiller': 'ghostscript'},
-                 marks=needs_ghostscript),
-    pytest.param('ps', False, {'text.usetex': True},
-                 marks=[needs_ghostscript, needs_usetex]),
+    ('ps', False, {'ps.usedistiller': 'ghostscript'}),
+    ('ps', False, {'ps.usedistiller': 'xpdf'}),
+    ('ps', False, {'text.usetex': True}),
     ('eps', False, {}),
     ('eps', True, {'ps.useafm': True}),
-    pytest.param('eps', False, {'text.usetex': True},
-                 marks=[needs_ghostscript, needs_usetex]),
+    ('eps', False, {'text.usetex': True}),
 ], ids=[
     'ps',
-    'ps with distiller',
+    'ps with distiller=ghostscript',
+    'ps with distiller=xpdf',
     'ps with usetex',
     'eps',
     'eps afm',
@@ -58,11 +56,26 @@ def test_savefig_to_stringio(format, use_log, rcParams, orientation,
         if not mpl.rcParams["text.usetex"]:
             title += " \N{MINUS SIGN}\N{EURO SIGN}"
         ax.set_title(title)
-        fig.savefig(s_buf, format=format, orientation=orientation)
-        fig.savefig(b_buf, format=format, orientation=orientation)
+        allowable_exceptions = []
+        if rcParams.get("ps.usedistiller"):
+            allowable_exceptions.append(mpl.ExecutableNotFoundError)
+        if rcParams.get("text.usetex"):
+            allowable_exceptions.append(RuntimeError)
+        try:
+            fig.savefig(s_buf, format=format, orientation=orientation)
+            fig.savefig(b_buf, format=format, orientation=orientation)
+        except tuple(allowable_exceptions) as exc:
+            pytest.skip(str(exc))
 
         s_val = s_buf.getvalue().encode('ascii')
         b_val = b_buf.getvalue()
+
+        if rcParams.get("ps.usedistiller") or rcParams.get("text.usetex"):
+            # Strip out CreationDate betcase ghostscript doesn't obey
+            # SOURCE_DATE_EPOCH.  Note that in usetex mode, we *always* call
+            # gs_distill, even if ps.usedistiller is unset.
+            s_val = re.sub(b"(?<=\n%%CreationDate: ).*", b"", s_val)
+            b_val = re.sub(b"(?<=\n%%CreationDate: ).*", b"", b_val)
 
         assert s_val == b_val.replace(b'\r\n', b'\n')
 

@@ -24,9 +24,9 @@ construct a :func:`matplotlib.colors.Normalize` instance, then call it:
 
    In [1]: import matplotlib as mpl
 
-   In [2]: norm = mpl.colors.Normalize(vmin=-1.,vmax=1.)
+   In [2]: norm = mpl.colors.Normalize(vmin=-1, vmax=1)
 
-   In [3]: norm(0.)
+   In [3]: norm(0)
    Out[3]: 0.5
 
 However, there are sometimes cases where it is useful to map data to
@@ -54,7 +54,7 @@ X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
 # A low hump with a spike coming out of the top right.  Needs to have
 # z/colour axis on a log scale so we see both hump and spike.  linear
 # scale only shows the spike.
-Z1 = np.exp(-(X)**2 - (Y)**2)
+Z1 = np.exp(-X**2 - Y**2)
 Z2 = np.exp(-(X * 10)**2 - (Y * 10)**2)
 Z = Z1 + 50 * Z2
 
@@ -62,10 +62,10 @@ fig, ax = plt.subplots(2, 1)
 
 pcm = ax[0].pcolor(X, Y, Z,
                    norm=colors.LogNorm(vmin=Z.min(), vmax=Z.max()),
-                   cmap='PuBu_r')
+                   cmap='PuBu_r', shading='auto')
 fig.colorbar(pcm, ax=ax[0], extend='max')
 
-pcm = ax[1].pcolor(X, Y, Z, cmap='PuBu_r')
+pcm = ax[1].pcolor(X, Y, Z, cmap='PuBu_r', shading='auto')
 fig.colorbar(pcm, ax=ax[1], extend='max')
 plt.show()
 
@@ -99,10 +99,10 @@ fig, ax = plt.subplots(2, 1)
 pcm = ax[0].pcolormesh(X, Y, Z,
                        norm=colors.SymLogNorm(linthresh=0.03, linscale=0.03,
                                               vmin=-1.0, vmax=1.0, base=10),
-                       cmap='RdBu_r')
+                       cmap='RdBu_r', shading='auto')
 fig.colorbar(pcm, ax=ax[0], extend='both')
 
-pcm = ax[1].pcolormesh(X, Y, Z, cmap='RdBu_r', vmin=-np.max(Z))
+pcm = ax[1].pcolormesh(X, Y, Z, cmap='RdBu_r', vmin=-np.max(Z), shading='auto')
 fig.colorbar(pcm, ax=ax[1], extend='both')
 plt.show()
 
@@ -126,15 +126,15 @@ plt.show()
 
 N = 100
 X, Y = np.mgrid[0:3:complex(0, N), 0:2:complex(0, N)]
-Z1 = (1 + np.sin(Y * 10.)) * X**(2.)
+Z1 = (1 + np.sin(Y * 10.)) * X**2
 
 fig, ax = plt.subplots(2, 1)
 
 pcm = ax[0].pcolormesh(X, Y, Z1, norm=colors.PowerNorm(gamma=0.5),
-                       cmap='PuBu_r')
+                       cmap='PuBu_r', shading='auto')
 fig.colorbar(pcm, ax=ax[0], extend='max')
 
-pcm = ax[1].pcolormesh(X, Y, Z1, cmap='PuBu_r')
+pcm = ax[1].pcolormesh(X, Y, Z1, cmap='PuBu_r', shading='auto')
 fig.colorbar(pcm, ax=ax[1], extend='max')
 plt.show()
 
@@ -155,7 +155,7 @@ plt.show()
 #
 #   In [4]: norm = colors.BoundaryNorm(boundaries=bounds, ncolors=4)
 #
-#   In [5]: print(norm([-0.2,-0.15,-0.02, 0.3, 0.8, 0.99]))
+#   In [5]: print(norm([-0.2, -0.15, -0.02, 0.3, 0.8, 0.99]))
 #   [0 0 1 2 3 3]
 #
 # Note: Unlike the other norms, this norm returns values from 0 to *ncolors*-1.
@@ -171,18 +171,16 @@ ax = ax.flatten()
 # even bounds gives a contour-like effect
 bounds = np.linspace(-1, 1, 10)
 norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)
-pcm = ax[0].pcolormesh(X, Y, Z,
-                       norm=norm,
-                       cmap='RdBu_r')
+pcm = ax[0].pcolormesh(X, Y, Z, norm=norm, cmap='RdBu_r', shading='auto')
 fig.colorbar(pcm, ax=ax[0], extend='both', orientation='vertical')
 
 # uneven bounds changes the colormapping:
 bounds = np.array([-0.25, -0.125, 0, 0.5, 1])
 norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)
-pcm = ax[1].pcolormesh(X, Y, Z, norm=norm, cmap='RdBu_r')
+pcm = ax[1].pcolormesh(X, Y, Z, norm=norm, cmap='RdBu_r', shading='auto')
 fig.colorbar(pcm, ax=ax[1], extend='both', orientation='vertical')
 
-pcm = ax[2].pcolormesh(X, Y, Z, cmap='RdBu_r', vmin=-np.max(Z))
+pcm = ax[2].pcolormesh(X, Y, Z, cmap='RdBu_r', vmin=-np.max(Z), shading='auto')
 fig.colorbar(pcm, ax=ax[2], extend='both', orientation='vertical')
 plt.show()
 
@@ -210,15 +208,15 @@ fig, ax = plt.subplots()
 colors_undersea = plt.cm.terrain(np.linspace(0, 0.17, 256))
 colors_land = plt.cm.terrain(np.linspace(0.25, 1, 256))
 all_colors = np.vstack((colors_undersea, colors_land))
-terrain_map = colors.LinearSegmentedColormap.from_list('terrain_map',
-    all_colors)
+terrain_map = colors.LinearSegmentedColormap.from_list(
+    'terrain_map', all_colors)
 
 # make the norm:  Note the center is offset so that the land has more
 # dynamic range:
 divnorm = colors.TwoSlopeNorm(vmin=-500., vcenter=0, vmax=4000)
 
 pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
-    cmap=terrain_map,)
+                    cmap=terrain_map, shading='auto')
 # Simple geographic plot, set aspect ratio beecause distance between lines of
 # longitude depends on latitude.
 ax.set_aspect(1 / np.cos(np.deg2rad(49)))
@@ -249,7 +247,7 @@ fig, ax = plt.subplots()
 midnorm = MidpointNormalize(vmin=-500., vcenter=0, vmax=4000)
 
 pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=midnorm,
-    cmap=terrain_map)
+                    cmap=terrain_map, shading='auto')
 ax.set_aspect(1 / np.cos(np.deg2rad(49)))
 fig.colorbar(pcm, shrink=0.6, extend='both')
 plt.show()

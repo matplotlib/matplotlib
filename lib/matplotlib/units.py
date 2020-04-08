@@ -115,16 +115,12 @@ class ConversionInterface:
 
     @staticmethod
     def axisinfo(unit, axis):
-        """
-        Return an `~units.AxisInfo` for the axis with the specified units.
-        """
+        """Return an `.AxisInfo` for the axis with the specified units."""
         return None
 
     @staticmethod
     def default_units(x, axis):
-        """
-        Return the default unit for *x* or ``None`` for the given axis.
-        """
+        """Return the default unit for *x* or ``None`` for the given axis."""
         return None
 
     @staticmethod
@@ -155,9 +151,8 @@ class ConversionInterface:
 
 
 class DecimalConverter(ConversionInterface):
-    """
-    Converter for decimal.Decimal data to float.
-    """
+    """Converter for decimal.Decimal data to float."""
+
     @staticmethod
     def convert(value, unit, axis):
         """
@@ -172,13 +167,13 @@ class DecimalConverter(ConversionInterface):
         """
         # If value is a Decimal
         if isinstance(value, Decimal):
-            return np.float(value)
+            return float(value)
         else:
             # assume x is a list of Decimal
             converter = np.asarray
             if isinstance(value, ma.MaskedArray):
                 converter = ma.asarray
-            return converter(value, dtype=np.float)
+            return converter(value, dtype=float)
 
     @staticmethod
     def axisinfo(unit, axis):

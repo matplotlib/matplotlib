@@ -15,9 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import datetime
 import matplotlib.dates as mdates
-from matplotlib.transforms import Transform
-from matplotlib.ticker import (
-    AutoLocator, AutoMinorLocator)
+from matplotlib.ticker import AutoMinorLocator
 
 fig, ax = plt.subplots(constrained_layout=True)
 x = np.arange(0, 360, 1)
@@ -83,7 +81,7 @@ ydata = np.random.randn(len(xdata))
 ax.plot(xdata, ydata, label='Plotted data')
 
 xold = np.arange(0, 11, 0.2)
-# fake data set relating x co-ordinate to another data-derived co-ordinate.
+# fake data set relating x coordinate to another data-derived coordinate.
 # xnew must be monotonic, so we sort...
 xnew = np.sort(10 * np.exp(-xold / 4) + np.random.randn(len(xold)) / 3)
 
@@ -133,20 +131,21 @@ def yday2date(x):
     return y
 
 
-secaxx = ax.secondary_xaxis('top', functions=(date2yday, yday2date))
-secaxx.set_xlabel('yday [2018]')
+secax_x = ax.secondary_xaxis('top', functions=(date2yday, yday2date))
+secax_x.set_xlabel('yday [2018]')
 
 
-def CtoF(x):
+def celsius_to_fahrenheit(x):
     return x * 1.8 + 32
 
 
-def FtoC(x):
+def fahrenheit_to_celsius(x):
     return (x - 32) / 1.8
 
 
-secaxy = ax.secondary_yaxis('right', functions=(CtoF, FtoC))
-secaxy.set_ylabel(r'$T\ [^oF]$')
+secax_y = ax.secondary_yaxis(
+    'right', functions=(celsius_to_fahrenheit, fahrenheit_to_celsius))
+secax_y.set_ylabel(r'$T\ [^oF]$')
 
 plt.show()
 

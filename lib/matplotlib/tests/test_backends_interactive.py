@@ -13,7 +13,7 @@ import matplotlib as mpl
 
 
 # Minimal smoke-testing of the backends for which the dependencies are
-# PyPI-installable on Travis.  They are not available for all tested Python
+# PyPI-installable on CI.  They are not available for all tested Python
 # versions so we don't fail on missing backends.
 
 def _get_testable_interactive_backends():
@@ -23,18 +23,31 @@ def _get_testable_interactive_backends():
             (["cairo", "gi"], "gtk3cairo"),
             (["PyQt5"], "qt5agg"),
             (["PyQt5", "cairocffi"], "qt5cairo"),
+            (["PySide2"], "qt5agg"),
+            (["PySide2", "cairocffi"], "qt5cairo"),
             (["tkinter"], "tkagg"),
             (["wx"], "wx"),
             (["wx"], "wxagg"),
+            (["matplotlib.backends._macosx"], "macosx"),
     ]:
         reason = None
-        if not os.environ.get("DISPLAY"):
-            reason = "No $DISPLAY"
-        elif any(importlib.util.find_spec(dep) is None for dep in deps):
-            reason = "Missing dependency"
+        missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
+        if sys.platform == "linux" and not os.environ.get("DISPLAY"):
+            reason = "$DISPLAY is unset"
+        elif missing:
+            reason = "{} cannot be imported".format(", ".join(missing))
+        elif backend == 'macosx' and os.environ.get('TF_BUILD'):
+            reason = "macosx backend fails on Azure"
         if reason:
             backend = pytest.param(
-                backend, marks=pytest.mark.skip(reason=reason))
+                backend,
+                marks=pytest.mark.skip(
+                    reason=f"Skipping {backend} because {reason}"))
+        elif backend.startswith('wx') and sys.platform == 'darwin':
+            # ignore on OSX because that's currently broken (github #16849)
+            backend = pytest.param(
+                backend,
+                marks=pytest.mark.xfail(reason='github #16849'))
         backends.append(backend)
     return backends
 
@@ -101,6 +114,7 @@ timer = fig.canvas.new_timer(1)
 timer.add_callback(FigureCanvasBase.key_press_event, fig.canvas, "q")
 # Trigger quitting upon draw.
 fig.canvas.mpl_connect("draw_event", lambda event: timer.start())
+fig.canvas.mpl_connect("close_event", print)
 
 plt.show()
 """
@@ -110,15 +124,17 @@ _test_timeout = 10  # Empirically, 1s is not enough on Travis.
 @pytest.mark.parametrize("backend", _get_testable_interactive_backends())
 @pytest.mark.flaky(reruns=3)
 def test_interactive_backend(backend):
-    proc = subprocess.run([sys.executable, "-c", _test_script],
-                          env={**os.environ, "MPLBACKEND": backend},
-                          timeout=_test_timeout)
+    proc = subprocess.run(
+        [sys.executable, "-c", _test_script],
+        env={**os.environ, "MPLBACKEND": backend}, timeout=_test_timeout,
+        stdout=subprocess.PIPE, universal_newlines=True)
     if proc.returncode:
         pytest.fail("The subprocess returned with non-zero exit status "
                     f"{proc.returncode}.")
+    assert proc.stdout.count("CloseEvent") == 1
 
 
-@pytest.mark.skipif('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI' in os.environ,
+@pytest.mark.skipif('TF_BUILD' in os.environ,
                     reason="this test fails an azure for unknown reasons")
 @pytest.mark.skipif(os.name == "nt", reason="Cannot send SIGINT on Windows.")
 def test_webagg():

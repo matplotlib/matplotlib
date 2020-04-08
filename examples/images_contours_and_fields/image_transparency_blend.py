@@ -5,7 +5,7 @@ Blend transparency with color in 2-D images
 
 Blend transparency with color to highlight parts of data with imshow.
 
-A common use for :func:`matplotlib.pyplot.imshow` is to plot a 2-D statistical
+A common use for `matplotlib.pyplot.imshow` is to plot a 2-D statistical
 map. The function makes it easy to visualize a 2-D matrix as an image and add
 transparency to the output. For example, one can plot a statistic (such as a
 t-statistic) and color the transparency of each pixel according to its p-value.
@@ -67,7 +67,7 @@ ax.set_axis_off()
 # ========================
 #
 # The simplest way to include transparency when plotting data with
-# :func:`matplotlib.pyplot.imshow` is to pass an array matching the shape of
+# `matplotlib.pyplot.imshow` is to pass an array matching the shape of
 # the data to the ``alpha`` argument. For example, we'll create a gradient
 # moving from left to right below.
 

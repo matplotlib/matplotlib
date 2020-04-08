@@ -1,8 +1,11 @@
-|Travis|_ |AzurePipelines|_ |AppVeyor|_ |Codecov|_ |LGTM|_ |PyPi|_ |Gitter|_ |NUMFocus|_ |GitTutorial|_
+|PyPi|_ |Downloads|_ |NUMFocus|_
 
+|DiscourseBadge|_ |Gitter|_ |GitHubIssues|_ |GitTutorial|_
 
-.. |Travis| image:: https://travis-ci.org/matplotlib/matplotlib.svg?branch=master
-.. _Travis: https://travis-ci.org/matplotlib/matplotlib
+|Travis|_ |AzurePipelines|_ |AppVeyor|_ |Codecov|_ |LGTM|_
+
+.. |Travis| image:: https://travis-ci.com/matplotlib/matplotlib.svg?branch=master
+.. _Travis: https://travis-ci.com/matplotlib/matplotlib
 
 .. |AzurePipelines| image:: https://dev.azure.com/matplotlib/matplotlib/_apis/build/status/matplotlib.matplotlib?branchName=master
 .. _AzurePipelines: https://dev.azure.com/matplotlib/matplotlib/_build/latest?definitionId=1&branchName=master
@@ -16,20 +19,28 @@
 .. |LGTM| image:: https://img.shields.io/lgtm/grade/python/g/matplotlib/matplotlib.svg?logo=lgtm&logoWidth=18
 .. _LGTM: https://lgtm.com/projects/g/matplotlib/matplotlib
 
-.. |PyPi| image:: https://badge.fury.io/py/matplotlib.svg
-.. _PyPi: https://badge.fury.io/py/matplotlib
+.. |DiscourseBadge| image:: https://img.shields.io/badge/help_forum-discourse-blue.svg
+.. _DiscourseBadge: https://discourse.matplotlib.org
 
-.. |Gitter| image:: https://badges.gitter.im/matplotlib/matplotlib.png
+.. |Gitter| image:: https://badges.gitter.im/matplotlib/matplotlib.svg
 .. _Gitter: https://gitter.im/matplotlib/matplotlib
 
-.. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
-.. _NUMFocus: https://www.numfocus.org
+.. |GitHubIssues| image:: https://img.shields.io/badge/issue_tracking-github-blue.svg
+.. _GitHubIssues: https://github.com/matplotlib/matplotlib/issues
 
 .. |GitTutorial| image:: https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?
 .. _GitTutorial: https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project
 
-.. image:: https://matplotlib.org/_static/logo2.svg
+.. |PyPi| image:: https://badge.fury.io/py/matplotlib.svg
+.. _PyPi: https://badge.fury.io/py/matplotlib
 
+.. |Downloads| image:: https://pepy.tech/badge/matplotlib/month
+.. _Downloads: https://pepy.tech/project/matplotlib/month
+
+.. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
+.. _NUMFocus: https://www.numfocus.org
+
+.. image:: https://matplotlib.org/_static/logo2.svg
 
 Matplotlib is a comprehensive library for creating static, animated, and interactive visualizations in Python.
 

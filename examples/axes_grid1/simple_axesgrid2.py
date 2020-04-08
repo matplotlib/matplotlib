@@ -23,7 +23,6 @@ fig = plt.figure(figsize=(5.5, 3.5))
 grid = ImageGrid(fig, 111,  # similar to subplot(111)
                  nrows_ncols=(1, 3),
                  axes_pad=0.1,
-                 add_all=True,
                  label_mode="L",
                  )
 
@@ -34,7 +33,6 @@ im2 = Z[:, :10]
 im3 = Z[:, 10:]
 vmin, vmax = Z.min(), Z.max()
 for ax, im in zip(grid, [im1, im2, im3]):
-    ax.imshow(im, origin="lower", vmin=vmin, vmax=vmax,
-              interpolation="nearest")
+    ax.imshow(im, origin="lower", vmin=vmin, vmax=vmax)
 
 plt.show()

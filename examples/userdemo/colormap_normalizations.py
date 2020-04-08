@@ -21,7 +21,7 @@ X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
 # z/colour axis on a log scale so we see both hump and spike.  linear
 # scale only shows the spike.
 
-Z1 = np.exp(-(X)**2 - (Y)**2)
+Z1 = np.exp(-X**2 - Y**2)
 Z2 = np.exp(-(X * 10)**2 - (Y * 10)**2)
 Z = Z1 + 50 * Z2
 
@@ -41,7 +41,7 @@ fig.colorbar(pcm, ax=ax[1], extend='max')
 # sine wave in Y. We can remove the power law using a PowerNorm.
 
 X, Y = np.mgrid[0:3:complex(0, N), 0:2:complex(0, N)]
-Z1 = (1 + np.sin(Y * 10.)) * X**(2.)
+Z1 = (1 + np.sin(Y * 10.)) * X**2
 
 fig, ax = plt.subplots(2, 1)
 

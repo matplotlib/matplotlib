@@ -31,32 +31,9 @@ class Cell(Rectangle):
     """
     A cell is a `.Rectangle` with some associated `.Text`.
 
-    .. note:
-        As a user, you'll most likely not creates cells yourself. Instead, you
-        should use either the `~matplotlib.table.table` factory function or
-        `.Table.add_cell`.
-
-    Parameters
-    ----------
-    xy : 2-tuple
-        The position of the bottom left corner of the cell.
-    width : float
-        The cell width.
-    height : float
-        The cell height.
-    edgecolor : color
-        The color of the cell border.
-    facecolor : color
-        The cell facecolor.
-    fill : bool
-        Whether the cell background is filled.
-    text : str
-        The cell text.
-    loc : {'left', 'center', 'right'}, default: 'right'
-        The alignment of the text within the cell.
-    fontproperties : dict
-        A dict defining the font properties of the text. Supported keys and
-        values are the keyword arguments accepted by `.FontProperties`.
+    As a user, you'll most likely not creates cells yourself. Instead, you
+    should use either the `~matplotlib.table.table` factory function or
+    `.Table.add_cell`.
     """
 
     PAD = 0.1
@@ -69,6 +46,29 @@ class Cell(Rectangle):
                  loc=None,
                  fontproperties=None
                  ):
+        """
+        Parameters
+        ----------
+        xy : 2-tuple
+            The position of the bottom left corner of the cell.
+        width : float
+            The cell width.
+        height : float
+            The cell height.
+        edgecolor : color
+            The color of the cell border.
+        facecolor : color
+            The cell facecolor.
+        fill : bool
+            Whether the cell background is filled.
+        text : str
+            The cell text.
+        loc : {'left', 'center', 'right'}, default: 'right'
+            The alignment of the text within the cell.
+        fontproperties : dict
+            A dict defining the font properties of the text. Supported keys and
+            values are the keyword arguments accepted by `.FontProperties`.
+        """
 
         # Call base
         Rectangle.__init__(self, xy, width=width, height=height, fill=fill,
@@ -157,9 +157,9 @@ class Cell(Rectangle):
         """
         Return the text bounds as *(x, y, width, height)* in table coordinates.
         """
-        bbox = self._text.get_window_extent(renderer)
-        bboxa = bbox.inverse_transformed(self.get_data_transform())
-        return bboxa.bounds
+        return (self._text.get_window_extent(renderer)
+                .transformed(self.get_data_transform().inverted())
+                .bounds)
 
     def get_required_width(self, renderer):
         """Return the minimal required width for the cell."""
@@ -342,7 +342,7 @@ class Table(Artist):
 
         Returns
         -------
-        cell : `.CustomCell`
+        `.CustomCell`
             The created cell.
 
         """
@@ -358,8 +358,9 @@ class Table(Artist):
         cbook._check_isinstance(CustomCell, cell=cell)
         try:
             row, col = position[0], position[1]
-        except Exception:
-            raise KeyError('Only tuples length 2 are accepted as coordinates')
+        except Exception as err:
+            raise KeyError('Only tuples length 2 are accepted as '
+                           'coordinates') from err
         cell.set_figure(self.figure)
         cell.set_transform(self.get_transform())
         cell.set_clip_on(False)
@@ -422,7 +423,7 @@ class Table(Artist):
 
     def _get_grid_bbox(self, renderer):
         """
-        Get a bbox, in axes co-ordinates for the cells.
+        Get a bbox, in axes coordinates for the cells.
 
         Only include those in the range (0, 0) to (maxRow, maxCol).
         """
@@ -430,7 +431,7 @@ class Table(Artist):
                  for (row, col), cell in self._cells.items()
                  if row >= 0 and col >= 0]
         bbox = Bbox.union(boxes)
-        return bbox.inverse_transformed(self.get_transform())
+        return bbox.transformed(self.get_transform().inverted())
 
     def contains(self, mouseevent):
         # docstring inherited
@@ -701,7 +702,7 @@ def table(ax,
     rowColours : list of colors, optional
         The colors of the row header cells.
 
-    rowLoc : {'left', 'center', 'right'}, optional, default: 'left'
+    rowLoc : {'left', 'center', 'right'}, default: 'left'
         The text alignment of the row header cells.
 
     colLabels : list of str, optional
@@ -710,7 +711,7 @@ def table(ax,
     colColours : list of colors, optional
         The colors of the column header cells.
 
-    colLoc : {'left', 'center', 'right'}, optional, default: 'left'
+    colLoc : {'left', 'center', 'right'}, default: 'left'
         The text alignment of the column header cells.
 
     loc : str, optional
@@ -725,17 +726,17 @@ def table(ax,
         The cell edges to be drawn with a line. See also
         `~.CustomCell.visible_edges`.
 
+    Returns
+    -------
+    `~matplotlib.table.Table`
+        The created table.
+
     Other Parameters
     ----------------
     **kwargs
         `.Table` properties.
 
     %(Table)s
-
-    Returns
-    -------
-    table : `~matplotlib.table.Table`
-        The created table.
     """
 
     if cellColours is None and cellText is None:

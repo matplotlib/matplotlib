@@ -51,7 +51,7 @@ system (typically ax.transAxes), and arrow labels. There are several optional
 parameters that can be used to alter layout. For example, the arrow pairs can
 be rotated and the color can be changed. By default the labels and arrows have
 the same color, but the class may also pass arguments for customizing arrow
-and text layout, these are passed to :class:`matplotlib.text.TextPath` and
+and text layout, these are passed to :class:`matplotlib.textpath.TextPath` and
 `matplotlib.patches.FancyArrowPatch`. Location, length and width for both
 arrow tail and head can be adjusted, the the direction arrows and labels can
 have a frame. Padding and separation parameters can be adjusted.
@@ -63,7 +63,7 @@ Add ``minorticks_on()/off()`` methods for colorbar
 A new method :meth:`.colorbar.Colobar.minorticks_on` has been added
 to correctly display minor ticks on a colorbar. This method
 doesn't allow the minor ticks to extend into the regions beyond vmin and vmax
-when the extend `kwarg` (used while creating the colorbar) is set to 'both',
+when the *extend* kwarg (used while creating the colorbar) is set to 'both',
 'max' or 'min'.
 A complementary method :meth:`.colorbar.Colobar.minorticks_off`
 has also been added to remove the minor ticks on the colorbar.
@@ -85,7 +85,7 @@ Don't automatically rename duplicate file names
 Previously, when saving a figure to a file using the GUI's
 save dialog box, if the default filename (based on the
 figure window title) already existed on disk, Matplotlib
-would append a suffix (e.g. `Figure_1-1.png`), preventing
+would append a suffix (e.g. ``Figure_1-1.png``), preventing
 the dialog from prompting to overwrite the file. This
 behaviour has been removed. Now if the file name exists on
 disk, the user is prompted whether or not to overwrite it.

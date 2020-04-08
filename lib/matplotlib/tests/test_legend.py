@@ -12,7 +12,6 @@ import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
-from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
 from matplotlib import rc_context
 
 
@@ -36,7 +35,7 @@ def test_legend_ordereddict():
 
 @image_comparison(['legend_auto1'], remove_text=True)
 def test_legend_auto1():
-    'Test automatic legend placement'
+    """Test automatic legend placement"""
     fig = plt.figure()
     ax = fig.add_subplot(111)
     x = np.arange(100)
@@ -47,7 +46,7 @@ def test_legend_auto1():
 
 @image_comparison(['legend_auto2'], remove_text=True)
 def test_legend_auto2():
-    'Test automatic legend placement'
+    """Test automatic legend placement"""
     fig = plt.figure()
     ax = fig.add_subplot(111)
     x = np.arange(100)
@@ -58,7 +57,7 @@ def test_legend_auto2():
 
 @image_comparison(['legend_auto3'])
 def test_legend_auto3():
-    'Test automatic legend placement'
+    """Test automatic legend placement"""
     fig = plt.figure()
     ax = fig.add_subplot(111)
     x = [0.9, 0.1, 0.1, 0.9, 0.9, 0.5]
@@ -108,8 +107,6 @@ def test_multiple_keys():
 @image_comparison(['rgba_alpha.png'], remove_text=True,
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_alpha_rgba():
-    import matplotlib.pyplot as plt
-
     fig, ax = plt.subplots(1, 1)
     ax.plot(range(10), lw=5)
     leg = plt.legend(['Longlabel that will go away'], loc='center')
@@ -119,8 +116,6 @@ def test_alpha_rgba():
 @image_comparison(['rcparam_alpha.png'], remove_text=True,
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_alpha_rcparam():
-    import matplotlib.pyplot as plt
-
     fig, ax = plt.subplots(1, 1)
     ax.plot(range(10), lw=5)
     with mpl.rc_context(rc={'legend.framealpha': .75}):
@@ -172,7 +167,7 @@ def test_rc():
 
 @image_comparison(['legend_expand'], remove_text=True)
 def test_legend_expand():
-    'Test expand mode'
+    """Test expand mode"""
     legend_modes = [None, "expand"]
     fig, axes_list = plt.subplots(len(legend_modes), 1)
     x = np.arange(100)
@@ -343,10 +338,9 @@ class TestLegendFigureFunction:
         lines = axs[0].plot(range(10))
         lines2 = axs[1].plot(np.arange(10) * 2.)
         with mock.patch('matplotlib.legend.Legend') as Legend:
-            fig.legend(loc='right', labels=('a', 'b'),
-                    handles=(lines, lines2))
-        Legend.assert_called_with(fig, (lines, lines2), ('a', 'b'),
-                loc='right')
+            fig.legend(loc='right', labels=('a', 'b'), handles=(lines, lines2))
+        Legend.assert_called_with(
+            fig, (lines, lines2), ('a', 'b'), loc='right')
 
     def test_warn_args_kwargs(self):
         fig, axs = plt.subplots(1, 2)
@@ -362,7 +356,7 @@ class TestLegendFigureFunction:
 
 @image_comparison(['legend_stackplot.png'])
 def test_legend_stackplot():
-    '''test legend for PolyCollection using stackplot'''
+    """Test legend for PolyCollection using stackplot."""
     # related to #1341, #1943, and PR #3303
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -575,6 +569,4 @@ def test_no_warn_big_data_when_loc_specified():
     for idx in range(1000):
         ax.plot(np.arange(5000), label=idx)
     legend = ax.legend('best')
-    with pytest.warns(None) as records:
-        fig.draw_artist(legend)
-    assert len(records) == 0
+    fig.draw_artist(legend)  # Check that no warning is emitted.

@@ -1,4 +1,4 @@
-'''
+"""
 ========================================
 Projecting contour profiles onto a graph
 ========================================
@@ -7,7 +7,7 @@ Demonstrates displaying a 3D surface while also projecting contour 'profiles'
 onto the 'walls' of the graph.
 
 See contourf3d_demo2 for the filled version.
-'''
+"""
 
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt

@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -47,7 +46,8 @@ def test_patheffect3():
     p1, = plt.plot([1, 3, 5, 4, 3], 'o-b', lw=4)
     p1.set_path_effects([path_effects.SimpleLineShadow(),
                          path_effects.Normal()])
-    plt.title(r'testing$^{123}$',
+    plt.title(
+        r'testing$^{123}$',
         path_effects=[path_effects.withStroke(linewidth=1, foreground="r")])
     leg = plt.legend([p1], [r'Line 1$^2$'], fancybox=True, loc='upper left')
     leg.legendPatch.set_path_effects([path_effects.withSimplePatchShadow()])

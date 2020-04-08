@@ -5,12 +5,9 @@ A module for parsing and generating `fontconfig patterns`_.
    https://www.freedesktop.org/software/fontconfig/fontconfig-user.html
 """
 
-# This class is defined here because it must be available in:
-#   - The old-style config framework (:file:`rcsetup.py`)
-#   - The font manager (:file:`font_manager.py`)
-
-# It probably logically belongs in :file:`font_manager.py`, but placing it
-# there would have created cyclical dependency problems.
+# This class logically belongs in `matplotlib.font_manager`, but placing it
+# there would have created cyclical dependency problems, because it also needs
+# to be available from `matplotlib.rcsetup` (for parsing matplotlibrc files).
 
 from functools import lru_cache
 import re
@@ -123,14 +120,14 @@ class FontconfigPatternParser:
         """
         Parse the given fontconfig *pattern* and return a dictionary
         of key/value pairs useful for initializing a
-        :class:`font_manager.FontProperties` object.
+        `.font_manager.FontProperties` object.
         """
         props = self._properties = {}
         try:
             self._parser.parseString(pattern)
         except self.ParseException as e:
             raise ValueError(
-                "Could not parse font string: '%s'\n%s" % (pattern, e))
+                "Could not parse font string: '%s'\n%s" % (pattern, e)) from e
 
         self._properties = None
 

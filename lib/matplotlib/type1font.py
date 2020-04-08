@@ -54,8 +54,13 @@ class Type1Font:
 
     def __init__(self, input):
         """
-        Initialize a Type-1 font. *input* can be either the file name of
-        a pfb file or a 3-tuple of already-decoded Type-1 font parts.
+        Initialize a Type-1 font.
+
+        Parameters
+        ----------
+        input : str or 3-tuple
+            Either a pfb file name, or a 3-tuple of already-decoded Type-1
+            font `~.Type1Font.parts`.
         """
         if isinstance(input, tuple) and len(input) == 3:
             self.parts = input
@@ -67,9 +72,7 @@ class Type1Font:
         self._parse()
 
     def _read(self, file):
-        """
-        Read the font from a file, decoding into usable parts.
-        """
+        """Read the font from a file, decoding into usable parts."""
         rawdata = file.read()
         if not rawdata.startswith(b'\x80'):
             return rawdata
@@ -288,7 +291,7 @@ class Type1Font:
             return replacer
 
         def suppress(tokens):
-            for x in itertools.takewhile(lambda x: x[1] != b'def', tokens):
+            for _ in itertools.takewhile(lambda x: x[1] != b'def', tokens):
                 pass
             yield b''
 
@@ -306,12 +309,23 @@ class Type1Font:
 
     def transform(self, effects):
         """
-        Transform the font by slanting or extending. *effects* should
-        be a dict where ``effects['slant']`` is the tangent of the
-        angle that the font is to be slanted to the right (so negative
-        values slant to the left) and ``effects['extend']`` is the
-        multiplier by which the font is to be extended (so values less
-        than 1.0 condense). Returns a new :class:`Type1Font` object.
+        Return a new font that is slanted and/or extended.
+
+        Parameters
+        ----------
+        effects : dict
+            A dict with optional entries:
+
+            - 'slant' : float, default: 0
+                Tangent of the angle that the font is to be slanted to the
+                right. Negative values slant to the left.
+            - 'extend' : float, default: 1
+                Scaling factor for the font width. Values less than 1 condense
+                the glyphs.
+
+        Returns
+        -------
+        `Type1Font`
         """
         tokenizer = self._tokens(self.parts[0])
         transformed = self._transformer(tokenizer,

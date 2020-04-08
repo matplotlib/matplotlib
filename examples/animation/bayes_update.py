@@ -38,16 +38,13 @@ class UpdateDist:
         # which the plotted distribution should converge.
         self.ax.axvline(prob, linestyle='--', color='black')
 
-    def init(self):
-        self.success = 0
-        self.line.set_data([], [])
-        return self.line,
-
     def __call__(self, i):
         # This way the plot can continuously run and we just keep
         # watching new realizations of the process
         if i == 0:
-            return self.init()
+            self.success = 0
+            self.line.set_data([], [])
+            return self.line,
 
         # Choose success based on exceed a threshold with a uniform pick
         if np.random.rand(1,) < self.prob:
@@ -62,6 +59,5 @@ np.random.seed(19680801)
 
 fig, ax = plt.subplots()
 ud = UpdateDist(ax, prob=0.7)
-anim = FuncAnimation(fig, ud, frames=np.arange(100), init_func=ud.init,
-                     interval=100, blit=True)
+anim = FuncAnimation(fig, ud, frames=100, interval=100, blit=True)
 plt.show()

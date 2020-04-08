@@ -68,11 +68,11 @@ class Thumbnail(QtWidgets.QFrame):
         self.image = QtWidgets.QLabel()
         self.image.setAlignment(QtCore.Qt.AlignHCenter |
                                 QtCore.Qt.AlignVCenter)
-        self.image.setMinimumSize(800/3, 500/3)
+        self.image.setMinimumSize(800 // 3, 600 // 3)
         layout.addWidget(self.image)
         self.setLayout(layout)
 
-    def mousePressEvent(self, ev):
+    def mousePressEvent(self, event):
         self.parent.set_large_image(self.index)
 
 
@@ -124,21 +124,21 @@ class Dialog(QtWidgets.QDialog):
         for entry in entries:
             self.filelist.addItem(entry.display)
 
-        images_box = QtWidgets.QWidget()
-        images_layout = QtWidgets.QVBoxLayout()
         thumbnails_box = QtWidgets.QWidget()
-        thumbnails_layout = QtWidgets.QHBoxLayout()
+        thumbnails_layout = QtWidgets.QVBoxLayout()
         self.thumbnails = []
         for i, name in enumerate(('test', 'expected', 'diff')):
             thumbnail = Thumbnail(self, i, name)
             thumbnails_layout.addWidget(thumbnail)
             self.thumbnails.append(thumbnail)
         thumbnails_box.setLayout(thumbnails_layout)
+
+        images_layout = QtWidgets.QVBoxLayout()
+        images_box = QtWidgets.QWidget()
         self.image_display = QtWidgets.QLabel()
         self.image_display.setAlignment(QtCore.Qt.AlignHCenter |
                                         QtCore.Qt.AlignVCenter)
-        self.image_display.setMinimumSize(800, 500)
-        images_layout.addWidget(thumbnails_box, 3)
+        self.image_display.setMinimumSize(800, 600)
         images_layout.addWidget(self.image_display, 6)
         images_box.setLayout(images_layout)
 
@@ -154,8 +154,9 @@ class Dialog(QtWidgets.QDialog):
         images_layout.addWidget(buttons_box)
 
         main_layout = QtWidgets.QHBoxLayout()
-        main_layout.addWidget(self.filelist, 3)
-        main_layout.addWidget(images_box, 6)
+        main_layout.addWidget(self.filelist, 1)
+        main_layout.addWidget(thumbnails_box, 1)
+        main_layout.addWidget(images_box, 3)
 
         self.setLayout(main_layout)
 

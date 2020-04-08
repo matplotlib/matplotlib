@@ -42,7 +42,7 @@ axis_direction
 --------------
 
 `AxisArtist`, `AxisLabel`, `TickLabels` have an *axis_direction* attribute,
-which adjusts the location, angle, etc.,. The *axis_direction* must be one of
+which adjusts the location, angle, etc. The *axis_direction* must be one of
 "left", "right", "bottom", "top", and follows the Matplotlib convention for
 rectangular axis.
 
@@ -93,9 +93,7 @@ import numpy as np
 from matplotlib import cbook, rcParams
 import matplotlib.artist as martist
 import matplotlib.text as mtext
-import matplotlib.font_manager as font_manager
 
-from matplotlib.artist import Artist
 from matplotlib.collections import LineCollection
 from matplotlib.lines import Line2D
 from matplotlib.patches import PathPatch
@@ -157,14 +155,9 @@ class BezierPath(Line2D):
         renderer.close_group('line2d')
 
 
-@cbook.deprecated("3.1")
-class UnimplementedException(Exception):
-    pass
-
-
 class AttributeCopier:
     @cbook.deprecated("3.2")
-    def __init__(self, ref_artist, klass=Artist):
+    def __init__(self, ref_artist, klass=martist.Artist):
         self._klass = klass
         self._ref_artist = ref_artist
         super().__init__()
@@ -339,7 +332,7 @@ class LabelBase(mtext.Text):
         text_ref_angle = self._get_text_ref_angle()
         offset_ref_angle = self._get_offset_ref_angle()
 
-        theta = (offset_ref_angle)/180.*np.pi
+        theta = np.deg2rad(offset_ref_angle)
         dd = self._get_offset_radius()
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
         offset_tr.translate(dx, dy)
@@ -362,7 +355,7 @@ class LabelBase(mtext.Text):
         text_ref_angle = self._get_text_ref_angle()
         offset_ref_angle = self._get_offset_ref_angle()
 
-        theta = (offset_ref_angle)/180.*np.pi
+        theta = np.deg2rad(offset_ref_angle)
         dd = self._get_offset_radius()
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
         offset_tr.translate(dx, dy)
@@ -727,7 +720,7 @@ class AxisArtist(martist.Artist):
 
     @LABELPAD.setter
     def LABELPAD(self, v):
-        return self.label.set_pad(v)
+        self.label.set_pad(v)
 
     def __init__(self, axes,
                  helper,
@@ -947,8 +940,6 @@ class AxisArtist(martist.Artist):
         else:
             size = rcParams['ytick.labelsize']
 
-        fontprops = font_manager.FontProperties(size=size)
-
         self.major_ticklabels = TickLabels(size=size, axis=self.axis,
                                            axis_direction=self._axis_direction)
         self.minor_ticklabels = TickLabels(size=size, axis=self.axis,
@@ -956,17 +947,17 @@ class AxisArtist(martist.Artist):
 
         self.major_ticklabels.set(figure=self.axes.figure,
                                   transform=trans,
-                                  fontproperties=fontprops)
+                                  fontsize=size)
         self.major_ticklabels.set_pad(major_tick_pad)
 
         self.minor_ticklabels.set(figure=self.axes.figure,
                                   transform=trans,
-                                  fontproperties=fontprops)
+                                  fontsize=size)
         self.minor_ticklabels.set_pad(minor_tick_pad)
 
     def _get_tick_info(self, tick_iter):
         """
-        Returns a pair of:
+        Return a pair of:
 
         - list of locs and angles for ticks
         - list of locs, angles and labels for ticklabels.
@@ -1106,24 +1097,18 @@ class AxisArtist(martist.Artist):
         self.offsetText.draw(renderer)
 
     def _init_label(self, **kwargs):
-        labelsize = kwargs.get("labelsize", rcParams['axes.labelsize'])
-        fontprops = font_manager.FontProperties(
-            size=labelsize,
-            weight=rcParams['axes.labelweight'])
-
         tr = (self._axis_artist_helper.get_axislabel_transform(self.axes)
               + self.offset_transform)
-
-        self.label = AxisLabel(0, 0, "__from_axes__",
-                               color="auto",
-                               fontproperties=fontprops,
-                               axis=self.axis,
-                               transform=tr,
-                               axis_direction=self._axis_direction,
-                               )
-
+        self.label = AxisLabel(
+            0, 0, "__from_axes__",
+            color="auto",
+            fontsize=kwargs.get("labelsize", rcParams['axes.labelsize']),
+            fontweight=rcParams['axes.labelweight'],
+            axis=self.axis,
+            transform=tr,
+            axis_direction=self._axis_direction,
+        )
         self.label.set_figure(self.axes.figure)
-
         labelpad = kwargs.get("labelpad", 5)
         self.label.set_pad(labelpad)
 
@@ -1219,7 +1204,7 @@ class AxisArtist(martist.Artist):
 
     @martist.allow_rasterization
     def draw(self, renderer):
-        """Draw the axis lines, tick lines and labels."""
+        # docstring inherited
 
         if not self.get_visible():
             return

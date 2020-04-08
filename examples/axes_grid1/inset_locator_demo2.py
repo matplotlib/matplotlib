@@ -56,18 +56,16 @@ add_sizebar(axins, 0.5)
 # Second subplot, showing an image with an inset zoom
 # and a marked inset
 Z, extent = get_demo_image()
-Z2 = np.zeros([150, 150], dtype="d")
+Z2 = np.zeros((150, 150))
 ny, nx = Z.shape
-Z2[30:30 + ny, 30:30 + nx] = Z
+Z2[30:30+ny, 30:30+nx] = Z
 
 # extent = [-3, 4, -4, 3]
-ax2.imshow(Z2, extent=extent, interpolation="nearest",
-          origin="lower")
+ax2.imshow(Z2, extent=extent, origin="lower")
 
 
 axins2 = zoomed_inset_axes(ax2, 6, loc=1)  # zoom = 6
-axins2.imshow(Z2, extent=extent, interpolation="nearest",
-              origin="lower")
+axins2.imshow(Z2, extent=extent, origin="lower")
 
 # sub region of the original image
 x1, x2, y1, y2 = -1.5, -0.9, -2.5, -1.9

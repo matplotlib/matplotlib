@@ -2,16 +2,14 @@
 Fill Between and Alpha
 ======================
 
-The :meth:`~matplotlib.axes.Axes.fill_between` function generates a
-shaded region between a min and max boundary that is useful for
-illustrating ranges.  It has a very handy ``where`` argument to
-combine filling with logical ranges, e.g., to just fill in a curve over
-some threshold value.
+The `~matplotlib.axes.Axes.fill_between` function generates a shaded
+region between a min and max boundary that is useful for illustrating ranges.
+It has a very handy ``where`` argument to combine filling with logical ranges,
+e.g., to just fill in a curve over some threshold value.
 
-At its most basic level, ``fill_between`` can be use to enhance a
-graphs visual appearance. Let's compare two graphs of a financial
-times with a simple line plot on the left and a filled line on the
-right.
+At its most basic level, ``fill_between`` can be use to enhance a graphs visual
+appearance. Let's compare two graphs of a financial times with a simple line
+plot on the left and a filled line on the right.
 """
 
 import matplotlib.pyplot as plt
@@ -21,15 +19,13 @@ import matplotlib.cbook as cbook
 # load up some sample financial data
 with cbook.get_sample_data('goog.npz') as datafile:
     r = np.load(datafile)['price_data'].view(np.recarray)
-# Matplotlib prefers datetime instead of np.datetime64.
-date = r.date.astype('O')
 # create two subplots with the shared x and y axes
 fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True)
 
 pricemin = r.close.min()
 
-ax1.plot(date, r.close, lw=2)
-ax2.fill_between(date, pricemin, r.close, facecolor='blue', alpha=0.5)
+ax1.plot(r.date, r.close, lw=2)
+ax2.fill_between(r.date, pricemin, r.close, facecolor='blue', alpha=0.5)
 
 for ax in ax1, ax2:
     ax.grid(True)
@@ -129,10 +125,9 @@ ax.set_ylabel('position')
 ax.grid()
 
 ###############################################################################
-# Another handy use of filled regions is to highlight horizontal or
-# vertical spans of an axes -- for that matplotlib has some helper
-# functions :meth:`~matplotlib.axes.Axes.axhspan` and
-# :meth:`~matplotlib.axes.Axes.axvspan` and example
+# Another handy use of filled regions is to highlight horizontal or vertical
+# spans of an axes -- for that Matplotlib has the helper functions
+# `~matplotlib.axes.Axes.axhspan` and `~matplotlib.axes.Axes.axvspan`.  See
 # :doc:`/gallery/subplots_axes_and_figures/axhspan_demo`.
 
 plt.show()

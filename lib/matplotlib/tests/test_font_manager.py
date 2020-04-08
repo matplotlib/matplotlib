@@ -95,28 +95,24 @@ def test_hinting_factor(factor):
                                rtol=0.1)
 
 
-@pytest.mark.skipif(sys.platform != "win32",
-                    reason="Need Windows font to test against")
 def test_utf16m_sfnt():
-    segoe_ui_semibold = None
-    for f in fontManager.ttflist:
+    try:
         # seguisbi = Microsoft Segoe UI Semibold
-        if f.fname[-12:] == "seguisbi.ttf":
-            segoe_ui_semibold = f
-            break
+        entry = next(entry for entry in fontManager.ttflist
+                     if Path(entry.fname).name == "seguisbi.ttf")
+    except StopIteration:
+        pytest.skip("Couldn't find font to test against.")
     else:
-        pytest.xfail(reason="Couldn't find font to test against.")
-
-    # Check that we successfully read the "semibold" from the font's
-    # sfnt table and set its weight accordingly
-    assert segoe_ui_semibold.weight == "semibold"
+        # Check that we successfully read "semibold" from the font's sfnt table
+        # and set its weight accordingly.
+        assert entry.weight == "semibold"
 
 
-@pytest.mark.xfail(not (os.environ.get("TRAVIS") and sys.platform == "linux"),
-                   reason="Font may be missing.")
 def test_find_ttc():
     fp = FontProperties(family=["WenQuanYi Zen Hei"])
     if Path(findfont(fp)).name != "wqy-zenhei.ttc":
+        if not os.environ.get("TRAVIS") or sys.platform != "linux":
+            pytest.skip("Font may be missing")
         # Travis appears to fail to pick up the ttc file sometimes.  Try to
         # rebuild the cache and try again.
         fm._rebuild()
@@ -180,8 +176,7 @@ def test_user_fonts_win32():
     os.makedirs(user_fonts_dir)
 
     # Copy the test font to the user font directory
-    shutil.copyfile(os.path.join(os.path.dirname(__file__), font_test_file),
-                    os.path.join(user_fonts_dir, font_test_file))
+    shutil.copy(Path(__file__).parent / font_test_file, user_fonts_dir)
 
     # Now, the font should be available
     fonts = findSystemFonts()

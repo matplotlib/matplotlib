@@ -63,9 +63,9 @@ class exception : public std::exception
         return (errorcode);                                                  \
     }
 
-#define CALL_CPP_CLEANUP(name, a, cleanup) CALL_CPP_FULL(name, a, cleanup, NULL)
+#define CALL_CPP_CLEANUP(name, a, cleanup) CALL_CPP_FULL(name, a, cleanup, 0)
 
-#define CALL_CPP(name, a) CALL_CPP_FULL(name, a, , NULL)
+#define CALL_CPP(name, a) CALL_CPP_FULL(name, a, , 0)
 
 #define CALL_CPP_INIT(name, a) CALL_CPP_FULL(name, a, , -1)
 

@@ -41,7 +41,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         The width of the stream lines. With a 2D array the line width can be
         varied across the grid. The array must have the same shape as *u*
         and *v*.
-    color : matplotlib color code, or 2D array
+    color : color or 2D array
         The streamline color. If given an array, its values are converted to
         colors using *cmap* and *norm*.  The array must have the same shape
         as *u* and *v*.
@@ -66,13 +66,12 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         Artists with lower zorder values are drawn first.
     maxlength : float
         Maximum length of streamline in axes coordinates.
-    integration_direction : {'forward', 'backward', 'both'}
+    integration_direction : {'forward', 'backward', 'both'}, default: 'both'
         Integrate the streamline in forward, backward or both directions.
-        default is ``'both'``.
 
     Returns
     -------
-    stream_container : StreamplotSet
+    StreamplotSet
         Container object with attributes
 
         - ``lines``: `.LineCollection` of streamlines
@@ -234,6 +233,11 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 class StreamplotSet:
 
     def __init__(self, lines, arrows, **kwargs):
+        if kwargs:
+            cbook.warn_deprecated(
+                "3.3",
+                message="Passing arbitrary keyword arguments to StreamplotSet "
+                        "is deprecated.")
         self.lines = lines
         self.arrows = arrows
 
@@ -353,7 +357,7 @@ class Grid:
         """Return True if point is a valid index of grid."""
         # Note that xi/yi can be floats; so, for example, we can't simply check
         # `xi < self.nx` since *xi* can be `self.nx - 1 < xi < self.nx`
-        return xi >= 0 and xi <= self.nx - 1 and yi >= 0 and yi <= self.ny - 1
+        return 0 <= xi <= self.nx - 1 and 0 <= yi <= self.ny - 1
 
 
 class StreamMask:
@@ -368,8 +372,9 @@ class StreamMask:
     def __init__(self, density):
         try:
             self.nx, self.ny = (30 * np.broadcast_to(density, 2)).astype(int)
-        except ValueError:
-            raise ValueError("'density' must be a scalar or be of length 2")
+        except ValueError as err:
+            raise ValueError("'density' must be a scalar or be of length "
+                             "2") from err
         if self.nx < 0 or self.ny < 0:
             raise ValueError("'density' must be positive")
         self._mask = np.zeros((self.ny, self.nx))
@@ -377,8 +382,8 @@ class StreamMask:
 
         self._current_xy = None
 
-    def __getitem__(self, *args):
-        return self._mask.__getitem__(*args)
+    def __getitem__(self, args):
+        return self._mask[args]
 
     def _start_trajectory(self, xm, ym):
         """Start recording streamline trajectory"""
@@ -388,7 +393,7 @@ class StreamMask:
     def _undo_trajectory(self):
         """Remove current trajectory from mask"""
         for t in self._traj:
-            self._mask.__setitem__(t, 0)
+            self._mask[t] = 0
 
     def _update_trajectory(self, xm, ym):
         """Update current trajectory position in mask.

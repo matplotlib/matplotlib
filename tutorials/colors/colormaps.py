@@ -26,8 +26,8 @@ on many things including:
 
 - If there is a standard in the field the audience may be expecting
 
-For many applications, a perceptually uniform colormap is the best
-choice --- one in which equal steps in data are perceived as equal
+For many applications, a perceptually uniform colormap is the best choice;
+i.e. a colormap in which equal steps in data are perceived as equal
 steps in the color space. Researchers have found that the human brain
 perceives changes in the lightness parameter as changes in the data
 much better than, for example, changes in hue. Therefore, colormaps

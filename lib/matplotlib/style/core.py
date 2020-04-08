@@ -38,7 +38,8 @@ STYLE_BLACKLIST = {
     'interactive', 'backend', 'backend.qt4', 'webagg.port', 'webagg.address',
     'webagg.port_retries', 'webagg.open_in_browser', 'backend_fallback',
     'toolbar', 'timezone', 'datapath', 'figure.max_open_warning',
-    'savefig.directory', 'tk.window_focus', 'docstring.hardcopy'}
+    'figure.raise_window', 'savefig.directory', 'tk.window_focus',
+    'docstring.hardcopy'}
 
 
 def _remove_blacklisted_style_params(d, warn=True):
@@ -69,6 +70,11 @@ def use(style):
 
     The style name of 'default' is reserved for reverting back to
     the default style settings.
+
+    .. note::
+
+       This updates the `.rcParams` with the settings from the style.
+       `.rcParams` not defined in the style are kept.
 
     Parameters
     ----------
@@ -113,11 +119,11 @@ def use(style):
             try:
                 rc = rc_params_from_file(style, use_default_template=False)
                 _apply_style(rc)
-            except IOError:
+            except IOError as err:
                 raise IOError(
                     "{!r} not found in the style library and input is not a "
                     "valid URL or path; see `style.available` for list of "
-                    "available styles".format(style))
+                    "available styles".format(style)) from err
 
 
 @contextlib.contextmanager
@@ -167,7 +173,7 @@ def iter_user_libraries():
 
 
 def update_user_library(library):
-    """Update style library with user-defined rc files"""
+    """Update style library with user-defined rc files."""
     for stylelib_path in iter_user_libraries():
         styles = read_style_directory(stylelib_path)
         update_nested_dict(library, styles)
@@ -215,11 +221,12 @@ def update_nested_dict(main_dict, new_dict):
 _base_library = load_base_library()
 
 library = None
+
 available = []
 
 
 def reload_library():
-    """Reload style library."""
+    """Reload the style library."""
     global library
     library = update_user_library(_base_library)
     available[:] = sorted(library.keys())

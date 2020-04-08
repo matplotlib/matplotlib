@@ -25,10 +25,10 @@ class MyNavigationToolbar(NavigationToolbar):
         # We use a stock wx bitmap, but you could also use your own image file.
         bmp = wx.ArtProvider.GetBitmap(wx.ART_CROSS_MARK, wx.ART_TOOLBAR)
         tool = self.AddTool(wx.ID_ANY, 'Click me', bmp,
-                            'Activate custom contol')
+                            'Activate custom control')
         self.Bind(wx.EVT_TOOL, self._on_custom, id=tool.GetId())
 
-    def _on_custom(self, evt):
+    def _on_custom(self, event):
         # add some text to the axes in a random location in axes coords with a
         # random color
         ax = self.canvas.figure.axes[0]
@@ -36,7 +36,7 @@ class MyNavigationToolbar(NavigationToolbar):
         rgb = np.random.rand(3)  # generate a random color
         ax.text(x, y, 'You clicked me', transform=ax.transAxes, color=rgb)
         self.canvas.draw()
-        evt.Skip()
+        event.Skip()
 
 
 class CanvasFrame(wx.Frame):
@@ -70,7 +70,7 @@ class CanvasFrame(wx.Frame):
 
 class App(wx.App):
     def OnInit(self):
-        'Create the main window and insert the custom frame'
+        """Create the main window and insert the custom frame."""
         frame = CanvasFrame()
         frame.Show(True)
 

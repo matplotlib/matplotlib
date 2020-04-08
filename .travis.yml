@@ -77,8 +77,12 @@ matrix:
       env:
         - PINNEDVERS='-c requirements/testing/travis36minver.txt'
         - DELETE_FONT_CACHE=1
-        - EXTRAREQS='-r requirements/testing/travis36.txt'
     - python: 3.7
+      env:
+        - EXTRAREQS='-r requirements/testing/travis_extra.txt'
+    - python: 3.8
+      env:
+        - EXTRAREQS='-r requirements/testing/travis_extra.txt'
     - python: "nightly"
       env:
         - PRE=--pre
@@ -132,6 +136,8 @@ install:
     python -mpip install --upgrade $PRE -r requirements/testing/travis_all.txt $EXTRAREQS $PINNEDVERS
   - |
     # Install optional dependencies from PyPI.
+    # Sphinx is needed to run sphinxext tests
+    python -mpip install --upgrade sphinx
     # GUI toolkits are pip-installable only for some versions of Python so
     # don't fail if we can't install them.  Make it easier to check whether the
     # install was successful by trying to import the toolkit (sometimes, the
@@ -146,6 +152,10 @@ install:
       python -c 'import PyQt5.QtCore' &&
       echo 'PyQt5 is available' ||
       echo 'PyQt5 is not available'
+    python -mpip install --upgrade pyside2 &&
+      python -c 'import PySide2.QtCore' &&
+      echo 'PySide2 is available' ||
+      echo 'PySide2 is not available'
     python -mpip install --upgrade \
       -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-14.04 \
       wxPython &&
@@ -159,7 +169,7 @@ install:
       export CPPFLAGS=--coverage
     fi
   - |
-    MPLLOCALFREETYPE=1 python -mpip install -ve .  # Install Matplotlib.
+    python -mpip install -ve .  # Install Matplotlib.
   - |
     if [[ $TRAVIS_OS_NAME != 'osx' ]] && [[ $RUN_PYTEST == 1 ]]; then
       unset CPPFLAGS
@@ -202,4 +212,4 @@ after_success:
   - lcov --remove coverage.info --output-file coverage.info '/usr/*' '/home/travis/build/matplotlib/matplotlib/build/*' '/home/travis/build/matplotlib/matplotlib/extern/*' # filter system-files
   - lcov --list coverage.info
   # Uploading to CodeCov but excluding gcov reports
-  - bash <(curl -s https://codecov.io/bash) -f "!*.gcov" -X gcov -e TRAVIS_PYTHON_VERSION|| echo "Codecov did not collect coverage reports"
+  - bash <(curl -s https://codecov.io/bash) -f "!*.gcov" -X gcov -e TRAVIS_PYTHON_VERSION -y ci/codecov.yml|| echo "Codecov did not collect coverage reports"

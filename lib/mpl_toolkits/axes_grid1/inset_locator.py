@@ -164,19 +164,8 @@ class BboxPatch(Patch):
     def get_path(self):
         # docstring inherited
         x0, y0, x1, y1 = self.bbox.extents
-        verts = [(x0, y0),
-                 (x1, y0),
-                 (x1, y1),
-                 (x0, y1),
-                 (x0, y0),
-                 (0, 0)]
-        codes = [Path.MOVETO,
-                 Path.LINETO,
-                 Path.LINETO,
-                 Path.LINETO,
-                 Path.LINETO,
-                 Path.CLOSEPOLY]
-        return Path(verts, codes)
+        return Path([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)],
+                    closed=True)
 
 
 class BboxConnector(Patch):
@@ -246,25 +235,14 @@ class BboxConnector(Patch):
             corner of *bbox2*.
         """
         if isinstance(bbox1, Rectangle):
-            transform = bbox1.get_transform()
-            bbox1 = Bbox.from_bounds(0, 0, 1, 1)
-            bbox1 = TransformedBbox(bbox1, transform)
-
+            bbox1 = TransformedBbox(Bbox.unit(), bbox1.get_transform())
         if isinstance(bbox2, Rectangle):
-            transform = bbox2.get_transform()
-            bbox2 = Bbox.from_bounds(0, 0, 1, 1)
-            bbox2 = TransformedBbox(bbox2, transform)
-
+            bbox2 = TransformedBbox(Bbox.unit(), bbox2.get_transform())
         if loc2 is None:
             loc2 = loc1
-
         x1, y1 = BboxConnector.get_bbox_edge_pos(bbox1, loc1)
         x2, y2 = BboxConnector.get_bbox_edge_pos(bbox2, loc2)
-
-        verts = [[x1, y1], [x2, y2]]
-        codes = [Path.MOVETO, Path.LINETO]
-
-        return Path(verts, codes)
+        return Path([[x1, y1], [x2, y2]])
 
     @docstring.dedent_interpd
     def __init__(self, bbox1, bbox2, loc1, loc2=None, **kwargs):
@@ -430,7 +408,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
         are relative to the parent_axes. Otherwise they are to be understood
         relative to the bounding box provided via *bbox_to_anchor*.
 
-    loc : int or str, optional, default to 1
+    loc : int or str, optional, default: 1
         Location to place the inset axes. The valid locations are::
 
             'upper right'  : 1,
@@ -477,14 +455,14 @@ def inset_axes(parent_axes, width, height, loc='upper right',
 
         %(Axes)s
 
-    borderpad : float, optional
-        Padding between inset axes and the bbox_to_anchor. Defaults to 0.5.
+    borderpad : float, optional, default: 0.5
+        Padding between inset axes and the bbox_to_anchor.
         The units are axes font size, i.e. for a default font size of 10 points
         *borderpad = 0.5* is equivalent to a padding of 5 points.
 
     Returns
     -------
-    inset_axes : `axes_class`
+    inset_axes : *axes_class*
         Inset axes object created.
     """
 
@@ -509,8 +487,8 @@ def inset_axes(parent_axes, width, height, loc='upper right',
     if bbox_to_anchor is None:
         bbox_to_anchor = parent_axes.bbox
 
-    if isinstance(bbox_to_anchor, tuple) and \
-        (isinstance(width, str) or isinstance(height, str)):
+    if (isinstance(bbox_to_anchor, tuple) and
+            (isinstance(width, str) or isinstance(height, str))):
         if len(bbox_to_anchor) != 4:
             raise ValueError("Using relative units for width or height "
                              "requires to provide a 4-tuple or a "
@@ -549,7 +527,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
         coordinates (i.e., "zoomed in"), while *zoom* < 1 will shrink the
         coordinates (i.e., "zoomed out").
 
-    loc : int or str, optional, default to 1
+    loc : int or str, optional, default: 'upper right'
         Location to place the inset axes. The valid locations are::
 
             'upper right'  : 1,
@@ -595,14 +573,14 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
 
         %(Axes)s
 
-    borderpad : float, optional
-        Padding between inset axes and the bbox_to_anchor. Defaults to 0.5.
+    borderpad : float, optional, default: 0.5
+        Padding between inset axes and the bbox_to_anchor.
         The units are axes font size, i.e. for a default font size of 10 points
         *borderpad = 0.5* is equivalent to a padding of 5 points.
 
     Returns
     -------
-    inset_axes : `axes_class`
+    inset_axes : *axes_class*
         Inset axes object created.
     """
 

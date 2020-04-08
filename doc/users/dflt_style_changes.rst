@@ -95,7 +95,7 @@ abbreviated style string in ``plot``, however the new default colors
 are only specified via hex values.  To access these colors outside of
 the property cycling the notation for colors ``'CN'``, where ``N``
 takes values 0-9, was added to
-denote the first 10 colors in ``mpl.rcParams['axes.prop_cycle']`` See
+denote the first 10 colors in :rc:`axes.prop_cycle`. See
 :doc:`/tutorials/colors/colors` for more details.
 
 To restore the old color cycle use
@@ -118,7 +118,7 @@ Colormap
 --------
 
 The new default color map used by `matplotlib.cm.ScalarMappable` instances is
- `'viridis'` (aka `option D <https://bids.github.io/colormap/>`__).
+'viridis' (aka `option D <https://bids.github.io/colormap/>`__).
 
 .. plot::
 
@@ -276,7 +276,7 @@ The following changes were made to the default behavior of
 `~matplotlib.axes.Axes.scatter`
 
 - The default size of the elements in a scatter plot is now based on
-  the rcParam ``lines.markersize`` so it is consistent with ``plot(X,
+  :rc:`lines.markersize` so it is consistent with ``plot(X,
   Y, 'o')``.  The old value was 20, and the new value is 36 (6^2).
 - Scatter markers no longer have a black edge.
 - If the color of the markers is not specified it will follow the
@@ -439,7 +439,7 @@ in your :file:`matplotlibrc` file.
 Previously, boxplots were composed of a mish-mash of styles that were, for
 better for worse, inherited from Matlab. Most of the elements were blue,
 but the medians were red. The fliers (outliers) were black plus-symbols
-(`+`) and the whiskers were dashed lines, which created ambiguity if
+('+') and the whiskers were dashed lines, which created ambiguity if
 the (solid and black) caps were not drawn.
 
 For the new defaults, everything is black except for the median and mean
@@ -643,11 +643,11 @@ Hatching
 The color of the lines in the hatch is now determined by
 
 - If an edge color is explicitly set, use that for the hatch color
-- If the edge color is not explicitly set, use ``rcParam['hatch.color']`` which
+- If the edge color is not explicitly set, use :rc:`hatch.color` which
   is looked up at artist creation time.
 
 The width of the lines in a hatch pattern is now configurable by the
-rcParams `hatch.linewidth`, which defaults to 1 point.  The old
+rcParams :rc:`hatch.linewidth`, which defaults to 1 point.  The old
 behavior for the line width was different depending on backend:
 
 - PDF: 0.1 pt
@@ -948,8 +948,8 @@ sets the view limits to 5% wider than the data range.
 
 The size of the padding in the x and y directions is controlled by the
 ``'axes.xmargin'`` and ``'axes.ymargin'`` rcParams respectively. Whether
-the view limits should be 'round numbers' is controlled by the
-``'axes.autolimit_mode'`` rcParam.  In the original ``'round_number'`` mode,
+the view limits should be 'round numbers' is controlled by
+:rc:`axes.autolimit_mode`.  In the original ``'round_number'`` mode,
 the view limits coincide with ticks.
 
 The previous default can be restored by using::
@@ -1083,7 +1083,7 @@ uses ``MaxNLocator`` internally.
 For a log-scaled axis the default locator is the
 `~matplotlib.ticker.LogLocator`.  Previously the maximum number
 of ticks was set to 15, and could not be changed. Now there is a
-`numticks` kwarg for setting the maximum to any integer value,
+*numticks* kwarg for setting the maximum to any integer value,
 to the string 'auto', or to its default value of None which is
 equivalent to 'auto'.  With the 'auto' setting the maximum number
 will be no larger than 9, and will be reduced depending on the
@@ -1102,7 +1102,7 @@ Minor ticks on a log axis are now labeled when the axis view limits
 span a range less than or equal to the interval between two major
 ticks.  See `~matplotlib.ticker.LogFormatter` for details. The
 minor tick labeling is turned off when using ``mpl.style.use('classic')``,
-but cannot be controlled independently via ``rcParams``.
+but cannot be controlled independently via `.rcParams`.
 
 .. plot::
 
@@ -1130,9 +1130,9 @@ but cannot be controlled independently via ``rcParams``.
 ``ScalarFormatter`` tick label formatting with offsets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-With the default of ``rcParams['axes.formatter.useoffset'] = True``,
+With the default :rc:`axes.formatter.useoffset`,
 an offset will be used when it will save 4 or more digits.  This can
-be controlled with the new rcParam, ``axes.formatter.offset_threshold``.
+be controlled with the new :rc:`axes.formatter.offset_threshold`.
 To restore the previous behavior of using an offset to save 2 or more
 digits, use ``rcParams['axes.formatter.offset_threshold'] = 2``.
 

@@ -11,11 +11,11 @@ class Triangulation:
     ----------
     x, y : array-like of shape (npoints)
         Coordinates of grid points.
-    triangles : integer array-like of shape (ntri, 3), optional
+    triangles : int array-like of shape (ntri, 3), optional
         For each triangle, the indices of the three points that make
         up the triangle, ordered in an anticlockwise manner.  If not
         specified, the Delaunay triangulation is calculated.
-    mask : boolean array-like of shape (ntri), optional
+    mask : bool array-like of shape (ntri), optional
         Which triangles are masked out.
 
     Attributes
@@ -58,7 +58,7 @@ class Triangulation:
             # orientation.
             self.triangles = np.array(triangles, dtype=np.int32, order='C')
             if self.triangles.ndim != 2 or self.triangles.shape[1] != 3:
-                raise ValueError('triangles must be a (?,3) array')
+                raise ValueError('triangles must be a (?, 3) array')
             if self.triangles.max() >= len(self.x):
                 raise ValueError('triangles max element is out of bounds')
             if self.triangles.min() < 0:
@@ -166,7 +166,7 @@ class Triangulation:
 
     def get_trifinder(self):
         """
-        Return the default :class:`matplotlib.tri.TriFinder` of this
+        Return the default `matplotlib.tri.TriFinder` of this
         triangulation, creating it if necessary.  This allows the same
         TriFinder object to be easily shared.
         """
@@ -184,8 +184,8 @@ class Triangulation:
         For each triangle, the indices of the three triangles that
         share the same edges, or -1 if there is no such neighboring
         triangle.  ``neighbors[i, j]`` is the triangle that is the neighbor
-        to the edge from point index ``triangles[i,j]`` to point index
-        ``triangles[i,(j+1)%3]``.
+        to the edge from point index ``triangles[i, j]`` to point index
+        ``triangles[i, (j+1)%3]``.
         """
         if self._neighbors is None:
             self._neighbors = self.get_cpp_triangulation().get_neighbors()
@@ -193,8 +193,11 @@ class Triangulation:
 
     def set_mask(self, mask):
         """
-        Set or clear the mask array.  This is either None, or a boolean
-        array of shape (ntri).
+        Set or clear the mask array.
+
+        Parameters
+        ----------
+        mask : None or bool array of length ntri
         """
         if mask is None:
             self.mask = None

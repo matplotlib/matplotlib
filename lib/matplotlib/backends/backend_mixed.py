@@ -27,7 +27,7 @@ class MixedModeRenderer:
         height : scalar
             The height of the canvas in logical units
 
-        dpi : scalar
+        dpi : float
             The dpi of the canvas
 
         vector_renderer : `matplotlib.backend_bases.RendererBase`
@@ -76,21 +76,14 @@ class MixedModeRenderer:
     def start_rasterizing(self):
         """
         Enter "raster" mode.  All subsequent drawing commands (until
-        stop_rasterizing is called) will be drawn with the raster
-        backend.
-
-        If start_rasterizing is called multiple times before
-        stop_rasterizing is called, this method has no effect.
+        `stop_rasterizing` is called) will be drawn with the raster backend.
         """
-
         # change the dpi of the figure temporarily.
         self.figure.set_dpi(self.dpi)
-
         if self._bbox_inches_restore:  # when tight bbox is used
             r = process_figure_for_rasterizing(self.figure,
                                                self._bbox_inches_restore)
             self._bbox_inches_restore = r
-
         if self._rasterizing == 0:
             self._raster_renderer = self._raster_renderer_class(
                 self._width*self.dpi, self._height*self.dpi, self.dpi)
@@ -100,11 +93,12 @@ class MixedModeRenderer:
     def stop_rasterizing(self):
         """
         Exit "raster" mode.  All of the drawing that was done since
-        the last start_rasterizing command will be copied to the
+        the last `start_rasterizing` call will be copied to the
         vector backend by calling draw_image.
 
-        If stop_rasterizing is called multiple times before
-        start_rasterizing is called, this method has no effect.
+        If `start_rasterizing` has been called multiple times,
+        `stop_rasterizing` must be called the same number of times before
+        "raster" mode is exited.
         """
         self._rasterizing -= 1
         if self._rasterizing == 0:

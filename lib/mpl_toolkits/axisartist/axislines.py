@@ -1,13 +1,13 @@
 """
 Axislines includes modified implementation of the Axes class. The
 biggest difference is that the artists responsible for drawing the axis spine,
-ticks, ticklabels and axis labels are separated out from mpl's Axis
+ticks, ticklabels and axis labels are separated out from Matplotlib's Axis
 class. Originally, this change was motivated to support curvilinear
 grid. Here are a few reasons that I came up with a new axes class:
 
 * "top" and "bottom" x-axis (or "left" and "right" y-axis) can have
   different ticks (tick locations and labels). This is not possible
-  with the current mpl, although some twin axes trick can help.
+  with the current Matplotlib, although some twin axes trick can help.
 
 * Curvilinear grid.
 
@@ -29,11 +29,10 @@ has following children artists which will draw ticks, labels, etc.
 * offsetText
 * label
 
-Note that these are separate artists from Axis class of the
-original mpl, thus most of tick-related command in the original mpl
-won't work, although some effort has made to work with. For example,
-color and markerwidth of the ax.axis["bottom"].major_ticks will follow
-those of Axes.xaxis unless explicitly specified.
+Note that these are separate artists from `matplotlib.axis.Axis`, thus most
+tick-related functions in Matplotlib won't work. For example, color and
+markerwidth of the ``ax.axis["bottom"].major_ticks`` will follow those of
+Axes.xaxis unless explicitly specified.
 
 In addition to AxisArtist, the Axes will have *gridlines* attribute,
 which obviously draws grid lines. The gridlines needs to be separated
@@ -43,7 +42,6 @@ from the axis as some gridlines can never pass any axis.
 import numpy as np
 
 from matplotlib import cbook, rcParams
-import matplotlib.artist as martist
 import matplotlib.axes as maxes
 from matplotlib.path import Path
 from mpl_toolkits.axes_grid1 import mpl_axes
@@ -160,7 +158,7 @@ class AxisArtistHelper:
 
         def get_axislabel_pos_angle(self, axes):
             """
-            label reference position in transAxes.
+            Return the label reference position in transAxes.
 
             get_label_transform() returns a transform of (transAxes+offset)
             """
@@ -265,7 +263,7 @@ class AxisArtistHelperRectlinear:
 
         def get_axislabel_pos_angle(self, axes):
             """
-            label reference position in transAxes.
+            Return the label reference position in transAxes.
 
             get_label_transform() returns a transform of (transAxes+offset)
             """
@@ -420,7 +418,7 @@ class GridHelperRectlinear(GridHelperBase):
 
     def get_gridlines(self, which="major", axis="both"):
         """
-        return list of gridline coordinates in data coordinates.
+        Return list of gridline coordinates in data coordinates.
 
         *which* : "major" or "minor"
         *axis* : "both", "x" or "y"
@@ -452,42 +450,10 @@ class GridHelperRectlinear(GridHelperBase):
         return gridlines
 
 
-@cbook.deprecated("3.1")
-class SimpleChainedObjects:
-    def __init__(self, objects):
-        self._objects = objects
-
-    def __getattr__(self, k):
-        _a = SimpleChainedObjects([getattr(a, k) for a in self._objects])
-        return _a
-
-    def __call__(self, *args, **kwargs):
-        for m in self._objects:
-            m(*args, **kwargs)
-
-
 class Axes(maxes.Axes):
 
-    @cbook.deprecated("3.1")
-    class AxisDict(dict):
-        def __init__(self, axes):
-            self.axes = axes
-            super().__init__()
-
-        def __getitem__(self, k):
-            if isinstance(k, tuple):
-                return SimpleChainedObjects(
-                    [dict.__getitem__(self, k1) for k1 in k])
-            elif isinstance(k, slice):
-                if k == slice(None):
-                    return SimpleChainedObjects(list(self.values()))
-                else:
-                    raise ValueError("Unsupported slice")
-            else:
-                return dict.__getitem__(self, k)
-
-        def __call__(self, *args, **kwargs):
-            return maxes.Axes.axis(self.axes, *args, **kwargs)
+    def __call__(self, *args, **kwargs):
+        return maxes.Axes.axis(self.axes, *args, **kwargs)
 
     def __init__(self, *args, grid_helper=None, **kwargs):
         self._axisline_on = True
@@ -570,23 +536,16 @@ class Axes(maxes.Axes):
         # their are some discrepancy between the behavior of grid in
         # axes_grid and the original mpl's grid, because axes_grid
         # explicitly set the visibility of the gridlines.
-
         super().grid(b, which=which, axis=axis, **kwargs)
         if not self._axisline_on:
             return
-
         if b is None:
             b = (self.axes.xaxis._gridOnMinor
-                    or self.axes.xaxis._gridOnMajor
-                    or self.axes.yaxis._gridOnMinor
-                    or self.axes.yaxis._gridOnMajor)
-
-        self.gridlines.set_which(which)
-        self.gridlines.set_axis(axis)
-        self.gridlines.set_visible(b)
-
-        if len(kwargs):
-            martist.setp(self.gridlines, **kwargs)
+                 or self.axes.xaxis._gridOnMajor
+                 or self.axes.yaxis._gridOnMinor
+                 or self.axes.yaxis._gridOnMajor)
+        self.gridlines.set(which=which, axis=axis, visible=b)
+        self.gridlines.set(**kwargs)
 
     def get_children(self):
         if self._axisline_on:

@@ -9,13 +9,15 @@ The selection logic is as follows:
   it; i.e. if the Qt5Agg backend is requested but QT_API is set to "pyqt4",
   then actually use Qt5 with PyQt5 or PySide2 (whichever can be imported);
 - otherwise, use whatever the rcParams indicate.
+
+Support for PyQt4 is deprecated.
 """
 
 from distutils.version import LooseVersion
 import os
 import sys
 
-from matplotlib import rcParams
+import matplotlib as mpl
 
 
 QT_API_PYQT5 = "PyQt5"
@@ -41,12 +43,12 @@ elif "PySide.QtCore" in sys.modules:
 # Otherwise, check the QT_API environment variable (from Enthought).  This can
 # only override the binding, not the backend (in other words, we check that the
 # requested backend actually matches).
-elif rcParams["backend"] in ["Qt5Agg", "Qt5Cairo"]:
+elif mpl.rcParams["backend"] in ["Qt5Agg", "Qt5Cairo"]:
     if QT_API_ENV in ["pyqt5", "pyside2"]:
         QT_API = _ETS[QT_API_ENV]
     else:
         QT_API = None
-elif rcParams["backend"] in ["Qt4Agg", "Qt4Cairo"]:
+elif mpl.rcParams["backend"] in ["Qt4Agg", "Qt4Cairo"]:
     if QT_API_ENV in ["pyqt4", "pyside"]:
         QT_API = _ETS[QT_API_ENV]
     else:
@@ -56,10 +58,11 @@ elif rcParams["backend"] in ["Qt4Agg", "Qt4Cairo"]:
 else:
     try:
         QT_API = _ETS[QT_API_ENV]
-    except KeyError:
+    except KeyError as err:
         raise RuntimeError(
             "The environment variable QT_API has the unrecognized value {!r};"
-            "valid values are 'pyqt5', 'pyside2', 'pyqt', and 'pyside'")
+            "valid values are 'pyqt5', 'pyside2', 'pyqt', and "
+            "'pyside'") from err
 
 
 def _setup_pyqt5():
@@ -92,7 +95,7 @@ def _setup_pyqt4():
 
     def _setup_pyqt4_internal(api):
         global QtCore, QtGui, QtWidgets, \
-            __version__, is_pyqt5, _getSaveFileName
+            __version__, is_pyqt5, _isdeleted, _getSaveFileName
         # List of incompatible APIs:
         # http://pyqt.sourceforge.net/Docs/PyQt4/incompatible_apis.html
         _sip_apis = ["QDate", "QDateTime", "QString", "QTextStream", "QTime",
@@ -146,7 +149,7 @@ if QT_API in [QT_API_PYQT5, QT_API_PYSIDE2]:
 elif QT_API in [QT_API_PYQTv2, QT_API_PYSIDE, QT_API_PYQT]:
     _setup_pyqt4()
 elif QT_API is None:
-    if rcParams["backend"] == "Qt4Agg":
+    if mpl.rcParams["backend"] == "Qt4Agg":
         _candidates = [(_setup_pyqt4, QT_API_PYQTv2),
                        (_setup_pyqt4, QT_API_PYSIDE),
                        (_setup_pyqt4, QT_API_PYQT),
@@ -174,3 +177,6 @@ else:  # We should not get there.
 ETS = dict(pyqt=(QT_API_PYQTv2, 4), pyside=(QT_API_PYSIDE, 4),
            pyqt5=(QT_API_PYQT5, 5), pyside2=(QT_API_PYSIDE2, 5))
 QT_RC_MAJOR_VERSION = 5 if is_pyqt5() else 4
+
+if not is_pyqt5():
+    mpl.cbook.warn_deprecated("3.3", name="support for Qt4")

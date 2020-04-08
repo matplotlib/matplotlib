@@ -17,8 +17,8 @@ class MatplotlibDeprecationWarning(UserWarning):
     """
 
 
+# mplDeprecation is deprecated. Use MatplotlibDeprecationWarning instead.
 mplDeprecation = MatplotlibDeprecationWarning
-"""mplDeprecation is deprecated. Use MatplotlibDeprecationWarning instead."""
 
 
 def _generate_deprecation_warning(
@@ -57,7 +57,7 @@ def warn_deprecated(
         since, *, message='', name='', alternative='', pending=False,
         obj_type='', addendum='', removal=''):
     """
-    Used to display deprecation in a standard way.
+    Display a standardized deprecation.
 
     Parameters
     ----------
@@ -65,12 +65,10 @@ def warn_deprecated(
         The release at which this API became deprecated.
 
     message : str, optional
-        Override the default deprecation message.  The format
-        specifier `%(name)s` may be used for the name of the function,
-        and `%(alternative)s` may be used in the deprecation message
-        to insert the name of an alternative to the deprecated
-        function.  `%(obj_type)s` may be used to insert a friendly name
-        for the type of object being deprecated.
+        Override the default deprecation message.  The ``%(since)s``,
+        ``%(name)s``, ``%(alternative)s``, ``%(obj_type)s``, ``%(addendum)s``,
+        and ``%(removal)s`` format specifiers will be replaced by the values
+        of the respective arguments passed to this function.
 
     name : str, optional
         The name of the deprecated object.
@@ -108,7 +106,7 @@ def warn_deprecated(
         since, message, name, alternative, pending, obj_type, addendum,
         removal=removal)
     from . import _warn_external
-    _warn_external(warning)
+    _warn_external(warning, category=MatplotlibDeprecationWarning)
 
 
 def deprecated(since, *, message='', name='', alternative='', pending=False,
@@ -117,22 +115,20 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
     Decorator to mark a function, a class, or a property as deprecated.
 
     When deprecating a classmethod, a staticmethod, or a property, the
-    ``@deprecated`` decorator should go *under* the ``@classmethod``, etc.
-    decorator (i.e., `deprecated` should directly decorate the underlying
-    callable).
+    ``@deprecated`` decorator should go *under* ``@classmethod`` and
+    ``@staticmethod`` (i.e., `deprecated` should directly decorate the
+    underlying callable), but *over* ``@property``.
 
     Parameters
     ----------
     since : str
-        The release at which this API became deprecated.  This is
-        required.
+        The release at which this API became deprecated.
 
     message : str, optional
-        Override the default deprecation message.  The format
-        specifier `%(name)s` may be used for the name of the object,
-        and `%(alternative)s` may be used in the deprecation message
-        to insert the name of an alternative to the deprecated
-        object.
+        Override the default deprecation message.  The ``%(since)s``,
+        ``%(name)s``, ``%(alternative)s``, ``%(obj_type)s``, ``%(addendum)s``,
+        and ``%(removal)s`` format specifiers will be replaced by the values
+        of the respective arguments passed to this function.
 
     name : str, optional
         The name used in the deprecation message; if not provided, the name
@@ -311,18 +307,22 @@ class _deprecated_parameter_class:
 _deprecated_parameter = _deprecated_parameter_class()
 
 
-def _delete_parameter(since, name, func=None):
+def _delete_parameter(since, name, func=None, **kwargs):
     """
     Decorator indicating that parameter *name* of *func* is being deprecated.
 
     The actual implementation of *func* should keep the *name* parameter in its
-    signature.
+    signature, or accept a ``**kwargs`` argument (through which *name* would be
+    passed).
 
     Parameters that come after the deprecated parameter effectively become
     keyword-only (as they cannot be passed positionally without triggering the
     DeprecationWarning on the deprecated parameter), and should be marked as
     such after the deprecation period has passed and the deprecated parameter
     is removed.
+
+    Parameters other than *since*, *name*, and *func* are keyword-only and
+    forwarded to `.warn_deprecated`.
 
     Examples
     --------
@@ -333,29 +333,58 @@ def _delete_parameter(since, name, func=None):
     """
 
     if func is None:
-        return functools.partial(_delete_parameter, since, name)
+        return functools.partial(_delete_parameter, since, name, **kwargs)
 
     signature = inspect.signature(func)
-    assert name in signature.parameters, (
-        f"Matplotlib internal error: {name!r} must be a parameter for "
-        f"{func.__name__}()")
-    func.__signature__ = signature.replace(parameters=[
-        param.replace(default=_deprecated_parameter) if param.name == name
-        else param
-        for param in signature.parameters.values()])
+    # Name of `**kwargs` parameter of the decorated function, typically
+    # "kwargs" if such a parameter exists, or None if the decorated function
+    # doesn't accept `**kwargs`.
+    kwargs_name = next((param.name for param in signature.parameters.values()
+                        if param.kind == inspect.Parameter.VAR_KEYWORD), None)
+    if name in signature.parameters:
+        kind = signature.parameters[name].kind
+        is_varargs = kind is inspect.Parameter.VAR_POSITIONAL
+        is_varkwargs = kind is inspect.Parameter.VAR_KEYWORD
+        if not is_varargs and not is_varkwargs:
+            func.__signature__ = signature = signature.replace(parameters=[
+                param.replace(default=_deprecated_parameter)
+                if param.name == name else param
+                for param in signature.parameters.values()])
+    else:
+        is_varargs = is_varkwargs = False
+        assert kwargs_name, (
+            f"Matplotlib internal error: {name!r} must be a parameter for "
+            f"{func.__name__}()")
 
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        arguments = func.__signature__.bind(*args, **kwargs).arguments
+    def wrapper(*inner_args, **inner_kwargs):
+        arguments = signature.bind(*inner_args, **inner_kwargs).arguments
+        if is_varargs and arguments.get(name):
+            warn_deprecated(
+                since, message=f"Additional positional arguments to "
+                f"{func.__name__}() are deprecated since %(since)s and "
+                f"support for them will be removed %(removal)s.")
+        elif is_varkwargs and arguments.get(name):
+            warn_deprecated(
+                since, message=f"Additional keyword arguments to "
+                f"{func.__name__}() are deprecated since %(since)s and "
+                f"support for them will be removed %(removal)s.")
         # We cannot just check `name not in arguments` because the pyplot
         # wrappers always pass all arguments explicitly.
-        if name in arguments and arguments[name] != _deprecated_parameter:
+        elif any(name in d and d[name] != _deprecated_parameter
+                 for d in [arguments, arguments.get(kwargs_name, {})]):
+            addendum = (f"If any parameter follows {name!r}, they should be "
+                        f"passed as keyword, not positionally.")
+            if kwargs.get("addendum"):
+                kwargs["addendum"] += " " + addendum
+            else:
+                kwargs["addendum"] = addendum
             warn_deprecated(
-                since, message=f"The {name!r} parameter of {func.__name__}() "
-                f"is deprecated since Matplotlib {since} and will be removed "
-                f"%(removal)s.  If any parameter follows {name!r}, they "
-                f"should be pass as keyword, not positionally.")
-        return func(*args, **kwargs)
+                since,
+                name=repr(name),
+                obj_type=f"parameter of {func.__name__}()",
+                **kwargs)
+        return func(*inner_args, **inner_kwargs)
 
     return wrapper
 
@@ -364,11 +393,6 @@ def _make_keyword_only(since, name, func=None):
     """
     Decorator indicating that passing parameter *name* (or any of the following
     ones) positionally to *func* is being deprecated.
-
-    Note that this decorator **cannot** be applied to a function that has a
-    pyplot-level wrapper, as the wrapper always pass all arguments by keyword.
-    If it is used, users will see spurious DeprecationWarnings every time they
-    call the pyplot wrapper.
     """
 
     if func is None:
@@ -390,8 +414,11 @@ def _make_keyword_only(since, name, func=None):
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        bound = signature.bind(*args, **kwargs)
-        if name in bound.arguments and name not in kwargs:
+        # Don't use signature.bind here, as it would fail when stacked with
+        # _rename_parameter and an "old" argument name is passed in
+        # (signature.bind would fail, but the actual call would succeed).
+        idx = [*func.__signature__.parameters].index(name)
+        if len(args) > idx:
             warn_deprecated(
                 since, message="Passing the %(name)s %(obj_type)s "
                 "positionally is deprecated since Matplotlib %(since)s; the "

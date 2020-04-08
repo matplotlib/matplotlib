@@ -1,5 +1,5 @@
 import pytest
-
+import sys
 import matplotlib
 from matplotlib import cbook
 
@@ -7,8 +7,8 @@ from matplotlib import cbook
 def pytest_configure(config):
     # config is initialized here rather than in pytest.ini so that `pytest
     # --pyargs matplotlib` (which would not find pytest.ini) works.  The only
-    # entries in pytest.ini set minversion (which is checked earlier) and
-    # testpaths/python_files, as they are required to properly find the tests.
+    # entries in pytest.ini set minversion (which is checked earlier),
+    # testpaths/python_files, as they are required to properly find the tests
     for key, value in [
         ("markers", "flaky: (Provided by pytest-rerunfailures.)"),
         ("markers", "timeout: (Provided by pytest-timeout.)"),
@@ -44,6 +44,30 @@ def mpl_test_settings(request):
             skip_on_importerror = backend_marker.kwargs.get(
                 'skip_on_importerror', False)
             prev_backend = matplotlib.get_backend()
+
+            # special case Qt backend importing to avoid conflicts
+            if backend.lower().startswith('qt4'):
+                if any(k in sys.modules for k in ('PyQt5', 'PySide2')):
+                    pytest.skip('Qt5 binding already imported')
+                try:
+                    import PyQt4
+                # RuntimeError if PyQt5 already imported.
+                except (ImportError, RuntimeError):
+                    try:
+                        import PySide
+                    except ImportError:
+                        pytest.skip("Failed to import a Qt4 binding.")
+            elif backend.lower().startswith('qt5'):
+                if any(k in sys.modules for k in ('PyQt4', 'PySide')):
+                    pytest.skip('Qt4 binding already imported')
+                try:
+                    import PyQt5
+                # RuntimeError if PyQt4 already imported.
+                except (ImportError, RuntimeError):
+                    try:
+                        import PySide2
+                    except ImportError:
+                        pytest.skip("Failed to import a Qt5 binding.")
 
         # Default of cleanup and image_comparison too.
         style = ["classic", "_classic_test_patch"]

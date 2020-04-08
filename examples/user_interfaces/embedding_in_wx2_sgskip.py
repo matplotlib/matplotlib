@@ -4,11 +4,12 @@ Embedding in wx #2
 ==================
 
 An example of how to use wxagg in an application with the new
-toolbar - comment out the add_toolbar line for no toolbar
+toolbar - comment out the add_toolbar line for no toolbar.
 """
 
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wx import NavigationToolbar2Wx as NavigationToolbar
+from matplotlib.backends.backend_wxagg import (
+    FigureCanvasWxAgg as FigureCanvas,
+    NavigationToolbar2WxAgg as NavigationToolbar)
 from matplotlib.figure import Figure
 
 import numpy as np
@@ -51,7 +52,7 @@ class CanvasFrame(wx.Frame):
 #class App(wx.App):
 class App(WIT.InspectableApp):
     def OnInit(self):
-        'Create the main window and insert the custom frame'
+        """Create the main window and insert the custom frame."""
         self.Init()
         frame = CanvasFrame()
         frame.Show(True)

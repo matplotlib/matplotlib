@@ -1,0 +1,5 @@
+Simple syntax to select fonts by absolute path
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fonts can now be selected by passing an absolute `pathlib.Path` to the *font*
+kwarg of `.Text`.

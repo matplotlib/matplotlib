@@ -4,8 +4,6 @@ import subprocess
 import sys
 import textwrap
 
-import matplotlib
-
 
 def test_simple():
     assert 1 + 1 == 2
@@ -44,7 +42,6 @@ def test_lazy_imports():
     import matplotlib.backend_bases
     import matplotlib.pyplot
 
-    assert 'matplotlib._png' not in sys.modules
     assert 'matplotlib._tri' not in sys.modules
     assert 'matplotlib._qhull' not in sys.modules
     assert 'matplotlib._contour' not in sys.modules

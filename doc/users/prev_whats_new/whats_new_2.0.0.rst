@@ -27,7 +27,7 @@ The :mod:`~matplotlib.colors` gained a new color conversion API with
 full support for the alpha channel.  The main public functions are
 :func:`~matplotlib.colors.is_color_like`, :func:`matplotlib.colors.to_rgba`,
 :func:`matplotlib.colors.to_rgba_array` and :func:`~matplotlib.colors.to_hex`.
-RGBA quadruplets are encoded in hex format as `#rrggbbaa`.
+RGBA quadruplets are encoded in hex format as "#rrggbbaa".
 
 A side benefit is that the Qt options editor now allows setting the alpha
 channel of the artists as well.
@@ -38,49 +38,51 @@ New Configuration (rcParams)
 
 New rcparams added
 
-+---------------------------------+--------------------------------------------------+
-| Parameter                       | Description                                      |
-+=================================+==================================================+
-|`date.autoformatter.year`        | format string for 'year' scale dates             |
-+---------------------------------+--------------------------------------------------+
-|`date.autoformatter.month`       | format string for 'month' scale dates            |
-+---------------------------------+--------------------------------------------------+
-|`date.autoformatter.day`         | format string for 'day' scale dates              |
-+---------------------------------+--------------------------------------------------+
-|`date.autoformatter.hour`        | format string for 'hour' scale times             |
-+---------------------------------+--------------------------------------------------+
-|`date.autoformatter.minute`      | format string for 'minute' scale times           |
-+---------------------------------+--------------------------------------------------+
-|`date.autoformatter.second`      | format string for 'second' scale times           |
-+---------------------------------+--------------------------------------------------+
-|`date.autoformatter.microsecond` | format string for 'microsecond' scale times      |
-+---------------------------------+--------------------------------------------------+
-|`scatter.marker`                 | default marker for scatter plot                  |
-+---------------------------------+--------------------------------------------------+
-|`svg.hashsalt`                   | see note                                         |
-+---------------------------------+--------------------------------------------------+
-|`xtick.top`, `xtick.minor.top`,  | Control where major and minor ticks are drawn.   |
-|`xtick.major.top`                | The global values are `and` ed with the          |
-|`xtick.bottom`,                  | corresponding major/minor values.                |
-|`xtick.minor.bottom`,            |                                                  |
-|`xtick.major.bottom`             |                                                  |
-|`ytick.left`, `ytick.minor.left`,|                                                  |
-|`ytick.major.left`               |                                                  |
-|`ytick.right`,                   |                                                  |
-|`ytick.minor.right`,             |                                                  |
-|`ytick.major.right`              |                                                  |
-+---------------------------------+--------------------------------------------------+
-|`hist.bins`                      | The default number of bins to use in             |
-|                                 | `~matplotlib.axes.Axes.hist`.  This can be an    |
-|                                 | `int`, a list of floats, or ``'auto'`` if numpy  |
-|                                 | >= 1.11 is installed.                            |
-+---------------------------------+--------------------------------------------------+
-|`lines.scale_dashes`             | Whether the line dash patterns should scale with |
-|                                 | linewidth.                                       |
-+---------------------------------+--------------------------------------------------+
-|`axes.formatter.offset_threshold`| Minimum number of digits saved in tick labels    |
-|                                 | that triggers using an offset.                   |
-+---------------------------------+--------------------------------------------------+
++-------------------------------------+--------------------------------------------------+
+| Parameter                           | Description                                      |
++=====================================+==================================================+
+|:rc:`date.autoformatter.year`        | format string for 'year' scale dates             |
++-------------------------------------+--------------------------------------------------+
+|:rc:`date.autoformatter.month`       | format string for 'month' scale dates            |
++-------------------------------------+--------------------------------------------------+
+|:rc:`date.autoformatter.day`         | format string for 'day' scale dates              |
++-------------------------------------+--------------------------------------------------+
+|:rc:`date.autoformatter.hour`        | format string for 'hour' scale times             |
++-------------------------------------+--------------------------------------------------+
+|:rc:`date.autoformatter.minute`      | format string for 'minute' scale times           |
++-------------------------------------+--------------------------------------------------+
+|:rc:`date.autoformatter.second`      | format string for 'second' scale times           |
++-------------------------------------+--------------------------------------------------+
+|:rc:`date.autoformatter.microsecond` | format string for 'microsecond' scale times      |
++-------------------------------------+--------------------------------------------------+
+|:rc:`scatter.marker`                 | default marker for scatter plot                  |
++-------------------------------------+--------------------------------------------------+
+|:rc:`svg.hashsalt`                   | see note                                         |
++-------------------------------------+--------------------------------------------------+
+|:rc:`xtick.top`,                     | Control where major and minor ticks are drawn.   |
+|:rc:`xtick.major.top`                | The global values are ``and``\ed with the        |
+|:rc:`xtick.minor.top`,               | corresponding major/minor values.                |
+|:rc:`xtick.bottom`,                  | corresponding major/minor values.                |
+|:rc:`xtick.major.bottom`             |                                                  |
+|:rc:`xtick.minor.bottom`,            |                                                  |
+|:rc:`ytick.left`,                    |                                                  |
+|:rc:`ytick.minor.left`,              |                                                  |
+|:rc:`ytick.major.left`               |                                                  |
+|:rc:`ytick.right`,                   |                                                  |
+|:rc:`ytick.minor.right`,             |                                                  |
+|:rc:`ytick.major.right`              |                                                  |
++-------------------------------------+--------------------------------------------------+
+|:rc:`hist.bins`                      | The default number of bins to use in             |
+|                                     | `~matplotlib.axes.Axes.hist`.  This can be an    |
+|                                     | `int`, a list of floats, or ``'auto'`` if numpy  |
+|                                     | >= 1.11 is installed.                            |
++-------------------------------------+--------------------------------------------------+
+|:rc:`lines.scale_dashes`             | Whether the line dash patterns should scale with |
+|                                     | linewidth.                                       |
++-------------------------------------+--------------------------------------------------+
+|:rc:`axes.formatter.offset_threshold`| Minimum number of digits saved in tick labels    |
+|                                     | that triggers using an offset.                   |
++-------------------------------------+--------------------------------------------------+
 
 
 
@@ -203,11 +205,11 @@ they are drawn.
 Non-linear scales on image plots
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:func:`imshow` now draws data at the requested points in data space after the
+`~.Axes.imshow` now draws data at the requested points in data space after the
 application of non-linear scales.
 
 The image on the left demonstrates the new, correct behavior.
-The old behavior can be recreated using :func:`pcolormesh` as
+The old behavior can be recreated using `~.Axes.pcolormesh` as
 demonstrated on the right.
 
 
@@ -263,10 +265,8 @@ will be removed in version 2.2.
 Boxplot Zorder Keyword Argument
 -------------------------------
 
-The ``zorder`` parameter now exists for :func:`boxplot`. This allows the zorder
-of a boxplot to be set in the plotting function call.
-
-::
+The *zorder* parameter now exists for `~.Axes.boxplot`. This allows the zorder
+of a boxplot to be set in the plotting function call. ::
 
     boxplot(np.arange(10), zorder=10)
 
@@ -278,17 +278,17 @@ the :mod:`~matplotlib.markers` module and
 :doc:`marker reference </gallery/lines_bars_and_markers/marker_reference>`
 examples.
 
-`rcount` and `ccount` for `plot_surface()`
-------------------------------------------
+*rcount* and *ccount* for `~.axes3d.Axes3D.plot_surface`
+--------------------------------------------------------
 
-As of v2.0, mplot3d's :func:`~mpl_toolkits.mplot3d.axes3d.plot_surface` now
-accepts `rcount` and `ccount` arguments for controlling the sampling of the
+As of v2.0, mplot3d's `~.axes3d.Axes3D.plot_surface` now
+accepts *rcount* and *ccount* arguments for controlling the sampling of the
 input data for plotting. These arguments specify the maximum number of
 evenly spaced samples to take from the input data. These arguments are
 also the new default sampling method for the function, and is
 considered a style change.
 
-The old `rstride` and `cstride` arguments, which specified the size of the
+The old *rstride* and *cstride* arguments, which specified the size of the
 evenly spaced samples, become the default when 'classic' mode is invoked,
 and are still available for use. There are no plans for deprecating these
 arguments.
@@ -296,9 +296,9 @@ arguments.
 Streamplot Zorder Keyword Argument Changes
 ------------------------------------------
 
-The ``zorder`` parameter for :func:`streamplot` now has default
+The ``zorder`` parameter for `~.Axes.streamplot` now has default
 value of ``None`` instead of ``2``. If ``None`` is given as ``zorder``,
-:func:`streamplot` has a default ``zorder`` of
+`~.Axes.streamplot` has a default ``zorder`` of
 ``matplotlib.lines.Line2D.zorder``.
 
 .. _gc_get_hatch_color_wn:

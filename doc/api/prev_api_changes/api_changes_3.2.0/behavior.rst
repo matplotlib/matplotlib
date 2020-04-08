@@ -62,12 +62,12 @@ Matplotlib used to recompute autoscaled limits after every plotting
 rendering the canvas, or when the user queries the Axes limits.  This is a
 major performance improvement for plots with a large number of artists.
 
-In particular, this means that artists added manually with `Axes.add_line`,
-`Axes.add_patch`, etc. will be taken into account by the autoscale, even
-without an explicit call to `Axes.autoscale_view`.
+In particular, this means that artists added manually with `.Axes.add_line`,
+`.Axes.add_patch`, etc. will be taken into account by the autoscale, even
+without an explicit call to `.Axes.autoscale_view`.
 
 In some cases, this can result in different limits being reported.  If this is
-an issue, consider triggering a draw with `fig.canvas.draw`.
+an issue, consider triggering a draw with ``fig.canvas.draw()``.
 
 Autoscaling has also changed for artists that are based on the `.Collection`
 class.  Previously, the method that calculates the automatic limits
@@ -133,7 +133,7 @@ properties, which are `range` objects indicating the whole span of rows and
 columns covered by the subplot.
 
 (Note that all methods and attributes mentioned here actually only exist on
-the ``Subplot`` subclass of `Axes`, which is used for grid-positioned Axes but
+the ``Subplot`` subclass of `~.axes.Axes`, which is used for grid-positioned Axes but
 not for Axes positioned directly in absolute coordinates.)
 
 The `.GridSpec` class gained the ``nrows`` and ``ncols`` properties as more
@@ -171,7 +171,7 @@ an axis limit did not coincide with a sticky edge, it cannot *cross* a sticky
 edge through margin application -- instead, the margins will only expand the
 axis limit until it bumps against the sticky edge.
 
-This change improves the margins of axes displaying a `~Axes.streamplot`:
+This change improves the margins of axes displaying a `~.Axes.streamplot`:
 
 - if the streamplot goes all the way to the edges of the vector field, then the
   axis limits are set to match exactly the vector field limits (whereas they
@@ -201,9 +201,9 @@ that Times New Roman Bold is now correctly detected as bold, not normal weight.
 
 Color-like checking
 ~~~~~~~~~~~~~~~~~~~
-`matplotlib.color.is_colorlike()` used to return True for all string
+`matplotlib.colors.is_color_like` used to return True for all string
 representations of floats. However, only those with values in 0-1 are valid
-colors (representing grayscale values). ``is_colorlike()`` now returns False
+colors (representing grayscale values). `.is_color_like` now returns False
 for string representations of floats outside 0-1.
 
 Default image interpolation
@@ -213,7 +213,7 @@ interpolation, leading to aliasing effects for downscaling and non-integer
 upscaling.
 
 New default for :rc:`image.interpolation` is the new option "antialiased".
-`imshow(A, interpolation='antialiased')` will apply a Hanning filter when
+``imshow(A, interpolation='antialiased')`` will apply a Hanning filter when
 resampling the data in A for display (or saving to file) *if* the upsample
 rate is less than a factor of three, and not an integer; downsampled data is
 always smoothed at resampling.
@@ -230,7 +230,7 @@ performance penalty.  Anti-aliasing can be improved with other filters.
 
 rcParams
 ~~~~~~~~
-When using `RendererSVG` with ``rcParams["svg.image_inline"] ==
+When using `.RendererSVG` with ``rcParams["svg.image_inline"] ==
 True``, externally written images now use a single counter even if the
 ``renderer.basename`` attribute is overwritten, rather than a counter per
 basename.
@@ -243,7 +243,7 @@ for better readability.
 
 ``add_subplot()``
 ~~~~~~~~~~~~~~~~~
-`.Figure.add_subplot()` and `.pyplot.subplot()` do not accept a `figure`
+`.Figure.add_subplot()` and `.pyplot.subplot()` do not accept a *figure*
 keyword argument anymore. It only used to work anyway if the passed figure
 was ``self`` or the current figure, respectively.
 
@@ -291,9 +291,9 @@ is now automatically detected.
 Exception changes
 ~~~~~~~~~~~~~~~~~
 Various APIs that raised a `ValueError` for incorrectly typed inputs now raise
-`TypeError` instead: `backend_bases.GraphicsContextBase.set_clip_path`,
-`blocking_input.BlockingInput.__call__`, `cm.register_cmap`, `dviread.DviFont`,
-`rcsetup.validate_hatch`, `rcsetup.validate_animation_writer_path`, `spines.Spine`,
+`TypeError` instead: `.backend_bases.GraphicsContextBase.set_clip_path`,
+`.blocking_input.BlockingInput.__call__`, `.cm.register_cmap`, `.dviread.DviFont`,
+`.rcsetup.validate_hatch`, `.rcsetup.validate_animation_writer_path`, `.spines.Spine`,
 many classes in the :mod:`matplotlib.transforms` module and :mod:`matplotlib.tri`
 package, and Axes methods that take a ``norm`` parameter.
 

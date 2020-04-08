@@ -11,7 +11,6 @@ import numpy as np
 
 import matplotlib.patches as mpatches
 from matplotlib.path import Path
-from matplotlib.transforms import IdentityTransform
 import matplotlib.axes as maxes
 
 from mpl_toolkits.axes_grid1.parasite_axes import host_axes_class_factory
@@ -148,12 +147,7 @@ class ExtremeFinderFixed(ExtremeFinderSimple):
         self._extremes = extremes
 
     def __call__(self, transform_xy, x1, y1, x2, y2):
-        """
-        get extreme values.
-
-        x1, y1, x2, y2 in image coordinates (0-based)
-        nx, ny : number of division in each axis
-        """
+        # docstring inherited
         return self._extremes
 
 
@@ -176,7 +170,7 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
 
     def get_data_boundary(self, side):
         """
-        return v=0, nth=1
+        Return v=0, nth=1.
         """
         lon1, lon2, lat1, lat2 = self._extremes
         return dict(left=(lon1, 0),
@@ -237,9 +231,9 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         lon_min, lon_max = sorted(extremes[:2])
         lat_min, lat_max = sorted(extremes[2:])
         lon_levs, lon_n, lon_factor = \
-                  grid_finder.grid_locator1(lon_min, lon_max)
+            grid_finder.grid_locator1(lon_min, lon_max)
         lat_levs, lat_n, lat_factor = \
-                  grid_finder.grid_locator2(lat_min, lat_max)
+            grid_finder.grid_locator2(lat_min, lat_max)
         grid_info["extremes"] = lon_min, lon_max, lat_min, lat_max  # extremes
 
         grid_info["lon_info"] = lon_levs, lon_n, lon_factor
@@ -321,17 +315,7 @@ class FloatingAxesBase:
         self.adjust_axes_lim()
 
     def _gen_axes_patch(self):
-        """
-        Returns the patch used to draw the background of the axes.  It
-        is also used as the clipping path for any data elements on the
-        axes.
-
-        In the standard axes, this is a rectangle, but in other
-        projections it may not be.
-
-        .. note::
-            Intended to be overridden by new projection types.
-        """
+        # docstring inherited
         grid_helper = self.get_grid_helper()
         t = grid_helper.get_boundary()
         return mpatches.Polygon(t)

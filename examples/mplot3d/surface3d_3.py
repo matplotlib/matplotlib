@@ -1,10 +1,10 @@
-'''
+"""
 =========================
 3D surface (checkerboard)
 =========================
 
 Demonstrates plotting a 3D surface colored in a checkerboard pattern.
-'''
+"""
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import LinearLocator

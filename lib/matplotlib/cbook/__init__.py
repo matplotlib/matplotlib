@@ -2,19 +2,16 @@
 A collection of utility functions and classes.  Originally, many
 (but not all) were from the Python Cookbook -- hence the name cbook.
 
-This module is safe to import from anywhere within matplotlib;
-it imports matplotlib only at runtime.
+This module is safe to import from anywhere within Matplotlib;
+it imports Matplotlib only at runtime.
 """
 
 import collections
 import collections.abc
 import contextlib
 import functools
-import glob
 import gzip
 import itertools
-import locale
-import numbers
 import operator
 import os
 from pathlib import Path
@@ -27,7 +24,6 @@ import traceback
 import types
 import warnings
 import weakref
-from weakref import WeakMethod
 
 import numpy as np
 
@@ -39,8 +35,51 @@ from .deprecation import (
     MatplotlibDeprecationWarning, mplDeprecation)
 
 
+def _get_running_interactive_framework():
+    """
+    Return the interactive framework whose event loop is currently running, if
+    any, or "headless" if no event loop can be started, or None.
+
+    Returns
+    -------
+    Optional[str]
+        One of the following values: "qt5", "qt4", "gtk3", "wx", "tk",
+        "macosx", "headless", ``None``.
+    """
+    QtWidgets = (sys.modules.get("PyQt5.QtWidgets")
+                 or sys.modules.get("PySide2.QtWidgets"))
+    if QtWidgets and QtWidgets.QApplication.instance():
+        return "qt5"
+    QtGui = (sys.modules.get("PyQt4.QtGui")
+             or sys.modules.get("PySide.QtGui"))
+    if QtGui and QtGui.QApplication.instance():
+        return "qt4"
+    Gtk = sys.modules.get("gi.repository.Gtk")
+    if Gtk and Gtk.main_level():
+        return "gtk3"
+    wx = sys.modules.get("wx")
+    if wx and wx.GetApp():
+        return "wx"
+    tkinter = sys.modules.get("tkinter")
+    if tkinter:
+        for frame in sys._current_frames().values():
+            while frame:
+                if frame.f_code == tkinter.mainloop.__code__:
+                    return "tk"
+                frame = frame.f_back
+    if 'matplotlib.backends._macosx' in sys.modules:
+        if sys.modules["matplotlib.backends._macosx"].event_loop_is_running():
+            return "macosx"
+    if sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
+        return "headless"
+    return None
+
+
 def _exception_printer(exc):
-    traceback.print_exc()
+    if _get_running_interactive_framework() in ["headless", None]:
+        raise exc
+    else:
+        traceback.print_exc()
 
 
 class _StrongRef:
@@ -62,7 +101,8 @@ class _StrongRef:
 
 
 class CallbackRegistry:
-    """Handle registering and disconnecting for a set of signals and callbacks:
+    """
+    Handle registering and disconnecting for a set of signals and callbacks:
 
         >>> def oneat(x):
         ...    print('eat', x)
@@ -111,9 +151,8 @@ class CallbackRegistry:
     """
 
     # We maintain two mappings:
-    #   callbacks: signal -> {cid -> callback}
-    #   _func_cid_map: signal -> {callback -> cid}
-    # (actually, callbacks are weakrefs to the actual callbacks).
+    #   callbacks: signal -> {cid -> weakref-to-callback}
+    #   _func_cid_map: signal -> {weakref-to-callback -> cid}
 
     def __init__(self, exception_handler=_exception_printer):
         self.exception_handler = exception_handler
@@ -121,26 +160,16 @@ class CallbackRegistry:
         self._cid_gen = itertools.count()
         self._func_cid_map = {}
 
-    # In general, callbacks may not be pickled; thus, we simply recreate an
-    # empty dictionary at unpickling.  In order to ensure that `__setstate__`
-    # (which just defers to `__init__`) is called, `__getstate__` must
-    # return a truthy value (for pickle protocol>=3, i.e. Py3, the
-    # *actual* behavior is that `__setstate__` will be called as long as
-    # `__getstate__` does not return `None`, but this is undocumented -- see
-    # http://bugs.python.org/issue12290).
-
     def __getstate__(self):
-        return {'exception_handler': self.exception_handler}
-
-    def __setstate__(self, state):
-        self.__init__(**state)
+        # In general, callbacks may not be pickled, so we just drop them.
+        return {**vars(self), "callbacks": {}, "_func_cid_map": {}}
 
     def connect(self, s, func):
         """Register *func* to be called when signal *s* is generated.
         """
         self._func_cid_map.setdefault(s, {})
         try:
-            proxy = WeakMethod(func, self._remove_proxy)
+            proxy = weakref.WeakMethod(func, self._remove_proxy)
         except TypeError:
             proxy = _StrongRef(func)
         if proxy in self._func_cid_map[s]:
@@ -239,6 +268,7 @@ class silent_list(list):
         self.extend(state['seq'])
 
 
+@deprecated("3.3")
 class IgnoredKeywordWarning(UserWarning):
     """
     A class for issuing warnings about keyword arguments that will be ignored
@@ -247,6 +277,7 @@ class IgnoredKeywordWarning(UserWarning):
     pass
 
 
+@deprecated("3.3", alternative="normalize_kwargs")
 def local_over_kwdict(local_var, kwargs, *keys):
     """
     Enforces the priority of a local variable over potentially conflicting
@@ -273,7 +304,7 @@ def local_over_kwdict(local_var, kwargs, *keys):
 
     Returns
     -------
-    out : any object
+    any object
         Either local_var or one of kwargs[key] for key in keys.
 
     Raises
@@ -281,8 +312,12 @@ def local_over_kwdict(local_var, kwargs, *keys):
     IgnoredKeywordWarning
         For each key in keys that is removed from kwargs but not used as
         the output value.
-
     """
+    return _local_over_kwdict(local_var, kwargs, *keys, IgnoredKeywordWarning)
+
+
+def _local_over_kwdict(
+        local_var, kwargs, *keys, warning_cls=MatplotlibDeprecationWarning):
     out = local_var
     for key in keys:
         kwarg_val = kwargs.pop(key, None)
@@ -291,7 +326,7 @@ def local_over_kwdict(local_var, kwargs, *keys):
                 out = kwarg_val
             else:
                 _warn_external('"%s" keyword argument will be ignored' % key,
-                               IgnoredKeywordWarning)
+                               warning_cls)
     return out
 
 
@@ -316,26 +351,6 @@ def strip_math(s):
         ]:
             s = s.replace(tex, plain)
     return s
-
-
-@deprecated('3.1', alternative='np.iterable')
-def iterable(obj):
-    """return true if *obj* is iterable"""
-    try:
-        iter(obj)
-    except TypeError:
-        return False
-    return True
-
-
-@deprecated("3.1", alternative="isinstance(..., collections.abc.Hashable)")
-def is_hashable(obj):
-    """Returns true if *obj* can be hashed"""
-    try:
-        hash(obj)
-    except TypeError:
-        return False
-    return True
 
 
 def is_writable_file_like(obj):
@@ -387,17 +402,18 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     """
     if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
+    if "U" in flag:
+        warn_deprecated("3.3", message="Passing a flag containing 'U' to "
+                        "to_filehandle() is deprecated since %(since)s and "
+                        "will be removed %(removal)s.")
+        flag = flag.replace("U", "")
     if isinstance(fname, str):
         if fname.endswith('.gz'):
-            # get rid of 'U' in flag for gzipped files.
-            flag = flag.replace('U', '')
             fh = gzip.open(fname, flag)
         elif fname.endswith('.bz2'):
             # python may not be complied with bz2 support,
             # bury import until we need it
             import bz2
-            # get rid of 'U' in flag for bz2 files
-            flag = flag.replace('U', '')
             fh = bz2.BZ2File(fname, flag)
         else:
             fh = open(fname, flag, encoding=encoding)
@@ -414,7 +430,7 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
 
 @contextlib.contextmanager
 def open_file_cm(path_or_file, mode="r", encoding=None):
-    r"""Pass through file objects and context-manage `.PathLike`\s."""
+    r"""Pass through file objects and context-manage path-likes."""
     fh, opened = to_filehandle(path_or_file, mode, True, encoding)
     if opened:
         with fh:
@@ -431,7 +447,7 @@ def is_scalar_or_string(val):
 def get_sample_data(fname, asfileobj=True):
     """
     Return a sample data file.  *fname* is a path relative to the
-    `mpl-data/sample_data` directory.  If *asfileobj* is `True`
+    :file:`mpl-data/sample_data` directory.  If *asfileobj* is `True`
     return a file object, otherwise just a file path.
 
     Sample data files are stored in the 'mpl-data/sample_data' directory within
@@ -483,6 +499,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield from flatten(item, scalarp)
 
 
+@deprecated("3.3", alternative="os.path.realpath and os.stat")
 @functools.lru_cache()
 def get_realpath_and_stat(path):
     realpath = os.path.realpath(path)
@@ -497,47 +514,6 @@ def get_realpath_and_stat(path):
 _find_dedent_regex = re.compile(r"(?:(?:\n\r?)|^)( *)\S")
 # A cache to hold the regexs that actually remove the indent.
 _dedent_regex = {}
-
-
-@deprecated("3.1", alternative="inspect.cleandoc")
-def dedent(s):
-    """
-    Remove excess indentation from docstring *s*.
-
-    Discards any leading blank lines, then removes up to n whitespace
-    characters from each line, where n is the number of leading
-    whitespace characters in the first line. It differs from
-    textwrap.dedent in its deletion of leading blank lines and its use
-    of the first non-blank line to determine the indentation.
-
-    It is also faster in most cases.
-    """
-    # This implementation has a somewhat obtuse use of regular
-    # expressions.  However, this function accounted for almost 30% of
-    # matplotlib startup time, so it is worthy of optimization at all
-    # costs.
-
-    if not s:      # includes case of s is None
-        return ''
-
-    match = _find_dedent_regex.match(s)
-    if match is None:
-        return s
-
-    # This is the number of spaces to remove from the left-hand side.
-    nshift = match.end(1) - match.start(1)
-    if nshift == 0:
-        return s
-
-    # Get a regex that will remove *up to* nshift spaces from the
-    # beginning of each line.  If it isn't in the cache, generate it.
-    unindent = _dedent_regex.get(nshift, None)
-    if unindent is None:
-        unindent = re.compile("\n\r? {0,%d}" % nshift)
-        _dedent_regex[nshift] = unindent
-
-    result = unindent.sub("\n", s).strip()
-    return result
 
 
 class maxdict(dict):
@@ -576,7 +552,7 @@ class Stack:
 
     def __call__(self):
         """Return the current element, or None."""
-        if not len(self._elements):
+        if not self._elements:
             return self._default
         else:
             return self._elements[self._pos]
@@ -614,7 +590,7 @@ class Stack:
 
         The first element is returned.
         """
-        if not len(self._elements):
+        if not self._elements:
             return
         self.push(self._elements[0])
         return self()
@@ -630,33 +606,43 @@ class Stack:
 
     def bubble(self, o):
         """
-        Raise *o* to the top of the stack.  *o* must be present in the stack.
+        Raise all references of *o* to the top of the stack, and return it.
 
-        *o* is returned.
+        Raises
+        ------
+        ValueError
+            If *o* is not in the stack.
         """
         if o not in self._elements:
-            raise ValueError('Unknown element o')
-        old = self._elements[:]
+            raise ValueError('Given element not contained in the stack')
+        old_elements = self._elements.copy()
         self.clear()
-        bubbles = []
-        for thiso in old:
-            if thiso == o:
-                bubbles.append(thiso)
+        top_elements = []
+        for elem in old_elements:
+            if elem == o:
+                top_elements.append(elem)
             else:
-                self.push(thiso)
-        for _ in bubbles:
+                self.push(elem)
+        for _ in top_elements:
             self.push(o)
         return o
 
     def remove(self, o):
-        """Remove *o* from the stack."""
+        """
+        Remove *o* from the stack.
+
+        Raises
+        ------
+        ValueError
+            If *o* is not in the stack.
+        """
         if o not in self._elements:
-            raise ValueError('Unknown element o')
-        old = self._elements[:]
+            raise ValueError('Given element not contained in the stack')
+        old_elements = self._elements.copy()
         self.clear()
-        for thiso in old:
-            if thiso != o:
-                self.push(thiso)
+        for elem in old_elements:
+            if elem != o:
+                self.push(elem)
 
 
 def report_memory(i=0):  # argument may go away
@@ -664,11 +650,11 @@ def report_memory(i=0):  # argument may go away
     def call(command, os_name):
         try:
             return subprocess.check_output(command)
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as err:
             raise NotImplementedError(
                 "report_memory works on %s only if "
                 "the '%s' program is found" % (os_name, command[0])
-            )
+            ) from err
 
     pid = os.getpid()
     if sys.platform == 'sunos5':
@@ -689,28 +675,12 @@ def report_memory(i=0):  # argument may go away
     return mem
 
 
-_safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
-
-
-@deprecated("3.1")
-def safezip(*args):
-    """make sure *args* are equal len before zipping"""
-    Nx = len(args[0])
-    for i, arg in enumerate(args[1:]):
-        if len(arg) != Nx:
-            raise ValueError(_safezip_msg % (Nx, i + 1, len(arg)))
-    return list(zip(*args))
-
-
 def safe_masked_invalid(x, copy=False):
     x = np.array(x, subok=True, copy=copy)
     if not x.dtype.isnative:
-        # Note that the argument to `byteswap` is 'inplace',
-        # thus if we have already made a copy, do the byteswap in
-        # place, else make a copy with the byte order swapped.
-        # Be explicit that we are swapping the byte order of the dtype
-        x = x.byteswap(copy).newbyteorder('S')
-
+        # If we have already made a copy, do the byteswap in place, else make a
+        # copy with the byte order swapped.
+        x = x.byteswap(inplace=copy).newbyteorder('N')  # Swap to native order.
     try:
         xm = np.ma.masked_invalid(x, copy=False)
         xm.shrink_mask()
@@ -931,7 +901,7 @@ def delete_masked_points(*args):
     Masks are obtained from all arguments of the correct length
     in categories 1, 2, and 4; a point is bad if masked in a masked
     array or if it is a nan or inf.  No attempt is made to
-    extract a mask from categories 2, 3, and 4 if :meth:`np.isfinite`
+    extract a mask from categories 2, 3, and 4 if `numpy.isfinite`
     does not yield a Boolean array.
 
     All input arguments that are not passed unchanged are returned
@@ -1050,11 +1020,8 @@ def _combine_masks(*args):
 def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
                   autorange=False):
     r"""
-    Returns list of dictionaries of statistics used to draw a series
-    of box and whisker plots. The `Returns` section enumerates the
-    required keys of the dictionary. Users can skip this function and
-    pass a user-defined set of dictionaries to the new `axes.bxp` method
-    instead of relying on Matplotlib to do the calculations.
+    Return a list of dictionaries of statistics used to draw a series of box
+    and whisker plots using `~.Axes.bxp`.
 
     Parameters
     ----------
@@ -1062,7 +1029,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         Data that will be represented in the boxplots. Should have 2 or
         fewer dimensions.
 
-    whis : float or (float, float) (default = 1.5)
+    whis : float or (float, float), default: 1.5
         The position of the whiskers.
 
         If a float, the lower whisker is at the lowest datum above
@@ -1097,7 +1064,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     Returns
     -------
-    bxpstats : list of dict
+    list of dict
         A list of dictionaries containing the results for each column
         of data. Keys of each dictionary are the following:
 
@@ -1118,8 +1085,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     Notes
     -----
-    Non-bootstrapping approach to confidence interval uses Gaussian-
-    based asymptotic approximation:
+    Non-bootstrapping approach to confidence interval uses Gaussian-based
+    asymptotic approximation:
 
     .. math::
 
@@ -1128,7 +1095,6 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     General approach from:
     McGill, R., Tukey, J.W., and Larsen, W.A. (1978) "Variations of
     Boxplots", The American Statistician, 32:12-16.
-
     """
 
     def _bootstrap_median(data, N=5000):
@@ -1295,7 +1261,7 @@ def contiguous_regions(mask):
 
 def is_math_text(s):
     """
-    Returns whether the string *s* contains math expressions.
+    Return whether the string *s* contains math expressions.
 
     This is done by checking whether *s* contains an even number of
     non-escaped dollar signs.
@@ -1318,10 +1284,10 @@ def _to_unmasked_float_array(x):
 
 
 def _check_1d(x):
-    '''
+    """
     Converts a sequence of less than 1 dimension, to an array of 1
     dimension; leaves everything else untouched.
-    '''
+    """
     if not hasattr(x, 'shape') or len(x.shape) < 1:
         return np.atleast_1d(x)
     else:
@@ -1388,10 +1354,11 @@ def _reshape_2D(X, name):
 
 def violin_stats(X, method, points=100, quantiles=None):
     """
-    Returns a list of dictionaries of data which can be used to draw a series
+    Return a list of dictionaries of data which can be used to draw a series
     of violin plots.
 
-    See the Returns section below to view the required keys of the dictionary.
+    See the ``Returns`` section below to view the required keys of the
+    dictionary.
 
     Users can skip this function and pass a user-defined set of dictionaries
     with the same keys to `~.axes.Axes.violinplot` instead of using Matplotlib
@@ -1406,15 +1373,15 @@ def violin_stats(X, method, points=100, quantiles=None):
 
     method : callable
         The method used to calculate the kernel density estimate for each
-        column of data. When called via `method(v, coords)`, it should
+        column of data. When called via ``method(v, coords)``, it should
         return a vector of the values of the KDE evaluated at the values
         specified in coords.
 
-    points : int, default = 100
+    points : int, default: 100
         Defines the number of points to evaluate each of the gaussian kernel
         density estimates at.
 
-    quantiles : array-like, default = None
+    quantiles : array-like, default: None
         Defines (if not None) a list of floats in interval [0, 1] for each
         column of data, which represents the quantiles that will be rendered
         for that column of data. Must have 2 or fewer dimensions. 1D array will
@@ -1422,14 +1389,14 @@ def violin_stats(X, method, points=100, quantiles=None):
 
     Returns
     -------
-    vpstats : list of dict
+    list of dict
         A list of dictionaries containing the results for each column of data.
         The dictionaries contain at least the following:
 
         - coords: A list of scalars containing the coordinates this particular
           kernel density estimate was evaluated at.
         - vals: A list of scalars containing the values of the kernel density
-          estimate at each of the coordinates given in `coords`.
+          estimate at each of the coordinates given in *coords*.
         - mean: The mean value for this column of data.
         - median: The median value for this column of data.
         - min: The minimum value for this column of data.
@@ -1501,7 +1468,7 @@ def pts_to_prestep(x, *args):
 
     Returns
     -------
-    out : array
+    array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
         length ``N``, each of these arrays will be length ``2N + 1``. For
@@ -1539,7 +1506,7 @@ def pts_to_poststep(x, *args):
 
     Returns
     -------
-    out : array
+    array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
         length ``N``, each of these arrays will be length ``2N + 1``. For
@@ -1576,7 +1543,7 @@ def pts_to_midstep(x, *args):
 
     Returns
     -------
-    out : array
+    array
         The x and y values converted to steps in the same order as the input;
         can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
         length ``N``, each of these arrays will be length ``2N``.
@@ -1660,6 +1627,9 @@ def sanitize_sequence(data):
             else data)
 
 
+@_delete_parameter("3.3", "required")
+@_delete_parameter("3.3", "forbidden")
+@_delete_parameter("3.3", "allowed")
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
                      allowed=None):
     """
@@ -1691,16 +1661,16 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         mapping.
 
     required : list of str, optional
-        A list of keys that must be in *kws*.
+        A list of keys that must be in *kws*.  This parameter is deprecated.
 
     forbidden : list of str, optional
-        A list of keys which may not be in *kw*.
+        A list of keys which may not be in *kw*.  This parameter is deprecated.
 
     allowed : list of str, optional
         A list of allowed fields.  If this not None, then raise if
         *kw* contains any keys not in the union of *required*
         and *allowed*.  To allow only the required fields pass in
-        an empty tuple ``allowed=()``.
+        an empty tuple ``allowed=()``.  This parameter is deprecated.
 
     Raises
     ------
@@ -1747,11 +1717,9 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         if tmp:
             ret[canonical] = tmp[-1]
             if len(tmp) > 1:
-                warn_deprecated(
-                    "3.1", message=f"Saw kwargs {seen!r} which are all "
-                    f"aliases for {canonical!r}.  Kept value from "
-                    f"{seen[-1]!r}.  Passing multiple aliases for the same "
-                    f"property will raise a TypeError %(removal)s.")
+                raise TypeError("Got the following keyword arguments which "
+                                "are aliases of one another: {}"
+                                .format(", ".join(map(repr, seen))))
 
     # at this point we know that all keys which are aliased are removed, update
     # the return dictionary from the cleaned local copy of the input
@@ -1777,23 +1745,6 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
                     keys=fail_keys, req=required, allow=allowed))
 
     return ret
-
-
-@deprecated("3.1")
-def get_label(y, default_name):
-    try:
-        return y.name
-    except AttributeError:
-        return default_name
-
-
-_lockstr = """\
-LOCKERROR: matplotlib is trying to acquire the lock
-    {!r}
-and has failed.  This maybe due to any other process holding this
-lock.  If you are sure no other matplotlib process is running try
-removing these folders and trying again.
-"""
 
 
 @contextlib.contextmanager
@@ -1838,7 +1789,8 @@ other Matplotlib process is running, remove this file and try again.""".format(
 def _topmost_artist(
         artists,
         _cached_max=functools.partial(max, key=operator.attrgetter("zorder"))):
-    """Get the topmost artist of a list.
+    """
+    Get the topmost artist of a list.
 
     In case of a tie, return the *last* of the tied artists, as it will be
     drawn on top of the others. `max` returns the first maximum in case of
@@ -1848,7 +1800,8 @@ def _topmost_artist(
 
 
 def _str_equal(obj, s):
-    """Return whether *obj* is a string equal to string *s*.
+    """
+    Return whether *obj* is a string equal to string *s*.
 
     This helper solely exists to handle the case where *obj* is a numpy array,
     because in such cases, a naive ``obj == s`` would yield an array, which
@@ -1858,7 +1811,8 @@ def _str_equal(obj, s):
 
 
 def _str_lower_equal(obj, s):
-    """Return whether *obj* is a string equal, when lowercased, to string *s*.
+    """
+    Return whether *obj* is a string equal, when lowercased, to string *s*.
 
     This helper solely exists to handle the case where *obj* is a numpy array,
     because in such cases, a naive ``obj == s`` would yield an array, which
@@ -1868,7 +1822,8 @@ def _str_lower_equal(obj, s):
 
 
 def _define_aliases(alias_d, cls=None):
-    """Class decorator for defining property aliases.
+    """
+    Class decorator for defining property aliases.
 
     Use as ::
 
@@ -1907,25 +1862,32 @@ def _define_aliases(alias_d, cls=None):
             raise ValueError(
                 "Neither getter nor setter exists for {!r}".format(prop))
 
-    if hasattr(cls, "_alias_map"):
+    def get_aliased_and_aliases(d):
+        return {*d, *(alias for aliases in d.values() for alias in aliases)}
+
+    preexisting_aliases = getattr(cls, "_alias_map", {})
+    conflicting = (get_aliased_and_aliases(preexisting_aliases)
+                   & get_aliased_and_aliases(alias_d))
+    if conflicting:
         # Need to decide on conflict resolution policy.
-        raise NotImplementedError("Parent class already defines aliases")
-    cls._alias_map = alias_d
+        raise NotImplementedError(
+            f"Parent class already defines conflicting aliases: {conflicting}")
+    cls._alias_map = {**preexisting_aliases, **alias_d}
     return cls
 
 
 def _array_perimeter(arr):
     """
-    Get the elements on the perimeter of ``arr``,
+    Get the elements on the perimeter of *arr*.
 
     Parameters
     ----------
     arr : ndarray, shape (M, N)
-        The input array
+        The input array.
 
     Returns
     -------
-    perimeter : ndarray, shape (2*(M - 1) + 2*(N - 1),)
+    ndarray, shape (2*(M - 1) + 2*(N - 1),)
         The elements on the perimeter of the array::
 
            [arr[0, 0], ..., arr[0, -1], ..., arr[-1, -1], ..., arr[-1, 0], ...]
@@ -1953,9 +1915,111 @@ def _array_perimeter(arr):
     ))
 
 
+def _unfold(arr, axis, size, step):
+    """
+    Append an extra dimension containing sliding windows along *axis*.
+
+    All windows are of size *size* and begin with every *step* elements.
+
+    Parameters
+    ----------
+    arr : ndarray, shape (N_1, ..., N_k)
+        The input array
+    axis : int
+        Axis along which the windows are extracted
+    size : int
+        Size of the windows
+    step : int
+        Stride between first elements of subsequent windows.
+
+    Returns
+    -------
+    ndarray, shape (N_1, ..., 1 + (N_axis-size)/step, ..., N_k, size)
+
+    Examples
+    --------
+    >>> i, j = np.ogrid[:3,:7]
+    >>> a = i*10 + j
+    >>> a
+    array([[ 0,  1,  2,  3,  4,  5,  6],
+           [10, 11, 12, 13, 14, 15, 16],
+           [20, 21, 22, 23, 24, 25, 26]])
+    >>> _unfold(a, axis=1, size=3, step=2)
+    array([[[ 0,  1,  2],
+            [ 2,  3,  4],
+            [ 4,  5,  6]],
+
+           [[10, 11, 12],
+            [12, 13, 14],
+            [14, 15, 16]],
+
+           [[20, 21, 22],
+            [22, 23, 24],
+            [24, 25, 26]]])
+    """
+    new_shape = [*arr.shape, size]
+    new_strides = [*arr.strides, arr.strides[axis]]
+    new_shape[axis] = (new_shape[axis] - size) // step + 1
+    new_strides[axis] = new_strides[axis] * step
+    return np.lib.stride_tricks.as_strided(arr,
+                                           shape=new_shape,
+                                           strides=new_strides,
+                                           writeable=False)
+
+
+def _array_patch_perimeters(x, rstride, cstride):
+    """
+    Extract perimeters of patches from *arr*.
+
+    Extracted patches are of size (*rstride* + 1) x (*cstride* + 1) and
+    share perimeters with their neighbors. The ordering of the vertices matches
+    that returned by ``_array_perimeter``.
+
+    Parameters
+    ----------
+    x : ndarray, shape (N, M)
+        Input array
+    rstride : int
+        Vertical (row) stride between corresponding elements of each patch
+    cstride : int
+        Horizontal (column) stride between corresponding elements of each patch
+
+    Returns
+    -------
+    ndarray, shape (N/rstride * M/cstride, 2 * (rstride + cstride))
+    """
+    assert rstride > 0 and cstride > 0
+    assert (x.shape[0] - 1) % rstride == 0
+    assert (x.shape[1] - 1) % cstride == 0
+    # We build up each perimeter from four half-open intervals. Here is an
+    # illustrated explanation for rstride == cstride == 3
+    #
+    #       T T T R
+    #       L     R
+    #       L     R
+    #       L B B B
+    #
+    # where T means that this element will be in the top array, R for right,
+    # B for bottom and L for left. Each of the arrays below has a shape of:
+    #
+    #    (number of perimeters that can be extracted vertically,
+    #     number of perimeters that can be extracted horizontally,
+    #     cstride for top and bottom and rstride for left and right)
+    #
+    # Note that _unfold doesn't incur any memory copies, so the only costly
+    # operation here is the np.concatenate.
+    top = _unfold(x[:-1:rstride, :-1], 1, cstride, cstride)
+    bottom = _unfold(x[rstride::rstride, 1:], 1, cstride, cstride)[..., ::-1]
+    right = _unfold(x[:-1, cstride::cstride], 0, rstride, rstride)
+    left = _unfold(x[1:, :-1:cstride], 0, rstride, rstride)[..., ::-1]
+    return (np.concatenate((top, right, bottom, left), axis=2)
+              .reshape(-1, 2 * (rstride + cstride)))
+
+
 @contextlib.contextmanager
 def _setattr_cm(obj, **kwargs):
-    """Temporarily set some attributes; restore original state at context exit.
+    """
+    Temporarily set some attributes; restore original state at context exit.
     """
     sentinel = object()
     origs = [(attr, getattr(obj, attr, sentinel)) for attr in kwargs]
@@ -2189,3 +2253,12 @@ class _classproperty:
 
     def __get__(self, instance, owner):
         return self._fget(owner)
+
+
+def _backend_module_name(name):
+    """
+    Convert a backend name (either a standard backend -- "Agg", "TkAgg", ... --
+    or a custom backend -- "module://...") to the corresponding module name).
+    """
+    return (name[9:] if name.startswith("module://")
+            else "matplotlib.backends.backend_{}".format(name.lower()))

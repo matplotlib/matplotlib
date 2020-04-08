@@ -26,7 +26,7 @@ Detailed description
 ====================
 
 Using different size/color/family in a text annotation is difficult because the
-`text` method accepts argument for size/color/family/weight/etc. that are used
+`~.Axes.text` method accepts argument for size/color/family/weight/etc. that are used
 for the whole text. But, if one wants, for example, to have different colors,
 one has to look at the gallery where one such example is provided:
 http://matplotlib.org/examples/text_labels_and_annotations/rainbow_text.html

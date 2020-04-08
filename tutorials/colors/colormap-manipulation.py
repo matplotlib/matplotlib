@@ -138,8 +138,8 @@ plot_examples([viridis, newcmp])
 # middle 0.5 of the colormap.  However, we need to interpolate from a larger
 # colormap, otherwise the new colormap will have repeated values.
 
-viridisBig = cm.get_cmap('viridis', 512)
-newcmp = ListedColormap(viridisBig(np.linspace(0.25, 0.75, 256)))
+viridis_big = cm.get_cmap('viridis', 512)
+newcmp = ListedColormap(viridis_big(np.linspace(0.25, 0.75, 256)))
 plot_examples([viridis, newcmp])
 
 ##############################################################################
@@ -155,8 +155,8 @@ plot_examples([viridis, newcmp])
 
 ##############################################################################
 # Of course we need not start from a named colormap, we just need to create
-# the Nx4 array to pass to `.ListedColormap`. Here we  create a
-# colormap that goes from brown (RGB: 90,40,40) to white (RGB: 255,255,255).
+# the Nx4 array to pass to `.ListedColormap`. Here we create a colormap that
+# goes from brown (RGB: 90, 40, 40) to white (RGB: 255, 255, 255).
 
 N = 256
 vals = np.ones((N, 4))

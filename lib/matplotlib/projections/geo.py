@@ -13,6 +13,7 @@ from matplotlib.transforms import Affine2D, BboxTransformTo, Transform
 
 class GeoAxes(Axes):
     """An abstract base class for geographic projections."""
+
     class ThetaFormatter(Formatter):
         """
         Used to format the theta tick labels.  Converts the native
@@ -23,10 +24,7 @@ class GeoAxes(Axes):
 
         def __call__(self, x, pos=None):
             degrees = round(np.rad2deg(x) / self._round_to) * self._round_to
-            if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
-                return r"$%0.0f^\circ$" % degrees
-            else:
-                return "%0.0f\N{DEGREE SIGN}" % degrees
+            return f"{degrees:0.0f}\N{DEGREE SIGN}"
 
     RESOLUTION = 75
 
@@ -149,14 +147,13 @@ class GeoAxes(Axes):
     set_xscale = set_yscale
 
     def set_xlim(self, *args, **kwargs):
-        raise TypeError("It is not possible to change axes limits "
-                        "for geographic projections. Please consider "
-                        "using Basemap or Cartopy.")
+        raise TypeError("Changing axes limits of a geographic projection is "
+                        "not supported.  Please consider using Cartopy.")
 
     set_ylim = set_xlim
 
     def format_coord(self, lon, lat):
-        'return a format string formatting the coordinate'
+        """Return a format string formatting the coordinate."""
         lon, lat = np.rad2deg([lon, lat])
         if lat >= 0.0:
             ns = 'N'
@@ -198,9 +195,7 @@ class GeoAxes(Axes):
             .translate(0.0, -self._longitude_cap)
 
     def get_data_ratio(self):
-        '''
-        Return the aspect ratio of the data itself.
-        '''
+        """Return the aspect ratio of the data itself."""
         return 1.0
 
     ### Interactive panning
@@ -233,9 +228,7 @@ class GeoAxes(Axes):
 
 class _GeoTransform(Transform):
     # Factoring out some common functionality.
-    input_dims = 2
-    output_dims = 2
-    is_separable = False
+    input_dims = output_dims = 2
 
     def __init__(self, resolution):
         """

@@ -56,7 +56,7 @@ class CanvasFrame(wx.Frame):
 
 class App(wx.App):
     def OnInit(self):
-        'Create the main window and insert the custom frame'
+        """Create the main window and insert the custom frame."""
         frame = CanvasFrame()
         self.SetTopWindow(frame)
         frame.Show(True)

@@ -58,7 +58,8 @@ class CanvasFrame(wx.Frame):
 
         # File Menu
         menu = wx.Menu()
-        m_exit = menu.Append(wx.ID_EXIT, "E&xit\tAlt-X", "Exit this simple sample")
+        m_exit = menu.Append(
+            wx.ID_EXIT, "E&xit\tAlt-X", "Exit this simple sample")
         menuBar.Append(menu, "&File")
         self.Bind(wx.EVT_MENU, self.OnClose, m_exit)
 

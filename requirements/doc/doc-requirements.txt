@@ -12,6 +12,9 @@ colorspacious
 ipython
 ipywidgets
 numpydoc>=0.8
+<<<<<<< HEAD
 pillow>=3.4,!=5.4.0
+=======
+>>>>>>> e46906d4738d827f453be37724dd4a0fb8ce85ea
 sphinx-gallery>=0.5
 sphinx-copybutton

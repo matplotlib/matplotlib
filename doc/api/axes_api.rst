@@ -87,6 +87,7 @@ Spans
    Axes.axhspan
    Axes.axvline
    Axes.axvspan
+   Axes.axline
 
 Spectral
 --------
@@ -240,10 +241,7 @@ Appearance
    Axes.grid
 
    Axes.get_facecolor
-   Axes.get_fc
-
    Axes.set_facecolor
-   Axes.set_fc
 
 
 Property cycle
@@ -368,6 +366,9 @@ Aspect ratio
    Axes.apply_aspect
    Axes.set_aspect
    Axes.get_aspect
+
+   Axes.set_box_aspect
+   Axes.get_box_aspect
 
    Axes.set_adjustable
    Axes.get_adjustable

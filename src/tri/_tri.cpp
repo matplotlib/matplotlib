@@ -155,7 +155,7 @@ std::ostream& operator<<(std::ostream& os, const XYZ& xyz)
 
 
 BoundingBox::BoundingBox()
-    : empty(true)
+    : empty(true), lower(0.0, 0.0), upper(0.0, 0.0)
 {}
 
 void BoundingBox::add(const XY& point)

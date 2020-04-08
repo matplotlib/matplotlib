@@ -46,5 +46,6 @@ Functions
    to_rgba
    to_rgba_array
    is_color_like
+   same_color
    makeMappingArray
    get_named_colors_mapping

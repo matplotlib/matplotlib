@@ -35,8 +35,9 @@ def test_Type1Font():
          '+  /ItalicAngle -45.0 def'):
         assert line in diff, 'diff to slanted font must contain %s' % line
 
-    diff = list(differ.compare(font.parts[0].decode('latin-1').splitlines(),
-                          condensed.parts[0].decode('latin-1').splitlines()))
+    diff = list(differ.compare(
+        font.parts[0].decode('latin-1').splitlines(),
+        condensed.parts[0].decode('latin-1').splitlines()))
     for line in (
          # Removes UniqueID
          '- FontDirectory/CMR10 known{/CMR10 findfont dup/UniqueID known{dup',

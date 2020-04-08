@@ -37,9 +37,7 @@ from collections import namedtuple
 import logging
 import re
 
-
 from ._mathtext_data import uni2type1
-from matplotlib.cbook import deprecated
 
 
 _log = logging.getLogger(__name__)
@@ -288,13 +286,13 @@ def _parse_composites(fh):
 
     Returns
     -------
-    composites : dict
+    dict
         A dict mapping composite character names to a parts list. The parts
         list is a list of `.CompositePart` entries describing the parts of
         the composite.
 
-    Example
-    -------
+    Examples
+    --------
     A composite definition line::
 
       CC Aacute 2 ; PCC A 0 0 ; PCC acute 160 170 ;
@@ -409,7 +407,7 @@ class AFM:
         for c in s:
             if c == '\n':
                 continue
-            name = uni2type1.get(ord(c), 'question')
+            name = uni2type1.get(ord(c), f"uni{ord(c):04X}")
             try:
                 wx, _, bbox = self._metrics_by_name[name]
             except KeyError:

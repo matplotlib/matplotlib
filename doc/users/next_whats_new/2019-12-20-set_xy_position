@@ -1,0 +1,7 @@
+Align labels to axes edges
+--------------------------
+`~.axes.Axes.set_xlabel`, `~.axes.Axes.set_ylabel` and `ColorbarBase.set_label`
+support a parameter ``loc`` for simplified positioning. Supported values are
+'left', 'center', or 'right'. The default is controlled via
+:rc:`xaxis.labelposition` and :rc:`yaxis.labelposition`; the Colorbar label
+takes the rcParam based on its orientation.

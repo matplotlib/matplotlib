@@ -2,5 +2,5 @@
 
 cycler==0.10
 python-dateutil==2.1
-numpy==1.11.0
-pyparsing==2.0.1
+numpy==1.15.0
+pyparsing==2.0.3

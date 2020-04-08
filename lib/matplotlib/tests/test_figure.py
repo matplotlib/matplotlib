@@ -1,8 +1,14 @@
 from datetime import datetime
 from pathlib import Path
 import platform
+import warnings
+try:
+    from contextlib import nullcontext
+except ImportError:
+    from contextlib import ExitStack as nullcontext  # Py3.6
 
-from matplotlib import rcParams
+import matplotlib as mpl
+from matplotlib import cbook, rcParams
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
@@ -16,7 +22,6 @@ import pytest
 @image_comparison(['figure_align_labels'],
                   tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
 def test_align_labels():
-    # Check the figure.align_labels() command
     fig = plt.figure(tight_layout=True)
     gs = gridspec.GridSpec(3, 3)
 
@@ -42,8 +47,8 @@ def test_align_labels():
 
     for i in range(3):
         ax = fig.add_subplot(gs[2, i])
-        ax.set_xlabel('XLabel2 %d' % (i))
-        ax.set_ylabel('YLabel2 %d' % (i))
+        ax.set_xlabel(f'XLabel2 {i}')
+        ax.set_ylabel(f'YLabel2 {i}')
 
         if i == 2:
             ax.plot(np.arange(0, 1e4, 10))
@@ -141,6 +146,10 @@ def test_figure_legend():
 def test_gca():
     fig = plt.figure()
 
+    with pytest.warns(UserWarning):
+        # empty call to add_axes() will throw deprecation warning
+        assert fig.add_axes() is None
+
     ax1 = fig.add_axes([0, 0, 1, 1])
     assert fig.gca(projection='rectilinear') is ax1
     assert fig.gca() is ax1
@@ -167,14 +176,34 @@ def test_gca():
 
 def test_add_subplot_invalid():
     fig = plt.figure()
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Number of columns must be > 0'):
         fig.add_subplot(2, 0, 1)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Number of rows must be > 0'):
         fig.add_subplot(0, 2, 1)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='num must be 1 <= num <= 4'):
         fig.add_subplot(2, 2, 0)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='num must be 1 <= num <= 4'):
         fig.add_subplot(2, 2, 5)
+
+    with pytest.raises(ValueError, match='must be a three-digit number'):
+        fig.add_subplot(42)
+    with pytest.raises(ValueError, match='must be a three-digit number'):
+        fig.add_subplot(1000)
+
+    with pytest.raises(TypeError, match='takes 1 or 3 positional arguments '
+                                        'but 2 were given'):
+        fig.add_subplot(2, 2)
+    with pytest.raises(TypeError, match='takes 1 or 3 positional arguments '
+                                        'but 4 were given'):
+        fig.add_subplot(1, 2, 3, 4)
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match='Passing non-integers as three-element position '
+                            'specification is deprecated'):
+        fig.add_subplot('2', 2, 1)
+    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+                      match='Passing non-integers as three-element position '
+                            'specification is deprecated'):
+        fig.add_subplot(2.0, 2, 1)
 
 
 @image_comparison(['figure_suptitle'])
@@ -185,9 +214,8 @@ def test_suptitle():
 
 
 def test_suptitle_fontproperties():
-    from matplotlib.font_manager import FontProperties
     fig, ax = plt.subplots()
-    fps = FontProperties(size='large', weight='bold')
+    fps = mpl.font_manager.FontProperties(size='large', weight='bold')
     txt = fig.suptitle('fontprops title', fontproperties=fps)
     assert txt.get_fontsize() == fps.get_size_in_points()
     assert txt.get_weight() == fps.get_weight()
@@ -200,17 +228,12 @@ def test_suptitle_fontproperties():
                   savefig_kwarg={'facecolor': (0, 1, 0.4),
                                  'edgecolor': 'none'})
 def test_alpha():
-    # We want an image which has a background color and an
-    # alpha of 0.4.
+    # We want an image which has a background color and an alpha of 0.4.
     fig = plt.figure(figsize=[2, 1])
     fig.set_facecolor((0, 1, 0.4))
     fig.patch.set_alpha(0.4)
-
-    import matplotlib.patches as mpatches
-    fig.patches.append(mpatches.CirclePolygon([20, 20],
-                                              radius=15,
-                                              alpha=0.6,
-                                              facecolor='red'))
+    fig.patches.append(mpl.patches.CirclePolygon(
+        [20, 20], radius=15, alpha=0.6, facecolor='red'))
 
 
 def test_too_many_figures():
@@ -313,9 +336,15 @@ def test_autofmt_xdate(which):
     ax.xaxis_date()
 
     ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-    ax.xaxis.set_minor_formatter(FixedFormatter(minors))
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            'ignore',
+            'FixedFormatter should only be used together with FixedLocator')
+        ax.xaxis.set_minor_formatter(FixedFormatter(minors))
 
-    fig.autofmt_xdate(0.2, angle, 'right', which)
+    with (pytest.warns(mpl.MatplotlibDeprecationWarning) if which is None else
+          nullcontext()):
+        fig.autofmt_xdate(0.2, angle, 'right', which)
 
     if which in ('both', 'major', None):
         for label in fig.axes[0].get_xticklabels(False, 'major'):
@@ -385,6 +414,16 @@ def test_savefig():
     msg = r"savefig\(\) takes 2 positional arguments but 3 were given"
     with pytest.raises(TypeError, match=msg):
         fig.savefig("fname1.png", "fname2.png")
+
+
+def test_savefig_backend():
+    fig = plt.figure()
+    # Intentionally use an invalid module name.
+    with pytest.raises(ModuleNotFoundError, match="No module named '@absent'"):
+        fig.savefig("test", backend="module://@absent")
+    with pytest.raises(ValueError,
+                       match="The 'pdf' backend does not support png output"):
+        fig.savefig("test.png", backend="pdf")
 
 
 def test_figure_repr():

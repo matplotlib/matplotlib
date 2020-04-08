@@ -141,6 +141,8 @@ def test_svgnone_with_data_coordinates():
         buf = fd.read().decode()
 
     assert expected in buf
+    for prop in ["family", "weight", "stretch", "style", "size"]:
+        assert f"font-{prop}:" in buf
 
 
 def test_gid():
@@ -205,3 +207,9 @@ def test_gid():
     for gid, obj in gdic.items():
         if include(gid, obj):
             assert gid in buf
+
+
+def test_savefig_tight():
+    # Check that the draw-disabled renderer correctly disables open/close_group
+    # as well.
+    plt.savefig(BytesIO(), format="svgz", bbox_inches="tight")

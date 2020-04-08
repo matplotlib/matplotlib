@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 import sys
 
-import matplotlib
-from matplotlib import backend_tools, cbook, rcParams
+import matplotlib as mpl
+from matplotlib import backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
@@ -16,8 +16,8 @@ from matplotlib.widgets import SubplotTool
 
 try:
     import gi
-except ImportError:
-    raise ImportError("The GTK3 backends require PyGObject")
+except ImportError as err:
+    raise ImportError("The GTK3 backends require PyGObject") from err
 
 try:
     # :raises ValueError: If module/version is already loaded, already
@@ -47,25 +47,11 @@ try:
 except TypeError as exc:
     # Happens when running headless.  Convert to ImportError to cooperate with
     # backend switching.
-    raise ImportError(exc)
+    raise ImportError(exc) from exc
 
 
 class TimerGTK3(TimerBase):
-    """
-    Subclass of `.TimerBase` using GTK3 for timer events.
-
-    Attributes
-    ----------
-    interval : int
-        The time between timer events in milliseconds. Default is 1000 ms.
-    single_shot : bool
-        Boolean flag indicating whether this timer should operate as single
-        shot (run once and then stop). Defaults to False.
-    callbacks : list
-        Stores list of (func, args) tuples that will be called upon timer
-        events. This list can be manipulated directly, or the functions
-        `add_callback` and `remove_callback` can be used.
-    """
+    """Subclass of `.TimerBase` using GTK3 timer events."""
 
     def _timer_start(self):
         # Need to stop it, otherwise we potentially leak a timer id that will
@@ -98,6 +84,7 @@ class TimerGTK3(TimerBase):
 
 class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
     required_interactive_framework = "gtk3"
+    _timer_cls = TimerGTK3
 
     keyvald = {65507: 'control',
                65505: 'shift',
@@ -191,8 +178,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
     def destroy(self):
         #Gtk.DrawingArea.destroy(self)
         self.close_event()
-        if self._idle_draw_id != 0:
-            GLib.source_remove(self._idle_draw_id)
 
     def scroll_event(self, widget, event):
         x = event.x
@@ -307,10 +292,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
             return False
         self._idle_draw_id = GLib.idle_add(idle_draw)
 
-    def new_timer(self, *args, **kwargs):
-        # docstring inherited
-        return TimerGTK3(*args, **kwargs)
-
     def flush_events(self):
         # docstring inherited
         Gdk.threads_enter()
@@ -366,7 +347,7 @@ class FigureManagerGTK3(FigureManagerBase):
         self.toolbar = self._get_toolbar()
         self.statusbar = None
 
-        def add_widget(child, expand, fill, padding):
+        def add_widget(child):
             child.show()
             self.vbox.pack_end(child, False, False, 0)
             size_request = child.size_request()
@@ -377,41 +358,48 @@ class FigureManagerGTK3(FigureManagerBase):
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
                 self.statusbar = StatusbarGTK3(self.toolmanager)
-                h += add_widget(self.statusbar, False, False, 0)
-                h += add_widget(Gtk.HSeparator(), False, False, 0)
+                h += add_widget(self.statusbar)
+                h += add_widget(Gtk.HSeparator())
 
         if self.toolbar is not None:
             self.toolbar.show()
-            h += add_widget(self.toolbar, False, False, 0)
+            h += add_widget(self.toolbar)
 
         self.window.set_default_size(w, h)
 
-        def destroy(*args):
-            Gcf.destroy(num)
-        self.window.connect("destroy", destroy)
-        self.window.connect("delete_event", destroy)
-        if matplotlib.is_interactive():
+        self._destroying = False
+        self.window.connect("destroy", lambda *args: Gcf.destroy(self))
+        self.window.connect("delete_event", lambda *args: Gcf.destroy(self))
+        if mpl.is_interactive():
             self.window.show()
             self.canvas.draw_idle()
 
         self.canvas.grab_focus()
 
     def destroy(self, *args):
+        if self._destroying:
+            # Otherwise, this can be called twice when the user presses 'q',
+            # which calls Gcf.destroy(self), then this destroy(), then triggers
+            # Gcf.destroy(self) once again via
+            # `connect("destroy", lambda *args: Gcf.destroy(self))`.
+            return
+        self._destroying = True
         self.vbox.destroy()
         self.window.destroy()
         self.canvas.destroy()
         if self.toolbar:
             self.toolbar.destroy()
 
-        if (Gcf.get_num_fig_managers() == 0 and
-                not matplotlib.is_interactive() and
+        if (Gcf.get_num_fig_managers() == 0 and not mpl.is_interactive() and
                 Gtk.main_level() >= 1):
             Gtk.main_quit()
 
     def show(self):
         # show the figure window
         self.window.show()
-        self.window.present()
+        self.canvas.draw()
+        if mpl.rcParams['figure.raise_window']:
+            self.window.present()
 
     def full_screen_toggle(self):
         self._full_screen_flag = not self._full_screen_flag
@@ -424,9 +412,9 @@ class FigureManagerGTK3(FigureManagerBase):
     def _get_toolbar(self):
         # must be inited after the window, drawingArea and figure
         # attrs are set
-        if rcParams['toolbar'] == 'toolbar2':
+        if mpl.rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2GTK3(self.canvas, self.window)
-        elif rcParams['toolbar'] == 'toolmanager':
+        elif mpl.rcParams['toolbar'] == 'toolmanager':
             toolbar = ToolbarGTK3(self.toolmanager)
         else:
             toolbar = None
@@ -434,7 +422,7 @@ class FigureManagerGTK3(FigureManagerBase):
 
     def _get_toolmanager(self):
         # must be initialised after toolbar has been set
-        if rcParams['toolbar'] == 'toolmanager':
+        if mpl.rcParams['toolbar'] == 'toolmanager':
             toolmanager = ToolManager(self.canvas.figure)
         else:
             toolmanager = None
@@ -447,11 +435,22 @@ class FigureManagerGTK3(FigureManagerBase):
         self.window.set_title(title)
 
     def resize(self, width, height):
-        'set the canvas size in pixels'
-        #_, _, cw, ch = self.canvas.allocation
-        #_, _, ww, wh = self.window.allocation
-        #self.window.resize (width-cw+ww, height-ch+wh)
-        self.window.resize(width, height)
+        """Set the canvas size in pixels."""
+        if self.toolbar:
+            toolbar_size = self.toolbar.size_request()
+            height += toolbar_size.height
+        if self.statusbar:
+            statusbar_size = self.statusbar.size_request()
+            height += statusbar_size.height
+        canvas_size = self.canvas.get_allocation()
+        if canvas_size.width == canvas_size.height == 1:
+            # A canvas size of (1, 1) cannot exist in most cases, because
+            # window decorations would prevent such a small window. This call
+            # must be before the window has been mapped and widgets have been
+            # sized, so just change the window's starting size.
+            self.window.set_default_size(width, height)
+        else:
+            self.window.resize(width, height)
 
 
 class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
@@ -501,11 +500,15 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             image = Gtk.Image()
             image.set_from_file(
                 str(cbook._get_data_path('images', image_file + '.png')))
-            self._gtk_ids[text] = tbutton = Gtk.ToolButton()
+            self._gtk_ids[text] = tbutton = (
+                Gtk.ToggleToolButton() if callback in ['zoom', 'pan'] else
+                Gtk.ToolButton())
             tbutton.set_label(text)
             tbutton.set_icon_widget(image)
             self.insert(tbutton, -1)
-            tbutton.connect('clicked', getattr(self, callback))
+            # Save the handler id, so that we can block it as needed.
+            tbutton._signal_handler = tbutton.connect(
+                'clicked', getattr(self, callback))
             tbutton.set_tooltip_text(tooltip_text)
 
         toolitem = Gtk.SeparatorToolItem()
@@ -520,16 +523,20 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
         self.show_all()
 
-    @cbook.deprecated("3.1")
-    def get_filechooser(self):
-        fc = FileChooserDialog(
-            title='Save the figure',
-            parent=self.win,
-            path=os.path.expanduser(rcParams['savefig.directory']),
-            filetypes=self.canvas.get_supported_filetypes(),
-            default_filetype=self.canvas.get_default_filetype())
-        fc.set_current_name(self.canvas.get_default_filename())
-        return fc
+    def _update_buttons_checked(self):
+        for name, active in [("Pan", "PAN"), ("Zoom", "ZOOM")]:
+            button = self._gtk_ids.get(name)
+            if button:
+                with button.handler_block(button._signal_handler):
+                    button.set_active(self._active == active)
+
+    def pan(self, *args):
+        super().pan(*args)
+        self._update_buttons_checked()
+
+    def zoom(self, *args):
+        super().zoom(*args)
+        self._update_buttons_checked()
 
     def save_figure(self, *args):
         dialog = Gtk.FileChooserDialog(
@@ -556,7 +563,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             dialog.set_current_name(
                 str(Path(dialog.get_current_name()).with_suffix("." + fmt)))
 
-        dialog.set_current_folder(rcParams["savefig.directory"])
+        dialog.set_current_folder(mpl.rcParams["savefig.directory"])
         dialog.set_current_name(self.canvas.get_default_filename())
         dialog.set_do_overwrite_confirmation(True)
 
@@ -568,8 +575,8 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         if response == Gtk.ResponseType.CANCEL:
             return
         # Save dir for next time, unless empty str (which means use cwd).
-        if rcParams['savefig.directory']:
-            rcParams['savefig.directory'] = os.path.dirname(fname)
+        if mpl.rcParams['savefig.directory']:
+            mpl.rcParams['savefig.directory'] = os.path.dirname(fname)
         try:
             self.canvas.figure.savefig(fname, format=fmt)
         except Exception as e:
@@ -610,79 +617,6 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             self._gtk_ids['Back'].set_sensitive(can_backward)
         if 'Forward' in self._gtk_ids:
             self._gtk_ids['Forward'].set_sensitive(can_forward)
-
-
-@cbook.deprecated("3.1")
-class FileChooserDialog(Gtk.FileChooserDialog):
-    """GTK+ file selector which remembers the last file/directory
-    selected and presents the user with a menu of supported image formats
-    """
-    def __init__(self,
-                 title='Save file',
-                 parent=None,
-                 action=Gtk.FileChooserAction.SAVE,
-                 buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                          Gtk.STOCK_SAVE, Gtk.ResponseType.OK),
-                 path=None,
-                 filetypes=[],
-                 default_filetype=None,
-                 ):
-        super().__init__(title, parent, action, buttons)
-        self.set_default_response(Gtk.ResponseType.OK)
-        self.set_do_overwrite_confirmation(True)
-
-        if not path:
-            path = os.getcwd()
-
-        # create an extra widget to list supported image formats
-        self.set_current_folder(path)
-        self.set_current_name('image.' + default_filetype)
-
-        hbox = Gtk.Box(spacing=10)
-        hbox.pack_start(Gtk.Label(label="File Format:"), False, False, 0)
-
-        liststore = Gtk.ListStore(GObject.TYPE_STRING)
-        cbox = Gtk.ComboBox()
-        cbox.set_model(liststore)
-        cell = Gtk.CellRendererText()
-        cbox.pack_start(cell, True)
-        cbox.add_attribute(cell, 'text', 0)
-        hbox.pack_start(cbox, False, False, 0)
-
-        self.filetypes = filetypes
-        sorted_filetypes = sorted(filetypes.items())
-        default = 0
-        for i, (ext, name) in enumerate(sorted_filetypes):
-            liststore.append(["%s (*.%s)" % (name, ext)])
-            if ext == default_filetype:
-                default = i
-        cbox.set_active(default)
-        self.ext = default_filetype
-
-        def cb_cbox_changed(cbox, data=None):
-            """File extension changed"""
-            head, filename = os.path.split(self.get_filename())
-            root, ext = os.path.splitext(filename)
-            ext = ext[1:]
-            new_ext = sorted_filetypes[cbox.get_active()][0]
-            self.ext = new_ext
-
-            if ext in self.filetypes:
-                filename = root + '.' + new_ext
-            elif ext == '':
-                filename = filename.rstrip('.') + '.' + new_ext
-
-            self.set_current_name(filename)
-        cbox.connect("changed", cb_cbox_changed)
-
-        hbox.show_all()
-        self.set_extra_widget(hbox)
-
-    def get_filename_from_user(self):
-        if self.run() == int(Gtk.ResponseType.OK):
-            return self.get_filename(), self.ext
-        else:
-            return None, self.ext
 
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
@@ -781,18 +715,6 @@ class RubberbandGTK3(backend_tools.RubberbandBase):
 
 
 class SaveFigureGTK3(backend_tools.SaveFigureBase):
-
-    @cbook.deprecated("3.1")
-    def get_filechooser(self):
-        fc = FileChooserDialog(
-            title='Save the figure',
-            parent=self.figure.canvas.manager.window,
-            path=os.path.expanduser(rcParams['savefig.directory']),
-            filetypes=self.figure.canvas.get_supported_filetypes(),
-            default_filetype=self.figure.canvas.get_default_filetype())
-        fc.set_current_name(self.figure.canvas.get_default_filename())
-        return fc
-
     def trigger(self, *args, **kwargs):
 
         class PseudoToolbar:

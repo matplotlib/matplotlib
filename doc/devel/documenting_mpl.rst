@@ -181,7 +181,7 @@ Referring to other documents and sections
 
 Sphinx_ allows internal references_ between documents.
 
-Documents can be linked with the `:doc:` directive:
+Documents can be linked with the ``:doc:`` directive:
 
 .. code-block:: rst
 
@@ -289,12 +289,14 @@ Other packages can also be linked via
   `numpy.mean`
 
 will return this link: `numpy.mean`.  This works for Python, Numpy, Scipy,
-and Pandas (full list is in :file:`doc/conf.py`). Sometimes it is tricky
-to get external Sphinx linking to work; to
-check that a something exists to link to the following shell command outputs
-a list of all objects that can be referenced (in this case for Numpy)::
+and Pandas (full list is in :file:`doc/conf.py`).  If external linking fails,
+you can check the full list of referenceable objects with the following
+commands::
 
+  python -m sphinx.ext.intersphinx 'https://docs.python.org/3/objects.inv'
   python -m sphinx.ext.intersphinx 'https://docs.scipy.org/doc/numpy/objects.inv'
+  python -m sphinx.ext.intersphinx 'https://docs.scipy.org/doc/scipy/reference/objects.inv'
+  python -m sphinx.ext.intersphinx 'https://pandas.pydata.org/pandas-docs/stable/objects.inv'
 
 .. _rst-figures-and-includes:
 
@@ -521,9 +523,9 @@ effect.
 .. code-block:: rst
 
    Prefer:
-       dpi : int, default: :rc:`figure.dpi`
+       dpi : float, default: :rc:`figure.dpi`
    over:
-       dpi : int, default: None
+       dpi : float, default: None
 
    Prefer:
        textprops : dict, optional
@@ -585,44 +587,55 @@ By convention, these setters and getters are named ``set_PROPERTYNAME`` and
 ``get_PROPERTYNAME``; the list of properties thusly defined on an artist and
 their values can be listed by the `~.pyplot.setp` and `~.pyplot.getp` functions.
 
-.. note::
-
-   ``ACCEPTS`` blocks have recently become optional. You may now use a
-   numpydoc ``Parameters`` block because the accepted values can now be read
-   from the type description of the first parameter.
-
-Property setter methods should indicate the values they accept using a (legacy)
-special block in the docstring, starting with ``ACCEPTS``, as follows:
+The Parameters block of property setter methods is parsed to document the
+accepted values, e.g. the docstring of `.Line2D.set_linestyle` starts with
 
 .. code-block:: python
 
-   # in lines.py
-   def set_linestyle(self, linestyle):
+   def set_linestyle(self, ls):
        """
-       Set the linestyle of the line
+       Set the linestyle of the line.
 
-       ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
+       Parameters
+       ----------
+       ls : {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
+           etc.
        """
 
-The ACCEPTS block is used to render a table of all properties and their
-acceptable values in the docs; it can also be displayed using, e.g.,
-``plt.setp(Line2D)`` (all properties) or ``plt.setp(Line2D, 'linestyle')``
-(just one property).
+which results in the following line in the output of ``plt.setp(line)`` or
+``plt.setp(line, "linestyle")``::
 
-There are cases in which the ACCEPTS string is not useful in the
-generated Sphinx documentation, e.g. if the valid parameters are already
-defined in the numpydoc parameter list. You can hide the ACCEPTS string from
-Sphinx by making it a ReST comment (i.e. use ``.. ACCEPTS:``):
+    linestyle or ls: {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
+
+In some rare cases (mostly, setters which accept both a single tuple and an
+unpacked tuple), the accepted values cannot be documented in such a fashion;
+in that case, they can be documented as an ``.. ACCEPTS:`` block, e.g. for
+`.axes.Axes.set_xlim`:
 
 .. code-block:: python
 
-   def set_linestyle(self, linestyle):
+   def set_xlim(self, ...):
        """
-       An ACCEPTS string invisible to Sphinx.
+       Set the x-axis view limits.
 
-       .. ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
+       Parameters
+       ----------
+       left : float, optional
+           The left xlim in data coordinates. Passing *None* leaves the
+           limit unchanged.
+
+           The left and right xlims may also be passed as the tuple
+           (*left*, *right*) as the first positional argument (or as
+           the *left* keyword argument).
+
+           .. ACCEPTS: (bottom: float, top: float)
+
+       right : float, optional
+           etc.
        """
 
+Note that the leading ``..`` makes the ``.. ACCEPTS:`` block a reST comment,
+hiding it from the rendered docs.
 
 Keyword arguments
 -----------------
@@ -696,7 +709,7 @@ If a subclass overrides a method but does not change the semantics, we can
 reuse the parent docstring for the method of the child class. Python does this
 automatically, if the subclass method does not have a docstring.
 
-Use a plain comment `# docstring inherited` to denote the intention to reuse
+Use a plain comment ``# docstring inherited`` to denote the intention to reuse
 the parent docstring. That way we do not accidentally create a docstring in
 the future::
 
@@ -717,8 +730,8 @@ Adding figures
 --------------
 
 As above (see :ref:`rst-figures-and-includes`), figures in the examples gallery
-can be referenced with a `:plot:` directive pointing to the python script that
-created the figure.  For instance the `~.Axes.legend` docstring references
+can be referenced with a ``:plot:`` directive pointing to the python script
+that created the figure.  For instance the `~.Axes.legend` docstring references
 the file :file:`examples/text_labels_and_annotations/legend.py`:
 
 .. code-block:: python
@@ -807,7 +820,7 @@ Tutorials are made with the exact same mechanism, except they are longer, and
 typically have more than one comment block (i.e.
 :doc:`/tutorials/introductory/usage`).  The first comment block
 can be the same as the example above.  Subsequent blocks of ReST text
-are delimited by a line of `###` characters:
+are delimited by a line of ``###`` characters:
 
 .. code-block:: python
 

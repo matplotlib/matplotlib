@@ -1,56 +1,18 @@
 import copy
+import signal
 import sys
 from unittest import mock
 
 import matplotlib
 from matplotlib import pyplot as plt
-from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 
 import pytest
 
 
-@pytest.fixture(autouse=True)
-def mpl_test_settings(qt_core, mpl_test_settings):
-    """
-    Ensure qt_core fixture is *first* fixture.
-
-    We override the `mpl_test_settings` fixture and depend on the `qt_core`
-    fixture first. It is very important that it is first, because it skips
-    tests when Qt is not available, and if not, then the main
-    `mpl_test_settings` fixture will try to switch backends before the skip can
-    be triggered.
-    """
-
-
 @pytest.fixture
 def qt_core(request):
     backend, = request.node.get_closest_marker('backend').args
-    if backend == 'Qt4Agg':
-        if any(k in sys.modules for k in ('PyQt5', 'PySide2')):
-            pytest.skip('Qt5 binding already imported')
-        try:
-            import PyQt4
-        # RuntimeError if PyQt5 already imported.
-        except (ImportError, RuntimeError):
-            try:
-                import PySide
-            except ImportError:
-                pytest.skip("Failed to import a Qt4 binding.")
-    elif backend == 'Qt5Agg':
-        if any(k in sys.modules for k in ('PyQt4', 'PySide')):
-            pytest.skip('Qt4 binding already imported')
-        try:
-            import PyQt5
-        # RuntimeError if PyQt4 already imported.
-        except (ImportError, RuntimeError):
-            try:
-                import PySide2
-            except ImportError:
-                pytest.skip("Failed to import a Qt5 binding.")
-    else:
-        raise ValueError('Backend marker has unknown value: ' + backend)
-
     qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
     QtCore = qt_compat.QtCore
 
@@ -92,7 +54,6 @@ def test_fig_signals(qt_core):
     plt.figure()
 
     # Access signals
-    import signal
     event_loop_signal = None
 
     # Callback to fire during event loop: save SIGINT handler, then exit
@@ -183,11 +144,11 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
         def key(self): return getattr(qt_core.Qt, qt_key)
         def modifiers(self): return qt_mod
 
-    def receive(event):
+    def on_key_press(event):
         assert event.key == answer
 
     qt_canvas = plt.figure().canvas
-    qt_canvas.mpl_connect('key_press_event', receive)
+    qt_canvas.mpl_connect('key_press_event', on_key_press)
     qt_canvas.keyPressEvent(_Event())
 
 
@@ -284,8 +245,8 @@ def test_double_resize():
 
     w, h = 3, 2
     fig.set_size_inches(w, h)
-    assert fig.canvas.width() == w * rcParams['figure.dpi']
-    assert fig.canvas.height() == h * rcParams['figure.dpi']
+    assert fig.canvas.width() == w * matplotlib.rcParams['figure.dpi']
+    assert fig.canvas.height() == h * matplotlib.rcParams['figure.dpi']
 
     old_width = window.width()
     old_height = window.height()
@@ -297,9 +258,7 @@ def test_double_resize():
 
 @pytest.mark.backend("Qt5Agg")
 def test_canvas_reinit():
-    import matplotlib.pyplot as plt
     from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-    from functools import partial
 
     called = False
 
@@ -312,4 +271,5 @@ def test_canvas_reinit():
     fig.stale_callback = crashing_callback
     # this should not raise
     canvas = FigureCanvasQTAgg(fig)
+    fig.stale = True
     assert called

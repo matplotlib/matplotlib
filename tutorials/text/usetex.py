@@ -45,11 +45,17 @@ Computer Modern math fonts. See the PSNFSS_ documentation for more details.
 To use LaTeX and select Helvetica as the default font, without editing
 matplotlibrc use::
 
-  from matplotlib import rc
-  rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+  import matplotlib as mpl
+  plt.rcParams.update({
+      "text.usetex": True,
+      "font.family": "sans-serif",
+      "font.sans-serif": ["Helvetica"]})
   ## for Palatino and other serif fonts use:
-  #rc('font',**{'family':'serif','serif':['Palatino']})
-  rc('text', usetex=True)
+  plt.rcParams.update({
+      "text.usetex": True,
+      "font.family": "serif",
+      "font.serif": ["Palatino"],
+  })
 
 Here is the standard example,
 :file:`/gallery/text_labels_and_annotations/tex_demo`:
@@ -70,7 +76,7 @@ command ``\displaystyle``, as in the above demo, will produce the same results.
      # $ % & ~ _ ^ \ { } \( \) \[ \]
 
    Therefore, these characters will behave differently depending on
-   the rcParam ``text.usetex`` flag.
+   :rc:`text.usetex`.
 
 .. _usetex-unicode:
 

@@ -1,6 +1,5 @@
 import io
 from itertools import chain
-import warnings
 
 import numpy as np
 
@@ -88,8 +87,8 @@ def test_collection_transform_of_none():
     # providing an IdentityTransform puts the ellipse in device coordinates
     e = mpatches.Ellipse(xy_pix, width=100, height=100)
     c = mcollections.PatchCollection([e],
-                                 transform=mtransforms.IdentityTransform(),
-                                 alpha=0.5)
+                                     transform=mtransforms.IdentityTransform(),
+                                     alpha=0.5)
     ax.add_collection(c)
     assert isinstance(c._transOffset, mtransforms.IdentityTransform)
 
@@ -101,10 +100,7 @@ def test_clipping():
     exterior.vertices -= 2
     interior = mpath.Path.unit_circle().deepcopy()
     interior.vertices = interior.vertices[::-1]
-    clip_path = mpath.Path(vertices=np.concatenate([exterior.vertices,
-                                                    interior.vertices]),
-                           codes=np.concatenate([exterior.codes,
-                                                 interior.codes]))
+    clip_path = mpath.Path.make_compound_path(exterior, interior)
 
     star = mpath.Path.unit_regular_star(6).deepcopy()
     star.vertices *= 2.6
@@ -222,11 +218,7 @@ def test_default_edges():
 
 def test_properties():
     ln = mlines.Line2D([], [])
-    with warnings.catch_warnings(record=True) as w:
-        # Cause all warnings to always be triggered.
-        warnings.simplefilter("always")
-        ln.properties()
-        assert len(w) == 0
+    ln.properties()  # Check that no warning is emitted.
 
 
 def test_setp():

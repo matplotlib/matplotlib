@@ -13,7 +13,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
 from matplotlib.testing.decorators import image_comparison, _image_directories
-from matplotlib.backends.backend_pgf import PdfPages
+from matplotlib.backends.backend_pgf import PdfPages, common_texification
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
@@ -44,6 +44,12 @@ needs_pdflatex = pytest.mark.skipif(not check_for('pdflatex'),
                                     reason='pdflatex + pgf is required')
 needs_lualatex = pytest.mark.skipif(not check_for('lualatex'),
                                     reason='lualatex + pgf is required')
+
+
+def _has_sfmath():
+    return (shutil.which("kpsewhich")
+            and subprocess.run(["kpsewhich", "sfmath.sty"],
+                               stdout=subprocess.PIPE).returncode == 0)
 
 
 def compare_figure(fname, savefig_kwargs={}, tol=0):
@@ -83,6 +89,16 @@ def create_figure():
     plt.ylim(0, 1)
 
 
+@pytest.mark.parametrize('plain_text, escaped_text', [
+    (r'quad_sum: $\sum x_i^2$', r'quad\_sum: \(\displaystyle \sum x_i^2\)'),
+    (r'no \$splits \$ here', r'no \$splits \$ here'),
+    ('with_underscores', r'with\_underscores'),
+    ('% not a comment', r'\% not a comment'),
+    ('^not', r'\^not'),
+])
+def test_common_texification(plain_text, escaped_text):
+    assert common_texification(plain_text) == escaped_text
+
 # test compiling a figure to pdf with xelatex
 @needs_xelatex
 @pytest.mark.backend('pgf')
@@ -106,8 +122,8 @@ def test_pdflatex():
     rc_pdflatex = {'font.family': 'serif',
                    'pgf.rcfonts': False,
                    'pgf.texsystem': 'pdflatex',
-                   'pgf.preamble': ['\\usepackage[utf8x]{inputenc}',
-                                    '\\usepackage[T1]{fontenc}']}
+                   'pgf.preamble': ('\\usepackage[utf8x]{inputenc}'
+                                    '\\usepackage[T1]{fontenc}')}
     mpl.rcParams.update(rc_pdflatex)
     create_figure()
 
@@ -115,6 +131,7 @@ def test_pdflatex():
 # test updating the rc parameters for each figure
 @needs_xelatex
 @needs_pdflatex
+@pytest.mark.skipif(not _has_sfmath(), reason='needs sfmath.sty')
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
 def test_rcupdate():
@@ -130,9 +147,9 @@ def test_rcupdate():
                 'lines.markersize': 20,
                 'pgf.rcfonts': False,
                 'pgf.texsystem': 'pdflatex',
-                'pgf.preamble': ['\\usepackage[utf8x]{inputenc}',
-                                 '\\usepackage[T1]{fontenc}',
-                                 '\\usepackage{sfmath}']}]
+                'pgf.preamble': ('\\usepackage[utf8x]{inputenc}'
+                                 '\\usepackage[T1]{fontenc}'
+                                 '\\usepackage{sfmath}')}]
     tol = [6, 0]
     for i, rc_set in enumerate(rc_sets):
         with mpl.rc_context(rc_set):
@@ -161,7 +178,9 @@ def test_pathclip():
 @needs_xelatex
 @pytest.mark.backend('pgf')
 @image_comparison(['pgf_mixedmode.pdf'], style='default',
-                  tol={'aarch64': 1.086}.get(platform.machine(), 0.0))
+                  tol={'aarch64': 1.086, 'x86_64': 1.086}.get(
+                      platform.machine(), 0.0
+                      ))
 def test_mixedmode():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}

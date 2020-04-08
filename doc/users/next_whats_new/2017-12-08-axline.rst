@@ -1,0 +1,5 @@
+New `~.axes.Axes.axline` method
+-------------------------------
+
+A new `~.axes.Axes.axline` method has been added to draw infinitely long lines
+that pass through two points.

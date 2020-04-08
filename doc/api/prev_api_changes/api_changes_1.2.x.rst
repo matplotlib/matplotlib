@@ -41,7 +41,7 @@ Changes in 1.2.x
 
 * Use of ``matplotlib.projections.projection_factory`` is now deprecated
   in favour of axes class identification using
-  :func:`~matplotlib.projections.process_projection_requirements` followed by
+  ``matplotlib.projections.process_projection_requirements`` followed by
   direct axes class invocation (at the time of writing, functions which do this
   are: :meth:`~matplotlib.figure.Figure.add_axes`,
   :meth:`~matplotlib.figure.Figure.add_subplot` and

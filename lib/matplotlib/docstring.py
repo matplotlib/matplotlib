@@ -47,6 +47,7 @@ class Substitution:
         self.params.update(*args, **kwargs)
 
     @classmethod
+    @cbook.deprecated("3.3", alternative="assign to the params attribute")
     def from_params(cls, params):
         """
         In the case where the params is a mutable sequence (list or
@@ -59,45 +60,8 @@ class Substitution:
         return result
 
 
-@cbook.deprecated("3.1")
-class Appender:
-    r"""
-    A function decorator that will append an addendum to the docstring
-    of the target function.
-
-    This decorator should be robust even if func.__doc__ is None
-    (for example, if -OO was passed to the interpreter).
-
-    Usage: construct a docstring.Appender with a string to be joined to
-    the original docstring. An optional 'join' parameter may be supplied
-    which will be used to join the docstring and addendum. e.g.
-
-    add_copyright = Appender("Copyright (c) 2009", join='\n')
-
-    @add_copyright
-    def my_dog(has='fleas'):
-        "This docstring will have a copyright below"
-        pass
-    """
-    def __init__(self, addendum, join=''):
-        self.addendum = addendum
-        self.join = join
-
-    def __call__(self, func):
-        docitems = [func.__doc__, self.addendum]
-        func.__doc__ = func.__doc__ and self.join.join(docitems)
-        return func
-
-
-@cbook.deprecated("3.1", alternative="inspect.getdoc()")
-def dedent(func):
-    "Dedent a docstring (if present)"
-    func.__doc__ = func.__doc__ and cbook.dedent(func.__doc__)
-    return func
-
-
 def copy(source):
-    "Copy a docstring from another source function (if present)"
+    """Copy a docstring from another source function (if present)."""
     def do_copy(target):
         if source.__doc__:
             target.__doc__ = source.__doc__
@@ -114,14 +78,3 @@ def dedent_interpd(func):
     """Dedent *func*'s docstring, then interpolate it with ``interpd``."""
     func.__doc__ = inspect.getdoc(func)
     return interpd(func)
-
-
-@cbook.deprecated("3.1", alternative="docstring.copy() and cbook.dedent()")
-def copy_dedent(source):
-    """A decorator that will copy the docstring from the source and
-    then dedent it"""
-    # note the following is ugly because "Python is not a functional
-    # language" - GVR. Perhaps one day, functools.compose will exist.
-    #  or perhaps not.
-    #  http://mail.python.org/pipermail/patches/2007-February/021687.html
-    return lambda target: dedent(copy(source)(target))

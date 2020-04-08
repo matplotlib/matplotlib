@@ -25,14 +25,15 @@ import threading
 
 try:
     import tornado
-except ImportError:
-    raise RuntimeError("The WebAgg backend requires Tornado.")
+except ImportError as err:
+    raise RuntimeError("The WebAgg backend requires Tornado.") from err
 
 import tornado.web
 import tornado.ioloop
 import tornado.websocket
 
-from matplotlib import cbook, rcParams
+import matplotlib as mpl
+from matplotlib import cbook
 from matplotlib.backend_bases import _Backend
 from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
@@ -48,14 +49,12 @@ webagg_server_thread = ServerThread()
 
 
 class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
+    _timer_cls = TimerTornado
+
     def show(self):
         # show the figure window
         global show  # placates pyflakes: created by @_Backend.export below
         show()
-
-    def new_timer(self, *args, **kwargs):
-        # docstring inherited
-        return TimerTornado(*args, **kwargs)
 
 
 class WebAggApplication(tornado.web.Application):
@@ -219,11 +218,12 @@ class WebAggApplication(tornado.web.Application):
                 yield port + random.randint(-2 * n, 2 * n)
 
         if address is None:
-            cls.address = rcParams['webagg.address']
+            cls.address = mpl.rcParams['webagg.address']
         else:
             cls.address = address
-        cls.port = rcParams['webagg.port']
-        for port in random_ports(cls.port, rcParams['webagg.port_retries']):
+        cls.port = mpl.rcParams['webagg.port']
+        for port in random_ports(cls.port,
+                                 mpl.rcParams['webagg.port_retries']):
             try:
                 app.listen(port, cls.address)
             except socket.error as e:
@@ -315,9 +315,10 @@ class _BackendWebAgg(_Backend):
             port=WebAggApplication.port,
             prefix=WebAggApplication.url_prefix)
 
-        if rcParams['webagg.open_in_browser']:
+        if mpl.rcParams['webagg.open_in_browser']:
             import webbrowser
-            webbrowser.open(url)
+            if not webbrowser.open(url):
+                print("To view figure, visit {0}".format(url))
         else:
             print("To view figure, visit {0}".format(url))
 

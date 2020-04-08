@@ -84,22 +84,20 @@ def cubehelix(gamma=1.0, s=0.5, r=-1.5, h=1.0):
     element. This color element is calculated in a plane of constant
     perceived intensity and controlled by the following parameters.
 
-    Optional keyword arguments:
-
-      =========   =======================================================
-      Keyword     Description
-      =========   =======================================================
-      gamma       gamma factor to emphasise either low intensity values
-                  (gamma < 1), or high intensity values (gamma > 1);
-                  defaults to 1.0.
-      s           the start color; defaults to 0.5 (i.e. purple).
-      r           the number of r, g, b rotations in color that are made
-                  from the start to the end of the color scheme; defaults
-                  to -1.5 (i.e. -> B -> G -> R -> B).
-      h           the hue parameter which controls how saturated the
-                  colors are. If this parameter is zero then the color
-                  scheme is purely a greyscale; defaults to 1.0.
-      =========   =======================================================
+    Parameters
+    ----------
+    gamma : float, default: 1
+        Gamma factor emphasizing either low intensity values (gamma < 1), or
+        high intensity values (gamma > 1).
+    s : float, default: 0.5 (purple)
+        The starting color.
+    r : float, default: -1.5
+        The number of r, g, b rotations in color that are made from the start
+        to the end of the color scheme.  The default of -1.5 corresponds to ->
+        B -> G -> R -> B.
+    h : float, default: 1
+        The hue, i.e. how saturated the colors are. If this parameter is zero
+        then the color scheme is purely a greyscale.
     """
     return {'red': partial(_ch_helper, gamma, s, r, h, -0.14861, 1.78277),
             'green': partial(_ch_helper, gamma, s, r, h, -0.29227, -0.90649),
@@ -242,12 +240,22 @@ _hsv_data = {'red':   ((0., 1., 1.),
                        (0.857143, 0.937500, 0.937500),
                        (1.0, 0.09375, 0.09375))}
 
-_jet_data = {'red':   ((0., 0, 0), (0.35, 0, 0), (0.66, 1, 1), (0.89, 1, 1),
-                         (1, 0.5, 0.5)),
-             'green': ((0., 0, 0), (0.125, 0, 0), (0.375, 1, 1), (0.64, 1, 1),
-                         (0.91, 0, 0), (1, 0, 0)),
-             'blue':  ((0., 0.5, 0.5), (0.11, 1, 1), (0.34, 1, 1),
-                         (0.65, 0, 0), (1, 0, 0))}
+_jet_data = {'red':   ((0.00, 0, 0),
+                       (0.35, 0, 0),
+                       (0.66, 1, 1),
+                       (0.89, 1, 1),
+                       (1.00, 0.5, 0.5)),
+             'green': ((0.000, 0, 0),
+                       (0.125, 0, 0),
+                       (0.375, 1, 1),
+                       (0.640, 1, 1),
+                       (0.910, 0, 0),
+                       (1.000, 0, 0)),
+             'blue':  ((0.00, 0.5, 0.5),
+                       (0.11, 1, 1),
+                       (0.34, 1, 1),
+                       (0.65, 0, 0),
+                       (1.00, 0, 0))}
 
 _pink_data = {'red':   ((0., 0.1178, 0.1178), (0.015873, 0.195857, 0.195857),
                         (0.031746, 0.250661, 0.250661),
@@ -1200,7 +1208,7 @@ _coolwarm_data = {
 # See `A Color Map for Effective Black-and-White Rendering of Color-Scale
 # Images' by Carey Rappaport
 # http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m
-_CMRmap_data = {'red':     ((0.000, 0.00, 0.00),
+_CMRmap_data = {'red':    ((0.000, 0.00, 0.00),
                            (0.125, 0.15, 0.15),
                            (0.250, 0.30, 0.30),
                            (0.375, 0.60, 0.60),

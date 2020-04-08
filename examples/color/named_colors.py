@@ -14,6 +14,7 @@ For more information on colors in matplotlib see
 * the :doc:`/gallery/color/color_demo`.
 """
 
+from matplotlib.patches import Rectangle
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
@@ -59,15 +60,16 @@ def plot_colortable(colors, title, sort_colors=True, emptycols=0):
         y = row * cell_height
 
         swatch_start_x = cell_width * col
-        swatch_end_x = cell_width * col + swatch_width
         text_pos_x = cell_width * col + swatch_width + 7
 
         ax.text(text_pos_x, y, name, fontsize=14,
                 horizontalalignment='left',
                 verticalalignment='center')
 
-        ax.hlines(y, swatch_start_x, swatch_end_x,
-                  color=colors[name], linewidth=18)
+        ax.add_patch(
+            Rectangle(xy=(swatch_start_x, y-9), width=swatch_width,
+                      height=18, facecolor=colors[name])
+        )
 
     return fig
 
@@ -103,4 +105,4 @@ matplotlib.colors.to_rgba
 matplotlib.figure.Figure.get_size_inches
 matplotlib.figure.Figure.subplots_adjust
 matplotlib.axes.Axes.text
-matplotlib.axes.Axes.hlines
+matplotlib.patches.Rectangle

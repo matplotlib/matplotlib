@@ -23,8 +23,8 @@ been registered for.
 parameters. These parameters behave similarly as for the `.Figure.savefig()`
 method.
 
-`cbook.normalize_kwargs`
-------------------------
+`.cbook.normalize_kwargs`
+-------------------------
 `.cbook.normalize_kwargs` now presents a convenient interface to normalize
 artist properties (e.g., from "lw" to "linewidth"):
 
@@ -89,11 +89,11 @@ parameter.
 
 Shifting errorbars
 ------------------
-Previously, `.plt.errorbar()` accepted a kwarg ``errorevery`` such that the
+Previously, `~.Axes.errorbar()` accepted a kwarg *errorevery* such that the
 command ``plt.errorbar(x, y, yerr, errorevery=6)`` would add error bars to
 datapoints ``x[::6], y[::6]``.
 
-`.plt.errorbar()` now also accepts a tuple for `errorevery` such that
+`~.Axes.errorbar()` now also accepts a tuple for *errorevery* such that
 ``plt.errorbar(x, y, yerr, errorevery=(start, N))`` adds error bars to points
 ``x[start::N], y[start::N]``.
 

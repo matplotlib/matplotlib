@@ -1,10 +1,10 @@
-'''
+"""
 ====================
 3D plots as subplots
 ====================
 
 Demonstrate including 3D plots as subplots.
-'''
+"""
 
 import matplotlib.pyplot as plt
 from matplotlib import cm

@@ -7,11 +7,11 @@ from types import SimpleNamespace
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.transforms import Affine2D
 from matplotlib import docstring
-from matplotlib import rcParams
 
 _log = logging.getLogger(__name__)
 
@@ -463,7 +463,7 @@ class Sankey:
             raise ValueError(
                 "'trunklength' is negative, which is not allowed because it "
                 "would cause poor layout")
-        if np.abs(np.sum(flows)) > self.tolerance:
+        if abs(np.sum(flows)) > self.tolerance:
             _log.info("The sum of the flows is nonzero (%f; patchlabel=%r); "
                       "is the system not at steady state?",
                       np.sum(flows), patchlabel)
@@ -718,7 +718,7 @@ class Sankey:
             vertices = translate(rotate(vertices))
             kwds = dict(s=patchlabel, ha='center', va='center')
             text = self.ax.text(*offset, **kwds)
-        if rcParams['_internal.classic_mode']:
+        if mpl.rcParams['_internal.classic_mode']:
             fc = kwargs.pop('fc', kwargs.pop('facecolor', '#bfd1d4'))
             lw = kwargs.pop('lw', kwargs.pop('linewidth', 0.5))
         else:

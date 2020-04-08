@@ -1,6 +1,6 @@
 r"""
 :mod:`~matplotlib.gridspec` contains classes that help to layout multiple
-`~axes.Axes` in a grid-like pattern within a figure.
+`~.axes.Axes` in a grid-like pattern within a figure.
 
 The `GridSpec` specifies the overall grid structure. Individual cells within
 the grid are referenced by `SubplotSpec`\s.
@@ -224,8 +224,8 @@ class GridSpecBase:
         if isinstance(key, tuple):
             try:
                 k1, k2 = key
-            except ValueError:
-                raise ValueError("unrecognized subplot spec")
+            except ValueError as err:
+                raise ValueError("Unrecognized subplot spec") from err
             num1, num2 = np.ravel_multi_index(
                 [_normalize(k1, nrows, 0), _normalize(k2, ncols, 1)],
                 (nrows, ncols))
@@ -405,10 +405,10 @@ class GridSpec(GridSpecBase):
         h_pad, w_pad : float, optional
             Padding (height/width) between edges of adjacent subplots.
             Defaults to *pad*.
-        rect : tuple of 4 floats, optional
+        rect : tuple of 4 floats, default: (0, 0, 1, 1), i.e. the whole figure
             (left, bottom, right, top) rectangle in normalized figure
             coordinates that the whole subplots area (including labels) will
-            fit into.  Default is (0, 0, 1, 1).
+            fit into.
         """
 
         subplotspec_list = tight_layout.get_subplotspec_list(
@@ -522,6 +522,53 @@ class SubplotSpec:
         else:
             self._layoutbox = None
 
+    def __repr__(self):
+        return (f"{self.get_gridspec()}["
+                f"{self.rowspan.start}:{self.rowspan.stop}, "
+                f"{self.colspan.start}:{self.colspan.stop}]")
+
+    @staticmethod
+    def _from_subplot_args(figure, args):
+        """
+        Construct a `.SubplotSpec` from a parent `.Figure` and either
+
+        - a `.SubplotSpec` -- returned as is;
+        - one or three numbers -- a MATLAB-style subplot specifier.
+        """
+        if len(args) == 1:
+            arg, = args
+            if isinstance(arg, SubplotSpec):
+                return arg
+            else:
+                try:
+                    s = str(int(arg))
+                    rows, cols, num = map(int, s)
+                except ValueError as err:
+                    raise ValueError("Single argument to subplot must be a "
+                                     "3-digit integer") from err
+                # num - 1 for converting from MATLAB to python indexing
+                return GridSpec(rows, cols, figure=figure)[num - 1]
+        elif len(args) == 3:
+            rows, cols, num = args
+            rows = int(rows)
+            cols = int(cols)
+            if rows <= 0:
+                raise ValueError(f"Number of rows must be > 0, not {rows}")
+            if cols <= 0:
+                raise ValueError(f"Number of columns must be > 0, not {cols}")
+            if isinstance(num, tuple) and len(num) == 2:
+                i, j = map(int, num)
+                return GridSpec(rows, cols, figure=figure)[i-1:j]
+            else:
+                if num < 1 or num > rows*cols:
+                    raise ValueError(
+                        f"num must be 1 <= num <= {rows*cols}, not {num}")
+                # num - 1 for converting from MATLAB to python indexing
+                return GridSpec(rows, cols, figure=figure)[int(num) - 1]
+        else:
+            raise TypeError(f"subplot() takes 1 or 3 positional arguments but "
+                            f"{len(args)} were given")
+
     # num2 is a property only to handle the case where it is None and someone
     # mutates num1.
 
@@ -560,6 +607,7 @@ class SubplotSpec:
         rows, cols = self.get_gridspec().get_geometry()
         return rows, cols, self.num1, self.num2
 
+    @cbook.deprecated("3.3", alternative="rowspan, colspan")
     def get_rows_columns(self):
         """
         Return the subplot row and column numbers as a tuple
@@ -645,7 +693,7 @@ class SubplotSpec:
 
         Returns
         -------
-        gridspec : `.GridSpecFromSubplotSpec`
+        `.GridSpecFromSubplotSpec`
 
         Other Parameters
         ----------------

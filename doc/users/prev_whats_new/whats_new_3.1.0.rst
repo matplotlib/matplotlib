@@ -196,11 +196,11 @@ an existing Line3D.
 ``Axes3D.voxels`` now shades the resulting voxels
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The :meth:`~mpl_toolkits.mplot3d.Axes3D.voxels` method now takes a
+The `.Axes3D.voxels` method now takes a
 *shade* parameter that defaults to `True`. This shades faces based
 on their orientation, behaving just like the matching parameters to
-:meth:`~mpl_toolkits.mplot3d.Axes3D.trisurf` and
-:meth:`~mpl_toolkits.mplot3d.Axes3D.bar3d`.  The plot below shows how
+:meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf` and
+:meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.bar3d`.  The plot below shows how
 this affects the output.
 
 .. plot::
@@ -257,10 +257,10 @@ Default minor tick spacing was changed from 0.625 to 0.5 for major ticks spaced
 2.5 units apart.
 
 
-`.EngFormatter` now accepts `usetex`, `useMathText` as keyword only arguments
+`.EngFormatter` now accepts *usetex*, *useMathText* as keyword only arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A public API has been added to `EngFormatter` to control how the
+A public API has been added to `.EngFormatter` to control how the
 numbers in the ticklabels will be rendered. By default,
 ``useMathText`` evaluates to
 :rc:`axes.formatter.use_mathtext'` and ``usetex`` evaluates
@@ -272,7 +272,7 @@ in TeX's math font. When using mathtext, the ``$`` signs around
 numbers will ensure unicode rendering (as implied by mathtext). This
 will make sure that the minus signs in the ticks are rendered as the
 unicode=minus (U+2212) when using mathtext (without relying on the
-`~.Fomatter.fix_minus` method).
+`~.Formatter.fix_minus` method).
 
 
 
@@ -338,9 +338,9 @@ MouseEvent button attribute is now an IntEnum
 The :attr:`button` attribute of `~.MouseEvent` instances can take the values
 None, 1 (left button), 2 (middle button), 3 (right button), "up" (scroll), and
 "down" (scroll).  For better legibility, the 1, 2, and 3 values are now
-represented using the `IntEnum` class `matplotlib.backend_bases.MouseButton`,
-with the values `MouseButton.LEFT` (``== 1``), `MouseButton.MIDDLE` (``== 2``),
-and `MouseButton.RIGHT` (``== 3``).
+represented using the `enum.IntEnum` class `matplotlib.backend_bases.MouseButton`,
+with the values `.MouseButton.LEFT` (``== 1``), `.MouseButton.MIDDLE` (``== 2``),
+and `.MouseButton.RIGHT` (``== 3``).
 
 
 Configuration, Install, and Development

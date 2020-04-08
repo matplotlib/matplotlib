@@ -11,6 +11,9 @@ strategy:
     Linux_py37:
       vmImage: 'ubuntu-16.04'
       python.version: '3.7'
+    Linux_py38:
+      vmImage: 'ubuntu-16.04'
+      python.version: '3.8'
     macOS_py36:
       vmImage: 'macOS-10.14'
       python.version: '3.6'
@@ -52,16 +55,12 @@ steps:
     prerelease: true
   condition: and(succeeded(), eq(variables['python.version'], 'Pre'))
 
-- task: NuGetToolInstaller@0
-  displayName: 'Use latest available Nuget'
-  condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
-
 - bash: |
     set -e
     case "$(python -c 'import sys; print(sys.platform)')" in
     linux)
-      sudo apt-get update
-      sudo apt-get install \
+      sudo apt update
+      sudo apt install \
         cm-super \
         dvipng \
         ffmpeg \
@@ -70,10 +69,10 @@ steps:
         graphviz \
         inkscape \
         libcairo2 \
-        libgeos-dev \
         libgirepository-1.0.1 \
         lmodern \
         fonts-freefont-otf \
+        poppler-utils \
         texlive-pictures \
         texlive-fonts-recommended \
         texlive-latex-base \
@@ -86,12 +85,6 @@ steps:
       brew install pkg-config ffmpeg imagemagick mplayer ccache
       ;;
     win32)
-      nuget install libpng-msvc14-x64 -ExcludeVersion -OutputDirectory "$(build.BinariesDirectory)"
-      nuget install zlib-msvc14-x64 -ExcludeVersion -OutputDirectory "$(build.BinariesDirectory)"
-      echo "##vso[task.prependpath]$(build.BinariesDirectory)\libpng-msvc14-x64\build\native\bin_release"
-      echo "##vso[task.prependpath]$(build.BinariesDirectory)\zlib-msvc14-x64\build\native\bin_release"
-      echo "##vso[task.setvariable variable=CL]/I$(build.BinariesDirectory)\libpng-msvc14-x64\build\native\include /I$(build.BinariesDirectory)\zlib-msvc14-x64\build\native\include"
-      echo "##vso[task.setvariable variable=LINK]/LIBPATH:$(build.BinariesDirectory)\libpng-msvc14-x64\build\native\lib_release /LIBPATH:$(build.BinariesDirectory)\zlib-msvc14-x64\build\native\lib_release"
       ;;
     *)
       exit 1
@@ -101,12 +94,12 @@ steps:
 
 - bash: |
     python -m pip install --upgrade pip
-    python -m pip install -r requirements/testing/travis_all.txt -r requirements/testing/travis36.txt ||
+    python -m pip install -r requirements/testing/travis_all.txt -r requirements/testing/travis_extra.txt ||
       [[ "$PYTHON_VERSION" = 'Pre' ]]
   displayName: 'Install dependencies with pip'
 
 - bash: |
-    MPLLOCALFREETYPE=1 python -m pip install -ve . ||
+    python -m pip install -ve . ||
       [[ "$PYTHON_VERSION" = 'Pre' ]]
   displayName: "Install self"
 
@@ -118,8 +111,16 @@ steps:
       [[ "$PYTHON_VERSION" = 'Pre' ]]
   displayName: 'pytest'
 
+- bash: |
+    bash <(curl -s https://codecov.io/bash)  -f "!*.gcov" -X gcov -y ci/codecov.yml
+  displayName: 'Upload to codecov.io'
+
 - task: PublishTestResults@2
   inputs:
     testResultsFiles: '**/test-results.xml'
     testRunTitle: 'Python $(python.version)'
   condition: succeededOrFailed()
+
+- publish: $(System.DefaultWorkingDirectory)/result_images
+  artifact: $(Agent.JobName)-result_images
+  condition: and(failed(), ne(variables['python.version'], 'Pre'))

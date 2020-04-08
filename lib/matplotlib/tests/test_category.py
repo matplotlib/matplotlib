@@ -6,9 +6,6 @@ from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import matplotlib.category as cat
 
-# Python2/3 text handling
-_to_str = cat.StrCategoryFormatter._text
-
 
 class TestUnitData:
     test_cases = [('single', (["hello world"], [0])),
@@ -172,7 +169,8 @@ def axis_test(axis, labels):
     ticks = list(range(len(labels)))
     np.testing.assert_array_equal(axis.get_majorticklocs(), ticks)
     graph_labels = [axis.major.formatter(i, i) for i in ticks]
-    assert graph_labels == [_to_str(l) for l in labels]
+    # _text also decodes bytes as utf-8.
+    assert graph_labels == [cat.StrCategoryFormatter._text(l) for l in labels]
     assert list(axis.units._mapping.keys()) == [l for l in labels]
     assert list(axis.units._mapping.values()) == ticks
 

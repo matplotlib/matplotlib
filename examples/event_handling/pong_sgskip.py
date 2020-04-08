@@ -27,7 +27,7 @@ if fig.canvas.manager.key_press_handler_id is not None:
 
 
 # reset the blitting background on redraw
-def handle_redraw(event):
+def on_redraw(event):
     animation.background = None
 
 
@@ -40,12 +40,11 @@ def start_anim(event):
             animation.draw(None)
     start_anim.timer.add_callback(local_draw)
     start_anim.timer.start()
-    canvas.mpl_connect('draw_event', handle_redraw)
+    canvas.mpl_connect('draw_event', on_redraw)
 
 
 start_anim.cid = canvas.mpl_connect('draw_event', start_anim)
-start_anim.timer = animation.canvas.new_timer()
-start_anim.timer.interval = 1
+start_anim.timer = animation.canvas.new_timer(interval=1)
 
 tstart = time.time()
 

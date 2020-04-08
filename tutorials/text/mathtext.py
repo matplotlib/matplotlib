@@ -51,9 +51,8 @@ produces ":mathmpl:`\alpha > \beta`".
      # $ % & ~ _ ^ \ { } \( \) \[ \]
 
    have special meaning outside of math mode in TeX.  Therefore, these
-   characters will behave differently depending on the rcParam ``text.usetex``
-   flag.  See the :doc:`usetex tutorial </tutorials/text/usetex>` for more
-   information.
+   characters will behave differently depending on :rc:`text.usetex`.  See the
+   :doc:`usetex tutorial </tutorials/text/usetex>` for more information.
 
 Subscripts and superscripts
 ---------------------------
@@ -159,7 +158,7 @@ The default font is *italics* for mathematical symbols.
 
 .. note::
 
-   This default can be changed using the ``mathtext.default`` rcParam.  This is
+   This default can be changed using :rc:`mathtext.default`.  This is
    useful, for example, to use the same font as regular non-math text for math
    text, by setting it to ``regular``.
 
@@ -224,21 +223,44 @@ choice of:
     ``\mathrm{\mathsf{sansserif}}``  :math-stix:`\mathrm{\mathsf{sansserif}}`
     ================================ =========================================
 
-There are also three global "font sets" to choose from, which are
+There are also five global "font sets" to choose from, which are
 selected using the ``mathtext.fontset`` parameter in :ref:`matplotlibrc
 <matplotlibrc-sample>`.
 
-``cm``: **Computer Modern (TeX)**
+``dejavusans``: DejaVu Sans
 
-.. image:: ../../_static/cm_fontset.png
+    .. mathmpl::
+       :fontset: dejavusans
 
-``stix``: **STIX** (designed to blend well with Times)
+       \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
 
-.. image:: ../../_static/stix_fontset.png
+``dejavuserif``: DejaVu Serif
 
-``stixsans``: **STIX sans-serif**
+    .. mathmpl::
+       :fontset: dejavuserif
 
-.. image:: ../../_static/stixsans_fontset.png
+       \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
+
+``cm``: Computer Modern (TeX)
+
+    .. mathmpl::
+       :fontset: cm
+
+       \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
+
+``stix``: STIX (designed to blend well with Times)
+
+    .. mathmpl::
+       :fontset: stix
+
+       \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
+
+``stixsans``: STIX sans-serif
+
+    .. mathmpl::
+       :fontset: stixsans
+
+       \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
 
 Additionally, you can use ``\mathdefault{...}`` or its alias
 ``\mathregular{...}`` to use the font used for regular text outside of
@@ -251,7 +273,7 @@ Custom fonts
 
 mathtext also provides a way to use custom fonts for math.  This method is
 fairly tricky to use, and should be considered an experimental feature for
-patient users only.  By setting the rcParam ``mathtext.fontset`` to ``custom``,
+patient users only.  By setting :rc:`mathtext.fontset` to ``custom``,
 you can then set the following parameters, which control which font file to use
 for a particular set of math characters.
 
@@ -273,9 +295,10 @@ yet-to-be-written font chapter).
 
 The fonts used should have a Unicode mapping in order to find any
 non-Latin characters, such as Greek.  If you want to use a math symbol
-that is not contained in your custom fonts, you can set the rcParam
-``mathtext.fallback_to_cm`` to ``True`` which will cause the mathtext system
-to use characters from the default Computer Modern fonts whenever a particular
+that is not contained in your custom fonts, you can set
+:rc:`mathtext.fallback` to either ``'cm'``, ``'stix'`` or ``'stixsans'``
+which will cause the mathtext system to use
+characters from an alternative font whenever a particular
 character can not be found in the custom font.
 
 Note that the math glyphs specified in Unicode have evolved over time, and many

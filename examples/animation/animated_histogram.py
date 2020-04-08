@@ -21,8 +21,8 @@ data = np.random.randn(1000)
 n, bins = np.histogram(data, 100)
 
 # get the corners of the rectangles for the histogram
-left = np.array(bins[:-1])
-right = np.array(bins[1:])
+left = bins[:-1]
+right = bins[1:]
 bottom = np.zeros(len(left))
 top = bottom + n
 nrects = len(left)
@@ -45,7 +45,7 @@ nrects = len(left)
 #   in the ``verts`` array to keep the codes aligned with the vertices.
 nverts = nrects * (1 + 3 + 1)
 verts = np.zeros((nverts, 2))
-codes = np.ones(nverts, int) * path.Path.LINETO
+codes = np.full(nverts, path.Path.LINETO)
 codes[0::5] = path.Path.MOVETO
 codes[4::5] = path.Path.CLOSEPOLY
 verts[0::5, 0] = left

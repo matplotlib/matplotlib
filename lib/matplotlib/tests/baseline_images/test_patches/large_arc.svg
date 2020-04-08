@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (https://matplotlib.org/) -->
+<svg height="345.6pt" version="1.1" viewBox="0 0 460.8 345.6" width="460.8pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 345.6 
+L 460.8 345.6 
+L 460.8 0 
+L 0 0 
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path clip-path="url(#pfcb8f89791)" d="M 236.16 307.584 
+C 236.16 -6782.713372 -3547.737405 -13589.863423 -10275.941643 -18603.460775 
+C -17004.145882 -23617.058128 -26139.282315 -26436.672 -35654.4 -26436.672 
+C -45169.517685 -26436.672 -54304.654118 -23617.058128 -61032.858357 -18603.460775 
+C -67761.062595 -13589.863423 -71544.96 -6782.713372 -71544.96 307.584 
+C -71544.96 7397.881372 -67761.062595 14205.031423 -61032.858357 19218.628775 
+C -54304.654118 24232.226128 -45169.517685 27051.84 -35654.4 27051.84 
+C -26139.282315 27051.84 -17004.145882 24232.226128 -10275.941643 19218.628775 
+C -3547.737405 14205.031423 236.16 7397.881372 236.16 307.584 
+" style="fill:none;stroke:#000000;stroke-linejoin:miter;"/>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pfcb8f89791">
+   <rect height="266.112" width="357.12" x="57.6" y="41.472"/>
+  </clipPath>
+ </defs>
+</svg>

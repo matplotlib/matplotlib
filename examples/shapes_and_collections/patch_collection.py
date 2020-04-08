@@ -3,8 +3,7 @@
 Circles, Wedges and Polygons
 ============================
 
-This example demonstrates how to use
-:class:`patch collections <.collections.PatchCollection>`.
+This example demonstrates how to use `.collections.PatchCollection`.
 """
 
 import numpy as np
@@ -49,9 +48,9 @@ for i in range(N):
     polygon = Polygon(np.random.rand(N, 2), True)
     patches.append(polygon)
 
-colors = 100*np.random.rand(len(patches))
+colors = 100 * np.random.rand(len(patches))
 p = PatchCollection(patches, alpha=0.4)
-p.set_array(np.array(colors))
+p.set_array(colors)
 ax.add_collection(p)
 fig.colorbar(p, ax=ax)
 

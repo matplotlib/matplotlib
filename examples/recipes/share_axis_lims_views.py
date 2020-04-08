@@ -2,13 +2,12 @@
 Sharing axis limits and views
 =============================
 
-It's common to make two or more plots which share an axis, e.g., two
-subplots with time as a common axis.  When you pan and zoom around on
-one, you want the other to move around with you.  To facilitate this,
-matplotlib Axes support a ``sharex`` and ``sharey`` attribute.  When
-you create a :func:`~matplotlib.pyplot.subplot` or
-:func:`~matplotlib.pyplot.axes` instance, you can pass in a keyword
-indicating what axes you want to share with
+It's common to make two or more plots which share an axis, e.g., two subplots
+with time as a common axis.  When you pan and zoom around on one, you want the
+other to move around with you.  To facilitate this, matplotlib Axes support a
+``sharex`` and ``sharey`` attribute.  When you create a `~.pyplot.subplot` or
+`~.pyplot.axes`, you can pass in a keyword indicating what axes you want to
+share with.
 """
 
 import numpy as np

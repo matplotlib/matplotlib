@@ -72,32 +72,31 @@ class LayoutBox:
         # keep track of whether we need to match this subplot up with others.
         self.subplot = subplot
 
-        # we need the str below for Py 2 which complains the string is unicode
-        self.top = Variable(str(sn + 'top'))
-        self.bottom = Variable(str(sn + 'bottom'))
-        self.left = Variable(str(sn + 'left'))
-        self.right = Variable(str(sn + 'right'))
+        self.top = Variable(sn + 'top')
+        self.bottom = Variable(sn + 'bottom')
+        self.left = Variable(sn + 'left')
+        self.right = Variable(sn + 'right')
 
-        self.width = Variable(str(sn + 'width'))
-        self.height = Variable(str(sn + 'height'))
-        self.h_center = Variable(str(sn + 'h_center'))
-        self.v_center = Variable(str(sn + 'v_center'))
+        self.width = Variable(sn + 'width')
+        self.height = Variable(sn + 'height')
+        self.h_center = Variable(sn + 'h_center')
+        self.v_center = Variable(sn + 'v_center')
 
-        self.min_width = Variable(str(sn + 'min_width'))
-        self.min_height = Variable(str(sn + 'min_height'))
-        self.pref_width = Variable(str(sn + 'pref_width'))
-        self.pref_height = Variable(str(sn + 'pref_height'))
+        self.min_width = Variable(sn + 'min_width')
+        self.min_height = Variable(sn + 'min_height')
+        self.pref_width = Variable(sn + 'pref_width')
+        self.pref_height = Variable(sn + 'pref_height')
         # margins are only used for axes-position layout boxes.  maybe should
         # be a separate subclass:
-        self.left_margin = Variable(str(sn + 'left_margin'))
-        self.right_margin = Variable(str(sn + 'right_margin'))
-        self.bottom_margin = Variable(str(sn + 'bottom_margin'))
-        self.top_margin = Variable(str(sn + 'top_margin'))
+        self.left_margin = Variable(sn + 'left_margin')
+        self.right_margin = Variable(sn + 'right_margin')
+        self.bottom_margin = Variable(sn + 'bottom_margin')
+        self.top_margin = Variable(sn + 'top_margin')
         # mins
-        self.left_margin_min = Variable(str(sn + 'left_margin_min'))
-        self.right_margin_min = Variable(str(sn + 'right_margin_min'))
-        self.bottom_margin_min = Variable(str(sn + 'bottom_margin_min'))
-        self.top_margin_min = Variable(str(sn + 'top_margin_min'))
+        self.left_margin_min = Variable(sn + 'left_margin_min')
+        self.right_margin_min = Variable(sn + 'right_margin_min')
+        self.bottom_margin_min = Variable(sn + 'bottom_margin_min')
+        self.top_margin_min = Variable(sn + 'top_margin_min')
 
         right, top = upper_right
         left, bottom = lower_left
@@ -280,19 +279,19 @@ class LayoutBox:
                 self.width.value(), self.height.value())
 
     def update_variables(self):
-        '''
+        """
         Update *all* the variables that are part of the solver this LayoutBox
-        is created with
-        '''
+        is created with.
+        """
         self.solver.updateVariables()
 
     def edit_height(self, height, strength='strong'):
-        '''
+        """
         Set the height of the layout box.
 
         This is done as an editable variable so that the value can change
         due to resizing.
-        '''
+        """
         sol = self.solver
         for i in [self.height]:
             if not sol.hasEditVariable(i):
@@ -300,10 +299,10 @@ class LayoutBox:
         sol.suggestValue(self.height, height)
 
     def constrain_height(self, height, strength='strong'):
-        '''
+        """
         Constrain the height of the layout box.  height is
         either a float or a layoutbox.height.
-        '''
+        """
         c = (self.height == height)
         self.solver.addConstraint(c | strength)
 
@@ -347,26 +346,24 @@ class LayoutBox:
         self.solver.addConstraint(c | strength)
 
     def _is_subplotspec_layoutbox(self):
-        '''
-        Helper to check if this layoutbox is the layoutbox of a
-        subplotspec
-        '''
-        name = (self.name).split('.')[-1]
+        """
+        Helper to check if this layoutbox is the layoutbox of a subplotspec.
+        """
+        name = self.name.split('.')[-1]
         return name[:2] == 'ss'
 
     def _is_gridspec_layoutbox(self):
-        '''
-        Helper to check if this layoutbox is the layoutbox of a
-        gridspec
-        '''
-        name = (self.name).split('.')[-1]
+        """
+        Helper to check if this layoutbox is the layoutbox of a gridspec.
+        """
+        name = self.name.split('.')[-1]
         return name[:8] == 'gridspec'
 
     def find_child_subplots(self):
-        '''
+        """
         Find children of this layout box that are subplots.  We want to line
         poss up, and this is an easy way to find them all.
-        '''
+        """
         if self.subplot:
             subplots = [self]
         else:
@@ -459,18 +456,19 @@ class LayoutBox:
         return lb
 
     def __repr__(self):
-        args = (self.name, self.left.value(), self.bottom.value(),
-                self.right.value(), self.top.value())
-        return ('LayoutBox: %25s, (left: %1.3f) (bot: %1.3f) '
-               '(right: %1.3f)  (top: %1.3f) ') % args
+        return (f'LayoutBox: {self.name:25s}, '
+                f'(left: {self.left.value():1.3f}) '
+                f'(bot: {self.bottom.value():1.3f}) '
+                f'(right: {self.right.value():1.3f}) '
+                f'(top: {self.top.value():1.3f})')
 
 
 # Utility functions that act on layoutboxes...
 def hstack(boxes, padding=0, strength='strong'):
-    '''
+    """
     Stack LayoutBox instances from left to right.
     *padding* is in figure-relative units.
-    '''
+    """
 
     for i in range(1, len(boxes)):
         c = (boxes[i-1].right + padding <= boxes[i].left)
@@ -478,9 +476,7 @@ def hstack(boxes, padding=0, strength='strong'):
 
 
 def hpack(boxes, padding=0, strength='strong'):
-    '''
-    Stack LayoutBox instances from left to right.
-    '''
+    """Stack LayoutBox instances from left to right."""
 
     for i in range(1, len(boxes)):
         c = (boxes[i-1].right + padding == boxes[i].left)
@@ -488,9 +484,7 @@ def hpack(boxes, padding=0, strength='strong'):
 
 
 def vstack(boxes, padding=0, strength='strong'):
-    '''
-    Stack LayoutBox instances from top to bottom
-    '''
+    """Stack LayoutBox instances from top to bottom."""
 
     for i in range(1, len(boxes)):
         c = (boxes[i-1].bottom - padding >= boxes[i].top)
@@ -498,9 +492,7 @@ def vstack(boxes, padding=0, strength='strong'):
 
 
 def vpack(boxes, padding=0, strength='strong'):
-    '''
-    Stack LayoutBox instances from top to bottom
-    '''
+    """Stack LayoutBox instances from top to bottom."""
 
     for i in range(1, len(boxes)):
         c = (boxes[i-1].bottom - padding >= boxes[i].top)
@@ -508,9 +500,7 @@ def vpack(boxes, padding=0, strength='strong'):
 
 
 def match_heights(boxes, height_ratios=None, strength='medium'):
-    '''
-    Stack LayoutBox instances from top to bottom
-    '''
+    """Stack LayoutBox instances from top to bottom."""
 
     if height_ratios is None:
         height_ratios = np.ones(len(boxes))
@@ -521,9 +511,7 @@ def match_heights(boxes, height_ratios=None, strength='medium'):
 
 
 def match_widths(boxes, width_ratios=None, strength='medium'):
-    '''
-    Stack LayoutBox instances from top to bottom
-    '''
+    """Stack LayoutBox instances from top to bottom."""
 
     if width_ratios is None:
         width_ratios = np.ones(len(boxes))
@@ -653,9 +641,7 @@ def nonechildren(lb):
 
 
 def print_tree(lb):
-    '''
-    Print the tree of layoutboxes
-    '''
+    """Print the tree of layoutboxes."""
 
     if lb.parent is None:
         print('LayoutBox Tree\n')
@@ -667,9 +653,7 @@ def print_tree(lb):
 
 
 def plot_children(fig, box, level=0, printit=True):
-    '''
-    Simple plotting to show where boxes are
-    '''
+    """Simple plotting to show where boxes are."""
     import matplotlib
     import matplotlib.pyplot as plt
 

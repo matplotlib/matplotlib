@@ -17,9 +17,8 @@ import sys
 import matplotlib
 import sphinx
 
-if sys.version_info < (3, 0, 0):
-    print("You're using python 2.x, conf.py works with python3+ only.")
-    exit()
+from datetime import datetime
+
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
@@ -103,19 +102,22 @@ if sphinx.version_info < (1, 8):
 else:
     autodoc_default_options = {'members': None, 'undoc-members': None}
 
-nitpicky = True
+# missing-references names matches sphinx>=3 behavior, so we can't be nitpicky
+# for older sphinxes.
+nitpicky = sphinx.version_info >= (3,)
 # change this to True to update the allowed failures
 missing_references_write_json = False
 missing_references_warn_unused_ignores = False
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
-    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
-    'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
-    'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
     'cycler': ('https://matplotlib.org/cycler', None),
     'dateutil': ('https://dateutil.readthedocs.io/en/stable/', None),
+    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+    'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
+    'Pillow': ('https://pillow.readthedocs.io/en/stable/', None),
+    'pytest': ('https://pytest.org/en/stable', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
 }
 
 
@@ -133,6 +135,7 @@ sphinx_gallery_conf = {
     'backreferences_dir': 'api/_as_gen',
     'subsection_order': gallery_order.sectionorder,
     'within_subsection_order': gallery_order.subsectionorder,
+    'remove_config_comments': True,
     'min_reported_time': 1,
 }
 
@@ -174,7 +177,7 @@ html_context = {'sha': SHA}
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
              'Michael Droettboom and the Matplotlib development '
-             'team; 2012 - 2018 The Matplotlib development team')
+             f'team; 2012 - {datetime.now().year} The Matplotlib development team')
 
 
 # The default replacements for |version| and |release|, also used in various
@@ -368,6 +371,7 @@ html4_writer = True
 
 inheritance_node_attrs = dict(fontsize=16)
 
+graphviz_dot = shutil.which('dot')
 graphviz_output_format = 'svg'
 
 

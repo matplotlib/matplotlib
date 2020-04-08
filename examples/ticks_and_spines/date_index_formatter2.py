@@ -31,7 +31,7 @@ class MyFormatter(Formatter):
         self.fmt = fmt
 
     def __call__(self, x, pos=0):
-        'Return the label for time x at position pos'
+        """Return the label for time x at position pos."""
         ind = int(round(x))
         if ind >= len(self.dates) or ind < 0:
             return ''

@@ -32,7 +32,7 @@ The deprecated and not fully functional CocoaAgg backend has been removed.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The TkAgg backend had its own implementation of the `round` function. This
 was unused internally and has been removed. Instead, use either the
-`round` builtin function or `numpy.round`.
+`round` builtin function or `numpy.around`.
 
 .. _v200_deprecate_hold:
 

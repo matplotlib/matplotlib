@@ -95,7 +95,7 @@ off on a per-axis basis::
 
    ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
-set the rcParam ``axes.formatter.useoffset``, or use a different
+set :rc:`axes.formatter.useoffset`, or use a different
 formatter.  See :mod:`~matplotlib.ticker` for details.
 
 .. _howto-transparent:
@@ -328,37 +328,13 @@ setting in the right subplots.
 Skip dates where there is no data
 ---------------------------------
 
-When plotting time series, e.g., financial time series, one often wants
-to leave out days on which there is no data, e.g., weekends.  By passing
-in dates on the x-xaxis, you get large horizontal gaps on periods when
-there is not data. The solution is to pass in some proxy x-data, e.g.,
-evenly sampled indices, and then use a custom formatter to format
-these as dates. The example below shows how to use an 'index formatter'
-to achieve the desired plot::
-
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import matplotlib.mlab as mlab
-    import matplotlib.ticker as ticker
-
-    r = mlab.csv2rec('../data/aapl.csv')
-    r.sort()
-    r = r[-30:]  # get the last 30 days
-
-    N = len(r)
-    ind = np.arange(N)  # the evenly spaced plot indices
-
-    def format_date(x, pos=None):
-        thisind = np.clip(int(x+0.5), 0, N-1)
-        return r.date[thisind].strftime('%Y-%m-%d')
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(ind, r.adj_close, 'o-')
-    ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
-    fig.autofmt_xdate()
-
-    plt.show()
+When plotting time series, e.g., financial time series, one often wants to
+leave out days on which there is no data, e.g., weekends.  By passing in
+dates on the x-xaxis, you get large horizontal gaps on periods when there
+is not data. The solution is to pass in some proxy x-data, e.g., evenly
+sampled indices, and then use a custom formatter to format these as dates.
+:doc:`/gallery/text_labels_and_annotations/date_index_formatter` demonstrates
+how to use an 'index formatter' to achieve the desired plot.
 
 .. _howto-set-zorder:
 
@@ -600,7 +576,7 @@ Contribute to Matplotlib documentation
 Matplotlib is a big library, which is used in many ways, and the
 documentation has only scratched the surface of everything it can
 do.  So far, the place most people have learned all these features are
-through studying the examples (:ref:`how-to-search-examples`), which is a
+through studying the :ref:`examples-index`, which is a
 recommended and great way to learn, but it would be nice to have more
 official narrative documentation guiding people through all the dark
 corners.  This is where you come in.
@@ -690,20 +666,3 @@ has written a nice `article
 on how to make html click maps with Matplotlib agg PNGs.  We would
 also like to add this functionality to SVG.  If you are interested in
 contributing to these efforts that would be great.
-
-
-.. _how-to-search-examples:
-
-How to search for examples
-==========================
-
-The nearly 300 code :ref:`examples-index` included with the Matplotlib
-source distribution are full-text searchable from the :ref:`search`
-page, but sometimes when you search, you get a lot of results from the
-:ref:`api-index` or other documentation that you may not be interested
-in if you just want to find a complete, free-standing, working piece
-of example code.  To facilitate example searches, we have tagged every
-code example page with the keyword ``codex`` for *code example* which
-shouldn't appear anywhere else on this site except in the FAQ.
-So if you want to search for an example that uses an
-ellipse, :ref:`search` for ``codex ellipse``.

@@ -37,7 +37,7 @@ Sometimes when there are too many figures open at the same time, it is
 desirable to be able to group these under the same window
 [see](https://github.com/matplotlib/matplotlib/issues/2194).
 
-The proposed solution modifies `FigureManagerBase` to contain and manage more
+The proposed solution modifies `.FigureManagerBase` to contain and manage more
 than one `canvas`.  The settings parameter :rc:`backend.multifigure` control
 when the **MultiFigure** behaviour is desired.
 
@@ -51,11 +51,11 @@ the `Toolbar` makes it pretty hard to switch between canvases.
 Implementation
 ==============
 
-The first implementation will be done in `GTK3` using a Notebook as
+The first implementation will be done in GTK3 using a Notebook as
 canvas container.
 
-`FigureManagerBase`
--------------------
+`.FigureManagerBase`
+--------------------
 
 will add the following new methods
 
@@ -76,15 +76,15 @@ will add the following new methods
 --------------------
 
 To control which `FigureManager` will contain the new figures, an
-extra optional parameter `figuremanager` will be added, this parameter
+extra optional parameter *figuremanager* will be added, this parameter
 value will be passed to `new_figure_manager_given_figure`
 
 `new_figure_manager_given_figure`
 ---------------------------------
 
-* If `figuremanager` parameter is give, this `FigureManager` object
+* If *figuremanager* parameter is given, this `FigureManager` object
   will be used instead of creating a new one.
-* If `rcParams['backend.multifigure'] == True`: The last
+* If ``rcParams['backend.multifigure']`` is True: The last
   `FigureManager` object will be used instead of creating a new one.
 
 `NavigationBase`
@@ -97,19 +97,19 @@ Backward compatibility
 ======================
 
 For the **MultiFigure** properties to be visible, the user has to
-activate them directly setting `rcParams['backend.multifigure'] =
-True`
+activate them directly setting ``rcParams['backend.multifigure'] =
+True``
 
 It should be backwards compatible for backends that adhere to the
-current `FigureManagerBase` structure even if they have not
+current `.FigureManagerBase` structure even if they have not
 implemented the **MultiFigure** magic yet.
 
 
 Alternatives
 ============
 
-Insted of modifying the `FigureManagerBase` it could be possible to add
+Insted of modifying the `.FigureManagerBase` it could be possible to add
 a parallel class, that handles the cases where
-`rcParams['backend.multifigure'] = True`.  This will warranty that
+``rcParams['backend.multifigure'] = True``.  This will warranty that
 there won't be any problems with custom made backends, but also makes
 bigger the code, and more things to maintain.

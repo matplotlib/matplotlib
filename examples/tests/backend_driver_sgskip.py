@@ -420,8 +420,7 @@ def parse_options():
     doc = __doc__.split("\n\n") if __doc__ else "  "
     op = OptionParser(description=doc[0].strip(),
                       usage='%prog [options] [--] [backends and switches]',
-                      #epilog='\n'.join(doc[1:])  # epilog not supported on my python2.4 machine: JDH
-                      )
+                      epilog='\n'.join(doc[1:]))
     op.disable_interspersed_args()
     op.set_defaults(dirs='pylab,api,units,mplot3d',
                     clean=False, coverage=False, valgrind=False)
@@ -457,6 +456,7 @@ def parse_options():
     if 'pylab_examples' in result.dirs:
         result.dirs[result.dirs.index('pylab_examples')] = 'pylab'
     return result
+
 
 if __name__ == '__main__':
     times = {}

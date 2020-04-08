@@ -4,8 +4,8 @@ Simple Axisline
 ===============
 
 """
-import matplotlib.pyplot as plt
 
+import matplotlib.pyplot as plt
 from mpl_toolkits.axisartist.axislines import SubplotZero
 
 
@@ -30,10 +30,7 @@ ax.set_ylabel("Label Y")
 #ax.axis["left"].label.set_text("Label Y")
 
 # make new (right-side) yaxis, but with some offset
-offset = (20, 0)
-new_axisline = ax.get_grid_helper().new_fixed_axis
-
-ax.axis["right2"] = new_axisline(loc="right", offset=offset, axes=ax)
+ax.axis["right2"] = ax.new_fixed_axis(loc="right", offset=(20, 0))
 ax.axis["right2"].label.set_text("Label Y2")
 
 ax.plot([-2, 3, 2])

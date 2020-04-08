@@ -280,18 +280,13 @@ x = np.random.randn(1000)
 ax.hist(x, 30)
 ax.set_title(r'$\sigma=1 \/ \dots \/ \sigma=2$', fontsize=16)
 
-# the x coords of this transformation are data, and the
-# y coord are axes
+# the x coords of this transformation are data, and the y coord are axes
 trans = transforms.blended_transform_factory(
     ax.transData, ax.transAxes)
-
 # highlight the 1..2 stddev region with a span.
-# We want x to be in data coordinates and y to
-# span from 0..1 in axes coords
-rect = mpatches.Rectangle((1, 0), width=1, height=1,
-                         transform=trans, color='yellow',
-                         alpha=0.5)
-
+# We want x to be in data coordinates and y to span from 0..1 in axes coords.
+rect = mpatches.Rectangle((1, 0), width=1, height=1, transform=trans,
+                          color='yellow', alpha=0.5)
 ax.add_patch(rect)
 
 plt.show()
@@ -312,11 +307,11 @@ plt.show()
 #
 # .. _transforms-fig-scale-dpi:
 #
-# Plotting in physical units
-# ==========================
+# Plotting in physical coordinates
+# ================================
 #
 # Sometimes we want an object to be a certain physical size on the plot.
-# Here we draw the same circle as above, but in physical units.  If done
+# Here we draw the same circle as above, but in physical coordinates.  If done
 # interactively, you can see that changing the size of the figure does
 # not change the offset of the circle from the lower-left corner,
 # does not change its size, and the circle remains a circle regardless of
@@ -325,7 +320,7 @@ plt.show()
 fig, ax = plt.subplots(figsize=(5, 4))
 x, y = 10*np.random.rand(2, 1000)
 ax.plot(x, y*10., 'go', alpha=0.2)  # plot some data in data coordinates
-# add a circle in fixed-units
+# add a circle in fixed-coordinates
 circ = mpatches.Circle((2.5, 2), 1.0, transform=fig.dpi_scale_trans,
                        facecolor='blue', alpha=0.75)
 ax.add_patch(circ)
@@ -338,7 +333,7 @@ plt.show()
 fig, ax = plt.subplots(figsize=(7, 2))
 x, y = 10*np.random.rand(2, 1000)
 ax.plot(x, y*10., 'go', alpha=0.2)  # plot some data in data coordinates
-# add a circle in fixed-units
+# add a circle in fixed-coordinates
 circ = mpatches.Circle((2.5, 2), 1.0, transform=fig.dpi_scale_trans,
                        facecolor='blue', alpha=0.75)
 ax.add_patch(circ)
@@ -416,7 +411,7 @@ plt.show()
 #
 # Here we apply the transforms in the *opposite* order to the use of
 # :class:`~matplotlib.transforms.ScaledTranslation` above. The plot is
-# first made in data units (``ax.transData``) and then shifted by
+# first made in data coordinates (``ax.transData``) and then shifted by
 # ``dx`` and ``dy`` points using ``fig.dpi_scale_trans``.  (In typography,
 # a `point <https://en.wikipedia.org/wiki/Point_%28typography%29>`_ is
 # 1/72 inches, and by specifying your offsets in points, your figure
@@ -547,7 +542,7 @@ plt.show()
 # ``transProjection`` handles the projection from the space,
 # e.g., latitude and longitude for map data, or radius and theta for polar
 # data, to a separable Cartesian coordinate system.  There are several
-# projection examples in the ``matplotlib.projections`` package, and the
+# projection examples in the :mod:`matplotlib.projections` package, and the
 # best way to learn more is to open the source for those packages and
 # see how to make your own, since Matplotlib supports extensible axes
 # and projections.  Michael Droettboom has provided a nice tutorial

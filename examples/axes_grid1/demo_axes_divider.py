@@ -21,7 +21,7 @@ def get_demo_image():
 def demo_simple_image(ax):
     Z, extent = get_demo_image()
 
-    im = ax.imshow(Z, extent=extent, interpolation="nearest")
+    im = ax.imshow(Z, extent=extent)
     cb = plt.colorbar(im)
     plt.setp(cb.ax.get_yticklabels(), visible=False)
 
@@ -60,7 +60,7 @@ def demo_locatable_axes_hard(fig):
 
     Z, extent = get_demo_image()
 
-    im = ax.imshow(Z, extent=extent, interpolation="nearest")
+    im = ax.imshow(Z, extent=extent)
     plt.colorbar(im, cax=ax_cb)
     plt.setp(ax_cb.get_yticklabels(), visible=False)
 
@@ -75,7 +75,7 @@ def demo_locatable_axes_easy(ax):
     fig.add_axes(ax_cb)
 
     Z, extent = get_demo_image()
-    im = ax.imshow(Z, extent=extent, interpolation="nearest")
+    im = ax.imshow(Z, extent=extent)
 
     plt.colorbar(im, cax=ax_cb)
     ax_cb.yaxis.tick_right()
@@ -92,8 +92,8 @@ def demo_images_side_by_side(ax):
     fig1 = ax.get_figure()
     fig1.add_axes(ax2)
 
-    ax.imshow(Z, extent=extent, interpolation="nearest")
-    ax2.imshow(Z, extent=extent, interpolation="nearest")
+    ax.imshow(Z, extent=extent)
+    ax2.imshow(Z, extent=extent)
     ax2.yaxis.set_tick_params(labelleft=False)
 
 
