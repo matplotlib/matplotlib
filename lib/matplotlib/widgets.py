@@ -515,8 +515,40 @@ class Slider(AxesWidget):
             self.set_val(self.valinit)
 
 class Dropdown(AxesWidget):
+    """
+    A Dropdown representing a list of options avaliable.
+    Create a dropdown which contains all the *options*.
+    Attributes
+    ----------
+    ax : `~matplotlib.axes.Axes`
+        The parent axes for the widget.
+    label : `.Text`
+    options : List
+        The options contained in the Dropdown menu.
+    """
+
     def __init__(self, ax, options, label, init_index=0, label_pad=.01,
                  color='.95', hovercolor='1', max_height=0):
+        """
+        Parameters
+        ----------
+        ax : Axes
+            The Axes to put the dropdown in.
+        label : str
+            Dropdown label.
+        options : list
+            The list of options will be displayed in dropdown menu.
+        inin_index : int, default: 0
+            The initial index of the option selected in options list.
+        label_pad : float, default: 0.01
+            The distance between the label and the right side of the Dropdown.
+        color : str, default: "0.95"
+            The color to display when menu is not selected.
+        hovercolor : str, default: "1"
+            The color to display when hovering.
+        max_height : int, default: 0
+            The max number of elements displayed per view in dropdown.
+        """
         if (init_index >= len(options)):
             raise ValueError("Argument init_index must be an index of options")
         if (max_height < 0):
@@ -1462,7 +1494,20 @@ class SubplotTool(Widget):
 
 
 class AxesTool(Widget):
+    """
+    A tool to adjust the params of a `matplotlib.figure.Figure`.
+    """
+    
     def __init__(self, targetfig, toolfig):
+        """
+        Parameters
+        ----------
+        targetfig : `.Figure`
+            The figure instance to adjust.
+        toolfig : `.Figure`
+            The figure instance to embed the changes into.
+        """
+        
         self.targetfig = targetfig
         self.toolfig = toolfig
         self.toolfig.subplots_adjust(left=0.2, right=0.85)
@@ -1495,6 +1540,10 @@ class AxesTool(Widget):
         self._setaxistab()
 
     def _setaxistab(self):
+        """
+        initiate axis tab to adjust the axis
+        """
+      
         self.toolfig.subplots_adjust(left=0.2, right=0.85)
 
         self.axtitle = self.toolfig.add_subplot(10, 1, 1)
@@ -1549,6 +1598,9 @@ class AxesTool(Widget):
         self.axcurves = ()
 
     def _setcurvestab(self):
+        """
+        initiate curves tab to adjust the curve
+        """
         self.toolfig.subplots_adjust(left=0.3, right=0.95)
 
         def prepare_data(d, init):
