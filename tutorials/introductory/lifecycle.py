@@ -12,7 +12,7 @@ to highlight some neat features and best-practices using Matplotlib.
 
 .. note::
 
-    This tutorial is based off of
+    This tutorial is based on
     `this excellent blog post <http://pbpython.com/effective-matplotlib.html>`_
     by Chris Moffitt. It was transformed into this tutorial by Chris Holdgraf.
 
