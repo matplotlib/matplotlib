@@ -3828,18 +3828,15 @@ class _AxesBase(martist.Artist):
         twiny : bool
             Whether this axis is twinned in the *y*-direction.
         """
-        Xmin, Xmax = self.get_xlim()
-        Ymin, Ymax = self.get_ylim()
-
         if len(bbox) == 3:
-            # Zooming code
-            xp, yp, scl = bbox
+            Xmin, Xmax = self.get_xlim()
+            Ymin, Ymax = self.get_ylim()
 
-            # Should not happen
-            if scl == 0:
+            xp, yp, scl = bbox  # Zooming code
+
+            if scl == 0:  # Should not happen
                 scl = 1.
 
-            # direction = 'in'
             if scl > 1:
                 direction = 'in'
             else:
@@ -3868,90 +3865,51 @@ class _AxesBase(martist.Artist):
                 "of length 3 or 4. Ignoring the view change.")
             return
 
-        # Just grab bounding box
-        lastx, lasty, x, y = bbox
+        # Original limits.
+        xmin0, xmax0 = self.get_xbound()
+        ymin0, ymax0 = self.get_ybound()
+        # The zoom box in screen coords.
+        startx, starty, stopx, stopy = bbox
+        # Convert to data coords.
+        (startx, starty), (stopx, stopy) = self.transData.inverted().transform(
+            [(startx, starty), (stopx, stopy)])
+        # Clip to axes limits.
+        xmin, xmax = np.clip(sorted([startx, stopx]), xmin0, xmax0)
+        ymin, ymax = np.clip(sorted([starty, stopy]), ymin0, ymax0)
+        # Don't double-zoom twinned axes or if zooming only the other axis.
+        if twinx or mode == "y":
+            xmin, xmax = xmin0, xmax0
+        if twiny or mode == "x":
+            ymin, ymax = ymin0, ymax0
 
-        # zoom to rect
-        inverse = self.transData.inverted()
-        (lastx, lasty), (x, y) = inverse.transform([(lastx, lasty), (x, y)])
+        if direction == "in":
+            new_xbound = xmin, xmax
+            new_ybound = ymin, ymax
 
-        if twinx:
-            x0, x1 = Xmin, Xmax
-        else:
-            if Xmin < Xmax:
-                if x < lastx:
-                    x0, x1 = x, lastx
-                else:
-                    x0, x1 = lastx, x
-                if x0 < Xmin:
-                    x0 = Xmin
-                if x1 > Xmax:
-                    x1 = Xmax
-            else:
-                if x > lastx:
-                    x0, x1 = x, lastx
-                else:
-                    x0, x1 = lastx, x
-                if x0 > Xmin:
-                    x0 = Xmin
-                if x1 < Xmax:
-                    x1 = Xmax
+        elif direction == "out":
+            x_trf = self.xaxis.get_transform()
+            sxmin0, sxmax0, sxmin, sxmax = x_trf.transform(
+                [xmin0, xmax0, xmin, xmax])  # To screen space.
+            factor = (sxmax0 - sxmin0) / (sxmax - sxmin)  # Unzoom factor.
+            # Move original bounds away by
+            # (factor) x (distance between unzoom box and axes bbox).
+            sxmin1 = sxmin0 - factor * (sxmin - sxmin0)
+            sxmax1 = sxmax0 + factor * (sxmax0 - sxmax)
+            # And back to data space.
+            new_xbound = x_trf.inverted().transform([sxmin1, sxmax1])
 
-        if twiny:
-            y0, y1 = Ymin, Ymax
-        else:
-            if Ymin < Ymax:
-                if y < lasty:
-                    y0, y1 = y, lasty
-                else:
-                    y0, y1 = lasty, y
-                if y0 < Ymin:
-                    y0 = Ymin
-                if y1 > Ymax:
-                    y1 = Ymax
-            else:
-                if y > lasty:
-                    y0, y1 = y, lasty
-                else:
-                    y0, y1 = lasty, y
-                if y0 > Ymin:
-                    y0 = Ymin
-                if y1 < Ymax:
-                    y1 = Ymax
+            y_trf = self.yaxis.get_transform()
+            symin0, symax0, symin, symax = y_trf.transform(
+                [ymin0, ymax0, ymin, ymax])
+            factor = (symax0 - symin0) / (symax - symin)
+            symin1 = symin0 - factor * (symin - symin0)
+            symax1 = symax0 + factor * (symax0 - symax)
+            new_ybound = y_trf.inverted().transform([symin1, symax1])
 
-        if direction == 'in':
-            if mode == 'x':
-                self.set_xlim((x0, x1))
-            elif mode == 'y':
-                self.set_ylim((y0, y1))
-            else:
-                self.set_xlim((x0, x1))
-                self.set_ylim((y0, y1))
-        elif direction == 'out':
-            if self.get_xscale() == 'log':
-                alpha = np.log(Xmax / Xmin) / np.log(x1 / x0)
-                rx1 = pow(Xmin / x0, alpha) * Xmin
-                rx2 = pow(Xmax / x0, alpha) * Xmin
-            else:
-                alpha = (Xmax - Xmin) / (x1 - x0)
-                rx1 = alpha * (Xmin - x0) + Xmin
-                rx2 = alpha * (Xmax - x0) + Xmin
-            if self.get_yscale() == 'log':
-                alpha = np.log(Ymax / Ymin) / np.log(y1 / y0)
-                ry1 = pow(Ymin / y0, alpha) * Ymin
-                ry2 = pow(Ymax / y0, alpha) * Ymin
-            else:
-                alpha = (Ymax - Ymin) / (y1 - y0)
-                ry1 = alpha * (Ymin - y0) + Ymin
-                ry2 = alpha * (Ymax - y0) + Ymin
-
-            if mode == 'x':
-                self.set_xlim((rx1, rx2))
-            elif mode == 'y':
-                self.set_ylim((ry1, ry2))
-            else:
-                self.set_xlim((rx1, rx2))
-                self.set_ylim((ry1, ry2))
+        if not twinx and mode != "y":
+            self.set_xbound(new_xbound)
+        if not twiny and mode != "x":
+            self.set_ybound(new_ybound)
 
     def start_pan(self, x, y, button):
         """
