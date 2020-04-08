@@ -1104,22 +1104,6 @@ cursord = {
 class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def __init__(self, canvas):
         wx.ToolBar.__init__(self, canvas.GetParent(), -1)
-        NavigationToolbar2.__init__(self, canvas)
-        self._idle = True
-        self.prevZoomRect = None
-        # for now, use alternate zoom-rectangle drawing on all
-        # Macs. N.B. In future versions of wx it may be possible to
-        # detect Retina displays with window.GetContentScaleFactor()
-        # and/or dc.GetContentScaleFactor()
-        self.retinaFix = 'wxMac' in wx.PlatformInfo
-
-    def get_canvas(self, frame, fig):
-        return type(self.canvas)(frame, -1, fig)
-
-    def _init_toolbar(self):
-        _log.debug("%s - _init_toolbar", type(self))
-
-        self._parent = self.canvas.GetParent()
 
         self.wx_ids = {}
         for text, tooltip_text, image_file, callback in self.toolitems:
@@ -1139,6 +1123,18 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                       id=self.wx_ids[text])
 
         self.Realize()
+
+        NavigationToolbar2.__init__(self, canvas)
+        self._idle = True
+        self.prevZoomRect = None
+        # for now, use alternate zoom-rectangle drawing on all
+        # Macs. N.B. In future versions of wx it may be possible to
+        # detect Retina displays with window.GetContentScaleFactor()
+        # and/or dc.GetContentScaleFactor()
+        self.retinaFix = 'wxMac' in wx.PlatformInfo
+
+    def get_canvas(self, frame, fig):
+        return type(self.canvas)(frame, -1, fig)
 
     def zoom(self, *args):
         self.ToggleTool(self.wx_ids['Pan'], False)

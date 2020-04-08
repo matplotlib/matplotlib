@@ -429,7 +429,7 @@ def _make_keyword_only(since, name, func=None):
     return wrapper
 
 
-def _deprecate_method_override(method, obj, **kwargs):
+def _deprecate_method_override(method, obj, *, allow_empty=False, **kwargs):
     """
     Return ``obj.method`` with a deprecation if it was overridden, else None.
 
@@ -442,13 +442,25 @@ def _deprecate_method_override(method, obj, **kwargs):
         being defined.
     obj
         An object of the class where *method* is defined.
+    allow_empty : bool, default: False
+        Whether to allow overrides by "empty" methods without emitting a
+        warning.
     **kwargs
         Additional parameters passed to `warn_deprecated` to generate the
         deprecation warning; must at least include the "since" key.
     """
+
+    def empty(): pass
+    def empty_with_docstring(): """doc"""
+
     name = method.__name__
     bound_method = getattr(obj, name)
-    if bound_method != method.__get__(obj):
+    if (bound_method != method.__get__(obj)
+            and (not allow_empty
+                 or (getattr(getattr(bound_method, "__code__", None),
+                             "co_code", None)
+                     not in [empty.__code__.co_code,
+                             empty_with_docstring.__code__.co_code]))):
         warn_deprecated(**{"name": name, "obj_type": "method", **kwargs})
         return bound_method
     return None
