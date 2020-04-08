@@ -13,11 +13,13 @@ min_version = (3, 6)
 if sys.version_info < min_version:
     error = """
 Beginning with Matplotlib 3.1, Python {0} or above is required.
+You are using Python {1}.
 
 This may be due to an out of date pip.
 
 Make sure you have pip >= 9.0.1.
-""".format('.'.join(str(n) for n in min_version))
+""".format('.'.join(str(n) for n in min_version),
+           '.'.join(str(n) for n in sys.version_info[:3]))
     sys.exit(error)
 
 from pathlib import Path
