@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 import sys
+import matplotlib.colors as mcolors
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
@@ -259,3 +260,57 @@ def test_quiver_setuvc_numbers():
 
     q = ax.quiver(X, Y, U, V)
     q.set_UVC(0, 1)
+
+
+@image_comparison(['quiverkey_legend.png'], remove_text=True)
+def test_quiverkey_legend():
+    """ """
+    fig, ax = plt.subplots()
+
+    Q = draw_quiver(ax)
+
+    qk = ax.quiverkey(Q, 0.9, 0.8, U=1, label='QK length = 1', labelpos='E')
+
+    legend_elements = [
+        qk
+    ]
+
+    ax.legend(handles=legend_elements, loc='upper right')
+
+
+@image_comparison(['quiverkey_legend_label.png'], remove_text=True)
+def test_quiverkey_legend_label():
+    """ """
+    fig, ax = plt.subplots()
+
+    Q = draw_quiver(ax)
+
+    qk = ax.quiverkey(Q, 0.9, 0.8, U=1, label='QK length = 1', labelpos='E')
+
+    legend_elements = [
+        qk
+    ]
+
+    ax.legend(handles=legend_elements, labels=['new label'], loc='upper right')
+
+
+def test_quiverkey_legend_props():
+    fig, ax = plt.subplots()
+
+    Q = draw_quiver(ax)
+
+    qk = ax.quiverkey(Q, 0.9, 0.8, U=1,
+                      label='length = 1', labelpos='E', color='red')
+
+    legend_elements = [
+        qk
+    ]
+
+    l = ax.legend(handles=legend_elements, loc='upper right')
+
+    qk_l = l.get_quiverkeys()[0]
+
+    assert qk_l.U == qk.U
+    assert mcolors.same_color(qk_l.color, qk.color)
+    assert qk_l.angle == qk.angle
+    assert qk_l.labelsep == qk.labelsep

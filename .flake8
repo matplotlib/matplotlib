@@ -137,6 +137,7 @@ per-file-ignores =
     examples/images_contours_and_fields/quadmesh_demo.py: E402
     examples/images_contours_and_fields/quiver_demo.py: E402
     examples/images_contours_and_fields/quiver_simple_demo.py: E402
+    examples/images_contours_and_fields/quiver_legend_demo.py: E402
     examples/images_contours_and_fields/shading_example.py: E402
     examples/images_contours_and_fields/specgram_demo.py: E402
     examples/images_contours_and_fields/spy_demos.py: E402
