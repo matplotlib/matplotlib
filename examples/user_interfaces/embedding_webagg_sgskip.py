@@ -12,7 +12,9 @@ The framework being used must support web sockets.
 """
 
 import io
+import json
 import mimetypes
+from pathlib import Path
 
 try:
     import tornado
@@ -24,13 +26,12 @@ import tornado.ioloop
 import tornado.websocket
 
 
+import matplotlib as mpl
 from matplotlib.backends.backend_webagg_core import (
     FigureManagerWebAgg, new_figure_manager_given_figure)
 from matplotlib.figure import Figure
 
 import numpy as np
-
-import json
 
 
 def create_figure():
@@ -218,6 +219,11 @@ class MyApplication(tornado.web.Application):
             (r'/_static/(.*)',
              tornado.web.StaticFileHandler,
              {'path': FigureManagerWebAgg.get_static_file_path()}),
+
+            # Static images for the toolbar
+            (r'/_images/(.*)',
+             tornado.web.StaticFileHandler,
+             {'path': Path(mpl.get_data_path(), 'images')}),
 
             # The page that contains all of the pieces
             ('/', self.MainPage),
