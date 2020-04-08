@@ -517,6 +517,11 @@ class Slider(AxesWidget):
 class Dropdown(AxesWidget):
     def __init__(self, ax, options, label, init_index=0, label_pad=.01,
                  color='.95', hovercolor='1', max_height=0):
+        if (init_index >= len(options)):
+            raise ValueError("Argument init_index must be an index of options")
+        if (max_height < 0):
+            raise ValueError("Argument max_height must be >= 0")
+
         AxesWidget.__init__(self, ax)
         ax.set_yticks([])
         ax.set_xticks([])

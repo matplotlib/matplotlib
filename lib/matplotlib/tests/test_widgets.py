@@ -341,6 +341,32 @@ def test_slider_horizontal_vertical():
     assert_allclose(box.bounds, [0, 0, 1, 10/24])
 
 
+def test_dropdown_select():
+    ax = get_ax()
+    options = ['opt', 'opt', 'opt', 'opt', 'opt']
+    dropdown = widgets.Dropdown(ax, options, '')
+    def onselect(val):
+        ax._select_val = val
+    dropdown.on_select(onselect)
+    do_event(dropdown, '_click', xdata=0.1, ydata=0.01, button=1)
+    do_event(dropdown, '_click', xdata=0.1, ydata=0.01, button=1)
+    assert ax._select_val == 4
+
+
+def test_dropdown_init_index_invalid():
+    ax = get_ax()
+    options = ['opt', 'opt', 'opt', 'opt', 'opt']
+    with pytest.raises(ValueError):
+        widgets.Dropdown(ax, options, '', init_index=5)
+
+
+def test_dropdown_max_height_invalid():
+    ax = get_ax()
+    options = ['opt', 'opt', 'opt', 'opt', 'opt']
+    with pytest.raises(ValueError):
+        widgets.Dropdown(ax, options, '', max_height=-1)
+
+
 def check_polygon_selector(event_sequence, expected_result, selections_count):
     """Helper function to test Polygon Selector
 
