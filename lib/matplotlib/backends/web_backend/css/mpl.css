@@ -1,0 +1,45 @@
+/* Toolbar and items */
+.mpl-toolbar {
+  width: 100%;
+}
+
+.mpl-toolbar div.mpl-button-group {
+  display: inline-block;
+}
+
+.mpl-button-group + .mpl-button-group {
+  margin-left: 0.5em;
+}
+
+.mpl-widget {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  display: inline-block;
+  cursor: pointer;
+  color: #333;
+  padding: 6px;
+  vertical-align: middle;
+}
+
+button.mpl-widget:focus,
+button.mpl-widget:hover {
+  background-color: #ddd;
+  border-color: #aaa;
+}
+
+.mpl-button-group button.mpl-widget {
+  margin-left: -1px;
+}
+.mpl-button-group button.mpl-widget:first-child {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  margin-left: 0px;
+}
+.mpl-button-group button.mpl-widget:last-child {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+select.mpl-widget {
+  cursor: default;
+}
