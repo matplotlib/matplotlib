@@ -753,9 +753,7 @@ FigureManager_destroy(FigureManager* self)
     Window* window = self->window;
     if(window)
     {
-        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
         [window close];
-        [pool release];
         self->window = NULL;
     }
     Py_RETURN_NONE;
