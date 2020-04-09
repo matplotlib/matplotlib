@@ -212,9 +212,9 @@ at a time and ``finish()`` finalizes the movie and writes the output
 file to disk.  For example ::
 
    moviewriter = MovieWriter(...)
-   moviewriter.setup(fig=fig, 'my_movie.ext', dpi=100)
+   moviewriter.setup(fig, 'my_movie.ext', dpi=100)
    for j in range(n):
-       update_figure(n)
+       update_figure(j)
        moviewriter.grab_frame()
    moviewriter.finish()
 
@@ -223,7 +223,7 @@ strongly encouraged to use the `~MovieWriter.saving` context manager ::
 
   with moviewriter.saving(fig, 'myfile.mp4', dpi=100):
       for j in range(n):
-          update_figure(n)
+          update_figure(j)
           moviewriter.grab_frame()
 
 to ensures that setup and cleanup are performed as necessary.
