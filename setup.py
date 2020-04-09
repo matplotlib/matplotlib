@@ -13,11 +13,13 @@ min_version = (3, 6)
 if sys.version_info < min_version:
     error = """
 Beginning with Matplotlib 3.1, Python {0} or above is required.
+You are using Python {1}.
 
 This may be due to an out of date pip.
 
 Make sure you have pip >= 9.0.1.
-""".format('.'.join(str(n) for n in min_version)),
+""".format('.'.join(str(n) for n in min_version),
+           '.'.join(str(n) for n in sys.version_info[:3]))
     sys.exit(error)
 
 from pathlib import Path
@@ -112,8 +114,9 @@ def _download_jquery_to(dest):
         try:
             buff = download_or_cache(url, sha)
         except Exception:
-            raise IOError(f"Failed to download jquery-ui.  Please download "
-                          f"{url} and extract it to {dest}.")
+            raise IOError(
+                "Failed to download jquery-ui.  Please download "
+                "{url} and extract it to {dest}.".format(url=url, dest=dest))
         with ZipFile(buff) as zf:
             zf.extractall(dest)
 
@@ -154,7 +157,7 @@ if __name__ == '__main__':
     # If the user just queries for information, don't bother figuring out which
     # packages to build or install.
     if not (any('--' + opt in sys.argv
-                for opt in [*Distribution.display_option_names, 'help'])
+                for opt in Distribution.display_option_names + ['help'])
             or 'clean' in sys.argv):
         # Go through all of the packages and figure out which ones we are
         # going to build/install.
@@ -169,10 +172,11 @@ if __name__ == '__main__':
             try:
                 message = package.check()
             except setupext.Skipped as e:
-                print_status(package.name, f"no  [{e}]")
+                print_status(package.name, "no  [{e}]".format(e=e))
                 continue
             if message is not None:
-                print_status(package.name, f"yes [{message}]")
+                print_status(package.name,
+                             "yes [{message}]".format(message=message))
             good_packages.append(package)
 
         print_raw()
