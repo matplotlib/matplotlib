@@ -322,7 +322,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # canvas size to the figure's new size (which is hopefully
         # identical or within a pixel or so).
         self._png_is_old = True
-        self.manager.resize(*fig.bbox.size)
+        self.manager.resize(*fig.bbox.size, forward=False)
         self.resize_event()
 
     def handle_send_image_mode(self, event):
@@ -427,10 +427,11 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         toolbar = self.ToolbarCls(canvas)
         return toolbar
 
-    def resize(self, w, h):
+    def resize(self, w, h, forward=True):
         self._send_event(
             'resize',
-            size=(w / self.canvas._dpi_ratio, h / self.canvas._dpi_ratio))
+            size=(w / self.canvas._dpi_ratio, h / self.canvas._dpi_ratio),
+            forward=forward)
 
     def set_window_title(self, title):
         self._send_event('figure_label', label=title)
