@@ -223,7 +223,7 @@ strongly encouraged to use the `~MovieWriter.saving` context manager ::
 
   with moviewriter.saving(fig, 'myfile.mp4', dpi=100):
       for j in range(n):
-          update_figure(n)
+          update_figure(j)
           moviewriter.grab_frame()
 
 to ensures that setup and cleanup are performed as necessary.
