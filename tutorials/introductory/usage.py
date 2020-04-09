@@ -613,22 +613,6 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # which makes three plots, one at a time. I.e. the second plot will show up,
 # once the first plot is closed.
 #
-# Summary
-# -------
-#
-# In interactive mode, pyplot functions automatically draw
-# to the screen.
-#
-# When plotting interactively, if using
-# object method calls in addition to pyplot functions, then
-# call :func:`~matplotlib.pyplot.draw` whenever you want to
-# refresh the plot.
-#
-# Use non-interactive mode in scripts in which you want to
-# generate one or more figures and display them before ending
-# or generating a new set of figures.  In that case, use
-# :func:`~matplotlib.pyplot.show` to display the figure(s) and
-# to block execution until you have manually destroyed them.
 #
 # .. _performance:
 #
