@@ -16,7 +16,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from . import cbook
+from . import cbook, ticker
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
 from .transforms import blended_transform_factory
@@ -256,7 +256,8 @@ class Slider(AxesWidget):
     val : float
         Slider value.
     """
-    def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
+
+    def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt=None,
                  closedmin=True, closedmax=True, slidermin=None,
                  slidermax=None, dragging=True, valstep=None,
                  orientation='horizontal', **kwargs):
@@ -278,8 +279,9 @@ class Slider(AxesWidget):
         valinit : float, default: 0.5
             The slider initial position.
 
-        valfmt : str, default: "%1.2f"
-            Used to format the slider value, fprint format string.
+        valfmt : str, default: None
+            %-format string used to format the slider value.  If None, a
+            `.ScalarFormatter` is used instead.
 
         closedmin : bool, default: True
             Whether the slider interval is closed on the bottom.
@@ -347,13 +349,22 @@ class Slider(AxesWidget):
             self.poly = ax.axvspan(valmin, valinit, 0, 1, **kwargs)
             self.vline = ax.axvline(valinit, 0, 1, color='r', lw=1)
 
-        self.valfmt = valfmt
-        ax.set_yticks([])
         if orientation == 'vertical':
             ax.set_ylim((valmin, valmax))
+            axis = ax.yaxis
         else:
             ax.set_xlim((valmin, valmax))
+            axis = ax.xaxis
+
+        self.valfmt = valfmt
+        self._fmt = axis.get_major_formatter()
+        if not isinstance(self._fmt, ticker.ScalarFormatter):
+            self._fmt = ticker.ScalarFormatter()
+            self._fmt.set_axis(axis)
+        self._fmt.set_useOffset(False)  # No additive offset.
+
         ax.set_xticks([])
+        ax.set_yticks([])
         ax.set_navigate(False)
 
         self.connect_event('button_press_event', self._update)
@@ -365,7 +376,7 @@ class Slider(AxesWidget):
                                  verticalalignment='bottom',
                                  horizontalalignment='center')
 
-            self.valtext = ax.text(0.5, -0.02, valfmt % valinit,
+            self.valtext = ax.text(0.5, -0.02, self._format(valinit),
                                    transform=ax.transAxes,
                                    verticalalignment='top',
                                    horizontalalignment='center')
@@ -374,7 +385,7 @@ class Slider(AxesWidget):
                                  verticalalignment='center',
                                  horizontalalignment='right')
 
-            self.valtext = ax.text(1.02, 0.5, valfmt % valinit,
+            self.valtext = ax.text(1.02, 0.5, self._format(valinit),
                                    transform=ax.transAxes,
                                    verticalalignment='center',
                                    horizontalalignment='left')
@@ -435,6 +446,15 @@ class Slider(AxesWidget):
         if val not in [None, self.val]:
             self.set_val(val)
 
+    def _format(self, val):
+        """Pretty-print *val*."""
+        if self.valfmt is not None:
+            return self.valfmt % val
+        else:
+            _, s, _ = self._fmt.format_ticks([self.valmin, val, self.valmax])
+            # fmt.get_offset is actually the multiplicative factor, if any.
+            return s + self._fmt.get_offset()
+
     def set_val(self, val):
         """
         Set slider value to *val*
@@ -451,7 +471,7 @@ class Slider(AxesWidget):
             xy[2] = val, 1
             xy[3] = val, 0
         self.poly.xy = xy
-        self.valtext.set_text(self.valfmt % val)
+        self.valtext.set_text(self._format(val))
         if self.drawon:
             self.ax.figure.canvas.draw_idle()
         self.val = val
