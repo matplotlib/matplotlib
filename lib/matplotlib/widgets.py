@@ -360,6 +360,7 @@ class Slider(AxesWidget):
             self._fmt = ticker.ScalarFormatter()
             self._fmt.set_axis(axis)
         self._fmt.set_useOffset(False)  # No additive offset.
+        self._fmt.set_useMathText(True)  # x sign before multiplicative offset.
 
         ax.set_xticks([])
         ax.set_yticks([])
