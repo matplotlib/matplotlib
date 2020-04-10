@@ -550,14 +550,12 @@ class FigureManagerQT(FigureManagerBase):
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
                 self.statusbar = StatusbarQt(self.window, self.toolmanager)
+                sbs_height = self.statusbar.sizeHint().height()
+        else:
+            sbs_height = 0
 
         if self.toolbar is not None:
             self.window.addToolBar(self.toolbar)
-            if not self.toolmanager:
-                # add text label to status bar
-                statusbar_label = QtWidgets.QLabel()
-                self.window.statusBar().addWidget(statusbar_label)
-                self.toolbar.message.connect(statusbar_label.setText)
             tbs_height = self.toolbar.sizeHint().height()
         else:
             tbs_height = 0
@@ -565,8 +563,8 @@ class FigureManagerQT(FigureManagerBase):
         # resize the main window so it will display the canvas with the
         # requested size:
         cs = canvas.sizeHint()
-        sbs = self.window.statusBar().sizeHint()
-        height = cs.height() + tbs_height + sbs.height()
+        cs_height = cs.height()
+        height = cs_height + tbs_height + sbs_height
         self.window.resize(cs.width(), height)
 
         self.window.setCentralWidget(self.canvas)
@@ -599,7 +597,7 @@ class FigureManagerQT(FigureManagerBase):
         # must be inited after the window, drawingArea and figure
         # attrs are set
         if matplotlib.rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2QT(canvas, parent, False)
+            toolbar = NavigationToolbar2QT(canvas, parent, True)
         elif matplotlib.rcParams['toolbar'] == 'toolmanager':
             toolbar = ToolbarQt(self.toolmanager, self.window)
         else:

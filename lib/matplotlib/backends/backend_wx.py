@@ -928,13 +928,11 @@ class FigureFrameWx(wx.Frame):
 
         self.figmgr = FigureManagerWx(self.canvas, num, self)
 
-        statusbar = (StatusbarWx(self, self.toolmanager)
-                     if self.toolmanager else StatusBarWx(self))
-        self.SetStatusBar(statusbar)
         self.toolbar = self._get_toolbar()
 
-        if self.toolmanager:
-            backend_tools.add_tools_to_manager(self.toolmanager)
+        if self.figmgr.toolmanager:
+            self.SetStatusBar(StatusbarWx(self, self.figmgr.toolmanager))
+            backend_tools.add_tools_to_manager(self.figmgr.toolmanager)
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
 
@@ -1122,6 +1120,10 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.Bind(wx.EVT_TOOL, getattr(self, callback),
                       id=self.wx_ids[text])
 
+        self.AddStretchableSpace()
+        self._label_text = wx.StaticText(self)
+        self.AddControl(self._label_text)
+
         self.Realize()
 
         NavigationToolbar2.__init__(self, canvas)
@@ -1300,9 +1302,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         return self.GetTopLevelParent().GetStatusBar()
 
     def set_message(self, s):
-        status_bar = self.GetTopLevelParent().GetStatusBar()
-        if status_bar is not None:
-            status_bar.set_function(s)
+        self._label_text.SetLabel(s)
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0

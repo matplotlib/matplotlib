@@ -2893,6 +2893,7 @@ class NavigationToolbar2:
                             if data_str is not None:
                                 s = s + ' ' + data_str
 
+                s = s.rstrip()
                 if len(self.mode):
                     self.set_message('%s, %s' % (self.mode, s))
                 else:
