@@ -8,7 +8,6 @@ import sys
 import urllib.request
 
 import numpy as np
-from numpy import ma
 from numpy.testing import assert_array_equal
 from PIL import Image
 
@@ -820,7 +819,7 @@ def test_mask_image_over_under():
     palette.set_over('r', 1.0)
     palette.set_under('g', 1.0)
     palette.set_bad('b', 1.0)
-    Zm = ma.masked_where(Z > 1.2, Z)
+    Zm = np.ma.masked_where(Z > 1.2, Z)
     fig, (ax1, ax2) = plt.subplots(1, 2)
     im = ax1.imshow(Zm, interpolation='bilinear',
                     cmap=palette,

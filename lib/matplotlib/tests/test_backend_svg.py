@@ -1,9 +1,9 @@
-import numpy as np
 from io import BytesIO
 import re
 import tempfile
 import xml.parsers.expat
 
+import numpy as np
 import pytest
 
 import matplotlib as mpl
