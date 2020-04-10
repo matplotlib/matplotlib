@@ -5,7 +5,6 @@ import re
 import numpy as np
 import pytest
 
-import matplotlib
 import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
@@ -181,7 +180,7 @@ def baseline_images(request, fontset, index):
 @pytest.mark.parametrize('baseline_images', ['mathtext'], indirect=True)
 @image_comparison(baseline_images=None)
 def test_mathtext_rendering(baseline_images, fontset, index, test):
-    matplotlib.rcParams['mathtext.fontset'] = fontset
+    mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, test,
              horizontalalignment='center', verticalalignment='center')
@@ -195,7 +194,7 @@ def test_mathtext_rendering(baseline_images, fontset, index, test):
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
 @image_comparison(baseline_images=None, extensions=['png'])
 def test_mathfont_rendering(baseline_images, fontset, index, test):
-    matplotlib.rcParams['mathtext.fontset'] = fontset
+    mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.5, test,
              horizontalalignment='center', verticalalignment='center')
