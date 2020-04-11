@@ -1001,8 +1001,10 @@ class _AxesBase(martist.Artist):
         -----
         Intended to be overridden by new projection types.
         """
-        return mspines._Spines((side, mspines.Spine.linear_spine(self, side))
-                           for side in ['left', 'right', 'bottom', 'top'])
+        return mspines._Spines(
+            (side, mspines.Spine.linear_spine(self, side))
+            for side in ['left', 'right', 'bottom', 'top']
+        )
 
     def sharex(self, other):
         """
