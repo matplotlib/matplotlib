@@ -677,7 +677,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if self.coordinates:
             self.locLabel = QtWidgets.QLabel("", self)
             self.locLabel.setAlignment(
-                    QtCore.Qt.AlignRight | QtCore.Qt.AlignTop)
+                QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
             self.locLabel.setSizePolicy(
                 QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                       QtWidgets.QSizePolicy.Ignored))
