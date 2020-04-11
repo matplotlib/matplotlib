@@ -1,4 +1,5 @@
 import numpy as np
+from collections import OrderedDict
 
 import matplotlib
 from matplotlib import cbook, docstring, rcParams
@@ -534,3 +535,17 @@ class Spine(mpatches.Patch):
         """
         self.set_edgecolor(c)
         self.stale = True
+
+
+class _Spines(OrderedDict):
+    """
+    A collection of multiple axis spines.
+
+    _Spines can be accessed by both key and attribute.
+
+    """
+    def __getattr__(self, key):
+        return self[key]
+
+    def __setattr__(self, key, value):
+        self[key] = value

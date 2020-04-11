@@ -1,4 +1,3 @@
-from collections import OrderedDict
 import types
 
 import numpy as np
@@ -996,7 +995,7 @@ class PolarAxes(Axes):
         return mpatches.Wedge((0.5, 0.5), 0.5, 0.0, 360.0)
 
     def _gen_axes_spines(self):
-        spines = OrderedDict([
+        spines = mspines._Spines([
             ('polar', mspines.Spine.arc_spine(self, 'top',
                                               (0.5, 0.5), 0.5, 0.0, 360.0)),
             ('start', mspines.Spine.linear_spine(self, 'left')),

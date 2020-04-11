@@ -83,10 +83,12 @@ class SkewXAxes(Axes):
         self.spines['right'].register_axis(self.yaxis)
 
     def _gen_axes_spines(self):
-        spines = {'top': SkewSpine.linear_spine(self, 'top'),
-                  'bottom': mspines.Spine.linear_spine(self, 'bottom'),
-                  'left': mspines.Spine.linear_spine(self, 'left'),
-                  'right': mspines.Spine.linear_spine(self, 'right')}
+        spines = spines._Spines({
+            'top': SkewSpine.linear_spine(self, 'top'),
+            'bottom': mspines.Spine.linear_spine(self, 'bottom'),
+            'left': mspines.Spine.linear_spine(self, 'left'),
+            'right': mspines.Spine.linear_spine(self, 'right')
+        })
         return spines
 
     def _set_lim_and_transforms(self):

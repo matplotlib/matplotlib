@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from contextlib import ExitStack
 import inspect
 import itertools
@@ -1002,7 +1001,7 @@ class _AxesBase(martist.Artist):
         -----
         Intended to be overridden by new projection types.
         """
-        return OrderedDict((side, mspines.Spine.linear_spine(self, side))
+        return mspines._Spines((side, mspines.Spine.linear_spine(self, side))
                            for side in ['left', 'right', 'bottom', 'top'])
 
     def sharex(self, other):
