@@ -556,6 +556,16 @@ class TestScalarFormatter:
         tmp_form.set_locs(ax.yaxis.get_majorticklocs())
         assert orderOfMag == tmp_form.orderOfMagnitude
 
+    def test_cursor_precision(self):
+        fig, ax = plt.subplots()
+        ax.set_xlim(-1, 1)  # Pointing precision of 0.001.
+        fmt = ax.xaxis.get_major_formatter().format_data_short
+        assert fmt(0.) == "0.000"
+        assert fmt(0.0123) == "0.012"
+        assert fmt(0.123) == "0.123"
+        assert fmt(1.23) == "1.230"
+        assert fmt(12.3) == "12.300"
+
 
 class FakeAxis:
     """Allow Formatter to be called without having a "full" plot set up."""
