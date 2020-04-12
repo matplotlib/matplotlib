@@ -535,7 +535,7 @@ class _AxesBase(martist.Artist):
         # placeholder for any colorbars added that use this axes.
         # (see colorbar.py):
         self._colorbars = []
-        self.spines = self._gen_axes_spines()
+        self.spines = mspines.Spines.from_dict(self._gen_axes_spines())
 
         # this call may differ for non-sep axes, e.g., polar
         self._init_axis()
