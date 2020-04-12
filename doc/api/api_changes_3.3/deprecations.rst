@@ -366,11 +366,12 @@ The ``Fil``, ``Fill``, ``Filll``, ``NegFil``, ``NegFill``, ``NegFilll``, and
 ``SsGlue`` classes in the :mod:`matplotlib.mathtext` module are deprecated.
 As an alternative, directly construct glue instances with ``Glue("fil")``, etc.
 
-NavigationToolbar2QT.parent
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This attribute is deprecated.  In order to access the parent window, use
+NavigationToolbar2QT.parent and .basedir
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These attributes are deprecated.  In order to access the parent window, use
 ``toolbar.canvas.parent()``.  Once the deprecation period is elapsed, it will
-also be accessible as ``toolbar.parent()``.
+also be accessible as ``toolbar.parent()``.  The base directory to the icons
+is ``os.path.join(mpl.get_data_path(), "images")``.
 
 Path helpers in :mod:`.bezier`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

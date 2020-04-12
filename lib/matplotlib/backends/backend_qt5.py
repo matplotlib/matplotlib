@@ -16,10 +16,9 @@ from matplotlib.backend_bases import (
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
 from matplotlib.backend_managers import ToolManager
-
+from . import qt_compat
 from .qt_compat import (
-    QtCore, QtGui, QtWidgets, _isdeleted, _getSaveFileName,
-    is_pyqt5, __version__, QT_API)
+    QtCore, QtGui, QtWidgets, _isdeleted, is_pyqt5, __version__, QT_API)
 
 backend_version = __version__
 
@@ -255,12 +254,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
     @property
     def _dpi_ratio(self):
-        # Not available on Qt4 or some older Qt5.
-        try:
-            # self.devicePixelRatio() returns 0 in rare cases
-            return self.devicePixelRatio() or 1
-        except AttributeError:
-            return 1
+        return qt_compat._devicePixelRatio(self)
 
     def _update_dpi(self):
         # As described in __init__ above, we need to be careful in cases with
@@ -662,12 +656,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
     def __init__(self, canvas, parent, coordinates=True):
         """coordinates: should we show the coordinates on the right?"""
-        self.canvas = canvas
         self._parent = parent
         self.coordinates = coordinates
-        self._actions = {}
-        """A mapping of toolitem method names to their QActions"""
-
+        self._actions = {}  # mapping of toolitem method names to QActions.
         QtWidgets.QToolBar.__init__(self, parent)
         NavigationToolbar2.__init__(self, canvas)
 
@@ -676,12 +667,17 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     def parent(self):
         return self._parent
 
+    @cbook.deprecated(
+        "3.3", alternative="os.path.join(mpl.get_data_path(), 'images')")
+    @property
+    def basedir(self):
+        return str(cbook._get_data_path('images'))
+
     def _icon(self, name, color=None):
         if is_pyqt5():
             name = name.replace('.png', '_large.png')
-        pm = QtGui.QPixmap(os.path.join(self.basedir, name))
-        if hasattr(pm, 'setDevicePixelRatio'):
-            pm.setDevicePixelRatio(self.canvas._dpi_ratio)
+        pm = QtGui.QPixmap(str(cbook._get_data_path('images', name)))
+        qt_compat._setDevicePixelRatio(pm, self.canvas._dpi_ratio)
         if color is not None:
             mask = pm.createMaskFromColor(QtGui.QColor('black'),
                                           QtCore.Qt.MaskOutColor)
@@ -690,8 +686,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         return QtGui.QIcon(pm)
 
     def _init_toolbar(self):
-        self.basedir = str(cbook._get_data_path('images'))
-
         background_color = self.palette().color(self.backgroundRole())
         foreground_color = self.palette().color(self.foregroundRole())
         icon_color = (foreground_color
@@ -807,9 +801,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             filters.append(filter)
         filters = ';;'.join(filters)
 
-        fname, filter = _getSaveFileName(self.canvas.parent(),
-                                         "Choose a filename to save to",
-                                         start, filters, selectedFilter)
+        fname, filter = qt_compat._getSaveFileName(
+            self.canvas.parent(), "Choose a filename to save to", start,
+            filters, selectedFilter)
         if fname:
             # Save dir for next time, unless empty str (i.e., use cwd).
             if startpath != "":
@@ -945,8 +939,7 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
 
     def _icon(self, name):
         pm = QtGui.QPixmap(name)
-        if hasattr(pm, 'setDevicePixelRatio'):
-            pm.setDevicePixelRatio(self.toolmanager.canvas._dpi_ratio)
+        qt_compat._setDevicePixelRatio(pm, self.toolmanager.canvas._dpi_ratio)
         return QtGui.QIcon(pm)
 
     def toggle_toolitem(self, name, toggled):
