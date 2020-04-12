@@ -660,11 +660,11 @@ class _AxesBase(martist.Artist):
     def _init_axis(self):
         # This is moved out of __init__ because non-separable axes don't use it
         self.xaxis = maxis.XAxis(self)
-        self.spines['bottom'].register_axis(self.xaxis)
-        self.spines['top'].register_axis(self.xaxis)
+        self.spines.bottom.register_axis(self.xaxis)
+        self.spines.top.register_axis(self.xaxis)
         self.yaxis = maxis.YAxis(self)
-        self.spines['left'].register_axis(self.yaxis)
-        self.spines['right'].register_axis(self.yaxis)
+        self.spines.left.register_axis(self.yaxis)
+        self.spines.right.register_axis(self.yaxis)
         self._update_transScale()
 
     def set_figure(self, fig):
@@ -763,10 +763,10 @@ class _AxesBase(martist.Artist):
             return self._xaxis_transform
         elif which == 'tick1':
             # for cartesian projection, this is bottom spine
-            return self.spines['bottom'].get_spine_transform()
+            return self.spines.bottom.get_spine_transform()
         elif which == 'tick2':
             # for cartesian projection, this is top spine
-            return self.spines['top'].get_spine_transform()
+            return self.spines.top.get_spine_transform()
         else:
             raise ValueError('unknown value for which')
 
@@ -839,10 +839,10 @@ class _AxesBase(martist.Artist):
             return self._yaxis_transform
         elif which == 'tick1':
             # for cartesian projection, this is bottom spine
-            return self.spines['left'].get_spine_transform()
+            return self.spines.left.get_spine_transform()
         elif which == 'tick2':
             # for cartesian projection, this is top spine
-            return self.spines['right'].get_spine_transform()
+            return self.spines.right.get_spine_transform()
         else:
             raise ValueError('unknown value for which')
 

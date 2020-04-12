@@ -467,14 +467,12 @@ class Axes(maxes.Axes):
             b = not self._axisline_on
         if b:
             self._axisline_on = True
-            for s in self.spines.values():
-                s.set_visible(False)
+            self.spines[:].set_visible(False)
             self.xaxis.set_visible(False)
             self.yaxis.set_visible(False)
         else:
             self._axisline_on = False
-            for s in self.spines.values():
-                s.set_visible(True)
+            self.spines[:].set_visible(True)
             self.xaxis.set_visible(True)
             self.yaxis.set_visible(True)
 

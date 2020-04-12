@@ -32,10 +32,7 @@ ax.set_prop_cycle(color=[
     '#17becf', '#9edae5'])
 
 # Remove the plot frame lines. They are unnecessary here.
-ax.spines['top'].set_visible(False)
-ax.spines['bottom'].set_visible(False)
-ax.spines['right'].set_visible(False)
-ax.spines['left'].set_visible(False)
+ax.spines[:].set_visible(False)
 
 # Ensure that the axis ticks only show up on the bottom and left of the plot.
 # Ticks on the right and top of the plot are generally unnecessary.

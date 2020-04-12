@@ -522,8 +522,7 @@ def test_rasterize_dpi():
     for ax in axs:
         ax.set_xticks([])
         ax.set_yticks([])
-        for spine in ax.spines.values():
-            spine.set_visible(False)
+        ax.spines[:].set_visible(False)
 
     rcParams['savefig.dpi'] = 10
 

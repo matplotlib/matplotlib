@@ -54,8 +54,7 @@ def plot_linestyles(ax, linestyles, title):
            yticks=np.arange(len(linestyles)),
            yticklabels=yticklabels)
     ax.tick_params(left=False, bottom=False, labelbottom=False)
-    for spine in ax.spines.values():
-        spine.set_visible(False)
+    ax.spines[:].set_visible(False)
 
     # For each line style, add a text annotation with a small offset from
     # the reference point (0 in Axes coords, y tick value in Data coords).

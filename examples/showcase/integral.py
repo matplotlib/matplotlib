@@ -42,8 +42,8 @@ ax.text(0.5 * (a + b), 30, r"$\int_a^b f(x)\mathrm{d}x$",
 fig.text(0.9, 0.05, '$x$')
 fig.text(0.1, 0.9, '$y$')
 
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
+ax.spines.right.set_visible(False)
+ax.spines.top.set_visible(False)
 ax.xaxis.set_ticks_position('bottom')
 
 ax.set_xticks((a, b))

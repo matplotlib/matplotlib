@@ -26,8 +26,8 @@ ax1.plot(x, y)
 ax1.set_title('bottom-left spines')
 
 # Hide the right and top spines
-ax1.spines['right'].set_visible(False)
-ax1.spines['top'].set_visible(False)
+ax1.spines.right.set_visible(False)
+ax1.spines.top.set_visible(False)
 # Only show ticks on the left and bottom spines
 ax1.yaxis.set_ticks_position('left')
 ax1.xaxis.set_ticks_position('bottom')
@@ -35,10 +35,10 @@ ax1.xaxis.set_ticks_position('bottom')
 ax2.plot(x, y)
 
 # Only draw spine between the y-ticks
-ax2.spines['left'].set_bounds(-1, 1)
+ax2.spines.left.set_bounds(-1, 1)
 # Hide the right and top spines
-ax2.spines['right'].set_visible(False)
-ax2.spines['top'].set_visible(False)
+ax2.spines.right.set_visible(False)
+ax2.spines.top.set_visible(False)
 # Only show ticks on the left and bottom spines
 ax2.yaxis.set_ticks_position('left')
 ax2.xaxis.set_ticks_position('bottom')

@@ -56,21 +56,21 @@ def test_spines_axes_positions():
     ax = fig.add_subplot(1, 1, 1)
     ax.set_title('centered spines')
     ax.plot(x, y)
-    ax.spines['right'].set_position(('axes', 0.1))
+    ax.spines.right.set_position(('axes', 0.1))
     ax.yaxis.set_ticks_position('right')
-    ax.spines['top'].set_position(('axes', 0.25))
+    ax.spines.top.set_position(('axes', 0.25))
     ax.xaxis.set_ticks_position('top')
-    ax.spines['left'].set_color('none')
-    ax.spines['bottom'].set_color('none')
+    ax.spines.left.set_color('none')
+    ax.spines.bottom.set_color('none')
 
 
 @image_comparison(['spines_data_positions'])
 def test_spines_data_positions():
     fig, ax = plt.subplots()
-    ax.spines['left'].set_position(('data', -1.5))
-    ax.spines['top'].set_position(('data', 0.5))
-    ax.spines['right'].set_position(('data', -0.5))
-    ax.spines['bottom'].set_position('zero')
+    ax.spines.left.set_position(('data', -1.5))
+    ax.spines.top.set_position(('data', 0.5))
+    ax.spines.right.set_position(('data', -0.5))
+    ax.spines.bottom.set_position('zero')
     ax.set_xlim([-2, 2])
     ax.set_ylim([-2, 2])
 
@@ -85,14 +85,14 @@ def test_spine_nonlinear_data_positions(fig_test, fig_ref):
     # linewidth to distinguish them.  The calls to tick_params removes labels
     # (for image comparison purposes) and harmonizes tick positions with the
     # reference).
-    ax.spines["left"].set_position(("data", 1))
-    ax.spines["left"].set_linewidth(2)
-    ax.spines["right"].set_position(("data", .1))
+    ax.spines.left.set_position(("data", 1))
+    ax.spines.left.set_linewidth(2)
+    ax.spines.right.set_position(("data", .1))
     ax.tick_params(axis="y", labelleft=False, direction="in")
 
     ax = fig_ref.add_subplot()
     ax.set(xscale="log", xlim=(.1, 1))
-    ax.spines["right"].set_linewidth(2)
+    ax.spines.right.set_linewidth(2)
     ax.tick_params(axis="y", labelleft=False, left=False, right=True)
 
 
@@ -110,24 +110,24 @@ def test_label_without_ticks():
     plt.subplots_adjust(left=0.3, bottom=0.3)
     ax.plot(np.arange(10))
     ax.yaxis.set_ticks_position('left')
-    ax.spines['left'].set_position(('outward', 30))
-    ax.spines['right'].set_visible(False)
+    ax.spines.left.set_position(('outward', 30))
+    ax.spines.right.set_visible(False)
     ax.set_ylabel('y label')
     ax.xaxis.set_ticks_position('bottom')
-    ax.spines['bottom'].set_position(('outward', 30))
-    ax.spines['top'].set_visible(False)
+    ax.spines.bottom.set_position(('outward', 30))
+    ax.spines.top.set_visible(False)
     ax.set_xlabel('x label')
     ax.xaxis.set_ticks([])
     ax.yaxis.set_ticks([])
     plt.draw()
 
-    spine = ax.spines['left']
+    spine = ax.spines.left
     spinebbox = spine.get_transform().transform_path(
         spine.get_path()).get_extents()
     assert ax.yaxis.label.get_position()[0] < spinebbox.xmin, \
         "Y-Axis label not left of the spine"
 
-    spine = ax.spines['bottom']
+    spine = ax.spines.bottom
     spinebbox = spine.get_transform().transform_path(
         spine.get_path()).get_extents()
     assert ax.xaxis.label.get_position()[1] < spinebbox.ymin, \
