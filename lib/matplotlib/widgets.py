@@ -514,6 +514,7 @@ class Slider(AxesWidget):
         if self.val != self.valinit:
             self.set_val(self.valinit)
 
+
 class Dropdown(AxesWidget):
     """
     A Dropdown representing a list of options avaliable.
@@ -633,7 +634,7 @@ class Dropdown(AxesWidget):
                     self.ax.figure.canvas.draw()
         elif event.inaxes == self.ax:
             self._hover(event.ydata)
-    
+
     def _scroll(self, event):
         if self.ignore(event):
             return
@@ -644,7 +645,7 @@ class Dropdown(AxesWidget):
                 self.offset = new_offset
                 self._update()
                 self._expand()
-    
+
     def _update(self):
         for text in self.textobjs:
             text.remove()
