@@ -544,6 +544,9 @@ class _Spines(OrderedDict):
     _Spines can be accessed by both key and attribute.
 
     """
+    def __dir__(self):
+        return super().__dir__() + list(self.keys())
+
     def __getattr__(self, key):
         return self[key]
 
