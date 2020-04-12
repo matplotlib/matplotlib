@@ -71,7 +71,7 @@ def _axes_all_finite_sized(fig):
 
 ######################################################
 def do_constrained_layout(fig, renderer, h_pad, w_pad,
-                          hspace=None, wspace=None):
+                          hspace=None, wspace=None, reset=True):
     """
     Do the constrained_layout.  Called at draw time in
      ``figure.constrained_layout()``
@@ -130,7 +130,11 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
     # This can break down if the decoration size for the right hand axis (the
     # margins) is very large.  There must be a math way to check for this case.
 
+    print("IN HERE")
     invTransFig = fig.transFigure.inverted().transform_bbox
+
+    conh = None
+    conw = None
 
     # list of unique gridspecs that contain child axes:
     gss = set()
@@ -154,12 +158,17 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
         # change size after the first re-position (i.e. x/yticklabels get
         # larger/smaller).  This second reposition tends to be much milder,
         # so doing twice makes things work OK.
+        bboxes = {}  # need these for packing the layout later...
         for ax in fig.axes:
             _log.debug(ax._layoutbox)
             if ax._layoutbox is not None:
                 # make margins for each layout box based on the size of
                 # the decorators.
-                _make_layout_margins(ax, renderer, h_pad, w_pad)
+                bbox = _make_layout_margins(ax, renderer, h_pad, w_pad)
+            else:
+                bbox = None
+            bboxes[ax] = bbox
+        print(bboxes)
 
         # do layout for suptitle.
         suptitle = fig._suptitle
@@ -199,7 +208,61 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
             for gs in gss:
                 _align_spines(fig, gs)
 
+        # prob with autoscaling: no redraw to see how big the new
+        # layout should be...
+        if not reset:
+            for gs in gss:
+                axs = [ax for ax in fig.axes
+                       if (hasattr(ax, 'get_subplotspec')
+                           and ax._layoutbox is not None
+                           and ax.get_subplotspec().get_gridspec() == gs)]
+                nrows, ncols = gs.get_geometry()
+                # get widths:
+                dxs = np.zeros(ncols)
+                for i in range(ncols):
+                    print('checking i', i)
+                    for ax in axs:
+                        ss = ax.get_subplotspec()
+                        if i in ss.colspan:
+                            dn = ss.rowspan[-1] - ss.rowspan[0] + 1
+                            dx = (bboxes[ax].bounds[2] + 2 * w_pad)/ dn
+                            dxs[i] = max(dxs[i], dx)
+                dx = np.sum(dxs)
+
+                dys = np.zeros(nrows)
+                for i in range(nrows):
+                    print('checking i', i)
+                    for ax in axs:
+                        ss = ax.get_subplotspec()
+                        if i in ss.rowspan:
+                            dn = ss.colspan[-1] - ss.colspan[0] + 1
+                            dy = (bboxes[ax].bounds[3] + 2 * h_pad)/ dn
+                            dys[i] = max(dys[i], dy)
+                dy = np.sum(dys)
+
+                print('dx dy', dx, dy)
+                parent = gs._layoutbox.parent
+                if dy < dx:
+                    if conh is not None:
+                        gs._layoutbox.solver.removeConstraint(conh)
+                    gs._layoutbox.edit_height(dy)
+                    conw = gs._layoutbox.constrain_width(parent.width)
+                #gs._layoutbox.edit_bottom_margin_min((parent.height-dy)/2)
+                else:
+                    if conw is not None:
+                        gs._layoutbox.solver.removeConstraint(conw)
+                    conw = gs._layoutbox.constrain_width(dx)
+                    conh = gs._layoutbox.constrain_height(parent.height)
+                #gs._layoutbox.edit_bottom_margin((parent.width-dx)/2)
+        else: # reset!
+            for gs in gss:
+                parent = gs._layoutbox.parent
+                conh = gs._layoutbox.constrain_height(parent.height)
+                conw = gs._layoutbox.constrain_height(parent.width)
+
+
         fig._layoutbox.constrained_layout_called += 1
+        # call the kiwi solver:
         fig._layoutbox.update_variables()
 
         # check if any axes collapsed to zero.  If not, don't change positions:
@@ -223,6 +286,14 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
             cbook._warn_external('constrained_layout not applied.  At least '
                                  'one axes collapsed to zero width or height.')
 
+        ## clean up temporary constraints:
+        for gs in gss:
+            if conh is not None:
+                gs._layoutbox.solver.removeConstraint(conh)
+            if conw is not None:
+                gs._layoutbox.solver.removeConstraint(conw)
+
+
 
 def _make_ghost_gridspec_slots(fig, gs):
     """
@@ -236,6 +307,7 @@ def _make_ghost_gridspec_slots(fig, gs):
     hassubplotspec = np.zeros(nrows * ncols, dtype=bool)
     axs = []
     for ax in fig.axes:
+        print(ax, ax._layoutbox)
         if (hasattr(ax, 'get_subplotspec')
                 and ax._layoutbox is not None
                 and ax.get_subplotspec().get_gridspec() == gs):
@@ -243,10 +315,12 @@ def _make_ghost_gridspec_slots(fig, gs):
     for ax in axs:
         ss0 = ax.get_subplotspec()
         hassubplotspec[ss0.num1:(ss0.num2 + 1)] = True
+    print(hassubplotspec, axs)
     for nn, hss in enumerate(hassubplotspec):
         if not hss:
             # this gridspec slot doesn't have an axis so we
             # make a "ghost".
+            print('ghosty!',  nn)
             ax = fig.add_subplot(gs[nn])
             ax.set_visible(False)
 
@@ -256,6 +330,8 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
     For each axes, make a margin between the *pos* layoutbox and the
     *axes* layoutbox be a minimum size that can accommodate the
     decorations on the axis.
+
+    Returns the bbox for some width/heigth calcs outside this loop.
     """
     fig = ax.figure
     invTransFig = fig.transFigure.inverted().transform_bbox
@@ -300,6 +376,7 @@ def _make_layout_margins(ax, renderer, h_pad, w_pad):
         ax._poslayoutbox.constrain_bottom_margin(0, strength='weak')
         ax._poslayoutbox.constrain_right_margin(0, strength='weak')
         ax._poslayoutbox.constrain_left_margin(0, strength='weak')
+    return bbox
 
 
 def _align_spines(fig, gs):
@@ -310,9 +387,11 @@ def _align_spines(fig, gs):
        as they should be.
     """
     # for each gridspec...
+    print('Aligning Spines!')
     nrows, ncols = gs.get_geometry()
     width_ratios = gs.get_width_ratios()
     height_ratios = gs.get_height_ratios()
+    print('hieght_ratios', height_ratios)
     if width_ratios is None:
         width_ratios = np.ones(ncols)
     if height_ratios is None:
@@ -394,6 +473,7 @@ def _align_spines(fig, gs):
 
             # For heights, do it if the subplots share a column.
             if not alignheight and len(rowspan0) == len(rowspan1):
+                print('heights', height0, height1)
                 ax0._poslayoutbox.constrain_height(
                     ax1._poslayoutbox.height * height0 / height1)
                 alignheight = True
@@ -426,6 +506,7 @@ def _align_spines(fig, gs):
                         ax0._poslayoutbox.width * width1 / width0)
                     ax0._poslayoutbox.constrain_width_min(
                         ax1._poslayoutbox.width * width0 / (width1*1.8))
+
 
 
 def _arrange_subplotspecs(gs, hspace=0, wspace=0):

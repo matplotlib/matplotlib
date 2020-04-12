@@ -324,6 +324,7 @@ class LayoutBox:
         """
         c = (self.width == width)
         self.solver.addConstraint(c | strength)
+        return c
 
     def constrain_width_min(self, width, strength='strong'):
         c = (self.width >= width)
@@ -652,11 +653,13 @@ def print_tree(lb):
         print_tree(lb.parent)
 
 
-def plot_children(fig, box, level=0, printit=True):
+def plot_children(fig, box, level=0, printit=True, stop=1000):
     """Simple plotting to show where boxes are."""
     import matplotlib
     import matplotlib.pyplot as plt
 
+    if stop < 0:
+        return
     if isinstance(fig, matplotlib.figure.Figure):
         ax = fig.add_axes([0., 0., 1., 1.])
         ax.set_facecolor([1., 1., 1., 0.7])
@@ -664,6 +667,7 @@ def plot_children(fig, box, level=0, printit=True):
         fig.draw(fig.canvas.get_renderer())
     else:
         ax = fig
+
 
     import matplotlib.patches as patches
     colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
@@ -692,4 +696,4 @@ def plot_children(fig, box, level=0, printit=True):
                         ha='right', va='top', size=12-level,
                         color=colors[level])
 
-        plot_children(ax, child, level=level+1, printit=printit)
+        plot_children(ax, child, level=level+1, printit=printit, stop=stop-1)

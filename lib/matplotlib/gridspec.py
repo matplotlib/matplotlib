@@ -195,6 +195,8 @@ class GridSpecBase:
 
         fig_tops, fig_bottoms = (top - cell_hs).reshape((-1, 2)).T
         fig_lefts, fig_rights = (left + cell_ws).reshape((-1, 2)).T
+
+        print('Done this!')
         return fig_bottoms, fig_tops, fig_lefts, fig_rights
 
     def __getitem__(self, key):
