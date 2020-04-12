@@ -1836,7 +1836,7 @@ class TriMesh(Collection):
         # was rewritten.
         xy = np.hstack((triangulation.x.reshape(-1, 1),
                         triangulation.y.reshape(-1, 1)))
-        self._bbox.update_from_data_xy(xy)
+        self._bbox.update_from_data_xy(xy, ignore=True)
 
     def get_paths(self):
         if self._paths is None:
@@ -1924,7 +1924,7 @@ class QuadMesh(Collection):
 
         self._bbox = transforms.Bbox.unit()
         self._bbox.update_from_data_xy(coordinates.reshape(
-            ((meshWidth + 1) * (meshHeight + 1), 2)))
+            ((meshWidth + 1) * (meshHeight + 1), 2)), ignore=True)
 
     def get_paths(self):
         if self._paths is None:

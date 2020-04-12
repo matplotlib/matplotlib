@@ -510,11 +510,11 @@ class Axes3D(Axes):
         X = np.reshape(X, -1)
         Y = np.reshape(Y, -1)
         self.xy_dataLim.update_from_data_xy(
-            np.column_stack([X, Y]), not had_data)
+            np.column_stack([X, Y]), ignore=not had_data)
         if Z is not None:
             Z = np.reshape(Z, -1)
             self.zz_dataLim.update_from_data_xy(
-                np.column_stack([Z, Z]), not had_data)
+                np.column_stack([Z, Z]), ignore=not had_data)
         # Let autoscale_view figure out how to use this data.
         self.autoscale_view()
 

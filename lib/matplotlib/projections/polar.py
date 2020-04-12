@@ -759,7 +759,7 @@ class _WedgeBbox(mtransforms.Bbox):
             wedge = mpatches.Wedge(self._center, points[1, 1],
                                    points[0, 0], points[1, 0],
                                    width=width)
-            self.update_from_path(wedge.get_path())
+            self.update_from_path(wedge.get_path(), ignore=True)
 
             # Ensure equal aspect ratio.
             w, h = self._points[1] - self._points[0]

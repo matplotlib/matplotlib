@@ -433,3 +433,12 @@ Normalization of upper or mixed-case property names to lowercase in
 `.Artist.set` and `.Artist.update` is deprecated.  In the future, property
 names will be passed as is, allowing one to pass names such as *patchA* or
 *UVC*.
+
+``Bbox.ignore``
+~~~~~~~~~~~~~~~
+The persistent ignore state for `.Bbox` is deprecated and *ignore* should be
+explicitly passed to the relevant functions if needed. The method
+``Bbox.ignore()`` is deprecated. The parameter *ignore* of
+``Bbox.update_from_path()`` and ``Bbox.update_from_data_xy()`` will not accept
+None anymore and default to ``True`` instead, which was the default persistent
+ignore state.

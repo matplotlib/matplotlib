@@ -759,6 +759,9 @@ class Bbox(BboxBase):
     def __repr__(self):
         return 'Bbox([[{0.x0}, {0.y0}], [{0.x1}, {0.y1}]])'.format(self)
 
+    @cbook.deprecated("3.3", message="The ignore state is deprecated. Please"
+                                     "Please pass *ignore* explicitly to "
+                                     "update_fom_data_xy().")
     def ignore(self, value):
         """
         Set whether the existing bounds of the box should be ignored
@@ -788,10 +791,23 @@ class Bbox(BboxBase):
            - when ``False``, include the existing bounds of the `Bbox`.
            - when ``None``, use the last value passed to :meth:`ignore`.
 
+             *Deprecated*: The persistent ignore state is deprecated and
+             *ignore* will default to True in the future. Please pass
+             ``ignore=False`` explicitly if needed.
+
         updatex, updatey : bool, optional
             When ``True``, update the x/y values.
         """
         if ignore is None:
+            # Note: When removing this deprecation and changing the default
+            # to True, grep through the codebase to remove some explicit
+            # ignore=True usages, which were introduced in internal calls to
+            # prevent the warning.
+            cbook.warn_deprecated(
+                "3.3", message="The persistent ignore state is deprecated and "
+                               "will default to True in the future. Please "
+                               "please pass ignore=False explicitly if"
+                               "needed.")
             ignore = self._ignore
 
         if path.vertices.size == 0:
@@ -825,11 +841,27 @@ class Bbox(BboxBase):
            - When ``False``, include the existing bounds of the `Bbox`.
            - When ``None``, use the last value passed to :meth:`ignore`.
 
+             *Deprecated*: The persistent ignore state is deprecated and
+             *ignore* will default to True in the future. Please pass
+             ``ignore=False`` explicitly if needed.
+
         updatex, updatey : bool, optional
             When ``True``, update the x/y values.
         """
         if len(xy) == 0:
             return
+
+        if ignore is None:
+            # Note: When removing this deprecation and changing the default
+            # to True, grep through the codebase to remove some explicit
+            # ignore=True usages, which were introduced in internal calls to
+            # prevent the warning.
+            cbook.warn_deprecated(
+                "3.3", message="The persistent ignore state is deprecated and "
+                               "will default to True in the future. Please "
+                               "please pass ignore=False explicitly if"
+                               "needed.")
+            ignore = self._ignore
 
         path = Path(xy)
         self.update_from_path(path, ignore=ignore,
