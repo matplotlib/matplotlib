@@ -459,6 +459,7 @@ class ColorbarBase:
             np.empty((0, 2)),
             color=mpl.rcParams['axes.facecolor'], linewidth=0.01, zorder=-1)
         ax.add_artist(self.patch)
+        ax._colorbar = self
 
         self.dividers = None
         self.locator = None
@@ -483,6 +484,7 @@ class ColorbarBase:
         else:
             self.formatter = format  # Assume it is a Formatter or None
         self.draw_all()
+
 
     def _extend_lower(self):
         """Return whether the lower limit is open ended."""
@@ -1382,6 +1384,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     Returns (cax, kw), the child axes and the reduced kw dictionary to be
     passed when creating the colorbar instance.
     """
+
     locations = ["left", "right", "top", "bottom"]
     if orientation is not None and location is not None:
         raise TypeError('position and orientation are mutually exclusive. '
@@ -1485,6 +1488,15 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
             ax.set_anchor(parent_anchor)
 
     cax = fig.add_axes(pbcb, label="<colorbar>")
+    # point the colorbar axes back at its parents and its location
+    cax._colorbar_info = {}
+    cax._colorbar_info['location'] = location
+    cax._colorbar_info['parents'] = parents
+    cax._colorbar_info['shrink'] = shrink
+    if len(parents) == 1:
+        # tell the parent it has a colorbar
+        ax._colorbars += [cax]
+
 
     # OK, now make a layoutbox for the cb axis.  Later, we will use this
     # to make the colorbar fit nicely.
@@ -1504,7 +1516,6 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
             # the colorbar will be a sibling of this gridspec, so the
             # parent is the same parent as the gridspec.  Either the figure,
             # or a subplotspec.
-
             lb, lbpos = constrained_layout.layoutcolorbargridspec(
                     parents, cax, shrink, aspect, location, pad)
 
