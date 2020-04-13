@@ -28,6 +28,7 @@ from matplotlib.transforms import Affine2D
 from matplotlib.widgets import SubplotTool
 
 import wx
+import wx.lib.agw.buttonpanel as btnpanel
 
 _log = logging.getLogger(__name__)
 
@@ -1113,9 +1114,11 @@ cursord = {
 }
 
 
-class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
+class NavigationToolbar2Wx(NavigationToolbar2, btnpanel.ButtonPanel):
     def __init__(self, canvas):
-        wx.ToolBar.__init__(self, canvas.GetParent(), -1)
+        btnpanel.ButtonPanel.__init__(self, canvas.GetParent(), -1,
+            agwStyle=btnpanel.BP_USE_GRADIENT,
+            alignment=btnpanel.BP_ALIGN_RIGHT)
         NavigationToolbar2.__init__(self, canvas)
         self.canvas = canvas
         self._idle = True
@@ -1139,19 +1142,65 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             if text is None:
                 self.AddSeparator()
                 continue
-            self.wx_ids[text] = (
-                self.AddTool(
-                    -1,
+            btn = self.AddTool(
+                    self.NewControlId(),
                     bitmap=_load_bitmap(image_file + ".png"),
                     bmpDisabled=wx.NullBitmap,
-                    label=text, shortHelp=text, longHelp=tooltip_text,
+                    label='', shortHelp=tooltip_text, longHelp=tooltip_text,
                     kind=(wx.ITEM_CHECK if text in ["Pan", "Zoom"]
-                          else wx.ITEM_NORMAL))
-                .Id)
-            self.Bind(wx.EVT_TOOL, getattr(self, callback),
-                      id=self.wx_ids[text])
+                          else wx.ITEM_NORMAL)
+                    )
+            self.wx_ids[text] = (btn, btn.GetId())
+            self.Bind(wx.EVT_BUTTON, getattr(self, callback),
+                      id=self.wx_ids[text][1])
+
+        # Set toolbar appearance
+        bpArt = self.GetBPArt()
+        bpArt.SetColour(btnpanel.BP_GRADIENT_COLOUR_FROM,
+            wx.Colour(167, 167, 167))
+        bpArt.SetColour(btnpanel.BP_GRADIENT_COLOUR_TO,
+            wx.Colour(213, 213, 213))
+        bpArt.SetColour(btnpanel.BP_SEPARATOR_COLOUR,
+            btnpanel.BrightenColour(wx.Colour(167, 167, 167), 0.85))
+        bpArt.SetColour(btnpanel.BP_BORDER_COLOUR,
+            btnpanel.BrightenColour(wx.Colour(167, 167, 167), 0.85))
+        bpArt.SetColour(btnpanel.BP_SELECTION_BRUSH_COLOUR,
+            btnpanel.BrightenColour(wx.Colour(167, 167, 167), 0.85))
+        bpArt.SetColour(btnpanel.BP_SELECTION_PEN_COLOUR,
+            btnpanel.BrightenColour(wx.Colour(167, 167, 167), 0.85))
+
+        bpArt.SetMetric(btnpanel.BP_BORDER_SIZE, 0)
 
         self.Realize()
+
+    def Realize(self):
+        # Back compatibility on change from wx.Toolbar to btnpanel
+        self.DoLayout()
+
+    def AddTool(self, toolid, bitmap, bmpDisabled, label, shortHelp, longHelp,
+        kind):
+        # Back compatibility on change from wx.Toolbar to btnpanel
+        btn = btnpanel.ButtonInfo(self, toolid, bmp=bitmap, text=label,
+            kind=kind, shortHelp=shortHelp, longHelp=longHelp)
+        self.AddButton(btn)
+        return btn
+
+    def ToggleTool(self, tool_data, toggled):
+        # Back compatibility on change from wx.Toolbar to btnpanel
+        tool = tool_data[0]
+        tool.SetToggled(toggled)
+        if not toggled:
+            tool.SetStatus('Normal')
+        else:
+            tool.SetStatus('Toggled')
+
+    def EnableTool(self, tool_data, enabled):
+        tool = tool_data[0]
+        # tool.Enable(enabled)
+        if enabled:
+            tool.SetStatus('Normal')
+        else:
+            tool.SetStatus('Disabled')
 
     def zoom(self, *args):
         self.ToggleTool(self.wx_ids['Pan'], False)
