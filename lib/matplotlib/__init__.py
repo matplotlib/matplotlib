@@ -443,18 +443,19 @@ def _create_tmp_config_or_cache_dir():
 
 def _get_xdg_config_dir():
     """
-    Return the XDG configuration directory, according to the `XDG
-    base directory spec
-    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
+    Return the XDG configuration directory, according to the XDG base
+    directory spec:
+
+    https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
     """
     return os.environ.get('XDG_CONFIG_HOME') or str(Path.home() / ".config")
 
 
 def _get_xdg_cache_dir():
     """
-    Return the XDG cache directory, according to the `XDG
-    base directory spec
-    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
+    Return the XDG cache directory, according to the XDG base directory spec:
+
+    https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
     """
     return os.environ.get('XDG_CACHE_HOME') or str(Path.home() / ".cache")
 

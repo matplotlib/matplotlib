@@ -11,7 +11,7 @@ a box plot is drawn on top. Lastly, the styles of the artists
 of the violins are modified.
 
 For more information on violin plots, the scikit-learn docs have a great
-section: http://scikit-learn.org/stable/modules/density.html
+section: https://scikit-learn.org/stable/modules/density.html
 """
 
 import matplotlib.pyplot as plt
