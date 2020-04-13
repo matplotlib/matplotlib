@@ -172,9 +172,7 @@ class Axes(_AxesBase):
 
         if pad is None:
             pad = rcParams['axes.titlepad']
-        if pad is not None:
-            self._autotitlepos = False
-        else:
+        if pad is None:
             pad = 6  # default.
 
         self._set_title_offset_trans(float(pad))

@@ -1199,8 +1199,7 @@ class _AxesBase(martist.Artist):
         or from set_title kwarg ``pad``.
         """
         if title_offset_points is None:
-            # dummy default in case cla hasn't been called.
-            title_offset_points = 0
+            title_offset_points = 6
         self.titleOffsetTrans = mtransforms.ScaledTranslation(
                 0.0, title_offset_points / 72,
                 self.figure.dpi_scale_trans)
@@ -2649,7 +2648,7 @@ class _AxesBase(martist.Artist):
                     else:
                         ax.apply_aspect()
                     axs = axs + [ax]
-            top = 0
+            top = 0.0
             for ax in axs:
                 if (ax.xaxis.get_ticks_position() in ['top', 'unknown']
                         or ax.xaxis.get_label_position() == 'top'):
@@ -2658,21 +2657,24 @@ class _AxesBase(martist.Artist):
                     bb = ax.get_window_extent(renderer)
                 if bb is not None:
                     top = max(top, bb.ymax)
-            if title.get_window_extent(renderer).ymin < top:
-                _, y = self.transAxes.inverted().transform((0, top))
-                title.set_position((x, y))
-                # empirically, this doesn't always get the min to top,
-                # so we need to adjust again.
+            _, y = self.transAxes.inverted().transform((0, top))
+            title.set_position((x, y))
+            if 0:
                 if title.get_window_extent(renderer).ymin < top:
-                    _, y = self.transAxes.inverted().transform(
-                        (0., 2 * top - title.get_window_extent(renderer).ymin))
+                    _, y = self.transAxes.inverted().transform((0, top))
                     title.set_position((x, y))
+                    # empirically, this doesn't always get the min to top,
+                    # so we need to adjust again.
+                    if title.get_window_extent(renderer).ymin < top:
+                        _, y = self.transAxes.inverted().transform(
+                            (0., 2 * top - title.get_window_extent(renderer).ymin))
+                        title.set_position((x, y))
 
-        ymax = max(title.get_position()[1] for title in titles)
-        for title in titles:
-            # now line up all the titles at the highest baseline.
-            x, _ = title.get_position()
-            title.set_position((x, ymax))
+                ymax = max(title.get_position()[1] for title in titles)
+                for title in titles:
+                    # now line up all the titles at the highest baseline.
+                    x, _ = title.get_position()
+                    title.set_position((x, ymax))
 
     # Drawing
     @martist.allow_rasterization
