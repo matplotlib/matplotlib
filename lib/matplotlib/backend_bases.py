@@ -2306,7 +2306,7 @@ class FigureCanvasBase:
         self._looping = False
 
 
-def key_press_handler(event, canvas, toolbar=None):
+def key_press_handler(event, canvas=None, toolbar=None):
     """
     Implement the default Matplotlib key bindings for the canvas and toolbar
     described at :ref:`key-event-handling`.
@@ -2314,16 +2314,24 @@ def key_press_handler(event, canvas, toolbar=None):
     Parameters
     ----------
     event : `KeyEvent`
-        a key press/release event
-    canvas : `FigureCanvasBase`
-        the backend-specific canvas instance
-    toolbar : `NavigationToolbar2`
-        the navigation cursor toolbar
+        A key press/release event.
+    canvas : `FigureCanvasBase`, optional, default: ``event.canvas``
+        The backend-specific canvas instance.  This parameter is kept for
+        back-compatibility, but, if set, should always be equal to
+        ``event.canvas``.
+    toolbar : `NavigationToolbar2`, optional, default: ``event.canvas.toolbar``
+        The navigation cursor toolbar.  This parameter is kept for
+        back-compatibility, but, if set, should always be equal to
+        ``event.canvas.toolbar``.
     """
     # these bindings happen whether you are over an axes or not
 
     if event.key is None:
         return
+    if canvas is None:
+        canvas = event.canvas
+    if toolbar is None:
+        toolbar = canvas.toolbar
 
     # Load key-mappings from rcParams.
     fullscreen_keys = rcParams['keymap.fullscreen']
@@ -2483,10 +2491,17 @@ def key_press_handler(event, canvas, toolbar=None):
                     a.set_navigate(i == n)
 
 
-def button_press_handler(event, canvas, toolbar=None):
+def button_press_handler(event, canvas=None, toolbar=None):
     """
     The default Matplotlib button actions for extra mouse buttons.
+
+    Parameters are as for `key_press_handler`, except that *event* is a
+    `MouseEvent`.
     """
+    if canvas is None:
+        canvas = event.canvas
+    if toolbar is None:
+        toolbar = canvas.toolbar
     if toolbar is not None:
         button_name = str(MouseButton(event.button))
         if button_name in rcParams['keymap.back']:
@@ -2610,12 +2625,12 @@ class FigureManagerBase:
         :ref:`key-event-handling`.
         """
         if rcParams['toolbar'] != 'toolmanager':
-            key_press_handler(event, self.canvas, self.canvas.toolbar)
+            key_press_handler(event)
 
     def button_press(self, event):
         """The default Matplotlib button actions for extra mouse buttons."""
         if rcParams['toolbar'] != 'toolmanager':
-            button_press_handler(event, self.canvas, self.canvas.toolbar)
+            button_press_handler(event)
 
     def get_window_title(self):
         """
