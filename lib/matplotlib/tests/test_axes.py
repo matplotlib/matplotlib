@@ -5524,7 +5524,6 @@ def test_title_xticks_top():
     # Test that title moves if xticks on top of axes.
     fig, ax = plt.subplots()
     # set to the new default (from 5, which will suppress title reposition)
-    mpl.rcParams['axes.titlepad'] = None
     ax.xaxis.set_ticks_position('top')
     ax.set_title('xlabel top')
     fig.canvas.draw()
@@ -5534,24 +5533,11 @@ def test_title_xticks_top():
 def test_title_xticks_top_both():
     # Test that title moves if xticks on top of axes.
     fig, ax = plt.subplots()
-    # set to the new default (from 5, which will suppress title reposition)
-    mpl.rcParams['axes.titlepad'] = None
     ax.tick_params(axis="x",
                    bottom=True, top=True, labelbottom=True, labeltop=True)
     ax.set_title('xlabel top')
     fig.canvas.draw()
     assert ax.title.get_position()[1] > 1.04
-
-
-def test_title_noauto_pad():
-    # test that if we pad, then the title does not autopos
-
-    fig, ax = plt.subplots()
-    ax.set_title("Title 1", pad=-20)
-    ax.tick_params(axis="x",
-                   bottom=True, top=True, labelbottom=True, labeltop=True)
-    fig.canvas.draw()
-    assert ax.title.get_position()[1] == 1.0
 
 
 def test_offset_label_color():
