@@ -487,16 +487,8 @@ class _AxesBase(martist.Artist):
         self._anchor = 'C'
         self._stale_viewlim_x = False
         self._stale_viewlim_y = False
-        self._sharex = sharex
-        self._sharey = sharey
-        if sharex is not None:
-            if not isinstance(sharex, _AxesBase):
-                raise TypeError('sharex must be an axes, not a bool')
-            self._shared_x_axes.join(self, sharex)
-        if sharey is not None:
-            if not isinstance(sharey, _AxesBase):
-                raise TypeError('sharey must be an axes, not a bool')
-            self._shared_y_axes.join(self, sharey)
+        self._sharex = None
+        self._sharey = None
         self.set_label(label)
         self.set_figure(fig)
         self.set_box_aspect(box_aspect)
@@ -514,6 +506,11 @@ class _AxesBase(martist.Artist):
 
         self._rasterization_zorder = None
         self.cla()
+
+        if sharex is not None:
+            self.sharex(sharex)
+        if sharey is not None:
+            self.sharey(sharey)
 
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None
@@ -1008,6 +1005,44 @@ class _AxesBase(martist.Artist):
         return OrderedDict((side, mspines.Spine.linear_spine(self, side))
                            for side in ['left', 'right', 'bottom', 'top'])
 
+    def sharex(self, other):
+        """
+        Share the x-axis with *other*.
+
+        This is equivalent to passing ``sharex=other`` when constructing the
+        axes, and cannot be used if the x-axis is already being shared with
+        another axes.
+        """
+        cbook._check_isinstance(_AxesBase, other=other)
+        if self._sharex is not None and other is not self._sharex:
+            raise ValueError("x-axis is already shared")
+        self._shared_x_axes.join(self, other)
+        self._sharex = other
+        self.xaxis.major = other.xaxis.major  # Ticker instances holding
+        self.xaxis.minor = other.xaxis.minor  # locator and formatter.
+        x0, x1 = other.get_xlim()
+        self.set_xlim(x0, x1, emit=False, auto=other.get_autoscalex_on())
+        self.xaxis._scale = other.xaxis._scale
+
+    def sharey(self, other):
+        """
+        Share the y-axis with *other*.
+
+        This is equivalent to passing ``sharey=other`` when constructing the
+        axes, and cannot be used if the y-axis is already being shared with
+        another axes.
+        """
+        cbook._check_isinstance(_AxesBase, other=other)
+        if self._sharey is not None and other is not self._sharey:
+            raise ValueError("y-axis is already shared")
+        self._shared_y_axes.join(self, other)
+        self._sharey = other
+        self.yaxis.major = other.yaxis.major  # Ticker instances holding
+        self.yaxis.minor = other.yaxis.minor  # locator and formatter.
+        y0, y1 = other.get_ylim()
+        self.set_ylim(y0, y1, emit=False, auto=other.get_autoscaley_on())
+        self.yaxis._scale = other.yaxis._scale
+
     def cla(self):
         """Clear the current axes."""
         # Note: this is called by Axes.__init__()
@@ -1031,38 +1066,25 @@ class _AxesBase(martist.Artist):
         self.callbacks = cbook.CallbackRegistry()
 
         if self._sharex is not None:
-            # major and minor are axis.Ticker class instances with
-            # locator and formatter attributes
-            self.xaxis.major = self._sharex.xaxis.major
-            self.xaxis.minor = self._sharex.xaxis.minor
-            x0, x1 = self._sharex.get_xlim()
-            self.set_xlim(x0, x1, emit=False,
-                          auto=self._sharex.get_autoscalex_on())
-            self.xaxis._scale = self._sharex.xaxis._scale
+            self.sharex(self._sharex)
         else:
             self.xaxis._set_scale('linear')
             try:
                 self.set_xlim(0, 1)
             except TypeError:
                 pass
-
         if self._sharey is not None:
-            self.yaxis.major = self._sharey.yaxis.major
-            self.yaxis.minor = self._sharey.yaxis.minor
-            y0, y1 = self._sharey.get_ylim()
-            self.set_ylim(y0, y1, emit=False,
-                          auto=self._sharey.get_autoscaley_on())
-            self.yaxis._scale = self._sharey.yaxis._scale
+            self.sharey(self._sharey)
         else:
             self.yaxis._set_scale('linear')
             try:
                 self.set_ylim(0, 1)
             except TypeError:
                 pass
+
         # update the minor locator for x and y axis based on rcParams
         if mpl.rcParams['xtick.minor.visible']:
             self.xaxis.set_minor_locator(mticker.AutoMinorLocator())
-
         if mpl.rcParams['ytick.minor.visible']:
             self.yaxis.set_minor_locator(mticker.AutoMinorLocator())
 
@@ -1144,11 +1166,10 @@ class _AxesBase(martist.Artist):
 
         self._shared_x_axes.clean()
         self._shared_y_axes.clean()
-        if self._sharex:
+        if self._sharex is not None:
             self.xaxis.set_visible(xaxis_visible)
             self.patch.set_visible(patch_visible)
-
-        if self._sharey:
+        if self._sharey is not None:
             self.yaxis.set_visible(yaxis_visible)
             self.patch.set_visible(patch_visible)
 
@@ -3828,18 +3849,15 @@ class _AxesBase(martist.Artist):
         twiny : bool
             Whether this axis is twinned in the *y*-direction.
         """
-        Xmin, Xmax = self.get_xlim()
-        Ymin, Ymax = self.get_ylim()
-
         if len(bbox) == 3:
-            # Zooming code
-            xp, yp, scl = bbox
+            Xmin, Xmax = self.get_xlim()
+            Ymin, Ymax = self.get_ylim()
 
-            # Should not happen
-            if scl == 0:
+            xp, yp, scl = bbox  # Zooming code
+
+            if scl == 0:  # Should not happen
                 scl = 1.
 
-            # direction = 'in'
             if scl > 1:
                 direction = 'in'
             else:
@@ -3868,90 +3886,51 @@ class _AxesBase(martist.Artist):
                 "of length 3 or 4. Ignoring the view change.")
             return
 
-        # Just grab bounding box
-        lastx, lasty, x, y = bbox
+        # Original limits.
+        xmin0, xmax0 = self.get_xbound()
+        ymin0, ymax0 = self.get_ybound()
+        # The zoom box in screen coords.
+        startx, starty, stopx, stopy = bbox
+        # Convert to data coords.
+        (startx, starty), (stopx, stopy) = self.transData.inverted().transform(
+            [(startx, starty), (stopx, stopy)])
+        # Clip to axes limits.
+        xmin, xmax = np.clip(sorted([startx, stopx]), xmin0, xmax0)
+        ymin, ymax = np.clip(sorted([starty, stopy]), ymin0, ymax0)
+        # Don't double-zoom twinned axes or if zooming only the other axis.
+        if twinx or mode == "y":
+            xmin, xmax = xmin0, xmax0
+        if twiny or mode == "x":
+            ymin, ymax = ymin0, ymax0
 
-        # zoom to rect
-        inverse = self.transData.inverted()
-        (lastx, lasty), (x, y) = inverse.transform([(lastx, lasty), (x, y)])
+        if direction == "in":
+            new_xbound = xmin, xmax
+            new_ybound = ymin, ymax
 
-        if twinx:
-            x0, x1 = Xmin, Xmax
-        else:
-            if Xmin < Xmax:
-                if x < lastx:
-                    x0, x1 = x, lastx
-                else:
-                    x0, x1 = lastx, x
-                if x0 < Xmin:
-                    x0 = Xmin
-                if x1 > Xmax:
-                    x1 = Xmax
-            else:
-                if x > lastx:
-                    x0, x1 = x, lastx
-                else:
-                    x0, x1 = lastx, x
-                if x0 > Xmin:
-                    x0 = Xmin
-                if x1 < Xmax:
-                    x1 = Xmax
+        elif direction == "out":
+            x_trf = self.xaxis.get_transform()
+            sxmin0, sxmax0, sxmin, sxmax = x_trf.transform(
+                [xmin0, xmax0, xmin, xmax])  # To screen space.
+            factor = (sxmax0 - sxmin0) / (sxmax - sxmin)  # Unzoom factor.
+            # Move original bounds away by
+            # (factor) x (distance between unzoom box and axes bbox).
+            sxmin1 = sxmin0 - factor * (sxmin - sxmin0)
+            sxmax1 = sxmax0 + factor * (sxmax0 - sxmax)
+            # And back to data space.
+            new_xbound = x_trf.inverted().transform([sxmin1, sxmax1])
 
-        if twiny:
-            y0, y1 = Ymin, Ymax
-        else:
-            if Ymin < Ymax:
-                if y < lasty:
-                    y0, y1 = y, lasty
-                else:
-                    y0, y1 = lasty, y
-                if y0 < Ymin:
-                    y0 = Ymin
-                if y1 > Ymax:
-                    y1 = Ymax
-            else:
-                if y > lasty:
-                    y0, y1 = y, lasty
-                else:
-                    y0, y1 = lasty, y
-                if y0 > Ymin:
-                    y0 = Ymin
-                if y1 < Ymax:
-                    y1 = Ymax
+            y_trf = self.yaxis.get_transform()
+            symin0, symax0, symin, symax = y_trf.transform(
+                [ymin0, ymax0, ymin, ymax])
+            factor = (symax0 - symin0) / (symax - symin)
+            symin1 = symin0 - factor * (symin - symin0)
+            symax1 = symax0 + factor * (symax0 - symax)
+            new_ybound = y_trf.inverted().transform([symin1, symax1])
 
-        if direction == 'in':
-            if mode == 'x':
-                self.set_xlim((x0, x1))
-            elif mode == 'y':
-                self.set_ylim((y0, y1))
-            else:
-                self.set_xlim((x0, x1))
-                self.set_ylim((y0, y1))
-        elif direction == 'out':
-            if self.get_xscale() == 'log':
-                alpha = np.log(Xmax / Xmin) / np.log(x1 / x0)
-                rx1 = pow(Xmin / x0, alpha) * Xmin
-                rx2 = pow(Xmax / x0, alpha) * Xmin
-            else:
-                alpha = (Xmax - Xmin) / (x1 - x0)
-                rx1 = alpha * (Xmin - x0) + Xmin
-                rx2 = alpha * (Xmax - x0) + Xmin
-            if self.get_yscale() == 'log':
-                alpha = np.log(Ymax / Ymin) / np.log(y1 / y0)
-                ry1 = pow(Ymin / y0, alpha) * Ymin
-                ry2 = pow(Ymax / y0, alpha) * Ymin
-            else:
-                alpha = (Ymax - Ymin) / (y1 - y0)
-                ry1 = alpha * (Ymin - y0) + Ymin
-                ry2 = alpha * (Ymax - y0) + Ymin
-
-            if mode == 'x':
-                self.set_xlim((rx1, rx2))
-            elif mode == 'y':
-                self.set_ylim((ry1, ry2))
-            else:
-                self.set_xlim((rx1, rx2))
-                self.set_ylim((ry1, ry2))
+        if not twinx and mode != "y":
+            self.set_xbound(new_xbound)
+        if not twiny and mode != "x":
+            self.set_ybound(new_ybound)
 
     def start_pan(self, x, y, button):
         """

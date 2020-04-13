@@ -16,7 +16,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from . import cbook
+from . import cbook, ticker
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
 from .transforms import blended_transform_factory
@@ -190,8 +190,6 @@ class Button(AxesWidget):
         self.color = color
         self.hovercolor = hovercolor
 
-        self._lastcolor = color
-
     def _click(self, event):
         if (self.ignore(event)
                 or event.inaxes != self.ax
@@ -256,7 +254,8 @@ class Slider(AxesWidget):
     val : float
         Slider value.
     """
-    def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
+
+    def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt=None,
                  closedmin=True, closedmax=True, slidermin=None,
                  slidermax=None, dragging=True, valstep=None,
                  orientation='horizontal', **kwargs):
@@ -278,8 +277,9 @@ class Slider(AxesWidget):
         valinit : float, default: 0.5
             The slider initial position.
 
-        valfmt : str, default: "%1.2f"
-            Used to format the slider value, fprint format string.
+        valfmt : str, default: None
+            %-format string used to format the slider value.  If None, a
+            `.ScalarFormatter` is used instead.
 
         closedmin : bool, default: True
             Whether the slider interval is closed on the bottom.
@@ -347,13 +347,23 @@ class Slider(AxesWidget):
             self.poly = ax.axvspan(valmin, valinit, 0, 1, **kwargs)
             self.vline = ax.axvline(valinit, 0, 1, color='r', lw=1)
 
-        self.valfmt = valfmt
-        ax.set_yticks([])
         if orientation == 'vertical':
             ax.set_ylim((valmin, valmax))
+            axis = ax.yaxis
         else:
             ax.set_xlim((valmin, valmax))
+            axis = ax.xaxis
+
+        self.valfmt = valfmt
+        self._fmt = axis.get_major_formatter()
+        if not isinstance(self._fmt, ticker.ScalarFormatter):
+            self._fmt = ticker.ScalarFormatter()
+            self._fmt.set_axis(axis)
+        self._fmt.set_useOffset(False)  # No additive offset.
+        self._fmt.set_useMathText(True)  # x sign before multiplicative offset.
+
         ax.set_xticks([])
+        ax.set_yticks([])
         ax.set_navigate(False)
 
         self.connect_event('button_press_event', self._update)
@@ -365,7 +375,7 @@ class Slider(AxesWidget):
                                  verticalalignment='bottom',
                                  horizontalalignment='center')
 
-            self.valtext = ax.text(0.5, -0.02, valfmt % valinit,
+            self.valtext = ax.text(0.5, -0.02, self._format(valinit),
                                    transform=ax.transAxes,
                                    verticalalignment='top',
                                    horizontalalignment='center')
@@ -374,7 +384,7 @@ class Slider(AxesWidget):
                                  verticalalignment='center',
                                  horizontalalignment='right')
 
-            self.valtext = ax.text(1.02, 0.5, valfmt % valinit,
+            self.valtext = ax.text(1.02, 0.5, self._format(valinit),
                                    transform=ax.transAxes,
                                    verticalalignment='center',
                                    horizontalalignment='left')
@@ -435,6 +445,15 @@ class Slider(AxesWidget):
         if val not in [None, self.val]:
             self.set_val(val)
 
+    def _format(self, val):
+        """Pretty-print *val*."""
+        if self.valfmt is not None:
+            return self.valfmt % val
+        else:
+            _, s, _ = self._fmt.format_ticks([self.valmin, val, self.valmax])
+            # fmt.get_offset is actually the multiplicative factor, if any.
+            return s + self._fmt.get_offset()
+
     def set_val(self, val):
         """
         Set slider value to *val*
@@ -451,7 +470,7 @@ class Slider(AxesWidget):
             xy[2] = val, 1
             xy[3] = val, 0
         self.poly.xy = xy
-        self.valtext.set_text(self.valfmt % val)
+        self.valtext.set_text(self._format(val))
         if self.drawon:
             self.ax.figure.canvas.draw_idle()
         self.val = val
@@ -706,50 +725,41 @@ class TextBox(AxesWidget):
 
         self.DIST_FROM_LEFT = .05
 
-        self.text = initial
-        self.label = ax.text(-label_pad, 0.5, label,
-                             verticalalignment='center',
-                             horizontalalignment='right',
-                             transform=ax.transAxes)
-        self.text_disp = self._make_text_disp(self.text)
+        self.label = ax.text(
+            -label_pad, 0.5, label, transform=ax.transAxes,
+            verticalalignment='center', horizontalalignment='right')
+        self.text_disp = self.ax.text(
+            self.DIST_FROM_LEFT, 0.5, initial, transform=self.ax.transAxes,
+            verticalalignment='center', horizontalalignment='left')
 
         self.cnt = 0
         self.change_observers = {}
         self.submit_observers = {}
 
-        # If these lines are removed, the cursor won't appear the first
-        # time the box is clicked:
-        self.ax.set_xlim(0, 1)
-        self.ax.set_ylim(0, 1)
+        ax.set(
+            xlim=(0, 1), ylim=(0, 1),  # s.t. cursor appears from first click.
+            navigate=False, facecolor=color,
+            xticks=[], yticks=[])
 
         self.cursor_index = 0
 
-        # Because this is initialized, _render_cursor
-        # can assume that cursor exists.
-        self.cursor = self.ax.vlines(0, 0, 0)
-        self.cursor.set_visible(False)
+        self.cursor = ax.vlines(0, 0, 0, visible=False,
+                                transform=mpl.transforms.IdentityTransform())
 
         self.connect_event('button_press_event', self._click)
         self.connect_event('button_release_event', self._release)
         self.connect_event('motion_notify_event', self._motion)
         self.connect_event('key_press_event', self._keypress)
         self.connect_event('resize_event', self._resize)
-        ax.set_navigate(False)
-        ax.set_facecolor(color)
-        ax.set_xticks([])
-        ax.set_yticks([])
+
         self.color = color
         self.hovercolor = hovercolor
 
-        self._lastcolor = color
-
         self.capturekeystrokes = False
 
-    def _make_text_disp(self, string):
-        return self.ax.text(self.DIST_FROM_LEFT, 0.5, string,
-                            verticalalignment='center',
-                            horizontalalignment='left',
-                            transform=self.ax.transAxes)
+    @property
+    def text(self):
+        return self.text_disp.get_text()
 
     def _rendercursor(self):
         # this is a hack to figure out where the cursor should go.
@@ -757,25 +767,16 @@ class TextBox(AxesWidget):
         # and save its dimensions, draw the real text, then put the cursor
         # at the saved dimensions
 
-        widthtext = self.text[:self.cursor_index]
-        no_text = False
-        if widthtext in ["", " ", "  "]:
-            no_text = widthtext == ""
-            widthtext = ","
+        text = self.text_disp.get_text()  # Save value before overwriting it.
+        widthtext = text[:self.cursor_index]
+        self.text_disp.set_text(widthtext or ",")
+        bb = self.text_disp.get_window_extent()
+        if not widthtext:  # Use the comma for the height, but keep width to 0.
+            bb.x1 = bb.x0
+        self.cursor.set(
+            segments=[[(bb.x1, bb.y0), (bb.x1, bb.y1)]], visible=True)
+        self.text_disp.set_text(text)
 
-        wt_disp = self._make_text_disp(widthtext)
-
-        self.ax.figure.canvas.draw()
-        bb = wt_disp.get_window_extent()
-        inv = self.ax.transData.inverted()
-        bb = inv.transform(bb)
-        wt_disp.set_visible(False)
-        if no_text:
-            bb[1, 0] = bb[0, 0]
-        # hack done
-        self.cursor.set_visible(False)
-
-        self.cursor = self.ax.vlines(bb[1, 0], bb[0, 1], bb[1, 1])
         self.ax.figure.canvas.draw()
 
     def _notify_submit_observers(self):
@@ -795,13 +796,13 @@ class TextBox(AxesWidget):
             return
         if self.capturekeystrokes:
             key = event.key
-
+            text = self.text
             if len(key) == 1:
-                self.text = (self.text[:self.cursor_index] + key +
-                             self.text[self.cursor_index:])
+                text = (text[:self.cursor_index] + key +
+                        text[self.cursor_index:])
                 self.cursor_index += 1
             elif key == "right":
-                if self.cursor_index != len(self.text):
+                if self.cursor_index != len(text):
                     self.cursor_index += 1
             elif key == "left":
                 if self.cursor_index != 0:
@@ -809,19 +810,17 @@ class TextBox(AxesWidget):
             elif key == "home":
                 self.cursor_index = 0
             elif key == "end":
-                self.cursor_index = len(self.text)
+                self.cursor_index = len(text)
             elif key == "backspace":
                 if self.cursor_index != 0:
-                    self.text = (self.text[:self.cursor_index - 1] +
-                                 self.text[self.cursor_index:])
+                    text = (text[:self.cursor_index - 1] +
+                            text[self.cursor_index:])
                     self.cursor_index -= 1
             elif key == "delete":
                 if self.cursor_index != len(self.text):
-                    self.text = (self.text[:self.cursor_index] +
-                                 self.text[self.cursor_index + 1:])
-
-            self.text_disp.remove()
-            self.text_disp = self._make_text_disp(self.text)
+                    text = (text[:self.cursor_index] +
+                            text[self.cursor_index + 1:])
+            self.text_disp.set_text(text)
             self._rendercursor()
             self._notify_change_observers()
             if key == "enter":
@@ -831,9 +830,7 @@ class TextBox(AxesWidget):
         newval = str(val)
         if self.text == newval:
             return
-        self.text = newval
-        self.text_disp.remove()
-        self.text_disp = self._make_text_disp(self.text)
+        self.text_disp.set_text(newval)
         self._rendercursor()
         self._notify_change_observers()
         self._notify_submit_observers()
@@ -885,23 +882,8 @@ class TextBox(AxesWidget):
             self.cursor_index = 0
         else:
             bb = self.text_disp.get_window_extent()
-
-            trans = self.ax.transData
-            inv = self.ax.transData.inverted()
-            bb = trans.transform(inv.transform(bb))
-
-            text_start = bb[0, 0]
-            text_end = bb[1, 0]
-
-            ratio = (x - text_start) / (text_end - text_start)
-
-            if ratio < 0:
-                ratio = 0
-            if ratio > 1:
-                ratio = 1
-
+            ratio = np.clip((x - bb.x0) / bb.width, 0, 1)
             self.cursor_index = int(len(self.text) * ratio)
-
         self._rendercursor()
 
     def _click(self, event):
@@ -924,13 +906,9 @@ class TextBox(AxesWidget):
     def _motion(self, event):
         if self.ignore(event):
             return
-        if event.inaxes == self.ax:
-            c = self.hovercolor
-        else:
-            c = self.color
-        if c != self._lastcolor:
+        c = self.hovercolor if event.inaxes == self.ax else self.color
+        if c != self.ax.get_facecolor():
             self.ax.set_facecolor(c)
-            self._lastcolor = c
             if self.drawon:
                 self.ax.figure.canvas.draw()
 
@@ -2502,21 +2480,18 @@ class PolygonSelector(_SelectorWidget):
         The parent axes for the widget.
     onselect : function
         When a polygon is completed or modified after completion,
-        the `onselect` function is called and passed a list of the vertices as
+        the *onselect* function is called and passed a list of the vertices as
         ``(xdata, ydata)`` tuples.
     useblit : bool, optional
-    lineprops : dict, optional
-        The line for the sides of the polygon is drawn with the properties
-        given by `lineprops`. The default is ``dict(color='k', linestyle='-',
-        linewidth=2, alpha=0.5)``.
-    markerprops : dict, optional
-        The markers for the vertices of the polygon are drawn with the
-        properties given by `markerprops`. The default is ``dict(marker='o',
-        markersize=7, mec='k', mfc='k', alpha=0.5)``.
-    vertex_select_radius : float, optional
-        A vertex is selected (to complete the polygon or to move a vertex)
-        if the mouse click is within `vertex_select_radius` pixels of the
-        vertex. The default radius is 15 pixels.
+    lineprops : dict, default: \
+``dict(color='k', linestyle='-', linewidth=2, alpha=0.5)``.
+        Artist properties for the line representing the edges of the polygon.
+    markerprops : dict, default: \
+``dict(marker='o', markersize=7, mec='k', mfc='k', alpha=0.5)``.
+        Artist properties for the markers drawn at the vertices of the polygon.
+    vertex_select_radius : float, default: 15px
+        A vertex is selected (to complete the polygon or to move a vertex) if
+        the mouse click is within *vertex_select_radius* pixels of the vertex.
 
     Examples
     --------

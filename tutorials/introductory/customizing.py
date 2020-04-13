@@ -121,8 +121,8 @@ mpl.rcParams['lines.linestyle'] = '--'
 plt.plot(data)
 
 ###############################################################################
-# Note, that in order to change the usual `plot` color you have to change the
-# *prop_cycle* property of *axes*:
+# Note, that in order to change the usual `~.Axes.plot` color you have to
+# change the *prop_cycle* property of *axes*:
 
 mpl.rcParams['axes.prop_cycle'] = cycler(color=['r', 'g', 'b', 'y'])
 plt.plot(data)  # first color is red

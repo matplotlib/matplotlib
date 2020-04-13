@@ -1,0 +1,7 @@
+`.backend_bases.key_press_handler` and `.backend_bases.button_press_handler` simplifications
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These event handlers can now be directly connected to a canvas with
+``canvas.mpl_connect("key_press_event", key_press_handler)`` and
+``canvas.mpl_connect("button_press_event", button_press_handler)``, rather than
+having to write wrapper functions that fill in the (now optional) *canvas* and
+*toolbar* parameters.

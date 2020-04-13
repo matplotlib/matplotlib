@@ -156,7 +156,6 @@ support for it will be dropped in a future Matplotlib release.
 Previously, keyword arguments were silently ignored when no positional
 arguments were given.
 
-
 `.Axis.get_minorticklabels` and `.Axis.get_majorticklabels` now returns plain list
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Previously, `.Axis.get_minorticklabels` and `.Axis.get_majorticklabels` returns
@@ -164,3 +163,11 @@ silent_list. Their return type is now changed to normal list.
 `.get_xminorticklabels`, `.get_yminorticklabels`, `.get_zminorticklabels`,
 `.Axis.get_ticklabels`, `.get_xmajorticklabels`, `.get_ymajorticklabels` and
 `.get_zmajorticklabels` methods will be affected by this change.
+
+Default slider formatter
+~~~~~~~~~~~~~~~~~~~~~~~~
+The default method used to format `.Slider` values has been changed to use a
+`.ScalarFormatter` adapted the slider values limits.  This should ensure that
+values are displayed with an appropriate number of significant digits even if
+they are much smaller or much bigger than 1.  To restore the old behavior,
+explicitly pass a "%1.2f" as the *valfmt* parameter to `.Slider`.
