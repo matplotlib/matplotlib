@@ -1639,7 +1639,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
         thus supports a wide range of file formats, including PNG, JPG, TIFF
         and others.
 
-        .. _Pillow: http://python-pillow.org/
+        .. _Pillow: https://python-pillow.org/
 
     thumbfile : str or file-like
         The thumbnail filename.

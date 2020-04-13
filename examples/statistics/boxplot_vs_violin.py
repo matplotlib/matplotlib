@@ -17,7 +17,7 @@ here: http://vita.had.co.nz/papers/boxplots.pdf
 Violin plots require matplotlib >= 1.4.
 
 For more information on violin plots, the scikit-learn docs have a great
-section: http://scikit-learn.org/stable/modules/density.html
+section: https://scikit-learn.org/stable/modules/density.html
 """
 
 import matplotlib.pyplot as plt

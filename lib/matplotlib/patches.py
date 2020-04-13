@@ -1621,7 +1621,7 @@ class Arc(Ellipse):
           Lancaster, Don.  *Approximating a Circle or an Ellipse Using
           Four Bezier Cubic Splines.*
 
-          http://www.tinaja.com/glib/ellipse4.pdf
+          https://www.tinaja.com/glib/ellipse4.pdf
 
         There is a use case where very large ellipses must be drawn
         with very high accuracy, and it is too expensive to render the

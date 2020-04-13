@@ -2787,7 +2787,7 @@ class Axes(_AxesBase):
         -----
         .. seealso::
             The MATLAB function
-            `stem <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
+            `stem <https://www.mathworks.com/help/matlab/ref/stem.html>`_
             which inspired this method.
         """
         if not 1 <= len(args) <= 5:

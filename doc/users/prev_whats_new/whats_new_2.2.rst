@@ -284,7 +284,7 @@ The binding selection rules are as follows:
 Thus, to force usage of PGI when both bindings are installed, import it first.
 
 .. _PGI: https://pgi.readthedocs.io/en/latest/
-.. _PyGObject: http://pygobject.readthedocs.io/en/latest/#
+.. _PyGObject: https://pygobject.readthedocs.io/en/latest/
 
 
 

@@ -18,19 +18,19 @@ Mapping toolkits
 
 Basemap
 =======
-`Basemap <http://matplotlib.org/basemap>`_ plots data on map projections, with
-continental and political boundaries.
+`Basemap <https://matplotlib.org/basemap/>`_ plots data on map projections,
+with continental and political boundaries.
 
 .. image:: /_static/basemap_contour1.png
     :height: 400px
 
 Cartopy
 =======
-`Cartopy <http://scitools.org.uk/cartopy/docs/latest>`_ builds on top
+`Cartopy <https://scitools.org.uk/cartopy/docs/latest>`_ builds on top
 of Matplotlib to provide object oriented map projection definitions
 and close integration with Shapely for powerful yet easy-to-use vector
 data processing tools. An example plot from the `Cartopy gallery
-<http://scitools.org.uk/cartopy/docs/latest/gallery.html>`_:
+<https://scitools.org.uk/cartopy/docs/latest/gallery.html>`_:
 
 .. image:: /_static/cartopy_hurricane_katrina_01_00.png
     :height: 400px
@@ -68,7 +68,7 @@ to python based on Matplotlib.
 holoviews
 =========
 `holoviews <http://holoviews.org>`_ makes it easier to visualize data
-interactively, especially in a `Jupyter notebook <http://jupyter.org>`_, by
+interactively, especially in a `Jupyter notebook <https://jupyter.org>`_, by
 providing a set of declarative plotting objects that store your data and
 associated metadata.  Your data is then immediately visualizable alongside or
 overlaid with other data, either statically or with automatically provided
@@ -120,7 +120,7 @@ diagrams.
 
 mpl-probscale
 =============
-`mpl-probscale <http://matplotlib.org/mpl-probscale/>`_ is a small extension
+`mpl-probscale <https://matplotlib.org/mpl-probscale/>`_ is a small extension
 that allows Matplotlib users to specify probabilty scales. Simply importing the
 ``probscale`` module registers the scale with Matplotlib, making it accessible
 via e.g., ``ax.set_xscale('prob')`` or ``plt.yscale('prob')``.
