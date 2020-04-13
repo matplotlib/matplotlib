@@ -172,14 +172,14 @@ values are displayed with an appropriate number of significant digits even if
 they are much smaller or much bigger than 1.  To restore the old behavior,
 explicitly pass a "%1.2f" as the *valfmt* parameter to `.Slider`.
 
-:rc:`axes.titlepad` and *pad* argument of `~.Axes.set_title` now default to ``None``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:rc:`axes.titlepad` and *pad* argument of `~.Axes.set_title` now work
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Since 3.0, Axes titles are automatically repositioned, primarily to avoid
 xlabels or xticks at the top of the axes.  The user could turn this
 off using the optional *y* argument to `~.Axes.set_title`).  However, that
 made it impossible to manually set the *pad* argument (without also setting the
-*y* argument).  Now *pad* defaults to ``None`` and the
-rcParam :rc:`axes.titlepad` defaults to ``None``, which will
-allow automatic title placement.  However, if these are set to a float, then
-the automatic placement of the title is turned off.
+*y* argument).  Now the *pad* argument and :rc:`axes.titlepad` are used, and
+are relative to the top decorator on the axis.  If users want the old
+behavior of the pad being relative to the top of axis, set ``y=1.001``
+in `~.Axes.set_title` to bypas the auto-positioning.  
