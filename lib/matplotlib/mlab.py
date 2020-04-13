@@ -1065,7 +1065,8 @@ class GaussianKDE:
     covariance_factor = scotts_factor
 
     def evaluate(self, points):
-        """Evaluate the estimated pdf on a set of points.
+        """
+        Evaluate the estimated pdf on a set of points.
 
         Parameters
         ----------

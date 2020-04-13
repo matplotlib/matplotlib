@@ -1885,8 +1885,7 @@ class XAxis(Axis):
         self.offset_text_position = 'bottom'
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occurred in the x axis.
-        """
+        """Test whether the mouse event occurred in the x axis."""
         inside, info = self._default_contains(mouseevent)
         if inside is not None:
             return inside, info

@@ -226,7 +226,9 @@ def pdfRepr(obj):
 
 
 class Reference:
-    """PDF reference object.
+    """
+    PDF reference object.
+
     Use PdfFile.reserveObject() to create References.
     """
 
@@ -1223,7 +1225,8 @@ end"""
         return name
 
     def _soft_mask_state(self, smask):
-        """Return an ExtGState that sets the soft mask to the given shading.
+        """
+        Return an ExtGState that sets the soft mask to the given shading.
 
         Parameters
         ----------
@@ -1345,7 +1348,8 @@ end"""
         self.writeObject(self.hatchObject, hatchDict)
 
     def addGouraudTriangles(self, points, colors):
-        """Add a Gouraud triangle shading
+        """
+        Add a Gouraud triangle shading.
 
         Parameters
         ----------
@@ -1603,11 +1607,12 @@ end"""
         self.output(*cmds)
 
     def reserveObject(self, name=''):
-        """Reserve an ID for an indirect object.
+        """
+        Reserve an ID for an indirect object.
+
         The name is used for debugging in case we forget to print out
         the object with writeObject.
         """
-
         id = next(self._object_seq)
         self.xrefTable.append([None, 0, name])
         return Reference(id)

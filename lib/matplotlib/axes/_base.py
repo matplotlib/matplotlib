@@ -3022,7 +3022,8 @@ class _AxesBase(martist.Artist):
                                      scalex=update_x, scaley=update_y)
 
     def tick_params(self, axis='both', **kwargs):
-        """Change the appearance of ticks, tick labels, and gridlines.
+        """
+        Change the appearance of ticks, tick labels, and gridlines.
 
         Tick properties that are not explicitly set using the keyword
         arguments remain unchanged unless *reset* is True.

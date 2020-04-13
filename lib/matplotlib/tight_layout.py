@@ -230,7 +230,8 @@ def get_renderer(fig):
 
 
 def get_subplotspec_list(axes_list, grid_spec=None):
-    """Return a list of subplotspec from the given list of axes.
+    """
+    Return a list of subplotspec from the given list of axes.
 
     For an instance of axes that does not support subplotspec, None is inserted
     in the list.

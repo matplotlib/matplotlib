@@ -270,7 +270,8 @@ class ScalarMappable:
         return rgba
 
     def set_array(self, A):
-        """Set the image array from numpy array *A*.
+        """
+        Set the image array from numpy array *A*.
 
         Parameters
         ----------

@@ -116,7 +116,8 @@ def get_registered_canvas_class(format):
 
 
 class RendererBase:
-    """An abstract base class to handle drawing/rendering operations.
+    """
+    An abstract base class to handle drawing/rendering operations.
 
     The following methods must be implemented in the backend for full
     functionality (though just implementing :meth:`draw_path` alone would

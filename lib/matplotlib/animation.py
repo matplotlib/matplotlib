@@ -93,9 +93,9 @@ def adjusted_figsize(w, h, dpi, n):
     return correct_roundoff(wnew, dpi, n), correct_roundoff(hnew, dpi, n)
 
 
-# A registry for available MovieWriter classes
 class MovieWriterRegistry:
     """Registry of available writer classes by human readable name."""
+
     def __init__(self):
         self._registered = dict()
 
@@ -104,7 +104,8 @@ class MovieWriterRegistry:
         """Sets a flag to re-setup the writers."""
 
     def register(self, name):
-        """Decorator for registering a class under a name.
+        """
+        Decorator for registering a class under a name.
 
         Example use::
 
@@ -564,7 +565,8 @@ class PillowWriter(AbstractMovieWriter):
 # Base class of ffmpeg information. Has the config keys and the common set
 # of arguments that controls the *output* side of things.
 class FFMpegBase:
-    """Mixin class for FFMpeg output.
+    """
+    Mixin class for FFMpeg output.
 
     To be useful this must be multiply-inherited from with a
     `MovieWriterBase` sub-class.
@@ -606,7 +608,8 @@ class FFMpegBase:
 # Combine FFMpeg options with pipe-based writing
 @writers.register('ffmpeg')
 class FFMpegWriter(FFMpegBase, MovieWriter):
-    """Pipe-based ffmpeg writer.
+    """
+    Pipe-based ffmpeg writer.
 
     Frames are streamed directly to ffmpeg via a pipe and written in a single
     pass.

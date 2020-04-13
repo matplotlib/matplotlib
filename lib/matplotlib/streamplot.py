@@ -246,7 +246,8 @@ class StreamplotSet:
 # ========================
 
 class DomainMap:
-    """Map representing different coordinate systems.
+    """
+    Map representing different coordinate systems.
 
     Coordinate definitions:
 
@@ -361,7 +362,8 @@ class Grid:
 
 
 class StreamMask:
-    """Mask to keep track of discrete regions crossed by streamlines.
+    """
+    Mask to keep track of discrete regions crossed by streamlines.
 
     The resolution of this grid determines the approximate spacing between
     trajectories. Streamlines are only allowed to pass through zeroed cells:
@@ -396,7 +398,8 @@ class StreamMask:
             self._mask[t] = 0
 
     def _update_trajectory(self, xm, ym):
-        """Update current trajectory position in mask.
+        """
+        Update current trajectory position in mask.
 
         If the new position has already been filled, raise `InvalidIndexError`.
         """
@@ -446,7 +449,8 @@ def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
         return -dxi, -dyi
 
     def integrate(x0, y0):
-        """Return x, y grid-coordinates of trajectory based on starting point.
+        """
+        Return x, y grid-coordinates of trajectory based on starting point.
 
         Integrate both forward and backward in time from starting point in
         grid coordinates.
@@ -492,7 +496,8 @@ class OutOfBounds(IndexError):
 
 
 def _integrate_rk12(x0, y0, dmap, f, maxlength):
-    """2nd-order Runge-Kutta algorithm with adaptive step size.
+    """
+    2nd-order Runge-Kutta algorithm with adaptive step size.
 
     This method is also referred to as the improved Euler's method, or Heun's
     method. This method is favored over higher-order methods because:
@@ -658,7 +663,8 @@ def interpgrid(a, xi, yi):
 
 
 def _gen_starting_points(shape):
-    """Yield starting points for streamlines.
+    """
+    Yield starting points for streamlines.
 
     Trying points on the boundary first gives higher quality streamlines.
     This algorithm starts with a point on the mask corner and spirals inward.

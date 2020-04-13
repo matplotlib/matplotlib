@@ -462,8 +462,7 @@ class GridSpecFromSubplotSpec(GridSpecBase):
                     artist=self)
 
     def get_subplot_params(self, figure=None):
-        """Return a dictionary of subplot layout parameters.
-        """
+        """Return a dictionary of subplot layout parameters."""
         hspace = (self._hspace if self._hspace is not None
                   else figure.subplotpars.hspace if figure is not None
                   else rcParams["figure.subplot.hspace"])
