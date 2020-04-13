@@ -79,9 +79,9 @@ class Cell(Rectangle):
         if loc is None:
             loc = 'right'
         self._loc = loc
-        self._text = Text(x=xy[0], y=xy[1], text=text,
-                          fontproperties=fontproperties)
-        self._text.set_clip_on(False)
+        self._text = Text(x=xy[0], y=xy[1], clip_on=False,
+                          text=text, fontproperties=fontproperties,
+                          horizontalalignment=loc, verticalalignment='center')
 
     def set_transform(self, trans):
         Rectangle.set_transform(self, trans)
@@ -122,35 +122,24 @@ class Cell(Rectangle):
             return
         # draw the rectangle
         Rectangle.draw(self, renderer)
-
         # position the text
         self._set_text_position(renderer)
         self._text.draw(renderer)
         self.stale = False
 
     def _set_text_position(self, renderer):
-        """Set text up so it draws in the right place.
-
-        Currently support 'left', 'center' and 'right'
-        """
+        """Set text up so it is drawn in the right place."""
         bbox = self.get_window_extent(renderer)
-        l, b, w, h = bbox.bounds
-
-        # draw in center vertically
-        self._text.set_verticalalignment('center')
-        y = b + (h / 2.0)
-
-        # now position horizontally
-        if self._loc == 'center':
-            self._text.set_horizontalalignment('center')
-            x = l + (w / 2.0)
-        elif self._loc == 'left':
-            self._text.set_horizontalalignment('left')
-            x = l + (w * self.PAD)
-        else:
-            self._text.set_horizontalalignment('right')
-            x = l + (w * (1.0 - self.PAD))
-
+        # center vertically
+        y = bbox.y0 + bbox.height / 2
+        # position horizontally
+        loc = self._text.get_horizontalalignment()
+        if loc == 'center':
+            x = bbox.x0 + bbox.width / 2
+        elif loc == 'left':
+            x = bbox.x0 + bbox.width * self.PAD
+        else:  # right.
+            x = bbox.x0 + bbox.width * (1 - self.PAD)
         self._text.set_position((x, y))
 
     def get_text_bounds(self, renderer):
