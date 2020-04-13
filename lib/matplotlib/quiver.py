@@ -259,7 +259,7 @@ class QuiverKey(martist.Artist):
         self.color = color
         self.label = label
         self._labelsep_inches = labelsep
-        self.labelsep = (self._labelsep_inches * Q.ax.figure.dpi)
+        self.labelsep = (self._labelsep_inches * Q.axes.figure.dpi)
 
         # try to prevent closure over the real self
         weak_self = weakref.ref(self)
@@ -272,8 +272,8 @@ class QuiverKey(martist.Artist):
                 # the start of draw.
                 self_weakref._initialized = False
 
-        self._cid = Q.ax.figure.callbacks.connect('dpi_changed',
-                                                  on_dpi_change)
+        self._cid = Q.axes.figure.callbacks.connect(
+            'dpi_changed', on_dpi_change)
 
         self.labelpos = labelpos
         self.labelcolor = labelcolor
@@ -293,13 +293,10 @@ class QuiverKey(martist.Artist):
         self.zorder = Q.zorder + 0.1
 
     def remove(self):
-        """
-        Overload the remove method
-        """
-        self.Q.ax.figure.callbacks.disconnect(self._cid)
+        # docstring inherited
+        self.Q.axes.figure.callbacks.disconnect(self._cid)
         self._cid = None
-        # pass the remove call up the stack
-        martist.Artist.remove(self)
+        super().remove()  # pass the remove call up the stack
 
     def _init(self):
         if True:  # not self._initialized:
@@ -355,16 +352,12 @@ class QuiverKey(martist.Artist):
         self.stale = False
 
     def _set_transform(self):
-        if self.coord == 'data':
-            self.set_transform(self.Q.ax.transData)
-        elif self.coord == 'axes':
-            self.set_transform(self.Q.ax.transAxes)
-        elif self.coord == 'figure':
-            self.set_transform(self.Q.ax.figure.transFigure)
-        elif self.coord == 'inches':
-            self.set_transform(self.Q.ax.figure.dpi_scale_trans)
-        else:
-            raise ValueError('unrecognized coordinates')
+        self.set_transform(cbook._check_getitem({
+            "data": self.Q.axes.transData,
+            "axes": self.Q.axes.transAxes,
+            "figure": self.Q.axes.figure.transFigure,
+            "inches": self.Q.axes.figure.dpi_scale_trans,
+        }, coordinates=self.coord))
 
     def set_figure(self, fig):
         martist.Artist.set_figure(self, fig)
@@ -477,7 +470,7 @@ class Quiver(mcollections.PolyCollection):
         by the following pyplot interface documentation:
         %s
         """
-        self.ax = ax
+        self._axes = ax  # The attr actually set by the Artist.axes property.
         X, Y, U, V, C = _parse_args(*args, caller_name='quiver()')
         self.X = X
         self.Y = Y
@@ -510,8 +503,7 @@ class Quiver(mcollections.PolyCollection):
         self.set_UVC(U, V, C)
         self._initialized = False
 
-        # try to prevent closure over the real self
-        weak_self = weakref.ref(self)
+        weak_self = weakref.ref(self)  # Prevent closure over the real self.
 
         def on_dpi_change(fig):
             self_weakref = weak_self()
@@ -522,18 +514,17 @@ class Quiver(mcollections.PolyCollection):
                 # the start of draw.
                 self_weakref._initialized = False
 
-        self._cid = self.ax.figure.callbacks.connect('dpi_changed',
-                                                     on_dpi_change)
+        self._cid = ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
+
+    @cbook.deprecated("3.3", alternative="axes")
+    def ax(self):
+        return self.axes
 
     def remove(self):
-        """
-        Overload the remove method
-        """
-        # disconnect the call back
-        self.ax.figure.callbacks.disconnect(self._cid)
+        # docstring inherited
+        self.axes.figure.callbacks.disconnect(self._cid)
         self._cid = None
-        # pass the remove call up the stack
-        mcollections.PolyCollection.remove(self)
+        super().remove()  # pass the remove call up the stack
 
     def _init(self):
         """
@@ -544,8 +535,7 @@ class Quiver(mcollections.PolyCollection):
         # available to have this work on an as-needed basis at present.
         if True:  # not self._initialized:
             trans = self._set_transform()
-            ax = self.ax
-            self.span = trans.inverted().transform_bbox(ax.bbox).width
+            self.span = trans.inverted().transform_bbox(self.axes.bbox).width
             if self.width is None:
                 sn = np.clip(math.sqrt(self.N), 8, 25)
                 self.width = 0.06 * self.span / sn
@@ -606,31 +596,30 @@ class Quiver(mcollections.PolyCollection):
         """
         Return a scale factor for converting from units to pixels
         """
-        ax = self.ax
         if units in ('x', 'y', 'xy'):
             if units == 'x':
-                dx0 = ax.viewLim.width
-                dx1 = ax.bbox.width
+                dx0 = self.axes.viewLim.width
+                dx1 = self.axes.bbox.width
             elif units == 'y':
-                dx0 = ax.viewLim.height
-                dx1 = ax.bbox.height
+                dx0 = self.axes.viewLim.height
+                dx1 = self.axes.bbox.height
             else:  # 'xy' is assumed
-                dxx0 = ax.viewLim.width
-                dxx1 = ax.bbox.width
-                dyy0 = ax.viewLim.height
-                dyy1 = ax.bbox.height
+                dxx0 = self.axes.viewLim.width
+                dxx1 = self.axes.bbox.width
+                dyy0 = self.axes.viewLim.height
+                dyy1 = self.axes.bbox.height
                 dx1 = np.hypot(dxx1, dyy1)
                 dx0 = np.hypot(dxx0, dyy0)
             dx = dx1 / dx0
         else:
             if units == 'width':
-                dx = ax.bbox.width
+                dx = self.axes.bbox.width
             elif units == 'height':
-                dx = ax.bbox.height
+                dx = self.axes.bbox.height
             elif units == 'dots':
                 dx = 1.0
             elif units == 'inches':
-                dx = ax.figure.dpi
+                dx = self.axes.figure.dpi
             else:
                 raise ValueError('unrecognized units')
         return dx
@@ -647,9 +636,9 @@ class Quiver(mcollections.PolyCollection):
         return trans
 
     def _angles_lengths(self, U, V, eps=1):
-        xy = self.ax.transData.transform(self.XY)
+        xy = self.axes.transData.transform(self.XY)
         uv = np.column_stack((U, V))
-        xyp = self.ax.transData.transform(self.XY + eps * uv)
+        xyp = self.axes.transData.transform(self.XY + eps * uv)
         dxy = xyp - xy
         angles = np.arctan2(dxy[:, 1], dxy[:, 0])
         lengths = np.hypot(*dxy.T) / eps
@@ -667,7 +656,7 @@ class Quiver(mcollections.PolyCollection):
             # Calculate eps based on the extents of the plot
             # so that we don't end up with roundoff error from
             # adding a small number to a large.
-            eps = np.abs(self.ax.dataLim.extents).max() * 0.001
+            eps = np.abs(self.axes.dataLim.extents).max() * 0.001
             angles, lengths = self._angles_lengths(U, V, eps=eps)
         if str_angles and self.scale_units == 'xy':
             a = lengths
@@ -803,7 +792,6 @@ schematically below::
   :                /      \    \    \
   :               ------------------------------
 
-
 The largest increment is given by a triangle (or "flag"). After those
 come full lines (barbs). The smallest increment is a half line.  There
 is only, of course, ever at most 1 half line.  If the magnitude is
@@ -814,8 +802,6 @@ magnitude for the barb shown above would nominally be 65, using the
 standard increments of 50, 10, and 5.
 
 See also https://en.wikipedia.org/wiki/Wind_barb.
-
-
 
 Parameters
 ----------

@@ -434,3 +434,8 @@ Normalization of upper or mixed-case property names to lowercase in
 `.Artist.set` and `.Artist.update` is deprecated.  In the future, property
 names will be passed as is, allowing one to pass names such as *patchA* or
 *UVC*.
+
+``ContourSet.ax``, ``Quiver.ax``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These attributes are deprecated in favor of ``ContourSet.axes`` and
+``Quiver.axes``, for consistency with other artists.
