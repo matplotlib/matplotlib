@@ -155,7 +155,7 @@ mathtext.sf  : sans\-serif
 mathtext.fontset : cm # Should be 'cm' (Computer Modern), 'stix',
                       # 'stixsans' or 'custom'
 mathtext.fallback: cm  # Select fallback font from ['cm' (Computer Modern), 'stix'
-                       # 'stixsans'] when a symbol can not be found in one of the 
+                       # 'stixsans'] when a symbol can not be found in one of the
                        # custom math fonts. Select 'None' to not perform fallback
                        # and replace the missing character by a dummy.
 
@@ -175,6 +175,7 @@ axes.grid           : False   # display grid or not
 axes.grid.which     : major
 axes.grid.axis      : both
 axes.titlesize      : large   # fontsize of the axes title
+axes.titley         : 1.0     # at the top, no autopositioning.
 axes.titlepad       : 5.0     # pad between axes and title in points
 axes.titleweight    : normal  # font weight for axes title
 axes.labelsize      : medium  # fontsize of the x any y labels

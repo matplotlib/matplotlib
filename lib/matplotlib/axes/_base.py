@@ -1122,19 +1122,26 @@ class _AxesBase(martist.Artist):
             size=mpl.rcParams['axes.titlesize'],
             weight=mpl.rcParams['axes.titleweight'])
 
+        y = mpl.rcParams['axes.titley']
+        if y is None:
+            y = 1.0
+            self._autotitlepos = True
+        else:
+            self._autotitlepos = False
+
         self.title = mtext.Text(
-            x=0.5, y=1.0, text='',
+            x=0.5, y=y, text='',
             fontproperties=props,
             verticalalignment='baseline',
             horizontalalignment='center',
             )
         self._left_title = mtext.Text(
-            x=0.0, y=1.0, text='',
+            x=0.0, y=y, text='',
             fontproperties=props.copy(),
             verticalalignment='baseline',
             horizontalalignment='left', )
         self._right_title = mtext.Text(
-            x=1.0, y=1.0, text='',
+            x=1.0, y=y, text='',
             fontproperties=props.copy(),
             verticalalignment='baseline',
             horizontalalignment='right',
@@ -1143,8 +1150,6 @@ class _AxesBase(martist.Artist):
         # refactor this out so it can be called in ax.set_title if
         # pad argument used...
         self._set_title_offset_trans(title_offset_points)
-        # determine if the title position has been set manually:
-        self._autotitlepos = None
 
         for _title in (self.title, self._left_title, self._right_title):
             self._set_artist_props(_title)
@@ -2621,16 +2626,6 @@ class _AxesBase(martist.Artist):
             return
 
         titles = (self.title, self._left_title, self._right_title)
-
-        if self._autotitlepos is None:
-            for title in titles:
-                x, y = title.get_position()
-                if not np.isclose(y, 1.0):
-                    self._autotitlepos = False
-                    _log.debug('not adjusting title pos because a title was '
-                               'already placed manually: %f', y)
-                    return
-            self._autotitlepos = True
 
         for title in titles:
             x, _ = title.get_position()
