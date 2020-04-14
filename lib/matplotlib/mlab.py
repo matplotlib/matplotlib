@@ -640,7 +640,7 @@ detrend : {'none', 'mean', 'linear'} or callable, default 'none'
     choose one of the functions: 'none' calls `.detrend_none`. 'mean' calls
     `.detrend_mean`. 'linear' calls `.detrend_linear`.
 
-scale_by_freq : bool, optional, default: True
+scale_by_freq : bool, default: True
     Whether the resulting density values should be scaled by the scaling
     frequency, which gives density in units of Hz^-1.  This allows for
     integration over the returned frequency values.  The default is True for
@@ -850,7 +850,7 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     noverlap : int, optional
         The number of points of overlap between blocks.  The default
         value is 128.
-    mode : str, optional, default: 'psd'
+    mode : str, default: 'psd'
         What sort of spectrum to use:
             'psd'
                 Returns the power spectral density.

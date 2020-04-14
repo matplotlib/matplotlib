@@ -218,7 +218,7 @@ class FormWidget(QtWidgets.QWidget):
             The data to be edited in the form.
         comment : str, optional
 
-        with_margin : bool, optional, default: False
+        with_margin : bool, default: False
             If False, the form elements reach to the border of the widget.
             This is the desired behavior if the FormWidget is used as a widget
             alongside with other widgets such as a QComboBox, which also do

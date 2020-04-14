@@ -2315,11 +2315,11 @@ def key_press_handler(event, canvas=None, toolbar=None):
     ----------
     event : `KeyEvent`
         A key press/release event.
-    canvas : `FigureCanvasBase`, optional, default: ``event.canvas``
+    canvas : `FigureCanvasBase`, default: ``event.canvas``
         The backend-specific canvas instance.  This parameter is kept for
         back-compatibility, but, if set, should always be equal to
         ``event.canvas``.
-    toolbar : `NavigationToolbar2`, optional, default: ``event.canvas.toolbar``
+    toolbar : `NavigationToolbar2`, default: ``event.canvas.toolbar``
         The navigation cursor toolbar.  This parameter is kept for
         back-compatibility, but, if set, should always be equal to
         ``event.canvas.toolbar``.

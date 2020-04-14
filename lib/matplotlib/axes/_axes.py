@@ -6833,12 +6833,12 @@ default: :rc:`scatter.edgecolors`
         weights : array-like, shape (n, ), optional
             An array of values w_i weighing each sample (x_i, y_i).
 
-        cmin : scalar, optional, default: None
+        cmin : scalar, default: None
             All bins that has count less than cmin will not be displayed (set
             to NaN before passing to imshow) and these count values in the
             return value count histogram will also be set to nan upon return.
 
-        cmax : scalar, optional, default: None
+        cmax : scalar, default: None
             All bins that has count more than cmax will not be displayed (set
             to NaN before passing to imshow) and these count values in the
             return value count histogram will also be set to nan upon return.

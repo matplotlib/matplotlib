@@ -455,8 +455,8 @@ class _AxesBase(martist.Artist):
             The x or y `~.matplotlib.axis` is shared with the x or
             y axis in the input `~.axes.Axes`.
 
-        frameon : bool, optional
-            True means that the axes frame is visible.
+        frameon : bool, default: True
+            Whether the axes frame is visible.
 
         box_aspect : None, or a number, optional
             Sets the aspect of the axes box. See `~.axes.Axes.set_box_aspect`
@@ -906,7 +906,7 @@ class _AxesBase(martist.Artist):
         pos : [left, bottom, width, height] or `~matplotlib.transforms.Bbox`
             The new position of the in `.Figure` coordinates.
 
-        which : {'both', 'active', 'original'}, optional
+        which : {'both', 'active', 'original'}, default: 'both'
             Determines which position variables to change.
 
         """
