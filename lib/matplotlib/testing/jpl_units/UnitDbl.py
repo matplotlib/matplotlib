@@ -6,8 +6,8 @@ from matplotlib import cbook
 
 
 class UnitDbl:
-    """Class UnitDbl in development.
-    """
+    """Class UnitDbl in development."""
+
     # Unit conversion table.  Small subset of the full one but enough
     # to test the required functions.  First field is a scale factor to
     # convert the input units to the units of the second field.  Only
@@ -32,7 +32,8 @@ class UnitDbl:
         }
 
     def __init__(self, value, units):
-        """Create a new UnitDbl object.
+        """
+        Create a new UnitDbl object.
 
         Units are internally converted to km, rad, and sec.  The only
         valid inputs for units are [m, km, mile, rad, deg, sec, min, hour].
@@ -52,7 +53,8 @@ class UnitDbl:
         self._units = data[1]
 
     def convert(self, units):
-        """Convert the UnitDbl to a specific set of units.
+        """
+        Convert the UnitDbl to a specific set of units.
 
         = ERROR CONDITIONS
         - If the input units are not in the allowed list, an error is thrown.
@@ -105,7 +107,8 @@ class UnitDbl:
         return self._cmp(rhs, operator.ge)
 
     def _cmp(self, rhs, op):
-        """Compare two UnitDbl's.
+        """
+        Compare two UnitDbl's.
 
         = ERROR CONDITIONS
         - If the input rhs units are not the same as our units,
@@ -122,7 +125,8 @@ class UnitDbl:
         return op(self._value, rhs._value)
 
     def __add__(self, rhs):
-        """Add two UnitDbl's.
+        """
+        Add two UnitDbl's.
 
         = ERROR CONDITIONS
         - If the input rhs units are not the same as our units,
@@ -138,7 +142,8 @@ class UnitDbl:
         return UnitDbl(self._value + rhs._value, self._units)
 
     def __sub__(self, rhs):
-        """Subtract two UnitDbl's.
+        """
+        Subtract two UnitDbl's.
 
         = ERROR CONDITIONS
         - If the input rhs units are not the same as our units,
@@ -154,7 +159,8 @@ class UnitDbl:
         return UnitDbl(self._value - rhs._value, self._units)
 
     def __mul__(self, rhs):
-        """Scale a UnitDbl by a value.
+        """
+        Scale a UnitDbl by a value.
 
         = INPUT VARIABLES
         - rhs     The scalar to multiply by.
@@ -165,7 +171,8 @@ class UnitDbl:
         return UnitDbl(self._value * rhs, self._units)
 
     def __rmul__(self, lhs):
-        """Scale a UnitDbl by a value.
+        """
+        Scale a UnitDbl by a value.
 
         = INPUT VARIABLES
         - lhs     The scalar to multiply by.
@@ -189,7 +196,8 @@ class UnitDbl:
 
     @staticmethod
     def range(start, stop, step=None):
-        """Generate a range of UnitDbl objects.
+        """
+        Generate a range of UnitDbl objects.
 
         Similar to the Python range() method.  Returns the range [
         start, stop) at the requested step.  Each element will be a
@@ -222,7 +230,8 @@ class UnitDbl:
 
     @cbook.deprecated("3.2")
     def checkUnits(self, units):
-        """Check to see if some units are valid.
+        """
+        Check to see if some units are valid.
 
         = ERROR CONDITIONS
         - If the input units are not in the allowed list, an error is thrown.
@@ -236,7 +245,8 @@ class UnitDbl:
                                 units, list(self.allowed.keys())))
 
     def checkSameUnits(self, rhs, func):
-        """Check to see if units are the same.
+        """
+        Check to see if units are the same.
 
         = ERROR CONDITIONS
         - If the units of the rhs UnitDbl are not the same as our units,

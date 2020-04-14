@@ -1061,10 +1061,11 @@ class Axes3D(Axes):
         return 'x=%s, y=%s, z=%s' % (xs, ys, zs)
 
     def _on_move(self, event):
-        """Mouse moving
+        """
+        Mouse moving.
 
-        button-1 rotates by default.  Can be set explicitly in mouse_init().
-        button-3 zooms by default.  Can be set explicitly in mouse_init().
+        By default, button-1 rotates and button-3 zooms; these buttons can be
+        modified via `mouse_init`.
         """
 
         if not self.button_pressed:
@@ -2236,7 +2237,8 @@ class Axes3D(Axes):
 
     def bar3d(self, x, y, z, dx, dy, dz, color=None,
               zsort='average', shade=True, lightsource=None, *args, **kwargs):
-        """Generate a 3D barplot.
+        """
+        Generate a 3D barplot.
 
         This method creates three dimensional barplot where the width,
         depth, height, and color of the bars can all be uniquely set.

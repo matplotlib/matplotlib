@@ -470,7 +470,8 @@ class Patch(artist.Artist):
         return self._capstyle
 
     def set_joinstyle(self, s):
-        """Set the joinstyle.
+        """
+        Set the joinstyle.
 
         Parameters
         ----------
@@ -4207,7 +4208,8 @@ class ConnectionPatch(FancyArrowPatch):
                  clip_on=False,
                  dpi_cor=1.,
                  **kwargs):
-        """Connect point *xyA* in *coordsA* with point *xyB* in *coordsB*
+        """
+        Connect point *xyA* in *coordsA* with point *xyB* in *coordsB*.
 
         Valid keys are
 

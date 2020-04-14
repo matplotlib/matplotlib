@@ -66,7 +66,8 @@ def _apply_style(d, warn=True):
 
 
 def use(style):
-    """Use matplotlib style settings from a style specification.
+    """
+    Use Matplotlib style settings from a style specification.
 
     The style name of 'default' is reserved for reverting back to
     the default style settings.
@@ -128,7 +129,8 @@ def use(style):
 
 @contextlib.contextmanager
 def context(style, after_reset=False):
-    """Context manager for using style settings temporarily.
+    """
+    Context manager for using style settings temporarily.
 
     Parameters
     ----------
@@ -204,9 +206,10 @@ def read_style_directory(style_dir):
 
 
 def update_nested_dict(main_dict, new_dict):
-    """Update nested dict (only level of nesting) with new values.
+    """
+    Update nested dict (only level of nesting) with new values.
 
-    Unlike dict.update, this assumes that the values of the parent dict are
+    Unlike `dict.update`, this assumes that the values of the parent dict are
     dicts (or dict-like), so you shouldn't replace the nested dict if it
     already exists. Instead you should update the sub-dict.
     """
