@@ -484,8 +484,7 @@ translate
                 r'\psfrag{%s}[Bl][Bl][1][%f]{\fontsize{%f}{%f}%s}' % (
                     thetext, angle, fontsize, fontsize*1.25, tex))
         else:
-            # Stick to the bottom alignment, but this may give incorrect
-            # baseline some times.
+            # Stick to the bottom alignment.
             pos = _nums_to_str(x-corr, y-bl)
             self.psfrag.append(
                 r'\psfrag{%s}[bl][bl][1][%f]{\fontsize{%f}{%f}%s}' % (
