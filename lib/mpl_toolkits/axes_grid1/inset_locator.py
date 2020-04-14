@@ -408,7 +408,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
         are relative to the parent_axes. Otherwise they are to be understood
         relative to the bounding box provided via *bbox_to_anchor*.
 
-    loc : int or str, optional, default: 1
+    loc : int or str, default: 1
         Location to place the inset axes. The valid locations are::
 
             'upper right'  : 1,
@@ -455,7 +455,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
 
         %(Axes)s
 
-    borderpad : float, optional, default: 0.5
+    borderpad : float, default: 0.5
         Padding between inset axes and the bbox_to_anchor.
         The units are axes font size, i.e. for a default font size of 10 points
         *borderpad = 0.5* is equivalent to a padding of 5 points.
@@ -527,7 +527,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
         coordinates (i.e., "zoomed in"), while *zoom* < 1 will shrink the
         coordinates (i.e., "zoomed out").
 
-    loc : int or str, optional, default: 'upper right'
+    loc : int or str, default: 'upper right'
         Location to place the inset axes. The valid locations are::
 
             'upper right'  : 1,
@@ -573,7 +573,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
 
         %(Axes)s
 
-    borderpad : float, optional, default: 0.5
+    borderpad : float, default: 0.5
         Padding between inset axes and the bbox_to_anchor.
         The units are axes font size, i.e. for a default font size of 10 points
         *borderpad = 0.5* is equivalent to a padding of 5 points.

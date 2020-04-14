@@ -2470,7 +2470,7 @@ class PolygonSelector(_SelectorWidget):
         When a polygon is completed or modified after completion,
         the *onselect* function is called and passed a list of the vertices as
         ``(xdata, ydata)`` tuples.
-    useblit : bool, optional
+    useblit : bool, default: False
     lineprops : dict, default: \
 ``dict(color='k', linestyle='-', linewidth=2, alpha=0.5)``.
         Artist properties for the line representing the edges of the polygon.

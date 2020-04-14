@@ -209,7 +209,7 @@ class AbstractMovieWriter(abc.ABC):
             The figure object that contains the information for frames.
         outfile : str
             The filename of the resulting movie file.
-        dpi : float, optional, default: ``fig.dpi``
+        dpi : float, default: ``fig.dpi``
             The DPI (or resolution) for the file.  This controls the size
             in pixels of the resulting movie file.
         """
@@ -992,7 +992,7 @@ class Animation:
             Controls the dots per inch for the movie frames.  Together with
             the figure's size in inches, this controls the size of the movie.
 
-        codec : str, optional, default: :rc:`animation.codec`.
+        codec : str, default: :rc:`animation.codec`.
             The video codec to use.  Not all codecs are supported by a given
             `MovieWriter`.
 
