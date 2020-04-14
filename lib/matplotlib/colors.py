@@ -1957,7 +1957,7 @@ class LightSource:
             An MxNx1 array of floats ranging from 0 to 1 (grayscale image).
         hsv_max_sat : number, default: 1
             The maximum saturation value that the *intensity* map can shift the
-            output image to. Defaults to 1.
+            output image to.
         hsv_min_sat : number, optional
             The minimum saturation value that the *intensity* map can shift the
             output image to. Defaults to 0.
