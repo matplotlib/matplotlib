@@ -29,7 +29,7 @@ graphics contexts must implement to serve as a Matplotlib backend.
 """
 
 from contextlib import contextmanager
-from enum import IntEnum
+from enum import Enum, IntEnum
 import functools
 import importlib
 import io
@@ -2651,6 +2651,15 @@ class FigureManagerBase:
 cursors = tools.cursors
 
 
+class _Mode(str, Enum):
+    NONE = ""
+    PAN = "pan/zoom"
+    ZOOM = "zoom rect"
+
+    def __str__(self):
+        return self.value
+
+
 class NavigationToolbar2:
     """
     Base class for the navigation cursor, version 2
@@ -2715,19 +2724,20 @@ class NavigationToolbar2:
         canvas.toolbar = self
         self._nav_stack = cbook.Stack()
         self._xypress = None  # location and axis info at the time of the press
-        self._idPress = None
-        self._idRelease = None
-        self._active = None
         # This cursor will be set after the initial draw.
         self._lastCursor = cursors.POINTER
         self._init_toolbar()
+        self._id_press = self.canvas.mpl_connect(
+            'button_press_event', self._zoom_pan_handler)
+        self._id_release = self.canvas.mpl_connect(
+            'button_release_event', self._zoom_pan_handler)
         self._id_drag = self.canvas.mpl_connect(
             'motion_notify_event', self.mouse_move)
         self._zoom_info = None
 
         self._button_pressed = None  # determined by button pressed at start
 
-        self.mode = ''  # a mode string for the status bar
+        self.mode = _Mode.NONE  # a mode string for the status bar
         self.set_history_buttons()
 
     def set_message(self, s):
@@ -2805,17 +2815,17 @@ class NavigationToolbar2:
         """
         Update the cursor after a mouse move event or a tool (de)activation.
         """
-        if not event.inaxes or not self._active:
+        if not event.inaxes or not self.mode:
             if self._lastCursor != cursors.POINTER:
                 self.set_cursor(cursors.POINTER)
                 self._lastCursor = cursors.POINTER
         else:
-            if (self._active == 'ZOOM'
+            if (self.mode == _Mode.ZOOM
                     and self._lastCursor != cursors.SELECT_REGION):
                 self.set_cursor(cursors.SELECT_REGION)
                 self._lastCursor = cursors.SELECT_REGION
-            elif (self._active == 'PAN' and
-                  self._lastCursor != cursors.MOVE):
+            elif (self.mode == _Mode.PAN
+                  and self._lastCursor != cursors.MOVE):
                 self.set_cursor(cursors.MOVE)
                 self._lastCursor = cursors.MOVE
 
@@ -2870,40 +2880,32 @@ class NavigationToolbar2:
         else:
             self.set_message(self.mode)
 
+    def _zoom_pan_handler(self, event):
+        if self.mode == _Mode.PAN:
+            if event.name == "button_press_event":
+                self.press_pan(event)
+            elif event.name == "button_release_event":
+                self.release_pan(event)
+        if self.mode == _Mode.ZOOM:
+            if event.name == "button_press_event":
+                self.press_zoom(event)
+            elif event.name == "button_release_event":
+                self.release_zoom(event)
+
     def pan(self, *args):
         """
-        Activate the pan/zoom tool.
+        Toggle the pan/zoom tool.
 
         Pan with left button, zoom with right.
         """
-        # set the pointer icon and button press funcs to the
-        # appropriate callbacks
-
-        if self._active == 'PAN':
-            self._active = None
-        else:
-            self._active = 'PAN'
-        if self._idPress is not None:
-            self._idPress = self.canvas.mpl_disconnect(self._idPress)
-            self.mode = ''
-
-        if self._idRelease is not None:
-            self._idRelease = self.canvas.mpl_disconnect(self._idRelease)
-            self.mode = ''
-
-        if self._active:
-            self._idPress = self.canvas.mpl_connect(
-                'button_press_event', self.press_pan)
-            self._idRelease = self.canvas.mpl_connect(
-                'button_release_event', self.release_pan)
-            self.mode = 'pan/zoom'
-            self.canvas.widgetlock(self)
-        else:
+        if self.mode == _Mode.PAN:
+            self.mode = _Mode.NONE
             self.canvas.widgetlock.release(self)
-
+        else:
+            self.mode = _Mode.PAN
+            self.canvas.widgetlock(self)
         for a in self.canvas.figure.get_axes():
-            a.set_navigate_mode(self._active)
-
+            a.set_navigate_mode(self.mode)
         self.set_message(self.mode)
 
     def press(self, event):
@@ -3101,33 +3103,15 @@ class NavigationToolbar2:
         self.set_history_buttons()
 
     def zoom(self, *args):
-        """Activate zoom to rect mode."""
-        if self._active == 'ZOOM':
-            self._active = None
-        else:
-            self._active = 'ZOOM'
-
-        if self._idPress is not None:
-            self._idPress = self.canvas.mpl_disconnect(self._idPress)
-            self.mode = ''
-
-        if self._idRelease is not None:
-            self._idRelease = self.canvas.mpl_disconnect(self._idRelease)
-            self.mode = ''
-
-        if self._active:
-            self._idPress = self.canvas.mpl_connect('button_press_event',
-                                                    self.press_zoom)
-            self._idRelease = self.canvas.mpl_connect('button_release_event',
-                                                      self.release_zoom)
-            self.mode = 'zoom rect'
-            self.canvas.widgetlock(self)
-        else:
+        """Toggle zoom to rect mode."""
+        if self.mode == _Mode.ZOOM:
+            self.mode = _Mode.NONE
             self.canvas.widgetlock.release(self)
-
+        else:
+            self.mode = _Mode.ZOOM
+            self.canvas.widgetlock(self)
         for a in self.canvas.figure.get_axes():
-            a.set_navigate_mode(self._active)
-
+            a.set_navigate_mode(self.mode)
         self.set_message(self.mode)
 
     def set_history_buttons(self):
