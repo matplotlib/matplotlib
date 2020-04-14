@@ -217,7 +217,7 @@ class MarkerStyle:
             See the descriptions of possible markers in the module docstring.
 
         fillstyle : str, default: 'full'
-            One of 'full', 'left", 'right', 'bottom', 'top', 'none'.
+            One of 'full', 'left', 'right', 'bottom', 'top', 'none'.
         """
         self._marker_function = None
         self.set_fillstyle(fillstyle)
