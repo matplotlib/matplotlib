@@ -1,5 +1,14 @@
 .. _pr-guidelines:
 
+.. raw:: html
+
+   <style>
+   .checklist { list-style: none; padding: 0; margin: 0; }
+   .checklist li { margin-left: 24px; padding-left: 23px;  margin-right: 6px; }
+   .checklist li:before { content: "\2610\2001"; margin-left: -24px; }
+   .checklist li p {display: inline; }
+   </style>
+
 ***********************
 Pull request guidelines
 ***********************
@@ -22,6 +31,8 @@ Summary for PR authors
      please ping us by posting a comment to your PR.
 
 When making a PR, pay attention to:
+
+.. rst-class:: checklist
 
 * :ref:`Target the master branch <pr-branch-selection>`.
 * Adhere to the :ref:`coding_guidelines`.
@@ -53,12 +64,16 @@ Summary for PR reviewers
 
 Content topics:
 
+.. rst-class:: checklist
+
 * Is the feature / bugfix reasonable?
 * Does the PR conform with the :ref:`coding_guidelines`?
 * Is the :ref:`documentation <pr-documentation>` (docstrings, examples,
   what's new, API changes) updated?
 
 Organizational topics:
+
+.. rst-class:: checklist
 
 * Make sure all :ref:`automated tests <pr-automated-tests>` pass.
 * The PR should :ref:`target the master branch <pr-branch-selection>`.

@@ -669,7 +669,8 @@ class Artist:
         self.stale = True
 
     def set_path_effects(self, path_effects):
-        """Set the path effects.
+        """
+        Set the path effects.
 
         Parameters
         ----------
@@ -883,7 +884,8 @@ class Artist:
         return self._agg_filter
 
     def set_agg_filter(self, filter_func):
-        """Set the agg filter.
+        """
+        Set the agg filter.
 
         Parameters
         ----------

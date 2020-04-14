@@ -128,7 +128,7 @@ Much improved software carpentry
 
 The matplotlib trunk is probably in as good a shape as it has ever
 been, thanks to improved `software carpentry
-<http://software-carpentry.org/>`__.  We now have a `buildbot
+<https://software-carpentry.org/>`__.  We now have a `buildbot
 <https://buildbot.net>`__ which runs a suite of `nose
 <http://code.google.com/p/python-nose/>`__ regression tests on every
 svn commit, auto-generating a set of images and comparing them against

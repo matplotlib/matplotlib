@@ -66,7 +66,7 @@ if __name__ == '__main__':
     # Some advertisement for matplotlib
     year = time.strftime("%Y")
     text = ("The Mandelbrot fractal set\n"
-            "Rendered with matplotlib %s, %s - http://matplotlib.org"
+            "Rendered with matplotlib %s, %s - https://matplotlib.org"
             % (matplotlib.__version__, year))
     ax.text(xmin+.025, ymin+.025, text, color="white", fontsize=12, alpha=0.5)
 

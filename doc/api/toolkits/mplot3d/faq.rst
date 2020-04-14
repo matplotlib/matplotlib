@@ -4,12 +4,12 @@
 mplot3d FAQ
 ***********
 
-How is mplot3d different from MayaVi?
+How is mplot3d different from Mayavi?
 =====================================
-`MayaVi2 <http://code.enthought.com/projects/mayavi/documentation.php>`_
+`Mayavi <https://docs.enthought.com/mayavi/mayavi/>`_
 is a very powerful and featureful 3D graphing library. For advanced
 3D scenes and excellent rendering capabilities, it is highly recommended to
-use MayaVi2.
+use Mayavi.
 
 mplot3d was intended to allow users to create simple 3D graphs with the same
 "look-and-feel" as matplotlib's 2D plots. Furthermore, users can use the same
@@ -38,7 +38,7 @@ rendered properly in matplotlib's 2D rendering engine.
 This problem will likely not be solved until OpenGL support is added to all of
 the backends (patches are greatly welcomed). Until then, if you need complex
 3D scenes, we recommend using
-`MayaVi <http://code.enthought.com/projects/mayavi/documentation.php>`_.
+`MayaVi <https://docs.enthought.com/mayavi/mayavi/>`_.
 
 
 I don't like how the 3D plot is laid out, how do I change that?

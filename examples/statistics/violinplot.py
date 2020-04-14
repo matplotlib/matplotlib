@@ -13,7 +13,7 @@ modify the number of points at which the KDE is evaluated (``points``)
 and how to modify the band-width of the KDE (``bw_method``).
 
 For more information on violin plots and KDE, the scikit-learn docs
-have a great section: http://scikit-learn.org/stable/modules/density.html
+have a great section: https://scikit-learn.org/stable/modules/density.html
 """
 
 import numpy as np

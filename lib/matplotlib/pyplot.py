@@ -1779,7 +1779,7 @@ def colormaps():
       =========   ===================================================
 
     The following colormaps are based on the `ColorBrewer
-    <http://colorbrewer2.org>`_ color specifications and designs developed by
+    <https://colorbrewer2.org>`_ color specifications and designs developed by
     Cynthia Brewer:
 
     ColorBrewer Diverging (luminance is highest at the midpoint, and
@@ -1955,7 +1955,7 @@ def colormaps():
     .. [#] Rainbow colormaps, ``jet`` in particular, are considered a poor
       choice for scientific visualization by many researchers: `Rainbow Color
       Map (Still) Considered Harmful
-      <http://ieeexplore.ieee.org/document/4118486/?arnumber=4118486>`_
+      <https://ieeexplore.ieee.org/document/4118486/?arnumber=4118486>`_
 
     .. [#] Resembles "BkBlAqGrYeOrReViWh200" from NCAR Command
       Language. See `Color Table Gallery

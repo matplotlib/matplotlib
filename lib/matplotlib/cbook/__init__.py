@@ -165,8 +165,7 @@ class CallbackRegistry:
         return {**vars(self), "callbacks": {}, "_func_cid_map": {}}
 
     def connect(self, s, func):
-        """Register *func* to be called when signal *s* is generated.
-        """
+        """Register *func* to be called when signal *s* is generated."""
         self._func_cid_map.setdefault(s, {})
         try:
             proxy = weakref.WeakMethod(func, self._remove_proxy)
@@ -197,8 +196,7 @@ class CallbackRegistry:
                 del self._func_cid_map[signal]
 
     def disconnect(self, cid):
-        """Disconnect the callback registered with callback id *cid*.
-        """
+        """Disconnect the callback registered with callback id *cid*."""
         for eventname, callbackd in list(self.callbacks.items()):
             try:
                 del callbackd[cid]

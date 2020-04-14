@@ -69,13 +69,11 @@ class Widget:
     _active = True
 
     def set_active(self, active):
-        """Set whether the widget is active.
-        """
+        """Set whether the widget is active."""
         self._active = active
 
     def get_active(self):
-        """Get whether the widget is active.
-        """
+        """Get whether the widget is active."""
         return self._active
 
     # set_active is overridden by SelectorWidgets.
@@ -212,13 +210,9 @@ class Button(AxesWidget):
     def _motion(self, event):
         if self.ignore(event):
             return
-        if event.inaxes == self.ax:
-            c = self.hovercolor
-        else:
-            c = self.color
-        if c != self._lastcolor:
+        c = self.hovercolor if event.inaxes == self.ax else self.color
+        if c != self.ax.get_facecolor():
             self.ax.set_facecolor(c)
-            self._lastcolor = c
             if self.drawon:
                 self.ax.figure.canvas.draw()
 
@@ -1491,9 +1485,7 @@ class _SelectorWidget(AxesWidget):
                 event.button != self.eventpress.button)
 
     def update(self):
-        """
-        Draw using blit() or draw_idle() depending on ``self.useblit``.
-        """
+        """Draw using blit() or draw_idle(), depending on ``self.useblit``."""
         if not self.ax.get_visible():
             return False
         if self.useblit:
@@ -1507,35 +1499,31 @@ class _SelectorWidget(AxesWidget):
         return False
 
     def _get_data(self, event):
-        """Get the xdata and ydata for event, with limits"""
+        """Get the xdata and ydata for event, with limits."""
         if event.xdata is None:
             return None, None
-        x0, x1 = self.ax.get_xbound()
-        y0, y1 = self.ax.get_ybound()
-        xdata = max(x0, event.xdata)
-        xdata = min(x1, xdata)
-        ydata = max(y0, event.ydata)
-        ydata = min(y1, ydata)
+        xdata = np.clip(event.xdata, *self.ax.get_xbound())
+        ydata = np.clip(event.ydata, *self.ax.get_ybound())
         return xdata, ydata
 
     def _clean_event(self, event):
-        """Clean up an event
+        """
+        Preprocess an event:
 
-        Use prev event if there is no xdata
-        Limit the xdata and ydata to the axes limits
-        Set the prev event
+        - Replace *event* by the previous event if *event* has no ``xdata``.
+        - Clip ``xdata`` and ``ydata`` to the axes limits.
+        - Update the previous event.
         """
         if event.xdata is None:
             event = self._prev_event
         else:
             event = copy.copy(event)
         event.xdata, event.ydata = self._get_data(event)
-
         self._prev_event = event
         return event
 
     def press(self, event):
-        """Button press handler and validator"""
+        """Button press handler and validator."""
         if not self.ignore(event):
             event = self._clean_event(event)
             self.eventpress = event
@@ -1550,10 +1538,10 @@ class _SelectorWidget(AxesWidget):
         return False
 
     def _press(self, event):
-        """Button press handler"""
+        """Button press handler."""
 
     def release(self, event):
-        """Button release event handler and validator"""
+        """Button release event handler and validator."""
         if not self.ignore(event) and self.eventpress:
             event = self._clean_event(event)
             self.eventrelease = event
@@ -1565,10 +1553,10 @@ class _SelectorWidget(AxesWidget):
         return False
 
     def _release(self, event):
-        """Button release event handler"""
+        """Button release event handler."""
 
     def onmove(self, event):
-        """Cursor move event handler and validator"""
+        """Cursor move event handler and validator."""
         if not self.ignore(event) and self.eventpress:
             event = self._clean_event(event)
             self._onmove(event)
@@ -1576,18 +1564,18 @@ class _SelectorWidget(AxesWidget):
         return False
 
     def _onmove(self, event):
-        """Cursor move event handler"""
+        """Cursor move event handler."""
 
     def on_scroll(self, event):
-        """Mouse scroll event handler and validator"""
+        """Mouse scroll event handler and validator."""
         if not self.ignore(event):
             self._on_scroll(event)
 
     def _on_scroll(self, event):
-        """Mouse scroll event handler"""
+        """Mouse scroll event handler."""
 
     def on_key_press(self, event):
-        """Key press event handler and validator for all selection widgets"""
+        """Key press event handler and validator for all selection widgets."""
         if self.active:
             key = event.key or ''
             key = key.replace('ctrl', 'control')
@@ -2482,7 +2470,7 @@ class PolygonSelector(_SelectorWidget):
         When a polygon is completed or modified after completion,
         the *onselect* function is called and passed a list of the vertices as
         ``(xdata, ydata)`` tuples.
-    useblit : bool, optional
+    useblit : bool, default: False
     lineprops : dict, default: \
 ``dict(color='k', linestyle='-', linewidth=2, alpha=0.5)``.
         Artist properties for the line representing the edges of the polygon.

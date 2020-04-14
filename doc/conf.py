@@ -28,6 +28,10 @@ sys.path.append('.')
 # General configuration
 # ---------------------
 
+# Strip backslahes in function's signature
+# To be removed when numpydoc > 0.9.x
+strip_signature_backslash = True
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
@@ -261,8 +265,10 @@ html_index = 'index.html'
 
 # Custom sidebar templates, maps page names to templates.
 html_sidebars = {
-    'index': ['sidebar_announcement.html', 'sidebar_versions.html',
-              'donate_sidebar.html'],
+    'index': [
+        # 'sidebar_announcement.html',
+        'sidebar_versions.html',
+        'donate_sidebar.html'],
     '**': ['localtoc.html', 'relations.html', 'pagesource.html']
 }
 

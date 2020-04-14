@@ -470,7 +470,8 @@ class Patch(artist.Artist):
         return self._capstyle
 
     def set_joinstyle(self, s):
-        """Set the joinstyle.
+        """
+        Set the joinstyle.
 
         Parameters
         ----------
@@ -1386,7 +1387,7 @@ class Ellipse(Patch):
             Total length (diameter) of horizontal axis.
         height : float
             Total length (diameter) of vertical axis.
-        angle : scalar, optional
+        angle : float, default: 0
             Rotation in degrees anti-clockwise.
 
         Notes
@@ -1579,7 +1580,7 @@ class Arc(Ellipse):
         angle : float
             Rotation of the ellipse in degrees (counterclockwise).
 
-        theta1, theta2 : float, optional
+        theta1, theta2 : float, default: 0, 360
             Starting and ending angles of the arc in degrees. These values
             are relative to *angle*, e.g. if *angle* = 45 and *theta1* = 90
             the absolute starting angle is 135.
@@ -1621,7 +1622,7 @@ class Arc(Ellipse):
           Lancaster, Don.  *Approximating a Circle or an Ellipse Using
           Four Bezier Cubic Splines.*
 
-          http://www.tinaja.com/glib/ellipse4.pdf
+          https://www.tinaja.com/glib/ellipse4.pdf
 
         There is a use case where very large ellipses must be drawn
         with very high accuracy, and it is too expensive to render the
@@ -4207,7 +4208,8 @@ class ConnectionPatch(FancyArrowPatch):
                  clip_on=False,
                  dpi_cor=1.,
                  **kwargs):
-        """Connect point *xyA* in *coordsA* with point *xyB* in *coordsB*
+        """
+        Connect point *xyA* in *coordsA* with point *xyB* in *coordsB*.
 
         Valid keys are
 

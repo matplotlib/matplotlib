@@ -137,7 +137,7 @@ ax.annotate('', xy=(3.15, 0.0), xytext=(3.45, 0.45),
                             connectionstyle="arc3",
                             color=color))
 
-ax.text(4.0, -0.4, "Made with http://matplotlib.org",
+ax.text(4.0, -0.4, "Made with https://matplotlib.org",
         fontsize=10, ha="right", color='.5')
 
 plt.show()

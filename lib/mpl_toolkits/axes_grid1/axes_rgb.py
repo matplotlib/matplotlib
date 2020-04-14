@@ -118,7 +118,8 @@ class RGBAxes:
         self._config_axes()
 
     def _config_axes(self, line_color='w', marker_edge_color='w'):
-        """Set the line color and ticks for the axes
+        """
+        Set the line color and ticks for the axes.
 
         Parameters
         ----------
@@ -138,7 +139,8 @@ class RGBAxes:
         self.RGB.get_figure().add_axes(self.B)
 
     def imshow_rgb(self, r, g, b, **kwargs):
-        """Create the four images {rgb, r, g, b}
+        """
+        Create the four images {rgb, r, g, b}.
 
         Parameters
         ----------

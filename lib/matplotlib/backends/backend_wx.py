@@ -1059,7 +1059,9 @@ class FigureManagerWx(FigureManagerBase):
     def destroy(self, *args):
         # docstring inherited
         _log.debug("%s - destroy()", type(self))
-        self.frame.Close()
+        frame = self.frame
+        if frame:  # Else, may have been already deleted, e.g. when closing.
+            frame.Close()
         wxapp = wx.GetApp()
         if wxapp:
             wxapp.Yield()
@@ -1080,25 +1082,16 @@ class FigureManagerWx(FigureManagerBase):
 
 def _load_bitmap(filename):
     """
-    Load a bitmap file from the backends/images subdirectory in which the
-    matplotlib library is installed. The filename parameter should not
-    contain any path information as this is determined automatically.
-
-    Returns a wx.Bitmap object.
+    Load a wx.Bitmap from a file in the "images" directory of the Matplotlib
+    data.
     """
-    path = cbook._get_data_path('images', filename)
-    if not path.exists():
-        raise IOError(f"Could not find bitmap file '{path}'; dying")
-    return wx.Bitmap(str(path))
+    return wx.Bitmap(str(cbook._get_data_path('images', filename)))
 
 
 def _set_frame_icon(frame):
     bundle = wx.IconBundle()
     for image in ('matplotlib.png', 'matplotlib_large.png'):
-        try:
-            icon = wx.Icon(_load_bitmap(image))
-        except IOError:
-            continue
+        icon = wx.Icon(_load_bitmap(image))
         if not icon.IsOk():
             return
         bundle.AddIcon(icon)
@@ -1145,7 +1138,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, btnpanel.ButtonPanel):
                 continue
             btn = self.AddTool(
                     self.NewControlId(),
-                    bitmap=_load_bitmap(image_file + ".png"),
+                    bitmap=_load_bitmap(f"{image_file}.png"),
                     bmpDisabled=wx.NullBitmap,
                     label='', shortHelp=tooltip_text, longHelp=tooltip_text,
                     kind=(wx.ITEM_CHECK if text in ["Pan", "Zoom"]
@@ -1385,8 +1378,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, btnpanel.ButtonPanel):
 class StatusBarWx(wx.StatusBar):
     """
     A status bar is added to _FigureFrame to allow measurements and the
-    previously selected scroll function to be displayed as a user
-    convenience.
+    previously selected scroll function to be displayed as a user convenience.
     """
 
     def __init__(self, parent, *args, **kwargs):
@@ -1416,7 +1408,7 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
             tool = self.InsertTool(idx, -1, name, bmp, wx.NullBitmap, kind,
                                    description or "")
         else:
-            size = (self.GetTextExtent(name)[0]+10, -1)
+            size = (self.GetTextExtent(name)[0] + 10, -1)
             if toggle:
                 control = wx.ToggleButton(self, -1, name, size=size)
             else:

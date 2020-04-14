@@ -1299,7 +1299,7 @@ class LineCollection(Collection):
         antialiaseds : sequence, optional
             A sequence of ones or zeros.
 
-        linestyles : str or tuple, optional
+        linestyles : str or tuple, default: 'solid'
             Either one of {'solid', 'dashed', 'dashdot', 'dotted'}, or
             a dash tuple. The dash tuple is::
 

@@ -2787,7 +2787,7 @@ class Axes(_AxesBase):
         -----
         .. seealso::
             The MATLAB function
-            `stem <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
+            `stem <https://www.mathworks.com/help/matlab/ref/stem.html>`_
             which inspired this method.
         """
         if not 1 <= len(args) <= 5:
@@ -6833,12 +6833,12 @@ default: :rc:`scatter.edgecolors`
         weights : array-like, shape (n, ), optional
             An array of values w_i weighing each sample (x_i, y_i).
 
-        cmin : scalar, optional, default: None
+        cmin : scalar, default: None
             All bins that has count less than cmin will not be displayed (set
             to NaN before passing to imshow) and these count values in the
             return value count histogram will also be set to nan upon return.
 
-        cmax : scalar, optional, default: None
+        cmax : scalar, default: None
             All bins that has count more than cmax will not be displayed (set
             to NaN before passing to imshow) and these count values in the
             return value count histogram will also be set to nan upon return.
@@ -7834,7 +7834,8 @@ default: :rc:`scatter.edgecolors`
 
     def violin(self, vpstats, positions=None, vert=True, widths=0.5,
                showmeans=False, showextrema=True, showmedians=False):
-        """Drawing function for violin plots.
+        """
+        Drawing function for violin plots.
 
         Draw a violin plot for each column of *vpstats*. Each filled area
         extends to represent the entire data range, with optional lines at the

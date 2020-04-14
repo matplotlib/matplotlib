@@ -733,7 +733,7 @@ class Path:
         The circle is approximated using 8 cubic Bezier curves, as described in
 
           Lancaster, Don.  `Approximating a Circle or an Ellipse Using Four
-          Bezier Cubic Splines <http://www.tinaja.com/glib/ellipse4.pdf>`_.
+          Bezier Cubic Splines <https://www.tinaja.com/glib/ellipse4.pdf>`_.
         """
         MAGIC = 0.2652031
         SQRTHALF = np.sqrt(0.5)

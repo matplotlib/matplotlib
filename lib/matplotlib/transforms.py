@@ -858,7 +858,7 @@ class Bbox(BboxBase):
            - when ``False``, include the existing bounds of the `Bbox`.
            - when ``None``, use the last value passed to :meth:`ignore`.
 
-        updatex, updatey : bool, optional
+        updatex, updatey : bool, default: True
             When ``True``, update the x/y values.
         """
         if ignore is None:
@@ -895,7 +895,7 @@ class Bbox(BboxBase):
            - When ``False``, include the existing bounds of the `Bbox`.
            - When ``None``, use the last value passed to :meth:`ignore`.
 
-        updatex, updatey : bool, optional
+        updatex, updatey : bool, default: True
             When ``True``, update the x/y values.
         """
         if len(xy) == 0:
