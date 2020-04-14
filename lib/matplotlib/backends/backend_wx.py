@@ -1182,6 +1182,10 @@ class NavigationToolbar2Wx(NavigationToolbar2, btnpanel.ButtonPanel):
         # Back compatibility on change from wx.Toolbar to btnpanel
         btn = btnpanel.ButtonInfo(self, toolid, bmp=bitmap, text=label,
             kind=kind, shortHelp=shortHelp, longHelp=longHelp)
+        if bmpDisabled != wx.NullBitmap:
+            btn.SetBitmap(bmpDisabled, "Disabled")
+        else:
+            btn.SetBitmap(bitmap.ConvertToDisabled(), "Disabled")
         self.AddButton(btn)
         return btn
 
