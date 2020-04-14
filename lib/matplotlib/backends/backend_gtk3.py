@@ -528,7 +528,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             button = self._gtk_ids.get(name)
             if button:
                 with button.handler_block(button._signal_handler):
-                    button.set_active(self._active == active)
+                    button.set_active(self.mode.name == active)
 
     def pan(self, *args):
         super().pan(*args)
