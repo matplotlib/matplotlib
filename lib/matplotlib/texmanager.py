@@ -228,7 +228,8 @@ class TexManager:
 %s
 \pagestyle{empty}
 \begin{document}
-\fontsize{%f}{%f}%s
+%% The empty hbox ensures that a page is printed even for empty inputs.
+\fontsize{%f}{%f}\hbox{}%s
 \end{document}
 """ % (self._get_preamble(), fontsize, fontsize * 1.25, tex)
         with open(texfile, 'wb') as fh:
@@ -388,9 +389,16 @@ class TexManager:
         # see get_rgba for a discussion of the background
         if not os.path.exists(pngfile):
             dvifile = self.make_dvi(tex, fontsize)
-            self._run_checked_subprocess(
-                ["dvipng", "-bg", "Transparent", "-D", str(dpi),
-                 "-T", "tight", "-o", pngfile, dvifile], tex)
+            cmd = ["dvipng", "-bg", "Transparent", "-D", str(dpi),
+                   "-T", "tight", "-o", pngfile, dvifile]
+            # When testing, disable FreeType rendering for reproducibility; but
+            # dvipng 1.16 has a bug (fixed in f3ff241) that breaks --freetype0
+            # mode, so for it we keep FreeType enabled; the image will be
+            # slightly off.
+            if (getattr(mpl, "_called_from_pytest", False)
+                    and mpl._get_executable_info("dvipng").version != "1.16"):
+                cmd.insert(1, "--freetype0")
+            self._run_checked_subprocess(cmd, tex)
         return pngfile
 
     def get_grey(self, tex, fontsize=None, dpi=None):
@@ -443,7 +451,7 @@ class TexManager:
             return width, height + depth, depth
 
         else:
-            # use dviread. It sometimes returns a wrong descent.
+            # use dviread.
             dvifile = self.make_dvi(tex, fontsize)
             with dviread.Dvi(dvifile, 72 * dpi_fraction) as dvi:
                 page, = dvi
