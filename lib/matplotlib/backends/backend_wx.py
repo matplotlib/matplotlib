@@ -1119,6 +1119,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, btnpanel.ButtonPanel):
         btnpanel.ButtonPanel.__init__(self, canvas.GetParent(), -1,
             agwStyle=btnpanel.BP_USE_GRADIENT,
             alignment=btnpanel.BP_ALIGN_RIGHT)
+        self._tools = {}
         NavigationToolbar2.__init__(self, canvas)
         self.canvas = canvas
         self._idle = True
@@ -1150,9 +1151,9 @@ class NavigationToolbar2Wx(NavigationToolbar2, btnpanel.ButtonPanel):
                     kind=(wx.ITEM_CHECK if text in ["Pan", "Zoom"]
                           else wx.ITEM_NORMAL)
                     )
-            self.wx_ids[text] = (btn, btn.GetId())
+            self.wx_ids[text] = btn.GetId()
             self.Bind(wx.EVT_BUTTON, getattr(self, callback),
-                      id=self.wx_ids[text][1])
+                      id=self.wx_ids[text])
 
         # Set toolbar appearance
         bpArt = self.GetBPArt()
@@ -1177,29 +1178,37 @@ class NavigationToolbar2Wx(NavigationToolbar2, btnpanel.ButtonPanel):
         # Back compatibility on change from wx.Toolbar to btnpanel
         self.DoLayout()
 
-    def AddTool(self, toolid, bitmap, bmpDisabled, label, shortHelp, longHelp,
-        kind):
+    def AddTool(self, toolId, label, bitmap, bmpDisabled=wx.NullBitmap,
+        kind=wx.ITEM_NORMAL, shortHelp="", longHelp=""):
         # Back compatibility on change from wx.Toolbar to btnpanel
-        btn = btnpanel.ButtonInfo(self, toolid, bmp=bitmap, text=label,
+        btn = btnpanel.ButtonInfo(self, toolId, bmp=bitmap, text=label,
             kind=kind, shortHelp=shortHelp, longHelp=longHelp)
         if bmpDisabled != wx.NullBitmap:
             btn.SetBitmap(bmpDisabled, "Disabled")
         else:
             btn.SetBitmap(bitmap.ConvertToDisabled(), "Disabled")
         self.AddButton(btn)
+        self._tools[btn.GetId()] = btn
         return btn
 
-    def ToggleTool(self, tool_data, toggled):
+    def AddCheckTool(self, toolId, label, bitmap1, bmpDisabled=wx.NullBitmap,
+        shortHelp="", longHelp=""):
         # Back compatibility on change from wx.Toolbar to btnpanel
-        tool = tool_data[0]
+        btn = self.AddTool(toolId, label, bitmap1, bmpDisabled=bmpDisabled,
+            kind=wx.ITEM_CHECK, shortHelp=shortHelp, longHelp=longHelp)
+        return btn
+
+    def ToggleTool(self, tool_id, toggled):
+        # Back compatibility on change from wx.Toolbar to btnpanel
+        tool = self._tools[tool_id]
         tool.SetToggled(toggled)
         if not toggled:
             tool.SetStatus('Normal')
         else:
             tool.SetStatus('Toggled')
 
-    def EnableTool(self, tool_data, enabled):
-        tool = tool_data[0]
+    def EnableTool(self, tool_id, enabled):
+        tool = self._tools[tool_id]
         # tool.Enable(enabled)
         if enabled:
             tool.SetStatus('Normal')
