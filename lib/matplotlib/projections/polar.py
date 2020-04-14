@@ -443,6 +443,7 @@ class RadialLocator(mticker.Locator):
     def zoom(self, direction):
         return self.base.zoom(direction)
 
+    @cbook.deprecated("3.3")
     def refresh(self):
         # docstring inherited
         return self.base.refresh()
