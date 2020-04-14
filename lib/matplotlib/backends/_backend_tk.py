@@ -624,11 +624,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         except Exception as e:
             tkinter.messagebox.showerror("Error saving file", str(e))
 
-    def update(self):
-        self._axes = self.canvas.figure.axes
-        with _restore_foreground_window_at_end():
-            NavigationToolbar2.update(self)
-
 
 class ToolTip:
     """
