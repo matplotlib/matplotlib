@@ -171,3 +171,8 @@ The default method used to format `.Slider` values has been changed to use a
 values are displayed with an appropriate number of significant digits even if
 they are much smaller or much bigger than 1.  To restore the old behavior,
 explicitly pass a "%1.2f" as the *valfmt* parameter to `.Slider`.
+
+``table.CustomCell`` is now an alias for `.table.Cell`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+All the functionality of ``CustomCell`` has been moved to its base class
+`~.table.Cell`.
