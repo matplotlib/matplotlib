@@ -5522,6 +5522,7 @@ def test_titlesetpos():
 
 def test_title_xticks_top():
     # Test that title moves if xticks on top of axes.
+    mpl.rcParams['axes.titley'] = None
     fig, ax = plt.subplots()
     ax.xaxis.set_ticks_position('top')
     ax.set_title('xlabel top')
@@ -5531,6 +5532,7 @@ def test_title_xticks_top():
 
 def test_title_xticks_top_both():
     # Test that title moves if xticks on top of axes.
+    mpl.rcParams['axes.titley'] = None
     fig, ax = plt.subplots()
     ax.tick_params(axis="x",
                    bottom=True, top=True, labelbottom=True, labeltop=True)

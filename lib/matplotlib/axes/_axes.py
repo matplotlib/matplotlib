@@ -114,7 +114,8 @@ class Axes(_AxesBase):
         title = cbook._check_getitem(titles, loc=loc.lower())
         return title.get_text()
 
-    def set_title(self, label, fontdict=None, loc=None, pad=None, **kwargs):
+    def set_title(self, label, fontdict=None, loc=None, pad=None, *, y=None,
+                  **kwargs):
         """
         Set a title for the axes.
 
@@ -140,6 +141,11 @@ class Axes(_AxesBase):
         loc : {'center', 'left', 'right'}, default: :rc:`axes.titlelocation`
             Which title to set.
 
+        y : float, default: :rc:`axes.titley`
+            Vertical axes loation for the title (1.0 is the top).  If
+            None (the default), y is determined automatically to avoid
+            decorators on the axes.
+
         pad : float, default: :rc:`axes.titlepad`
             The offset of the title from the top of the axes, in points.
 
@@ -156,6 +162,14 @@ class Axes(_AxesBase):
         """
         if loc is None:
             loc = rcParams['axes.titlelocation']
+
+        if y is None:
+            y = rcParams['axes.titley']
+        if y is None:
+            y = 1.0
+        else:
+            self._autotitlepos = False
+        kwargs['y'] = y
 
         titles = {'left': self._left_title,
                   'center': self.title,

@@ -19,7 +19,7 @@ def example_plot(ax, fontsize=12):
     ax.set_title('Title', fontsize=fontsize)
 
 
-@image_comparison(['tight_layout1'])
+@image_comparison(['tight_layout1'], tol=1.9)
 def test_tight_layout1():
     """Test tight_layout for a single subplot."""
     fig, ax = plt.subplots()
@@ -115,7 +115,7 @@ def test_tight_layout6():
                          h_pad=0.45)
 
 
-@image_comparison(['tight_layout7'])
+@image_comparison(['tight_layout7'], tol=1.9)
 def test_tight_layout7():
     # tight layout with left and right titles
     fontsize = 24
