@@ -15,7 +15,6 @@ from matplotlib.backend_bases import (
     TimerBase, cursors, ToolContainerBase, StatusbarBase, MouseButton)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
-from matplotlib.backend_managers import ToolManager
 from . import qt_compat
 from .qt_compat import (
     QtCore, QtGui, QtWidgets, _isdeleted, is_pyqt5, __version__, QT_API)
@@ -533,7 +532,6 @@ class FigureManagerQT(FigureManagerBase):
 
         self.window._destroying = False
 
-        self.toolmanager = self._get_toolmanager()
         self.toolbar = self._get_toolbar(self.canvas, self.window)
         self.statusbar = None
 
@@ -597,13 +595,6 @@ class FigureManagerQT(FigureManagerBase):
         else:
             toolbar = None
         return toolbar
-
-    def _get_toolmanager(self):
-        if matplotlib.rcParams['toolbar'] == 'toolmanager':
-            toolmanager = ToolManager(self.canvas.figure)
-        else:
-            toolmanager = None
-        return toolmanager
 
     def resize(self, width, height):
         # these are Qt methods so they return sizes in 'virtual' pixels

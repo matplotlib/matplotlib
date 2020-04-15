@@ -15,7 +15,6 @@ from matplotlib import backend_tools, cbook
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     StatusbarBase, TimerBase, ToolContainerBase, cursors)
-from matplotlib.backend_managers import ToolManager
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
@@ -412,9 +411,6 @@ class FigureManagerTk(FigureManagerBase):
         self.window = window
         self.window.withdraw()
         self.set_window_title("Figure %d" % num)
-        # If using toolmanager it has to be present when initializing the
-        # toolbar
-        self.toolmanager = self._get_toolmanager()
         # packing toolbar first, because if space is getting low, last packed
         # widget is getting shrunk first (-> the canvas)
         self.toolbar = self._get_toolbar()
@@ -438,13 +434,6 @@ class FigureManagerTk(FigureManagerBase):
         else:
             toolbar = None
         return toolbar
-
-    def _get_toolmanager(self):
-        if mpl.rcParams['toolbar'] == 'toolmanager':
-            toolmanager = ToolManager(self.canvas.figure)
-        else:
-            toolmanager = None
-        return toolmanager
 
     def resize(self, width, height):
         self.canvas._tkcanvas.configure(width=width, height=height)
