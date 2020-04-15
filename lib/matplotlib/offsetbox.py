@@ -1700,15 +1700,10 @@ class DraggableBase:
 
         if not ref_artist.pickable():
             ref_artist.set_picker(True)
-        with cbook._suppress_matplotlib_deprecation_warning():
-            if self.artist_picker != DraggableBase.artist_picker.__get__(self):
-                overridden_picker = self.artist_picker
-            else:
-                overridden_picker = None
+        overridden_picker = cbook._deprecate_method_override(
+            __class__.artist_picker, self, since="3.3",
+            addendum="Directly set the artist's picker if desired.")
         if overridden_picker is not None:
-            cbook.warn_deprecated(
-                "3.3", name="artist_picker", obj_type="method",
-                addendum="Directly set the artist's picker if desired.")
             ref_artist.set_picker(overridden_picker)
         self.cids = [c2, c3]
 
