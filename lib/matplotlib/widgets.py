@@ -761,6 +761,12 @@ class TextBox(AxesWidget):
         # and save its dimensions, draw the real text, then put the cursor
         # at the saved dimensions
 
+        # This causes a single extra draw if the figure has never been rendered
+        # yet, which should be fine as we're going to repeatedly re-render the
+        # figure later anyways.
+        if self.ax.figure._cachedRenderer is None:
+            self.ax.figure.canvas.draw()
+
         text = self.text_disp.get_text()  # Save value before overwriting it.
         widthtext = text[:self.cursor_index]
         self.text_disp.set_text(widthtext or ",")
