@@ -62,17 +62,9 @@ env:
     - NO_AT_BRIDGE=1  # Necessary for GTK3 interactive test.
     - OPENBLAS_NUM_THREADS=1
     - PYTHONFAULTHANDLER=1
-    - RUN_PYTEST=1
-    - RUN_FLAKE8=
 
 matrix:
   include:
-    - name: flake8
-      python: 3.6
-      env:
-        - RUN_PYTEST=
-        - RUN_FLAKE8=1
-        - EXTRAREQS='-r requirements/testing/travis_flake8.txt'
     - python: 3.6
       env:
         - PINNEDVERS='-c requirements/testing/travis36minver.txt'
@@ -165,13 +157,13 @@ install:
 
   # Set flag in a delayed manner to avoid issues with installing other packages
   - |
-    if [[ $TRAVIS_OS_NAME != 'osx' ]] && [[ $RUN_PYTEST == 1 ]]; then
+    if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
       export CPPFLAGS=--coverage
     fi
   - |
     python -mpip install -ve .  # Install Matplotlib.
   - |
-    if [[ $TRAVIS_OS_NAME != 'osx' ]] && [[ $RUN_PYTEST == 1 ]]; then
+    if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
       unset CPPFLAGS
     fi
 
@@ -184,16 +176,10 @@ script:
   # Each script we want to run need to go in its own section and the program
   # you want to fail travis needs to be the last thing called.
   - |
-    if [[ $RUN_PYTEST == 1 ]]; then
-      # The number of processes is hardcoded (-n2), because using too many
-      # causes the Travis VM to run out of memory (since so many copies of
-      # inkscape and ghostscript are running at the same time).
-      python -mpytest -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n2 --log-level=DEBUG
-    fi
-  - |
-    if [[ $RUN_FLAKE8 == 1 ]]; then
-      flake8 --docstring-convention=all --statistics && echo "Flake8 passed without any issues!"
-    fi
+    # The number of processes is hardcoded (-n2), because using too many
+    # causes the Travis VM to run out of memory (since so many copies of
+    # inkscape and ghostscript are running at the same time).
+    python -mpytest -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n2 --log-level=DEBUG
 
 before_cache: |
   rm -rf $HOME/.cache/matplotlib/tex.cache
