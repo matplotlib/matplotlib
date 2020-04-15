@@ -23,8 +23,7 @@ _log = logging.getLogger(__name__)
 
 @contextlib.contextmanager
 def _wrap_text(textobj):
-    """Temporarily inserts newlines to the text if the wrap option is enabled.
-    """
+    """Temporarily inserts newlines if the wrap option is enabled."""
     if textobj.get_wrap():
         old_text = textobj.get_text()
         try:

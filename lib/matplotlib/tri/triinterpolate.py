@@ -1308,9 +1308,17 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
     A : _Sparse_Matrix_coo
         *A* must have been compressed before by compress_csc or
         compress_csr method.
-
     b : array
         Right hand side of the linear system.
+    x0 : array, optional
+        Starting guess for the solution. Defaults to the zero vector.
+    tol : float, optional
+        Tolerance to achieve. The algorithm terminates when the relative
+        residual is below tol. Default is 1e-10.
+    maxiter : int, optional
+        Maximum number of iterations.  Iteration will stop after *maxiter*
+        steps even if the specified tolerance has not been achieved. Defaults
+        to 1000.
 
     Returns
     -------
@@ -1318,17 +1326,6 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
         The converged solution.
     err : float
         The absolute error np.linalg.norm(A.dot(x) - b)
-
-    Other parameters
-    ----------------
-    x0 : array
-        Starting guess for the solution.
-    tol : float
-        Tolerance to achieve. The algorithm terminates when the relative
-        residual is below tol.
-    maxiter : int
-        Maximum number of iterations.  Iteration will stop after *maxiter*
-        steps even if the specified tolerance has not been achieved.
     """
     n = b.size
     assert A.n == n

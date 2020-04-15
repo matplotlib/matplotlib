@@ -1597,8 +1597,7 @@ class _SelectorWidget(AxesWidget):
             self._on_key_press(event)
 
     def _on_key_press(self, event):
-        """Key press event handler - use for widget-specific key press actions.
-        """
+        """Key press event handler - for widget-specific key press actions."""
 
     def on_key_release(self, event):
         """Key release event handler and validator."""

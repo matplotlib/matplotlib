@@ -3791,8 +3791,7 @@ def test_eventplot_defaults():
     ('red', (0, 1, 0), None, (1, 0, 1, 0.5)),  # a tricky case mixing types
 ])
 def test_eventplot_colors(colors):
-    """Test the *colors* parameter of eventplot. Inspired by the issue #8193.
-    """
+    """Test the *colors* parameter of eventplot. Inspired by issue #8193."""
     data = [[i] for i in range(4)]  # 4 successive events of different nature
 
     # Build the list of the expected colors
