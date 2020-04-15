@@ -201,7 +201,7 @@ class AbstractMovieWriter(abc.ABC):
     @abc.abstractmethod
     def setup(self, fig, outfile, dpi=None):
         """
-        Perform setup for writing the movie file.
+        Setup for writing the movie file.
 
         Parameters
         ----------
@@ -425,7 +425,7 @@ class FileMovieWriter(MovieWriter):
     def setup(self, fig, outfile, dpi=None, frame_prefix=None,
               clear_temp=True):
         """
-        Perform setup for writing the movie file.
+        Setup for writing the movie file.
 
         Parameters
         ----------

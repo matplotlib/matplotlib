@@ -1316,7 +1316,7 @@ class SymLogNorm(Normalize):
         return a
 
     def _transform_vmin_vmax(self):
-        """Calculates vmin and vmax in the transformed system."""
+        """Calculate vmin and vmax in the transformed system."""
         vmin, vmax = self.vmin, self.vmax
         arr = np.array([vmax, vmin]).astype(float)
         self._upper, self._lower = self._transform(arr)
@@ -1687,7 +1687,7 @@ class LightSource:
 
     def hillshade(self, elevation, vert_exag=1, dx=1, dy=1, fraction=1.):
         """
-        Calculates the illumination intensity for a surface using the defined
+        Calculate the illumination intensity for a surface using the defined
         azimuth and elevation for the light source.
 
         This computes the normal vectors for the surface, and then passes them
@@ -1741,7 +1741,7 @@ class LightSource:
 
     def shade_normals(self, normals, fraction=1.):
         """
-        Calculates the illumination intensity for the normal vectors of a
+        Calculate the illumination intensity for the normal vectors of a
         surface using the defined azimuth and elevation for the light source.
 
         Imagine an artificial sun placed at infinity in some azimuth and
@@ -2008,8 +2008,8 @@ class LightSource:
 
     def blend_soft_light(self, rgb, intensity):
         """
-        Combines an rgb image with an intensity map using "soft light"
-        blending.  Uses the "pegtop" formula.
+        Combine an rgb image with an intensity map using "soft light" blending,
+        using the "pegtop" formula.
 
         Parameters
         ----------

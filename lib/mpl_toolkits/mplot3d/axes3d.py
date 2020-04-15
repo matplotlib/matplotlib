@@ -1533,7 +1533,7 @@ class Axes3D(Axes):
 
     def _generate_normals(self, polygons):
         """
-        Takes a list of polygons and return an array of their normals.
+        Compute the normals of a list of polygons.
 
         Normals point towards the viewer for a face with its vertices in
         counterclockwise order, following the right hand rule.
@@ -2687,7 +2687,7 @@ pivot='tail', normalize=False, **kwargs)
         voxel_faces = defaultdict(list)
 
         def permutation_matrices(n):
-            """Generator of cyclic permutation matrices."""
+            """Generate cyclic permutation matrices."""
             mat = np.eye(n, dtype=np.intp)
             for i in range(n):
                 yield mat

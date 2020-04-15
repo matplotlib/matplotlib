@@ -176,7 +176,7 @@ def win32FontDirectory():
 
 def _win32RegistryFonts(reg_domain, base_dir):
     r"""
-    Searches for fonts in the Windows registry.
+    Search for fonts in the Windows registry.
 
     Parameters
     ----------
@@ -498,7 +498,7 @@ def afmFontProperty(fontpath, font):
 @cbook.deprecated("3.2", alternative="FontManager.addfont")
 def createFontList(fontfiles, fontext='ttf'):
     """
-    A function to create a font lookup list.  The default is to create
+    Create a font lookup list.  The default is to create
     a list of TrueType fonts.  An AFM font list can optionally be
     created.
     """

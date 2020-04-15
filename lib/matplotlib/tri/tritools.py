@@ -64,9 +64,8 @@ class TriAnalyzer:
         Parameters
         ----------
         rescale : bool, default: True
-            If True, a rescaling will be internally performed (based on
-            `scale_factors`, so that the (unmasked) triangles fit
-            exactly inside a unit square mesh.
+            If True, internally rescale (based on `scale_factors`), so that the
+            (unmasked) triangles fit exactly inside a unit square mesh.
 
         Returns
         -------
@@ -137,10 +136,10 @@ class TriAnalyzer:
             Border triangles with incircle/circumcircle radii ratio r/R will
             be removed if r/R < *min_circle_ratio*.
         rescale : bool, default: True
-            If True, a rescaling will first be internally performed (based on
-            `scale_factors`), so that the (unmasked) triangles fit exactly
-            inside a unit square mesh. This rescaling accounts for the
-            difference of scale which might exist between the 2 axis.
+            If True, first, internally rescale (based on `scale_factors`) so
+            that the (unmasked) triangles fit exactly inside a unit square
+            mesh.  This rescaling accounts for the difference of scale which
+            might exist between the 2 axis.
 
         Returns
         -------

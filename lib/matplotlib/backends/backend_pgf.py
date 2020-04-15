@@ -395,7 +395,7 @@ class RendererPgf(RendererBase):
     @cbook._delete_parameter("3.3", "dummy")
     def __init__(self, figure, fh, dummy=False):
         """
-        Creates a new PGF renderer that translates any drawing instruction
+        Create a new PGF renderer that translates any drawing instruction
         into text commands to be interpreted in a latex pgfpicture environment.
 
         Attributes
@@ -1111,7 +1111,7 @@ class PdfPages:
 
     def savefig(self, figure=None, **kwargs):
         """
-        Saves a `.Figure` to this file as a new page.
+        Save a `.Figure` to this file as a new page.
 
         Any other keyword arguments are passed to `~.Figure.savefig`.
 

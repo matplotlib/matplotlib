@@ -537,11 +537,11 @@ class Poly3DCollection(PolyCollection):
         There is no simple definition of the enclosed surface of a 3D polygon
         unless the polygon is planar.
 
-        In practice, Matplotlib performs the filling on the 2D projection of
-        the polygon. This gives a correct filling appearance only for planar
-        polygons. For all other polygons, you'll find orientations in which
-        the edges of the polygon intersect in the projection. This will lead
-        to an incorrect visualization of the 3D area.
+        In practice, Matplotlib fills the 2D projection of the polygon. This
+        gives a correct filling appearance only for planar polygons. For all
+        other polygons, you'll find orientations in which the edges of the
+        polygon intersect in the projection. This will lead to an incorrect
+        visualization of the 3D area.
 
         If you need filled areas, it is recommended to create them via
         `~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf`, which creates a
@@ -578,7 +578,7 @@ class Poly3DCollection(PolyCollection):
 
     def set_zsort(self, zsort):
         """
-        Sets the calculation method for the z-order.
+        Set the calculation method for the z-order.
 
         Parameters
         ----------
@@ -610,7 +610,7 @@ class Poly3DCollection(PolyCollection):
         self._closed = closed
 
     def set_verts_and_codes(self, verts, codes):
-        """Sets 3D vertices with path codes."""
+        """Set 3D vertices with path codes."""
         # set vertices with closed=False to prevent PolyCollection from
         # setting path codes
         self.set_verts(verts, closed=False)

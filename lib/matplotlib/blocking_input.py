@@ -235,7 +235,7 @@ class BlockingMouseInput(BlockingInput):
 
     def pop(self, event, index=-1):
         """
-        Removes a click and the associated event from the list of clicks.
+        Remove a click and the associated event from the list of clicks.
 
         Defaults to the last click.
         """
