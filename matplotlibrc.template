@@ -92,7 +92,7 @@
 #backend_fallback: True
 
 #interactive: False
-#toolbar:     toolbar2  # {None, toolbar2}
+#toolbar:     toolbar2  # {None, toolbar2, toolmanager}
 #timezone:    UTC       # a pytz timezone string, e.g., US/Central or Europe/Paris
 
 
