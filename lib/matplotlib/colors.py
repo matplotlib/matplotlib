@@ -4,17 +4,15 @@ A module for converting numbers or color arguments to *RGB* or *RGBA*.
 *RGB* and *RGBA* are sequences of, respectively, 3 or 4 floats in the
 range 0-1.
 
-This module includes functions and classes for color specification
-conversions, and for mapping numbers to colors in a 1-D array of colors called
-a colormap.
+This module includes functions and classes for color specification conversions,
+and for mapping numbers to colors in a 1-D array of colors called a colormap.
 
-Mapping data onto colors using a colormap typically involves two steps:
-a data array is first mapped onto the range 0-1 using a subclass of
-:class:`Normalize`, then this number is mapped to a color using
-a subclass of :class:`Colormap`.  Two are provided here:
-:class:`LinearSegmentedColormap`, which uses piecewise-linear interpolation
-to define colormaps, and :class:`ListedColormap`, which makes a colormap
-from a list of colors.
+Mapping data onto colors using a colormap typically involves two steps: a data
+array is first mapped onto the range 0-1 using a subclass of `Normalize`,
+then this number is mapped to a color using a subclass of `Colormap`.  Two
+sublasses of `Colormap` provided here:  `LinearSegmentedColormap`, which uses
+piecewise-linear interpolation to define colormaps, and `ListedColormap`, which
+makes a colormap from a list of colors.
 
 .. seealso::
 
@@ -29,10 +27,10 @@ from a list of colors.
   More colormaps are available at palettable_.
 
 The module also provides functions for checking whether an object can be
-interpreted as a color (:func:`is_color_like`), for converting such an object
-to an RGBA tuple (:func:`to_rgba`) or to an HTML-like hex string in the
-"#rrggbb" format (:func:`to_hex`), and a sequence of colors to an (n, 4)
-RGBA array (:func:`to_rgba_array`).  Caching is used for efficiency.
+interpreted as a color (`is_color_like`), for converting such an object
+to an RGBA tuple (`to_rgba`) or to an HTML-like hex string in the
+"#rrggbb" format (`to_hex`), and a sequence of colors to an (n, 4)
+RGBA array (`to_rgba_array`).  Caching is used for efficiency.
 
 Matplotlib recognizes the following formats to specify a color:
 
@@ -393,8 +391,8 @@ def _create_lookup_table(N, data, gamma=1.0):
     Parameters
     ----------
     N : int
-        The number of elements of the created lookup table.
-        This must be N >= 1.
+        The number of elements of the created lookup table; at least 1.
+
     data : Mx3 array-like or callable
         Defines the mapping :math:`f`.
 
@@ -420,6 +418,7 @@ def _create_lookup_table(N, data, gamma=1.0):
            data(x : ndarray) -> ndarray
 
         and map values between 0 - 1 to 0 - 1.
+
     gamma : float
         Gamma correction factor for input distribution x of the mapping.
 
@@ -488,14 +487,14 @@ class Colormap:
     """
     Baseclass for all scalar to RGBA mappings.
 
-    Typically Colormap instances are used to convert data values (floats) from
-    the interval ``[0, 1]`` to the RGBA color that the respective Colormap
-    represents. For scaling of data into the ``[0, 1]`` interval see
-    :class:`matplotlib.colors.Normalize`. It is worth noting that
-    :class:`matplotlib.cm.ScalarMappable` subclasses make heavy use of this
-    ``data->normalize->map-to-color`` processing chain.
-
+    Typically, Colormap instances are used to convert data values (floats)
+    from the interval ``[0, 1]`` to the RGBA color that the respective
+    Colormap represents. For scaling of data into the ``[0, 1]`` interval see
+    `matplotlib.colors.Normalize`. Subclasses of `matplotlib.cm.ScalarMappable`
+    make heavy use of this ``data -> normalize -> map-to-color`` processing
+    chain.
     """
+
     def __init__(self, name, N=256):
         """
         Parameters
@@ -504,7 +503,6 @@ class Colormap:
             The name of the colormap.
         N : int
             The number of rgb quantization levels.
-
         """
         self.name = name
         self.N = int(N)  # ensure that N is always int
@@ -515,11 +513,10 @@ class Colormap:
         self._i_over = self.N + 1
         self._i_bad = self.N + 2
         self._isinit = False
-
         #: When this colormap exists on a scalar mappable and colorbar_extend
         #: is not False, colorbar creation will pick up ``colorbar_extend`` as
         #: the default value for the ``extend`` keyword in the
-        #: :class:`matplotlib.colorbar.Colorbar` constructor.
+        #: `matplotlib.colorbar.Colorbar` constructor.
         self.colorbar_extend = False
 
     def __call__(self, X, alpha=None, bytes=False):
@@ -1411,13 +1408,13 @@ class BoundaryNorm(Normalize):
             Number of colors in the colormap to be used
         clip : bool, optional
             If clip is ``True``, out of range values are mapped to 0 if they
-            are below ``boundaries[0]`` or mapped to ncolors - 1 if they are
-            above ``boundaries[-1]``.
+            are below ``boundaries[0]`` or mapped to ``ncolors - 1`` if they
+            are above ``boundaries[-1]``.
 
             If clip is ``False``, out of range values are mapped to -1 if
-            they are below ``boundaries[0]`` or mapped to ncolors if they are
+            they are below ``boundaries[0]`` or mapped to *ncolors* if they are
             above ``boundaries[-1]``. These are then converted to valid indices
-            by :meth:`Colormap.__call__`.
+            by `Colormap.__call__`.
 
         Notes
         -----
@@ -1636,11 +1633,11 @@ class LightSource:
     Angles are in degrees, with the azimuth measured
     clockwise from north and elevation up from the zero plane of the surface.
 
-    The :meth:`shade` is used to produce "shaded" rgb values for a data array.
-    :meth:`shade_rgb` can be used to combine an rgb image with
-    The :meth:`shade_rgb`
-    The :meth:`hillshade` produces an illumination map of a surface.
+    `shade` is used to produce "shaded" rgb values for a data array.
+    `shade_rgb` can be used to combine an rgb image with an elevation map.
+    `hillshade` produces an illumination map of a surface.
     """
+
     def __init__(self, azdeg=315, altdeg=45, hsv_min_val=0, hsv_max_val=1,
                  hsv_min_sat=1, hsv_max_sat=0):
         """
@@ -1662,8 +1659,8 @@ class LightSource:
         For backwards compatibility, the parameters *hsv_min_val*,
         *hsv_max_val*, *hsv_min_sat*, and *hsv_max_sat* may be supplied at
         initialization as well.  However, these parameters will only be used if
-        "blend_mode='hsv'" is passed into :meth:`shade` or :meth:`shade_rgb`.
-        See the documentation for :meth:`blend_hsv` for more details.
+        "blend_mode='hsv'" is passed into `shade` or `shade_rgb`.
+        See the documentation for `blend_hsv` for more details.
         """
         self.azdeg = azdeg
         self.altdeg = altdeg
@@ -2054,7 +2051,7 @@ def from_levels_and_colors(levels, colors, extend='neither'):
     Parameters
     ----------
     levels : sequence of numbers
-        The quantization levels used to construct the :class:`BoundaryNorm`.
+        The quantization levels used to construct the `BoundaryNorm`.
         Value ``v`` is quantized to level ``i`` if ``lev[i] <= v < lev[i+1]``.
     colors : sequence of colors
         The fill color to use for each level. If *extend* is "neither" there
@@ -2062,7 +2059,7 @@ def from_levels_and_colors(levels, colors, extend='neither'):
         one extra color, and for an *extend* of "both" add two colors.
     extend : {'neither', 'min', 'max', 'both'}, optional
         The behaviour when a value falls out of range of the given levels.
-        See :func:`~matplotlib.pyplot.contourf` for details.
+        See `~.Axes.contourf` for details.
 
     Returns
     -------
