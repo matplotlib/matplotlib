@@ -13,7 +13,8 @@
 Thank you so much for your PR!  To help us review your contribution, please
 consider the following points:
 
-- A development guide is available at https://matplotlib.org/devdocs/devel/index.html.
+- A development guide is available at
+  https://matplotlib.org/devdocs/devel/index.html.
 
 - Help with git and github is available at
   https://matplotlib.org/devel/gitwash/development_workflow.html.
