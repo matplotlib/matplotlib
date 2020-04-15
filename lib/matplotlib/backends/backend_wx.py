@@ -1110,7 +1110,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def __init__(self, canvas):
         wx.ToolBar.__init__(self, canvas.GetParent(), -1)
         NavigationToolbar2.__init__(self, canvas)
-        self.canvas = canvas
         self._idle = True
         self.prevZoomRect = None
         # for now, use alternate zoom-rectangle drawing on all

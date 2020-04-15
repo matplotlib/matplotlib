@@ -412,7 +412,6 @@ class FigureManagerTk(FigureManagerBase):
         self.window = window
         self.window.withdraw()
         self.set_window_title("Figure %d" % num)
-        self.canvas = canvas
         # If using toolmanager it has to be present when initializing the
         # toolbar
         self.toolmanager = self._get_toolmanager()
@@ -502,7 +501,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         ``pack_toolbar=False``.
     """
     def __init__(self, canvas, window, *, pack_toolbar=True):
-        self.canvas = canvas
         # Avoid using self.window (prefer self.canvas.get_tk_widget().master),
         # so that Tool implementations can reuse the methods.
         self.window = window
