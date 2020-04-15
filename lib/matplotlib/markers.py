@@ -1,7 +1,6 @@
 r"""
-This module contains functions to handle markers.  Used by both the
-marker functionality of `~matplotlib.axes.Axes.plot` and
-`~matplotlib.axes.Axes.scatter`.
+Functions to handle markers; used by the marker functionality of
+`~matplotlib.axes.Axes.plot` and `~matplotlib.axes.Axes.scatter`.
 
 All possible markers are defined here:
 

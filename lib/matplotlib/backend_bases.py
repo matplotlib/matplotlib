@@ -237,9 +237,8 @@ class RendererBase:
                        coordinates, offsets, offsetTrans, facecolors,
                        antialiased, edgecolors):
         """
-        This provides a fallback implementation of
-        :meth:`draw_quad_mesh` that generates paths and then calls
-        :meth:`draw_path_collection`.
+        Fallback implementation of :meth:`draw_quad_mesh` that generates paths
+        and then calls :meth:`draw_path_collection`.
         """
 
         from matplotlib.collections import QuadMesh
@@ -298,9 +297,8 @@ class RendererBase:
     def _iter_collection_raw_paths(self, master_transform, paths,
                                    all_transforms):
         """
-        This is a helper method (along with :meth:`_iter_collection`) to make
-        it easier to write a space-efficient :meth:`draw_path_collection`
-        implementation in a backend.
+        Helper method (along with :meth:`_iter_collection`) to implement
+        :meth:`draw_path_collection` in a space-efficient manner.
 
         This method yields all of the base path/transform
         combinations, given a master transform, a list of paths and
@@ -348,10 +346,8 @@ class RendererBase:
                          edgecolors, linewidths, linestyles,
                          antialiaseds, urls, offset_position):
         """
-        This is a helper method (along with
-        :meth:`_iter_collection_raw_paths`) to make it easier to write
-        a space-efficient :meth:`draw_path_collection` implementation in a
-        backend.
+        Helper method (along with :meth:`_iter_collection_raw_paths`) to
+        implement :meth:`draw_path_collection` in a space-efficient manner.
 
         This method yields all of the path, offset and graphics
         context combinations to draw the path collection.  The caller

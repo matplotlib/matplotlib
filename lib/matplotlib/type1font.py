@@ -1,10 +1,9 @@
 """
-This module contains a class representing a Type 1 font.
+A class representing a Type 1 font.
 
 This version reads pfa and pfb files and splits them for embedding in
 pdf files. It also supports SlantFont and ExtendFont transformations,
-similarly to pdfTeX and friends. There is no support yet for
-subsetting.
+similarly to pdfTeX and friends. There is no support yet for subsetting.
 
 Usage::
 

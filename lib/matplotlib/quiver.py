@@ -1013,48 +1013,48 @@ class Barbs(mcollections.PolyCollection):
     def _make_barbs(self, u, v, nflags, nbarbs, half_barb, empty_flag, length,
                     pivot, sizes, fill_empty, flip):
         """
-        This function actually creates the wind barbs.  *u* and *v*
-        are components of the vector in the *x* and *y* directions,
-        respectively.
+        Create the wind barbs.
 
-        *nflags*, *nbarbs*, and *half_barb*, empty_flag* are,
-        *respectively, the number of flags, number of barbs, flag for
-        *half a barb, and flag for empty barb, ostensibly obtained
-        *from :meth:`_find_tails`.
+        Parameters
+        ----------
+        u, v
+            Components of the vector in the x and y directions, respectively.
 
-        *length* is the length of the barb staff in points.
+        nflags, nbarbs, half_barb, empty_flag
+            Respectively, the number of flags, number of barbs, flag for
+            half a barb, and flag for empty barb, ostensibly obtained from
+            :meth:`_find_tails`.
 
-        *pivot* specifies the point on the barb around which the
-        entire barb should be rotated.  Right now, valid options are
-        'tip' and 'middle'. Can also be a number, which shifts the start
-        of the barb that many points from the origin.
+        length
+            The length of the barb staff in points.
 
-        *sizes* is a dictionary of coefficients specifying the ratio
-        of a given feature to the length of the barb. These features
-        include:
+        pivot : {"tip", "middle"} or number
+            The point on the barb around which the entire barb should be
+            rotated.  If a number, the start of the barb is shifted by that
+            many points from the origin.
 
-            - *spacing*: space between features (flags, full/half
-               barbs)
+        sizes : dict
+            Coefficients specifying the ratio of a given feature to the length
+            of the barb. These features include:
 
-            - *height*: distance from shaft of top of a flag or full
-               barb
+            - *spacing*: space between features (flags, full/half barbs).
+            - *height*: distance from shaft of top of a flag or full barb.
+            - *width*: width of a flag, twice the width of a full barb.
+            - *emptybarb*: radius of the circle used for low magnitudes.
 
-            - *width* - width of a flag, twice the width of a full barb
+        fill_empty : bool
+            Whether the circle representing an empty barb should be filled or
+            not (this changes the drawing of the polygon).
 
-            - *emptybarb* - radius of the circle used for low
-               magnitudes
+        flip : list of bool
+            Whether the features should be flipped to the other side of the
+            barb (useful for winds in the southern hemisphere).
 
-        *fill_empty* specifies whether the circle representing an
-        empty barb should be filled or not (this changes the drawing
-        of the polygon).
-
-        *flip* is a flag indicating whether the features should be flipped to
-        the other side of the barb (useful for winds in the southern
-        hemisphere).
-
-        This function returns list of arrays of vertices, defining a polygon
-        for each of the wind barbs.  These polygons have been rotated to
-        properly align with the vector direction.
+        Returns
+        -------
+        list of arrays of vertices
+            Polygon vertices for each of the wind barbs.  These polygons have
+            been rotated to properly align with the vector direction.
         """
 
         # These control the spacing and size of barb elements relative to the

@@ -1,6 +1,6 @@
 """
-This module contains all the 2D line class which can draw with a
-variety of line styles, markers and colors.
+The 2D line class which can draw with a variety of line styles, markers and
+colors.
 """
 
 # TODO: expose cap and join style attrs

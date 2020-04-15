@@ -1026,9 +1026,9 @@ class FigureFrameWx(wx.Frame):
 
 class FigureManagerWx(FigureManagerBase):
     """
-    This class contains the FigureCanvas and GUI frame
+    Container/controller for the FigureCanvas and GUI frame.
 
-    It is instantiated by GcfWx whenever a new figure is created. GcfWx is
+    It is instantiated by Gcf whenever a new figure is created.  Gcf is
     responsible for managing multiple instances of FigureManagerWx.
 
     Attributes

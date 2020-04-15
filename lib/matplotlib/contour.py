@@ -1,5 +1,5 @@
 """
-These are classes to support contour plotting and labelling for the Axes class.
+Classes to support contour plotting and labelling for the Axes class.
 """
 
 from numbers import Integral
@@ -313,21 +313,22 @@ class ContourLabeler:
 
     def calc_label_rot_and_inline(self, slc, ind, lw, lc=None, spacing=5):
         """
-        This function calculates the appropriate label rotation given
-        the linecontour coordinates in screen units, the index of the
-        label location and the label width.
+        Calculate the appropriate label rotation given the linecontour
+        coordinates in screen units, the index of the label location and the
+        label width.
 
-        It will also break contour and calculate inlining if *lc* is
-        not empty (lc defaults to the empty list if None).  *spacing*
-        is the space around the label in pixels to leave empty.
+        If *lc* is not None or empty, also break contours and compute
+        inlining.
 
-        Do both of these tasks at once to avoid calculating path lengths
+        *spacing* is the empty space to leave around the label, in pixels.
+
+        Both tasks are done together to avoid calculating path lengths
         multiple times, which is relatively costly.
 
-        The method used here involves calculating the path length
-        along the contour in pixel coordinates and then looking
-        approximately label width / 2 away from central point to
-        determine rotation and then to break contour if desired.
+        The method used here involves computing the path length along the
+        contour in pixel coordinates and then looking approximately (label
+        width / 2) away from central point to determine rotation and then to
+        break contour if desired.
         """
 
         if lc is None:

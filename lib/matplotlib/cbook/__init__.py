@@ -758,9 +758,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
 
 class Grouper:
     """
-    This class provides a lightweight way to group arbitrary objects
-    together into disjoint sets when a full-blown graph data structure
-    would be overkill.
+    A disjoint-set data structure.
 
     Objects can be joined using :meth:`join`, tested for connectedness
     using :meth:`joined`, and all disjoint sets can be retrieved by
@@ -768,30 +766,30 @@ class Grouper:
 
     The objects being joined must be hashable and weak-referenceable.
 
-    For example:
-
-        >>> from matplotlib.cbook import Grouper
-        >>> class Foo:
-        ...     def __init__(self, s):
-        ...         self.s = s
-        ...     def __repr__(self):
-        ...         return self.s
-        ...
-        >>> a, b, c, d, e, f = [Foo(x) for x in 'abcdef']
-        >>> grp = Grouper()
-        >>> grp.join(a, b)
-        >>> grp.join(b, c)
-        >>> grp.join(d, e)
-        >>> sorted(map(tuple, grp))
-        [(a, b, c), (d, e)]
-        >>> grp.joined(a, b)
-        True
-        >>> grp.joined(a, c)
-        True
-        >>> grp.joined(a, d)
-        False
-
+    Examples
+    --------
+    >>> from matplotlib.cbook import Grouper
+    >>> class Foo:
+    ...     def __init__(self, s):
+    ...         self.s = s
+    ...     def __repr__(self):
+    ...         return self.s
+    ...
+    >>> a, b, c, d, e, f = [Foo(x) for x in 'abcdef']
+    >>> grp = Grouper()
+    >>> grp.join(a, b)
+    >>> grp.join(b, c)
+    >>> grp.join(d, e)
+    >>> sorted(map(tuple, grp))
+    [(a, b, c), (d, e)]
+    >>> grp.joined(a, b)
+    True
+    >>> grp.joined(a, c)
+    True
+    >>> grp.joined(a, d)
+    False
     """
+
     def __init__(self, init=()):
         self._mapping = {weakref.ref(x): [weakref.ref(x)] for x in init}
 

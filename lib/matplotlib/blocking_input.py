@@ -1,6 +1,5 @@
 """
-This provides several classes used for blocking interaction with figure
-windows:
+Classes used for blocking interaction with figure windows:
 
 `BlockingInput`
     Creates a callable object to retrieve events in a blocking way for

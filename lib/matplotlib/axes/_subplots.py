@@ -179,7 +179,7 @@ _subplot_classes = {}
 @functools.lru_cache(None)
 def subplot_class_factory(axes_class=None):
     """
-    This makes a new class that inherits from `.SubplotBase` and the
+    Make a new class that inherits from `.SubplotBase` and the
     given axes_class (which is assumed to be a subclass of `.axes.Axes`).
     This is perhaps a little bit roundabout to make a new class on
     the fly like this, but it means that a new Subplot class does
@@ -207,8 +207,9 @@ Subplot = subplot_class_factory(Axes)  # Provided for backward compatibility.
 
 def _picklable_subplot_class_constructor(axes_class):
     """
-    This stub class exists to return the appropriate subplot class when called
-    with an axes class. This is purely to allow pickling of Axes and Subplots.
+    Stub factory that returns an empty instance of the appropriate subplot
+    class when called with an axes class. This is purely to allow pickling of
+    Axes and Subplots.
     """
     subplot_class = subplot_class_factory(axes_class)
     return subplot_class.__new__(subplot_class)

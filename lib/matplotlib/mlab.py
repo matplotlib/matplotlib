@@ -406,9 +406,8 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
                      window=None, noverlap=None, pad_to=None,
                      sides=None, scale_by_freq=None, mode=None):
     """
-    This is a helper function that implements the commonality between the
-    psd, csd, spectrogram and complex, magnitude, angle, and phase spectrums.
-    It is *NOT* meant to be used outside of mlab and may change at any time.
+    Private helper implementing the common parts between the psd, csd,
+    spectrogram and complex, magnitude, angle, and phase spectrums.
     """
     if y is None:
         # if y is None use x for y
@@ -564,9 +563,8 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
 def _single_spectrum_helper(
         mode, x, Fs=None, window=None, pad_to=None, sides=None):
     """
-    This is a helper function that implements the commonality between the
-    complex, magnitude, angle, and phase spectrums.
-    It is *NOT* meant to be used outside of mlab and may change at any time.
+    Private helper implementing the commonality between the complex, magnitude,
+    angle, and phase spectrums.
     """
     cbook._check_in_list(['complex', 'magnitude', 'angle', 'phase'], mode=mode)
 

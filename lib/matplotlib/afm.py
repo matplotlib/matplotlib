@@ -1,14 +1,16 @@
 """
-This is a python interface to Adobe Font Metrics Files.  Although a
-number of other python implementations exist, and may be more complete
-than this, it was decided not to go with them because they were either:
+A python interface to Adobe Font Metrics Files.
+
+Although a number of other python implementations exist, and may be more
+complete than this, it was decided not to go with them because they were
+either:
 
 1) copyrighted or used a non-BSD compatible license
 2) had too many dependencies and a free standing lib was needed
 3) did more than needed and it was easier to write afresh rather than
    figure out how to get just what was needed.
 
-It is pretty easy to use, and requires only built-in python libs:
+It is pretty easy to use, and has no external depedencies:
 
 >>> import matplotlib as mpl
 >>> from pathlib import Path

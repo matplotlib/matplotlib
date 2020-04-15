@@ -2276,9 +2276,9 @@ def Error(msg):
 
 class Parser:
     """
-    This is the pyparsing-based parser for math expressions.  It
-    actually parses full strings *containing* math expressions, in
-    that raw text may also appear outside of pairs of ``$``.
+    A pyparsing-based parser for strings containing math expressions.
+
+    Raw text may also appear outside of pairs of ``$``.
 
     The grammar is based directly on that in TeX, though it cuts a few corners.
     """
