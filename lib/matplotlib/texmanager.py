@@ -205,6 +205,9 @@ class TexManager:
             r"\newcommand{\mathdefault}[1]{#1}",
             self._font_preamble,
             unicode_preamble,
+            # Needs to come early so that the custom preamble can change the
+            # geometry, e.g. in convert_psfrags.
+            r"\usepackage[papersize=72in,body=70in,margin=1in]{geometry}",
             self.get_custom_preamble(),
         ])
 
@@ -223,7 +226,6 @@ class TexManager:
 
         s = r"""
 %s
-\usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
 \pagestyle{empty}
 \begin{document}
 \fontsize{%f}{%f}%s
@@ -267,7 +269,6 @@ class TexManager:
         s = r"""
 %s
 \usepackage[active,showbox,tightpage]{preview}
-\usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
 
 %% we override the default showbox as it is treated as an error and makes
 %% the exit status not zero
