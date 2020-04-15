@@ -7,6 +7,7 @@
 {% if objtype in ['class'] %}
 .. auto{{ objtype }}:: {{ objname }}
     :show-inheritance:
+    :special-members:
 
 {% else %}
 .. auto{{ objtype }}:: {{ objname }}
