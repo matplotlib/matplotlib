@@ -405,8 +405,8 @@ class FigureManagerTk(FigureManagerBase):
         The tk.Toolbar
     window : tk.Window
         The tk.Window
-
     """
+
     def __init__(self, canvas, num, window):
         FigureManagerBase.__init__(self, canvas, num)
         self.window = window

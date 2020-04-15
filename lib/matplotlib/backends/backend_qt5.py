@@ -512,7 +512,6 @@ class FigureManagerQT(FigureManagerBase):
         The qt.QToolBar
     window : qt.QMainWindow
         The qt.QMainWindow
-
     """
 
     def __init__(self, canvas, num):
@@ -526,13 +525,10 @@ class FigureManagerQT(FigureManagerBase):
         image = str(cbook._get_data_path('images/matplotlib.svg'))
         self.window.setWindowIcon(QtGui.QIcon(image))
 
-        # Give the keyboard focus to the figure instead of the
-        # manager; StrongFocus accepts both tab and click to focus and
-        # will enable the canvas to process event w/o clicking.
-        # ClickFocus only takes the focus is the window has been
-        # clicked
-        # on. http://qt-project.org/doc/qt-4.8/qt.html#FocusPolicy-enum or
-        # http://doc.qt.digia.com/qt/qt.html#FocusPolicy-enum
+        # Give the keyboard focus to the figure instead of the manager:
+        # StrongFocus accepts both tab and click to focus and will enable the
+        # canvas to process event without clicking.
+        # https://doc.qt.io/qt-5/qt.html#FocusPolicy-enum
         self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.canvas.setFocus()
 
