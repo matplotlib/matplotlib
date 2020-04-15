@@ -429,6 +429,31 @@ def _make_keyword_only(since, name, func=None):
     return wrapper
 
 
+def _deprecate_method_override(method, obj, **kwargs):
+    """
+    Return ``obj.method`` with a deprecation if it was overridden, else None.
+
+    Parameters
+    ----------
+    method
+        An unbound method, i.e. an expression of the form
+        ``Class.method_name``.  Remember that within the body of a method, one
+        can always use ``__class__`` to refer to the class that is currently
+        being defined.
+    obj
+        An object of the class where *method* is defined.
+    **kwargs
+        Additional parameters passed to `warn_deprecated` to generate the
+        deprecation warning; must at least include the "since" key.
+    """
+    name = method.__name__
+    bound_method = getattr(obj, name)
+    if bound_method != method.__get__(obj):
+        warn_deprecated(**{"name": name, "obj_type": "method", **kwargs})
+        return bound_method
+    return None
+
+
 @contextlib.contextmanager
 def _suppress_matplotlib_deprecation_warning():
     with warnings.catch_warnings():

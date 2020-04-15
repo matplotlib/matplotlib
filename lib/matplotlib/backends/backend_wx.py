@@ -1202,7 +1202,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.canvas.SetCursor(cursor)
         self.canvas.Update()
 
-    def press(self, event):
+    def press_zoom(self, event):
+        super().press_zoom(event)
         if self.mode.name == 'ZOOM':
             if not self.retinaFix:
                 self.wxoverlay = wx.Overlay()
@@ -1214,7 +1215,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                     self.zoomStartY = event.ydata
                     self.zoomAxes = event.inaxes
 
-    def release(self, event):
+    def release_zoom(self, event):
+        super().release_zoom(event)
         if self.mode.name == 'ZOOM':
             # When the mouse is released we reset the overlay and it
             # restores the former content to the window.

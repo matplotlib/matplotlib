@@ -377,6 +377,14 @@ NavigationToolbar2QT.ctx
 ~~~~~~~~~~~~~~~~~~~~~~~~
 This attribute is deprecated.
 
+NavigationToolbar2.press and .release
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These methods were called when pressing or releasing a mouse button,
+but *only* when an interactive pan or zoom was occurring (contrary to
+what the docs stated).  They are deprecated; if you write a backend
+which needs to customize such events, please directly override
+``press_pan``/``press_zoom``/``release_pan``/``release_zoom`` instead.
+
 Path helpers in :mod:`.bezier`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

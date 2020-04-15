@@ -2688,14 +2688,6 @@ class NavigationToolbar2:
       :meth:`draw_rubberband` (optional)
          draw the zoom to rect "rubberband" rectangle
 
-      :meth:`press`  (optional)
-         whenever a mouse button is pressed, you'll be notified with
-         the event
-
-      :meth:`release` (optional)
-         whenever a mouse button is released, you'll be notified with
-         the event
-
       :meth:`set_message` (optional)
          display message
 
@@ -2914,6 +2906,7 @@ class NavigationToolbar2:
             a.set_navigate_mode(self.mode)
         self.set_message(self.mode)
 
+    @cbook.deprecated("3.3")
     def press(self, event):
         """Called whenever a mouse button is pressed."""
 
@@ -2937,7 +2930,12 @@ class NavigationToolbar2:
                 self.canvas.mpl_disconnect(self._id_drag)
                 self._id_drag = self.canvas.mpl_connect(
                     'motion_notify_event', self.drag_pan)
-        self.press(event)
+        press = cbook._deprecate_method_override(
+            __class__.press, self, since="3.3", message="Calling an "
+            "overridden press() at pan start is deprecated since %(since)s "
+            "and will be removed %(removal)s; override press_pan() instead.")
+        if press is not None:
+            press(event)
 
     def press_zoom(self, event):
         """Callback for mouse button press in zoom to rect mode."""
@@ -2959,7 +2957,12 @@ class NavigationToolbar2:
             "axes": axes,
             "cid": id_zoom,
         }
-        self.press(event)
+        press = cbook._deprecate_method_override(
+            __class__.press, self, since="3.3", message="Calling an "
+            "overridden press() at zoom start is deprecated since %(since)s "
+            "and will be removed %(removal)s; override press_zoom() instead.")
+        if press is not None:
+            press(event)
 
     def push_current(self):
         """Push the current view limits and position onto the stack."""
@@ -2972,6 +2975,7 @@ class NavigationToolbar2:
                  for ax in self.canvas.figure.axes}))
         self.set_history_buttons()
 
+    @cbook.deprecated("3.3")
     def release(self, event):
         """Callback for mouse button release."""
 
@@ -2990,7 +2994,12 @@ class NavigationToolbar2:
         self._xypress = []
         self._button_pressed = None
         self.push_current()
-        self.release(event)
+        release = cbook._deprecate_method_override(
+            __class__.press, self, since="3.3", message="Calling an "
+            "overridden release() at pan stop is deprecated since %(since)s "
+            "and will be removed %(removal)s; override release_pan() instead.")
+        if release is not None:
+            release(event)
         self._draw()
 
     def drag_pan(self, event):
@@ -3033,7 +3042,13 @@ class NavigationToolbar2:
             if ((abs(x - start_x) < 5 and event.key != "y") or
                     (abs(y - start_y) < 5 and event.key != "x")):
                 self._xypress = None
-                self.release(event)
+                release = cbook._deprecate_method_override(
+                    __class__.press, self, since="3.3", message="Calling an "
+                    "overridden release() at zoom stop is deprecated since "
+                    "%(since)s and will be removed %(removal)s; override "
+                    "release_zoom() instead.")
+                if release is not None:
+                    release(event)
                 self._draw()
                 return
 
@@ -3052,7 +3067,13 @@ class NavigationToolbar2:
         self._zoom_info = None
 
         self.push_current()
-        self.release(event)
+        release = cbook._deprecate_method_override(
+            __class__.press, self, since="3.3", message="Calling an "
+            "overridden release() at zoom stop is deprecated since %(since)s "
+            "and will be removed %(removal)s; override release_zoom() "
+            "instead.")
+        if release is not None:
+            release(event)
 
     @cbook.deprecated("3.3", alternative="toolbar.canvas.draw_idle()")
     def draw(self):
