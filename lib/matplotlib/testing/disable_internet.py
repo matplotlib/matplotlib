@@ -30,7 +30,7 @@ _orig_opener = None
 
 def check_internet_off(original_function):
     """
-    Wraps ``original_function``, which in most cases is assumed
+    Wrap ``original_function``, which in most cases is assumed
     to be a `socket.socket` method, to raise an `IOError` for any operations
     on non-local AF_INET sockets.
     """

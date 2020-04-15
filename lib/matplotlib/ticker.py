@@ -1299,7 +1299,7 @@ class LogitFormatter(Formatter):
 
 class EngFormatter(Formatter):
     """
-    Formats axis values using engineering prefixes to represent powers
+    Format axis values using engineering prefixes to represent powers
     of 1000, plus a specified unit, e.g., 10 MHz instead of 1e7.
     """
 
@@ -1397,7 +1397,7 @@ class EngFormatter(Formatter):
 
     def format_eng(self, num):
         """
-        Formats a number in engineering notation, appending a letter
+        Format a number in engineering notation, appending a letter
         representing the power of 1000 of the original number.
         Some examples:
 
@@ -1481,17 +1481,14 @@ class PercentFormatter(Formatter):
         self._is_latex = is_latex
 
     def __call__(self, x, pos=None):
-        """
-        Formats the tick as a percentage with the appropriate scaling.
-        """
+        """Format the tick as a percentage with the appropriate scaling."""
         ax_min, ax_max = self.axis.get_view_interval()
         display_range = abs(ax_max - ax_min)
-
         return self.fix_minus(self.format_pct(x, display_range))
 
     def format_pct(self, x, display_range):
         """
-        Formats the number as a percentage number with the correct
+        Format the number as a percentage number with the correct
         number of decimals and adds the percent symbol, if any.
 
         If ``self.decimals`` is `None`, the number of digits after the

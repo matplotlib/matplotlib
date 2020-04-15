@@ -954,9 +954,9 @@ class PsfontsMap:
 @cbook.deprecated("3.3")
 class Encoding:
     r"""
-    Parses a \*.enc file referenced from a psfonts.map style file.
-    The format this class understands is a very limited subset of
-    PostScript.
+    Parse a \*.enc file referenced from a psfonts.map style file.
+
+    The format this class understands is a very limited subset of PostScript.
 
     Usage (subject to change)::
 

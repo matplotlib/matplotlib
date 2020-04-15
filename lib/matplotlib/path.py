@@ -359,9 +359,10 @@ class Path:
                       snap=False, stroke_width=1.0, simplify=None,
                       curves=True, sketch=None):
         """
-        Iterates over all of the curve segments in the path.  Each iteration
-        returns a 2-tuple ``(vertices, code)``, where ``vertices`` is a
-        sequence of 1-3 coordinate pairs, and ``code`` is a `Path` code.
+        Iterate over all curve segments in the path.
+
+        Each iteration returns a pair ``(vertices, code)``, where ``vertices``
+        is a sequence of 1-3 coordinate pairs, and ``code`` is a `Path` code.
 
         Additionally, this method can provide a number of standard cleanups and
         conversions to the path.
@@ -379,7 +380,7 @@ class Path:
             defining a rectangle in which to clip the path.
         snap : None or bool, optional
             If True, snap all nodes to pixels; if False, don't snap them.
-            If None, perform snapping if the path contains only segments
+            If None, snap if the path contains only segments
             parallel to the x or y axes, and no more than 1024 of them.
         stroke_width : float, optional
             The width of the stroke being drawn (used for path snapping).
@@ -522,7 +523,7 @@ class Path:
         Return whether this (closed) path completely contains the given path.
 
         If *transform* is not ``None``, the path will be transformed before
-        performing the test.
+        checking for containment.
         """
         if transform is not None:
             transform = transform.frozen()

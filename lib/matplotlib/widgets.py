@@ -1812,7 +1812,7 @@ class SpanSelector(_SelectorWidget):
         return False
 
     def _set_span_xy(self, event):
-        """Setting the span coordinates"""
+        """Set the span coordinates."""
         x, y = self._get_data(event)
         if x is None:
             return

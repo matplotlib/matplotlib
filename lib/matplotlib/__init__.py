@@ -192,7 +192,7 @@ def _ensure_handler():
 
 def set_loglevel(level):
     """
-    Sets the Matplotlib's root logger and root logger handler level, creating
+    Set Matplotlib's root logger and root logger handler level, creating
     the handler if it does not exist yet.
 
     Typically, one should call ``set_loglevel("info")`` or

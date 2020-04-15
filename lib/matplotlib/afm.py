@@ -87,7 +87,7 @@ def _to_bool(s):
 
 def _parse_header(fh):
     """
-    Reads the font metrics header (up to the char metrics) and returns
+    Read the font metrics header (up to the char metrics) and returns
     a dictionary mapping *key* to *val*.  *val* will be converted to the
     appropriate python type as necessary; e.g.:
 
@@ -101,7 +101,6 @@ def _parse_header(fh):
       ItalicAngle, IsFixedPitch, FontBBox, UnderlinePosition,
       UnderlineThickness, Version, Notice, EncodingScheme, CapHeight,
       XHeight, Ascender, Descender, StartCharMetrics
-
     """
     header_converters = {
         b'StartFontMetrics': _to_float,
@@ -130,8 +129,7 @@ def _parse_header(fh):
         b'StartCharMetrics': _to_int,
         b'CharacterSet': _to_str,
         b'Characters': _to_int,
-        }
-
+    }
     d = {}
     first_line = True
     for line in fh:

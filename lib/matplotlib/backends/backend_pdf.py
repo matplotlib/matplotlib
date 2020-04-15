@@ -1725,7 +1725,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
     @cbook.deprecated("3.3")
     def track_characters(self, *args, **kwargs):
-        """Keeps track of which characters are required from each font."""
+        """Keep track of which characters are required from each font."""
         self.file._character_tracker.track(*args, **kwargs)
 
     @cbook.deprecated("3.3")
@@ -2460,7 +2460,7 @@ class PdfPages:
 
     def savefig(self, figure=None, **kwargs):
         """
-        Saves a `.Figure` to this file as a new page.
+        Save a `.Figure` to this file as a new page.
 
         Any other keyword arguments are passed to `~.Figure.savefig`.
 

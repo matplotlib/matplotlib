@@ -626,7 +626,7 @@ class Quiver(mcollections.PolyCollection):
 
     def _set_transform(self):
         """
-        Sets the PolygonCollection transform to go
+        Set the PolyCollection transform to go
         from arrow width units to pixels.
         """
         dx = self._dots_per_unit(self.units)

@@ -818,7 +818,7 @@ _prop_aliases = {
 
 def cycler(*args, **kwargs):
     """
-    Creates a `~cycler.Cycler` object much like :func:`cycler.cycler`,
+    Create a `~cycler.Cycler` object much like :func:`cycler.cycler`,
     but includes input validation.
 
     Call signatures::
