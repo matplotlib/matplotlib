@@ -185,6 +185,9 @@ class TexManager:
             self._font_preamble,
             r"\usepackage[utf8]{inputenc}",
             r"\DeclareUnicodeCharacter{2212}{\ensuremath{-}}",
+            # Needs to come early so that the custom preamble can change the
+            # geometry, e.g. in convert_psfrags.
+            r"\usepackage[papersize=72in,body=70in,margin=1in]{geometry}",
             self.get_custom_preamble(),
         ])
 
@@ -203,7 +206,6 @@ class TexManager:
         Path(texfile).write_text(
             r"""
 %s
-\usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
 \pagestyle{empty}
 \begin{document}
 %% The empty hbox ensures that a page is printed even for empty inputs.
@@ -239,7 +241,6 @@ class TexManager:
             r"""
 %s
 \usepackage[active,showbox,tightpage]{preview}
-\usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
 
 %% we override the default showbox as it is treated as an error and makes
 %% the exit status not zero

@@ -1097,18 +1097,20 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     with mpl.rc_context({
             "text.latex.preamble":
             mpl.rcParams["text.latex.preamble"] +
-            r"\usepackage{psfrag,color}"
-            r"\usepackage[dvips]{graphicx}"
-            r"\PassOptionsToPackage{dvips}{geometry}"}):
+            r"\usepackage{psfrag,color}""\n"
+            r"\usepackage[dvips]{graphicx}""\n"
+            r"\geometry{papersize={%(width)sin,%(height)sin},"
+            r"body={%(width)sin,%(height)sin},margin=0in}"
+            % {"width": paper_width, "height": paper_height}
+    }):
         dvifile = TexManager().make_dvi(
-            r"\newgeometry{papersize={%(width)sin,%(height)sin},"
-            r"body={%(width)sin,%(height)sin}, margin={0in,0in}}""\n"
-            r"\begin{figure}"
-            r"\centering\leavevmode%(psfrags)s"
-            r"\includegraphics*[angle=%(angle)s]{%(epsfile)s}"
+            "\n"
+            r"\begin{figure}""\n"
+            r"  \centering\leavevmode""\n"
+            r"  %(psfrags)s""\n"
+            r"  \includegraphics*[angle=%(angle)s]{%(epsfile)s}""\n"
             r"\end{figure}"
             % {
-                "width": paper_width, "height": paper_height,
                 "psfrags": "\n".join(psfrags),
                 "angle": 90 if orientation == 'landscape' else 0,
                 "epsfile": pathlib.Path(tmpfile).resolve().as_posix(),
