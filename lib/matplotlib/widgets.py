@@ -836,37 +836,38 @@ class TextBox(AxesWidget):
 
     def begin_typing(self, x):
         self.capturekeystrokes = True
-        # Check for toolmanager handling the keypress
-        if self.ax.figure.canvas.manager.key_press_handler_id is not None:
-            # Disable command keys so that the user can type without
-            # command keys causing figure to be saved, etc.
-            self._restore_keymap = ExitStack()
+        # Disable keypress shortcuts, which may otherwise cause the figure to
+        # be saved, closed, etc., until the user stops typing.  The way to
+        # achieve this depends on whether toolmanager is in use.
+        stack = ExitStack()  # Register cleanup actions when user stops typing.
+        self._on_stop_typing = stack.close
+        toolmanager = getattr(
+            self.ax.figure.canvas.manager, "toolmanager", None)
+        if toolmanager is not None:
+            # If using toolmanager, lock keypresses, and plan to release the
+            # lock when typing stops.
+            toolmanager.keypresslock(self)
+            stack.push(toolmanager.keypresslock.release, self)
+        else:
+            # If not using toolmanager, disable all keypress-related rcParams.
             # Avoid spurious warnings if keymaps are getting deprecated.
             with cbook._suppress_matplotlib_deprecation_warning():
-                self._restore_keymap.enter_context(
-                    mpl.rc_context({k: [] for k in mpl.rcParams
-                                    if k.startswith('keymap.')}))
-        else:
-            self.ax.figure.canvas.manager.toolmanager.keypresslock(self)
+                stack.enter_context(mpl.rc_context(
+                    {k: [] for k in mpl.rcParams if k.startswith("keymap.")}))
 
     def stop_typing(self):
-        notifysubmit = False
-        # Because _notify_submit_users might throw an error in the user's code,
-        # we only want to call it once we've already done our cleanup.
         if self.capturekeystrokes:
-            # Check for toolmanager handling the keypress
-            if self.ax.figure.canvas.manager.key_press_handler_id is not None:
-                # since the user is no longer typing,
-                # reactivate the standard command keys
-                self._restore_keymap.close()
-            else:
-                toolmanager = self.ax.figure.canvas.manager.toolmanager
-                toolmanager.keypresslock.release(self)
+            self._on_stop_typing()
+            self._on_stop_typing = None
             notifysubmit = True
+        else:
+            notifysubmit = False
         self.capturekeystrokes = False
         self.cursor.set_visible(False)
         self.ax.figure.canvas.draw()
         if notifysubmit:
+            # Because _notify_submit_observers might throw an error in the
+            # user's code, only call it once we've already done our cleanup.
             self._notify_submit_observers()
 
     def position_cursor(self, x):
