@@ -361,7 +361,7 @@ hex2color = to_rgb
 
 class ColorConverter:
     """
-    This class is only kept for backwards compatibility.
+    A class only kept for backwards compatibility.
 
     Its functionality is entirely provided by module-level functions.
     """

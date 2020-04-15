@@ -1,5 +1,5 @@
 """
-This module is to support the *bbox_inches* parameter in `.Figure.savefig`.
+Helper module for the *bbox_inches* parameter in `.Figure.savefig`.
 """
 
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
@@ -73,8 +73,8 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
 
 def process_figure_for_rasterizing(fig, bbox_inches_restore, fixed_dpi=None):
     """
-    This need to be called when figure dpi changes during the drawing
-    (e.g., rasterizing). It recovers the bbox and re-adjust it with
+    A function that needs to be called when figure dpi changes during the
+    drawing (e.g., rasterizing).  It recovers the bbox and re-adjust it with
     the new dpi.
     """
 

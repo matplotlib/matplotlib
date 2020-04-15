@@ -1,5 +1,5 @@
 """
-This module defines default legend handlers.
+Default legend handlers.
 
 It is strongly encouraged to have read the :doc:`legend guide
 </tutorials/intermediate/legend_guide>` before this documentation.
@@ -21,7 +21,6 @@ This module includes definition of several legend handler classes
 derived from the base class (HandlerBase) with the following method::
 
     def legend_artist(self, legend, orig_handle, fontsize, handlebox)
-
 """
 
 from itertools import cycle

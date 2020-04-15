@@ -2763,9 +2763,10 @@ class _AxesBase(martist.Artist):
 
     def draw_artist(self, a):
         """
-        This method can only be used after an initial draw which
-        caches the renderer.  It is used to efficiently update Axes
-        data (axis ticks, labels, etc are not updated).
+        Efficiently redraw a single artist.
+
+        This method can only be used after an initial draw which caches the
+        renderer.
         """
         if self.figure._cachedRenderer is None:
             raise AttributeError("draw_artist can only be used after an "
@@ -2774,9 +2775,10 @@ class _AxesBase(martist.Artist):
 
     def redraw_in_frame(self):
         """
-        This method can only be used after an initial draw which
-        caches the renderer.  It is used to efficiently update Axes
-        data (axis ticks, labels, etc are not updated).
+        Efficiently redraw Axes data, but not axis ticks, labels, etc.
+
+        This method can only be used after an initial draw which caches the
+        renderer.
         """
         if self.figure._cachedRenderer is None:
             raise AttributeError("redraw_in_frame can only be used after an "

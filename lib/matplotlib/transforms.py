@@ -1,5 +1,5 @@
 """
-matplotlib includes a framework for arbitrary geometric
+Matplotlib includes a framework for arbitrary geometric
 transformations that is used determine the final position of all
 elements drawn on the canvas.
 
@@ -211,14 +211,16 @@ class TransformNode:
 
 class BboxBase(TransformNode):
     """
-    This is the base class of all bounding boxes, and provides read-only access
-    to its data.  A mutable bounding box is provided by the `Bbox` class.
+    The base class of all bounding boxes.
+
+    This class is immutable; `Bbox` is a mutable subclass.
 
     The canonical representation is as two points, with no
     restrictions on their ordering.  Convenience properties are
     provided to get the left, bottom, right and top edges and width
     and height, but these are not stored explicitly.
     """
+
     is_bbox = True
     is_affine = True
 

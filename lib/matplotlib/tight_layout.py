@@ -1,9 +1,9 @@
 """
-This module provides routines to adjust subplot params so that subplots are
+Routines to adjust subplot params so that subplots are
 nicely fit in the figure. In doing so, only axis labels, tick labels, axes
 titles and offsetboxes that are anchored to axes are currently considered.
 
-Internally, it assumes that the margins (left_margin, etc.) which are
+Internally, this module assumes that the margins (left_margin, etc.) which are
 differences between ax.get_tightbbox and ax.bbox are independent of axes
 position. This may fail if Axes.adjustable is datalim. Also, This will fail
 for some cases (for example, left or right margin is affected by xlabel).

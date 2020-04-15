@@ -170,7 +170,7 @@ def figure_edit(axes, parent=None):
         datalist.append((mappables, "Images, etc.", ""))
 
     def apply_callback(data):
-        """This function will be called to apply changes"""
+        """A callback to apply changes."""
         orig_xlim = axes.get_xlim()
         orig_ylim = axes.get_ylim()
 

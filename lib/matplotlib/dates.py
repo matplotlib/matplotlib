@@ -563,7 +563,7 @@ class IndexDateFormatter(ticker.Formatter):
 
 class ConciseDateFormatter(ticker.Formatter):
     """
-    This class attempts to figure out the best format to use for the
+    A `.Formatter` which attempts to figure out the best format to use for the
     date, and to make it as compact as possible, but still be complete. This is
     most useful when used with the `AutoDateLocator`::
 
@@ -761,8 +761,8 @@ class ConciseDateFormatter(ticker.Formatter):
 
 class AutoDateFormatter(ticker.Formatter):
     """
-    This class attempts to figure out the best format to use.  This is
-    most useful when used with the `AutoDateLocator`.
+    A `.Formatter` which attempts to figure out the best format to use.  This
+    is most useful when used with the `AutoDateLocator`.
 
     The AutoDateFormatter has a scale dictionary that maps the scale
     of the tick (the distance in days between one major tick) and a

@@ -1,8 +1,7 @@
 r"""
-This module supports embedded TeX expressions in matplotlib via dvipng
-and dvips for the raster and postscript backends.  The tex and
-dvipng/dvips information is cached in ~/.matplotlib/tex.cache for reuse between
-sessions
+Support for embedded TeX expressions in Matplotlib via dvipng and dvips for the
+raster and PostScript backends.  The tex and dvipng/dvips information is cached
+in ~/.matplotlib/tex.cache for reuse between sessions.
 
 Requirements:
 

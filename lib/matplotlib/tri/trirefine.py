@@ -171,10 +171,10 @@ class UniformTriRefiner(TriRefiner):
     @staticmethod
     def _refine_triangulation_once(triangulation, ancestors=None):
         """
-        This function refines a matplotlib.tri *triangulation* by splitting
-        each triangle into 4 child-masked_triangles built on the edges midside
-        nodes.
-        The masked triangles, if present, are also split but their children
+        Refine a `.Triangulation` by splitting each triangle into 4
+        child-masked_triangles built on the edges midside nodes.
+
+        Masked triangles, if present, are also split, but their children
         returned masked.
 
         If *ancestors* is not provided, returns only a new triangulation:
@@ -186,8 +186,8 @@ class UniformTriRefiner(TriRefiner):
         (child_triangulation, child_ancestors)
         child_ancestors is defined so that the 4 child masked_triangles share
         the same index as their father: child_ancestors.shape = (4 * ntri,).
-
         """
+
         x = triangulation.x
         y = triangulation.y
 

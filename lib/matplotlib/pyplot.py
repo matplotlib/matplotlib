@@ -626,7 +626,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
 def _auto_draw_if_interactive(fig, val):
     """
-    This is an internal helper function for making sure that auto-redrawing
+    An internal helper function for making sure that auto-redrawing
     works as intended in the plain python repl.
 
     Parameters

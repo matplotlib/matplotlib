@@ -1,18 +1,16 @@
 """
-This module provides the routine to adjust subplot layouts so that there are
-no overlapping axes or axes decorations.  All axes decorations are dealt with
-(labels, ticks, titles, ticklabels) and some dependent artists are also dealt
-with (colorbar, suptitle, legend).
+Adjust subplot layouts so that there are no overlapping axes or axes
+decorations.  All axes decorations are dealt with (labels, ticks, titles,
+ticklabels) and some dependent artists are also dealt with (colorbar, suptitle,
+legend).
 
-Layout is done via :meth:`~matplotlib.gridspec`, with one constraint per
-gridspec, so it is possible to have overlapping axes if the gridspecs
-overlap (i.e. using :meth:`~matplotlib.gridspec.GridSpecFromSubplotSpec`).
-Axes placed using ``figure.subplots()`` or ``figure.add_subplots()`` will
-participate in the layout.  Axes manually placed via ``figure.add_axes()``
-will not.
+Layout is done via `~matplotlib.gridspec`, with one constraint per gridspec,
+so it is possible to have overlapping axes if the gridspecs overlap (i.e.
+using `~matplotlib.gridspec.GridSpecFromSubplotSpec`).  Axes placed using
+``figure.subplots()`` or ``figure.add_subplots()`` will participate in the
+layout.  Axes manually placed via ``figure.add_axes()`` will not.
 
 See Tutorial: :doc:`/tutorials/intermediate/constrainedlayout_guide`
-
 """
 
 # Development Notes:

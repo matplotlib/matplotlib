@@ -839,10 +839,7 @@ class Axes3D(Axes):
         """)
 
     def clabel(self, *args, **kwargs):
-        """
-        This function is currently not implemented for 3D axes.
-        Returns *None*.
-        """
+        """Currently not implemented for 3D axes, and returns *None*."""
         return None
 
     def view_init(self, elev=None, azim=None):

@@ -1751,7 +1751,7 @@ class Arc(Ellipse):
 
 def bbox_artist(artist, renderer, props=None, fill=True):
     """
-    This is a debug function to draw a rectangle around the bounding
+    A debug function to draw a rectangle around the bounding
     box returned by an artist's `.Artist.get_window_extent`
     to test whether the artist is returning the correct bbox.
 
@@ -1782,7 +1782,7 @@ def bbox_artist(artist, renderer, props=None, fill=True):
 
 def draw_bbox(bbox, renderer, color='k', trans=None):
     """
-    This is a debug function to draw a rectangle around the bounding
+    A debug function to draw a rectangle around the bounding
     box returned by an artist's `.Artist.get_window_extent`
     to test whether the artist is returning the correct bbox.
     """

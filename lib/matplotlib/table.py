@@ -7,7 +7,7 @@
 #    Copyright The Matplotlib development team
 
 """
-This module provides functionality to add a table to a plot.
+Tables drawing.
 
 Use the factory function `~matplotlib.table.table` to create a ready-made
 table from texts. If you need more control, use the `.Table` class and its

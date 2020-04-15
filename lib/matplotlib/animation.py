@@ -890,12 +890,10 @@ class HTMLWriter(FileMovieWriter):
 
 class Animation:
     """
-    This class wraps the creation of an animation using matplotlib.
+    A base class for Animations.
 
-    It is only a base class which should be subclassed to provide
-    needed behavior.
-
-    This class is not typically used directly.
+    This class is not usable as is, and should be subclassed to provide needed
+    behavior.
 
     Parameters
     ----------
