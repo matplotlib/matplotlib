@@ -935,7 +935,8 @@ class FigureFrameWx(wx.Frame):
         # By adding toolbar in sizer, we are able to put it at the bottom
         # of the frame - so appearance is closer to GTK version
 
-        self.toolmanager = self._get_toolmanager()
+        self.figmgr = FigureManagerWx(self.canvas, num, self)
+
         statusbar = (StatusbarWx(self, self.toolmanager)
                      if self.toolmanager else StatusBarWx(self))
         self.SetStatusBar(statusbar)
@@ -961,14 +962,16 @@ class FigureFrameWx(wx.Frame):
 
         self.canvas.SetMinSize((2, 2))
 
-        self.figmgr = FigureManagerWx(self.canvas, num, self)
-
         self.Bind(wx.EVT_CLOSE, self._onClose)
 
     @cbook.deprecated("3.2", alternative="self.GetStatusBar()")
     @property
     def statusbar(self):
         return self.GetStatusBar()
+
+    @property
+    def toolmanager(self):
+        return self.figmgr.toolmanager
 
     def _get_toolbar(self):
         if mpl.rcParams['toolbar'] == 'toolbar2':
@@ -978,13 +981,6 @@ class FigureFrameWx(wx.Frame):
         else:
             toolbar = None
         return toolbar
-
-    def _get_toolmanager(self):
-        if mpl.rcParams['toolbar'] == 'toolmanager':
-            toolmanager = ToolManager(self.canvas.figure)
-        else:
-            toolmanager = None
-        return toolmanager
 
     def get_canvas(self, fig):
         return FigureCanvasWx(self, -1, fig)
@@ -1045,8 +1041,16 @@ class FigureManagerWx(FigureManagerBase):
         self.frame = frame
         self.window = frame
 
-        self.toolmanager = getattr(frame, "toolmanager", None)
-        self.toolbar = frame.GetToolBar()
+    @property
+    def toolbar(self):
+        return self.frame.GetToolBar()
+
+    @toolbar.setter
+    def toolbar(self, value):
+        # Never allow this, except that base class inits this to None before
+        # the frame is set up.
+        if value is not None or hasattr(self, "frame"):
+            raise AttributeError("can't set attribute")
 
     def show(self):
         # docstring inherited
@@ -1110,7 +1114,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def __init__(self, canvas):
         wx.ToolBar.__init__(self, canvas.GetParent(), -1)
         NavigationToolbar2.__init__(self, canvas)
-        self.canvas = canvas
         self._idle = True
         self.prevZoomRect = None
         # for now, use alternate zoom-rectangle drawing on all

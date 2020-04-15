@@ -15,7 +15,6 @@ from matplotlib.backend_bases import (
     TimerBase, cursors, ToolContainerBase, StatusbarBase, MouseButton)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
-from matplotlib.backend_managers import ToolManager
 from . import qt_compat
 from .qt_compat import (
     QtCore, QtGui, QtWidgets, _isdeleted, is_pyqt5, __version__, QT_API)
@@ -512,12 +511,10 @@ class FigureManagerQT(FigureManagerBase):
         The qt.QToolBar
     window : qt.QMainWindow
         The qt.QMainWindow
-
     """
 
     def __init__(self, canvas, num):
         FigureManagerBase.__init__(self, canvas, num)
-        self.canvas = canvas
         self.window = MainWindow()
         self.window.closing.connect(canvas.close_event)
         self.window.closing.connect(self._widgetclosed)
@@ -526,19 +523,15 @@ class FigureManagerQT(FigureManagerBase):
         image = str(cbook._get_data_path('images/matplotlib.svg'))
         self.window.setWindowIcon(QtGui.QIcon(image))
 
-        # Give the keyboard focus to the figure instead of the
-        # manager; StrongFocus accepts both tab and click to focus and
-        # will enable the canvas to process event w/o clicking.
-        # ClickFocus only takes the focus is the window has been
-        # clicked
-        # on. http://qt-project.org/doc/qt-4.8/qt.html#FocusPolicy-enum or
-        # http://doc.qt.digia.com/qt/qt.html#FocusPolicy-enum
+        # Give the keyboard focus to the figure instead of the manager:
+        # StrongFocus accepts both tab and click to focus and will enable the
+        # canvas to process event without clicking.
+        # https://doc.qt.io/qt-5/qt.html#FocusPolicy-enum
         self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.canvas.setFocus()
 
         self.window._destroying = False
 
-        self.toolmanager = self._get_toolmanager()
         self.toolbar = self._get_toolbar(self.canvas, self.window)
         self.statusbar = None
 
@@ -602,13 +595,6 @@ class FigureManagerQT(FigureManagerBase):
         else:
             toolbar = None
         return toolbar
-
-    def _get_toolmanager(self):
-        if matplotlib.rcParams['toolbar'] == 'toolmanager':
-            toolmanager = ToolManager(self.canvas.figure)
-        else:
-            toolmanager = None
-        return toolmanager
 
     def resize(self, width, height):
         # these are Qt methods so they return sizes in 'virtual' pixels
