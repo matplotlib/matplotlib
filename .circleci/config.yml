@@ -63,6 +63,8 @@ mpl-run: &mpl-install
 doc-run: &doc-build
   name: Build documentation
   command: |
+    # Set epoch to date of latest tag.
+    export SOURCE_DATE_EPOCH="$(git log -1 --format=%at $(git describe --abbrev=0))"
     make html O=-T
     rm -r build/html/_sources
   working_directory: doc
