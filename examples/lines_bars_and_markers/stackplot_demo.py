@@ -12,6 +12,10 @@ show some examples to accomplish this with Matplotlib.
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 x = [1, 2, 3, 4, 5]
 y1 = [1, 1, 2, 3, 5]
 y2 = [0, 4, 2, 6, 8]

@@ -9,16 +9,19 @@ This example demonstrates the style used in the Bayesian Methods for Hackers
 .. [1] http://camdavidsonpilon.github.io/Probabilistic-Programming-and-Bayesian-Methods-for-Hackers/
 
 """
-from numpy.random import beta
+import numpy as np
 import matplotlib.pyplot as plt
 
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
 
 plt.style.use('bmh')
 
 
 def plot_beta_hist(ax, a, b):
-    ax.hist(beta(a, b, size=10000), histtype="stepfilled",
-            bins=25, alpha=0.8, density=True)
+    ax.hist(np.random.beta(a, b, size=10000),
+            histtype="stepfilled", bins=25, alpha=0.8, density=True)
 
 
 fig, ax = plt.subplots()

@@ -9,6 +9,10 @@ Creating a custom ellipse symbol in scatter plot.
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 # unit area ellipse
 rx, ry = 3., 1.
 area = rx * ry * np.pi

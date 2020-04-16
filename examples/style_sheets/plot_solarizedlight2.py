@@ -23,6 +23,11 @@ ToDo:
 """
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 x = np.linspace(0, 10)
 with plt.style.context('Solarize_Light2'):
     plt.plot(x, np.sin(x) + x + np.random.randn(50))
