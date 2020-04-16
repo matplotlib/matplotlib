@@ -12,6 +12,7 @@ Module containing Axes3D, an object which can plot 3D objects on a
 
 from collections import defaultdict
 from functools import reduce
+import logging
 import math
 import textwrap
 
@@ -25,15 +26,15 @@ import matplotlib.colors as mcolors
 import matplotlib.docstring as docstring
 import matplotlib.scale as mscale
 from matplotlib.axes import Axes, rcParams
-from matplotlib.axes._base import _axis_method_wrapper
+from matplotlib.axes._base import _axis_method_wrapper, _process_plot_format
 from matplotlib.transforms import Bbox
 from matplotlib.tri.triangulation import Triangulation
-from matplotlib.colors import Normalize, LightSource
-from matplotlib.axes._base import _process_plot_format
 
 from . import art3d
 from . import proj3d
 from . import axis3d
+
+_log = logging.getLogger(__name__)
 
 
 @cbook.deprecated("3.2", alternative="Bbox.unit()")
@@ -2846,11 +2847,11 @@ pivot='tail', normalize=False, **kwargs)
         """
         had_data = self.has_data()
 
-        if not cbook.iterable(x):
+        if not np.iterable(x):
             x = [x]
-        if not cbook.iterable(y):
+        if not np.iterable(y):
             y = [y]
-        if not cbook.iterable(z):
+        if not np.iterable(z):
             z = [z]
 
         if fmt is None:
@@ -2858,7 +2859,7 @@ pivot='tail', normalize=False, **kwargs)
             msg = ('Use of None object as fmt keyword argument to ' +
                    'suppress plotting of data values is deprecated ' +
                    'since 1.4; use the string "none" instead.')
-            warnings.warn(msg)
+            _log.warning(msg)
 
         plot_line = (fmt.lower() != 'none')
         label = kwargs.pop("label", None)
@@ -2873,7 +2874,7 @@ pivot='tail', normalize=False, **kwargs)
             if 'color' in kwargs:
                 base_style['color'] = kwargs.pop('color')
         else:
-            base_style = six.next(self._get_lines.prop_cycler)
+            base_style = next(self._get_lines.prop_cycler)
 
         base_style.update(fmt_style_kwargs)
         if 'color' not in base_style:
@@ -2936,10 +2937,10 @@ pivot='tail', normalize=False, **kwargs)
             self.add_line(data_line)
 
         def _bool_asarray_helper(d, expected):
-            if not cbook.iterable(d):
+            if not np.iterable(d):
                 return np.asarray([d] * expected, bool)
-            else:
-                return np.asarray(d, bool)
+
+            return np.asarray(d, bool)
 
         def _mask_lists(xs, ys, zs, mask=None):
             """ Applies a mask to three lists. """
@@ -2958,14 +2959,14 @@ pivot='tail', normalize=False, **kwargs)
         # List of endpoint coordinates, used for auto-scaling
         coorderrs = []
 
-        for data, err, i_xyz, lolims, uplims in zip([x, y, z],
-                                    [xerr, yerr, zerr], range(3),
-                                    [xlolims, ylolims, zlolims],
-                                    [xuplims, yuplims, zuplims]):
+        for data, err, i_xyz, lolims, uplims in zip(
+                [x, y, z], [xerr, yerr, zerr], range(3),
+                [xlolims, ylolims, zlolims], [xuplims, yuplims, zuplims]):
+
             if err is None:
                 continue
 
-            if not cbook.iterable(err):
+            if not np.iterable(err):
                 err = [err] * len(data)
             lolims = _bool_asarray_helper(lolims, len(x))
             uplims = _bool_asarray_helper(uplims, len(x))
@@ -2976,7 +2977,7 @@ pivot='tail', normalize=False, **kwargs)
             #       as long as the actual data plotted stays as lists.
             #       This is due to unit preservation issues
             #       (c.f. the 2d errorbar case).
-            rolling_mask = np.roll([1.,0.,0.], i_xyz)
+            rolling_mask = np.roll([1., 0., 0.], i_xyz)
             # TODO: why is this here?
             if err is not None:
                 err = np.atleast_1d(err)
@@ -2984,9 +2985,10 @@ pivot='tail', normalize=False, **kwargs)
             # a nested list structure that expands to (xl,xh),(yl,yh),(zl,zh),
             # where x/y/z and l/h correspond to dimensions and low/high
             # positions of errorbars in a dimension we're looping over
-            coorderr = [_unpack_errs(coord, err*rolling_mask[i],
-                        ~lolims & everymask, ~uplims & everymask)
-                        for i, coord in enumerate([x, y, z])]
+            coorderr = [
+                _unpack_errs(coord, err * rolling_mask[i],
+                             ~lolims & everymask, ~uplims & everymask)
+                for i, coord in enumerate([x, y, z])]
             (xl, xh), (yl, yh), (zl, zh) = coorderr
 
             # define the markers used for errorbar caps and limits below
@@ -3026,8 +3028,9 @@ pivot='tail', normalize=False, **kwargs)
                 #        example, 180 deg rotation around z-axis would flip
                 #        the markers around... However, this solution is
                 #        spiritually close to that of 2d errorbar function
-                limits = [_unpack_errs(coord, err*rolling_mask[i], uplims,
-                          lolims) for i, coord in enumerate([x, y, z])]
+                limits = [
+                    _unpack_errs(coord, err*rolling_mask[i], uplims, lolims)
+                    for i, coord in enumerate([x, y, z])]
                 (xlo, xup), (ylo, yup), (zlo, zup) = limits
 
                 lolims_xyz = _mask_lists(xup, yup, zup, lolims & everymask)
