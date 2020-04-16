@@ -14,7 +14,7 @@ from numpy.random import multivariate_normal
 
 data = np.vstack([
     multivariate_normal([10, 10], [[3, 2], [2, 3]], size=100000),
-    multivariate_normal([30, 20], [[2, 3], [1, 3]], size=1000)
+    multivariate_normal([30, 20], [[3, 1], [1, 3]], size=1000)
 ])
 
 gammas = [0.8, 0.5, 0.3]
