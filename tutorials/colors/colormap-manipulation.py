@@ -37,7 +37,6 @@ from matplotlib import cm
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
 viridis = cm.get_cmap('viridis', 8)
-print(viridis)
 
 ##############################################################################
 # The object ``viridis`` is a callable, that when passed a float between
@@ -74,7 +73,6 @@ print('viridis(np.linspace(0, 1, 12))', viridis(np.linspace(0, 1, 12)))
 # float array between 0 and 1.
 
 copper = cm.get_cmap('copper', 8)
-print(copper)
 
 print('copper(range(8))', copper(range(8)))
 print('copper(np.linspace(0, 1, 8))', copper(np.linspace(0, 1, 8)))
