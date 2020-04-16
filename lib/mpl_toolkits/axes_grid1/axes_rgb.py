@@ -132,8 +132,7 @@ class RGBAxes:
 
     @cbook.deprecated("3.3")
     def add_RGB_to_figure(self):
-        """Add the red, green and blue axes to the RGB composite's axes figure
-        """
+        """Add red, green and blue axes to the RGB composite's axes figure."""
         self.RGB.get_figure().add_axes(self.R)
         self.RGB.get_figure().add_axes(self.G)
         self.RGB.get_figure().add_axes(self.B)

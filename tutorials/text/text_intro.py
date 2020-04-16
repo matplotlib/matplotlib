@@ -354,8 +354,7 @@ plt.show()
 
 
 def formatoddticks(x, pos):
-    """Format odd tick positions
-    """
+    """Format odd tick positions."""
     if x % 2:
         return '%1.2f' % x
     else:

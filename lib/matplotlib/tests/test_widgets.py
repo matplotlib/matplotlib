@@ -342,7 +342,8 @@ def test_slider_horizontal_vertical():
 
 
 def check_polygon_selector(event_sequence, expected_result, selections_count):
-    """Helper function to test Polygon Selector
+    """
+    Helper function to test Polygon Selector.
 
     Parameters
     ----------

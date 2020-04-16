@@ -53,13 +53,12 @@ def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
     n_std : float
         The number of standard deviations to determine the ellipse's radiuses.
 
+    **kwargs
+        Forwarded to `~matplotlib.patches.Ellipse`
+
     Returns
     -------
     matplotlib.patches.Ellipse
-
-    Other parameters
-    ----------------
-    kwargs : `~matplotlib.patches.Patch` properties
     """
     if x.size != y.size:
         raise ValueError("x and y must be the same size")

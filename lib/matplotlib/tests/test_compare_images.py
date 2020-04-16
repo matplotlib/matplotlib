@@ -43,7 +43,8 @@ from matplotlib.testing.decorators import _image_directories
         ('all128.png', 'all127.png', 0, 1),
     ])
 def test_image_comparison_expect_rms(im1, im2, tol, expect_rms):
-    """Compare two images, expecting a particular RMS error.
+    """
+    Compare two images, expecting a particular RMS error.
 
     im1 and im2 are filenames relative to the baseline_dir directory.
 
