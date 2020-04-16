@@ -624,6 +624,7 @@ _deprecated_remain_as_none = {
     'mathtext.fallback_to_cm': ('3.3',),
     'keymap.all_axes': ('3.3',),
     'savefig.jpeg_quality': ('3.3',),
+    'text.latex.preview': ('3.3',),
 }
 
 

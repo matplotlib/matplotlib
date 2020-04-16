@@ -477,7 +477,7 @@ translate
         tex = r'\color[rgb]{%s} %s' % (color, s)
 
         corr = 0  # w/2*(fontsize-10)/10
-        if mpl.rcParams['text.latex.preview']:
+        if dict.__getitem__(mpl.rcParams, 'text.latex.preview'):
             # use baseline alignment!
             pos = _nums_to_str(x-corr, y)
             self.psfrag.append(

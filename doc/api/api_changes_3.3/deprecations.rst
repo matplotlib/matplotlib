@@ -388,6 +388,12 @@ instead.
 The unused ``animation.html_args`` rcParam and ``animation.HTMLWriter.args_key``
 attribute are deprecated.
 
+``text.latex.preview`` rcParam
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This rcParam, which controlled the use of the preview.sty LaTeX package to
+align TeX string baselines, is deprecated, as Matplotlib's own dvi parser now
+computes baselines just as well as preview.sty.
+
 ``SubplotSpec.get_rows_columns``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This method is deprecated.  Use the ``GridSpec.nrows``, ``GridSpec.ncols``,

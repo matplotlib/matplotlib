@@ -219,6 +219,7 @@ class TexManager:
     _re_vbox = re.compile(
         r"MatplotlibBox:\(([\d.]+)pt\+([\d.]+)pt\)x([\d.]+)pt")
 
+    @cbook.deprecated("3.3")
     def make_tex_preview(self, tex, fontsize):
         """
         Generate a tex file to render the tex string at a specific font size.
@@ -286,7 +287,7 @@ class TexManager:
         Return the file name.
         """
 
-        if rcParams['text.latex.preview']:
+        if dict.__getitem__(rcParams, 'text.latex.preview'):
             return self.make_dvi_preview(tex, fontsize)
 
         basefile = self.get_basefile(tex, fontsize)
@@ -306,6 +307,7 @@ class TexManager:
 
         return dvifile
 
+    @cbook.deprecated("3.3")
     def make_dvi_preview(self, tex, fontsize):
         """
         Generate a dvi file containing latex's layout of tex string.
@@ -397,7 +399,7 @@ class TexManager:
 
         dpi_fraction = renderer.points_to_pixels(1.) if renderer else 1
 
-        if rcParams['text.latex.preview']:
+        if dict.__getitem__(rcParams, 'text.latex.preview'):
             # use preview.sty
             basefile = self.get_basefile(tex, fontsize)
             baselinefile = '%s.baseline' % basefile

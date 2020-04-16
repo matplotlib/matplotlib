@@ -291,7 +291,6 @@
                         # type1cm, textcomp.
                         # Adobe Postscript (PSSNFS) font packages may also be
                         # loaded, depending on your font settings.
-#text.latex.preview: False
 
 #text.hinting: auto  # May be one of the following:
                      #     - none: Perform no hinting
