@@ -1475,7 +1475,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
 
     Parameters
     ----------
-    fname : str or PathLike or file-like
+    fname : str or path-like or file-like
         A path or a file-like object to store the image in.
         If *format* is not set, then the output format is inferred from the
         extension of *fname*, if any, and from :rc:`savefig.format` otherwise.
