@@ -82,9 +82,9 @@ class TimerTk(TimerBase):
     """Subclass of `backend_bases.TimerBase` using Tk timer events."""
 
     def __init__(self, parent, *args, **kwargs):
+        self._timer = None
         TimerBase.__init__(self, *args, **kwargs)
         self.parent = parent
-        self._timer = None
 
     def _timer_start(self):
         self._timer_stop()
@@ -97,7 +97,6 @@ class TimerTk(TimerBase):
 
     def _on_timer(self):
         TimerBase._on_timer(self)
-
         # Tk after() is only a single shot, so we need to add code here to
         # reset the timer if we're not operating in single shot mode.  However,
         # if _timer is None, this means that _timer_stop has been called; so

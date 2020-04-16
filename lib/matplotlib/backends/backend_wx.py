@@ -70,9 +70,9 @@ class TimerWx(TimerBase):
     """Subclass of `.TimerBase` using wx.Timer events."""
 
     def __init__(self, *args, **kwargs):
-        TimerBase.__init__(self, *args, **kwargs)
         self._timer = wx.Timer()
         self._timer.Notify = self._on_timer
+        TimerBase.__init__(self, *args, **kwargs)
 
     def _timer_start(self):
         self._timer.Start(self._interval, self._single)
@@ -81,7 +81,8 @@ class TimerWx(TimerBase):
         self._timer.Stop()
 
     def _timer_set_interval(self):
-        self._timer_start()
+        if self._timer.IsRunning():
+            self._timer_start()  # Restart with new interval.
 
     def _timer_set_single_shot(self):
         self._timer.Start()

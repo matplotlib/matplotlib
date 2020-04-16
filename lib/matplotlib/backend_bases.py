@@ -1059,10 +1059,9 @@ class TimerBase:
             `remove_callback` can be used.
         """
         self.callbacks = [] if callbacks is None else callbacks.copy()
-        self._interval = 1000 if interval is None else interval
-        self._single = False
-        # Default attribute for holding the GUI-specific timer object
-        self._timer = None
+        # Set .interval and not ._interval to go through the property setter.
+        self.interval = 1000 if interval is None else interval
+        self.single_shot = False
 
     def __del__(self):
         """Need to stop timer and possibly disconnect timer."""
