@@ -1128,14 +1128,21 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self._parent = self.canvas.GetParent()
 
         self.wx_ids = {}
+        self.bitmaps = {}
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
                 self.AddSeparator()
                 continue
+
+            bitmap = _load_bitmap(f"{image_file}.png")
+            if text in ["Pan", "Zoom"]:
+                self.bitmaps[text] = {"Normal": bitmap,
+                    "Toggled": self._make_toggled_bitmap(bitmap)}
+
             self.wx_ids[text] = (
                 self.AddTool(
                     -1,
-                    bitmap=_load_bitmap(f"{image_file}.png"),
+                    bitmap=bitmap,
                     bmpDisabled=wx.NullBitmap,
                     label=text, shortHelp=text, longHelp=tooltip_text,
                     kind=(wx.ITEM_CHECK if text in ["Pan", "Zoom"]
@@ -1146,13 +1153,49 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
         self.Realize()
 
+    def _make_toggled_bitmap(self, bitmap):
+        bmp = bitmap.ConvertToImage().ConvertToBitmap()
+        bmp2 = bitmap.ConvertToImage().ConvertToBitmap()
+        brush = wx.Brush(wx.Colour(167*0.85, 167*0.85, 167*0.85))
+        pen = wx.Pen(wx.Colour(167*0.85, 167*0.85, 167*0.85))
+        dc = wx.MemoryDC()
+        dc.SelectObject(bmp)
+        gc = wx.GraphicsContext.Create(dc)
+        gc.SetBrush(brush)
+        gc.SetPen(pen)
+        gc.DrawRoundedRectangle(0, 0, 24, 24, 4)
+        gc.DrawBitmap(bmp2, 0, 0, 24, 24)
+        dc.SelectObject(wx.NullBitmap)
+
+        return bmp
+
     def zoom(self, *args):
+        evt = args[0]
         self.ToggleTool(self.wx_ids['Pan'], False)
         NavigationToolbar2.zoom(self, *args)
+        if 'wxMac' in wx.PlatformInfo:
+            self.SetToolNormalBitmap(self.wx_ids["Pan"],
+                self.bitmaps["Pan"]["Normal"])
+            if evt.IsChecked():
+                self.SetToolNormalBitmap(self.wx_ids["Zoom"],
+                    self.bitmaps["Zoom"]["Toggled"])
+            else:
+                self.SetToolNormalBitmap(self.wx_ids["Zoom"],
+                    self.bitmaps["Zoom"]["Normal"])
 
     def pan(self, *args):
+        evt = args[0]
         self.ToggleTool(self.wx_ids['Zoom'], False)
         NavigationToolbar2.pan(self, *args)
+        if 'wxMac' in wx.PlatformInfo:
+            self.SetToolNormalBitmap(self.wx_ids["Zoom"],
+                self.bitmaps["Zoom"]["Normal"])
+            if evt.IsChecked():
+                self.SetToolNormalBitmap(self.wx_ids["Pan"],
+                    self.bitmaps["Pan"]["Toggled"])
+            else:
+                self.SetToolNormalBitmap(self.wx_ids["Pan"],
+                    self.bitmaps["Pan"]["Normal"])
 
     def configure_subplots(self, *args):
         global FigureManager  # placates pyflakes: created by @_Backend.export
